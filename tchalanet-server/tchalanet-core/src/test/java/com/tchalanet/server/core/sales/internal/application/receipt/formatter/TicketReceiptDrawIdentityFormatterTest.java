@@ -94,7 +94,6 @@ class TicketReceiptDrawIdentityFormatterTest {
             List.of(),
             zero,
             zero,
-            zero,
             null,
             "https://example.test/t/ABCDEFGH",
             false

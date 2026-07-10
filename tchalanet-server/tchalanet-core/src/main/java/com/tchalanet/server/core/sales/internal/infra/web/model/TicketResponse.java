@@ -23,7 +23,6 @@ public record TicketResponse(
     DrawId drawId,
     SellerTerminalId sellerTerminalId,
     Money totalAmount,
-    Money potentialPayoutAmount,
     TicketPrintStatus printStatus,
     Instant soldAt,
     Instant placedAt

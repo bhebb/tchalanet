@@ -86,9 +86,6 @@ class TicketPrintProjectionReaderAdapterTest {
 
         assertThat(printView.lines()).hasSize(1);
         var line = printView.lines().getFirst();
-        assertThat(line.potentialGainMode()).isEqualTo(PotentialGainMode.RANGE_ALTERNATIVE);
-        assertThat(line.minPotentialPayout().amount()).isEqualByComparingTo("800");
-        assertThat(line.maxPotentialPayout().amount()).isEqualByComparingTo("5000");
         assertThat(line.coverages())
             .extracting(coverage -> coverage.pricingVariantCode())
             .containsExactly("LOTTO3_STRAIGHT", "LOTTO3_BOX_6_WAY");

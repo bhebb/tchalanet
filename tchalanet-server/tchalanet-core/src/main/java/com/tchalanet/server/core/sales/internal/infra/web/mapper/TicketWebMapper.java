@@ -58,7 +58,6 @@ public class TicketWebMapper {
             ticket.context().drawId(),
             ticket.context().sellerTerminalId(),
             ticket.money().breakdown().total(),
-            ticket.money().potentialPayoutAmount(),
             toPrintStatus(ticket.print().status()),
             ticket.lifecycle().sale().soldAt(),
             ticket.lifecycle().sale().placedAt()
@@ -78,7 +77,6 @@ public class TicketWebMapper {
             ticket.drawId(),
             ticket.sellerTerminalId(),
             ticket.totalAmount(),
-            ticket.potentialPayoutAmount(),
             ticket.printStatus(),
             ticket.soldAt(),
             ticket.placedAt()
@@ -98,7 +96,6 @@ public class TicketWebMapper {
             view.drawId(),
             view.sellerTerminalId(),
             toMoney(view.totalAmountCents(), view.currency()),
-            null,
             null,
             null,
             view.placedAt()

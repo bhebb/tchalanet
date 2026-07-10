@@ -3,10 +3,12 @@ package com.tchalanet.server.core.sales.internal.application.rule;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.time.TchTimeProvider;
 import com.tchalanet.server.common.web.error.ProblemRest;
+import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.core.draw.api.query.GetDrawByIdQuery;
 import com.tchalanet.server.core.draw.api.query.DrawSummary;
 import com.tchalanet.server.core.draw.api.model.DrawStatus;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -32,8 +34,24 @@ public class DrawCutoffRule {
             throw ProblemRest.conflict("Draw is not open for sales");
         }
 
+        if (!draw.drawChannelActive()) {
+            throw ProblemRest.conflict("Draw channel is not active for sales");
+        }
+
+        if (!draw.resultActive()) {
+            throw ProblemRest.conflict("Result slot is not active for sales");
+        }
+
         if (!now.isBefore(cutoff)) {
             throw ProblemRest.conflict("Draw cutoff time has passed");
+        }
+        return draw;
+    }
+
+    public DrawSummary requireBeforeCutoff(DrawId drawId, DrawChannelId drawChannelId) {
+        var draw = requireBeforeCutoff(drawId);
+        if (!Objects.equals(draw.drawChannelId(), drawChannelId)) {
+            throw ProblemRest.conflict("Draw channel does not match draw");
         }
         return draw;
     }

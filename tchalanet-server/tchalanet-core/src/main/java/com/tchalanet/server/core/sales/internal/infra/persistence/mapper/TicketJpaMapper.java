@@ -128,6 +128,8 @@ public interface TicketJpaMapper {
         entity.setStakeAmount(line.stakeAmount().amount());
         entity.setPayoutBaseAmount(line.payoutBaseAmount().amount());
         entity.setBetOption(line.betOption());
+        entity.setSelectionPolicySnapshot(line.selectionPolicySnapshot());
+        entity.setBetOptionLabelSnapshot(line.betOptionLabelSnapshot());
         entity.setPotentialPayoutAmount(line.potentialPayoutAmount().amount());
         entity.setPotentialGainMode(line.potentialGainMode());
         entity.setMinPotentialGain(line.minPotentialGain().amount());
@@ -386,6 +388,8 @@ public interface TicketJpaMapper {
                 : new Money(entity.getTotalPotentialGain(), currency),
             toDomainCoverages(entity.getCoverages(), currency),
             entity.getBetOption(),
+            entity.getSelectionPolicySnapshot(),
+            entity.getBetOptionLabelSnapshot(),
             entity.getOrigin() == null ? TicketLineOrigin.CUSTOMER : entity.getOrigin(),
             entity.getPricingSource() == null ? TicketLinePricingSource.STANDARD : entity.getPricingSource(),
             entity.getSelectionSource() == null ? TicketLineSelectionSource.CUSTOMER_SELECTED : entity.getSelectionSource(),

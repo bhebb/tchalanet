@@ -454,10 +454,10 @@ selectionSource=AUTO_GENERATED, stakeAmount=0, lineTotal=0,
 payoutBaseAmount=montant effet, promotionDecisionId.
 ```
 
-Même avec `stakeAmount=0`, la ligne promotionnelle snapshot l'odd effectif via
-`ResolveSellerTerminalOddsQuery`. Le montant de gain potentiel est donc
-`payoutBaseAmount * oddsSnapshot`, et le settlement futur ne relit jamais les
-odds courants.
+Les limites sont évaluées après matérialisation des effets promotionnels sur les
+lignes finales pour que les règles de ligne, sélection et count voient aussi les
+lignes gratuites. Une ligne Maryaj gratuite ne contribue pas aux limites de stake
+encaissé (`stakeAmount=0`) et V0 n'utilise pas de payout potentiel côté vente.
 
 Maryaj gratuit automatique = **online only** V1 (pas de ligne gratuite via
 `core.offlinesync` tant que la préparation signée côté device n'existe pas).

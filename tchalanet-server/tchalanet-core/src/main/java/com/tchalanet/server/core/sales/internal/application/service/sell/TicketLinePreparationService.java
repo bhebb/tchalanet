@@ -132,6 +132,8 @@ public class TicketLinePreparationService {
             totalPotential,
             List.copyOf(coverages),
             input.betOption(),
+            coveragePlan.selectionPolicySnapshot(),
+            coveragePlan.betOptionLabelSnapshot(),
             TicketLineOrigin.CUSTOMER,
             TicketLinePricingSource.STANDARD,
             TicketLineSelectionSource.CUSTOMER_SELECTED,

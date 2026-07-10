@@ -180,7 +180,6 @@ public class SellTicketCommandHandler
             ticket.context().drawId(),
             ticket.context().sellerTerminalId(),
             ticket.money().breakdown().total(),
-            ticket.money().potentialPayoutAmount(),
             TicketPrintStatus.valueOf(ticket.print().status().name()),
             ticket.lifecycle().sale().soldAt(),
             ticket.lifecycle().sale().placedAt()

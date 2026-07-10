@@ -11,10 +11,13 @@ realized gains after settlement.
 - POS sale uses the canonical prepared-sale flow only: prepare then confirm.
 - Prepared sales validate games, POS visibility, bet options, selection policy, and stake bounds against tenant game config.
 - Ticket line preparation plans implicit best-match coverages from enabled tenant options and keeps the full stake on each alternative.
-- POS ticket details and receipt print no longer expose or print max/potential payout.
+- POS game runtime exposes selection policy so the web sale form hides bet options for implicit best-match games.
+- Ticket lines snapshot commercial selection policy and explicit bet option label for stable reprint.
+- Seller-terminal sale validation blocks terminals that are not active or still require a PIN change.
+- POS sale/preparation, cashier recent tickets, ticket details, receipt, and print DTOs no longer expose or print max/potential payout.
 
 ## Impact
 
 - No database migration in this slice.
 - Internal sales/settlement fields remain available for existing result calculation.
-- Public POS surfaces move toward realized settlement gains only.
+- Public POS sale/print surfaces move toward realized settlement gains only.

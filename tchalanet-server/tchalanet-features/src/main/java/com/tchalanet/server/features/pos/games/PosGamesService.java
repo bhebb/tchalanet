@@ -51,6 +51,7 @@ public class PosGamesService {
             betType,
             betTypeLabel(betType),
             betType.requiresOption(),
+            config.selectionPolicy(),
             posOptions(config).stream()
                 .map(option -> new PosBetOptionResponse(
                     option.code(),
@@ -58,7 +59,7 @@ public class PosGamesService {
                     option.description(),
                     optionSelectionHint(BetOption.from(betType, option.code()))))
                 .toList(),
-            selectionHint(betType)
+            selectionHint(betType, config.selectionPolicy())
         );
     }
 
@@ -95,7 +96,15 @@ public class PosGamesService {
         };
     }
 
-    private String selectionHint(BetType betType) {
+    private String selectionHint(BetType betType, SelectionPolicy selectionPolicy) {
+        if (selectionPolicy == SelectionPolicy.IMPLICIT_BEST_MATCH) {
+            return switch (betType) {
+                case LOTTO3_3D -> "3 chiffres, ex: 123";
+                case LOTTO4_PATTERN -> "4 chiffres, ex: 1245";
+                case LOTTO5_PATTERN -> "5 chiffres, ex: 12345";
+                default -> selectionHint(betType, SelectionPolicy.EXPLICIT_ONLY);
+            };
+        }
         return switch (betType) {
             case MATCH_1_2D, MATCH_2_2D, MATCH_3_2D -> "2 chiffres, ex: 45";
             case MARRIAGE_2D2D -> "Deux numeros de 2 chiffres separes par - ou /, ex: 12-45";

@@ -102,8 +102,7 @@ public class TicketPrintViewMapper {
                 ticket.money().stakeAmount(),
                 ticket.money().breakdown().charges().stream().map(this::toPrintCharge).toList(),
                 ticket.money().breakdown().totalBuyerCharges(),
-                ticket.money().totalAmount(),
-                ticket.money().potentialPayoutAmount()
+                ticket.money().totalAmount()
             ),
             new TicketPrintQrPayload(
                 DEFAULT_QR_PAYLOAD_VERSION,
@@ -130,22 +129,17 @@ public class TicketPrintViewMapper {
             line.gameCode(),
             line.betType(),
             line.betOption(),
+            line.betOptionLabelSnapshot(),
             line.gameCode() == null ? null : line.gameCode().name(),
             line.selection() == null ? null : line.selection().displayLabel(),
             line.selection() == null ? null : line.selection().key().value(),
             line.oddsSnapshot(),
             line.stakeAmount(),
-            line.potentialPayoutAmount(),
-            line.potentialGainMode(),
-            line.minPotentialGain(),
-            line.maxPotentialGain(),
-            line.totalPotentialGain(),
             line.coverages().stream()
                 .map(coverage -> new TicketPrintLineCoverage(
                     coverage.pricingVariantCode().name(),
                     coverage.stakeAmount(),
                     coverage.oddsSnapshot(),
-                    coverage.potentialGainSnapshot(),
                     coverage.winMode().name()))
                 .toList(),
             line.origin(),

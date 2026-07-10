@@ -7,6 +7,5 @@ public record TicketPrintLineCoverage(
     String pricingVariantCode,
     Money stake,
     BigDecimal odds,
-    Money potentialPayout,
     String winMode
 ) {}

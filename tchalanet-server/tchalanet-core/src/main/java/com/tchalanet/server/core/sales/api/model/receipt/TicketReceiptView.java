@@ -42,7 +42,6 @@ public record TicketReceiptView(
     List<TicketReceiptGameSectionView> gameSections,
     Money stakeTotal,
     Money totalAmount,
-    Money potentialPayout,
     String tenantReceiptFooter,
     String verificationUrl,
     // false = first print (ORIGINAL), true = any subsequent print (DUPLICATA)

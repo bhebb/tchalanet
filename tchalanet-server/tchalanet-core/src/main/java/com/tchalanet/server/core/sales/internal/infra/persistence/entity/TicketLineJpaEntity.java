@@ -8,6 +8,7 @@ import com.tchalanet.server.core.sales.api.model.promotion.TicketLineOrigin;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSource;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource;
 import com.tchalanet.server.core.sales.api.model.coverage.PotentialGainMode;
+import com.tchalanet.server.platform.tenantgame.api.model.SelectionPolicy;
 import jakarta.persistence.Column;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -85,8 +86,15 @@ public class TicketLineJpaEntity extends BaseTenantEntity {
     @Column(name = "bet_type", nullable = false, length = 64, updatable = false)
     private BetType betType;
 
-    @Column(name = "bet_option", nullable = false, updatable = false)
+    @Column(name = "bet_option", updatable = false)
     public Short betOption;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "selection_policy_snapshot", length = 32, updatable = false)
+    private SelectionPolicy selectionPolicySnapshot;
+
+    @Column(name = "bet_option_label_snapshot", length = 128, updatable = false)
+    private String betOptionLabelSnapshot;
 
     @Column(name = "selection_key", nullable = false, length = 128, updatable = false)
     private String selectionKey;

@@ -86,7 +86,7 @@ class ConfirmPreparedSaleCommandHandlerTest {
         var ticket = new SoldTicketView(
             TicketId.of(TICKET_ID), "TCK-1", "PUB-1", "PUB-1", null,
             null, null, null, null, null, SellerTerminalId.of(UUID.randomUUID()),
-            null, null, null, NOW, NOW);
+            null, null, NOW, NOW);
         return new SellTicketResult(ticket, SellTicketOutcome.ACCEPTED, null, List.of());
     }
 

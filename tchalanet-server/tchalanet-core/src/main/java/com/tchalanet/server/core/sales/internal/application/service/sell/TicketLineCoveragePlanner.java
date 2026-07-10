@@ -8,6 +8,7 @@ import com.tchalanet.server.core.sales.internal.domain.model.ticket.WinMode;
 import com.tchalanet.server.core.sales.internal.domain.service.result.SettlementVariantResolver;
 import com.tchalanet.server.platform.tenantgame.api.TenantGameApi;
 import com.tchalanet.server.platform.tenantgame.api.model.SelectionPolicy;
+import com.tchalanet.server.platform.tenantgame.api.model.view.TenantBetOptionView;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -31,6 +32,8 @@ class TicketLineCoveragePlanner {
                 resolution.potentialGainMode(),
                 StakeAllocationMode.FULL_STAKE_PER_ALTERNATIVE,
                 input.betOption(),
+                SelectionPolicy.EXPLICIT_ONLY,
+                null,
                 resolution.variants().stream()
                     .map(variant -> new PlannedTicketLineCoverage(
                         input.betOption(),
@@ -50,12 +53,19 @@ class TicketLineCoveragePlanner {
                 input.betType(),
                 input.betOption(),
                 input.rawSelection());
+            var selectedOptionLabel = betTypeConfig.options().stream()
+                .filter(option -> java.util.Objects.equals(option.code(), input.betOption()))
+                .map(TenantBetOptionView::label)
+                .findFirst()
+                .orElse(null);
             return new TicketLineCoveragePlan(
                 resolution.potentialGainMode(),
                 resolution.variants().size() == 1
                     ? StakeAllocationMode.FULL_STAKE_PER_ALTERNATIVE
                     : StakeAllocationMode.SPLIT_ACROSS_COVERAGES,
                 input.betOption(),
+                betTypeConfig.selectionPolicy(),
+                selectedOptionLabel,
                 resolution.variants().stream()
                     .map(variant -> new PlannedTicketLineCoverage(
                         input.betOption(),
@@ -91,6 +101,8 @@ class TicketLineCoveragePlanner {
             planned.size() == 1 ? PotentialGainMode.SINGLE : PotentialGainMode.RANGE_ALTERNATIVE,
             StakeAllocationMode.FULL_STAKE_PER_ALTERNATIVE,
             planned.getFirst().sourceBetOption(),
+            betTypeConfig.selectionPolicy(),
+            null,
             planned);
     }
 
@@ -104,6 +116,8 @@ record TicketLineCoveragePlan(
     PotentialGainMode potentialGainMode,
     StakeAllocationMode stakeAllocationMode,
     Short canonicalBetOption,
+    SelectionPolicy selectionPolicySnapshot,
+    String betOptionLabelSnapshot,
     List<PlannedTicketLineCoverage> coverages
 ) {}
 

@@ -83,7 +83,7 @@ public class SalePreparationOrchestrator {
         TenantId tenantId,
         SaleEvaluationMode mode
     ) {
-        var draw = drawCutoffRule.requireBeforeCutoff(command.drawId());
+        var draw = drawCutoffRule.requireBeforeCutoff(command.drawId(), command.drawChannelId());
         var mergedLines = command.lines();
         var paidLines = ticketLinePreparationService.toTicketLines(
             tenantId,
@@ -92,12 +92,6 @@ public class SalePreparationOrchestrator {
             command.currency());
         var charges = saleChargeCalculator.compute(tenantId, command);
         var money = saleMoneyCalculator.compute(paidLines, charges, command);
-        var policyDecision = evaluateLimits(command, ctx, tenantId, now, paidLines);
-
-        if (policyDecision.limits().outcome() == BreachOutcome.BLOCK) {
-            throw ProblemRest.forbidden("limits.blocked");
-        }
-
         var promotionDecision = evaluatePromotion(command, ctx, tenantId, now, mode, paidLines, money.total().amount());
         var promoted = promotionEffectApplier.apply(
             promotionDecision,
@@ -107,6 +101,11 @@ public class SalePreparationOrchestrator {
             ctx.sellerTerminalIdRequired(),
             command.currency());
         var finalMoney = saleMoneyCalculator.compute(promoted.ticketLines(), promoted.charges(), command);
+        var policyDecision = evaluateLimits(command, ctx, tenantId, now, promoted.ticketLines());
+
+        if (policyDecision.limits().outcome() == BreachOutcome.BLOCK) {
+            throw ProblemRest.forbidden("limits.blocked");
+        }
 
         return new PreparedSale(
             draw, now, mergedLines, promoted.ticketLines(), promoted.charges(), finalMoney,
@@ -158,7 +157,7 @@ public class SalePreparationOrchestrator {
                 line.betType(),
                 line.selection().key().value(),
                 toCents(line.stakeAmount().amount()),
-                toCents(line.potentialPayoutAmount().amount())))
+                0L))
             .toList();
 
         var limitCtx = new LimitContext(

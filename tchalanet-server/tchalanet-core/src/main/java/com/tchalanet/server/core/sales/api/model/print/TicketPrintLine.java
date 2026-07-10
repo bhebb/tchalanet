@@ -3,7 +3,6 @@ package com.tchalanet.server.core.sales.api.model.print;
 import com.tchalanet.server.catalog.game.api.model.GameCode;
 import com.tchalanet.server.catalog.game.api.model.BetType;
 import com.tchalanet.server.common.types.money.Money;
-import com.tchalanet.server.core.sales.api.model.coverage.PotentialGainMode;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineOrigin;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSource;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource;
@@ -17,16 +16,12 @@ public record TicketPrintLine(
     GameCode gameCode,
     BetType betType,
     Short betOption,
+    String betOptionLabel,
     String gameLabel,
     String selectionRaw,
     String selectionCanonical,
     BigDecimal odds,
     Money stake,
-    Money potentialPayout,
-    PotentialGainMode potentialGainMode,
-    Money minPotentialPayout,
-    Money maxPotentialPayout,
-    Money totalPotentialPayout,
     List<TicketPrintLineCoverage> coverages,
     TicketLineOrigin origin,
     TicketLinePricingSource pricingSource,
@@ -46,7 +41,7 @@ public record TicketPrintLine(
         String selectionCanonical,
         BigDecimal odds,
         Money stake,
-        Money potentialPayout,
+        List<TicketPrintLineCoverage> coverages,
         TicketLineOrigin origin,
         TicketLinePricingSource pricingSource,
         TicketLineSelectionSource selectionSource,
@@ -60,16 +55,92 @@ public record TicketPrintLine(
             gameCode,
             betType,
             betOption,
+            null,
             gameLabel,
             selectionRaw,
             selectionCanonical,
             odds,
             stake,
-            potentialPayout,
-            PotentialGainMode.SINGLE,
-            potentialPayout,
-            potentialPayout,
+            coverages,
+            origin,
+            pricingSource,
+            selectionSource,
+            payoutBaseAmount,
+            promotionDecisionId,
+            promotionLabel,
+            promotionEffectType
+        );
+    }
+
+    public TicketPrintLine(
+        int lineNo,
+        GameCode gameCode,
+        BetType betType,
+        Short betOption,
+        String gameLabel,
+        String selectionRaw,
+        String selectionCanonical,
+        BigDecimal odds,
+        Money stake,
+        TicketLineOrigin origin,
+        TicketLinePricingSource pricingSource,
+        TicketLineSelectionSource selectionSource,
+        Money payoutBaseAmount,
+        PromotionDecisionId promotionDecisionId,
+        String promotionLabel,
+        String promotionEffectType
+    ) {
+        this(
+            lineNo,
+            gameCode,
+            betType,
+            betOption,
             null,
+            gameLabel,
+            selectionRaw,
+            selectionCanonical,
+            odds,
+            stake,
+            origin,
+            pricingSource,
+            selectionSource,
+            payoutBaseAmount,
+            promotionDecisionId,
+            promotionLabel,
+            promotionEffectType
+        );
+    }
+
+    public TicketPrintLine(
+        int lineNo,
+        GameCode gameCode,
+        BetType betType,
+        Short betOption,
+        String betOptionLabel,
+        String gameLabel,
+        String selectionRaw,
+        String selectionCanonical,
+        BigDecimal odds,
+        Money stake,
+        TicketLineOrigin origin,
+        TicketLinePricingSource pricingSource,
+        TicketLineSelectionSource selectionSource,
+        Money payoutBaseAmount,
+        PromotionDecisionId promotionDecisionId,
+        String promotionLabel,
+        String promotionEffectType
+    ) {
+        this(
+            lineNo,
+            gameCode,
+            betType,
+            betOption,
+            betOptionLabel,
+            gameLabel,
+            selectionRaw,
+            selectionCanonical,
+            odds,
+            stake,
             List.of(),
             origin,
             pricingSource,
@@ -82,7 +153,6 @@ public record TicketPrintLine(
     }
 
     public TicketPrintLine {
-        potentialGainMode = potentialGainMode == null ? PotentialGainMode.SINGLE : potentialGainMode;
         coverages = coverages == null ? List.of() : List.copyOf(coverages);
     }
 

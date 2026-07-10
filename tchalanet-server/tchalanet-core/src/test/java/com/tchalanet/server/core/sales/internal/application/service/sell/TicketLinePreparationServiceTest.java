@@ -84,6 +84,8 @@ class TicketLinePreparationServiceTest {
             .isEqualByComparingTo("60.0000");
         assertThat(lines.getFirst().coverages().getFirst().potentialGainSnapshot().amount())
             .isEqualByComparingTo("600.00");
+        assertThat(lines.getFirst().selectionPolicySnapshot()).isEqualTo(SelectionPolicy.EXPLICIT_ONLY);
+        assertThat(lines.getFirst().betOptionLabelSnapshot()).isNull();
     }
 
     @Test
@@ -156,6 +158,8 @@ class TicketLinePreparationServiceTest {
             .allSatisfy(amount -> assertThat(amount).isEqualByComparingTo("10.00"));
         assertThat(line.coverages().get(0).potentialGainSnapshot().amount()).isEqualByComparingTo("5000.00");
         assertThat(line.coverages().get(1).potentialGainSnapshot().amount()).isEqualByComparingTo("800.00");
+        assertThat(line.selectionPolicySnapshot()).isEqualTo(SelectionPolicy.EXPLICIT_ONLY);
+        assertThat(line.betOptionLabelSnapshot()).isEqualTo("Exact + Box");
     }
 
     @Test
@@ -258,6 +262,8 @@ class TicketLinePreparationServiceTest {
         assertThat(line.coverages())
             .extracting(coverage -> coverage.stakeAmount().amount())
             .allSatisfy(amount -> assertThat(amount).isEqualByComparingTo("20.00"));
+        assertThat(line.selectionPolicySnapshot()).isEqualTo(SelectionPolicy.IMPLICIT_BEST_MATCH);
+        assertThat(line.betOptionLabelSnapshot()).isNull();
     }
 
     private static IdGenerator fixedIdGenerator() {

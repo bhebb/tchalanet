@@ -11,7 +11,6 @@ public record CashierRecentTicketView(
     String statusCode,
     Instant soldAt,
     long stakeTotalCents,
-    long potentialPayoutCents,
     String drawLabel,
     int lineCount
 ) {}

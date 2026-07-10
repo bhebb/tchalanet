@@ -70,7 +70,6 @@ public class TicketReceiptAssembler {
             gameSections(printView.lines()),
             printView.money().stake(),
             printView.money().totalAmount(),
-            printView.money().potentialPayoutAmount(),
             null, // tenantReceiptFooter (no longer used)
             verificationUrl,
             // isReprint: printCount > 0 means at least one prior print → DUPLICATA
@@ -97,16 +96,11 @@ public class TicketReceiptAssembler {
             line.gameCode().name(),
             line.betType().name(),
             line.betOption(),
-            optionLabel(line),
+            line.betOptionLabel() == null ? optionLabel(line) : line.betOptionLabel(),
             line.gameLabel(),
             line.selectionCanonical(),
             line.odds(),
             line.stake(),
-            line.potentialPayout(),
-            line.potentialGainMode(),
-            line.minPotentialPayout(),
-            line.maxPotentialPayout(),
-            line.totalPotentialPayout(),
             line.promotional(),
             line.promotionLabel(),
             line.promotionEffectType()

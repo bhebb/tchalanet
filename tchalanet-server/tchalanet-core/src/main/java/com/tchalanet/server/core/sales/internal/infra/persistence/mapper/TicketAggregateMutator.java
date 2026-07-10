@@ -84,6 +84,8 @@ public class TicketAggregateMutator {
         requireSame("line.gameCode", managed.getGameCode(), domain.gameCode());
         requireSame("line.betType", managed.getBetType(), domain.betType());
         requireSame("line.betOption", managed.getBetOption(), domain.betOption());
+        requireSame("line.selectionPolicySnapshot", managed.getSelectionPolicySnapshot(), domain.selectionPolicySnapshot());
+        requireSame("line.betOptionLabelSnapshot", managed.getBetOptionLabelSnapshot(), domain.betOptionLabelSnapshot());
         requireSame("line.selectionKey", managed.getSelectionKey(), domain.selection().key().value());
         requireSame("line.displaySelection", managed.getDisplaySelection(), domain.selection().displayLabel());
         requireSame("line.stakeAmount", managed.getStakeAmount(), domain.stakeAmount().amount());

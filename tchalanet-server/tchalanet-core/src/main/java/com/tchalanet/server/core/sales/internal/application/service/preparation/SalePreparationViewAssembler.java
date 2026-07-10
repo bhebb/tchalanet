@@ -23,11 +23,6 @@ public class SalePreparationViewAssembler {
                 line.selection().key().value(),
                 line.stakeAmount().amount(),
                 line.oddsSnapshot(),
-                line.potentialPayoutAmount().amount(),
-                line.potentialGainMode(),
-                line.minPotentialGain().amount(),
-                line.maxPotentialGain().amount(),
-                line.totalPotentialGain() == null ? null : line.totalPotentialGain().amount(),
                 line.origin().name()))
             .toList();
         return new SalePreparationView(

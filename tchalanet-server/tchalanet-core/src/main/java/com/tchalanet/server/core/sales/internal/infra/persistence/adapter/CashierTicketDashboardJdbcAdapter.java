@@ -35,7 +35,6 @@ public class CashierTicketDashboardJdbcAdapter implements CashierTicketDashboard
                t.sale_status,
                t.sold_at,
                t.stake_amount,
-               t.potential_payout_amount,
                dc.name  AS draw_channel_name,
                COUNT(tl.id) AS line_count
         FROM sales_ticket t
@@ -44,7 +43,7 @@ public class CashierTicketDashboardJdbcAdapter implements CashierTicketDashboard
         WHERE t.seller_user_id = :cashierId
           AND t.deleted_at IS NULL
         GROUP BY t.id, t.public_code, t.sale_status, t.sold_at,
-                 t.stake_amount, t.potential_payout_amount, dc.name
+                 t.stake_amount, dc.name
         ORDER BY t.sold_at DESC
         LIMIT :limit
         """;
@@ -260,7 +259,6 @@ public class CashierTicketDashboardJdbcAdapter implements CashierTicketDashboard
             rs.getString("sale_status"),
             soldAtTs != null ? soldAtTs.toInstant() : null,
             toCents(rs.getBigDecimal("stake_amount")),
-            toCents(rs.getBigDecimal("potential_payout_amount")),
             rs.getString("draw_channel_name"),
             rs.getInt("line_count")
         );

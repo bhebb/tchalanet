@@ -47,6 +47,7 @@ interface PosGameOptionResponse {
   betType: string;
   betTypeLabel: string;
   requiresOption: boolean;
+  selectionPolicy?: string | null;
   options: { code: number; label: string; selectionHint?: string | null }[];
   selectionHint?: string | null;
 }
@@ -538,6 +539,7 @@ function groupPosGames(rows: PosGameOptionResponse[]): PosGameView[] {
       betType: row.betType,
       label: posBetTypeLabel(row),
       requiresOption: row.requiresOption,
+      selectionPolicy: row.selectionPolicy ?? 'EXPLICIT_ONLY',
       options: posBetOptions(row),
       selectionHint: row.selectionHint ?? null,
     };
@@ -554,6 +556,7 @@ function groupPosGames(rows: PosGameOptionResponse[]): PosGameView[] {
       betType: row.betType,
       betTypeLabel: posBetTypeLabel(row),
       requiresOption: row.requiresOption,
+      selectionPolicy: row.selectionPolicy ?? 'EXPLICIT_ONLY',
       options: posBetOptions(row),
       betTypes: [betType],
       selectionHint: row.selectionHint ?? null,

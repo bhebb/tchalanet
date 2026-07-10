@@ -64,9 +64,6 @@ class TicketReceiptAssemblerTest {
 
         var line = receipt.gameSections().getFirst().lines().getFirst();
         assertThat(line.optionLabel()).isEqualTo("Exact + Permuté");
-        assertThat(line.potentialGainMode()).isEqualTo(PotentialGainMode.RANGE_ALTERNATIVE);
-        assertThat(line.minPotentialPayout().amount()).isEqualByComparingTo("800");
-        assertThat(line.maxPotentialPayout().amount()).isEqualByComparingTo("5000");
     }
 
     private TicketReceiptAssembler assembler() {
@@ -79,7 +76,6 @@ class TicketReceiptAssemblerTest {
     private TicketPrintView printViewWithLoto4BoxLine() {
         var now = Instant.parse("2026-07-06T15:00:00Z");
         var stake = money("25");
-        var payout = money("2500");
         return new TicketPrintView(
             new TicketPrintIdentity(TicketId.of(UUID.randomUUID()), TenantId.of(UUID.randomUUID()),
                 "T-0001", "abcd1234", "111222"),
@@ -101,7 +97,6 @@ class TicketReceiptAssemblerTest {
                 "1234",
                 new BigDecimal("100"),
                 stake,
-                payout,
                 TicketLineOrigin.CUSTOMER,
                 TicketLinePricingSource.STANDARD,
                 TicketLineSelectionSource.CUSTOMER_SELECTED,
@@ -110,7 +105,7 @@ class TicketReceiptAssemblerTest {
                 null,
                 null
             )),
-            new TicketPrintMoney(stake, List.of(), money("0"), stake, payout),
+            new TicketPrintMoney(stake, List.of(), money("0"), stake),
             new TicketPrintQrPayload("v1", "ABCD1234", "111222", "https://tickets.test/check/ABCD1234", "payload"),
             new TicketPrintMetadata(now, Locale.FRENCH, ZoneId.of("America/Port-au-Prince"),
                 TicketSaleChannel.POS_ONLINE, HTG.value(), Map.of())
@@ -120,7 +115,6 @@ class TicketReceiptAssemblerTest {
     private TicketPrintView printViewWithExactPlusBoxLine() {
         var now = Instant.parse("2026-07-06T15:00:00Z");
         var stake = money("20");
-        var payout = money("5000");
         return new TicketPrintView(
             new TicketPrintIdentity(TicketId.of(UUID.randomUUID()), TenantId.of(UUID.randomUUID()),
                 "T-0001", "abcd1234", "111222"),
@@ -142,23 +136,16 @@ class TicketReceiptAssemblerTest {
                 "123",
                 new BigDecimal("500"),
                 stake,
-                payout,
-                PotentialGainMode.RANGE_ALTERNATIVE,
-                money("800"),
-                payout,
-                null,
                 List.of(
                     new TicketPrintLineCoverage(
                         "LOTTO3_STRAIGHT",
                         money("10"),
                         new BigDecimal("500"),
-                        payout,
                         "ALTERNATIVE"),
                     new TicketPrintLineCoverage(
                         "LOTTO3_BOX_6_WAY",
                         money("10"),
                         new BigDecimal("80"),
-                        money("800"),
                         "ALTERNATIVE")
                 ),
                 TicketLineOrigin.CUSTOMER,
@@ -169,7 +156,7 @@ class TicketReceiptAssemblerTest {
                 null,
                 null
             )),
-            new TicketPrintMoney(stake, List.of(), money("0"), stake, payout),
+            new TicketPrintMoney(stake, List.of(), money("0"), stake),
             new TicketPrintQrPayload("v1", "ABCD1234", "111222", "https://tickets.test/check/ABCD1234", "payload"),
             new TicketPrintMetadata(now, Locale.FRENCH, ZoneId.of("America/Port-au-Prince"),
                 TicketSaleChannel.POS_ONLINE, HTG.value(), Map.of())

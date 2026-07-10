@@ -11,6 +11,7 @@ import com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSour
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource;
 import com.tchalanet.server.core.sales.api.model.status.TicketLineResultStatus;
 import com.tchalanet.server.core.selection.api.model.Selection;
+import com.tchalanet.server.platform.tenantgame.api.model.SelectionPolicy;
 
 import java.math.BigDecimal;
 import java.util.Comparator;
@@ -33,6 +34,8 @@ public record TicketLine(
     Money totalPotentialGain,
     List<TicketLineCoverage> coverages,
     Short betOption,
+    SelectionPolicy selectionPolicySnapshot,
+    String betOptionLabelSnapshot,
     TicketLineOrigin origin,
     TicketLinePricingSource pricingSource,
     TicketLineSelectionSource selectionSource,
@@ -98,6 +101,7 @@ public record TicketLine(
             coverages
         );
 
+        betOptionLabelSnapshot = normalizePromotionText(betOptionLabelSnapshot);
         origin = origin == null ? TicketLineOrigin.CUSTOMER : origin;
         pricingSource = pricingSource == null ? TicketLinePricingSource.STANDARD : pricingSource;
         selectionSource = selectionSource == null
@@ -120,6 +124,60 @@ public record TicketLine(
 
         promotionLabel = normalizePromotionText(promotionLabel);
         promotionEffectType = normalizePromotionText(promotionEffectType);
+    }
+
+    public TicketLine(
+        TicketLineId id,
+        int lineNumber,
+        GameCode gameCode,
+        BetType betType,
+        Selection selection,
+        Money stakeAmount,
+        Money payoutBaseAmount,
+        BigDecimal oddsSnapshot,
+        Money potentialPayoutAmount,
+        PotentialGainMode potentialGainMode,
+        Money minPotentialGain,
+        Money maxPotentialGain,
+        Money totalPotentialGain,
+        List<TicketLineCoverage> coverages,
+        Short betOption,
+        TicketLineOrigin origin,
+        TicketLinePricingSource pricingSource,
+        TicketLineSelectionSource selectionSource,
+        PromotionDecisionId promotionDecisionId,
+        String promotionLabel,
+        String promotionEffectType,
+        TicketLineResultStatus resultStatus,
+        Money payoutAmount
+    ) {
+        this(
+            id,
+            lineNumber,
+            gameCode,
+            betType,
+            selection,
+            stakeAmount,
+            payoutBaseAmount,
+            oddsSnapshot,
+            potentialPayoutAmount,
+            potentialGainMode,
+            minPotentialGain,
+            maxPotentialGain,
+            totalPotentialGain,
+            coverages,
+            betOption,
+            null,
+            null,
+            origin,
+            pricingSource,
+            selectionSource,
+            promotionDecisionId,
+            promotionLabel,
+            promotionEffectType,
+            resultStatus,
+            payoutAmount
+        );
     }
 
     public TicketLine(
@@ -248,6 +306,8 @@ public record TicketLine(
                 coverages.getFirst().winMode()
             )),
             betOption,
+            selectionPolicySnapshot,
+            betOptionLabelSnapshot,
             origin,
             TicketLinePricingSource.PROMOTION,
             selectionSource,
@@ -277,6 +337,8 @@ public record TicketLine(
             totalPotentialGain,
             coverages,
             betOption,
+            selectionPolicySnapshot,
+            betOptionLabelSnapshot,
             origin,
             pricingSource,
             selectionSource,

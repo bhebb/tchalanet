@@ -69,7 +69,6 @@ class AdminTicketSettlementServiceTest {
             selection,
             new BigDecimal("12.5"),
             money("10"),
-            money("125"),
             TicketLineOrigin.CUSTOMER,
             TicketLinePricingSource.STANDARD,
             TicketLineSelectionSource.CUSTOMER_SELECTED,

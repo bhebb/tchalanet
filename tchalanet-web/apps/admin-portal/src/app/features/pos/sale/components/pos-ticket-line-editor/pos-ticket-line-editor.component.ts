@@ -75,7 +75,7 @@ export class PosTicketLineEditorComponent {
   readonly selectedBetTypeCode = computed(() => this.selectedBetType()?.betType ?? '');
   readonly selectedBetOption = computed(() => {
     const betType = this.selectedBetType();
-    if (!betType?.requiresOption) return null;
+    if (!betType?.requiresOption || betType.selectionPolicy === 'IMPLICIT_BEST_MATCH') return null;
 
     const current = this.draftBetOption();
     return betType.options.find(option => option.code === current) ?? betType.options[0] ?? null;
@@ -86,7 +86,7 @@ export class PosTicketLineEditorComponent {
   });
   readonly requiresBetOption = computed(() => {
     const betType = this.selectedBetType();
-    return !!betType?.requiresOption && betType.options.length > 0;
+    return !!betType?.requiresOption && betType.selectionPolicy !== 'IMPLICIT_BEST_MATCH';
   });
   readonly selectionMaxLength = computed(() => {
     const betType = this.selectedBetType()?.betType ?? '';
@@ -196,7 +196,11 @@ export class PosTicketLineEditorComponent {
     this.draftMarriageFirst.set('');
     this.draftMarriageSecond.set('');
     const next = this.betTypes().find(item => item.betType === betType);
-    this.draftBetOption.set(next?.requiresOption ? (next.options[0]?.code ?? null) : null);
+    this.draftBetOption.set(
+      next?.requiresOption && next.selectionPolicy !== 'IMPLICIT_BEST_MATCH'
+        ? (next.options[0]?.code ?? null)
+        : null,
+    );
   }
 
   setDraftSelection(value: string): void {

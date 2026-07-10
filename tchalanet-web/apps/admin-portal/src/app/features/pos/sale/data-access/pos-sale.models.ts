@@ -29,9 +29,16 @@ export interface PosGameBetTypeView {
   betType: string;
   label: string;
   requiresOption: boolean;
+  selectionPolicy: PosSelectionPolicy;
   options: PosBetOptionView[];
   selectionHint?: string | null;
 }
+
+export type PosSelectionPolicy =
+  | 'EXPLICIT_ONLY'
+  | 'EXPLICIT_WITH_AUTO_OPTION'
+  | 'IMPLICIT_BEST_MATCH'
+  | string;
 
 export interface PosGameView {
   gameCode: string;
@@ -40,6 +47,7 @@ export interface PosGameView {
   betType: string;
   betTypeLabel: string;
   requiresOption: boolean;
+  selectionPolicy: PosSelectionPolicy;
   options: PosBetOptionView[];
   betTypes: PosGameBetTypeView[];
   selectionHint?: string | null;
