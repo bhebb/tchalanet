@@ -17,7 +17,6 @@ import com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSo
 import com.tchalanet.server.core.sales.api.model.status.TicketLineResultStatus;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLineCoverage;
-import com.tchalanet.server.core.sales.internal.domain.service.result.SettlementVariantResolver;
 import com.tchalanet.server.core.selection.api.SelectionApi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -54,6 +53,7 @@ public class TicketLinePreparationService {
     private final SelectionApi selectionApi;
     private final IdGenerator idGenerator;
     private final QueryBus queryBus;
+    private final TicketLineCoveragePlanner coveragePlanner;
 
     public List<TicketLine> toTicketLines(
         TenantId tenantId,
@@ -76,28 +76,25 @@ public class TicketLinePreparationService {
         assertInternalInvariants(input);
 
         var stake = input.stakeAmount().setScale(2, RoundingMode.UNNECESSARY);
-        var coverageResolution = SettlementVariantResolver.resolveCoverage(
-            input.betType(),
-            input.betOption(),
-            input.rawSelection());
-        var coverageStakes = splitStake(stake, coverageResolution.variants().size());
+        var coveragePlan = coveragePlanner.plan(tenantId, input);
+        var coverageStakes = stakeAllocation(stake, coveragePlan);
         var coverages = new ArrayList<TicketLineCoverage>();
-        for (int i = 0; i < coverageResolution.variants().size(); i++) {
-            var coverageVariant = coverageResolution.variants().get(i);
+        for (int i = 0; i < coveragePlan.coverages().size(); i++) {
+            var plannedCoverage = coveragePlan.coverages().get(i);
             var coverageStake = coverageStakes.get(i);
             var odds = resolveOdds(
                 tenantId,
                 sellerTerminalId,
                 input,
-                coverageVariant.pricingVariantCode())
+                plannedCoverage)
                 .setScale(4, RoundingMode.HALF_UP);
             var potential = coverageStake.multiply(odds).setScale(2, RoundingMode.HALF_UP);
             coverages.add(new TicketLineCoverage(
-                coverageVariant.pricingVariantCode(),
+                plannedCoverage.pricingVariantCode(),
                 new Money(coverageStake, currency),
                 odds,
                 new Money(potential, currency),
-                coverageVariant.winMode()
+                plannedCoverage.winMode()
             ));
         }
         var minPotential = coverages.stream()
@@ -108,7 +105,7 @@ public class TicketLinePreparationService {
             .map(TicketLineCoverage::potentialGainSnapshot)
             .max(Comparator.comparing(Money::amount))
             .orElseThrow();
-        var totalPotential = coverageResolution.potentialGainMode() == PotentialGainMode.RANGE_CUMULATIVE
+        var totalPotential = coveragePlan.potentialGainMode() == PotentialGainMode.RANGE_CUMULATIVE
             ? coverages.stream()
                 .map(TicketLineCoverage::potentialGainSnapshot)
                 .reduce(Money.zero(currency), Money::plus)
@@ -124,12 +121,12 @@ public class TicketLinePreparationService {
             input.lineNumber(),
             input.gameCode(),
             input.betType(),
-            selectionApi.canonicalize(input.betType(), input.betOption(), input.rawSelection()),
+            selectionApi.canonicalize(input.betType(), coveragePlan.canonicalBetOption(), input.rawSelection()),
             new Money(stake, currency), // stakeAmount
             new Money(stake, currency), // payoutBaseAmount = stake for normal lines
             lineOdds, // oddsSnapshot: compatibility summary; coverages carry authoritative odds
             linePotential, // potentialPayoutAmount: max alternative or cumulative total
-            coverageResolution.potentialGainMode(),
+            coveragePlan.potentialGainMode(),
             minPotential,
             maxPotential,
             totalPotential,
@@ -150,15 +147,15 @@ public class TicketLinePreparationService {
         TenantId tenantId,
         SellerTerminalId sellerTerminalId,
         SellTicketLineInput input,
-        com.tchalanet.server.core.pricing.api.model.PricingVariantCode pricingVariantCode
+        PlannedTicketLineCoverage plannedCoverage
     ) {
         var oddsResolution = queryBus.ask(new ResolveSellerTerminalOddsQuery(
             tenantId,
             sellerTerminalId,
             canonicalGameCode(input.gameCode()),
-            pricingVariantCode,
+            plannedCoverage.pricingVariantCode(),
             input.betType().name(),
-            input.betOption()));
+            plannedCoverage.sourceBetOption()));
         Objects.requireNonNull(oddsResolution, "pricing odds resolution is required");
         return requireEffectiveOdds(oddsResolution.effectiveOdds());
     }
@@ -190,6 +187,13 @@ public class TicketLinePreparationService {
             throw new IllegalStateException("pricing effective odds must be positive");
         }
         return odds;
+    }
+
+    private static List<BigDecimal> stakeAllocation(BigDecimal stake, TicketLineCoveragePlan coveragePlan) {
+        if (coveragePlan.stakeAllocationMode() == StakeAllocationMode.FULL_STAKE_PER_ALTERNATIVE) {
+            return java.util.Collections.nCopies(coveragePlan.coverages().size(), stake);
+        }
+        return splitStake(stake, coveragePlan.coverages().size());
     }
 
     private static List<BigDecimal> splitStake(BigDecimal stake, int coverageCount) {
