@@ -27,51 +27,6 @@ export interface TicketRowView {
   readonly placedAt: string;
 }
 
-export interface AdminTicketLineRequest {
-  readonly gameCode: string;
-  readonly betType: string;
-  readonly selection: string;
-  readonly betOption: number;
-  readonly stake: number;
-}
-
-export interface AdminTicketPreviewRequest {
-  readonly terminalId: string;
-  readonly drawId: string;
-  readonly drawChannelId?: string;
-  readonly currency: string;
-  readonly lines: AdminTicketLineRequest[];
-}
-
-export interface AdminSellTicketRequest extends AdminTicketPreviewRequest {
-  readonly promotionChoices?: unknown[];
-}
-
-export interface AdminTicketPreviewLine {
-  readonly gameCode: string;
-  readonly betType: string;
-  readonly selection: string;
-  readonly betOption: number;
-  readonly stake: number;
-  readonly odds: number;
-  readonly potentialGainCents: number;
-}
-
-export interface AdminTicketPreviewView {
-  readonly totalAmountCents: number;
-  readonly currency: string;
-  readonly lines: AdminTicketPreviewLine[];
-}
-
-export interface AdminSoldTicketView {
-  readonly ticketId: string;
-  readonly ticketCode: string;
-  readonly publicCode: string;
-  readonly totalAmountCents: number;
-  readonly currency: string;
-  readonly placedAt: string;
-}
-
 export interface AdminTicketListParams {
   readonly status?: string;
   readonly q?: string;
@@ -120,20 +75,6 @@ export class AdminTicketsApi {
         params: ticketListQueryParams(params()),
       },
     }));
-  }
-
-  preview(
-    req: AdminTicketPreviewRequest,
-    options?: TchRequestOptions,
-  ): Observable<AdminTicketPreviewView> {
-    return this.backend.post<AdminTicketPreviewView>('/tenant/cashier/tickets/preview', req, options);
-  }
-
-  sell(
-    req: AdminSellTicketRequest,
-    options?: TchRequestOptions,
-  ): Observable<AdminSoldTicketView> {
-    return this.backend.post<AdminSoldTicketView>('/tenant/cashier/tickets/sell', req, options);
   }
 
   reprint(ticketId: string, sellerTerminalId: string): Observable<Blob> {

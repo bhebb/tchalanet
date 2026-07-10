@@ -68,7 +68,7 @@ export interface PosTicketLineInput {
   stakeAmount: number;
 }
 
-// ── Sell request (matches PosSellTicketRequest on the server) ──────────────
+// ── Prepared sale request ─────────────────────────────────────────────────
 
 export interface ConfirmTicketSaleRequest {
   sellerTerminalId: string;
@@ -87,18 +87,6 @@ export interface ConfirmTicketSaleLineRequest {
   stake: number;
 }
 
-// ── Sale preview (server-side read-only validation) ───────────────────────
-
-export interface PreviewTicketSaleView {
-  decision: 'ACCEPTABLE' | 'REQUIRES_CHANGES' | 'REJECTED_FINAL' | string;
-  sellerInstruction?: string | null;
-  warning?: string | null;
-  issues: PreviewTicketSaleIssueView[];
-  notices: readonly WebAppError[];
-  canSell: boolean;
-  actionAvailability: PosSaleActionAvailabilityView;
-}
-
 export interface PreparedTicketSaleView {
   preparationId: string;
   status: string;
@@ -110,15 +98,7 @@ export interface PreparedTicketSaleView {
   actionAvailability: PosSaleActionAvailabilityView;
 }
 
-export interface PreviewTicketSaleIssueView {
-  code: string;
-  severity: string;
-  message?: string | null;
-  sellerInstruction?: string | null;
-  lineIndex: number;
-}
-
-// ── Sell response (matches PosSellTicketResponse on the server) ────────────
+// ── Prepared sale confirmation response ───────────────────────────────────
 
 export interface PosTicketBackupView {
   displayCode?: string | null;
@@ -209,7 +189,6 @@ export interface PosTicketDetailsView {
   stakeCents: number;
   totalAmountCents: number;
   currency: string;
-  potentialPayoutCents: number;
   charges: PosTicketChargeView[];
 }
 
@@ -221,7 +200,6 @@ export interface PosTicketDetailLineView {
   betTypeLabel: string;
   selection: string;
   stakeAmountCents: number;
-  potentialPayoutCents: number;
   promotional: boolean;
   promotionLabel?: string | null;
 }

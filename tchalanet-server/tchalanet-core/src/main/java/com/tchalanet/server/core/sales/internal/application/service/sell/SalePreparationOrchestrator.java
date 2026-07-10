@@ -4,6 +4,7 @@ import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.time.TchTimeProvider;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.limitpolicy.BreachOutcome;
 import com.tchalanet.server.core.limitpolicy.api.model.LimitContext;
 import com.tchalanet.server.core.limitpolicy.api.model.LimitLineContext;
@@ -20,7 +21,6 @@ import com.tchalanet.server.core.sales.internal.application.service.sell.model.S
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
 import com.tchalanet.server.platform.identity.api.model.AutonomyLevel;
 import com.tchalanet.server.platform.tenant.api.TenantBusinessCalendarApi;
-import com.tchalanet.server.common.web.error.ProblemRest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -67,6 +67,7 @@ public class SalePreparationOrchestrator {
         var now = tchTimeProvider.now();
         var tenantId = ctx.effectiveTenantIdRequired();
         assertTenantBusinessOpen(ctx, tenantId, now);
+        saleCommandValidator.validateTenantConfiguration(command, tenantId);
 
         if (ctx.sellerTerminalId() != null) {
             return prepareSaleForSellerTerminal(command, ctx, now, tenantId, mode);

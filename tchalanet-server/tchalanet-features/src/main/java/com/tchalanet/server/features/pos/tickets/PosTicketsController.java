@@ -11,14 +11,10 @@ import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.common.web.paging.TchPaging;
 import com.tchalanet.server.features.pos.tickets.app.PosTicketReceiptService;
 import com.tchalanet.server.features.pos.tickets.app.PosTicketsService;
-import com.tchalanet.server.features.pos.tickets.model.PosSellTicketRequest;
-import com.tchalanet.server.features.pos.tickets.model.PosSellTicketResponse;
 import com.tchalanet.server.features.pos.tickets.model.PosTicketCancelRequest;
 import com.tchalanet.server.features.pos.tickets.model.PosTicketCancelResponse;
 import com.tchalanet.server.features.pos.tickets.model.PosTicketDetailsResponse;
 import com.tchalanet.server.features.pos.tickets.model.PosTicketPageResponse;
-import com.tchalanet.server.features.pos.tickets.model.PosTicketPreviewRequest;
-import com.tchalanet.server.features.pos.tickets.model.PosTicketPreviewResponse;
 import com.tchalanet.server.features.pos.tickets.model.PosTicketVerificationResponse;
 import com.tchalanet.server.features.pos.tickets.model.PosVerifyTicketRequest;
 import com.tchalanet.server.features.pos.tickets.model.PrintTicketRequest;
@@ -28,8 +24,6 @@ import com.tchalanet.server.features.pos.tickets.model.SendTicketReceiptResponse
 import com.tchalanet.server.platform.audit.api.AuditLog;
 import com.tchalanet.server.platform.audit.api.model.AuditAction;
 import com.tchalanet.server.platform.audit.api.model.AuditEntityType;
-import com.tchalanet.server.platform.idempotence.api.RequireIdempotency;
-import com.tchalanet.server.platform.idempotence.api.model.IdempotencyScope;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -61,33 +55,13 @@ public class PosTicketsController {
     private final PosTicketsService ticketsService;
     private final PosTicketReceiptService receiptService;
 
-    @PostMapping("/preview")
-    @Operation(summary = "Preview a sale (read-only sale acceptance evaluation)")
-    public ApiResponse<PosTicketPreviewResponse> preview(
-        @CurrentContext TchRequestContext ctx,
-        @Valid @RequestBody PosTicketPreviewRequest request
-    ) {
-        return ApiResponse.success(ticketsService.preview(ctx, request));
-    }
-
     @PostMapping("/verify")
-    @Operation(summary = "Verify a scanned public ticket code or URL for POS payout readiness")
+    @Operation(summary = "Verify a scanned public ticket code or URL after settlement")
     public ApiResponse<PosTicketVerificationResponse> verify(
         @CurrentContext TchRequestContext ctx,
         @Valid @RequestBody PosVerifyTicketRequest request
     ) {
         return ApiResponse.success(ticketsService.verify(ctx, request));
-    }
-
-    @PostMapping("/sell")
-    @ResponseStatus(HttpStatus.CREATED)
-    @RequireIdempotency(scope = IdempotencyScope.SALES_SELL_TICKET)
-    @Operation(summary = "Place a ticket sale (idempotent). Auditing is driven by TicketPlacedEvent downstream.")
-    public ApiResponse<PosSellTicketResponse> sell(
-        @CurrentContext TchRequestContext ctx,
-        @Valid @RequestBody PosSellTicketRequest request
-    ) {
-        return ApiResponse.created(ticketsService.sell(ctx, request));
     }
 
     @PostMapping("/{ticketId}/cancel")

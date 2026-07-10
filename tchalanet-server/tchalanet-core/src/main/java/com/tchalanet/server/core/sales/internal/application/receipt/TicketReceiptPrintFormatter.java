@@ -93,7 +93,6 @@ public class TicketReceiptPrintFormatter {
         add(totals, layout.separator(layoutProfile));
         addLabel(totals, translations.text(TicketReceiptI18nKeys.TOTAL_STAKE), receipt.stakeTotal(), false, layoutProfile);
         addLabel(totals, translations.text(TicketReceiptI18nKeys.TOTAL_AMOUNT), receipt.totalAmount(), true, layoutProfile);
-        addLabel(totals, translations.text(TicketReceiptI18nKeys.TOTAL_MAX_PAYOUT), receipt.potentialPayout(), true, layoutProfile);
 
         var footer = new ArrayList<TicketReceiptTextLine>();
         // separator before footer

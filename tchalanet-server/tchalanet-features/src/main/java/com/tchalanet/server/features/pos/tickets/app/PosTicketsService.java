@@ -3,40 +3,28 @@ package com.tchalanet.server.features.pos.tickets.app;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TicketId;
-import com.tchalanet.server.common.types.money.CurrencyCode;
 import com.tchalanet.server.common.web.error.ProblemRestException;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageMapper;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.core.sales.api.command.cancel.CancelTicketCommand;
-import com.tchalanet.server.core.sales.api.command.sell.SellTicketCommand;
 import com.tchalanet.server.core.sales.api.query.GetSellerTerminalDailyStatsQuery;
 import com.tchalanet.server.features.pos.tickets.model.DrawStatLineDto;
 import com.tchalanet.server.features.pos.tickets.model.SellerTerminalDailyStatsResponse;
-import com.tchalanet.server.core.sales.api.command.sell.SellTicketLineInput;
-import com.tchalanet.server.core.sales.api.model.communication.SaleCommunicationOptions;
 import com.tchalanet.server.core.sales.api.model.verification.CustomerTicketStatus;
 import com.tchalanet.server.core.sales.api.model.verification.TicketCashierVerificationView;
 import com.tchalanet.server.core.sales.api.query.GetTicketForCashierVerificationQuery;
 import com.tchalanet.server.core.sales.api.query.ListTicketsQuery;
-import com.tchalanet.server.core.sales.api.query.preview.PreviewTicketSaleQuery;
 import com.tchalanet.server.features.pos.tickets.model.PosAction;
 import com.tchalanet.server.features.pos.tickets.model.PosActionType;
 import com.tchalanet.server.features.pos.tickets.mapper.PosTicketMapper;
-import com.tchalanet.server.features.pos.tickets.model.PosSellTicketRequest;
-import com.tchalanet.server.features.pos.tickets.model.PosSellTicketResponse;
-import com.tchalanet.server.features.pos.tickets.model.PosTicketBackupView;
 import com.tchalanet.server.features.pos.tickets.model.PosTicketCancelRequest;
 import com.tchalanet.server.features.pos.tickets.model.PosTicketCancelResponse;
 import com.tchalanet.server.features.pos.tickets.model.PosTicketDetailsResponse;
-import com.tchalanet.server.features.pos.tickets.model.PosTicketLineRequest;
 import com.tchalanet.server.features.pos.tickets.model.PosTicketPageResponse;
-import com.tchalanet.server.features.pos.tickets.model.PosTicketPreviewRequest;
-import com.tchalanet.server.features.pos.tickets.model.PosTicketPreviewResponse;
 import com.tchalanet.server.features.pos.tickets.model.PosTicketVerificationResponse;
 import com.tchalanet.server.features.pos.tickets.model.PosTicketVerificationSeverity;
 import com.tchalanet.server.features.pos.tickets.model.PosTicketVerificationStatus;
@@ -60,49 +48,6 @@ public class PosTicketsService {
     private final PosTicketMapper mapper;
     private final TicketScanResolver ticketScanResolver;
     private final com.tchalanet.server.core.sales.internal.application.port.out.TicketPrintReaderPort ticketPrintReader;
-
-    public PosTicketPreviewResponse preview(
-        TchRequestContext ctx,
-        PosTicketPreviewRequest request
-    ) {
-        validateSellerContext(ctx, request.sellerTerminalId());
-        var result = queryBus.ask(new PreviewTicketSaleQuery(
-            DrawId.of(request.drawId()),
-            drawChannelId(request.drawChannelId()),
-            CurrencyCode.of(request.currency()),
-            lines(request.lines())
-        ));
-        return new PosTicketPreviewResponse(
-            result.decision(),
-            result.issues(),
-            result.actionAvailability(),
-            result.sellerInstruction(),
-            result.warning()
-        );
-    }
-
-    public PosSellTicketResponse sell(TchRequestContext ctx, PosSellTicketRequest request) {
-        validateSellerContext(ctx, request.sellerTerminalId());
-        var result = commandBus.execute(new SellTicketCommand(
-            DrawId.of(request.drawId()),
-            drawChannelId(request.drawChannelId()),
-            CurrencyCode.of(request.currency()),
-            lines(request.lines()),
-            SaleCommunicationOptions.none(),
-            request.promotionChoices()
-        ));
-        return new PosSellTicketResponse(
-            result.outcome(),
-            result.ticketId(),
-            result.ticketCode(),
-            result.publicCode(),
-            result.saleStatus(),
-            result.issues(),
-            PosTicketBackupView.from(result.backup()),
-            result.actionAvailability(),
-            result.sellerInstruction()
-        );
-    }
 
     public PosTicketCancelResponse cancel(
         TchRequestContext ctx,
@@ -308,24 +253,4 @@ public class PosTicketsService {
         }
     }
 
-    private DrawChannelId drawChannelId(java.util.UUID value) {
-        return value == null ? null : DrawChannelId.of(value);
-    }
-
-    private List<SellTicketLineInput> lines(List<PosTicketLineRequest> lines) {
-        return java.util.stream.IntStream.range(0, lines.size())
-            .mapToObj(index -> line(index, lines.get(index)))
-            .toList();
-    }
-
-    private SellTicketLineInput line(int index, PosTicketLineRequest line) {
-        return new SellTicketLineInput(
-            index + 1,
-            line.gameCode(),
-            line.betType(),
-            line.selection(),
-            line.betOption(),
-            line.stake()
-        );
-    }
 }

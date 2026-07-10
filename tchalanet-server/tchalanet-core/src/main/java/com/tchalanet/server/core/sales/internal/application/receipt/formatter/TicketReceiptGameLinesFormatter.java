@@ -3,7 +3,6 @@ package com.tchalanet.server.core.sales.internal.application.receipt.formatter;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptI18nKeys;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptLineView;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptTextLine;
-import com.tchalanet.server.core.sales.api.model.coverage.PotentialGainMode;
 import com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketReceiptI18nResolver.TicketReceiptTranslations;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -47,48 +46,32 @@ public class TicketReceiptGameLinesFormatter {
     }
 
     private String header(TicketReceiptTranslations translations, TicketReceiptLayoutProfile profile) {
-        // Use 3-column layout: choice ("#n selection"), stake, payout
+        // Realized gains are shown after settlement through verification,
+        // not as sale-time payout estimates.
         var cols = computeColumnWidths(profile);
         int choiceW = cols[0];
         int stakeW = cols[1];
-        int payoutW = cols[2];
 
         var partChoice = layout.rightPad(translations.text(TicketReceiptI18nKeys.LINE_HEADER_NO), choiceW);
         var partStake = layout.leftPad(translations.text(TicketReceiptI18nKeys.LINE_HEADER_STAKE), stakeW);
-        var partPayout = layout.leftPad(translations.text(TicketReceiptI18nKeys.LINE_HEADER_PAYOUT), payoutW);
 
-        return layout.truncate(partChoice + " " + partStake + " " + partPayout, profile.charsPerLine());
+        return layout.truncate(partChoice + " " + partStake, profile.charsPerLine());
     }
 
     private String lineRow(TicketReceiptLineView line, TicketReceiptLayoutProfile profile) {
         var cols = computeColumnWidths(profile);
         int choiceW = cols[0];
         int stakeW = cols[1];
-        int payoutW = cols[2];
 
         var choice = "#" + line.lineNo() + " " + (line.selection() == null ? "" : line.selection());
         var choicePart = layout.rightPad(choice, choiceW);
         var stakePart = layout.leftPad(moneyFormatter.format(line.stake(), profile), stakeW);
-        var payoutPart = layout.leftPad(potentialPayoutDisplay(line, profile), payoutW);
 
-        var row = choicePart + " " + stakePart + " " + payoutPart;
+        var row = choicePart + " " + stakePart;
         return layout.truncate(row, profile.charsPerLine());
     }
 
     // labelResolver handles optionLabel vs betType via translations; no local fallback needed here
-
-    private String potentialPayoutDisplay(TicketReceiptLineView line, TicketReceiptLayoutProfile profile) {
-        if (line.potentialGainMode() == PotentialGainMode.RANGE_ALTERNATIVE) {
-            var min = moneyFormatter.format(line.minPotentialPayout(), profile);
-            var max = moneyFormatter.format(line.maxPotentialPayout(), profile);
-            return min + "-" + max;
-        }
-        if (line.potentialGainMode() == PotentialGainMode.RANGE_CUMULATIVE
-            && line.totalPotentialPayout() != null) {
-            return moneyFormatter.format(line.totalPotentialPayout(), profile);
-        }
-        return moneyFormatter.format(line.potentialPayout(), profile);
-    }
 
     private String promotionLabel(TicketReceiptLineView line, TicketReceiptTranslations translations) {
         if (line.promotionLabel() != null && !line.promotionLabel().isBlank()) {
@@ -108,12 +91,11 @@ public class TicketReceiptGameLinesFormatter {
     private int[] computeColumnWidths(TicketReceiptLayoutProfile profile) {
         int chars = profile.charsPerLine();
 
-        // Heuristic: allocate fixed widths for stake/payout and rest to choice column.
+        // Heuristic: allocate fixed width for stake and rest to choice column.
         // Assumes reasonable receipt widths (>= ~15). For very small widths the truncate
         // logic will still ensure lines fit, but such profiles are out of scope for V1.
         int stakeW = 10;
-        int payoutW = 10;
-        int used = stakeW + payoutW + 2; // two spaces between columns
+        int used = stakeW + 1; // one space between columns
         int choiceW = chars - used;
 
         // ensure minimal widths
@@ -121,10 +103,7 @@ public class TicketReceiptGameLinesFormatter {
             int deficit = 6 - choiceW;
             int reduceStake = Math.min(Math.max(0, stakeW - 6), deficit);
             stakeW -= reduceStake;
-            deficit -= reduceStake;
-            int reducePayout = Math.min(Math.max(0, payoutW - 6), deficit);
-            payoutW -= reducePayout;
-            used = stakeW + payoutW + 2;
+            used = stakeW + 1;
             choiceW = chars - used;
         }
 
@@ -132,7 +111,7 @@ public class TicketReceiptGameLinesFormatter {
             choiceW = 1;
         }
 
-        return new int[]{choiceW, stakeW, payoutW};
+        return new int[]{choiceW, stakeW};
     }
 
     private void add(List<TicketReceiptTextLine> lines, String value, boolean bold) {
