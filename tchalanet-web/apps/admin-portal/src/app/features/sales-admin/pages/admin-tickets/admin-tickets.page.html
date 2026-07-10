@@ -55,6 +55,12 @@
       </a>
     </tch-admin-data-toolbar>
 
+    @if (reprintError(); as message) {
+      <tch-notice type="warning" content>
+        {{ message }}
+      </tch-notice>
+    }
+
     <tch-async-view
       content
       [resource]="tickets"
@@ -118,6 +124,26 @@
               <th mat-header-cell *matHeaderCellDef>{{ 'admin.tickets.list.columns.placedAt' | translate }}</th>
               <td mat-cell *matCellDef="let row">
                 {{ row.placedAt | date:'dd/MM/yyyy HH:mm' }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef>{{ 'admin.tickets.list.columns.actions' | translate }}</th>
+              <td mat-cell *matCellDef="let row">
+                <button
+                  mat-stroked-button
+                  type="button"
+                  class="tickets-page__reprint"
+                  [disabled]="!canReprint(row)"
+                  (click)="reprint(row, $event)"
+                >
+                  @if (reprintingTicketId() === row.id) {
+                    <span class="material-symbols-outlined tickets-page__spin" aria-hidden="true">progress_activity</span>
+                  } @else {
+                    <span class="material-symbols-outlined" aria-hidden="true">print</span>
+                  }
+                  {{ 'admin.tickets.list.actions.reprint' | translate }}
+                </button>
               </td>
             </ng-container>
 

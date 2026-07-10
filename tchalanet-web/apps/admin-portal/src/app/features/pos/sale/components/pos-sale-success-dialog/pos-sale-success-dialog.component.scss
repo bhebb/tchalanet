@@ -1,0 +1,99 @@
+.sale-success__title {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.sale-success__title-icon {
+  color: var(--tch-color-status-ready, #168a4a);
+  font-variation-settings: 'FILL' 1;
+}
+
+.sale-success {
+  display: grid;
+  gap: 1rem;
+  min-width: min(34rem, calc(100vw - 3rem));
+
+  &__summary {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    padding: 0.875rem;
+    border: 1px solid var(--tch-color-outline-variant, #c7c5d0);
+    border-radius: var(--tch-radius-lg, 0.75rem);
+    background: var(--tch-color-surface-container-low, #f5f3f7);
+  }
+
+  &__label {
+    display: block;
+    margin-bottom: 0.125rem;
+    color: var(--tch-color-on-surface-variant, #46464f);
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  &__code {
+    font-family: var(--tch-font-family-mono, monospace);
+    font-size: 0.875rem;
+    overflow-wrap: anywhere;
+  }
+
+  &__free {
+    display: block;
+    color: var(--tch-color-status-ready, #168a4a);
+    font-size: 0.75rem;
+  }
+
+  &__primary-actions,
+  &__delivery-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  &__delivery {
+    display: grid;
+    gap: 0.75rem;
+
+    h3 {
+      margin: 0;
+      font-size: 0.9375rem;
+    }
+  }
+
+  &__feedback {
+    margin: 0;
+    padding: 0.625rem 0.75rem;
+    border-radius: var(--tch-radius-md, 0.5rem);
+    background: color-mix(in oklab, var(--tch-color-status-ready, #168a4a) 12%, transparent);
+    color: var(--tch-color-status-ready, #168a4a);
+    font-weight: 700;
+
+    &--error {
+      background: color-mix(in oklab, var(--tch-color-error, #ba1a1a) 10%, transparent);
+      color: var(--tch-color-error, #ba1a1a);
+    }
+  }
+
+  &__spin {
+    animation: sale-success-spin 0.9s linear infinite;
+  }
+}
+
+.sale-success__actions {
+  gap: 0.5rem;
+}
+
+@media (max-width: 640px) {
+  .sale-success {
+    min-width: 0;
+
+    &__summary {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+@keyframes sale-success-spin {
+  to { transform: rotate(360deg); }
+}

@@ -141,6 +141,17 @@ describe('PLATFORM_NAVIGATION', () => {
       .toBe('/app/admin/notifications');
   });
 
+  it('points company identity to the business profile and does not expose address separately', () => {
+    const setup = TENANT_ADMIN_NAVIGATION[0].items.find(group => group.id === 'setup');
+    const company = TENANT_ADMIN_NAVIGATION[0].items.find(group => group.id === 'company');
+
+    expect(setup?.activeRoutes).not.toContain('/app/admin/business-profile');
+    expect(company?.destination?.value).toBe('/app/admin/business-profile');
+    expect(company?.children?.find(child => child.id === 'company-identity')?.destination?.value)
+      .toBe('/app/admin/business-profile');
+    expect(company?.children?.map(child => child.id)).not.toContain('company-address');
+  });
+
   it('exposes tenant page models under my company', () => {
     const company = TENANT_ADMIN_NAVIGATION[0].items.find(group => group.id === 'company');
 

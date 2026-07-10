@@ -201,6 +201,7 @@ public class TicketProjectionReaderAdapter implements TicketProjectionReaderPort
             entity.getPublicCode(),
             entity.getSaleStatus(),
             DrawId.of(entity.getDrawId()),
+            SellerTerminalId.nullableOf(entity.getSellerTerminalId()),
             entity.getDrawChannelCode(),
             entity.getResultSlotKey(),
             entity.getResultProvider(),

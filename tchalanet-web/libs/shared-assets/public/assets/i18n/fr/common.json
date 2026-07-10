@@ -12,6 +12,25 @@
       "title": "Page introuvable"
     },
     "unknown": "Inconnu",
+    "game": {
+      "BOLET": "Bòlèt",
+      "HT_BOLET": "Bòlèt",
+      "MARYAJ": "Mariage",
+      "HT_MARYAJ": "Mariage",
+      "HT_MARYAJ_GRATIS": "Mariage gratuit",
+      "HT_MARYAJ_GRATUIT": "Mariage gratuit",
+      "LOTO": "Loto",
+      "HT_LOTO3": "Loto 3",
+      "HT_LOTO4": "Loto 4",
+      "HT_LOTO5": "Loto 5"
+    },
+    "receipt": {
+      "promotion": {
+        "applied": "Promotion appliquée",
+        "free_game_line": "Maryaj gratuit",
+        "boost_odds": "Cote boostée"
+      }
+    },
     "placeholder": {
       "title": "Écran en préparation",
       "message": "Cette fonctionnalité sera disponible prochainement."

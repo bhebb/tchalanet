@@ -475,6 +475,27 @@
         "saved": "Adrès anrejistre avèk siksè."
       }
     },
+    "support": {
+      "title": "Sipò",
+      "description": "Voye yon demann bay ekip Tchalanet la depi espas admin ou.",
+      "submit": "Voye demann nan",
+      "reset": "Voye yon lòt demann",
+      "form": {
+        "title": "Demann sipò",
+        "description": "Dekri pwoblèm nan oswa kesyon an. N ap kontakte ou ak enfòmasyon ou bay yo.",
+        "contactFallback": "Non, telefòn ak email opsyonèl. Si ou pa ranpli yo, n ap itilize kontak kont admin ki konekte a.",
+        "message": "Kijan nou ka ede ou ?",
+        "consent": "Mwen bay Tchalanet otorizasyon pou kontakte mwen sou demann sa a."
+      },
+      "success": {
+        "title": "Demann voye",
+        "message": "Nou resevwa demann sipò ou a. Ekip Tchalanet la ap kontakte ou pi vit posib."
+      },
+      "error": {
+        "title": "Pa ka voye demann nan",
+        "message": "Demann nan pa t ka voye. Verifye enfòmasyon yo epi eseye ankò."
+      }
+    },
     "sellerTerminals": {
       "title": "Seller-terminals",
       "description": "Jere seller-terminals",

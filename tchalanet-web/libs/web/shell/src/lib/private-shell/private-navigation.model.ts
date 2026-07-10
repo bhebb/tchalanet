@@ -382,7 +382,6 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
         icon: 'checklist',
         destination: { kind: 'route', value: '/app/admin/setup' },
         activeRoutes: [
-          '/app/admin/business-profile',
           '/app/admin/settings',
           '/app/admin/settings/runtime',
           '/app/admin/settings/config',
@@ -613,19 +612,13 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
         id: 'company',
         labelKey: 'nav.admin.company',
         icon: 'business',
-        destination: { kind: 'route', value: '/app/admin/company/identity' },
+        destination: { kind: 'route', value: '/app/admin/business-profile' },
         children: [
           {
             id: 'company-identity',
             labelKey: 'nav.admin.company_identity',
             icon: 'domain',
-            destination: { kind: 'route', value: '/app/admin/company/identity' },
-          },
-          {
-            id: 'company-address',
-            labelKey: 'nav.admin.company_address',
-            icon: 'location_on',
-            destination: { kind: 'route', value: '/app/admin/company/address' },
+            destination: { kind: 'route', value: '/app/admin/business-profile' },
           },
           {
             id: 'company-appearance',

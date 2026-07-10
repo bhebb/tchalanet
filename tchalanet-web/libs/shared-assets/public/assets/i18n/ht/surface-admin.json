@@ -165,7 +165,8 @@
           "codeDesc": "Kòd Z-A"
         },
         "actions": {
-          "sell": "Vann yon tikè"
+          "sell": "Vann yon tikè",
+          "reprint": "Reenprime"
         },
         "columns": {
           "code": "Kòd",
@@ -173,7 +174,8 @@
           "channel": "Kanal",
           "draw": "Tiraj",
           "amount": "Montan",
-          "placedAt": "Emèt le"
+          "placedAt": "Emèt le",
+          "actions": "Aksyon"
         }
       },
       "overview": {

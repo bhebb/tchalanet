@@ -16,7 +16,13 @@
       @for (item of items(); track item.id) {
         <li class="breakdown-list__item">
           <div class="breakdown-list__row">
-            <span class="breakdown-list__label">{{ item.label }}</span>
+            <span class="breakdown-list__label">
+              @if (item.gameCode) {
+                {{ item.gameCode | gameLabel:'common.game' }}
+              } @else {
+                {{ item.label }}
+              }
+            </span>
             <span class="breakdown-list__value">
               @if (valueFormat() === 'currency') {
                 {{ item.value | currency: currencyCode() : 'symbol' : '1.0-0' }}

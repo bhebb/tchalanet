@@ -162,7 +162,8 @@
           "codeDesc": "Code Z-A"
         },
         "actions": {
-          "sell": "Vendre un billet"
+          "sell": "Vendre un billet",
+          "reprint": "Réimprimer"
         },
         "columns": {
           "code": "Code",
@@ -170,7 +171,8 @@
           "channel": "Canal",
           "draw": "Tirage",
           "amount": "Montant",
-          "placedAt": "Émis le"
+          "placedAt": "Émis le",
+          "actions": "Actions"
         }
       },
       "overview": {

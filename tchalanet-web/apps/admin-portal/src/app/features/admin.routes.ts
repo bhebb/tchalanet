@@ -173,18 +173,6 @@ export const adminRoutes: Route[] = [
   { path: 'support/sell', redirectTo: 'tickets/sell', pathMatch: 'full' },
   // ── Mon entreprise ─────────────────────────────────────────────────────────
   {
-    path: 'company/identity',
-    loadComponent: () =>
-        import('@tch/ui/components').then(m => m.PlaceholderPage),
-    data: { titleKey: 'nav.admin.company_identity', icon: 'domain' },
-  },
-  {
-    path: 'company/address',
-    loadComponent: () =>
-        import('@tch/ui/components').then(m => m.PlaceholderPage),
-    data: { titleKey: 'nav.admin.company_address', icon: 'location_on' },
-  },
-  {
     path: 'company/appearance',
     loadComponent: () =>
       import('./appearance/admin-appearance.page').then(m => m.AdminAppearancePage),
@@ -199,7 +187,7 @@ export const adminRoutes: Route[] = [
   {
     path: 'company/support',
     loadComponent: () =>
-        import('@tch/ui/components').then(m => m.PlaceholderPage),
+      import('./support/pages/admin-support.page').then(m => m.AdminSupportPage),
     data: { titleKey: 'nav.admin.company_support', icon: 'headset_mic' },
   },
   {

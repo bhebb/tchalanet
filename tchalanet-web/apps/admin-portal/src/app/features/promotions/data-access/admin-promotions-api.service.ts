@@ -65,6 +65,14 @@ export interface CreatePromotionCampaignRequest {
   readonly rules: readonly CreatePromotionRuleRequest[];
 }
 
+export interface UpdatePromotionCampaignRequest {
+  readonly name: string;
+  readonly description?: string | null;
+  readonly startsAt: string;
+  readonly endsAt: string;
+  readonly priority: number;
+}
+
 export interface CreatePromotionRuleRequest {
   readonly ruleKey: string;
   readonly priority: number;
@@ -89,6 +97,10 @@ export class AdminPromotionsApiService {
     );
   }
 
+  getCampaign(campaignId: string): Observable<PromotionCampaignView> {
+    return this.backend.get<PromotionCampaignView>(`/admin/promotions/campaigns/${campaignId}`);
+  }
+
   instantiateDefaultMaryajGratis(
     request: InstantiateMaryajGratisRequest,
   ): Observable<PromotionCampaignView> {
@@ -100,6 +112,16 @@ export class AdminPromotionsApiService {
 
   createCampaign(request: CreatePromotionCampaignRequest): Observable<PromotionCampaignView> {
     return this.backend.post<PromotionCampaignView>('/admin/promotions/campaigns', request);
+  }
+
+  updateCampaign(
+    campaignId: string,
+    request: UpdatePromotionCampaignRequest,
+  ): Observable<PromotionCampaignView> {
+    return this.backend.put<PromotionCampaignView>(
+      `/admin/promotions/campaigns/${campaignId}`,
+      request,
+    );
   }
 
   activateCampaign(campaignId: string): Observable<PromotionCampaignView> {

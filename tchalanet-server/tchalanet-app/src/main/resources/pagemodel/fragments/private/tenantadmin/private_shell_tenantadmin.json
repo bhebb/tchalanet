@@ -391,16 +391,9 @@
               {
                 "id": "company-identity",
                 "label_key": "nav.admin.company_identity",
-                "path": "/app/admin/company/identity",
+                "path": "/app/admin/business-profile",
                 "kind": "internal",
                 "icon": "domain"
-              },
-              {
-                "id": "company-address",
-                "label_key": "nav.admin.company_address",
-                "path": "/app/admin/company/address",
-                "kind": "internal",
-                "icon": "location_on"
               },
               {
                 "id": "company-appearance",

@@ -166,7 +166,8 @@
           "codeDesc": "Code Z-A"
         },
         "actions": {
-          "sell": "Sell ticket"
+          "sell": "Sell ticket",
+          "reprint": "Reprint"
         },
         "columns": {
           "code": "Code",
@@ -174,7 +175,8 @@
           "channel": "Channel",
           "draw": "Draw",
           "amount": "Amount",
-          "placedAt": "Issued at"
+          "placedAt": "Issued at",
+          "actions": "Actions"
         }
       },
       "overview": {

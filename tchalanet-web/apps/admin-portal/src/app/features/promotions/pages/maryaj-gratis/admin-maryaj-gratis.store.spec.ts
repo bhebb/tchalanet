@@ -16,6 +16,8 @@ import { AdminMaryajGratisStore } from './admin-maryaj-gratis.store';
 describe(AdminMaryajGratisStore.name, () => {
   let promotionsApi: {
     listCampaigns: ReturnType<typeof vi.fn>;
+    getCampaign: ReturnType<typeof vi.fn>;
+    updateCampaign: ReturnType<typeof vi.fn>;
     updateRuleEffects: ReturnType<typeof vi.fn>;
     instantiateDefaultMaryajGratis: ReturnType<typeof vi.fn>;
     activateCampaign: ReturnType<typeof vi.fn>;
@@ -29,6 +31,8 @@ describe(AdminMaryajGratisStore.name, () => {
   beforeEach(() => {
     promotionsApi = {
       listCampaigns: vi.fn(),
+      getCampaign: vi.fn(),
+      updateCampaign: vi.fn(),
       updateRuleEffects: vi.fn(),
       instantiateDefaultMaryajGratis: vi.fn(),
       activateCampaign: vi.fn(),
@@ -52,11 +56,13 @@ describe(AdminMaryajGratisStore.name, () => {
   });
 
   it('hydrates quantity tiers from the persisted campaign instead of falling back to defaults', () => {
-    promotionsApi.listCampaigns.mockReturnValue(of({ items: [campaignWithTiers()], total: 1 }));
+    promotionsApi.listCampaigns.mockReturnValue(of({ items: [campaignWithoutRules()], total: 1 }));
+    promotionsApi.getCampaign.mockReturnValue(of(campaignWithTiers()));
     gamesPricingApi.getGamesPricing.mockReturnValue(of([maryajGame()]));
 
     store.load();
 
+    expect(promotionsApi.getCampaign).toHaveBeenCalledWith('campaign-1');
     expect(store.state()).toBe('ready');
     expect(store.quantityTiers().getRawValue()).toEqual([
       { minPaidAmount: 500, maxPaidAmount: 999, quantity: 2 },
@@ -66,7 +72,9 @@ describe(AdminMaryajGratisStore.name, () => {
 
   it('sends the edited quantity tiers when saving, including tier deletion', () => {
     promotionsApi.listCampaigns.mockReturnValue(of({ items: [campaignWithTiers()], total: 1 }));
+    promotionsApi.getCampaign.mockReturnValue(of(campaignWithTiers()));
     gamesPricingApi.getGamesPricing.mockReturnValue(of([maryajGame()]));
+    promotionsApi.updateCampaign.mockReturnValue(of(campaignWithTiers()));
     promotionsApi.updateRuleEffects.mockReturnValue(of(campaignWithTiers([
       { minPaidAmount: 700, maxPaidAmount: null, quantity: 5 },
     ])));
@@ -83,6 +91,9 @@ describe(AdminMaryajGratisStore.name, () => {
 
     const calls = promotionsApi.updateRuleEffects.mock.calls;
     const request = calls[calls.length - 1][2] as UpdatePromotionRuleEffectsRequest;
+    expect(promotionsApi.updateCampaign).toHaveBeenCalledWith('campaign-1', expect.objectContaining({
+      priority: 10,
+    }));
     expect(promotionsApi.updateRuleEffects).toHaveBeenCalledWith('campaign-1', 'rule-1', expect.any(Object));
     expect(request.items[0].params['quantityTiers']).toEqual([
       { minPaidAmount: 700, maxPaidAmount: null, quantity: 5 },
@@ -90,6 +101,13 @@ describe(AdminMaryajGratisStore.name, () => {
     expect(request.items[0].params['maxQuantity']).toBe(5);
   });
 });
+
+function campaignWithoutRules(): PromotionCampaignView {
+  return {
+    ...campaignWithTiers(),
+    rules: [],
+  };
+}
 
 function campaignWithTiers(
   tiers: readonly { minPaidAmount: number; maxPaidAmount: number | null; quantity: number }[] = [

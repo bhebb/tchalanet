@@ -3,6 +3,8 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
 import { FormArray, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -23,6 +25,8 @@ import {
     ReactiveFormsModule,
     MatButtonModule,
     MatCheckboxModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
@@ -69,6 +73,10 @@ export class MaryajOfferPanelComponent {
     return value == null || value === '' ? '—' : String(value);
   }
 
+  showCampaignEndDate(campaign: PromotionCampaignView): boolean {
+    return !!campaign.endsAt && this.isLongRunningMaryajCampaign(campaign);
+  }
+
   selectionLabel(): string {
     return this.effectParam('choiceMode') === 'AUTO_GENERATE'
       ? 'Générée automatiquement'
@@ -89,5 +97,15 @@ export class MaryajOfferPanelComponent {
 
   tierLabel(index: number): string {
     return `Palier ${index + 1}`;
+  }
+
+  private isLongRunningMaryajCampaign(campaign: PromotionCampaignView): boolean {
+    if (!campaign.startsAt || !campaign.endsAt) return false;
+    const startsAt = new Date(campaign.startsAt).getTime();
+    const endsAt = new Date(campaign.endsAt).getTime();
+    if (!Number.isFinite(startsAt) || !Number.isFinite(endsAt)) return false;
+
+    const nineYearsMs = 9 * 365 * 24 * 60 * 60 * 1000;
+    return endsAt - startsAt >= nineYearsMs;
   }
 }

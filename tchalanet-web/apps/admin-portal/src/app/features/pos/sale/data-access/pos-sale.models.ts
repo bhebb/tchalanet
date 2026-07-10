@@ -96,6 +96,18 @@ export interface PreviewTicketSaleView {
   issues: PreviewTicketSaleIssueView[];
   notices: readonly WebAppError[];
   canSell: boolean;
+  actionAvailability: PosSaleActionAvailabilityView;
+}
+
+export interface PreparedTicketSaleView {
+  preparationId: string;
+  status: string;
+  totalAmount: number;
+  currency: string;
+  freeLineCount: number;
+  notices: readonly WebAppError[];
+  canSell: boolean;
+  actionAvailability: PosSaleActionAvailabilityView;
 }
 
 export interface PreviewTicketSaleIssueView {
@@ -122,7 +134,17 @@ export interface ConfirmedTicketView {
   saleStatus?: string | null;
   backup?: PosTicketBackupView | null;
   sellerInstruction?: string | null;
+  actionAvailability: PosSaleActionAvailabilityView;
   warnings: readonly WebAppError[];
+}
+
+export interface PosSaleActionAvailabilityView {
+  canSell?: boolean;
+  canPrint: boolean;
+  canSendSms: boolean;
+  canSendWhatsapp: boolean;
+  canSendEmail: boolean;
+  canCopy?: boolean;
 }
 
 // ── Seller terminal (for POS context) ─────────────────────────────────────
@@ -179,6 +201,7 @@ export interface PosTicketDetailsView {
   resultTimezone?: string | null;
   drawChannelName: string;
   drawScheduledAt: string;
+  sellerTerminalId?: string | { value?: string | null } | null;
   outletName?: string | null;
   terminalCode?: string | null;
   sellerDisplayName?: string | null;
