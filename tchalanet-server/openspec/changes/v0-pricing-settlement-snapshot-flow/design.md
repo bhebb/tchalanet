@@ -39,6 +39,18 @@ results.
 Issue #255 says Maryaj gratis is a promotion that generates a free Maryaj line, and its exact/permuted
 fixed amounts are promotion configuration, not the normal paid Maryaj odds.
 
+Promotion does not currently support SellerTerminal overrides:
+
+- `PromotionEvaluationContext` has tenant/user/agent/zone fields, but no `SellerTerminalId`.
+- `SalePreparationOrchestrator.evaluatePromotion(...)` does not pass the seller terminal into
+  `EvaluatePromotionQuery`.
+- `promotion_rule`, `promotion_rule_effect`, and related entities have no terminal override table.
+- The only terminal-level override in this flow today is pricing odds resolution inside sales
+  (`ResolveSellerTerminalOddsQuery`) when constructing paid or free ticket lines.
+
+Therefore the issue #255 requirement for partial SellerTerminal promotion overrides is new backend
+capability, not a wiring fix.
+
 ### Settlement
 
 `TicketWinningCalculator` already has the right settlement posture:
@@ -163,9 +175,14 @@ Maryaj gratis terms:
 
 - eligibility and quantity come from promotion config;
 - selection generation/manual choice comes from promotion config;
-- payout terms come from effective promotion/game configuration;
+- payout terms come from effective promotion/game configuration after tenant + SellerTerminal
+  promotion overrides are resolved;
 - line stake is zero;
 - terms are snapshotted on the generated line.
+
+SellerTerminal overrides for Maryaj gratis must be partial: a terminal may override activation,
+quantity tiers, generation policy, regeneration limits, or exact/permuted fixed payout amounts
+without copying the whole tenant campaign.
 
 ### Settlement
 
@@ -228,4 +245,6 @@ No potential payout KPI in V0.
   and migration.
 - Selection-specific overrides increase lookup complexity and cache invalidation needs.
 - Reporting must not parse JSON for historical aggregates.
-
+- Promotion terminal overrides require careful effective-config hashing; sale preview and confirm
+  must resolve the same terminal-scoped terms unless configuration changes between the two calls and
+  that behavior is explicitly accepted.

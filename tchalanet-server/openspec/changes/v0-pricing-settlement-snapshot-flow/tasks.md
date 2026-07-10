@@ -29,6 +29,10 @@
 
 ## 3. Maryaj Gratis
 
+- [ ] Add `sellerTerminalId` to promotion evaluation context or introduce a terminal-scoped promotion resolution query.
+- [ ] Add persistence for partial SellerTerminal promotion overrides without copying complete campaigns.
+- [ ] Define override merge order: seller-terminal override -> tenant campaign defaults.
+- [ ] Include terminal override identity/effective hash in the promotion decision snapshot.
 - [ ] Resolve effective tenant + seller-terminal promotion config.
 - [ ] Generate free Maryaj line only after paid line validation.
 - [ ] Exclude free lines from their own eligibility calculation.
@@ -76,4 +80,3 @@
 - [ ] Run focused module tests for pricing, promotion, sales, settlement, print, and reporting.
 - [ ] Run `./mvnw -pl tchalanet-app -am test -DskipTests` compile gate.
 - [ ] Run targeted integration/smoke tests for sale -> print -> result -> settlement -> report.
-
