@@ -28,7 +28,7 @@ import {
   type DrawFinancialRow,
   type SellerTerminalDrawFinancialRow,
   type TenantFinancialBreakdownView,
-} from '../data-access/admin-financials-api.service';
+} from '../../data-access/admin-financials-api.service';
 
 type PageState =
   | { readonly status: 'loading' }

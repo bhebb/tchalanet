@@ -2,7 +2,7 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 
-import { AdminFinancialsApi } from '../data-access/admin-financials-api.service';
+import { AdminFinancialsApi } from '../../data-access/admin-financials-api.service';
 import { AdminFinancialsPage } from './admin-financials.page';
 
 describe('AdminFinancialsPage', () => {

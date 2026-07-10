@@ -16,7 +16,7 @@ import {
 import {
   AdminFinancialsApi,
   SellerTerminalDailyFinancialRow,
-} from '../../../financials/data-access/admin-financials-api.service';
+} from '../../../reports/data-access/admin-financials-api.service';
 import {
   SellerTerminalDetailFact,
   SellerTerminalDetailFactsCardComponent,

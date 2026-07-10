@@ -23,6 +23,13 @@ Rapports V0 admin tenant: synthèse, lignes par tirage, lignes par terminal vend
 Service : `AdminReportsService` · Source : `GetTenantFinancialBreakdownQuery`.
 
 ```http
+GET /admin/financials/breakdown
+GET /admin/financials/draws/{drawId}/top-selections
+```
+Rapports financiers tenant-admin conservant les routes publiques existantes.
+Service : `TenantAdminFinancialsController` · Sources : `core.analytics.api`, `core.sales.api`.
+
+```http
 GET /tenant/reports/sales-by-period-and-game
 ```
 Rapport ventes par période et jeu.  

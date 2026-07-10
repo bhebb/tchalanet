@@ -41,7 +41,7 @@ import {
   DrawFinancialRow,
   DrawTopSelectionItem,
   SellerTerminalDrawFinancialRow,
-} from '../../../financials/data-access/admin-financials-api.service';
+} from '../../../reports/data-access/admin-financials-api.service';
 import {
   DrawActivityReport,
   DrawDetailActivityView,

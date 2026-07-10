@@ -14,7 +14,7 @@
 - Calculer le gain (`winningAmount`) après tirage et persister `RESULTED_*` (handler `RecordDrawTicketsResultCommandHandler`).
 - Override admin du résultat (`OverrideTicketResultCommandHandler`, `@RequiresPermission`).
 - Exposer la vérification publique d'un ticket par `publicCode` (sans authentification).
-- Publier les events métier consommés par `core.limitpolicy`, `core.session`, `core.ledger`, `core.payout`, `features.stats`.
+- Publier les events métier consommés par `core.limitpolicy`, `core.session`, `core.ledger`, `core.payout`, `core.analytics`.
 
 **Ce que le domaine ne fait pas**
 
@@ -232,7 +232,7 @@ Toutes les réponses utilisent `ApiResponse<T>` sauf les endpoints de print bina
 | `core.payout` → sales         | Ports + events           | `TicketReaderPort`, `TicketWriterPort`, `TicketPaidEvent`, `TicketPaymentPendingEvent`                                         |
 | `core.limitpolicy` → sales    | Event                    | `TicketPlacedEvent`                                                                                                            |
 | `core.session` → sales        | Event                    | `TicketPlacedEvent` (via `SalesSessionTotalsProjectionListener`)                                                               |
-| `features.stats` → sales      | Event                    | `TicketPlacedEvent` (×2 listeners)                                                                                             |
+| `core.analytics` → sales      | Event                    | `TicketPlacedEvent` projections read-only                                                                                      |
 
 ---
 

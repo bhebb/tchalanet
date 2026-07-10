@@ -135,7 +135,7 @@ export const adminRoutes: Route[] = [
   {
     path: 'reports/financials',
     loadComponent: () =>
-      import('./financials/pages/admin-financials.page').then(m => m.AdminFinancialsPage),
+      import('./reports/pages/financials/admin-financials.page').then(m => m.AdminFinancialsPage),
   },
   { path: 'reports', redirectTo: 'reports/overview', pathMatch: 'full' },
   { path: 'reports/today', redirectTo: 'reports/daily', pathMatch: 'full' },

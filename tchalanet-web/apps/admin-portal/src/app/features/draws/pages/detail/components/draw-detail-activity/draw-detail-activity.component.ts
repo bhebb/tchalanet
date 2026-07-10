@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TchLoading } from '@tch/ui/components';
 
-import { DrawTopSelectionItem } from '../../../../../financials/data-access/admin-financials-api.service';
+import { DrawTopSelectionItem } from '../../../../../reports/data-access/admin-financials-api.service';
 
 type DrawActivityState = 'idle' | 'loading' | 'ready' | 'error';
 type DrawTopSelectionsState = 'idle' | 'loading' | 'ready' | 'error';

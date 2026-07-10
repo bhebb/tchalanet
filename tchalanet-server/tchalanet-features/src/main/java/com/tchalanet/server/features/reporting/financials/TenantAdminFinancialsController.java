@@ -1,4 +1,4 @@
-package com.tchalanet.server.features.tenantadmin.financials;
+package com.tchalanet.server.features.reporting.financials;
 
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
