@@ -152,6 +152,13 @@ describe('PLATFORM_NAVIGATION', () => {
     expect(company?.children?.map(child => child.id)).not.toContain('company-address');
   });
 
+  it('keeps generic promotions hidden from the V0 tenant admin sidenav', () => {
+    const items = TENANT_ADMIN_NAVIGATION[0].items;
+
+    expect(items.map(item => item.id)).toContain('maryaj-gratis');
+    expect(items.map(item => item.id)).not.toContain('promotions');
+  });
+
   it('exposes tenant page models under my company', () => {
     const company = TENANT_ADMIN_NAVIGATION[0].items.find(group => group.id === 'company');
 
