@@ -23,6 +23,7 @@ class GetTenantFinancialBreakdownQueryHandlerTest {
   private static final TenantId TENANT_ID = TenantId.of(UUID.fromString("10000000-0000-0000-0000-000000000001"));
   private static final UUID SELLER_TERMINAL_ID = UUID.fromString("20000000-0000-0000-0000-000000000001");
   private static final UUID DRAW_ID = UUID.fromString("30000000-0000-0000-0000-000000000001");
+  private static final UUID OTHER_DRAW_ID = UUID.fromString("30000000-0000-0000-0000-000000000002");
   private static final LocalDate FROM = LocalDate.parse("2026-06-25");
   private static final LocalDate TO = LocalDate.parse("2026-06-25");
 
@@ -45,7 +46,8 @@ class GetTenantFinancialBreakdownQueryHandlerTest {
     when(sellerTerminalDrawRepository.findByTenantIdAndRefDateBetweenOrderByRefDateDescUpdatedAtDesc(
         TENANT_ID.value(), FROM, TO)).thenReturn(List.of());
 
-    var result = handler.handle(new GetTenantFinancialBreakdownQuery(TENANT_ID, FROM, TO, 50, 50));
+    var result = handler.handle(new GetTenantFinancialBreakdownQuery(
+        TENANT_ID, FROM, TO, 50, 50, List.of(), List.of()));
 
     assertThat(result.summary().ticketsSold()).isZero();
     assertThat(result.summary().grossSales()).isEqualByComparingTo("0");
@@ -68,7 +70,8 @@ class GetTenantFinancialBreakdownQueryHandlerTest {
     when(sellerTerminalDrawRepository.findByTenantIdAndRefDateBetweenOrderByRefDateDescUpdatedAtDesc(
         TENANT_ID.value(), FROM, TO)).thenReturn(List.of(sellerTerminalDrawRow()));
 
-    var result = handler.handle(new GetTenantFinancialBreakdownQuery(TENANT_ID, FROM, TO, 50, 50));
+    var result = handler.handle(new GetTenantFinancialBreakdownQuery(
+        TENANT_ID, FROM, TO, 50, 50, List.of(), List.of()));
 
     assertThat(result.summary().ticketsSold()).isEqualTo(3L);
     assertThat(result.summary().grossSales()).isEqualByComparingTo("90.00");
@@ -88,6 +91,56 @@ class GetTenantFinancialBreakdownQueryHandlerTest {
     assertThat(result.sellerTerminalDrawRows().getFirst().sellerTerminalId()).isEqualTo(SELLER_TERMINAL_ID);
     assertThat(result.sellerTerminalDrawRows().getFirst().drawId()).isEqualTo(DRAW_ID);
     assertThat(result.sellerTerminalDrawRows().getFirst().sellerCommission()).isEqualByComparingTo("4.00");
+  }
+
+  @Test
+  void filtersDrawRowsByRequestedDrawIdsBeforeReturningTheBreakdown() {
+    when(dailyRepository.findTenantRows(TENANT_ID.value(), FROM, TO))
+        .thenReturn(List.of(tenantDailyRow()));
+    when(drawRepository.findByTenantIdAndRefDateBetweenOrderByRefDate(TENANT_ID.value(), FROM, TO))
+        .thenReturn(List.of(drawRow(), drawRow(OTHER_DRAW_ID)));
+    when(dailyRepository.findSellerTerminalRows(TENANT_ID.value(), FROM, TO))
+        .thenReturn(List.of());
+    when(sellerTerminalDrawRepository.findByTenantIdAndRefDateBetweenOrderByRefDateDescUpdatedAtDesc(
+        TENANT_ID.value(), FROM, TO)).thenReturn(List.of());
+
+    var result = handler.handle(new GetTenantFinancialBreakdownQuery(
+        TENANT_ID,
+        FROM,
+        TO,
+        50,
+        50,
+        List.of(OTHER_DRAW_ID),
+        List.of()));
+
+    assertThat(result.drawRows()).hasSize(1);
+    assertThat(result.drawRows().getFirst().drawId()).isEqualTo(OTHER_DRAW_ID);
+  }
+
+  @Test
+  void filtersSellerTerminalRowsByRequestedSellerTerminalIdsBeforeReturningTheBreakdown() {
+    UUID otherSellerTerminalId = UUID.fromString("20000000-0000-0000-0000-000000000002");
+    when(dailyRepository.findTenantRows(TENANT_ID.value(), FROM, TO))
+        .thenReturn(List.of(tenantDailyRow()));
+    when(drawRepository.findByTenantIdAndRefDateBetweenOrderByRefDate(TENANT_ID.value(), FROM, TO))
+        .thenReturn(List.of());
+    when(dailyRepository.findSellerTerminalRows(TENANT_ID.value(), FROM, TO))
+        .thenReturn(List.of(sellerTerminalDailyRow(), sellerTerminalDailyRow(otherSellerTerminalId)));
+    when(sellerTerminalDrawRepository.findByTenantIdAndRefDateBetweenOrderByRefDateDescUpdatedAtDesc(
+        TENANT_ID.value(), FROM, TO)).thenReturn(List.of(sellerTerminalDrawRow()));
+
+    var result = handler.handle(new GetTenantFinancialBreakdownQuery(
+        TENANT_ID,
+        FROM,
+        TO,
+        50,
+        50,
+        List.of(),
+        List.of(otherSellerTerminalId)));
+
+    assertThat(result.sellerTerminalDailyRows()).hasSize(1);
+    assertThat(result.sellerTerminalDailyRows().getFirst().sellerTerminalId()).isEqualTo(otherSellerTerminalId);
+    assertThat(result.sellerTerminalDrawRows()).isEmpty();
   }
 
   private static AnalyticsDailyEntity tenantDailyRow() {
@@ -114,9 +167,13 @@ class GetTenantFinancialBreakdownQueryHandlerTest {
   }
 
   private static AnalyticsDrawEntity drawRow() {
+    return drawRow(DRAW_ID);
+  }
+
+  private static AnalyticsDrawEntity drawRow(UUID drawId) {
     return AnalyticsDrawEntity.builder()
         .tenantId(TENANT_ID.value())
-        .drawId(DRAW_ID)
+        .drawId(drawId)
         .refDate(FROM)
         .scheduledAt(Instant.parse("2026-06-25T12:00:00Z"))
         .gameCode("HT_BOLET")
@@ -140,10 +197,14 @@ class GetTenantFinancialBreakdownQueryHandlerTest {
   }
 
   private static AnalyticsDailyEntity sellerTerminalDailyRow() {
+    return sellerTerminalDailyRow(SELLER_TERMINAL_ID);
+  }
+
+  private static AnalyticsDailyEntity sellerTerminalDailyRow(UUID sellerTerminalId) {
     return AnalyticsDailyEntity.builder()
         .tenantId(TENANT_ID.value())
         .dimensionType("SELLER_TERMINAL")
-        .dimensionId(SELLER_TERMINAL_ID)
+        .dimensionId(sellerTerminalId)
         .refDate(FROM)
         .ticketsSoldCount(2L)
         .grossSalesCents(4000L)

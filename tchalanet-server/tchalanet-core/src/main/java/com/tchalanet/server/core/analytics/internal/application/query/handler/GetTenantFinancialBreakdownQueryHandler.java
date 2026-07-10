@@ -47,6 +47,7 @@ public class GetTenantFinancialBreakdownQueryHandler
         summary(tenantRows),
         tenantRows.stream().map(this::dailyRow).toList(),
         drawRows.stream()
+            .filter(row -> includesDraw(query.drawIds(), row.getDrawId()))
             .sorted(Comparator
                 .comparing(AnalyticsDrawEntity::getRefDate).reversed()
                 .thenComparing(AnalyticsDrawEntity::getScheduledAt, Comparator.reverseOrder()))
@@ -54,10 +55,12 @@ public class GetTenantFinancialBreakdownQueryHandler
             .map(this::drawRow)
             .toList(),
         sellerDrawRows.stream()
+            .filter(row -> includesSellerTerminal(query.sellerTerminalIds(), row.getSellerTerminalId()))
             .limit(safeLimit(query.sellerTerminalLimit()))
             .map(this::sellerTerminalDrawRow)
             .toList(),
         sellerRows.stream()
+            .filter(row -> includesSellerTerminal(query.sellerTerminalIds(), row.getDimensionId()))
             .limit(safeLimit(query.sellerTerminalLimit()))
             .map(this::sellerTerminalDailyRow)
             .toList()
@@ -215,6 +218,16 @@ public class GetTenantFinancialBreakdownQueryHandler
       return 50L;
     }
     return Math.min(requested, 500);
+  }
+
+  private static boolean includesDraw(List<UUID> drawIds, UUID drawId) {
+    return drawIds == null || drawIds.isEmpty() || drawIds.contains(drawId);
+  }
+
+  private static boolean includesSellerTerminal(List<UUID> sellerTerminalIds, UUID sellerTerminalId) {
+    return sellerTerminalIds == null
+        || sellerTerminalIds.isEmpty()
+        || sellerTerminalIds.contains(sellerTerminalId);
   }
 
   private static BigDecimal fromCents(long cents) {

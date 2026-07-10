@@ -1,0 +1,16 @@
+.seller-report-filter-bar {
+  display: grid;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  grid-template-columns: minmax(150px, 0.7fr) minmax(150px, 0.7fr) minmax(280px, 1.5fr) minmax(180px, 0.8fr);
+}
+
+.seller-report-filter-bar__sellers {
+  min-width: 0;
+}
+
+@media (max-width: 840px) {
+  .seller-report-filter-bar {
+    grid-template-columns: 1fr;
+  }
+}

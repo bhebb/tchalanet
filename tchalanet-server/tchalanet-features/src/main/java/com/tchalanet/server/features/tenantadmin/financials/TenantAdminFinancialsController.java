@@ -49,7 +49,9 @@ public class TenantAdminFinancialsController {
         effectiveFrom,
         effectiveTo,
         drawLimit,
-        sellerTerminalLimit
+        sellerTerminalLimit,
+        java.util.List.of(),
+        java.util.List.of()
     )));
   }
 

@@ -4,6 +4,8 @@ import com.tchalanet.server.common.bus.Query;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.analytics.api.model.TenantFinancialBreakdownView;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * Returns tenant-admin financial drilldowns for commissions, charges and promotions.
@@ -15,5 +17,7 @@ public record GetTenantFinancialBreakdownQuery(
     LocalDate from,
     LocalDate to,
     int drawLimit,
-    int sellerTerminalLimit
+    int sellerTerminalLimit,
+    List<UUID> drawIds,
+    List<UUID> sellerTerminalIds
 ) implements Query<TenantFinancialBreakdownView> {}

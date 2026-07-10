@@ -309,11 +309,25 @@
             "icon": "analytics",
             "children": [
               {
+                "id": "reports-overview",
+                "label_key": "nav.admin.reports_overview",
+                "path": "/app/admin/reports/overview",
+                "kind": "internal",
+                "icon": "query_stats"
+              },
+              {
+                "id": "reports-daily",
+                "label_key": "nav.admin.reports_daily",
+                "path": "/app/admin/reports/daily",
+                "kind": "internal",
+                "icon": "today"
+              },
+              {
                 "id": "reports-sales",
                 "label_key": "nav.admin.reports_sales",
                 "path": "/app/admin/reports/sales",
                 "kind": "internal",
-                "icon": "today"
+                "icon": "receipt_long"
               },
               {
                 "id": "reports-sellers",
@@ -335,13 +349,6 @@
                 "path": "/app/admin/reports/financials",
                 "kind": "internal",
                 "icon": "query_stats"
-              },
-              {
-                "id": "reports-exports",
-                "label_key": "nav.admin.reports_exports",
-                "path": "/app/admin/reports/exports",
-                "kind": "internal",
-                "icon": "download"
               }
             ]
           },

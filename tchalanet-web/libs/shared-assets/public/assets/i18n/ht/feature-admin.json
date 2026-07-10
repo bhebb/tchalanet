@@ -153,8 +153,166 @@
     },
     "reports": {
       "title": "Rapò",
+      "common": {
+        "grossSales": "Vant brit",
+        "overview": "Apèsi",
+        "payoutsPaid": "Peman fèt",
+        "period": "Peryòd rapò a",
+        "refresh": "Rafrechi",
+        "sellerCommission": "Komisyon vandè",
+        "ticketsSold": "Tikè vann",
+        "ticketSuffix": "tikè"
+      },
+      "overview": {
+        "title": "Apèsi rapò yo",
+        "description": "Vant, peman ak revni estime pou tenant aktyèl la.",
+        "loading": "Chajman rapò yo...",
+        "period": {
+          "label": "Peryòd rapò a"
+        },
+        "action": {
+          "refresh": "Rafrechi",
+          "viewDaily": "Rapò jounen",
+          "viewDraws": "Rapò tiraj",
+          "viewSellers": "Rapò vandè"
+        },
+        "kpis": {
+          "aria": "Rezime rapò yo",
+          "ticketsSold": "Tikè vann",
+          "grossSales": "Vant brit",
+          "payoutsPaid": "Peman fèt",
+          "netRevenue": "Revni nèt estime"
+        },
+        "daily": {
+          "title": "Aktivite pa jou",
+          "emptyTitle": "Pa gen aktivite pa jou",
+          "emptyMessage": "Pa gen vant pou peryòd sa a."
+        },
+        "draws": {
+          "title": "Pi gwo tiraj yo",
+          "emptyTitle": "Pa gen vant pa tiraj",
+          "emptyMessage": "Vant pa tiraj ap parèt isit la lè tikè vann."
+        },
+        "topDraws": {
+          "title": "Tiraj ki gen plis tikè"
+        },
+        "topSelections": {
+          "title": "Nimewo ki vann plis",
+          "emptyTitle": "Pa gen aktivite pa nimewo",
+          "emptyMessage": "Nimewo vann yo ap parèt isit la lè liy tikè vann."
+        },
+        "sellers": {
+          "title": "Pi gwo tèminal vandè yo",
+          "emptyTitle": "Pa gen aktivite vandè",
+          "emptyMessage": "Pèfòmans vandè ap parèt isit la lè tikè vann."
+        }
+      },
       "today": {
         "title": "Rapò jodi a"
+      },
+      "daily": {
+        "title": "Rapò jounen",
+        "description": "Tout aktivite vant pou jou oswa peryòd ou chwazi a.",
+        "loading": "Chajman rapò jounen an...",
+        "kpisAria": "Rezime rapò jounen an",
+        "chartTitle": "Tandans vant yo",
+        "rowsTitle": "Liy pa jou",
+        "emptyTitle": "Pa gen aktivite pa jou",
+        "emptyMessage": "Pa gen vant pou peryòd sa a.",
+        "action": {
+          "print": "Enprime",
+          "exportCsv": "Ekspòte CSV"
+        },
+        "filters": {
+          "aria": "Filtè rapò jounen an",
+          "from": "Soti",
+          "to": "Rive"
+        },
+        "column": {
+          "date": "Dat",
+          "tickets": "Tikè",
+          "sales": "Vant",
+          "payouts": "Peman",
+          "net": "Nèt estime"
+        }
+      },
+      "draws": {
+        "title": "Rapò tiraj",
+        "description": "Vant, peman ak revni estime gwoupe pa tiraj.",
+        "loading": "Chajman rapò tiraj la...",
+        "kpisAria": "Rezime rapò tiraj la",
+        "rowsTitle": "Liy pa tiraj",
+        "emptyTitle": "Pa gen vant pa tiraj",
+        "emptyMessage": "Vant pa tiraj ap parèt isit la lè tikè vann.",
+        "action": {
+          "print": "Enprime",
+          "exportCsv": "Ekspòte CSV"
+        },
+        "filters": {
+          "aria": "Filtè rapò tiraj la",
+          "from": "Soti",
+          "to": "Rive",
+          "draws": "Tiraj yo",
+          "drawsPlaceholder": "Chèche California, New York, midi...",
+          "drawsHint": "Chwazi youn oswa plizyè tiraj pou limite rapò a.",
+          "sort": "Triye"
+        },
+        "sort": {
+          "scheduledDesc": "Tiraj ki pi resan an premye",
+          "scheduledAsc": "Tiraj ki pi ansyen an premye",
+          "salesDesc": "Vant wo pou ba",
+          "salesAsc": "Vant ba pou wo",
+          "ticketsDesc": "Tikè wo pou ba",
+          "ticketsAsc": "Tikè ba pou wo"
+        },
+        "column": {
+          "draw": "Tiraj",
+          "tickets": "Tikè",
+          "sales": "Vant",
+          "payouts": "Peman",
+          "net": "Nèt estime"
+        }
+      },
+      "sellers": {
+        "title": "Rapò vandè",
+        "description": "Vant, komisyon ak revni estime gwoupe pa tèminal vandè.",
+        "loading": "Chajman rapò vandè a...",
+        "kpisAria": "Rezime rapò vandè a",
+        "rowsTitle": "Liy pa tèminal vandè",
+        "emptyTitle": "Pa gen aktivite vandè",
+        "emptyMessage": "Pèfòmans vandè ap parèt isit la lè tikè vann.",
+        "action": {
+          "print": "Enprime",
+          "exportCsv": "Ekspòte CSV"
+        },
+        "filters": {
+          "aria": "Filtè rapò vandè a",
+          "from": "Soti",
+          "to": "Rive",
+          "sellers": "Vandè yo",
+          "sellersPlaceholder": "Chèche non vandè oswa kòd tèminal",
+          "sellersHint": "Chwazi youn oswa plizyè vandè pou limite rapò a.",
+          "sort": "Triye"
+        },
+        "sort": {
+          "salesDesc": "Vant wo pou ba",
+          "salesAsc": "Vant ba pou wo",
+          "commissionDesc": "Komisyon wo pou ba",
+          "commissionAsc": "Komisyon ba pou wo",
+          "netDesc": "Nèt wo pou ba",
+          "netAsc": "Nèt ba pou wo",
+          "averageDrawDesc": "Mwayèn pa tiraj wo pou ba",
+          "averageDrawAsc": "Mwayèn pa tiraj ba pou wo"
+        },
+        "column": {
+          "seller": "Tèminal vandè",
+          "status": "Estati",
+          "tickets": "Tikè",
+          "sales": "Vant",
+          "commission": "Komisyon",
+          "net": "Nèt estime",
+          "averageDraw": "Mway. / tiraj"
+        }
       },
       "export": {
         "title": "Ekspò ak enpresyon"

@@ -1,0 +1,114 @@
+<tch-admin-page-shell
+  [title]="'admin.reports.daily.title' | translate"
+  [description]="'admin.reports.daily.description' | translate"
+>
+  <tch-async-view
+    [resource]="daily"
+    [error]="dailyError()"
+    [loadingLabel]="'admin.reports.daily.loading' | translate"
+    [retryLabel]="'common.retry' | translate"
+    (retry)="daily.reload()"
+  >
+    <ng-template tchAsyncReady>
+      @if (daily.value(); as vm) {
+        <header class="report-daily__toolbar">
+          <div>
+            <span>{{ 'admin.reports.common.period' | translate }}</span>
+            <strong>{{ vm.from | date:'mediumDate' }} - {{ vm.to | date:'mediumDate' }}</strong>
+          </div>
+          <div class="report-daily__actions">
+            <a mat-button routerLink="/app/admin/reports/overview">
+              <mat-icon aria-hidden="true">arrow_back</mat-icon>
+              {{ 'admin.reports.common.overview' | translate }}
+            </a>
+            <button type="button" mat-button (click)="printReport()">
+              <mat-icon aria-hidden="true">print</mat-icon>
+              {{ 'admin.reports.daily.action.print' | translate }}
+            </button>
+            <button type="button" mat-button (click)="exportCsv(vm)">
+              <mat-icon aria-hidden="true">download</mat-icon>
+              {{ 'admin.reports.daily.action.exportCsv' | translate }}
+            </button>
+            <button type="button" mat-stroked-button (click)="reload()">
+              <mat-icon aria-hidden="true">refresh</mat-icon>
+              {{ 'admin.reports.common.refresh' | translate }}
+            </button>
+          </div>
+        </header>
+
+        <section class="report-daily__filters" [attr.aria-label]="'admin.reports.daily.filters.aria' | translate">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>{{ 'admin.reports.daily.filters.from' | translate }}</mat-label>
+            <input matInput type="date" [value]="fromFilter()" (change)="onFromFilter($any($event.target).value)" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>{{ 'admin.reports.daily.filters.to' | translate }}</mat-label>
+            <input matInput type="date" [value]="toFilter()" (change)="onToFilter($any($event.target).value)" />
+          </mat-form-field>
+        </section>
+
+        <section class="report-daily__kpis" [attr.aria-label]="'admin.reports.daily.kpisAria' | translate">
+          <tch-report-metric-card
+            [label]="'admin.reports.common.ticketsSold' | translate"
+            [value]="(vm.summary.ticketsSold | number) ?? '0'"
+          />
+          <tch-report-metric-card
+            [label]="'admin.reports.common.grossSales' | translate"
+            [value]="amountDisplay(vm.summary.grossSales) + ' ' + currency"
+          />
+          <tch-report-metric-card
+            [label]="'admin.reports.common.payoutsPaid' | translate"
+            [value]="amountDisplay(vm.summary.payoutsPaid) + ' ' + currency"
+          />
+          <tch-report-metric-card
+            [label]="'admin.reports.common.sellerCommission' | translate"
+            [value]="amountDisplay(vm.summary.sellerCommission) + ' ' + currency"
+          />
+        </section>
+
+        <div class="report-daily__grid">
+          <tch-admin-section-card [title]="'admin.reports.daily.chartTitle' | translate" icon="bar_chart">
+            @if (vm.dailyRows.length === 0) {
+              <tch-admin-empty-state
+                icon="bar_chart"
+                [title]="'admin.reports.daily.emptyTitle' | translate"
+                [message]="'admin.reports.daily.emptyMessage' | translate"
+              />
+            } @else {
+              <tch-daily-sales-chart [points]="chartPoints(vm)" [currency]="currency" />
+            }
+          </tch-admin-section-card>
+
+          <tch-admin-section-card [title]="'admin.reports.daily.rowsTitle' | translate" icon="table_rows">
+            @if (vm.dailyRows.length === 0) {
+              <tch-admin-empty-state
+                icon="table_rows"
+                [title]="'admin.reports.daily.emptyTitle' | translate"
+                [message]="'admin.reports.daily.emptyMessage' | translate"
+              />
+            } @else {
+              <div class="report-daily__table">
+                <div class="report-daily__header" aria-hidden="true">
+                  <span>{{ 'admin.reports.daily.column.date' | translate }}</span>
+                  <span>{{ 'admin.reports.daily.column.tickets' | translate }}</span>
+                  <span>{{ 'admin.reports.daily.column.sales' | translate }}</span>
+                  <span>{{ 'admin.reports.daily.column.payouts' | translate }}</span>
+                  <span>{{ 'admin.reports.daily.column.net' | translate }}</span>
+                </div>
+                @for (row of vm.dailyRows; track trackDailyRow($index, row)) {
+                  <div class="report-daily__row">
+                    <strong>{{ row.refDate | date:'mediumDate' }}</strong>
+                    <span>{{ row.ticketsSold | number }}</span>
+                    <strong>{{ amountDisplay(row.grossSales) }} {{ currency }}</strong>
+                    <span>{{ amountDisplay(row.payoutsPaid) }} {{ currency }}</span>
+                    <span>{{ amountDisplay(row.netRevenueEstimated) }} {{ currency }}</span>
+                  </div>
+                }
+              </div>
+            }
+          </tch-admin-section-card>
+        </div>
+      }
+    </ng-template>
+  </tch-async-view>
+</tch-admin-page-shell>
