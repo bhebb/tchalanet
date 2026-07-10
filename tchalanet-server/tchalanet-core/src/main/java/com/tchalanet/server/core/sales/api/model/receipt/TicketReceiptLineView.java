@@ -1,8 +1,8 @@
 package com.tchalanet.server.core.sales.api.model.receipt;
 
-import java.math.BigDecimal;
 import java.util.Objects;
 import com.tchalanet.server.common.types.money.Money;
+import com.tchalanet.server.platform.tenantgame.api.model.SelectionPolicy;
 
 public record TicketReceiptLineView(
     int lineNo,
@@ -12,8 +12,8 @@ public record TicketReceiptLineView(
     String optionLabel,
     String gameLabel,
     String selection,
-    BigDecimal odds,
     Money stake,
+    SelectionPolicy selectionPolicySnapshot,
     boolean promotional,
     String promotionLabel,
     String promotionEffectType

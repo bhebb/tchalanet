@@ -94,19 +94,19 @@ public class TicketReceiptPrintFormatter {
         addLabel(totals, translations.text(TicketReceiptI18nKeys.TOTAL_STAKE), receipt.stakeTotal(), false, layoutProfile);
         addLabel(totals, translations.text(TicketReceiptI18nKeys.TOTAL_AMOUNT), receipt.totalAmount(), true, layoutProfile);
 
-        var footer = new ArrayList<TicketReceiptTextLine>();
-        // separator before footer
-        add(footer, layout.separator(layoutProfile));
-        footer.addAll(brandingFormatter.footerLines(receipt, layoutProfile));
-
         // Verification footer (A4 + thermal): show the public code under a
         // "Vérification" label and invite scanning the QR. Never print the full
         // verification URL as text — the QR (built from verificationUrl) carries it.
+        var footer = new ArrayList<TicketReceiptTextLine>();
+        add(footer, layout.separator(layoutProfile));
         addLabel(footer, translations.text(TicketReceiptI18nKeys.VERIFICATION), receipt.displayCode(), false, layoutProfile);
         var scan = translations.text(TicketReceiptI18nKeys.SCAN_TO_VERIFY);
         if (scan != null && !scan.isBlank()) {
             add(footer, layout.truncate(scan, layoutProfile.charsPerLine()));
         }
+
+        var postQr = new ArrayList<TicketReceiptTextLine>();
+        postQr.addAll(brandingFormatter.footerLines(receipt, layoutProfile));
 
         // Assert no produced line exceeds the layout width (guard anti-overflow)
         assertLines("header", header, layoutProfile);
@@ -121,6 +121,7 @@ public class TicketReceiptPrintFormatter {
         }
         assertLines("totals", totals, layoutProfile);
         assertLines("footer", footer, layoutProfile);
+        assertLines("postQr", postQr, layoutProfile);
 
         return new TicketReceiptPrintContent(
             firstNonBlank(receipt.tenantDisplayName(), "Ticket Tchalanet"),
@@ -128,6 +129,7 @@ public class TicketReceiptPrintFormatter {
             sections,
             totals,
             footer,
+            postQr,
             new TicketReceiptQrView(receipt.verificationUrl(), receipt.verificationUrl()),
             "ticket-" + receipt.displayCode(),
             receipt.locale(),

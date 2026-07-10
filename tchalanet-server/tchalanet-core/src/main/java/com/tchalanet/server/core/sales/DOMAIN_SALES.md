@@ -87,6 +87,11 @@ Quand le résultat officiel arrive, `TicketWinningCalculator` compare chaque sé
 numéros sortis. Si une règle de couverture correspond, le montant snapshoté par cette couverture
 devient le gain réalisé de la ligne; sinon le gain réalisé est zéro.
 
+Le rendu d'impression et de reçu expose uniquement le contrat visible de vente:
+tirage, jeu, sélection, option commerciale explicitement snapshotée, mise et promotions visibles.
+Il ne publie pas les odds, variantes techniques de couverture, payout base ou gain potentiel; ces
+données restent internes au settlement et aux audits autorisés.
+
 La commission reste configurée en pourcentage, mais les stats additionnent le montant snapshoté.
 Changer le taux tenant ou terminal n'altère jamais un ticket déjà vendu.
 

@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.sales.internal.application.receipt;
 
-import com.tchalanet.server.catalog.game.api.model.BetOption;
+import com.tchalanet.server.catalog.game.api.model.GameCode;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintLine;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintView;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptGameSectionView;
@@ -53,7 +53,7 @@ public class TicketReceiptAssembler {
             printView.lifecycle().settlementStatus(),
             printView.branding() == null ? null : printView.branding().tenantDisplayName(),
             printView.branding() == null ? null : printView.branding().tenantReceiptHeader(),
-            printView.branding() == null ? null : printView.branding().outletReceiptHeader(),
+            null,
             printView.draw().channelCode(),
             printView.draw().resultSlotKey(),
             printView.draw().provider(),
@@ -70,7 +70,7 @@ public class TicketReceiptAssembler {
             gameSections(printView.lines()),
             printView.money().stake(),
             printView.money().totalAmount(),
-            null, // tenantReceiptFooter (no longer used)
+            printView.branding() == null ? null : printView.branding().tenantReceiptFooter(),
             verificationUrl,
             // isReprint: printCount > 0 means at least one prior print → DUPLICATA
             printView.printState() != null && printView.printState().printCount() > 0
@@ -80,12 +80,12 @@ public class TicketReceiptAssembler {
     private List<TicketReceiptGameSectionView> gameSections(List<TicketPrintLine> lines) {
         var grouped = new LinkedHashMap<String, List<TicketPrintLine>>();
         for (var line : lines) {
-            grouped.computeIfAbsent(line.gameCode().name(), ignored -> new java.util.ArrayList<>()).add(line);
+            grouped.computeIfAbsent(gameGroupKey(line), ignored -> new java.util.ArrayList<>()).add(line);
         }
         return grouped.entrySet().stream()
             .map(entry -> new TicketReceiptGameSectionView(
                 entry.getKey(),
-                entry.getValue().getFirst().gameLabel(),
+                entry.getKey(),
                 entry.getValue().stream().map(this::lineView).toList()))
             .toList();
     }
@@ -96,23 +96,21 @@ public class TicketReceiptAssembler {
             line.gameCode().name(),
             line.betType().name(),
             line.betOption(),
-            line.betOptionLabel() == null ? optionLabel(line) : line.betOptionLabel(),
+            line.betOptionLabel(),
             line.gameLabel(),
             line.selectionCanonical(),
-            line.odds(),
             line.stake(),
+            line.selectionPolicySnapshot(),
             line.promotional(),
             line.promotionLabel(),
             line.promotionEffectType()
         );
     }
 
-    private String optionLabel(TicketPrintLine line) {
-        try {
-            var option = BetOption.from(line.betType(), line.betOption());
-            return option == null ? null : option.label();
-        } catch (IllegalArgumentException ex) {
-            return null;
+    private String gameGroupKey(TicketPrintLine line) {
+        if (line.gameCode() == GameCode.HT_MARYAJ_GRATIS) {
+            return GameCode.HT_MARYAJ.name();
         }
+        return line.gameCode().name();
     }
 }

@@ -35,7 +35,8 @@ public class TicketPrintDocumentMapper {
                 .map(section -> new DocumentSection(section.title(), toDocumentLines(section.lines())))
                 .toList(),
             toDocumentLines(receipt.totals()),
-            toDocumentLines(receipt.footerLines())
+            toDocumentLines(receipt.footerLines()),
+            toDocumentLines(receipt.postQrLines())
         );
 
         return new DocumentRenderRequest(

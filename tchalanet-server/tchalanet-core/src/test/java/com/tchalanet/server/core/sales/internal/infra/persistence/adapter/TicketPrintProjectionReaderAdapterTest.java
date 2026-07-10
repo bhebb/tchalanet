@@ -43,6 +43,7 @@ import com.tchalanet.server.core.sales.internal.infra.persistence.repository.Tic
 import com.tchalanet.server.core.sales.internal.infra.persistence.view.TicketPrintHeaderViewEntity;
 import com.tchalanet.server.core.selection.api.model.Selection;
 import com.tchalanet.server.core.selection.api.model.SelectionKey;
+import com.tchalanet.server.platform.tenantgame.api.model.SelectionPolicy;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -65,7 +66,7 @@ class TicketPrintProjectionReaderAdapterTest {
     private static final UserId USER = UserId.of(UUID.fromString("10000000-0000-0000-0000-000000000001"));
 
     @Test
-    void reprintProjectionLoadsAggregateCoverages() {
+    void reprintProjectionLoadsCustomerSafeLineSnapshot() {
         var headerRepository = mock(TicketPrintHeaderViewRepository.class);
         var ticketRepository = mock(TicketJpaRepository.class);
         var mapper = new TicketJpaMapper() {};
@@ -86,9 +87,9 @@ class TicketPrintProjectionReaderAdapterTest {
 
         assertThat(printView.lines()).hasSize(1);
         var line = printView.lines().getFirst();
-        assertThat(line.coverages())
-            .extracting(coverage -> coverage.pricingVariantCode())
-            .containsExactly("LOTTO3_STRAIGHT", "LOTTO3_BOX_6_WAY");
+        assertThat(line.selectionCanonical()).isEqualTo("123");
+        assertThat(line.betOptionLabel()).isEqualTo("Exact + Permuté");
+        assertThat(line.selectionPolicySnapshot()).isNotNull();
         assertThat(printView.printState().status()).isEqualTo(TicketPrintStateStatus.NOT_PRINTED);
     }
 
@@ -173,6 +174,8 @@ class TicketPrintProjectionReaderAdapterTest {
                     WinMode.ALTERNATIVE)
             ),
             (short) 3,
+            SelectionPolicy.EXPLICIT_ONLY,
+            "Exact + Permuté",
             TicketLineOrigin.CUSTOMER,
             TicketLinePricingSource.STANDARD,
             null,

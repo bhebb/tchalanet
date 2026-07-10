@@ -3,6 +3,7 @@ package com.tchalanet.server.core.sales.internal.application.receipt.formatter;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptI18nKeys;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptLineView;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptTextLine;
+import java.math.BigDecimal;
 import com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketReceiptI18nResolver.TicketReceiptTranslations;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -25,13 +26,18 @@ public class TicketReceiptGameLinesFormatter {
     ) {
         var lines = new ArrayList<TicketReceiptTextLine>();
         add(lines, header(translations, profile), false);
+        var hasComplimentaryMaryaj = false;
         for (var line : receiptLines) {
-            add(lines, lineRow(line, profile), false);
-            add(lines, layout.truncate(labelResolver.lineOptionLabel(line, translations), profile.charsPerLine()), true);
-            if (line.promotional()) {
+            add(lines, lineRow(line, translations, profile), false);
+            if (line.promotional() && !isComplimentaryMaryaj(line)) {
                 var promo = translations.text(TicketReceiptI18nKeys.PROMOTION) + ": " + promotionLabel(line, translations);
                 add(lines, layout.truncate(promo, profile.charsPerLine()), false);
             }
+            hasComplimentaryMaryaj = hasComplimentaryMaryaj || isComplimentaryMaryaj(line);
+        }
+        if (hasComplimentaryMaryaj) {
+            add(lines, layout.truncate(translations.text(TicketReceiptI18nKeys.PROMOTION_MARYAJ_OFFERED_NOTE),
+                profile.charsPerLine()), false);
         }
         return List.copyOf(lines);
     }
@@ -58,14 +64,22 @@ public class TicketReceiptGameLinesFormatter {
         return layout.truncate(partChoice + " " + partStake, profile.charsPerLine());
     }
 
-    private String lineRow(TicketReceiptLineView line, TicketReceiptLayoutProfile profile) {
+    private String lineRow(
+        TicketReceiptLineView line,
+        TicketReceiptTranslations translations,
+        TicketReceiptLayoutProfile profile
+    ) {
         var cols = computeColumnWidths(profile);
         int choiceW = cols[0];
         int stakeW = cols[1];
 
-        var choice = "#" + line.lineNo() + " " + (line.selection() == null ? "" : line.selection());
+        var choice = selectionDisplay(line);
+        var optionLabel = labelResolver.lineOptionLabel(line, null);
+        if (optionLabel != null && !optionLabel.isBlank()) {
+            choice = choice + "  " + optionLabel;
+        }
         var choicePart = layout.rightPad(choice, choiceW);
-        var stakePart = layout.leftPad(moneyFormatter.format(line.stake(), profile), stakeW);
+        var stakePart = layout.leftPad(stakeDisplay(line, translations, profile), stakeW);
 
         var row = choicePart + " " + stakePart;
         return layout.truncate(row, profile.charsPerLine());
@@ -86,6 +100,50 @@ public class TicketReceiptGameLinesFormatter {
             return translations.text(TicketReceiptI18nKeys.PROMOTION_BOOST_ODDS);
         }
         return translations.text(TicketReceiptI18nKeys.PROMOTION);
+    }
+
+    private String selectionDisplay(TicketReceiptLineView line) {
+        var selection = line.selection() == null ? "" : line.selection();
+        if ("MARRIAGE_2D2D".equals(line.betType())) {
+            selection = maryajSelection(selection);
+        }
+        if (isComplimentaryMaryaj(line)) {
+            return "* " + selection;
+        }
+        return selection;
+    }
+
+    private String maryajSelection(String selection) {
+        if (selection == null || selection.isBlank()) {
+            return "";
+        }
+        var normalized = selection.trim()
+            .replace(" x ", " × ")
+            .replace(" X ", " × ")
+            .replace(" - ", " × ")
+            .replace("-", " × ");
+        if (normalized.matches("\\d{4}")) {
+            return normalized.substring(0, 2) + " × " + normalized.substring(2);
+        }
+        return normalized;
+    }
+
+    private String stakeDisplay(
+        TicketReceiptLineView line,
+        TicketReceiptTranslations translations,
+        TicketReceiptLayoutProfile profile
+    ) {
+        if (isComplimentaryMaryaj(line)) {
+            return translations.text(TicketReceiptI18nKeys.PROMOTION_FREE_GAME_SHORT);
+        }
+        return moneyFormatter.format(line.stake(), profile);
+    }
+
+    private boolean isComplimentaryMaryaj(TicketReceiptLineView line) {
+        return "MARRIAGE_2D2D".equals(line.betType())
+            && "FREE_GAME_LINE".equals(line.promotionEffectType())
+            && line.stake() != null
+            && line.stake().amount().compareTo(BigDecimal.ZERO) == 0;
     }
 
     private int[] computeColumnWidths(TicketReceiptLayoutProfile profile) {

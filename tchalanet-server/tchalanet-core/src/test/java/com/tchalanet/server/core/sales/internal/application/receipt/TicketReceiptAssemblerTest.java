@@ -12,14 +12,12 @@ import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.types.money.CurrencyCode;
 import com.tchalanet.server.common.types.money.Money;
 import com.tchalanet.server.core.sales.api.config.TicketPublicProperties;
-import com.tchalanet.server.core.sales.api.model.coverage.SettlementPayoutMode;
 import com.tchalanet.server.core.sales.api.model.origin.TicketSaleChannel;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintBranding;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintDraw;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintIdentity;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintLifecycle;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintLine;
-import com.tchalanet.server.core.sales.api.model.print.TicketPrintLineCoverage;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintMetadata;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintMoney;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintQrPayload;
@@ -34,6 +32,7 @@ import com.tchalanet.server.core.sales.api.model.status.TicketSaleStatus;
 import com.tchalanet.server.core.sales.api.model.status.TicketSettlementStatus;
 import com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketPublicCodeFormatter;
 import com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketVerificationUrlBuilder;
+import com.tchalanet.server.platform.tenantgame.api.model.SelectionPolicy;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -59,11 +58,12 @@ class TicketReceiptAssemblerTest {
     }
 
     @Test
-    void receiptLineCarriesCoverageSummaryWithoutTechnicalVariantLabels() {
+    void receiptLineKeepsSelectionPolicySnapshotWithoutTechnicalVariantLabels() {
         var receipt = assembler().assemble(printViewWithExactPlusBoxLine(), Locale.FRENCH);
 
         var line = receipt.gameSections().getFirst().lines().getFirst();
         assertThat(line.optionLabel()).isEqualTo("Exact + Permuté");
+        assertThat(line.selectionPolicySnapshot()).isEqualTo(SelectionPolicy.EXPLICIT_ONLY);
     }
 
     private TicketReceiptAssembler assembler() {
@@ -92,15 +92,15 @@ class TicketReceiptAssemblerTest {
                 GameCode.HT_LOTO4,
                 BetType.LOTTO4_PATTERN,
                 (short) 2,
+                "Désordre / Box",
                 "Loto 4",
                 "1234",
                 "1234",
-                new BigDecimal("100"),
                 stake,
+                SelectionPolicy.EXPLICIT_ONLY,
                 TicketLineOrigin.CUSTOMER,
                 TicketLinePricingSource.STANDARD,
                 TicketLineSelectionSource.CUSTOMER_SELECTED,
-                stake,
                 null,
                 null,
                 null
@@ -131,27 +131,15 @@ class TicketReceiptAssemblerTest {
                 GameCode.HT_LOTO3,
                 BetType.LOTTO3_3D,
                 (short) 3,
+                "Exact + Permuté",
                 "Loto 3",
                 "123",
                 "123",
-                new BigDecimal("500"),
                 stake,
-                List.of(
-                    new TicketPrintLineCoverage(
-                        "LOTTO3_STRAIGHT",
-                        money("10"),
-                        new BigDecimal("500"),
-                        "ALTERNATIVE"),
-                    new TicketPrintLineCoverage(
-                        "LOTTO3_BOX_6_WAY",
-                        money("10"),
-                        new BigDecimal("80"),
-                        "ALTERNATIVE")
-                ),
+                SelectionPolicy.EXPLICIT_ONLY,
                 TicketLineOrigin.CUSTOMER,
                 TicketLinePricingSource.STANDARD,
                 TicketLineSelectionSource.CUSTOMER_SELECTED,
-                stake,
                 null,
                 null,
                 null

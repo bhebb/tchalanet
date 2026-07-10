@@ -55,6 +55,13 @@ public class PdfDocumentRenderer implements DocumentRenderer {
         byte[] bytes = pdf.render(
             model,
             qrBytes,
+            toReceiptModel(null, new ReceiptDocumentContent(
+                List.of(),
+                List.of(),
+                List.of(),
+                List.of(),
+                receipt.postQrLines()
+            )),
             request.options().paperSizeOrDefault()
         );
 

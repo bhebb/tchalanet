@@ -12,6 +12,7 @@ public record TicketReceiptPrintContent(
     List<TicketReceiptSectionContent> sections,
     List<TicketReceiptTextLine> totals,
     List<TicketReceiptTextLine> footerLines,
+    List<TicketReceiptTextLine> postQrLines,
     TicketReceiptQrView qr,
     String filenameBase,
     Locale locale,
@@ -24,6 +25,7 @@ public record TicketReceiptPrintContent(
         sections = sections == null ? List.of() : List.copyOf(sections);
         totals = totals == null ? List.of() : List.copyOf(totals);
         footerLines = footerLines == null ? List.of() : List.copyOf(footerLines);
+        postQrLines = postQrLines == null ? List.of() : List.copyOf(postQrLines);
         metadata = metadata == null ? Map.of() : Map.copyOf(metadata);
     }
 
@@ -38,6 +40,7 @@ public record TicketReceiptPrintContent(
         }
         totals.forEach(line -> lines.add(line.text()));
         footerLines.forEach(line -> lines.add(line.text()));
+        postQrLines.forEach(line -> lines.add(line.text()));
         return List.copyOf(lines);
     }
 
