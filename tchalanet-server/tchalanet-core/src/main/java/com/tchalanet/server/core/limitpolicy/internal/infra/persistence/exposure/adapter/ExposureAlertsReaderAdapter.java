@@ -36,25 +36,6 @@ public class ExposureAlertsReaderAdapter implements ExposureAlertsReaderPort {
             .toList();
     }
 
-    @Override
-    public List<Row> topBySettlementPayoutExposure(
-        DrawId drawId,
-        LimitScopeRef scope,
-        int limit
-    ) {
-        var scopeRow = ScopePersistenceMapper.toRow(scope);
-
-        var rows = repo.topBySettlementPayoutExposure(
-            drawId.value(),
-            scopeRow.scopeType(),
-            scopeRow.scopeId(),
-            PageRequest.of(0, normalizedLimit(limit)));
-
-        return rows.stream()
-            .map(this::toRow)
-            .toList();
-    }
-
     private Row toRow(
         com.tchalanet.server.core.limitpolicy.internal.infra.persistence.exposure.DrawExposureJpaEntity entity
     ) {
@@ -62,7 +43,6 @@ public class ExposureAlertsReaderAdapter implements ExposureAlertsReaderPort {
             entity.getBetType(),
             entity.getSelectionKey(),
             entity.getStakeTotal(),
-            entity.getSettlementPayoutExposureTotal(),
             entity.getSalesCount());
     }
 

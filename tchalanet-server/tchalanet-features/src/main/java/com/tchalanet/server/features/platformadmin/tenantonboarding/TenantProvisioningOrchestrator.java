@@ -326,10 +326,7 @@ public class TenantProvisioningOrchestrator {
         upsertTenantLimit(tenantId, scope, RuleKey.MAX_LINES_PER_TICKET, "maxCount", 200);
         upsertTenantLimit(tenantId, scope, RuleKey.MAX_STAKE_PER_LINE, "valueCents", 10_000_000L);
         upsertTenantLimit(tenantId, scope, RuleKey.MAX_STAKE_PER_TICKET, "valueCents", 100_000_000L);
-        upsertTenantLimit(tenantId, scope, RuleKey.MAX_POTENTIAL_PAYOUT_PER_LINE, "valueCents", 1_000_000_000L);
-        upsertTenantLimit(tenantId, scope, RuleKey.MAX_POTENTIAL_PAYOUT_PER_TICKET, "valueCents", 5_000_000_000L);
         upsertTenantLimit(tenantId, scope, RuleKey.MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW, "valueCents", 50_000_000L);
-        upsertTenantLimit(tenantId, scope, RuleKey.MAX_POTENTIAL_PAYOUT_EXPOSURE_PER_SELECTION_PER_DRAW, "valueCents", 5_000_000_000L);
     }
 
     private void upsertTenantLimit(

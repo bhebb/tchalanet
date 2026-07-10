@@ -9,8 +9,7 @@ import java.util.List;
 
 public interface ExposureAlertsReaderPort {
   List<Row> topByStake(DrawId drawId, LimitScopeRef scope, int limit);
-  List<Row> topBySettlementPayoutExposure(DrawId drawId, LimitScopeRef scope, int limit);
 
   record Row(BetType betType, String selectionKey,
-             BigDecimal stakeTotal, BigDecimal settlementPayoutExposureTotal, long salesCount) {}
+             BigDecimal stakeTotal, long salesCount) {}
 }

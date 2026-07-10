@@ -75,7 +75,7 @@ class SalesPolicyPromotionSpringIntegrationTest extends BusinessRuntimeIntegrati
                 draw.drawId(),
                 draw.drawChannelId(),
                 FIXED_NOW,
-                List.of(new LimitLineContext(BetType.MATCH_1_2D, "05", 1000, 60000))))));
+                List.of(new LimitLineContext(BetType.MATCH_1_2D, "05", 1000))))));
         assertThat(directEvaluation.outcome()).isEqualTo(BreachOutcome.BLOCK);
 
         var result = withContext(sellerContext, () -> commandBus.execute(new SellTicketCommand(

@@ -41,7 +41,7 @@ public class ExposureProjectorAdapter implements ExposureProjectorPort {
                 // "A result was returned when none was expected".
                 jdbc.query(
                     """
-                    SELECT increment_draw_exposure(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    SELECT increment_draw_exposure(?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     rs -> null,
                     event.tenantId().value(),
@@ -51,7 +51,6 @@ public class ExposureProjectorAdapter implements ExposureProjectorPort {
                     line.betType().name(),
                     canonicalSelection.key().value(),
                     stake,
-                    java.math.BigDecimal.ZERO,
                     event.eventId().value(),
                     Timestamp.from(event.occurredAt())
                 );

@@ -178,20 +178,11 @@ public enum RuleKey {
     // Mise totale maximum déjà exposée sur une sélection pour un tirage donné.
     MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW,
 
-    // Gain potentiel total maximum déjà exposé sur une sélection pour un tirage donné.
-    MAX_POTENTIAL_PAYOUT_EXPOSURE_PER_SELECTION_PER_DRAW,
-
     // Mise maximum par type de pari dans un même ticket.
     MAX_STAKE_PER_BET_TYPE_PER_TICKET,
 
     // Mise maximum sur une même sélection dans un même ticket.
     MAX_STAKE_PER_SELECTION_PER_TICKET,
-
-    // Gain potentiel maximum pour tout le ticket.
-    MAX_POTENTIAL_PAYOUT_PER_TICKET,
-
-    // Gain potentiel maximum pour une seule ligne.
-    MAX_POTENTIAL_PAYOUT_PER_LINE,
 
     // Nombre maximum de ventes sur une sélection pour un tirage.
     MAX_SALES_COUNT_PER_SELECTION_PER_DRAW,
@@ -358,15 +349,14 @@ LimitLineContext représente une ligne de ticket déjà préparée par Sales.
 public record LimitLineContext(
     BetType betType,
     String selectionKey,
-    long stakeCents,
-    long potentialPayoutCents
+    long stakeCents
 ) {}
 
 Important :
 
 selectionKey doit déjà être canonique.
 stakeCents est exprimé en centimes.
-potentialPayoutCents est conservé pour compatibilité interne mais la vente V0 realized-gains le fournit à 0; les règles publiées s'appuient sur les mises, les ventes et les blocages.
+La vente V0 realized-gains ne publie aucun payout avant résultat; les limites de vente s'appuient sur les mises, les ventes et les blocages.
 12. Runtime flow
 Sales prépare une vente
         ↓
@@ -550,8 +540,6 @@ MAX_LINES_PER_TICKET
 MAX_STAKE_PER_TICKET
 MAX_STAKE_PER_BET_TYPE_PER_TICKET
 MAX_STAKE_PER_SELECTION_PER_TICKET
-MAX_POTENTIAL_PAYOUT_PER_TICKET
-MAX_POTENTIAL_PAYOUT_PER_LINE
 BLOCK_SELECTION_PER_DRAW
 BLOCK_BET_TYPE
 20. Règles stateful / exposure
@@ -561,7 +549,6 @@ Les règles stateful utilisent draw_exposure.
 Exemples :
 
 MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW
-MAX_POTENTIAL_PAYOUT_EXPOSURE_PER_SELECTION_PER_DRAW
 MAX_SALES_COUNT_PER_SELECTION_PER_DRAW
 
 Ces règles comparent :
@@ -845,7 +832,6 @@ bet_type
 selection_key
 stake_total
 sales_count
-potential_payout_total
 last_event_id
 last_event_at
 version

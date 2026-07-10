@@ -156,8 +156,7 @@ public class SalePreparationOrchestrator {
             .map(line -> new LimitLineContext(
                 line.betType(),
                 line.selection().key().value(),
-                toCents(line.stakeAmount().amount()),
-                0L))
+                toCents(line.stakeAmount().amount())))
             .toList();
 
         var limitCtx = new LimitContext(

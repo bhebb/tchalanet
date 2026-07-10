@@ -49,9 +49,6 @@ public class DrawExposureJpaEntity extends BaseTenantEntity {
     @Column(name = "sales_count", nullable = false)
     private long salesCount = 0L;
 
-    @Column(name = "potential_payout_total", nullable = false, precision = 14, scale = 2)
-    private BigDecimal settlementPayoutExposureTotal = BigDecimal.ZERO;
-
     @Column(name = "last_event_id")
     private UUID lastEventId;
 
