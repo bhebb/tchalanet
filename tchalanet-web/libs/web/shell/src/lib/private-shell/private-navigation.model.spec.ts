@@ -1,4 +1,8 @@
-import { PLATFORM_NAVIGATION, TENANT_ADMIN_NAVIGATION } from './private-navigation.model';
+import {
+  PLATFORM_NAVIGATION,
+  TENANT_ADMIN_NAVIGATION,
+  TENANT_ADMIN_USER_GUIDE_URL,
+} from './private-navigation.model';
 
 describe('PLATFORM_NAVIGATION', () => {
   it('groups the Super Admin platform navigation by operational responsibility', () => {
@@ -104,7 +108,6 @@ describe('PLATFORM_NAVIGATION', () => {
       '/app/platform/catalog/result-slots',
       '/app/platform/catalog/result-slot-calendars',
       '/app/platform/catalog/plans',
-      '/app/platform/catalog/pricing',
       '/app/platform/catalog/settings',
       '/app/platform/catalog/themes',
       '/app/platform/catalog/translations',
@@ -157,6 +160,15 @@ describe('PLATFORM_NAVIGATION', () => {
 
     expect(items.map(item => item.id)).toContain('maryaj-gratis');
     expect(items.map(item => item.id)).not.toContain('promotions');
+  });
+
+  it('points tenant admin help to the published user guide', () => {
+    const help = TENANT_ADMIN_NAVIGATION[0].items.find(item => item.id === 'help');
+
+    expect(help?.destination).toEqual({
+      kind: 'url',
+      value: TENANT_ADMIN_USER_GUIDE_URL,
+    });
   });
 
   it('exposes tenant page models under my company', () => {

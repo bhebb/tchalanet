@@ -2,6 +2,9 @@ import { NavigationSection } from '@tch/api';
 
 export type PrivateSpace = 'platform' | 'admin' | 'cashier';
 
+export const TENANT_ADMIN_USER_GUIDE_URL =
+  'http://localhost:8000/02-functional/guides/operator-admin-guide/';
+
 export interface TenantAdminNavigationOptions {
   readonly maryajGratisEnabled?: boolean;
 }
@@ -647,7 +650,7 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
         id: 'help',
         labelKey: 'nav.admin.help',
         icon: 'help_outline',
-        destination: { kind: 'route', value: '/app/admin/help' },
+        destination: { kind: 'url', value: TENANT_ADMIN_USER_GUIDE_URL },
       },
     ],
   },

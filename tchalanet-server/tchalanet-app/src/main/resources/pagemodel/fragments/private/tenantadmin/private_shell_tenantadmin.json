@@ -330,6 +330,13 @@
                 "icon": "event_note"
               },
               {
+                "id": "reports-financials",
+                "label_key": "nav.admin.reports_financials",
+                "path": "/app/admin/reports/financials",
+                "kind": "internal",
+                "icon": "query_stats"
+              },
+              {
                 "id": "reports-exports",
                 "label_key": "nav.admin.reports_exports",
                 "path": "/app/admin/reports/exports",
@@ -421,8 +428,8 @@
             "id": "help",
             "label_key": "nav.admin.help",
             "icon": "help_outline",
-            "path": "/app/admin/help",
-            "kind": "internal"
+            "path": "http://localhost:8000/02-functional/guides/operator-admin-guide/",
+            "kind": "url"
           }
         ]
       }
