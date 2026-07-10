@@ -53,7 +53,6 @@ export interface AdminReportSummary {
   readonly promotionLines: number;
   readonly promotionPricedLines: number;
   readonly promotionPayoutBase: number;
-  readonly promotionPotentialPayout: number;
   readonly netRevenueEstimated: number;
   readonly netRevenuePaidBasis: number;
 }

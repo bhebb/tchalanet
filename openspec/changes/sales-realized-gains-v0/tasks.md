@@ -12,6 +12,15 @@
 - [x] Block sales when draw channel/result slot is inactive or mismatched.
 - [x] Evaluate limits after promotional lines are materialized without using potential payout.
 - [x] Remove potential payout from public POS sale/preparation/print/receipt DTOs.
+- [x] Remove potential payout from public ticket verification and admin reporting DTOs.
+- [x] Stop loading potential payout fields in ticket verification projection.
+- [x] Stop accumulating promotion potential payout deltas in analytics projectors.
+- [x] Remove potential payout from TicketPlacedEvent payloads and neutralize exposure projection.
+- [x] Remove potential payout fields from applied-promotion audit snapshots.
+- [x] Drop aggregate `sales_ticket.potential_payout_amount` and remove its JPA/view/archive mappings.
+- [x] Drop `sales_ticket_line.potential_payout_amount` and derive the line summary from settlement snapshots.
+- [x] Drop persisted line potential-gain summary columns and derive them from line coverages.
+- [x] Remove potential-gain wording from tenant-admin policy overview.
 - [x] Remove potential payout display from POS ticket details.
 - [x] Remove potential payout display from receipt print text.
 - [x] Run focused backend and web validation.

@@ -12,7 +12,7 @@ import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.types.money.CurrencyCode;
 import com.tchalanet.server.common.types.money.Money;
 import com.tchalanet.server.core.sales.api.config.TicketPublicProperties;
-import com.tchalanet.server.core.sales.api.model.coverage.PotentialGainMode;
+import com.tchalanet.server.core.sales.api.model.coverage.SettlementPayoutMode;
 import com.tchalanet.server.core.sales.api.model.origin.TicketSaleChannel;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintBranding;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintDraw;

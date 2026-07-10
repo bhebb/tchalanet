@@ -9,7 +9,7 @@ import com.tchalanet.server.core.limitpolicy.internal.domain.model.LimitFactsSna
 import java.util.ArrayList;
 import java.util.List;
 
-public final class MaxPotentialPayoutPerLineEvaluator implements LimitRuleEvaluator {
+public final class MaxSettlementPayoutPerLineEvaluator implements LimitRuleEvaluator {
 
     @Override
     public RuleKey supports() {
@@ -26,16 +26,16 @@ public final class MaxPotentialPayoutPerLineEvaluator implements LimitRuleEvalua
         var breaches = new ArrayList<LimitBreach>();
 
         for (var line : ctx.lines()) {
-            if (line.potentialPayoutCents() > valueCents) {
+            if (line.settlementPayoutCents() > valueCents) {
                 breaches.add(new LimitBreach(
                     rule.ruleKey(),
                     rule.onBreach(),
                     rule.appliedScope(),
-                    "limit.max_potential_payout_per_line",
-                    "limit.max_potential_payout_per_line",
+                    "limit.max_settlement_payout_per_line",
+                    "limit.max_settlement_payout_per_line",
                     valueCents,
                     null,
-                    line.potentialPayoutCents()));
+                    line.settlementPayoutCents()));
             }
         }
 

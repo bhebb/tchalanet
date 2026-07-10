@@ -48,7 +48,6 @@ public class TicketAggregateMutator {
         requireSame("currency", managed.getCurrency(), domain.money().currency().value());
         requireSame("stakeAmount", managed.getStakeAmount(), domain.money().breakdown().stake().amount());
         requireSame("totalAmount", managed.getTotalAmount(), domain.money().breakdown().total().amount());
-        requireSame("potentialPayoutAmount", managed.getPotentialPayoutAmount(), domain.potentialPayout().amount());
     }
 
     private void applyLines(TicketJpaEntity managed, Ticket domain) {
@@ -90,17 +89,6 @@ public class TicketAggregateMutator {
         requireSame("line.displaySelection", managed.getDisplaySelection(), domain.selection().displayLabel());
         requireSame("line.stakeAmount", managed.getStakeAmount(), domain.stakeAmount().amount());
         requireSame("line.oddsSnapshot", managed.getOddsSnapshot(), domain.oddsSnapshot());
-        requireSame(
-            "line.potentialPayoutAmount",
-            managed.getPotentialPayoutAmount(),
-            domain.potentialPayoutAmount().amount());
-        requireSame("line.potentialGainMode", managed.getPotentialGainMode(), domain.potentialGainMode());
-        requireSame("line.minPotentialGain", managed.getMinPotentialGain(), domain.minPotentialGain().amount());
-        requireSame("line.maxPotentialGain", managed.getMaxPotentialGain(), domain.maxPotentialGain().amount());
-        requireSame(
-            "line.totalPotentialGain",
-            managed.getTotalPotentialGain(),
-            domain.totalPotentialGain() == null ? null : domain.totalPotentialGain().amount());
         assertImmutableCoverageFields(managed, domain);
     }
 
@@ -120,9 +108,9 @@ public class TicketAggregateMutator {
             requireSame("line.coverage.stakeAmount", existing.getStakeAmount(), domainCoverage.stakeAmount().amount());
             requireSame("line.coverage.oddsSnapshot", existing.getOddsSnapshot(), domainCoverage.oddsSnapshot());
             requireSame(
-                "line.coverage.potentialGainSnapshot",
-                existing.getPotentialGainSnapshot(),
-                domainCoverage.potentialGainSnapshot().amount());
+                "line.coverage.settlementPayoutSnapshot",
+                existing.getSettlementPayoutSnapshot(),
+                domainCoverage.settlementPayoutSnapshot().amount());
             requireSame("line.coverage.winMode", existing.getWinMode(), domainCoverage.winMode());
         }
 

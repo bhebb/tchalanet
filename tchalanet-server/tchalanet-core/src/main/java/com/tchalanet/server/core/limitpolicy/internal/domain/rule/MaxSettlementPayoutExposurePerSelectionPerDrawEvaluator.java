@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public final class MaxPotentialPayoutExposurePerSelectionPerDrawEvaluator implements LimitRuleEvaluator {
+public final class MaxSettlementPayoutExposurePerSelectionPerDrawEvaluator implements LimitRuleEvaluator {
 
     @Override
     public RuleKey supports() {
@@ -29,7 +29,7 @@ public final class MaxPotentialPayoutExposurePerSelectionPerDrawEvaluator implem
         for (var line : ctx.lines()) {
             deltaBySelection.merge(
                 new SelectionKey(line.betType(), line.selectionKey()),
-                line.potentialPayoutCents(),
+                line.settlementPayoutCents(),
                 Long::sum);
         }
 
@@ -44,17 +44,17 @@ public final class MaxPotentialPayoutExposurePerSelectionPerDrawEvaluator implem
                 selection.betType(),
                 selection.selectionKey());
 
-            var next = current.potentialPayoutTotalCents() + delta;
+            var next = current.settlementPayoutExposureTotalCents() + delta;
 
             if (next > valueCents) {
                 breaches.add(new LimitBreach(
                     rule.ruleKey(),
                     rule.onBreach(),
                     rule.appliedScope(),
-                    "limit.max_potential_payout_exposure_per_selection_per_draw",
-                    "limit.max_potential_payout_exposure_per_selection_per_draw",
+                    "limit.max_settlement_payout_exposure_per_selection_per_draw",
+                    "limit.max_settlement_payout_exposure_per_selection_per_draw",
                     valueCents,
-                    current.potentialPayoutTotalCents(),
+                    current.settlementPayoutExposureTotalCents(),
                     delta));
             }
         }

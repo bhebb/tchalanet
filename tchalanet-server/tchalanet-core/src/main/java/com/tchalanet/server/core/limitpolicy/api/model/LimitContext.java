@@ -58,9 +58,9 @@ public record LimitContext(
             .sum();
     }
 
-    public long totalPotentialPayoutCents() {
+    public long totalSettlementPayoutCents() {
         return lines.stream()
-            .mapToLong(LimitLineContext::potentialPayoutCents)
+            .mapToLong(LimitLineContext::settlementPayoutCents)
             .sum();
     }
 

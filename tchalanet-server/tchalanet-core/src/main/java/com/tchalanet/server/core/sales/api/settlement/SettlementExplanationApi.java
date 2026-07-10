@@ -6,7 +6,7 @@ import com.tchalanet.server.catalog.game.api.model.BetType;
  * Explains the computed settlement variant of a sale line for admin/support/debug consumers.
  *
  * <p>The variant is recomputed on demand from {@code betType + betOption + selection}; it is not
- * persisted (payout is already snapshotted via odds/potential payout at sale time). See change
+ * persisted because realized payout is calculated at settlement time from sale snapshots. See change
  * {@code supported-bet-options-combinations-v1}.
  */
 public interface SettlementExplanationApi {

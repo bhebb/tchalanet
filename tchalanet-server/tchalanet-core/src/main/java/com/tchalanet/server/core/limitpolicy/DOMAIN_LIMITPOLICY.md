@@ -366,7 +366,7 @@ Important :
 
 selectionKey doit déjà être canonique.
 stakeCents est exprimé en centimes.
-potentialPayoutCents est exprimé en centimes.
+potentialPayoutCents est conservé pour compatibilité interne mais la vente V0 realized-gains le fournit à 0; les règles publiées s'appuient sur les mises, les ventes et les blocages.
 12. Runtime flow
 Sales prépare une vente
         ↓

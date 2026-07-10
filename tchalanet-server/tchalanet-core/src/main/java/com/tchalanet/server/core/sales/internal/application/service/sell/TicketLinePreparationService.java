@@ -10,7 +10,7 @@ import com.tchalanet.server.common.types.money.CurrencyCode;
 import com.tchalanet.server.common.types.money.Money;
 import com.tchalanet.server.core.pricing.api.query.ResolveSellerTerminalOddsQuery;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketLineInput;
-import com.tchalanet.server.core.sales.api.model.coverage.PotentialGainMode;
+import com.tchalanet.server.core.sales.api.model.coverage.SettlementPayoutMode;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineOrigin;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSource;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource;
@@ -41,7 +41,7 @@ import java.util.Objects;
  * <ul>
  *   <li>Generate the line id via {@link IdGenerator}.</li>
  *   <li>Resolve effective odds via {@link ResolveSellerTerminalOddsQuery}.</li>
- *   <li>Compute the potential payout = stake × odds.</li>
+ *   <li>Snapshot the payout rule used later if the official result matches.</li>
  *   <li>Canonicalize the raw selection via {@link SelectionApi}.</li>
  *   <li>Wrap amounts in {@link Money} with the ticket's currency.</li>
  * </ul>
@@ -88,31 +88,31 @@ public class TicketLinePreparationService {
                 input,
                 plannedCoverage)
                 .setScale(4, RoundingMode.HALF_UP);
-            var potential = coverageStake.multiply(odds).setScale(2, RoundingMode.HALF_UP);
+            var settlementPayout = coverageStake.multiply(odds).setScale(2, RoundingMode.HALF_UP);
             coverages.add(new TicketLineCoverage(
                 plannedCoverage.pricingVariantCode(),
                 new Money(coverageStake, currency),
                 odds,
-                new Money(potential, currency),
+                new Money(settlementPayout, currency),
                 plannedCoverage.winMode()
             ));
         }
-        var minPotential = coverages.stream()
-            .map(TicketLineCoverage::potentialGainSnapshot)
+        var minSettlement = coverages.stream()
+            .map(TicketLineCoverage::settlementPayoutSnapshot)
             .min(Comparator.comparing(Money::amount))
             .orElseThrow();
-        var maxPotential = coverages.stream()
-            .map(TicketLineCoverage::potentialGainSnapshot)
+        var maxSettlement = coverages.stream()
+            .map(TicketLineCoverage::settlementPayoutSnapshot)
             .max(Comparator.comparing(Money::amount))
             .orElseThrow();
-        var totalPotential = coveragePlan.potentialGainMode() == PotentialGainMode.RANGE_CUMULATIVE
+        var totalSettlement = coveragePlan.settlementPayoutMode() == SettlementPayoutMode.RANGE_CUMULATIVE
             ? coverages.stream()
-                .map(TicketLineCoverage::potentialGainSnapshot)
+                .map(TicketLineCoverage::settlementPayoutSnapshot)
                 .reduce(Money.zero(currency), Money::plus)
             : null;
-        var linePotential = totalPotential == null ? maxPotential : totalPotential;
+        var lineSettlement = totalSettlement == null ? maxSettlement : totalSettlement;
         var lineOdds = coverages.stream()
-            .max(Comparator.comparing(coverage -> coverage.potentialGainSnapshot().amount()))
+            .max(Comparator.comparing(coverage -> coverage.settlementPayoutSnapshot().amount()))
             .orElseThrow()
             .oddsSnapshot();
 
@@ -125,11 +125,11 @@ public class TicketLinePreparationService {
             new Money(stake, currency), // stakeAmount
             new Money(stake, currency), // payoutBaseAmount = stake for normal lines
             lineOdds, // oddsSnapshot: compatibility summary; coverages carry authoritative odds
-            linePotential, // potentialPayoutAmount: max alternative or cumulative total
-            coveragePlan.potentialGainMode(),
-            minPotential,
-            maxPotential,
-            totalPotential,
+            lineSettlement, // in-memory settlement summary; coverages carry authoritative rules
+            coveragePlan.settlementPayoutMode(),
+            minSettlement,
+            maxSettlement,
+            totalSettlement,
             List.copyOf(coverages),
             input.betOption(),
             coveragePlan.selectionPolicySnapshot(),

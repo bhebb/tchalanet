@@ -9,7 +9,7 @@ public record TicketLineCoverage(
     PricingVariantCode pricingVariantCode,
     Money stakeAmount,
     BigDecimal oddsSnapshot,
-    Money potentialGainSnapshot,
+    Money settlementPayoutSnapshot,
     WinMode winMode
 ) {
 
@@ -17,10 +17,10 @@ public record TicketLineCoverage(
         Objects.requireNonNull(pricingVariantCode, "coverage.pricing_variant_required");
         Objects.requireNonNull(stakeAmount, "coverage.stake_required");
         Objects.requireNonNull(oddsSnapshot, "coverage.odds_required");
-        Objects.requireNonNull(potentialGainSnapshot, "coverage.potential_gain_required");
+        Objects.requireNonNull(settlementPayoutSnapshot, "coverage.settlement_payout_required");
         winMode = winMode == null ? WinMode.ALTERNATIVE : winMode;
 
-        if (!stakeAmount.currency().equals(potentialGainSnapshot.currency())) {
+        if (!stakeAmount.currency().equals(settlementPayoutSnapshot.currency())) {
             throw new IllegalArgumentException("coverage.currency_mismatch");
         }
         if (oddsSnapshot.signum() <= 0) {

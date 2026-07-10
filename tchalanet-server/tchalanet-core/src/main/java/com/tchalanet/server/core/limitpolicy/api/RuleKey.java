@@ -18,8 +18,8 @@ public enum RuleKey {
     // Exemple Haïti : limiter le total vendu sur "05" pour le tirage New York Midi afin d’éviter un numéro trop chargé.
     MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW,
 
-    // Gain potentiel total maximum déjà exposé sur une sélection pour un tirage donné.
-    // Exemple Haïti : même si les mises sur "05" semblent faibles, bloquer si le payout potentiel devient trop risqué.
+    // Exposition maximale de payout au settlement sur une sélection pour un tirage donné.
+    // Exemple Haïti : même si les mises sur "05" semblent faibles, bloquer si le payout à couvrir devient trop risqué.
     MAX_POTENTIAL_PAYOUT_EXPOSURE_PER_SELECTION_PER_DRAW,
 
     // Mise maximum par type de pari dans un même ticket.
@@ -30,11 +30,11 @@ public enum RuleKey {
     // Exemple Haïti : si le client répète "05" plusieurs fois dans le ticket, limiter le total cumulé sur "05".
     MAX_STAKE_PER_SELECTION_PER_TICKET,
 
-    // Gain potentiel maximum pour tout le ticket.
+    // Payout maximum à couvrir si tout le ticket gagne au settlement.
     // Exemple Haïti : un ticket de 500 HTG peut produire un payout énorme selon les cotes; cette règle limite ce risque global.
     MAX_POTENTIAL_PAYOUT_PER_TICKET,
 
-    // Gain potentiel maximum pour une seule ligne de ticket.
+    // Payout maximum à couvrir pour une seule ligne si elle gagne au settlement.
     // Exemple Haïti : éviter qu’une seule ligne "12-34" en mariage crée à elle seule un paiement trop élevé.
     MAX_POTENTIAL_PAYOUT_PER_LINE,
 

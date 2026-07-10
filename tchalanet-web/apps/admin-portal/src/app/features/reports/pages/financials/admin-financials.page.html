@@ -82,7 +82,7 @@
         <div class="financials-stat">
           <span class="financials-stat__label">Promotions</span>
           <span class="financials-stat__value">
-            {{ vm.data.summary.promotionPotentialPayout | number:'1.2-2' }}
+            {{ vm.data.summary.promotionPayoutBase | number:'1.2-2' }}
           </span>
         </div>
       </section>
@@ -106,7 +106,7 @@
                     <th class="financials-table__num">Ventes</th>
                     <th class="financials-table__num">Commissions</th>
                     <th class="financials-table__num">Frais tenant</th>
-                    <th class="financials-table__num">Promo potentiel</th>
+                    <th class="financials-table__num">Promo base</th>
                     <th class="financials-table__num">Net estimé</th>
                   </tr>
                 </thead>
@@ -123,7 +123,7 @@
                       <td class="financials-table__num">{{ row.sellerCommission | number:'1.2-2' }}</td>
                       <td class="financials-table__num">{{ row.tenantCharges | number:'1.2-2' }}</td>
                       <td class="financials-table__num">
-                        {{ row.promotionPotentialPayout | number:'1.2-2' }}
+                        {{ row.promotionPayoutBase | number:'1.2-2' }}
                       </td>
                       <td
                         class="financials-table__num financials-table__net"
@@ -178,7 +178,7 @@
                       <td class="financials-table__num">{{ row.sellerCharges | number:'1.2-2' }}</td>
                       <td class="financials-table__num">{{ row.tenantCharges | number:'1.2-2' }}</td>
                       <td class="financials-table__num">
-                        {{ row.promotionPotentialPayout | number:'1.2-2' }}
+                        {{ row.promotionPayoutBase | number:'1.2-2' }}
                       </td>
                       <td
                         class="financials-table__num financials-table__net"

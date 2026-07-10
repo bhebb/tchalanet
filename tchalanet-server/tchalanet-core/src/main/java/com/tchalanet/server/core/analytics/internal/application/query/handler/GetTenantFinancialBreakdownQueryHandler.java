@@ -80,7 +80,6 @@ public class GetTenantFinancialBreakdownQueryHandler
     long promotionLines = 0L;
     long promotionPricedLines = 0L;
     long promotionPayoutBase = 0L;
-    long promotionPotentialPayout = 0L;
     long netEstimated = 0L;
     long netPaidBasis = 0L;
 
@@ -97,7 +96,6 @@ public class GetTenantFinancialBreakdownQueryHandler
       promotionLines += row.getPromotionLineCount();
       promotionPricedLines += row.getPromotionPricedLineCount();
       promotionPayoutBase += row.getPromotionPayoutBaseCents();
-      promotionPotentialPayout += row.getPromotionPotentialPayoutCents();
       netEstimated += row.getNetRevenueEstimatedCents();
       netPaidBasis += row.getNetRevenuePaidBasisCents();
     }
@@ -115,7 +113,6 @@ public class GetTenantFinancialBreakdownQueryHandler
         promotionLines,
         promotionPricedLines,
         fromCents(promotionPayoutBase),
-        fromCents(promotionPotentialPayout),
         fromCents(netEstimated),
         fromCents(netPaidBasis)
     );
@@ -136,7 +133,6 @@ public class GetTenantFinancialBreakdownQueryHandler
         row.getPromotionLineCount(),
         row.getPromotionPricedLineCount(),
         fromCents(row.getPromotionPayoutBaseCents()),
-        fromCents(row.getPromotionPotentialPayoutCents()),
         fromCents(row.getNetRevenueEstimatedCents()),
         fromCents(row.getNetRevenuePaidBasisCents())
     );
@@ -161,7 +157,6 @@ public class GetTenantFinancialBreakdownQueryHandler
         row.getPromotionLineCount(),
         row.getPromotionPricedLineCount(),
         fromCents(row.getPromotionPayoutBaseCents()),
-        fromCents(row.getPromotionPotentialPayoutCents()),
         fromCents(row.getNetRevenueEstimatedCents()),
         fromCents(row.getNetRevenuePaidBasisCents())
     );
@@ -181,7 +176,6 @@ public class GetTenantFinancialBreakdownQueryHandler
         row.getPromotionLineCount(),
         row.getPromotionPricedLineCount(),
         fromCents(row.getPromotionPayoutBaseCents()),
-        fromCents(row.getPromotionPotentialPayoutCents()),
         fromCents(row.getNetRevenueEstimatedCents()),
         fromCents(row.getNetRevenuePaidBasisCents())
     );
@@ -207,7 +201,6 @@ public class GetTenantFinancialBreakdownQueryHandler
         row.getPromotionLineCount(),
         row.getPromotionPricedLineCount(),
         fromCents(row.getPromotionPayoutBaseCents()),
-        fromCents(row.getPromotionPotentialPayoutCents()),
         fromCents(row.getNetRevenueEstimatedCents()),
         fromCents(row.getNetRevenuePaidBasisCents())
     );

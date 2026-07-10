@@ -166,7 +166,6 @@ class VerifyTicketByPublicCodeQueryHandlerTest {
                     null,
                     "12-34",
                     new Money(BigDecimal.ZERO, usd),
-                    new Money(BigDecimal.valueOf(100), usd),
                     true,
                     TicketReceiptI18nKeys.PROMOTION_FREE_GAME_LINE
                 ))

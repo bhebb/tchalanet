@@ -68,7 +68,7 @@ public class TicketLineCoverageJpaEntity extends BaseTenantEntity {
         scale = 4,
         updatable = false
     )
-    private BigDecimal potentialGainSnapshot;
+    private BigDecimal settlementPayoutSnapshot;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "win_mode", nullable = false, length = 16, updatable = false)

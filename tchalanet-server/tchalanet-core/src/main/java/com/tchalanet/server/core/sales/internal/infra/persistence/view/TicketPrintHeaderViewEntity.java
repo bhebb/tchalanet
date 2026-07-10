@@ -149,9 +149,6 @@ public class TicketPrintHeaderViewEntity {
     @Column(name = "total_amount", nullable = false)
     private BigDecimal totalAmount;
 
-    @Column(name = "potential_payout_amount", nullable = false)
-    private BigDecimal potentialPayoutAmount;
-
     @Column(name = "currency", nullable = false)
     private String currency;
 

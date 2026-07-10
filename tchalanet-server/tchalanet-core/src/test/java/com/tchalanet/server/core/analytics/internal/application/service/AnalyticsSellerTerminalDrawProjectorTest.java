@@ -86,7 +86,7 @@ class AnalyticsSellerTerminalDrawProjectorTest {
     assertThat(row.getWaivedChargeCents()).isEqualTo(200L);
     assertThat(row.getPromotionLineCount()).isEqualTo(1L);
     assertThat(row.getPromotionPayoutBaseCents()).isEqualTo(12500L);
-    assertThat(row.getPromotionPotentialPayoutCents()).isEqualTo(150000L);
+    assertThat(row.getPromotionPotentialPayoutCents()).isZero();
     assertThat(row.getNetRevenueEstimatedCents()).isEqualTo(550L);
     assertThat(row.getNetRevenuePaidBasisCents()).isEqualTo(550L);
 
@@ -123,7 +123,6 @@ class AnalyticsSellerTerminalDrawProjectorTest {
             HTG,
             money("10.00"),
             money("15.00"),
-            money("1500.00"),
             List.of(
                 new TicketMoneyPayload.ChargeItem(
                     TicketChargeType.BUYER_SMS, money("5.00"), ChargePaidBy.BUYER, false, null),
@@ -153,7 +152,6 @@ class AnalyticsSellerTerminalDrawProjectorTest {
         (short) 1,
         stake,
         new BigDecimal("12.0000"),
-        money(origin == TicketLineOrigin.PROMOTION ? "1500.00" : "120.00"),
         origin,
         pricingSource,
         TicketLineSelectionSource.CUSTOMER_SELECTED,

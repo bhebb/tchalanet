@@ -1,7 +1,6 @@
 package com.tchalanet.server.core.sales.api.model.verification;
 
 import com.tchalanet.server.common.types.money.Money;
-import com.tchalanet.server.core.sales.api.model.coverage.PotentialGainMode;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -39,46 +38,7 @@ public record TicketVerificationView(
         String optionLabel,
         String selection,
         Money stake,
-        Money potentialPayout,
-        PotentialGainMode potentialGainMode,
-        Money minPotentialPayout,
-        Money maxPotentialPayout,
-        Money totalPotentialPayout,
         boolean promotional,
         String promotionLabel
-    ) {
-        public TicketLineView(
-            int lineNumber,
-            String gameDisplayName,
-            String betTypeLabel,
-            String optionLabel,
-            String selection,
-            Money stake,
-            Money potentialPayout,
-            boolean promotional,
-            String promotionLabel
-        ) {
-            this(
-                lineNumber,
-                gameDisplayName,
-                betTypeLabel,
-                optionLabel,
-                selection,
-                stake,
-                potentialPayout,
-                PotentialGainMode.SINGLE,
-                potentialPayout,
-                potentialPayout,
-                null,
-                promotional,
-                promotionLabel
-            );
-        }
-
-        public TicketLineView {
-            potentialGainMode = potentialGainMode == null ? PotentialGainMode.SINGLE : potentialGainMode;
-            minPotentialPayout = minPotentialPayout == null ? potentialPayout : minPotentialPayout;
-            maxPotentialPayout = maxPotentialPayout == null ? potentialPayout : maxPotentialPayout;
-        }
-    }
+    ) {}
 }

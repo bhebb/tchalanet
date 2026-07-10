@@ -65,21 +65,27 @@ Classe mutable, multi-tenant (`BaseTenantEntity` côté JPA).
 
 ### `TicketLine` (record `domain/model/TicketLine.java`)
 
-- `gameCode (GameCode)`, `selection (String — déjà normalisé)`, `stake (scale 2)`, `oddsSnapshot (scale 4)`, `potentialPayout (scale 2)`, `betType`, `betOption (Short nullable)`.
+- `gameCode (GameCode)`, `selection (String — déjà normalisé)`, `stake (scale 2)`, `oddsSnapshot (scale 4)`, `betType`, `betOption (Short nullable)`.
 - `betOption` est validé via `catalog.game.api.model.BetOption`: absent pour les 2D simples, requis pour Maryaj, Loto 3, Loto 4 et Loto 5.
-- Invariants compact constructor : montants > 0, cohérence `potentialPayout == round(stake × oddsSnapshot, 2, HALF_UP)`.
+- Les montants de payout ne deviennent des gains réalisés qu'au settlement, après comparaison avec le résultat officiel.
 
 ### Snapshots financiers de vente
 
 La vente fige les faits financiers au moment du ticket. Ces snapshots sont la source pour le
 settlement et analytics; ils ne doivent pas être recalculés depuis la configuration courante.
+Le ticket agrégé ne persiste plus de `potential_payout_amount`; seuls les gains réalisés et les
+snapshots de couverture nécessaires au settlement des lignes restent conservés.
 
 | Snapshot | Source de résolution | Utilisation |
 |---|---|---|
-| `TicketLine.oddsSnapshot` | `ResolveSellerTerminalOddsQuery`: override seller-terminal puis tenant default, y compris pour les lignes gratuites de promotion | Calcul `potentialPayout` et gain après résultat |
+| `TicketLine.oddsSnapshot` | `ResolveSellerTerminalOddsQuery`: override seller-terminal puis tenant default, y compris pour les lignes gratuites de promotion | Snapshot d'audit pour le calcul du gain réalisé au settlement |
 | `TicketContext.sellerCommissionRateSnapshot` | taux effectif du seller terminal au moment de la vente | Audit/explanation |
 | `TicketContext.sellerCommissionAmountSnapshot` | `stake * rate / 100`, arrondi scale 2 | Analytics commissions par jour/tirage/seller terminal |
 | `TicketMoneyBreakdown.charges` | `SaleChargeCalculator` + promotions charge waiver | Ticket total, print, analytics frais |
+
+Quand le résultat officiel arrive, `TicketWinningCalculator` compare chaque sélection vendue aux
+numéros sortis. Si une règle de couverture correspond, le montant snapshoté par cette couverture
+devient le gain réalisé de la ligne; sinon le gain réalisé est zéro.
 
 La commission reste configurée en pourcentage, mais les stats additionnent le montant snapshoté.
 Changer le taux tenant ou terminal n'altère jamais un ticket déjà vendu.
@@ -197,7 +203,7 @@ Toutes les réponses utilisent `ApiResponse<T>` sauf les endpoints de print bina
 
 | Event                         | Producer (sales)                                              | Champs clés                                                                                                                        |
 | ----------------------------- | ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `TicketPlacedEvent`           | `SellTicketCommandHandler`, `ApproveTicketSaleCommandHandler` | `tenantId, ticketId, drawId, drawChannelId, sellerTerminalId, sellerCommissionRate/Amount, money{stake,total,potentialPayout,charges[]}, lines[]` |
+| `TicketPlacedEvent`           | `SellTicketCommandHandler`, `ApproveTicketSaleCommandHandler` | `tenantId, ticketId, drawId, drawChannelId, sellerTerminalId, sellerCommissionRate/Amount, money{stake,total,charges[]}, lines[]` |
 | `TicketCancelledEvent`        | `CancelSaleCommandHandler`                                    | `tenantId, ticketId, terminalId, sessionId, performedBy (UUID brut), reason, totalStakeCents, currency, drawId`                    |
 | `TicketResultedEvent`         | `RecordDrawTicketsResultCommandHandler`                       | `tenantId, ticketId, resultStatus, settlementStatus, totalPayout`                                                                  |
 | `TicketResultOverriddenEvent` | `OverrideTicketResultCommandHandler`                          | `tenantId, ticketId, drawId, winningAmount, resultStatus, reason, performedBy (UUID brut)`                                         |
@@ -300,7 +306,7 @@ Toutes les réponses utilisent `ApiResponse<T>` sauf les endpoints de print bina
 
 **P0 / Public verify**
 
-- `payoutStatus` calculé sur `potentialPayout` (avant tirage) au lieu de `winningAmount` réel.
+- `payoutStatus` calculé sur une projection avant tirage au lieu de `winningAmount` réel.
 - `outletAddress.id`, `outletAddress.tenantId` exposés en clair (le `maskAddress` n'efface que les lignes d'adresse).
 - Catch `Exception ignored` masque les erreurs de chargement.
 

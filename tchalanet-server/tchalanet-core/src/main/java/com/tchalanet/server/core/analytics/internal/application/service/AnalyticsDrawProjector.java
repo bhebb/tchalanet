@@ -91,8 +91,6 @@ public class AnalyticsDrawProjector {
     entity.setPromotionLineCount(entity.getPromotionLineCount() + promotions.lineCount());
     entity.setPromotionPricedLineCount(entity.getPromotionPricedLineCount() + promotions.pricedLineCount());
     entity.setPromotionPayoutBaseCents(entity.getPromotionPayoutBaseCents() + promotions.payoutBaseCents());
-    entity.setPromotionPotentialPayoutCents(
-        entity.getPromotionPotentialPayoutCents() + promotions.potentialPayoutCents());
     entity.setNetRevenueEstimatedCents(
         entity.getNetRevenueEstimatedCents() + stakeCents - sellerCommissionCents - charges.tenantCents());
     entity.setNetRevenuePaidBasisCents(
@@ -286,28 +284,24 @@ public class AnalyticsDrawProjector {
   record PromotionTotals(
       long lineCount,
       long pricedLineCount,
-      long payoutBaseCents,
-      long potentialPayoutCents
+      long payoutBaseCents
   ) {
     static PromotionTotals from(TicketPlacedEvent event) {
       long lineCount = 0L;
       long pricedLineCount = 0L;
       long payoutBase = 0L;
-      long potential = 0L;
 
       for (var line : event.lines()) {
         if (line.origin() == TicketLineOrigin.PROMOTION) {
           lineCount++;
           payoutBase += toCents(line.payoutBaseAmount() != null ? line.payoutBaseAmount().amount() : null);
-          potential += toCents(line.potentialPayoutAmount() != null
-              ? line.potentialPayoutAmount().amount() : null);
         }
         if (line.pricingSource() == TicketLinePricingSource.PROMOTION) {
           pricedLineCount++;
         }
       }
 
-      return new PromotionTotals(lineCount, pricedLineCount, payoutBase, potential);
+      return new PromotionTotals(lineCount, pricedLineCount, payoutBase);
     }
   }
 }

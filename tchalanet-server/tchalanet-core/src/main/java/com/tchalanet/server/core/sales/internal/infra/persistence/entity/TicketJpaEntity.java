@@ -159,9 +159,6 @@ public class TicketJpaEntity extends BaseTenantEntity {
     @Column(name = "total_amount", nullable = false, precision = 19, scale = 4)
     private BigDecimal totalAmount;
 
-    @Column(name = "potential_payout_amount", nullable = false, precision = 19, scale = 4)
-    private BigDecimal potentialPayoutAmount;
-
     @Column(name = "winning_amount", nullable = false, precision = 19, scale = 4)
     private BigDecimal winningAmount;
 

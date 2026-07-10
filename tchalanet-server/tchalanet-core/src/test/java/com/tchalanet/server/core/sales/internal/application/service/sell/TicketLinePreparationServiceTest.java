@@ -49,7 +49,7 @@ class TicketLinePreparationServiceTest {
     private static final UUID LINE_ID = UUID.fromString("30000000-0000-0000-0000-000000000001");
 
     @Test
-    void resolvesEffectiveSellerTerminalOddsAndSnapshotsPotentialPayout() {
+    void resolvesEffectiveSellerTerminalOddsAndSnapshotsSettlementPayout() {
         var queryBus = new CapturingQueryBus(new BigDecimal("60"));
         var service = service(queryBus, TenantGameApiStub.explicitOnly());
 
@@ -74,7 +74,7 @@ class TicketLinePreparationServiceTest {
             null));
         assertThat(lines).hasSize(1);
         assertThat(lines.getFirst().oddsSnapshot()).isEqualByComparingTo("60.0000");
-        assertThat(lines.getFirst().potentialPayoutAmount().amount()).isEqualByComparingTo("600.00");
+        assertThat(lines.getFirst().settlementPayoutAmount().amount()).isEqualByComparingTo("600.00");
         assertThat(lines.getFirst().coverages()).hasSize(1);
         assertThat(lines.getFirst().coverages().getFirst().pricingVariantCode())
             .isEqualTo(PricingVariantCode.MATCH_1_2D);
@@ -82,7 +82,7 @@ class TicketLinePreparationServiceTest {
             .isEqualByComparingTo("10.00");
         assertThat(lines.getFirst().coverages().getFirst().oddsSnapshot())
             .isEqualByComparingTo("60.0000");
-        assertThat(lines.getFirst().coverages().getFirst().potentialGainSnapshot().amount())
+        assertThat(lines.getFirst().coverages().getFirst().settlementPayoutSnapshot().amount())
             .isEqualByComparingTo("600.00");
         assertThat(lines.getFirst().selectionPolicySnapshot()).isEqualTo(SelectionPolicy.EXPLICIT_ONLY);
         assertThat(lines.getFirst().betOptionLabelSnapshot()).isNull();
@@ -123,7 +123,7 @@ class TicketLinePreparationServiceTest {
     }
 
     @Test
-    void exactPlusBoxCreatesTwoCoverageSnapshotsWithMinMaxPotential() {
+    void exactPlusBoxCreatesTwoCoverageSnapshotsWithMinMaxSettlementPayout() {
         var queryBus = new CapturingQueryBus(Map.of(
             PricingVariantCode.LOTTO3_STRAIGHT, new BigDecimal("500"),
             PricingVariantCode.LOTTO3_BOX_6_WAY, new BigDecimal("80")
@@ -148,16 +148,16 @@ class TicketLinePreparationServiceTest {
                 PricingVariantCode.LOTTO3_STRAIGHT,
                 PricingVariantCode.LOTTO3_BOX_6_WAY);
         assertThat(line.stakeAmount().amount()).isEqualByComparingTo("20.00");
-        assertThat(line.potentialPayoutAmount().amount()).isEqualByComparingTo("5000.00");
-        assertThat(line.minPotentialGain().amount()).isEqualByComparingTo("800.00");
-        assertThat(line.maxPotentialGain().amount()).isEqualByComparingTo("5000.00");
-        assertThat(line.totalPotentialGain()).isNull();
+        assertThat(line.settlementPayoutAmount().amount()).isEqualByComparingTo("5000.00");
+        assertThat(line.minSettlementPayout().amount()).isEqualByComparingTo("800.00");
+        assertThat(line.maxSettlementPayout().amount()).isEqualByComparingTo("5000.00");
+        assertThat(line.totalSettlementPayout()).isNull();
         assertThat(line.coverages()).hasSize(2);
         assertThat(line.coverages())
             .extracting(coverage -> coverage.stakeAmount().amount())
             .allSatisfy(amount -> assertThat(amount).isEqualByComparingTo("10.00"));
-        assertThat(line.coverages().get(0).potentialGainSnapshot().amount()).isEqualByComparingTo("5000.00");
-        assertThat(line.coverages().get(1).potentialGainSnapshot().amount()).isEqualByComparingTo("800.00");
+        assertThat(line.coverages().get(0).settlementPayoutSnapshot().amount()).isEqualByComparingTo("5000.00");
+        assertThat(line.coverages().get(1).settlementPayoutSnapshot().amount()).isEqualByComparingTo("800.00");
         assertThat(line.selectionPolicySnapshot()).isEqualTo(SelectionPolicy.EXPLICIT_ONLY);
         assertThat(line.betOptionLabelSnapshot()).isEqualTo("Exact + Box");
     }
@@ -189,8 +189,8 @@ class TicketLinePreparationServiceTest {
                 .map(coverage -> coverage.stakeAmount().amount())
                 .reduce(BigDecimal.ZERO, BigDecimal::add))
             .isEqualByComparingTo("10.01");
-        assertThat(line.coverages().get(0).potentialGainSnapshot().amount()).isEqualByComparingTo("2505.00");
-        assertThat(line.coverages().get(1).potentialGainSnapshot().amount()).isEqualByComparingTo("400.00");
+        assertThat(line.coverages().get(0).settlementPayoutSnapshot().amount()).isEqualByComparingTo("2505.00");
+        assertThat(line.coverages().get(1).settlementPayoutSnapshot().amount()).isEqualByComparingTo("400.00");
     }
 
     @Test
@@ -220,9 +220,9 @@ class TicketLinePreparationServiceTest {
             CurrencyCode.of("HTG")).getFirst();
 
         assertThat(firstLine.oddsSnapshot()).isEqualByComparingTo("60.0000");
-        assertThat(firstLine.potentialPayoutAmount().amount()).isEqualByComparingTo("600.00");
+        assertThat(firstLine.settlementPayoutAmount().amount()).isEqualByComparingTo("600.00");
         assertThat(secondLine.oddsSnapshot()).isEqualByComparingTo("70.0000");
-        assertThat(secondLine.potentialPayoutAmount().amount()).isEqualByComparingTo("700.00");
+        assertThat(secondLine.settlementPayoutAmount().amount()).isEqualByComparingTo("700.00");
     }
 
     @Test
@@ -254,10 +254,10 @@ class TicketLinePreparationServiceTest {
             .extracting(ResolveSellerTerminalOddsQuery::betOption)
             .containsExactly((short) 1, (short) 2);
         assertThat(line.betOption()).isNull();
-        assertThat(line.potentialPayoutAmount().amount()).isEqualByComparingTo("10000.00");
-        assertThat(line.minPotentialGain().amount()).isEqualByComparingTo("1600.00");
-        assertThat(line.maxPotentialGain().amount()).isEqualByComparingTo("10000.00");
-        assertThat(line.totalPotentialGain()).isNull();
+        assertThat(line.settlementPayoutAmount().amount()).isEqualByComparingTo("10000.00");
+        assertThat(line.minSettlementPayout().amount()).isEqualByComparingTo("1600.00");
+        assertThat(line.maxSettlementPayout().amount()).isEqualByComparingTo("10000.00");
+        assertThat(line.totalSettlementPayout()).isNull();
         assertThat(line.coverages()).hasSize(2);
         assertThat(line.coverages())
             .extracting(coverage -> coverage.stakeAmount().amount())

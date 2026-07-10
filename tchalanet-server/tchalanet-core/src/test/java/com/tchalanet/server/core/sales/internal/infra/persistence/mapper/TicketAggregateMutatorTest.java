@@ -22,7 +22,7 @@ import com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSour
 import com.tchalanet.server.core.sales.api.model.status.TicketLineResultStatus;
 import com.tchalanet.server.core.sales.api.model.status.TicketResultStatus;
 import com.tchalanet.server.core.sales.api.model.status.TicketSaleStatus;
-import com.tchalanet.server.core.sales.api.model.coverage.PotentialGainMode;
+import com.tchalanet.server.core.sales.api.model.coverage.SettlementPayoutMode;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.Ticket;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketCodes;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketContext;
@@ -119,20 +119,19 @@ class TicketAggregateMutatorTest {
 
         assertThat(entity.getLines()).hasSize(1);
         var lineEntity = entity.getLines().getFirst();
-        assertThat(lineEntity.getPotentialGainMode()).isEqualTo(PotentialGainMode.RANGE_ALTERNATIVE);
-        assertThat(lineEntity.getMinPotentialGain()).isEqualByComparingTo("800");
-        assertThat(lineEntity.getMaxPotentialGain()).isEqualByComparingTo("5000");
         assertThat(lineEntity.getCoverages())
             .extracting(coverage -> coverage.getPricingVariantCode().name())
             .containsExactly("LOTTO3_STRAIGHT", "LOTTO3_BOX_6_WAY");
+        assertThat(lineEntity.getCoverages().get(0).getSettlementPayoutSnapshot()).isEqualByComparingTo("5000");
+        assertThat(lineEntity.getCoverages().get(1).getSettlementPayoutSnapshot()).isEqualByComparingTo("800");
 
         var roundTrip = MAPPER.toDomain(entity);
 
         assertThat(roundTrip.lines()).hasSize(1);
         var line = roundTrip.lines().getFirst();
-        assertThat(line.potentialGainMode()).isEqualTo(PotentialGainMode.RANGE_ALTERNATIVE);
-        assertThat(line.minPotentialGain().amount()).isEqualByComparingTo("800");
-        assertThat(line.maxPotentialGain().amount()).isEqualByComparingTo("5000");
+        assertThat(line.settlementPayoutMode()).isEqualTo(SettlementPayoutMode.RANGE_ALTERNATIVE);
+        assertThat(line.minSettlementPayout().amount()).isEqualByComparingTo("800");
+        assertThat(line.maxSettlementPayout().amount()).isEqualByComparingTo("5000");
         assertThat(line.coverages())
             .extracting(coverage -> coverage.pricingVariantCode().name())
             .containsExactly("LOTTO3_STRAIGHT", "LOTTO3_BOX_6_WAY");
@@ -316,7 +315,7 @@ class TicketAggregateMutatorTest {
             money("20"),
             new BigDecimal("500"),
             money("5000"),
-            PotentialGainMode.RANGE_ALTERNATIVE,
+            SettlementPayoutMode.RANGE_ALTERNATIVE,
             money("800"),
             money("5000"),
             null,

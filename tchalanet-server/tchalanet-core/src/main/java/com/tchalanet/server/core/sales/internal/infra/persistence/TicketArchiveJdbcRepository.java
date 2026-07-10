@@ -57,7 +57,7 @@ public class TicketArchiveJdbcRepository {
     String sql = """
         SELECT id, tenant_id, public_code, ticket_code, sale_status, result_status,
                settlement_status, sold_at, placed_at, currency,
-               stake_amount, total_amount, potential_payout_amount, winning_amount,
+               stake_amount, total_amount, winning_amount,
                seller_terminal_id, draw_id, draw_channel_id, sale_channel,
                cancelled_at, voided_at, paid_at, created_at
           FROM sales_ticket
@@ -155,8 +155,7 @@ public class TicketArchiveJdbcRepository {
         SELECT tl.id, tl.tenant_id, tl.ticket_id, t.public_code, t.sold_at,
                tl.draw_id, tl.line_number, tl.game_code, tl.bet_type, tl.bet_option,
                tl.selection_key, tl.display_selection, tl.stake_amount, tl.payout_base_amount,
-               tl.odds_snapshot, tl.potential_payout_amount, tl.potential_gain_mode,
-               tl.min_potential_gain, tl.max_potential_gain, tl.total_potential_gain,
+               tl.odds_snapshot,
                tl.origin, tl.pricing_source,
                tl.selection_source, tl.promotion_decision_id, tl.promotion_label,
                tl.promotion_effect_type, tl.result_status, tl.payout_amount,

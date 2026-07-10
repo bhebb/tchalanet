@@ -210,7 +210,6 @@ public class SellTicketCommandHandler
             saved.money().currency(),
             saved.money().breakdown().stake(),
             saved.money().breakdown().total(),
-            saved.money().potentialPayoutAmount(),
             chargeItems
         );
 
@@ -245,7 +244,6 @@ public class SellTicketCommandHandler
             line.betOption(),
             line.stakeAmount(),
             line.oddsSnapshot(),
-            line.potentialPayoutAmount(),
             line.origin(),
             line.pricingSource(),
             line.selectionSource(),

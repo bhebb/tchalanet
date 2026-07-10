@@ -42,14 +42,14 @@ public class PromotionOddsBoostApplier {
                 continue;
             }
 
-            var potential = line.payoutBaseAmount()
+            var settlementPayout = line.payoutBaseAmount()
                 .amount()
                 .multiply(boostedOdds)
                 .setScale(2, RoundingMode.HALF_UP);
 
             lines.set(i, line.withPromotionPricing(
                 boostedOdds,
-                new Money(potential, currency),
+                new Money(settlementPayout, currency),
                 decision.decisionId(),
                 promotionLabel(effect),
                 effect.type().name()

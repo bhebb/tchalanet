@@ -27,7 +27,6 @@ public record TicketLinePlacedItem(
     Short betOption,             // null when betType doesn't require one
     Money stakeAmount,
     BigDecimal oddsSnapshot,
-    Money potentialPayoutAmount,
     TicketLineOrigin origin,
     TicketLinePricingSource pricingSource,
     TicketLineSelectionSource selectionSource,

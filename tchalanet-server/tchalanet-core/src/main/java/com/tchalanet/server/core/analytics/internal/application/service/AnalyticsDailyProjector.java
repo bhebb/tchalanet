@@ -165,7 +165,7 @@ public class AnalyticsDailyProjector {
             promotions.lineCount(),
             promotions.pricedLineCount(),
             promotions.payoutBaseCents(),
-            promotions.potentialPayoutCents(),
+            0L,
             sessionsOpenedDelta, sessionsClosedDelta);
     }
 
@@ -205,30 +205,26 @@ public class AnalyticsDailyProjector {
     private record PromotionTotals(
         long lineCount,
         long pricedLineCount,
-        long payoutBaseCents,
-        long potentialPayoutCents
+        long payoutBaseCents
     ) {
-        static final PromotionTotals ZERO = new PromotionTotals(0, 0, 0, 0);
+        static final PromotionTotals ZERO = new PromotionTotals(0, 0, 0);
 
         static PromotionTotals from(TicketPlacedEvent event) {
             long lineCount = 0L;
             long pricedLineCount = 0L;
             long payoutBase = 0L;
-            long potential = 0L;
 
             for (var line : event.lines()) {
                 if (line.origin() == TicketLineOrigin.PROMOTION) {
                     lineCount++;
                     payoutBase += toCents(line.payoutBaseAmount() != null ? line.payoutBaseAmount().amount() : null);
-                    potential += toCents(
-                        line.potentialPayoutAmount() != null ? line.potentialPayoutAmount().amount() : null);
                 }
                 if (line.pricingSource() == TicketLinePricingSource.PROMOTION) {
                     pricedLineCount++;
                 }
             }
 
-            return new PromotionTotals(lineCount, pricedLineCount, payoutBase, potential);
+            return new PromotionTotals(lineCount, pricedLineCount, payoutBase);
         }
     }
 }

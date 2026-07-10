@@ -37,14 +37,14 @@ public class ExposureAlertsReaderAdapter implements ExposureAlertsReaderPort {
     }
 
     @Override
-    public List<Row> topByPayout(
+    public List<Row> topBySettlementPayoutExposure(
         DrawId drawId,
         LimitScopeRef scope,
         int limit
     ) {
         var scopeRow = ScopePersistenceMapper.toRow(scope);
 
-        var rows = repo.topByPayout(
+        var rows = repo.topBySettlementPayoutExposure(
             drawId.value(),
             scopeRow.scopeType(),
             scopeRow.scopeId(),
@@ -62,7 +62,7 @@ public class ExposureAlertsReaderAdapter implements ExposureAlertsReaderPort {
             entity.getBetType(),
             entity.getSelectionKey(),
             entity.getStakeTotal(),
-            entity.getPotentialPayoutTotal(),
+            entity.getSettlementPayoutExposureTotal(),
             entity.getSalesCount());
     }
 

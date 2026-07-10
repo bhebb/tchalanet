@@ -19,6 +19,7 @@ import com.tchalanet.server.core.sales.api.model.lifecycle.ResultLifecycle;
 import com.tchalanet.server.core.sales.api.model.lifecycle.SaleLifecycle;
 import com.tchalanet.server.core.sales.api.model.lifecycle.SettlementLifecycle;
 import com.tchalanet.server.core.sales.api.model.lifecycle.TicketLifecycle;
+import com.tchalanet.server.core.sales.api.model.coverage.SettlementPayoutMode;
 import com.tchalanet.server.core.sales.api.model.money.TicketCharge;
 import com.tchalanet.server.core.sales.api.model.money.TicketMoney;
 import com.tchalanet.server.core.sales.api.model.money.TicketMoneyBreakdown;
@@ -37,6 +38,7 @@ import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketContex
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketIdentity;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLineCoverage;
+import com.tchalanet.server.core.sales.internal.domain.model.ticket.WinMode;
 import com.tchalanet.server.core.sales.internal.infra.persistence.entity.TicketChargeJpaEntity;
 import com.tchalanet.server.core.sales.internal.infra.persistence.entity.TicketJpaEntity;
 import com.tchalanet.server.core.sales.internal.infra.persistence.entity.TicketLineCoverageJpaEntity;
@@ -49,6 +51,7 @@ import org.mapstruct.MappingTarget;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.Comparator;
 
 @Mapper(componentModel = "spring")
 public interface TicketJpaMapper {
@@ -130,13 +133,6 @@ public interface TicketJpaMapper {
         entity.setBetOption(line.betOption());
         entity.setSelectionPolicySnapshot(line.selectionPolicySnapshot());
         entity.setBetOptionLabelSnapshot(line.betOptionLabelSnapshot());
-        entity.setPotentialPayoutAmount(line.potentialPayoutAmount().amount());
-        entity.setPotentialGainMode(line.potentialGainMode());
-        entity.setMinPotentialGain(line.minPotentialGain().amount());
-        entity.setMaxPotentialGain(line.maxPotentialGain().amount());
-        entity.setTotalPotentialGain(
-            line.totalPotentialGain() == null ? null : line.totalPotentialGain().amount()
-        );
         entity.setResultStatus(line.resultStatus());
         entity.setPayoutAmount(line.payoutAmount().amount());
         entity.setOrigin(line.origin());
@@ -164,7 +160,7 @@ public interface TicketJpaMapper {
         entity.setPricingVariantCode(coverage.pricingVariantCode());
         entity.setStakeAmount(coverage.stakeAmount().amount());
         entity.setOddsSnapshot(coverage.oddsSnapshot());
-        entity.setPotentialGainSnapshot(coverage.potentialGainSnapshot().amount());
+        entity.setSettlementPayoutSnapshot(coverage.settlementPayoutSnapshot().amount());
         entity.setWinMode(coverage.winMode());
         return entity;
     }
@@ -231,8 +227,7 @@ public interface TicketJpaMapper {
                 new Money(entity.getStakeAmount(), currency),
                 toDomainCharges(entity.getCharges(), currency),
                 new Money(entity.getTotalAmount(), currency)
-            ),
-            new Money(entity.getPotentialPayoutAmount(), currency)
+            )
         );
     }
 
@@ -367,6 +362,15 @@ public interface TicketJpaMapper {
     }
 
     default TicketLine toDomainLine(TicketLineJpaEntity entity, @Context CurrencyCode currency) {
+        var coverages = toDomainCoverages(entity.getCoverages(), currency);
+        var minSettlementPayout = minSettlementPayout(coverages);
+        var maxSettlementPayout = maxSettlementPayout(coverages);
+        var settlementPayoutMode = settlementPayoutMode(coverages);
+        var totalSettlementPayout = settlementPayoutMode == SettlementPayoutMode.RANGE_CUMULATIVE
+            ? coverages.stream()
+                .map(TicketLineCoverage::settlementPayoutSnapshot)
+                .reduce(Money.zero(currency), Money::plus)
+            : null;
         return new TicketLine(
             TicketLineId.of(entity.getId()),
             entity.getLineNumber(),
@@ -379,14 +383,12 @@ public interface TicketJpaMapper {
             new Money(entity.getStakeAmount(), currency),
             new Money(entity.getPayoutBaseAmount(), currency),
             entity.getOddsSnapshot(),
-            new Money(entity.getPotentialPayoutAmount(), currency),
-            entity.getPotentialGainMode(),
-            new Money(entity.getMinPotentialGain(), currency),
-            new Money(entity.getMaxPotentialGain(), currency),
-            entity.getTotalPotentialGain() == null
-                ? null
-                : new Money(entity.getTotalPotentialGain(), currency),
-            toDomainCoverages(entity.getCoverages(), currency),
+            totalSettlementPayout == null ? maxSettlementPayout : totalSettlementPayout,
+            settlementPayoutMode,
+            minSettlementPayout,
+            maxSettlementPayout,
+            totalSettlementPayout,
+            coverages,
             entity.getBetOption(),
             entity.getSelectionPolicySnapshot(),
             entity.getBetOptionLabelSnapshot(),
@@ -401,6 +403,27 @@ public interface TicketJpaMapper {
         );
     }
 
+    default SettlementPayoutMode settlementPayoutMode(List<TicketLineCoverage> coverages) {
+        if (coverages.stream().anyMatch(coverage -> coverage.winMode() == WinMode.CUMULATIVE)) {
+            return SettlementPayoutMode.RANGE_CUMULATIVE;
+        }
+        return coverages.size() > 1 ? SettlementPayoutMode.RANGE_ALTERNATIVE : SettlementPayoutMode.SINGLE;
+    }
+
+    default Money minSettlementPayout(List<TicketLineCoverage> coverages) {
+        return coverages.stream()
+            .map(TicketLineCoverage::settlementPayoutSnapshot)
+            .min(Comparator.comparing(Money::amount))
+            .orElseThrow();
+    }
+
+    default Money maxSettlementPayout(List<TicketLineCoverage> coverages) {
+        return coverages.stream()
+            .map(TicketLineCoverage::settlementPayoutSnapshot)
+            .max(Comparator.comparing(Money::amount))
+            .orElseThrow();
+    }
+
     default List<TicketLineCoverage> toDomainCoverages(
         List<TicketLineCoverageJpaEntity> entities,
         @Context CurrencyCode currency
@@ -413,7 +436,7 @@ public interface TicketJpaMapper {
                 entity.getPricingVariantCode(),
                 new Money(entity.getStakeAmount(), currency),
                 entity.getOddsSnapshot(),
-                new Money(entity.getPotentialGainSnapshot(), currency),
+                new Money(entity.getSettlementPayoutSnapshot(), currency),
                 entity.getWinMode()
             ))
             .toList();
@@ -446,7 +469,6 @@ public interface TicketJpaMapper {
         entity.setCurrency(money.breakdown().total().currency().value());
         entity.setStakeAmount(money.breakdown().stake().amount());
         entity.setTotalAmount(money.breakdown().total().amount());
-        entity.setPotentialPayoutAmount(money.potentialPayoutAmount().amount());
     }
 
     default void applyLifecycle(TicketLifecycle lifecycle, @MappingTarget TicketJpaEntity entity) {

@@ -32,7 +32,6 @@ public record TenantDashboardStatsView(
       long promotionLines,
       long promotionPricedLines,
       BigDecimal promotionPayoutBase,
-      BigDecimal promotionPotentialPayout,
       BigDecimal netRevenueEstimated,
       long    sessionsOpened
   ) {}
@@ -45,7 +44,6 @@ public record TenantDashboardStatsView(
       BigDecimal sellerCommission,
       BigDecimal tenantCharges,
       long promotionLines,
-      BigDecimal promotionPotentialPayout,
       BigDecimal netRevenueEstimated
   ) {}
 

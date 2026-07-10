@@ -46,22 +46,22 @@ public class GetExposureAlertsOverviewQueryHandler
         var maxStakeRule =
             effectiveLimits.rules().get(RuleKey.MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW);
 
-        var maxPayoutRule =
+        var maxSettlementPayoutRule =
             effectiveLimits.rules().get(RuleKey.MAX_POTENTIAL_PAYOUT_EXPOSURE_PER_SELECTION_PER_DRAW);
 
         var maxStake = valueCentsAsMoney(maxStakeRule);
-        var maxPayout = valueCentsAsMoney(maxPayoutRule);
+        var maxSettlementPayout = valueCentsAsMoney(maxSettlementPayoutRule);
 
         var rows = new LinkedHashMap<String, ExposureAlertsReaderPort.Row>();
 
         alerts.topByStake(q.drawId(), q.scope(), q.limit())
             .forEach(row -> rows.put(key(row), row));
 
-        alerts.topByPayout(q.drawId(), q.scope(), q.limit())
+        alerts.topBySettlementPayoutExposure(q.drawId(), q.scope(), q.limit())
             .forEach(row -> rows.putIfAbsent(key(row), row));
 
         var items = rows.values().stream()
-            .map(row -> toItem(row, maxStake, maxPayout))
+            .map(row -> toItem(row, maxStake, maxSettlementPayout))
             .toList();
 
         return new ExposureAlertsOverviewView(
@@ -101,21 +101,21 @@ public class GetExposureAlertsOverviewQueryHandler
     private ExposureAlertItemView toItem(
         ExposureAlertsReaderPort.Row row,
         BigDecimal maxStake,
-        BigDecimal maxPayout
+        BigDecimal maxSettlementPayout
     ) {
         var stakeRatio = ratio(row.stakeTotal(), maxStake);
-        var payoutRatio = ratio(row.potentialPayoutTotal(), maxPayout);
+        var settlementPayoutRatio = ratio(row.settlementPayoutExposureTotal(), maxSettlementPayout);
 
         return new ExposureAlertItemView(
             row.betType(),
             row.selectionKey(),
             row.stakeTotal(),
-            row.potentialPayoutTotal(),
+            row.settlementPayoutExposureTotal(),
             row.salesCount(),
             maxStake,
-            maxPayout,
+            maxSettlementPayout,
             stakeRatio,
-            payoutRatio);
+            settlementPayoutRatio);
     }
 
     private BigDecimal ratio(BigDecimal value, BigDecimal max) {

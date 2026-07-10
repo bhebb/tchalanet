@@ -7,7 +7,6 @@ import com.tchalanet.server.core.sales.api.model.status.TicketLineResultStatus;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineOrigin;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSource;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource;
-import com.tchalanet.server.core.sales.api.model.coverage.PotentialGainMode;
 import com.tchalanet.server.platform.tenantgame.api.model.SelectionPolicy;
 import jakarta.persistence.Column;
 import jakarta.persistence.CascadeType;
@@ -107,23 +106,6 @@ public class TicketLineJpaEntity extends BaseTenantEntity {
 
     @Column(name = "odds_snapshot", precision = 19, scale = 6, updatable = false)
     private BigDecimal oddsSnapshot;
-
-    @Column(name = "potential_payout_amount", nullable = false,
-        precision = 19, scale = 4, updatable = false)
-    private BigDecimal potentialPayoutAmount;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "potential_gain_mode", nullable = false, length = 32, updatable = false)
-    private PotentialGainMode potentialGainMode;
-
-    @Column(name = "min_potential_gain", nullable = false, precision = 19, scale = 4, updatable = false)
-    private BigDecimal minPotentialGain;
-
-    @Column(name = "max_potential_gain", nullable = false, precision = 19, scale = 4, updatable = false)
-    private BigDecimal maxPotentialGain;
-
-    @Column(name = "total_potential_gain", precision = 19, scale = 4, updatable = false)
-    private BigDecimal totalPotentialGain;
 
     @Column(name = "payout_base_amount", nullable = false, precision = 19, scale = 4, updatable = false)
     private BigDecimal payoutBaseAmount;

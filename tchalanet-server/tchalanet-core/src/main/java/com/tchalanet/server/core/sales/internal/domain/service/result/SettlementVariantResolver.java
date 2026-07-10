@@ -3,7 +3,7 @@ package com.tchalanet.server.core.sales.internal.domain.service.result;
 import com.tchalanet.server.catalog.game.api.model.BetOption;
 import com.tchalanet.server.catalog.game.api.model.BetType;
 import com.tchalanet.server.core.pricing.api.model.PricingVariantCode;
-import com.tchalanet.server.core.sales.api.model.coverage.PotentialGainMode;
+import com.tchalanet.server.core.sales.api.model.coverage.SettlementPayoutMode;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.WinMode;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -41,7 +41,7 @@ public final class SettlementVariantResolver {
         if (option == BetOption.LOTTO3_EXACT_PLUS_BOX) {
             return new CoverageResolution(
                 option,
-                PotentialGainMode.RANGE_ALTERNATIVE,
+                SettlementPayoutMode.RANGE_ALTERNATIVE,
                 List.of(
                     new CoverageVariant(PricingVariantCode.LOTTO3_STRAIGHT, WinMode.ALTERNATIVE),
                     new CoverageVariant(resolveLotto3Box(selection), WinMode.ALTERNATIVE)
@@ -51,7 +51,7 @@ public final class SettlementVariantResolver {
         if (option == BetOption.LOTTO4_EXACT_PLUS_BOX) {
             return new CoverageResolution(
                 option,
-                PotentialGainMode.RANGE_ALTERNATIVE,
+                SettlementPayoutMode.RANGE_ALTERNATIVE,
                 List.of(
                     new CoverageVariant(PricingVariantCode.LOTTO4_STRAIGHT, WinMode.ALTERNATIVE),
                     new CoverageVariant(resolveLotto4Box(selection), WinMode.ALTERNATIVE)
@@ -72,7 +72,7 @@ public final class SettlementVariantResolver {
 
         return new CoverageResolution(
             option,
-            PotentialGainMode.SINGLE,
+            SettlementPayoutMode.SINGLE,
             List.of(new CoverageVariant(variant, WinMode.ALTERNATIVE))
         );
     }

@@ -6,7 +6,6 @@ import com.tchalanet.server.common.types.money.CurrencyCode;
 import com.tchalanet.server.common.types.money.Money;
 import com.tchalanet.server.common.web.error.ProblemRestException;
 import com.tchalanet.server.core.sales.api.config.PublicTicketRateLimitProperties;
-import com.tchalanet.server.core.sales.api.model.coverage.PotentialGainMode;
 import com.tchalanet.server.core.sales.api.model.verification.CustomerTicketStatus;
 import com.tchalanet.server.core.sales.api.model.verification.TicketVerificationView;
 import com.tchalanet.server.features.ticketverify.infra.PublicTicketRateLimiter;
@@ -42,10 +41,6 @@ class TicketVerifyControllerTest {
         assertEquals("0", response.getHeaders().getFirst("Expires"));
         assertNotNull(response.getBody());
         assertEquals("ABCD-EFGH", response.getBody().data().displayCode());
-        assertEquals(PotentialGainMode.RANGE_ALTERNATIVE,
-            response.getBody().data().lines().getFirst().potentialGainMode());
-        assertEquals(50, response.getBody().data().lines().getFirst().minPotentialPayout().amount().intValue());
-        assertEquals(100, response.getBody().data().lines().getFirst().maxPotentialPayout().amount().intValue());
         assertEquals("Maryaj gratuit", response.getBody().data().lines().getFirst().promotionLabel());
     }
 
@@ -105,11 +100,6 @@ class TicketVerifyControllerTest {
                     "Straight",
                     "12-34",
                     new Money(BigDecimal.ZERO, htg),
-                    new Money(BigDecimal.valueOf(100), htg),
-                    PotentialGainMode.RANGE_ALTERNATIVE,
-                    new Money(BigDecimal.valueOf(50), htg),
-                    new Money(BigDecimal.valueOf(100), htg),
-                    null,
                     true,
                     "Maryaj gratuit")));
         }

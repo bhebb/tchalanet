@@ -55,7 +55,7 @@ public record TicketPlacedEvent(
     List<TicketLinePlacedItem> lines,
     PromotionDecision promotionDecision
 ) implements DomainEvent {
-    public static final int CURRENT_SCHEMA = 4;
+    public static final int CURRENT_SCHEMA = 5;
 
     public TicketPlacedEvent {
         if (saleStatus != TicketSaleStatus.APPROVED

@@ -14,7 +14,7 @@ export interface DrawActivityReport {
   readonly sellerCommission: number;
   readonly activeSellerCount: number;
   readonly netRevenueEstimated: number;
-  readonly promotionPotentialPayout: number;
+  readonly promotionPayoutBase: number;
 }
 
 export interface DrawDetailActivityView {

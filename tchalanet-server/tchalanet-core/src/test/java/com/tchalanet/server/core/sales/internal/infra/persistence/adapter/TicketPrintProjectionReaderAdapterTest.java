@@ -17,7 +17,7 @@ import com.tchalanet.server.common.types.money.CurrencyCode;
 import com.tchalanet.server.common.types.money.Money;
 import com.tchalanet.server.core.pricing.api.model.PricingVariantCode;
 import com.tchalanet.server.core.sales.api.config.TicketPublicProperties;
-import com.tchalanet.server.core.sales.api.model.coverage.PotentialGainMode;
+import com.tchalanet.server.core.sales.api.model.coverage.SettlementPayoutMode;
 import com.tchalanet.server.core.sales.api.model.money.TicketMoneyBreakdown;
 import com.tchalanet.server.core.sales.api.model.origin.TicketSaleChannel;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineOrigin;
@@ -121,7 +121,6 @@ class TicketPrintProjectionReaderAdapterTest {
         when(header.getTenantDisplayName()).thenReturn("Tenant Demo");
         when(header.getStakeAmount()).thenReturn(new BigDecimal("20"));
         when(header.getTotalAmount()).thenReturn(new BigDecimal("20"));
-        when(header.getPotentialPayoutAmount()).thenReturn(new BigDecimal("5000"));
         when(header.getCurrency()).thenReturn(HTG.value());
         when(header.getPlacedAt()).thenReturn(NOW);
         when(header.getSaleOrigin()).thenReturn(TicketSaleChannel.POS_ONLINE);
@@ -155,7 +154,7 @@ class TicketPrintProjectionReaderAdapterTest {
             money("20"),
             new BigDecimal("500"),
             money("5000"),
-            PotentialGainMode.RANGE_ALTERNATIVE,
+            SettlementPayoutMode.RANGE_ALTERNATIVE,
             money("800"),
             money("5000"),
             null,

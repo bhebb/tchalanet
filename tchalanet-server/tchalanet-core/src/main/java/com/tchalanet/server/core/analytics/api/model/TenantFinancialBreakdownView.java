@@ -36,7 +36,6 @@ public record TenantFinancialBreakdownView(
       long promotionLines,
       long promotionPricedLines,
       BigDecimal promotionPayoutBase,
-      BigDecimal promotionPotentialPayout,
       BigDecimal netRevenueEstimated,
       BigDecimal netRevenuePaidBasis
   ) {}
@@ -55,7 +54,6 @@ public record TenantFinancialBreakdownView(
       long promotionLines,
       long promotionPricedLines,
       BigDecimal promotionPayoutBase,
-      BigDecimal promotionPotentialPayout,
       BigDecimal netRevenueEstimated,
       BigDecimal netRevenuePaidBasis
   ) {}
@@ -78,7 +76,6 @@ public record TenantFinancialBreakdownView(
       long promotionLines,
       long promotionPricedLines,
       BigDecimal promotionPayoutBase,
-      BigDecimal promotionPotentialPayout,
       BigDecimal netRevenueEstimated,
       BigDecimal netRevenuePaidBasis
   ) {}
@@ -96,7 +93,6 @@ public record TenantFinancialBreakdownView(
       long promotionLines,
       long promotionPricedLines,
       BigDecimal promotionPayoutBase,
-      BigDecimal promotionPotentialPayout,
       BigDecimal netRevenueEstimated,
       BigDecimal netRevenuePaidBasis
   ) {}
@@ -120,7 +116,6 @@ public record TenantFinancialBreakdownView(
       long promotionLines,
       long promotionPricedLines,
       BigDecimal promotionPayoutBase,
-      BigDecimal promotionPotentialPayout,
       BigDecimal netRevenueEstimated,
       BigDecimal netRevenuePaidBasis
   ) {}

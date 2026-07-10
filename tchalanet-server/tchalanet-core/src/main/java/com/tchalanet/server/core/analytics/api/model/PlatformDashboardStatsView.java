@@ -29,7 +29,6 @@ public record PlatformDashboardStatsView(
       BigDecimal sellerCommission,
       BigDecimal tenantCharges,
       long promotionLines,
-      BigDecimal promotionPotentialPayout,
       BigDecimal netRevenueEstimated,
       BigDecimal netRevenuePaidBasis
   ) {}
@@ -44,7 +43,6 @@ public record PlatformDashboardStatsView(
       BigDecimal sellerCommission,
       BigDecimal tenantCharges,
       long promotionLines,
-      BigDecimal promotionPotentialPayout,
       BigDecimal netRevenueEstimated,
       BigDecimal netRevenuePaidBasis
   ) {}

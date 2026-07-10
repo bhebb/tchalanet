@@ -3,7 +3,7 @@ package com.tchalanet.server.core.sales.internal.application.service.sell;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.pricing.api.model.PricingVariantCode;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketLineInput;
-import com.tchalanet.server.core.sales.api.model.coverage.PotentialGainMode;
+import com.tchalanet.server.core.sales.api.model.coverage.SettlementPayoutMode;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.WinMode;
 import com.tchalanet.server.core.sales.internal.domain.service.result.SettlementVariantResolver;
 import com.tchalanet.server.platform.tenantgame.api.TenantGameApi;
@@ -29,7 +29,7 @@ class TicketLineCoveragePlanner {
                 input.betOption(),
                 input.rawSelection());
             return new TicketLineCoveragePlan(
-                resolution.potentialGainMode(),
+                resolution.settlementPayoutMode(),
                 StakeAllocationMode.FULL_STAKE_PER_ALTERNATIVE,
                 input.betOption(),
                 SelectionPolicy.EXPLICIT_ONLY,
@@ -59,7 +59,7 @@ class TicketLineCoveragePlanner {
                 .findFirst()
                 .orElse(null);
             return new TicketLineCoveragePlan(
-                resolution.potentialGainMode(),
+                resolution.settlementPayoutMode(),
                 resolution.variants().size() == 1
                     ? StakeAllocationMode.FULL_STAKE_PER_ALTERNATIVE
                     : StakeAllocationMode.SPLIT_ACROSS_COVERAGES,
@@ -98,7 +98,7 @@ class TicketLineCoveragePlanner {
 
         var planned = List.copyOf(plannedByVariant.values());
         return new TicketLineCoveragePlan(
-            planned.size() == 1 ? PotentialGainMode.SINGLE : PotentialGainMode.RANGE_ALTERNATIVE,
+            planned.size() == 1 ? SettlementPayoutMode.SINGLE : SettlementPayoutMode.RANGE_ALTERNATIVE,
             StakeAllocationMode.FULL_STAKE_PER_ALTERNATIVE,
             planned.getFirst().sourceBetOption(),
             betTypeConfig.selectionPolicy(),
@@ -113,7 +113,7 @@ class TicketLineCoveragePlanner {
 }
 
 record TicketLineCoveragePlan(
-    PotentialGainMode potentialGainMode,
+    SettlementPayoutMode settlementPayoutMode,
     StakeAllocationMode stakeAllocationMode,
     Short canonicalBetOption,
     SelectionPolicy selectionPolicySnapshot,

@@ -121,7 +121,7 @@ public class PromotionTicketLineFactory {
         odds = odds
             .setScale(4, RoundingMode.HALF_UP);
 
-        var potential = payoutBase.multiply(odds).setScale(2, RoundingMode.HALF_UP);
+        var settlementPayout = payoutBase.multiply(odds).setScale(2, RoundingMode.HALF_UP);
 
         return TicketLine.promotionLine(
             TicketLineId.of(idGenerator.newUuid()),
@@ -132,7 +132,7 @@ public class PromotionTicketLineFactory {
             Money.zero(currency),
             new Money(payoutBase, currency),
             odds,
-            new Money(potential, currency),
+            new Money(settlementPayout, currency),
             betOption,
             selectionResult.source(),
             decision.decisionId(),

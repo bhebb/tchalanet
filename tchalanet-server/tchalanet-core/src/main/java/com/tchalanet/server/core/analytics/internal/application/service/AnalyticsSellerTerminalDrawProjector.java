@@ -62,8 +62,6 @@ public class AnalyticsSellerTerminalDrawProjector {
     entity.setPromotionLineCount(entity.getPromotionLineCount() + promotions.lineCount());
     entity.setPromotionPricedLineCount(entity.getPromotionPricedLineCount() + promotions.pricedLineCount());
     entity.setPromotionPayoutBaseCents(entity.getPromotionPayoutBaseCents() + promotions.payoutBaseCents());
-    entity.setPromotionPotentialPayoutCents(
-        entity.getPromotionPotentialPayoutCents() + promotions.potentialPayoutCents());
     entity.setNetRevenueEstimatedCents(
         entity.getNetRevenueEstimatedCents() + stakeCents - sellerCommissionCents - charges.tenantCents());
     entity.setNetRevenuePaidBasisCents(

@@ -17,7 +17,7 @@ import com.tchalanet.server.common.types.money.CurrencyCode;
 import com.tchalanet.server.common.types.money.Money;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultProjection;
 import com.tchalanet.server.core.pricing.api.model.PricingVariantCode;
-import com.tchalanet.server.core.sales.api.model.coverage.PotentialGainMode;
+import com.tchalanet.server.core.sales.api.model.coverage.SettlementPayoutMode;
 import com.tchalanet.server.core.sales.api.model.money.TicketMoneyBreakdown;
 import com.tchalanet.server.core.sales.api.model.origin.TicketSaleChannel;
 import com.tchalanet.server.core.sales.api.model.status.TicketLineResultStatus;
@@ -387,7 +387,7 @@ class TicketWinningCalculatorTest {
             money("20"),
             new BigDecimal("500"),
             money("5000"),
-            PotentialGainMode.RANGE_ALTERNATIVE,
+            SettlementPayoutMode.RANGE_ALTERNATIVE,
             money("800"),
             money("5000"),
             null,

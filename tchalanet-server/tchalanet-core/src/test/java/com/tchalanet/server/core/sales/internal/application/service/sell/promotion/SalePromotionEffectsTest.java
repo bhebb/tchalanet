@@ -173,7 +173,7 @@ class SalePromotionEffectsTest {
     class BoostOdds {
 
         @Test
-        @DisplayName("updates odds snapshot and potential payout on matching game line")
+        @DisplayName("updates odds snapshot and settlement payout on matching game line")
         void boostsMatchingLine() {
             var line = customerLine(); // HT_BOLET, stakeAmount=10, odds=12.5
             var boostEffect = effect(PromotionEffectType.BOOST_ODDS, "HT_BOLET", null, new BigDecimal("20.0000"));

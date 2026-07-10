@@ -48,7 +48,7 @@ public class ExposureFactsReaderAdapter implements ExposureFactsReaderPort {
 
                 facts.put(key, new LimitFactsSnapshot.Fact(
                     cents(entity.getStakeTotal()),
-                    cents(entity.getPotentialPayoutTotal()),
+                    cents(entity.getSettlementPayoutExposureTotal()),
                     entity.getSalesCount()));
             }
         }

@@ -29,7 +29,6 @@ public class ExposureProjectorAdapter implements ExposureProjectorPort {
 
             for (var line : event.lines()) {
                 var stake = line.stakeAmount().amount();
-                var payout = line.potentialPayoutAmount().amount();
 
                 var canonicalSelection =
                     selectionApi.canonicalize(
@@ -52,7 +51,7 @@ public class ExposureProjectorAdapter implements ExposureProjectorPort {
                     line.betType().name(),
                     canonicalSelection.key().value(),
                     stake,
-                    payout,
+                    java.math.BigDecimal.ZERO,
                     event.eventId().value(),
                     Timestamp.from(event.occurredAt())
                 );

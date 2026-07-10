@@ -93,10 +93,10 @@ public class TicketWinningCalculator {
 
     private Money combinePayout(Money current, TicketLineCoverage winningCoverage) {
         if (winningCoverage.winMode() == WinMode.CUMULATIVE) {
-            return current.plus(winningCoverage.potentialGainSnapshot());
+            return current.plus(winningCoverage.settlementPayoutSnapshot());
         }
-        if (winningCoverage.potentialGainSnapshot().amount().compareTo(current.amount()) > 0) {
-            return winningCoverage.potentialGainSnapshot();
+        if (winningCoverage.settlementPayoutSnapshot().amount().compareTo(current.amount()) > 0) {
+            return winningCoverage.settlementPayoutSnapshot();
         }
         return current;
     }

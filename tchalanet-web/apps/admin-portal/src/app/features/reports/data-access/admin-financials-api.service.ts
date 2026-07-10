@@ -15,7 +15,6 @@ export interface FinancialSummary {
   readonly promotionLines: number;
   readonly promotionPricedLines: number;
   readonly promotionPayoutBase: number;
-  readonly promotionPotentialPayout: number;
   readonly netRevenueEstimated: number;
   readonly netRevenuePaidBasis: number;
 }
@@ -45,7 +44,6 @@ export interface SellerTerminalDailyFinancialRow {
   readonly promotionLines: number;
   readonly promotionPricedLines: number;
   readonly promotionPayoutBase: number;
-  readonly promotionPotentialPayout: number;
   readonly netRevenueEstimated: number;
   readonly netRevenuePaidBasis: number;
 }

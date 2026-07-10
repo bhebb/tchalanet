@@ -8,7 +8,7 @@ import com.tchalanet.server.core.limitpolicy.internal.domain.model.LimitFactsSna
 
 import java.util.List;
 
-public final class MaxPotentialPayoutPerTicketEvaluator implements LimitRuleEvaluator {
+public final class MaxSettlementPayoutPerTicketEvaluator implements LimitRuleEvaluator {
 
     @Override
     public RuleKey supports() {
@@ -22,7 +22,7 @@ public final class MaxPotentialPayoutPerTicketEvaluator implements LimitRuleEval
         LimitContext ctx
     ) {
         var valueCents = LimitRuleParams.requiredLong(rule, "valueCents");
-        var total = ctx.totalPotentialPayoutCents();
+        var total = ctx.totalSettlementPayoutCents();
 
         if (total <= valueCents) {
             return List.of();
@@ -32,8 +32,8 @@ public final class MaxPotentialPayoutPerTicketEvaluator implements LimitRuleEval
             rule.ruleKey(),
             rule.onBreach(),
             rule.appliedScope(),
-            "limit.max_potential_payout_per_ticket",
-            "limit.max_potential_payout_per_ticket",
+            "limit.max_settlement_payout_per_ticket",
+            "limit.max_settlement_payout_per_ticket",
             valueCents,
             null,
             total));

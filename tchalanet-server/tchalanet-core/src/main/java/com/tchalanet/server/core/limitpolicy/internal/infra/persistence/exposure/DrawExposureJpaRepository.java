@@ -40,7 +40,7 @@ public interface DrawExposureJpaRepository extends JpaRepository<DrawExposureJpa
         and e.scopeType = :scopeType
         and e.scopeId = :scopeId
         and e.deletedAt is null
-      order by e.potentialPayoutTotal desc
+      order by e.settlementPayoutExposureTotal desc
   """)
-  List<DrawExposureJpaEntity> topByPayout(UUID drawId, ScopeType scopeType, UUID scopeId, Pageable pageable);
+  List<DrawExposureJpaEntity> topBySettlementPayoutExposure(UUID drawId, ScopeType scopeType, UUID scopeId, Pageable pageable);
 }

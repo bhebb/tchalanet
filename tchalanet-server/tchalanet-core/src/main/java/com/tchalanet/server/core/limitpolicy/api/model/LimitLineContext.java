@@ -6,5 +6,5 @@ public record LimitLineContext(
     BetType betType,
     String selectionKey,
     long stakeCents,
-    long potentialPayoutCents
+    long settlementPayoutCents
 ) {}
