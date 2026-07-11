@@ -51,8 +51,20 @@ rule in `TicketLine.settlementTermsSnapshot`.
 new settlement flow, odds are only the `STAKE_MULTIPLIER` value; `FIXED_AMOUNT` rules settle from
 their fixed amount snapshot.
 
-Admin HTTP uses `/admin/controls/pricing-rules`. The old `/admin/controls/odds` surface is not kept
+Admin HTTP uses `/admin/controls/pricing-rules`.
 for V0 because fixed amounts and multipliers are both pricing rules.
+
+Tenant admin UI must expose both rule families:
+
+- `STAKE_MULTIPLIER`: editable multiplier (`odds`) used by paid games.
+- `FIXED_AMOUNT`: editable fixed realized amount (`fixedAmount`) used by `HT_MARYAJ_GRATIS`.
+
+Examples:
+
+- `HT_BOLET / MATCH_1_2D / Lot 1 = x50` is a stake multiplier rule.
+- `HT_MARYAJ_GRATIS / MARRIAGE_EXACT_ORDER = 2000 HTG` is a fixed amount rule.
+- A seller-terminal can override `MARRIAGE_EXACT_ORDER` from 1000 to 2000, but cannot change it
+  from `FIXED_AMOUNT` to `STAKE_MULTIPLIER`.
 
 V0 rule types are game-bound:
 

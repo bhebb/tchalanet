@@ -51,6 +51,9 @@ Admin UX implication:
 - Admins configure typed campaigns and rules; they do not author a generic DSL.
 - `HT_MARYAJ_GRATIS` is displayed as a real catalog game because settlement,
   odds and receipt rendering treat it like one.
+- The Maryaj gratis campaign decides eligibility and free-line quantity; pricing decides how a
+  winning free Maryaj line pays. Tenant and seller-terminal fixed amounts for
+  `HT_MARYAJ_GRATIS` live in `core.pricing`.
 
 ---
 

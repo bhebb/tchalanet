@@ -32,8 +32,7 @@ Cette documentation aide à :
 1. [Qu'est-ce que Tchalanet ?](00-overview/what-is-tchalanet.md)
 2. [Onboarding tenant](02-functional/flows/tenant-onboarding.md)
 3. [Ouverture de session](02-functional/flows/session-opening.md)
-4. [Réconciliation](02-functional/flows/reconciliation.md)
-5. [Règlement (settlement)](02-functional/flows/settlement.md)
+4. [Règlement (settlement)](02-functional/flows/settlement.md)
 
 ### Agent terrain (vendeur)
 
@@ -41,7 +40,6 @@ Cette documentation aide à :
 2. [Ouverture de session](02-functional/flows/session-opening.md)
 3. [Vente de ticket](02-functional/flows/sell-ticket.md)
 4. [Vérification de ticket](02-functional/flows/verify-ticket.md)
-5. [Paiement terrain (payout)](02-functional/flows/payout-field-flow.md)
 
 ### Développeur backend
 
@@ -54,8 +52,7 @@ Cette documentation aide à :
 
 1. [Architecture mobile](mobile-docs/ARCHITECTURE.md)
 2. [Sell ticket flow](02-functional/flows/sell-ticket.md)
-3. [Payout flow](02-functional/flows/payout-field-flow.md)
-4. [Offline sync](02-functional/flows/offline-sync.md)
+3. Flows payout et offline sync : à documenter.
 
 ---
 ## Où est la vérité ?
@@ -74,7 +71,7 @@ Cette documentation aide à :
 Parcours guidés pour opérateurs et agents terrain — self-serve, sans solliciter l'équipe.
 
 ### Métier
-Flows système complets : vente ticket, tirage, payout, réconciliation, onboarding.
+Flows système complets : vente ticket, tirage, settlement, onboarding.
 
 ### Architecture
 Cartes des composants, modèle de sécurité, décisions d'architecture (ADR).

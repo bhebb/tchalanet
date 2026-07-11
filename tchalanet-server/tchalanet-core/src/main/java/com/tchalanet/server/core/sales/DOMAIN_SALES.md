@@ -103,6 +103,11 @@ tirage, jeu, sélection, option commerciale explicitement snapshotée, mise et p
 Il ne publie pas les odds, variantes techniques de couverture, payout base ou gain potentiel; ces
 données restent internes au settlement et aux audits autorisés.
 
+Pour expliquer une configuration à un admin, pointer vers
+`tchalanet-docs/docs/02-functional/guides/admin-game-configuration.md`. Le guide utilisateur
+présente les mêmes invariants sans exposer les classes internes: configuration jeu/options,
+pricing tenant, overrides seller-terminal, Maryaj gratis, résultat et simulation indicative.
+
 La commission reste configurée en pourcentage, mais les stats additionnent le montant snapshoté.
 Changer le taux tenant ou terminal n'altère jamais un ticket déjà vendu.
 

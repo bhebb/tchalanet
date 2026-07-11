@@ -36,8 +36,8 @@ En tant qu'agent terrain, vous opérez un terminal POS dans un outlet :
 |---|---|
 | Vendre un ticket | [Vente de ticket](../flows/sell-ticket.md) |
 | Vérifier un ticket gagnant | [Vérification de ticket](../flows/verify-ticket.md) |
-| Payer un gagnant sur le terrain | [Paiement terrain (payout)](../flows/payout-field-flow.md) |
-| Travailler sans connexion | [Synchronisation offline](../flows/offline-sync.md) |
+| Payer un gagnant sur le terrain | Procédure payout à documenter |
+| Travailler sans connexion | Procédure offline à documenter |
 
 ---
 
@@ -49,8 +49,7 @@ La vente normale retourne `ACCEPTED (201)`. Une grosse vente peut passer en `PEN
 **Le client dit avoir un ticket gagnant** → Voir [Vérification de ticket](../flows/verify-ticket.md).
 Vérifiez le code avant tout paiement.
 
-**Je n'ai pas de connexion internet** → Voir [Synchronisation offline](../flows/offline-sync.md).
-Le terminal continue de fonctionner offline. Les ventes se synchronisent dès que la connexion revient.
+**Je n'ai pas de connexion internet** → Le terminal continue de fonctionner offline si le mode est activé. Les ventes se synchronisent dès que la connexion revient.
 
 **Ma session refuse de démarrer** → Vérifiez que le terminal est lié (`status: ACTIVE`) → [Liaison terminal](../flows/terminal-binding.md).
 
