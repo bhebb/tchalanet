@@ -19,9 +19,9 @@ WITH g_src AS (
               ('HT_BOLET',  'Bolèt',   'HAITI', 'SINGLE',         2, 4, 'Jeu haïtien basé sur lots (lot1..lot4).', true, 10),
               ('HT_MARYAJ', 'Maryaj', 'HAITI', 'PAIR_UNORDERED', 2, 2, 'Mariage, paire non ordonnée.', true, 30),
               ('HT_MARYAJ_GRATIS', 'Maryaj gratis', 'HAITI', 'PAIR_UNORDERED', 2, 2, 'Variante promotionnelle du Maryaj.', true, 35),
-              ('HT_LOTO3',  'Loto 3',  'HAITI', 'EXACT',          3, 3, 'Loto 3, 3 chiffres.', true, 40),
-              ('HT_LOTO4',  'Loto 4',  'HAITI', 'EXACT',          4, 4, 'Loto 4, 4 chiffres.', true, 50),
-              ('HT_LOTO5',  'Loto 5',  'HAITI', 'EXACT',          5, 5, 'Loto 5, 5 chiffres.', true, 60)
+              ('HT_LOTO3',  'Loto 3',  'HAITI', 'EXACT',          3, 3, 'Loto 3 chiffres.', true, 40),
+              ('HT_LOTO4',  'Loto 4',  'HAITI', 'EXACT',          4, 4, 'Loto 4 chiffres.', true, 50),
+              ('HT_LOTO5',  'Loto 5',  'HAITI', 'EXACT',          5, 5, 'Loto 5 chiffres.', true, 60)
          ) AS v(code, name, category, combination, min_digits, max_digits, description, active, sort_order)
 )
 INSERT INTO game (

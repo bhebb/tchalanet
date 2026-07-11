@@ -31,17 +31,27 @@ import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffectType;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionQuantityMode;
 import com.tchalanet.server.core.sales.api.command.preparation.ConfirmPreparedSaleCommand;
 import com.tchalanet.server.core.sales.api.command.preparation.PrepareSaleCommand;
+import com.tchalanet.server.core.sales.api.command.print.RecordTicketPrintCommand;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketCommand;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketLineInput;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketOutcome;
 import com.tchalanet.server.core.sales.api.model.communication.SaleCommunicationOptions;
+import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptPrintContent;
+import com.tchalanet.server.core.sales.api.query.receipt.FormatTicketReceiptPrintQuery;
+import com.tchalanet.server.core.sales.internal.application.command.model.ReprintTicketCommand;
 import com.tchalanet.server.features.pos.draws.PosAvailableDrawView;
+import com.tchalanet.server.common.types.id.TicketId;
+import com.tchalanet.server.platform.document.api.model.DocumentFormat;
+import com.tchalanet.server.platform.document.api.model.DocumentPrintProfile;
+import com.tchalanet.server.platform.document.api.model.PaperSize;
+import com.tchalanet.server.platform.document.api.model.PrintOptionsRequest;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -197,6 +207,45 @@ class SalesPolicyPromotionSpringIntegrationTest extends BusinessRuntimeIntegrati
         assertMaryajGratisSnapshot(secondTicket, "4000", "SELLER_TERMINAL_OVERRIDE");
     }
 
+    @Test
+    @DisplayName("should format original and reprint receipts with Maryaj gratis promotion")
+    void shouldFormatOriginalAndReprintReceiptsWithMaryajGratisPromotion() {
+        setTenantReceiptMessages("IT HEADER MARYAJ GRATIS", "IT FOOTER MARYAJ GRATIS");
+        var draw = openedDrawContaining(GameCode.HT_BOLET);
+        var campaign = ensureMaryajGratisCampaign();
+        configureSingleMaryajGratisLine(campaign);
+        upsertMaryajGratisTenantRule("1000");
+        upsertMaryajGratisTerminalOverride("2000", "print receipt terminal override");
+
+        var ticketId = sellBoletWithMaryajGratis(draw, "maryaj-gratis-print-it-1");
+
+        var original = formatReceipt(ticketId);
+        assertReceiptContainsTenantBrandingAndMaryajGratis(original);
+        assertCopyMarker(original, "original", "originale");
+        assertMaryajGratisSnapshot(ticketId, "2000", "SELLER_TERMINAL_OVERRIDE");
+
+        withContext(tenantAdminContext, () -> commandBus.execute(new RecordTicketPrintCommand(
+            TicketId.of(ticketId),
+            new PrintOptionsRequest(DocumentFormat.ESC_POS, PaperSize.RECEIPT_80MM),
+            "integration first print",
+            UserId.of(ADMIN_USER_ID),
+            null
+        )));
+        upsertMaryajGratisTenantRule("3000");
+        upsertMaryajGratisTerminalOverride("4000", "pricing changed after first print");
+
+        withContext(tenantAdminContext, () -> commandBus.execute(new ReprintTicketCommand(
+            tenantId,
+            TicketId.of(ticketId),
+            UserId.of(ADMIN_USER_ID)
+        )));
+        var duplicate = formatReceipt(ticketId);
+
+        assertReceiptContainsTenantBrandingAndMaryajGratis(duplicate);
+        assertCopyMarker(duplicate, "duplicate", "duplicata");
+        assertMaryajGratisSnapshot(ticketId, "2000", "SELLER_TERMINAL_OVERRIDE");
+    }
+
     private PromotionCampaignView ensureMaryajGratisCampaign() {
         return withContext(tenantAdminContext, () ->
             commandBus.execute(new InstantiateDefaultMaryajGratisCommand(tenantId)));
@@ -256,6 +305,30 @@ class SalesPolicyPromotionSpringIntegrationTest extends BusinessRuntimeIntegrati
         )));
     }
 
+    private void setTenantReceiptMessages(String header, String footer) {
+        jdbc.update(
+            """
+            update tenant
+            set config = coalesce(config, '{}'::jsonb)
+                || jsonb_build_object(
+                    'document',
+                    jsonb_build_object(
+                        'receipt',
+                        jsonb_build_object(
+                            'headerMessage', ?,
+                            'footerMessage', ?
+                        )
+                    )
+                ),
+                updated_at = ?
+            where id = ?
+            """,
+            header,
+            footer,
+            Timestamp.from(SALES_NOW),
+            tenantId.value());
+    }
+
     private UUID sellBoletWithMaryajGratis(PosAvailableDrawView draw, String idempotencyKey) {
         var preparation = withContext(sellerContext, () -> commandBus.execute(new PrepareSaleCommand(
             draw.drawId(),
@@ -287,6 +360,38 @@ class SalesPolicyPromotionSpringIntegrationTest extends BusinessRuntimeIntegrati
         assertThat(maryajGratisSnapshotFixedAmount(ticketId))
             .isEqualByComparingTo(fixedAmount);
         assertThat(maryajGratisSnapshotSource(ticketId)).isEqualTo(source);
+    }
+
+    private TicketReceiptPrintContent formatReceipt(UUID ticketId) {
+        return withContext(tenantAdminContext, () -> queryBus.ask(new FormatTicketReceiptPrintQuery(
+            TicketId.of(ticketId),
+            DocumentPrintProfile.of(DocumentFormat.ESC_POS, PaperSize.RECEIPT_80MM),
+            Locale.FRENCH
+        )));
+    }
+
+    private void assertReceiptContainsTenantBrandingAndMaryajGratis(TicketReceiptPrintContent content) {
+        assertThat(content.headerLines())
+            .anySatisfy(line -> assertThat(line.text()).contains("IT HEADER MARYAJ GRATIS"));
+        assertThat(content.postQrLines())
+            .anySatisfy(line -> assertThat(line.text()).contains("IT FOOTER MARYAJ GRATIS"));
+        assertThat(content.qrPayload()).contains(content.metadata().get("publicCode"));
+
+        var body = content.bodyLines();
+        assertThat(body)
+            .anySatisfy(line -> assertThat(line).contains("GRATIS"));
+        assertThat(body)
+            .anySatisfy(line -> assertThat(line).contains("* Maryaj offert"));
+    }
+
+    private void assertCopyMarker(TicketReceiptPrintContent content, String english, String french) {
+        assertThat(content.headerLines())
+            .first()
+            .satisfies(line -> assertThat(line.text().toLowerCase(Locale.ROOT))
+                .satisfiesAnyOf(
+                    text -> assertThat(text).contains(english),
+                    text -> assertThat(text).contains(french)
+                ));
     }
 
     private PosAvailableDrawView openedDrawContaining(GameCode gameCode) {

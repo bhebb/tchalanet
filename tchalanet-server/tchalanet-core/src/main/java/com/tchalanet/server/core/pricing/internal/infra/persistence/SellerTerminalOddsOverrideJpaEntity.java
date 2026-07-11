@@ -58,13 +58,4 @@ public class SellerTerminalOddsOverrideJpaEntity extends BaseTenantEntity {
 
     @Column(name = "reason", length = 500)
     private String reason;
-
-    @Column(name = "created_by")
-    private UUID createdBy;
-
-    @Column(name = "updated_by")
-    private UUID updatedBy;
-
-    @Column(name = "deleted_at")
-    private Instant deletedAt;
 }

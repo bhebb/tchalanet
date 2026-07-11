@@ -42,7 +42,4 @@ public class TenantPricingOddsJpaEntity extends BaseTenantEntity {
 
     @Column(name = "active", nullable = false)
     private boolean active = true;
-
-    @Column(name = "deleted_at")
-    private Instant deletedAt;
 }
