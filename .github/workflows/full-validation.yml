@@ -1,0 +1,185 @@
+name: Full Validation
+
+on:
+  workflow_dispatch:
+    inputs:
+      server_e2e_marker:
+        description: 'Pytest marker expression for server E2E'
+        required: false
+        default: 'L0 or L1'
+        type: string
+      run_server_e2e:
+        description: 'Run server live E2E against configured environment'
+        required: false
+        default: true
+        type: boolean
+      run_mobile_build:
+        description: 'Build a debug Android APK'
+        required: false
+        default: true
+        type: boolean
+  schedule:
+    - cron: '20 7 * * *'
+
+concurrency:
+  group: full-validation-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  server-it:
+    name: Server IT
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: tchalanet-server
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+
+      - name: Maven verify with ITs
+        run: ./mvnw -B verify
+
+  server-e2e:
+    name: Server live E2E
+    if: github.event_name == 'schedule' || inputs.run_server_e2e == true
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: tchalanet-server/testing/e2e
+    env:
+      TCH_BASE_URL: ${{ secrets.TCH_E2E_BASE_URL }}
+      TCH_E2E_VERIFY_SSL: ${{ vars.TCH_E2E_VERIFY_SSL || 'true' }}
+      TCH_E2E_AUTH_PROVIDER: ${{ vars.TCH_E2E_AUTH_PROVIDER || 'firebase-emulator' }}
+      TCH_FIREBASE_EMULATOR_HOST: ${{ secrets.TCH_FIREBASE_EMULATOR_HOST }}
+      TCH_FIREBASE_PROJECT_ID: ${{ secrets.TCH_FIREBASE_PROJECT_ID }}
+      TCH_LOCAL_JWT_ISSUER: ${{ secrets.TCH_LOCAL_JWT_ISSUER }}
+      TCH_LOCAL_JWT_SECRET: ${{ secrets.TCH_LOCAL_JWT_SECRET }}
+      TCH_KEYCLOAK_TOKEN_URL: ${{ secrets.TCH_KEYCLOAK_TOKEN_URL }}
+      TCH_KEYCLOAK_CLIENT_ID: ${{ secrets.TCH_KEYCLOAK_CLIENT_ID }}
+      TCH_KEYCLOAK_CLIENT_SECRET: ${{ secrets.TCH_KEYCLOAK_CLIENT_SECRET }}
+      TCH_SUPER_ADMIN_USERNAME: ${{ secrets.TCH_SUPER_ADMIN_USERNAME }}
+      TCH_SUPER_ADMIN_PASSWORD: ${{ secrets.TCH_SUPER_ADMIN_PASSWORD }}
+      TCH_TENANT_ADMIN_USERNAME: ${{ secrets.TCH_TENANT_ADMIN_USERNAME }}
+      TCH_TENANT_ADMIN_PASSWORD: ${{ secrets.TCH_TENANT_ADMIN_PASSWORD }}
+      TCH_SELLER_USERNAME: ${{ secrets.TCH_SELLER_USERNAME }}
+      TCH_SELLER_PASSWORD: ${{ secrets.TCH_SELLER_PASSWORD }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: tchalanet-server/testing/e2e/pyproject.toml
+
+      - name: Validate E2E configuration
+        run: |
+          test -n "$TCH_BASE_URL" || { echo "TCH_E2E_BASE_URL secret is required"; exit 1; }
+          test -n "$TCH_SUPER_ADMIN_USERNAME" || { echo "TCH_SUPER_ADMIN_USERNAME secret is required"; exit 1; }
+          test -n "$TCH_SUPER_ADMIN_PASSWORD" || { echo "TCH_SUPER_ADMIN_PASSWORD secret is required"; exit 1; }
+          if [ "$TCH_E2E_AUTH_PROVIDER" = "keycloak" ]; then
+            test -n "$TCH_KEYCLOAK_TOKEN_URL" || { echo "TCH_KEYCLOAK_TOKEN_URL secret is required for keycloak E2E"; exit 1; }
+          fi
+          if [ "$TCH_E2E_AUTH_PROVIDER" = "local-jwt" ] || [ "$TCH_E2E_AUTH_PROVIDER" = "local-perf" ]; then
+            test -n "$TCH_LOCAL_JWT_SECRET" || { echo "TCH_LOCAL_JWT_SECRET secret is required for local E2E"; exit 1; }
+          fi
+          {
+            printf 'TCH_BASE_URL=%s\n' "$TCH_BASE_URL"
+            printf 'TCH_E2E_VERIFY_SSL=%s\n' "$TCH_E2E_VERIFY_SSL"
+            printf 'TCH_E2E_AUTH_PROVIDER=%s\n' "$TCH_E2E_AUTH_PROVIDER"
+            printf 'TCH_FIREBASE_EMULATOR_HOST=%s\n' "$TCH_FIREBASE_EMULATOR_HOST"
+            printf 'TCH_FIREBASE_PROJECT_ID=%s\n' "$TCH_FIREBASE_PROJECT_ID"
+            printf 'TCH_LOCAL_JWT_ISSUER=%s\n' "$TCH_LOCAL_JWT_ISSUER"
+            printf 'TCH_LOCAL_JWT_SECRET=%s\n' "$TCH_LOCAL_JWT_SECRET"
+            printf 'TCH_KEYCLOAK_TOKEN_URL=%s\n' "$TCH_KEYCLOAK_TOKEN_URL"
+            printf 'TCH_KEYCLOAK_CLIENT_ID=%s\n' "$TCH_KEYCLOAK_CLIENT_ID"
+            printf 'TCH_KEYCLOAK_CLIENT_SECRET=%s\n' "$TCH_KEYCLOAK_CLIENT_SECRET"
+            printf 'TCH_SUPER_ADMIN_USERNAME=%s\n' "$TCH_SUPER_ADMIN_USERNAME"
+            printf 'TCH_SUPER_ADMIN_PASSWORD=%s\n' "$TCH_SUPER_ADMIN_PASSWORD"
+            printf 'TCH_TENANT_ADMIN_USERNAME=%s\n' "$TCH_TENANT_ADMIN_USERNAME"
+            printf 'TCH_TENANT_ADMIN_PASSWORD=%s\n' "$TCH_TENANT_ADMIN_PASSWORD"
+            printf 'TCH_SELLER_USERNAME=%s\n' "$TCH_SELLER_USERNAME"
+            printf 'TCH_SELLER_PASSWORD=%s\n' "$TCH_SELLER_PASSWORD"
+          } > .env.local
+
+      - name: Install E2E deps
+        run: python -m pip install -e .
+
+      - name: Run server E2E
+        run: python -m pytest -m "${{ inputs.server_e2e_marker || 'L0 or L1' }}"
+
+  web-e2e:
+    name: Web E2E
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: tchalanet-web
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.9.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: pnpm
+          cache-dependency-path: tchalanet-web/pnpm-lock.yaml
+
+      - name: Install deps
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run web E2E
+        run: pnpm nx e2e web-e2e
+
+  mobile-full:
+    name: Mobile full check
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: tchalanet-mobile
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.0'
+          channel: stable
+          cache: true
+
+      - name: Flutter version
+        run: flutter --version
+
+      - name: Install deps
+        run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Test
+        run: flutter test
+
+      - name: Build debug APK
+        if: github.event_name == 'schedule' || inputs.run_mobile_build == true
+        run: flutter build apk --debug
