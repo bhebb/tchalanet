@@ -16,7 +16,8 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  web-check:
+    name: Web lint, test, and build
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -45,6 +46,9 @@ jobs:
 
       - name: Test web apps
         run: pnpm run test
+
+      - name: Check admin portal types
+        run: pnpm exec tsc -p apps/admin-portal/tsconfig.app.json --noEmit
 
       - name: Build web apps
         run: pnpm nx run-many -t build -p public-portal,admin-portal,platform-portal
