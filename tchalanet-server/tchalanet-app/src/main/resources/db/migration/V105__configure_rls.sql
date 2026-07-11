@@ -234,6 +234,17 @@ CREATE POLICY audit_event_rls_select ON audit_event
     public.allow_platform_cross_tenant_select()
     OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant())
   );
+CREATE POLICY audit_event_global_system_insert
+  ON audit_event
+  FOR INSERT
+  WITH CHECK (
+    tenant_id IS NULL
+    AND actor_type = 'SYSTEM'
+    AND actor_id IS NULL
+    AND created_by IS NULL
+    AND entity_type = 'SYSTEM'
+    AND action = 'OTHER'
+  );
 
 ALTER TABLE limit_assignment ENABLE ROW LEVEL SECURITY;
 ALTER TABLE limit_assignment FORCE ROW LEVEL SECURITY;

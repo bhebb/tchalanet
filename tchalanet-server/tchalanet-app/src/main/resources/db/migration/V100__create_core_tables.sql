@@ -1137,6 +1137,8 @@ CREATE TABLE sales_ticket_line (
   origin varchar(16) NOT NULL DEFAULT 'CUSTOMER',
   pricing_source varchar(16) NOT NULL DEFAULT 'STANDARD',
   selection_source varchar(32) NOT NULL DEFAULT 'CUSTOMER_SELECTED',
+  selection_policy_snapshot varchar(32),
+  bet_option_label_snapshot varchar(128),
   promotion_decision_id uuid,
   promotion_label varchar(128),
   promotion_effect_type varchar(32),

@@ -3,7 +3,7 @@ DO $$ BEGIN
   RAISE NOTICE 'V200__seed_tenant: seeding tenant tchalanet';
 END $$;
 
-INSERT INTO tenant (id, code, name, display_name, timezone, currency, status, type)
+INSERT INTO tenant (id, code, name, display_name, timezone, currency, status, type, config)
 SELECT
     '00000000-0000-0000-0000-000000000003'::uuid,
     'tchalanet',
@@ -12,7 +12,8 @@ SELECT
     'America/Toronto',
     'USD',
     'ACTIVE',
-    'BORLETTE'
+    'BORLETTE',
+    '{"rules":{"businessCalendar":{"holidays":[]}}}'::jsonb
 WHERE NOT EXISTS (SELECT 1 FROM tenant WHERE code = 'tchalanet');
 
 -- Sanity check
