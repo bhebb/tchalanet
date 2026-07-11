@@ -62,7 +62,7 @@
                         type="number"
                         min="0"
                         step="1"
-                        [placeholder]="tenantValue(row) === null ? '' : String(tenantValue(row))"
+                        [placeholder]="tenantPlaceholder(row)"
                         [ngModel]="draftValue(row)"
                         (ngModelChange)="setDraftValue(row, $event)"
                       />

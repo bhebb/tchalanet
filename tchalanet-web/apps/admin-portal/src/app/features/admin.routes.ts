@@ -1,4 +1,5 @@
 import { Route } from '@angular/router';
+import { PlaceholderPage } from '@tch/ui/components';
 
 export const adminRoutes: Route[] = [
   // ── Accueil ────────────────────────────────────────────────────────────────
@@ -182,8 +183,7 @@ export const adminRoutes: Route[] = [
   },
   {
     path: 'company/settings',
-    loadComponent: () =>
-        import('@tch/ui/components').then(m => m.PlaceholderPage),
+    component: PlaceholderPage,
     data: { titleKey: 'nav.admin.company_settings', icon: 'tune' },
   },
   {
@@ -201,8 +201,7 @@ export const adminRoutes: Route[] = [
   // ── Aide ───────────────────────────────────────────────────────────────────
   {
     path: 'help',
-    loadComponent: () =>
-        import('@tch/ui/components').then(m => m.PlaceholderPage),
+    component: PlaceholderPage,
     data: { titleKey: 'nav.admin.help', icon: 'help_outline' },
   },
   // ── Legacy paths (preserved for deep-links and bookmarks) ──────────────────
@@ -260,14 +259,12 @@ export const adminRoutes: Route[] = [
   { path: 'more/support', redirectTo: 'company/support', pathMatch: 'full' },
   {
     path: 'i18n',
-    loadComponent: () =>
-        import('@tch/ui/components').then(m => m.PlaceholderPage),
+    component: PlaceholderPage,
     data: { titleKey: 'nav.translations', icon: 'translate' },
   },
   {
     path: 'pagemodels',
-    loadComponent: () =>
-        import('@tch/ui/components').then(m => m.PlaceholderPage),
+    component: PlaceholderPage,
     data: { titleKey: 'nav.pagemodels', icon: 'dashboard_customize' },
   },
 ];

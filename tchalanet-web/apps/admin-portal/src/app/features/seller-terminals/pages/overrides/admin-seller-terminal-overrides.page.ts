@@ -131,6 +131,11 @@ export class AdminSellerTerminalOverridesPage {
     return row.payoutRuleType === 'FIXED_AMOUNT' ? row.fixedAmount ?? null : row.odds ?? null;
   }
 
+  tenantPlaceholder(row: PricingOddsEntry): string {
+    const value = this.tenantValue(row);
+    return value === null ? '' : String(value);
+  }
+
   draftValue(row: PricingOddsEntry): number | null {
     return this.draftValues()[this.rowKey(row)] ?? null;
   }

@@ -1,4 +1,5 @@
 import { Route } from '@angular/router';
+import { PlaceholderPage } from '@tch/ui/components';
 
 export const platformRoutes: Route[] = [
   {
@@ -118,8 +119,7 @@ export const platformRoutes: Route[] = [
       descriptionKey: 'platform.placeholder.descriptions.entitlements',
       icon: 'verified_user',
     },
-    loadComponent: () =>
-      import('@tch/ui/components').then(m => m.PlaceholderPage),
+    component: PlaceholderPage,
   },
   {
     path: 'access/permissions',
@@ -151,8 +151,7 @@ export const platformRoutes: Route[] = [
       descriptionKey: 'platform.placeholder.descriptions.backendKeys',
       icon: 'vpn_key',
     },
-    loadComponent: () =>
-      import('@tch/ui/components').then(m => m.PlaceholderPage),
+    component: PlaceholderPage,
   },
   // ── Support tenant ─────────────────────────────────────────────────────────
   {
@@ -170,8 +169,7 @@ export const platformRoutes: Route[] = [
       descriptionKey: 'platform.placeholder.descriptions.tchalaSuggestions',
       icon: 'lightbulb',
     },
-    loadComponent: () =>
-      import('@tch/ui/components').then(m => m.PlaceholderPage),
+    component: PlaceholderPage,
   },
   {
     path: 'tchala/import',
@@ -180,8 +178,7 @@ export const platformRoutes: Route[] = [
       descriptionKey: 'platform.placeholder.descriptions.tchalaImport',
       icon: 'upload_file',
     },
-    loadComponent: () =>
-      import('@tch/ui/components').then(m => m.PlaceholderPage),
+    component: PlaceholderPage,
   },
   {
     path: 'tchala/cleanup',
@@ -190,8 +187,7 @@ export const platformRoutes: Route[] = [
       descriptionKey: 'platform.placeholder.descriptions.tchalaCleanup',
       icon: 'auto_fix_high',
     },
-    loadComponent: () =>
-      import('@tch/ui/components').then(m => m.PlaceholderPage),
+    component: PlaceholderPage,
   },
   { path: 'tchala', redirectTo: 'tchala/suggestions', pathMatch: 'full' },
   // ── Communication / Support & contenu ──────────────────────────────────────
@@ -276,8 +272,7 @@ export const platformRoutes: Route[] = [
       descriptionKey: 'platform.placeholder.descriptions.platformReports',
       icon: 'bar_chart',
     },
-    loadComponent: () =>
-      import('@tch/ui/components').then(m => m.PlaceholderPage),
+    component: PlaceholderPage,
   },
   {
     path: 'releases',

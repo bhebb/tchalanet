@@ -34,7 +34,7 @@
           />
         } @else {
           <form class="ticket-verify__form" (submit)="$event.preventDefault(); verify()">
-            <label class="ticket-verify__field">
+            <div class="ticket-verify__field">
               <span>Terminal vendeur</span>
               <mat-select
                 class="ticket-verify__select"
@@ -47,7 +47,7 @@
                   </mat-option>
                 }
               </mat-select>
-            </label>
+            </div>
 
             <label class="ticket-verify__field ticket-verify__field--code">
               <span>Code du ticket</span>

@@ -1,4 +1,5 @@
 import { Route } from '@angular/router';
+import { PlaceholderPage } from '@tch/ui/components';
 
 export const platformOperationsRoutes: Route[] = [
   {
@@ -33,8 +34,7 @@ export const platformOperationsRoutes: Route[] = [
       descriptionKey: 'platform.placeholder.descriptions.providers',
       icon: 'cloud_sync',
     },
-    loadComponent: () =>
-      import('@tch/ui/components').then(m => m.PlaceholderPage),
+    component: PlaceholderPage,
   },
   {
     path: 'resources',
@@ -43,8 +43,7 @@ export const platformOperationsRoutes: Route[] = [
       descriptionKey: 'platform.placeholder.descriptions.opsResources',
       icon: 'memory',
     },
-    loadComponent: () =>
-      import('@tch/ui/components').then(m => m.PlaceholderPage),
+    component: PlaceholderPage,
   },
   {
     path: 'archives/purges',
@@ -118,7 +117,6 @@ export const platformOperationsRoutes: Route[] = [
       descriptionKey: 'platform.placeholder.descriptions.identitySync',
       icon: 'sync_alt',
     },
-    loadComponent: () =>
-      import('@tch/ui/components').then(m => m.PlaceholderPage),
+    component: PlaceholderPage,
   },
 ];
