@@ -24,7 +24,6 @@ import com.tchalanet.server.core.sales.api.model.status.TicketSettlementStatus;
 import com.tchalanet.server.core.sales.api.model.verification.CustomerTicketStatus;
 import com.tchalanet.server.core.sales.api.model.verification.TicketCashierVerificationView;
 import com.tchalanet.server.core.sales.api.query.GetTicketForCashierVerificationQuery;
-import com.tchalanet.server.core.sales.internal.application.port.out.TicketPrintReaderPort;
 import com.tchalanet.server.features.pos.tickets.mapper.PosTicketMapper;
 import com.tchalanet.server.features.pos.tickets.model.PosAction;
 import com.tchalanet.server.features.pos.tickets.model.PosActionType;
@@ -44,11 +43,10 @@ class PosTicketsServiceTest {
     private final QueryBus queryBus = mock(QueryBus.class);
     private final CommandBus commandBus = mock(CommandBus.class);
     private final PosTicketMapper mapper = mock(PosTicketMapper.class);
-    private final TicketPrintReaderPort port = mock(TicketPrintReaderPort.class);
     private final TicketScanResolver ticketScanResolver = new TicketScanResolver();
 
     private final PosTicketsService service = new PosTicketsService(
-        queryBus, commandBus, mapper, ticketScanResolver, port);
+        queryBus, commandBus, mapper, ticketScanResolver);
 
     private final TenantId tenantId = TenantId.of(UUID.randomUUID());
     private final UserId userId = UserId.of(UUID.randomUUID());

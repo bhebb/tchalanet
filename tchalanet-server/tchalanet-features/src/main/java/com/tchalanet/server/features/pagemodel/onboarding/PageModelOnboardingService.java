@@ -3,11 +3,13 @@ package com.tchalanet.server.features.pagemodel.onboarding;
 import com.tchalanet.server.catalog.pagemodeltemplate.api.PageModelTemplateCatalog;
 import com.tchalanet.server.catalog.pagemodeltemplate.api.model.PageModelTemplateView;
 import com.tchalanet.server.common.bus.CommandBus;
+import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.constant.CommonConstants;
+import com.tchalanet.server.common.exception.TchNotFoundException;
 import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.pagemodel.api.command.UpsertPageModelCommand;
-import com.tchalanet.server.core.pagemodel.internal.application.port.out.PageModelReadPort;
+import com.tchalanet.server.core.pagemodel.api.query.ResolveEffectivePageModelQuery;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,17 +22,16 @@ import tools.jackson.databind.JsonNode;
 @Slf4j
 public class PageModelOnboardingService {
 
-    private final PageModelReadPort readPort;
     private final PageModelTemplateCatalog templateCatalog;
     private final CommandBus commandBus;
+    private final QueryBus queryBus;
     private final JsonUtils objectMapper;
 
     @Transactional
     public void seedDefaults(TenantId tenantId) {
         for (PageModelTemplateView tpl : templateCatalog.findDefaultGlobalTemplates()) {
             try {
-                var existing = readPort.findPublishedByLogicalId(tpl.logicalId());
-                if (existing.isPresent()) {
+                if (pageModelExists(tenantId, tpl.logicalId())) {
                     log.debug("PageModel already exists for logicalId={}", tpl.logicalId());
                     continue;
                 }
@@ -38,6 +39,15 @@ public class PageModelOnboardingService {
             } catch (Exception e) {
                 log.warn("Skipping PageModel seed for logicalId={}: {}", tpl.logicalId(), e.getMessage(), e);
             }
+        }
+    }
+
+    private boolean pageModelExists(TenantId tenantId, String logicalId) {
+        try {
+            queryBus.ask(new ResolveEffectivePageModelQuery(Optional.of(tenantId), logicalId));
+            return true;
+        } catch (TchNotFoundException e) {
+            return false;
         }
     }
 

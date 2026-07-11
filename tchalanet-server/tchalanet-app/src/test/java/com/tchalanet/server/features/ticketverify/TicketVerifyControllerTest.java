@@ -8,7 +8,7 @@ import com.tchalanet.server.common.web.error.ProblemRestException;
 import com.tchalanet.server.core.sales.api.config.PublicTicketRateLimitProperties;
 import com.tchalanet.server.core.sales.api.model.verification.CustomerTicketStatus;
 import com.tchalanet.server.core.sales.api.model.verification.TicketVerificationView;
-import com.tchalanet.server.features.ticketverify.infra.PublicTicketRateLimiter;
+import com.tchalanet.server.features.ticketverify.shared.PublicTicketRateLimiter;
 import com.tchalanet.server.features.ticketverify.model.TicketVerifyRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;

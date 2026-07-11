@@ -12,12 +12,12 @@ import com.tchalanet.server.common.web.paging.TchPageMapper;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.core.sales.api.command.cancel.CancelTicketCommand;
 import com.tchalanet.server.core.sales.api.query.GetSellerTerminalDailyStatsQuery;
-import com.tchalanet.server.features.pos.tickets.model.DrawStatLineDto;
-import com.tchalanet.server.features.pos.tickets.model.SellerTerminalDailyStatsResponse;
 import com.tchalanet.server.core.sales.api.model.verification.CustomerTicketStatus;
 import com.tchalanet.server.core.sales.api.model.verification.TicketCashierVerificationView;
 import com.tchalanet.server.core.sales.api.query.GetTicketForCashierVerificationQuery;
+import com.tchalanet.server.core.sales.api.query.GetTicketPrintViewQuery;
 import com.tchalanet.server.core.sales.api.query.ListTicketsQuery;
+import com.tchalanet.server.features.pos.tickets.model.DrawStatLineItem;
 import com.tchalanet.server.features.pos.tickets.model.PosAction;
 import com.tchalanet.server.features.pos.tickets.model.PosActionType;
 import com.tchalanet.server.features.pos.tickets.mapper.PosTicketMapper;
@@ -29,6 +29,7 @@ import com.tchalanet.server.features.pos.tickets.model.PosTicketVerificationResp
 import com.tchalanet.server.features.pos.tickets.model.PosTicketVerificationSeverity;
 import com.tchalanet.server.features.pos.tickets.model.PosTicketVerificationStatus;
 import com.tchalanet.server.features.pos.tickets.model.PosVerifyTicketRequest;
+import com.tchalanet.server.features.pos.tickets.model.SellerTerminalDailyStatsResponse;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.LocalDate;
@@ -47,7 +48,6 @@ public class PosTicketsService {
     private final CommandBus commandBus;
     private final PosTicketMapper mapper;
     private final TicketScanResolver ticketScanResolver;
-    private final com.tchalanet.server.core.sales.internal.application.port.out.TicketPrintReaderPort ticketPrintReader;
 
     public PosTicketCancelResponse cancel(
         TchRequestContext ctx,
@@ -92,7 +92,7 @@ public class PosTicketsService {
             currency
         ));
         var breakdown = stats.breakdown().stream()
-            .map(b -> new DrawStatLineDto(b.drawId(), b.channelLabel(), b.ticketCount(), b.totalCents()))
+            .map(b -> new DrawStatLineItem(b.drawId(), b.channelLabel(), b.ticketCount(), b.totalCents()))
             .toList();
         return new SellerTerminalDailyStatsResponse(stats.ticketCount(), stats.salesTotalCents(), stats.currency(), breakdown);
     }
@@ -100,7 +100,7 @@ public class PosTicketsService {
     public PosTicketDetailsResponse getDetails(TicketId ticketId) {
         // Use the print view — it includes publicCode, drawChannelName, seller context,
         // bet lines (with promo flags), and charges. Richer than TicketDetailsView.
-        var printView = ticketPrintReader.findPrintViewRequired(ticketId);
+        var printView = queryBus.ask(new GetTicketPrintViewQuery(ticketId));
         return mapper.toDetailsResponse(printView);
     }
 

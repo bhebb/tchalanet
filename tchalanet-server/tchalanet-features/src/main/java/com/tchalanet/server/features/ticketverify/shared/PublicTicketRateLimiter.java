@@ -1,14 +1,13 @@
-package com.tchalanet.server.features.ticketverify.infra;
+package com.tchalanet.server.features.ticketverify.shared;
 
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.sales.api.config.PublicTicketRateLimitProperties;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
 
 // TODO: migrate to Redis-backed implementation for multi-instance deployment
 @Component

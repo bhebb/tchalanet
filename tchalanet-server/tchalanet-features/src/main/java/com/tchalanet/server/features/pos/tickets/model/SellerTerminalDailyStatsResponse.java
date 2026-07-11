@@ -6,4 +6,4 @@ public record SellerTerminalDailyStatsResponse(
     long ticketCount,
     long salesTotalCents,
     String currency,
-    List<DrawStatLineDto> breakdown) {}
+    List<DrawStatLineItem> breakdown) {}
