@@ -5,18 +5,24 @@ import { Observable } from 'rxjs';
 export interface PricingOddsEntry {
   readonly id: string | null;
   readonly gameCode: string;
+  readonly pricingVariantCode: string;
   readonly betType: string;
   readonly betOption: number | null;
-  readonly odds: number;
+  readonly odds: number | null;
+  readonly payoutRuleType?: 'STAKE_MULTIPLIER' | 'FIXED_AMOUNT' | null;
+  readonly fixedAmount?: number | null;
   readonly active: boolean;
 }
 
 export interface OddsOverrideEntry {
-  readonly id: string;
+  readonly id: string | { value?: string | null };
   readonly gameCode: string;
+  readonly pricingVariantCode: string;
   readonly betType: string;
   readonly betOption: number | null;
-  readonly odds: number;
+  readonly odds: number | null;
+  readonly payoutRuleType?: 'STAKE_MULTIPLIER' | 'FIXED_AMOUNT' | null;
+  readonly fixedAmount?: number | null;
   readonly active: boolean;
   readonly effectiveFrom: string | null;
   readonly effectiveTo: string | null;
@@ -25,9 +31,12 @@ export interface OddsOverrideEntry {
 
 export interface UpsertOverrideRequest {
   readonly gameCode: string;
+  readonly pricingVariantCode: string;
   readonly betType: string;
   readonly betOption: number | null;
-  readonly odds: number;
+  readonly odds?: number | null;
+  readonly payoutRuleType?: 'STAKE_MULTIPLIER' | 'FIXED_AMOUNT' | null;
+  readonly fixedAmount?: number | null;
   readonly reason?: string | null;
 }
 
@@ -36,20 +45,20 @@ export class BaremesAdminApi {
   private readonly backend = inject(TchBackendClient);
 
   listTenantOdds(): Observable<PricingOddsEntry[]> {
-    return this.backend.get<PricingOddsEntry[]>('/admin/controls/odds', {
+    return this.backend.get<PricingOddsEntry[]>('/admin/controls/pricing-rules', {
       suppressShellFeedback: true,
     });
   }
 
   listSellerOverrides(sellerTerminalId: string): Observable<OddsOverrideEntry[]> {
-    return this.backend.get<OddsOverrideEntry[]>(`/admin/controls/odds/seller-terminals/${sellerTerminalId}`);
+    return this.backend.get<OddsOverrideEntry[]>(`/admin/controls/pricing-rules/seller-terminals/${sellerTerminalId}`);
   }
 
   upsertOverride(sellerTerminalId: string, req: UpsertOverrideRequest): Observable<unknown> {
-    return this.backend.put<unknown>(`/admin/controls/odds/seller-terminals/${sellerTerminalId}`, req);
+    return this.backend.put<unknown>(`/admin/controls/pricing-rules/seller-terminals/${sellerTerminalId}`, req);
   }
 
   deleteOverride(sellerTerminalId: string, overrideId: string): Observable<void> {
-    return this.backend.delete<void>(`/admin/controls/odds/seller-terminals/${sellerTerminalId}/overrides/${overrideId}`);
+    return this.backend.delete<void>(`/admin/controls/pricing-rules/seller-terminals/${sellerTerminalId}/overrides/${overrideId}`);
   }
 }

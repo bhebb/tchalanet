@@ -32,7 +32,7 @@ export class ConsolePricingTableComponent {
   readonly rowAction = output<ConsolePricingActionEvent>();
 
   readonly columns = computed(() => {
-    const columns = ['gameCode', 'betType', 'betOption', 'odds'];
+    const columns = ['gameCode', 'betType', 'betOption', 'payout'];
     if (this.showTenant()) columns.push('tenant');
     columns.push('status');
     if (this.showActions() && this.rows().some(row => (row.actions?.length ?? 0) > 0)) {

@@ -52,7 +52,7 @@ class TicketLinePreparationServiceTest {
     private static final UUID LINE_ID = UUID.fromString("30000000-0000-0000-0000-000000000001");
 
     @Test
-    void resolvesEffectiveSellerTerminalOddsAndSnapshotsSettlementTermsWithoutPotentialPayout() {
+    void resolvesEffectiveSellerTerminalOddsAndSnapshotsSettlementTermsOnly() {
         var queryBus = new CapturingQueryBus(new BigDecimal("60"));
         var service = service(queryBus, TenantGameApiStub.explicitOnly());
 
@@ -126,7 +126,7 @@ class TicketLinePreparationServiceTest {
     }
 
     @Test
-    void exactPlusBoxSnapshotsTermsWithoutMinMaxPotentialPayout() {
+    void exactPlusBoxSnapshotsSettlementTermsOnly() {
         var queryBus = new CapturingQueryBus(Map.of(
             PricingVariantCode.LOTTO3_STRAIGHT, new BigDecimal("500"),
             PricingVariantCode.LOTTO3_BOX_6_WAY, new BigDecimal("80")

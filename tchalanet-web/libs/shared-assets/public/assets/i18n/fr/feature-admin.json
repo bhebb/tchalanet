@@ -180,7 +180,8 @@
         },
         "options": {
           "title": "Barème de gains",
-          "description": "Résumé du barème tenant appliqué à la vente."
+          "description": "Résumé du barème tenant appliqué à la vente.",
+          "clearPricing": "Supprimer le barème"
         },
         "salesOptions": {
           "title": "Modes de vente avancés",

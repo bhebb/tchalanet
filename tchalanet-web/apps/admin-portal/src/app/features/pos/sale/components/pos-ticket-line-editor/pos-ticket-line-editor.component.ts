@@ -43,6 +43,7 @@ export class PosTicketLineEditorComponent {
   readonly selectedGameCode = input<string | null>(null);
   readonly games = input<PosGameView[]>([]);
   readonly readonly = input(false);
+  readonly readonlyMessage = input("Ticket vendu. Créez un nouveau ticket pour ajouter d'autres numéros.");
 
   readonly lineAdded = output<PosTicketLineInput>();
   readonly lineRemoved = output<string>();
@@ -162,7 +163,7 @@ export class PosTicketLineEditorComponent {
     const betOption = this.selectedBetOption();
     const selection = this.normalizeSelection(sel, betType?.betType ?? '');
 
-    if (this.readonly()) return;
+    if (this.readonly()) { this.addError.set(this.readonlyMessage()); return; }
     if (!sel) { this.addError.set('Le numéro est requis.'); return; }
     if (!stake || stake <= 0) { this.addError.set('La mise doit être supérieure à 0 HTG.'); return; }
     if (!gameCode) { this.addError.set('Sélectionnez un jeu.'); return; }

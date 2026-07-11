@@ -53,7 +53,6 @@ CREATE OR REPLACE FUNCTION public.increment_draw_exposure(
   p_bet_type varchar,
   p_selection_key varchar,
   p_stake numeric,
-  p_potential_payout numeric,
   p_event_id uuid,
   p_event_at timestamptz
 ) RETURNS void AS $$
@@ -67,7 +66,6 @@ INSERT INTO draw_exposure (
     selection_key,
     stake_total,
     sales_count,
-    potential_payout_total,
     last_event_id,
     last_event_at
 ) VALUES (
@@ -79,7 +77,6 @@ INSERT INTO draw_exposure (
              p_selection_key,
              p_stake,
              1,
-             p_potential_payout,
              p_event_id,
              p_event_at
          )
@@ -95,7 +92,6 @@ WHERE deleted_at IS NULL
     DO UPDATE SET
     stake_total = draw_exposure.stake_total + EXCLUDED.stake_total,
            sales_count = draw_exposure.sales_count + 1,
-           potential_payout_total = draw_exposure.potential_payout_total + EXCLUDED.potential_payout_total,
            last_event_id = EXCLUDED.last_event_id,
            last_event_at = EXCLUDED.last_event_at,
            updated_at = now();

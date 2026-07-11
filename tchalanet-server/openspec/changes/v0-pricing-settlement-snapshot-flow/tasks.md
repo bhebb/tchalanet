@@ -20,6 +20,7 @@
 - [x] Resolve overrides term by term so partial terminal values fall back to tenant defaults.
 - [x] Replace or wrap `ResolveSellerTerminalOddsQuery` with a payout-rule resolution query.
 - [x] Rename the admin/API configuration surface from odds to pricing rules.
+- [x] Expose tenant admin pricing-rule editing for multiplier vs fixed-amount rules.
 - [x] Preserve compatibility for existing odds/multiplier configs inside the pricing storage model.
 - [x] Update pricing docs and focused pricing tests.
 

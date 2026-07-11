@@ -85,7 +85,6 @@ Il retourne un `LimitEvaluationResult`.
 Elle sert aux règles stateful comme :
 
 - mise totale déjà vendue sur un numéro
-- payout potentiel déjà exposé sur un numéro
 - nombre de ventes/lignes déjà enregistrées sur une sélection
 
 ---

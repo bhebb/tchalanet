@@ -23,15 +23,19 @@ jobs:
         working-directory: tchalanet-edge-service
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.9.0
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
-          node-version: '20.19.x'
-
-      - name: Enable pnpm
-        run: corepack enable && corepack prepare pnpm@10.19.0 --activate
+          node-version: '24'
+          cache: pnpm
+          cache-dependency-path: tchalanet-edge-service/pnpm-lock.yaml
 
       - name: Install deps
         run: pnpm install --frozen-lockfile

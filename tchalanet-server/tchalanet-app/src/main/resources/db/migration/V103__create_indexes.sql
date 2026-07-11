@@ -116,15 +116,6 @@ CREATE INDEX IF NOT EXISTS idx_draw_exposure_top_stake
     )
     WHERE deleted_at IS NULL;
 
-CREATE INDEX IF NOT EXISTS idx_draw_exposure_top_payout
-    ON draw_exposure (
-    tenant_id,
-    draw_id,
-    scope_type,
-    scope_id,
-    potential_payout_total DESC
-    )
-    WHERE deleted_at IS NULL;
 CREATE INDEX ix_tchala_entry__status ON tchala_entry (status);
 
 -- ─── Notifications ──────────────────────────────────────────────────

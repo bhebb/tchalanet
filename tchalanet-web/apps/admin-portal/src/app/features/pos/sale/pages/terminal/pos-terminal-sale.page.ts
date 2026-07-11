@@ -158,6 +158,18 @@ export class PosTerminalSalePage implements OnInit {
     return null;
   });
 
+  readonly lineEditorReadonly = computed(() => !!this.confirmedTicket() || !this.selectedDraw());
+
+  readonly lineEditorReadonlyReason = computed(() => {
+    if (this.confirmedTicket()) {
+      return "Ticket vendu. Créez un nouveau ticket pour ajouter d'autres numéros.";
+    }
+    if (!this.selectedDraw()) {
+      return 'Aucun tirage ouvert. Générez ou sélectionnez un tirage avant d’ajouter des numéros.';
+    }
+    return null;
+  });
+
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('sellerTerminalId') ?? '';
     this.loadPage(id);
@@ -189,10 +201,14 @@ export class PosTerminalSalePage implements OnInit {
       next: draws => {
         this.openDraws.set(draws);
         this.selectedDraw.set(draws[0] ?? null);
+        if (draws.length === 0) {
+          this.clearLines();
+        }
       },
       error: err => {
         this.openDraws.set([]);
         this.selectedDraw.set(null);
+        this.clearLines();
         this.setSectionError('admin.sellerTerminal.pos.draws', err);
       },
     });
@@ -243,6 +259,19 @@ export class PosTerminalSalePage implements OnInit {
   }
 
   addLine(input: PosTicketLineInput): void {
+    if (!this.selectedDraw()) {
+      this.saleError.set({
+        title: 'Aucun tirage ouvert',
+        message: 'Générez ou sélectionnez un tirage ouvert avant d’ajouter des numéros.',
+        severity: 'warn',
+        source: 'admin.sellerTerminal.pos.draws',
+        target: 'admin.sellerTerminal.pos.sale',
+        code: 'draw.required',
+        retryable: false,
+      });
+      return;
+    }
+
     this.lines.update(lines => {
       const existingIndex = lines.findIndex(line =>
         line.gameCode === input.gameCode &&

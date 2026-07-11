@@ -9,7 +9,7 @@ SET deleted_at = now(),
 WHERE level = 'GLOBAL'
   AND tenant_id IS NULL
   AND surface = 'CASHIER'
-  AND i18n_key IN ('receipt.line.header.payout', 'receipt.total.max_payout')
+  AND i18n_key = 'receipt.line.header.payout'
   AND deleted_at IS NULL;
 
 WITH receipt_i18n(locale, i18n_key, i18n_value) AS (

@@ -67,8 +67,9 @@ WITH t AS (
              g.code AS game_code,
              true AS enabled,
              g.name AS display_name,
-             NULL::numeric(12,2) AS min_stake,
-             NULL::numeric(12,2) AS max_stake,
+             1::numeric(12,2) AS min_stake,
+             1000000::numeric(12,2) AS max_stake,
+             true AS availability_enabled,
              CASE g.code
                  WHEN 'HT_BOLET' THEN
                      '[
@@ -124,12 +125,12 @@ WITH t AS (
      )
 INSERT INTO tenant_game (
   id, tenant_id, game_id, game_code, enabled, display_name,
-  min_stake, max_stake, bet_option_config,
+  min_stake, max_stake, availability_enabled, bet_option_config,
   created_at, updated_at, version
 )
 SELECT
     id, tenant_id, game_id, game_code, enabled, display_name,
-    min_stake, max_stake, bet_option_config,
+    min_stake, max_stake, availability_enabled, bet_option_config,
     now(), now(), 0
 FROM tg_src
     ON CONFLICT (tenant_id, game_id) DO UPDATE
@@ -137,6 +138,7 @@ FROM tg_src
                                             display_name = EXCLUDED.display_name,
                                             min_stake    = EXCLUDED.min_stake,
                                             max_stake    = EXCLUDED.max_stake,
+                                            availability_enabled = EXCLUDED.availability_enabled,
                                             bet_option_config = EXCLUDED.bet_option_config,
                                             updated_at   = now(),
                                             version      = tenant_game.version + 1

@@ -26,6 +26,8 @@ export interface TenantGameBetOptionView {
   readonly label: string;
   readonly value: string;
   readonly odds: number | null;
+  readonly payoutRuleType?: 'STAKE_MULTIPLIER' | 'FIXED_AMOUNT' | null;
+  readonly fixedAmount?: number | null;
   readonly betType: string;
   readonly betOption: number | null;
   readonly pricingVariantCode: string | null;

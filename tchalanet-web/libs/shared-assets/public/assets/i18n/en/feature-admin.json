@@ -1017,7 +1017,8 @@
         },
         "options": {
           "title": "Payout odds",
-          "description": "Summary of the tenant pricing applied at sale time."
+          "description": "Summary of the tenant pricing applied at sale time.",
+          "clearPricing": "Clear pricing rule"
         },
         "salesOptions": {
           "title": "Advanced sales modes",

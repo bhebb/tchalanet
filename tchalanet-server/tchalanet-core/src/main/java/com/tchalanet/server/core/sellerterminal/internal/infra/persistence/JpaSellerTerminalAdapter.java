@@ -64,6 +64,11 @@ public class JpaSellerTerminalAdapter implements SellerTerminalReaderPort, Selle
     }
 
     @Override
+    public List<String> terminalCodes(TenantId tenantId) {
+        return repository.findTerminalCodesByTenantId(tenantId.value());
+    }
+
+    @Override
     public SellerTerminalCommissionStatsView commissionStats(TenantId tenantId, BigDecimal tenantDefaultRate) {
         if (tenantDefaultRate == null) {
             Object[] row = firstRow(repository.commissionStatsNoDefault(tenantId.value()));

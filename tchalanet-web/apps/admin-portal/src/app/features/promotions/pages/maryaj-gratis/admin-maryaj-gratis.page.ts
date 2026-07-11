@@ -60,7 +60,9 @@ export class AdminMaryajGratisPage implements OnInit {
   openGameSettings(game: TenantGamePricingView): void {
     const ref = this.dialog.open(GameSettingsDialog, {
       data: { game: this.toDialogGame(game) },
-      width: '480px',
+      width: 'min(44rem, calc(100vw - 1rem))',
+      maxWidth: 'calc(100vw - 1rem)',
+      maxHeight: 'calc(100dvh - 1rem)',
     });
     ref.afterClosed().subscribe(ok => {
       if (ok) this.store.load();

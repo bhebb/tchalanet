@@ -9,6 +9,7 @@ import com.tchalanet.server.common.types.id.SellerTerminalOddsOverrideId;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.core.pricing.api.command.DeactivateSellerTerminalPricingRuleOverrideCommand;
 import com.tchalanet.server.core.pricing.api.command.DeleteSellerTerminalPricingRuleOverrideCommand;
+import com.tchalanet.server.core.pricing.api.command.DeleteTenantPricingRuleCommand;
 import com.tchalanet.server.core.pricing.api.command.UpsertSellerTerminalPricingRuleOverrideCommand;
 import com.tchalanet.server.core.pricing.api.command.UpsertSellerTerminalPricingRuleOverrideResult;
 import com.tchalanet.server.core.pricing.api.command.UpsertTenantPricingRuleCommand;
@@ -16,6 +17,7 @@ import com.tchalanet.server.core.pricing.api.model.SellerTerminalPricingRuleOver
 import com.tchalanet.server.core.pricing.api.model.TenantPricingRuleView;
 import com.tchalanet.server.core.pricing.api.query.ListSellerTerminalPricingRuleOverridesQuery;
 import com.tchalanet.server.core.pricing.api.query.ListTenantPricingRulesQuery;
+import com.tchalanet.server.core.pricing.internal.infra.web.admin.model.DeleteTenantPricingRuleRequest;
 import com.tchalanet.server.core.pricing.internal.infra.web.admin.model.UpsertPricingRuleOverrideRequest;
 import com.tchalanet.server.core.pricing.internal.infra.web.admin.model.UpsertTenantPricingRuleRequest;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -63,6 +65,20 @@ public class PricingOverrideAdminController {
             req.fixedAmount(),
             ctx.userId());
         return ApiResponse.success(commandBus.execute(cmd));
+    }
+
+    /** Disable a tenant default pricing rule. */
+    @DeleteMapping
+    public ApiResponse<Void> deleteTenantDefaultPricing(
+        @CurrentContext TchRequestContext ctx,
+        @Valid @RequestBody DeleteTenantPricingRuleRequest req
+    ) {
+        commandBus.execute(new DeleteTenantPricingRuleCommand(
+            ctx.tenantIdRequired(),
+            req.gameCode(),
+            req.pricingVariantCode(),
+            ctx.userId()));
+        return ApiResponse.success(null);
     }
 
     /** Active seller-terminal pricing rule overrides. */

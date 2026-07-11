@@ -9,12 +9,33 @@
     </div>
 
     <mat-form-field appearance="outline" class="edit-tenant-odds-dialog__field">
-      <mat-label>{{ 'console.pricingForm.field.odds' | translate }}</mat-label>
-      <input matInput type="number" formControlName="odds" min="0.0001" step="0.01" />
-      @if (form.controls.odds.invalid && form.controls.odds.touched) {
-        <mat-error>{{ 'console.pricingForm.validation.oddsMin' | translate }}</mat-error>
-      }
+      <mat-label>{{ 'console.pricingForm.field.payoutRuleType' | translate }}</mat-label>
+      <mat-select formControlName="payoutRuleType">
+        @for (type of payoutRuleTypes; track type) {
+          <mat-option [value]="type">
+            {{ ('console.pricingForm.payoutRuleType.' + type) | translate }}
+          </mat-option>
+        }
+      </mat-select>
     </mat-form-field>
+
+    @if (isFixedAmount()) {
+      <mat-form-field appearance="outline" class="edit-tenant-odds-dialog__field">
+        <mat-label>{{ 'console.pricingForm.field.fixedAmount' | translate }}</mat-label>
+        <input matInput type="number" formControlName="fixedAmount" min="0" step="0.01" />
+        @if (form.controls.fixedAmount.invalid && form.controls.fixedAmount.touched) {
+          <mat-error>{{ 'console.pricingForm.validation.fixedAmountMin' | translate }}</mat-error>
+        }
+      </mat-form-field>
+    } @else {
+      <mat-form-field appearance="outline" class="edit-tenant-odds-dialog__field">
+        <mat-label>{{ 'console.pricingForm.field.odds' | translate }}</mat-label>
+        <input matInput type="number" formControlName="odds" min="0.0001" step="0.01" />
+        @if (form.controls.odds.invalid && form.controls.odds.touched) {
+          <mat-error>{{ 'console.pricingForm.validation.oddsMin' | translate }}</mat-error>
+        }
+      </mat-form-field>
+    }
   </form>
 </mat-dialog-content>
 

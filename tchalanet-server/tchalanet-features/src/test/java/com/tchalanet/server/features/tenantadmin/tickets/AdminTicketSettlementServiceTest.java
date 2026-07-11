@@ -65,6 +65,7 @@ class AdminTicketSettlementServiceTest {
             game,
             betType,
             betOption,
+            null,
             game.name(),
             selection,
             selection,

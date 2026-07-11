@@ -666,7 +666,6 @@ CREATE TABLE IF NOT EXISTS draw_exposure (
 
     stake_total numeric(14, 2) NOT NULL DEFAULT 0,
     sales_count bigint NOT NULL DEFAULT 0,
-    potential_payout_total numeric(14, 2) NOT NULL DEFAULT 0,
 
     last_event_id uuid NULL,
     last_event_at timestamptz NULL,
@@ -687,7 +686,6 @@ CREATE TABLE IF NOT EXISTS draw_exposure (
     CHECK (
               stake_total >= 0
               AND sales_count >= 0
-              AND potential_payout_total >= 0
           )
     );
 

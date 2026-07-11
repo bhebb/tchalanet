@@ -17,6 +17,7 @@ import com.tchalanet.server.core.sellerterminal.api.query.SellerTerminalSearchCr
 import com.tchalanet.server.core.sellerterminal.internal.application.port.out.SellerTerminalReaderPort;
 import com.tchalanet.server.core.sellerterminal.internal.domain.model.SellerTerminal;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -94,6 +95,11 @@ class GetCurrentOperationalContextQueryHandlerTest {
                 SellerTerminalSearchCriteria criteria,
                 TchPageRequest pageRequest
             ) {
+                throw new UnsupportedOperationException("not used");
+            }
+
+            @Override
+            public List<String> terminalCodes(TenantId tenantId) {
                 throw new UnsupportedOperationException("not used");
             }
 

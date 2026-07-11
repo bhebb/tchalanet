@@ -1005,7 +1005,8 @@
         },
         "options": {
           "title": "Barèm gain",
-          "description": "Rezime barèm tenant lan ki aplike nan vant lan."
+          "description": "Rezime barèm tenant lan ki aplike nan vant lan.",
+          "clearPricing": "Efase règ barèm nan"
         },
         "salesOptions": {
           "title": "Mòd vant avanse",

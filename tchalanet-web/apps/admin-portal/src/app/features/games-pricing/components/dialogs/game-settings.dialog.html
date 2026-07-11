@@ -159,28 +159,59 @@
               <div class="game-settings-dialog__pricing-variants">
                 @for (variant of group.variants; track variant.pricingVariantCode ?? variant.label) {
                   <div class="game-settings-dialog__pricing-variant">
-                    <span class="game-settings-dialog__muted">{{ variant.label }}</span>
+                    <span class="game-settings-dialog__pricing-label">{{ variant.label }}</span>
                     <div class="game-settings-dialog__pricing-control">
                       <mat-form-field appearance="outline" class="game-settings-dialog__pricing-field">
-                        <mat-label>{{ 'domain.entity.odds' | translate }}</mat-label>
-                        <input
-                          matInput
-                          type="number"
-                          min="0.0001"
-                          step="0.01"
-                          placeholder="Non configuré"
-                          [value]="variant.odds ?? ''"
+                        <mat-label>{{ 'console.pricingForm.field.payoutRuleType' | translate }}</mat-label>
+                        <mat-select
+                          [value]="variant.payoutRuleType"
                           [disabled]="!variant.pricingVariantCode"
-                          (input)="updatePricingOdds(group.id, variant.pricingVariantCode ?? null, $any($event.target).value)"
-                        />
+                          (selectionChange)="updatePricingRuleType(group.id, variant.pricingVariantCode ?? null, $event.value)"
+                        >
+                          <mat-option value="STAKE_MULTIPLIER">
+                            {{ 'console.pricingForm.payoutRuleType.STAKE_MULTIPLIER' | translate }}
+                          </mat-option>
+                          <mat-option value="FIXED_AMOUNT">
+                            {{ 'console.pricingForm.payoutRuleType.FIXED_AMOUNT' | translate }}
+                          </mat-option>
+                        </mat-select>
                       </mat-form-field>
+                      @if (variant.payoutRuleType === 'FIXED_AMOUNT') {
+                        <mat-form-field appearance="outline" class="game-settings-dialog__pricing-field">
+                          <mat-label>{{ 'console.pricingForm.field.fixedAmount' | translate }}</mat-label>
+                          <input
+                            matInput
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            placeholder="Non configuré"
+                            [value]="variant.fixedAmount ?? ''"
+                            [disabled]="!variant.pricingVariantCode"
+                            (input)="updatePricingFixedAmount(group.id, variant.pricingVariantCode ?? null, $any($event.target).value)"
+                          />
+                        </mat-form-field>
+                      } @else {
+                        <mat-form-field appearance="outline" class="game-settings-dialog__pricing-field">
+                          <mat-label>{{ 'domain.entity.odds' | translate }}</mat-label>
+                          <input
+                            matInput
+                            type="number"
+                            min="0.0001"
+                            step="0.01"
+                            placeholder="Non configuré"
+                            [value]="variant.odds ?? ''"
+                            [disabled]="!variant.pricingVariantCode"
+                            (input)="updatePricingOdds(group.id, variant.pricingVariantCode ?? null, $any($event.target).value)"
+                          />
+                        </mat-form-field>
+                      }
                       <button
                         class="game-settings-dialog__clear-pricing"
                         type="button"
-                        mat-button
-                        [disabled]="!variant.pricingVariantCode || variant.odds === null || variant.odds === undefined"
+                        mat-icon-button
+                        [disabled]="!variant.pricingVariantCode || (variant.odds === null || variant.odds === undefined) && (variant.fixedAmount === null || variant.fixedAmount === undefined)"
                         (click)="clearPricingOdds(group.id, variant.pricingVariantCode ?? null)"
-                        aria-label="Supprimer la cote"
+                        [attr.aria-label]="'admin.games.settings.options.clearPricing' | translate"
                       >
                         <span class="material-symbols-outlined" aria-hidden="true">delete</span>
                       </button>

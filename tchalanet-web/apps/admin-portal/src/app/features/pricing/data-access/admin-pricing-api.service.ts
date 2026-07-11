@@ -9,16 +9,22 @@ export interface PricingView {
   pricingVariantCode: string;
   betType: string;
   betOption?: number | null;
-  odds: number;
+  odds: number | null;
+  payoutRuleType?: PayoutRuleType | null;
+  fixedAmount?: number | null;
   active: boolean;
 }
+
+export type PayoutRuleType = 'STAKE_MULTIPLIER' | 'FIXED_AMOUNT';
 
 export interface UpsertTenantOddsRequest {
   gameCode: string;
   pricingVariantCode: string;
   betType: string;
   betOption?: number | null;
-  odds: number;
+  odds?: number | null;
+  payoutRuleType?: PayoutRuleType | null;
+  fixedAmount?: number | null;
 }
 
 export interface SellerTerminalOddsOverrideView {
@@ -28,7 +34,9 @@ export interface SellerTerminalOddsOverrideView {
   pricingVariantCode: string;
   betType: string;
   betOption?: number | null;
-  odds: number;
+  odds: number | null;
+  payoutRuleType?: PayoutRuleType | null;
+  fixedAmount?: number | null;
   effectiveFrom?: string | null;
   effectiveTo?: string | null;
   reason?: string | null;
@@ -40,7 +48,9 @@ export interface UpsertOddsOverrideRequest {
   pricingVariantCode: string;
   betType: string;
   betOption?: number | null;
-  odds: number;
+  odds?: number | null;
+  payoutRuleType?: PayoutRuleType | null;
+  fixedAmount?: number | null;
   effectiveFrom?: string | null;
   effectiveTo?: string | null;
   reason?: string | null;
@@ -51,12 +61,12 @@ export class AdminPricingApi {
   private readonly backend = inject(TchBackendClient);
 
   getDefaultOdds(options?: TchRequestOptions): Observable<PricingView[]> {
-    return this.backend.get<PricingView[]>('/admin/pricing/odds', options);
+    return this.backend.get<PricingView[]>('/admin/controls/pricing-rules', options);
   }
 
   getDefaultOddsResource(options?: TchRequestOptions) {
     return this.backend.getResource<PricingView[]>(() => ({
-      path: '/admin/pricing/odds',
+      path: '/admin/controls/pricing-rules',
       options,
     }));
   }
@@ -65,12 +75,12 @@ export class AdminPricingApi {
     req: UpsertTenantOddsRequest,
     options?: TchRequestOptions,
   ): Observable<PricingView> {
-    return this.backend.put<PricingView>('/admin/pricing/odds', req, options);
+    return this.backend.put<PricingView>('/admin/controls/pricing-rules', req, options);
   }
 
   getTerminalOverrides(sellerTerminalId: string, options?: TchRequestOptions): Observable<SellerTerminalOddsOverrideView[]> {
     return this.backend.get<SellerTerminalOddsOverrideView[]>(
-      `/admin/controls/odds/seller-terminals/${sellerTerminalId}`,
+      `/admin/controls/pricing-rules/seller-terminals/${sellerTerminalId}`,
       options,
     );
   }
@@ -81,7 +91,7 @@ export class AdminPricingApi {
     options?: TchRequestOptions,
   ): Observable<void> {
     return this.backend.put<void>(
-      `/admin/controls/odds/seller-terminals/${sellerTerminalId}`,
+      `/admin/controls/pricing-rules/seller-terminals/${sellerTerminalId}`,
       req,
       options,
     );
@@ -89,14 +99,14 @@ export class AdminPricingApi {
 
   deleteOverride(sellerTerminalId: string, overrideId: string, options?: TchRequestOptions): Observable<void> {
     return this.backend.delete<void>(
-      `/admin/controls/odds/seller-terminals/${sellerTerminalId}/overrides/${overrideId}`,
+      `/admin/controls/pricing-rules/seller-terminals/${sellerTerminalId}/overrides/${overrideId}`,
       options,
     );
   }
 
   deactivateOverride(sellerTerminalId: string, overrideId: string, options?: TchRequestOptions): Observable<void> {
     return this.backend.post<void>(
-      `/admin/controls/odds/seller-terminals/${sellerTerminalId}/overrides/${overrideId}/deactivate`,
+      `/admin/controls/pricing-rules/seller-terminals/${sellerTerminalId}/overrides/${overrideId}/deactivate`,
       {},
       options,
     );
