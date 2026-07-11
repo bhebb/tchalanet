@@ -41,7 +41,7 @@ import {
   DrawFinancialRow,
   DrawTopSelectionItem,
   SellerTerminalDrawFinancialRow,
-} from '../../../financials/data-access/admin-financials-api.service';
+} from '../../../reports/data-access/admin-financials-api.service';
 import {
   DrawActivityReport,
   DrawDetailActivityView,
@@ -654,7 +654,7 @@ export class AdminDrawDetailPage implements OnInit, OnDestroy {
       sellerCommission: this.sum(drawRows, row => row.sellerCommission),
       activeSellerCount: activeSellerIds.size,
       netRevenueEstimated: this.sum(drawRows, row => row.netRevenueEstimated),
-      promotionPotentialPayout: this.sum(drawRows, row => row.promotionPotentialPayout),
+      promotionPayoutBase: this.sum(drawRows, row => row.promotionPayoutBase),
     };
   }
 

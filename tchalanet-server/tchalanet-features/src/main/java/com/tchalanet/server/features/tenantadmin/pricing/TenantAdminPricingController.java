@@ -5,11 +5,12 @@ import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.web.api.ApiResponse;
-import com.tchalanet.server.core.pricing.api.command.DeleteTenantOddsCommand;
-import com.tchalanet.server.core.pricing.api.command.UpsertTenantOddsCommand;
+import com.tchalanet.server.core.pricing.api.command.DeleteTenantPricingRuleCommand;
+import com.tchalanet.server.core.pricing.api.command.UpsertTenantPricingRuleCommand;
+import com.tchalanet.server.core.pricing.api.model.PayoutRuleType;
 import com.tchalanet.server.core.pricing.api.model.PricingVariantCode;
-import com.tchalanet.server.core.pricing.api.model.TenantPricingOddsView;
-import com.tchalanet.server.core.pricing.api.query.ListTenantPricingQuery;
+import com.tchalanet.server.core.pricing.api.model.TenantPricingRuleView;
+import com.tchalanet.server.core.pricing.api.query.ListTenantPricingRulesQuery;
 import com.tchalanet.server.platform.audit.api.AuditLog;
 import com.tchalanet.server.platform.audit.api.model.AuditAction;
 import com.tchalanet.server.platform.audit.api.model.AuditEntityType;
@@ -34,7 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Tenant Admin • Pricing")
 @RestController
-@RequestMapping("/admin/pricing/odds")
+@RequestMapping("/admin/pricing/rules")
 @PreAuthorize("hasPermission(null, 'game-pricing.update')")
 @RequiredArgsConstructor
 @Validated
@@ -43,39 +44,41 @@ public class TenantAdminPricingController {
     private final QueryBus queryBus;
     private final CommandBus commandBus;
 
-    @Operation(summary = "List tenant default odds")
+    @Operation(summary = "List tenant pricing rules")
     @GetMapping
-    public ApiResponse<List<TenantPricingOddsView>> list(
+    public ApiResponse<List<TenantPricingRuleView>> list(
         @RequestParam(required = false) String gameCode,
         @CurrentContext TchRequestContext ctx
     ) {
-        return ApiResponse.success(queryBus.ask(new ListTenantPricingQuery(ctx.tenantIdRequired(), gameCode)));
+        return ApiResponse.success(queryBus.ask(new ListTenantPricingRulesQuery(ctx.tenantIdRequired(), gameCode)));
     }
 
-    @Operation(summary = "Create or update a tenant default odds by pricing variant")
+    @Operation(summary = "Create or update a tenant pricing rule by pricing variant")
     @PutMapping
     @AuditLog(
         entity = AuditEntityType.ODDS,
         action = AuditAction.UPDATE,
         idExpression = "#req.gameCode() + ':' + #req.pricingVariantCode().name()",
         detailsExpression = "#req")
-    public ApiResponse<TenantPricingOddsView> upsert(
-        @Valid @RequestBody UpsertTenantOddsRequest req,
+    public ApiResponse<TenantPricingRuleView> upsert(
+        @Valid @RequestBody UpsertTenantPricingRuleRequest req,
         @CurrentContext TchRequestContext ctx
     ) {
-        var result = commandBus.execute(new UpsertTenantOddsCommand(
+        var result = commandBus.execute(new UpsertTenantPricingRuleCommand(
             ctx.tenantIdRequired(),
             req.gameCode(),
             req.pricingVariantCode(),
             req.betType(),
             req.betOption(),
             req.odds(),
+            req.payoutRuleType(),
+            req.fixedAmount(),
             ctx.userId()
         ));
         return ApiResponse.success(result);
     }
 
-    @Operation(summary = "Delete a tenant default odds by pricing variant")
+    @Operation(summary = "Delete a tenant pricing rule by pricing variant")
     @DeleteMapping
     @AuditLog(
         entity = AuditEntityType.ODDS,
@@ -83,10 +86,10 @@ public class TenantAdminPricingController {
         idExpression = "#req.gameCode() + ':' + #req.pricingVariantCode().name()",
         detailsExpression = "#req")
     public ApiResponse<Void> delete(
-        @Valid @RequestBody DeleteTenantOddsRequestBody req,
+        @Valid @RequestBody DeleteTenantPricingRuleRequestBody req,
         @CurrentContext TchRequestContext ctx
     ) {
-        commandBus.execute(new DeleteTenantOddsCommand(
+        commandBus.execute(new DeleteTenantPricingRuleCommand(
             ctx.tenantIdRequired(),
             req.gameCode(),
             req.pricingVariantCode(),
@@ -95,15 +98,17 @@ public class TenantAdminPricingController {
         return ApiResponse.success(null);
     }
 
-    public record UpsertTenantOddsRequest(
+    public record UpsertTenantPricingRuleRequest(
         @NotBlank String gameCode,
         @NotNull PricingVariantCode pricingVariantCode,
         @NotBlank String betType,
         Short betOption,
-        @NotNull @DecimalMin(value = "0.0001") BigDecimal odds
+        @DecimalMin(value = "0.0001", inclusive = false) BigDecimal odds,
+        PayoutRuleType payoutRuleType,
+        @DecimalMin(value = "0", inclusive = true) BigDecimal fixedAmount
     ) {}
 
-    public record DeleteTenantOddsRequestBody(
+    public record DeleteTenantPricingRuleRequestBody(
         @NotBlank String gameCode,
         @NotNull PricingVariantCode pricingVariantCode
     ) {}

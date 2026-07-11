@@ -49,8 +49,6 @@ CREATE TABLE analytics_daily (
   waived_charge_cents bigint NOT NULL DEFAULT 0,
   promotion_line_count bigint NOT NULL DEFAULT 0,
   promotion_priced_line_count bigint NOT NULL DEFAULT 0,
-  promotion_payout_base_cents bigint NOT NULL DEFAULT 0,
-  promotion_potential_payout_cents bigint NOT NULL DEFAULT 0,
 
   -- session counts (V1: updated when session events are available via public API)
   sessions_opened_count    bigint NOT NULL DEFAULT 0,
@@ -112,8 +110,6 @@ CREATE TABLE analytics_draw (
   waived_charge_cents bigint NOT NULL DEFAULT 0,
   promotion_line_count bigint NOT NULL DEFAULT 0,
   promotion_priced_line_count bigint NOT NULL DEFAULT 0,
-  promotion_payout_base_cents bigint NOT NULL DEFAULT 0,
-  promotion_potential_payout_cents bigint NOT NULL DEFAULT 0,
   net_revenue_estimated_cents bigint NOT NULL DEFAULT 0,
   net_revenue_paid_basis_cents bigint NOT NULL DEFAULT 0,
 
@@ -175,8 +171,6 @@ CREATE OR REPLACE FUNCTION public.upsert_analytics_daily(
   p_waived_charge bigint,
   p_promotion_line_count bigint,
   p_promotion_priced_line_count bigint,
-  p_promotion_payout_base bigint,
-  p_promotion_potential_payout bigint,
   p_sessions_opened bigint,
   p_sessions_closed bigint
 ) RETURNS void AS $$
@@ -192,7 +186,6 @@ BEGIN
     seller_commission_cents,
     buyer_charge_cents, seller_charge_cents, tenant_charge_cents, waived_charge_cents,
     promotion_line_count, promotion_priced_line_count,
-    promotion_payout_base_cents, promotion_potential_payout_cents,
     net_revenue_estimated_cents, net_revenue_paid_basis_cents,
     sessions_opened_count, sessions_closed_count
   ) VALUES (
@@ -203,7 +196,6 @@ BEGIN
     p_seller_commission,
     p_buyer_charge, p_seller_charge, p_tenant_charge, p_waived_charge,
     p_promotion_line_count, p_promotion_priced_line_count,
-    p_promotion_payout_base, p_promotion_potential_payout,
     v_net_estimated, v_net_paid_basis,
     p_sessions_opened, p_sessions_closed
   )
@@ -226,8 +218,6 @@ BEGIN
     waived_charge_cents           = analytics_daily.waived_charge_cents           + EXCLUDED.waived_charge_cents,
     promotion_line_count          = analytics_daily.promotion_line_count          + EXCLUDED.promotion_line_count,
     promotion_priced_line_count   = analytics_daily.promotion_priced_line_count   + EXCLUDED.promotion_priced_line_count,
-    promotion_payout_base_cents   = analytics_daily.promotion_payout_base_cents   + EXCLUDED.promotion_payout_base_cents,
-    promotion_potential_payout_cents = analytics_daily.promotion_potential_payout_cents + EXCLUDED.promotion_potential_payout_cents,
     net_revenue_estimated_cents   = analytics_daily.net_revenue_estimated_cents   + EXCLUDED.net_revenue_estimated_cents,
     net_revenue_paid_basis_cents  = analytics_daily.net_revenue_paid_basis_cents  + EXCLUDED.net_revenue_paid_basis_cents,
     sessions_opened_count         = analytics_daily.sessions_opened_count         + EXCLUDED.sessions_opened_count,
@@ -347,8 +337,6 @@ CREATE TABLE analytics_seller_terminal_draw (
   waived_charge_cents bigint NOT NULL DEFAULT 0,
   promotion_line_count bigint NOT NULL DEFAULT 0,
   promotion_priced_line_count bigint NOT NULL DEFAULT 0,
-  promotion_payout_base_cents bigint NOT NULL DEFAULT 0,
-  promotion_potential_payout_cents bigint NOT NULL DEFAULT 0,
   net_revenue_estimated_cents bigint NOT NULL DEFAULT 0,
   net_revenue_paid_basis_cents bigint NOT NULL DEFAULT 0,
 

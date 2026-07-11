@@ -180,7 +180,6 @@ public class SellTicketCommandHandler
             ticket.context().drawId(),
             ticket.context().sellerTerminalId(),
             ticket.money().breakdown().total(),
-            ticket.money().potentialPayoutAmount(),
             TicketPrintStatus.valueOf(ticket.print().status().name()),
             ticket.lifecycle().sale().soldAt(),
             ticket.lifecycle().sale().placedAt()
@@ -211,7 +210,6 @@ public class SellTicketCommandHandler
             saved.money().currency(),
             saved.money().breakdown().stake(),
             saved.money().breakdown().total(),
-            saved.money().potentialPayoutAmount(),
             chargeItems
         );
 
@@ -245,12 +243,9 @@ public class SellTicketCommandHandler
             line.selection().displayLabel(),
             line.betOption(),
             line.stakeAmount(),
-            line.oddsSnapshot(),
-            line.potentialPayoutAmount(),
             line.origin(),
             line.pricingSource(),
             line.selectionSource(),
-            line.payoutBaseAmount(),
             line.promotionDecisionId(),
             line.promotionLabel(),
             line.promotionEffectType()

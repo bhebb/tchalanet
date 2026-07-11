@@ -10,9 +10,6 @@ import com.tchalanet.server.platform.archive.api.model.ArchiveOpsSummaryView;
 import com.tchalanet.server.platform.archive.api.model.ArchiveRunRowView;
 import com.tchalanet.server.platform.archive.api.model.ArchiveRunView;
 import com.tchalanet.server.platform.archive.api.model.TriggerArchiveRunRequest;
-import com.tchalanet.server.platform.archive.internal.persistence.ArchiveObjectJdbcRepository;
-import com.tchalanet.server.platform.archive.internal.persistence.ArchiveLegalHoldJdbcRepository;
-import com.tchalanet.server.platform.archive.internal.persistence.ArchiveRunJdbcRepository;
 import com.tchalanet.server.platform.archive.internal.service.ArchiveDomainPurgeService;
 import com.tchalanet.server.platform.archive.internal.service.ArchiveDomainPurgeService.DomainPurgeDataset;
 import com.tchalanet.server.platform.archive.internal.service.ArchiveDomainPurgeService.DomainPurgeMode;
@@ -20,6 +17,7 @@ import com.tchalanet.server.platform.archive.internal.service.ArchiveDomainPurge
 import com.tchalanet.server.platform.archive.internal.service.ArchivePartitionCleanupService;
 import com.tchalanet.server.platform.archive.internal.service.ArchivePartitionCleanupService.CleanupMode;
 import com.tchalanet.server.platform.archive.internal.service.ArchivePartitionCleanupService.PartitionCleanupPlan;
+import com.tchalanet.server.platform.archive.internal.service.ArchiveOpsQueryService;
 import com.tchalanet.server.platform.archive.internal.service.ArchiveRestoreService;
 import com.tchalanet.server.platform.archive.internal.service.ArchiveTicketPurgeService;
 import com.tchalanet.server.platform.archive.internal.service.ArchiveTicketPurgeService.TicketPurgeMode;
@@ -63,9 +61,7 @@ public class PlatformArchiveController {
   private final ArchivePartitionCleanupService cleanupService;
   private final ArchiveTicketPurgeService ticketPurgeService;
   private final ArchiveDomainPurgeService domainPurgeService;
-  private final ArchiveLegalHoldJdbcRepository legalHoldRepo;
-  private final ArchiveRunJdbcRepository runRepo;
-  private final ArchiveObjectJdbcRepository objectRepo;
+  private final ArchiveOpsQueryService opsQueryService;
 
   // ── Archive runs ────────────────────────────────────────────────────────────
 
@@ -172,7 +168,7 @@ public class PlatformArchiveController {
       @Valid @RequestBody CreateLegalHoldRequest request,
       @CurrentContext TchRequestContext ctx) {
 
-    UUID id = legalHoldRepo.create(
+    UUID id = opsQueryService.createLegalHold(
         request.tenantId(),
         request.datasetCode(),
         request.entityType(),
@@ -191,7 +187,7 @@ public class PlatformArchiveController {
       @Valid @RequestBody ReleaseLegalHoldRequest request,
       @CurrentContext TchRequestContext ctx) {
 
-    legalHoldRepo.release(holdId, ctx.currentUserIdRequired().value(), request.reason());
+    opsQueryService.releaseLegalHold(holdId, ctx.currentUserIdRequired().value(), request.reason());
     return ApiResponse.success(null);
   }
 
@@ -199,7 +195,7 @@ public class PlatformArchiveController {
   @GetMapping("/legal-holds/active")
   public ApiResponse<List<ArchiveLegalHoldRowView>> listActiveLegalHolds(
       @RequestParam(defaultValue = "50") int limit) {
-    return ApiResponse.success(legalHoldRepo.listActive(limit));
+    return ApiResponse.success(opsQueryService.listActiveLegalHolds(limit));
   }
 
   // ── Ops view ────────────────────────────────────────────────────────────────
@@ -208,26 +204,20 @@ public class PlatformArchiveController {
   @GetMapping("/runs/failed")
   public ApiResponse<List<ArchiveRunRowView>> listFailedRuns(
       @RequestParam(defaultValue = "20") int limit) {
-    return ApiResponse.success(runRepo.listFailed(limit));
+    return ApiResponse.success(opsQueryService.listFailedRuns(limit));
   }
 
   @Operation(summary = "List invalid archive objects")
   @GetMapping("/objects/invalid")
   public ApiResponse<List<ArchiveObjectRowView>> listInvalidObjects(
       @RequestParam(defaultValue = "20") int limit) {
-    return ApiResponse.success(objectRepo.listInvalid(limit));
+    return ApiResponse.success(opsQueryService.listInvalidObjects(limit));
   }
 
   @Operation(summary = "Archive system ops summary")
   @GetMapping("/ops-summary")
   public ApiResponse<ArchiveOpsSummaryView> opsSummary() {
-    return ApiResponse.success(new ArchiveOpsSummaryView(
-        runRepo.countByStatus("FAILED"),
-        runRepo.countByStatus("STARTED"),
-        runRepo.countByStatus("COMPLETED"),
-        objectRepo.countByStatus("INVALID"),
-        objectRepo.countByStatus("VERIFIED"),
-        objectRepo.countByStatus("PENDING")));
+    return ApiResponse.success(opsQueryService.summary());
   }
 
   // ── Request records ─────────────────────────────────────────────────────────

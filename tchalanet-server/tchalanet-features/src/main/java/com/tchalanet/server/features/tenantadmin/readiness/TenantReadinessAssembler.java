@@ -404,9 +404,7 @@ public class TenantReadinessAssembler {
     }
 
     /**
-     * Whether the tenant has an active (or trialing) subscription/plan. `SubscriptionStatus`
-     * lives in `core.subscription.internal.domain.model` — compared by name only so this stays
-     * a public-API-only consumer (no cross-module import of the internal enum type).
+     * Whether the tenant has an active (or trialing) subscription/plan.
      */
     private TenantReadinessStatus checkSubscription(TchRequestContext ctx) {
         try {

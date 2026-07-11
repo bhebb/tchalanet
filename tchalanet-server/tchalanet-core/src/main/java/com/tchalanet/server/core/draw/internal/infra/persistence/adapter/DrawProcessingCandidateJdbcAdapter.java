@@ -3,7 +3,7 @@ package com.tchalanet.server.core.draw.internal.infra.persistence.adapter;
 import com.tchalanet.server.catalog.drawchannel.api.model.DrawSource;
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawProcessingCandidateReaderPort;
 import com.tchalanet.server.core.drawresult.api.model.ResultQuality;
-import com.tchalanet.server.core.drawresult.internal.domain.model.DrawResultStatus;
+import com.tchalanet.server.core.drawresult.api.model.DrawResultStatus;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;

@@ -17,6 +17,10 @@ import com.tchalanet.server.platform.notification.api.model.NotificationActorTyp
 import com.tchalanet.server.platform.notification.api.model.NotificationSeverity;
 import com.tchalanet.server.platform.notification.api.model.NotificationStatus;
 import com.tchalanet.server.platform.notification.api.model.view.NotificationItemView;
+import com.tchalanet.server.platform.ops.api.OpsResourceContributor;
+import com.tchalanet.server.platform.ops.api.OpsSchedulerHistoryProvider;
+import com.tchalanet.server.platform.ops.api.OpsServiceResourceItem;
+import com.tchalanet.server.platform.ops.api.PlatformHealthProbe;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -342,24 +346,6 @@ public class PlatformAdminOpsDashboardPayloadAssembler {
       long criticalCount,
       long warningCount,
       java.util.List<OpsServiceResourceItem> services) {}
-
-  public record OpsServiceResourceItem(
-      String serviceKey,
-      String displayName,
-      String status,
-      Integer memoryUsedMb,
-      Integer memoryLimitMb,
-      Integer memoryPercent,
-      Double cpuPercent,
-      Integer restartCount,
-      Boolean oomKilled,
-      String lastRestartAt,
-      String severity,
-      String message,
-      String detailsPath,
-      Integer sizeMb,
-      Integer indexSizeMb,
-      Integer tableCount) {}
 
   public record OpsSchedulerSummaryPayload(
       String generatedAt,

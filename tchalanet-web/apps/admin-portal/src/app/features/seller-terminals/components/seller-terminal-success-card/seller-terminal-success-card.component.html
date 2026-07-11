@@ -70,6 +70,10 @@
           <span class="material-symbols-outlined">{{ copied() ? 'check' : 'content_copy' }}</span>
           {{ (copied() ? 'admin.sellerTerminals.new.action.copied' : 'admin.sellerTerminals.new.action.copy') | translate }}
         </button>
+        <button mat-stroked-button class="ssc__copy-all" (click)="openOverrides.emit(result())">
+          <span class="material-symbols-outlined">tune</span>
+          Overrides
+        </button>
       </div>
 
       <div class="ssc__actions-secondary">

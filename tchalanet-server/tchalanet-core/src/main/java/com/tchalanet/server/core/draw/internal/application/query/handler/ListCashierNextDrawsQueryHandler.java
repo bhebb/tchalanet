@@ -29,7 +29,7 @@ public class ListCashierNextDrawsQueryHandler
         int lookahead = Math.min(Math.max(query.lookaheadHours(), 1), MAX_LOOKAHEAD_HOURS);
         int limit = Math.min(Math.max(query.limit(), 1), MAX_LIMIT);
 
-        var criteria = DrawSearchCriteria.forNext(null, lookahead, limit);
+        var criteria = DrawSearchCriteria.forNextOpen(null, lookahead, limit);
         var page = reader.listNext(criteria, PageRequest.of(0, MAX_LIMIT));
         var now = timeProvider.now();
 

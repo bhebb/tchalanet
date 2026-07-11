@@ -6,8 +6,8 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.platform.accesscontrol.api.AccessControlApi;
+import com.tchalanet.server.platform.accesscontrol.api.PlatformUserRoleApi;
 import com.tchalanet.server.platform.accesscontrol.api.model.request.AssignRoleToUserRequest;
-import com.tchalanet.server.platform.accesscontrol.internal.persistence.repository.PlatformUserRoleJpaRepository;
 import com.tchalanet.server.platform.communication.api.CommunicationApi;
 import com.tchalanet.server.platform.communication.api.model.request.SendOutboundMessageRequest;
 import com.tchalanet.server.platform.communication.api.model.value.CommunicationChannel;
@@ -37,7 +37,7 @@ public class IdentityUserCrudService {
 
   private final TenantUserAdministrationService users;
   private final AppUserJpaAdapter userAdapter;
-  private final PlatformUserRoleJpaRepository platformUserRoles;
+  private final PlatformUserRoleApi platformUserRoles;
   private final TenantMembershipService tenantMemberships;
   private final AccessControlApi accessControl;
   private final IdentityProvisioningApi identityProvisioning;
@@ -118,7 +118,7 @@ public class IdentityUserCrudService {
     if (callerIsSuperAdmin) {
       return;
     }
-    boolean targetIsPlatformUser = !platformUserRoles.findPlatformRoleAccessRows(targetId.value()).isEmpty();
+    boolean targetIsPlatformUser = platformUserRoles.hasPlatformRole(targetId);
     if (targetIsPlatformUser) {
       throw ProblemRest.forbidden("Insufficient authority to act on this user");
     }

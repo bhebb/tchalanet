@@ -17,15 +17,15 @@ public final class TicketReceiptI18nKeys {
     public static final String DRAW_TIME = "receipt.draw_time";
     public static final String LINE_HEADER_NO = "receipt.line.header.no";
     public static final String LINE_HEADER_STAKE = "receipt.line.header.stake";
-    public static final String LINE_HEADER_PAYOUT = "receipt.line.header.payout";
     public static final String TOTAL_STAKE = "receipt.total.stake";
     public static final String TOTAL_AMOUNT = "receipt.total.amount";
-    public static final String TOTAL_MAX_PAYOUT = "receipt.total.max_payout";
     public static final String VERIFICATION = "receipt.verification";
     public static final String QR = "receipt.qr";
     public static final String CURRENCY_NOTE = "receipt.currency_note";
     public static final String PROMOTION = "receipt.promotion";
     public static final String PROMOTION_FREE_GAME_LINE = "receipt.promotion.free_game_line";
+    public static final String PROMOTION_FREE_GAME_SHORT = "receipt.promotion.free_game_short";
+    public static final String PROMOTION_MARYAJ_OFFERED_NOTE = "receipt.promotion.maryaj_offered_note";
     public static final String PROMOTION_BOOST_ODDS = "receipt.promotion.boost_odds";
     public static final String MESSAGE_VALID_TICKET = "receipt.message.valid_ticket";
     public static final String MESSAGE_CODE = "receipt.message.code";
@@ -51,14 +51,14 @@ public final class TicketReceiptI18nKeys {
         DRAW_TIME,
         LINE_HEADER_NO,
         LINE_HEADER_STAKE,
-        LINE_HEADER_PAYOUT,
         TOTAL_STAKE,
         TOTAL_AMOUNT,
-        TOTAL_MAX_PAYOUT,
         VERIFICATION,
         QR,
         PROMOTION,
         PROMOTION_FREE_GAME_LINE,
+        PROMOTION_FREE_GAME_SHORT,
+        PROMOTION_MARYAJ_OFFERED_NOTE,
         PROMOTION_BOOST_ODDS,
         MESSAGE_VALID_TICKET,
         MESSAGE_CODE,

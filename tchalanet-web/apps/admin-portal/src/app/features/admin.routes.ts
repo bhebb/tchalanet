@@ -1,4 +1,5 @@
 import { Route } from '@angular/router';
+import { PlaceholderPage } from '@tch/ui/components';
 
 export const adminRoutes: Route[] = [
   // ── Accueil ────────────────────────────────────────────────────────────────
@@ -108,6 +109,16 @@ export const adminRoutes: Route[] = [
   { path: 'promotions/active', redirectTo: 'promotions', pathMatch: 'full' },
   // ── Rapports ───────────────────────────────────────────────────────────────
   {
+    path: 'reports/overview',
+    loadComponent: () =>
+      import('./reports/pages/report/report.page').then(m => m.AdminReportPage),
+  },
+  {
+    path: 'reports/daily',
+    loadComponent: () =>
+      import('./reports/pages/daily/report-daily.page').then(m => m.AdminReportDailyPage),
+  },
+  {
     path: 'reports/sales',
     loadComponent: () =>
       import('./reports/admin-today-report.page').then(m => m.AdminTodayReportPage),
@@ -115,29 +126,21 @@ export const adminRoutes: Route[] = [
   {
     path: 'reports/sellers',
     loadComponent: () =>
-      import('@tch/ui/components').then(m => m.PlaceholderPage),
-    data: { titleKey: 'nav.admin.reports_sellers', icon: 'people' },
+      import('./reports/pages/sellers/report-sellers.page').then(m => m.AdminReportSellersPage),
   },
   {
     path: 'reports/draws',
     loadComponent: () =>
-        import('@tch/ui/components').then(m => m.PlaceholderPage),
-    data: { titleKey: 'nav.admin.reports_draws', icon: 'event' },
-  },
-  {
-    path: 'reports/exports',
-    loadComponent: () =>
-        import('@tch/ui/components').then(m => m.PlaceholderPage),
-    data: { titleKey: 'nav.admin.reports_exports', icon: 'download' },
+      import('./reports/pages/draws/report-draws.page').then(m => m.AdminReportDrawsPage),
   },
   {
     path: 'reports/financials',
     loadComponent: () =>
-      import('./financials/pages/admin-financials.page').then(m => m.AdminFinancialsPage),
+      import('./reports/pages/financials/admin-financials.page').then(m => m.AdminFinancialsPage),
   },
-  { path: 'reports', redirectTo: 'reports/sales', pathMatch: 'full' },
-  { path: 'reports/today', redirectTo: 'reports/sales', pathMatch: 'full' },
-  { path: 'reports/export', redirectTo: 'reports/exports', pathMatch: 'full' },
+  { path: 'reports', redirectTo: 'reports/overview', pathMatch: 'full' },
+  { path: 'reports/today', redirectTo: 'reports/daily', pathMatch: 'full' },
+  { path: 'reports/export', redirectTo: 'reports/daily', pathMatch: 'full' },
   // ── Tickets ────────────────────────────────────────────────────────────────
   {
     path: 'tickets/overview',
@@ -180,8 +183,7 @@ export const adminRoutes: Route[] = [
   },
   {
     path: 'company/settings',
-    loadComponent: () =>
-        import('@tch/ui/components').then(m => m.PlaceholderPage),
+    component: PlaceholderPage,
     data: { titleKey: 'nav.admin.company_settings', icon: 'tune' },
   },
   {
@@ -199,8 +201,7 @@ export const adminRoutes: Route[] = [
   // ── Aide ───────────────────────────────────────────────────────────────────
   {
     path: 'help',
-    loadComponent: () =>
-        import('@tch/ui/components').then(m => m.PlaceholderPage),
+    component: PlaceholderPage,
     data: { titleKey: 'nav.admin.help', icon: 'help_outline' },
   },
   // ── Legacy paths (preserved for deep-links and bookmarks) ──────────────────
@@ -258,14 +259,12 @@ export const adminRoutes: Route[] = [
   { path: 'more/support', redirectTo: 'company/support', pathMatch: 'full' },
   {
     path: 'i18n',
-    loadComponent: () =>
-        import('@tch/ui/components').then(m => m.PlaceholderPage),
+    component: PlaceholderPage,
     data: { titleKey: 'nav.translations', icon: 'translate' },
   },
   {
     path: 'pagemodels',
-    loadComponent: () =>
-        import('@tch/ui/components').then(m => m.PlaceholderPage),
+    component: PlaceholderPage,
     data: { titleKey: 'nav.pagemodels', icon: 'dashboard_customize' },
   },
 ];

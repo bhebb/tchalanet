@@ -8,6 +8,9 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Component;
+import com.tchalanet.server.platform.ops.api.OpsResourceContributor;
+import com.tchalanet.server.platform.ops.api.OpsServiceResourceItem;
+import com.tchalanet.server.platform.ops.api.PlatformHealthProbe;
 
 @Component
 @RequiredArgsConstructor
@@ -29,7 +32,7 @@ class HealthProbeOpsResourceMetricsProvider implements OpsResourceMetricsProvide
         return withContributors(emptyServices("Health snapshot unavailable."));
       }
 
-      List<PlatformAdminOpsDashboardPayloadAssembler.OpsServiceResourceItem> services =
+      List<OpsServiceResourceItem> services =
           new ArrayList<>(mapServices(snapshot));
       return withContributors(services);
     } catch (RuntimeException e) {
@@ -38,8 +41,8 @@ class HealthProbeOpsResourceMetricsProvider implements OpsResourceMetricsProvide
   }
 
   private PlatformAdminOpsDashboardPayloadAssembler.OpsResourceSummaryPayload withContributors(
-      List<PlatformAdminOpsDashboardPayloadAssembler.OpsServiceResourceItem> baseServices) {
-    List<PlatformAdminOpsDashboardPayloadAssembler.OpsServiceResourceItem> services =
+      List<OpsServiceResourceItem> baseServices) {
+    List<OpsServiceResourceItem> services =
         new ArrayList<>(baseServices);
     resourceContributors.orderedStream().forEach(contributor -> services.addAll(safeServices(contributor)));
     long criticalCount = services.stream().filter(item -> "CRITICAL".equals(item.severity())).count();
@@ -51,13 +54,13 @@ class HealthProbeOpsResourceMetricsProvider implements OpsResourceMetricsProvide
         List.copyOf(services));
   }
 
-  private static List<PlatformAdminOpsDashboardPayloadAssembler.OpsServiceResourceItem> safeServices(
+  private static List<OpsServiceResourceItem> safeServices(
       OpsResourceContributor contributor) {
     try {
-      List<PlatformAdminOpsDashboardPayloadAssembler.OpsServiceResourceItem> services = contributor.services();
+      List<OpsServiceResourceItem> services = contributor.services();
       return services == null ? List.of() : services;
     } catch (RuntimeException e) {
-      return List.of(new PlatformAdminOpsDashboardPayloadAssembler.OpsServiceResourceItem(
+      return List.of(new OpsServiceResourceItem(
           "ops-resource-contributor",
           "Ops resource contributor",
           "UNKNOWN",
@@ -77,8 +80,8 @@ class HealthProbeOpsResourceMetricsProvider implements OpsResourceMetricsProvide
     }
   }
 
-  private static List<PlatformAdminOpsDashboardPayloadAssembler.OpsServiceResourceItem> emptyServices(String message) {
-    return List.of(new PlatformAdminOpsDashboardPayloadAssembler.OpsServiceResourceItem(
+  private static List<OpsServiceResourceItem> emptyServices(String message) {
+    return List.of(new OpsServiceResourceItem(
             "observability",
             "Observability",
             "UNKNOWN",
@@ -97,9 +100,9 @@ class HealthProbeOpsResourceMetricsProvider implements OpsResourceMetricsProvide
             null));
   }
 
-  private static List<PlatformAdminOpsDashboardPayloadAssembler.OpsServiceResourceItem> mapServices(
+  private static List<OpsServiceResourceItem> mapServices(
       Map<String, Object> snapshot) {
-    List<PlatformAdminOpsDashboardPayloadAssembler.OpsServiceResourceItem> services = new ArrayList<>();
+    List<OpsServiceResourceItem> services = new ArrayList<>();
     services.add(mapService("api", "API service", snapshot.getOrDefault("global", "UNKNOWN"), snapshot.get("appVersion")));
 
     Object rawComponents = snapshot.get("components");
@@ -110,7 +113,7 @@ class HealthProbeOpsResourceMetricsProvider implements OpsResourceMetricsProvide
     return List.copyOf(services);
   }
 
-  private static PlatformAdminOpsDashboardPayloadAssembler.OpsServiceResourceItem mapService(
+  private static OpsServiceResourceItem mapService(
       String key,
       String displayName,
       Object statusValue,
@@ -124,7 +127,7 @@ class HealthProbeOpsResourceMetricsProvider implements OpsResourceMetricsProvide
       case "WARNING" -> displayName + versionLabel + " status is " + status + ".";
       default -> displayName + versionLabel + " is healthy.";
     };
-    return new PlatformAdminOpsDashboardPayloadAssembler.OpsServiceResourceItem(
+    return new OpsServiceResourceItem(
         key,
         displayName,
         status,

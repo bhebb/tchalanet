@@ -154,7 +154,12 @@ export class AdminGamesPricingPage {
       betOptionGroups: game.oddsGroups,
     };
 
-    const ref = this.dialog.open(GameSettingsDialog, { data: { game: dialogGame }, width: '480px' });
+    const ref = this.dialog.open(GameSettingsDialog, {
+      data: { game: dialogGame },
+      width: 'min(44rem, calc(100vw - 1rem))',
+      maxWidth: 'calc(100vw - 1rem)',
+      maxHeight: 'calc(100dvh - 1rem)',
+    });
     ref.afterClosed().subscribe(ok => { if (ok) this.load(); });
   }
 

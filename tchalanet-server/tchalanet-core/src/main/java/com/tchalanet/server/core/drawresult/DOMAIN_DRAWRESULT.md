@@ -105,6 +105,17 @@ apply → core.draw attache le DrawResult → DrawResultAppliedEvent
 settle → core.draw (requiert status=CONFIRMED) → DrawSettledEvent
 ```
 
+Application fonctionnelle:
+
+- `DrawResult` ne calcule pas les gains des tickets.
+- `core.draw` lie le résultat au draw fermé.
+- `core.sales` consomme l'événement d'application et calcule les gains réalisés depuis les
+  snapshots de tickets.
+- Une correction de résultat avant settlement republie l'application; après settlement, la
+  correction est bloquée par le cycle draw.
+- La page publique `/rules` peut simuler des cas de jeu de façon indicative; elle ne remplace pas
+  le résultat confirmé ni le settlement backend.
+
 ---
 
 ## 8. Événements

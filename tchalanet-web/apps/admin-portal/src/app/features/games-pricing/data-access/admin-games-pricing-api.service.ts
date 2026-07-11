@@ -17,6 +17,8 @@ interface BffPricingEntry {
   betOption: number | null;
   pricingVariantCode?: string | null;
   odds: number | null;
+  payoutRuleType?: 'STAKE_MULTIPLIER' | 'FIXED_AMOUNT' | null;
+  fixedAmount?: number | null;
 }
 
 export interface UpsertTenantOddsRequest {
@@ -24,7 +26,9 @@ export interface UpsertTenantOddsRequest {
   readonly pricingVariantCode: string;
   readonly betType: string;
   readonly betOption?: number | null;
-  readonly odds: number;
+  readonly odds?: number | null;
+  readonly payoutRuleType?: 'STAKE_MULTIPLIER' | 'FIXED_AMOUNT' | null;
+  readonly fixedAmount?: number | null;
 }
 
 export interface DeleteTenantOddsRequest {
@@ -96,12 +100,12 @@ export class AdminGamesPricingApiService {
 
   upsertTenantOdds(req: UpsertTenantOddsRequest, options?: TchRequestOptions): Observable<TenantGameOddView> {
     return this.backend
-      .put<BffPricingEntry>('/admin/pricing/odds', req, options)
+      .put<BffPricingEntry>('/admin/controls/pricing-rules', req, options)
       .pipe(map(entry => this.toOdd(entry)));
   }
 
   deleteTenantOdds(req: DeleteTenantOddsRequest, options?: TchRequestOptions): Observable<void> {
-    return this.backend.deleteWithBody<void, DeleteTenantOddsRequest>('/admin/pricing/odds', req, options);
+    return this.backend.deleteWithBody<void, DeleteTenantOddsRequest>('/admin/controls/pricing-rules', req, options);
   }
 
   private toView(row: BffGameRow): TenantGamePricingView {
@@ -142,8 +146,10 @@ export class AdminGamesPricingApiService {
   private toOdd(e: BffPricingEntry): TenantGameOddView {
     return {
       label: this.oddLabel(e),
-      value: e.odds === null || e.odds === undefined ? 'Non configuré' : `×${e.odds}`,
+      value: this.oddValue(e),
       odds: e.odds,
+      payoutRuleType: e.payoutRuleType ?? 'STAKE_MULTIPLIER',
+      fixedAmount: e.fixedAmount ?? null,
       betType: e.betType,
       betOption: e.betOption,
       pricingVariantCode: e.pricingVariantCode ?? null,
@@ -152,6 +158,15 @@ export class AdminGamesPricingApiService {
 
   private oddLabel(entry: BffPricingEntry): string {
     return consoleBetLabel(entry.betType, entry.betOption);
+  }
+
+  private oddValue(entry: BffPricingEntry): string {
+    if (entry.payoutRuleType === 'FIXED_AMOUNT') {
+      return entry.fixedAmount === null || entry.fixedAmount === undefined
+        ? 'Non configuré'
+        : `${entry.fixedAmount}`;
+    }
+    return entry.odds === null || entry.odds === undefined ? 'Non configuré' : `×${entry.odds}`;
   }
 
   private toOddsGroups(odds: readonly TenantGameOddView[]): TenantGameOddGroupView[] {

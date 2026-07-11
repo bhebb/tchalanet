@@ -1,38 +1,40 @@
 <h2 mat-dialog-title class="sale-success__title">
   <span class="material-symbols-outlined sale-success__title-icon" aria-hidden="true">{{ titleIcon() }}</span>
-  {{ title() }}
+  {{ titleKey() | translate }}
 </h2>
 
 <mat-dialog-content class="sale-success">
-  <section class="sale-success__summary" aria-label="Résumé du ticket vendu">
+  <section class="sale-success__summary" [attr.aria-label]="'admin.sellerTerminal.pos.dialog.summaryAria' | translate">
     <div>
-      <span class="sale-success__label">Ticket</span>
+      <span class="sale-success__label">{{ 'admin.sellerTerminal.pos.dialog.field.ticket' | translate }}</span>
       <strong class="sale-success__code">{{ data.ticket.ticketCode }}</strong>
     </div>
     <div>
-      <span class="sale-success__label">Code public</span>
+      <span class="sale-success__label">{{ 'admin.sellerTerminal.pos.dialog.field.publicCode' | translate }}</span>
       <strong class="sale-success__code">{{ publicDisplayCode() }}</strong>
     </div>
     @if (data.totalAmount !== undefined && data.totalAmount !== null) {
       <div>
-        <span class="sale-success__label">Total payé</span>
+        <span class="sale-success__label">{{ 'admin.sellerTerminal.pos.dialog.field.totalPaid' | translate }}</span>
         <strong>{{ data.totalAmount | number:'1.2-2' }} {{ currency() }}</strong>
       </div>
     }
     @if (data.lineCount !== undefined && data.lineCount !== null) {
       <div>
-        <span class="sale-success__label">Lignes</span>
+        <span class="sale-success__label">{{ 'admin.sellerTerminal.pos.dialog.field.lines' | translate }}</span>
         <strong>
           {{ data.lineCount }}
           @if ((data.freeLineCount ?? 0) > 0) {
-            <span class="sale-success__free">+ {{ data.freeLineCount }} gratuites</span>
+            <span class="sale-success__free">
+              {{ 'admin.sellerTerminal.pos.dialog.field.freeLines' | translate: { count: data.freeLineCount ?? 0 } }}
+            </span>
           }
         </strong>
       </div>
     }
   </section>
 
-  <section class="sale-success__primary-actions" aria-label="Actions ticket">
+  <section class="sale-success__primary-actions" [attr.aria-label]="'admin.sellerTerminal.pos.dialog.actionsAria' | translate">
     <button
       mat-flat-button
       color="primary"
@@ -42,32 +44,32 @@
     >
       @if (printing()) {
         <span class="material-symbols-outlined sale-success__spin" aria-hidden="true">progress_activity</span>
-        Impression...
+        {{ 'admin.sellerTerminal.pos.dialog.action.printing' | translate }}
       } @else {
         <span class="material-symbols-outlined" aria-hidden="true">print</span>
-        Imprimer / réimprimer
+        {{ 'admin.sellerTerminal.pos.dialog.action.print' | translate }}
       }
     </button>
     @if (showSaleActions()) {
       <button mat-stroked-button type="button" (click)="details()">
         <span class="material-symbols-outlined" aria-hidden="true">receipt_long</span>
-        Détails
+        {{ 'admin.sellerTerminal.pos.dialog.action.details' | translate }}
       </button>
     }
   </section>
 
   @if (hasDeliveryActions()) {
-    <section class="sale-success__delivery" aria-label="Envoi du reçu">
-      <h3>Envoyer le reçu</h3>
+    <section class="sale-success__delivery" [attr.aria-label]="'admin.sellerTerminal.pos.dialog.deliveryAria' | translate">
+      <h3>{{ 'admin.sellerTerminal.pos.dialog.delivery.title' | translate }}</h3>
 
       @if (canSendSms() || canSendWhatsapp()) {
         <mat-form-field appearance="outline" subscriptSizing="dynamic">
-          <mat-label>Téléphone client</mat-label>
+          <mat-label>{{ 'admin.sellerTerminal.pos.dialog.delivery.phone' | translate }}</mat-label>
           <input
             matInput
             type="tel"
             inputmode="tel"
-            placeholder="+509..."
+            [placeholder]="'admin.sellerTerminal.pos.dialog.delivery.phonePlaceholder' | translate"
             [ngModel]="phoneNumber()"
             (ngModelChange)="phoneNumber.set($event)"
           />
@@ -76,11 +78,11 @@
 
       @if (canSendEmail()) {
         <mat-form-field appearance="outline" subscriptSizing="dynamic">
-          <mat-label>Email client</mat-label>
+          <mat-label>{{ 'admin.sellerTerminal.pos.dialog.delivery.email' | translate }}</mat-label>
           <input
             matInput
             type="email"
-            placeholder="client@example.com"
+            [placeholder]="'admin.sellerTerminal.pos.dialog.delivery.emailPlaceholder' | translate"
             [ngModel]="email()"
             (ngModelChange)="email.set($event)"
           />
@@ -133,11 +135,13 @@
 </mat-dialog-content>
 
 <mat-dialog-actions align="end" class="sale-success__actions">
-  <button mat-button type="button" mat-dialog-close>Fermer</button>
+  <button mat-button type="button" mat-dialog-close>
+    {{ 'admin.sellerTerminal.pos.dialog.action.close' | translate }}
+  </button>
   @if (showSaleActions()) {
     <button mat-flat-button color="primary" type="button" (click)="newTicket()">
       <span class="material-symbols-outlined" aria-hidden="true">add</span>
-      Nouvelle vente
+      {{ 'admin.sellerTerminal.pos.dialog.action.newTicket' | translate }}
     </button>
   }
 </mat-dialog-actions>

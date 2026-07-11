@@ -3,7 +3,7 @@ package com.tchalanet.server.platform.identity.internal.adapter;
 import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.platform.accesscontrol.internal.persistence.repository.PlatformUserRoleJpaRepository;
+import com.tchalanet.server.platform.accesscontrol.api.PlatformUserRoleApi;
 import com.tchalanet.server.platform.identity.api.IdentityApi;
 import com.tchalanet.server.platform.identity.api.model.UserStatus;
 import com.tchalanet.server.platform.identity.api.model.request.BootstrapCurrentUserRequest;
@@ -43,7 +43,7 @@ public class IdentityApiAdapter implements IdentityApi {
   private final AppUserJpaAdapter appUsers;
   private final AppUserJpaRepository appUserRepository;
   private final TenantUserJpaRepository tenantUserRepository;
-  private final PlatformUserRoleJpaRepository platformUserRoleRepository;
+  private final PlatformUserRoleApi platformUserRoles;
   private final TenantUserProvisioningService provisioningService;
 
   @Override
@@ -80,11 +80,7 @@ public class IdentityApiAdapter implements IdentityApi {
 
   @Override
   public List<AppUserView> listPlatformAdminsForNotificationDelivery() {
-    var ids =
-        platformUserRoleRepository.listActiveSuperAdmins().stream()
-            .filter(row -> "ACTIVE".equals(row.getStatus()))
-            .map(row -> row.getUserId())
-            .toList();
+    var ids = platformUserRoles.listActiveSuperAdminUserIds();
     if (ids.isEmpty()) {
       return List.of();
     }

@@ -5,7 +5,6 @@ import com.tchalanet.server.catalog.game.api.model.GameCode;
 import com.tchalanet.server.core.sales.api.model.status.TicketResultStatus;
 import com.tchalanet.server.core.sales.api.model.status.TicketSaleStatus;
 import com.tchalanet.server.core.sales.api.model.status.TicketSettlementStatus;
-import com.tchalanet.server.core.sales.api.model.coverage.PotentialGainMode;
 import com.tchalanet.server.common.types.money.Money;
 import com.tchalanet.server.common.types.id.TenantId;
 
@@ -51,52 +50,7 @@ public record TicketVerificationProjection(
         String optionLabel,
         String displaySelection,
         Money stake,
-        Money potentialPayout,
-        PotentialGainMode potentialGainMode,
-        Money minPotentialPayout,
-        Money maxPotentialPayout,
-        Money totalPotentialPayout,
         boolean promotional,
         String promotionLabel
-    ) {
-        public LineProjection(
-            int lineNumber,
-            GameCode gameCode,
-            BetType betType,
-            Short betOption,
-            String gameLabel,
-            String betTypeLabel,
-            String optionLabel,
-            String displaySelection,
-            Money stake,
-            Money potentialPayout,
-            boolean promotional,
-            String promotionLabel
-        ) {
-            this(
-                lineNumber,
-                gameCode,
-                betType,
-                betOption,
-                gameLabel,
-                betTypeLabel,
-                optionLabel,
-                displaySelection,
-                stake,
-                potentialPayout,
-                PotentialGainMode.SINGLE,
-                potentialPayout,
-                potentialPayout,
-                null,
-                promotional,
-                promotionLabel
-            );
-        }
-
-        public LineProjection {
-            potentialGainMode = potentialGainMode == null ? PotentialGainMode.SINGLE : potentialGainMode;
-            minPotentialPayout = minPotentialPayout == null ? potentialPayout : minPotentialPayout;
-            maxPotentialPayout = maxPotentialPayout == null ? potentialPayout : maxPotentialPayout;
-        }
-    }
+    ) {}
 }

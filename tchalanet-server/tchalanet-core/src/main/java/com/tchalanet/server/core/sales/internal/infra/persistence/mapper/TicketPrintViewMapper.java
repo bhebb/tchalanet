@@ -13,7 +13,6 @@ import com.tchalanet.server.core.sales.api.model.print.TicketPrintDraw;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintIdentity;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintLifecycle;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintLine;
-import com.tchalanet.server.core.sales.api.model.print.TicketPrintLineCoverage;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintMetadata;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintMoney;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintQrPayload;
@@ -90,9 +89,7 @@ public class TicketPrintViewMapper {
             new TicketPrintBranding(
                 header.getTenantDisplayName(),
                 header.getTenantReceiptHeader(),
-                header.getTenantReceiptFooter(),
-                header.getOutletReceiptHeader(),
-                header.getOutletReceiptFooter()
+                header.getTenantReceiptFooter()
             ),
             ticket.lines().stream()
                 .sorted(java.util.Comparator.comparingInt(
@@ -102,8 +99,7 @@ public class TicketPrintViewMapper {
                 ticket.money().stakeAmount(),
                 ticket.money().breakdown().charges().stream().map(this::toPrintCharge).toList(),
                 ticket.money().breakdown().totalBuyerCharges(),
-                ticket.money().totalAmount(),
-                ticket.money().potentialPayoutAmount()
+                ticket.money().totalAmount()
             ),
             new TicketPrintQrPayload(
                 DEFAULT_QR_PAYLOAD_VERSION,
@@ -130,28 +126,15 @@ public class TicketPrintViewMapper {
             line.gameCode(),
             line.betType(),
             line.betOption(),
+            line.betOptionLabelSnapshot(),
             line.gameCode() == null ? null : line.gameCode().name(),
             line.selection() == null ? null : line.selection().displayLabel(),
             line.selection() == null ? null : line.selection().key().value(),
-            line.oddsSnapshot(),
             line.stakeAmount(),
-            line.potentialPayoutAmount(),
-            line.potentialGainMode(),
-            line.minPotentialGain(),
-            line.maxPotentialGain(),
-            line.totalPotentialGain(),
-            line.coverages().stream()
-                .map(coverage -> new TicketPrintLineCoverage(
-                    coverage.pricingVariantCode().name(),
-                    coverage.stakeAmount(),
-                    coverage.oddsSnapshot(),
-                    coverage.potentialGainSnapshot(),
-                    coverage.winMode().name()))
-                .toList(),
+            line.selectionPolicySnapshot(),
             line.origin(),
             line.pricingSource(),
             line.selectionSource(),
-            line.payoutBaseAmount(),
             line.promotionDecisionId(),
             line.promotionLabel(),
             line.promotionEffectType()

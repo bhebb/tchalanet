@@ -48,8 +48,6 @@ public class GetTenantDashboardStatsQueryHandler
     long   waivedChargeCents = 0L;
     long   promotionLines = 0L;
     long   promotionPricedLines = 0L;
-    long   promotionPayoutBaseCents = 0L;
-    long   promotionPotentialPayoutCents = 0L;
     long   sessions      = 0L;
 
     for (AnalyticsDailyEntity r : rows) {
@@ -64,8 +62,6 @@ public class GetTenantDashboardStatsQueryHandler
       waivedChargeCents += r.getWaivedChargeCents();
       promotionLines += r.getPromotionLineCount();
       promotionPricedLines += r.getPromotionPricedLineCount();
-      promotionPayoutBaseCents += r.getPromotionPayoutBaseCents();
-      promotionPotentialPayoutCents += r.getPromotionPotentialPayoutCents();
       sessions      += r.getSessionsOpenedCount();
     }
 
@@ -81,8 +77,6 @@ public class GetTenantDashboardStatsQueryHandler
         fromCents(waivedChargeCents),
         promotionLines,
         promotionPricedLines,
-        fromCents(promotionPayoutBaseCents),
-        fromCents(promotionPotentialPayoutCents),
         fromCents(grossCents - winningsCents - commissionCents - tenantChargeCents),
         sessions);
 
@@ -93,7 +87,6 @@ public class GetTenantDashboardStatsQueryHandler
             fromCents(r.getSellerCommissionCents()),
             fromCents(r.getTenantChargeCents()),
             r.getPromotionLineCount(),
-            fromCents(r.getPromotionPotentialPayoutCents()),
             fromCents(r.getNetRevenueEstimatedCents())))
         .toList();
 

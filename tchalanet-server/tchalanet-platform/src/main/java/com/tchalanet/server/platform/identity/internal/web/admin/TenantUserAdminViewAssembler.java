@@ -3,7 +3,7 @@ package com.tchalanet.server.platform.identity.internal.web.admin;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.web.error.ProblemRest;
-import com.tchalanet.server.platform.accesscontrol.internal.persistence.repository.TenantAdminGlobalRow;
+import com.tchalanet.server.platform.accesscontrol.api.model.TenantAdminGlobalAccessRow;
 import com.tchalanet.server.platform.identity.internal.model.TenantMembership;
 import com.tchalanet.server.platform.identity.internal.service.CurrentUserProfileService;
 import com.tchalanet.server.platform.identity.internal.service.ExternalIdentityLinkService;
@@ -81,13 +81,13 @@ public class TenantUserAdminViewAssembler {
   }
 
   /** Builds a cross-tenant response from a native SQL projection row (SUPER_ADMIN global list/detail). */
-  public TenantUserAdminResponse fromGlobalRow(TenantAdminGlobalRow r) {
+  public TenantUserAdminResponse fromGlobalRow(TenantAdminGlobalAccessRow r) {
     return new TenantUserAdminResponse(
-        UserId.of(r.getUserId()), null, r.getEmail(), null, r.getStatus(),
+        UserId.of(r.userId()), null, r.email(), null, r.status(),
         null, null, ExternalIdentitySyncStatus.NOT_REQUIRED, InvitationStatus.NOT_SENT,
-        r.getAssignedAt(), null, null, r.getDisplayName(),
-        r.getTenantId() != null ? r.getTenantId().toString() : null,
-        r.getTenantName(), r.getTenantCode());
+        r.assignedAt(), null, null, r.displayName(),
+        r.tenantId() != null ? r.tenantId().toString() : null,
+        r.tenantName(), r.tenantCode());
   }
 
   private ExternalIdentitySyncStatus resolveSyncStatus(

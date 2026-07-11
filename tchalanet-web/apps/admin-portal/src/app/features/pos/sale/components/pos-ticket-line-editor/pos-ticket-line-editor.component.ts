@@ -43,6 +43,7 @@ export class PosTicketLineEditorComponent {
   readonly selectedGameCode = input<string | null>(null);
   readonly games = input<PosGameView[]>([]);
   readonly readonly = input(false);
+  readonly readonlyMessage = input("Ticket vendu. Créez un nouveau ticket pour ajouter d'autres numéros.");
 
   readonly lineAdded = output<PosTicketLineInput>();
   readonly lineRemoved = output<string>();
@@ -75,7 +76,7 @@ export class PosTicketLineEditorComponent {
   readonly selectedBetTypeCode = computed(() => this.selectedBetType()?.betType ?? '');
   readonly selectedBetOption = computed(() => {
     const betType = this.selectedBetType();
-    if (!betType?.requiresOption) return null;
+    if (!betType?.requiresOption || betType.selectionPolicy === 'IMPLICIT_BEST_MATCH') return null;
 
     const current = this.draftBetOption();
     return betType.options.find(option => option.code === current) ?? betType.options[0] ?? null;
@@ -86,7 +87,7 @@ export class PosTicketLineEditorComponent {
   });
   readonly requiresBetOption = computed(() => {
     const betType = this.selectedBetType();
-    return !!betType?.requiresOption && betType.options.length > 0;
+    return !!betType?.requiresOption && betType.selectionPolicy !== 'IMPLICIT_BEST_MATCH';
   });
   readonly selectionMaxLength = computed(() => {
     const betType = this.selectedBetType()?.betType ?? '';
@@ -162,7 +163,7 @@ export class PosTicketLineEditorComponent {
     const betOption = this.selectedBetOption();
     const selection = this.normalizeSelection(sel, betType?.betType ?? '');
 
-    if (this.readonly()) return;
+    if (this.readonly()) { this.addError.set(this.readonlyMessage()); return; }
     if (!sel) { this.addError.set('Le numéro est requis.'); return; }
     if (!stake || stake <= 0) { this.addError.set('La mise doit être supérieure à 0 HTG.'); return; }
     if (!gameCode) { this.addError.set('Sélectionnez un jeu.'); return; }
@@ -196,7 +197,11 @@ export class PosTicketLineEditorComponent {
     this.draftMarriageFirst.set('');
     this.draftMarriageSecond.set('');
     const next = this.betTypes().find(item => item.betType === betType);
-    this.draftBetOption.set(next?.requiresOption ? (next.options[0]?.code ?? null) : null);
+    this.draftBetOption.set(
+      next?.requiresOption && next.selectionPolicy !== 'IMPLICIT_BEST_MATCH'
+        ? (next.options[0]?.code ?? null)
+        : null,
+    );
   }
 
   setDraftSelection(value: string): void {

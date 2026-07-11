@@ -30,13 +30,14 @@ VALUES (
   'USD',
   'MONTHLY',
   '{
-    "tenantgame.management": true
+    "tenantgame.management": true,
+    "promotion.campaigns.config": true
   }'::jsonb,
   '{
     "limits.admin_users.max": 3,
     "limits.seller_terminals.max": 10,
     "limits.draw_channels.max": 3,
-    "limits.promotion_rules.max": 0
+    "limits.promotion_rules.max": 5
   }'::jsonb,
   true,
   true,

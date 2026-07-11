@@ -14,7 +14,7 @@ import com.tchalanet.server.core.draw.internal.application.port.out.DrawSummaryR
 import com.tchalanet.server.core.draw.api.event.DrawSettledEvent;
 import com.tchalanet.server.core.draw.internal.domain.exception.DrawResultNotFinalException;
 import com.tchalanet.server.core.draw.api.model.DrawStatus;
-import com.tchalanet.server.core.drawresult.internal.domain.model.DrawResultStatus;
+import com.tchalanet.server.core.drawresult.api.model.DrawResultStatus;
 import com.tchalanet.server.common.types.id.DrawId;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

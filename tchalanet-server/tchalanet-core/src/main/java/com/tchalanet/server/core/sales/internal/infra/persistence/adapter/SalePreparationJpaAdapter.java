@@ -44,9 +44,14 @@ class SalePreparationJpaAdapter implements SalePreparationStorePort {
             lineEntity.setBetType(line.betType());
             lineEntity.setBetOption(line.betOption());
             lineEntity.setSelection(line.selection());
-            lineEntity.setPayoutBaseAmount(line.payoutBaseAmount());
+            lineEntity.setSelectionSource(line.selectionSource());
+            lineEntity.setChoiceMode(line.choiceMode());
             lineEntity.setPromotionDecisionId(line.promotionDecisionId());
             lineEntity.setPromotionRuleId(line.promotionRuleId());
+            lineEntity.setPromotionRuleKey(line.promotionRuleKey());
+            lineEntity.setPromotionEffectType(line.promotionEffectType());
+            lineEntity.setPromotionDecisionContextHash(line.promotionDecisionContextHash());
+            lineEntity.setPromotionDecisionEngineVersion(line.promotionDecisionEngineVersion());
             lineEntity.setRegenerable(line.regenerable());
             lineEntity.setMaxRegenerations(line.maxRegenerations());
             lineEntity.setRegenerationCount(line.regenerationCount());
@@ -100,9 +105,14 @@ class SalePreparationJpaAdapter implements SalePreparationStorePort {
                 l.getBetType(),
                 l.getBetOption(),
                 l.getSelection(),
-                l.getPayoutBaseAmount(),
+                l.getSelectionSource(),
+                l.getChoiceMode(),
                 l.getPromotionDecisionId(),
                 l.getPromotionRuleId(),
+                l.getPromotionRuleKey(),
+                l.getPromotionEffectType(),
+                l.getPromotionDecisionContextHash(),
+                l.getPromotionDecisionEngineVersion(),
                 l.isRegenerable(),
                 l.getMaxRegenerations(),
                 l.getRegenerationCount()))

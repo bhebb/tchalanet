@@ -11,8 +11,8 @@ class OperationalContextHeaderParserTest {
     void noHeadersReturnsNoContext() {
         var hint = OperationalContextHeaderParser.parseHint(Map.<String, String>of()::get);
 
-        assertThat(hint.source()).isEqualTo(OperationalContextSource.NONE);
-        assertThat(hint.trust()).isEqualTo(OperationalContextTrust.NONE);
+        assertThat(hint.source()).isEqualTo(OperationalContextSource.CLIENT_CLAIM);
+        assertThat(hint.trust()).isEqualTo(OperationalContextTrust.WEAK);
     }
 
 

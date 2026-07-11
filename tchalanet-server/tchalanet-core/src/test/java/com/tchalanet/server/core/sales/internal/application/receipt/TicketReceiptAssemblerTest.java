@@ -12,19 +12,18 @@ import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.types.money.CurrencyCode;
 import com.tchalanet.server.common.types.money.Money;
 import com.tchalanet.server.core.sales.api.config.TicketPublicProperties;
-import com.tchalanet.server.core.sales.api.model.coverage.PotentialGainMode;
 import com.tchalanet.server.core.sales.api.model.origin.TicketSaleChannel;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintBranding;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintDraw;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintIdentity;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintLifecycle;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintLine;
-import com.tchalanet.server.core.sales.api.model.print.TicketPrintLineCoverage;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintMetadata;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintMoney;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintQrPayload;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintSellerContext;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintState;
+import com.tchalanet.server.core.sales.api.model.print.TicketPrintStateStatus;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintView;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineOrigin;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSource;
@@ -34,6 +33,7 @@ import com.tchalanet.server.core.sales.api.model.status.TicketSaleStatus;
 import com.tchalanet.server.core.sales.api.model.status.TicketSettlementStatus;
 import com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketPublicCodeFormatter;
 import com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketVerificationUrlBuilder;
+import com.tchalanet.server.platform.tenantgame.api.model.SelectionPolicy;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -59,14 +59,22 @@ class TicketReceiptAssemblerTest {
     }
 
     @Test
-    void receiptLineCarriesCoverageSummaryWithoutTechnicalVariantLabels() {
+    void receiptLineKeepsSelectionPolicySnapshotWithoutTechnicalVariantLabels() {
         var receipt = assembler().assemble(printViewWithExactPlusBoxLine(), Locale.FRENCH);
 
         var line = receipt.gameSections().getFirst().lines().getFirst();
         assertThat(line.optionLabel()).isEqualTo("Exact + Permuté");
-        assertThat(line.potentialGainMode()).isEqualTo(PotentialGainMode.RANGE_ALTERNATIVE);
-        assertThat(line.minPotentialPayout().amount()).isEqualByComparingTo("800");
-        assertThat(line.maxPotentialPayout().amount()).isEqualByComparingTo("5000");
+        assertThat(line.selectionPolicySnapshot()).isEqualTo(SelectionPolicy.EXPLICIT_ONLY);
+    }
+
+    @Test
+    void reprintKeepsTicketSnapshotLabelsIndependentFromCurrentPricingOrPromotionConfig() {
+        var receipt = assembler().assemble(reprintViewWithSnapshotLabels(), Locale.FRENCH);
+
+        var line = receipt.gameSections().getFirst().lines().getFirst();
+        assertThat(receipt.isReprint()).isTrue();
+        assertThat(line.optionLabel()).isEqualTo("Ancien exact + permuté");
+        assertThat(line.promotionLabel()).isEqualTo("Ancienne promo Maryaj");
     }
 
     private TicketReceiptAssembler assembler() {
@@ -79,7 +87,6 @@ class TicketReceiptAssemblerTest {
     private TicketPrintView printViewWithLoto4BoxLine() {
         var now = Instant.parse("2026-07-06T15:00:00Z");
         var stake = money("25");
-        var payout = money("2500");
         return new TicketPrintView(
             new TicketPrintIdentity(TicketId.of(UUID.randomUUID()), TenantId.of(UUID.randomUUID()),
                 "T-0001", "abcd1234", "111222"),
@@ -90,27 +97,26 @@ class TicketReceiptAssemblerTest {
                 "NY", "MIDDAY", "provider-1", "America/Port-au-Prince", "Midi", "New York",
                 LocalDate.parse("2026-07-06"), now, now.plusSeconds(3600)),
             new TicketPrintSellerContext(SellerTerminalId.of(UUID.randomUUID()), "TERM-1", "Terminal 1", "Terminal 1"),
-            new TicketPrintBranding("Tenant", null, null, null, null),
+            new TicketPrintBranding("Tenant", null, null),
             List.of(new TicketPrintLine(
                 1,
                 GameCode.HT_LOTO4,
                 BetType.LOTTO4_PATTERN,
                 (short) 2,
+                "Désordre / Box",
                 "Loto 4",
                 "1234",
                 "1234",
-                new BigDecimal("100"),
                 stake,
-                payout,
+                SelectionPolicy.EXPLICIT_ONLY,
                 TicketLineOrigin.CUSTOMER,
                 TicketLinePricingSource.STANDARD,
                 TicketLineSelectionSource.CUSTOMER_SELECTED,
-                stake,
                 null,
                 null,
                 null
             )),
-            new TicketPrintMoney(stake, List.of(), money("0"), stake, payout),
+            new TicketPrintMoney(stake, List.of(), money("0"), stake),
             new TicketPrintQrPayload("v1", "ABCD1234", "111222", "https://tickets.test/check/ABCD1234", "payload"),
             new TicketPrintMetadata(now, Locale.FRENCH, ZoneId.of("America/Port-au-Prince"),
                 TicketSaleChannel.POS_ONLINE, HTG.value(), Map.of())
@@ -120,7 +126,6 @@ class TicketReceiptAssemblerTest {
     private TicketPrintView printViewWithExactPlusBoxLine() {
         var now = Instant.parse("2026-07-06T15:00:00Z");
         var stake = money("20");
-        var payout = money("5000");
         return new TicketPrintView(
             new TicketPrintIdentity(TicketId.of(UUID.randomUUID()), TenantId.of(UUID.randomUUID()),
                 "T-0001", "abcd1234", "111222"),
@@ -131,45 +136,69 @@ class TicketReceiptAssemblerTest {
                 "NY", "MIDDAY", "provider-1", "America/Port-au-Prince", "Midi", "New York",
                 LocalDate.parse("2026-07-06"), now, now.plusSeconds(3600)),
             new TicketPrintSellerContext(SellerTerminalId.of(UUID.randomUUID()), "TERM-1", "Terminal 1", "Terminal 1"),
-            new TicketPrintBranding("Tenant", null, null, null, null),
+            new TicketPrintBranding("Tenant", null, null),
             List.of(new TicketPrintLine(
                 1,
                 GameCode.HT_LOTO3,
                 BetType.LOTTO3_3D,
                 (short) 3,
+                "Exact + Permuté",
                 "Loto 3",
                 "123",
                 "123",
-                new BigDecimal("500"),
                 stake,
-                payout,
-                PotentialGainMode.RANGE_ALTERNATIVE,
-                money("800"),
-                payout,
-                null,
-                List.of(
-                    new TicketPrintLineCoverage(
-                        "LOTTO3_STRAIGHT",
-                        money("10"),
-                        new BigDecimal("500"),
-                        payout,
-                        "ALTERNATIVE"),
-                    new TicketPrintLineCoverage(
-                        "LOTTO3_BOX_6_WAY",
-                        money("10"),
-                        new BigDecimal("80"),
-                        money("800"),
-                        "ALTERNATIVE")
-                ),
+                SelectionPolicy.EXPLICIT_ONLY,
                 TicketLineOrigin.CUSTOMER,
                 TicketLinePricingSource.STANDARD,
                 TicketLineSelectionSource.CUSTOMER_SELECTED,
-                stake,
                 null,
                 null,
                 null
             )),
-            new TicketPrintMoney(stake, List.of(), money("0"), stake, payout),
+            new TicketPrintMoney(stake, List.of(), money("0"), stake),
+            new TicketPrintQrPayload("v1", "ABCD1234", "111222", "https://tickets.test/check/ABCD1234", "payload"),
+            new TicketPrintMetadata(now, Locale.FRENCH, ZoneId.of("America/Port-au-Prince"),
+                TicketSaleChannel.POS_ONLINE, HTG.value(), Map.of())
+        );
+    }
+
+    private TicketPrintView reprintViewWithSnapshotLabels() {
+        var now = Instant.parse("2026-07-06T15:00:00Z");
+        var stake = money("0");
+        return new TicketPrintView(
+            new TicketPrintIdentity(TicketId.of(UUID.randomUUID()), TenantId.of(UUID.randomUUID()),
+                "T-0001", "abcd1234", "111222"),
+            new TicketPrintLifecycle(TicketSaleStatus.APPROVED, TicketResultStatus.NOT_RESULTED,
+                TicketSettlementStatus.NOT_SETTLED),
+            new TicketPrintState(
+                TicketPrintStateStatus.REPRINTED,
+                2,
+                now,
+                now.plusSeconds(60)),
+            new TicketPrintDraw(DrawId.of(UUID.randomUUID()), DrawChannelId.of(UUID.randomUUID()),
+                "NY", "MIDDAY", "provider-1", "America/Port-au-Prince", "Midi", "New York",
+                LocalDate.parse("2026-07-06"), now, now.plusSeconds(3600)),
+            new TicketPrintSellerContext(SellerTerminalId.of(UUID.randomUUID()), "TERM-1", "Terminal 1", "Terminal 1"),
+            new TicketPrintBranding("Tenant", null, null),
+            List.of(new TicketPrintLine(
+                1,
+                GameCode.HT_MARYAJ_GRATIS,
+                BetType.MARRIAGE_2D2D,
+                (short) 3,
+                "Ancien exact + permuté",
+                "Maryaj gratis",
+                "12 × 34",
+                "1234",
+                stake,
+                SelectionPolicy.EXPLICIT_ONLY,
+                TicketLineOrigin.PROMOTION,
+                TicketLinePricingSource.PROMOTION,
+                TicketLineSelectionSource.PROMOTION_GENERATED,
+                null,
+                "Ancienne promo Maryaj",
+                "FREE_GAME_LINE"
+            )),
+            new TicketPrintMoney(stake, List.of(), money("0"), stake),
             new TicketPrintQrPayload("v1", "ABCD1234", "111222", "https://tickets.test/check/ABCD1234", "payload"),
             new TicketPrintMetadata(now, Locale.FRENCH, ZoneId.of("America/Port-au-Prince"),
                 TicketSaleChannel.POS_ONLINE, HTG.value(), Map.of())

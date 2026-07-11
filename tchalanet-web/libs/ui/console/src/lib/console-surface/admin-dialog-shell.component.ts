@@ -32,6 +32,7 @@ import { MatDialogModule } from '@angular/material/dialog';
         --comp-admin-dialog-gap: 0.875rem;
         --comp-admin-dialog-max-field: 32rem;
         display: block;
+        max-width: 100%;
       }
 
       .tch-admin-dialog-shell__title {
@@ -40,6 +41,8 @@ import { MatDialogModule } from '@angular/material/dialog';
         gap: 0.625rem;
         margin: 0;
         color: var(--tch-color-on-surface);
+        min-width: 0;
+        overflow-wrap: anywhere;
       }
 
       .tch-admin-dialog-shell__icon {
@@ -60,7 +63,10 @@ import { MatDialogModule } from '@angular/material/dialog';
       }
 
       .tch-admin-dialog-shell__content {
+        box-sizing: border-box;
+        max-width: 100%;
         min-width: min(100vw - 3rem, var(--comp-admin-dialog-max-field));
+        overflow-x: hidden;
       }
 
       .tch-admin-dialog-form {
@@ -86,6 +92,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 
       .tch-admin-dialog-shell__actions {
         border-top: 1px solid var(--tch-color-outline-variant);
+        flex-wrap: wrap;
         padding: 0.75rem 1.5rem 1rem;
       }
 

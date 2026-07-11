@@ -60,6 +60,7 @@ class PromotionRuleEvaluatorTest {
             null,
             List.of(),
             null,
+            null,
             new BigDecimal("500"),
             "HTG",
             List.of("HT_BOLET"),
@@ -117,6 +118,7 @@ class PromotionRuleEvaluatorTest {
             null,
             List.of(),
             null,
+            null,
             new BigDecimal("6500"),
             "HTG",
             List.of("HT_BOLET"),
@@ -172,6 +174,7 @@ class PromotionRuleEvaluatorTest {
             null,
             List.of(),
             null,
+            null,
             new BigDecimal("999"),
             "HTG",
             List.of("HT_BOLET"),
@@ -179,6 +182,53 @@ class PromotionRuleEvaluatorTest {
         ));
 
         assertThat(effects).isEmpty();
+    }
+
+    @Test
+    @DisplayName("counts repeated paid game codes for line count eligibility")
+    void countsRepeatedPaidGameCodes() {
+        var ruleId = PromotionRuleId.of(UUID.fromString("B1000000-0000-0000-0000-000000000005"));
+        var rule = new PromotionRule(
+            ruleId,
+            PromotionCampaignId.of(UUID.fromString("A1000000-0000-0000-0000-000000000005")),
+            "maryaj-three-lines",
+            100,
+            null,
+            null,
+            List.of(new com.tchalanet.server.core.promotion.internal.domain.model.PromotionRuleEligibilityLine(
+                "HT_BOLET",
+                3
+            )),
+            List.of(new PromotionEffect(
+                ruleId,
+                PromotionEffectType.FREE_GAME_LINE,
+                "HT_MARYAJ_GRATIS",
+                1,
+                new BigDecimal("50"),
+                "HTG",
+                null,
+                null,
+                PromotionChoiceMode.AUTO_GENERATE
+            ))
+        );
+
+        var effects = evaluator.evaluate(rule, new PromotionEvaluationContext(
+            null,
+            PromotionEvaluationPhase.SALE_CONFIRMATION,
+            Instant.parse("2026-05-27T00:00:00Z"),
+            null,
+            List.of(),
+            null,
+            List.of(),
+            null,
+            null,
+            new BigDecimal("500"),
+            "HTG",
+            List.of("HT_BOLET", "HT_BOLET", "HT_BOLET"),
+            false
+        ));
+
+        assertThat(effects).hasSize(1);
     }
 
     @Test
@@ -228,6 +278,7 @@ class PromotionRuleEvaluatorTest {
             List.of(),
             null,
             List.of(),
+            null,
             null,
             new BigDecimal("500"),
             "HTG",

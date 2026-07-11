@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.drawresult.internal.application.port.out;
 
 import com.tchalanet.server.core.drawresult.api.model.ResultQuality;
-import com.tchalanet.server.core.drawresult.internal.domain.model.DrawResultStatus;
+import com.tchalanet.server.core.drawresult.api.model.DrawResultStatus;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;

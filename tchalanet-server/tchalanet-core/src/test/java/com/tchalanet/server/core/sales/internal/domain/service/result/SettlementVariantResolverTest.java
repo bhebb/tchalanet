@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.tchalanet.server.catalog.game.api.model.BetType;
 import com.tchalanet.server.core.pricing.api.model.PricingVariantCode;
-import com.tchalanet.server.core.sales.api.model.coverage.PotentialGainMode;
+import com.tchalanet.server.core.sales.api.model.coverage.SettlementPayoutMode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -115,7 +115,7 @@ class SettlementVariantResolverTest {
                 (short) 3,
                 "736");
 
-            assertThat(resolution.potentialGainMode()).isEqualTo(PotentialGainMode.RANGE_ALTERNATIVE);
+            assertThat(resolution.settlementPayoutMode()).isEqualTo(SettlementPayoutMode.RANGE_ALTERNATIVE);
             assertThat(resolution.variants())
                 .extracting(CoverageVariant::pricingVariantCode)
                 .containsExactly(
@@ -204,7 +204,7 @@ class SettlementVariantResolverTest {
                 (short) 5,
                 "1123");
 
-            assertThat(resolution.potentialGainMode()).isEqualTo(PotentialGainMode.RANGE_ALTERNATIVE);
+            assertThat(resolution.settlementPayoutMode()).isEqualTo(SettlementPayoutMode.RANGE_ALTERNATIVE);
             assertThat(resolution.variants())
                 .extracting(CoverageVariant::pricingVariantCode)
                 .containsExactly(

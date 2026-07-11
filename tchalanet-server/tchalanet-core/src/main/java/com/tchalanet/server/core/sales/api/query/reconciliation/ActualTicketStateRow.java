@@ -15,7 +15,7 @@ public record ActualTicketStateRow(
     TicketSaleStatus saleStatus,
     TicketResultStatus resultStatus,
     TicketSettlementStatus settlementStatus,
-    Money actualPotentialPayout,
+    Money actualSettlementPayout,
     Instant placedAt,
     boolean cancelled,
     boolean voided

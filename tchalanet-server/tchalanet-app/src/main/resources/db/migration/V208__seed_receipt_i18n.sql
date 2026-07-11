@@ -18,7 +18,6 @@ WITH receipt_i18n(locale, i18n_key, i18n_value) AS (
     ('fr', 'receipt.line.header.payout', 'Gain'),
     ('fr', 'receipt.total.stake', 'Mise'),
     ('fr', 'receipt.total.amount', 'TOTAL'),
-    ('fr', 'receipt.total.max_payout', 'Gain max'),
     ('fr', 'receipt.verification', 'Verification'),
     ('fr', 'receipt.qr', 'QR'),
     ('fr', 'receipt.ref', 'Ref'),
@@ -106,7 +105,6 @@ WITH receipt_i18n(locale, i18n_key, i18n_value) AS (
     ('en', 'receipt.line.header.payout', 'Payout'),
     ('en', 'receipt.total.stake', 'Stake'),
     ('en', 'receipt.total.amount', 'TOTAL'),
-    ('en', 'receipt.total.max_payout', 'Max payout'),
     ('en', 'receipt.verification', 'Verification'),
     ('en', 'receipt.qr', 'QR'),
     ('en', 'receipt.ref', 'Ref'),
@@ -194,7 +192,6 @@ WITH receipt_i18n(locale, i18n_key, i18n_value) AS (
     ('ht', 'receipt.line.header.payout', 'Peman'),
     ('ht', 'receipt.total.stake', 'Miz'),
     ('ht', 'receipt.total.amount', 'TOTAL'),
-    ('ht', 'receipt.total.max_payout', 'Pi gwo peman'),
     ('ht', 'receipt.verification', 'Verifikasyon'),
     ('ht', 'receipt.qr', 'QR'),
     ('ht', 'receipt.ref', 'Ref'),
@@ -317,9 +314,6 @@ WHERE NOT EXISTS (
 UPDATE i18n_override SET i18n_value = 'Vérification'
  WHERE level = 'GLOBAL' AND tenant_id IS NULL AND surface = 'CASHIER'
    AND locale = 'fr' AND i18n_key = 'receipt.verification' AND deleted_at IS NULL;
-UPDATE i18n_override SET i18n_value = 'Gain maximal'
- WHERE level = 'GLOBAL' AND tenant_id IS NULL AND surface = 'CASHIER'
-   AND locale = 'fr' AND i18n_key = 'receipt.total.max_payout' AND deleted_at IS NULL;
 UPDATE i18n_override SET i18n_value = 'Scannez le code QR'
  WHERE level = 'GLOBAL' AND tenant_id IS NULL AND surface = 'CASHIER'
    AND locale = 'fr' AND i18n_key = 'receipt.scan_to_verify' AND deleted_at IS NULL;

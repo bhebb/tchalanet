@@ -14,6 +14,7 @@
       <tch-seller-terminal-success-card
         [result]="result"
         (openPos)="onOpenPos($event)"
+        (openOverrides)="onOpenOverrides($event)"
         (backToList)="goBackToList()"
         (createAnother)="onCreateAnother()"
       />
@@ -23,6 +24,7 @@
       [form]="form"
       [model]="model()"
       [saving]="saving()"
+      [codeLoading]="codeLoading()"
       [error]="error()"
       [showPin]="showPin()"
       [showConfirmPin]="showConfirmPin()"

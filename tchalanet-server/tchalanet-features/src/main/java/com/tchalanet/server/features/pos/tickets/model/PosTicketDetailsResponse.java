@@ -3,7 +3,6 @@ package com.tchalanet.server.features.pos.tickets.model;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TicketId;
-import com.tchalanet.server.core.sales.api.model.coverage.PotentialGainMode;
 import com.tchalanet.server.core.sales.api.model.status.TicketSaleStatus;
 
 import java.time.Instant;
@@ -40,7 +39,6 @@ public record PosTicketDetailsResponse(
     long stakeCents,
     long totalAmountCents,
     String currency,
-    long potentialPayoutCents,
     List<CashierTicketChargeResponse> charges
 ) {
 
@@ -53,44 +51,9 @@ public record PosTicketDetailsResponse(
         String betTypeLabel,
         String selection,       // display_selection
         long stakeAmountCents,
-        long potentialPayoutCents,
-        PotentialGainMode potentialGainMode,
-        long minPotentialPayoutCents,
-        long maxPotentialPayoutCents,
-        Long totalPotentialPayoutCents,
         boolean promotional,    // free game or odds-boosted by a promo
         String promotionLabel   // e.g. "Maryaj gratuit", null if no promo
-    ) {
-        public CashierTicketLineDetailResponse(
-            int lineNumber,
-            String gameCode,
-            String gameLabel,
-            String betType,
-            String betTypeLabel,
-            String selection,
-            long stakeAmountCents,
-            long potentialPayoutCents,
-            boolean promotional,
-            String promotionLabel
-        ) {
-            this(
-                lineNumber,
-                gameCode,
-                gameLabel,
-                betType,
-                betTypeLabel,
-                selection,
-                stakeAmountCents,
-                potentialPayoutCents,
-                PotentialGainMode.SINGLE,
-                potentialPayoutCents,
-                potentialPayoutCents,
-                null,
-                promotional,
-                promotionLabel
-            );
-        }
-    }
+    ) {}
 
     /** A surcharge applied to the ticket (SMS fee, WhatsApp fee, etc.). */
     public record CashierTicketChargeResponse(

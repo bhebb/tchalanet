@@ -16,7 +16,7 @@ import com.tchalanet.server.core.draw.internal.application.port.out.DrawProcessi
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawProcessingCandidateReaderPort.DrawProcessingSlotDate;
 import com.tchalanet.server.core.draw.internal.infra.config.DrawProperties;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultReaderPort;
-import com.tchalanet.server.core.drawresult.internal.domain.model.DrawResultStatus;
+import com.tchalanet.server.core.drawresult.api.model.DrawResultStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;

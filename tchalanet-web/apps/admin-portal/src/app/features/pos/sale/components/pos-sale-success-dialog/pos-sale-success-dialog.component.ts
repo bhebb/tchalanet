@@ -6,6 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { PosSaleActionAvailabilityView, PosTicketBackupView } from '../../data-access/pos-sale.models';
 import { PosSaleApiService } from '../../data-access/pos-sale-api.service';
@@ -44,12 +45,14 @@ type DeliveryChannel = 'SMS' | 'WHATSAPP' | 'EMAIL';
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
+    TranslatePipe,
   ],
   templateUrl: './pos-sale-success-dialog.component.html',
   styleUrls: ['./pos-sale-success-dialog.component.scss'],
 })
 export class PosSaleSuccessDialogComponent implements OnInit {
   private readonly api = inject(PosSaleApiService);
+  private readonly translate = inject(TranslateService);
   private readonly dialogRef = inject(MatDialogRef<PosSaleSuccessDialogComponent, PosSaleSuccessDialogResult>);
   protected readonly data = inject<PosSaleSuccessDialogData>(MAT_DIALOG_DATA);
 
@@ -60,8 +63,10 @@ export class PosSaleSuccessDialogComponent implements OnInit {
   readonly communicationAvailability = signal<PosSaleActionAvailabilityView | null>(null);
   readonly feedback = signal<{ type: 'success' | 'error'; message: string } | null>(null);
 
-  readonly title = computed(() =>
-    this.data.mode === 'ticket-actions' ? 'Impression du ticket' : 'Ticket vendu',
+  readonly titleKey = computed(() =>
+    this.data.mode === 'ticket-actions'
+      ? 'admin.sellerTerminal.pos.dialog.title.ticketActions'
+      : 'admin.sellerTerminal.pos.dialog.title.saleSuccess',
   );
 
   readonly titleIcon = computed(() =>
@@ -112,8 +117,8 @@ export class PosSaleSuccessDialogComponent implements OnInit {
     this.feedback.set(null);
 
     this.api.printTicket(this.data.ticket.ticketId, this.data.sellerTerminalId, {
-      recordPrint: this.data.mode === 'ticket-actions' ? false : true,
-      reprintReason: this.data.mode === 'ticket-actions' ? 'Admin ticket reprint' : 'POS print',
+      recordPrint: true,
+      reprintReason: this.data.mode === 'ticket-actions' ? 'POS reprint' : 'POS print',
     }).subscribe({
       next: blob => {
         const url = URL.createObjectURL(blob);
@@ -128,13 +133,16 @@ export class PosSaleSuccessDialogComponent implements OnInit {
 
         window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
         this.printing.set(false);
-        this.feedback.set({ type: 'success', message: 'Reçu prêt pour impression.' });
+        this.feedback.set({
+          type: 'success',
+          message: this.translate.instant('admin.sellerTerminal.pos.dialog.feedback.printSuccess'),
+        });
       },
       error: () => {
         this.printing.set(false);
         this.feedback.set({
           type: 'error',
-          message: 'Le ticket est vendu, mais le reçu n’a pas pu être imprimé.',
+          message: this.translate.instant('admin.sellerTerminal.pos.dialog.feedback.printError'),
         });
       },
     });
@@ -154,13 +162,16 @@ export class PosSaleSuccessDialogComponent implements OnInit {
     ).subscribe({
       next: () => {
         this.sending.set(null);
-        this.feedback.set({ type: 'success', message: 'Envoi demandé.' });
+        this.feedback.set({
+          type: 'success',
+          message: this.translate.instant('admin.sellerTerminal.pos.dialog.feedback.sendSuccess'),
+        });
       },
       error: () => {
         this.sending.set(null);
         this.feedback.set({
           type: 'error',
-          message: 'L’envoi n’a pas pu être demandé. Vérifiez le destinataire et réessayez.',
+          message: this.translate.instant('admin.sellerTerminal.pos.dialog.feedback.sendError'),
         });
       },
     });

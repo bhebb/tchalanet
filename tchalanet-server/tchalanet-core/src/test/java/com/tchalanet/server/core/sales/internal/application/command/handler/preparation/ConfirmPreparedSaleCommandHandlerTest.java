@@ -11,13 +11,13 @@ import com.tchalanet.server.core.sales.api.command.sell.SellTicketCommand;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketOutcome;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketResult;
 import com.tchalanet.server.core.sales.api.command.sell.SoldTicketView;
+import com.tchalanet.server.core.promotion.api.model.PromotionChoiceMode;
 import com.tchalanet.server.core.sales.api.model.preparation.SalePreparationStatus;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource;
 import com.tchalanet.server.core.sales.internal.application.service.preparation.SalePreparationInputCodec;
 import com.tchalanet.server.core.sales.internal.domain.model.preparation.SalePreparation;
 import com.tchalanet.server.core.sales.internal.domain.model.preparation.SalePreparationPromotionLine;
 import com.tchalanet.server.core.sales.internal.domain.service.preparation.SalePreparationStateMachine;
-import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -79,14 +79,18 @@ class ConfirmPreparedSaleCommandHandlerTest {
             null, null, null, expiresAt, null,
             List.of(new SalePreparationPromotionLine(
                 "ref-1", "HT_MARYAJ_GRATIS", "MARRIAGE_2D2D", (short) 1, "34-78",
-                new BigDecimal("50"), null, null, true, 3, 1)));
+                TicketLineSelectionSource.PROMOTION_GENERATED,
+                PromotionChoiceMode.AUTO_GENERATE,
+                null, null,
+                "maryaj-gratis", "FREE_GAME_LINE", "ctx-hash", "engine-v1",
+                true, 3, 1)));
     }
 
     private static SellTicketResult soldResult() {
         var ticket = new SoldTicketView(
             TicketId.of(TICKET_ID), "TCK-1", "PUB-1", "PUB-1", null,
             null, null, null, null, null, SellerTerminalId.of(UUID.randomUUID()),
-            null, null, null, NOW, NOW);
+            null, null, NOW, NOW);
         return new SellTicketResult(ticket, SellTicketOutcome.ACCEPTED, null, List.of());
     }
 
@@ -111,6 +115,90 @@ class ConfirmPreparedSaleCommandHandlerTest {
             .isEqualTo(TicketLineSelectionSource.PROMOTION_GENERATED);
         assertThat(bus.captured.lines()).hasSize(1);
         assertThat(bus.captured.lines().get(0).rawSelection()).isEqualTo("12");
+    }
+
+    @Test
+    @DisplayName("confirm keeps the stored manual selection source")
+    void confirmKeepsStoredManualSelectionSource() {
+        var preparation = draft(NOW.plusSeconds(60));
+        var manualLine = preparation.promotionLines().get(0);
+        store.create(new SalePreparation(
+            preparation.id(), preparation.status(), preparation.sellerTerminalId(), preparation.drawId(),
+            preparation.inputHash(), preparation.input(), preparation.promotionDecisionId(),
+            preparation.idempotencyKey(), preparation.ticketId(), preparation.expiresAt(),
+            preparation.confirmedAt(),
+            List.of(new SalePreparationPromotionLine(
+                manualLine.lineRef(), manualLine.gameCode(), manualLine.betType(), manualLine.betOption(),
+                manualLine.selection(), TicketLineSelectionSource.CUSTOMER_SELECTED,
+                PromotionChoiceMode.SELLER_SELECTS,
+                manualLine.promotionDecisionId(), manualLine.promotionRuleId(),
+                manualLine.promotionRuleKey(), manualLine.promotionEffectType(),
+                manualLine.promotionDecisionContextHash(), manualLine.promotionDecisionEngineVersion(),
+                manualLine.regenerable(), manualLine.maxRegenerations(), manualLine.regenerationCount()))));
+        bus.result = soldResult();
+
+        handler().handle(new ConfirmPreparedSaleCommand(PREP_ID, "idem-1"));
+
+        assertThat(bus.captured.promotionChoices().get(0).selectionSource())
+            .isEqualTo(TicketLineSelectionSource.CUSTOMER_SELECTED);
+    }
+
+    @Test
+    @DisplayName("confirm pins every stored promotion choice with stable per-game indexes")
+    void confirmPinsPromotionChoicesWithPerGameIndexes() {
+        var preparation = draft(NOW.plusSeconds(60));
+        var first = preparation.promotionLines().get(0);
+        store.create(new SalePreparation(
+            preparation.id(), preparation.status(), preparation.sellerTerminalId(), preparation.drawId(),
+            preparation.inputHash(), preparation.input(), preparation.promotionDecisionId(),
+            preparation.idempotencyKey(), preparation.ticketId(), preparation.expiresAt(),
+            preparation.confirmedAt(),
+            List.of(
+                first,
+                new SalePreparationPromotionLine(
+                    "ref-2", "HT_MARYAJ_GRATIS", "MARRIAGE_2D2D", (short) 1, "11-22",
+                    TicketLineSelectionSource.PROMOTION_GENERATED,
+                    PromotionChoiceMode.AUTO_GENERATE,
+                    null, null,
+                    "maryaj-gratis", "FREE_GAME_LINE", "ctx-hash", "engine-v1",
+                    true, 3, 1),
+                new SalePreparationPromotionLine(
+                    "ref-3", "HT_BOLET", "MATCH_1_2D", null, "99",
+                    TicketLineSelectionSource.CUSTOMER_SELECTED,
+                    PromotionChoiceMode.SELLER_SELECTS,
+                    null, null,
+                    "bolet-free", "FREE_GAME_LINE", "ctx-hash", "engine-v1",
+                    false, 0, 0))));
+        bus.result = soldResult();
+
+        handler().handle(new ConfirmPreparedSaleCommand(PREP_ID, "idem-1"));
+
+        assertThat(bus.captured.promotionChoices())
+            .extracting(
+                choice -> choice.gameCode(),
+                choice -> choice.index(),
+                choice -> choice.rawSelection(),
+                choice -> choice.selectionSource(),
+                choice -> choice.decisionId())
+            .containsExactly(
+                org.assertj.core.groups.Tuple.tuple(
+                    "HT_MARYAJ_GRATIS",
+                    0,
+                    "34-78",
+                    TicketLineSelectionSource.PROMOTION_GENERATED,
+                    null),
+                org.assertj.core.groups.Tuple.tuple(
+                    "HT_MARYAJ_GRATIS",
+                    1,
+                    "11-22",
+                    TicketLineSelectionSource.PROMOTION_GENERATED,
+                    null),
+                org.assertj.core.groups.Tuple.tuple(
+                    "HT_BOLET",
+                    0,
+                    "99",
+                    TicketLineSelectionSource.CUSTOMER_SELECTED,
+                    null));
     }
 
     @Test

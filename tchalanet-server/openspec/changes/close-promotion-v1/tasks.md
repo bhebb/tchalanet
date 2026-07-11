@@ -97,8 +97,7 @@
 ## 12. Settlement integration
 
 - [ ] Settlement must not call Promotion runtime.
-- [ ] Settlement reads `TicketLine.payoutBaseAmount`.
-- [ ] Settlement reads `TicketLine.oddsSnapshot`.
+- [x] Settlement reads `TicketLine.settlementTermsSnapshot`, not ticket-line payout/odds summaries.
 - [ ] Settlement treats `HT_MARYAJ_GRATUIT` as supported game family if required.
 - [ ] Settlement must be idempotent.
 

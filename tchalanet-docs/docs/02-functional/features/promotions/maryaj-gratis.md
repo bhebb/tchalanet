@@ -117,7 +117,7 @@ Ce mode est recommandé quand la communication client utilise des paliers lisibl
 | `quantityPerStep` | Nombre de lignes gratuites par tranche. Valeur par défaut : 1. |
 | `maxQuantity` | Nombre maximum de lignes gratuites par ticket. |
 | `quantityTiers` | Liste des paliers en mode par paliers : montant minimum, montant maximum optionnel, quantité. |
-| `payoutBaseAmount` | Gain associé à chaque Maryaj gagnant. |
+| `payoutBaseAmount` | Montant métier historique de l'effet gratuit. En V0, le montant gagnant officiel d'une ligne `HT_MARYAJ_GRATIS` vient du pricing du jeu, pas de la campagne. |
 | `choiceMode` | Numéros générés automatiquement ou choisis par le vendeur. |
 | `regenerableBeforeConfirm` | Autorise une nouvelle génération avant validation du ticket. |
 | `maxRegenerationsBeforeConfirm` | Nombre maximum de régénérations autorisées. |
@@ -150,6 +150,21 @@ Les lignes Maryaj gratis doivent être visibles comme lignes promotionnelles :
 - dans les rapports de vente ;
 - dans les rapports de promotion ;
 - dans l'audit et les snapshots promotionnels.
+
+## Pricing et overrides
+
+Maryaj gratis est une promotion, mais le montant payé si la ligne gagne est une règle de pricing du
+jeu `HT_MARYAJ_GRATIS`.
+
+Exemple :
+
+| Niveau | Règle |
+|---|---|
+| Tenant | `HT_MARYAJ_GRATIS / Exact = 1 000 HTG` |
+| Seller-terminal Jean | `HT_MARYAJ_GRATIS / Exact = 2 000 HTG` |
+
+La campagne décide si une ligne gratuite est ajoutée. Le pricing décide combien cette ligne paie si
+elle gagne. Les tickets déjà vendus gardent le snapshot pris au moment de la vente.
 
 ## Règles de lisibilité UI
 

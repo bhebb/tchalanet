@@ -135,9 +135,10 @@ Les providers PageModel `tenant_admin_dashboard` vivent dans
 
 ### Financials
 
-`features.tenantadmin.financials` expose les drilldowns d'exploitation financière pour l'admin
-tenant. Il consomme `core.analytics.api.GetTenantFinancialBreakdownQuery` via `QueryBus` et ne lit
-jamais les tables analytics directement.
+Les drilldowns d'exploitation financière pour l'admin tenant vivent dans
+`features.reporting.financials`. Ils consomment
+`core.analytics.api.GetTenantFinancialBreakdownQuery` via `QueryBus` et ne lisent jamais les tables
+analytics directement.
 
 La vue sépare:
 

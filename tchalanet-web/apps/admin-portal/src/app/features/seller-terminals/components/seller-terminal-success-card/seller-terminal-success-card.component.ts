@@ -16,6 +16,7 @@ export class SellerTerminalSuccessCardComponent {
   readonly result = input.required<CreateSellerTerminalResult>();
 
   readonly openPos      = output<CreateSellerTerminalResult>();
+  readonly openOverrides = output<CreateSellerTerminalResult>();
   readonly backToList   = output<void>();
   readonly createAnother = output<void>();
 

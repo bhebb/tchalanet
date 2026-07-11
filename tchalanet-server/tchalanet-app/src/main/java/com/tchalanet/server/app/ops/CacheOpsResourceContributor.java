@@ -1,7 +1,7 @@
 package com.tchalanet.server.app.ops;
 
-import com.tchalanet.server.features.pagemodel.dynamic.providers.platformadmin.OpsResourceContributor;
-import com.tchalanet.server.features.pagemodel.dynamic.providers.platformadmin.PlatformAdminOpsDashboardPayloadAssembler;
+import com.tchalanet.server.platform.ops.api.OpsResourceContributor;
+import com.tchalanet.server.platform.ops.api.OpsServiceResourceItem;
 import java.util.List;
 import org.springframework.cache.CacheManager;
 import org.springframework.core.annotation.Order;
@@ -23,7 +23,7 @@ public class CacheOpsResourceContributor implements OpsResourceContributor {
   }
 
   @Override
-  public List<PlatformAdminOpsDashboardPayloadAssembler.OpsServiceResourceItem> services() {
+  public List<OpsServiceResourceItem> services() {
     int cacheRegionCount = cacheManager.getCacheNames().size();
     List<String> unresolved = CRITICAL_PLAN_CACHES.stream()
         .filter(cacheName -> cacheManager.getCache(cacheName) == null)
@@ -35,7 +35,7 @@ public class CacheOpsResourceContributor implements OpsResourceContributor {
         ? "Critical plan cache regions are resolvable. " + cacheRegionCount + " cache regions visible."
         : "Critical plan cache regions are not resolvable: " + String.join(", ", unresolved) + ".";
 
-    return List.of(new PlatformAdminOpsDashboardPayloadAssembler.OpsServiceResourceItem(
+    return List.of(new OpsServiceResourceItem(
         "runtime:caches",
         "Cache manager",
         status,

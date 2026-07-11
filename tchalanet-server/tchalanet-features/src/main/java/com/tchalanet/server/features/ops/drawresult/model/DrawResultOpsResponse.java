@@ -2,7 +2,7 @@ package com.tchalanet.server.features.ops.drawresult.model;
 
 import com.tchalanet.server.catalog.drawchannel.api.model.DrawSource;
 import com.tchalanet.server.core.drawresult.api.model.ResultQuality;
-import com.tchalanet.server.core.drawresult.internal.domain.model.DrawResultStatus;
+import com.tchalanet.server.core.drawresult.api.model.DrawResultStatus;
 import tools.jackson.databind.JsonNode;
 
 import java.time.Instant;

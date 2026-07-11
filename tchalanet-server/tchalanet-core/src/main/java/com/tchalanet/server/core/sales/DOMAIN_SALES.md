@@ -14,7 +14,7 @@
 - Calculer le gain (`winningAmount`) après tirage et persister `RESULTED_*` (handler `RecordDrawTicketsResultCommandHandler`).
 - Override admin du résultat (`OverrideTicketResultCommandHandler`, `@RequiresPermission`).
 - Exposer la vérification publique d'un ticket par `publicCode` (sans authentification).
-- Publier les events métier consommés par `core.limitpolicy`, `core.session`, `core.ledger`, `core.payout`, `features.stats`.
+- Publier les events métier consommés par `core.limitpolicy`, `core.session`, `core.ledger`, `core.payout`, `core.analytics`.
 
 **Ce que le domaine ne fait pas**
 
@@ -65,21 +65,48 @@ Classe mutable, multi-tenant (`BaseTenantEntity` côté JPA).
 
 ### `TicketLine` (record `domain/model/TicketLine.java`)
 
-- `gameCode (GameCode)`, `selection (String — déjà normalisé)`, `stake (scale 2)`, `oddsSnapshot (scale 4)`, `potentialPayout (scale 2)`, `betType`, `betOption (Short nullable)`.
+- `gameCode (GameCode)`, `selection (String — déjà normalisé)`, `stake (scale 2)`, `oddsSnapshot (scale 4)`, `betType`, `betOption (Short nullable)`.
 - `betOption` est validé via `catalog.game.api.model.BetOption`: absent pour les 2D simples, requis pour Maryaj, Loto 3, Loto 4 et Loto 5.
-- Invariants compact constructor : montants > 0, cohérence `potentialPayout == round(stake × oddsSnapshot, 2, HALF_UP)`.
+- Les montants de payout ne deviennent des gains réalisés qu'au settlement, après comparaison avec le résultat officiel.
 
 ### Snapshots financiers de vente
 
 La vente fige les faits financiers au moment du ticket. Ces snapshots sont la source pour le
 settlement et analytics; ils ne doivent pas être recalculés depuis la configuration courante.
+Le ticket agrégé persiste `settlement_terms_snapshot` sur chaque ligne comme contrat autoritatif
+du settlement futur. Ce JSON ne contient pas un gain potentiel calculé: il contient les règles
+effectives nécessaires au calcul après résultat officiel (`STAKE_MULTIPLIER` ou `FIXED_AMOUNT`,
+base de calcul par terme, mode alternatif/cumulatif et code de règle).
 
 | Snapshot | Source de résolution | Utilisation |
 |---|---|---|
-| `TicketLine.oddsSnapshot` | `ResolveSellerTerminalOddsQuery`: override seller-terminal puis tenant default, y compris pour les lignes gratuites de promotion | Calcul `potentialPayout` et gain après résultat |
+| `TicketLine.settlementTermsSnapshot` | résolution effective de la règle de payout au moment de la vente | Source autoritative du calcul de gain réalisé au settlement |
 | `TicketContext.sellerCommissionRateSnapshot` | taux effectif du seller terminal au moment de la vente | Audit/explanation |
 | `TicketContext.sellerCommissionAmountSnapshot` | `stake * rate / 100`, arrondi scale 2 | Analytics commissions par jour/tirage/seller terminal |
 | `TicketMoneyBreakdown.charges` | `SaleChargeCalculator` + promotions charge waiver | Ticket total, print, analytics frais |
+
+Quand le résultat officiel arrive, `TicketWinningCalculator` compare chaque sélection vendue aux
+numéros sortis. Si un terme de `settlementTermsSnapshot` correspond, le gain réalisé est calculé
+depuis ce terme snapshoté; sinon le gain réalisé est zéro. En V0 pré-production, il n'y a plus de
+fallback line coverage: `settlementTermsSnapshot` est obligatoire.
+L'aggregate persiste ensuite le résultat réalisé: chaque ligne reçoit
+`result_status` + `payout_amount`, et le ticket reçoit `winning_amount`.
+Les écrans post-résultat, settlement et reporting doivent lire ces montants
+réalisés persistés, pas recalculer depuis la configuration courante.
+Si les termes snapshotés et les données legacy sont insuffisants pour calculer
+un résultat, l'application du résultat échoue pour ce ticket et le ticket est
+skippé avec alerte opérationnelle. Cette erreur de données ne doit jamais être
+convertie en `LOST` silencieux.
+
+Le rendu d'impression et de reçu expose uniquement le contrat visible de vente:
+tirage, jeu, sélection, option commerciale explicitement snapshotée, mise et promotions visibles.
+Il ne publie pas les odds, variantes techniques de couverture, payout base ou gain potentiel; ces
+données restent internes au settlement et aux audits autorisés.
+
+Pour expliquer une configuration à un admin, pointer vers
+`tchalanet-docs/docs/02-functional/guides/admin-game-configuration.md`. Le guide utilisateur
+présente les mêmes invariants sans exposer les classes internes: configuration jeu/options,
+pricing tenant, overrides seller-terminal, Maryaj gratis, résultat et simulation indicative.
 
 La commission reste configurée en pourcentage, mais les stats additionnent le montant snapshoté.
 Changer le taux tenant ou terminal n'altère jamais un ticket déjà vendu.
@@ -98,8 +125,8 @@ Analytics projette ces catégories séparément (`buyerCharges`, `sellerCharges`
 
 ### `TicketVerificationResult` (record exposé en public)
 
-Champs : `ticketId, publicCode, saleStatus, resultStatus, settlementStatus, drawId, terminalMasked, createdAt, totalAmount, potentialTotalPayout, payoutStatus, outletName, outletAddress, lines[]`.
-`payoutStatus` ∈ {`POTENTIAL_WIN`, `NO_PAYOUT`, `EXPIRED`}.
+Champs : `ticketId, publicCode, saleStatus, resultStatus, settlementStatus, drawId, terminalMasked, createdAt, totalAmount, winningAmount, outletName, outletAddress, lines[]`.
+Le statut de paiement doit être dérivé du résultat persistant (`resultStatus`, `settlementStatus`, `winningAmount`), jamais d'un gain potentiel pré-résultat.
 
 ---
 
@@ -115,7 +142,7 @@ Champs : `ticketId, publicCode, saleStatus, resultStatus, settlementStatus, draw
 | `CancelSaleCommand`              | `CancelSaleCommandHandler`                           | `@Secured CASHIER/ADMIN/SUPER_ADMIN` ✅                                        | Évalue limites (`OperationType.CANCEL`) + autonomy ; `voidTicket` ; publie `TicketCancelledEvent`                                                 |
 | `CancelTicketCommand`            | (mappé en `CancelSaleCommand` par `TicketWebMapper`) | idem                                                                           | Doublon de modèle                                                                                                                                 |
 | `OverrideTicketResultCommand`    | `OverrideTicketResultCommandHandler`                 | `@Secured ADMIN/SUPER_ADMIN` + `@RequiresPermission("ticket.result.override")` | `forceResult(payout, resultStatus, when)` ; publie `TicketResultOverriddenEvent`                                                                  |
-| `RecordDrawTicketsResultCommand` | `RecordDrawTicketsResultCommandHandler`              | (interne — déclenché par `DrawResultedEventListener`)                          | Cursor batch 250 ; calcul gain via `TicketWinningCalculator` ; publie `TicketResultedEvent` par ticket                                            |
+| `RecordDrawTicketsResultCommand` | `RecordDrawTicketsResultCommandHandler`              | (interne — déclenché par `DrawResultedEventListener`)                          | Cursor batch 250 ; calcule le gain via `TicketWinningCalculator` ; ignore les tickets déjà résultés pour éviter double event/double payout          |
 | `ArchiveTicketsCommand`          | `ArchiveTicketsCommandHandler`                       | (interne — pas de scheduler câblé)                                             | Soft-delete via `archiveOldTickets(cutoff)`                                                                                                       |
 
 Code mort/orphelin : `ExpireTicketsCommand` (sans handler), `ApprovePendingTicketSaleCommand` / `RejectPendingTicketSaleCommand` (sans handler localisé).
@@ -137,7 +164,7 @@ Code mort/orphelin : `ExpireTicketsCommand` (sans handler), `ApprovePendingTicke
 
 - `TicketSalePolicy` (`domain/service/`) : orchestration sell (session, cutoff, limits, autonomy).
 - `DrawCutoffRule` (`application/rule/`) : `requireBeforeCutoff(drawId)` via `GetDrawQuery`.
-- `TicketLinePreparationService` (`application/service/`) : normalize + odds effectifs → `TicketLine[]`.
+- `TicketLinePreparationService` (`application/service/`) : normalize + règles de payout effectives snapshotées → `TicketLine[]` ; ne calcule pas de gain réalisé/potentiel à la vente.
 - `SaleChargeCalculator` (`application/service/`) : matérialise les frais de communication selon
   policy tenant et `ChargePaidBy`.
 - `SaleMoneyCalculator` (`application/service/`) : `total = stake + buyer-facing non-waived charges`.
@@ -197,7 +224,7 @@ Toutes les réponses utilisent `ApiResponse<T>` sauf les endpoints de print bina
 
 | Event                         | Producer (sales)                                              | Champs clés                                                                                                                        |
 | ----------------------------- | ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `TicketPlacedEvent`           | `SellTicketCommandHandler`, `ApproveTicketSaleCommandHandler` | `tenantId, ticketId, drawId, drawChannelId, sellerTerminalId, sellerCommissionRate/Amount, money{stake,total,potentialPayout,charges[]}, lines[]` |
+| `TicketPlacedEvent`           | `SellTicketCommandHandler`, `ApproveTicketSaleCommandHandler` | `tenantId, ticketId, drawId, drawChannelId, sellerTerminalId, sellerCommissionRate/Amount, money{stake,total,charges[]}, lines[]` |
 | `TicketCancelledEvent`        | `CancelSaleCommandHandler`                                    | `tenantId, ticketId, terminalId, sessionId, performedBy (UUID brut), reason, totalStakeCents, currency, drawId`                    |
 | `TicketResultedEvent`         | `RecordDrawTicketsResultCommandHandler`                       | `tenantId, ticketId, resultStatus, settlementStatus, totalPayout`                                                                  |
 | `TicketResultOverriddenEvent` | `OverrideTicketResultCommandHandler`                          | `tenantId, ticketId, drawId, winningAmount, resultStatus, reason, performedBy (UUID brut)`                                         |
@@ -232,7 +259,7 @@ Toutes les réponses utilisent `ApiResponse<T>` sauf les endpoints de print bina
 | `core.payout` → sales         | Ports + events           | `TicketReaderPort`, `TicketWriterPort`, `TicketPaidEvent`, `TicketPaymentPendingEvent`                                         |
 | `core.limitpolicy` → sales    | Event                    | `TicketPlacedEvent`                                                                                                            |
 | `core.session` → sales        | Event                    | `TicketPlacedEvent` (via `SalesSessionTotalsProjectionListener`)                                                               |
-| `features.stats` → sales      | Event                    | `TicketPlacedEvent` (×2 listeners)                                                                                             |
+| `core.analytics` → sales      | Event                    | `TicketPlacedEvent` projections read-only                                                                                      |
 
 ---
 
@@ -267,7 +294,8 @@ Toutes les réponses utilisent `ApiResponse<T>` sauf les endpoints de print bina
 
 - Triggered by DrawResultAppliedEvent listener
 - Calculate winning via TicketWinningCalculator
-- Publish TicketResultedEvent per ticket
+- Publish TicketResultedEvent per newly resulted ticket
+- Replay: already-resulted tickets are skipped; no save, no TicketResultedEvent, no financial payout event
 - Side-effect: Ledger + Payout queue
 
 ✅ **Override flow**:
@@ -300,7 +328,7 @@ Toutes les réponses utilisent `ApiResponse<T>` sauf les endpoints de print bina
 
 **P0 / Public verify**
 
-- `payoutStatus` calculé sur `potentialPayout` (avant tirage) au lieu de `winningAmount` réel.
+- Les anciennes projections de payout potentiel avant tirage ont été supprimées; les vues post-résultat doivent lire `winningAmount`/`payoutAmount` persistés.
 - `outletAddress.id`, `outletAddress.tenantId` exposés en clair (le `maskAddress` n'efface que les lignes d'adresse).
 - Catch `Exception ignored` masque les erreurs de chargement.
 
@@ -386,7 +414,7 @@ OfflineSubmissionTechValidatedEvent (via outbox)
 
 ---
 
-## 11. SalePreparation & Maryaj gratuit automatique — SPÉCIFIÉ, non implémenté
+## 11. SalePreparation & Maryaj gratuit automatique — V1 en cours
 
 > Source de vérité : `openspec/changes/maryaj-gratis-auto-selection-v1/`
 > (proposal + design + tasks). Cette section décrit l'état cible ; mettre à
@@ -415,6 +443,8 @@ ConfirmPreparedSaleCommand
   payload = preparationId + idempotencyKey uniquement (jamais de lignes
   client). Persiste exactement les lignes préparées ; double confirm même
   idempotencyKey -> même ticket. Pas de réévaluation promotion au confirm.
+  Les lignes préparées ne stockent pas de payout réalisé : le montant payé
+  reste calculé uniquement après résultat officiel depuis `settlementTermsSnapshot`.
 ```
 
 `PreviewTicketSaleQuery` (stateless) reste pour le calcul pur.
@@ -450,14 +480,39 @@ Maryaj (sélection invalide pour `MARRIAGE_2D2D` — bug latent corrigé).
 
 ```text
 gameCode=HT_MARYAJ_GRATIS, origin=PROMOTION, pricingSource=PROMOTION,
-selectionSource=AUTO_GENERATED, stakeAmount=0, lineTotal=0,
-payoutBaseAmount=montant effet, promotionDecisionId.
+selectionSource=PROMOTION_GENERATED ou CUSTOMER_SELECTED, stakeAmount=0,
+lineTotal=0, payoutBaseAmount=montant effet, promotionDecisionId. Aucun payout
+réalisé/potentiel n'est calculé au preview/confirm.
 ```
 
-Même avec `stakeAmount=0`, la ligne promotionnelle snapshot l'odd effectif via
-`ResolveSellerTerminalOddsQuery`. Le montant de gain potentiel est donc
-`payoutBaseAmount * oddsSnapshot`, et le settlement futur ne relit jamais les
-odds courants.
+La préparation promotionnelle persiste la sélection affichée au vendeur avec sa
+source (`PROMOTION_GENERATED` ou sélection manuelle), le `choiceMode`, le
+`promotionRuleKey`, le `promotionEffectType`, le `promotionDecision.contextHash`
+et la version moteur. Le confirm repinne ces valeurs au lieu de re-déduire la
+sélection.
+
+L'éligibilité promotionnelle est évaluée après validation des lignes payées,
+mais avant création des lignes gratuites. Les lignes gratuites ne nourrissent
+jamais leur propre éligibilité. Les limites sont ensuite évaluées sur les lignes
+finales ; une ligne Maryaj gratuite ne contribue pas au stake encaissé
+(`stakeAmount=0`) et V0 n'utilise pas de payout potentiel côté vente.
+
+### Reçu / reprint Maryaj gratuit
+
+Le reçu reconnaît Maryaj gratuit par le snapshot de ligne:
+
+```text
+gameCode=HT_MARYAJ_GRATIS
+promotionEffectType=FREE_GAME_LINE
+stakeAmount=0
+```
+
+Il ne déduit pas le caractère gratuit depuis `betType` seul. Une ligne
+`HT_MARYAJ` payée à 0 ne doit donc pas être imprimée comme une ligne offerte.
+Le format reçu est `* 12 × 34   GRATIS` ou équivalent selon la largeur papier,
+avec une seule note promotionnelle. Le reçu/reprint n'imprime pas les fixed
+amounts Exact/Permuté, odds, multiplier, payout potentiel ou variante
+technique avant résultat.
 
 Maryaj gratuit automatique = **online only** V1 (pas de ligne gratuite via
 `core.offlinesync` tant que la préparation signée côté device n'existe pas).

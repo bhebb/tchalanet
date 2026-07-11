@@ -91,6 +91,18 @@ class VerifyTicketByPublicCodeQueryHandlerTest {
             .isEqualTo(404);
     }
 
+    @Test
+    void winningTicketDisplaysPersistedRealizedWinningAmount() {
+        var handler = handler(StubTicketVerificationReader.wonPaid(
+            Instant.parse("2026-05-27T09:00:00Z"),
+            new BigDecimal("1250.00")));
+
+        var result = handler.handle(new VerifyTicketByPublicCodeQuery("ABCD-EFGH"));
+
+        assertThat(result.winningAmount()).isNotNull();
+        assertThat(result.winningAmount().amount()).isEqualByComparingTo("1250.00");
+    }
+
     private static VerifyTicketByPublicCodeQueryHandler handler(TicketVerificationReaderPort reader) {
         return new VerifyTicketByPublicCodeQueryHandler(
             reader,
@@ -131,7 +143,26 @@ class VerifyTicketByPublicCodeQueryHandlerTest {
         );
     }
 
-    private record StubTicketVerificationReader(Instant placedAt) implements TicketVerificationReaderPort {
+    private record StubTicketVerificationReader(
+        Instant placedAt,
+        TicketResultStatus resultStatus,
+        TicketSettlementStatus settlementStatus,
+        Money winningAmount
+    ) implements TicketVerificationReaderPort {
+
+        private StubTicketVerificationReader(Instant placedAt) {
+            this(placedAt, TicketResultStatus.PENDING, TicketSettlementStatus.NOT_SETTLED, null);
+        }
+
+        private static StubTicketVerificationReader wonPaid(Instant placedAt, BigDecimal winningAmount) {
+            var usd = CurrencyCode.of("USD");
+            return new StubTicketVerificationReader(
+                placedAt,
+                TicketResultStatus.WON,
+                TicketSettlementStatus.PAID,
+                new Money(winningAmount, usd));
+        }
+
         @Override
         public Optional<TicketVerificationProjection> findByPublicCode(
             String publicCode) {
@@ -141,11 +172,11 @@ class VerifyTicketByPublicCodeQueryHandlerTest {
                 publicCode,
                 "ABCD-EFGH",
                 TicketSaleStatus.APPROVED,
-                TicketResultStatus.PENDING,
-                TicketSettlementStatus.NOT_SETTLED,
+                resultStatus,
+                settlementStatus,
                 placedAt,
                 new Money(BigDecimal.TEN, usd),
-                null,
+                winningAmount,
                 new TicketVerificationProjection.DrawProjection(
                     "HAITI",
                     "Haiti",
@@ -166,7 +197,6 @@ class VerifyTicketByPublicCodeQueryHandlerTest {
                     null,
                     "12-34",
                     new Money(BigDecimal.ZERO, usd),
-                    new Money(BigDecimal.valueOf(100), usd),
                     true,
                     TicketReceiptI18nKeys.PROMOTION_FREE_GAME_LINE
                 ))

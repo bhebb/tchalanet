@@ -184,58 +184,46 @@ Le panier est local au mobile : liste de lignes `(gameCode, betType, selection, 
 - Générer un `Idempotency-Key` (UUID v4) **au moment de confirmer la vente** — pas avant.
 - Si la requête timeout, re-poster le **même payload avec la même clé** → réponse stockée rejouée, pas de double vente.
 - Si le panier change, générer une **nouvelle clé**.
-- Si le serveur retourne un conflit idempotency, ne pas forcer — refaire preview et confirmer.
+- Si le serveur retourne un conflit idempotency, ne pas forcer — refaire prepare et confirmer.
 
-### 6.2 Preview (validation read-only)
+### 6.2 Prepare
 
-Appeler avant chaque "ajouter au panier" pour feedback immédiat :
+Préparer le panier avant confirmation :
 
 ```http
-POST /tenant/cashier/tickets/preview
+POST /tenant/sales/preparations
 Content-Type: application/json
 
 {
-  "terminalId": "<terminalId>",
   "drawId": "<drawId>",
   "drawChannelId": "<drawChannelId>",
-  "currency": "HTG",
+  "currency": { "value": "HTG" },
   "lines": [
-    { "gameCode": "HT_BOLET", "betType": "MATCH_1_2D", "selection": "11", "betOption": null, "stake": "1.00" }
+    { "lineNumber": 1, "gameCode": "HT_BOLET", "betType": "MATCH_1_2D", "selection": "11", "betOption": null, "stakeAmount": "1.00" }
   ]
 }
 ```
 
 ```json
 {
-  "decision": "ACCEPTABLE",
-  "issues": [],
-  "actionAvailability": {
-    "canSell": true, "canPrint": true, "canSendSms": true,
-    "canSendWhatsapp": true, "canSendEmail": true, "canCopy": true
-  },
-  "sellerInstruction": "Ce billet peut être vendu.",
-  "warning": null
+  "preparationId": "uuid",
+  "status": "DRAFT",
+  "expiresAt": "2026-07-10T12:00:00Z",
+  "totalAmount": "1.00",
+  "lines": []
 }
 ```
 
-- `ACCEPTABLE` → activer le bouton "Vendre".
-- `REQUIRES_CHANGES` → garder le panier modifiable, afficher `sellerInstruction`.
-- `REJECTED_FINAL` → bloquer (ex: tirage fermé, session fermée).
+- `DRAFT` → activer le bouton "Confirmer".
+- Erreur 4xx → garder le panier modifiable et afficher l'erreur serveur.
 
-Preview ne réserve pas l'exposition — un sell peut encore retourner `EXPOSURE_CHANGED`.
+Prepare ne réserve pas définitivement l'exposition — un confirm peut encore être refusé.
 
-### 6.3 Vente
+### 6.3 Confirm
 
 ```http
-POST /tenant/cashier/tickets/sell
+POST /tenant/sales/preparations/{preparationId}/confirm
 Idempotency-Key: <uuid-v4>
-Content-Type: application/json
-
-{
-  "terminalId": "...", "drawId": "...", "drawChannelId": "...",
-  "currency": "HTG",
-  "lines": [ ... ]
-}
 ```
 
 Réponse acceptée :
@@ -497,8 +485,8 @@ Le serveur re-vérifie le `payloadHash` et la signature device (Ed25519). Cf. `c
 5. `GET /draws/available` (poll ~30s)
 6. **Boucle vente** :
    - Construire panier local
-   - `POST /tickets/preview` → décision
-   - Si `ACCEPTABLE` : `POST /tickets/sell` avec `Idempotency-Key` fresh
+   - `POST /tenant/sales/preparations` → `preparationId`
+   - Si `DRAFT` : `POST /tenant/sales/preparations/{preparationId}/confirm` avec `Idempotency-Key` fresh
    - **Afficher `backup.displayCode` immédiatement**
    - Optionnel : `POST /tickets/{id}/print` · `POST /tickets/{id}/send`
 7. En fin de service : `POST /session/close`

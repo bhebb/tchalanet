@@ -33,6 +33,13 @@ export const adminSellerTerminalsRoutes: Route[] = [
     pathMatch: 'full',
   },
   {
+    path: ':sellerTerminalId/overrides',
+    loadComponent: () =>
+      import('./pages/overrides/admin-seller-terminal-overrides.page').then(
+        m => m.AdminSellerTerminalOverridesPage,
+      ),
+  },
+  {
     path: ':sellerTerminalId',
     loadComponent: () =>
       import('./pages/detail/admin-seller-terminal-detail.page').then(

@@ -25,6 +25,13 @@ public interface SellerTerminalJpaRepository
 
     long countByTenantIdAndDeletedAtIsNull(UUID tenantId);
 
+    @Query("""
+        SELECT e.terminalCode
+        FROM SellerTerminalJpaEntity e
+        WHERE e.tenantId = :tenantId AND e.deletedAt IS NULL
+        """)
+    List<String> findTerminalCodesByTenantId(@Param("tenantId") UUID tenantId);
+
     List<SellerTerminalJpaEntity> findByTenantIdAndIdInAndDeletedAtIsNull(
         UUID tenantId,
         Collection<UUID> ids

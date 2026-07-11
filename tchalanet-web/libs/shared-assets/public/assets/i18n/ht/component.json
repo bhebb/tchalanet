@@ -20,6 +20,7 @@
         "betTypeShort": "Tip",
         "betOption": "Opsyon",
         "odds": "Kòt",
+        "payoutRule": "Règ genyen",
         "tenant": "Tenant",
         "status": "Estati"
       }
@@ -31,12 +32,19 @@
         "betType": "Tip pari",
         "betOption": "Opsyon pari",
         "odds": "Kòt",
+        "payoutRuleType": "Règ genyen",
+        "fixedAmount": "Montan fiks",
         "active": "Aktif"
+      },
+      "payoutRuleType": {
+        "STAKE_MULTIPLIER": "Miltiplikatè miz",
+        "FIXED_AMOUNT": "Montan fiks"
       },
       "validation": {
         "gameCodeRequired": "Jwèt la obligatwa.",
         "betTypeRequired": "Tip pari a obligatwa.",
-        "oddsMin": "Kòt la dwe pi gran pase 0."
+        "oddsMin": "Kòt la dwe pi gran pase 0.",
+        "fixedAmountMin": "Montan fiks la dwe pi gran oswa egal a 0."
       }
     },
     "personIdentity": {

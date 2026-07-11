@@ -6,9 +6,6 @@ import com.tchalanet.server.core.limitpolicy.internal.domain.rule.BlockBetTypeEv
 import com.tchalanet.server.core.limitpolicy.internal.domain.rule.BlockSelectionPerDrawEvaluator;
 import com.tchalanet.server.core.limitpolicy.internal.domain.rule.LimitRuleEvaluator;
 import com.tchalanet.server.core.limitpolicy.internal.domain.rule.MaxLinesPerTicketEvaluator;
-import com.tchalanet.server.core.limitpolicy.internal.domain.rule.MaxPotentialPayoutExposurePerSelectionPerDrawEvaluator;
-import com.tchalanet.server.core.limitpolicy.internal.domain.rule.MaxPotentialPayoutPerLineEvaluator;
-import com.tchalanet.server.core.limitpolicy.internal.domain.rule.MaxPotentialPayoutPerTicketEvaluator;
 import com.tchalanet.server.core.limitpolicy.internal.domain.rule.MaxSalesCountPerSelectionPerDrawEvaluator;
 import com.tchalanet.server.core.limitpolicy.internal.domain.rule.MaxStakeExposurePerSelectionPerDrawEvaluator;
 import com.tchalanet.server.core.limitpolicy.internal.domain.rule.MaxStakePerBetTypePerTicketEvaluator;
@@ -36,14 +33,11 @@ public class LimitPolicyDomainConfig {
             new MaxLinesPerTicketEvaluator(),
             new MaxStakePerBetTypePerTicketEvaluator(),
             new MaxStakePerSelectionPerTicketEvaluator(),
-            new MaxPotentialPayoutPerTicketEvaluator(),
-            new MaxPotentialPayoutPerLineEvaluator(),
             new BlockBetTypeEvaluator(),
             new BlockSelectionPerDrawEvaluator(),
 
             // exposure
             new MaxStakeExposurePerSelectionPerDrawEvaluator(),
-            new MaxPotentialPayoutExposurePerSelectionPerDrawEvaluator(),
             new MaxSalesCountPerSelectionPerDrawEvaluator()
         );
     }

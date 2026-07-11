@@ -34,11 +34,11 @@ public class ReceiptPdfRenderer {
     private static final float A4_SMALL_SIZE = 9f;
     private static final float A4_LINE_GAP = 5f;
 
-    public byte[] render(ReceiptModel model, byte[] qrPngBytes, PaperSize paperSize) {
+    public byte[] render(ReceiptModel model, byte[] qrPngBytes, ReceiptModel postQrModel, PaperSize paperSize) {
         try (var doc = new PDDocument()) {
             boolean isA4 = paperSize == PaperSize.A4;
             float width = paperSize.widthPoints();
-            float height = isA4 ? A4_HEIGHT_PT : calculateThermalHeight(model, qrPngBytes);
+            float height = isA4 ? A4_HEIGHT_PT : calculateThermalHeight(model, qrPngBytes, postQrModel);
             var page = new PDPage(new PDRectangle(width, height));
             doc.addPage(page);
 
@@ -64,6 +64,15 @@ public class ReceiptPdfRenderer {
                     float x = (width - qrSize) / 2f;
                     if (y - qrSize > margin) {
                         cs.drawImage(qr, x, y - qrSize, qrSize, qrSize);
+                        y -= qrSize + lineGap;
+                    }
+                }
+
+                if (postQrModel != null) {
+                    for (ReceiptLine line : postQrModel.lines()) {
+                        y = drawLine(cs, line, width, y, margin, isA4);
+                        y -= lineGap;
+                        if (y < margin) break;
                     }
                 }
             }
@@ -110,7 +119,7 @@ public class ReceiptPdfRenderer {
         return y - size;
     }
 
-    private float calculateThermalHeight(ReceiptModel model, byte[] qrPngBytes) {
+    private float calculateThermalHeight(ReceiptModel model, byte[] qrPngBytes, ReceiptModel postQrModel) {
         float height = THERMAL_MARGIN * 2 + 24f;
 
         for (ReceiptLine line : model.lines()) {
@@ -123,6 +132,15 @@ public class ReceiptPdfRenderer {
 
         if (qrPngBytes != null && qrPngBytes.length > 0) {
             height += 140f;
+        }
+        if (postQrModel != null) {
+            for (ReceiptLine line : postQrModel.lines()) {
+                height += switch (line.style()) {
+                    case TITLE -> 16f;
+                    case BOLD, NORMAL, WARNING -> 12f;
+                    case SMALL -> 10f;
+                };
+            }
         }
 
         return Math.max(height, 220f);

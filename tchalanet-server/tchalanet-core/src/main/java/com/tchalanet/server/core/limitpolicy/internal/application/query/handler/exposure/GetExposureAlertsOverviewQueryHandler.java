@@ -46,22 +46,15 @@ public class GetExposureAlertsOverviewQueryHandler
         var maxStakeRule =
             effectiveLimits.rules().get(RuleKey.MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW);
 
-        var maxPayoutRule =
-            effectiveLimits.rules().get(RuleKey.MAX_POTENTIAL_PAYOUT_EXPOSURE_PER_SELECTION_PER_DRAW);
-
         var maxStake = valueCentsAsMoney(maxStakeRule);
-        var maxPayout = valueCentsAsMoney(maxPayoutRule);
 
         var rows = new LinkedHashMap<String, ExposureAlertsReaderPort.Row>();
 
         alerts.topByStake(q.drawId(), q.scope(), q.limit())
             .forEach(row -> rows.put(key(row), row));
 
-        alerts.topByPayout(q.drawId(), q.scope(), q.limit())
-            .forEach(row -> rows.putIfAbsent(key(row), row));
-
         var items = rows.values().stream()
-            .map(row -> toItem(row, maxStake, maxPayout))
+            .map(row -> toItem(row, maxStake))
             .toList();
 
         return new ExposureAlertsOverviewView(
@@ -100,22 +93,17 @@ public class GetExposureAlertsOverviewQueryHandler
 
     private ExposureAlertItemView toItem(
         ExposureAlertsReaderPort.Row row,
-        BigDecimal maxStake,
-        BigDecimal maxPayout
+        BigDecimal maxStake
     ) {
         var stakeRatio = ratio(row.stakeTotal(), maxStake);
-        var payoutRatio = ratio(row.potentialPayoutTotal(), maxPayout);
 
         return new ExposureAlertItemView(
             row.betType(),
             row.selectionKey(),
             row.stakeTotal(),
-            row.potentialPayoutTotal(),
             row.salesCount(),
             maxStake,
-            maxPayout,
-            stakeRatio,
-            payoutRatio);
+            stakeRatio);
     }
 
     private BigDecimal ratio(BigDecimal value, BigDecimal max) {

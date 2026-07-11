@@ -8,10 +8,7 @@ public record ExposureAlertItemView(
     BetType betType,
     String selectionKey,
     BigDecimal stakeTotal,
-    BigDecimal potentialPayoutTotal,
     long salesCount,
     BigDecimal maxStakeExposureLimit,
-    BigDecimal maxPayoutExposureLimit,
-    BigDecimal stakeRatio,
-    BigDecimal payoutRatio
+    BigDecimal stakeRatio
 ) {}

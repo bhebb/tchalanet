@@ -2,6 +2,7 @@ package com.tchalanet.server.platform.tenant.internal.adapter;
 
 import com.tchalanet.server.platform.tenant.api.cache.TenantCacheNames;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.platform.tenant.api.TenantAdminApi;
 import com.tchalanet.server.platform.tenant.internal.mapper.TenantMapper;
 import com.tchalanet.server.platform.tenant.internal.persistence.TenantJpaRepository;
 import com.tchalanet.server.platform.tenant.internal.domain.TenantConfig;
@@ -27,7 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Component
 @RequiredArgsConstructor
-public class TenantPersistenceAdapter {
+public class TenantPersistenceAdapter implements TenantAdminApi {
 
     private final TenantJpaRepository repository;
     private final TenantMapper mapper;
@@ -77,6 +78,7 @@ public class TenantPersistenceAdapter {
         TenantCacheNames.REGISTRY_BY_CODE,
         TenantCacheNames.ACTIVE_TENANT_IDS
     }, allEntries = true)
+    @Override
     public void updateDefaultCommissionRate(TenantId tenantId, BigDecimal rate) {
         int updated = repository.updateDefaultCommissionRate(tenantId.value(), rate);
         if (updated == 0) {

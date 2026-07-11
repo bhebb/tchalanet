@@ -98,11 +98,11 @@ class TenantAdminDashboardPayloadAssemblerTest {
         var summary = new TenantDashboardStatsView.TenantSummaryCard(
             42L, new BigDecimal("123.45"), BigDecimal.ZERO, BigDecimal.ZERO,
             BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO,
-            0L, 0L, BigDecimal.ZERO, BigDecimal.ZERO,
-            BigDecimal.ZERO, 0L);
+            0L, 0L, BigDecimal.ZERO,
+            0L);
         var dailyPoint = new TenantDashboardStatsView.TenantDailyPoint(
             today, 42L, new BigDecimal("123.45"), BigDecimal.ZERO, BigDecimal.ZERO,
-            0L, BigDecimal.ZERO, new BigDecimal("100.00"));
+            0L, BigDecimal.ZERO);
         var gameBreakdown = new TenantDashboardStatsView.TenantGameBreakdown(
             "BORLETTE", "Borlette", 40L, new BigDecimal("120.00"), new BigDecimal("98.00"));
         var statsView = new TenantDashboardStatsView(today.minusDays(1), today, summary,

@@ -7,15 +7,19 @@ import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.SellerTerminalOddsOverrideId;
 import com.tchalanet.server.common.web.api.ApiResponse;
-import com.tchalanet.server.core.pricing.api.command.DeactivateSellerTerminalOddsOverrideCommand;
-import com.tchalanet.server.core.pricing.api.command.DeleteSellerTerminalOddsOverrideCommand;
-import com.tchalanet.server.core.pricing.api.command.UpsertSellerTerminalOddsOverrideCommand;
-import com.tchalanet.server.core.pricing.api.command.UpsertSellerTerminalOddsOverrideResult;
-import com.tchalanet.server.core.pricing.api.model.SellerTerminalOddsOverrideView;
-import com.tchalanet.server.core.pricing.api.model.TenantPricingOddsView;
-import com.tchalanet.server.core.pricing.api.query.ListSellerTerminalOddsOverridesQuery;
-import com.tchalanet.server.core.pricing.api.query.ListTenantPricingQuery;
-import com.tchalanet.server.core.pricing.internal.infra.web.admin.model.UpsertOddsOverrideRequest;
+import com.tchalanet.server.core.pricing.api.command.DeactivateSellerTerminalPricingRuleOverrideCommand;
+import com.tchalanet.server.core.pricing.api.command.DeleteSellerTerminalPricingRuleOverrideCommand;
+import com.tchalanet.server.core.pricing.api.command.DeleteTenantPricingRuleCommand;
+import com.tchalanet.server.core.pricing.api.command.UpsertSellerTerminalPricingRuleOverrideCommand;
+import com.tchalanet.server.core.pricing.api.command.UpsertSellerTerminalPricingRuleOverrideResult;
+import com.tchalanet.server.core.pricing.api.command.UpsertTenantPricingRuleCommand;
+import com.tchalanet.server.core.pricing.api.model.SellerTerminalPricingRuleOverrideView;
+import com.tchalanet.server.core.pricing.api.model.TenantPricingRuleView;
+import com.tchalanet.server.core.pricing.api.query.ListSellerTerminalPricingRuleOverridesQuery;
+import com.tchalanet.server.core.pricing.api.query.ListTenantPricingRulesQuery;
+import com.tchalanet.server.core.pricing.internal.infra.web.admin.model.DeleteTenantPricingRuleRequest;
+import com.tchalanet.server.core.pricing.internal.infra.web.admin.model.UpsertPricingRuleOverrideRequest;
+import com.tchalanet.server.core.pricing.internal.infra.web.admin.model.UpsertTenantPricingRuleRequest;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +30,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/admin/controls/odds")
+@RequestMapping("/admin/controls/pricing-rules")
 @PreAuthorize("hasAnyRole('TENANT_OWNER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
 @RequiredArgsConstructor
 @Tag(name = "Pricing • Admin")
@@ -36,36 +40,69 @@ public class PricingOverrideAdminController {
     private final CommandBus commandBus;
     private final QueryBus queryBus;
 
-    /** Tenant-wide default odds from the catalog (all games × betTypes). */
+    /** Tenant-wide default pricing rules. */
     @GetMapping
-    public ApiResponse<List<TenantPricingOddsView>> getTenantDefaultOdds(
+    public ApiResponse<List<TenantPricingRuleView>> listTenantPricingRules(
         @CurrentContext TchRequestContext ctx
     ) {
-        return ApiResponse.success(queryBus.ask(new ListTenantPricingQuery(ctx.tenantIdRequired(), null)));
+        return ApiResponse.success(queryBus.ask(new ListTenantPricingRulesQuery(ctx.tenantIdRequired(), null)));
     }
 
-    /** Active overrides for a seller_terminal, merged with tenant defaults via ResolveSellerTerminalOddsQuery. */
+    /** Create or update a tenant default pricing rule. */
+    @PutMapping
+    public ApiResponse<TenantPricingRuleView> upsertTenantDefaultPricing(
+        @CurrentContext TchRequestContext ctx,
+        @Valid @RequestBody UpsertTenantPricingRuleRequest req
+    ) {
+        var cmd = new UpsertTenantPricingRuleCommand(
+            ctx.tenantIdRequired(),
+            req.gameCode(),
+            req.pricingVariantCode(),
+            req.betType(),
+            req.betOption(),
+            req.odds(),
+            req.payoutRuleType(),
+            req.fixedAmount(),
+            ctx.userId());
+        return ApiResponse.success(commandBus.execute(cmd));
+    }
+
+    /** Disable a tenant default pricing rule. */
+    @DeleteMapping
+    public ApiResponse<Void> deleteTenantDefaultPricing(
+        @CurrentContext TchRequestContext ctx,
+        @Valid @RequestBody DeleteTenantPricingRuleRequest req
+    ) {
+        commandBus.execute(new DeleteTenantPricingRuleCommand(
+            ctx.tenantIdRequired(),
+            req.gameCode(),
+            req.pricingVariantCode(),
+            ctx.userId()));
+        return ApiResponse.success(null);
+    }
+
+    /** Active seller-terminal pricing rule overrides. */
     @GetMapping("/seller-terminals/{sellerTerminalId}")
-    public ApiResponse<List<SellerTerminalOddsOverrideView>> listOverrides(
+    public ApiResponse<List<SellerTerminalPricingRuleOverrideView>> listOverrides(
         @CurrentContext TchRequestContext ctx,
         @PathVariable SellerTerminalId sellerTerminalId
     ) {
-        var result = queryBus.ask(new ListSellerTerminalOddsOverridesQuery(
+        var result = queryBus.ask(new ListSellerTerminalPricingRuleOverridesQuery(
             ctx.tenantIdRequired(), sellerTerminalId));
         return ApiResponse.success(result);
     }
 
-    /** Create or update a seller_terminal odds override (upsert by natural key). */
+    /** Create or update a seller-terminal pricing rule override (upsert by natural key). */
     @PutMapping("/seller-terminals/{sellerTerminalId}")
-    public ApiResponse<UpsertSellerTerminalOddsOverrideResult> upsertOverride(
+    public ApiResponse<UpsertSellerTerminalPricingRuleOverrideResult> upsertOverride(
         @CurrentContext TchRequestContext ctx,
         @PathVariable SellerTerminalId sellerTerminalId,
-        @Valid @RequestBody UpsertOddsOverrideRequest req
+        @Valid @RequestBody UpsertPricingRuleOverrideRequest req
     ) {
-        var cmd = new UpsertSellerTerminalOddsOverrideCommand(
+        var cmd = new UpsertSellerTerminalPricingRuleOverrideCommand(
             ctx.tenantIdRequired(), sellerTerminalId,
             req.gameCode(), req.pricingVariantCode(), req.betType(), req.betOption(),
-            req.odds(), req.effectiveFrom(), req.effectiveTo(),
+            req.odds(), req.payoutRuleType(), req.fixedAmount(), req.effectiveFrom(), req.effectiveTo(),
             req.reason(), ctx.userId());
         return ApiResponse.success(commandBus.execute(cmd));
     }
@@ -77,7 +114,7 @@ public class PricingOverrideAdminController {
         @PathVariable SellerTerminalId sellerTerminalId,
         @PathVariable SellerTerminalOddsOverrideId overrideId
     ) {
-        commandBus.execute(new DeleteSellerTerminalOddsOverrideCommand(overrideId, ctx.userId()));
+        commandBus.execute(new DeleteSellerTerminalPricingRuleOverrideCommand(overrideId, ctx.userId()));
         return ApiResponse.success(null);
     }
 
@@ -88,7 +125,7 @@ public class PricingOverrideAdminController {
         @PathVariable SellerTerminalId sellerTerminalId,
         @PathVariable SellerTerminalOddsOverrideId overrideId
     ) {
-        commandBus.execute(new DeactivateSellerTerminalOddsOverrideCommand(overrideId, ctx.userId()));
+        commandBus.execute(new DeactivateSellerTerminalPricingRuleOverrideCommand(overrideId, ctx.userId()));
         return ApiResponse.success(null);
     }
 }

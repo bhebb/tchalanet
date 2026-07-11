@@ -14,7 +14,6 @@ import {
   ConfirmTicketSaleRequest,
   ConfirmedTicketView,
   PreparedTicketSaleView,
-  PreviewTicketSaleView,
   PosGameBetTypeView,
   PosGameView,
   PosOpenDrawView,
@@ -48,6 +47,7 @@ interface PosGameOptionResponse {
   betType: string;
   betTypeLabel: string;
   requiresOption: boolean;
+  selectionPolicy?: string | null;
   options: { code: number; label: string; selectionHint?: string | null }[];
   selectionHint?: string | null;
 }
@@ -64,22 +64,6 @@ interface SellerTerminalSummaryResponse extends SellerTerminalDetailResponse {
   lastSeenAt?: string | null;
   todayTicketCount?: number | null;
   todaySalesAmount?: number | null;
-}
-
-interface PosSellTicketApiResponse {
-  outcome: 'ACCEPTED' | 'REJECTED' | 'PENDING_APPROVAL';
-  ticketId?: string | { value?: string | null } | null;
-  ticketCode?: string | null;
-  publicCode?: string | null;
-  saleStatus?: string | null;
-  issues?: PosSaleIssueApiResponse[] | null;
-  backup?: {
-    displayCode?: string | null;
-    verificationShortUrl?: string | null;
-    shareableText?: string | null;
-  } | null;
-  actionAvailability?: PosSaleActionAvailabilityResponse | null;
-  sellerInstruction?: string | null;
 }
 
 interface PrepareTicketSaleRequest {
@@ -142,14 +126,6 @@ interface PreparedSellTicketApiResponse {
   } | null;
   actionAvailability?: PosSaleActionAvailabilityResponse | null;
   sellerInstruction?: string | null;
-}
-
-interface PosTicketPreviewApiResponse {
-  decision: string;
-  issues?: PosSaleIssueApiResponse[] | null;
-  actionAvailability?: PosSaleActionAvailabilityResponse | null;
-  sellerInstruction?: string | null;
-  warning?: string | null;
 }
 
 interface PosSaleActionAvailabilityResponse {
@@ -316,95 +292,6 @@ export class PosSaleApiService {
     return this.backend
       .get<PosGameOptionResponse[]>('/tenant/cashier/games/available', options)
       .pipe(map(games => groupPosGames(games)));
-  }
-
-  confirmTicketSale(
-    request: ConfirmTicketSaleRequest,
-    idempotencyKey: string,
-    sellerTerminalId: string,
-    options?: TchRequestOptions,
-  ): Observable<ConfirmedTicketView> {
-    return this.backend
-      .postApiResponse<PosSellTicketApiResponse>('/tenant/cashier/tickets/sell', request, {
-        ...withHeaders(options, {
-          'Idempotency-Key': idempotencyKey,
-          ...posContextHeaders(sellerTerminalId),
-        }),
-      })
-      .pipe(
-        map(response => {
-          const r = response.data;
-          return {
-            outcome: r.outcome,
-            ticketId: idValue(r.ticketId),
-            ticketCode: r.ticketCode ?? '',
-            publicCode: r.publicCode ?? null,
-            saleStatus: r.saleStatus ?? null,
-            backup: r.backup ?? null,
-            sellerInstruction: r.sellerInstruction ?? null,
-            actionAvailability: actionAvailability(r.actionAvailability, true),
-            warnings: [
-              ...response.notices.map(notice =>
-                webAppErrorFromNotice(
-                  notice,
-                  response.trace,
-                  'admin.sellerTerminal.pos.sale',
-                  'section',
-                ),
-              ),
-              ...(r.issues ?? []).map(issue =>
-                webAppErrorFromSaleIssue(issue, 'admin.sellerTerminal.pos.sale'),
-              ),
-            ],
-          };
-        }),
-      );
-  }
-
-  previewTicketSale(
-    request: ConfirmTicketSaleRequest,
-    sellerTerminalId: string,
-    options?: TchRequestOptions,
-  ): Observable<PreviewTicketSaleView> {
-    return this.backend
-      .postApiResponse<PosTicketPreviewApiResponse>('/tenant/cashier/tickets/preview', request, {
-        ...withHeaders(options, posContextHeaders(sellerTerminalId)),
-      })
-      .pipe(
-        map(response => {
-          const r = response.data;
-          return {
-            decision: r.decision,
-            sellerInstruction: r.sellerInstruction ?? null,
-            warning: r.warning ?? null,
-            issues: (r.issues ?? []).map(issue => ({
-              code: issue.code,
-              severity: issue.severity,
-              message: issue.message ?? null,
-              sellerInstruction: issue.sellerInstruction ?? null,
-              lineIndex: issue.lineIndex,
-            })),
-            notices: [
-              ...response.notices.map(notice =>
-                webAppErrorFromNotice(
-                  notice,
-                  response.trace,
-                  'admin.sellerTerminal.pos.preview',
-                  'section',
-                ),
-              ),
-              ...(r.issues ?? []).map(issue =>
-                webAppErrorFromSaleIssue(issue, 'admin.sellerTerminal.pos.preview'),
-              ),
-              ...(r.warning
-                ? [webAppErrorFromSaleWarning(r.warning, 'admin.sellerTerminal.pos.preview')]
-                : []),
-            ],
-            canSell: r.actionAvailability?.canSell ?? r.decision === 'ACCEPTABLE',
-            actionAvailability: actionAvailability(r.actionAvailability, false),
-          };
-        }),
-      );
   }
 
   prepareTicketSale(
@@ -652,6 +539,7 @@ function groupPosGames(rows: PosGameOptionResponse[]): PosGameView[] {
       betType: row.betType,
       label: posBetTypeLabel(row),
       requiresOption: row.requiresOption,
+      selectionPolicy: row.selectionPolicy ?? 'EXPLICIT_ONLY',
       options: posBetOptions(row),
       selectionHint: row.selectionHint ?? null,
     };
@@ -668,6 +556,7 @@ function groupPosGames(rows: PosGameOptionResponse[]): PosGameView[] {
       betType: row.betType,
       betTypeLabel: posBetTypeLabel(row),
       requiresOption: row.requiresOption,
+      selectionPolicy: row.selectionPolicy ?? 'EXPLICIT_ONLY',
       options: posBetOptions(row),
       betTypes: [betType],
       selectionHint: row.selectionHint ?? null,
@@ -764,24 +653,6 @@ function webAppErrorFromSaleIssue(issue: PosSaleIssueApiResponse, source: string
   };
 }
 
-function webAppErrorFromSaleWarning(message: string, source: string): WebAppError {
-  const code = message.startsWith('sales.') ? message : 'sales.preview_accepted';
-  return {
-    id: `${source}:warning:${code}`,
-    origin: 'backend',
-    category: 'validation',
-    severity: 'warn',
-    surface: 'section',
-    placement: 'top',
-    title: 'Vente à vérifier',
-    message,
-    code,
-    source,
-    target: 'admin.sellerTerminal.pos.sale',
-    retryable: false,
-    dedupeKey: `${source}:warning:${code}`,
-  };
-}
 
 function saleIssueSeverity(severity: string): WebAppError['severity'] {
   if (severity === 'ERROR') return 'error';

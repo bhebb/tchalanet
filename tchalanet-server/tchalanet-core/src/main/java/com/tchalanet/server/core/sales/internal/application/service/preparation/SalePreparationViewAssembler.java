@@ -5,7 +5,6 @@ import com.tchalanet.server.core.sales.api.model.preparation.SalePreparationProm
 import com.tchalanet.server.core.sales.api.model.preparation.SalePreparationView;
 import com.tchalanet.server.core.sales.internal.application.service.sell.model.PreparedSale;
 import com.tchalanet.server.core.sales.internal.domain.model.preparation.SalePreparation;
-import java.math.BigDecimal;
 import java.util.List;
 import org.springframework.stereotype.Component;
 
@@ -22,12 +21,6 @@ public class SalePreparationViewAssembler {
                 line.betOption(),
                 line.selection().key().value(),
                 line.stakeAmount().amount(),
-                line.oddsSnapshot(),
-                line.potentialPayoutAmount().amount(),
-                line.potentialGainMode(),
-                line.minPotentialGain().amount(),
-                line.maxPotentialGain().amount(),
-                line.totalPotentialGain() == null ? null : line.totalPotentialGain().amount(),
                 line.origin().name()))
             .toList();
         return new SalePreparationView(
@@ -65,7 +58,10 @@ public class SalePreparationViewAssembler {
                 l.betType(),
                 l.betOption(),
                 l.selection(),
-                l.payoutBaseAmount() == null ? BigDecimal.ZERO : l.payoutBaseAmount(),
+                l.selectionSource(),
+                l.choiceMode(),
+                l.promotionRuleKey(),
+                l.promotionEffectType(),
                 l.regenerable(),
                 Math.max(0, l.maxRegenerations() - l.regenerationCount())))
             .toList();

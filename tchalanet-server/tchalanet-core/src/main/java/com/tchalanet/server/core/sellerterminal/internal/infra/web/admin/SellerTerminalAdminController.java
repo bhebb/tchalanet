@@ -19,12 +19,14 @@ import com.tchalanet.server.core.sellerterminal.api.command.UnblockSellerTermina
 import com.tchalanet.server.core.sellerterminal.api.command.UpdateSellerTerminalCommand;
 import com.tchalanet.server.core.sellerterminal.api.model.PinResetReason;
 import com.tchalanet.server.core.sellerterminal.api.model.ResetSellerTerminalPinView;
+import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalCodeSuggestionView;
 import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalStatus;
 import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalSummaryRow;
 import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalView;
 import com.tchalanet.server.core.sellerterminal.api.query.GetSellerTerminalQuery;
 import com.tchalanet.server.core.sellerterminal.api.query.ListSellerTerminalsQuery;
 import com.tchalanet.server.core.sellerterminal.api.query.SellerTerminalSearchCriteria;
+import com.tchalanet.server.core.sellerterminal.api.query.SuggestSellerTerminalCodeQuery;
 import com.tchalanet.server.core.sellerterminal.internal.infra.web.admin.model.BlockSellerTerminalRequest;
 import com.tchalanet.server.core.sellerterminal.internal.infra.web.admin.model.CreateSellerTerminalRequest;
 import com.tchalanet.server.core.sellerterminal.internal.infra.web.admin.model.UpdateSellerTerminalRequest;
@@ -124,6 +126,14 @@ public class SellerTerminalAdminController {
         var criteria = new SellerTerminalSearchCriteria(q, status);
         return ApiResponse.success(queryBus.ask(
             new ListSellerTerminalsQuery(ctx.tenantIdRequired(), criteria, pageRequest)));
+    }
+
+    @GetMapping("/suggested-code")
+    @RequiresPermission("seller_terminal.manage")
+    @Operation(summary = "Suggest the next seller terminal code")
+    public ApiResponse<SellerTerminalCodeSuggestionView> suggestedCode(@CurrentContext TchRequestContext ctx) {
+        return ApiResponse.success(queryBus.ask(
+            new SuggestSellerTerminalCodeQuery(ctx.tenantIdRequired())));
     }
 
     @GetMapping("/{id}")

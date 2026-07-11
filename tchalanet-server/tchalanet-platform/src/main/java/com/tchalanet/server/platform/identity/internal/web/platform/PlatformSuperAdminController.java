@@ -4,7 +4,7 @@ import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.web.api.ApiResponse;
-import com.tchalanet.server.platform.accesscontrol.internal.service.PlatformUserRoleService;
+import com.tchalanet.server.platform.accesscontrol.api.PlatformUserRoleApi;
 import com.tchalanet.server.platform.audit.api.AuditLog;
 import com.tchalanet.server.platform.audit.api.model.AuditAction;
 import com.tchalanet.server.platform.audit.api.model.AuditEntityType;
@@ -34,18 +34,18 @@ import org.springframework.web.bind.annotation.RestController;
 public class PlatformSuperAdminController {
 
   private final TenantUserAdministrationService users;
-  private final PlatformUserRoleService platformUserRoles;
+  private final PlatformUserRoleApi platformUserRoles;
 
   @GetMapping
   @Operation(summary = "List platform super admins")
   public ApiResponse<List<PlatformSuperAdminView>> list() {
     return ApiResponse.success(platformUserRoles.listSuperAdmins().stream()
         .map(row -> new PlatformSuperAdminView(
-            row.getUserId().toString(),
-            row.getEmail(),
-            row.getDisplayName(),
-            row.getStatus(),
-            row.getAssignedAt()))
+            row.userId().toString(),
+            row.email(),
+            row.displayName(),
+            row.status(),
+            row.assignedAt()))
         .toList());
   }
 

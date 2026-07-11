@@ -1,7 +1,7 @@
 package com.tchalanet.server.features.ticketverify;
 
 import com.tchalanet.server.common.web.api.ApiResponse;
-import com.tchalanet.server.features.ticketverify.infra.PublicTicketRateLimiter;
+import com.tchalanet.server.features.ticketverify.shared.PublicTicketRateLimiter;
 import com.tchalanet.server.features.ticketverify.model.TicketVerifyRequest;
 import com.tchalanet.server.features.ticketverify.model.TicketVerifyResponse;
 import io.swagger.v3.oas.annotations.Operation;

@@ -119,7 +119,7 @@ public class TenantAdminPoliciesOverviewService {
             "block-number",
             "block",
             "Limiter un numéro",
-            "Définir un plafond de mise ou de gain potentiel sur une sélection.",
+            "Définir un plafond de mise, de ventes ou bloquer une sélection.",
             "number"),
         new TenantAdminPoliciesOverviewView.ActionLink(
             "draw-limit",

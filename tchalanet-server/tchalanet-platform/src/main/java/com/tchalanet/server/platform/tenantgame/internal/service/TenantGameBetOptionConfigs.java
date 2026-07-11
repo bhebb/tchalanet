@@ -83,9 +83,6 @@ class TenantGameBetOptionConfigs {
             throw new IllegalArgumentException("betType is required");
         }
         var policy = config.selectionPolicy() == null ? SelectionPolicy.EXPLICIT_ONLY : config.selectionPolicy();
-        if (policy == SelectionPolicy.IMPLICIT_BEST_MATCH) {
-            throw new IllegalArgumentException("IMPLICIT_BEST_MATCH is disabled in V0");
-        }
 
         var allowedOptions = BetOption.allowedFor(config.betType());
         if (allowedOptions.isEmpty()) {

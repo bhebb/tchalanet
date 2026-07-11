@@ -1,7 +1,7 @@
 package com.tchalanet.server.app.batch.ops;
 
 import com.tchalanet.server.common.job.history.BatchJobHistoryService;
-import com.tchalanet.server.features.pagemodel.dynamic.providers.platformadmin.OpsSchedulerHistoryProvider;
+import com.tchalanet.server.platform.ops.api.OpsSchedulerHistoryProvider;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;

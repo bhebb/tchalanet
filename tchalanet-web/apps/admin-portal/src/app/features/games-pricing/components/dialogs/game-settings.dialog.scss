@@ -2,6 +2,7 @@
   &__form {
     display: grid;
     gap: 0.75rem;
+    min-width: 0;
   }
 
   &__intro {
@@ -12,9 +13,11 @@
     border-radius: var(--tch-radius-md);
     background: var(--tch-color-surface-container-low);
     color: var(--tch-color-on-surface);
+    min-width: 0;
 
     .material-symbols-outlined {
       color: var(--tch-color-primary);
+      flex: 0 0 auto;
       font-size: 1.375rem;
       height: 1.375rem;
       width: 1.375rem;
@@ -35,21 +38,25 @@
       color: var(--tch-color-on-surface-variant);
       font-size: var(--tch-font-size-body-sm);
       line-height: 1.45;
+      overflow-wrap: anywhere;
     }
   }
 
   &__field {
+    min-width: 0;
     width: 100%;
   }
 
   &__row {
-    display: flex;
+    display: grid;
     gap: 0.75rem;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   &__section {
     border: 1px solid var(--tch-color-outline-variant);
     border-radius: var(--tch-radius-md);
+    min-width: 0;
     padding: 1rem;
   }
 
@@ -86,8 +93,11 @@
     border: 1px solid var(--tch-color-outline-variant);
     border-radius: var(--tch-radius-sm);
     display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
     justify-content: space-between;
     min-height: 2.75rem;
+    min-width: 0;
     padding: 0.625rem 0.75rem;
   }
 
@@ -95,10 +105,12 @@
   &__option-actions {
     display: grid;
     gap: 0.25rem;
+    min-width: 0;
   }
 
   &__option-actions {
     justify-items: start;
+    width: 100%;
   }
 
   &__option--readonly {
@@ -108,6 +120,7 @@
   &__option-label {
     color: var(--tch-color-on-surface);
     font-weight: var(--tch-weight-semibold);
+    overflow-wrap: anywhere;
   }
 
   &__option-title {
@@ -133,7 +146,16 @@
     border-radius: var(--tch-radius-sm);
     display: grid;
     gap: 0.5rem;
+    min-width: 0;
     padding: 0.75rem;
+  }
+
+  &__pricing-label {
+    color: var(--tch-color-on-surface);
+    font-size: var(--tch-font-size-body-sm);
+    font-weight: var(--tch-weight-semibold);
+    min-width: 0;
+    overflow-wrap: anywhere;
   }
 
   &__pricing-variants {
@@ -148,10 +170,12 @@
     border-radius: var(--tch-radius-sm);
     display: grid;
     gap: 0.5rem;
+    min-width: 0;
     padding: 0.75rem;
   }
 
   &__pricing-field {
+    min-width: 0;
     width: 100%;
   }
 
@@ -159,10 +183,14 @@
     align-items: stretch;
     display: grid;
     gap: 0.5rem;
+    grid-template-columns: minmax(0, 1fr);
+    min-width: 0;
   }
 
   &__clear-pricing {
-    min-height: 3.5rem;
+    justify-self: end;
+    min-height: 2.75rem;
+    width: 2.75rem;
 
     .material-symbols-outlined {
       font-size: 1.25rem;
@@ -174,6 +202,7 @@
     border-radius: var(--tch-radius-sm);
     display: grid;
     gap: 0.75rem;
+    min-width: 0;
     padding: 0.75rem;
   }
 
@@ -189,6 +218,7 @@
   }
 
   &__policy-field {
+    min-width: 0;
     width: 100%;
   }
 
@@ -197,23 +227,17 @@
     font-size: var(--tch-font-size-body-sm);
     margin: 0;
   }
-}
-
-.game-settings-dialog {
-  &__row,
-  &__option {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  &__option {
-    gap: 0.5rem;
+  mat-form-field {
+    min-width: 0;
   }
 }
 
-@media (min-width: 640px) {
+@media (min-width: 760px) {
   .game-settings-dialog {
-    &__row,
+    &__row {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
     &__option--readonly {
       align-items: center;
       flex-direction: row;
@@ -225,23 +249,24 @@
 
     &__bet-type-header {
       align-items: center;
-      grid-template-columns: minmax(0, 1fr) minmax(14rem, 18rem);
+      grid-template-columns: minmax(0, 1fr) minmax(0, 18rem);
     }
 
     &__option-actions {
       align-items: center;
       display: flex;
+      flex-wrap: wrap;
       gap: 1rem;
     }
 
     &__pricing-variant {
-      align-items: center;
-      grid-template-columns: minmax(0, 1fr) minmax(12rem, 16rem);
+      align-items: start;
+      grid-template-columns: minmax(8rem, 0.75fr) minmax(0, 2fr);
     }
 
     &__pricing-control {
       align-items: start;
-      grid-template-columns: minmax(0, 1fr) 3rem;
+      grid-template-columns: minmax(0, 1fr) minmax(8rem, 11rem) 2.75rem;
     }
   }
 }

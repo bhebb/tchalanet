@@ -113,6 +113,7 @@ class FeatureArchitectureTest {
     ArchRule rule = noClasses()
         .that().resideInAPackage("com.tchalanet.server.features.cashier..")
         .should().resideOutsideOfPackage("com.tchalanet.server.features.cashier..")
+        .allowEmptyShould(true)
         .because("features.cashier is retired — POS functionality lives in features.pos");
     rule.check(classes);
   }

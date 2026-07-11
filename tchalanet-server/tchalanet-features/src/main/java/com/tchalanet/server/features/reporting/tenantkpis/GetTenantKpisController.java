@@ -1,11 +1,16 @@
 package com.tchalanet.server.features.reporting.tenantkpis;
 
-import com.tchalanet.server.common.context.TchContextResolver;
+import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.common.context.web.CurrentContext;
+import com.tchalanet.server.common.web.api.ApiResponse;
+import com.tchalanet.server.features.reporting.ReportPeriod;
+import com.tchalanet.server.features.reporting.ReportPeriodResolver;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.Clock;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,58 +24,43 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Platform • Reports")
 public class GetTenantKpisController {
 
-  private final TchContextResolver contextResolver;
   private final GetTenantKpisService service;
   private final Clock clock;
+  private final ReportPeriodResolver periodResolver;
 
   @Operation(summary = "Get tenant KPIs report (platform)")
   @GetMapping
   @PreAuthorize("hasAnyRole('TENANT_OWNER', 'TENANT_ADMIN', 'SUPER_ADMIN') or hasAuthority('ACTOR_SELLER_TERMINAL')")
-  public KpisResponse get(
+  public ApiResponse<KpisResponse> get(
+      @CurrentContext TchRequestContext ctx,
       @RequestParam(name = "from", required = false) LocalDate from,
       @RequestParam(name = "to", required = false) LocalDate to,
       @RequestParam(name = "range", required = false) KpisRange range) {
 
-    var criteria = buildTenantKpisCriteria(range, from, to);
+    var criteria = buildTenantKpisCriteria(ctx, range, from, to);
 
-    return service.getKpis(criteria);
+    return ApiResponse.success(service.getKpis(criteria));
   }
 
   private TenantKpisCriteria buildTenantKpisCriteria(
-      KpisRange range, LocalDate from, LocalDate to) {
-    var today = LocalDate.now(clock);
+      TchRequestContext ctx, KpisRange range, LocalDate from, LocalDate to) {
+    var zoneId = ctx.tenantZoneId() != null ? ctx.tenantZoneId() : ZoneId.systemDefault();
+    var today = LocalDate.now(clock.withZone(zoneId));
 
-    LocalDate fromDate;
-    LocalDate toDate;
+    ReportPeriod period;
 
     if (range != null && range != KpisRange.CUSTOM) {
       switch (range) {
-        case TODAY -> {
-          toDate = today;
-          fromDate = today;
-        }
-        case WEEK -> {
-          toDate = today;
-          fromDate = today.minusDays(6);
-        }
-        case MONTH -> {
-          toDate = today;
-          fromDate = today.minusMonths(1).plusDays(1);
-        }
-        case YEAR -> {
-          toDate = today;
-          fromDate = today.minusYears(1).plusDays(1);
-        }
+        case TODAY -> period = periodResolver.resolve(from, to, today, today);
+        case WEEK -> period = periodResolver.resolve(from, to, today.minusDays(6), today);
+        case MONTH -> period = periodResolver.resolve(from, to, today.minusMonths(1).plusDays(1), today);
+        case YEAR -> period = periodResolver.resolve(from, to, today.minusYears(1).plusDays(1), today);
         default -> throw new IllegalArgumentException("Unsupported range: " + range);
       }
     } else {
-      // mode custom ou aucun param → défaut = 7 jours
-      toDate = (to != null) ? to : today;
-      fromDate = (from != null) ? from : toDate.minusDays(6);
+      period = periodResolver.resolve(from, to, ctx.tenantZoneId());
     }
 
-    var holder = contextResolver.currentOrNull();
-    var tenantUuid = holder != null ? holder.tenantUuid() : null;
-    return new TenantKpisCriteria(tenantUuid, fromDate, toDate);
+    return new TenantKpisCriteria(ctx.tenantIdRequired().value(), period.from(), period.to());
   }
 }

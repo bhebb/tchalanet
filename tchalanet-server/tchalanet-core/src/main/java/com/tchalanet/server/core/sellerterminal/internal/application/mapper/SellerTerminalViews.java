@@ -32,6 +32,6 @@ public final class SellerTerminalViews {
 
     public static SellerTerminalForSaleValidationView saleValidation(SellerTerminal t) {
         return new SellerTerminalForSaleValidationView(
-            t.id(), t.tenantId(), t.status(), t.commissionRate());
+            t.id(), t.tenantId(), t.status(), t.commissionRate(), t.mustChangePin());
     }
 }

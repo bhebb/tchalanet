@@ -23,9 +23,12 @@
             matSuffix
             type="button"
             (click)="regenerateCode.emit()"
+            [disabled]="codeLoading()"
             [matTooltip]="'admin.sellerTerminals.new.action.regenerateCode' | translate"
           >
-            <span class="material-symbols-outlined">refresh</span>
+            <span class="material-symbols-outlined" [class.seller-terminal-create-form__spin]="codeLoading()">
+              {{ codeLoading() ? 'progress_activity' : 'refresh' }}
+            </span>
           </button>
           @if (form().terminalCode().touched() && form().terminalCode().invalid()) {
             @for (error of form().terminalCode().errors(); track error.kind) {

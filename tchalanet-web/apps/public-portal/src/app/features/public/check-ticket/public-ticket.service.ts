@@ -51,7 +51,6 @@ export interface VerifyTicketLine {
   readonly optionLabel: string;
   readonly selection: string;
   readonly stake: MoneyAmount;
-  readonly potentialPayout: MoneyAmount;
   readonly promotional: boolean;
   readonly promotionLabel: string | null;
 }

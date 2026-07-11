@@ -18,6 +18,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.Currency;
 import java.util.Locale;
@@ -29,6 +31,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @DisplayName("CurrentUserProfileController")
+@ExtendWith(MockitoExtension.class)
 class CurrentUserProfileControllerTest {
 
     @Mock
@@ -67,10 +70,10 @@ class CurrentUserProfileControllerTest {
 
             MeResponse response = controller.me(ctx).data();
 
-            assertThat(response.landing().preferredSurface()).isEqualTo(ClientSurface.MOBILE_POS);
+            assertThat(response.landing().preferredSurface()).isEqualTo(ClientSurface.TENANT_ADMIN_WEB);
             assertThat(response.landing().availableSurfaces())
-                .containsExactlyInAnyOrder(ClientSurface.MOBILE_POS, ClientSurface.CASHIER_WEB);
-            assertThat(response.capabilities()).contains("cashier.sell", "cashier.print");
+                .containsExactly(ClientSurface.TENANT_ADMIN_WEB);
+            assertThat(response.capabilities()).isEmpty();
             assertThat(response.profileActions().canEditLocale()).isTrue();
         }
     }

@@ -9,8 +9,6 @@ import com.tchalanet.server.core.sales.api.model.promotion.TicketLineOrigin;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSource;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource;
 
-import java.math.BigDecimal;
-
 /**
  * One ticket line as published inside {@link TicketPlacedEvent}.
  *
@@ -26,12 +24,9 @@ public record TicketLinePlacedItem(
     String selectionDisplay,     // human-readable
     Short betOption,             // null when betType doesn't require one
     Money stakeAmount,
-    BigDecimal oddsSnapshot,
-    Money potentialPayoutAmount,
     TicketLineOrigin origin,
     TicketLinePricingSource pricingSource,
     TicketLineSelectionSource selectionSource,
-    Money payoutBaseAmount,
     PromotionDecisionId promotionDecisionId,
     String promotionLabel,
     String promotionEffectType

@@ -3,7 +3,6 @@ import {
   Component,
   inject,
 } from '@angular/core';
-import { DecimalPipe } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { catchError, map, of, startWith } from 'rxjs';
 import {
@@ -56,7 +55,6 @@ function groupByGame(entries: PricingOddsEntry[]): GameGroup[] {
   selector: 'tch-admin-baremes-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    DecimalPipe,
     TchLoading,
     TchErrorPanel,
     AdminPageHeader,
@@ -86,5 +84,12 @@ export class AdminBaremesPage {
 
   optionLabel(betType: string, betOption: number | null): string {
     return consoleBetOptionLabel(betType, betOption) ?? '';
+  }
+
+  payoutValue(row: PricingOddsEntry): string {
+    if (row.payoutRuleType === 'FIXED_AMOUNT') {
+      return row.fixedAmount === null || row.fixedAmount === undefined ? '—' : `${row.fixedAmount}`;
+    }
+    return row.odds === null || row.odds === undefined ? '—' : `×${row.odds}`;
   }
 }

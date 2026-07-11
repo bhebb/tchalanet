@@ -3,15 +3,16 @@ package com.tchalanet.server.core.sales.internal.application.command.handler.pre
 import com.tchalanet.server.common.time.TimeProvider;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.web.error.ProblemRestException;
+import com.tchalanet.server.core.promotion.api.model.PromotionChoiceMode;
 import com.tchalanet.server.core.sales.api.command.preparation.RegenerateSalePreparationPromotionLineCommand;
 import com.tchalanet.server.core.sales.api.model.preparation.SalePreparationStatus;
+import com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource;
 import com.tchalanet.server.core.sales.internal.application.service.preparation.SalePreparationViewAssembler;
 import com.tchalanet.server.core.sales.internal.application.service.sell.generation.DefaultSelectionGenerationService;
 import com.tchalanet.server.core.sales.internal.application.service.sell.generation.RandomSelectionGenerator;
 import com.tchalanet.server.core.sales.internal.domain.model.preparation.SalePreparation;
 import com.tchalanet.server.core.sales.internal.domain.model.preparation.SalePreparationPromotionLine;
 import com.tchalanet.server.core.selection.internal.application.DefaultSelectionApi;
-import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -48,7 +49,11 @@ class RegenerateSalePreparationPromotionLineCommandHandlerTest {
             "hash", Map.of(), null, null, null, expiresAt, null,
             List.of(new SalePreparationPromotionLine(
                 "ref-1", "HT_MARYAJ_GRATIS", "MARRIAGE_2D2D", (short) 1, "34-78",
-                new BigDecimal("50"), null, null, regenerable, max, count)));
+                TicketLineSelectionSource.PROMOTION_GENERATED,
+                PromotionChoiceMode.AUTO_GENERATE,
+                null, null,
+                "maryaj-gratis", "FREE_GAME_LINE", "ctx-hash", "engine-v1",
+                regenerable, max, count)));
     }
 
     @Test

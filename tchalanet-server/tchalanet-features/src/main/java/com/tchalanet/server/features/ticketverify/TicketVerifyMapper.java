@@ -34,11 +34,6 @@ public class TicketVerifyMapper {
                     l.optionLabel(),
                     l.selection(),
                     l.stake(),
-                    l.potentialPayout(),
-                    l.potentialGainMode(),
-                    l.minPotentialPayout(),
-                    l.maxPotentialPayout(),
-                    l.totalPotentialPayout(),
                     l.promotional(),
                     l.promotionLabel()
                 ))

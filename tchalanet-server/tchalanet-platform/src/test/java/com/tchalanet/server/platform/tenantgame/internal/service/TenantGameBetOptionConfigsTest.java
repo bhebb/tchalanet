@@ -56,7 +56,7 @@ class TenantGameBetOptionConfigsTest {
     }
 
     @Test
-    void normalizeRejectsImplicitBestMatchInV0() {
+    void normalizeAcceptsImplicitBestMatchPolicy() {
         var requested = List.of(new TenantBetTypeOptionConfig(
             BetType.LOTTO3_3D,
             SelectionPolicy.IMPLICIT_BEST_MATCH,
@@ -65,8 +65,9 @@ class TenantGameBetOptionConfigsTest {
                 new TenantBetOptionConfig((short) 1, true, true, 1),
                 new TenantBetOptionConfig((short) 2, true, true, 2))));
 
-        assertThatThrownBy(() -> configs.normalize("HT_LOTO3", requested))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("IMPLICIT_BEST_MATCH is disabled in V0");
+        assertThat(configs.normalize("HT_LOTO3", requested))
+            .singleElement()
+            .satisfies(config -> assertThat(config.selectionPolicy())
+                .isEqualTo(SelectionPolicy.IMPLICIT_BEST_MATCH));
     }
 }

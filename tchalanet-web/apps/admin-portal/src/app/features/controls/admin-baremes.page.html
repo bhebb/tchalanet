@@ -1,6 +1,6 @@
 <tch-admin-page-header
   title="Barèmes"
-  description="Multiplicateurs de gain configurés pour ce tenant, par jeu et type de mise."
+  description="Règles de gain configurées pour ce tenant, par jeu et type de mise."
 />
 
 @let vm = state();
@@ -40,7 +40,7 @@
                 <tr>
                   <th class="odds-table__col--type">Type de mise</th>
                   <th class="odds-table__col--option">Variante</th>
-                  <th class="odds-table__col--odds">Multiplicateur</th>
+                  <th class="odds-table__col--odds">Règle de gain</th>
                 </tr>
               </thead>
               <tbody>
@@ -55,7 +55,7 @@
                       }
                     </td>
                     <td class="odds-row__odds">
-                      <span class="multiplier">×{{ row.odds | number:'1.0-4' }}</span>
+                      <span class="multiplier">{{ payoutValue(row) }}</span>
                     </td>
                   </tr>
                 }

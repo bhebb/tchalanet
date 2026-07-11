@@ -3,13 +3,11 @@ package com.tchalanet.server.core.sales.api.model.print;
 import com.tchalanet.server.catalog.game.api.model.GameCode;
 import com.tchalanet.server.catalog.game.api.model.BetType;
 import com.tchalanet.server.common.types.money.Money;
-import com.tchalanet.server.core.sales.api.model.coverage.PotentialGainMode;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineOrigin;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSource;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource;
+import com.tchalanet.server.platform.tenantgame.api.model.SelectionPolicy;
 
-import java.math.BigDecimal;
-import java.util.List;
 import com.tchalanet.server.common.types.id.PromotionDecisionId;
 
 public record TicketPrintLine(
@@ -17,21 +15,15 @@ public record TicketPrintLine(
     GameCode gameCode,
     BetType betType,
     Short betOption,
+    String betOptionLabel,
     String gameLabel,
     String selectionRaw,
     String selectionCanonical,
-    BigDecimal odds,
     Money stake,
-    Money potentialPayout,
-    PotentialGainMode potentialGainMode,
-    Money minPotentialPayout,
-    Money maxPotentialPayout,
-    Money totalPotentialPayout,
-    List<TicketPrintLineCoverage> coverages,
+    SelectionPolicy selectionPolicySnapshot,
     TicketLineOrigin origin,
     TicketLinePricingSource pricingSource,
     TicketLineSelectionSource selectionSource,
-    Money payoutBaseAmount,
     PromotionDecisionId promotionDecisionId,
     String promotionLabel,
     String promotionEffectType
@@ -44,13 +36,11 @@ public record TicketPrintLine(
         String gameLabel,
         String selectionRaw,
         String selectionCanonical,
-        BigDecimal odds,
         Money stake,
-        Money potentialPayout,
+        SelectionPolicy selectionPolicySnapshot,
         TicketLineOrigin origin,
         TicketLinePricingSource pricingSource,
         TicketLineSelectionSource selectionSource,
-        Money payoutBaseAmount,
         PromotionDecisionId promotionDecisionId,
         String promotionLabel,
         String promotionEffectType
@@ -60,30 +50,19 @@ public record TicketPrintLine(
             gameCode,
             betType,
             betOption,
+            null,
             gameLabel,
             selectionRaw,
             selectionCanonical,
-            odds,
             stake,
-            potentialPayout,
-            PotentialGainMode.SINGLE,
-            potentialPayout,
-            potentialPayout,
-            null,
-            List.of(),
+            selectionPolicySnapshot,
             origin,
             pricingSource,
             selectionSource,
-            payoutBaseAmount,
             promotionDecisionId,
             promotionLabel,
             promotionEffectType
         );
-    }
-
-    public TicketPrintLine {
-        potentialGainMode = potentialGainMode == null ? PotentialGainMode.SINGLE : potentialGainMode;
-        coverages = coverages == null ? List.of() : List.copyOf(coverages);
     }
 
     /** True when this line was added by a promotion (FREE_GAME_LINE). */

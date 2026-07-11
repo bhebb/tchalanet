@@ -30,12 +30,6 @@ SELECT t.id                         AS ticket_id,
        rs.provider                  AS result_provider,
        COALESCE(rs.timezone, dc.timezone) AS result_timezone,
 
-       NULL::uuid                   AS outlet_id,
-       NULL::varchar                AS outlet_code,
-       NULL::varchar                AS outlet_name,
-       NULL::text                   AS outlet_receipt_header,
-       NULL::text                   AS outlet_receipt_footer,
-
        t.seller_terminal_id         AS terminal_id,
        st.terminal_code             AS terminal_code,
        st.display_name              AS terminal_label,
@@ -68,7 +62,6 @@ SELECT t.id                         AS ticket_id,
 
        t.stake_amount,
        t.total_amount,
-       t.potential_payout_amount,
        t.currency,
 
        t.placed_at,

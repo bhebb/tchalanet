@@ -1,7 +1,7 @@
 package com.tchalanet.server.app.ops;
 
-import com.tchalanet.server.features.pagemodel.dynamic.providers.platformadmin.OpsResourceContributor;
-import com.tchalanet.server.features.pagemodel.dynamic.providers.platformadmin.PlatformAdminOpsDashboardPayloadAssembler;
+import com.tchalanet.server.platform.ops.api.OpsResourceContributor;
+import com.tchalanet.server.platform.ops.api.OpsServiceResourceItem;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -20,7 +20,7 @@ public class IdentityOpsResourceContributor implements OpsResourceContributor {
   }
 
   @Override
-  public List<PlatformAdminOpsDashboardPayloadAssembler.OpsServiceResourceItem> services() {
+  public List<OpsServiceResourceItem> services() {
     String provider = property("tch.identity.provider", "firebase");
     String mode = identityMode(provider);
     String projectId = property("tch.identity.firebase.project-id", "");
@@ -36,7 +36,7 @@ public class IdentityOpsResourceContributor implements OpsResourceContributor {
         + ", mode=" + mode
         + ", revocation=" + revocationMode + ".";
 
-    return List.of(new PlatformAdminOpsDashboardPayloadAssembler.OpsServiceResourceItem(
+    return List.of(new OpsServiceResourceItem(
         "identity:provider",
         "Identity provider",
         status.status(),

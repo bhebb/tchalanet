@@ -261,7 +261,6 @@ class TicketCommandMutationCoverageTest {
             money("10"),
             money("125"),
             new BigDecimal("12.5"),
-            money("125"),
             null,
             TicketLineOrigin.CUSTOMER,
             TicketLinePricingSource.STANDARD,

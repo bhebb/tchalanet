@@ -16,7 +16,7 @@ import {
 import {
   AdminFinancialsApi,
   SellerTerminalDailyFinancialRow,
-} from '../../../financials/data-access/admin-financials-api.service';
+} from '../../../reports/data-access/admin-financials-api.service';
 import {
   SellerTerminalDetailFact,
   SellerTerminalDetailFactsCardComponent,
@@ -190,7 +190,6 @@ function emptyTodayStats(sellerTerminalId: string): SellerTerminalDailyFinancial
     promotionLines: 0,
     promotionPricedLines: 0,
     promotionPayoutBase: 0,
-    promotionPotentialPayout: 0,
     netRevenueEstimated: 0,
     netRevenuePaidBasis: 0,
   };

@@ -6,8 +6,8 @@ import com.tchalanet.server.common.context.TchContextProperties;
 import com.tchalanet.server.common.context.TchContextRequestAttributes;
 import com.tchalanet.server.common.context.operational.OperationalContextHeaderParser;
 import com.tchalanet.server.common.context.operational.OperationalContextResolver;
-import com.tchalanet.server.common.context.scope.ApiScope;
 import com.tchalanet.server.common.context.tenant.TenantContextResolver;
+import com.tchalanet.server.common.types.id.SellerTerminalId;
 import jakarta.annotation.Nonnull;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -23,8 +23,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-
-import com.tchalanet.server.common.types.id.SellerTerminalId;
 
 import static com.tchalanet.server.common.http.TchHeaders.X_TCH_ACT_AS_TERMINAL;
 import static com.tchalanet.server.common.http.TchHeaders.X_TCH_OVERRIDE_REASON;
@@ -65,13 +63,8 @@ public class TchContextFilter extends OncePerRequestFilter {
                 handleResolvedAccess(req, res, chain, resolvedAccess);
                 return;
             }
-
             handlePublicOrLegacy(req, res, chain);
-
-        } finally
-
-
-        {
+        } finally {
             contextBinder.clear(req);
         }
     }
@@ -82,10 +75,7 @@ public class TchContextFilter extends OncePerRequestFilter {
         FilterChain chain,
         ResolvedAccessContext resolvedAccess
     ) throws ServletException, IOException {
-
         var scope = ApiScopeResolver.resolve(req);
-
-
         if (resolvedAccess.tenantOverride()
             && StringUtils.isBlank(req.getHeader(X_TCH_OVERRIDE_REASON))) {
             res.sendError(HttpServletResponse.SC_FORBIDDEN, "Super-admin override reason required");
@@ -117,7 +107,7 @@ public class TchContextFilter extends OncePerRequestFilter {
         // admin IS that terminal.  The header value must be a valid seller terminal UUID.
         var actAsTerminal = req.getHeader(X_TCH_ACT_AS_TERMINAL);
         if (actAsTerminal != null && !actAsTerminal.isBlank()
-                && (ctx.isTenantAdmin() || ctx.isSuperAdmin())) {
+            && (ctx.isTenantAdmin() || ctx.isSuperAdmin())) {
             try {
                 ctx = ctx.withSellerTerminalId(SellerTerminalId.of(java.util.UUID.fromString(actAsTerminal.trim())));
             } catch (IllegalArgumentException ignored) {
@@ -151,9 +141,7 @@ public class TchContextFilter extends OncePerRequestFilter {
         if (ctx == null) {
             return;
         }
-
         contextBinder.bind(req, ctx);
-
         chain.doFilter(req, res);
     }
 

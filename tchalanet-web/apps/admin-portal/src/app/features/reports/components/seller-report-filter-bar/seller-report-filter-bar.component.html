@@ -1,0 +1,31 @@
+<section class="seller-report-filter-bar" [attr.aria-label]="'admin.reports.sellers.filters.aria' | translate">
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-label>{{ 'admin.reports.sellers.filters.from' | translate }}</mat-label>
+    <input matInput type="date" [value]="from()" (change)="fromChange.emit($any($event.target).value)" />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-label>{{ 'admin.reports.sellers.filters.to' | translate }}</mat-label>
+    <input matInput type="date" [value]="to()" (change)="toChange.emit($any($event.target).value)" />
+  </mat-form-field>
+
+  <tch-multi-search-select
+    class="seller-report-filter-bar__sellers"
+    [label]="'admin.reports.sellers.filters.sellers' | translate"
+    [placeholder]="'admin.reports.sellers.filters.sellersPlaceholder' | translate"
+    [hint]="'admin.reports.sellers.filters.sellersHint' | translate"
+    icon="point_of_sale"
+    [minChars]="2"
+    [searchFn]="searchSellers()"
+    (valueChange)="sellersChange.emit($event)"
+  />
+
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-label>{{ 'admin.reports.sellers.filters.sort' | translate }}</mat-label>
+    <mat-select [value]="sort()" (valueChange)="sortChange.emit($event)">
+      @for (option of sortOptions(); track option.value) {
+        <mat-option [value]="option.value">{{ option.labelKey | translate }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+</section>

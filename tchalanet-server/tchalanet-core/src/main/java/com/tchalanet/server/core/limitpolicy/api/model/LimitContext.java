@@ -58,12 +58,6 @@ public record LimitContext(
             .sum();
     }
 
-    public long totalPotentialPayoutCents() {
-        return lines.stream()
-            .mapToLong(LimitLineContext::potentialPayoutCents)
-            .sum();
-    }
-
     public int linesCount() {
         return lines.size();
     }
