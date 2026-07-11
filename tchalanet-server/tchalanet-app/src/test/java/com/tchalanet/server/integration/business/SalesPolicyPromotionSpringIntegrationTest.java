@@ -4,6 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.tchalanet.server.catalog.game.api.model.BetType;
 import com.tchalanet.server.catalog.game.api.model.GameCode;
+import com.tchalanet.server.common.types.id.DrawChannelId;
+import com.tchalanet.server.common.types.id.DrawId;
+import com.tchalanet.server.common.types.id.SellerTerminalId;
+import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.types.money.CurrencyCode;
 import com.tchalanet.server.core.draw.api.command.GenerateDrawsForRangeCommand;
 import com.tchalanet.server.core.draw.api.command.OpenDueDrawsCommand;
@@ -14,6 +18,10 @@ import com.tchalanet.server.core.limitpolicy.api.model.LimitContext;
 import com.tchalanet.server.core.limitpolicy.api.model.LimitLineContext;
 import com.tchalanet.server.core.limitpolicy.api.model.LimitScopeRef;
 import com.tchalanet.server.core.limitpolicy.api.query.EvaluateLimitPolicyQuery;
+import com.tchalanet.server.core.pricing.api.command.UpsertSellerTerminalPricingRuleOverrideCommand;
+import com.tchalanet.server.core.pricing.api.command.UpsertTenantPricingRuleCommand;
+import com.tchalanet.server.core.pricing.api.model.PayoutRuleType;
+import com.tchalanet.server.core.pricing.api.model.PricingVariantCode;
 import com.tchalanet.server.core.promotion.api.command.rule.UpdatePromotionRuleEffectsCommand;
 import com.tchalanet.server.core.promotion.api.command.template.InstantiateDefaultMaryajGratisCommand;
 import com.tchalanet.server.core.promotion.api.model.PromotionChoiceMode;
@@ -28,14 +36,16 @@ import com.tchalanet.server.core.sales.api.command.sell.SellTicketLineInput;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketOutcome;
 import com.tchalanet.server.core.sales.api.model.communication.SaleCommunicationOptions;
 import com.tchalanet.server.features.pos.draws.PosAvailableDrawView;
-import com.tchalanet.server.features.pos.draws.PosDrawsService;
 import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import tools.jackson.databind.json.JsonMapper;
 
 @DisplayName("Sales policy and promotion Spring integration")
@@ -43,9 +53,8 @@ class SalesPolicyPromotionSpringIntegrationTest extends BusinessRuntimeIntegrati
 
     private static final CurrencyCode HTG = CurrencyCode.of("HTG");
     private static final JsonMapper JSON = JsonMapper.builder().build();
-
-    @Autowired
-    private PosDrawsService posDrawsService;
+    private static final ZoneId TENANT_ZONE = ZoneId.of("America/Port-au-Prince");
+    private static final Instant SALES_NOW = Instant.now();
 
     @Test
     @DisplayName("should reject blocked selection without persisting a ticket")
@@ -63,7 +72,7 @@ class SalesPolicyPromotionSpringIntegrationTest extends BusinessRuntimeIntegrati
                 {"betType":"MATCH_1_2D","selections":["05"]}
                 """),
             FIXED_NOW.minusSeconds(86_400),
-            FIXED_NOW.plusSeconds(86_400)
+            SALES_NOW.plusSeconds(86_400)
         )));
         assertThat(limitAssignmentsFor(draw)).isEqualTo(1);
 
@@ -74,7 +83,7 @@ class SalesPolicyPromotionSpringIntegrationTest extends BusinessRuntimeIntegrati
                 sellerContext.sellerTerminalIdRequired(),
                 draw.drawId(),
                 draw.drawChannelId(),
-                FIXED_NOW,
+                SALES_NOW,
                 List.of(new LimitLineContext(BetType.MATCH_1_2D, "05", 1000))))));
         assertThat(directEvaluation.outcome()).isEqualTo(BreachOutcome.BLOCK);
 
@@ -167,13 +176,121 @@ class SalesPolicyPromotionSpringIntegrationTest extends BusinessRuntimeIntegrati
         assertThat(countPromotionTicketLines(confirmed.ticketId())).isEqualTo(2);
     }
 
+    @Test
+    @DisplayName("should snapshot Maryaj gratis terminal override and ignore later pricing changes")
+    void shouldSnapshotMaryajGratisTerminalOverrideAndIgnoreLaterPricingChanges() {
+        var draw = openedDrawContaining(GameCode.HT_BOLET);
+        var campaign = ensureMaryajGratisCampaign();
+        configureSingleMaryajGratisLine(campaign);
+        upsertMaryajGratisTenantRule("1000");
+        upsertMaryajGratisTerminalOverride("2000", "initial terminal override");
+
+        var firstTicket = sellBoletWithMaryajGratis(draw, "maryaj-gratis-snapshot-it-1");
+        assertMaryajGratisSnapshot(firstTicket, "2000", "SELLER_TERMINAL_OVERRIDE");
+
+        upsertMaryajGratisTenantRule("3000");
+        upsertMaryajGratisTerminalOverride("4000", "updated terminal override");
+
+        assertMaryajGratisSnapshot(firstTicket, "2000", "SELLER_TERMINAL_OVERRIDE");
+
+        var secondTicket = sellBoletWithMaryajGratis(draw, "maryaj-gratis-snapshot-it-2");
+        assertMaryajGratisSnapshot(secondTicket, "4000", "SELLER_TERMINAL_OVERRIDE");
+    }
+
     private PromotionCampaignView ensureMaryajGratisCampaign() {
         return withContext(tenantAdminContext, () ->
             commandBus.execute(new InstantiateDefaultMaryajGratisCommand(tenantId)));
     }
 
+    private void configureSingleMaryajGratisLine(PromotionCampaignView campaign) {
+        var rule = campaign.rules().getFirst();
+        withContext(tenantAdminContext, () ->
+            commandBus.execute(new UpdatePromotionRuleEffectsCommand(
+                tenantId,
+                campaign.id(),
+                rule.id(),
+                List.of(new PromotionEffectConfigInput(PromotionEffectType.FREE_GAME_LINE, Map.of(
+                    "gameCode", "HT_MARYAJ_GRATIS",
+                    "payoutBaseAmount", "1",
+                    "quantity", "1",
+                    "quantityMode", PromotionQuantityMode.TIERED_PAID_AMOUNT.name(),
+                    "maxQuantity", "1",
+                    "quantityTiers", List.of(Map.of("minPaidAmount", "100", "quantity", "1")),
+                    "choiceMode", PromotionChoiceMode.AUTO_GENERATE.name(),
+                    "generationStrategy", "RANDOM",
+                    "regenerableBeforeConfirm", "true",
+                    "maxRegenerationsBeforeConfirm", "3"
+                )))
+            )));
+    }
+
+    private void upsertMaryajGratisTenantRule(String fixedAmount) {
+        withContext(tenantAdminContext, () -> commandBus.execute(new UpsertTenantPricingRuleCommand(
+            tenantId,
+            GameCode.HT_MARYAJ_GRATIS.name(),
+            PricingVariantCode.MARRIAGE_REVERSE_ALLOWED,
+            BetType.MARRIAGE_2D2D.name(),
+            (short) 2,
+            null,
+            PayoutRuleType.FIXED_AMOUNT,
+            new BigDecimal(fixedAmount),
+            UserId.of(ADMIN_USER_ID)
+        )));
+    }
+
+    private void upsertMaryajGratisTerminalOverride(String fixedAmount, String reason) {
+        withContext(tenantAdminContext, () -> commandBus.execute(new UpsertSellerTerminalPricingRuleOverrideCommand(
+            tenantId,
+            SellerTerminalId.of(SELLER_TERMINAL_ID),
+            GameCode.HT_MARYAJ_GRATIS.name(),
+            PricingVariantCode.MARRIAGE_REVERSE_ALLOWED,
+            BetType.MARRIAGE_2D2D.name(),
+            (short) 2,
+            null,
+            PayoutRuleType.FIXED_AMOUNT,
+            new BigDecimal(fixedAmount),
+            FIXED_NOW.minusSeconds(86_400),
+            SALES_NOW.plusSeconds(86_400),
+            reason,
+            UserId.of(ADMIN_USER_ID)
+        )));
+    }
+
+    private UUID sellBoletWithMaryajGratis(PosAvailableDrawView draw, String idempotencyKey) {
+        var preparation = withContext(sellerContext, () -> commandBus.execute(new PrepareSaleCommand(
+            draw.drawId(),
+            draw.drawChannelId(),
+            HTG,
+            List.of(new SellTicketLineInput(
+                1,
+                GameCode.HT_BOLET,
+                BetType.MATCH_1_2D,
+                "12",
+                null,
+                new BigDecimal("100"))),
+            SaleCommunicationOptions.none()
+        )));
+
+        assertThat(preparation.promotionLines()).hasSize(1);
+
+        return withContext(sellerContext, () -> commandBus.execute(
+            new ConfirmPreparedSaleCommand(preparation.preparationId(), idempotencyKey)))
+            .ticketId();
+    }
+
+    private void assertMaryajGratisSnapshot(
+        UUID ticketId,
+        String fixedAmount,
+        String source
+    ) {
+        assertThat(maryajGratisSnapshotRuleType(ticketId)).isEqualTo("FIXED_AMOUNT");
+        assertThat(maryajGratisSnapshotFixedAmount(ticketId))
+            .isEqualByComparingTo(fixedAmount);
+        assertThat(maryajGratisSnapshotSource(ticketId)).isEqualTo(source);
+    }
+
     private PosAvailableDrawView openedDrawContaining(GameCode gameCode) {
-        var saleDate = LocalDate.of(2026, 7, 9);
+        var saleDate = LocalDate.now(TENANT_ZONE).plusDays(1);
         withContext(tenantAdminContext, () -> commandBus.execute(new GenerateDrawsForRangeCommand(
             tenantId,
             saleDate,
@@ -182,17 +299,52 @@ class SalesPolicyPromotionSpringIntegrationTest extends BusinessRuntimeIntegrati
             false,
             null)));
         withContext(tenantAdminContext, () -> commandBus.execute(new OpenDueDrawsCommand(
-            FIXED_NOW,
+            SALES_NOW,
             100,
             48,
             1,
             false)));
 
-        return withContext(sellerContext, () ->
-            posDrawsService.listAvailable(sellerContext, 48, 50).stream()
-                .filter(draw -> draw.gameCodes().contains(gameCode.name()))
-                .findFirst()
-                .orElseThrow());
+        return jdbc.query(
+            """
+            select d.id as draw_id, d.draw_channel_id, d.scheduled_at, d.cutoff_at
+            from draw d
+            join draw_channel_game dcg
+              on dcg.draw_channel_id = d.draw_channel_id
+             and dcg.deleted_at is null
+             and dcg.enabled = true
+            join tenant_game tg
+              on tg.id = dcg.tenant_game_id
+             and tg.deleted_at is null
+             and tg.enabled = true
+            where d.tenant_id = ?
+              and d.status = 'OPEN'
+              and d.cutoff_at > ?
+              and tg.game_code = ?
+            order by d.scheduled_at
+            limit 1
+            """,
+            rs -> {
+                if (!rs.next()) {
+                    throw new java.util.NoSuchElementException("No open draw configured for " + gameCode);
+                }
+                return new PosAvailableDrawView(
+                    DrawId.of(rs.getObject("draw_id", UUID.class)),
+                    DrawChannelId.of(rs.getObject("draw_channel_id", UUID.class)),
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    List.of(gameCode.name()),
+                    "OPEN",
+                    rs.getTimestamp("scheduled_at").toInstant(),
+                    rs.getTimestamp("cutoff_at").toInstant()
+                );
+            },
+            tenantId.value(),
+            Timestamp.from(SALES_NOW),
+            gameCode.name());
     }
 
     private Integer countTickets() {
@@ -218,14 +370,14 @@ class SalesPolicyPromotionSpringIntegrationTest extends BusinessRuntimeIntegrati
             draw.drawChannelId().value());
     }
 
-    private Integer countTicketLines(java.util.UUID ticketId) {
+    private Integer countTicketLines(UUID ticketId) {
         return jdbc.queryForObject(
             "select count(*) from sales_ticket_line where ticket_id = ?",
             Integer.class,
             ticketId);
     }
 
-    private Integer countPromotionTicketLines(java.util.UUID ticketId) {
+    private Integer countPromotionTicketLines(UUID ticketId) {
         return jdbc.queryForObject(
             """
             select count(*)
@@ -235,6 +387,51 @@ class SalesPolicyPromotionSpringIntegrationTest extends BusinessRuntimeIntegrati
               and game_code = 'HT_MARYAJ_GRATIS'
             """,
             Integer.class,
+            ticketId);
+    }
+
+    private String maryajGratisSnapshotRuleType(UUID ticketId) {
+        return jdbc.queryForObject(
+            """
+            select settlement_terms_snapshot #>> '{terms,0,payoutRule,type}'
+            from sales_ticket_line
+            where ticket_id = ?
+              and origin = 'PROMOTION'
+              and game_code = 'HT_MARYAJ_GRATIS'
+            order by line_number
+            limit 1
+            """,
+            String.class,
+            ticketId);
+    }
+
+    private BigDecimal maryajGratisSnapshotFixedAmount(UUID ticketId) {
+        return jdbc.queryForObject(
+            """
+            select (settlement_terms_snapshot #>> '{terms,0,payoutRule,fixedAmount}')::numeric
+            from sales_ticket_line
+            where ticket_id = ?
+              and origin = 'PROMOTION'
+              and game_code = 'HT_MARYAJ_GRATIS'
+            order by line_number
+            limit 1
+            """,
+            BigDecimal.class,
+            ticketId);
+    }
+
+    private String maryajGratisSnapshotSource(UUID ticketId) {
+        return jdbc.queryForObject(
+            """
+            select settlement_terms_snapshot #>> '{terms,0,source}'
+            from sales_ticket_line
+            where ticket_id = ?
+              and origin = 'PROMOTION'
+              and game_code = 'HT_MARYAJ_GRATIS'
+            order by line_number
+            limit 1
+            """,
+            String.class,
             ticketId);
     }
 }

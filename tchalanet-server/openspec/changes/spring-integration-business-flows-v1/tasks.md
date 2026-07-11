@@ -6,6 +6,7 @@
 - [ ] Add setup readiness transition integration test.
 - [x] Add limit-blocked sell integration test.
 - [x] Add Maryaj gratis sale integration test.
+- [x] Add Maryaj gratis pricing override snapshot integration test.
 - [ ] Add receipt print/reprint promotion integration test.
 - [ ] Add dedicated Firebase Emulator identity-provider integration test plan or
       tests separately from business runtime tests.
