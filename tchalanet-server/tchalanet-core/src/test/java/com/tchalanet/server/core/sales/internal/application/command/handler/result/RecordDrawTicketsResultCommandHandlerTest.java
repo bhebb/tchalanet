@@ -19,7 +19,7 @@ import com.tchalanet.server.common.types.money.CurrencyCode;
 import com.tchalanet.server.common.types.money.Money;
 import com.tchalanet.server.catalog.game.api.model.BetType;
 import com.tchalanet.server.catalog.game.api.model.GameCode;
-import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultProjection;
+import com.tchalanet.server.core.drawresult.api.query.view.DrawResultProjection;
 import com.tchalanet.server.core.sales.api.command.result.RecordDrawTicketsResultCommand;
 import com.tchalanet.server.core.sales.api.event.TicketPayoutPaidEvent;
 import com.tchalanet.server.core.sales.api.event.TicketResultedEvent;

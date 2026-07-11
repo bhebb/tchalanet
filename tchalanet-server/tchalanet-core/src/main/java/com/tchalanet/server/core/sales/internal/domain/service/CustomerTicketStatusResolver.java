@@ -4,9 +4,7 @@ import com.tchalanet.server.core.sales.api.model.status.TicketResultStatus;
 import com.tchalanet.server.core.sales.api.model.status.TicketSaleStatus;
 import com.tchalanet.server.core.sales.api.model.status.TicketSettlementStatus;
 import com.tchalanet.server.core.sales.api.model.verification.CustomerTicketStatus;
-import org.springframework.stereotype.Component;
 
-@Component
 public class CustomerTicketStatusResolver {
 
     public CustomerTicketStatus resolve(

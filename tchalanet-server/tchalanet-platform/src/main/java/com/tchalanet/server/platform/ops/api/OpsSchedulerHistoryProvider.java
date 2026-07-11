@@ -1,4 +1,4 @@
-package com.tchalanet.server.features.pagemodel.dynamic.providers.platformadmin;
+package com.tchalanet.server.platform.ops.api;
 
 import java.util.List;
 

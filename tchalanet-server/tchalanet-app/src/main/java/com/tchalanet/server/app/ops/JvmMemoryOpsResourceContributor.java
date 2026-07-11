@@ -1,7 +1,7 @@
 package com.tchalanet.server.app.ops;
 
-import com.tchalanet.server.features.pagemodel.dynamic.providers.platformadmin.OpsResourceContributor;
-import com.tchalanet.server.features.pagemodel.dynamic.providers.platformadmin.PlatformAdminOpsDashboardPayloadAssembler;
+import com.tchalanet.server.platform.ops.api.OpsResourceContributor;
+import com.tchalanet.server.platform.ops.api.OpsServiceResourceItem;
 import java.util.List;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 public class JvmMemoryOpsResourceContributor implements OpsResourceContributor {
 
   @Override
-  public List<PlatformAdminOpsDashboardPayloadAssembler.OpsServiceResourceItem> services() {
+  public List<OpsServiceResourceItem> services() {
     Runtime runtime = Runtime.getRuntime();
     long usedBytes = runtime.totalMemory() - runtime.freeMemory();
     long maxBytes = runtime.maxMemory();
@@ -33,7 +33,7 @@ public class JvmMemoryOpsResourceContributor implements OpsResourceContributor {
       default -> "JVM memory is within the expected range.";
     };
 
-    return List.of(new PlatformAdminOpsDashboardPayloadAssembler.OpsServiceResourceItem(
+    return List.of(new OpsServiceResourceItem(
         "runtime:jvm-memory",
         "JVM memory",
         status,

@@ -1,7 +1,7 @@
 package com.tchalanet.server.app.ops;
 
-import com.tchalanet.server.features.pagemodel.dynamic.providers.platformadmin.OpsResourceContributor;
-import com.tchalanet.server.features.pagemodel.dynamic.providers.platformadmin.PlatformAdminOpsDashboardPayloadAssembler;
+import com.tchalanet.server.platform.ops.api.OpsResourceContributor;
+import com.tchalanet.server.platform.ops.api.OpsServiceResourceItem;
 import java.util.List;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,7 +29,7 @@ public class DatabaseCapacityOpsResourceContributor implements OpsResourceContri
   }
 
   @Override
-  public List<PlatformAdminOpsDashboardPayloadAssembler.OpsServiceResourceItem> services() {
+  public List<OpsServiceResourceItem> services() {
     String sql = """
         SELECT
           n.nspname AS schema_name,
@@ -55,7 +55,7 @@ public class DatabaseCapacityOpsResourceContributor implements OpsResourceContri
         default -> "OK";
       };
 
-      return new PlatformAdminOpsDashboardPayloadAssembler.OpsServiceResourceItem(
+      return new OpsServiceResourceItem(
           "database:schema:" + schema,
           "DB schema " + schema,
           status,

@@ -12,7 +12,7 @@ import 'package:tchalanet_mobile/core/observability/diagnostic_repository.dart';
 void _fireError(RequestIdInterceptor interceptor, DioException err) {
   runZonedGuarded(
     () => interceptor.onError(err, ErrorInterceptorHandler()),
-    (_, __) {}, // swallow unhandled Future error from handler.next()
+    (_, _) {}, // swallow unhandled Future error from handler.next()
   );
 }
 
@@ -69,15 +69,19 @@ void main() {
         requestOptions: reqOptions,
         statusCode: 400,
         data: {'detail': 'bad request'},
-        headers: Headers.fromMap({'X-Trace-Id': ['trace-xyz']}),
+        headers: Headers.fromMap({
+          'X-Trace-Id': ['trace-xyz'],
+        }),
       );
 
-      _fireError(interceptor,
-          DioException.badResponse(
-            statusCode: 400,
-            requestOptions: reqOptions,
-            response: response,
-          ));
+      _fireError(
+        interceptor,
+        DioException.badResponse(
+          statusCode: 400,
+          requestOptions: reqOptions,
+          response: response,
+        ),
+      );
 
       final info = diagnostics.last;
       expect(info, isNotNull);
@@ -99,12 +103,14 @@ void main() {
         data: {'detail': 'unavailable', 'traceId': 'body-trace'},
       );
 
-      _fireError(interceptor,
-          DioException.badResponse(
-            statusCode: 503,
-            requestOptions: reqOptions,
-            response: response,
-          ));
+      _fireError(
+        interceptor,
+        DioException.badResponse(
+          statusCode: 503,
+          requestOptions: reqOptions,
+          response: response,
+        ),
+      );
 
       expect(diagnostics.last?.traceId, 'body-trace');
     });
@@ -117,12 +123,14 @@ void main() {
         data: null,
       );
 
-      _fireError(interceptor,
-          DioException.badResponse(
-            statusCode: 500,
-            requestOptions: reqOptions,
-            response: response,
-          ));
+      _fireError(
+        interceptor,
+        DioException.badResponse(
+          statusCode: 500,
+          requestOptions: reqOptions,
+          response: response,
+        ),
+      );
 
       expect(diagnostics.last, isNull);
     });
@@ -133,13 +141,18 @@ void main() {
           path: '/tenant/sell',
           headers: {'X-Request-Id': 'tch_req_$i'},
         );
-        _fireError(interceptor,
-            DioException.badResponse(
-              statusCode: 400,
+        _fireError(
+          interceptor,
+          DioException.badResponse(
+            statusCode: 400,
+            requestOptions: reqOptions,
+            response: Response<dynamic>(
               requestOptions: reqOptions,
-              response: Response<dynamic>(
-                  requestOptions: reqOptions, statusCode: 400, data: null),
-            ));
+              statusCode: 400,
+              data: null,
+            ),
+          ),
+        );
       }
 
       expect(diagnostics.all.length, 5);
@@ -164,12 +177,14 @@ void main() {
         }),
       );
 
-      _fireError(interceptor,
-          DioException.badResponse(
-            statusCode: 422,
-            requestOptions: reqOptions,
-            response: response,
-          ));
+      _fireError(
+        interceptor,
+        DioException.badResponse(
+          statusCode: 422,
+          requestOptions: reqOptions,
+          response: response,
+        ),
+      );
 
       final text = diagnostics.last!.toCopyText();
       expect(text, contains('requestId=tch_req_copytest'));

@@ -45,7 +45,8 @@ import org.testcontainers.utility.DockerImageName;
 @SpringBootTest(
     classes = {
         TchalanetApplication.class,
-        ProviderSessionTokenIssuerIntegrationTestConfig.class
+        ProviderSessionTokenIssuerIntegrationTestConfig.class,
+        BusinessRuntimeIntegrationTestBase.FixedClockConfiguration.class
     },
     properties = {
         "tch.identity.provider=local-jwt",

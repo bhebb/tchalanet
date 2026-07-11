@@ -4,7 +4,7 @@ import com.tchalanet.server.common.types.id.*;
 import com.tchalanet.server.core.draw.api.query.DrawResultSummary;
 import com.tchalanet.server.core.draw.api.query.DrawSummary;
 import com.tchalanet.server.core.draw.internal.infra.persistence.view.DrawSummaryViewEntity;
-import com.tchalanet.server.core.drawresult.internal.domain.model.DrawResultStatus;
+import com.tchalanet.server.core.drawresult.api.model.DrawResultStatus;
 import org.springframework.stereotype.Component;
 
 @Component

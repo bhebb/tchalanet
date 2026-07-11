@@ -4,7 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.tchalanet.server.core.draw.api.command.GenerateDrawsForRangeCommand;
 import com.tchalanet.server.core.draw.api.command.OpenDueDrawsCommand;
+import com.tchalanet.server.core.draw.api.query.ListCashierNextDrawsQuery;
 import com.tchalanet.server.features.pos.draws.PosDrawsService;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,11 +34,28 @@ class DrawSellabilitySpringIntegrationTest extends BusinessRuntimeIntegrationTes
         var opened = withContext(tenantAdminContext, () ->
             commandBus.execute(new OpenDueDrawsCommand(FIXED_NOW, 100, 48, 1, false)));
 
+        var openDrawCount = jdbc.queryForObject(
+            """
+            select count(*)
+            from v_draw_summary
+            where tenant_id = ?
+              and status = 'OPEN'
+              and cutoff_at > ?
+              and scheduled_at < ?
+            """,
+            Integer.class,
+            tenantId.value(),
+            Timestamp.from(FIXED_NOW),
+            Timestamp.from(FIXED_NOW.plusSeconds(48 * 3600)));
+        var cashierRows = withContext(sellerContext, () ->
+            queryBus.ask(new ListCashierNextDrawsQuery(48, 20)));
         var available = withContext(sellerContext, () ->
             posDrawsService.listAvailable(sellerContext, 48, 20));
 
         assertThat(generated.created()).isGreaterThan(0);
         assertThat(opened.opened()).isGreaterThan(0);
+        assertThat(openDrawCount).isGreaterThan(0);
+        assertThat(cashierRows).isNotEmpty();
         assertThat(available)
             .isNotEmpty()
             .allSatisfy(draw -> {

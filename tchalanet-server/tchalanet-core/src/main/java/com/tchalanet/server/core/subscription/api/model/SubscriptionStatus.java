@@ -1,4 +1,4 @@
-package com.tchalanet.server.core.subscription.internal.domain.model;
+package com.tchalanet.server.core.subscription.api.model;
 
 /**
  * Subscription status enum (tenant lifecycle).

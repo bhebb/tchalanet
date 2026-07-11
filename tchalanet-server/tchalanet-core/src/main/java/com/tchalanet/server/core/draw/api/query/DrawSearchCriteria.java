@@ -72,6 +72,21 @@ public record DrawSearchCriteria(
             null);
     }
 
+    public static DrawSearchCriteria forNextOpen(
+        ResultSlotId resultSlotId,
+        int lookaheadHours,
+        int limitPerChannel) {
+
+        return new DrawSearchCriteria(
+            resultSlotId,
+            DrawStatus.OPEN,
+            null,
+            null,
+            limitPerChannel,
+            lookaheadHours,
+            null);
+    }
+
     public static DrawSearchCriteria forLatestWithResults(List<String> resultSlotKeys) {
         return new DrawSearchCriteria(
             null,

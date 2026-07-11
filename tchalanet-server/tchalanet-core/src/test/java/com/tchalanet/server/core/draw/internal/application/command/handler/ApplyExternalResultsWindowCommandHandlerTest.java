@@ -18,7 +18,7 @@ import com.tchalanet.server.core.draw.api.command.ApplyExternalResultsWindowComm
 import com.tchalanet.server.core.draw.api.event.DrawResultAppliedEvent;
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawApplyPort;
 import com.tchalanet.server.core.drawresult.api.query.view.DrawResultView;
-import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultProjection;
+import com.tchalanet.server.core.drawresult.api.query.view.DrawResultProjection;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultReaderPort;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultsCriteria;
 import com.tchalanet.server.core.drawresult.internal.domain.model.DrawResult;

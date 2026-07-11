@@ -1,4 +1,4 @@
-package com.tchalanet.server.core.drawresult.internal.domain.model;
+package com.tchalanet.server.core.drawresult.api.model;
 
 public enum DrawResultStatus {
     PROVISIONAL,

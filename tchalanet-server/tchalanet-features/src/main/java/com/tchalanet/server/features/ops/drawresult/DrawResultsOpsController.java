@@ -21,7 +21,7 @@ import com.tchalanet.server.core.drawresult.api.command.*;
 import com.tchalanet.server.core.drawresult.api.query.GetDrawResultViewByIdQuery;
 import com.tchalanet.server.core.drawresult.api.query.GetDrawResultViewBySlotQuery;
 import com.tchalanet.server.core.drawresult.api.query.ListDrawResultsQuery;
-import com.tchalanet.server.core.drawresult.internal.domain.model.DrawResultStatus;
+import com.tchalanet.server.core.drawresult.api.model.DrawResultStatus;
 import com.tchalanet.server.features.ops.batch.OpsBatchLaunchFacade;
 import com.tchalanet.server.features.ops.batch.model.OpsLaunchResponse;
 import com.tchalanet.server.features.ops.drawresult.model.*;

@@ -1,4 +1,4 @@
-package com.tchalanet.server.core.drawresult.internal.application.port.out;
+package com.tchalanet.server.core.drawresult.api.query.view;
 
 import com.tchalanet.server.common.types.id.DrawResultId;
 

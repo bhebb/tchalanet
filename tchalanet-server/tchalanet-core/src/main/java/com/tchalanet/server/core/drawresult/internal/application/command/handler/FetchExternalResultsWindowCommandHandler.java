@@ -21,7 +21,7 @@ import com.tchalanet.server.core.drawresult.internal.application.service.FetchCo
 import com.tchalanet.server.core.drawresult.internal.application.service.HaitiProjectionService;
 import com.tchalanet.server.core.drawresult.internal.application.service.ResolvedExternalResults;
 import com.tchalanet.server.core.drawresult.internal.application.service.ResultSlotSourceConfigResolver;
-import com.tchalanet.server.core.drawresult.internal.domain.model.DrawResultStatus;
+import com.tchalanet.server.core.drawresult.api.model.DrawResultStatus;
 import com.tchalanet.server.core.drawresult.internal.infra.config.DrawResultsProperties;
 import java.time.Clock;
 import java.time.Instant;

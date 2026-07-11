@@ -6,7 +6,7 @@ import com.tchalanet.server.common.types.id.DrawResultId;
 import java.time.Instant;
 import java.time.LocalDate;
 
-import com.tchalanet.server.core.drawresult.internal.domain.model.DrawResultStatus;
+import com.tchalanet.server.core.drawresult.api.model.DrawResultStatus;
 import tools.jackson.databind.JsonNode;
 import com.tchalanet.server.common.json.utils.JsonUtils;
 

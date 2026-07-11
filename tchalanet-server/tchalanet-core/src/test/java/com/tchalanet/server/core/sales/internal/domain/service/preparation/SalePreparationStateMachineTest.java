@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.sales.internal.domain.service.preparation;
 
-import com.tchalanet.server.common.web.error.ProblemRestException;
+import com.tchalanet.server.common.exception.TchConflictException;
 import com.tchalanet.server.core.sales.api.model.preparation.SalePreparationStatus;
 import com.tchalanet.server.core.sales.internal.domain.model.preparation.SalePreparationTransition;
 import org.junit.jupiter.api.DisplayName;
@@ -34,7 +34,7 @@ class SalePreparationStateMachineTest {
             SalePreparationStatus.CANCELLED }) {
             for (var transition : SalePreparationTransition.values()) {
                 assertThatThrownBy(() -> machine.apply(status, transition))
-                    .isInstanceOf(ProblemRestException.class);
+                    .isInstanceOf(TchConflictException.class);
             }
         }
     }
@@ -43,6 +43,6 @@ class SalePreparationStateMachineTest {
     @DisplayName("null status is rejected")
     void nullStatusRejected() {
         assertThatThrownBy(() -> machine.apply(null, SalePreparationTransition.CONFIRM))
-            .isInstanceOf(ProblemRestException.class);
+            .isInstanceOf(TchConflictException.class);
     }
 }

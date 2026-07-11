@@ -4,7 +4,7 @@ import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.DrawResultId;
 import com.tchalanet.server.core.draw.api.model.DrawStatus;
-import com.tchalanet.server.core.drawresult.internal.domain.model.DrawResultStatus;
+import com.tchalanet.server.core.drawresult.api.model.DrawResultStatus;
 import java.time.Instant;
 import java.time.LocalDate;
 

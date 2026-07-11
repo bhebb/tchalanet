@@ -16,7 +16,7 @@ import com.tchalanet.server.common.types.id.TicketLineId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.types.money.CurrencyCode;
 import com.tchalanet.server.common.types.money.Money;
-import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultProjection;
+import com.tchalanet.server.core.drawresult.api.query.view.DrawResultProjection;
 import com.tchalanet.server.core.sales.api.model.money.TicketMoneyBreakdown;
 import com.tchalanet.server.core.sales.api.model.origin.TicketSaleChannel;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineOrigin;

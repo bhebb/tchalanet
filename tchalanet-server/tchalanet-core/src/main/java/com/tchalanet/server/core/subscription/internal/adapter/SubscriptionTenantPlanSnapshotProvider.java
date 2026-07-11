@@ -2,7 +2,7 @@ package com.tchalanet.server.core.subscription.internal.adapter;
 
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.subscription.internal.application.port.out.SubscriptionReaderPort;
-import com.tchalanet.server.core.subscription.internal.domain.model.SubscriptionStatus;
+import com.tchalanet.server.core.subscription.api.model.SubscriptionStatus;
 import com.tchalanet.server.platform.entitlement.api.TenantPlanSnapshotProvider;
 import com.tchalanet.server.platform.entitlement.api.model.TenantPlanSnapshot;
 import com.tchalanet.server.platform.entitlement.api.model.TenantPlanStatus;

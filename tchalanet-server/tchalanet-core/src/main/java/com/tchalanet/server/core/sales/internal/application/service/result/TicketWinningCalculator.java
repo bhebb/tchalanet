@@ -3,7 +3,7 @@ package com.tchalanet.server.core.sales.internal.application.service.result;
 import com.tchalanet.server.catalog.game.api.model.BetType;
 import com.tchalanet.server.common.types.id.TicketLineId;
 import com.tchalanet.server.common.types.money.Money;
-import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultProjection;
+import com.tchalanet.server.core.drawresult.api.query.view.DrawResultProjection;
 import com.tchalanet.server.core.pricing.api.model.PayoutRuleType;
 import com.tchalanet.server.core.pricing.api.model.PricingVariantCode;
 import com.tchalanet.server.core.sales.api.model.line.TicketLineResult;
