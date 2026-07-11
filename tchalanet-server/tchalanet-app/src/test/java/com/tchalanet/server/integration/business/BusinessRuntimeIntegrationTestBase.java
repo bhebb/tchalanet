@@ -38,8 +38,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
 @SpringBootTest(
@@ -57,14 +55,12 @@ import org.testcontainers.utility.DockerImageName;
         "management.otlp.metrics.export.enabled=false"
     })
 @ContextConfiguration(initializers = BusinessRuntimeIntegrationTestBase.FlywayContainerInitializer.class)
-@Testcontainers
 abstract class BusinessRuntimeIntegrationTestBase {
 
     static final Instant FIXED_NOW = Instant.parse("2026-07-08T14:00:00Z");
     static final UUID ADMIN_USER_ID = UUID.fromString("00000000-0000-0000-0000-000000010002");
     static final UUID SELLER_TERMINAL_ID = UUID.fromString("88000000-0000-0000-0000-000000000001");
 
-    @Container
     static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>(
         DockerImageName.parse("postgres:18.4").asCompatibleSubstituteFor("postgres"))
         .withDatabaseName("tchalanet_db")
