@@ -79,7 +79,7 @@ WITH t AS (
                      ]'::jsonb
                  WHEN 'HT_MARYAJ' THEN
                      '[
-                       {"betType":"MARRIAGE_2D2D","selectionPolicy":"EXPLICIT_ONLY","defaultOption":1,
+                       {"betType":"MARRIAGE_2D2D","selectionPolicy":"IMPLICIT_BEST_MATCH","defaultOption":1,
                         "options":[
                           {"code":1,"enabled":true,"visibleInPos":true,"displayOrder":1},
                           {"code":2,"enabled":true,"visibleInPos":true,"displayOrder":2}
@@ -87,7 +87,7 @@ WITH t AS (
                      ]'::jsonb
                  WHEN 'HT_MARYAJ_GRATIS' THEN
                      '[
-                       {"betType":"MARRIAGE_2D2D","selectionPolicy":"EXPLICIT_ONLY","defaultOption":1,
+                       {"betType":"MARRIAGE_2D2D","selectionPolicy":"IMPLICIT_BEST_MATCH","defaultOption":1,
                         "options":[
                           {"code":1,"enabled":true,"visibleInPos":true,"displayOrder":1},
                           {"code":2,"enabled":true,"visibleInPos":true,"displayOrder":2}
@@ -95,7 +95,7 @@ WITH t AS (
                      ]'::jsonb
                  WHEN 'HT_LOTO3' THEN
                      '[
-                       {"betType":"LOTTO3_3D","selectionPolicy":"EXPLICIT_ONLY","defaultOption":1,
+                       {"betType":"LOTTO3_3D","selectionPolicy":"IMPLICIT_BEST_MATCH","defaultOption":1,
                         "options":[
                           {"code":1,"enabled":true,"visibleInPos":true,"displayOrder":1},
                           {"code":2,"enabled":true,"visibleInPos":true,"displayOrder":2}
@@ -103,7 +103,7 @@ WITH t AS (
                      ]'::jsonb
                  WHEN 'HT_LOTO4' THEN
                      '[
-                       {"betType":"LOTTO4_PATTERN","selectionPolicy":"EXPLICIT_ONLY","defaultOption":1,
+                       {"betType":"LOTTO4_PATTERN","selectionPolicy":"IMPLICIT_BEST_MATCH","defaultOption":1,
                         "options":[
                           {"code":1,"enabled":true,"visibleInPos":true,"displayOrder":1},
                           {"code":2,"enabled":true,"visibleInPos":true,"displayOrder":2},
@@ -113,7 +113,7 @@ WITH t AS (
                      ]'::jsonb
                  WHEN 'HT_LOTO5' THEN
                      '[
-                       {"betType":"LOTTO5_PATTERN","selectionPolicy":"EXPLICIT_ONLY","defaultOption":1,
+                       {"betType":"LOTTO5_PATTERN","selectionPolicy":"IMPLICIT_BEST_MATCH","defaultOption":1,
                         "options":[
                           {"code":1,"enabled":true,"visibleInPos":true,"displayOrder":1},
                           {"code":2,"enabled":true,"visibleInPos":true,"displayOrder":2},
