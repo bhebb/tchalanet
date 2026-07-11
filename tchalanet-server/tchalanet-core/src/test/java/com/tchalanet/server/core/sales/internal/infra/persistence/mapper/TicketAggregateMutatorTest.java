@@ -12,26 +12,29 @@ import com.tchalanet.server.common.types.id.TicketLineId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.types.money.CurrencyCode;
 import com.tchalanet.server.common.types.money.Money;
-import com.tchalanet.server.core.pricing.api.model.PricingVariantCode;
 import com.tchalanet.server.core.sales.api.model.line.TicketLineResult;
 import com.tchalanet.server.core.sales.api.model.money.TicketMoneyBreakdown;
 import com.tchalanet.server.core.sales.api.model.origin.TicketSaleChannel;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintStateStatus;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineOrigin;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSource;
+import com.tchalanet.server.core.sales.api.model.settlement.PayoutRuleSnapshot;
+import com.tchalanet.server.core.sales.api.model.settlement.SettlementRuleCode;
+import com.tchalanet.server.core.sales.api.model.settlement.SettlementTermSnapshot;
+import com.tchalanet.server.core.sales.api.model.settlement.SettlementTermSource;
+import com.tchalanet.server.core.sales.api.model.settlement.SettlementTermsSnapshot;
+import com.tchalanet.server.core.sales.api.model.settlement.SettlementWinMode;
 import com.tchalanet.server.core.sales.api.model.status.TicketLineResultStatus;
 import com.tchalanet.server.core.sales.api.model.status.TicketResultStatus;
 import com.tchalanet.server.core.sales.api.model.status.TicketSaleStatus;
-import com.tchalanet.server.core.sales.api.model.coverage.SettlementPayoutMode;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.Ticket;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketCodes;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketContext;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketIdentity;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
-import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLineCoverage;
-import com.tchalanet.server.core.sales.internal.domain.model.ticket.WinMode;
 import com.tchalanet.server.core.selection.api.model.Selection;
 import com.tchalanet.server.core.selection.api.model.SelectionKey;
+import com.tchalanet.server.platform.tenantgame.api.model.SelectionPolicy;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -112,28 +115,23 @@ class TicketAggregateMutatorTest {
     }
 
     @Test
-    @DisplayName("maps ticket line coverages round-trip")
-    void mapsCoverageRoundTrip() {
+    @DisplayName("maps ticket line settlement terms round-trip without coverage table")
+    void mapsSettlementTermsRoundTrip() {
         var original = ticketWithCoverageLine();
         var entity = MAPPER.toEntity(original);
 
         assertThat(entity.getLines()).hasSize(1);
         var lineEntity = entity.getLines().getFirst();
-        assertThat(lineEntity.getCoverages())
-            .extracting(coverage -> coverage.getPricingVariantCode().name())
+        assertThat(lineEntity.getSettlementTermsSnapshot().terms())
+            .extracting(term -> term.ruleCode().name())
             .containsExactly("LOTTO3_STRAIGHT", "LOTTO3_BOX_6_WAY");
-        assertThat(lineEntity.getCoverages().get(0).getSettlementPayoutSnapshot()).isEqualByComparingTo("5000");
-        assertThat(lineEntity.getCoverages().get(1).getSettlementPayoutSnapshot()).isEqualByComparingTo("800");
 
         var roundTrip = MAPPER.toDomain(entity);
 
         assertThat(roundTrip.lines()).hasSize(1);
         var line = roundTrip.lines().getFirst();
-        assertThat(line.settlementPayoutMode()).isEqualTo(SettlementPayoutMode.RANGE_ALTERNATIVE);
-        assertThat(line.minSettlementPayout().amount()).isEqualByComparingTo("800");
-        assertThat(line.maxSettlementPayout().amount()).isEqualByComparingTo("5000");
-        assertThat(line.coverages())
-            .extracting(coverage -> coverage.pricingVariantCode().name())
+        assertThat(line.settlementTermsSnapshot().terms())
+            .extracting(term -> term.ruleCode().name())
             .containsExactly("LOTTO3_STRAIGHT", "LOTTO3_BOX_6_WAY");
     }
 
@@ -237,7 +235,7 @@ class TicketAggregateMutatorTest {
             context(),
             TicketCodes.from("TCK-123456-123456-ABC123-4", "ABCD-1234", "WXYZ-5678"),
             new TicketMoneyBreakdown(money("20"), List.of(), money("20")),
-            List.of(coverageLine()),
+            List.of(multiTermLine()),
             TicketSaleChannel.POS_ONLINE,
             false,
             null,
@@ -270,7 +268,6 @@ class TicketAggregateMutatorTest {
             money("10"),
             money("125"),
             new BigDecimal("12.5"),
-            money("125"),
             null,
             TicketLineOrigin.CUSTOMER,
             TicketLinePricingSource.STANDARD,
@@ -292,7 +289,6 @@ class TicketAggregateMutatorTest {
             money("0"),
             money("0"),
             new BigDecimal("12.5"),
-            money("0"),
             null,
             TicketLineOrigin.CUSTOMER,
             TicketLinePricingSource.STANDARD,
@@ -304,7 +300,7 @@ class TicketAggregateMutatorTest {
             money("0"));
     }
 
-    private static TicketLine coverageLine() {
+    private static TicketLine multiTermLine() {
         return new TicketLine(
             TicketLineId.of(UUID.fromString("43000000-0000-0000-0000-000000000001")),
             1,
@@ -312,28 +308,14 @@ class TicketAggregateMutatorTest {
             BetType.LOTTO3_3D,
             new Selection(SelectionKey.of("123"), "123"),
             money("20"),
-            money("20"),
-            new BigDecimal("500"),
-            money("5000"),
-            SettlementPayoutMode.RANGE_ALTERNATIVE,
-            money("800"),
-            money("5000"),
-            null,
-            List.of(
-                new TicketLineCoverage(
-                    PricingVariantCode.LOTTO3_STRAIGHT,
-                    money("10"),
-                    new BigDecimal("500"),
-                    money("5000"),
-                    WinMode.ALTERNATIVE),
-                new TicketLineCoverage(
-                    PricingVariantCode.LOTTO3_BOX_6_WAY,
-                    money("10"),
-                    new BigDecimal("80"),
-                    money("800"),
-                    WinMode.ALTERNATIVE)
-            ),
+            SettlementTermsSnapshot.current(
+                SelectionPolicy.EXPLICIT_ONLY,
+                List.of(
+                    settlementTerm(SettlementRuleCode.LOTTO3_STRAIGHT, new BigDecimal("500")),
+                    settlementTerm(SettlementRuleCode.LOTTO3_BOX_6_WAY, new BigDecimal("80")))),
             (short) 3,
+            SelectionPolicy.EXPLICIT_ONLY,
+            "Exact + Permuté",
             TicketLineOrigin.CUSTOMER,
             TicketLinePricingSource.STANDARD,
             null,
@@ -342,6 +324,17 @@ class TicketAggregateMutatorTest {
             null,
             TicketLineResultStatus.PENDING,
             money("0"));
+    }
+
+    private static SettlementTermSnapshot settlementTerm(SettlementRuleCode ruleCode, BigDecimal multiplier) {
+        return new SettlementTermSnapshot(
+            ruleCode,
+            (short) 3,
+            "Exact + Permuté",
+            PayoutRuleSnapshot.stakeMultiplier(multiplier),
+            new BigDecimal("10"),
+            SettlementWinMode.ALTERNATIVE,
+            SettlementTermSource.TENANT_DEFAULT);
     }
 
     private static Ticket withLines(Ticket ticket, List<TicketLine> lines) {

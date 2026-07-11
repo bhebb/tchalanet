@@ -3,6 +3,7 @@ package com.tchalanet.server.features.tenantadmin.setup.model;
 import com.tchalanet.server.common.types.id.TenantGameId;
 import com.tchalanet.server.core.limitpolicy.api.RuleKey;
 import com.tchalanet.server.core.limitpolicy.BreachOutcome;
+import com.tchalanet.server.core.pricing.api.model.PayoutRuleType;
 import tools.jackson.databind.JsonNode;
 
 import java.math.BigDecimal;
@@ -48,6 +49,8 @@ public record TenantGamesPricingView(
         String betType,
         Short betOption,
         String pricingVariantCode,
-        BigDecimal odds
+        BigDecimal odds,
+        PayoutRuleType payoutRuleType,
+        BigDecimal fixedAmount
     ) {}
 }

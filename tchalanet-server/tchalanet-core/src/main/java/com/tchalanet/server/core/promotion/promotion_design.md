@@ -131,6 +131,8 @@ already in production and the exception has an ADR.
   no Spring, no I/O.
 - Decision persistence/cache, if present, is an implementation detail of the
   read side only. It must not become the historical applied snapshot.
+- Sale passes `sellerTerminalId` in the evaluation context. Any terminal-scoped
+  override must resolve from that context without copying the tenant campaign.
 
 ---
 
@@ -233,6 +235,43 @@ combination per `effect_type` is enforced by a domain validator at effect
 construction (including amount scale — a malformed amount is rejected here,
 not discovered during a sale).
 
+### seller_terminal_promotion_effect_override
+
+SellerTerminal promotion overrides are partial effect overrides. They never
+copy a campaign or rule tree.
+
+```text
+seller_terminal_promotion_effect_override
+  id, tenant_id
+  seller_terminal_id
+  campaign_id
+  rule_id
+  effect_type
+  game_code                         -- concrete game or * wildcard
+  effect_enabled                    -- nullable: default if null
+  quantity                          -- nullable: default if null
+  choice_mode                       -- nullable: default if null
+  generation_strategy               -- nullable: default if null
+  regenerable_before_confirm        -- nullable: default if null
+  max_regenerations_before_confirm  -- nullable: default if null
+  active
+```
+
+Merge order is explicit:
+
+```text
+seller-terminal effect override -> tenant campaign/rule/effect default
+```
+
+Example: the tenant campaign grants one auto-generated `HT_MARYAJ_GRATIS`
+line to everyone. Terminal Jean may override only that effect to grant two
+seller-selected lines, or disable that effect, without copying the campaign,
+eligibility, or any unrelated effects.
+
+The promotion decision `contextHash` includes a hash of active terminal
+overrides used to build the effective rules. Same sale context + different
+terminal promotion config must not share the same decision hash.
+
 ### promotion_rule_eligibility_line
 
 ```text
@@ -315,8 +354,15 @@ it does not yet have a database table.
 `EvaluatePromotionQueryHandler` is a **pure read**:
 
 - Loads active rules via `findActiveRules()` (no phase filter, §7).
+- Loads active SellerTerminal promotion effect overrides when
+  `tenantId + sellerTerminalId` are present in the context.
+- Builds effective rules by applying SellerTerminal overrides on top of tenant
+  campaign defaults. Overrides can change only nullable effect attributes
+  (`effect_enabled`, `quantity`, choice/generation/regeneration fields).
 - Delegates per-rule evaluation to the pure `PromotionRuleEvaluator`.
 - Builds a `PromotionDecision` (status `APPLIED` / `NOT_ELIGIBLE`).
+- Includes terminal override presence in notices and the terminal override hash
+  in the decision `contextHash`.
 - **Returns** the decision. It does NOT persist it — not on
   `SALE_CONFIRMATION`, not on any phase.
 - Never mutates rules or campaigns.
@@ -399,6 +445,10 @@ PromotionSelectionResolver   resolves the selection of a free line
 - These components **materialise** a decision; they never evaluate. The
   `PromotionDecision` is an input, already produced by `core.promotion`.
 - `SalePromotionEffectApplier` only acts on `status == APPLIED`.
+- Sales evaluates promotions only after paid command lines have been validated
+  and converted to paid `TicketLine`s. The promotion context receives those
+  paid lines only, with repeated game codes preserved for line-count
+  eligibility. Generated free lines never feed their own eligibility.
 - The `switch` over `effect.type()` has no silent `default`. An unknown effect
   type means Promotion produced something out of scope — a bug, not a warning.
   The default branch **throws** a domain exception (fail-fast); the sale does

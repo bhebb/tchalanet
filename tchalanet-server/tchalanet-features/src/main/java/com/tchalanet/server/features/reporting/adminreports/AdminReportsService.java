@@ -114,7 +114,6 @@ public class AdminReportsService {
         source.waivedCharges(),
         source.promotionLines(),
         source.promotionPricedLines(),
-        source.promotionPayoutBase(),
         source.netRevenueEstimated(),
         source.netRevenuePaidBasis());
   }
@@ -132,7 +131,6 @@ public class AdminReportsService {
         java.math.BigDecimal.ZERO,
         0L,
         0L,
-        java.math.BigDecimal.ZERO,
         rows.stream().map(AdminReportRows.DrawRow::netRevenueEstimated).reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add),
         rows.stream().map(AdminReportRows.DrawRow::netRevenuePaidBasis).reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add));
   }
@@ -150,7 +148,6 @@ public class AdminReportsService {
         rows.stream().map(AdminReportRows.SellerTerminalRow::waivedCharges).reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add),
         0L,
         0L,
-        java.math.BigDecimal.ZERO,
         rows.stream().map(AdminReportRows.SellerTerminalRow::netRevenueEstimated).reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add),
         rows.stream().map(AdminReportRows.SellerTerminalRow::netRevenuePaidBasis).reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add));
   }

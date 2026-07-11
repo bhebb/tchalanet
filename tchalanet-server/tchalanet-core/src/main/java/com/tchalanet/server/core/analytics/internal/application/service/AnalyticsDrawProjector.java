@@ -72,8 +72,6 @@ public class AnalyticsDrawProjector {
             .waivedChargeCents(0L)
             .promotionLineCount(0L)
             .promotionPricedLineCount(0L)
-            .promotionPayoutBaseCents(0L)
-            .promotionPotentialPayoutCents(0L)
             .netRevenueEstimatedCents(0L)
             .netRevenuePaidBasisCents(0L)
             .createdAt(now)
@@ -90,7 +88,6 @@ public class AnalyticsDrawProjector {
     entity.setWaivedChargeCents(entity.getWaivedChargeCents() + charges.waivedCents());
     entity.setPromotionLineCount(entity.getPromotionLineCount() + promotions.lineCount());
     entity.setPromotionPricedLineCount(entity.getPromotionPricedLineCount() + promotions.pricedLineCount());
-    entity.setPromotionPayoutBaseCents(entity.getPromotionPayoutBaseCents() + promotions.payoutBaseCents());
     entity.setNetRevenueEstimatedCents(
         entity.getNetRevenueEstimatedCents() + stakeCents - sellerCommissionCents - charges.tenantCents());
     entity.setNetRevenuePaidBasisCents(
@@ -156,8 +153,6 @@ public class AnalyticsDrawProjector {
             .waivedChargeCents(0L)
             .promotionLineCount(0L)
             .promotionPricedLineCount(0L)
-            .promotionPayoutBaseCents(0L)
-            .promotionPotentialPayoutCents(0L)
             .netRevenueEstimatedCents(0L)
             .netRevenuePaidBasisCents(0L)
             .createdAt(now)
@@ -231,8 +226,6 @@ public class AnalyticsDrawProjector {
             .waivedChargeCents(0L)
             .promotionLineCount(0L)
             .promotionPricedLineCount(0L)
-            .promotionPayoutBaseCents(0L)
-            .promotionPotentialPayoutCents(0L)
             .netRevenueEstimatedCents(0L)
             .netRevenuePaidBasisCents(0L)
             .createdAt(now)
@@ -289,19 +282,17 @@ public class AnalyticsDrawProjector {
     static PromotionTotals from(TicketPlacedEvent event) {
       long lineCount = 0L;
       long pricedLineCount = 0L;
-      long payoutBase = 0L;
 
       for (var line : event.lines()) {
         if (line.origin() == TicketLineOrigin.PROMOTION) {
           lineCount++;
-          payoutBase += toCents(line.payoutBaseAmount() != null ? line.payoutBaseAmount().amount() : null);
         }
         if (line.pricingSource() == TicketLinePricingSource.PROMOTION) {
           pricedLineCount++;
         }
       }
 
-      return new PromotionTotals(lineCount, pricedLineCount, payoutBase);
+      return new PromotionTotals(lineCount, pricedLineCount, 0L);
     }
   }
 }

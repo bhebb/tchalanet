@@ -42,7 +42,10 @@ class InMemorySalePreparationStore implements SalePreparationStorePort {
             .map(l -> l.lineRef().equals(lineRef)
                 ? new SalePreparationPromotionLine(
                     l.lineRef(), l.gameCode(), l.betType(), l.betOption(), selection,
-                    l.payoutBaseAmount(), l.promotionDecisionId(), l.promotionRuleId(),
+                    com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource.PROMOTION_GENERATED,
+                    l.choiceMode(), l.promotionDecisionId(), l.promotionRuleId(),
+                    l.promotionRuleKey(), l.promotionEffectType(),
+                    l.promotionDecisionContextHash(), l.promotionDecisionEngineVersion(),
                     l.regenerable(), l.maxRegenerations(), regenerationCount)
                 : l)
             .toList();

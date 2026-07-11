@@ -35,7 +35,6 @@ public record TenantFinancialBreakdownView(
       BigDecimal waivedCharges,
       long promotionLines,
       long promotionPricedLines,
-      BigDecimal promotionPayoutBase,
       BigDecimal netRevenueEstimated,
       BigDecimal netRevenuePaidBasis
   ) {}
@@ -53,7 +52,6 @@ public record TenantFinancialBreakdownView(
       BigDecimal waivedCharges,
       long promotionLines,
       long promotionPricedLines,
-      BigDecimal promotionPayoutBase,
       BigDecimal netRevenueEstimated,
       BigDecimal netRevenuePaidBasis
   ) {}
@@ -75,7 +73,6 @@ public record TenantFinancialBreakdownView(
       BigDecimal waivedCharges,
       long promotionLines,
       long promotionPricedLines,
-      BigDecimal promotionPayoutBase,
       BigDecimal netRevenueEstimated,
       BigDecimal netRevenuePaidBasis
   ) {}
@@ -92,7 +89,6 @@ public record TenantFinancialBreakdownView(
       BigDecimal waivedCharges,
       long promotionLines,
       long promotionPricedLines,
-      BigDecimal promotionPayoutBase,
       BigDecimal netRevenueEstimated,
       BigDecimal netRevenuePaidBasis
   ) {}
@@ -115,7 +111,6 @@ public record TenantFinancialBreakdownView(
       BigDecimal waivedCharges,
       long promotionLines,
       long promotionPricedLines,
-      BigDecimal promotionPayoutBase,
       BigDecimal netRevenueEstimated,
       BigDecimal netRevenuePaidBasis
   ) {}

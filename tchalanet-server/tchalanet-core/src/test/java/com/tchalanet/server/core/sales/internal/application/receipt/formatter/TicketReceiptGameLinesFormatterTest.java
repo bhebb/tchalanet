@@ -99,6 +99,63 @@ class TicketReceiptGameLinesFormatterTest {
         assertThat(text).doesNotContain("Promotion: Maryaj gratuit");
     }
 
+    @Test
+    void doesNotTreatPaidMaryajZeroStakeAsComplimentaryMaryaj() {
+        var lines = formatter.format(
+            List.of(new TicketReceiptLineView(
+                1,
+                "HT_MARYAJ",
+                "MARRIAGE_2D2D",
+                (short) 1,
+                "Permuté",
+                "MARYAJ",
+                "1234",
+                money("0"),
+                SelectionPolicy.EXPLICIT_ONLY,
+                false,
+                null,
+                null
+            )),
+            translations(),
+            THERMAL_58
+        );
+
+        var text = joined(lines);
+        assertThat(text).contains("12 × 34");
+        assertThat(text).contains("Permuté");
+        assertThat(text).doesNotContain("* 12 × 34");
+        assertThat(text).doesNotContain("* Maryaj offert");
+    }
+
+    @Test
+    void complimentaryMaryajDoesNotPrintFixedAmountsOrOdds() {
+        var lines = formatter.format(
+            List.of(new TicketReceiptLineView(
+                2,
+                "HT_MARYAJ_GRATIS",
+                "MARRIAGE_2D2D",
+                (short) 2,
+                "Exact",
+                "MARYAJ",
+                "56-78",
+                money("0"),
+                SelectionPolicy.EXPLICIT_ONLY,
+                true,
+                "receipt.promotion.free_game_line",
+                "FREE_GAME_LINE"
+            )),
+            translations(),
+            THERMAL_58
+        );
+
+        var text = joined(lines);
+        assertThat(text).contains("* 56 × 78");
+        assertThat(text).contains("GRATIS");
+        assertThat(text).doesNotContain("2000");
+        assertThat(text).doesNotContain("10000");
+        assertThat(text).doesNotContain("50");
+    }
+
     private TicketReceiptI18nResolver.TicketReceiptTranslations translations() {
         return new TicketReceiptI18nResolver.TicketReceiptTranslations(Map.of(
             TicketReceiptI18nKeys.LINE_HEADER_NO, "No",

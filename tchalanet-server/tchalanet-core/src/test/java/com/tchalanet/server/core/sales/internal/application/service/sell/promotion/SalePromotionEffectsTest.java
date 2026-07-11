@@ -21,8 +21,9 @@ import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffect;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffectType;
 import com.tchalanet.server.core.promotion.api.model.PromotionEvaluationPhase;
 import com.tchalanet.server.core.pricing.api.model.OddsSource;
-import com.tchalanet.server.core.pricing.api.model.SellerTerminalOddsResolutionView;
-import com.tchalanet.server.core.pricing.api.query.ResolveSellerTerminalOddsQuery;
+import com.tchalanet.server.core.pricing.api.model.PayoutRuleType;
+import com.tchalanet.server.core.pricing.api.model.SellerTerminalPayoutRuleResolutionView;
+import com.tchalanet.server.core.pricing.api.query.ResolveSellerTerminalPayoutRuleQuery;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketCommand;
 import com.tchalanet.server.core.sales.api.command.sell.PromotionChoiceInput;
 import com.tchalanet.server.core.sales.api.model.money.ChargePaidBy;
@@ -83,15 +84,21 @@ class SalePromotionEffectsTest {
         @Override
         @SuppressWarnings("unchecked")
         public <R> R ask(Query<R> query) {
-            var q = (ResolveSellerTerminalOddsQuery) query;
-            return (R) new SellerTerminalOddsResolutionView(
+            var q = (ResolveSellerTerminalPayoutRuleQuery) query;
+            return (R) new SellerTerminalPayoutRuleResolutionView(
                 q.gameCode(),
                 q.pricingVariantCode(),
                 q.betType(),
                 q.betOption(),
+                PayoutRuleType.STAKE_MULTIPLIER,
                 new BigDecimal("12.5"),
                 null,
+                null,
+                null,
+                null,
+                PayoutRuleType.STAKE_MULTIPLIER,
                 new BigDecimal("12.5"),
+                null,
                 OddsSource.TENANT_DEFAULT
             );
         }
@@ -190,7 +197,8 @@ class SalePromotionEffectsTest {
 
             assertThat(result.ticketLines()).hasSize(1);
             var boosted = result.ticketLines().get(0);
-            assertThat(boosted.oddsSnapshot()).isEqualByComparingTo("20.0000");
+            assertThat(boosted.settlementTermsSnapshot().terms().getFirst().payoutRule().multiplier())
+                .isEqualByComparingTo("20.0000");
             assertThat(boosted.pricingSource()).isEqualTo(TicketLinePricingSource.PROMOTION);
             assertThat(boosted.promotionDecisionId()).isEqualTo(decision.decisionId());
             assertThat(boosted.promotionLabel()).isEqualTo(TicketReceiptI18nKeys.PROMOTION_BOOST_ODDS);
@@ -213,7 +221,8 @@ class SalePromotionEffectsTest {
             );
 
             var unchanged = result.ticketLines().get(0);
-            assertThat(unchanged.oddsSnapshot()).isEqualByComparingTo("12.5");
+            assertThat(unchanged.settlementTermsSnapshot().terms().getFirst().payoutRule().multiplier())
+                .isEqualByComparingTo("12.5");
             assertThat(unchanged.pricingSource()).isEqualTo(TicketLinePricingSource.STANDARD);
             assertThat(unchanged.promotionDecisionId()).isNull();
         }
@@ -260,8 +269,10 @@ class SalePromotionEffectsTest {
             assertThat(promoLine.origin()).isEqualTo(TicketLineOrigin.PROMOTION);
             assertThat(promoLine.pricingSource()).isEqualTo(TicketLinePricingSource.PROMOTION);
             assertThat(promoLine.stakeAmount()).isEqualTo(Money.zero(HTG));
-            assertThat(promoLine.payoutBaseAmount().amount()).isEqualByComparingTo("125");
-            assertThat(promoLine.oddsSnapshot()).isEqualByComparingTo("12.5");
+            assertThat(promoLine.settlementTermsSnapshot().terms().getFirst().payoutBaseAmount())
+                .isEqualByComparingTo("125");
+            assertThat(promoLine.settlementTermsSnapshot().terms().getFirst().payoutRule().multiplier())
+                .isEqualByComparingTo("12.5");
             assertThat(promoLine.promotionDecisionId()).isEqualTo(decision.decisionId());
             assertThat(promoLine.promotionLabel()).isEqualTo(TicketReceiptI18nKeys.PROMOTION_FREE_GAME_LINE);
         }
@@ -442,7 +453,6 @@ class SalePromotionEffectsTest {
             money("10"),
             money("10"),
             new BigDecimal("12.5"),
-            money("125"),
             null,
             TicketLineOrigin.CUSTOMER,
             TicketLinePricingSource.STANDARD,

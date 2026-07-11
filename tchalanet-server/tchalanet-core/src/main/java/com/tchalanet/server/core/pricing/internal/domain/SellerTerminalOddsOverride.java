@@ -4,6 +4,7 @@ import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.SellerTerminalOddsOverrideId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
+import com.tchalanet.server.core.pricing.api.model.PayoutRuleType;
 import com.tchalanet.server.core.pricing.api.model.PricingVariantCode;
 
 import java.math.BigDecimal;
@@ -18,6 +19,8 @@ public record SellerTerminalOddsOverride(
     String betType,
     Short betOption,
     BigDecimal odds,
+    PayoutRuleType payoutRuleType,
+    BigDecimal fixedAmount,
     boolean active,
     Instant effectiveFrom,
     Instant effectiveTo,
@@ -28,6 +31,58 @@ public record SellerTerminalOddsOverride(
     UserId updatedBy,
     Instant deletedAt
 ) {
+    public SellerTerminalOddsOverride {
+        payoutRuleType = payoutRuleType == null ? PayoutRuleType.STAKE_MULTIPLIER : payoutRuleType;
+        if (payoutRuleType == PayoutRuleType.FIXED_AMOUNT
+            && (fixedAmount == null || fixedAmount.signum() < 0)) {
+            throw new IllegalArgumentException("fixedAmount must be non-negative");
+        }
+        if (payoutRuleType == PayoutRuleType.STAKE_MULTIPLIER) {
+            fixedAmount = null;
+        }
+    }
+
+    public SellerTerminalOddsOverride(
+        SellerTerminalOddsOverrideId id,
+        TenantId tenantId,
+        SellerTerminalId sellerTerminalId,
+        String gameCode,
+        PricingVariantCode pricingVariantCode,
+        String betType,
+        Short betOption,
+        BigDecimal odds,
+        boolean active,
+        Instant effectiveFrom,
+        Instant effectiveTo,
+        String reason,
+        Instant createdAt,
+        UserId createdBy,
+        Instant updatedAt,
+        UserId updatedBy,
+        Instant deletedAt
+    ) {
+        this(
+            id,
+            tenantId,
+            sellerTerminalId,
+            gameCode,
+            pricingVariantCode,
+            betType,
+            betOption,
+            odds,
+            PayoutRuleType.STAKE_MULTIPLIER,
+            null,
+            active,
+            effectiveFrom,
+            effectiveTo,
+            reason,
+            createdAt,
+            createdBy,
+            updatedAt,
+            updatedBy,
+            deletedAt
+        );
+    }
 
     public static SellerTerminalOddsOverride createNew(
         SellerTerminalOddsOverrideId id,
@@ -47,7 +102,32 @@ public record SellerTerminalOddsOverride(
         return new SellerTerminalOddsOverride(
             id, tenantId, sellerTerminalId,
             gameCode, pricingVariantCode, betType, betOption,
-            odds, true,
+            odds, PayoutRuleType.STAKE_MULTIPLIER, null, true,
+            effectiveFrom, effectiveTo, reason,
+            now, actorId, now, actorId, null);
+    }
+
+    public static SellerTerminalOddsOverride createNew(
+        SellerTerminalOddsOverrideId id,
+        TenantId tenantId,
+        SellerTerminalId sellerTerminalId,
+        String gameCode,
+        PricingVariantCode pricingVariantCode,
+        String betType,
+        Short betOption,
+        BigDecimal odds,
+        PayoutRuleType payoutRuleType,
+        BigDecimal fixedAmount,
+        Instant effectiveFrom,
+        Instant effectiveTo,
+        String reason,
+        UserId actorId
+    ) {
+        var now = Instant.now();
+        return new SellerTerminalOddsOverride(
+            id, tenantId, sellerTerminalId,
+            gameCode, pricingVariantCode, betType, betOption,
+            odds, payoutRuleType, fixedAmount, true,
             effectiveFrom, effectiveTo, reason,
             now, actorId, now, actorId, null);
     }
@@ -59,10 +139,22 @@ public record SellerTerminalOddsOverride(
         String reason,
         UserId actorId
     ) {
+        return update(newOdds, PayoutRuleType.STAKE_MULTIPLIER, null, effectiveFrom, effectiveTo, reason, actorId);
+    }
+
+    public SellerTerminalOddsOverride update(
+        BigDecimal newOdds,
+        PayoutRuleType newPayoutRuleType,
+        BigDecimal newFixedAmount,
+        Instant effectiveFrom,
+        Instant effectiveTo,
+        String reason,
+        UserId actorId
+    ) {
         return new SellerTerminalOddsOverride(
             id, tenantId, sellerTerminalId,
             gameCode, pricingVariantCode, betType, betOption,
-            newOdds, true,
+            newOdds, newPayoutRuleType, newFixedAmount, true,
             effectiveFrom, effectiveTo, reason,
             createdAt, createdBy, Instant.now(), actorId, null);
     }
@@ -71,7 +163,7 @@ public record SellerTerminalOddsOverride(
         return new SellerTerminalOddsOverride(
             id, tenantId, sellerTerminalId,
             gameCode, pricingVariantCode, betType, betOption,
-            odds, false,
+            odds, payoutRuleType, fixedAmount, false,
             effectiveFrom, effectiveTo, reason,
             createdAt, createdBy, Instant.now(), actorId, null);
     }
@@ -80,7 +172,7 @@ public record SellerTerminalOddsOverride(
         return new SellerTerminalOddsOverride(
             id, tenantId, sellerTerminalId,
             gameCode, pricingVariantCode, betType, betOption,
-            odds, false,
+            odds, payoutRuleType, fixedAmount, false,
             effectiveFrom, effectiveTo, reason,
             createdAt, createdBy, Instant.now(), actorId, Instant.now());
     }

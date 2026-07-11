@@ -14,7 +14,6 @@ public record AdminReportSummaryResponse(
     BigDecimal waivedCharges,
     long promotionLines,
     long promotionPricedLines,
-    BigDecimal promotionPayoutBase,
     BigDecimal netRevenueEstimated,
     BigDecimal netRevenuePaidBasis
 ) {}

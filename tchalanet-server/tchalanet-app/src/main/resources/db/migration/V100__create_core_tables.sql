@@ -485,6 +485,8 @@ CREATE TABLE pricing_odds (
   bet_type varchar(32) NOT NULL,
   bet_option smallint,
   odds numeric(12,4) NOT NULL,
+  payout_rule_type varchar(32) NOT NULL DEFAULT 'STAKE_MULTIPLIER',
+  fixed_amount numeric(19,4),
   active boolean NOT NULL DEFAULT true,
   created_at timestamptz DEFAULT now(),
   created_by uuid,
@@ -493,7 +495,11 @@ CREATE TABLE pricing_odds (
   deleted_at timestamptz,
   deleted_by uuid,
   version bigint NOT NULL DEFAULT 0,
-  CONSTRAINT uq_pricing_odds__tenant_game_variant UNIQUE (tenant_id, game_code, pricing_variant_code)
+  CONSTRAINT uq_pricing_odds__tenant_game_variant UNIQUE (tenant_id, game_code, pricing_variant_code),
+  CONSTRAINT chk_pricing_odds__payout_rule CHECK (
+    (payout_rule_type = 'STAKE_MULTIPLIER' AND fixed_amount IS NULL)
+    OR (payout_rule_type = 'FIXED_AMOUNT' AND fixed_amount IS NOT NULL AND fixed_amount >= 0)
+  )
 );
 
 
@@ -1070,7 +1076,6 @@ CREATE TABLE sales_ticket (
   currency varchar(3) NOT NULL,
   stake_amount numeric(19,4) NOT NULL,
   total_amount numeric(19,4) NOT NULL,
-  potential_payout_amount numeric(19,4) NOT NULL DEFAULT 0,
   winning_amount numeric(19,4) NOT NULL DEFAULT 0,
   sale_status varchar(32) NOT NULL,
   sold_at timestamptz NOT NULL,
@@ -1130,13 +1135,7 @@ CREATE TABLE sales_ticket_line (
   selection_key varchar(128) NOT NULL,
   display_selection varchar(256) NOT NULL,
   stake_amount numeric(19,4) NOT NULL,
-  payout_base_amount numeric(19,4) NOT NULL,
-  odds_snapshot numeric(19,6),
-  potential_payout_amount numeric(19,4) NOT NULL DEFAULT 0,
-  potential_gain_mode varchar(32) NOT NULL DEFAULT 'SINGLE',
-  min_potential_gain numeric(19,4) NOT NULL DEFAULT 0,
-  max_potential_gain numeric(19,4) NOT NULL DEFAULT 0,
-  total_potential_gain numeric(19,4),
+  settlement_terms_snapshot jsonb,
   origin varchar(16) NOT NULL DEFAULT 'CUSTOMER',
   pricing_source varchar(16) NOT NULL DEFAULT 'STANDARD',
   selection_source varchar(32) NOT NULL DEFAULT 'CUSTOMER_SELECTED',
@@ -1155,39 +1154,7 @@ CREATE TABLE sales_ticket_line (
   CONSTRAINT uk_ticket_line__number UNIQUE (tenant_id, ticket_id, line_number),
   CONSTRAINT chk_ticket_line__amounts CHECK (
     stake_amount >= 0
-    AND potential_payout_amount >= 0
-    AND min_potential_gain >= 0
-    AND max_potential_gain >= min_potential_gain
-    AND (total_potential_gain IS NULL OR total_potential_gain >= 0)
     AND payout_amount >= 0
-  )
-);
-
-CREATE TABLE sales_ticket_line_coverage (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  tenant_id uuid NOT NULL,
-  ticket_line_id uuid NOT NULL REFERENCES sales_ticket_line(id) ON DELETE CASCADE,
-  pricing_variant_code varchar(64) NOT NULL,
-  stake_amount numeric(19,4) NOT NULL,
-  odds_snapshot numeric(19,6) NOT NULL,
-  potential_gain_snapshot numeric(19,4) NOT NULL,
-  win_mode varchar(16) NOT NULL DEFAULT 'ALTERNATIVE',
-  created_at timestamptz,
-  created_by uuid,
-  updated_at timestamptz,
-  updated_by uuid,
-  deleted_at timestamptz,
-  deleted_by uuid,
-  version bigint NOT NULL DEFAULT 0,
-  CONSTRAINT uk_ticket_line_coverage__variant UNIQUE (
-    tenant_id,
-    ticket_line_id,
-    pricing_variant_code
-  ),
-  CONSTRAINT chk_ticket_line_coverage__amounts CHECK (
-    stake_amount >= 0
-    AND odds_snapshot > 0
-    AND potential_gain_snapshot >= 0
   )
 );
 
@@ -1298,6 +1265,40 @@ CREATE TABLE promotion_rule_effect (
   CONSTRAINT chk_promotion_rule_effect_quantity_per_step_positive CHECK (quantity_per_step IS NULL OR quantity_per_step > 0),
   CONSTRAINT chk_promotion_rule_effect_max_quantity_positive CHECK (max_quantity IS NULL OR max_quantity > 0),
   CONSTRAINT chk_promotion_rule_effect_quantity_tiers_array CHECK (jsonb_typeof(quantity_tiers) = 'array')
+);
+
+CREATE TABLE seller_terminal_promotion_effect_override (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id uuid NOT NULL REFERENCES tenant(id),
+  seller_terminal_id uuid NOT NULL REFERENCES seller_terminal(id),
+  campaign_id uuid NOT NULL REFERENCES promotion_campaign(id),
+  rule_id uuid NOT NULL REFERENCES promotion_rule(id),
+  effect_type varchar(32) NOT NULL,
+  game_code varchar(64) NOT NULL DEFAULT '*',
+  effect_enabled boolean NULL,
+  quantity integer NULL,
+  choice_mode varchar(32) NULL,
+  generation_strategy varchar(32) NULL,
+  regenerable_before_confirm boolean NULL,
+  max_regenerations_before_confirm integer NULL,
+  active boolean NOT NULL DEFAULT true,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NULL,
+  updated_at timestamptz NULL,
+  updated_by uuid NULL,
+  deleted_at timestamptz NULL,
+  deleted_by uuid NULL,
+  version bigint NOT NULL DEFAULT 0,
+  CONSTRAINT uq_seller_terminal_promotion_effect_override UNIQUE (
+    tenant_id, seller_terminal_id, campaign_id, rule_id, effect_type, game_code
+  ),
+  CONSTRAINT chk_seller_terminal_promotion_effect_override_type CHECK (
+    effect_type IN ('FREE_GAME_LINE','BOOST_ODDS','WAIVE_CHARGE')
+  ),
+  CONSTRAINT chk_seller_terminal_promotion_effect_override_quantity CHECK (quantity IS NULL OR quantity > 0),
+  CONSTRAINT chk_seller_terminal_promotion_effect_override_regens CHECK (
+    max_regenerations_before_confirm IS NULL OR max_regenerations_before_confirm >= 0
+  )
 );
 
 CREATE TABLE promotion_rule_eligibility_line (
@@ -1468,9 +1469,14 @@ CREATE TABLE sale_preparation_promotion_line (
   bet_type varchar(32) NOT NULL,
   bet_option smallint NULL,
   selection varchar(32) NOT NULL,
-  payout_base_amount numeric(19,4) NOT NULL,
+  selection_source varchar(32) NOT NULL DEFAULT 'PROMOTION_GENERATED',
+  choice_mode varchar(32) NULL,
   promotion_decision_id uuid NULL,
   promotion_rule_id uuid NULL,
+  promotion_rule_key varchar(96) NULL,
+  promotion_effect_type varchar(32) NULL,
+  promotion_decision_context_hash varchar(128) NULL,
+  promotion_decision_engine_version varchar(48) NULL,
   regenerable boolean NOT NULL DEFAULT false,
   max_regenerations integer NOT NULL DEFAULT 3,
   regeneration_count integer NOT NULL DEFAULT 0,
@@ -1501,6 +1507,8 @@ CREATE TABLE seller_terminal_pricing_odds_override (
   bet_type           varchar(32)   NOT NULL,
   bet_option         smallint      NULL,
   odds               numeric(12,4) NOT NULL,
+  payout_rule_type   varchar(32)   NOT NULL DEFAULT 'STAKE_MULTIPLIER',
+  fixed_amount       numeric(19,4) NULL,
   active             boolean       NOT NULL DEFAULT true,
   effective_from     timestamptz   NULL,
   effective_to       timestamptz   NULL,
@@ -1514,6 +1522,10 @@ CREATE TABLE seller_terminal_pricing_odds_override (
   version            bigint        NOT NULL DEFAULT 0,
   CONSTRAINT pk_st_pricing_odds_override PRIMARY KEY (id),
   CONSTRAINT ck_st_odds_positive CHECK (odds > 0),
+  CONSTRAINT ck_st_payout_rule CHECK (
+    (payout_rule_type = 'STAKE_MULTIPLIER' AND fixed_amount IS NULL)
+    OR (payout_rule_type = 'FIXED_AMOUNT' AND fixed_amount IS NOT NULL AND fixed_amount >= 0)
+  ),
   CONSTRAINT fk_st_pricing_override_seller_terminal
     FOREIGN KEY (seller_terminal_id) REFERENCES seller_terminal (id)
 );

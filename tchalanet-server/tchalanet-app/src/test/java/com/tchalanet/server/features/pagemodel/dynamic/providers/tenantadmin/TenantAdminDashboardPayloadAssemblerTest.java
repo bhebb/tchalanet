@@ -98,7 +98,7 @@ class TenantAdminDashboardPayloadAssemblerTest {
         var summary = new TenantDashboardStatsView.TenantSummaryCard(
             42L, new BigDecimal("123.45"), BigDecimal.ZERO, BigDecimal.ZERO,
             BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO,
-            0L, 0L, BigDecimal.ZERO, BigDecimal.ZERO,
+            0L, 0L, BigDecimal.ZERO,
             0L);
         var dailyPoint = new TenantDashboardStatsView.TenantDailyPoint(
             today, 42L, new BigDecimal("123.45"), BigDecimal.ZERO, BigDecimal.ZERO,

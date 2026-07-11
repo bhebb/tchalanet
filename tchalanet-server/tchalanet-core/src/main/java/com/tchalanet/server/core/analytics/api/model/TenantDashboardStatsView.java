@@ -31,7 +31,6 @@ public record TenantDashboardStatsView(
       BigDecimal waivedCharges,
       long promotionLines,
       long promotionPricedLines,
-      BigDecimal promotionPayoutBase,
       BigDecimal netRevenueEstimated,
       long    sessionsOpened
   ) {}

@@ -1,10 +1,13 @@
 package com.tchalanet.server.core.sales.internal.infra.persistence.entity.preparation;
 
 import com.tchalanet.server.common.persistence.BaseTenantEntity;
+import com.tchalanet.server.core.promotion.api.model.PromotionChoiceMode;
+import com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
-import java.math.BigDecimal;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
@@ -33,14 +36,31 @@ public class SalePreparationPromotionLineJpaEntity extends BaseTenantEntity {
     @Column(name = "selection", nullable = false, length = 32)
     private String selection;
 
-    @Column(name = "payout_base_amount", nullable = false, precision = 19, scale = 4)
-    private BigDecimal payoutBaseAmount;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "selection_source", nullable = false, length = 32)
+    private TicketLineSelectionSource selectionSource = TicketLineSelectionSource.PROMOTION_GENERATED;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "choice_mode", length = 32)
+    private PromotionChoiceMode choiceMode;
 
     @Column(name = "promotion_decision_id")
     private UUID promotionDecisionId;
 
     @Column(name = "promotion_rule_id")
     private UUID promotionRuleId;
+
+    @Column(name = "promotion_rule_key", length = 96)
+    private String promotionRuleKey;
+
+    @Column(name = "promotion_effect_type", length = 32)
+    private String promotionEffectType;
+
+    @Column(name = "promotion_decision_context_hash", length = 128)
+    private String promotionDecisionContextHash;
+
+    @Column(name = "promotion_decision_engine_version", length = 48)
+    private String promotionDecisionEngineVersion;
 
     @Column(name = "regenerable", nullable = false)
     private boolean regenerable;

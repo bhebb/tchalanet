@@ -23,6 +23,7 @@ import com.tchalanet.server.core.sales.api.model.print.TicketPrintMoney;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintQrPayload;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintSellerContext;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintState;
+import com.tchalanet.server.core.sales.api.model.print.TicketPrintStateStatus;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintView;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineOrigin;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSource;
@@ -64,6 +65,16 @@ class TicketReceiptAssemblerTest {
         var line = receipt.gameSections().getFirst().lines().getFirst();
         assertThat(line.optionLabel()).isEqualTo("Exact + Permuté");
         assertThat(line.selectionPolicySnapshot()).isEqualTo(SelectionPolicy.EXPLICIT_ONLY);
+    }
+
+    @Test
+    void reprintKeepsTicketSnapshotLabelsIndependentFromCurrentPricingOrPromotionConfig() {
+        var receipt = assembler().assemble(reprintViewWithSnapshotLabels(), Locale.FRENCH);
+
+        var line = receipt.gameSections().getFirst().lines().getFirst();
+        assertThat(receipt.isReprint()).isTrue();
+        assertThat(line.optionLabel()).isEqualTo("Ancien exact + permuté");
+        assertThat(line.promotionLabel()).isEqualTo("Ancienne promo Maryaj");
     }
 
     private TicketReceiptAssembler assembler() {
@@ -143,6 +154,49 @@ class TicketReceiptAssemblerTest {
                 null,
                 null,
                 null
+            )),
+            new TicketPrintMoney(stake, List.of(), money("0"), stake),
+            new TicketPrintQrPayload("v1", "ABCD1234", "111222", "https://tickets.test/check/ABCD1234", "payload"),
+            new TicketPrintMetadata(now, Locale.FRENCH, ZoneId.of("America/Port-au-Prince"),
+                TicketSaleChannel.POS_ONLINE, HTG.value(), Map.of())
+        );
+    }
+
+    private TicketPrintView reprintViewWithSnapshotLabels() {
+        var now = Instant.parse("2026-07-06T15:00:00Z");
+        var stake = money("0");
+        return new TicketPrintView(
+            new TicketPrintIdentity(TicketId.of(UUID.randomUUID()), TenantId.of(UUID.randomUUID()),
+                "T-0001", "abcd1234", "111222"),
+            new TicketPrintLifecycle(TicketSaleStatus.APPROVED, TicketResultStatus.NOT_RESULTED,
+                TicketSettlementStatus.NOT_SETTLED),
+            new TicketPrintState(
+                TicketPrintStateStatus.REPRINTED,
+                2,
+                now,
+                now.plusSeconds(60)),
+            new TicketPrintDraw(DrawId.of(UUID.randomUUID()), DrawChannelId.of(UUID.randomUUID()),
+                "NY", "MIDDAY", "provider-1", "America/Port-au-Prince", "Midi", "New York",
+                LocalDate.parse("2026-07-06"), now, now.plusSeconds(3600)),
+            new TicketPrintSellerContext(SellerTerminalId.of(UUID.randomUUID()), "TERM-1", "Terminal 1", "Terminal 1"),
+            new TicketPrintBranding("Tenant", null, null, null, null),
+            List.of(new TicketPrintLine(
+                1,
+                GameCode.HT_MARYAJ_GRATIS,
+                BetType.MARRIAGE_2D2D,
+                (short) 3,
+                "Ancien exact + permuté",
+                "Maryaj gratis",
+                "12 × 34",
+                "1234",
+                stake,
+                SelectionPolicy.EXPLICIT_ONLY,
+                TicketLineOrigin.PROMOTION,
+                TicketLinePricingSource.PROMOTION,
+                TicketLineSelectionSource.PROMOTION_GENERATED,
+                null,
+                "Ancienne promo Maryaj",
+                "FREE_GAME_LINE"
             )),
             new TicketPrintMoney(stake, List.of(), money("0"), stake),
             new TicketPrintQrPayload("v1", "ABCD1234", "111222", "https://tickets.test/check/ABCD1234", "payload"),

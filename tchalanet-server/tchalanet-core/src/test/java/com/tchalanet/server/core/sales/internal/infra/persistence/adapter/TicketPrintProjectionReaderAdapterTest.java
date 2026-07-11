@@ -15,14 +15,18 @@ import com.tchalanet.server.common.types.id.TicketLineId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.types.money.CurrencyCode;
 import com.tchalanet.server.common.types.money.Money;
-import com.tchalanet.server.core.pricing.api.model.PricingVariantCode;
 import com.tchalanet.server.core.sales.api.config.TicketPublicProperties;
-import com.tchalanet.server.core.sales.api.model.coverage.SettlementPayoutMode;
 import com.tchalanet.server.core.sales.api.model.money.TicketMoneyBreakdown;
 import com.tchalanet.server.core.sales.api.model.origin.TicketSaleChannel;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineOrigin;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSource;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintStateStatus;
+import com.tchalanet.server.core.sales.api.model.settlement.PayoutRuleSnapshot;
+import com.tchalanet.server.core.sales.api.model.settlement.SettlementRuleCode;
+import com.tchalanet.server.core.sales.api.model.settlement.SettlementTermSnapshot;
+import com.tchalanet.server.core.sales.api.model.settlement.SettlementTermSource;
+import com.tchalanet.server.core.sales.api.model.settlement.SettlementTermsSnapshot;
+import com.tchalanet.server.core.sales.api.model.settlement.SettlementWinMode;
 import com.tchalanet.server.core.sales.api.model.status.TicketLineResultStatus;
 import com.tchalanet.server.core.sales.api.model.status.TicketPrintStatus;
 import com.tchalanet.server.core.sales.api.model.status.TicketResultStatus;
@@ -34,8 +38,6 @@ import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketCodes;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketContext;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketIdentity;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
-import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLineCoverage;
-import com.tchalanet.server.core.sales.internal.domain.model.ticket.WinMode;
 import com.tchalanet.server.core.sales.internal.infra.persistence.mapper.TicketJpaMapper;
 import com.tchalanet.server.core.sales.internal.infra.persistence.mapper.TicketPrintViewMapper;
 import com.tchalanet.server.core.sales.internal.infra.persistence.repository.TicketJpaRepository;
@@ -136,7 +138,7 @@ class TicketPrintProjectionReaderAdapterTest {
             new TicketContext(DRAW_ID, DRAW_CHANNEL_ID, TERMINAL_ID, null, null),
             TicketCodes.from("TCK-123456-123456-ABC123-4", "ABCD-1234", "WXYZ-5678"),
             new TicketMoneyBreakdown(money("20"), List.of(), money("20")),
-            List.of(coverageLine()),
+            List.of(multiTermLine()),
             TicketSaleChannel.POS_ONLINE,
             false,
             null,
@@ -144,7 +146,7 @@ class TicketPrintProjectionReaderAdapterTest {
             NOW);
     }
 
-    private static TicketLine coverageLine() {
+    private static TicketLine multiTermLine() {
         return new TicketLine(
             TicketLineId.of(UUID.fromString("43000000-0000-0000-0000-000000000001")),
             1,
@@ -152,27 +154,11 @@ class TicketPrintProjectionReaderAdapterTest {
             BetType.LOTTO3_3D,
             new Selection(SelectionKey.of("123"), "123"),
             money("20"),
-            money("20"),
-            new BigDecimal("500"),
-            money("5000"),
-            SettlementPayoutMode.RANGE_ALTERNATIVE,
-            money("800"),
-            money("5000"),
-            null,
-            List.of(
-                new TicketLineCoverage(
-                    PricingVariantCode.LOTTO3_STRAIGHT,
-                    money("10"),
-                    new BigDecimal("500"),
-                    money("5000"),
-                    WinMode.ALTERNATIVE),
-                new TicketLineCoverage(
-                    PricingVariantCode.LOTTO3_BOX_6_WAY,
-                    money("10"),
-                    new BigDecimal("80"),
-                    money("800"),
-                    WinMode.ALTERNATIVE)
-            ),
+            SettlementTermsSnapshot.current(
+                SelectionPolicy.EXPLICIT_ONLY,
+                List.of(
+                    settlementTerm(SettlementRuleCode.LOTTO3_STRAIGHT, new BigDecimal("500")),
+                    settlementTerm(SettlementRuleCode.LOTTO3_BOX_6_WAY, new BigDecimal("80")))),
             (short) 3,
             SelectionPolicy.EXPLICIT_ONLY,
             "Exact + Permuté",
@@ -184,6 +170,17 @@ class TicketPrintProjectionReaderAdapterTest {
             null,
             TicketLineResultStatus.PENDING,
             money("0"));
+    }
+
+    private static SettlementTermSnapshot settlementTerm(SettlementRuleCode ruleCode, BigDecimal multiplier) {
+        return new SettlementTermSnapshot(
+            ruleCode,
+            (short) 3,
+            "Exact + Permuté",
+            PayoutRuleSnapshot.stakeMultiplier(multiplier),
+            new BigDecimal("10"),
+            SettlementWinMode.ALTERNATIVE,
+            SettlementTermSource.TENANT_DEFAULT);
     }
 
     private static Money money(String amount) {

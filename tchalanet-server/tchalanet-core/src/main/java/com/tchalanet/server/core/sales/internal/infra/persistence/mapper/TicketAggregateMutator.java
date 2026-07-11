@@ -3,7 +3,6 @@ package com.tchalanet.server.core.sales.internal.infra.persistence.mapper;
 import com.tchalanet.server.core.sales.api.model.money.TicketCharge;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.Ticket;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
-import com.tchalanet.server.core.sales.internal.infra.persistence.entity.TicketLineCoverageJpaEntity;
 import com.tchalanet.server.core.sales.internal.infra.persistence.entity.TicketChargeJpaEntity;
 import com.tchalanet.server.core.sales.internal.infra.persistence.entity.TicketJpaEntity;
 import com.tchalanet.server.core.sales.internal.infra.persistence.entity.TicketLineJpaEntity;
@@ -88,37 +87,7 @@ public class TicketAggregateMutator {
         requireSame("line.selectionKey", managed.getSelectionKey(), domain.selection().key().value());
         requireSame("line.displaySelection", managed.getDisplaySelection(), domain.selection().displayLabel());
         requireSame("line.stakeAmount", managed.getStakeAmount(), domain.stakeAmount().amount());
-        requireSame("line.oddsSnapshot", managed.getOddsSnapshot(), domain.oddsSnapshot());
-        assertImmutableCoverageFields(managed, domain);
-    }
-
-    private void assertImmutableCoverageFields(TicketLineJpaEntity managed, TicketLine domain) {
-        Map<Object, TicketLineCoverageJpaEntity> existingByVariant = new LinkedHashMap<>();
-        for (var coverage : managed.getCoverages()) {
-            existingByVariant.put(coverage.getPricingVariantCode(), coverage);
-        }
-
-        for (var domainCoverage : domain.coverages()) {
-            var existing = existingByVariant.remove(domainCoverage.pricingVariantCode());
-            if (existing == null) {
-                throw new IllegalStateException(
-                    "Ticket immutable field changed: line.coverage missing expected="
-                        + domainCoverage.pricingVariantCode());
-            }
-            requireSame("line.coverage.stakeAmount", existing.getStakeAmount(), domainCoverage.stakeAmount().amount());
-            requireSame("line.coverage.oddsSnapshot", existing.getOddsSnapshot(), domainCoverage.oddsSnapshot());
-            requireSame(
-                "line.coverage.settlementPayoutSnapshot",
-                existing.getSettlementPayoutSnapshot(),
-                domainCoverage.settlementPayoutSnapshot().amount());
-            requireSame("line.coverage.winMode", existing.getWinMode(), domainCoverage.winMode());
-        }
-
-        if (!existingByVariant.isEmpty()) {
-            throw new IllegalStateException(
-                "Ticket immutable field changed: line.coverage unexpected actual="
-                    + existingByVariant.keySet());
-        }
+        requireSame("line.settlementTermsSnapshot", managed.getSettlementTermsSnapshot(), domain.settlementTermsSnapshot());
     }
 
     private void applyMutableLineFields(TicketLineJpaEntity managed, TicketLine domain) {

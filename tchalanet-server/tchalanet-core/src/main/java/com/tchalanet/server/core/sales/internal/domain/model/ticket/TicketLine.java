@@ -5,16 +5,19 @@ import com.tchalanet.server.catalog.game.api.model.GameCode;
 import com.tchalanet.server.common.types.id.PromotionDecisionId;
 import com.tchalanet.server.common.types.id.TicketLineId;
 import com.tchalanet.server.common.types.money.Money;
-import com.tchalanet.server.core.sales.api.model.coverage.SettlementPayoutMode;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineOrigin;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSource;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource;
+import com.tchalanet.server.core.sales.api.model.settlement.PayoutRuleSnapshot;
+import com.tchalanet.server.core.sales.api.model.settlement.SettlementRuleCode;
+import com.tchalanet.server.core.sales.api.model.settlement.SettlementTermSnapshot;
+import com.tchalanet.server.core.sales.api.model.settlement.SettlementTermSource;
+import com.tchalanet.server.core.sales.api.model.settlement.SettlementTermsSnapshot;
+import com.tchalanet.server.core.sales.api.model.settlement.SettlementWinMode;
 import com.tchalanet.server.core.sales.api.model.status.TicketLineResultStatus;
 import com.tchalanet.server.core.selection.api.model.Selection;
 import com.tchalanet.server.platform.tenantgame.api.model.SelectionPolicy;
-
 import java.math.BigDecimal;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -25,14 +28,7 @@ public record TicketLine(
     BetType betType,
     Selection selection,
     Money stakeAmount,
-    Money payoutBaseAmount,
-    BigDecimal oddsSnapshot,
-    Money settlementPayoutAmount,
-    SettlementPayoutMode settlementPayoutMode,
-    Money minSettlementPayout,
-    Money maxSettlementPayout,
-    Money totalSettlementPayout,
-    List<TicketLineCoverage> coverages,
+    SettlementTermsSnapshot settlementTermsSnapshot,
     Short betOption,
     SelectionPolicy selectionPolicySnapshot,
     String betOptionLabelSnapshot,
@@ -53,53 +49,9 @@ public record TicketLine(
         if (stakeAmount == null) {
             throw new IllegalArgumentException("ticket_line.stake_required");
         }
-        if (payoutBaseAmount == null) {
-            throw new IllegalArgumentException("ticket_line.payout_base_required");
+        if (settlementTermsSnapshot == null) {
+            throw new IllegalArgumentException("ticket_line.settlement_terms_required");
         }
-        if (oddsSnapshot == null) {
-            throw new IllegalArgumentException("ticket_line.odds_required");
-        }
-        if (settlementPayoutAmount == null) {
-            throw new IllegalArgumentException("ticket_line.settlement_payout_required");
-        }
-        if (settlementPayoutMode == null) {
-            throw new IllegalArgumentException("ticket_line.settlement_payout_mode_required");
-        }
-        if (minSettlementPayout == null) {
-            throw new IllegalArgumentException("ticket_line.min_settlement_payout_required");
-        }
-        if (maxSettlementPayout == null) {
-            throw new IllegalArgumentException("ticket_line.max_settlement_payout_required");
-        }
-        if (!stakeAmount.currency().equals(minSettlementPayout.currency())
-            || !stakeAmount.currency().equals(maxSettlementPayout.currency())
-            || !stakeAmount.currency().equals(settlementPayoutAmount.currency())) {
-            throw new IllegalArgumentException("ticket_line.currency_mismatch");
-        }
-        if (totalSettlementPayout != null && !stakeAmount.currency().equals(totalSettlementPayout.currency())) {
-            throw new IllegalArgumentException("ticket_line.currency_mismatch");
-        }
-        coverages = coverages == null ? List.of() : List.copyOf(coverages);
-        if (coverages.isEmpty()) {
-            coverages = List.of(new TicketLineCoverage(
-                com.tchalanet.server.core.sales.internal.domain.service.result.SettlementVariantResolver.resolve(
-                    betType,
-                    betOption,
-                    selection == null ? null : selection.key().value()
-                ),
-                payoutBaseAmount,
-                oddsSnapshot,
-                settlementPayoutAmount,
-                WinMode.ALTERNATIVE
-            ));
-        }
-        validateCoverageSummary(
-            settlementPayoutMode,
-            minSettlementPayout,
-            maxSettlementPayout,
-            totalSettlementPayout,
-            coverages
-        );
 
         betOptionLabelSnapshot = normalizePromotionText(betOptionLabelSnapshot);
         origin = origin == null ? TicketLineOrigin.CUSTOMER : origin;
@@ -135,13 +87,10 @@ public record TicketLine(
         Money stakeAmount,
         Money payoutBaseAmount,
         BigDecimal oddsSnapshot,
-        Money settlementPayoutAmount,
-        SettlementPayoutMode settlementPayoutMode,
-        Money minSettlementPayout,
-        Money maxSettlementPayout,
-        Money totalSettlementPayout,
-        List<TicketLineCoverage> coverages,
+        SettlementTermsSnapshot settlementTermsSnapshot,
         Short betOption,
+        SelectionPolicy selectionPolicySnapshot,
+        String betOptionLabelSnapshot,
         TicketLineOrigin origin,
         TicketLinePricingSource pricingSource,
         TicketLineSelectionSource selectionSource,
@@ -158,17 +107,19 @@ public record TicketLine(
             betType,
             selection,
             stakeAmount,
-            payoutBaseAmount,
-            oddsSnapshot,
-            settlementPayoutAmount,
-            settlementPayoutMode,
-            minSettlementPayout,
-            maxSettlementPayout,
-            totalSettlementPayout,
-            coverages,
+            settlementTermsSnapshot == null
+                ? legacySettlementTermsSnapshot(
+                    betType,
+                    selection,
+                    selectionPolicySnapshot,
+                    betOptionLabelSnapshot,
+                    betOption,
+                    payoutBaseAmount,
+                    oddsSnapshot)
+                : settlementTermsSnapshot,
             betOption,
-            null,
-            null,
+            selectionPolicySnapshot,
+            betOptionLabelSnapshot,
             origin,
             pricingSource,
             selectionSource,
@@ -189,7 +140,6 @@ public record TicketLine(
         Money stakeAmount,
         Money payoutBaseAmount,
         BigDecimal oddsSnapshot,
-        Money settlementPayoutAmount,
         Short betOption,
         TicketLineOrigin origin,
         TicketLinePricingSource pricingSource,
@@ -209,13 +159,10 @@ public record TicketLine(
             stakeAmount,
             payoutBaseAmount,
             oddsSnapshot,
-            settlementPayoutAmount,
-            SettlementPayoutMode.SINGLE,
-            settlementPayoutAmount,
-            settlementPayoutAmount,
             null,
-            List.of(),
             betOption,
+            null,
+            null,
             origin,
             pricingSource,
             selectionSource,
@@ -235,7 +182,6 @@ public record TicketLine(
         Selection selection,
         Money stakeAmount,
         BigDecimal oddsSnapshot,
-        Money settlementPayoutAmount,
         Short betOption,
         TicketLineResultStatus resultStatus,
         Money payoutAmount
@@ -247,25 +193,12 @@ public record TicketLine(
             betType,
             selection,
             stakeAmount,
-            stakeAmount, // payoutBaseAmount = stakeAmount for normal lines
+            stakeAmount,
             oddsSnapshot,
-            settlementPayoutAmount,
-            SettlementPayoutMode.SINGLE,
-            settlementPayoutAmount,
-            settlementPayoutAmount,
             null,
-            List.of(new TicketLineCoverage(
-                com.tchalanet.server.core.sales.internal.domain.service.result.SettlementVariantResolver.resolve(
-                    betType,
-                    betOption,
-                    selection == null ? null : selection.key().value()
-                ),
-                stakeAmount,
-                oddsSnapshot,
-                settlementPayoutAmount,
-                WinMode.ALTERNATIVE
-            )),
             betOption,
+            null,
+            null,
             TicketLineOrigin.CUSTOMER,
             TicketLinePricingSource.STANDARD,
             TicketLineSelectionSource.CUSTOMER_SELECTED,
@@ -279,7 +212,6 @@ public record TicketLine(
 
     public TicketLine withPromotionPricing(
         BigDecimal boostedOddsSnapshot,
-        Money boostedSettlementPayout,
         PromotionDecisionId decisionId,
         String promotionLabel,
         String promotionEffectType
@@ -291,20 +223,7 @@ public record TicketLine(
             betType,
             selection,
             stakeAmount,
-            payoutBaseAmount,
-            boostedOddsSnapshot,
-            boostedSettlementPayout,
-            SettlementPayoutMode.SINGLE,
-            boostedSettlementPayout,
-            boostedSettlementPayout,
-            null,
-            List.of(new TicketLineCoverage(
-                coverages.getFirst().pricingVariantCode(),
-                payoutBaseAmount,
-                boostedOddsSnapshot,
-                boostedSettlementPayout,
-                coverages.getFirst().winMode()
-            )),
+            boostSettlementTerms(boostedOddsSnapshot),
             betOption,
             selectionPolicySnapshot,
             betOptionLabelSnapshot,
@@ -328,14 +247,7 @@ public record TicketLine(
             betType,
             selection,
             stakeAmount,
-            payoutBaseAmount,
-            oddsSnapshot,
-            settlementPayoutAmount,
-            settlementPayoutMode,
-            minSettlementPayout,
-            maxSettlementPayout,
-            totalSettlementPayout,
-            coverages,
+            settlementTermsSnapshot,
             betOption,
             selectionPolicySnapshot,
             betOptionLabelSnapshot,
@@ -359,7 +271,40 @@ public record TicketLine(
         Money stakeAmount,
         Money payoutBaseAmount,
         BigDecimal oddsSnapshot,
-        Money settlementPayoutAmount,
+        Short betOption,
+        TicketLineSelectionSource selectionSource,
+        PromotionDecisionId promotionDecisionId,
+        String promotionLabel,
+        String promotionEffectType
+    ) {
+        return promotionLine(
+            id,
+            lineNumber,
+            gameCode,
+            betType,
+            selection,
+            stakeAmount,
+            payoutBaseAmount,
+            oddsSnapshot,
+            null,
+            betOption,
+            selectionSource,
+            promotionDecisionId,
+            promotionLabel,
+            promotionEffectType
+        );
+    }
+
+    public static TicketLine promotionLine(
+        TicketLineId id,
+        int lineNumber,
+        GameCode gameCode,
+        BetType betType,
+        Selection selection,
+        Money stakeAmount,
+        Money payoutBaseAmount,
+        BigDecimal oddsSnapshot,
+        SettlementTermsSnapshot settlementTermsSnapshot,
         Short betOption,
         TicketLineSelectionSource selectionSource,
         PromotionDecisionId promotionDecisionId,
@@ -375,23 +320,10 @@ public record TicketLine(
             stakeAmount,
             payoutBaseAmount,
             oddsSnapshot,
-            settlementPayoutAmount,
-            SettlementPayoutMode.SINGLE,
-            settlementPayoutAmount,
-            settlementPayoutAmount,
-            null,
-            List.of(new TicketLineCoverage(
-                com.tchalanet.server.core.sales.internal.domain.service.result.SettlementVariantResolver.resolve(
-                    betType,
-                    betOption,
-                    selection == null ? null : selection.key().value()
-                ),
-                payoutBaseAmount,
-                oddsSnapshot,
-                settlementPayoutAmount,
-                WinMode.ALTERNATIVE
-            )),
+            settlementTermsSnapshot,
             betOption,
+            null,
+            null,
             TicketLineOrigin.PROMOTION,
             TicketLinePricingSource.PROMOTION,
             selectionSource,
@@ -403,6 +335,24 @@ public record TicketLine(
         );
     }
 
+    private SettlementTermsSnapshot boostSettlementTerms(BigDecimal boostedOddsSnapshot) {
+        var boostedTerms = settlementTermsSnapshot.terms().stream()
+            .map(term -> new SettlementTermSnapshot(
+                term.ruleCode(),
+                term.sourceBetOption(),
+                term.commercialLabel(),
+                PayoutRuleSnapshot.stakeMultiplier(boostedOddsSnapshot),
+                term.payoutBaseAmount(),
+                term.winMode(),
+                term.source()
+            ))
+            .toList();
+        return new SettlementTermsSnapshot(
+            settlementTermsSnapshot.schemaVersion(),
+            settlementTermsSnapshot.selectionPolicy(),
+            boostedTerms);
+    }
+
     private static String normalizePromotionText(String value) {
         if (value == null || value.isBlank()) {
             return null;
@@ -410,41 +360,33 @@ public record TicketLine(
         return Objects.requireNonNull(value).trim();
     }
 
-    private static void validateCoverageSummary(
-        SettlementPayoutMode mode,
-        Money minSettlementPayout,
-        Money maxSettlementPayout,
-        Money totalSettlementPayout,
-        List<TicketLineCoverage> coverages
+    private static SettlementTermsSnapshot legacySettlementTermsSnapshot(
+        BetType betType,
+        Selection selection,
+        SelectionPolicy selectionPolicy,
+        String betOptionLabel,
+        Short betOption,
+        Money payoutBaseAmount,
+        BigDecimal oddsSnapshot
     ) {
-        if (coverages.stream().anyMatch(coverage ->
-            !coverage.stakeAmount().currency().equals(minSettlementPayout.currency())
-                || !coverage.settlementPayoutSnapshot().currency().equals(minSettlementPayout.currency()))) {
-            throw new IllegalArgumentException("ticket_line.coverage_currency_mismatch");
-        }
-        if (minSettlementPayout.amount().compareTo(maxSettlementPayout.amount()) > 0) {
-            throw new IllegalArgumentException("ticket_line.settlement_payout_range_invalid");
-        }
-
-        var min = coverages.stream()
-            .map(TicketLineCoverage::settlementPayoutSnapshot)
-            .min(Comparator.comparing(Money::amount))
-            .orElseThrow();
-        var max = coverages.stream()
-            .map(TicketLineCoverage::settlementPayoutSnapshot)
-            .max(Comparator.comparing(Money::amount))
-            .orElseThrow();
-
-        if (min.amount().compareTo(minSettlementPayout.amount()) != 0
-            || max.amount().compareTo(maxSettlementPayout.amount()) != 0) {
-            throw new IllegalArgumentException("ticket_line.settlement_payout_summary_mismatch");
-        }
-
-        if (mode == SettlementPayoutMode.RANGE_CUMULATIVE && totalSettlementPayout == null) {
-            throw new IllegalArgumentException("ticket_line.total_settlement_payout_required");
-        }
-        if (mode != SettlementPayoutMode.RANGE_CUMULATIVE && totalSettlementPayout != null) {
-            throw new IllegalArgumentException("ticket_line.total_settlement_payout_only_cumulative");
-        }
+        Objects.requireNonNull(payoutBaseAmount, "ticket_line.payout_base_required");
+        Objects.requireNonNull(oddsSnapshot, "ticket_line.odds_required");
+        var policy = selectionPolicy == null ? SelectionPolicy.EXPLICIT_ONLY : selectionPolicy;
+        var term = new SettlementTermSnapshot(
+            SettlementRuleCode.fromPricingVariant(
+                com.tchalanet.server.core.sales.internal.domain.service.result.SettlementVariantResolver.resolve(
+                    betType,
+                    betOption,
+                    selection == null ? null : selection.key().value()
+                )
+            ),
+            policy == SelectionPolicy.IMPLICIT_BEST_MATCH ? null : betOption,
+            policy == SelectionPolicy.IMPLICIT_BEST_MATCH ? null : betOptionLabel,
+            PayoutRuleSnapshot.stakeMultiplier(oddsSnapshot),
+            payoutBaseAmount.amount(),
+            SettlementWinMode.ALTERNATIVE,
+            SettlementTermSource.LEGACY_COVERAGE
+        );
+        return SettlementTermsSnapshot.current(policy, List.of(term));
     }
 }

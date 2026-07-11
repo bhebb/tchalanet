@@ -90,8 +90,8 @@ Financial widgets must use fields already exposed by `core.analytics.api`:
 - `payoutsPaid`: ticket lifecycle paid amount;
 - `sellerCommission`: sale-time commission amount snapshot;
 - `buyerCharges`, `sellerCharges`, `tenantCharges`, `waivedCharges`: charge snapshots grouped by payer;
-- `promotionLines`, `promotionPricedLines`, `promotionPayoutBase`:
-  promotion usage/base metrics without sale-time payout projections;
+- `promotionLines`, `promotionPricedLines`:
+  promotion usage metrics without sale-time payout projections;
 - `netRevenueEstimated` / `netRevenuePaidBasis`: analytics-derived net values.
 
 PageModel providers may:

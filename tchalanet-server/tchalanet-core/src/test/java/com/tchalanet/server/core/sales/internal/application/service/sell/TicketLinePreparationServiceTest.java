@@ -12,10 +12,13 @@ import com.tchalanet.server.common.types.id.TenantGameId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.money.CurrencyCode;
 import com.tchalanet.server.core.pricing.api.model.OddsSource;
+import com.tchalanet.server.core.pricing.api.model.PayoutRuleType;
 import com.tchalanet.server.core.pricing.api.model.PricingVariantCode;
-import com.tchalanet.server.core.pricing.api.model.SellerTerminalOddsResolutionView;
-import com.tchalanet.server.core.pricing.api.query.ResolveSellerTerminalOddsQuery;
+import com.tchalanet.server.core.pricing.api.model.SellerTerminalPayoutRuleResolutionView;
+import com.tchalanet.server.core.pricing.api.query.ResolveSellerTerminalPayoutRuleQuery;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketLineInput;
+import com.tchalanet.server.core.sales.api.model.settlement.SettlementRuleCode;
+import com.tchalanet.server.core.sales.api.model.settlement.SettlementTermSource;
 import com.tchalanet.server.core.selection.api.SelectionApi;
 import com.tchalanet.server.core.selection.api.model.Selection;
 import com.tchalanet.server.core.selection.api.model.SelectionKey;
@@ -49,7 +52,7 @@ class TicketLinePreparationServiceTest {
     private static final UUID LINE_ID = UUID.fromString("30000000-0000-0000-0000-000000000001");
 
     @Test
-    void resolvesEffectiveSellerTerminalOddsAndSnapshotsSettlementPayout() {
+    void resolvesEffectiveSellerTerminalOddsAndSnapshotsSettlementTermsWithoutPotentialPayout() {
         var queryBus = new CapturingQueryBus(new BigDecimal("60"));
         var service = service(queryBus, TenantGameApiStub.explicitOnly());
 
@@ -65,7 +68,7 @@ class TicketLinePreparationServiceTest {
                 new BigDecimal("10.00"))),
             CurrencyCode.of("HTG"));
 
-        assertThat(queryBus.captured).isEqualTo(new ResolveSellerTerminalOddsQuery(
+        assertThat(queryBus.captured).isEqualTo(new ResolveSellerTerminalPayoutRuleQuery(
             TENANT_ID,
             SELLER_TERMINAL_ID,
             "HT_BOLET",
@@ -73,19 +76,19 @@ class TicketLinePreparationServiceTest {
             "MATCH_1_2D",
             null));
         assertThat(lines).hasSize(1);
-        assertThat(lines.getFirst().oddsSnapshot()).isEqualByComparingTo("60.0000");
-        assertThat(lines.getFirst().settlementPayoutAmount().amount()).isEqualByComparingTo("600.00");
-        assertThat(lines.getFirst().coverages()).hasSize(1);
-        assertThat(lines.getFirst().coverages().getFirst().pricingVariantCode())
-            .isEqualTo(PricingVariantCode.MATCH_1_2D);
-        assertThat(lines.getFirst().coverages().getFirst().stakeAmount().amount())
+        assertThat(lines.getFirst().settlementTermsSnapshot().terms()).hasSize(1);
+        assertThat(lines.getFirst().settlementTermsSnapshot().terms().getFirst().ruleCode())
+            .isEqualTo(SettlementRuleCode.MATCH_1_2D);
+        assertThat(lines.getFirst().settlementTermsSnapshot().terms().getFirst().payoutBaseAmount())
             .isEqualByComparingTo("10.00");
-        assertThat(lines.getFirst().coverages().getFirst().oddsSnapshot())
-            .isEqualByComparingTo("60.0000");
-        assertThat(lines.getFirst().coverages().getFirst().settlementPayoutSnapshot().amount())
-            .isEqualByComparingTo("600.00");
         assertThat(lines.getFirst().selectionPolicySnapshot()).isEqualTo(SelectionPolicy.EXPLICIT_ONLY);
         assertThat(lines.getFirst().betOptionLabelSnapshot()).isNull();
+        assertThat(lines.getFirst().settlementTermsSnapshot().terms().getFirst().source())
+            .isEqualTo(SettlementTermSource.SELLER_TERMINAL_OVERRIDE);
+        assertThat(lines.getFirst().settlementTermsSnapshot().terms().getFirst().payoutRule().type())
+            .isEqualTo(PayoutRuleType.STAKE_MULTIPLIER);
+        assertThat(lines.getFirst().settlementTermsSnapshot().terms().getFirst().payoutRule().multiplier())
+            .isEqualByComparingTo("60");
     }
 
     @Test
@@ -123,7 +126,7 @@ class TicketLinePreparationServiceTest {
     }
 
     @Test
-    void exactPlusBoxCreatesTwoCoverageSnapshotsWithMinMaxSettlementPayout() {
+    void exactPlusBoxSnapshotsTermsWithoutMinMaxPotentialPayout() {
         var queryBus = new CapturingQueryBus(Map.of(
             PricingVariantCode.LOTTO3_STRAIGHT, new BigDecimal("500"),
             PricingVariantCode.LOTTO3_BOX_6_WAY, new BigDecimal("80")
@@ -143,21 +146,18 @@ class TicketLinePreparationServiceTest {
             CurrencyCode.of("HTG")).getFirst();
 
         assertThat(queryBus.capturedQueries)
-            .extracting(ResolveSellerTerminalOddsQuery::pricingVariantCode)
+            .extracting(ResolveSellerTerminalPayoutRuleQuery::pricingVariantCode)
             .containsExactly(
                 PricingVariantCode.LOTTO3_STRAIGHT,
                 PricingVariantCode.LOTTO3_BOX_6_WAY);
         assertThat(line.stakeAmount().amount()).isEqualByComparingTo("20.00");
-        assertThat(line.settlementPayoutAmount().amount()).isEqualByComparingTo("5000.00");
-        assertThat(line.minSettlementPayout().amount()).isEqualByComparingTo("800.00");
-        assertThat(line.maxSettlementPayout().amount()).isEqualByComparingTo("5000.00");
-        assertThat(line.totalSettlementPayout()).isNull();
-        assertThat(line.coverages()).hasSize(2);
-        assertThat(line.coverages())
-            .extracting(coverage -> coverage.stakeAmount().amount())
+        assertThat(line.settlementTermsSnapshot().terms()).hasSize(2);
+        assertThat(line.settlementTermsSnapshot().terms())
+            .extracting(term -> term.payoutBaseAmount())
             .allSatisfy(amount -> assertThat(amount).isEqualByComparingTo("10.00"));
-        assertThat(line.coverages().get(0).settlementPayoutSnapshot().amount()).isEqualByComparingTo("5000.00");
-        assertThat(line.coverages().get(1).settlementPayoutSnapshot().amount()).isEqualByComparingTo("800.00");
+        assertThat(line.settlementTermsSnapshot().terms())
+            .extracting(term -> term.payoutRule().multiplier())
+            .containsExactly(new BigDecimal("500"), new BigDecimal("80"));
         assertThat(line.selectionPolicySnapshot()).isEqualTo(SelectionPolicy.EXPLICIT_ONLY);
         assertThat(line.betOptionLabelSnapshot()).isEqualTo("Exact + Box");
     }
@@ -183,18 +183,21 @@ class TicketLinePreparationServiceTest {
             CurrencyCode.of("HTG")).getFirst();
 
         assertThat(line.stakeAmount().amount()).isEqualByComparingTo("10.01");
-        assertThat(line.coverages().get(0).stakeAmount().amount()).isEqualByComparingTo("5.01");
-        assertThat(line.coverages().get(1).stakeAmount().amount()).isEqualByComparingTo("5.00");
-        assertThat(line.coverages().stream()
-                .map(coverage -> coverage.stakeAmount().amount())
+        assertThat(line.settlementTermsSnapshot().terms().get(0).payoutBaseAmount()).isEqualByComparingTo("5.01");
+        assertThat(line.settlementTermsSnapshot().terms().get(1).payoutBaseAmount()).isEqualByComparingTo("5.00");
+        assertThat(line.settlementTermsSnapshot().terms().stream()
+                .map(term -> term.payoutBaseAmount())
                 .reduce(BigDecimal.ZERO, BigDecimal::add))
             .isEqualByComparingTo("10.01");
-        assertThat(line.coverages().get(0).settlementPayoutSnapshot().amount()).isEqualByComparingTo("2505.00");
-        assertThat(line.coverages().get(1).settlementPayoutSnapshot().amount()).isEqualByComparingTo("400.00");
+        assertThat(line.settlementTermsSnapshot().terms())
+            .extracting(term -> term.payoutBaseAmount())
+            .satisfiesExactly(
+                amount -> assertThat(amount).isEqualByComparingTo("5.01"),
+                amount -> assertThat(amount).isEqualByComparingTo("5.00"));
     }
 
     @Test
-    void oddsSnapshotsAreNotRetroactive() {
+    void pricingRuleSnapshotsAreNotRetroactive() {
         var queryBus = new CapturingQueryBus(new BigDecimal("60"));
         var service = service(queryBus, TenantGameApiStub.explicitOnly());
         var input = new SellTicketLineInput(
@@ -219,10 +222,10 @@ class TicketLinePreparationServiceTest {
             List.of(input),
             CurrencyCode.of("HTG")).getFirst();
 
-        assertThat(firstLine.oddsSnapshot()).isEqualByComparingTo("60.0000");
-        assertThat(firstLine.settlementPayoutAmount().amount()).isEqualByComparingTo("600.00");
-        assertThat(secondLine.oddsSnapshot()).isEqualByComparingTo("70.0000");
-        assertThat(secondLine.settlementPayoutAmount().amount()).isEqualByComparingTo("700.00");
+        assertThat(firstLine.settlementTermsSnapshot().terms().getFirst().payoutRule().multiplier())
+            .isEqualByComparingTo("60");
+        assertThat(secondLine.settlementTermsSnapshot().terms().getFirst().payoutRule().multiplier())
+            .isEqualByComparingTo("70");
     }
 
     @Test
@@ -246,24 +249,47 @@ class TicketLinePreparationServiceTest {
             CurrencyCode.of("HTG")).getFirst();
 
         assertThat(queryBus.capturedQueries)
-            .extracting(ResolveSellerTerminalOddsQuery::pricingVariantCode)
+            .extracting(ResolveSellerTerminalPayoutRuleQuery::pricingVariantCode)
             .containsExactly(
                 PricingVariantCode.LOTTO3_STRAIGHT,
                 PricingVariantCode.LOTTO3_BOX_6_WAY);
         assertThat(queryBus.capturedQueries)
-            .extracting(ResolveSellerTerminalOddsQuery::betOption)
+            .extracting(ResolveSellerTerminalPayoutRuleQuery::betOption)
             .containsExactly((short) 1, (short) 2);
         assertThat(line.betOption()).isNull();
-        assertThat(line.settlementPayoutAmount().amount()).isEqualByComparingTo("10000.00");
-        assertThat(line.minSettlementPayout().amount()).isEqualByComparingTo("1600.00");
-        assertThat(line.maxSettlementPayout().amount()).isEqualByComparingTo("10000.00");
-        assertThat(line.totalSettlementPayout()).isNull();
-        assertThat(line.coverages()).hasSize(2);
-        assertThat(line.coverages())
-            .extracting(coverage -> coverage.stakeAmount().amount())
+        assertThat(line.settlementTermsSnapshot().terms()).hasSize(2);
+        assertThat(line.settlementTermsSnapshot().terms())
+            .extracting(term -> term.payoutBaseAmount())
             .allSatisfy(amount -> assertThat(amount).isEqualByComparingTo("20.00"));
         assertThat(line.selectionPolicySnapshot()).isEqualTo(SelectionPolicy.IMPLICIT_BEST_MATCH);
         assertThat(line.betOptionLabelSnapshot()).isNull();
+        assertThat(line.settlementTermsSnapshot().terms())
+            .extracting(term -> term.payoutRule().multiplier())
+            .containsExactly(new BigDecimal("500"), new BigDecimal("80"));
+    }
+
+    @Test
+    void fixedAmountRuleIsSnapshottedWithoutStakePayoutBase() {
+        var queryBus = CapturingQueryBus.fixedAmount(new BigDecimal("2000"));
+        var service = service(queryBus, TenantGameApiStub.explicitOnly());
+
+        var line = service.toTicketLines(
+            TENANT_ID,
+            SELLER_TERMINAL_ID,
+            List.of(new SellTicketLineInput(
+                1,
+                GameCode.HT_LOTO3,
+                BetType.LOTTO3_3D,
+                "123",
+                (short) 1,
+                new BigDecimal("20.00"))),
+            CurrencyCode.of("HTG")).getFirst();
+
+        var term = line.settlementTermsSnapshot().terms().getFirst();
+        assertThat(queryBus.captured.pricingVariantCode()).isEqualTo(PricingVariantCode.LOTTO3_STRAIGHT);
+        assertThat(term.payoutRule().type()).isEqualTo(PayoutRuleType.FIXED_AMOUNT);
+        assertThat(term.payoutRule().fixedAmount()).isEqualByComparingTo("2000");
+        assertThat(term.payoutBaseAmount()).isNull();
     }
 
     private static IdGenerator fixedIdGenerator() {
@@ -278,14 +304,16 @@ class TicketLinePreparationServiceTest {
             new StubSelectionApi(),
             fixedIdGenerator(),
             queryBus,
-            new TicketLineCoveragePlanner(tenantGameApi));
+            new TicketSettlementTermPlanner(tenantGameApi));
     }
 
     private static final class CapturingQueryBus implements QueryBus {
         private BigDecimal effectiveOdds;
         private Map<PricingVariantCode, BigDecimal> effectiveOddsByVariant = Map.of();
-        private ResolveSellerTerminalOddsQuery captured;
-        private final List<ResolveSellerTerminalOddsQuery> capturedQueries = new ArrayList<>();
+        private PayoutRuleType effectiveRuleType = PayoutRuleType.STAKE_MULTIPLIER;
+        private BigDecimal effectiveFixedAmount;
+        private ResolveSellerTerminalPayoutRuleQuery captured;
+        private final List<ResolveSellerTerminalPayoutRuleQuery> capturedQueries = new ArrayList<>();
 
         private CapturingQueryBus(BigDecimal effectiveOdds) {
             this.effectiveOdds = effectiveOdds;
@@ -296,22 +324,35 @@ class TicketLinePreparationServiceTest {
             this.effectiveOddsByVariant = effectiveOddsByVariant;
         }
 
+        private static CapturingQueryBus fixedAmount(BigDecimal amount) {
+            var bus = new CapturingQueryBus(BigDecimal.ONE);
+            bus.effectiveRuleType = PayoutRuleType.FIXED_AMOUNT;
+            bus.effectiveFixedAmount = amount;
+            return bus;
+        }
+
         @Override
         @SuppressWarnings("unchecked")
         public <R> R ask(Query<R> query) {
-            captured = (ResolveSellerTerminalOddsQuery) query;
+            captured = (ResolveSellerTerminalPayoutRuleQuery) query;
             capturedQueries.add(captured);
             var resolvedOdds = effectiveOddsByVariant.getOrDefault(
                 captured.pricingVariantCode(),
                 effectiveOdds);
-            return (R) new SellerTerminalOddsResolutionView(
+            return (R) new SellerTerminalPayoutRuleResolutionView(
                 captured.gameCode(),
                 captured.pricingVariantCode(),
                 captured.betType(),
                 captured.betOption(),
+                PayoutRuleType.STAKE_MULTIPLIER,
                 new BigDecimal("50"),
-                resolvedOdds,
-                resolvedOdds,
+                null,
+                effectiveRuleType,
+                effectiveRuleType == PayoutRuleType.STAKE_MULTIPLIER ? resolvedOdds : null,
+                effectiveRuleType == PayoutRuleType.FIXED_AMOUNT ? effectiveFixedAmount : null,
+                effectiveRuleType,
+                effectiveRuleType == PayoutRuleType.STAKE_MULTIPLIER ? resolvedOdds : null,
+                effectiveRuleType == PayoutRuleType.FIXED_AMOUNT ? effectiveFixedAmount : null,
                 OddsSource.SELLER_TERMINAL_OVERRIDE);
         }
     }

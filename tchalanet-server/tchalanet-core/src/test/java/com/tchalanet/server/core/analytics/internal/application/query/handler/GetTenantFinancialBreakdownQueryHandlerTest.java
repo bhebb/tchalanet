@@ -52,7 +52,6 @@ class GetTenantFinancialBreakdownQueryHandlerTest {
     assertThat(result.summary().ticketsSold()).isZero();
     assertThat(result.summary().grossSales()).isEqualByComparingTo("0");
     assertThat(result.summary().sellerCommission()).isEqualByComparingTo("0");
-    assertThat(result.summary().promotionPayoutBase()).isEqualByComparingTo("0");
     assertThat(result.dailyRows()).isEmpty();
     assertThat(result.drawRows()).isEmpty();
     assertThat(result.sellerTerminalDailyRows()).isEmpty();
@@ -159,7 +158,6 @@ class GetTenantFinancialBreakdownQueryHandlerTest {
         .waivedChargeCents(200L)
         .promotionLineCount(2L)
         .promotionPricedLineCount(1L)
-        .promotionPayoutBaseCents(1000L)
         .netRevenueEstimatedCents(5800L)
         .netRevenuePaidBasisCents(6800L)
         .build();
@@ -188,7 +186,6 @@ class GetTenantFinancialBreakdownQueryHandlerTest {
         .waivedChargeCents(0L)
         .promotionLineCount(1L)
         .promotionPricedLineCount(0L)
-        .promotionPayoutBaseCents(500L)
         .netRevenueEstimatedCents(3050L)
         .netRevenuePaidBasisCents(3350L)
         .build();
@@ -213,7 +210,6 @@ class GetTenantFinancialBreakdownQueryHandlerTest {
         .waivedChargeCents(0L)
         .promotionLineCount(1L)
         .promotionPricedLineCount(0L)
-        .promotionPayoutBaseCents(500L)
         .netRevenueEstimatedCents(3050L)
         .netRevenuePaidBasisCents(3350L)
         .build();
@@ -239,7 +235,6 @@ class GetTenantFinancialBreakdownQueryHandlerTest {
         .waivedChargeCents(0L)
         .promotionLineCount(1L)
         .promotionPricedLineCount(0L)
-        .promotionPayoutBaseCents(500L)
         .netRevenueEstimatedCents(3050L)
         .netRevenuePaidBasisCents(3350L)
         .build();

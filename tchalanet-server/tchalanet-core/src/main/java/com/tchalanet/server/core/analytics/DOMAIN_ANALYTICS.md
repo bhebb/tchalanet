@@ -85,6 +85,10 @@ Elles ne touchent pas aux tables analytics directement.
 | `SalesSessionClosedEvent` | Ferme les métriques de session |
 
 Les projectors utilisent `ProcessedEventPort` pour l'idempotence.
+Après résultat, `winningsCalculated` consomme le montant réalisé publié par
+`TicketWinningSettlementCreatedEvent`; analytics ne recalcule pas un gain depuis les règles de
+settlement courantes. Après paiement, `payoutsPaid` consomme le montant réalisé de
+`TicketPayoutPaidEvent`.
 
 ---
 
@@ -109,7 +113,6 @@ Les projectors utilisent `ProcessedEventPort` pour l'idempotence.
 | `waivedCharges` | Montant original des frais offerts par promotion |
 | `promotionLines` | Nombre de lignes créées par promotion (`origin=PROMOTION`) |
 | `promotionPricedLines` | Nombre de lignes dont pricing/odds vient d'une promotion (`pricingSource=PROMOTION`) |
-| `promotionPayoutBase` | Base nominale des lignes promotionnelles, sans multiplier par les odds |
 | `netRevenueEstimated` | `grossSales - winningsCalculated - sellerCommission - tenantCharges` |
 | `netRevenuePaidBasis` | `grossSales - payoutsPaid - sellerCommission - tenantCharges` |
 

@@ -17,20 +17,26 @@ import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.types.money.CurrencyCode;
 import com.tchalanet.server.common.types.money.Money;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultProjection;
-import com.tchalanet.server.core.pricing.api.model.PricingVariantCode;
-import com.tchalanet.server.core.sales.api.model.coverage.SettlementPayoutMode;
 import com.tchalanet.server.core.sales.api.model.money.TicketMoneyBreakdown;
 import com.tchalanet.server.core.sales.api.model.origin.TicketSaleChannel;
+import com.tchalanet.server.core.sales.api.model.promotion.TicketLineOrigin;
+import com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSource;
+import com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource;
+import com.tchalanet.server.core.sales.api.model.settlement.PayoutRuleSnapshot;
+import com.tchalanet.server.core.sales.api.model.settlement.SettlementRuleCode;
+import com.tchalanet.server.core.sales.api.model.settlement.SettlementTermSnapshot;
+import com.tchalanet.server.core.sales.api.model.settlement.SettlementTermSource;
+import com.tchalanet.server.core.sales.api.model.settlement.SettlementTermsSnapshot;
+import com.tchalanet.server.core.sales.api.model.settlement.SettlementWinMode;
 import com.tchalanet.server.core.sales.api.model.status.TicketLineResultStatus;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.Ticket;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketCodes;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketContext;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketIdentity;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
-import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLineCoverage;
-import com.tchalanet.server.core.sales.internal.domain.model.ticket.WinMode;
 import com.tchalanet.server.core.selection.api.model.Selection;
 import com.tchalanet.server.core.selection.api.model.SelectionKey;
+import com.tchalanet.server.platform.tenantgame.api.model.SelectionPolicy;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
@@ -135,29 +141,42 @@ class TicketWinningCalculatorTest {
         }
 
         @Test
-        @DisplayName("free Maryaj line wins with reverse matching and pays settlement snapshot")
-        void freeMaryajWinsFromSettlementSnapshot() {
-            var line = TicketLine.promotionLine(
+        @DisplayName("free Maryaj line wins with reverse matching and pays fixed settlement snapshot")
+        void freeMaryajWinsFromFixedSettlementSnapshot() {
+            var line = new TicketLine(
                 LINE_ID,
                 2,
                 GameCode.HT_MARYAJ_GRATIS,
                 BetType.MARRIAGE_2D2D,
                 new Selection(SelectionKey.of("17-36"), "17-36"),
                 Money.zero(HTG),
-                money("50"),
-                new BigDecimal("12.5"),
-                money("625"),
+                SettlementTermsSnapshot.current(
+                    SelectionPolicy.EXPLICIT_ONLY,
+                    List.of(new SettlementTermSnapshot(
+                        SettlementRuleCode.MARRIAGE_REVERSE_ALLOWED,
+                        (short) 2,
+                        "Permute",
+                        PayoutRuleSnapshot.fixedAmount(new BigDecimal("2000")),
+                        null,
+                        SettlementWinMode.ALTERNATIVE,
+                        SettlementTermSource.TENANT_DEFAULT))),
                 (short) 2,
-                com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource.PROMOTION_GENERATED,
+                SelectionPolicy.EXPLICIT_ONLY,
+                "Permute",
+                TicketLineOrigin.PROMOTION,
+                TicketLinePricingSource.PROMOTION,
+                TicketLineSelectionSource.PROMOTION_GENERATED,
                 PromotionDecisionId.of(UUID.fromString("D1000000-0000-0000-0000-000000000001")),
                 "receipt.promotion.free_game_line",
-                "FREE_GAME_LINE"
+                "FREE_GAME_LINE",
+                TicketLineResultStatus.PENDING,
+                money("0")
             );
 
             var result = calculator.computeLineResults(ticket(line, Money.zero(HTG)), draw);
 
             assertThat(result.get(LINE_ID).status()).isEqualTo(TicketLineResultStatus.WON);
-            assertThat(result.get(LINE_ID).payoutAmount().amount()).isEqualByComparingTo("625");
+            assertThat(result.get(LINE_ID).payoutAmount().amount()).isEqualByComparingTo("2000");
         }
     }
 
@@ -221,6 +240,63 @@ class TicketWinningCalculatorTest {
                 projection("321", null, null, null));
             assertThat(permutedResult.get(LINE_ID).status()).isEqualTo(TicketLineResultStatus.WON);
             assertThat(permutedResult.get(LINE_ID).payoutAmount().amount()).isEqualByComparingTo("800");
+        }
+
+        @Test
+        @DisplayName("implicit best match pays the best modern snapshot term")
+        void implicitBestMatchPaysBestModernSnapshotTerm() {
+            var line = modernLoto3Line(
+                "123",
+                SelectionPolicy.IMPLICIT_BEST_MATCH,
+                null,
+                null,
+                List.of(
+                    settlementTerm(
+                        SettlementRuleCode.LOTTO3_STRAIGHT,
+                        null,
+                        null,
+                        PayoutRuleSnapshot.stakeMultiplier(new BigDecimal("500")),
+                        new BigDecimal("20.00")),
+                    settlementTerm(
+                        SettlementRuleCode.LOTTO3_BOX_6_WAY,
+                        null,
+                        null,
+                        PayoutRuleSnapshot.stakeMultiplier(new BigDecimal("80")),
+                        new BigDecimal("20.00"))));
+
+            var exactResult = calculator.computeLineResults(
+                ticket(line, money("20")),
+                projection("123", null, null, null));
+            assertThat(exactResult.get(LINE_ID).payoutAmount().amount()).isEqualByComparingTo("10000");
+
+            var permutedResult = calculator.computeLineResults(
+                ticket(line, money("20")),
+                projection("321", null, null, null));
+            assertThat(permutedResult.get(LINE_ID).payoutAmount().amount()).isEqualByComparingTo("1600");
+        }
+
+        @Test
+        @DisplayName("settlement uses ticket snapshot even when legacy odds coverage values differ")
+        void settlementUsesTicketSnapshotWhenConfigurationChangedAfterSale() {
+            var line = modernLoto3Line(
+                "123",
+                SelectionPolicy.EXPLICIT_ONLY,
+                (short) 1,
+                "Exact",
+                List.of(settlementTerm(
+                    SettlementRuleCode.LOTTO3_STRAIGHT,
+                    (short) 1,
+                    "Exact",
+                    PayoutRuleSnapshot.stakeMultiplier(new BigDecimal("50")),
+                    new BigDecimal("20.00"))));
+
+            var result = calculator.computeLineResults(
+                ticket(line, money("20")),
+                projection("123", null, null, null));
+
+            assertThat(line.settlementTermsSnapshot().terms().getFirst().payoutRule().multiplier())
+                .isEqualByComparingTo("50");
+            assertThat(result.get(LINE_ID).payoutAmount().amount()).isEqualByComparingTo("1000");
         }
     }
 
@@ -374,7 +450,6 @@ class TicketWinningCalculatorTest {
             new Selection(SelectionKey.of(played), played),
             money("10"),
             new BigDecimal("12.5"),
-            money("125"),
             betOption,
             TicketLineResultStatus.PENDING,
             money("0"));
@@ -411,28 +486,24 @@ class TicketWinningCalculatorTest {
             BetType.LOTTO3_3D,
             new Selection(SelectionKey.of(played), played),
             money("20"),
-            money("20"),
-            new BigDecimal("500"),
-            money("5000"),
-            SettlementPayoutMode.RANGE_ALTERNATIVE,
-            money("800"),
-            money("5000"),
-            null,
-            List.of(
-                new TicketLineCoverage(
-                    PricingVariantCode.LOTTO3_STRAIGHT,
-                    money("10"),
-                    new BigDecimal("500"),
-                    money("5000"),
-                    WinMode.ALTERNATIVE),
-                new TicketLineCoverage(
-                    PricingVariantCode.LOTTO3_BOX_6_WAY,
-                    money("10"),
-                    new BigDecimal("80"),
-                    money("800"),
-                    WinMode.ALTERNATIVE)
-            ),
+            SettlementTermsSnapshot.current(
+                SelectionPolicy.EXPLICIT_ONLY,
+                List.of(
+                    settlementTerm(
+                        SettlementRuleCode.LOTTO3_STRAIGHT,
+                        (short) 3,
+                        "Exact + Box",
+                        PayoutRuleSnapshot.stakeMultiplier(new BigDecimal("500")),
+                        new BigDecimal("10")),
+                    settlementTerm(
+                        SettlementRuleCode.LOTTO3_BOX_6_WAY,
+                        (short) 3,
+                        "Exact + Box",
+                        PayoutRuleSnapshot.stakeMultiplier(new BigDecimal("80")),
+                        new BigDecimal("10")))),
             (short) 3,
+            SelectionPolicy.EXPLICIT_ONLY,
+            "Exact + Box",
             com.tchalanet.server.core.sales.api.model.promotion.TicketLineOrigin.CUSTOMER,
             com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSource.STANDARD,
             com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource.CUSTOMER_SELECTED,
@@ -442,6 +513,52 @@ class TicketWinningCalculatorTest {
             TicketLineResultStatus.PENDING,
             money("0")
         );
+    }
+
+    private static TicketLine modernLoto3Line(
+        String played,
+        SelectionPolicy selectionPolicy,
+        Short betOption,
+        String betOptionLabel,
+        List<SettlementTermSnapshot> settlementTerms
+    ) {
+        return new TicketLine(
+            LINE_ID,
+            1,
+            GameCode.HT_LOTO3,
+            BetType.LOTTO3_3D,
+            new Selection(SelectionKey.of(played), played),
+            money("20"),
+            SettlementTermsSnapshot.current(selectionPolicy, settlementTerms),
+            betOption,
+            selectionPolicy,
+            betOptionLabel,
+            TicketLineOrigin.CUSTOMER,
+            TicketLinePricingSource.STANDARD,
+            TicketLineSelectionSource.CUSTOMER_SELECTED,
+            null,
+            null,
+            null,
+            TicketLineResultStatus.PENDING,
+            money("0")
+        );
+    }
+
+    private static SettlementTermSnapshot settlementTerm(
+        SettlementRuleCode ruleCode,
+        Short betOption,
+        String betOptionLabel,
+        PayoutRuleSnapshot payoutRule,
+        BigDecimal payoutBaseAmount
+    ) {
+        return new SettlementTermSnapshot(
+            ruleCode,
+            betOption,
+            betOptionLabel,
+            payoutRule,
+            payoutBaseAmount,
+            SettlementWinMode.ALTERNATIVE,
+            SettlementTermSource.SELLER_TERMINAL_OVERRIDE);
     }
 
     private static DrawResultProjection projection(String lot1, String lot2, String lot3, String lot4) {

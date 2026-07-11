@@ -85,8 +85,6 @@ class AnalyticsSellerTerminalDrawProjectorTest {
     assertThat(row.getTenantChargeCents()).isEqualTo(300L);
     assertThat(row.getWaivedChargeCents()).isEqualTo(200L);
     assertThat(row.getPromotionLineCount()).isEqualTo(1L);
-    assertThat(row.getPromotionPayoutBaseCents()).isEqualTo(12500L);
-    assertThat(row.getPromotionPotentialPayoutCents()).isZero();
     assertThat(row.getNetRevenueEstimatedCents()).isEqualTo(550L);
     assertThat(row.getNetRevenuePaidBasisCents()).isEqualTo(550L);
 
@@ -131,8 +129,8 @@ class AnalyticsSellerTerminalDrawProjectorTest {
                 new TicketMoneyPayload.ChargeItem(
                     TicketChargeType.BUYER_SMS, money("2.00"), ChargePaidBy.BUYER, true, "WAIVE_CHARGE"))),
         List.of(
-            line(1, TicketLineOrigin.CUSTOMER, TicketLinePricingSource.STANDARD, money("10.00"), money("10.00")),
-            line(2, TicketLineOrigin.PROMOTION, TicketLinePricingSource.PROMOTION, money("0.00"), money("125.00"))),
+            line(1, TicketLineOrigin.CUSTOMER, TicketLinePricingSource.STANDARD, money("10.00")),
+            line(2, TicketLineOrigin.PROMOTION, TicketLinePricingSource.PROMOTION, money("0.00"))),
         null);
   }
 
@@ -140,8 +138,7 @@ class AnalyticsSellerTerminalDrawProjectorTest {
       int lineNumber,
       TicketLineOrigin origin,
       TicketLinePricingSource pricingSource,
-      Money stake,
-      Money payoutBase) {
+      Money stake) {
     return new TicketLinePlacedItem(
         TicketLineId.of(UUID.fromString("80000000-0000-0000-0000-00000000000" + lineNumber)),
         lineNumber,
@@ -151,11 +148,9 @@ class AnalyticsSellerTerminalDrawProjectorTest {
         "12",
         (short) 1,
         stake,
-        new BigDecimal("12.0000"),
         origin,
         pricingSource,
         TicketLineSelectionSource.CUSTOMER_SELECTED,
-        payoutBase,
         null,
         null,
         null);

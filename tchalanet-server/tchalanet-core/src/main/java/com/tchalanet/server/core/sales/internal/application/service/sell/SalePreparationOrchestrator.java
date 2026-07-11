@@ -134,12 +134,12 @@ public class SalePreparationOrchestrator {
             List.of(),
             null,
             List.of(),
+            ctx.sellerTerminalIdRequired(),
             ctx.userId(),
             paidTotal,
             command.currency().code(),
             paidLines.stream()
                 .map(line -> line.gameCode().name())
-                .distinct()
                 .toList(),
             false
         )));

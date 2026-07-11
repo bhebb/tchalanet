@@ -90,10 +90,6 @@ class AppliedPromotionSnapshotJpaAdapter implements AppliedPromotionSnapshotWrit
         json.put("stakeAmount", line.stakeAmount().amount());
         json.put("originalStakeAmount", line.origin().name().equals("PROMOTION") ? null : line.stakeAmount().amount());
         json.put("finalStakeAmount", line.stakeAmount().amount());
-        json.put("payoutBaseAmount", line.payoutBaseAmount().amount());
-        json.put("originalOddsSnapshot", line.pricingSource().name().equals("PROMOTION") ? null : line.oddsSnapshot());
-        json.put("finalOddsSnapshot", line.oddsSnapshot());
-        json.put("oddsSnapshot", line.oddsSnapshot());
         json.put("promotionLabel", line.promotionLabel());
         json.put("promotionEffectType", line.promotionEffectType());
         return json;

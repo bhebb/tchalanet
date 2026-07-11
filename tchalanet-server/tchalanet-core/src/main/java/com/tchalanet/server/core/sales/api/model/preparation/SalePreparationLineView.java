@@ -9,6 +9,5 @@ public record SalePreparationLineView(
     Short betOption,
     String selection,
     BigDecimal stakeAmount,
-    BigDecimal oddsSnapshot,
     String origin
 ) {}

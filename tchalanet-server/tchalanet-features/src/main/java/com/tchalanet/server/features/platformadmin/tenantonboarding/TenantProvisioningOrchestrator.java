@@ -15,7 +15,7 @@ import com.tchalanet.server.core.limitpolicy.BreachOutcome;
 import com.tchalanet.server.core.limitpolicy.api.RuleKey;
 import com.tchalanet.server.core.limitpolicy.api.command.UpsertLimitAssignmentCommand;
 import com.tchalanet.server.core.limitpolicy.api.model.LimitScopeRef;
-import com.tchalanet.server.core.pricing.api.command.EnsureDefaultHaitiLotteryOddsCommand;
+import com.tchalanet.server.core.pricing.api.command.EnsureDefaultHaitiLotteryPricingRulesCommand;
 import com.tchalanet.server.core.subscription.api.command.ApplyTenantPlanCommand;
 import com.tchalanet.server.features.platformadmin.tenantonboarding.model.TenantProvisioningDomainStatuses;
 import com.tchalanet.server.features.platformadmin.tenantonboarding.model.TenantProvisioningPreviewView;
@@ -224,9 +224,9 @@ public class TenantProvisioningOrchestrator {
         return switch (profile) {
             case MINIMAL -> adminCreated
                 ? List.of("CONFIGURE_GAMES", "CONFIGURE_DRAW_CHANNELS", "CREATE_SELLER_TERMINAL",
-                "CONFIGURE_SELLER_RULES", "CONFIGURE_LIMITS", "CONFIGURE_ODDS")
+                "CONFIGURE_SELLER_RULES", "CONFIGURE_LIMITS", "CONFIGURE_PRICING_RULES")
                 : List.of("CREATE_INITIAL_ADMIN", "CONFIGURE_GAMES", "CONFIGURE_DRAW_CHANNELS",
-                "CREATE_SELLER_TERMINAL", "CONFIGURE_SELLER_RULES", "CONFIGURE_LIMITS", "CONFIGURE_ODDS");
+                "CREATE_SELLER_TERMINAL", "CONFIGURE_SELLER_RULES", "CONFIGURE_LIMITS", "CONFIGURE_PRICING_RULES");
             case DEFAULT_HAITI_LOTTERY -> adminCreated
                 ? List.of("CREATE_SELLER_TERMINAL", "CONFIGURE_SELLER_RULES")
                 : List.of("CREATE_INITIAL_ADMIN", "CREATE_SELLER_TERMINAL", "CONFIGURE_SELLER_RULES");
@@ -248,7 +248,7 @@ public class TenantProvisioningOrchestrator {
                 .gameCode(gameCode)
                 .build());
         }
-        commandBus.execute(new EnsureDefaultHaitiLotteryOddsCommand(tenantId));
+        commandBus.execute(new EnsureDefaultHaitiLotteryPricingRulesCommand(tenantId));
         drawChannelProvisioningApi.ensureDefaultHaitiLotteryChannels(
             tenantId,
             tenantGameApi.listGames(tenantId).stream()

@@ -8,7 +8,8 @@ import com.tchalanet.server.core.limitpolicy.api.query.ListLimitAssignmentsBySco
 import com.tchalanet.server.core.limitpolicy.api.query.ListLimitAssignmentsView;
 import com.tchalanet.server.core.limitpolicy.api.query.LimitScopeQueryRef;
 import com.tchalanet.server.core.pricing.api.model.PricingVariantCode;
-import com.tchalanet.server.core.pricing.api.query.ListTenantPricingQuery;
+import com.tchalanet.server.core.pricing.api.model.TenantPricingRuleView;
+import com.tchalanet.server.core.pricing.api.query.ListTenantPricingRulesQuery;
 import com.tchalanet.server.features.tenantadmin.setup.model.TenantGamesPricingView;
 import com.tchalanet.server.features.tenantadmin.setup.model.TenantGamesPricingView.GamePricingRow;
 import com.tchalanet.server.features.tenantadmin.setup.model.TenantGamesPricingView.LimitAssignmentRow;
@@ -68,13 +69,13 @@ public class TenantGamesPricingService {
         var tenantGames = tenantGameApi.listGames(tenantId);
         var limitAssignments = queryBus.ask(
             new ListLimitAssignmentsByScopeQuery(LimitScopeQueryRef.tenant(tenantId)));
-        var pricingOdds = queryBus.ask(new ListTenantPricingQuery(tenantId, null));
+        var pricingRules = queryBus.ask(new ListTenantPricingRulesQuery(tenantId, null));
 
         // Group limits by ruleKey for easy lookup (all are tenant-level)
         var tenantLimitItems = limitAssignments.items();
 
         // Group pricing by gameCode
-        var pricingByGame = pricingOdds.stream()
+        var pricingByGame = pricingRules.stream()
             .collect(Collectors.groupingBy(p -> p.gameCode().toUpperCase()));
 
         var rows = tenantGames.stream()
@@ -116,10 +117,10 @@ public class TenantGamesPricingService {
 
     private static List<PricingEntryRow> pricingEntries(
         String gameCode,
-        List<com.tchalanet.server.core.pricing.api.model.TenantPricingOddsView> tenantOdds
+        List<TenantPricingRuleView> tenantPricingRules
     ) {
-        var activeByVariant = tenantOdds.stream()
-            .filter(com.tchalanet.server.core.pricing.api.model.TenantPricingOddsView::active)
+        var activeByVariant = tenantPricingRules.stream()
+            .filter(TenantPricingRuleView::active)
             .collect(Collectors.toMap(
                 p -> p.pricingVariantCode().name(),
                 p -> p,
@@ -134,7 +135,9 @@ public class TenantGamesPricingService {
                 entry.betType(),
                 entry.betOption(),
                 entry.pricingVariantCode().name(),
-                actual == null ? null : actual.odds()));
+                actual == null ? null : actual.odds(),
+                actual == null ? null : actual.payoutRuleType(),
+                actual == null ? null : actual.fixedAmount()));
         }
 
         activeByVariant.values().stream()
@@ -142,7 +145,9 @@ public class TenantGamesPricingService {
                 p.betType(),
                 p.betOption(),
                 p.pricingVariantCode().name(),
-                p.odds()))
+                p.odds(),
+                p.payoutRuleType(),
+                p.fixedAmount()))
             .forEach(rows::add);
 
         return List.copyOf(rows);

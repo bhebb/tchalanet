@@ -85,12 +85,6 @@ public class AnalyticsDrawEntity {
   @Column(name = "promotion_priced_line_count", nullable = false)
   private long promotionPricedLineCount;
 
-  @Column(name = "promotion_payout_base_cents", nullable = false)
-  private long promotionPayoutBaseCents;
-
-  @Column(name = "promotion_potential_payout_cents", nullable = false)
-  private long promotionPotentialPayoutCents;
-
   @Column(name = "net_revenue_estimated_cents", nullable = false)
   private long netRevenueEstimatedCents;
 

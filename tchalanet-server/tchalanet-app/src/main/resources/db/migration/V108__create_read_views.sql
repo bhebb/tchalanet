@@ -74,7 +74,6 @@ SELECT t.id                         AS ticket_id,
 
        t.stake_amount,
        t.total_amount,
-       t.potential_payout_amount,
        t.currency,
 
        t.placed_at,

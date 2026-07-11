@@ -24,6 +24,7 @@ import com.tchalanet.server.core.sales.api.command.result.RecordDrawTicketsResul
 import com.tchalanet.server.core.sales.api.event.TicketPayoutPaidEvent;
 import com.tchalanet.server.core.sales.api.event.TicketResultedEvent;
 import com.tchalanet.server.core.sales.api.event.TicketWinningSettlementCreatedEvent;
+import com.tchalanet.server.core.sales.api.model.line.TicketLineResult;
 import com.tchalanet.server.core.sales.api.model.money.TicketMoneyBreakdown;
 import com.tchalanet.server.core.sales.api.model.origin.TicketSaleChannel;
 import com.tchalanet.server.core.sales.api.model.status.TicketLineResultStatus;
@@ -48,6 +49,7 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -152,6 +154,44 @@ class RecordDrawTicketsResultCommandHandlerTest {
             .noneMatch(TicketPayoutPaidEvent.class::isInstance);
     }
 
+    @Test
+    void settlementDataErrorSkipsTicketWithoutSavingLostResult() {
+        var store = new CapturingTicketStore(ticket("45"));
+        var publisher = new CapturingEventPublisher();
+        var handler = new RecordDrawTicketsResultCommandHandler(
+            store,
+            store,
+            new ProjectionQueryBus(DRAW_RESULT_ID),
+            new ThrowingTicketWinningCalculator(),
+            publisher,
+            new SalesTicketCacheEvictor(new NoOpCacheManager()),
+            () -> UUID.fromString("01000000-0000-0000-0000-000000000001"),
+            CLOCK);
+
+        var result = handler.handle(command());
+
+        assertThat(result.processedTickets()).isEqualTo(1);
+        assertThat(result.updatedTickets()).isZero();
+        assertThat(result.skippedTickets()).isEqualTo(1);
+        assertThat(store.savedTickets()).isEmpty();
+        assertThat(publisher.events()).isEmpty();
+    }
+
+    @Test
+    void replaySkipsAlreadyResultedTicketWithoutSavingOrPublishingAgain() {
+        var store = new CapturingTicketStore(resultedWinningTicket());
+        var publisher = new CapturingEventPublisher();
+        var handler = handler(store, publisher);
+
+        var result = handler.handle(command());
+
+        assertThat(result.processedTickets()).isEqualTo(1);
+        assertThat(result.updatedTickets()).isZero();
+        assertThat(result.skippedTickets()).isEqualTo(1);
+        assertThat(store.savedTickets()).isEmpty();
+        assertThat(publisher.events()).isEmpty();
+    }
+
     private static RecordDrawTicketsResultCommandHandler handler(
         CapturingTicketStore store,
         DomainEventPublisher publisher
@@ -199,7 +239,6 @@ class RecordDrawTicketsResultCommandHandlerTest {
                 new Selection(SelectionKey.of(selection), selection),
                 stake,
                 new BigDecimal("12.5000"),
-                money("125.00"),
                 null,
                 TicketLineResultStatus.PENDING,
                 money("0.00"))),
@@ -208,6 +247,19 @@ class RecordDrawTicketsResultCommandHandlerTest {
             null,
             UserId.of(UUID.fromString("10000000-0000-0000-0000-000000000001")),
             NOW.minusSeconds(60));
+    }
+
+    private static Ticket resultedWinningTicket() {
+        var actor = UserId.of(UUID.fromString("10000000-0000-0000-0000-000000000002"));
+        return ticket("45")
+            .applyOfficialResult(
+                Map.of(
+                    TicketLineId.of(UUID.fromString("41000000-0000-0000-0000-000000000001")),
+                    new TicketLineResult(TicketLineResultStatus.WON, money("125.00"))
+                ),
+                actor,
+                NOW)
+            .autoSettleAfterResult(actor, NOW);
     }
 
     private static Money money(String amount) {
@@ -291,6 +343,14 @@ class RecordDrawTicketsResultCommandHandlerTest {
             if (!events.isEmpty()) {
                 throw new AssertionError("No event expected");
             }
+        }
+    }
+
+    private static final class ThrowingTicketWinningCalculator extends TicketWinningCalculator {
+        @Override
+        public java.util.HashMap<TicketLineId, com.tchalanet.server.core.sales.api.model.line.TicketLineResult>
+        computeLineResults(Ticket ticket, DrawResultProjection projection) {
+            throw new IllegalStateException("settlement.terms_snapshot_required");
         }
     }
 }

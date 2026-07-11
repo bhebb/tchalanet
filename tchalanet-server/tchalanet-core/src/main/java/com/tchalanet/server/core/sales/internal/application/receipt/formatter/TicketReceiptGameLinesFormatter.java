@@ -140,7 +140,8 @@ public class TicketReceiptGameLinesFormatter {
     }
 
     private boolean isComplimentaryMaryaj(TicketReceiptLineView line) {
-        return "MARRIAGE_2D2D".equals(line.betType())
+        return "HT_MARYAJ_GRATIS".equals(line.gameCode())
+            && "MARRIAGE_2D2D".equals(line.betType())
             && "FREE_GAME_LINE".equals(line.promotionEffectType())
             && line.stake() != null
             && line.stake().amount().compareTo(BigDecimal.ZERO) == 0;

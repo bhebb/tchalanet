@@ -19,7 +19,6 @@ import com.tchalanet.server.core.sales.api.model.lifecycle.ResultLifecycle;
 import com.tchalanet.server.core.sales.api.model.lifecycle.SaleLifecycle;
 import com.tchalanet.server.core.sales.api.model.lifecycle.SettlementLifecycle;
 import com.tchalanet.server.core.sales.api.model.lifecycle.TicketLifecycle;
-import com.tchalanet.server.core.sales.api.model.coverage.SettlementPayoutMode;
 import com.tchalanet.server.core.sales.api.model.money.TicketCharge;
 import com.tchalanet.server.core.sales.api.model.money.TicketMoney;
 import com.tchalanet.server.core.sales.api.model.money.TicketMoneyBreakdown;
@@ -37,11 +36,8 @@ import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketCodes;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketContext;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketIdentity;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
-import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLineCoverage;
-import com.tchalanet.server.core.sales.internal.domain.model.ticket.WinMode;
 import com.tchalanet.server.core.sales.internal.infra.persistence.entity.TicketChargeJpaEntity;
 import com.tchalanet.server.core.sales.internal.infra.persistence.entity.TicketJpaEntity;
-import com.tchalanet.server.core.sales.internal.infra.persistence.entity.TicketLineCoverageJpaEntity;
 import com.tchalanet.server.core.sales.internal.infra.persistence.entity.TicketLineJpaEntity;
 import com.tchalanet.server.core.selection.api.model.Selection;
 import com.tchalanet.server.core.selection.api.model.SelectionKey;
@@ -51,7 +47,6 @@ import org.mapstruct.MappingTarget;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.Comparator;
 
 @Mapper(componentModel = "spring")
 public interface TicketJpaMapper {
@@ -126,10 +121,9 @@ public interface TicketJpaMapper {
         entity.setGameCode(line.gameCode());
         entity.setBetType(line.betType());
         entity.setSelectionKey(line.selection().key().value());
-        entity.setOddsSnapshot(line.oddsSnapshot());
         entity.setDisplaySelection(line.selection().displayLabel());
         entity.setStakeAmount(line.stakeAmount().amount());
-        entity.setPayoutBaseAmount(line.payoutBaseAmount().amount());
+        entity.setSettlementTermsSnapshot(line.settlementTermsSnapshot());
         entity.setBetOption(line.betOption());
         entity.setSelectionPolicySnapshot(line.selectionPolicySnapshot());
         entity.setBetOptionLabelSnapshot(line.betOptionLabelSnapshot());
@@ -141,27 +135,7 @@ public interface TicketJpaMapper {
         entity.setPromotionDecisionId(line.promotionDecisionId() == null ? null : line.promotionDecisionId().value());
         entity.setPromotionLabel(line.promotionLabel());
         entity.setPromotionEffectType(line.promotionEffectType());
-        entity.replaceCoverages(toCoverageEntities(line.coverages()));
 
-        return entity;
-    }
-
-    default List<TicketLineCoverageJpaEntity> toCoverageEntities(List<TicketLineCoverage> coverages) {
-        if (coverages == null) {
-            return List.of();
-        }
-        return coverages.stream()
-            .map(this::toCoverageEntity)
-            .toList();
-    }
-
-    default TicketLineCoverageJpaEntity toCoverageEntity(TicketLineCoverage coverage) {
-        var entity = new TicketLineCoverageJpaEntity();
-        entity.setPricingVariantCode(coverage.pricingVariantCode());
-        entity.setStakeAmount(coverage.stakeAmount().amount());
-        entity.setOddsSnapshot(coverage.oddsSnapshot());
-        entity.setSettlementPayoutSnapshot(coverage.settlementPayoutSnapshot().amount());
-        entity.setWinMode(coverage.winMode());
         return entity;
     }
 
@@ -362,15 +336,6 @@ public interface TicketJpaMapper {
     }
 
     default TicketLine toDomainLine(TicketLineJpaEntity entity, @Context CurrencyCode currency) {
-        var coverages = toDomainCoverages(entity.getCoverages(), currency);
-        var minSettlementPayout = minSettlementPayout(coverages);
-        var maxSettlementPayout = maxSettlementPayout(coverages);
-        var settlementPayoutMode = settlementPayoutMode(coverages);
-        var totalSettlementPayout = settlementPayoutMode == SettlementPayoutMode.RANGE_CUMULATIVE
-            ? coverages.stream()
-                .map(TicketLineCoverage::settlementPayoutSnapshot)
-                .reduce(Money.zero(currency), Money::plus)
-            : null;
         return new TicketLine(
             TicketLineId.of(entity.getId()),
             entity.getLineNumber(),
@@ -381,14 +346,7 @@ public interface TicketJpaMapper {
                 entity.getDisplaySelection()
             ),
             new Money(entity.getStakeAmount(), currency),
-            new Money(entity.getPayoutBaseAmount(), currency),
-            entity.getOddsSnapshot(),
-            totalSettlementPayout == null ? maxSettlementPayout : totalSettlementPayout,
-            settlementPayoutMode,
-            minSettlementPayout,
-            maxSettlementPayout,
-            totalSettlementPayout,
-            coverages,
+            entity.getSettlementTermsSnapshot(),
             entity.getBetOption(),
             entity.getSelectionPolicySnapshot(),
             entity.getBetOptionLabelSnapshot(),
@@ -401,45 +359,6 @@ public interface TicketJpaMapper {
             entity.getResultStatus(),
             new Money(entity.getPayoutAmount(), currency)
         );
-    }
-
-    default SettlementPayoutMode settlementPayoutMode(List<TicketLineCoverage> coverages) {
-        if (coverages.stream().anyMatch(coverage -> coverage.winMode() == WinMode.CUMULATIVE)) {
-            return SettlementPayoutMode.RANGE_CUMULATIVE;
-        }
-        return coverages.size() > 1 ? SettlementPayoutMode.RANGE_ALTERNATIVE : SettlementPayoutMode.SINGLE;
-    }
-
-    default Money minSettlementPayout(List<TicketLineCoverage> coverages) {
-        return coverages.stream()
-            .map(TicketLineCoverage::settlementPayoutSnapshot)
-            .min(Comparator.comparing(Money::amount))
-            .orElseThrow();
-    }
-
-    default Money maxSettlementPayout(List<TicketLineCoverage> coverages) {
-        return coverages.stream()
-            .map(TicketLineCoverage::settlementPayoutSnapshot)
-            .max(Comparator.comparing(Money::amount))
-            .orElseThrow();
-    }
-
-    default List<TicketLineCoverage> toDomainCoverages(
-        List<TicketLineCoverageJpaEntity> entities,
-        @Context CurrencyCode currency
-    ) {
-        if (entities == null) {
-            return List.of();
-        }
-        return entities.stream()
-            .map(entity -> new TicketLineCoverage(
-                entity.getPricingVariantCode(),
-                new Money(entity.getStakeAmount(), currency),
-                entity.getOddsSnapshot(),
-                new Money(entity.getSettlementPayoutSnapshot(), currency),
-                entity.getWinMode()
-            ))
-            .toList();
     }
 
     // ---------------------------------------------------------------------------

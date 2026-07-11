@@ -238,10 +238,10 @@
                 "destination": { "kind": "route", "value": "/app/admin/limits" }
               },
               {
-                "id": "manageOdds",
+                "id": "managePricingRules",
                 "labelKey": "quickaction.admin.manage_odds",
                 "icon": "percent",
-                "destination": { "kind": "route", "value": "/app/admin/controls/odds" }
+                "destination": { "kind": "route", "value": "/app/admin/controls/pricing-rules" }
               },
               {
                 "id": "maryajGratis",

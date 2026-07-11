@@ -243,11 +243,9 @@ public class SellTicketCommandHandler
             line.selection().displayLabel(),
             line.betOption(),
             line.stakeAmount(),
-            line.oddsSnapshot(),
             line.origin(),
             line.pricingSource(),
             line.selectionSource(),
-            line.payoutBaseAmount(),
             line.promotionDecisionId(),
             line.promotionLabel(),
             line.promotionEffectType()

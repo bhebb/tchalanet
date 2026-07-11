@@ -130,4 +130,38 @@ public record PromotionEffect(
             maxRegenerationsBeforeConfirm
         );
     }
+
+    public PromotionEffect withTerminalOverride(
+        Integer overrideQuantity,
+        PromotionChoiceMode overrideChoiceMode,
+        SelectionGenerationStrategy overrideGenerationStrategy,
+        Boolean overrideRegenerableBeforeConfirm,
+        Integer overrideMaxRegenerationsBeforeConfirm
+    ) {
+        return new PromotionEffect(
+            ruleId,
+            campaignId,
+            ruleKey,
+            type,
+            gameCode,
+            overrideQuantity == null ? quantity : overrideQuantity,
+            quantityMode,
+            stepPaidAmount,
+            quantityPerStep,
+            maxQuantity,
+            quantityTiers,
+            amount,
+            currency,
+            appliesTo,
+            reason,
+            overrideChoiceMode == null ? choiceMode : overrideChoiceMode,
+            overrideGenerationStrategy == null ? generationStrategy : overrideGenerationStrategy,
+            overrideRegenerableBeforeConfirm == null
+                ? regenerableBeforeConfirm
+                : overrideRegenerableBeforeConfirm,
+            overrideMaxRegenerationsBeforeConfirm == null
+                ? maxRegenerationsBeforeConfirm
+                : overrideMaxRegenerationsBeforeConfirm
+        );
+    }
 }

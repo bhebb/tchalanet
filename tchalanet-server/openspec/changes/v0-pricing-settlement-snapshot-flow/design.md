@@ -17,15 +17,9 @@ of stake/base.
 
 ### Sales Preparation
 
-`TicketLinePreparationService` currently:
+`TicketLinePreparationService` previously calculated potential payouts before results.
 
-- plans one or more `TicketLineCoverage` entries;
-- resolves odds for each coverage;
-- calculates `coverageStake * odds`;
-- stores summary fields: line odds, line settlement, min/max/total settlement.
-
-This violates issue #255 because sale-time code still computes payout amounts before official
-results.
+This violated issue #255 because sale-time code computed payout amounts before official results.
 
 ### Promotion
 
@@ -36,8 +30,9 @@ results.
 - resolves odds;
 - calculates `payoutBase * odds`.
 
-Issue #255 says Maryaj gratis is a promotion that generates a free Maryaj line, and its exact/permuted
-fixed amounts are promotion configuration, not the normal paid Maryaj odds.
+Maryaj gratis is currently modeled as `HT_MARYAJ_GRATIS`, which is the V0 target. The bug is not the
+game code; the bug is that the promotion factory multiplies a configured amount by odds instead of
+letting pricing resolve fixed settlement terms for that game.
 
 Promotion does not currently support SellerTerminal overrides:
 
@@ -50,6 +45,13 @@ Promotion does not currently support SellerTerminal overrides:
 
 Therefore the issue #255 requirement for partial SellerTerminal promotion overrides is new backend
 capability, not a wiring fix.
+
+Implemented target: Promotion resolves SellerTerminal effect overrides as partial overrides over
+tenant campaign defaults. The override row targets one campaign/rule/effect/game tuple and may
+disable the effect or override quantity, choice mode, generation strategy, and regeneration limits.
+It does not copy campaign rules or eligibility. The effective promotion decision hash includes the
+active terminal override hash so re-evaluation can distinguish tenant default config from
+terminal-specific config.
 
 ### Settlement
 
@@ -88,6 +90,12 @@ Rules:
 - `FIXED_AMOUNT`: settlement amount is `fixedAmount`, regardless of stake.
 - Currency stays on the ticket parent.
 - Snapshots contain effective values, not only ids.
+- V0 rule type is constrained by game:
+  - `HT_BOLET`, `HT_MARYAJ`, `HT_LOTO3`, `HT_LOTO4`, and `HT_LOTO5` use
+    `STAKE_MULTIPLIER`.
+  - `HT_MARYAJ_GRATIS` uses `FIXED_AMOUNT`.
+- SellerTerminal overrides must not change the rule type in V0. For example, a tenant
+  `FIXED_AMOUNT` term cannot be overridden as `STAKE_MULTIPLIER`; only the amount value may change.
 
 ### Settlement Terms Snapshot
 
@@ -101,7 +109,7 @@ record SettlementTermsSnapshot(
 ) {}
 
 record SettlementTermSnapshot(
-  PricingVariantCode ruleCode,
+  SettlementRuleCode ruleCode,
   Short sourceBetOption,
   PayoutRuleSnapshot payoutRule,
   WinMode winMode,
@@ -110,8 +118,21 @@ record SettlementTermSnapshot(
 ) {}
 ```
 
-The JSONB replaces the authoritative role of `TicketLineCoverageJpaEntity`. Migration can keep
-legacy columns temporarily, but new settlement should read the typed snapshot.
+The JSONB replaces the authoritative role of legacy line coverage persistence. Potential payout
+summary columns and line coverage compatibility objects are removed. New settlement reads the typed
+snapshot.
+
+Snapshot rules:
+
+- no gain is calculated at sale time;
+- no min/max/total payout value is stored;
+- no `settlementPayoutSnapshot` is stored;
+- no line odds summary is authoritative;
+- snapshot terms contain only the parameters needed for future settlement;
+- currency stays on the ticket parent;
+- implicit terms keep `betOption=null`;
+- explicit terms snapshot the selected rule code and commercial label;
+- rendering must not infer print behavior from the number of terms.
 
 ### Pricing Resolution
 
@@ -125,8 +146,9 @@ SellerTerminal general
 Tenant general
 ```
 
-Seller terminal overrides may be partial but must not arbitrarily change the payout rule type in V0
-unless a product decision explicitly allows it.
+Resolution is evaluated term by term. For example, if Exact has a SellerTerminal override and
+Permuted does not, Exact uses the terminal value while Permuted falls back to the tenant default.
+Seller terminals do not have to recopy the whole game configuration.
 
 ### Sale Preparation
 
@@ -160,29 +182,49 @@ Responsibilities:
 
 ### Maryaj Gratis
 
-The issue and current code disagree on naming:
+V0 decision: `HT_MARYAJ_GRATIS` is a distinct game.
 
-- Issue #255 target: line is `gameCode=HT_MARYAJ`, `origin=PROMOTION`,
-  `promotionCode=MARYAJ_GRATIS`, `stakeAmount=0`.
-- Current code: promotion creates a line with `gameCode=HT_MARYAJ_GRATIS`, `origin=PROMOTION`.
+The promotion does not define how this game wins. It only decides when one or more
+`HT_MARYAJ_GRATIS` lines are added to the ticket.
 
-Implementation must choose one path before coding. Recommended target: align to issue #255 and make
-Maryaj gratis a promotion flavor of Maryaj, not a separate game code. If the separate game code is
-kept for compatibility, it must be treated as a wrapper over Maryaj terms and not as a separate
-pricing concept.
+The generated line remains:
+
+- `gameCode=HT_MARYAJ_GRATIS`;
+- `origin=PROMOTION`;
+- `stakeAmount=0`;
+- promotion decision id/code captured in the sale snapshot.
 
 Maryaj gratis terms:
 
 - eligibility and quantity come from promotion config;
 - selection generation/manual choice comes from promotion config;
-- payout terms come from effective promotion/game configuration after tenant + SellerTerminal
-  promotion overrides are resolved;
+- active options and selection policy come from tenant game configuration;
+- fixed Exact/Permuted payout terms come from `core.pricing`;
+- SellerTerminal payout overrides come from `core.pricing`;
 - line stake is zero;
 - terms are snapshotted on the generated line.
 
-SellerTerminal overrides for Maryaj gratis must be partial: a terminal may override activation,
-quantity tiers, generation policy, regeneration limits, or exact/permuted fixed payout amounts
-without copying the whole tenant campaign.
+SellerTerminal overrides for Maryaj gratis pricing must be partial: a terminal may override Exact
+without overriding Permuted, or the opposite, without copying the whole game configuration.
+Eligibility promotion overrides are a separate capability from pricing overrides.
+
+For example, if tenant Maryaj gratis gives one automatic free line to everyone, terminal Jean can
+override only that FREE_GAME_LINE effect to two seller-selected free lines, without recopying the
+campaign. If Jean needs different fixed Exact/Permuted payout amounts, that remains a
+`core.pricing` SellerTerminal payout-rule override, not a promotion override.
+
+### Preview and Confirm
+
+Preview should return an estimated basket and a prepared promotion decision, but confirm must
+re-resolve the authoritative settlement snapshot.
+
+To avoid a silent financial surprise when configuration changes between preview and confirm:
+
+- preview returns a `configurationHash` covering effective pricing, tenant game policy, and
+  promotion decision inputs;
+- confirm verifies the hash before persisting;
+- if the hash changed, confirm returns `409 sales.preparation_stale` and the POS reloads preview;
+- confirm idempotency guarantees retries return the same ticket and same snapshot.
 
 ### Settlement
 
@@ -196,6 +238,12 @@ Settlement reads `SettlementTermsSnapshot` only:
 - persist `ticket_line.payout_amount`, line result, and `sales_ticket.winning_amount`;
 - publish settlement/payout analytics events once.
 
+Legacy behavior:
+
+- snapshot present: use modern settlement;
+- snapshot absent: fail strongly (`SETTLEMENT_FAILED` or equivalent error state), never mark the
+  line as `LOST` to hide a data problem.
+
 ### Print/Reprint
 
 Print and reprint remain customer-safe:
@@ -205,7 +253,10 @@ Print and reprint remain customer-safe:
 - hide option in implicit mode;
 - show snapshot commercial label in explicit mode;
 - render Maryaj as `12 x 34`/`12 × 34` depending receipt formatter support;
-- render Maryaj gratis with promotion markers (`*`, `GRATIS`) from sale snapshot.
+- render Maryaj gratis with promotion markers (`*`, `GRATIS`) from sale snapshot, for example
+  `* 12 × 34   GRATIS`;
+- do not print fixed Exact/Permuted amounts before result;
+- result screens after settlement use persisted `payout_amount`, not settlement terms.
 
 ### Reporting
 
@@ -223,6 +274,10 @@ After result:
 - ticket `winning_amount`;
 - winner/loser counts;
 - realized margin.
+- `HT_MARYAJ_GRATIS` remains identifiable as a game in aggregations.
+- `origin=PROMOTION` distinguishes promotional lines.
+- `stake_amount=0` never increases paid sales.
+- `payout_amount` increases realized winnings after settlement.
 
 No potential payout KPI in V0.
 
@@ -235,14 +290,12 @@ No potential payout KPI in V0.
 5. Move print/reprint to snapshot data where needed.
 6. Move reports/stats to realized persisted values.
 7. Backfill or guard legacy tickets.
-8. Remove/rename legacy potential/odds/coverage columns only after readers no longer depend on them.
+8. Remove legacy potential columns and remaining odds/coverage compatibility objects.
 
 ## Risks
 
 - Mixing fixed and multiplier rules incorrectly can create money loss.
 - Existing tickets may lack the new snapshot; settlement needs an explicit legacy strategy.
-- Maryaj gratis naming (`HT_MARYAJ_GRATIS` vs `HT_MARYAJ` + promotion code) affects print, reports,
-  and migration.
 - Selection-specific overrides increase lookup complexity and cache invalidation needs.
 - Reporting must not parse JSON for historical aggregates.
 - Promotion terminal overrides require careful effective-config hashing; sale preview and confirm
