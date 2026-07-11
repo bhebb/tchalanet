@@ -199,7 +199,7 @@
     </div>
 
     @if (selectedBetType(); as betType) {
-      @if (betType.requiresOption && betType.options.length > 0) {
+      @if (requiresBetOption() && betType.options.length > 0) {
         <div class="ple__option-row">
           <span class="ple__option-label">Option</span>
           <select
