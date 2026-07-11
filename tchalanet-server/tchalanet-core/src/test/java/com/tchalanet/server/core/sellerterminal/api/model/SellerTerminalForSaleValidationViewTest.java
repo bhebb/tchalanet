@@ -22,6 +22,14 @@ class SellerTerminalForSaleValidationViewTest {
     }
 
     @Test
+    void activeTerminalWithPinChangeCanSellWhenActorDoesNotRequirePinChangeCompletion() {
+        var view = view(SellerTerminalStatus.ACTIVE, true);
+
+        assertThat(view.canSell(true)).isFalse();
+        assertThat(view.canSell(false)).isTrue();
+    }
+
+    @Test
     void nonActiveTerminalCannotSell() {
         assertThat(view(SellerTerminalStatus.PENDING, false).canSell()).isFalse();
         assertThat(view(SellerTerminalStatus.BLOCKED, false).canSell()).isFalse();

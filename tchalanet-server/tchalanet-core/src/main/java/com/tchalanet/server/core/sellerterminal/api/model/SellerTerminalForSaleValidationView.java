@@ -13,6 +13,11 @@ public record SellerTerminalForSaleValidationView(
     boolean mustChangePin
 ) {
     public boolean canSell() {
-        return status == SellerTerminalStatus.ACTIVE && !mustChangePin;
+        return canSell(true);
+    }
+
+    public boolean canSell(boolean requirePinChangeCompleted) {
+        return status == SellerTerminalStatus.ACTIVE
+            && (!requirePinChangeCompleted || !mustChangePin);
     }
 }
