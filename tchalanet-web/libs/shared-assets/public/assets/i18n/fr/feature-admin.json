@@ -309,6 +309,42 @@
         "sold": "Ticket vendu",
         "codeGeneratedAfterConfirm": "Code généré après confirmation"
       },
+      "dialog": {
+        "title": {
+          "saleSuccess": "Ticket vendu",
+          "ticketActions": "Impression du ticket"
+        },
+        "summaryAria": "Résumé du ticket vendu",
+        "actionsAria": "Actions ticket",
+        "deliveryAria": "Envoi du reçu",
+        "field": {
+          "ticket": "Ticket",
+          "publicCode": "Code public",
+          "totalPaid": "Total payé",
+          "lines": "Lignes",
+          "freeLines": "+ {{count}} gratuites"
+        },
+        "action": {
+          "print": "Imprimer / réimprimer",
+          "printing": "Impression...",
+          "details": "Détails",
+          "close": "Fermer",
+          "newTicket": "Nouvelle vente"
+        },
+        "delivery": {
+          "title": "Envoyer le reçu",
+          "phone": "Téléphone client",
+          "phonePlaceholder": "+509...",
+          "email": "Email client",
+          "emailPlaceholder": "client@example.com"
+        },
+        "feedback": {
+          "printSuccess": "Reçu prêt pour impression.",
+          "printError": "Le ticket est vendu, mais le reçu n’a pas pu être imprimé.",
+          "sendSuccess": "Envoi demandé.",
+          "sendError": "L’envoi n’a pas pu être demandé. Vérifiez le destinataire et réessayez."
+        }
+      },
       "activity": {
         "title": "Activité du terminal",
         "salesToday": "Ventes du jour",

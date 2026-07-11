@@ -1134,6 +1134,42 @@
         "sold": "Ticket vendu",
         "codeGeneratedAfterConfirm": "Code généré après confirmation"
       },
+      "dialog": {
+        "title": {
+          "saleSuccess": "Tikè vann",
+          "ticketActions": "Enpresyon tikè"
+        },
+        "summaryAria": "Rezime tikè ki vann nan",
+        "actionsAria": "Aksyon tikè",
+        "deliveryAria": "Voye resi",
+        "field": {
+          "ticket": "Tikè",
+          "publicCode": "Kòd piblik",
+          "totalPaid": "Total peye",
+          "lines": "Liy",
+          "freeLines": "+ {{count}} gratis"
+        },
+        "action": {
+          "print": "Enprime / reenprime",
+          "printing": "Ap enprime...",
+          "details": "Detay",
+          "close": "Fèmen",
+          "newTicket": "Nouvo vant"
+        },
+        "delivery": {
+          "title": "Voye resi",
+          "phone": "Telefòn kliyan",
+          "phonePlaceholder": "+509...",
+          "email": "Imèl kliyan",
+          "emailPlaceholder": "client@example.com"
+        },
+        "feedback": {
+          "printSuccess": "Resi a pare pou enprime.",
+          "printError": "Tikè a vann, men resi a pa t ka enprime.",
+          "sendSuccess": "Demann voye a fèt.",
+          "sendError": "Resi a pa t ka voye. Verifye destinatè a epi eseye ankò."
+        }
+      },
       "activity": {
         "title": "Activité du terminal",
         "salesToday": "Ventes du jour",

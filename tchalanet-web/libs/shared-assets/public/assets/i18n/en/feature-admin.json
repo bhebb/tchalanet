@@ -1146,6 +1146,42 @@
         "sold": "Ticket vendu",
         "codeGeneratedAfterConfirm": "Code généré après confirmation"
       },
+      "dialog": {
+        "title": {
+          "saleSuccess": "Ticket sold",
+          "ticketActions": "Ticket printing"
+        },
+        "summaryAria": "Sold ticket summary",
+        "actionsAria": "Ticket actions",
+        "deliveryAria": "Receipt delivery",
+        "field": {
+          "ticket": "Ticket",
+          "publicCode": "Public code",
+          "totalPaid": "Total paid",
+          "lines": "Lines",
+          "freeLines": "+ {{count}} free"
+        },
+        "action": {
+          "print": "Print / reprint",
+          "printing": "Printing...",
+          "details": "Details",
+          "close": "Close",
+          "newTicket": "New sale"
+        },
+        "delivery": {
+          "title": "Send receipt",
+          "phone": "Customer phone",
+          "phonePlaceholder": "+509...",
+          "email": "Customer email",
+          "emailPlaceholder": "client@example.com"
+        },
+        "feedback": {
+          "printSuccess": "Receipt ready to print.",
+          "printError": "The ticket was sold, but the receipt could not be printed.",
+          "sendSuccess": "Send requested.",
+          "sendError": "The receipt could not be sent. Check the recipient and try again."
+        }
+      },
       "activity": {
         "title": "Activité du terminal",
         "salesToday": "Ventes du jour",
