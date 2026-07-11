@@ -89,9 +89,7 @@ public class TicketPrintViewMapper {
             new TicketPrintBranding(
                 header.getTenantDisplayName(),
                 header.getTenantReceiptHeader(),
-                header.getTenantReceiptFooter(),
-                header.getOutletReceiptHeader(),
-                header.getOutletReceiptFooter()
+                header.getTenantReceiptFooter()
             ),
             ticket.lines().stream()
                 .sorted(java.util.Comparator.comparingInt(

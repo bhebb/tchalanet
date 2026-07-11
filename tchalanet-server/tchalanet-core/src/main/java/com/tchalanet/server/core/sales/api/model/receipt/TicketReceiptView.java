@@ -24,7 +24,6 @@ public record TicketReceiptView(
     TicketSettlementStatus settlementStatus,
     String tenantDisplayName,
     String tenantReceiptHeader,
-    String outletReceiptHeader,
     String drawChannelCode,
     String resultSlotKey,
     String resultProvider,

@@ -107,18 +107,6 @@ public class TicketPrintHeaderViewEntity {
     @Column(name = "result_timezone")
     private String resultTimezone;
 
-    @Column(name = "outlet_code")
-    private String outletCode;
-
-    @Column(name = "outlet_name")
-    private String outletName;
-
-    @Column(name = "outlet_receipt_header")
-    private String outletReceiptHeader;
-
-    @Column(name = "outlet_receipt_footer")
-    private String outletReceiptFooter;
-
     @Column(name = "terminal_id")
     private UUID sellerTerminalId;
 

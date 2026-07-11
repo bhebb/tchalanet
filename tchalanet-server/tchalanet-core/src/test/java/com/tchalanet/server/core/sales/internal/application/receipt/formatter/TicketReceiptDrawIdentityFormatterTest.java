@@ -78,7 +78,6 @@ class TicketReceiptDrawIdentityFormatterTest {
             TicketSettlementStatus.NOT_SETTLED,
             "Tchalanet",
             null,
-            null,
             drawChannelCode,
             resultSlotKey,
             provider,

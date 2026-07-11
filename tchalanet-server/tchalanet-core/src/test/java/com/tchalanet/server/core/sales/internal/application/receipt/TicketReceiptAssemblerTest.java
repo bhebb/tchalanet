@@ -97,7 +97,7 @@ class TicketReceiptAssemblerTest {
                 "NY", "MIDDAY", "provider-1", "America/Port-au-Prince", "Midi", "New York",
                 LocalDate.parse("2026-07-06"), now, now.plusSeconds(3600)),
             new TicketPrintSellerContext(SellerTerminalId.of(UUID.randomUUID()), "TERM-1", "Terminal 1", "Terminal 1"),
-            new TicketPrintBranding("Tenant", null, null, null, null),
+            new TicketPrintBranding("Tenant", null, null),
             List.of(new TicketPrintLine(
                 1,
                 GameCode.HT_LOTO4,
@@ -136,7 +136,7 @@ class TicketReceiptAssemblerTest {
                 "NY", "MIDDAY", "provider-1", "America/Port-au-Prince", "Midi", "New York",
                 LocalDate.parse("2026-07-06"), now, now.plusSeconds(3600)),
             new TicketPrintSellerContext(SellerTerminalId.of(UUID.randomUUID()), "TERM-1", "Terminal 1", "Terminal 1"),
-            new TicketPrintBranding("Tenant", null, null, null, null),
+            new TicketPrintBranding("Tenant", null, null),
             List.of(new TicketPrintLine(
                 1,
                 GameCode.HT_LOTO3,
@@ -179,7 +179,7 @@ class TicketReceiptAssemblerTest {
                 "NY", "MIDDAY", "provider-1", "America/Port-au-Prince", "Midi", "New York",
                 LocalDate.parse("2026-07-06"), now, now.plusSeconds(3600)),
             new TicketPrintSellerContext(SellerTerminalId.of(UUID.randomUUID()), "TERM-1", "Terminal 1", "Terminal 1"),
-            new TicketPrintBranding("Tenant", null, null, null, null),
+            new TicketPrintBranding("Tenant", null, null),
             List.of(new TicketPrintLine(
                 1,
                 GameCode.HT_MARYAJ_GRATIS,

@@ -113,7 +113,6 @@ class TicketReceiptPrintFormatterTest {
             TicketSettlementStatus.NOT_SETTLED,
             "BANQUE DE BORLETTE TCHALANET",
             "Terminal Centre-ville\nPort-au-Prince, Haïti",
-            null,
             "GA",
             "EVE",
             "GA",

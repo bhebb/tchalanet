@@ -212,7 +212,7 @@ Pour `Ticket`, la matrice minimale est :
 | Famille | Champs | Règle |
 | --- | --- | --- |
 | Identité | `ticketId`, `tenantId` | Immuables, assertés sur update. |
-| Contexte vente | `outletId`, `terminalId`, `sellerId`, `salesSessionId`, `drawId`, `businessDate` | Immuables après création, assertés. |
+| Contexte vente | `sellerTerminalId`, `drawId`, `businessDate` | Immuables après création, assertés. |
 | Codes | `ticketCode`, `publicCode`, `verificationCode` | Immuables, assertés. |
 | Origine | canal/source offline initiale | Immuable sauf champ explicitement documenté. |
 | Devise | `currency` | Immuable après création, sauf ADR explicite. |
@@ -223,7 +223,7 @@ Pour `Ticket`, la matrice minimale est :
 | Cancel / void | cancel/void status, reason, actor, timestamp | Mutable via commandes cancel/void autorisées. |
 | Result | result status, draw result ref, resulted at, line result fields | Mutable via settlement/result commands. |
 | Settlement | settlement status, payout refs, paid refs | Mutable via settlement/payout commands. |
-| Money | payout amounts, winning amount, potential payout where domain permits | Mutable seulement par result/settlement flows documentés. |
+| Money | payout amounts, winning amount | Mutable seulement par result/settlement flows documentés. |
 | Lines / charges | result/payout fields, additions/removals attendues | Diff en place ; pas de remplacement aveugle du graphe. |
 
 ---

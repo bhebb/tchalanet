@@ -80,7 +80,7 @@
 
 ## 5. Print / Reprint
 
-- [ ] Ensure receipt/reprint reads only ticket snapshots.
+- [x] Ensure receipt/reprint reads only ticket snapshots.
 - [x] Ensure no potential payout, odds, multiplier, or technical variant is printed.
 - [x] Preserve explicit option label display from snapshot.
 - [x] Preserve implicit option hiding.

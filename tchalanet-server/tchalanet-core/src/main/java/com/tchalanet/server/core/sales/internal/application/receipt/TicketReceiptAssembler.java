@@ -53,7 +53,6 @@ public class TicketReceiptAssembler {
             printView.lifecycle().settlementStatus(),
             printView.branding() == null ? null : printView.branding().tenantDisplayName(),
             printView.branding() == null ? null : printView.branding().tenantReceiptHeader(),
-            null,
             printView.draw().channelCode(),
             printView.draw().resultSlotKey(),
             printView.draw().provider(),
