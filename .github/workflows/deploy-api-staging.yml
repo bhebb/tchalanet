@@ -13,6 +13,16 @@ on:
         required: false
         default: true
         type: boolean
+      destroy_database:
+        description: 'DANGER staging only: reset Neon database schema before deploy'
+        required: false
+        default: false
+        type: boolean
+      destroy_database_confirm:
+        description: 'Required when destroy_database=true: type "destroy staging database"'
+        required: false
+        default: ''
+        type: string
       web_origins:
         description: 'Space-separated origins for CORS smoke'
         required: false
@@ -59,6 +69,8 @@ jobs:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_STG }}
           IMAGE_TAG: ${{ inputs.image_tag }}
           FORCE_RECREATE: ${{ inputs.force_recreate && '1' || '0' }}
+          RESET_DATABASE: ${{ inputs.destroy_database && '1' || '0' }}
+          RESET_DATABASE_CONFIRM: ${{ inputs.destroy_database_confirm }}
           WEB_ORIGINS: ${{ inputs.web_origins }}
           API_BASE_URL: https://api.stg.tchalanet.com/api/v1
         with:
@@ -66,7 +78,7 @@ jobs:
           username: tch
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script_stop: true
-          envs: DOPPLER_TOKEN,IMAGE_TAG,FORCE_RECREATE,WEB_ORIGINS,API_BASE_URL
+          envs: DOPPLER_TOKEN,IMAGE_TAG,FORCE_RECREATE,RESET_DATABASE,RESET_DATABASE_CONFIRM,WEB_ORIGINS,API_BASE_URL
           script: |
             set -euo pipefail
             cd /opt/tchalanet-infra

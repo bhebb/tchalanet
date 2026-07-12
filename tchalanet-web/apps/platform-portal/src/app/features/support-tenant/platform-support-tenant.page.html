@@ -47,26 +47,26 @@
     <table mat-table [dataSource]="tenants()" class="support-tenant-page__table">
       <ng-container matColumnDef="tenant">
         <th mat-header-cell *matHeaderCellDef>Tenant</th>
-        <td mat-cell *matCellDef="let row">
+        <td mat-cell *matCellDef="let row" data-label="Tenant">
           <strong>{{ row.name }}</strong>
         </td>
       </ng-container>
 
       <ng-container matColumnDef="code">
         <th mat-header-cell *matHeaderCellDef>Code</th>
-        <td mat-cell *matCellDef="let row"><code>{{ row.code }}</code></td>
+        <td mat-cell *matCellDef="let row" data-label="Code"><code>{{ row.code }}</code></td>
       </ng-container>
 
       <ng-container matColumnDef="status">
         <th mat-header-cell *matHeaderCellDef>Statut</th>
-        <td mat-cell *matCellDef="let row">
+        <td mat-cell *matCellDef="let row" data-label="Statut">
           <tch-admin-status-pill [tone]="statusTone(row.status)" [label]="row.status" />
         </td>
       </ng-container>
 
       <ng-container matColumnDef="updatedAt">
         <th mat-header-cell *matHeaderCellDef>Mis à jour</th>
-        <td mat-cell *matCellDef="let row" class="support-tenant-page__muted">
+        <td mat-cell *matCellDef="let row" class="support-tenant-page__muted" data-label="Mis à jour">
           {{ row.updatedAt ? (row.updatedAt | date:'dd/MM/yyyy HH:mm') : '—' }}
         </td>
       </ng-container>

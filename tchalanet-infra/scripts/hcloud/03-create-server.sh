@@ -50,8 +50,11 @@ if ! command -v hcloud >/dev/null; then
   exit 1
 fi
 
-# Validation du token Hetzner
-: "${HCLOUD_TOKEN:?HCLOUD_TOKEN not set. Please export HCLOUD_TOKEN=your-token}"
+# Validation auth Hetzner: HCLOUD_TOKEN env or active hcloud context.
+if ! hcloud server list >/dev/null 2>&1; then
+  error "Hetzner auth unavailable. Export HCLOUD_TOKEN or configure an hcloud context."
+  exit 1
+fi
 
 # Valeurs par défaut
 NAME="stg-app"
@@ -260,7 +263,7 @@ success "SSH is available!"
 # --- Attente cloud-init & re-test utilisateur tch ---
 # Attendre que cloud-init soit terminé (avec timeout réduit)
 log "Waiting for cloud-init to complete (this may take 2-3 minutes)..."
-CLOUD_INIT_TIMEOUT=180  # 3 minutes
+CLOUD_INIT_TIMEOUT=300  # 5 minutes
 CLOUD_INIT_ELAPSED=0
 CLOUD_INIT_OK=false
 
@@ -294,12 +297,13 @@ if [[ $user_ok -eq 0 ]]; then
   if ssh -i "$KEY_PATH" -o StrictHostKeyChecking=accept-new -o BatchMode=yes -o ConnectTimeout=6 tch@"$SERVER_IP" 'echo tch-ready' &>/dev/null; then
     user_ok=1; success "User 'tch' maintenant accessible via SSH"
   else
-    warn "User 'tch' toujours indisponible via SSH. Étapes de diagnostic proposées:";
+    error "User 'tch' toujours indisponible via SSH. Étapes de diagnostic proposées:";
     echo "  1) Connexion root: ssh -i $KEY_PATH root@$SERVER_IP";
     echo "  2) Vérifier cloud-init: sudo tail -200 /var/log/cloud-init.log";
     echo "  3) Vérifier présence /home/tch: ls -ld /home/tch";
     echo "  4) Créer manuellement clé si absente: sudo mkdir -p /home/tch/.ssh; sudo cp /root/.ssh/authorized_keys /home/tch/.ssh/; sudo chown -R tch:tch /home/tch/.ssh";
     echo "  5) Relancer cloud-init status: cloud-init status --wait";
+    exit 1;
   fi
 fi
 
