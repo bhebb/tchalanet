@@ -8,8 +8,8 @@ const allowedProfiles = new Set([
   'local-ide-emulator',
   'dev-docker',
   'dev-docker-emulator',
-  'stg-vercel',
-  'prod-vercel',
+  'stg-cloudflare',
+  'prod-cloudflare',
 ]);
 const apps = ['public-portal', 'admin-portal', 'platform-portal'];
 

@@ -9,20 +9,16 @@ import org.springframework.web.client.RestClient;
 class EdgeCommunicationConfig {
 
     @Bean("edgeCommunicationClient")
-    RestClient edgeCommunicationClient(
-        EdgeCommunicationProperties props,
-        RestClient.Builder builder
-    ) {
+    RestClient edgeCommunicationClient(EdgeCommunicationProperties props) {
         var factory = new JdkClientHttpRequestFactory();
 
         if (props.readTimeout() != null) {
             factory.setReadTimeout(props.readTimeout());
         }
 
-        return builder
+        return RestClient.builder()
             .baseUrl(props.baseUrl())
             .requestFactory(factory)
             .build();
     }
 }
-

@@ -1,12 +1,12 @@
 {
   "appId": "public-portal",
-  "production": false,
-  "apiBaseUrl": "/api/v1",
-  "authBaseUrl": "/auth",
+  "production": true,
+  "apiBaseUrl": "https://api.stg.tchalanet.com/api/v1",
+  "authBaseUrl": "https://api.stg.tchalanet.com/auth",
   "assetsBaseUrl": "/assets",
-  "enableSandbox": true,
+  "enableSandbox": false,
   "portalBaseUrls": {
-    "admin-portal": "http://localhost:4302",
-    "platform-portal": "http://localhost:4202"
+    "admin-portal": "/admin",
+    "platform-portal": "/platform"
   }
 }
