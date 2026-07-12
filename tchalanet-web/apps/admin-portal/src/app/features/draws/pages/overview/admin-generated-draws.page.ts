@@ -133,6 +133,12 @@ export class AdminGeneratedDrawsPage {
   readonly hasCustomDateRange = computed(() => this.qp().has('from') || this.qp().has('to'));
   readonly statusFilter = computed<DrawStatusFilter>(() => statusFilterFromQuery(this.qp().get('status')));
   readonly searchQuery = computed(() => this.qp().get('q')?.trim() ?? '');
+  readonly hasActiveFilters = computed(() =>
+    this.hasCustomDateRange()
+    || this.datePreset() !== 'LAST_48H'
+    || this.statusFilter() !== 'all'
+    || !!this.searchQuery(),
+  );
   readonly page = computed(() => numberParam(this.qp().get('page'), 0));
 
   // ── Lecture (resource créée par le client, statut filtré côté client) ───────

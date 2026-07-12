@@ -274,15 +274,16 @@
 
     tr.mat-mdc-row {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
+      grid-template-columns: minmax(0, 1fr);
       grid-template-areas:
-        'draw select'
-        'scheduled scheduled'
-        'status status'
-        'result result'
-        'mode mode'
-        'publication publication'
-        'actions actions';
+        'draw'
+        'select'
+        'scheduled'
+        'status'
+        'result'
+        'mode'
+        'publication'
+        'actions';
       gap: 0.625rem;
       padding: 0.875rem;
       margin-block-end: 0.75rem;
@@ -315,12 +316,18 @@
     td.mat-column-select {
       grid-area: select;
       display: flex;
-      align-items: flex-start;
-      justify-content: flex-end;
+      align-items: center;
+      justify-content: space-between;
       width: auto;
 
       &::before {
-        content: none;
+        content: 'Sélection';
+        min-width: 0;
+        font-size: 0.6875rem;
+        font-weight: 800;
+        line-height: 1.35;
+        text-transform: uppercase;
+        color: var(--tch-color-on-surface-variant);
       }
     }
 
@@ -385,6 +392,10 @@
     &__actions {
       justify-content: flex-start;
       width: 100%;
+
+      .mat-mdc-button-base {
+        width: 100%;
+      }
 
       .mat-mdc-outlined-button,
       .mat-mdc-unelevated-button,

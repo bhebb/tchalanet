@@ -33,61 +33,64 @@
 
       <!-- Toolbar -->
       <tch-admin-crud-shell>
-        <div toolbar>
-          <!-- Date preset chips -->
-          <div class="gd-page__date-chips">
-            @for (preset of datePresets; track preset.key) {
-              <button
-                class="gd-page__chip"
-                [class.gd-page__chip--active]="!hasCustomDateRange() && datePreset() === preset.key"
-                (click)="onDatePreset(preset.key)"
-              >{{ preset.label }}</button>
-            }
+        <details toolbar class="gd-page__filters" [open]="hasActiveFilters()">
+          <summary class="gd-page__filters-summary">
+            <span class="material-symbols-outlined" aria-hidden="true">tune</span>
+            Filtres
+          </summary>
+
+          <div class="gd-page__filters-body">
+            <tch-admin-data-toolbar
+              searchPlaceholder="Rechercher provider, slot…"
+              [searchValue]="searchQuery()"
+              (searchChange)="onSearch($event)"
+            />
+
+            <div class="gd-page__date-chips">
+              @for (preset of datePresets; track preset.key) {
+                <button
+                  class="gd-page__chip"
+                  [class.gd-page__chip--active]="!hasCustomDateRange() && datePreset() === preset.key"
+                  (click)="onDatePreset(preset.key)"
+                >{{ preset.label }}</button>
+              }
+            </div>
+
+            <div class="gd-page__date-range">
+              <mat-form-field appearance="outline" class="gd-page__date-field">
+                <mat-label>Du</mat-label>
+                <input
+                  matInput
+                  [matDatepicker]="fromPicker"
+                  [ngModel]="fromDateValue()"
+                  (ngModelChange)="onFromDatePicker($event)"
+                />
+                <mat-datepicker-toggle matIconSuffix [for]="fromPicker" />
+                <mat-datepicker #fromPicker />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="gd-page__date-field">
+                <mat-label>Au</mat-label>
+                <input
+                  matInput
+                  [matDatepicker]="toPicker"
+                  [ngModel]="toDateValue()"
+                  [min]="fromDateValue()"
+                  (ngModelChange)="onToDatePicker($event)"
+                />
+                <mat-datepicker-toggle matIconSuffix [for]="toPicker" />
+                <mat-datepicker #toPicker />
+              </mat-form-field>
+            </div>
+
+            <select class="gd-page__select" [value]="statusFilter()"
+              (change)="onStatusFilter($any($event.target).value)">
+              @for (f of statusFilters; track f.key) {
+                <option [value]="f.key">{{ f.label }}</option>
+              }
+            </select>
           </div>
-
-          <div class="gd-page__date-range">
-            <mat-form-field appearance="outline" class="gd-page__date-field">
-              <mat-label>Du</mat-label>
-              <input
-                matInput
-                [matDatepicker]="fromPicker"
-                [ngModel]="fromDateValue()"
-                (ngModelChange)="onFromDatePicker($event)"
-              />
-              <mat-datepicker-toggle matIconSuffix [for]="fromPicker" />
-              <mat-datepicker #fromPicker />
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="gd-page__date-field">
-              <mat-label>Au</mat-label>
-              <input
-                matInput
-                [matDatepicker]="toPicker"
-                [ngModel]="toDateValue()"
-                [min]="fromDateValue()"
-                (ngModelChange)="onToDatePicker($event)"
-              />
-              <mat-datepicker-toggle matIconSuffix [for]="toPicker" />
-              <mat-datepicker #toPicker />
-            </mat-form-field>
-          </div>
-
-          <!-- Status filter -->
-          <select class="gd-page__select" [value]="statusFilter()"
-            (change)="onStatusFilter($any($event.target).value)">
-            @for (f of statusFilters; track f.key) {
-              <option [value]="f.key">{{ f.label }}</option>
-            }
-          </select>
-        </div>
-
-        <div toolbar>
-          <tch-admin-data-toolbar
-            searchPlaceholder="Rechercher provider, slot…"
-            [searchValue]="searchQuery()"
-            (searchChange)="onSearch($event)"
-          />
-        </div>
+        </details>
 
         <!-- Table or empty state -->
         <div content>
