@@ -23,7 +23,7 @@ ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT"
 
 log() {
-  printf '-> %s\n' "$*"
+  printf -- '-> %s\n' "$*"
 }
 
 fail() {
@@ -94,7 +94,7 @@ IMAGE_TAG="$IMAGE_TAG" "${compose_cmd[@]}" "${up_args[@]}"
 log "Waiting for API health"
 health_url="$API_BASE_URL/actuator/health"
 for attempt in $(seq 1 36); do
-  if curl -fsS --max-time 5 "$health_url" >/dev/null; then
+  if curl -fsS --connect-timeout 5 --max-time 15 "$health_url" >/dev/null; then
     printf 'OK: API health OK (%s)\n' "$health_url"
     break
   fi
@@ -109,7 +109,7 @@ log "Checking CORS preflight"
 for origin in $WEB_ORIGINS; do
   headers="$(mktemp /tmp/tchalanet-cors-headers.XXXXXX)"
   status="$(
-    curl -sS -o /dev/null -D "$headers" -w '%{http_code}' \
+    curl -sS --connect-timeout 5 --max-time 15 -o /dev/null -D "$headers" -w '%{http_code}' \
       -X OPTIONS "$API_BASE_URL/runtime/private" \
       -H "Origin: $origin" \
       -H "Access-Control-Request-Method: GET" \
@@ -133,7 +133,7 @@ log "Checking private endpoint unauthenticated response carries CORS"
 origin="${WEB_ORIGINS%% *}"
 headers="$(mktemp /tmp/tchalanet-private-headers.XXXXXX)"
 status="$(
-  curl -sS -o /dev/null -D "$headers" -w '%{http_code}' \
+  curl -sS --connect-timeout 5 --max-time 15 -o /dev/null -D "$headers" -w '%{http_code}' \
     "$API_BASE_URL/runtime/private" \
     -H "Origin: $origin" \
     -H "X-Request-Id: deploy_api_staging_smoke"
