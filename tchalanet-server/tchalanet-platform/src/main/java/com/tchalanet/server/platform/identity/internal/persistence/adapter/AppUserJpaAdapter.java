@@ -1,6 +1,6 @@
 package com.tchalanet.server.platform.identity.internal.persistence.adapter;
 
-import com.tchalanet.server.common.types.id.KeycloakUserSub;
+import com.tchalanet.server.common.types.id.ExternalUserSubject;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.platform.identity.api.IdentityProviderType;
@@ -36,12 +36,12 @@ public class AppUserJpaAdapter {
         return repository.findById(id.value()).map(this::toUser);
     }
 
-    public Optional<AppUser> findByKeycloakSub(KeycloakUserSub keycloakSub) {
-        return keycloakSub == null
+    public Optional<AppUser> findByExternalSubject(ExternalUserSubject externalSubject) {
+        return externalSubject == null
             ? Optional.empty()
             : externalIdentities
                 .findFirstByProviderAndExternalSubject(
-                    IdentityProviderType.KEYCLOAK, keycloakSub.value().toString())
+                    IdentityProviderType.KEYCLOAK, externalSubject.value().toString())
                 .flatMap(identity -> repository.findById(identity.getAppUserId()))
                 .map(this::toUser);
     }
@@ -72,7 +72,7 @@ public class AppUserJpaAdapter {
                 : repository.findById(user.id().value()).orElseGet(AppUserJpaEntity::new);
         IdentityPersistenceMapper.merge(entity, user);
         var saved = repository.save(entity);
-        persistKeycloakIdentity(saved, user.keycloakSub());
+        persistExternalIdentity(saved, user.externalSubject());
         return toUser(saved);
     }
 
@@ -156,21 +156,21 @@ public class AppUserJpaAdapter {
             .map(AppUserExternalIdentityJpaEntity::getExternalSubject);
     }
 
-    public KeycloakUserSub findKeycloakSub(UserId userId) {
+    public ExternalUserSubject findExternalUserSubject(UserId userId) {
         return externalIdentities
             .findFirstByAppUserIdAndProvider(userId.value(), IdentityProviderType.KEYCLOAK)
             .map(AppUserExternalIdentityJpaEntity::getExternalSubject)
-            .map(KeycloakUserSub::parse)
+            .map(ExternalUserSubject::parse)
             .orElse(null);
     }
 
     private AppUser toUser(AppUserJpaEntity entity) {
         return IdentityPersistenceMapper.toUser(
-            entity, findKeycloakSub(UserId.of(entity.getId())));
+            entity, findExternalUserSubject(UserId.of(entity.getId())));
     }
 
-    private void persistKeycloakIdentity(AppUserJpaEntity appUser, KeycloakUserSub keycloakSub) {
-        if (keycloakSub == null) {
+    private void persistExternalIdentity(AppUserJpaEntity appUser, ExternalUserSubject externalSubject) {
+        if (externalSubject == null) {
             return;
         }
         var existing =
@@ -181,7 +181,7 @@ public class AppUserJpaAdapter {
             identity.setAppUserId(appUser.getId());
             identity.setProvider(IdentityProviderType.KEYCLOAK);
             identity.setIssuer("legacy:keycloak");
-            identity.setExternalSubject(keycloakSub.value().toString());
+            identity.setExternalSubject(externalSubject.value().toString());
         }
         identity.setEmailSnapshot(appUser.getEmail());
         externalIdentities.save(identity);

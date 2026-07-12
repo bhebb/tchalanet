@@ -1,11 +1,11 @@
 package com.tchalanet.server.platform.identity.internal.model;
 
-import com.tchalanet.server.common.types.id.KeycloakUserSub;
+import com.tchalanet.server.common.types.id.ExternalUserSubject;
 import com.tchalanet.server.common.types.id.UserId;
 
 public record UserRow(
     UserId id,
-    KeycloakUserSub keycloakSub,
+    ExternalUserSubject externalSubject,
     String username,
     String email,
     String firstName,

@@ -90,7 +90,7 @@
 
 ## Phase 3 - Server provider-neutral model and provisioning cleanup
 
-- [ ] Replace `KeycloakUserSub` in public APIs, views, and domain models with a
+- [x] Replace `KeycloakUserSub` in public APIs, views, and domain models with a
       provider-neutral identity reference or remove it where unnecessary.
 - [x] Remove direct Keycloak provisioning from tenant-user administration.
 - [x] Remove Keycloak realm-role mirroring and resynchronization from the target
@@ -119,7 +119,7 @@
 
 ## Phase 4 - Web Firebase completion and Keycloak cleanup
 
-- [ ] Remove `keycloak-angular`, `keycloak-js`, Keycloak providers, interceptors,
+- [x] Remove `keycloak-angular`, `keycloak-js`, Keycloak providers, interceptors,
       runtime helpers, imports, comments, and tests.
 - [ ] Restrict the Firebase auth interceptor to configured Tchalanet API URLs.
 - [ ] Ensure application session initialization waits for Firebase auth state.

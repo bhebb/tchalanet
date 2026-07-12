@@ -1,7 +1,7 @@
 package com.tchalanet.server.platform.identity.internal.persistence.mapper;
 
 import com.tchalanet.server.platform.identity.api.model.TenantUserStatus;
-import com.tchalanet.server.common.types.id.KeycloakUserSub;
+import com.tchalanet.server.common.types.id.ExternalUserSubject;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.platform.identity.api.model.view.AppUserView;
@@ -16,7 +16,7 @@ public final class IdentityPersistenceMapper {
 
   private IdentityPersistenceMapper() {}
 
-  public static AppUserView toUserView(AppUserJpaEntity e, KeycloakUserSub keycloakSub) {
+  public static AppUserView toUserView(AppUserJpaEntity e, ExternalUserSubject externalSubject) {
     return new AppUserView(
         UserId.of(e.getId()),
         e.getUsername(),
@@ -28,10 +28,10 @@ public final class IdentityPersistenceMapper {
         e.getStatus());
   }
 
-  public static AppUser toUser(AppUserJpaEntity e, KeycloakUserSub keycloakSub) {
+  public static AppUser toUser(AppUserJpaEntity e, ExternalUserSubject externalSubject) {
     return new AppUser(
         UserId.of(e.getId()),
-        keycloakSub,
+        externalSubject,
         e.getUsername(),
         e.getEmail(),
         e.getPhone(),

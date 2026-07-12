@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import com.tchalanet.server.common.types.id.KeycloakUserSub;
+import com.tchalanet.server.common.types.id.ExternalUserSubject;
 import com.tchalanet.server.platform.identity.api.IdentityProviderType;
 import com.tchalanet.server.platform.identity.internal.model.AppUser;
 import com.tchalanet.server.platform.identity.internal.persistence.entity.AppUserExternalIdentityJpaEntity;
@@ -45,11 +45,11 @@ class AppUserJpaAdapterTest {
         .thenReturn(Optional.of(identity));
     when(users.findById(appUserId)).thenReturn(Optional.of(entity));
 
-    var resolved = adapter.findByKeycloakSub(KeycloakUserSub.of(keycloakId));
+    var resolved = adapter.findByExternalSubject(ExternalUserSubject.of(keycloakId));
 
     assertThat(resolved).isPresent();
     assertThat(resolved.orElseThrow().id().value()).isEqualTo(appUserId);
-    assertThat(resolved.orElseThrow().keycloakSub().value()).isEqualTo(keycloakId);
+    assertThat(resolved.orElseThrow().externalSubject().value()).isEqualTo(keycloakId);
   }
 
   @Test
@@ -72,7 +72,7 @@ class AppUserJpaAdapterTest {
     adapter.save(
         AppUser.createNew(
             null,
-            KeycloakUserSub.of(keycloakId),
+            ExternalUserSubject.of(keycloakId),
             "cashier",
             "cashier@example.com",
             null,

@@ -1,13 +1,13 @@
 package com.tchalanet.server.platform.identity.internal.model;
 
 import com.tchalanet.server.platform.identity.api.model.UserStatus;
-import com.tchalanet.server.common.types.id.KeycloakUserSub;
+import com.tchalanet.server.common.types.id.ExternalUserSubject;
 import com.tchalanet.server.common.types.id.UserId;
 import java.time.Instant;
 
 public record AppUser(
     UserId id,
-    KeycloakUserSub keycloakSub,
+    ExternalUserSubject externalSubject,
     String username,
     String email,
     String phone,
@@ -26,7 +26,7 @@ public record AppUser(
 
   public static AppUser createNew(
       UserId id,
-      KeycloakUserSub keycloakSub,
+      ExternalUserSubject externalSubject,
       String username,
       String email,
       String phone,
@@ -37,7 +37,7 @@ public record AppUser(
       Instant now) {
     return new AppUser(
         id,
-        keycloakSub,
+        externalSubject,
         username,
         email,
         phone,
@@ -65,7 +65,7 @@ public record AppUser(
       String avatarUrl) {
     return new AppUser(
         id,
-        keycloakSub,
+        externalSubject,
         nonBlankOr(username, this.username),
         nonBlankOr(email, this.email),
         nonBlankOr(phone, this.phone),
@@ -86,7 +86,7 @@ public record AppUser(
   public AppUser touchLogin(Instant now) {
     return new AppUser(
         id,
-        keycloakSub,
+        externalSubject,
         username,
         email,
         phone,
@@ -107,7 +107,7 @@ public record AppUser(
   public AppUser requireFirstLoginActivation(Instant temporaryCredentialIssuedAt) {
     return new AppUser(
         id,
-        keycloakSub,
+        externalSubject,
         username,
         email,
         phone,
@@ -130,7 +130,7 @@ public record AppUser(
     var resolvedLastName = lastName != null ? lastName : this.lastName;
     return new AppUser(
         id,
-        keycloakSub,
+        externalSubject,
         username,
         email,
         phone != null ? phone : this.phone,
@@ -163,7 +163,7 @@ public record AppUser(
   private AppUser withStatus(UserStatus status, Instant approvedAt, UserId approvedBy) {
     return new AppUser(
         id,
-        keycloakSub,
+        externalSubject,
         username,
         email,
         phone,

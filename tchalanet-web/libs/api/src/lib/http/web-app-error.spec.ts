@@ -72,7 +72,7 @@ describe('web app error normalization', () => {
       severity: 'WARN',
       meta: {
         source: 'identityActivation',
-        service: 'keycloak',
+        service: 'identity-provider',
         operation: 'completeFirstLogin',
         requestId: 'req-2',
         traceId: 'trace-2',

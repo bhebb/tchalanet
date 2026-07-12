@@ -56,8 +56,6 @@ Each dependency must answer:
 | `@ngrx/store-devtools` | runtime dev-only | state/debug | Enables NgRx debugging in development mode only. | Console logging or Angular DevTools only. | Keep only while NgRx store remains active. |
 | `@ngx-translate/core` | runtime | i18n | Runtime translation service and merge support. | Angular compile-time i18n or custom loader only. | Replace if runtime backend overrides move to a custom signal service. |
 | `@ngx-translate/http-loader` | runtime | i18n | Loads local translation JSON over HTTP. | Static imports only. | Remove if local bundles are bundled or custom-loaded. |
-| `keycloak-angular` | runtime | auth | Angular provider integration for Keycloak. | Manual `keycloak-js` lifecycle wiring. | Keep while Angular auth integration uses this wrapper. |
-| `keycloak-js` | runtime | auth | Browser OIDC client for Keycloak login/logout/token handling. | Manual OAuth/OIDC flow. | Keep while Keycloak remains the auth provider. |
 | `firebase` | runtime | integration/firebase | Firebase SDK used by existing Firebase-backed integrations. | Backend-only integration. | Remove if web no longer talks to Firebase. |
 | `marked` | runtime | content rendering | Markdown rendering for existing content surfaces. | Backend pre-rendered HTML only. | Remove if no markdown content is rendered client-side. |
 | `rxjs` | runtime | Angular/reactivity | Observable primitive required by Angular HTTP/router and existing services. | Signals only. | Keep while Angular and current APIs use RxJS. |

@@ -9,7 +9,7 @@ Ces conventions couvrent les apps séparées `public-portal`, `admin-portal` et 
 | Nx module boundaries                               | [`nx-boundaries.md`](./nx-boundaries.md)       |
 | **Feature playbook (archétypes d'écrans console — commencer ici)** | [`feature-playbook.md`](./feature-playbook.md) |
 | Placement guide (où mettre quoi)                   | [`placement-guide.md`](./placement-guide.md)   |
-| Auth (Keycloak, session, guards)                   | [`auth.md`](./auth.md)                         |
+| Auth (Firebase, session, guards)                   | [`auth.md`](./auth.md)                         |
 | Theme runtime (Material 3 pipeline)                | [`theme.md`](./theme.md)                       |
 | i18n runtime                                       | [`i18n.md`](./i18n.md)                         |
 | Runtime settings                                   | [`settings.md`](./settings.md)                 |
