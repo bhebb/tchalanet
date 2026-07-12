@@ -12,11 +12,9 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatNativeDateModule } from '@angular/material/core';
 
 import { AuthSessionService } from '@tch/core/auth';
-import { TchSectionError } from '@tch/ui/components';
+import { AdminListStatusOption, AdminListSurface, TchSectionError } from '@tch/ui/components';
 import { TchAsyncReadyDirective, TchAsyncViewComponent, resourceErrorVm, tchMutation } from '@tch/web/async';
 import { AdminPageShellComponent } from '@tch/ui/console';
-import { AdminCrudShellComponent } from '@tch/ui/console';
-import { AdminDataToolbarComponent } from '@tch/ui/console';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
 
 import {
@@ -73,9 +71,8 @@ interface LifecycleInput {
     MatMenuModule,
     MatNativeDateModule,
     AdminPageShellComponent,
-    AdminCrudShellComponent,
-    AdminDataToolbarComponent,
     AdminEmptyStateComponent,
+    AdminListSurface,
     TchAsyncViewComponent,
     TchAsyncReadyDirective,
     TchSectionError,
@@ -138,6 +135,11 @@ export class AdminGeneratedDrawsPage {
     || this.datePreset() !== 'LAST_48H'
     || this.statusFilter() !== 'all'
     || !!this.searchQuery(),
+  );
+  readonly statusFilterOptions = computed<readonly AdminListStatusOption[]>(() =>
+    this.statusFilters
+      .filter(filter => filter.key !== 'all')
+      .map(filter => ({ value: filter.key, label: filter.label })),
   );
   readonly page = computed(() => numberParam(this.qp().get('page'), 0));
 
@@ -249,8 +251,16 @@ export class AdminGeneratedDrawsPage {
     this.navigate({ status: status === 'all' ? null : status, page: null });
   }
 
+  onStatusFilterValue(status: string): void {
+    this.onStatusFilter(statusFilterFromQuery(status));
+  }
+
   onSearch(query: string): void {
     this.navigate({ q: query || null, page: null });
+  }
+
+  resetFilters(): void {
+    this.navigate({ date: null, from: null, to: null, status: null, q: null, page: null });
   }
 
   onNextPage(): void {

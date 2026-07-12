@@ -32,20 +32,24 @@
       <tch-generated-draws-summary [draws]="allDraws()" [today]="today" />
 
       <!-- Toolbar -->
-      <tch-admin-crud-shell>
-        <details toolbar class="gd-page__filters" [open]="hasActiveFilters()">
-          <summary class="gd-page__filters-summary">
-            <span class="material-symbols-outlined" aria-hidden="true">tune</span>
-            Filtres
-          </summary>
-
+      <tch-admin-list-surface
+        searchLabel="Recherche"
+        searchPlaceholder="Rechercher provider, slot…"
+        [searchValue]="searchQuery()"
+        [searchMinLength]="0"
+        [statusLabel]="'Statut'"
+        [statusValue]="statusFilter() === 'all' ? '' : statusFilter()"
+        [statusOptions]="statusFilterOptions()"
+        allStatusesLabel="Tous les statuts"
+        resetLabel="Réinitialiser"
+        [filtersDisplay]="'panel'"
+        [filtersExpanded]="hasActiveFilters()"
+        (searchChange)="onSearch($event)"
+        (statusChange)="onStatusFilterValue($event)"
+        (resetFilters)="resetFilters()"
+      >
+        <ng-container list-filters>
           <div class="gd-page__filters-body">
-            <tch-admin-data-toolbar
-              searchPlaceholder="Rechercher provider, slot…"
-              [searchValue]="searchQuery()"
-              (searchChange)="onSearch($event)"
-            />
-
             <div class="gd-page__date-chips">
               @for (preset of datePresets; track preset.key) {
                 <button
@@ -82,18 +86,11 @@
                 <mat-datepicker #toPicker />
               </mat-form-field>
             </div>
-
-            <select class="gd-page__select" [value]="statusFilter()"
-              (change)="onStatusFilter($any($event.target).value)">
-              @for (f of statusFilters; track f.key) {
-                <option [value]="f.key">{{ f.label }}</option>
-              }
-            </select>
           </div>
-        </details>
+        </ng-container>
 
         <!-- Table or empty state -->
-        <div content>
+        <ng-container list-content>
           @if (lifecycle.feedback(); as fb) {
             @if (fb.kind === 'error') {
               <tch-section-error
@@ -146,8 +143,8 @@
               (prevPage)="onPrevPage()"
             />
           }
-        </div>
-      </tch-admin-crud-shell>
+        </ng-container>
+      </tch-admin-list-surface>
     </ng-template>
   </tch-async-view>
 </tch-admin-page-shell>
