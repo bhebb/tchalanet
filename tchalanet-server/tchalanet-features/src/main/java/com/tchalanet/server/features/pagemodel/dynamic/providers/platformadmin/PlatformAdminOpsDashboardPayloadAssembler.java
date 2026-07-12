@@ -21,12 +21,14 @@ import com.tchalanet.server.platform.ops.api.OpsResourceContributor;
 import com.tchalanet.server.platform.ops.api.OpsSchedulerHistoryProvider;
 import com.tchalanet.server.platform.ops.api.OpsServiceResourceItem;
 import com.tchalanet.server.platform.ops.api.PlatformHealthProbe;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
@@ -42,15 +44,66 @@ public class PlatformAdminOpsDashboardPayloadAssembler {
   private final ObjectProvider<OpsSchedulerHistoryProvider> schedulerHistoryProvider;
   private final ObjectProvider<NotificationApi> notificationApiProvider;
   private final ObjectProvider<ContactRequestAdminApi> contactRequestAdminApiProvider;
+  private final Object cacheMonitor = new Object();
+
+  private Duration cacheTtl = Duration.ofSeconds(30);
+  private volatile CachedValue<PlatformHealthPayload> cachedHealth;
+  private volatile CachedValue<OpsSchedulerSummaryPayload> cachedSchedulerSummary;
+  private volatile CachedValue<OpsResourceSummaryPayload> cachedResourceSummary;
+  private volatile CachedValue<OpsAlertPayload> cachedContactRequests;
+
+  @Value("${tch.ops.dashboard.cache-ttl:PT30S}")
+  void setCacheTtl(Duration cacheTtl) {
+    this.cacheTtl = cacheTtl != null ? cacheTtl : Duration.ZERO;
+  }
 
   public Payload assemble(TchRequestContext ctx) {
     return new Payload(
-        buildHealth(),
-        buildSchedulerSummary(),
-        buildResourceSummary(),
+        cachedHealth(),
+        cachedSchedulerSummary(),
+        cachedResourceSummary(),
         buildAppNotifications(ctx),
-        buildContactRequests(),
+        cachedContactRequests(),
         buildQuickActions());
+  }
+
+  private PlatformHealthPayload cachedHealth() {
+    return cached(cachedHealth, value -> cachedHealth = value, this::buildHealth);
+  }
+
+  private OpsSchedulerSummaryPayload cachedSchedulerSummary() {
+    return cached(cachedSchedulerSummary, value -> cachedSchedulerSummary = value, this::buildSchedulerSummary);
+  }
+
+  private OpsResourceSummaryPayload cachedResourceSummary() {
+    return cached(cachedResourceSummary, value -> cachedResourceSummary = value, this::buildResourceSummary);
+  }
+
+  private OpsAlertPayload cachedContactRequests() {
+    return cached(cachedContactRequests, value -> cachedContactRequests = value, this::buildContactRequests);
+  }
+
+  private <T> T cached(
+      CachedValue<T> current,
+      java.util.function.Consumer<CachedValue<T>> writer,
+      java.util.function.Supplier<T> supplier) {
+    Duration ttl = cacheTtl;
+    if (ttl == null || ttl.isZero() || ttl.isNegative()) {
+      return supplier.get();
+    }
+    Instant now = Instant.now();
+    if (current != null && current.expiresAt().isAfter(now)) {
+      return current.value();
+    }
+    synchronized (cacheMonitor) {
+      CachedValue<T> refreshedCurrent = current;
+      if (refreshedCurrent != null && refreshedCurrent.expiresAt().isAfter(Instant.now())) {
+        return refreshedCurrent.value();
+      }
+      T value = supplier.get();
+      writer.accept(new CachedValue<>(value, Instant.now().plus(ttl)));
+      return value;
+    }
   }
 
   @SuppressWarnings("unchecked")
@@ -376,4 +429,6 @@ public class PlatformAdminOpsDashboardPayloadAssembler {
       String title,
       String message,
       String severity) {}
+
+  private record CachedValue<T>(T value, Instant expiresAt) {}
 }
