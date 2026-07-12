@@ -46,6 +46,19 @@ describe('authBearerInterceptor', () => {
     await response;
   });
 
+  it('attaches the configured provider access token to staging API requests', async () => {
+    vi.mocked(auth.getAccessToken).mockResolvedValue('access-token');
+
+    const url = 'https://api.stg.tchalanet.com/api/v1/runtime/private';
+    const response = firstValueFrom(client.get(url));
+    await flushPromises();
+
+    const request = http.expectOne(url);
+    expect(request.request.headers.get('Authorization')).toBe('Bearer access-token');
+    request.flush({});
+    await response;
+  });
+
   it('does not ask for or attach a token to external requests', async () => {
     const response = firstValueFrom(client.get('https://example.com/public.json'));
     await flushPromises();

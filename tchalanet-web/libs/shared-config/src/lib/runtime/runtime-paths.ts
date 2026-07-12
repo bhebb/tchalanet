@@ -46,7 +46,7 @@ export const AUTH_CONFIG = {
 // Bearer token is attached only to non-public API calls: /api/v1/public/** must stay
 // anonymous even when a Keycloak session exists (public pages + token = no Authorization).
 export const APPLICATION_API_URL_PATTERN =
-  /^(?:https?:\/\/(?:(?:localhost|127\.0\.0\.1):8083|api\.(?:localtest\.me|tchalanet\.lan)))?\/api\/(?!v1\/public\/)/i;
+  /^(?:https?:\/\/(?:(?:localhost|127\.0\.0\.1):8083|api\.(?:localtest\.me|tchalanet\.lan|(?:stg\.)?tchalanet\.com)))?\/api\/(?!v1\/public\/)/i;
 
 export function keycloakUrlForHostname(hostname: string): string {
   if (hostname.endsWith('tchalanet.lan')) return AUTH_CONFIG.lanUrl;
