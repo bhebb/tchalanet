@@ -11,7 +11,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { ApiResponse, TchBackendPage, TchPage } from '../contracts/api.types';
-import { TCH_API_BASE } from '../http/api-base';
+import { TCH_API_BASE, TCH_API_BASE_RESOLVER } from '../http/api-base';
 import { SUPPRESS_SHELL_FEEDBACK } from '../http/api-feedback-context';
 import { unwrapApiResponse } from '../http/api-response';
 
@@ -40,12 +40,13 @@ export interface TchResourceRequest {
 @Injectable({ providedIn: 'root' })
 export class TchBackendClient {
   private readonly http = inject(HttpClient);
-  private readonly base = inject(TCH_API_BASE);
+  private readonly fallbackBase = inject(TCH_API_BASE);
+  private readonly resolveBase = inject(TCH_API_BASE_RESOLVER, { optional: true });
   private readonly injector = inject(Injector);
 
   private url(path: string): string {
     if (path.startsWith('http://') || path.startsWith('https://')) return path;
-    return `${this.base}${path}`;
+    return `${this.resolveBase?.() || this.fallbackBase}${path}`;
   }
 
   private resolve(options?: TchRequestOptions): ResolvedOptions {

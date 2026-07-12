@@ -2,9 +2,35 @@
 
 **Quand utiliser ce runbook :** première mise en service du serveur staging, ou recréation complète après destruction.
 
-**Durée estimée :** 20-30 min (hors propagation DNS).
+**Durée estimée :** 20-30 min pour une première mise en place, 5-10 min pour recréer un serveur
+déjà câblé (secrets GitHub/Doppler prêts, DNS Cloudflare accessible).
 
 **Résultat attendu :** serveur Hetzner actif, stack Docker running, smoke test vert, CI/CD automatique câblé sur push `main`.
+
+---
+
+## Fast path — serveur staging jetable
+
+Objectif: pouvoir éteindre/détruire `stg-app`, recréer une VM propre, puis redéployer l'API sans
+intervention manuelle lourde.
+
+1. Créer le serveur:
+   ```bash
+   cd tchalanet-infra
+   ./scripts/hcloud/staging-create.sh
+   IP=$(hcloud server describe stg-app -o json | jq -r '.public_net.ipv4.ip')
+   ```
+2. Mettre à jour Cloudflare DNS: `api.stg`, `edge.stg`, `*.stg` vers `$IP`, en **DNS only**.
+3. Mettre à jour GitHub Actions secret `SERVER_HOST` avec `$IP`.
+4. Lancer GitHub Actions → **Deploy API Staging** → **Run workflow**.
+5. Valider:
+   ```bash
+   curl -fsS https://api.stg.tchalanet.com/api/v1/actuator/health
+   ```
+
+Le workflow `Deploy API Staging` synchronise `tchalanet-infra/`, télécharge les secrets Doppler,
+recrée le container API si demandé, puis fait les smokes health + CORS. Le serveur reste donc
+remplaçable: aucune donnée critique de staging ne doit dépendre uniquement du disque local de la VM.
 
 ---
 
