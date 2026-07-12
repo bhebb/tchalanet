@@ -12,6 +12,10 @@
     overscroll-behavior-x: contain;
   }
 
+  &__cards {
+    display: none;
+  }
+
   table {
     width: max(100%, 82rem);
     table-layout: fixed;
@@ -239,6 +243,13 @@
     align-items: center;
     gap: 0.25rem;
   }
+
+  &__card-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
 }
 
 @keyframes console-draws-table-spin {
@@ -250,147 +261,73 @@
 @media (max-width: 760px) {
   .console-draws-table {
     &__scroller {
-      overflow-x: visible;
-    }
-
-    table {
-      width: 100%;
-      table-layout: auto;
-    }
-
-    table,
-    thead,
-    tbody,
-    tr,
-    th,
-    td {
-      display: block;
-    }
-
-    thead,
-    tr.mat-mdc-header-row {
       display: none;
     }
 
-    tr.mat-mdc-row {
+    &__cards {
       display: grid;
-      grid-template-columns: minmax(0, 1fr);
-      grid-template-areas:
-        'draw'
-        'select'
-        'scheduled'
-        'status'
-        'result'
-        'mode'
-        'publication'
-        'actions';
-      gap: 0.625rem;
+      gap: 0.75rem;
+    }
+
+    &__card {
+      display: grid;
+      gap: 0.75rem;
       padding: 0.875rem;
-      margin-block-end: 0.75rem;
       border: 1px solid var(--tch-color-outline-variant);
       border-radius: var(--tch-radius-lg);
       background: var(--tch-color-surface-container-lowest);
       box-shadow: var(--tch-elevation-1, 0 1px 3px rgba(0, 0, 0, 0.08));
-    }
-
-    td.mat-mdc-cell {
-      display: grid;
-      grid-template-columns: minmax(5.5rem, auto) minmax(0, 1fr);
-      align-items: start;
-      gap: 0.75rem;
-      min-height: 2rem;
-      padding: 0;
-      border: 0;
-    }
-
-    td.mat-mdc-cell[data-label]::before {
-      content: attr(data-label);
       min-width: 0;
+    }
+
+    &__card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.75rem;
+      min-width: 0;
+    }
+
+    &__card-facts {
+      display: grid;
+      gap: 0.625rem;
+      margin: 0;
+      padding: 0.75rem 0 0;
+      border-top: 1px solid var(--tch-color-outline-variant);
+    }
+
+    &__card-fact {
+      display: grid;
+      grid-template-columns: 5.5rem minmax(0, 1fr);
+      gap: 0.75rem;
+      align-items: start;
+      min-width: 0;
+    }
+
+    &__card-fact dt {
+      color: var(--tch-color-on-surface-variant);
       font-size: 0.6875rem;
       font-weight: 800;
       line-height: 1.35;
+      margin: 0;
       text-transform: uppercase;
-      color: var(--tch-color-on-surface-variant);
     }
 
-    td.mat-column-select {
-      grid-area: select;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      width: auto;
-
-      &::before {
-        content: 'Sélection';
-        min-width: 0;
-        font-size: 0.6875rem;
-        font-weight: 800;
-        line-height: 1.35;
-        text-transform: uppercase;
-        color: var(--tch-color-on-surface-variant);
-      }
+    &__card-fact dd {
+      display: grid;
+      gap: 0.25rem;
+      justify-items: start;
+      margin: 0;
+      min-width: 0;
     }
 
-    td.mat-column-draw {
-      grid-area: draw;
-      display: block;
-      align-items: flex-start;
-      padding-bottom: 0.625rem;
-      border-bottom: 1px solid var(--tch-color-outline-variant);
-
-      &::before {
-        display: none;
-      }
-    }
-
-    td.mat-column-scheduledAt {
-      grid-area: scheduled;
-
-      p {
-        grid-column: 2;
-      }
-    }
-
-    td.mat-column-status {
-      grid-area: status;
-    }
-
-    td.mat-column-result {
-      grid-area: result;
-    }
-
-    td.mat-column-mode {
-      grid-area: mode;
-    }
-
-    td.mat-column-publication {
-      grid-area: publication;
-    }
-
-    td.mat-column-actions {
-      grid-area: actions;
-      display: flex;
-      justify-content: stretch;
-      padding-top: 0.625rem;
-      border-top: 1px solid var(--tch-color-outline-variant);
-
-      .mat-mdc-button-base {
-        min-height: 2.5rem;
-      }
-    }
-
-    td.mat-column-actions::before {
-      content: none;
-    }
-
-    .mat-column-actions {
-      position: static;
-      width: auto;
-      background: transparent;
-    }
-
-    &__actions {
+    &__result {
       justify-content: flex-start;
+    }
+
+    &__card-actions {
+      border-top: 1px solid var(--tch-color-outline-variant);
+      padding-top: 0.75rem;
       width: 100%;
 
       .mat-mdc-button-base {
