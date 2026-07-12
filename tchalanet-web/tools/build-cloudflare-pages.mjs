@@ -63,4 +63,39 @@ writeFileSync(
   ].join('\n'),
 );
 
+writeFileSync(
+  join(outDir, '_worker.js'),
+  `const APP_PREFIXES = ['/admin', '/platform'];
+
+function hasFileExtension(pathname) {
+  const lastSegment = pathname.split('/').pop() ?? '';
+  return lastSegment.includes('.');
+}
+
+function rewriteSpaRequest(request) {
+  if (request.method !== 'GET' && request.method !== 'HEAD') {
+    return request;
+  }
+
+  const url = new URL(request.url);
+  if (hasFileExtension(url.pathname)) {
+    return request;
+  }
+
+  const prefix = APP_PREFIXES.find(value =>
+    url.pathname === value || url.pathname.startsWith(\`\${value}/\`),
+  );
+
+  url.pathname = prefix ? \`\${prefix}/\` : '/';
+  return new Request(url, request);
+}
+
+export default {
+  fetch(request, env) {
+    return env.ASSETS.fetch(rewriteSpaRequest(request));
+  },
+};
+`,
+);
+
 console.log(`Cloudflare Pages output ready: ${outDir}`);
