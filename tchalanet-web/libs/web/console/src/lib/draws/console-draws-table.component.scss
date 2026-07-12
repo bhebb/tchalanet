@@ -22,6 +22,10 @@
     vertical-align: middle;
   }
 
+  td.mat-mdc-cell {
+    min-width: 0;
+  }
+
   .mat-column-select {
     width: 4rem;
   }
@@ -270,6 +274,15 @@
 
     tr.mat-mdc-row {
       display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      grid-template-areas:
+        'draw select'
+        'scheduled scheduled'
+        'status status'
+        'result result'
+        'mode mode'
+        'publication publication'
+        'actions actions';
       gap: 0.625rem;
       padding: 0.875rem;
       margin-block-end: 0.75rem;
@@ -280,9 +293,9 @@
     }
 
     td.mat-mdc-cell {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      display: grid;
+      grid-template-columns: minmax(5.5rem, auto) minmax(0, 1fr);
+      align-items: start;
       gap: 0.75rem;
       min-height: 2rem;
       padding: 0;
@@ -291,20 +304,71 @@
 
     td.mat-mdc-cell[data-label]::before {
       content: attr(data-label);
-      min-width: 5.5rem;
+      min-width: 0;
       font-size: 0.6875rem;
       font-weight: 800;
+      line-height: 1.35;
       text-transform: uppercase;
       color: var(--tch-color-on-surface-variant);
     }
 
+    td.mat-column-select {
+      grid-area: select;
+      display: flex;
+      align-items: flex-start;
+      justify-content: flex-end;
+      width: auto;
+
+      &::before {
+        content: none;
+      }
+    }
+
     td.mat-column-draw {
+      grid-area: draw;
+      display: block;
       align-items: flex-start;
       padding-bottom: 0.625rem;
       border-bottom: 1px solid var(--tch-color-outline-variant);
 
       &::before {
         display: none;
+      }
+    }
+
+    td.mat-column-scheduledAt {
+      grid-area: scheduled;
+
+      p {
+        grid-column: 2;
+      }
+    }
+
+    td.mat-column-status {
+      grid-area: status;
+    }
+
+    td.mat-column-result {
+      grid-area: result;
+    }
+
+    td.mat-column-mode {
+      grid-area: mode;
+    }
+
+    td.mat-column-publication {
+      grid-area: publication;
+    }
+
+    td.mat-column-actions {
+      grid-area: actions;
+      display: flex;
+      justify-content: stretch;
+      padding-top: 0.625rem;
+      border-top: 1px solid var(--tch-color-outline-variant);
+
+      .mat-mdc-button-base {
+        min-height: 2.5rem;
       }
     }
 
@@ -319,8 +383,14 @@
     }
 
     &__actions {
-      justify-content: flex-end;
+      justify-content: flex-start;
       width: 100%;
+
+      .mat-mdc-outlined-button,
+      .mat-mdc-unelevated-button,
+      .mat-mdc-raised-button {
+        flex: 1 1 12rem;
+      }
     }
 
     &__footer {
