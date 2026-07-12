@@ -2,6 +2,7 @@ package com.tchalanet.server.core.sales.internal.application.command.handler.sel
 
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.bus.QueryBus;
+import com.tchalanet.server.common.context.TchActorType;
 import com.tchalanet.server.common.context.TchContext;
 import com.tchalanet.server.common.event.DomainEventPublisher;
 import com.tchalanet.server.common.stereotype.TchTx;
@@ -89,7 +90,8 @@ public class SellTicketCommandHandler
         var sellerTerminalId = ctx.sellerTerminalIdRequired();
         var terminal = queryBus.ask(new GetSellerTerminalForSaleValidationQuery(
             tenantId, sellerTerminalId));
-        if (!terminal.canSell()) {
+        var requirePinChangeCompleted = ctx.actorType() == TchActorType.SELLER_TERMINAL;
+        if (!terminal.canSell(requirePinChangeCompleted)) {
             throw ProblemRest.forbidden("seller_terminal.cannot_sell");
         }
         var commissionAmount = prepared.moneyBreakdown().stake().amount()

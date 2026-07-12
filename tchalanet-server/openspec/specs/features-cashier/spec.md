@@ -12,14 +12,18 @@ GET /tenant/cashier/games/available
 ```
 
 The endpoint SHALL return cashier game choices with game labels, bet type
-labels, option labels, option descriptions, and selection hints.
+labels, option labels, option descriptions, selection policy, and selection hints.
 
-#### Scenario: Loto 4 options include labels and hints
+When a bet type uses `IMPLICIT_BEST_MATCH`, the endpoint SHALL return no seller-selectable
+options for that bet type and SHALL guide the seller through the selection hint.
+
+#### Scenario: Loto 4 implicit mode hides seller option choices
 
 When the cashier requests `/tenant/cashier/games/available`
 Then the response includes `HT_LOTO4`
-And it includes options for exact, box, front pair, and back pair
-And each option includes a seller-facing label and selection hint.
+And its Loto 4 bet type uses `IMPLICIT_BEST_MATCH`
+And it does not include seller-selectable options
+And it includes a seller-facing selection hint.
 
 ### Requirement: POS payload remains stable
 
@@ -162,4 +166,3 @@ Cashier home services SHALL compose public core/platform/catalog APIs and bus qu
 - **THEN** it uses CommandBus/QueryBus or public `api/` contracts
 - **AND** it does not import `core.*.internal`
 - **AND** it does not call repositories.
-

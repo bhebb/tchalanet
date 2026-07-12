@@ -71,11 +71,18 @@ class TenantGameBetOptionConfigs {
             .toList();
         return new TenantBetTypeOptionConfig(
             betType,
-            SelectionPolicy.EXPLICIT_ONLY,
+            defaultSelectionPolicy(betType),
             options.isEmpty() ? null : options.getFirst().code(),
             options.stream()
                 .map(option -> new TenantBetOptionConfig(option.code(), true, true, option.code()))
                 .toList());
+    }
+
+    private SelectionPolicy defaultSelectionPolicy(BetType betType) {
+        return switch (betType) {
+            case MARRIAGE_2D2D, LOTTO3_3D, LOTTO4_PATTERN, LOTTO5_PATTERN -> SelectionPolicy.IMPLICIT_BEST_MATCH;
+            case MATCH_1_2D, MATCH_2_2D, MATCH_3_2D -> SelectionPolicy.EXPLICIT_ONLY;
+        };
     }
 
     private TenantBetTypeOptionConfig normalizeBetType(TenantBetTypeOptionConfig config) {

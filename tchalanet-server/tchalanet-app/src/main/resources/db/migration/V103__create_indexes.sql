@@ -5,7 +5,7 @@
 --   - Partial unique indexes (active-state guards) absorbed from former V211
 --   - Audit event indexes absorbed from former V210
 --   - Revinfo lookups absorbed from former V210
---   - Draw result lookups absorbed from former V213
+--   - Draw result lookups absorbed into the baseline
 --   - Canonical operational unique guards for active V0 tables.
 
 -- ─── Identity & access ──────────────────────────────────────────────

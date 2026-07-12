@@ -15,16 +15,25 @@ class TenantGameBetOptionConfigsTest {
     private final TenantGameBetOptionConfigs configs = new TenantGameBetOptionConfigs();
 
     @Test
-    void defaultsUseCatalogBetOptionsAndExplicitPolicy() {
+    void defaultsUseCatalogBetOptionsAndImplicitPolicyForLotoAndMaryaj() {
         var defaults = configs.defaultsFor("HT_LOTO3");
 
         assertThat(defaults).singleElement().satisfies(config -> {
             assertThat(config.betType()).isEqualTo(BetType.LOTTO3_3D);
-            assertThat(config.selectionPolicy()).isEqualTo(SelectionPolicy.EXPLICIT_ONLY);
+            assertThat(config.selectionPolicy()).isEqualTo(SelectionPolicy.IMPLICIT_BEST_MATCH);
             assertThat(config.defaultOption()).isEqualTo((short) 1);
             assertThat(config.options()).extracting(TenantBetOptionConfig::code)
                 .containsExactly((short) 1, (short) 2);
         });
+
+        assertThat(configs.defaultsFor("HT_MARYAJ"))
+            .singleElement()
+            .satisfies(config -> assertThat(config.selectionPolicy())
+                .isEqualTo(SelectionPolicy.IMPLICIT_BEST_MATCH));
+
+        assertThat(configs.defaultsFor("HT_BOLET"))
+            .allSatisfy(config -> assertThat(config.selectionPolicy())
+                .isEqualTo(SelectionPolicy.EXPLICIT_ONLY));
     }
 
     @Test

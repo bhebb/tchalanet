@@ -1,4 +1,4 @@
--- V222__import_tchala_full.sql
+-- V212__import_tchala_full.sql
 -- Généré par scripts/generate_tchala_migration.py
 -- Importe toutes les entrées APPROVED depuis tchala_lotto_ht_init.csv
 -- Idempotent : ne ré-insère pas si (lang, dedupe_key, APPROVED, canonical_entry_id IS NULL) existe déjà
