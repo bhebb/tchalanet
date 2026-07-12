@@ -37,8 +37,8 @@ pnpm runtime:local-ide          # API http://localhost:8083/api/v1, Firebase ré
 pnpm runtime:local-ide-emulator # API http://localhost:8083/api/v1, Firebase Auth emulator
 pnpm runtime:dev-docker         # API https://api.localtest.me/api/v1, Firebase réel
 pnpm runtime:dev-docker-emulator
-pnpm runtime:stg-vercel
-pnpm runtime:prod-vercel
+pnpm runtime:stg-cloudflare
+pnpm runtime:prod-cloudflare
 ```
 
 Lancer une app:
