@@ -1,7 +1,7 @@
 package com.tchalanet.server.platform.identity.internal.service;
 
 import com.tchalanet.server.common.time.TimeProvider;
-import com.tchalanet.server.common.types.id.KeycloakUserSub;
+import com.tchalanet.server.common.types.id.ExternalUserSubject;
 import com.tchalanet.server.platform.identity.api.model.request.BootstrapCurrentUserRequest;
 import com.tchalanet.server.platform.identity.api.model.result.BootstrapUserResult;
 import com.tchalanet.server.platform.identity.internal.model.AppUser;
@@ -22,8 +22,8 @@ public class UserBootstrapService {
 
   @Transactional
   public BootstrapUserResult bootstrap(BootstrapCurrentUserRequest request) {
-    var legacyKeycloakSub = KeycloakUserSub.parse(request.externalSubject());
-    var existing = users.findByKeycloakSub(legacyKeycloakSub);
+    var externalSubject = ExternalUserSubject.parse(request.externalSubject());
+    var existing = users.findByExternalSubject(externalSubject);
     if (existing.isPresent()) {
       var user =
           existing
@@ -53,7 +53,7 @@ public class UserBootstrapService {
         users.save(
             AppUser.createNew(
                 null,
-                legacyKeycloakSub,
+                externalSubject,
                 request.username(),
                 request.email(),
                 request.phone(),

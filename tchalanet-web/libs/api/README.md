@@ -124,4 +124,4 @@ return this.backend.post('/tenant/tickets/sell', body); // ← pas de retry
 - Aucune logique métier.
 - Aucun retry global.
 - Aucun affichage UI.
-- Aucun accès aux endpoints hors `/api/v1` (assets, i18n, Keycloak → `HttpClient` direct).
+- Aucun accès aux endpoints hors `/api/v1` (assets, i18n, fournisseurs d'identité → `HttpClient` direct).

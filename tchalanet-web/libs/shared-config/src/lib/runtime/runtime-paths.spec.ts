@@ -1,9 +1,7 @@
 import {
   API_PATHS,
   APPLICATION_API_URL_PATTERN,
-  AUTH_CONFIG,
   PORTAL_I18N_CONFIG,
-  keycloakUrlForHostname,
 } from './runtime-paths';
 
 describe('runtime paths', () => {
@@ -32,11 +30,6 @@ describe('runtime paths', () => {
       'feature-seller-terminal',
     ]);
     expect('backendPath' in PORTAL_I18N_CONFIG).toBe(false);
-  });
-
-  it('selects the Keycloak host from the browser hostname', () => {
-    expect(keycloakUrlForHostname('app.tchalanet.lan')).toBe(AUTH_CONFIG.lanUrl);
-    expect(keycloakUrlForHostname('localhost')).toBe(AUTH_CONFIG.localUrl);
   });
 
   it('attaches the bearer to non-public Tchalanet API URLs only', () => {

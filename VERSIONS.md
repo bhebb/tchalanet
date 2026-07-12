@@ -129,8 +129,6 @@ Règle : aucune version (runtime/build/service) ne doit changer sans :
 | `@angular/fire`             | ^20.0.1  | Firebase Angular integration   |
 | `@ngx-translate/core`       | ^17.0.0  | i18n runtime                   |
 | `@ngx-translate/http-loader`| ^17.0.0  | i18n HTTP loader               |
-| `keycloak-angular`          | ^22.0.0  | Keycloak OIDC integration      |
-| `keycloak-js`               | ^26.2.4  | Keycloak JS adapter            |
 | `@angular/ssr`              | ~22.0.4  | Angular SSR runtime            |
 | `express`                   | ^4.21.2  | SSR node server                |
 | `firebase`                  | ^12.14.0 | Firebase web SDK               |

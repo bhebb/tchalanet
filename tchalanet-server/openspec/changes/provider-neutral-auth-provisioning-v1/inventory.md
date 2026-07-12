@@ -29,7 +29,7 @@ provider-neutral provisioning, public contract cleanup, stable error contracts, 
 | OpenAPI bearer format and description say Firebase | `OpenApiConfig` | Fix in Phase 1 |
 | Admin response exposes `keycloakSub` and `keycloakSyncStatus` | `TenantUserAdminResponse` | Fix in Phase 1 |
 | Providers without managed provisioning need adapters | `UnsupportedIdentityProvisioningService` | Add adapter when required |
-| Public/current-user models still use `KeycloakUserSub` | identity API and web models | Transitional cleanup |
+| Public/current-user models use `ExternalUserSubject` | identity API and web models | Neutralized during Firebase cutover cleanup |
 | Bootstrap endpoint docs mention Keycloak | `CurrentUserProfileController` | Transitional cleanup |
 | Unknown mapping uses generic `"User not provisioned"` response | `UserBootstrapFilterImpl` | Add stable problem code |
 
