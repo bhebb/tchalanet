@@ -76,13 +76,50 @@
 
 @media (max-width: 720px) {
   .top-app-bar {
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "menu brand avatar"
+      "title title utilities";
     gap: 0.5rem 0.75rem;
-    padding-block: 0.75rem;
+    min-height: auto;
+    padding: 0.75rem 1rem;
+  }
+
+  .top-app-bar tch-brand {
+    grid-area: brand;
+    min-width: 0;
+  }
+
+  .top-app-bar > strong {
+    grid-area: title;
+    align-self: center;
+    font-size: 1rem;
+    line-height: 1.25;
+    min-width: 0;
+  }
+
+  .utilities {
+    display: contents;
+  }
+
+  .utilities > :not(.mode-toggle):not(tch-user-menu) {
+    display: none;
+  }
+
+  .mode-toggle {
+    grid-area: utilities;
+    justify-self: end;
+  }
+
+  .utilities tch-user-menu {
+    grid-area: avatar;
+    justify-self: end;
   }
 
   .burger {
     display: inline-flex;
+    grid-area: menu;
   }
 
   .workspace {
