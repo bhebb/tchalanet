@@ -13,6 +13,8 @@ if (!allowedProfiles.has(profile)) {
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const outDir = join(root, 'dist', 'cloudflare-pages');
+const apiOrigin =
+  profile === 'prod-cloudflare' ? 'https://api.tchalanet.com' : 'https://api.stg.tchalanet.com';
 
 function pnpm(args) {
   execFileSync('pnpm', args, { cwd: root, stdio: 'inherit' });
@@ -66,10 +68,21 @@ writeFileSync(
 writeFileSync(
   join(outDir, '_worker.js'),
   `const APP_PREFIXES = ['/admin', '/platform'];
+const API_ORIGIN = '${apiOrigin}';
 
 function hasFileExtension(pathname) {
   const lastSegment = pathname.split('/').pop() ?? '';
   return lastSegment.includes('.');
+}
+
+function isApiRequest(pathname) {
+  return pathname === '/api' || pathname.startsWith('/api/');
+}
+
+function proxyApiRequest(request) {
+  const url = new URL(request.url);
+  const target = new URL(url.pathname + url.search, API_ORIGIN);
+  return fetch(new Request(target, request));
 }
 
 function rewriteSpaRequest(request) {
@@ -92,6 +105,11 @@ function rewriteSpaRequest(request) {
 
 export default {
   fetch(request, env) {
+    const url = new URL(request.url);
+    if (isApiRequest(url.pathname)) {
+      return proxyApiRequest(request);
+    }
+
     return env.ASSETS.fetch(rewriteSpaRequest(request));
   },
 };
