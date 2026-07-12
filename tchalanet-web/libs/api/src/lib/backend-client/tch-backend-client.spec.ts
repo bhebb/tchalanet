@@ -4,16 +4,18 @@ import { createEnvironmentInjector, EnvironmentInjector, runInInjectionContext }
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { of } from 'rxjs';
 
-import { TCH_API_BASE } from '../http/api-base';
+import { TCH_API_BASE, TCH_API_BASE_RESOLVER } from '../http/api-base';
 import { TchBackendClient } from './tch-backend-client';
 
 describe('TchBackendClient', () => {
   let injector: EnvironmentInjector;
   let client: TchBackendClient;
+  let apiBase: string;
   let requests: { readonly url: string; readonly options: unknown }[];
   let response: unknown;
 
   beforeEach(() => {
+    apiBase = '/api/v1';
     requests = [];
     injector = createEnvironmentInjector([
       {
@@ -26,6 +28,7 @@ describe('TchBackendClient', () => {
         },
       },
       { provide: TCH_API_BASE, useValue: '/api/v1' },
+      { provide: TCH_API_BASE_RESOLVER, useValue: () => apiBase },
     ]);
 
     client = runInInjectionContext(injector, () => new TchBackendClient());
@@ -93,5 +96,18 @@ describe('TchBackendClient', () => {
       hasNext: true,
       hasPrevious: true,
     });
+  });
+
+  it('resolves the API base URL at request time', () => {
+    response = {
+      status: 'SUCCESS',
+      notices: [],
+      data: { ok: true },
+    };
+    apiBase = 'https://api.stg.tchalanet.com/api/v1';
+
+    client.get('/runtime/private').subscribe();
+
+    expect(requests[0]?.url).toBe('https://api.stg.tchalanet.com/api/v1/runtime/private');
   });
 });

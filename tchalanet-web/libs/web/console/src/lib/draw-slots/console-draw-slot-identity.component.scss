@@ -49,6 +49,7 @@
 
 .console-draw-slot__body {
   min-width: 0;
+  overflow: hidden;
 }
 
 .console-draw-slot__title,
@@ -62,6 +63,7 @@
   font-size: var(--tch-font-size-body-md);
   font-weight: var(--tch-font-weight-bold, 700);
   line-height: 1.25;
+  overflow-wrap: anywhere;
 }
 
 .console-draw-slot__subtitle,
@@ -70,6 +72,7 @@
   color: var(--tch-color-on-surface-variant);
   font-size: var(--tch-font-size-label-sm);
   line-height: 1.25;
+  overflow-wrap: anywhere;
 }
 
 .console-draw-slot__subtitle {

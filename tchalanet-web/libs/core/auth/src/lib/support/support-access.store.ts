@@ -49,7 +49,9 @@ export class SupportAccessStore {
       window.removeEventListener('focus', hydrate);
       window.document.removeEventListener('visibilitychange', hydrate);
     });
-    void this.hydrateCurrent();
+    if (this._session()) {
+      void this.hydrateCurrent();
+    }
   }
 
   startSession(session: TenantAdminAccessSession): void {

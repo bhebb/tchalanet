@@ -1,10 +1,25 @@
 # RB-02 — Déploiement web via Cloudflare Pages
 
-**Quand utiliser ce runbook :** mise en place initiale des 3 portails Angular sur CF Pages, ou réintégration après abandon de Vercel.
+**Quand utiliser ce runbook :** mise en place initiale du web Angular sur CF Pages, ou réintégration après abandon de Vercel.
 
-**Durée estimée :** 45-60 min (création des 3 projets + DNS + first deploy).
+**Durée estimée :** 20-30 min pour le projet multi-app actuel, 45-60 min si les portails sont séparés en 3 projets.
 
-**Résultat attendu :** 3 projets CF Pages actifs, déploiements automatiques sur push `main`, previews PR auto, domaines personnalisés configurés.
+**Résultat attendu :** 1 projet CF Pages multi-app actif (`/`, `/admin`, `/platform`), déploiements automatiques sur push `main`, previews PR auto, domaine personnalisé configuré.
+
+---
+
+## Coût et limites Pages
+
+Sur le Free plan Cloudflare Pages, les points à surveiller sont surtout opérationnels:
+
+- 500 builds par mois et 1 build concurrent par compte.
+- Les preview deployments actifs sont illimités.
+- Les requêtes Pages Functions/Worker comptent dans les quotas Workers.
+
+Conséquence pour Tchalanet: les portails doivent appeler l'API directement via
+`https://api.stg.tchalanet.com/api/v1` ou `https://api.tchalanet.com/api/v1`. Le proxy Pages
+`/api/*` est un fallback de compatibilité, pas le chemin nominal: il ajoute une hop réseau et peut
+consommer des quotas Workers.
 
 ---
 
@@ -12,13 +27,11 @@
 
 ```
 GitHub push main
-  └─ CF Pages (connexion GitHub native)
-       ├─ public-portal  → app.tchalanet.com        (prod)
-       │                 → app.stg.tchalanet.com     (preview branch)
-       ├─ admin-portal   → admin.tchalanet.com       (prod)
-       │                 → admin.stg.tchalanet.com   (preview branch)
-       └─ platform-portal→ portal.tchalanet.com      (prod)
-                         → portal.stg.tchalanet.com  (preview branch)
+  └─ CF Pages (connexion GitHub native, projet multi-app)
+       ├─ /          → public-portal
+       ├─ /admin     → admin-portal
+       ├─ /platform  → platform-portal
+       └─ /api/*     → fallback proxy vers API (non nominal)
 ```
 
 ### Runtime config (pattern important)

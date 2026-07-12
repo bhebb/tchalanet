@@ -17,6 +17,7 @@
 
   &__table {
     overflow-x: auto;
+    min-width: 0;
 
     table {
       width: 100%;
@@ -43,6 +44,7 @@
     .mat-mdc-cell,
     .mat-mdc-header-cell {
       font-family: var(--tch-font-family);
+      min-width: 0;
     }
 
     .mat-mdc-header-cell {
@@ -119,6 +121,128 @@
       color: var(--tch-color-on-surface-variant);
       font-size: 0.875rem;
       white-space: nowrap;
+    }
+  }
+}
+
+@media (max-width: 760px) {
+  .tenants-page {
+    &__table {
+      overflow-x: visible;
+
+      table {
+        display: block;
+        width: 100%;
+        min-width: 0;
+      }
+
+      thead,
+      tbody,
+      tr,
+      th,
+      td {
+        display: block;
+      }
+
+      thead,
+      tr.mat-mdc-header-row {
+        display: none;
+      }
+
+      .mat-mdc-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-areas:
+          'tenant actions'
+          'code code'
+          'status status'
+          'type type'
+          'currency currency'
+          'updated updated';
+        gap: 0.625rem;
+        min-height: 0;
+        padding: 0.875rem;
+        margin-block-end: 0.75rem;
+        border: 1px solid var(--tch-color-outline-variant);
+        border-radius: var(--tch-radius-lg);
+        background: var(--tch-color-surface-container-lowest);
+        box-shadow: var(--tch-elevation-1, 0 1px 3px rgba(0, 0, 0, 0.08));
+      }
+
+      .mat-mdc-cell {
+        display: grid;
+        grid-template-columns: minmax(5.5rem, auto) minmax(0, 1fr);
+        gap: 0.75rem;
+        align-items: start;
+        padding: 0;
+        border: 0;
+        font-size: 0.875rem;
+      }
+
+      .mat-mdc-cell[data-label]::before {
+        content: attr(data-label);
+        min-width: 0;
+        color: var(--tch-color-on-surface-variant);
+        font-size: 0.6875rem;
+        font-weight: 800;
+        line-height: 1.35;
+        text-transform: uppercase;
+      }
+
+      .mat-column-tenant {
+        grid-area: tenant;
+        display: block;
+        padding-bottom: 0.625rem;
+        border-bottom: 1px solid var(--tch-color-outline-variant);
+
+        &::before {
+          content: none;
+        }
+      }
+
+      .mat-column-code {
+        grid-area: code;
+      }
+
+      .mat-column-type {
+        grid-area: type;
+      }
+
+      .mat-column-status {
+        grid-area: status;
+      }
+
+      .mat-column-currency {
+        grid-area: currency;
+      }
+
+      .mat-column-updatedAt {
+        grid-area: updated;
+      }
+
+      .mat-column-actions {
+        grid-area: actions;
+        width: auto;
+        align-self: start;
+      }
+    }
+
+    &__name {
+      display: block;
+      overflow-wrap: anywhere;
+      line-height: 1.25;
+    }
+
+    &__code {
+      justify-self: start;
+      max-width: 100%;
+      overflow-wrap: anywhere;
+      white-space: normal;
+    }
+
+    &__actions-cell {
+      padding-inline: 0 !important;
+      text-align: right;
     }
   }
 }
