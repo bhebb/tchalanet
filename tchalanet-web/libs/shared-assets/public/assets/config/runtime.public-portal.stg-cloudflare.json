@@ -1,8 +1,8 @@
 {
   "appId": "public-portal",
   "production": true,
-  "apiBaseUrl": "https://stg.api.tchalanet.com/api/v1",
-  "authBaseUrl": "https://stg.api.tchalanet.com/auth",
+  "apiBaseUrl": "https://api.stg.tchalanet.com/api/v1",
+  "authBaseUrl": "https://api.stg.tchalanet.com/auth",
   "assetsBaseUrl": "/assets",
   "enableSandbox": false,
   "portalBaseUrls": {
