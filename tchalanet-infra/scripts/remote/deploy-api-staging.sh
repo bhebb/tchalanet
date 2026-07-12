@@ -10,14 +10,19 @@
 #   API_BASE_URL=https://api.stg.tchalanet.com/api/v1
 #   WEB_ORIGINS="https://tchalanet-web-stg.pages.dev https://e25cee16.tchalanet-web-stg.pages.dev"
 #   FORCE_RECREATE=1
+#   RESET_DATABASE=1
+#   RESET_DATABASE_CONFIRM="destroy staging database"
 set -euo pipefail
 
 ENV="${ENV:-staging}"
 IMAGE_TAG="${IMAGE_TAG:-latest}"
 FORCE_RECREATE="${FORCE_RECREATE:-1}"
+RESET_DATABASE="${RESET_DATABASE:-0}"
+RESET_DATABASE_CONFIRM="${RESET_DATABASE_CONFIRM:-}"
 API_BASE_URL="${API_BASE_URL:-https://api.stg.tchalanet.com/api/v1}"
 WEB_ORIGINS="${WEB_ORIGINS:-https://tchalanet-web-stg.pages.dev}"
 DOPPLER_IMAGE="${DOPPLER_IMAGE:-dopplerhq/cli:3.75.1}"
+POSTGRES_IMAGE="${POSTGRES_IMAGE:-postgres:18.4}"
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT"
@@ -78,6 +83,37 @@ compose_cmd=(
   -f compose/docker-compose-redis.yml
   -f compose/docker-compose-api.yml
 )
+
+if [ "$RESET_DATABASE" = "1" ]; then
+  [ "$ENV" = "staging" ] || fail "RESET_DATABASE is only allowed for ENV=staging"
+  [ "$RESET_DATABASE_CONFIRM" = "destroy staging database" ] || \
+    fail "RESET_DATABASE_CONFIRM must be exactly: destroy staging database"
+
+  log "Stopping API before staging database reset"
+  "${compose_cmd[@]}" stop api >/dev/null 2>&1 || true
+
+  log "Resetting staging database schema (DROP SCHEMA public CASCADE)"
+  set -a
+  # shellcheck disable=SC1090
+  . "envs/$ENV/.secrets"
+  set +a
+
+  db_url="${SPRING_DATASOURCE_URL:-}"
+  [ -n "$db_url" ] || fail "SPRING_DATASOURCE_URL is required to reset the database"
+  db_url="${db_url#jdbc:}"
+
+  postgres_env=()
+  [ -n "${SPRING_DATASOURCE_USERNAME:-}" ] && postgres_env+=(-e "PGUSER=$SPRING_DATASOURCE_USERNAME")
+  [ -n "${SPRING_DATASOURCE_PASSWORD:-}" ] && postgres_env+=(-e "PGPASSWORD=$SPRING_DATASOURCE_PASSWORD")
+
+  docker run --rm \
+    "${postgres_env[@]}" \
+    "$POSTGRES_IMAGE" \
+    psql "$db_url" -v ON_ERROR_STOP=1 \
+      -c 'DROP SCHEMA IF EXISTS public CASCADE;' \
+      -c 'CREATE SCHEMA public;' \
+      -c 'GRANT ALL ON SCHEMA public TO public;'
+fi
 
 log "Pulling API image tag=$IMAGE_TAG"
 IMAGE_TAG="$IMAGE_TAG" "${compose_cmd[@]}" pull api || true

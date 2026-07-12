@@ -14,7 +14,7 @@ echo "→ Création firewall..."
 bash "$ROOT/scripts/hcloud/02-create-firewall.sh"
 
 echo "→ Création serveur..."
-bash "$ROOT/scripts/hcloud/03-create-server.sh"
+bash "$ROOT/scripts/hcloud/03-create-server.sh" --network "${HCLOUD_NETWORK_NAME:-tch-net}"
 
 echo ""
 echo "✅ Staging créé."
