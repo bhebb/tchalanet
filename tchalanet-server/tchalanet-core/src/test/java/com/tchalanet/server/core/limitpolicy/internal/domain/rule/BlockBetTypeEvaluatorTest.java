@@ -63,7 +63,7 @@ class BlockBetTypeEvaluatorTest {
     }
 
     private static LimitLineContext line(BetType betType) {
-        return new LimitLineContext(betType, "05", 100L, 0L);
+        return new LimitLineContext(betType, "05", 100L);
     }
 
     private static LimitContext context(LimitLineContext... lines) {

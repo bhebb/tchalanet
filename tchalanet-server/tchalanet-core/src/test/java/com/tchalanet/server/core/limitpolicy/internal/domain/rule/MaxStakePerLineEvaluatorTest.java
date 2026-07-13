@@ -75,7 +75,7 @@ class MaxStakePerLineEvaluatorTest {
     }
 
     private static LimitLineContext line(long stakeCents) {
-        return new LimitLineContext(BetType.MATCH_1_2D, "05", stakeCents, 0L);
+        return new LimitLineContext(BetType.MATCH_1_2D, "05", stakeCents);
     }
 
     private static LimitContext context(LimitLineContext... lines) {

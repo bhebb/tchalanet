@@ -62,7 +62,7 @@ class MaxLinesPerTicketEvaluatorTest {
     private static LimitContext context(int lineCount) {
         var lines = new ArrayList<LimitLineContext>();
         for (int i = 0; i < lineCount; i++) {
-            lines.add(new LimitLineContext(BetType.MATCH_1_2D, "0" + i, 100L, 0L));
+            lines.add(new LimitLineContext(BetType.MATCH_1_2D, "0" + i, 100L));
         }
         return new LimitContext(
             TenantId.of(UUID.randomUUID()), null, null, null, null, Instant.now(), lines);

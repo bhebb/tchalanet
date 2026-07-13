@@ -83,12 +83,12 @@ class MaxStakeExposurePerSelectionPerDrawEvaluatorTest {
 
     private static LimitFactsSnapshot existingStake(long stakeCents) {
         var key = new LimitFactsSnapshot.Key(SCOPE, BET, SELECTION);
-        var fact = new LimitFactsSnapshot.Fact(stakeCents, 0L, 0L);
+        var fact = new LimitFactsSnapshot.Fact(stakeCents, 0L);
         return new LimitFactsSnapshot(Map.of(key, fact));
     }
 
     private static LimitLineContext line(long stakeCents) {
-        return new LimitLineContext(BET, SELECTION, stakeCents, 0L);
+        return new LimitLineContext(BET, SELECTION, stakeCents);
     }
 
     private static LimitContext context(LimitLineContext... lines) {
