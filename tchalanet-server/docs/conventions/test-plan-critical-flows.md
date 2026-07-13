@@ -110,7 +110,9 @@ transition matrix here (3a owns it).
   + CONFIRMED → SETTLED) covered by `DrawResultOverrideSettleSpringIntegrationTest`.
   Gotcha found: `SettleDrawCommandHandler` requires the `draw_result` to be
   **CONFIRMED** — a `force=true` override leaves it `OVERRIDDEN`, which is not
-  settleable until re-confirmed. No-double-settle assertion still worth adding.
+  settleable until re-confirmed. **No-double-settle covered**: replaying
+  `SettleDrawCommand` on a SETTLED draw is rejected (SETTLED→SETTLED throws) and
+  `settled_at` is unchanged — no double money effect.
 
 > **Reaching RESULTED is a multi-module orchestration**, not a single command:
 > `RecordManualDrawResultCommandHandler` (drawresult) writes a `draw_result`
@@ -206,6 +208,16 @@ Append as found. Format: **[state]** claim — evidence — proposed action.
   settle): RED observed by temporarily reverting the handler (`override` threw
   `IllegalStateException: RESULTED -> RESULTED` over the real stack), GREEN with the
   fix. Note: this handler had **zero existing test coverage** (why the bug hid).
+
+### Settle findings (from the no-double-settle IT)
+
+- **[TO-VERIFY — likely dead guard] `SettleDrawCommandHandler.wasResulted` is always
+  true when reached.** It computes `wasResulted = drawSummary.status() == RESULTED`,
+  then calls `draw.settle(now)` which is legal **only** from RESULTED (throws
+  otherwise). So control only reaches the trailing `if (wasResulted) { publish
+  DrawSettledEvent }` when the draw was RESULTED → the guard never gates anything
+  out. Same shape as the `applyResult` dead-guard. **Action**: confirm and drop the
+  guard, or move it before `draw.settle` if a non-RESULTED path was intended.
 
 ### Promotion odds-boost findings (from writing PromotionOddsBoostApplierTest)
 

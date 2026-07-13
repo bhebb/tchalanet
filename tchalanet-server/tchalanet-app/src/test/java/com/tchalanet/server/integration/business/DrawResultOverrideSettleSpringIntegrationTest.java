@@ -2,6 +2,7 @@ package com.tchalanet.server.integration.business;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.tchalanet.server.core.draw.api.command.ApplyExternalResultsWindowCommand;
 import com.tchalanet.server.core.draw.api.command.CloseDueDrawsCommand;
@@ -78,6 +79,17 @@ class DrawResultOverrideSettleSpringIntegrationTest extends BusinessRuntimeInteg
         withContext(tenantAdminContext, () -> commandBus.execute(
             new SettleDrawCommand(List.of(drawId), "e2e settle", false)));
         assertThat(status(drawUuid)).as("RESULTED→SETTLED").isEqualTo("SETTLED");
+        var settledAt = settledAt(drawUuid);
+        assertThat(settledAt).isNotNull();
+
+        // Money safety: replaying settle must NOT double-settle. settle is legal only
+        // from RESULTED, so a replay on the now-SETTLED draw is rejected (SETTLED→SETTLED)
+        // and the draw stays settled exactly once (settled_at unchanged).
+        assertThatThrownBy(() -> withContext(tenantAdminContext, () -> commandBus.execute(
+            new SettleDrawCommand(List.of(drawId), "e2e settle replay", false))))
+            .isInstanceOf(RuntimeException.class);
+        assertThat(status(drawUuid)).as("still SETTLED after replay").isEqualTo("SETTLED");
+        assertThat(settledAt(drawUuid)).as("settled_at unchanged — not re-settled").isEqualTo(settledAt);
     }
 
     private String status(UUID drawUuid) {
@@ -86,5 +98,9 @@ class DrawResultOverrideSettleSpringIntegrationTest extends BusinessRuntimeInteg
 
     private UUID drawResultId(UUID drawUuid) {
         return jdbc.queryForObject("select draw_result_id from draw where id = ?", UUID.class, drawUuid);
+    }
+
+    private java.sql.Timestamp settledAt(UUID drawUuid) {
+        return jdbc.queryForObject("select settled_at from draw where id = ?", java.sql.Timestamp.class, drawUuid);
     }
 }
