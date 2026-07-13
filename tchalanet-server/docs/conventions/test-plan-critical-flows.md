@@ -96,8 +96,18 @@ transition matrix here (3a owns it).
   `ApplyExternalResultsWindowCommandHandler` → `ConfirmDrawResultCommandHandler`:
   CLOSED + results → `RESULTED`; **idempotent replay = one result, one settlement
   basis**, stats persisted.
-- **settle** — `SettleDrawCommandHandler`: RESULTED → `SETTLED`, ticket settlement
-  statuses derived, payout basis persisted; replay does not double-settle.
+- **settle** `[unit-covered, IT remaining]` — `Draw.settle()` precondition proven
+  at unit level by `DrawTest` (legal only from RESULTED; CLOSED→SETTLED and
+  double-settle rejected). `SettleDrawCommandHandler` also requires a **CONFIRMED**
+  `draw_result`. Full IT (RESULTED+CONFIRMED → SETTLED, no double-settle, event
+  published) remains — it needs the multi-module result-apply orchestration below.
+
+> **Reaching RESULTED is a multi-module orchestration**, not a single command:
+> `RecordManualDrawResultCommandHandler` (drawresult) writes a `draw_result`
+> (CONFIRMED), then a sales/apply step (`RecordDrawTicketsResultCommandHandler` /
+> `DrawApplyJdbcRepository`) links it to the draw and transitions
+> `CLOSED → RESULTED`. The apply→settle IT is a focused follow-up; the settle
+> *decision* is already unit-proven.
 
 ### 3c. Batch infrastructure — bulletproof once (shared plumbing)
 
@@ -162,6 +172,19 @@ Append as found. Format: **[state]** claim — evidence — proposed action.
   legitimately not yet due at that instant. No draws are dropped. Lesson for the
   settle test: assert directional invariants, and remember cutoff is UTC — don't
   equate command-result counts to a fixed number.
+
+### Domain findings (from writing DrawTest)
+
+- **[TO-VERIFY — likely dead code] `Draw.applyResult` inner "already has result"
+  guard is unreachable.** `applyResult` runs `DrawStatusTransition.check(status,
+  RESULTED)` **before** the `if (drawResultId != null) throw
+  DrawInvalidResultException` guard. A draw only has a `drawResultId` once it is
+  RESULTED (applyResult sets both together, nothing sets the id while leaving
+  RESULTED), and RESULTED→RESULTED is illegal — so the transition check always
+  fires first and `DrawInvalidResultException` from this path can never be thrown.
+  **Action**: confirm no other caller reaches it; if none, remove the dead guard or
+  reorder so the more specific exception wins. `DrawTest` asserts the real behavior
+  (IllegalStateException) meanwhile.
 
 ### Architecture-test findings (from reviewing `arch/` + `architecture/`)
 
