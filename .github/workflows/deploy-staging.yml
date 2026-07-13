@@ -60,7 +60,7 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_OWNER: ${{ github.repository_owner }}
+  IMAGE_NAMESPACE: ${{ github.repository }}
 
 jobs:
   compute-tag:
@@ -109,7 +109,7 @@ jobs:
         with:
           context: ./tchalanet-server
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/tchalanet-api:${{ env.IMAGE_TAG }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/tchalanet-api:${{ env.IMAGE_TAG }}
           labels: |
             org.opencontainers.image.source=${{ github.event.repository.html_url }}
             org.opencontainers.image.revision=${{ github.sha }}
@@ -152,7 +152,7 @@ jobs:
         with:
           context: ./tchalanet-edge-service
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/tchalanet-edge:${{ env.IMAGE_TAG }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/tchalanet-edge:${{ env.IMAGE_TAG }}
           labels: |
             org.opencontainers.image.source=${{ github.event.repository.html_url }}
             org.opencontainers.image.revision=${{ github.sha }}
@@ -302,7 +302,7 @@ jobs:
             $DOCKER_BIN network create edge-staging || true
             $DOCKER_BIN network create back-staging || true
 
-            DOCKER_BIN="$DOCKER_BIN" make env-prepare ENV=staging || true
+            DOCKER_BIN="$DOCKER_BIN" make env-merge ENV=staging || true
 
             if [ -z "${{ secrets.DOPPLER_TOKEN_STG }}" ]; then
               echo "DOPPLER_TOKEN_STG manquant" >&2; exit 1
@@ -312,7 +312,7 @@ jobs:
               -e DOPPLER_TOKEN="${{ secrets.DOPPLER_TOKEN_STG }}" \
               -v "$PWD":/work -w /work \
               dopplerhq/cli:3.72 \
-              -lc 'doppler secrets download --format env --project tchalanet --config staging > envs/staging/.secrets && chmod 600 envs/staging/.secrets'
+              -lc 'doppler secrets download --format env --project tchalanet --config stg > envs/staging/.secrets && chmod 600 envs/staging/.secrets'
 
             DOCKER_BIN="$DOCKER_BIN" IMAGE_TAG="${{ env.IMAGE_TAG }}" make deploy ENV=staging || \
             $DOCKER_BIN compose --env-file envs/staging/compose.env \
