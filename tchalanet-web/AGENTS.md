@@ -100,7 +100,7 @@ Page / Component → service métier → TchBackendClient → HttpClient
 - Les services métier injectent `TchBackendClient` (depuis `@tch/api`), pas `HttpClient`.
 - Les pages n'appellent ni `TchBackendClient` ni `HttpClient` directement.
 - Les paths passés à `TchBackendClient` sont des paths logiques sans `/api/v1` (ex. `/public/results`).
-- Les appels hors backend Tchalanet (assets, i18n, Keycloak) conservent `HttpClient` direct.
+- Les appels hors backend Tchalanet (assets, i18n, fournisseurs d'identité) conservent `HttpClient` direct.
 - Voir `libs/api/README.md` pour la référence complète (`TchBackendClient`, raw downloads,
   multipart, suppressShellFeedback, asTenantAdmin).
 

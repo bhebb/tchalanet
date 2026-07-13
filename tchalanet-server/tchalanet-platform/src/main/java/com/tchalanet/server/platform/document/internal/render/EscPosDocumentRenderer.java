@@ -86,6 +86,8 @@ public class EscPosDocumentRenderer implements DocumentRenderer {
             parts.add(escpos.lf());
         }
 
+        appendLines(parts, receipt.postQrLines(), codePage);
+
         parts.add(escpos.feed(3));
         parts.add(escpos.cut());
 

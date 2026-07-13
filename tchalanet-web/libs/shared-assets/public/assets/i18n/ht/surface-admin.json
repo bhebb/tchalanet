@@ -25,12 +25,6 @@
       "draw_channels": "Config kanal",
       "bonuses": "Prim",
       "maryaj_free": "Maryaj gratis",
-      "promotion_free_lines": "Liy gratis",
-      "promotion_boosted_payout": "Gany ogmante",
-      "promotion_waived_fees": "Frè gratis",
-      "active_promotions": "Pwomosyon aktif",
-      "promotion_campaigns": "Tout pwomosyon",
-      "all_promotions": "Tout pwomosyon",
       "today_report": "Rapò jodi a",
       "export_print": "Ekspòtasyon / enprime",
       "more": "Plis",
@@ -77,11 +71,12 @@
       "controls_games": "Jeux & tarifs",
       "controls_gains": "Gains à payer",
       "controls_commissions": "Commissions",
-      "reports_sales": "Ventes",
+      "reports_overview": "Apèsi",
+      "reports_daily": "Jounen",
+      "reports_sales": "Tikè",
       "reports_sellers": "Vendeurs",
       "reports_draws": "Tirages",
       "reports_financials": "Financials",
-      "reports_exports": "Exportations",
       "tickets_section": "Tickets",
       "tickets_overview": "Apèsi",
       "tickets_list": "Liste des tickets",
@@ -165,7 +160,8 @@
           "codeDesc": "Kòd Z-A"
         },
         "actions": {
-          "sell": "Vann yon tikè"
+          "sell": "Vann yon tikè",
+          "reprint": "Reenprime"
         },
         "columns": {
           "code": "Kòd",
@@ -173,7 +169,8 @@
           "channel": "Kanal",
           "draw": "Tiraj",
           "amount": "Montan",
-          "placedAt": "Emèt le"
+          "placedAt": "Emèt le",
+          "actions": "Aksyon"
         }
       },
       "overview": {

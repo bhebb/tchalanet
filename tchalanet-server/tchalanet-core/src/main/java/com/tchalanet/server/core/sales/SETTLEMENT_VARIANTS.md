@@ -181,8 +181,8 @@ Option supportée non gagnante = LOST
 
 ## 5. Persistance & exposition API
 
-**Décision (task 3.3) : la variante calculée n'est PAS persistée.** Le payout est déjà figé au
-moment de la vente via le snapshot odds/potentialPayout ; la variante est purement informative
+**Décision (task 3.3) : la variante calculée n'est PAS persistée.** Le gain réalisé est calculé
+au settlement depuis le snapshot de vente ; la variante est purement informative
 (audit/support). Elle est donc **recalculée à la demande**, sans colonne `ticket_line`, sans
 migration Flyway.
 

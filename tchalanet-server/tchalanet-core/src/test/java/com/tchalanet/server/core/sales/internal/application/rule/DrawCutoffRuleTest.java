@@ -28,6 +28,7 @@ class DrawCutoffRuleTest {
     private static final ZoneId UTC = ZoneId.of("UTC");
     private static final TenantId TENANT = TenantId.of(UUID.randomUUID());
     private static final DrawChannelId CHANNEL = DrawChannelId.of(UUID.randomUUID());
+    private static final DrawChannelId OTHER_CHANNEL = DrawChannelId.of(UUID.randomUUID());
     private static final DrawId DRAW = DrawId.of(UUID.randomUUID());
 
     private static final Instant CUTOFF = Instant.parse("2026-05-20T14:00:00Z");
@@ -35,6 +36,10 @@ class DrawCutoffRuleTest {
 
     /** Builds a rule with a fixed clock set to the given instant. */
     private DrawCutoffRule ruleAt(Instant now) {
+        return ruleAt(now, makeOpenDraw());
+    }
+
+    private DrawCutoffRule ruleAt(Instant now, DrawSummary draw) {
         var clock = Clock.fixed(now, UTC);
         var timeProvider = new TimeProvider(clock);
         QueryBus queryBus = new QueryBus() {
@@ -42,7 +47,7 @@ class DrawCutoffRuleTest {
             @SuppressWarnings("unchecked")
             public <R> R ask(com.tchalanet.server.common.bus.Query<R> query) {
                 if (query instanceof GetDrawByIdQuery q && q.id().equals(DRAW)) {
-                    return (R) makeOpenDraw();
+                    return (R) draw;
                 }
                 throw new UnsupportedOperationException("unexpected query: " + query);
             }
@@ -56,7 +61,7 @@ class DrawCutoffRuleTest {
             SCHEDULED, Instant.parse("2026-05-20T08:00:00Z"),
             null, CUTOFF, null, null,
             CHANNEL, "MID", "Midi", null, "America/Port-au-Prince", true,
-            null, null, null, null, null, false,
+            null, null, null, null, null, true,
             null);
     }
 
@@ -77,6 +82,13 @@ class DrawCutoffRuleTest {
         void oneMinuteBefore() {
             var rule = ruleAt(CUTOFF.minusSeconds(60));
             assertThat(rule.requireBeforeCutoff(DRAW)).isNotNull();
+        }
+
+        @Test
+        @DisplayName("matching draw channel — allowed")
+        void matchingChannel() {
+            var rule = ruleAt(CUTOFF.minusSeconds(1));
+            assertThat(rule.requireBeforeCutoff(DRAW, CHANNEL).drawChannelId()).isEqualTo(CHANNEL);
         }
     }
 
@@ -107,5 +119,62 @@ class DrawCutoffRuleTest {
             assertThatThrownBy(() -> rule.requireBeforeCutoff(DRAW))
                 .isInstanceOf(ProblemRestException.class);
         }
+    }
+
+    @Nested
+    @DisplayName("Draw sellability")
+    class DrawSellability {
+
+        @Test
+        @DisplayName("closed draw — rejected")
+        void closedDraw() {
+            var rule = ruleAt(CUTOFF.minusSeconds(1), makeDraw(DrawStatus.CLOSED, true, CHANNEL));
+            assertThatThrownBy(() -> rule.requireBeforeCutoff(DRAW))
+                .isInstanceOf(ProblemRestException.class);
+        }
+
+        @Test
+        @DisplayName("inactive draw channel — rejected")
+        void inactiveDrawChannel() {
+            var rule = ruleAt(CUTOFF.minusSeconds(1), makeDraw(DrawStatus.OPEN, false, true, CHANNEL));
+            assertThatThrownBy(() -> rule.requireBeforeCutoff(DRAW))
+                .isInstanceOf(ProblemRestException.class);
+        }
+
+        @Test
+        @DisplayName("inactive result slot — rejected")
+        void inactiveResultSlot() {
+            var rule = ruleAt(CUTOFF.minusSeconds(1), makeDraw(DrawStatus.OPEN, true, false, CHANNEL));
+            assertThatThrownBy(() -> rule.requireBeforeCutoff(DRAW))
+                .isInstanceOf(ProblemRestException.class);
+        }
+
+        @Test
+        @DisplayName("mismatched draw channel — rejected")
+        void mismatchedDrawChannel() {
+            var rule = ruleAt(CUTOFF.minusSeconds(1), makeDraw(DrawStatus.OPEN, true, true, CHANNEL));
+            assertThatThrownBy(() -> rule.requireBeforeCutoff(DRAW, OTHER_CHANNEL))
+                .isInstanceOf(ProblemRestException.class);
+        }
+    }
+
+    private DrawSummary makeDraw(DrawStatus status, boolean drawChannelActive, DrawChannelId channelId) {
+        return makeDraw(status, drawChannelActive, true, channelId);
+    }
+
+    private DrawSummary makeDraw(
+        DrawStatus status,
+        boolean drawChannelActive,
+        boolean resultActive,
+        DrawChannelId channelId
+    ) {
+        return new DrawSummary(
+            DRAW, TENANT, LocalDate.of(2026, 5, 20), status,
+            SCHEDULED, Instant.parse("2026-05-20T08:00:00Z"),
+            status == DrawStatus.OPEN ? null : Instant.parse("2026-05-20T13:50:00Z"),
+            CUTOFF, null, null,
+            channelId, "MID", "Midi", null, "America/Port-au-Prince", drawChannelActive,
+            null, null, null, null, null, resultActive,
+            null);
     }
 }

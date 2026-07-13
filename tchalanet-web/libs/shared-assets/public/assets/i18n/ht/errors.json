@@ -78,6 +78,12 @@
             }
           }
         },
+        "limits": {
+          "blocked": {
+            "title": "Limit vant lan rive",
+            "message": "Vant sa a depase yon limit ki fikse pou tiraj la oswa nimewo a. Diminye miz la, chwazi yon lòt nimewo, oswa retire liy ki konsène a."
+          }
+        },
         "sales": {
           "acceptable": {
             "title": "Vant lan pare",

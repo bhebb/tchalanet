@@ -8,8 +8,10 @@ import com.tchalanet.server.common.http.TchHeaders;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.web.error.ProblemRestException;
+import com.tchalanet.server.platform.accesscontrol.api.SupportAccessApi;
 import com.tchalanet.server.platform.accesscontrol.internal.persistence.repository.TenantUserRoleJpaRepository;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,6 +30,7 @@ class EffectiveTenantResolverTest {
     private static final Set<String> WITH_OVERRIDE_PERM = Set.of("platform.tenant.override");
 
     @Mock private TenantUserRoleJpaRepository tenantUserRoleRepository;
+    @Mock private SupportAccessApi supportAccess;
 
     @InjectMocks
     private EffectiveTenantResolver resolver;
@@ -86,6 +89,8 @@ class EffectiveTenantResolverTest {
 
     @Test
     void superAdmin_noOverride_resolvesNone() {
+        when(supportAccess.currentTenant(USER)).thenReturn(Optional.empty());
+
         var result = resolver.resolveForAppUser(new MockHttpServletRequest(), USER, true, Set.of());
 
         assertThat(result.tenantId()).isNull();

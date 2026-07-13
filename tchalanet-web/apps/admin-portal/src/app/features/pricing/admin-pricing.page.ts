@@ -55,6 +55,8 @@ export class AdminPricingPage {
       betType: row.betType,
       betOption: row.betOption,
       odds: row.odds,
+      payoutRuleLabel: this.payoutRuleLabel(row.payoutRuleType ?? 'STAKE_MULTIPLIER'),
+      payoutValue: this.payoutValue(row),
       statusLabel: this.translate.instant(row.active ? 'common.enabled' : 'common.disabled'),
       statusTone: row.active ? 'success' : 'neutral',
       actions: [
@@ -90,5 +92,16 @@ export class AdminPricingPage {
       if (!req) return;
       this.saveOdds.execute(req, { key: `${req.gameCode}:${req.pricingVariantCode}` });
     });
+  }
+
+  private payoutRuleLabel(ruleType: string): string {
+    return this.translate.instant(`console.pricingForm.payoutRuleType.${ruleType}`);
+  }
+
+  private payoutValue(row: { payoutRuleType?: string | null; fixedAmount?: number | null; odds?: number | null }): string {
+    if (row.payoutRuleType === 'FIXED_AMOUNT') {
+      return row.fixedAmount === null || row.fixedAmount === undefined ? '—' : `${row.fixedAmount}`;
+    }
+    return row.odds === null || row.odds === undefined ? '—' : `×${row.odds}`;
   }
 }

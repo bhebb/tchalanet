@@ -96,9 +96,14 @@ public class PrepareSaleCommandHandler
                 line.betType().name(),
                 line.betOption(),
                 line.selection().key().value(),
-                line.payoutBaseAmount().amount(),
+                line.selectionSource(),
+                effect == null ? null : effect.choiceMode(),
                 line.promotionDecisionId() == null ? null : line.promotionDecisionId().value(),
                 effect == null || effect.ruleId() == null ? null : effect.ruleId().value(),
+                effect == null ? null : effect.ruleKey(),
+                line.promotionEffectType(),
+                decision == null ? null : decision.contextHash(),
+                decision == null ? null : decision.engineVersion(),
                 effect != null && effect.regenerableBeforeConfirm(),
                 effect == null
                     ? PromotionEffect.DEFAULT_MAX_REGENERATIONS

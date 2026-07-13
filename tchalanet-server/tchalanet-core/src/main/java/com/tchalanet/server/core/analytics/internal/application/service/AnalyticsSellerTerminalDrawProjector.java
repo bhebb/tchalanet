@@ -61,9 +61,6 @@ public class AnalyticsSellerTerminalDrawProjector {
     entity.setWaivedChargeCents(entity.getWaivedChargeCents() + charges.waivedCents());
     entity.setPromotionLineCount(entity.getPromotionLineCount() + promotions.lineCount());
     entity.setPromotionPricedLineCount(entity.getPromotionPricedLineCount() + promotions.pricedLineCount());
-    entity.setPromotionPayoutBaseCents(entity.getPromotionPayoutBaseCents() + promotions.payoutBaseCents());
-    entity.setPromotionPotentialPayoutCents(
-        entity.getPromotionPotentialPayoutCents() + promotions.potentialPayoutCents());
     entity.setNetRevenueEstimatedCents(
         entity.getNetRevenueEstimatedCents() + stakeCents - sellerCommissionCents - charges.tenantCents());
     entity.setNetRevenuePaidBasisCents(
@@ -182,8 +179,6 @@ public class AnalyticsSellerTerminalDrawProjector {
             .waivedChargeCents(0L)
             .promotionLineCount(0L)
             .promotionPricedLineCount(0L)
-            .promotionPayoutBaseCents(0L)
-            .promotionPotentialPayoutCents(0L)
             .netRevenueEstimatedCents(0L)
             .netRevenuePaidBasisCents(0L)
             .createdAt(now)

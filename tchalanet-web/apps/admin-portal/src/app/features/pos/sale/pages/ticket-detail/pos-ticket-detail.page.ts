@@ -2,14 +2,18 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateService } from '@ngx-translate/core';
 import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
-import { TchErrorPanel, TchLoading } from '@tch/ui/components';
+import { TchErrorPanel, TchGameSelectionChip, TchLoading, TchNotice } from '@tch/ui/components';
 import { AdminPageShellComponent, AdminSectionCardComponent, AdminStatusPillComponent, AdminStatusTone } from '@tch/ui/console';
 import { consoleTicketDrawIdentity } from '@tch/web/console';
 import { ErrorViewModel, resolveErrorFeedbackCopy, toErrorViewModel } from '@tch/web/errors';
+import { Observable, of } from 'rxjs';
+import { map } from 'rxjs/operators';
 
+import { PosSaleSuccessDialogComponent } from '../../components/pos-sale-success-dialog/pos-sale-success-dialog.component';
 import { PosSaleApiService } from '../../data-access/pos-sale-api.service';
 import { PosTicketDetailsView } from '../../data-access/pos-sale.models';
 import {
@@ -30,19 +34,24 @@ import {
     AdminSectionCardComponent,
     AdminStatusPillComponent,
     TchErrorPanel,
+    TchGameSelectionChip,
     TchLoading,
+    TchNotice,
   ],
   templateUrl: './pos-ticket-detail.page.html',
   styleUrls: ['./pos-ticket-detail.page.scss'],
 })
 export class PosTicketDetailPage implements OnInit {
   private readonly api = inject(PosSaleApiService);
+  private readonly dialog = inject(MatDialog);
   private readonly route = inject(ActivatedRoute);
   private readonly translate = inject(TranslateService);
 
   readonly loading = signal(false);
   readonly error = signal<ErrorViewModel | null>(null);
   readonly ticket = signal<PosTicketDetailsView | null>(null);
+  readonly reprinting = signal(false);
+  readonly reprintError = signal<string | null>(null);
 
   readonly title = computed(() => {
     const ticket = this.ticket();
@@ -108,6 +117,87 @@ export class PosTicketDetailPage implements OnInit {
     return ticketStatusTone(status);
   }
 
+  freeLineCount(ticket: PosTicketDetailsView): number {
+    return ticket.lines.filter(line => line.promotional).length;
+  }
+
+  gameLabel(gameCode: string, fallback?: string | null): string {
+    const normalizedCode = normalizeGameCode(gameCode);
+    const key = `common.game.${normalizedCode}`;
+    const translated = this.translate.instant(key);
+    if (translated !== key) return translated;
+
+    const cleanFallback = fallback?.trim();
+    return cleanFallback && cleanFallback !== gameCode ? cleanFallback : gameCode;
+  }
+
+  promotionLabel(label?: string | null): string {
+    const clean = label?.trim();
+    if (!clean) return this.translate.instant('common.receipt.promotion.applied');
+
+    const key = clean.startsWith('receipt.') ? `common.${clean}` : clean;
+    const translated = this.translate.instant(key);
+    return translated !== key ? translated : clean;
+  }
+
+  canReprint(ticket: PosTicketDetailsView): boolean {
+    return (!!this.sellerTerminalId(ticket) || !!ticket.terminalCode) && !this.reprinting();
+  }
+
+  reprint(ticket: PosTicketDetailsView): void {
+    if (!this.canReprint(ticket)) return;
+
+    this.reprinting.set(true);
+    this.reprintError.set(null);
+
+    this.resolveSellerTerminalId(ticket).subscribe({
+      next: sellerTerminalId => {
+        if (!sellerTerminalId) {
+          this.reprintError.set(this.reprintFailureMessage(new Error('seller-terminal-id-missing')));
+          this.reprinting.set(false);
+          return;
+        }
+        this.dialog.open(PosSaleSuccessDialogComponent, {
+          width: 'min(42rem, calc(100vw - 2rem))',
+          data: {
+            mode: 'ticket-actions',
+            sellerTerminalId,
+            totalAmount: ticket.totalAmountCents / 100,
+            currency: ticket.currency,
+            lineCount: ticket.lines.length,
+            freeLineCount: ticket.lines.filter(line => line.promotional).length,
+            ticket: {
+              ticketId: ticket.id,
+              ticketCode: ticket.ticketCode,
+              publicCode: ticket.publicCode,
+              actionAvailability: {
+                canSell: false,
+                canPrint: true,
+                canSendSms: false,
+                canSendWhatsapp: false,
+                canSendEmail: false,
+                canCopy: true,
+              },
+            },
+          },
+        });
+        this.reprinting.set(false);
+      },
+      error: err => {
+        this.reprintError.set(this.reprintFailureMessage(err));
+        this.reprinting.set(false);
+      },
+    });
+  }
+
+  reprintDisabledReason(ticket: PosTicketDetailsView): string | null {
+    if (this.reprinting()) return 'Réimpression en cours.';
+    if (!this.sellerTerminalId(ticket) && !ticket.terminalCode) {
+      return 'Réimpression indisponible : terminal vendeur non identifié.';
+    }
+    return null;
+  }
+
   private errorViewModel(err: unknown, source: string): ErrorViewModel {
     const problem = (err as { error?: ProblemDetail })?.error;
     if (problem) {
@@ -122,4 +212,56 @@ export class PosTicketDetailPage implements OnInit {
       severity: 'error',
     };
   }
+
+  private sellerTerminalId(ticket: PosTicketDetailsView): string | null {
+    const value = ticket.sellerTerminalId;
+    if (typeof value === 'string') return value;
+    return value?.value ?? null;
+  }
+
+  private resolveSellerTerminalId(ticket: PosTicketDetailsView): Observable<string | null> {
+    const direct = this.sellerTerminalId(ticket);
+    if (direct) return of(direct);
+
+    const terminalCode = ticket.terminalCode?.trim();
+    if (!terminalCode) return of(null);
+
+    return this.api.listSellerTerminalsForSale(
+      { q: terminalCode, page: 0, size: 20 },
+      { suppressShellFeedback: true },
+    ).pipe(
+      map(page => {
+        const normalizedTerminalCode = normalizeTerminalCode(terminalCode);
+        return (
+          page.items.find(item => normalizeTerminalCode(item.terminalCode) === normalizedTerminalCode)
+            ?.sellerTerminalId ?? null
+        );
+      }),
+    );
+  }
+
+  private reprintFailureMessage(err: unknown): string {
+    if (err instanceof Error && err.message === 'seller-terminal-id-missing') {
+      const terminalCode = this.ticket()?.terminalCode?.trim();
+      return terminalCode
+        ? `Réimpression indisponible : le terminal vendeur ${terminalCode} est introuvable.`
+        : 'Réimpression indisponible : terminal vendeur non identifié.';
+    }
+
+    return 'Réimpression impossible pour ce ticket. Vérifiez le terminal vendeur ou réessayez.';
+  }
+}
+
+function normalizeTerminalCode(value: string): string {
+  return value.trim().toUpperCase();
+}
+
+function normalizeGameCode(value: string): string {
+  const code = value.trim().toUpperCase();
+  if (code === 'BORLETTE') return 'HT_BOLET';
+  if (code === 'HT_LOTO_3') return 'HT_LOTO3';
+  if (code === 'HT_LOTO_4') return 'HT_LOTO4';
+  if (code === 'HT_LOTO_5') return 'HT_LOTO5';
+  if (code === 'HT_MARYAJ_GRATUIT') return 'HT_MARYAJ_GRATIS';
+  return code;
 }

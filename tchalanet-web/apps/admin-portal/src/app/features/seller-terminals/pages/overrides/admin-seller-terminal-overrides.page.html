@@ -1,0 +1,114 @@
+<tch-admin-page-shell
+  title="Overrides vendeur"
+  description="Barèmes spécifiques appliqués à ce seller-terminal. Les ventes futures utilisent l'override actif; les tickets déjà vendus gardent leur snapshot."
+>
+  <div actions>
+    <a mat-stroked-button [routerLink]="['/app/admin/sellers', sellerTerminalId]">
+      <mat-icon>arrow_back</mat-icon>
+      Retour vendeur
+    </a>
+  </div>
+
+  @switch (state()) {
+    @case ('loading') {
+      <tch-loading label="Chargement des overrides..." />
+    }
+    @case ('error') {
+      <tch-error-panel
+        title="Overrides indisponibles"
+        message="Impossible de charger les barèmes et overrides de ce vendeur."
+        [showRetry]="true"
+        retryLabel="Réessayer"
+        (retry)="load()"
+      />
+    }
+    @case ('ready') {
+      @if (groups().length === 0) {
+        <tch-empty-state
+          icon="percent"
+          title="Aucun barème tenant"
+          message="Configurez d'abord les barèmes globaux avant de créer un override vendeur."
+        />
+      } @else {
+        <div class="seller-overrides">
+          @for (group of groups(); track group.gameCode) {
+            <tch-admin-section-card
+              [title]="group.gameLabel"
+              [description]="group.gameCode"
+              icon="tune"
+            >
+              <div class="seller-overrides__rows">
+                @for (row of group.rows; track rowKey(row)) {
+                  <article class="seller-overrides__row" [class.seller-overrides__row--active]="hasOverride(row)">
+                    <div class="seller-overrides__identity">
+                      <strong>{{ betTypeLabel(row.betType) }}</strong>
+                      <span>{{ optionLabel(row) }}</span>
+                    </div>
+
+                    <div class="seller-overrides__fact">
+                      <span>Tenant</span>
+                      <strong>
+                        @if (tenantValue(row) === null) {
+                          -
+                        } @else {
+                          {{ tenantValue(row) | number:'1.0-2' }}
+                        }
+                      </strong>
+                    </div>
+
+                    <label class="seller-overrides__field">
+                      <span>{{ payoutKindLabel(row) }}</span>
+                      <input
+                        type="number"
+                        min="0"
+                        step="1"
+                        [placeholder]="tenantPlaceholder(row)"
+                        [ngModel]="draftValue(row)"
+                        (ngModelChange)="setDraftValue(row, $event)"
+                      />
+                    </label>
+
+                    <div class="seller-overrides__status">
+                      @if (hasOverride(row)) {
+                        <span class="seller-overrides__badge seller-overrides__badge--override">Override actif</span>
+                      } @else {
+                        <span class="seller-overrides__badge">Hérite du tenant</span>
+                      }
+                      @if (errorFor(row); as err) {
+                        <span class="seller-overrides__error">{{ err }}</span>
+                      }
+                    </div>
+
+                    <div class="seller-overrides__actions">
+                      <button
+                        mat-flat-button
+                        color="primary"
+                        type="button"
+                        [disabled]="isSaving(row)"
+                        (click)="save(row)"
+                      >
+                        <mat-icon>save</mat-icon>
+                        Enregistrer
+                      </button>
+                      @if (hasOverride(row)) {
+                        <button
+                          mat-stroked-button
+                          type="button"
+                          [disabled]="isSaving(row)"
+                          (click)="remove(row)"
+                        >
+                          <mat-icon>undo</mat-icon>
+                          Revenir tenant
+                        </button>
+                      }
+                    </div>
+                  </article>
+                }
+              </div>
+            </tch-admin-section-card>
+          }
+        </div>
+      }
+    }
+  }
+</tch-admin-page-shell>

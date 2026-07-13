@@ -2,6 +2,7 @@ package com.tchalanet.server.core.subscription.internal.domain.model;
 
 import com.tchalanet.server.common.types.id.SubscriptionId;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.core.subscription.api.model.SubscriptionStatus;
 
 import java.time.Instant;
 import java.util.HashMap;

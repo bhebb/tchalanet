@@ -1,0 +1,109 @@
+<tch-admin-page-shell
+  [title]="'admin.reports.sellers.title' | translate"
+  [description]="'admin.reports.sellers.description' | translate"
+>
+  <tch-async-view
+    [resource]="sellers"
+    [error]="sellersError()"
+    [loadingLabel]="'admin.reports.sellers.loading' | translate"
+    [retryLabel]="'common.retry' | translate"
+    (retry)="sellers.reload()"
+  >
+    <ng-template tchAsyncReady>
+      @if (sellers.value(); as vm) {
+        <header class="report-sellers__toolbar">
+          <div>
+            <span>{{ 'admin.reports.common.period' | translate }}</span>
+            <strong>{{ vm.from | date:'mediumDate' }} - {{ vm.to | date:'mediumDate' }}</strong>
+          </div>
+          <div class="report-sellers__actions">
+            <a mat-button routerLink="/app/admin/reports/overview">
+              <mat-icon aria-hidden="true">arrow_back</mat-icon>
+              {{ 'admin.reports.common.overview' | translate }}
+            </a>
+            <button type="button" mat-button (click)="printReport()">
+              <mat-icon aria-hidden="true">print</mat-icon>
+              {{ 'admin.reports.sellers.action.print' | translate }}
+            </button>
+            <button type="button" mat-button (click)="exportCsv(vm)">
+              <mat-icon aria-hidden="true">download</mat-icon>
+              {{ 'admin.reports.sellers.action.exportCsv' | translate }}
+            </button>
+            <button type="button" mat-stroked-button (click)="reload()">
+              <mat-icon aria-hidden="true">refresh</mat-icon>
+              {{ 'admin.reports.common.refresh' | translate }}
+            </button>
+          </div>
+        </header>
+
+        <tch-seller-report-filter-bar
+          [from]="fromFilter()"
+          [to]="toFilter()"
+          [sort]="sortFilter()"
+          [sortOptions]="sortOptions"
+          [searchSellers]="searchSellers"
+          (fromChange)="onFromFilter($event)"
+          (toChange)="onToFilter($event)"
+          (sellersChange)="onSellersFilter($event)"
+          (sortChange)="onSortFilter($event)"
+        />
+
+        <section class="report-sellers__kpis" [attr.aria-label]="'admin.reports.sellers.kpisAria' | translate">
+          <tch-report-metric-card
+            [label]="'admin.reports.common.ticketsSold' | translate"
+            [value]="(vm.summary.ticketsSold | number) ?? '0'"
+          />
+          <tch-report-metric-card
+            [label]="'admin.reports.common.grossSales' | translate"
+            [value]="amountDisplay(vm.summary.grossSales) + ' ' + currency"
+          />
+          <tch-report-metric-card
+            [label]="'admin.reports.common.sellerCommission' | translate"
+            [value]="amountDisplay(vm.summary.sellerCommission) + ' ' + currency"
+            [hint]="(commissionRatePercent(vm) | number:'1.0-1') + '%'"
+          />
+          <tch-report-metric-card
+            [label]="'admin.reports.common.netRevenue' | translate"
+            [value]="amountDisplay(vm.summary.netRevenueEstimated) + ' ' + currency"
+          />
+        </section>
+
+        <tch-admin-section-card [title]="'admin.reports.sellers.rowsTitle' | translate" icon="point_of_sale">
+          @if (vm.rows.length === 0) {
+            <tch-admin-empty-state
+              icon="point_of_sale"
+              [title]="'admin.reports.sellers.emptyTitle' | translate"
+              [message]="'admin.reports.sellers.emptyMessage' | translate"
+            />
+          } @else {
+            <div class="report-sellers__table">
+              <div class="report-sellers__header" aria-hidden="true">
+                <span>{{ 'admin.reports.sellers.column.seller' | translate }}</span>
+                <span>{{ 'admin.reports.sellers.column.status' | translate }}</span>
+                <span>{{ 'admin.reports.sellers.column.tickets' | translate }}</span>
+                <span>{{ 'admin.reports.sellers.column.sales' | translate }}</span>
+                <span>{{ 'admin.reports.sellers.column.commission' | translate }}</span>
+                <span>{{ 'admin.reports.sellers.column.net' | translate }}</span>
+                <span>{{ 'admin.reports.sellers.column.averageDraw' | translate }}</span>
+              </div>
+              @for (row of sortedRows(vm.rows); track sellerRowKey(row)) {
+                <div class="report-sellers__row">
+                  <div class="report-sellers__identity">
+                    <strong>{{ sellerLabel(row) }}</strong>
+                    <span>{{ sellerSubtitle(row) || (row.refDate | date:'mediumDate') }}</span>
+                  </div>
+                  <span>{{ sellerStatus(row) }}</span>
+                  <span>{{ row.ticketsSold | number }}</span>
+                  <strong>{{ amountDisplay(row.grossSales) }} {{ currency }}</strong>
+                  <span>{{ amountDisplay(row.sellerCommission) }} {{ currency }}</span>
+                  <span>{{ amountDisplay(row.netRevenueEstimated) }} {{ currency }}</span>
+                  <span>{{ amountDisplay(row.averageGrossSalesPerDraw) }} {{ currency }}</span>
+                </div>
+              }
+            </div>
+          }
+        </tch-admin-section-card>
+      }
+    </ng-template>
+  </tch-async-view>
+</tch-admin-page-shell>

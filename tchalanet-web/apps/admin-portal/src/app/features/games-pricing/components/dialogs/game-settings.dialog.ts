@@ -90,7 +90,7 @@ export class GameSettingsDialog {
   });
   readonly form = form(this.model);
   readonly betOptionConfig = signal<TenantGameBetOptionConfigView | null>(null);
-  readonly pricingGroups = signal<readonly TenantGameOddGroupView[]>(this.data.game.betOptionGroups ?? []);
+  readonly pricingGroups = signal<readonly TenantGameOddGroupView[]>(this.toPricingGroups(this.data.game.betOptionGroups ?? []));
   readonly betOptionLoading = signal(true);
   readonly betOptionLoadFailed = signal(false);
   readonly showSalesOptions = computed(() => {
@@ -101,6 +101,7 @@ export class GameSettingsDialog {
   readonly selectionPolicies: readonly TenantGameSelectionPolicy[] = [
     'EXPLICIT_ONLY',
     'EXPLICIT_WITH_AUTO_OPTION',
+    'IMPLICIT_BEST_MATCH',
   ];
 
   readonly saveSettings = tchMutation<SaveGameConfigRequest, void>({
@@ -192,9 +193,55 @@ export class GameSettingsDialog {
     this.setPricingOdds(groupId, pricingVariantCode, odds);
   }
 
+  updatePricingRuleType(
+    groupId: string,
+    pricingVariantCode: string | null,
+    payoutRuleType: 'STAKE_MULTIPLIER' | 'FIXED_AMOUNT',
+  ): void {
+    if (!pricingVariantCode) return;
+    this.pricingGroups.update(groups => groups.map(group => {
+      if (group.id !== groupId) return group;
+      return {
+        ...group,
+        variants: group.variants.map(variant => variant.pricingVariantCode === pricingVariantCode
+          ? {
+              ...variant,
+              payoutRuleType,
+              odds: payoutRuleType === 'FIXED_AMOUNT' ? null : variant.odds,
+              fixedAmount: payoutRuleType === 'STAKE_MULTIPLIER' ? null : variant.fixedAmount,
+              value: payoutRuleType === 'FIXED_AMOUNT'
+                ? (variant.fixedAmount === null || variant.fixedAmount === undefined ? 'Non configuré' : `${variant.fixedAmount}`)
+                : (variant.odds === null || variant.odds === undefined ? 'Non configuré' : `×${variant.odds}`),
+            }
+          : variant),
+      };
+    }));
+  }
+
+  updatePricingFixedAmount(groupId: string, pricingVariantCode: string | null, rawValue: string): void {
+    if (!pricingVariantCode) return;
+    const normalized = rawValue.trim();
+    if (normalized === '') {
+      this.setPricingFixedAmount(groupId, pricingVariantCode, null);
+      return;
+    }
+    const fixedAmount = Number(rawValue);
+    if (!Number.isFinite(fixedAmount) || fixedAmount < 0) return;
+
+    this.setPricingFixedAmount(groupId, pricingVariantCode, fixedAmount);
+  }
+
   clearPricingOdds(groupId: string, pricingVariantCode: string | null): void {
     if (!pricingVariantCode) return;
-    this.setPricingOdds(groupId, pricingVariantCode, null);
+    this.pricingGroups.update(groups => groups.map(group => {
+      if (group.id !== groupId) return group;
+      return {
+        ...group,
+        variants: group.variants.map(variant => variant.pricingVariantCode === pricingVariantCode
+          ? { ...variant, odds: null, fixedAmount: null, value: 'Non configuré' }
+          : variant),
+      };
+    }));
   }
 
   private setPricingOdds(groupId: string, pricingVariantCode: string, odds: number | null): void {
@@ -203,7 +250,25 @@ export class GameSettingsDialog {
       return {
         ...group,
         variants: group.variants.map(variant => variant.pricingVariantCode === pricingVariantCode
-          ? { ...variant, odds, value: odds === null ? 'Non configuré' : `×${odds}` }
+          ? { ...variant, odds, payoutRuleType: 'STAKE_MULTIPLIER', fixedAmount: null, value: odds === null ? 'Non configuré' : `×${odds}` }
+          : variant),
+      };
+    }));
+  }
+
+  private setPricingFixedAmount(groupId: string, pricingVariantCode: string, fixedAmount: number | null): void {
+    this.pricingGroups.update(groups => groups.map(group => {
+      if (group.id !== groupId) return group;
+      return {
+        ...group,
+        variants: group.variants.map(variant => variant.pricingVariantCode === pricingVariantCode
+          ? {
+              ...variant,
+              odds: null,
+              payoutRuleType: 'FIXED_AMOUNT',
+              fixedAmount,
+              value: fixedAmount === null ? 'Non configuré' : `${fixedAmount}`,
+            }
           : variant),
       };
     }));
@@ -295,23 +360,43 @@ export class GameSettingsDialog {
 
   private toPricingOddsRequest(): readonly UpsertTenantOddsRequest[] {
     return this.pricingGroups().flatMap(group => group.variants
-      .filter(variant => variant.pricingVariantCode && variant.odds !== null && variant.odds !== undefined)
+      .filter(variant => variant.pricingVariantCode && this.isPricingConfigured(variant))
       .map(variant => ({
         gameCode: this.data.game.gameCode,
         pricingVariantCode: variant.pricingVariantCode ?? '',
         betType: variant.betType,
         betOption: variant.betOption,
-        odds: variant.odds ?? 0,
+        odds: variant.payoutRuleType === 'FIXED_AMOUNT' ? null : variant.odds,
+        payoutRuleType: variant.payoutRuleType,
+        fixedAmount: variant.payoutRuleType === 'FIXED_AMOUNT' ? variant.fixedAmount : null,
       })));
   }
 
   private toPricingDeleteRequest(): readonly DeleteTenantOddsRequest[] {
     return this.pricingGroups().flatMap(group => group.variants
-      .filter(variant => variant.pricingVariantCode && (variant.odds === null || variant.odds === undefined))
+      .filter(variant => variant.pricingVariantCode && !this.isPricingConfigured(variant))
       .map(variant => ({
         gameCode: this.data.game.gameCode,
         pricingVariantCode: variant.pricingVariantCode ?? '',
       })));
+  }
+
+  private isPricingConfigured(variant: TenantGameOddGroupView['variants'][number]): boolean {
+    if (variant.payoutRuleType === 'FIXED_AMOUNT') {
+      return variant.fixedAmount !== null && variant.fixedAmount !== undefined;
+    }
+    return variant.odds !== null && variant.odds !== undefined;
+  }
+
+  private toPricingGroups(groups: NonNullable<TenantGameView['betOptionGroups']>): readonly TenantGameOddGroupView[] {
+    return groups.map(group => ({
+      ...group,
+      variants: group.variants.map(variant => ({
+        ...variant,
+        payoutRuleType: variant.payoutRuleType ?? 'STAKE_MULTIPLIER',
+        fixedAmount: variant.fixedAmount ?? null,
+      })),
+    }));
   }
 
   private isSimpleStakeGame(): boolean {

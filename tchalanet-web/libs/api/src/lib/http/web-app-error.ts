@@ -42,7 +42,7 @@ export function webAppErrorFromProblemDetail(
   source: string,
   surface: WebErrorSurface = 'shell',
 ): WebAppError {
-  const code = problem.code ?? problemTypeCode(problem.type);
+  const code = problem.code ?? legacyDetailCode(problem.detail) ?? problemTypeCode(problem.type);
   const category = categoryFromCodeStatus(code, problem.status);
   const severity = problem.status >= 500 || problem.status === 0 ? 'error' : 'warn';
   const resolvedSource = problem.instance ?? source;
@@ -224,6 +224,17 @@ export function webAppErrorFromServiceStatus(
     dedupeKey: dedupeKey(code, category, undefined, resolvedSource, 'shell', undefined, undefined),
   };
 }
+
+function legacyDetailCode(detail: string | undefined): string | undefined {
+  if (!detail) return undefined;
+  const value = detail.trim();
+  return LEGACY_DETAIL_CODES.has(value) ? value : undefined;
+}
+
+const LEGACY_DETAIL_CODES = new Set([
+  // TODO(server): remove once ProblemDetail.code is populated for sale limit blocks.
+  'limits.blocked',
+]);
 
 function categoryFromCodeStatus(
   code: string | undefined,

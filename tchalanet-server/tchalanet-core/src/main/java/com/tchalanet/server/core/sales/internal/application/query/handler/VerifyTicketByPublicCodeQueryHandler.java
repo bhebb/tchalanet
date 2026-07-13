@@ -100,11 +100,6 @@ public class VerifyTicketByPublicCodeQueryHandler
             line.optionLabel(),
             line.displaySelection(),
             line.stake(),
-            line.potentialPayout(),
-            line.potentialGainMode(),
-            line.minPotentialPayout(),
-            line.maxPotentialPayout(),
-            line.totalPotentialPayout(),
             line.promotional(),
             promotionLabel(projection, line)
         );

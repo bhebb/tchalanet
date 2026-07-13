@@ -1,13 +1,15 @@
 package com.tchalanet.server.platform.tenant.internal.mapper;
 
 import com.tchalanet.server.common.json.utils.JsonUtils;
+import com.tchalanet.server.common.mapper.CommonIdMapper;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.platform.tenant.api.model.TenantStatus;
 import com.tchalanet.server.platform.tenant.api.model.TenantType;
 import com.tchalanet.server.platform.tenant.internal.domain.TenantConfig;
 import com.tchalanet.server.platform.tenant.internal.persistence.TenantJpaEntity;
 import org.junit.jupiter.api.Test;
-import org.mapstruct.factory.Mappers;
+import org.springframework.test.util.ReflectionTestUtils;
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.time.ZoneId;
@@ -18,8 +20,24 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class TenantMapperTest {
 
-    private static final TenantMapper MAPPER = Mappers.getMapper(TenantMapper.class);
+    private static final TenantMapper MAPPER = tenantMapper();
     private static final JsonUtils JSON = new JsonUtils(JsonMapper.builder().build());
+
+    private static TenantMapper tenantMapper() {
+        var mapper = new TenantMapperImpl() {
+            @Override
+            public JsonNode readConfig(String raw) {
+                return raw == null || raw.isBlank() ? null : JSON.parse(raw);
+            }
+
+            @Override
+            public String writeConfig(JsonNode node) {
+                return node == null ? "{}" : JSON.toJson(node);
+            }
+        };
+        ReflectionTestUtils.setField(mapper, "commonIdMapper", new CommonIdMapper());
+        return mapper;
+    }
 
     @Test
     void toEntityPersistsProvisionedTenantConfigJson() {

@@ -103,12 +103,16 @@ public class DrawSummaryPersistenceAdapter implements DrawSummaryReaderPort {
 
         Instant until = now.plusSeconds((long) lookaheadHours * 3600);
 
+        var statuses = criteria.status() == null
+            ? List.of(DrawStatus.SCHEDULED, DrawStatus.OPEN)
+            : List.of(criteria.status());
+
         var page = repo.next(
             tenantId.value(),
             criteria.resultSlotId() == null ? null : criteria.resultSlotId().value(),
             now,
             until,
-            List.of(DrawStatus.SCHEDULED, DrawStatus.OPEN),
+            statuses,
             pageable
         );
 

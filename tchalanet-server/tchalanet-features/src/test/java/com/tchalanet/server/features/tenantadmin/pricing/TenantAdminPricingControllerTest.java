@@ -21,11 +21,11 @@ class TenantAdminPricingControllerTest {
     @Test
     void tenantPricingMutationsAreAudited() throws NoSuchMethodException {
         var upsert = TenantAdminPricingController.class
-            .getMethod("upsert", TenantAdminPricingController.UpsertTenantOddsRequest.class,
+            .getMethod("upsert", TenantAdminPricingController.UpsertTenantPricingRuleRequest.class,
                 com.tchalanet.server.common.context.TchRequestContext.class)
             .getAnnotation(AuditLog.class);
         var delete = TenantAdminPricingController.class
-            .getMethod("delete", TenantAdminPricingController.DeleteTenantOddsRequestBody.class,
+            .getMethod("delete", TenantAdminPricingController.DeleteTenantPricingRuleRequestBody.class,
                 com.tchalanet.server.common.context.TchRequestContext.class)
             .getAnnotation(AuditLog.class);
 

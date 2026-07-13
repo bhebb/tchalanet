@@ -145,8 +145,166 @@
     },
     "reports": {
       "title": "Reports",
+      "common": {
+        "grossSales": "Gross sales",
+        "overview": "Overview",
+        "payoutsPaid": "Payouts paid",
+        "period": "Reporting period",
+        "refresh": "Refresh",
+        "sellerCommission": "Seller commission",
+        "ticketsSold": "Tickets sold",
+        "ticketSuffix": "tickets"
+      },
+      "overview": {
+        "title": "Reports overview",
+        "description": "Sales, payouts and estimated revenue for the current tenant.",
+        "loading": "Loading reports...",
+        "period": {
+          "label": "Reporting period"
+        },
+        "action": {
+          "refresh": "Refresh",
+          "viewDaily": "Daily report",
+          "viewDraws": "Draw report",
+          "viewSellers": "Seller report"
+        },
+        "kpis": {
+          "aria": "Reports summary",
+          "ticketsSold": "Tickets sold",
+          "grossSales": "Gross sales",
+          "payoutsPaid": "Payouts paid",
+          "netRevenue": "Estimated net revenue"
+        },
+        "daily": {
+          "title": "Daily activity",
+          "emptyTitle": "No daily activity",
+          "emptyMessage": "No sales activity was found for this period."
+        },
+        "draws": {
+          "title": "Top draws",
+          "emptyTitle": "No draw sales",
+          "emptyMessage": "Draw sales will appear here once tickets are sold."
+        },
+        "topDraws": {
+          "title": "Draws with most tickets"
+        },
+        "topSelections": {
+          "title": "Most sold numbers",
+          "emptyTitle": "No number activity",
+          "emptyMessage": "Sold numbers will appear here once ticket lines are sold."
+        },
+        "sellers": {
+          "title": "Top seller terminals",
+          "emptyTitle": "No seller activity",
+          "emptyMessage": "Seller performance will appear here once tickets are sold."
+        }
+      },
       "today": {
         "title": "Daily report"
+      },
+      "daily": {
+        "title": "Daily report",
+        "description": "All sales activity for the selected day or period.",
+        "loading": "Loading daily report...",
+        "kpisAria": "Daily report summary",
+        "chartTitle": "Sales trend",
+        "rowsTitle": "Daily rows",
+        "emptyTitle": "No daily activity",
+        "emptyMessage": "No sales activity was found for this period.",
+        "action": {
+          "print": "Print",
+          "exportCsv": "Export CSV"
+        },
+        "filters": {
+          "aria": "Daily report filters",
+          "from": "From",
+          "to": "To"
+        },
+        "column": {
+          "date": "Date",
+          "tickets": "Tickets",
+          "sales": "Sales",
+          "payouts": "Payouts",
+          "net": "Estimated net"
+        }
+      },
+      "draws": {
+        "title": "Draw report",
+        "description": "Sales, payouts and estimated revenue grouped by draw.",
+        "loading": "Loading draw report...",
+        "kpisAria": "Draw report summary",
+        "rowsTitle": "Draw rows",
+        "emptyTitle": "No draw sales",
+        "emptyMessage": "Draw sales will appear here once tickets are sold.",
+        "action": {
+          "print": "Print",
+          "exportCsv": "Export CSV"
+        },
+        "filters": {
+          "aria": "Draw report filters",
+          "from": "From",
+          "to": "To",
+          "draws": "Draws",
+          "drawsPlaceholder": "Search California, New York, midday...",
+          "drawsHint": "Select one or several draws to focus the report.",
+          "sort": "Sort"
+        },
+        "sort": {
+          "scheduledDesc": "Newest draw first",
+          "scheduledAsc": "Oldest draw first",
+          "salesDesc": "Sales high to low",
+          "salesAsc": "Sales low to high",
+          "ticketsDesc": "Tickets high to low",
+          "ticketsAsc": "Tickets low to high"
+        },
+        "column": {
+          "draw": "Draw",
+          "tickets": "Tickets",
+          "sales": "Sales",
+          "payouts": "Payouts",
+          "net": "Estimated net"
+        }
+      },
+      "sellers": {
+        "title": "Seller report",
+        "description": "Sales, commissions and estimated revenue grouped by seller terminal.",
+        "loading": "Loading seller report...",
+        "kpisAria": "Seller report summary",
+        "rowsTitle": "Seller terminal rows",
+        "emptyTitle": "No seller activity",
+        "emptyMessage": "Seller performance will appear here once tickets are sold.",
+        "action": {
+          "print": "Print",
+          "exportCsv": "Export CSV"
+        },
+        "filters": {
+          "aria": "Seller report filters",
+          "from": "From",
+          "to": "To",
+          "sellers": "Sellers",
+          "sellersPlaceholder": "Search seller name or terminal code",
+          "sellersHint": "Select one or several sellers to focus the report.",
+          "sort": "Sort"
+        },
+        "sort": {
+          "salesDesc": "Sales high to low",
+          "salesAsc": "Sales low to high",
+          "commissionDesc": "Commission high to low",
+          "commissionAsc": "Commission low to high",
+          "netDesc": "Net revenue high to low",
+          "netAsc": "Net revenue low to high",
+          "averageDrawDesc": "Average per draw high to low",
+          "averageDrawAsc": "Average per draw low to high"
+        },
+        "column": {
+          "seller": "Seller terminal",
+          "status": "Status",
+          "tickets": "Tickets",
+          "sales": "Sales",
+          "commission": "Commission",
+          "net": "Estimated net",
+          "averageDraw": "Avg / draw"
+        }
       },
       "export": {
         "title": "Export & print"
@@ -465,6 +623,27 @@
         "edit": "Edit address",
         "add": "Add address",
         "saved": "Address saved successfully."
+      }
+    },
+    "support": {
+      "title": "Support",
+      "description": "Send a request to the Tchalanet team from your admin workspace.",
+      "submit": "Send request",
+      "reset": "Send another request",
+      "form": {
+        "title": "Support request",
+        "description": "Describe the issue or question. We will contact you using the details provided.",
+        "contactFallback": "Name, phone, and email are optional. If you leave them empty, we will use the signed-in admin account contact.",
+        "message": "How can we help?",
+        "consent": "I authorize Tchalanet to contact me about this request."
+      },
+      "success": {
+        "title": "Request sent",
+        "message": "Your support request has been received. The Tchalanet team will contact you as soon as possible."
+      },
+      "error": {
+        "title": "Unable to send",
+        "message": "The request could not be sent. Check the information and try again."
       }
     },
     "sellerTerminals": {
@@ -838,7 +1017,8 @@
         },
         "options": {
           "title": "Payout odds",
-          "description": "Summary of the tenant pricing applied at sale time."
+          "description": "Summary of the tenant pricing applied at sale time.",
+          "clearPricing": "Clear pricing rule"
         },
         "salesOptions": {
           "title": "Advanced sales modes",
@@ -966,6 +1146,42 @@
         "preparing": "Ticket en préparation",
         "sold": "Ticket vendu",
         "codeGeneratedAfterConfirm": "Code généré après confirmation"
+      },
+      "dialog": {
+        "title": {
+          "saleSuccess": "Ticket sold",
+          "ticketActions": "Ticket printing"
+        },
+        "summaryAria": "Sold ticket summary",
+        "actionsAria": "Ticket actions",
+        "deliveryAria": "Receipt delivery",
+        "field": {
+          "ticket": "Ticket",
+          "publicCode": "Public code",
+          "totalPaid": "Total paid",
+          "lines": "Lines",
+          "freeLines": "+ {{count}} free"
+        },
+        "action": {
+          "print": "Print / reprint",
+          "printing": "Printing...",
+          "details": "Details",
+          "close": "Close",
+          "newTicket": "New sale"
+        },
+        "delivery": {
+          "title": "Send receipt",
+          "phone": "Customer phone",
+          "phonePlaceholder": "+509...",
+          "email": "Customer email",
+          "emailPlaceholder": "client@example.com"
+        },
+        "feedback": {
+          "printSuccess": "Receipt ready to print.",
+          "printError": "The ticket was sold, but the receipt could not be printed.",
+          "sendSuccess": "Send requested.",
+          "sendError": "The receipt could not be sent. Check the recipient and try again."
+        }
       },
       "activity": {
         "title": "Activité du terminal",

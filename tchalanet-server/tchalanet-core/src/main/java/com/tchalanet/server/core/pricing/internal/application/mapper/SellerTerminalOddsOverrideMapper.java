@@ -3,18 +3,18 @@ package com.tchalanet.server.core.pricing.internal.application.mapper;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.SellerTerminalOddsOverrideId;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.core.pricing.api.model.SellerTerminalOddsOverrideView;
+import com.tchalanet.server.core.pricing.api.model.SellerTerminalPricingRuleOverrideView;
 import com.tchalanet.server.core.pricing.internal.domain.SellerTerminalOddsOverride;
 import org.springframework.stereotype.Component;
 
 @Component
 public class SellerTerminalOddsOverrideMapper {
 
-    public SellerTerminalOddsOverrideView toView(SellerTerminalOddsOverride o) {
-        return new SellerTerminalOddsOverrideView(
+    public SellerTerminalPricingRuleOverrideView toView(SellerTerminalOddsOverride o) {
+        return new SellerTerminalPricingRuleOverrideView(
             o.id(), o.tenantId(), o.sellerTerminalId(),
             o.gameCode(), o.pricingVariantCode(), o.betType(), o.betOption(),
-            o.odds(), o.active(),
+            o.odds(), o.payoutRuleType(), o.fixedAmount(), o.active(),
             o.effectiveFrom(), o.effectiveTo(),
             o.reason(), o.createdAt(), o.updatedAt());
     }

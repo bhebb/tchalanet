@@ -18,7 +18,6 @@ public record TicketMoneyPayload(
     CurrencyCode currency,
     Money stake,
     Money total,
-    Money potentialPayout,
     List<ChargeItem> charges
 ) {
     public TicketMoneyPayload {

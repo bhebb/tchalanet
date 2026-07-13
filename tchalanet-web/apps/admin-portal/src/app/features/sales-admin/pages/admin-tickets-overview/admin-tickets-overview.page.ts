@@ -22,7 +22,7 @@ import {
 import { TicketRowView } from '../../data-access/admin-tickets-api.service';
 import {
   TenantFinancialBreakdownView,
-} from '../../../financials/data-access/admin-financials-api.service';
+} from '../../../reports/data-access/admin-financials-api.service';
 import { ticketStatusLabelKey } from '../../../../shared/ticket/admin-ticket-status.util';
 
 interface OverviewRow {

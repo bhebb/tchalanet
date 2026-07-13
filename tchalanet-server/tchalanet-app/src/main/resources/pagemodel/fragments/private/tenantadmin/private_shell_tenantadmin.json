@@ -296,27 +296,12 @@
             ]
           },
           {
-            "id": "promotions",
-            "label_key": "nav.promotions",
-            "icon": "local_activity",
-            "children": [
-              {
-                "id": "promotions-free-lines",
-                "label_key": "nav.admin.promotion_free_lines",
-                "path": "/app/admin/maryaj-gratis",
-                "kind": "internal",
-                "icon": "redeem",
-                "active_match": "exact"
-              },
-              {
-                "id": "promotions-campaigns",
-                "label_key": "nav.admin.all_promotions",
-                "path": "/app/admin/promotions",
-                "kind": "internal",
-                "icon": "campaign",
-                "active_match": "exact"
-              }
-            ]
+            "id": "maryaj-gratis",
+            "label_key": "nav.admin.maryaj_free",
+            "path": "/app/admin/maryaj-gratis",
+            "kind": "internal",
+            "icon": "redeem",
+            "active_match": "exact"
           },
           {
             "id": "reports",
@@ -324,11 +309,25 @@
             "icon": "analytics",
             "children": [
               {
+                "id": "reports-overview",
+                "label_key": "nav.admin.reports_overview",
+                "path": "/app/admin/reports/overview",
+                "kind": "internal",
+                "icon": "query_stats"
+              },
+              {
+                "id": "reports-daily",
+                "label_key": "nav.admin.reports_daily",
+                "path": "/app/admin/reports/daily",
+                "kind": "internal",
+                "icon": "today"
+              },
+              {
                 "id": "reports-sales",
                 "label_key": "nav.admin.reports_sales",
                 "path": "/app/admin/reports/sales",
                 "kind": "internal",
-                "icon": "today"
+                "icon": "receipt_long"
               },
               {
                 "id": "reports-sellers",
@@ -345,11 +344,11 @@
                 "icon": "event_note"
               },
               {
-                "id": "reports-exports",
-                "label_key": "nav.admin.reports_exports",
-                "path": "/app/admin/reports/exports",
+                "id": "reports-financials",
+                "label_key": "nav.admin.reports_financials",
+                "path": "/app/admin/reports/financials",
                 "kind": "internal",
-                "icon": "download"
+                "icon": "query_stats"
               }
             ]
           },
@@ -391,16 +390,9 @@
               {
                 "id": "company-identity",
                 "label_key": "nav.admin.company_identity",
-                "path": "/app/admin/company/identity",
+                "path": "/app/admin/business-profile",
                 "kind": "internal",
                 "icon": "domain"
-              },
-              {
-                "id": "company-address",
-                "label_key": "nav.admin.company_address",
-                "path": "/app/admin/company/address",
-                "kind": "internal",
-                "icon": "location_on"
               },
               {
                 "id": "company-appearance",
@@ -443,8 +435,8 @@
             "id": "help",
             "label_key": "nav.admin.help",
             "icon": "help_outline",
-            "path": "/app/admin/help",
-            "kind": "internal"
+            "path": "http://localhost:8000/02-functional/guides/operator-admin-guide/",
+            "kind": "url"
           }
         ]
       }

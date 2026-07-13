@@ -1,0 +1,46 @@
+name: Mobile PR Check
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'tchalanet-mobile/**'
+      - '.github/workflows/mobile-pr.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: mobile-pr-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  mobile-check:
+    name: Flutter analyze and test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: tchalanet-mobile
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.0'
+          channel: stable
+          cache: true
+
+      - name: Flutter version
+        run: flutter --version
+
+      - name: Install deps
+        run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Test
+        run: flutter test

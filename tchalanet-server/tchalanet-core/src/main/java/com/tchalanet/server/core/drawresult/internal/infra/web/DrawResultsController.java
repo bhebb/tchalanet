@@ -8,7 +8,7 @@ import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.common.web.paging.TchPaging;
 import com.tchalanet.server.core.drawresult.api.query.ListDrawResultsQuery;
 import com.tchalanet.server.core.drawresult.api.query.view.DrawResultView;
-import com.tchalanet.server.core.drawresult.internal.domain.model.DrawResultStatus;
+import com.tchalanet.server.core.drawresult.api.model.DrawResultStatus;
 import com.tchalanet.server.core.drawresult.internal.infra.web.mapper.DrawResultWebMapper;
 import com.tchalanet.server.core.drawresult.internal.infra.web.model.DrawResultResponse;
 import io.swagger.v3.oas.annotations.Operation;

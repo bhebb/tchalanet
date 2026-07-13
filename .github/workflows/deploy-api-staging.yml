@@ -1,0 +1,86 @@
+name: Deploy API Staging
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'API image tag to deploy'
+        required: true
+        default: 'latest'
+        type: string
+      force_recreate:
+        description: 'Force recreate API container'
+        required: false
+        default: true
+        type: boolean
+      destroy_database:
+        description: 'DANGER staging only: reset Neon database schema before deploy'
+        required: false
+        default: false
+        type: boolean
+      destroy_database_confirm:
+        description: 'Required when destroy_database=true: type "destroy staging database"'
+        required: false
+        default: ''
+        type: string
+      web_origins:
+        description: 'Space-separated origins for CORS smoke'
+        required: false
+        default: 'https://tchalanet-web-stg.pages.dev'
+        type: string
+
+concurrency:
+  group: deploy-api-staging
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: staging
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Add host to known_hosts
+        run: ssh-keyscan -H "${{ secrets.SERVER_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Sync infra files
+        run: |
+          set -euo pipefail
+          ssh tch@"${{ secrets.SERVER_HOST }}" 'mkdir -p /opt/tchalanet-infra'
+          rsync -az --delete \
+            --exclude 'envs/*/.secrets' \
+            --exclude 'envs/*/.env.merged' \
+            --exclude 'traefik/acme.json' \
+            tchalanet-infra/ \
+            tch@"${{ secrets.SERVER_HOST }}":/opt/tchalanet-infra/
+
+      - name: Deploy API service
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_STG }}
+          IMAGE_TAG: ${{ inputs.image_tag }}
+          FORCE_RECREATE: ${{ inputs.force_recreate && '1' || '0' }}
+          RESET_DATABASE: ${{ inputs.destroy_database && '1' || '0' }}
+          RESET_DATABASE_CONFIRM: ${{ inputs.destroy_database_confirm }}
+          WEB_ORIGINS: ${{ inputs.web_origins }}
+          API_BASE_URL: https://api.stg.tchalanet.com/api/v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: tch
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script_stop: true
+          envs: DOPPLER_TOKEN,IMAGE_TAG,FORCE_RECREATE,RESET_DATABASE,RESET_DATABASE_CONFIRM,WEB_ORIGINS,API_BASE_URL
+          script: |
+            set -euo pipefail
+            cd /opt/tchalanet-infra
+            chmod +x scripts/remote/deploy-api-staging.sh
+            ENV=staging scripts/remote/deploy-api-staging.sh

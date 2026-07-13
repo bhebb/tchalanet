@@ -31,9 +31,8 @@ public record LimitFactsSnapshot(
 
     public record Fact(
         long stakeTotalCents,
-        long potentialPayoutTotalCents,
         long salesCount
     ) {
-        public static final Fact ZERO = new Fact(0L, 0L, 0L);
+        public static final Fact ZERO = new Fact(0L, 0L);
     }
 }

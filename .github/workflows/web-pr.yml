@@ -4,8 +4,7 @@ on:
   pull_request:
     branches: [main]
     paths:
-      - 'apps/tchalanet-web/**'
-      - 'libs/ui/**'
+      - 'tchalanet-web/**'
       - '.github/workflows/web-pr.yml'
   workflow_dispatch:
 
@@ -17,22 +16,39 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  web-check:
+    name: Web lint, test, and build
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: tchalanet-web
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.9.0
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
-          node-version: '20.19.x'
-
-      - name: Enable pnpm
-        run: corepack enable && corepack prepare pnpm@10.19.0 --activate
+          node-version: '24'
+          cache: pnpm
+          cache-dependency-path: tchalanet-web/pnpm-lock.yaml
 
       - name: Install deps
         run: pnpm install --frozen-lockfile
 
-      - name: Build web app
-        run: pnpm nx build tchalanet-web
+      - name: Lint web apps
+        run: pnpm run lint
+
+      - name: Test web apps
+        run: pnpm run test
+
+      - name: Check admin portal types
+        run: pnpm exec tsc -p apps/admin-portal/tsconfig.app.json --noEmit
+
+      - name: Build web apps
+        run: pnpm nx run-many -t build -p public-portal,admin-portal,platform-portal

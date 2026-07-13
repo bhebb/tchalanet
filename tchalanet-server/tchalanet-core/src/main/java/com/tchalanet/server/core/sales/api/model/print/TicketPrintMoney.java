@@ -7,8 +7,7 @@ public record TicketPrintMoney(
     Money stake,
     List<TicketPrintCharge> charges,
     Money buyerChargesTotal,
-    Money totalAmount,
-    Money potentialPayoutAmount
+    Money totalAmount
 ) {
     public TicketPrintMoney {
         charges = List.copyOf(charges);

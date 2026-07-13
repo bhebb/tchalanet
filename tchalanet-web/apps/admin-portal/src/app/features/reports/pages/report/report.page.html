@@ -1,0 +1,175 @@
+<tch-admin-page-shell
+  [title]="'admin.reports.overview.title' | translate"
+  [description]="'admin.reports.overview.description' | translate"
+>
+  <tch-async-view
+    [resource]="overview"
+    [error]="overviewError()"
+    [loadingLabel]="'admin.reports.overview.loading' | translate"
+    [retryLabel]="'common.retry' | translate"
+    (retry)="overview.reload()"
+  >
+    <ng-template tchAsyncReady>
+      @if (overview.value(); as vm) {
+        <header class="admin-report__toolbar">
+          <div>
+            <span>{{ 'admin.reports.overview.period.label' | translate }}</span>
+            <strong>{{ vm.from | date:'mediumDate' }} - {{ vm.to | date:'mediumDate' }}</strong>
+          </div>
+          <button type="button" mat-stroked-button (click)="reload()">
+            <mat-icon aria-hidden="true">refresh</mat-icon>
+            {{ 'admin.reports.overview.action.refresh' | translate }}
+          </button>
+        </header>
+
+        <section class="admin-report__kpis" [attr.aria-label]="'admin.reports.overview.kpis.aria' | translate">
+          <tch-report-metric-card
+            [label]="'admin.reports.overview.kpis.ticketsSold' | translate"
+            [value]="(vm.summary.ticketsSold | number) ?? '0'"
+          />
+          <tch-report-metric-card
+            [label]="'admin.reports.overview.kpis.grossSales' | translate"
+            [value]="amountDisplay(vm.summary.grossSales) + ' ' + currency"
+          />
+          <tch-report-metric-card
+            [label]="'admin.reports.overview.kpis.payoutsPaid' | translate"
+            [value]="amountDisplay(vm.summary.payoutsPaid) + ' ' + currency"
+          />
+          <tch-report-metric-card
+            [label]="'admin.reports.overview.kpis.netRevenue' | translate"
+            [value]="amountDisplay(vm.summary.netRevenueEstimated) + ' ' + currency"
+            [hint]="(netMarginPercent(vm) | number:'1.0-1') + '%'"
+          />
+        </section>
+
+        <div class="admin-report__grid">
+          <tch-admin-section-card [title]="'admin.reports.overview.topDraws.title' | translate" icon="leaderboard">
+            <a actions mat-button routerLink="/app/admin/reports/draws">
+              {{ 'admin.reports.overview.action.viewDraws' | translate }}
+            </a>
+            @if (vm.drawRows.length === 0) {
+              <tch-admin-empty-state
+                icon="event_busy"
+                [title]="'admin.reports.overview.draws.emptyTitle' | translate"
+                [message]="'admin.reports.overview.draws.emptyMessage' | translate"
+              />
+            } @else {
+              <div class="admin-report__rows">
+                @for (row of topDrawRows(vm.drawRows); track row.drawId) {
+                  <div class="admin-report__row">
+                    <div class="admin-report__identity">
+                      <strong>{{ row.gameCode | consoleGameName }}</strong>
+                      <span>{{ drawLabel(row) }} - {{ row.scheduledAt | date:'short' }}</span>
+                    </div>
+                    <strong>{{ row.ticketsSold | number }} {{ 'admin.reports.common.ticketSuffix' | translate }}</strong>
+                    <span>{{ amountDisplay(row.grossSales) }} {{ currency }}</span>
+                    <span>{{ amountDisplay(row.netRevenueEstimated) }} {{ currency }}</span>
+                  </div>
+                }
+              </div>
+            }
+          </tch-admin-section-card>
+
+          <tch-admin-section-card [title]="'admin.reports.overview.topSelections.title' | translate" icon="tag">
+            @if (vm.topSelections.length === 0) {
+              <tch-admin-empty-state
+                icon="tag"
+                [title]="'admin.reports.overview.topSelections.emptyTitle' | translate"
+                [message]="'admin.reports.overview.topSelections.emptyMessage' | translate"
+              />
+            } @else {
+              <div class="admin-report__rows">
+                @for (row of vm.topSelections; track row.rank) {
+                  <div class="admin-report__row">
+                    <div class="admin-report__identity">
+                      <strong>{{ row.displaySelection }}</strong>
+                      <span>{{ topSelectionLabel(row) }}</span>
+                    </div>
+                    <strong>{{ row.lineCount | number }}</strong>
+                    <span>{{ amountDisplay(row.totalStake) }} {{ currency }}</span>
+                    <span>#{{ row.rank }}</span>
+                  </div>
+                }
+              </div>
+            }
+          </tch-admin-section-card>
+
+          <tch-admin-section-card [title]="'admin.reports.overview.daily.title' | translate" icon="calendar_today">
+            <a actions mat-button routerLink="/app/admin/reports/daily">
+              {{ 'admin.reports.overview.action.viewDaily' | translate }}
+            </a>
+            @if (vm.dailyRows.length === 0) {
+              <tch-admin-empty-state
+                icon="calendar_today"
+                [title]="'admin.reports.overview.daily.emptyTitle' | translate"
+                [message]="'admin.reports.overview.daily.emptyMessage' | translate"
+              />
+            } @else {
+              <div class="admin-report__rows admin-report__rows--daily">
+                @for (row of vm.dailyRows; track row.refDate) {
+                  <div class="admin-report__row">
+                    <strong>{{ row.refDate | date:'mediumDate' }}</strong>
+                    <span>{{ row.ticketsSold | number }} {{ 'admin.reports.common.ticketSuffix' | translate }}</span>
+                    <strong>{{ amountDisplay(row.grossSales) }} {{ currency }}</strong>
+                    <span>{{ amountDisplay(row.netRevenueEstimated) }} {{ currency }}</span>
+                  </div>
+                }
+              </div>
+            }
+          </tch-admin-section-card>
+
+          <tch-admin-section-card [title]="'admin.reports.overview.draws.title' | translate" icon="event">
+            <a actions mat-button routerLink="/app/admin/reports/draws">
+              {{ 'admin.reports.overview.action.viewDraws' | translate }}
+            </a>
+            @if (vm.drawRows.length === 0) {
+              <tch-admin-empty-state
+                icon="event_busy"
+                [title]="'admin.reports.overview.draws.emptyTitle' | translate"
+                [message]="'admin.reports.overview.draws.emptyMessage' | translate"
+              />
+            } @else {
+              <div class="admin-report__rows">
+                @for (row of vm.drawRows; track row.drawId) {
+                  <div class="admin-report__row">
+                    <div class="admin-report__identity">
+                      <strong>{{ row.gameCode | consoleGameName }}</strong>
+                      <span>{{ drawLabel(row) }} - {{ row.scheduledAt | date:'short' }}</span>
+                    </div>
+                    <span>{{ row.ticketsSold | number }} {{ 'admin.reports.common.ticketSuffix' | translate }}</span>
+                    <strong>{{ amountDisplay(row.grossSales) }} {{ currency }}</strong>
+                    <span>{{ amountDisplay(row.netRevenueEstimated) }} {{ currency }}</span>
+                  </div>
+                }
+              </div>
+            }
+          </tch-admin-section-card>
+
+          <tch-admin-section-card [title]="'admin.reports.overview.sellers.title' | translate" icon="point_of_sale">
+            <a actions mat-button routerLink="/app/admin/reports/sellers">
+              {{ 'admin.reports.overview.action.viewSellers' | translate }}
+            </a>
+            @if (vm.sellerTerminalRows.length === 0) {
+              <tch-admin-empty-state
+                icon="point_of_sale"
+                [title]="'admin.reports.overview.sellers.emptyTitle' | translate"
+                [message]="'admin.reports.overview.sellers.emptyMessage' | translate"
+              />
+            } @else {
+              <div class="admin-report__rows">
+                @for (row of vm.sellerTerminalRows; track row.sellerTerminalId) {
+                  <div class="admin-report__row">
+                    <strong>{{ shortSellerId(row) }}</strong>
+                    <span>{{ row.ticketsSold | number }} {{ 'admin.reports.common.ticketSuffix' | translate }}</span>
+                    <strong>{{ amountDisplay(row.grossSales) }} {{ currency }}</strong>
+                    <span>{{ amountDisplay(row.netRevenueEstimated) }} {{ currency }}</span>
+                  </div>
+                }
+              </div>
+            }
+          </tch-admin-section-card>
+        </div>
+      }
+    </ng-template>
+  </tch-async-view>
+</tch-admin-page-shell>

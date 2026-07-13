@@ -1,7 +1,7 @@
 package com.tchalanet.server.platform.identity.internal.service;
 
 import com.tchalanet.server.common.time.TimeProvider;
-import com.tchalanet.server.common.types.id.KeycloakUserSub;
+import com.tchalanet.server.common.types.id.ExternalUserSubject;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.web.paging.TchPage;
@@ -157,7 +157,7 @@ public class TenantUserAdministrationService {
     var user = users.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
     return new UserProfile(
         user.id(),
-        user.keycloakSub(),
+        user.externalSubject(),
         user.username(),
         user.email(),
         user.phone(),
@@ -190,7 +190,7 @@ public class TenantUserAdministrationService {
         user ->
             new UserRow(
                 user.id(),
-                user.keycloakSub(),
+                user.externalSubject(),
                 user.username(),
                 user.email(),
                 user.firstName(),
@@ -223,7 +223,7 @@ public class TenantUserAdministrationService {
 
   public record UserProfile(
       UserId id,
-      KeycloakUserSub keycloakSub,
+      ExternalUserSubject externalSubject,
       String username,
       String email,
       String phone,

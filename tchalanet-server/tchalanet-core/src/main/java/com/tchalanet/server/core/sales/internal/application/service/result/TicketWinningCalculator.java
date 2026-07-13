@@ -3,14 +3,16 @@ package com.tchalanet.server.core.sales.internal.application.service.result;
 import com.tchalanet.server.catalog.game.api.model.BetType;
 import com.tchalanet.server.common.types.id.TicketLineId;
 import com.tchalanet.server.common.types.money.Money;
-import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultProjection;
+import com.tchalanet.server.core.drawresult.api.query.view.DrawResultProjection;
+import com.tchalanet.server.core.pricing.api.model.PayoutRuleType;
 import com.tchalanet.server.core.pricing.api.model.PricingVariantCode;
 import com.tchalanet.server.core.sales.api.model.line.TicketLineResult;
+import com.tchalanet.server.core.sales.api.model.settlement.SettlementTermSnapshot;
+import com.tchalanet.server.core.sales.api.model.settlement.SettlementWinMode;
 import com.tchalanet.server.core.sales.api.model.status.TicketLineResultStatus;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.Ticket;
-import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLineCoverage;
-import com.tchalanet.server.core.sales.internal.domain.model.ticket.WinMode;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,13 +50,18 @@ public class TicketWinningCalculator {
         var payout = Money.zero(line.stakeAmount().currency());
         var won = false;
 
-        for (var coverage : line.coverages()) {
-            if (!wins(selection, facts, coverage.pricingVariantCode())) {
+        var snapshot = line.settlementTermsSnapshot();
+        if (snapshot == null || snapshot.terms().isEmpty()) {
+            throw new IllegalStateException("settlement.terms_snapshot_required");
+        }
+
+        for (var term : snapshot.terms()) {
+            if (!wins(selection, facts, term.ruleCode().toPricingVariantCode())) {
                 continue;
             }
 
             won = true;
-            payout = combinePayout(payout, coverage);
+            payout = combinePayout(payout, realizedPayout(line, term), term);
         }
 
         return new WinningEvaluation(won, payout);
@@ -91,12 +98,25 @@ public class TicketWinningCalculator {
         };
     }
 
-    private Money combinePayout(Money current, TicketLineCoverage winningCoverage) {
-        if (winningCoverage.winMode() == WinMode.CUMULATIVE) {
-            return current.plus(winningCoverage.potentialGainSnapshot());
+    private Money realizedPayout(TicketLine line, SettlementTermSnapshot winningTerm) {
+        var rule = winningTerm.payoutRule();
+        if (rule.type() == PayoutRuleType.FIXED_AMOUNT) {
+            return new Money(rule.fixedAmount().setScale(2, RoundingMode.HALF_UP), line.stakeAmount().currency());
         }
-        if (winningCoverage.potentialGainSnapshot().amount().compareTo(current.amount()) > 0) {
-            return winningCoverage.potentialGainSnapshot();
+        return new Money(
+            winningTerm.payoutBaseAmount()
+                .multiply(rule.multiplier())
+                .setScale(2, RoundingMode.HALF_UP),
+            line.stakeAmount().currency()
+        );
+    }
+
+    private Money combinePayout(Money current, Money winningPayout, SettlementTermSnapshot winningTerm) {
+        if (winningTerm.winMode() == SettlementWinMode.CUMULATIVE) {
+            return current.plus(winningPayout);
+        }
+        if (winningPayout.amount().compareTo(current.amount()) > 0) {
+            return winningPayout;
         }
         return current;
     }

@@ -47,6 +47,10 @@ public class PosHomeService {
   private final QueryBus queryBus;
 
   public PosHomeResponse mobileHome(TchRequestContext ctx, String requestedSurface) {
+    if (ctx == null || ctx.sellerTerminalId() == null) {
+      throw ProblemRest.forbidden("seller_terminal.actor_required");
+    }
+
     var surface = surfaceResolver.resolve(ctx, requestedSurface);
     if (surface != ClientSurface.MOBILE_POS) {
       throw ProblemRest.forbidden("surface.not_allowed");
@@ -58,11 +62,7 @@ public class PosHomeService {
         ? ctx.tenantCurrency().getCurrencyCode()
         : "HTG";
 
-    if (ctx.sellerTerminalId() != null) {
-      return sellerTerminalHome(ctx, surface, currency);
-    }
-
-    throw ProblemRest.forbidden("seller_terminal.actor_required");
+    return sellerTerminalHome(ctx, surface, currency);
   }
 
   public PosReadinessResponse readiness(TchRequestContext ctx) {

@@ -32,7 +32,6 @@ It MAY decide:
 It SHALL NOT decide:
 
 - tenant header;
-- outlet header;
 - draw label;
 - game labels;
 - bet option labels;
@@ -48,12 +47,11 @@ When the receipt is rendered
 Then the text `Maryaj gratuit` comes from `core.sales` receipt content
 And not from `TicketPrintDocumentMapper`.
 
-### Requirement: Receipt content must include tenant and outlet branding
+### Requirement: Receipt content must include tenant branding
 
 Canonical receipt print content SHALL include:
 
 - tenant display name/header;
-- outlet name/header;
 - ticket identity;
 - public display code;
 - sale timestamp;
@@ -61,16 +59,14 @@ Canonical receipt print content SHALL include:
 - draw channel label and scheduled time;
 - lines grouped/displayed consistently;
 - totals;
-- outlet footer;
 - tenant footer;
 - verification URL/QR.
 
-#### Scenario: Tenant and outlet headers configured
+#### Scenario: Tenant header configured
 
 Given tenant receipt header is configured
-And outlet receipt header is configured
 When a ticket is printed
-Then both headers appear in the canonical receipt content in a stable order.
+Then the tenant header appears in the canonical receipt content in a stable order.
 
 ### Requirement: Receipt content must display promotions consistently
 
@@ -84,11 +80,12 @@ Then the receipt displays the line as promotional
 And displays `Maryaj gratuit` or configured promotion label
 And does not recalculate eligibility.
 
-#### Scenario: Boosted odds line
+#### Scenario: Promotion label on a customer line
 
-Given a ticket line with boosted odds
+Given a customer ticket line with a promotion marker
 When the receipt is formatted
-Then the receipt displays the final odds/potential payout from the sales snapshot.
+Then the receipt displays the promotion label from the sales snapshot
+And does not display odds, multiplier, potential payout, or settlement terms.
 
 #### Scenario: Waived charge
 
@@ -114,10 +111,9 @@ Given a cashier request without trusted operational context
 When print is requested
 Then the request is forbidden.
 
-#### Scenario: Trusted context and open session
+#### Scenario: Trusted seller-terminal context
 
-Given trusted terminal/outlet/session context
-And the session matches the seller
+Given trusted seller-terminal context
 When print is requested
 Then print succeeds.
 
@@ -129,16 +125,13 @@ Then print succeeds.
 - format;
 - reprint reason;
 - actor user id;
-- terminal id;
-- outlet id;
-- sales session id;
 - correlation id.
 
 #### Scenario: Reprint with reason
 
 Given a ticket was already printed
 When cashier reprints with a reason
-Then print history stores actor, terminal, outlet, session, format, correlation, and reason.
+Then print history stores actor, format, correlation, and reason.
 
 ### Requirement: Backup must use canonical receipt model
 
@@ -149,4 +142,3 @@ The backup returned by sell SHALL be assembled from the same canonical sales rec
 Given a successful sell
 When `SellTicketResult` is returned
 Then its backup content is consistent with the printed receipt for the same ticket.
-

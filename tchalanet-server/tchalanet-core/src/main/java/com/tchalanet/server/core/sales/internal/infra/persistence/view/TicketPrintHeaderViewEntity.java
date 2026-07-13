@@ -107,18 +107,6 @@ public class TicketPrintHeaderViewEntity {
     @Column(name = "result_timezone")
     private String resultTimezone;
 
-    @Column(name = "outlet_code")
-    private String outletCode;
-
-    @Column(name = "outlet_name")
-    private String outletName;
-
-    @Column(name = "outlet_receipt_header")
-    private String outletReceiptHeader;
-
-    @Column(name = "outlet_receipt_footer")
-    private String outletReceiptFooter;
-
     @Column(name = "terminal_id")
     private UUID sellerTerminalId;
 
@@ -148,9 +136,6 @@ public class TicketPrintHeaderViewEntity {
 
     @Column(name = "total_amount", nullable = false)
     private BigDecimal totalAmount;
-
-    @Column(name = "potential_payout_amount", nullable = false)
-    private BigDecimal potentialPayoutAmount;
 
     @Column(name = "currency", nullable = false)
     private String currency;

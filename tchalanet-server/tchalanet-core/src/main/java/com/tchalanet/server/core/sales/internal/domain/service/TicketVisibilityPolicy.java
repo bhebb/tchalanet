@@ -2,13 +2,11 @@ package com.tchalanet.server.core.sales.internal.domain.service;
 
 import com.tchalanet.server.core.sales.api.config.TicketVisibilityProperties;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 
-@Component
 @RequiredArgsConstructor
 public class TicketVisibilityPolicy {
 

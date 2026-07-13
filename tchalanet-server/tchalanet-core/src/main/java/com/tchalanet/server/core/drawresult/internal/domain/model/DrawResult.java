@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.drawresult.internal.domain.model;
 
 import com.tchalanet.server.catalog.drawchannel.api.model.DrawSource;
+import com.tchalanet.server.core.drawresult.api.model.DrawResultStatus;
 import com.tchalanet.server.core.drawresult.api.model.ResultQuality;
 import tools.jackson.databind.JsonNode;
 

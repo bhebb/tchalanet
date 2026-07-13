@@ -1,7 +1,6 @@
 package com.tchalanet.server.core.sales.internal.application.service.sell.promotion;
 
 import com.tchalanet.server.common.types.money.CurrencyCode;
-import com.tchalanet.server.common.types.money.Money;
 import com.tchalanet.server.core.promotion.api.model.PromotionDecision;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffect;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffectType;
@@ -42,14 +41,8 @@ public class PromotionOddsBoostApplier {
                 continue;
             }
 
-            var potential = line.payoutBaseAmount()
-                .amount()
-                .multiply(boostedOdds)
-                .setScale(2, RoundingMode.HALF_UP);
-
             lines.set(i, line.withPromotionPricing(
                 boostedOdds,
-                new Money(potential, currency),
                 decision.decisionId(),
                 promotionLabel(effect),
                 effect.type().name()

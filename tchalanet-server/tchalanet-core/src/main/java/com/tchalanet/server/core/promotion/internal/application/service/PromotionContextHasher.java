@@ -12,6 +12,7 @@ public class PromotionContextHasher {
         var raw = String.join("|",
             String.valueOf(c.tenantId()),
             String.valueOf(c.phase()),
+            String.valueOf(c.sellerTerminalId()),
             String.valueOf(c.sellerUserId()),
             String.valueOf(c.paidTotal()),
             String.valueOf(c.currency()),

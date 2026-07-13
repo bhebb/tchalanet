@@ -29,7 +29,6 @@ public class ExposureProjectorAdapter implements ExposureProjectorPort {
 
             for (var line : event.lines()) {
                 var stake = line.stakeAmount().amount();
-                var payout = line.potentialPayoutAmount().amount();
 
                 var canonicalSelection =
                     selectionApi.canonicalize(
@@ -42,7 +41,7 @@ public class ExposureProjectorAdapter implements ExposureProjectorPort {
                 // "A result was returned when none was expected".
                 jdbc.query(
                     """
-                    SELECT increment_draw_exposure(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    SELECT increment_draw_exposure(?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     rs -> null,
                     event.tenantId().value(),
@@ -52,7 +51,6 @@ public class ExposureProjectorAdapter implements ExposureProjectorPort {
                     line.betType().name(),
                     canonicalSelection.key().value(),
                     stake,
-                    payout,
                     event.eventId().value(),
                     Timestamp.from(event.occurredAt())
                 );

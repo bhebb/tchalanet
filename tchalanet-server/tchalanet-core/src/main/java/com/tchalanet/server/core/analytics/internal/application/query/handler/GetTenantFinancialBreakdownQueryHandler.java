@@ -47,6 +47,7 @@ public class GetTenantFinancialBreakdownQueryHandler
         summary(tenantRows),
         tenantRows.stream().map(this::dailyRow).toList(),
         drawRows.stream()
+            .filter(row -> includesDraw(query.drawIds(), row.getDrawId()))
             .sorted(Comparator
                 .comparing(AnalyticsDrawEntity::getRefDate).reversed()
                 .thenComparing(AnalyticsDrawEntity::getScheduledAt, Comparator.reverseOrder()))
@@ -54,10 +55,12 @@ public class GetTenantFinancialBreakdownQueryHandler
             .map(this::drawRow)
             .toList(),
         sellerDrawRows.stream()
+            .filter(row -> includesSellerTerminal(query.sellerTerminalIds(), row.getSellerTerminalId()))
             .limit(safeLimit(query.sellerTerminalLimit()))
             .map(this::sellerTerminalDrawRow)
             .toList(),
         sellerRows.stream()
+            .filter(row -> includesSellerTerminal(query.sellerTerminalIds(), row.getDimensionId()))
             .limit(safeLimit(query.sellerTerminalLimit()))
             .map(this::sellerTerminalDailyRow)
             .toList()
@@ -76,8 +79,6 @@ public class GetTenantFinancialBreakdownQueryHandler
     long waivedCharges = 0L;
     long promotionLines = 0L;
     long promotionPricedLines = 0L;
-    long promotionPayoutBase = 0L;
-    long promotionPotentialPayout = 0L;
     long netEstimated = 0L;
     long netPaidBasis = 0L;
 
@@ -93,8 +94,6 @@ public class GetTenantFinancialBreakdownQueryHandler
       waivedCharges += row.getWaivedChargeCents();
       promotionLines += row.getPromotionLineCount();
       promotionPricedLines += row.getPromotionPricedLineCount();
-      promotionPayoutBase += row.getPromotionPayoutBaseCents();
-      promotionPotentialPayout += row.getPromotionPotentialPayoutCents();
       netEstimated += row.getNetRevenueEstimatedCents();
       netPaidBasis += row.getNetRevenuePaidBasisCents();
     }
@@ -111,8 +110,6 @@ public class GetTenantFinancialBreakdownQueryHandler
         fromCents(waivedCharges),
         promotionLines,
         promotionPricedLines,
-        fromCents(promotionPayoutBase),
-        fromCents(promotionPotentialPayout),
         fromCents(netEstimated),
         fromCents(netPaidBasis)
     );
@@ -132,8 +129,6 @@ public class GetTenantFinancialBreakdownQueryHandler
         fromCents(row.getWaivedChargeCents()),
         row.getPromotionLineCount(),
         row.getPromotionPricedLineCount(),
-        fromCents(row.getPromotionPayoutBaseCents()),
-        fromCents(row.getPromotionPotentialPayoutCents()),
         fromCents(row.getNetRevenueEstimatedCents()),
         fromCents(row.getNetRevenuePaidBasisCents())
     );
@@ -157,8 +152,6 @@ public class GetTenantFinancialBreakdownQueryHandler
         fromCents(row.getWaivedChargeCents()),
         row.getPromotionLineCount(),
         row.getPromotionPricedLineCount(),
-        fromCents(row.getPromotionPayoutBaseCents()),
-        fromCents(row.getPromotionPotentialPayoutCents()),
         fromCents(row.getNetRevenueEstimatedCents()),
         fromCents(row.getNetRevenuePaidBasisCents())
     );
@@ -177,8 +170,6 @@ public class GetTenantFinancialBreakdownQueryHandler
         fromCents(row.getWaivedChargeCents()),
         row.getPromotionLineCount(),
         row.getPromotionPricedLineCount(),
-        fromCents(row.getPromotionPayoutBaseCents()),
-        fromCents(row.getPromotionPotentialPayoutCents()),
         fromCents(row.getNetRevenueEstimatedCents()),
         fromCents(row.getNetRevenuePaidBasisCents())
     );
@@ -203,8 +194,6 @@ public class GetTenantFinancialBreakdownQueryHandler
         fromCents(row.getWaivedChargeCents()),
         row.getPromotionLineCount(),
         row.getPromotionPricedLineCount(),
-        fromCents(row.getPromotionPayoutBaseCents()),
-        fromCents(row.getPromotionPotentialPayoutCents()),
         fromCents(row.getNetRevenueEstimatedCents()),
         fromCents(row.getNetRevenuePaidBasisCents())
     );
@@ -215,6 +204,16 @@ public class GetTenantFinancialBreakdownQueryHandler
       return 50L;
     }
     return Math.min(requested, 500);
+  }
+
+  private static boolean includesDraw(List<UUID> drawIds, UUID drawId) {
+    return drawIds == null || drawIds.isEmpty() || drawIds.contains(drawId);
+  }
+
+  private static boolean includesSellerTerminal(List<UUID> sellerTerminalIds, UUID sellerTerminalId) {
+    return sellerTerminalIds == null
+        || sellerTerminalIds.isEmpty()
+        || sellerTerminalIds.contains(sellerTerminalId);
   }
 
   private static BigDecimal fromCents(long cents) {

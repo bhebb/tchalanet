@@ -24,7 +24,6 @@ public record TicketReceiptView(
     TicketSettlementStatus settlementStatus,
     String tenantDisplayName,
     String tenantReceiptHeader,
-    String outletReceiptHeader,
     String drawChannelCode,
     String resultSlotKey,
     String resultProvider,
@@ -42,7 +41,6 @@ public record TicketReceiptView(
     List<TicketReceiptGameSectionView> gameSections,
     Money stakeTotal,
     Money totalAmount,
-    Money potentialPayout,
     String tenantReceiptFooter,
     String verificationUrl,
     // false = first print (ORIGINAL), true = any subsequent print (DUPLICATA)

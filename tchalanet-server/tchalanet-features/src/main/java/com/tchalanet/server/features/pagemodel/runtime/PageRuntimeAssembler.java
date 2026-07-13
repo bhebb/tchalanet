@@ -75,9 +75,43 @@ public class PageRuntimeAssembler {
       return new PageRuntimeResponse.PrivateShell(
           "private",
           value(rootMap, "topAppBar"),
-          value(rootMap, "navigationDrawer"));
+          privateNavigationDrawer(doc, rootMap));
     }
     return new PageRuntimeResponse.PrivateShell("private", Map.of(), Map.of());
+  }
+
+  private Object privateNavigationDrawer(PageModelDoc doc, Map<?, ?> rootMap) {
+    Object navigationDrawer = value(rootMap, "navigationDrawer");
+    if (navigationDrawer instanceof Map<?, ?> map && !map.isEmpty()) {
+      return navigationDrawer;
+    }
+    return defaultPrivateNavigationDrawer(doc);
+  }
+
+  private Object defaultPrivateNavigationDrawer(PageModelDoc doc) {
+    var meta = doc == null ? null : doc.meta();
+    if (meta == null || !"super_admin".equals(meta.context())) {
+      return Map.of();
+    }
+    return Map.of(
+        "sections",
+        List.of(
+            Map.of(
+                "id",
+                "references",
+                "labelKey",
+                "platform.nav.references",
+                "children",
+                List.of(
+                    Map.of(
+                        "id",
+                        "games",
+                        "labelKey",
+                        "platform.nav.games",
+                        "kind",
+                        "link",
+                        "destination",
+                        Map.of("kind", "route", "value", "/app/platform/catalog/games"))))));
   }
 
   private Object publicHeader(Object value) {

@@ -6,7 +6,7 @@ import { forkJoin, map, switchMap } from 'rxjs';
 import {
   AdminFinancialsApi,
   TenantFinancialBreakdownView,
-} from '../../financials/data-access/admin-financials-api.service';
+} from '../../reports/data-access/admin-financials-api.service';
 import { AdminTicketsApi, TicketRowView } from './admin-tickets-api.service';
 
 export interface AdminTicketsOverviewView {

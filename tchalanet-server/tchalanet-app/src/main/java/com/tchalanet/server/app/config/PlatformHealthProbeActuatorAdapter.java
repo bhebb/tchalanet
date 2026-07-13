@@ -3,7 +3,7 @@ package com.tchalanet.server.app.config;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.tchalanet.server.features.pagemodel.dynamic.providers.platformadmin.PlatformHealthProbe;
+import com.tchalanet.server.platform.ops.api.PlatformHealthProbe;
 import org.springframework.boot.health.actuate.endpoint.HealthDescriptor;
 import org.springframework.boot.health.actuate.endpoint.HealthEndpoint;
 import org.springframework.boot.health.actuate.endpoint.IndicatedHealthDescriptor;

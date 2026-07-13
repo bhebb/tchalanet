@@ -3,7 +3,7 @@ package com.tchalanet.server.core.promotion.internal.domain.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.tchalanet.server.common.web.error.ProblemRestException;
+import com.tchalanet.server.common.exception.TchConflictException;
 import com.tchalanet.server.core.promotion.api.model.lifecycle.PromotionCampaignStatus;
 import com.tchalanet.server.core.promotion.internal.domain.model.PromotionCampaignTransition;
 import org.junit.jupiter.api.DisplayName;
@@ -46,14 +46,14 @@ class PromotionCampaignStateMachineTest {
         @DisplayName("ACTIVE → ACTIVE is forbidden")
         void activeToActiveIsForbidden() {
             assertThatThrownBy(() -> sm.apply(PromotionCampaignStatus.ACTIVE, PromotionCampaignTransition.ACTIVATE))
-                .isInstanceOf(ProblemRestException.class);
+                .isInstanceOf(TchConflictException.class);
         }
 
         @Test
         @DisplayName("ARCHIVED → ACTIVE is forbidden")
         void archivedToActiveIsForbidden() {
             assertThatThrownBy(() -> sm.apply(PromotionCampaignStatus.ARCHIVED, PromotionCampaignTransition.ACTIVATE))
-                .isInstanceOf(ProblemRestException.class);
+                .isInstanceOf(TchConflictException.class);
         }
     }
 
@@ -74,21 +74,21 @@ class PromotionCampaignStateMachineTest {
         @DisplayName("PAUSED → PAUSED is forbidden")
         void pausedToPausedIsForbidden() {
             assertThatThrownBy(() -> sm.apply(PromotionCampaignStatus.PAUSED, PromotionCampaignTransition.PAUSE))
-                .isInstanceOf(ProblemRestException.class);
+                .isInstanceOf(TchConflictException.class);
         }
 
         @Test
         @DisplayName("DRAFT → PAUSED is forbidden")
         void draftToPausedIsForbidden() {
             assertThatThrownBy(() -> sm.apply(PromotionCampaignStatus.DRAFT, PromotionCampaignTransition.PAUSE))
-                .isInstanceOf(ProblemRestException.class);
+                .isInstanceOf(TchConflictException.class);
         }
 
         @Test
         @DisplayName("ARCHIVED → PAUSED is forbidden")
         void archivedToPausedIsForbidden() {
             assertThatThrownBy(() -> sm.apply(PromotionCampaignStatus.ARCHIVED, PromotionCampaignTransition.PAUSE))
-                .isInstanceOf(ProblemRestException.class);
+                .isInstanceOf(TchConflictException.class);
         }
     }
 
@@ -116,21 +116,21 @@ class PromotionCampaignStateMachineTest {
         @DisplayName("ACTIVE → INACTIVE is forbidden — must pause first")
         void activeToInactiveIsForbidden() {
             assertThatThrownBy(() -> sm.apply(PromotionCampaignStatus.ACTIVE, PromotionCampaignTransition.DEACTIVATE))
-                .isInstanceOf(ProblemRestException.class);
+                .isInstanceOf(TchConflictException.class);
         }
 
         @Test
         @DisplayName("INACTIVE → INACTIVE is forbidden")
         void inactiveToInactiveIsForbidden() {
             assertThatThrownBy(() -> sm.apply(PromotionCampaignStatus.INACTIVE, PromotionCampaignTransition.DEACTIVATE))
-                .isInstanceOf(ProblemRestException.class);
+                .isInstanceOf(TchConflictException.class);
         }
 
         @Test
         @DisplayName("ARCHIVED → INACTIVE is forbidden")
         void archivedToInactiveIsForbidden() {
             assertThatThrownBy(() -> sm.apply(PromotionCampaignStatus.ARCHIVED, PromotionCampaignTransition.DEACTIVATE))
-                .isInstanceOf(ProblemRestException.class);
+                .isInstanceOf(TchConflictException.class);
         }
     }
 
@@ -165,14 +165,14 @@ class PromotionCampaignStateMachineTest {
         @DisplayName("ACTIVE → ARCHIVED is forbidden — must pause first (spec constraint)")
         void activeToArchivedIsForbidden() {
             assertThatThrownBy(() -> sm.apply(PromotionCampaignStatus.ACTIVE, PromotionCampaignTransition.ARCHIVE))
-                .isInstanceOf(ProblemRestException.class);
+                .isInstanceOf(TchConflictException.class);
         }
 
         @Test
         @DisplayName("ARCHIVED → ARCHIVED is forbidden")
         void archivedToArchivedIsForbidden() {
             assertThatThrownBy(() -> sm.apply(PromotionCampaignStatus.ARCHIVED, PromotionCampaignTransition.ARCHIVE))
-                .isInstanceOf(ProblemRestException.class);
+                .isInstanceOf(TchConflictException.class);
         }
     }
 
@@ -186,7 +186,7 @@ class PromotionCampaignStateMachineTest {
         @DisplayName("null status throws")
         void nullStatus() {
             assertThatThrownBy(() -> sm.apply(null, PromotionCampaignTransition.ACTIVATE))
-                .isInstanceOf(ProblemRestException.class);
+                .isInstanceOf(TchConflictException.class);
         }
     }
 }

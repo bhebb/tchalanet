@@ -70,7 +70,6 @@ class SaleMoneyCalculatorTest {
             new Selection(SelectionKey.of("05"), "05"),
             money(stake),
             new BigDecimal("12.5"),
-            money("125"),
             null,
             TicketLineResultStatus.PENDING,
             money("0")

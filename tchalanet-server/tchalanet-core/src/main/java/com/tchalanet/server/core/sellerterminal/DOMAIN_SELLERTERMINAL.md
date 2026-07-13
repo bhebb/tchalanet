@@ -52,7 +52,7 @@ SellerTerminal(
 
 **Invariants :**
 - `terminalCode` unique dans un tenant
-- `mustChangePin = true` bloque toutes les actions de vente
+- `mustChangePin = true` bloque les actions de vente quand l'acteur courant est le `SELLER_TERMINAL`; un admin qui agit pour le terminal reste soumis au statut du terminal mais pas au changement de PIN self-service
 - Un SellerTerminal `DISABLED` ne peut pas être réactivé
 - La transition `ACTIVE → BLOCKED` est réversible (`BLOCKED → ACTIVE`)
 - La transition `* → DISABLED` est définitive

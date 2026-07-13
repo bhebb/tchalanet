@@ -15,7 +15,8 @@ class SalePreparationLineViewContractTest {
             .toList();
 
         assertThat(componentNames)
-            .contains("betType", "betOption", "oddsSnapshot")
+            .contains("betType", "betOption", "stakeAmount")
+            .doesNotContain("oddsSnapshot")
             .doesNotContain("pricingVariantCode", "settlementVariant");
     }
 }

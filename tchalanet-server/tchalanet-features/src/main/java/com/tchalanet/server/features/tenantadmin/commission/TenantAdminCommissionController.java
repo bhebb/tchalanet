@@ -19,8 +19,8 @@ import com.tchalanet.server.features.tenantadmin.commission.model.CommissionOver
 import com.tchalanet.server.features.tenantadmin.commission.model.SellerTerminalCommissionRow;
 import com.tchalanet.server.features.tenantadmin.commission.model.SetDefaultCommissionRateRequest;
 import com.tchalanet.server.features.tenantadmin.commission.model.SetSellerTerminalCommissionRateRequest;
+import com.tchalanet.server.platform.tenant.api.TenantAdminApi;
 import com.tchalanet.server.platform.tenant.api.TenantPreContextLookupApi;
-import com.tchalanet.server.platform.tenant.internal.adapter.TenantPersistenceAdapter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -52,7 +52,7 @@ public class TenantAdminCommissionController {
     private final QueryBus queryBus;
     private final CommandBus commandBus;
     private final TenantPreContextLookupApi tenantLookup;
-    private final TenantPersistenceAdapter tenantPersistence;
+    private final TenantAdminApi tenantAdmin;
 
     /**
      * Overview: tenant default commission rate + aggregate stats across all seller_terminals.
@@ -82,7 +82,7 @@ public class TenantAdminCommissionController {
         @CurrentContext TchRequestContext ctx,
         @Valid @RequestBody SetDefaultCommissionRateRequest req
     ) {
-        tenantPersistence.updateDefaultCommissionRate(ctx.tenantIdRequired(), req.rate());
+        tenantAdmin.updateDefaultCommissionRate(ctx.tenantIdRequired(), req.rate());
         return ApiResponse.success(null);
     }
 

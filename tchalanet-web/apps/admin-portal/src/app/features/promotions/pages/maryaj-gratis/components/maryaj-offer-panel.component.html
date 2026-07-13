@@ -41,7 +41,7 @@
 
     <dl class="maryaj-offer__facts">
       <div>
-        <dt>Priorité</dt>
+        <dt>Priorité d’arbitrage</dt>
         <dd>{{ campaign.priority }}</dd>
       </div>
       <div>
@@ -50,15 +50,18 @@
       </div>
       <div>
         <dt>Fin</dt>
-        <dd>{{ campaign.endsAt ? (campaign.endsAt | date:'dd/MM/yyyy HH:mm') : '—' }}</dd>
+        <dd>
+          @if (showCampaignEndDate(campaign)) {
+            Sans fin prévue
+            <small>Date technique : {{ campaign.endsAt | date:'dd/MM/yyyy HH:mm' }}</small>
+          } @else {
+            {{ campaign.endsAt ? (campaign.endsAt | date:'dd/MM/yyyy HH:mm') : '—' }}
+          }
+        </dd>
       </div>
       <div>
         <dt>Sélection</dt>
         <dd>{{ selectionLabel() }}</dd>
-      </div>
-      <div>
-        <dt>Base de calcul</dt>
-        <dd>{{ effectParam('payoutBaseAmount') }} HTG</dd>
       </div>
       <div>
         <dt>Attribution</dt>
@@ -116,14 +119,12 @@
           <strong>{{ form().controls['maxQuantity'].value }}</strong>
           ligne(s).
         } @else if (form().controls['quantityMode'].value === 'TIERED_PAID_AMOUNT') {
-          Le ticket recevra des Maryaj gratuits selon les paliers de montant payé configurés.
+          Le ticket recevra des Maryaj gratuits selon le montant payé par le client.
         } @else {
           Le ticket pourra recevoir
           <strong>{{ form().controls['quantity'].value }}</strong>
           Maryaj gratuit(s).
         }
-        Base utilisée pour le calcul du gain :
-        <strong>{{ form().controls['payoutBaseAmount'].value }} HTG</strong>.
       </span>
     </div>
 
@@ -141,6 +142,29 @@
     </div>
 
     <form class="maryaj-offer__form" [formGroup]="form()">
+      <section class="maryaj-offer__schedule maryaj-offer__field--wide">
+        <mat-form-field appearance="outline">
+          <mat-label>Début</mat-label>
+          <input matInput [matDatepicker]="startsAtPicker" formControlName="startsAt" />
+          <mat-datepicker-toggle matIconSuffix [for]="startsAtPicker" />
+          <mat-datepicker #startsAtPicker />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Fin</mat-label>
+          <input matInput [matDatepicker]="endsAtPicker" formControlName="endsAt" />
+          <mat-datepicker-toggle matIconSuffix [for]="endsAtPicker" />
+          <mat-datepicker #endsAtPicker />
+          <mat-hint>Date obligatoire. Pour une offre permanente, utilisez une date lointaine.</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Priorité d’arbitrage</mat-label>
+          <input matInput type="number" min="0" max="100000" step="1" formControlName="priority" />
+          <mat-hint>Plus haut = prioritaire si plusieurs promotions sont applicables.</mat-hint>
+        </mat-form-field>
+      </section>
+
       <mat-form-field appearance="outline" class="maryaj-offer__field--wide">
         <mat-label>Mode d'attribution</mat-label>
         <mat-select formControlName="quantityMode">
@@ -150,19 +174,12 @@
         </mat-select>
       </mat-form-field>
 
-      <mat-form-field appearance="outline">
-        <mat-label>Base de calcul</mat-label>
-        <input matInput type="number" min="1" step="1" formControlName="payoutBaseAmount" />
-        <span matTextSuffix>HTG</span>
-        <mat-hint>Le barème Exact/Reverse du jeu détermine le gain final.</mat-hint>
-      </mat-form-field>
-
       @if (form().controls['quantityMode'].value === 'TIERED_PAID_AMOUNT') {
         <div class="maryaj-offer__tiers maryaj-offer__field--wide" formArrayName="quantityTiers">
           <div class="maryaj-offer__tiers-head">
             <div>
               <p>Paliers de vente</p>
-              <span>Montant payé → Maryaj offerts.</span>
+              <span>Montant payé par le client → nombre de Maryaj gratuits générés.</span>
             </div>
             <button mat-stroked-button type="button" (click)="addQuantityTier.emit()">
               <mat-icon>add</mat-icon>

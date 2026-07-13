@@ -10,9 +10,13 @@ Seller terminal creation and POS sale flows need clearer operational ergonomics 
 - Promote successful entity creation feedback to shell-level confirmation.
 - Keep POS sale files under `features/pos`, not under admin seller terminal folders.
 - Prepare sale warnings handling from backend notices without blocking successful sales.
+- Improve POS number entry for Maryaj and Loto 3/4/5.
+- Show a post-sale dialog with print/reprint and tenant-enabled communication actions.
+- Add ticket-list reprint support using the sale terminal context.
 
 ## Impact
 
 - Admin portal seller terminal creation UX.
 - Shared shell feedback severity model.
 - POS feature placement and routes.
+- POS sale entry UX and ticket list actions.

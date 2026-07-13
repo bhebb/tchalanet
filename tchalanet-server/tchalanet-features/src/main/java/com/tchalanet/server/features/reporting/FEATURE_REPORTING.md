@@ -15,6 +15,21 @@ Pas de logique métier : filtre, pagine, projette, retourne.
 ## Endpoints
 
 ```http
+GET /admin/reports/overview
+GET /admin/reports/draws
+GET /admin/reports/seller-terminals
+```
+Rapports V0 admin tenant: synthèse, lignes par tirage, lignes par terminal vendeur.
+Service : `AdminReportsService` · Source : `GetTenantFinancialBreakdownQuery`.
+
+```http
+GET /admin/financials/breakdown
+GET /admin/financials/draws/{drawId}/top-selections
+```
+Rapports financiers tenant-admin conservant les routes publiques existantes.
+Service : `TenantAdminFinancialsController` · Sources : `core.analytics.api`, `core.sales.api`.
+
+```http
 GET /tenant/reports/sales-by-period-and-game
 ```
 Rapport ventes par période et jeu.  
@@ -48,6 +63,8 @@ Service : `GetTenantKpisService` · Sortie : `TenantKpisResponse`.
 - Cache optionnel sur agrégats courants (TTL court)
 - `@TchPaging TchPageRequest` pour la pagination
 - `@Secured` / `@PreAuthorize` selon rôle, `TchPermissionEvaluator` pour permissions fines
+- Dates par défaut résolues avec la timezone tenant via `TchRequestContext`.
+- `from` doit être inférieur ou égal à `to`; période invalide → `ProblemDetail`.
 
 ---
 

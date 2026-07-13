@@ -20,6 +20,7 @@
         "betTypeShort": "Type",
         "betOption": "Option",
         "odds": "Cote",
+        "payoutRule": "Règle de gain",
         "tenant": "Tenant",
         "status": "Statut"
       }
@@ -31,12 +32,19 @@
         "betType": "Type de pari",
         "betOption": "Option de pari (betOption)",
         "odds": "Cote (odds)",
+        "payoutRuleType": "Règle de gain",
+        "fixedAmount": "Montant fixe",
         "active": "Actif"
+      },
+      "payoutRuleType": {
+        "STAKE_MULTIPLIER": "Multiplicateur de mise",
+        "FIXED_AMOUNT": "Montant fixe"
       },
       "validation": {
         "gameCodeRequired": "Le jeu est requis.",
         "betTypeRequired": "Le type de pari est requis.",
-        "oddsMin": "La cote doit être supérieure à 0."
+        "oddsMin": "La cote doit être supérieure à 0.",
+        "fixedAmountMin": "Le montant fixe doit être supérieur ou égal à 0."
       }
     },
     "personIdentity": {

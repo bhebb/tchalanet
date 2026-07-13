@@ -48,7 +48,6 @@ public class GetPlatformDashboardStatsQueryHandler
     long commissionCents = 0L;
     long tenantChargeCents = 0L;
     long promotionLines = 0L;
-    long promotionPotentialPayoutCents = 0L;
 
     for (AnalyticsDailyEntity r : platformRows) {
       ticketsSold   += r.getTicketsSoldCount();
@@ -58,7 +57,6 @@ public class GetPlatformDashboardStatsQueryHandler
       commissionCents += r.getSellerCommissionCents();
       tenantChargeCents += r.getTenantChargeCents();
       promotionLines += r.getPromotionLineCount();
-      promotionPotentialPayoutCents += r.getPromotionPotentialPayoutCents();
     }
 
     List<PlatformDailyPoint> daily = platformRows.stream()
@@ -71,7 +69,6 @@ public class GetPlatformDashboardStatsQueryHandler
             fromCents(r.getSellerCommissionCents()),
             fromCents(r.getTenantChargeCents()),
             r.getPromotionLineCount(),
-            fromCents(r.getPromotionPotentialPayoutCents()),
             fromCents(r.getNetRevenueEstimatedCents()),
             fromCents(r.getNetRevenuePaidBasisCents())))
         .toList();
@@ -111,7 +108,6 @@ public class GetPlatformDashboardStatsQueryHandler
         fromCents(commissionCents),
         fromCents(tenantChargeCents),
         promotionLines,
-        fromCents(promotionPotentialPayoutCents),
         fromCents(grossCents - winningsCents - commissionCents - tenantChargeCents),
         fromCents(grossCents - payoutsCents - commissionCents - tenantChargeCents));
 

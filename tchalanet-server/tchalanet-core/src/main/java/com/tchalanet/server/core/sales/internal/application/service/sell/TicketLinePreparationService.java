@@ -8,24 +8,31 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TicketLineId;
 import com.tchalanet.server.common.types.money.CurrencyCode;
 import com.tchalanet.server.common.types.money.Money;
-import com.tchalanet.server.core.pricing.api.query.ResolveSellerTerminalOddsQuery;
+import com.tchalanet.server.core.pricing.api.model.OddsSource;
+import com.tchalanet.server.core.pricing.api.model.PayoutRuleType;
+import com.tchalanet.server.core.pricing.api.model.PricingVariantCode;
+import com.tchalanet.server.core.pricing.api.query.ResolveSellerTerminalPayoutRuleQuery;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketLineInput;
-import com.tchalanet.server.core.sales.api.model.coverage.PotentialGainMode;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineOrigin;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSource;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource;
+import com.tchalanet.server.core.sales.api.model.settlement.PayoutRuleSnapshot;
+import com.tchalanet.server.core.sales.api.model.settlement.SettlementRuleCode;
+import com.tchalanet.server.core.sales.api.model.settlement.SettlementTermSnapshot;
+import com.tchalanet.server.core.sales.api.model.settlement.SettlementTermSource;
+import com.tchalanet.server.core.sales.api.model.settlement.SettlementTermsSnapshot;
+import com.tchalanet.server.core.sales.api.model.settlement.SettlementWinMode;
 import com.tchalanet.server.core.sales.api.model.status.TicketLineResultStatus;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
-import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLineCoverage;
-import com.tchalanet.server.core.sales.internal.domain.service.result.SettlementVariantResolver;
+import com.tchalanet.server.core.sales.internal.domain.model.ticket.WinMode;
 import com.tchalanet.server.core.selection.api.SelectionApi;
+import com.tchalanet.server.platform.tenantgame.api.model.SelectionPolicy;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -41,8 +48,8 @@ import java.util.Objects;
  * <p>Responsibilities:
  * <ul>
  *   <li>Generate the line id via {@link IdGenerator}.</li>
- *   <li>Resolve effective odds via {@link ResolveSellerTerminalOddsQuery}.</li>
- *   <li>Compute the potential payout = stake × odds.</li>
+ *   <li>Resolve effective payout rules via {@link ResolveSellerTerminalPayoutRuleQuery}.</li>
+ *   <li>Snapshot the settlement terms used later if the official result matches.</li>
  *   <li>Canonicalize the raw selection via {@link SelectionApi}.</li>
  *   <li>Wrap amounts in {@link Money} with the ticket's currency.</li>
  * </ul>
@@ -54,6 +61,7 @@ public class TicketLinePreparationService {
     private final SelectionApi selectionApi;
     private final IdGenerator idGenerator;
     private final QueryBus queryBus;
+    private final TicketSettlementTermPlanner settlementTermPlanner;
 
     public List<TicketLine> toTicketLines(
         TenantId tenantId,
@@ -76,65 +84,38 @@ public class TicketLinePreparationService {
         assertInternalInvariants(input);
 
         var stake = input.stakeAmount().setScale(2, RoundingMode.UNNECESSARY);
-        var coverageResolution = SettlementVariantResolver.resolveCoverage(
-            input.betType(),
-            input.betOption(),
-            input.rawSelection());
-        var coverageStakes = splitStake(stake, coverageResolution.variants().size());
-        var coverages = new ArrayList<TicketLineCoverage>();
-        for (int i = 0; i < coverageResolution.variants().size(); i++) {
-            var coverageVariant = coverageResolution.variants().get(i);
-            var coverageStake = coverageStakes.get(i);
-            var odds = resolveOdds(
+        var termPlan = settlementTermPlanner.plan(tenantId, input);
+        var termStakes = stakeAllocation(stake, termPlan);
+        var preparedTerms = new ArrayList<PreparedSettlementTerm>();
+        for (int i = 0; i < termPlan.terms().size(); i++) {
+            var plannedTerm = termPlan.terms().get(i);
+            var termStake = termStakes.get(i);
+            var resolvedPayoutRule = resolvePayoutRule(
                 tenantId,
                 sellerTerminalId,
                 input,
-                coverageVariant.pricingVariantCode())
-                .setScale(4, RoundingMode.HALF_UP);
-            var potential = coverageStake.multiply(odds).setScale(2, RoundingMode.HALF_UP);
-            coverages.add(new TicketLineCoverage(
-                coverageVariant.pricingVariantCode(),
-                new Money(coverageStake, currency),
-                odds,
-                new Money(potential, currency),
-                coverageVariant.winMode()
-            ));
+                plannedTerm);
+            var payoutRule = resolvedPayoutRule.payoutRule();
+            preparedTerms.add(new PreparedSettlementTerm(
+                plannedTerm.pricingVariantCode(),
+                termStake,
+                plannedTerm.winMode(),
+                payoutRule,
+                resolvedPayoutRule.source()));
         }
-        var minPotential = coverages.stream()
-            .map(TicketLineCoverage::potentialGainSnapshot)
-            .min(Comparator.comparing(Money::amount))
-            .orElseThrow();
-        var maxPotential = coverages.stream()
-            .map(TicketLineCoverage::potentialGainSnapshot)
-            .max(Comparator.comparing(Money::amount))
-            .orElseThrow();
-        var totalPotential = coverageResolution.potentialGainMode() == PotentialGainMode.RANGE_CUMULATIVE
-            ? coverages.stream()
-                .map(TicketLineCoverage::potentialGainSnapshot)
-                .reduce(Money.zero(currency), Money::plus)
-            : null;
-        var linePotential = totalPotential == null ? maxPotential : totalPotential;
-        var lineOdds = coverages.stream()
-            .max(Comparator.comparing(coverage -> coverage.potentialGainSnapshot().amount()))
-            .orElseThrow()
-            .oddsSnapshot();
+        var settlementTermsSnapshot = settlementTermsSnapshot(termPlan, preparedTerms);
 
         return new TicketLine(
             TicketLineId.of(idGenerator.newUuid()),
             input.lineNumber(),
             input.gameCode(),
             input.betType(),
-            selectionApi.canonicalize(input.betType(), input.betOption(), input.rawSelection()),
+            selectionApi.canonicalize(input.betType(), termPlan.canonicalBetOption(), input.rawSelection()),
             new Money(stake, currency), // stakeAmount
-            new Money(stake, currency), // payoutBaseAmount = stake for normal lines
-            lineOdds, // oddsSnapshot: compatibility summary; coverages carry authoritative odds
-            linePotential, // potentialPayoutAmount: max alternative or cumulative total
-            coverageResolution.potentialGainMode(),
-            minPotential,
-            maxPotential,
-            totalPotential,
-            List.copyOf(coverages),
+            settlementTermsSnapshot,
             input.betOption(),
+            termPlan.selectionPolicySnapshot(),
+            termPlan.betOptionLabelSnapshot(),
             TicketLineOrigin.CUSTOMER,
             TicketLinePricingSource.STANDARD,
             TicketLineSelectionSource.CUSTOMER_SELECTED,
@@ -146,21 +127,61 @@ public class TicketLinePreparationService {
         );
     }
 
-    private BigDecimal resolveOdds(
+    private SettlementTermsSnapshot settlementTermsSnapshot(
+        TicketSettlementTermPlan termPlan,
+        List<PreparedSettlementTerm> preparedTerms
+    ) {
+        var policy = termPlan.selectionPolicySnapshot();
+        var terms = new ArrayList<SettlementTermSnapshot>();
+        for (var preparedTerm : preparedTerms) {
+            var payoutRule = preparedTerm.payoutRule();
+            terms.add(new SettlementTermSnapshot(
+                SettlementRuleCode.fromPricingVariant(preparedTerm.pricingVariantCode()),
+                policy == SelectionPolicy.IMPLICIT_BEST_MATCH ? null : termPlan.canonicalBetOption(),
+                policy == SelectionPolicy.IMPLICIT_BEST_MATCH ? null : termPlan.betOptionLabelSnapshot(),
+                payoutRule,
+                payoutRule.type() == PayoutRuleType.STAKE_MULTIPLIER ? preparedTerm.stakeAmount() : null,
+                toSettlementWinMode(preparedTerm.winMode()),
+                toSettlementTermSource(preparedTerm.source())
+            ));
+        }
+        return SettlementTermsSnapshot.current(policy, terms);
+    }
+
+    private SettlementTermSource toSettlementTermSource(OddsSource source) {
+        return source == OddsSource.SELLER_TERMINAL_OVERRIDE
+            ? SettlementTermSource.SELLER_TERMINAL_OVERRIDE
+            : SettlementTermSource.TENANT_DEFAULT;
+    }
+
+    private SettlementWinMode toSettlementWinMode(WinMode winMode) {
+        return winMode == WinMode.CUMULATIVE
+            ? SettlementWinMode.CUMULATIVE
+            : SettlementWinMode.ALTERNATIVE;
+    }
+
+    private ResolvedPayoutRule resolvePayoutRule(
         TenantId tenantId,
         SellerTerminalId sellerTerminalId,
         SellTicketLineInput input,
-        com.tchalanet.server.core.pricing.api.model.PricingVariantCode pricingVariantCode
+        PlannedSettlementTerm plannedTerm
     ) {
-        var oddsResolution = queryBus.ask(new ResolveSellerTerminalOddsQuery(
+        var resolution = queryBus.ask(new ResolveSellerTerminalPayoutRuleQuery(
             tenantId,
             sellerTerminalId,
             canonicalGameCode(input.gameCode()),
-            pricingVariantCode,
+            plannedTerm.pricingVariantCode(),
             input.betType().name(),
-            input.betOption()));
-        Objects.requireNonNull(oddsResolution, "pricing odds resolution is required");
-        return requireEffectiveOdds(oddsResolution.effectiveOdds());
+            plannedTerm.sourceBetOption()));
+        Objects.requireNonNull(resolution, "pricing payout rule resolution is required");
+        if (resolution.effectiveRuleType() == PayoutRuleType.FIXED_AMOUNT) {
+            return new ResolvedPayoutRule(
+                PayoutRuleSnapshot.fixedAmount(resolution.effectiveFixedAmount()),
+                resolution.source());
+        }
+        return new ResolvedPayoutRule(
+            PayoutRuleSnapshot.stakeMultiplier(requireEffectiveOdds(resolution.effectiveMultiplier())),
+            resolution.source());
     }
 
     private static void assertInternalInvariants(SellTicketLineInput input) {
@@ -192,6 +213,13 @@ public class TicketLinePreparationService {
         return odds;
     }
 
+    private static List<BigDecimal> stakeAllocation(BigDecimal stake, TicketSettlementTermPlan termPlan) {
+        if (termPlan.stakeAllocationMode() == StakeAllocationMode.FULL_STAKE_PER_ALTERNATIVE) {
+            return java.util.Collections.nCopies(termPlan.terms().size(), stake);
+        }
+        return splitStake(stake, termPlan.terms().size());
+    }
+
     private static List<BigDecimal> splitStake(BigDecimal stake, int coverageCount) {
         if (coverageCount <= 0) {
             throw new IllegalArgumentException("coverage count must be positive");
@@ -207,3 +235,16 @@ public class TicketLinePreparationService {
         return List.copyOf(result);
     }
 }
+
+record PreparedSettlementTerm(
+    PricingVariantCode pricingVariantCode,
+    BigDecimal stakeAmount,
+    WinMode winMode,
+    PayoutRuleSnapshot payoutRule,
+    OddsSource source
+) {}
+
+record ResolvedPayoutRule(
+    PayoutRuleSnapshot payoutRule,
+    OddsSource source
+) {}

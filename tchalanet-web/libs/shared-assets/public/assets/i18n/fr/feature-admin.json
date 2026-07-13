@@ -180,7 +180,8 @@
         },
         "options": {
           "title": "Barème de gains",
-          "description": "Résumé du barème tenant appliqué à la vente."
+          "description": "Résumé du barème tenant appliqué à la vente.",
+          "clearPricing": "Supprimer le barème"
         },
         "salesOptions": {
           "title": "Modes de vente avancés",
@@ -309,6 +310,42 @@
         "sold": "Ticket vendu",
         "codeGeneratedAfterConfirm": "Code généré après confirmation"
       },
+      "dialog": {
+        "title": {
+          "saleSuccess": "Ticket vendu",
+          "ticketActions": "Impression du ticket"
+        },
+        "summaryAria": "Résumé du ticket vendu",
+        "actionsAria": "Actions ticket",
+        "deliveryAria": "Envoi du reçu",
+        "field": {
+          "ticket": "Ticket",
+          "publicCode": "Code public",
+          "totalPaid": "Total payé",
+          "lines": "Lignes",
+          "freeLines": "+ {{count}} gratuites"
+        },
+        "action": {
+          "print": "Imprimer / réimprimer",
+          "printing": "Impression...",
+          "details": "Détails",
+          "close": "Fermer",
+          "newTicket": "Nouvelle vente"
+        },
+        "delivery": {
+          "title": "Envoyer le reçu",
+          "phone": "Téléphone client",
+          "phonePlaceholder": "+509...",
+          "email": "Email client",
+          "emailPlaceholder": "client@example.com"
+        },
+        "feedback": {
+          "printSuccess": "Reçu prêt pour impression.",
+          "printError": "Le ticket est vendu, mais le reçu n’a pas pu être imprimé.",
+          "sendSuccess": "Envoi demandé.",
+          "sendError": "L’envoi n’a pas pu être demandé. Vérifiez le destinataire et réessayez."
+        }
+      },
       "activity": {
         "title": "Activité du terminal",
         "salesToday": "Ventes du jour",
@@ -320,6 +357,173 @@
         "terminalBlocked": "Ce seller-terminal est bloqué. Il ne peut pas vendre de tickets.",
         "invalidStake": "La mise doit être supérieure à 0 HTG.",
         "noLines": "Ajoutez au moins une ligne pour confirmer la vente."
+      }
+    },
+    "reports": {
+      "title": "Rapports",
+      "common": {
+        "grossSales": "Ventes brutes",
+        "overview": "Vue d'ensemble",
+        "payoutsPaid": "Paiements versés",
+        "period": "Période du rapport",
+        "refresh": "Rafraîchir",
+        "sellerCommission": "Commission vendeur",
+        "ticketsSold": "Tickets vendus",
+        "ticketSuffix": "tickets"
+      },
+      "overview": {
+        "title": "Vue d'ensemble des rapports",
+        "description": "Ventes, paiements et revenu estimé du tenant courant.",
+        "loading": "Chargement des rapports...",
+        "period": {
+          "label": "Période du rapport"
+        },
+        "action": {
+          "refresh": "Rafraîchir",
+          "viewDaily": "Rapport journée",
+          "viewDraws": "Rapport par tirage",
+          "viewSellers": "Rapport vendeur"
+        },
+        "kpis": {
+          "aria": "Résumé des rapports",
+          "ticketsSold": "Tickets vendus",
+          "grossSales": "Ventes brutes",
+          "payoutsPaid": "Paiements versés",
+          "netRevenue": "Revenu net estimé"
+        },
+        "daily": {
+          "title": "Activité quotidienne",
+          "emptyTitle": "Aucune activité quotidienne",
+          "emptyMessage": "Aucune vente trouvée pour cette période."
+        },
+        "draws": {
+          "title": "Principaux tirages",
+          "emptyTitle": "Aucune vente par tirage",
+          "emptyMessage": "Les ventes par tirage apparaîtront ici après la vente de tickets."
+        },
+        "topDraws": {
+          "title": "Tirages avec le plus de tickets"
+        },
+        "topSelections": {
+          "title": "Numéros les plus vendus",
+          "emptyTitle": "Aucune activité par numéro",
+          "emptyMessage": "Les numéros vendus apparaîtront ici après la vente de lignes."
+        },
+        "sellers": {
+          "title": "Terminaux vendeurs principaux",
+          "emptyTitle": "Aucune activité vendeur",
+          "emptyMessage": "La performance vendeur apparaîtra ici après la vente de tickets."
+        }
+      },
+      "today": {
+        "title": "Rapport journalier"
+      },
+      "daily": {
+        "title": "Rapport journée",
+        "description": "Toute l'activité de vente pour la journée ou période sélectionnée.",
+        "loading": "Chargement du rapport journée...",
+        "kpisAria": "Résumé du rapport journée",
+        "chartTitle": "Tendance des ventes",
+        "rowsTitle": "Lignes journalières",
+        "emptyTitle": "Aucune activité quotidienne",
+        "emptyMessage": "Aucune vente trouvée pour cette période.",
+        "action": {
+          "print": "Imprimer",
+          "exportCsv": "Exporter CSV"
+        },
+        "filters": {
+          "aria": "Filtres du rapport journée",
+          "from": "Du",
+          "to": "Au"
+        },
+        "column": {
+          "date": "Date",
+          "tickets": "Tickets",
+          "sales": "Ventes",
+          "payouts": "Paiements",
+          "net": "Net estimé"
+        }
+      },
+      "draws": {
+        "title": "Rapport par tirage",
+        "description": "Ventes, paiements et revenu estimé regroupés par tirage.",
+        "loading": "Chargement du rapport par tirage...",
+        "kpisAria": "Résumé du rapport par tirage",
+        "rowsTitle": "Lignes par tirage",
+        "emptyTitle": "Aucune vente par tirage",
+        "emptyMessage": "Les ventes par tirage apparaîtront ici après la vente de tickets.",
+        "action": {
+          "print": "Imprimer",
+          "exportCsv": "Exporter CSV"
+        },
+        "filters": {
+          "aria": "Filtres du rapport par tirage",
+          "from": "Du",
+          "to": "Au",
+          "draws": "Tirages",
+          "drawsPlaceholder": "Rechercher California, New York, midi...",
+          "drawsHint": "Sélectionnez un ou plusieurs tirages pour cibler le rapport.",
+          "sort": "Tri"
+        },
+        "sort": {
+          "scheduledDesc": "Tirage le plus récent",
+          "scheduledAsc": "Tirage le plus ancien",
+          "salesDesc": "Ventes décroissantes",
+          "salesAsc": "Ventes croissantes",
+          "ticketsDesc": "Tickets décroissants",
+          "ticketsAsc": "Tickets croissants"
+        },
+        "column": {
+          "draw": "Tirage",
+          "tickets": "Tickets",
+          "sales": "Ventes",
+          "payouts": "Paiements",
+          "net": "Net estimé"
+        }
+      },
+      "sellers": {
+        "title": "Rapport vendeur",
+        "description": "Ventes, commissions et revenu estimé regroupés par terminal vendeur.",
+        "loading": "Chargement du rapport vendeur...",
+        "kpisAria": "Résumé du rapport vendeur",
+        "rowsTitle": "Lignes par terminal vendeur",
+        "emptyTitle": "Aucune activité vendeur",
+        "emptyMessage": "La performance vendeur apparaîtra ici après la vente de tickets.",
+        "action": {
+          "print": "Imprimer",
+          "exportCsv": "Exporter CSV"
+        },
+        "filters": {
+          "aria": "Filtres du rapport vendeur",
+          "from": "Du",
+          "to": "Au",
+          "sellers": "Vendeurs",
+          "sellersPlaceholder": "Rechercher nom vendeur ou code terminal",
+          "sellersHint": "Sélectionnez un ou plusieurs vendeurs pour cibler le rapport.",
+          "sort": "Tri"
+        },
+        "sort": {
+          "salesDesc": "Ventes décroissantes",
+          "salesAsc": "Ventes croissantes",
+          "commissionDesc": "Commission décroissante",
+          "commissionAsc": "Commission croissante",
+          "netDesc": "Net décroissant",
+          "netAsc": "Net croissant",
+          "averageDrawDesc": "Moyenne par tirage décroissante",
+          "averageDrawAsc": "Moyenne par tirage croissante"
+        },
+        "column": {
+          "seller": "Terminal vendeur",
+          "status": "Statut",
+          "tickets": "Tickets",
+          "sales": "Ventes",
+          "commission": "Commission",
+          "net": "Net estimé",
+          "averageDraw": "Moy. / tirage"
+        }
+      },
+      "export": {
+        "title": "Export et impression"
       }
     },
     "gamesPricing": {
@@ -617,6 +821,27 @@
         "commercial": "Commercial",
         "identity": "Identité",
         "region": "Région"
+      }
+    },
+    "support": {
+      "title": "Support",
+      "description": "Envoyez une demande à l’équipe Tchalanet depuis votre espace admin.",
+      "submit": "Envoyer la demande",
+      "reset": "Envoyer une autre demande",
+      "form": {
+        "title": "Demande de support",
+        "description": "Décrivez le problème ou la question. Nous reprendrons contact avec les coordonnées indiquées.",
+        "contactFallback": "Nom, téléphone et email sont optionnels. Si vous ne les renseignez pas, nous utiliserons le contact du compte admin connecté.",
+        "message": "Comment pouvons-nous vous aider ?",
+        "consent": "J’autorise Tchalanet à me contacter au sujet de cette demande."
+      },
+      "success": {
+        "title": "Demande envoyée",
+        "message": "Votre demande de support a été reçue. L’équipe Tchalanet vous contactera dès que possible."
+      },
+      "error": {
+        "title": "Envoi impossible",
+        "message": "La demande n’a pas pu être envoyée. Vérifiez les informations et réessayez."
       }
     },
     "onboarding": {

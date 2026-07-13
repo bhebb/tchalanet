@@ -47,6 +47,7 @@ export class SellerTerminalCreateFormComponent {
   readonly form = input.required<any>();
   readonly model = input.required<SellerTerminalCreateFormModel>();
   readonly saving = input(false);
+  readonly codeLoading = input(false);
   readonly error = input<ErrorViewModel | null>(null);
   readonly showPin = input(false);
   readonly showConfirmPin = input(false);

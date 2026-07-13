@@ -19,9 +19,9 @@ WITH g_src AS (
               ('HT_BOLET',  'Bolèt',   'HAITI', 'SINGLE',         2, 4, 'Jeu haïtien basé sur lots (lot1..lot4).', true, 10),
               ('HT_MARYAJ', 'Maryaj', 'HAITI', 'PAIR_UNORDERED', 2, 2, 'Mariage, paire non ordonnée.', true, 30),
               ('HT_MARYAJ_GRATIS', 'Maryaj gratis', 'HAITI', 'PAIR_UNORDERED', 2, 2, 'Variante promotionnelle du Maryaj.', true, 35),
-              ('HT_LOTO3',  'Loto 3',  'HAITI', 'EXACT',          3, 3, 'Loto 3, 3 chiffres.', true, 40),
-              ('HT_LOTO4',  'Loto 4',  'HAITI', 'EXACT',          4, 4, 'Loto 4, 4 chiffres.', true, 50),
-              ('HT_LOTO5',  'Loto 5',  'HAITI', 'EXACT',          5, 5, 'Loto 5, 5 chiffres.', true, 60)
+              ('HT_LOTO3',  'Loto 3',  'HAITI', 'EXACT',          3, 3, 'Loto 3 chiffres.', true, 40),
+              ('HT_LOTO4',  'Loto 4',  'HAITI', 'EXACT',          4, 4, 'Loto 4 chiffres.', true, 50),
+              ('HT_LOTO5',  'Loto 5',  'HAITI', 'EXACT',          5, 5, 'Loto 5 chiffres.', true, 60)
          ) AS v(code, name, category, combination, min_digits, max_digits, description, active, sort_order)
 )
 INSERT INTO game (
@@ -67,8 +67,9 @@ WITH t AS (
              g.code AS game_code,
              true AS enabled,
              g.name AS display_name,
-             NULL::numeric(12,2) AS min_stake,
-             NULL::numeric(12,2) AS max_stake,
+             1::numeric(12,2) AS min_stake,
+             1000000::numeric(12,2) AS max_stake,
+             true AS availability_enabled,
              CASE g.code
                  WHEN 'HT_BOLET' THEN
                      '[
@@ -78,7 +79,7 @@ WITH t AS (
                      ]'::jsonb
                  WHEN 'HT_MARYAJ' THEN
                      '[
-                       {"betType":"MARRIAGE_2D2D","selectionPolicy":"EXPLICIT_ONLY","defaultOption":1,
+                       {"betType":"MARRIAGE_2D2D","selectionPolicy":"IMPLICIT_BEST_MATCH","defaultOption":1,
                         "options":[
                           {"code":1,"enabled":true,"visibleInPos":true,"displayOrder":1},
                           {"code":2,"enabled":true,"visibleInPos":true,"displayOrder":2}
@@ -86,7 +87,7 @@ WITH t AS (
                      ]'::jsonb
                  WHEN 'HT_MARYAJ_GRATIS' THEN
                      '[
-                       {"betType":"MARRIAGE_2D2D","selectionPolicy":"EXPLICIT_ONLY","defaultOption":1,
+                       {"betType":"MARRIAGE_2D2D","selectionPolicy":"IMPLICIT_BEST_MATCH","defaultOption":1,
                         "options":[
                           {"code":1,"enabled":true,"visibleInPos":true,"displayOrder":1},
                           {"code":2,"enabled":true,"visibleInPos":true,"displayOrder":2}
@@ -94,7 +95,7 @@ WITH t AS (
                      ]'::jsonb
                  WHEN 'HT_LOTO3' THEN
                      '[
-                       {"betType":"LOTTO3_3D","selectionPolicy":"EXPLICIT_ONLY","defaultOption":1,
+                       {"betType":"LOTTO3_3D","selectionPolicy":"IMPLICIT_BEST_MATCH","defaultOption":1,
                         "options":[
                           {"code":1,"enabled":true,"visibleInPos":true,"displayOrder":1},
                           {"code":2,"enabled":true,"visibleInPos":true,"displayOrder":2}
@@ -102,7 +103,7 @@ WITH t AS (
                      ]'::jsonb
                  WHEN 'HT_LOTO4' THEN
                      '[
-                       {"betType":"LOTTO4_PATTERN","selectionPolicy":"EXPLICIT_ONLY","defaultOption":1,
+                       {"betType":"LOTTO4_PATTERN","selectionPolicy":"IMPLICIT_BEST_MATCH","defaultOption":1,
                         "options":[
                           {"code":1,"enabled":true,"visibleInPos":true,"displayOrder":1},
                           {"code":2,"enabled":true,"visibleInPos":true,"displayOrder":2},
@@ -112,7 +113,7 @@ WITH t AS (
                      ]'::jsonb
                  WHEN 'HT_LOTO5' THEN
                      '[
-                       {"betType":"LOTTO5_PATTERN","selectionPolicy":"EXPLICIT_ONLY","defaultOption":1,
+                       {"betType":"LOTTO5_PATTERN","selectionPolicy":"IMPLICIT_BEST_MATCH","defaultOption":1,
                         "options":[
                           {"code":1,"enabled":true,"visibleInPos":true,"displayOrder":1},
                           {"code":2,"enabled":true,"visibleInPos":true,"displayOrder":2},
@@ -124,12 +125,12 @@ WITH t AS (
      )
 INSERT INTO tenant_game (
   id, tenant_id, game_id, game_code, enabled, display_name,
-  min_stake, max_stake, bet_option_config,
+  min_stake, max_stake, availability_enabled, bet_option_config,
   created_at, updated_at, version
 )
 SELECT
     id, tenant_id, game_id, game_code, enabled, display_name,
-    min_stake, max_stake, bet_option_config,
+    min_stake, max_stake, availability_enabled, bet_option_config,
     now(), now(), 0
 FROM tg_src
     ON CONFLICT (tenant_id, game_id) DO UPDATE
@@ -137,6 +138,7 @@ FROM tg_src
                                             display_name = EXCLUDED.display_name,
                                             min_stake    = EXCLUDED.min_stake,
                                             max_stake    = EXCLUDED.max_stake,
+                                            availability_enabled = EXCLUDED.availability_enabled,
                                             bet_option_config = EXCLUDED.bet_option_config,
                                             updated_at   = now(),
                                             version      = tenant_game.version + 1

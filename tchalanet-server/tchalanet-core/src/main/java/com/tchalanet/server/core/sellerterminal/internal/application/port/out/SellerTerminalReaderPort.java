@@ -11,6 +11,7 @@ import com.tchalanet.server.core.sellerterminal.api.query.SellerTerminalSearchCr
 import com.tchalanet.server.core.sellerterminal.internal.domain.model.SellerTerminal;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 public interface SellerTerminalReaderPort {
@@ -20,6 +21,8 @@ public interface SellerTerminalReaderPort {
     Optional<SellerTerminal> findByExternalSubject(String provider, String issuer, String externalSubject);
 
     TchPage<SellerTerminalSummaryRow> search(TenantId tenantId, SellerTerminalSearchCriteria criteria, TchPageRequest pageRequest);
+
+    List<String> terminalCodes(TenantId tenantId);
 
     SellerTerminalCommissionStatsView commissionStats(TenantId tenantId, BigDecimal tenantDefaultRate);
 

@@ -18,13 +18,13 @@ import com.tchalanet.server.platform.entitlement.api.RequiredQuota;
 import com.tchalanet.server.platform.entitlement.api.UsageKeys; // Import UsageKeys
 import com.tchalanet.server.platform.identity.api.model.request.UpdateUserProfileRequest;
 import com.tchalanet.server.platform.accesscontrol.api.AccessControlApi;
+import com.tchalanet.server.platform.accesscontrol.api.PlatformUserRoleApi;
 import com.tchalanet.server.platform.accesscontrol.api.model.request.AssignRoleToUserRequest;
 import com.tchalanet.server.platform.identity.internal.service.CurrentUserProfileService;
 import com.tchalanet.server.platform.identity.internal.service.ExternalIdentityLinkService;
 import com.tchalanet.server.platform.identity.internal.service.TenantMembershipService;
 import com.tchalanet.server.platform.identity.internal.service.TenantUserAdministrationService;
 import com.tchalanet.server.platform.identity.internal.service.TenantUserProvisioningService;
-import com.tchalanet.server.platform.accesscontrol.internal.service.PlatformUserRoleService;
 import com.tchalanet.server.platform.identity.internal.web.admin.model.CreateUserRequest;
 import com.tchalanet.server.platform.identity.internal.web.admin.model.InvitationStatus;
 import com.tchalanet.server.platform.identity.internal.web.admin.model.LinkExternalIdentityRequest;
@@ -67,7 +67,7 @@ public class IdentityUserAdminController {
     private final ExternalIdentityLinkService externalIdentities;
     private final AccessControlApi accessControlApi;
     private final TenantUserProvisioningService provisioning;
-    private final PlatformUserRoleService platformUserRoles;
+    private final PlatformUserRoleApi platformUserRoles;
     private final TenantUserAdminViewAssembler view;
 
     @GetMapping

@@ -5,7 +5,11 @@ import { provideClientHydration, withEventReplay } from '@angular/platform-brows
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideRouter } from '@angular/router';
 import { TranslateLoader, provideTranslateService } from '@ngx-translate/core';
-import { TCH_API_BASE, correlationRequestInterceptor, problemDetailInterceptor } from '@tch/api';
+import {
+  TCH_API_BASE_RESOLVER,
+  correlationRequestInterceptor,
+  problemDetailInterceptor,
+} from '@tch/api';
 import { authBearerInterceptor, provideFirebaseAuthClient } from '@tch/core/auth';
 import {
   I18nEffects,
@@ -38,8 +42,9 @@ export const appConfig: ApplicationConfig = {
       runtimeConfigPath: environment.runtimeConfigPath,
     }),
     {
-      provide: TCH_API_BASE,
-      useFactory: (runtimeConfig: TchRuntimeConfigStore) => runtimeConfig.config().apiBaseUrl,
+      provide: TCH_API_BASE_RESOLVER,
+      useFactory: (runtimeConfig: TchRuntimeConfigStore) => () =>
+        runtimeConfig.config().apiBaseUrl,
       deps: [TchRuntimeConfigStore],
     },
     provideRouter(appRoutes),

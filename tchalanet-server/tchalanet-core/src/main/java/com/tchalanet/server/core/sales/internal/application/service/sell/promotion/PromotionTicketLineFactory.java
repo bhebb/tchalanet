@@ -10,15 +10,25 @@ import com.tchalanet.server.common.types.money.Money;
 import com.tchalanet.server.core.promotion.api.model.PromotionDecision;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffect;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffectType;
-import com.tchalanet.server.core.pricing.api.query.ResolveSellerTerminalOddsQuery;
+import com.tchalanet.server.core.pricing.api.model.OddsSource;
+import com.tchalanet.server.core.pricing.api.model.PayoutRuleType;
+import com.tchalanet.server.core.pricing.api.query.ResolveSellerTerminalPayoutRuleQuery;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketCommand;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptI18nKeys;
+import com.tchalanet.server.core.sales.api.model.settlement.PayoutRuleSnapshot;
+import com.tchalanet.server.core.sales.api.model.settlement.SettlementRuleCode;
+import com.tchalanet.server.core.sales.api.model.settlement.SettlementTermSnapshot;
+import com.tchalanet.server.core.sales.api.model.settlement.SettlementTermSource;
+import com.tchalanet.server.core.sales.api.model.settlement.SettlementTermsSnapshot;
+import com.tchalanet.server.core.sales.api.model.settlement.SettlementWinMode;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
 import com.tchalanet.server.core.sales.internal.domain.service.result.SettlementVariantResolver;
 import com.tchalanet.server.core.selection.api.SelectionApi;
 import com.tchalanet.server.catalog.game.api.model.BetType;
+import com.tchalanet.server.platform.tenantgame.api.model.SelectionPolicy;
 
+import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -104,7 +114,7 @@ public class PromotionTicketLineFactory {
             betOption,
             selectionResult.rawSelection());
 
-        var oddsResolution = queryBus.ask(new ResolveSellerTerminalOddsQuery(
+        var payoutRuleResolution = queryBus.ask(new ResolveSellerTerminalPayoutRuleQuery(
             command.tenantId(),
             sellerTerminalId,
             gameCode.name(),
@@ -112,16 +122,21 @@ public class PromotionTicketLineFactory {
             betType.name(),
             betOption));
 
-        var odds = Objects.requireNonNull(oddsResolution, "pricing odds resolution is required")
-            .effectiveOdds();
-        Objects.requireNonNull(odds, "pricing effective odds is required");
-        if (odds.signum() <= 0) {
-            throw new IllegalStateException("pricing effective odds must be positive");
-        }
-        odds = odds
-            .setScale(4, RoundingMode.HALF_UP);
-
-        var potential = payoutBase.multiply(odds).setScale(2, RoundingMode.HALF_UP);
+        Objects.requireNonNull(payoutRuleResolution, "pricing payout rule resolution is required");
+        var payoutRule = payoutRuleResolution.effectiveRuleType() == PayoutRuleType.FIXED_AMOUNT
+            ? PayoutRuleSnapshot.fixedAmount(payoutRuleResolution.effectiveFixedAmount())
+            : PayoutRuleSnapshot.stakeMultiplier(payoutRuleResolution.effectiveMultiplier());
+        var odds = compatibilityOdds(payoutRule).setScale(4, RoundingMode.HALF_UP);
+        var settlementTermsSnapshot = SettlementTermsSnapshot.current(
+            SelectionPolicy.EXPLICIT_ONLY,
+            List.of(new SettlementTermSnapshot(
+                SettlementRuleCode.fromPricingVariant(pricingVariantCode),
+                betOption,
+                null,
+                payoutRule,
+                payoutRule.type() == PayoutRuleType.STAKE_MULTIPLIER ? payoutBase : null,
+                SettlementWinMode.ALTERNATIVE,
+                toSettlementTermSource(payoutRuleResolution.source()))));
 
         return TicketLine.promotionLine(
             TicketLineId.of(idGenerator.newUuid()),
@@ -132,13 +147,25 @@ public class PromotionTicketLineFactory {
             Money.zero(currency),
             new Money(payoutBase, currency),
             odds,
-            new Money(potential, currency),
+            settlementTermsSnapshot,
             betOption,
             selectionResult.source(),
             decision.decisionId(),
             promotionLabel(effect),
             effect.type().name()
         );
+    }
+
+    private BigDecimal compatibilityOdds(PayoutRuleSnapshot payoutRule) {
+        return payoutRule.type() == PayoutRuleType.STAKE_MULTIPLIER
+            ? payoutRule.multiplier()
+            : BigDecimal.ONE;
+    }
+
+    private SettlementTermSource toSettlementTermSource(OddsSource source) {
+        return source == OddsSource.SELLER_TERMINAL_OVERRIDE
+            ? SettlementTermSource.SELLER_TERMINAL_OVERRIDE
+            : SettlementTermSource.TENANT_DEFAULT;
     }
 
     private String promotionLabel(PromotionEffect effect) {

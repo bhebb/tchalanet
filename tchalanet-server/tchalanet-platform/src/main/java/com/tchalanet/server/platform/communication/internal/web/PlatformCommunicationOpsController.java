@@ -13,9 +13,8 @@ import com.tchalanet.server.platform.communication.api.model.value.Communication
 import com.tchalanet.server.platform.communication.api.model.value.DeliveryStatus;
 import com.tchalanet.server.platform.communication.api.model.value.OutboundRecipient;
 import com.tchalanet.server.platform.communication.internal.persistence.MessageDeliveryAttemptJpaEntity;
-import com.tchalanet.server.platform.communication.internal.persistence.MessageDeliveryAttemptJpaRepository;
 import com.tchalanet.server.platform.communication.internal.persistence.OutboundMessageJpaEntity;
-import com.tchalanet.server.platform.communication.internal.persistence.OutboundMessageJpaRepository;
+import com.tchalanet.server.platform.communication.internal.service.CommunicationOpsQueryService;
 import com.tchalanet.server.platform.communication.internal.service.OutboundMessageDispatcher;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -27,9 +26,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,8 +44,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class PlatformCommunicationOpsController {
 
   private final CommunicationApi communicationApi;
-  private final OutboundMessageJpaRepository messages;
-  private final MessageDeliveryAttemptJpaRepository attempts;
+  private final CommunicationOpsQueryService opsQueryService;
   private final OutboundMessageDispatcher dispatcher;
 
   @GetMapping("/messages")
@@ -61,18 +57,13 @@ public class PlatformCommunicationOpsController {
           allowedSort = {"createdAt", "status", "channel", "nextAttemptAt", "sentAt", "failedAt"},
           defaultSort = {"createdAt,DESC"})
           TchPageRequest pageReq) {
-    var page =
-        messages.searchOpsMessages(
-            status, channel, tenantId, recipientPattern(recipient), pageReq.pageable());
-    var messageIds = page.getContent().stream().map(OutboundMessageJpaEntity::getId).toList();
-    var attemptsByMessage = messageIds.isEmpty()
-        ? Map.<UUID, List<MessageDeliveryAttemptJpaEntity>>of()
-        : attempts.findRecentForMessages(messageIds, PageRequest.of(0, Math.max(20, page.getContent().size() * 3)))
-            .stream()
-            .collect(Collectors.groupingBy(MessageDeliveryAttemptJpaEntity::getMessageId));
+    var snapshot =
+        opsQueryService.searchMessages(status, channel, tenantId, recipientPattern(recipient), pageReq.pageable());
 
-    var mapped = TchPageMapper.map(page, message -> toMessageView(message, attemptsByMessage.getOrDefault(message.getId(), List.of())));
-    return ApiResponse.success(new CommunicationQueueView(summary(), mapped));
+    var mapped = TchPageMapper.map(
+        snapshot.messages(),
+        message -> toMessageView(message, snapshot.attemptsByMessage().getOrDefault(message.getId(), List.of())));
+    return ApiResponse.success(new CommunicationQueueView(summary(snapshot.summary()), mapped));
   }
 
   @PostMapping("/dispatch-due")
@@ -162,14 +153,14 @@ public class PlatformCommunicationOpsController {
         ApiNotice.warn("COMMUNICATION_TEST_DEGRADED", result.reason())));
   }
 
-  private CommunicationQueueSummary summary() {
+  private CommunicationQueueSummary summary(CommunicationOpsQueryService.QueueSummary summary) {
     return new CommunicationQueueSummary(
-        messages.countByDeletedAtIsNullAndStatus(DeliveryStatus.PENDING),
-        messages.countByDeletedAtIsNullAndStatus(DeliveryStatus.DISPATCHING),
-        messages.countByDeletedAtIsNullAndStatus(DeliveryStatus.SENT),
-        messages.countByDeletedAtIsNullAndStatus(DeliveryStatus.FAILED),
-        messages.countByDeletedAtIsNullAndStatus(DeliveryStatus.SKIPPED),
-        messages.countByDeletedAtIsNullAndStatus(DeliveryStatus.CANCELLED));
+        summary.pending(),
+        summary.dispatching(),
+        summary.sent(),
+        summary.failed(),
+        summary.skipped(),
+        summary.cancelled());
   }
 
   private CommunicationMessageView toMessageView(

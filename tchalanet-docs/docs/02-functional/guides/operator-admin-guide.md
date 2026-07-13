@@ -29,6 +29,7 @@ En tant qu'opérateur ou admin, vous configurez et supervisez le réseau de vent
 | Étape | Flow |
 |---|---|
 | Créer un nouveau tenant | [Onboarding tenant](../flows/tenant-onboarding.md) |
+| Configurer jeux, options, barèmes et Maryaj gratis | [Configuration admin des jeux](admin-game-configuration.md) |
 | Intégrer un vendeur | [Onboarding vendeur](../flows/seller-onboarding.md) |
 | Lier un terminal POS | [Liaison terminal](../flows/terminal-binding.md) |
 | Sélectionner le POS admin | [Sélection POS admin](../flows/admin-pos-selection.md) |
@@ -38,7 +39,7 @@ En tant qu'opérateur ou admin, vous configurez et supervisez le réseau de vent
 | Action | Flow |
 |---|---|
 | Ouvrir une session de vente | [Ouverture de session](../flows/session-opening.md) |
-| Suivre les ventes du jour | [Réconciliation](../flows/reconciliation.md) |
+| Suivre les ventes du jour | Rapports et settlement |
 | Clore et régler la journée | [Règlement (settlement)](../flows/settlement.md) |
 | Superviser le tirage | [Tirage (draw execution)](../flows/draw-execution.md) |
 
@@ -84,4 +85,4 @@ Pour les règles métier et les configurations avancées :
 
 **Un terminal ne répond plus** → Voir le flow [Liaison terminal](../flows/terminal-binding.md) — section rebinding.
 
-**La réconciliation ne balance pas** → Voir le flow [Réconciliation](../flows/reconciliation.md) — section écarts.
+**La réconciliation ne balance pas** → Vérifier les rapports de vente, les sessions ouvertes et le settlement du jour.

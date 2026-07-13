@@ -65,7 +65,7 @@ public class SellerTerminalOddsOverrideJpaAdapter
             TenantId.of(e.getTenantId()),
             SellerTerminalId.of(e.getSellerTerminalId()),
             e.getGameCode(), PricingVariantCode.valueOf(e.getPricingVariantCode()), e.getBetType(), e.getBetOption(),
-            e.getOdds(), e.isActive(),
+            e.getOdds(), e.getPayoutRuleType(), e.getFixedAmount(), e.isActive(),
             e.getEffectiveFrom(), e.getEffectiveTo(), e.getReason(),
             e.getCreatedAt(),
             UserId.nullableOf(e.getCreatedBy()),
@@ -83,6 +83,8 @@ public class SellerTerminalOddsOverrideJpaAdapter
         e.setBetType(o.betType());
         e.setBetOption(o.betOption());
         e.setOdds(o.odds());
+        e.setPayoutRuleType(o.payoutRuleType());
+        e.setFixedAmount(o.fixedAmount());
         e.setActive(o.active());
         e.setEffectiveFrom(o.effectiveFrom());
         e.setEffectiveTo(o.effectiveTo());

@@ -38,13 +38,12 @@ public class TicketReceiptBrandingFormatter {
     ) {
         var lines = new ArrayList<TicketReceiptTextLine>();
         addBranding(lines, firstNonBlank(receipt.tenantDisplayName(), "TCHALANET"), receipt.tenantReceiptHeader(), tenantMode);
-        addBranding(lines, receipt.sellerDisplayName(), receipt.outletReceiptHeader(), outletMode);
         return List.copyOf(lines);
     }
 
     public List<TicketReceiptTextLine> footerLines(TicketReceiptView receipt) {
         var lines = new ArrayList<TicketReceiptTextLine>();
-        add(lines, receipt.tenantReceiptFooter(), false);
+        addMultiline(lines, receipt.tenantReceiptFooter(), false);
         return List.copyOf(lines);
     }
 
@@ -83,18 +82,26 @@ public class TicketReceiptBrandingFormatter {
     ) {
         switch (mode == null ? ReceiptBrandingDisplayMode.AUTO : mode) {
             case NAME_ONLY -> add(lines, name, true);
-            case HEADER_ONLY -> add(lines, header, false);
+            case HEADER_ONLY -> addMultiline(lines, header, false);
             case NAME_AND_HEADER -> {
                 add(lines, name, true);
-                add(lines, header, false);
+                addMultiline(lines, header, false);
             }
             case AUTO -> {
+                add(lines, name, true);
                 if (header != null && !header.isBlank()) {
-                    add(lines, header, false);
-                } else {
-                    add(lines, name, true);
+                    addMultiline(lines, header, false);
                 }
             }
+        }
+    }
+
+    private void addMultiline(List<TicketReceiptTextLine> lines, String value, boolean bold) {
+        if (value == null || value.isBlank()) {
+            return;
+        }
+        for (var line : value.split("\\R")) {
+            add(lines, line, bold);
         }
     }
 

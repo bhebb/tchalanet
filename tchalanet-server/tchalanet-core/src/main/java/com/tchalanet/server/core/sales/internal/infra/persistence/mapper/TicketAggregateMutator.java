@@ -3,7 +3,6 @@ package com.tchalanet.server.core.sales.internal.infra.persistence.mapper;
 import com.tchalanet.server.core.sales.api.model.money.TicketCharge;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.Ticket;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
-import com.tchalanet.server.core.sales.internal.infra.persistence.entity.TicketLineCoverageJpaEntity;
 import com.tchalanet.server.core.sales.internal.infra.persistence.entity.TicketChargeJpaEntity;
 import com.tchalanet.server.core.sales.internal.infra.persistence.entity.TicketJpaEntity;
 import com.tchalanet.server.core.sales.internal.infra.persistence.entity.TicketLineJpaEntity;
@@ -48,7 +47,6 @@ public class TicketAggregateMutator {
         requireSame("currency", managed.getCurrency(), domain.money().currency().value());
         requireSame("stakeAmount", managed.getStakeAmount(), domain.money().breakdown().stake().amount());
         requireSame("totalAmount", managed.getTotalAmount(), domain.money().breakdown().total().amount());
-        requireSame("potentialPayoutAmount", managed.getPotentialPayoutAmount(), domain.potentialPayout().amount());
     }
 
     private void applyLines(TicketJpaEntity managed, Ticket domain) {
@@ -84,51 +82,12 @@ public class TicketAggregateMutator {
         requireSame("line.gameCode", managed.getGameCode(), domain.gameCode());
         requireSame("line.betType", managed.getBetType(), domain.betType());
         requireSame("line.betOption", managed.getBetOption(), domain.betOption());
+        requireSame("line.selectionPolicySnapshot", managed.getSelectionPolicySnapshot(), domain.selectionPolicySnapshot());
+        requireSame("line.betOptionLabelSnapshot", managed.getBetOptionLabelSnapshot(), domain.betOptionLabelSnapshot());
         requireSame("line.selectionKey", managed.getSelectionKey(), domain.selection().key().value());
         requireSame("line.displaySelection", managed.getDisplaySelection(), domain.selection().displayLabel());
         requireSame("line.stakeAmount", managed.getStakeAmount(), domain.stakeAmount().amount());
-        requireSame("line.oddsSnapshot", managed.getOddsSnapshot(), domain.oddsSnapshot());
-        requireSame(
-            "line.potentialPayoutAmount",
-            managed.getPotentialPayoutAmount(),
-            domain.potentialPayoutAmount().amount());
-        requireSame("line.potentialGainMode", managed.getPotentialGainMode(), domain.potentialGainMode());
-        requireSame("line.minPotentialGain", managed.getMinPotentialGain(), domain.minPotentialGain().amount());
-        requireSame("line.maxPotentialGain", managed.getMaxPotentialGain(), domain.maxPotentialGain().amount());
-        requireSame(
-            "line.totalPotentialGain",
-            managed.getTotalPotentialGain(),
-            domain.totalPotentialGain() == null ? null : domain.totalPotentialGain().amount());
-        assertImmutableCoverageFields(managed, domain);
-    }
-
-    private void assertImmutableCoverageFields(TicketLineJpaEntity managed, TicketLine domain) {
-        Map<Object, TicketLineCoverageJpaEntity> existingByVariant = new LinkedHashMap<>();
-        for (var coverage : managed.getCoverages()) {
-            existingByVariant.put(coverage.getPricingVariantCode(), coverage);
-        }
-
-        for (var domainCoverage : domain.coverages()) {
-            var existing = existingByVariant.remove(domainCoverage.pricingVariantCode());
-            if (existing == null) {
-                throw new IllegalStateException(
-                    "Ticket immutable field changed: line.coverage missing expected="
-                        + domainCoverage.pricingVariantCode());
-            }
-            requireSame("line.coverage.stakeAmount", existing.getStakeAmount(), domainCoverage.stakeAmount().amount());
-            requireSame("line.coverage.oddsSnapshot", existing.getOddsSnapshot(), domainCoverage.oddsSnapshot());
-            requireSame(
-                "line.coverage.potentialGainSnapshot",
-                existing.getPotentialGainSnapshot(),
-                domainCoverage.potentialGainSnapshot().amount());
-            requireSame("line.coverage.winMode", existing.getWinMode(), domainCoverage.winMode());
-        }
-
-        if (!existingByVariant.isEmpty()) {
-            throw new IllegalStateException(
-                "Ticket immutable field changed: line.coverage unexpected actual="
-                    + existingByVariant.keySet());
-        }
+        requireSame("line.settlementTermsSnapshot", managed.getSettlementTermsSnapshot(), domain.settlementTermsSnapshot());
     }
 
     private void applyMutableLineFields(TicketLineJpaEntity managed, TicketLine domain) {

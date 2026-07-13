@@ -45,7 +45,6 @@ GET /public/tickets/{publicCode}/verify?verificationCode=<code>
       "betTypeLabel": "Match 1 2D",
       "selection": "11",
       "stake": { "amount": "15.00", "currency": "HTG" },
-      "potentialPayout": { "amount": "150.00", "currency": "HTG" },
       "promotional": false,
       "promotionLabel": null
     }
@@ -85,6 +84,7 @@ Ces statuts sont une projection publique — ils ne correspondent pas 1:1 à `Ti
 - Appelle `core.sales` via `QueryBus` — jamais directement les repositories
 - Les DTOs ne contiennent pas d'UUID internes (`ticketId`, `drawId`, `tenantId`, `addressId`)
 - L'outlet est masqué partiellement (`TicketVerifyOutletView`)
+- Les lignes n'exposent aucun gain avant résultat; seuls les gains réalisés sont visibles via `winningAmount` quand le ticket est gagnant.
 - Les lignes promotionnelles affichent `promotional: true` + `promotionLabel` mais pas les IDs promotion
 - La vérification depuis le POS cashier passe par `POST /tenant/cashier/tickets/verify` (authentifiée) — retourne les actions disponibles (`EXECUTE_PAYOUT`, etc.)
 

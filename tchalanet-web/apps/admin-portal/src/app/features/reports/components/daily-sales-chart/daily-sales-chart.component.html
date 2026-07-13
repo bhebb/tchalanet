@@ -1,0 +1,12 @@
+<div class="daily-sales-chart">
+  @for (point of points(); track point.label) {
+    <div class="daily-sales-chart__row">
+      <span class="daily-sales-chart__label">{{ point.label }}</span>
+      <div class="daily-sales-chart__track" aria-hidden="true">
+        <span class="daily-sales-chart__bar" [style.width]="barWidth(point)"></span>
+      </div>
+      <strong>{{ point.grossSales | number:'1.2-2' }} {{ currency() }}</strong>
+      <span>{{ point.ticketsSold | number }}</span>
+    </div>
+  }
+</div>

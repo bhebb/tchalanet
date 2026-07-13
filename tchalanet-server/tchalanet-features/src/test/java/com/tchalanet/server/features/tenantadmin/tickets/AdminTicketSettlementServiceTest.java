@@ -11,6 +11,7 @@ import com.tchalanet.server.core.sales.api.model.promotion.TicketLineOrigin;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSource;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource;
 import com.tchalanet.server.core.sales.internal.application.service.result.SettlementExplanationService;
+import com.tchalanet.server.platform.tenantgame.api.model.SelectionPolicy;
 import java.math.BigDecimal;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -64,16 +65,15 @@ class AdminTicketSettlementServiceTest {
             game,
             betType,
             betOption,
+            null,
             game.name(),
             selection,
             selection,
-            new BigDecimal("12.5"),
             money("10"),
-            money("125"),
+            SelectionPolicy.EXPLICIT_ONLY,
             TicketLineOrigin.CUSTOMER,
             TicketLinePricingSource.STANDARD,
             TicketLineSelectionSource.CUSTOMER_SELECTED,
-            money("10"),
             null,
             null,
             null);

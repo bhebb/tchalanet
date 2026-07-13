@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 class RuntimeControllerTest {
 
     @Test
-    void privateBootstrapExposesLegacyAliasAndCanonicalRoute() throws Exception {
+    void privateBootstrapExposesLegacyAliasesAndCanonicalRoute() throws Exception {
         var mapping =
             PrivateBootstrapRuntimeController.class
                 .getDeclaredMethod(
@@ -19,6 +19,9 @@ class RuntimeControllerTest {
                 .getAnnotation(GetMapping.class);
 
         assertThat(Arrays.asList(mapping.value()))
-            .containsExactlyInAnyOrder("/runtime/private", "/tenant/runtime/bootstrap");
+            .containsExactlyInAnyOrder(
+                "/runtime/private",
+                "/tenant/runtime/bootstrap",
+                "/tenant/me/bootstrap");
     }
 }

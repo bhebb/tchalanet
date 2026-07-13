@@ -142,8 +142,6 @@ interface AnalyticsDailyUpsertRepository {
       long waivedChargeDelta,
       long promotionLineCountDelta,
       long promotionPricedLineCountDelta,
-      long promotionPayoutBaseDelta,
-      long promotionPotentialPayoutDelta,
       long sessionsOpenedDelta,
       long sessionsClosedDelta);
 }
@@ -170,13 +168,12 @@ class AnalyticsDailyUpsertRepositoryImpl implements AnalyticsDailyUpsertReposito
       long buyerChargeDelta, long sellerChargeDelta,
       long tenantChargeDelta, long waivedChargeDelta,
       long promotionLineCountDelta, long promotionPricedLineCountDelta,
-      long promotionPayoutBaseDelta, long promotionPotentialPayoutDelta,
       long sessionsOpenedDelta, long sessionsClosedDelta) {
 
     em.createNativeQuery("SELECT public.upsert_analytics_daily("
             + ":dt, :dimId, :tid, :rd, :ts, :tc, :gs, :st, :wc, :pp, :comm, "
             + ":buyerCharge, :sellerCharge, :tenantCharge, :waivedCharge, "
-            + ":promoLineCount, :promoPricedLineCount, :promoBase, :promoPotential, :so, :sc)")
+            + ":promoLineCount, :promoPricedLineCount, :so, :sc)")
         .setParameter("dt",   dimensionType)
         .setParameter("dimId", dimensionId)
         .setParameter("tid",   tenantId)
@@ -194,8 +191,6 @@ class AnalyticsDailyUpsertRepositoryImpl implements AnalyticsDailyUpsertReposito
         .setParameter("waivedCharge", waivedChargeDelta)
         .setParameter("promoLineCount", promotionLineCountDelta)
         .setParameter("promoPricedLineCount", promotionPricedLineCountDelta)
-        .setParameter("promoBase", promotionPayoutBaseDelta)
-        .setParameter("promoPotential", promotionPotentialPayoutDelta)
         .setParameter("so",    sessionsOpenedDelta)
         .setParameter("sc",    sessionsClosedDelta)
         .getSingleResult();

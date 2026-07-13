@@ -14,7 +14,11 @@
   @for (line of lines(); track line.localId) {
     <div class="ple__row">
       <div class="ple__col ple__col--num">
-        <div class="ple__ball">{{ line.selection }}</div>
+        <tch-game-selection-chip
+          class="ple__selection-chip"
+          [gameCode]="line.gameCode"
+          [selection]="line.selection"
+        />
       </div>
       <div class="ple__col ple__col--type">
         <span class="ple__bet-type">{{ line.betTypeLabel }}</span>
@@ -90,20 +94,63 @@
     <div class="ple__new-label">Nouvelle sélection</div>
     <div class="ple__add-row" [class.ple__add-row--first]="lines().length === 0">
       <div class="ple__col ple__col--num">
-        <div class="ple__input-ball-wrap">
+        <div
+          class="ple__input-ball-wrap"
+          [class.ple__input-ball-wrap--valid]="draftSelectionState() === 'valid'"
+          [class.ple__input-ball-wrap--invalid]="draftSelectionState() === 'invalid'"
+        >
           <span class="material-symbols-outlined ple__input-icon">keyboard</span>
-          <input
-            class="ple__num-input"
-            type="text"
-            inputmode="numeric"
-            placeholder="Numéro"
-            [ngModel]="draftSelection()"
-            (ngModelChange)="draftSelection.set($event)"
-            (keydown)="onDraftKeydown($event)"
-            autocomplete="off"
-            [attr.maxlength]="selectionMaxLength()"
-          />
+          @if (isMarriageSelection()) {
+            <div class="ple__marriage-inputs" aria-label="Numéros Maryaj">
+              <label class="ple__marriage-slot">
+                <span>1er</span>
+                <input
+                  class="ple__num-input ple__num-input--segment"
+                  type="text"
+                  inputmode="numeric"
+                  placeholder="00"
+                  [ngModel]="draftMarriageFirst()"
+                  (ngModelChange)="setMarriageFirst($event)"
+                  (keydown)="onDraftKeydown($event)"
+                  autocomplete="off"
+                  maxlength="2"
+                  aria-label="Premier numéro Maryaj"
+                />
+              </label>
+              <span class="ple__marriage-separator" aria-hidden="true">+</span>
+              <label class="ple__marriage-slot">
+                <span>2e</span>
+                <input
+                  class="ple__num-input ple__num-input--segment"
+                  type="text"
+                  inputmode="numeric"
+                  placeholder="00"
+                  [ngModel]="draftMarriageSecond()"
+                  (ngModelChange)="setMarriageSecond($event)"
+                  (keydown)="onDraftKeydown($event)"
+                  autocomplete="off"
+                  maxlength="2"
+                  aria-label="Deuxième numéro Maryaj"
+                />
+              </label>
+            </div>
+          } @else {
+            <input
+              class="ple__num-input"
+              type="text"
+              inputmode="numeric"
+              [placeholder]="selectionGuide()"
+              [ngModel]="draftSelection()"
+              (ngModelChange)="setDraftSelection($event)"
+              (keydown)="onDraftKeydown($event)"
+              autocomplete="off"
+              [attr.maxlength]="selectionMaxLength()"
+            />
+          }
         </div>
+        <p class="ple__selection-hint" [class.ple__selection-hint--error]="draftSelectionState() === 'invalid'">
+          {{ draftSelectionMessage() }}
+        </p>
       </div>
 
       <div class="ple__col ple__col--type">
@@ -152,7 +199,7 @@
     </div>
 
     @if (selectedBetType(); as betType) {
-      @if (betType.requiresOption && betType.options.length > 0) {
+      @if (requiresBetOption() && betType.options.length > 0) {
         <div class="ple__option-row">
           <span class="ple__option-label">Option</span>
           <select
@@ -195,7 +242,7 @@
     }
   } @else {
     <p class="ple__sold-hint">
-      Ticket vendu. Créez un nouveau ticket pour ajouter d'autres numéros.
+      {{ readonlyMessage() }}
     </p>
   }
 

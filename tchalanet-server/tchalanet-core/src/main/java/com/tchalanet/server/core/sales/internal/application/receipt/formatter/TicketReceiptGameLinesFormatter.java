@@ -3,7 +3,7 @@ package com.tchalanet.server.core.sales.internal.application.receipt.formatter;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptI18nKeys;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptLineView;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptTextLine;
-import com.tchalanet.server.core.sales.api.model.coverage.PotentialGainMode;
+import java.math.BigDecimal;
 import com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketReceiptI18nResolver.TicketReceiptTranslations;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -26,13 +26,18 @@ public class TicketReceiptGameLinesFormatter {
     ) {
         var lines = new ArrayList<TicketReceiptTextLine>();
         add(lines, header(translations, profile), false);
+        var hasComplimentaryMaryaj = false;
         for (var line : receiptLines) {
-            add(lines, lineRow(line, profile), false);
-            add(lines, layout.truncate(labelResolver.lineOptionLabel(line, translations), profile.charsPerLine()), true);
-            if (line.promotional()) {
+            add(lines, lineRow(line, translations, profile), false);
+            if (line.promotional() && !isComplimentaryMaryaj(line)) {
                 var promo = translations.text(TicketReceiptI18nKeys.PROMOTION) + ": " + promotionLabel(line, translations);
                 add(lines, layout.truncate(promo, profile.charsPerLine()), false);
             }
+            hasComplimentaryMaryaj = hasComplimentaryMaryaj || isComplimentaryMaryaj(line);
+        }
+        if (hasComplimentaryMaryaj) {
+            add(lines, layout.truncate(translations.text(TicketReceiptI18nKeys.PROMOTION_MARYAJ_OFFERED_NOTE),
+                profile.charsPerLine()), false);
         }
         return List.copyOf(lines);
     }
@@ -47,48 +52,40 @@ public class TicketReceiptGameLinesFormatter {
     }
 
     private String header(TicketReceiptTranslations translations, TicketReceiptLayoutProfile profile) {
-        // Use 3-column layout: choice ("#n selection"), stake, payout
+        // Realized gains are shown after settlement through verification,
+        // not as sale-time payout estimates.
         var cols = computeColumnWidths(profile);
         int choiceW = cols[0];
         int stakeW = cols[1];
-        int payoutW = cols[2];
 
         var partChoice = layout.rightPad(translations.text(TicketReceiptI18nKeys.LINE_HEADER_NO), choiceW);
         var partStake = layout.leftPad(translations.text(TicketReceiptI18nKeys.LINE_HEADER_STAKE), stakeW);
-        var partPayout = layout.leftPad(translations.text(TicketReceiptI18nKeys.LINE_HEADER_PAYOUT), payoutW);
 
-        return layout.truncate(partChoice + " " + partStake + " " + partPayout, profile.charsPerLine());
+        return layout.truncate(partChoice + " " + partStake, profile.charsPerLine());
     }
 
-    private String lineRow(TicketReceiptLineView line, TicketReceiptLayoutProfile profile) {
+    private String lineRow(
+        TicketReceiptLineView line,
+        TicketReceiptTranslations translations,
+        TicketReceiptLayoutProfile profile
+    ) {
         var cols = computeColumnWidths(profile);
         int choiceW = cols[0];
         int stakeW = cols[1];
-        int payoutW = cols[2];
 
-        var choice = "#" + line.lineNo() + " " + (line.selection() == null ? "" : line.selection());
+        var choice = selectionDisplay(line);
+        var optionLabel = labelResolver.lineOptionLabel(line, null);
+        if (optionLabel != null && !optionLabel.isBlank()) {
+            choice = choice + "  " + optionLabel;
+        }
         var choicePart = layout.rightPad(choice, choiceW);
-        var stakePart = layout.leftPad(moneyFormatter.format(line.stake(), profile), stakeW);
-        var payoutPart = layout.leftPad(potentialPayoutDisplay(line, profile), payoutW);
+        var stakePart = layout.leftPad(stakeDisplay(line, translations, profile), stakeW);
 
-        var row = choicePart + " " + stakePart + " " + payoutPart;
+        var row = choicePart + " " + stakePart;
         return layout.truncate(row, profile.charsPerLine());
     }
 
     // labelResolver handles optionLabel vs betType via translations; no local fallback needed here
-
-    private String potentialPayoutDisplay(TicketReceiptLineView line, TicketReceiptLayoutProfile profile) {
-        if (line.potentialGainMode() == PotentialGainMode.RANGE_ALTERNATIVE) {
-            var min = moneyFormatter.format(line.minPotentialPayout(), profile);
-            var max = moneyFormatter.format(line.maxPotentialPayout(), profile);
-            return min + "-" + max;
-        }
-        if (line.potentialGainMode() == PotentialGainMode.RANGE_CUMULATIVE
-            && line.totalPotentialPayout() != null) {
-            return moneyFormatter.format(line.totalPotentialPayout(), profile);
-        }
-        return moneyFormatter.format(line.potentialPayout(), profile);
-    }
 
     private String promotionLabel(TicketReceiptLineView line, TicketReceiptTranslations translations) {
         if (line.promotionLabel() != null && !line.promotionLabel().isBlank()) {
@@ -105,15 +102,59 @@ public class TicketReceiptGameLinesFormatter {
         return translations.text(TicketReceiptI18nKeys.PROMOTION);
     }
 
+    private String selectionDisplay(TicketReceiptLineView line) {
+        var selection = line.selection() == null ? "" : line.selection();
+        if ("MARRIAGE_2D2D".equals(line.betType())) {
+            selection = maryajSelection(selection);
+        }
+        if (isComplimentaryMaryaj(line)) {
+            return "* " + selection;
+        }
+        return selection;
+    }
+
+    private String maryajSelection(String selection) {
+        if (selection == null || selection.isBlank()) {
+            return "";
+        }
+        var normalized = selection.trim()
+            .replace(" x ", " × ")
+            .replace(" X ", " × ")
+            .replace(" - ", " × ")
+            .replace("-", " × ");
+        if (normalized.matches("\\d{4}")) {
+            return normalized.substring(0, 2) + " × " + normalized.substring(2);
+        }
+        return normalized;
+    }
+
+    private String stakeDisplay(
+        TicketReceiptLineView line,
+        TicketReceiptTranslations translations,
+        TicketReceiptLayoutProfile profile
+    ) {
+        if (isComplimentaryMaryaj(line)) {
+            return translations.text(TicketReceiptI18nKeys.PROMOTION_FREE_GAME_SHORT);
+        }
+        return moneyFormatter.format(line.stake(), profile);
+    }
+
+    private boolean isComplimentaryMaryaj(TicketReceiptLineView line) {
+        return "HT_MARYAJ_GRATIS".equals(line.gameCode())
+            && "MARRIAGE_2D2D".equals(line.betType())
+            && "FREE_GAME_LINE".equals(line.promotionEffectType())
+            && line.stake() != null
+            && line.stake().amount().compareTo(BigDecimal.ZERO) == 0;
+    }
+
     private int[] computeColumnWidths(TicketReceiptLayoutProfile profile) {
         int chars = profile.charsPerLine();
 
-        // Heuristic: allocate fixed widths for stake/payout and rest to choice column.
+        // Heuristic: allocate fixed width for stake and rest to choice column.
         // Assumes reasonable receipt widths (>= ~15). For very small widths the truncate
         // logic will still ensure lines fit, but such profiles are out of scope for V1.
         int stakeW = 10;
-        int payoutW = 10;
-        int used = stakeW + payoutW + 2; // two spaces between columns
+        int used = stakeW + 1; // one space between columns
         int choiceW = chars - used;
 
         // ensure minimal widths
@@ -121,10 +162,7 @@ public class TicketReceiptGameLinesFormatter {
             int deficit = 6 - choiceW;
             int reduceStake = Math.min(Math.max(0, stakeW - 6), deficit);
             stakeW -= reduceStake;
-            deficit -= reduceStake;
-            int reducePayout = Math.min(Math.max(0, payoutW - 6), deficit);
-            payoutW -= reducePayout;
-            used = stakeW + payoutW + 2;
+            used = stakeW + 1;
             choiceW = chars - used;
         }
 
@@ -132,7 +170,7 @@ public class TicketReceiptGameLinesFormatter {
             choiceW = 1;
         }
 
-        return new int[]{choiceW, stakeW, payoutW};
+        return new int[]{choiceW, stakeW};
     }
 
     private void add(List<TicketReceiptTextLine> lines, String value, boolean bold) {

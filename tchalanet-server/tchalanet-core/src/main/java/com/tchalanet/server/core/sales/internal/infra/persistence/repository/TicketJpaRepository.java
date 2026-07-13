@@ -104,4 +104,40 @@ public interface TicketJpaRepository extends TchJpaRepository<TicketJpaEntity, U
         @Param("status") TicketSaleStatus status,
         @Param("from") Instant from,
         @Param("to") Instant to);
+
+    @Query(value = """
+        SELECT ranked.rn,
+               ranked.display_selection,
+               ranked.game_code,
+               ranked.bet_type,
+               ranked.bet_option,
+               ranked.line_count,
+               ranked.total_stake
+        FROM (
+            SELECT tl.display_selection,
+                   CAST(tl.game_code AS text) AS game_code,
+                   CAST(tl.bet_type AS text) AS bet_type,
+                   tl.bet_option,
+                   COUNT(*) AS line_count,
+                   COALESCE(SUM(tl.stake_amount), 0) AS total_stake,
+                   ROW_NUMBER() OVER (
+                       ORDER BY COUNT(*) DESC, COALESCE(SUM(tl.stake_amount), 0) DESC
+                   ) AS rn
+            FROM sales_ticket_line tl
+            JOIN sales_ticket t ON t.id = tl.ticket_id AND t.deleted_at IS NULL
+            WHERE t.tenant_id = :tenantId
+              AND t.sale_status = 'APPROVED'
+              AND t.sold_at >= :from
+              AND t.sold_at < :to
+              AND tl.deleted_at IS NULL
+            GROUP BY tl.selection_key, tl.display_selection, tl.game_code, tl.bet_type, tl.bet_option
+        ) ranked
+        WHERE ranked.rn <= :limit
+        ORDER BY ranked.rn
+        """, nativeQuery = true)
+    List<Object[]> topSelectionsByTenantAndPeriod(
+        @Param("tenantId") UUID tenantId,
+        @Param("from") Instant from,
+        @Param("to") Instant to,
+        @Param("limit") int limit);
 }

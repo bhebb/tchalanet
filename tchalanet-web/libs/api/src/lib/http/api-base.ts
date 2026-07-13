@@ -17,3 +17,9 @@ import { InjectionToken } from '@angular/core';
 export const TCH_API_BASE = new InjectionToken<string>('TCH_API_BASE', {
   factory: () => '/api/v1',
 });
+
+export type TchApiBaseResolver = () => string;
+
+export const TCH_API_BASE_RESOLVER = new InjectionToken<TchApiBaseResolver>(
+  'TCH_API_BASE_RESOLVER',
+);

@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.pricing.internal.infra.persistence;
 
 import com.tchalanet.server.common.persistence.BaseTenantEntity;
+import com.tchalanet.server.core.pricing.api.model.PayoutRuleType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -39,6 +40,13 @@ public class SellerTerminalOddsOverrideJpaEntity extends BaseTenantEntity {
     @Column(name = "odds", nullable = false, precision = 12, scale = 4)
     private BigDecimal odds;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "payout_rule_type", nullable = false, length = 32)
+    private PayoutRuleType payoutRuleType = PayoutRuleType.STAKE_MULTIPLIER;
+
+    @Column(name = "fixed_amount", precision = 19, scale = 4)
+    private BigDecimal fixedAmount;
+
     @Column(name = "active", nullable = false)
     private boolean active = true;
 
@@ -50,13 +58,4 @@ public class SellerTerminalOddsOverrideJpaEntity extends BaseTenantEntity {
 
     @Column(name = "reason", length = 500)
     private String reason;
-
-    @Column(name = "created_by")
-    private UUID createdBy;
-
-    @Column(name = "updated_by")
-    private UUID updatedBy;
-
-    @Column(name = "deleted_at")
-    private Instant deletedAt;
 }

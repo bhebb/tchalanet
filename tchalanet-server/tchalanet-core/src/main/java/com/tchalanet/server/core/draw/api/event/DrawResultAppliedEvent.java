@@ -8,7 +8,7 @@ import java.time.LocalDate;
 
 /**
  * Publié quand un {@code Draw} tenant passe au statut {@code RESULTED}.
- * Signal tenant-scoped — consommé par {@code core.sales}, {@code features.stats} et le cache.
+ * Signal tenant-scoped — consommé par {@code core.sales}, {@code core.analytics} et le cache.
  *
  * @see com.tchalanet.server.core.drawresult.internal.domain.event.DrawResultIngestedEvent événement global
  */
@@ -23,4 +23,3 @@ public record DrawResultAppliedEvent(
     DrawChannelId drawChannelId)
     implements DomainEvent {
 }
-

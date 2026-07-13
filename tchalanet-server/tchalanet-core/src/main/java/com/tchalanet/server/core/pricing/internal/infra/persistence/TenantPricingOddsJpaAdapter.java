@@ -70,6 +70,8 @@ public class TenantPricingOddsJpaAdapter implements TenantPricingOddsReaderPort,
             e.getBetType(),
             e.getBetOption(),
             e.getOdds(),
+            e.getPayoutRuleType(),
+            e.getFixedAmount(),
             e.isActive(),
             e.getDeletedAt()
         );
@@ -82,6 +84,8 @@ public class TenantPricingOddsJpaAdapter implements TenantPricingOddsReaderPort,
         e.setBetType(odds.betType());
         e.setBetOption(odds.betOption());
         e.setOdds(odds.odds());
+        e.setPayoutRuleType(odds.payoutRuleType());
+        e.setFixedAmount(odds.fixedAmount());
         e.setActive(odds.active());
         e.setDeletedAt(odds.deletedAt());
     }

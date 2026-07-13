@@ -90,6 +90,15 @@
               }
             },
             {
+              "id": "admin.reports.overview",
+              "labelKey": "nav.admin.reports_overview",
+              "icon": "query_stats",
+              "destination": {
+                "kind": "route",
+                "value": "/app/admin/reports/overview"
+              }
+            },
+            {
               "id": "admin.support",
               "labelKey": "dashboard.fallback.actions.support",
               "icon": "support_agent",

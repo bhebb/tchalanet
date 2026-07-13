@@ -50,6 +50,29 @@ class PosGamesServiceTest {
         });
     }
 
+    @Test
+    void availableHidesOptionsWhenSelectionPolicyIsImplicitBestMatch() {
+        var tenantId = TenantId.of(UUID.randomUUID());
+        var config =
+            new TenantGameBetOptionConfigView(GameCode.HT_LOTO3.name(), List.of(
+                new TenantBetTypeOptionConfigView(
+                    BetType.LOTTO3_3D,
+                    SelectionPolicy.IMPLICIT_BEST_MATCH,
+                    (short) 1,
+                    List.of(
+                        new TenantBetOptionView((short) 1, "Exact", "Exact", true, true, 1),
+                        new TenantBetOptionView((short) 2, "Box", "Box", true, true, 2)))));
+        var tenantGameApi = new FakeTenantGameApi(config);
+
+        var result = new PosGamesService(tenantGameApi).listAvailable(tenantId);
+
+        assertThat(result).singleElement().satisfies(game -> {
+            assertThat(game.gameCode()).isEqualTo(GameCode.HT_LOTO3);
+            assertThat(game.selectionPolicy()).isEqualTo(SelectionPolicy.IMPLICIT_BEST_MATCH);
+            assertThat(game.options()).isEmpty();
+        });
+    }
+
     private record FakeTenantGameApi(TenantGameBetOptionConfigView config) implements TenantGameApi {
 
         @Override

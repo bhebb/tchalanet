@@ -34,7 +34,7 @@ Le bootstrap résout ensuite l'utilisateur via `app_user_external_identity`.
 `app_user` ne contient aucun identifiant fournisseur direct — le lien vers Firebase UID
 est dans `app_user_external_identity.external_subject` avec `provider=FIREBASE`.
 
-Les références `KeycloakUserSub` encore présentes dans quelques APIs sont des artefacts
+Les références `ExternalUserSubject` encore présentes dans quelques APIs sont des artefacts
 de migration — elles représentent le `external_subject` indépendamment du provider.
 
 Le provider actif est sélectionné par `tch.identity.provider`. En mode `firebase`, le decoder
@@ -101,7 +101,7 @@ CurrentUserView       getCurrentUser(GetCurrentUserRequest)
 BootstrapUserResult   bootstrapCurrentUser(BootstrapCurrentUserRequest)
   // isNew=true si premier bootstrap — idempotent
 UserProfileView       getUserProfile(GetUserProfileRequest)
-Optional<AppUserView> findAppUser(UUID keycloakSub)
+Optional<AppUserView> findAppUser(UUID externalSubject)
 long                  countTenantUsers()
 ```
 

@@ -50,7 +50,7 @@ class TenantUserProvisioningServiceTest {
     verify(accessControlApi).assignRoleToUser(roleReq.capture());
     assertThat(roleReq.getValue().tenantId()).isEqualTo(tenantId);
     assertThat(roleReq.getValue().userId()).isEqualTo(createdUserId);
-    assertThat(roleReq.getValue().roleCode()).isEqualTo("CASHIER");
+    assertThat(roleReq.getValue().roleCode()).isEqualTo("TENANT_ADMIN");
     assertThat(roleReq.getValue().assignedBy()).isEqualTo(actor);
 
   }

@@ -234,6 +234,17 @@ CREATE POLICY audit_event_rls_select ON audit_event
     public.allow_platform_cross_tenant_select()
     OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant())
   );
+CREATE POLICY audit_event_global_system_insert
+  ON audit_event
+  FOR INSERT
+  WITH CHECK (
+    tenant_id IS NULL
+    AND actor_type = 'SYSTEM'
+    AND actor_id IS NULL
+    AND created_by IS NULL
+    AND entity_type = 'SYSTEM'
+    AND action = 'OTHER'
+  );
 
 ALTER TABLE limit_assignment ENABLE ROW LEVEL SECURITY;
 ALTER TABLE limit_assignment FORCE ROW LEVEL SECURITY;
@@ -543,22 +554,6 @@ CREATE POLICY sales_ticket_line_rls_all ON sales_ticket_line
   )
   WITH CHECK (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant());
 CREATE POLICY sales_ticket_line_rls_select ON sales_ticket_line
-  FOR SELECT
-  USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
-
-ALTER TABLE sales_ticket_line_coverage ENABLE ROW LEVEL SECURITY;
-ALTER TABLE sales_ticket_line_coverage FORCE ROW LEVEL SECURITY;
-CREATE POLICY sales_ticket_line_coverage_rls_all ON sales_ticket_line_coverage
-  FOR ALL
-  USING (
-    public.current_tenant() IS NOT NULL
-    AND tenant_id = public.current_tenant()
-    AND (public.deleted_visibility() = 'all'
-      OR (public.deleted_visibility() = 'active' AND deleted_at IS NULL)
-      OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL))
-  )
-  WITH CHECK (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant());
-CREATE POLICY sales_ticket_line_coverage_rls_select ON sales_ticket_line_coverage
   FOR SELECT
   USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
 

@@ -35,8 +35,11 @@ EOF
   exit "${1:-0}"
 }
 
-# Validation du token Hetzner
-: "${HCLOUD_TOKEN:?HCLOUD_TOKEN not set. Please export HCLOUD_TOKEN=your-token}"
+# Validation auth Hetzner: HCLOUD_TOKEN env or active hcloud context.
+if ! hcloud network list >/dev/null 2>&1; then
+  error "Hetzner auth unavailable. Export HCLOUD_TOKEN or configure an hcloud context."
+  exit 1
+fi
 
 # Arguments avec valeurs par défaut
 NET_NAME="${1:-tch-net}"

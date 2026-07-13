@@ -4,24 +4,38 @@
 
 ## Responsibility
 
-- Own tenant default odds as runtime pricing configuration.
-- Store seller-terminal odds overrides.
-- Resolve effective odds for a seller-terminal sale.
+- Own tenant default payout rules as runtime pricing configuration.
+- Store seller-terminal payout overrides.
+- Resolve effective payout rules for a seller-terminal sale.
 - Expose query/command contracts through `core.pricing.api`.
 
-There is no platform pricing reference catalog in V0. Tenant default odds are persisted runtime
-configuration, and seller-terminal overrides resolve on top of them.
+There is no platform pricing reference catalog in V0. Tenant default pricing is persisted runtime
+configuration, and seller-terminal overrides resolve on top of it.
 
-## Effective odds resolution
+## Effective payout resolution
 
 The only supported order for a seller-terminal sale is:
 
 ```text
-seller-terminal active override -> tenant default odds -> error
+seller-terminal active override -> tenant default rule -> error
 ```
+
+Resolution is per pricing variant. A seller-terminal override for `MARRIAGE_EXACT_ORDER` does not
+affect `MARRIAGE_REVERSE_ALLOWED`; the sibling variant falls back to its tenant default rule.
+Overrides cannot be created without the matching tenant default rule.
 
 API:
 
+- `ListTenantPricingRulesQuery`
+- `TenantPricingRuleView`
+- `UpsertTenantPricingRuleCommand`
+- `ListSellerTerminalPricingRuleOverridesQuery`
+- `SellerTerminalPricingRuleOverrideView`
+- `UpsertSellerTerminalPricingRuleOverrideCommand`
+- `ResolveSellerTerminalPayoutRuleQuery`
+- `SellerTerminalPayoutRuleResolutionView`
+- `PayoutRuleType.STAKE_MULTIPLIER`
+- `PayoutRuleType.FIXED_AMOUNT`
 - `ResolveSellerTerminalOddsQuery`
 - `SellerTerminalOddsResolutionView`
 - `PricingVariantCode`
@@ -29,17 +43,43 @@ API:
 - `OddsSource.TENANT_DEFAULT`
 
 `core.sales` must resolve a `PricingVariantCode` from the commercial line and selection, then call
-`ResolveSellerTerminalOddsQuery` when preparing ticket lines for a seller terminal. This includes
-customer-paid lines and promotion-generated free game lines. It must then snapshot only the
-effective odds on `TicketLine.oddsSnapshot`.
+`ResolveSellerTerminalPayoutRuleQuery` when preparing ticket lines for a seller terminal. This
+includes customer-paid lines and promotion-generated free game lines. It must snapshot the effective
+rule in `TicketLine.settlementTermsSnapshot`.
+
+`ResolveSellerTerminalOddsQuery` remains as a compatibility contract for legacy odds callers. For
+new settlement flow, odds are only the `STAKE_MULTIPLIER` value; `FIXED_AMOUNT` rules settle from
+their fixed amount snapshot.
+
+Admin HTTP uses `/admin/controls/pricing-rules`.
+for V0 because fixed amounts and multipliers are both pricing rules.
+
+Tenant admin UI must expose both rule families:
+
+- `STAKE_MULTIPLIER`: editable multiplier (`odds`) used by paid games.
+- `FIXED_AMOUNT`: editable fixed realized amount (`fixedAmount`) used by `HT_MARYAJ_GRATIS`.
+
+Examples:
+
+- `HT_BOLET / MATCH_1_2D / Lot 1 = x50` is a stake multiplier rule.
+- `HT_MARYAJ_GRATIS / MARRIAGE_EXACT_ORDER = 2000 HTG` is a fixed amount rule.
+- A seller-terminal can override `MARRIAGE_EXACT_ORDER` from 1000 to 2000, but cannot change it
+  from `FIXED_AMOUNT` to `STAKE_MULTIPLIER`.
+
+V0 rule types are game-bound:
+
+- `HT_MARYAJ_GRATIS` requires `PayoutRuleType.FIXED_AMOUNT`.
+- All other lottery games require `PayoutRuleType.STAKE_MULTIPLIER`.
+- The same rule applies to tenant defaults and seller-terminal overrides.
+- Seller-terminal overrides cannot change the tenant default rule type for the same variant.
 
 ## Non-retroactivity
 
-Odds changes are not retroactive:
+Pricing changes are not retroactive:
 
-- changing tenant default odds affects only future sales;
-- changing seller-terminal override odds affects only future sales;
-- result settlement and payout calculation use ticket line snapshots and never reread current odds.
+- changing tenant default pricing affects only future sales;
+- changing seller-terminal override pricing affects only future sales;
+- result settlement and payout calculation use ticket line snapshots and never reread current pricing.
 
 ## Boundaries
 

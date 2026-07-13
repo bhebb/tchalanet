@@ -5,7 +5,7 @@
 --   - Partial unique indexes (active-state guards) absorbed from former V211
 --   - Audit event indexes absorbed from former V210
 --   - Revinfo lookups absorbed from former V210
---   - Draw result lookups absorbed from former V213
+--   - Draw result lookups absorbed into the baseline
 --   - Canonical operational unique guards for active V0 tables.
 
 -- ─── Identity & access ──────────────────────────────────────────────
@@ -116,15 +116,6 @@ CREATE INDEX IF NOT EXISTS idx_draw_exposure_top_stake
     )
     WHERE deleted_at IS NULL;
 
-CREATE INDEX IF NOT EXISTS idx_draw_exposure_top_payout
-    ON draw_exposure (
-    tenant_id,
-    draw_id,
-    scope_type,
-    scope_id,
-    potential_payout_total DESC
-    )
-    WHERE deleted_at IS NULL;
 CREATE INDEX ix_tchala_entry__status ON tchala_entry (status);
 
 -- ─── Notifications ──────────────────────────────────────────────────
@@ -201,9 +192,6 @@ CREATE INDEX idx_sales_ticket_line__tenant ON sales_ticket_line (tenant_id);
 CREATE INDEX idx_sales_ticket_line__ticket ON sales_ticket_line (ticket_id);
 CREATE INDEX idx_sales_ticket_line__tenant_draw_game ON sales_ticket_line (tenant_id, draw_id, game_code);
 CREATE INDEX idx_sales_ticket_line__result_status ON sales_ticket_line (tenant_id, result_status);
-CREATE INDEX idx_sales_ticket_line_coverage__tenant ON sales_ticket_line_coverage (tenant_id);
-CREATE INDEX idx_sales_ticket_line_coverage__line ON sales_ticket_line_coverage (ticket_line_id);
-CREATE INDEX idx_sales_ticket_line_coverage__variant ON sales_ticket_line_coverage (tenant_id, pricing_variant_code);
 CREATE INDEX idx_sales_ticket_charge__tenant ON sales_ticket_charge (tenant_id);
 CREATE INDEX idx_sales_ticket_charge__ticket ON sales_ticket_charge (sales_ticket_id);
 CREATE INDEX idx_sales_ticket_charge__type ON sales_ticket_charge (tenant_id, charge_type);

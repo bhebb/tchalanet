@@ -21,6 +21,7 @@ public class PosTicketMapper {
             row.publicCode(),
             row.status(),
             row.drawId(),
+            row.sellerTerminalId(),
             row.drawChannelCode(),
             row.resultSlotKey(),
             row.resultProvider(),
@@ -58,6 +59,7 @@ public class PosTicketMapper {
             draw.timezone(),
             draw.drawChannelName(),
             draw.scheduledAt(),
+            ctx != null ? ctx.sellerTerminalId() : null,
             ctx != null ? ctx.sellerTerminalLabel()      : null,
             ctx != null ? ctx.sellerTerminalCode()      : null,
             ctx != null ? ctx.sellerTerminalDisplayName() : null,
@@ -65,7 +67,6 @@ public class PosTicketMapper {
             toCents(money.stake()),
             toCents(money.totalAmount()),
             meta.currency(),
-            toCents(money.potentialPayoutAmount()),
             toCharges(money.charges())
         );
     }
@@ -82,11 +83,6 @@ public class PosTicketMapper {
                 null,                               // betTypeLabel — not in TicketPrintLine
                 l.selectionCanonical(),
                 toCents(l.stake()),
-                toCents(l.potentialPayout()),
-                l.potentialGainMode(),
-                toCents(l.minPotentialPayout()),
-                toCents(l.maxPotentialPayout()),
-                l.totalPotentialPayout() != null ? toCents(l.totalPotentialPayout()) : null,
                 l.promotional(),
                 l.promotionLabel()
             ))

@@ -98,7 +98,9 @@ public class ConfirmPreparedSaleCommandHandler
                 line.gameCode(),
                 index,
                 line.selection(),
-                TicketLineSelectionSource.PROMOTION_GENERATED));
+                line.selectionSource() == null
+                    ? TicketLineSelectionSource.PROMOTION_GENERATED
+                    : line.selectionSource()));
         }
         return out;
     }

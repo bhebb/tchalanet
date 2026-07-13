@@ -1,0 +1,101 @@
+<tch-admin-page-shell
+  [title]="'admin.support.title' | translate"
+  [description]="'admin.support.description' | translate"
+>
+  <tch-admin-section-card
+    [title]="'admin.support.form.title' | translate"
+    [description]="'admin.support.form.description' | translate"
+    icon="support_agent"
+  >
+    @switch (state()) {
+      @case ('success') {
+        <tch-notice type="success" class="support-page__notice">
+          <div class="support-page__notice-copy">
+            <strong>{{ 'admin.support.success.title' | translate }}</strong>
+            <span>{{ 'admin.support.success.message' | translate }}</span>
+            <button mat-stroked-button type="button" (click)="reset()">
+              {{ 'admin.support.reset' | translate }}
+            </button>
+          </div>
+        </tch-notice>
+      }
+      @case ('error') {
+        <tch-notice type="error" class="support-page__notice">
+          <div class="support-page__notice-copy">
+            <strong>{{ 'admin.support.error.title' | translate }}</strong>
+            <span>{{ 'admin.support.error.message' | translate }}</span>
+            <button mat-stroked-button type="button" (click)="state.set('idle')">
+              {{ 'common.retry' | translate }}
+            </button>
+          </div>
+        </tch-notice>
+      }
+      @default {
+        <form class="support-form" [formGroup]="form" (ngSubmit)="submit()">
+          <p class="support-form__hint">
+            {{ 'admin.support.form.contactFallback' | translate }}
+          </p>
+
+          <div class="support-form__grid">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'common.field.fullName' | translate }}</mat-label>
+              <input matInput type="text" formControlName="fullName" autocomplete="name" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'common.field.phoneWhatsapp' | translate }}</mat-label>
+              <input matInput type="tel" formControlName="phone" autocomplete="tel" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'common.field.emailOptional' | translate }}</mat-label>
+              <input matInput type="email" formControlName="email" autocomplete="email" />
+              @if (form.controls.email.touched && form.controls.email.hasError('email')) {
+                <mat-error>{{ 'common.validation.email' | translate }}</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'common.field.organizationOptional' | translate }}</mat-label>
+              <input matInput type="text" formControlName="organizationName" autocomplete="organization" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'common.field.city' | translate }}</mat-label>
+              <input matInput type="text" formControlName="city" autocomplete="address-level2" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'common.field.country' | translate }}</mat-label>
+              <input matInput type="text" formControlName="country" autocomplete="country-name" />
+            </mat-form-field>
+          </div>
+
+          <mat-form-field appearance="outline" class="support-form__message">
+            <mat-label>{{ 'admin.support.form.message' | translate }}</mat-label>
+            <textarea matInput formControlName="message" rows="6" maxlength="2000"></textarea>
+            @if (form.controls.message.touched && form.controls.message.hasError('required')) {
+              <mat-error>{{ 'common.validation.required' | translate }}</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-checkbox formControlName="consentToContact">
+            {{ 'admin.support.form.consent' | translate }}
+          </mat-checkbox>
+
+          <div class="support-form__actions">
+            <button
+              mat-flat-button
+              color="primary"
+              type="submit"
+              [disabled]="form.invalid || state() === 'submitting'"
+            >
+              <mat-icon>send</mat-icon>
+              {{ (state() === 'submitting' ? 'common.sending' : 'admin.support.submit') | translate }}
+            </button>
+          </div>
+        </form>
+      }
+    }
+  </tch-admin-section-card>
+</tch-admin-page-shell>

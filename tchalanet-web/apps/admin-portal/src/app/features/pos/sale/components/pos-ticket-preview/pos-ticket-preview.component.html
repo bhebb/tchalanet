@@ -65,7 +65,9 @@
       <span class="ptp__total-label">TOTAL</span>
       <div class="ptp__total-right">
         <span class="ptp__total-amount">{{ totalAmount() | number:'1.2-2' }} HTG</span>
-        <span class="ptp__total-sub">Tax incl. (0.00)</span>
+        @if (freeLineCount() > 0) {
+          <span class="ptp__total-sub">Maryaj gratis : {{ freeLineCount() }}</span>
+        }
       </div>
     </div>
 

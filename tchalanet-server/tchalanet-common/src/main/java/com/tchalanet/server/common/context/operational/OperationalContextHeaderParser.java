@@ -41,10 +41,6 @@ public final class OperationalContextHeaderParser {
     private static OperationalContextSource deriveSource(
         OperationalContextSource declaredSource) {
 
-        if (declaredSource == OperationalContextSource.NONE) {
-            return OperationalContextSource.NONE;
-        }
-
         if (declaredSource == OperationalContextSource.ADMIN_SELECTION) {
             log.warn("tch.context.admin-selection-without-token");
         }

@@ -59,11 +59,15 @@ GET /tenant/cashier/draws/available   ← filtre status=OPEN pour le panier
 GET /tenant/cashier/games/available   ← libellés vendeur, betTypes, betOptions
 ```
 
+`/tenant/cashier/games/available` expose uniquement les jeux actifs et visibles POS du tenant.
+Le flow `POST /tenant/sales/preparations` réapplique la même frontière serveur :
+jeu actif/visible, option active/visible POS, et min/max stake configurés pour le tenant.
+
 ### Tickets
 
 ```http
-POST /tenant/cashier/tickets/preview           ← valider le panier avant vente
-POST /tenant/cashier/tickets/sell              ← Idempotency-Key obligatoire
+POST /tenant/sales/preparations                ← prépare le panier et retourne preparationId
+POST /tenant/sales/preparations/{id}/confirm   ← confirme une préparation, Idempotency-Key obligatoire
 POST /tenant/cashier/tickets/verify            ← scanner URL publique ou code brut
 POST /tenant/cashier/tickets/{id}/cancel
 GET  /tenant/cashier/tickets                   ← tickets de la session en cours
@@ -72,9 +76,10 @@ POST /tenant/cashier/tickets/{id}/print        ← générer reçu (PDF / ESC-PO
 POST /tenant/cashier/tickets/{id}/send         ← email / SMS
 ```
 
-**Preview** — retourne `decision` : `ACCEPTABLE` / `REQUIRES_CHANGES` / `REJECTED_FINAL`
+**Prepare** — utilise le flow `core.sales` prepare et retourne `preparationId` + statut.
 
-**Sell** — retourne `outcome` : `ACCEPTED` / `REJECTED` / `PENDING_APPROVAL`  
+**Confirm** — confirme une préparation existante.
+Retourne `outcome` : `ACCEPTED` / `REJECTED` / `PENDING_APPROVAL`
 → Sur `ACCEPTED` : afficher `backup.displayCode` immédiatement (garantie offline client)  
 → `Idempotency-Key` UNE FOIS par panier — re-poster la même clé si timeout
 
@@ -100,8 +105,8 @@ DELETE /tenant/cashier/operational-context
    → Si canSell: true → prêt
 3. GET /tenant/cashier/draws/available
 4. GET /tenant/cashier/games/available
-5. POST /tenant/cashier/tickets/preview    ← valider avant chaque ligne
-6. POST /tenant/cashier/tickets/sell       ← afficher displayCode immédiatement
+5. POST /tenant/sales/preparations         ← préparer le panier et garder preparationId
+6. POST /tenant/sales/preparations/{id}/confirm ← confirmer et afficher displayCode
 7. POST /tenant/cashier/tickets/{id}/print ou /send
 ```
 

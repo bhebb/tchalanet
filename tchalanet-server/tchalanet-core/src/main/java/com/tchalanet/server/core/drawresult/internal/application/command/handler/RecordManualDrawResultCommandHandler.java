@@ -15,7 +15,7 @@ import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawRe
 import com.tchalanet.server.core.drawresult.internal.application.port.out.external.ExternalSourceFlags;
 import com.tchalanet.server.core.haiti.api.HaitiProjectionOutput;
 import com.tchalanet.server.core.haiti.internal.application.port.out.HaitiProjectionConfigPort;
-import com.tchalanet.server.core.drawresult.internal.domain.model.DrawResultStatus;
+import com.tchalanet.server.core.drawresult.api.model.DrawResultStatus;
 import com.tchalanet.server.core.haiti.internal.application.port.out.HaitiLotteryPort;
 import com.tchalanet.server.core.haiti.internal.domain.lottery.model.ExternalPick;
 import java.time.Clock;

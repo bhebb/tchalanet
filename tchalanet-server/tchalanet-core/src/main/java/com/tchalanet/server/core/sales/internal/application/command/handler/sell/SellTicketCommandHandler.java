@@ -2,6 +2,7 @@ package com.tchalanet.server.core.sales.internal.application.command.handler.sel
 
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.bus.QueryBus;
+import com.tchalanet.server.common.context.TchActorType;
 import com.tchalanet.server.common.context.TchContext;
 import com.tchalanet.server.common.event.DomainEventPublisher;
 import com.tchalanet.server.common.stereotype.TchTx;
@@ -89,7 +90,8 @@ public class SellTicketCommandHandler
         var sellerTerminalId = ctx.sellerTerminalIdRequired();
         var terminal = queryBus.ask(new GetSellerTerminalForSaleValidationQuery(
             tenantId, sellerTerminalId));
-        if (!terminal.canSell()) {
+        var requirePinChangeCompleted = ctx.actorType() == TchActorType.SELLER_TERMINAL;
+        if (!terminal.canSell(requirePinChangeCompleted)) {
             throw ProblemRest.forbidden("seller_terminal.cannot_sell");
         }
         var commissionAmount = prepared.moneyBreakdown().stake().amount()
@@ -180,7 +182,6 @@ public class SellTicketCommandHandler
             ticket.context().drawId(),
             ticket.context().sellerTerminalId(),
             ticket.money().breakdown().total(),
-            ticket.money().potentialPayoutAmount(),
             TicketPrintStatus.valueOf(ticket.print().status().name()),
             ticket.lifecycle().sale().soldAt(),
             ticket.lifecycle().sale().placedAt()
@@ -211,7 +212,6 @@ public class SellTicketCommandHandler
             saved.money().currency(),
             saved.money().breakdown().stake(),
             saved.money().breakdown().total(),
-            saved.money().potentialPayoutAmount(),
             chargeItems
         );
 
@@ -245,12 +245,9 @@ public class SellTicketCommandHandler
             line.selection().displayLabel(),
             line.betOption(),
             line.stakeAmount(),
-            line.oddsSnapshot(),
-            line.potentialPayoutAmount(),
             line.origin(),
             line.pricingSource(),
             line.selectionSource(),
-            line.payoutBaseAmount(),
             line.promotionDecisionId(),
             line.promotionLabel(),
             line.promotionEffectType()

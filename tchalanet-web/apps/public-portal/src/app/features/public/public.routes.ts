@@ -1,6 +1,6 @@
 import { Route } from '@angular/router';
 
-export const publicRoutes: Route[] = [
+const publicFeatureRoutes: Route[] = [
   {
     path: '',
     loadComponent: () => import('./home/public-home.page').then(m => m.PublicHomePage),
@@ -78,5 +78,13 @@ export const publicRoutes: Route[] = [
     loadComponent: () =>
       import('./markdown/public-markdown.page').then(m => m.PublicMarkdownPage),
     data: { file: 'terms' },
+  },
+];
+
+export const publicRoutes: Route[] = [
+  ...publicFeatureRoutes,
+  {
+    path: 'public',
+    children: publicFeatureRoutes,
   },
 ];

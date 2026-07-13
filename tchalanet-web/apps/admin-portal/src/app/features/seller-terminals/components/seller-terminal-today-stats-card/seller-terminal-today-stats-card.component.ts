@@ -5,7 +5,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { TchErrorPanel } from '@tch/ui/components';
 import { ErrorViewModel } from '@tch/web/errors';
 
-import { SellerTerminalDailyFinancialRow } from '../../../financials/data-access/admin-financials-api.service';
+import { SellerTerminalDailyFinancialRow } from '../../../reports/data-access/admin-financials-api.service';
 
 @Component({
   selector: 'tch-seller-terminal-today-stats-card',

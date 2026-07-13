@@ -9,9 +9,15 @@ public record SellerTerminalForSaleValidationView(
     SellerTerminalId id,
     TenantId tenantId,
     SellerTerminalStatus status,
-    BigDecimal commissionRate
+    BigDecimal commissionRate,
+    boolean mustChangePin
 ) {
     public boolean canSell() {
-        return status == SellerTerminalStatus.ACTIVE;
+        return canSell(true);
+    }
+
+    public boolean canSell(boolean requirePinChangeCompleted) {
+        return status == SellerTerminalStatus.ACTIVE
+            && (!requirePinChangeCompleted || !mustChangePin);
     }
 }

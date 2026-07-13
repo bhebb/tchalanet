@@ -8,6 +8,9 @@ import com.tchalanet.server.common.job.gate.BatchGate;
 import com.tchalanet.server.common.job.key.JobKey;
 import com.tchalanet.server.common.job.registry.RegisteredJob;
 import com.tchalanet.server.common.job.registry.TchJobRegistry;
+import com.tchalanet.server.platform.ops.api.OpsSchedulerHistoryProvider;
+import com.tchalanet.server.platform.ops.api.OpsServiceResourceItem;
+import com.tchalanet.server.platform.ops.api.PlatformHealthProbe;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -28,7 +31,7 @@ class PlatformAdminOpsDashboardPayloadAssemblerTest {
                 "2026-06-25T00:00:00Z",
                 1,
                 0,
-                List.of(new PlatformAdminOpsDashboardPayloadAssembler.OpsServiceResourceItem(
+                List.of(new OpsServiceResourceItem(
                     "worker", "Worker", "DOWN", null, null, null, null, null, true, null,
                     "CRITICAL", "Worker is down.", "/app/platform/ops/resources", null, null, null)));
         var assembler = new PlatformAdminOpsDashboardPayloadAssembler(

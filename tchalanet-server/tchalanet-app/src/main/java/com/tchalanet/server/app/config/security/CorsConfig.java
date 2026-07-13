@@ -7,6 +7,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.List;
+
 @Configuration
 public class CorsConfig {
 
@@ -17,23 +19,34 @@ public class CorsConfig {
         // Origins autorisés (séparés par virgules dans la config).
         // setAllowedOriginPatterns supporte les wildcards (ex: http://localhost:*)
         // et reste compatible avec allowCredentials: true.
-        cfg.setAllowedOriginPatterns(appProperties.cors().allowedOrigins());
+        cfg.setAllowedOriginPatterns(splitCsv(appProperties.cors().allowedOrigins()));
 
         // Méthodes explicitement autorisées
-        cfg.setAllowedMethods(appProperties.cors().allowedMethods());
+        cfg.setAllowedMethods(splitCsv(appProperties.cors().allowedMethods()));
 
         // Headers qu’on accepte (plus de "*")
-        cfg.setAllowedHeaders(appProperties.cors().allowedHeaders());
+        cfg.setAllowedHeaders(splitCsv(appProperties.cors().allowedHeaders()));
 
         // Headers qu’on expose au frontend (optionnel)
-        cfg.setExposedHeaders(appProperties.cors().exposedHeaders());
+        cfg.setExposedHeaders(splitCsv(appProperties.cors().exposedHeaders()));
 
         // True si tu passes des cookies ou Authorization
         cfg.setAllowCredentials(appProperties.cors().allowCredentials());
 
         var src = new UrlBasedCorsConfigurationSource();
-        // On ne l’applique qu’aux endpoints API
-        src.registerCorsConfiguration("/api/**", cfg);
+        src.registerCorsConfiguration("/**", cfg);
         return src;
+    }
+
+    private static List<String> splitCsv(List<String> values) {
+        if (values == null) {
+            return List.of();
+        }
+
+        return values.stream()
+            .flatMap(value -> List.of(value.split(",")).stream())
+            .map(String::trim)
+            .filter(value -> !value.isBlank())
+            .toList();
     }
 }

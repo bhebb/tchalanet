@@ -36,7 +36,6 @@ import java.util.Optional;
  *
  * <p>Invariants enforced at construction:
  * <ul>
- *   <li>Sum of line {@code potentialPayoutAmount} equals ticket {@code potentialPayoutAmount}.
  *   <li>All lines share the ticket currency.
  *   <li>Lines are stored as an immutable copy.
  * </ul>
@@ -69,16 +68,6 @@ public record Ticket(
             }
         }
 
-        // Invariant: ticket.potentialPayout == Σ lines.potentialPayout
-        var sumOfLines = lines.stream()
-            .map(TicketLine::potentialPayoutAmount)
-            .reduce(Money.zero(currency), Money::plus);
-        if (!money.potentialPayoutAmount().equals(sumOfLines)) {
-            throw new IllegalArgumentException(
-                "Ticket potentialPayout (" + money.potentialPayoutAmount()
-                    + ") must equal sum of line potentialPayouts (" + sumOfLines + ")");
-        }
-
         lines = List.copyOf(lines);
     }
 
@@ -106,11 +95,8 @@ public record Ticket(
         }
 
         var currency = breakdown.total().currency();
-        var potentialPayout = lines.stream()
-            .map(TicketLine::potentialPayoutAmount)
-            .reduce(Money.zero(currency), Money::plus);
 
-        var money = new TicketMoney(currency, breakdown, potentialPayout);
+        var money = new TicketMoney(currency, breakdown);
 
         var initialStatus = requiresApproval
             ? TicketSaleStatus.PENDING_APPROVAL
@@ -358,10 +344,6 @@ public record Ticket(
     // ===========================================================================
     // Derived reads
     // ===========================================================================
-
-    public Money potentialPayout() {
-        return money.potentialPayoutAmount();
-    }
 
     public Money winningAmount() {
         return lifecycle.result().winningAmount();

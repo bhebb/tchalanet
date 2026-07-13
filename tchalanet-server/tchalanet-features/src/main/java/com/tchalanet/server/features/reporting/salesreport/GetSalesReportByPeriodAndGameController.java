@@ -1,10 +1,12 @@
 package com.tchalanet.server.features.reporting.salesreport;
 
-import com.tchalanet.server.common.context.TchContextResolver;
+import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.common.context.web.CurrentContext;
+import com.tchalanet.server.common.web.api.ApiResponse;
+import com.tchalanet.server.features.reporting.ReportPeriodResolver;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.time.Clock;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,24 +23,21 @@ import org.springframework.web.bind.annotation.RestController;
 public class GetSalesReportByPeriodAndGameController {
 
   private final SalesReportService service;
-  private final TchContextResolver contextResolver;
-  private final Clock cLock;
+  private final ReportPeriodResolver periodResolver;
 
   @Operation(summary = "Get sales report by period and game (platform)")
   @GetMapping
-  public SalesReportResponse getSalesReport(
+  public ApiResponse<SalesReportResponse> getSalesReport(
+      @CurrentContext TchRequestContext ctx,
       @RequestParam(name = "from", required = false) LocalDate from,
       @RequestParam(name = "to", required = false) LocalDate to,
       @RequestParam(name = "gameCode", required = false) String gameCode) {
-    var today = LocalDate.now(cLock);
-    var toDate = (to != null) ? to : today;
-    var fromDate = (from != null) ? from : toDate.minusDays(6); // default 7 jours
-
-    var holder = contextResolver.currentOrNull();
-    var tenantUuid = holder != null ? holder.tenantUuid() : null;
-
-    var criteria = new SalesReportCriteria(tenantUuid, fromDate, toDate, gameCode);
-
-    return service.getReport(criteria);
+    var period = periodResolver.resolve(from, to, ctx.tenantZoneId());
+    var criteria = new SalesReportCriteria(
+        ctx.tenantIdRequired().value(),
+        period.from(),
+        period.to(),
+        gameCode);
+    return ApiResponse.success(service.getReport(criteria));
   }
 }

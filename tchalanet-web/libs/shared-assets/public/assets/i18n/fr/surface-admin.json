@@ -25,12 +25,6 @@
       "draw_channels": "Config canaux",
       "bonuses": "Primes",
       "maryaj_free": "Maryaj gratis",
-      "promotion_free_lines": "Lignes gratuites",
-      "promotion_boosted_payout": "Gain augmenté",
-      "promotion_waived_fees": "Frais offerts",
-      "active_promotions": "Promotions actives",
-      "promotion_campaigns": "Toutes les promotions",
-      "all_promotions": "Toutes les promotions",
       "today_report": "Rapport du jour",
       "export_print": "Export / impression",
       "setup": "Configuration",
@@ -77,11 +71,12 @@
       "controls_games": "Jeux & tarifs",
       "controls_gains": "Gains à payer",
       "controls_commissions": "Commissions",
-      "reports_sales": "Ventes",
+      "reports_overview": "Vue d'ensemble",
+      "reports_daily": "Journée",
+      "reports_sales": "Tickets",
       "reports_sellers": "Vendeurs",
       "reports_draws": "Tirages",
       "reports_financials": "Financials",
-      "reports_exports": "Exportations",
       "tickets_section": "Tickets",
       "tickets_overview": "Vue d'ensemble",
       "tickets_list": "Liste des tickets",
@@ -162,7 +157,8 @@
           "codeDesc": "Code Z-A"
         },
         "actions": {
-          "sell": "Vendre un billet"
+          "sell": "Vendre un billet",
+          "reprint": "Réimprimer"
         },
         "columns": {
           "code": "Code",
@@ -170,7 +166,8 @@
           "channel": "Canal",
           "draw": "Tirage",
           "amount": "Montant",
-          "placedAt": "Émis le"
+          "placedAt": "Émis le",
+          "actions": "Actions"
         }
       },
       "overview": {

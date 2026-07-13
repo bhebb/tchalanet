@@ -13,10 +13,11 @@ import { map } from 'rxjs/operators';
 import {
   ConfirmTicketSaleRequest,
   ConfirmedTicketView,
-  PreviewTicketSaleView,
+  PreparedTicketSaleView,
   PosGameBetTypeView,
   PosGameView,
   PosOpenDrawView,
+  PosSaleActionAvailabilityView,
   PosSellerTerminalListParams,
   PosSellerTerminalPickerView,
   PosSellerTerminalView,
@@ -46,6 +47,7 @@ interface PosGameOptionResponse {
   betType: string;
   betTypeLabel: string;
   requiresOption: boolean;
+  selectionPolicy?: string | null;
   options: { code: number; label: string; selectionHint?: string | null }[];
   selectionHint?: string | null;
 }
@@ -64,34 +66,75 @@ interface SellerTerminalSummaryResponse extends SellerTerminalDetailResponse {
   todaySalesAmount?: number | null;
 }
 
-interface PosSellTicketApiResponse {
+interface PrepareTicketSaleRequest {
+  drawId: string;
+  drawChannelId?: string | null;
+  currency: { value: string };
+  lines: PrepareTicketSaleLineRequest[];
+  serviceOptions?: null;
+}
+
+interface PrepareTicketSaleLineRequest {
+  lineNumber: number;
+  gameCode: string;
+  betType: string;
+  selection: string;
+  betOption: number | null;
+  stakeAmount: number;
+}
+
+interface PreparedSaleApiResponse {
+  preparationId: string;
+  status: string;
+  currency: string;
+  totalAmount: number | string;
+  lines?: PreparedSaleLineApiResponse[] | null;
+  promotionLines?: PreparedSalePromotionLineApiResponse[] | null;
+  notices?: unknown[] | null;
+}
+
+interface PreparedSaleLineApiResponse {
+  origin?: string | null;
+}
+
+interface PreparedSalePromotionLineApiResponse {
+  lineRef: string;
+}
+
+interface ConfirmPreparedSaleApiResponse {
+  preparationId: string;
+  ticketId: string | { value?: string | null };
+  alreadyConfirmed: boolean;
+  sale?: PreparedSellTicketApiResponse | null;
+}
+
+interface PreparedSellTicketApiResponse {
+  ticket?: {
+    ticketId?: string | { value?: string | null } | null;
+    ticketCode?: string | null;
+    publicCode?: string | null;
+    displayCode?: string | null;
+    saleStatus?: string | null;
+  } | null;
   outcome: 'ACCEPTED' | 'REJECTED' | 'PENDING_APPROVAL';
-  ticketId?: string | { value?: string | null } | null;
-  ticketCode?: string | null;
-  publicCode?: string | null;
-  saleStatus?: string | null;
+  notices?: unknown[] | null;
   issues?: PosSaleIssueApiResponse[] | null;
   backup?: {
     displayCode?: string | null;
     verificationShortUrl?: string | null;
     shareableText?: string | null;
   } | null;
+  actionAvailability?: PosSaleActionAvailabilityResponse | null;
   sellerInstruction?: string | null;
 }
 
-interface PosTicketPreviewApiResponse {
-  decision: string;
-  issues?: PosSaleIssueApiResponse[] | null;
-  actionAvailability?: {
-    canSell?: boolean;
-    canPrint?: boolean;
-    canSendSms?: boolean;
-    canSendWhatsapp?: boolean;
-    canSendEmail?: boolean;
-    canCopy?: boolean;
-  } | null;
-  sellerInstruction?: string | null;
-  warning?: string | null;
+interface PosSaleActionAvailabilityResponse {
+  canSell?: boolean;
+  canPrint?: boolean;
+  canSendSms?: boolean;
+  canSendWhatsapp?: boolean;
+  canSendEmail?: boolean;
+  canCopy?: boolean;
 }
 
 interface PosSaleIssueApiResponse {
@@ -109,12 +152,42 @@ interface SellerTerminalStatsResponse {
 }
 
 interface PrintTicketRequest {
+  sellerTerminalId?: string | null;
   printOptionsRequest: {
     outputFormat: 'PDF';
     paperSize: 'RECEIPT_80MM';
   };
   recordPrint: boolean;
+  reprintReason?: string | null;
   deliveryOptions: readonly ['RETURN_FILE'];
+}
+
+interface SendTicketReceiptRequest {
+  sellerTerminalId: string;
+  channel: 'SMS' | 'WHATSAPP' | 'EMAIL';
+  to: string;
+  channelKey?: string | null;
+  locale?: string | null;
+}
+
+interface SendTicketReceiptResponse {
+  ticketId: string | { value?: string | null };
+  channel: string;
+  recipient: string;
+  accepted: boolean;
+  duplicate: boolean;
+}
+
+interface TenantCommunicationConfigResponse {
+  buyerTicketDelivery?: {
+    sms?: TenantDeliveryChannelResponse | null;
+    whatsapp?: TenantDeliveryChannelResponse | null;
+    email?: TenantDeliveryChannelResponse | null;
+  } | null;
+}
+
+interface TenantDeliveryChannelResponse {
+  enabled?: boolean | null;
 }
 
 interface PosTicketDetailsApiResponse extends Omit<PosTicketDetailsView, 'id' | 'drawId'> {
@@ -124,6 +197,11 @@ interface PosTicketDetailsApiResponse extends Omit<PosTicketDetailsView, 'id' | 
 
 interface PosVerifyTicketRequest {
   scannedValue: string;
+}
+
+interface PrintTicketOptions {
+  recordPrint?: boolean;
+  reprintReason?: string | null;
 }
 
 // ── Service ────────────────────────────────────────────────────────────────
@@ -188,7 +266,7 @@ export class PosSaleApiService {
   ): Observable<PosOpenDrawView[]> {
     return this.backend
       .get<PosAvailableDrawResponse[]>('/tenant/cashier/draws/available', {
-        ...withHeaders(options, { 'X-Tch-Act-As-Terminal': sellerTerminalId }),
+        ...withHeaders(options, posContextHeaders(sellerTerminalId)),
         params: { lookaheadHours: String(lookaheadHours) },
       })
       .pipe(
@@ -216,90 +294,91 @@ export class PosSaleApiService {
       .pipe(map(games => groupPosGames(games)));
   }
 
-  confirmTicketSale(
+  prepareTicketSale(
     request: ConfirmTicketSaleRequest,
-    idempotencyKey: string,
     sellerTerminalId: string,
     options?: TchRequestOptions,
-  ): Observable<ConfirmedTicketView> {
+  ): Observable<PreparedTicketSaleView> {
+    const body = prepareTicketSaleRequest(request);
+
     return this.backend
-      .postApiResponse<PosSellTicketApiResponse>('/tenant/cashier/tickets/sell', request, {
-        ...withHeaders(options, {
-          'Idempotency-Key': idempotencyKey,
-          'X-Tch-Act-As-Terminal': sellerTerminalId,
-        }),
+      .postApiResponse<PreparedSaleApiResponse>('/tenant/sales/preparations', body, {
+        ...withHeaders(options, posContextHeaders(sellerTerminalId)),
       })
       .pipe(
         map(response => {
           const r = response.data;
+          const freeLineCount =
+            r.promotionLines?.length ??
+            r.lines?.filter(line => line.origin === 'PROMOTION').length ??
+            0;
+
           return {
-            outcome: r.outcome,
-            ticketId: idValue(r.ticketId),
-            ticketCode: r.ticketCode ?? '',
-            publicCode: r.publicCode ?? null,
-            saleStatus: r.saleStatus ?? null,
-            backup: r.backup ?? null,
-            sellerInstruction: r.sellerInstruction ?? null,
-            warnings: [
-              ...response.notices.map(notice =>
-                webAppErrorFromNotice(
-                  notice,
-                  response.trace,
-                  'admin.sellerTerminal.pos.sale',
-                  'section',
-                ),
+            preparationId: r.preparationId,
+            status: r.status,
+            totalAmount: Number(r.totalAmount ?? 0),
+            currency: r.currency,
+            freeLineCount,
+            notices: response.notices.map(notice =>
+              webAppErrorFromNotice(
+                notice,
+                response.trace,
+                'admin.sellerTerminal.pos.preparation',
+                'section',
               ),
-              ...(r.issues ?? []).map(issue =>
-                webAppErrorFromSaleIssue(issue, 'admin.sellerTerminal.pos.sale'),
-              ),
-            ],
+            ),
+            canSell: r.status === 'DRAFT',
+            actionAvailability: actionAvailability(null, false),
           };
         }),
       );
   }
 
-  previewTicketSale(
-    request: ConfirmTicketSaleRequest,
+  confirmPreparedTicketSale(
+    preparationId: string,
+    idempotencyKey: string,
     sellerTerminalId: string,
     options?: TchRequestOptions,
-  ): Observable<PreviewTicketSaleView> {
+  ): Observable<ConfirmedTicketView> {
     return this.backend
-      .postApiResponse<PosTicketPreviewApiResponse>('/tenant/cashier/tickets/preview', request, {
-        ...withHeaders(options, {
-          'X-Tch-Act-As-Terminal': sellerTerminalId,
-        }),
-      })
+      .postApiResponse<ConfirmPreparedSaleApiResponse>(
+        `/tenant/sales/preparations/${preparationId}/confirm`,
+        {},
+        {
+          ...withHeaders(options, {
+            'Idempotency-Key': idempotencyKey,
+            ...posContextHeaders(sellerTerminalId),
+          }),
+        },
+      )
       .pipe(
         map(response => {
           const r = response.data;
+          const sale = r.sale;
+          const ticket = sale?.ticket;
+
           return {
-            decision: r.decision,
-            sellerInstruction: r.sellerInstruction ?? null,
-            warning: r.warning ?? null,
-            issues: (r.issues ?? []).map(issue => ({
-              code: issue.code,
-              severity: issue.severity,
-              message: issue.message ?? null,
-              sellerInstruction: issue.sellerInstruction ?? null,
-              lineIndex: issue.lineIndex,
-            })),
-            notices: [
+            outcome: sale?.outcome ?? 'ACCEPTED',
+            ticketId: idValue(ticket?.ticketId ?? r.ticketId),
+            ticketCode: ticket?.ticketCode ?? '',
+            publicCode: ticket?.publicCode ?? null,
+            saleStatus: ticket?.saleStatus ?? null,
+            backup: sale?.backup ?? (ticket?.displayCode ? { displayCode: ticket.displayCode } : null),
+            sellerInstruction: sale?.sellerInstruction ?? null,
+            actionAvailability: actionAvailability(sale?.actionAvailability, true),
+            warnings: [
               ...response.notices.map(notice =>
                 webAppErrorFromNotice(
                   notice,
                   response.trace,
-                  'admin.sellerTerminal.pos.preview',
+                  'admin.sellerTerminal.pos.confirmPreparation',
                   'section',
                 ),
               ),
-              ...(r.issues ?? []).map(issue =>
-                webAppErrorFromSaleIssue(issue, 'admin.sellerTerminal.pos.preview'),
+              ...(sale?.issues ?? []).map(issue =>
+                webAppErrorFromSaleIssue(issue, 'admin.sellerTerminal.pos.confirmPreparation'),
               ),
-              ...(r.warning
-                ? [webAppErrorFromSaleWarning(r.warning, 'admin.sellerTerminal.pos.preview')]
-                : []),
             ],
-            canSell: r.actionAvailability?.canSell ?? r.decision === 'ACCEPTABLE',
           };
         }),
       );
@@ -311,7 +390,7 @@ export class PosSaleApiService {
   ): Observable<PosTerminalActivityView> {
     return this.backend
       .get<SellerTerminalStatsResponse>('/tenant/cashier/tickets/stats', {
-        ...withHeaders(options, { 'X-Tch-Act-As-Terminal': sellerTerminalId }),
+        ...withHeaders(options, posContextHeaders(sellerTerminalId)),
       })
       .pipe(
         map(r => ({
@@ -344,26 +423,107 @@ export class PosSaleApiService {
   ): Observable<PosTicketVerificationView> {
     const request: PosVerifyTicketRequest = { scannedValue };
     return this.backend.post<PosTicketVerificationView>('/tenant/cashier/tickets/verify', request, {
-      ...withHeaders(options, {
-        'X-Tch-Act-As-Terminal': sellerTerminalId,
-      }),
+      ...withHeaders(options, posContextHeaders(sellerTerminalId)),
     });
   }
 
-  printTicket(ticketId: string, sellerTerminalId: string): Observable<Blob> {
+  printTicket(
+    ticketId: string,
+    sellerTerminalId: string,
+    options: PrintTicketOptions = {},
+  ): Observable<Blob> {
     const request: PrintTicketRequest = {
+      sellerTerminalId,
       printOptionsRequest: {
         outputFormat: 'PDF',
         paperSize: 'RECEIPT_80MM',
       },
-      recordPrint: true,
+      recordPrint: options.recordPrint ?? true,
+      reprintReason: options.reprintReason ?? 'POS print',
       deliveryOptions: ['RETURN_FILE'],
     };
 
     return this.backend.postBlob(`/tenant/cashier/tickets/${ticketId}/print`, request, {
-      headers: { 'X-Tch-Act-As-Terminal': sellerTerminalId },
+      headers: posContextHeaders(sellerTerminalId),
     });
   }
+
+  sendTicketReceipt(
+    ticketId: string,
+    sellerTerminalId: string,
+    channel: SendTicketReceiptRequest['channel'],
+    to: string,
+  ): Observable<SendTicketReceiptResponse> {
+    const request: SendTicketReceiptRequest = {
+      sellerTerminalId,
+      channel,
+      to,
+      locale: 'fr',
+    };
+
+    return this.backend.post<SendTicketReceiptResponse>(
+      `/tenant/cashier/tickets/${ticketId}/send`,
+      request,
+      { headers: posContextHeaders(sellerTerminalId) },
+    );
+  }
+
+  getTicketCommunicationAvailability(
+    options?: TchRequestOptions,
+  ): Observable<PosSaleActionAvailabilityView> {
+    return this.backend
+      .get<TenantCommunicationConfigResponse>('/admin/tenant-config/communication', options)
+      .pipe(
+        map(config => {
+          const delivery = config?.buyerTicketDelivery;
+          return {
+            canSell: false,
+            canPrint: true,
+            canSendSms: delivery?.sms?.enabled ?? false,
+            canSendWhatsapp: delivery?.whatsapp?.enabled ?? false,
+            canSendEmail: delivery?.email?.enabled ?? false,
+            canCopy: true,
+          };
+        }),
+      );
+  }
+}
+
+function posContextHeaders(sellerTerminalId: string): Record<string, string> {
+  return {
+    'X-Tch-Act-As-Terminal': sellerTerminalId,
+  };
+}
+
+function prepareTicketSaleRequest(request: ConfirmTicketSaleRequest): PrepareTicketSaleRequest {
+  return {
+    drawId: request.drawId,
+    drawChannelId: request.drawChannelId ?? null,
+    currency: { value: request.currency },
+    lines: request.lines.map((line, index) => ({
+      lineNumber: index + 1,
+      gameCode: line.gameCode,
+      betType: line.betType,
+      selection: line.selection,
+      betOption: line.betOption ?? null,
+      stakeAmount: line.stake,
+    })),
+    serviceOptions: null,
+  };
+}
+
+function actionAvailability(
+  source: PosSaleActionAvailabilityResponse | null | undefined,
+  afterSale: boolean,
+): PosSaleActionAvailabilityView {
+  return {
+    canSell: source?.canSell ?? !afterSale,
+    canPrint: source?.canPrint ?? afterSale,
+    canSendSms: source?.canSendSms ?? false,
+    canSendWhatsapp: source?.canSendWhatsapp ?? false,
+    canSendEmail: source?.canSendEmail ?? false,
+    canCopy: source?.canCopy ?? afterSale,
+  };
 }
 
 function groupPosGames(rows: PosGameOptionResponse[]): PosGameView[] {
@@ -379,6 +539,7 @@ function groupPosGames(rows: PosGameOptionResponse[]): PosGameView[] {
       betType: row.betType,
       label: posBetTypeLabel(row),
       requiresOption: row.requiresOption,
+      selectionPolicy: row.selectionPolicy ?? 'EXPLICIT_ONLY',
       options: posBetOptions(row),
       selectionHint: row.selectionHint ?? null,
     };
@@ -395,6 +556,7 @@ function groupPosGames(rows: PosGameOptionResponse[]): PosGameView[] {
       betType: row.betType,
       betTypeLabel: posBetTypeLabel(row),
       requiresOption: row.requiresOption,
+      selectionPolicy: row.selectionPolicy ?? 'EXPLICIT_ONLY',
       options: posBetOptions(row),
       betTypes: [betType],
       selectionHint: row.selectionHint ?? null,
@@ -491,24 +653,6 @@ function webAppErrorFromSaleIssue(issue: PosSaleIssueApiResponse, source: string
   };
 }
 
-function webAppErrorFromSaleWarning(message: string, source: string): WebAppError {
-  const code = message.startsWith('sales.') ? message : 'sales.preview_accepted';
-  return {
-    id: `${source}:warning:${code}`,
-    origin: 'backend',
-    category: 'validation',
-    severity: 'warn',
-    surface: 'section',
-    placement: 'top',
-    title: 'Vente à vérifier',
-    message,
-    code,
-    source,
-    target: 'admin.sellerTerminal.pos.sale',
-    retryable: false,
-    dedupeKey: `${source}:warning:${code}`,
-  };
-}
 
 function saleIssueSeverity(severity: string): WebAppError['severity'] {
   if (severity === 'ERROR') return 'error';

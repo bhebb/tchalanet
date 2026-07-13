@@ -28,15 +28,6 @@ import {
 import { SellerTerminalCreateFormComponent } from '../../components/seller-terminal-create-form/seller-terminal-create-form.component';
 import { SellerTerminalSuccessCardComponent } from '../../components/seller-terminal-success-card/seller-terminal-success-card.component';
 
-function generateTerminalCode(): string {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  const suffix = Array.from(
-    { length: 6 },
-    () => chars[Math.floor(Math.random() * chars.length)],
-  ).join('');
-  return `TCH-${suffix}`;
-}
-
 export interface SellerTerminalCreateFormModel {
   readonly terminalCode: string;
   readonly displayName: string;
@@ -81,6 +72,7 @@ export class AdminSellerTerminalNewPage implements OnInit {
   private readonly fallbackCommissionRate = 15;
 
   readonly saving = signal(false);
+  readonly codeLoading = signal(false);
   readonly error = signal<ErrorViewModel | null>(null);
   readonly successResult = signal<CreateSellerTerminalResult | null>(null);
   readonly tenantDefaultCommissionRate = signal<number | null>(null);
@@ -119,6 +111,8 @@ export class AdminSellerTerminalNewPage implements OnInit {
   });
 
   ngOnInit(): void {
+    this.refreshTerminalCode();
+
     this.api.getCommissionOverview().subscribe({
       next: overview => {
         const rate = overview.tenantDefaultRate ?? this.fallbackCommissionRate;
@@ -132,7 +126,7 @@ export class AdminSellerTerminalNewPage implements OnInit {
   }
 
   regenerateCode(): void {
-    this.model.update(value => ({ ...value, terminalCode: generateTerminalCode() }));
+    this.refreshTerminalCode();
   }
 
   toggleShowPin(): void {
@@ -202,11 +196,30 @@ export class AdminSellerTerminalNewPage implements OnInit {
     void this.router.navigate(['/app/admin/pos/sale', result.sellerTerminalId]);
   }
 
+  onOpenOverrides(result: CreateSellerTerminalResult): void {
+    void this.router.navigate(['/app/admin/sellers', result.sellerTerminalId, 'overrides']);
+  }
+
   onCreateAnother(): void {
     this.successResult.set(null);
     this.error.set(null);
     const rate = this.tenantDefaultCommissionRate() ?? this.fallbackCommissionRate;
     this.model.set(this.initialFormModel(rate));
+    this.refreshTerminalCode();
+  }
+
+  private refreshTerminalCode(): void {
+    if (this.codeLoading()) return;
+    this.codeLoading.set(true);
+    this.api.suggestTerminalCode({ suppressShellFeedback: true }).subscribe({
+      next: suggestion => {
+        this.model.update(value => ({ ...value, terminalCode: suggestion.terminalCode }));
+        this.codeLoading.set(false);
+      },
+      error: () => {
+        this.codeLoading.set(false);
+      },
+    });
   }
 
   private handleCreateError(err: unknown): void {
@@ -235,7 +248,7 @@ export class AdminSellerTerminalNewPage implements OnInit {
 
   private initialFormModel(rate = this.fallbackCommissionRate): SellerTerminalCreateFormModel {
     return {
-      terminalCode: generateTerminalCode(),
+      terminalCode: 'POS-001',
       displayName: '',
       firstName: '',
       lastName: '',

@@ -28,11 +28,15 @@ if [ "${SKIP_BACKUP:-0}" != "1" ]; then
     mkdir -p "$BACKUP_DIR"
     TIMESTAMP=$(date +%Y%m%d-%H%M%S)
     BACKUP_FILE="$BACKUP_DIR/staging-pg-pre-destroy-$TIMESTAMP.sql.gz"
-    ssh -i ~/.ssh/tchalanet_stg -o StrictHostKeyChecking=no "tch@$IP" \
-      'docker exec $(docker ps --filter "name=.*postgres.*" --format "{{.Names}}" | head -1) pg_dumpall -U postgres | gzip' \
+    if ssh -i ~/.ssh/tchalanet_stg -o StrictHostKeyChecking=no "tch@$IP" \
+      'container=$(docker ps --filter "name=.*postgres.*" --format "{{.Names}}" | head -1); [ -n "$container" ] && docker exec "$container" pg_dumpall -U postgres | gzip' \
       > "$BACKUP_FILE" \
-      && echo "✅ Backup: $BACKUP_FILE" \
-      || echo "⚠️  Backup échoué — continuer quand même (données potentiellement perdues)"
+      && [ -s "$BACKUP_FILE" ]; then
+      echo "✅ Backup: $BACKUP_FILE"
+    else
+      rm -f "$BACKUP_FILE"
+      echo "⚠️  Backup ignoré ou échoué — aucun conteneur PostgreSQL local détecté"
+    fi
   else
     echo "⚠️  Serveur inaccessible — backup ignoré"
   fi

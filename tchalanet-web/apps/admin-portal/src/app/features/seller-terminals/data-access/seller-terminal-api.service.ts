@@ -75,6 +75,10 @@ export interface CreateSellerTerminalResult {
   status: Extract<SellerTerminalStatus, 'ACTIVE' | 'BLOCKED' | 'PENDING'>;
 }
 
+export interface SellerTerminalCodeSuggestion {
+  terminalCode: string;
+}
+
 export interface SellerTerminalCommissionOverview {
   tenantDefaultRate: number | null;
 }
@@ -133,6 +137,10 @@ export class SellerTerminalApi {
 
   getCommissionOverview(): Observable<SellerTerminalCommissionOverview> {
     return this.backend.get<SellerTerminalCommissionOverview>('/admin/commission/overview');
+  }
+
+  suggestTerminalCode(options?: TchRequestOptions): Observable<SellerTerminalCodeSuggestion> {
+    return this.backend.get<SellerTerminalCodeSuggestion>('/admin/seller-terminals/suggested-code', options);
   }
 
   list(

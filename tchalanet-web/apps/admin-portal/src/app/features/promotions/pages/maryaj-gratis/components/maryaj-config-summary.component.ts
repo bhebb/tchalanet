@@ -57,26 +57,29 @@ export class MaryajConfigSummaryComponent {
   }
 
   private ticketSummary(): string {
-    if (this.quantityMode() === 'TIERED_PAID_AMOUNT') {
+    const mode = this.quantityMode();
+    if (mode === '—') return '—';
+    if (mode === 'TIERED_PAID_AMOUNT') {
       const count = this.effectQuantityTierCount();
-      const base = this.valueFromEffectOrForm('payoutBaseAmount');
-      return `${count} palier(s), base ${base} HTG`;
+      return `${count} palier(s) configuré(s)`;
     }
 
-    if (this.quantityMode() === 'PER_PAID_AMOUNT') {
-      return `${this.stepSummary()}, max ${this.valueFromEffectOrForm('maxQuantity')} ligne(s), base ${this.valueFromEffectOrForm('payoutBaseAmount')} HTG`;
+    if (mode === 'PER_PAID_AMOUNT') {
+      return `${this.stepSummary()}, max ${this.valueFromEffectOrForm('maxQuantity')} ligne(s)`;
     }
 
-    if (this.campaign()) {
-      return `${this.effectParam('quantity') ?? '—'} Maryaj gratuit(s), base ${this.effectParam('payoutBaseAmount') ?? '—'} HTG`;
+    if (mode === 'FIXED' && this.campaign()) {
+      return `${this.effectParam('quantity') ?? '—'} Maryaj gratuit(s)`;
     }
-    return `${this.formValue('quantity')} Maryaj gratuit(s), base ${this.formValue('payoutBaseAmount')} HTG`;
+    return `${this.formValue('quantity')} Maryaj gratuit(s)`;
   }
 
   private quantityModeSummary(): string {
-    if (this.quantityMode() === 'TIERED_PAID_AMOUNT') return 'Par paliers de vente';
-    if (this.quantityMode() === 'PER_PAID_AMOUNT') return 'Par tranche de vente';
-    return 'Quantité fixe par ticket';
+    const mode = this.quantityMode();
+    if (mode === 'TIERED_PAID_AMOUNT') return 'Par paliers de vente';
+    if (mode === 'PER_PAID_AMOUNT') return 'Par tranche de vente';
+    if (mode === 'FIXED') return 'Quantité fixe par ticket';
+    return '—';
   }
 
   private stepSummary(): string {
@@ -89,6 +92,7 @@ export class MaryajConfigSummaryComponent {
 
   private valueFromEffectOrForm(name: string): string {
     if (this.editing()) return this.formValue(name);
+    if (this.campaign() && !this.effect()) return '—';
     return this.effectParam(name) ?? this.formValue(name);
   }
 
@@ -99,12 +103,14 @@ export class MaryajConfigSummaryComponent {
     }
     const tiers = this.effect()?.params?.['quantityTiers'];
     if (Array.isArray(tiers)) return tiers.length;
+    if (this.campaign()) return 0;
     const formTiers = this.form().get('quantityTiers')?.value;
     return Array.isArray(formTiers) ? formTiers.length : 0;
   }
 
   private selectionSummary(): string {
     const choiceMode = this.valueFromEffectOrForm('choiceMode');
+    if (choiceMode === '—') return '—';
     return choiceMode === 'AUTO_GENERATE'
       ? 'Générée automatiquement'
       : 'Choisie par le vendeur';
@@ -114,6 +120,7 @@ export class MaryajConfigSummaryComponent {
     if (this.editing()) {
       return `${this.regenerableLabel()} · ${this.formValue('maxRegenerationsBeforeConfirm')} tentative(s)`;
     }
+    if (this.campaign() && !this.effect()) return '—';
     if (this.campaign()) return `${this.effectParam('maxRegenerationsBeforeConfirm') ?? '—'} tentative(s)`;
     return `${this.regenerableLabel()} · ${this.formValue('maxRegenerationsBeforeConfirm')} tentative(s)`;
   }
