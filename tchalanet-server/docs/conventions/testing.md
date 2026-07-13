@@ -94,6 +94,17 @@ coverage denominator so they don't dilute the signal:
 > belongs in a **named validator/resolver** that *is* unit-tested — not inline in
 > the Command/Request. Keep carriers dumb.
 
+### Entities & ports
+
+- **Entities** (`*Entity`, JPA `@Entity`) — do **not** unit-test. They are data +
+  ORM mapping; their mapping correctness is proven indirectly by the persistence
+  slice test (`@DataJpaTest`, persist → read back), not by a dedicated unit test.
+- **Ports** (hexagonal interfaces) — there is nothing to test on the **interface**.
+  Test the **implementation**:
+  - persistence adapter → integration slice (`@DataJpaTest` + Testcontainers);
+  - other adapters (http client, notifier, clock) → unit test with fakes/mocks.
+  In domain/application unit tests the port is **faked in-memory**, never tested.
+
 ### MUST
 
 - **JUnit 5**
@@ -192,6 +203,65 @@ Integration tests are limited on purpose.
 They are reserved for critical, high-risk flows where unit tests cannot fully
 validate correctness. Each item asserts **one wired composition** — never the
 per-rule permutations (those belong to Unit).
+
+### Which Spring context to load (slices)
+
+Load the **smallest** context that exercises the seam. Full `@SpringBootTest` is
+the exception, not the default.
+
+| Seam under test | Annotation | Loads | Use for |
+|---|---|---|---|
+| **Repository / persistence adapter** (a port implementation) | `@DataJpaTest` + Testcontainers PG | JPA slice: entities, repositories, datasource — **no** services/controllers | RLS, constraints, triggers/functions, Envers, `deleted_visibility`, persist→read-back |
+| **Controller / web** | `@WebMvcTest(TheController.class)` | MVC slice: controller, Jackson, security config, advice — **buses/services mocked** | request mapping, bean validation, `ApiResponse` vs `ProblemDetail`, web-layer security rules |
+| **Whole wiring** | `@SpringBootTest` | full context | see below — only when the risk *is* the wiring |
+
+**Load the full context (`@SpringBootTest`) only when the risk is the wiring itself:**
+
+- **CommandBus/QueryBus registration** — every Command/Query resolves to exactly
+  one handler (no missing, no ambiguous) — see base-classes below.
+- **Security filter-chain end-to-end** — real filters in order (the JWT `iss`/`aud`,
+  scope-routing, tenant-override chain — the class of bug that reddened E2E).
+- **Cross-slice flow** that genuinely spans web + bus + persistence in one path
+  and is high-risk (money/idempotency) — **one** representative.
+- **Event consumers / cache wiring** — a published `DomainEvent` reaches its
+  listener; a `@Cacheable` method is actually served by `CombinedCacheManager`.
+
+If a mock or a slice can prove it, **do not** boot the full context.
+
+### Framework base classes — bulletproof once (so consumers don't re-test)
+
+The shared infrastructure every feature stands on. Test it **hard, once**, at the
+right level; then feature handlers/adapters test only *their* logic and assume the
+base works. Owners: `tchalanet-common` (+ `app/config`).
+
+- **CQRS bus** (`common/bus`: `SimpleCommandBus`, `SimpleQueryBus`,
+  `HandlerRegistry`, `HandlerTypeResolver`, `VoidCommandHandler`) —
+  - **Unit**: dispatch branches — null command/query → NPE; empty registry →
+    `IllegalStateException`; unknown type → `NoHandlerException`; `CommandHandler`
+    dispatched and result returned; `VoidCommandHandler` dispatched and returns
+    null; wrong handler type → `IllegalStateException`. Registry building +
+    message-type resolution are pure → unit them directly.
+  - **Integration** (`@SpringBootTest`): **registration completeness** — every
+    discovered handler maps to exactly one message, no duplicate/ambiguous
+    binding across the whole app. This is the one bus test that must boot.
+- **Domain events** (`common/event`: `DomainEvent`, `DomainEventPublisher` +
+  `SpringDomainEventPublisher`) —
+  - **Unit**: publisher impl publishes each event once, ordering/after-commit
+    semantics with a fake `ApplicationEventPublisher`.
+  - **Integration**: one `@SpringBootTest` proving a published event reaches its
+    real listener/router (`NotificationDomainEventRouter` etc.) after commit.
+- **Cache** (`app/config/cache`: `CombinedCache`, `CombinedCacheManager`,
+  `ToggleableCacheManager`, `CacheSpec`) —
+  - **Unit**: `CombinedCache` two-tier logic with two mock `Cache` (local/remote):
+    L1 hit skips L2; L2 hit **promotes to L1**; miss on both → null; `put`/`evict`
+    hit **both** tiers; `remote == null` degrades to L1-only. Manager builds caches
+    from `CacheSpec`; toggle off → no-op cache.
+  - **Integration**: one `@SpringBootTest` that a `@Cacheable` call is actually
+    served by the combined manager (spec-driven names resolve).
+
+> Rule: a feature handler does **not** re-test bus dispatch, event delivery, or
+> cache tiering. Those are proven here once. The handler tests only its own
+> decision/composition.
 
 ### Allowed scopes for integration tests
 
