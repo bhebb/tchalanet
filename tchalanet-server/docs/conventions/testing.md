@@ -37,6 +37,35 @@ of that contract.
 what the layer below already proved. If an assertion is already proven one layer
 down — **delete it**.
 
+### Weight per priority domain (where the *decisive* test lives)
+
+Every critical domain **splits**: its pure rules stay Unit (all permutations),
+but its decisive risk may sit one layer up. Read the "decisive" column as *the
+layer that proves the thing that actually breaks* — not the only layer touched.
+
+| Domain | Decisive | Unit owns (permutations) | Integration owns (one wired composition) |
+|---|---|---|---|
+| **Limit policy** | **Unit** | engine + evaluators (below / at / above) | configured limit blocks → **no ticket persisted** |
+| **Draw** (schedule) | **Unit** | cutoff / schedule / due calculators | draw generation persisted |
+| **Sales** | **IT + E2E** | acceptance / charge / money / context resolver | prepare→confirm pipeline + **idempotency-store** + persistence |
+| **DrawResult / settlement** | **IT** (money) | lifecycle / status / variant / explanation | apply idempotent → **one settlement**, stats persisted |
+| **Maryaj gratis** (promotion) | **IT** | effect appliers (charge / odds / snapshot) | active campaign → **promo line persisted** (+ auto-select TTL) |
+| **Game config** (catalog) | **IT** | bet-option combinations, profile resolution | config → **sellable catalog** persisted + exposed |
+| **core.pricing** | **IT** (money + cache) | odds/payout resolution + override precedence | rule upsert → **money snapshot** + cache invalidation + RLS; Ensure-Haiti-rules |
+| **Auth flow** | **IT** (framework) | pure policies (scope / surface / actor / verification) | Spring Security filter-chain: **JWT iss/aud validation**, scope routing, provider select, tenant override, user bootstrap |
+| **Haiti** (DEFAULT_HAITI_LOTTERY profile) | **IT / E2E** | ~no pure logic | provision Haiti → **expected games/draws/pricing/catalog** exist |
+| **Features** (BFF / orchestration) | **IT** | ~no pure logic | orchestration + **contract** (ApiResponse / ProblemDetail) |
+
+> **Auth is the cautionary case.** JWT `iss`/`aud` validation, provider selection
+> and scope routing are framework seams a Spring Security integration test proves
+> and a unit test cannot. A single missing `FIREBASE_PROJECT_ID` (wrong `iss`)
+> once turned the whole E2E suite red — the kind of regression an integration
+> test catches cheaply, long before the stack.
+
+**Do not** re-test in Integration what Unit already proved (every limit / maryaj /
+odds permutation). Integration takes **one** wired case per branch, never the
+cartesian product.
+
 ---
 
 ## 1) Unit tests (DEFAULT)
