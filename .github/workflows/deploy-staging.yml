@@ -313,6 +313,8 @@ jobs:
               -v "$PWD":/work -w /work \
               dopplerhq/cli:3.72 \
               -lc 'doppler secrets download --format env --project tchalanet --config stg > envs/staging/.secrets && chmod 600 envs/staging/.secrets'
+            sudo chown "$(id -u):$(id -g)" envs/staging/.secrets
+            chmod 600 envs/staging/.secrets
 
             DOCKER_BIN="$DOCKER_BIN" IMAGE_TAG="${{ env.IMAGE_TAG }}" make up-staging ENV=staging
 
