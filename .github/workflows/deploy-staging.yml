@@ -302,7 +302,7 @@ jobs:
             $DOCKER_BIN network create edge-staging || true
             $DOCKER_BIN network create back-staging || true
 
-            DOCKER_BIN="$DOCKER_BIN" make env-merge ENV=staging || true
+            DOCKER_BIN="$DOCKER_BIN" make env-merge ENV=staging
 
             if [ -z "${{ secrets.DOPPLER_TOKEN_STG }}" ]; then
               echo "DOPPLER_TOKEN_STG manquant" >&2; exit 1
@@ -315,5 +315,20 @@ jobs:
               -lc 'doppler secrets download --format env --project tchalanet --config stg > envs/staging/.secrets && chmod 600 envs/staging/.secrets'
 
             DOCKER_BIN="$DOCKER_BIN" IMAGE_TAG="${{ env.IMAGE_TAG }}" make up-staging ENV=staging
+
+            echo "Waiting for staging API health..."
+            for attempt in $(seq 1 36); do
+              if curl -kfsS --connect-timeout 5 --max-time 15 \
+                https://api.stg.tchalanet.com/api/v1/actuator/health >/dev/null; then
+                echo "Staging API health OK"
+                break
+              fi
+              if [ "$attempt" = "36" ]; then
+                $DOCKER_BIN ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}' || true
+                $DOCKER_BIN logs --tail 160 tchl-api-staging || true
+                exit 1
+              fi
+              sleep 5
+            done
 
             echo "Staging deploy done — IMAGE_TAG=${{ env.IMAGE_TAG }}"
