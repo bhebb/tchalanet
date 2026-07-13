@@ -45,7 +45,10 @@ Levels reference `testing.md`. Only the risk-carrying cases are listed.
   - `PromotionChargeApplier` `[unit-covered]` — `PromotionChargeApplierTest`: waives
     only the targeted charge type (amount kept, buyer-facing dropped), label
     fallback, strict no-op for non-WAIVE effects. (Was only hit by the Spring IT.)
-  - `SalePromotionEffectApplier` / `PromotionOddsBoostApplier` `[remaining]`.
+  - `PromotionOddsBoostApplier` `[unit-covered]` — `PromotionOddsBoostApplierTest`:
+    boosts only matching-gameCode lines (→ PROMOTION pricing), no-op for non-BOOST,
+    gameCode/amount guards, and the >4-decimal scale case (see §5).
+  - `SalePromotionEffectApplier` `[remaining]` (orchestrator).
 - **Integration (1)**: active campaign → promotional line persisted (+ auto-select TTL).
 
 ### Draw lifecycle + result/settlement → see §3 (job plumbing).
@@ -203,6 +206,24 @@ Append as found. Format: **[state]** claim — evidence — proposed action.
   settle): RED observed by temporarily reverting the handler (`override` threw
   `IllegalStateException: RESULTED -> RESULTED` over the real stack), GREEN with the
   fix. Note: this handler had **zero existing test coverage** (why the bug hid).
+
+### Promotion odds-boost findings (from writing PromotionOddsBoostApplierTest)
+
+- **[TO-VERIFY — fragility] boost amount with >4 decimals crashes the sale.**
+  `PromotionOddsBoostApplier` does `effect.amount().setScale(4,
+  RoundingMode.UNNECESSARY)`, so a promo configured with a 5+-decimal boost throws
+  `ArithmeticException` **at sell time**, not at promotion-config time. **Action**:
+  validate/round the boost scale when the promotion is created, so a mis-configured
+  campaign fails fast at setup, not mid-sale. Pinned by a test meanwhile.
+- **[DOCUMENTED — not a bug] promo boost overrides prior line odds (incl. terminal
+  override).** `SalePromotionEffectApplier` applies BOOST_ODDS by calling
+  `line.withPromotionPricing(...)`, which **unconditionally overwrites** the line's
+  odds snapshot. So on the ticket-line snapshot the promo boost wins over any
+  `SellerTerminalOddsOverride` already applied. This is the effective precedence
+  (promo > terminal on the sold line); settlement consumes the snapshot. Confirm it
+  matches product intent.
+- **[minor] unused param** — `PromotionOddsBoostApplier.apply(..., CurrencyCode
+  currency)` never uses `currency`. Dead parameter; drop it or use it.
 
 ### Architecture-test findings (from reviewing `arch/` + `architecture/`)
 
