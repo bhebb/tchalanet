@@ -151,15 +151,17 @@ Append as found. Format: **[state]** claim — evidence — proposed action.
 
 ### Job-plumbing findings (from writing the close IT)
 
-- **[TO-VERIFY] `opened` count (28) ≠ OPEN rows in `v_draw_summary` (19) ≠ close
-  `due` (19).** For a single generate range (2026-07-09), `OpenDueDrawsResult.opened`
-  reported **28**, but `v_draw_summary` shows **19** OPEN and `CloseDueDrawsCommand`
-  found **19** due (at 2026-07-10, after every 07-09 cutoff). All 28 are same-day
-  draws, so all should be closeable. Either `v_draw_summary` aggregates 28 physical
-  draws into 19 logical rows, or 9 opened draws are not surfaced/closed. Also
-  `generate` logged `created=28 conflicts=140`. **Action**: pin the granularity of
-  `opened()` vs `v_draw_summary` vs close `due` before writing the settle test —
-  settlement counts must not silently drop draws.
+- **[RESOLVED — not an incoherence] `opened`=28 but close `due`=19.** Investigated
+  with a throwaway diagnostic IT (raw `draw` vs `v_draw_summary`, in/out of tenant
+  context). Findings: all **28** draws exist AND are visible in `v_draw_summary`
+  (`viewOpen=28`, `viewJoinLoss=0`; `result_slot_id` is `NOT NULL` so the inner
+  join never drops rows), and the view read is consistent bare vs in-context (RLS
+  is not cutting it). The **19** is purely `findDueToClose`'s `cutoff_at <= now`
+  filter: the 28 are Haiti (UTC-4) draws on 2026-07-09 with cutoffs 10:55–23:29
+  local; the 9 evening ones cross **past 2026-07-10T00:00Z in UTC**, so they are
+  legitimately not yet due at that instant. No draws are dropped. Lesson for the
+  settle test: assert directional invariants, and remember cutoff is UTC — don't
+  equate command-result counts to a fixed number.
 
 ### Architecture-test findings (from reviewing `arch/` + `architecture/`)
 
