@@ -161,6 +161,8 @@ jobs:
     if: inputs.infra_action == 'destroy' || inputs.infra_action == 'recreate'
     runs-on: ubuntu-latest
     environment: staging
+    env:
+      HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}
     steps:
       - uses: actions/checkout@v7
 
@@ -199,6 +201,8 @@ jobs:
       (needs.infra-destroy.result == 'success' || needs.infra-destroy.result == 'skipped')
     runs-on: ubuntu-latest
     environment: staging
+    env:
+      HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}
     outputs:
       server_host: ${{ steps.server-ip.outputs.server_host }}
     steps:
