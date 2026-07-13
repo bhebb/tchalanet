@@ -78,6 +78,22 @@ the pyramid, so the layers above stay thin.
 Test only **logic carriers**: evaluators, appliers, calculators, resolvers, state
 machines. **Not** commands, handlers, DTOs, entities, adapters, controllers.
 
+### Do NOT unit-test — data carriers (exclude from tests AND coverage)
+
+These have no behavior to prove (Lombok/records, plain fields); testing them tests
+the compiler. Exclude by name pattern from unit tests **and** from the JaCoCo
+coverage denominator so they don't dilute the signal:
+
+- `**/*Command.java` / `**/*Command.class` — CQRS command objects
+- `**/*Query.java` / `**/*Query.class` — CQRS query objects
+- `**/*Request.java` — inbound HTTP DTOs
+- `**/*Response.java` — outbound HTTP DTOs
+- (same treatment for `*Result`, `*View`, `*Dto`, `*Entity`, `*Mapper` generated code)
+
+> If a would-be data carrier grows real logic (validation, derivation), that logic
+> belongs in a **named validator/resolver** that *is* unit-tested — not inline in
+> the Command/Request. Keep carriers dumb.
+
 ### MUST
 
 - **JUnit 5**
@@ -116,6 +132,57 @@ class WhenUrlLangProvided {
   }
 }
 ```
+
+---
+
+## 1b) Filters, interceptors & servlet-level components
+
+Servlet filters straddle Unit and Integration. **Most of a filter's own decision
+logic is a UNIT test** — you do not need a Spring context to prove it. Use the
+Spring servlet mocks and fake the injected collaborators, exactly like
+`RequiredRequestIdFilterTest` and `TchContextFilterSlice5Test`:
+
+- `MockHttpServletRequest` / `MockHttpServletResponse` (set path + headers)
+- `Mockito.mock(FilterChain.class)` (or `MockFilterChain`)
+- mock/fake the collaborators (resolvers, context factory, binder, `ObjectProvider`)
+
+Then drive `filter.doFilter(req, res, chain)` and assert **the filter's own
+behavior**:
+
+1. the branch taken (status via `res.getStatus()`, error code in the body);
+2. whether the chain proceeded — `verify(chain, times(1)/never()).doFilter(...)`;
+3. side effects it owns (request attributes bound, `MDC`/context set **and
+   cleared in `finally`**, response headers).
+
+### Worked example — `TchContextFilter` (`tchalanet-common`)
+
+High-risk filter (tenant override, RLS activation via bind, act-as-terminal
+bridge). Each branch below is a **unit** test with mocked collaborators:
+
+- **`shouldNotFilter`** — portal-handoff `.../consume` paths are bypassed.
+- **Tenant override without reason** — `resolvedAccess.tenantOverride()` true and
+  `X-Tch-Override-Reason` blank → `sendError(403, ...)`, chain **never** called.
+- **Act-as-terminal role gate** — `X-Tch-Act-As-Terminal` set: applied when ctx
+  is TENANT_ADMIN/SUPER_ADMIN, **ignored** otherwise.
+- **Malformed act-as-terminal UUID** — bad value → warn + ignored, chain **still**
+  proceeds (downstream rejects).
+- **Null context** — hydrate/resolve returns null → chain **never** called (response
+  already handled by the resolver).
+- **Cleanup** — `contextBinder.clear(req)` runs in `finally`, including when the
+  chain throws.
+
+### One INTEGRATION test on top (what mocks cannot prove)
+
+Add a **single** wired test — MockMvc / real Spring Security chain +
+Testcontainers — for the two things a unit test structurally cannot:
+
+- **Chain placement/order** — `@Order(LOWEST_PRECEDENCE - 50)` means the filter
+  runs after access resolution; a mock can't prove ordering.
+- **RLS actually activates** — after `contextBinder.bind`, a tenant-scoped query
+  sees only its tenant's rows (real Postgres RLS), and a cross-tenant fetch → 404.
+
+Do **not** re-enumerate every header permutation in the integration test — those
+are unit. IT proves the seam is wired; unit proves the decisions.
 
 ---
 
