@@ -312,7 +312,7 @@ jobs:
               -e DOPPLER_TOKEN="${{ secrets.DOPPLER_TOKEN_STG }}" \
               -v "$PWD":/work -w /work \
               dopplerhq/cli:3.72 \
-              -lc 'doppler secrets download --format env --project tchalanet --config stg > envs/staging/.secrets && chmod 600 envs/staging/.secrets'
+              -lc 'doppler secrets download --no-file --format env --project tchalanet --config stg > envs/staging/.secrets && chmod 600 envs/staging/.secrets'
             sudo chown "$(id -u):$(id -g)" envs/staging/.secrets
             chmod 600 envs/staging/.secrets
 
