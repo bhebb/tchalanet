@@ -1,4 +1,4 @@
-name: Deploy Runtime Services
+name: Deploy Infra Runtime Services
 
 on:
   workflow_dispatch:
