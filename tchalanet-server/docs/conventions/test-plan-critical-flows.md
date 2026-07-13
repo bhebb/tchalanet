@@ -225,12 +225,14 @@ Append as found. Format: **[state]** claim — evidence — proposed action.
 
 ### Promotion odds-boost findings (from writing PromotionOddsBoostApplierTest)
 
-- **[TO-VERIFY — fragility] boost amount with >4 decimals crashes the sale.**
-  `PromotionOddsBoostApplier` does `effect.amount().setScale(4,
-  RoundingMode.UNNECESSARY)`, so a promo configured with a 5+-decimal boost throws
-  `ArithmeticException` **at sell time**, not at promotion-config time. **Action**:
-  validate/round the boost scale when the promotion is created, so a mis-configured
-  campaign fails fast at setup, not mid-sale. Pinned by a test meanwhile.
+- **[FIXED] boost amount with >4 decimals no longer crashes the sale.**
+  `PromotionOddsBoostApplier` does `setScale(4, RoundingMode.UNNECESSARY)`, so a 5+-
+  significant-decimal boost would throw `ArithmeticException` **at sell time**. Now
+  `PromotionRuleWriteSupport` (BOOST_ODDS effect build) rejects it **at config time**
+  with `promotion.rule.boost_odds_scale` (`oddsOverride.stripTrailingZeros().scale()
+  > 4`, mirroring the applier's exact failure condition). Fail-fast at campaign setup
+  instead of mid-sale. Covered by `PromotionRuleWriteSupportTest`; the applier keeps
+  its throw as a last-resort defense (pinned by `PromotionOddsBoostApplierTest`).
 - **[DOCUMENTED — not a bug] promo boost overrides prior line odds (incl. terminal
   override).** `SalePromotionEffectApplier` applies BOOST_ODDS by calling
   `line.withPromotionPricing(...)`, which **unconditionally overwrites** the line's

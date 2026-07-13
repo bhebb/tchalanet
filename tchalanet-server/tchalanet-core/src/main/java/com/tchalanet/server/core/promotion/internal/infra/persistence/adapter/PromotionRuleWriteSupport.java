@@ -207,7 +207,14 @@ class PromotionRuleWriteSupport {
             }
             case BOOST_ODDS -> {
                 effect.setGameCode(requiredString(params, "gameCode"));
-                effect.setOddsOverride(positiveDecimal(params, "oddsOverride"));
+                var oddsOverride = positiveDecimal(params, "oddsOverride");
+                // Reject >4 significant decimals at config time: the sell-time
+                // PromotionOddsBoostApplier does setScale(4, UNNECESSARY), which would
+                // otherwise crash the sale on a mis-configured boost. Fail fast here.
+                if (oddsOverride.stripTrailingZeros().scale() > 4) {
+                    throw ProblemRest.badRequest("promotion.rule.boost_odds_scale");
+                }
+                effect.setOddsOverride(oddsOverride);
             }
             case WAIVE_CHARGE -> effect.setChargeType(requiredString(params, "chargeType", "chargeCode"));
         }
