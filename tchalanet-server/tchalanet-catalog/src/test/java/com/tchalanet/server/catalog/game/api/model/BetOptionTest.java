@@ -27,7 +27,7 @@ class BetOptionTest {
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("betOption is required");
 
-        assertThatThrownBy(() -> BetOption.from(BetType.LOTTO4_PATTERN, (short) 5))
+        assertThatThrownBy(() -> BetOption.from(BetType.LOTTO4_PATTERN, (short) 6))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("Unsupported betOption");
 
@@ -43,8 +43,9 @@ class BetOptionTest {
                 BetOption.LOTTO4_STRAIGHT,
                 BetOption.LOTTO4_BOX,
                 BetOption.LOTTO4_FRONT_PAIR,
-                BetOption.LOTTO4_BACK_PAIR);
-        assertThat(BetType.LOTTO4_PATTERN.supportsOption((short) 4)).isTrue();
-        assertThat(BetType.LOTTO4_PATTERN.betOptionMax()).isEqualTo((short) 4);
+                BetOption.LOTTO4_BACK_PAIR,
+                BetOption.LOTTO4_EXACT_PLUS_BOX);
+        assertThat(BetType.LOTTO4_PATTERN.supportsOption((short) 5)).isTrue();
+        assertThat(BetType.LOTTO4_PATTERN.betOptionMax()).isEqualTo((short) 5);
     }
 }
