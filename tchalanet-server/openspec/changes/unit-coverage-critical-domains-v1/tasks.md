@@ -12,14 +12,22 @@ Focused command:
 
 ## A. Limits engine (create — highest priority)
 
-- [ ] `LimitEvaluationEngine` — orchestration: below / at / above / limit-absent.
-- [ ] `MaxStakeExposurePerSelectionPerDrawEvaluator`.
+> First batch landed + validated green on JDK 25 CI (server-pr.yml run #225).
+
+- [x] `LimitEvaluationEngine` — orchestration: no-rules-allows, missing-evaluator
+      fail-fast, severity ranking, null-breach safety, argument/constructor guards.
+- [x] `MaxStakeExposurePerSelectionPerDrawEvaluator` — facts-based below/above,
+      multi-line aggregation, zero prior exposure.
+- [x] `MaxStakePerLineEvaluator` — below / at boundary / above.
+- [x] `MaxStakePerTicketEvaluator` — below / at boundary / above.
+- [x] `MaxLinesPerTicketEvaluator` — at / above line count.
+- [x] `BlockBetTypeEvaluator` — blocked vs unblocked type, one breach per line.
 - [ ] `MaxSalesCountPerSelectionPerDrawEvaluator`.
 - [ ] `MaxPotentialPayoutPerLineEvaluator`.
 - [ ] `MaxPotentialPayoutPerTicketEvaluator`.
 - [ ] `MaxPotentialPayoutExposurePerSelectionPerDrawEvaluator`.
-- [ ] `BlockBetTypeEvaluator`.
 - [ ] `BlockSelectionPerDrawEvaluator`.
+- [ ] `MaxStakePerBetTypePerTicketEvaluator` / `MaxStakePerSelectionPerTicketEvaluator`.
 - [ ] `EffectiveLimitRule` / `EffectiveLimits` / `LimitBreach` / `LimitEvaluationResult`
       construction + edge cases (empty rules, overlapping rules).
 
