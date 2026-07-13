@@ -339,3 +339,42 @@ Keep a small suite like:
 - **AfterCommit behavior**: side effects only after commit (or explicit REQUIRES_NEW behavior)
 - **Idempotency**: duplicate idempotency key does not duplicate money effects
 - **ApiResponse vs ProblemDetail**: 2xx wrapped, errors not wrapped
+
+---
+
+## 6) Architecture & convention tests (ArchUnit + Modulith)
+
+A **first-class layer**, not an afterthought. They are fast (bytecode analysis,
+no context boot) and run on every build; they catch **structural drift** —
+dependency direction, module boundaries, layering, naming — that no functional
+test would. When a rule fires, the fix is the code, not the rule (unless the rule
+is wrong — then fix the rule *and* say why).
+
+Current suites (`tchalanet-app/src/test/.../{architecture,arch}`):
+
+| Suite | Enforces |
+|---|---|
+| `CleanArchitectureRulesTest` | layer deps: common isolated; core ⊥ features; catalog api ⊥ internal; features ⊥ JPA; domain ⊥ Spring/JPA/web; controllers ⊥ repos; no slice cycles |
+| `ModulithVerificationTest` | Spring Modulith `verify()` — module boundaries & allowed dependencies |
+| `PlatformLayerGatesTest` (31) | platform ⊥ core/features; provider adapters internal-only; no direct JWT parsing; notification/communication/accesscontrol/audit internals private |
+| `FeatureArchitectureTest` | feature-slice constraints (orchestration/BFF boundaries) |
+| `SecurityArchTest` | every `@RestController` under a protected scope (`/admin`, `/platform`, `/_sdr`, `/tenant/tickets`) declares `@PreAuthorize`/`@Secured` (explicit `permitAll()` to whitelist) |
+| `TimezoneEnforcementArchTest` | no `LocalDateTime` / `ZoneId.systemDefault()` / `Instant.now()` / `LocalDate.now()` in draw/sales domain & application |
+| `PageModelArchTest`, `FlywayAuditAlignmentArchTest`, `OperationalContextArchitectureTest`, `CommonTechnicalKernelArchitectureTest`, `SensitiveJpaUpdateConventionTest`, `BffSlicesTest` | page-model, Flyway/Envers alignment, operational-context, kernel, sensitive-update & BFF conventions |
+
+### Reinforce (tracked in `test-plan-critical-flows.md` §5)
+
+Architecture tests are the cheapest place to encode a project non-negotiable, so
+gaps here are worth closing:
+
+- **`SecurityArchTest` skips `void` handlers** — the rule filters out
+  void-returning methods, so an unsecured `@PostMapping`/`@DeleteMapping` command
+  handler (which usually returns `void`) in a protected scope **passes**. Real
+  authorization gap — see §5.
+- **Two packages `arch/` and `architecture/`** for the same concern — consolidate.
+- **Candidate new rules**: strongly-typed IDs outside persistence (a project
+  non-negotiable); CQRS handlers reached only via the bus; `*Command`/`*Query`/
+  `*Request`/`*Response` carriers stay logic-free (mirror of §1 exclusions).
+
+> Rule of thumb: if a convention is stated in `project.md` non-negotiables, it
+> should have an ArchUnit rule — otherwise it drifts.

@@ -128,13 +128,16 @@ Append as found. Format: **[state]** claim — evidence — proposed action.
   orthogonal flag on an OPEN/CLOSED draw, or dead/legacy? A test can't assert a
   lock transition because there is none. **Action**: confirm the lock semantics
   before testing; if orthogonal, test it as a flag, not a status; if dead, remove.
-- **[TO-VERIFY] Result correction/override has no return transition.**
-  `RESULTED → {SETTLED}` only (no `RESULTED→RESULTED`, no `SETTLED→RESULTED`), yet
-  `CorrectAppliedDrawResultCommandHandler`, `OverrideDrawResultCommandHandler`,
-  `MarkDrawResultOverriddenCommandHandler` exist. → How is a correction *after*
-  RESULTED (or after SETTLED) reconciled with the state machine and with money
-  already settled? **Action**: map the correction path before writing the settle
-  test; it likely mutates `DrawResultStatus` in place — assert that explicitly.
+- **[PARTLY-EXPLAINED] Result correction/override has no `DrawStatus` return edge.**
+  `RESULTED → {SETTLED}` only, yet `CorrectAppliedDrawResultCommandHandler` /
+  `OverrideDrawResultCommandHandler` / `MarkDrawResultOverriddenCommandHandler`
+  exist. Reading the model: corrections operate on a **separate** sub-status
+  `DrawResultStatus {PROVISIONAL, CONFIRMED, OVERRIDDEN, ERROR}` **in place** while
+  `DrawStatus` stays `RESULTED` — so there is no lifecycle back-edge by design.
+  **Still to verify**: a correction *after* `SETTLED` (money already applied) — the
+  `DrawStatus` machine forbids leaving SETTLED, so how is a post-settlement
+  correction represented and how does it reconcile the ledger? Pin this in the
+  settle test.
 - **[TO-VERIFY] Two status enums.** `DrawStatus` (lifecycle) vs `DrawResultStatus`
   (`core/drawresult`). → Their coupling (which `DrawStatus` values are valid for
   which `DrawResultStatus`) is implicit. **Action**: one test pinning the coupling,
@@ -143,3 +146,25 @@ Append as found. Format: **[state]** claim — evidence — proposed action.
   `OpenDraw`; `CloseDueDraws` vs `CloseDraw` vs `LockDraw`. → Confirm which the job
   actually schedules vs which are admin-manual, so the plumbing IT drives the real
   scheduled path and we don't test a dead entrypoint.
+
+### Architecture-test findings (from reviewing `arch/` + `architecture/`)
+
+- **[CONFIRMED] `SecurityArchTest` does not require authorization on `void`
+  handlers.** `HaveAuthorizationAnnotationCondition.check` builds its handler list
+  with `.filter(m -> !m.getRawReturnType().isEquivalentTo(void.class))`, so a
+  void-returning `@PostMapping`/`@DeleteMapping` (cancel, delete, etc.) in a
+  protected scope (`/admin`, `/platform`, `/_sdr`, `/tenant/tickets`) is **not**
+  checked for `@PreAuthorize`/`@Secured`. This is a genuine authorization gap in
+  the guard rule. **Action**: drop the void filter (a void handler is still a
+  handler); add a regression fixture — a void unsecured handler in a protected
+  scope must make the rule fail. Fix + verify in CI (JDK 25).
+- **[CONFIRMED] Split packages `arch/` and `architecture/`.** Same concern, two
+  homes (`arch/`: PageModel, Security, Feature, Timezone, Flyway; `architecture/`:
+  CleanArch, Modulith, PlatformGates, OperationalContext, Kernel). **Action**:
+  consolidate into one package so the suite is discoverable and rules aren't
+  duplicated across both.
+- **[GAP] Non-negotiables without an ArchUnit rule.** `project.md` mandates
+  strongly-typed IDs (except persistence) and CQRS-via-bus; no rule enforces them.
+  **Action**: add rules (typed-ID usage outside `*persistence*`; handlers invoked
+  only through `CommandBus`/`QueryBus`; carriers `*Command/*Query/*Request/*Response`
+  stay logic-free — mirrors §1 exclusions).
