@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.promotion.internal.infra.persistence.adapter;
 
+import com.tchalanet.server.common.web.error.ProblemRestException;
 import com.tchalanet.server.common.types.id.PromotionCampaignId;
 import com.tchalanet.server.common.types.id.PromotionRuleId;
 import com.tchalanet.server.common.types.id.TenantId;
@@ -26,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -97,6 +99,32 @@ class PromotionRuleWriteSupportTest {
             .containsEntry("quantityMode", "TIERED_PAID_AMOUNT")
             .containsEntry("maxQuantity", 4)
             .containsEntry("payoutBaseAmount", new BigDecimal("75"));
+    }
+
+    @Test
+    void boostOddsWithMoreThanFourDecimalsIsRejectedAtConfigTime() {
+        var campaigns = mock(PromotionCampaignRepository.class);
+        var rules = mock(PromotionRuleRepository.class);
+        var effects = mock(PromotionRuleEffectRepository.class);
+        var eligibility = mock(PromotionRuleEligibilityLineRepository.class);
+        var viewAssembler = mock(PromotionCampaignViewAssembler.class);
+        var support = new PromotionRuleWriteSupport(campaigns, rules, effects, eligibility, viewAssembler);
+
+        when(campaigns.getRequired(CAMPAIGN_ID.value())).thenReturn(defaultMaryajCampaign());
+        when(rules.findByIdAndCampaignId(RULE_ID.value(), CAMPAIGN_ID.value()))
+            .thenReturn(Optional.of(rule()));
+
+        // A boost with 5 significant decimals would crash the sale at
+        // PromotionOddsBoostApplier (setScale(4, UNNECESSARY)); it must be rejected here.
+        var command = new UpdatePromotionRuleEffectsCommand(
+            TENANT, CAMPAIGN_ID, RULE_ID,
+            List.of(new PromotionEffectConfigInput(PromotionEffectType.BOOST_ODDS, Map.of(
+                "gameCode", "HT_BOLET",
+                "oddsOverride", "2.12345"))));
+
+        assertThatThrownBy(() -> support.updateRuleEffects(command))
+            .isInstanceOf(ProblemRestException.class)
+            .hasMessageContaining("promotion.rule.boost_odds_scale");
     }
 
     private PromotionCampaignJpaEntity defaultMaryajCampaign() {

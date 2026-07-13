@@ -105,7 +105,7 @@ public class OverrideDrawResultCommandHandler
                 command.force());
 
         // [Re-apply après override valide]
-        applyOverrideToDraws(res, slot);
+        applyOverrideToDraws(res, slot, command.reason());
 
         log.info(
             "draw_result.override slotKey={} occurredAt={} drawResultId={} created={} updated={}",
@@ -118,7 +118,7 @@ public class OverrideDrawResultCommandHandler
         return new OverrideDrawResultResult(res.id(), res.created(), res.updated());
     }
 
-    private void applyOverrideToDraws(DrawResultWriterPort.UpsertResult res, ResultSlotView slot) {
+    private void applyOverrideToDraws(DrawResultWriterPort.UpsertResult res, ResultSlotView slot, String reason) {
         var draws = drawReader.findByDrawResultId(res.id());
 
         for (var summary : draws) {
@@ -129,7 +129,10 @@ public class OverrideDrawResultCommandHandler
             var now = clock.instant();
             var draw = drawLookup.findById(summary.drawId()).orElseThrow();
 
-            draw.applyResult(res.id(), now, DrawSource.ADMIN_OVERRIDE);
+            // Draws linked to an existing result are already RESULTED. Replacing their
+            // result is overrideResult (RESULTED→RESULTED in place); applyResult is
+            // first-result-only (CLOSED→RESULTED, resultId==null) and would throw here.
+            draw.overrideResult(res.id(), now, reason);
             drawWriter.save(draw);
 
             var event =

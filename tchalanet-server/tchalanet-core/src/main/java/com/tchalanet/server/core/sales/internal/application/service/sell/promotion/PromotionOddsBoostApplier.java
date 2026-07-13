@@ -1,6 +1,5 @@
 package com.tchalanet.server.core.sales.internal.application.service.sell.promotion;
 
-import com.tchalanet.server.common.types.money.CurrencyCode;
 import com.tchalanet.server.core.promotion.api.model.PromotionDecision;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffect;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffectType;
@@ -17,8 +16,7 @@ public class PromotionOddsBoostApplier {
     public void apply(
         List<TicketLine> lines,
         PromotionEffect effect,
-        PromotionDecision decision,
-        CurrencyCode currency
+        PromotionDecision decision
     ) {
         if (effect.type() != PromotionEffectType.BOOST_ODDS) {
             return;

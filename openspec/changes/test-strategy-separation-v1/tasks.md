@@ -6,7 +6,7 @@ nothing is tested twice.
 ## 1. Publish the contract
 
 - [ ] Land `proposal.md` + `design.md` (boundary rule + the three lists).
-- [ ] Add a short "Test layers" section to `tchalanet-server/docs/conventions/testing.md`
+- [x] Add a short "Test layers" section to `tchalanet-server/docs/conventions/testing.md`
       pointing to this change's boundary rule (§0) and checklist (§5).
 - [ ] Reference this change from each of the four owner changes' proposals.
 

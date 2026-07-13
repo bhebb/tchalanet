@@ -44,7 +44,7 @@ public class SalePromotionEffectApplier {
         for (var effect : decision.effects()) {
             switch (effect.type()) {
                 case WAIVE_CHARGE -> promotionChargeApplier.apply(finalCharges, effect, decision);
-                case BOOST_ODDS -> promotionOddsBoostApplier.apply(lines, effect, decision, currency);
+                case BOOST_ODDS -> promotionOddsBoostApplier.apply(lines, effect, decision);
                 case FREE_GAME_LINE ->
                     lines.addAll(promotionTicketLineFactory.createLines(
                         effect, decision, lines, command, sellerTerminalId, currency));

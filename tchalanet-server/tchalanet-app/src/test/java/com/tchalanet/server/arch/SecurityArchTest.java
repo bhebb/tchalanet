@@ -1,12 +1,14 @@
 package com.tchalanet.server.arch;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.domain.JavaMethod;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.lang.ArchCondition;
+import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
 import org.junit.jupiter.api.Test;
@@ -57,6 +59,27 @@ class SecurityArchTest {
                 .and(new InProtectedScopeCondition())
                 .should(new HaveAuthorizationAnnotationCondition())
                 .check(classes);
+    }
+
+    /**
+     * Regression: a {@code void} handler in a protected scope without authorization
+     * MUST be flagged. Runs the same rule against a test-only fixture package
+     * (outside {@code com.tchalanet.server}, so the real scan above never sees it).
+     */
+    @Test
+    void voidHandlerInProtectedScopeWithoutAuthorizationIsFlagged() {
+        JavaClasses fixtures =
+                new ClassFileImporter().importPackages("com.tchalanet.testfixtures.security");
+
+        ArchRule rule =
+                classes()
+                        .that().areAnnotatedWith(RestController.class)
+                        .and(new InProtectedScopeCondition())
+                        .should(new HaveAuthorizationAnnotationCondition());
+
+        assertThatThrownBy(() -> rule.check(fixtures))
+                .isInstanceOf(AssertionError.class)
+                .hasMessageContaining("ProtectedVoidUnsecuredController");
     }
 
     /** Predicate : controller dont le @RequestMapping est dans un scope protégé. */
@@ -110,8 +133,9 @@ class SecurityArchTest {
                             .filter(m -> m.getModifiers()
                                     .contains(com.tngtech.archunit.core.domain.JavaModifier.PUBLIC))
                             .filter(m -> !m.isAnnotatedWith(Override.class))
-                            .filter(m -> !m.getRawReturnType()
-                                    .isEquivalentTo(void.class))
+                            // A void-returning handler (typical for @PostMapping/@DeleteMapping
+                            // commands: cancel, delete, ...) is still a handler and MUST be
+                            // authorized. Do NOT filter it out — that was an authorization gap.
                             .filter(HaveAuthorizationAnnotationCondition::isHandlerMethod)
                             .toList();
 

@@ -1,13 +1,146 @@
 # Testing Rules (Server)
 
-> **Status**: NORMATIVE  
-> **Applies to**: tchalanet-server  
-> **Goal**: fast, reliable tests that validate business logic and prevent regressions without over-testing Spring.
+> **Status**: NORMATIVE
+> **Applies to**: tchalanet-server (backend). Web/mobile have their own guides.
+> **Goal**: prove business risk at the **cheapest sufficient layer**, fast and
+> reliably, without re-testing the same rule twice or over-testing the framework.
+
+## 0) Objective — why we test, and the pyramid
+
+We test to **prove a risk**, not to raise a coverage number. Before writing a
+test, answer: *what breaks if this is wrong, and what is the smallest layer that
+proves it won't?*
+
+The platform has one **cross-project contract** that decides where each thing is
+tested — read it once and keep it open:
+**`openspec/changes/test-strategy-separation-v1`** (boundary rule = §0 / design,
+anti-duplication checklist = §5). This backend doc is the server-side application
+of that contract.
+
+Before writing tests for a critical flow, read the **plan-first working method
+and per-area cases** in [`test-plan-critical-flows.md`](./test-plan-critical-flows.md)
+— including the `generate → open → close → apply → settle` job plumbing and the
+live incoherence log (we surface findings, we do not paper over them).
+
+| Layer | Tool | Owns | Owner change |
+|---|---|---|---|
+| **Unit** (default, most tests) | Java · JUnit 5 + AssertJ, no Spring, no DB | Every branch of a pure logic class — **all permutations** | `unit-coverage-critical-domains-v1` |
+| **Integration** (few, critical) | Java · Testcontainers Postgres | **One** representative per branch: persistence, RLS, idempotency-store, transaction, HTTP contract | `spring-integration-business-flows-v1` |
+| **E2E** (thin tip) | Python · `testing/e2e`, full deployed stack + real auth | **The** happy path per journey + idempotent replay + multi-tenant isolation | `e2e-business-runtime-v1` |
+| **Load** (adjacent) | Python · Locust | Capacity / latency only — **no** business assertion | `perf-load-testing-locust-v1` |
+| **Web** (adjacent) | Playwright · `tchalanet-web/apps/web-e2e` | UI-observable behavior only (rendering, guards, form feedback) | `web-e2e-critical-flows-v1` |
+
+**The boundary rule (single source of truth):**
+
+> **Pure decision / calculation** → Unit ·
+> needs **real DB / transaction / RLS / idempotency-store**, but one seeded
+> endpoint suffices → **Integration** ·
+> needs the **whole stack + real auth + multiple client roles** → **E2E**.
+
+**Anti-duplication:** a permutation is asserted **once** (Unit). Integration takes
+**one representative per infrastructure seam or materially different wired
+outcome** — *not* one case per pure business predicate. E2E takes **the** happy
+path. No layer repeats what the layer below already proved. If an assertion is
+already proven one layer down — **delete it**.
+
+> "One representative per branch" is about **wiring**, not business rules. Example:
+> Unit owns the 20 limit permutations; Integration asserts *a limit-blocked sell
+> persists no ticket* (one seam) and maybe *an accepted sell persists the snapshot*
+> (a materially different outcome) — **not** one IT per limit type.
+
+### Weight per priority domain (where the *decisive* test lives)
+
+Every critical domain **splits**: its pure rules stay Unit (all permutations),
+but its decisive risk may sit one layer up. Read the "decisive" column as *the
+layer that proves the thing that actually breaks* — not the only layer touched.
+
+| Domain | Decisive | Unit owns (permutations) | Integration owns (one wired composition) |
+|---|---|---|---|
+| **Limit policy** | **Unit** | engine + evaluators (below / at / above) | configured limit blocks → **no ticket persisted** |
+| **Draw** (schedule) | **Unit** | cutoff / schedule / due calculators | draw generation persisted |
+| **Sales** | **IT + E2E** | acceptance / charge / money / context resolver | prepare→confirm pipeline + **idempotency-store** + persistence |
+| **DrawResult / settlement** | **IT** (money) | lifecycle / status / variant / explanation | apply idempotent → **one settlement**, stats persisted |
+| **Maryaj gratis** (promotion) | **IT** | effect appliers (charge / odds / snapshot) | active campaign → **promo line persisted** (+ auto-select TTL) |
+| **Game config** (catalog) | **IT** | bet-option combinations, profile resolution | config → **sellable catalog** persisted + exposed |
+| **core.pricing** | **IT** (money + cache) | odds/payout resolution + override precedence | rule upsert → **money snapshot** + cache invalidation + RLS; Ensure-Haiti-rules |
+| **Auth flow** | **IT** (framework) | pure policies (scope / surface / actor / verification) | Spring Security filter-chain: **JWT iss/aud validation**, scope routing, provider select, tenant override, user bootstrap |
+| **Haiti** (DEFAULT_HAITI_LOTTERY profile) | **IT / E2E** | ~no pure logic | provision Haiti → **expected games/draws/pricing/catalog** exist |
+| **Features** (BFF / orchestration) | **IT** | ~no pure logic | orchestration + **contract** (ApiResponse / ProblemDetail) |
+
+> **Auth is the cautionary case.** JWT `iss`/`aud` validation, provider selection
+> and scope routing are framework seams a Spring Security integration test proves
+> and a unit test cannot. A single missing `FIREBASE_PROJECT_ID` (wrong `iss`)
+> once turned the whole E2E suite red — the kind of regression an integration
+> test catches cheaply, long before the stack.
+
+**Do not** re-test in Integration what Unit already proved (every limit / maryaj /
+odds permutation). Integration takes **one** wired case per branch, never the
+cartesian product.
+
+---
 
 ## 1) Unit tests (DEFAULT)
 
-**Unit tests are the default.**  
-They validate domain + application behavior with **in-memory ports** (preferred) or minimal fakes.
+**Unit tests are the default.**
+They validate domain + application behavior with **in-memory ports** (preferred)
+or minimal fakes. All permutations of a pure rule live here — this is the base of
+the pyramid, so the layers above stay thin.
+
+Test only **logic carriers**: evaluators, appliers, calculators, resolvers, state
+machines. Commands, DTOs, entities, adapters and controllers are **not**
+unit-tested. Handlers are a special case — see below.
+
+### Handlers — do not unit-test by default
+
+Do **not** unit-test a command/query handler by default. A simple
+`load → delegate → save → publish` handler owns no logic of its own; a mock-heavy
+unit test there just re-asserts the collaborators it delegates to. Such handlers
+are covered by **one integration composition**, not by an isolated unit test.
+
+Unit-test a handler **only** when it contains meaningful orchestration branches
+that cannot be moved into a named logic carrier without making the design worse.
+Otherwise, extract the decision into a carrier and unit-test the carrier. Rule of
+thumb: if you mock five ports to reach one `if`, that `if` belongs in a carrier.
+(This resolves the older "test each handler with fake ports" guidance: the target
+is the *logic*, wherever it lives — not the handler class by reflex.)
+
+### Do NOT unit-test — data carriers (exclude from tests AND coverage)
+
+These have no behavior to prove (Lombok/records, plain fields); testing them tests
+the compiler. Exclude by name pattern from unit tests **and** from the JaCoCo
+coverage denominator so they don't dilute the signal:
+
+**Excluded by category** (the name settles it — these are always passive):
+
+- `**/*Command.java` — CQRS command objects
+- `**/*Query.java` — CQRS query objects
+- `**/*Request.java` — inbound HTTP DTOs
+- `**/*Response.java` — outbound HTTP DTOs
+- `**/*Entity.java` — JPA entities (data + ORM mapping)
+- generated code (MapStruct mappers, OpenAPI clients, Lombok builders)
+
+**Not decided by name** — `*Result`, `*View`, `*Dto`, `*Mapper`:
+
+> A class name does not decide this by itself. Exclude only **passive** carriers.
+> If a `Result`/`View`/`Dto`/`Mapper` owns meaningful handwritten behavior — a
+> factory, a derived decision (`isBlocked()`, `highestSeverity()`), a normalization
+> or aggregation, precedence/fallback in a hand-written mapper — that behavior must
+> either be **extracted into a named logic carrier** or **unit-tested explicitly**.
+> A generated MapStruct mapper is not unit-tested; a hand-written mapper with
+> fallback logic may be a real carrier. Same for a Command/Request that grows
+> validation: move it to a named validator/resolver and test that — keep the
+> carrier dumb.
+
+### Entities & ports
+
+- **Entities** (`*Entity`, JPA `@Entity`) — do **not** unit-test. They are data +
+  ORM mapping; their mapping correctness is proven indirectly by the persistence
+  slice test (`@DataJpaTest`, persist → read back), not by a dedicated unit test.
+- **Ports** (hexagonal interfaces) — there is nothing to test on the **interface**.
+  Test the **implementation**:
+  - persistence adapter → integration slice (`@DataJpaTest` + Testcontainers);
+  - other adapters (http client, notifier, clock) → unit test with fakes/mocks.
+  In domain/application unit tests the port is **faked in-memory**, never tested.
 
 ### MUST
 
@@ -50,16 +183,132 @@ class WhenUrlLangProvided {
 
 ---
 
+## 1b) Filters, interceptors & servlet-level components
+
+Servlet filters straddle Unit and Integration. **Most of a filter's own decision
+logic is a UNIT test** — you do not need a Spring context to prove it. Use the
+Spring servlet mocks and fake the injected collaborators, exactly like
+`RequiredRequestIdFilterTest` and `TchContextFilterSlice5Test`:
+
+- `MockHttpServletRequest` / `MockHttpServletResponse` (set path + headers)
+- `Mockito.mock(FilterChain.class)` (or `MockFilterChain`)
+- mock/fake the collaborators (resolvers, context factory, binder, `ObjectProvider`)
+
+Then drive `filter.doFilter(req, res, chain)` and assert **the filter's own
+behavior**:
+
+1. the branch taken (status via `res.getStatus()`, error code in the body);
+2. whether the chain proceeded — `verify(chain, times(1)/never()).doFilter(...)`;
+3. side effects it owns (request attributes bound, `MDC`/context set **and
+   cleared in `finally`**, response headers).
+
+### Worked example — `TchContextFilter` (`tchalanet-common`)
+
+High-risk filter (tenant override, RLS activation via bind, act-as-terminal
+bridge). Each branch below is a **unit** test with mocked collaborators:
+
+- **`shouldNotFilter`** — portal-handoff `.../consume` paths are bypassed.
+- **Tenant override without reason** — `resolvedAccess.tenantOverride()` true and
+  `X-Tch-Override-Reason` blank → `sendError(403, ...)`, chain **never** called.
+- **Act-as-terminal role gate** — `X-Tch-Act-As-Terminal` set: applied when ctx
+  is TENANT_ADMIN/SUPER_ADMIN, **ignored** otherwise.
+- **Malformed act-as-terminal UUID** — bad value → warn + ignored, chain **still**
+  proceeds (downstream rejects).
+- **Null context** — hydrate/resolve returns null → chain **never** called (response
+  already handled by the resolver).
+- **Cleanup** — `contextBinder.clear(req)` runs in `finally`, including when the
+  chain throws.
+
+### One INTEGRATION test on top (what mocks cannot prove)
+
+Add a **single** wired test — MockMvc / real Spring Security chain +
+Testcontainers — for the two things a unit test structurally cannot:
+
+- **Chain placement/order** — `@Order(LOWEST_PRECEDENCE - 50)` means the filter
+  runs after access resolution; a mock can't prove ordering.
+- **RLS actually activates** — after `contextBinder.bind`, a tenant-scoped query
+  sees only its tenant's rows (real Postgres RLS), and a cross-tenant fetch → 404.
+
+Do **not** re-enumerate every header permutation in the integration test — those
+are unit. IT proves the seam is wired; unit proves the decisions.
+
+---
+
 ## 2) Integration tests (CRITICAL FEATURES ONLY)
 
-Integration tests are limited on purpose.  
-They are reserved for critical, high-risk flows where unit tests cannot fully validate correctness.
+Integration tests are limited on purpose.
+They are reserved for critical, high-risk flows where unit tests cannot fully
+validate correctness. Each item asserts **one wired composition** — never the
+per-rule permutations (those belong to Unit).
+
+### Which Spring context to load (slices)
+
+Load the **smallest** context that exercises the seam. Full `@SpringBootTest` is
+the exception, not the default.
+
+| Seam under test | Annotation | Loads | Use for |
+|---|---|---|---|
+| **Repository / persistence adapter** (a port implementation) | `@DataJpaTest` + Testcontainers PG | JPA slice: entities, repositories, datasource — **no** services/controllers | RLS, constraints, triggers/functions, Envers, `deleted_visibility`, persist→read-back |
+| **Controller / web** | `@WebMvcTest(TheController.class)` | MVC slice: controller, Jackson, security config, advice — **buses/services mocked** | request mapping, bean validation, `ApiResponse` vs `ProblemDetail`, web-layer security rules |
+| **Whole wiring** | `@SpringBootTest` | full context | see below — only when the risk *is* the wiring |
+
+**Load the full context (`@SpringBootTest`) only when the risk is the wiring itself:**
+
+- **CommandBus/QueryBus registration** — every Command/Query resolves to exactly
+  one handler (no missing, no ambiguous) — see base-classes below.
+- **Security filter-chain end-to-end** — real filters in order (the JWT `iss`/`aud`,
+  scope-routing, tenant-override chain — the class of bug that reddened E2E).
+- **Cross-slice flow** that genuinely spans web + bus + persistence in one path
+  and is high-risk (money/idempotency) — **one** representative.
+- **Event consumers / cache wiring** — a published `DomainEvent` reaches its
+  listener; a `@Cacheable` method is actually served by `CombinedCacheManager`.
+
+If a mock or a slice can prove it, **do not** boot the full context.
+
+### Framework base classes — bulletproof once (so consumers don't re-test)
+
+The shared infrastructure every feature stands on. Test it **hard, once**, at the
+right level; then feature handlers/adapters test only *their* logic and assume the
+base works. Owners: `tchalanet-common` (+ `app/config`).
+
+- **CQRS bus** (`common/bus`: `SimpleCommandBus`, `SimpleQueryBus`,
+  `HandlerRegistry`, `HandlerTypeResolver`, `VoidCommandHandler`) —
+  - **Unit**: dispatch branches — null command/query → NPE; empty registry →
+    `IllegalStateException`; unknown type → `NoHandlerException`; `CommandHandler`
+    dispatched and result returned; `VoidCommandHandler` dispatched and returns
+    null; wrong handler type → `IllegalStateException`. Registry building +
+    message-type resolution are pure → unit them directly.
+  - **Integration** (`@SpringBootTest`): **registration completeness** — every
+    discovered handler maps to exactly one message, no duplicate/ambiguous
+    binding across the whole app. This is the one bus test that must boot.
+- **Domain events** (`common/event`: `DomainEvent`, `DomainEventPublisher` +
+  `SpringDomainEventPublisher`; `AfterCommit`) — this is a **transactional seam**, so
+  the boundary is sharp:
+  - **Unit**: publisher impl delegates each event exactly once (fake
+    `ApplicationEventPublisher`); `AfterCommit` registers/executes the callback
+    according to synchronization state. A fake publisher proves delegation and
+    local order — it does **not** prove commit semantics, so do not claim it does.
+  - **Integration**: a **committed** transaction delivers the event to the real
+    listener/router; a **rolled-back** transaction does **not** deliver it. (This is
+    exactly why the settle IT can't be `@Transactional` — see the plan §4.)
+- **Cache** (`app/config/cache`: `CombinedCache`, `CombinedCacheManager`,
+  `ToggleableCacheManager`, `CacheSpec`) —
+  - **Unit**: `CombinedCache` two-tier logic with two mock `Cache` (local/remote):
+    L1 hit skips L2; L2 hit **promotes to L1**; miss on both → null; `put`/`evict`
+    hit **both** tiers; `remote == null` degrades to L1-only. Manager builds caches
+    from `CacheSpec`; toggle off → no-op cache.
+  - **Integration**: one `@SpringBootTest` that a `@Cacheable` call is actually
+    served by the combined manager (spec-driven names resolve).
+
+> Rule: a feature handler does **not** re-test bus dispatch, event delivery, or
+> cache tiering. Those are proven here once. The handler tests only its own
+> decision/composition.
 
 ### Allowed scopes for integration tests
 
 Run integration tests only for:
 
-- **Security / auth / permissions** (Keycloak/JWT claims, scope routing)
+- **Security / auth / permissions** (Firebase/JWT claims, scope routing)
 - **Tenant isolation / RLS** (tenant leakage prevention, deleted_visibility)
 - **Money / settlement** (ledger correctness, payout flows, idempotency)
 - **Batch / scheduler critical pipelines** (results fetch/apply/settlement)
@@ -73,7 +322,7 @@ Run integration tests only for:
 
 - Use **Testcontainers** for Postgres when RLS/SQL behavior matters
 - Keep integration tests **few, stable, deterministic**
-- Focus on **end-to-end outcome**, not internal structure
+- Assert **one representative per seam / wired outcome** (not per business predicate), focused on **end-to-end outcome**, not internal structure
 - Assert **tenant isolation explicitly** for multi-tenant tables
 - For HTTP-level integration tests: validate
   - `ApiResponse<T>` wrapping on 2xx
@@ -84,21 +333,40 @@ Run integration tests only for:
 
 - Don't create integration tests for every controller/handler
 - Don't rely on time, external services, or random data (unless fixed seed)
-- Don't duplicate unit test coverage
+- Don't duplicate unit test coverage (no per-rule permutations here)
 
 ---
 
-## 3) Practical guidance (how we choose)
+## 3) E2E and Load (out of the unit/integration scope)
 
-Use this decision rule:
+Owned by dedicated changes, not this doc — pointers only so backend authors know
+where a whole-stack or capacity concern belongs.
 
-- **If logic can be validated with in-memory ports** → unit test
-- **If correctness depends on Postgres** (RLS, constraints, functions, transaction boundaries) → integration test
-- **If it's not critical/high-risk** → no integration test
+- **E2E** (`testing/e2e`, Python, `e2e-business-runtime-v1`) — drives the real
+  deployed stack (API + PG + edge + Firebase emulator) as a client, multiple
+  roles. Asserts **the** happy path + idempotent replay + multi-tenant isolation.
+  E2E does **not** re-assert ProblemDetail shapes, idempotency-store internals, or
+  enumerate the stake/limit/promo matrix — those are Integration / Unit.
+- **Load** (`testing/e2e/loadtest`, Locust, `perf-load-testing-locust-v1`) —
+  capacity / latency (p50/p95/p99, RPS, error-rate) only. **No** business
+  assertion; reuses the E2E client. Never mix load into E2E.
 
 ---
 
-## 4) Recommended minimal integration test set (baseline)
+## 4) Practical guidance (how we choose)
+
+Decision rule (apply top to bottom, stop at the first match):
+
+1. **Pure decision/calc, validated with in-memory ports** → unit test. Stop.
+2. **Correctness depends on Postgres** (RLS, constraints, functions, transaction
+   boundaries) or the HTTP contract → integration test, **one** representative.
+3. **Needs the whole stack + real auth + multiple roles** → E2E, **happy path** only.
+4. **Same assertion already proven one layer down?** → **delete it.**
+5. **Not critical / not high-risk** → no integration/E2E test.
+
+---
+
+## 5) Recommended minimal integration test set (baseline)
 
 Keep a small suite like:
 
@@ -107,3 +375,65 @@ Keep a small suite like:
 - **AfterCommit behavior**: side effects only after commit (or explicit REQUIRES_NEW behavior)
 - **Idempotency**: duplicate idempotency key does not duplicate money effects
 - **ApiResponse vs ProblemDetail**: 2xx wrapped, errors not wrapped
+
+---
+
+## 6) Architecture & convention tests (ArchUnit + Modulith)
+
+A **first-class layer**, not an afterthought. They are fast (bytecode analysis,
+no context boot) and run on every build; they catch **structural drift** —
+dependency direction, module boundaries, layering, naming — that no functional
+test would. When a rule fires, the fix is the code, not the rule (unless the rule
+is wrong — then fix the rule *and* say why).
+
+Current suites (`tchalanet-app/src/test/.../{architecture,arch}`):
+
+| Suite | Enforces |
+|---|---|
+| `CleanArchitectureRulesTest` | layer deps: common isolated; core ⊥ features; catalog api ⊥ internal; features ⊥ JPA; domain ⊥ Spring/JPA/web; controllers ⊥ repos; no slice cycles |
+| `ModulithVerificationTest` | Spring Modulith `verify()` — module boundaries & allowed dependencies |
+| `PlatformLayerGatesTest` (31) | platform ⊥ core/features; provider adapters internal-only; no direct JWT parsing; notification/communication/accesscontrol/audit internals private |
+| `FeatureArchitectureTest` | feature-slice constraints (orchestration/BFF boundaries) |
+| `SecurityArchTest` | every `@RestController` under a protected scope (`/admin`, `/platform`, `/_sdr`, `/tenant/tickets`) declares `@PreAuthorize`/`@Secured` (explicit `permitAll()` to whitelist) |
+| `TimezoneEnforcementArchTest` | no `LocalDateTime` / `ZoneId.systemDefault()` / `Instant.now()` / `LocalDate.now()` in draw/sales domain & application |
+| `PageModelArchTest`, `FlywayAuditAlignmentArchTest`, `OperationalContextArchitectureTest`, `CommonTechnicalKernelArchitectureTest`, `SensitiveJpaUpdateConventionTest`, `BffSlicesTest` | page-model, Flyway/Envers alignment, operational-context, kernel, sensitive-update & BFF conventions |
+
+### Reinforce (tracked in `test-plan-critical-flows.md` §5)
+
+Architecture tests are the cheapest place to encode a project non-negotiable, so
+gaps here are worth closing:
+
+- **`SecurityArchTest` void-handler gap — FIXED**: the rule no longer skips
+  void-returning handlers, so an unsecured `@PostMapping`/`@DeleteMapping` in a
+  protected scope is now flagged (regression fixture added).
+- **Two packages `arch/` and `architecture/`** for the same concern — consolidate.
+- **Candidate new rules** (must be **bounded** — over-broad rules break legitimate
+  direct calls in tests, bus registration, and a handler calling itself):
+  - strongly-typed IDs outside `*persistence*`;
+  - **CQRS-via-bus**, scoped: *outside `src/test` and the `common.bus` registration
+    infrastructure, controllers/features/schedulers/listeners must not invoke
+    `CommandHandler.handle` / `QueryHandler.handle` directly* — allow `src/test`,
+    `common.bus`, and the handler class itself;
+  - `*Command`/`*Query`/`*Request`/`*Response` carriers stay logic-free (mirror of
+    §1 exclusions).
+
+> Rule of thumb: if a convention is stated in `project.md` non-negotiables, it
+> should have an ArchUnit rule — otherwise it drifts.
+
+---
+
+## 7) Coverage configuration
+
+**Coverage is diagnostic, not a target.** It tells you where risk is unproven; it
+is never a number to chase, and a test written to move it is a smell (§0).
+
+- **Exclude from the denominator**: passive data carriers (the §1 categories) and
+  generated code (MapStruct, OpenAPI clients, Lombok). These have no behavior, so
+  counting them only dilutes the signal.
+- **Never exclude a package merely because its current percentage is low** — that
+  hides the exact risk coverage is meant to reveal.
+- Any **new** exclusion must be justified by a **stable class category or
+  generation rule** (a glob/annotation), not by "this one is hard to test".
+- A `Result`/`View`/`Mapper` is excluded only if it is genuinely passive (§1). If
+  it carries logic, it stays in the denominator until that logic is tested or
+  extracted.
