@@ -258,6 +258,13 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
+      - name: Prepare SSH key for infra sync
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/tchalanet_stg
+          chmod 600 ~/.ssh/tchalanet_stg
+
       - name: Add host to known_hosts
         run: ssh-keyscan -H "$SERVER_HOST" >> ~/.ssh/known_hosts
 
