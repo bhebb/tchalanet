@@ -6,6 +6,7 @@ import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.DrawResultId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.draw.api.model.DrawStatus;
+import com.tchalanet.server.core.draw.internal.domain.exception.DrawInvalidOverrideException;
 import com.tchalanet.server.core.draw.internal.domain.exception.DrawInvalidResultException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -154,6 +155,48 @@ class DrawTest {
             Draw draw = scheduledDraw();
             assertThatThrownBy(() -> draw.close(T2))
                 .isInstanceOf(IllegalStateException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("overrideResult — the correct way to replace a result on a RESULTED draw")
+    class OverrideResult {
+
+        // Red→green context for the OverrideDrawResultCommandHandler fix: re-applying
+        // an override must use overrideResult (below), NOT applyResult (which throws on
+        // a RESULTED draw — see applyResultTwiceRejected). This documents the intended
+        // aggregate behavior the handler should rely on.
+        @Test
+        @DisplayName("replaces the result id, keeps RESULTED, records override metadata")
+        void overrideOnResultedDraw() {
+            Draw draw = resultedDraw();
+            DrawResultId corrected = DrawResultId.of(UUID.randomUUID());
+
+            draw.overrideResult(corrected, T4, "manual correction");
+
+            assertThat(draw.status()).isEqualTo(DrawStatus.RESULTED);
+            assertThat(draw.drawResultId()).isEqualTo(corrected);
+            assertThat(draw.resultOverriddenAt()).isEqualTo(T4);
+        }
+
+        @Test
+        @DisplayName("cannot override a draw that is not yet RESULTED")
+        void overrideBeforeResultedRejected() {
+            Draw draw = scheduledDraw();
+            draw.open(T1);
+            draw.close(T2);
+            assertThatThrownBy(() ->
+                draw.overrideResult(DrawResultId.of(UUID.randomUUID()), T4, "reason"))
+                .isInstanceOf(DrawInvalidOverrideException.class);
+        }
+
+        @Test
+        @DisplayName("override requires a reason")
+        void overrideRequiresReason() {
+            Draw draw = resultedDraw();
+            assertThatThrownBy(() ->
+                draw.overrideResult(DrawResultId.of(UUID.randomUUID()), T4, "  "))
+                .isInstanceOf(DrawInvalidOverrideException.class);
         }
     }
 

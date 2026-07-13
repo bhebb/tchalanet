@@ -182,19 +182,19 @@ Append as found. Format: **[state]** claim — evidence — proposed action.
   so a reconstituted CLOSED draw carrying a resultId (data anomaly / migration) is
   representable — there the transition passes and the guard fires. `DrawTest`
   covers this reconstitution case → guard kept, not removed.
-- **[TO-VERIFY — likely bug] `OverrideDrawResultCommandHandler` re-applies via
-  `applyResult`, which cannot replace an existing result.** Its
-  `applyOverrideToDraws` loops draws from `findByDrawResultId(res.id())`, skips
-  SETTLED, and calls `draw.applyResult(res.id(), now, ADMIN_OVERRIDE)`. But
-  `applyResult` is first-result-only: it requires `CLOSED→RESULTED` and
-  `drawResultId == null`. For an already-RESULTED draw (the natural override
-  target) it throws `IllegalStateException` (RESULTED→RESULTED); if the id already
-  matches, `DrawInvalidResultException`. Contrast `CorrectAppliedDrawResultCommand
-  Handler`, which correctly uses `draw.overrideResult(...)` (requires RESULTED,
-  replaces). The two "override/correct a result" handlers use **different aggregate
-  methods** — override of an already-resulted draw looks broken. **Action**: write a
-  reproduction (unit/IT on `OverrideDrawResultCommandHandler` with a RESULTED draw)
-  before changing code; the fix is likely to call `overrideResult` there.
+- **[FIXED] `OverrideDrawResultCommandHandler` re-applied via `applyResult`, which
+  cannot replace an existing result.** Confirmed by reading the write path:
+  `writer.upsert(slot,date,…)` **reuses the existing `draw_result` id** on override
+  (`created=false`), so `findByDrawResultId(res.id())` returns the already-**RESULTED**
+  draws; calling `draw.applyResult(...)` on them (first-result-only: `CLOSED→RESULTED`,
+  `resultId==null`) throws `IllegalStateException` (RESULTED→RESULTED) — override of a
+  resulted, non-settled draw was broken. `CorrectAppliedDrawResultCommandHandler`
+  already used the right method. **Fix**: `applyOverrideToDraws` now calls
+  `draw.overrideResult(res.id(), now, reason)` (requires RESULTED, replaces in place).
+  Red→green proven at the aggregate level in `DrawTest` (applyResult-on-RESULTED
+  throws vs overrideResult-on-RESULTED succeeds) and core compiles. Note: this handler
+  had **zero existing test coverage** (why the bug hid). Still recommended: an
+  end-to-end override→settlement IT once the multi-module result-apply path is wired.
 
 ### Architecture-test findings (from reviewing `arch/` + `architecture/`)
 
