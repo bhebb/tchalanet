@@ -284,22 +284,35 @@ jobs:
             set -euo pipefail
             cd /opt/tchalanet-infra
 
-            docker network create edge-staging || true
-            docker network create back-staging || true
+            if ! command -v make >/dev/null 2>&1; then
+              sudo apt-get update
+              sudo apt-get install -y make
+            fi
 
-            make env-prepare ENV=staging || true
+            chmod +x scripts/remote/*.sh scripts/utils/*.sh || true
+            ./scripts/remote/01-bootstrap.sh staging
+
+            DOCKER_BIN="docker"
+            if ! docker ps >/dev/null 2>&1; then
+              DOCKER_BIN="sudo docker"
+            fi
+
+            $DOCKER_BIN network create edge-staging || true
+            $DOCKER_BIN network create back-staging || true
+
+            DOCKER_BIN="$DOCKER_BIN" make env-prepare ENV=staging || true
 
             if [ -z "${{ secrets.DOPPLER_TOKEN_STG }}" ]; then
               echo "DOPPLER_TOKEN_STG manquant" >&2; exit 1
             fi
-            docker run --rm \
+            $DOCKER_BIN run --rm \
               -e DOPPLER_TOKEN="${{ secrets.DOPPLER_TOKEN_STG }}" \
               -v "$PWD":/work -w /work \
               dopplerhq/cli:3.72 \
               sh -lc 'doppler secrets download --format env --project tchalanet --config staging > envs/staging/.secrets && chmod 600 envs/staging/.secrets'
 
-            IMAGE_TAG="${{ env.IMAGE_TAG }}" make deploy ENV=staging || \
-            docker compose --env-file envs/staging/compose.env \
+            DOCKER_BIN="$DOCKER_BIN" IMAGE_TAG="${{ env.IMAGE_TAG }}" make deploy ENV=staging || \
+            $DOCKER_BIN compose --env-file envs/staging/compose.env \
               -f compose/docker-compose-traefik.yml \
               -f compose/docker-compose-redis.yml \
               up -d
