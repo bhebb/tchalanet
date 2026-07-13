@@ -269,9 +269,10 @@ jobs:
         run: ssh-keyscan -H "$SERVER_HOST" >> ~/.ssh/known_hosts
 
       - name: Push infra files to server
+        working-directory: tchalanet-infra
         run: |
-          chmod +x tchalanet-infra/scripts/remote/*.sh || true
-          ./tchalanet-infra/scripts/remote/push-infra-bkup.sh "$SERVER_HOST" staging
+          chmod +x scripts/remote/*.sh || true
+          ./scripts/remote/push-infra-bkup.sh "$SERVER_HOST" staging
 
       - name: Deploy on server
         uses: appleboy/ssh-action@v1.0.3
