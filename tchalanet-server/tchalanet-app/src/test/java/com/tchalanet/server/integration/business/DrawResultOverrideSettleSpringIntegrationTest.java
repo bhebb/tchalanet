@@ -2,7 +2,6 @@ package com.tchalanet.server.integration.business;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.tchalanet.server.core.draw.api.command.ApplyExternalResultsWindowCommand;
 import com.tchalanet.server.core.draw.api.command.CloseDueDrawsCommand;
@@ -82,12 +81,12 @@ class DrawResultOverrideSettleSpringIntegrationTest extends BusinessRuntimeInteg
         var settledAt = settledAt(drawUuid);
         assertThat(settledAt).isNotNull();
 
-        // Money safety: replaying settle must NOT double-settle. settle is legal only
-        // from RESULTED, so a replay on the now-SETTLED draw is rejected (SETTLED→SETTLED)
-        // and the draw stays settled exactly once (settled_at unchanged).
-        assertThatThrownBy(() -> withContext(tenantAdminContext, () -> commandBus.execute(
+        // Money safety: replaying settle is an idempotent no-op — it does not throw,
+        // does not re-settle, and produces no duplicate money effect (settled_at
+        // unchanged). Makes the settle job retry-safe.
+        assertThatCode(() -> withContext(tenantAdminContext, () -> commandBus.execute(
             new SettleDrawCommand(List.of(drawId), "e2e settle replay", false))))
-            .isInstanceOf(RuntimeException.class);
+            .doesNotThrowAnyException();
         assertThat(status(drawUuid)).as("still SETTLED after replay").isEqualTo("SETTLED");
         assertThat(settledAt(drawUuid)).as("settled_at unchanged — not re-settled").isEqualTo(settledAt);
     }

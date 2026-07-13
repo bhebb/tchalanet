@@ -110,9 +110,9 @@ transition matrix here (3a owns it).
   + CONFIRMED → SETTLED) covered by `DrawResultOverrideSettleSpringIntegrationTest`.
   Gotcha found: `SettleDrawCommandHandler` requires the `draw_result` to be
   **CONFIRMED** — a `force=true` override leaves it `OVERRIDDEN`, which is not
-  settleable until re-confirmed. **No-double-settle covered**: replaying
-  `SettleDrawCommand` on a SETTLED draw is rejected (SETTLED→SETTLED throws) and
-  `settled_at` is unchanged — no double money effect.
+  settleable until re-confirmed. **Idempotent + no-double-settle**: replaying
+  `SettleDrawCommand` on a SETTLED draw is now a graceful no-op (early return);
+  `settled_at` unchanged, no duplicate money/event. Retry-safe for the batch job.
 
 > **Reaching RESULTED is a multi-module orchestration**, not a single command:
 > `RecordManualDrawResultCommandHandler` (drawresult) writes a `draw_result`
@@ -211,13 +211,17 @@ Append as found. Format: **[state]** claim — evidence — proposed action.
 
 ### Settle findings (from the no-double-settle IT)
 
-- **[TO-VERIFY — likely dead guard] `SettleDrawCommandHandler.wasResulted` is always
-  true when reached.** It computes `wasResulted = drawSummary.status() == RESULTED`,
-  then calls `draw.settle(now)` which is legal **only** from RESULTED (throws
-  otherwise). So control only reaches the trailing `if (wasResulted) { publish
-  DrawSettledEvent }` when the draw was RESULTED → the guard never gates anything
-  out. Same shape as the `applyResult` dead-guard. **Action**: confirm and drop the
-  guard, or move it before `draw.settle` if a non-RESULTED path was intended.
+- **[FIXED] `SettleDrawCommandHandler` — settle is now idempotent (was throw-on-replay
+  + a dead `wasResulted` guard).** The old code computed `wasResulted =
+  drawSummary.status() == RESULTED` then called `draw.settle(now)` (legal only from
+  RESULTED), so the trailing `if (wasResulted) publish(event)` was always true when
+  reached — dead, and it signalled an intended-but-broken graceful handling of an
+  already-settled draw (`settle()` threw first). Fix: an already-`SETTLED` draw is now
+  a **graceful no-op** (early return — no re-settle, no duplicate money, no duplicate
+  event), the dead guard is gone (always publish, only RESULTED reaches it), and truly
+  invalid states are still rejected. Red→green verified end-to-end: the prior commit
+  proved replay threw; `DrawResultOverrideSettleSpringIntegrationTest` now asserts
+  replay is a no-op with `settled_at` unchanged.
 
 ### Promotion odds-boost findings (from writing PromotionOddsBoostApplierTest)
 

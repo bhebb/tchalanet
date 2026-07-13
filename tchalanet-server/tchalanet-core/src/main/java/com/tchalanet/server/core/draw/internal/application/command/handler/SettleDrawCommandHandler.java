@@ -47,6 +47,14 @@ public class SettleDrawCommandHandler implements VoidCommandHandler<SettleDrawCo
     private void settle(DrawId drawId) {
         var drawSummary = drawSummaryReaderPort.getById(drawId);
 
+        // Idempotent: an already-settled draw is a graceful no-op — no re-settle, no
+        // duplicate money effect, no duplicate event. Makes SettleDrawCommand safe to
+        // retry (a batch job re-running the same draw does nothing the second time).
+        if (drawSummary.status() == DrawStatus.SETTLED) {
+            log.debug("draw.settle skip already-settled drawId={}", drawSummary.drawId());
+            return;
+        }
+
         var result = drawSummary.result();
 
         if (result == null || result.id() == null) {
@@ -58,30 +66,29 @@ public class SettleDrawCommandHandler implements VoidCommandHandler<SettleDrawCo
             throw new DrawResultNotFinalException(drawSummary.drawId(), result.id());
         }
 
-        boolean wasResulted = drawSummary.status() == DrawStatus.RESULTED;
         Instant now = clock.instant();
 
         var draw = drawLookupPort.getByIdForUpdate(drawSummary.drawId());
 
+        // Only a RESULTED draw reaches here: SETTLED is handled above, and any other
+        // state is rejected by the result checks or by the transition guard in settle().
         draw.settle(now);
 
         drawLifecyclePort.save(draw);
 
-        if (wasResulted) {
-            var event = new DrawSettledEvent(
-                EventId.of(idGenerator.newUuid()),
-                now,
-                draw.tenantId(),
-                draw.id(),
-                draw.drawChannelId(),
-                drawSummary.resultSlotId(),
-                draw.drawResultId(),
-                draw.drawDate(),
-                draw.scheduledAt()
-            );
+        var event = new DrawSettledEvent(
+            EventId.of(idGenerator.newUuid()),
+            now,
+            draw.tenantId(),
+            draw.id(),
+            draw.drawChannelId(),
+            drawSummary.resultSlotId(),
+            draw.drawResultId(),
+            draw.drawDate(),
+            draw.scheduledAt()
+        );
 
-            AfterCommit.run(() -> publisher.publish(event));
-        }
+        AfterCommit.run(() -> publisher.publish(event));
     }
 
 }
