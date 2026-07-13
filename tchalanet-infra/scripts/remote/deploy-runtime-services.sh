@@ -22,6 +22,17 @@ cd "$ROOT"
 log() { printf -- '-> %s\n' "$*"; }
 fail() { printf 'ERROR: %s\n' "$*" >&2; exit 1; }
 require_file() { [ -f "$1" ] || fail "Missing required file: $1"; }
+print_runtime_diagnostics() {
+  log "Runtime diagnostics"
+  $DOCKER_BIN ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}' >&2 || true
+  $DOCKER_BIN logs --tail 120 "tchl-traefik-$ENV" >&2 || true
+  $DOCKER_BIN logs --tail 120 "tchl-api-$ENV" >&2 || true
+  if command -v ss >/dev/null 2>&1; then
+    ss -ltnp | grep -E ':(80|443)\b' >&2 || true
+  elif command -v netstat >/dev/null 2>&1; then
+    netstat -ltnp 2>/dev/null | grep -E ':(80|443)\b' >&2 || true
+  fi
+}
 
 case "$ENV" in
   staging|stg)
@@ -71,9 +82,11 @@ COMPOSE_EDGE_TAG="${EDGE_IMAGE_TAG:-unused}"
 require_file "envs/common/compose.env"
 require_file "envs/$ENV/compose.env"
 require_file "compose/docker-compose-project.yml"
+require_file "compose/docker-compose-traefik.yml"
 require_file "compose/docker-compose-redis.yml"
 require_file "compose/docker-compose-api.yml"
 require_file "compose/docker-compose-edge-service.yml"
+require_file "scripts/utils/pre-render-traefik.sh"
 
 log "Preparing Docker networks for $ENV"
 $DOCKER_BIN network create "edge-$ENV" >/dev/null 2>&1 || true
@@ -81,6 +94,12 @@ $DOCKER_BIN network create "back-$ENV" >/dev/null 2>&1 || true
 
 log "Merging runtime env files"
 scripts/utils/merge-env.sh "$ENV"
+log "Rendering Traefik routes for $ENV"
+chmod +x scripts/utils/pre-render-traefik.sh || true
+scripts/utils/pre-render-traefik.sh "$(if [ "$ENV" = "prod" ]; then printf '%s' prod.yaml; else printf '%s' staging.yaml; fi)"
+mkdir -p traefik
+touch traefik/acme.json
+chmod 600 traefik/acme.json || true
 
 if [ "${SKIP_DOPPLER:-0}" != "1" ]; then
   [ -n "${DOPPLER_TOKEN:-}" ] || fail "DOPPLER_TOKEN is required unless SKIP_DOPPLER=1"
@@ -111,6 +130,7 @@ compose_cmd=(
   --project-name "tch-$ENV"
   --env-file "$compose_env"
   -f compose/docker-compose-project.yml
+  -f compose/docker-compose-traefik.yml
   -f compose/docker-compose-redis.yml
   -f compose/docker-compose-api.yml
   -f compose/docker-compose-edge-service.yml
@@ -149,7 +169,7 @@ if [ "$RESET_DATABASE" = "1" ]; then
       -c 'GRANT ALL ON SCHEMA public TO public;'
 fi
 
-services=(redis)
+services=(traefik redis)
 [ "$DEPLOY_API" = "1" ] && services+=(api)
 [ "$DEPLOY_EDGE" = "1" ] && services+=(edge-service)
 
@@ -162,13 +182,41 @@ if [ "$FORCE_RECREATE" = "1" ]; then
 fi
 
 log "Starting runtime services"
+IMAGE_TAG="$COMPOSE_API_TAG" TCH_EDGE_TAG="$COMPOSE_EDGE_TAG" "${compose_cmd[@]}" up -d traefik
 IMAGE_TAG="$COMPOSE_API_TAG" TCH_EDGE_TAG="$COMPOSE_EDGE_TAG" "${compose_cmd[@]}" up -d redis
 start_services=()
 [ "$DEPLOY_EDGE" = "1" ] && start_services+=(edge-service)
 [ "$DEPLOY_API" = "1" ] && start_services+=(api)
 IMAGE_TAG="$COMPOSE_API_TAG" TCH_EDGE_TAG="$COMPOSE_EDGE_TAG" "${compose_cmd[@]}" "${up_args[@]}" "${start_services[@]}"
 
+log "Checking Traefik local listeners"
+for attempt in $(seq 1 12); do
+  if curl -fsS --connect-timeout 2 --max-time 5 http://127.0.0.1/ping >/dev/null; then
+    printf 'OK: Traefik ping OK\n'
+    break
+  fi
+  if [ "$attempt" = "12" ]; then
+    print_runtime_diagnostics
+    fail "Traefik did not expose local HTTP ping on port 80"
+  fi
+  sleep 5
+done
+
 if [ "$DEPLOY_API" = "1" ]; then
+  log "Checking API container health"
+  for attempt in $(seq 1 36); do
+    health_status="$($DOCKER_BIN inspect --format='{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "tchl-api-$ENV" 2>/dev/null || true)"
+    if [ "$health_status" = "healthy" ]; then
+      printf 'OK: API container healthy\n'
+      break
+    fi
+    if [ "$attempt" = "36" ]; then
+      print_runtime_diagnostics
+      fail "API container did not become healthy, last status=$health_status"
+    fi
+    sleep 5
+  done
+
   log "Waiting for API health"
   health_url="$API_BASE_URL/actuator/health"
   for attempt in $(seq 1 36); do
@@ -177,7 +225,7 @@ if [ "$DEPLOY_API" = "1" ]; then
       break
     fi
     if [ "$attempt" = "36" ]; then
-      $DOCKER_BIN logs --tail 120 "tchl-api-$ENV" >&2 || true
+      print_runtime_diagnostics
       fail "API did not become healthy: $health_url"
     fi
     sleep 5
