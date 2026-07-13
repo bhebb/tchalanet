@@ -372,7 +372,7 @@ jobs:
           ./scripts/remote/push-infra-bkup.sh "$SERVER_HOST" "$DEPLOY_ENV"
 
       - name: Deploy runtime services
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@v1.2.5
         env:
           DEPLOY_ENV: ${{ env.DEPLOY_ENV }}
           API_IMAGE_TAG: ${{ env.API_IMAGE_TAG }}

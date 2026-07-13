@@ -276,7 +276,7 @@ jobs:
           ./scripts/remote/push-infra-bkup.sh "$SERVER_HOST" staging
 
       - name: Deploy on server
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@v1.2.5
         with:
           host: ${{ env.SERVER_HOST }}
           username: tch
@@ -320,7 +320,11 @@ jobs:
             sudo chown "$(id -u):$(id -g)" envs/staging/.secrets
             chmod 600 envs/staging/.secrets
 
-            DOCKER_BIN="$DOCKER_BIN" IMAGE_TAG="${{ env.IMAGE_TAG }}" TCH_EDGE_TAG="${{ env.IMAGE_TAG }}" make up-staging ENV=staging
+            if [ "${{ inputs.build_edge }}" = "true" ]; then
+              DOCKER_BIN="$DOCKER_BIN" IMAGE_TAG="${{ env.IMAGE_TAG }}" TCH_EDGE_TAG="${{ env.IMAGE_TAG }}" make up-staging ENV=staging
+            else
+              DOCKER_BIN="$DOCKER_BIN" IMAGE_TAG="${{ env.IMAGE_TAG }}" make up-staging ENV=staging
+            fi
 
             echo "Waiting for staging API health..."
             for attempt in $(seq 1 36); do
