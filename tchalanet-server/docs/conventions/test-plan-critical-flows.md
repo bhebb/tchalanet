@@ -149,15 +149,17 @@ Append as found. Format: **[state]** claim — evidence — proposed action.
 
 ### Architecture-test findings (from reviewing `arch/` + `architecture/`)
 
-- **[CONFIRMED] `SecurityArchTest` does not require authorization on `void`
-  handlers.** `HaveAuthorizationAnnotationCondition.check` builds its handler list
-  with `.filter(m -> !m.getRawReturnType().isEquivalentTo(void.class))`, so a
-  void-returning `@PostMapping`/`@DeleteMapping` (cancel, delete, etc.) in a
-  protected scope (`/admin`, `/platform`, `/_sdr`, `/tenant/tickets`) is **not**
-  checked for `@PreAuthorize`/`@Secured`. This is a genuine authorization gap in
-  the guard rule. **Action**: drop the void filter (a void handler is still a
-  handler); add a regression fixture — a void unsecured handler in a protected
-  scope must make the rule fail. Fix + verify in CI (JDK 25).
+- **[FIXED] `SecurityArchTest` did not require authorization on `void` handlers.**
+  `HaveAuthorizationAnnotationCondition.check` filtered handlers with
+  `.filter(m -> !m.getRawReturnType().isEquivalentTo(void.class))`, so a
+  void-returning `@PostMapping`/`@DeleteMapping` (cancel, delete, …) in a protected
+  scope (`/admin`, `/platform`, `/_sdr`, `/tenant/tickets`) escaped the
+  `@PreAuthorize`/`@Secured` check. **Fixed** (JDK 25, red→green): removed the void
+  filter; added test-only fixture `ProtectedVoidUnsecuredController` (outside
+  `com.tchalanet.server`) + regression test `voidHandlerInProtectedScopeWithout
+  AuthorizationIsFlagged`. Verified: regression failed before the fix, passes
+  after; and `protectedScopeControllersMustHavePreAuthorize` still passes against
+  the real codebase → no existing unsecured void endpoint.
 - **[CONFIRMED] Split packages `arch/` and `architecture/`.** Same concern, two
   homes (`arch/`: PageModel, Security, Feature, Timezone, Flyway; `architecture/`:
   CleanArch, Modulith, PlatformGates, OperationalContext, Kernel). **Action**:
