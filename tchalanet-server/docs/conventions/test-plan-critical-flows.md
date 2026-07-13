@@ -153,24 +153,41 @@ Append as found. Format: **[state]** claim — evidence — proposed action.
   … with `DrawLockedException`; the auto-close job also filters `locked = false`. A
   real freeze feature. Pinned by `DrawTest` (lock/unlock idempotent, locked rejects
   every transition, unlock restores).
-- **[PARTLY-EXPLAINED] Result correction/override has no `DrawStatus` return edge.**
-  `RESULTED → {SETTLED}` only, yet `CorrectAppliedDrawResultCommandHandler` /
-  `OverrideDrawResultCommandHandler` / `MarkDrawResultOverriddenCommandHandler`
-  exist. Reading the model: corrections operate on a **separate** sub-status
-  `DrawResultStatus {PROVISIONAL, CONFIRMED, OVERRIDDEN, ERROR}` **in place** while
-  `DrawStatus` stays `RESULTED` — so there is no lifecycle back-edge by design.
-  **Still to verify**: a correction *after* `SETTLED` (money already applied) — the
-  `DrawStatus` machine forbids leaving SETTLED, so how is a post-settlement
-  correction represented and how does it reconcile the ledger? Pin this in the
-  settle test.
-- **[TO-VERIFY] Two status enums.** `DrawStatus` (lifecycle) vs `DrawResultStatus`
-  (`core/drawresult`). → Their coupling (which `DrawStatus` values are valid for
-  which `DrawResultStatus`) is implicit. **Action**: one test pinning the coupling,
-  or a documented note if intentionally decoupled.
-- **[TO-VERIFY] Many open/close variants.** `OpenDueDraws` vs `OpenTodayDraws` vs
-  `OpenDraw`; `CloseDueDraws` vs `CloseDraw` vs `LockDraw`. → Confirm which the job
-  actually schedules vs which are admin-manual, so the plumbing IT drives the real
-  scheduled path and we don't test a dead entrypoint.
+- **[RESOLVED] Result correction/override has no `DrawStatus` return edge — by design.**
+  Corrections operate on the **result sub-status** (`DrawResultStatus`
+  PROVISIONAL/CONFIRMED/OVERRIDDEN) **in place** while `DrawStatus` stays `RESULTED`,
+  so no lifecycle back-edge is needed. The post-settlement case is explicitly
+  **forbidden**: `OverrideDrawResultCommandHandler` refuses when a settled draw
+  exists for the result (`[Règle Override refusé post-SETTLED]` →
+  `DrawResultOverrideForbiddenException`) and skips SETTLED draws in the apply loop.
+  Corrections happen **before** settlement; ticket re-settlement after a correction
+  goes through `ReconcileTicketsForCorrectedDrawResult`, not a draw-status change.
+- **[RESOLVED — documented, intentionally multi-path] `DrawStatus` vs
+  `DrawResultStatus`.** They are separate on purpose: `DrawStatus` is the draw
+  lifecycle, `DrawResultStatus` the result sub-status. The coupling, mapped from the
+  enforcement points:
+  - **PROVISIONAL** — processable (can make a draw `RESULTED`); `confirm()` transitions
+    it to CONFIRMED (only from PROVISIONAL — `DrawResultWriterJpaAdapter`).
+  - **CONFIRMED** — the normal final result; **required by `SettleDrawCommand`** to
+    reach `SETTLED`.
+  - **OVERRIDDEN** — admin-corrected; processable and *protected*, but **not settled by
+    `SettleDrawCommand`** (which needs CONFIRMED) — corrections settle through the
+    reconciliation path (`ReconcileTicketsForCorrectedDrawResult`).
+  - **ERROR** — excluded from the processing candidates
+    (`DrawProcessingCandidateJdbcAdapter` lists only PROVISIONAL/CONFIRMED/OVERRIDDEN)
+    → an ERROR result never makes a draw RESULTED.
+
+  So there is no illegal status pair; settlement is two-path by design (first-settle
+  = CONFIRMED via `SettleDrawCommand`; correction = OVERRIDDEN via reconciliation).
+  The CONFIRMED gate is already exercised by `DrawResultOverrideSettleSpringIntegration
+  Test` (a `force=true` override → OVERRIDDEN → not settleable via SettleDrawCommand).
+- **[RESOLVED] Many open/close variants.** `DrawLifeCycleTickScheduler` launches
+  **Spring Batch jobs** (`draw:lifecycle:generate`, `draw:lifecycle:open`, …) via
+  `batchJobStarter`, and those jobs run the **`*DueDraws`** commands
+  (`GenerateDrawsForRange`, `OpenDueDraws`, `CloseDueDraws`). The singular
+  `OpenDraw` / `OpenTodayDraws` / `CloseDraw` / `LockDraw` are **admin-manual**
+  entrypoints (`DrawLifecycleAdminController`). So the close IT drives
+  `CloseDueDrawsCommand` — the real scheduled path, not a dead entrypoint.
 
 ### Job-plumbing findings (from writing the close IT)
 
