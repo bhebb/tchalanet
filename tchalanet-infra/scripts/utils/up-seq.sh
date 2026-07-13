@@ -87,15 +87,18 @@ for f in "${FILES[@]}"; do
   [[ -f "$f" ]] || { echo "❌ Fichier compose manquant: $f" >&2; exit 3; }
 done
 
-# 4) env-file (interpolation sans secrets)
+# 4) env-file (interpolation)
 TMP_ENV_FILE="$(mktemp /tmp/tch-compose-env.XXXXXX)"
 cleanup() { rm -f "$TMP_ENV_FILE" 2>/dev/null || true; }
 trap cleanup EXIT
 [[ -f "envs/common/compose.env" ]] && cat "envs/common/compose.env" > "$TMP_ENV_FILE" || true
 [[ -f "envs/$ENV/compose.env" ]] && cat "envs/$ENV/compose.env" >> "$TMP_ENV_FILE" || true
-if [[ "${INCLUDE_SECRETS_IN_INTERPOLATION:-0}" == "1" ]]; then
+if [[ -f "envs/$ENV/.secrets" ]]; then
   [[ -f "envs/$ENV/.secrets" ]] && cat "envs/$ENV/.secrets" >> "$TMP_ENV_FILE" || true
   echo "ℹ️  Secrets inclus pour interpolation" >&2
+elif [[ "$ENV" != "dev" ]]; then
+  echo "❌ envs/$ENV/.secrets absent; impossible d'interpoler les secrets requis par Compose" >&2
+  exit 4
 fi
 
 echo "→ ENV=$ENV LOCAL_BUILD=$LOCAL_BUILD"
@@ -109,10 +112,10 @@ for f in "${FILES[@]}"; do compose_files_args+=( -f "$f" ); done
 # 5) Build ou Pull
 if [[ "$LOCAL_BUILD" == "1" ]]; then
   echo "→ [BUILD] Construction des images locales"
-  $DOCKER_BIN compose --env-file "$TMP_ENV_FILE" "${compose_files_args[@]}" build --parallel || true
+  $DOCKER_BIN compose --env-file "$TMP_ENV_FILE" "${compose_files_args[@]}" build --parallel
 else
   echo "→ [PULL] Récupération des images pré-construites"
-  $DOCKER_BIN compose --env-file "$TMP_ENV_FILE" "${compose_files_args[@]}" pull || echo "⚠️  Pull partiel" >&2
+  $DOCKER_BIN compose --env-file "$TMP_ENV_FILE" "${compose_files_args[@]}" pull
 fi
 
 # 6) Up core
@@ -122,13 +125,13 @@ if [[ "$ENV" == "dev" ]]; then
 fi
 for svc in "${CORE_SVCS[@]}"; do
   echo "→ Up $svc"
-  $DOCKER_BIN compose --project-name "tch-${ENV}" --env-file "$TMP_ENV_FILE" "${compose_files_args[@]}" up -d "$svc" || echo "⚠️  $svc up non-zero" >&2
+  $DOCKER_BIN compose --project-name "tch-${ENV}" --env-file "$TMP_ENV_FILE" "${compose_files_args[@]}" up -d "$svc"
 done
 
 # 7) Up API and Edge service
 echo "→ Up api"
-$DOCKER_BIN compose --project-name "tch-${ENV}" --env-file "$TMP_ENV_FILE" "${compose_files_args[@]}" up -d api || echo "⚠️  api up non-zero" >&2
+$DOCKER_BIN compose --project-name "tch-${ENV}" --env-file "$TMP_ENV_FILE" "${compose_files_args[@]}" up -d api
 echo "→ Up edge-service"
-$DOCKER_BIN compose --project-name "tch-${ENV}" --env-file "$TMP_ENV_FILE" "${compose_files_args[@]}" up -d edge-service || echo "⚠️  edge-service up non-zero" >&2
+$DOCKER_BIN compose --project-name "tch-${ENV}" --env-file "$TMP_ENV_FILE" "${compose_files_args[@]}" up -d edge-service
 
 echo "ℹ️  Stack initiale opérationnelle (LOCAL_BUILD=$LOCAL_BUILD)."
