@@ -42,6 +42,10 @@ Levels reference `testing.md`. Only the risk-carrying cases are listed.
 ### Promotion / Maryaj gratis (`core/sales/.../promotion`) — Unit matrix, IT decisive
 - Effect appliers (charge waived/unchanged; odds boosted/base; snapshot; hash
   stable/differing) — the {maryaj × limit × override} matrix lives here.
+  - `PromotionChargeApplier` `[unit-covered]` — `PromotionChargeApplierTest`: waives
+    only the targeted charge type (amount kept, buyer-facing dropped), label
+    fallback, strict no-op for non-WAIVE effects. (Was only hit by the Spring IT.)
+  - `SalePromotionEffectApplier` / `PromotionOddsBoostApplier` `[remaining]`.
 - **Integration (1)**: active campaign → promotional line persisted (+ auto-select TTL).
 
 ### Draw lifecycle + result/settlement → see §3 (job plumbing).
