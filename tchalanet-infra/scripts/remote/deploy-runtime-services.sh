@@ -91,6 +91,11 @@ if [ "${SKIP_DOPPLER:-0}" != "1" ]; then
     -v "$PWD":/work -w /work \
     "$DOPPLER_IMAGE" \
     -lc "doppler secrets download --format env --project tchalanet --config $DOPPLER_CONFIG > envs/$ENV/.secrets"
+  if command -v sudo >/dev/null 2>&1; then
+    sudo chown "$(id -u):$(id -g)" "envs/$ENV/.secrets"
+  else
+    chown "$(id -u):$(id -g)" "envs/$ENV/.secrets" 2>/dev/null || true
+  fi
   chmod 600 "envs/$ENV/.secrets"
 elif [ ! -f "envs/$ENV/.secrets" ]; then
   fail "SKIP_DOPPLER=1 was set but envs/$ENV/.secrets does not exist"
