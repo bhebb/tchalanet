@@ -23,6 +23,27 @@ on:
         required: false
         default: 'true'
         type: boolean
+      infra_action:
+        description: 'Action infra staging'
+        required: true
+        default: 'deploy'
+        type: choice
+        options:
+          - deploy
+          - destroy
+          - create
+          - recreate
+          - none
+      infra_destroy_confirm:
+        description: 'Required for destroy/recreate: type "destroy staging"'
+        required: false
+        default: ''
+        type: string
+      skip_destroy_backup:
+        description: 'Skip pre-destroy VM backup (safe for Neon-backed staging)'
+        required: false
+        default: true
+        type: boolean
       image_tag:
         description: 'Tag image (vide = sha-<short_sha>)'
         required: false
@@ -58,7 +79,7 @@ jobs:
 
   build-api:
     needs: compute-tag
-    if: inputs.build_api == true
+    if: inputs.build_api == true && inputs.infra_action != 'destroy'
     runs-on: ubuntu-latest
     env:
       IMAGE_TAG: ${{ needs.compute-tag.outputs.image_tag }}
@@ -95,7 +116,7 @@ jobs:
 
   build-edge:
     needs: compute-tag
-    if: inputs.build_edge == true
+    if: inputs.build_edge == true && inputs.infra_action != 'destroy'
     runs-on: ubuntu-latest
     env:
       IMAGE_TAG: ${{ needs.compute-tag.outputs.image_tag }}
@@ -136,16 +157,86 @@ jobs:
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.version=${{ env.IMAGE_TAG }}
 
+  infra-destroy:
+    if: inputs.infra_action == 'destroy' || inputs.infra_action == 'recreate'
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup hcloud
+        uses: hetznercloud/setup-hcloud@v1
+        with:
+          token: ${{ secrets.HCLOUD_TOKEN }}
+
+      - name: Prepare SSH key for optional backup
+        if: inputs.skip_destroy_backup == false
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/tchalanet_stg
+          chmod 600 ~/.ssh/tchalanet_stg
+          ssh-keyscan -H "${{ secrets.SERVER_HOST }}" >> ~/.ssh/known_hosts || true
+
+      - name: Destroy staging server
+        working-directory: tchalanet-infra
+        env:
+          CONFIRM: ${{ inputs.infra_destroy_confirm }}
+          SKIP_BACKUP: ${{ inputs.skip_destroy_backup && '1' || '0' }}
+        run: |
+          set -euo pipefail
+          if [ "$CONFIRM" != "destroy staging" ]; then
+            echo 'infra_destroy_confirm must be exactly: destroy staging' >&2
+            exit 1
+          fi
+          printf 'destroy staging\n' | make staging-destroy
+
+  infra-create:
+    needs: infra-destroy
+    if: |
+      always() &&
+      (inputs.infra_action == 'create' || inputs.infra_action == 'recreate') &&
+      (needs.infra-destroy.result == 'success' || needs.infra-destroy.result == 'skipped')
+    runs-on: ubuntu-latest
+    environment: staging
+    outputs:
+      server_host: ${{ steps.server-ip.outputs.server_host }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup hcloud
+        uses: hetznercloud/setup-hcloud@v1
+        with:
+          token: ${{ secrets.HCLOUD_TOKEN }}
+
+      - name: Create staging server
+        working-directory: tchalanet-infra
+        run: make staging-create
+
+      - name: Capture staging IP
+        id: server-ip
+        run: |
+          set -euo pipefail
+          IP="$(hcloud server describe stg-app -o json | jq -r '.public_net.ipv4.ip')"
+          if [ -z "$IP" ] || [ "$IP" = "null" ]; then
+            echo "Unable to resolve stg-app public IP" >&2
+            exit 1
+          fi
+          echo "server_host=$IP" >> "$GITHUB_OUTPUT"
+          echo "Staging server IP: $IP"
+
   deploy:
-    needs: [compute-tag, build-api, build-edge]
+    needs: [compute-tag, build-api, build-edge, infra-destroy, infra-create]
     if: |
       always() &&
       inputs.deploy_infra == true &&
+      (inputs.infra_action == 'deploy' || inputs.infra_action == 'create' || inputs.infra_action == 'recreate') &&
       !contains(needs.*.result, 'failure')
     runs-on: ubuntu-latest
     environment: staging
     env:
       IMAGE_TAG: ${{ needs.compute-tag.outputs.image_tag }}
+      SERVER_HOST: ${{ needs.infra-create.outputs.server_host || secrets.SERVER_HOST }}
 
     steps:
       - uses: actions/checkout@v7
@@ -156,17 +247,17 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Add host to known_hosts
-        run: ssh-keyscan -H "${{ secrets.SERVER_HOST }}" >> ~/.ssh/known_hosts
+        run: ssh-keyscan -H "$SERVER_HOST" >> ~/.ssh/known_hosts
 
       - name: Push infra files to server
         run: |
           chmod +x tchalanet-infra/scripts/remote/*.sh || true
-          ./tchalanet-infra/scripts/remote/push-infra.sh "${{ secrets.SERVER_HOST }}"
+          ./tchalanet-infra/scripts/remote/push-infra-bkup.sh "$SERVER_HOST" staging
 
       - name: Deploy on server
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.SERVER_HOST }}
+          host: ${{ env.SERVER_HOST }}
           username: tch
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script_stop: true
