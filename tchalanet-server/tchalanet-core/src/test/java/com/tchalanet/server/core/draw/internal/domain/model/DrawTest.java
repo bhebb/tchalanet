@@ -6,6 +6,7 @@ import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.DrawResultId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.draw.api.model.DrawStatus;
+import com.tchalanet.server.core.draw.internal.domain.exception.DrawInvalidResultException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -153,6 +154,39 @@ class DrawTest {
             Draw draw = scheduledDraw();
             assertThatThrownBy(() -> draw.close(T2))
                 .isInstanceOf(IllegalStateException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("defensive guard on inconsistent reconstituted state")
+    class ReconstitutedStateGuard {
+
+        // The DB constructor does NOT validate status vs drawResultId consistency, so a
+        // CLOSED draw carrying a drawResultId is representable (data anomaly / migration).
+        // On such a draw, applyResult's transition check (CLOSED→RESULTED) PASSES, so the
+        // inner `drawResultId != null` guard is reached — proving it is a live defensive
+        // check, NOT dead code. (Via the normal lifecycle it is unreachable: the only
+        // status that already has a resultId is RESULTED, and RESULTED→RESULTED is illegal.)
+        @Test
+        @DisplayName("applyResult on a reconstituted CLOSED draw that already carries a resultId → DrawInvalidResultException")
+        void applyResultOnAnomalousClosedDrawWithResultId() {
+            DrawResultId existing = DrawResultId.of(UUID.randomUUID());
+            Draw anomalous = new Draw(
+                DrawId.of(UUID.randomUUID()),
+                TenantId.of(UUID.randomUUID()),
+                DrawChannelId.of(UUID.randomUUID()),
+                LocalDate.of(2026, 7, 9),
+                T2,            // scheduledAt
+                T1,            // cutoffAt
+                DrawStatus.CLOSED,
+                existing,      // drawResultId set while CLOSED — the anomaly
+                T1, T2, null, null, null, null, null, null, null, null,
+                false,         // locked
+                true);         // systemGenerated
+
+            assertThatThrownBy(() ->
+                anomalous.applyResult(DrawResultId.of(UUID.randomUUID()), T3, DrawSource.MANUAL))
+                .isInstanceOf(DrawInvalidResultException.class);
         }
     }
 

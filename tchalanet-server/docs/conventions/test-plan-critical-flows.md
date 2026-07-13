@@ -175,16 +175,26 @@ Append as found. Format: **[state]** claim — evidence — proposed action.
 
 ### Domain findings (from writing DrawTest)
 
-- **[TO-VERIFY — likely dead code] `Draw.applyResult` inner "already has result"
-  guard is unreachable.** `applyResult` runs `DrawStatusTransition.check(status,
-  RESULTED)` **before** the `if (drawResultId != null) throw
-  DrawInvalidResultException` guard. A draw only has a `drawResultId` once it is
-  RESULTED (applyResult sets both together, nothing sets the id while leaving
-  RESULTED), and RESULTED→RESULTED is illegal — so the transition check always
-  fires first and `DrawInvalidResultException` from this path can never be thrown.
-  **Action**: confirm no other caller reaches it; if none, remove the dead guard or
-  reorder so the more specific exception wins. `DrawTest` asserts the real behavior
-  (IllegalStateException) meanwhile.
+- **[RESOLVED — not dead code] `Draw.applyResult` inner "already has result" guard
+  is a live defensive check.** Via the normal lifecycle it is unreachable (only
+  RESULTED carries a resultId, and RESULTED→RESULTED throws in the transition check
+  first). BUT the full constructor does **not** validate `status` vs `drawResultId`,
+  so a reconstituted CLOSED draw carrying a resultId (data anomaly / migration) is
+  representable — there the transition passes and the guard fires. `DrawTest`
+  covers this reconstitution case → guard kept, not removed.
+- **[TO-VERIFY — likely bug] `OverrideDrawResultCommandHandler` re-applies via
+  `applyResult`, which cannot replace an existing result.** Its
+  `applyOverrideToDraws` loops draws from `findByDrawResultId(res.id())`, skips
+  SETTLED, and calls `draw.applyResult(res.id(), now, ADMIN_OVERRIDE)`. But
+  `applyResult` is first-result-only: it requires `CLOSED→RESULTED` and
+  `drawResultId == null`. For an already-RESULTED draw (the natural override
+  target) it throws `IllegalStateException` (RESULTED→RESULTED); if the id already
+  matches, `DrawInvalidResultException`. Contrast `CorrectAppliedDrawResultCommand
+  Handler`, which correctly uses `draw.overrideResult(...)` (requires RESULTED,
+  replaces). The two "override/correct a result" handlers use **different aggregate
+  methods** — override of an already-resulted draw looks broken. **Action**: write a
+  reproduction (unit/IT on `OverrideDrawResultCommandHandler` with a RESULTED draw)
+  before changing code; the fix is likely to call `overrideResult` there.
 
 ### Architecture-test findings (from reviewing `arch/` + `architecture/`)
 
