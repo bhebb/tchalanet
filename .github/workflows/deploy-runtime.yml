@@ -1,0 +1,453 @@
+name: Deploy Runtime Services
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_environment:
+        description: 'Target environment'
+        required: true
+        default: staging
+        type: choice
+        options:
+          - staging
+          - production
+      runtime_services:
+        description: 'Services to deploy'
+        required: true
+        default: api-and-edge-service
+        type: choice
+        options:
+          - api-and-edge-service
+          - api
+          - edge-service
+      build_api:
+        description: 'Build and push API image before deploy (staging only)'
+        required: false
+        default: false
+        type: boolean
+      build_edge:
+        description: 'Build and push edge-service image before deploy (staging only)'
+        required: false
+        default: false
+        type: boolean
+      api_image_tag:
+        description: 'API image tag. Empty + build_api=true => sha-<short_sha>'
+        required: false
+        default: ''
+        type: string
+      edge_image_tag:
+        description: 'Edge image tag. Empty => api_image_tag'
+        required: false
+        default: ''
+        type: string
+      force_recreate:
+        description: 'Force recreate runtime containers'
+        required: false
+        default: true
+        type: boolean
+      destroy_database:
+        description: 'DANGER staging only: reset Neon database schema before deploy'
+        required: false
+        default: false
+        type: boolean
+      destroy_database_confirm:
+        description: 'Required when destroy_database=true: type "destroy staging database"'
+        required: false
+        default: ''
+        type: string
+      web_origins:
+        description: 'Space-separated origins for CORS smoke. Empty => environment defaults'
+        required: false
+        default: ''
+        type: string
+
+concurrency:
+  group: deploy-runtime-${{ inputs.target_environment }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  packages: write
+  deployments: write
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAMESPACE: ${{ github.repository }}
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      api_image_tag: ${{ steps.plan.outputs.api_image_tag }}
+      edge_image_tag: ${{ steps.plan.outputs.edge_image_tag }}
+      deploy_env: ${{ steps.plan.outputs.deploy_env }}
+      github_environment: ${{ steps.plan.outputs.github_environment }}
+      api_base_url: ${{ steps.plan.outputs.api_base_url }}
+      web_origins: ${{ steps.plan.outputs.web_origins }}
+      deploy_api: ${{ steps.plan.outputs.deploy_api }}
+      deploy_edge: ${{ steps.plan.outputs.deploy_edge }}
+    steps:
+      - name: Plan deploy
+        id: plan
+        env:
+          TARGET_ENVIRONMENT: ${{ inputs.target_environment }}
+          RUNTIME_SERVICES: ${{ inputs.runtime_services }}
+          BUILD_API: ${{ inputs.build_api }}
+          BUILD_EDGE: ${{ inputs.build_edge }}
+          API_IMAGE_TAG_INPUT: ${{ inputs.api_image_tag }}
+          EDGE_IMAGE_TAG_INPUT: ${{ inputs.edge_image_tag }}
+          WEB_ORIGINS_INPUT: ${{ inputs.web_origins }}
+          GITHUB_SHA_VALUE: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+
+          short_sha="$(printf '%s' "$GITHUB_SHA_VALUE" | cut -c1-8)"
+          api_tag="$API_IMAGE_TAG_INPUT"
+          edge_tag="$EDGE_IMAGE_TAG_INPUT"
+
+          deploy_api="false"
+          deploy_edge="false"
+          case "$RUNTIME_SERVICES" in
+            api-and-edge-service)
+              deploy_api="true"
+              deploy_edge="true"
+              ;;
+            api)
+              deploy_api="true"
+              ;;
+            edge-service)
+              deploy_edge="true"
+              ;;
+            *)
+              echo "Unsupported runtime_services=$RUNTIME_SERVICES" >&2
+              exit 1
+              ;;
+          esac
+
+          if [ "$BUILD_API" = "true" ] && [ "$deploy_api" != "true" ]; then
+            echo "build_api=true requires runtime_services to include api." >&2
+            exit 1
+          fi
+          if [ "$BUILD_EDGE" = "true" ] && [ "$deploy_edge" != "true" ]; then
+            echo "build_edge=true requires runtime_services to include edge-service." >&2
+            exit 1
+          fi
+
+          if [ "$TARGET_ENVIRONMENT" = "production" ]; then
+            if [ "$BUILD_API" = "true" ] || [ "$BUILD_EDGE" = "true" ]; then
+              echo "Production deploy cannot build images. Promote immutable tags already validated in staging." >&2
+              exit 1
+            fi
+            deploy_env="prod"
+            github_environment="production"
+            api_base_url="https://api.tchalanet.com/api/v1"
+            default_origins="https://tchalanet.com https://www.tchalanet.com https://app.tchalanet.com https://admin.tchalanet.com https://portal.tchalanet.com"
+          else
+            deploy_env="staging"
+            github_environment="staging"
+            api_base_url="https://api.stg.tchalanet.com/api/v1"
+            default_origins="https://tchalanet-web-stg.pages.dev"
+          fi
+
+          if [ "$BUILD_API" = "true" ] && [ -z "$api_tag" ]; then
+            api_tag="sha-$short_sha"
+          fi
+          if [ "$BUILD_EDGE" = "true" ] && [ -z "$edge_tag" ]; then
+            edge_tag="${api_tag:-sha-$short_sha}"
+          fi
+          if [ "$deploy_edge" = "true" ] && [ -z "$edge_tag" ] && [ -n "$api_tag" ]; then
+            edge_tag="$api_tag"
+          fi
+
+          if [ "$deploy_api" = "true" ] && [ -z "$api_tag" ]; then
+            echo "api_image_tag is required when deploying api unless build_api=true computes it." >&2
+            exit 1
+          fi
+          if [ "$deploy_edge" = "true" ] && [ -z "$edge_tag" ]; then
+            echo "edge_image_tag is required when deploying edge-service unless build_edge=true computes it." >&2
+            exit 1
+          fi
+          if { [ "$deploy_api" = "true" ] && [ "$api_tag" = "latest" ]; } ||
+             { [ "$deploy_edge" = "true" ] && [ "$edge_tag" = "latest" ]; }; then
+            echo "latest is forbidden for staging/production deploys. Use immutable sha-* tags." >&2
+            exit 1
+          fi
+
+          web_origins="${WEB_ORIGINS_INPUT:-$default_origins}"
+
+          {
+            echo "api_image_tag=$api_tag"
+            echo "edge_image_tag=$edge_tag"
+            echo "deploy_env=$deploy_env"
+            echo "github_environment=$github_environment"
+            echo "api_base_url=$api_base_url"
+            echo "web_origins=$web_origins"
+            echo "deploy_api=$deploy_api"
+            echo "deploy_edge=$deploy_edge"
+          } >> "$GITHUB_OUTPUT"
+
+          echo "Deploy plan: env=$deploy_env deploy_api=$deploy_api api=$api_tag deploy_edge=$deploy_edge edge=$edge_tag"
+
+  build-api:
+    needs: plan
+    if: inputs.build_api == true
+    runs-on: ubuntu-latest
+    env:
+      API_IMAGE_TAG: ${{ needs.plan.outputs.api_image_tag }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+
+      - name: Maven package
+        working-directory: tchalanet-server
+        run: ./mvnw -B -DskipTests -DskipITs=true package
+
+      - name: Login GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push API image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./tchalanet-server
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/tchalanet-api:${{ env.API_IMAGE_TAG }}
+          labels: |
+            org.opencontainers.image.source=${{ github.event.repository.html_url }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.version=${{ env.API_IMAGE_TAG }}
+
+  build-edge:
+    needs: plan
+    if: inputs.build_edge == true
+    runs-on: ubuntu-latest
+    env:
+      EDGE_IMAGE_TAG: ${{ needs.plan.outputs.edge_image_tag }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20.19.x'
+
+      - name: Enable pnpm
+        run: corepack enable && corepack prepare pnpm@10.19.0 --activate
+
+      - name: Install deps
+        working-directory: tchalanet-edge-service
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        working-directory: tchalanet-edge-service
+        run: pnpm build
+
+      - name: Login GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push edge-service image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./tchalanet-edge-service
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/tchalanet-edge:${{ env.EDGE_IMAGE_TAG }}
+          labels: |
+            org.opencontainers.image.source=${{ github.event.repository.html_url }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.version=${{ env.EDGE_IMAGE_TAG }}
+
+  verify-production-promotion:
+    needs: plan
+    if: inputs.target_environment == 'production'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ensure image pair passed staging
+        uses: actions/github-script@v8
+        env:
+          API_IMAGE_TAG: ${{ needs.plan.outputs.api_image_tag }}
+          EDGE_IMAGE_TAG: ${{ needs.plan.outputs.edge_image_tag }}
+          DEPLOY_API: ${{ needs.plan.outputs.deploy_api }}
+          DEPLOY_EDGE: ${{ needs.plan.outputs.deploy_edge }}
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const apiTag = process.env.API_IMAGE_TAG;
+            const edgeTag = process.env.EDGE_IMAGE_TAG;
+            const deployApi = process.env.DEPLOY_API === 'true';
+            const deployEdge = process.env.DEPLOY_EDGE === 'true';
+            const deployments = await github.paginate(github.rest.repos.listDeployments, {
+              owner,
+              repo,
+              environment: 'staging',
+              per_page: 100,
+            });
+            for (const deployment of deployments) {
+              const payload = typeof deployment.payload === 'string'
+                ? JSON.parse(deployment.payload || '{}')
+                : (deployment.payload || {});
+              if (deployApi && payload.api_image_tag !== apiTag) {
+                continue;
+              }
+              if (deployEdge && payload.edge_image_tag !== edgeTag) {
+                continue;
+              }
+              const statuses = await github.rest.repos.listDeploymentStatuses({
+                owner,
+                repo,
+                deployment_id: deployment.id,
+                per_page: 1,
+              });
+              if (statuses.data[0]?.state === 'success') {
+                core.info(`Found successful staging deployment ${deployment.id} for deployApi=${deployApi} api=${apiTag} deployEdge=${deployEdge} edge=${edgeTag}`);
+                return;
+              }
+            }
+            core.setFailed(`Production blocked: deployApi=${deployApi} api=${apiTag} deployEdge=${deployEdge} edge=${edgeTag} has no successful staging deployment marker.`);
+
+  deploy:
+    needs: [plan, build-api, build-edge, verify-production-promotion]
+    if: |
+      always() &&
+      needs.plan.result == 'success' &&
+      (needs.build-api.result == 'success' || needs.build-api.result == 'skipped') &&
+      (needs.build-edge.result == 'success' || needs.build-edge.result == 'skipped') &&
+      (needs.verify-production-promotion.result == 'success' || needs.verify-production-promotion.result == 'skipped')
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ needs.plan.outputs.github_environment }}
+    env:
+      DEPLOY_ENV: ${{ needs.plan.outputs.deploy_env }}
+      API_IMAGE_TAG: ${{ needs.plan.outputs.api_image_tag }}
+      EDGE_IMAGE_TAG: ${{ needs.plan.outputs.edge_image_tag }}
+      DEPLOY_API: ${{ needs.plan.outputs.deploy_api }}
+      DEPLOY_EDGE: ${{ needs.plan.outputs.deploy_edge }}
+      API_BASE_URL: ${{ needs.plan.outputs.api_base_url }}
+      WEB_ORIGINS: ${{ needs.plan.outputs.web_origins }}
+      SERVER_HOST: ${{ inputs.target_environment == 'production' && secrets.PROD_SERVER_HOST || secrets.SERVER_HOST }}
+      SSH_PRIVATE_KEY_VALUE: ${{ inputs.target_environment == 'production' && secrets.SSH_PRIVATE_KEY_PROD || secrets.SSH_PRIVATE_KEY }}
+      SSH_KEY_FILE: ${{ inputs.target_environment == 'production' && 'tchalanet_prod' || 'tchalanet_stg' }}
+      DOPPLER_TOKEN_VALUE: ${{ inputs.target_environment == 'production' && secrets.DOPPLER_TOKEN_PROD || secrets.DOPPLER_TOKEN_STG }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Validate environment secrets
+        run: |
+          set -euo pipefail
+          [ -n "$SERVER_HOST" ] || { echo "Missing server host secret" >&2; exit 1; }
+          [ -n "$SSH_PRIVATE_KEY_VALUE" ] || { echo "Missing SSH private key secret" >&2; exit 1; }
+          [ -n "$DOPPLER_TOKEN_VALUE" ] || { echo "Missing Doppler token secret" >&2; exit 1; }
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ env.SSH_PRIVATE_KEY_VALUE }}
+
+      - name: Prepare SSH key for infra sync
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY_VALUE" > ~/.ssh/"$SSH_KEY_FILE"
+          chmod 600 ~/.ssh/"$SSH_KEY_FILE"
+          ssh-keyscan -H "$SERVER_HOST" >> ~/.ssh/known_hosts
+
+      - name: Push infra files to server
+        working-directory: tchalanet-infra
+        run: |
+          set -euo pipefail
+          chmod +x scripts/remote/*.sh || true
+          ./scripts/remote/push-infra-bkup.sh "$SERVER_HOST" "$DEPLOY_ENV"
+
+      - name: Deploy runtime services
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          DEPLOY_ENV: ${{ env.DEPLOY_ENV }}
+          API_IMAGE_TAG: ${{ env.API_IMAGE_TAG }}
+          EDGE_IMAGE_TAG: ${{ env.EDGE_IMAGE_TAG }}
+          DEPLOY_API: ${{ env.DEPLOY_API }}
+          DEPLOY_EDGE: ${{ env.DEPLOY_EDGE }}
+          FORCE_RECREATE: ${{ inputs.force_recreate && '1' || '0' }}
+          RESET_DATABASE: ${{ inputs.destroy_database && '1' || '0' }}
+          RESET_DATABASE_CONFIRM: ${{ inputs.destroy_database_confirm }}
+          WEB_ORIGINS: ${{ env.WEB_ORIGINS }}
+          API_BASE_URL: ${{ env.API_BASE_URL }}
+          DOPPLER_TOKEN: ${{ env.DOPPLER_TOKEN_VALUE }}
+        with:
+          host: ${{ env.SERVER_HOST }}
+          username: tch
+          key: ${{ env.SSH_PRIVATE_KEY_VALUE }}
+          script_stop: true
+          envs: DEPLOY_ENV,API_IMAGE_TAG,EDGE_IMAGE_TAG,DEPLOY_API,DEPLOY_EDGE,FORCE_RECREATE,RESET_DATABASE,RESET_DATABASE_CONFIRM,WEB_ORIGINS,API_BASE_URL,DOPPLER_TOKEN
+          script: |
+            set -euo pipefail
+            cd /opt/tchalanet-infra
+            if ! command -v make >/dev/null 2>&1; then
+              sudo apt-get update
+              sudo apt-get install -y make
+            fi
+            chmod +x scripts/remote/*.sh scripts/utils/*.sh || true
+            ./scripts/remote/01-bootstrap.sh "$DEPLOY_ENV"
+            DOCKER_BIN="docker"
+            if ! docker ps >/dev/null 2>&1; then
+              DOCKER_BIN="sudo docker"
+            fi
+            DOCKER_BIN="$DOCKER_BIN" ENV="$DEPLOY_ENV" API_IMAGE_TAG="$API_IMAGE_TAG" EDGE_IMAGE_TAG="$EDGE_IMAGE_TAG" DEPLOY_API="$DEPLOY_API" DEPLOY_EDGE="$DEPLOY_EDGE" scripts/remote/deploy-runtime-services.sh
+
+  mark-staging-success:
+    needs: [plan, deploy]
+    if: inputs.target_environment == 'staging' && needs.deploy.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mark staging deployment
+        uses: actions/github-script@v8
+        env:
+          API_IMAGE_TAG: ${{ needs.plan.outputs.api_image_tag }}
+          EDGE_IMAGE_TAG: ${{ needs.plan.outputs.edge_image_tag }}
+          DEPLOY_API: ${{ needs.plan.outputs.deploy_api }}
+          DEPLOY_EDGE: ${{ needs.plan.outputs.deploy_edge }}
+          API_BASE_URL: ${{ needs.plan.outputs.api_base_url }}
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const apiTag = process.env.API_IMAGE_TAG;
+            const edgeTag = process.env.EDGE_IMAGE_TAG;
+            const deployApi = process.env.DEPLOY_API === 'true';
+            const deployEdge = process.env.DEPLOY_EDGE === 'true';
+            const deployment = await github.rest.repos.createDeployment({
+              owner,
+              repo,
+              ref: context.sha,
+              environment: 'staging',
+              auto_merge: false,
+              required_contexts: [],
+              description: `Runtime staging deploy deployApi=${deployApi} api=${apiTag} deployEdge=${deployEdge} edge=${edgeTag}`,
+              payload: {
+                deploy_api: deployApi,
+                deploy_edge: deployEdge,
+                api_image_tag: apiTag,
+                edge_image_tag: edgeTag,
+              },
+            });
+            await github.rest.repos.createDeploymentStatus({
+              owner,
+              repo,
+              deployment_id: deployment.data.id,
+              state: 'success',
+              environment_url: process.env.API_BASE_URL,
+              description: `Runtime staging OK deployApi=${deployApi} api=${apiTag} deployEdge=${deployEdge} edge=${edgeTag}`,
+            });
+            core.info(`Marked staging deployment ${deployment.data.id}`);
