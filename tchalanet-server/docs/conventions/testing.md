@@ -17,6 +17,11 @@ tested — read it once and keep it open:
 anti-duplication checklist = §5). This backend doc is the server-side application
 of that contract.
 
+Before writing tests for a critical flow, read the **plan-first working method
+and per-area cases** in [`test-plan-critical-flows.md`](./test-plan-critical-flows.md)
+— including the `generate → open → close → apply → settle` job plumbing and the
+live incoherence log (we surface findings, we do not paper over them).
+
 | Layer | Tool | Owns | Owner change |
 |---|---|---|---|
 | **Unit** (default, most tests) | Java · JUnit 5 + AssertJ, no Spring, no DB | Every branch of a pure logic class — **all permutations** | `unit-coverage-critical-domains-v1` |
