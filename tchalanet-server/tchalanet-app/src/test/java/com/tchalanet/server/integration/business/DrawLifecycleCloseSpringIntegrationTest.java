@@ -23,9 +23,13 @@ import org.junit.jupiter.api.Test;
 @DisplayName("Draw lifecycle — close due draws (Spring integration)")
 class DrawLifecycleCloseSpringIntegrationTest extends BusinessRuntimeIntegrationTestBase {
 
-    private static final LocalDate SALE_DATE = LocalDate.of(2026, 7, 9);
-    /** Safely after the cutoff of any 2026-07-09 draw (FIXED_NOW is 2026-07-08). */
-    private static final Instant AFTER_CUTOFF = Instant.parse("2026-07-10T00:00:00Z");
+    // Distinct date from the other draw-lifecycle ITs: the base shares one static
+    // Postgres with no per-class cleanup, so working the same date collides (a prior
+    // IT would already have closed those draws). 2026-07-10 is still inside the 48h
+    // open window from FIXED_NOW (2026-07-08T14:00Z → 2026-07-10T14:00Z).
+    private static final LocalDate SALE_DATE = LocalDate.of(2026, 7, 10);
+    /** Safely after the cutoff of any 2026-07-10 draw. */
+    private static final Instant AFTER_CUTOFF = Instant.parse("2026-07-11T00:00:00Z");
 
     @Test
     @DisplayName("open draws past cutoff are closed once; dryRun is a no-op; replay closes nothing more")
