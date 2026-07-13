@@ -84,13 +84,15 @@ job plumbing that drives it** (integration).
 Each rung = **one** `@SpringBootTest`/`@DataJpaTest` wired case; do NOT re-run the
 transition matrix here (3a owns it).
 
-- **generate** — `GenerateDrawsForRangeCommandHandler`: range → draws persisted in
-  `SCHEDULED`, idempotent on re-run (no duplicates), respects the draw limit.
-- **open** — `OpenDueDrawsCommandHandler`: only *due* SCHEDULED draws → `OPEN`;
-  not-yet-due untouched.
-- **close** — `CloseDueDrawsCommandHandler`: past-cutoff OPEN → `CLOSED`; sell after
-  close is refused.
-- **apply** — `FetchExternalResultsWindowCommandHandler` →
+- **generate** `[covered]` — `GenerateDrawsForRangeCommandHandler`: range → draws in
+  `SCHEDULED`. Covered by `DrawSellabilitySpringIntegrationTest` (generate→open→POS
+  visibility). Idempotent-rerun assertion still worth adding.
+- **open** `[covered]` — `OpenDueDrawsCommandHandler`: due SCHEDULED → `OPEN`. Same
+  test.
+- **close** `[covered]` — `CloseDueDrawsCommandHandler`: past-cutoff OPEN → `CLOSED`.
+  `DrawLifecycleCloseSpringIntegrationTest` (green): dryRun no-op, directional
+  OPEN↓/CLOSED↑, idempotent replay. "Sell after close refused" still to add.
+- **apply** `[remaining]` — `FetchExternalResultsWindowCommandHandler` →
   `ApplyExternalResultsWindowCommandHandler` → `ConfirmDrawResultCommandHandler`:
   CLOSED + results → `RESULTED`; **idempotent replay = one result, one settlement
   basis**, stats persisted.
@@ -146,6 +148,18 @@ Append as found. Format: **[state]** claim — evidence — proposed action.
   `OpenDraw`; `CloseDueDraws` vs `CloseDraw` vs `LockDraw`. → Confirm which the job
   actually schedules vs which are admin-manual, so the plumbing IT drives the real
   scheduled path and we don't test a dead entrypoint.
+
+### Job-plumbing findings (from writing the close IT)
+
+- **[TO-VERIFY] `opened` count (28) ≠ OPEN rows in `v_draw_summary` (19) ≠ close
+  `due` (19).** For a single generate range (2026-07-09), `OpenDueDrawsResult.opened`
+  reported **28**, but `v_draw_summary` shows **19** OPEN and `CloseDueDrawsCommand`
+  found **19** due (at 2026-07-10, after every 07-09 cutoff). All 28 are same-day
+  draws, so all should be closeable. Either `v_draw_summary` aggregates 28 physical
+  draws into 19 logical rows, or 9 opened draws are not surfaced/closed. Also
+  `generate` logged `created=28 conflicts=140`. **Action**: pin the granularity of
+  `opened()` vs `v_draw_summary` vs close `due` before writing the settle test —
+  settlement counts must not silently drop draws.
 
 ### Architecture-test findings (from reviewing `arch/` + `architecture/`)
 
