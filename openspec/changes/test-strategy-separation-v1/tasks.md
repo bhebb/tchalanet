@@ -35,7 +35,7 @@ nothing is tested twice.
 
 ## 6. Web (out of pyramid, tracked separately)
 
-- [ ] Note that `web-e2e` Playwright critical flows are specced in a dedicated
+- [x] Note that `web-e2e` Playwright critical flows are specced in a dedicated
       web change (`web-e2e-critical-flows-v1`), not here.
 
 ## 7. Verify no duplication
