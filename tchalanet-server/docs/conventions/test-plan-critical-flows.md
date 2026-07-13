@@ -234,8 +234,10 @@ Append as found. Format: **[state]** claim — evidence — proposed action.
   `SellerTerminalOddsOverride` already applied. This is the effective precedence
   (promo > terminal on the sold line); settlement consumes the snapshot. Confirm it
   matches product intent.
-- **[minor] unused param** — `PromotionOddsBoostApplier.apply(..., CurrencyCode
-  currency)` never uses `currency`. Dead parameter; drop it or use it.
+- **[FIXED] unused param** — `PromotionOddsBoostApplier.apply(..., CurrencyCode
+  currency)` never used `currency`. Removed (and from the `SalePromotionEffectApplier`
+  call site); the orchestrator still uses `currency` for FREE_GAME_LINE. Verified:
+  core compiles, `PromotionOddsBoostApplierTest` green.
 
 ### Architecture-test findings (from reviewing `arch/` + `architecture/`)
 

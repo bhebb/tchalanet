@@ -81,7 +81,7 @@ class PromotionOddsBoostApplierTest {
             var lines = new ArrayList<>(List.of(boletLine()));
             var effect = boost("HT_BOLET", new BigDecimal("2.5000"));
 
-            applier.apply(lines, effect, decision(effect), HTG);
+            applier.apply(lines, effect, decision(effect));
 
             var line = lines.get(0);
             assertThat(line.pricingSource()).isEqualTo(TicketLinePricingSource.PROMOTION);
@@ -95,7 +95,7 @@ class PromotionOddsBoostApplierTest {
             var lines = new ArrayList<>(List.of(boletLine()));
             var effect = boost("HT_LOTO5", new BigDecimal("2.5000"));
 
-            applier.apply(lines, effect, decision(effect), HTG);
+            applier.apply(lines, effect, decision(effect));
 
             var line = lines.get(0);
             assertThat(line.pricingSource()).isEqualTo(TicketLinePricingSource.STANDARD);
@@ -115,7 +115,7 @@ class PromotionOddsBoostApplierTest {
                 RULE_ID, PromotionEffectType.WAIVE_CHARGE, "HT_BOLET", 1, new BigDecimal("2.5"), "HTG",
                 "BUYER_SMS", "x", PromotionChoiceMode.NONE);
 
-            applier.apply(lines, effect, decision(effect), HTG);
+            applier.apply(lines, effect, decision(effect));
 
             assertThat(lines.get(0).pricingSource()).isEqualTo(TicketLinePricingSource.STANDARD);
         }
@@ -126,7 +126,7 @@ class PromotionOddsBoostApplierTest {
             var lines = new ArrayList<>(List.of(boletLine()));
             var effect = boost(null, new BigDecimal("2.5"));
 
-            assertThatThrownBy(() -> applier.apply(lines, effect, decision(effect), HTG))
+            assertThatThrownBy(() -> applier.apply(lines, effect, decision(effect)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("boost_odds_game_required");
         }
@@ -137,7 +137,7 @@ class PromotionOddsBoostApplierTest {
             var lines = new ArrayList<>(List.of(boletLine()));
             var zero = boost("HT_BOLET", BigDecimal.ZERO);
 
-            assertThatThrownBy(() -> applier.apply(lines, zero, decision(zero), HTG))
+            assertThatThrownBy(() -> applier.apply(lines, zero, decision(zero)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("boost_odds_amount_required");
         }
@@ -157,7 +157,7 @@ class PromotionOddsBoostApplierTest {
             var lines = new ArrayList<>(List.of(boletLine()));
             var effect = boost("HT_BOLET", new BigDecimal("2.12345"));
 
-            assertThatThrownBy(() -> applier.apply(lines, effect, decision(effect), HTG))
+            assertThatThrownBy(() -> applier.apply(lines, effect, decision(effect)))
                 .isInstanceOf(ArithmeticException.class);
         }
     }
