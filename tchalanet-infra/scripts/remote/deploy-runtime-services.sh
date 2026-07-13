@@ -90,7 +90,7 @@ if [ "${SKIP_DOPPLER:-0}" != "1" ]; then
     -e DOPPLER_TOKEN="$DOPPLER_TOKEN" \
     -v "$PWD":/work -w /work \
     "$DOPPLER_IMAGE" \
-    -lc "doppler secrets download --format env --project tchalanet --config $DOPPLER_CONFIG > envs/$ENV/.secrets"
+    -lc "doppler secrets download --no-file --format env --project tchalanet --config $DOPPLER_CONFIG > envs/$ENV/.secrets"
   if command -v sudo >/dev/null 2>&1; then
     sudo chown "$(id -u):$(id -g)" "envs/$ENV/.secrets"
   else
