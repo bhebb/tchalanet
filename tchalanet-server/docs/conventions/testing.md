@@ -38,9 +38,15 @@ live incoherence log (we surface findings, we do not paper over them).
 > needs the **whole stack + real auth + multiple client roles** → **E2E**.
 
 **Anti-duplication:** a permutation is asserted **once** (Unit). Integration takes
-**one** representative per branch. E2E takes **the** happy path. No layer repeats
-what the layer below already proved. If an assertion is already proven one layer
-down — **delete it**.
+**one representative per infrastructure seam or materially different wired
+outcome** — *not* one case per pure business predicate. E2E takes **the** happy
+path. No layer repeats what the layer below already proved. If an assertion is
+already proven one layer down — **delete it**.
+
+> "One representative per branch" is about **wiring**, not business rules. Example:
+> Unit owns the 20 limit permutations; Integration asserts *a limit-blocked sell
+> persists no ticket* (one seam) and maybe *an accepted sell persists the snapshot*
+> (a materially different outcome) — **not** one IT per limit type.
 
 ### Weight per priority domain (where the *decisive* test lives)
 
@@ -81,7 +87,22 @@ or minimal fakes. All permutations of a pure rule live here — this is the base
 the pyramid, so the layers above stay thin.
 
 Test only **logic carriers**: evaluators, appliers, calculators, resolvers, state
-machines. **Not** commands, handlers, DTOs, entities, adapters, controllers.
+machines. Commands, DTOs, entities, adapters and controllers are **not**
+unit-tested. Handlers are a special case — see below.
+
+### Handlers — do not unit-test by default
+
+Do **not** unit-test a command/query handler by default. A simple
+`load → delegate → save → publish` handler owns no logic of its own; a mock-heavy
+unit test there just re-asserts the collaborators it delegates to. Such handlers
+are covered by **one integration composition**, not by an isolated unit test.
+
+Unit-test a handler **only** when it contains meaningful orchestration branches
+that cannot be moved into a named logic carrier without making the design worse.
+Otherwise, extract the decision into a carrier and unit-test the carrier. Rule of
+thumb: if you mock five ports to reach one `if`, that `if` belongs in a carrier.
+(This resolves the older "test each handler with fake ports" guidance: the target
+is the *logic*, wherever it lives — not the handler class by reflex.)
 
 ### Do NOT unit-test — data carriers (exclude from tests AND coverage)
 
@@ -89,15 +110,26 @@ These have no behavior to prove (Lombok/records, plain fields); testing them tes
 the compiler. Exclude by name pattern from unit tests **and** from the JaCoCo
 coverage denominator so they don't dilute the signal:
 
-- `**/*Command.java` / `**/*Command.class` — CQRS command objects
-- `**/*Query.java` / `**/*Query.class` — CQRS query objects
+**Excluded by category** (the name settles it — these are always passive):
+
+- `**/*Command.java` — CQRS command objects
+- `**/*Query.java` — CQRS query objects
 - `**/*Request.java` — inbound HTTP DTOs
 - `**/*Response.java` — outbound HTTP DTOs
-- (same treatment for `*Result`, `*View`, `*Dto`, `*Entity`, `*Mapper` generated code)
+- `**/*Entity.java` — JPA entities (data + ORM mapping)
+- generated code (MapStruct mappers, OpenAPI clients, Lombok builders)
 
-> If a would-be data carrier grows real logic (validation, derivation), that logic
-> belongs in a **named validator/resolver** that *is* unit-tested — not inline in
-> the Command/Request. Keep carriers dumb.
+**Not decided by name** — `*Result`, `*View`, `*Dto`, `*Mapper`:
+
+> A class name does not decide this by itself. Exclude only **passive** carriers.
+> If a `Result`/`View`/`Dto`/`Mapper` owns meaningful handwritten behavior — a
+> factory, a derived decision (`isBlocked()`, `highestSeverity()`), a normalization
+> or aggregation, precedence/fallback in a hand-written mapper — that behavior must
+> either be **extracted into a named logic carrier** or **unit-tested explicitly**.
+> A generated MapStruct mapper is not unit-tested; a hand-written mapper with
+> fallback logic may be a real carrier. Same for a Command/Request that grows
+> validation: move it to a named validator/resolver and test that — keep the
+> carrier dumb.
 
 ### Entities & ports
 
@@ -250,11 +282,15 @@ base works. Owners: `tchalanet-common` (+ `app/config`).
     discovered handler maps to exactly one message, no duplicate/ambiguous
     binding across the whole app. This is the one bus test that must boot.
 - **Domain events** (`common/event`: `DomainEvent`, `DomainEventPublisher` +
-  `SpringDomainEventPublisher`) —
-  - **Unit**: publisher impl publishes each event once, ordering/after-commit
-    semantics with a fake `ApplicationEventPublisher`.
-  - **Integration**: one `@SpringBootTest` proving a published event reaches its
-    real listener/router (`NotificationDomainEventRouter` etc.) after commit.
+  `SpringDomainEventPublisher`; `AfterCommit`) — this is a **transactional seam**, so
+  the boundary is sharp:
+  - **Unit**: publisher impl delegates each event exactly once (fake
+    `ApplicationEventPublisher`); `AfterCommit` registers/executes the callback
+    according to synchronization state. A fake publisher proves delegation and
+    local order — it does **not** prove commit semantics, so do not claim it does.
+  - **Integration**: a **committed** transaction delivers the event to the real
+    listener/router; a **rolled-back** transaction does **not** deliver it. (This is
+    exactly why the settle IT can't be `@Transactional` — see the plan §4.)
 - **Cache** (`app/config/cache`: `CombinedCache`, `CombinedCacheManager`,
   `ToggleableCacheManager`, `CacheSpec`) —
   - **Unit**: `CombinedCache` two-tier logic with two mock `Cache` (local/remote):
@@ -286,7 +322,7 @@ Run integration tests only for:
 
 - Use **Testcontainers** for Postgres when RLS/SQL behavior matters
 - Keep integration tests **few, stable, deterministic**
-- Assert **one representative** per branch, focused on **end-to-end outcome**, not internal structure
+- Assert **one representative per seam / wired outcome** (not per business predicate), focused on **end-to-end outcome**, not internal structure
 - Assert **tenant isolation explicitly** for multi-tenant tables
 - For HTTP-level integration tests: validate
   - `ApiResponse<T>` wrapping on 2xx
@@ -367,14 +403,37 @@ Current suites (`tchalanet-app/src/test/.../{architecture,arch}`):
 Architecture tests are the cheapest place to encode a project non-negotiable, so
 gaps here are worth closing:
 
-- **`SecurityArchTest` skips `void` handlers** — the rule filters out
-  void-returning methods, so an unsecured `@PostMapping`/`@DeleteMapping` command
-  handler (which usually returns `void`) in a protected scope **passes**. Real
-  authorization gap — see §5.
+- **`SecurityArchTest` void-handler gap — FIXED**: the rule no longer skips
+  void-returning handlers, so an unsecured `@PostMapping`/`@DeleteMapping` in a
+  protected scope is now flagged (regression fixture added).
 - **Two packages `arch/` and `architecture/`** for the same concern — consolidate.
-- **Candidate new rules**: strongly-typed IDs outside persistence (a project
-  non-negotiable); CQRS handlers reached only via the bus; `*Command`/`*Query`/
-  `*Request`/`*Response` carriers stay logic-free (mirror of §1 exclusions).
+- **Candidate new rules** (must be **bounded** — over-broad rules break legitimate
+  direct calls in tests, bus registration, and a handler calling itself):
+  - strongly-typed IDs outside `*persistence*`;
+  - **CQRS-via-bus**, scoped: *outside `src/test` and the `common.bus` registration
+    infrastructure, controllers/features/schedulers/listeners must not invoke
+    `CommandHandler.handle` / `QueryHandler.handle` directly* — allow `src/test`,
+    `common.bus`, and the handler class itself;
+  - `*Command`/`*Query`/`*Request`/`*Response` carriers stay logic-free (mirror of
+    §1 exclusions).
 
 > Rule of thumb: if a convention is stated in `project.md` non-negotiables, it
 > should have an ArchUnit rule — otherwise it drifts.
+
+---
+
+## 7) Coverage configuration
+
+**Coverage is diagnostic, not a target.** It tells you where risk is unproven; it
+is never a number to chase, and a test written to move it is a smell (§0).
+
+- **Exclude from the denominator**: passive data carriers (the §1 categories) and
+  generated code (MapStruct, OpenAPI clients, Lombok). These have no behavior, so
+  counting them only dilutes the signal.
+- **Never exclude a package merely because its current percentage is low** — that
+  hides the exact risk coverage is meant to reveal.
+- Any **new** exclusion must be justified by a **stable class category or
+  generation rule** (a glob/annotation), not by "this one is hard to test".
+- A `Result`/`View`/`Mapper` is excluded only if it is genuinely passive (§1). If
+  it carries logic, it stays in the denominator until that logic is tested or
+  extracted.

@@ -18,6 +18,22 @@
    to make it pass.
 5. **Never** re-assert what a lower layer already proved.
 
+## 1b. Status vocabulary (be precise about "verified")
+
+With a **shared static Postgres**, a test can be green alone and fail in the full
+suite. So never write a bare "green"/"covered" — say **which**:
+
+- **[PLANNED]** — case identified, not written.
+- **[IMPLEMENTED]** — test written, not run here.
+- **[VERIFIED-FOCUSED]** — green in isolation (`-Dtest=X`).
+- **[VERIFIED-SUITE]** — green in the module/suite run
+  (`./mvnw -pl tchalanet-core,tchalanet-app -am test`), i.e. survives cross-test
+  interaction.
+
+For a code fix, use **[FIXED-FOCUSED]** / **[FIXED-SUITE]** the same way. A focused
+pass is necessary but **not sufficient**: the `DrawSellability` regression was
+VERIFIED-FOCUSED yet broke the suite (§4). Only VERIFIED-SUITE closes a rung.
+
 ## 2. Priority areas & cases (unit-first)
 
 Levels reference `testing.md`. Only the risk-carrying cases are listed.
@@ -127,8 +143,12 @@ Owners: `app/batch`, `app/job`, `common/job`.
 
 - **`BatchGate`** (`app/batch/gate`) — gate **off** → job is a no-op (nothing runs);
   gate on → runs. Unit the resolver; 1 IT that a gated job skips.
-- **ShedLock** (`ShedLockRuntimeConfig`) — a scheduled tick holds the lock so **two
-  instances don't both run** the rung. 1 IT (or documented manual proof).
+- **ShedLock** — do **not** test the ShedLock library itself, and do **not** write a
+  fragile fake-concurrent test in the business suite. Prove only that **the scheduler
+  method is correctly configured**: annotated with the intended lock **name** and
+  **bounds** (`lockAtMostFor`/`lockAtLeastFor`). An **arch/reflection** test on the
+  annotation is enough; a real multi-instance test, if ever wanted, belongs in infra,
+  not here.
 - **Job registry** (`SpringTchJobRegistry`/`RegisteredJob`) — every registered job
   key resolves to exactly one job (mirror of the bus registration test).
 - **`DrawLifeCycleTickScheduler`** — 1 IT: a single tick advances a due draw one
@@ -161,7 +181,23 @@ only a run that includes the other ITs does. Two isolation strategies:
 ## 5. Incohérences remontées (live log)
 
 Append as found. Format: **[state]** claim — evidence — proposed action.
-`state ∈ {CONFIRMED, TO-VERIFY}`.
+
+> **Keep this section light.** As findings resolve, the detailed entries should
+> migrate to `docs/testing/findings/critical-flows-findings.md` (or the owning
+> OpenSpec tasks), leaving here only **open** incoherences, **decisions that change
+> tests still to write**, and the short summary below. *(migration = follow-up)*
+
+### Resolved findings (summary — details below / to migrate)
+
+- Override on a RESULTED draw uses `overrideResult`, not `applyResult` (was a throw).
+- Settlement replay is a graceful no-op and preserves `settled_at`.
+- BOOST_ODDS scale > 4 is rejected at configuration time (fail-fast, not mid-sale).
+- Promotion odds **replace** terminal-override odds on the final line snapshot →
+  promote to a normative pricing rule (below).
+- `SecurityArchTest` now flags unsecured `void` handlers in protected scopes.
+- `opened`=28 vs close-due=19 was a UTC/Haiti timezone effect, **not** a bug.
+
+### Detailed log
 
 - **[RESOLVED — orthogonal flag, not dead] `LockDraw`/`UnlockDraw`.** `locked` is a
   boolean flag independent of the status machine (hence no `LOCKED` state). `lock()`/
@@ -268,13 +304,21 @@ Append as found. Format: **[state]** claim — evidence — proposed action.
   > 4`, mirroring the applier's exact failure condition). Fail-fast at campaign setup
   instead of mid-sale. Covered by `PromotionRuleWriteSupportTest`; the applier keeps
   its throw as a last-resort defense (pinned by `PromotionOddsBoostApplierTest`).
-- **[DOCUMENTED — not a bug] promo boost overrides prior line odds (incl. terminal
-  override).** `SalePromotionEffectApplier` applies BOOST_ODDS by calling
+- **[PROMOTE TO SPEC] promo odds > terminal override — a financial rule, not a
+  finding.** `SalePromotionEffectApplier` applies BOOST_ODDS via
   `line.withPromotionPricing(...)`, which **unconditionally overwrites** the line's
-  odds snapshot. So on the ticket-line snapshot the promo boost wins over any
-  `SellerTerminalOddsOverride` already applied. This is the effective precedence
-  (promo > terminal on the sold line); settlement consumes the snapshot. Confirm it
-  matches product intent.
+  odds snapshot, so the promo boost wins over any `SellerTerminalOddsOverride` on the
+  sold line. Because this is **visible money on the sold ticket**, it must not live in
+  a findings log. Promote it to a **normative domain rule** in the pricing/promotion
+  spec, a canonical **unit matrix**, and the snapshot business doc:
+  > **Effective odds resolution:** (1) base pricing → (2) active seller-terminal
+  > override → (3) eligible promotion odds effect → (4) persist the final odds
+  > **once** in the ticket-line snapshot. A promotion odds effect **replaces** the
+  > previously resolved commercial odds; it is **not additive** and is applied **at
+  > most once**.
+  Action: add the rule to the pricing spec + a `SalePromotionEffectApplier` unit
+  matrix (base-only / terminal-only / promo-over-terminal / no-op), then confirm the
+  order matches product intent.
 - **[FIXED] unused param** — `PromotionOddsBoostApplier.apply(..., CurrencyCode
   currency)` never used `currency`. Removed (and from the `SalePromotionEffectApplier`
   call site); the orchestrator still uses `currency` for FREE_GAME_LINE. Verified:
@@ -300,6 +344,11 @@ Append as found. Format: **[state]** claim — evidence — proposed action.
   duplicated across both.
 - **[GAP] Non-negotiables without an ArchUnit rule.** `project.md` mandates
   strongly-typed IDs (except persistence) and CQRS-via-bus; no rule enforces them.
-  **Action**: add rules (typed-ID usage outside `*persistence*`; handlers invoked
-  only through `CommandBus`/`QueryBus`; carriers `*Command/*Query/*Request/*Response`
-  stay logic-free — mirrors §1 exclusions).
+  **Action**: add **bounded** rules (see `testing.md` §6) — typed-ID usage outside
+  `*persistence*`; CQRS-via-bus scoped to production (allow `src/test`, `common.bus`,
+  the handler itself); carriers stay logic-free.
+- **[DOC-DEBT] Align docs to the canonical bus verbs.** The new testing docs use
+  `CommandBus.execute(...)` / `QueryBus.ask(...)`, but older handler/testing docs
+  still show `send()` / `handle()` as the API. **Action**: sweep the remaining
+  testing/handler documentation to the canonical verbs so the convention doesn't
+  inherit the contradiction.
