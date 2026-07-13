@@ -9,6 +9,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Job-plumbing rung: <b>close</b>. Proves the wired composition
@@ -20,6 +21,10 @@ import org.junit.jupiter.api.Test;
  * {@code DrawSellabilitySpringIntegrationTest}, generate→open). One representative
  * wired case for the close rung.
  */
+// @Transactional rolls the whole test back: this IT drives global commands
+// (OpenDueDraws/CloseDueDraws are tenant-wide), so without rollback it would close
+// draws that other shared-DB ITs (e.g. DrawSellability) need OPEN.
+@Transactional
 @DisplayName("Draw lifecycle — close due draws (Spring integration)")
 class DrawLifecycleCloseSpringIntegrationTest extends BusinessRuntimeIntegrationTestBase {
 
