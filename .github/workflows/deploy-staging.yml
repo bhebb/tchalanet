@@ -213,6 +213,14 @@ jobs:
         with:
           token: ${{ secrets.HCLOUD_TOKEN }}
 
+      - name: Prepare SSH key for provisioning
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/tchalanet_stg
+          chmod 600 ~/.ssh/tchalanet_stg
+          ssh-keygen -y -f ~/.ssh/tchalanet_stg > ~/.ssh/tchalanet_stg.pub
+
       - name: Create staging server
         working-directory: tchalanet-infra
         run: make staging-create
