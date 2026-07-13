@@ -58,10 +58,11 @@ if [ "${SKIP_DOPPLER:-0}" != "1" ]; then
   [ -n "${DOPPLER_TOKEN:-}" ] || fail "DOPPLER_TOKEN is required unless SKIP_DOPPLER=1"
   log "Downloading staging secrets from Doppler"
   docker run --rm \
+    --entrypoint sh \
     -e DOPPLER_TOKEN="$DOPPLER_TOKEN" \
     -v "$PWD":/work -w /work \
     "$DOPPLER_IMAGE" \
-    sh -lc "doppler secrets download --format env --project tchalanet --config staging > envs/$ENV/.secrets"
+    -lc "doppler secrets download --format env --project tchalanet --config stg > envs/$ENV/.secrets"
   chmod 600 "envs/$ENV/.secrets"
 elif [ ! -f "envs/$ENV/.secrets" ]; then
   fail "SKIP_DOPPLER=1 was set but envs/$ENV/.secrets does not exist"
