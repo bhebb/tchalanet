@@ -15,11 +15,13 @@ Configurer dans : GitHub → Settings → Secrets and variables → Actions → 
 | `SSH_PRIVATE_KEY_PROD` | — | ✅ requis | Clé privée SSH vers le serveur prod (`~/.ssh/tchalanet_prod`) |
 | `SERVER_HOST` | ✅ requis | — | IP du serveur Hetzner staging |
 | `PROD_SERVER_HOST` | — | ✅ requis | IP du serveur Hetzner prod |
+| `HCLOUD_TOKEN` | ✅ requis | — | Token API Hetzner Cloud Read+Write pour créer/détruire le serveur staging |
 | `DOPPLER_TOKEN_STG` | ✅ requis | — | Service Token Doppler config `stg` (projet `tchalanet`) |
 | `DOPPLER_TOKEN_PROD` | — | ✅ requis | Service Token Doppler config `prd` (projet `tchalanet`) |
 
 **À obtenir :**
 - `SSH_PRIVATE_KEY` : `cat ~/.ssh/tchalanet_stg`
+- `HCLOUD_TOKEN` : Hetzner Cloud Console → projet staging → Security → API Tokens → Generate API token (`Read & Write`)
 - `DOPPLER_TOKEN_*` : Doppler dashboard → projet `tchalanet` → config `stg`/`prd` → Access → Generate Service Token
 
 **Secrets obsolètes à supprimer (après migration CF Pages) :**
@@ -127,6 +129,7 @@ Requis quand le workflow `mobile-distribute.yml` sera créé (RB-03) :
 # Staging
 [ ] SSH_PRIVATE_KEY    → GitHub Secrets
 [ ] SERVER_HOST        → GitHub Secrets
+[ ] HCLOUD_TOKEN       → GitHub Secrets
 [ ] DOPPLER_TOKEN_STG  → GitHub Secrets
 
 # CF Pages (staging preview env)
