@@ -42,8 +42,10 @@ ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT"
 
 # 1) detect docker
-DOCKER_BIN=""
-if command -v docker >/dev/null 2>&1; then
+DOCKER_BIN="${DOCKER_BIN:-}"
+if [[ -n "$DOCKER_BIN" ]]; then
+  :
+elif command -v docker >/dev/null 2>&1; then
   DOCKER_BIN="$(command -v docker)"
 else
   echo "❌ docker introuvable" >&2; exit 2
@@ -107,10 +109,10 @@ for f in "${FILES[@]}"; do compose_files_args+=( -f "$f" ); done
 # 5) Build ou Pull
 if [[ "$LOCAL_BUILD" == "1" ]]; then
   echo "→ [BUILD] Construction des images locales"
-  "$DOCKER_BIN" compose --env-file "$TMP_ENV_FILE" "${compose_files_args[@]}" build --parallel || true
+  $DOCKER_BIN compose --env-file "$TMP_ENV_FILE" "${compose_files_args[@]}" build --parallel || true
 else
   echo "→ [PULL] Récupération des images pré-construites"
-  "$DOCKER_BIN" compose --env-file "$TMP_ENV_FILE" "${compose_files_args[@]}" pull || echo "⚠️  Pull partiel" >&2
+  $DOCKER_BIN compose --env-file "$TMP_ENV_FILE" "${compose_files_args[@]}" pull || echo "⚠️  Pull partiel" >&2
 fi
 
 # 6) Up core
@@ -120,13 +122,13 @@ if [[ "$ENV" == "dev" ]]; then
 fi
 for svc in "${CORE_SVCS[@]}"; do
   echo "→ Up $svc"
-  "$DOCKER_BIN" compose --project-name "tch-${ENV}" --env-file "$TMP_ENV_FILE" "${compose_files_args[@]}" up -d "$svc" || echo "⚠️  $svc up non-zero" >&2
+  $DOCKER_BIN compose --project-name "tch-${ENV}" --env-file "$TMP_ENV_FILE" "${compose_files_args[@]}" up -d "$svc" || echo "⚠️  $svc up non-zero" >&2
 done
 
 # 7) Up API and Edge service
 echo "→ Up api"
-"$DOCKER_BIN" compose --project-name "tch-${ENV}" --env-file "$TMP_ENV_FILE" "${compose_files_args[@]}" up -d api || echo "⚠️  api up non-zero" >&2
+$DOCKER_BIN compose --project-name "tch-${ENV}" --env-file "$TMP_ENV_FILE" "${compose_files_args[@]}" up -d api || echo "⚠️  api up non-zero" >&2
 echo "→ Up edge-service"
-"$DOCKER_BIN" compose --project-name "tch-${ENV}" --env-file "$TMP_ENV_FILE" "${compose_files_args[@]}" up -d edge-service || echo "⚠️  edge-service up non-zero" >&2
+$DOCKER_BIN compose --project-name "tch-${ENV}" --env-file "$TMP_ENV_FILE" "${compose_files_args[@]}" up -d edge-service || echo "⚠️  edge-service up non-zero" >&2
 
 echo "ℹ️  Stack initiale opérationnelle (LOCAL_BUILD=$LOCAL_BUILD)."

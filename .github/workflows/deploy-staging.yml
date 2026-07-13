@@ -314,10 +314,6 @@ jobs:
               dopplerhq/cli:3.72 \
               -lc 'doppler secrets download --format env --project tchalanet --config stg > envs/staging/.secrets && chmod 600 envs/staging/.secrets'
 
-            DOCKER_BIN="$DOCKER_BIN" IMAGE_TAG="${{ env.IMAGE_TAG }}" make deploy ENV=staging || \
-            $DOCKER_BIN compose --env-file envs/staging/compose.env \
-              -f compose/docker-compose-traefik.yml \
-              -f compose/docker-compose-redis.yml \
-              up -d
+            DOCKER_BIN="$DOCKER_BIN" IMAGE_TAG="${{ env.IMAGE_TAG }}" make up-staging ENV=staging
 
             echo "Staging deploy done — IMAGE_TAG=${{ env.IMAGE_TAG }}"
