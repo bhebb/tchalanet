@@ -141,6 +141,23 @@ Owners: `app/batch`, `app/job`, `common/job`.
   tenant B's draws) — RLS active during batch context.
 - Settlement/pricing ITs assert **idempotency** (replay = no double money effect).
 
+### Shared-DB isolation (learned the hard way)
+
+`BusinessRuntimeIntegrationTestBase` shares **one static Postgres, no per-class
+cleanup**, on **one seeded tenant**. So an IT that runs a **tenant-wide** command
+(`OpenDueDraws` / `CloseDueDraws` open/close *all* due draws) mutates state other
+ITs depend on — e.g. `DrawSellability` asserts `opened.opened() > 0`, which needs
+its date's draws **SCHEDULED**. A per-test `-Dtest=...` batch will not catch this;
+only a run that includes the other ITs does. Two isolation strategies:
+
+- **`@Transactional`** on the test → the whole test rolls back, nothing leaks.
+  Works for a self-contained flow (generate→open→close). **Does not work** when the
+  flow spans commands that rely on between-command commits / AfterCommit events
+  (the settle path needs them).
+- **Dedicated date + singular commands** — generate on a date no other IT uses and
+  drive `OpenDraw`/`CloseDraw` on a **single** draw, so the global due-commands are
+  never run. Use this for multi-command flows that can't roll back.
+
 ## 5. Incohérences remontées (live log)
 
 Append as found. Format: **[state]** claim — evidence — proposed action.
