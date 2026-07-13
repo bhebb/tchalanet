@@ -8,6 +8,7 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.draw.api.model.DrawStatus;
 import com.tchalanet.server.core.draw.internal.domain.exception.DrawInvalidOverrideException;
 import com.tchalanet.server.core.draw.internal.domain.exception.DrawInvalidResultException;
+import com.tchalanet.server.core.draw.internal.domain.exception.DrawLockedException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -197,6 +198,53 @@ class DrawTest {
             assertThatThrownBy(() ->
                 draw.overrideResult(DrawResultId.of(UUID.randomUUID()), T4, "  "))
                 .isInstanceOf(DrawInvalidOverrideException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("locking — an orthogonal freeze flag, not a status")
+    class Locking {
+
+        @Test
+        @DisplayName("lock/unlock toggle the flag and are idempotent")
+        void lockUnlockIdempotent() {
+            Draw draw = scheduledDraw();
+            assertThat(draw.locked()).isFalse();
+
+            draw.lock();
+            draw.lock(); // idempotent
+            assertThat(draw.locked()).isTrue();
+
+            draw.unlock();
+            draw.unlock(); // idempotent
+            assertThat(draw.locked()).isFalse();
+        }
+
+        @Test
+        @DisplayName("a locked draw rejects every lifecycle transition")
+        void lockedRejectsLifecycle() {
+            Draw scheduled = scheduledDraw();
+            scheduled.lock();
+            assertThatThrownBy(() -> scheduled.open(T1)).isInstanceOf(DrawLockedException.class);
+
+            Draw open = scheduledDraw();
+            open.open(T1);
+            open.lock();
+            assertThatThrownBy(() -> open.close(T2)).isInstanceOf(DrawLockedException.class);
+
+            Draw resulted = resultedDraw();
+            resulted.lock();
+            assertThatThrownBy(() -> resulted.settle(T4)).isInstanceOf(DrawLockedException.class);
+        }
+
+        @Test
+        @DisplayName("unlocking restores the ability to transition")
+        void unlockRestoresLifecycle() {
+            Draw resulted = resultedDraw();
+            resulted.lock();
+            resulted.unlock();
+            assertThatCode(() -> resulted.settle(T4)).doesNotThrowAnyException();
+            assertThat(resulted.status()).isEqualTo(DrawStatus.SETTLED);
         }
     }
 

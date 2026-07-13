@@ -146,12 +146,13 @@ Owners: `app/batch`, `app/job`, `common/job`.
 Append as found. Format: **[state]** claim — evidence — proposed action.
 `state ∈ {CONFIRMED, TO-VERIFY}`.
 
-- **[TO-VERIFY] `LockDraw`/`UnlockDraw` have no state and no transition.**
-  `DrawStatusTransition` has no `LOCKED` and no lock/unlock edge, yet
-  `LockDrawCommandHandler` / `UnlockDrawCommandHandler` exist. → Is "lock" an
-  orthogonal flag on an OPEN/CLOSED draw, or dead/legacy? A test can't assert a
-  lock transition because there is none. **Action**: confirm the lock semantics
-  before testing; if orthogonal, test it as a flag, not a status; if dead, remove.
+- **[RESOLVED — orthogonal flag, not dead] `LockDraw`/`UnlockDraw`.** `locked` is a
+  boolean flag independent of the status machine (hence no `LOCKED` state). `lock()`/
+  `unlock()` are idempotent toggles, and `ensureNotLocked()` is called at the start of
+  **every** lifecycle method, so a locked draw rejects open/close/applyResult/settle/
+  … with `DrawLockedException`; the auto-close job also filters `locked = false`. A
+  real freeze feature. Pinned by `DrawTest` (lock/unlock idempotent, locked rejects
+  every transition, unlock restores).
 - **[PARTLY-EXPLAINED] Result correction/override has no `DrawStatus` return edge.**
   `RESULTED → {SETTLED}` only, yet `CorrectAppliedDrawResultCommandHandler` /
   `OverrideDrawResultCommandHandler` / `MarkDrawResultOverriddenCommandHandler`
