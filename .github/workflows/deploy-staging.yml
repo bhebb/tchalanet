@@ -304,6 +304,10 @@ jobs:
 
             DOCKER_BIN="$DOCKER_BIN" make env-merge ENV=staging
 
+            echo "${{ github.token }}" | $DOCKER_BIN login ghcr.io \
+              -u "${{ github.actor }}" \
+              --password-stdin
+
             if [ -z "${{ secrets.DOPPLER_TOKEN_STG }}" ]; then
               echo "DOPPLER_TOKEN_STG manquant" >&2; exit 1
             fi
@@ -316,7 +320,7 @@ jobs:
             sudo chown "$(id -u):$(id -g)" envs/staging/.secrets
             chmod 600 envs/staging/.secrets
 
-            DOCKER_BIN="$DOCKER_BIN" IMAGE_TAG="${{ env.IMAGE_TAG }}" make up-staging ENV=staging
+            DOCKER_BIN="$DOCKER_BIN" IMAGE_TAG="${{ env.IMAGE_TAG }}" TCH_EDGE_TAG="${{ env.IMAGE_TAG }}" make up-staging ENV=staging
 
             echo "Waiting for staging API health..."
             for attempt in $(seq 1 36); do

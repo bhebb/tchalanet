@@ -385,12 +385,14 @@ jobs:
           WEB_ORIGINS: ${{ env.WEB_ORIGINS }}
           API_BASE_URL: ${{ env.API_BASE_URL }}
           DOPPLER_TOKEN: ${{ env.DOPPLER_TOKEN_VALUE }}
+          GHCR_USERNAME: ${{ github.actor }}
+          GHCR_TOKEN: ${{ github.token }}
         with:
           host: ${{ env.SERVER_HOST }}
           username: tch
           key: ${{ env.SSH_PRIVATE_KEY_VALUE }}
           script_stop: true
-          envs: DEPLOY_ENV,API_IMAGE_TAG,EDGE_IMAGE_TAG,DEPLOY_API,DEPLOY_EDGE,FORCE_RECREATE,RESET_DATABASE,RESET_DATABASE_CONFIRM,WEB_ORIGINS,API_BASE_URL,DOPPLER_TOKEN
+          envs: DEPLOY_ENV,API_IMAGE_TAG,EDGE_IMAGE_TAG,DEPLOY_API,DEPLOY_EDGE,FORCE_RECREATE,RESET_DATABASE,RESET_DATABASE_CONFIRM,WEB_ORIGINS,API_BASE_URL,DOPPLER_TOKEN,GHCR_USERNAME,GHCR_TOKEN
           script: |
             set -euo pipefail
             cd /opt/tchalanet-infra
@@ -404,6 +406,9 @@ jobs:
             if ! docker ps >/dev/null 2>&1; then
               DOCKER_BIN="sudo docker"
             fi
+            printf '%s\n' "$GHCR_TOKEN" | $DOCKER_BIN login ghcr.io \
+              -u "$GHCR_USERNAME" \
+              --password-stdin
             DOCKER_BIN="$DOCKER_BIN" ENV="$DEPLOY_ENV" API_IMAGE_TAG="$API_IMAGE_TAG" EDGE_IMAGE_TAG="$EDGE_IMAGE_TAG" DEPLOY_API="$DEPLOY_API" DEPLOY_EDGE="$DEPLOY_EDGE" scripts/remote/deploy-runtime-services.sh
 
   mark-staging-success:
