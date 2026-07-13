@@ -96,15 +96,18 @@ transition matrix here (3a owns it).
 - **close** `[covered]` — `CloseDueDrawsCommandHandler`: past-cutoff OPEN → `CLOSED`.
   `DrawLifecycleCloseSpringIntegrationTest` (green): dryRun no-op, directional
   OPEN↓/CLOSED↑, idempotent replay. "Sell after close refused" still to add.
-- **apply** `[remaining]` — `FetchExternalResultsWindowCommandHandler` →
-  `ApplyExternalResultsWindowCommandHandler` → `ConfirmDrawResultCommandHandler`:
-  CLOSED + results → `RESULTED`; **idempotent replay = one result, one settlement
-  basis**, stats persisted.
-- **settle** `[unit-covered, IT remaining]` — `Draw.settle()` precondition proven
-  at unit level by `DrawTest` (legal only from RESULTED; CLOSED→SETTLED and
-  double-settle rejected). `SettleDrawCommandHandler` also requires a **CONFIRMED**
-  `draw_result`. Full IT (RESULTED+CONFIRMED → SETTLED, no double-settle, event
-  published) remains — it needs the multi-module result-apply orchestration below.
+- **apply** `[covered]` — `RecordManualDrawResultCommandHandler` (writes the
+  draw_result) → `ApplyExternalResultsWindowCommandHandler` attaches it and moves
+  `CLOSED → RESULTED`. Covered by `DrawResultOverrideSettleSpringIntegrationTest`.
+  Recipe note: `RecordDrawTicketsResult` is NOT the transition step — it requires a
+  result already attached ("Draw has no result attached"); the window-apply is what
+  transitions the draw. Idempotent-replay assertion still worth adding.
+- **settle** `[covered]` — `Draw.settle()` precondition proven at unit level by
+  `DrawTest` (legal only from RESULTED). End-to-end `SettleDrawCommand` (RESULTED
+  + CONFIRMED → SETTLED) covered by `DrawResultOverrideSettleSpringIntegrationTest`.
+  Gotcha found: `SettleDrawCommandHandler` requires the `draw_result` to be
+  **CONFIRMED** — a `force=true` override leaves it `OVERRIDDEN`, which is not
+  settleable until re-confirmed. No-double-settle assertion still worth adding.
 
 > **Reaching RESULTED is a multi-module orchestration**, not a single command:
 > `RecordManualDrawResultCommandHandler` (drawresult) writes a `draw_result`
@@ -195,10 +198,11 @@ Append as found. Format: **[state]** claim — evidence — proposed action.
   resulted, non-settled draw was broken. `CorrectAppliedDrawResultCommandHandler`
   already used the right method. **Fix**: `applyOverrideToDraws` now calls
   `draw.overrideResult(res.id(), now, reason)` (requires RESULTED, replaces in place).
-  Red→green proven at the aggregate level in `DrawTest` (applyResult-on-RESULTED
-  throws vs overrideResult-on-RESULTED succeeds) and core compiles. Note: this handler
-  had **zero existing test coverage** (why the bug hid). Still recommended: an
-  end-to-end override→settlement IT once the multi-module result-apply path is wired.
+  Red→green proven at the aggregate level in `DrawTest` AND **end-to-end** in
+  `DrawResultOverrideSettleSpringIntegrationTest` (generate→open→close→apply→override→
+  settle): RED observed by temporarily reverting the handler (`override` threw
+  `IllegalStateException: RESULTED -> RESULTED` over the real stack), GREEN with the
+  fix. Note: this handler had **zero existing test coverage** (why the bug hid).
 
 ### Architecture-test findings (from reviewing `arch/` + `architecture/`)
 
