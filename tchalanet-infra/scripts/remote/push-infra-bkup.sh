@@ -48,6 +48,18 @@ echo "→ Connecting to tch@$SERVER_HOST with key $SSH_KEY (ENV=$ENV)"
 
 ssh $SSH_OPTS tch@"$SERVER_HOST" "sudo mkdir -p $REMOTE_DIR && sudo chown -R tch:tch $REMOTE_DIR"
 
+FIREBASE_ADMIN_SRC="../tchalanet-server/tchalanet-39115-firebase-adminsdk-fbsvc-62e904a236.json"
+FIREBASE_ADMIN_DST="server/secrets/firebase-admin.json"
+if [ -f "$FIREBASE_ADMIN_SRC" ]; then
+  mkdir -p "$(dirname "$FIREBASE_ADMIN_DST")"
+  cp "$FIREBASE_ADMIN_SRC" "$FIREBASE_ADMIN_DST"
+  chmod 600 "$FIREBASE_ADMIN_DST"
+  echo "→ Firebase Admin credentials staged for server sync: $FIREBASE_ADMIN_DST"
+else
+  echo "⚠️  Firebase Admin credentials source not found: $FIREBASE_ADMIN_SRC" >&2
+  echo "   Runtime deploy will require FIREBASE_ADMIN_JSON or FIREBASE_ADMIN_JSON_BASE64 in Doppler." >&2
+fi
+
 rsync -az --delete "${RSYNC_EXCLUDES[@]}" \
   -e "ssh $SSH_OPTS" \
   ./ tch@"$SERVER_HOST":"$REMOTE_DIR/"
