@@ -54,7 +54,7 @@ on:
       run_mobile_build:
         description: 'Build a debug Android APK'
         required: false
-        default: true
+        default: false
         type: boolean
   schedule:
     - cron: '20 7 * * *'
@@ -218,8 +218,6 @@ jobs:
 
       - name: Setup hcloud
         uses: hetznercloud/setup-hcloud@v1
-        with:
-          token: ${{ secrets.HCLOUD_TOKEN }}
 
       - name: Validate infra secrets
         run: |
@@ -274,7 +272,6 @@ jobs:
           host: ${{ steps.resolve-host.outputs.server_host }}
           username: tch
           key: ${{ env.SSH_PRIVATE_KEY_VALUE }}
-          script_stop: true
           envs: DOPPLER_TOKEN
           script: |
             set -euo pipefail
@@ -333,7 +330,6 @@ jobs:
           host: ${{ env.SERVER_HOST }}
           username: tch
           key: ${{ env.SSH_PRIVATE_KEY_VALUE }}
-          script_stop: true
           envs: API_IMAGE_TAG,EDGE_IMAGE_TAG,DOPPLER_TOKEN,GHCR_USERNAME,GHCR_TOKEN,RUNTIME_IDENTITY_PROVIDER,ENABLE_FIREBASE_EMULATOR
           script: |
             set -euo pipefail
@@ -373,6 +369,7 @@ jobs:
       NIGHTLY_SERVER_HOST: ${{ needs.ensure-nightly-infra.outputs.server_host || secrets.SERVER_HOST }}
       TCH_BASE_URL: ${{ secrets.TCH_E2E_BASE_URL || vars.TCH_E2E_BASE_URL || 'https://api.stg.tchalanet.com/api/v1' }}
       TCH_E2E_VERIFY_SSL: ${{ vars.TCH_E2E_VERIFY_SSL || 'true' }}
+      TCH_E2E_HTTP_TIMEOUT: ${{ vars.TCH_E2E_HTTP_TIMEOUT || '120' }}
       TCH_E2E_AUTH_PROVIDER: ${{ github.event_name == 'schedule' && 'firebase-emulator' || inputs.e2e_auth_provider || vars.TCH_E2E_AUTH_PROVIDER || 'firebase-emulator' }}
       TCH_FIREBASE_EMULATOR_HOST: ${{ secrets.TCH_FIREBASE_EMULATOR_HOST || vars.TCH_FIREBASE_EMULATOR_HOST }}
       TCH_FIREBASE_PROJECT_ID: ${{ secrets.TCH_FIREBASE_PROJECT_ID || vars.TCH_FIREBASE_PROJECT_ID || 'demo-tchalanet-local' }}
@@ -432,6 +429,7 @@ jobs:
           {
             printf 'TCH_BASE_URL=%s\n' "$TCH_BASE_URL"
             printf 'TCH_E2E_VERIFY_SSL=%s\n' "$TCH_E2E_VERIFY_SSL"
+            printf 'TCH_E2E_HTTP_TIMEOUT=%s\n' "$TCH_E2E_HTTP_TIMEOUT"
             printf 'TCH_E2E_AUTH_PROVIDER=%s\n' "$TCH_E2E_AUTH_PROVIDER"
             printf 'TCH_FIREBASE_EMULATOR_HOST=%s\n' "$TCH_FIREBASE_EMULATOR_HOST"
             printf 'TCH_FIREBASE_PROJECT_ID=%s\n' "$TCH_FIREBASE_PROJECT_ID"
@@ -471,6 +469,7 @@ jobs:
       NIGHTLY_SERVER_HOST: ${{ needs.ensure-nightly-infra.outputs.server_host || secrets.SERVER_HOST }}
       TCH_BASE_URL: ${{ secrets.TCH_E2E_BASE_URL || vars.TCH_E2E_BASE_URL || 'https://api.stg.tchalanet.com/api/v1' }}
       TCH_E2E_VERIFY_SSL: ${{ vars.TCH_E2E_VERIFY_SSL || 'true' }}
+      TCH_E2E_HTTP_TIMEOUT: ${{ vars.TCH_E2E_HTTP_TIMEOUT || '120' }}
       TCH_E2E_AUTH_PROVIDER: ${{ inputs.e2e_auth_provider || 'firebase-emulator' }}
       TCH_FIREBASE_EMULATOR_HOST: ${{ secrets.TCH_FIREBASE_EMULATOR_HOST || vars.TCH_FIREBASE_EMULATOR_HOST }}
       TCH_FIREBASE_PROJECT_ID: ${{ secrets.TCH_FIREBASE_PROJECT_ID || vars.TCH_FIREBASE_PROJECT_ID || 'demo-tchalanet-local' }}
@@ -500,6 +499,7 @@ jobs:
           {
             printf 'TCH_BASE_URL=%s\n' "$TCH_BASE_URL"
             printf 'TCH_E2E_VERIFY_SSL=%s\n' "$TCH_E2E_VERIFY_SSL"
+            printf 'TCH_E2E_HTTP_TIMEOUT=%s\n' "$TCH_E2E_HTTP_TIMEOUT"
             printf 'TCH_E2E_AUTH_PROVIDER=%s\n' "$TCH_E2E_AUTH_PROVIDER"
             printf 'TCH_FIREBASE_EMULATOR_HOST=%s\n' "$TCH_FIREBASE_EMULATOR_HOST"
             printf 'TCH_FIREBASE_PROJECT_ID=%s\n' "$TCH_FIREBASE_PROJECT_ID"
@@ -590,5 +590,8 @@ jobs:
         run: flutter test
 
       - name: Build debug APK
-        if: github.event_name == 'schedule' || inputs.run_mobile_build == true
-        run: flutter build apk --debug
+        if: github.event_name == 'workflow_dispatch' && inputs.run_mobile_build == true
+        run: |
+          flutter clean
+          flutter pub get
+          flutter build apk --debug

@@ -20,13 +20,26 @@ def _resolve_verify() -> bool | str:
     return raw
 
 
+def _resolve_timeout() -> float:
+    raw = os.environ.get("TCH_E2E_HTTP_TIMEOUT", "").strip()
+    if not raw:
+        return 30.0
+    try:
+        timeout = float(raw)
+    except ValueError as exc:
+        raise ValueError("TCH_E2E_HTTP_TIMEOUT must be a number of seconds") from exc
+    if timeout <= 0:
+        raise ValueError("TCH_E2E_HTTP_TIMEOUT must be greater than zero")
+    return timeout
+
+
 @dataclass
 class ApiClient:
     """Thin wrapper around httpx.Client preserving JWT + X-Tch-* headers."""
 
     base_url: str
     token: str
-    timeout: float = 30.0
+    timeout: float = field(default_factory=_resolve_timeout)
     extra_headers: dict[str, str] = field(default_factory=dict)
     _client: httpx.Client = field(init=False, repr=False)
 
