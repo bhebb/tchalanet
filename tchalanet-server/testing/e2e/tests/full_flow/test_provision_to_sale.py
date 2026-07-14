@@ -27,7 +27,7 @@ from tch_e2e.client import ApiClient
 
 pytestmark = [pytest.mark.L2, pytest.mark.full_flow]
 
-_FIREBASE_PROVIDERS = {"firebase-emulator", "firebase"}
+_FIREBASE_PROVIDERS = {"firebase-emulator"}
 
 
 def _rid() -> dict:
@@ -48,7 +48,8 @@ def fb_auth() -> FirebaseEmulatorAuth:
     if provider not in _FIREBASE_PROVIDERS:
         pytest.skip(
             "Full provision→sell flow needs identity provisioning — set "
-            "TCH_E2E_AUTH_PROVIDER=firebase-emulator (API + emulator on firebase-emulator)."
+            "TCH_E2E_AUTH_PROVIDER=firebase-emulator (API + emulator on firebase-emulator). "
+            "Real Firebase cannot mint arbitrary dynamic identities from the E2E harness."
         )
     return FirebaseEmulatorAuth.from_env()
 
