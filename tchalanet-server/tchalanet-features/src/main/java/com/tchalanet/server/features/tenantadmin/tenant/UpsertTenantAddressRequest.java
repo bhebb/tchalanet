@@ -9,5 +9,4 @@ public record UpsertTenantAddressRequest(
     @NotBlank @Size(max = 100) String city,
     @Size(max = 100) String region,
     @NotBlank @Size(max = 2) String country,
-    @Size(max = 20) String postalCode
-) {}
+    @Size(max = 20) String postalCode) {}

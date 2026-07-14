@@ -7,8 +7,8 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.sales.api.model.money.TicketCharge;
 import com.tchalanet.server.core.sales.api.model.money.TicketChargeType;
 import com.tchalanet.server.core.sales.api.model.origin.TicketSaleChannel;
-import com.tchalanet.server.core.sales.api.model.print.TicketPrintCharge;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintBranding;
+import com.tchalanet.server.core.sales.api.model.print.TicketPrintCharge;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintDraw;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintIdentity;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintLifecycle;
@@ -20,8 +20,8 @@ import com.tchalanet.server.core.sales.api.model.print.TicketPrintSellerContext;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintState;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintStateStatus;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintView;
-import com.tchalanet.server.core.sales.api.model.status.TicketPrintStatus;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptI18nKeys;
+import com.tchalanet.server.core.sales.api.model.status.TicketPrintStatus;
 import com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketVerificationUrlBuilder;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.Ticket;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
@@ -36,157 +36,150 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class TicketPrintViewMapper {
 
-    private static final String DEFAULT_LOCALE = "fr";
-    private static final String DEFAULT_TIMEZONE = "America/Port-au-Prince";
-    private static final String DEFAULT_QR_PAYLOAD_VERSION = "v1";
+  private static final String DEFAULT_LOCALE = "fr";
+  private static final String DEFAULT_TIMEZONE = "America/Port-au-Prince";
+  private static final String DEFAULT_QR_PAYLOAD_VERSION = "v1";
 
-    private final TicketVerificationUrlBuilder verificationUrlBuilder;
+  private final TicketVerificationUrlBuilder verificationUrlBuilder;
 
-    public TicketPrintView toPrintView(TicketPrintHeaderViewEntity header, Ticket ticket) {
-        var verificationUrl = verificationUrlBuilder.buildUrl(header.getPublicCode());
-        var drawLabel = resolveDrawChannelName(header);
-        var locale = parseLocale(header.getLocale());
-        var timezone = parseTimezone(header.getTimezone());
+  public TicketPrintView toPrintView(TicketPrintHeaderViewEntity header, Ticket ticket) {
+    var verificationUrl = verificationUrlBuilder.buildUrl(header.getPublicCode());
+    var drawLabel = resolveDrawChannelName(header);
+    var locale = parseLocale(header.getLocale());
+    var timezone = parseTimezone(header.getTimezone());
 
-        return new TicketPrintView(
-            new TicketPrintIdentity(
-                ticket.identity().id(),
-                TenantId.of(header.getTenantId()),
-                header.getTicketCode(),
-                header.getPublicCode(),
-                header.getVerificationCode()
-            ),
-            new TicketPrintLifecycle(
-                header.getSaleStatus(),
-                header.getResultStatus(),
-                header.getSettlementStatus()
-            ),
-            new TicketPrintState(
-                toPrintStateStatus(header.getPrintStatus()),
-                header.getPrintCount(),
-                header.getFirstPrintedAt(),
-                header.getLastPrintedAt()
-            ),
-            new TicketPrintDraw(
-                DrawId.of(header.getDrawId()),
-                DrawChannelId.of(header.getDrawChannelId()),
-                header.getDrawChannelCode(),
-                header.getResultSlotKey(),
-                header.getResultProvider(),
-                header.getResultTimezone(),
-                null,
-                drawLabel,
-                header.getDrawDate(),
-                header.getScheduledAt(),
-                header.getCutoffAt()
-            ),
-            new TicketPrintSellerContext(
-                SellerTerminalId.nullableOf(header.getSellerTerminalId()),
-                header.getSellerTerminalCode(),
-                header.getSellerTerminalLabel(),
-                header.getSellerDisplayName()
-            ),
-            new TicketPrintBranding(
-                header.getTenantDisplayName(),
-                header.getTenantReceiptHeader(),
-                header.getTenantReceiptFooter()
-            ),
-            ticket.lines().stream()
-                .sorted(java.util.Comparator.comparingInt(
-                    com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine::lineNumber))
-                .map(this::toPrintLine).toList(),
-            new TicketPrintMoney(
-                ticket.money().stakeAmount(),
-                ticket.money().breakdown().charges().stream().map(this::toPrintCharge).toList(),
-                ticket.money().breakdown().totalBuyerCharges(),
-                ticket.money().totalAmount()
-            ),
-            new TicketPrintQrPayload(
-                DEFAULT_QR_PAYLOAD_VERSION,
-                header.getPublicCode(),
-                header.getVerificationCode(),
-                verificationUrl,
-                // TODO: replace with cryptographically signed payload when QR signing is introduced.
-                verificationUrl
-            ),
-            new TicketPrintMetadata(
-                header.getPlacedAt(),
-                locale,
-                timezone,
-                header.getSaleOrigin() == null ? TicketSaleChannel.POS_ONLINE : header.getSaleOrigin(),
-                header.getCurrency(),
-                Map.of()
-            )
-        );
+    return new TicketPrintView(
+        new TicketPrintIdentity(
+            ticket.identity().id(),
+            TenantId.of(header.getTenantId()),
+            header.getTicketCode(),
+            header.getPublicCode(),
+            header.getVerificationCode()),
+        new TicketPrintLifecycle(
+            header.getSaleStatus(), header.getResultStatus(), header.getSettlementStatus()),
+        new TicketPrintState(
+            toPrintStateStatus(header.getPrintStatus()),
+            header.getPrintCount(),
+            header.getFirstPrintedAt(),
+            header.getLastPrintedAt()),
+        new TicketPrintDraw(
+            DrawId.of(header.getDrawId()),
+            DrawChannelId.of(header.getDrawChannelId()),
+            header.getDrawChannelCode(),
+            header.getResultSlotKey(),
+            header.getResultProvider(),
+            header.getResultTimezone(),
+            null,
+            drawLabel,
+            header.getDrawDate(),
+            header.getScheduledAt(),
+            header.getCutoffAt()),
+        new TicketPrintSellerContext(
+            SellerTerminalId.nullableOf(header.getSellerTerminalId()),
+            header.getSellerTerminalCode(),
+            header.getSellerTerminalLabel(),
+            header.getSellerDisplayName()),
+        new TicketPrintBranding(
+            header.getTenantDisplayName(),
+            header.getTenantReceiptHeader(),
+            header.getTenantReceiptFooter()),
+        ticket.lines().stream()
+            .sorted(
+                java.util.Comparator.comparingInt(
+                    com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine
+                        ::lineNumber))
+            .map(this::toPrintLine)
+            .toList(),
+        new TicketPrintMoney(
+            ticket.money().stakeAmount(),
+            ticket.money().breakdown().charges().stream().map(this::toPrintCharge).toList(),
+            ticket.money().breakdown().totalBuyerCharges(),
+            ticket.money().totalAmount()),
+        new TicketPrintQrPayload(
+            DEFAULT_QR_PAYLOAD_VERSION,
+            header.getPublicCode(),
+            header.getVerificationCode(),
+            verificationUrl,
+            // TODO: replace with cryptographically signed payload when QR signing is introduced.
+            verificationUrl),
+        new TicketPrintMetadata(
+            header.getPlacedAt(),
+            locale,
+            timezone,
+            header.getSaleOrigin() == null ? TicketSaleChannel.POS_ONLINE : header.getSaleOrigin(),
+            header.getCurrency(),
+            Map.of()));
+  }
+
+  private TicketPrintLine toPrintLine(TicketLine line) {
+    return new TicketPrintLine(
+        line.lineNumber(),
+        line.gameCode(),
+        line.betType(),
+        line.betOption(),
+        line.betOptionLabelSnapshot(),
+        line.gameCode() == null ? null : line.gameCode().name(),
+        line.selection() == null ? null : line.selection().displayLabel(),
+        line.selection() == null ? null : line.selection().key().value(),
+        line.stakeAmount(),
+        line.selectionPolicySnapshot(),
+        line.origin(),
+        line.pricingSource(),
+        line.selectionSource(),
+        line.promotionDecisionId(),
+        line.promotionLabel(),
+        line.promotionEffectType());
+  }
+
+  private TicketPrintCharge toPrintCharge(TicketCharge charge) {
+    return new TicketPrintCharge(
+        charge.type(),
+        charge.paidBy(),
+        chargeLabel(charge.type()),
+        charge.amount(),
+        charge.waivedByDecisionId(),
+        charge.waivedByRuleId(),
+        charge.waivedEffectType(),
+        charge.waivedLabel());
+  }
+
+  private String resolveDrawChannelName(TicketPrintHeaderViewEntity header) {
+    return header.getDrawChannelDisplayName() == null
+        ? header.getDrawChannelName()
+        : header.getDrawChannelDisplayName();
+  }
+
+  private Locale parseLocale(String locale) {
+    return locale == null || locale.isBlank()
+        ? Locale.forLanguageTag(DEFAULT_LOCALE)
+        : Locale.forLanguageTag(locale);
+  }
+
+  private ZoneId parseTimezone(String timezone) {
+    return timezone == null || timezone.isBlank()
+        ? ZoneId.of(DEFAULT_TIMEZONE)
+        : ZoneId.of(timezone);
+  }
+
+  private String chargeLabel(TicketChargeType type) {
+    if (type == null) {
+      return null;
     }
+    return switch (type) {
+      case BUYER_SMS -> TicketReceiptI18nKeys.CHARGE_SMS;
+      case BUYER_WHATSAPP -> TicketReceiptI18nKeys.CHARGE_WHATSAPP;
+      case BUYER_EMAIL, EMAIL_NOTIFICATION -> TicketReceiptI18nKeys.CHARGE_EMAIL;
+    };
+  }
 
-    private TicketPrintLine toPrintLine(TicketLine line) {
-        return new TicketPrintLine(
-            line.lineNumber(),
-            line.gameCode(),
-            line.betType(),
-            line.betOption(),
-            line.betOptionLabelSnapshot(),
-            line.gameCode() == null ? null : line.gameCode().name(),
-            line.selection() == null ? null : line.selection().displayLabel(),
-            line.selection() == null ? null : line.selection().key().value(),
-            line.stakeAmount(),
-            line.selectionPolicySnapshot(),
-            line.origin(),
-            line.pricingSource(),
-            line.selectionSource(),
-            line.promotionDecisionId(),
-            line.promotionLabel(),
-            line.promotionEffectType()
-        );
+  private TicketPrintStateStatus toPrintStateStatus(TicketPrintStatus status) {
+    if (status == null) {
+      return TicketPrintStateStatus.NOT_PRINTED;
     }
-
-    private TicketPrintCharge toPrintCharge(TicketCharge charge) {
-        return new TicketPrintCharge(
-            charge.type(),
-            charge.paidBy(),
-            chargeLabel(charge.type()),
-            charge.amount(),
-            charge.waivedByDecisionId(),
-            charge.waivedByRuleId(),
-            charge.waivedEffectType(),
-            charge.waivedLabel()
-        );
-    }
-
-    private String resolveDrawChannelName(TicketPrintHeaderViewEntity header) {
-        return header.getDrawChannelDisplayName() == null
-            ? header.getDrawChannelName()
-            : header.getDrawChannelDisplayName();
-    }
-
-    private Locale parseLocale(String locale) {
-        return locale == null || locale.isBlank() ? Locale.forLanguageTag(DEFAULT_LOCALE) : Locale.forLanguageTag(locale);
-    }
-
-    private ZoneId parseTimezone(String timezone) {
-        return timezone == null || timezone.isBlank() ? ZoneId.of(DEFAULT_TIMEZONE) : ZoneId.of(timezone);
-    }
-
-    private String chargeLabel(TicketChargeType type) {
-        if (type == null) {
-            return null;
-        }
-        return switch (type) {
-            case BUYER_SMS -> TicketReceiptI18nKeys.CHARGE_SMS;
-            case BUYER_WHATSAPP -> TicketReceiptI18nKeys.CHARGE_WHATSAPP;
-            case BUYER_EMAIL, EMAIL_NOTIFICATION -> TicketReceiptI18nKeys.CHARGE_EMAIL;
-        };
-    }
-
-    private TicketPrintStateStatus toPrintStateStatus(TicketPrintStatus status) {
-        if (status == null) {
-            return TicketPrintStateStatus.NOT_PRINTED;
-        }
-        return switch (status) {
-            case NOT_PRINTED -> TicketPrintStateStatus.NOT_PRINTED;
-            case PRINTED -> TicketPrintStateStatus.PRINTED;
-            case REPRINTED -> TicketPrintStateStatus.REPRINTED;
-        };
-    }
+    return switch (status) {
+      case NOT_PRINTED -> TicketPrintStateStatus.NOT_PRINTED;
+      case PRINTED -> TicketPrintStateStatus.PRINTED;
+      case REPRINTED -> TicketPrintStateStatus.REPRINTED;
+    };
+  }
 }

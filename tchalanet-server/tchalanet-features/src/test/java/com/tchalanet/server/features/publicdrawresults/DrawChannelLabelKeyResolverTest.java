@@ -76,4 +76,3 @@ class DrawChannelLabelKeyResolverTest {
         .isEqualTo("draw_channel.ca.daily_draw.label");
   }
 }
-

@@ -52,22 +52,44 @@ public class RoleCatalogService {
     entity.setDescription(request.description());
     entity.setTenantId(request.tenantId() == null ? null : request.tenantId().value());
     UUID roleUuid = appRoleRepository.save(entity).getId();
-    return appRoleRepository.findById(roleUuid).map(this::toRoleView)
-        .orElseGet(() -> new RoleView(RoleId.of(roleUuid), request.code(), request.name(),
-            request.description(), request.tenantId(), null, request.system()));
+    return appRoleRepository
+        .findById(roleUuid)
+        .map(this::toRoleView)
+        .orElseGet(
+            () ->
+                new RoleView(
+                    RoleId.of(roleUuid),
+                    request.code(),
+                    request.name(),
+                    request.description(),
+                    request.tenantId(),
+                    null,
+                    request.system()));
   }
 
   public RoleView updateRole(UpdateRoleRequest request) {
-    var entity = appRoleRepository.findById(request.id().value())
-        .orElseThrow(() -> new IllegalArgumentException("Role not found: " + request.id()));
+    var entity =
+        appRoleRepository
+            .findById(request.id().value())
+            .orElseThrow(() -> new IllegalArgumentException("Role not found: " + request.id()));
     entity.setCode(request.code());
     entity.setName(request.name());
     entity.setDescription(request.description());
     entity.setTenantId(request.tenantId() == null ? null : request.tenantId().value());
     UUID roleUuid = appRoleRepository.save(entity).getId();
-    return appRoleRepository.findById(roleUuid).map(this::toRoleView)
-        .orElseGet(() -> new RoleView(RoleId.of(roleUuid), request.code(), request.name(),
-            request.description(), request.tenantId(), null, request.system()));
+    return appRoleRepository
+        .findById(roleUuid)
+        .map(this::toRoleView)
+        .orElseGet(
+            () ->
+                new RoleView(
+                    RoleId.of(roleUuid),
+                    request.code(),
+                    request.name(),
+                    request.description(),
+                    request.tenantId(),
+                    null,
+                    request.system()));
   }
 
   public void grantPermission(GrantPermissionToRoleRequest request) {

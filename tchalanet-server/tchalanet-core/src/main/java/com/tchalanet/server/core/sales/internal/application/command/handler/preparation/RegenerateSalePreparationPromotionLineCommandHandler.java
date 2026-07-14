@@ -21,8 +21,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Regenerate guards: DRAFT non expirée, ligne PROMOTION régénérable,
- * compteur < max. Remplace la sélection (pas d'historique de lignes).
+ * Regenerate guards: DRAFT non expirée, ligne PROMOTION régénérable, compteur < max. Remplace la
+ * sélection (pas d'historique de lignes).
  */
 @UseCase
 @RequiredArgsConstructor
@@ -30,60 +30,68 @@ import lombok.extern.slf4j.Slf4j;
 public class RegenerateSalePreparationPromotionLineCommandHandler
     implements CommandHandler<RegenerateSalePreparationPromotionLineCommand, SalePreparationView> {
 
-    private final SalePreparationStorePort store;
-    private final SelectionGenerationService selectionGenerationService;
-    private final SalePreparationViewAssembler assembler;
-    private final TchTimeProvider timeProvider;
+  private final SalePreparationStorePort store;
+  private final SelectionGenerationService selectionGenerationService;
+  private final SalePreparationViewAssembler assembler;
+  private final TchTimeProvider timeProvider;
 
-    @Override
-    @TchTx
-    public SalePreparationView handle(RegenerateSalePreparationPromotionLineCommand cmd) {
-        var preparation = store.findById(cmd.preparationId())
+  @Override
+  @TchTx
+  public SalePreparationView handle(RegenerateSalePreparationPromotionLineCommand cmd) {
+    var preparation =
+        store
+            .findById(cmd.preparationId())
             .orElseThrow(() -> ProblemRest.notFound("sales.preparation.not_found"));
 
-        requireDraftNotExpired(preparation);
+    requireDraftNotExpired(preparation);
 
-        var line = preparation.line(cmd.lineRef())
+    var line =
+        preparation
+            .line(cmd.lineRef())
             .orElseThrow(() -> ProblemRest.notFound("sales.preparation.promotion_line_not_found"));
 
-        if (!line.regenerable()) {
-            throw ProblemRest.conflict("sales.preparation.line_not_regenerable");
-        }
-        if (line.regenerationCount() >= line.maxRegenerations()) {
-            throw ProblemRest.conflict("sales.preparation.max_regenerations_reached");
-        }
+    if (!line.regenerable()) {
+      throw ProblemRest.conflict("sales.preparation.line_not_regenerable");
+    }
+    if (line.regenerationCount() >= line.maxRegenerations()) {
+      throw ProblemRest.conflict("sales.preparation.max_regenerations_reached");
+    }
 
-        var selection = selectionGenerationService.generate(
+    var selection =
+        selectionGenerationService.generate(
             GameCode.valueOf(line.gameCode()),
             BetType.valueOf(line.betType()),
             line.betOption(),
             SelectionGenerationStrategy.RANDOM,
             SelectionGenerationPurpose.PROMOTION_FREE_LINE);
 
-        store.updateLineSelection(
-            preparation.id(), line.lineRef(), selection.key().value(), line.regenerationCount() + 1);
+    store.updateLineSelection(
+        preparation.id(), line.lineRef(), selection.key().value(), line.regenerationCount() + 1);
 
-        var ctx = TchContext.currentOrNull();
-        log.info("sales: promotion line regenerated preparation={} lineRef={} count={} actor={}",
-            preparation.id(), line.lineRef(), line.regenerationCount() + 1,
-            ctx == null ? null : ctx.userId());
+    var ctx = TchContext.currentOrNull();
+    log.info(
+        "sales: promotion line regenerated preparation={} lineRef={} count={} actor={}",
+        preparation.id(),
+        line.lineRef(),
+        line.regenerationCount() + 1,
+        ctx == null ? null : ctx.userId());
 
-        var reloaded = store.findById(preparation.id()).orElseThrow();
-        return assembler.toView(reloaded);
+    var reloaded = store.findById(preparation.id()).orElseThrow();
+    return assembler.toView(reloaded);
+  }
+
+  private void requireDraftNotExpired(SalePreparation preparation) {
+    if (preparation.isExpired(timeProvider.now())) {
+      store.updateStatus(preparation.id(), SalePreparationStatus.EXPIRED);
+      throw ProblemRest.conflict("sales.preparation.expired");
     }
-
-    private void requireDraftNotExpired(SalePreparation preparation) {
-        if (preparation.isExpired(timeProvider.now())) {
-            store.updateStatus(preparation.id(), SalePreparationStatus.EXPIRED);
-            throw ProblemRest.conflict("sales.preparation.expired");
-        }
-        if (preparation.status() != SalePreparationStatus.DRAFT) {
-            throw switch (preparation.status()) {
-                case CONFIRMED -> ProblemRest.conflict("sales.preparation.already_confirmed");
-                case EXPIRED -> ProblemRest.conflict("sales.preparation.expired");
-                case CANCELLED -> ProblemRest.conflict("sales.preparation.cancelled");
-                case DRAFT -> new IllegalStateException("unreachable");
-            };
-        }
+    if (preparation.status() != SalePreparationStatus.DRAFT) {
+      throw switch (preparation.status()) {
+        case CONFIRMED -> ProblemRest.conflict("sales.preparation.already_confirmed");
+        case EXPIRED -> ProblemRest.conflict("sales.preparation.expired");
+        case CANCELLED -> ProblemRest.conflict("sales.preparation.cancelled");
+        case DRAFT -> new IllegalStateException("unreachable");
+      };
     }
+  }
 }

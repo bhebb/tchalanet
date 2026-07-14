@@ -11,35 +11,25 @@ public record ExternalResultFetchBundle(
     LocalTime drawTime,
     ZoneId timezone,
     List<ExternalResultItem> results,
-    Object rawPayload
-) {
+    Object rawPayload) {
 
-    public static ExternalResultFetchBundle empty(
-        String provider,
-        ExternalResultFetchQuery query
-    ) {
-        return new ExternalResultFetchBundle(
-            provider,
-            query.drawDate(),
-            query.drawTime(),
-            query.timezone(),
-            List.of(),
-            null
-        );
+  public static ExternalResultFetchBundle empty(String provider, ExternalResultFetchQuery query) {
+    return new ExternalResultFetchBundle(
+        provider, query.drawDate(), query.drawTime(), query.timezone(), List.of(), null);
+  }
+
+  public boolean hasAnyResult() {
+    return results != null && results.stream().anyMatch(ExternalResultItem::found);
+  }
+
+  public ExternalResultItem findByGameCode(String gameCode) {
+    if (gameCode == null || gameCode.isBlank() || results == null) {
+      return null;
     }
 
-    public boolean hasAnyResult() {
-        return results != null && results.stream().anyMatch(ExternalResultItem::found);
-    }
-
-    public ExternalResultItem findByGameCode(String gameCode) {
-        if (gameCode == null || gameCode.isBlank() || results == null) {
-            return null;
-        }
-
-        return results.stream()
-            .filter(r -> gameCode.equalsIgnoreCase(r.gameCode()))
-            .findFirst()
-            .orElse(null);
-    }
+    return results.stream()
+        .filter(r -> gameCode.equalsIgnoreCase(r.gameCode()))
+        .findFirst()
+        .orElse(null);
+  }
 }

@@ -23,12 +23,13 @@ class PortalHandoffAudit {
     if (subjectUserId != null) details.put("subjectUserId", subjectUserId);
     if (targetPortal != null) details.put("targetPortal", targetPortal.name());
     try {
-      auditApi.logAuditEvent(new LogAuditEventRequest(
-          AuditEntityType.SYSTEM,
-          handoffId == null ? "unknown" : handoffId.toString(),
-          AuditAction.OTHER,
-          Map.copyOf(details),
-          null));
+      auditApi.logAuditEvent(
+          new LogAuditEventRequest(
+              AuditEntityType.SYSTEM,
+              handoffId == null ? "unknown" : handoffId.toString(),
+              AuditAction.OTHER,
+              Map.copyOf(details),
+              null));
     } catch (Exception ex) {
       log.warn("portal handoff audit failed event={} handoffId={}", event, handoffId, ex);
     }

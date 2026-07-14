@@ -12,10 +12,7 @@ import java.util.List;
  * @param <R> the per-tenant command result type
  */
 public record TenantBatchResponse<R>(
-    int tenantsRequested,
-    int tenantsSucceeded,
-    int tenantsFailed,
-    List<Outcome<R>> tenants) {
+    int tenantsRequested, int tenantsSucceeded, int tenantsFailed, List<Outcome<R>> tenants) {
 
   public record Outcome<R>(String tenantId, boolean ok, R result, String error) {}
 }

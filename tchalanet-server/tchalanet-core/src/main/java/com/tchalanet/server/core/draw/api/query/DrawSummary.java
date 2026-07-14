@@ -17,20 +17,16 @@ public record DrawSummary(
     Instant cutoffAt,
     Instant resultedAt,
     Instant settledAt,
-
     DrawChannelId drawChannelId,
     String drawChannelCode,
     String drawChannelLabel,
     LocalTime drawTime,
     String drawTimezone,
     boolean drawChannelActive,
-
     ResultSlotId resultSlotId,
     String resultSlotKey,
     String resultProvider,
     String resultTimezone,
     LocalTime resultDrawTime,
     boolean resultActive,
-
-    DrawResultSummary result
-) {}
+    DrawResultSummary result) {}

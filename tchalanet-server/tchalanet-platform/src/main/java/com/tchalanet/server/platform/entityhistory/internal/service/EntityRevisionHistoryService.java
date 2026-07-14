@@ -22,27 +22,28 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 public class EntityRevisionHistoryService {
 
-  private static final List<ExposedEntity> EXPOSED_ENTITIES = List.of(
-      new ExposedEntity(
-          TechnicalRevisionEntityType.SELLER_TERMINAL,
-          "seller_terminal_aud",
-          "",
-          "lower(aud.terminal_code) = lower(:query)",
-          List.of(
-              new ExposedField("terminal_code", "terminal_code_mod", "terminalCode"),
-              new ExposedField("status", "status_mod", "status"),
-              new ExposedField("commission_rate", "commission_rate_mod", "commissionRate"),
-              new ExposedField("blocked_at", "blocked_at_mod", "blockedAt"),
-              new ExposedField("blocked_by", "blocked_by_mod", "blockedBy"),
-              new ExposedField("blocked_reason", "blocked_reason_mod", "blockedReason"),
-              new ExposedField("disabled_at", "disabled_at_mod", "disabledAt"),
-              new ExposedField("must_change_pin", "must_change_pin_mod", "mustChangePin"),
-              new ExposedField("pin_reset_at", "pin_reset_at_mod", "pinResetAt"))),
-      new ExposedEntity(
-          TechnicalRevisionEntityType.DRAW_RESULT,
-          "draw_result_aud",
-          "JOIN result_slot rs ON rs.id = aud.result_slot_id",
-          """
+  private static final List<ExposedEntity> EXPOSED_ENTITIES =
+      List.of(
+          new ExposedEntity(
+              TechnicalRevisionEntityType.SELLER_TERMINAL,
+              "seller_terminal_aud",
+              "",
+              "lower(aud.terminal_code) = lower(:query)",
+              List.of(
+                  new ExposedField("terminal_code", "terminal_code_mod", "terminalCode"),
+                  new ExposedField("status", "status_mod", "status"),
+                  new ExposedField("commission_rate", "commission_rate_mod", "commissionRate"),
+                  new ExposedField("blocked_at", "blocked_at_mod", "blockedAt"),
+                  new ExposedField("blocked_by", "blocked_by_mod", "blockedBy"),
+                  new ExposedField("blocked_reason", "blocked_reason_mod", "blockedReason"),
+                  new ExposedField("disabled_at", "disabled_at_mod", "disabledAt"),
+                  new ExposedField("must_change_pin", "must_change_pin_mod", "mustChangePin"),
+                  new ExposedField("pin_reset_at", "pin_reset_at_mod", "pinResetAt"))),
+          new ExposedEntity(
+              TechnicalRevisionEntityType.DRAW_RESULT,
+              "draw_result_aud",
+              "JOIN result_slot rs ON rs.id = aud.result_slot_id",
+              """
           aud.source_hash = :query
           OR aud.result_date::text = :query
           OR lower(rs.slot_key) = lower(:query)
@@ -53,51 +54,51 @@ public class EntityRevisionHistoryService {
             AND aud.result_date = :drawResultDate
           )
           """,
-          List.of(
-              new ExposedField("result_slot_id", null, "resultSlotId"),
-              new ExposedField("result_date", null, "resultDate"),
-              new ExposedField("occurred_at", null, "occurredAt"),
-              new ExposedField("status", null, "status"),
-              new ExposedField("quality", null, "quality"),
-              new ExposedField("source", null, "source"),
-              new ExposedField("source_hash", null, "sourceHash"),
-              new ExposedField("override_reason", null, "overrideReason"))),
-      new ExposedEntity(
-          TechnicalRevisionEntityType.LIMIT_ASSIGNMENT,
-          "limit_assignment_aud",
-          "",
-          "lower(aud.rule_key) = lower(:query) OR aud.scope_id::text = :query",
-          List.of(
-              new ExposedField("rule_key", null, "ruleKey"),
-              new ExposedField("scope_type", null, "scopeType"),
-              new ExposedField("scope_id", null, "scopeId"),
-              new ExposedField("enabled", null, "enabled"),
-              new ExposedField("on_breach", null, "onBreach"),
-              new ExposedField("starts_at", null, "startsAt"),
-              new ExposedField("ends_at", null, "endsAt"))));
+              List.of(
+                  new ExposedField("result_slot_id", null, "resultSlotId"),
+                  new ExposedField("result_date", null, "resultDate"),
+                  new ExposedField("occurred_at", null, "occurredAt"),
+                  new ExposedField("status", null, "status"),
+                  new ExposedField("quality", null, "quality"),
+                  new ExposedField("source", null, "source"),
+                  new ExposedField("source_hash", null, "sourceHash"),
+                  new ExposedField("override_reason", null, "overrideReason"))),
+          new ExposedEntity(
+              TechnicalRevisionEntityType.LIMIT_ASSIGNMENT,
+              "limit_assignment_aud",
+              "",
+              "lower(aud.rule_key) = lower(:query) OR aud.scope_id::text = :query",
+              List.of(
+                  new ExposedField("rule_key", null, "ruleKey"),
+                  new ExposedField("scope_type", null, "scopeType"),
+                  new ExposedField("scope_id", null, "scopeId"),
+                  new ExposedField("enabled", null, "enabled"),
+                  new ExposedField("on_breach", null, "onBreach"),
+                  new ExposedField("starts_at", null, "startsAt"),
+                  new ExposedField("ends_at", null, "endsAt"))));
 
   private final NamedParameterJdbcTemplate jdbc;
 
   public TchPage<EntityRevisionItem> listRevisions(
-      TechnicalRevisionEntityType entityType,
-      String query,
-      Pageable pageable) {
+      TechnicalRevisionEntityType entityType, String query, Pageable pageable) {
     var exposed = resolveEntity(entityType);
     var normalizedQuery = normalizeQuery(query);
     var entityId = parseUuid(normalizedQuery);
     var drawSearch = parseDrawSearch(normalizedQuery);
-    var params = new MapSqlParameterSource()
-        .addValue("entityId", entityId)
-        .addValue("query", normalizedQuery)
-        .addValue("drawSlotKey", drawSearch.slotKey(), Types.VARCHAR)
-        .addValue("drawResultDate", drawSearch.resultDate(), Types.DATE)
-        .addValue("limit", pageable.getPageSize())
-        .addValue("offset", pageable.getOffset());
+    var params =
+        new MapSqlParameterSource()
+            .addValue("entityId", entityId)
+            .addValue("query", normalizedQuery)
+            .addValue("drawSlotKey", drawSearch.slotKey(), Types.VARCHAR)
+            .addValue("drawResultDate", drawSearch.resultDate(), Types.DATE)
+            .addValue("limit", pageable.getPageSize())
+            .addValue("offset", pageable.getOffset());
     var whereClause = whereClause(exposed, entityId);
 
     var total = count(exposed, whereClause, params);
-    var items = jdbc.query(
-        """
+    var items =
+        jdbc.query(
+            """
         SELECT *
           FROM (
             SELECT aud.*,
@@ -112,13 +113,14 @@ public class EntityRevisionHistoryService {
           ) revisions
          ORDER BY rev DESC
          LIMIT :limit OFFSET :offset
-        """.formatted(
-            revisionValueProjection(exposed),
-            exposed.tableName(),
-            exposed.joinClause(),
-            whereClause),
-        params,
-        (rs, rowNum) -> toItem(exposed, rs));
+        """
+                .formatted(
+                    revisionValueProjection(exposed),
+                    exposed.tableName(),
+                    exposed.joinClause(),
+                    whereClause),
+            params,
+            (rs, rowNum) -> toItem(exposed, rs));
 
     var totalPages = total == 0 ? 1 : (int) Math.ceil((double) total / pageable.getPageSize());
     return TchPage.of(
@@ -140,13 +142,12 @@ public class EntityRevisionHistoryService {
   }
 
   private long count(ExposedEntity exposed, String whereClause, MapSqlParameterSource params) {
-    var total = jdbc.queryForObject(
-        "SELECT count(*) FROM %s aud %s WHERE %s".formatted(
-            exposed.tableName(),
-            exposed.joinClause(),
-            whereClause),
-        params,
-        Long.class);
+    var total =
+        jdbc.queryForObject(
+            "SELECT count(*) FROM %s aud %s WHERE %s"
+                .formatted(exposed.tableName(), exposed.joinClause(), whereClause),
+            params,
+            Long.class);
     return total == null ? 0 : total;
   }
 
@@ -174,10 +175,9 @@ public class EntityRevisionHistoryService {
     for (int i = 0; i < exposed.fields().size(); i++) {
       var field = exposed.fields().get(i);
       if (!isChanged(rs, field, i)) continue;
-      changes.add(new EntityRevisionFieldChange(
-          field.apiName(),
-          readString(rs, beforeAlias(i)),
-          readString(rs, afterAlias(i))));
+      changes.add(
+          new EntityRevisionFieldChange(
+              field.apiName(), readString(rs, beforeAlias(i)), readString(rs, afterAlias(i))));
     }
     return changes;
   }
@@ -246,9 +246,10 @@ public class EntityRevisionHistoryService {
     return EXPOSED_ENTITIES.stream()
         .filter(entity -> entity.entityType() == entityType)
         .findFirst()
-        .orElseThrow(() -> new ResponseStatusException(
-            HttpStatus.BAD_REQUEST,
-            "Unsupported entity history type: " + entityType));
+        .orElseThrow(
+            () ->
+                new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Unsupported entity history type: " + entityType));
   }
 
   private String normalizeQuery(String query) {

@@ -16,34 +16,50 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class ArchiveObjectJdbcRepository {
 
-  private static final RowMapper<ArchiveObjectRowView> ROW_MAPPER = (rs, rowNum) -> new ArchiveObjectRowView(
-      rs.getObject("id", UUID.class),
-      rs.getObject("archive_run_id", UUID.class),
-      rs.getString("table_name"),
-      rs.getObject("tenant_id", UUID.class),
-      rs.getObject("period_start", LocalDate.class),
-      rs.getObject("period_end", LocalDate.class),
-      rs.getTimestamp("lower_bound_at") == null ? null : rs.getTimestamp("lower_bound_at").toInstant(),
-      rs.getTimestamp("upper_bound_at") == null ? null : rs.getTimestamp("upper_bound_at").toInstant(),
-      rs.getInt("segment_no"),
-      rs.getString("object_uri"),
-      rs.getString("format"),
-      rs.getString("compression"),
-      rs.getLong("row_count"),
-      rs.getLong("byte_size"),
-      rs.getString("checksum_sha256"),
-      rs.getInt("schema_version"),
-      rs.getString("status"),
-      rs.getTimestamp("created_at").toInstant());
+  private static final RowMapper<ArchiveObjectRowView> ROW_MAPPER =
+      (rs, rowNum) ->
+          new ArchiveObjectRowView(
+              rs.getObject("id", UUID.class),
+              rs.getObject("archive_run_id", UUID.class),
+              rs.getString("table_name"),
+              rs.getObject("tenant_id", UUID.class),
+              rs.getObject("period_start", LocalDate.class),
+              rs.getObject("period_end", LocalDate.class),
+              rs.getTimestamp("lower_bound_at") == null
+                  ? null
+                  : rs.getTimestamp("lower_bound_at").toInstant(),
+              rs.getTimestamp("upper_bound_at") == null
+                  ? null
+                  : rs.getTimestamp("upper_bound_at").toInstant(),
+              rs.getInt("segment_no"),
+              rs.getString("object_uri"),
+              rs.getString("format"),
+              rs.getString("compression"),
+              rs.getLong("row_count"),
+              rs.getLong("byte_size"),
+              rs.getString("checksum_sha256"),
+              rs.getInt("schema_version"),
+              rs.getString("status"),
+              rs.getTimestamp("created_at").toInstant());
 
   private final NamedParameterJdbcTemplate jdbc;
 
-  public UUID insert(UUID id, UUID archiveRunId, String tableName, UUID tenantId,
-      LocalDate periodStart, LocalDate periodEnd, int segmentNo,
-      String objectUri, long rowCount, long byteSize,
-      String checksumSha256, int schemaVersion) {
+  public UUID insert(
+      UUID id,
+      UUID archiveRunId,
+      String tableName,
+      UUID tenantId,
+      LocalDate periodStart,
+      LocalDate periodEnd,
+      int segmentNo,
+      String objectUri,
+      long rowCount,
+      long byteSize,
+      String checksumSha256,
+      int schemaVersion) {
 
-    jdbc.update("""
+    jdbc.update(
+        """
         INSERT INTO archive_object
           (id, archive_run_id, table_name, tenant_id, period_start, period_end,
            segment_no, object_uri, row_count, byte_size, checksum_sha256,
@@ -54,38 +70,32 @@ public class ArchiveObjectJdbcRepository {
            :schema, 'PENDING')
         """,
         new MapSqlParameterSource()
-            .addValue("id",       id)
-            .addValue("runId",    archiveRunId)
-            .addValue("table",    tableName)
+            .addValue("id", id)
+            .addValue("runId", archiveRunId)
+            .addValue("table", tableName)
             .addValue("tenantId", tenantId)
-            .addValue("pStart",   periodStart)
-            .addValue("pEnd",     periodEnd)
-            .addValue("segNo",    segmentNo)
-            .addValue("uri",      objectUri)
-            .addValue("rows",     rowCount)
-            .addValue("bytes",    byteSize)
+            .addValue("pStart", periodStart)
+            .addValue("pEnd", periodEnd)
+            .addValue("segNo", segmentNo)
+            .addValue("uri", objectUri)
+            .addValue("rows", rowCount)
+            .addValue("bytes", byteSize)
             .addValue("checksum", checksumSha256)
-            .addValue("schema",   schemaVersion));
+            .addValue("schema", schemaVersion));
     return id;
   }
 
   public void markVerified(UUID id) {
-    jdbc.update(
-        "UPDATE archive_object SET status = 'VERIFIED' WHERE id = :id",
-        Map.of("id", id));
+    jdbc.update("UPDATE archive_object SET status = 'VERIFIED' WHERE id = :id", Map.of("id", id));
   }
 
   public void markInvalid(UUID id) {
-    jdbc.update(
-        "UPDATE archive_object SET status = 'INVALID' WHERE id = :id",
-        Map.of("id", id));
+    jdbc.update("UPDATE archive_object SET status = 'INVALID' WHERE id = :id", Map.of("id", id));
   }
 
   public Optional<ArchiveObjectRowView> findById(UUID id) {
-    List<ArchiveObjectRowView> rows = jdbc.query(
-        "SELECT * FROM archive_object WHERE id = :id",
-        Map.of("id", id),
-        ROW_MAPPER);
+    List<ArchiveObjectRowView> rows =
+        jdbc.query("SELECT * FROM archive_object WHERE id = :id", Map.of("id", id), ROW_MAPPER);
     return rows.isEmpty() ? Optional.empty() : Optional.of(rows.get(0));
   }
 
@@ -104,9 +114,11 @@ public class ArchiveObjectJdbcRepository {
   }
 
   public long countByStatus(String status) {
-    Long n = jdbc.queryForObject(
-        "SELECT COUNT(*) FROM archive_object WHERE status = :status",
-        Map.of("status", status), Long.class);
+    Long n =
+        jdbc.queryForObject(
+            "SELECT COUNT(*) FROM archive_object WHERE status = :status",
+            Map.of("status", status),
+            Long.class);
     return n != null ? n : 0L;
   }
 }

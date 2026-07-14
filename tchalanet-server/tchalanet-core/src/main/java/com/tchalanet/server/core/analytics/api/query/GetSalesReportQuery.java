@@ -12,8 +12,5 @@ import java.util.List;
  * <p>{@code gameCode} is optional — null means "all games".
  */
 public record GetSalesReportQuery(
-    TenantId  tenantId,
-    LocalDate fromDate,
-    LocalDate toDate,
-    String    gameCode    // nullable
-) implements Query<List<SalesReportLine>> {}
+    TenantId tenantId, LocalDate fromDate, LocalDate toDate, String gameCode // nullable
+    ) implements Query<List<SalesReportLine>> {}

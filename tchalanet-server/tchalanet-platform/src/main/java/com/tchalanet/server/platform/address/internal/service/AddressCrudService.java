@@ -8,7 +8,6 @@ import com.tchalanet.server.platform.address.api.model.AddressInput;
 import com.tchalanet.server.platform.address.api.model.AddressView;
 import com.tchalanet.server.platform.address.internal.adapter.AddressPersistenceAdapter;
 import com.tchalanet.server.platform.address.internal.mapper.AddressMapper;
-import com.tchalanet.server.platform.address.internal.service.Address;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Objects;
@@ -17,11 +16,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 
 /**
- * CRUD service for addresses (tenant-scoped).
- * Provides two upsert strategies: generic (multi-address) and tenant-primary (mono-address MVP).
- * Per spec: service calculates keys, port receives complete Address objects.
- * Per typed_ids.md: all typed IDs throughout, no raw UUID in application layer.
- * Per PLAYBOOK.md: thin service, race-safe via unique constraints + exception handling.
+ * CRUD service for addresses (tenant-scoped). Provides two upsert strategies: generic
+ * (multi-address) and tenant-primary (mono-address MVP). Per spec: service calculates keys, port
+ * receives complete Address objects. Per typed_ids.md: all typed IDs throughout, no raw UUID in
+ * application layer. Per PLAYBOOK.md: thin service, race-safe via unique constraints + exception
+ * handling.
  */
 @UseCase
 @RequiredArgsConstructor
@@ -36,11 +35,10 @@ public class AddressCrudService implements AddressApi {
   /**
    * Generic upsert with dedup by (tenant_id, normalized_key) for ACTIVE rows.
    *
-   * - If a same normalized address already exists (active), returns existing id.
-   * - Else inserts a new address.
-   * - Race-safe: if unique constraint trips, re-lookup and return the winner id.
+   * <p>- If a same normalized address already exists (active), returns existing id. - Else inserts
+   * a new address. - Race-safe: if unique constraint trips, re-lookup and return the winner id.
    *
-   * Useful for outlet/user; OK for tenant too, but for tenant we prefer upsertTenantPrimary().
+   * <p>Useful for outlet/user; OK for tenant too, but for tenant we prefer upsertTenantPrimary().
    */
   public AddressId upsert(TenantId tenantId, AddressInput input) {
     Objects.requireNonNull(tenantId, "tenantId");
@@ -68,20 +66,16 @@ public class AddressCrudService implements AddressApi {
       return persistenceAdapter.insert(address);
     } catch (DataIntegrityViolationException e) {
       // Another tx inserted the same key first
-      return persistenceAdapter
-          .findIdByNormalizedKey(tenantId, key)
-          .orElseThrow(() -> e);
+      return persistenceAdapter.findIdByNormalizedKey(tenantId, key).orElseThrow(() -> e);
     }
   }
-
 
   /**
    * MVP: one active address per tenant.
    *
-   * - If tenant has an active address: UPDATE it (same id).
-   * - Else: INSERT new address.
+   * <p>- If tenant has an active address: UPDATE it (same id). - Else: INSERT new address.
    *
-   * DB enforces uniqueness via: UNIQUE (tenant_id) WHERE deleted=false
+   * <p>DB enforces uniqueness via: UNIQUE (tenant_id) WHERE deleted=false
    */
   @Override
   public AddressId upsertTenantPrimary(TenantId tenantId, AddressInput input) {
@@ -133,15 +127,12 @@ public class AddressCrudService implements AddressApi {
       return persistenceAdapter.insert(created);
     } catch (DataIntegrityViolationException e) {
       // Race: someone inserted the active address first. Return the now-active id.
-      return persistenceAdapter
-          .findActiveIdByTenant(tenantId)
-          .orElseThrow(() -> e);
+      return persistenceAdapter.findActiveIdByTenant(tenantId).orElseThrow(() -> e);
     }
   }
 
   /**
-   * Get address view by ID.
-   * Returns immutable projection for API responses.
+   * Get address view by ID. Returns immutable projection for API responses.
    *
    * @param tenantId tenant scope (typed)
    * @param id address ID (typed)
@@ -150,7 +141,8 @@ public class AddressCrudService implements AddressApi {
   @Override
   public Optional<AddressView> findPrimaryByTenantId(TenantId tenantId) {
     Objects.requireNonNull(tenantId, "tenantId");
-    return persistenceAdapter.findActiveIdByTenant(tenantId)
+    return persistenceAdapter
+        .findActiveIdByTenant(tenantId)
         .flatMap(id -> persistenceAdapter.findById(tenantId, id))
         .map(addressMapper::toView);
   }
@@ -164,8 +156,8 @@ public class AddressCrudService implements AddressApi {
   }
 
   /**
-   * MVP soft-delete.
-   * With your partial unique indexes, this allows recreating the same address later.
+   * MVP soft-delete. With your partial unique indexes, this allows recreating the same address
+   * later.
    */
   public void softDelete(TenantId tenantId, AddressId id) {
     Objects.requireNonNull(tenantId, "tenantId");
@@ -179,17 +171,18 @@ public class AddressCrudService implements AddressApi {
   }
 
   /**
-   * Optional MVP helper:
-   * update-by-id (used by tenant/outlet/user when they keep the same address_id).
+   * Optional MVP helper: update-by-id (used by tenant/outlet/user when they keep the same
+   * address_id).
    *
-   * If you don't want "update collision merge" now, you can let the unique index throw.
+   * <p>If you don't want "update collision merge" now, you can let the unique index throw.
    */
   public void update(TenantId tenantId, AddressId id, AddressInput input) {
     Objects.requireNonNull(tenantId, "tenantId");
     Objects.requireNonNull(id, "id");
     Objects.requireNonNull(input, "input");
 
-    throw new UnsupportedOperationException("Address update path not yet migrated to the platform API");
+    throw new UnsupportedOperationException(
+        "Address update path not yet migrated to the platform API");
   }
 
   private static String dedupeKey(AddressInput input) {

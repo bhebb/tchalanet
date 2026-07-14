@@ -1,10 +1,10 @@
 package com.tchalanet.server.catalog.resultslot.api;
 
-import tools.jackson.databind.JsonNode;
 import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.common.types.id.ResultSlotId;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import tools.jackson.databind.JsonNode;
 
 /** Read-only view of a global Result Slot (cache-friendly). */
 public record ResultSlotView(

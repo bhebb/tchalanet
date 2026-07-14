@@ -7,13 +7,8 @@ import java.util.List;
 
 public interface FindSettleableDrawIdsPort {
 
-    record SettleableDrawCriteria(
-        TenantId tenantId,
-        Instant from,
-        Instant to,
-        long maxDraws,
-        boolean force
-    ) {}
+  record SettleableDrawCriteria(
+      TenantId tenantId, Instant from, Instant to, long maxDraws, boolean force) {}
 
-    List<DrawId> findSettleableDrawIds(SettleableDrawCriteria criteria);
+  List<DrawId> findSettleableDrawIds(SettleableDrawCriteria criteria);
 }

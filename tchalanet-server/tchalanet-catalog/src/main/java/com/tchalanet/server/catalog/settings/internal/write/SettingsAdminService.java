@@ -76,7 +76,8 @@ public class SettingsAdminService implements SettingsAdminCatalog {
 
   @Override
   @Transactional(readOnly = true)
-  public TchPage<SettingView> search(SearchSettingsAdminCriteria criteria, TchPageRequest pageRequest) {
+  public TchPage<SettingView> search(
+      SearchSettingsAdminCriteria criteria, TchPageRequest pageRequest) {
     return searchInternal(
         new SearchSettingsCriteria(
             criteria.namespace(),
@@ -120,16 +121,17 @@ public class SettingsAdminService implements SettingsAdminCatalog {
     SettingsValidator.validateOrThrow(
         request.namespace(), request.settingKey(), request.valueType(), request.settingValue());
 
-    // 2. Check for duplicates (active, non-deleted settings with same key at same level/limitScopeRef)
+    // 2. Check for duplicates (active, non-deleted settings with same key at same
+    // level/limitScopeRef)
     checkUniqueness(request);
 
     // 3. Validate level-specific requirements
     validateLevelRequirements(request);
 
     // 4. Create entity
-      var entity = createSettingEntity(request);
+    var entity = createSettingEntity(request);
 
-      entity = repository.save(entity);
+    entity = repository.save(entity);
     log.info("Created setting: {} with ID: {}", entity.fullKey(), entity.getId());
 
     return mapper.toView(entity);
@@ -154,28 +156,31 @@ public class SettingsAdminService implements SettingsAdminCatalog {
   @Transactional(readOnly = true)
   public java.util.List<SettingView> listActiveByExposure(
       com.tchalanet.server.catalog.settings.api.model.SettingExposure exposure, String namespace) {
-    var entities = namespace != null && !namespace.isBlank()
-        ? repository.findByActiveTrueAndDeletedAtIsNullAndExposureAndNamespace(exposure, namespace)
-        : repository.findByActiveTrueAndDeletedAtIsNullAndExposure(exposure);
+    var entities =
+        namespace != null && !namespace.isBlank()
+            ? repository.findByActiveTrueAndDeletedAtIsNullAndExposureAndNamespace(
+                exposure, namespace)
+            : repository.findByActiveTrueAndDeletedAtIsNullAndExposure(exposure);
     return mapper.toViews(entities);
   }
 
-    private static @NonNull SettingEntity createSettingEntity(CreateSettingRequest request) {
-        SettingEntity entity = new SettingEntity();
-        entity.setNamespace(request.namespace());
-        entity.setSettingKey(request.settingKey());
-        entity.setSettingValue(request.settingValue());
-        entity.setValueType(request.valueType());
-        entity.setLevel(request.level());
-        entity.setExposure(request.exposure() != null
+  private static @NonNull SettingEntity createSettingEntity(CreateSettingRequest request) {
+    SettingEntity entity = new SettingEntity();
+    entity.setNamespace(request.namespace());
+    entity.setSettingKey(request.settingKey());
+    entity.setSettingValue(request.settingValue());
+    entity.setValueType(request.valueType());
+    entity.setLevel(request.level());
+    entity.setExposure(
+        request.exposure() != null
             ? request.exposure()
             : com.tchalanet.server.catalog.settings.api.model.SettingExposure.INTERNAL);
-        entity.setTenantId(request.tenantId() != null ? request.tenantId().value() : null);
-        entity.setActive(true);
-        return entity;
-    }
+    entity.setTenantId(request.tenantId() != null ? request.tenantId().value() : null);
+    entity.setActive(true);
+    return entity;
+  }
 
-    /**
+  /**
    * Update an existing setting.
    *
    * @param id setting ID
@@ -254,10 +259,7 @@ public class SettingsAdminService implements SettingsAdminCatalog {
     var existing =
         repository
             .findFirstByActiveTrueAndDeletedAtIsNullAndLevelAndTenantIdAndNamespaceAndSettingKey(
-                request.level(),
-                tenantId,
-                request.namespace(),
-                request.settingKey());
+                request.level(), tenantId, request.namespace(), request.settingKey());
 
     if (existing.isPresent()) {
       throw new IllegalArgumentException(
@@ -297,9 +299,7 @@ public class SettingsAdminService implements SettingsAdminCatalog {
     spec = spec.and((root, query, cb) -> cb.isNull(root.get("deletedAt")));
 
     if (criteria.namespace() != null) {
-      spec =
-          spec.and(
-              (root, query, cb) -> cb.equal(root.get("namespace"), criteria.namespace()));
+      spec = spec.and((root, query, cb) -> cb.equal(root.get("namespace"), criteria.namespace()));
     }
 
     if (criteria.settingKey() != null) {
@@ -318,8 +318,7 @@ public class SettingsAdminService implements SettingsAdminCatalog {
     if (criteria.tenantId() != null) {
       spec =
           spec.and(
-              (root, query, cb) ->
-                  cb.equal(root.get("tenantId"), criteria.tenantId().value()));
+              (root, query, cb) -> cb.equal(root.get("tenantId"), criteria.tenantId().value()));
     }
 
     if (criteria.exposure() != null) {

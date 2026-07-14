@@ -22,14 +22,13 @@ import com.tchalanet.server.platform.communication.api.model.request.SendOutboun
 import com.tchalanet.server.platform.communication.api.model.result.SendOutboundMessageResult;
 import com.tchalanet.server.platform.communication.api.model.value.CommunicationChannel;
 import com.tchalanet.server.platform.communication.api.model.value.MessageId;
+import com.tchalanet.server.platform.document.api.DocumentPrintProfileResolver;
 import java.time.ZoneId;
 import java.util.Currency;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-
-import com.tchalanet.server.platform.document.api.DocumentPrintProfileResolver;
 import org.junit.jupiter.api.Test;
 
 class PosTicketReceiptServiceTest {
@@ -47,25 +46,23 @@ class PosTicketReceiptServiceTest {
   void sendUsesCanonicalReceiptMessageAndExplicitCommunicationContext() {
     var queryBus = new CapturingQueryBus();
     var communicationApi = new CapturingCommunicationApi();
-    var service = new PosTicketReceiptService(
-        queryBus,
-        new NoopCommandBus(),
-        null,
-        communicationApi,
-        null,
-        null,
-        null,
-        new DocumentPrintProfileResolver());
-
-    var response = service.send(
-        context(),
-        TICKET_ID,
-        new SendTicketReceiptRequest(
-            UUID.randomUUID(),
-            CommunicationChannel.SMS,
-            "+15145550100",
+    var service =
+        new PosTicketReceiptService(
+            queryBus,
+            new NoopCommandBus(),
             null,
-            Locale.ENGLISH));
+            communicationApi,
+            null,
+            null,
+            null,
+            new DocumentPrintProfileResolver());
+
+    var response =
+        service.send(
+            context(),
+            TICKET_ID,
+            new SendTicketReceiptRequest(
+                UUID.randomUUID(), CommunicationChannel.SMS, "+15145550100", null, Locale.ENGLISH));
 
     assertNotNull(queryBus.lastMessageQuery);
     assertEquals(TICKET_ID, queryBus.lastMessageQuery.ticketId());
@@ -83,8 +80,7 @@ class PosTicketReceiptServiceTest {
     assertEquals("canonical body", outbound.body());
     assertEquals("PUB123", outbound.metadata().get("publicCode"));
     assertEquals(
-        TICKET_ID.value() + ":SMS:+15145550100",
-        outbound.metadata().get("idempotencyKey"));
+        TICKET_ID.value() + ":SMS:+15145550100", outbound.metadata().get("idempotencyKey"));
     assertEquals(true, response.queued());
   }
 
@@ -110,7 +106,11 @@ class PosTicketReceiptServiceTest {
         ZoneId.of("America/Toronto"),
         Currency.getInstance("CAD"),
         null,
-        TchActorType.SELLER_TERMINAL, SELLER_TERMINAL_ID, Set.of(), Set.of("ticket.reprint_own"), null);
+        TchActorType.SELLER_TERMINAL,
+        SELLER_TERMINAL_ID,
+        Set.of(),
+        Set.of("ticket.reprint_own"),
+        null);
   }
 
   private static final class CapturingQueryBus implements QueryBus {
@@ -121,11 +121,12 @@ class PosTicketReceiptServiceTest {
     public <R> R ask(Query<R> query) {
       if (query instanceof FormatTicketReceiptMessageQuery messageQuery) {
         lastMessageQuery = messageQuery;
-        return (R) new TicketReceiptMessageContent(
-            "canonical subject",
-            "canonical body",
-            Locale.ENGLISH,
-            Map.of("publicCode", "PUB123"));
+        return (R)
+            new TicketReceiptMessageContent(
+                "canonical subject",
+                "canonical body",
+                Locale.ENGLISH,
+                Map.of("publicCode", "PUB123"));
       }
       throw new UnsupportedOperationException(query.getClass().getName());
     }
@@ -152,5 +153,4 @@ class PosTicketReceiptServiceTest {
       return null;
     }
   }
-
 }

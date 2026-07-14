@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-
 import tools.jackson.databind.JsonNode;
 
 @Tag(name = "Admin • Draw Channel Games")
@@ -35,73 +34,79 @@ import tools.jackson.databind.JsonNode;
 @RequiredArgsConstructor
 public class TenantAdminDrawChannelGameController {
 
-    private final DrawChannelCatalog drawChannelCatalog;
-    private final TenantGameApi tenantGameApi;
-    private final GameCatalog gameCatalog;
-    private final DrawChannelGameAdminService admin;
+  private final DrawChannelCatalog drawChannelCatalog;
+  private final TenantGameApi tenantGameApi;
+  private final GameCatalog gameCatalog;
+  private final DrawChannelGameAdminService admin;
 
-    @Operation(summary = "Offer a tenant game on a draw channel (upsert)")
-    @PutMapping("/{tenantGameId}")
-    @ResponseStatus(HttpStatus.OK)
-    public ApiResponse<DrawChannelGameResponse> offer(
-        @PathVariable DrawChannelId drawChannelId,
-        @PathVariable TenantGameId tenantGameId,
-        @RequestBody OfferChannelGameRequest body,
-        @CurrentContext TchRequestContext ctx) {
+  @Operation(summary = "Offer a tenant game on a draw channel (upsert)")
+  @PutMapping("/{tenantGameId}")
+  @ResponseStatus(HttpStatus.OK)
+  public ApiResponse<DrawChannelGameResponse> offer(
+      @PathVariable DrawChannelId drawChannelId,
+      @PathVariable TenantGameId tenantGameId,
+      @RequestBody OfferChannelGameRequest body,
+      @CurrentContext TchRequestContext ctx) {
 
-        var tenantId = ctx.tenantIdRequired();
+    var tenantId = ctx.tenantIdRequired();
 
-        drawChannelCatalog.findById(tenantId, drawChannelId)
-            .orElseThrow(() -> ProblemRest.notFound("draw_channel.not_found", drawChannelId));
+    drawChannelCatalog
+        .findById(tenantId, drawChannelId)
+        .orElseThrow(() -> ProblemRest.notFound("draw_channel.not_found", drawChannelId));
 
-        var tenantGame = tenantGameApi.findByTenantGameId(tenantId, tenantGameId)
+    var tenantGame =
+        tenantGameApi
+            .findByTenantGameId(tenantId, tenantGameId)
             .orElseThrow(() -> ProblemRest.notFound("tenant_game.not_found", tenantGameId));
 
-        if (!tenantGame.enabled()) {
-            throw ProblemRest.conflict("tenant_game.disabled");
-        }
-
-        gameCatalog.findById(tenantGame.gameId())
-            .filter(g -> g.active())
-            .orElseThrow(() -> ProblemRest.conflict("catalog_game.inactive"));
-
-        var enabled = body.enabled() != null ? body.enabled() : true;
-        var result = admin.upsert(tenantId, drawChannelId, tenantGameId, enabled, body.flags());
-        return ApiResponse.success(result);
+    if (!tenantGame.enabled()) {
+      throw ProblemRest.conflict("tenant_game.disabled");
     }
 
-    @Operation(summary = "Enable or disable a tenant game on a draw channel")
-    @PatchMapping("/{tenantGameId}")
-    public ApiResponse<DrawChannelGameResponse> patch(
-        @PathVariable DrawChannelId drawChannelId,
-        @PathVariable TenantGameId tenantGameId,
-        @RequestBody UpdateDrawChannelGameRequest body,
-        @CurrentContext TchRequestContext ctx) {
+    gameCatalog
+        .findById(tenantGame.gameId())
+        .filter(g -> g.active())
+        .orElseThrow(() -> ProblemRest.conflict("catalog_game.inactive"));
 
-        var tenantId = ctx.tenantIdRequired();
+    var enabled = body.enabled() != null ? body.enabled() : true;
+    var result = admin.upsert(tenantId, drawChannelId, tenantGameId, enabled, body.flags());
+    return ApiResponse.success(result);
+  }
 
-        drawChannelCatalog.findById(tenantId, drawChannelId)
-            .orElseThrow(() -> ProblemRest.notFound("draw_channel.not_found", drawChannelId));
+  @Operation(summary = "Enable or disable a tenant game on a draw channel")
+  @PatchMapping("/{tenantGameId}")
+  public ApiResponse<DrawChannelGameResponse> patch(
+      @PathVariable DrawChannelId drawChannelId,
+      @PathVariable TenantGameId tenantGameId,
+      @RequestBody UpdateDrawChannelGameRequest body,
+      @CurrentContext TchRequestContext ctx) {
 
-        var result = admin.update(tenantId, drawChannelId, tenantGameId, body);
-        return ApiResponse.success(result);
-    }
+    var tenantId = ctx.tenantIdRequired();
 
-    @Operation(summary = "Remove a tenant game from a draw channel")
-    @DeleteMapping("/{tenantGameId}")
-    public ApiResponse<Void> remove(
-        @PathVariable DrawChannelId drawChannelId,
-        @PathVariable TenantGameId tenantGameId,
-        @CurrentContext TchRequestContext ctx) {
+    drawChannelCatalog
+        .findById(tenantId, drawChannelId)
+        .orElseThrow(() -> ProblemRest.notFound("draw_channel.not_found", drawChannelId));
 
-        var tenantId = ctx.tenantIdRequired();
+    var result = admin.update(tenantId, drawChannelId, tenantGameId, body);
+    return ApiResponse.success(result);
+  }
 
-        drawChannelCatalog.findById(tenantId, drawChannelId)
-            .orElseThrow(() -> ProblemRest.notFound("draw_channel.not_found", drawChannelId));
+  @Operation(summary = "Remove a tenant game from a draw channel")
+  @DeleteMapping("/{tenantGameId}")
+  public ApiResponse<Void> remove(
+      @PathVariable DrawChannelId drawChannelId,
+      @PathVariable TenantGameId tenantGameId,
+      @CurrentContext TchRequestContext ctx) {
 
-        admin.softDelete(tenantId, drawChannelId, tenantGameId);
-        return ApiResponse.success(null);
-    }
+    var tenantId = ctx.tenantIdRequired();
 
-    public record OfferChannelGameRequest(Boolean enabled, JsonNode flags) {}
+    drawChannelCatalog
+        .findById(tenantId, drawChannelId)
+        .orElseThrow(() -> ProblemRest.notFound("draw_channel.not_found", drawChannelId));
+
+    admin.softDelete(tenantId, drawChannelId, tenantGameId);
+    return ApiResponse.success(null);
+  }
+
+  public record OfferChannelGameRequest(Boolean enabled, JsonNode flags) {}
 }

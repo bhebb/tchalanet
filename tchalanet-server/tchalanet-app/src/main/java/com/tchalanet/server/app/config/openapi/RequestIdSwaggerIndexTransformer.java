@@ -33,22 +33,19 @@ final class RequestIdSwaggerIndexTransformer extends SwaggerIndexPageTransformer
       HttpServletRequest request, Resource resource, ResourceTransformerChain transformerChain)
       throws IOException {
     var transformed = super.transform(request, resource, transformerChain);
-    var content =
-        new String(transformed.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+    var content = new String(transformed.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
     var withInterceptor = addRequestIdInterceptor(content, defaultRequestId);
     if (content.equals(withInterceptor)) {
       return transformed;
     }
-    return new TransformedResource(
-        transformed, withInterceptor.getBytes(StandardCharsets.UTF_8));
+    return new TransformedResource(transformed, withInterceptor.getBytes(StandardCharsets.UTF_8));
   }
 
   static String addRequestIdInterceptor(String content, String defaultRequestId) {
     if (!content.contains(SWAGGER_BUNDLE_MARKER) || content.contains("requestInterceptor:")) {
       return content;
     }
-    var escapedDefault =
-        defaultRequestId.replace("\\", "\\\\").replace("'", "\\'");
+    var escapedDefault = defaultRequestId.replace("\\", "\\\\").replace("'", "\\'");
     var interceptor =
         """
         SwaggerUIBundle({

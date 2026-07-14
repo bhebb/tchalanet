@@ -10,43 +10,57 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
-public interface AnalyticsSelectionRepository extends JpaRepository<AnalyticsSelectionEntity, UUID>,
-    AnalyticsSelectionUpsertRepository {}
-
+public interface AnalyticsSelectionRepository
+    extends JpaRepository<AnalyticsSelectionEntity, UUID>, AnalyticsSelectionUpsertRepository {}
 
 interface AnalyticsSelectionUpsertRepository {
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  void upsertAndIncrement(UUID tenantId, LocalDate refDate, UUID drawChannelId,
-      String gameCode, String betType, Short betOption, String selectionKey,
-      long ticketsDelta, long stakeDelta, long winningsDelta);
+  void upsertAndIncrement(
+      UUID tenantId,
+      LocalDate refDate,
+      UUID drawChannelId,
+      String gameCode,
+      String betType,
+      Short betOption,
+      String selectionKey,
+      long ticketsDelta,
+      long stakeDelta,
+      long winningsDelta);
 }
-
 
 @Repository
 class AnalyticsSelectionUpsertRepositoryImpl implements AnalyticsSelectionUpsertRepository {
 
-  @PersistenceContext
-  private EntityManager em;
+  @PersistenceContext private EntityManager em;
 
   @Override
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public void upsertAndIncrement(UUID tenantId, LocalDate refDate, UUID drawChannelId,
-      String gameCode, String betType, Short betOption, String selectionKey,
-      long ticketsDelta, long stakeDelta, long winningsDelta) {
+  public void upsertAndIncrement(
+      UUID tenantId,
+      LocalDate refDate,
+      UUID drawChannelId,
+      String gameCode,
+      String betType,
+      Short betOption,
+      String selectionKey,
+      long ticketsDelta,
+      long stakeDelta,
+      long winningsDelta) {
 
-    em.createNativeQuery("SELECT public.upsert_analytics_selection("
-            + ":tid, :rd, :dcid, :gc, :bt, :bo, :sk, :td, :sd, :wd)")
-        .setParameter("tid",  tenantId)
-        .setParameter("rd",   refDate)
+    em.createNativeQuery(
+            "SELECT public.upsert_analytics_selection("
+                + ":tid, :rd, :dcid, :gc, :bt, :bo, :sk, :td, :sd, :wd)")
+        .setParameter("tid", tenantId)
+        .setParameter("rd", refDate)
         .setParameter("dcid", drawChannelId)
-        .setParameter("gc",   gameCode)
-        .setParameter("bt",   betType)
-        .setParameter("bo",   betOption)
-        .setParameter("sk",   selectionKey)
-        .setParameter("td",   ticketsDelta)
-        .setParameter("sd",   stakeDelta)
-        .setParameter("wd",   winningsDelta)
+        .setParameter("gc", gameCode)
+        .setParameter("bt", betType)
+        .setParameter("bo", betOption)
+        .setParameter("sk", selectionKey)
+        .setParameter("td", ticketsDelta)
+        .setParameter("sd", stakeDelta)
+        .setParameter("wd", winningsDelta)
         .getSingleResult();
   }
 }

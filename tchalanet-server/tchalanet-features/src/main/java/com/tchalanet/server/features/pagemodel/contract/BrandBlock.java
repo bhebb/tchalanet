@@ -19,8 +19,9 @@ public record BrandBlock(
   }
 
   /** Brand block with a surface subtitle (private navigation drawer). */
-  public static BrandBlock withSubtitle(String id, String labelKey, String subtitleKey,
-      String path, ImageRef image) {
-    return new BrandBlock(id, labelKey, null, subtitleKey, NavigationDestination.route(path), image);
+  public static BrandBlock withSubtitle(
+      String id, String labelKey, String subtitleKey, String path, ImageRef image) {
+    return new BrandBlock(
+        id, labelKey, null, subtitleKey, NavigationDestination.route(path), image);
   }
 }

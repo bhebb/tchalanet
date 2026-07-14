@@ -19,13 +19,15 @@ public class PageModelTemplateUpdatedListener {
 
   @TransactionalEventListener(phase = AFTER_COMMIT)
   public void on(PageModelTemplateUpdatedEvent event) {
-    log.info("PageModelTemplateUpdated: notifying affected tenants for templateId={}", event.templateId());
+    log.info(
+        "PageModelTemplateUpdated: notifying affected tenants for templateId={}",
+        event.templateId());
     commandBus.execute(
         new CreatePageTemplateUpdateNotificationsCommand(
-        event.templateId(),
-        event.logicalId(),
-        event.newModel(),
-        event.newSchemaVersion(),
-        event.actorId()));
+            event.templateId(),
+            event.logicalId(),
+            event.newModel(),
+            event.newSchemaVersion(),
+            event.actorId()));
   }
 }

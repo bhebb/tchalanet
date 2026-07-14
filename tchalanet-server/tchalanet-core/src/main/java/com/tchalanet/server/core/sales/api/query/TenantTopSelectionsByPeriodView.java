@@ -5,10 +5,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public record TenantTopSelectionsByPeriodView(
-    LocalDate from,
-    LocalDate to,
-    List<SelectionItem> topSelections
-) {
+    LocalDate from, LocalDate to, List<SelectionItem> topSelections) {
   public record SelectionItem(
       int rank,
       String displaySelection,
@@ -16,6 +13,5 @@ public record TenantTopSelectionsByPeriodView(
       String betType,
       Short betOption,
       long lineCount,
-      BigDecimal totalStake
-  ) {}
+      BigDecimal totalStake) {}
 }

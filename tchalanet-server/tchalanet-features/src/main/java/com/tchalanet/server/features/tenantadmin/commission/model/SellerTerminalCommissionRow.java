@@ -2,7 +2,6 @@ package com.tchalanet.server.features.tenantadmin.commission.model;
 
 import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalStatus;
-
 import java.math.BigDecimal;
 
 public record SellerTerminalCommissionRow(
@@ -11,7 +10,9 @@ public record SellerTerminalCommissionRow(
     String displayName,
     SellerTerminalStatus status,
     BigDecimal commissionRate,
-    CommissionRateSource rateSource
-) {
-    public enum CommissionRateSource { DEFAULT, CUSTOM }
+    CommissionRateSource rateSource) {
+  public enum CommissionRateSource {
+    DEFAULT,
+    CUSTOM
+  }
 }

@@ -1,8 +1,8 @@
 package com.tchalanet.server.common.context.tenant;
 
 import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.common.context.web.ApiScopeResolver;
 import com.tchalanet.server.common.context.scope.ApiScope;
+import com.tchalanet.server.common.context.web.ApiScopeResolver;
 import com.tchalanet.server.common.types.id.TenantId;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -19,149 +19,146 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class TenantContextResolver {
 
-    private final TenantContextLookup tenantLookup;
+  private final TenantContextLookup tenantLookup;
 
-    /**
-     * Hydrates tenant metadata (code, UUID, timezone, currency) for a provider-neutral protected
-     * request whose effective tenant was already decided by {@code AccessResolutionStep}.
-     *
-     * <p>This MUST NOT validate membership, permissions, or tenant access — that decision belongs to
-     * {@code platform.accesscontrol}. It only enriches the context with tenant reference data.
-     *
-     * @return the hydrated context, or {@code null} after writing a 403 if the tenant is unknown.
-     */
-    public TchRequestContext hydrateResolvedTenant(HttpServletResponse res, TchRequestContext ctx)
-        throws IOException {
+  /**
+   * Hydrates tenant metadata (code, UUID, timezone, currency) for a provider-neutral protected
+   * request whose effective tenant was already decided by {@code AccessResolutionStep}.
+   *
+   * <p>This MUST NOT validate membership, permissions, or tenant access — that decision belongs to
+   * {@code platform.accesscontrol}. It only enriches the context with tenant reference data.
+   *
+   * @return the hydrated context, or {@code null} after writing a 403 if the tenant is unknown.
+   */
+  public TchRequestContext hydrateResolvedTenant(HttpServletResponse res, TchRequestContext ctx)
+      throws IOException {
 
-        if (ctx.tenantIdSafe() == null) {
-            return ctx;
-        }
-
-        var info = tenantLookup.findById(ctx.tenantIdSafe());
-
-        if (info.isEmpty()) {
-            res.sendError(HttpServletResponse.SC_FORBIDDEN, "Tenant not found");
-            return null;
-        }
-
-        return ctx.withTenantContext(info.get());
+    if (ctx.tenantIdSafe() == null) {
+      return ctx;
     }
 
-    public TchRequestContext resolveForScope(
-        HttpServletRequest req,
-        HttpServletResponse res,
-        TchRequestContext ctx,
-        ApiScope scope,
-        String defaultTenantCode)
-        throws IOException {
+    var info = tenantLookup.findById(ctx.tenantIdSafe());
 
-        if (ApiScopeResolver.tenantRequired(req)) {
-            return requireAndResolveTenant(res, ctx);
-        }
-
-        if (scope == ApiScope.PUBLIC) {
-            return resolvePublicTenant(ctx, defaultTenantCode);
-        }
-
-        return optionallyResolveTenant(ctx);
+    if (info.isEmpty()) {
+      res.sendError(HttpServletResponse.SC_FORBIDDEN, "Tenant not found");
+      return null;
     }
 
-    private TchRequestContext resolvePublicTenant(TchRequestContext ctx, String defaultTenantCode) {
-        if (ctx.tenantIdSafe() != null) {
-            return ctx;
-        }
+    return ctx.withTenantContext(info.get());
+  }
 
-        var code = normalize(ctx.effectiveTenantCode());
+  public TchRequestContext resolveForScope(
+      HttpServletRequest req,
+      HttpServletResponse res,
+      TchRequestContext ctx,
+      ApiScope scope,
+      String defaultTenantCode)
+      throws IOException {
 
-        if (StringUtils.isBlank(code)) {
-            code = normalize(defaultTenantCode);
-        }
-
-        if (StringUtils.isBlank(code)) {
-            log.debug("TchContextFilter: no default tenant configured for PUBLIC request");
-            return ctx;
-        }
-
-        var tenantContextInfo = resolveTenantContext(code);
-
-        if (tenantContextInfo.isEmpty()) {
-            log.warn("TchContextFilter: default/public tenant could not be resolved codeOrUuid={}", code);
-            return ctx;
-        }
-
-        return ctx.withTenantContext(tenantContextInfo.get());
+    if (ApiScopeResolver.tenantRequired(req)) {
+      return requireAndResolveTenant(res, ctx);
     }
 
-
-    private TchRequestContext requireAndResolveTenant(HttpServletResponse res, TchRequestContext ctx)
-        throws IOException {
-
-        // Fast path: tenant UUID already injected (e.g. by AccessResolutionFilter via X-Tenant-Id)
-        if (ctx.tenantIdSafe() != null) {
-            var info = tenantLookup.findById(ctx.tenantIdSafe());
-            if (info.isEmpty()) {
-                res.sendError(HttpServletResponse.SC_FORBIDDEN, "Tenant not found");
-                return null;
-            }
-            return ctx.withTenantContext(info.get());
-        }
-
-        var code = normalize(ctx.effectiveTenantCode());
-
-        if (StringUtils.isBlank(code)) {
-            res.sendError(HttpServletResponse.SC_FORBIDDEN, "Tenant required");
-            return null;
-        }
-
-        var tenantContextInfo = resolveTenantContext(code);
-
-        if (tenantContextInfo.isEmpty()) {
-            res.sendError(HttpServletResponse.SC_FORBIDDEN, "Tenant not found");
-            return null;
-        }
-
-        return ctx.withTenantContext(tenantContextInfo.get());
+    if (scope == ApiScope.PUBLIC) {
+      return resolvePublicTenant(ctx, defaultTenantCode);
     }
 
-    private TchRequestContext optionallyResolveTenant(TchRequestContext ctx) {
-        if (ctx.tenantIdSafe() != null) {
-            return ctx;
-        }
+    return optionallyResolveTenant(ctx);
+  }
 
-        var code = normalize(ctx.effectiveTenantCode());
-
-        if (StringUtils.isBlank(code)) {
-            return ctx;
-        }
-
-        return resolveTenantContext(code)
-            .map(ctx::withTenantContext)
-            .orElse(ctx);
+  private TchRequestContext resolvePublicTenant(TchRequestContext ctx, String defaultTenantCode) {
+    if (ctx.tenantIdSafe() != null) {
+      return ctx;
     }
 
-    private Optional<TenantContextInfo> resolveTenantContext(String codeOrUuid) {
-        var trimmed = normalize(codeOrUuid);
+    var code = normalize(ctx.effectiveTenantCode());
 
-        if (StringUtils.isBlank(trimmed)) {
-            return Optional.empty();
-        }
-
-        try {
-            var uuid = UUID.fromString(trimmed);
-            return tenantLookup.findById(TenantId.of(uuid));
-        } catch (IllegalArgumentException ignored) {
-            // Not a UUID. Resolve as tenant code below.
-        }
-
-        return tenantLookup.findByCode(trimmed);
+    if (StringUtils.isBlank(code)) {
+      code = normalize(defaultTenantCode);
     }
 
-    private static String normalize(String value) {
-        if (value == null) {
-            return null;
-        }
-
-        var trimmed = value.trim();
-        return trimmed.isBlank() ? null : trimmed;
+    if (StringUtils.isBlank(code)) {
+      log.debug("TchContextFilter: no default tenant configured for PUBLIC request");
+      return ctx;
     }
+
+    var tenantContextInfo = resolveTenantContext(code);
+
+    if (tenantContextInfo.isEmpty()) {
+      log.warn("TchContextFilter: default/public tenant could not be resolved codeOrUuid={}", code);
+      return ctx;
+    }
+
+    return ctx.withTenantContext(tenantContextInfo.get());
+  }
+
+  private TchRequestContext requireAndResolveTenant(HttpServletResponse res, TchRequestContext ctx)
+      throws IOException {
+
+    // Fast path: tenant UUID already injected (e.g. by AccessResolutionFilter via X-Tenant-Id)
+    if (ctx.tenantIdSafe() != null) {
+      var info = tenantLookup.findById(ctx.tenantIdSafe());
+      if (info.isEmpty()) {
+        res.sendError(HttpServletResponse.SC_FORBIDDEN, "Tenant not found");
+        return null;
+      }
+      return ctx.withTenantContext(info.get());
+    }
+
+    var code = normalize(ctx.effectiveTenantCode());
+
+    if (StringUtils.isBlank(code)) {
+      res.sendError(HttpServletResponse.SC_FORBIDDEN, "Tenant required");
+      return null;
+    }
+
+    var tenantContextInfo = resolveTenantContext(code);
+
+    if (tenantContextInfo.isEmpty()) {
+      res.sendError(HttpServletResponse.SC_FORBIDDEN, "Tenant not found");
+      return null;
+    }
+
+    return ctx.withTenantContext(tenantContextInfo.get());
+  }
+
+  private TchRequestContext optionallyResolveTenant(TchRequestContext ctx) {
+    if (ctx.tenantIdSafe() != null) {
+      return ctx;
+    }
+
+    var code = normalize(ctx.effectiveTenantCode());
+
+    if (StringUtils.isBlank(code)) {
+      return ctx;
+    }
+
+    return resolveTenantContext(code).map(ctx::withTenantContext).orElse(ctx);
+  }
+
+  private Optional<TenantContextInfo> resolveTenantContext(String codeOrUuid) {
+    var trimmed = normalize(codeOrUuid);
+
+    if (StringUtils.isBlank(trimmed)) {
+      return Optional.empty();
+    }
+
+    try {
+      var uuid = UUID.fromString(trimmed);
+      return tenantLookup.findById(TenantId.of(uuid));
+    } catch (IllegalArgumentException ignored) {
+      // Not a UUID. Resolve as tenant code below.
+    }
+
+    return tenantLookup.findByCode(trimmed);
+  }
+
+  private static String normalize(String value) {
+    if (value == null) {
+      return null;
+    }
+
+    var trimmed = value.trim();
+    return trimmed.isBlank() ? null : trimmed;
+  }
 }

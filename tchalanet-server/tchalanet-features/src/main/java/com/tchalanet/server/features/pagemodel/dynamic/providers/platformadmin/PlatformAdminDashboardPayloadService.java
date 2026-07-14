@@ -25,12 +25,13 @@ public class PlatformAdminDashboardPayloadService {
     return switch (logicalId) {
       case COMMERCIAL_LOGICAL_ID -> commercialAssembler.assemble(ctx);
       case OPS_LOGICAL_ID -> opsAssembler.assemble(ctx);
-      default -> throw new PageModelDynamicProviderException(
-          "PLATFORM_ADMIN_DASHBOARD_UNSUPPORTED_LOGICAL_ID",
-          "Unsupported logicalId for source="
-              + PlatformAdminDashboardProvider.SOURCE
-              + ": "
-              + logicalId);
+      default ->
+          throw new PageModelDynamicProviderException(
+              "PLATFORM_ADMIN_DASHBOARD_UNSUPPORTED_LOGICAL_ID",
+              "Unsupported logicalId for source="
+                  + PlatformAdminDashboardProvider.SOURCE
+                  + ": "
+                  + logicalId);
     };
   }
 }

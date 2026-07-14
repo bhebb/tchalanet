@@ -5,13 +5,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * Image reference — used in brand blocks, navigation entries and profile avatars.
  *
- * <p>JSON field names use snake_case ({@code alt_key}, {@code title_key},
- * {@code aspect_ratio}) to match the shell fragment JSON schema.
+ * <p>JSON field names use snake_case ({@code alt_key}, {@code title_key}, {@code aspect_ratio}) to
+ * match the shell fragment JSON schema.
  */
 public record ImageRef(
     String url,
-    @JsonProperty("alt_key")     String altKey,
-    @JsonProperty("title_key")   String titleKey,
+    @JsonProperty("alt_key") String altKey,
+    @JsonProperty("title_key") String titleKey,
     Integer width,
     Integer height,
     @JsonProperty("aspect_ratio") String aspectRatio,

@@ -4,7 +4,6 @@ import com.tchalanet.server.common.web.api.ApiNotice;
 import com.tchalanet.server.common.web.api.NoticeSeverity;
 import com.tchalanet.server.common.web.api.ServiceHealth;
 import com.tchalanet.server.common.web.api.ServiceStatus;
-
 import java.util.ArrayList;
 import java.util.List;
 

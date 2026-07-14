@@ -12,5 +12,4 @@ public record LimitBreach(
     String messageKey,
     Long limitValue,
     Long currentValue,
-    Long deltaValue
-) {}
+    Long deltaValue) {}

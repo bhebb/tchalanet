@@ -13,7 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public interface AuditEventJpaRepository
-    extends JpaRepository<AuditEventJpaEntity, UUID>, JpaSpecificationExecutor<AuditEventJpaEntity> {
+    extends JpaRepository<AuditEventJpaEntity, UUID>,
+        JpaSpecificationExecutor<AuditEventJpaEntity> {
   List<AuditEventJpaEntity> findTop100ByTenantIdAndDeletedAtIsNullOrderByCreatedAtDesc(
       UUID tenantId);
 

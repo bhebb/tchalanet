@@ -6,5 +6,5 @@ import jakarta.validation.constraints.NotNull;
 
 public interface TicketPrintReaderPort {
 
-    TicketPrintView findPrintViewRequired(@NotNull TicketId ticketId);
+  TicketPrintView findPrintViewRequired(@NotNull TicketId ticketId);
 }

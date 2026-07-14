@@ -11,4 +11,3 @@ public record LinkExternalIdentityRequest(
     @NotBlank @Size(max = 512) String issuer,
     @NotBlank @Size(max = 255) String externalSubject,
     @Email String emailSnapshot) {}
-

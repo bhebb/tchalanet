@@ -9,10 +9,17 @@ public record PromotionDecisionId(UUID value) {
     }
   }
 
-  public static PromotionDecisionId of(UUID value) { return new PromotionDecisionId(value); }
-  public static PromotionDecisionId nullableOf(UUID raw) { return raw == null ? null : new PromotionDecisionId(raw); }
+  public static PromotionDecisionId of(UUID value) {
+    return new PromotionDecisionId(value);
+  }
+
+  public static PromotionDecisionId nullableOf(UUID raw) {
+    return raw == null ? null : new PromotionDecisionId(raw);
+  }
+
   public static PromotionDecisionId parse(String raw) {
-    if (raw == null || raw.isBlank()) throw new IllegalArgumentException("PromotionDecisionId string is required");
+    if (raw == null || raw.isBlank())
+      throw new IllegalArgumentException("PromotionDecisionId string is required");
     return new PromotionDecisionId(UUID.fromString(raw));
   }
 }

@@ -36,41 +36,38 @@ import org.springframework.web.bind.annotation.RestController;
 @PreAuthorize("hasRole('SUPER_ADMIN')")
 public class PlatformContactRequestAdminController {
 
-    private final ContactRequestAdminService service;
+  private final ContactRequestAdminService service;
 
-    @GetMapping
-    public ApiResponse<TchPage<ContactRequestSummaryView>> list(
-        @RequestParam(required = false, name = "q") String q,
-        @RequestParam(required = false) ContactRequestStatus status,
-        @RequestParam(required = false) ContactRequestIntent intent,
-        @TchPaging(
-            allowedSort = {"createdAt", "status", "intent", "reference"},
-            defaultSort = {"createdAt,desc"})
-        TchPageRequest pageReq
-    ) {
-        return ApiResponse.success(service.list(status, intent, TchSearchQuery.of(q), pageReq.pageable()));
-    }
+  @GetMapping
+  public ApiResponse<TchPage<ContactRequestSummaryView>> list(
+      @RequestParam(required = false, name = "q") String q,
+      @RequestParam(required = false) ContactRequestStatus status,
+      @RequestParam(required = false) ContactRequestIntent intent,
+      @TchPaging(
+              allowedSort = {"createdAt", "status", "intent", "reference"},
+              defaultSort = {"createdAt,desc"})
+          TchPageRequest pageReq) {
+    return ApiResponse.success(
+        service.list(status, intent, TchSearchQuery.of(q), pageReq.pageable()));
+  }
 
-    @GetMapping("/{id}")
-    public ApiResponse<ContactRequestAdminDetailView> get(@PathVariable UUID id) {
-        return ApiResponse.success(service.get(id));
-    }
+  @GetMapping("/{id}")
+  public ApiResponse<ContactRequestAdminDetailView> get(@PathVariable UUID id) {
+    return ApiResponse.success(service.get(id));
+  }
 
-    @PatchMapping("/{id}/status")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateStatus(
-        @PathVariable UUID id,
-        @Valid @RequestBody UpdateContactStatusHttpRequest request
-    ) {
-        service.updateStatus(id, request.status());
-    }
+  @PatchMapping("/{id}/status")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void updateStatus(
+      @PathVariable UUID id, @Valid @RequestBody UpdateContactStatusHttpRequest request) {
+    service.updateStatus(id, request.status());
+  }
 
-    @PatchMapping("/{id}/notes")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateNotes(
-        @PathVariable UUID id,
-        @Valid @RequestBody UpdateContactNotesHttpRequest request
-    ) {
-        service.updateNotes(id, request.internalNotes(), request.externalTool(), request.externalReference());
-    }
+  @PatchMapping("/{id}/notes")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void updateNotes(
+      @PathVariable UUID id, @Valid @RequestBody UpdateContactNotesHttpRequest request) {
+    service.updateNotes(
+        id, request.internalNotes(), request.externalTool(), request.externalReference());
+  }
 }

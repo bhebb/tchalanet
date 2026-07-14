@@ -17,39 +17,38 @@ import com.tchalanet.server.core.promotion.internal.domain.service.PromotionCamp
 import lombok.RequiredArgsConstructor;
 
 /**
- * Template plateforme -> instance tenant : crée la campagne DEFAULT_MARYAJ_GRATIS
- * pour le tenant courant et l'active. Idempotent par code de campagne.
+ * Template plateforme -> instance tenant : crée la campagne DEFAULT_MARYAJ_GRATIS pour le tenant
+ * courant et l'active. Idempotent par code de campagne.
  */
 @UseCase
 @RequiredArgsConstructor
 public class InstantiateDefaultMaryajGratisCommandHandler
     implements CommandHandler<InstantiateDefaultMaryajGratisCommand, PromotionCampaignView> {
 
-    private final PromotionCampaignReadPort readPort;
-    private final PromotionCampaignWritePort writePort;
-    private final PromotionCampaignStateMachine stateMachine;
-    private final PromotionCampaignActivationPolicy activationPolicy;
-    private final PromotionCacheEvictorPort cacheEvictor;
-    private final TchTimeProvider timeProvider;
+  private final PromotionCampaignReadPort readPort;
+  private final PromotionCampaignWritePort writePort;
+  private final PromotionCampaignStateMachine stateMachine;
+  private final PromotionCampaignActivationPolicy activationPolicy;
+  private final PromotionCacheEvictorPort cacheEvictor;
+  private final TchTimeProvider timeProvider;
 
-    @Override
-    @TchTx
-    public PromotionCampaignView handle(InstantiateDefaultMaryajGratisCommand cmd) {
-        var existing = readPort.findByCode(MaryajGratisDefaultTemplate.CODE);
-        if (existing.isPresent()) {
-            return existing.get();
-        }
-
-        var created = writePort.create(
-            MaryajGratisDefaultTemplate.createCommand(cmd, timeProvider.now()));
-
-        activationPolicy.validate(created);
-        var nextStatus = stateMachine.apply(created.status(), PromotionCampaignTransition.ACTIVATE);
-        var activated = writePort.changeStatus(cmd.tenantId(), created.id(), nextStatus);
-
-        AfterCommit.run(() ->
-            cacheEvictor.evictAfterCampaignMutation(cmd.tenantId(), created.id()));
-
-        return activated;
+  @Override
+  @TchTx
+  public PromotionCampaignView handle(InstantiateDefaultMaryajGratisCommand cmd) {
+    var existing = readPort.findByCode(MaryajGratisDefaultTemplate.CODE);
+    if (existing.isPresent()) {
+      return existing.get();
     }
+
+    var created =
+        writePort.create(MaryajGratisDefaultTemplate.createCommand(cmd, timeProvider.now()));
+
+    activationPolicy.validate(created);
+    var nextStatus = stateMachine.apply(created.status(), PromotionCampaignTransition.ACTIVATE);
+    var activated = writePort.changeStatus(cmd.tenantId(), created.id(), nextStatus);
+
+    AfterCommit.run(() -> cacheEvictor.evictAfterCampaignMutation(cmd.tenantId(), created.id()));
+
+    return activated;
+  }
 }

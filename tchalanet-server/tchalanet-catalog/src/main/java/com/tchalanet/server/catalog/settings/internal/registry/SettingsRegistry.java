@@ -46,7 +46,8 @@ public final class SettingsRegistry {
   // ========================================
 
   public static final SettingKeyDef<Integer> TICKET_PUBLIC_VISIBILITY_DAYS =
-      new SettingKeyDef<>("ticket.verification", "public_visibility_days", SettingValueType.INT, 14);
+      new SettingKeyDef<>(
+          "ticket.verification", "public_visibility_days", SettingValueType.INT, 14);
 
   public static final SettingKeyDef<Integer> TICKET_PUBLIC_TOKEN_TTL_MINUTES =
       new SettingKeyDef<>(
@@ -102,12 +103,22 @@ public final class SettingsRegistry {
   // ========================================
 
   public static final SettingKeyDef<String> UI_DEFAULT_LOCALE =
-      new SettingKeyDef<>("ui.i18n", "default_locale", SettingValueType.STRING, "fr",
-          SettingExposure.PUBLIC_RUNTIME, true);
+      new SettingKeyDef<>(
+          "ui.i18n",
+          "default_locale",
+          SettingValueType.STRING,
+          "fr",
+          SettingExposure.PUBLIC_RUNTIME,
+          true);
 
   public static final SettingKeyDef<String> UI_SUPPORTED_LOCALES =
-      new SettingKeyDef<>("ui.i18n", "supported_locales", SettingValueType.STRING, "fr,en,ht",
-          SettingExposure.PUBLIC_RUNTIME, true);
+      new SettingKeyDef<>(
+          "ui.i18n",
+          "supported_locales",
+          SettingValueType.STRING,
+          "fr,en,ht",
+          SettingExposure.PUBLIC_RUNTIME,
+          true);
 
   public static final SettingKeyDef<String> UI_THEME_MODE =
       new SettingKeyDef<>("ui.theme", "mode", SettingValueType.STRING, "system");
@@ -116,8 +127,13 @@ public final class SettingsRegistry {
       new SettingKeyDef<>("ui.theme", "density", SettingValueType.INT, 0);
 
   public static final SettingKeyDef<String> UI_PUBLIC_HOME_VARIANT =
-      new SettingKeyDef<>("ui.public_home", "variant", SettingValueType.STRING, "v1",
-          SettingExposure.PUBLIC_RUNTIME, true);
+      new SettingKeyDef<>(
+          "ui.public_home",
+          "variant",
+          SettingValueType.STRING,
+          "v1",
+          SettingExposure.PUBLIC_RUNTIME,
+          true);
 
   // ========================================
   // Ops / Hours & Outlet config
@@ -131,7 +147,7 @@ public final class SettingsRegistry {
           "ops.hours",
           "schedule",
           SettingValueType.JSON,
-          """
+"""
 {
   "timezone": "",
   "week": {
@@ -153,7 +169,7 @@ public final class SettingsRegistry {
           "ops.outlet_day",
           "policy",
           SettingValueType.JSON,
-          """
+"""
 {
   "enabled": false,
   "close_requires_all_sessions_closed": true,
@@ -209,7 +225,6 @@ public final class SettingsRegistry {
    * @return map of fullKey → definition
    */
   public static Map<String, SettingKeyDef<?>> byFullKey() {
-    return all().stream()
-        .collect(Collectors.toUnmodifiableMap(SettingKeyDef::fullKey, k -> k));
+    return all().stream().collect(Collectors.toUnmodifiableMap(SettingKeyDef::fullKey, k -> k));
   }
 }

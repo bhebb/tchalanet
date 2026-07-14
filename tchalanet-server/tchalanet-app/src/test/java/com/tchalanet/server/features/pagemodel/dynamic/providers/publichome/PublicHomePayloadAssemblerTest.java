@@ -97,14 +97,15 @@ class PublicHomePayloadAssemblerTest {
   private static List<PublicContentItemView> generateItems(int count) {
     var list = new ArrayList<PublicContentItemView>(count);
     for (int i = 0; i < count; i++) {
-      list.add(new PublicContentItemView(
-          UUID.randomUUID(),
-          "title-" + i,
-          "content-" + i,
-          null,
-          "https://news/" + i,
-          PublicContentSourceType.EXTERNAL_RSS,
-          Instant.parse("2026-01-01T00:00:00Z")));
+      list.add(
+          new PublicContentItemView(
+              UUID.randomUUID(),
+              "title-" + i,
+              "content-" + i,
+              null,
+              "https://news/" + i,
+              PublicContentSourceType.EXTERNAL_RSS,
+              Instant.parse("2026-01-01T00:00:00Z")));
     }
     return list;
   }

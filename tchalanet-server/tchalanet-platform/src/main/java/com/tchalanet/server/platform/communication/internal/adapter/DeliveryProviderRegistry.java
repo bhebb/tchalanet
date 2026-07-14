@@ -15,6 +15,7 @@ public class DeliveryProviderRegistry {
     return providers.stream()
         .filter(provider -> provider.supports(channel))
         .findFirst()
-        .orElseThrow(() -> new IllegalStateException("No communication provider for channel " + channel));
+        .orElseThrow(
+            () -> new IllegalStateException("No communication provider for channel " + channel));
   }
 }

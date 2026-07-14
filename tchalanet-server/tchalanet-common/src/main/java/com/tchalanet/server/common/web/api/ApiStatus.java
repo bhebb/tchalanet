@@ -6,5 +6,6 @@ public enum ApiStatus {
   CREATED,
   SUCCESS_WITH_WARNINGS,
   PENDING,
-  PARTIAL, ACCEPTED;
+  PARTIAL,
+  ACCEPTED;
 }

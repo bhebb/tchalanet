@@ -2,5 +2,5 @@ package com.tchalanet.server.core.promotion.api.model.rule;
 
 import java.util.Map;
 
-public record PromotionEligibilityConfigInput(PromotionEligibilityType type, Map<String, Object> params) {
-}
+public record PromotionEligibilityConfigInput(
+    PromotionEligibilityType type, Map<String, Object> params) {}

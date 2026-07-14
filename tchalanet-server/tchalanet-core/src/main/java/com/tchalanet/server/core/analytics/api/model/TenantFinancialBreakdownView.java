@@ -20,8 +20,7 @@ public record TenantFinancialBreakdownView(
     List<DailyFinancialRow> dailyRows,
     List<DrawFinancialRow> drawRows,
     List<SellerTerminalDrawFinancialRow> sellerTerminalDrawRows,
-    List<SellerTerminalDailyFinancialRow> sellerTerminalDailyRows
-) {
+    List<SellerTerminalDailyFinancialRow> sellerTerminalDailyRows) {
 
   public record FinancialSummary(
       long ticketsSold,
@@ -36,8 +35,7 @@ public record TenantFinancialBreakdownView(
       long promotionLines,
       long promotionPricedLines,
       BigDecimal netRevenueEstimated,
-      BigDecimal netRevenuePaidBasis
-  ) {}
+      BigDecimal netRevenuePaidBasis) {}
 
   public record DailyFinancialRow(
       LocalDate refDate,
@@ -53,8 +51,7 @@ public record TenantFinancialBreakdownView(
       long promotionLines,
       long promotionPricedLines,
       BigDecimal netRevenueEstimated,
-      BigDecimal netRevenuePaidBasis
-  ) {}
+      BigDecimal netRevenuePaidBasis) {}
 
   public record DrawFinancialRow(
       UUID drawId,
@@ -74,8 +71,7 @@ public record TenantFinancialBreakdownView(
       long promotionLines,
       long promotionPricedLines,
       BigDecimal netRevenueEstimated,
-      BigDecimal netRevenuePaidBasis
-  ) {}
+      BigDecimal netRevenuePaidBasis) {}
 
   public record SellerTerminalDailyFinancialRow(
       UUID sellerTerminalId,
@@ -90,8 +86,7 @@ public record TenantFinancialBreakdownView(
       long promotionLines,
       long promotionPricedLines,
       BigDecimal netRevenueEstimated,
-      BigDecimal netRevenuePaidBasis
-  ) {}
+      BigDecimal netRevenuePaidBasis) {}
 
   public record SellerTerminalDrawFinancialRow(
       UUID sellerTerminalId,
@@ -112,6 +107,5 @@ public record TenantFinancialBreakdownView(
       long promotionLines,
       long promotionPricedLines,
       BigDecimal netRevenueEstimated,
-      BigDecimal netRevenuePaidBasis
-  ) {}
+      BigDecimal netRevenuePaidBasis) {}
 }

@@ -14,11 +14,11 @@ import org.springframework.stereotype.Component;
 /**
  * Thin scheduler for analytics maintenance.
  *
- * <p>Delegates all logic to command handlers — no business logic here.
- * Guarded by {@link BatchGate} so it only runs when the gate is enabled.
+ * <p>Delegates all logic to command handlers — no business logic here. Guarded by {@link BatchGate}
+ * so it only runs when the gate is enabled.
  *
- * <p>Default schedule: 03:15 UTC daily (off-peak, after most tenant draws settle).
- * Override via {@code tch.analytics.purge-cron}.
+ * <p>Default schedule: 03:15 UTC daily (off-peak, after most tenant draws settle). Override via
+ * {@code tch.analytics.purge-cron}.
  */
 @Component
 @RequiredArgsConstructor
@@ -28,7 +28,7 @@ public class AnalyticsMaintenanceScheduler {
   private static final JobKey ANALYTICS_PURGE_GATE = JobKey.of("analytics:purge:enabled");
 
   private final CommandBus commandBus;
-  private final BatchGate  gate;
+  private final BatchGate gate;
 
   @Scheduled(cron = "${tch.analytics.purge-cron:0 15 3 * * *}")
   @TchJob("analytics:purge")

@@ -1,8 +1,6 @@
 package com.tchalanet.server.core.sales.internal.application.command.handler.print;
 
 import com.tchalanet.server.common.bus.CommandHandler;
-import com.tchalanet.server.platform.document.api.model.DocumentFormat;
-import com.tchalanet.server.platform.document.api.model.PaperSize;
 import com.tchalanet.server.common.event.DomainEventPublisher;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
@@ -16,56 +14,60 @@ import com.tchalanet.server.core.sales.internal.application.port.out.TicketReade
 import com.tchalanet.server.core.sales.internal.application.port.out.TicketWriterPort;
 import com.tchalanet.server.core.sales.internal.application.service.print.TicketPrintPolicyService;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.Ticket;
-import lombok.RequiredArgsConstructor;
-
+import com.tchalanet.server.platform.document.api.model.DocumentFormat;
+import com.tchalanet.server.platform.document.api.model.PaperSize;
 import java.time.Clock;
 import java.time.Instant;
+import lombok.RequiredArgsConstructor;
 
 @UseCase
 @RequiredArgsConstructor
 public class RecordTicketPrintCommandHandler
     implements CommandHandler<RecordTicketPrintCommand, RecordTicketPrintResult> {
 
-    private final TicketReaderPort reader;
-    private final TicketWriterPort writer;
-    private final DomainEventPublisher events;
-    private final Clock clock;
-    private final IdGenerator idGenerator;
-    private final TicketPrintPolicyService printPolicy;
+  private final TicketReaderPort reader;
+  private final TicketWriterPort writer;
+  private final DomainEventPublisher events;
+  private final Clock clock;
+  private final IdGenerator idGenerator;
+  private final TicketPrintPolicyService printPolicy;
 
-    @Override
-    @TchTx
-    public RecordTicketPrintResult handle(RecordTicketPrintCommand command) {
-        var now = Instant.now(clock);
-        var ticket = reader.getRequired(command.ticketId());
-        // use actor carried on the command (avoid reading TchContext here)
-        printPolicy.requirePrintAllowed(ticket, command);
-        ticket = ticket.markPrinted(command.actorUserId(), now);
+  @Override
+  @TchTx
+  public RecordTicketPrintResult handle(RecordTicketPrintCommand command) {
+    var now = Instant.now(clock);
+    var ticket = reader.getRequired(command.ticketId());
+    // use actor carried on the command (avoid reading TchContext here)
+    printPolicy.requirePrintAllowed(ticket, command);
+    ticket = ticket.markPrinted(command.actorUserId(), now);
 
-        Ticket saved = writer.save(ticket);
+    Ticket saved = writer.save(ticket);
 
-        // Resolve print options snapshot (DocumentFormat + PaperSize) preserving defaults
-        var printOptions = command.printOptionsRequest();
-        DocumentFormat outputFormat = (printOptions == null || printOptions.outputFormat() == null)
+    // Resolve print options snapshot (DocumentFormat + PaperSize) preserving defaults
+    var printOptions = command.printOptionsRequest();
+    DocumentFormat outputFormat =
+        (printOptions == null || printOptions.outputFormat() == null)
             ? DocumentFormat.PDF
             : printOptions.outputFormat();
-        PaperSize paperSize = (printOptions == null || printOptions.paperSize() == null)
+    PaperSize paperSize =
+        (printOptions == null || printOptions.paperSize() == null)
             ? PaperSize.A4
             : printOptions.paperSize();
 
-        // Publish event with profile snapshot (do not convert back to legacy PrintOutputFormat)
-        AfterCommit.run(() -> events.publish(
-            TicketPrintedEvent.from(
-                EventId.of(idGenerator.newUuid()),
-                saved.identity().tenantId(),
-                saved.identity().id(),
-                command.actorUserId(),
-                outputFormat,
-                paperSize,
-                command.reason(),
-                now)
-        ));
+    // Publish event with profile snapshot (do not convert back to legacy PrintOutputFormat)
+    AfterCommit.run(
+        () ->
+            events.publish(
+                TicketPrintedEvent.from(
+                    EventId.of(idGenerator.newUuid()),
+                    saved.identity().tenantId(),
+                    saved.identity().id(),
+                    command.actorUserId(),
+                    outputFormat,
+                    paperSize,
+                    command.reason(),
+                    now)));
 
-        return new RecordTicketPrintResult(saved.identity().id(), saved.print());
-    }
+    return new RecordTicketPrintResult(saved.identity().id(), saved.print());
+  }
 }

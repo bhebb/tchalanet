@@ -18,15 +18,16 @@ import org.springframework.stereotype.Service;
  * Identifies PostgreSQL partitions eligible for cleanup and, when enabled, detaches or drops them.
  *
  * <p>Safety rules (all must be true before any DDL):
+ *
  * <ul>
- *   <li>Period is older than the configured retention threshold.</li>
- *   <li>All {@code archive_object} rows for the period are {@code VERIFIED}.</li>
- *   <li>No {@code INVALID} archive object exists for the period.</li>
- *   <li>Object row count matches the expected exported row count.</li>
+ *   <li>Period is older than the configured retention threshold.
+ *   <li>All {@code archive_object} rows for the period are {@code VERIFIED}.
+ *   <li>No {@code INVALID} archive object exists for the period.
+ *   <li>Object row count matches the expected exported row count.
  * </ul>
  *
- * <p>In V1, {@code mode = DRY_RUN} is the only safe mode; {@code DETACH_ONLY} and {@code DROP}
- * are available but require explicit configuration ({@code tch.archive.cleanup.enabled=true}).
+ * <p>In V1, {@code mode = DRY_RUN} is the only safe mode; {@code DETACH_ONLY} and {@code DROP} are
+ * available but require explicit configuration ({@code tch.archive.cleanup.enabled=true}).
  */
 @Service
 @RequiredArgsConstructor
@@ -37,7 +38,11 @@ public class ArchivePartitionCleanupService {
   private final NamedParameterJdbcTemplate jdbc;
   private final ArchiveLegalHoldJdbcRepository legalHoldRepo;
 
-  public enum CleanupMode { DRY_RUN, DETACH_ONLY, DROP }
+  public enum CleanupMode {
+    DRY_RUN,
+    DETACH_ONLY,
+    DROP
+  }
 
   public record PartitionCleanupPlan(
       String partitionName,
@@ -48,12 +53,11 @@ public class ArchivePartitionCleanupService {
       long archivedRowCount,
       boolean archiveVerified,
       boolean eligible,
-      String ineligibleReason
-  ) {}
+      String ineligibleReason) {}
 
   /**
-   * Build a plan showing which partitions are eligible for cleanup.
-   * Never executes any DDL — always safe to call.
+   * Build a plan showing which partitions are eligible for cleanup. Never executes any DDL — always
+   * safe to call.
    *
    * @param tableName the parent partitioned table (e.g. {@code audit_log})
    * @param retentionCutoff partitions whose period_end is before this date are candidates
@@ -69,44 +73,79 @@ public class ArchivePartitionCleanupService {
       LocalDate periodEnd = periodStart.plusMonths(1);
 
       if (!periodEnd.isBefore(retentionCutoff)) {
-        result.add(notEligible(partitionName, tableName, periodStart, periodEnd,
-            "period not older than retention cutoff " + retentionCutoff));
+        result.add(
+            notEligible(
+                partitionName,
+                tableName,
+                periodStart,
+                periodEnd,
+                "period not older than retention cutoff " + retentionCutoff));
         continue;
       }
 
-      List<Map<String, Object>> archiveObjects = findVerifiedObjects(tableName, periodStart, periodEnd);
+      List<Map<String, Object>> archiveObjects =
+          findVerifiedObjects(tableName, periodStart, periodEnd);
       if (archiveObjects.isEmpty()) {
-        result.add(notEligible(partitionName, tableName, periodStart, periodEnd,
-            "no verified archive_object found for period"));
+        result.add(
+            notEligible(
+                partitionName,
+                tableName,
+                periodStart,
+                periodEnd,
+                "no verified archive_object found for period"));
         continue;
       }
 
       boolean hasInvalid = hasInvalidObject(tableName, periodStart, periodEnd);
       if (hasInvalid) {
-        result.add(notEligible(partitionName, tableName, periodStart, periodEnd,
-            "INVALID archive_object exists for period — manual investigation required"));
+        result.add(
+            notEligible(
+                partitionName,
+                tableName,
+                periodStart,
+                periodEnd,
+                "INVALID archive_object exists for period — manual investigation required"));
         continue;
       }
 
       if (legalHoldRepo.hasActiveHoldForPeriod(tableName, periodStart, periodEnd)) {
-        result.add(notEligible(partitionName, tableName, periodStart, periodEnd,
-            "active archive legal hold blocks cleanup"));
+        result.add(
+            notEligible(
+                partitionName,
+                tableName,
+                periodStart,
+                periodEnd,
+                "active archive legal hold blocks cleanup"));
         continue;
       }
 
-      long archivedRows = archiveObjects.stream()
-          .mapToLong(o -> ((Number) o.getOrDefault("row_count", 0)).longValue())
-          .sum();
+      long archivedRows =
+          archiveObjects.stream()
+              .mapToLong(o -> ((Number) o.getOrDefault("row_count", 0)).longValue())
+              .sum();
       long hotRows = countPartitionRows(partitionName);
       if (hotRows != archivedRows) {
-        result.add(notEligible(partitionName, tableName, periodStart, periodEnd,
-            "hot row count does not match verified archive row count"));
+        result.add(
+            notEligible(
+                partitionName,
+                tableName,
+                periodStart,
+                periodEnd,
+                "hot row count does not match verified archive row count"));
         continue;
       }
 
-      result.add(new PartitionCleanupPlan(
-          partitionName, tableName, periodStart, periodEnd,
-          hotRows, archivedRows, true, true, null));
+      result.add(
+          new PartitionCleanupPlan(
+              partitionName,
+              tableName,
+              periodStart,
+              periodEnd,
+              hotRows,
+              archivedRows,
+              true,
+              true,
+              null));
     }
 
     return result;
@@ -115,22 +154,27 @@ public class ArchivePartitionCleanupService {
   /**
    * Execute cleanup for the given partition name.
    *
-   * <p>Only runs if {@code tch.archive.cleanup.enabled = true}; otherwise logs and returns.
-   * Mode {@code DRY_RUN} never executes DDL even if enabled.
+   * <p>Only runs if {@code tch.archive.cleanup.enabled = true}; otherwise logs and returns. Mode
+   * {@code DRY_RUN} never executes DDL even if enabled.
    */
   public void executeCleanup(String partitionName, CleanupMode mode) {
     String parentTable = extractParentTable(partitionName);
     validateCleanupTarget(parentTable, partitionName);
 
-    LocalDate retentionCutoff = LocalDate.now(ZoneOffset.UTC)
-        .minusMonths(props.cleanup().retentionMonths());
-    PartitionCleanupPlan currentPlan = findCurrentPlan(parentTable, partitionName, retentionCutoff)
-        .orElseThrow(() -> new IllegalStateException(
-            "archive cleanup refused: partition is not known or not plannable: " + partitionName));
+    LocalDate retentionCutoff =
+        LocalDate.now(ZoneOffset.UTC).minusMonths(props.cleanup().retentionMonths());
+    PartitionCleanupPlan currentPlan =
+        findCurrentPlan(parentTable, partitionName, retentionCutoff)
+            .orElseThrow(
+                () ->
+                    new IllegalStateException(
+                        "archive cleanup refused: partition is not known or not plannable: "
+                            + partitionName));
 
     if (!currentPlan.eligible()) {
-      throw new IllegalStateException("archive cleanup refused for %s: %s"
-          .formatted(partitionName, currentPlan.ineligibleReason()));
+      throw new IllegalStateException(
+          "archive cleanup refused for %s: %s"
+              .formatted(partitionName, currentPlan.ineligibleReason()));
     }
 
     if (!props.cleanup().enabled()) {
@@ -143,9 +187,10 @@ public class ArchivePartitionCleanupService {
     }
     if (mode == CleanupMode.DETACH_ONLY) {
       log.info("archive cleanup: DETACH_ONLY — detaching partition {}", partitionName);
-      jdbc.getJdbcTemplate().execute(
-          "ALTER TABLE %s DETACH PARTITION %s CONCURRENTLY".formatted(
-              parentTable, partitionName));
+      jdbc.getJdbcTemplate()
+          .execute(
+              "ALTER TABLE %s DETACH PARTITION %s CONCURRENTLY"
+                  .formatted(parentTable, partitionName));
       log.info("archive cleanup: partition {} detached", partitionName);
     } else if (mode == CleanupMode.DROP) {
       log.warn("archive cleanup: DROP mode — dropping partition {}", partitionName);
@@ -171,10 +216,11 @@ public class ArchivePartitionCleanupService {
     LocalDate periodStart = parsePeriodStart(partitionName, tableName);
     if (periodStart == null) {
       throw new IllegalArgumentException(
-          "archive cleanup refused: partition name does not match expected pattern: " + partitionName);
+          "archive cleanup refused: partition name does not match expected pattern: "
+              + partitionName);
     }
-    String expected = "%s_%04d_%02d".formatted(
-        tableName, periodStart.getYear(), periodStart.getMonthValue());
+    String expected =
+        "%s_%04d_%02d".formatted(tableName, periodStart.getYear(), periodStart.getMonthValue());
     if (!expected.equals(partitionName)) {
       throw new IllegalArgumentException(
           "archive cleanup refused: partition name is not canonical: " + partitionName);
@@ -182,7 +228,8 @@ public class ArchivePartitionCleanupService {
   }
 
   private List<Map<String, Object>> findPartitions(String tableName) {
-    return jdbc.queryForList("""
+    return jdbc.queryForList(
+        """
         SELECT c.relname AS partition_name
           FROM pg_class c
           JOIN pg_inherits i ON i.inhrelid = c.oid
@@ -194,9 +241,10 @@ public class ArchivePartitionCleanupService {
         new MapSqlParameterSource().addValue("tableName", tableName));
   }
 
-  private List<Map<String, Object>> findVerifiedObjects(String tableName,
-      LocalDate periodStart, LocalDate periodEnd) {
-    return jdbc.queryForList("""
+  private List<Map<String, Object>> findVerifiedObjects(
+      String tableName, LocalDate periodStart, LocalDate periodEnd) {
+    return jdbc.queryForList(
+        """
         SELECT id, row_count FROM archive_object
          WHERE table_name  = :table
            AND period_start = :pStart
@@ -204,37 +252,37 @@ public class ArchivePartitionCleanupService {
            AND status       = 'VERIFIED'
         """,
         new MapSqlParameterSource()
-            .addValue("table",  tableName)
+            .addValue("table", tableName)
             .addValue("pStart", periodStart)
-            .addValue("pEnd",   periodEnd));
+            .addValue("pEnd", periodEnd));
   }
 
   private boolean hasInvalidObject(String tableName, LocalDate periodStart, LocalDate periodEnd) {
-    Integer count = jdbc.queryForObject("""
+    Integer count =
+        jdbc.queryForObject(
+            """
         SELECT COUNT(*) FROM archive_object
          WHERE table_name  = :table
            AND period_start = :pStart
            AND period_end   = :pEnd
            AND status       = 'INVALID'
         """,
-        new MapSqlParameterSource()
-            .addValue("table",  tableName)
-            .addValue("pStart", periodStart)
-            .addValue("pEnd",   periodEnd),
-        Integer.class);
+            new MapSqlParameterSource()
+                .addValue("table", tableName)
+                .addValue("pStart", periodStart)
+                .addValue("pEnd", periodEnd),
+            Integer.class);
     return count != null && count > 0;
   }
 
   private long countPartitionRows(String partitionName) {
-    Long count = jdbc.queryForObject(
-        "SELECT COUNT(*) FROM " + partitionName,
-        Map.of(), Long.class);
+    Long count = jdbc.queryForObject("SELECT COUNT(*) FROM " + partitionName, Map.of(), Long.class);
     return count != null ? count : 0;
   }
 
   /**
-   * Parse period start from partition name like {@code audit_log_2026_06}.
-   * Returns null if the partition does not match the expected pattern.
+   * Parse period start from partition name like {@code audit_log_2026_06}. Returns null if the
+   * partition does not match the expected pattern.
    */
   private static LocalDate parsePeriodStart(String partitionName, String tableName) {
     String prefix = tableName + "_";
@@ -243,7 +291,7 @@ public class ArchivePartitionCleanupService {
     String[] parts = suffix.split("_");
     if (parts.length < 2) return null;
     try {
-      int year  = Integer.parseInt(parts[0]);
+      int year = Integer.parseInt(parts[0]);
       int month = Integer.parseInt(parts[1]);
       return LocalDate.of(year, month, 1);
     } catch (NumberFormatException e) {
@@ -258,10 +306,13 @@ public class ArchivePartitionCleanupService {
     return secondLast < 0 ? partitionName : partitionName.substring(0, secondLast);
   }
 
-  private static PartitionCleanupPlan notEligible(String partitionName, String tableName,
-      LocalDate periodStart, LocalDate periodEnd, String reason) {
+  private static PartitionCleanupPlan notEligible(
+      String partitionName,
+      String tableName,
+      LocalDate periodStart,
+      LocalDate periodEnd,
+      String reason) {
     return new PartitionCleanupPlan(
-        partitionName, tableName, periodStart, periodEnd,
-        -1, -1, false, false, reason);
+        partitionName, tableName, periodStart, periodEnd, -1, -1, false, false, reason);
   }
 }

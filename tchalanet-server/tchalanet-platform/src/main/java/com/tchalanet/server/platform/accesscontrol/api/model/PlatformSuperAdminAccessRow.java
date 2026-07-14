@@ -4,8 +4,4 @@ import java.time.Instant;
 import java.util.UUID;
 
 public record PlatformSuperAdminAccessRow(
-    UUID userId,
-    String email,
-    String displayName,
-    String status,
-    Instant assignedAt) {}
+    UUID userId, String email, String displayName, String status, Instant assignedAt) {}

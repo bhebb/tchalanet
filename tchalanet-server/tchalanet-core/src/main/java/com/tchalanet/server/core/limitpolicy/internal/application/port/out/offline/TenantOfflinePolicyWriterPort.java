@@ -5,6 +5,6 @@ import com.tchalanet.server.core.limitpolicy.api.model.offline.OfflineLimitPolic
 
 public interface TenantOfflinePolicyWriterPort {
 
-    /** Upsert (insert or update) the offline policy for the given tenant. */
-    OfflineLimitPolicy upsert(TenantId tenantId, OfflineLimitPolicy policy);
+  /** Upsert (insert or update) the offline policy for the given tenant. */
+  OfflineLimitPolicy upsert(TenantId tenantId, OfflineLimitPolicy policy);
 }

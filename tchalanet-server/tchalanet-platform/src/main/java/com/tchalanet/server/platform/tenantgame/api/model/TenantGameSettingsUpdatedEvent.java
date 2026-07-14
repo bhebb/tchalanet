@@ -9,5 +9,4 @@ public record TenantGameSettingsUpdatedEvent(
     TenantId tenantId,
     String gameCode,
     Instant occurredAt,
-    String updatedBy
-) {}
+    String updatedBy) {}

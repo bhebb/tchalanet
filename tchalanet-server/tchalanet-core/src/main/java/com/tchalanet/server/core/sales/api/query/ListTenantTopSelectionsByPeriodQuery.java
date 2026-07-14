@@ -6,9 +6,5 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 
 public record ListTenantTopSelectionsByPeriodQuery(
-    TenantId tenantId,
-    LocalDate from,
-    LocalDate to,
-    ZoneId zoneId,
-    int limit
-) implements Query<TenantTopSelectionsByPeriodView> {}
+    TenantId tenantId, LocalDate from, LocalDate to, ZoneId zoneId, int limit)
+    implements Query<TenantTopSelectionsByPeriodView> {}

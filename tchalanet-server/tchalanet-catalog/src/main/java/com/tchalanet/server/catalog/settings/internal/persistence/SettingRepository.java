@@ -25,7 +25,8 @@ public interface SettingRepository
   // Resolution queries (read catalog)
   // ========================================
 
-  // Global / generic by level (no tenant param) - already used for GLOBAL but also usable for other levels
+  // Global / generic by level (no tenant param) - already used for GLOBAL but also usable for other
+  // levels
   List<SettingEntity> findByActiveTrueAndDeletedAtIsNullAndLevel(SettingLevel level);
 
   // Level + namespace (no tenant param)
@@ -45,10 +46,7 @@ public interface SettingRepository
 
   Optional<SettingEntity>
       findFirstByActiveTrueAndDeletedAtIsNullAndLevelAndTenantIdAndNamespaceAndSettingKey(
-          SettingLevel level,
-          UUID tenantId,
-          String namespace,
-          String settingKey);
+          SettingLevel level, UUID tenantId, String namespace, String settingKey);
 
   Page<SettingEntity> findByActiveTrueAndDeletedAtIsNull(Pageable pageable);
 

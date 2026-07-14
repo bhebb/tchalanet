@@ -1,6 +1,3 @@
 package com.tchalanet.server.catalog.resultslot;
 
-public class ResultSlotJpaAdapterTest {
-
-
-}
+public class ResultSlotJpaAdapterTest {}

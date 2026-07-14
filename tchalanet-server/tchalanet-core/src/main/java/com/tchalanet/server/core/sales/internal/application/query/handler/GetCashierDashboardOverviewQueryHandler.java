@@ -12,10 +12,10 @@ import lombok.RequiredArgsConstructor;
 public class GetCashierDashboardOverviewQueryHandler
     implements QueryHandler<GetCashierDashboardOverviewQuery, CashierDashboardOverviewView> {
 
-    private final CashierTicketDashboardReaderPort reader;
+  private final CashierTicketDashboardReaderPort reader;
 
-    @Override
-    public CashierDashboardOverviewView handle(GetCashierDashboardOverviewQuery query) {
-        return reader.getOverview(query.tenantId(), query.cashierId(), query.businessDate());
-    }
+  @Override
+  public CashierDashboardOverviewView handle(GetCashierDashboardOverviewQuery query) {
+    return reader.getOverview(query.tenantId(), query.cashierId(), query.businessDate());
+  }
 }

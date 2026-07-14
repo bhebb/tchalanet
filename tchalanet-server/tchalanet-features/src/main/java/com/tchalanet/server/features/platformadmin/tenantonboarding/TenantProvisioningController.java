@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * Tenant provisioning endpoints (dashboard-overview-runtime-v1 §tenant-provisioning).
  *
- *   POST /platform/tenant-onboarding/preview   — read-only, returns what would happen
- *   POST /platform/tenant-onboarding/provision — creates the tenant via owning APIs
+ * <p>POST /platform/tenant-onboarding/preview — read-only, returns what would happen POST
+ * /platform/tenant-onboarding/provision — creates the tenant via owning APIs
  */
 @RestController
 @RequestMapping("/platform/tenant-onboarding")

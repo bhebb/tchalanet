@@ -7,13 +7,12 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
-
-import java.util.UUID;
 
 @Entity
 @Table(name = "page_model_template")
@@ -22,45 +21,45 @@ import java.util.UUID;
 @NoArgsConstructor
 public class PageModelTemplateEntity extends BaseEntity {
 
-    @Column(name = "code", nullable = false, length = 128, unique = true)
-    private String code;
+  @Column(name = "code", nullable = false, length = 128, unique = true)
+  private String code;
 
-    @Column(name = "logical_id", nullable = false)
-    private String logicalId;
+  @Column(name = "logical_id", nullable = false)
+  private String logicalId;
 
-    @Column(name = "name", nullable = false, length = 255)
-    private String name;
+  @Column(name = "name", nullable = false, length = 255)
+  private String name;
 
-    @Column(name = "label")
-    private String label;
+  @Column(name = "label")
+  private String label;
 
-    @Column(name = "description")
-    private String description;
+  @Column(name = "description")
+  private String description;
 
-    @Column(name = "schema", nullable = false, columnDefinition = "jsonb")
-    @JdbcTypeCode(SqlTypes.JSON)
-    private String schema;
+  @Column(name = "schema", nullable = false, columnDefinition = "jsonb")
+  @JdbcTypeCode(SqlTypes.JSON)
+  private String schema;
 
-    @Column(name = "scope", nullable = false, length = 32)
-    private String scope;
+  @Column(name = "scope", nullable = false, length = 32)
+  private String scope;
 
-    @Column(name = "slug", nullable = false, length = 128)
-    private String slug;
+  @Column(name = "slug", nullable = false, length = 128)
+  private String slug;
 
-    @Column(name = "model", nullable = false, columnDefinition = "jsonb")
-    @JdbcTypeCode(SqlTypes.JSON)
-    private String model;
+  @Column(name = "model", nullable = false, columnDefinition = "jsonb")
+  @JdbcTypeCode(SqlTypes.JSON)
+  private String model;
 
-    @Column(name = "schema_version", nullable = false)
-    private Integer schemaVersion = 1;
+  @Column(name = "schema_version", nullable = false)
+  private Integer schemaVersion = 1;
 
-    @Column(name = "is_default", nullable = false)
-    private boolean isDefault;
+  @Column(name = "is_default", nullable = false)
+  private boolean isDefault;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "level", nullable = false, length = 16)
-    private PageModelTemplateLevel level = PageModelTemplateLevel.GLOBAL;
+  @Enumerated(EnumType.STRING)
+  @Column(name = "level", nullable = false, length = 16)
+  private PageModelTemplateLevel level = PageModelTemplateLevel.GLOBAL;
 
-    @Column(name = "tenant_id")
-    private UUID tenantId; // null when GLOBAL
+  @Column(name = "tenant_id")
+  private UUID tenantId; // null when GLOBAL
 }

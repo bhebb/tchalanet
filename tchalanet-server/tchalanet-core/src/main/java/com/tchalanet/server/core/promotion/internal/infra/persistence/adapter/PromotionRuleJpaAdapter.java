@@ -1,9 +1,9 @@
 package com.tchalanet.server.core.promotion.internal.infra.persistence.adapter;
 
-import com.tchalanet.server.core.promotion.internal.application.port.out.rule.PromotionRuleReadPort;
 import com.tchalanet.server.core.promotion.api.model.PromotionChoiceMode;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffect;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionQuantityTier;
+import com.tchalanet.server.core.promotion.internal.application.port.out.rule.PromotionRuleReadPort;
 import com.tchalanet.server.core.promotion.internal.domain.model.PromotionRule;
 import com.tchalanet.server.core.promotion.internal.domain.model.PromotionRuleEligibilityLine;
 import com.tchalanet.server.core.promotion.internal.infra.persistence.entity.PromotionRuleEffectJpaEntity;
@@ -12,105 +12,109 @@ import com.tchalanet.server.core.promotion.internal.infra.persistence.entity.Pro
 import com.tchalanet.server.core.promotion.internal.infra.persistence.repository.PromotionRuleEffectRepository;
 import com.tchalanet.server.core.promotion.internal.infra.persistence.repository.PromotionRuleEligibilityLineRepository;
 import com.tchalanet.server.core.promotion.internal.infra.persistence.repository.PromotionRuleRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
 class PromotionRuleJpaAdapter implements PromotionRuleReadPort {
-    private final PromotionRuleRepository repository;
-    private final PromotionRuleEffectRepository effectRepository;
-    private final PromotionRuleEligibilityLineRepository eligibilityLineRepository;
+  private final PromotionRuleRepository repository;
+  private final PromotionRuleEffectRepository effectRepository;
+  private final PromotionRuleEligibilityLineRepository eligibilityLineRepository;
 
-    @Override
-    public List<PromotionRule> findActiveRules() {
-        var rules = repository.findActiveRules();
-        var ruleIds = rules.stream().map(PromotionRuleJpaEntity::getId).toList();
-        Map<UUID, List<PromotionRuleEffectJpaEntity>> effectsByRuleId = effectRepository.findByRuleIdIn(ruleIds)
-            .stream()
+  @Override
+  public List<PromotionRule> findActiveRules() {
+    var rules = repository.findActiveRules();
+    var ruleIds = rules.stream().map(PromotionRuleJpaEntity::getId).toList();
+    Map<UUID, List<PromotionRuleEffectJpaEntity>> effectsByRuleId =
+        effectRepository.findByRuleIdIn(ruleIds).stream()
             .collect(Collectors.groupingBy(PromotionRuleEffectJpaEntity::getRuleId));
-        Map<UUID, List<PromotionRuleEligibilityLineJpaEntity>> eligibilityByRuleId = eligibilityLineRepository.findByRuleIdIn(ruleIds)
-            .stream()
+    Map<UUID, List<PromotionRuleEligibilityLineJpaEntity>> eligibilityByRuleId =
+        eligibilityLineRepository.findByRuleIdIn(ruleIds).stream()
             .collect(Collectors.groupingBy(PromotionRuleEligibilityLineJpaEntity::getRuleId));
 
-        return rules.stream()
-            .map(rule -> toDomain(
-                rule,
-                eligibilityByRuleId.getOrDefault(rule.getId(), List.of()),
-                effectsByRuleId.getOrDefault(rule.getId(), List.of())))
-            .toList();
-    }
+    return rules.stream()
+        .map(
+            rule ->
+                toDomain(
+                    rule,
+                    eligibilityByRuleId.getOrDefault(rule.getId(), List.of()),
+                    effectsByRuleId.getOrDefault(rule.getId(), List.of())))
+        .toList();
+  }
 
-    private PromotionRule toDomain(
-        PromotionRuleJpaEntity rule,
-        List<PromotionRuleEligibilityLineJpaEntity> eligibilityLines,
-        List<PromotionRuleEffectJpaEntity> effects
-    ) {
-        return new PromotionRule(
-            com.tchalanet.server.common.types.id.PromotionRuleId.of(rule.getId()),
-            com.tchalanet.server.common.types.id.PromotionCampaignId.of(rule.getCampaignId()),
-            rule.getRuleKey(),
-            rule.getPriority(),
-            rule.getMinPaidTotal(),
-            rule.getBeforeLocalTime(),
-            eligibilityLines.stream()
-                .map(line -> new PromotionRuleEligibilityLine(line.getGameCode(), line.getMinCount()))
-                .toList(),
-            effects.stream().map(this::toEffect).toList()
-        );
-    }
+  private PromotionRule toDomain(
+      PromotionRuleJpaEntity rule,
+      List<PromotionRuleEligibilityLineJpaEntity> eligibilityLines,
+      List<PromotionRuleEffectJpaEntity> effects) {
+    return new PromotionRule(
+        com.tchalanet.server.common.types.id.PromotionRuleId.of(rule.getId()),
+        com.tchalanet.server.common.types.id.PromotionCampaignId.of(rule.getCampaignId()),
+        rule.getRuleKey(),
+        rule.getPriority(),
+        rule.getMinPaidTotal(),
+        rule.getBeforeLocalTime(),
+        eligibilityLines.stream()
+            .map(line -> new PromotionRuleEligibilityLine(line.getGameCode(), line.getMinCount()))
+            .toList(),
+        effects.stream().map(this::toEffect).toList());
+  }
 
-    private PromotionEffect toEffect(PromotionRuleEffectJpaEntity effect) {
-        return new PromotionEffect(
-            com.tchalanet.server.common.types.id.PromotionRuleId.of(effect.getRuleId()),
-            null,
-            null,
-            effect.getEffectType(),
-            effect.getGameCode(),
-            effect.getQuantity() == null ? 1 : effect.getQuantity(),
-            effect.getQuantityMode(),
-            effect.getStepPaidAmount(),
-            effect.getQuantityPerStep() == null ? 1 : effect.getQuantityPerStep(),
-            effect.getMaxQuantity() == null
-                ? (effect.getQuantity() == null ? 1 : effect.getQuantity())
-                : effect.getMaxQuantity(),
-            toQuantityTiers(effect.getQuantityTiers()),
-            effect.getPayoutBaseAmount() != null ? effect.getPayoutBaseAmount() : effect.getOddsOverride(),
-            null,
-            effect.getChargeType(),
-            null,
-            effect.getChoiceMode() == null ? PromotionChoiceMode.NONE : effect.getChoiceMode(),
-            effect.getGenerationStrategy(),
-            effect.isRegenerableBeforeConfirm(),
-            effect.getMaxRegenerationsBeforeConfirm()
-        );
-    }
+  private PromotionEffect toEffect(PromotionRuleEffectJpaEntity effect) {
+    return new PromotionEffect(
+        com.tchalanet.server.common.types.id.PromotionRuleId.of(effect.getRuleId()),
+        null,
+        null,
+        effect.getEffectType(),
+        effect.getGameCode(),
+        effect.getQuantity() == null ? 1 : effect.getQuantity(),
+        effect.getQuantityMode(),
+        effect.getStepPaidAmount(),
+        effect.getQuantityPerStep() == null ? 1 : effect.getQuantityPerStep(),
+        effect.getMaxQuantity() == null
+            ? (effect.getQuantity() == null ? 1 : effect.getQuantity())
+            : effect.getMaxQuantity(),
+        toQuantityTiers(effect.getQuantityTiers()),
+        effect.getPayoutBaseAmount() != null
+            ? effect.getPayoutBaseAmount()
+            : effect.getOddsOverride(),
+        null,
+        effect.getChargeType(),
+        null,
+        effect.getChoiceMode() == null ? PromotionChoiceMode.NONE : effect.getChoiceMode(),
+        effect.getGenerationStrategy(),
+        effect.isRegenerableBeforeConfirm(),
+        effect.getMaxRegenerationsBeforeConfirm());
+  }
 
-    private List<PromotionQuantityTier> toQuantityTiers(List<Map<String, Object>> tiers) {
-        if (tiers == null || tiers.isEmpty()) {
-            return List.of();
-        }
-        return tiers.stream()
-            .map(tier -> new PromotionQuantityTier(
-                decimal(tier.get("minPaidAmount")),
-                tier.get("maxPaidAmount") == null ? null : decimal(tier.get("maxPaidAmount")),
-                integer(tier.get("quantity"))
-            ))
-            .toList();
+  private List<PromotionQuantityTier> toQuantityTiers(List<Map<String, Object>> tiers) {
+    if (tiers == null || tiers.isEmpty()) {
+      return List.of();
     }
+    return tiers.stream()
+        .map(
+            tier ->
+                new PromotionQuantityTier(
+                    decimal(tier.get("minPaidAmount")),
+                    tier.get("maxPaidAmount") == null ? null : decimal(tier.get("maxPaidAmount")),
+                    integer(tier.get("quantity"))))
+        .toList();
+  }
 
-    private BigDecimal decimal(Object value) {
-        return value instanceof Number number
-            ? new BigDecimal(number.toString())
-            : new BigDecimal(String.valueOf(value));
-    }
+  private BigDecimal decimal(Object value) {
+    return value instanceof Number number
+        ? new BigDecimal(number.toString())
+        : new BigDecimal(String.valueOf(value));
+  }
 
-    private int integer(Object value) {
-        return value instanceof Number number ? number.intValue() : Integer.parseInt(String.valueOf(value));
-    }
+  private int integer(Object value) {
+    return value instanceof Number number
+        ? number.intValue()
+        : Integer.parseInt(String.valueOf(value));
+  }
 }

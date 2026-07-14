@@ -5,4 +5,3 @@ public enum PageModelStatus {
   PUBLISHED,
   ARCHIVED
 }
-

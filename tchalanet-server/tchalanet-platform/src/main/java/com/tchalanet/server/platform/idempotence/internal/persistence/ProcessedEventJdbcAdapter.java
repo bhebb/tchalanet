@@ -2,11 +2,10 @@ package com.tchalanet.server.platform.idempotence.internal.persistence;
 
 import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.platform.idempotence.api.ProcessedEventPort;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
-
-import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -17,12 +16,17 @@ public class ProcessedEventJdbcAdapter implements ProcessedEventPort {
 
   @Override
   public boolean alreadyProcessed(String handlerKey, UUID eventId) {
-    Integer found = jdbc.queryForObject("""
+    Integer found =
+        jdbc.queryForObject(
+            """
         SELECT COUNT(1)
         FROM processed_event
         WHERE handler_key = ?
           AND event_id = ?
-        """, Integer.class, handlerKey, eventId);
+        """,
+            Integer.class,
+            handlerKey,
+            eventId);
     return found != null && found > 0;
   }
 
@@ -38,11 +42,17 @@ public class ProcessedEventJdbcAdapter implements ProcessedEventPort {
     UUID createdBy = null;
     if (ctx.userUuid() != null) createdBy = ctx.userUuid();
 
-    int inserted = jdbc.update("""
+    int inserted =
+        jdbc.update(
+            """
         INSERT INTO processed_event (tenant_id, handler_key, event_id, created_by)
         VALUES (?, ?, ?, ?)
         ON CONFLICT (tenant_id, handler_key, event_id) DO NOTHING
-        """, tenantId, handlerKey, eventId, createdBy);
+        """,
+            tenantId,
+            handlerKey,
+            eventId,
+            createdBy);
     return inserted > 0;
   }
 }

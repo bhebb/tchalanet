@@ -1,8 +1,8 @@
 package com.tchalanet.server.platform.identity.internal.firebase;
 
+import com.google.firebase.auth.AuthErrorCode;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
-import com.google.firebase.auth.AuthErrorCode;
 import com.google.firebase.auth.UserRecord;
 import com.tchalanet.server.platform.identity.api.IdentityProviderType;
 import com.tchalanet.server.platform.identity.api.IdentityProvisioningApi;
@@ -43,11 +43,7 @@ public class FirebaseUserProvisionService implements IdentityProvisioningApi {
   }
 
   public FirebaseProvisionResult provisionUser(
-      String uid,
-      String email,
-      String phone,
-      String displayName,
-      String password) {
+      String uid, String email, String phone, String displayName, String password) {
     requireEmailOrPhone(email, phone);
     var firebaseAuth = requiredFirebaseAuth();
 
@@ -102,7 +98,8 @@ public class FirebaseUserProvisionService implements IdentityProvisioningApi {
     }
   }
 
-  private UserRecord findExisting(FirebaseAuth firebaseAuth, String uid, String email, String phone) {
+  private UserRecord findExisting(
+      FirebaseAuth firebaseAuth, String uid, String email, String phone) {
     if (uid != null && !uid.isBlank()) {
       var byUid = find(() -> firebaseAuth.getUser(uid.trim()));
       if (byUid != null) {

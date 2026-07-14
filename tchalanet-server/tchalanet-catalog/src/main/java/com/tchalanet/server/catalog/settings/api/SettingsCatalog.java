@@ -4,14 +4,13 @@ import com.tchalanet.server.catalog.settings.api.model.ResolveSettingsCriteria;
 import com.tchalanet.server.catalog.settings.api.model.ResolvedSettingView;
 import com.tchalanet.server.catalog.settings.api.model.SettingView;
 import com.tchalanet.server.catalog.settings.api.model.SettingsCatalogStatsView;
-
 import java.util.List;
 
 /**
  * Settings Catalog - Read Contract
  *
- * <p>Provides read-only access to application settings with hierarchical resolution:
- * GLOBAL → TENANT
+ * <p>Provides read-only access to application settings with hierarchical resolution: GLOBAL →
+ * TENANT
  *
  * <p>Settings are merged in order of specificity, with later levels overriding earlier ones.
  *
@@ -34,8 +33,6 @@ public interface SettingsCatalog {
    */
   List<ResolvedSettingView> resolve(ResolveSettingsCriteria criteria);
 
-  /**
-   * Global statistics for settings (used by platform admin overview)
-   */
+  /** Global statistics for settings (used by platform admin overview) */
   SettingsCatalogStatsView stats();
 }

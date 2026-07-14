@@ -5,10 +5,8 @@ import com.tchalanet.server.catalog.settings.api.model.SettingLevel;
 import com.tchalanet.server.catalog.settings.api.model.SettingView;
 import com.tchalanet.server.catalog.settings.internal.persistence.SettingEntity;
 import com.tchalanet.server.common.mapper.CommonIdMapper;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapper;
-
 import java.util.List;
+import org.mapstruct.Mapper;
 
 /**
  * Setting Mapper (INTERNAL)
@@ -18,7 +16,9 @@ import java.util.List;
  *
  * <p>Uses {@link CommonIdMapper} for ID conversions (UUID ↔ typed IDs).
  */
-@Mapper(componentModel = "spring", uses = {CommonIdMapper.class})
+@Mapper(
+    componentModel = "spring",
+    uses = {CommonIdMapper.class})
 public interface SettingMapper {
 
   /**

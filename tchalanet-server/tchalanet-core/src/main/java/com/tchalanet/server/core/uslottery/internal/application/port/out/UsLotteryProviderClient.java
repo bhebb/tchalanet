@@ -10,15 +10,14 @@ import com.tchalanet.server.core.uslottery.internal.application.model.UsLotteryP
  */
 public interface UsLotteryProviderClient {
 
-    /**
-     * Provider identifier (NY, FL, GA, ...)
-     */
-    UsLotteryProvider provider();
+  /** Provider identifier (NY, FL, GA, ...) */
+  UsLotteryProvider provider();
 
-    /**
-     * Fetch draws according to the provided query. Prefer fetching for a single date per call. The
-     * caller (orchestrator) may call this for several dates when daysBack & maxDraws are used.
-     * externalGameCodes may be empty — adapter should return whatever draws are available for that date.
-     */
-    UsLotteryProviderResponse fetch(UsLotteryProviderQuery query);
+  /**
+   * Fetch draws according to the provided query. Prefer fetching for a single date per call. The
+   * caller (orchestrator) may call this for several dates when daysBack & maxDraws are used.
+   * externalGameCodes may be empty — adapter should return whatever draws are available for that
+   * date.
+   */
+  UsLotteryProviderResponse fetch(UsLotteryProviderQuery query);
 }

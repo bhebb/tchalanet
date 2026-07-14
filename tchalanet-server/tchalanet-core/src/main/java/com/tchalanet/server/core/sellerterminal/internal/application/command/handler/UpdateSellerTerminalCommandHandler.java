@@ -13,15 +13,16 @@ import lombok.RequiredArgsConstructor;
 public class UpdateSellerTerminalCommandHandler
     implements CommandHandler<UpdateSellerTerminalCommand, Void> {
 
-    private final SellerTerminalReaderPort reader;
-    private final SellerTerminalWriterPort writer;
+  private final SellerTerminalReaderPort reader;
+  private final SellerTerminalWriterPort writer;
 
-    @Override
-    @TchTx
-    public Void handle(UpdateSellerTerminalCommand cmd) {
-        var terminal = reader.getRequired(cmd.tenantId(), cmd.terminalId());
+  @Override
+  @TchTx
+  public Void handle(UpdateSellerTerminalCommand cmd) {
+    var terminal = reader.getRequired(cmd.tenantId(), cmd.terminalId());
 
-        var updated = terminal.updateProfile(
+    var updated =
+        terminal.updateProfile(
             cmd.displayName(),
             cmd.firstName(),
             cmd.lastName(),
@@ -29,12 +30,12 @@ public class UpdateSellerTerminalCommandHandler
             cmd.phoneNumber(),
             cmd.addressId());
 
-        if (cmd.commissionRate() != null
-            && cmd.commissionRate().compareTo(terminal.commissionRate()) != 0) {
-            updated = updated.updateCommissionRate(cmd.commissionRate());
-        }
-
-        writer.save(updated);
-        return null;
+    if (cmd.commissionRate() != null
+        && cmd.commissionRate().compareTo(terminal.commissionRate()) != 0) {
+      updated = updated.updateCommissionRate(cmd.commissionRate());
     }
+
+    writer.save(updated);
+    return null;
+  }
 }

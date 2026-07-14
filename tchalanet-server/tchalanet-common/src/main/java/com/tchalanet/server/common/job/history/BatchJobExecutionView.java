@@ -11,5 +11,4 @@ public record BatchJobExecutionView(
     Instant endedAt,
     String context,
     String exitCode,
-    String exitMessage
-) {}
+    String exitMessage) {}

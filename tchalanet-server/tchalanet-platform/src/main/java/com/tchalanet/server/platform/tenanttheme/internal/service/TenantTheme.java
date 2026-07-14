@@ -14,12 +14,12 @@ public record TenantTheme(
     Map<String, String> tokenOverrides,
     Instant createdAt,
     Instant updatedAt,
-    String createdBy
-) {
-    public TenantTheme {
-        if (tenantId == null) throw new IllegalArgumentException("tenantId is required");
-        if (presetCode == null || presetCode.isBlank()) throw new IllegalArgumentException("presetCode is required");
-        if (version < 0) throw new IllegalArgumentException("version must be >= 0");
-        if (defaultMode == null || defaultMode.isBlank()) defaultMode = "SYSTEM";
-    }
+    String createdBy) {
+  public TenantTheme {
+    if (tenantId == null) throw new IllegalArgumentException("tenantId is required");
+    if (presetCode == null || presetCode.isBlank())
+      throw new IllegalArgumentException("presetCode is required");
+    if (version < 0) throw new IllegalArgumentException("version must be >= 0");
+    if (defaultMode == null || defaultMode.isBlank()) defaultMode = "SYSTEM";
+  }
 }

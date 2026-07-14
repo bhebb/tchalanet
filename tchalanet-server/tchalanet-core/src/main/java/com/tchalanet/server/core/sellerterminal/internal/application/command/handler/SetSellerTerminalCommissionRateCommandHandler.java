@@ -13,14 +13,14 @@ import lombok.RequiredArgsConstructor;
 public class SetSellerTerminalCommissionRateCommandHandler
     implements CommandHandler<SetSellerTerminalCommissionRateCommand, Void> {
 
-    private final SellerTerminalReaderPort reader;
-    private final SellerTerminalWriterPort writer;
+  private final SellerTerminalReaderPort reader;
+  private final SellerTerminalWriterPort writer;
 
-    @Override
-    @TchTx
-    public Void handle(SetSellerTerminalCommissionRateCommand cmd) {
-        var terminal = reader.getRequired(cmd.tenantId(), cmd.sellerTerminalId());
-        writer.save(terminal.updateCommissionRate(cmd.commissionRate()));
-        return null;
-    }
+  @Override
+  @TchTx
+  public Void handle(SetSellerTerminalCommissionRateCommand cmd) {
+    var terminal = reader.getRequired(cmd.tenantId(), cmd.sellerTerminalId());
+    writer.save(terminal.updateCommissionRate(cmd.commissionRate()));
+    return null;
+  }
 }

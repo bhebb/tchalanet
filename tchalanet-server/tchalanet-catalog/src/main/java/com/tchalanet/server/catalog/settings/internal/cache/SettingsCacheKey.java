@@ -38,10 +38,7 @@ public final class SettingsCacheKey {
     Objects.requireNonNull(tenantId, "tenantId is required");
 
     var ns = normalize(namespaces);
-    return "t="
-        + tenantId.value()
-        + "|ns="
-        + String.join(",", ns);
+    return "t=" + tenantId.value() + "|ns=" + String.join(",", ns);
   }
 
   /**

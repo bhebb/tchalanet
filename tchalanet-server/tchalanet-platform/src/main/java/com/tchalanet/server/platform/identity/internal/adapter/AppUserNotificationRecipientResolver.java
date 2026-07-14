@@ -36,15 +36,18 @@ class AppUserNotificationRecipientResolver implements NotificationRecipientResol
   public List<NotificationRecipientContact> resolveAudience(
       TenantId tenantId, NotificationAudienceType audienceType) {
     return switch (audienceType) {
-      case PLATFORM_ADMINS -> identityApi.listPlatformAdminsForNotificationDelivery().stream()
-          .map(user -> toContact(tenantId, user))
-          .toList();
-      case TENANT_ADMINS -> identityApi.listTenantAdminsForNotificationDelivery(tenantId).stream()
-          .map(user -> toContact(tenantId, user))
-          .toList();
-      case TENANT_APP_USERS -> identityApi.listTenantUsersForNotificationDelivery(tenantId).stream()
-          .map(user -> toContact(tenantId, user))
-          .toList();
+      case PLATFORM_ADMINS ->
+          identityApi.listPlatformAdminsForNotificationDelivery().stream()
+              .map(user -> toContact(tenantId, user))
+              .toList();
+      case TENANT_ADMINS ->
+          identityApi.listTenantAdminsForNotificationDelivery(tenantId).stream()
+              .map(user -> toContact(tenantId, user))
+              .toList();
+      case TENANT_APP_USERS ->
+          identityApi.listTenantUsersForNotificationDelivery(tenantId).stream()
+              .map(user -> toContact(tenantId, user))
+              .toList();
       case SPECIFIC_ACTORS, ALL_APP_USERS, TENANT_SELLER_TERMINALS -> List.of();
     };
   }

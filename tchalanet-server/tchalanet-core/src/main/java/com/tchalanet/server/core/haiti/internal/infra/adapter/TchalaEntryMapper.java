@@ -48,10 +48,12 @@ final class TchalaEntryMapper {
     entity.setNote(entry.note() == null ? "" : entry.note());
     entity.setStatus(TchalaEntryStatusDb.valueOf(entry.status().name()));
     entity.setSource(TchalaEntrySourceDb.valueOf(entry.source().name()));
-    entity.setConflictWithEntryId(entry.conflictWithEntryId().map(TchalaEntryId::value).orElse(null));
+    entity.setConflictWithEntryId(
+        entry.conflictWithEntryId().map(TchalaEntryId::value).orElse(null));
     entity.setCanonicalEntryId(entry.canonicalEntryId().map(TchalaEntryId::value).orElse(null));
 
-    entity.replaceNumbers(entry.lang().value(), entry.numbers().stream().map(TchalaNumber::value).toList());
+    entity.replaceNumbers(
+        entry.lang().value(), entry.numbers().stream().map(TchalaNumber::value).toList());
 
     return entity;
   }

@@ -12,5 +12,5 @@ public record ResolveSellerTerminalPayoutRuleQuery(
     String gameCode,
     PricingVariantCode pricingVariantCode,
     String betType,
-    Short betOption
-) implements Query<SellerTerminalPayoutRuleResolutionView> {}
+    Short betOption)
+    implements Query<SellerTerminalPayoutRuleResolutionView> {}

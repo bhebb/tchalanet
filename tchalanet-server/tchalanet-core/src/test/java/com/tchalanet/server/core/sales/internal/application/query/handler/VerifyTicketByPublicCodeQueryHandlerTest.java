@@ -1,5 +1,8 @@
 package com.tchalanet.server.core.sales.internal.application.query.handler;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import com.tchalanet.server.catalog.game.api.GameCatalog;
 import com.tchalanet.server.catalog.game.api.model.GameStatsView;
 import com.tchalanet.server.catalog.game.api.model.GameSummaryView;
@@ -30,9 +33,6 @@ import com.tchalanet.server.core.sales.internal.application.receipt.formatter.Ti
 import com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketReceiptI18nResolver;
 import com.tchalanet.server.core.sales.internal.domain.service.CustomerTicketStatusResolver;
 import com.tchalanet.server.core.sales.internal.domain.service.TicketVisibilityPolicy;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
-
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
@@ -45,229 +45,232 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 class VerifyTicketByPublicCodeQueryHandlerTest {
 
-    private static final TenantId TENANT_ID =
-        TenantId.of(UUID.fromString("20000000-0000-0000-0000-000000000001"));
+  private static final TenantId TENANT_ID =
+      TenantId.of(UUID.fromString("20000000-0000-0000-0000-000000000001"));
 
-    @AfterEach
-    void clearContext() {
-        TchContext.clear();
+  @AfterEach
+  void clearContext() {
+    TchContext.clear();
+  }
+
+  @Test
+  void translatesReceiptPromotionKeysUsingCurrentContextLocale() {
+    TchContext.set(context(Locale.ENGLISH));
+    var handler = handler(new StubTicketVerificationReader(Instant.parse("2026-05-27T09:00:00Z")));
+
+    var result = handler.handle(new VerifyTicketByPublicCodeQuery("ABCD-EFGH"));
+
+    assertThat(result.lines())
+        .singleElement()
+        .extracting(line -> line.promotionLabel())
+        .isEqualTo("Free Maryaj");
+  }
+
+  @Test
+  void unknownOrWrongVerificationCodeReturnsTicketNotFound() {
+    var handler = handler((publicCode) -> Optional.empty());
+
+    assertThatThrownBy(() -> handler.handle(new VerifyTicketByPublicCodeQuery("ABCD-EFGH")))
+        .isInstanceOf(ProblemRestException.class)
+        .extracting(ex -> ((ProblemRestException) ex).getProblem().getStatus())
+        .isEqualTo(404);
+  }
+
+  @Test
+  void hiddenTicketReturnsTicketNotFound() {
+    var handler = handler(new StubTicketVerificationReader(Instant.parse("2025-01-01T09:00:00Z")));
+
+    assertThatThrownBy(() -> handler.handle(new VerifyTicketByPublicCodeQuery("ABCD-EFGH")))
+        .isInstanceOf(ProblemRestException.class)
+        .extracting(ex -> ((ProblemRestException) ex).getProblem().getStatus())
+        .isEqualTo(404);
+  }
+
+  @Test
+  void winningTicketDisplaysPersistedRealizedWinningAmount() {
+    var handler =
+        handler(
+            StubTicketVerificationReader.wonPaid(
+                Instant.parse("2026-05-27T09:00:00Z"), new BigDecimal("1250.00")));
+
+    var result = handler.handle(new VerifyTicketByPublicCodeQuery("ABCD-EFGH"));
+
+    assertThat(result.winningAmount()).isNotNull();
+    assertThat(result.winningAmount().amount()).isEqualByComparingTo("1250.00");
+  }
+
+  private static VerifyTicketByPublicCodeQueryHandler handler(TicketVerificationReaderPort reader) {
+    return new VerifyTicketByPublicCodeQueryHandler(
+        reader,
+        new CustomerTicketStatusResolver(),
+        new TicketVisibilityPolicy(
+            new TicketVisibilityProperties(90),
+            Clock.fixed(Instant.parse("2026-05-27T10:00:00Z"), ZoneOffset.UTC)),
+        new EmptyGameCatalog(),
+        new TicketPublicCodeFormatter(),
+        new TicketReceiptI18nResolver(new StubI18nOverridesCatalog()));
+  }
+
+  private static TchRequestContext context(Locale locale) {
+    return new TchRequestContext(
+        "demo",
+        TENANT_ID.value(),
+        "demo",
+        TENANT_ID.value(),
+        UUID.fromString("10000000-0000-0000-0000-000000000001"),
+        Set.of(),
+        Set.of(),
+        locale,
+        "req-1",
+        "127.0.0.1",
+        "test",
+        false,
+        null,
+        "active",
+        ApiScope.PUBLIC,
+        null,
+        TENANT_ID,
+        ZoneOffset.UTC,
+        Currency.getInstance("USD"),
+        null,
+        null,
+        null,
+        null,
+        null,
+        null);
+  }
+
+  private record StubTicketVerificationReader(
+      Instant placedAt,
+      TicketResultStatus resultStatus,
+      TicketSettlementStatus settlementStatus,
+      Money winningAmount)
+      implements TicketVerificationReaderPort {
+
+    private StubTicketVerificationReader(Instant placedAt) {
+      this(placedAt, TicketResultStatus.PENDING, TicketSettlementStatus.NOT_SETTLED, null);
     }
 
-    @Test
-    void translatesReceiptPromotionKeysUsingCurrentContextLocale() {
-        TchContext.set(context(Locale.ENGLISH));
-        var handler = handler(new StubTicketVerificationReader(Instant.parse("2026-05-27T09:00:00Z")));
-
-        var result = handler.handle(new VerifyTicketByPublicCodeQuery("ABCD-EFGH"));
-
-        assertThat(result.lines()).singleElement()
-            .extracting(line -> line.promotionLabel())
-            .isEqualTo("Free Maryaj");
+    private static StubTicketVerificationReader wonPaid(
+        Instant placedAt, BigDecimal winningAmount) {
+      var usd = CurrencyCode.of("USD");
+      return new StubTicketVerificationReader(
+          placedAt,
+          TicketResultStatus.WON,
+          TicketSettlementStatus.PAID,
+          new Money(winningAmount, usd));
     }
 
-    @Test
-    void unknownOrWrongVerificationCodeReturnsTicketNotFound() {
-        var handler = handler((publicCode) -> Optional.empty());
+    @Override
+    public Optional<TicketVerificationProjection> findByPublicCode(String publicCode) {
+      var usd = CurrencyCode.of("USD");
+      return Optional.of(
+          new TicketVerificationProjection(
+              TENANT_ID,
+              publicCode,
+              "ABCD-EFGH",
+              TicketSaleStatus.APPROVED,
+              resultStatus,
+              settlementStatus,
+              placedAt,
+              new Money(BigDecimal.TEN, usd),
+              winningAmount,
+              new TicketVerificationProjection.DrawProjection(
+                  "HAITI",
+                  "Haiti",
+                  "GA_LATE",
+                  "GA",
+                  "America/New_York",
+                  LocalDate.parse("2026-05-27"),
+                  Instant.parse("2026-05-27T20:00:00Z")),
+              new TicketVerificationProjection.OutletProjection("Outlet"),
+              List.of(
+                  new TicketVerificationProjection.LineProjection(
+                      1,
+                      null,
+                      null,
+                      null,
+                      null,
+                      null,
+                      null,
+                      "12-34",
+                      new Money(BigDecimal.ZERO, usd),
+                      true,
+                      TicketReceiptI18nKeys.PROMOTION_FREE_GAME_LINE))));
+    }
+  }
 
-        assertThatThrownBy(() -> handler.handle(new VerifyTicketByPublicCodeQuery("ABCD-EFGH")))
-            .isInstanceOf(ProblemRestException.class)
-            .extracting(ex -> ((ProblemRestException) ex).getProblem().getStatus())
-            .isEqualTo(404);
+  private static final class StubI18nOverridesCatalog implements I18nOverridesCatalog {
+    @Override
+    public TchPage<I18nOverrideView> search(
+        SearchI18nOverridesCriteria criteria, TchPageRequest pageRequest) {
+      return TchPage.of(List.of(), 0, 20, 0, 0, true, false, false);
     }
 
-    @Test
-    void hiddenTicketReturnsTicketNotFound() {
-        var handler = handler(new StubTicketVerificationReader(Instant.parse("2025-01-01T09:00:00Z")));
-
-        assertThatThrownBy(() -> handler.handle(new VerifyTicketByPublicCodeQuery("ABCD-EFGH")))
-            .isInstanceOf(ProblemRestException.class)
-            .extracting(ex -> ((ProblemRestException) ex).getProblem().getStatus())
-            .isEqualTo(404);
+    @Override
+    public Optional<I18nOverrideView> findByKey(String locale, String i18nKey) {
+      return Optional.empty();
     }
 
-    @Test
-    void winningTicketDisplaysPersistedRealizedWinningAmount() {
-        var handler = handler(StubTicketVerificationReader.wonPaid(
-            Instant.parse("2026-05-27T09:00:00Z"),
-            new BigDecimal("1250.00")));
-
-        var result = handler.handle(new VerifyTicketByPublicCodeQuery("ABCD-EFGH"));
-
-        assertThat(result.winningAmount()).isNotNull();
-        assertThat(result.winningAmount().amount()).isEqualByComparingTo("1250.00");
+    @Override
+    public Map<String, String> resolveLocale(String locale, TchRequestContext ctx) {
+      return values(locale);
     }
 
-    private static VerifyTicketByPublicCodeQueryHandler handler(TicketVerificationReaderPort reader) {
-        return new VerifyTicketByPublicCodeQueryHandler(
-            reader,
-            new CustomerTicketStatusResolver(),
-            new TicketVisibilityPolicy(
-                new TicketVisibilityProperties(90),
-                Clock.fixed(Instant.parse("2026-05-27T10:00:00Z"), ZoneOffset.UTC)
-            ),
-            new EmptyGameCatalog(),
-            new TicketPublicCodeFormatter(),
-            new TicketReceiptI18nResolver(new StubI18nOverridesCatalog())
-        );
+    @Override
+    public Map<String, String> resolveLocaleForTenant(String locale, TenantId tenantId) {
+      return values(locale);
     }
 
-    private static TchRequestContext context(Locale locale) {
-        return new TchRequestContext(
-            "demo",
-            TENANT_ID.value(),
-            "demo",
-            TENANT_ID.value(),
-            UUID.fromString("10000000-0000-0000-0000-000000000001"),
-            Set.of(),
-            Set.of(),
-            locale,
-            "req-1",
-            "127.0.0.1",
-            "test",
-            false,
-            null,
-            "active",
-            ApiScope.PUBLIC,
-            null,
-            TENANT_ID,
-            ZoneOffset.UTC,
-            Currency.getInstance("USD"),
-            null,
-            null, null, null, null, null
-        );
+    @Override
+    public com.tchalanet.server.catalog.i18n.api.model.I18nBundleView loadBundle(
+        String locale,
+        java.util.Set<com.tchalanet.server.catalog.i18n.api.model.I18nSurface> surfaces) {
+      return new com.tchalanet.server.catalog.i18n.api.model.I18nBundleView(locale, Map.of());
     }
 
-    private record StubTicketVerificationReader(
-        Instant placedAt,
-        TicketResultStatus resultStatus,
-        TicketSettlementStatus settlementStatus,
-        Money winningAmount
-    ) implements TicketVerificationReaderPort {
-
-        private StubTicketVerificationReader(Instant placedAt) {
-            this(placedAt, TicketResultStatus.PENDING, TicketSettlementStatus.NOT_SETTLED, null);
-        }
-
-        private static StubTicketVerificationReader wonPaid(Instant placedAt, BigDecimal winningAmount) {
-            var usd = CurrencyCode.of("USD");
-            return new StubTicketVerificationReader(
-                placedAt,
-                TicketResultStatus.WON,
-                TicketSettlementStatus.PAID,
-                new Money(winningAmount, usd));
-        }
-
-        @Override
-        public Optional<TicketVerificationProjection> findByPublicCode(
-            String publicCode) {
-            var usd = CurrencyCode.of("USD");
-            return Optional.of(new TicketVerificationProjection(
-                TENANT_ID,
-                publicCode,
-                "ABCD-EFGH",
-                TicketSaleStatus.APPROVED,
-                resultStatus,
-                settlementStatus,
-                placedAt,
-                new Money(BigDecimal.TEN, usd),
-                winningAmount,
-                new TicketVerificationProjection.DrawProjection(
-                    "HAITI",
-                    "Haiti",
-                    "GA_LATE",
-                    "GA",
-                    "America/New_York",
-                    LocalDate.parse("2026-05-27"),
-                    Instant.parse("2026-05-27T20:00:00Z")
-                ),
-                new TicketVerificationProjection.OutletProjection("Outlet"),
-                List.of(new TicketVerificationProjection.LineProjection(
-                    1,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    "12-34",
-                    new Money(BigDecimal.ZERO, usd),
-                    true,
-                    TicketReceiptI18nKeys.PROMOTION_FREE_GAME_LINE
-                ))
-            ));
-        }
+    @Override
+    public I18nGlobalKeyStatsView keyStats() {
+      return new I18nGlobalKeyStatsView(0, 0, 0);
     }
 
-    private static final class StubI18nOverridesCatalog implements I18nOverridesCatalog {
-        @Override
-        public TchPage<I18nOverrideView> search(SearchI18nOverridesCriteria criteria, TchPageRequest pageRequest) {
-            return TchPage.of(List.of(), 0, 20, 0, 0, true, false, false);
-        }
+    private Map<String, String> values(String locale) {
+      if ("en".equals(locale)) {
+        return Map.of(TicketReceiptI18nKeys.PROMOTION_FREE_GAME_LINE, "Free Maryaj");
+      }
+      return Map.of(TicketReceiptI18nKeys.PROMOTION_FREE_GAME_LINE, "Maryaj gratuit");
+    }
+  }
 
-        @Override
-        public Optional<I18nOverrideView> findByKey(String locale, String i18nKey) {
-            return Optional.empty();
-        }
-
-        @Override
-        public Map<String, String> resolveLocale(String locale, TchRequestContext ctx) {
-            return values(locale);
-        }
-
-        @Override
-        public Map<String, String> resolveLocaleForTenant(String locale, TenantId tenantId) {
-            return values(locale);
-        }
-
-        @Override
-        public com.tchalanet.server.catalog.i18n.api.model.I18nBundleView loadBundle(
-            String locale, java.util.Set<com.tchalanet.server.catalog.i18n.api.model.I18nSurface> surfaces) {
-            return new com.tchalanet.server.catalog.i18n.api.model.I18nBundleView(locale, Map.of());
-        }
-
-        @Override
-        public I18nGlobalKeyStatsView keyStats() {
-            return new I18nGlobalKeyStatsView(0, 0, 0);
-        }
-
-        private Map<String, String> values(String locale) {
-            if ("en".equals(locale)) {
-                return Map.of(TicketReceiptI18nKeys.PROMOTION_FREE_GAME_LINE, "Free Maryaj");
-            }
-            return Map.of(TicketReceiptI18nKeys.PROMOTION_FREE_GAME_LINE, "Maryaj gratuit");
-        }
+  private static final class EmptyGameCatalog implements GameCatalog {
+    @Override
+    public List<GameView> listActive() {
+      return List.of();
     }
 
-    private static final class EmptyGameCatalog implements GameCatalog {
-        @Override
-        public List<GameView> listActive() {
-            return List.of();
-        }
-
-        @Override
-        public Optional<GameView> findByCode(String code) {
-            return Optional.empty();
-        }
-
-        @Override
-        public Optional<GameView> findById(GameId id) {
-            return Optional.empty();
-        }
-
-        @Override
-        public GameStatsView stats() {
-            return null;
-        }
-
-        @Override
-        public List<GameSummaryView> listRecent(int limit) {
-            return List.of();
-        }
+    @Override
+    public Optional<GameView> findByCode(String code) {
+      return Optional.empty();
     }
+
+    @Override
+    public Optional<GameView> findById(GameId id) {
+      return Optional.empty();
+    }
+
+    @Override
+    public GameStatsView stats() {
+      return null;
+    }
+
+    @Override
+    public List<GameSummaryView> listRecent(int limit) {
+      return List.of();
+    }
+  }
 }

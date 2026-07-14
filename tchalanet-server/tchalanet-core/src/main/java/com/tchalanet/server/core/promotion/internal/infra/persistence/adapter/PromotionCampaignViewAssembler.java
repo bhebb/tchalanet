@@ -14,21 +14,24 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 class PromotionCampaignViewAssembler {
 
-    private final PromotionCampaignRepository campaignRepository;
-    private final PromotionRuleRepository ruleRepository;
-    private final PromotionRuleEffectRepository effectRepository;
-    private final PromotionRuleEligibilityLineRepository eligibilityLineRepository;
-    private final PromotionCampaignJpaMapper mapper;
+  private final PromotionCampaignRepository campaignRepository;
+  private final PromotionRuleRepository ruleRepository;
+  private final PromotionRuleEffectRepository effectRepository;
+  private final PromotionRuleEligibilityLineRepository eligibilityLineRepository;
+  private final PromotionCampaignJpaMapper mapper;
 
-    PromotionCampaignView toCampaignView(UUID campaignId) {
-        var campaign = campaignRepository.getRequired(campaignId);
-        var rules = ruleRepository.findByCampaignIdOrderByPriorityAscRuleKeyAsc(campaignId);
-        var views = rules.stream()
-            .map(rule -> mapper.toRuleView(
-                rule,
-                eligibilityLineRepository.findByRuleIdOrderByGameCodeAsc(rule.getId()),
-                effectRepository.findByRuleIdOrderByIdAsc(rule.getId())))
+  PromotionCampaignView toCampaignView(UUID campaignId) {
+    var campaign = campaignRepository.getRequired(campaignId);
+    var rules = ruleRepository.findByCampaignIdOrderByPriorityAscRuleKeyAsc(campaignId);
+    var views =
+        rules.stream()
+            .map(
+                rule ->
+                    mapper.toRuleView(
+                        rule,
+                        eligibilityLineRepository.findByRuleIdOrderByGameCodeAsc(rule.getId()),
+                        effectRepository.findByRuleIdOrderByIdAsc(rule.getId())))
             .toList();
-        return mapper.toView(campaign, views);
-    }
+    return mapper.toView(campaign, views);
+  }
 }

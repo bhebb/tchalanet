@@ -7,6 +7,5 @@ import java.util.List;
 public interface DrawChannelProvisioningApi {
 
   void ensureDefaultHaitiLotteryChannels(
-      TenantId tenantId,
-      List<ProvisioningTenantGameRef> tenantGames);
+      TenantId tenantId, List<ProvisioningTenantGameRef> tenantGames);
 }

@@ -1,8 +1,7 @@
 package com.tchalanet.server.common.web.paging;
 
-import org.springframework.data.domain.Page;
-
 import java.util.function.Function;
+import org.springframework.data.domain.Page;
 
 /**
  * Utility methods to convert/map between Spring Data Page and the project's TchPage, and to map

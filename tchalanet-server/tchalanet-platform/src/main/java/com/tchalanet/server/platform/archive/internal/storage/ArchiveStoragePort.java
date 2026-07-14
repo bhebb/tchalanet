@@ -6,8 +6,8 @@ import java.io.OutputStream;
 /**
  * Object storage abstraction for the archive system.
  *
- * <p>Implementations: {@link LocalFileArchiveStorageAdapter} (dev/test),
- * S3-compatible adapter (production). Switched via {@code tch.archive.storage.type}.
+ * <p>Implementations: {@link LocalFileArchiveStorageAdapter} (dev/test), S3-compatible adapter
+ * (production). Switched via {@code tch.archive.storage.type}.
  */
 public interface ArchiveStoragePort {
 
@@ -29,11 +29,11 @@ public interface ArchiveStoragePort {
   /**
    * Build a storage URI for an archive object.
    *
-   * @param tableName   physical table name
-   * @param tenantId    tenant identifier string, or "global" for platform datasets
-   * @param year        4-digit year
-   * @param month       1-12
-   * @param segmentId   unique segment identifier (UUID or sequence)
+   * @param tableName physical table name
+   * @param tenantId tenant identifier string, or "global" for platform datasets
+   * @param year 4-digit year
+   * @param month 1-12
+   * @param segmentId unique segment identifier (UUID or sequence)
    */
   String buildUri(String tableName, String tenantId, int year, int month, String segmentId);
 }

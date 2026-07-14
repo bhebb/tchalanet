@@ -10,8 +10,8 @@ import java.util.Map;
 public interface PlatformHealthProbe {
 
   /**
-   * @return {@code {"global": <status>, "components": {<name>: <status>, ...}}}.
-   *     Implementations must not throw; callers fall back to UNKNOWN when no probe is available.
+   * @return {@code {"global": <status>, "components": {<name>: <status>, ...}}}. Implementations
+   *     must not throw; callers fall back to UNKNOWN when no probe is available.
    */
   Map<String, Object> snapshot();
 }

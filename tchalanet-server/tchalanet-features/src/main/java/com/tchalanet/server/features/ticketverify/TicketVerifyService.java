@@ -10,9 +10,9 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class TicketVerifyService {
 
-    private final QueryBus queryBus;
+  private final QueryBus queryBus;
 
-    public TicketVerificationView verify(String publicCode) {
-        return queryBus.ask(new VerifyTicketByPublicCodeQuery(publicCode));
-    }
+  public TicketVerificationView verify(String publicCode) {
+    return queryBus.ask(new VerifyTicketByPublicCodeQuery(publicCode));
+  }
 }

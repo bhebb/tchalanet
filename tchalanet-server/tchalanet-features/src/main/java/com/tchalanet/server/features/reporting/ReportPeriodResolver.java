@@ -26,7 +26,8 @@ public class ReportPeriodResolver {
     return new ReportPeriod(fromDate, toDate);
   }
 
-  public ReportPeriod resolve(LocalDate from, LocalDate to, LocalDate fallbackFrom, LocalDate fallbackTo) {
+  public ReportPeriod resolve(
+      LocalDate from, LocalDate to, LocalDate fallbackFrom, LocalDate fallbackTo) {
     LocalDate toDate = to != null ? to : fallbackTo;
     LocalDate fromDate = from != null ? from : fallbackFrom;
     validate(fromDate, toDate);
@@ -35,10 +36,12 @@ public class ReportPeriodResolver {
 
   private static void validate(LocalDate from, LocalDate to) {
     if (from == null || to == null) {
-      throw new TchValidationException("report.period.required", "Report period from/to must be provided.");
+      throw new TchValidationException(
+          "report.period.required", "Report period from/to must be provided.");
     }
     if (from.isAfter(to)) {
-      throw new TchValidationException("report.period.invalid", "Report period from must be before or equal to to.");
+      throw new TchValidationException(
+          "report.period.invalid", "Report period from must be before or equal to to.");
     }
   }
 }

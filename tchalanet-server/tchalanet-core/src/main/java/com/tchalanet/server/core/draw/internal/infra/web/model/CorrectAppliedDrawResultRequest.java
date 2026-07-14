@@ -8,5 +8,4 @@ public record CorrectAppliedDrawResultRequest(
     @NotNull DrawResultId correctedDrawResultId,
     @NotBlank String reason,
     @NotBlank String idempotencyKey,
-    boolean force
-) {}
+    boolean force) {}

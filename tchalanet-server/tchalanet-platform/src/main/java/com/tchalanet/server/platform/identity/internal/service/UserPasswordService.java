@@ -15,10 +15,15 @@ public class UserPasswordService {
   private final IdentityProvisioningApi identityProvisioning;
 
   public void resetPasswordByEmail(String email, String newPassword) {
-    var user = users.findByEmailOrPhone(email, null)
-        .orElseThrow(() -> ProblemRest.notFound("No account found for this email"));
-    var externalSubject = users.findExternalSubject(user.id(), IdentityProviderType.FIREBASE)
-        .orElseThrow(() -> ProblemRest.unprocessable("No Firebase identity linked for this account"));
+    var user =
+        users
+            .findByEmailOrPhone(email, null)
+            .orElseThrow(() -> ProblemRest.notFound("No account found for this email"));
+    var externalSubject =
+        users
+            .findExternalSubject(user.id(), IdentityProviderType.FIREBASE)
+            .orElseThrow(
+                () -> ProblemRest.unprocessable("No Firebase identity linked for this account"));
     identityProvisioning.resetPassword(externalSubject, newPassword);
   }
 }

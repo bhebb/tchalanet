@@ -24,35 +24,43 @@ public class IdentityOpsResourceContributor implements OpsResourceContributor {
     String provider = property("tch.identity.provider", "firebase");
     String mode = identityMode(provider);
     String projectId = property("tch.identity.firebase.project-id", "");
-    String revocationMode = property("tch.identity.firebase.revocation-check-mode", "sensitive-only");
-    String emulatorHost = firstNonBlank(
-        property("FIREBASE_AUTH_EMULATOR_HOST", ""),
-        property("firebase.auth.emulator.host", ""));
+    String revocationMode =
+        property("tch.identity.firebase.revocation-check-mode", "sensitive-only");
+    String emulatorHost =
+        firstNonBlank(
+            property("FIREBASE_AUTH_EMULATOR_HOST", ""),
+            property("firebase.auth.emulator.host", ""));
     boolean production = isProductionProfile();
 
     IdentityStatus status = evaluate(provider, projectId, revocationMode, emulatorHost, production);
-    String message = status.message()
-        + " Provider=" + provider
-        + ", mode=" + mode
-        + ", revocation=" + revocationMode + ".";
+    String message =
+        status.message()
+            + " Provider="
+            + provider
+            + ", mode="
+            + mode
+            + ", revocation="
+            + revocationMode
+            + ".";
 
-    return List.of(new OpsServiceResourceItem(
-        "identity:provider",
-        "Identity provider",
-        status.status(),
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        status.severity(),
-        message,
-        "/app/platform/ops/identity-sync",
-        null,
-        null,
-        null));
+    return List.of(
+        new OpsServiceResourceItem(
+            "identity:provider",
+            "Identity provider",
+            status.status(),
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            status.severity(),
+            message,
+            "/app/platform/ops/identity-sync",
+            null,
+            null,
+            null));
   }
 
   private IdentityStatus evaluate(
@@ -64,27 +72,39 @@ public class IdentityOpsResourceContributor implements OpsResourceContributor {
     String normalizedProvider = normalize(provider);
     if ("firebase-emulator".equals(normalizedProvider)) {
       if (production) {
-        return new IdentityStatus("INVALID", "CRITICAL", "Firebase emulator is active in a production profile.");
+        return new IdentityStatus(
+            "INVALID", "CRITICAL", "Firebase emulator is active in a production profile.");
       }
       if (isBlank(emulatorHost)) {
-        return new IdentityStatus("MISCONFIGURED", "CRITICAL", "Firebase emulator mode is active but emulator host is missing.");
+        return new IdentityStatus(
+            "MISCONFIGURED",
+            "CRITICAL",
+            "Firebase emulator mode is active but emulator host is missing.");
       }
-      return new IdentityStatus("EMULATOR", "OK", "Firebase emulator identity mode is configured for this environment.");
+      return new IdentityStatus(
+          "EMULATOR", "OK", "Firebase emulator identity mode is configured for this environment.");
     }
 
     if ("firebase".equals(normalizedProvider)) {
       if (isBlank(projectId)) {
-        return new IdentityStatus("MISCONFIGURED", "CRITICAL", "Firebase live mode is missing project id.");
+        return new IdentityStatus(
+            "MISCONFIGURED", "CRITICAL", "Firebase live mode is missing project id.");
       }
       if ("off".equals(normalize(revocationMode))) {
-        return new IdentityStatus("LIVE", "WARNING", "Firebase live identity is configured, but revocation checks are off.");
+        return new IdentityStatus(
+            "LIVE",
+            "WARNING",
+            "Firebase live identity is configured, but revocation checks are off.");
       }
       return new IdentityStatus("LIVE", "OK", "Firebase live identity is configured.");
     }
 
     if ("local-jwt".equals(normalizedProvider)) {
       return production
-          ? new IdentityStatus("INVALID", "CRITICAL", "Local JWT identity provider is active in a production profile.")
+          ? new IdentityStatus(
+              "INVALID",
+              "CRITICAL",
+              "Local JWT identity provider is active in a production profile.")
           : new IdentityStatus("LOCAL", "WARNING", "Local JWT identity provider is active.");
     }
 

@@ -11,20 +11,20 @@ import lombok.RequiredArgsConstructor;
 
 @UseCase
 @RequiredArgsConstructor
-public class DeleteTenantPricingRuleCommandHandler implements CommandHandler<DeleteTenantPricingRuleCommand, Void> {
+public class DeleteTenantPricingRuleCommandHandler
+    implements CommandHandler<DeleteTenantPricingRuleCommand, Void> {
 
-    private final TenantPricingOddsReaderPort reader;
-    private final TenantPricingOddsWriterPort writer;
+  private final TenantPricingOddsReaderPort reader;
+  private final TenantPricingOddsWriterPort writer;
 
-    @Override
-    @TchTx
-    public Void handle(DeleteTenantPricingRuleCommand c) {
-        var gameCode = TenantPricingOdds.normalizeGameCode(c.gameCode());
-        var odds = reader.findByNaturalKey(c.tenantId(), gameCode, c.pricingVariantCode())
-            .orElse(null);
-        if (odds != null && odds.active()) {
-            writer.save(odds.softDelete());
-        }
-        return null;
+  @Override
+  @TchTx
+  public Void handle(DeleteTenantPricingRuleCommand c) {
+    var gameCode = TenantPricingOdds.normalizeGameCode(c.gameCode());
+    var odds = reader.findByNaturalKey(c.tenantId(), gameCode, c.pricingVariantCode()).orElse(null);
+    if (odds != null && odds.active()) {
+      writer.save(odds.softDelete());
     }
+    return null;
+  }
 }

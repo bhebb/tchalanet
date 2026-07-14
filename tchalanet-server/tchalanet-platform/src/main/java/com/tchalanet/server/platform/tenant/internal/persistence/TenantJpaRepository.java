@@ -1,11 +1,10 @@
 package com.tchalanet.server.platform.tenant.internal.persistence;
 
+import com.tchalanet.server.common.exception.TchNotFoundException;
+import com.tchalanet.server.platform.tenant.api.model.TenantStatus;
 import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;
-
-import com.tchalanet.server.common.exception.TchNotFoundException;
-import com.tchalanet.server.platform.tenant.api.model.TenantStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,42 +13,39 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 /**
- * Spring Data repository for TenantJpaEntity.
- * Per DOMAIN_TENANT_CONFIG.md:
- * - Query by ID and code
- * - Check code existence
- * - Provide required active lookup helper (`getRequiredByIdActive`)
+ * Spring Data repository for TenantJpaEntity. Per DOMAIN_TENANT_CONFIG.md: - Query by ID and code -
+ * Check code existence - Provide required active lookup helper (`getRequiredByIdActive`)
  */
 public interface TenantJpaRepository extends JpaRepository<TenantJpaEntity, UUID> {
 
+  @Query(
+      "select t.id from TenantJpaEntity t WHERE LOWER(t.code) = LOWER(:code) and t.deletedAt is null")
+  Optional<UUID> findIdByCodeActive(String code);
 
-    @Query("select t.id from TenantJpaEntity t WHERE LOWER(t.code) = LOWER(:code) and t.deletedAt is null")
-    Optional<UUID> findIdByCodeActive(String code);
+  @Query("select t from TenantJpaEntity t where t.id = :id and t.deletedAt is null")
+  Optional<TenantJpaEntity> findByIdActive(UUID id);
 
-    @Query("select t from TenantJpaEntity t where t.id = :id and t.deletedAt is null")
-    Optional<TenantJpaEntity> findByIdActive(UUID id);
+  @Query(
+      "select t from TenantJpaEntity t where lower(t.code) = lower(:code) and t.deletedAt is null")
+  Optional<TenantJpaEntity> findByCodeActive(@Param("code") String code);
 
-    @Query("select t from TenantJpaEntity t where lower(t.code) = lower(:code) and t.deletedAt is null")
-    Optional<TenantJpaEntity> findByCodeActive(@Param("code") String code);
+  default TenantJpaEntity getRequiredByIdActive(UUID id) {
+    return findByIdActive(id)
+        .orElseThrow(() -> new TchNotFoundException(id.toString(), "Tenant not found"));
+  }
 
-    default TenantJpaEntity getRequiredByIdActive(UUID id) {
-        return findByIdActive(id)
-            .orElseThrow(() -> new TchNotFoundException(id.toString(), "Tenant not found"));
-    }
-
-    @Query("""
+  @Query(
+      """
         select t from TenantJpaEntity t
         where t.deletedAt is null
           and (:status is null or t.status = :status)
           and (:q is null or lower(t.code) like :q or lower(t.name) like :q or lower(t.displayName) like :q)
         """)
-    Page<TenantJpaEntity> search(
-        @Param("q") String q,
-        @Param("status") TenantStatus status,
-        Pageable pageable
-    );
+  Page<TenantJpaEntity> search(
+      @Param("q") String q, @Param("status") TenantStatus status, Pageable pageable);
 
-    @Modifying
-    @Query("UPDATE TenantJpaEntity t SET t.defaultCommissionRate = :rate WHERE t.id = :id AND t.deletedAt IS NULL")
-    int updateDefaultCommissionRate(@Param("id") UUID id, @Param("rate") BigDecimal rate);
+  @Modifying
+  @Query(
+      "UPDATE TenantJpaEntity t SET t.defaultCommissionRate = :rate WHERE t.id = :id AND t.deletedAt IS NULL")
+  int updateDefaultCommissionRate(@Param("id") UUID id, @Param("rate") BigDecimal rate);
 }

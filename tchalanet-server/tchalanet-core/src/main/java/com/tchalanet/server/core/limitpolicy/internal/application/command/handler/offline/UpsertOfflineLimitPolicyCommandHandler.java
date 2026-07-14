@@ -15,22 +15,26 @@ import lombok.extern.slf4j.Slf4j;
 public class UpsertOfflineLimitPolicyCommandHandler
     implements CommandHandler<UpsertOfflineLimitPolicyCommand, OfflineLimitPolicy> {
 
-    private final TenantOfflinePolicyWriterPort policyWriter;
+  private final TenantOfflinePolicyWriterPort policyWriter;
 
-    @Override
-    @TchTx
-    public OfflineLimitPolicy handle(UpsertOfflineLimitPolicyCommand command) {
-        var policy = new OfflineLimitPolicy(
+  @Override
+  @TchTx
+  public OfflineLimitPolicy handle(UpsertOfflineLimitPolicyCommand command) {
+    var policy =
+        new OfflineLimitPolicy(
             command.offlineEnabled(),
             command.batchSize(),
             command.validityDuration(),
             command.syncAcceptedExtension(),
             command.maxTicketCount(),
-            command.maxTotalAmount()
-        );
-        var saved = policyWriter.upsert(command.tenantId(), policy);
-        log.info("limitpolicy: tenant {} offline policy upserted (enabled={}, batch={}, maxTickets={})",
-            command.tenantId(), saved.offlineEnabled(), saved.batchSize(), saved.maxTicketCount());
-        return saved;
-    }
+            command.maxTotalAmount());
+    var saved = policyWriter.upsert(command.tenantId(), policy);
+    log.info(
+        "limitpolicy: tenant {} offline policy upserted (enabled={}, batch={}, maxTickets={})",
+        command.tenantId(),
+        saved.offlineEnabled(),
+        saved.batchSize(),
+        saved.maxTicketCount());
+    return saved;
+  }
 }

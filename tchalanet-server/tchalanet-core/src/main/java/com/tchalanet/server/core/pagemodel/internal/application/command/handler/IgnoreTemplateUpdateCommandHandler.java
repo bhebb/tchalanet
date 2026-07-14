@@ -4,7 +4,6 @@ import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.platform.notification.api.model.request.ArchiveNotificationRequest;
 import com.tchalanet.server.core.pagemodel.api.command.IgnoreTemplateUpdateCommand;
 import lombok.RequiredArgsConstructor;
 
@@ -18,6 +17,6 @@ public class IgnoreTemplateUpdateCommandHandler
   @Override
   @TchTx
   public Boolean handle(IgnoreTemplateUpdateCommand command) {
-      return true;
+    return true;
   }
 }

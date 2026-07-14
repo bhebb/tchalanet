@@ -10,16 +10,7 @@ import jakarta.validation.constraints.Size;
 import java.util.List;
 
 public record AddPromotionRuleRequest(
-    @NotBlank
-    @Size(max = 96)
-    String ruleKey,
-
-    @NotNull
-    Integer priority,
-
-    @NotEmpty
-    List<@Valid PromotionEligibilityConfigInput> eligibilityItems,
-
-    @NotEmpty
-    List<@Valid PromotionEffectConfigInput> effectItems
-) {}
+    @NotBlank @Size(max = 96) String ruleKey,
+    @NotNull Integer priority,
+    @NotEmpty List<@Valid PromotionEligibilityConfigInput> eligibilityItems,
+    @NotEmpty List<@Valid PromotionEffectConfigInput> effectItems) {}

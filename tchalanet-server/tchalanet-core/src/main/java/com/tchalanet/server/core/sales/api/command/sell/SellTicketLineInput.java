@@ -2,7 +2,6 @@ package com.tchalanet.server.core.sales.api.command.sell;
 
 import com.tchalanet.server.catalog.game.api.model.BetType;
 import com.tchalanet.server.catalog.game.api.model.GameCode;
-
 import java.math.BigDecimal;
 
 public record SellTicketLineInput(
@@ -11,5 +10,4 @@ public record SellTicketLineInput(
     BetType betType,
     String rawSelection,
     Short betOption,
-    BigDecimal stakeAmount
-) {}
+    BigDecimal stakeAmount) {}

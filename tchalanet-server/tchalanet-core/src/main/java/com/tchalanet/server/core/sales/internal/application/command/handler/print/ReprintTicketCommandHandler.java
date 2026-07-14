@@ -12,18 +12,20 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ReprintTicketCommandHandler implements CommandHandler<ReprintTicketCommand, Void> {
 
-    private final TicketReaderPort reader;
+  private final TicketReaderPort reader;
 
-    @Override
-    @TchTx
-    public Void handle(ReprintTicketCommand command) {
-        var ticket = reader.getRequired(command.ticketId());
-        if (!ticket.print().printed()) {
-            throw new IllegalStateException("Ticket has not been printed yet — cannot reprint");
-        }
-        if (ticket.lifecycle().sale().status() == TicketSaleStatus.CANCELLED || ticket.lifecycle().sale().status() == TicketSaleStatus.VOIDED) {
-            throw new IllegalStateException("Cannot reprint a " + ticket.lifecycle().sale().status() + " ticket");
-        }
-        return null;
+  @Override
+  @TchTx
+  public Void handle(ReprintTicketCommand command) {
+    var ticket = reader.getRequired(command.ticketId());
+    if (!ticket.print().printed()) {
+      throw new IllegalStateException("Ticket has not been printed yet — cannot reprint");
     }
+    if (ticket.lifecycle().sale().status() == TicketSaleStatus.CANCELLED
+        || ticket.lifecycle().sale().status() == TicketSaleStatus.VOIDED) {
+      throw new IllegalStateException(
+          "Cannot reprint a " + ticket.lifecycle().sale().status() + " ticket");
+    }
+    return null;
+  }
 }

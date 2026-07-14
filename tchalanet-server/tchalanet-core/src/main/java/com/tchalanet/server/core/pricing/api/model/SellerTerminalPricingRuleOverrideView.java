@@ -3,7 +3,6 @@ package com.tchalanet.server.core.pricing.api.model;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.SellerTerminalOddsOverrideId;
 import com.tchalanet.server.common.types.id.TenantId;
-
 import java.math.BigDecimal;
 import java.time.Instant;
 
@@ -23,5 +22,4 @@ public record SellerTerminalPricingRuleOverrideView(
     Instant effectiveTo,
     String reason,
     Instant createdAt,
-    Instant updatedAt
-) {}
+    Instant updatedAt) {}

@@ -7,18 +7,12 @@ import com.tchalanet.server.core.sales.api.model.sale.TicketBackupInfo;
  * (displayCode, verificationShortUrl, shareableText) and never leaks the full core record.
  */
 public record PosTicketBackupView(
-    String displayCode,
-    String verificationShortUrl,
-    String shareableText
-) {
-    public static PosTicketBackupView from(TicketBackupInfo backup) {
-        if (backup == null) {
-            return null;
-        }
-        return new PosTicketBackupView(
-            backup.displayCode(),
-            backup.verificationShortUrl(),
-            backup.shareableText()
-        );
+    String displayCode, String verificationShortUrl, String shareableText) {
+  public static PosTicketBackupView from(TicketBackupInfo backup) {
+    if (backup == null) {
+      return null;
     }
+    return new PosTicketBackupView(
+        backup.displayCode(), backup.verificationShortUrl(), backup.shareableText());
+  }
 }

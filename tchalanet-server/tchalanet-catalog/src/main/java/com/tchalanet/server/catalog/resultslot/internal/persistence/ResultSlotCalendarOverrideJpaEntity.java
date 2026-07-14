@@ -12,12 +12,11 @@ import lombok.Setter;
 /**
  * Global provider calendar override for a result_slot (no tenant scope).
  *
- * <p>Not {@code @Audited} — there is no {@code result_slot_calendar_override_aud}
- * table; attribution is via {@code created_by} / {@code updated_by} on
- * {@link BaseEntity}.
+ * <p>Not {@code @Audited} — there is no {@code result_slot_calendar_override_aud} table;
+ * attribution is via {@code created_by} / {@code updated_by} on {@link BaseEntity}.
  *
- * <p>XOR shape (DB CHECK {@code chk_result_slot_calendar_override__shape}):
- * exactly one of {@link #slotLocalDate} / {@link #recurringMd} is set.
+ * <p>XOR shape (DB CHECK {@code chk_result_slot_calendar_override__shape}): exactly one of {@link
+ * #slotLocalDate} / {@link #recurringMd} is set.
  */
 @Entity
 @Table(name = "result_slot_calendar_override")

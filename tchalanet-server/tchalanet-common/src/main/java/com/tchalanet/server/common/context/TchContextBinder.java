@@ -26,9 +26,16 @@ public class TchContextBinder {
   }
 
   private static final String[] MDC_KEYS = {
-      "tenant_original", "tenant_effective", "tenant_overridden",
-      "external_subject", MDC_REQUEST_ID, "reqId", "idem",
-      "tenant_uuid", "tz", "ccy"
+    "tenant_original",
+    "tenant_effective",
+    "tenant_overridden",
+    "external_subject",
+    MDC_REQUEST_ID,
+    "reqId",
+    "idem",
+    "tenant_uuid",
+    "tz",
+    "ccy"
   };
 
   public void clear(HttpServletRequest req) {

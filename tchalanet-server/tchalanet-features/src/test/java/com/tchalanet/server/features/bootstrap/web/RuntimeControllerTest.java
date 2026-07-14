@@ -9,19 +9,16 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 class RuntimeControllerTest {
 
-    @Test
-    void privateBootstrapExposesLegacyAliasesAndCanonicalRoute() throws Exception {
-        var mapping =
-            PrivateBootstrapRuntimeController.class
-                .getDeclaredMethod(
-                    "privateBootstrap",
-                    com.tchalanet.server.common.context.TchRequestContext.class)
-                .getAnnotation(GetMapping.class);
+  @Test
+  void privateBootstrapExposesLegacyAliasesAndCanonicalRoute() throws Exception {
+    var mapping =
+        PrivateBootstrapRuntimeController.class
+            .getDeclaredMethod(
+                "privateBootstrap", com.tchalanet.server.common.context.TchRequestContext.class)
+            .getAnnotation(GetMapping.class);
 
-        assertThat(Arrays.asList(mapping.value()))
-            .containsExactlyInAnyOrder(
-                "/runtime/private",
-                "/tenant/runtime/bootstrap",
-                "/tenant/me/bootstrap");
-    }
+    assertThat(Arrays.asList(mapping.value()))
+        .containsExactlyInAnyOrder(
+            "/runtime/private", "/tenant/runtime/bootstrap", "/tenant/me/bootstrap");
+  }
 }

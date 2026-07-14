@@ -26,4 +26,3 @@ public class UnsupportedIdentityProvisioningService implements IdentityProvision
             + configuredProvider);
   }
 }
-

@@ -2,7 +2,6 @@ package com.tchalanet.server.platform.identity.api;
 
 import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.platform.identity.api.model.request.BootstrapCurrentUserRequest;
 import com.tchalanet.server.platform.identity.api.model.request.GetCurrentUserRequest;
 import com.tchalanet.server.platform.identity.api.model.request.GetUserProfileRequest;
@@ -17,33 +16,32 @@ import java.util.UUID;
 
 public interface IdentityApi {
 
-    CurrentUserView getCurrentUser(GetCurrentUserRequest request);
+  CurrentUserView getCurrentUser(GetCurrentUserRequest request);
 
-    BootstrapUserResult bootstrapCurrentUser(BootstrapCurrentUserRequest request);
+  BootstrapUserResult bootstrapCurrentUser(BootstrapCurrentUserRequest request);
 
-    UserProfileView getUserProfile(GetUserProfileRequest request);
+  UserProfileView getUserProfile(GetUserProfileRequest request);
 
-    Optional<AppUserView> findAppUser(UUID userId);
+  Optional<AppUserView> findAppUser(UUID userId);
 
-    List<AppUserView> listPlatformAdminsForNotificationDelivery();
+  List<AppUserView> listPlatformAdminsForNotificationDelivery();
 
-    List<AppUserView> listTenantAdminsForNotificationDelivery(TenantId tenantId);
+  List<AppUserView> listTenantAdminsForNotificationDelivery(TenantId tenantId);
 
-    List<AppUserView> listTenantUsersForNotificationDelivery(TenantId tenantId);
+  List<AppUserView> listTenantUsersForNotificationDelivery(TenantId tenantId);
 
-    long countTenantUsers();
+  long countTenantUsers();
 
-    /**
-     * Creates a user and assigns them to a tenant with the given role.
-     * tenantCode is passed explicitly so KC provisioning sets the correct
-     * tenant_code claim on the very first login (avoids context-lookup failures
-     * in startup-tenant scopes).
-     */
-    CreateUserResult createTenantUser(
-        TenantId tenantId,
-        String tenantCode,
-        String email,
-        String firstName,
-        String lastName,
-        TchRole role);
+  /**
+   * Creates a user and assigns them to a tenant with the given role. tenantCode is passed
+   * explicitly so KC provisioning sets the correct tenant_code claim on the very first login
+   * (avoids context-lookup failures in startup-tenant scopes).
+   */
+  CreateUserResult createTenantUser(
+      TenantId tenantId,
+      String tenantCode,
+      String email,
+      String firstName,
+      String lastName,
+      TchRole role);
 }

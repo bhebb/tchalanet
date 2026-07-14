@@ -8,15 +8,16 @@ import org.junit.jupiter.api.Test;
 
 class SalePreparationLineViewContractTest {
 
-    @Test
-    void previewLineExposesCommercialOptionWithoutTechnicalPricingVariant() {
-        var componentNames = Arrays.stream(SalePreparationLineView.class.getRecordComponents())
+  @Test
+  void previewLineExposesCommercialOptionWithoutTechnicalPricingVariant() {
+    var componentNames =
+        Arrays.stream(SalePreparationLineView.class.getRecordComponents())
             .map(component -> component.getName())
             .toList();
 
-        assertThat(componentNames)
-            .contains("betType", "betOption", "stakeAmount")
-            .doesNotContain("oddsSnapshot")
-            .doesNotContain("pricingVariantCode", "settlementVariant");
-    }
+    assertThat(componentNames)
+        .contains("betType", "betOption", "stakeAmount")
+        .doesNotContain("oddsSnapshot")
+        .doesNotContain("pricingVariantCode", "settlementVariant");
+  }
 }

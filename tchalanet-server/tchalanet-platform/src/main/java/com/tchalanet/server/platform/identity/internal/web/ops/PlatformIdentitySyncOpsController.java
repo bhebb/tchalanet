@@ -38,4 +38,3 @@ public class PlatformIdentitySyncOpsController {
 
   public record FirebaseBootstrapSyncResponse(int attempted, int createdInFirebase, int linked) {}
 }
-

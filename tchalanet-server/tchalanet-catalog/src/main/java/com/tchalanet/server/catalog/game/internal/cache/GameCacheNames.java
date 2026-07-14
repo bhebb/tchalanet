@@ -1,9 +1,6 @@
 package com.tchalanet.server.catalog.game.internal.cache;
 
-/**
- * Cache names for catalog/game.
- * Maps to spec requirement G5 (cache policy).
- */
+/** Cache names for catalog/game. Maps to spec requirement G5 (cache policy). */
 public final class GameCacheNames {
 
   private GameCacheNames() {}

@@ -9,7 +9,7 @@ import lombok.Getter;
 @Getter
 @Builder
 public class UpdateTenantGameBetOptionConfigRequest {
-    private TenantId tenantId;
-    private String gameCode;
-    private List<TenantBetTypeOptionConfig> betTypes;
+  private TenantId tenantId;
+  private String gameCode;
+  private List<TenantBetTypeOptionConfig> betTypes;
 }

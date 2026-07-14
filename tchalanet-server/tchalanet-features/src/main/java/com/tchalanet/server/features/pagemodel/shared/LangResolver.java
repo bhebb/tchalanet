@@ -64,4 +64,3 @@ public class LangResolver {
       List<String> availableLangs,
       String globalFallbackLang) {}
 }
-

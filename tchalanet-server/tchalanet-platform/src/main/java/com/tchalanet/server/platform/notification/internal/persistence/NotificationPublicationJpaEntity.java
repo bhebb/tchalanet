@@ -1,9 +1,9 @@
 package com.tchalanet.server.platform.notification.internal.persistence;
 
 import com.tchalanet.server.common.persistence.BaseEntity;
+import com.tchalanet.server.platform.notification.api.model.NotificationActorType;
 import com.tchalanet.server.platform.notification.api.model.NotificationAudienceType;
 import com.tchalanet.server.platform.notification.api.model.NotificationPublicationStatus;
-import com.tchalanet.server.platform.notification.api.model.NotificationActorType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

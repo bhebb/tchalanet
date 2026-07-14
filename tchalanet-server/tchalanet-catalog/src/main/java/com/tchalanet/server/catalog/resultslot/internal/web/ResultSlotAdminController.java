@@ -2,14 +2,14 @@ package com.tchalanet.server.catalog.resultslot.internal.web;
 
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotView;
-import com.tchalanet.server.catalog.resultslot.internal.write.ResultSlotAdminService;
 import com.tchalanet.server.catalog.resultslot.internal.web.model.CreateResultSlotRequest;
 import com.tchalanet.server.catalog.resultslot.internal.web.model.UpdateResultSlotProjectionConfigRequest;
 import com.tchalanet.server.catalog.resultslot.internal.web.model.UpdateResultSlotRequest;
 import com.tchalanet.server.catalog.resultslot.internal.web.model.UpdateResultSlotSourceConfigRequest;
+import com.tchalanet.server.catalog.resultslot.internal.write.ResultSlotAdminService;
+import com.tchalanet.server.common.types.id.ResultSlotId;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.error.ProblemRest;
-import com.tchalanet.server.common.types.id.ResultSlotId;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -39,8 +39,7 @@ public class ResultSlotAdminController {
   @PreAuthorize("hasAnyRole('SUPER_ADMIN','TENANT_OWNER','TENANT_ADMIN')")
   public ApiResponse<ResultSlotView> getById(@PathVariable ResultSlotId id) {
     return ApiResponse.success(
-        catalog.findById(id)
-            .orElseThrow(() -> ProblemRest.notFound("Result slot not found", id)));
+        catalog.findById(id).orElseThrow(() -> ProblemRest.notFound("Result slot not found", id)));
   }
 
   @Operation(summary = "Get result slot by key (platform)")
@@ -61,7 +60,8 @@ public class ResultSlotAdminController {
   @Operation(summary = "Update result slot (platform)")
   @PutMapping("/{id}")
   @PreAuthorize("hasRole('SUPER_ADMIN')")
-  public ApiResponse<ResultSlotView> update(@PathVariable ResultSlotId id, @Valid @RequestBody UpdateResultSlotRequest request) {
+  public ApiResponse<ResultSlotView> update(
+      @PathVariable ResultSlotId id, @Valid @RequestBody UpdateResultSlotRequest request) {
     var updatedView = admin.update(id, request);
     return ApiResponse.success(updatedView);
   }

@@ -21,55 +21,60 @@ import org.springframework.mock.web.MockHttpServletRequest;
 @ExtendWith(MockitoExtension.class)
 class AccessResolutionStepSellerTerminalTest {
 
-    private static final SellerTerminalId TERMINAL = SellerTerminalId.of(UUID.randomUUID());
-    private static final TenantId TENANT = TenantId.of(UUID.randomUUID());
+  private static final SellerTerminalId TERMINAL = SellerTerminalId.of(UUID.randomUUID());
+  private static final TenantId TENANT = TenantId.of(UUID.randomUUID());
 
-    @Mock private AccessControlSnapshotResolver snapshotResolver;
-    @Mock private EffectiveTenantResolver effectiveTenantResolver;
+  @Mock private AccessControlSnapshotResolver snapshotResolver;
+  @Mock private EffectiveTenantResolver effectiveTenantResolver;
 
-    private AccessResolutionStepImpl step;
+  private AccessResolutionStepImpl step;
 
-    @BeforeEach
-    void setUp() {
-        step = new AccessResolutionStepImpl(snapshotResolver, effectiveTenantResolver);
-    }
+  @BeforeEach
+  void setUp() {
+    step = new AccessResolutionStepImpl(snapshotResolver, effectiveTenantResolver);
+  }
 
-    private static BootstrappedActor terminalActor() {
-        return BootstrappedActor.sellerTerminal(
-            TERMINAL, TENANT, "FIREBASE", "https://issuer", "sub-123");
-    }
+  private static BootstrappedActor terminalActor() {
+    return BootstrappedActor.sellerTerminal(
+        TERMINAL, TENANT, "FIREBASE", "https://issuer", "sub-123");
+  }
 
-    @Test
-    void sellerTerminal_tenantFromActor_withTerminalPermissions() {
-        var resolved = step.resolveSellerTerminal(new MockHttpServletRequest(), terminalActor());
+  @Test
+  void sellerTerminal_tenantFromActor_withTerminalPermissions() {
+    var resolved = step.resolveSellerTerminal(new MockHttpServletRequest(), terminalActor());
 
-        assertThat(resolved.actorType()).isEqualTo(TchActorType.SELLER_TERMINAL);
-        assertThat(resolved.effectiveTenantId()).isEqualTo(TENANT);
-        assertThat(resolved.sellerTerminalId()).isEqualTo(TERMINAL);
-        assertThat(resolved.permissionKeys()).isEqualTo(AccessResolutionStepImpl.SELLER_TERMINAL_PERMISSIONS);
-        assertThat(resolved.permissionKeys())
-            .contains("seller_terminal.me.read", "seller_terminal.pin.change",
-                "cashier.home.read", "ticket.sell",
-                "ticket.read_own", "ticket.reprint_own");
-    }
+    assertThat(resolved.actorType()).isEqualTo(TchActorType.SELLER_TERMINAL);
+    assertThat(resolved.effectiveTenantId()).isEqualTo(TENANT);
+    assertThat(resolved.sellerTerminalId()).isEqualTo(TERMINAL);
+    assertThat(resolved.permissionKeys())
+        .isEqualTo(AccessResolutionStepImpl.SELLER_TERMINAL_PERMISSIONS);
+    assertThat(resolved.permissionKeys())
+        .contains(
+            "seller_terminal.me.read",
+            "seller_terminal.pin.change",
+            "cashier.home.read",
+            "ticket.sell",
+            "ticket.read_own",
+            "ticket.reprint_own");
+  }
 
-    @Test
-    void sellerTerminal_withTenantIdHeader_isDenied() {
-        var request = new MockHttpServletRequest();
-        request.addHeader(TchHeaders.X_TENANT_ID, UUID.randomUUID().toString());
+  @Test
+  void sellerTerminal_withTenantIdHeader_isDenied() {
+    var request = new MockHttpServletRequest();
+    request.addHeader(TchHeaders.X_TENANT_ID, UUID.randomUUID().toString());
 
-        assertThatThrownBy(() -> step.resolveSellerTerminal(request, terminalActor()))
-            .isInstanceOf(ProblemRestException.class)
-            .hasMessage("terminal.tenant_selection_not_allowed");
-    }
+    assertThatThrownBy(() -> step.resolveSellerTerminal(request, terminalActor()))
+        .isInstanceOf(ProblemRestException.class)
+        .hasMessage("terminal.tenant_selection_not_allowed");
+  }
 
-    @Test
-    void sellerTerminal_withTenantOverrideHeader_isDenied() {
-        var request = new MockHttpServletRequest();
-        request.addHeader(TchHeaders.X_TCH_TENANT_OVERRIDE, UUID.randomUUID().toString());
+  @Test
+  void sellerTerminal_withTenantOverrideHeader_isDenied() {
+    var request = new MockHttpServletRequest();
+    request.addHeader(TchHeaders.X_TCH_TENANT_OVERRIDE, UUID.randomUUID().toString());
 
-        assertThatThrownBy(() -> step.resolveSellerTerminal(request, terminalActor()))
-            .isInstanceOf(ProblemRestException.class)
-            .hasMessage("terminal.tenant_selection_not_allowed");
-    }
+    assertThatThrownBy(() -> step.resolveSellerTerminal(request, terminalActor()))
+        .isInstanceOf(ProblemRestException.class)
+        .hasMessage("terminal.tenant_selection_not_allowed");
+  }
 }

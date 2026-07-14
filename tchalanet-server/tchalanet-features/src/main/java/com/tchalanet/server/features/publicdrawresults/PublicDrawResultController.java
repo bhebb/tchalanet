@@ -1,9 +1,9 @@
 package com.tchalanet.server.features.publicdrawresults;
 
+import com.tchalanet.server.common.types.id.DrawResultId;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.common.web.paging.TchPaging;
-import com.tchalanet.server.common.types.id.DrawResultId;
 import com.tchalanet.server.features.publicdrawresults.model.PublicDrawResultDetailResponse;
 import com.tchalanet.server.features.publicdrawresults.model.PublicDrawResultHistoryResponse;
 import com.tchalanet.server.features.publicdrawresults.model.PublicDrawResultLatestResponse;
@@ -29,54 +29,48 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Public • Draw Results")
 public class PublicDrawResultController {
 
-    private final PublicDrawResultService service;
+  private final PublicDrawResultService service;
 
-    /**
-     * Home/public widget: latest result per public slot + next expected result time.
-     * Sans limit, retourne tous les slots publics actifs.
-     * Avec limit, coupe volontairement le résultat (ex: limit=6 pour afficher seulement 6 cards).
-     */
-    @GetMapping("/latest")
-    public ApiResponse<PublicDrawResultLatestResponse> latest(
-        @RequestParam(required = false) List<String> slotKeys,
-        @RequestParam(required = false) String provider,
-        @RequestParam(required = false) @Min(1) @Max(100) Integer limit) {
-        return ApiResponse.success(service.latest(slotKeys, provider, limit));
-    }
+  /**
+   * Home/public widget: latest result per public slot + next expected result time. Sans limit,
+   * retourne tous les slots publics actifs. Avec limit, coupe volontairement le résultat (ex:
+   * limit=6 pour afficher seulement 6 cards).
+   */
+  @GetMapping("/latest")
+  public ApiResponse<PublicDrawResultLatestResponse> latest(
+      @RequestParam(required = false) List<String> slotKeys,
+      @RequestParam(required = false) String provider,
+      @RequestParam(required = false) @Min(1) @Max(100) Integer limit) {
+    return ApiResponse.success(service.latest(slotKeys, provider, limit));
+  }
 
-    /**
-     * Public active slots for dynamic filters and lightweight result surfaces.
-     */
-    @GetMapping("/slots")
-    public ApiResponse<PublicDrawResultSlotsResponse> slots(
-        @RequestParam(required = false) String provider) {
-        return ApiResponse.success(service.slots(provider));
-    }
+  /** Public active slots for dynamic filters and lightweight result surfaces. */
+  @GetMapping("/slots")
+  public ApiResponse<PublicDrawResultSlotsResponse> slots(
+      @RequestParam(required = false) String provider) {
+    return ApiResponse.success(service.slots(provider));
+  }
 
-    /**
-     * Public paginated history for /public/results.
-     */
-    @GetMapping("/history")
-    public ApiResponse<PublicDrawResultHistoryResponse> history(
-        @RequestParam(required = false) List<String> slotKeys,
-        @RequestParam(required = false) String provider,
-        @RequestParam(required = false) LocalDate from,
-        @RequestParam(required = false) LocalDate to,
-        @TchPaging(
-            allowedSort = {"occurredAt", "resultDate", "slotKey"},
-            defaultSort = {"occurredAt,desc"})
-        TchPageRequest pageReq) {
-        return ApiResponse.success(
-            service.history(
-                new PublicDrawResultSearchCriteria(slotKeys, provider, from, to, pageReq.pageable())));
-    }
+  /** Public paginated history for /public/results. */
+  @GetMapping("/history")
+  public ApiResponse<PublicDrawResultHistoryResponse> history(
+      @RequestParam(required = false) List<String> slotKeys,
+      @RequestParam(required = false) String provider,
+      @RequestParam(required = false) LocalDate from,
+      @RequestParam(required = false) LocalDate to,
+      @TchPaging(
+              allowedSort = {"occurredAt", "resultDate", "slotKey"},
+              defaultSort = {"occurredAt,desc"})
+          TchPageRequest pageReq) {
+    return ApiResponse.success(
+        service.history(
+            new PublicDrawResultSearchCriteria(slotKeys, provider, from, to, pageReq.pageable())));
+  }
 
-    /**
-     * Public detail for one draw result.
-     */
-    @GetMapping("/{drawResultId}")
-    public ApiResponse<PublicDrawResultDetailResponse> detail(
-        @PathVariable DrawResultId drawResultId) {
-        return ApiResponse.success(service.detail(drawResultId));
-    }
+  /** Public detail for one draw result. */
+  @GetMapping("/{drawResultId}")
+  public ApiResponse<PublicDrawResultDetailResponse> detail(
+      @PathVariable DrawResultId drawResultId) {
+    return ApiResponse.success(service.detail(drawResultId));
+  }
 }

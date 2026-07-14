@@ -6,6 +6,5 @@ public record PosOperationalContext(
     UserId sellerUserId,
     OperationalContextRole role,
     OperationalContextSource source,
-    OperationalContextTrust trustLevel
-) implements OperationalRequestContext {
-}
+    OperationalContextTrust trustLevel)
+    implements OperationalRequestContext {}

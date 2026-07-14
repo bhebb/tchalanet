@@ -4,12 +4,11 @@ import com.tchalanet.server.common.persistence.BaseTenantEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
-
-import java.util.Map;
 
 @Entity
 @Table(name = "tenant_theme")
@@ -17,19 +16,19 @@ import java.util.Map;
 @Setter
 public class TenantThemeJpaEntity extends BaseTenantEntity {
 
-    @Column(name = "preset_code", nullable = false, length = 128)
-    private String presetCode;
+  @Column(name = "preset_code", nullable = false, length = 128)
+  private String presetCode;
 
-    @Column(name = "default_mode", nullable = false, length = 16)
-    private String defaultMode = "SYSTEM";
+  @Column(name = "default_mode", nullable = false, length = 16)
+  private String defaultMode = "SYSTEM";
 
-    @Column(name = "active", nullable = false)
-    private boolean active = true;
+  @Column(name = "active", nullable = false)
+  private boolean active = true;
 
-    @Column(name = "is_default", nullable = false)
-    private boolean defaultTheme = false;
+  @Column(name = "is_default", nullable = false)
+  private boolean defaultTheme = false;
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "token_overrides", columnDefinition = "jsonb")
-    private Map<String, String> tokenOverrides;
+  @JdbcTypeCode(SqlTypes.JSON)
+  @Column(name = "token_overrides", columnDefinition = "jsonb")
+  private Map<String, String> tokenOverrides;
 }

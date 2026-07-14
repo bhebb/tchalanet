@@ -31,8 +31,8 @@ public class EntityRevisionHistoryController {
       @RequestParam TechnicalRevisionEntityType entityType,
       @RequestParam String entityId,
       @TchPaging(
-          allowedSort = {"changedAt"},
-          defaultSort = {"changedAt,DESC"})
+              allowedSort = {"changedAt"},
+              defaultSort = {"changedAt,DESC"})
           TchPageRequest pageReq) {
     return ApiResponse.success(service.listRevisions(entityType, entityId, pageReq.pageable()));
   }

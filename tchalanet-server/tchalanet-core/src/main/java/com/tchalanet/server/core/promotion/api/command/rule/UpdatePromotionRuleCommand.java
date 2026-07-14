@@ -12,6 +12,5 @@ public record UpdatePromotionRuleCommand(
     @NotNull PromotionCampaignId campaignId,
     @NotNull PromotionRuleId ruleId,
     String ruleKey,
-    Integer priority
-) implements Command<PromotionCampaignView> {}
-
+    Integer priority)
+    implements Command<PromotionCampaignView> {}

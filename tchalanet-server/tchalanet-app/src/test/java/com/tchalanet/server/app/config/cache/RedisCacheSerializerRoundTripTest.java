@@ -6,9 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotView;
 import com.tchalanet.server.common.types.id.ResultSlotId;
-import java.util.List;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.cache.support.NullValue;
@@ -21,8 +21,9 @@ import tools.jackson.databind.json.JsonMapper;
  *
  * <p>Reproduces the two production failures observed on {@code catalog:resultslot:v2:active} and
  * {@code platform.tenant.cache.REGISTRY_BY_ID}: a value carrying typed-id wrappers ({@link
- * ResultSlotId}) plus {@code JsonNode} config fields, and a {@code List<...>} cache value whose root
- * (an immutable {@code java.util.ImmutableCollections$*}) must remain type-tagged to be readable.
+ * ResultSlotId}) plus {@code JsonNode} config fields, and a {@code List<...>} cache value whose
+ * root (an immutable {@code java.util.ImmutableCollections$*}) must remain type-tagged to be
+ * readable.
  */
 class RedisCacheSerializerRoundTripTest {
 
@@ -58,7 +59,8 @@ class RedisCacheSerializerRoundTripTest {
 
   @Test
   void listOfResultSlotView_roundTrips() {
-    // The production chain was ArrayList[0] -> ResultSlotView[id]; a cached List<View> is the shape.
+    // The production chain was ArrayList[0] -> ResultSlotView[id]; a cached List<View> is the
+    // shape.
     // NOTE: JsonNode fields must be non-null here — a Java-null JsonNode round-trips back as
     // NullNode (not null), so the record would not be equal. That null->NullNode asymmetry is a
     // real caveat for caching JsonNode-bearing views (tracked separately).

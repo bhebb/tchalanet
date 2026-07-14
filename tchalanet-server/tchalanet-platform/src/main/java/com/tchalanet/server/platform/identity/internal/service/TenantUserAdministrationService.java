@@ -7,9 +7,9 @@ import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageMapper;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
-import com.tchalanet.server.platform.identity.api.model.result.CreateUserResult;
 import com.tchalanet.server.platform.identity.api.IdentityProvisioningApi;
 import com.tchalanet.server.platform.identity.api.ProvisionExternalUserRequest;
+import com.tchalanet.server.platform.identity.api.model.result.CreateUserResult;
 import com.tchalanet.server.platform.identity.internal.model.AppUser;
 import com.tchalanet.server.platform.identity.internal.model.UserPreference;
 import com.tchalanet.server.platform.identity.internal.model.UserRow;
@@ -60,38 +60,42 @@ public class TenantUserAdministrationService {
     var user =
         users.save(
             AppUser.createNew(
-                null,
-                null,
-                username,
-                email,
-                phone,
-                firstName,
-                lastName,
-                buildDisplayName(firstName, lastName),
-                null,
-                now).reactivate());
+                    null,
+                    null,
+                    username,
+                    email,
+                    phone,
+                    firstName,
+                    lastName,
+                    buildDisplayName(firstName, lastName),
+                    null,
+                    now)
+                .reactivate());
     externalIdentityLinks.link(
         user.id(),
         externalUser.provider(),
         externalUser.issuer(),
         externalUser.externalSubject(),
         email);
-    preferences.upsert(UserPreference.forUser(user.id()).applyOverrides(prefThemeMode, prefDensity, parseLocale(prefLocale), parseZone(prefTimeZone), parseCurrency(prefCurrency)));
+    preferences.upsert(
+        UserPreference.forUser(user.id())
+            .applyOverrides(
+                prefThemeMode,
+                prefDensity,
+                parseLocale(prefLocale),
+                parseZone(prefTimeZone),
+                parseCurrency(prefCurrency)));
     return new CreateUserResult(user.id());
   }
 
   /**
-   * Creates a Firebase-authenticated user for a tenant provisioning flow.
-   * Tenant authorization remains entirely in Tchalanet; tenantCode is retained for API
-   * compatibility while callers migrate.
+   * Creates a Firebase-authenticated user for a tenant provisioning flow. Tenant authorization
+   * remains entirely in Tchalanet; tenantCode is retained for API compatibility while callers
+   * migrate.
    */
   @Transactional
   public CreateUserResult createUserForTenant(
-      String email,
-      String phone,
-      String firstName,
-      String lastName,
-      String tenantCode) {
+      String email, String phone, String firstName, String lastName, String tenantCode) {
     var existing = users.findByEmailOrPhone(email, phone);
     if (existing.isPresent()) {
       var now = timeProvider.nowInstant();
@@ -99,19 +103,30 @@ public class TenantUserAdministrationService {
       return new CreateUserResult(saved.id(), false, false, null);
     }
     var username = resolveUsername(email, phone);
-    var temporaryPassword = temporaryCredentials.adminTemporaryCredentialsEnabled()
-        ? temporaryCredentials.adminTemporaryPassword()
-        : null;
+    var temporaryPassword =
+        temporaryCredentials.adminTemporaryCredentialsEnabled()
+            ? temporaryCredentials.adminTemporaryPassword()
+            : null;
     var externalUser =
         identityProvisioning.provisionUser(
             new ProvisionExternalUserRequest(
                 null, email, phone, buildDisplayName(firstName, lastName), temporaryPassword));
     var now = timeProvider.nowInstant();
-    var user = users.save(AppUser.createNew(
-        null, null, username, email, phone,
-        firstName, lastName, buildDisplayName(firstName, lastName), null, now)
-        .reactivate()
-        .requireFirstLoginActivation(now));
+    var user =
+        users.save(
+            AppUser.createNew(
+                    null,
+                    null,
+                    username,
+                    email,
+                    phone,
+                    firstName,
+                    lastName,
+                    buildDisplayName(firstName, lastName),
+                    null,
+                    now)
+                .reactivate()
+                .requireFirstLoginActivation(now));
     externalIdentityLinks.link(
         user.id(),
         externalUser.provider(),
@@ -119,14 +134,19 @@ public class TenantUserAdministrationService {
         externalUser.externalSubject(),
         email);
     var credentialIssued = temporaryPassword != null && externalUser.created();
-    return new CreateUserResult(user.id(), true, credentialIssued, credentialIssued ? temporaryPassword : null);
+    return new CreateUserResult(
+        user.id(), true, credentialIssued, credentialIssued ? temporaryPassword : null);
   }
 
   @Transactional
   public FirstLoginActivationResult completeFirstLogin(
       UserId userId, String firstName, String lastName, String phone) {
-    var user = users.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
-    var saved = users.save(user.completeFirstLogin(firstName, lastName, phone, timeProvider.nowInstant()));
+    var user =
+        users
+            .findById(userId)
+            .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
+    var saved =
+        users.save(user.completeFirstLogin(firstName, lastName, phone, timeProvider.nowInstant()));
     return new FirstLoginActivationResult(
         saved.id(),
         saved.mustChangePassword(),
@@ -135,17 +155,26 @@ public class TenantUserAdministrationService {
   }
 
   public void approveUser(UserId userId, UserId approvedBy) {
-    var user = users.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
+    var user =
+        users
+            .findById(userId)
+            .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
     users.save(user.approve(timeProvider.nowInstant(), approvedBy));
   }
 
   public void suspendUser(UserId userId) {
-    var user = users.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
+    var user =
+        users
+            .findById(userId)
+            .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
     users.save(user.suspend());
   }
 
   public void reactivateUser(UserId userId) {
-    var user = users.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
+    var user =
+        users
+            .findById(userId)
+            .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
     users.save(user.reactivate());
   }
 
@@ -154,7 +183,10 @@ public class TenantUserAdministrationService {
   }
 
   public UserProfile profile(UserId userId) {
-    var user = users.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
+    var user =
+        users
+            .findById(userId)
+            .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
     return new UserProfile(
         user.id(),
         user.externalSubject(),
@@ -168,7 +200,9 @@ public class TenantUserAdministrationService {
   }
 
   public void sendInvitation(UserId userId) {
-    users.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
+    users
+        .findById(userId)
+        .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
   }
 
   public TchPage<UserRow> listAll(TchPageRequest pageRequest) {
@@ -180,8 +214,13 @@ public class TenantUserAdministrationService {
   }
 
   public TchPage<UserRow> search(
-      String nameLike, String status, Instant createdAfter, Instant createdBefore, TchPageRequest pageRequest) {
-    return toPage(users.search(nameLike, status, createdAfter, createdBefore, pageRequest.pageable()));
+      String nameLike,
+      String status,
+      Instant createdAfter,
+      Instant createdBefore,
+      TchPageRequest pageRequest) {
+    return toPage(
+        users.search(nameLike, status, createdAfter, createdBefore, pageRequest.pageable()));
   }
 
   private static TchPage<UserRow> toPage(Page<AppUser> page) {
@@ -233,8 +272,5 @@ public class TenantUserAdministrationService {
       String displayName) {}
 
   public record FirstLoginActivationResult(
-      UserId userId,
-      boolean mustChangePassword,
-      boolean mustCompleteProfile,
-      String entryRoute) {}
+      UserId userId, boolean mustChangePassword, boolean mustCompleteProfile, String entryRoute) {}
 }

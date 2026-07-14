@@ -1,8 +1,8 @@
 package com.tchalanet.server.platform.communication.internal.batch;
 
+import com.tchalanet.server.common.job.context.JobContextBinder;
 import com.tchalanet.server.common.job.lifecycle.JobLifecycleEvent;
 import com.tchalanet.server.common.job.lifecycle.JobLifecycleStatus;
-import com.tchalanet.server.common.job.context.JobContextBinder;
 import com.tchalanet.server.platform.communication.api.CommunicationApi;
 import com.tchalanet.server.platform.communication.api.model.request.SendOutboundMessageRequest;
 import com.tchalanet.server.platform.communication.api.model.value.CommunicationChannel;
@@ -64,9 +64,13 @@ public class BatchLifecycleCommunicationListener {
 
   private SendOutboundMessageRequest toRequest(JobLifecycleEvent event) {
     var metadata = new LinkedHashMap<String, Object>();
-    putIfNotNull(metadata, "eventId", event.eventId() == null ? null : event.eventId().value().toString());
+    putIfNotNull(
+        metadata, "eventId", event.eventId() == null ? null : event.eventId().value().toString());
     putIfNotNull(metadata, "occurredAt", event.occurredAt());
-    putIfNotNull(metadata, "tenantId", event.tenantId() == null ? null : event.tenantId().value().toString());
+    putIfNotNull(
+        metadata,
+        "tenantId",
+        event.tenantId() == null ? null : event.tenantId().value().toString());
     putIfNotNull(metadata, "requestId", event.requestId());
     putIfNotNull(metadata, "jobKey", event.jobKey());
     putIfNotNull(metadata, "status", event.status().name());

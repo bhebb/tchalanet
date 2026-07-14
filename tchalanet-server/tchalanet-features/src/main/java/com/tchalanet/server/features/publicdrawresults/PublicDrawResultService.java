@@ -24,8 +24,7 @@ public class PublicDrawResultService {
   private final Clock clock;
 
   /**
-   * Dernier résultat + prochain tirage par slot public actif.
-   * Alimente le widget home.
+   * Dernier résultat + prochain tirage par slot public actif. Alimente le widget home.
    *
    * @param slotKeys Liste de slots filtrés (null ou vide = tous les slots actifs)
    * @param provider Provider filtré (null = tous les providers)
@@ -34,8 +33,7 @@ public class PublicDrawResultService {
   public PublicDrawResultLatestResponse latest(
       List<String> slotKeys, String provider, Integer limit) {
     var views =
-        queryBus.ask(
-            new ListPublicDrawResultSlotsQuery(normalizeSlotKeys(slotKeys), provider));
+        queryBus.ask(new ListPublicDrawResultSlotsQuery(normalizeSlotKeys(slotKeys), provider));
     return mapper.toLatestResponse(views, limit, clock.instant());
   }
 
@@ -45,8 +43,8 @@ public class PublicDrawResultService {
   }
 
   /**
-   * Historique paginé — filtre par dates, slot et provider.
-   * Alimente la page publique {@code /public/results}.
+   * Historique paginé — filtre par dates, slot et provider. Alimente la page publique {@code
+   * /public/results}.
    */
   public PublicDrawResultHistoryResponse history(PublicDrawResultSearchCriteria criteria) {
     var page =
@@ -60,9 +58,7 @@ public class PublicDrawResultService {
     return mapper.toHistoryResponse(page);
   }
 
-  /**
-   * Détail public d'un résultat identifié par son {@code DrawResultId} opaque.
-   */
+  /** Détail public d'un résultat identifié par son {@code DrawResultId} opaque. */
   public PublicDrawResultDetailResponse detail(DrawResultId drawResultId) {
     var view = queryBus.ask(new GetPublicDrawResultDetailByIdQuery(drawResultId));
     return mapper.toDetailResponse(view);

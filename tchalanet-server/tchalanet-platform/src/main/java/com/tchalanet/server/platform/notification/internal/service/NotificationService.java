@@ -11,8 +11,8 @@ import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.common.web.paging.TchSearchQuery;
-import com.tchalanet.server.platform.notification.api.model.NotificationAudienceType;
 import com.tchalanet.server.platform.notification.api.model.NotificationActorType;
+import com.tchalanet.server.platform.notification.api.model.NotificationAudienceType;
 import com.tchalanet.server.platform.notification.api.model.NotificationCategory;
 import com.tchalanet.server.platform.notification.api.model.NotificationChannel;
 import com.tchalanet.server.platform.notification.api.model.NotificationDeliveryChannel;
@@ -62,12 +62,24 @@ public class NotificationService {
   private final NotificationReader reader;
   private final NotificationTemplateRenderer templateRenderer;
   private final NotificationPolicy notificationPolicy;
-  private final com.tchalanet.server.platform.notification.internal.persistence.NotificationJpaRepository notifications;
-  private final com.tchalanet.server.platform.notification.internal.persistence.NotificationTranslationJpaRepository translations;
-  private final com.tchalanet.server.platform.notification.internal.persistence.NotificationPublicationJpaRepository publications;
-  private final com.tchalanet.server.platform.notification.internal.persistence.NotificationDeliveryPolicyJpaRepository deliveryPolicies;
-  private final com.tchalanet.server.platform.notification.internal.persistence.NotificationRecipientJpaRepository recipients;
-  private final com.tchalanet.server.platform.notification.internal.persistence.NotificationUserStateJpaRepository userStates;
+  private final com.tchalanet.server.platform.notification.internal.persistence
+          .NotificationJpaRepository
+      notifications;
+  private final com.tchalanet.server.platform.notification.internal.persistence
+          .NotificationTranslationJpaRepository
+      translations;
+  private final com.tchalanet.server.platform.notification.internal.persistence
+          .NotificationPublicationJpaRepository
+      publications;
+  private final com.tchalanet.server.platform.notification.internal.persistence
+          .NotificationDeliveryPolicyJpaRepository
+      deliveryPolicies;
+  private final com.tchalanet.server.platform.notification.internal.persistence
+          .NotificationRecipientJpaRepository
+      recipients;
+  private final com.tchalanet.server.platform.notification.internal.persistence
+          .NotificationUserStateJpaRepository
+      userStates;
   private final ApplicationEventPublisher eventPublisher;
 
   @TchTx
@@ -91,8 +103,12 @@ public class NotificationService {
             request.titleKey(),
             request.messageKey(),
             null,
-            firstNonBlank(request.titleText(), fallbackTranslation == null ? null : fallbackTranslation.title()),
-            firstNonBlank(request.messageText(), fallbackTranslation == null ? null : fallbackTranslation.body()),
+            firstNonBlank(
+                request.titleText(),
+                fallbackTranslation == null ? null : fallbackTranslation.title()),
+            firstNonBlank(
+                request.messageText(),
+                fallbackTranslation == null ? null : fallbackTranslation.body()),
             request.payload());
     var notification =
         new Notification(
@@ -120,7 +136,8 @@ public class NotificationService {
     var saved = notificationWriter.save(notification);
     saveTranslations(saved.id(), saved.tenantId(), request.translations());
     var publicationId = latestPublicationId(saved.id());
-    var deliveryChannels = saveDeliveryPolicies(saved.id(), publicationId, saved.tenantId(), request.channels());
+    var deliveryChannels =
+        saveDeliveryPolicies(saved.id(), publicationId, saved.tenantId(), request.channels());
     eventPublisher.publishEvent(
         new NotificationPublishedEvent(
             idGenerator.newUuid(),
@@ -142,27 +159,32 @@ public class NotificationService {
   }
 
   @TchTx
-  public NotificationPublicationId publish(NotificationId notificationId, UserId actorId, String reason) {
+  public NotificationPublicationId publish(
+      NotificationId notificationId, UserId actorId, String reason) {
     var entity = notificationEntity(notificationId);
     var now = clock.instant();
-    if (entity.getStatus() == NotificationStatus.CANCELLED || entity.getStatus() == NotificationStatus.PURGED) {
+    if (entity.getStatus() == NotificationStatus.CANCELLED
+        || entity.getStatus() == NotificationStatus.PURGED) {
       throw ProblemRest.unprocessable("notification.not_publishable");
     }
     notifications.publishDraft(notificationId.value(), now);
     entity.setStatus(NotificationStatus.PUBLISHED);
-    var publication = latestPublication(entity.getId())
-        .orElseGet(() -> createPublication(entity, null, reason, actorId, now));
+    var publication =
+        latestPublication(entity.getId())
+            .orElseGet(() -> createPublication(entity, null, reason, actorId, now));
     publishEvent(entity, publication, deliveryChannels(entity.getId(), publication.getId()), now);
     return NotificationPublicationId.of(publication.getId());
   }
 
   @TchTx
-  public NotificationPublicationId republish(NotificationId notificationId, UserId actorId, String reason) {
+  public NotificationPublicationId republish(
+      NotificationId notificationId, UserId actorId, String reason) {
     if (reason == null || reason.isBlank()) {
       throw ProblemRest.badRequest("notification.reason_required");
     }
     var entity = notificationEntity(notificationId);
-    if (entity.getStatus() == NotificationStatus.CANCELLED || entity.getStatus() == NotificationStatus.PURGED) {
+    if (entity.getStatus() == NotificationStatus.CANCELLED
+        || entity.getStatus() == NotificationStatus.PURGED) {
       throw ProblemRest.unprocessable("notification.not_republishable");
     }
     var now = clock.instant();
@@ -177,8 +199,9 @@ public class NotificationService {
   @TchTx
   public int replayRecipients(NotificationId notificationId) {
     var entity = notificationEntity(notificationId);
-    var publication = latestPublication(entity.getId())
-        .orElseThrow(() -> ProblemRest.notFound("notification.publication_not_found"));
+    var publication =
+        latestPublication(entity.getId())
+            .orElseThrow(() -> ProblemRest.notFound("notification.publication_not_found"));
     return replayRecipients(entity, publication);
   }
 
@@ -192,7 +215,8 @@ public class NotificationService {
     if (updated == 0) {
       throw ProblemRest.notFound("notification.not_found");
     }
-    publications.updatePublishedStatus(notificationId.value(), NotificationPublicationStatus.CANCELLED);
+    publications.updatePublishedStatus(
+        notificationId.value(), NotificationPublicationStatus.CANCELLED);
   }
 
   @TchTx
@@ -243,23 +267,30 @@ public class NotificationService {
       long userStateCandidates,
       long purgedUserStates) {}
 
-  private com.tchalanet.server.platform.notification.internal.persistence.NotificationJpaEntity notificationEntity(
-      NotificationId notificationId) {
+  private com.tchalanet.server.platform.notification.internal.persistence.NotificationJpaEntity
+      notificationEntity(NotificationId notificationId) {
     return notifications
         .findById(notificationId.value())
         .filter(entity -> entity.getDeletedAt() == null)
         .orElseThrow(() -> ProblemRest.notFound("notification.not_found"));
   }
 
-  private Optional<com.tchalanet.server.platform.notification.internal.persistence.NotificationPublicationJpaEntity>
+  private Optional<
+          com.tchalanet.server.platform.notification.internal.persistence
+              .NotificationPublicationJpaEntity>
       latestPublication(UUID notificationId) {
-    return publications.findFirstByNotificationIdAndDeletedAtIsNullOrderByPublicationNoDesc(notificationId);
+    return publications.findFirstByNotificationIdAndDeletedAtIsNullOrderByPublicationNoDesc(
+        notificationId);
   }
 
-  private com.tchalanet.server.platform.notification.internal.persistence.NotificationPublicationJpaEntity
+  private com.tchalanet.server.platform.notification.internal.persistence
+          .NotificationPublicationJpaEntity
       createPublication(
-          com.tchalanet.server.platform.notification.internal.persistence.NotificationJpaEntity notification,
-          com.tchalanet.server.platform.notification.internal.persistence.NotificationPublicationJpaEntity previous,
+          com.tchalanet.server.platform.notification.internal.persistence.NotificationJpaEntity
+              notification,
+          com.tchalanet.server.platform.notification.internal.persistence
+                  .NotificationPublicationJpaEntity
+              previous,
           String reason,
           UserId actorId,
           java.time.Instant now) {
@@ -271,7 +302,8 @@ public class NotificationService {
     notifications.save(notification);
 
     var publication =
-        new com.tchalanet.server.platform.notification.internal.persistence.NotificationPublicationJpaEntity();
+        new com.tchalanet.server.platform.notification.internal.persistence
+            .NotificationPublicationJpaEntity();
     publication.setNotificationId(notification.getId());
     publication.setTenantId(notification.getTenantId());
     publication.setPublicationNo(previous == null ? 1 : previous.getPublicationNo() + 1);
@@ -287,8 +319,11 @@ public class NotificationService {
   }
 
   private int replayRecipients(
-      com.tchalanet.server.platform.notification.internal.persistence.NotificationJpaEntity notification,
-      com.tchalanet.server.platform.notification.internal.persistence.NotificationPublicationJpaEntity publication) {
+      com.tchalanet.server.platform.notification.internal.persistence.NotificationJpaEntity
+          notification,
+      com.tchalanet.server.platform.notification.internal.persistence
+              .NotificationPublicationJpaEntity
+          publication) {
     if (notification.getAudienceType() != NotificationAudienceType.SPECIFIC_ACTORS) {
       return 0;
     }
@@ -304,13 +339,17 @@ public class NotificationService {
     int created = 0;
     for (var target : uniqueTargets) {
       var exists =
-          recipients.existsByPublicationIdAndRecipientActorTypeAndRecipientActorIdAndDeletedAtIsNull(
-              publication.getId(), target.getRecipientActorType(), target.getRecipientActorId());
+          recipients
+              .existsByPublicationIdAndRecipientActorTypeAndRecipientActorIdAndDeletedAtIsNull(
+                  publication.getId(),
+                  target.getRecipientActorType(),
+                  target.getRecipientActorId());
       if (exists) {
         continue;
       }
       var recipient =
-          new com.tchalanet.server.platform.notification.internal.persistence.NotificationRecipientJpaEntity();
+          new com.tchalanet.server.platform.notification.internal.persistence
+              .NotificationRecipientJpaEntity();
       recipient.setNotificationId(notification.getId());
       recipient.setPublicationId(publication.getId());
       recipient.setTenantId(notification.getTenantId());
@@ -324,18 +363,25 @@ public class NotificationService {
   }
 
   private Set<NotificationDeliveryChannel> copyDeliveryPolicies(
-      com.tchalanet.server.platform.notification.internal.persistence.NotificationJpaEntity notification,
-      com.tchalanet.server.platform.notification.internal.persistence.NotificationPublicationJpaEntity previous,
-      com.tchalanet.server.platform.notification.internal.persistence.NotificationPublicationJpaEntity publication) {
+      com.tchalanet.server.platform.notification.internal.persistence.NotificationJpaEntity
+          notification,
+      com.tchalanet.server.platform.notification.internal.persistence
+              .NotificationPublicationJpaEntity
+          previous,
+      com.tchalanet.server.platform.notification.internal.persistence
+              .NotificationPublicationJpaEntity
+          publication) {
     var previousPolicies =
         previous == null
-            ? deliveryPolicies.findByNotificationIdAndEnabledTrueAndDeletedAtIsNull(notification.getId())
+            ? deliveryPolicies.findByNotificationIdAndEnabledTrueAndDeletedAtIsNull(
+                notification.getId())
             : deliveryPolicies.findByNotificationIdAndPublicationIdAndEnabledTrueAndDeletedAtIsNull(
                 notification.getId(), previous.getId());
     var channels =
         previousPolicies.stream()
             .map(
-                com.tchalanet.server.platform.notification.internal.persistence.NotificationDeliveryPolicyJpaEntity
+                com.tchalanet.server.platform.notification.internal.persistence
+                        .NotificationDeliveryPolicyJpaEntity
                     ::getChannel)
             .filter(java.util.Objects::nonNull)
             .collect(Collectors.toCollection(java.util.LinkedHashSet::new));
@@ -344,7 +390,8 @@ public class NotificationService {
     }
     for (var channel : channels) {
       var policy =
-          new com.tchalanet.server.platform.notification.internal.persistence.NotificationDeliveryPolicyJpaEntity();
+          new com.tchalanet.server.platform.notification.internal.persistence
+              .NotificationDeliveryPolicyJpaEntity();
       policy.setNotificationId(notification.getId());
       policy.setPublicationId(publication.getId());
       policy.setTenantId(notification.getTenantId());
@@ -355,13 +402,16 @@ public class NotificationService {
     return Set.copyOf(channels);
   }
 
-  private Set<NotificationDeliveryChannel> deliveryChannels(UUID notificationId, UUID publicationId) {
+  private Set<NotificationDeliveryChannel> deliveryChannels(
+      UUID notificationId, UUID publicationId) {
     var channels =
         deliveryPolicies
-            .findByNotificationIdAndPublicationIdAndEnabledTrueAndDeletedAtIsNull(notificationId, publicationId)
+            .findByNotificationIdAndPublicationIdAndEnabledTrueAndDeletedAtIsNull(
+                notificationId, publicationId)
             .stream()
             .map(
-                com.tchalanet.server.platform.notification.internal.persistence.NotificationDeliveryPolicyJpaEntity
+                com.tchalanet.server.platform.notification.internal.persistence
+                        .NotificationDeliveryPolicyJpaEntity
                     ::getChannel)
             .filter(java.util.Objects::nonNull)
             .collect(Collectors.toCollection(java.util.LinkedHashSet::new));
@@ -372,8 +422,11 @@ public class NotificationService {
   }
 
   private void publishEvent(
-      com.tchalanet.server.platform.notification.internal.persistence.NotificationJpaEntity notification,
-      com.tchalanet.server.platform.notification.internal.persistence.NotificationPublicationJpaEntity publication,
+      com.tchalanet.server.platform.notification.internal.persistence.NotificationJpaEntity
+          notification,
+      com.tchalanet.server.platform.notification.internal.persistence
+              .NotificationPublicationJpaEntity
+          publication,
       Set<NotificationDeliveryChannel> channels,
       java.time.Instant now) {
     eventPublisher.publishEvent(
@@ -396,8 +449,11 @@ public class NotificationService {
   }
 
   private Set<NotificationTarget> eventTargets(
-      com.tchalanet.server.platform.notification.internal.persistence.NotificationJpaEntity notification,
-      com.tchalanet.server.platform.notification.internal.persistence.NotificationPublicationJpaEntity publication) {
+      com.tchalanet.server.platform.notification.internal.persistence.NotificationJpaEntity
+          notification,
+      com.tchalanet.server.platform.notification.internal.persistence
+              .NotificationPublicationJpaEntity
+          publication) {
     if (notification.getAudienceType() != NotificationAudienceType.SPECIFIC_ACTORS) {
       return Set.of();
     }
@@ -415,8 +471,13 @@ public class NotificationService {
       return NotificationAudienceType.ALL_APP_USERS;
     }
     return switch (audienceType) {
-      case SPECIFIC_ACTORS, PLATFORM_ADMINS, ALL_APP_USERS, TENANT_ADMINS, TENANT_APP_USERS,
-          TENANT_SELLER_TERMINALS -> audienceType;
+      case SPECIFIC_ACTORS,
+          PLATFORM_ADMINS,
+          ALL_APP_USERS,
+          TENANT_ADMINS,
+          TENANT_APP_USERS,
+          TENANT_SELLER_TERMINALS ->
+          audienceType;
     };
   }
 
@@ -457,7 +518,8 @@ public class NotificationService {
             return;
           }
           var entity =
-              new com.tchalanet.server.platform.notification.internal.persistence.NotificationTranslationJpaEntity();
+              new com.tchalanet.server.platform.notification.internal.persistence
+                  .NotificationTranslationJpaEntity();
           entity.setNotificationId(notificationId.value());
           entity.setTenantId(tenantId == null ? null : tenantId.value());
           entity.setLocale(locale);
@@ -487,7 +549,8 @@ public class NotificationService {
     var channels = normalizeDeliveryChannels(requestedChannels);
     for (var channel : channels) {
       var entity =
-          new com.tchalanet.server.platform.notification.internal.persistence.NotificationDeliveryPolicyJpaEntity();
+          new com.tchalanet.server.platform.notification.internal.persistence
+              .NotificationDeliveryPolicyJpaEntity();
       entity.setNotificationId(notificationId.value());
       entity.setPublicationId(publicationId == null ? null : publicationId.value());
       entity.setTenantId(tenantId == null ? null : tenantId.value());
@@ -498,7 +561,8 @@ public class NotificationService {
     return channels;
   }
 
-  private Set<NotificationDeliveryChannel> normalizeDeliveryChannels(Set<NotificationChannel> requestedChannels) {
+  private Set<NotificationDeliveryChannel> normalizeDeliveryChannels(
+      Set<NotificationChannel> requestedChannels) {
     if (requestedChannels == null || requestedChannels.isEmpty()) {
       return Set.of(NotificationDeliveryChannel.IN_APP);
     }
@@ -557,22 +621,29 @@ public class NotificationService {
 
   @TchTx
   public void markRead(MarkNotificationReadRequest request) {
-    reader.markRead(request.notificationId(), NotificationActorType.APP_USER, request.actorId().value());
+    reader.markRead(
+        request.notificationId(), NotificationActorType.APP_USER, request.actorId().value());
   }
 
   @TchTx
-  public void markReadForTerminal(NotificationId notificationId, SellerTerminalId sellerTerminalId) {
-    reader.markRead(notificationId, NotificationActorType.SELLER_TERMINAL, sellerTerminalId.value());
+  public void markReadForTerminal(
+      NotificationId notificationId, SellerTerminalId sellerTerminalId) {
+    reader.markRead(
+        notificationId, NotificationActorType.SELLER_TERMINAL, sellerTerminalId.value());
   }
 
   @TchTx
   public void markRead(MarkNotificationsReadRequest request) {
-    request.notificationIds().forEach(id -> reader.markRead(id, NotificationActorType.APP_USER, request.actorId().value()));
+    request
+        .notificationIds()
+        .forEach(
+            id -> reader.markRead(id, NotificationActorType.APP_USER, request.actorId().value()));
   }
 
   @TchTx
   public void archiveNotification(ArchiveNotificationRequest request) {
-    reader.dismiss(request.notificationId(), NotificationActorType.APP_USER, request.actorId().value());
+    reader.dismiss(
+        request.notificationId(), NotificationActorType.APP_USER, request.actorId().value());
   }
 
   @TchTx
@@ -583,7 +654,10 @@ public class NotificationService {
 
   @TchTx
   public void archiveNotifications(ArchiveNotificationsRequest request) {
-    request.notificationIds().forEach(id -> reader.dismiss(id, NotificationActorType.APP_USER, request.actorId().value()));
+    request
+        .notificationIds()
+        .forEach(
+            id -> reader.dismiss(id, NotificationActorType.APP_USER, request.actorId().value()));
   }
 
   @TchTx
@@ -635,7 +709,16 @@ public class NotificationService {
       TchSearchQuery search,
       TchPageRequest pageRequest) {
     return reader.listMyNotifications(
-        actorType, actorId, userId, roleCode, status, category, kind, severity, search, pageRequest);
+        actorType,
+        actorId,
+        userId,
+        roleCode,
+        status,
+        category,
+        kind,
+        severity,
+        search,
+        pageRequest);
   }
 
   public NotificationUnreadCountView countUnread(
@@ -644,17 +727,20 @@ public class NotificationService {
   }
 
   @TchTx
-  public void markRead(NotificationId notificationId, NotificationActorType actorType, UUID actorId) {
+  public void markRead(
+      NotificationId notificationId, NotificationActorType actorType, UUID actorId) {
     reader.markRead(notificationId, actorType, actorId);
   }
 
   @TchTx
-  public void dismiss(NotificationId notificationId, NotificationActorType actorType, UUID actorId) {
+  public void dismiss(
+      NotificationId notificationId, NotificationActorType actorType, UUID actorId) {
     reader.dismiss(notificationId, actorType, actorId);
   }
 
   @TchTx
-  public void markAllRead(NotificationActorType actorType, UUID actorId, UserId userId, String roleCode) {
+  public void markAllRead(
+      NotificationActorType actorType, UUID actorId, UserId userId, String roleCode) {
     reader.markAllRead(actorType, actorId, userId, roleCode);
   }
 
@@ -706,7 +792,8 @@ public class NotificationService {
             now);
 
     var saved = notificationWriter.save(notification);
-    log.debug("In-app notification accepted id={} recipientChannel={}", saved.id(), recipient.channel());
+    log.debug(
+        "In-app notification accepted id={} recipientChannel={}", saved.id(), recipient.channel());
   }
 
   private NotificationAudienceType audienceType(NotificationRecipient recipient) {
@@ -720,7 +807,8 @@ public class NotificationService {
   }
 
   private void validateAudienceScope(NotificationAudienceType audienceType, TenantId tenantId) {
-    var normalizedType = audienceType == null ? NotificationAudienceType.TENANT_APP_USERS : audienceType;
+    var normalizedType =
+        audienceType == null ? NotificationAudienceType.TENANT_APP_USERS : audienceType;
     if ((normalizedType == NotificationAudienceType.TENANT_APP_USERS
             || normalizedType == NotificationAudienceType.TENANT_ADMINS
             || normalizedType == NotificationAudienceType.TENANT_SELLER_TERMINALS)
@@ -730,9 +818,9 @@ public class NotificationService {
   }
 
   private java.util.Set<NotificationTarget> normalizeTargets(
-      NotificationAudienceType audienceType,
-      java.util.Set<NotificationTarget> targets) {
-    var normalizedType = audienceType == null ? NotificationAudienceType.TENANT_APP_USERS : audienceType;
+      NotificationAudienceType audienceType, java.util.Set<NotificationTarget> targets) {
+    var normalizedType =
+        audienceType == null ? NotificationAudienceType.TENANT_APP_USERS : audienceType;
     if (normalizedType != NotificationAudienceType.SPECIFIC_ACTORS) {
       return java.util.Set.of();
     }

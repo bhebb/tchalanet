@@ -12,7 +12,10 @@ import org.springframework.context.annotation.Configuration;
 public class ArchiveStorageConfig {
 
   @Bean
-  @ConditionalOnProperty(name = "tch.archive.storage.type", havingValue = "local", matchIfMissing = true)
+  @ConditionalOnProperty(
+      name = "tch.archive.storage.type",
+      havingValue = "local",
+      matchIfMissing = true)
   public ArchiveStoragePort localArchiveStorage(ArchiveProperties props) {
     return new LocalFileArchiveStorageAdapter(props);
   }

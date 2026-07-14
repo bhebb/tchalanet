@@ -15,9 +15,10 @@ import lombok.Setter;
 @Entity
 @Table(
     name = "message_template",
-    uniqueConstraints = @UniqueConstraint(
-        name = "uq_message_template__scope",
-        columnNames = {"tenant_id", "template_key", "channel", "locale"}))
+    uniqueConstraints =
+        @UniqueConstraint(
+            name = "uq_message_template__scope",
+            columnNames = {"tenant_id", "template_key", "channel", "locale"}))
 @Getter
 @Setter
 public class MessageTemplateJpaEntity extends BaseEntity {

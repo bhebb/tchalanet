@@ -32,12 +32,15 @@ class PortalHandoffRateLimiter {
 
   private void checkKey(String key) {
     var now = Instant.now(clock);
-    var bucket = buckets.compute(key, (ignored, current) -> {
-      if (current == null || now.isAfter(current.windowStart.plusSeconds(WINDOW_SECONDS))) {
-        return new Bucket(now, 1);
-      }
-      return new Bucket(current.windowStart, current.attempts + 1);
-    });
+    var bucket =
+        buckets.compute(
+            key,
+            (ignored, current) -> {
+              if (current == null || now.isAfter(current.windowStart.plusSeconds(WINDOW_SECONDS))) {
+                return new Bucket(now, 1);
+              }
+              return new Bucket(current.windowStart, current.attempts + 1);
+            });
     if (bucket.attempts > MAX_ATTEMPTS) {
       throw ProblemRest.of(HttpStatus.TOO_MANY_REQUESTS, "portal_handoff.rate_limited");
     }

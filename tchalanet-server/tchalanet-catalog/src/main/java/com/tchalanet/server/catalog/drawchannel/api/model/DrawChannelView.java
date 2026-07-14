@@ -1,16 +1,15 @@
 package com.tchalanet.server.catalog.drawchannel.api.model;
 
-import tools.jackson.databind.JsonNode;
 import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.ResultSlotId;
 import com.tchalanet.server.common.types.id.TenantId;
-
 import java.time.DayOfWeek;
 import java.time.Instant;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.List;
+import tools.jackson.databind.JsonNode;
 
 public record DrawChannelView(
     DrawChannelId id,

@@ -10,10 +10,9 @@ public record AdminDrawManualResultRequest(
     @Size(max = 20) String pick4,
     boolean force,
     @Size(max = 500) String reason,
-    boolean observeTrustPolicy
-) {
-    @AssertTrue(message = "reason is required when force is true")
-    public boolean isReasonValidForForce() {
-        return !force || (reason != null && !reason.isBlank());
-    }
+    boolean observeTrustPolicy) {
+  @AssertTrue(message = "reason is required when force is true")
+  public boolean isReasonValidForForce() {
+    return !force || (reason != null && !reason.isBlank());
+  }
 }

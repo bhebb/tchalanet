@@ -16,5 +16,4 @@ public record ReconciliationDrawResultRow(
     Instant scheduledAt,
     Instant resultedAt,
     DrawStatus drawStatus,
-    DrawResultStatus resultStatus
-) {}
+    DrawResultStatus resultStatus) {}

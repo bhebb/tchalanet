@@ -1,5 +1,7 @@
 package com.tchalanet.server.platform.tenant.internal.mapper;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.common.mapper.CommonIdMapper;
 import com.tchalanet.server.common.types.id.TenantId;
@@ -7,41 +9,41 @@ import com.tchalanet.server.platform.tenant.api.model.TenantStatus;
 import com.tchalanet.server.platform.tenant.api.model.TenantType;
 import com.tchalanet.server.platform.tenant.internal.domain.TenantConfig;
 import com.tchalanet.server.platform.tenant.internal.persistence.TenantJpaEntity;
+import java.time.ZoneId;
+import java.util.Currency;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 
-import java.time.ZoneId;
-import java.util.Currency;
-import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
 class TenantMapperTest {
 
-    private static final TenantMapper MAPPER = tenantMapper();
-    private static final JsonUtils JSON = new JsonUtils(JsonMapper.builder().build());
+  private static final TenantMapper MAPPER = tenantMapper();
+  private static final JsonUtils JSON = new JsonUtils(JsonMapper.builder().build());
 
-    private static TenantMapper tenantMapper() {
-        var mapper = new TenantMapperImpl() {
-            @Override
-            public JsonNode readConfig(String raw) {
-                return raw == null || raw.isBlank() ? null : JSON.parse(raw);
-            }
+  private static TenantMapper tenantMapper() {
+    var mapper =
+        new TenantMapperImpl() {
+          @Override
+          public JsonNode readConfig(String raw) {
+            return raw == null || raw.isBlank() ? null : JSON.parse(raw);
+          }
 
-            @Override
-            public String writeConfig(JsonNode node) {
-                return node == null ? "{}" : JSON.toJson(node);
-            }
+          @Override
+          public String writeConfig(JsonNode node) {
+            return node == null ? "{}" : JSON.toJson(node);
+          }
         };
-        ReflectionTestUtils.setField(mapper, "commonIdMapper", new CommonIdMapper());
-        return mapper;
-    }
+    ReflectionTestUtils.setField(mapper, "commonIdMapper", new CommonIdMapper());
+    return mapper;
+  }
 
-    @Test
-    void toEntityPersistsProvisionedTenantConfigJson() {
-        var config = JSON.parse("""
+  @Test
+  void toEntityPersistsProvisionedTenantConfigJson() {
+    var config =
+        JSON.parse(
+            """
             {
               "rules": { "businessCalendar": { "defaultOpen": true, "closedWeekdays": [] } },
               "document": { "receipt": { "enabled": true } },
@@ -49,7 +51,8 @@ class TenantMapperTest {
               "locale": { "supportedLanguages": ["fr"], "fallbackLanguage": "fr" }
             }
             """);
-        var tenant = TenantConfig.createDraft(
+    var tenant =
+        TenantConfig.createDraft(
             TenantId.of(UUID.randomUUID()),
             "tenant-a",
             "Tenant A",
@@ -59,24 +62,33 @@ class TenantMapperTest {
             null,
             null,
             null,
-            config
-        );
+            config);
 
-        var entity = MAPPER.toEntity(tenant);
+    var entity = MAPPER.toEntity(tenant);
 
-        assertThat(entity.getConfig()).isNotBlank();
-        assertThat(entity.getDisplayName()).isEqualTo("tenant-a");
-        assertThat(JSON.parse(entity.getConfig()).get("document").get("receipt").get("enabled").asText()).isEqualTo("true");
-        assertThat(JSON.parse(entity.getConfig()).get("rules").get("businessCalendar").get("defaultOpen").asText()).isEqualTo("true");
-    }
+    assertThat(entity.getConfig()).isNotBlank();
+    assertThat(entity.getDisplayName()).isEqualTo("tenant-a");
+    assertThat(
+            JSON.parse(entity.getConfig()).get("document").get("receipt").get("enabled").asText())
+        .isEqualTo("true");
+    assertThat(
+            JSON.parse(entity.getConfig())
+                .get("rules")
+                .get("businessCalendar")
+                .get("defaultOpen")
+                .asText())
+        .isEqualTo("true");
+  }
 
-    @Test
-    void updateEntityDoesNotOverwriteColumnLocaleDefaultsFromJsonConfig() {
-        var entity = new TenantJpaEntity();
-        entity.setDefaultLanguage("ht");
-        entity.setDefaultLocale("ht-HT");
+  @Test
+  void updateEntityDoesNotOverwriteColumnLocaleDefaultsFromJsonConfig() {
+    var entity = new TenantJpaEntity();
+    entity.setDefaultLanguage("ht");
+    entity.setDefaultLocale("ht-HT");
 
-        var config = JSON.parse("""
+    var config =
+        JSON.parse(
+            """
             {
               "locale": {
                 "supportedLanguages": ["en"],
@@ -84,7 +96,8 @@ class TenantMapperTest {
               }
             }
             """);
-        var tenant = new TenantConfig(
+    var tenant =
+        new TenantConfig(
             TenantId.of(UUID.randomUUID()),
             "tenant-a",
             "Tenant A",
@@ -96,13 +109,12 @@ class TenantMapperTest {
             config,
             null,
             null,
-            null
-        );
+            null);
 
-        MAPPER.updateEntity(tenant, entity);
+    MAPPER.updateEntity(tenant, entity);
 
-        assertThat(entity.getConfig()).isNotBlank();
-        assertThat(entity.getDefaultLanguage()).isEqualTo("ht");
-        assertThat(entity.getDefaultLocale()).isEqualTo("ht-HT");
-    }
+    assertThat(entity.getConfig()).isNotBlank();
+    assertThat(entity.getDefaultLanguage()).isEqualTo("ht");
+    assertThat(entity.getDefaultLocale()).isEqualTo("ht-HT");
+  }
 }

@@ -5,7 +5,7 @@ import java.util.Optional;
 
 public interface TenantContextLookup {
 
-    Optional<TenantContextInfo> findById(TenantId tenantId);
+  Optional<TenantContextInfo> findById(TenantId tenantId);
 
-    Optional<TenantContextInfo> findByCode(String tenantCode);
+  Optional<TenantContextInfo> findByCode(String tenantCode);
 }

@@ -1,7 +1,6 @@
 package com.tchalanet.server.platform.idempotence.api;
 
 import com.tchalanet.server.platform.idempotence.api.model.IdempotencyScope;
-
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -12,8 +11,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface RequireIdempotency {
-    IdempotencyScope scope();
+  IdempotencyScope scope();
 
-    long ttlSeconds() default 300;
+  long ttlSeconds() default 300;
 }
-

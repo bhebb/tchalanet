@@ -8,6 +8,4 @@ public record SendTicketReceiptResponse(
     CommunicationChannel channel,
     String recipient,
     boolean queued,
-    boolean deduplicated
-) {
-}
+    boolean deduplicated) {}

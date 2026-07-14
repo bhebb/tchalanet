@@ -35,11 +35,13 @@ public class GetTenantFinancialBreakdownQueryHandler
   public TenantFinancialBreakdownView handle(GetTenantFinancialBreakdownQuery query) {
     UUID tenantId = query.tenantId().value();
     var tenantRows = dailyRepository.findTenantRows(tenantId, query.from(), query.to());
-    var drawRows = drawRepository.findByTenantIdAndRefDateBetweenOrderByRefDate(
-        tenantId, query.from(), query.to());
+    var drawRows =
+        drawRepository.findByTenantIdAndRefDateBetweenOrderByRefDate(
+            tenantId, query.from(), query.to());
     var sellerRows = dailyRepository.findSellerTerminalRows(tenantId, query.from(), query.to());
-    var sellerDrawRows = sellerTerminalDrawRepository
-        .findByTenantIdAndRefDateBetweenOrderByRefDateDescUpdatedAtDesc(tenantId, query.from(), query.to());
+    var sellerDrawRows =
+        sellerTerminalDrawRepository.findByTenantIdAndRefDateBetweenOrderByRefDateDescUpdatedAtDesc(
+            tenantId, query.from(), query.to());
 
     return new TenantFinancialBreakdownView(
         query.from(),
@@ -48,14 +50,16 @@ public class GetTenantFinancialBreakdownQueryHandler
         tenantRows.stream().map(this::dailyRow).toList(),
         drawRows.stream()
             .filter(row -> includesDraw(query.drawIds(), row.getDrawId()))
-            .sorted(Comparator
-                .comparing(AnalyticsDrawEntity::getRefDate).reversed()
-                .thenComparing(AnalyticsDrawEntity::getScheduledAt, Comparator.reverseOrder()))
+            .sorted(
+                Comparator.comparing(AnalyticsDrawEntity::getRefDate)
+                    .reversed()
+                    .thenComparing(AnalyticsDrawEntity::getScheduledAt, Comparator.reverseOrder()))
             .limit(safeLimit(query.drawLimit()))
             .map(this::drawRow)
             .toList(),
         sellerDrawRows.stream()
-            .filter(row -> includesSellerTerminal(query.sellerTerminalIds(), row.getSellerTerminalId()))
+            .filter(
+                row -> includesSellerTerminal(query.sellerTerminalIds(), row.getSellerTerminalId()))
             .limit(safeLimit(query.sellerTerminalLimit()))
             .map(this::sellerTerminalDrawRow)
             .toList(),
@@ -63,8 +67,7 @@ public class GetTenantFinancialBreakdownQueryHandler
             .filter(row -> includesSellerTerminal(query.sellerTerminalIds(), row.getDimensionId()))
             .limit(safeLimit(query.sellerTerminalLimit()))
             .map(this::sellerTerminalDailyRow)
-            .toList()
-    );
+            .toList());
   }
 
   private FinancialSummary summary(List<AnalyticsDailyEntity> rows) {
@@ -111,8 +114,7 @@ public class GetTenantFinancialBreakdownQueryHandler
         promotionLines,
         promotionPricedLines,
         fromCents(netEstimated),
-        fromCents(netPaidBasis)
-    );
+        fromCents(netPaidBasis));
   }
 
   private DailyFinancialRow dailyRow(AnalyticsDailyEntity row) {
@@ -130,8 +132,7 @@ public class GetTenantFinancialBreakdownQueryHandler
         row.getPromotionLineCount(),
         row.getPromotionPricedLineCount(),
         fromCents(row.getNetRevenueEstimatedCents()),
-        fromCents(row.getNetRevenuePaidBasisCents())
-    );
+        fromCents(row.getNetRevenuePaidBasisCents()));
   }
 
   private DrawFinancialRow drawRow(AnalyticsDrawEntity row) {
@@ -153,8 +154,7 @@ public class GetTenantFinancialBreakdownQueryHandler
         row.getPromotionLineCount(),
         row.getPromotionPricedLineCount(),
         fromCents(row.getNetRevenueEstimatedCents()),
-        fromCents(row.getNetRevenuePaidBasisCents())
-    );
+        fromCents(row.getNetRevenuePaidBasisCents()));
   }
 
   private SellerTerminalDailyFinancialRow sellerTerminalDailyRow(AnalyticsDailyEntity row) {
@@ -171,11 +171,11 @@ public class GetTenantFinancialBreakdownQueryHandler
         row.getPromotionLineCount(),
         row.getPromotionPricedLineCount(),
         fromCents(row.getNetRevenueEstimatedCents()),
-        fromCents(row.getNetRevenuePaidBasisCents())
-    );
+        fromCents(row.getNetRevenuePaidBasisCents()));
   }
 
-  private SellerTerminalDrawFinancialRow sellerTerminalDrawRow(AnalyticsSellerTerminalDrawEntity row) {
+  private SellerTerminalDrawFinancialRow sellerTerminalDrawRow(
+      AnalyticsSellerTerminalDrawEntity row) {
     return new SellerTerminalDrawFinancialRow(
         row.getSellerTerminalId(),
         row.getDrawId(),
@@ -195,8 +195,7 @@ public class GetTenantFinancialBreakdownQueryHandler
         row.getPromotionLineCount(),
         row.getPromotionPricedLineCount(),
         fromCents(row.getNetRevenueEstimatedCents()),
-        fromCents(row.getNetRevenuePaidBasisCents())
-    );
+        fromCents(row.getNetRevenuePaidBasisCents()));
   }
 
   private static long safeLimit(int requested) {
@@ -210,7 +209,8 @@ public class GetTenantFinancialBreakdownQueryHandler
     return drawIds == null || drawIds.isEmpty() || drawIds.contains(drawId);
   }
 
-  private static boolean includesSellerTerminal(List<UUID> sellerTerminalIds, UUID sellerTerminalId) {
+  private static boolean includesSellerTerminal(
+      List<UUID> sellerTerminalIds, UUID sellerTerminalId) {
     return sellerTerminalIds == null
         || sellerTerminalIds.isEmpty()
         || sellerTerminalIds.contains(sellerTerminalId);

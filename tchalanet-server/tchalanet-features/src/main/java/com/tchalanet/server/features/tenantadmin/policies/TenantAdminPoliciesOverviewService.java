@@ -8,13 +8,12 @@ import com.tchalanet.server.core.limitpolicy.api.query.LimitScopeQueryRef;
 import com.tchalanet.server.core.limitpolicy.api.query.ListAvailableLimitRulesQuery;
 import com.tchalanet.server.core.limitpolicy.api.query.ListLimitAssignmentsByScopeQuery;
 import com.tchalanet.server.core.limitpolicy.api.query.ListLimitAssignmentsView;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -25,51 +24,45 @@ public class TenantAdminPoliciesOverviewService {
   public TenantAdminPoliciesOverviewView getOverview(TchRequestContext ctx) {
     var tenantId = ctx.tenantIdRequired();
     List<LimitRuleSpec> rules = queryBus.ask(new ListAvailableLimitRulesQuery());
-    ListLimitAssignmentsView assignments = queryBus.ask(
-        new ListLimitAssignmentsByScopeQuery(LimitScopeQueryRef.tenant(tenantId)));
+    ListLimitAssignmentsView assignments =
+        queryBus.ask(new ListLimitAssignmentsByScopeQuery(LimitScopeQueryRef.tenant(tenantId)));
 
     List<ListLimitAssignmentsView.Item> tenantAssignments =
         assignments != null && assignments.items() != null ? assignments.items() : List.of();
 
     Map<RuleKey, ListLimitAssignmentsView.Item> assignmentsByRule =
         tenantAssignments.stream()
-            .collect(Collectors.toMap(
-                ListLimitAssignmentsView.Item::ruleKey,
-                Function.identity(),
-                (left, right) -> left));
+            .collect(
+                Collectors.toMap(
+                    ListLimitAssignmentsView.Item::ruleKey,
+                    Function.identity(),
+                    (left, right) -> left));
 
-    List<TenantAdminPoliciesOverviewView.GlobalRule> globalRules = rules.stream()
-        .map(spec -> new TenantAdminPoliciesOverviewView.GlobalRule(
-            spec,
-            assignmentsByRule.get(spec.ruleKey())))
-        .filter(row -> row.assignment() != null)
-        .toList();
+    List<TenantAdminPoliciesOverviewView.GlobalRule> globalRules =
+        rules.stream()
+            .map(
+                spec ->
+                    new TenantAdminPoliciesOverviewView.GlobalRule(
+                        spec, assignmentsByRule.get(spec.ruleKey())))
+            .filter(row -> row.assignment() != null)
+            .toList();
 
-    int activeGlobalRules = (int) globalRules.stream()
-        .filter(row -> row.assignment().enabled())
-        .count();
-    int warnings = (int) globalRules.stream()
-        .filter(row -> !row.assignment().enabled())
-        .count();
-    int numberRules = (int) globalRules.stream()
-        .filter(row -> row.assignment().enabled())
-        .filter(row -> row.spec().ruleKey().name().contains("SELECTION"))
-        .count();
+    int activeGlobalRules =
+        (int) globalRules.stream().filter(row -> row.assignment().enabled()).count();
+    int warnings = (int) globalRules.stream().filter(row -> !row.assignment().enabled()).count();
+    int numberRules =
+        (int)
+            globalRules.stream()
+                .filter(row -> row.assignment().enabled())
+                .filter(row -> row.spec().ruleKey().name().contains("SELECTION"))
+                .count();
 
-    var summary = new TenantAdminPoliciesOverviewView.Summary(
-        activeGlobalRules,
-        globalRules.size(),
-        0,
-        0,
-        numberRules,
-        warnings);
+    var summary =
+        new TenantAdminPoliciesOverviewView.Summary(
+            activeGlobalRules, globalRules.size(), 0, 0, numberRules, warnings);
 
     return new TenantAdminPoliciesOverviewView(
-        summary,
-        scopeCards(summary),
-        actionLinks(),
-        alerts(summary),
-        globalRules);
+        summary, scopeCards(summary), actionLinks(), alerts(summary), globalRules);
   }
 
   private List<TenantAdminPoliciesOverviewView.ScopeCard> scopeCards(
@@ -140,8 +133,8 @@ public class TenantAdminPoliciesOverviewService {
     if (summary.warnings() == 0) {
       return List.of();
     }
-    return List.of(new TenantAdminPoliciesOverviewView.Alert(
-        "warning",
-        summary.warnings() + " règle(s) globale(s) sont désactivées."));
+    return List.of(
+        new TenantAdminPoliciesOverviewView.Alert(
+            "warning", summary.warnings() + " règle(s) globale(s) sont désactivées."));
   }
 }

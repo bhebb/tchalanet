@@ -11,5 +11,5 @@ public record RescheduleDrawCommand(
     @NotNull Instant scheduledAt,
     @NotNull Instant cutoffAt,
     @Size(max = 255) String reason,
-    boolean force
-) implements Command<Void> {}
+    boolean force)
+    implements Command<Void> {}

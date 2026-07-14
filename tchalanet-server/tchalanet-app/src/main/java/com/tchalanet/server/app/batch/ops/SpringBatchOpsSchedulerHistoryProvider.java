@@ -25,9 +25,10 @@ public class SpringBatchOpsSchedulerHistoryProvider implements OpsSchedulerHisto
       @Value("${tch.ops.scheduler.stale-after:PT1H}") Duration staleAfter) {
     this.jobRegistry = jobRegistry;
     this.batchJobHistoryService = batchJobHistoryService;
-    this.staleAfter = staleAfter == null || staleAfter.isZero() || staleAfter.isNegative()
-        ? Duration.ofHours(1)
-        : staleAfter;
+    this.staleAfter =
+        staleAfter == null || staleAfter.isZero() || staleAfter.isNegative()
+            ? Duration.ofHours(1)
+            : staleAfter;
   }
 
   @Override
@@ -39,21 +40,28 @@ public class SpringBatchOpsSchedulerHistoryProvider implements OpsSchedulerHisto
     Instant staleCutoff = Instant.now().minus(staleAfter);
 
     for (var registered : jobRegistry.list()) {
-      var executions = batchJobHistoryService.listExecutions(registered.jobKey(), RECENT_EXECUTION_LIMIT);
-      var latest = executions.stream()
-          .max(Comparator.comparing(
-              execution -> execution.startedAt() != null ? execution.startedAt() : Instant.EPOCH));
+      var executions =
+          batchJobHistoryService.listExecutions(registered.jobKey(), RECENT_EXECUTION_LIMIT);
+      var latest =
+          executions.stream()
+              .max(
+                  Comparator.comparing(
+                      execution ->
+                          execution.startedAt() != null ? execution.startedAt() : Instant.EPOCH));
 
       if (latest.isEmpty()) {
         neverRunCount++;
-        recentExecutions.add(new ExecutionItem(Instant.EPOCH, new Item(
-            registered.jobKey().value(),
-            registered.displayName(),
-            registered.scope().name(),
-            "NEVER_RUN",
-            "WARNING",
-            "/app/platform/ops/batch",
-            null)));
+        recentExecutions.add(
+            new ExecutionItem(
+                Instant.EPOCH,
+                new Item(
+                    registered.jobKey().value(),
+                    registered.displayName(),
+                    registered.scope().name(),
+                    "NEVER_RUN",
+                    "WARNING",
+                    "/app/platform/ops/batch",
+                    null)));
         continue;
       }
 
@@ -67,27 +75,31 @@ public class SpringBatchOpsSchedulerHistoryProvider implements OpsSchedulerHisto
       if (stale) {
         staleCount++;
       }
-      recentExecutions.add(new ExecutionItem(
-          startedAt,
-          new Item(
-              registered.jobKey().value(),
-              registered.displayName(),
-              registered.scope().name(),
-              stale && "OK".equals(severity(status)) ? "STALE" : status,
-              stale && "OK".equals(severity(status)) ? "WARNING" : severity(status),
-              "/app/platform/ops/batch",
-              execution.context())));
+      recentExecutions.add(
+          new ExecutionItem(
+              startedAt,
+              new Item(
+                  registered.jobKey().value(),
+                  registered.displayName(),
+                  registered.scope().name(),
+                  stale && "OK".equals(severity(status)) ? "STALE" : status,
+                  stale && "OK".equals(severity(status)) ? "WARNING" : severity(status),
+                  "/app/platform/ops/batch",
+                  execution.context())));
     }
 
-    List<Item> items = recentExecutions.stream()
-        .sorted(Comparator
-            .comparing((ExecutionItem item) -> severityRank(item.item().severity()))
-            .thenComparing(ExecutionItem::occurredAt, Comparator.nullsLast(Comparator.reverseOrder())))
-        .limit(RECENT_EXECUTION_LIMIT)
-        .map(ExecutionItem::item)
-        .toList();
+    List<Item> items =
+        recentExecutions.stream()
+            .sorted(
+                Comparator.comparing((ExecutionItem item) -> severityRank(item.item().severity()))
+                    .thenComparing(
+                        ExecutionItem::occurredAt, Comparator.nullsLast(Comparator.reverseOrder())))
+            .limit(RECENT_EXECUTION_LIMIT)
+            .map(ExecutionItem::item)
+            .toList();
 
-    return new Snapshot(failedCount, staleCount + neverRunCount, neverRunCount, true, List.copyOf(items));
+    return new Snapshot(
+        failedCount, staleCount + neverRunCount, neverRunCount, true, List.copyOf(items));
   }
 
   private static String severity(String status) {

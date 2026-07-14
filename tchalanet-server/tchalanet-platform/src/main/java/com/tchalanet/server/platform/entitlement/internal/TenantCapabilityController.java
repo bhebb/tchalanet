@@ -17,10 +17,11 @@ import org.springframework.web.bind.annotation.RestController;
 @PreAuthorize("isAuthenticated()")
 public class TenantCapabilityController {
 
-    private final EntitlementApi entitlementApi;
+  private final EntitlementApi entitlementApi;
 
-    @GetMapping
-    public ApiResponse<TenantCapabilitySnapshot> getMyCapabilities(@CurrentContext TchRequestContext ctx) {
-        return ApiResponse.success(entitlementApi.getSnapshot(ctx.tenantIdRequired()));
-    }
+  @GetMapping
+  public ApiResponse<TenantCapabilitySnapshot> getMyCapabilities(
+      @CurrentContext TchRequestContext ctx) {
+    return ApiResponse.success(entitlementApi.getSnapshot(ctx.tenantIdRequired()));
+  }
 }

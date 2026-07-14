@@ -6,4 +6,3 @@ public record ProvisionExternalUserRequest(
     String phone,
     String displayName,
     String initialPassword) {}
-

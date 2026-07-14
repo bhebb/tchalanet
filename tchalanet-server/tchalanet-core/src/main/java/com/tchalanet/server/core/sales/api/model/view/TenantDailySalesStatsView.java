@@ -9,7 +9,7 @@ public record TenantDailySalesStatsView(
     String currency,
     List<GameSalesStatLine> gameBreakdown) {
 
-    public static TenantDailySalesStatsView empty(String currency) {
-        return new TenantDailySalesStatsView(0L, 0L, 0L, currency, List.of());
-    }
+  public static TenantDailySalesStatsView empty(String currency) {
+    return new TenantDailySalesStatsView(0L, 0L, 0L, currency, List.of());
+  }
 }

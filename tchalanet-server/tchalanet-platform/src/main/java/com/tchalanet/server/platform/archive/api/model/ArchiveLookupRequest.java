@@ -13,5 +13,4 @@ public record ArchiveLookupRequest(
     UUID tenantId,
     UUID entityId,
     String publicCode,
-    LocalDate businessDate
-) {}
+    LocalDate businessDate) {}

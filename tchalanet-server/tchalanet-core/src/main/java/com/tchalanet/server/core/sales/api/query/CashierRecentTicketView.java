@@ -3,8 +3,8 @@ package com.tchalanet.server.core.sales.api.query;
 import java.time.Instant;
 
 /**
- * Public-safe view of a recent ticket for the cashier dashboard widget.
- * Does not expose internal IDs (TicketId, DrawId, TenantId).
+ * Public-safe view of a recent ticket for the cashier dashboard widget. Does not expose internal
+ * IDs (TicketId, DrawId, TenantId).
  */
 public record CashierRecentTicketView(
     String publicCode,
@@ -12,5 +12,4 @@ public record CashierRecentTicketView(
     Instant soldAt,
     long stakeTotalCents,
     String drawLabel,
-    int lineCount
-) {}
+    int lineCount) {}

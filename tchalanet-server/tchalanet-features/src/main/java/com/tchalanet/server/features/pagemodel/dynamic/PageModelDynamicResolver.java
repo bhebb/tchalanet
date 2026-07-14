@@ -1,14 +1,13 @@
 package com.tchalanet.server.features.pagemodel.dynamic;
 
 import com.tchalanet.server.common.context.TchRequestContext;
-
+import com.tchalanet.server.common.web.advice.ApiResponseNotices;
+import com.tchalanet.server.common.web.api.NoticeSeverity;
+import com.tchalanet.server.common.web.api.NoticeSource;
 import com.tchalanet.server.core.pagemodel.api.dynamic.PageModelDynamicProvider;
 import com.tchalanet.server.core.pagemodel.api.dynamic.PageModelDynamicProviderException;
 import com.tchalanet.server.core.pagemodel.api.dynamic.PageModelResolutionContext;
 import com.tchalanet.server.core.pagemodel.api.model.PageModelDoc;
-import com.tchalanet.server.common.web.advice.ApiResponseNotices;
-import com.tchalanet.server.common.web.api.NoticeSeverity;
-import com.tchalanet.server.common.web.api.NoticeSource;
 import com.tchalanet.server.features.pagemodel.security.PageModelAllowedRoles;
 import com.tchalanet.server.features.pagemodel.shared.PageDynamicPayload;
 import com.tchalanet.server.features.pagemodel.shared.WidgetDynamicError;
@@ -31,24 +30,61 @@ public class PageModelDynamicResolver {
       return new PageDynamicPayload(widgets, errors);
     }
     resolveRootShell(doc, lang, ctx, resolutionContext, widgets, errors);
-    resolveShell(doc, "shell.header", doc.shell() == null ? null : doc.shell().header(), lang, ctx, resolutionContext, widgets, errors);
-    resolveShell(doc, "shell.sidenav", doc.shell() == null ? null : doc.shell().sidenav(), lang, ctx, resolutionContext, widgets, errors);
-    resolveShell(doc, "shell.footer", doc.shell() == null ? null : doc.shell().footer(), lang, ctx, resolutionContext, widgets, errors);
+    resolveShell(
+        doc,
+        "shell.header",
+        doc.shell() == null ? null : doc.shell().header(),
+        lang,
+        ctx,
+        resolutionContext,
+        widgets,
+        errors);
+    resolveShell(
+        doc,
+        "shell.sidenav",
+        doc.shell() == null ? null : doc.shell().sidenav(),
+        lang,
+        ctx,
+        resolutionContext,
+        widgets,
+        errors);
+    resolveShell(
+        doc,
+        "shell.footer",
+        doc.shell() == null ? null : doc.shell().footer(),
+        lang,
+        ctx,
+        resolutionContext,
+        widgets,
+        errors);
 
     if (doc.content() == null || doc.content().widgets() == null) {
       return new PageDynamicPayload(widgets, errors);
     }
 
-    doc.content().widgets().forEach((widgetId, config) -> {
-      if (config == null) return;
-      if (config.binding() == null) return;
-      if (!"dynamic".equals(config.binding().mode())) return;
+    doc.content()
+        .widgets()
+        .forEach(
+            (widgetId, config) -> {
+              if (config == null) return;
+              if (config.binding() == null) return;
+              if (!"dynamic".equals(config.binding().mode())) return;
 
-      String source = config.binding().source();
-      String widgetType = config.type();
+              String source = config.binding().source();
+              String widgetType = config.type();
 
-      resolveDynamicConfig(doc, widgetId, widgetType, config, source, lang, ctx, resolutionContext, widgets, errors);
-    });
+              resolveDynamicConfig(
+                  doc,
+                  widgetId,
+                  widgetType,
+                  config,
+                  source,
+                  lang,
+                  ctx,
+                  resolutionContext,
+                  widgets,
+                  errors);
+            });
 
     return new PageDynamicPayload(widgets, errors);
   }
@@ -122,87 +158,85 @@ public class PageModelDynamicResolver {
     providers.stream()
         .filter(p -> p.supports(logicalId, widgetType, source))
         .findFirst()
-        .ifPresentOrElse(provider -> {
-          // [harden-pagemodel-security-v2 / D2] Provider-level role revalidation.
-          // If the provider declares @PageModelAllowedRoles and the current role is not in the set,
-          // record a widget-level error instead of returning data or throwing a 500.
-          PageModelAllowedRoles roleAnnotation =
-              provider.getClass().getAnnotation(PageModelAllowedRoles.class);
-          if (roleAnnotation != null) {
-            var currentRole = ctx != null ? ctx.currentRole() : null;
-            boolean permitted =
-                currentRole != null
-                    && Arrays.asList(roleAnnotation.value()).contains(currentRole);
-            if (!permitted) {
-              var error = new WidgetDynamicError(
-                  widgetId,
-                  provider.providerKey(),
-                  "PROVIDER_ROLE_DENIED",
-                  "Provider " + provider.providerKey()
-                      + " requires one of " + Arrays.toString(roleAnnotation.value())
-                      + " but current role is " + currentRole
-              );
+        .ifPresentOrElse(
+            provider -> {
+              // [harden-pagemodel-security-v2 / D2] Provider-level role revalidation.
+              // If the provider declares @PageModelAllowedRoles and the current role is not in the
+              // set,
+              // record a widget-level error instead of returning data or throwing a 500.
+              PageModelAllowedRoles roleAnnotation =
+                  provider.getClass().getAnnotation(PageModelAllowedRoles.class);
+              if (roleAnnotation != null) {
+                var currentRole = ctx != null ? ctx.currentRole() : null;
+                boolean permitted =
+                    currentRole != null
+                        && Arrays.asList(roleAnnotation.value()).contains(currentRole);
+                if (!permitted) {
+                  var error =
+                      new WidgetDynamicError(
+                          widgetId,
+                          provider.providerKey(),
+                          "PROVIDER_ROLE_DENIED",
+                          "Provider "
+                              + provider.providerKey()
+                              + " requires one of "
+                              + Arrays.toString(roleAnnotation.value())
+                              + " but current role is "
+                              + currentRole);
+                  errors.add(error);
+                  addWidgetNotice(error, "Page section unavailable.", NoticeSeverity.WARN, null);
+                  return;
+                }
+              }
+              try {
+                Object payload = provider.load(doc, widgetId, config, lang, ctx, resolutionContext);
+                widgets.put(widgetId, payload);
+              } catch (PageModelDynamicProviderException e) {
+                var error =
+                    new WidgetDynamicError(widgetId, provider.providerKey(), e.code(), safeMsg(e));
+                errors.add(error);
+                addWidgetNotice(error, "Page section unavailable.", NoticeSeverity.WARN, e);
+              } catch (Exception e) {
+                var error =
+                    new WidgetDynamicError(
+                        widgetId,
+                        provider.providerKey(),
+                        "pagemodel.widget.unavailable",
+                        safeMsg(e));
+                errors.add(error);
+                addWidgetNotice(error, "Page section unavailable.", NoticeSeverity.WARN, e);
+              }
+            },
+            () -> {
+              var error =
+                  new WidgetDynamicError(
+                      widgetId,
+                      "resolver",
+                      "pagemodel.widget.no_provider",
+                      "No provider found for logicalId="
+                          + logicalId
+                          + ", widgetType="
+                          + widgetType
+                          + ", source="
+                          + source);
               errors.add(error);
               addWidgetNotice(error, "Page section unavailable.", NoticeSeverity.WARN, null);
-              return;
-            }
-          }
-          try {
-            Object payload = provider.load(doc, widgetId, config, lang, ctx, resolutionContext);
-            widgets.put(widgetId, payload);
-          } catch (PageModelDynamicProviderException e) {
-            var error = new WidgetDynamicError(
-                widgetId,
-                provider.providerKey(),
-                e.code(),
-                safeMsg(e)
-            );
-            errors.add(error);
-            addWidgetNotice(error, "Page section unavailable.", NoticeSeverity.WARN, e);
-          } catch (Exception e) {
-            var error = new WidgetDynamicError(
-                widgetId,
-                provider.providerKey(),
-                "pagemodel.widget.unavailable",
-                safeMsg(e)
-            );
-            errors.add(error);
-            addWidgetNotice(error, "Page section unavailable.", NoticeSeverity.WARN, e);
-          }
-        }, () -> {
-          var error = new WidgetDynamicError(
-              widgetId,
-              "resolver",
-              "pagemodel.widget.no_provider",
-              "No provider found for logicalId=" + logicalId
-                  + ", widgetType=" + widgetType
-                  + ", source=" + source
-          );
-          errors.add(error);
-          addWidgetNotice(error, "Page section unavailable.", NoticeSeverity.WARN, null);
-        });
+            });
   }
 
   private static void addWidgetNotice(
-      WidgetDynamicError error,
-      String message,
-      NoticeSeverity severity,
-      Exception ex) {
+      WidgetDynamicError error, String message, NoticeSeverity severity, Exception ex) {
     ApiResponseNotices.add(
         error.code(),
         message,
         "features.pagemodel",
         severity,
-        NoticeSource.of(error.widgetId())
-            .service(error.provider())
-            .operation("loadWidget"),
+        NoticeSource.of(error.widgetId()).service(error.provider()).operation("loadWidget"),
         ex,
         Map.of(
             "surface", "section",
             "placement", "top",
-            "target", error.widgetId()
-        )
-    );
+            "target", error.widgetId()));
   }
 
   private static String safeMsg(Exception e) {

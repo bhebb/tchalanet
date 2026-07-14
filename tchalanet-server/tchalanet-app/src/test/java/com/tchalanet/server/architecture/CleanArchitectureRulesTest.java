@@ -12,9 +12,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-/**
- * Architecture tests enforcing clean architecture boundaries and dependency rules.
- */
+/** Architecture tests enforcing clean architecture boundaries and dependency rules. */
 class CleanArchitectureRulesTest {
 
   private static JavaClasses classes;

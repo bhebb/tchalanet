@@ -37,10 +37,9 @@ public class OutboundMessageDispatcher {
 
   @Transactional
   public int dispatchDueMessages() {
-    var due = messages.findDueForDispatch(
-        DeliveryStatus.PENDING,
-        clock.instant(),
-        PageRequest.of(0, BATCH_SIZE));
+    var due =
+        messages.findDueForDispatch(
+            DeliveryStatus.PENDING, clock.instant(), PageRequest.of(0, BATCH_SIZE));
 
     due.forEach(this::dispatchOne);
     return due.size();
@@ -53,8 +52,12 @@ public class OutboundMessageDispatcher {
 
     try {
       var result = providers.providerFor(message.getChannel()).send(request);
-      recordAttempt(message, result.sent() ? DeliveryStatus.SENT : DeliveryStatus.SKIPPED,
-          result.provider(), null, result.reason());
+      recordAttempt(
+          message,
+          result.sent() ? DeliveryStatus.SENT : DeliveryStatus.SKIPPED,
+          result.provider(),
+          null,
+          result.reason());
       if (result.sent()) {
         message.setStatus(DeliveryStatus.SENT);
         message.setSentAt(now);
@@ -65,9 +68,17 @@ public class OutboundMessageDispatcher {
         message.setFailureReason(result.reason());
       }
     } catch (RuntimeException ex) {
-      log.warn("Communication dispatch failed messageId={} channel={}",
-          message.getId(), message.getChannel(), ex);
-      recordAttempt(message, DeliveryStatus.FAILED, message.getChannel().name(), "PROVIDER_ERROR", ex.getMessage());
+      log.warn(
+          "Communication dispatch failed messageId={} channel={}",
+          message.getId(),
+          message.getChannel(),
+          ex);
+      recordAttempt(
+          message,
+          DeliveryStatus.FAILED,
+          message.getChannel().name(),
+          "PROVIDER_ERROR",
+          ex.getMessage());
       message.setStatus(DeliveryStatus.PENDING);
       message.setNextAttemptAt(retryPlanner.nextAttempt(now, 1));
       message.setFailureReason(ex.getMessage());
@@ -91,10 +102,13 @@ public class OutboundMessageDispatcher {
   }
 
   private SendOutboundMessageRequest toRequest(OutboundMessageJpaEntity message) {
-    var recipient = switch (message.getChannel()) {
-      case SLACK, SLACK_INTERNAL, SLACK_TENANT_WEBHOOK -> OutboundRecipient.slack(message.getRecipientValue());
-      case EMAIL, SMS, WHATSAPP, PUSH -> new OutboundRecipient(null, null, message.getRecipientValue(), null);
-    };
+    var recipient =
+        switch (message.getChannel()) {
+          case SLACK, SLACK_INTERNAL, SLACK_TENANT_WEBHOOK ->
+              OutboundRecipient.slack(message.getRecipientValue());
+          case EMAIL, SMS, WHATSAPP, PUSH ->
+              new OutboundRecipient(null, null, message.getRecipientValue(), null);
+        };
 
     var persistedMetadata = metadata(message);
     var metadata = new LinkedHashMap<String, Object>(persistedMetadata);
@@ -119,16 +133,15 @@ public class OutboundMessageDispatcher {
     if (message.getPayload() == null || message.getPayload().isNull()) {
       return Map.of();
     }
-    return jsonUtils.convertValue(message.getPayload(), new tools.jackson.core.type.TypeReference<Map<String, Object>>() {});
+    return jsonUtils.convertValue(
+        message.getPayload(), new tools.jackson.core.type.TypeReference<Map<String, Object>>() {});
   }
 
   private List<OutboundAttachment> attachments(Object raw) {
     if (!(raw instanceof List<?> list)) {
       return List.of();
     }
-    return list.stream()
-        .map(OutboundAttachment::fromMetadata)
-        .toList();
+    return list.stream().map(OutboundAttachment::fromMetadata).toList();
   }
 
   private String nullToEmpty(String value) {

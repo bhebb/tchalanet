@@ -31,18 +31,19 @@ class ArchivePartitionCleanupServiceTest {
     var service = service(legalHoldRepo);
 
     when(legalHoldRepo.hasActiveHoldForPeriod(
-        "audit_log", LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1)))
+            "audit_log", LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1)))
         .thenReturn(true);
 
     var plan = service.plan("audit_log", LocalDate.of(2026, 1, 1));
 
     assertThat(plan)
         .singleElement()
-        .satisfies(item -> {
-          assertThat(item.partitionName()).isEqualTo("audit_log_2025_01");
-          assertThat(item.eligible()).isFalse();
-          assertThat(item.ineligibleReason()).contains("legal hold");
-        });
+        .satisfies(
+            item -> {
+              assertThat(item.partitionName()).isEqualTo("audit_log_2025_01");
+              assertThat(item.eligible()).isFalse();
+              assertThat(item.ineligibleReason()).contains("legal hold");
+            });
   }
 
   @Test
@@ -52,37 +53,42 @@ class ArchivePartitionCleanupServiceTest {
     var service = service(legalHoldRepo);
 
     when(legalHoldRepo.hasActiveHoldForPeriod(
-        "audit_log", LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1)))
+            "audit_log", LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1)))
         .thenReturn(true);
 
-    assertThatThrownBy(() -> service.executeCleanup(
-        "audit_log_2025_01", ArchivePartitionCleanupService.CleanupMode.DETACH_ONLY))
+    assertThatThrownBy(
+            () ->
+                service.executeCleanup(
+                    "audit_log_2025_01", ArchivePartitionCleanupService.CleanupMode.DETACH_ONLY))
         .isInstanceOf(IllegalStateException.class)
         .hasMessageContaining("legal hold");
 
-    verify(legalHoldRepo).hasActiveHoldForPeriod(
-        "audit_log", LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1));
+    verify(legalHoldRepo)
+        .hasActiveHoldForPeriod("audit_log", LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1));
   }
 
-  private static ArchivePartitionCleanupService service(ArchiveLegalHoldJdbcRepository legalHoldRepo) {
+  private static ArchivePartitionCleanupService service(
+      ArchiveLegalHoldJdbcRepository legalHoldRepo) {
     var jdbc = mock(NamedParameterJdbcTemplate.class);
     when(jdbc.queryForList(contains("FROM pg_class"), any(MapSqlParameterSource.class)))
         .thenReturn(List.of(Map.of("partition_name", "audit_log_2025_01")));
     when(jdbc.queryForList(contains("FROM archive_object"), any(MapSqlParameterSource.class)))
         .thenReturn(List.of(Map.of("id", java.util.UUID.randomUUID(), "row_count", 2L)));
     when(jdbc.queryForObject(
-        contains("COUNT(*) FROM archive_object"),
-        any(MapSqlParameterSource.class),
-        eq(Integer.class)))
+            contains("COUNT(*) FROM archive_object"),
+            any(MapSqlParameterSource.class),
+            eq(Integer.class)))
         .thenReturn(0);
     when(jdbc.queryForObject(contains("COUNT(*) FROM audit_log_2025_01"), anyMap(), eq(Long.class)))
         .thenReturn(2L);
 
-    var props = new ArchiveProperties(
-        true,
-        new ArchiveProperties.Storage("local", "./archive-data", "tchalanet-archive", "archive", 536870912L),
-        new ArchiveProperties.Restore(Duration.ofDays(7), 1_000_000L, 5),
-        new ArchiveProperties.Cleanup(true, "DETACH_ONLY", 12, List.of("audit_log")));
+    var props =
+        new ArchiveProperties(
+            true,
+            new ArchiveProperties.Storage(
+                "local", "./archive-data", "tchalanet-archive", "archive", 536870912L),
+            new ArchiveProperties.Restore(Duration.ofDays(7), 1_000_000L, 5),
+            new ArchiveProperties.Cleanup(true, "DETACH_ONLY", 12, List.of("audit_log")));
     return new ArchivePartitionCleanupService(props, jdbc, legalHoldRepo);
   }
 }

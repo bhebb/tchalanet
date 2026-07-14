@@ -40,4 +40,3 @@ class ExternalAuthenticatedUserTest {
         .hasMessage("subject is required");
   }
 }
-

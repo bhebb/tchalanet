@@ -11,9 +11,9 @@ public record PreviewTicketSaleQuery(
     DrawId drawId,
     DrawChannelId drawChannelId,
     CurrencyCode currency,
-    List<SellTicketLineInput> lines
-) implements Query<TicketSalePreviewResult> {
-    public PreviewTicketSaleQuery {
-        lines = List.copyOf(lines);
-    }
+    List<SellTicketLineInput> lines)
+    implements Query<TicketSalePreviewResult> {
+  public PreviewTicketSaleQuery {
+    lines = List.copyOf(lines);
+  }
 }

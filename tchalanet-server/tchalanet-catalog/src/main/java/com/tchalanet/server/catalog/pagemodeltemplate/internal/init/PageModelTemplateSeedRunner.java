@@ -9,11 +9,11 @@ import org.springframework.stereotype.Component;
 
 /**
  * Seeds PageModelTemplate catalog rows before tenant PageModel onboarding.
- * <p>
- * This is the missing first step:
- * <p>
- * 1. PageModelTemplateSeedRunner loads template JSON files into catalog.
- * 2. PageModelOnboardingRunner creates tenant PageModel instances from catalog templates.
+ *
+ * <p>This is the missing first step:
+ *
+ * <p>1. PageModelTemplateSeedRunner loads template JSON files into catalog. 2.
+ * PageModelOnboardingRunner creates tenant PageModel instances from catalog templates.
  */
 @Component
 @RequiredArgsConstructor
@@ -21,14 +21,14 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class PageModelTemplateSeedRunner implements ApplicationRunner {
 
-    private final PageModelTemplateSeedService seedService;
+  private final PageModelTemplateSeedService seedService;
 
-    @Override
-    public void run(ApplicationArguments args) {
-        try {
-            seedService.seedSystemTemplates();
-        } catch (Exception e) {
-            log.warn("PageModel template seed skipped (non-fatal): {}", e.getMessage(), e);
-        }
+  @Override
+  public void run(ApplicationArguments args) {
+    try {
+      seedService.seedSystemTemplates();
+    } catch (Exception e) {
+      log.warn("PageModel template seed skipped (non-fatal): {}", e.getMessage(), e);
     }
+  }
 }

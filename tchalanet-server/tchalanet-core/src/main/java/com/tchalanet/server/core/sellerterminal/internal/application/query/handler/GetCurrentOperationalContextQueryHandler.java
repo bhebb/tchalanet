@@ -14,31 +14,31 @@ import lombok.RequiredArgsConstructor;
 public class GetCurrentOperationalContextQueryHandler
     implements QueryHandler<GetCurrentOperationalContextQuery, CurrentOperationalContextView> {
 
-    private final SellerTerminalReaderPort reader;
+  private final SellerTerminalReaderPort reader;
 
-    @Override
-    public CurrentOperationalContextView handle(GetCurrentOperationalContextQuery query) {
-        if (query.sellerTerminalId() == null) {
-            return new CurrentOperationalContextView(
-                null,
-                null,
-                null,
-                null,
-                OperationalContextSource.NONE,
-                OperationalContextTrust.NONE,
-                false,
-                false);
-        }
-
-        var terminal = reader.getRequired(query.tenantId(), query.sellerTerminalId());
-        return new CurrentOperationalContextView(
-            terminal.id(),
-            terminal.terminalCode(),
-            terminal.displayName(),
-            terminal.status(),
-            query.source() != null ? query.source() : OperationalContextSource.NONE,
-            query.trust() != null ? query.trust() : OperationalContextTrust.NONE,
-            true,
-            query.trustedForSensitiveOperation());
+  @Override
+  public CurrentOperationalContextView handle(GetCurrentOperationalContextQuery query) {
+    if (query.sellerTerminalId() == null) {
+      return new CurrentOperationalContextView(
+          null,
+          null,
+          null,
+          null,
+          OperationalContextSource.NONE,
+          OperationalContextTrust.NONE,
+          false,
+          false);
     }
+
+    var terminal = reader.getRequired(query.tenantId(), query.sellerTerminalId());
+    return new CurrentOperationalContextView(
+        terminal.id(),
+        terminal.terminalCode(),
+        terminal.displayName(),
+        terminal.status(),
+        query.source() != null ? query.source() : OperationalContextSource.NONE,
+        query.trust() != null ? query.trust() : OperationalContextTrust.NONE,
+        true,
+        query.trustedForSensitiveOperation());
+  }
 }

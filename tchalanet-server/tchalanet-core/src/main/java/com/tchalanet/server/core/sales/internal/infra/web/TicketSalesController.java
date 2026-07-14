@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,8 +27,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/tenant/tickets")
 @RequiredArgsConstructor
@@ -35,40 +34,54 @@ import java.util.List;
 @PreAuthorize("hasPermission(null, 'ticket.sell')")
 public class TicketSalesController {
 
-    private final CommandBus commandBus;
-    private final TicketWebMapper mapper;
+  private final CommandBus commandBus;
+  private final TicketWebMapper mapper;
 
-    @Operation(
-        operationId = "sellTicket",
-        summary = "Sell a ticket",
-        description = "Creates a ticket for the current tenant and returns the sale payload.")
-    @io.swagger.v3.oas.annotations.responses.ApiResponses({
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Ticket sold"),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid request"),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Unauthorized"),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden"),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "Idempotency conflict")
-    })
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    @RequireIdempotency(scope = IdempotencyScope.SALES_SELL_TICKET)
-    public ApiResponse<SellTicketResponse> sell(
-        @CurrentContext TchRequestContext ctx,
-        @Valid @RequestBody SellTicketRequest body
-    ) {
-        ctx.sellerTerminalIdRequired();
+  @Operation(
+      operationId = "sellTicket",
+      summary = "Sell a ticket",
+      description = "Creates a ticket for the current tenant and returns the sale payload.")
+  @io.swagger.v3.oas.annotations.responses.ApiResponses({
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+        responseCode = "201",
+        description = "Ticket sold"),
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+        responseCode = "400",
+        description = "Invalid request"),
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized"),
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+        responseCode = "403",
+        description = "Forbidden"),
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+        responseCode = "409",
+        description = "Idempotency conflict")
+  })
+  @PostMapping
+  @ResponseStatus(HttpStatus.CREATED)
+  @RequireIdempotency(scope = IdempotencyScope.SALES_SELL_TICKET)
+  public ApiResponse<SellTicketResponse> sell(
+      @CurrentContext TchRequestContext ctx, @Valid @RequestBody SellTicketRequest body) {
+    ctx.sellerTerminalIdRequired();
 
-        var result = commandBus.execute(new SellTicketCommand(
-            body.drawId(), body.drawChannelId(), body.currency(),
-            toLines(body.lines()), body.serviceOptions(), List.of()));
+    var result =
+        commandBus.execute(
+            new SellTicketCommand(
+                body.drawId(),
+                body.drawChannelId(),
+                body.currency(),
+                toLines(body.lines()),
+                body.serviceOptions(),
+                List.of()));
 
-        var responseCtx = ApiResponseContext.get();
-        result.notices().forEach(responseCtx::addNotice);
+    var responseCtx = ApiResponseContext.get();
+    result.notices().forEach(responseCtx::addNotice);
 
-        return ApiResponse.success(mapper.toSellResponse(result));
-    }
+    return ApiResponse.success(mapper.toSellResponse(result));
+  }
 
-    private List<SellTicketLineInput> toLines(@NotEmpty @Valid List<SellTicketLineRequest> lines) {
-        return lines.stream().map(SellTicketLineRequest::toLine).toList();
-    }
+  private List<SellTicketLineInput> toLines(@NotEmpty @Valid List<SellTicketLineRequest> lines) {
+    return lines.stream().map(SellTicketLineRequest::toLine).toList();
+  }
 }

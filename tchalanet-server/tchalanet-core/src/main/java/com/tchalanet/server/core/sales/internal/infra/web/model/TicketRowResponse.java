@@ -12,5 +12,4 @@ public record TicketRowResponse(
     DrawId drawId,
     long totalAmountCents,
     String currency,
-    Instant placedAt
-) {}
+    Instant placedAt) {}

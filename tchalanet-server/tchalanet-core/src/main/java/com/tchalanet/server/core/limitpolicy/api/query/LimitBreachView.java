@@ -11,6 +11,4 @@ public record LimitBreachView(
     String messageKey,
     Long limitValue,
     Long currentValue,
-    Long deltaValue
-) {
-}
+    Long deltaValue) {}

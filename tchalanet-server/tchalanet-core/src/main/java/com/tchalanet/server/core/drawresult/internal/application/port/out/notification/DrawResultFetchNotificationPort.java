@@ -7,42 +7,39 @@ import java.util.Map;
 
 public interface DrawResultFetchNotificationPort {
 
-    void notifyFetched(DrawResultFetchNotification notification);
+  void notifyFetched(DrawResultFetchNotification notification);
 
-    default void notifyFetchedBatch(List<DrawResultFetchNotification> notifications) {
-        if (notifications == null || notifications.isEmpty()) {
-            return;
-        }
-
-        notifications.forEach(this::notifyFetched);
+  default void notifyFetchedBatch(List<DrawResultFetchNotification> notifications) {
+    if (notifications == null || notifications.isEmpty()) {
+      return;
     }
 
-    default void notifyFetchFailedBatch(DrawResultFetchFailureBatchNotification notification) {
-        // no-op by default for adapters that only support success notifications
-    }
+    notifications.forEach(this::notifyFetched);
+  }
 
-    record DrawResultFetchNotification(
-        String provider,
-        String slotKey,
-        LocalDate resultDate,
-        Instant occurredAt,
-        String status,
-        String quality,
-        int externalCount,
-        List<String> externalGames,
-        Map<String, String> metadata) {}
+  default void notifyFetchFailedBatch(DrawResultFetchFailureBatchNotification notification) {
+    // no-op by default for adapters that only support success notifications
+  }
 
-    record DrawResultFetchFailure(
-        String provider,
-        String slotKey,
-        LocalDate resultDate,
-        Instant expectedOccurredAt,
-        String errorType,
-        String message) {}
+  record DrawResultFetchNotification(
+      String provider,
+      String slotKey,
+      LocalDate resultDate,
+      Instant occurredAt,
+      String status,
+      String quality,
+      int externalCount,
+      List<String> externalGames,
+      Map<String, String> metadata) {}
 
-    record DrawResultFetchFailureBatchNotification(
-        LocalDate baseDate,
-        int daysBack,
-        int totalFailures,
-        List<DrawResultFetchFailure> failures) {}
+  record DrawResultFetchFailure(
+      String provider,
+      String slotKey,
+      LocalDate resultDate,
+      Instant expectedOccurredAt,
+      String errorType,
+      String message) {}
+
+  record DrawResultFetchFailureBatchNotification(
+      LocalDate baseDate, int daysBack, int totalFailures, List<DrawResultFetchFailure> failures) {}
 }

@@ -1,22 +1,23 @@
 package com.tchalanet.server.platform.accesscontrol.internal.persistence.repository;
 
 import com.tchalanet.server.platform.accesscontrol.internal.persistence.entity.TenantUserRoleJpaEntity;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
 public interface TenantUserRoleJpaRepository extends JpaRepository<TenantUserRoleJpaEntity, UUID> {
 
-    @Query("select r from TenantUserRoleJpaEntity r where r.tenantId = :tenantId and r.userId = :userId and r.deletedAt is null")
-    List<TenantUserRoleJpaEntity> findActiveByTenantAndUser(
-        @Param("tenantId") UUID tenantId, @Param("userId") UUID userId);
+  @Query(
+      "select r from TenantUserRoleJpaEntity r where r.tenantId = :tenantId and r.userId = :userId and r.deletedAt is null")
+  List<TenantUserRoleJpaEntity> findActiveByTenantAndUser(
+      @Param("tenantId") UUID tenantId, @Param("userId") UUID userId);
 
-    @Query("""
+  @Query(
+      """
         select distinct assignment.tenantId
         from TenantUserRoleJpaEntity assignment
         join AppRoleJpaEntity role on role.id = assignment.roleId
@@ -26,14 +27,15 @@ public interface TenantUserRoleJpaRepository extends JpaRepository<TenantUserRol
           and role.deletedAt is null
           and role.scope = 'TENANT'
         """)
-    List<UUID> findDistinctActiveTenantIdsByUser(@Param("userId") UUID userId);
+  List<UUID> findDistinctActiveTenantIdsByUser(@Param("userId") UUID userId);
 
-    /**
-     * One-shot tenant-scope access snapshot for a user in a tenant: each active assigned role joined
-     * to its granted permissions (left join). Role-level grants only; user GRANT/DENY overrides are
-     * applied separately.
-     */
-    @Query("""
+  /**
+   * One-shot tenant-scope access snapshot for a user in a tenant: each active assigned role joined
+   * to its granted permissions (left join). Role-level grants only; user GRANT/DENY overrides are
+   * applied separately.
+   */
+  @Query(
+      """
         select role.code as roleCode, rp.id.permissionCode as permissionCode
         from TenantUserRoleJpaEntity assignment
         join AppRoleJpaEntity role on role.id = assignment.roleId
@@ -45,23 +47,27 @@ public interface TenantUserRoleJpaRepository extends JpaRepository<TenantUserRol
           and role.deletedAt is null
           and role.scope = 'TENANT'
         """)
-    List<RoleAccessRow> findTenantRoleAccessRows(
-        @Param("tenantId") UUID tenantId, @Param("userId") UUID userId);
+  List<RoleAccessRow> findTenantRoleAccessRows(
+      @Param("tenantId") UUID tenantId, @Param("userId") UUID userId);
 
-    @Query("select r from TenantUserRoleJpaEntity r where r.tenantId = :tenantId and r.userId = :userId and r.roleId = :roleId and r.deletedAt is null")
-    Optional<TenantUserRoleJpaEntity> findActiveAssignment(
-        @Param("tenantId") UUID tenantId, @Param("userId") UUID userId, @Param("roleId") UUID roleId);
+  @Query(
+      "select r from TenantUserRoleJpaEntity r where r.tenantId = :tenantId and r.userId = :userId and r.roleId = :roleId and r.deletedAt is null")
+  Optional<TenantUserRoleJpaEntity> findActiveAssignment(
+      @Param("tenantId") UUID tenantId, @Param("userId") UUID userId, @Param("roleId") UUID roleId);
 
-    @Modifying
-    @Query("update TenantUserRoleJpaEntity r set r.deletedAt = current_timestamp where r.tenantId = :tenantId and r.userId = :userId and r.roleId = :roleId and r.deletedAt is null")
-    int softDeleteAssignment(
-        @Param("tenantId") UUID tenantId, @Param("userId") UUID userId, @Param("roleId") UUID roleId);
+  @Modifying
+  @Query(
+      "update TenantUserRoleJpaEntity r set r.deletedAt = current_timestamp where r.tenantId = :tenantId and r.userId = :userId and r.roleId = :roleId and r.deletedAt is null")
+  int softDeleteAssignment(
+      @Param("tenantId") UUID tenantId, @Param("userId") UUID userId, @Param("roleId") UUID roleId);
 
-    /**
-     * Global TENANT_ADMIN search across all tenants (SUPER_ADMIN only).
-     * Filters by display_name/email ILIKE when :nameLike is not null.
-     */
-    @Query(value = """
+  /**
+   * Global TENANT_ADMIN search across all tenants (SUPER_ADMIN only). Filters by display_name/email
+   * ILIKE when :nameLike is not null.
+   */
+  @Query(
+      value =
+          """
         select
           u.id                                                              as "userId",
           u.email::text                                                     as "email",
@@ -99,15 +105,18 @@ public interface TenantUserRoleJpaRepository extends JpaRepository<TenantUserRol
             end
           end desc nulls last
         limit :limit offset :offset
-        """, nativeQuery = true)
-    List<TenantAdminGlobalRow> searchTenantAdmins(
-        @Param("nameLike")  String nameLike,
-        @Param("sortField") String sortField,
-        @Param("sortDir")   String sortDir,
-        @Param("limit")     int limit,
-        @Param("offset")    int offset);
+        """,
+      nativeQuery = true)
+  List<TenantAdminGlobalRow> searchTenantAdmins(
+      @Param("nameLike") String nameLike,
+      @Param("sortField") String sortField,
+      @Param("sortDir") String sortDir,
+      @Param("limit") int limit,
+      @Param("offset") int offset);
 
-    @Query(value = """
+  @Query(
+      value =
+          """
         select
           u.id                                                              as "userId",
           u.email::text                                                     as "email",
@@ -128,10 +137,13 @@ public interface TenantUserRoleJpaRepository extends JpaRepository<TenantUserRol
         where tur.deleted_at is null
           and u.id = :userId
         limit 1
-        """, nativeQuery = true)
-    Optional<TenantAdminGlobalRow> findTenantAdminByUserId(@Param("userId") UUID userId);
+        """,
+      nativeQuery = true)
+  Optional<TenantAdminGlobalRow> findTenantAdminByUserId(@Param("userId") UUID userId);
 
-    @Query(value = """
+  @Query(
+      value =
+          """
         select count(*)
         from tenant_user_role tur
         join app_role ar on ar.id = tur.role_id
@@ -145,6 +157,7 @@ public interface TenantUserRoleJpaRepository extends JpaRepository<TenantUserRol
           and (cast(:nameLike as text) is null
                or lower(coalesce(u.display_name, '')) like :nameLike
                or lower(u.email::text)                like :nameLike)
-        """, nativeQuery = true)
-    long countTenantAdmins(@Param("nameLike") String nameLike);
+        """,
+      nativeQuery = true)
+  long countTenantAdmins(@Param("nameLike") String nameLike);
 }

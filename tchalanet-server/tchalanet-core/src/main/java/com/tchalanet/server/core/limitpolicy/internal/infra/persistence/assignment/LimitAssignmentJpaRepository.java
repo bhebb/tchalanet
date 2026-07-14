@@ -2,17 +2,17 @@ package com.tchalanet.server.core.limitpolicy.internal.infra.persistence.assignm
 
 import com.tchalanet.server.core.limitpolicy.api.RuleKey;
 import com.tchalanet.server.core.limitpolicy.api.ScopeType;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 public interface LimitAssignmentJpaRepository
     extends JpaRepository<LimitAssignmentJpaEntity, UUID> {
 
-    @Query("""
+  @Query(
+      """
       select e
       from LimitAssignmentJpaEntity e
       where e.ruleKey = :ruleKey
@@ -20,32 +20,25 @@ public interface LimitAssignmentJpaRepository
         and e.scopeId = :scopeId
         and e.deletedAt is null
       """)
-    Optional<LimitAssignmentJpaEntity> findActiveByRuleKeyAndScope(
-        RuleKey ruleKey,
-        ScopeType scopeType,
-        UUID scopeId
-    );
+  Optional<LimitAssignmentJpaEntity> findActiveByRuleKeyAndScope(
+      RuleKey ruleKey, ScopeType scopeType, UUID scopeId);
 
-    @Query("""
+  @Query(
+      """
       select e
       from LimitAssignmentJpaEntity e
       where e.scopeType = :scopeType
         and e.scopeId = :scopeId
         and e.deletedAt is null
       """)
-    List<LimitAssignmentJpaEntity> findAllActiveByScope(
-        ScopeType scopeType,
-        UUID scopeId
-    );
+  List<LimitAssignmentJpaEntity> findAllActiveByScope(ScopeType scopeType, UUID scopeId);
 
-    @Query("""
+  @Query(
+      """
       select e
       from LimitAssignmentJpaEntity e
       where e.scopeType = :scopeType
         and e.scopeId = :scopeId
       """)
-    List<LimitAssignmentJpaEntity> findAllByScope(
-        ScopeType scopeType,
-        UUID scopeId
-    );
+  List<LimitAssignmentJpaEntity> findAllByScope(ScopeType scopeType, UUID scopeId);
 }

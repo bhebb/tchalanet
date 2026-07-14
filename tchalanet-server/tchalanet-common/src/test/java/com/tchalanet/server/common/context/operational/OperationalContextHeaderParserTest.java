@@ -7,21 +7,19 @@ import org.junit.jupiter.api.Test;
 
 class OperationalContextHeaderParserTest {
 
-    @Test
-    void noHeadersReturnsNoContext() {
-        var hint = OperationalContextHeaderParser.parseHint(Map.<String, String>of()::get);
+  @Test
+  void noHeadersReturnsNoContext() {
+    var hint = OperationalContextHeaderParser.parseHint(Map.<String, String>of()::get);
 
-        assertThat(hint.source()).isEqualTo(OperationalContextSource.CLIENT_CLAIM);
-        assertThat(hint.trust()).isEqualTo(OperationalContextTrust.WEAK);
+    assertThat(hint.source()).isEqualTo(OperationalContextSource.CLIENT_CLAIM);
+    assertThat(hint.trust()).isEqualTo(OperationalContextTrust.WEAK);
+  }
+
+  private static OperationalContextHeaderParser.HeaderReader headers(String... pairs) {
+    var values = new java.util.HashMap<String, String>();
+    for (int i = 0; i < pairs.length; i += 2) {
+      values.put(pairs[i], pairs[i + 1]);
     }
-
-
-
-    private static OperationalContextHeaderParser.HeaderReader headers(String... pairs) {
-        var values = new java.util.HashMap<String, String>();
-        for (int i = 0; i < pairs.length; i += 2) {
-            values.put(pairs[i], pairs[i + 1]);
-        }
-        return values::get;
-    }
+    return values::get;
+  }
 }

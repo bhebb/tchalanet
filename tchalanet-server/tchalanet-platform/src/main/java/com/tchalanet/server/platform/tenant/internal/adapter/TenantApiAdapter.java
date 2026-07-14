@@ -19,97 +19,98 @@ import com.tchalanet.server.platform.tenant.api.model.view.TenantInternalSetting
 import com.tchalanet.server.platform.tenant.api.model.view.TenantSettingsReadinessView;
 import com.tchalanet.server.platform.tenant.api.model.view.TenantSummaryView;
 import com.tchalanet.server.platform.tenant.internal.service.TenantConfigService;
-import com.tchalanet.server.platform.tenant.internal.domain.TenantConfig;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.JsonNode;
 
-import java.util.List;
-
 /**
- * Adapter implementing {@link TenantConfigApi} — bridges the public API contract
- * to the internal {@link TenantConfigService}.
+ * Adapter implementing {@link TenantConfigApi} — bridges the public API contract to the internal
+ * {@link TenantConfigService}.
  */
 @Component
 @Primary
 @RequiredArgsConstructor
 public class TenantApiAdapter implements TenantConfigApi {
 
-    private final TenantConfigService service;
+  private final TenantConfigService service;
 
-    @Override
-    public void createTenant(CreateTenantRequest request) {
-        service.createTenant(request);
-    }
+  @Override
+  public void createTenant(CreateTenantRequest request) {
+    service.createTenant(request);
+  }
 
-    @Override
-    public TenantConfigView getTenantById(GetTenantByIdRequest request) {
-        return service.getTenantById(request);
-    }
+  @Override
+  public TenantConfigView getTenantById(GetTenantByIdRequest request) {
+    return service.getTenantById(request);
+  }
 
-    @Override
-    public TenantConfigView getTenantByCode(GetTenantByCodeRequest request) {
-        return service.getTenantByCode(request);
-    }
+  @Override
+  public TenantConfigView getTenantByCode(GetTenantByCodeRequest request) {
+    return service.getTenantByCode(request);
+  }
 
-    @Override
-    public List<TenantSummaryView> listTenants(ListTenantsRequest request) {
-        return service.listTenants(request).items();
-    }
+  @Override
+  public List<TenantSummaryView> listTenants(ListTenantsRequest request) {
+    return service.listTenants(request).items();
+  }
 
-    @Override
-    public void updateTenantIdentity(UpdateTenantIdentityRequest request) {
-        service.updateTenantIdentity(request);
-    }
+  @Override
+  public void updateTenantIdentity(UpdateTenantIdentityRequest request) {
+    service.updateTenantIdentity(request);
+  }
 
-    @Override
-    public void updateTenantInternalSettings(UpdateTenantInternalSettingsRequest request) {
-        service.updateTenantInternalSettings(request);
-    }
+  @Override
+  public void updateTenantInternalSettings(UpdateTenantInternalSettingsRequest request) {
+    service.updateTenantInternalSettings(request);
+  }
 
-    @Override
-    public void updateTenantInternalSettingsSection(UpdateTenantInternalSettingsSectionRequest request) {
-        service.updateTenantInternalSettingsSection(request);
-    }
+  @Override
+  public void updateTenantInternalSettingsSection(
+      UpdateTenantInternalSettingsSectionRequest request) {
+    service.updateTenantInternalSettingsSection(request);
+  }
 
-    @Override
-    public void activateTenant(ActivateTenantRequest request) {
-        service.activateTenant(request);
-    }
+  @Override
+  public void activateTenant(ActivateTenantRequest request) {
+    service.activateTenant(request);
+  }
 
-    @Override
-    public void suspendTenant(SuspendTenantRequest request) {
-        service.suspendTenant(request);
-    }
+  @Override
+  public void suspendTenant(SuspendTenantRequest request) {
+    service.suspendTenant(request);
+  }
 
-    @Override
-    public TenantInternalCommunicationConfig getTenantCommunicationConfig(GetTenantByIdRequest request) {
-        return service.getTenantCommunicationConfig(request);
-    }
+  @Override
+  public TenantInternalCommunicationConfig getTenantCommunicationConfig(
+      GetTenantByIdRequest request) {
+    return service.getTenantCommunicationConfig(request);
+  }
 
-    @Override
-    public TenantInternalDocumentConfig getTenantDocumentConfig(GetTenantByIdRequest request) {
-        return service.getTenantDocumentConfig(request);
-    }
+  @Override
+  public TenantInternalDocumentConfig getTenantDocumentConfig(GetTenantByIdRequest request) {
+    return service.getTenantDocumentConfig(request);
+  }
 
-    @Override
-    public List<TenantHolidayTemplateView> listTenantHolidayTemplates() {
-        return service.listTenantHolidayTemplates();
-    }
+  @Override
+  public List<TenantHolidayTemplateView> listTenantHolidayTemplates() {
+    return service.listTenantHolidayTemplates();
+  }
 
-    @Override
-    public TenantInternalSettings getTenantInternalSettings(GetTenantByIdRequest request) {
-        return service.getTenantInternalSettings(request);
-    }
+  @Override
+  public TenantInternalSettings getTenantInternalSettings(GetTenantByIdRequest request) {
+    return service.getTenantInternalSettings(request);
+  }
 
-    @Override
-    public JsonNode getTenantInternalSettingsSection(GetTenantInternalSettingsSectionRequest request) {
-        return service.getTenantInternalSettingsSection(request);
-    }
+  @Override
+  public JsonNode getTenantInternalSettingsSection(
+      GetTenantInternalSettingsSectionRequest request) {
+    return service.getTenantInternalSettingsSection(request);
+  }
 
-    @Override
-    public TenantSettingsReadinessView getTenantSettingsReadiness(GetTenantByIdRequest request) {
-        return service.getTenantSettingsReadiness(request);
-    }
+  @Override
+  public TenantSettingsReadinessView getTenantSettingsReadiness(GetTenantByIdRequest request) {
+    return service.getTenantSettingsReadiness(request);
+  }
 }

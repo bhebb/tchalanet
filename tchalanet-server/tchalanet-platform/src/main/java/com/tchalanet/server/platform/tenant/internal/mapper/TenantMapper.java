@@ -10,10 +10,11 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.ReportingPolicy;
 import tools.jackson.databind.JsonNode;
 
-/**
- * MapStruct mapper: TenantConfig <→> TenantJpaEntity.
- */
-@Mapper(componentModel = "spring", uses = {CommonIdMapper.class}, unmappedTargetPolicy = ReportingPolicy.IGNORE)
+/** MapStruct mapper: TenantConfig <→> TenantJpaEntity. */
+@Mapper(
+    componentModel = "spring",
+    uses = {CommonIdMapper.class},
+    unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface TenantMapper {
 
   @Mapping(target = "id", source = "entity.id")
@@ -21,7 +22,10 @@ public interface TenantMapper {
   @Mapping(target = "activeThemeId", source = "entity.activeThemeId")
   @Mapping(target = "displayName", source = "entity.displayName")
   @Mapping(target = "timezone", source = "entity.timezone")
-  @Mapping(target = "currency", expression = "java(entity.getCurrency() != null ? java.util.Currency.getInstance(entity.getCurrency()) : null)")
+  @Mapping(
+      target = "currency",
+      expression =
+          "java(entity.getCurrency() != null ? java.util.Currency.getInstance(entity.getCurrency()) : null)")
   @Mapping(target = "config", expression = "java(readConfig(entity.getConfig()))")
   TenantConfig toDomain(TenantJpaEntity entity);
 
@@ -30,7 +34,9 @@ public interface TenantMapper {
   @Mapping(target = "activeThemeId", source = "tenant.activeThemeId")
   @Mapping(target = "displayName", source = "tenant.displayName")
   @Mapping(target = "timezone", source = "tenant.timezone")
-  @Mapping(target = "currency", expression = "java(tenant.currency() != null ? tenant.currency().getCurrencyCode() : null)")
+  @Mapping(
+      target = "currency",
+      expression = "java(tenant.currency() != null ? tenant.currency().getCurrencyCode() : null)")
   @Mapping(target = "config", expression = "java(writeConfig(tenant.config()))")
   @Mapping(target = "defaultLanguage", constant = "fr")
   @Mapping(target = "defaultLocale", constant = "fr-HT")
@@ -52,7 +58,9 @@ public interface TenantMapper {
   @Mapping(target = "displayName", source = "tenant.displayName")
   @Mapping(target = "type", source = "tenant.type")
   @Mapping(target = "timezone", source = "tenant.timezone")
-  @Mapping(target = "currency", expression = "java(tenant.currency() != null ? tenant.currency().getCurrencyCode() : null)")
+  @Mapping(
+      target = "currency",
+      expression = "java(tenant.currency() != null ? tenant.currency().getCurrencyCode() : null)")
   @Mapping(target = "status", source = "tenant.status")
   @Mapping(target = "addressId", source = "tenant.addressId")
   @Mapping(target = "activeThemeId", source = "tenant.activeThemeId")

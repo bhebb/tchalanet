@@ -9,13 +9,13 @@ import org.springframework.context.annotation.Configuration;
 @Configuration(proxyBeanMethods = false)
 public class CoreDomainServicesConfig {
 
-    @Bean
-    HaitiResultProjector haitiResultProjector() {
-        return new DefaultHaitiResultProjector();
-    }
+  @Bean
+  HaitiResultProjector haitiResultProjector() {
+    return new DefaultHaitiResultProjector();
+  }
 
-    @Bean
-    PublishPolicy publishPolicy() {
-        return new PublishPolicy();
-    }
+  @Bean
+  PublishPolicy publishPolicy() {
+    return new PublishPolicy();
+  }
 }

@@ -12,7 +12,6 @@ import jakarta.persistence.UniqueConstraint;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.envers.Audited;
 
 @Entity
 @Table(
@@ -42,4 +41,3 @@ public class AppUserExternalIdentityJpaEntity extends BaseEntity {
   @Column(name = "email_snapshot")
   private String emailSnapshot;
 }
-

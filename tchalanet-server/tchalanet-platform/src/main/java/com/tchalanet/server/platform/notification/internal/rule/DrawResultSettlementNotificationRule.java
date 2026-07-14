@@ -32,15 +32,17 @@ public class DrawResultSettlementNotificationRule extends AbstractNotificationRu
   public Stream<NotificationIntent> map(Object event) {
     var name = event.getClass().getSimpleName();
     var critical = name.equals("ResultProviderDownEvent") || name.equals("SettlementFailedEvent");
-    var corrected = name.equals("DrawResultCorrectedEvent") || name.equals("TicketResultCorrectedEvent");
-    return Stream.of(intent(
-        event,
-        templateKey(name),
-        critical ? NotificationSeverity.CRITICAL : NotificationSeverity.WARNING,
-        critical ? NotificationKind.SYSTEM_ERROR : NotificationKind.ACTION_REQUIRED,
-        corrected ? NotificationCategory.RESULT : NotificationCategory.DRAW,
-        title(name),
-        name));
+    var corrected =
+        name.equals("DrawResultCorrectedEvent") || name.equals("TicketResultCorrectedEvent");
+    return Stream.of(
+        intent(
+            event,
+            templateKey(name),
+            critical ? NotificationSeverity.CRITICAL : NotificationSeverity.WARNING,
+            critical ? NotificationKind.SYSTEM_ERROR : NotificationKind.ACTION_REQUIRED,
+            corrected ? NotificationCategory.RESULT : NotificationCategory.DRAW,
+            title(name),
+            name));
   }
 
   private String templateKey(String eventName) {

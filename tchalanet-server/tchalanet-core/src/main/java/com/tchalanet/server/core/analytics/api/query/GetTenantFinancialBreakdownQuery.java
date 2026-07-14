@@ -19,5 +19,5 @@ public record GetTenantFinancialBreakdownQuery(
     int drawLimit,
     int sellerTerminalLimit,
     List<UUID> drawIds,
-    List<UUID> sellerTerminalIds
-) implements Query<TenantFinancialBreakdownView> {}
+    List<UUID> sellerTerminalIds)
+    implements Query<TenantFinancialBreakdownView> {}

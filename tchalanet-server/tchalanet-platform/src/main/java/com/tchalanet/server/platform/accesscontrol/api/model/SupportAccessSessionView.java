@@ -12,5 +12,4 @@ public record SupportAccessSessionView(
     Instant expiresAt,
     String actorRole,
     SupportAccessMode mode,
-    boolean sensitiveDataMasked
-) {}
+    boolean sensitiveDataMasked) {}

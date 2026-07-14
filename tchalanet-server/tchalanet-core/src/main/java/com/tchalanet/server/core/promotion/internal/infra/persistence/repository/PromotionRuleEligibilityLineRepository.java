@@ -6,10 +6,11 @@ import java.util.List;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface PromotionRuleEligibilityLineRepository extends JpaRepository<PromotionRuleEligibilityLineJpaEntity, UUID> {
-    List<PromotionRuleEligibilityLineJpaEntity> findByRuleIdOrderByGameCodeAsc(UUID ruleId);
+public interface PromotionRuleEligibilityLineRepository
+    extends JpaRepository<PromotionRuleEligibilityLineJpaEntity, UUID> {
+  List<PromotionRuleEligibilityLineJpaEntity> findByRuleIdOrderByGameCodeAsc(UUID ruleId);
 
-    List<PromotionRuleEligibilityLineJpaEntity> findByRuleIdIn(Collection<UUID> ruleIds);
+  List<PromotionRuleEligibilityLineJpaEntity> findByRuleIdIn(Collection<UUID> ruleIds);
 
-    void deleteByRuleId(UUID ruleId);
+  void deleteByRuleId(UUID ruleId);
 }

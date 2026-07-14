@@ -13,9 +13,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Platform PageModel controller — resolves an allowed PageModel for super-admins.
- * The requested logicalId is still checked by PageModelAccessPolicy and by the
- * dynamic provider dispatch.
+ * Platform PageModel controller — resolves an allowed PageModel for super-admins. The requested
+ * logicalId is still checked by PageModelAccessPolicy and by the dynamic provider dispatch.
  */
 @RestController
 @RequestMapping("/platform/dashboard")

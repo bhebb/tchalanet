@@ -20,11 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * Read-only archive lookup endpoints for tenant/admin scope.
  *
- * <p>External route prefix: {@code /api/v1/admin/archive/**}.
- * Controller mapping: {@code /admin/archive/**} (no /api/v1).
+ * <p>External route prefix: {@code /api/v1/admin/archive/**}. Controller mapping: {@code
+ * /admin/archive/**} (no /api/v1).
  *
- * <p>All methods return {@code archived=true} in the view to signal to callers
- * that the data comes from the archive tier, not the hot database.
+ * <p>All methods return {@code archived=true} in the view to signal to callers that the data comes
+ * from the archive tier, not the hot database.
  */
 @Tag(name = "Admin - Archive")
 @RestController
@@ -38,8 +38,7 @@ public class AdminArchiveController {
   @Operation(summary = "Find archived ticket by ID")
   @GetMapping("/tickets/{ticketId}")
   public ApiResponse<ArchivedEntityView> getArchivedTicket(
-      @PathVariable UUID ticketId,
-      @CurrentContext TchRequestContext ctx) {
+      @PathVariable UUID ticketId, @CurrentContext TchRequestContext ctx) {
 
     return ApiResponse.success(
         archiveApi.findArchivedTicket(ctx.tenantIdRequired().value(), ticketId));
@@ -48,8 +47,7 @@ public class AdminArchiveController {
   @Operation(summary = "Find archived ticket by public code")
   @GetMapping("/tickets/by-public-code/{publicCode}")
   public ApiResponse<ArchivedEntityView> getArchivedTicketByCode(
-      @PathVariable String publicCode,
-      @CurrentContext TchRequestContext ctx) {
+      @PathVariable String publicCode, @CurrentContext TchRequestContext ctx) {
 
     return ApiResponse.success(
         archiveApi.findArchivedTicketByPublicCode(ctx.tenantIdRequired().value(), publicCode));
@@ -58,8 +56,7 @@ public class AdminArchiveController {
   @Operation(summary = "Find archived payout by ID")
   @GetMapping("/payouts/{payoutId}")
   public ApiResponse<ArchivedEntityView> getArchivedPayout(
-      @PathVariable UUID payoutId,
-      @CurrentContext TchRequestContext ctx) {
+      @PathVariable UUID payoutId, @CurrentContext TchRequestContext ctx) {
 
     return ApiResponse.success(
         archiveApi.findArchivedPayout(ctx.tenantIdRequired().value(), payoutId));
@@ -73,7 +70,6 @@ public class AdminArchiveController {
       @CurrentContext TchRequestContext ctx) {
 
     return ApiResponse.success(
-        archiveApi.findArchivedAuditRecords(
-            ctx.tenantIdRequired().value(), entityType, entityId));
+        archiveApi.findArchivedAuditRecords(ctx.tenantIdRequired().value(), entityType, entityId));
   }
 }

@@ -20,24 +20,24 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 @EnableScheduling
 public class BatchRuntimeConfig {
 
-    private final BatchExecutorProperties batchExecutorProperties;
+  private final BatchExecutorProperties batchExecutorProperties;
 
-    public BatchRuntimeConfig(BatchExecutorProperties batchExecutorProperties) {
-        this.batchExecutorProperties = batchExecutorProperties;
-    }
+  public BatchRuntimeConfig(BatchExecutorProperties batchExecutorProperties) {
+    this.batchExecutorProperties = batchExecutorProperties;
+  }
 
-    @Bean
-    public JdbcTransactionManager batchTxManager(@Qualifier("batchDataSource") DataSource ds) {
-        return new JdbcTransactionManager(ds);
-    }
+  @Bean
+  public JdbcTransactionManager batchTxManager(@Qualifier("batchDataSource") DataSource ds) {
+    return new JdbcTransactionManager(ds);
+  }
 
-    @Bean
-    public TaskExecutor batchTaskExecutor() {
-        ThreadPoolTaskExecutor exec = new ThreadPoolTaskExecutor();
-        exec.setCorePoolSize(batchExecutorProperties.corePoolSize());
-        exec.setMaxPoolSize(batchExecutorProperties.maxPoolSize());
-        exec.setThreadNamePrefix(batchExecutorProperties.threadNamePrefix());
-        exec.initialize();
-        return exec;
-    }
+  @Bean
+  public TaskExecutor batchTaskExecutor() {
+    ThreadPoolTaskExecutor exec = new ThreadPoolTaskExecutor();
+    exec.setCorePoolSize(batchExecutorProperties.corePoolSize());
+    exec.setMaxPoolSize(batchExecutorProperties.maxPoolSize());
+    exec.setThreadNamePrefix(batchExecutorProperties.threadNamePrefix());
+    exec.initialize();
+    return exec;
+  }
 }

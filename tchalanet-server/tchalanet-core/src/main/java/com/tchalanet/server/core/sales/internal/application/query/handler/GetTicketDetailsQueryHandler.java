@@ -10,16 +10,17 @@ import lombok.RequiredArgsConstructor;
 
 @UseCase
 @RequiredArgsConstructor
-public class GetTicketDetailsQueryHandler implements QueryHandler<GetTicketDetailsQuery, TicketDetailsView> {
+public class GetTicketDetailsQueryHandler
+    implements QueryHandler<GetTicketDetailsQuery, TicketDetailsView> {
 
-    private final TicketProjectionReaderPort reader;
+  private final TicketProjectionReaderPort reader;
 
-    @Override
-    public TicketDetailsView handle(GetTicketDetailsQuery query) {
-        var details = reader.getDetailsById(query.ticketId());
-        if (details == null) {
-            throw ProblemRest.notFound("ticket.not_found", query.ticketId());
-        }
-        return details;
+  @Override
+  public TicketDetailsView handle(GetTicketDetailsQuery query) {
+    var details = reader.getDetailsById(query.ticketId());
+    if (details == null) {
+      throw ProblemRest.notFound("ticket.not_found", query.ticketId());
     }
+    return details;
+  }
 }

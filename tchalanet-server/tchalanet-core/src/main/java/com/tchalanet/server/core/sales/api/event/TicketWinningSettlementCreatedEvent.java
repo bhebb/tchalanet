@@ -6,7 +6,6 @@ import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TicketId;
-
 import java.time.Instant;
 
 public record TicketWinningSettlementCreatedEvent(
@@ -17,5 +16,5 @@ public record TicketWinningSettlementCreatedEvent(
     DrawId drawId,
     long amountCents,
     String currency,
-    SellerTerminalId sellerTerminalId
-) implements DomainEvent {}
+    SellerTerminalId sellerTerminalId)
+    implements DomainEvent {}

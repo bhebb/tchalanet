@@ -25,9 +25,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Unified CRUD actions on any platform user (SUPER_ADMIN or TENANT_ADMIN).
- * Hierarchy rule: a TENANT_ADMIN caller cannot act on a user who holds a platform-scope role
- * (i.e. SUPER_ADMIN). A SUPER_ADMIN can act on anyone.
+ * Unified CRUD actions on any platform user (SUPER_ADMIN or TENANT_ADMIN). Hierarchy rule: a
+ * TENANT_ADMIN caller cannot act on a user who holds a platform-scope role (i.e. SUPER_ADMIN). A
+ * SUPER_ADMIN can act on anyone.
  */
 @Service
 @RequiredArgsConstructor
@@ -66,24 +66,35 @@ public class IdentityUserCrudService {
   public String resetPassword(UserId targetId, TchRequestContext ctx) {
     assertCanActOn(targetId, ctx);
 
-    var target = userAdapter.findById(targetId)
-        .orElseThrow(() -> ProblemRest.notFound("User not found"));
-    var externalSubject = userAdapter.findExternalSubject(targetId, IdentityProviderType.FIREBASE)
-        .orElseThrow(() -> ProblemRest.unprocessable("No Firebase identity linked for this account"));
+    var target =
+        userAdapter.findById(targetId).orElseThrow(() -> ProblemRest.notFound("User not found"));
+    var externalSubject =
+        userAdapter
+            .findExternalSubject(targetId, IdentityProviderType.FIREBASE)
+            .orElseThrow(
+                () -> ProblemRest.unprocessable("No Firebase identity linked for this account"));
 
     var tempPassword = credentials.adminTemporaryPassword();
     identityProvisioning.resetPassword(externalSubject, tempPassword);
 
     var meta = Map.<String, Object>of("tempPassword", tempPassword);
     if (target.email() != null && !target.email().isBlank()) {
-      communication.sendNow(new SendOutboundMessageRequest(
-          "identity.credential.reset", CommunicationChannel.EMAIL,
-          OutboundRecipient.of(target.email()), Locale.FRENCH, meta));
+      communication.sendNow(
+          new SendOutboundMessageRequest(
+              "identity.credential.reset",
+              CommunicationChannel.EMAIL,
+              OutboundRecipient.of(target.email()),
+              Locale.FRENCH,
+              meta));
     }
     if (target.phone() != null && !target.phone().isBlank()) {
-      communication.sendNow(new SendOutboundMessageRequest(
-          "identity.credential.reset", CommunicationChannel.SMS,
-          OutboundRecipient.of(target.phone()), Locale.FRENCH, meta));
+      communication.sendNow(
+          new SendOutboundMessageRequest(
+              "identity.credential.reset",
+              CommunicationChannel.SMS,
+              OutboundRecipient.of(target.phone()),
+              Locale.FRENCH,
+              meta));
     }
     return tempPassword;
   }
@@ -94,13 +105,17 @@ public class IdentityUserCrudService {
 
   @Transactional
   public UserId createUser(String email, String phone, String firstName, String lastName) {
-    var result = users.createUser(email, phone, firstName, lastName, null, null, null, null, null, false, Set.of());
+    var result =
+        users.createUser(
+            email, phone, firstName, lastName, null, null, null, null, null, false, Set.of());
     return result.userId();
   }
 
   @Transactional
-  public void assignMembership(UserId targetId, TenantId tenantId, TchRole role, TchRequestContext ctx) {
-    boolean callerIsSuperAdmin = ctx.roleCodes() != null && ctx.roleCodes().contains(SUPER_ADMIN_ROLE);
+  public void assignMembership(
+      UserId targetId, TenantId tenantId, TchRole role, TchRequestContext ctx) {
+    boolean callerIsSuperAdmin =
+        ctx.roleCodes() != null && ctx.roleCodes().contains(SUPER_ADMIN_ROLE);
     if (!callerIsSuperAdmin) {
       var callerTenant = ctx.tenantId();
       if (callerTenant == null || !callerTenant.equals(tenantId)) {
@@ -114,7 +129,8 @@ public class IdentityUserCrudService {
 
   // A TENANT_ADMIN may not act on users who hold a platform-scope (SUPER_ADMIN) role.
   private void assertCanActOn(UserId targetId, TchRequestContext ctx) {
-    boolean callerIsSuperAdmin = ctx.roleCodes() != null && ctx.roleCodes().contains(SUPER_ADMIN_ROLE);
+    boolean callerIsSuperAdmin =
+        ctx.roleCodes() != null && ctx.roleCodes().contains(SUPER_ADMIN_ROLE);
     if (callerIsSuperAdmin) {
       return;
     }

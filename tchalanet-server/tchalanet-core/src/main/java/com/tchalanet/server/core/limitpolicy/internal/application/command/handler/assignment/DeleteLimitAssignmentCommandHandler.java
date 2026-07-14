@@ -6,23 +6,22 @@ import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.limitpolicy.api.command.DeleteLimitAssignmentCommand;
 import com.tchalanet.server.core.limitpolicy.api.command.DeleteLimitAssignmentResult;
 import com.tchalanet.server.core.limitpolicy.internal.application.port.out.assignment.LimitAssignmentWriterPort;
-import lombok.RequiredArgsConstructor;
-
 import java.time.Clock;
+import lombok.RequiredArgsConstructor;
 
 @UseCase
 @RequiredArgsConstructor
 public class DeleteLimitAssignmentCommandHandler
     implements CommandHandler<DeleteLimitAssignmentCommand, DeleteLimitAssignmentResult> {
 
-    private final LimitAssignmentWriterPort writer;
+  private final LimitAssignmentWriterPort writer;
 
-    private final Clock clock;
+  private final Clock clock;
 
-    @Override
-    @TchTx
-    public DeleteLimitAssignmentResult handle(DeleteLimitAssignmentCommand c) {
-        writer.softDelete(c.id(), clock.instant());
-        return new DeleteLimitAssignmentResult(c.id());
-    }
+  @Override
+  @TchTx
+  public DeleteLimitAssignmentResult handle(DeleteLimitAssignmentCommand c) {
+    writer.softDelete(c.id(), clock.instant());
+    return new DeleteLimitAssignmentResult(c.id());
+  }
 }

@@ -38,9 +38,16 @@ class ArchiveTicketPurgeServiceTest {
 
     var service = service(jdbc, legalHoldRepo, true);
 
-    assertThatThrownBy(() -> service.purge(null, START, END, 100,
-        ArchiveTicketPurgeService.TicketPurgeMode.DELETE,
-        UUID.randomUUID(), "legal hold safety test"))
+    assertThatThrownBy(
+            () ->
+                service.purge(
+                    null,
+                    START,
+                    END,
+                    100,
+                    ArchiveTicketPurgeService.TicketPurgeMode.DELETE,
+                    UUID.randomUUID(),
+                    "legal hold safety test"))
         .isInstanceOf(IllegalStateException.class)
         .hasMessageContaining("legal hold");
 
@@ -54,9 +61,15 @@ class ArchiveTicketPurgeServiceTest {
     var legalHoldRepo = mock(ArchiveLegalHoldJdbcRepository.class);
     var service = service(jdbc, legalHoldRepo, true);
 
-    var result = service.purge(null, START, END, 100,
-        ArchiveTicketPurgeService.TicketPurgeMode.DRY_RUN,
-        UUID.randomUUID(), "dry-run ticket purge test");
+    var result =
+        service.purge(
+            null,
+            START,
+            END,
+            100,
+            ArchiveTicketPurgeService.TicketPurgeMode.DRY_RUN,
+            UUID.randomUUID(),
+            "dry-run ticket purge test");
 
     assertThat(result.plan().eligible()).isTrue();
     assertThat(result.plan().hotTickets()).isEqualTo(3);
@@ -73,25 +86,47 @@ class ArchiveTicketPurgeServiceTest {
     var legalHoldRepo = mock(ArchiveLegalHoldJdbcRepository.class);
     var service = service(jdbc, legalHoldRepo, true);
 
-    when(jdbc.update(argThat(sqlContains("DELETE FROM sales_ticket_charge")), any(MapSqlParameterSource.class)))
+    when(jdbc.update(
+            argThat(sqlContains("DELETE FROM sales_ticket_charge")),
+            any(MapSqlParameterSource.class)))
         .thenReturn(3, 0);
-    when(jdbc.update(argThat(sqlContains("DELETE FROM sales_ticket_line")), any(MapSqlParameterSource.class)))
+    when(jdbc.update(
+            argThat(sqlContains("DELETE FROM sales_ticket_line")),
+            any(MapSqlParameterSource.class)))
         .thenReturn(6, 0);
-    when(jdbc.update(argThat(sqlContains("DELETE FROM sales_ticket t")), any(MapSqlParameterSource.class)))
+    when(jdbc.update(
+            argThat(sqlContains("DELETE FROM sales_ticket t")), any(MapSqlParameterSource.class)))
         .thenReturn(3, 0);
 
-    var result = service.purge(null, START, END, 100,
-        ArchiveTicketPurgeService.TicketPurgeMode.DELETE,
-        UUID.randomUUID(), "execute ticket purge test");
+    var result =
+        service.purge(
+            null,
+            START,
+            END,
+            100,
+            ArchiveTicketPurgeService.TicketPurgeMode.DELETE,
+            UUID.randomUUID(),
+            "execute ticket purge test");
 
     assertThat(result.deletedCharges()).isEqualTo(3);
     assertThat(result.deletedLines()).isEqualTo(6);
     assertThat(result.deletedTickets()).isEqualTo(3);
 
     var order = inOrder(jdbc);
-    order.verify(jdbc).update(argThat(sqlContains("DELETE FROM sales_ticket_charge")), any(MapSqlParameterSource.class));
-    order.verify(jdbc).update(argThat(sqlContains("DELETE FROM sales_ticket_line")), any(MapSqlParameterSource.class));
-    order.verify(jdbc).update(argThat(sqlContains("DELETE FROM sales_ticket t")), any(MapSqlParameterSource.class));
+    order
+        .verify(jdbc)
+        .update(
+            argThat(sqlContains("DELETE FROM sales_ticket_charge")),
+            any(MapSqlParameterSource.class));
+    order
+        .verify(jdbc)
+        .update(
+            argThat(sqlContains("DELETE FROM sales_ticket_line")),
+            any(MapSqlParameterSource.class));
+    order
+        .verify(jdbc)
+        .update(
+            argThat(sqlContains("DELETE FROM sales_ticket t")), any(MapSqlParameterSource.class));
   }
 
   @Test
@@ -101,9 +136,16 @@ class ArchiveTicketPurgeServiceTest {
     var legalHoldRepo = mock(ArchiveLegalHoldJdbcRepository.class);
     var service = service(jdbc, legalHoldRepo, false);
 
-    assertThatThrownBy(() -> service.purge(null, START, END, 100,
-        ArchiveTicketPurgeService.TicketPurgeMode.DELETE,
-        UUID.randomUUID(), "cleanup disabled test"))
+    assertThatThrownBy(
+            () ->
+                service.purge(
+                    null,
+                    START,
+                    END,
+                    100,
+                    ArchiveTicketPurgeService.TicketPurgeMode.DELETE,
+                    UUID.randomUUID(),
+                    "cleanup disabled test"))
         .isInstanceOf(IllegalStateException.class)
         .hasMessageContaining("enabled is false");
   }
@@ -111,39 +153,73 @@ class ArchiveTicketPurgeServiceTest {
   private static NamedParameterJdbcTemplate mockJdbcWithMatchingCounts() {
     var jdbc = mock(NamedParameterJdbcTemplate.class);
 
-    when(jdbc.queryForObject(argThat(sqlContains("FROM sales_ticket t")),
-        any(MapSqlParameterSource.class), eq(Long.class))).thenReturn(3L);
-    when(jdbc.queryForObject(argThat(sqlContains("FROM sales_ticket_line tl")),
-        any(MapSqlParameterSource.class), eq(Long.class))).thenReturn(6L);
-    when(jdbc.queryForObject(argThat(sqlContains("FROM sales_ticket_charge c")),
-        any(MapSqlParameterSource.class), eq(Long.class))).thenReturn(3L);
+    when(jdbc.queryForObject(
+            argThat(sqlContains("FROM sales_ticket t")),
+            any(MapSqlParameterSource.class),
+            eq(Long.class)))
+        .thenReturn(3L);
+    when(jdbc.queryForObject(
+            argThat(sqlContains("FROM sales_ticket_line tl")),
+            any(MapSqlParameterSource.class),
+            eq(Long.class)))
+        .thenReturn(6L);
+    when(jdbc.queryForObject(
+            argThat(sqlContains("FROM sales_ticket_charge c")),
+            any(MapSqlParameterSource.class),
+            eq(Long.class)))
+        .thenReturn(3L);
 
-    when(jdbc.queryForObject(argThat(sqlContains("COALESCE(SUM(row_count), 0)")),
-        argThat(paramsWithTable("sales_ticket")), eq(Long.class))).thenReturn(3L);
-    when(jdbc.queryForObject(argThat(sqlContains("COALESCE(SUM(row_count), 0)")),
-        argThat(paramsWithTable("sales_ticket_line")), eq(Long.class))).thenReturn(6L);
-    when(jdbc.queryForObject(argThat(sqlContains("COALESCE(SUM(row_count), 0)")),
-        argThat(paramsWithTable("sales_ticket_charge")), eq(Long.class))).thenReturn(3L);
+    when(jdbc.queryForObject(
+            argThat(sqlContains("COALESCE(SUM(row_count), 0)")),
+            argThat(paramsWithTable("sales_ticket")),
+            eq(Long.class)))
+        .thenReturn(3L);
+    when(jdbc.queryForObject(
+            argThat(sqlContains("COALESCE(SUM(row_count), 0)")),
+            argThat(paramsWithTable("sales_ticket_line")),
+            eq(Long.class)))
+        .thenReturn(6L);
+    when(jdbc.queryForObject(
+            argThat(sqlContains("COALESCE(SUM(row_count), 0)")),
+            argThat(paramsWithTable("sales_ticket_charge")),
+            eq(Long.class)))
+        .thenReturn(3L);
 
-    when(jdbc.queryForObject(argThat(sqlContains("COUNT(*)")),
-        argThat(paramsWithTable("sales_ticket")), eq(Long.class))).thenReturn(1L);
-    when(jdbc.queryForObject(argThat(sqlContains("COUNT(*)")),
-        argThat(paramsWithTable("sales_ticket_line")), eq(Long.class))).thenReturn(1L);
-    when(jdbc.queryForObject(argThat(sqlContains("COUNT(*)")),
-        argThat(paramsWithTable("sales_ticket_charge")), eq(Long.class))).thenReturn(1L);
-    when(jdbc.queryForObject(argThat(sqlContains("table_name IN")),
-        any(MapSqlParameterSource.class), eq(Long.class))).thenReturn(0L);
+    when(jdbc.queryForObject(
+            argThat(sqlContains("COUNT(*)")),
+            argThat(paramsWithTable("sales_ticket")),
+            eq(Long.class)))
+        .thenReturn(1L);
+    when(jdbc.queryForObject(
+            argThat(sqlContains("COUNT(*)")),
+            argThat(paramsWithTable("sales_ticket_line")),
+            eq(Long.class)))
+        .thenReturn(1L);
+    when(jdbc.queryForObject(
+            argThat(sqlContains("COUNT(*)")),
+            argThat(paramsWithTable("sales_ticket_charge")),
+            eq(Long.class)))
+        .thenReturn(1L);
+    when(jdbc.queryForObject(
+            argThat(sqlContains("table_name IN")),
+            any(MapSqlParameterSource.class),
+            eq(Long.class)))
+        .thenReturn(0L);
 
     return jdbc;
   }
 
-  private static ArchiveTicketPurgeService service(NamedParameterJdbcTemplate jdbc,
-      ArchiveLegalHoldJdbcRepository legalHoldRepo, boolean cleanupEnabled) {
-    var props = new ArchiveProperties(
-        true,
-        new ArchiveProperties.Storage("local", "./archive-data", "tchalanet-archive", "archive", 536870912L),
-        new ArchiveProperties.Restore(Duration.ofDays(7), 1_000_000L, 5),
-        new ArchiveProperties.Cleanup(cleanupEnabled, "DRY_RUN", 12, List.of("audit_log")));
+  private static ArchiveTicketPurgeService service(
+      NamedParameterJdbcTemplate jdbc,
+      ArchiveLegalHoldJdbcRepository legalHoldRepo,
+      boolean cleanupEnabled) {
+    var props =
+        new ArchiveProperties(
+            true,
+            new ArchiveProperties.Storage(
+                "local", "./archive-data", "tchalanet-archive", "archive", 536870912L),
+            new ArchiveProperties.Restore(Duration.ofDays(7), 1_000_000L, 5),
+            new ArchiveProperties.Cleanup(cleanupEnabled, "DRY_RUN", 12, List.of("audit_log")));
     return new ArchiveTicketPurgeService(props, jdbc, legalHoldRepo);
   }
 
@@ -152,6 +228,7 @@ class ArchiveTicketPurgeServiceTest {
   }
 
   private static ArgumentMatcher<MapSqlParameterSource> paramsWithTable(String table) {
-    return params -> params != null && params.hasValue("table") && table.equals(params.getValue("table"));
+    return params ->
+        params != null && params.hasValue("table") && table.equals(params.getValue("table"));
   }
 }

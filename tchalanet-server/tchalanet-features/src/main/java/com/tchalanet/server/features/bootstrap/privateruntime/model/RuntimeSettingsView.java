@@ -3,8 +3,4 @@ package com.tchalanet.server.features.bootstrap.privateruntime.model;
 import java.util.Map;
 
 public record RuntimeSettingsView(
-    String locale,
-    String timezone,
-    String currency,
-    Map<String, Boolean> features
-) {}
+    String locale, String timezone, String currency, Map<String, Boolean> features) {}

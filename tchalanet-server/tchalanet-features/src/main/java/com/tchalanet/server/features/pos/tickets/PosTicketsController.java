@@ -48,110 +48,111 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/tenant/cashier/tickets")
 @RequiredArgsConstructor
-@PreAuthorize("hasAuthority('ACTOR_SELLER_TERMINAL') or hasAnyRole('TENANT_OWNER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
+@PreAuthorize(
+    "hasAuthority('ACTOR_SELLER_TERMINAL') or hasAnyRole('TENANT_OWNER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
 @Tag(name = "Cashier • Tickets")
 public class PosTicketsController {
 
-    private final PosTicketsService ticketsService;
-    private final PosTicketReceiptService receiptService;
+  private final PosTicketsService ticketsService;
+  private final PosTicketReceiptService receiptService;
 
-    @PostMapping("/verify")
-    @Operation(summary = "Verify a scanned public ticket code or URL after settlement")
-    public ApiResponse<PosTicketVerificationResponse> verify(
-        @CurrentContext TchRequestContext ctx,
-        @Valid @RequestBody PosVerifyTicketRequest request
-    ) {
-        return ApiResponse.success(ticketsService.verify(ctx, request));
-    }
+  @PostMapping("/verify")
+  @Operation(summary = "Verify a scanned public ticket code or URL after settlement")
+  public ApiResponse<PosTicketVerificationResponse> verify(
+      @CurrentContext TchRequestContext ctx, @Valid @RequestBody PosVerifyTicketRequest request) {
+    return ApiResponse.success(ticketsService.verify(ctx, request));
+  }
 
-    @PostMapping("/{ticketId}/cancel")
-    @AuditLog(
-        entity = AuditEntityType.TICKET,
-        action = AuditAction.CANCEL_TICKET,
-        idExpression = "#ticketId",
-        detailsExpression = "#request")
-    @Operation(summary = "Cancel a ticket within the cancel window")
-    public ApiResponse<PosTicketCancelResponse> cancel(
-        @CurrentContext TchRequestContext ctx,
-        @PathVariable TicketId ticketId,
-        @Valid @RequestBody PosTicketCancelRequest request
-    ) {
-        return ApiResponse.success(ticketsService.cancel(ctx, ticketId, request));
-    }
+  @PostMapping("/{ticketId}/cancel")
+  @AuditLog(
+      entity = AuditEntityType.TICKET,
+      action = AuditAction.CANCEL_TICKET,
+      idExpression = "#ticketId",
+      detailsExpression = "#request")
+  @Operation(summary = "Cancel a ticket within the cancel window")
+  public ApiResponse<PosTicketCancelResponse> cancel(
+      @CurrentContext TchRequestContext ctx,
+      @PathVariable TicketId ticketId,
+      @Valid @RequestBody PosTicketCancelRequest request) {
+    return ApiResponse.success(ticketsService.cancel(ctx, ticketId, request));
+  }
 
-    @GetMapping("/stats")
-    @Operation(summary = "Sales stats for the authenticated seller terminal. Defaults to today in tenant timezone.")
-    public ApiResponse<SellerTerminalDailyStatsResponse> stats(
-        @CurrentContext TchRequestContext ctx,
-        @RequestParam(required = false) String date) {
-        return ApiResponse.success(ticketsService.sellerTerminalStats(ctx, date));
-    }
+  @GetMapping("/stats")
+  @Operation(
+      summary =
+          "Sales stats for the authenticated seller terminal. Defaults to today in tenant timezone.")
+  public ApiResponse<SellerTerminalDailyStatsResponse> stats(
+      @CurrentContext TchRequestContext ctx, @RequestParam(required = false) String date) {
+    return ApiResponse.success(ticketsService.sellerTerminalStats(ctx, date));
+  }
 
-    @GetMapping
-    @Operation(summary = "List cashier tickets")
-    public ApiResponse<TchPage<PosTicketPageResponse>> list(
-        @CurrentContext TchRequestContext ctx,
-        @RequestParam(required = false) SellerTerminalId sellerTerminalId,
-        @RequestParam(required = false) DrawId drawId,
-        @RequestParam(required = false) String status,
-        @RequestParam(required = false) String q,
-        @RequestParam(required = false) Instant from,
-        @RequestParam(required = false) Instant to,
-        @RequestParam(required = false) LocalDate fromDate,
-        @RequestParam(required = false) LocalDate toDate,
-        @TchPaging(
-            allowedSort = {"createdAt", "totalAmount", "ticketCode"},
-            defaultSort = {"createdAt,desc"})
-        TchPageRequest page
-    ) {
-        Instant effectiveFrom = from != null ? from : startOfDay(fromDate, ctx);
-        Instant effectiveTo = to != null ? to : endOfDay(toDate, ctx);
-        return ApiResponse.success(ticketsService.listTickets(
+  @GetMapping
+  @Operation(summary = "List cashier tickets")
+  public ApiResponse<TchPage<PosTicketPageResponse>> list(
+      @CurrentContext TchRequestContext ctx,
+      @RequestParam(required = false) SellerTerminalId sellerTerminalId,
+      @RequestParam(required = false) DrawId drawId,
+      @RequestParam(required = false) String status,
+      @RequestParam(required = false) String q,
+      @RequestParam(required = false) Instant from,
+      @RequestParam(required = false) Instant to,
+      @RequestParam(required = false) LocalDate fromDate,
+      @RequestParam(required = false) LocalDate toDate,
+      @TchPaging(
+              allowedSort = {"createdAt", "totalAmount", "ticketCode"},
+              defaultSort = {"createdAt,desc"})
+          TchPageRequest page) {
+    Instant effectiveFrom = from != null ? from : startOfDay(fromDate, ctx);
+    Instant effectiveTo = to != null ? to : endOfDay(toDate, ctx);
+    return ApiResponse.success(
+        ticketsService.listTickets(
             sellerTerminalId, drawId, status, q, effectiveFrom, effectiveTo, page.pageable()));
-    }
+  }
 
-    @GetMapping("/{ticketId}")
-    @Operation(summary = "Get ticket details")
-    public ApiResponse<PosTicketDetailsResponse> get(@PathVariable TicketId ticketId) {
-        return ApiResponse.success(ticketsService.getDetails(ticketId));
-    }
+  @GetMapping("/{ticketId}")
+  @Operation(summary = "Get ticket details")
+  public ApiResponse<PosTicketDetailsResponse> get(@PathVariable TicketId ticketId) {
+    return ApiResponse.success(ticketsService.getDetails(ticketId));
+  }
 
-    @PostMapping("/{ticketId}/print")
-    @AuditLog(
-        entity = AuditEntityType.TICKET,
-        action = AuditAction.PRINT_TICKET,
-        idExpression = "#ticketId",
-        detailsExpression = "#request")
-    @Operation(summary = "Render a ticket for print or delivery (binary)")
-    public ResponseEntity<ByteArrayResource> print(
-        @CurrentContext TchRequestContext ctx,
-        @PathVariable TicketId ticketId,
-        @Valid @RequestBody PrintTicketRequest request
-    ) {
-        return receiptService.print(ctx, ticketId, request);
-    }
+  @PostMapping("/{ticketId}/print")
+  @AuditLog(
+      entity = AuditEntityType.TICKET,
+      action = AuditAction.PRINT_TICKET,
+      idExpression = "#ticketId",
+      detailsExpression = "#request")
+  @Operation(summary = "Render a ticket for print or delivery (binary)")
+  public ResponseEntity<ByteArrayResource> print(
+      @CurrentContext TchRequestContext ctx,
+      @PathVariable TicketId ticketId,
+      @Valid @RequestBody PrintTicketRequest request) {
+    return receiptService.print(ctx, ticketId, request);
+  }
 
-    @PostMapping("/{ticketId}/send")
-    @ResponseStatus(HttpStatus.ACCEPTED)
-    @Operation(summary = "Send a ticket receipt through an external channel (text-only). "
-        + "Auditing is driven by platform.communication delivery events.")
-    public ApiResponse<SendTicketReceiptResponse> send(
-        @CurrentContext TchRequestContext ctx,
-        @PathVariable TicketId ticketId,
-        @Valid @RequestBody SendTicketReceiptRequest request
-    ) {
-        return ApiResponse.accepted(receiptService.send(ctx, ticketId, request));
-    }
+  @PostMapping("/{ticketId}/send")
+  @ResponseStatus(HttpStatus.ACCEPTED)
+  @Operation(
+      summary =
+          "Send a ticket receipt through an external channel (text-only). "
+              + "Auditing is driven by platform.communication delivery events.")
+  public ApiResponse<SendTicketReceiptResponse> send(
+      @CurrentContext TchRequestContext ctx,
+      @PathVariable TicketId ticketId,
+      @Valid @RequestBody SendTicketReceiptRequest request) {
+    return ApiResponse.accepted(receiptService.send(ctx, ticketId, request));
+  }
 
-    private static Instant startOfDay(LocalDate date, TchRequestContext ctx) {
-        return date == null ? null : date.atStartOfDay(tenantZone(ctx)).toInstant();
-    }
+  private static Instant startOfDay(LocalDate date, TchRequestContext ctx) {
+    return date == null ? null : date.atStartOfDay(tenantZone(ctx)).toInstant();
+  }
 
-    private static Instant endOfDay(LocalDate date, TchRequestContext ctx) {
-        return date == null ? null : date.plusDays(1).atStartOfDay(tenantZone(ctx)).minusNanos(1).toInstant();
-    }
+  private static Instant endOfDay(LocalDate date, TchRequestContext ctx) {
+    return date == null
+        ? null
+        : date.plusDays(1).atStartOfDay(tenantZone(ctx)).minusNanos(1).toInstant();
+  }
 
-    private static ZoneId tenantZone(TchRequestContext ctx) {
-        return ctx != null && ctx.tenantZoneId() != null ? ctx.tenantZoneId() : ZoneOffset.UTC;
-    }
+  private static ZoneId tenantZone(TchRequestContext ctx) {
+    return ctx != null && ctx.tenantZoneId() != null ? ctx.tenantZoneId() : ZoneOffset.UTC;
+  }
 }

@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 /**
  * Spring Boot health indicator for the archive subsystem.
  *
- * <p>Reports DOWN if there are FAILED archive runs or INVALID archive objects,
- * which both indicate conditions requiring operator attention.
+ * <p>Reports DOWN if there are FAILED archive runs or INVALID archive objects, which both indicate
+ * conditions requiring operator attention.
  */
 @Component("archive")
 @RequiredArgsConstructor
@@ -22,15 +22,13 @@ public class ArchiveHealthIndicator implements HealthIndicator {
 
   @Override
   public Health health() {
-    long failedRuns     = runRepo.countByStatus("FAILED");
+    long failedRuns = runRepo.countByStatus("FAILED");
     long invalidObjects = objectRepo.countByStatus("INVALID");
 
-    Health.Builder builder = (failedRuns > 0 || invalidObjects > 0)
-        ? Health.down()
-        : Health.up();
+    Health.Builder builder = (failedRuns > 0 || invalidObjects > 0) ? Health.down() : Health.up();
 
     return builder
-        .withDetail("failedRuns",     failedRuns)
+        .withDetail("failedRuns", failedRuns)
         .withDetail("invalidObjects", invalidObjects)
         .build();
   }

@@ -7,7 +7,5 @@ import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalSummaryRow;
 
 public record ListSellerTerminalsQuery(
-    TenantId tenantId,
-    SellerTerminalSearchCriteria criteria,
-    TchPageRequest pageRequest
-) implements Query<TchPage<SellerTerminalSummaryRow>> {}
+    TenantId tenantId, SellerTerminalSearchCriteria criteria, TchPageRequest pageRequest)
+    implements Query<TchPage<SellerTerminalSummaryRow>> {}

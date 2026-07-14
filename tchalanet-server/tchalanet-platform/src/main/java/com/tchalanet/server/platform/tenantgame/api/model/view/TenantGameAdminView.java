@@ -16,5 +16,4 @@ public record TenantGameAdminView(
     String availabilityDays,
     String startLocalTime,
     String endLocalTime,
-    boolean readyForSale
-) {}
+    boolean readyForSale) {}

@@ -7,9 +7,9 @@ import java.util.Optional;
 
 public interface BatchJobHistoryService {
 
-    Optional<BatchJobExecutionView> getExecution(long executionId);
+  Optional<BatchJobExecutionView> getExecution(long executionId);
 
-    List<BatchJobExecutionView> listExecutions(JobKey jobKey, int limit);
+  List<BatchJobExecutionView> listExecutions(JobKey jobKey, int limit);
 
-    BatchJobHistoryPurgeResult purgeBefore(Instant cutoff);
+  BatchJobHistoryPurgeResult purgeBefore(Instant cutoff);
 }

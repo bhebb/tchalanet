@@ -1,12 +1,12 @@
 package com.tchalanet.server.core.pagemodel.internal.infra.web.dto;
 
-import tools.jackson.databind.JsonNode;
 import com.tchalanet.server.core.pagemodel.internal.domain.model.PageModelStatus;
 import java.time.Instant;
+import tools.jackson.databind.JsonNode;
 
 /**
- * DTO de détail admin pour un PageModel (preview, duplicate, reset).
- * Expose tous les champs utiles pour le backoffice sans exposer l'agrégat domaine.
+ * DTO de détail admin pour un PageModel (preview, duplicate, reset). Expose tous les champs utiles
+ * pour le backoffice sans exposer l'agrégat domaine.
  */
 public record PageModelAdminDetailDto(
     String id,
@@ -22,6 +22,4 @@ public record PageModelAdminDetailDto(
     Instant updatedAt,
     String createdBy,
     String updatedBy,
-    Instant publishedAt
-) {}
-
+    Instant publishedAt) {}

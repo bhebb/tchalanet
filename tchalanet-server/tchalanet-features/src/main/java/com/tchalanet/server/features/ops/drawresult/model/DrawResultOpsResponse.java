@@ -1,11 +1,10 @@
 package com.tchalanet.server.features.ops.drawresult.model;
 
 import com.tchalanet.server.catalog.drawchannel.api.model.DrawSource;
-import com.tchalanet.server.core.drawresult.api.model.ResultQuality;
 import com.tchalanet.server.core.drawresult.api.model.DrawResultStatus;
-import tools.jackson.databind.JsonNode;
-
+import com.tchalanet.server.core.drawresult.api.model.ResultQuality;
 import java.time.Instant;
+import tools.jackson.databind.JsonNode;
 
 public record DrawResultOpsResponse(
     String id,
@@ -19,6 +18,4 @@ public record DrawResultOpsResponse(
     JsonNode sourceResult,
     JsonNode haitiResult,
     JsonNode rawPayload,
-    String overrideReason
-) {
-}
+    String overrideReason) {}

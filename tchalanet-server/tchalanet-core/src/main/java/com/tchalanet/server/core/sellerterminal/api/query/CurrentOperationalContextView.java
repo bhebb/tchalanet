@@ -13,5 +13,4 @@ public record CurrentOperationalContextView(
     OperationalContextSource source,
     OperationalContextTrust trust,
     boolean present,
-    boolean trustedForSensitiveOperation
-) {}
+    boolean trustedForSensitiveOperation) {}

@@ -14,24 +14,20 @@ public record UsLotteryProviderResponse(
     List<UsLotteryProviderResult> results,
     Object rawPayload) {
 
-    public static UsLotteryProviderResponse empty(UsLotteryProvider provider, UsLotteryProviderQuery query) {
-        return new UsLotteryProviderResponse(
-            provider,
-            query.drawDate(),
-            query.drawTime(),
-            query.timezone(),
-            List.of(),
-            null);
+  public static UsLotteryProviderResponse empty(
+      UsLotteryProvider provider, UsLotteryProviderQuery query) {
+    return new UsLotteryProviderResponse(
+        provider, query.drawDate(), query.drawTime(), query.timezone(), List.of(), null);
+  }
+
+  public UsLotteryProviderResult findByGameCode(String gameCode) {
+    if (gameCode == null || results == null) {
+      return null;
     }
 
-    public UsLotteryProviderResult findByGameCode(String gameCode) {
-        if (gameCode == null || results == null) {
-            return null;
-        }
-
-        return results.stream()
-            .filter(r -> gameCode.equalsIgnoreCase(r.externalGameCode()))
-            .findFirst()
-            .orElse(null);
-    }
+    return results.stream()
+        .filter(r -> gameCode.equalsIgnoreCase(r.externalGameCode()))
+        .findFirst()
+        .orElse(null);
+  }
 }

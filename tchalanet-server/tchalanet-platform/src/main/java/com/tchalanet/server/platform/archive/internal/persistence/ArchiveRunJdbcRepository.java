@@ -1,7 +1,6 @@
 package com.tchalanet.server.platform.archive.internal.persistence;
 
 import com.tchalanet.server.platform.archive.api.model.ArchiveRunRowView;
-import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -16,46 +15,58 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class ArchiveRunJdbcRepository {
 
-  private static final RowMapper<ArchiveRunRowView> ROW_MAPPER = (rs, rowNum) -> new ArchiveRunRowView(
-      rs.getObject("id", UUID.class),
-      rs.getString("status"),
-      rs.getString("strategy"),
-      rs.getString("trigger_type"),
-      rs.getString("idempotency_key"),
-      rs.getTimestamp("started_at").toInstant(),
-      rs.getTimestamp("completed_at") == null ? null : rs.getTimestamp("completed_at").toInstant(),
-      rs.getObject("requested_by", UUID.class),
-      rs.getString("reason"),
-      rs.getString("error_message"),
-      rs.getTimestamp("created_at").toInstant());
+  private static final RowMapper<ArchiveRunRowView> ROW_MAPPER =
+      (rs, rowNum) ->
+          new ArchiveRunRowView(
+              rs.getObject("id", UUID.class),
+              rs.getString("status"),
+              rs.getString("strategy"),
+              rs.getString("trigger_type"),
+              rs.getString("idempotency_key"),
+              rs.getTimestamp("started_at").toInstant(),
+              rs.getTimestamp("completed_at") == null
+                  ? null
+                  : rs.getTimestamp("completed_at").toInstant(),
+              rs.getObject("requested_by", UUID.class),
+              rs.getString("reason"),
+              rs.getString("error_message"),
+              rs.getTimestamp("created_at").toInstant());
 
   private final NamedParameterJdbcTemplate jdbc;
 
-  public UUID insert(UUID id, String status, String strategy, String triggerType,
-      String idempotencyKey, UUID requestedBy, String reason) {
+  public UUID insert(
+      UUID id,
+      String status,
+      String strategy,
+      String triggerType,
+      String idempotencyKey,
+      UUID requestedBy,
+      String reason) {
 
-    jdbc.update("""
+    jdbc.update(
+        """
         INSERT INTO archive_run
           (id, status, strategy, trigger_type, idempotency_key, started_at, requested_by, reason)
         VALUES
           (:id, :status, :strategy, :triggerType, :idemKey, now(), :requestedBy, :reason)
         """,
         new MapSqlParameterSource()
-            .addValue("id",          id)
-            .addValue("status",      status)
-            .addValue("strategy",    strategy)
+            .addValue("id", id)
+            .addValue("status", status)
+            .addValue("strategy", strategy)
             .addValue("triggerType", triggerType)
-            .addValue("idemKey",     idempotencyKey)
+            .addValue("idemKey", idempotencyKey)
             .addValue("requestedBy", requestedBy)
-            .addValue("reason",      reason));
+            .addValue("reason", reason));
     return id;
   }
 
   public Optional<ArchiveRunRowView> findByIdempotencyKey(String key) {
-    List<ArchiveRunRowView> rows = jdbc.query(
-        "SELECT * FROM archive_run WHERE idempotency_key = :key",
-        Map.of("key", key),
-        ROW_MAPPER);
+    List<ArchiveRunRowView> rows =
+        jdbc.query(
+            "SELECT * FROM archive_run WHERE idempotency_key = :key",
+            Map.of("key", key),
+            ROW_MAPPER);
     return rows.isEmpty() ? Optional.empty() : Optional.of(rows.get(0));
   }
 
@@ -92,9 +103,11 @@ public class ArchiveRunJdbcRepository {
   }
 
   public long countByStatus(String status) {
-    Long n = jdbc.queryForObject(
-        "SELECT COUNT(*) FROM archive_run WHERE status = :status",
-        Map.of("status", status), Long.class);
+    Long n =
+        jdbc.queryForObject(
+            "SELECT COUNT(*) FROM archive_run WHERE status = :status",
+            Map.of("status", status),
+            Long.class);
     return n != null ? n : 0L;
   }
 }

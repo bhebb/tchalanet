@@ -144,7 +144,8 @@ public class PlatformNotificationController {
       entity = AuditEntityType.SYSTEM,
       action = AuditAction.STATE_CHANGE,
       idExpression = "'notifications'",
-      detailsExpression = "'notification.purge_expired dryRun=' + (#request == null ? false : #request.dryRun())")
+      detailsExpression =
+          "'notification.purge_expired dryRun=' + (#request == null ? false : #request.dryRun())")
   public ApiResponse<?> purgeExpired(@RequestBody(required = false) NotificationPurgeBody request) {
     return ApiResponse.success(notificationAdminGate.purgeExpired(request));
   }

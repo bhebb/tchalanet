@@ -14,48 +14,49 @@ import org.junit.jupiter.api.Test;
 
 class TicketReceiptGameLinesFormatterTest {
 
-    private static final CurrencyCode HTG = CurrencyCode.of("HTG");
-    private static final TicketReceiptLayoutProfile THERMAL_58 =
-        new TicketReceiptLayoutProfile(32, true, true, false);
+  private static final CurrencyCode HTG = CurrencyCode.of("HTG");
+  private static final TicketReceiptLayoutProfile THERMAL_58 =
+      new TicketReceiptLayoutProfile(32, true, true, false);
 
-    private final TicketReceiptGameLinesFormatter formatter = new TicketReceiptGameLinesFormatter(
-        new ReceiptTextLayout(),
-        new TicketReceiptMoneyFormatter(),
-        new TicketReceiptLabelResolver()
-    );
+  private final TicketReceiptGameLinesFormatter formatter =
+      new TicketReceiptGameLinesFormatter(
+          new ReceiptTextLayout(),
+          new TicketReceiptMoneyFormatter(),
+          new TicketReceiptLabelResolver());
 
-    @Test
-    void omitsLineNumbersPotentialGainsAndImplicitOptions() {
-        var lines = formatter.format(
-            List.of(new TicketReceiptLineView(
-                7,
-                "HT_LOTO3",
-                "LOTTO3_3D",
-                (short) 3,
-                "Exact + Permuté",
-                "LOTO 3 CHIFFRES",
-                "123",
-                money("10"),
-                SelectionPolicy.IMPLICIT_BEST_MATCH,
-                false,
-                null,
-                null
-            )),
+  @Test
+  void omitsLineNumbersPotentialGainsAndImplicitOptions() {
+    var lines =
+        formatter.format(
+            List.of(
+                new TicketReceiptLineView(
+                    7,
+                    "HT_LOTO3",
+                    "LOTTO3_3D",
+                    (short) 3,
+                    "Exact + Permuté",
+                    "LOTO 3 CHIFFRES",
+                    "123",
+                    money("10"),
+                    SelectionPolicy.IMPLICIT_BEST_MATCH,
+                    false,
+                    null,
+                    null)),
             translations(),
-            THERMAL_58
-        );
+            THERMAL_58);
 
-        var text = joined(lines);
-        assertThat(text).contains("123");
-        assertThat(text).contains("10.00");
-        assertThat(text).doesNotContain("#7");
-        assertThat(text).doesNotContain("Gain");
-        assertThat(text).doesNotContain("Exact + Permuté");
-    }
+    var text = joined(lines);
+    assertThat(text).contains("123");
+    assertThat(text).contains("10.00");
+    assertThat(text).doesNotContain("#7");
+    assertThat(text).doesNotContain("Gain");
+    assertThat(text).doesNotContain("Exact + Permuté");
+  }
 
-    @Test
-    void printsExplicitOptionAndComplimentaryMaryajWithSingleNote() {
-        var lines = formatter.format(
+  @Test
+  void printsExplicitOptionAndComplimentaryMaryajWithSingleNote() {
+    var lines =
+        formatter.format(
             List.of(
                 new TicketReceiptLineView(
                     1,
@@ -69,8 +70,7 @@ class TicketReceiptGameLinesFormatterTest {
                     SelectionPolicy.EXPLICIT_ONLY,
                     false,
                     null,
-                    null
-                ),
+                    null),
                 new TicketReceiptLineView(
                     2,
                     "HT_MARYAJ_GRATIS",
@@ -83,96 +83,95 @@ class TicketReceiptGameLinesFormatterTest {
                     SelectionPolicy.IMPLICIT_BEST_MATCH,
                     true,
                     "receipt.promotion.free_game_line",
-                    "FREE_GAME_LINE"
-                )
-            ),
+                    "FREE_GAME_LINE")),
             translations(),
-            THERMAL_58
-        );
+            THERMAL_58);
 
-        var text = joined(lines);
-        assertThat(text).contains("12 × 34");
-        assertThat(text).contains("Permuté");
-        assertThat(text).contains("* 56 × 78");
-        assertThat(text).contains("GRATIS");
-        assertThat(text).contains("* Maryaj offert");
-        assertThat(text).doesNotContain("Promotion: Maryaj gratuit");
-    }
+    var text = joined(lines);
+    assertThat(text).contains("12 × 34");
+    assertThat(text).contains("Permuté");
+    assertThat(text).contains("* 56 × 78");
+    assertThat(text).contains("GRATIS");
+    assertThat(text).contains("* Maryaj offert");
+    assertThat(text).doesNotContain("Promotion: Maryaj gratuit");
+  }
 
-    @Test
-    void doesNotTreatPaidMaryajZeroStakeAsComplimentaryMaryaj() {
-        var lines = formatter.format(
-            List.of(new TicketReceiptLineView(
-                1,
-                "HT_MARYAJ",
-                "MARRIAGE_2D2D",
-                (short) 1,
-                "Permuté",
-                "MARYAJ",
-                "1234",
-                money("0"),
-                SelectionPolicy.EXPLICIT_ONLY,
-                false,
-                null,
-                null
-            )),
+  @Test
+  void doesNotTreatPaidMaryajZeroStakeAsComplimentaryMaryaj() {
+    var lines =
+        formatter.format(
+            List.of(
+                new TicketReceiptLineView(
+                    1,
+                    "HT_MARYAJ",
+                    "MARRIAGE_2D2D",
+                    (short) 1,
+                    "Permuté",
+                    "MARYAJ",
+                    "1234",
+                    money("0"),
+                    SelectionPolicy.EXPLICIT_ONLY,
+                    false,
+                    null,
+                    null)),
             translations(),
-            THERMAL_58
-        );
+            THERMAL_58);
 
-        var text = joined(lines);
-        assertThat(text).contains("12 × 34");
-        assertThat(text).contains("Permuté");
-        assertThat(text).doesNotContain("* 12 × 34");
-        assertThat(text).doesNotContain("* Maryaj offert");
-    }
+    var text = joined(lines);
+    assertThat(text).contains("12 × 34");
+    assertThat(text).contains("Permuté");
+    assertThat(text).doesNotContain("* 12 × 34");
+    assertThat(text).doesNotContain("* Maryaj offert");
+  }
 
-    @Test
-    void complimentaryMaryajDoesNotPrintFixedAmountsOrOdds() {
-        var lines = formatter.format(
-            List.of(new TicketReceiptLineView(
-                2,
-                "HT_MARYAJ_GRATIS",
-                "MARRIAGE_2D2D",
-                (short) 2,
-                "Exact",
-                "MARYAJ",
-                "56-78",
-                money("0"),
-                SelectionPolicy.EXPLICIT_ONLY,
-                true,
-                "receipt.promotion.free_game_line",
-                "FREE_GAME_LINE"
-            )),
+  @Test
+  void complimentaryMaryajDoesNotPrintFixedAmountsOrOdds() {
+    var lines =
+        formatter.format(
+            List.of(
+                new TicketReceiptLineView(
+                    2,
+                    "HT_MARYAJ_GRATIS",
+                    "MARRIAGE_2D2D",
+                    (short) 2,
+                    "Exact",
+                    "MARYAJ",
+                    "56-78",
+                    money("0"),
+                    SelectionPolicy.EXPLICIT_ONLY,
+                    true,
+                    "receipt.promotion.free_game_line",
+                    "FREE_GAME_LINE")),
             translations(),
-            THERMAL_58
-        );
+            THERMAL_58);
 
-        var text = joined(lines);
-        assertThat(text).contains("* 56 × 78");
-        assertThat(text).contains("GRATIS");
-        assertThat(text).doesNotContain("2000");
-        assertThat(text).doesNotContain("10000");
-        assertThat(text).doesNotContain("50");
-    }
+    var text = joined(lines);
+    assertThat(text).contains("* 56 × 78");
+    assertThat(text).contains("GRATIS");
+    assertThat(text).doesNotContain("2000");
+    assertThat(text).doesNotContain("10000");
+    assertThat(text).doesNotContain("50");
+  }
 
-    private TicketReceiptI18nResolver.TicketReceiptTranslations translations() {
-        return new TicketReceiptI18nResolver.TicketReceiptTranslations(Map.of(
+  private TicketReceiptI18nResolver.TicketReceiptTranslations translations() {
+    return new TicketReceiptI18nResolver.TicketReceiptTranslations(
+        Map.of(
             TicketReceiptI18nKeys.LINE_HEADER_NO, "No",
             TicketReceiptI18nKeys.LINE_HEADER_STAKE, "Mise",
             TicketReceiptI18nKeys.PROMOTION, "Promotion",
             TicketReceiptI18nKeys.PROMOTION_FREE_GAME_LINE, "Maryaj gratuit",
             TicketReceiptI18nKeys.PROMOTION_FREE_GAME_SHORT, "GRATIS",
-            TicketReceiptI18nKeys.PROMOTION_MARYAJ_OFFERED_NOTE, "* Maryaj offert"
-        ));
-    }
+            TicketReceiptI18nKeys.PROMOTION_MARYAJ_OFFERED_NOTE, "* Maryaj offert"));
+  }
 
-    private String joined(List<com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptTextLine> lines) {
-        return lines.stream().map(com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptTextLine::text)
-            .reduce("", (left, right) -> left + "\n" + right);
-    }
+  private String joined(
+      List<com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptTextLine> lines) {
+    return lines.stream()
+        .map(com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptTextLine::text)
+        .reduce("", (left, right) -> left + "\n" + right);
+  }
 
-    private Money money(String amount) {
-        return new Money(new BigDecimal(amount), HTG);
-    }
+  private Money money(String amount) {
+    return new Money(new BigDecimal(amount), HTG);
+  }
 }

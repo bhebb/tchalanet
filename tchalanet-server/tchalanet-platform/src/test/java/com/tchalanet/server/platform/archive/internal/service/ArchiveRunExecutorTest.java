@@ -9,6 +9,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.platform.archive.api.ArchiveDatasetProvider;
 import com.tchalanet.server.platform.archive.api.model.ArchiveDatasetKey;
 import com.tchalanet.server.platform.archive.api.model.ArchiveDatasetPlan;
@@ -40,7 +41,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
-import com.tchalanet.server.common.json.utils.JsonUtils;
 import tools.jackson.databind.json.JsonMapper;
 
 @DisplayName("ArchiveRunExecutor")
@@ -51,8 +51,7 @@ class ArchiveRunExecutorTest {
   private static final UUID TENANT_ID = UUID.fromString("33333333-3333-3333-3333-333333333333");
   private static final UUID ENTITY_ID = UUID.fromString("44444444-4444-4444-4444-444444444444");
 
-  @TempDir
-  Path archiveRoot;
+  @TempDir Path archiveRoot;
 
   @Test
   @DisplayName("verifies compressed archive object before marking it VERIFIED")
@@ -77,13 +76,14 @@ class ArchiveRunExecutorTest {
     verify(harness.lookupRepo).insertBatch(lookupCaptor.capture());
     assertThat(lookupCaptor.getValue())
         .singleElement()
-        .satisfies(entry -> {
-          assertThat(entry.tableName()).isEqualTo("audit_log");
-          assertThat(entry.tenantId()).isEqualTo(TENANT_ID);
-          assertThat(entry.entityType()).isEqualTo("TICKET");
-          assertThat(entry.entityId()).isEqualTo(ENTITY_ID);
-          assertThat(entry.archiveObjectId()).isEqualTo(objectId);
-        });
+        .satisfies(
+            entry -> {
+              assertThat(entry.tableName()).isEqualTo("audit_log");
+              assertThat(entry.tenantId()).isEqualTo(TENANT_ID);
+              assertThat(entry.entityType()).isEqualTo("TICKET");
+              assertThat(entry.entityId()).isEqualTo(ENTITY_ID);
+              assertThat(entry.archiveObjectId()).isEqualTo(objectId);
+            });
   }
 
   @Test
@@ -102,15 +102,13 @@ class ArchiveRunExecutorTest {
 
   private TriggerArchiveRunRequest request() {
     return new TriggerArchiveRunRequest(
-        "MONTHLY",
-        LocalDate.of(2025, 1, 1),
-        LocalDate.of(2025, 2, 1),
-        "Monthly archive test");
+        "MONTHLY", LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1), "Monthly archive test");
   }
 
   private static List<String> readArchiveLines(Path root, String uri) throws Exception {
     try (var in = new GZIPInputStream(java.nio.file.Files.newInputStream(root.resolve(uri)));
-        var reader = new java.io.BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))) {
+        var reader =
+            new java.io.BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))) {
       return reader.lines().toList();
     }
   }
@@ -119,53 +117,71 @@ class ArchiveRunExecutorTest {
     private final ArchiveRunGuard guard = mock(ArchiveRunGuard.class);
     private final ArchiveRunJdbcRepository runRepo = mock(ArchiveRunJdbcRepository.class);
     private final ArchiveObjectJdbcRepository objectRepo = mock(ArchiveObjectJdbcRepository.class);
-    private final ArchiveLookupIndexJdbcRepository lookupRepo = mock(ArchiveLookupIndexJdbcRepository.class);
+    private final ArchiveLookupIndexJdbcRepository lookupRepo =
+        mock(ArchiveLookupIndexJdbcRepository.class);
     private final AtomicReference<UUID> insertedObjectId = new AtomicReference<>();
     private final AtomicReference<String> insertedObjectUri = new AtomicReference<>();
     private final ArchiveRunExecutor executor;
 
     private Harness(Path archiveRoot, ArchiveDatasetProvider provider) {
-      var props = new ArchiveProperties(
-          true,
-          new ArchiveProperties.Storage(
-              "local", archiveRoot.toString(), "tchalanet-archive", "archive", 536870912L),
-          new ArchiveProperties.Restore(java.time.Duration.ofDays(7), 1_000_000L, 5),
-          new ArchiveProperties.Cleanup(false, "DRY_RUN", 12, List.of("audit_log")));
+      var props =
+          new ArchiveProperties(
+              true,
+              new ArchiveProperties.Storage(
+                  "local", archiveRoot.toString(), "tchalanet-archive", "archive", 536870912L),
+              new ArchiveProperties.Restore(java.time.Duration.ofDays(7), 1_000_000L, 5),
+              new ArchiveProperties.Cleanup(false, "DRY_RUN", 12, List.of("audit_log")));
       var storage = new LocalFileArchiveStorageAdapter(props);
       var metrics = new ArchiveMetrics(new SimpleMeterRegistry());
 
       when(guard.beginOrResume(any(), any(), any(), any(), any()))
           .thenReturn(new ArchiveRunGuard.GuardResult(RUN_ID, ArchiveRunGuard.Decision.CREATED));
-      when(runRepo.listRecent(anyInt())).thenReturn(List.of(new ArchiveRunRowView(
-          RUN_ID,
-          "COMPLETED",
-          "MONTHLY",
-          "MANUAL",
-          "monthly:2025-01-01:2025-02-01",
-          Instant.parse("2025-01-01T00:00:00Z"),
-          null,
-          null,
-          null,
-          null,
-          Instant.parse("2025-01-01T00:00:00Z"))));
-      when(objectRepo.insert(any(), any(), any(), any(), any(), any(), anyInt(), any(), any(Long.class),
-          any(Long.class), any(), anyInt()))
-          .thenAnswer(invocation -> {
-            UUID id = invocation.getArgument(0);
-            insertedObjectId.set(id);
-            insertedObjectUri.set(invocation.getArgument(7));
-            return id;
-          });
+      when(runRepo.listRecent(anyInt()))
+          .thenReturn(
+              List.of(
+                  new ArchiveRunRowView(
+                      RUN_ID,
+                      "COMPLETED",
+                      "MONTHLY",
+                      "MANUAL",
+                      "monthly:2025-01-01:2025-02-01",
+                      Instant.parse("2025-01-01T00:00:00Z"),
+                      null,
+                      null,
+                      null,
+                      null,
+                      Instant.parse("2025-01-01T00:00:00Z"))));
+      when(objectRepo.insert(
+              any(),
+              any(),
+              any(),
+              any(),
+              any(),
+              any(),
+              anyInt(),
+              any(),
+              any(Long.class),
+              any(Long.class),
+              any(),
+              anyInt()))
+          .thenAnswer(
+              invocation -> {
+                UUID id = invocation.getArgument(0);
+                insertedObjectId.set(id);
+                insertedObjectUri.set(invocation.getArgument(7));
+                return id;
+              });
 
-      executor = new ArchiveRunExecutor(
-          List.of(provider),
-          guard,
-          runRepo,
-          objectRepo,
-          lookupRepo,
-          storage,
-          new JsonUtils(JsonMapper.builder().build()),
-          metrics);
+      executor =
+          new ArchiveRunExecutor(
+              List.of(provider),
+              guard,
+              runRepo,
+              objectRepo,
+              lookupRepo,
+              storage,
+              new JsonUtils(JsonMapper.builder().build()),
+              metrics);
     }
   }
 
@@ -193,13 +209,22 @@ class ArchiveRunExecutorTest {
     @Override
     public ArchiveExportResult export(ArchiveExportRequest request) {
       for (int i = 0; i < rowsToWrite; i++) {
-        request.rowSink().accept(Map.of(
-            "id", UUID.randomUUID().toString(),
-            "table", "audit_log",
-            "tenant_id", TENANT_ID.toString(),
-            "entity_type", "TICKET",
-            "entity_id", ENTITY_ID.toString(),
-            "occurred_at", "2025-01-15T12:00:00Z"));
+        request
+            .rowSink()
+            .accept(
+                Map.of(
+                    "id",
+                    UUID.randomUUID().toString(),
+                    "table",
+                    "audit_log",
+                    "tenant_id",
+                    TENANT_ID.toString(),
+                    "entity_type",
+                    "TICKET",
+                    "entity_id",
+                    ENTITY_ID.toString(),
+                    "occurred_at",
+                    "2025-01-15T12:00:00Z"));
       }
       return new ArchiveExportResult(rowsToReport, 1);
     }
@@ -212,17 +237,18 @@ class ArchiveRunExecutorTest {
     @Override
     public List<ArchiveLookupEntry> generateLookupRows(
         ArchivePeriod period, UUID tenantId, UUID archiveObjectId) {
-      return List.of(new ArchiveLookupEntry(
-          "audit_log",
-          TENANT_ID,
-          "TICKET",
-          ENTITY_ID,
-          null,
-          null,
-          Instant.parse("2025-01-15T12:00:00Z"),
-          archiveObjectId,
-          null,
-          null));
+      return List.of(
+          new ArchiveLookupEntry(
+              "audit_log",
+              TENANT_ID,
+              "TICKET",
+              ENTITY_ID,
+              null,
+              null,
+              Instant.parse("2025-01-15T12:00:00Z"),
+              archiveObjectId,
+              null,
+              null));
     }
   }
 }

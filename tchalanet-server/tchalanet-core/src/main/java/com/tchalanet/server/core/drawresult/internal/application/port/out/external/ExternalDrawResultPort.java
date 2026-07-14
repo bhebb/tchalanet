@@ -60,19 +60,19 @@ public interface ExternalDrawResultPort {
       boolean dryRun) {
     public DrawExternalBulkQuery {
       if (channelCodes == null) {
-          throw new IllegalArgumentException("externalGameCodes required");
+        throw new IllegalArgumentException("externalGameCodes required");
       }
       if (drawDateLocal == null) {
-          throw new IllegalArgumentException("drawDateLocal required");
+        throw new IllegalArgumentException("drawDateLocal required");
       }
       if (executedAt == null) {
-          throw new IllegalArgumentException("executedAt required");
+        throw new IllegalArgumentException("executedAt required");
       }
       if (daysBack < 0) {
-          throw new IllegalArgumentException("daysBack must be >= 0");
+        throw new IllegalArgumentException("daysBack must be >= 0");
       }
       if (maxDraws <= 0) {
-          throw new IllegalArgumentException("maxDraws must be > 0");
+        throw new IllegalArgumentException("maxDraws must be > 0");
       }
     }
   }

@@ -18,19 +18,24 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Runtime")
 public class PrivateBootstrapRuntimeController {
 
-    private final RuntimeBootstrapService service;
+  private final RuntimeBootstrapService service;
 
-    @GetMapping({"/runtime/private", "/tenant/runtime/bootstrap", "/tenant/me/bootstrap"})
-    @PreAuthorize("isAuthenticated()")
-    @Operation(summary = "Private runtime bootstrap — resolves user, authorization and runtime context")
-    public ApiResponse<RuntimeBootstrapResponse> privateBootstrap(@CurrentContext TchRequestContext ctx) {
-        return ApiResponse.success(service.privateBootstrap(ctx));
-    }
+  @GetMapping({"/runtime/private", "/tenant/runtime/bootstrap", "/tenant/me/bootstrap"})
+  @PreAuthorize("isAuthenticated()")
+  @Operation(
+      summary = "Private runtime bootstrap — resolves user, authorization and runtime context")
+  public ApiResponse<RuntimeBootstrapResponse> privateBootstrap(
+      @CurrentContext TchRequestContext ctx) {
+    return ApiResponse.success(service.privateBootstrap(ctx));
+  }
 
-    @GetMapping("/tenant/runtime/state")
-    @PreAuthorize("isAuthenticated()")
-    @Operation(summary = "Lightweight private runtime state — readiness, notifications, blocking and version hints")
-    public ApiResponse<PrivateRuntimeStateResponse> privateState(@CurrentContext TchRequestContext ctx) {
-        return ApiResponse.success(service.privateState(ctx));
-    }
+  @GetMapping("/tenant/runtime/state")
+  @PreAuthorize("isAuthenticated()")
+  @Operation(
+      summary =
+          "Lightweight private runtime state — readiness, notifications, blocking and version hints")
+  public ApiResponse<PrivateRuntimeStateResponse> privateState(
+      @CurrentContext TchRequestContext ctx) {
+    return ApiResponse.success(service.privateState(ctx));
+  }
 }

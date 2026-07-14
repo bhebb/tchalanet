@@ -7,8 +7,8 @@ import org.springframework.lang.Nullable;
 
 /**
  * Wraps a cache with the runtime {@link CacheToggle}. When the cache is disabled it behaves as a
- * no-op: reads miss (so {@code @Cacheable} recomputes from the source), writes are dropped. Eviction
- * and clear always delegate, so a disabled cache can still be flushed.
+ * no-op: reads miss (so {@code @Cacheable} recomputes from the source), writes are dropped.
+ * Eviction and clear always delegate, so a disabled cache can still be flushed.
  */
 public class ToggleableCache implements Cache {
 

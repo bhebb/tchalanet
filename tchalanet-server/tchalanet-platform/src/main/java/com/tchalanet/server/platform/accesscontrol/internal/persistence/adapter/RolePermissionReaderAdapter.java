@@ -32,4 +32,3 @@ public class RolePermissionReaderAdapter {
     return findPermissionCodesForRoleHierarchy(roleId).contains(permissionCode);
   }
 }
-

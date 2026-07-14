@@ -7,8 +7,8 @@ import java.time.LocalDate;
 /**
  * Read-only view of a global provider calendar override (cache-friendly).
  *
- * <p>XOR shape: exactly one of {@code slotLocalDate} (specific dated occurrence)
- * / {@code recurringMd} (year-less 'MM-dd' annual rule) is non-null.
+ * <p>XOR shape: exactly one of {@code slotLocalDate} (specific dated occurrence) / {@code
+ * recurringMd} (year-less 'MM-dd' annual rule) is non-null.
  */
 public record ResultSlotCalendarOverrideView(
     ResultSlotCalendarOverrideId id,

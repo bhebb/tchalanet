@@ -1,13 +1,12 @@
 package com.tchalanet.server.core.drawresult.api.query;
 
 import com.tchalanet.server.common.bus.Query;
-import com.tchalanet.server.core.drawresult.api.model.ResultQuality;
 import com.tchalanet.server.common.web.paging.TchPage;
-import com.tchalanet.server.core.drawresult.api.query.view.DrawResultView;
 import com.tchalanet.server.core.drawresult.api.model.DrawResultStatus;
-import org.springframework.data.domain.Pageable;
-
+import com.tchalanet.server.core.drawresult.api.model.ResultQuality;
+import com.tchalanet.server.core.drawresult.api.query.view.DrawResultView;
 import java.time.LocalDate;
+import org.springframework.data.domain.Pageable;
 
 public record ListDrawResultsQuery(
     String slotKey,
@@ -15,6 +14,5 @@ public record ListDrawResultsQuery(
     ResultQuality quality,
     LocalDate from,
     LocalDate to,
-    Pageable pageable
-) implements Query<TchPage<DrawResultView>> {
-}
+    Pageable pageable)
+    implements Query<TchPage<DrawResultView>> {}

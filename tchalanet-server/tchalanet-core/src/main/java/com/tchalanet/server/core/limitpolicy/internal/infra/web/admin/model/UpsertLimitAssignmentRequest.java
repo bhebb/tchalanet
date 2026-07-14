@@ -4,9 +4,8 @@ import com.tchalanet.server.core.limitpolicy.BreachOutcome;
 import com.tchalanet.server.core.limitpolicy.api.RuleKey;
 import com.tchalanet.server.core.limitpolicy.api.TargetType;
 import jakarta.validation.constraints.NotNull;
-import tools.jackson.databind.JsonNode;
-
 import java.time.Instant;
+import tools.jackson.databind.JsonNode;
 
 public record UpsertLimitAssignmentRequest(
     @NotNull RuleKey ruleKey,
@@ -16,5 +15,4 @@ public record UpsertLimitAssignmentRequest(
     @NotNull BreachOutcome onBreach,
     @NotNull JsonNode params,
     Instant startsAt,
-    Instant endsAt
-) {}
+    Instant endsAt) {}

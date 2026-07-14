@@ -8,8 +8,8 @@ import tools.jackson.databind.JsonNode;
 /**
  * Application event emitted when a page model template changes.
  *
- * This is not a business DomainEvent: catalog publishes it so downstream projections or drafts can
- * refresh after commit without making catalog depend on core.
+ * <p>This is not a business DomainEvent: catalog publishes it so downstream projections or drafts
+ * can refresh after commit without making catalog depend on core.
  */
 public record PageModelTemplateUpdatedEvent(
     PageModelTemplateId templateId,

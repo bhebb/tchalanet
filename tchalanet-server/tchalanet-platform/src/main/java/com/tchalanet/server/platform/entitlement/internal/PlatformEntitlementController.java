@@ -17,10 +17,10 @@ import org.springframework.web.bind.annotation.RestController;
 @PreAuthorize("hasRole('SUPER_ADMIN')")
 public class PlatformEntitlementController {
 
-    private final EntitlementApi entitlementApi;
+  private final EntitlementApi entitlementApi;
 
-    @GetMapping("/{tenantId}")
-    public ApiResponse<TenantCapabilitySnapshot> getSnapshot(@PathVariable TenantId tenantId) {
-        return ApiResponse.success(entitlementApi.getSnapshot(tenantId));
-    }
+  @GetMapping("/{tenantId}")
+  public ApiResponse<TenantCapabilitySnapshot> getSnapshot(@PathVariable TenantId tenantId) {
+    return ApiResponse.success(entitlementApi.getSnapshot(tenantId));
+  }
 }

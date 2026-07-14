@@ -9,52 +9,49 @@ import com.tchalanet.server.platform.communication.api.model.request.Communicati
 import com.tchalanet.server.platform.communication.api.model.value.CommunicationChannel;
 import com.tchalanet.server.platform.tenant.api.TenantConfigApi;
 import com.tchalanet.server.platform.tenant.api.model.request.GetTenantByIdRequest;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-
-import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
 public class TenantConfigCommunicationFeePolicy implements CommunicationFeePolicy {
 
-    private final TenantConfigApi tenantConfigApi;
+  private final TenantConfigApi tenantConfigApi;
 
-    @Override
-    public Optional<CommunicationFee> feeFor(
-        TenantId tenantId,
-        CommunicationChannel channel
-    ) {
-        var config = tenantConfigApi.getTenantCommunicationConfig(new GetTenantByIdRequest(tenantId));
+  @Override
+  public Optional<CommunicationFee> feeFor(TenantId tenantId, CommunicationChannel channel) {
+    var config = tenantConfigApi.getTenantCommunicationConfig(new GetTenantByIdRequest(tenantId));
 
-        if (config == null || config.buyerTicketDelivery() == null) {
-            return Optional.empty();
-        }
+    if (config == null || config.buyerTicketDelivery() == null) {
+      return Optional.empty();
+    }
 
-        var channelConfig = switch (channel) {
-            case SMS -> config.buyerTicketDelivery().sms();
-            case WHATSAPP -> config.buyerTicketDelivery().whatsapp();
-            case EMAIL -> config.buyerTicketDelivery().email();
-            default -> null;
+    var channelConfig =
+        switch (channel) {
+          case SMS -> config.buyerTicketDelivery().sms();
+          case WHATSAPP -> config.buyerTicketDelivery().whatsapp();
+          case EMAIL -> config.buyerTicketDelivery().email();
+          default -> null;
         };
 
-        if (channelConfig == null || !Boolean.TRUE.equals(channelConfig.enabled())) {
-            return Optional.empty();
-        }
+    if (channelConfig == null || !Boolean.TRUE.equals(channelConfig.enabled())) {
+      return Optional.empty();
+    }
 
-        var amount = channelConfig.amount();
-        if (amount == null || amount.signum() == 0) {
-            return Optional.of(new CommunicationFee(
-                channel,
-                Money.zero(CurrencyCode.of(channelConfig.currency())),
-                CommunicationCostBearer.valueOf(channelConfig.paidBy().trim().toUpperCase())
-            ));
-        }
+    var amount = channelConfig.amount();
+    if (amount == null || amount.signum() == 0) {
+      return Optional.of(
+          new CommunicationFee(
+              channel,
+              Money.zero(CurrencyCode.of(channelConfig.currency())),
+              CommunicationCostBearer.valueOf(channelConfig.paidBy().trim().toUpperCase())));
+    }
 
-        return Optional.of(new CommunicationFee(
+    return Optional.of(
+        new CommunicationFee(
             channel,
             new Money(amount, CurrencyCode.of(channelConfig.currency())),
-            CommunicationCostBearer.valueOf(channelConfig.paidBy().trim().toUpperCase())
-        ));
-    }
+            CommunicationCostBearer.valueOf(channelConfig.paidBy().trim().toUpperCase())));
+  }
 }

@@ -13,10 +13,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class PlatformAdminOverviewController {
 
-    private final PlatformAdminOverviewOrchestrator orchestrator;
+  private final PlatformAdminOverviewOrchestrator orchestrator;
 
-    @GetMapping
-    public ApiResponse<PlatformAdminOverviewView> overview() {
-        return ApiResponse.success(orchestrator.overview());
-    }
+  @GetMapping
+  public ApiResponse<PlatformAdminOverviewView> overview() {
+    return ApiResponse.success(orchestrator.overview());
+  }
 }

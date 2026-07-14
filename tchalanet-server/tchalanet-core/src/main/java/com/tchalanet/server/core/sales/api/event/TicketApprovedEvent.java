@@ -7,22 +7,20 @@ import com.tchalanet.server.common.types.id.PromotionDecisionId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.types.id.UserId;
-
 import java.time.Instant;
 
 /**
- * Domain event: a ticket previously in {@code PENDING_APPROVAL} has been
- * approved (or system-confirmed) and is now {@code APPROVED}.
+ * Domain event: a ticket previously in {@code PENDING_APPROVAL} has been approved (or
+ * system-confirmed) and is now {@code APPROVED}.
  *
- * <p>This is the second half of the placement story. The pair
- * {@link TicketPlacedEvent} + {@link TicketApprovedEvent} together describe
- * how a ticket reached APPROVED state. Consumers that aggregate official sales
- * MUST subscribe to both (with deduplication on {@code ticketId}) to avoid
+ * <p>This is the second half of the placement story. The pair {@link TicketPlacedEvent} + {@link
+ * TicketApprovedEvent} together describe how a ticket reached APPROVED state. Consumers that
+ * aggregate official sales MUST subscribe to both (with deduplication on {@code ticketId}) to avoid
  * missing tickets that were approved via the workflow path.
  *
- * <p>{@code promotionDecisionId} is non-null when the original ticket placement
- * had an applied promotion. Listeners must persist the promotion snapshot on this
- * event rather than on {@link TicketPlacedEvent} for the PENDING_APPROVAL path.
+ * <p>{@code promotionDecisionId} is non-null when the original ticket placement had an applied
+ * promotion. Listeners must persist the promotion snapshot on this event rather than on {@link
+ * TicketPlacedEvent} for the PENDING_APPROVAL path.
  */
 public record TicketApprovedEvent(
     // Envelope
@@ -41,7 +39,7 @@ public record TicketApprovedEvent(
     String reason,
 
     // Promotion — null when no promotion was applied to this ticket
-    PromotionDecisionId promotionDecisionId
-) implements com.tchalanet.server.common.event.DomainEvent {
-    public static final int CURRENT_SCHEMA = 1;
+    PromotionDecisionId promotionDecisionId)
+    implements com.tchalanet.server.common.event.DomainEvent {
+  public static final int CURRENT_SCHEMA = 1;
 }

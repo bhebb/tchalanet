@@ -19,7 +19,8 @@ import org.mockito.ArgumentCaptor;
 
 class TenantUserRoleJpaAdapterTest {
 
-  private final TenantUserRoleJpaRepository tenantUserRoleRepository = mock(TenantUserRoleJpaRepository.class);
+  private final TenantUserRoleJpaRepository tenantUserRoleRepository =
+      mock(TenantUserRoleJpaRepository.class);
   private final AppRoleJpaRepository appRoleRepository = mock(AppRoleJpaRepository.class);
   private final TenantUserRoleJpaAdapter adapter =
       new TenantUserRoleJpaAdapter(tenantUserRoleRepository, appRoleRepository);
@@ -37,7 +38,8 @@ class TenantUserRoleJpaAdapterTest {
 
     when(appRoleRepository.findActiveSystemRoleByCodeAndScope("TENANT_ADMIN", "TENANT"))
         .thenReturn(Optional.of(role));
-    when(tenantUserRoleRepository.findActiveAssignment(tenantId.value(), userId.value(), tenantRoleId))
+    when(tenantUserRoleRepository.findActiveAssignment(
+            tenantId.value(), userId.value(), tenantRoleId))
         .thenReturn(Optional.empty());
 
     adapter.assign(tenantId, userId, "TENANT_ADMIN", assignedBy);
@@ -65,7 +67,8 @@ class TenantUserRoleJpaAdapterTest {
 
     adapter.remove(tenantId, userId, "TENANT_ADMIN");
 
-    verify(tenantUserRoleRepository).softDeleteAssignment(tenantId.value(), userId.value(), tenantRoleId);
+    verify(tenantUserRoleRepository)
+        .softDeleteAssignment(tenantId.value(), userId.value(), tenantRoleId);
     verify(appRoleRepository, never()).findByCode("TENANT_ADMIN");
   }
 }

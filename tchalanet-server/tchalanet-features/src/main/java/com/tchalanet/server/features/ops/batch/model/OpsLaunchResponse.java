@@ -8,5 +8,4 @@ public record OpsLaunchResponse(
     int started,
     int failed,
     List<OpsJobLaunchItem> launches,
-    String message
-) {}
+    String message) {}

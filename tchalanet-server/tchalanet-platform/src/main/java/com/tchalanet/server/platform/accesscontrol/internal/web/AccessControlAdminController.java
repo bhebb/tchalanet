@@ -2,8 +2,8 @@ package com.tchalanet.server.platform.accesscontrol.internal.web;
 
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.web.CurrentContext;
-import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.RoleId;
+import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.platform.accesscontrol.api.AccessControlApi;
@@ -58,7 +58,8 @@ public class AccessControlAdminController {
   @GetMapping("/roles")
   @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'role.read')")
   public ApiResponse<List<RoleView>> listRoles(@CurrentContext TchRequestContext ctx) {
-    return ApiResponse.success(accessControlApi.listRoles(new ListRolesRequest(ctx.effectiveTenantIdOrNull())));
+    return ApiResponse.success(
+        accessControlApi.listRoles(new ListRolesRequest(ctx.effectiveTenantIdOrNull())));
   }
 
   @Operation(summary = "List permissions")
@@ -72,8 +73,10 @@ public class AccessControlAdminController {
   @GetMapping("/roles/{roleId}/permissions")
   @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'role.read')")
   public ApiResponse<Set<String>> getRolePermissions(@PathVariable RoleId roleId) {
-    var codes = accessControlApi.listRolePermissions(new ListRolePermissionsRequest(roleId))
-        .stream().map(RolePermissionView::permissionCode).collect(Collectors.toSet());
+    var codes =
+        accessControlApi.listRolePermissions(new ListRolePermissionsRequest(roleId)).stream()
+            .map(RolePermissionView::permissionCode)
+            .collect(Collectors.toSet());
     return ApiResponse.success(codes);
   }
 
@@ -86,8 +89,9 @@ public class AccessControlAdminController {
       @CurrentContext TchRequestContext ctx,
       @PathVariable UserId userId,
       @RequestParam(required = false, name = "tenant_id") UUID tenantId) {
-    return ApiResponse.success(accessControlApi.getEffectivePermissions(
-        new GetEffectivePermissionsRequest(userId, effectiveTenant(ctx, tenantId))));
+    return ApiResponse.success(
+        accessControlApi.getEffectivePermissions(
+            new GetEffectivePermissionsRequest(userId, effectiveTenant(ctx, tenantId))));
   }
 
   // ─── Role assignment ──────────────────────────────────────────────────────
@@ -106,7 +110,8 @@ public class AccessControlAdminController {
       @PathVariable String roleCode,
       @RequestParam(required = false, name = "tenant_id") UUID tenantId) {
     accessControlApi.assignRoleToUser(
-        new AssignRoleToUserRequest(effectiveTenant(ctx, tenantId), userId, roleCode, ctx.currentUserIdRequired()));
+        new AssignRoleToUserRequest(
+            effectiveTenant(ctx, tenantId), userId, roleCode, ctx.currentUserIdRequired()));
     return ApiResponse.success(null);
   }
 
@@ -123,7 +128,8 @@ public class AccessControlAdminController {
       @PathVariable UserId userId,
       @PathVariable String roleCode,
       @RequestParam(required = false, name = "tenant_id") UUID tenantId) {
-    accessControlApi.removeRoleFromUser(new RemoveRoleFromUserRequest(effectiveTenant(ctx, tenantId), userId, roleCode));
+    accessControlApi.removeRoleFromUser(
+        new RemoveRoleFromUserRequest(effectiveTenant(ctx, tenantId), userId, roleCode));
     return ApiResponse.success(null);
   }
 
@@ -143,10 +149,13 @@ public class AccessControlAdminController {
       @PathVariable String permissionCode,
       @RequestParam(required = false, name = "tenant_id") UUID tenantId,
       @RequestBody(required = false) OverrideReasonRequest body) {
-    accessControlApi.grantUserPermission(new GrantUserPermissionRequest(
-        effectiveTenant(ctx, tenantId), userId, permissionCode,
-        body != null ? body.reason() : null,
-        ctx.currentUserIdRequired()));
+    accessControlApi.grantUserPermission(
+        new GrantUserPermissionRequest(
+            effectiveTenant(ctx, tenantId),
+            userId,
+            permissionCode,
+            body != null ? body.reason() : null,
+            ctx.currentUserIdRequired()));
     return ApiResponse.success(null);
   }
 
@@ -164,10 +173,13 @@ public class AccessControlAdminController {
       @PathVariable String permissionCode,
       @RequestParam(required = false, name = "tenant_id") UUID tenantId,
       @RequestBody(required = false) OverrideReasonRequest body) {
-    accessControlApi.denyUserPermission(new DenyUserPermissionRequest(
-        effectiveTenant(ctx, tenantId), userId, permissionCode,
-        body != null ? body.reason() : null,
-        ctx.currentUserIdRequired()));
+    accessControlApi.denyUserPermission(
+        new DenyUserPermissionRequest(
+            effectiveTenant(ctx, tenantId),
+            userId,
+            permissionCode,
+            body != null ? body.reason() : null,
+            ctx.currentUserIdRequired()));
     return ApiResponse.success(null);
   }
 
@@ -185,7 +197,8 @@ public class AccessControlAdminController {
       @PathVariable String permissionCode,
       @RequestParam(required = false, name = "tenant_id") UUID tenantId) {
     accessControlApi.removeUserPermissionOverride(
-        new RemoveUserPermissionOverrideRequest(effectiveTenant(ctx, tenantId), userId, permissionCode));
+        new RemoveUserPermissionOverrideRequest(
+            effectiveTenant(ctx, tenantId), userId, permissionCode));
     return ApiResponse.success(null);
   }
 
@@ -194,10 +207,14 @@ public class AccessControlAdminController {
   @Operation(summary = "Bootstrap access-control matrix (platform ops)")
   @PostMapping("/bootstrap/{mode}")
   @PreAuthorize("hasRole('SUPER_ADMIN') and hasPermission(null, 'platform.ops.execute')")
-  @AuditLog(action = AuditAction.UPDATE, entity = AuditEntityType.SYSTEM, idExpression = "'access-control-bootstrap'")
+  @AuditLog(
+      action = AuditAction.UPDATE,
+      entity = AuditEntityType.SYSTEM,
+      idExpression = "'access-control-bootstrap'")
   public ApiResponse<BootstrapAccessControlResult> bootstrap(@PathVariable String mode) {
-    var request = new BootstrapAccessControlRequest(
-        BootstrapAccessControlRequest.BootstrapMode.valueOf(mode.toUpperCase()));
+    var request =
+        new BootstrapAccessControlRequest(
+            BootstrapAccessControlRequest.BootstrapMode.valueOf(mode.toUpperCase()));
     return ApiResponse.success(accessControlApi.bootstrap(request));
   }
 

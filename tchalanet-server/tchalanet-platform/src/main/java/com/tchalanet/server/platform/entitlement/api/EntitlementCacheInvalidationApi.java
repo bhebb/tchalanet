@@ -4,5 +4,5 @@ import com.tchalanet.server.common.types.id.TenantId;
 
 public interface EntitlementCacheInvalidationApi {
 
-    void evictTenantSnapshot(TenantId tenantId);
+  void evictTenantSnapshot(TenantId tenantId);
 }

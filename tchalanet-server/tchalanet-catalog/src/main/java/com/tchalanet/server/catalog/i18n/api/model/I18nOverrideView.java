@@ -7,21 +7,19 @@ import java.time.Instant;
 /**
  * Public catalog view for i18n overrides.
  *
- * level:
- *  - GLOBAL: applies to all tenants (tenantId null)
- *  - TENANT: applies to current tenant (tenantId non-null)
+ * <p>level: - GLOBAL: applies to all tenants (tenantId null) - TENANT: applies to current tenant
+ * (tenantId non-null)
  *
- * surface: where this translation is used/exposed (e.g. PUBLIC_HOME, CASHIER, INTERNAL).
+ * <p>surface: where this translation is used/exposed (e.g. PUBLIC_HOME, CASHIER, INTERNAL).
  */
 public record I18nOverrideView(
     I18nOverrideId id,
     I18nOverrideLevel level,
-    TenantId tenantId,     // null for GLOBAL
+    TenantId tenantId, // null for GLOBAL
     I18nSurface surface,
-    String locale,         // fr/en/ht
+    String locale, // fr/en/ht
     String i18nKey,
     String i18nValue,
     boolean active,
     Instant createdAt,
-    Instant updatedAt
-) {}
+    Instant updatedAt) {}

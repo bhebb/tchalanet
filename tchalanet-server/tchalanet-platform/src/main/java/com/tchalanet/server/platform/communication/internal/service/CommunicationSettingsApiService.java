@@ -12,17 +12,20 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 class CommunicationSettingsApiService implements CommunicationSettingsApi {
 
-    private final CommunicationSettingsJpaRepository settings;
+  private final CommunicationSettingsJpaRepository settings;
 
-    @Override
-    @Transactional(readOnly = true)
-    public TenantCommunicationSettingsView getTenantSettings(TenantId tenantId) {
-        return settings.findByTenantId(tenantId.value())
-            .map(row -> new TenantCommunicationSettingsView(
-                row.isEmailEnabled(),
-                row.getCriticalAlertEmail(),
-                row.getOpsAlertEmail(),
-                row.getDefaultLocale()))
-            .orElseGet(() -> new TenantCommunicationSettingsView(true, null, null, "fr"));
-    }
+  @Override
+  @Transactional(readOnly = true)
+  public TenantCommunicationSettingsView getTenantSettings(TenantId tenantId) {
+    return settings
+        .findByTenantId(tenantId.value())
+        .map(
+            row ->
+                new TenantCommunicationSettingsView(
+                    row.isEmailEnabled(),
+                    row.getCriticalAlertEmail(),
+                    row.getOpsAlertEmail(),
+                    row.getDefaultLocale()))
+        .orElseGet(() -> new TenantCommunicationSettingsView(true, null, null, "fr"));
+  }
 }

@@ -13,12 +13,12 @@ import lombok.RequiredArgsConstructor;
 public class GetTicketReceiptViewQueryHandler
     implements QueryHandler<GetTicketReceiptViewQuery, TicketReceiptView> {
 
-    private final TicketPrintReaderPort reader;
-    private final TicketReceiptAssembler assembler;
+  private final TicketPrintReaderPort reader;
+  private final TicketReceiptAssembler assembler;
 
-    @Override
-    public TicketReceiptView handle(GetTicketReceiptViewQuery query) {
-        var printView = reader.findPrintViewRequired(query.ticketId());
-        return assembler.assemble(printView, null);
-    }
+  @Override
+  public TicketReceiptView handle(GetTicketReceiptViewQuery query) {
+    var printView = reader.findPrintViewRequired(query.ticketId());
+    return assembler.assemble(printView, null);
+  }
 }

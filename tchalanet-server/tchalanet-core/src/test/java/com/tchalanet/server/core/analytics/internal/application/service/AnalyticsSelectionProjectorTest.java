@@ -36,7 +36,8 @@ import org.mockito.ArgumentCaptor;
 
 class AnalyticsSelectionProjectorTest {
 
-  private static final TenantId TENANT_ID = TenantId.of(UUID.fromString("10000000-0000-0000-0000-000000000001"));
+  private static final TenantId TENANT_ID =
+      TenantId.of(UUID.fromString("10000000-0000-0000-0000-000000000001"));
   private static final DrawChannelId DRAW_CHANNEL_ID =
       DrawChannelId.of(UUID.fromString("20000000-0000-0000-0000-000000000001"));
   private static final CurrencyCode HTG = CurrencyCode.of("HTG");
@@ -52,21 +53,21 @@ class AnalyticsSelectionProjectorTest {
 
     var gameCodeCaptor = ArgumentCaptor.forClass(String.class);
     var stakeCaptor = ArgumentCaptor.forClass(Long.class);
-    verify(repository, org.mockito.Mockito.times(2)).upsertAndIncrement(
-        org.mockito.Mockito.eq(TENANT_ID.value()),
-        org.mockito.Mockito.eq(REF_DATE),
-        org.mockito.Mockito.eq(DRAW_CHANNEL_ID.value()),
-        gameCodeCaptor.capture(),
-        org.mockito.Mockito.anyString(),
-        org.mockito.Mockito.any(),
-        org.mockito.Mockito.anyString(),
-        org.mockito.Mockito.eq(1L),
-        stakeCaptor.capture(),
-        org.mockito.Mockito.eq(0L));
+    verify(repository, org.mockito.Mockito.times(2))
+        .upsertAndIncrement(
+            org.mockito.Mockito.eq(TENANT_ID.value()),
+            org.mockito.Mockito.eq(REF_DATE),
+            org.mockito.Mockito.eq(DRAW_CHANNEL_ID.value()),
+            gameCodeCaptor.capture(),
+            org.mockito.Mockito.anyString(),
+            org.mockito.Mockito.any(),
+            org.mockito.Mockito.anyString(),
+            org.mockito.Mockito.eq(1L),
+            stakeCaptor.capture(),
+            org.mockito.Mockito.eq(0L));
 
-    assertThat(gameCodeCaptor.getAllValues()).containsExactly(
-        GameCode.HT_BOLET.name(),
-        GameCode.HT_MARYAJ_GRATIS.name());
+    assertThat(gameCodeCaptor.getAllValues())
+        .containsExactly(GameCode.HT_BOLET.name(), GameCode.HT_MARYAJ_GRATIS.name());
     assertThat(stakeCaptor.getAllValues()).containsExactly(1_000L, 0L);
   }
 
@@ -128,7 +129,9 @@ class AnalyticsSelectionProjectorTest {
         betOption,
         stake,
         origin,
-        origin == TicketLineOrigin.PROMOTION ? TicketLinePricingSource.PROMOTION : TicketLinePricingSource.STANDARD,
+        origin == TicketLineOrigin.PROMOTION
+            ? TicketLinePricingSource.PROMOTION
+            : TicketLinePricingSource.STANDARD,
         origin == TicketLineOrigin.PROMOTION
             ? TicketLineSelectionSource.PROMOTION_GENERATED
             : TicketLineSelectionSource.CUSTOMER_SELECTED,

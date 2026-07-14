@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service;
 /**
  * Manages the external RSS feed cache.
  *
- * <p>Fix from spec: reading ({@link #getExternalSnapshot}) is cache-only and never triggers
- * a live HTTP fetch. Only {@link #refreshExternalSnapshot} fetches from the RSS provider.
+ * <p>Fix from spec: reading ({@link #getExternalSnapshot}) is cache-only and never triggers a live
+ * HTTP fetch. Only {@link #refreshExternalSnapshot} fetches from the RSS provider.
  */
 @Service
 @RequiredArgsConstructor
@@ -23,8 +23,8 @@ public class ExternalRssNewsService {
   private final CacheKeyBuilder cacheKeyBuilder;
 
   /**
-   * Return current cached external snapshot — cache-only, no HTTP call.
-   * Returns empty list when cache is cold (before first scheduled refresh).
+   * Return current cached external snapshot — cache-only, no HTTP call. Returns empty list when
+   * cache is cold (before first scheduled refresh).
    */
   public List<PublicContentItem> getExternalSnapshot() {
     return cache.getExternalSnapshot(cacheKeyBuilder.newsExternalKey());
@@ -41,7 +41,10 @@ public class ExternalRssNewsService {
       log.info("publiccontent: refreshed external RSS snapshot ({} items)", items.size());
       return items;
     } catch (Exception e) {
-      log.error("publiccontent: failed to refresh external RSS — keeping stale cache: {}", e.getMessage(), e);
+      log.error(
+          "publiccontent: failed to refresh external RSS — keeping stale cache: {}",
+          e.getMessage(),
+          e);
       return getExternalSnapshot();
     }
   }

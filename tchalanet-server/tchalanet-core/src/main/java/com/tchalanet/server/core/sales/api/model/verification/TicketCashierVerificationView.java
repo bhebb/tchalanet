@@ -21,5 +21,4 @@ public record TicketCashierVerificationView(
     Money winningAmount,
     Instant placedAt,
     DrawId drawId,
-    Instant drawScheduledAt
-) {}
+    Instant drawScheduledAt) {}

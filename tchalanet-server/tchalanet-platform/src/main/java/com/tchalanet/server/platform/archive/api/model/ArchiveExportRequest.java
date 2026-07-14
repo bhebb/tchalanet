@@ -8,8 +8,8 @@ import java.util.UUID;
  *
  * <p>{@code tenantId} is {@code null} for global/platform datasets.
  *
- * <p>Providers call {@link RowSink#accept} once per row. The executor wraps the
- * sink to stream rows through the gzip writer — providers never touch storage directly.
+ * <p>Providers call {@link RowSink#accept} once per row. The executor wraps the sink to stream rows
+ * through the gzip writer — providers never touch storage directly.
  */
 public record ArchiveExportRequest(
     UUID archiveRunId,
@@ -17,8 +17,7 @@ public record ArchiveExportRequest(
     ArchivePeriod period,
     UUID tenantId,
     int segmentNo,
-    RowSink rowSink
-) {
+    RowSink rowSink) {
 
   @FunctionalInterface
   public interface RowSink {

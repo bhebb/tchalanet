@@ -10,28 +10,31 @@ import org.springframework.data.repository.NoRepositoryBean;
 public interface TchJpaRepository<T extends AuditableEntity, ID>
     extends JpaRepository<T, ID>, JpaSpecificationExecutor<T> {
 
-    @Override
-    default void delete(T entity) {
-        throw new UnsupportedOperationException("Hard delete is forbidden. Use SoftDeleteExecutor.softDelete.");
-    }
+  @Override
+  default void delete(T entity) {
+    throw new UnsupportedOperationException(
+        "Hard delete is forbidden. Use SoftDeleteExecutor.softDelete.");
+  }
 
-    @Override
-    default void deleteById(ID id) {
-        throw new UnsupportedOperationException("Hard delete is forbidden. Use SoftDeleteExecutor.softDeleteById.");
-    }
+  @Override
+  default void deleteById(ID id) {
+    throw new UnsupportedOperationException(
+        "Hard delete is forbidden. Use SoftDeleteExecutor.softDeleteById.");
+  }
 
-    @Override
-    default void deleteAll() {
-        throw new UnsupportedOperationException("Hard delete is forbidden. Use SoftDeleteExecutor.softDelete.");
-    }
+  @Override
+  default void deleteAll() {
+    throw new UnsupportedOperationException(
+        "Hard delete is forbidden. Use SoftDeleteExecutor.softDelete.");
+  }
 
-    @Override
-    default void deleteAll(Iterable<? extends T> entities) {
-        throw new UnsupportedOperationException("Hard delete is forbidden. Use SoftDeleteExecutor.softDelete.");
-    }
+  @Override
+  default void deleteAll(Iterable<? extends T> entities) {
+    throw new UnsupportedOperationException(
+        "Hard delete is forbidden. Use SoftDeleteExecutor.softDelete.");
+  }
 
-    default T getRequired(ID id) {
-        return findById(id)
-            .orElseThrow(() -> ProblemRest.notFound("entity.not_found", id));
-    }
+  default T getRequired(ID id) {
+    return findById(id).orElseThrow(() -> ProblemRest.notFound("entity.not_found", id));
+  }
 }

@@ -13,156 +13,147 @@ import com.tchalanet.server.features.pagemodel.runtime.PageRuntimeAssembler;
 import com.tchalanet.server.features.pagemodel.runtime.PageRuntimeResponse;
 import com.tchalanet.server.features.pagemodel.security.PageModelAccessPolicy;
 import com.tchalanet.server.features.pagemodel.shared.LangResolver;
-import com.tchalanet.server.platform.tenant.api.TenantPreContextLookupApi;
 import com.tchalanet.server.platform.tenant.api.TenantConfigApi;
+import com.tchalanet.server.platform.tenant.api.TenantPreContextLookupApi;
 import com.tchalanet.server.platform.tenant.api.model.TenantContextLookupView;
 import com.tchalanet.server.platform.tenant.api.model.request.GetTenantByIdRequest;
 import com.tchalanet.server.platform.tenant.api.model.view.TenantInternalSettings;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 /**
  * Private dashboard PageModel resolver.
- * <p>
- * Private rule:
- * - Requires authenticated context.
- * - Checks access before dynamic providers.
- * - Blocks unsafe tenant override.
- * - Checks access again after document resolution.
+ *
+ * <p>Private rule: - Requires authenticated context. - Checks access before dynamic providers. -
+ * Blocks unsafe tenant override. - Checks access again after document resolution.
  */
 @Service
 @RequiredArgsConstructor
 public class DashboardPageModelService {
 
-    private final QueryBus queryBus;
-    private final TchContextResolver contextResolver;
-    private final LangResolver langResolver;
-    private final PageModelDynamicResolver dynamicResolver;
-    private final PageModelAccessPolicy accessPolicy;
-    private final PageRuntimeAssembler runtimeAssembler;
-    private final TenantConfigApi tenantConfigApi;
-    private final TenantPreContextLookupApi tenantLookupApi;
+  private final QueryBus queryBus;
+  private final TchContextResolver contextResolver;
+  private final LangResolver langResolver;
+  private final PageModelDynamicResolver dynamicResolver;
+  private final PageModelAccessPolicy accessPolicy;
+  private final PageRuntimeAssembler runtimeAssembler;
+  private final TenantConfigApi tenantConfigApi;
+  private final TenantPreContextLookupApi tenantLookupApi;
 
-    public PageRuntimeResponse resolve(
-        String logicalId, Optional<TenantId> tenantIdOverride, Optional<String> langFromUrl) {
-        var ctxHolder = contextResolver.currentOrNull();
+  public PageRuntimeResponse resolve(
+      String logicalId, Optional<TenantId> tenantIdOverride, Optional<String> langFromUrl) {
+    var ctxHolder = contextResolver.currentOrNull();
 
-        if (ctxHolder == null) {
-            throw new TchForbiddenException(
-                "PAGE_MODEL_ACCESS_DENIED",
-                "Authentication required");
-        }
-
-        var currentRole = ctxHolder.currentRole();
-
-        if (!accessPolicy.permits(logicalId, currentRole)) {
-            throw new TchForbiddenException(
-                "PAGE_MODEL_ACCESS_DENIED",
-                "Role " + currentRole + " is not authorized to access PageModel: " + logicalId);
-        }
-
-        if (tenantIdOverride.isPresent() && !accessPolicy.canOverrideTenant(currentRole)) {
-            throw new TchForbiddenException(
-                "TENANT_OVERRIDE_DENIED",
-                "Current role cannot override tenant context");
-        }
-
-        Optional<TenantId> tenantId =
-            tenantIdOverride.isPresent()
-                ? tenantIdOverride
-                : Optional.ofNullable(ctxHolder.tenantId());
-
-        PageModelDoc doc = queryBus.ask(new ResolveEffectivePageModelQuery(tenantId, logicalId));
-
-        if (doc == null) {
-            throw new TchNotFoundException(
-                "PAGE_MODEL_NOT_FOUND",
-                "Page model not found: " + logicalId);
-        }
-
-        accessPolicy.assertCanAccess(logicalId, doc, ctxHolder);
-
-        var currentLang = resolveLang(doc, langFromUrl);
-        var dynamic = dynamicResolver.resolve(doc, currentLang, ctxHolder);
-
-        return withTenantSettings(logicalId, ctxHolder, runtimeAssembler.assemble(doc, dynamic));
+    if (ctxHolder == null) {
+      throw new TchForbiddenException("PAGE_MODEL_ACCESS_DENIED", "Authentication required");
     }
 
-    private String resolveLang(PageModelDoc doc, Optional<String> langFromUrl) {
-        boolean hasDocLangs = doc.meta() != null
-            && doc.meta().langs() != null
-            && !doc.meta().langs().isEmpty();
+    var currentRole = ctxHolder.currentRole();
 
-        return langResolver.resolve(
-            new LangResolver.LangResolverContext(
-                langFromUrl,
-                Optional.empty(),
-                Optional.empty(),
-                Optional.ofNullable(doc.meta() != null ? doc.meta().defaultLang() : null),
-                hasDocLangs ? doc.meta().langs() : List.of(),
-                "fr"));
+    if (!accessPolicy.permits(logicalId, currentRole)) {
+      throw new TchForbiddenException(
+          "PAGE_MODEL_ACCESS_DENIED",
+          "Role " + currentRole + " is not authorized to access PageModel: " + logicalId);
     }
 
-    private PageRuntimeResponse withTenantSettings(
-        String logicalId,
-        com.tchalanet.server.common.context.TchRequestContext ctx,
-        PageRuntimeResponse response) {
-        if (!PageModelType.DASHBOARD_TENANT_ADMIN.logicalId().equals(logicalId)
-            || ctx == null
-            || ctx.effectiveTenantIdOrNull() == null
-            || response == null
-            || response.dynamic() == null) {
-            return response;
-        }
-
-        try {
-            var tenantId = ctx.tenantIdRequired();
-            TenantContextLookupView tenant = tenantLookupApi.findById(tenantId).orElse(null);
-            TenantInternalSettings settings = tenantConfigApi.getTenantInternalSettings(new GetTenantByIdRequest(tenantId));
-            Map<String, Object> widgets = new LinkedHashMap<>(response.dynamic().widgets());
-            widgets.put("tenant.settings", TenantDashboardSettingsPayload.from(tenant, settings));
-            return new PageRuntimeResponse(
-                response.meta(),
-                response.theme(),
-                response.shell(),
-                response.content(),
-                new PageRuntimeResponse.DynamicPayload(widgets, response.dynamic().errors()));
-        } catch (RuntimeException e) {
-            return response;
-        }
+    if (tenantIdOverride.isPresent() && !accessPolicy.canOverrideTenant(currentRole)) {
+      throw new TchForbiddenException(
+          "TENANT_OVERRIDE_DENIED", "Current role cannot override tenant context");
     }
 
-    private record TenantDashboardSettingsPayload(
-        String tenantCode,
-        String displayName,
-        String timezone,
-        String currency,
-        String defaultLanguage,
-        String defaultLocale,
-        List<String> supportedLanguages,
-        List<String> supportedCurrencies,
-        String fallbackLanguage,
-        TenantInternalSettings settings) {
+    Optional<TenantId> tenantId =
+        tenantIdOverride.isPresent() ? tenantIdOverride : Optional.ofNullable(ctxHolder.tenantId());
 
-        static TenantDashboardSettingsPayload from(TenantContextLookupView tenant, TenantInternalSettings settings) {
-            var locale = settings != null ? settings.locale() : null;
-            return new TenantDashboardSettingsPayload(
-                tenant != null ? tenant.code() : null,
-                tenant != null ? tenant.displayName() : null,
-                tenant != null && tenant.timezone() != null ? tenant.timezone().getId() : null,
-                tenant != null && tenant.currency() != null ? tenant.currency().getCurrencyCode() : null,
-                tenant != null ? tenant.defaultLanguage() : null,
-                tenant != null ? tenant.defaultLocale() : null,
-                locale != null ? locale.effectiveSupportedLanguages() : List.of(),
-                tenant != null && tenant.currency() != null ? List.of(tenant.currency().getCurrencyCode()) : List.of(),
-                locale != null ? locale.fallbackLanguage() : null,
-                settings);
-        }
+    PageModelDoc doc = queryBus.ask(new ResolveEffectivePageModelQuery(tenantId, logicalId));
+
+    if (doc == null) {
+      throw new TchNotFoundException("PAGE_MODEL_NOT_FOUND", "Page model not found: " + logicalId);
     }
 
+    accessPolicy.assertCanAccess(logicalId, doc, ctxHolder);
+
+    var currentLang = resolveLang(doc, langFromUrl);
+    var dynamic = dynamicResolver.resolve(doc, currentLang, ctxHolder);
+
+    return withTenantSettings(logicalId, ctxHolder, runtimeAssembler.assemble(doc, dynamic));
+  }
+
+  private String resolveLang(PageModelDoc doc, Optional<String> langFromUrl) {
+    boolean hasDocLangs =
+        doc.meta() != null && doc.meta().langs() != null && !doc.meta().langs().isEmpty();
+
+    return langResolver.resolve(
+        new LangResolver.LangResolverContext(
+            langFromUrl,
+            Optional.empty(),
+            Optional.empty(),
+            Optional.ofNullable(doc.meta() != null ? doc.meta().defaultLang() : null),
+            hasDocLangs ? doc.meta().langs() : List.of(),
+            "fr"));
+  }
+
+  private PageRuntimeResponse withTenantSettings(
+      String logicalId,
+      com.tchalanet.server.common.context.TchRequestContext ctx,
+      PageRuntimeResponse response) {
+    if (!PageModelType.DASHBOARD_TENANT_ADMIN.logicalId().equals(logicalId)
+        || ctx == null
+        || ctx.effectiveTenantIdOrNull() == null
+        || response == null
+        || response.dynamic() == null) {
+      return response;
+    }
+
+    try {
+      var tenantId = ctx.tenantIdRequired();
+      TenantContextLookupView tenant = tenantLookupApi.findById(tenantId).orElse(null);
+      TenantInternalSettings settings =
+          tenantConfigApi.getTenantInternalSettings(new GetTenantByIdRequest(tenantId));
+      Map<String, Object> widgets = new LinkedHashMap<>(response.dynamic().widgets());
+      widgets.put("tenant.settings", TenantDashboardSettingsPayload.from(tenant, settings));
+      return new PageRuntimeResponse(
+          response.meta(),
+          response.theme(),
+          response.shell(),
+          response.content(),
+          new PageRuntimeResponse.DynamicPayload(widgets, response.dynamic().errors()));
+    } catch (RuntimeException e) {
+      return response;
+    }
+  }
+
+  private record TenantDashboardSettingsPayload(
+      String tenantCode,
+      String displayName,
+      String timezone,
+      String currency,
+      String defaultLanguage,
+      String defaultLocale,
+      List<String> supportedLanguages,
+      List<String> supportedCurrencies,
+      String fallbackLanguage,
+      TenantInternalSettings settings) {
+
+    static TenantDashboardSettingsPayload from(
+        TenantContextLookupView tenant, TenantInternalSettings settings) {
+      var locale = settings != null ? settings.locale() : null;
+      return new TenantDashboardSettingsPayload(
+          tenant != null ? tenant.code() : null,
+          tenant != null ? tenant.displayName() : null,
+          tenant != null && tenant.timezone() != null ? tenant.timezone().getId() : null,
+          tenant != null && tenant.currency() != null ? tenant.currency().getCurrencyCode() : null,
+          tenant != null ? tenant.defaultLanguage() : null,
+          tenant != null ? tenant.defaultLocale() : null,
+          locale != null ? locale.effectiveSupportedLanguages() : List.of(),
+          tenant != null && tenant.currency() != null
+              ? List.of(tenant.currency().getCurrencyCode())
+              : List.of(),
+          locale != null ? locale.fallbackLanguage() : null,
+          settings);
+    }
+  }
 }

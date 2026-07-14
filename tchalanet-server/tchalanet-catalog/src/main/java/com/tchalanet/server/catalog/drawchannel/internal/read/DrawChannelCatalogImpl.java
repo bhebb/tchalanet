@@ -1,6 +1,5 @@
 package com.tchalanet.server.catalog.drawchannel.internal.read;
 
-import tools.jackson.databind.JsonNode;
 import com.tchalanet.server.catalog.drawchannel.api.DrawChannelCatalog;
 import com.tchalanet.server.catalog.drawchannel.api.model.*;
 import com.tchalanet.server.catalog.drawchannel.internal.cache.DrawChannelCacheNames;
@@ -9,11 +8,11 @@ import com.tchalanet.server.catalog.drawchannel.internal.mapper.DrawChannelMappe
 import com.tchalanet.server.catalog.drawchannel.internal.persistence.DrawChannelEntity;
 import com.tchalanet.server.catalog.drawchannel.internal.persistence.DrawChannelGameRepository;
 import com.tchalanet.server.catalog.drawchannel.internal.persistence.DrawChannelRepository;
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.ResultSlotId;
 import com.tchalanet.server.common.types.id.TenantGameId;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import java.time.LocalTime;
@@ -27,6 +26,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.databind.JsonNode;
 
 @Service
 @RequiredArgsConstructor
@@ -41,10 +41,9 @@ public class DrawChannelCatalogImpl implements DrawChannelCatalog {
   private final JsonUtils jsonUtils;
 
   /**
-   * RLS NOTE:
-   * - tenant scoping is enforced by PostgreSQL policies using app.current_tenant.
-   * - this method MUST NOT add tenant filters.
-   * - soft-delete visibility MUST be controlled by app.deleted_visibility (RLS), not by code.
+   * RLS NOTE: - tenant scoping is enforced by PostgreSQL policies using app.current_tenant. - this
+   * method MUST NOT add tenant filters. - soft-delete visibility MUST be controlled by
+   * app.deleted_visibility (RLS), not by code.
    */
   @Override
   @Cacheable(value = DrawChannelCacheNames.BY_TENANT, key = "#tenantId.value() + ':' + #activeOnly")
@@ -61,8 +60,8 @@ public class DrawChannelCatalogImpl implements DrawChannelCatalog {
   }
 
   /**
-   * IMPORTANT: tenantId param is for cache key only.
-   * SQL must not filter by tenant; RLS enforces it.
+   * IMPORTANT: tenantId param is for cache key only. SQL must not filter by tenant; RLS enforces
+   * it.
    */
   @Override
   @Cacheable(value = DrawChannelCacheNames.BY_ID, key = "#tenantId.value() + ':' + #id.value()")
@@ -103,7 +102,9 @@ public class DrawChannelCatalogImpl implements DrawChannelCatalog {
       else flags = jsonUtils.parse(rawFlags.toString());
 
       map.computeIfAbsent(code, k -> new ArrayList<>())
-          .add(new GameSummaryView(TenantGameId.nullableOf(tenantGameUuid), gameCode, enabled, flags));
+          .add(
+              new GameSummaryView(
+                  TenantGameId.nullableOf(tenantGameUuid), gameCode, enabled, flags));
     }
 
     List<ChannelGamesView> result = new ArrayList<>();
@@ -114,62 +115,75 @@ public class DrawChannelCatalogImpl implements DrawChannelCatalog {
   }
 
   @Override
-  @Cacheable(value = DrawChannelCacheNames.CALENDAR_ROWS,
+  @Cacheable(
+      value = DrawChannelCacheNames.CALENDAR_ROWS,
       key = "#tenantId.value() + ':' + #activeOnly + ':' + #enabledOnly")
-  public List<DrawChannelCalendarRow> listCalendarRows(TenantId tenantId, Boolean activeOnly, Boolean enabledOnly) {
+  public List<DrawChannelCalendarRow> listCalendarRows(
+      TenantId tenantId, Boolean activeOnly, Boolean enabledOnly) {
     List<Object[]> rows = gameRepository.findCalendarRows();
     List<DrawChannelCalendarRow> result = new ArrayList<>();
 
     for (Object[] r : rows) {
-      String code         = (String) r[0];
+      String code = (String) r[0];
       // r[1] = game_code (not used in row)
       UUID tenantGameUuid = (UUID) r[2];
       // r[3] = tg.id (same as tenant_game_id, redundant)
-      UUID channelUuid    = (UUID) r[4];
+      UUID channelUuid = (UUID) r[4];
       UUID resultSlotUuid = (UUID) r[5];
-      String timezone     = (String) r[6];
-      LocalTime drawTime  = r[7] == null ? null : (r[7] instanceof java.sql.Time t ? t.toLocalTime() : LocalTime.parse(r[7].toString()));
-      LocalTime salesOpen = r[8] == null ? null : (r[8] instanceof java.sql.Time t ? t.toLocalTime() : LocalTime.parse(r[8].toString()));
-      int cutoffSec       = r[9] == null ? 0 : ((Number) r[9]).intValue();
-      String daysOfWeek   = (String) r[10];
-      String defaultSrc   = (String) r[11];
+      String timezone = (String) r[6];
+      LocalTime drawTime =
+          r[7] == null
+              ? null
+              : (r[7] instanceof java.sql.Time t
+                  ? t.toLocalTime()
+                  : LocalTime.parse(r[7].toString()));
+      LocalTime salesOpen =
+          r[8] == null
+              ? null
+              : (r[8] instanceof java.sql.Time t
+                  ? t.toLocalTime()
+                  : LocalTime.parse(r[8].toString()));
+      int cutoffSec = r[9] == null ? 0 : ((Number) r[9]).intValue();
+      String daysOfWeek = (String) r[10];
+      String defaultSrc = (String) r[11];
       boolean channelActive = r[12] != null && (Boolean) r[12];
-      boolean dcgEnabled    = r[13] != null && (Boolean) r[13];
-      int sortOrder         = r[14] == null ? 0 : ((Number) r[14]).intValue();
-      UUID dependsOn        = (UUID) r[15];
+      boolean dcgEnabled = r[13] != null && (Boolean) r[13];
+      int sortOrder = r[14] == null ? 0 : ((Number) r[14]).intValue();
+      UUID dependsOn = (UUID) r[15];
 
       if (Boolean.TRUE.equals(activeOnly) && !channelActive) continue;
       if (Boolean.TRUE.equals(enabledOnly) && !dcgEnabled) continue;
 
-      result.add(new DrawChannelCalendarRow(
-          DrawChannelId.of(channelUuid),
-          TenantGameId.of(tenantGameUuid),
-          code,
-          timezone,
-          drawTime,
-          salesOpen,
-          cutoffSec,
-          daysOfWeek,
-          ResultSlotId.of(resultSlotUuid),
-          defaultSrc,
-          channelActive,
-          dcgEnabled,
-          sortOrder,
-          dependsOn == null ? null : DrawChannelId.of(dependsOn)
-      ));
+      result.add(
+          new DrawChannelCalendarRow(
+              DrawChannelId.of(channelUuid),
+              TenantGameId.of(tenantGameUuid),
+              code,
+              timezone,
+              drawTime,
+              salesOpen,
+              cutoffSec,
+              daysOfWeek,
+              ResultSlotId.of(resultSlotUuid),
+              defaultSrc,
+              channelActive,
+              dcgEnabled,
+              sortOrder,
+              dependsOn == null ? null : DrawChannelId.of(dependsOn)));
     }
     return result;
   }
 
   @Override
-  public TchPage<DrawChannelView> search(DrawChannelSearchCriteria criteria, TchPageRequest pageReq) {
+  public TchPage<DrawChannelView> search(
+      DrawChannelSearchCriteria criteria, TchPageRequest pageReq) {
     Specification<DrawChannelEntity> spec = buildSpecification(criteria);
 
-    PageRequest springPageRequest = PageRequest.of(
-        pageReq.pageable().getPageNumber(),
-        pageReq.pageable().getPageSize(),
-        pageReq.pageable().getSort()
-    );
+    PageRequest springPageRequest =
+        PageRequest.of(
+            pageReq.pageable().getPageNumber(),
+            pageReq.pageable().getPageSize(),
+            pageReq.pageable().getSort());
 
     Page<DrawChannelEntity> page = repository.findAll(spec, springPageRequest);
     List<DrawChannelView> items = page.getContent().stream().map(mapper::toView).toList();
@@ -182,8 +196,7 @@ public class DrawChannelCatalogImpl implements DrawChannelCatalog {
         page.getTotalPages(),
         page.isLast(),
         page.hasNext(),
-        page.hasPrevious()
-    );
+        page.hasPrevious());
   }
 
   private Specification<DrawChannelEntity> buildSpecification(DrawChannelSearchCriteria criteria) {
@@ -196,22 +209,35 @@ public class DrawChannelCatalogImpl implements DrawChannelCatalog {
     }
 
     if (criteria.code() != null && !criteria.code().isBlank()) {
-      spec = spec.and((root, query, cb) ->
-          cb.equal(cb.lower(root.get("code")), criteria.code().trim().toLowerCase()));
+      spec =
+          spec.and(
+              (root, query, cb) ->
+                  cb.equal(cb.lower(root.get("code")), criteria.code().trim().toLowerCase()));
     }
 
     if (criteria.nameContains() != null && !criteria.nameContains().isBlank()) {
-      spec = spec.and((root, query, cb) ->
-          cb.like(cb.lower(root.get("name")), "%" + criteria.nameContains().toLowerCase() + "%"));
+      spec =
+          spec.and(
+              (root, query, cb) ->
+                  cb.like(
+                      cb.lower(root.get("name")),
+                      "%" + criteria.nameContains().toLowerCase() + "%"));
     }
 
     if (criteria.resultSlotId() != null) {
-      spec = spec.and((root, query, cb) -> cb.equal(root.get("resultSlotId"), criteria.resultSlotId().value()));
+      spec =
+          spec.and(
+              (root, query, cb) ->
+                  cb.equal(root.get("resultSlotId"), criteria.resultSlotId().value()));
     }
 
     if (criteria.externalProvider() != null && !criteria.externalProvider().isBlank()) {
-      spec = spec.and((root, query, cb) ->
-          cb.equal(cb.lower(root.get("externalProvider")), criteria.externalProvider().trim().toLowerCase()));
+      spec =
+          spec.and(
+              (root, query, cb) ->
+                  cb.equal(
+                      cb.lower(root.get("externalProvider")),
+                      criteria.externalProvider().trim().toLowerCase()));
     }
 
     return spec;
@@ -219,10 +245,7 @@ public class DrawChannelCatalogImpl implements DrawChannelCatalog {
 
   @Override
   public List<DrawChannelView> listAllFull(TenantId tenantId) {
-    return repository.findAllByOrderBySortOrderAsc()
-        .stream()
-        .map(mapper::toView)
-        .toList();
+    return repository.findAllByOrderBySortOrderAsc().stream().map(mapper::toView).toList();
   }
 
   @Override
@@ -240,7 +263,8 @@ public class DrawChannelCatalogImpl implements DrawChannelCatalog {
 
     LocalTime drawTime = e.getDrawTime();
     int cutoffSec = e.getCutoffSec();
-    LocalTime cutoffTime = (drawTime == null) ? null : drawTime.minusSeconds(Math.max(0, cutoffSec));
+    LocalTime cutoffTime =
+        (drawTime == null) ? null : drawTime.minusSeconds(Math.max(0, cutoffSec));
 
     return new DrawChannelSummaryView(
         e.getId() == null ? null : e.getId().toString(),
@@ -249,8 +273,6 @@ public class DrawChannelCatalogImpl implements DrawChannelCatalog {
         drawTime,
         cutoffTime,
         zone,
-        e.isActive()
-    );
+        e.isActive());
   }
-
 }

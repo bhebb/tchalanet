@@ -23,9 +23,12 @@ class FirebaseProviderSessionTokenIssuer implements ProviderSessionTokenIssuer {
 
   @Override
   public String createCustomToken(UUID appUserId) {
-    var externalSubject = externalIdentities.findFirstByAppUserIdAndProvider(appUserId, IdentityProviderType.FIREBASE)
-        .orElseThrow(() -> ProblemRest.unprocessable("portal_handoff.external_identity_missing"))
-        .getExternalSubject();
+    var externalSubject =
+        externalIdentities
+            .findFirstByAppUserIdAndProvider(appUserId, IdentityProviderType.FIREBASE)
+            .orElseThrow(
+                () -> ProblemRest.unprocessable("portal_handoff.external_identity_missing"))
+            .getExternalSubject();
     try {
       return firebaseAuth.createCustomToken(externalSubject);
     } catch (FirebaseAuthException ex) {

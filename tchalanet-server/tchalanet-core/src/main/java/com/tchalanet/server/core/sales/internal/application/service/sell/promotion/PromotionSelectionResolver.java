@@ -8,60 +8,63 @@ import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffect;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketCommand;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource;
 import com.tchalanet.server.core.sales.api.model.selection.SelectionGenerationPurpose;
-import com.tchalanet.server.core.selection.api.model.SelectionGenerationStrategy;
 import com.tchalanet.server.core.sales.internal.application.service.sell.generation.SelectionGenerationService;
+import com.tchalanet.server.core.selection.api.model.SelectionGenerationStrategy;
 import org.springframework.stereotype.Component;
 
 @Component
 public class PromotionSelectionResolver {
 
-    private final SelectionGenerationService selectionGenerationService;
+  private final SelectionGenerationService selectionGenerationService;
 
-    public PromotionSelectionResolver(SelectionGenerationService selectionGenerationService) {
-        this.selectionGenerationService = selectionGenerationService;
+  public PromotionSelectionResolver(SelectionGenerationService selectionGenerationService) {
+    this.selectionGenerationService = selectionGenerationService;
+  }
+
+  public record SelectionResult(String rawSelection, TicketLineSelectionSource source) {}
+
+  public SelectionResult resolveSelection(
+      PromotionDecision decision,
+      PromotionEffect effect,
+      SellTicketCommand command,
+      int index,
+      BetType betType,
+      Short betOption) {
+    if (command != null && command.promotionChoices() != null) {
+      var match =
+          command.promotionChoices().stream()
+              .filter(
+                  c ->
+                      c != null
+                          && c.rawSelection() != null
+                          && effect.gameCode() != null
+                          && effect.gameCode().equals(c.gameCode())
+                          && (c.decisionId() == null
+                              || c.decisionId().equals(decision.decisionId()))
+                          && c.index() == index)
+              .findFirst();
+      if (match.isPresent()) {
+        return new SelectionResult(
+            match.get().rawSelection(),
+            match.get().selectionSource() == null
+                ? TicketLineSelectionSource.CUSTOMER_SELECTED
+                : match.get().selectionSource());
+      }
     }
 
-    public record SelectionResult(String rawSelection, TicketLineSelectionSource source) {}
+    if (effect.choiceMode() == PromotionChoiceMode.CUSTOMER_SELECTS
+        || effect.choiceMode() == PromotionChoiceMode.SELLER_SELECTS) {
+      throw new IllegalArgumentException("promotion.free_game_selection_required");
+    }
 
-    public SelectionResult resolveSelection(
-        PromotionDecision decision,
-        PromotionEffect effect,
-        SellTicketCommand command,
-        int index,
-        BetType betType,
-        Short betOption
-    ) {
-        if (command != null && command.promotionChoices() != null) {
-            var match = command.promotionChoices().stream()
-                .filter(c -> c != null
-                    && c.rawSelection() != null
-                    && effect.gameCode() != null
-                    && effect.gameCode().equals(c.gameCode())
-                    && (c.decisionId() == null || c.decisionId().equals(decision.decisionId()))
-                    && c.index() == index)
-                .findFirst();
-            if (match.isPresent()) {
-                return new SelectionResult(
-                    match.get().rawSelection(),
-                    match.get().selectionSource() == null
-                        ? TicketLineSelectionSource.CUSTOMER_SELECTED
-                        : match.get().selectionSource()
-                );
-            }
-        }
-
-        if (effect.choiceMode() == PromotionChoiceMode.CUSTOMER_SELECTS
-            || effect.choiceMode() == PromotionChoiceMode.SELLER_SELECTS) {
-            throw new IllegalArgumentException("promotion.free_game_selection_required");
-        }
-
-        var generated = selectionGenerationService.generate(
+    var generated =
+        selectionGenerationService.generate(
             GameCode.valueOf(effect.gameCode()),
             betType,
             betOption,
             SelectionGenerationStrategy.RANDOM,
-            SelectionGenerationPurpose.PROMOTION_FREE_LINE
-        );
-        return new SelectionResult(generated.key().value(), TicketLineSelectionSource.PROMOTION_GENERATED);
-    }
+            SelectionGenerationPurpose.PROMOTION_FREE_LINE);
+    return new SelectionResult(
+        generated.key().value(), TicketLineSelectionSource.PROMOTION_GENERATED);
+  }
 }

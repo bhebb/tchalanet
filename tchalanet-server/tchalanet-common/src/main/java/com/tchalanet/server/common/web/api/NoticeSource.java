@@ -8,21 +8,17 @@ import jakarta.annotation.Nullable;
  * <p>Keep this small and generic. Feature-specific metadata can still be carried separately, but
  * frontend behavior should rely on these stable fields.
  */
-public record NoticeSource(
-    String source,
-    @Nullable String service,
-    @Nullable String operation
-) {
+public record NoticeSource(String source, @Nullable String service, @Nullable String operation) {
 
-    public static NoticeSource of(String source) {
-        return new NoticeSource(source, null, null);
-    }
+  public static NoticeSource of(String source) {
+    return new NoticeSource(source, null, null);
+  }
 
-    public NoticeSource service(String service) {
-        return new NoticeSource(source, service, operation);
-    }
+  public NoticeSource service(String service) {
+    return new NoticeSource(source, service, operation);
+  }
 
-    public NoticeSource operation(String operation) {
-        return new NoticeSource(source, service, operation);
-    }
+  public NoticeSource operation(String operation) {
+    return new NoticeSource(source, service, operation);
+  }
 }

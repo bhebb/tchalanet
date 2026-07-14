@@ -7,8 +7,8 @@ import java.util.UUID;
 /**
  * Generic view for an archived entity retrieved from object storage.
  *
- * <p>Callers that need typed DTOs (e.g., archived ticket) deserialize
- * {@code payload} with the appropriate schema version.
+ * <p>Callers that need typed DTOs (e.g., archived ticket) deserialize {@code payload} with the
+ * appropriate schema version.
  */
 public record ArchivedEntityView(
     boolean found,
@@ -17,8 +17,7 @@ public record ArchivedEntityView(
     String tableName,
     int schemaVersion,
     String objectUri,
-    List<Map<String, Object>> rows
-) {
+    List<Map<String, Object>> rows) {
 
   public static ArchivedEntityView notFound(UUID entityId) {
     return new ArchivedEntityView(false, entityId, null, null, 0, null, List.of());

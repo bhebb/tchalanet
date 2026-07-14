@@ -11,10 +11,9 @@ public record TicketSalePreviewResult(
     List<SaleIssueView> issues,
     SaleActionAvailability actionAvailability,
     String sellerInstruction,
-    String warning
-) {
-    public TicketSalePreviewResult {
-        Objects.requireNonNull(decision, "decision is required");
-        issues = issues == null ? List.of() : List.copyOf(issues);
-    }
+    String warning) {
+  public TicketSalePreviewResult {
+    Objects.requireNonNull(decision, "decision is required");
+    issues = issues == null ? List.of() : List.copyOf(issues);
+  }
 }

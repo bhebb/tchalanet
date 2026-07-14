@@ -54,15 +54,27 @@ public class PlatformCommunicationOpsController {
       @RequestParam(required = false) UUID tenantId,
       @RequestParam(required = false) String recipient,
       @TchPaging(
-          allowedSort = {"createdAt", "status", "channel", "nextAttemptAt", "sentAt", "failedAt"},
-          defaultSort = {"createdAt,DESC"})
+              allowedSort = {
+                "createdAt",
+                "status",
+                "channel",
+                "nextAttemptAt",
+                "sentAt",
+                "failedAt"
+              },
+              defaultSort = {"createdAt,DESC"})
           TchPageRequest pageReq) {
     var snapshot =
-        opsQueryService.searchMessages(status, channel, tenantId, recipientPattern(recipient), pageReq.pageable());
+        opsQueryService.searchMessages(
+            status, channel, tenantId, recipientPattern(recipient), pageReq.pageable());
 
-    var mapped = TchPageMapper.map(
-        snapshot.messages(),
-        message -> toMessageView(message, snapshot.attemptsByMessage().getOrDefault(message.getId(), List.of())));
+    var mapped =
+        TchPageMapper.map(
+            snapshot.messages(),
+            message ->
+                toMessageView(
+                    message,
+                    snapshot.attemptsByMessage().getOrDefault(message.getId(), List.of())));
     return ApiResponse.success(new CommunicationQueueView(summary(snapshot.summary()), mapped));
   }
 
@@ -74,16 +86,22 @@ public class PlatformCommunicationOpsController {
   @PostMapping("/slack-test")
   public ResponseEntity<ApiResponse<CommunicationTestResponse>> testSlack(
       @Valid @RequestBody SlackTestRequest request) {
-    var result = communicationApi.sendNow(new SendOutboundMessageRequest(
-        "OPS_SLACK_TEST",
-        CommunicationChannel.SLACK_INTERNAL,
-        OutboundRecipient.slack(request.channelKey()),
-        Locale.ENGLISH,
-        Map.of(
-            "title", request.title(),
-            "message", request.message(),
-            "severity", "INFO",
-            "requestId", "ops-slack-test")));
+    var result =
+        communicationApi.sendNow(
+            new SendOutboundMessageRequest(
+                "OPS_SLACK_TEST",
+                CommunicationChannel.SLACK_INTERNAL,
+                OutboundRecipient.slack(request.channelKey()),
+                Locale.ENGLISH,
+                Map.of(
+                    "title",
+                    request.title(),
+                    "message",
+                    request.message(),
+                    "severity",
+                    "INFO",
+                    "requestId",
+                    "ops-slack-test")));
 
     return response("SLACK_INTERNAL", result);
   }
@@ -91,17 +109,19 @@ public class PlatformCommunicationOpsController {
   @PostMapping("/email-test")
   public ResponseEntity<ApiResponse<CommunicationTestResponse>> testEmail(
       @Valid @RequestBody EmailTestRequest request) {
-    var result = communicationApi.sendNow(new SendOutboundMessageRequest(
-        "OPS_EMAIL_TEST",
-        CommunicationChannel.EMAIL,
-        new OutboundRecipient(null, null, request.to(), null),
-        Locale.ENGLISH,
-        Map.of(
-            "title", request.subject(),
-            "subject", request.subject(),
-            "message", request.message(),
-            "body", request.message(),
-            "requestId", "ops-email-test")));
+    var result =
+        communicationApi.sendNow(
+            new SendOutboundMessageRequest(
+                "OPS_EMAIL_TEST",
+                CommunicationChannel.EMAIL,
+                new OutboundRecipient(null, null, request.to(), null),
+                Locale.ENGLISH,
+                Map.of(
+                    "title", request.subject(),
+                    "subject", request.subject(),
+                    "message", request.message(),
+                    "body", request.message(),
+                    "requestId", "ops-email-test")));
 
     return response("EMAIL", result);
   }
@@ -109,16 +129,22 @@ public class PlatformCommunicationOpsController {
   @PostMapping("/sms-test")
   public ResponseEntity<ApiResponse<CommunicationTestResponse>> testSms(
       @Valid @RequestBody SmsTestRequest request) {
-    var result = communicationApi.sendNow(new SendOutboundMessageRequest(
-        "OPS_SMS_TEST",
-        CommunicationChannel.SMS,
-        new OutboundRecipient(null, null, request.to(), null),
-        Locale.FRENCH,
-        Map.of(
-            "title", request.title(),
-            "message", request.message(),
-            "severity", "INFO",
-            "requestId", "ops-sms-test")));
+    var result =
+        communicationApi.sendNow(
+            new SendOutboundMessageRequest(
+                "OPS_SMS_TEST",
+                CommunicationChannel.SMS,
+                new OutboundRecipient(null, null, request.to(), null),
+                Locale.FRENCH,
+                Map.of(
+                    "title",
+                    request.title(),
+                    "message",
+                    request.message(),
+                    "severity",
+                    "INFO",
+                    "requestId",
+                    "ops-sms-test")));
 
     return response("SMS", result);
   }
@@ -126,31 +152,36 @@ public class PlatformCommunicationOpsController {
   @PostMapping("/whatsapp-test")
   public ResponseEntity<ApiResponse<CommunicationTestResponse>> testWhatsapp(
       @Valid @RequestBody SmsTestRequest request) {
-    var result = communicationApi.sendNow(new SendOutboundMessageRequest(
-        "OPS_WHATSAPP_TEST",
-        CommunicationChannel.WHATSAPP,
-        new OutboundRecipient(null, null, request.to(), null),
-        Locale.FRENCH,
-        Map.of(
-            "title", request.title(),
-            "message", request.message(),
-            "severity", "INFO",
-            "requestId", "ops-whatsapp-test")));
+    var result =
+        communicationApi.sendNow(
+            new SendOutboundMessageRequest(
+                "OPS_WHATSAPP_TEST",
+                CommunicationChannel.WHATSAPP,
+                new OutboundRecipient(null, null, request.to(), null),
+                Locale.FRENCH,
+                Map.of(
+                    "title",
+                    request.title(),
+                    "message",
+                    request.message(),
+                    "severity",
+                    "INFO",
+                    "requestId",
+                    "ops-whatsapp-test")));
 
     return response("WHATSAPP", result);
   }
 
   private ResponseEntity<ApiResponse<CommunicationTestResponse>> response(
-      String channel,
-      SendOutboundMessageResult result) {
-    var body = new CommunicationTestResponse(result.sent(), result.provider(), result.reason(), channel);
+      String channel, SendOutboundMessageResult result) {
+    var body =
+        new CommunicationTestResponse(result.sent(), result.provider(), result.reason(), channel);
     if (result.sent()) {
       return ResponseEntity.ok(ApiResponse.success(body));
     }
 
-    return ResponseEntity.ok(ApiResponse.warn(
-        body,
-        ApiNotice.warn("COMMUNICATION_TEST_DEGRADED", result.reason())));
+    return ResponseEntity.ok(
+        ApiResponse.warn(body, ApiNotice.warn("COMMUNICATION_TEST_DEGRADED", result.reason())));
   }
 
   private CommunicationQueueSummary summary(CommunicationOpsQueryService.QueueSummary summary) {
@@ -164,13 +195,14 @@ public class PlatformCommunicationOpsController {
   }
 
   private CommunicationMessageView toMessageView(
-      OutboundMessageJpaEntity message,
-      List<MessageDeliveryAttemptJpaEntity> rawAttempts) {
-    var recentAttempts = rawAttempts.stream()
-        .sorted(Comparator.comparing(MessageDeliveryAttemptJpaEntity::getAttemptedAt).reversed())
-        .limit(3)
-        .map(this::toAttemptView)
-        .toList();
+      OutboundMessageJpaEntity message, List<MessageDeliveryAttemptJpaEntity> rawAttempts) {
+    var recentAttempts =
+        rawAttempts.stream()
+            .sorted(
+                Comparator.comparing(MessageDeliveryAttemptJpaEntity::getAttemptedAt).reversed())
+            .limit(3)
+            .map(this::toAttemptView)
+            .toList();
     return new CommunicationMessageView(
         message.getId(),
         message.getTenantId(),
@@ -212,37 +244,22 @@ public class PlatformCommunicationOpsController {
   }
 
   public record SlackTestRequest(
-      @NotBlank String channelKey,
-      @NotBlank String title,
-      @NotBlank String message) {}
+      @NotBlank String channelKey, @NotBlank String title, @NotBlank String message) {}
 
   public record EmailTestRequest(
-      @Email @NotBlank String to,
-      @NotBlank String subject,
-      @NotBlank String message) {}
+      @Email @NotBlank String to, @NotBlank String subject, @NotBlank String message) {}
 
   public record SmsTestRequest(
-      @NotBlank String to,
-      @NotBlank String title,
-      @NotBlank String message) {}
+      @NotBlank String to, @NotBlank String title, @NotBlank String message) {}
 
   public record CommunicationTestResponse(
-      boolean sent,
-      String provider,
-      String reason,
-      String channel) {}
+      boolean sent, String provider, String reason, String channel) {}
 
   public record CommunicationQueueView(
-      CommunicationQueueSummary summary,
-      TchPage<CommunicationMessageView> messages) {}
+      CommunicationQueueSummary summary, TchPage<CommunicationMessageView> messages) {}
 
   public record CommunicationQueueSummary(
-      long pending,
-      long dispatching,
-      long sent,
-      long failed,
-      long skipped,
-      long cancelled) {}
+      long pending, long dispatching, long sent, long failed, long skipped, long cancelled) {}
 
   public record CommunicationMessageView(
       UUID id,

@@ -8,12 +8,12 @@ package com.tchalanet.server.core.limitpolicy.api;
  * RANGE: Aggregate within a numerical range
  */
 public enum ScopeType {
-    TENANT,
-    OUTLET,
-    AGENT,
-    ZONE,
-    TERMINAL,
-    SELLER_TERMINAL,
-    DRAW_CHANNEL,
-    RANGE
+  TENANT,
+  OUTLET,
+  AGENT,
+  ZONE,
+  TERMINAL,
+  SELLER_TERMINAL,
+  DRAW_CHANNEL,
+  RANGE
 }

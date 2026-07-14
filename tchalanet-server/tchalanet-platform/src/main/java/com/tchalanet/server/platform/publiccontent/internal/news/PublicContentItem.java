@@ -10,9 +10,9 @@ import java.util.Set;
 import org.springframework.lang.Nullable;
 
 /**
- * Internal domain model for a public content item (internal or external/RSS).
- * Stored in cache; surfaces control which dashboard/page sees it.
- * RSS items have {@code targetSurfaces = Set.of()} (shown everywhere).
+ * Internal domain model for a public content item (internal or external/RSS). Stored in cache;
+ * surfaces control which dashboard/page sees it. RSS items have {@code targetSurfaces = Set.of()}
+ * (shown everywhere).
  */
 public record PublicContentItem(
     String id,
@@ -32,14 +32,26 @@ public record PublicContentItem(
     List<String> categories) {
 
   public PublicContentItem withStatus(PublicContentStatus newStatus) {
-    return new PublicContentItem(id, sourceId, sourceType, title, content, contentHtml,
-        imageUrl, sourceUrl, author, newStatus, targetSurfaces, publishedAt, expiresAt, categories);
+    return new PublicContentItem(
+        id,
+        sourceId,
+        sourceType,
+        title,
+        content,
+        contentHtml,
+        imageUrl,
+        sourceUrl,
+        author,
+        newStatus,
+        targetSurfaces,
+        publishedAt,
+        expiresAt,
+        categories);
   }
 
   /** Whether this item should appear for a given surface. */
   public boolean visibleOn(PublicContentSurface surface) {
-    return targetSurfaces == null || targetSurfaces.isEmpty()
-        || targetSurfaces.contains(surface);
+    return targetSurfaces == null || targetSurfaces.isEmpty() || targetSurfaces.contains(surface);
   }
 
   public boolean isPublishedAt(Instant now) {

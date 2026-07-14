@@ -34,7 +34,8 @@ public class EdgeCommunicationGateway {
       return SendOutboundMessageResult.skipped(PROVIDER, "disabled");
     }
 
-    if (request.channel() == com.tchalanet.server.platform.communication.api.model.value.CommunicationChannel.PUSH) {
+    if (request.channel()
+        == com.tchalanet.server.platform.communication.api.model.value.CommunicationChannel.PUSH) {
       log.warn("Edge communication does not support PUSH channel, skipping send");
       return SendOutboundMessageResult.skipped(PROVIDER, "unsupported_channel:PUSH");
     }
@@ -137,7 +138,8 @@ public class EdgeCommunicationGateway {
   }
 
   private String extractEventId(SendOutboundMessageRequest request, String requestId) {
-    return firstNonBlank(extractOptionalString(request, "eventId"), requestId, "evt_" + UUID.randomUUID());
+    return firstNonBlank(
+        extractOptionalString(request, "eventId"), requestId, "evt_" + UUID.randomUUID());
   }
 
   private String extractRequestId(SendOutboundMessageRequest request) {
@@ -145,7 +147,8 @@ public class EdgeCommunicationGateway {
   }
 
   private String extractIdempotencyKey(SendOutboundMessageRequest request, String requestId) {
-    return firstNonBlank(extractOptionalString(request, "idempotencyKey"), request.type() + "_" + requestId);
+    return firstNonBlank(
+        extractOptionalString(request, "idempotencyKey"), request.type() + "_" + requestId);
   }
 
   private String extractString(

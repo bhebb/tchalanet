@@ -10,7 +10,5 @@ import jakarta.validation.constraints.NotNull;
 public record DeletePromotionRuleCommand(
     @NotNull TenantId tenantId,
     @NotNull PromotionCampaignId campaignId,
-    @NotNull PromotionRuleId ruleId
-) implements Command<PromotionCampaignView> {}
-
-
+    @NotNull PromotionRuleId ruleId)
+    implements Command<PromotionCampaignView> {}

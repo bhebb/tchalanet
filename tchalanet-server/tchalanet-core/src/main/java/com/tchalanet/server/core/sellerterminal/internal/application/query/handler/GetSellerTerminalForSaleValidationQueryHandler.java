@@ -11,12 +11,13 @@ import lombok.RequiredArgsConstructor;
 @UseCase
 @RequiredArgsConstructor
 public class GetSellerTerminalForSaleValidationQueryHandler
-    implements QueryHandler<GetSellerTerminalForSaleValidationQuery, SellerTerminalForSaleValidationView> {
+    implements QueryHandler<
+        GetSellerTerminalForSaleValidationQuery, SellerTerminalForSaleValidationView> {
 
-    private final SellerTerminalReaderPort reader;
+  private final SellerTerminalReaderPort reader;
 
-    @Override
-    public SellerTerminalForSaleValidationView handle(GetSellerTerminalForSaleValidationQuery q) {
-        return SellerTerminalViews.saleValidation(reader.getRequired(q.tenantId(), q.terminalId()));
-    }
+  @Override
+  public SellerTerminalForSaleValidationView handle(GetSellerTerminalForSaleValidationQuery q) {
+    return SellerTerminalViews.saleValidation(reader.getRequired(q.tenantId(), q.terminalId()));
+  }
 }

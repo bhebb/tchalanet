@@ -13,5 +13,5 @@ public record TicketCancelledEvent(
     TenantId tenantId,
     TicketId ticketId,
     UserId cancelledBy,
-    String reason
-) implements DomainEvent {}
+    String reason)
+    implements DomainEvent {}

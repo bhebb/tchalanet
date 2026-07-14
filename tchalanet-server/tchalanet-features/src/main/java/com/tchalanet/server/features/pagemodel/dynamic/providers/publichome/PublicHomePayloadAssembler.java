@@ -14,15 +14,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 /**
- * Loads the grouped payload for source {@code public_home}.
- * One assembly per request — sub-payloads are extracted by widgetId in
- * {@link PublicHomeProvider}.
+ * Loads the grouped payload for source {@code public_home}. One assembly per request — sub-payloads
+ * are extracted by widgetId in {@link PublicHomeProvider}.
  *
- * V1 (révision 2) widgets dynamiques :
- *   - home.news  : actualités publiques via {@link PublicContentApi}
- *   - home.plans : grille des plans actifs via {@link PlanCatalog}
+ * <p>V1 (révision 2) widgets dynamiques : - home.news : actualités publiques via {@link
+ * PublicContentApi} - home.plans : grille des plans actifs via {@link PlanCatalog}
  *
- * Hero, features et tchala passent par {@code json_file}.
+ * <p>Hero, features et tchala passent par {@code json_file}.
  */
 @Component
 @RequiredArgsConstructor
@@ -40,8 +38,7 @@ public class PublicHomePayloadAssembler {
   }
 
   private List<NewsItem> buildNews(int requestedLimit) {
-    int limit = requestedLimit <= 0 ? DEFAULT_NEWS_LIMIT
-        : Math.min(requestedLimit, MAX_NEWS_LIMIT);
+    int limit = requestedLimit <= 0 ? DEFAULT_NEWS_LIMIT : Math.min(requestedLimit, MAX_NEWS_LIMIT);
     try {
       return publicContentApi.listPublicHomeNews(limit).stream()
           .map(PublicHomePayloadAssembler::toNewsItem)
@@ -53,9 +50,7 @@ public class PublicHomePayloadAssembler {
   }
 
   private List<PlanItem> buildPlans() {
-    return planCatalog.listActive().stream()
-        .map(PublicHomePayloadAssembler::toPlanItem)
-        .toList();
+    return planCatalog.listActive().stream().map(PublicHomePayloadAssembler::toPlanItem).toList();
   }
 
   static NewsItem toNewsItem(PublicContentItemView item) {
@@ -71,8 +66,8 @@ public class PublicHomePayloadAssembler {
   @SuppressWarnings("unchecked")
   private static PlanItem toPlanItem(PlanView plan) {
     Object featuresRaw = plan.featuresJson() != null ? plan.featuresJson() : Map.of();
-    Map<String, Object> features = featuresRaw instanceof Map<?, ?> m
-        ? (Map<String, Object>) m : Map.of();
+    Map<String, Object> features =
+        featuresRaw instanceof Map<?, ?> m ? (Map<String, Object>) m : Map.of();
     return new PlanItem(
         plan.code() != null ? plan.code() : "",
         plan.name() != null ? plan.name() : "",
@@ -84,7 +79,5 @@ public class PublicHomePayloadAssembler {
         plan.isDefault());
   }
 
-  public record Payload(
-      List<NewsItem> news,
-      List<PlanItem> plans) {}
+  public record Payload(List<NewsItem> news, List<PlanItem> plans) {}
 }

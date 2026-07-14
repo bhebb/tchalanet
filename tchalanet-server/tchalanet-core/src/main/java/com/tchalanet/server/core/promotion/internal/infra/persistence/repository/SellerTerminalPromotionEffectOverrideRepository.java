@@ -8,9 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface SellerTerminalPromotionEffectOverrideRepository
     extends JpaRepository<SellerTerminalPromotionEffectOverrideJpaEntity, UUID> {
 
-    List<SellerTerminalPromotionEffectOverrideJpaEntity>
-        findByTenantIdAndSellerTerminalIdAndActiveTrueOrderByCampaignIdAscRuleIdAscEffectTypeAscGameCodeAsc(
-            UUID tenantId,
-            UUID sellerTerminalId
-        );
+  List<SellerTerminalPromotionEffectOverrideJpaEntity>
+      findByTenantIdAndSellerTerminalIdAndActiveTrueOrderByCampaignIdAscRuleIdAscEffectTypeAscGameCodeAsc(
+          UUID tenantId, UUID sellerTerminalId);
 }

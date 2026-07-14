@@ -1,10 +1,11 @@
 package com.tchalanet.server.platform.archive.internal.service;
 
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.platform.archive.api.ArchiveApi;
 import com.tchalanet.server.platform.archive.api.model.ArchiveObjectRowView;
-import com.tchalanet.server.platform.archive.api.model.ArchivedEntityView;
 import com.tchalanet.server.platform.archive.api.model.ArchiveRunRowView;
 import com.tchalanet.server.platform.archive.api.model.ArchiveRunView;
+import com.tchalanet.server.platform.archive.api.model.ArchivedEntityView;
 import com.tchalanet.server.platform.archive.api.model.TriggerArchiveRunRequest;
 import com.tchalanet.server.platform.archive.internal.io.JsonlGzReader;
 import com.tchalanet.server.platform.archive.internal.persistence.ArchiveLookupIndexJdbcRepository;
@@ -20,14 +21,13 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import com.tchalanet.server.common.json.utils.JsonUtils;
 
 /**
  * Archive service — façade over {@link ArchiveRunExecutor} and lookup repositories.
  *
- * <p>Providers are discovered via {@link ArchiveRunExecutor}'s injected
- * {@code List<ArchiveDatasetProvider>}; this service never imports provider
- * implementation classes (ArchUnit-enforced).
+ * <p>Providers are discovered via {@link ArchiveRunExecutor}'s injected {@code
+ * List<ArchiveDatasetProvider>}; this service never imports provider implementation classes
+ * (ArchUnit-enforced).
  */
 @Service
 @RequiredArgsConstructor
@@ -59,24 +59,22 @@ public class ArchiveService implements ArchiveApi {
   }
 
   private ArchivedEntityView lookupTicketByEntity(UUID tenantId, UUID ticketId, String publicCode) {
-    List<Map<String, Object>> entries =
-        lookupRepo.findByEntity("sales_ticket", "TICKET", ticketId);
+    List<Map<String, Object>> entries = lookupRepo.findByEntity("sales_ticket", "TICKET", ticketId);
     return readFirstMatchingTicket(tenantId, ticketId, publicCode, entries);
   }
 
   private ArchivedEntityView lookupTicketByPublicCode(UUID tenantId, String publicCode) {
-    List<Map<String, Object>> entries =
-        lookupRepo.findByPublicCode("sales_ticket", publicCode);
+    List<Map<String, Object>> entries = lookupRepo.findByPublicCode("sales_ticket", publicCode);
     return readFirstMatchingTicket(tenantId, null, publicCode, entries);
   }
 
-  private ArchivedEntityView readFirstMatchingTicket(UUID tenantId, UUID ticketId,
-      String publicCode, List<Map<String, Object>> entries) {
+  private ArchivedEntityView readFirstMatchingTicket(
+      UUID tenantId, UUID ticketId, String publicCode, List<Map<String, Object>> entries) {
 
     if (entries.isEmpty()) return ArchivedEntityView.notFound(ticketId);
 
-    String tenantStr   = tenantId  != null ? tenantId.toString()  : null;
-    String ticketIdStr = ticketId  != null ? ticketId.toString()   : null;
+    String tenantStr = tenantId != null ? tenantId.toString() : null;
+    String ticketIdStr = ticketId != null ? ticketId.toString() : null;
     JsonlGzReader reader = new JsonlGzReader(jsonUtils);
 
     for (Map<String, Object> entry : entries) {
@@ -89,12 +87,18 @@ public class ArchiveService implements ArchiveApi {
       if (!storage.exists(uri)) continue;
 
       try (InputStream in = storage.openRead(uri)) {
-        List<Map<String, Object>> rows = reader.readMatching(in, row -> {
-          if (tenantStr != null && !tenantStr.equals(String.valueOf(row.get("tenant_id")))) return false;
-          if (ticketIdStr != null && !ticketIdStr.equals(String.valueOf(row.get("id")))) return false;
-          if (publicCode  != null && !publicCode.equals(row.get("public_code"))) return false;
-          return true;
-        });
+        List<Map<String, Object>> rows =
+            reader.readMatching(
+                in,
+                row -> {
+                  if (tenantStr != null && !tenantStr.equals(String.valueOf(row.get("tenant_id"))))
+                    return false;
+                  if (ticketIdStr != null && !ticketIdStr.equals(String.valueOf(row.get("id"))))
+                    return false;
+                  if (publicCode != null && !publicCode.equals(row.get("public_code")))
+                    return false;
+                  return true;
+                });
 
         if (!rows.isEmpty()) {
           Map<String, Object> header = rows.get(0);
@@ -114,19 +118,22 @@ public class ArchiveService implements ArchiveApi {
   private static UUID toUuid(Object val) {
     if (val == null) return null;
     if (val instanceof UUID u) return u;
-    try { return UUID.fromString(val.toString()); } catch (IllegalArgumentException e) { return null; }
+    try {
+      return UUID.fromString(val.toString());
+    } catch (IllegalArgumentException e) {
+      return null;
+    }
   }
 
   @Override
   public ArchivedEntityView findArchivedPayout(UUID tenantId, UUID payoutId) {
     log.debug("archive: findArchivedPayout tenant={} payout={}", tenantId, payoutId);
     metrics.recordLookupFallback();
-    List<Map<String, Object>> entries =
-        lookupRepo.findByEntity("payout", "PAYOUT", payoutId);
+    List<Map<String, Object>> entries = lookupRepo.findByEntity("payout", "PAYOUT", payoutId);
     if (entries.isEmpty()) return ArchivedEntityView.notFound(payoutId);
 
-    String tenantStr  = tenantId != null ? tenantId.toString()  : null;
-    String payoutStr  = payoutId.toString();
+    String tenantStr = tenantId != null ? tenantId.toString() : null;
+    String payoutStr = payoutId.toString();
     JsonlGzReader reader = new JsonlGzReader(jsonUtils);
 
     for (Map<String, Object> entry : entries) {
@@ -139,10 +146,14 @@ public class ArchiveService implements ArchiveApi {
       if (!storage.exists(uri)) continue;
 
       try (InputStream in = storage.openRead(uri)) {
-        List<Map<String, Object>> rows = reader.readMatching(in, row -> {
-          if (tenantStr != null && !tenantStr.equals(String.valueOf(row.get("tenant_id")))) return false;
-          return payoutStr.equals(String.valueOf(row.get("id")));
-        });
+        List<Map<String, Object>> rows =
+            reader.readMatching(
+                in,
+                row -> {
+                  if (tenantStr != null && !tenantStr.equals(String.valueOf(row.get("tenant_id"))))
+                    return false;
+                  return payoutStr.equals(String.valueOf(row.get("id")));
+                });
 
         if (!rows.isEmpty()) {
           UUID foundId = toUuid(rows.get(0).get("id"));
@@ -159,7 +170,8 @@ public class ArchiveService implements ArchiveApi {
   @Override
   public List<ArchivedEntityView> findArchivedAuditRecords(
       UUID tenantId, String entityType, UUID entityId) {
-    log.debug("archive: findArchivedAuditRecords tenant={} entity={}:{}", tenantId, entityType, entityId);
+    log.debug(
+        "archive: findArchivedAuditRecords tenant={} entity={}:{}", tenantId, entityType, entityId);
 
     List<Map<String, Object>> lookupEntries =
         lookupRepo.findByEntity("audit_log", entityType, entityId);
@@ -190,13 +202,16 @@ public class ArchiveService implements ArchiveApi {
       }
 
       try (InputStream in = storage.openRead(uri)) {
-        List<Map<String, Object>> rows = reader.readMatching(in, row ->
-            entityType.equals(row.get("entity_type"))
-                && entityIdStr.equals(String.valueOf(row.get("entity_id"))));
+        List<Map<String, Object>> rows =
+            reader.readMatching(
+                in,
+                row ->
+                    entityType.equals(row.get("entity_type"))
+                        && entityIdStr.equals(String.valueOf(row.get("entity_id"))));
 
         if (!rows.isEmpty()) {
-          results.add(new ArchivedEntityView(
-              true, entityId, null, "audit_log", schemaVersion, uri, rows));
+          results.add(
+              new ArchivedEntityView(true, entityId, null, "audit_log", schemaVersion, uri, rows));
         }
       } catch (Exception ex) {
         log.error("archive: failed to read archive object uri={}: {}", uri, ex.getMessage(), ex);
@@ -204,8 +219,12 @@ public class ArchiveService implements ArchiveApi {
       }
     }
 
-    log.info("archive: findArchivedAuditRecords entity={}:{} → {} objects scanned, {} with hits",
-        entityType, entityId, lookupEntries.size(), results.size());
+    log.info(
+        "archive: findArchivedAuditRecords entity={}:{} → {} objects scanned, {} with hits",
+        entityType,
+        entityId,
+        lookupEntries.size(),
+        results.size());
     return results;
   }
 
@@ -213,16 +232,18 @@ public class ArchiveService implements ArchiveApi {
 
   @Override
   public ArchiveRunView triggerRun(TriggerArchiveRunRequest request, UUID requestedBy) {
-    log.info("archive: triggerRun strategy={} period={}/{} by={}",
-        request.strategy(), request.periodStart(), request.periodEnd(), requestedBy);
+    log.info(
+        "archive: triggerRun strategy={} period={}/{} by={}",
+        request.strategy(),
+        request.periodStart(),
+        request.periodEnd(),
+        requestedBy);
     return executor.execute(request, requestedBy);
   }
 
   @Override
   public List<ArchiveRunView> listRuns(int limit) {
-    return runRepo.listRecent(limit).stream()
-        .map(this::toRunView)
-        .toList();
+    return runRepo.listRecent(limit).stream().map(this::toRunView).toList();
   }
 
   private ArchiveRunView toRunView(ArchiveRunRowView row) {
@@ -234,7 +255,6 @@ public class ArchiveService implements ArchiveApi {
         row.idempotencyKey(),
         row.startedAt(),
         row.completedAt(),
-        row.errorMessage()
-    );
+        row.errorMessage());
   }
 }

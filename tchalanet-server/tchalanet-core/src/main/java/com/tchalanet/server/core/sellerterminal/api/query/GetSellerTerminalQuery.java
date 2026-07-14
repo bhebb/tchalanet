@@ -5,7 +5,5 @@ import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalView;
 
-public record GetSellerTerminalQuery(
-    TenantId tenantId,
-    SellerTerminalId terminalId
-) implements Query<SellerTerminalView> {}
+public record GetSellerTerminalQuery(TenantId tenantId, SellerTerminalId terminalId)
+    implements Query<SellerTerminalView> {}

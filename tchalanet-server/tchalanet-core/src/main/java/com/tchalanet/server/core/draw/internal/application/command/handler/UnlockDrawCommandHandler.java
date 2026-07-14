@@ -15,22 +15,21 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class UnlockDrawCommandHandler implements VoidCommandHandler<UnlockDrawCommand> {
 
-    private final DrawLookupPort drawLookupPort;
-    private final DrawLifecyclePort drawLifecyclePort;
+  private final DrawLookupPort drawLookupPort;
+  private final DrawLifecyclePort drawLifecyclePort;
 
-    @Override
-    @TchTx
-    public void handle(UnlockDrawCommand command) {
-        var drawIds = DrawLifecycleCommandGuard.requireDrawIds(command.drawIds());
-        log.info("Unlocking {} draw(s)", drawIds.size());
+  @Override
+  @TchTx
+  public void handle(UnlockDrawCommand command) {
+    var drawIds = DrawLifecycleCommandGuard.requireDrawIds(command.drawIds());
+    log.info("Unlocking {} draw(s)", drawIds.size());
 
-        for (var drawId : drawIds) {
-            Draw draw = drawLookupPort.getById(drawId);
+    for (var drawId : drawIds) {
+      Draw draw = drawLookupPort.getById(drawId);
 
-            draw.unlock();
+      draw.unlock();
 
-            drawLifecyclePort.save(draw);
-        }
+      drawLifecyclePort.save(draw);
     }
-
+  }
 }

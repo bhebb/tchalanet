@@ -1,5 +1,6 @@
 package com.tchalanet.server.app.config.cache;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.tchalanet.server.common.cache.CacheSpecProvider;
 import java.time.Duration;
 import java.util.HashMap;
@@ -21,7 +22,6 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.serializer.GenericJacksonJsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import tools.jackson.databind.DefaultTyping;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.SerializationFeature;
@@ -29,9 +29,7 @@ import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import tools.jackson.databind.jsontype.PolymorphicTypeValidator;
 
 @Configuration
-@ConditionalOnProperty(
-    name = "tch.cache.redis.enabled",
-    havingValue = "true")
+@ConditionalOnProperty(name = "tch.cache.redis.enabled", havingValue = "true")
 public class RedisCacheRuntimeConfig {
 
   private static final Logger log = LoggerFactory.getLogger(RedisCacheRuntimeConfig.class);

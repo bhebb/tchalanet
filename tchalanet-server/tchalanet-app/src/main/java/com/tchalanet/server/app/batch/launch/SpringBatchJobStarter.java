@@ -28,141 +28,138 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class SpringBatchJobStarter implements BatchJobStarter {
 
-    private final SpringTchJobRegistry registry;
-    private final BatchGate gate;
-    private final JobOperator jobOperator;
-    private final ApplicationContext applicationContext;
-    private final Clock clock;
+  private final SpringTchJobRegistry registry;
+  private final BatchGate gate;
+  private final JobOperator jobOperator;
+  private final ApplicationContext applicationContext;
+  private final Clock clock;
 
-    @Override
-    public JobStartResult start(JobKey jobKey, Map<String, String> params) {
-        if (jobKey == null) {
-            throw new IllegalArgumentException("jobKey required");
-        }
-        if (params == null) {
-            throw new IllegalArgumentException("params required");
-        }
+  @Override
+  public JobStartResult start(JobKey jobKey, Map<String, String> params) {
+    if (jobKey == null) {
+      throw new IllegalArgumentException("jobKey required");
+    }
+    if (params == null) {
+      throw new IllegalArgumentException("params required");
+    }
 
-        log.info("batch.start.requested jobKey={} paramsKeys={}", jobKey, params.keySet());
+    log.info("batch.start.requested jobKey={} paramsKeys={}", jobKey, params.keySet());
 
-        var runtimeJob = registry.findRuntime(jobKey)
+    var runtimeJob =
+        registry
+            .findRuntime(jobKey)
             .orElseThrow(() -> new IllegalArgumentException("Job not in allowlist: " + jobKey));
 
-        var metadata = runtimeJob.metadata();
+    var metadata = runtimeJob.metadata();
 
-        var tenantId = resolveTenantIdIfRequired(metadata, params);
+    var tenantId = resolveTenantIdIfRequired(metadata, params);
 
-        gate.assertEnabledOrThrow(jobKey, tenantId);
-        requireParams(jobKey, metadata, params);
+    gate.assertEnabledOrThrow(jobKey, tenantId);
+    requireParams(jobKey, metadata, params);
 
-        var jobParameters = buildJobParameters(params);
-        var job = resolveJobBean(runtimeJob.springJobBeanName());
+    var jobParameters = buildJobParameters(params);
+    var job = resolveJobBean(runtimeJob.springJobBeanName());
 
-        try {
-            JobExecution execution = jobOperator.start(job, jobParameters);
+    try {
+      JobExecution execution = jobOperator.start(job, jobParameters);
 
-            log.info(
-                "batch.start.success jobKey={} jobName={} executionId={} status={}",
-                jobKey,
-                job.getName(),
-                execution.getId(),
-                execution.getStatus()
-            );
+      log.info(
+          "batch.start.success jobKey={} jobName={} executionId={} status={}",
+          jobKey,
+          job.getName(),
+          execution.getId(),
+          execution.getStatus());
 
-            return new JobStartResult(
-                String.valueOf(execution.getJobInstance().getInstanceId()),
-                String.valueOf(execution.getId()),
-                execution.getStatus().name()
-            );
+      return new JobStartResult(
+          String.valueOf(execution.getJobInstance().getInstanceId()),
+          String.valueOf(execution.getId()),
+          execution.getStatus().name());
 
-        } catch (BatchDisabledException e) {
-            throw e;
-        } catch (Exception e) {
-            log.error(
-                "batch.start.failed jobKey={} jobBean={}",
-                jobKey,
-                runtimeJob.springJobBeanName(),
-                e
-            );
-            throw new RuntimeException("Failed to start job: " + jobKey, e);
-        }
+    } catch (BatchDisabledException e) {
+      throw e;
+    } catch (Exception e) {
+      log.error(
+          "batch.start.failed jobKey={} jobBean={}", jobKey, runtimeJob.springJobBeanName(), e);
+      throw new RuntimeException("Failed to start job: " + jobKey, e);
+    }
+  }
+
+  private TenantId resolveTenantIdIfRequired(RegisteredJob registered, Map<String, String> params) {
+    if (registered.scope() != RegisteredJob.JobScope.TENANT) {
+      return null;
     }
 
-    private TenantId resolveTenantIdIfRequired(RegisteredJob registered, Map<String, String> params) {
-        if (registered.scope() != RegisteredJob.JobScope.TENANT) {
-            return null;
-        }
-
-        var tenantIdRaw = trimToNull(params.get(JobParamKeys.TENANT_ID));
-        if (tenantIdRaw == null) {
-            throw new IllegalArgumentException("tenant_id required for TENANT job");
-        }
-
-        return TenantId.parse(tenantIdRaw);
+    var tenantIdRaw = trimToNull(params.get(JobParamKeys.TENANT_ID));
+    if (tenantIdRaw == null) {
+      throw new IllegalArgumentException("tenant_id required for TENANT job");
     }
 
-    private void requireParams(JobKey jobKey, RegisteredJob registered, Map<String, String> params) {
-        for (String required : registered.requiredParams()) {
-            if (trimToNull(params.get(required)) == null) {
-                throw new IllegalArgumentException("Required parameter missing for " + jobKey + ": " + required);
-            }
-        }
+    return TenantId.parse(tenantIdRaw);
+  }
+
+  private void requireParams(JobKey jobKey, RegisteredJob registered, Map<String, String> params) {
+    for (String required : registered.requiredParams()) {
+      if (trimToNull(params.get(required)) == null) {
+        throw new IllegalArgumentException(
+            "Required parameter missing for " + jobKey + ": " + required);
+      }
+    }
+  }
+
+  private Job resolveJobBean(String springJobBeanName) {
+    try {
+      return applicationContext.getBean(springJobBeanName, Job.class);
+    } catch (Exception e) {
+      throw new IllegalArgumentException("Job bean not found: " + springJobBeanName, e);
+    }
+  }
+
+  private JobParameters buildJobParameters(Map<String, String> params) {
+    JobParametersBuilder builder = new JobParametersBuilder();
+
+    for (var entry : params.entrySet()) {
+      var key = entry.getKey();
+      var value = trimToNull(entry.getValue());
+
+      if (value == null) {
+        continue;
+      }
+
+      if (!JobParamKeys.TS.equals(key)) {
+        builder.addString(key, value, false);
+      }
     }
 
-    private Job resolveJobBean(String springJobBeanName) {
-        try {
-            return applicationContext.getBean(springJobBeanName, Job.class);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Job bean not found: " + springJobBeanName, e);
-        }
+    if (trimToNull(params.get(JobParamKeys.REQUEST_ID)) == null) {
+      builder.addString(JobParamKeys.REQUEST_ID, UUID.randomUUID().toString(), false);
     }
 
-    private JobParameters buildJobParameters(Map<String, String> params) {
-        JobParametersBuilder builder = new JobParametersBuilder();
-
-        for (var entry : params.entrySet()) {
-            var key = entry.getKey();
-            var value = trimToNull(entry.getValue());
-
-            if (value == null) {
-                continue;
-            }
-
-            if (!JobParamKeys.TS.equals(key)) {
-                builder.addString(key, value, false);
-            }
-        }
-
-        if (trimToNull(params.get(JobParamKeys.REQUEST_ID)) == null) {
-            builder.addString(JobParamKeys.REQUEST_ID, UUID.randomUUID().toString(), false);
-        }
-
-        if (trimToNull(params.get(JobParamKeys.ACTOR)) == null) {
-            builder.addString(JobParamKeys.ACTOR, "ops", false);
-        }
-
-        var tsRaw = trimToNull(params.get(JobParamKeys.TS));
-        var ts = tsRaw != null ? parseTs(tsRaw) : Instant.now(clock).toEpochMilli();
-
-        builder.addLong(JobParamKeys.TS, ts, true);
-
-        return builder.toJobParameters();
+    if (trimToNull(params.get(JobParamKeys.ACTOR)) == null) {
+      builder.addString(JobParamKeys.ACTOR, "ops", false);
     }
 
-    private static String trimToNull(String value) {
-        if (value == null) {
-            return null;
-        }
+    var tsRaw = trimToNull(params.get(JobParamKeys.TS));
+    var ts = tsRaw != null ? parseTs(tsRaw) : Instant.now(clock).toEpochMilli();
 
-        var trimmed = value.trim();
-        return trimmed.isEmpty() ? null : trimmed;
+    builder.addLong(JobParamKeys.TS, ts, true);
+
+    return builder.toJobParameters();
+  }
+
+  private static String trimToNull(String value) {
+    if (value == null) {
+      return null;
     }
 
-    private static long parseTs(String raw) {
-        try {
-            return Long.parseLong(raw);
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Invalid ts, expected epoch millis: " + raw, e);
-        }
+    var trimmed = value.trim();
+    return trimmed.isEmpty() ? null : trimmed;
+  }
+
+  private static long parseTs(String raw) {
+    try {
+      return Long.parseLong(raw);
+    } catch (NumberFormatException e) {
+      throw new IllegalArgumentException("Invalid ts, expected epoch millis: " + raw, e);
     }
+  }
 }

@@ -8,6 +8,7 @@ enum FirebaseRevocationCheckMode {
   ALWAYS;
 
   boolean requiresCheck(IdentityVerificationPolicy policy) {
-    return this == ALWAYS || (this == SENSITIVE_ONLY && policy == IdentityVerificationPolicy.SENSITIVE);
+    return this == ALWAYS
+        || (this == SENSITIVE_ONLY && policy == IdentityVerificationPolicy.SENSITIVE);
   }
 }

@@ -5,4 +5,3 @@ public enum InvitationStatus {
   SENT,
   FAILED
 }
-

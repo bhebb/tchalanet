@@ -5,8 +5,8 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
 /**
- * Spring converter to allow binding path variables directly to `TchalaEntryId`.
- * Accepts UUID string representation and delegates to TchalaEntryId.parse().
+ * Spring converter to allow binding path variables directly to `TchalaEntryId`. Accepts UUID string
+ * representation and delegates to TchalaEntryId.parse().
  */
 @Component
 public class StringToTchalaEntryIdConverter implements Converter<String, TchalaEntryId> {

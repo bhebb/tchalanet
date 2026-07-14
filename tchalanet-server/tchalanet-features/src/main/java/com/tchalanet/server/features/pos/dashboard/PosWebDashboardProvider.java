@@ -10,21 +10,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 /**
- * Single provider for source {@code cashier_dashboard} (dashboard-overview-runtime-v1).
- * Loads the bundled payload once per request via {@link PageModelResolutionContext}
- * and dispatches the relevant slice by widgetId.
+ * Single provider for source {@code cashier_dashboard} (dashboard-overview-runtime-v1). Loads the
+ * bundled payload once per request via {@link PageModelResolutionContext} and dispatches the
+ * relevant slice by widgetId.
  *
- * Supported widget ids (cashier WEB only — POS/mobile uses /tenant/cashier/home):
- *   - dashboard.cashier.identity
- *   - dashboard.cashier.session
- *   - dashboard.cashier.overview
- *   - dashboard.cashier.nextDraws
- *   - dashboard.cashier.recentTickets
- *   - dashboard.cashier.quickSale
- *   - dashboard.cashier.readiness  (operational context : ready, trusted, missing)
- *   - dashboard.cashier.alerts     (operational blockers + warnings)
- *   - dashboard.cashier.stats      (analytics KPIs for today, seller-scoped)
- *   - dashboard.cashier.offlineSync (offline/sync status placeholder)
+ * <p>Supported widget ids (cashier WEB only — POS/mobile uses /tenant/cashier/home): -
+ * dashboard.cashier.identity - dashboard.cashier.session - dashboard.cashier.overview -
+ * dashboard.cashier.nextDraws - dashboard.cashier.recentTickets - dashboard.cashier.quickSale -
+ * dashboard.cashier.readiness (operational context : ready, trusted, missing) -
+ * dashboard.cashier.alerts (operational blockers + warnings) - dashboard.cashier.stats (analytics
+ * KPIs for today, seller-scoped) - dashboard.cashier.offlineSync (offline/sync status placeholder)
  */
 @Component
 @RequiredArgsConstructor
@@ -59,13 +54,14 @@ public class PosWebDashboardProvider implements PageModelDynamicProvider {
       case "dashboard.cashier.nextDraws" -> new ItemsPayload(payload.nextDraws());
       case "dashboard.cashier.recentTickets" -> new ItemsPayload(payload.recentTickets());
       case "dashboard.cashier.quickSale" -> QUICK_SALE;
-      case "dashboard.cashier.readiness"    -> payload.readiness();
-      case "dashboard.cashier.alerts"       -> payload.alerts();
-      case "dashboard.cashier.stats"        -> payload.stats();
+      case "dashboard.cashier.readiness" -> payload.readiness();
+      case "dashboard.cashier.alerts" -> payload.alerts();
+      case "dashboard.cashier.stats" -> payload.stats();
       case "dashboard.cashier.offlineSync" -> payload.offlineSync();
-      default -> throw new PageModelDynamicProviderException(
-          "CASHIER_DASHBOARD_UNKNOWN_WIDGET",
-          "Unknown widgetId for source=" + SOURCE + ": " + widgetId);
+      default ->
+          throw new PageModelDynamicProviderException(
+              "CASHIER_DASHBOARD_UNKNOWN_WIDGET",
+              "Unknown widgetId for source=" + SOURCE + ": " + widgetId);
     };
   }
 

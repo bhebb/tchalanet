@@ -91,11 +91,11 @@ public class JpaTchalaEntryRepositoryAdapter implements TchalaEntryRepositoryPor
       existing.setDedupeKey(entry.dedupeKey().key());
       existing.setNote(entry.note() == null ? "" : entry.note());
       existing.setStatus(
-          com.tchalanet.server.core.haiti.internal.infra.persistence.entity.TchalaEntryStatusDb.valueOf(
-              entry.status().name()));
+          com.tchalanet.server.core.haiti.internal.infra.persistence.entity.TchalaEntryStatusDb
+              .valueOf(entry.status().name()));
       existing.setSource(
-          com.tchalanet.server.core.haiti.internal.infra.persistence.entity.TchalaEntrySourceDb.valueOf(
-              entry.source().name()));
+          com.tchalanet.server.core.haiti.internal.infra.persistence.entity.TchalaEntrySourceDb
+              .valueOf(entry.source().name()));
       existing.setConflictWithEntryId(
           entry.conflictWithEntryId().map(TchalaEntryId::value).orElse(null));
       existing.setCanonicalEntryId(entry.canonicalEntryId().map(TchalaEntryId::value).orElse(null));

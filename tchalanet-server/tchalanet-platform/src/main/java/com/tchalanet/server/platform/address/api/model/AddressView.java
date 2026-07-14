@@ -2,10 +2,7 @@ package com.tchalanet.server.platform.address.api.model;
 
 import com.tchalanet.server.common.types.id.AddressId;
 
-/**
- * View DTO for address read operations.
- * Immutable projection of an address for API responses.
- */
+/** View DTO for address read operations. Immutable projection of an address for API responses. */
 public record AddressView(
     AddressId id,
     String line1,
@@ -13,5 +10,4 @@ public record AddressView(
     String city,
     String region,
     String country,
-    String postalCode
-) {}
+    String postalCode) {}

@@ -2,9 +2,7 @@ package com.tchalanet.server.features.ops.batch.model;
 
 import java.time.Instant;
 
-/**
- * Response containing job execution details.
- */
+/** Response containing job execution details. */
 public record ExecutionResponse(
     long execution_id,
     String job_key,
@@ -13,5 +11,4 @@ public record ExecutionResponse(
     Instant ended_at,
     String context,
     String exit_code,
-    String exit_message
-) {}
+    String exit_message) {}

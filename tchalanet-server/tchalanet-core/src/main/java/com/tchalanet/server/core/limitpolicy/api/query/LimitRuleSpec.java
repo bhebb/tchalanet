@@ -11,6 +11,4 @@ public record LimitRuleSpec(
     BreachOutcome defaultOutcome,
     String category,
     boolean stateless,
-    JsonNode paramsTemplate
-) {
-}
+    JsonNode paramsTemplate) {}

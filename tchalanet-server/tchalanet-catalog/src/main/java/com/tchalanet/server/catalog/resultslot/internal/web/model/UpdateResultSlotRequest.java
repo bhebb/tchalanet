@@ -1,8 +1,7 @@
 package com.tchalanet.server.catalog.resultslot.internal.web.model;
 
-import tools.jackson.databind.JsonNode;
-
 import java.time.LocalTime;
+import tools.jackson.databind.JsonNode;
 
 public record UpdateResultSlotRequest(
     String slotKey,
@@ -15,4 +14,5 @@ public record UpdateResultSlotRequest(
     JsonNode projectionCfg,
     String notes,
     String labelKey,
-    Boolean active) implements BaseResultSlotRequest {}
+    Boolean active)
+    implements BaseResultSlotRequest {}

@@ -5,7 +5,6 @@ import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,48 +16,45 @@ public record LimitContext(
     DrawId drawId,
     DrawChannelId drawChannelId,
     Instant now,
-    List<LimitLineContext> lines
-) {
+    List<LimitLineContext> lines) {
 
-    public LimitContext {
-        if (tenantId == null) {
-            throw new IllegalArgumentException("tenantId is required");
-        }
-
-        if (now == null) {
-            throw new IllegalArgumentException("now is required");
-        }
-
-        lines = lines == null ? List.of() : List.copyOf(lines);
+  public LimitContext {
+    if (tenantId == null) {
+      throw new IllegalArgumentException("tenantId is required");
     }
 
-    public List<LimitScopeRef> scopes() {
-        var scopes = new ArrayList<LimitScopeRef>();
-
-        scopes.add(LimitScopeRef.tenant(tenantId));
-
-        if (drawChannelId != null) {
-            scopes.add(LimitScopeRef.drawChannel(drawChannelId));
-        }
-
-        if (sellerTerminalId != null) {
-            scopes.add(LimitScopeRef.sellerTerminal(sellerTerminalId));
-        }
-
-        if (userId != null) {
-            scopes.add(LimitScopeRef.agent(userId));
-        }
-
-        return List.copyOf(scopes);
+    if (now == null) {
+      throw new IllegalArgumentException("now is required");
     }
 
-    public long totalStakeCents() {
-        return lines.stream()
-            .mapToLong(LimitLineContext::stakeCents)
-            .sum();
+    lines = lines == null ? List.of() : List.copyOf(lines);
+  }
+
+  public List<LimitScopeRef> scopes() {
+    var scopes = new ArrayList<LimitScopeRef>();
+
+    scopes.add(LimitScopeRef.tenant(tenantId));
+
+    if (drawChannelId != null) {
+      scopes.add(LimitScopeRef.drawChannel(drawChannelId));
     }
 
-    public int linesCount() {
-        return lines.size();
+    if (sellerTerminalId != null) {
+      scopes.add(LimitScopeRef.sellerTerminal(sellerTerminalId));
     }
+
+    if (userId != null) {
+      scopes.add(LimitScopeRef.agent(userId));
+    }
+
+    return List.copyOf(scopes);
+  }
+
+  public long totalStakeCents() {
+    return lines.stream().mapToLong(LimitLineContext::stakeCents).sum();
+  }
+
+  public int linesCount() {
+    return lines.size();
+  }
 }

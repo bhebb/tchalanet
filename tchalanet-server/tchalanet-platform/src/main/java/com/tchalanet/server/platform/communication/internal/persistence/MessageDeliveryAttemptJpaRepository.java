@@ -19,6 +19,5 @@ public interface MessageDeliveryAttemptJpaRepository
        order by a.attemptedAt desc
       """)
   List<MessageDeliveryAttemptJpaEntity> findRecentForMessages(
-      @Param("messageIds") Collection<UUID> messageIds,
-      Pageable pageable);
+      @Param("messageIds") Collection<UUID> messageIds, Pageable pageable);
 }

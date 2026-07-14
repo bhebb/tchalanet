@@ -18,12 +18,7 @@ public class PageRuntimeAssembler {
 
   private static final Set<String> INTERNAL_KEYS =
       Set.of(
-          "binding",
-          "fileKey",
-          "fragmentType",
-          "schemaVersion",
-          "fragment_type",
-          "schema_version");
+          "binding", "fileKey", "fragmentType", "schemaVersion", "fragment_type", "schema_version");
 
   private final JsonUtils jsonUtils;
 
@@ -33,9 +28,7 @@ public class PageRuntimeAssembler {
 
   public PageRuntimeResponse assemble(PageModelDoc doc, PageDynamicPayload resolved) {
     Map<String, Object> resolvedWidgets =
-        resolved == null || resolved.widgets() == null
-            ? Map.of()
-            : resolved.widgets();
+        resolved == null || resolved.widgets() == null ? Map.of() : resolved.widgets();
 
     var content = content(doc == null ? null : doc.content(), resolvedWidgets);
     var shell = shell(doc, resolvedWidgets);
@@ -73,9 +66,7 @@ public class PageRuntimeAssembler {
     Object root = normalize(resolvedWidgets.get("shell.root"));
     if (root instanceof Map<?, ?> rootMap) {
       return new PageRuntimeResponse.PrivateShell(
-          "private",
-          value(rootMap, "topAppBar"),
-          privateNavigationDrawer(doc, rootMap));
+          "private", value(rootMap, "topAppBar"), privateNavigationDrawer(doc, rootMap));
     }
     return new PageRuntimeResponse.PrivateShell("private", Map.of(), Map.of());
   }
@@ -128,21 +119,22 @@ public class PageRuntimeAssembler {
   }
 
   private PageRuntimeResponse.PageContent content(
-      PageModelDoc.Content content,
-      Map<String, Object> resolvedWidgets) {
+      PageModelDoc.Content content, Map<String, Object> resolvedWidgets) {
     Map<String, PageRuntimeResponse.WidgetConfig> widgets = new LinkedHashMap<>();
     if (content != null && content.widgets() != null) {
-      content.widgets().forEach(
-          (id, config) -> {
-            if (config == null) {
-              return;
-            }
-            Object props =
-                isJsonFragment(config)
-                    ? normalize(resolvedWidgets.get(id))
-                    : normalize(config.props());
-            widgets.put(id, new PageRuntimeResponse.WidgetConfig(config.type(), props));
-          });
+      content
+          .widgets()
+          .forEach(
+              (id, config) -> {
+                if (config == null) {
+                  return;
+                }
+                Object props =
+                    isJsonFragment(config)
+                        ? normalize(resolvedWidgets.get(id))
+                        : normalize(config.props());
+                widgets.put(id, new PageRuntimeResponse.WidgetConfig(config.type(), props));
+              });
     }
 
     List<PageRuntimeResponse.LayoutRow> rows = new ArrayList<>();
@@ -153,23 +145,18 @@ public class PageRuntimeAssembler {
           for (var column : row.columns()) {
             columns.add(
                 new PageRuntimeResponse.LayoutColumn(
-                    column.span(),
-                    column.widgets() == null ? List.of() : column.widgets()));
+                    column.span(), column.widgets() == null ? List.of() : column.widgets()));
           }
         }
         rows.add(new PageRuntimeResponse.LayoutRow(row.id(), row.labelKey(), columns));
       }
     }
 
-    return new PageRuntimeResponse.PageContent(
-        new PageRuntimeResponse.PageLayout(rows),
-        widgets);
+    return new PageRuntimeResponse.PageContent(new PageRuntimeResponse.PageLayout(rows), widgets);
   }
 
   private PageRuntimeResponse.DynamicPayload dynamic(
-      PageModelDoc doc,
-      PageDynamicPayload resolved,
-      Map<String, Object> resolvedWidgets) {
+      PageModelDoc doc, PageDynamicPayload resolved, Map<String, Object> resolvedWidgets) {
     Map<String, Object> widgets = new LinkedHashMap<>();
     resolvedWidgets.forEach(
         (id, payload) -> {
@@ -211,8 +198,7 @@ public class PageRuntimeAssembler {
     if (value == null) {
       return Map.of();
     }
-    Object plain =
-        jsonUtils.convertValue(value, new TypeReference<Object>() {});
+    Object plain = jsonUtils.convertValue(value, new TypeReference<Object>() {});
     return normalizePlain(plain);
   }
 
@@ -246,7 +232,8 @@ public class PageRuntimeAssembler {
     boolean actionLike =
         path != null
             || href != null
-            || (kind != null && (value.containsKey("destination") || value.containsKey("labelKey")));
+            || (kind != null
+                && (value.containsKey("destination") || value.containsKey("labelKey")));
     if (!actionLike) {
       return;
     }
@@ -284,7 +271,9 @@ public class PageRuntimeAssembler {
     StringBuilder result = new StringBuilder(parts[0]);
     for (int index = 1; index < parts.length; index++) {
       if (!parts[index].isEmpty()) {
-        result.append(Character.toUpperCase(parts[index].charAt(0))).append(parts[index].substring(1));
+        result
+            .append(Character.toUpperCase(parts[index].charAt(0)))
+            .append(parts[index].substring(1));
       }
     }
     return result.toString();

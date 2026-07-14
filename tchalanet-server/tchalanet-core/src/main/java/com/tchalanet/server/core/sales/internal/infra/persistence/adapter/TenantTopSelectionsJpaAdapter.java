@@ -18,18 +18,14 @@ public class TenantTopSelectionsJpaAdapter implements TenantTopSelectionsReaderP
 
   @Override
   public TenantTopSelectionsByPeriodView findTopSelectionsByPeriod(
-      TenantId tenantId,
-      LocalDate from,
-      LocalDate to,
-      ZoneId zoneId,
-      int limit
-  ) {
+      TenantId tenantId, LocalDate from, LocalDate to, ZoneId zoneId, int limit) {
     ZoneId effectiveZoneId = zoneId != null ? zoneId : ZoneId.systemDefault();
-    var rows = ticketRepository.topSelectionsByTenantAndPeriod(
-        tenantId.value(),
-        from.atStartOfDay(effectiveZoneId).toInstant(),
-        to.plusDays(1).atStartOfDay(effectiveZoneId).toInstant(),
-        limit);
+    var rows =
+        ticketRepository.topSelectionsByTenantAndPeriod(
+            tenantId.value(),
+            from.atStartOfDay(effectiveZoneId).toInstant(),
+            to.plusDays(1).atStartOfDay(effectiveZoneId).toInstant(),
+            limit);
     var items = rows.stream().map(this::selectionItem).toList();
     return new TenantTopSelectionsByPeriodView(from, to, items);
   }

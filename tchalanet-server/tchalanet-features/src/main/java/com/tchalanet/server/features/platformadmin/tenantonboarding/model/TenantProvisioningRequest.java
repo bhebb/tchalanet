@@ -10,8 +10,8 @@ import java.time.ZoneId;
 import java.util.Currency;
 
 /**
- * Shared request payload for {@code POST /platform/tenant-onboarding/preview}
- * and {@code POST /platform/tenant-onboarding/provision}.
+ * Shared request payload for {@code POST /platform/tenant-onboarding/preview} and {@code POST
+ * /platform/tenant-onboarding/provision}.
  */
 public record TenantProvisioningRequest(
     @NotBlank String code,

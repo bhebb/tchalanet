@@ -11,5 +11,4 @@ public record ArchiveRunView(
     String idempotencyKey,
     Instant startedAt,
     Instant completedAt,
-    String errorMessage
-) {}
+    String errorMessage) {}

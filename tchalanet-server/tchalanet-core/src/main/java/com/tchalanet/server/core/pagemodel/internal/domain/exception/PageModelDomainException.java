@@ -1,8 +1,6 @@
 package com.tchalanet.server.core.pagemodel.internal.domain.exception;
 
-/**
- * Base exception for all pagemodel domain violations.
- */
+/** Base exception for all pagemodel domain violations. */
 public class PageModelDomainException extends RuntimeException {
 
   public PageModelDomainException(String message) {
@@ -13,4 +11,3 @@ public class PageModelDomainException extends RuntimeException {
     super(message, cause);
   }
 }
-

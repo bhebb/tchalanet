@@ -8,5 +8,4 @@ public record RescheduleDrawRequest(
     @NotNull Instant scheduledAt,
     @NotNull Instant cutoffAt,
     @Size(max = 255) String reason,
-    boolean force
-) {}
+    boolean force) {}

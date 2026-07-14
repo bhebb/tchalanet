@@ -7,7 +7,6 @@ import com.tchalanet.server.core.sales.api.model.communication.SaleCommunication
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-
 import java.util.List;
 
 public record SellTicketRequest(
@@ -15,6 +14,4 @@ public record SellTicketRequest(
     @NotNull DrawChannelId drawChannelId,
     @NotNull CurrencyCode currency,
     @NotEmpty @Valid List<SellTicketLineRequest> lines,
-    SaleCommunicationOptions serviceOptions
-) {
-}
+    SaleCommunicationOptions serviceOptions) {}

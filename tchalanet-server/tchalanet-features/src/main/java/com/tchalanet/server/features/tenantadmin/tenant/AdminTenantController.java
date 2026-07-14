@@ -11,6 +11,7 @@ import com.tchalanet.server.platform.tenant.api.model.request.UpdateTenantIdenti
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,8 +21,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/admin/tenant")
@@ -44,10 +43,14 @@ public class AdminTenantController {
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @Operation(summary = "Update identity fields of the current tenant")
   public void updateIdentity(
-      @CurrentContext TchRequestContext ctx,
-      @Valid @RequestBody UpdateTenantIdentityBody body) {
+      @CurrentContext TchRequestContext ctx, @Valid @RequestBody UpdateTenantIdentityBody body) {
     tenantConfigApi.updateTenantIdentity(
-        new UpdateTenantIdentityRequest(ctx.tenantIdRequired(), body.name(), body.displayName(), body.timezone(), body.currency()));
+        new UpdateTenantIdentityRequest(
+            ctx.tenantIdRequired(),
+            body.name(),
+            body.displayName(),
+            body.timezone(),
+            body.currency()));
   }
 
   @PutMapping("/address")
@@ -55,12 +58,13 @@ public class AdminTenantController {
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @Operation(summary = "Upsert primary address of the current tenant")
   public void upsertAddress(
-      @CurrentContext TchRequestContext ctx,
-      @Valid @RequestBody UpsertTenantAddressRequest req) {
+      @CurrentContext TchRequestContext ctx, @Valid @RequestBody UpsertTenantAddressRequest req) {
     addressApi.upsertTenantPrimary(
         ctx.tenantIdRequired(),
-        new AddressInput(req.line1(), req.line2(), req.city(), req.region(), req.country(), req.postalCode()));
+        new AddressInput(
+            req.line1(), req.line2(), req.city(), req.region(), req.country(), req.postalCode()));
   }
 
-  public record UpdateTenantIdentityBody(String name, String displayName, String timezone, String currency) {}
+  public record UpdateTenantIdentityBody(
+      String name, String displayName, String timezone, String currency) {}
 }

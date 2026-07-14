@@ -1,5 +1,7 @@
 package com.tchalanet.server.common.context.web;
 
+import static com.tchalanet.server.common.context.ContextKeys.REQUEST_CONTEXT;
+
 import com.tchalanet.server.common.context.TchContext;
 import com.tchalanet.server.common.context.TchRequestContext;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,8 +13,6 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
-import static com.tchalanet.server.common.context.ContextKeys.REQUEST_CONTEXT;
-
 @Component
 @RequiredArgsConstructor
 public class CurrentContextArgumentResolver implements HandlerMethodArgumentResolver {
@@ -20,7 +20,7 @@ public class CurrentContextArgumentResolver implements HandlerMethodArgumentReso
   @Override
   public boolean supportsParameter(MethodParameter p) {
     return (p.hasParameterAnnotation(CurrentContext.class)
-        || p.hasParameterAnnotation(CurrentContext.class))
+            || p.hasParameterAnnotation(CurrentContext.class))
         && p.getParameterType().equals(TchRequestContext.class);
   }
 

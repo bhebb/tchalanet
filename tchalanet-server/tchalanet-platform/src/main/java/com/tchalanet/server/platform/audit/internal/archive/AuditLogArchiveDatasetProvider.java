@@ -13,7 +13,6 @@ import com.tchalanet.server.platform.audit.internal.persistence.AuditLogJdbcRepo
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,24 +43,32 @@ public class AuditLogArchiveDatasetProvider implements ArchiveDatasetProvider {
   @Override
   public ArchiveDatasetPlan plan(ArchivePeriod period, UUID tenantId) {
     Instant from = period.start().atStartOfDay(ZoneOffset.UTC).toInstant();
-    Instant to   = period.end().atStartOfDay(ZoneOffset.UTC).toInstant();
-    long count   = auditLogRepo.countByPeriod(from, to, tenantId);
+    Instant to = period.end().atStartOfDay(ZoneOffset.UTC).toInstant();
+    long count = auditLogRepo.countByPeriod(from, to, tenantId);
     return new ArchiveDatasetPlan(KEY, period, tenantId, count, count > 0);
   }
 
   @Override
   public ArchiveExportResult export(ArchiveExportRequest request) {
     Instant from = request.period().start().atStartOfDay(ZoneOffset.UTC).toInstant();
-    Instant to   = request.period().end().atStartOfDay(ZoneOffset.UTC).toInstant();
+    Instant to = request.period().end().atStartOfDay(ZoneOffset.UTC).toInstant();
 
     long[] rowsExported = {0};
-    auditLogRepo.streamByPeriod(from, to, request.tenantId(), row -> {
-      request.rowSink().accept(row);
-      rowsExported[0]++;
-    });
+    auditLogRepo.streamByPeriod(
+        from,
+        to,
+        request.tenantId(),
+        row -> {
+          request.rowSink().accept(row);
+          rowsExported[0]++;
+        });
 
-    log.info("audit_log export: {} rows for period {}/{} tenant={}",
-        rowsExported[0], request.period().start(), request.period().end(), request.tenantId());
+    log.info(
+        "audit_log export: {} rows for period {}/{} tenant={}",
+        rowsExported[0],
+        request.period().start(),
+        request.period().end(),
+        request.tenantId());
 
     return new ArchiveExportResult(rowsExported[0], SCHEMA_VERSION);
   }
@@ -77,28 +84,31 @@ public class AuditLogArchiveDatasetProvider implements ArchiveDatasetProvider {
   public List<ArchiveLookupEntry> generateLookupRows(
       ArchivePeriod period, UUID tenantId, UUID archiveObjectId) {
 
-    // For audit_log: one lookup entry per distinct (tenant_id, entity_type, entity_id, business_date).
+    // For audit_log: one lookup entry per distinct (tenant_id, entity_type, entity_id,
+    // business_date).
     // We generate a coarser-grained index: one entry per (tenant, date) pointing to the object,
     // so archive queries can locate the right object for a date range without scanning all objects.
     // Fine-grained per-entity entries are omitted for V1 (audit volume is too high).
-    return auditLogRepo.findDistinctEntityLookupRows(
-        period.start().atStartOfDay(ZoneOffset.UTC).toInstant(),
-        period.end().atStartOfDay(ZoneOffset.UTC).toInstant(),
-        tenantId,
-        archiveObjectId
-    ).stream()
-        .map(r -> new ArchiveLookupEntry(
-            TABLE,
-            (UUID) r.get("tenant_id"),
-            (String) r.get("entity_type"),
-            (UUID) r.get("entity_id"),
-            null,
-            null,
-            (Instant) r.get("occurred_at"),
-            archiveObjectId,
-            null,
-            null
-        ))
+    return auditLogRepo
+        .findDistinctEntityLookupRows(
+            period.start().atStartOfDay(ZoneOffset.UTC).toInstant(),
+            period.end().atStartOfDay(ZoneOffset.UTC).toInstant(),
+            tenantId,
+            archiveObjectId)
+        .stream()
+        .map(
+            r ->
+                new ArchiveLookupEntry(
+                    TABLE,
+                    (UUID) r.get("tenant_id"),
+                    (String) r.get("entity_type"),
+                    (UUID) r.get("entity_id"),
+                    null,
+                    null,
+                    (Instant) r.get("occurred_at"),
+                    archiveObjectId,
+                    null,
+                    null))
         .toList();
   }
 }

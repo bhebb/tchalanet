@@ -13,9 +13,7 @@ public record AccessSnapshotView(
     SellerTerminalAccessScopeView sellerTerminalScope) {
 
   public record PlatformAccessView(
-      boolean superAdmin,
-      Set<String> roleCodes,
-      Set<String> permissionKeys) {}
+      boolean superAdmin, Set<String> roleCodes, Set<String> permissionKeys) {}
 
   public record TenantAccessScopeView(
       TenantId tenantId,

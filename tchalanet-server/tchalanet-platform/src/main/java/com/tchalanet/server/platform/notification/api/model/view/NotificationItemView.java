@@ -1,10 +1,10 @@
 package com.tchalanet.server.platform.notification.api.model.view;
+
+import com.tchalanet.server.common.types.id.NotificationId;
 import com.tchalanet.server.platform.notification.api.model.NotificationCategory;
 import com.tchalanet.server.platform.notification.api.model.NotificationKind;
 import com.tchalanet.server.platform.notification.api.model.NotificationSeverity;
 import com.tchalanet.server.platform.notification.api.model.NotificationStatus;
-
-import com.tchalanet.server.common.types.id.NotificationId;
 import java.time.Instant;
 import tools.jackson.databind.JsonNode;
 

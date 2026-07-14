@@ -9,5 +9,4 @@ public record StartSupportAccessSessionRequest(
     String tenantCode,
     String tenantName,
     String reason,
-    SupportAccessMode mode
-) {}
+    SupportAccessMode mode) {}

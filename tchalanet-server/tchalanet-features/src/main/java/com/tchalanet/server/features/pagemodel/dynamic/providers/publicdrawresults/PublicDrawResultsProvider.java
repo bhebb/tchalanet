@@ -8,6 +8,7 @@ import com.tchalanet.server.core.pagemodel.api.dynamic.PageModelDynamicProvider;
 import com.tchalanet.server.core.pagemodel.api.dynamic.PageModelDynamicProviderException;
 import com.tchalanet.server.core.pagemodel.api.dynamic.PageModelResolutionContext;
 import com.tchalanet.server.core.pagemodel.api.model.PageModelDoc;
+import com.tchalanet.server.features.publicdrawresults.DrawChannelLabelKeyResolver;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -15,20 +16,18 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
-import com.tchalanet.server.features.publicdrawresults.DrawChannelLabelKeyResolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 /**
  * Single provider for source {@code public_draw_results} (dashboard-overview-runtime-v1).
  *
- * Loads the slots with their latest results once per request via {@link PageModelResolutionContext}.
- * Both widgets use the same structure {@link HomeSlot} with i18n label keys.
+ * <p>Loads the slots with their latest results once per request via {@link
+ * PageModelResolutionContext}. Both widgets use the same structure {@link HomeSlot} with i18n label
+ * keys.
  *
- * Supported widget ids:
- *   - home.draws                  → slots only (same structure)
- *   - public.draw_results.main    → slots only (same structure)
+ * <p>Supported widget ids: - home.draws → slots only (same structure) - public.draw_results.main →
+ * slots only (same structure)
  */
 @Component
 @RequiredArgsConstructor
@@ -58,11 +57,11 @@ public class PublicDrawResultsProvider implements PageModelDynamicProvider {
 
     // Les deux widgets retournent la même structure
     return switch (widgetId == null ? "" : widgetId) {
-      case "home.draws", "public.draw_results.main" ->
-          Map.of("slots", homeSlots(payload.slots()));
-      default -> throw new PageModelDynamicProviderException(
-          "PUBLIC_DRAW_RESULTS_UNKNOWN_WIDGET",
-          "Unknown widgetId for source=" + SOURCE + ": " + widgetId);
+      case "home.draws", "public.draw_results.main" -> Map.of("slots", homeSlots(payload.slots()));
+      default ->
+          throw new PageModelDynamicProviderException(
+              "PUBLIC_DRAW_RESULTS_UNKNOWN_WIDGET",
+              "Unknown widgetId for source=" + SOURCE + ": " + widgetId);
     };
   }
 
@@ -119,7 +118,6 @@ public class PublicDrawResultsProvider implements PageModelDynamicProvider {
     return latest.haiti() == null ? null : latest.haiti().path(field).asString(null);
   }
 
-
   record HomeSlot(
       String slotKey,
       String provider,
@@ -132,11 +130,7 @@ public class PublicDrawResultsProvider implements PageModelDynamicProvider {
       HomeNext next,
       HomeLatest latest) {}
 
-  record HomeNext(
-      Instant expectedAt,
-      LocalTime localTime,
-      String status,
-      long countdownSeconds) {}
+  record HomeNext(Instant expectedAt, LocalTime localTime, String status, long countdownSeconds) {}
 
   record HomeLatest(
       /** UUID opaque pour naviguer vers le détail. */
@@ -147,21 +141,15 @@ public class PublicDrawResultsProvider implements PageModelDynamicProvider {
       String quality,
       HomeHaiti haiti) {}
 
-  record HomeHaiti(
-      String lot1,
-      String lot2,
-      String lot3,
-      String lot4) {}
+  record HomeHaiti(String lot1, String lot2, String lot3, String lot4) {}
 
-
-  static PublicDrawResultsPayloadAssembler.Spec buildSpec(
-      PageModelDoc.WidgetConfig config) {
+  static PublicDrawResultsPayloadAssembler.Spec buildSpec(PageModelDoc.WidgetConfig config) {
     Map<String, Object> props = config == null ? null : config.props();
     return new PublicDrawResultsPayloadAssembler.Spec(
         readStringList(props, "slotKeys"),
         readString(props, "provider"),
-        false,  // includeHistory - désactivé car non utilisé par les widgets
-        0);     // historyLimit - 0 car non utilisé
+        false, // includeHistory - désactivé car non utilisé par les widgets
+        0); // historyLimit - 0 car non utilisé
   }
 
   private static String readString(Map<String, Object> props, String key) {
@@ -182,10 +170,7 @@ public class PublicDrawResultsProvider implements PageModelDynamicProvider {
           .toList();
     }
     if (v instanceof String s) {
-      return Arrays.stream(s.split(","))
-          .map(String::trim)
-          .filter(t -> !t.isBlank())
-          .toList();
+      return Arrays.stream(s.split(",")).map(String::trim).filter(t -> !t.isBlank()).toList();
     }
     return List.of();
   }

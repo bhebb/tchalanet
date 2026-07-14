@@ -8,13 +8,14 @@ import com.tchalanet.server.platform.tenant.api.model.request.GetTenantByIdReque
 import com.tchalanet.server.platform.tenant.api.model.request.GetTenantInternalSettingsSectionRequest;
 import com.tchalanet.server.platform.tenant.api.model.request.UpdateTenantInternalSettingsRequest;
 import com.tchalanet.server.platform.tenant.api.model.request.UpdateTenantInternalSettingsSectionRequest;
+import com.tchalanet.server.platform.tenant.api.model.view.TenantHolidayTemplateView;
 import com.tchalanet.server.platform.tenant.api.model.view.TenantInternalCommunicationConfig;
 import com.tchalanet.server.platform.tenant.api.model.view.TenantInternalDocumentConfig;
 import com.tchalanet.server.platform.tenant.api.model.view.TenantInternalSettings;
-import com.tchalanet.server.platform.tenant.api.model.view.TenantHolidayTemplateView;
 import com.tchalanet.server.platform.tenant.api.model.view.TenantSettingsReadinessView;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,8 +27,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import tools.jackson.databind.JsonNode;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/admin/tenant-config")
@@ -41,25 +40,33 @@ public class AdminTenantConfigController {
   @GetMapping
   @Operation(summary = "Get internal settings of the current tenant")
   public ApiResponse<TenantInternalSettings> getConfig(@CurrentContext TchRequestContext ctx) {
-    return ApiResponse.success(tenantConfig.getTenantInternalSettings(new GetTenantByIdRequest(ctx.tenantIdRequired())));
+    return ApiResponse.success(
+        tenantConfig.getTenantInternalSettings(new GetTenantByIdRequest(ctx.tenantIdRequired())));
   }
 
   @GetMapping("/communication")
   @Operation(summary = "Get communication config of the current tenant")
-  public ApiResponse<TenantInternalCommunicationConfig> getCommunication(@CurrentContext TchRequestContext ctx) {
-    return ApiResponse.success(tenantConfig.getTenantCommunicationConfig(new GetTenantByIdRequest(ctx.tenantIdRequired())));
+  public ApiResponse<TenantInternalCommunicationConfig> getCommunication(
+      @CurrentContext TchRequestContext ctx) {
+    return ApiResponse.success(
+        tenantConfig.getTenantCommunicationConfig(
+            new GetTenantByIdRequest(ctx.tenantIdRequired())));
   }
 
   @GetMapping("/document")
   @Operation(summary = "Get document config of the current tenant")
-  public ApiResponse<TenantInternalDocumentConfig> getDocument(@CurrentContext TchRequestContext ctx) {
-    return ApiResponse.success(tenantConfig.getTenantDocumentConfig(new GetTenantByIdRequest(ctx.tenantIdRequired())));
+  public ApiResponse<TenantInternalDocumentConfig> getDocument(
+      @CurrentContext TchRequestContext ctx) {
+    return ApiResponse.success(
+        tenantConfig.getTenantDocumentConfig(new GetTenantByIdRequest(ctx.tenantIdRequired())));
   }
 
   @GetMapping("/readiness")
   @Operation(summary = "Get tenant settings readiness of the current tenant")
-  public ApiResponse<TenantSettingsReadinessView> getReadiness(@CurrentContext TchRequestContext ctx) {
-    return ApiResponse.success(tenantConfig.getTenantSettingsReadiness(new GetTenantByIdRequest(ctx.tenantIdRequired())));
+  public ApiResponse<TenantSettingsReadinessView> getReadiness(
+      @CurrentContext TchRequestContext ctx) {
+    return ApiResponse.success(
+        tenantConfig.getTenantSettingsReadiness(new GetTenantByIdRequest(ctx.tenantIdRequired())));
   }
 
   @GetMapping("/holiday-templates")
@@ -71,21 +78,21 @@ public class AdminTenantConfigController {
   @GetMapping("/sections/{section}")
   @Operation(summary = "Get one effective internal settings section of the current tenant")
   public ApiResponse<JsonNode> getSection(
-      @CurrentContext TchRequestContext ctx,
-      @PathVariable String section) {
-    return ApiResponse.success(tenantConfig.getTenantInternalSettingsSection(new GetTenantInternalSettingsSectionRequest(
-        ctx.tenantIdRequired(),
-        UpdateTenantInternalSettingsSectionRequest.Section.fromJsonKey(section))));
+      @CurrentContext TchRequestContext ctx, @PathVariable String section) {
+    return ApiResponse.success(
+        tenantConfig.getTenantInternalSettingsSection(
+            new GetTenantInternalSettingsSectionRequest(
+                ctx.tenantIdRequired(),
+                UpdateTenantInternalSettingsSectionRequest.Section.fromJsonKey(section))));
   }
 
   @PutMapping("/internal-settings")
   @PreAuthorize("hasPermission(null, 'tenant.config.manage')")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @Operation(summary = "Update internal settings of the current tenant")
-  public void updateSettings(
-      @CurrentContext TchRequestContext ctx,
-      @RequestBody JsonNode body) {
-    tenantConfig.updateTenantInternalSettings(new UpdateTenantInternalSettingsRequest(ctx.tenantIdRequired(), body));
+  public void updateSettings(@CurrentContext TchRequestContext ctx, @RequestBody JsonNode body) {
+    tenantConfig.updateTenantInternalSettings(
+        new UpdateTenantInternalSettingsRequest(ctx.tenantIdRequired(), body));
   }
 
   @PutMapping("/sections/{section}")
@@ -96,9 +103,10 @@ public class AdminTenantConfigController {
       @CurrentContext TchRequestContext ctx,
       @PathVariable String section,
       @RequestBody JsonNode body) {
-    tenantConfig.updateTenantInternalSettingsSection(new UpdateTenantInternalSettingsSectionRequest(
-        ctx.tenantIdRequired(),
-        UpdateTenantInternalSettingsSectionRequest.Section.fromJsonKey(section),
-        body));
+    tenantConfig.updateTenantInternalSettingsSection(
+        new UpdateTenantInternalSettingsSectionRequest(
+            ctx.tenantIdRequired(),
+            UpdateTenantInternalSettingsSectionRequest.Section.fromJsonKey(section),
+            body));
   }
 }

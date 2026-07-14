@@ -28,24 +28,22 @@ import tools.jackson.databind.json.JsonMapper;
 @Configuration
 public class JacksonConfig {
 
-    /**
-     * Project-specific module registering serializers/deserializers for typed-id wrappers.
-     */
-    @Bean
-    public JacksonModule typedIdsModule() {
-        return TypedIdsJacksonModule.create();
-    }
+  /** Project-specific module registering serializers/deserializers for typed-id wrappers. */
+  @Bean
+  public JacksonModule typedIdsModule() {
+    return TypedIdsJacksonModule.create();
+  }
 
-    /**
-     * Customizes the auto-configured {@link JsonMapper} produced by Spring Boot. Registered modules
-     * (including {@link #typedIdsModule()}) are applied here.
-     */
-    @Bean
-    public JsonMapperBuilderCustomizer jacksonCustomizer() {
-        return builder ->
-            builder
-                .addModule(typedIdsModule())
-                .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
-                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-    }
+  /**
+   * Customizes the auto-configured {@link JsonMapper} produced by Spring Boot. Registered modules
+   * (including {@link #typedIdsModule()}) are applied here.
+   */
+  @Bean
+  public JsonMapperBuilderCustomizer jacksonCustomizer() {
+    return builder ->
+        builder
+            .addModule(typedIdsModule())
+            .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+  }
 }

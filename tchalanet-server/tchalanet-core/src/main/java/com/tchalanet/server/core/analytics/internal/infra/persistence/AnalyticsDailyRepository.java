@@ -16,17 +16,18 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Repository for {@code analytics_daily}.
  *
- * <p>Read queries use JPQL/Spring Data; the upsert uses the SQL function
- * {@code public.upsert_analytics_daily} defined in V109 migration.
+ * <p>Read queries use JPQL/Spring Data; the upsert uses the SQL function {@code
+ * public.upsert_analytics_daily} defined in V109 migration.
  */
 @Repository
-public interface AnalyticsDailyRepository extends JpaRepository<AnalyticsDailyEntity, UUID>,
-    AnalyticsDailyUpsertRepository {
+public interface AnalyticsDailyRepository
+    extends JpaRepository<AnalyticsDailyEntity, UUID>, AnalyticsDailyUpsertRepository {
 
   // ── read queries ──────────────────────────────────────────────────────────
 
   /** Sum all TENANT rows for a tenant over a date range. */
-  @Query("""
+  @Query(
+      """
       SELECT a FROM AnalyticsDailyEntity a
        WHERE a.dimensionType = 'TENANT'
          AND a.tenantId = :tenantId
@@ -34,12 +35,11 @@ public interface AnalyticsDailyRepository extends JpaRepository<AnalyticsDailyEn
        ORDER BY a.refDate
       """)
   List<AnalyticsDailyEntity> findTenantRows(
-      @Param("tenantId") UUID tenantId,
-      @Param("from") LocalDate from,
-      @Param("to") LocalDate to);
+      @Param("tenantId") UUID tenantId, @Param("from") LocalDate from, @Param("to") LocalDate to);
 
   /** Single PLATFORM row for a date (global rollup). */
-  @Query("""
+  @Query(
+      """
       SELECT a FROM AnalyticsDailyEntity a
        WHERE a.dimensionType = 'PLATFORM'
          AND a.dimensionId IS NULL
@@ -49,7 +49,8 @@ public interface AnalyticsDailyRepository extends JpaRepository<AnalyticsDailyEn
   Optional<AnalyticsDailyEntity> findPlatformRow(@Param("refDate") LocalDate refDate);
 
   /** PLATFORM rows for a date range. */
-  @Query("""
+  @Query(
+      """
       SELECT a FROM AnalyticsDailyEntity a
        WHERE a.dimensionType = 'PLATFORM'
          AND a.dimensionId IS NULL
@@ -58,22 +59,22 @@ public interface AnalyticsDailyRepository extends JpaRepository<AnalyticsDailyEn
        ORDER BY a.refDate
       """)
   List<AnalyticsDailyEntity> findPlatformRows(
-      @Param("from") LocalDate from,
-      @Param("to") LocalDate to);
+      @Param("from") LocalDate from, @Param("to") LocalDate to);
 
   /** All TENANT rows for a date range (for top-tenant ranking). */
-  @Query("""
+  @Query(
+      """
       SELECT a FROM AnalyticsDailyEntity a
        WHERE a.dimensionType = 'TENANT'
          AND a.refDate BETWEEN :from AND :to
        ORDER BY a.grossSalesCents DESC
       """)
   List<AnalyticsDailyEntity> findAllTenantRows(
-      @Param("from") LocalDate from,
-      @Param("to") LocalDate to);
+      @Param("from") LocalDate from, @Param("to") LocalDate to);
 
   /** SELLER_TERMINAL dimension row for a specific terminal+tenant+date. */
-  @Query("""
+  @Query(
+      """
       SELECT a FROM AnalyticsDailyEntity a
        WHERE a.dimensionType = 'SELLER_TERMINAL'
          AND a.tenantId = :tenantId
@@ -86,7 +87,8 @@ public interface AnalyticsDailyRepository extends JpaRepository<AnalyticsDailyEn
       @Param("refDate") LocalDate refDate);
 
   /** SELLER_TERMINAL rows for tenant-admin seller commission/charge/promotion drilldowns. */
-  @Query("""
+  @Query(
+      """
       SELECT a FROM AnalyticsDailyEntity a
        WHERE a.dimensionType = 'SELLER_TERMINAL'
          AND a.tenantId = :tenantId
@@ -94,9 +96,7 @@ public interface AnalyticsDailyRepository extends JpaRepository<AnalyticsDailyEn
        ORDER BY a.refDate DESC, a.sellerCommissionCents DESC, a.grossSalesCents DESC
       """)
   List<AnalyticsDailyEntity> findSellerTerminalRows(
-      @Param("tenantId") UUID tenantId,
-      @Param("from") LocalDate from,
-      @Param("to") LocalDate to);
+      @Param("tenantId") UUID tenantId, @Param("from") LocalDate from, @Param("to") LocalDate to);
 
   /** Delete rows older than retention cutoff for purge. */
   @Transactional
@@ -109,19 +109,17 @@ public interface AnalyticsDailyRepository extends JpaRepository<AnalyticsDailyEn
   long countOlderThan(@Param("cutoff") LocalDate cutoff);
 }
 
-
 /**
- * Custom interface for the native SQL upsert (separate from JPA repository to keep
- * Spring Data from trying to parse the SQL as JPQL).
+ * Custom interface for the native SQL upsert (separate from JPA repository to keep Spring Data from
+ * trying to parse the SQL as JPQL).
  */
 interface AnalyticsDailyUpsertRepository {
 
   /**
    * Atomic upsert via {@code public.upsert_analytics_daily(...)}.
    *
-   * <p>Uses {@link Propagation#REQUIRES_NEW} to ensure the upsert runs in
-   * its own transaction, avoiding lock contention with the outer event listener
-   * transaction that already committed.
+   * <p>Uses {@link Propagation#REQUIRES_NEW} to ensure the upsert runs in its own transaction,
+   * avoiding lock contention with the outer event listener transaction that already committed.
    */
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   void upsertAndIncrement(
@@ -146,53 +144,61 @@ interface AnalyticsDailyUpsertRepository {
       long sessionsClosedDelta);
 }
 
-
 /**
- * Implementation of the custom upsert.
- * Named with suffix {@code Impl} per Spring Data convention.
+ * Implementation of the custom upsert. Named with suffix {@code Impl} per Spring Data convention.
  */
 @Repository
 class AnalyticsDailyUpsertRepositoryImpl implements AnalyticsDailyUpsertRepository {
 
-  @PersistenceContext
-  private EntityManager em;
+  @PersistenceContext private EntityManager em;
 
   @Override
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void upsertAndIncrement(
-      String dimensionType, UUID dimensionId, UUID tenantId, LocalDate refDate,
-      long ticketsSoldDelta, long ticketsCancelledDelta,
-      long grossSalesDelta, long stakeTotalDelta,
-      long winningsCalcDelta, long payoutsPaidDelta,
+      String dimensionType,
+      UUID dimensionId,
+      UUID tenantId,
+      LocalDate refDate,
+      long ticketsSoldDelta,
+      long ticketsCancelledDelta,
+      long grossSalesDelta,
+      long stakeTotalDelta,
+      long winningsCalcDelta,
+      long payoutsPaidDelta,
       long sellerCommissionDelta,
-      long buyerChargeDelta, long sellerChargeDelta,
-      long tenantChargeDelta, long waivedChargeDelta,
-      long promotionLineCountDelta, long promotionPricedLineCountDelta,
-      long sessionsOpenedDelta, long sessionsClosedDelta) {
+      long buyerChargeDelta,
+      long sellerChargeDelta,
+      long tenantChargeDelta,
+      long waivedChargeDelta,
+      long promotionLineCountDelta,
+      long promotionPricedLineCountDelta,
+      long sessionsOpenedDelta,
+      long sessionsClosedDelta) {
 
-    em.createNativeQuery("SELECT public.upsert_analytics_daily("
-            + ":dt, :dimId, :tid, :rd, :ts, :tc, :gs, :st, :wc, :pp, :comm, "
-            + ":buyerCharge, :sellerCharge, :tenantCharge, :waivedCharge, "
-            + ":promoLineCount, :promoPricedLineCount, :so, :sc)")
-        .setParameter("dt",   dimensionType)
+    em.createNativeQuery(
+            "SELECT public.upsert_analytics_daily("
+                + ":dt, :dimId, :tid, :rd, :ts, :tc, :gs, :st, :wc, :pp, :comm, "
+                + ":buyerCharge, :sellerCharge, :tenantCharge, :waivedCharge, "
+                + ":promoLineCount, :promoPricedLineCount, :so, :sc)")
+        .setParameter("dt", dimensionType)
         .setParameter("dimId", dimensionId)
-        .setParameter("tid",   tenantId)
-        .setParameter("rd",    refDate)
-        .setParameter("ts",    ticketsSoldDelta)
-        .setParameter("tc",    ticketsCancelledDelta)
-        .setParameter("gs",    grossSalesDelta)
-        .setParameter("st",    stakeTotalDelta)
-        .setParameter("wc",    winningsCalcDelta)
-        .setParameter("pp",    payoutsPaidDelta)
-        .setParameter("comm",  sellerCommissionDelta)
-        .setParameter("buyerCharge",  buyerChargeDelta)
+        .setParameter("tid", tenantId)
+        .setParameter("rd", refDate)
+        .setParameter("ts", ticketsSoldDelta)
+        .setParameter("tc", ticketsCancelledDelta)
+        .setParameter("gs", grossSalesDelta)
+        .setParameter("st", stakeTotalDelta)
+        .setParameter("wc", winningsCalcDelta)
+        .setParameter("pp", payoutsPaidDelta)
+        .setParameter("comm", sellerCommissionDelta)
+        .setParameter("buyerCharge", buyerChargeDelta)
         .setParameter("sellerCharge", sellerChargeDelta)
         .setParameter("tenantCharge", tenantChargeDelta)
         .setParameter("waivedCharge", waivedChargeDelta)
         .setParameter("promoLineCount", promotionLineCountDelta)
         .setParameter("promoPricedLineCount", promotionPricedLineCountDelta)
-        .setParameter("so",    sessionsOpenedDelta)
-        .setParameter("sc",    sessionsClosedDelta)
+        .setParameter("so", sessionsOpenedDelta)
+        .setParameter("sc", sessionsClosedDelta)
         .getSingleResult();
   }
 }

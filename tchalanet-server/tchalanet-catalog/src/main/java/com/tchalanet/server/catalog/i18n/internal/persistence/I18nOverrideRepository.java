@@ -2,15 +2,14 @@ package com.tchalanet.server.catalog.i18n.internal.persistence;
 
 import com.tchalanet.server.catalog.i18n.api.model.I18nOverrideLevel;
 import com.tchalanet.server.catalog.i18n.api.model.I18nSurface;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 /**
  * I18n Override Repository (INTERNAL)
@@ -19,44 +18,48 @@ import java.util.UUID;
  */
 @Repository
 public interface I18nOverrideRepository
-    extends JpaRepository<I18nOverrideEntity, UUID>,
-    JpaSpecificationExecutor<I18nOverrideEntity> {
+    extends JpaRepository<I18nOverrideEntity, UUID>, JpaSpecificationExecutor<I18nOverrideEntity> {
 
+  List<I18nOverrideEntity> findByLocaleAndLevelAndActiveTrueAndDeletedAtIsNull(
+      String locale, I18nOverrideLevel level);
 
-    List<I18nOverrideEntity> findByLocaleAndLevelAndActiveTrueAndDeletedAtIsNull(
-        String locale, I18nOverrideLevel level);
-    // ========================================
-    // Catalog queries (read catalog)
-    // ========================================
+  // ========================================
+  // Catalog queries (read catalog)
+  // ========================================
 
-    Optional<I18nOverrideEntity> findByIdAndDeletedAtIsNull(UUID id);
+  Optional<I18nOverrideEntity> findByIdAndDeletedAtIsNull(UUID id);
 
-    // Uniqueness guards (write flows): must include surface to allow same key on different surfaces
-    Optional<I18nOverrideEntity> findFirstByTenantIdAndLocaleAndSurfaceAndI18nKeyAndActiveTrue(
-        UUID tenantId, String locale, I18nSurface surface, String i18nKey);
+  // Uniqueness guards (write flows): must include surface to allow same key on different surfaces
+  Optional<I18nOverrideEntity> findFirstByTenantIdAndLocaleAndSurfaceAndI18nKeyAndActiveTrue(
+      UUID tenantId, String locale, I18nSurface surface, String i18nKey);
 
-    Optional<I18nOverrideEntity> findFirstByLocaleAndSurfaceAndI18nKeyAndLevel(
-        String locale, I18nSurface surface, String i18nKey, I18nOverrideLevel level);
+  Optional<I18nOverrideEntity> findFirstByLocaleAndSurfaceAndI18nKeyAndLevel(
+      String locale, I18nSurface surface, String i18nKey, I18nOverrideLevel level);
 
-    // ========================================
-    // Admin queries (pagination)
-    // ========================================
+  // ========================================
+  // Admin queries (pagination)
+  // ========================================
 
-    Page<I18nOverrideEntity> findByActiveTrue(Pageable pageable);
+  Page<I18nOverrideEntity> findByActiveTrue(Pageable pageable);
 
-    // Admin findByKey lookup (surface-agnostic — returns first match for any surface)
-    Optional<I18nOverrideEntity> findFirstByLocaleAndI18nKeyAndLevel(
-        String locale, String i18nKey, I18nOverrideLevel level);
+  // Admin findByKey lookup (surface-agnostic — returns first match for any surface)
+  Optional<I18nOverrideEntity> findFirstByLocaleAndI18nKeyAndLevel(
+      String locale, String i18nKey, I18nOverrideLevel level);
 
-    List<I18nOverrideEntity> findByLocaleAndLevelAndTenantIdAndActiveTrueAndDeletedAtIsNull(String loc, I18nOverrideLevel i18nOverrideLevel, UUID tenantId);
+  List<I18nOverrideEntity> findByLocaleAndLevelAndTenantIdAndActiveTrueAndDeletedAtIsNull(
+      String loc, I18nOverrideLevel i18nOverrideLevel, UUID tenantId);
 
-    // NEW: list all active global overrides (for stats)
-    List<I18nOverrideEntity> findByLevelAndActiveTrueAndDeletedAtIsNull(I18nOverrideLevel level);
+  // NEW: list all active global overrides (for stats)
+  List<I18nOverrideEntity> findByLevelAndActiveTrueAndDeletedAtIsNull(I18nOverrideLevel level);
 
-    // Runtime bundle queries: surface IN (:surfaces)
-    List<I18nOverrideEntity> findByLocaleAndLevelAndSurfaceInAndActiveTrueAndDeletedAtIsNull(
-        String locale, I18nOverrideLevel level, java.util.Collection<I18nSurface> surfaces);
+  // Runtime bundle queries: surface IN (:surfaces)
+  List<I18nOverrideEntity> findByLocaleAndLevelAndSurfaceInAndActiveTrueAndDeletedAtIsNull(
+      String locale, I18nOverrideLevel level, java.util.Collection<I18nSurface> surfaces);
 
-    List<I18nOverrideEntity> findByLocaleAndLevelAndTenantIdAndSurfaceInAndActiveTrueAndDeletedAtIsNull(
-        String locale, I18nOverrideLevel level, UUID tenantId, java.util.Collection<I18nSurface> surfaces);
+  List<I18nOverrideEntity>
+      findByLocaleAndLevelAndTenantIdAndSurfaceInAndActiveTrueAndDeletedAtIsNull(
+          String locale,
+          I18nOverrideLevel level,
+          UUID tenantId,
+          java.util.Collection<I18nSurface> surfaces);
 }

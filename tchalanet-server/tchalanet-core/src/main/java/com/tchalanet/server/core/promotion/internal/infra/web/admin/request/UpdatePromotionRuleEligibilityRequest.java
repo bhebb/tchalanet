@@ -4,18 +4,9 @@ import com.tchalanet.server.core.promotion.api.model.rule.PromotionEligibilityTy
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-
 import java.util.List;
 import java.util.Map;
 
-public record UpdatePromotionRuleEligibilityRequest(
-    @NotEmpty
-    List<@Valid Item> items
-) {
-    public record Item(
-        @NotNull PromotionEligibilityType type,
-        @NotNull Map<String, Object> params
-    ) {
-    }
+public record UpdatePromotionRuleEligibilityRequest(@NotEmpty List<@Valid Item> items) {
+  public record Item(@NotNull PromotionEligibilityType type, @NotNull Map<String, Object> params) {}
 }
-

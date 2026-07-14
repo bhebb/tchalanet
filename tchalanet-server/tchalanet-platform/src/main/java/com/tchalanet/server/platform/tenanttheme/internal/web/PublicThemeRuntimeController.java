@@ -17,22 +17,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class PublicThemeRuntimeController {
 
-    private final TenantThemeRuntimeService runtimeService;
+  private final TenantThemeRuntimeService runtimeService;
 
-    @Operation(summary = "Public theme runtime — safe, no auth required")
-    @GetMapping("/public/theme/runtime")
-    public ApiResponse<ThemeRuntimeView> publicRuntime(@CurrentContext TchRequestContext ctx,
-                                                       @RequestParam(required = false) String mode) {
-        return ApiResponse.success(
-            runtimeService.getRuntime(ctx.effectiveTenantIdOrNull(), mode));
-    }
+  @Operation(summary = "Public theme runtime — safe, no auth required")
+  @GetMapping("/public/theme/runtime")
+  public ApiResponse<ThemeRuntimeView> publicRuntime(
+      @CurrentContext TchRequestContext ctx, @RequestParam(required = false) String mode) {
+    return ApiResponse.success(runtimeService.getRuntime(ctx.effectiveTenantIdOrNull(), mode));
+  }
 
-    @Operation(summary = "Authenticated theme runtime (with user mode preference)")
-    @GetMapping("/tenant/theme/runtime")
-    public ApiResponse<ThemeRuntimeView> runtime(
-        @CurrentContext TchRequestContext ctx,
-        @RequestParam(required = false) String mode) {
-        return ApiResponse.success(
-            runtimeService.getRuntime(ctx.tenantIdRequired(), mode));
-    }
+  @Operation(summary = "Authenticated theme runtime (with user mode preference)")
+  @GetMapping("/tenant/theme/runtime")
+  public ApiResponse<ThemeRuntimeView> runtime(
+      @CurrentContext TchRequestContext ctx, @RequestParam(required = false) String mode) {
+    return ApiResponse.success(runtimeService.getRuntime(ctx.tenantIdRequired(), mode));
+  }
 }

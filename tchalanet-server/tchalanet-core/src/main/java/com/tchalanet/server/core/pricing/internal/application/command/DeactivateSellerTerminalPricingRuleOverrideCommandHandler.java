@@ -13,15 +13,18 @@ import lombok.RequiredArgsConstructor;
 public class DeactivateSellerTerminalPricingRuleOverrideCommandHandler
     implements CommandHandler<DeactivateSellerTerminalPricingRuleOverrideCommand, Void> {
 
-    private final SellerTerminalOddsOverrideReaderPort reader;
-    private final SellerTerminalOddsOverrideWriterPort writer;
+  private final SellerTerminalOddsOverrideReaderPort reader;
+  private final SellerTerminalOddsOverrideWriterPort writer;
 
-    @Override
-    @TchTx
-    public Void handle(DeactivateSellerTerminalPricingRuleOverrideCommand c) {
-        var override = reader.findById(c.overrideId())
-            .orElseThrow(() -> new IllegalArgumentException("Override not found: " + c.overrideId()));
-        writer.save(override.deactivate(c.actorId()));
-        return null;
-    }
+  @Override
+  @TchTx
+  public Void handle(DeactivateSellerTerminalPricingRuleOverrideCommand c) {
+    var override =
+        reader
+            .findById(c.overrideId())
+            .orElseThrow(
+                () -> new IllegalArgumentException("Override not found: " + c.overrideId()));
+    writer.save(override.deactivate(c.actorId()));
+    return null;
+  }
 }

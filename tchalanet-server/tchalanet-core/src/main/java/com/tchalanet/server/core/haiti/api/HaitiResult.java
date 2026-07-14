@@ -1,7 +1,6 @@
 package com.tchalanet.server.core.haiti.api;
 
 import com.tchalanet.server.core.haiti.internal.domain.lottery.model.HaitiLot;
-
 import java.util.Map;
 import java.util.Objects;
 

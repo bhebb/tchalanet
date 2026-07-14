@@ -26,7 +26,8 @@ public final class ImportTchalaEntriesCommandHandler
         ImportTchalaEntriesCommand,
         com.tchalanet.server.core.haiti.api.command.ImportTchalaReport> {
 
-  private static final Logger log = LoggerFactory.getLogger(ImportTchalaEntriesCommandHandler.class);
+  private static final Logger log =
+      LoggerFactory.getLogger(ImportTchalaEntriesCommandHandler.class);
 
   private final TchalaImportSourcePort importPort;
   private final TchalaEntryRepositoryPort repo;
@@ -34,7 +35,10 @@ public final class ImportTchalaEntriesCommandHandler
   private final IdGenerator idGenerator;
 
   public ImportTchalaEntriesCommandHandler(
-      TchalaImportSourcePort importPort, TchalaEntryRepositoryPort repo, Clock clock, IdGenerator idGenerator) {
+      TchalaImportSourcePort importPort,
+      TchalaEntryRepositoryPort repo,
+      Clock clock,
+      IdGenerator idGenerator) {
     this.importPort = Objects.requireNonNull(importPort);
     this.repo = Objects.requireNonNull(repo);
     this.clock = Objects.requireNonNull(clock);
@@ -70,13 +74,14 @@ public final class ImportTchalaEntriesCommandHandler
           continue;
         }
         seen.add(dedupeToken);
-        com.tchalanet.server.core.haiti.api.command.ImportTchalaEntriesCommand
-                .ImportMode
-            mode = command.mode();
-        Optional<com.tchalanet.server.core.haiti.internal.domain.tchala.model.TchalaEntry> existing =
-            repo.findApprovedCanonicalByDedupeKey(
-                lang,
-                com.tchalanet.server.core.haiti.internal.domain.tchala.model.DedupeKey.from(lang, dream));
+        com.tchalanet.server.core.haiti.api.command.ImportTchalaEntriesCommand.ImportMode mode =
+            command.mode();
+        Optional<com.tchalanet.server.core.haiti.internal.domain.tchala.model.TchalaEntry>
+            existing =
+                repo.findApprovedCanonicalByDedupeKey(
+                    lang,
+                    com.tchalanet.server.core.haiti.internal.domain.tchala.model.DedupeKey.from(
+                        lang, dream));
         if (existing.isEmpty()) {
           if (mode == ImportTchalaEntriesCommand.ImportMode.DRY_RUN) {
             // only count
@@ -86,19 +91,26 @@ public final class ImportTchalaEntriesCommandHandler
                 com.tchalanet.server.core.haiti.internal.domain.tchala.model.TchalaEntry
                     .newSuggestionFromImport(
                         TchalaEntryId.of(idGenerator.newUuid()),
-                        lang, dream, numbers, importRow.note(), Optional.empty(), Instant.now(clock));
+                        lang,
+                        dream,
+                        numbers,
+                        importRow.note(),
+                        Optional.empty(),
+                        Instant.now(clock));
             repo.save(entry);
             createdPending++;
           } else {
             com.tchalanet.server.core.haiti.internal.domain.tchala.model.TchalaEntry entry =
-                com.tchalanet.server.core.haiti.internal.domain.tchala.model.TchalaEntry.newCanonical(
-                    TchalaEntryId.of(idGenerator.newUuid()),
-                    lang,
-                    dream,
-                    numbers,
-                    importRow.note(),
-                    com.tchalanet.server.core.haiti.internal.domain.tchala.model.TchalaEntrySource.IMPORT,
-                    Instant.now(clock));
+                com.tchalanet.server.core.haiti.internal.domain.tchala.model.TchalaEntry
+                    .newCanonical(
+                        TchalaEntryId.of(idGenerator.newUuid()),
+                        lang,
+                        dream,
+                        numbers,
+                        importRow.note(),
+                        com.tchalanet.server.core.haiti.internal.domain.tchala.model
+                            .TchalaEntrySource.IMPORT,
+                        Instant.now(clock));
             repo.save(entry);
             createdCanonical++;
           }
@@ -127,20 +139,22 @@ public final class ImportTchalaEntriesCommandHandler
             } else {
               // merge into canonical using union
               var merged =
-                  com.tchalanet.server.core.haiti.internal.domain.tchala.service.TchalaMerge.mergeNumbers(
-                      canonical.numbers(),
-                      numbers,
-                      com.tchalanet.server.core.haiti.internal.domain.tchala.model.MergePolicy
-                          .UNION_NUMBERS);
+                  com.tchalanet.server.core.haiti.internal.domain.tchala.service.TchalaMerge
+                      .mergeNumbers(
+                          canonical.numbers(),
+                          numbers,
+                          com.tchalanet.server.core.haiti.internal.domain.tchala.model.MergePolicy
+                              .UNION_NUMBERS);
               var newCanon =
-                  com.tchalanet.server.core.haiti.internal.domain.tchala.model.TchalaEntry.newCanonical(
-                      TchalaEntryId.of(idGenerator.newUuid()),
-                      canonical.lang(),
-                      canonical.dream(),
-                      merged,
-                      canonical.note(),
-                      canonical.source(),
-                      Instant.now(clock));
+                  com.tchalanet.server.core.haiti.internal.domain.tchala.model.TchalaEntry
+                      .newCanonical(
+                          TchalaEntryId.of(idGenerator.newUuid()),
+                          canonical.lang(),
+                          canonical.dream(),
+                          merged,
+                          canonical.note(),
+                          canonical.source(),
+                          Instant.now(clock));
               repo.save(newCanon);
               mergedIntoCanonical++;
             }

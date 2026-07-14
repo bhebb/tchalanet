@@ -7,8 +7,6 @@ import com.tchalanet.server.catalog.i18n.api.model.I18nOverrideLevel;
 import com.tchalanet.server.catalog.i18n.api.model.I18nOverrideView;
 import com.tchalanet.server.catalog.i18n.api.model.I18nSurface;
 import com.tchalanet.server.catalog.i18n.api.model.SearchI18nOverridesCriteria;
-import java.util.EnumMap;
-import java.util.Set;
 import com.tchalanet.server.catalog.i18n.internal.cache.I18nOverridesCacheNames;
 import com.tchalanet.server.catalog.i18n.internal.mapper.I18nOverrideMapper;
 import com.tchalanet.server.catalog.i18n.internal.persistence.I18nOverrideEntity;
@@ -18,6 +16,9 @@ import com.tchalanet.server.common.context.scope.ApiScope;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
+import java.util.*;
+import java.util.EnumMap;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
@@ -27,19 +28,15 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
-
 /**
  * I18n Overrides Catalog Implementation (READ SIDE)
- * <p>
- * Safety note:
- * - In PLATFORM scope with SUPER_ADMIN, RLS SELECT may allow cross-tenant reads.
- * - Therefore, resolveLocale(locale) MUST NOT merge TENANT-level overrides implicitly,
- * otherwise it can accidentally merge tenant overrides from multiple tenants.
- * <p>
- * Rules:
- * - resolveLocale(locale, ctx): GLOBAL + (TENANT only if not PLATFORM scope)
- * - resolveLocaleForTenant(locale, tenantId): GLOBAL + TENANT for the specified tenant (explicit)
+ *
+ * <p>Safety note: - In PLATFORM scope with SUPER_ADMIN, RLS SELECT may allow cross-tenant reads. -
+ * Therefore, resolveLocale(locale) MUST NOT merge TENANT-level overrides implicitly, otherwise it
+ * can accidentally merge tenant overrides from multiple tenants.
+ *
+ * <p>Rules: - resolveLocale(locale, ctx): GLOBAL + (TENANT only if not PLATFORM scope) -
+ * resolveLocaleForTenant(locale, tenantId): GLOBAL + TENANT for the specified tenant (explicit)
  */
 @Service
 @RequiredArgsConstructor
@@ -47,265 +44,299 @@ import java.util.*;
 @Transactional(readOnly = true)
 public class I18nOverridesCatalogImpl implements I18nOverridesCatalog {
 
-    private final I18nOverrideRepository repository;
-    private final I18nOverrideMapper mapper;
+  private final I18nOverrideRepository repository;
+  private final I18nOverrideMapper mapper;
 
-    // ------------------------------------------------------------
-    // Resolve (safe)
-    // ------------------------------------------------------------
+  // ------------------------------------------------------------
+  // Resolve (safe)
+  // ------------------------------------------------------------
 
-    @Override
-    @Cacheable(
-        value = I18nOverridesCacheNames.RESOLVED_BY_LOCALE,
-        key =
-            // tenantUuid can be null (platform/global resolve)
-            "(#ctx == null || #ctx.tenantUuid() == null ? '__none__' : #ctx.tenantUuid().toString())"
-                + " + ':' + #locale"
-                + " + ':' + (#ctx == null ? '__noctx__' : (#ctx.apiScope() == null ? '__noscope__' : #ctx.apiScope().name()))"
-                + " + ':' + (#ctx == null ? '__novis__' : (#ctx.deletedVisibilitySafe() == null ? '__novis__' : #ctx.deletedVisibilitySafe()))")
-    public Map<String, String> resolveLocale(String locale, TchRequestContext ctx) {
-        if (locale == null || locale.isBlank()) return Map.of();
-        String loc = locale.trim();
+  @Override
+  @Cacheable(
+      value = I18nOverridesCacheNames.RESOLVED_BY_LOCALE,
+      key =
+          // tenantUuid can be null (platform/global resolve)
+          "(#ctx == null || #ctx.tenantUuid() == null ? '__none__' : #ctx.tenantUuid().toString())"
+              + " + ':' + #locale"
+              + " + ':' + (#ctx == null ? '__noctx__' : (#ctx.apiScope() == null ? '__noscope__' : #ctx.apiScope().name()))"
+              + " + ':' + (#ctx == null ? '__novis__' : (#ctx.deletedVisibilitySafe() == null ? '__novis__' : #ctx.deletedVisibilitySafe()))")
+  public Map<String, String> resolveLocale(String locale, TchRequestContext ctx) {
+    if (locale == null || locale.isBlank()) return Map.of();
+    String loc = locale.trim();
 
-        // Always include GLOBAL
-        List<I18nOverrideEntity> globals =
-            repository.findByLocaleAndLevelAndActiveTrueAndDeletedAtIsNull(
-                loc, I18nOverrideLevel.GLOBAL);
+    // Always include GLOBAL
+    List<I18nOverrideEntity> globals =
+        repository.findByLocaleAndLevelAndActiveTrueAndDeletedAtIsNull(
+            loc, I18nOverrideLevel.GLOBAL);
 
-        // Never implicitly merge TENANT overrides in PLATFORM scope.
-        boolean allowTenantMerge =
-            ctx != null
-                && ctx.tenantUuid() != null
-                && !isPlatformScope(ctx);
+    // Never implicitly merge TENANT overrides in PLATFORM scope.
+    boolean allowTenantMerge = ctx != null && ctx.tenantUuid() != null && !isPlatformScope(ctx);
 
-        List<I18nOverrideEntity> tenants =
-            allowTenantMerge
-                ? repository.findByLocaleAndLevelAndActiveTrueAndDeletedAtIsNull(
+    List<I18nOverrideEntity> tenants =
+        allowTenantMerge
+            ? repository.findByLocaleAndLevelAndActiveTrueAndDeletedAtIsNull(
                 loc, I18nOverrideLevel.TENANT)
-                : List.of();
+            : List.of();
 
-        return merge(globals, tenants);
+    return merge(globals, tenants);
+  }
+
+  /**
+   * Explicit resolve for a limitScopeRef tenant (platform admin use-case). Returns GLOBAL + TENANT
+   * (filtered by tenantId).
+   */
+  @Override
+  public Map<String, String> resolveLocaleForTenant(String locale, TenantId tenantId) {
+    if (locale == null || locale.isBlank() || tenantId == null) return Map.of();
+    String loc = locale.trim();
+
+    List<I18nOverrideEntity> globals =
+        repository.findByLocaleAndLevelAndActiveTrueAndDeletedAtIsNull(
+            loc, I18nOverrideLevel.GLOBAL);
+
+    // IMPORTANT: explicit tenant filter, safe even in PLATFORM cross-tenant SELECT.
+    List<I18nOverrideEntity> tenants =
+        repository.findByLocaleAndLevelAndTenantIdAndActiveTrueAndDeletedAtIsNull(
+            loc, I18nOverrideLevel.TENANT, tenantId.value());
+
+    return merge(globals, tenants);
+  }
+
+  private Map<String, String> merge(
+      List<I18nOverrideEntity> globals, List<I18nOverrideEntity> tenants) {
+    Map<String, String> merged = new LinkedHashMap<>(Math.max(16, globals.size() + tenants.size()));
+
+    for (var e : globals) {
+      putIfValid(merged, e);
+    }
+    for (var e : tenants) {
+      putIfValid(merged, e); // overwrite global
     }
 
-    /**
-     * Explicit resolve for a limitScopeRef tenant (platform admin use-case).
-     * Returns GLOBAL + TENANT (filtered by tenantId).
-     */
-    @Override
-    public Map<String, String> resolveLocaleForTenant(String locale, TenantId tenantId) {
-        if (locale == null || locale.isBlank() || tenantId == null) return Map.of();
-        String loc = locale.trim();
+    return Map.copyOf(merged);
+  }
 
-        List<I18nOverrideEntity> globals =
-            repository.findByLocaleAndLevelAndActiveTrueAndDeletedAtIsNull(
-                loc, I18nOverrideLevel.GLOBAL);
+  private static void putIfValid(Map<String, String> out, I18nOverrideEntity e) {
+    if (e.getI18nKey() == null || e.getI18nValue() == null) return;
+    var k = e.getI18nKey().trim();
+    var v = e.getI18nValue();
+    if (!k.isBlank()) out.put(k, v);
+  }
 
-        // IMPORTANT: explicit tenant filter, safe even in PLATFORM cross-tenant SELECT.
-        List<I18nOverrideEntity> tenants =
-            repository.findByLocaleAndLevelAndTenantIdAndActiveTrueAndDeletedAtIsNull(
-                loc, I18nOverrideLevel.TENANT, tenantId.value());
+  private boolean isPlatformScope(TchRequestContext ctx) {
+    var s = ctx.apiScope();
+    return ApiScope.PLATFORM == s;
+  }
 
-        return merge(globals, tenants);
-    }
+  // ------------------------------------------------------------
+  // Search (unchanged, but now PLATFORM superadmin can see cross-tenant)
+  // ------------------------------------------------------------
 
-    private Map<String, String> merge(List<I18nOverrideEntity> globals, List<I18nOverrideEntity> tenants) {
-        Map<String, String> merged = new LinkedHashMap<>(Math.max(16, globals.size() + tenants.size()));
+  @Override
+  public TchPage<I18nOverrideView> search(
+      SearchI18nOverridesCriteria criteria, TchPageRequest pageRequest) {
+    Specification<I18nOverrideEntity> spec = buildSpecification(criteria);
 
-        for (var e : globals) {
-            putIfValid(merged, e);
-        }
-        for (var e : tenants) {
-            putIfValid(merged, e); // overwrite global
-        }
+    PageRequest springPageRequest =
+        PageRequest.of(
+            pageRequest.pageable().getPageNumber(),
+            pageRequest.pageable().getPageSize(),
+            pageRequest.pageable().getSort());
 
-        return Map.copyOf(merged);
-    }
+    Page<I18nOverrideEntity> page = repository.findAll(spec, springPageRequest);
 
-    private static void putIfValid(Map<String, String> out, I18nOverrideEntity e) {
-        if (e.getI18nKey() == null || e.getI18nValue() == null) return;
-        var k = e.getI18nKey().trim();
-        var v = e.getI18nValue();
-        if (!k.isBlank()) out.put(k, v);
-    }
+    return TchPage.of(
+        mapper.toViews(page.getContent()),
+        page.getNumber(),
+        page.getSize(),
+        page.getTotalElements(),
+        page.getTotalPages(),
+        page.isLast(),
+        page.hasNext(),
+        page.hasPrevious());
+  }
 
-    private boolean isPlatformScope(TchRequestContext ctx) {
-        var s = ctx.apiScope();
-        return ApiScope.PLATFORM == s;
-    }
+  @Override
+  public Optional<I18nOverrideView> findByKey(String locale, String i18nKey) {
+    if (locale == null || locale.isBlank() || i18nKey == null || i18nKey.isBlank())
+      return Optional.empty();
+    String loc = locale.trim();
+    String key = i18nKey.trim();
 
-    // ------------------------------------------------------------
-    // Search (unchanged, but now PLATFORM superadmin can see cross-tenant)
-    // ------------------------------------------------------------
+    // Prefer TENANT over GLOBAL (RLS makes TENANT rows visible only for current tenant in
+    // tenant/admin scopes)
+    var tenant = repository.findFirstByLocaleAndI18nKeyAndLevel(loc, key, I18nOverrideLevel.TENANT);
+    if (tenant.isPresent()) return tenant.map(mapper::toView);
 
-    @Override
-    public TchPage<I18nOverrideView> search(SearchI18nOverridesCriteria criteria, TchPageRequest pageRequest) {
-        Specification<I18nOverrideEntity> spec = buildSpecification(criteria);
+    var global = repository.findFirstByLocaleAndI18nKeyAndLevel(loc, key, I18nOverrideLevel.GLOBAL);
+    return global.map(mapper::toView);
+  }
 
-        PageRequest springPageRequest =
-            PageRequest.of(
-                pageRequest.pageable().getPageNumber(),
-                pageRequest.pageable().getPageSize(),
-                pageRequest.pageable().getSort());
+  // ------------------------------------------------------------
+  // Specification builder
+  // ------------------------------------------------------------
 
-        Page<I18nOverrideEntity> page = repository.findAll(spec, springPageRequest);
-
-        return TchPage.of(
-            mapper.toViews(page.getContent()),
-            page.getNumber(),
-            page.getSize(),
-            page.getTotalElements(),
-            page.getTotalPages(),
-            page.isLast(),
-            page.hasNext(),
-            page.hasPrevious());
-    }
-
-    @Override
-    public Optional<I18nOverrideView> findByKey(String locale, String i18nKey) {
-        if (locale == null || locale.isBlank() || i18nKey == null || i18nKey.isBlank()) return Optional.empty();
-        String loc = locale.trim();
-        String key = i18nKey.trim();
-
-        // Prefer TENANT over GLOBAL (RLS makes TENANT rows visible only for current tenant in tenant/admin scopes)
-        var tenant =
-            repository.findFirstByLocaleAndI18nKeyAndLevel(loc, key, I18nOverrideLevel.TENANT);
-        if (tenant.isPresent()) return tenant.map(mapper::toView);
-
-        var global =
-            repository.findFirstByLocaleAndI18nKeyAndLevel(loc, key, I18nOverrideLevel.GLOBAL);
-        return global.map(mapper::toView);
-    }
-
-    // ------------------------------------------------------------
-    // Specification builder
-    // ------------------------------------------------------------
-
-    private Specification<I18nOverrideEntity> buildSpecification(SearchI18nOverridesCriteria criteria) {
-        Specification<I18nOverrideEntity> spec = (root, query, cb) -> {
-            // reference 'query' to avoid static-analysis warnings about unused parameters
-            query.getRoots();
-            return cb.conjunction();
+  private Specification<I18nOverrideEntity> buildSpecification(
+      SearchI18nOverridesCriteria criteria) {
+    Specification<I18nOverrideEntity> spec =
+        (root, query, cb) -> {
+          // reference 'query' to avoid static-analysis warnings about unused parameters
+          query.getRoots();
+          return cb.conjunction();
         };
 
-        // deleted visibility (defaults to active)
-        String vis = criteria != null ? criteria.visibilitySafe() : "active";
-        if ("active".equals(vis)) {
-            spec = spec.and((root, query, cb) -> {
+    // deleted visibility (defaults to active)
+    String vis = criteria != null ? criteria.visibilitySafe() : "active";
+    if ("active".equals(vis)) {
+      spec =
+          spec.and(
+              (root, query, cb) -> {
                 query.getRoots();
                 return cb.isNull(root.get("deletedAt"));
-            });
-        } else if ("deleted".equals(vis)) {
-            spec = spec.and((root, query, cb) -> {
+              });
+    } else if ("deleted".equals(vis)) {
+      spec =
+          spec.and(
+              (root, query, cb) -> {
                 query.getRoots();
                 return cb.isNotNull(root.get("deletedAt"));
-            });
-        }
+              });
+    }
 
-        if (criteria == null) return spec;
+    if (criteria == null) return spec;
 
-        // level filter
-        if (criteria.level() != null) {
-            spec = spec.and((root, query, cb) -> {
+    // level filter
+    if (criteria.level() != null) {
+      spec =
+          spec.and(
+              (root, query, cb) -> {
                 query.getRoots();
                 return cb.equal(root.get("level"), criteria.level());
-            });
-        }
+              });
+    }
 
-        // locale filter
-        if (criteria.locale() != null && !criteria.locale().isBlank()) {
-            spec = spec.and((root, query, cb) -> {
+    // locale filter
+    if (criteria.locale() != null && !criteria.locale().isBlank()) {
+      spec =
+          spec.and(
+              (root, query, cb) -> {
                 query.getRoots();
                 return cb.equal(root.get("locale"), criteria.locale().trim());
-            });
-        }
+              });
+    }
 
-        // key contains filter
-        if (criteria.i18nKeyContains() != null && !criteria.i18nKeyContains().isBlank()) {
-            String like = "%" + criteria.i18nKeyContains().trim().toLowerCase() + "%";
-            spec = spec.and((root, query, cb) -> {
+    // key contains filter
+    if (criteria.i18nKeyContains() != null && !criteria.i18nKeyContains().isBlank()) {
+      String like = "%" + criteria.i18nKeyContains().trim().toLowerCase() + "%";
+      spec =
+          spec.and(
+              (root, query, cb) -> {
                 query.getRoots();
                 return cb.like(cb.lower(root.get("i18nKey")), like);
-            });
-        }
+              });
+    }
 
-        // active filter (optional)
-        if (criteria.active() != null) {
-            spec = spec.and((root, query, cb) -> {
+    // active filter (optional)
+    if (criteria.active() != null) {
+      spec =
+          spec.and(
+              (root, query, cb) -> {
                 query.getRoots();
                 return cb.equal(root.get("active"), criteria.active());
-            });
-        }
+              });
+    }
 
-        // Explicit tenant filter when provided in criteria (useful for PLATFORM admin queries)
-        if (criteria.tenantId() != null) {
-            spec = spec.and((root, q, cb) -> {
+    // Explicit tenant filter when provided in criteria (useful for PLATFORM admin queries)
+    if (criteria.tenantId() != null) {
+      spec =
+          spec.and(
+              (root, q, cb) -> {
                 q.getRoots();
                 return cb.equal(root.get("tenantId"), criteria.tenantId().value());
-            });
-        }
+              });
+    }
 
-        // Surface filter: null/empty = no filter (admin); non-empty = surface IN (:surfaces)
-        if (criteria.surfaces() != null && !criteria.surfaces().isEmpty()) {
-            spec = spec.and((root, q, cb) -> {
+    // Surface filter: null/empty = no filter (admin); non-empty = surface IN (:surfaces)
+    if (criteria.surfaces() != null && !criteria.surfaces().isEmpty()) {
+      spec =
+          spec.and(
+              (root, q, cb) -> {
                 q.getRoots();
                 return root.get("surface").in(criteria.surfaces());
-            });
-        }
-
-        return spec;
+              });
     }
 
-    // ------------------------------------------------------------
-    // Bundle (runtime multi-surface read)
-    // ------------------------------------------------------------
+    return spec;
+  }
 
-    @Override
-    public I18nBundleView loadBundle(String locale, Set<I18nSurface> surfaces) {
-        if (locale == null || locale.isBlank() || surfaces == null || surfaces.isEmpty()) {
-            return new I18nBundleView(locale, Map.of());
-        }
-        String loc = locale.trim();
+  // ------------------------------------------------------------
+  // Bundle (runtime multi-surface read)
+  // ------------------------------------------------------------
 
-        List<I18nOverrideEntity> globals =
-            repository.findByLocaleAndLevelAndSurfaceInAndActiveTrueAndDeletedAtIsNull(
-                loc, I18nOverrideLevel.GLOBAL, surfaces);
+  @Override
+  public I18nBundleView loadBundle(String locale, Set<I18nSurface> surfaces) {
+    if (locale == null || locale.isBlank() || surfaces == null || surfaces.isEmpty()) {
+      return new I18nBundleView(locale, Map.of());
+    }
+    String loc = locale.trim();
 
-        // RLS scopes tenant rows to current tenant automatically
-        List<I18nOverrideEntity> tenants =
-            repository.findByLocaleAndLevelAndSurfaceInAndActiveTrueAndDeletedAtIsNull(
-                loc, I18nOverrideLevel.TENANT, surfaces);
+    List<I18nOverrideEntity> globals =
+        repository.findByLocaleAndLevelAndSurfaceInAndActiveTrueAndDeletedAtIsNull(
+            loc, I18nOverrideLevel.GLOBAL, surfaces);
 
-        // Build per-surface maps: global first, then tenant overwrites
-        Map<I18nSurface, Map<String, String>> result = new EnumMap<>(I18nSurface.class);
-        for (var e : globals) {
-            if (e.getSurface() == null || e.getI18nKey() == null || e.getI18nValue() == null) continue;
-            result.computeIfAbsent(e.getSurface(), s -> new LinkedHashMap<>())
-                  .put(e.getI18nKey().trim(), e.getI18nValue());
-        }
-        for (var e : tenants) {
-            if (e.getSurface() == null || e.getI18nKey() == null || e.getI18nValue() == null) continue;
-            result.computeIfAbsent(e.getSurface(), s -> new LinkedHashMap<>())
-                  .put(e.getI18nKey().trim(), e.getI18nValue());
-        }
+    // RLS scopes tenant rows to current tenant automatically
+    List<I18nOverrideEntity> tenants =
+        repository.findByLocaleAndLevelAndSurfaceInAndActiveTrueAndDeletedAtIsNull(
+            loc, I18nOverrideLevel.TENANT, surfaces);
 
-        // Wrap surface maps as unmodifiable
-        Map<I18nSurface, Map<String, String>> immutable = new EnumMap<>(I18nSurface.class);
-        result.forEach((s, m) -> immutable.put(s, Map.copyOf(m)));
-
-        return new I18nBundleView(loc, Map.copyOf(immutable));
+    // Build per-surface maps: global first, then tenant overwrites
+    Map<I18nSurface, Map<String, String>> result = new EnumMap<>(I18nSurface.class);
+    for (var e : globals) {
+      if (e.getSurface() == null || e.getI18nKey() == null || e.getI18nValue() == null) continue;
+      result
+          .computeIfAbsent(e.getSurface(), s -> new LinkedHashMap<>())
+          .put(e.getI18nKey().trim(), e.getI18nValue());
+    }
+    for (var e : tenants) {
+      if (e.getSurface() == null || e.getI18nKey() == null || e.getI18nValue() == null) continue;
+      result
+          .computeIfAbsent(e.getSurface(), s -> new LinkedHashMap<>())
+          .put(e.getI18nKey().trim(), e.getI18nValue());
     }
 
-    @Override
-    public I18nGlobalKeyStatsView keyStats() {
-        // Count distinct keys and locales among GLOBAL active overrides
-        List<I18nOverrideEntity> globals = repository.findByLevelAndActiveTrueAndDeletedAtIsNull(I18nOverrideLevel.GLOBAL);
+    // Wrap surface maps as unmodifiable
+    Map<I18nSurface, Map<String, String>> immutable = new EnumMap<>(I18nSurface.class);
+    result.forEach((s, m) -> immutable.put(s, Map.copyOf(m)));
 
-        int totalOverrides = globals.size();
-        // distinct keys
-        long totalKeys = globals.stream().map(I18nOverrideEntity::getI18nKey).filter(Objects::nonNull).map(String::trim).filter(s -> !s.isBlank()).distinct().count();
-        // distinct locales
-        long totalLocales = globals.stream().map(I18nOverrideEntity::getLocale).filter(Objects::nonNull).map(String::trim).filter(s -> !s.isBlank()).distinct().count();
+    return new I18nBundleView(loc, Map.copyOf(immutable));
+  }
 
-        return new I18nGlobalKeyStatsView((int) totalKeys, (int) totalLocales, totalOverrides);
-    }
+  @Override
+  public I18nGlobalKeyStatsView keyStats() {
+    // Count distinct keys and locales among GLOBAL active overrides
+    List<I18nOverrideEntity> globals =
+        repository.findByLevelAndActiveTrueAndDeletedAtIsNull(I18nOverrideLevel.GLOBAL);
+
+    int totalOverrides = globals.size();
+    // distinct keys
+    long totalKeys =
+        globals.stream()
+            .map(I18nOverrideEntity::getI18nKey)
+            .filter(Objects::nonNull)
+            .map(String::trim)
+            .filter(s -> !s.isBlank())
+            .distinct()
+            .count();
+    // distinct locales
+    long totalLocales =
+        globals.stream()
+            .map(I18nOverrideEntity::getLocale)
+            .filter(Objects::nonNull)
+            .map(String::trim)
+            .filter(s -> !s.isBlank())
+            .distinct()
+            .count();
+
+    return new I18nGlobalKeyStatsView((int) totalKeys, (int) totalLocales, totalOverrides);
+  }
 }

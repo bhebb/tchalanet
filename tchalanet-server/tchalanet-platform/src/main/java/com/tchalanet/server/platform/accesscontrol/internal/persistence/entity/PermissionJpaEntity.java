@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
 @Entity
@@ -49,4 +48,3 @@ public class PermissionJpaEntity extends AuditableEntity {
   @NotAudited
   private List<AppRolePermissionJpaEntity> rolePermissions = new ArrayList<>();
 }
-

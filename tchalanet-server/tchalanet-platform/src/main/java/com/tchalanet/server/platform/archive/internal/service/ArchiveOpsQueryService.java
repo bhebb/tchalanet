@@ -31,14 +31,7 @@ public class ArchiveOpsQueryService {
       String reason,
       UUID requestedBy) {
     return legalHolds.create(
-        tenantId,
-        datasetCode,
-        entityType,
-        entityId,
-        periodStart,
-        periodEnd,
-        reason,
-        requestedBy);
+        tenantId, datasetCode, entityType, entityId, periodStart, periodEnd, reason, requestedBy);
   }
 
   public void releaseLegalHold(UUID holdId, UUID releasedBy, String reason) {

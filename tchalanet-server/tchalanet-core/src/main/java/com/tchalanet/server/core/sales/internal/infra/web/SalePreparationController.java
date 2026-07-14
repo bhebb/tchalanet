@@ -17,7 +17,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -31,65 +30,74 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Sale preparation flow (maryaj-gratis-auto-selection-v1):
- * prepare -> [regenerate]* -> confirm. The confirmed ticket carries exactly
- * the previewed lines; confirm never receives lines from the client.
+ * Sale preparation flow (maryaj-gratis-auto-selection-v1): prepare -> [regenerate]* -> confirm. The
+ * confirmed ticket carries exactly the previewed lines; confirm never receives lines from the
+ * client.
  */
 @RestController
 @RequestMapping("/tenant/sales/preparations")
 @RequiredArgsConstructor
-@Tag(name = "Sales • Preparation", description = "Prepared sale flow: preview with generated promotion lines, regenerate, confirm")
+@Tag(
+    name = "Sales • Preparation",
+    description = "Prepared sale flow: preview with generated promotion lines, regenerate, confirm")
 @PreAuthorize("hasPermission(null, 'ticket.sell')")
 public class SalePreparationController {
 
-    private final CommandBus commandBus;
+  private final CommandBus commandBus;
 
-    @Operation(operationId = "prepareSale", summary = "Prepare a sale",
-        description = "Runs the full sale pipeline, generates promotion lines, persists a 10-minute preparation and returns its id with the final lines.")
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public ApiResponse<SalePreparationView> prepare(
-        @CurrentContext TchRequestContext ctx,
-        @Valid @RequestBody SellTicketRequest body
-    ) {
-        ctx.sellerTerminalIdRequired();
+  @Operation(
+      operationId = "prepareSale",
+      summary = "Prepare a sale",
+      description =
+          "Runs the full sale pipeline, generates promotion lines, persists a 10-minute preparation and returns its id with the final lines.")
+  @PostMapping
+  @ResponseStatus(HttpStatus.CREATED)
+  public ApiResponse<SalePreparationView> prepare(
+      @CurrentContext TchRequestContext ctx, @Valid @RequestBody SellTicketRequest body) {
+    ctx.sellerTerminalIdRequired();
 
-        var result = commandBus.execute(new PrepareSaleCommand(
-            body.drawId(), body.drawChannelId(), body.currency(),
-            body.lines().stream().map(SellTicketLineRequest::toLine).toList(),
-            body.serviceOptions()));
-        return ApiResponse.success(result);
-    }
+    var result =
+        commandBus.execute(
+            new PrepareSaleCommand(
+                body.drawId(),
+                body.drawChannelId(),
+                body.currency(),
+                body.lines().stream().map(SellTicketLineRequest::toLine).toList(),
+                body.serviceOptions()));
+    return ApiResponse.success(result);
+  }
 
-    @Operation(operationId = "regeneratePreparationPromotionLine",
-        summary = "Regenerate a generated promotion line",
-        description = "Before confirm only; capped by maxRegenerationsBeforeConfirm; audited.")
-    @PostMapping("/{preparationId}/promotion-lines/{lineRef}/regenerate")
-    public ApiResponse<SalePreparationView> regenerate(
-        @CurrentContext TchRequestContext ctx,
-        @PathVariable UUID preparationId,
-        @PathVariable String lineRef
-    ) {
-        ctx.sellerTerminalIdRequired();
-        var result = commandBus.execute(
+  @Operation(
+      operationId = "regeneratePreparationPromotionLine",
+      summary = "Regenerate a generated promotion line",
+      description = "Before confirm only; capped by maxRegenerationsBeforeConfirm; audited.")
+  @PostMapping("/{preparationId}/promotion-lines/{lineRef}/regenerate")
+  public ApiResponse<SalePreparationView> regenerate(
+      @CurrentContext TchRequestContext ctx,
+      @PathVariable UUID preparationId,
+      @PathVariable String lineRef) {
+    ctx.sellerTerminalIdRequired();
+    var result =
+        commandBus.execute(
             new RegenerateSalePreparationPromotionLineCommand(preparationId, lineRef));
-        return ApiResponse.success(result);
-    }
+    return ApiResponse.success(result);
+  }
 
-    @Operation(operationId = "confirmPreparedSale", summary = "Confirm a prepared sale",
-        description = "Payload = preparationId + idempotency key only. Persists exactly the prepared lines; double confirm with the same key returns the same ticket.")
-    @PostMapping("/{preparationId}/confirm")
-    @ResponseStatus(HttpStatus.CREATED)
-    @RequireIdempotency(scope = IdempotencyScope.SALES_SELL_TICKET)
-    public ApiResponse<ConfirmPreparedSaleResult> confirm(
-        @CurrentContext TchRequestContext ctx,
-        @RequestHeader("Idempotency-Key") @NotBlank String idempotencyKey,
-        @PathVariable UUID preparationId
-    ) {
-        ctx.sellerTerminalIdRequired();
+  @Operation(
+      operationId = "confirmPreparedSale",
+      summary = "Confirm a prepared sale",
+      description =
+          "Payload = preparationId + idempotency key only. Persists exactly the prepared lines; double confirm with the same key returns the same ticket.")
+  @PostMapping("/{preparationId}/confirm")
+  @ResponseStatus(HttpStatus.CREATED)
+  @RequireIdempotency(scope = IdempotencyScope.SALES_SELL_TICKET)
+  public ApiResponse<ConfirmPreparedSaleResult> confirm(
+      @CurrentContext TchRequestContext ctx,
+      @RequestHeader("Idempotency-Key") @NotBlank String idempotencyKey,
+      @PathVariable UUID preparationId) {
+    ctx.sellerTerminalIdRequired();
 
-        var result = commandBus.execute(
-            new ConfirmPreparedSaleCommand(preparationId, idempotencyKey));
-        return ApiResponse.success(result);
-    }
+    var result = commandBus.execute(new ConfirmPreparedSaleCommand(preparationId, idempotencyKey));
+    return ApiResponse.success(result);
+  }
 }

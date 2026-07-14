@@ -1,5 +1,6 @@
 package com.tchalanet.server.platform.accesscontrol.api;
 
+import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.platform.accesscontrol.api.model.request.AssignRoleToUserRequest;
 import com.tchalanet.server.platform.accesscontrol.api.model.request.BootstrapAccessControlRequest;
 import com.tchalanet.server.platform.accesscontrol.api.model.request.CheckUserPermissionsRequest;
@@ -23,40 +24,51 @@ import com.tchalanet.server.platform.accesscontrol.api.model.view.EffectivePermi
 import com.tchalanet.server.platform.accesscontrol.api.model.view.PermissionView;
 import com.tchalanet.server.platform.accesscontrol.api.model.view.RolePermissionView;
 import com.tchalanet.server.platform.accesscontrol.api.model.view.RoleView;
-import com.tchalanet.server.common.types.id.UserId;
 import java.util.List;
 
 public interface AccessControlApi {
 
-    // Permission checks (used by TchPermissionEvaluator)
-    CheckUserPermissionsResult checkPermissions(CheckUserPermissionsRequest request);
+  // Permission checks (used by TchPermissionEvaluator)
+  CheckUserPermissionsResult checkPermissions(CheckUserPermissionsRequest request);
 
-    // Catalog reads
-    List<RoleView> listRoles(ListRolesRequest request);
-    List<PermissionView> listPermissions(ListPermissionsRequest request);
-    List<RolePermissionView> listRolePermissions(ListRolePermissionsRequest request);
-    EffectivePermissionsView getEffectivePermissions(GetEffectivePermissionsRequest request);
-    AccessSnapshotView resolveUserAccess(UserId userId);
+  // Catalog reads
+  List<RoleView> listRoles(ListRolesRequest request);
 
-    // Role assignment (operates on tenant_user_role)
-    void assignRoleToUser(AssignRoleToUserRequest request);
-    void removeRoleFromUser(RemoveRoleFromUserRequest request);
+  List<PermissionView> listPermissions(ListPermissionsRequest request);
 
-    // User permission overrides (GRANT / DENY)
-    void grantUserPermission(GrantUserPermissionRequest request);
-    void denyUserPermission(DenyUserPermissionRequest request);
-    void removeUserPermissionOverride(RemoveUserPermissionOverrideRequest request);
+  List<RolePermissionView> listRolePermissions(ListRolePermissionsRequest request);
 
-    // Bootstrap
-    BootstrapAccessControlResult bootstrap(BootstrapAccessControlRequest request);
+  EffectivePermissionsView getEffectivePermissions(GetEffectivePermissionsRequest request);
 
-    // Legacy role catalog management (platform ops only — V1 read-only for tenant admins)
-    RoleView createRole(CreateRoleRequest request);
-    RoleView updateRole(UpdateRoleRequest request);
-    void grantPermission(GrantPermissionToRoleRequest request);
-    void revokePermission(RevokePermissionFromRoleRequest request);
+  AccessSnapshotView resolveUserAccess(UserId userId);
 
-    /** @deprecated use assignRoleToUser instead */
-    @Deprecated
-    void setTenantUserRole(SetTenantUserRoleRequest request);
+  // Role assignment (operates on tenant_user_role)
+  void assignRoleToUser(AssignRoleToUserRequest request);
+
+  void removeRoleFromUser(RemoveRoleFromUserRequest request);
+
+  // User permission overrides (GRANT / DENY)
+  void grantUserPermission(GrantUserPermissionRequest request);
+
+  void denyUserPermission(DenyUserPermissionRequest request);
+
+  void removeUserPermissionOverride(RemoveUserPermissionOverrideRequest request);
+
+  // Bootstrap
+  BootstrapAccessControlResult bootstrap(BootstrapAccessControlRequest request);
+
+  // Legacy role catalog management (platform ops only — V1 read-only for tenant admins)
+  RoleView createRole(CreateRoleRequest request);
+
+  RoleView updateRole(UpdateRoleRequest request);
+
+  void grantPermission(GrantPermissionToRoleRequest request);
+
+  void revokePermission(RevokePermissionFromRoleRequest request);
+
+  /**
+   * @deprecated use assignRoleToUser instead
+   */
+  @Deprecated
+  void setTenantUserRole(SetTenantUserRoleRequest request);
 }

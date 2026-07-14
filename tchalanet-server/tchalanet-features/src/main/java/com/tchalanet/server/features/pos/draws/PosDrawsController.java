@@ -16,19 +16,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/tenant/cashier/draws")
 @RequiredArgsConstructor
-@PreAuthorize("hasAuthority('ACTOR_SELLER_TERMINAL') or hasAnyRole('TENANT_OWNER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
+@PreAuthorize(
+    "hasAuthority('ACTOR_SELLER_TERMINAL') or hasAnyRole('TENANT_OWNER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
 @Tag(name = "Cashier • Draws")
 public class PosDrawsController {
 
-    private final PosDrawsService service;
+  private final PosDrawsService service;
 
-    @GetMapping("/available")
-    @Operation(summary = "List draws available to the cashier for sale (next N hours)")
-    public ApiResponse<List<PosAvailableDrawView>> available(
-        @CurrentContext TchRequestContext ctx,
-        @RequestParam(defaultValue = "24") int lookaheadHours,
-        @RequestParam(defaultValue = "20") int limit
-    ) {
-        return ApiResponse.success(service.listAvailable(ctx, lookaheadHours, limit));
-    }
+  @GetMapping("/available")
+  @Operation(summary = "List draws available to the cashier for sale (next N hours)")
+  public ApiResponse<List<PosAvailableDrawView>> available(
+      @CurrentContext TchRequestContext ctx,
+      @RequestParam(defaultValue = "24") int lookaheadHours,
+      @RequestParam(defaultValue = "20") int limit) {
+    return ApiResponse.success(service.listAvailable(ctx, lookaheadHours, limit));
+  }
 }

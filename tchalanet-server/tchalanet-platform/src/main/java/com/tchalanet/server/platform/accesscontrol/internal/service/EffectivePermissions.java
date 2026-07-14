@@ -4,7 +4,6 @@ import com.tchalanet.server.common.types.id.RoleId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.platform.accesscontrol.api.permissionevaluator.CheckPermissionsResult;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;

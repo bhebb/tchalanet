@@ -6,7 +6,4 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
 
 public record DisableSellerTerminalCommand(
-    TenantId tenantId,
-    SellerTerminalId terminalId,
-    UserId actorUserId
-) implements Command<Void> {}
+    TenantId tenantId, SellerTerminalId terminalId, UserId actorUserId) implements Command<Void> {}

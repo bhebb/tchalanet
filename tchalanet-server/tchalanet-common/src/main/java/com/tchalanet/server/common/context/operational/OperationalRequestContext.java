@@ -3,13 +3,13 @@ package com.tchalanet.server.common.context.operational;
 public sealed interface OperationalRequestContext
     permits PosOperationalContext, SuperAdminOperationalContext {
 
-    OperationalContextRole role();
+  OperationalContextRole role();
 
-    OperationalContextSource source();
+  OperationalContextSource source();
 
-    OperationalContextTrust trustLevel();
+  OperationalContextTrust trustLevel();
 
-    default boolean trustedForSensitiveOperation() {
-        return trustLevel() == OperationalContextTrust.STRONG;
-    }
+  default boolean trustedForSensitiveOperation() {
+    return trustLevel() == OperationalContextTrust.STRONG;
+  }
 }

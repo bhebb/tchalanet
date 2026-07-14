@@ -12,20 +12,19 @@ import lombok.RequiredArgsConstructor;
 public class GetTenantDailySalesStatsQueryHandler
     implements QueryHandler<GetTenantDailySalesStatsQuery, TenantDailySalesStatsView> {
 
-    private final TicketProjectionReaderPort reader;
+  private final TicketProjectionReaderPort reader;
 
-    @Override
-    public TenantDailySalesStatsView handle(GetTenantDailySalesStatsQuery query) {
-        if (query.tenantId() == null) {
-            return TenantDailySalesStatsView.empty(query.currency());
-        }
-        var stats = reader.dailyStatsByTenant(query.tenantId(), query.from(), query.to());
-        return new TenantDailySalesStatsView(
-            stats.ticketCount(),
-            stats.salesTotalCents(),
-            stats.activeSellerTerminals(),
-            query.currency(),
-            stats.gameBreakdown()
-        );
+  @Override
+  public TenantDailySalesStatsView handle(GetTenantDailySalesStatsQuery query) {
+    if (query.tenantId() == null) {
+      return TenantDailySalesStatsView.empty(query.currency());
     }
+    var stats = reader.dailyStatsByTenant(query.tenantId(), query.from(), query.to());
+    return new TenantDailySalesStatsView(
+        stats.ticketCount(),
+        stats.salesTotalCents(),
+        stats.activeSellerTerminals(),
+        query.currency(),
+        stats.gameBreakdown());
+  }
 }

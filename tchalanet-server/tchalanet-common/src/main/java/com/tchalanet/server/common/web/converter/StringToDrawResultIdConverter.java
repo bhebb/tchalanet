@@ -7,9 +7,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class StringToDrawResultIdConverter implements Converter<String, DrawResultId> {
 
-    @Override
-    public DrawResultId convert(String source) {
-        if (source == null || source.isBlank()) return null;
-        return DrawResultId.parse(source);
-    }
+  @Override
+  public DrawResultId convert(String source) {
+    if (source == null || source.isBlank()) return null;
+    return DrawResultId.parse(source);
+  }
 }

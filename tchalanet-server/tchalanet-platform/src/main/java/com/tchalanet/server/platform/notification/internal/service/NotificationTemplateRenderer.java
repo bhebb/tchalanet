@@ -49,10 +49,13 @@ public class NotificationTemplateRenderer {
     }
 
     var templateKey = firstNonBlank(titleKey, messageKey);
-    return templates.findBest(tenantUuid, templateKey, languageTag)
-        .map(template -> new RenderedNotification(
-            renderTemplate(template.getTitleTemplate(), variables),
-            renderTemplate(template.getBodyTemplate(), variables)))
+    return templates
+        .findBest(tenantUuid, templateKey, languageTag)
+        .map(
+            template ->
+                new RenderedNotification(
+                    renderTemplate(template.getTitleTemplate(), variables),
+                    renderTemplate(template.getBodyTemplate(), variables)))
         .orElseGet(() -> new RenderedNotification(fallbackTitle, fallbackMessage));
   }
 

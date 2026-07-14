@@ -5,5 +5,5 @@ import com.tchalanet.server.platform.communication.api.model.value.TenantCommuni
 
 public interface CommunicationSettingsApi {
 
-    TenantCommunicationSettingsView getTenantSettings(TenantId tenantId);
+  TenantCommunicationSettingsView getTenantSettings(TenantId tenantId);
 }

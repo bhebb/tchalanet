@@ -12,5 +12,4 @@ public record SalesOutcomeSummaryForDrawRow(
     long wonTicketCount,
     long lostTicketCount,
     Money totalStake,
-    Money totalWinningAmount
-) {}
+    Money totalWinningAmount) {}

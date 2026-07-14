@@ -4,12 +4,11 @@ import com.tchalanet.server.common.types.id.SellerTerminalId;
 
 public interface SellerTerminalIdentityProvisioningApi {
 
-    ProvisionedExternalUser provisionSellerTerminal(
-        SellerTerminalId sellerTerminalId,
-        String terminalCode,
-        String displayName,
-        String initialPin
-    );
+  ProvisionedExternalUser provisionSellerTerminal(
+      SellerTerminalId sellerTerminalId,
+      String terminalCode,
+      String displayName,
+      String initialPin);
 
-    void resetPasswordForSubject(String externalSubject, String newPassword);
+  void resetPasswordForSubject(String externalSubject, String newPassword);
 }

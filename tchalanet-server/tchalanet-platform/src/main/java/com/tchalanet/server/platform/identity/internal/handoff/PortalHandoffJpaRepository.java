@@ -10,7 +10,8 @@ import org.springframework.data.repository.query.Param;
 interface PortalHandoffJpaRepository extends JpaRepository<PortalHandoffJpaEntity, UUID> {
 
   @Modifying
-  @Query("""
+  @Query(
+      """
       update PortalHandoffJpaEntity h
       set h.consumedAt = :consumedAt
       where h.id = :handoffId

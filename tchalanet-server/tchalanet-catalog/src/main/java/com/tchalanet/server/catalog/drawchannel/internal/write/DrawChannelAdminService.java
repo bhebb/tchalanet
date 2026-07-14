@@ -5,8 +5,8 @@ import com.tchalanet.server.catalog.drawchannel.internal.cache.DrawChannelCacheN
 import com.tchalanet.server.catalog.drawchannel.internal.mapper.DrawChannelMapper;
 import com.tchalanet.server.catalog.drawchannel.internal.persistence.DrawChannelEntity;
 import com.tchalanet.server.catalog.drawchannel.internal.persistence.DrawChannelRepository;
-import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.json.utils.JsonUtils;
+import com.tchalanet.server.common.types.id.DrawChannelId;
 import java.time.Instant;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -63,8 +63,12 @@ public class DrawChannelAdminService {
       },
       allEntries = true)
   public DrawChannelEntity update(UUID id, DrawChannelEntity dto) {
-    var existing = repository.findById(id).orElseThrow(() -> new IllegalArgumentException("Draw channel not found: " + id));
-    if (existing.getDeletedAt() != null) throw new IllegalArgumentException("Draw channel deleted: " + id);
+    var existing =
+        repository
+            .findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Draw channel not found: " + id));
+    if (existing.getDeletedAt() != null)
+      throw new IllegalArgumentException("Draw channel deleted: " + id);
     existing.setName(dto.getName());
     existing.setTimezone(dto.getTimezone());
     existing.setDrawTime(dto.getDrawTime());
@@ -72,7 +76,8 @@ public class DrawChannelAdminService {
     existing.setDaysOfWeek(dto.getDaysOfWeek());
     existing.setActive(dto.isActive());
     existing.setSortOrder(dto.getSortOrder());
-    // normalize flags from dto before setting only if dto provides flags; otherwise preserve existing flags
+    // normalize flags from dto before setting only if dto provides flags; otherwise preserve
+    // existing flags
     var dtoFlags = dto.getFlags();
     if (dtoFlags != null) {
       var flags = dtoFlags;
@@ -100,7 +105,10 @@ public class DrawChannelAdminService {
       },
       allEntries = true)
   public void softDelete(com.tchalanet.server.common.types.id.DrawChannelId id) {
-    var existing = repository.findById(id.value()).orElseThrow(() -> new IllegalArgumentException("Draw channel not found: " + id));
+    var existing =
+        repository
+            .findById(id.value())
+            .orElseThrow(() -> new IllegalArgumentException("Draw channel not found: " + id));
     var now = Instant.now();
     existing.setDeletedAt(now);
     existing.setUpdatedAt(now);
@@ -118,9 +126,12 @@ public class DrawChannelAdminService {
       },
       allEntries = true)
   public void disableChannel(DrawChannelId id) {
-    var existing = repository.findById(id.value())
-        .orElseThrow(() -> new IllegalArgumentException("draw_channel_not_found: " + id));
-    if (existing.getDeletedAt() != null) throw new IllegalArgumentException("draw_channel_deleted: " + id);
+    var existing =
+        repository
+            .findById(id.value())
+            .orElseThrow(() -> new IllegalArgumentException("draw_channel_not_found: " + id));
+    if (existing.getDeletedAt() != null)
+      throw new IllegalArgumentException("draw_channel_deleted: " + id);
     existing.setActive(false);
     existing.setUpdatedAt(Instant.now());
     repository.save(existing);
@@ -148,9 +159,7 @@ public class DrawChannelAdminService {
     return e;
   }
 
-  /**
-   * Web -> create: accepte la DTO web, mappe en entity, normalise et persiste, retourne la view
-   */
+  /** Web -> create: accepte la DTO web, mappe en entity, normalise et persiste, retourne la view */
   @Transactional
   public DrawChannelView createFromRequest(
       com.tchalanet.server.catalog.drawchannel.internal.web.model.CreateDrawChannelRequest req) {
@@ -160,7 +169,8 @@ public class DrawChannelAdminService {
   }
 
   /**
-   * Web -> update: accepte la DTO web et l'id typé, mappe en entity et appelle update (merge en service)
+   * Web -> update: accepte la DTO web et l'id typé, mappe en entity et appelle update (merge en
+   * service)
    */
   @Transactional
   @CacheEvict(
@@ -174,8 +184,12 @@ public class DrawChannelAdminService {
   public DrawChannelView updateFromRequest(
       com.tchalanet.server.common.types.id.DrawChannelId id,
       com.tchalanet.server.catalog.drawchannel.internal.web.model.UpdateDrawChannelRequest req) {
-    var existing = repository.findById(id.value()).orElseThrow(() -> new IllegalArgumentException("Draw channel not found: " + id));
-    if (existing.getDeletedAt() != null) throw new IllegalArgumentException("Draw channel deleted: " + id);
+    var existing =
+        repository
+            .findById(id.value())
+            .orElseThrow(() -> new IllegalArgumentException("Draw channel not found: " + id));
+    if (existing.getDeletedAt() != null)
+      throw new IllegalArgumentException("Draw channel deleted: " + id);
 
     // Use mapper to update existing entity in-place (it ignores id/audit/flags)
     mapper.updateEntityFromRequest(req, existing);
@@ -184,16 +198,15 @@ public class DrawChannelAdminService {
     ensureFlagsNotNull(existing);
 
     // handle flags if provided in req: mapper ignores flags so handle explicitly
-    // The request type does not have raw JsonNode flags, so if you need flags support in web request, extend the DTO.
+    // The request type does not have raw JsonNode flags, so if you need flags support in web
+    // request, extend the DTO.
 
     existing.setUpdatedAt(Instant.now());
     var saved = repository.save(existing);
     return mapToView(saved);
   }
 
-  /**
-   * Create from view: normalize flags and persist, returning the created View.
-   */
+  /** Create from view: normalize flags and persist, returning the created View. */
   @Transactional
   @CacheEvict(
       cacheNames = {
@@ -203,8 +216,7 @@ public class DrawChannelAdminService {
         DrawChannelCacheNames.CALENDAR_ROWS
       },
       allEntries = true)
-  public DrawChannelView createFromView(
-      DrawChannelView view) {
+  public DrawChannelView createFromView(DrawChannelView view) {
     // normalize flags
     var flags = view.flags();
     if (flags == null) {
@@ -229,8 +241,7 @@ public class DrawChannelAdminService {
         DrawChannelCacheNames.CALENDAR_ROWS
       },
       allEntries = true)
-  public DrawChannelView updateFromView(
-      DrawChannelId id, DrawChannelView view) {
+  public DrawChannelView updateFromView(DrawChannelId id, DrawChannelView view) {
     // normalize flags
     var flags = view.flags();
     if (flags == null) {
@@ -245,9 +256,7 @@ public class DrawChannelAdminService {
     return mapToView(updated);
   }
 
-  /**
-   * Patch flags only from web request. Normalizes flags and persists.
-   */
+  /** Patch flags only from web request. Normalizes flags and persists. */
   @Transactional
   @CacheEvict(
       cacheNames = {
@@ -259,9 +268,14 @@ public class DrawChannelAdminService {
       allEntries = true)
   public DrawChannelView updateFlagsFromRequest(
       com.tchalanet.server.common.types.id.DrawChannelId id,
-      com.tchalanet.server.catalog.drawchannel.internal.web.model.UpdateDrawChannelFlagsRequest req) {
-    var existing = repository.findById(id.value()).orElseThrow(() -> new IllegalArgumentException("Draw channel not found: " + id));
-    if (existing.getDeletedAt() != null) throw new IllegalArgumentException("Draw channel deleted: " + id);
+      com.tchalanet.server.catalog.drawchannel.internal.web.model.UpdateDrawChannelFlagsRequest
+          req) {
+    var existing =
+        repository
+            .findById(id.value())
+            .orElseThrow(() -> new IllegalArgumentException("Draw channel not found: " + id));
+    if (existing.getDeletedAt() != null)
+      throw new IllegalArgumentException("Draw channel deleted: " + id);
 
     var flags = req.flags();
     if (flags == null) {

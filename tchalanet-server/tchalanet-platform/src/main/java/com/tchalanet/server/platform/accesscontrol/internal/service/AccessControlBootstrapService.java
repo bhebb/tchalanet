@@ -13,10 +13,8 @@ import com.tchalanet.server.platform.accesscontrol.internal.persistence.reposito
 import com.tchalanet.server.platform.accesscontrol.internal.persistence.repository.RolePermissionAdminJpaRepository;
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -50,23 +48,27 @@ public class AccessControlBootstrapService {
 
   private BootstrapAccessControlResult validate(RolePermissionMatrix matrix) {
     var errors = new ArrayList<String>();
-    var knownCodes = matrix.permissions().stream()
-        .map(PermissionDef::code).collect(Collectors.toSet());
+    var knownCodes =
+        matrix.permissions().stream().map(PermissionDef::code).collect(Collectors.toSet());
     for (var role : matrix.roles()) {
       if (role.custom()) errors.add("V1 does not support custom roles: " + role.code());
       for (var p : role.permissions()) {
-        if (!knownCodes.contains(p)) errors.add("Role " + role.code() + " references unknown permission: " + p);
+        if (!knownCodes.contains(p))
+          errors.add("Role " + role.code() + " references unknown permission: " + p);
       }
     }
-    return new BootstrapAccessControlResult(BootstrapMode.VALIDATE.name(), 0, 0, 0, 0, errors, errors.isEmpty());
+    return new BootstrapAccessControlResult(
+        BootstrapMode.VALIDATE.name(), 0, 0, 0, 0, errors, errors.isEmpty());
   }
 
   private BootstrapAccessControlResult applyMissing(RolePermissionMatrix matrix) {
     int permsCreated = 0, rolesCreated = 0, mappingsCreated = 0;
 
     // 1. Create missing permissions
-    var existingPerms = permissionRepository.findAll().stream()
-        .map(PermissionJpaEntity::getCode).collect(Collectors.toSet());
+    var existingPerms =
+        permissionRepository.findAll().stream()
+            .map(PermissionJpaEntity::getCode)
+            .collect(Collectors.toSet());
     for (var pd : matrix.permissions()) {
       if (!existingPerms.contains(pd.code())) {
         var e = new PermissionJpaEntity();
@@ -97,16 +99,20 @@ public class AccessControlBootstrapService {
     }
 
     // 3. Create missing role-permission links
-    var allRoles = roleRepository.findAllGlobalNotDeleted().stream()
-        .collect(Collectors.toMap(AppRoleJpaEntity::getCode, Function.identity()));
-    var allPerms = permissionRepository.findAll().stream()
-        .collect(Collectors.toMap(PermissionJpaEntity::getCode, Function.identity()));
+    var allRoles =
+        roleRepository.findAllGlobalNotDeleted().stream()
+            .collect(Collectors.toMap(AppRoleJpaEntity::getCode, Function.identity()));
+    var allPerms =
+        permissionRepository.findAll().stream()
+            .collect(Collectors.toMap(PermissionJpaEntity::getCode, Function.identity()));
 
     for (var rd : matrix.roles()) {
       var role = allRoles.get(rd.code());
       if (role == null) continue;
-      var existingLinks = rolePermissionRepository.findByRoleId(role.getId()).stream()
-          .map(l -> l.getPermission().getCode()).collect(Collectors.toSet());
+      var existingLinks =
+          rolePermissionRepository.findByRoleId(role.getId()).stream()
+              .map(l -> l.getPermission().getCode())
+              .collect(Collectors.toSet());
       for (var pCode : rd.permissions()) {
         if (!existingLinks.contains(pCode) && allPerms.containsKey(pCode)) {
           var link = new AppRolePermissionJpaEntity();
@@ -119,8 +125,16 @@ public class AccessControlBootstrapService {
       }
     }
 
-    log.info("Bootstrap APPLY_MISSING: +{}p +{}r +{}m", permsCreated, rolesCreated, mappingsCreated);
-    return new BootstrapAccessControlResult(BootstrapMode.APPLY_MISSING.name(), permsCreated, rolesCreated, mappingsCreated, 0, List.of(), true);
+    log.info(
+        "Bootstrap APPLY_MISSING: +{}p +{}r +{}m", permsCreated, rolesCreated, mappingsCreated);
+    return new BootstrapAccessControlResult(
+        BootstrapMode.APPLY_MISSING.name(),
+        permsCreated,
+        rolesCreated,
+        mappingsCreated,
+        0,
+        List.of(),
+        true);
   }
 
   private BootstrapAccessControlResult syncSystem(RolePermissionMatrix matrix) {
@@ -128,8 +142,10 @@ public class AccessControlBootstrapService {
     var result = applyMissing(matrix);
     int removed = 0;
 
-    var matrixMappings = matrix.roles().stream()
-        .collect(Collectors.toMap(RoleDef::code, rd -> (Set<String>) Set.copyOf(rd.permissions())));
+    var matrixMappings =
+        matrix.roles().stream()
+            .collect(
+                Collectors.toMap(RoleDef::code, rd -> (Set<String>) Set.copyOf(rd.permissions())));
 
     for (var role : roleRepository.findAllGlobalNotDeleted()) {
       if (!role.isSystem()) continue;
@@ -146,8 +162,12 @@ public class AccessControlBootstrapService {
     log.info("Bootstrap SYNC_SYSTEM: removed {} extra mappings", removed);
     return new BootstrapAccessControlResult(
         BootstrapMode.SYNC_SYSTEM.name(),
-        result.permissionsCreated(), result.rolesCreated(), result.roleMappingsCreated(),
-        removed, List.of(), true);
+        result.permissionsCreated(),
+        result.rolesCreated(),
+        result.roleMappingsCreated(),
+        removed,
+        List.of(),
+        true);
   }
 
   private RolePermissionMatrix loadMatrix() {
@@ -167,7 +187,14 @@ public class AccessControlBootstrapService {
 
   public record RolePermissionMatrix(List<PermissionDef> permissions, List<RoleDef> roles) {}
 
-  public record PermissionDef(String code, String label, String category, boolean system, boolean active) {}
+  public record PermissionDef(
+      String code, String label, String category, boolean system, boolean active) {}
 
-  public record RoleDef(String code, String label, String scope, boolean system, boolean custom, List<String> permissions) {}
+  public record RoleDef(
+      String code,
+      String label,
+      String scope,
+      boolean system,
+      boolean custom,
+      List<String> permissions) {}
 }

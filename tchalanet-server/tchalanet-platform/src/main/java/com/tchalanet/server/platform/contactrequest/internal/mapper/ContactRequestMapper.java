@@ -8,42 +8,42 @@ import org.springframework.stereotype.Component;
 @Component
 public class ContactRequestMapper {
 
-    public ContactRequestSummaryView toSummaryView(ContactRequestJpaEntity entity) {
-        return new ContactRequestSummaryView(
-            entity.getId(),
-            entity.getReference(),
-            entity.getIntent(),
-            entity.getFullName(),
-            entity.getPhone(),
-            entity.getEmail(),
-            entity.getCity(),
-            entity.getCountry(),
-            entity.getStatus(),
-            entity.getCreatedAt());
-    }
+  public ContactRequestSummaryView toSummaryView(ContactRequestJpaEntity entity) {
+    return new ContactRequestSummaryView(
+        entity.getId(),
+        entity.getReference(),
+        entity.getIntent(),
+        entity.getFullName(),
+        entity.getPhone(),
+        entity.getEmail(),
+        entity.getCity(),
+        entity.getCountry(),
+        entity.getStatus(),
+        entity.getCreatedAt());
+  }
 
-    public ContactRequestAdminDetailView toDetailView(ContactRequestJpaEntity entity) {
-        return new ContactRequestAdminDetailView(
-            entity.getId(),
-            entity.getReference(),
-            entity.getIntent(),
-            entity.getFullName(),
-            entity.getPhone(),
-            entity.getEmail(),
-            entity.getOrganizationName(),
-            entity.getCity(),
-            entity.getCountry(),
-            entity.getOutletCount(),
-            entity.getPreferredContactTime(),
-            entity.getMessage(),
-            entity.isConsentToContact(),
-            entity.getStatus(),
-            entity.getInternalNotes(),
-            entity.getExternalTool(),
-            entity.getExternalReference(),
-            entity.getExportedAt(),
-            entity.getSourcePage(),
-            entity.getCreatedAt(),
-            entity.getUpdatedAt());
-    }
+  public ContactRequestAdminDetailView toDetailView(ContactRequestJpaEntity entity) {
+    return new ContactRequestAdminDetailView(
+        entity.getId(),
+        entity.getReference(),
+        entity.getIntent(),
+        entity.getFullName(),
+        entity.getPhone(),
+        entity.getEmail(),
+        entity.getOrganizationName(),
+        entity.getCity(),
+        entity.getCountry(),
+        entity.getOutletCount(),
+        entity.getPreferredContactTime(),
+        entity.getMessage(),
+        entity.isConsentToContact(),
+        entity.getStatus(),
+        entity.getInternalNotes(),
+        entity.getExternalTool(),
+        entity.getExternalReference(),
+        entity.getExportedAt(),
+        entity.getSourcePage(),
+        entity.getCreatedAt(),
+        entity.getUpdatedAt());
+  }
 }

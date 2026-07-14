@@ -1,7 +1,6 @@
 package com.tchalanet.server.platform.accesscontrol.internal.persistence.repository;
 
 import com.tchalanet.server.platform.accesscontrol.internal.persistence.entity.AppRoleJpaEntity;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -42,8 +41,7 @@ public interface AppRoleJpaRepository extends JpaRepository<AppRoleJpaEntity, UU
               and r.deletedAt is null
             """)
   Optional<AppRoleJpaEntity> findActiveSystemRoleByCodeAndScope(
-      @Param("code") String code,
-      @Param("scope") String scope);
+      @Param("code") String code, @Param("scope") String scope);
 
   @Query(
       """

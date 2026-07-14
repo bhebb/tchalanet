@@ -21,8 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @RequiredArgsConstructor
 @Slf4j
-public class PermissionCatalogAdminAdapter
-    {
+public class PermissionCatalogAdminAdapter {
 
   private final PermissionJpaRepository permissionRepository;
   private final RolePermissionAdminJpaRepository rolePermissionRepository;
@@ -107,4 +106,3 @@ public class PermissionCatalogAdminAdapter
 
   public record PermissionSummary(String code, String name, String category, String description) {}
 }
-

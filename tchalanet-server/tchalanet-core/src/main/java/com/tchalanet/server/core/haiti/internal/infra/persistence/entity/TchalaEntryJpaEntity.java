@@ -2,12 +2,11 @@ package com.tchalanet.server.core.haiti.internal.infra.persistence.entity;
 
 import com.tchalanet.server.common.persistence.BaseEntity;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "tchala_entry")

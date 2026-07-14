@@ -5,23 +5,22 @@ import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.core.promotion.api.command.lifecycle.CreatePromotionCampaignCommand;
 import com.tchalanet.server.core.promotion.api.model.lifecycle.PromotionCampaignView;
-import com.tchalanet.server.core.promotion.internal.application.port.out.lifecycle.PromotionCampaignWritePort;
 import com.tchalanet.server.core.promotion.internal.application.port.out.PromotionCacheEvictorPort;
+import com.tchalanet.server.core.promotion.internal.application.port.out.lifecycle.PromotionCampaignWritePort;
 import lombok.RequiredArgsConstructor;
 
 @UseCase
 @RequiredArgsConstructor
-public class CreatePromotionCampaignCommandHandler implements CommandHandler<CreatePromotionCampaignCommand, PromotionCampaignView> {
+public class CreatePromotionCampaignCommandHandler
+    implements CommandHandler<CreatePromotionCampaignCommand, PromotionCampaignView> {
 
-    private final PromotionCampaignWritePort writePort;
-    private final PromotionCacheEvictorPort cacheEvictor;
+  private final PromotionCampaignWritePort writePort;
+  private final PromotionCacheEvictorPort cacheEvictor;
 
-    @Override
-    public PromotionCampaignView handle(CreatePromotionCampaignCommand cmd) {
-        var out = writePort.create(cmd);
-        AfterCommit.run(() -> cacheEvictor.evictAfterCampaignMutation(cmd.tenantId(), out.id()));
-        return out;
-    }
+  @Override
+  public PromotionCampaignView handle(CreatePromotionCampaignCommand cmd) {
+    var out = writePort.create(cmd);
+    AfterCommit.run(() -> cacheEvictor.evictAfterCampaignMutation(cmd.tenantId(), out.id()));
+    return out;
+  }
 }
-
-

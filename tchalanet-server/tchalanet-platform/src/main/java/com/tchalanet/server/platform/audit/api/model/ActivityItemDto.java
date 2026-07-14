@@ -1,8 +1,5 @@
 package com.tchalanet.server.platform.audit.api.model;
 
-import com.tchalanet.server.platform.audit.api.model.AuditAction;
-import com.tchalanet.server.platform.audit.api.model.AuditActorType;
-import com.tchalanet.server.platform.audit.api.model.AuditEntityType;
 import java.time.Instant;
 import java.util.UUID;
 

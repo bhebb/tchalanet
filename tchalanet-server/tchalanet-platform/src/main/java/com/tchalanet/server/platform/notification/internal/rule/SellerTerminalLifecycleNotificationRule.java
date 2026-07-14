@@ -33,14 +33,15 @@ public class SellerTerminalLifecycleNotificationRule extends AbstractNotificatio
         name.equals("SellerTerminalPinResetEvent")
             || name.equals("SellerTerminalBlockedEvent")
             || name.equals("SellerTerminalDisabledEvent");
-    return Stream.of(intent(
-        event,
-        templateKey(name),
-        actionRequired ? NotificationSeverity.WARNING : NotificationSeverity.INFO,
-        actionRequired ? NotificationKind.ACTION_REQUIRED : NotificationKind.INFO,
-        NotificationCategory.TERMINAL,
-        title(name),
-        name));
+    return Stream.of(
+        intent(
+            event,
+            templateKey(name),
+            actionRequired ? NotificationSeverity.WARNING : NotificationSeverity.INFO,
+            actionRequired ? NotificationKind.ACTION_REQUIRED : NotificationKind.INFO,
+            NotificationCategory.TERMINAL,
+            title(name),
+            name));
   }
 
   private String templateKey(String eventName) {

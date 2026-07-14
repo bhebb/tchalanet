@@ -1,5 +1,8 @@
 package com.tchalanet.server.core.sales.internal.infra.persistence.mapper;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import com.tchalanet.server.catalog.game.api.model.BetType;
 import com.tchalanet.server.catalog.game.api.model.GameCode;
 import com.tchalanet.server.common.types.id.ApprovalRequestId;
@@ -35,144 +38,148 @@ import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
 import com.tchalanet.server.core.selection.api.model.Selection;
 import com.tchalanet.server.core.selection.api.model.SelectionKey;
 import com.tchalanet.server.platform.tenantgame.api.model.SelectionPolicy;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 @DisplayName("TicketAggregateMutator")
 class TicketAggregateMutatorTest {
 
-    private static final CurrencyCode HTG = CurrencyCode.of("HTG");
-    private static final Instant NOW = Instant.parse("2026-05-21T10:00:00Z");
-    private static final UserId USER = UserId.of(UUID.fromString("10000000-0000-0000-0000-000000000001"));
-    private static final TenantId TENANT = TenantId.of(UUID.fromString("20000000-0000-0000-0000-000000000001"));
-    private static final TicketJpaMapper MAPPER = new TicketJpaMapper() {
-    };
-    private final TicketAggregateMutator mutator = new TicketAggregateMutator(MAPPER);
+  private static final CurrencyCode HTG = CurrencyCode.of("HTG");
+  private static final Instant NOW = Instant.parse("2026-05-21T10:00:00Z");
+  private static final UserId USER =
+      UserId.of(UUID.fromString("10000000-0000-0000-0000-000000000001"));
+  private static final TenantId TENANT =
+      TenantId.of(UUID.fromString("20000000-0000-0000-0000-000000000001"));
+  private static final TicketJpaMapper MAPPER = new TicketJpaMapper() {};
+  private final TicketAggregateMutator mutator = new TicketAggregateMutator(MAPPER);
 
-    @Test
-    @DisplayName("copies print mutation and preserves immutable fields")
-    void printMutation() {
-        var original = approvedTicket();
-        var managed = MAPPER.toEntity(original);
+  @Test
+  @DisplayName("copies print mutation and preserves immutable fields")
+  void printMutation() {
+    var original = approvedTicket();
+    var managed = MAPPER.toEntity(original);
 
-        var printed = original.markPrinted(USER, NOW.plusSeconds(60));
+    var printed = original.markPrinted(USER, NOW.plusSeconds(60));
 
-        mutator.applyTo(managed, printed);
+    mutator.applyTo(managed, printed);
 
-        assertImmutableTicketFields(managed, original);
-        assertThat(managed.getPrintStatus()).isEqualTo(TicketPrintStateStatus.PRINTED);
-        assertThat(managed.getPrintCount()).isEqualTo(1);
-        assertThat(managed.getFirstPrintedAt()).isEqualTo(NOW.plusSeconds(60));
-        assertThat(managed.getLastPrintedAt()).isEqualTo(NOW.plusSeconds(60));
-    }
+    assertImmutableTicketFields(managed, original);
+    assertThat(managed.getPrintStatus()).isEqualTo(TicketPrintStateStatus.PRINTED);
+    assertThat(managed.getPrintCount()).isEqualTo(1);
+    assertThat(managed.getFirstPrintedAt()).isEqualTo(NOW.plusSeconds(60));
+    assertThat(managed.getLastPrintedAt()).isEqualTo(NOW.plusSeconds(60));
+  }
 
-    @Test
-    @DisplayName("copies approval transition and preserves immutable fields")
-    void approvalMutation() {
-        var original = pendingTicket();
-        var managed = MAPPER.toEntity(original);
+  @Test
+  @DisplayName("copies approval transition and preserves immutable fields")
+  void approvalMutation() {
+    var original = pendingTicket();
+    var managed = MAPPER.toEntity(original);
 
-        var approved = original.approve(USER, "approved", NOW.plusSeconds(60));
+    var approved = original.approve(USER, "approved", NOW.plusSeconds(60));
 
-        mutator.applyTo(managed, approved);
+    mutator.applyTo(managed, approved);
 
-        assertImmutableTicketFields(managed, original);
-        assertThat(managed.getSaleStatus()).isEqualTo(TicketSaleStatus.APPROVED);
-        assertThat(managed.getApprovedBy()).isEqualTo(USER.value());
-        assertThat(managed.getApprovedAt()).isEqualTo(NOW.plusSeconds(60));
-    }
+    assertImmutableTicketFields(managed, original);
+    assertThat(managed.getSaleStatus()).isEqualTo(TicketSaleStatus.APPROVED);
+    assertThat(managed.getApprovedBy()).isEqualTo(USER.value());
+    assertThat(managed.getApprovedAt()).isEqualTo(NOW.plusSeconds(60));
+  }
 
-    @Test
-    @DisplayName("copies line result fields without replacing immutable line data")
-    void lineResultMutation() {
-        var original = approvedTicket();
-        var managed = MAPPER.toEntity(original);
-        var payout = new Money(new BigDecimal("125"), HTG);
-        var resulted = original.applyOfficialResult(
-            Map.of(original.lines().getFirst().id(), new TicketLineResult(TicketLineResultStatus.WON, payout)),
+  @Test
+  @DisplayName("copies line result fields without replacing immutable line data")
+  void lineResultMutation() {
+    var original = approvedTicket();
+    var managed = MAPPER.toEntity(original);
+    var payout = new Money(new BigDecimal("125"), HTG);
+    var resulted =
+        original.applyOfficialResult(
+            Map.of(
+                original.lines().getFirst().id(),
+                new TicketLineResult(TicketLineResultStatus.WON, payout)),
             USER,
             NOW.plusSeconds(60));
 
-        mutator.applyTo(managed, resulted);
+    mutator.applyTo(managed, resulted);
 
-        assertImmutableTicketFields(managed, original);
-        assertThat(managed.getResultStatus()).isEqualTo(TicketResultStatus.WON);
-        assertThat(managed.getWinningAmount()).isEqualByComparingTo("125");
-        assertThat(managed.getLines()).hasSize(1);
-        var line = managed.getLines().getFirst();
-        assertThat(line.getResultStatus()).isEqualTo(TicketLineResultStatus.WON);
-        assertThat(line.getPayoutAmount()).isEqualByComparingTo("125");
-        assertThat(line.getSelectionKey()).isEqualTo("05");
-    }
+    assertImmutableTicketFields(managed, original);
+    assertThat(managed.getResultStatus()).isEqualTo(TicketResultStatus.WON);
+    assertThat(managed.getWinningAmount()).isEqualByComparingTo("125");
+    assertThat(managed.getLines()).hasSize(1);
+    var line = managed.getLines().getFirst();
+    assertThat(line.getResultStatus()).isEqualTo(TicketLineResultStatus.WON);
+    assertThat(line.getPayoutAmount()).isEqualByComparingTo("125");
+    assertThat(line.getSelectionKey()).isEqualTo("05");
+  }
 
-    @Test
-    @DisplayName("maps ticket line settlement terms round-trip without coverage table")
-    void mapsSettlementTermsRoundTrip() {
-        var original = ticketWithCoverageLine();
-        var entity = MAPPER.toEntity(original);
+  @Test
+  @DisplayName("maps ticket line settlement terms round-trip without coverage table")
+  void mapsSettlementTermsRoundTrip() {
+    var original = ticketWithCoverageLine();
+    var entity = MAPPER.toEntity(original);
 
-        assertThat(entity.getLines()).hasSize(1);
-        var lineEntity = entity.getLines().getFirst();
-        assertThat(lineEntity.getSettlementTermsSnapshot().terms())
-            .extracting(term -> term.ruleCode().name())
-            .containsExactly("LOTTO3_STRAIGHT", "LOTTO3_BOX_6_WAY");
+    assertThat(entity.getLines()).hasSize(1);
+    var lineEntity = entity.getLines().getFirst();
+    assertThat(lineEntity.getSettlementTermsSnapshot().terms())
+        .extracting(term -> term.ruleCode().name())
+        .containsExactly("LOTTO3_STRAIGHT", "LOTTO3_BOX_6_WAY");
 
-        var roundTrip = MAPPER.toDomain(entity);
+    var roundTrip = MAPPER.toDomain(entity);
 
-        assertThat(roundTrip.lines()).hasSize(1);
-        var line = roundTrip.lines().getFirst();
-        assertThat(line.settlementTermsSnapshot().terms())
-            .extracting(term -> term.ruleCode().name())
-            .containsExactly("LOTTO3_STRAIGHT", "LOTTO3_BOX_6_WAY");
-    }
+    assertThat(roundTrip.lines()).hasSize(1);
+    var line = roundTrip.lines().getFirst();
+    assertThat(line.settlementTermsSnapshot().terms())
+        .extracting(term -> term.ruleCode().name())
+        .containsExactly("LOTTO3_STRAIGHT", "LOTTO3_BOX_6_WAY");
+  }
 
-    @Test
-    @DisplayName("adds a new line without replacing existing line data")
-    void addsLineOnUpdate() {
-        var original = approvedTicket();
-        var managed = MAPPER.toEntity(original);
-        var withAddedLine = withLines(original, List.of(line(), secondLine()));
+  @Test
+  @DisplayName("adds a new line without replacing existing line data")
+  void addsLineOnUpdate() {
+    var original = approvedTicket();
+    var managed = MAPPER.toEntity(original);
+    var withAddedLine = withLines(original, List.of(line(), secondLine()));
 
-        mutator.applyTo(managed, withAddedLine);
+    mutator.applyTo(managed, withAddedLine);
 
-        assertImmutableTicketFields(managed, original);
-        assertThat(managed.getLines()).hasSize(2);
-        assertThat(managed.getLines())
-            .extracting(com.tchalanet.server.core.sales.internal.infra.persistence.entity.TicketLineJpaEntity::getSelectionKey)
-            .containsExactly("05", "07");
-        assertThat(managed.getLines().get(1).getTicket()).isSameAs(managed);
-    }
+    assertImmutableTicketFields(managed, original);
+    assertThat(managed.getLines()).hasSize(2);
+    assertThat(managed.getLines())
+        .extracting(
+            com.tchalanet.server.core.sales.internal.infra.persistence.entity.TicketLineJpaEntity
+                ::getSelectionKey)
+        .containsExactly("05", "07");
+    assertThat(managed.getLines().get(1).getTicket()).isSameAs(managed);
+  }
 
-    @Test
-    @DisplayName("removes orphaned lines from the managed aggregate")
-    void removesLineOnUpdate() {
-        var original = withLines(approvedTicket(), List.of(line(), secondLine()));
-        var managed = MAPPER.toEntity(original);
-        var withRemovedLine = withLines(original, List.of(line()));
+  @Test
+  @DisplayName("removes orphaned lines from the managed aggregate")
+  void removesLineOnUpdate() {
+    var original = withLines(approvedTicket(), List.of(line(), secondLine()));
+    var managed = MAPPER.toEntity(original);
+    var withRemovedLine = withLines(original, List.of(line()));
 
-        mutator.applyTo(managed, withRemovedLine);
+    mutator.applyTo(managed, withRemovedLine);
 
-        assertImmutableTicketFields(managed, original);
-        assertThat(managed.getLines()).hasSize(1);
-        assertThat(managed.getLines().getFirst().getSelectionKey()).isEqualTo("05");
-    }
+    assertImmutableTicketFields(managed, original);
+    assertThat(managed.getLines()).hasSize(1);
+    assertThat(managed.getLines().getFirst().getSelectionKey()).isEqualTo("05");
+  }
 
-    @Test
-    @DisplayName("rejects immutable tenant changes")
-    void rejectsImmutableTenantChange() {
-        var original = approvedTicket();
-        var managed = MAPPER.toEntity(original);
-        var changedTenant = new Ticket(
-            new TicketIdentity(TicketId.of(original.identity().id().value()), TenantId.of(UUID.randomUUID())),
+  @Test
+  @DisplayName("rejects immutable tenant changes")
+  void rejectsImmutableTenantChange() {
+    var original = approvedTicket();
+    var managed = MAPPER.toEntity(original);
+    var changedTenant =
+        new Ticket(
+            new TicketIdentity(
+                TicketId.of(original.identity().id().value()), TenantId.of(UUID.randomUUID())),
             original.context(),
             original.codes(),
             original.money(),
@@ -182,175 +189,175 @@ class TicketAggregateMutatorTest {
             original.audit(),
             original.lines());
 
-        assertThatThrownBy(() -> mutator.applyTo(managed, changedTenant))
-            .isInstanceOf(IllegalStateException.class)
-            .hasMessageContaining("tenantId");
-    }
+    assertThatThrownBy(() -> mutator.applyTo(managed, changedTenant))
+        .isInstanceOf(IllegalStateException.class)
+        .hasMessageContaining("tenantId");
+  }
 
-    private static void assertImmutableTicketFields(
-        com.tchalanet.server.core.sales.internal.infra.persistence.entity.TicketJpaEntity managed,
-        Ticket original
-    ) {
-        assertThat(managed.getId()).isEqualTo(original.identity().id().value());
-        assertThat(managed.getTenantId()).isEqualTo(original.identity().tenantId().value());
-        assertThat(managed.getDrawId()).isEqualTo(original.context().drawId().value());
-        assertThat(managed.getDrawChannelId()).isEqualTo(original.context().drawChannelId().value());
-        assertThat(managed.getTicketCode()).isEqualTo(original.codes().ticketCode().value());
-        assertThat(managed.getPublicCode()).isEqualTo(original.codes().publicCode().value());
-        assertThat(managed.getVerificationCode()).isEqualTo(original.codes().verificationCode().value());
-        assertThat(managed.getCurrency()).isEqualTo(original.money().currency().value());
-    }
+  private static void assertImmutableTicketFields(
+      com.tchalanet.server.core.sales.internal.infra.persistence.entity.TicketJpaEntity managed,
+      Ticket original) {
+    assertThat(managed.getId()).isEqualTo(original.identity().id().value());
+    assertThat(managed.getTenantId()).isEqualTo(original.identity().tenantId().value());
+    assertThat(managed.getDrawId()).isEqualTo(original.context().drawId().value());
+    assertThat(managed.getDrawChannelId()).isEqualTo(original.context().drawChannelId().value());
+    assertThat(managed.getTicketCode()).isEqualTo(original.codes().ticketCode().value());
+    assertThat(managed.getPublicCode()).isEqualTo(original.codes().publicCode().value());
+    assertThat(managed.getVerificationCode())
+        .isEqualTo(original.codes().verificationCode().value());
+    assertThat(managed.getCurrency()).isEqualTo(original.money().currency().value());
+  }
 
-    private static Ticket pendingTicket() {
-        return Ticket.place(
-            identity(),
-            context(),
-            TicketCodes.from("TCK-123456-123456-ABC123-4", "ABCD-1234", "WXYZ-5678"),
-            new TicketMoneyBreakdown(money("10"), List.of(), money("10")),
-            List.of(line()),
-            TicketSaleChannel.POS_ONLINE,
-            true,
-            ApprovalRequestId.of(UUID.fromString("30000000-0000-0000-0000-000000000001")),
-            USER,
-            NOW);
-    }
+  private static Ticket pendingTicket() {
+    return Ticket.place(
+        identity(),
+        context(),
+        TicketCodes.from("TCK-123456-123456-ABC123-4", "ABCD-1234", "WXYZ-5678"),
+        new TicketMoneyBreakdown(money("10"), List.of(), money("10")),
+        List.of(line()),
+        TicketSaleChannel.POS_ONLINE,
+        true,
+        ApprovalRequestId.of(UUID.fromString("30000000-0000-0000-0000-000000000001")),
+        USER,
+        NOW);
+  }
 
-    private static Ticket approvedTicket() {
-        return Ticket.place(
-            identity(),
-            context(),
-            TicketCodes.from("TCK-123456-123456-ABC123-4", "ABCD-1234", "WXYZ-5678"),
-            new TicketMoneyBreakdown(money("10"), List.of(), money("10")),
-            List.of(line()),
-            TicketSaleChannel.POS_ONLINE,
-            false,
-            null,
-            USER,
-            NOW);
-    }
+  private static Ticket approvedTicket() {
+    return Ticket.place(
+        identity(),
+        context(),
+        TicketCodes.from("TCK-123456-123456-ABC123-4", "ABCD-1234", "WXYZ-5678"),
+        new TicketMoneyBreakdown(money("10"), List.of(), money("10")),
+        List.of(line()),
+        TicketSaleChannel.POS_ONLINE,
+        false,
+        null,
+        USER,
+        NOW);
+  }
 
-    private static Ticket ticketWithCoverageLine() {
-        return Ticket.place(
-            identity(),
-            context(),
-            TicketCodes.from("TCK-123456-123456-ABC123-4", "ABCD-1234", "WXYZ-5678"),
-            new TicketMoneyBreakdown(money("20"), List.of(), money("20")),
-            List.of(multiTermLine()),
-            TicketSaleChannel.POS_ONLINE,
-            false,
-            null,
-            USER,
-            NOW);
-    }
+  private static Ticket ticketWithCoverageLine() {
+    return Ticket.place(
+        identity(),
+        context(),
+        TicketCodes.from("TCK-123456-123456-ABC123-4", "ABCD-1234", "WXYZ-5678"),
+        new TicketMoneyBreakdown(money("20"), List.of(), money("20")),
+        List.of(multiTermLine()),
+        TicketSaleChannel.POS_ONLINE,
+        false,
+        null,
+        USER,
+        NOW);
+  }
 
-    private static TicketIdentity identity() {
-        return new TicketIdentity(
-            TicketId.of(UUID.fromString("40000000-0000-0000-0000-000000000001")),
-            TENANT);
-    }
+  private static TicketIdentity identity() {
+    return new TicketIdentity(
+        TicketId.of(UUID.fromString("40000000-0000-0000-0000-000000000001")), TENANT);
+  }
 
-    private static TicketContext context() {
-        return new TicketContext(
-            DrawId.of(UUID.fromString("80000000-0000-0000-0000-000000000001")),
-            DrawChannelId.of(UUID.fromString("90000000-0000-0000-0000-000000000001")),
-            SellerTerminalId.of(UUID.fromString("91000000-0000-0000-0000-000000000001")),
-            null,
-            null);
-    }
+  private static TicketContext context() {
+    return new TicketContext(
+        DrawId.of(UUID.fromString("80000000-0000-0000-0000-000000000001")),
+        DrawChannelId.of(UUID.fromString("90000000-0000-0000-0000-000000000001")),
+        SellerTerminalId.of(UUID.fromString("91000000-0000-0000-0000-000000000001")),
+        null,
+        null);
+  }
 
-    private static TicketLine line() {
-        return new TicketLine(
-            TicketLineId.of(UUID.fromString("41000000-0000-0000-0000-000000000001")),
-            1,
-            GameCode.HT_BOLET,
-            BetType.MATCH_1_2D,
-            new Selection(SelectionKey.of("05"), "05"),
-            money("10"),
-            money("125"),
-            new BigDecimal("12.5"),
-            null,
-            TicketLineOrigin.CUSTOMER,
-            TicketLinePricingSource.STANDARD,
-            null,
-            null,
-            null,
-            null,
-            TicketLineResultStatus.PENDING,
-            money("0"));
-    }
+  private static TicketLine line() {
+    return new TicketLine(
+        TicketLineId.of(UUID.fromString("41000000-0000-0000-0000-000000000001")),
+        1,
+        GameCode.HT_BOLET,
+        BetType.MATCH_1_2D,
+        new Selection(SelectionKey.of("05"), "05"),
+        money("10"),
+        money("125"),
+        new BigDecimal("12.5"),
+        null,
+        TicketLineOrigin.CUSTOMER,
+        TicketLinePricingSource.STANDARD,
+        null,
+        null,
+        null,
+        null,
+        TicketLineResultStatus.PENDING,
+        money("0"));
+  }
 
-    private static TicketLine secondLine() {
-        return new TicketLine(
-            TicketLineId.of(UUID.fromString("42000000-0000-0000-0000-000000000001")),
-            2,
-            GameCode.HT_BOLET,
-            BetType.MATCH_1_2D,
-            new Selection(SelectionKey.of("07"), "07"),
-            money("0"),
-            money("0"),
-            new BigDecimal("12.5"),
-            null,
-            TicketLineOrigin.CUSTOMER,
-            TicketLinePricingSource.STANDARD,
-            null,
-            null,
-            null,
-            null,
-            TicketLineResultStatus.PENDING,
-            money("0"));
-    }
+  private static TicketLine secondLine() {
+    return new TicketLine(
+        TicketLineId.of(UUID.fromString("42000000-0000-0000-0000-000000000001")),
+        2,
+        GameCode.HT_BOLET,
+        BetType.MATCH_1_2D,
+        new Selection(SelectionKey.of("07"), "07"),
+        money("0"),
+        money("0"),
+        new BigDecimal("12.5"),
+        null,
+        TicketLineOrigin.CUSTOMER,
+        TicketLinePricingSource.STANDARD,
+        null,
+        null,
+        null,
+        null,
+        TicketLineResultStatus.PENDING,
+        money("0"));
+  }
 
-    private static TicketLine multiTermLine() {
-        return new TicketLine(
-            TicketLineId.of(UUID.fromString("43000000-0000-0000-0000-000000000001")),
-            1,
-            GameCode.HT_LOTO3,
-            BetType.LOTTO3_3D,
-            new Selection(SelectionKey.of("123"), "123"),
-            money("20"),
-            SettlementTermsSnapshot.current(
-                SelectionPolicy.EXPLICIT_ONLY,
-                List.of(
-                    settlementTerm(SettlementRuleCode.LOTTO3_STRAIGHT, new BigDecimal("500")),
-                    settlementTerm(SettlementRuleCode.LOTTO3_BOX_6_WAY, new BigDecimal("80")))),
-            (short) 3,
+  private static TicketLine multiTermLine() {
+    return new TicketLine(
+        TicketLineId.of(UUID.fromString("43000000-0000-0000-0000-000000000001")),
+        1,
+        GameCode.HT_LOTO3,
+        BetType.LOTTO3_3D,
+        new Selection(SelectionKey.of("123"), "123"),
+        money("20"),
+        SettlementTermsSnapshot.current(
             SelectionPolicy.EXPLICIT_ONLY,
-            "Exact + Permuté",
-            TicketLineOrigin.CUSTOMER,
-            TicketLinePricingSource.STANDARD,
-            null,
-            null,
-            null,
-            null,
-            TicketLineResultStatus.PENDING,
-            money("0"));
-    }
+            List.of(
+                settlementTerm(SettlementRuleCode.LOTTO3_STRAIGHT, new BigDecimal("500")),
+                settlementTerm(SettlementRuleCode.LOTTO3_BOX_6_WAY, new BigDecimal("80")))),
+        (short) 3,
+        SelectionPolicy.EXPLICIT_ONLY,
+        "Exact + Permuté",
+        TicketLineOrigin.CUSTOMER,
+        TicketLinePricingSource.STANDARD,
+        null,
+        null,
+        null,
+        null,
+        TicketLineResultStatus.PENDING,
+        money("0"));
+  }
 
-    private static SettlementTermSnapshot settlementTerm(SettlementRuleCode ruleCode, BigDecimal multiplier) {
-        return new SettlementTermSnapshot(
-            ruleCode,
-            (short) 3,
-            "Exact + Permuté",
-            PayoutRuleSnapshot.stakeMultiplier(multiplier),
-            new BigDecimal("10"),
-            SettlementWinMode.ALTERNATIVE,
-            SettlementTermSource.TENANT_DEFAULT);
-    }
+  private static SettlementTermSnapshot settlementTerm(
+      SettlementRuleCode ruleCode, BigDecimal multiplier) {
+    return new SettlementTermSnapshot(
+        ruleCode,
+        (short) 3,
+        "Exact + Permuté",
+        PayoutRuleSnapshot.stakeMultiplier(multiplier),
+        new BigDecimal("10"),
+        SettlementWinMode.ALTERNATIVE,
+        SettlementTermSource.TENANT_DEFAULT);
+  }
 
-    private static Ticket withLines(Ticket ticket, List<TicketLine> lines) {
-        return new Ticket(
-            ticket.identity(),
-            ticket.context(),
-            ticket.codes(),
-            ticket.money(),
-            ticket.lifecycle(),
-            ticket.origin(),
-            ticket.print(),
-            ticket.audit(),
-            lines);
-    }
+  private static Ticket withLines(Ticket ticket, List<TicketLine> lines) {
+    return new Ticket(
+        ticket.identity(),
+        ticket.context(),
+        ticket.codes(),
+        ticket.money(),
+        ticket.lifecycle(),
+        ticket.origin(),
+        ticket.print(),
+        ticket.audit(),
+        lines);
+  }
 
-    private static Money money(String amount) {
-        return new Money(new BigDecimal(amount), HTG);
-    }
+  private static Money money(String amount) {
+    return new Money(new BigDecimal(amount), HTG);
+  }
 }

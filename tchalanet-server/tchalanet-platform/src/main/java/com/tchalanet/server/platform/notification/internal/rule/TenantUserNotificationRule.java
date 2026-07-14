@@ -21,13 +21,14 @@ public class TenantUserNotificationRule extends AbstractNotificationRule {
 
   @Override
   public Stream<NotificationIntent> map(Object event) {
-    return Stream.of(intent(
-        event,
-        "tenant_user.event",
-        NotificationSeverity.INFO,
-        NotificationKind.INFO,
-        NotificationCategory.USER,
-        "Tenant user update",
-        event.getClass().getSimpleName()));
+    return Stream.of(
+        intent(
+            event,
+            "tenant_user.event",
+            NotificationSeverity.INFO,
+            NotificationKind.INFO,
+            NotificationCategory.USER,
+            "Tenant user update",
+            event.getClass().getSimpleName()));
   }
 }

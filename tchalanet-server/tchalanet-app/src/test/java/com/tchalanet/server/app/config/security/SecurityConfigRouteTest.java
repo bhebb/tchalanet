@@ -36,124 +36,131 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @ContextConfiguration(classes = SecurityConfigRouteTest.TestSecurityConfig.class)
 class SecurityConfigRouteTest {
 
-    @Autowired
-    WebApplicationContext wac;
+  @Autowired WebApplicationContext wac;
 
-    private MockMvc mockMvc;
+  private MockMvc mockMvc;
 
-    @BeforeEach
-    void setup() {
-        mockMvc = MockMvcBuilders.webAppContextSetup(wac)
-            .apply(springSecurity())
-            .build();
+  @BeforeEach
+  void setup() {
+    mockMvc = MockMvcBuilders.webAppContextSetup(wac).apply(springSecurity()).build();
+  }
+
+  // §1.2: public paths accessible without token
+
+  @Test
+  void publicPath_withoutToken_succeeds() throws Exception {
+    mockMvc.perform(get("/public/ping")).andExpect(status().isOk());
+  }
+
+  @Test
+  void actuatorHealth_withoutToken_succeeds() throws Exception {
+    mockMvc.perform(get("/actuator/health")).andExpect(status().isOk());
+  }
+
+  // §1.2: protected paths require authentication only (no business-rule authority checks)
+
+  @Test
+  void tenantPath_withoutToken_returns401() throws Exception {
+    mockMvc.perform(get("/tenant/ping")).andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  void adminPath_withoutToken_returns401() throws Exception {
+    mockMvc.perform(get("/admin/ping")).andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  void platformPath_withoutToken_returns401() throws Exception {
+    mockMvc.perform(get("/platform/ping")).andExpect(status().isUnauthorized());
+  }
+
+  // ── test support ──────────────────────────────────────────────────────────
+
+  @RestController
+  static class TestEndpoints {
+    @GetMapping("/public/ping")
+    ResponseEntity<Void> pub() {
+      return ResponseEntity.ok().build();
     }
 
-    // §1.2: public paths accessible without token
-
-    @Test
-    void publicPath_withoutToken_succeeds() throws Exception {
-        mockMvc.perform(get("/public/ping")).andExpect(status().isOk());
+    @GetMapping("/actuator/health")
+    ResponseEntity<Void> health() {
+      return ResponseEntity.ok().build();
     }
 
-    @Test
-    void actuatorHealth_withoutToken_succeeds() throws Exception {
-        mockMvc.perform(get("/actuator/health")).andExpect(status().isOk());
+    @GetMapping("/tenant/ping")
+    ResponseEntity<Void> tenant() {
+      return ResponseEntity.ok().build();
     }
 
-    // §1.2: protected paths require authentication only (no business-rule authority checks)
-
-    @Test
-    void tenantPath_withoutToken_returns401() throws Exception {
-        mockMvc.perform(get("/tenant/ping")).andExpect(status().isUnauthorized());
+    @GetMapping("/admin/ping")
+    ResponseEntity<Void> admin() {
+      return ResponseEntity.ok().build();
     }
 
-    @Test
-    void adminPath_withoutToken_returns401() throws Exception {
-        mockMvc.perform(get("/admin/ping")).andExpect(status().isUnauthorized());
+    @GetMapping("/platform/ping")
+    ResponseEntity<Void> platform() {
+      return ResponseEntity.ok().build();
+    }
+  }
+
+  /**
+   * Mirrors the authorizeHttpRequests rules from SecurityConfig without registering custom filters
+   * (which have no registered order and would cause a Spring Security error). Tests the routing
+   * policy only — filter pipeline ordering is covered separately.
+   */
+  @Configuration
+  @EnableWebMvc
+  @EnableWebSecurity
+  static class TestSecurityConfig {
+
+    @Bean
+    SecurityFilterChain security(HttpSecurity http) throws Exception {
+      http.csrf(AbstractHttpConfigurer::disable)
+          .sessionManagement(sm -> sm.sessionCreationPolicy(STATELESS))
+          .requestCache(RequestCacheConfigurer::disable)
+          .formLogin(AbstractHttpConfigurer::disable)
+          .httpBasic(AbstractHttpConfigurer::disable)
+          .logout(AbstractHttpConfigurer::disable)
+          .authorizeHttpRequests(
+              auth ->
+                  auth.dispatcherTypeMatchers(DispatcherType.ERROR, DispatcherType.FORWARD)
+                      .permitAll()
+                      .requestMatchers(
+                          "/actuator/health",
+                          "/actuator/health/**",
+                          "/swagger-ui.html",
+                          "/swagger-ui/**",
+                          "/v3/api-docs/**",
+                          "/openapi/**",
+                          "/api/v1/openapi/**",
+                          "/api/v1/swagger-ui/**",
+                          "/api/v1/public/**",
+                          "/api/v1/actuator/**",
+                          "/public/**")
+                      .permitAll()
+                      .requestMatchers("/error", "/api/v1/error")
+                      .permitAll()
+                      .requestMatchers(
+                          "/api/v1/admin/ops",
+                          "/api/v1/admin/ops/**",
+                          "/admin/ops",
+                          "/admin/ops/**")
+                      .permitAll()
+                      .anyRequest()
+                      .authenticated())
+          .oauth2ResourceServer(oauth -> oauth.jwt(withDefaults()));
+      return http.build();
     }
 
-    @Test
-    void platformPath_withoutToken_returns401() throws Exception {
-        mockMvc.perform(get("/platform/ping")).andExpect(status().isUnauthorized());
+    @Bean
+    JwtDecoder jwtDecoder() {
+      return mock(JwtDecoder.class);
     }
 
-    // ── test support ──────────────────────────────────────────────────────────
-
-    @RestController
-    static class TestEndpoints {
-        @GetMapping("/public/ping")
-        ResponseEntity<Void> pub() { return ResponseEntity.ok().build(); }
-
-        @GetMapping("/actuator/health")
-        ResponseEntity<Void> health() { return ResponseEntity.ok().build(); }
-
-        @GetMapping("/tenant/ping")
-        ResponseEntity<Void> tenant() { return ResponseEntity.ok().build(); }
-
-        @GetMapping("/admin/ping")
-        ResponseEntity<Void> admin() { return ResponseEntity.ok().build(); }
-
-        @GetMapping("/platform/ping")
-        ResponseEntity<Void> platform() { return ResponseEntity.ok().build(); }
+    @Bean
+    TestEndpoints testEndpoints() {
+      return new TestEndpoints();
     }
-
-    /**
-     * Mirrors the authorizeHttpRequests rules from SecurityConfig without registering
-     * custom filters (which have no registered order and would cause a Spring Security error).
-     * Tests the routing policy only — filter pipeline ordering is covered separately.
-     */
-    @Configuration
-    @EnableWebMvc
-    @EnableWebSecurity
-    static class TestSecurityConfig {
-
-        @Bean
-        SecurityFilterChain security(HttpSecurity http) throws Exception {
-            http.csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(sm -> sm.sessionCreationPolicy(STATELESS))
-                .requestCache(RequestCacheConfigurer::disable)
-                .formLogin(AbstractHttpConfigurer::disable)
-                .httpBasic(AbstractHttpConfigurer::disable)
-                .logout(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(
-                    auth ->
-                        auth.dispatcherTypeMatchers(DispatcherType.ERROR, DispatcherType.FORWARD)
-                            .permitAll()
-                            .requestMatchers(
-                                "/actuator/health",
-                                "/actuator/health/**",
-                                "/swagger-ui.html",
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**",
-                                "/openapi/**",
-                                "/api/v1/openapi/**",
-                                "/api/v1/swagger-ui/**",
-                                "/api/v1/public/**",
-                                "/api/v1/actuator/**",
-                                "/public/**")
-                            .permitAll()
-                            .requestMatchers("/error", "/api/v1/error")
-                            .permitAll()
-                            .requestMatchers(
-                                "/api/v1/admin/ops",
-                                "/api/v1/admin/ops/**",
-                                "/admin/ops",
-                                "/admin/ops/**")
-                            .permitAll()
-                            .anyRequest()
-                            .authenticated())
-                .oauth2ResourceServer(oauth -> oauth.jwt(withDefaults()));
-            return http.build();
-        }
-
-        @Bean
-        JwtDecoder jwtDecoder() {
-            return mock(JwtDecoder.class);
-        }
-
-        @Bean
-        TestEndpoints testEndpoints() {
-            return new TestEndpoints();
-        }
-    }
+  }
 }

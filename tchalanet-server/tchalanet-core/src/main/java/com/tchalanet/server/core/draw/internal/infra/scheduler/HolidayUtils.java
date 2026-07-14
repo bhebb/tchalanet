@@ -3,12 +3,7 @@ package com.tchalanet.server.core.draw.internal.infra.scheduler;
 import com.tchalanet.server.core.uslottery.internal.infra.config.UsLotteryProperties;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component

@@ -12,19 +12,29 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class SaleExposurePlanner {
 
-    private final SelectionApi selectionApi;
+  private final SelectionApi selectionApi;
 
-    public Map<String, List<SellTicketLineInput>> groupByExposureKey(List<SellTicketLineInput> lines) {
-        var grouped = new LinkedHashMap<String, List<SellTicketLineInput>>();
-        for (var line : lines == null ? List.<SellTicketLineInput>of() : lines) {
-            grouped.computeIfAbsent(exposureKey(line), ignored -> new java.util.ArrayList<>()).add(line);
-        }
-        return Map.copyOf(grouped);
+  public Map<String, List<SellTicketLineInput>> groupByExposureKey(
+      List<SellTicketLineInput> lines) {
+    var grouped = new LinkedHashMap<String, List<SellTicketLineInput>>();
+    for (var line : lines == null ? List.<SellTicketLineInput>of() : lines) {
+      grouped.computeIfAbsent(exposureKey(line), ignored -> new java.util.ArrayList<>()).add(line);
     }
+    return Map.copyOf(grouped);
+  }
 
-    private String exposureKey(SellTicketLineInput line) {
-        var canonicalSelection =
-            selectionApi.canonicalize(line.betType(), line.betOption(), line.rawSelection()).key().value();
-        return line.gameCode() + "|" + line.betType() + "|" + line.betOption() + "|" + canonicalSelection;
-    }
+  private String exposureKey(SellTicketLineInput line) {
+    var canonicalSelection =
+        selectionApi
+            .canonicalize(line.betType(), line.betOption(), line.rawSelection())
+            .key()
+            .value();
+    return line.gameCode()
+        + "|"
+        + line.betType()
+        + "|"
+        + line.betOption()
+        + "|"
+        + canonicalSelection;
+  }
 }

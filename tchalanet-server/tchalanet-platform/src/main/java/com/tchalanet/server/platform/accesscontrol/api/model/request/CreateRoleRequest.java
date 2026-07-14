@@ -10,6 +10,4 @@ public record CreateRoleRequest(
     String description,
     TenantId tenantId,
     RoleId parentRoleId,
-    boolean system){}
-
-
+    boolean system) {}

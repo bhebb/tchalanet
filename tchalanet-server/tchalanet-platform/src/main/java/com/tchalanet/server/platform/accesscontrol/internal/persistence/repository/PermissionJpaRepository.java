@@ -1,7 +1,6 @@
 package com.tchalanet.server.platform.accesscontrol.internal.persistence.repository;
 
 import com.tchalanet.server.platform.accesscontrol.internal.persistence.entity.PermissionJpaEntity;
-
 import java.util.List;
 import java.util.Set;
 import org.springframework.data.domain.Page;
@@ -24,4 +23,3 @@ public interface PermissionJpaRepository extends JpaRepository<PermissionJpaEnti
       "select p from PermissionJpaEntity p where p.deletedAt is null and (lower(p.code) like lower(concat('%', :q, '%')) or lower(p.name) like lower(concat('%', :q, '%')) or lower(p.description) like lower(concat('%', :q, '%'))) ")
   Page<PermissionJpaEntity> searchActive(@Param("q") String query, Pageable pageable);
 }
-

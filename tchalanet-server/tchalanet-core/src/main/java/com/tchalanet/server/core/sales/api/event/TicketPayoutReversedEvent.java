@@ -18,5 +18,5 @@ public record TicketPayoutReversedEvent(
     long amountCents,
     String currency,
     SellerTerminalId sellerTerminalId,
-    UserId reversedBy
-) implements DomainEvent {}
+    UserId reversedBy)
+    implements DomainEvent {}

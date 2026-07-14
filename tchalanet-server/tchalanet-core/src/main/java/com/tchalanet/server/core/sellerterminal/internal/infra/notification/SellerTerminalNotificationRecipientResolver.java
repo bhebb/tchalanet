@@ -57,9 +57,7 @@ class SellerTerminalNotificationRecipientResolver implements NotificationRecipie
     if (terminalIds.isEmpty()) {
       return List.of();
     }
-    return terminals
-        .findByTenantIdAndIdInAndDeletedAtIsNull(tenantId.value(), terminalIds)
-        .stream()
+    return terminals.findByTenantIdAndIdInAndDeletedAtIsNull(tenantId.value(), terminalIds).stream()
         .map(this::toContact)
         .toList();
   }

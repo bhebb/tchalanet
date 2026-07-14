@@ -8,15 +8,8 @@ import java.time.ZoneId;
 /**
  * Immutable schedule computed for a draw occurrence.
  *
- * <p>{@code drawDate} is the channel-local commercial date of the draw.
- * {@code scheduledAt} and {@code cutoffAt} are UTC instants stored in the DB
- * as {@code timestamptz}.
+ * <p>{@code drawDate} is the channel-local commercial date of the draw. {@code scheduledAt} and
+ * {@code cutoffAt} are UTC instants stored in the DB as {@code timestamptz}.
  */
 public record DrawScheduleSnapshot(
-    LocalDate drawDate,
-    LocalTime drawTime,
-    ZoneId zoneId,
-    Instant scheduledAt,
-    Instant cutoffAt
-) {}
-
+    LocalDate drawDate, LocalTime drawTime, ZoneId zoneId, Instant scheduledAt, Instant cutoffAt) {}

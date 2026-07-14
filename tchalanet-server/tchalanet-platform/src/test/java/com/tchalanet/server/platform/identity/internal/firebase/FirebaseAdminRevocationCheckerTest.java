@@ -40,15 +40,13 @@ class FirebaseAdminRevocationCheckerTest {
     when(firebaseAuth.getUser("firebase-uid")).thenReturn(user);
 
     assertRejected(
-        new VerifiedExternalToken(
-            "issuer", "firebase-uid", null, false, Map.of("aud", "project")),
+        new VerifiedExternalToken("issuer", "firebase-uid", null, false, Map.of("aud", "project")),
         "invalid_auth_time");
   }
 
   @Test
   void failsClosedWhenFirebaseUserStatusCannotBeVerified() throws Exception {
-    when(firebaseAuth.getUser("firebase-uid"))
-        .thenThrow(Mockito.mock(FirebaseAuthException.class));
+    when(firebaseAuth.getUser("firebase-uid")).thenThrow(Mockito.mock(FirebaseAuthException.class));
 
     assertRejected(token(1_750_000_000L), "firebase_revocation_check_failed");
   }

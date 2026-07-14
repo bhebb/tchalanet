@@ -11,33 +11,22 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 /**
- * Single provider for source {@code platform_admin_dashboard}.
- * The page {@code logicalId} selects the dashboard payload assembler through
- * {@link PlatformAdminDashboardPayloadService}; the provider only dispatches the
- * resolved payload slice by widgetId.
+ * Single provider for source {@code platform_admin_dashboard}. The page {@code logicalId} selects
+ * the dashboard payload assembler through {@link PlatformAdminDashboardPayloadService}; the
+ * provider only dispatches the resolved payload slice by widgetId.
  *
- * Supported commercial widget ids:
- *   - dashboard.superadmin.tenants
- *   - dashboard.superadmin.platformSales
- *   - dashboard.superadmin.salesTrend
- *   - dashboard.superadmin.gameBreakdown
- *   - dashboard.superadmin.subscriptions
- *   - dashboard.superadmin.onboarding
- *   - dashboard.superadmin.publicContent
- *   - dashboard.superadmin.topTenants
- *   - dashboard.superadmin.quickActions
+ * <p>Supported commercial widget ids: - dashboard.superadmin.tenants -
+ * dashboard.superadmin.platformSales - dashboard.superadmin.salesTrend -
+ * dashboard.superadmin.gameBreakdown - dashboard.superadmin.subscriptions -
+ * dashboard.superadmin.onboarding - dashboard.superadmin.publicContent -
+ * dashboard.superadmin.topTenants - dashboard.superadmin.quickActions
  *
- * Supported ops widget ids:
- *   - dashboard.superadmin.ops.overview
- *   - dashboard.superadmin.ops.health
- *   - dashboard.superadmin.ops.scheduler
- *   - dashboard.superadmin.ops.schedulerIssues
- *   - dashboard.superadmin.ops.resourcesCritical
- *   - dashboard.superadmin.ops.resources
- *   - dashboard.superadmin.ops.databaseCapacity
- *   - dashboard.superadmin.ops.notifications
- *   - dashboard.superadmin.ops.contactRequests
- *   - dashboard.superadmin.ops.quickActions
+ * <p>Supported ops widget ids: - dashboard.superadmin.ops.overview -
+ * dashboard.superadmin.ops.health - dashboard.superadmin.ops.scheduler -
+ * dashboard.superadmin.ops.schedulerIssues - dashboard.superadmin.ops.resourcesCritical -
+ * dashboard.superadmin.ops.resources - dashboard.superadmin.ops.databaseCapacity -
+ * dashboard.superadmin.ops.notifications - dashboard.superadmin.ops.contactRequests -
+ * dashboard.superadmin.ops.quickActions
  */
 @Component
 @RequiredArgsConstructor
@@ -71,17 +60,19 @@ public class PlatformAdminDashboardProvider implements PageModelDynamicProvider 
       return switch (widgetId == null ? "" : widgetId) {
         case "dashboard.superadmin.ops.overview" -> opsPayload;
         case "dashboard.superadmin.ops.health" -> opsPayload.health();
-        case "dashboard.superadmin.ops.scheduler",
-            "dashboard.superadmin.ops.schedulerIssues" -> opsPayload.schedulerSummary();
+        case "dashboard.superadmin.ops.scheduler", "dashboard.superadmin.ops.schedulerIssues" ->
+            opsPayload.schedulerSummary();
         case "dashboard.superadmin.ops.resourcesCritical",
             "dashboard.superadmin.ops.resources",
-            "dashboard.superadmin.ops.databaseCapacity" -> opsPayload.resourceSummary();
+            "dashboard.superadmin.ops.databaseCapacity" ->
+            opsPayload.resourceSummary();
         case "dashboard.superadmin.ops.notifications" -> opsPayload.appNotifications();
         case "dashboard.superadmin.ops.contactRequests" -> opsPayload.contactRequests();
         case "dashboard.superadmin.ops.quickActions" -> opsPayload.quickActions();
-        default -> throw new PageModelDynamicProviderException(
-            "PLATFORM_ADMIN_DASHBOARD_UNKNOWN_WIDGET",
-            "Unknown ops widgetId for source=" + SOURCE + ": " + widgetId);
+        default ->
+            throw new PageModelDynamicProviderException(
+                "PLATFORM_ADMIN_DASHBOARD_UNKNOWN_WIDGET",
+                "Unknown ops widgetId for source=" + SOURCE + ": " + widgetId);
       };
     }
 
@@ -101,9 +92,10 @@ public class PlatformAdminDashboardProvider implements PageModelDynamicProvider 
       case "dashboard.superadmin.publicContent" -> commercialPayload.publicContent();
       case "dashboard.superadmin.topTenants" -> commercialPayload.tenantRanking();
       case "dashboard.superadmin.quickActions" -> commercialPayload.quickActions();
-      default -> throw new PageModelDynamicProviderException(
-          "PLATFORM_ADMIN_DASHBOARD_UNKNOWN_WIDGET",
-          "Unknown widgetId for source=" + SOURCE + ": " + widgetId);
+      default ->
+          throw new PageModelDynamicProviderException(
+              "PLATFORM_ADMIN_DASHBOARD_UNKNOWN_WIDGET",
+              "Unknown widgetId for source=" + SOURCE + ": " + widgetId);
     };
   }
 

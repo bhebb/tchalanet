@@ -13,32 +13,30 @@ import org.springframework.stereotype.Service;
 class UnsupportedSellerTerminalIdentityProvisioningService
     implements SellerTerminalIdentityProvisioningApi {
 
-    private final String configuredProvider;
+  private final String configuredProvider;
 
-    UnsupportedSellerTerminalIdentityProvisioningService(
-        @Value("${tch.identity.provider:firebase}") String configuredProvider
-    ) {
-        this.configuredProvider = configuredProvider;
-    }
+  UnsupportedSellerTerminalIdentityProvisioningService(
+      @Value("${tch.identity.provider:firebase}") String configuredProvider) {
+    this.configuredProvider = configuredProvider;
+  }
 
-    @Override
-    public ProvisionedExternalUser provisionSellerTerminal(
-        SellerTerminalId sellerTerminalId,
-        String terminalCode,
-        String displayName,
-        String initialPin
-    ) {
-        throw unsupported();
-    }
+  @Override
+  public ProvisionedExternalUser provisionSellerTerminal(
+      SellerTerminalId sellerTerminalId,
+      String terminalCode,
+      String displayName,
+      String initialPin) {
+    throw unsupported();
+  }
 
-    @Override
-    public void resetPasswordForSubject(String externalSubject, String newPassword) {
-        throw unsupported();
-    }
+  @Override
+  public void resetPasswordForSubject(String externalSubject, String newPassword) {
+    throw unsupported();
+  }
 
-    private IllegalStateException unsupported() {
-        return new IllegalStateException(
-            "SellerTerminal identity provisioning is not supported for configured provider: "
-                + configuredProvider);
-    }
+  private IllegalStateException unsupported() {
+    return new IllegalStateException(
+        "SellerTerminal identity provisioning is not supported for configured provider: "
+            + configuredProvider);
+  }
 }

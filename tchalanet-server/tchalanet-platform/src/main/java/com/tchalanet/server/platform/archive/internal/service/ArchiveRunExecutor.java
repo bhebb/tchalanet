@@ -1,5 +1,6 @@
 package com.tchalanet.server.platform.archive.internal.service;
 
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.platform.archive.api.ArchiveDatasetProvider;
 import com.tchalanet.server.platform.archive.api.model.ArchiveDatasetPlan;
 import com.tchalanet.server.platform.archive.api.model.ArchiveExportRequest;
@@ -25,23 +26,23 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import com.tchalanet.server.common.json.utils.JsonUtils;
 
 /**
  * Orchestrates a full archive run across all registered {@link ArchiveDatasetProvider}s.
  *
  * <p>For each provider, the executor:
+ *
  * <ol>
- *   <li>Calls {@code plan()} to check whether archival is needed for the period.</li>
- *   <li>Opens a write stream to object storage and wraps it with {@link JsonlGzWriter}.</li>
- *   <li>Calls {@code export()} with a {@code RowSink} that streams rows into the writer.</li>
- *   <li>Persists an {@code archive_object} record with checksum and row count.</li>
- *   <li>Calls {@code generateLookupRows()} and bulk-inserts into {@code archive_lookup_index}.</li>
- *   <li>Marks the object {@code VERIFIED}.</li>
+ *   <li>Calls {@code plan()} to check whether archival is needed for the period.
+ *   <li>Opens a write stream to object storage and wraps it with {@link JsonlGzWriter}.
+ *   <li>Calls {@code export()} with a {@code RowSink} that streams rows into the writer.
+ *   <li>Persists an {@code archive_object} record with checksum and row count.
+ *   <li>Calls {@code generateLookupRows()} and bulk-inserts into {@code archive_lookup_index}.
+ *   <li>Marks the object {@code VERIFIED}.
  * </ol>
  *
- * <p>Idempotency is enforced by {@link ArchiveRunGuard} at the run level.
- * V1 runs all datasets globally (tenantId = null). Per-tenant iteration is V2.
+ * <p>Idempotency is enforced by {@link ArchiveRunGuard} at the run level. V1 runs all datasets
+ * globally (tenantId = null). Per-tenant iteration is V2.
  */
 @Component
 @RequiredArgsConstructor
@@ -59,11 +60,11 @@ public class ArchiveRunExecutor {
 
   /** Execute a full archive run for the given period. Returns the resulting run view. */
   public ArchiveRunView execute(TriggerArchiveRunRequest request, UUID requestedBy) {
-    String idemKey = ArchiveIdempotencyKeyBuilder.forRun(
-        request.periodStart(), request.periodEnd());
+    String idemKey =
+        ArchiveIdempotencyKeyBuilder.forRun(request.periodStart(), request.periodEnd());
 
-    ArchiveRunGuard.GuardResult guardResult = guard.beginOrResume(
-        idemKey, request.strategy(), "MANUAL", requestedBy, request.reason());
+    ArchiveRunGuard.GuardResult guardResult =
+        guard.beginOrResume(idemKey, request.strategy(), "MANUAL", requestedBy, request.reason());
 
     if (guardResult.decision() == Decision.ALREADY_COMPLETED) {
       return loadRunView(guardResult.runId());
@@ -98,21 +99,39 @@ public class ArchiveRunExecutor {
 
     ArchiveDatasetPlan plan = provider.plan(period, tenantId);
     if (!plan.archivalNeeded()) {
-      log.info("archive: dataset={} period={}/{} — no rows, skipping", tableName, period.start(), period.end());
+      log.info(
+          "archive: dataset={} period={}/{} — no rows, skipping",
+          tableName,
+          period.start(),
+          period.end());
       return;
     }
 
     String segmentId = UUID.randomUUID().toString();
-    String uri = storage.buildUri(tableName, "global",
-        period.start().getYear(), period.start().getMonthValue(), segmentId);
+    String uri =
+        storage.buildUri(
+            tableName,
+            "global",
+            period.start().getYear(),
+            period.start().getMonthValue(),
+            segmentId);
 
     UUID objectId = UUID.randomUUID();
     StoredArchiveObject result = exportToStorage(provider, period, tenantId, runId, uri);
 
-    objectRepo.insert(objectId, runId, tableName, tenantId,
-        period.start(), period.end(), 0,
-        uri, result.rowsExported(), result.byteSize(),
-        result.checksumSha256(), result.schemaVersion());
+    objectRepo.insert(
+        objectId,
+        runId,
+        tableName,
+        tenantId,
+        period.start(),
+        period.end(),
+        0,
+        uri,
+        result.rowsExported(),
+        result.byteSize(),
+        result.checksumSha256(),
+        result.schemaVersion());
 
     try {
       verifyArchiveObject(plan, result, uri);
@@ -130,12 +149,22 @@ public class ArchiveRunExecutor {
 
     objectRepo.markVerified(objectId);
     metrics.recordRowsExported(tableName, result.rowsExported());
-    log.info("archive: dataset={} objectId={} period={}/{} rows={} uri={}",
-        tableName, objectId, period.start(), period.end(), result.rowsExported(), uri);
+    log.info(
+        "archive: dataset={} objectId={} period={}/{} rows={} uri={}",
+        tableName,
+        objectId,
+        period.start(),
+        period.end(),
+        result.rowsExported(),
+        uri);
   }
 
-  private StoredArchiveObject exportToStorage(ArchiveDatasetProvider provider,
-      ArchivePeriod period, UUID tenantId, UUID runId, String uri) {
+  private StoredArchiveObject exportToStorage(
+      ArchiveDatasetProvider provider,
+      ArchivePeriod period,
+      UUID tenantId,
+      UUID runId,
+      String uri) {
 
     OutputStream out = storage.openWrite(uri);
     JsonlGzWriter writer = new JsonlGzWriter(out, jsonUtils);
@@ -143,8 +172,8 @@ public class ArchiveRunExecutor {
     boolean exportSucceeded = false;
 
     try {
-      ArchiveExportRequest exportReq = new ArchiveExportRequest(
-          runId, provider.key(), period, tenantId, 0, writer::write);
+      ArchiveExportRequest exportReq =
+          new ArchiveExportRequest(runId, provider.key(), period, tenantId, 0, writer::write);
       providerResult = provider.export(exportReq);
       exportSucceeded = true;
     } finally {
@@ -166,24 +195,28 @@ public class ArchiveRunExecutor {
         storage.size(uri));
   }
 
-  private void verifyArchiveObject(ArchiveDatasetPlan plan, StoredArchiveObject result, String uri) {
+  private void verifyArchiveObject(
+      ArchiveDatasetPlan plan, StoredArchiveObject result, String uri) {
     if (!storage.exists(uri)) {
       throw new IllegalStateException("archive object missing after export: " + uri);
     }
     if (result.rowsExported() != result.rowsWritten()) {
-      throw new IllegalStateException("archive row-count mismatch for %s: provider=%d writer=%d"
-          .formatted(uri, result.rowsExported(), result.rowsWritten()));
+      throw new IllegalStateException(
+          "archive row-count mismatch for %s: provider=%d writer=%d"
+              .formatted(uri, result.rowsExported(), result.rowsWritten()));
     }
     if (plan.estimatedRowCount() != result.rowsExported()) {
-      throw new IllegalStateException("archive plan/export row-count mismatch for %s: plan=%d exported=%d"
-          .formatted(uri, plan.estimatedRowCount(), result.rowsExported()));
+      throw new IllegalStateException(
+          "archive plan/export row-count mismatch for %s: plan=%d exported=%d"
+              .formatted(uri, plan.estimatedRowCount(), result.rowsExported()));
     }
     if (result.byteSize() <= 0) {
       throw new IllegalStateException("archive object has invalid byte size for " + uri);
     }
     if (result.storageByteSize() != result.byteSize()) {
-      throw new IllegalStateException("archive byte-size mismatch for %s: writer=%d storage=%d"
-          .formatted(uri, result.byteSize(), result.storageByteSize()));
+      throw new IllegalStateException(
+          "archive byte-size mismatch for %s: writer=%d storage=%d"
+              .formatted(uri, result.byteSize(), result.storageByteSize()));
     }
     if (result.checksumSha256() == null || result.checksumSha256().isBlank()) {
       throw new IllegalStateException("archive checksum missing for " + uri);
@@ -197,7 +230,8 @@ public class ArchiveRunExecutor {
         .filter(r -> runId.equals(r.id()))
         .findFirst()
         .map(this::toRunView)
-        .orElseThrow(() -> new IllegalStateException("archive_run not found after execution: " + runId));
+        .orElseThrow(
+            () -> new IllegalStateException("archive_run not found after execution: " + runId));
   }
 
   private ArchiveRunView toRunView(ArchiveRunRowView row) {
@@ -209,8 +243,7 @@ public class ArchiveRunExecutor {
         row.idempotencyKey(),
         row.startedAt(),
         row.completedAt(),
-        row.errorMessage()
-    );
+        row.errorMessage());
   }
 
   private static String truncate(String s, int max) {
@@ -224,6 +257,5 @@ public class ArchiveRunExecutor {
       String checksumSha256,
       long byteSize,
       long rowsWritten,
-      long storageByteSize
-  ) {}
+      long storageByteSize) {}
 }

@@ -18,6 +18,5 @@ public final class I18nOverridesCacheNames {
   /** Cache for override by ID */
   public static final String BY_ID = "catalog:i18n:by_id";
 
-    public static final String RESOLVED_BY_LOCALE = "catalog:i18n:resolved_by_locale";
-
+  public static final String RESOLVED_BY_LOCALE = "catalog:i18n:resolved_by_locale";
 }

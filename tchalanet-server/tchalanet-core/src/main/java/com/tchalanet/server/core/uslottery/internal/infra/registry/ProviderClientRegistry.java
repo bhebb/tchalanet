@@ -12,26 +12,25 @@ import org.springframework.stereotype.Component;
 @Component
 public class ProviderClientRegistry {
 
-    private final Map<UsLotteryProvider, UsLotteryProviderClient> clientsByProvider;
+  private final Map<UsLotteryProvider, UsLotteryProviderClient> clientsByProvider;
 
-    public ProviderClientRegistry(List<UsLotteryProviderClient> clients) {
-        this.clientsByProvider =
-            clients.stream()
-                .collect(
-                    Collectors.toUnmodifiableMap(
-                        UsLotteryProviderClient::provider,
-                        Function.identity()));
-    }
+  public ProviderClientRegistry(List<UsLotteryProviderClient> clients) {
+    this.clientsByProvider =
+        clients.stream()
+            .collect(
+                Collectors.toUnmodifiableMap(
+                    UsLotteryProviderClient::provider, Function.identity()));
+  }
 
-    public UsLotteryProviderClient get(UsLotteryProvider provider) {
-        var client = clientsByProvider.get(provider);
-        if (client == null) {
-            throw new IllegalArgumentException("Unsupported lottery provider: " + provider);
-        }
-        return client;
+  public UsLotteryProviderClient get(UsLotteryProvider provider) {
+    var client = clientsByProvider.get(provider);
+    if (client == null) {
+      throw new IllegalArgumentException("Unsupported lottery provider: " + provider);
     }
+    return client;
+  }
 
-    public Optional<UsLotteryProviderClient> find(UsLotteryProvider provider) {
-        return Optional.ofNullable(clientsByProvider.get(provider));
-    }
+  public Optional<UsLotteryProviderClient> find(UsLotteryProvider provider) {
+    return Optional.ofNullable(clientsByProvider.get(provider));
+  }
 }

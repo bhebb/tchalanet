@@ -21,13 +21,14 @@ public class PayoutNotificationRule extends AbstractNotificationRule {
 
   @Override
   public Stream<NotificationIntent> map(Object event) {
-    return Stream.of(intent(
-        event,
-        "payout.event",
-        NotificationSeverity.INFO,
-        NotificationKind.INFO,
-        NotificationCategory.PAYOUT,
-        "Payout update",
-        event.getClass().getSimpleName()));
+    return Stream.of(
+        intent(
+            event,
+            "payout.event",
+            NotificationSeverity.INFO,
+            NotificationKind.INFO,
+            NotificationCategory.PAYOUT,
+            "Payout update",
+            event.getClass().getSimpleName()));
   }
 }

@@ -7,8 +7,8 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 /**
- * Provider no-draw days change rarely and are SUPER_ADMIN managed (with explicit
- * cache eviction on every write). They can safely be cached for 24h.
+ * Provider no-draw days change rarely and are SUPER_ADMIN managed (with explicit cache eviction on
+ * every write). They can safely be cached for 24h.
  */
 @Component
 public class ResultSlotCalendarCacheSpecProvider implements CacheSpecProvider {

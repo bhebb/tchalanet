@@ -8,5 +8,4 @@ public record GameUpdateRequest(
     Integer maxDigits,
     String description,
     Boolean active,
-    Integer sortOrder
-) {}
+    Integer sortOrder) {}

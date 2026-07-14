@@ -32,15 +32,14 @@ public class IdentityActivationController {
     if (ctx.userId() == null) {
       throw ProblemRest.notFound("User not found for current principal");
     }
-    var result = users.completeFirstLogin(
-        ctx.userId(),
-        request.firstName(),
-        request.lastName(),
-        request.phoneNumber());
-    return ApiResponse.success(new CompleteFirstLoginResponse(
-        result.userId(),
-        result.mustChangePassword(),
-        result.mustCompleteProfile(),
-        result.entryRoute()));
+    var result =
+        users.completeFirstLogin(
+            ctx.userId(), request.firstName(), request.lastName(), request.phoneNumber());
+    return ApiResponse.success(
+        new CompleteFirstLoginResponse(
+            result.userId(),
+            result.mustChangePassword(),
+            result.mustCompleteProfile(),
+            result.entryRoute()));
   }
 }

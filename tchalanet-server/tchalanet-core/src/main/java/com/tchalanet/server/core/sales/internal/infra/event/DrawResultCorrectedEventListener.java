@@ -15,24 +15,24 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @Slf4j
 public class DrawResultCorrectedEventListener {
 
-    private static final String HANDLER_KEY = "sales.draw-result-corrected.reconcile";
+  private static final String HANDLER_KEY = "sales.draw-result-corrected.reconcile";
 
-    private final ProcessedEventPort processedEventPort;
-    private final CommandBus commandBus;
+  private final ProcessedEventPort processedEventPort;
+  private final CommandBus commandBus;
 
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void onDrawResultCorrected(DrawResultCorrectedEvent event) {
-        if (!processedEventPort.markProcessedIfAbsent(HANDLER_KEY, event.eventId().value())) {
-            log.debug("draw.result.corrected already processed eventId={}", event.eventId().value());
-            return;
-        }
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  public void onDrawResultCorrected(DrawResultCorrectedEvent event) {
+    if (!processedEventPort.markProcessedIfAbsent(HANDLER_KEY, event.eventId().value())) {
+      log.debug("draw.result.corrected already processed eventId={}", event.eventId().value());
+      return;
+    }
 
-        commandBus.execute(new ReconcileTicketsForCorrectedDrawResultCommand(
+    commandBus.execute(
+        new ReconcileTicketsForCorrectedDrawResultCommand(
             event.tenantId(),
             event.drawId(),
             event.previousDrawResultId(),
             event.correctedDrawResultId(),
-            event.reason()
-        ));
-    }
+            event.reason()));
+  }
 }

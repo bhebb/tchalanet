@@ -10,15 +10,15 @@ import com.tchalanet.server.common.web.paging.TchSearchQuery;
 import com.tchalanet.server.platform.notification.api.model.NotificationActorType;
 import com.tchalanet.server.platform.notification.api.model.NotificationAudienceType;
 import com.tchalanet.server.platform.notification.api.model.NotificationCategory;
-import com.tchalanet.server.platform.notification.api.model.NotificationPublicationStatus;
-import com.tchalanet.server.platform.notification.api.model.view.NotificationItemView;
 import com.tchalanet.server.platform.notification.api.model.NotificationKind;
+import com.tchalanet.server.platform.notification.api.model.NotificationPublicationStatus;
 import com.tchalanet.server.platform.notification.api.model.NotificationSeverity;
 import com.tchalanet.server.platform.notification.api.model.NotificationStatus;
 import com.tchalanet.server.platform.notification.api.model.NotificationTarget;
 import com.tchalanet.server.platform.notification.api.model.view.NotificationActionView;
-import com.tchalanet.server.platform.notification.api.model.view.NotificationUnreadCountView;
+import com.tchalanet.server.platform.notification.api.model.view.NotificationItemView;
 import com.tchalanet.server.platform.notification.api.model.view.NotificationSummaryView;
+import com.tchalanet.server.platform.notification.api.model.view.NotificationUnreadCountView;
 import com.tchalanet.server.platform.notification.internal.mapper.NotificationMapper;
 import com.tchalanet.server.platform.notification.internal.service.Notification;
 import com.tchalanet.server.platform.notification.internal.service.NotificationReader;
@@ -35,8 +35,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class NotificationPersistenceService
-    implements NotificationWriter, NotificationReader {
+public class NotificationPersistenceService implements NotificationWriter, NotificationReader {
 
   private final Clock clock;
   private final NotificationJpaRepository notifications;
@@ -50,7 +49,9 @@ public class NotificationPersistenceService
     if (dedupeKey == null || dedupeKey.isBlank()) {
       return Optional.empty();
     }
-    return notifications.findFirstByDedupeKeyAndDeletedAtIsNull(dedupeKey).map(NotificationMapper::toDomain);
+    return notifications
+        .findFirstByDedupeKeyAndDeletedAtIsNull(dedupeKey)
+        .map(NotificationMapper::toDomain);
   }
 
   @Override
@@ -71,13 +72,28 @@ public class NotificationPersistenceService
     var now = clock.instant();
     var unread =
         notifications.countVisible(
-            userId == null ? null : userId.value(), roleCode, NotificationStatus.PUBLISHED, null, null, now);
+            userId == null ? null : userId.value(),
+            roleCode,
+            NotificationStatus.PUBLISHED,
+            null,
+            null,
+            now);
     var critical =
         notifications.countVisible(
-            userId == null ? null : userId.value(), roleCode, NotificationStatus.PUBLISHED, null, NotificationSeverity.CRITICAL, now);
+            userId == null ? null : userId.value(),
+            roleCode,
+            NotificationStatus.PUBLISHED,
+            null,
+            NotificationSeverity.CRITICAL,
+            now);
     var actionRequired =
         notifications.countVisible(
-            userId == null ? null : userId.value(), roleCode, NotificationStatus.PUBLISHED, NotificationKind.ACTION_REQUIRED, null, now);
+            userId == null ? null : userId.value(),
+            roleCode,
+            NotificationStatus.PUBLISHED,
+            NotificationKind.ACTION_REQUIRED,
+            null,
+            now);
     return new NotificationSummaryView(unread, critical, actionRequired, actionRequired > 0);
   }
 
@@ -89,10 +105,18 @@ public class NotificationPersistenceService
             sellerTerminalId.value(), NotificationStatus.PUBLISHED, null, null, now);
     var critical =
         notifications.countVisibleToTerminal(
-            sellerTerminalId.value(), NotificationStatus.PUBLISHED, null, NotificationSeverity.CRITICAL, now);
+            sellerTerminalId.value(),
+            NotificationStatus.PUBLISHED,
+            null,
+            NotificationSeverity.CRITICAL,
+            now);
     var actionRequired =
         notifications.countVisibleToTerminal(
-            sellerTerminalId.value(), NotificationStatus.PUBLISHED, NotificationKind.ACTION_REQUIRED, null, now);
+            sellerTerminalId.value(),
+            NotificationStatus.PUBLISHED,
+            NotificationKind.ACTION_REQUIRED,
+            null,
+            now);
     return new NotificationSummaryView(unread, critical, actionRequired, actionRequired > 0);
   }
 
@@ -165,17 +189,21 @@ public class NotificationPersistenceService
             search == null ? null : search.likePattern(),
             clock.instant(),
             pageRequest.pageable());
-    var recipientByNotificationId = recipientByNotificationId(page.getContent().stream().map(NotificationJpaEntity::getId).toList(), actorType, actorId);
+    var recipientByNotificationId =
+        recipientByNotificationId(
+            page.getContent().stream().map(NotificationJpaEntity::getId).toList(),
+            actorType,
+            actorId);
     return TchPageMapper.map(
-        page, entity -> toPersonalItemView(entity, actorType, actorId, recipientByNotificationId.get(entity.getId())));
+        page,
+        entity ->
+            toPersonalItemView(
+                entity, actorType, actorId, recipientByNotificationId.get(entity.getId())));
   }
 
   @Override
   public NotificationUnreadCountView countUnread(
-      NotificationActorType actorType,
-      UUID actorId,
-      UserId userId,
-      String roleCode) {
+      NotificationActorType actorType, UUID actorId, UserId userId, String roleCode) {
     var page =
         notifications.searchVisible(
             userId == null ? null : userId.value(),
@@ -196,17 +224,20 @@ public class NotificationPersistenceService
   }
 
   @Override
-  public void markRead(NotificationId notificationId, NotificationActorType actorType, UUID actorId) {
+  public void markRead(
+      NotificationId notificationId, NotificationActorType actorType, UUID actorId) {
     markPersonalState(notificationId.value(), actorType, actorId, false);
   }
 
   @Override
-  public void dismiss(NotificationId notificationId, NotificationActorType actorType, UUID actorId) {
+  public void dismiss(
+      NotificationId notificationId, NotificationActorType actorType, UUID actorId) {
     markPersonalState(notificationId.value(), actorType, actorId, true);
   }
 
   @Override
-  public void markAllRead(NotificationActorType actorType, UUID actorId, UserId userId, String roleCode) {
+  public void markAllRead(
+      NotificationActorType actorType, UUID actorId, UserId userId, String roleCode) {
     var page =
         notifications.searchVisible(
             userId == null ? null : userId.value(),
@@ -218,7 +249,8 @@ public class NotificationPersistenceService
             null,
             clock.instant(),
             PageRequest.of(0, 500));
-    page.getContent().forEach(entity -> markPersonalState(entity.getId(), actorType, actorId, false));
+    page.getContent()
+        .forEach(entity -> markPersonalState(entity.getId(), actorType, actorId, false));
   }
 
   private NotificationItemView toPersonalItemView(
@@ -227,7 +259,8 @@ public class NotificationPersistenceService
       UUID actorId,
       NotificationRecipientJpaEntity recipient) {
     var publication =
-        publications.findFirstByNotificationIdAndDeletedAtIsNullOrderByPublicationNoDesc(entity.getId());
+        publications.findFirstByNotificationIdAndDeletedAtIsNullOrderByPublicationNoDesc(
+            entity.getId());
     var state =
         publication.flatMap(
             p ->
@@ -262,13 +295,15 @@ public class NotificationPersistenceService
   private int markPersonalState(
       UUID notificationId, NotificationActorType actorType, UUID actorId, boolean dismiss) {
     var publication =
-        publications.findFirstByNotificationIdAndDeletedAtIsNullOrderByPublicationNoDesc(notificationId);
+        publications.findFirstByNotificationIdAndDeletedAtIsNullOrderByPublicationNoDesc(
+            notificationId);
     if (publication.isEmpty()) {
       return 0;
     }
     var recipient =
-        recipients.findFirstByPublicationIdAndRecipientActorTypeAndRecipientActorIdAndDeletedAtIsNull(
-            publication.get().getId(), actorType, actorId);
+        recipients
+            .findFirstByPublicationIdAndRecipientActorTypeAndRecipientActorIdAndDeletedAtIsNull(
+                publication.get().getId(), actorType, actorId);
     if (recipient.isPresent()) {
       var now = clock.instant();
       return dismiss
@@ -328,8 +363,9 @@ public class NotificationPersistenceService
     var notificationTargets = explicitTargets(targets);
     for (var target : notificationTargets) {
       var exists =
-          recipients.existsByPublicationIdAndRecipientActorTypeAndRecipientActorIdAndDeletedAtIsNull(
-              publication.getId(), target.actorType(), target.actorId());
+          recipients
+              .existsByPublicationIdAndRecipientActorTypeAndRecipientActorIdAndDeletedAtIsNull(
+                  publication.getId(), target.actorType(), target.actorId());
       if (exists) {
         continue;
       }
@@ -344,7 +380,8 @@ public class NotificationPersistenceService
     }
   }
 
-  private java.util.Set<NotificationTarget> explicitTargets(java.util.Set<NotificationTarget> targets) {
+  private java.util.Set<NotificationTarget> explicitTargets(
+      java.util.Set<NotificationTarget> targets) {
     var notificationTargets = new java.util.LinkedHashSet<NotificationTarget>();
     targets.stream().filter(java.util.Objects::nonNull).forEach(notificationTargets::add);
     return java.util.Collections.unmodifiableSet(notificationTargets);
@@ -356,7 +393,8 @@ public class NotificationPersistenceService
       return java.util.Map.of();
     }
     var latestPublicationByNotificationId =
-        publications.findByNotificationIdInAndDeletedAtIsNullOrderByPublicationNoDesc(notificationIds)
+        publications
+            .findByNotificationIdInAndDeletedAtIsNullOrderByPublicationNoDesc(notificationIds)
             .stream()
             .collect(
                 Collectors.toMap(
@@ -399,7 +437,8 @@ public class NotificationPersistenceService
         .orElse(entity.getMessageText());
   }
 
-  private Optional<NotificationTranslationJpaEntity> preferredTranslation(NotificationJpaEntity entity) {
+  private Optional<NotificationTranslationJpaEntity> preferredTranslation(
+      NotificationJpaEntity entity) {
     var values = translations.findByNotificationIdAndDeletedAtIsNull(entity.getId());
     return values.stream()
         .filter(value -> "fr".equals(value.getLocale()))
@@ -412,8 +451,13 @@ public class NotificationPersistenceService
       return NotificationAudienceType.ALL_APP_USERS;
     }
     return switch (audienceType) {
-      case SPECIFIC_ACTORS, PLATFORM_ADMINS, ALL_APP_USERS, TENANT_ADMINS, TENANT_APP_USERS,
-          TENANT_SELLER_TERMINALS -> audienceType;
+      case SPECIFIC_ACTORS,
+          PLATFORM_ADMINS,
+          ALL_APP_USERS,
+          TENANT_ADMINS,
+          TENANT_APP_USERS,
+          TENANT_SELLER_TERMINALS ->
+          audienceType;
     };
   }
 }

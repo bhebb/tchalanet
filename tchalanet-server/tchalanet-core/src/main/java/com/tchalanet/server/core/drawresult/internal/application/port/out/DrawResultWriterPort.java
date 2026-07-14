@@ -1,14 +1,19 @@
 package com.tchalanet.server.core.drawresult.internal.application.port.out;
 
-import tools.jackson.databind.JsonNode;
 import com.tchalanet.server.common.types.id.DrawResultId;
 import com.tchalanet.server.common.types.id.ResultSlotId;
 import java.time.Instant;
 import java.time.LocalDate;
+import tools.jackson.databind.JsonNode;
 
 public interface DrawResultWriterPort {
 
-  record UpsertResult(DrawResultId id, boolean created, boolean updated, boolean skippedConfirmed, boolean skippedOverridden) {}
+  record UpsertResult(
+      DrawResultId id,
+      boolean created,
+      boolean updated,
+      boolean skippedConfirmed,
+      boolean skippedOverridden) {}
 
   UpsertResult upsert(
       ResultSlotId resultSlotId,

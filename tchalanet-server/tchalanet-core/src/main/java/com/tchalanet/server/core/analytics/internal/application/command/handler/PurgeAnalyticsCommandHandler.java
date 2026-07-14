@@ -16,9 +16,10 @@ import org.springframework.transaction.annotation.Transactional;
  * Handles {@link PurgeAnalyticsCommand}.
  *
  * <p>Retention windows (configurable, defaults per proposal):
+ *
  * <ul>
- *   <li>{@code analytics_daily} — 24 months</li>
- *   <li>{@code analytics_draw}  — 24 months</li>
+ *   <li>{@code analytics_daily} — 24 months
+ *   <li>{@code analytics_draw} — 24 months
  * </ul>
  */
 @UseCase
@@ -28,7 +29,7 @@ public class PurgeAnalyticsCommandHandler
     implements CommandHandler<PurgeAnalyticsCommand, PurgeAnalyticsResult> {
 
   private final AnalyticsDailyRepository dailyRepo;
-  private final AnalyticsDrawRepository  drawRepo;
+  private final AnalyticsDrawRepository drawRepo;
 
   @Value("${tchalanet.analytics.retention.daily-months:24}")
   private int dailyRetentionMonths;
@@ -40,17 +41,17 @@ public class PurgeAnalyticsCommandHandler
   @Transactional
   public PurgeAnalyticsResult handle(PurgeAnalyticsCommand cmd) {
     LocalDate dailyCutoff = LocalDate.now().minusMonths(dailyRetentionMonths);
-    LocalDate drawCutoff  = LocalDate.now().minusMonths(drawRetentionMonths);
+    LocalDate drawCutoff = LocalDate.now().minusMonths(drawRetentionMonths);
 
     if (cmd.dryRun()) {
       long dailyCount = dailyRepo.countOlderThan(dailyCutoff);
-      long drawCount  = drawRepo.countOlderThan(drawCutoff);
+      long drawCount = drawRepo.countOlderThan(drawCutoff);
       log.info("analytics purge dry-run: daily={} draw={}", dailyCount, drawCount);
       return new PurgeAnalyticsResult(dailyCount, drawCount, true);
     }
 
     int dailyDeleted = dailyRepo.deleteOlderThan(dailyCutoff);
-    int drawDeleted  = drawRepo.deleteOlderThan(drawCutoff);
+    int drawDeleted = drawRepo.deleteOlderThan(drawCutoff);
     log.info("analytics purge: daily={} draw={} deleted", dailyDeleted, drawDeleted);
     return new PurgeAnalyticsResult(dailyDeleted, drawDeleted, false);
   }

@@ -5,9 +5,4 @@ import java.util.List;
 import org.springframework.data.domain.Pageable;
 
 public record PublicDrawResultSearchCriteria(
-    List<String> slotKeys,
-    String provider,
-    LocalDate from,
-    LocalDate to,
-    Pageable pageable
-) {}
+    List<String> slotKeys, String provider, LocalDate from, LocalDate to, Pageable pageable) {}

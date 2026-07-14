@@ -1,6 +1,5 @@
 package com.tchalanet.server.core.draw.internal.infra.scheduler;
 
-import com.tchalanet.server.platform.tenant.api.TenantPreContextLookupApi;
 import com.tchalanet.server.common.job.annotation.TchJob;
 import com.tchalanet.server.common.job.context.JobContextBinder;
 import com.tchalanet.server.common.job.exception.JobContextClearException;
@@ -11,6 +10,7 @@ import com.tchalanet.server.common.job.key.JobKey;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawReaderPort;
 import com.tchalanet.server.core.draw.internal.infra.config.DrawProperties;
+import com.tchalanet.server.platform.tenant.api.TenantPreContextLookupApi;
 import io.micrometer.core.instrument.MeterRegistry;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -20,9 +20,7 @@ import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-/**
- * Watchdog that monitors draws stuck in RESULTED state with a PROVISIONAL result.
- */
+/** Watchdog that monitors draws stuck in RESULTED state with a PROVISIONAL result. */
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -39,7 +37,10 @@ public class DrawProvisionalWatchdogScheduler {
 
   @TchJob("draw:watchdog:provisional")
   @Scheduled(cron = "${tch.draw.watchdog.provisional_cron:0 */15 * * * *}", zone = "UTC")
-  @SchedulerLock(name = "draw_provisional_watchdog", lockAtMostFor = "PT10M", lockAtLeastFor = "PT1M")
+  @SchedulerLock(
+      name = "draw_provisional_watchdog",
+      lockAtMostFor = "PT10M",
+      lockAtLeastFor = "PT1M")
   public void checkProvisionalStuck() {
     validateCanRun();
     log.debug("draw.watchdog.provisional tick fired");
@@ -58,7 +59,9 @@ public class DrawProvisionalWatchdogScheduler {
 
         if (stuckDraws.isEmpty()) {
           log.debug(
-              "draw.watchdog.provisional no stuck draws tenantId={} threshold={}", tenantId, threshold);
+              "draw.watchdog.provisional no stuck draws tenantId={} threshold={}",
+              tenantId,
+              threshold);
           continue;
         }
 

@@ -8,14 +8,14 @@ import jakarta.persistence.UniqueConstraint;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.envers.Audited;
 
 @Entity
 @Table(
     name = "notification_template",
-    uniqueConstraints = @UniqueConstraint(
-        name = "uq_notification_template__scope",
-        columnNames = {"tenant_id", "template_key", "locale"}))
+    uniqueConstraints =
+        @UniqueConstraint(
+            name = "uq_notification_template__scope",
+            columnNames = {"tenant_id", "template_key", "locale"}))
 @Getter
 @Setter
 public class NotificationTemplateJpaEntity extends BaseEntity {

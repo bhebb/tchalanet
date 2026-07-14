@@ -2,12 +2,12 @@ package com.tchalanet.server.core.drawresult.internal.application.query.handler;
 
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.core.draw.internal.application.port.out.DrawLookupPort;
 import com.tchalanet.server.core.draw.internal.application.exception.DrawNotFoundException;
-import com.tchalanet.server.core.drawresult.internal.application.exception.DrawResultNotFoundException;
-import com.tchalanet.server.core.drawresult.api.query.view.DrawResultProjection;
-import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultReaderPort;
+import com.tchalanet.server.core.draw.internal.application.port.out.DrawLookupPort;
 import com.tchalanet.server.core.drawresult.api.query.GetDrawResultProjectionByDrawIdQuery;
+import com.tchalanet.server.core.drawresult.api.query.view.DrawResultProjection;
+import com.tchalanet.server.core.drawresult.internal.application.exception.DrawResultNotFoundException;
+import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultReaderPort;
 import lombok.RequiredArgsConstructor;
 
 @UseCase
@@ -15,25 +15,28 @@ import lombok.RequiredArgsConstructor;
 public class GetDrawResultProjectionByDrawIdQueryHandler
     implements QueryHandler<GetDrawResultProjectionByDrawIdQuery, DrawResultProjection> {
 
-    private final DrawLookupPort drawReader;
-    private final DrawResultReaderPort resultReader;
+  private final DrawLookupPort drawReader;
+  private final DrawResultReaderPort resultReader;
 
-    @Override
-    public DrawResultProjection handle(GetDrawResultProjectionByDrawIdQuery query) {
+  @Override
+  public DrawResultProjection handle(GetDrawResultProjectionByDrawIdQuery query) {
 
-        var draw = drawReader.findById(query.drawId())
+    var draw =
+        drawReader
+            .findById(query.drawId())
             .orElseThrow(() -> new DrawNotFoundException(query.drawId()));
 
-        var drawResultId = draw.drawResultId();
+    var drawResultId = draw.drawResultId();
 
-        if (drawResultId == null) {
-            throw new DrawResultNotFoundException("Draw has no result attached");
-        }
-
-        return resultReader
-            .findProjectionById(drawResultId)
-            .orElseThrow(() -> new DrawResultNotFoundException(
-                "DrawResult not found for drawId=" + query.drawId()
-            ));
+    if (drawResultId == null) {
+      throw new DrawResultNotFoundException("Draw has no result attached");
     }
+
+    return resultReader
+        .findProjectionById(drawResultId)
+        .orElseThrow(
+            () ->
+                new DrawResultNotFoundException(
+                    "DrawResult not found for drawId=" + query.drawId()));
+  }
 }

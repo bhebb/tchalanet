@@ -17,18 +17,17 @@ public record UpsertTenantPricingRuleCommand(
     BigDecimal odds,
     PayoutRuleType payoutRuleType,
     BigDecimal fixedAmount,
-    UserId actorId
-) implements Command<TenantPricingRuleView> {
+    UserId actorId)
+    implements Command<TenantPricingRuleView> {
 
-    public UpsertTenantPricingRuleCommand(
-        TenantId tenantId,
-        String gameCode,
-        PricingVariantCode pricingVariantCode,
-        String betType,
-        Short betOption,
-        BigDecimal odds,
-        UserId actorId
-    ) {
-        this(tenantId, gameCode, pricingVariantCode, betType, betOption, odds, null, null, actorId);
-    }
+  public UpsertTenantPricingRuleCommand(
+      TenantId tenantId,
+      String gameCode,
+      PricingVariantCode pricingVariantCode,
+      String betType,
+      Short betOption,
+      BigDecimal odds,
+      UserId actorId) {
+    this(tenantId, gameCode, pricingVariantCode, betType, betOption, odds, null, null, actorId);
+  }
 }

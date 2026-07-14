@@ -18,5 +18,4 @@ public record ActualTicketStateRow(
     Money actualSettlementPayout,
     Instant placedAt,
     boolean cancelled,
-    boolean voided
-) {}
+    boolean voided) {}

@@ -21,22 +21,20 @@ public record ArchivedTicketView(
     String resultStatus,
     String settlementStatus,
     String currency,
-    Map<String, Object> rawHeader,    // full header row for downstream processing
-    List<Map<String, Object>> lines,  // empty in V1
+    Map<String, Object> rawHeader, // full header row for downstream processing
+    List<Map<String, Object>> lines, // empty in V1
     List<Map<String, Object>> charges, // empty in V1
-    ArchiveObjectMeta archiveMeta
-) {
+    ArchiveObjectMeta archiveMeta) {
 
   public record ArchiveObjectMeta(
       UUID objectId,
       java.time.LocalDate periodStart,
       java.time.LocalDate periodEnd,
-      int schemaVersion
-  ) {}
+      int schemaVersion) {}
 
   public static ArchivedTicketView notFound(UUID ticketId) {
     return new ArchivedTicketView(
-        false, ticketId, null, null, null, null, null, null, null,
-        null, List.of(), List.of(), null);
+        false, ticketId, null, null, null, null, null, null, null, null, List.of(), List.of(),
+        null);
   }
 }

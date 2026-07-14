@@ -4,34 +4,33 @@ import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.core.limitpolicy.api.query.LimitRuleCatalog;
 import com.tchalanet.server.core.limitpolicy.api.query.LimitRuleSpec;
 import jakarta.annotation.PostConstruct;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor
 public class LimitRuleCatalogLoader {
 
-    private final JsonUtils jsonUtils;
+  private final JsonUtils jsonUtils;
 
-    private LimitRuleCatalog catalog;
+  private LimitRuleCatalog catalog;
 
-    @PostConstruct
-    void load() {
-        try {
-            var resource = new ClassPathResource("limitpolicy/rules.v1.json");
+  @PostConstruct
+  void load() {
+    try {
+      var resource = new ClassPathResource("limitpolicy/rules.v1.json");
 
-            try (var input = resource.getInputStream()) {
-                this.catalog = jsonUtils.readValue(input, LimitRuleCatalog.class);
-            }
-        } catch (Exception e) {
-            throw new IllegalStateException("Failed to load limitpolicy/rules.v1.json", e);
-        }
+      try (var input = resource.getInputStream()) {
+        this.catalog = jsonUtils.readValue(input, LimitRuleCatalog.class);
+      }
+    } catch (Exception e) {
+      throw new IllegalStateException("Failed to load limitpolicy/rules.v1.json", e);
     }
+  }
 
-    public List<LimitRuleSpec> listAvailableRules() {
-        return catalog.rules();
-    }
+  public List<LimitRuleSpec> listAvailableRules() {
+    return catalog.rules();
+  }
 }

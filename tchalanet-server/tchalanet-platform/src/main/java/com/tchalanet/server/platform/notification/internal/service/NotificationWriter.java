@@ -1,6 +1,5 @@
 package com.tchalanet.server.platform.notification.internal.service;
 
-import com.tchalanet.server.common.types.id.NotificationId;
 import java.time.Instant;
 import java.util.Optional;
 

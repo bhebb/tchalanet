@@ -14,8 +14,8 @@ import java.lang.annotation.Target;
  * this annotation will have their invocation rejected with a {@code dynamic.error} entry (not a
  * 500) if the current role is not in the allowed set.
  *
- * <p>[harden-pagemodel-security-v2 / D2] Provider-level revalidation — second line of defence
- * after {@link PageModelAccessPolicy}.
+ * <p>[harden-pagemodel-security-v2 / D2] Provider-level revalidation — second line of defence after
+ * {@link PageModelAccessPolicy}.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)

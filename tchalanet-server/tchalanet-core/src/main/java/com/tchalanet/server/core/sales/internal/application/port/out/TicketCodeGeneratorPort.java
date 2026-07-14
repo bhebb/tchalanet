@@ -6,6 +6,8 @@ import com.tchalanet.server.core.sales.api.model.value.VerificationCode;
 
 public interface TicketCodeGeneratorPort {
   TicketCode nextTicketCode();
+
   PublicCode nextPublicCode();
+
   VerificationCode nextVerificationCode();
 }

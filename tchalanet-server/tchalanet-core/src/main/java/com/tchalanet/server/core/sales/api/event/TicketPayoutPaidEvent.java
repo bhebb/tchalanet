@@ -18,5 +18,5 @@ public record TicketPayoutPaidEvent(
     long amountCents,
     String currency,
     SellerTerminalId sellerTerminalId,
-    UserId paidBy
-) implements DomainEvent {}
+    UserId paidBy)
+    implements DomainEvent {}

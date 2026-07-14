@@ -8,18 +8,17 @@ import com.tchalanet.server.core.promotion.api.model.rule.PromotionQuantityMode;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionQuantityTier;
 import com.tchalanet.server.core.selection.api.model.SelectionGenerationStrategy;
 import jakarta.validation.constraints.NotNull;
-
 import java.math.BigDecimal;
 import java.util.List;
 
 /**
- * Instantiates the platform default "Maryaj gratuit" campaign for a tenant
- * (template -> tenant instance, never a shared runtime campaign) and activates
- * it. Idempotent: returns the existing campaign when the code already exists.
- * <p>
- * Source de vérité : {@code openspec/changes/maryaj-gratis-auto-selection-v1/}.
- * The onboarding hook (features.platformadmin) and the existing-tenant
- * backfill are explicit follow-ups; this command is the V1 entry point.
+ * Instantiates the platform default "Maryaj gratuit" campaign for a tenant (template -> tenant
+ * instance, never a shared runtime campaign) and activates it. Idempotent: returns the existing
+ * campaign when the code already exists.
+ *
+ * <p>Source de vérité : {@code openspec/changes/maryaj-gratis-auto-selection-v1/}. The onboarding
+ * hook (features.platformadmin) and the existing-tenant backfill are explicit follow-ups; this
+ * command is the V1 entry point.
  */
 public record InstantiateDefaultMaryajGratisCommand(
     @NotNull TenantId tenantId,
@@ -33,9 +32,9 @@ public record InstantiateDefaultMaryajGratisCommand(
     PromotionChoiceMode choiceMode,
     SelectionGenerationStrategy generationStrategy,
     Boolean regenerableBeforeConfirm,
-    Integer maxRegenerationsBeforeConfirm
-) implements Command<PromotionCampaignView> {
-    public InstantiateDefaultMaryajGratisCommand(TenantId tenantId) {
-        this(tenantId, null, null, null, null, null, null, null, null, null, null, null);
-    }
+    Integer maxRegenerationsBeforeConfirm)
+    implements Command<PromotionCampaignView> {
+  public InstantiateDefaultMaryajGratisCommand(TenantId tenantId) {
+    this(tenantId, null, null, null, null, null, null, null, null, null, null, null);
+  }
 }

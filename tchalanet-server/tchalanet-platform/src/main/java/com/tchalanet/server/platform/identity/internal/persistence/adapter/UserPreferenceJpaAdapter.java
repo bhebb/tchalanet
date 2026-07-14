@@ -1,11 +1,11 @@
 package com.tchalanet.server.platform.identity.internal.persistence.adapter;
 
 import com.tchalanet.server.common.types.id.UserId;
+import com.tchalanet.server.platform.identity.internal.model.UserPreference;
 import com.tchalanet.server.platform.identity.internal.persistence.entity.AppUserJpaEntity;
 import com.tchalanet.server.platform.identity.internal.persistence.entity.UserPreferenceJpaEntity;
 import com.tchalanet.server.platform.identity.internal.persistence.mapper.IdentityPersistenceMapper;
 import com.tchalanet.server.platform.identity.internal.persistence.repository.UserPreferenceJpaRepository;
-import com.tchalanet.server.platform.identity.internal.model.UserPreference;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

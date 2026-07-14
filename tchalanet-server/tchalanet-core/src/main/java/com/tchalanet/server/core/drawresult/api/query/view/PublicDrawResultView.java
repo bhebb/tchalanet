@@ -1,9 +1,8 @@
 package com.tchalanet.server.core.drawresult.api.query.view;
 
-import tools.jackson.databind.JsonNode;
-
 import java.time.Instant;
 import java.time.LocalDate;
+import tools.jackson.databind.JsonNode;
 
 public record PublicDrawResultView(
     LocalDate resultDate,
@@ -13,6 +12,4 @@ public record PublicDrawResultView(
     JsonNode haiti,
     JsonNode source,
     /** UUID opaque — identifiant public du draw_result. */
-    String drawResultId
-) {
-}
+    String drawResultId) {}

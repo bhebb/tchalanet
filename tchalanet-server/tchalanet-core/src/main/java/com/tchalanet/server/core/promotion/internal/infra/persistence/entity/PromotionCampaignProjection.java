@@ -1,8 +1,8 @@
 package com.tchalanet.server.core.promotion.internal.infra.persistence.entity;
 
+import com.tchalanet.server.core.promotion.api.model.lifecycle.PromotionCampaignStatus;
 import java.time.Instant;
 import java.util.UUID;
-import com.tchalanet.server.core.promotion.api.model.lifecycle.PromotionCampaignStatus;
 
 public record PromotionCampaignProjection(
     UUID id,
@@ -12,7 +12,4 @@ public record PromotionCampaignProjection(
     int priority,
     Instant startsAt,
     Instant endsAt,
-    Instant createdAt
-) {
-}
-
+    Instant createdAt) {}

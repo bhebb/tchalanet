@@ -4,10 +4,10 @@ import com.tchalanet.server.catalog.settings.api.model.SettingExposure;
 import com.tchalanet.server.catalog.settings.api.model.SettingLevel;
 import com.tchalanet.server.catalog.settings.api.model.SettingValueType;
 import com.tchalanet.server.catalog.settings.api.model.SettingView;
+import com.tchalanet.server.common.persistence.BaseTenantEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import com.tchalanet.server.common.persistence.BaseTenantEntity;
 
 /**
  * Setting JPA Entity (INTERNAL)

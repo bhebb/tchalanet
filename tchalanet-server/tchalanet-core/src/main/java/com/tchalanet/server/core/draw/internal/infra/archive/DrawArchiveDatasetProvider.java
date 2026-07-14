@@ -50,13 +50,21 @@ public class DrawArchiveDatasetProvider implements ArchiveDatasetProvider {
     Instant to = request.period().end().atStartOfDay(ZoneOffset.UTC).toInstant();
 
     long[] exported = {0};
-    drawRepo.streamByScheduledPeriod(from, to, request.tenantId(), row -> {
-      request.rowSink().accept(row);
-      exported[0]++;
-    });
+    drawRepo.streamByScheduledPeriod(
+        from,
+        to,
+        request.tenantId(),
+        row -> {
+          request.rowSink().accept(row);
+          exported[0]++;
+        });
 
-    log.info("draw export: {} rows period={}/{} tenant={}",
-        exported[0], request.period().start(), request.period().end(), request.tenantId());
+    log.info(
+        "draw export: {} rows period={}/{} tenant={}",
+        exported[0],
+        request.period().start(),
+        request.period().end(),
+        request.tenantId());
     return new ArchiveExportResult(exported[0], SCHEMA_VERSION);
   }
 
@@ -73,18 +81,19 @@ public class DrawArchiveDatasetProvider implements ArchiveDatasetProvider {
     Instant to = period.end().atStartOfDay(ZoneOffset.UTC).toInstant();
 
     return drawRepo.findLookupRows(from, to, tenantId).stream()
-        .map(r -> new ArchiveLookupEntry(
-            TABLE,
-            (UUID) r.get("tenant_id"),
-            "DRAW",
-            (UUID) r.get("id"),
-            null,
-            (java.time.LocalDate) r.get("draw_date"),
-            (Instant) r.get("scheduled_at"),
-            archiveObjectId,
-            null,
-            null
-        ))
+        .map(
+            r ->
+                new ArchiveLookupEntry(
+                    TABLE,
+                    (UUID) r.get("tenant_id"),
+                    "DRAW",
+                    (UUID) r.get("id"),
+                    null,
+                    (java.time.LocalDate) r.get("draw_date"),
+                    (Instant) r.get("scheduled_at"),
+                    archiveObjectId,
+                    null,
+                    null))
         .toList();
   }
 }

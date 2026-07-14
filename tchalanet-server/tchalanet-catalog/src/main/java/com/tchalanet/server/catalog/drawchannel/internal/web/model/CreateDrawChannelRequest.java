@@ -1,9 +1,8 @@
 package com.tchalanet.server.catalog.drawchannel.internal.web.model;
 
 import com.tchalanet.server.catalog.drawchannel.api.model.DrawSource;
-import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.ResultSlotId;
-
+import com.tchalanet.server.common.types.id.TenantId;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -23,5 +22,4 @@ public record CreateDrawChannelRequest(
     String period,
     String notes,
     ResultSlotId resultSlotId,
-    DrawSource defaultSource
-) {}
+    DrawSource defaultSource) {}

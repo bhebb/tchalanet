@@ -25,22 +25,36 @@ public class TenantUserRoleService {
 
   @Transactional
   public void assignRoleToUser(AssignRoleToUserRequest request) {
-    tenantUserRoleAdapter.assign(request.tenantId(), request.userId(), request.roleCode(), request.assignedBy());
-    log.info("Assigned role {} to user {} in tenant {}", request.roleCode(), request.userId(), request.tenantId());
+    tenantUserRoleAdapter.assign(
+        request.tenantId(), request.userId(), request.roleCode(), request.assignedBy());
+    log.info(
+        "Assigned role {} to user {} in tenant {}",
+        request.roleCode(),
+        request.userId(),
+        request.tenantId());
   }
 
   @Transactional
   public void removeRoleFromUser(RemoveRoleFromUserRequest request) {
     tenantUserRoleAdapter.remove(request.tenantId(), request.userId(), request.roleCode());
-    log.info("Removed role {} from user {} in tenant {}", request.roleCode(), request.userId(), request.tenantId());
+    log.info(
+        "Removed role {} from user {} in tenant {}",
+        request.roleCode(),
+        request.userId(),
+        request.tenantId());
   }
 
-  /** @deprecated use {@link #assignRoleToUser(AssignRoleToUserRequest)} instead */
+  /**
+   * @deprecated use {@link #assignRoleToUser(AssignRoleToUserRequest)} instead
+   */
   @Deprecated
   @Transactional
   public void setTenantUserRole(SetTenantUserRoleRequest request) {
-    var roleEntity = appRoleRepository.findActiveSystemRoleByCodeAndScope(request.role().name(), TENANT_ROLE_SCOPE)
-        .orElseThrow(() -> new IllegalArgumentException("Role not found: " + request.role()));
-    tenantUserRoleWriter.setUserRole(request.tenantId(), request.userId(), RoleId.of(roleEntity.getId()));
+    var roleEntity =
+        appRoleRepository
+            .findActiveSystemRoleByCodeAndScope(request.role().name(), TENANT_ROLE_SCOPE)
+            .orElseThrow(() -> new IllegalArgumentException("Role not found: " + request.role()));
+    tenantUserRoleWriter.setUserRole(
+        request.tenantId(), request.userId(), RoleId.of(roleEntity.getId()));
   }
 }

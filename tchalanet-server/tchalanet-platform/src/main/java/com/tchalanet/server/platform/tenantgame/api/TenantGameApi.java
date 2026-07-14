@@ -11,18 +11,25 @@ import com.tchalanet.server.platform.tenantgame.api.model.request.UpdateTenantGa
 import com.tchalanet.server.platform.tenantgame.api.model.request.UpdateTenantGameSettingsRequest;
 import com.tchalanet.server.platform.tenantgame.api.model.view.TenantGameBetOptionConfigView;
 import com.tchalanet.server.platform.tenantgame.api.model.view.TenantGameRefView;
-
 import java.util.List;
 import java.util.Optional;
 
 public interface TenantGameApi {
 
-    EnableTenantGameResult enableTenantGame(EnableTenantGameRequest request);
-    DisableTenantGameResult disableTenantGame(DisableTenantGameRequest request);
-    void updateTenantGameSettings(UpdateTenantGameSettingsRequest request);
-    TenantGameBetOptionConfigView getBetOptionConfig(TenantId tenantId, String gameCode);
-    TenantGameBetOptionConfigView updateBetOptionConfig(UpdateTenantGameBetOptionConfigRequest request);
-    void ensureTenantGame(EnsureTenantGamesRequest request);
-    Optional<TenantGameRefView> findByTenantGameId(TenantId tenantId, TenantGameId tenantGameId);
-    List<TenantGameRefView> listGames(TenantId tenantId);
+  EnableTenantGameResult enableTenantGame(EnableTenantGameRequest request);
+
+  DisableTenantGameResult disableTenantGame(DisableTenantGameRequest request);
+
+  void updateTenantGameSettings(UpdateTenantGameSettingsRequest request);
+
+  TenantGameBetOptionConfigView getBetOptionConfig(TenantId tenantId, String gameCode);
+
+  TenantGameBetOptionConfigView updateBetOptionConfig(
+      UpdateTenantGameBetOptionConfigRequest request);
+
+  void ensureTenantGame(EnsureTenantGamesRequest request);
+
+  Optional<TenantGameRefView> findByTenantGameId(TenantId tenantId, TenantGameId tenantGameId);
+
+  List<TenantGameRefView> listGames(TenantId tenantId);
 }

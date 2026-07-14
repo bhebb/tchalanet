@@ -7,7 +7,6 @@ import com.tchalanet.server.common.types.id.DrawResultId;
 import com.tchalanet.server.common.types.id.ResultSlotId;
 import com.tchalanet.server.common.types.id.TenantId;
 import jakarta.validation.constraints.NotNull;
-
 import java.time.LocalDate;
 
 public record RecordDrawTicketsResultCommand(
@@ -16,6 +15,5 @@ public record RecordDrawTicketsResultCommand(
     @NotNull DrawResultId drawResultId,
     @NotNull LocalDate drawDate,
     @NotNull ResultSlotId resultSlotId,
-    @NotNull DrawChannelId drawChannelId
-) implements Command<RecordDrawTicketsResultResult> {
-}
+    @NotNull DrawChannelId drawChannelId)
+    implements Command<RecordDrawTicketsResultResult> {}

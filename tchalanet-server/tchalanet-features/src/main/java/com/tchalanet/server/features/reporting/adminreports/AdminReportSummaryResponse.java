@@ -15,5 +15,4 @@ public record AdminReportSummaryResponse(
     long promotionLines,
     long promotionPricedLines,
     BigDecimal netRevenueEstimated,
-    BigDecimal netRevenuePaidBasis
-) {}
+    BigDecimal netRevenuePaidBasis) {}

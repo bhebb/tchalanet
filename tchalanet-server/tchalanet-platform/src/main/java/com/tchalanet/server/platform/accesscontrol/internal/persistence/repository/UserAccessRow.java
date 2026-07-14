@@ -2,9 +2,7 @@ package com.tchalanet.server.platform.accesscontrol.internal.persistence.reposit
 
 import java.util.UUID;
 
-/**
- * Projection for the DB-backed global access snapshot query.
- */
+/** Projection for the DB-backed global access snapshot query. */
 public interface UserAccessRow {
 
   UUID getUserId();

@@ -7,12 +7,11 @@ import com.tchalanet.server.platform.tenantgame.api.model.view.TenantGameRuntime
 import com.tchalanet.server.platform.tenantgame.internal.service.TenantGameRuntimeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @Tag(name = "Tenant Runtime")
 @RestController
@@ -20,11 +19,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TenantGameRuntimeController {
 
-    private final TenantGameRuntimeService runtimeService;
+  private final TenantGameRuntimeService runtimeService;
 
-    @Operation(summary = "Runtime games for POS/sales/bootstrap — enabled games only, safe view")
-    @GetMapping("/runtime")
-    public ApiResponse<List<TenantGameRuntimeView>> runtime(@CurrentContext TchRequestContext ctx) {
-        return ApiResponse.success(runtimeService.getRuntimeGames(ctx.tenantIdRequired()));
-    }
+  @Operation(summary = "Runtime games for POS/sales/bootstrap — enabled games only, safe view")
+  @GetMapping("/runtime")
+  public ApiResponse<List<TenantGameRuntimeView>> runtime(@CurrentContext TchRequestContext ctx) {
+    return ApiResponse.success(runtimeService.getRuntimeGames(ctx.tenantIdRequired()));
+  }
 }

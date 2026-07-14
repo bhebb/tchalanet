@@ -7,7 +7,6 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.core.sales.api.model.status.TicketResultStatus;
 import com.tchalanet.server.core.sales.api.model.status.TicketSettlementStatus;
-
 import java.math.BigDecimal;
 import java.time.Instant;
 
@@ -20,6 +19,5 @@ public record TicketResultedEvent(
     TicketSettlementStatus settlementStatus,
     BigDecimal totalPayout,
     String currency,
-    SellerTerminalId sellerTerminalId
-) implements DomainEvent {
-}
+    SellerTerminalId sellerTerminalId)
+    implements DomainEvent {}

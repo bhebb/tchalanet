@@ -8,11 +8,10 @@ import java.util.Objects;
 public record TicketPrintLifecycle(
     TicketSaleStatus saleStatus,
     TicketResultStatus resultStatus,
-    TicketSettlementStatus settlementStatus
-) {
-    public TicketPrintLifecycle {
-        Objects.requireNonNull(saleStatus, "saleStatus is required");
-        Objects.requireNonNull(resultStatus, "resultStatus is required");
-        Objects.requireNonNull(settlementStatus, "settlementStatus is required");
-    }
+    TicketSettlementStatus settlementStatus) {
+  public TicketPrintLifecycle {
+    Objects.requireNonNull(saleStatus, "saleStatus is required");
+    Objects.requireNonNull(resultStatus, "resultStatus is required");
+    Objects.requireNonNull(settlementStatus, "settlementStatus is required");
+  }
 }

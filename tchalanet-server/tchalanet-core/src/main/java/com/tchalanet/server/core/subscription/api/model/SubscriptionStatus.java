@@ -1,8 +1,7 @@
 package com.tchalanet.server.core.subscription.api.model;
 
 /**
- * Subscription status enum (tenant lifecycle).
- * Maps to spec requirement S3 (lifecycle transitions).
+ * Subscription status enum (tenant lifecycle). Maps to spec requirement S3 (lifecycle transitions).
  * Minimum MVP states per spec.
  */
 public enum SubscriptionStatus {

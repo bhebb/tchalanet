@@ -21,13 +21,14 @@ import tools.jackson.databind.json.JsonMapper;
 
 class DrawResultPersistenceAssemblerTest {
 
-    private final JsonUtils jsonUtils = new JsonUtils(JsonMapper.builder().build());
-    private final DrawResultPersistenceAssembler assembler =
-        new DrawResultPersistenceAssembler(jsonUtils);
+  private final JsonUtils jsonUtils = new JsonUtils(JsonMapper.builder().build());
+  private final DrawResultPersistenceAssembler assembler =
+      new DrawResultPersistenceAssembler(jsonUtils);
 
-    @Test
-    void marksResultSuspectWhenPick4IsExpectedButMissing() {
-        var payload = assembler.assemble(
+  @Test
+  void marksResultSuspectWhenPick4IsExpectedButMissing() {
+    var payload =
+        assembler.assemble(
             slot(),
             LocalDate.parse("2026-07-02"),
             Instant.parse("2026-07-03T01:00:00Z"),
@@ -36,12 +37,13 @@ class DrawResultPersistenceAssemblerTest {
             projection(false),
             false);
 
-        assertThat(payload.quality()).isEqualTo(ResultQuality.SUSPECT.name());
-    }
+    assertThat(payload.quality()).isEqualTo(ResultQuality.SUSPECT.name());
+  }
 
-    @Test
-    void marksResultSuspectWhenPick3IsExpectedButMissing() {
-        var payload = assembler.assemble(
+  @Test
+  void marksResultSuspectWhenPick3IsExpectedButMissing() {
+    var payload =
+        assembler.assemble(
             slot(),
             LocalDate.parse("2026-07-02"),
             Instant.parse("2026-07-03T01:00:00Z"),
@@ -50,12 +52,13 @@ class DrawResultPersistenceAssemblerTest {
             projection(false),
             false);
 
-        assertThat(payload.quality()).isEqualTo(ResultQuality.SUSPECT.name());
-    }
+    assertThat(payload.quality()).isEqualTo(ResultQuality.SUSPECT.name());
+  }
 
-    @Test
-    void marksResultCompleteWhenAllExpectedPicksAreComplete() {
-        var payload = assembler.assemble(
+  @Test
+  void marksResultCompleteWhenAllExpectedPicksAreComplete() {
+    var payload =
+        assembler.assemble(
             slot(),
             LocalDate.parse("2026-07-02"),
             Instant.parse("2026-07-03T01:00:00Z"),
@@ -64,65 +67,62 @@ class DrawResultPersistenceAssemblerTest {
             projection(true),
             false);
 
-        assertThat(payload.quality()).isEqualTo(ResultQuality.COMPLETE.name());
-    }
+    assertThat(payload.quality()).isEqualTo(ResultQuality.COMPLETE.name());
+  }
 
-    private ResultSlotView slot() {
-        return new ResultSlotView(
-            ResultSlotId.of(UUID.randomUUID()),
-            "NY_EVE",
-            "US_LOTTERY",
-            ZoneId.of("America/New_York"),
-            LocalTime.of(21, 0),
-            "MON,TUE,WED,THU,FRI,SAT,SUN",
-            true,
-            JsonUtils.emptyObject(),
-            JsonUtils.emptyObject(),
-            "draw_channel.ny.eve.label");
-    }
+  private ResultSlotView slot() {
+    return new ResultSlotView(
+        ResultSlotId.of(UUID.randomUUID()),
+        "NY_EVE",
+        "US_LOTTERY",
+        ZoneId.of("America/New_York"),
+        LocalTime.of(21, 0),
+        "MON,TUE,WED,THU,FRI,SAT,SUN",
+        true,
+        JsonUtils.emptyObject(),
+        JsonUtils.emptyObject(),
+        "draw_channel.ny.eve.label");
+  }
 
-    private ResultSlotSourceConfig sourceCfg(boolean pick3Active, boolean pick4Active) {
-        return new ResultSlotSourceConfig(
-            "NYEVE",
-            new ResultSlotSourceConfig.SourceGame("PICK3", pick3Active),
-            new ResultSlotSourceConfig.SourceGame("PICK4", pick4Active));
-    }
+  private ResultSlotSourceConfig sourceCfg(boolean pick3Active, boolean pick4Active) {
+    return new ResultSlotSourceConfig(
+        "NYEVE",
+        new ResultSlotSourceConfig.SourceGame("PICK3", pick3Active),
+        new ResultSlotSourceConfig.SourceGame("PICK4", pick4Active));
+  }
 
-    private HaitiProjectionResult projection(boolean ok) {
-        return new HaitiProjectionResult(
-            JsonUtils.emptyObject(),
-            ok
-                ? HaitiFlags.ok(1, Instant.parse("2026-07-03T01:05:00Z"))
-                : HaitiFlags.fail(1, "PARTIAL_EXTERNAL_PICK", Map.of()));
-    }
+  private HaitiProjectionResult projection(boolean ok) {
+    return new HaitiProjectionResult(
+        JsonUtils.emptyObject(),
+        ok
+            ? HaitiFlags.ok(1, Instant.parse("2026-07-03T01:05:00Z"))
+            : HaitiFlags.fail(1, "PARTIAL_EXTERNAL_PICK", Map.of()));
+  }
 
-    private ExternalResultItem pick3() {
-        return new ExternalResultItem(
-            "PICK3",
-            List.of("1", "2", "3"),
-            List.of(),
-            ResultQuality.COMPLETE,
-            sourceFlags("pick3"),
-            Instant.parse("2026-07-03T01:00:00Z"),
-            null);
-    }
+  private ExternalResultItem pick3() {
+    return new ExternalResultItem(
+        "PICK3",
+        List.of("1", "2", "3"),
+        List.of(),
+        ResultQuality.COMPLETE,
+        sourceFlags("pick3"),
+        Instant.parse("2026-07-03T01:00:00Z"),
+        null);
+  }
 
-    private ExternalResultItem pick4() {
-        return new ExternalResultItem(
-            "PICK4",
-            List.of("4", "5", "6", "7"),
-            List.of(),
-            ResultQuality.COMPLETE,
-            sourceFlags("pick4"),
-            Instant.parse("2026-07-03T01:00:00Z"),
-            null);
-    }
+  private ExternalResultItem pick4() {
+    return new ExternalResultItem(
+        "PICK4",
+        List.of("4", "5", "6", "7"),
+        List.of(),
+        ResultQuality.COMPLETE,
+        sourceFlags("pick4"),
+        Instant.parse("2026-07-03T01:00:00Z"),
+        null);
+  }
 
-    private ExternalSourceFlags sourceFlags(String game) {
-        return new ExternalSourceFlags(
-            "TEST",
-            game + "-hash",
-            "https://example.test/" + game,
-            Map.of());
-    }
+  private ExternalSourceFlags sourceFlags(String game) {
+    return new ExternalSourceFlags(
+        "TEST", game + "-hash", "https://example.test/" + game, Map.of());
+  }
 }

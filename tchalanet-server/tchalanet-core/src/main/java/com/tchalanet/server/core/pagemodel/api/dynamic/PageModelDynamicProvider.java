@@ -13,9 +13,7 @@ public interface PageModelDynamicProvider {
       PageModelDoc.WidgetConfig widgetConfig,
       String lang,
       TchRequestContext ctx,
-      PageModelResolutionContext resolutionContext
-  );
+      PageModelResolutionContext resolutionContext);
 
   String providerKey();
 }
-

@@ -30,34 +30,30 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class SellerTerminalMeController {
 
-    private final QueryBus queryBus;
-    private final CommandBus commandBus;
+  private final QueryBus queryBus;
+  private final CommandBus commandBus;
 
-    @GetMapping("/me")
-    @Operation(summary = "Get the current authenticated seller terminal profile")
-    public ApiResponse<SellerTerminalView> me(@CurrentContext TchRequestContext ctx) {
-        return ApiResponse.success(queryBus.ask(new GetSellerTerminalMeQuery(
-            ctx.tenantIdRequired(),
-            ctx.sellerTerminalIdRequired())));
-    }
+  @GetMapping("/me")
+  @Operation(summary = "Get the current authenticated seller terminal profile")
+  public ApiResponse<SellerTerminalView> me(@CurrentContext TchRequestContext ctx) {
+    return ApiResponse.success(
+        queryBus.ask(
+            new GetSellerTerminalMeQuery(ctx.tenantIdRequired(), ctx.sellerTerminalIdRequired())));
+  }
 
-    @PostMapping("/me/change-pin")
-    @Operation(summary = "Change the PIN of the current seller terminal")
-    @AuditLog(
-        entity = AuditEntityType.SELLER_TERMINAL,
-        action = AuditAction.SELLER_TERMINAL_PIN_CHANGE,
-        idExpression = "#ctx.sellerTerminalId().value().toString()")
-    public void changePin(
-        @CurrentContext TchRequestContext ctx,
-        @Valid @RequestBody ChangePinRequest request
-    ) {
-        commandBus.execute(new ChangeSellerTerminalPinCommand(
-            ctx.tenantIdRequired(),
-            ctx.sellerTerminalIdRequired(),
-            request.newPin()));
-    }
+  @PostMapping("/me/change-pin")
+  @Operation(summary = "Change the PIN of the current seller terminal")
+  @AuditLog(
+      entity = AuditEntityType.SELLER_TERMINAL,
+      action = AuditAction.SELLER_TERMINAL_PIN_CHANGE,
+      idExpression = "#ctx.sellerTerminalId().value().toString()")
+  public void changePin(
+      @CurrentContext TchRequestContext ctx, @Valid @RequestBody ChangePinRequest request) {
+    commandBus.execute(
+        new ChangeSellerTerminalPinCommand(
+            ctx.tenantIdRequired(), ctx.sellerTerminalIdRequired(), request.newPin()));
+  }
 
-    public record ChangePinRequest(
-        @Pattern(regexp = "\\d{6}", message = "PIN must be exactly 6 digits")
-        String newPin) {}
+  public record ChangePinRequest(
+      @Pattern(regexp = "\\d{6}", message = "PIN must be exactly 6 digits") String newPin) {}
 }

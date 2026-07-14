@@ -22,7 +22,8 @@ public class SalesDomainServiceConfig {
   }
 
   @Bean
-  TicketVisibilityPolicy ticketVisibilityPolicy(TicketVisibilityProperties properties, Clock clock) {
+  TicketVisibilityPolicy ticketVisibilityPolicy(
+      TicketVisibilityProperties properties, Clock clock) {
     return new TicketVisibilityPolicy(properties, clock);
   }
 }

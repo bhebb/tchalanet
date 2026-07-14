@@ -24,8 +24,8 @@ import com.tchalanet.server.platform.entitlement.api.RequiredQuota;
 import com.tchalanet.server.platform.entitlement.api.UsageKeys;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -43,95 +43,87 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Promotion • Rules • Admin")
 public class PromotionRuleAdminController {
 
-    private final CommandBus commandBus;
-    private final PromotionRuleAdminWebMapper mapper;
+  private final CommandBus commandBus;
+  private final PromotionRuleAdminWebMapper mapper;
 
-    @PostMapping
-    @RequiredQuota(
-        limit = PlanLimitKeys.PROMOTION_RULES_MAX,
-        usage = UsageKeys.PROMOTION_RULES_ACTIVE
-    )
-    public ApiResponse<PromotionCampaignView> addRule(
-        @CurrentContext TchRequestContext ctx,
-        @PathVariable UUID campaignId,
-        @Valid @RequestBody AddPromotionRuleRequest request
-    ) {
-        AddPromotionRuleCommand command = mapper.toCommand(
-            ctx.tenantIdRequired(),
-            PromotionCampaignId.of(campaignId),
-            request
-        );
+  @PostMapping
+  @RequiredQuota(
+      limit = PlanLimitKeys.PROMOTION_RULES_MAX,
+      usage = UsageKeys.PROMOTION_RULES_ACTIVE)
+  public ApiResponse<PromotionCampaignView> addRule(
+      @CurrentContext TchRequestContext ctx,
+      @PathVariable UUID campaignId,
+      @Valid @RequestBody AddPromotionRuleRequest request) {
+    AddPromotionRuleCommand command =
+        mapper.toCommand(ctx.tenantIdRequired(), PromotionCampaignId.of(campaignId), request);
 
-        var out = commandBus.execute(command);
-        return ApiResponse.success(out);
-    }
+    var out = commandBus.execute(command);
+    return ApiResponse.success(out);
+  }
 
-    @PatchMapping("/{ruleId}")
-    public ApiResponse<PromotionCampaignView> updateRule(
-        @CurrentContext TchRequestContext ctx,
-        @PathVariable UUID campaignId,
-        @PathVariable UUID ruleId,
-        @Valid @RequestBody UpdatePromotionRuleRequest request
-    ) {
-        UpdatePromotionRuleCommand command = mapper.toCommand(
+  @PatchMapping("/{ruleId}")
+  public ApiResponse<PromotionCampaignView> updateRule(
+      @CurrentContext TchRequestContext ctx,
+      @PathVariable UUID campaignId,
+      @PathVariable UUID ruleId,
+      @Valid @RequestBody UpdatePromotionRuleRequest request) {
+    UpdatePromotionRuleCommand command =
+        mapper.toCommand(
             ctx.tenantIdRequired(),
             PromotionCampaignId.of(campaignId),
             PromotionRuleId.of(ruleId),
-            request
-        );
+            request);
 
-        var out = commandBus.execute(command);
-        return ApiResponse.success(out);
-    }
+    var out = commandBus.execute(command);
+    return ApiResponse.success(out);
+  }
 
-    @DeleteMapping("/{ruleId}")
-    public ApiResponse<PromotionCampaignView> deleteRule(
-        @CurrentContext TchRequestContext ctx,
-        @PathVariable UUID campaignId,
-        @PathVariable UUID ruleId
-    ) {
-        var out = commandBus.execute(new DeletePromotionRuleCommand(
-            ctx.tenantIdRequired(),
-            PromotionCampaignId.of(campaignId),
-            PromotionRuleId.of(ruleId)
-        ));
+  @DeleteMapping("/{ruleId}")
+  public ApiResponse<PromotionCampaignView> deleteRule(
+      @CurrentContext TchRequestContext ctx,
+      @PathVariable UUID campaignId,
+      @PathVariable UUID ruleId) {
+    var out =
+        commandBus.execute(
+            new DeletePromotionRuleCommand(
+                ctx.tenantIdRequired(),
+                PromotionCampaignId.of(campaignId),
+                PromotionRuleId.of(ruleId)));
 
-        return ApiResponse.success(out);
-    }
+    return ApiResponse.success(out);
+  }
 
-    @PatchMapping("/{ruleId}/eligibility")
-    public ApiResponse<PromotionCampaignView> updateEligibility(
-        @CurrentContext TchRequestContext ctx,
-        @PathVariable UUID campaignId,
-        @PathVariable UUID ruleId,
-        @Valid @RequestBody UpdatePromotionRuleEligibilityRequest request
-    ) {
-        UpdatePromotionRuleEligibilityCommand command = mapper.toCommand(
-            ctx.tenantIdRequired(),
-            PromotionCampaignId.of(campaignId),
-            PromotionRuleId.of(ruleId),
-            request
-        );
-
-        var out = commandBus.execute(command);
-        return ApiResponse.success(out);
-    }
-
-    @PatchMapping("/{ruleId}/effects")
-    public ApiResponse<PromotionCampaignView> updateEffects(
-        @CurrentContext TchRequestContext ctx,
-        @PathVariable UUID campaignId,
-        @PathVariable UUID ruleId,
-        @Valid @RequestBody UpdatePromotionRuleEffectsRequest request
-    ) {
-        UpdatePromotionRuleEffectsCommand command = mapper.toCommand(
+  @PatchMapping("/{ruleId}/eligibility")
+  public ApiResponse<PromotionCampaignView> updateEligibility(
+      @CurrentContext TchRequestContext ctx,
+      @PathVariable UUID campaignId,
+      @PathVariable UUID ruleId,
+      @Valid @RequestBody UpdatePromotionRuleEligibilityRequest request) {
+    UpdatePromotionRuleEligibilityCommand command =
+        mapper.toCommand(
             ctx.tenantIdRequired(),
             PromotionCampaignId.of(campaignId),
             PromotionRuleId.of(ruleId),
-            request
-        );
+            request);
 
-        var out = commandBus.execute(command);
-        return ApiResponse.success(out);
-    }
+    var out = commandBus.execute(command);
+    return ApiResponse.success(out);
+  }
+
+  @PatchMapping("/{ruleId}/effects")
+  public ApiResponse<PromotionCampaignView> updateEffects(
+      @CurrentContext TchRequestContext ctx,
+      @PathVariable UUID campaignId,
+      @PathVariable UUID ruleId,
+      @Valid @RequestBody UpdatePromotionRuleEffectsRequest request) {
+    UpdatePromotionRuleEffectsCommand command =
+        mapper.toCommand(
+            ctx.tenantIdRequired(),
+            PromotionCampaignId.of(campaignId),
+            PromotionRuleId.of(ruleId),
+            request);
+
+    var out = commandBus.execute(command);
+    return ApiResponse.success(out);
+  }
 }

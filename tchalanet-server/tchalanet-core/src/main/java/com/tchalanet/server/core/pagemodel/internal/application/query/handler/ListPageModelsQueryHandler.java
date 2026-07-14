@@ -4,12 +4,13 @@ import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageMapper;
-import com.tchalanet.server.core.pagemodel.internal.application.port.out.PageModelReadPort;
 import com.tchalanet.server.core.pagemodel.api.query.ListPageModelsQuery;
 import com.tchalanet.server.core.pagemodel.api.query.PageModelSummaryView;
+import com.tchalanet.server.core.pagemodel.internal.application.port.out.PageModelReadPort;
 import lombok.RequiredArgsConstructor;
 
-// [Phase 3B] handler absent — ListPageModelsQuery envoyée sur le bus crashait au premier appel (analysis §gap)
+// [Phase 3B] handler absent — ListPageModelsQuery envoyée sur le bus crashait au premier appel
+// (analysis §gap)
 @UseCase
 @RequiredArgsConstructor
 public class ListPageModelsQueryHandler
@@ -19,21 +20,18 @@ public class ListPageModelsQueryHandler
 
   @Override
   public TchPage<PageModelSummaryView> handle(ListPageModelsQuery query) {
-    var page = readPort.search(
-        query.tenantId(),
-        query.scope(),
-        query.logicalId(),
-        query.pageable()
-    );
-    return TchPageMapper.map(page, inst -> new PageModelSummaryView(
-        inst.id(),
-        inst.logicalId(),
-        inst.scope(),
-        inst.slug(),
-        inst.status(),
-        inst.schemaVersion(),
-        inst.updatedAt()
-    ));
+    var page =
+        readPort.search(query.tenantId(), query.scope(), query.logicalId(), query.pageable());
+    return TchPageMapper.map(
+        page,
+        inst ->
+            new PageModelSummaryView(
+                inst.id(),
+                inst.logicalId(),
+                inst.scope(),
+                inst.slug(),
+                inst.status(),
+                inst.schemaVersion(),
+                inst.updatedAt()));
   }
 }
-

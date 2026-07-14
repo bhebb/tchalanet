@@ -19,7 +19,8 @@ class AppUserBootstrapProductionGuardTest {
         new UserBootstrapProperties(
             true, false, AppUserBootstrapMode.CONTROLLED_AUTO, List.of(), List.of(), false);
 
-    assertThatThrownBy(() -> new AppUserBootstrapProductionGuard(properties, environment).validate())
+    assertThatThrownBy(
+            () -> new AppUserBootstrapProductionGuard(properties, environment).validate())
         .isInstanceOf(IllegalStateException.class)
         .hasMessageContaining("controlled-auto");
   }

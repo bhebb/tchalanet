@@ -9,7 +9,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TenantUserJpaRepository extends JpaRepository<TenantUserJpaEntity, UUID> {
 
-  Optional<TenantUserJpaEntity> findByTenantIdAndUserIdAndDeletedAtIsNull(UUID tenantId, UUID userId);
+  Optional<TenantUserJpaEntity> findByTenantIdAndUserIdAndDeletedAtIsNull(
+      UUID tenantId, UUID userId);
 
   Optional<TenantUserJpaEntity> findByUserIdAndDeletedAtIsNull(UUID userId);
 }

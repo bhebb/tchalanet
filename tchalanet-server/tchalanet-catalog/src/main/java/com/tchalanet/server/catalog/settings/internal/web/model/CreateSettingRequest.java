@@ -5,9 +5,7 @@ import com.tchalanet.server.catalog.settings.api.model.SettingLevel;
 import com.tchalanet.server.catalog.settings.api.model.SettingValueType;
 import com.tchalanet.server.common.types.id.TenantId;
 
-/**
- * Create Setting Request. exposure defaults to INTERNAL if null.
- */
+/** Create Setting Request. exposure defaults to INTERNAL if null. */
 public record CreateSettingRequest(
     String namespace,
     String settingKey,

@@ -14,15 +14,16 @@ import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.promotion.api.model.PromotionDecisionStatus;
+import com.tchalanet.server.core.sales.api.command.sell.SellTicketCommand;
+import com.tchalanet.server.core.sales.api.command.sell.SellTicketOutcome;
+import com.tchalanet.server.core.sales.api.command.sell.SellTicketResult;
+import com.tchalanet.server.core.sales.api.command.sell.SoldTicketView;
 import com.tchalanet.server.core.sales.api.event.TicketLinePlacedItem;
 import com.tchalanet.server.core.sales.api.event.TicketPlacedEvent;
 import com.tchalanet.server.core.sales.api.event.payload.TicketContextPayload;
 import com.tchalanet.server.core.sales.api.event.payload.TicketMoneyPayload;
 import com.tchalanet.server.core.sales.api.model.origin.TicketSaleChannel;
-import com.tchalanet.server.core.sales.api.command.sell.SellTicketCommand;
-import com.tchalanet.server.core.sales.api.command.sell.SellTicketOutcome;
-import com.tchalanet.server.core.sales.api.command.sell.SellTicketResult;
-import com.tchalanet.server.core.sales.api.command.sell.SoldTicketView;
+import com.tchalanet.server.core.sales.api.model.status.TicketPrintStatus;
 import com.tchalanet.server.core.sales.internal.application.port.out.AppliedPromotionSnapshotWriterPort;
 import com.tchalanet.server.core.sales.internal.application.port.out.TicketCodeGeneratorPort;
 import com.tchalanet.server.core.sales.internal.application.port.out.TicketPrintReaderPort;
@@ -36,7 +37,6 @@ import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketCodes;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketContext;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketIdentity;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
-import com.tchalanet.server.core.sales.api.model.status.TicketPrintStatus;
 import com.tchalanet.server.core.sellerterminal.api.query.GetSellerTerminalForSaleValidationQuery;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -49,208 +49,204 @@ import lombok.RequiredArgsConstructor;
 public class SellTicketCommandHandler
     implements CommandHandler<SellTicketCommand, SellTicketResult> {
 
-    private final IdGenerator idGenerator;
-    private final TicketCodeGeneratorPort ticketCodeGenerator;
-    private final TicketWriterPort ticketWriter;
-    private final TicketPrintReaderPort ticketPrintReader;
-    private final DomainEventPublisher eventPublisher;
-    private final SaleAcceptanceEvaluator saleAcceptanceEvaluator;
-    private final AppliedPromotionSnapshotWriterPort appliedPromotionSnapshotWriter;
-    private final TicketReceiptAssembler ticketReceiptAssembler;
-    private final TicketBackupAssembler ticketBackupAssembler;
-    private final TicketCommunicationRequestDispatcher communicationDispatcher;
-    private final QueryBus queryBus;
+  private final IdGenerator idGenerator;
+  private final TicketCodeGeneratorPort ticketCodeGenerator;
+  private final TicketWriterPort ticketWriter;
+  private final TicketPrintReaderPort ticketPrintReader;
+  private final DomainEventPublisher eventPublisher;
+  private final SaleAcceptanceEvaluator saleAcceptanceEvaluator;
+  private final AppliedPromotionSnapshotWriterPort appliedPromotionSnapshotWriter;
+  private final TicketReceiptAssembler ticketReceiptAssembler;
+  private final TicketBackupAssembler ticketBackupAssembler;
+  private final TicketCommunicationRequestDispatcher communicationDispatcher;
+  private final QueryBus queryBus;
 
+  @Override
+  @TchTx
+  public SellTicketResult handle(SellTicketCommand command) {
+    var ctx = TchContext.currentOrThrow();
+    var tenantId = ctx.effectiveTenantIdRequired();
+    var actorUserId = ctx.userId();
+    var correlationId = ctx.correlationId();
 
-    @Override
-    @TchTx
-    public SellTicketResult handle(SellTicketCommand command) {
-        var ctx = TchContext.currentOrThrow();
-        var tenantId = ctx.effectiveTenantIdRequired();
-        var actorUserId = ctx.userId();
-        var correlationId = ctx.correlationId();
+    // 1. All business decisions in one place.
+    var evaluation = saleAcceptanceEvaluator.evaluateFinal(command, ctx);
+    var prepared = evaluation.preparedSale();
+    if (!evaluation.acceptable()) {
+      return new SellTicketResult(
+          null,
+          SellTicketOutcome.REJECTED,
+          null,
+          List.of(),
+          evaluation.issues(),
+          null,
+          evaluation.actionAvailability(),
+          evaluation.sellerInstruction());
+    }
 
-        // 1. All business decisions in one place.
-        var evaluation = saleAcceptanceEvaluator.evaluateFinal(command, ctx);
-        var prepared = evaluation.preparedSale();
-        if (!evaluation.acceptable()) {
-            return new SellTicketResult(
-                null,
-                SellTicketOutcome.REJECTED,
-                null,
-                List.of(),
-                evaluation.issues(),
-                null,
-                evaluation.actionAvailability(),
-                evaluation.sellerInstruction()
-            );
-        }
-
-        // 2. Build ticket context from the authenticated seller terminal.
-        var sellerTerminalId = ctx.sellerTerminalIdRequired();
-        var terminal = queryBus.ask(new GetSellerTerminalForSaleValidationQuery(
-            tenantId, sellerTerminalId));
-        var requirePinChangeCompleted = ctx.actorType() == TchActorType.SELLER_TERMINAL;
-        if (!terminal.canSell(requirePinChangeCompleted)) {
-            throw ProblemRest.forbidden("seller_terminal.cannot_sell");
-        }
-        var commissionAmount = prepared.moneyBreakdown().stake().amount()
+    // 2. Build ticket context from the authenticated seller terminal.
+    var sellerTerminalId = ctx.sellerTerminalIdRequired();
+    var terminal =
+        queryBus.ask(new GetSellerTerminalForSaleValidationQuery(tenantId, sellerTerminalId));
+    var requirePinChangeCompleted = ctx.actorType() == TchActorType.SELLER_TERMINAL;
+    if (!terminal.canSell(requirePinChangeCompleted)) {
+      throw ProblemRest.forbidden("seller_terminal.cannot_sell");
+    }
+    var commissionAmount =
+        prepared
+            .moneyBreakdown()
+            .stake()
+            .amount()
             .multiply(terminal.commissionRate())
             .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
-        var ticketContext = new TicketContext(
+    var ticketContext =
+        new TicketContext(
             command.drawId(),
             command.drawChannelId(),
             sellerTerminalId,
             terminal.commissionRate(),
-            commissionAmount
-        );
+            commissionAmount);
 
-        // 3. Build and persist the aggregate.
-        var ticketId = TicketId.of(idGenerator.newUuid());
-        var ticket = Ticket.place(
+    // 3. Build and persist the aggregate.
+    var ticketId = TicketId.of(idGenerator.newUuid());
+    var ticket =
+        Ticket.place(
             new TicketIdentity(ticketId, tenantId),
             ticketContext,
             new TicketCodes(
                 ticketCodeGenerator.nextTicketCode(),
                 ticketCodeGenerator.nextPublicCode(),
-                ticketCodeGenerator.nextVerificationCode()
-            ),
+                ticketCodeGenerator.nextVerificationCode()),
             prepared.moneyBreakdown(),
             prepared.ticketLines(),
             TicketSaleChannel.POS_ONLINE,
             prepared.requiresApproval(),
             prepared.approvalRequestId(),
             actorUserId,
-            prepared.now()
-        );
+            prepared.now());
 
-        var saved = ticketWriter.save(ticket);
+    var saved = ticketWriter.save(ticket);
 
-        var promo = prepared.promotionDecision();
-        if (promo != null && promo.status() == PromotionDecisionStatus.APPLIED) {
-            appliedPromotionSnapshotWriter.createIfAbsent(ticketId, promo, saved, prepared.now());
-        }
+    var promo = prepared.promotionDecision();
+    if (promo != null && promo.status() == PromotionDecisionStatus.APPLIED) {
+      appliedPromotionSnapshotWriter.createIfAbsent(ticketId, promo, saved, prepared.now());
+    }
 
-        // Push the freshly persisted ticket to DB so the SQL view
-        // (sales_ticket_print_header_v) used by the print reader sees it within the same tx.
-        ticketWriter.flushPending();
-        var receipt = ticketReceiptAssembler.assemble(
-            ticketPrintReader.findPrintViewRequired(saved.identity().id()),
-            ctx.locale()
-        );
-        var backup = ticketBackupAssembler.assemble(receipt);
+    // Push the freshly persisted ticket to DB so the SQL view
+    // (sales_ticket_print_header_v) used by the print reader sees it within the same tx.
+    ticketWriter.flushPending();
+    var receipt =
+        ticketReceiptAssembler.assemble(
+            ticketPrintReader.findPrintViewRequired(saved.identity().id()), ctx.locale());
+    var backup = ticketBackupAssembler.assemble(receipt);
 
-        // 4. Publish AFTER COMMIT.
-        AfterCommit.run(() -> {
-            eventPublisher.publish(toTicketPlacedEvent(saved, prepared.now(), correlationId, prepared.promotionDecision()));
+    // 4. Publish AFTER COMMIT.
+    AfterCommit.run(
+        () -> {
+          eventPublisher.publish(
+              toTicketPlacedEvent(
+                  saved, prepared.now(), correlationId, prepared.promotionDecision()));
 
-            communicationDispatcher.enqueueTicketPlaced(
-                saved,
-                command.communicationOptions(),
-                correlationId
-            );
+          communicationDispatcher.enqueueTicketPlaced(
+              saved, command.communicationOptions(), correlationId);
         });
 
-        // 5. Return result with notices propagated.
-        var outcome = prepared.requiresApproval()
+    // 5. Return result with notices propagated.
+    var outcome =
+        prepared.requiresApproval()
             ? SellTicketOutcome.PENDING_APPROVAL
             : SellTicketOutcome.ACCEPTED;
 
-        return new SellTicketResult(
-            toSoldTicketView(saved, backup.displayCode()),
-            outcome,
-            prepared.approvalRequestId(),
-            prepared.notices(),
-            evaluation.issues(),
-            backup,
-            evaluation.actionAvailability(),
-            evaluation.sellerInstruction()
-        );
-    }
+    return new SellTicketResult(
+        toSoldTicketView(saved, backup.displayCode()),
+        outcome,
+        prepared.approvalRequestId(),
+        prepared.notices(),
+        evaluation.issues(),
+        backup,
+        evaluation.actionAvailability(),
+        evaluation.sellerInstruction());
+  }
 
-    private SoldTicketView toSoldTicketView(Ticket ticket, String displayCode) {
-        return new SoldTicketView(
-            ticket.identity().id(),
-            ticket.codes().ticketCode().value(),
-            ticket.codes().publicCode().value(),
-            displayCode,
-            ticket.codes().verificationCode().value(),
-            ticket.lifecycle().sale().status(),
-            ticket.lifecycle().result().status(),
-            ticket.lifecycle().settlement().status(),
-            ticket.origin().channel(),
-            ticket.context().drawId(),
-            ticket.context().sellerTerminalId(),
-            ticket.money().breakdown().total(),
-            TicketPrintStatus.valueOf(ticket.print().status().name()),
-            ticket.lifecycle().sale().soldAt(),
-            ticket.lifecycle().sale().placedAt()
-        );
-    }
+  private SoldTicketView toSoldTicketView(Ticket ticket, String displayCode) {
+    return new SoldTicketView(
+        ticket.identity().id(),
+        ticket.codes().ticketCode().value(),
+        ticket.codes().publicCode().value(),
+        displayCode,
+        ticket.codes().verificationCode().value(),
+        ticket.lifecycle().sale().status(),
+        ticket.lifecycle().result().status(),
+        ticket.lifecycle().settlement().status(),
+        ticket.origin().channel(),
+        ticket.context().drawId(),
+        ticket.context().sellerTerminalId(),
+        ticket.money().breakdown().total(),
+        TicketPrintStatus.valueOf(ticket.print().status().name()),
+        ticket.lifecycle().sale().soldAt(),
+        ticket.lifecycle().sale().placedAt());
+  }
 
-    private TicketPlacedEvent toTicketPlacedEvent(Ticket saved, Instant now, CorrelationId correlationId,
-        com.tchalanet.server.core.promotion.api.model.PromotionDecision promotionDecision
-    ) {
-        var context = new TicketContextPayload(
+  private TicketPlacedEvent toTicketPlacedEvent(
+      Ticket saved,
+      Instant now,
+      CorrelationId correlationId,
+      com.tchalanet.server.core.promotion.api.model.PromotionDecision promotionDecision) {
+    var context =
+        new TicketContextPayload(
             saved.context().drawId(),
             saved.context().drawChannelId(),
             saved.context().sellerTerminalId(),
             saved.context().sellerCommissionRateSnapshot(),
-            saved.context().sellerCommissionAmountSnapshot()
-        );
+            saved.context().sellerCommissionAmountSnapshot());
 
-        var chargeItems = saved.money().breakdown().charges().stream()
-            .map(c -> new TicketMoneyPayload.ChargeItem(
-                c.type(),
-                c.amount(),
-                c.paidBy(),
-                c.isWaived(),
-                c.waivedEffectType()))
+    var chargeItems =
+        saved.money().breakdown().charges().stream()
+            .map(
+                c ->
+                    new TicketMoneyPayload.ChargeItem(
+                        c.type(), c.amount(), c.paidBy(), c.isWaived(), c.waivedEffectType()))
             .toList();
 
-        var money = new TicketMoneyPayload(
+    var money =
+        new TicketMoneyPayload(
             saved.money().currency(),
             saved.money().breakdown().stake(),
             saved.money().breakdown().total(),
-            chargeItems
-        );
+            chargeItems);
 
-        List<TicketLinePlacedItem> lines = saved.lines().stream()
-            .map(this::toLineItem)
-            .toList();
+    List<TicketLinePlacedItem> lines = saved.lines().stream().map(this::toLineItem).toList();
 
-        return new TicketPlacedEvent(
-            EventId.of(idGenerator.newUuid()),
-            TicketPlacedEvent.CURRENT_SCHEMA,
-            now,
-            correlationId,
-            saved.identity().tenantId(),
-            saved.identity().id(),
-            saved.lifecycle().sale().status(),
-            saved.origin().channel(),
-            context,
-            money,
-            lines,
-            promotionDecision
-        );
-    }
+    return new TicketPlacedEvent(
+        EventId.of(idGenerator.newUuid()),
+        TicketPlacedEvent.CURRENT_SCHEMA,
+        now,
+        correlationId,
+        saved.identity().tenantId(),
+        saved.identity().id(),
+        saved.lifecycle().sale().status(),
+        saved.origin().channel(),
+        context,
+        money,
+        lines,
+        promotionDecision);
+  }
 
-    private TicketLinePlacedItem toLineItem(TicketLine line) {
-        return new TicketLinePlacedItem(
-            line.id(),
-            line.lineNumber(),
-            line.gameCode(),
-            line.betType(),
-            line.selection().key().value(),
-            line.selection().displayLabel(),
-            line.betOption(),
-            line.stakeAmount(),
-            line.origin(),
-            line.pricingSource(),
-            line.selectionSource(),
-            line.promotionDecisionId(),
-            line.promotionLabel(),
-            line.promotionEffectType()
-        );
-    }
+  private TicketLinePlacedItem toLineItem(TicketLine line) {
+    return new TicketLinePlacedItem(
+        line.id(),
+        line.lineNumber(),
+        line.gameCode(),
+        line.betType(),
+        line.selection().key().value(),
+        line.selection().displayLabel(),
+        line.betOption(),
+        line.stakeAmount(),
+        line.origin(),
+        line.pricingSource(),
+        line.selectionSource(),
+        line.promotionDecisionId(),
+        line.promotionLabel(),
+        line.promotionEffectType());
+  }
 }

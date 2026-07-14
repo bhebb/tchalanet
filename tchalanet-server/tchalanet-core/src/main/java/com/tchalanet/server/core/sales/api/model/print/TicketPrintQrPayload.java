@@ -5,5 +5,4 @@ public record TicketPrintQrPayload(
     String publicCode,
     String verificationCode,
     String verificationUrl,
-    String payload
-) {}
+    String payload) {}

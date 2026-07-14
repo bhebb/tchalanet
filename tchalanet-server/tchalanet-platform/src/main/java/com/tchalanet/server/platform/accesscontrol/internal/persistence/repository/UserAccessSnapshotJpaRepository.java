@@ -8,15 +8,16 @@ import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 
 /**
- * Bootstrap-only: full platform + tenant access snapshot in one UNION query.
- * Used exclusively by {@code AccessControlSnapshotResolver#resolveUserAccess}.
- * Do NOT call on every API request — use the scoped resolvers instead.
+ * Bootstrap-only: full platform + tenant access snapshot in one UNION query. Used exclusively by
+ * {@code AccessControlSnapshotResolver#resolveUserAccess}. Do NOT call on every API request — use
+ * the scoped resolvers instead.
  */
 public interface UserAccessSnapshotJpaRepository
     extends Repository<PlatformUserRoleJpaEntity, UUID> {
 
   @Query(
-      value = """
+      value =
+          """
           select
             assignment.user_id as "userId",
             cast(null as uuid) as "tenantId",

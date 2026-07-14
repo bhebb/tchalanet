@@ -6,7 +6,9 @@ import java.time.Duration;
 import java.util.List;
 import org.springframework.stereotype.Component;
 
-/** Games are a platform referential, edited very rarely and evicted on write. Tier A: 30 min / 12 h. */
+/**
+ * Games are a platform referential, edited very rarely and evicted on write. Tier A: 30 min / 12 h.
+ */
 @Component
 public class GameCacheSpecProvider implements CacheSpecProvider {
 

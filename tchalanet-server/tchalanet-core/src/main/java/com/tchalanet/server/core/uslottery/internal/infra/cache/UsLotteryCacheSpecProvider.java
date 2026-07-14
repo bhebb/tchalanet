@@ -13,8 +13,6 @@ public class UsLotteryCacheSpecProvider implements CacheSpecProvider {
   public List<CacheSpec> cacheSpecs() {
     return List.of(
         CacheSpec.of(
-            UsLotteryProviderRawCache.CACHE_NAME,
-            Duration.ofMinutes(1),
-            Duration.ofMinutes(5)));
+            UsLotteryProviderRawCache.CACHE_NAME, Duration.ofMinutes(1), Duration.ofMinutes(5)));
   }
 }

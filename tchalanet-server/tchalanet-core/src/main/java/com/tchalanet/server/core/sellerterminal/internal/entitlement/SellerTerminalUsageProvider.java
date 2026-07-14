@@ -11,19 +11,19 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class SellerTerminalUsageProvider implements UsageProvider {
 
-    private final SellerTerminalJpaRepository repository;
+  private final SellerTerminalJpaRepository repository;
 
-    @Override
-    public boolean supports(String usageKey) {
-        return UsageKeys.SELLER_TERMINALS_ACTIVE.equals(usageKey);
+  @Override
+  public boolean supports(String usageKey) {
+    return UsageKeys.SELLER_TERMINALS_ACTIVE.equals(usageKey);
+  }
+
+  @Override
+  public int currentUsage(TenantId tenantId, String usageKey) {
+    if (!supports(usageKey)) {
+      throw new IllegalArgumentException("Unsupported usageKey: " + usageKey);
     }
 
-    @Override
-    public int currentUsage(TenantId tenantId, String usageKey) {
-        if (!supports(usageKey)) {
-            throw new IllegalArgumentException("Unsupported usageKey: " + usageKey);
-        }
-
-        return Math.toIntExact(repository.countByTenantIdAndDeletedAtIsNull(tenantId.value()));
-    }
+    return Math.toIntExact(repository.countByTenantIdAndDeletedAtIsNull(tenantId.value()));
+  }
 }

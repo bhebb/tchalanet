@@ -14,15 +14,15 @@ import lombok.RequiredArgsConstructor;
 public class FormatTicketReceiptPrintQueryHandler
     implements QueryHandler<FormatTicketReceiptPrintQuery, TicketReceiptPrintContent> {
 
-    private final TicketPrintReaderPort reader;
-    private final TicketReceiptAssembler assembler;
-    private final TicketReceiptPrintFormatter formatter;
+  private final TicketPrintReaderPort reader;
+  private final TicketReceiptAssembler assembler;
+  private final TicketReceiptPrintFormatter formatter;
 
-    @Override
-    public TicketReceiptPrintContent handle(FormatTicketReceiptPrintQuery query) {
-        var printView = reader.findPrintViewRequired(query.ticketId());
-        var profile = query.documentPrintProfile();
-        var receipt = assembler.assemble(printView, query.locale());
-        return formatter.format(receipt, profile);
-    }
+  @Override
+  public TicketReceiptPrintContent handle(FormatTicketReceiptPrintQuery query) {
+    var printView = reader.findPrintViewRequired(query.ticketId());
+    var profile = query.documentPrintProfile();
+    var receipt = assembler.assemble(printView, query.locale());
+    return formatter.format(receipt, profile);
+  }
 }

@@ -1,11 +1,11 @@
 package com.tchalanet.server.app.config.security;
 
+import static com.tchalanet.server.common.http.TchHeaders.X_TCH_TENANT_OVERRIDE;
+import static com.tchalanet.server.common.http.TchHeaders.X_TENANT_ID;
+
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Set;
 import org.springframework.security.web.util.matcher.RequestMatcher;
-
-import static com.tchalanet.server.common.http.TchHeaders.X_TCH_TENANT_OVERRIDE;
-import static com.tchalanet.server.common.http.TchHeaders.X_TENANT_ID;
 
 final class SensitiveIdentityRequestMatcher implements RequestMatcher {
 

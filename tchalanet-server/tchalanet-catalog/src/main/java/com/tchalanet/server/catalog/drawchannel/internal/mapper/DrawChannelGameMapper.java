@@ -8,7 +8,9 @@ import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring", uses = {CommonIdMapper.class})
+@Mapper(
+    componentModel = "spring",
+    uses = {CommonIdMapper.class})
 public interface DrawChannelGameMapper {
 
   @Mapping(source = "drawChannelId", target = "drawChannelId")

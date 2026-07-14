@@ -25,89 +25,86 @@ import org.springframework.web.client.RestClient;
     matchIfMissing = true)
 public class GeorgiaDrawResultsClient implements UsLotteryProviderClient {
 
-    private static final String SHAPE = "GA/latest/v3";
+  private static final String SHAPE = "GA/latest/v3";
 
-    private final RestClient rest;
-    private final UsLotteryProperties props;
-    private final UsLotteryProviderRawCache cache;
-    private final GeorgiaDrawResultsMapper mapper;
+  private final RestClient rest;
+  private final UsLotteryProperties props;
+  private final UsLotteryProviderRawCache cache;
+  private final GeorgiaDrawResultsMapper mapper;
 
-    public GeorgiaDrawResultsClient(
-        @Qualifier("gaLotteryRestClient") RestClient rest,
-        UsLotteryProperties props,
-        UsLotteryProviderRawCache cache,
-        GeorgiaDrawResultsMapper mapper) {
-        this.rest = Objects.requireNonNull(rest);
-        this.props = Objects.requireNonNull(props);
-        this.cache = Objects.requireNonNull(cache);
-        this.mapper = Objects.requireNonNull(mapper);
+  public GeorgiaDrawResultsClient(
+      @Qualifier("gaLotteryRestClient") RestClient rest,
+      UsLotteryProperties props,
+      UsLotteryProviderRawCache cache,
+      GeorgiaDrawResultsMapper mapper) {
+    this.rest = Objects.requireNonNull(rest);
+    this.props = Objects.requireNonNull(props);
+    this.cache = Objects.requireNonNull(cache);
+    this.mapper = Objects.requireNonNull(mapper);
+  }
+
+  @Override
+  public UsLotteryProvider provider() {
+    return UsLotteryProvider.GA;
+  }
+
+  @Override
+  public UsLotteryProviderResponse fetch(UsLotteryProviderQuery query) {
+    Objects.requireNonNull(query, "query required");
+
+    var providers = props.getProviders();
+    var cfg = providers != null ? providers.get("ga") : null;
+
+    if (cfg == null || !cfg.isEnabled() || StringUtils.isBlank(cfg.getLatestPath())) {
+      return UsLotteryProviderResponse.empty(provider(), query);
     }
 
-    @Override
-    public UsLotteryProvider provider() {
-        return UsLotteryProvider.GA;
+    var fetchUrl = joinUrl(cfg.getBaseUrl(), cfg.getLatestPath());
+    var queryHash = buildQueryHash(query, fetchUrl);
+
+    var responseBody =
+        cache.getOrFetch(
+            provider().name(), query.drawDate(), queryHash, () -> performFetch(fetchUrl));
+
+    if (StringUtils.isBlank(responseBody)) {
+      return UsLotteryProviderResponse.empty(provider(), query);
     }
 
-    @Override
-    public UsLotteryProviderResponse fetch(UsLotteryProviderQuery query) {
-        Objects.requireNonNull(query, "query required");
+    return mapper.map(responseBody, Hashing.sha256Hex(responseBody), fetchUrl, query);
+  }
 
-        var providers = props.getProviders();
-        var cfg = providers != null ? providers.get("ga") : null;
+  private String buildQueryHash(UsLotteryProviderQuery query, String url) {
+    return ProviderQueryHash.of(
+        provider().name(),
+        query.drawDate(),
+        query.drawTime(),
+        query.externalGameCodes().stream().sorted().toList(),
+        SHAPE
+            + "|"
+            + url
+            + "|providerSlotCode="
+            + StringUtils.defaultString(query.providerSlotCode()));
+  }
 
-        if (cfg == null || !cfg.isEnabled() || StringUtils.isBlank(cfg.getLatestPath())) {
-            return UsLotteryProviderResponse.empty(provider(), query);
-        }
-
-        var fetchUrl = joinUrl(cfg.getBaseUrl(), cfg.getLatestPath());
-        var queryHash = buildQueryHash(query, fetchUrl);
-
-        var responseBody =
-            cache.getOrFetch(
-                provider().name(),
-                query.drawDate(),
-                queryHash,
-                () -> performFetch(fetchUrl));
-
-        if (StringUtils.isBlank(responseBody)) {
-            return UsLotteryProviderResponse.empty(provider(), query);
-        }
-
-        return mapper.map(
-            responseBody,
-            Hashing.sha256Hex(responseBody),
-            fetchUrl,
-            query);
+  private String performFetch(String url) {
+    try {
+      return rest.get().uri(url).retrieve().body(String.class);
+    } catch (Exception ex) {
+      log.warn("Failed to fetch GA lottery data from {}: {}", url, ex.getLocalizedMessage(), ex);
+      return null;
     }
+  }
 
-    private String buildQueryHash(UsLotteryProviderQuery query, String url) {
-        return ProviderQueryHash.of(
-            provider().name(),
-            query.drawDate(),
-            query.drawTime(),
-            query.externalGameCodes().stream().sorted().toList(),
-            SHAPE + "|" + url + "|providerSlotCode=" + StringUtils.defaultString(query.providerSlotCode()));
+  private static String joinUrl(String base, String path) {
+    var b = StringUtils.isBlank(base) ? "" : base.trim();
+    var p = StringUtils.isBlank(path) ? "" : path.trim();
+
+    if (b.endsWith("/") && p.startsWith("/")) {
+      return b.substring(0, b.length() - 1) + p;
     }
-
-    private String performFetch(String url) {
-        try {
-            return rest.get().uri(url).retrieve().body(String.class);
-        } catch (Exception ex) {
-            log.warn("Failed to fetch GA lottery data from {}: {}", url, ex.getLocalizedMessage(), ex);
-            return null;
-        }
+    if (!b.endsWith("/") && !p.startsWith("/") && !b.isBlank() && !p.isBlank()) {
+      return b + "/" + p;
     }
-
-    private static String joinUrl(String base, String path) {
-        var b = StringUtils.isBlank(base) ? "" : base.trim();
-        var p = StringUtils.isBlank(path) ? "" : path.trim();
-
-        if (b.endsWith("/") && p.startsWith("/")) {
-            return b.substring(0, b.length() - 1) + p;
-        }
-        if (!b.endsWith("/") && !p.startsWith("/") && !b.isBlank() && !p.isBlank()) {
-            return b + "/" + p;
-        }
-        return b + p;
-    }
+    return b + p;
+  }
 }

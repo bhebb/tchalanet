@@ -10,8 +10,5 @@ import java.time.LocalDate;
  *
  * <p>Sourced from the {@code analytics_daily} projection table.
  */
-public record GetTenantKpisQuery(
-    TenantId  tenantId,
-    LocalDate fromDate,
-    LocalDate toDate
-) implements Query<TenantKpisView> {}
+public record GetTenantKpisQuery(TenantId tenantId, LocalDate fromDate, LocalDate toDate)
+    implements Query<TenantKpisView> {}

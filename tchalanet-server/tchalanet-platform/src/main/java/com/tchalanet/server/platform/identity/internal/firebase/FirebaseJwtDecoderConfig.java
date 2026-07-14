@@ -33,9 +33,7 @@ class FirebaseJwtDecoderConfig {
                 ? OAuth2TokenValidatorResult.success()
                 : OAuth2TokenValidatorResult.failure(
                     new OAuth2Error(
-                        "invalid_token",
-                        "Missing Firebase project audience: " + projectId,
-                        null));
+                        "invalid_token", "Missing Firebase project audience: " + projectId, null));
 
     decoder.setJwtValidator(
         new DelegatingOAuth2TokenValidator<>(

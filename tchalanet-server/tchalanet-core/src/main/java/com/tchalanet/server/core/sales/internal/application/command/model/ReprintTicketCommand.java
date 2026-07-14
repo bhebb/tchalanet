@@ -7,7 +7,5 @@ import com.tchalanet.server.common.types.id.UserId;
 import jakarta.validation.constraints.NotNull;
 
 public record ReprintTicketCommand(
-    @NotNull TenantId tenantId,
-    @NotNull TicketId ticketId,
-    @NotNull UserId requestedBy
-) implements Command<Void> {}
+    @NotNull TenantId tenantId, @NotNull TicketId ticketId, @NotNull UserId requestedBy)
+    implements Command<Void> {}

@@ -3,14 +3,14 @@ package com.tchalanet.server.features.bootstrap.privateruntime.model;
 import java.util.List;
 
 public record RuntimeReadinessView(
-    RuntimeReadinessStatus status,
-    List<RuntimeReadinessCheck> checks
-) {
-    public static RuntimeReadinessView ready() {
-        return new RuntimeReadinessView(RuntimeReadinessStatus.READY, List.of());
-    }
+    RuntimeReadinessStatus status, List<RuntimeReadinessCheck> checks) {
+  public static RuntimeReadinessView ready() {
+    return new RuntimeReadinessView(RuntimeReadinessStatus.READY, List.of());
+  }
 
-    public enum RuntimeReadinessStatus {
-        READY, PARTIAL, BLOCKED
-    }
+  public enum RuntimeReadinessStatus {
+    READY,
+    PARTIAL,
+    BLOCKED
+  }
 }

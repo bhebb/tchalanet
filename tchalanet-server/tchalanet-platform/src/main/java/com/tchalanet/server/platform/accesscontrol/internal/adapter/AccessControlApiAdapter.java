@@ -42,8 +42,8 @@ import org.springframework.stereotype.Component;
 /**
  * Adapter implementing the public {@link AccessControlApi} contract.
  *
- * <p>Bridges the public module API to the internal access-control services. Holds no business
- * logic of its own — it only delegates to the capability's internal services.
+ * <p>Bridges the public module API to the internal access-control services. Holds no business logic
+ * of its own — it only delegates to the capability's internal services.
  */
 @Component
 @RequiredArgsConstructor
@@ -72,28 +72,33 @@ public class AccessControlApiAdapter implements AccessControlApi {
   @Override
   public AccessSnapshotView resolveUserAccess(UserId userId) {
     var snapshot = snapshotResolver.resolveUserAccess(userId);
-    var platform = new PlatformAccessView(
-        snapshot.platform().superAdmin(),
-        snapshot.platform().roleCodes(),
-        snapshot.platform().permissionKeys());
-    var tenantScopes = snapshot.tenantScopes().stream()
-        .map(scope -> new TenantAccessScopeView(
-            scope.tenantId(),
-            scope.tenantCode(),
-            scope.tenantName(),
-            scope.tenantStatus(),
-            scope.roleCodes(),
-            scope.permissionKeys()))
-        .toList();
-    var sellerScope = snapshot.sellerTerminalScope() == null
-        ? null
-        : new SellerTerminalAccessScopeView(
-            snapshot.sellerTerminalScope().sellerTerminalId(),
-            snapshot.sellerTerminalScope().tenantId(),
-            snapshot.sellerTerminalScope().tenantCode(),
-            snapshot.sellerTerminalScope().terminalCode(),
-            snapshot.sellerTerminalScope().status(),
-            snapshot.sellerTerminalScope().permissionKeys());
+    var platform =
+        new PlatformAccessView(
+            snapshot.platform().superAdmin(),
+            snapshot.platform().roleCodes(),
+            snapshot.platform().permissionKeys());
+    var tenantScopes =
+        snapshot.tenantScopes().stream()
+            .map(
+                scope ->
+                    new TenantAccessScopeView(
+                        scope.tenantId(),
+                        scope.tenantCode(),
+                        scope.tenantName(),
+                        scope.tenantStatus(),
+                        scope.roleCodes(),
+                        scope.permissionKeys()))
+            .toList();
+    var sellerScope =
+        snapshot.sellerTerminalScope() == null
+            ? null
+            : new SellerTerminalAccessScopeView(
+                snapshot.sellerTerminalScope().sellerTerminalId(),
+                snapshot.sellerTerminalScope().tenantId(),
+                snapshot.sellerTerminalScope().tenantCode(),
+                snapshot.sellerTerminalScope().terminalCode(),
+                snapshot.sellerTerminalScope().status(),
+                snapshot.sellerTerminalScope().permissionKeys());
     return new AccessSnapshotView(snapshot.userId(), platform, tenantScopes, sellerScope);
   }
 

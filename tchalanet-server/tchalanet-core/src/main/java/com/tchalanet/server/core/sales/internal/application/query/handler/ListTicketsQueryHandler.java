@@ -12,10 +12,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ListTicketsQueryHandler implements QueryHandler<ListTicketsQuery, TchPage<TicketRow>> {
 
-    private final TicketProjectionReaderPort reader;
+  private final TicketProjectionReaderPort reader;
 
-    @Override
-    public TchPage<TicketRow> handle(ListTicketsQuery query) {
-        return reader.list(query);
-    }
+  @Override
+  public TchPage<TicketRow> handle(ListTicketsQuery query) {
+    return reader.list(query);
+  }
 }

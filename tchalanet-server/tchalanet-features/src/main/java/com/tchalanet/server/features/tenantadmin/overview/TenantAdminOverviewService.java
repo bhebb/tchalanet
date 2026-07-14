@@ -12,14 +12,11 @@ import org.springframework.stereotype.Service;
 /**
  * Assembles {@code GET /admin/overview} responses (tenant overview).
  *
- * Consumes {@link TenantReadinessView} for status/sections — overview never
- * recomputes readiness in its own way (one readiness, multiple projections
- * per dashboard-overview-runtime-v1).
+ * <p>Consumes {@link TenantReadinessView} for status/sections — overview never recomputes readiness
+ * in its own way (one readiness, multiple projections per dashboard-overview-runtime-v1).
  *
- * Performance target ≤ 6 grouped reads (spec §12). V1 currently issues
- *   1. tenant registry lookup (catalog)
- *   2. address lookup
- *   3. readiness assembly (identity + address + seller_terminals checks)
+ * <p>Performance target ≤ 6 grouped reads (spec §12). V1 currently issues 1. tenant registry lookup
+ * (catalog) 2. address lookup 3. readiness assembly (identity + address + seller_terminals checks)
  * which remains well within budget.
  */
 @Service
@@ -36,23 +33,21 @@ public class TenantAdminOverviewService {
     TenantAdminOverviewView.TenantHeader header = buildHeader(ctx);
 
     return new TenantAdminOverviewView(
-        header,
-        readiness.status(),
-        readiness.missingCount(),
-        readiness.sections(),
-        setup);
+        header, readiness.status(), readiness.missingCount(), readiness.sections(), setup);
   }
 
   private TenantAdminOverviewView.TenantHeader buildHeader(TchRequestContext ctx) {
     if (ctx == null || ctx.effectiveTenantIdOrNull() == null) {
-      return new TenantAdminOverviewView.TenantHeader(null, null, null, null, null, null, null, null);
+      return new TenantAdminOverviewView.TenantHeader(
+          null, null, null, null, null, null, null, null);
     }
 
     var tenantId = ctx.tenantIdRequired();
     AddressView address = null;
     try {
       address = addressApi.findPrimaryByTenantId(tenantId).orElse(null);
-    } catch (RuntimeException ignored) {}
+    } catch (RuntimeException ignored) {
+    }
 
     var registry = safeFindTenant(ctx);
     if (registry == null) {

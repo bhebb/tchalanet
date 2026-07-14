@@ -14,5 +14,4 @@ public record UpsertTenantPricingRuleRequest(
     Short betOption,
     @DecimalMin(value = "0.0001", inclusive = false) BigDecimal odds,
     PayoutRuleType payoutRuleType,
-    @DecimalMin(value = "0", inclusive = true) BigDecimal fixedAmount
-) {}
+    @DecimalMin(value = "0", inclusive = true) BigDecimal fixedAmount) {}

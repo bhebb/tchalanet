@@ -10,8 +10,8 @@ import java.util.Objects;
  *
  * <p>Tenant targeting is optional: list one or more {@code tenantCodes}, or leave it empty to
  * target <b>all active tenants</b> (mirrors the scheduled {@code generateNext7Days} job).
- * Generation is idempotent, so running across all active tenants only creates the draws that
- * are still missing.
+ * Generation is idempotent, so running across all active tenants only creates the draws that are
+ * still missing.
  */
 public record GenerateDrawsRequest(
     List<String> tenantCodes,

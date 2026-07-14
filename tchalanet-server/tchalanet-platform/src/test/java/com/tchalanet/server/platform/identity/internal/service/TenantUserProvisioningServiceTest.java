@@ -24,7 +24,8 @@ import org.mockito.ArgumentCaptor;
 @DisplayName("TenantUserProvisioningService")
 class TenantUserProvisioningServiceTest {
 
-  private final TenantUserAdministrationService userAdminService = mock(TenantUserAdministrationService.class);
+  private final TenantUserAdministrationService userAdminService =
+      mock(TenantUserAdministrationService.class);
   private final TenantMembershipService memberships = mock(TenantMembershipService.class);
   private final AccessControlApi accessControlApi = mock(AccessControlApi.class);
 
@@ -37,11 +38,13 @@ class TenantUserProvisioningServiceTest {
     var tenantId = TenantId.of(UUID.randomUUID());
     var actor = UserId.of(UUID.randomUUID());
     var createdUserId = UserId.of(UUID.randomUUID());
-    when(userAdminService.createUser(any(), any(), any(), any(), any(), any(), any(), any(), any(), anyBoolean(), any()))
+    when(userAdminService.createUser(
+            any(), any(), any(), any(), any(), any(), any(), any(), any(), anyBoolean(), any()))
         .thenReturn(new CreateUserResult(createdUserId));
 
-    var result = service.provisionTenantUser(
-        tenantId, actor, "cashier@tchalanet.test", "+509", "Cash", "Ier", TchRole.TENANT_ADMIN);
+    var result =
+        service.provisionTenantUser(
+            tenantId, actor, "cashier@tchalanet.test", "+509", "Cash", "Ier", TchRole.TENANT_ADMIN);
 
     assertThat(result.userId()).isEqualTo(createdUserId);
     verify(memberships).assign(tenantId, createdUserId, false);
@@ -52,7 +55,6 @@ class TenantUserProvisioningServiceTest {
     assertThat(roleReq.getValue().userId()).isEqualTo(createdUserId);
     assertThat(roleReq.getValue().roleCode()).isEqualTo("TENANT_ADMIN");
     assertThat(roleReq.getValue().assignedBy()).isEqualTo(actor);
-
   }
 
   @Test
@@ -61,25 +63,27 @@ class TenantUserProvisioningServiceTest {
     var tenantId = TenantId.of(UUID.randomUUID());
     var actor = UserId.of(UUID.randomUUID());
     var createdUserId = UserId.of(UUID.randomUUID());
-    when(userAdminService.createUser(any(), any(), any(), any(), any(), any(), any(), any(), any(), anyBoolean(), any()))
+    when(userAdminService.createUser(
+            any(), any(), any(), any(), any(), any(), any(), any(), any(), anyBoolean(), any()))
         .thenReturn(new CreateUserResult(createdUserId));
 
-    service.provisionTenantUser(
-        tenantId, actor, "member@tchalanet.test", null, "Mem", "Ber", null);
+    service.provisionTenantUser(tenantId, actor, "member@tchalanet.test", null, "Mem", "Ber", null);
 
     verify(memberships).assign(tenantId, createdUserId, false);
     verifyNoInteractions(accessControlApi);
   }
 
   @Test
-  @DisplayName("onboarding path uses explicit tenant code, no outlet/terminal, and assigns the role")
+  @DisplayName(
+      "onboarding path uses explicit tenant code, no outlet/terminal, and assigns the role")
   void onboardingPathUsesExplicitTenantCode() {
     var tenantId = TenantId.of(UUID.randomUUID());
     var createdUserId = UserId.of(UUID.randomUUID());
     when(userAdminService.createUserForTenant(any(), isNull(), any(), any(), eq("acme")))
         .thenReturn(new CreateUserResult(createdUserId));
 
-    service.provisionTenantUser(tenantId, "acme", "admin@tchalanet.test", "Ada", "Min", TchRole.TENANT_ADMIN);
+    service.provisionTenantUser(
+        tenantId, "acme", "admin@tchalanet.test", "Ada", "Min", TchRole.TENANT_ADMIN);
 
     verify(memberships).assign(tenantId, createdUserId, false);
     verify(accessControlApi).assignRoleToUser(any(AssignRoleToUserRequest.class));

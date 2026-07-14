@@ -7,5 +7,4 @@ public record ArchiveOpsSummaryView(
     long completedRuns,
     long invalidObjects,
     long verifiedObjects,
-    long pendingObjects
-) {}
+    long pendingObjects) {}

@@ -49,17 +49,18 @@ class AuditEventRepositoryAdapterTest {
     void shouldBindIpAsInetAddressAndRestoreItWhenPersistingAnAuditEvent() {
       when(jpa.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
-      var event = AuditEvent.of(
-          TenantId.of(TENANT_UUID),
-          null,
-          AuditActorType.USER,
-          ACTOR_UUID,
-          AuditEntityType.SYSTEM,
-          "entity-1",
-          AuditAction.UPDATE,
-          DETAILS_JSON,
-          IP,
-          "JUnit/1.0");
+      var event =
+          AuditEvent.of(
+              TenantId.of(TENANT_UUID),
+              null,
+              AuditActorType.USER,
+              ACTOR_UUID,
+              AuditEntityType.SYSTEM,
+              "entity-1",
+              AuditAction.UPDATE,
+              DETAILS_JSON,
+              IP,
+              "JUnit/1.0");
 
       var saved = adapter.save(event);
 
@@ -74,5 +75,3 @@ class AuditEventRepositoryAdapterTest {
     }
   }
 }
-
-

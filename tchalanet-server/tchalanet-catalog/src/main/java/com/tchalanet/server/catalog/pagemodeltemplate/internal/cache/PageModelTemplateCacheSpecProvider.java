@@ -7,9 +7,9 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 /**
- * Page model templates are a rendering referential, edited very rarely and evicted on write.
- * Tier A (30 min / 12 h) for the by-id / logical-id / visible-list reads. The paginated SEARCH cache
- * gets a short TTL: many keys, low reuse.
+ * Page model templates are a rendering referential, edited very rarely and evicted on write. Tier A
+ * (30 min / 12 h) for the by-id / logical-id / visible-list reads. The paginated SEARCH cache gets
+ * a short TTL: many keys, low reuse.
  */
 @Component
 public class PageModelTemplateCacheSpecProvider implements CacheSpecProvider {

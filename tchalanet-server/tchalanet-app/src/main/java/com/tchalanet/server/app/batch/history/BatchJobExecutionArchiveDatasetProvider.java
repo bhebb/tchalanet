@@ -47,20 +47,26 @@ public class BatchJobExecutionArchiveDatasetProvider implements ArchiveDatasetPr
 
   @Override
   public ArchiveDatasetPlan plan(ArchivePeriod period, UUID tenantId) {
-    long count = jdbc.queryForObject("""
+    long count =
+        jdbc.queryForObject(
+            """
         SELECT COUNT(*)
           FROM batch.BATCH_JOB_EXECUTION e
          WHERE e.CREATE_TIME >= :from
            AND e.CREATE_TIME < :to
            AND (e.STATUS IS NULL OR e.STATUS NOT IN (%s))
-        """.formatted(RUNNING_STATUSES), params(period), Long.class);
+        """
+                .formatted(RUNNING_STATUSES),
+            params(period),
+            Long.class);
     return new ArchiveDatasetPlan(KEY, period, tenantId, count, count > 0);
   }
 
   @Override
   public ArchiveExportResult export(ArchiveExportRequest request) {
     long[] exported = {0};
-    jdbc.query("""
+    jdbc.query(
+        """
         SELECT
           e.JOB_EXECUTION_ID AS job_execution_id,
           e.JOB_INSTANCE_ID AS job_instance_id,
@@ -130,28 +136,37 @@ public class BatchJobExecutionArchiveDatasetProvider implements ArchiveDatasetPr
           AND e.CREATE_TIME < :to
           AND (e.STATUS IS NULL OR e.STATUS NOT IN (%s))
         ORDER BY e.CREATE_TIME, e.JOB_EXECUTION_ID
-        """.formatted(RUNNING_STATUSES), params(request.period()), rs -> {
-          request.rowSink().accept(Map.ofEntries(
-              Map.entry("job_execution_id", rs.getLong("job_execution_id")),
-              Map.entry("job_instance_id", rs.getLong("job_instance_id")),
-              Map.entry("job_name", value(rs.getString("job_name"))),
-              Map.entry("job_key", value(rs.getString("job_key"))),
-              Map.entry("version", rs.getLong("version")),
-              Map.entry("create_time", value(rs.getTimestamp("create_time"))),
-              Map.entry("start_time", value(rs.getTimestamp("start_time"))),
-              Map.entry("end_time", value(rs.getTimestamp("end_time"))),
-              Map.entry("status", value(rs.getString("status"))),
-              Map.entry("exit_code", value(rs.getString("exit_code"))),
-              Map.entry("exit_message", value(rs.getString("exit_message"))),
-              Map.entry("last_updated", value(rs.getTimestamp("last_updated"))),
-              Map.entry("params_json", rs.getString("params_json")),
-              Map.entry("job_context_json", rs.getString("job_context_json")),
-              Map.entry("steps_json", rs.getString("steps_json"))));
+        """
+            .formatted(RUNNING_STATUSES),
+        params(request.period()),
+        rs -> {
+          request
+              .rowSink()
+              .accept(
+                  Map.ofEntries(
+                      Map.entry("job_execution_id", rs.getLong("job_execution_id")),
+                      Map.entry("job_instance_id", rs.getLong("job_instance_id")),
+                      Map.entry("job_name", value(rs.getString("job_name"))),
+                      Map.entry("job_key", value(rs.getString("job_key"))),
+                      Map.entry("version", rs.getLong("version")),
+                      Map.entry("create_time", value(rs.getTimestamp("create_time"))),
+                      Map.entry("start_time", value(rs.getTimestamp("start_time"))),
+                      Map.entry("end_time", value(rs.getTimestamp("end_time"))),
+                      Map.entry("status", value(rs.getString("status"))),
+                      Map.entry("exit_code", value(rs.getString("exit_code"))),
+                      Map.entry("exit_message", value(rs.getString("exit_message"))),
+                      Map.entry("last_updated", value(rs.getTimestamp("last_updated"))),
+                      Map.entry("params_json", rs.getString("params_json")),
+                      Map.entry("job_context_json", rs.getString("job_context_json")),
+                      Map.entry("steps_json", rs.getString("steps_json"))));
           exported[0]++;
         });
 
-    log.info("batch archive export: {} executions period={}/{}",
-        exported[0], request.period().start(), request.period().end());
+    log.info(
+        "batch archive export: {} executions period={}/{}",
+        exported[0],
+        request.period().start(),
+        request.period().end());
     return new ArchiveExportResult(exported[0], SCHEMA_VERSION);
   }
 

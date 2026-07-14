@@ -19,13 +19,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class ExpectedActorTypeResolver {
 
-    public TchActorType resolve(HttpServletRequest request) {
-        var clientType = request.getHeader(TchHeaders.X_TCH_CLIENT_TYPE);
+  public TchActorType resolve(HttpServletRequest request) {
+    var clientType = request.getHeader(TchHeaders.X_TCH_CLIENT_TYPE);
 
-        if (StringUtils.equalsIgnoreCase(clientType, TchHeaders.CLIENT_TYPE_POS)) {
-            return TchActorType.SELLER_TERMINAL;
-        }
-
-        return TchActorType.APP_USER;
+    if (StringUtils.equalsIgnoreCase(clientType, TchHeaders.CLIENT_TYPE_POS)) {
+      return TchActorType.SELLER_TERMINAL;
     }
+
+    return TchActorType.APP_USER;
+  }
 }

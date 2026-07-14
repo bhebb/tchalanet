@@ -5,8 +5,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 /**
- * Factory for generating deduplication keys (normalized hash).
- * Per spec: SHA-256 hex of normalized address.
+ * Factory for generating deduplication keys (normalized hash). Per spec: SHA-256 hex of normalized
+ * address.
  */
 public class AddressDedupeKeyFactory {
 
@@ -37,11 +37,11 @@ public class AddressDedupeKeyFactory {
     return hexString.toString();
   }
 
-  /**
-   * Convenience: normalize + generate key in one step.
-   */
-  public static String generateKeyFromFields(String line1, String line2, String city, String region, String country, String postalCode) {
-    String normalized = AddressNormalizer.normalize(line1, line2, city, region, country, postalCode);
+  /** Convenience: normalize + generate key in one step. */
+  public static String generateKeyFromFields(
+      String line1, String line2, String city, String region, String country, String postalCode) {
+    String normalized =
+        AddressNormalizer.normalize(line1, line2, city, region, country, postalCode);
     return sha256Hex(normalized);
   }
 }

@@ -14,6 +14,4 @@ public record PosTicketLineRequest(
     @NotNull BetType betType,
     @NotBlank String selection,
     @Min(1) @Max(4) Short betOption,
-    @NotNull @DecimalMin("0.01") BigDecimal stake
-) {
-}
+    @NotNull @DecimalMin("0.01") BigDecimal stake) {}

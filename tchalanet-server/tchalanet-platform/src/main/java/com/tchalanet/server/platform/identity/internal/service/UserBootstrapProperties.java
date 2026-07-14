@@ -22,13 +22,14 @@ public record UserBootstrapProperties(
       return false;
     }
     var normalized = email.trim().toLowerCase(Locale.ROOT);
-    var emails = controlledAutoAllowedEmails == null ? List.<String>of() : controlledAutoAllowedEmails;
+    var emails =
+        controlledAutoAllowedEmails == null ? List.<String>of() : controlledAutoAllowedEmails;
     var domains =
         controlledAutoAllowedDomains == null ? List.<String>of() : controlledAutoAllowedDomains;
     return emails.stream()
-        .map(String::trim)
-        .map(value -> value.toLowerCase(Locale.ROOT))
-        .anyMatch(normalized::equals)
+            .map(String::trim)
+            .map(value -> value.toLowerCase(Locale.ROOT))
+            .anyMatch(normalized::equals)
         || domains.stream()
             .map(String::trim)
             .map(value -> value.toLowerCase(Locale.ROOT))

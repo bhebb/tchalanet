@@ -1,10 +1,10 @@
 package com.tchalanet.server.platform.accesscontrol.internal.service;
 
+import com.tchalanet.server.platform.accesscontrol.internal.persistence.entity.SupportAccessSessionJpaEntity;
 import com.tchalanet.server.platform.audit.api.AuditApi;
 import com.tchalanet.server.platform.audit.api.model.AuditAction;
 import com.tchalanet.server.platform.audit.api.model.AuditEntityType;
 import com.tchalanet.server.platform.audit.api.model.request.LogAuditEventRequest;
-import com.tchalanet.server.platform.accesscontrol.internal.persistence.entity.SupportAccessSessionJpaEntity;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -32,12 +32,13 @@ class SupportAccessAudit {
     if (superAdminUserId != null) details.put("superAdminUserId", superAdminUserId);
     if (tenantId != null) details.put("tenantId", tenantId);
     try {
-      auditApi.logAuditEvent(new LogAuditEventRequest(
-          AuditEntityType.SYSTEM,
-          sessionId == null ? "unknown" : sessionId.toString(),
-          AuditAction.OTHER,
-          Map.copyOf(details),
-          tenantId));
+      auditApi.logAuditEvent(
+          new LogAuditEventRequest(
+              AuditEntityType.SYSTEM,
+              sessionId == null ? "unknown" : sessionId.toString(),
+              AuditAction.OTHER,
+              Map.copyOf(details),
+              tenantId));
     } catch (Exception ex) {
       log.warn("support access audit failed event={} sessionId={}", event, sessionId, ex);
     }

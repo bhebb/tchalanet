@@ -11,9 +11,8 @@ public interface BusinessDayOverrideJpaRepository
 
   Optional<BusinessDayOverrideJpaEntity> findByIdAndDeletedAtIsNull(UUID id);
 
-  Optional<BusinessDayOverrideJpaEntity>
-      findByTenantIdAndBusinessDateAndDeletedAtIsNull(
-          UUID tenantId, LocalDate businessDate);
+  Optional<BusinessDayOverrideJpaEntity> findByTenantIdAndBusinessDateAndDeletedAtIsNull(
+      UUID tenantId, LocalDate businessDate);
 
   List<BusinessDayOverrideJpaEntity>
       findByTenantIdAndBusinessDateBetweenAndDeletedAtIsNullOrderByBusinessDateAsc(

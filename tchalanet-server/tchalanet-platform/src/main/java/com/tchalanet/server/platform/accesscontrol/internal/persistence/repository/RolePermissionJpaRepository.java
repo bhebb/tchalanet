@@ -1,8 +1,7 @@
 package com.tchalanet.server.platform.accesscontrol.internal.persistence.repository;
 
-import com.tchalanet.server.platform.accesscontrol.internal.persistence.entity.AppRolePermissionJpaEntity;
 import com.tchalanet.server.platform.accesscontrol.internal.persistence.entity.AppRolePermissionId;
-
+import com.tchalanet.server.platform.accesscontrol.internal.persistence.entity.AppRolePermissionJpaEntity;
 import java.util.List;
 import java.util.Set;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -19,4 +18,3 @@ public interface RolePermissionJpaRepository
           + "where r.code in :roleCodes")
   List<AppRolePermissionJpaEntity> findByRoleCodes(@Param("roleCodes") Set<String> roleCodes);
 }
-

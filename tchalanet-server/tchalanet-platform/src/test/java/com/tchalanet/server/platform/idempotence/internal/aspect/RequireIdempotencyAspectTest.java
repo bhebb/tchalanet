@@ -12,11 +12,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.tchalanet.server.common.http.TchHeaders;
-import com.tchalanet.server.platform.idempotence.api.model.IdempotencyScope;
 import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.common.web.error.ProblemRestException;
 import com.tchalanet.server.platform.idempotence.api.IdempotencyStore;
 import com.tchalanet.server.platform.idempotence.api.RequireIdempotency;
+import com.tchalanet.server.platform.idempotence.api.model.IdempotencyScope;
 import com.tchalanet.server.platform.idempotence.internal.service.RequestHasher;
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -58,8 +58,9 @@ class RequireIdempotencyAspectTest {
   void payloadMismatchIsRejected() throws Throwable {
     var store = mock(IdempotencyStore.class);
     when(store.begin(eq(IdempotencyScope.SALES_SELL_TICKET), eq("key-1"), any(), eq(300L)))
-        .thenReturn(new IdempotencyStore.BeginResult(
-            IdempotencyStore.Decision.PAYLOAD_MISMATCH, Optional.empty()));
+        .thenReturn(
+            new IdempotencyStore.BeginResult(
+                IdempotencyStore.Decision.PAYLOAD_MISMATCH, Optional.empty()));
     var pjp = joinPoint(Map.of("amount", 10));
     bindRequest("key-1");
 
@@ -75,8 +76,9 @@ class RequireIdempotencyAspectTest {
   void inProgressDuplicateIsRejected() throws Throwable {
     var store = mock(IdempotencyStore.class);
     when(store.begin(eq(IdempotencyScope.SALES_SELL_TICKET), eq("key-1"), any(), eq(300L)))
-        .thenReturn(new IdempotencyStore.BeginResult(
-            IdempotencyStore.Decision.IN_PROGRESS, Optional.empty()));
+        .thenReturn(
+            new IdempotencyStore.BeginResult(
+                IdempotencyStore.Decision.IN_PROGRESS, Optional.empty()));
     var pjp = joinPoint(Map.of("amount", 10));
     bindRequest("key-1");
 
@@ -92,9 +94,10 @@ class RequireIdempotencyAspectTest {
   void completedReplayReturnsStoredResponseWithoutProceeding() throws Throwable {
     var store = mock(IdempotencyStore.class);
     when(store.begin(eq(IdempotencyScope.SALES_SELL_TICKET), eq("key-1"), any(), eq(300L)))
-        .thenReturn(new IdempotencyStore.BeginResult(
-            IdempotencyStore.Decision.ALREADY_COMPLETED,
-            Optional.of(new IdempotencyStore.CompletedRecord(null, "{\"ticketId\":\"T-1\"}"))));
+        .thenReturn(
+            new IdempotencyStore.BeginResult(
+                IdempotencyStore.Decision.ALREADY_COMPLETED,
+                Optional.of(new IdempotencyStore.CompletedRecord(null, "{\"ticketId\":\"T-1\"}"))));
     var pjp = joinPoint(Map.of("amount", 10));
     bindRequest("key-1");
 
@@ -112,8 +115,8 @@ class RequireIdempotencyAspectTest {
     var body = Map.of("amount", 10);
     var hash = RequestHasher.sha256Normalized(jsonUtils, body);
     when(store.begin(IdempotencyScope.SALES_SELL_TICKET, "key-1", hash, 300L))
-        .thenReturn(new IdempotencyStore.BeginResult(
-            IdempotencyStore.Decision.STARTED, Optional.empty()));
+        .thenReturn(
+            new IdempotencyStore.BeginResult(IdempotencyStore.Decision.STARTED, Optional.empty()));
     var pjp = joinPoint(body);
     when(pjp.proceed()).thenReturn(Map.of("ticketId", "T-1"));
     bindRequest("key-1");
@@ -123,7 +126,8 @@ class RequireIdempotencyAspectTest {
     var result = aspect.around(pjp);
 
     assertThat(result).isEqualTo(Map.of("ticketId", "T-1"));
-    verify(store).complete(eq(IdempotencyScope.SALES_SELL_TICKET), eq("key-1"), eq(hash), isNull(), any());
+    verify(store)
+        .complete(eq(IdempotencyScope.SALES_SELL_TICKET), eq("key-1"), eq(hash), isNull(), any());
   }
 
   @Test
@@ -132,8 +136,8 @@ class RequireIdempotencyAspectTest {
     var body = Map.of("amount", 10);
     var hash = RequestHasher.sha256Normalized(jsonUtils, body);
     when(store.begin(IdempotencyScope.SALES_SELL_TICKET, "key-1", hash, 300L))
-        .thenReturn(new IdempotencyStore.BeginResult(
-            IdempotencyStore.Decision.STARTED, Optional.empty()));
+        .thenReturn(
+            new IdempotencyStore.BeginResult(IdempotencyStore.Decision.STARTED, Optional.empty()));
     var pjp = joinPoint(body);
     when(pjp.proceed()).thenThrow(new IllegalStateException("boom"));
     bindRequest("key-1");

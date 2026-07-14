@@ -9,10 +9,10 @@ import com.tchalanet.server.common.time.TchTimeProvider;
 import com.tchalanet.server.core.draw.api.query.CashierNextDrawView;
 import com.tchalanet.server.core.draw.api.query.ListCashierNextDrawsQuery;
 import com.tchalanet.server.platform.tenant.api.TenantBusinessCalendarApi;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.time.ZoneId;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,68 +21,60 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class PosDrawsService {
 
-    private final QueryBus queryBus;
-    private final DrawChannelCatalog drawChannelCatalog;
-    private final DrawChannelDisplayFormatter drawChannelDisplayFormatter;
-    private final TenantBusinessCalendarApi tenantBusinessCalendarApi;
-    private final TchTimeProvider timeProvider;
+  private final QueryBus queryBus;
+  private final DrawChannelCatalog drawChannelCatalog;
+  private final DrawChannelDisplayFormatter drawChannelDisplayFormatter;
+  private final TenantBusinessCalendarApi tenantBusinessCalendarApi;
+  private final TchTimeProvider timeProvider;
 
-    public List<PosAvailableDrawView> listAvailable(
-        TchRequestContext ctx,
-        int lookaheadHours,
-        int limit
-    ) {
-        if (!tenantBusinessOpen(ctx)) {
-            return List.of();
-        }
-
-        var rows = queryBus.ask(new ListCashierNextDrawsQuery(lookaheadHours, limit));
-        if (rows.isEmpty()) {
-            return List.of();
-        }
-
-        var gamesByChannelCode = drawChannelCatalog.listChannelGames(ctx.effectiveTenantIdRequired())
-            .stream()
-            .collect(Collectors.toMap(
-                cg -> cg.channelCode(),
-                cg -> cg.games().stream().map(GameSummaryView::gameCode).toList(),
-                (a, b) -> a
-            ));
-
-        var locale = ctx.locale() == null ? Locale.FRENCH : ctx.locale();
-
-        return rows.stream()
-            .map(d -> toView(d, gamesByChannelCode, locale))
-            .toList();
+  public List<PosAvailableDrawView> listAvailable(
+      TchRequestContext ctx, int lookaheadHours, int limit) {
+    if (!tenantBusinessOpen(ctx)) {
+      return List.of();
     }
 
-    private PosAvailableDrawView toView(
-        CashierNextDrawView d,
-        Map<String, List<String>> gamesByChannelCode,
-        Locale locale
-    ) {
-        var formattedLabel = drawChannelDisplayFormatter.resolve(d.channelLabel(), d.drawTime(), locale);
-        var games = gamesByChannelCode.getOrDefault(d.channelCode(), List.of());
-        return new PosAvailableDrawView(
-            d.drawId(),
-            d.drawChannelId(),
-            d.drawDate(),
-            d.resultSlotId(),
-            d.resultSlotKey(),
-            d.channelCode(),
-            formattedLabel,
-            games,
-            d.status(),
-            d.scheduledAt(),
-            d.cutoffAt()
-        );
+    var rows = queryBus.ask(new ListCashierNextDrawsQuery(lookaheadHours, limit));
+    if (rows.isEmpty()) {
+      return List.of();
     }
 
-    private boolean tenantBusinessOpen(TchRequestContext ctx) {
-        var tenantId = ctx.tenantIdRequired();
-        var zone = ctx.tenantZoneId() == null ? ZoneId.of("UTC") : ctx.tenantZoneId();
-        var businessDate = timeProvider.now().atZone(zone).toLocalDate();
-        var day = tenantBusinessCalendarApi.resolveBusinessDay(tenantId, businessDate);
-        return day == null || day.open();
-    }
+    var gamesByChannelCode =
+        drawChannelCatalog.listChannelGames(ctx.effectiveTenantIdRequired()).stream()
+            .collect(
+                Collectors.toMap(
+                    cg -> cg.channelCode(),
+                    cg -> cg.games().stream().map(GameSummaryView::gameCode).toList(),
+                    (a, b) -> a));
+
+    var locale = ctx.locale() == null ? Locale.FRENCH : ctx.locale();
+
+    return rows.stream().map(d -> toView(d, gamesByChannelCode, locale)).toList();
+  }
+
+  private PosAvailableDrawView toView(
+      CashierNextDrawView d, Map<String, List<String>> gamesByChannelCode, Locale locale) {
+    var formattedLabel =
+        drawChannelDisplayFormatter.resolve(d.channelLabel(), d.drawTime(), locale);
+    var games = gamesByChannelCode.getOrDefault(d.channelCode(), List.of());
+    return new PosAvailableDrawView(
+        d.drawId(),
+        d.drawChannelId(),
+        d.drawDate(),
+        d.resultSlotId(),
+        d.resultSlotKey(),
+        d.channelCode(),
+        formattedLabel,
+        games,
+        d.status(),
+        d.scheduledAt(),
+        d.cutoffAt());
+  }
+
+  private boolean tenantBusinessOpen(TchRequestContext ctx) {
+    var tenantId = ctx.tenantIdRequired();
+    var zone = ctx.tenantZoneId() == null ? ZoneId.of("UTC") : ctx.tenantZoneId();
+    var businessDate = timeProvider.now().atZone(zone).toLocalDate();
+    var day = tenantBusinessCalendarApi.resolveBusinessDay(tenantId, businessDate);
+    return day == null || day.open();
+  }
 }

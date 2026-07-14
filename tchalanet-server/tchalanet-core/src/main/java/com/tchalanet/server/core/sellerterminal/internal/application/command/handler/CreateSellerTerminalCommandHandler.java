@@ -9,31 +9,31 @@ import com.tchalanet.server.core.sellerterminal.api.command.CreateSellerTerminal
 import com.tchalanet.server.core.sellerterminal.internal.application.port.out.SellerTerminalIdentityProvisionPort;
 import com.tchalanet.server.core.sellerterminal.internal.application.port.out.SellerTerminalWriterPort;
 import com.tchalanet.server.core.sellerterminal.internal.domain.model.SellerTerminal;
-import lombok.RequiredArgsConstructor;
-
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
+import lombok.RequiredArgsConstructor;
 
 @UseCase
 @RequiredArgsConstructor
 public class CreateSellerTerminalCommandHandler
     implements CommandHandler<CreateSellerTerminalCommand, SellerTerminalId> {
 
-    private static final BigDecimal DEFAULT_COMMISSION_RATE = new BigDecimal("15.00");
+  private static final BigDecimal DEFAULT_COMMISSION_RATE = new BigDecimal("15.00");
 
-    private final SellerTerminalWriterPort writer;
-    private final IdGenerator idGenerator;
-    private final SellerTerminalIdentityProvisionPort identityProvision;
-    private final Clock clock;
+  private final SellerTerminalWriterPort writer;
+  private final IdGenerator idGenerator;
+  private final SellerTerminalIdentityProvisionPort identityProvision;
+  private final Clock clock;
 
-    @Override
-    @TchTx
-    public SellerTerminalId handle(CreateSellerTerminalCommand cmd) {
-        var id = SellerTerminalId.of(idGenerator.newUuid());
-        var rate = cmd.commissionRate() != null ? cmd.commissionRate() : DEFAULT_COMMISSION_RATE;
+  @Override
+  @TchTx
+  public SellerTerminalId handle(CreateSellerTerminalCommand cmd) {
+    var id = SellerTerminalId.of(idGenerator.newUuid());
+    var rate = cmd.commissionRate() != null ? cmd.commissionRate() : DEFAULT_COMMISSION_RATE;
 
-        var terminal = SellerTerminal.createPending(
+    var terminal =
+        SellerTerminal.createPending(
             id,
             cmd.tenantId(),
             cmd.terminalCode(),
@@ -45,14 +45,14 @@ public class CreateSellerTerminalCommandHandler
             cmd.addressId(),
             rate);
 
-        terminal = writer.save(terminal);
+    terminal = writer.save(terminal);
 
-        if (cmd.initialPin() != null && !cmd.initialPin().isBlank()) {
-            identityProvision.provision(
-                id, cmd.tenantId(), cmd.terminalCode(), cmd.displayName(), cmd.initialPin());
-            var now = Instant.now(clock);
-            terminal = writer.save(terminal.resetPin(now).activate(now));
-        }
-        return id;
+    if (cmd.initialPin() != null && !cmd.initialPin().isBlank()) {
+      identityProvision.provision(
+          id, cmd.tenantId(), cmd.terminalCode(), cmd.displayName(), cmd.initialPin());
+      var now = Instant.now(clock);
+      terminal = writer.save(terminal.resetPin(now).activate(now));
     }
+    return id;
+  }
 }

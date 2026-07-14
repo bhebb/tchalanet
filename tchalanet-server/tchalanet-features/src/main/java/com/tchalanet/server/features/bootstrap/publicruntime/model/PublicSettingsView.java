@@ -9,5 +9,4 @@ public record PublicSettingsView(
     String timezone,
     List<String> supportedLocales,
     String defaultCurrency,
-    Map<String, Boolean> features
-) {}
+    Map<String, Boolean> features) {}

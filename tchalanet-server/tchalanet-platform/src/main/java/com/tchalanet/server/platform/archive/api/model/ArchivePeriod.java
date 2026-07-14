@@ -5,8 +5,8 @@ import java.time.LocalDate;
 /**
  * Half-open date interval {@code [start, end)} for an archive run.
  *
- * <p>For monthly archival, {@code start} is the first day of the month and
- * {@code end} is the first day of the following month.
+ * <p>For monthly archival, {@code start} is the first day of the month and {@code end} is the first
+ * day of the following month.
  */
 public record ArchivePeriod(LocalDate start, LocalDate end) {
 

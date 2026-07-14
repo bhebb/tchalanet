@@ -21,9 +21,16 @@ public class ArchiveDomainPurgeService {
   private final NamedParameterJdbcTemplate jdbc;
   private final ArchiveLegalHoldJdbcRepository legalHoldRepo;
 
-  public enum DomainPurgeDataset { DRAW, DRAW_RESULT, ENTITY_REVISION }
+  public enum DomainPurgeDataset {
+    DRAW,
+    DRAW_RESULT,
+    ENTITY_REVISION
+  }
 
-  public enum DomainPurgeMode { DRY_RUN, DELETE }
+  public enum DomainPurgeMode {
+    DRY_RUN,
+    DELETE
+  }
 
   public record DomainPurgePlan(
       DomainPurgeDataset dataset,
@@ -34,27 +41,30 @@ public class ArchiveDomainPurgeService {
       long archivedRows,
       long blockingRows,
       boolean eligible,
-      String ineligibleReason
-  ) {}
+      String ineligibleReason) {}
 
   public record DomainPurgeResult(
-      DomainPurgeMode mode,
-      DomainPurgePlan plan,
-      long deletedChildRows,
-      long deletedRows
-  ) {}
+      DomainPurgeMode mode, DomainPurgePlan plan, long deletedChildRows, long deletedRows) {}
 
-  public DomainPurgePlan plan(DomainPurgeDataset dataset, UUID tenantId,
-      LocalDate periodStart, LocalDate periodEnd) {
+  public DomainPurgePlan plan(
+      DomainPurgeDataset dataset, UUID tenantId, LocalDate periodStart, LocalDate periodEnd) {
     validatePeriod(periodStart, periodEnd);
     String tableName = tableName(dataset);
 
     if (!periodEnd.isBefore(retentionCutoff())) {
-      return notEligible(dataset, tenantId, periodStart, periodEnd,
+      return notEligible(
+          dataset,
+          tenantId,
+          periodStart,
+          periodEnd,
           "period not older than retention cutoff " + retentionCutoff());
     }
     if (legalHoldRepo.hasActiveHoldForPeriod(tableName, periodStart, periodEnd)) {
-      return notEligible(dataset, tenantId, periodStart, periodEnd,
+      return notEligible(
+          dataset,
+          tenantId,
+          periodStart,
+          periodEnd,
           "active archive legal hold blocks purge for " + tableName);
     }
 
@@ -63,29 +73,56 @@ public class ArchiveDomainPurgeService {
     long blockingRows = blockingCount(dataset, tenantId, periodStart, periodEnd);
 
     if (!archiveVerified(tableName, tenantId, periodStart, periodEnd)) {
-      return new DomainPurgePlan(dataset, tenantId, periodStart, periodEnd,
-          hotRows, archivedRows, blockingRows, false,
+      return new DomainPurgePlan(
+          dataset,
+          tenantId,
+          periodStart,
+          periodEnd,
+          hotRows,
+          archivedRows,
+          blockingRows,
+          false,
           "verified archive object is missing or invalid");
     }
     if (hotRows != archivedRows) {
-      return new DomainPurgePlan(dataset, tenantId, periodStart, periodEnd,
-          hotRows, archivedRows, blockingRows, false,
+      return new DomainPurgePlan(
+          dataset,
+          tenantId,
+          periodStart,
+          periodEnd,
+          hotRows,
+          archivedRows,
+          blockingRows,
+          false,
           "hot row count does not match verified archive row count");
     }
     if (blockingRows > 0) {
-      return new DomainPurgePlan(dataset, tenantId, periodStart, periodEnd,
-          hotRows, archivedRows, blockingRows, false,
+      return new DomainPurgePlan(
+          dataset,
+          tenantId,
+          periodStart,
+          periodEnd,
+          hotRows,
+          archivedRows,
+          blockingRows,
+          false,
           blockingReason(dataset));
     }
 
-    return new DomainPurgePlan(dataset, tenantId, periodStart, periodEnd,
-        hotRows, archivedRows, blockingRows, true, null);
+    return new DomainPurgePlan(
+        dataset, tenantId, periodStart, periodEnd, hotRows, archivedRows, blockingRows, true, null);
   }
 
   @Transactional
-  public DomainPurgeResult purge(DomainPurgeDataset dataset, UUID tenantId,
-      LocalDate periodStart, LocalDate periodEnd, int batchSize,
-      DomainPurgeMode mode, UUID requestedBy, String reason) {
+  public DomainPurgeResult purge(
+      DomainPurgeDataset dataset,
+      UUID tenantId,
+      LocalDate periodStart,
+      LocalDate periodEnd,
+      int batchSize,
+      DomainPurgeMode mode,
+      UUID requestedBy,
+      String reason) {
     validateBatchSize(batchSize);
     if (reason == null || reason.trim().length() < 10) {
       throw new IllegalArgumentException("domain purge reason must be at least 10 characters");
@@ -96,78 +133,110 @@ public class ArchiveDomainPurgeService {
       throw new IllegalStateException("domain purge refused: " + currentPlan.ineligibleReason());
     }
     if (mode == DomainPurgeMode.DRY_RUN) {
-      log.info("archive domain purge dry-run: dataset={} tenant={} period={}/{} rows={} requestedBy={} reason={}",
-          dataset, tenantId, periodStart, periodEnd, currentPlan.hotRows(), requestedBy, reason);
+      log.info(
+          "archive domain purge dry-run: dataset={} tenant={} period={}/{} rows={} requestedBy={} reason={}",
+          dataset,
+          tenantId,
+          periodStart,
+          periodEnd,
+          currentPlan.hotRows(),
+          requestedBy,
+          reason);
       return new DomainPurgeResult(mode, currentPlan, 0, 0);
     }
     if (!props.cleanup().enabled()) {
       throw new IllegalStateException("domain purge refused: tch.archive.cleanup.enabled is false");
     }
 
-    Deletion deletion = switch (dataset) {
-      case DRAW -> deleteDraws(tenantId, periodStart, periodEnd, batchSize);
-      case DRAW_RESULT -> deleteDrawResults(periodStart, periodEnd, batchSize);
-      case ENTITY_REVISION -> deleteEntityRevisions(periodStart, periodEnd, batchSize);
-    };
+    Deletion deletion =
+        switch (dataset) {
+          case DRAW -> deleteDraws(tenantId, periodStart, periodEnd, batchSize);
+          case DRAW_RESULT -> deleteDrawResults(periodStart, periodEnd, batchSize);
+          case ENTITY_REVISION -> deleteEntityRevisions(periodStart, periodEnd, batchSize);
+        };
 
-    log.warn("archive domain purge executed: dataset={} tenant={} period={}/{} childRows={} rows={} requestedBy={} reason={}",
-        dataset, tenantId, periodStart, periodEnd, deletion.childRows(), deletion.rows(),
-        requestedBy, reason);
+    log.warn(
+        "archive domain purge executed: dataset={} tenant={} period={}/{} childRows={} rows={} requestedBy={} reason={}",
+        dataset,
+        tenantId,
+        periodStart,
+        periodEnd,
+        deletion.childRows(),
+        deletion.rows(),
+        requestedBy,
+        reason);
     return new DomainPurgeResult(mode, currentPlan, deletion.childRows(), deletion.rows());
   }
 
-  private long hotCount(DomainPurgeDataset dataset, UUID tenantId,
-      LocalDate periodStart, LocalDate periodEnd) {
+  private long hotCount(
+      DomainPurgeDataset dataset, UUID tenantId, LocalDate periodStart, LocalDate periodEnd) {
     return switch (dataset) {
-      case DRAW -> count("""
+      case DRAW ->
+          count(
+              """
           SELECT COUNT(*)
             FROM draw
            WHERE scheduled_at >= :startAt
              AND scheduled_at <  :endAt
              AND deleted_at IS NULL
              AND (:tenantId IS NULL OR tenant_id = :tenantId)
-          """, params(tenantId, periodStart, periodEnd));
-      case DRAW_RESULT -> count("""
+          """,
+              params(tenantId, periodStart, periodEnd));
+      case DRAW_RESULT ->
+          count(
+              """
           SELECT COUNT(*)
             FROM draw_result
            WHERE occurred_at >= :startAt
              AND occurred_at <  :endAt
              AND deleted_at IS NULL
-          """, params(null, periodStart, periodEnd));
-      case ENTITY_REVISION -> count("""
+          """,
+              params(null, periodStart, periodEnd));
+      case ENTITY_REVISION ->
+          count(
+              """
           SELECT COUNT(*)
             FROM revinfo
            WHERE rev_timestamp >= :fromMillis
              AND rev_timestamp <  :toMillis
-          """, revParams(periodStart, periodEnd));
+          """,
+              revParams(periodStart, periodEnd));
     };
   }
 
-  private long blockingCount(DomainPurgeDataset dataset, UUID tenantId,
-      LocalDate periodStart, LocalDate periodEnd) {
+  private long blockingCount(
+      DomainPurgeDataset dataset, UUID tenantId, LocalDate periodStart, LocalDate periodEnd) {
     return switch (dataset) {
-      case DRAW -> count("""
+      case DRAW ->
+          count(
+              """
           SELECT COUNT(*)
             FROM sales_ticket t
             JOIN draw d ON d.id = t.draw_id
            WHERE d.scheduled_at >= :startAt
              AND d.scheduled_at <  :endAt
              AND (:tenantId IS NULL OR d.tenant_id = :tenantId)
-          """, params(tenantId, periodStart, periodEnd));
-      case DRAW_RESULT -> count("""
+          """,
+              params(tenantId, periodStart, periodEnd));
+      case DRAW_RESULT ->
+          count(
+              """
           SELECT COUNT(*)
             FROM draw d
             JOIN draw_result dr ON dr.id = d.draw_result_id
            WHERE dr.occurred_at >= :startAt
              AND dr.occurred_at <  :endAt
-          """, params(null, periodStart, periodEnd));
+          """,
+              params(null, periodStart, periodEnd));
       case ENTITY_REVISION -> 0;
     };
   }
 
-  private Deletion deleteDraws(UUID tenantId, LocalDate periodStart, LocalDate periodEnd,
-      int batchSize) {
-    long analyticsSellerTerminal = deleteLoop("""
+  private Deletion deleteDraws(
+      UUID tenantId, LocalDate periodStart, LocalDate periodEnd, int batchSize) {
+    long analyticsSellerTerminal =
+        deleteLoop(
+            """
         WITH doomed AS (
           SELECT d.id
             FROM draw d
@@ -180,8 +249,12 @@ public class ArchiveDomainPurgeService {
         DELETE FROM analytics_seller_terminal_draw a
          USING doomed
          WHERE a.draw_id = doomed.id
-        """, params(tenantId, periodStart, periodEnd), batchSize);
-    long analytics = deleteLoop("""
+        """,
+            params(tenantId, periodStart, periodEnd),
+            batchSize);
+    long analytics =
+        deleteLoop(
+            """
         WITH doomed AS (
           SELECT d.id
             FROM draw d
@@ -194,8 +267,12 @@ public class ArchiveDomainPurgeService {
         DELETE FROM analytics_draw a
          USING doomed
          WHERE a.draw_id = doomed.id
-        """, params(tenantId, periodStart, periodEnd), batchSize);
-    long stats = deleteLoop("""
+        """,
+            params(tenantId, periodStart, periodEnd),
+            batchSize);
+    long stats =
+        deleteLoop(
+            """
         WITH doomed AS (
           SELECT d.id
             FROM draw d
@@ -208,8 +285,12 @@ public class ArchiveDomainPurgeService {
         DELETE FROM stats_draw s
          USING doomed
          WHERE s.draw_id = doomed.id
-        """, params(tenantId, periodStart, periodEnd), batchSize);
-    long draws = deleteLoop("""
+        """,
+            params(tenantId, periodStart, periodEnd),
+            batchSize);
+    long draws =
+        deleteLoop(
+            """
         WITH doomed AS (
           SELECT d.id
             FROM draw d
@@ -223,12 +304,16 @@ public class ArchiveDomainPurgeService {
         DELETE FROM draw d
          USING doomed
          WHERE d.id = doomed.id
-        """, params(tenantId, periodStart, periodEnd), batchSize);
+        """,
+            params(tenantId, periodStart, periodEnd),
+            batchSize);
     return new Deletion(analyticsSellerTerminal + analytics + stats, draws);
   }
 
   private Deletion deleteDrawResults(LocalDate periodStart, LocalDate periodEnd, int batchSize) {
-    long rows = deleteLoop("""
+    long rows =
+        deleteLoop(
+            """
         WITH doomed AS (
           SELECT dr.id
             FROM draw_result dr
@@ -241,13 +326,17 @@ public class ArchiveDomainPurgeService {
         DELETE FROM draw_result dr
          USING doomed
          WHERE dr.id = doomed.id
-        """, params(null, periodStart, periodEnd), batchSize);
+        """,
+            params(null, periodStart, periodEnd),
+            batchSize);
     return new Deletion(0, rows);
   }
 
-  private Deletion deleteEntityRevisions(LocalDate periodStart, LocalDate periodEnd, int batchSize) {
+  private Deletion deleteEntityRevisions(
+      LocalDate periodStart, LocalDate periodEnd, int batchSize) {
     MapSqlParameterSource params = revParams(periodStart, periodEnd);
-    String doomed = """
+    String doomed =
+        """
         SELECT r.rev
           FROM revinfo r
          WHERE r.rev_timestamp >= :fromMillis
@@ -255,13 +344,30 @@ public class ArchiveDomainPurgeService {
          ORDER BY r.rev
          LIMIT :batchSize
         """;
-    long drawResultAud = deleteLoop("WITH doomed AS (" + doomed + ") DELETE FROM draw_result_aud a USING doomed WHERE a.rev = doomed.rev",
-        params, batchSize);
-    long limitAssignmentAud = deleteLoop("WITH doomed AS (" + doomed + ") DELETE FROM limit_assignment_aud a USING doomed WHERE a.rev = doomed.rev",
-        params, batchSize);
-    long sellerTerminalAud = deleteLoop("WITH doomed AS (" + doomed + ") DELETE FROM seller_terminal_aud a USING doomed WHERE a.rev = doomed.rev",
-        params, batchSize);
-    long revisions = deleteLoop("""
+    long drawResultAud =
+        deleteLoop(
+            "WITH doomed AS ("
+                + doomed
+                + ") DELETE FROM draw_result_aud a USING doomed WHERE a.rev = doomed.rev",
+            params,
+            batchSize);
+    long limitAssignmentAud =
+        deleteLoop(
+            "WITH doomed AS ("
+                + doomed
+                + ") DELETE FROM limit_assignment_aud a USING doomed WHERE a.rev = doomed.rev",
+            params,
+            batchSize);
+    long sellerTerminalAud =
+        deleteLoop(
+            "WITH doomed AS ("
+                + doomed
+                + ") DELETE FROM seller_terminal_aud a USING doomed WHERE a.rev = doomed.rev",
+            params,
+            batchSize);
+    long revisions =
+        deleteLoop(
+            """
         WITH doomed AS (
           SELECT r.rev
             FROM revinfo r
@@ -276,12 +382,17 @@ public class ArchiveDomainPurgeService {
         DELETE FROM revinfo r
          USING doomed
          WHERE r.rev = doomed.rev
-        """, params, batchSize);
+        """,
+            params,
+            batchSize);
     return new Deletion(drawResultAud + limitAssignmentAud + sellerTerminalAud, revisions);
   }
 
-  private long archivedCount(String tableName, UUID tenantId, LocalDate periodStart, LocalDate periodEnd) {
-    Long count = jdbc.queryForObject("""
+  private long archivedCount(
+      String tableName, UUID tenantId, LocalDate periodStart, LocalDate periodEnd) {
+    Long count =
+        jdbc.queryForObject(
+            """
         SELECT COALESCE(SUM(row_count), 0)
           FROM archive_object
          WHERE table_name = :table
@@ -290,17 +401,20 @@ public class ArchiveDomainPurgeService {
            AND status = 'VERIFIED'
            AND (:tenantId IS NULL OR tenant_id = :tenantId)
         """,
-        new MapSqlParameterSource()
-            .addValue("table", tableName)
-            .addValue("periodStart", periodStart)
-            .addValue("periodEnd", periodEnd)
-            .addValue("tenantId", tenantId),
-        Long.class);
+            new MapSqlParameterSource()
+                .addValue("table", tableName)
+                .addValue("periodStart", periodStart)
+                .addValue("periodEnd", periodEnd)
+                .addValue("tenantId", tenantId),
+            Long.class);
     return count != null ? count : 0;
   }
 
-  private boolean archiveVerified(String tableName, UUID tenantId, LocalDate periodStart, LocalDate periodEnd) {
-    long verified = count("""
+  private boolean archiveVerified(
+      String tableName, UUID tenantId, LocalDate periodStart, LocalDate periodEnd) {
+    long verified =
+        count(
+            """
         SELECT COUNT(*)
           FROM archive_object
          WHERE table_name = :table
@@ -309,12 +423,14 @@ public class ArchiveDomainPurgeService {
            AND status = 'VERIFIED'
            AND (:tenantId IS NULL OR tenant_id = :tenantId)
         """,
-        new MapSqlParameterSource()
-            .addValue("table", tableName)
-            .addValue("periodStart", periodStart)
-            .addValue("periodEnd", periodEnd)
-            .addValue("tenantId", tenantId));
-    long invalid = count("""
+            new MapSqlParameterSource()
+                .addValue("table", tableName)
+                .addValue("periodStart", periodStart)
+                .addValue("periodEnd", periodEnd)
+                .addValue("tenantId", tenantId));
+    long invalid =
+        count(
+            """
         SELECT COUNT(*)
           FROM archive_object
          WHERE table_name = :table
@@ -323,11 +439,11 @@ public class ArchiveDomainPurgeService {
            AND status = 'INVALID'
            AND (:tenantId IS NULL OR tenant_id = :tenantId)
         """,
-        new MapSqlParameterSource()
-            .addValue("table", tableName)
-            .addValue("periodStart", periodStart)
-            .addValue("periodEnd", periodEnd)
-            .addValue("tenantId", tenantId));
+            new MapSqlParameterSource()
+                .addValue("table", tableName)
+                .addValue("periodStart", periodStart)
+                .addValue("periodEnd", periodEnd)
+                .addValue("tenantId", tenantId));
     return verified > 0 && invalid == 0;
   }
 
@@ -346,13 +462,22 @@ public class ArchiveDomainPurgeService {
     return count != null ? count : 0;
   }
 
-  private DomainPurgePlan notEligible(DomainPurgeDataset dataset, UUID tenantId,
-      LocalDate periodStart, LocalDate periodEnd, String reason) {
-    return new DomainPurgePlan(dataset, tenantId, periodStart, periodEnd,
+  private DomainPurgePlan notEligible(
+      DomainPurgeDataset dataset,
+      UUID tenantId,
+      LocalDate periodStart,
+      LocalDate periodEnd,
+      String reason) {
+    return new DomainPurgePlan(
+        dataset,
+        tenantId,
+        periodStart,
+        periodEnd,
         hotCount(dataset, tenantId, periodStart, periodEnd),
         archivedCount(tableName(dataset), tenantId, periodStart, periodEnd),
         blockingCount(dataset, tenantId, periodStart, periodEnd),
-        false, reason);
+        false,
+        reason);
   }
 
   private static String tableName(DomainPurgeDataset dataset) {
@@ -375,7 +500,8 @@ public class ArchiveDomainPurgeService {
     return LocalDate.now(ZoneOffset.UTC).minusMonths(props.cleanup().retentionMonths());
   }
 
-  private static MapSqlParameterSource params(UUID tenantId, LocalDate periodStart, LocalDate periodEnd) {
+  private static MapSqlParameterSource params(
+      UUID tenantId, LocalDate periodStart, LocalDate periodEnd) {
     return new MapSqlParameterSource()
         .addValue("tenantId", tenantId)
         .addValue("startAt", periodStart.atStartOfDay().toInstant(ZoneOffset.UTC))

@@ -14,13 +14,13 @@ import lombok.RequiredArgsConstructor;
 public class ListTenantPricingRulesQueryHandler
     implements QueryHandler<ListTenantPricingRulesQuery, List<TenantPricingRuleView>> {
 
-    private final TenantPricingOddsReaderPort reader;
-    private final TenantPricingOddsMapper mapper;
+  private final TenantPricingOddsReaderPort reader;
+  private final TenantPricingOddsMapper mapper;
 
-    @Override
-    public List<TenantPricingRuleView> handle(ListTenantPricingRulesQuery q) {
-        return reader.findActiveByTenant(q.tenantId(), q.gameCode()).stream()
-            .map(mapper::toView)
-            .toList();
-    }
+  @Override
+  public List<TenantPricingRuleView> handle(ListTenantPricingRulesQuery q) {
+    return reader.findActiveByTenant(q.tenantId(), q.gameCode()).stream()
+        .map(mapper::toView)
+        .toList();
+  }
 }

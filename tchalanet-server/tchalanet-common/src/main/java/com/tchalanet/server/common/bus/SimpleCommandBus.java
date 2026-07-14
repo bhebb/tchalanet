@@ -15,57 +15,56 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class SimpleCommandBus implements CommandBus, SmartInitializingSingleton {
 
-    private final ApplicationContext ctx;
+  private final ApplicationContext ctx;
 
-    private volatile Map<Class<?>, Object> handlers;
+  private volatile Map<Class<?>, Object> handlers;
 
-    @Override
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    public void afterSingletonsInstantiated() {
-        Map<String, CommandHandler> commandHandlers =
-            (Map) ctx.getBeansOfType(CommandHandler.class, true, true);
-        commandHandlers.forEach((name, bean) ->
+  @Override
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  public void afterSingletonsInstantiated() {
+    Map<String, CommandHandler> commandHandlers =
+        (Map) ctx.getBeansOfType(CommandHandler.class, true, true);
+    commandHandlers.forEach(
+        (name, bean) ->
             log.debug(
                 "CommandHandler candidate name={} proxyClass={} targetClass={}",
                 name,
                 bean.getClass().getName(),
-                org.springframework.aop.support.AopUtils.getTargetClass(bean).getName()
-            )
-        );
-        Map<String, VoidCommandHandler<?>> voidHandlers =
-            (Map) ctx.getBeansOfType(VoidCommandHandler.class, true, true);
+                org.springframework.aop.support.AopUtils.getTargetClass(bean).getName()));
+    Map<String, VoidCommandHandler<?>> voidHandlers =
+        (Map) ctx.getBeansOfType(VoidCommandHandler.class, true, true);
 
-        handlers = HandlerRegistry.buildCommandRegistry(commandHandlers, voidHandlers);
+    handlers = HandlerRegistry.buildCommandRegistry(commandHandlers, voidHandlers);
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public <R> R execute(Command<R> command) {
+    Objects.requireNonNull(command, "Command must not be null");
+
+    var registry = handlers;
+    if (registry == null) {
+      throw new IllegalStateException("CommandBus registry is not initialized yet");
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public <R> R execute(Command<R> command) {
-        Objects.requireNonNull(command, "Command must not be null");
-
-        var registry = handlers;
-        if (registry == null) {
-            throw new IllegalStateException("CommandBus registry is not initialized yet");
-        }
-
-        Object handler = registry.get(command.getClass());
-        if (handler == null) {
-            throw NoHandlerException.forCommand(command.getClass());
-        }
-
-        if (handler instanceof CommandHandler<?, ?> ch) {
-            return ((CommandHandler<Command<R>, R>) ch).handle(command);
-        }
-
-        if (handler instanceof VoidCommandHandler<?> vh) {
-            ((VoidCommandHandler<Command<Void>>) vh).handle((Command<Void>) command);
-            return null;
-        }
-
-        throw new IllegalStateException(
-            "Invalid handler type for command "
-                + command.getClass().getName()
-                + ": "
-                + handler.getClass().getName());
+    Object handler = registry.get(command.getClass());
+    if (handler == null) {
+      throw NoHandlerException.forCommand(command.getClass());
     }
+
+    if (handler instanceof CommandHandler<?, ?> ch) {
+      return ((CommandHandler<Command<R>, R>) ch).handle(command);
+    }
+
+    if (handler instanceof VoidCommandHandler<?> vh) {
+      ((VoidCommandHandler<Command<Void>>) vh).handle((Command<Void>) command);
+      return null;
+    }
+
+    throw new IllegalStateException(
+        "Invalid handler type for command "
+            + command.getClass().getName()
+            + ": "
+            + handler.getClass().getName());
+  }
 }

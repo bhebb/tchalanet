@@ -1,22 +1,18 @@
 package com.tchalanet.server.platform.address.internal.service;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-
 /**
- * Normalizes address fields for deduplication.
- * Per spec: trim, lowercase, collapse spaces, remove weak punctuation.
+ * Normalizes address fields for deduplication. Per spec: trim, lowercase, collapse spaces, remove
+ * weak punctuation.
  */
 public class AddressNormalizer {
 
   /**
-   * Normalize address fields for comparison.
-   * Returns a canonical string suitable for hashing.
+   * Normalize address fields for comparison. Returns a canonical string suitable for hashing.
    *
-   * Fields: line1, line2, city, region, country, postalCode
+   * <p>Fields: line1, line2, city, region, country, postalCode
    */
-  public static String normalize(String line1, String line2, String city, String region, String country, String postalCode) {
+  public static String normalize(
+      String line1, String line2, String city, String region, String country, String postalCode) {
     StringBuilder sb = new StringBuilder();
 
     sb.append(normalizeField(line1));
@@ -33,9 +29,7 @@ public class AddressNormalizer {
     return sb.toString();
   }
 
-  /**
-   * Normalize a single field: trim, lowercase, collapse spaces, remove weak punctuation.
-   */
+  /** Normalize a single field: trim, lowercase, collapse spaces, remove weak punctuation. */
   private static String normalizeField(String value) {
     if (value == null || value.isBlank()) {
       return "";
@@ -49,9 +43,7 @@ public class AddressNormalizer {
     return normalized;
   }
 
-  /**
-   * Normalize postal code: uppercase, remove spaces.
-   */
+  /** Normalize postal code: uppercase, remove spaces. */
   private static String normalizePostalCode(String value) {
     if (value == null || value.isBlank()) {
       return "";

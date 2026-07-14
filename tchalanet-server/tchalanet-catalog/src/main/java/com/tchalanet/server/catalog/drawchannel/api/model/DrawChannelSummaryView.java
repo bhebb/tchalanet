@@ -10,5 +10,4 @@ public record DrawChannelSummaryView(
     LocalTime drawTime,
     LocalTime cutoffTime,
     ZoneId timezone,
-    boolean active) {
-}
+    boolean active) {}

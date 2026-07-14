@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Loads static PageModelTemplate JSON files and upserts them into the template catalog.
  *
- * The write port is intentionally small. Implement it in catalog.pagemodeltemplate internal
+ * <p>The write port is intentionally small. Implement it in catalog.pagemodeltemplate internal
  * infrastructure/write layer, not in features.
  */
 @Service

@@ -1,7 +1,6 @@
 package com.tchalanet.server.core.sales.api.model.verification;
 
 import com.tchalanet.server.common.types.money.Money;
-
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
@@ -15,30 +14,25 @@ public record TicketVerificationView(
     Instant placedAt,
     DrawInfoView draw,
     OutletInfoView outlet,
-    List<TicketLineView> lines
-) {
-    public record DrawInfoView(
-        String channelKey,
-        String channelName,
-        String resultSlotKey,
-        String provider,
-        String timezone,
-        LocalDate drawDate,
-        Instant scheduledAt
-    ) {}
+    List<TicketLineView> lines) {
+  public record DrawInfoView(
+      String channelKey,
+      String channelName,
+      String resultSlotKey,
+      String provider,
+      String timezone,
+      LocalDate drawDate,
+      Instant scheduledAt) {}
 
-    public record OutletInfoView(
-        String name
-    ) {}
+  public record OutletInfoView(String name) {}
 
-    public record TicketLineView(
-        int lineNumber,
-        String gameDisplayName,
-        String betTypeLabel,
-        String optionLabel,
-        String selection,
-        Money stake,
-        boolean promotional,
-        String promotionLabel
-    ) {}
+  public record TicketLineView(
+      int lineNumber,
+      String gameDisplayName,
+      String betTypeLabel,
+      String optionLabel,
+      String selection,
+      Money stake,
+      boolean promotional,
+      String promotionLabel) {}
 }

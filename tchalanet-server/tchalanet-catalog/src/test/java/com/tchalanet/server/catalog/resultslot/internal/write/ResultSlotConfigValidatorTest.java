@@ -11,62 +11,84 @@ import tools.jackson.databind.json.JsonMapper;
 
 class ResultSlotConfigValidatorTest {
 
-    private final JsonUtils json = new JsonUtils(JsonMapper.builder().build());
-    private ResultSlotConfigValidator validator;
+  private final JsonUtils json = new JsonUtils(JsonMapper.builder().build());
+  private ResultSlotConfigValidator validator;
 
-    @BeforeEach
-    void setUp() {
-        validator = new ResultSlotConfigValidator();
-    }
+  @BeforeEach
+  void setUp() {
+    validator = new ResultSlotConfigValidator();
+  }
 
-    @Test
-    void validSourceConfigPasses() {
-        assertThatNoException().isThrownBy(() -> validator.validateSourceCfg(source("""
+  @Test
+  void validSourceConfigPasses() {
+    assertThatNoException()
+        .isThrownBy(
+            () ->
+                validator.validateSourceCfg(
+                    source(
+                        """
             {
               "provider_slot_code": "MIDDAY",
               "pick3": {"game_code": "PICK3", "active": true},
               "pick4": {"game_code": "PICK4", "active": false}
             }
             """)));
-    }
+  }
 
-    @Test
-    void sourceConfigRequiresProviderSlotCode() {
-        assertThatThrownBy(() -> validator.validateSourceCfg(source("""
+  @Test
+  void sourceConfigRequiresProviderSlotCode() {
+    assertThatThrownBy(
+            () ->
+                validator.validateSourceCfg(
+                    source(
+                        """
             {"pick3": {"game_code": "PICK3", "active": true}}
             """)))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("provider_slot_code");
-    }
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("provider_slot_code");
+  }
 
-    @Test
-    void sourceConfigRequiresAtLeastOneActiveGame() {
-        assertThatThrownBy(() -> validator.validateSourceCfg(source("""
+  @Test
+  void sourceConfigRequiresAtLeastOneActiveGame() {
+    assertThatThrownBy(
+            () ->
+                validator.validateSourceCfg(
+                    source(
+                        """
             {
               "provider_slot_code": "MIDDAY",
               "pick3": {"game_code": "PICK3", "active": false},
               "pick4": {"game_code": "PICK4", "active": false}
             }
             """)))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("at least one");
-    }
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("at least one");
+  }
 
-    @Test
-    void sourceConfigRequiresBooleanActiveFlag() {
-        assertThatThrownBy(() -> validator.validateSourceCfg(source("""
+  @Test
+  void sourceConfigRequiresBooleanActiveFlag() {
+    assertThatThrownBy(
+            () ->
+                validator.validateSourceCfg(
+                    source(
+                        """
             {
               "provider_slot_code": "MIDDAY",
               "pick3": {"game_code": "PICK3", "active": "true"}
             }
             """)))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("active");
-    }
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("active");
+  }
 
-    @Test
-    void validProjectionConfigPasses() {
-        assertThatNoException().isThrownBy(() -> validator.validateProjectionCfg(source("""
+  @Test
+  void validProjectionConfigPasses() {
+    assertThatNoException()
+        .isThrownBy(
+            () ->
+                validator.validateProjectionCfg(
+                    source(
+                        """
             {
               "version": 1,
               "rule_set": "DEFAULT",
@@ -78,11 +100,15 @@ class ResultSlotConfigValidatorTest {
               }
             }
             """)));
-    }
+  }
 
-    @Test
-    void projectionConfigRejectsMissingLot() {
-        assertThatThrownBy(() -> validator.validateProjectionCfg(source("""
+  @Test
+  void projectionConfigRejectsMissingLot() {
+    assertThatThrownBy(
+            () ->
+                validator.validateProjectionCfg(
+                    source(
+                        """
             {
               "rules": {
                 "lot1": "PICK3_FULL_3",
@@ -91,13 +117,17 @@ class ResultSlotConfigValidatorTest {
               }
             }
             """)))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("lot4");
-    }
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("lot4");
+  }
 
-    @Test
-    void projectionConfigRejectsUnknownToken() {
-        assertThatThrownBy(() -> validator.validateProjectionCfg(source("""
+  @Test
+  void projectionConfigRejectsUnknownToken() {
+    assertThatThrownBy(
+            () ->
+                validator.validateProjectionCfg(
+                    source(
+                        """
             {
               "rules": {
                 "lot1": "PICK3_FULL_3",
@@ -107,11 +137,11 @@ class ResultSlotConfigValidatorTest {
               }
             }
             """)))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("MAGIC");
-    }
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("MAGIC");
+  }
 
-    private JsonNode source(String value) {
-        return json.parse(value);
-    }
+  private JsonNode source(String value) {
+    return json.parse(value);
+  }
 }

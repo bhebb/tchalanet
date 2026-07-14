@@ -2,7 +2,6 @@ package com.tchalanet.server.platform.accesscontrol.internal.persistence.reposit
 
 import com.tchalanet.server.platform.accesscontrol.internal.persistence.entity.AppRolePermissionId;
 import com.tchalanet.server.platform.accesscontrol.internal.persistence.entity.AppRolePermissionJpaEntity;
-
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -34,4 +33,3 @@ public interface PermissionHierarchyJpaRepository
       nativeQuery = true)
   List<String> findPermissionCodesForRoleHierarchy(UUID roleId);
 }
-

@@ -6,8 +6,5 @@ import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptMessageCon
 import jakarta.validation.constraints.NotNull;
 import java.util.Locale;
 
-public record FormatTicketReceiptMessageQuery(
-    @NotNull TicketId ticketId,
-    Locale locale
-) implements Query<TicketReceiptMessageContent> {
-}
+public record FormatTicketReceiptMessageQuery(@NotNull TicketId ticketId, Locale locale)
+    implements Query<TicketReceiptMessageContent> {}

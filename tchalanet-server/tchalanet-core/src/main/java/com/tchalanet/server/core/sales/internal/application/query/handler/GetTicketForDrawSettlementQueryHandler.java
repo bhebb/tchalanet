@@ -13,10 +13,10 @@ import lombok.RequiredArgsConstructor;
 public class GetTicketForDrawSettlementQueryHandler
     implements QueryHandler<GetTicketForDrawSettlementQuery, List<TicketForDrawSettlementView>> {
 
-    private final TicketProjectionReaderPort reader;
+  private final TicketProjectionReaderPort reader;
 
-    @Override
-    public List<TicketForDrawSettlementView> handle(GetTicketForDrawSettlementQuery query) {
-        return reader.findForDrawSettlement(query.drawId());
-    }
+  @Override
+  public List<TicketForDrawSettlementView> handle(GetTicketForDrawSettlementQuery query) {
+    return reader.findForDrawSettlement(query.drawId());
+  }
 }

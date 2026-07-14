@@ -20,23 +20,23 @@ public class CacheMaintenanceNotificationRule extends AbstractNotificationRule {
       return false;
     }
     var name = event.getClass().getSimpleName();
-    return name.equals("CacheClearedEvent")
-        || name.equals("MaintenanceScheduledEvent");
+    return name.equals("CacheClearedEvent") || name.equals("MaintenanceScheduledEvent");
   }
 
   @Override
   public Stream<NotificationIntent> map(Object event) {
     var name = event.getClass().getSimpleName();
     var maintenance = name.equals("MaintenanceScheduledEvent");
-    return Stream.of(platformIntent(
-        event,
-        maintenance
-            ? "notification.system.maintenance.scheduled"
-            : "notification.system.cache.cleared",
-        maintenance ? NotificationSeverity.WARNING : NotificationSeverity.INFO,
-        maintenance ? NotificationKind.ACTION_REQUIRED : NotificationKind.INFO,
-        NotificationCategory.SYSTEM,
-        maintenance ? "Maintenance scheduled" : "Cache cleared",
-        name));
+    return Stream.of(
+        platformIntent(
+            event,
+            maintenance
+                ? "notification.system.maintenance.scheduled"
+                : "notification.system.cache.cleared",
+            maintenance ? NotificationSeverity.WARNING : NotificationSeverity.INFO,
+            maintenance ? NotificationKind.ACTION_REQUIRED : NotificationKind.INFO,
+            NotificationCategory.SYSTEM,
+            maintenance ? "Maintenance scheduled" : "Cache cleared",
+            name));
   }
 }

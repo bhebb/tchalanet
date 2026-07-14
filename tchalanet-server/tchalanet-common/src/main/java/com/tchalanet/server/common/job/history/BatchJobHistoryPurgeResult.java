@@ -9,5 +9,4 @@ public record BatchJobHistoryPurgeResult(
     int stepExecutionRows,
     int jobExecutionParamRows,
     int jobExecutionRows,
-    int jobInstanceRows
-) {}
+    int jobInstanceRows) {}

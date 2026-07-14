@@ -9,12 +9,7 @@ public record CashierDashboardOverviewView(
     long salesTotalCents,
     long cancelledCount,
     long pendingApprovalCount,
-    List<DrawBreakdown> byDraw
-) {
-    public record DrawBreakdown(
-        String channelCode,
-        String channelLabel,
-        long ticketCount,
-        long salesTotalCents
-    ) {}
+    List<DrawBreakdown> byDraw) {
+  public record DrawBreakdown(
+      String channelCode, String channelLabel, long ticketCount, long salesTotalCents) {}
 }

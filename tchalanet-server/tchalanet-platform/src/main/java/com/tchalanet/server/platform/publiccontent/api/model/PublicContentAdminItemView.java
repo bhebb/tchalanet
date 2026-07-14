@@ -18,5 +18,4 @@ public record PublicContentAdminItemView(
     String createdBy,
     Instant createdAt,
     String lastModifiedBy,
-    Instant lastModifiedAt
-) {}
+    Instant lastModifiedAt) {}

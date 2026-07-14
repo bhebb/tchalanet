@@ -5,7 +5,6 @@ import com.tchalanet.server.common.types.id.AddressId;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
-
 import java.math.BigDecimal;
 
 public record CreateSellerTerminalCommand(
@@ -19,5 +18,5 @@ public record CreateSellerTerminalCommand(
     AddressId addressId,
     BigDecimal commissionRate,
     String initialPin,
-    UserId actorUserId
-) implements Command<SellerTerminalId> {}
+    UserId actorUserId)
+    implements Command<SellerTerminalId> {}

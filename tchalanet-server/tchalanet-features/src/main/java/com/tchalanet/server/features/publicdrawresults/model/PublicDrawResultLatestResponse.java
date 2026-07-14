@@ -4,8 +4,8 @@ import java.time.Instant;
 import java.util.List;
 
 /**
- * Réponse du endpoint {@code GET /public/draw-results/latest}.
- * Alimente le widget « Derniers tirages » de la home publique.
+ * Réponse du endpoint {@code GET /public/draw-results/latest}. Alimente le widget « Derniers
+ * tirages » de la home publique.
  *
  * <p>Le frontend calcule le countdown avec {@code item.nextResultAt() - serverNow}.
  */

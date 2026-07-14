@@ -22,8 +22,7 @@ public record ReceiptDocumentContent(
       List<DocumentLine> headerLines,
       List<DocumentSection> sections,
       List<DocumentLine> totals,
-      List<DocumentLine> footerLines
-  ) {
+      List<DocumentLine> footerLines) {
     this(headerLines, sections, totals, footerLines, List.of());
   }
 

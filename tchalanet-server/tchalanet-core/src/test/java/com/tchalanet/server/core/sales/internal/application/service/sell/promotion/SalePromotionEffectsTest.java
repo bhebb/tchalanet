@@ -14,18 +14,18 @@ import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TicketLineId;
 import com.tchalanet.server.common.types.money.CurrencyCode;
 import com.tchalanet.server.common.types.money.Money;
-import com.tchalanet.server.core.promotion.api.model.PromotionChoiceMode;
-import com.tchalanet.server.core.promotion.api.model.PromotionDecision;
-import com.tchalanet.server.core.promotion.api.model.PromotionDecisionStatus;
-import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffect;
-import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffectType;
-import com.tchalanet.server.core.promotion.api.model.PromotionEvaluationPhase;
 import com.tchalanet.server.core.pricing.api.model.OddsSource;
 import com.tchalanet.server.core.pricing.api.model.PayoutRuleType;
 import com.tchalanet.server.core.pricing.api.model.SellerTerminalPayoutRuleResolutionView;
 import com.tchalanet.server.core.pricing.api.query.ResolveSellerTerminalPayoutRuleQuery;
-import com.tchalanet.server.core.sales.api.command.sell.SellTicketCommand;
+import com.tchalanet.server.core.promotion.api.model.PromotionChoiceMode;
+import com.tchalanet.server.core.promotion.api.model.PromotionDecision;
+import com.tchalanet.server.core.promotion.api.model.PromotionDecisionStatus;
+import com.tchalanet.server.core.promotion.api.model.PromotionEvaluationPhase;
+import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffect;
+import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffectType;
 import com.tchalanet.server.core.sales.api.command.sell.PromotionChoiceInput;
+import com.tchalanet.server.core.sales.api.command.sell.SellTicketCommand;
 import com.tchalanet.server.core.sales.api.model.money.ChargePaidBy;
 import com.tchalanet.server.core.sales.api.model.money.TicketCharge;
 import com.tchalanet.server.core.sales.api.model.money.TicketChargeType;
@@ -37,11 +37,11 @@ import com.tchalanet.server.core.sales.api.model.status.TicketLineResultStatus;
 import com.tchalanet.server.core.sales.internal.application.service.sell.generation.DefaultSelectionGenerationService;
 import com.tchalanet.server.core.sales.internal.application.service.sell.generation.RandomSelectionGenerator;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
-import com.tchalanet.server.core.selection.internal.application.DefaultSelectionApi;
 import com.tchalanet.server.core.selection.api.SelectionApi;
 import com.tchalanet.server.core.selection.api.model.Selection;
 import com.tchalanet.server.core.selection.api.model.SelectionKey;
 import com.tchalanet.server.core.selection.api.model.SelectionValidationResult;
+import com.tchalanet.server.core.selection.internal.application.DefaultSelectionApi;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -54,476 +54,466 @@ import org.junit.jupiter.api.Test;
 @DisplayName("Sale promotion effects")
 class SalePromotionEffectsTest {
 
-    private static final CurrencyCode HTG = CurrencyCode.of("HTG");
-    private static final Instant NOW = Instant.parse("2026-05-21T10:00:00Z");
-    private static final SellerTerminalId SELLER_TERMINAL_ID =
-        SellerTerminalId.of(UUID.fromString("88000000-0000-0000-0000-000000000001"));
+  private static final CurrencyCode HTG = CurrencyCode.of("HTG");
+  private static final Instant NOW = Instant.parse("2026-05-21T10:00:00Z");
+  private static final SellerTerminalId SELLER_TERMINAL_ID =
+      SellerTerminalId.of(UUID.fromString("88000000-0000-0000-0000-000000000001"));
 
-    private final PromotionChargeApplier chargeApplier = new PromotionChargeApplier();
-    private final PromotionOddsBoostApplier oddsBoostApplier = new PromotionOddsBoostApplier();
-    private static final SelectionApi SELECTION_STUB = new SelectionApi() {
+  private final PromotionChargeApplier chargeApplier = new PromotionChargeApplier();
+  private final PromotionOddsBoostApplier oddsBoostApplier = new PromotionOddsBoostApplier();
+  private static final SelectionApi SELECTION_STUB =
+      new SelectionApi() {
         @Override
         public Selection canonicalize(BetType betType, Short betOption, String rawSelection) {
-            return new Selection(SelectionKey.of(rawSelection), rawSelection);
+          return new Selection(SelectionKey.of(rawSelection), rawSelection);
         }
+
         @Override
         public Selection canonicalize(BetType betType, String rawSelection) {
-            return new Selection(SelectionKey.of(rawSelection), rawSelection);
+          return new Selection(SelectionKey.of(rawSelection), rawSelection);
         }
+
         @Override
-        public SelectionValidationResult validate(BetType betType, Short betOption, String rawSelection) {
-            return SelectionValidationResult.valid(canonicalize(betType, betOption, rawSelection));
+        public SelectionValidationResult validate(
+            BetType betType, Short betOption, String rawSelection) {
+          return SelectionValidationResult.valid(canonicalize(betType, betOption, rawSelection));
         }
+
         @Override
         public SelectionValidationResult validate(BetType betType, String rawSelection) {
-            return SelectionValidationResult.valid(canonicalize(betType, rawSelection));
+          return SelectionValidationResult.valid(canonicalize(betType, rawSelection));
         }
-    };
+      };
 
-    private static final QueryBus PRICING_QUERY_BUS = new QueryBus() {
+  private static final QueryBus PRICING_QUERY_BUS =
+      new QueryBus() {
         @Override
         @SuppressWarnings("unchecked")
         public <R> R ask(Query<R> query) {
-            var q = (ResolveSellerTerminalPayoutRuleQuery) query;
-            return (R) new SellerTerminalPayoutRuleResolutionView(
-                q.gameCode(),
-                q.pricingVariantCode(),
-                q.betType(),
-                q.betOption(),
-                PayoutRuleType.STAKE_MULTIPLIER,
-                new BigDecimal("12.5"),
-                null,
-                null,
-                null,
-                null,
-                PayoutRuleType.STAKE_MULTIPLIER,
-                new BigDecimal("12.5"),
-                null,
-                OddsSource.TENANT_DEFAULT
-            );
+          var q = (ResolveSellerTerminalPayoutRuleQuery) query;
+          return (R)
+              new SellerTerminalPayoutRuleResolutionView(
+                  q.gameCode(),
+                  q.pricingVariantCode(),
+                  q.betType(),
+                  q.betOption(),
+                  PayoutRuleType.STAKE_MULTIPLIER,
+                  new BigDecimal("12.5"),
+                  null,
+                  null,
+                  null,
+                  null,
+                  PayoutRuleType.STAKE_MULTIPLIER,
+                  new BigDecimal("12.5"),
+                  null,
+                  OddsSource.TENANT_DEFAULT);
         }
-    };
+      };
 
-    private final PromotionTicketLineFactory lineFactory = new PromotionTicketLineFactory(
+  private final PromotionTicketLineFactory lineFactory =
+      new PromotionTicketLineFactory(
+          () -> UUID.fromString("99000000-0000-0000-0000-000000000001"),
+          SELECTION_STUB,
+          PRICING_QUERY_BUS,
+          new PromotionSelectionResolver(
+              new DefaultSelectionGenerationService(
+                  new RandomSelectionGenerator(), new DefaultSelectionApi())));
+  private final SalePromotionEffectApplier applier =
+      new SalePromotionEffectApplier(lineFactory, oddsBoostApplier, chargeApplier);
+
+  // -------------------------------------------------------------------------
+  // WAIVE_CHARGE
+  // -------------------------------------------------------------------------
+
+  @Nested
+  @DisplayName("WAIVE_CHARGE")
+  class WaiveCharge {
+
+    @Test
+    @DisplayName("removes matching charge from the list")
+    void removesMatchingCharge() {
+      var smsCharge = new TicketCharge(TicketChargeType.BUYER_SMS, money("5"), ChargePaidBy.BUYER);
+      var waivableEffect = effect(PromotionEffectType.WAIVE_CHARGE, null, "BUYER_SMS", null);
+      var decision = decision(waivableEffect);
+
+      var result =
+          applier.apply(
+              decision,
+              List.of(customerLine()),
+              new ArrayList<>(List.of(smsCharge)),
+              null,
+              SELLER_TERMINAL_ID,
+              HTG);
+
+      assertThat(result.charges()).hasSize(1);
+      var waived = result.charges().get(0);
+      assertThat(waived.isWaived()).isTrue();
+      assertThat(waived.waivedByDecisionId()).isEqualTo(decision.decisionId());
+      assertThat(waived.waivedByRuleId()).isEqualTo(waivableEffect.ruleId());
+      assertThat(waived.waivedEffectType()).isEqualTo(PromotionEffectType.WAIVE_CHARGE.name());
+      assertThat(waived.amount()).isEqualTo(money("5"));
+      assertThat(result.ticketLines()).hasSize(1);
+    }
+
+    @Test
+    @DisplayName("preserves charges for different type")
+    void preservesOtherCharges() {
+      var whatsappCharge =
+          new TicketCharge(TicketChargeType.BUYER_WHATSAPP, money("3"), ChargePaidBy.BUYER);
+      var waiveSmsEffect = effect(PromotionEffectType.WAIVE_CHARGE, null, "BUYER_SMS", null);
+      var decision = decision(waiveSmsEffect);
+
+      var result =
+          applier.apply(
+              decision,
+              List.of(customerLine()),
+              new ArrayList<>(List.of(whatsappCharge)),
+              null,
+              SELLER_TERMINAL_ID,
+              HTG);
+
+      assertThat(result.charges()).hasSize(1);
+      assertThat(result.charges().get(0).type()).isEqualTo(TicketChargeType.BUYER_WHATSAPP);
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // BOOST_ODDS
+  // -------------------------------------------------------------------------
+
+  @Nested
+  @DisplayName("BOOST_ODDS")
+  class BoostOdds {
+
+    @Test
+    @DisplayName("updates odds snapshot and settlement payout on matching game line")
+    void boostsMatchingLine() {
+      var line = customerLine(); // HT_BOLET, stakeAmount=10, odds=12.5
+      var boostEffect =
+          effect(PromotionEffectType.BOOST_ODDS, "HT_BOLET", null, new BigDecimal("20.0000"));
+      var decision = decision(boostEffect);
+
+      var result =
+          applier.apply(
+              decision, new ArrayList<>(List.of(line)), List.of(), null, SELLER_TERMINAL_ID, HTG);
+
+      assertThat(result.ticketLines()).hasSize(1);
+      var boosted = result.ticketLines().get(0);
+      assertThat(boosted.settlementTermsSnapshot().terms().getFirst().payoutRule().multiplier())
+          .isEqualByComparingTo("20.0000");
+      assertThat(boosted.pricingSource()).isEqualTo(TicketLinePricingSource.PROMOTION);
+      assertThat(boosted.promotionDecisionId()).isEqualTo(decision.decisionId());
+      assertThat(boosted.promotionLabel()).isEqualTo(TicketReceiptI18nKeys.PROMOTION_BOOST_ODDS);
+    }
+
+    @Test
+    @DisplayName("does not affect lines for a different game code")
+    void ignoresOtherGameCode() {
+      var line = customerLine(); // HT_BOLET
+      var boostEffect =
+          effect(PromotionEffectType.BOOST_ODDS, "HT_MEGA_LOT", null, new BigDecimal("20.0000"));
+      var decision = decision(boostEffect);
+
+      var result =
+          applier.apply(
+              decision, new ArrayList<>(List.of(line)), List.of(), null, SELLER_TERMINAL_ID, HTG);
+
+      var unchanged = result.ticketLines().get(0);
+      assertThat(unchanged.settlementTermsSnapshot().terms().getFirst().payoutRule().multiplier())
+          .isEqualByComparingTo("12.5");
+      assertThat(unchanged.pricingSource()).isEqualTo(TicketLinePricingSource.STANDARD);
+      assertThat(unchanged.promotionDecisionId()).isNull();
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // FREE_GAME_LINE
+  // -------------------------------------------------------------------------
+
+  @Nested
+  @DisplayName("FREE_GAME_LINE")
+  class FreeGameLine {
+
+    @Test
+    @DisplayName("adds a promotional line with stake=0, origin=PROMOTION, payoutBase from effect")
+    void addsPromotionalLine() {
+      var freeEffect =
+          effect(PromotionEffectType.FREE_GAME_LINE, "HT_BOLET", null, new BigDecimal("125"));
+      // quantity defaults to 0 in helper — need a quantity=1 effect
+      var freeEffectQ1 =
+          new PromotionEffect(
+              PromotionRuleId.of(UUID.fromString("B1000000-0000-0000-0000-000000000001")),
+              PromotionEffectType.FREE_GAME_LINE,
+              "HT_BOLET",
+              1,
+              new BigDecimal("125"),
+              "HTG",
+              null,
+              null,
+              PromotionChoiceMode.NONE);
+      var decision = decision(freeEffectQ1);
+      var paid = List.of(customerLine());
+
+      var result =
+          applier.apply(
+              decision, new ArrayList<>(paid), List.of(), command(), SELLER_TERMINAL_ID, HTG);
+
+      assertThat(result.ticketLines()).hasSize(2);
+      var promoLine = result.ticketLines().get(1);
+      assertThat(promoLine.origin()).isEqualTo(TicketLineOrigin.PROMOTION);
+      assertThat(promoLine.pricingSource()).isEqualTo(TicketLinePricingSource.PROMOTION);
+      assertThat(promoLine.stakeAmount()).isEqualTo(Money.zero(HTG));
+      assertThat(promoLine.settlementTermsSnapshot().terms().getFirst().payoutBaseAmount())
+          .isEqualByComparingTo("125");
+      assertThat(promoLine.settlementTermsSnapshot().terms().getFirst().payoutRule().multiplier())
+          .isEqualByComparingTo("12.5");
+      assertThat(promoLine.promotionDecisionId()).isEqualTo(decision.decisionId());
+      assertThat(promoLine.promotionLabel())
+          .isEqualTo(TicketReceiptI18nKeys.PROMOTION_FREE_GAME_LINE);
+    }
+
+    @Test
+    @DisplayName("promotional line has line number after last customer line")
+    void promotionLineNumberFollowsCustomerLines() {
+      var freeEffectQ1 =
+          new PromotionEffect(
+              PromotionRuleId.of(UUID.fromString("B1000000-0000-0000-0000-000000000001")),
+              PromotionEffectType.FREE_GAME_LINE,
+              "HT_BOLET",
+              1,
+              new BigDecimal("125"),
+              "HTG",
+              null,
+              null,
+              PromotionChoiceMode.NONE);
+      var decision = decision(freeEffectQ1);
+
+      var result =
+          applier.apply(
+              decision,
+              new ArrayList<>(List.of(customerLine())),
+              List.of(),
+              command(),
+              SELLER_TERMINAL_ID,
+              HTG);
+
+      var promoLine = result.ticketLines().get(1);
+      assertThat(promoLine.lineNumber()).isGreaterThan(customerLine().lineNumber());
+    }
+
+    @Test
+    @DisplayName("requires explicit customer selection when configured")
+    void requiresExplicitSelectionWhenConfigured() {
+      var freeEffect =
+          new PromotionEffect(
+              PromotionRuleId.of(UUID.fromString("B1000000-0000-0000-0000-000000000001")),
+              PromotionEffectType.FREE_GAME_LINE,
+              "HT_BOLET",
+              1,
+              new BigDecimal("125"),
+              "HTG",
+              null,
+              null,
+              PromotionChoiceMode.CUSTOMER_SELECTS);
+
+      org.assertj.core.api.Assertions.assertThatThrownBy(
+              () ->
+                  applier.apply(
+                      decision(freeEffect),
+                      new ArrayList<>(List.of(customerLine())),
+                      List.of(),
+                      command(),
+                      SELLER_TERMINAL_ID,
+                      HTG))
+          .isInstanceOf(IllegalArgumentException.class)
+          .hasMessage("promotion.free_game_selection_required");
+    }
+
+    @Test
+    @DisplayName("uses customer-selected promotion choice when provided")
+    void usesCustomerSelectedPromotionChoice() {
+      var freeEffect =
+          new PromotionEffect(
+              PromotionRuleId.of(UUID.fromString("B1000000-0000-0000-0000-000000000001")),
+              PromotionEffectType.FREE_GAME_LINE,
+              "HT_BOLET",
+              1,
+              new BigDecimal("125"),
+              "HTG",
+              null,
+              null,
+              PromotionChoiceMode.CUSTOMER_SELECTS);
+      var decision = decision(freeEffect);
+      var result =
+          applier.apply(
+              decision,
+              new ArrayList<>(List.of(customerLine())),
+              List.of(),
+              command(
+                  List.of(
+                      new PromotionChoiceInput(
+                          decision.decisionId(),
+                          "HT_BOLET",
+                          0,
+                          "77",
+                          TicketLineSelectionSource.CUSTOMER_SELECTED))),
+              SELLER_TERMINAL_ID,
+              HTG);
+
+      var promoLine = result.ticketLines().get(1);
+      assertThat(promoLine.selection().key().value()).isEqualTo("77");
+      assertThat(promoLine.selectionSource())
+          .isEqualTo(TicketLineSelectionSource.CUSTOMER_SELECTED);
+    }
+
+    @Test
+    @DisplayName("retries generated promotion selection when it duplicates an existing ticket line")
+    void retriesGeneratedSelectionWhenDuplicate() {
+      var freeEffect =
+          new PromotionEffect(
+              PromotionRuleId.of(UUID.fromString("B1000000-0000-0000-0000-000000000001")),
+              PromotionEffectType.FREE_GAME_LINE,
+              "HT_BOLET",
+              1,
+              new BigDecimal("125"),
+              "HTG",
+              null,
+              null,
+              PromotionChoiceMode.NONE);
+      var localFactory = lineFactoryWithSelections("05", "06");
+      var localApplier =
+          new SalePromotionEffectApplier(localFactory, oddsBoostApplier, chargeApplier);
+
+      var result =
+          localApplier.apply(
+              decision(freeEffect),
+              new ArrayList<>(List.of(customerLine())),
+              List.of(),
+              command(),
+              SELLER_TERMINAL_ID,
+              HTG);
+
+      var promoLine = result.ticketLines().get(1);
+      assertThat(promoLine.selection().key().value()).isEqualTo("06");
+      assertThat(promoLine.selectionSource())
+          .isEqualTo(TicketLineSelectionSource.PROMOTION_GENERATED);
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // No-op when NOT_ELIGIBLE
+  // -------------------------------------------------------------------------
+
+  @Nested
+  @DisplayName("NOT_ELIGIBLE decision")
+  class NotEligible {
+
+    @Test
+    @DisplayName("returns original lines and charges unchanged")
+    void noOpWhenNotEligible() {
+      var notEligible =
+          new PromotionDecision(
+              PromotionDecisionId.of(UUID.randomUUID()),
+              PromotionDecisionStatus.NOT_ELIGIBLE,
+              PromotionEvaluationPhase.SALE_CONFIRMATION,
+              NOW,
+              "hash",
+              "v1",
+              List.of(),
+              List.of());
+      var line = customerLine();
+      var charge = new TicketCharge(TicketChargeType.BUYER_SMS, money("5"), ChargePaidBy.BUYER);
+
+      var result =
+          applier.apply(notEligible, List.of(line), List.of(charge), null, SELLER_TERMINAL_ID, HTG);
+
+      assertThat(result.ticketLines()).hasSize(1);
+      assertThat(result.charges()).hasSize(1);
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // Helpers
+  // -------------------------------------------------------------------------
+
+  private static TicketLine customerLine() {
+    return new TicketLine(
+        TicketLineId.of(UUID.fromString("41000000-0000-0000-0000-000000000001")),
+        1,
+        GameCode.HT_BOLET,
+        BetType.MATCH_1_2D,
+        new Selection(SelectionKey.of("05"), "05"),
+        money("10"),
+        money("10"),
+        new BigDecimal("12.5"),
+        null,
+        TicketLineOrigin.CUSTOMER,
+        TicketLinePricingSource.STANDARD,
+        null,
+        null,
+        null,
+        null,
+        TicketLineResultStatus.PENDING,
+        money("0"));
+  }
+
+  private static PromotionTicketLineFactory lineFactoryWithSelections(String... selections) {
+    var generated = new ArrayList<>(List.of(selections));
+    return new PromotionTicketLineFactory(
         () -> UUID.fromString("99000000-0000-0000-0000-000000000001"),
         SELECTION_STUB,
         PRICING_QUERY_BUS,
-        new PromotionSelectionResolver(new DefaultSelectionGenerationService(
-            new RandomSelectionGenerator(),
-            new DefaultSelectionApi()
-        ))
-    );
-    private final SalePromotionEffectApplier applier =
-        new SalePromotionEffectApplier(lineFactory, oddsBoostApplier, chargeApplier);
+        new PromotionSelectionResolver(
+            (gameCode, betType, betOption, strategy, purpose) -> {
+              if (generated.isEmpty()) {
+                throw new IllegalStateException("no generated selection left");
+              }
+              var value = generated.removeFirst();
+              return new Selection(SelectionKey.of(value), value);
+            }));
+  }
 
-    // -------------------------------------------------------------------------
-    // WAIVE_CHARGE
-    // -------------------------------------------------------------------------
+  private static PromotionDecision decision(PromotionEffect effect) {
+    return new PromotionDecision(
+        PromotionDecisionId.of(UUID.fromString("D1000000-0000-0000-0000-000000000001")),
+        PromotionDecisionStatus.APPLIED,
+        PromotionEvaluationPhase.SALE_CONFIRMATION,
+        NOW,
+        "hash",
+        "v1",
+        List.of(effect),
+        List.of());
+  }
 
-    @Nested
-    @DisplayName("WAIVE_CHARGE")
-    class WaiveCharge {
+  private static PromotionEffect effect(
+      PromotionEffectType type, String gameCode, String appliesTo, BigDecimal amount) {
+    return new PromotionEffect(
+        PromotionRuleId.of(UUID.fromString("B1000000-0000-0000-0000-000000000001")),
+        type,
+        gameCode,
+        0,
+        amount,
+        "HTG",
+        appliesTo,
+        null,
+        PromotionChoiceMode.NONE);
+  }
 
-        @Test
-        @DisplayName("removes matching charge from the list")
-        void removesMatchingCharge() {
-            var smsCharge = new TicketCharge(TicketChargeType.BUYER_SMS, money("5"), ChargePaidBy.BUYER);
-            var waivableEffect = effect(PromotionEffectType.WAIVE_CHARGE, null, "BUYER_SMS", null);
-            var decision = decision(waivableEffect);
+  private static SellTicketCommand command() {
+    return command(List.of());
+  }
 
-            var result = applier.apply(
-                decision,
-                List.of(customerLine()),
-                new ArrayList<>(List.of(smsCharge)),
-                null,
-                SELLER_TERMINAL_ID,
-                HTG
-            );
+  private static SellTicketCommand command(List<PromotionChoiceInput> promotionChoices) {
+    return new SellTicketCommand(
+        DrawId.of(UUID.fromString("80000000-0000-0000-0000-000000000001")),
+        DrawChannelId.of(UUID.fromString("90000000-0000-0000-0000-000000000001")),
+        HTG,
+        List.of(),
+        null,
+        promotionChoices);
+  }
 
-            assertThat(result.charges()).hasSize(1);
-            var waived = result.charges().get(0);
-            assertThat(waived.isWaived()).isTrue();
-            assertThat(waived.waivedByDecisionId()).isEqualTo(decision.decisionId());
-            assertThat(waived.waivedByRuleId()).isEqualTo(waivableEffect.ruleId());
-            assertThat(waived.waivedEffectType()).isEqualTo(PromotionEffectType.WAIVE_CHARGE.name());
-            assertThat(waived.amount()).isEqualTo(money("5"));
-            assertThat(result.ticketLines()).hasSize(1);
-        }
-
-        @Test
-        @DisplayName("preserves charges for different type")
-        void preservesOtherCharges() {
-            var whatsappCharge = new TicketCharge(TicketChargeType.BUYER_WHATSAPP, money("3"), ChargePaidBy.BUYER);
-            var waiveSmsEffect = effect(PromotionEffectType.WAIVE_CHARGE, null, "BUYER_SMS", null);
-            var decision = decision(waiveSmsEffect);
-
-            var result = applier.apply(
-                decision,
-                List.of(customerLine()),
-                new ArrayList<>(List.of(whatsappCharge)),
-                null,
-                SELLER_TERMINAL_ID,
-                HTG
-            );
-
-            assertThat(result.charges()).hasSize(1);
-            assertThat(result.charges().get(0).type()).isEqualTo(TicketChargeType.BUYER_WHATSAPP);
-        }
-    }
-
-    // -------------------------------------------------------------------------
-    // BOOST_ODDS
-    // -------------------------------------------------------------------------
-
-    @Nested
-    @DisplayName("BOOST_ODDS")
-    class BoostOdds {
-
-        @Test
-        @DisplayName("updates odds snapshot and settlement payout on matching game line")
-        void boostsMatchingLine() {
-            var line = customerLine(); // HT_BOLET, stakeAmount=10, odds=12.5
-            var boostEffect = effect(PromotionEffectType.BOOST_ODDS, "HT_BOLET", null, new BigDecimal("20.0000"));
-            var decision = decision(boostEffect);
-
-            var result = applier.apply(
-                decision,
-                new ArrayList<>(List.of(line)),
-                List.of(),
-                null,
-                SELLER_TERMINAL_ID,
-                HTG
-            );
-
-            assertThat(result.ticketLines()).hasSize(1);
-            var boosted = result.ticketLines().get(0);
-            assertThat(boosted.settlementTermsSnapshot().terms().getFirst().payoutRule().multiplier())
-                .isEqualByComparingTo("20.0000");
-            assertThat(boosted.pricingSource()).isEqualTo(TicketLinePricingSource.PROMOTION);
-            assertThat(boosted.promotionDecisionId()).isEqualTo(decision.decisionId());
-            assertThat(boosted.promotionLabel()).isEqualTo(TicketReceiptI18nKeys.PROMOTION_BOOST_ODDS);
-        }
-
-        @Test
-        @DisplayName("does not affect lines for a different game code")
-        void ignoresOtherGameCode() {
-            var line = customerLine(); // HT_BOLET
-            var boostEffect = effect(PromotionEffectType.BOOST_ODDS, "HT_MEGA_LOT", null, new BigDecimal("20.0000"));
-            var decision = decision(boostEffect);
-
-            var result = applier.apply(
-                decision,
-                new ArrayList<>(List.of(line)),
-                List.of(),
-                null,
-                SELLER_TERMINAL_ID,
-                HTG
-            );
-
-            var unchanged = result.ticketLines().get(0);
-            assertThat(unchanged.settlementTermsSnapshot().terms().getFirst().payoutRule().multiplier())
-                .isEqualByComparingTo("12.5");
-            assertThat(unchanged.pricingSource()).isEqualTo(TicketLinePricingSource.STANDARD);
-            assertThat(unchanged.promotionDecisionId()).isNull();
-        }
-    }
-
-    // -------------------------------------------------------------------------
-    // FREE_GAME_LINE
-    // -------------------------------------------------------------------------
-
-    @Nested
-    @DisplayName("FREE_GAME_LINE")
-    class FreeGameLine {
-
-        @Test
-        @DisplayName("adds a promotional line with stake=0, origin=PROMOTION, payoutBase from effect")
-        void addsPromotionalLine() {
-            var freeEffect = effect(PromotionEffectType.FREE_GAME_LINE, "HT_BOLET", null, new BigDecimal("125"));
-            // quantity defaults to 0 in helper — need a quantity=1 effect
-            var freeEffectQ1 = new PromotionEffect(
-                PromotionRuleId.of(UUID.fromString("B1000000-0000-0000-0000-000000000001")),
-                PromotionEffectType.FREE_GAME_LINE,
-                "HT_BOLET",
-                1,
-                new BigDecimal("125"),
-                "HTG",
-                null,
-                null,
-                PromotionChoiceMode.NONE
-            );
-            var decision = decision(freeEffectQ1);
-            var paid = List.of(customerLine());
-
-            var result = applier.apply(
-                decision,
-                new ArrayList<>(paid),
-                List.of(),
-                command(),
-                SELLER_TERMINAL_ID,
-                HTG
-            );
-
-            assertThat(result.ticketLines()).hasSize(2);
-            var promoLine = result.ticketLines().get(1);
-            assertThat(promoLine.origin()).isEqualTo(TicketLineOrigin.PROMOTION);
-            assertThat(promoLine.pricingSource()).isEqualTo(TicketLinePricingSource.PROMOTION);
-            assertThat(promoLine.stakeAmount()).isEqualTo(Money.zero(HTG));
-            assertThat(promoLine.settlementTermsSnapshot().terms().getFirst().payoutBaseAmount())
-                .isEqualByComparingTo("125");
-            assertThat(promoLine.settlementTermsSnapshot().terms().getFirst().payoutRule().multiplier())
-                .isEqualByComparingTo("12.5");
-            assertThat(promoLine.promotionDecisionId()).isEqualTo(decision.decisionId());
-            assertThat(promoLine.promotionLabel()).isEqualTo(TicketReceiptI18nKeys.PROMOTION_FREE_GAME_LINE);
-        }
-
-        @Test
-        @DisplayName("promotional line has line number after last customer line")
-        void promotionLineNumberFollowsCustomerLines() {
-            var freeEffectQ1 = new PromotionEffect(
-                PromotionRuleId.of(UUID.fromString("B1000000-0000-0000-0000-000000000001")),
-                PromotionEffectType.FREE_GAME_LINE,
-                "HT_BOLET",
-                1,
-                new BigDecimal("125"),
-                "HTG",
-                null,
-                null,
-                PromotionChoiceMode.NONE
-            );
-            var decision = decision(freeEffectQ1);
-
-            var result = applier.apply(
-                decision,
-                new ArrayList<>(List.of(customerLine())),
-                List.of(),
-                command(),
-                SELLER_TERMINAL_ID,
-                HTG
-            );
-
-            var promoLine = result.ticketLines().get(1);
-            assertThat(promoLine.lineNumber()).isGreaterThan(customerLine().lineNumber());
-        }
-
-        @Test
-        @DisplayName("requires explicit customer selection when configured")
-        void requiresExplicitSelectionWhenConfigured() {
-            var freeEffect = new PromotionEffect(
-                PromotionRuleId.of(UUID.fromString("B1000000-0000-0000-0000-000000000001")),
-                PromotionEffectType.FREE_GAME_LINE,
-                "HT_BOLET",
-                1,
-                new BigDecimal("125"),
-                "HTG",
-                null,
-                null,
-                PromotionChoiceMode.CUSTOMER_SELECTS
-            );
-
-            org.assertj.core.api.Assertions.assertThatThrownBy(() ->
-                applier.apply(
-                    decision(freeEffect),
-                    new ArrayList<>(List.of(customerLine())),
-                    List.of(),
-                    command(),
-                    SELLER_TERMINAL_ID,
-                    HTG
-                ))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("promotion.free_game_selection_required");
-        }
-
-        @Test
-        @DisplayName("uses customer-selected promotion choice when provided")
-        void usesCustomerSelectedPromotionChoice() {
-            var freeEffect = new PromotionEffect(
-                PromotionRuleId.of(UUID.fromString("B1000000-0000-0000-0000-000000000001")),
-                PromotionEffectType.FREE_GAME_LINE,
-                "HT_BOLET",
-                1,
-                new BigDecimal("125"),
-                "HTG",
-                null,
-                null,
-                PromotionChoiceMode.CUSTOMER_SELECTS
-            );
-            var decision = decision(freeEffect);
-            var result = applier.apply(
-                decision,
-                new ArrayList<>(List.of(customerLine())),
-                List.of(),
-                command(List.of(new PromotionChoiceInput(
-                    decision.decisionId(),
-                    "HT_BOLET",
-                    0,
-                    "77",
-                    TicketLineSelectionSource.CUSTOMER_SELECTED
-                ))),
-                SELLER_TERMINAL_ID,
-                HTG
-            );
-
-            var promoLine = result.ticketLines().get(1);
-            assertThat(promoLine.selection().key().value()).isEqualTo("77");
-            assertThat(promoLine.selectionSource()).isEqualTo(TicketLineSelectionSource.CUSTOMER_SELECTED);
-        }
-
-        @Test
-        @DisplayName("retries generated promotion selection when it duplicates an existing ticket line")
-        void retriesGeneratedSelectionWhenDuplicate() {
-            var freeEffect = new PromotionEffect(
-                PromotionRuleId.of(UUID.fromString("B1000000-0000-0000-0000-000000000001")),
-                PromotionEffectType.FREE_GAME_LINE,
-                "HT_BOLET",
-                1,
-                new BigDecimal("125"),
-                "HTG",
-                null,
-                null,
-                PromotionChoiceMode.NONE
-            );
-            var localFactory = lineFactoryWithSelections("05", "06");
-            var localApplier = new SalePromotionEffectApplier(localFactory, oddsBoostApplier, chargeApplier);
-
-            var result = localApplier.apply(
-                decision(freeEffect),
-                new ArrayList<>(List.of(customerLine())),
-                List.of(),
-                command(),
-                SELLER_TERMINAL_ID,
-                HTG
-            );
-
-            var promoLine = result.ticketLines().get(1);
-            assertThat(promoLine.selection().key().value()).isEqualTo("06");
-            assertThat(promoLine.selectionSource()).isEqualTo(TicketLineSelectionSource.PROMOTION_GENERATED);
-        }
-    }
-
-    // -------------------------------------------------------------------------
-    // No-op when NOT_ELIGIBLE
-    // -------------------------------------------------------------------------
-
-    @Nested
-    @DisplayName("NOT_ELIGIBLE decision")
-    class NotEligible {
-
-        @Test
-        @DisplayName("returns original lines and charges unchanged")
-        void noOpWhenNotEligible() {
-            var notEligible = new PromotionDecision(
-                PromotionDecisionId.of(UUID.randomUUID()),
-                PromotionDecisionStatus.NOT_ELIGIBLE,
-                PromotionEvaluationPhase.SALE_CONFIRMATION,
-                NOW,
-                "hash",
-                "v1",
-                List.of(),
-                List.of()
-            );
-            var line = customerLine();
-            var charge = new TicketCharge(TicketChargeType.BUYER_SMS, money("5"), ChargePaidBy.BUYER);
-
-            var result = applier.apply(
-                notEligible,
-                List.of(line),
-                List.of(charge),
-                null,
-                SELLER_TERMINAL_ID,
-                HTG
-            );
-
-            assertThat(result.ticketLines()).hasSize(1);
-            assertThat(result.charges()).hasSize(1);
-        }
-    }
-
-    // -------------------------------------------------------------------------
-    // Helpers
-    // -------------------------------------------------------------------------
-
-    private static TicketLine customerLine() {
-        return new TicketLine(
-            TicketLineId.of(UUID.fromString("41000000-0000-0000-0000-000000000001")),
-            1,
-            GameCode.HT_BOLET,
-            BetType.MATCH_1_2D,
-            new Selection(SelectionKey.of("05"), "05"),
-            money("10"),
-            money("10"),
-            new BigDecimal("12.5"),
-            null,
-            TicketLineOrigin.CUSTOMER,
-            TicketLinePricingSource.STANDARD,
-            null,
-            null,
-            null,
-            null,
-            TicketLineResultStatus.PENDING,
-            money("0")
-        );
-    }
-
-    private static PromotionTicketLineFactory lineFactoryWithSelections(String... selections) {
-        var generated = new ArrayList<>(List.of(selections));
-        return new PromotionTicketLineFactory(
-            () -> UUID.fromString("99000000-0000-0000-0000-000000000001"),
-            SELECTION_STUB,
-            PRICING_QUERY_BUS,
-            new PromotionSelectionResolver((gameCode, betType, betOption, strategy, purpose) -> {
-                if (generated.isEmpty()) {
-                    throw new IllegalStateException("no generated selection left");
-                }
-                var value = generated.removeFirst();
-                return new Selection(SelectionKey.of(value), value);
-            })
-        );
-    }
-
-    private static PromotionDecision decision(PromotionEffect effect) {
-        return new PromotionDecision(
-            PromotionDecisionId.of(UUID.fromString("D1000000-0000-0000-0000-000000000001")),
-            PromotionDecisionStatus.APPLIED,
-            PromotionEvaluationPhase.SALE_CONFIRMATION,
-            NOW,
-            "hash",
-            "v1",
-            List.of(effect),
-            List.of()
-        );
-    }
-
-    private static PromotionEffect effect(PromotionEffectType type, String gameCode, String appliesTo, BigDecimal amount) {
-        return new PromotionEffect(
-            PromotionRuleId.of(UUID.fromString("B1000000-0000-0000-0000-000000000001")),
-            type,
-            gameCode,
-            0,
-            amount,
-            "HTG",
-            appliesTo,
-            null,
-            PromotionChoiceMode.NONE
-        );
-    }
-
-    private static SellTicketCommand command() {
-        return command(List.of());
-    }
-
-    private static SellTicketCommand command(List<PromotionChoiceInput> promotionChoices) {
-        return new SellTicketCommand(
-            DrawId.of(UUID.fromString("80000000-0000-0000-0000-000000000001")),
-            DrawChannelId.of(UUID.fromString("90000000-0000-0000-0000-000000000001")),
-            HTG,
-            List.of(),
-            null,
-            promotionChoices
-        );
-    }
-
-    private static Money money(String amount) {
-        return new Money(new BigDecimal(amount), HTG);
-    }
+  private static Money money(String amount) {
+    return new Money(new BigDecimal(amount), HTG);
+  }
 }

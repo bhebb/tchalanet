@@ -30,14 +30,15 @@ public class OpsResourceNotificationRule extends AbstractNotificationRule {
   public Stream<NotificationIntent> map(Object event) {
     var name = event.getClass().getSimpleName();
     var critical = name.equals("OpsResourceCriticalEvent");
-    return Stream.of(platformIntent(
-        event,
-        templateKey(name),
-        critical ? NotificationSeverity.CRITICAL : NotificationSeverity.WARNING,
-        critical ? NotificationKind.SYSTEM_ERROR : NotificationKind.ACTION_REQUIRED,
-        NotificationCategory.SYSTEM,
-        title(name),
-        name));
+    return Stream.of(
+        platformIntent(
+            event,
+            templateKey(name),
+            critical ? NotificationSeverity.CRITICAL : NotificationSeverity.WARNING,
+            critical ? NotificationKind.SYSTEM_ERROR : NotificationKind.ACTION_REQUIRED,
+            NotificationCategory.SYSTEM,
+            title(name),
+            name));
   }
 
   private String templateKey(String eventName) {

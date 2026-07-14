@@ -14,22 +14,21 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ArchiveDrawCommandHandler implements VoidCommandHandler<ArchiveDrawCommand> {
 
-    private final DrawLookupPort drawLookupPort;
-    private final DrawLifecyclePort drawLifecyclePort;
+  private final DrawLookupPort drawLookupPort;
+  private final DrawLifecyclePort drawLifecyclePort;
 
-    @Override
-    @TchTx
-    public void handle(ArchiveDrawCommand command) {
-        var drawIds = DrawLifecycleCommandGuard.requireDrawIds(command.drawIds());
-        log.info("Archiving {} draw(s)", drawIds.size());
+  @Override
+  @TchTx
+  public void handle(ArchiveDrawCommand command) {
+    var drawIds = DrawLifecycleCommandGuard.requireDrawIds(command.drawIds());
+    log.info("Archiving {} draw(s)", drawIds.size());
 
-        for (var drawId : drawIds) {
-            var draw = drawLookupPort.getById(drawId);
+    for (var drawId : drawIds) {
+      var draw = drawLookupPort.getById(drawId);
 
-            draw.archive();
+      draw.archive();
 
-            drawLifecyclePort.save(draw);
-        }
+      drawLifecyclePort.save(draw);
     }
-
+  }
 }

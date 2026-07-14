@@ -4,7 +4,7 @@ import com.tchalanet.server.core.pricing.internal.domain.SellerTerminalOddsOverr
 
 public interface SellerTerminalOddsOverrideWriterPort {
 
-    SellerTerminalOddsOverride save(SellerTerminalOddsOverride override);
+  SellerTerminalOddsOverride save(SellerTerminalOddsOverride override);
 
-    void delete(SellerTerminalOddsOverride override);
+  void delete(SellerTerminalOddsOverride override);
 }

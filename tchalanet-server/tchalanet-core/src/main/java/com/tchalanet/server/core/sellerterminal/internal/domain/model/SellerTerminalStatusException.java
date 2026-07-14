@@ -5,7 +5,8 @@ import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalStatus;
 
 public class SellerTerminalStatusException extends RuntimeException {
 
-    public SellerTerminalStatusException(SellerTerminalId id, SellerTerminalStatus current, String message) {
-        super(message + " [id=" + id.value() + ", status=" + current + "]");
-    }
+  public SellerTerminalStatusException(
+      SellerTerminalId id, SellerTerminalStatus current, String message) {
+    super(message + " [id=" + id.value() + ", status=" + current + "]");
+  }
 }

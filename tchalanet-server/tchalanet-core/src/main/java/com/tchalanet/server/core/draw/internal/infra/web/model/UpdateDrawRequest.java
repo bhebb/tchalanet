@@ -4,7 +4,4 @@ import com.tchalanet.server.common.types.id.DrawId;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 
-public record UpdateDrawRequest(
-    @NotNull DrawId drawId,
-    @NotNull LocalDate scheduledDate
-) {}
+public record UpdateDrawRequest(@NotNull DrawId drawId, @NotNull LocalDate scheduledDate) {}

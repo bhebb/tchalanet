@@ -19,19 +19,18 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class SecurityFilterRegistrationConfig {
 
-    @Bean
-    FilterRegistrationBean<TchContextFilter> tchContextFilterRegistration(TchContextFilter filter) {
-        var registration = new FilterRegistrationBean<>(filter);
-        registration.setEnabled(false);
-        return registration;
-    }
+  @Bean
+  FilterRegistrationBean<TchContextFilter> tchContextFilterRegistration(TchContextFilter filter) {
+    var registration = new FilterRegistrationBean<>(filter);
+    registration.setEnabled(false);
+    return registration;
+  }
 
-    @Bean
-    FilterRegistrationBean<TchAccessContextPipelineFilter> tchAccessContextPipelineFilterRegistration(
-        TchAccessContextPipelineFilter filter
-    ) {
-        var registration = new FilterRegistrationBean<>(filter);
-        registration.setEnabled(false);
-        return registration;
-    }
+  @Bean
+  FilterRegistrationBean<TchAccessContextPipelineFilter> tchAccessContextPipelineFilterRegistration(
+      TchAccessContextPipelineFilter filter) {
+    var registration = new FilterRegistrationBean<>(filter);
+    registration.setEnabled(false);
+    return registration;
+  }
 }

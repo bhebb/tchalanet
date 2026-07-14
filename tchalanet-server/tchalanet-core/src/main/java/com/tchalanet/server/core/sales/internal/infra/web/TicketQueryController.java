@@ -38,28 +38,36 @@ public class TicketQueryController {
   @Operation(
       operationId = "listTickets",
       summary = "List tickets with filters",
-      description = "Returns paginated ticket summaries for the current tenant with optional filters.")
+      description =
+          "Returns paginated ticket summaries for the current tenant with optional filters.")
   @io.swagger.v3.oas.annotations.responses.ApiResponses({
-      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Tickets listed"),
-      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid filters"),
-      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Unauthorized"),
-      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+        responseCode = "200",
+        description = "Tickets listed"),
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+        responseCode = "400",
+        description = "Invalid filters"),
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized"),
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+        responseCode = "403",
+        description = "Forbidden")
   })
   @GetMapping
   @ResponseStatus(HttpStatus.OK)
   public ApiResponse<TchPage<TicketSummaryResponse>> list(
-	      @RequestParam(required = false) SellerTerminalId sellerTerminalId,
-	      @RequestParam(required = false) DrawId drawId,
-	      @RequestParam(required = false) String status,
-	      @RequestParam(required = false) String q,
-	      @RequestParam(required = false) Instant from,
-	      @RequestParam(required = false) Instant to,
+      @RequestParam(required = false) SellerTerminalId sellerTerminalId,
+      @RequestParam(required = false) DrawId drawId,
+      @RequestParam(required = false) String status,
+      @RequestParam(required = false) String q,
+      @RequestParam(required = false) Instant from,
+      @RequestParam(required = false) Instant to,
       @TchPaging(
               allowedSort = {"createdAt", "totalAmount", "ticketCode"},
               defaultSort = {"createdAt,DESC"})
           TchPageRequest pageReq) {
-	    var query =
-	        mapper.toListTicketsQuery(sellerTerminalId, drawId, status, q, from, to, pageReq);
+    var query = mapper.toListTicketsQuery(sellerTerminalId, drawId, status, q, from, to, pageReq);
     var result = queryBus.ask(query);
     return ApiResponse.success(mapper.toPagedSummaryResponse(result));
   }
@@ -69,10 +77,18 @@ public class TicketQueryController {
       summary = "Get ticket details",
       description = "Returns detailed ticket information by ticket id.")
   @io.swagger.v3.oas.annotations.responses.ApiResponses({
-      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Ticket found"),
-      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Unauthorized"),
-      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden"),
-      @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Ticket not found")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+        responseCode = "200",
+        description = "Ticket found"),
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized"),
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+        responseCode = "403",
+        description = "Forbidden"),
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+        responseCode = "404",
+        description = "Ticket not found")
   })
   @GetMapping("/{ticketId}")
   @ResponseStatus(HttpStatus.OK)

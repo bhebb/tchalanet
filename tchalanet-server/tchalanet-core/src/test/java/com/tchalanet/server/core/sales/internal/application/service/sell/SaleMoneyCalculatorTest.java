@@ -25,58 +25,58 @@ import org.junit.jupiter.api.Test;
 @DisplayName("SaleMoneyCalculator")
 class SaleMoneyCalculatorTest {
 
-    private static final CurrencyCode HTG = CurrencyCode.of("HTG");
-    private final SaleMoneyCalculator calculator = new SaleMoneyCalculator();
+  private static final CurrencyCode HTG = CurrencyCode.of("HTG");
+  private final SaleMoneyCalculator calculator = new SaleMoneyCalculator();
 
-    @Test
-    @DisplayName("normal paid ticket total is stake plus buyer charges")
-    void normalPaidTicketTotalIncludesBuyerCharges() {
-        var money = calculator.compute(
+  @Test
+  @DisplayName("normal paid ticket total is stake plus buyer charges")
+  void normalPaidTicketTotalIncludesBuyerCharges() {
+    var money =
+        calculator.compute(
             List.of(line("10"), line("15")),
             List.of(new TicketCharge(TicketChargeType.BUYER_SMS, money("5"), ChargePaidBy.BUYER)),
-            command()
-        );
+            command());
 
-        assertThat(money.stake().amount()).isEqualByComparingTo("25");
-        assertThat(money.totalBuyerCharges().amount()).isEqualByComparingTo("5");
-        assertThat(money.total().amount()).isEqualByComparingTo("30");
-    }
+    assertThat(money.stake().amount()).isEqualByComparingTo("25");
+    assertThat(money.totalBuyerCharges().amount()).isEqualByComparingTo("5");
+    assertThat(money.total().amount()).isEqualByComparingTo("30");
+  }
 
-    @Test
-    @DisplayName("waived buyer charge is retained but excluded from buyer total")
-    void waivedChargeIsExcludedFromBuyerTotal() {
-        var waivedSms = new TicketCharge(TicketChargeType.BUYER_SMS, money("5"), ChargePaidBy.BUYER)
+  @Test
+  @DisplayName("waived buyer charge is retained but excluded from buyer total")
+  void waivedChargeIsExcludedFromBuyerTotal() {
+    var waivedSms =
+        new TicketCharge(TicketChargeType.BUYER_SMS, money("5"), ChargePaidBy.BUYER)
             .asWaived(PromotionRuleId.of(UUID.fromString("B1000000-0000-0000-0000-000000000001")));
 
-        var money = calculator.compute(List.of(line("10")), List.of(waivedSms), command());
+    var money = calculator.compute(List.of(line("10")), List.of(waivedSms), command());
 
-        assertThat(money.charges()).hasSize(1);
-        assertThat(money.charges().getFirst().isWaived()).isTrue();
-        assertThat(money.totalBuyerCharges().amount()).isEqualByComparingTo("0");
-        assertThat(money.totalChargesAllPayers().amount()).isEqualByComparingTo("5");
-        assertThat(money.total().amount()).isEqualByComparingTo("10");
-    }
+    assertThat(money.charges()).hasSize(1);
+    assertThat(money.charges().getFirst().isWaived()).isTrue();
+    assertThat(money.totalBuyerCharges().amount()).isEqualByComparingTo("0");
+    assertThat(money.totalChargesAllPayers().amount()).isEqualByComparingTo("5");
+    assertThat(money.total().amount()).isEqualByComparingTo("10");
+  }
 
-    private static SellTicketCommand command() {
-        return new SellTicketCommand(null, null, HTG, List.of(), null, List.of());
-    }
+  private static SellTicketCommand command() {
+    return new SellTicketCommand(null, null, HTG, List.of(), null, List.of());
+  }
 
-    private static TicketLine line(String stake) {
-        return TicketLine.customerLine(
-            TicketLineId.of(UUID.randomUUID()),
-            1,
-            GameCode.HT_BOLET,
-            BetType.MATCH_1_2D,
-            new Selection(SelectionKey.of("05"), "05"),
-            money(stake),
-            new BigDecimal("12.5"),
-            null,
-            TicketLineResultStatus.PENDING,
-            money("0")
-        );
-    }
+  private static TicketLine line(String stake) {
+    return TicketLine.customerLine(
+        TicketLineId.of(UUID.randomUUID()),
+        1,
+        GameCode.HT_BOLET,
+        BetType.MATCH_1_2D,
+        new Selection(SelectionKey.of("05"), "05"),
+        money(stake),
+        new BigDecimal("12.5"),
+        null,
+        TicketLineResultStatus.PENDING,
+        money("0"));
+  }
 
-    private static Money money(String amount) {
-        return new Money(new BigDecimal(amount), HTG);
-    }
+  private static Money money(String amount) {
+    return new Money(new BigDecimal(amount), HTG);
+  }
 }

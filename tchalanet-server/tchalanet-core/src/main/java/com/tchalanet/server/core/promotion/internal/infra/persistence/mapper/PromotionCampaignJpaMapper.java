@@ -21,113 +21,110 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface PromotionCampaignJpaMapper {
-    default void updateFromCreate(CreatePromotionCampaignCommand cmd, PromotionCampaignJpaEntity e) {
-        e.setCode(cmd.name());
-        e.setName(cmd.name());
-        e.setStatus(PromotionCampaignStatus.DRAFT);
-        e.setPriority(cmd.priority());
-        e.setStartsAt(cmd.startsAt());
-        e.setEndsAt(cmd.endsAt());
+  default void updateFromCreate(CreatePromotionCampaignCommand cmd, PromotionCampaignJpaEntity e) {
+    e.setCode(cmd.name());
+    e.setName(cmd.name());
+    e.setStatus(PromotionCampaignStatus.DRAFT);
+    e.setPriority(cmd.priority());
+    e.setStartsAt(cmd.startsAt());
+    e.setEndsAt(cmd.endsAt());
+  }
+
+  default void updateFromUpdate(UpdatePromotionCampaignCommand cmd, PromotionCampaignJpaEntity e) {
+    e.setName(cmd.name());
+    e.setPriority(cmd.priority());
+    e.setStartsAt(cmd.startsAt());
+    e.setEndsAt(cmd.endsAt());
+  }
+
+  default PromotionCampaignView toView(
+      PromotionCampaignJpaEntity campaign, List<PromotionRuleView> rules) {
+    return new PromotionCampaignView(
+        PromotionCampaignId.of(campaign.getId()),
+        campaign.getCode(),
+        campaign.getName(),
+        campaign.getStatus(),
+        campaign.getPriority(),
+        campaign.getStartsAt(),
+        campaign.getEndsAt(),
+        rules == null ? List.of() : List.copyOf(rules));
+  }
+
+  default PromotionRuleView toRuleView(
+      PromotionRuleJpaEntity rule,
+      List<PromotionRuleEligibilityLineJpaEntity> eligibilityLines,
+      List<PromotionRuleEffectJpaEntity> effects) {
+    var eligibility = new java.util.ArrayList<PromotionEligibilityConfigView>();
+    if (rule.getMinPaidTotal() != null) {
+      eligibility.add(
+          new PromotionEligibilityConfigView(
+              PromotionEligibilityType.MIN_PAID_TOTAL, Map.of("amount", rule.getMinPaidTotal())));
+    }
+    if (rule.getBeforeLocalTime() != null) {
+      eligibility.add(
+          new PromotionEligibilityConfigView(
+              PromotionEligibilityType.BEFORE_LOCAL_TIME,
+              Map.of("time", rule.getBeforeLocalTime().toString())));
+    }
+    if (eligibilityLines != null) {
+      eligibility.addAll(
+          eligibilityLines.stream()
+              .map(
+                  line ->
+                      new PromotionEligibilityConfigView(
+                          PromotionEligibilityType.PAID_LINE_COUNT,
+                          Map.of("gameCode", line.getGameCode(), "minCount", line.getMinCount())))
+              .toList());
     }
 
-    default void updateFromUpdate(UpdatePromotionCampaignCommand cmd, PromotionCampaignJpaEntity e) {
-        e.setName(cmd.name());
-        e.setPriority(cmd.priority());
-        e.setStartsAt(cmd.startsAt());
-        e.setEndsAt(cmd.endsAt());
-    }
+    return new PromotionRuleView(
+        PromotionRuleId.of(rule.getId()),
+        rule.getRuleKey(),
+        rule.getPriority(),
+        eligibility,
+        effects == null ? List.of() : effects.stream().map(this::toEffectView).toList());
+  }
 
-    default PromotionCampaignView toView(
-        PromotionCampaignJpaEntity campaign,
-        List<PromotionRuleView> rules
-    ) {
-        return new PromotionCampaignView(
-            PromotionCampaignId.of(campaign.getId()),
-            campaign.getCode(),
-            campaign.getName(),
-            campaign.getStatus(),
-            campaign.getPriority(),
-            campaign.getStartsAt(),
-            campaign.getEndsAt(),
-            rules == null ? List.of() : List.copyOf(rules)
-        );
+  default PromotionEffectConfigView toEffectView(PromotionRuleEffectJpaEntity effect) {
+    var params = new LinkedHashMap<String, Object>();
+    if (effect.getGameCode() != null) {
+      params.put("gameCode", effect.getGameCode());
     }
-
-    default PromotionRuleView toRuleView(
-        PromotionRuleJpaEntity rule,
-        List<PromotionRuleEligibilityLineJpaEntity> eligibilityLines,
-        List<PromotionRuleEffectJpaEntity> effects
-    ) {
-        var eligibility = new java.util.ArrayList<PromotionEligibilityConfigView>();
-        if (rule.getMinPaidTotal() != null) {
-            eligibility.add(new PromotionEligibilityConfigView(
-                PromotionEligibilityType.MIN_PAID_TOTAL,
-                Map.of("amount", rule.getMinPaidTotal())
-            ));
-        }
-        if (rule.getBeforeLocalTime() != null) {
-            eligibility.add(new PromotionEligibilityConfigView(
-                PromotionEligibilityType.BEFORE_LOCAL_TIME,
-                Map.of("time", rule.getBeforeLocalTime().toString())
-            ));
-        }
-        if (eligibilityLines != null) {
-            eligibility.addAll(eligibilityLines.stream()
-                .map(line -> new PromotionEligibilityConfigView(
-                    PromotionEligibilityType.PAID_LINE_COUNT,
-                    Map.of("gameCode", line.getGameCode(), "minCount", line.getMinCount())))
-                .toList());
-        }
-
-        return new PromotionRuleView(
-            PromotionRuleId.of(rule.getId()),
-            rule.getRuleKey(),
-            rule.getPriority(),
-            eligibility,
-            effects == null ? List.of() : effects.stream().map(this::toEffectView).toList()
-        );
+    if (effect.getPayoutBaseAmount() != null) {
+      params.put("payoutBaseAmount", effect.getPayoutBaseAmount());
     }
-
-    default PromotionEffectConfigView toEffectView(PromotionRuleEffectJpaEntity effect) {
-        var params = new LinkedHashMap<String, Object>();
-        if (effect.getGameCode() != null) {
-            params.put("gameCode", effect.getGameCode());
-        }
-        if (effect.getPayoutBaseAmount() != null) {
-            params.put("payoutBaseAmount", effect.getPayoutBaseAmount());
-        }
-        if (effect.getQuantity() != null) {
-            params.put("quantity", effect.getQuantity());
-        }
-        if (effect.getQuantityMode() != null) {
-            params.put("quantityMode", effect.getQuantityMode().name());
-        }
-        if (effect.getStepPaidAmount() != null) {
-            params.put("stepPaidAmount", effect.getStepPaidAmount());
-        }
-        if (effect.getQuantityPerStep() != null) {
-            params.put("quantityPerStep", effect.getQuantityPerStep());
-        }
-        if (effect.getMaxQuantity() != null) {
-            params.put("maxQuantity", effect.getMaxQuantity());
-        }
-        if (effect.getQuantityTiers() != null && !effect.getQuantityTiers().isEmpty()) {
-            params.put("quantityTiers", effect.getQuantityTiers());
-        }
-        if (effect.getOddsOverride() != null) {
-            params.put("oddsOverride", effect.getOddsOverride());
-        }
-        if (effect.getChargeType() != null) {
-            params.put("chargeType", effect.getChargeType());
-        }
-        if (effect.getChoiceMode() != null) {
-            params.put("choiceMode", effect.getChoiceMode().name());
-        }
-        if (effect.getGenerationStrategy() != null) {
-            params.put("generationStrategy", effect.getGenerationStrategy().name());
-        }
-        params.put("regenerableBeforeConfirm", effect.isRegenerableBeforeConfirm());
-        params.put("maxRegenerationsBeforeConfirm", effect.getMaxRegenerationsBeforeConfirm());
-        return new PromotionEffectConfigView(effect.getEffectType(), params);
+    if (effect.getQuantity() != null) {
+      params.put("quantity", effect.getQuantity());
     }
+    if (effect.getQuantityMode() != null) {
+      params.put("quantityMode", effect.getQuantityMode().name());
+    }
+    if (effect.getStepPaidAmount() != null) {
+      params.put("stepPaidAmount", effect.getStepPaidAmount());
+    }
+    if (effect.getQuantityPerStep() != null) {
+      params.put("quantityPerStep", effect.getQuantityPerStep());
+    }
+    if (effect.getMaxQuantity() != null) {
+      params.put("maxQuantity", effect.getMaxQuantity());
+    }
+    if (effect.getQuantityTiers() != null && !effect.getQuantityTiers().isEmpty()) {
+      params.put("quantityTiers", effect.getQuantityTiers());
+    }
+    if (effect.getOddsOverride() != null) {
+      params.put("oddsOverride", effect.getOddsOverride());
+    }
+    if (effect.getChargeType() != null) {
+      params.put("chargeType", effect.getChargeType());
+    }
+    if (effect.getChoiceMode() != null) {
+      params.put("choiceMode", effect.getChoiceMode().name());
+    }
+    if (effect.getGenerationStrategy() != null) {
+      params.put("generationStrategy", effect.getGenerationStrategy().name());
+    }
+    params.put("regenerableBeforeConfirm", effect.isRegenerableBeforeConfirm());
+    params.put("maxRegenerationsBeforeConfirm", effect.getMaxRegenerationsBeforeConfirm());
+    return new PromotionEffectConfigView(effect.getEffectType(), params);
+  }
 }

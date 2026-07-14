@@ -6,8 +6,8 @@ import com.tchalanet.server.catalog.settings.api.model.SettingValueType;
 /**
  * Setting Key Definition (INTERNAL)
  *
- * <p>defaultExposure: canonical exposure for this key. Defaults to INTERNAL.
- * exposureOverridable: if false, admin cannot change the exposure of this key.
+ * <p>defaultExposure: canonical exposure for this key. Defaults to INTERNAL. exposureOverridable:
+ * if false, admin cannot change the exposure of this key.
  */
 public record SettingKeyDef<T>(
     String namespace,

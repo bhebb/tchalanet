@@ -37,22 +37,22 @@ public class MarkTicketPayoutReversedCommandHandler
     var saved = ticketWriter.save(reversed);
     var amount = saved.winningAmount().amount();
 
-    var event = new TicketPayoutReversedEvent(
-        EventId.of(idGenerator.newUuid()),
-        command.reversedAt(),
-        saved.identity().tenantId(),
-        saved.identity().id(),
-        saved.context().drawId(),
-        toCents(amount),
-        saved.money().currency().code(),
-        saved.context().sellerTerminalId(),
-        command.reversedBy());
+    var event =
+        new TicketPayoutReversedEvent(
+            EventId.of(idGenerator.newUuid()),
+            command.reversedAt(),
+            saved.identity().tenantId(),
+            saved.identity().id(),
+            saved.context().drawId(),
+            toCents(amount),
+            saved.money().currency().code(),
+            saved.context().sellerTerminalId(),
+            command.reversedBy());
 
     AfterCommit.run(() -> eventPublisher.publish(event));
 
     return new MarkTicketPayoutReversedResult(
-        saved.identity().id(),
-        saved.lifecycle().settlement().status());
+        saved.identity().id(), saved.lifecycle().settlement().status());
   }
 
   private static long toCents(BigDecimal amount) {

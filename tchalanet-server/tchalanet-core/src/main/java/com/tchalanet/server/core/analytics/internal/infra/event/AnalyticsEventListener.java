@@ -12,8 +12,8 @@ import com.tchalanet.server.core.sales.api.event.TicketPayoutReversedEvent;
 import com.tchalanet.server.core.sales.api.event.TicketPlacedEvent;
 import com.tchalanet.server.core.sales.api.event.TicketWinningSettlementCreatedEvent;
 import com.tchalanet.server.core.sales.api.event.TicketWinningSettlementReversedEvent;
-import com.tchalanet.server.platform.tenant.api.TenantZoneApi;
 import com.tchalanet.server.platform.idempotence.api.ProcessedEventPort;
+import com.tchalanet.server.platform.tenant.api.TenantZoneApi;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -27,12 +27,13 @@ import org.springframework.transaction.event.TransactionalEventListener;
  * Analytics event projector — subscribes to public domain events after commit.
  *
  * <p>Architecture rules enforced here:
+ *
  * <ul>
- *   <li>Only imports from {@code core.*.api.*} — never {@code core.*.internal.*}.</li>
- *   <li>Idempotence via {@link ProcessedEventPort} with stable handler key prefix
- *       {@code analytics.*}.</li>
- *   <li>{@link TransactionPhase#AFTER_COMMIT} — analytics projections are derived
- *       read truth, never the financial source of truth.</li>
+ *   <li>Only imports from {@code core.*.api.*} — never {@code core.*.internal.*}.
+ *   <li>Idempotence via {@link ProcessedEventPort} with stable handler key prefix {@code
+ *       analytics.*}.
+ *   <li>{@link TransactionPhase#AFTER_COMMIT} — analytics projections are derived read truth, never
+ *       the financial source of truth.
  * </ul>
  */
 @Component
@@ -40,17 +41,17 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @Slf4j
 public class AnalyticsEventListener {
 
-  static final String HANDLER_KEY_DAILY     = "analytics.daily";
-  static final String HANDLER_KEY_DRAW      = "analytics.draw";
+  static final String HANDLER_KEY_DAILY = "analytics.daily";
+  static final String HANDLER_KEY_DRAW = "analytics.draw";
   static final String HANDLER_KEY_SELECTION = "analytics.selection";
   static final String HANDLER_KEY_SELLER_TERMINAL_DRAW = "analytics.seller-terminal-draw";
 
-  private final ProcessedEventPort          processedEvent;
-  private final AnalyticsDailyProjector     dailyProjector;
-  private final AnalyticsDrawProjector      drawProjector;
+  private final ProcessedEventPort processedEvent;
+  private final AnalyticsDailyProjector dailyProjector;
+  private final AnalyticsDrawProjector drawProjector;
   private final AnalyticsSelectionProjector selectionProjector;
   private final AnalyticsSellerTerminalDrawProjector sellerTerminalDrawProjector;
-  private final TenantZoneApi               tenantZoneApi;
+  private final TenantZoneApi tenantZoneApi;
 
   // ── ticket placed ─────────────────────────────────────────────────────────
 
@@ -81,7 +82,8 @@ public class AnalyticsEventListener {
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void onTicketWinningSettlementCreated(TicketWinningSettlementCreatedEvent event) {
     if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_DAILY, event.eventId().value())) {
-      log.debug("analytics: duplicate TicketWinningSettlementCreatedEvent {}", event.eventId().value());
+      log.debug(
+          "analytics: duplicate TicketWinningSettlementCreatedEvent {}", event.eventId().value());
       return;
     }
     LocalDate refDate = refDate(event);
@@ -91,7 +93,8 @@ public class AnalyticsEventListener {
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void onTicketWinningSettlementReversed(TicketWinningSettlementReversedEvent event) {
     if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_DAILY, event.eventId().value())) {
-      log.debug("analytics: duplicate TicketWinningSettlementReversedEvent {}", event.eventId().value());
+      log.debug(
+          "analytics: duplicate TicketWinningSettlementReversedEvent {}", event.eventId().value());
       return;
     }
     LocalDate refDate = refDate(event);
@@ -101,7 +104,9 @@ public class AnalyticsEventListener {
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void onTicketWinningSettlementCreatedForDraw(TicketWinningSettlementCreatedEvent event) {
     if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_DRAW, event.eventId().value())) {
-      log.debug("analytics: duplicate TicketWinningSettlementCreatedEvent (draw) {}", event.eventId().value());
+      log.debug(
+          "analytics: duplicate TicketWinningSettlementCreatedEvent (draw) {}",
+          event.eventId().value());
       return;
     }
     LocalDate refDate = refDate(event);
@@ -109,9 +114,12 @@ public class AnalyticsEventListener {
   }
 
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-  public void onTicketWinningSettlementCreatedForSellerTerminalDraw(TicketWinningSettlementCreatedEvent event) {
-    if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_SELLER_TERMINAL_DRAW, event.eventId().value())) {
-      log.debug("analytics: duplicate TicketWinningSettlementCreatedEvent (seller-terminal-draw) {}",
+  public void onTicketWinningSettlementCreatedForSellerTerminalDraw(
+      TicketWinningSettlementCreatedEvent event) {
+    if (!processedEvent.markProcessedIfAbsent(
+        HANDLER_KEY_SELLER_TERMINAL_DRAW, event.eventId().value())) {
+      log.debug(
+          "analytics: duplicate TicketWinningSettlementCreatedEvent (seller-terminal-draw) {}",
           event.eventId().value());
       return;
     }
@@ -122,7 +130,9 @@ public class AnalyticsEventListener {
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void onTicketWinningSettlementReversedForDraw(TicketWinningSettlementReversedEvent event) {
     if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_DRAW, event.eventId().value())) {
-      log.debug("analytics: duplicate TicketWinningSettlementReversedEvent (draw) {}", event.eventId().value());
+      log.debug(
+          "analytics: duplicate TicketWinningSettlementReversedEvent (draw) {}",
+          event.eventId().value());
       return;
     }
     LocalDate refDate = refDate(event);
@@ -130,9 +140,12 @@ public class AnalyticsEventListener {
   }
 
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-  public void onTicketWinningSettlementReversedForSellerTerminalDraw(TicketWinningSettlementReversedEvent event) {
-    if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_SELLER_TERMINAL_DRAW, event.eventId().value())) {
-      log.debug("analytics: duplicate TicketWinningSettlementReversedEvent (seller-terminal-draw) {}",
+  public void onTicketWinningSettlementReversedForSellerTerminalDraw(
+      TicketWinningSettlementReversedEvent event) {
+    if (!processedEvent.markProcessedIfAbsent(
+        HANDLER_KEY_SELLER_TERMINAL_DRAW, event.eventId().value())) {
+      log.debug(
+          "analytics: duplicate TicketWinningSettlementReversedEvent (seller-terminal-draw) {}",
           event.eventId().value());
       return;
     }
@@ -174,8 +187,11 @@ public class AnalyticsEventListener {
 
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void onTicketPayoutPaidForSellerTerminalDraw(TicketPayoutPaidEvent event) {
-    if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_SELLER_TERMINAL_DRAW, event.eventId().value())) {
-      log.debug("analytics: duplicate TicketPayoutPaidEvent (seller-terminal-draw) {}", event.eventId().value());
+    if (!processedEvent.markProcessedIfAbsent(
+        HANDLER_KEY_SELLER_TERMINAL_DRAW, event.eventId().value())) {
+      log.debug(
+          "analytics: duplicate TicketPayoutPaidEvent (seller-terminal-draw) {}",
+          event.eventId().value());
       return;
     }
     LocalDate refDate = refDate(event);
@@ -185,7 +201,8 @@ public class AnalyticsEventListener {
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void onTicketPayoutReversedForDraw(TicketPayoutReversedEvent event) {
     if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_DRAW, event.eventId().value())) {
-      log.debug("analytics: duplicate TicketPayoutReversedEvent (draw) {}", event.eventId().value());
+      log.debug(
+          "analytics: duplicate TicketPayoutReversedEvent (draw) {}", event.eventId().value());
       return;
     }
     LocalDate refDate = refDate(event);
@@ -194,8 +211,11 @@ public class AnalyticsEventListener {
 
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void onTicketPayoutReversedForSellerTerminalDraw(TicketPayoutReversedEvent event) {
-    if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_SELLER_TERMINAL_DRAW, event.eventId().value())) {
-      log.debug("analytics: duplicate TicketPayoutReversedEvent (seller-terminal-draw) {}", event.eventId().value());
+    if (!processedEvent.markProcessedIfAbsent(
+        HANDLER_KEY_SELLER_TERMINAL_DRAW, event.eventId().value())) {
+      log.debug(
+          "analytics: duplicate TicketPayoutReversedEvent (seller-terminal-draw) {}",
+          event.eventId().value());
       return;
     }
     LocalDate refDate = refDate(event);
@@ -226,8 +246,11 @@ public class AnalyticsEventListener {
 
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void onTicketPlacedForSellerTerminalDraw(TicketPlacedEvent event) {
-    if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_SELLER_TERMINAL_DRAW, event.eventId().value())) {
-      log.debug("analytics: duplicate TicketPlacedEvent (seller-terminal-draw) {}", event.eventId().value());
+    if (!processedEvent.markProcessedIfAbsent(
+        HANDLER_KEY_SELLER_TERMINAL_DRAW, event.eventId().value())) {
+      log.debug(
+          "analytics: duplicate TicketPlacedEvent (seller-terminal-draw) {}",
+          event.eventId().value());
       return;
     }
     LocalDate refDate = refDate(event);
@@ -254,7 +277,8 @@ public class AnalyticsEventListener {
       ZoneId zoneId = tenantZoneApi.resolveTenantZone(event.tenantId());
       return zoneId != null ? zoneId : ZoneOffset.UTC;
     } catch (RuntimeException e) {
-      log.warn("analytics: failed to resolve tenant timezone for {} — using UTC", event.tenantId(), e);
+      log.warn(
+          "analytics: failed to resolve tenant timezone for {} — using UTC", event.tenantId(), e);
       return ZoneOffset.UTC;
     }
   }

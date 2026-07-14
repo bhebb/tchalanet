@@ -15,112 +15,105 @@ import com.tchalanet.server.core.sales.internal.application.receipt.formatter.Ti
 import com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketReceiptI18nResolver;
 import com.tchalanet.server.core.sales.internal.domain.service.CustomerTicketStatusResolver;
 import com.tchalanet.server.core.sales.internal.domain.service.TicketVisibilityPolicy;
-import lombok.RequiredArgsConstructor;
-
 import java.util.Locale;
+import lombok.RequiredArgsConstructor;
 
 @UseCase
 @RequiredArgsConstructor
 public class VerifyTicketByPublicCodeQueryHandler
     implements QueryHandler<VerifyTicketByPublicCodeQuery, TicketVerificationView> {
 
-    private final TicketVerificationReaderPort reader;
-    private final CustomerTicketStatusResolver statusResolver;
-    private final TicketVisibilityPolicy visibilityPolicy;
-    private final GameCatalog gameCatalog;
-    private final TicketPublicCodeFormatter publicCodeFormatter;
-    private final TicketReceiptI18nResolver i18nResolver;
+  private final TicketVerificationReaderPort reader;
+  private final CustomerTicketStatusResolver statusResolver;
+  private final TicketVisibilityPolicy visibilityPolicy;
+  private final GameCatalog gameCatalog;
+  private final TicketPublicCodeFormatter publicCodeFormatter;
+  private final TicketReceiptI18nResolver i18nResolver;
 
-    @Override
-    public TicketVerificationView handle(VerifyTicketByPublicCodeQuery query) {
-        var publicCode = publicCodeFormatter.display(query.publicCode());
+  @Override
+  public TicketVerificationView handle(VerifyTicketByPublicCodeQuery query) {
+    var publicCode = publicCodeFormatter.display(query.publicCode());
 
-        var projection = reader.findByPublicCode(publicCode)
+    var projection =
+        reader
+            .findByPublicCode(publicCode)
             .orElseThrow(() -> ProblemRest.notFound("ticket.not_found"));
 
-        if (!visibilityPolicy.isPubliclyVisible(projection.placedAt())) {
-            throw ProblemRest.notFound("ticket.not_found");
-        }
-
-        var status = statusResolver.resolve(
-            projection.saleStatus(),
-            projection.resultStatus(),
-            projection.settlementStatus()
-        );
-
-        var winningAmount = isWinning(status) ? projection.winningAmount() : null;
-
-        return new TicketVerificationView(
-            projection.publicCode(),
-            projection.displayCode(),
-            status,
-            projection.totalAmount(),
-            winningAmount,
-            projection.placedAt(),
-            new TicketVerificationView.DrawInfoView(
-                DrawChannelLabelKeyResolver.resolve(projection.draw().drawChannelKey()),
-                projection.draw().drawChannelName(),
-                projection.draw().resultSlotKey(),
-                projection.draw().provider(),
-                projection.draw().timezone(),
-                projection.draw().drawDate(),
-                projection.draw().scheduledAt()
-            ),
-            projection.outlet() != null
-                ? new TicketVerificationView.OutletInfoView(projection.outlet().outletName())
-                : null,
-            projection.lines().stream()
-                .map(line -> toLineView(projection, line))
-                .toList()
-        );
+    if (!visibilityPolicy.isPubliclyVisible(projection.placedAt())) {
+      throw ProblemRest.notFound("ticket.not_found");
     }
 
-    private boolean isWinning(CustomerTicketStatus status) {
-        return status == CustomerTicketStatus.WON_CLAIMABLE
-            || status == CustomerTicketStatus.WON_PAID
-            || status == CustomerTicketStatus.CORRECTED;
-    }
+    var status =
+        statusResolver.resolve(
+            projection.saleStatus(), projection.resultStatus(), projection.settlementStatus());
 
-    private TicketVerificationView.TicketLineView toLineView(
-        TicketVerificationProjection projection,
-        TicketVerificationProjection.LineProjection line
-    ) {
-        var gameDisplayName = line.gameCode() != null
+    var winningAmount = isWinning(status) ? projection.winningAmount() : null;
+
+    return new TicketVerificationView(
+        projection.publicCode(),
+        projection.displayCode(),
+        status,
+        projection.totalAmount(),
+        winningAmount,
+        projection.placedAt(),
+        new TicketVerificationView.DrawInfoView(
+            DrawChannelLabelKeyResolver.resolve(projection.draw().drawChannelKey()),
+            projection.draw().drawChannelName(),
+            projection.draw().resultSlotKey(),
+            projection.draw().provider(),
+            projection.draw().timezone(),
+            projection.draw().drawDate(),
+            projection.draw().scheduledAt()),
+        projection.outlet() != null
+            ? new TicketVerificationView.OutletInfoView(projection.outlet().outletName())
+            : null,
+        projection.lines().stream().map(line -> toLineView(projection, line)).toList());
+  }
+
+  private boolean isWinning(CustomerTicketStatus status) {
+    return status == CustomerTicketStatus.WON_CLAIMABLE
+        || status == CustomerTicketStatus.WON_PAID
+        || status == CustomerTicketStatus.CORRECTED;
+  }
+
+  private TicketVerificationView.TicketLineView toLineView(
+      TicketVerificationProjection projection, TicketVerificationProjection.LineProjection line) {
+    var gameDisplayName =
+        line.gameCode() != null
             ? firstNonBlank(
-            line.gameLabel(),
-            gameCatalog.findByCode(line.gameCode().name())
-                .map(g -> g.name())
-                .orElse(line.gameCode().name()))
+                line.gameLabel(),
+                gameCatalog
+                    .findByCode(line.gameCode().name())
+                    .map(g -> g.name())
+                    .orElse(line.gameCode().name()))
             : null;
-        var betTypeLabel = firstNonBlank(line.betTypeLabel(), line.betType() != null ? line.betType().name() : null);
-        return new TicketVerificationView.TicketLineView(
-            line.lineNumber(),
-            gameDisplayName,
-            betTypeLabel,
-            line.optionLabel(),
-            line.displaySelection(),
-            line.stake(),
-            line.promotional(),
-            promotionLabel(projection, line)
-        );
-    }
+    var betTypeLabel =
+        firstNonBlank(line.betTypeLabel(), line.betType() != null ? line.betType().name() : null);
+    return new TicketVerificationView.TicketLineView(
+        line.lineNumber(),
+        gameDisplayName,
+        betTypeLabel,
+        line.optionLabel(),
+        line.displaySelection(),
+        line.stake(),
+        line.promotional(),
+        promotionLabel(projection, line));
+  }
 
-    private String promotionLabel(
-        TicketVerificationProjection projection,
-        TicketVerificationProjection.LineProjection line
-    ) {
-        if (line.promotionLabel() == null || line.promotionLabel().isBlank()) {
-            return line.promotionLabel();
-        }
-        if (!line.promotionLabel().startsWith("receipt.")) {
-            return line.promotionLabel();
-        }
-        var ctx = TchContext.currentOrNull();
-        var locale = ctx != null && ctx.locale() != null ? ctx.locale() : Locale.FRENCH;
-        return i18nResolver.resolve(locale, projection.tenantId()).text(line.promotionLabel());
+  private String promotionLabel(
+      TicketVerificationProjection projection, TicketVerificationProjection.LineProjection line) {
+    if (line.promotionLabel() == null || line.promotionLabel().isBlank()) {
+      return line.promotionLabel();
     }
+    if (!line.promotionLabel().startsWith("receipt.")) {
+      return line.promotionLabel();
+    }
+    var ctx = TchContext.currentOrNull();
+    var locale = ctx != null && ctx.locale() != null ? ctx.locale() : Locale.FRENCH;
+    return i18nResolver.resolve(locale, projection.tenantId()).text(line.promotionLabel());
+  }
 
-    private String firstNonBlank(String preferred, String fallback) {
-        return preferred == null || preferred.isBlank() ? fallback : preferred;
-    }
+  private String firstNonBlank(String preferred, String fallback) {
+    return preferred == null || preferred.isBlank() ? fallback : preferred;
+  }
 }

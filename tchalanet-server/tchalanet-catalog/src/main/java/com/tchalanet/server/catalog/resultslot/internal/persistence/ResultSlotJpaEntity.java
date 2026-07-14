@@ -1,6 +1,6 @@
 package com.tchalanet.server.catalog.resultslot.internal.persistence;
 
-import tools.jackson.databind.JsonNode;
+import com.tchalanet.server.common.persistence.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -9,7 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
-import com.tchalanet.server.common.persistence.BaseEntity;
+import tools.jackson.databind.JsonNode;
 
 @Entity
 @Table(name = "result_slot")

@@ -15,30 +15,24 @@ import org.springframework.stereotype.Service;
 class FirebaseSellerTerminalIdentityProvisioningService
     implements SellerTerminalIdentityProvisioningApi {
 
-    private final FirebaseUserProvisionService firebaseService;
-    private final FirebaseIdentityProperties firebaseProperties;
+  private final FirebaseUserProvisionService firebaseService;
+  private final FirebaseIdentityProperties firebaseProperties;
 
-    @Override
-    public ProvisionedExternalUser provisionSellerTerminal(
-        SellerTerminalId sellerTerminalId,
-        String terminalCode,
-        String displayName,
-        String initialPin
-    ) {
-        var email = terminalCode.toLowerCase() + "@" + firebaseProperties.effectiveTerminalEmailDomain();
-        return firebaseService.provisionUser(
-            new ProvisionExternalUserRequest(
-                sellerTerminalId.value().toString(),
-                email,
-                null,
-                displayName,
-                initialPin
-            )
-        );
-    }
+  @Override
+  public ProvisionedExternalUser provisionSellerTerminal(
+      SellerTerminalId sellerTerminalId,
+      String terminalCode,
+      String displayName,
+      String initialPin) {
+    var email =
+        terminalCode.toLowerCase() + "@" + firebaseProperties.effectiveTerminalEmailDomain();
+    return firebaseService.provisionUser(
+        new ProvisionExternalUserRequest(
+            sellerTerminalId.value().toString(), email, null, displayName, initialPin));
+  }
 
-    @Override
-    public void resetPasswordForSubject(String externalSubject, String newPassword) {
-        firebaseService.resetPasswordForUid(externalSubject, newPassword);
-    }
+  @Override
+  public void resetPasswordForSubject(String externalSubject, String newPassword) {
+    firebaseService.resetPasswordForUid(externalSubject, newPassword);
+  }
 }

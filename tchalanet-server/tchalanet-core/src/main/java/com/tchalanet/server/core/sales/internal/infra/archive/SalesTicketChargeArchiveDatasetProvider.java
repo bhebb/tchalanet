@@ -50,13 +50,21 @@ public class SalesTicketChargeArchiveDatasetProvider implements ArchiveDatasetPr
     Instant to = request.period().end().atStartOfDay(ZoneOffset.UTC).toInstant();
 
     long[] exported = {0};
-    ticketRepo.streamChargesByTicketPeriod(from, to, request.tenantId(), row -> {
-      request.rowSink().accept(row);
-      exported[0]++;
-    });
+    ticketRepo.streamChargesByTicketPeriod(
+        from,
+        to,
+        request.tenantId(),
+        row -> {
+          request.rowSink().accept(row);
+          exported[0]++;
+        });
 
-    log.info("sales_ticket_charge export: {} rows period={}/{} tenant={}",
-        exported[0], request.period().start(), request.period().end(), request.tenantId());
+    log.info(
+        "sales_ticket_charge export: {} rows period={}/{} tenant={}",
+        exported[0],
+        request.period().start(),
+        request.period().end(),
+        request.tenantId());
     return new ArchiveExportResult(exported[0], SCHEMA_VERSION);
   }
 
@@ -73,18 +81,19 @@ public class SalesTicketChargeArchiveDatasetProvider implements ArchiveDatasetPr
     Instant to = period.end().atStartOfDay(ZoneOffset.UTC).toInstant();
 
     return ticketRepo.findChargeLookupRows(from, to, tenantId).stream()
-        .map(r -> new ArchiveLookupEntry(
-            TABLE,
-            (UUID) r.get("tenant_id"),
-            "TICKET",
-            (UUID) r.get("id"),
-            (String) r.get("public_code"),
-            null,
-            (Instant) r.get("sold_at"),
-            archiveObjectId,
-            null,
-            null
-        ))
+        .map(
+            r ->
+                new ArchiveLookupEntry(
+                    TABLE,
+                    (UUID) r.get("tenant_id"),
+                    "TICKET",
+                    (UUID) r.get("id"),
+                    (String) r.get("public_code"),
+                    null,
+                    (Instant) r.get("sold_at"),
+                    archiveObjectId,
+                    null,
+                    null))
         .toList();
   }
 }

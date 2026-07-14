@@ -9,5 +9,4 @@ public record DrawResultPersistPayload(
     ObjectNode rawPayload,
     ObjectNode flags,
     String quality,
-    String sourceHash
-) {}
+    String sourceHash) {}

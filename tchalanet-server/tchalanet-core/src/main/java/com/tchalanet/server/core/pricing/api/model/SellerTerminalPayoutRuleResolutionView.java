@@ -16,5 +16,4 @@ public record SellerTerminalPayoutRuleResolutionView(
     PayoutRuleType effectiveRuleType,
     BigDecimal effectiveMultiplier,
     BigDecimal effectiveFixedAmount,
-    OddsSource source
-) {}
+    OddsSource source) {}

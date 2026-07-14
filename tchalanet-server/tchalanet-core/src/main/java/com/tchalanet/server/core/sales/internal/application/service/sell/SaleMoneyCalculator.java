@@ -5,33 +5,26 @@ import com.tchalanet.server.core.sales.api.command.sell.SellTicketCommand;
 import com.tchalanet.server.core.sales.api.model.money.TicketCharge;
 import com.tchalanet.server.core.sales.api.model.money.TicketMoneyBreakdown;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
-import org.springframework.stereotype.Component;
-
 import java.util.List;
-
+import org.springframework.stereotype.Component;
 
 @Component
 public class SaleMoneyCalculator {
 
-    // -------------------------------------------------------------------------
-    // Money breakdown
-    // -------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
+  // Money breakdown
+  // -------------------------------------------------------------------------
 
-    public TicketMoneyBreakdown compute(
-        List<TicketLine> ticketLines,
-        List<TicketCharge> charges,
-        SellTicketCommand command
-    ) {
-        var zero = Money.zero(command.currency());
-        var stake = ticketLines.stream()
-            .map(TicketLine::stakeAmount)
-            .reduce(zero, Money::plus);
-        var buyerCharges = charges.stream()
+  public TicketMoneyBreakdown compute(
+      List<TicketLine> ticketLines, List<TicketCharge> charges, SellTicketCommand command) {
+    var zero = Money.zero(command.currency());
+    var stake = ticketLines.stream().map(TicketLine::stakeAmount).reduce(zero, Money::plus);
+    var buyerCharges =
+        charges.stream()
             .filter(TicketCharge::isBuyerFacing)
             .map(TicketCharge::amount)
             .reduce(zero, Money::plus);
-        var total = stake.plus(buyerCharges);
-        return new TicketMoneyBreakdown(stake, charges, total);
-    }
-
+    var total = stake.plus(buyerCharges);
+    return new TicketMoneyBreakdown(stake, charges, total);
+  }
 }
