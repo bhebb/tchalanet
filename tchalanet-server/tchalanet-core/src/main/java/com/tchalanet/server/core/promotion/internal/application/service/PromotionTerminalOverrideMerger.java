@@ -77,7 +77,7 @@ public class PromotionTerminalOverrideMerger {
         var input = overrides.stream()
             .map(SellerTerminalPromotionEffectOverride::signature)
             .sorted()
-            .reduce("", (left, right) -> left + "|" + right);
+            .collect(java.util.stream.Collectors.joining("|"));
         try {
             var digest = MessageDigest.getInstance("SHA-256").digest(input.getBytes(StandardCharsets.UTF_8));
             return HexFormat.of().formatHex(digest);
