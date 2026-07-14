@@ -58,6 +58,37 @@ class ExternalIdentityAppUserResolverTest {
   }
 
   @Test
+  void resolvesFirebaseMappingBySubjectWhenIssuerChangedAfterTokenValidation() {
+    var externalUser =
+        new ExternalAuthenticatedUser(
+            IdentityProviderType.FIREBASE,
+            "https://securetoken.google.com/demo-tchalanet-local",
+            "firebase-subject",
+            "user@example.com",
+            true,
+            Map.of());
+    var appUserId = UUID.randomUUID();
+    var mapping =
+        new AppUserExternalIdentityJpaEntity();
+    mapping.setAppUserId(appUserId);
+    mapping.setProvider(IdentityProviderType.FIREBASE);
+    mapping.setIssuer("https://securetoken.google.com/tchalanet-39115");
+    mapping.setExternalSubject(externalUser.subject());
+    when(externalIdentities.findByProviderAndIssuerAndExternalSubject(
+            externalUser.provider(), externalUser.issuer(), externalUser.subject()))
+        .thenReturn(Optional.empty());
+    when(externalIdentities.findFirstByProviderAndExternalSubject(
+            IdentityProviderType.FIREBASE, externalUser.subject()))
+        .thenReturn(Optional.of(mapping));
+    when(appUsers.findById(appUserId))
+        .thenReturn(Optional.of(appUser(appUserId, UserStatus.ACTIVE)));
+
+    var result = resolver.resolve(externalUser);
+
+    assertThat(result).contains(new AppUserIdentityResolution(appUserId, UserStatus.ACTIVE));
+  }
+
+  @Test
   void claimsLegacyKeycloakMappingForVerifiedIssuer() {
     var externalUser = externalUser(IdentityProviderType.KEYCLOAK, "keycloak-subject");
     var appUserId = UUID.randomUUID();

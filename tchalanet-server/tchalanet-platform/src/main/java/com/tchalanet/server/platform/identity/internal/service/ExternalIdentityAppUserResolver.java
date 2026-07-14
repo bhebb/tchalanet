@@ -44,6 +44,7 @@ public class ExternalIdentityAppUserResolver {
         externalIdentities
             .findByProviderAndIssuerAndExternalSubject(
                 externalUser.provider(), externalUser.issuer(), externalUser.subject())
+            .or(() -> findFirebaseMappingBySubject(externalUser))
             .or(() -> claimLegacyKeycloakMapping(externalUser))
             .or(() -> bootstrapMapping(externalUser));
 
@@ -55,6 +56,15 @@ public class ExternalIdentityAppUserResolver {
                 .map(
                     appUser ->
                         new AppUserIdentityResolution(appUser.getId(), appUser.getStatus())));
+  }
+
+  private Optional<AppUserExternalIdentityJpaEntity> findFirebaseMappingBySubject(
+      ExternalAuthenticatedUser externalUser) {
+    if (externalUser.provider() != IdentityProviderType.FIREBASE) {
+      return Optional.empty();
+    }
+    return externalIdentities.findFirstByProviderAndExternalSubject(
+        IdentityProviderType.FIREBASE, externalUser.subject());
   }
 
   private Optional<AppUserExternalIdentityJpaEntity> bootstrapMapping(
