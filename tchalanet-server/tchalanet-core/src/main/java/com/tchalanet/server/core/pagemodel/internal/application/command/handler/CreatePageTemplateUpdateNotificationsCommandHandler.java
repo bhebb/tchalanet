@@ -26,8 +26,7 @@ public class CreatePageTemplateUpdateNotificationsCommandHandler
     var affected = pageModels.findAllByTemplateId(command.templateId());
     var created = 0;
     for (var pageModel : affected) {
-      classify(pageModel.schemaVersion(), command.newSchemaVersion());
-      // todo add notification
+      // todo add notification using classify(pageModel.schemaVersion(), command.newSchemaVersion())
       created++;
     }
     return created;

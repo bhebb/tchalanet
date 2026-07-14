@@ -38,6 +38,7 @@ public class NotificationPolicy {
       case WHATSAPP -> validateWhatsAppRecipient(recipient);
       case WEB -> validateWebRecipient(recipient);
       case PUSH -> validatePushRecipient(recipient);
+      default -> log.warn("Unknown notification channel: {}", recipient.channel());
     }
   }
 

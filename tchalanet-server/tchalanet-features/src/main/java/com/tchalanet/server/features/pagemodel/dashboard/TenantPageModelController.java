@@ -33,8 +33,8 @@ public class TenantPageModelController {
   @GetMapping
   public ApiResponse<PageRuntimeResponse> tenantPageModel(
       @RequestParam(name = "lang", required = false) String lang) {
-    var ctxHolder = contextResolver.currentOrNull();
-    var role = ctxHolder != null ? ctxHolder.currentRole() : null;
+    var ctxHolder = contextResolver.currentOrThrow();
+    var role = ctxHolder.currentRole();
     var type = typeResolver.forDashboard(role);
     return ApiResponse.success(
         service.resolve(type.logicalId(), Optional.empty(), Optional.ofNullable(lang)));

@@ -9,9 +9,9 @@ import tools.jackson.databind.JsonNode;
 final class PageModelMapper {
 
   static PageModelInstance toDomain(PageModelJpaEntity e) {
-    JsonNode node = null;
+    JsonNode node;
     try {
-      if (e.getModel() != null) node = e.getModel();
+      node = e.getModel() != null ? e.getModel() : JsonUtils.emptyObject();
     } catch (Exception ex) {
       throw new RuntimeException(ex);
     }

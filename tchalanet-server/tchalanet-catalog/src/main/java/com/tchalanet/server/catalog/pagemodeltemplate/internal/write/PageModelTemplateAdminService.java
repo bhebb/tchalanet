@@ -98,7 +98,7 @@ public class PageModelTemplateAdminService {
                     id,
                     saved.getLogicalId(),
                     view.model(),
-                    schemaVersion == null ? 1 : schemaVersion,
+                    schemaVersion == null ? Integer.valueOf(1) : schemaVersion,
                     actorId,
                     Instant.now())));
 
@@ -190,7 +190,9 @@ public class PageModelTemplateAdminService {
     e.setSchema(jsonUtils.toJson(seed.schema()));
     e.setModel(jsonUtils.toJson(seed.model()));
     e.setSchemaVersion(
-        seed.schemaVersion() == null || seed.schemaVersion() <= 0 ? 1 : seed.schemaVersion());
+        seed.schemaVersion() == null || seed.schemaVersion() <= 0
+            ? Integer.valueOf(1)
+            : seed.schemaVersion());
     e.setDefault(seed.isDefault());
 
     var saved = repository.save(e);
