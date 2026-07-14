@@ -17,6 +17,13 @@ class E2EAuth(Protocol):
     def password_grant(self, *, username: str, password: str) -> str: ...
 
 
+def env_or_default(name: str, default: str) -> str:
+    value = os.environ.get(name)
+    if value is None or not value.strip():
+        return default
+    return value.strip()
+
+
 @dataclass(frozen=True)
 class FirebasePasswordAuth:
     """Authenticates against real Firebase Identity Toolkit using email/password."""
@@ -30,7 +37,7 @@ class FirebasePasswordAuth:
         if not web_api_key:
             raise RuntimeError("TCH_FIREBASE_WEB_API_KEY is required for firebase E2E auth")
         return cls(
-            project_id=os.environ.get("TCH_FIREBASE_PROJECT_ID", "tchalanet-39115").strip(),
+            project_id=env_or_default("TCH_FIREBASE_PROJECT_ID", "tchalanet-39115"),
             web_api_key=web_api_key,
         )
 
@@ -75,10 +82,8 @@ class FirebaseEmulatorAuth:
     @classmethod
     def from_env(cls) -> "FirebaseEmulatorAuth":
         return cls(
-            project_id=os.environ.get("TCH_FIREBASE_PROJECT_ID", "demo-tchalanet-local").strip(),
-            emulator_host=os.environ.get(
-                "TCH_FIREBASE_EMULATOR_HOST", "127.0.0.1:9099"
-            ).strip(),
+            project_id=env_or_default("TCH_FIREBASE_PROJECT_ID", "demo-tchalanet-local"),
+            emulator_host=env_or_default("TCH_FIREBASE_EMULATOR_HOST", "127.0.0.1:9099"),
         )
 
     def password_grant(self, *, username: str, password: str) -> str:
@@ -202,17 +207,32 @@ def _email_for_username(username: str) -> str:
 def _local_identity(username: str) -> _LocalIdentity:
     normalized = username.strip().lower()
     defaults = {
-        os.environ.get("TCH_SUPER_ADMIN_USERNAME", "super_admin").lower(): (
+        "super_admin": (
             "SUPER_ADMIN",
             "00000000-0000-0000-0000-000000010001",
             "super_admin@localtest.me",
         ),
-        os.environ.get("TCH_TENANT_ADMIN_USERNAME", "admin").lower(): (
+        "super_admin@localtest.me": (
+            "SUPER_ADMIN",
+            "00000000-0000-0000-0000-000000010001",
+            "super_admin@localtest.me",
+        ),
+        "admin": (
             "TENANT_ADMIN",
             "00000000-0000-0000-0000-000000010002",
             "admin@localtest.me",
         ),
-        os.environ.get("TCH_SELLER_USERNAME", "cashier").lower(): (
+        "admin@localtest.me": (
+            "TENANT_ADMIN",
+            "00000000-0000-0000-0000-000000010002",
+            "admin@localtest.me",
+        ),
+        "cashier": (
+            "CASHIER",
+            "00000000-0000-0000-0000-000000010003",
+            "cashier@localtest.me",
+        ),
+        "cashier@localtest.me": (
             "CASHIER",
             "00000000-0000-0000-0000-000000010003",
             "cashier@localtest.me",
@@ -223,6 +243,11 @@ def _local_identity(username: str) -> _LocalIdentity:
             "super_admin@localtest.me",
         ),
     }
+    defaults[env_or_default("TCH_SUPER_ADMIN_USERNAME", "super_admin").lower()] = defaults[
+        "super_admin"
+    ]
+    defaults[env_or_default("TCH_TENANT_ADMIN_USERNAME", "admin").lower()] = defaults["admin"]
+    defaults[env_or_default("TCH_SELLER_USERNAME", "cashier").lower()] = defaults["cashier"]
     selected = defaults.get(normalized)
     if selected is None:
         raise RuntimeError(

@@ -401,6 +401,10 @@ jobs:
 
       - name: Validate E2E configuration
         run: |
+          if [ "$TCH_E2E_AUTH_PROVIDER" = "firebase-emulator" ] && [ -z "$TCH_FIREBASE_EMULATOR_HOST" ] && [ -n "$NIGHTLY_SERVER_HOST" ]; then
+            TCH_FIREBASE_EMULATOR_HOST="$NIGHTLY_SERVER_HOST:9099"
+            echo "TCH_FIREBASE_EMULATOR_HOST=$TCH_FIREBASE_EMULATOR_HOST" >> "$GITHUB_ENV"
+          fi
           test -n "$TCH_BASE_URL" || { echo "TCH_E2E_BASE_URL secret is required"; exit 1; }
           if [ "$TCH_E2E_AUTH_PROVIDER" = "firebase" ]; then
             test -n "$TCH_SUPER_ADMIN_USERNAME" || { echo "TCH_SUPER_ADMIN_USERNAME secret is required"; exit 1; }
@@ -444,15 +448,15 @@ jobs:
             printf 'TCH_SELLER_USERNAME=%s\n' "$TCH_SELLER_USERNAME"
             printf 'TCH_SELLER_PASSWORD=%s\n' "$TCH_SELLER_PASSWORD"
           } > .env.local
+          if [ "$TCH_E2E_AUTH_PROVIDER" = "firebase-emulator" ]; then
+            python -c 'import base64,hashlib,json,os,sys; sys.path.insert(0, "."); from tch_e2e.auth import FirebaseEmulatorAuth; token=FirebaseEmulatorAuth.from_env().password_grant(username="super_admin", password=""); payload=token.split(".")[1]; claims=json.loads(base64.urlsafe_b64decode(payload + "=" * (-len(payload) % 4))); subject_ref=hashlib.sha256(claims["sub"].encode("utf-8")).hexdigest()[:24]; print(f"firebase-emulator super_admin subjectRef={subject_ref} issuer={claims['\''iss'\'']} project={claims['\''aud'\'']} host={os.environ.get('\''TCH_FIREBASE_EMULATOR_HOST'\'', '')}")'
+          fi
 
       - name: Install E2E deps
         run: python -m pip install -e .
 
       - name: Run server E2E
         run: |
-          if [ "$TCH_E2E_AUTH_PROVIDER" = "firebase-emulator" ] && [ -z "$TCH_FIREBASE_EMULATOR_HOST" ] && [ -n "$NIGHTLY_SERVER_HOST" ]; then
-            export TCH_FIREBASE_EMULATOR_HOST="$NIGHTLY_SERVER_HOST:9099"
-          fi
           python -m pytest -m "${{ inputs.server_e2e_marker || 'full_flow' }}"
 
   server-perf:

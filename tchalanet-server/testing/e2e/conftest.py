@@ -6,7 +6,7 @@ import os
 import pytest
 
 from fixtures.pos_context import PosContext
-from tch_e2e.auth import E2EAuth, auth_from_env
+from tch_e2e.auth import E2EAuth, auth_from_env, env_or_default
 from tch_e2e.client import ApiClient
 from tch_e2e.config import OpContext, SeedIds, load_env
 from tch_e2e.scenario_world import ScenarioWorld
@@ -36,7 +36,7 @@ def seed_ids() -> SeedIds:
 @pytest.fixture(scope="session")
 def super_admin_token(keycloak: E2EAuth) -> str:
     return keycloak.password_grant(
-        username=os.environ.get("TCH_SUPER_ADMIN_USERNAME", "super_admin"),
+        username=env_or_default("TCH_SUPER_ADMIN_USERNAME", "super_admin"),
         password=os.environ.get("TCH_SUPER_ADMIN_PASSWORD", ""),
     )
 
@@ -48,7 +48,7 @@ def super_admin_client(base_url: str, super_admin_token: str) -> ApiClient:
 
 @pytest.fixture(scope="session")
 def cashier_token(keycloak: E2EAuth, base_url: str, super_admin_token: str) -> str:
-    seller_username = os.environ.get("TCH_SELLER_USERNAME", "cashier")
+    seller_username = env_or_default("TCH_SELLER_USERNAME", "cashier")
     seller_password = os.environ.get("TCH_SELLER_PASSWORD", "")
 
     token = keycloak.password_grant(username=seller_username, password=seller_password)
@@ -119,7 +119,7 @@ def tenant_admin_token(keycloak: E2EAuth) -> str:
     password = os.environ.get("TCH_TENANT_ADMIN_PASSWORD")
     local_auth = os.environ.get("TCH_E2E_AUTH_PROVIDER", "keycloak").strip().lower() != "keycloak"
     if local_auth:
-        username = username or "admin"
+        username = username.strip() if username and username.strip() else "admin"
         password = password or ""
     if not username or (not password and not local_auth):
         pytest.skip(
