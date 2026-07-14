@@ -113,6 +113,7 @@ require_file "compose/docker-compose-redis.yml"
 require_file "compose/docker-compose-api.yml"
 require_file "compose/docker-compose-edge-service.yml"
 require_file "scripts/remote/prepare-firebase-admin-credentials.sh"
+require_file "scripts/remote/prepare-server-signing-keys.sh"
 
 log "Preparing Docker networks for $ENV"
 $DOCKER_BIN network create "edge-$ENV" >/dev/null 2>&1 || true
@@ -145,6 +146,8 @@ require_core_services_ready
 if [ "$DEPLOY_API" = "1" ]; then
   log "Preparing Firebase Admin credentials"
   scripts/remote/prepare-firebase-admin-credentials.sh "$ENV"
+  log "Preparing server signing keys"
+  scripts/remote/prepare-server-signing-keys.sh "$ENV"
 fi
 
 compose_env="$(mktemp /tmp/tchalanet-compose-env.XXXXXX)"
