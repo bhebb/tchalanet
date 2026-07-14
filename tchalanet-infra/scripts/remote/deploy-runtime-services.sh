@@ -106,6 +106,7 @@ require_file "compose/docker-compose-project.yml"
 require_file "compose/docker-compose-redis.yml"
 require_file "compose/docker-compose-api.yml"
 require_file "compose/docker-compose-edge-service.yml"
+require_file "scripts/remote/prepare-firebase-admin-credentials.sh"
 
 log "Preparing Docker networks for $ENV"
 $DOCKER_BIN network create "edge-$ENV" >/dev/null 2>&1 || true
@@ -131,6 +132,11 @@ if [ "${SKIP_DOPPLER:-0}" != "1" ]; then
   chmod 600 "envs/$ENV/.secrets"
 elif [ ! -f "envs/$ENV/.secrets" ]; then
   fail "SKIP_DOPPLER=1 was set but envs/$ENV/.secrets does not exist"
+fi
+
+if [ "$DEPLOY_API" = "1" ]; then
+  log "Preparing Firebase Admin credentials"
+  scripts/remote/prepare-firebase-admin-credentials.sh "$ENV"
 fi
 
 compose_env="$(mktemp /tmp/tchalanet-compose-env.XXXXXX)"
