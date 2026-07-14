@@ -209,7 +209,7 @@ def main() -> int:
     draw = draws[0]
     lines = [
         {"lineNumber": 1, "gameCode": "HT_BOLET", "betType": "MATCH_1_2D", "selection": "11", "betOption": None, "stakeAmount": "5.00"},
-        {"lineNumber": 2, "gameCode": "HT_MARYAJ", "betType": "MARRIAGE_2D2D", "selection": "21-25", "betOption": 1, "stakeAmount": "5.00"},
+        {"lineNumber": 2, "gameCode": "HT_MARYAJ", "betType": "MARRIAGE_2D2D", "selection": "21-25", "betOption": None, "stakeAmount": "5.00"},
     ]
     payload = {"sellerTerminalId": seller_terminal_id, "drawId": draw["drawId"],
                "drawChannelId": draw["drawChannelId"], "currency": HTG_CURRENCY_CODE,

@@ -273,10 +273,10 @@ class CashierFlow:
 
     _GAME_BET_PROFILE: dict[str, tuple[str, list[str], int | None]] = {
         "HT_BOLET":  ("MATCH_1_2D",      ["11", "22", "33"],          None),
-        "HT_MARYAJ": ("MARRIAGE_2D2D",   ["21-25", "33-77"],          1),
-        "HT_LOTO3":  ("LOTTO3_3D",       ["012", "345"],              1),
-        "HT_LOTO4":  ("LOTTO4_PATTERN",  ["1234", "5678"],            1),
-        "HT_LOTO5":  ("LOTTO5_PATTERN",  ["12345", "67890"],          1),
+        "HT_MARYAJ": ("MARRIAGE_2D2D",   ["21-25", "33-77"],          None),
+        "HT_LOTO3":  ("LOTTO3_3D",       ["012", "345"],              None),
+        "HT_LOTO4":  ("LOTTO4_PATTERN",  ["1234", "5678"],            None),
+        "HT_LOTO5":  ("LOTTO5_PATTERN",  ["12345", "67890"],          None),
     }
 
     def _sale_payload(self, draw: dict[str, Any], game_codes: list[str]) -> dict[str, Any]:
