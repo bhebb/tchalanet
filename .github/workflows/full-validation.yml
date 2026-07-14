@@ -448,9 +448,6 @@ jobs:
             printf 'TCH_SELLER_USERNAME=%s\n' "$TCH_SELLER_USERNAME"
             printf 'TCH_SELLER_PASSWORD=%s\n' "$TCH_SELLER_PASSWORD"
           } > .env.local
-          if [ "$TCH_E2E_AUTH_PROVIDER" = "firebase-emulator" ]; then
-            python -c 'import base64,hashlib,json,os,sys; sys.path.insert(0, "."); from tch_e2e.auth import FirebaseEmulatorAuth; token=FirebaseEmulatorAuth.from_env().password_grant(username="super_admin", password=""); payload=token.split(".")[1]; claims=json.loads(base64.urlsafe_b64decode(payload + "=" * (-len(payload) % 4))); subject_ref=hashlib.sha256(claims["sub"].encode("utf-8")).hexdigest()[:24]; print(f"firebase-emulator super_admin subjectRef={subject_ref} issuer={claims['\''iss'\'']} project={claims['\''aud'\'']} host={os.environ.get('\''TCH_FIREBASE_EMULATOR_HOST'\'', '')}")'
-          fi
 
       - name: Install E2E deps
         run: python -m pip install -e .
