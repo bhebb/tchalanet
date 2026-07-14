@@ -415,7 +415,7 @@ jobs:
 
   mark-staging-success:
     needs: [plan, deploy]
-    if: inputs.target_environment == 'staging' && needs.deploy.result == 'success'
+    if: ${{ always() && needs.plan.outputs.github_environment == 'staging' && needs.deploy.result == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - name: Mark staging deployment
