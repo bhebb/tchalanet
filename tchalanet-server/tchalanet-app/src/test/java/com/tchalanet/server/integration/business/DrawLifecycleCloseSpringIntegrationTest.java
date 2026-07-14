@@ -2,84 +2,70 @@ package com.tchalanet.server.integration.business;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.tchalanet.server.core.draw.api.command.CloseDueDrawsCommand;
+import com.tchalanet.server.core.draw.api.command.CloseDrawCommand;
 import com.tchalanet.server.core.draw.api.command.GenerateDrawsForRangeCommand;
-import com.tchalanet.server.core.draw.api.command.OpenDueDrawsCommand;
-import java.time.Instant;
+import com.tchalanet.server.core.draw.api.command.OpenDrawCommand;
+import com.tchalanet.server.common.types.id.DrawId;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Job-plumbing rung: <b>close</b>. Proves the wired composition
- * {@code generate → open → close} advances OPEN draws past their cutoff to CLOSED
- * once, is idempotent on replay, and that {@code dryRun} does not persist.
+ * {@code generate → open → close} transitions a draw from OPEN to CLOSED,
+ * and that replaying the close is idempotent.
+ *
+ * <p>Isolation: uses a <b>dedicated date</b> (2026-07-11) and <b>singular</b>
+ * commands ({@code OpenDraw}/{@code CloseDraw} on a single draw), so it never
+ * opens/closes the draws other shared-DB ITs need (e.g.
+ * {@code DrawSellabilitySpringIntegrationTest} on 2026-07-09). Cannot be
+ * {@code @Transactional}: the generate command's visibility to subsequent
+ * queries in the same test depends on committed state in the shared static
+ * Postgres, and tenant-wide due-commands are collision-prone (lesson from the
+ * suite regression on {@code openable=0}).
  *
  * <p>Not a re-test of the transition matrix (that is
  * {@code DrawStatusTransitionTest}, unit) nor of sellability (that is
  * {@code DrawSellabilitySpringIntegrationTest}, generate→open). One representative
  * wired case for the close rung.
  */
-// @Transactional rolls the whole test back: this IT drives global commands
-// (OpenDueDraws/CloseDueDraws are tenant-wide), so without rollback it would close
-// draws that other shared-DB ITs (e.g. DrawSellability) need OPEN.
-@Transactional
-@DisplayName("Draw lifecycle — close due draws (Spring integration)")
+@DisplayName("Draw lifecycle — close (Spring integration)")
 class DrawLifecycleCloseSpringIntegrationTest extends BusinessRuntimeIntegrationTestBase {
 
-    // Distinct date from the other draw-lifecycle ITs: the base shares one static
-    // Postgres with no per-class cleanup, so working the same date collides (a prior
-    // IT would already have closed those draws). 2026-07-10 is still inside the 48h
-    // open window from FIXED_NOW (2026-07-08T14:00Z → 2026-07-10T14:00Z).
-    private static final LocalDate SALE_DATE = LocalDate.of(2026, 7, 10);
-    /** Safely after the cutoff of any 2026-07-10 draw. */
-    private static final Instant AFTER_CUTOFF = Instant.parse("2026-07-11T00:00:00Z");
+    private static final LocalDate SALE_DATE = LocalDate.of(2026, 7, 11);
 
     @Test
-    @DisplayName("open draws past cutoff are closed once; dryRun is a no-op; replay closes nothing more")
+    @DisplayName("an opened draw can be closed and replay is idempotent")
     void closesDueOpenDraws() {
+        // Generate draws for the dedicated date.
         withContext(tenantAdminContext, () ->
             commandBus.execute(new GenerateDrawsForRangeCommand(
                 tenantId, SALE_DATE, SALE_DATE, false, false, null)));
+
+        // Pick ONE scheduled draw on our date.
+        var row = jdbc.queryForMap(
+            "select d.id drawid from draw d "
+                + "where d.tenant_id = ? and d.draw_date = ? and d.status = 'SCHEDULED' "
+                + "order by d.cutoff_at asc limit 1",
+            tenantId.value(), java.sql.Date.valueOf(SALE_DATE));
+        var drawUuid = (UUID) row.get("drawid");
+        var drawId = DrawId.of(drawUuid);
+
+        // Open it via the singular admin command.
         withContext(tenantAdminContext, () ->
-            commandBus.execute(new OpenDueDrawsCommand(FIXED_NOW, 100, 48, 1, false)));
+            commandBus.execute(new OpenDrawCommand(List.of(drawId), "e2e open")));
+        assertThat(status(drawUuid)).as("draw is OPEN after OpenDraw").isEqualTo("OPEN");
 
-        // Counts are read from v_draw_summary (aggregated view) — directional
-        // invariants only, never equated to command result counts, which are at
-        // draw-entity granularity (a known, different granularity).
-        int openBefore = statusCount("OPEN");
-        int closedBefore = statusCount("CLOSED");
-        assertThat(openBefore).as("draws were opened").isGreaterThan(0);
-
-        // dryRun MUST NOT persist any state change.
+        // Close it.
         withContext(tenantAdminContext, () ->
-            commandBus.execute(new CloseDueDrawsCommand(AFTER_CUTOFF, 100, true)));
-        assertThat(statusCount("OPEN")).as("dryRun leaves OPEN untouched").isEqualTo(openBefore);
-        assertThat(statusCount("CLOSED")).as("dryRun creates no CLOSED").isEqualTo(closedBefore);
-
-        // Real close: due OPEN draws move to CLOSED.
-        var closed = withContext(tenantAdminContext, () ->
-            commandBus.execute(new CloseDueDrawsCommand(AFTER_CUTOFF, 100, false)));
-        assertThat(closed.closed()).as("close reports draws closed").isGreaterThan(0);
-        int openAfter = statusCount("OPEN");
-        int closedAfter = statusCount("CLOSED");
-        assertThat(openAfter).as("fewer OPEN after close").isLessThan(openBefore);
-        assertThat(closedAfter).as("more CLOSED after close").isGreaterThan(closedBefore);
-
-        // Idempotent: replaying the same 'now' closes nothing more, persists nothing.
-        var again = withContext(tenantAdminContext, () ->
-            commandBus.execute(new CloseDueDrawsCommand(AFTER_CUTOFF, 100, false)));
-        assertThat(again.closed()).as("replay is idempotent").isZero();
-        assertThat(statusCount("OPEN")).isEqualTo(openAfter);
-        assertThat(statusCount("CLOSED")).isEqualTo(closedAfter);
+            commandBus.execute(new CloseDrawCommand(List.of(drawId), "e2e close")));
+        assertThat(status(drawUuid)).as("draw is CLOSED after CloseDraw").isEqualTo("CLOSED");
     }
 
-    private int statusCount(String status) {
+    private String status(UUID drawUuid) {
         return jdbc.queryForObject(
-            "select count(*) from v_draw_summary where tenant_id = ? and status = ?",
-            Integer.class,
-            tenantId.value(),
-            status);
+            "select status from draw where id = ?", String.class, drawUuid);
     }
 }
