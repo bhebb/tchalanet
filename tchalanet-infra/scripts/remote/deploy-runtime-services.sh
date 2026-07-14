@@ -124,6 +124,7 @@ if [ "$DEPLOY_EDGE" = "1" ]; then
 fi
 COMPOSE_API_TAG="${API_IMAGE_TAG:-unused}"
 COMPOSE_EDGE_TAG="${EDGE_IMAGE_TAG:-unused}"
+COMPOSE_EDGE_IMAGE="${TCH_EDGE_IMAGE:-ghcr.io/bhebb/tchalanet/tchalanet-edge}"
 
 require_file "envs/common/compose.env"
 require_file "envs/$ENV/compose.env"
@@ -226,7 +227,7 @@ if [ "$RESET_DATABASE" = "1" ]; then
     fail "RESET_DATABASE_CONFIRM must be exactly: destroy staging database"
 
   log "Stopping API before staging database reset"
-  API_IMAGE_TAG="$COMPOSE_API_TAG" IMAGE_TAG="$COMPOSE_API_TAG" TCH_EDGE_TAG="$COMPOSE_EDGE_TAG" \
+  API_IMAGE_TAG="$COMPOSE_API_TAG" IMAGE_TAG="$COMPOSE_API_TAG" TCH_EDGE_IMAGE="$COMPOSE_EDGE_IMAGE" TCH_EDGE_TAG="$COMPOSE_EDGE_TAG" \
     "${compose_cmd[@]}" stop api >/dev/null 2>&1 || true
 
   log "Resetting staging database schema (DROP SCHEMA public CASCADE)"
@@ -258,11 +259,11 @@ services=()
 [ "$ENABLE_FIREBASE_EMULATOR" = "1" ] && services=(firebase-emulator "${services[@]}")
 
 log "Pulling runtime images deploy_api=$DEPLOY_API api=${API_IMAGE_TAG:-<unchanged>} deploy_edge=$DEPLOY_EDGE edge=${EDGE_IMAGE_TAG:-<unchanged>}"
-IMAGE_TAG="$COMPOSE_API_TAG" TCH_EDGE_TAG="$COMPOSE_EDGE_TAG" "${compose_cmd[@]}" pull "${services[@]}" || true
+IMAGE_TAG="$COMPOSE_API_TAG" TCH_EDGE_IMAGE="$COMPOSE_EDGE_IMAGE" TCH_EDGE_TAG="$COMPOSE_EDGE_TAG" "${compose_cmd[@]}" pull "${services[@]}" || true
 
 if [ "$ENABLE_FIREBASE_EMULATOR" = "1" ]; then
   log "Starting Firebase Auth Emulator"
-  IMAGE_TAG="$COMPOSE_API_TAG" TCH_EDGE_TAG="$COMPOSE_EDGE_TAG" \
+  IMAGE_TAG="$COMPOSE_API_TAG" TCH_EDGE_IMAGE="$COMPOSE_EDGE_IMAGE" TCH_EDGE_TAG="$COMPOSE_EDGE_TAG" \
     "${compose_cmd[@]}" up -d --build firebase-emulator
   for attempt in $(seq 1 24); do
     health_status="$(inspect_health "tchl-firebase-auth-emulator-$ENV")"
@@ -287,7 +288,7 @@ log "Starting runtime services"
 start_services=()
 [ "$DEPLOY_EDGE" = "1" ] && start_services+=(edge-service)
 [ "$DEPLOY_API" = "1" ] && start_services+=(api)
-IMAGE_TAG="$COMPOSE_API_TAG" TCH_EDGE_TAG="$COMPOSE_EDGE_TAG" "${compose_cmd[@]}" "${up_args[@]}" "${start_services[@]}"
+IMAGE_TAG="$COMPOSE_API_TAG" TCH_EDGE_IMAGE="$COMPOSE_EDGE_IMAGE" TCH_EDGE_TAG="$COMPOSE_EDGE_TAG" "${compose_cmd[@]}" "${up_args[@]}" "${start_services[@]}"
 
 if [ "$DEPLOY_API" = "1" ]; then
   log "Checking API container health"
