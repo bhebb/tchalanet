@@ -20,7 +20,7 @@ public class SimpleQueryBus implements QueryBus, SmartInitializingSingleton {
 
     private final ApplicationContext ctx;
 
-    private volatile Map<Class<?>, QueryHandler<?, ?>> handlers = Map.of();
+    private volatile Map<Class<?>, QueryHandler<?, ?>> handlers;
 
     @Override
     @SuppressWarnings({"unchecked", "rawtypes"})
@@ -49,7 +49,7 @@ public class SimpleQueryBus implements QueryBus, SmartInitializingSingleton {
         Objects.requireNonNull(query, "Query must not be null");
 
         var registry = handlers;
-        if (registry.isEmpty()) {
+        if (registry == null) {
             throw new IllegalStateException("QueryBus registry is not initialized yet");
         }
 

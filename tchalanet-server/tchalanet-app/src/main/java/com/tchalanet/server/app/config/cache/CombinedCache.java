@@ -60,7 +60,11 @@ public class CombinedCache implements Cache {
     ValueWrapper v = get(key);
     if (v == null) return null;
     Object val = v.get();
-    if (type != null && !type.isInstance(val)) return null;
+    if (val != null && type != null && !type.isInstance(val)) {
+      throw new IllegalStateException(
+          "Cached value for key [" + key + "] in cache '" + name
+              + "' is not of required type [" + type.getName() + "]: " + val.getClass().getName());
+    }
     return (T) val;
   }
 
