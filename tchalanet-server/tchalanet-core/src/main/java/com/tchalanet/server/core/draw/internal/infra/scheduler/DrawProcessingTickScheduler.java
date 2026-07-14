@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -466,7 +467,7 @@ public class DrawProcessingTickScheduler {
         null, candidate.drawDate(), candidate.slot().drawTime(), candidate.slot().timezone());
   }
 
-  private HashMap<String, String> settleParamsFor(TenantId tenantId, Instant now) {
+  private Map<String, String> settleParamsFor(TenantId tenantId, Instant now) {
     var params = new HashMap<String, String>();
     params.put(JobParamKeys.TENANT_ID, tenantId.value().toString());
     params.put(JobParamKeys.REQUEST_ID, requestId("draw-settle", now));
@@ -483,14 +484,14 @@ public class DrawProcessingTickScheduler {
     return params;
   }
 
-  private HashMap<String, String> closeParamsFor(TenantId tenantId, int maxItems, Instant now) {
+  private Map<String, String> closeParamsFor(TenantId tenantId, int maxItems, Instant now) {
     var params = jobParams(tenantId, "draw-close", now);
     params.put(MAX_ITEMS, Integer.toString(maxItems));
     params.put(JobParamKeys.DRY_RUN, Boolean.toString(DEFAULT_DRY_RUN));
     return params;
   }
 
-  private HashMap<String, String> fetchParamsFor(SlotDate candidate, Instant now) {
+  private Map<String, String> fetchParamsFor(SlotDate candidate, Instant now) {
     var params = new HashMap<String, String>();
     params.put(JobParamKeys.REQUEST_ID, requestId("results-fetch", now));
     params.put(JobParamKeys.ACTOR, "scheduler");
@@ -503,7 +504,7 @@ public class DrawProcessingTickScheduler {
     return params;
   }
 
-  private HashMap<String, String> applyParamsFor(
+  private Map<String, String> applyParamsFor(
       TenantId tenantId, LocalDate drawDate, List<String> slotKeys, Instant now) {
     var params = jobParams(tenantId, "results-apply", now);
     params.put(DATE, drawDate.toString());
@@ -515,7 +516,7 @@ public class DrawProcessingTickScheduler {
     return params;
   }
 
-  private HashMap<String, String> jobParams(TenantId tenantId, String kind, Instant now) {
+  private Map<String, String> jobParams(TenantId tenantId, String kind, Instant now) {
     var params = new HashMap<String, String>();
     params.put(JobParamKeys.TENANT_ID, tenantId.value().toString());
     params.put(JobParamKeys.REQUEST_ID, requestId(kind, now));

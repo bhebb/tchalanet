@@ -1,6 +1,10 @@
 package com.tchalanet.server.core.draw.internal.infra.persistence.adapter;
 
-import com.tchalanet.server.common.types.id.*;
+import com.tchalanet.server.common.types.id.DrawChannelId;
+import com.tchalanet.server.common.types.id.DrawId;
+import com.tchalanet.server.common.types.id.DrawResultId;
+import com.tchalanet.server.common.types.id.ResultSlotId;
+import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawApplyPort;
 import com.tchalanet.server.core.draw.internal.infra.persistence.repo.DrawApplyJdbcRepository;
 import java.time.Instant;

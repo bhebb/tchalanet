@@ -68,7 +68,7 @@ public class TenantAdminDrawChannelGameController {
         .filter(g -> g.active())
         .orElseThrow(() -> ProblemRest.conflict("catalog_game.inactive"));
 
-    var enabled = body.enabled() != null ? body.enabled() : true;
+    var enabled = body.enabled() == null || body.enabled();
     var result = admin.upsert(tenantId, drawChannelId, tenantGameId, enabled, body.flags());
     return ApiResponse.success(result);
   }

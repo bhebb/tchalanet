@@ -66,7 +66,7 @@ public class PdfDocumentRenderer implements DocumentRenderer {
     DocumentAsset qr = request.firstAssetOfKind(AssetKind.QR);
 
     if (qr == null) {
-      return null;
+      return new byte[0];
     }
 
     if (qr.bytes() != null && qr.bytes().length > 0) {

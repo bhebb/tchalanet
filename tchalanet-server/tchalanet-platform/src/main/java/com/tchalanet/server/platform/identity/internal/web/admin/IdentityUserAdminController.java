@@ -271,7 +271,7 @@ public class IdentityUserAdminController {
     try {
       return Optional.of(Locale.forLanguageTag(locale));
     } catch (Exception e) {
-      throw ProblemRest.badRequest("Invalid locale: " + locale);
+      throw ProblemRest.badRequest("Invalid locale: " + locale, e);
     }
   }
 
@@ -280,7 +280,7 @@ public class IdentityUserAdminController {
     try {
       return Optional.of(ZoneId.of(timeZone));
     } catch (Exception e) {
-      throw ProblemRest.badRequest("Invalid timeZone: " + timeZone);
+      throw ProblemRest.badRequest("Invalid timeZone: " + timeZone, e);
     }
   }
 
@@ -289,7 +289,7 @@ public class IdentityUserAdminController {
     try {
       return Optional.of(Currency.getInstance(currency.toUpperCase()));
     } catch (Exception e) {
-      throw ProblemRest.badRequest("Invalid currency: " + currency);
+      throw ProblemRest.badRequest("Invalid currency: " + currency, e);
     }
   }
 }

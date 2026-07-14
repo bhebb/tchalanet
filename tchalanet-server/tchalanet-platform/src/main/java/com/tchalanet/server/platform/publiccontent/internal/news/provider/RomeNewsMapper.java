@@ -48,15 +48,9 @@ public class RomeNewsMapper {
 
     String contentHtml = extractContentHtml(entry, description);
 
-    URI commentsUrl =
-        entry.getComments() != null && !entry.getComments().isBlank()
-            ? URI.create(entry.getComments())
-            : null;
-
-    String guid = entry.getUri();
     String id;
-    if (guid != null && !guid.isBlank()) {
-      id = guid;
+    if (entry.getUri() != null && !entry.getUri().isBlank()) {
+      id = entry.getUri();
     } else {
       String base = link != null && !link.isBlank() ? link : (title != null ? title : "");
       id = UUID.nameUUIDFromBytes(base.getBytes(StandardCharsets.UTF_8)).toString();

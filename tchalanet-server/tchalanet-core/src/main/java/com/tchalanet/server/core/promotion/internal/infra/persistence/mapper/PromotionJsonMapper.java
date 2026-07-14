@@ -14,7 +14,9 @@ import com.tchalanet.server.core.promotion.api.model.rule.PromotionQuantityTier;
 import com.tchalanet.server.core.selection.api.model.SelectionGenerationStrategy;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class PromotionJsonMapper {

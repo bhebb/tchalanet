@@ -58,7 +58,7 @@ public class ResetSellerTerminalPinCommandHandler
       pd.setTitle("Firebase error");
       pd.setDetail("Firebase PIN reset failed");
       pd.setProperty("code", "seller_terminal.firebase_pin_reset_failed");
-      throw new ProblemRestException(pd);
+      throw new ProblemRestException(pd, ex);
     }
 
     var updated = terminal.resetPin(now);

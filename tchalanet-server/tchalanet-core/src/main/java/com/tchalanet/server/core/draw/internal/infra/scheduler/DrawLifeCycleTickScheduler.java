@@ -13,6 +13,7 @@ import com.tchalanet.server.core.draw.internal.infra.config.DrawProperties;
 import com.tchalanet.server.platform.tenant.api.TenantPreContextLookupApi;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.RequiredArgsConstructor;
@@ -185,7 +186,7 @@ public class DrawLifeCycleTickScheduler {
         scheduler.getProcessing().getTimezone());
   }
 
-  private HashMap<String, String> generateParamsFor(
+  private Map<String, String> generateParamsFor(
       TenantId tenantId, java.time.LocalDate from, java.time.LocalDate to, int daysAhead) {
     var params = baseParams(tenantId, "draw-generate");
     params.put(FROM, from.toString());
@@ -196,14 +197,14 @@ public class DrawLifeCycleTickScheduler {
     return params;
   }
 
-  private HashMap<String, String> openParamsFor(TenantId tenantId, int maxItems) {
+  private Map<String, String> openParamsFor(TenantId tenantId, int maxItems) {
     var params = baseParams(tenantId, "draw-open");
     params.put(MAX_ITEMS, Integer.toString(maxItems));
     params.put(JobParamKeys.DRY_RUN, Boolean.toString(DEFAULT_DRY_RUN));
     return params;
   }
 
-  private static HashMap<String, String> baseParams(TenantId tenantId, String kind) {
+  private static Map<String, String> baseParams(TenantId tenantId, String kind) {
     var params = new HashMap<String, String>();
     params.put(JobParamKeys.TENANT_ID, tenantId.value().toString());
     params.put(JobParamKeys.REQUEST_ID, requestId(kind));

@@ -15,6 +15,7 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 import org.springframework.stereotype.Component;
 
@@ -23,7 +24,7 @@ public class TicketWinningCalculator {
 
   private static final Pattern SEP = Pattern.compile("[,\\s\\-]+");
 
-  public HashMap<TicketLineId, TicketLineResult> computeLineResults(
+  public Map<TicketLineId, TicketLineResult> computeLineResults(
       Ticket ticket, DrawResultProjection projection) {
     var facts = TicketResultFacts.from(projection);
 

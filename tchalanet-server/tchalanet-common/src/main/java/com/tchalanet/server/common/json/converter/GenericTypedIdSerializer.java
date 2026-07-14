@@ -16,11 +16,9 @@ import tools.jackson.databind.ValueSerializer;
  */
 public final class GenericTypedIdSerializer<T> extends ValueSerializer<T> {
 
-  private final Class<T> target;
   private final Method valueMethod;
 
   public GenericTypedIdSerializer(Class<T> target) {
-    this.target = target;
     Method m = null;
     try {
       m = target.getMethod("value");

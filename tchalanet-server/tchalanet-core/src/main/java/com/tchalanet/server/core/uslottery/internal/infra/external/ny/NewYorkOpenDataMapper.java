@@ -52,39 +52,40 @@ public class NewYorkOpenDataMapper {
     var results = new ArrayList<UsLotteryProviderResult>();
     var latestDates = new ArrayList<String>();
 
+    boolean found = false;
     for (var entry : entries) {
       latestDates.add(entry.drawDate());
 
-      var drawDate = parseDate(entry.drawDate());
-      if (drawDate == null || !query.drawDate().equals(drawDate)) {
-        continue;
+      if (!found) {
+        var drawDate = parseDate(entry.drawDate());
+        if (drawDate != null && query.drawDate().equals(drawDate)) {
+          addResult(
+              results,
+              "NUMBERS",
+              slot.pick3(entry),
+              3,
+              sourceHash,
+              url,
+              query,
+              entry,
+              drawDate,
+              slot,
+              sourceStrategy);
+          addResult(
+              results,
+              "WIN4",
+              slot.pick4(entry),
+              4,
+              sourceHash,
+              url,
+              query,
+              entry,
+              drawDate,
+              slot,
+              sourceStrategy);
+          found = true;
+        }
       }
-
-      addResult(
-          results,
-          "NUMBERS",
-          slot.pick3(entry),
-          3,
-          sourceHash,
-          url,
-          query,
-          entry,
-          drawDate,
-          slot,
-          sourceStrategy);
-      addResult(
-          results,
-          "WIN4",
-          slot.pick4(entry),
-          4,
-          sourceHash,
-          url,
-          query,
-          entry,
-          drawDate,
-          slot,
-          sourceStrategy);
-      break;
     }
 
     if (results.isEmpty()) {

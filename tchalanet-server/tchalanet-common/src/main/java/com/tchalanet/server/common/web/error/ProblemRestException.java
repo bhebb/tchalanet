@@ -15,6 +15,11 @@ public class ProblemRestException extends RuntimeException {
     this.problem = problem;
   }
 
+  public ProblemRestException(ProblemDetail problem, Throwable cause) {
+    super(problem.getDetail(), cause);
+    this.problem = problem;
+  }
+
   public ProblemDetail getProblem() {
     return problem;
   }
@@ -40,6 +45,13 @@ public class ProblemRestException extends RuntimeException {
     pd.setTitle("Unprocessable entity");
     pd.setDetail(message);
     return new ProblemRestException(pd);
+  }
+
+  public static ProblemRestException unprocessable(String message, Throwable cause) {
+    ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.UNPROCESSABLE_ENTITY);
+    pd.setTitle("Unprocessable entity");
+    pd.setDetail(message);
+    return new ProblemRestException(pd, cause);
   }
 
   public static ProblemRestException conflict(String message) {

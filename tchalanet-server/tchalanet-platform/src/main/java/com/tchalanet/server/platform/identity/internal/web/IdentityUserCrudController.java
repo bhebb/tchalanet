@@ -107,7 +107,7 @@ public class IdentityUserCrudController {
       role = TchRole.valueOf(request.role());
     } catch (IllegalArgumentException e) {
       throw com.tchalanet.server.common.web.error.ProblemRest.badRequest(
-          "Unknown role: " + request.role());
+          "Unknown role: " + request.role(), e);
     }
     service.assignMembership(UserId.of(userId), TenantId.of(request.tenantId()), role, ctx);
   }

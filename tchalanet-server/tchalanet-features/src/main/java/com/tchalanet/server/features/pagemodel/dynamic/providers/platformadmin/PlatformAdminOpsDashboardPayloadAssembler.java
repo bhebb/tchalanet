@@ -137,8 +137,7 @@ public class PlatformAdminOpsDashboardPayloadAssembler {
                           null))
               .toList();
       OpsSchedulerHistoryProvider.Snapshot history = buildSchedulerHistory();
-      java.util.LinkedHashMap<String, OpsSchedulerJobItem> uniqueItems =
-          new java.util.LinkedHashMap<>();
+      java.util.Map<String, OpsSchedulerJobItem> uniqueItems = new java.util.LinkedHashMap<>();
       disabled.forEach(item -> uniqueItems.put(item.jobKey(), item));
       history
           .items()

@@ -31,7 +31,7 @@ public final class SalesNoticeAssembler {
 
   private SalesNoticeAssembler() {}
 
-  public static ArrayList<ApiNotice> assemble(
+  public static List<ApiNotice> assemble(
       SalePolicyDecision policyDecision,
       List<TicketCharge> charges,
       PromotionDecision promotionDecision) {

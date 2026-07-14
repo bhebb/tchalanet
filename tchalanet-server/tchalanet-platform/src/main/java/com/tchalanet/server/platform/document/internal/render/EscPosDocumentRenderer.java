@@ -116,7 +116,7 @@ public class EscPosDocumentRenderer implements DocumentRenderer {
     DocumentAsset qr = request.firstAssetOfKind(AssetKind.QR);
 
     if (qr == null) {
-      return null;
+      return new byte[0];
     }
 
     if (qr.bytes() != null && qr.bytes().length > 0) {
@@ -124,7 +124,7 @@ public class EscPosDocumentRenderer implements DocumentRenderer {
     }
 
     if (qr.payload() == null || qr.payload().isBlank()) {
-      return null;
+      return new byte[0];
     }
 
     int sizePx =

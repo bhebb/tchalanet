@@ -28,7 +28,7 @@ public class ThemePresetConfigValidator {
       root = jsonUtils.parse(configJson);
     } catch (Exception e) {
       throw new IllegalArgumentException(
-          "theme_preset.config is not valid JSON: " + e.getMessage());
+          "theme_preset.config is not valid JSON: " + e.getMessage(), e);
     }
 
     if (root == null || !root.isObject()) {

@@ -170,11 +170,4 @@ public final class RlsAwareDataSource extends DelegatingDataSource {
     String x = v.trim().toLowerCase();
     return (x.equals("active") || x.equals("deleted") || x.equals("all")) ? x : DEFAULT_VISIBILITY;
   }
-
-  private String safeScope(String s) {
-    if (s == null) return DEFAULT_SCOPE;
-    var x = s.trim().toLowerCase();
-    // we only care about "platform" vs not-platform in SQL helpers; keep other values for logs
-    return x;
-  }
 }

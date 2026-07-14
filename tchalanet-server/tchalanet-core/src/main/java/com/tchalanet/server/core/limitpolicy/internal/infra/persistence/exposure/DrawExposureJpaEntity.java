@@ -3,7 +3,12 @@ package com.tchalanet.server.core.limitpolicy.internal.infra.persistence.exposur
 import com.tchalanet.server.catalog.game.api.model.BetType;
 import com.tchalanet.server.common.persistence.BaseTenantEntity;
 import com.tchalanet.server.core.limitpolicy.api.ScopeType;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;

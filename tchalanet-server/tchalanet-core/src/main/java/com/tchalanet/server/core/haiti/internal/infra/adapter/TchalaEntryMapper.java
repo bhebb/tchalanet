@@ -1,8 +1,16 @@
 package com.tchalanet.server.core.haiti.internal.infra.adapter;
 
 import com.tchalanet.server.common.types.id.TchalaEntryId;
-import com.tchalanet.server.core.haiti.internal.domain.tchala.model.*;
-import com.tchalanet.server.core.haiti.internal.infra.persistence.entity.*;
+import com.tchalanet.server.core.haiti.internal.domain.tchala.model.DedupeKey;
+import com.tchalanet.server.core.haiti.internal.domain.tchala.model.DreamText;
+import com.tchalanet.server.core.haiti.internal.domain.tchala.model.TchalaEntry;
+import com.tchalanet.server.core.haiti.internal.domain.tchala.model.TchalaEntrySource;
+import com.tchalanet.server.core.haiti.internal.domain.tchala.model.TchalaEntryStatus;
+import com.tchalanet.server.core.haiti.internal.domain.tchala.model.TchalaLang;
+import com.tchalanet.server.core.haiti.internal.domain.tchala.model.TchalaNumber;
+import com.tchalanet.server.core.haiti.internal.infra.persistence.entity.TchalaEntryJpaEntity;
+import com.tchalanet.server.core.haiti.internal.infra.persistence.entity.TchalaEntrySourceDb;
+import com.tchalanet.server.core.haiti.internal.infra.persistence.entity.TchalaEntryStatusDb;
 import java.util.Comparator;
 import java.util.UUID;
 

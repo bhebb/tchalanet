@@ -100,10 +100,7 @@ public class NewJerseyDrawResultsClient implements UsLotteryProviderClient {
     var to = query.drawDate().plusDays(1).atStartOfDay(query.timezone()).toInstant().toEpochMilli();
 
     var sb = new StringBuilder(joinUrl(base, path));
-    sb.append("?status=CLOSED")
-        .append("&size=2000")
-        .append("&page=0")
-        .append("&date-from=")
+    sb.append("?status=CLOSED&size=2000&page=0&date-from=")
         .append(from)
         .append("&date-to=")
         .append(to);

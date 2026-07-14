@@ -23,7 +23,9 @@ public class PlanFeatureJsonValidator {
     try {
       features = jsonUtils.readValue(rawJson, new TypeReference<Map<String, Boolean>>() {});
     } catch (Exception e) {
-      throw ProblemRest.badRequest("plan.features_json_invalid");
+      var ex = ProblemRest.badRequest("plan.features_json_invalid");
+      ex.initCause(e);
+      throw ex;
     }
 
     for (var entry : features.entrySet()) {

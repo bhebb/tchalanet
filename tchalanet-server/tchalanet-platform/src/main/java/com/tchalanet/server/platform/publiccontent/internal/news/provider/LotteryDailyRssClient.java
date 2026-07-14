@@ -30,7 +30,7 @@ public class LotteryDailyRssClient implements NewsProvider {
       return new SyndFeedInput().build(new XmlReader(url));
     } catch (Exception e) {
       log.error("publiccontent: failed to fetch RSS feed from {}: {}", feedUrl, e.getMessage(), e);
-      throw ProblemRestException.unprocessable("Failed to fetch/parse RSS feed from " + feedUrl);
+      throw ProblemRestException.unprocessable("Failed to fetch/parse RSS feed from " + feedUrl, e);
     }
   }
 

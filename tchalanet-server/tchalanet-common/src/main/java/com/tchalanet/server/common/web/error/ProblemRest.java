@@ -27,6 +27,12 @@ public final class ProblemRest {
     return of(HttpStatus.BAD_REQUEST, detail);
   }
 
+  public static ProblemRestException badRequest(String detail, Throwable cause) {
+    ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+    pd.setDetail(detail);
+    return new ProblemRestException(pd, cause);
+  }
+
   public static ProblemRestException unauthorized(String detail) {
     return of(HttpStatus.UNAUTHORIZED, detail);
   }
@@ -58,5 +64,11 @@ public final class ProblemRest {
 
   public static ProblemRestException internal(String detail) {
     return of(HttpStatus.INTERNAL_SERVER_ERROR, detail);
+  }
+
+  public static ProblemRestException internal(String detail, Throwable cause) {
+    ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+    pd.setDetail(detail);
+    return new ProblemRestException(pd, cause);
   }
 }

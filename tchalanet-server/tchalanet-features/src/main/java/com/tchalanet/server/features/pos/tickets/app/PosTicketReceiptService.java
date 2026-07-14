@@ -65,7 +65,7 @@ public class PosTicketReceiptService {
     try {
       profile = profileResolver.resolve(request.printOptionsRequest());
     } catch (IllegalArgumentException ex) {
-      throw ProblemRest.badRequest(ex.getMessage());
+      throw ProblemRest.badRequest(ex.getMessage(), ex);
     }
 
     // Use resolved profile for formatting and document rendering

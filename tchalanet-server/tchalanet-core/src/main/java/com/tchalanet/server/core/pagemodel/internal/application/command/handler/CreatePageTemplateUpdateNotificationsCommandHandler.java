@@ -5,10 +5,8 @@ import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.pagemodel.api.command.CreatePageTemplateUpdateNotificationsCommand;
 import com.tchalanet.server.core.pagemodel.internal.application.port.out.PageModelReadPort;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 
 @UseCase
@@ -28,17 +26,7 @@ public class CreatePageTemplateUpdateNotificationsCommandHandler
     var affected = pageModels.findAllByTemplateId(command.templateId());
     var created = 0;
     for (var pageModel : affected) {
-      var tenantId = pageModel.tenantId();
-      var compatibility = classify(pageModel.schemaVersion(), command.newSchemaVersion());
-      var recommendedAction = "MAJOR".equals(compatibility) ? "REQUIRES_MIGRATION" : "CREATE_DRAFT";
-      var payload =
-          json.toJsonNode(
-              Map.of(
-                  "templateId", command.templateId().value().toString(),
-                  "logicalId", command.logicalId(),
-                  "schemaVersion", command.newSchemaVersion(),
-                  "compatibility", compatibility,
-                  "recommendedAction", recommendedAction));
+      classify(pageModel.schemaVersion(), command.newSchemaVersion());
       // todo add notification
       created++;
     }
@@ -53,17 +41,5 @@ public class CreatePageTemplateUpdateNotificationsCommandHandler
       return "MINOR";
     }
     return "MAJOR";
-  }
-
-  private static String dedupeKey(
-      TenantId tenantId, CreatePageTemplateUpdateNotificationsCommand command) {
-    return "pagemodel-template-update:"
-        + tenantId.value()
-        + ":"
-        + command.templateId().value()
-        + ":"
-        + command.logicalId()
-        + ":"
-        + command.newSchemaVersion();
   }
 }

@@ -72,10 +72,6 @@ public class TenantDrawSalesMatrixService {
           .put(row.tenantGameId(), row);
     }
 
-    // tenantGameId index
-    Map<TenantGameId, TenantGameRefView> tenantGameById =
-        tenantGames.stream().collect(Collectors.toMap(TenantGameRefView::tenantGameId, tg -> tg));
-
     // Limit assignments (tenant-scoped)
     var limitRows = toLimitRows(limitAssignments);
     var limitsSetup = new LimitsSetupView(!limitRows.isEmpty(), limitRows);

@@ -48,8 +48,8 @@ public class PlanAdminService {
     entity.setBillingPeriod(req.billingPeriod() != null ? req.billingPeriod() : "MONTHLY");
     entity.setLimitsJson(normalizeJson(req.limitsJson()));
     entity.setFeaturesJson(normalizeJson(req.featuresJson()));
-    entity.setActive(req.active() != null ? req.active() : true);
-    entity.setDefaultPlan(req.isDefault() != null ? req.isDefault() : false);
+    entity.setActive(req.active() == null || req.active());
+    entity.setDefaultPlan(req.isDefault() != null && req.isDefault());
 
     return mapper.toView(repository.save(entity));
   }
