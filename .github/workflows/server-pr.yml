@@ -33,6 +33,10 @@ jobs:
           java-version: '25'
           cache: maven
 
+      - name: Spotless check
+        continue-on-error: true
+        run: ./mvnw -B spotless:check
+
       - name: Maven verify
         run: ./mvnw -B -DskipITs=true verify
 
