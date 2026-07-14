@@ -54,6 +54,54 @@ class PromotionTerminalOverrideMergerTest {
     }
 
     @Test
+    @DisplayName("passes through all effects when no overrides match")
+    void passesThrough() {
+        var rule = maryajRule();
+        var override = new SellerTerminalPromotionEffectOverride(
+            UUID.fromString("E1000000-0000-0000-0000-000000000003"),
+            SellerTerminalId.of(UUID.fromString("D1000000-0000-0000-0000-000000000001")),
+            rule.campaignId(),
+            rule.id(),
+            PromotionEffectType.BOOST_ODDS,
+            "HT_SOME_OTHER",
+            true,
+            5,
+            null,
+            null,
+            null,
+            null
+        );
+
+        var effective = merger.merge(List.of(rule), List.of(override));
+
+        assertThat(effective.terminalOverrideApplied()).isTrue();
+        assertThat(effective.rules().getFirst().effects()).hasSize(1);
+        var effect = effective.rules().getFirst().effects().getFirst();
+        assertThat(effect.quantity()).isEqualTo(rule.effects().getFirst().quantity());
+    }
+
+    @Test
+    @DisplayName("returns rules unchanged when overrides list is null")
+    void nullOverrides() {
+        var rule = maryajRule();
+        var effective = merger.merge(List.of(rule), null);
+
+        assertThat(effective.terminalOverrideApplied()).isFalse();
+        assertThat(effective.overrideHash()).isNull();
+        assertThat(effective.rules()).hasSize(1);
+    }
+
+    @Test
+    @DisplayName("returns rules unchanged when overrides list is empty")
+    void emptyOverrides() {
+        var rule = maryajRule();
+        var effective = merger.merge(List.of(rule), List.of());
+
+        assertThat(effective.terminalOverrideApplied()).isFalse();
+        assertThat(effective.overrideHash()).isNull();
+    }
+
+    @Test
     @DisplayName("removes a disabled terminal effect")
     void disablesMatchingEffect() {
         var rule = maryajRule();
