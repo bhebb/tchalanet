@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <!-- Lombok-generated code (getters expose internal rep) -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+    </Match>
+
+    <!-- CQRS data carriers -->
+    <Match>
+        <Class name="~.*Command$"/>
+    </Match>
+    <Match>
+        <Class name="~.*Query$"/>
+    </Match>
+    <Match>
+        <Class name="~.*Result$"/>
+    </Match>
+    <Match>
+        <Class name="~.*Event$"/>
+    </Match>
+
+    <!-- API models / DTOs -->
+    <Match>
+        <Package name="~.*\.api\.model.*"/>
+    </Match>
+
+    <!-- JPA entities (mutable by design) -->
+    <Match>
+        <Class name="~.*JpaEntity$"/>
+    </Match>
+
+    <!-- Spring config / bootstrap -->
+    <Match>
+        <Class name="~.*Configuration$"/>
+    </Match>
+    <Match>
+        <Class name="~.*Config$"/>
+    </Match>
+</FindBugsFilter>
