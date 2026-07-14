@@ -150,33 +150,40 @@ def test_provision_configure_and_sell(
 
     ok_lines = [
         {"gameCode": "HT_BOLET", "betType": "MATCH_1_2D", "selection": "11",
-         "betOption": None, "stake": "5.00"},
+         "betOption": None, "stakeAmount": "5.00"},
         {"gameCode": "HT_MARYAJ", "betType": "MARRIAGE_2D2D", "selection": "21-25",
-         "betOption": 1, "stake": "5.00"},
+         "betOption": 1, "stakeAmount": "5.00"},
     ]
-    prev = seller.post("/tenant/cashier/tickets/preview", json=payload(ok_lines), headers=_rid())
-    assert_ok(prev)
-    assert _data(prev)["decision"] == "ACCEPTABLE"
+    prep = seller.post("/tenant/sales/preparations", json=payload(ok_lines), headers=_rid())
+    assert_ok(prep, expected=(200, 201))
+    preparation_id = _data(prep)["preparationId"]
 
-    sold = seller.post("/tenant/cashier/tickets/sell", json=payload(ok_lines),
+    sold = seller.post(f"/tenant/sales/preparations/{preparation_id}/confirm", json={},
                        idempotency_key=str(uuid.uuid4()), headers=_rid())
     assert_ok(sold, expected=(200, 201))
     sold_data = _data(sold)
-    assert sold_data["outcome"] == "ACCEPTED"
     assert sold_data["ticketId"]
+    assert sold_data["sale"]["outcome"] == "ACCEPTED"
 
     # 8. Over-limit sale is rejected ------------------------------------------------------
     big_lines = [
         {"gameCode": "HT_BOLET", "betType": "MATCH_1_2D", "selection": "22",
-         "betOption": None, "stake": "600.00"},
+         "betOption": None, "stakeAmount": "600.00"},
         {"gameCode": "HT_BOLET", "betType": "MATCH_1_2D", "selection": "33",
-         "betOption": None, "stake": "600.00"},
+         "betOption": None, "stakeAmount": "600.00"},
     ]
-    breach = seller.post("/tenant/cashier/tickets/sell", json=payload(big_lines),
-                         idempotency_key=str(uuid.uuid4()), headers=_rid())
-    bdata = _data(breach) or {}
-    assert breach.status_code in (400, 409, 422) or bdata.get("outcome") in ("REJECTED", "BLOCKED"), (
-        f"over-limit sale should be rejected, got http={breach.status_code} data={bdata}")
+    breach_prep = seller.post("/tenant/sales/preparations", json=payload(big_lines), headers=_rid())
+    if breach_prep.status_code < 300:
+        breach_preparation_id = _data(breach_prep)["preparationId"]
+        breach = seller.post(f"/tenant/sales/preparations/{breach_preparation_id}/confirm", json={},
+                             idempotency_key=str(uuid.uuid4()), headers=_rid())
+        bdata = _data(breach) or {}
+        sale = bdata.get("sale") or {}
+        assert breach.status_code in (400, 409, 422) or sale.get("outcome") in ("REJECTED", "BLOCKED"), (
+            f"over-limit sale should be rejected, got http={breach.status_code} data={bdata}")
+    else:
+        assert breach_prep.status_code in (400, 409, 422), (
+            f"over-limit preparation should be rejected, got http={breach_prep.status_code} data={_data(breach_prep)}")
 
     # 9. Role separation: TENANT_ADMIN cannot reach a SUPER_ADMIN-only endpoint -----------
     forbidden = admin.post("/platform/tenant-onboarding/provision", json={

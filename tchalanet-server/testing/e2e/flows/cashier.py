@@ -1,4 +1,4 @@
-"""Cashier business flow: preview, sell, print, send, get, list."""
+"""Cashier business flow: prepare, confirm, print, send, get, list."""
 from __future__ import annotations
 
 import uuid
@@ -78,13 +78,16 @@ class CashierFlow:
         return self._do_preview(payload)
 
     def _do_preview(self, payload: dict[str, Any]) -> dict[str, Any]:
+        return get_data(self.prepare_response(payload))
+
+    def prepare_response(self, payload: dict[str, Any]):
         response = self.client.post(
-            "/tenant/cashier/tickets/preview",
+            "/tenant/sales/preparations",
             json=payload,
             context=self.context,
         )
         assert_ok(response)
-        return response.json()["data"]
+        return response
 
     def sell(self, draw: dict[str, Any], game_code: str) -> SoldTicket:
         return self._do_sell(self._sale_payload(draw, [game_code]))
@@ -105,21 +108,15 @@ class CashierFlow:
     def sell_expecting_rejection(
         self, draw: dict[str, Any], game_code: str
     ) -> dict[str, Any]:
-        """Call /sell expecting a rejected outcome or a 4xx response.
+        """Call prepare/confirm expecting a rejected outcome or a 4xx response.
 
         Returns the raw response data dict (does NOT raise on rejection).
         Raises only if the server returns an unexpected 5xx.
         """
-        idem = str(uuid.uuid4())
-        response = self.client.post(
-            "/tenant/cashier/tickets/sell",
-            json=self._sale_payload(draw, [game_code]),
-            context=self.context,
-            idempotency_key=idem,
-        )
+        response = self.sell_response(self._sale_payload(draw, [game_code]))
         if response.status_code >= 500:
             raise AssertionError(
-                f"Unexpected 5xx from sell: {response.status_code} — {response.text}"
+                f"Unexpected 5xx from prepared sell: {response.status_code} — {response.text}"
             )
         try:
             return response.json().get("data") or response.json()
@@ -127,15 +124,9 @@ class CashierFlow:
             return {"_raw_status": response.status_code, "_raw_body": response.text}
 
     def _do_sell(self, payload: dict[str, Any]) -> SoldTicket:
-        idem = str(uuid.uuid4())
-        response = self.client.post(
-            "/tenant/cashier/tickets/sell",
-            json=payload,
-            context=self.context,
-            idempotency_key=idem,
-        )
+        response = self.sell_response(payload)
         assert_ok(response, expected=(200, 201))
-        data = response.json()["data"]
+        data = self._flatten_confirm_response(response.json()["data"])
         if data.get("outcome") != "ACCEPTED" or data.get("ticketId") is None:
             raise AssertionError(
                 f"Sell did not result in ACCEPTED — outcome={data.get('outcome')}\n"
@@ -150,6 +141,41 @@ class CashierFlow:
             sale_status=data["saleStatus"],
             backup=data.get("backup") or {},
         )
+
+    def sell_response(self, payload: dict[str, Any], idempotency_key: str | None = None):
+        prep = self.client.post(
+            "/tenant/sales/preparations",
+            json=payload,
+            context=self.context,
+        )
+        if prep.status_code >= 400:
+            return prep
+        preparation_id = get_data(prep)["preparationId"]
+        return self.confirm_response(preparation_id, idempotency_key)
+
+    def confirm_response(self, preparation_id: str, idempotency_key: str | None = None):
+        response = self.client.post(
+            f"/tenant/sales/preparations/{preparation_id}/confirm",
+            json={},
+            context=self.context,
+            idempotency_key=idempotency_key or str(uuid.uuid4()),
+        )
+        return response
+
+    @staticmethod
+    def _flatten_confirm_response(data: dict[str, Any]) -> dict[str, Any]:
+        sale = data.get("sale") or {}
+        ticket = sale.get("ticket") or {}
+        return {
+            "outcome": sale.get("outcome"),
+            "ticketId": data.get("ticketId") or ticket.get("ticketId"),
+            "ticketCode": ticket.get("ticketCode") or sale.get("ticketCode"),
+            "publicCode": ticket.get("publicCode") or sale.get("publicCode"),
+            "saleStatus": ticket.get("saleStatus") or sale.get("saleStatus"),
+            "issues": sale.get("issues"),
+            "backup": sale.get("backup"),
+            "sellerInstruction": sale.get("sellerInstruction"),
+        }
 
     def get_ticket(self, ticket_id: str) -> dict[str, Any]:
         response = self.client.get(
@@ -262,7 +288,7 @@ class CashierFlow:
                     "betType": bet_type,
                     "selection": selection,
                     "betOption": bet_option,
-                    "stake": f"{self.stake_cents / 100:.2f}",
+                    "stakeAmount": f"{self.stake_cents / 100:.2f}",
                 })
         return {
             "terminalId": self.context.terminal_id,

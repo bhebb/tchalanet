@@ -63,6 +63,14 @@ def _ticket_ids_of_2xx(results: list) -> set[str]:
     return ids
 
 
+def _prepare(ctx: PosContext, payload: dict) -> str:
+    response = ctx.cashier_flow().prepare_response(payload)
+    assert 200 <= response.status_code < 300, (
+        f"Preparation failed before concurrency probe: {response.status_code} {response.text[:300]}"
+    )
+    return response.json()["data"]["preparationId"]
+
+
 # ===========================================================================
 # Idempotency under real concurrency
 # ===========================================================================
@@ -86,16 +94,11 @@ def test_concurrent_same_key_same_payload_creates_one_ticket(
     draw, game_code = _require_draw_and_game(ctx)
 
     payload = ctx.cashier_flow()._sale_payload(draw, [game_code])
+    preparation_id = _prepare(ctx, payload)
     idem_key = str(uuid.uuid4())
-    op_ctx = ctx.op_context()
 
     def fire():
-        return ctx.cashier_client.post(
-            "/tenant/cashier/tickets/sell",
-            json=payload,
-            context=op_ctx,
-            idempotency_key=idem_key,
-        )
+        return ctx.cashier_flow().confirm_response(preparation_id, idem_key)
 
     results = run_concurrent(fire, n=_N)
     _no_5xx(results)
@@ -132,19 +135,14 @@ def test_concurrent_same_key_different_payload_rejected_cleanly(
 
     base = ctx.cashier_flow()._sale_payload(draw, [game_code])
     idem_key = str(uuid.uuid4())
-    op_ctx = ctx.op_context()
 
     # Each thread sends a distinct selection under the *same* idempotency key.
     selections = ["11", "22", "33", "44", "55"][:_N]
 
     def fire(selection: str):
         payload = {**base, "lines": [{**base["lines"][0], "selection": selection}]}
-        return ctx.cashier_client.post(
-            "/tenant/cashier/tickets/sell",
-            json=payload,
-            context=op_ctx,
-            idempotency_key=idem_key,
-        )
+        preparation_id = _prepare(ctx, payload)
+        return ctx.cashier_flow().confirm_response(preparation_id, idem_key)
 
     with ThreadPoolExecutor(max_workers=len(selections)) as pool:
         results = list(pool.map(fire, selections))
@@ -179,14 +177,11 @@ def test_concurrent_distinct_keys_all_create_tickets(
     draw, game_code = _require_draw_and_game(ctx)
 
     payload = ctx.cashier_flow()._sale_payload(draw, [game_code])
-    op_ctx = ctx.op_context()
 
     def fire():
-        return ctx.cashier_client.post(
-            "/tenant/cashier/tickets/sell",
-            json=payload,
-            context=op_ctx,
-            idempotency_key=str(uuid.uuid4()),  # distinct key per call
+        preparation_id = _prepare(ctx, payload)
+        return ctx.cashier_flow().confirm_response(
+            preparation_id, str(uuid.uuid4())  # distinct key per call
         )
 
     results = run_concurrent(fire, n=_N)

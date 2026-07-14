@@ -1,7 +1,5 @@
 package com.tchalanet.server.features.pos.tickets;
 
-import com.tchalanet.server.common.bus.CommandBus;
-import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.types.id.DrawId;
@@ -11,18 +9,12 @@ import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.common.web.paging.TchPaging;
-import com.tchalanet.server.core.sales.api.command.sell.SellTicketCommand;
-import com.tchalanet.server.core.sales.api.command.sell.SellTicketResult;
-import com.tchalanet.server.core.sales.api.query.preview.PreviewTicketSaleQuery;
-import com.tchalanet.server.core.sales.api.query.preview.TicketSalePreviewResult;
 import com.tchalanet.server.features.pos.tickets.app.PosTicketReceiptService;
 import com.tchalanet.server.features.pos.tickets.app.PosTicketsService;
 import com.tchalanet.server.features.pos.tickets.model.PosTicketCancelRequest;
 import com.tchalanet.server.features.pos.tickets.model.PosTicketCancelResponse;
 import com.tchalanet.server.features.pos.tickets.model.PosTicketDetailsResponse;
 import com.tchalanet.server.features.pos.tickets.model.PosTicketPageResponse;
-import com.tchalanet.server.features.pos.tickets.model.PosTicketSaleRequest;
-import com.tchalanet.server.features.pos.tickets.model.PosTicketSaleResponse;
 import com.tchalanet.server.features.pos.tickets.model.PosTicketVerificationResponse;
 import com.tchalanet.server.features.pos.tickets.model.PosVerifyTicketRequest;
 import com.tchalanet.server.features.pos.tickets.model.PrintTicketRequest;
@@ -32,8 +24,6 @@ import com.tchalanet.server.features.pos.tickets.model.SendTicketReceiptResponse
 import com.tchalanet.server.platform.audit.api.AuditLog;
 import com.tchalanet.server.platform.audit.api.model.AuditAction;
 import com.tchalanet.server.platform.audit.api.model.AuditEntityType;
-import com.tchalanet.server.platform.idempotence.api.RequireIdempotency;
-import com.tchalanet.server.platform.idempotence.api.model.IdempotencyScope;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -65,41 +55,6 @@ public class PosTicketsController {
 
   private final PosTicketsService ticketsService;
   private final PosTicketReceiptService receiptService;
-  private final QueryBus queryBus;
-  private final CommandBus commandBus;
-
-  @PostMapping("/preview")
-  @Operation(summary = "Preview a cashier ticket sale")
-  public ApiResponse<TicketSalePreviewResult> preview(
-      @CurrentContext TchRequestContext ctx, @Valid @RequestBody PosTicketSaleRequest request) {
-    ctx.sellerTerminalIdRequired();
-    return ApiResponse.success(
-        queryBus.ask(
-            new PreviewTicketSaleQuery(
-                request.drawId(),
-                request.drawChannelId(),
-                request.currencyCode(),
-                request.toLines())));
-  }
-
-  @PostMapping("/sell")
-  @ResponseStatus(HttpStatus.CREATED)
-  @RequireIdempotency(scope = IdempotencyScope.SALES_SELL_TICKET)
-  @Operation(summary = "Sell a cashier ticket")
-  public ApiResponse<PosTicketSaleResponse> sell(
-      @CurrentContext TchRequestContext ctx, @Valid @RequestBody PosTicketSaleRequest request) {
-    ctx.sellerTerminalIdRequired();
-    var result =
-        commandBus.<SellTicketResult>execute(
-            new SellTicketCommand(
-                request.drawId(),
-                request.drawChannelId(),
-                request.currencyCode(),
-                request.toLines(),
-                request.serviceOptions(),
-                java.util.List.of()));
-    return ApiResponse.success(PosTicketSaleResponse.from(result));
-  }
 
   @PostMapping("/verify")
   @Operation(summary = "Verify a scanned public ticket code or URL after settlement")

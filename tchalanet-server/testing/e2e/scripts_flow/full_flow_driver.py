@@ -207,21 +207,22 @@ def main() -> int:
         return 3
     draw = draws[0]
     lines = [
-        {"gameCode": "HT_BOLET", "betType": "MATCH_1_2D", "selection": "11", "betOption": None, "stake": "5.00"},
-        {"gameCode": "HT_MARYAJ", "betType": "MARRIAGE_2D2D", "selection": "21-25", "betOption": 1, "stake": "5.00"},
+        {"gameCode": "HT_BOLET", "betType": "MATCH_1_2D", "selection": "11", "betOption": None, "stakeAmount": "5.00"},
+        {"gameCode": "HT_MARYAJ", "betType": "MARRIAGE_2D2D", "selection": "21-25", "betOption": 1, "stakeAmount": "5.00"},
     ]
     payload = {"sellerTerminalId": seller_terminal_id, "drawId": draw["drawId"],
                "drawChannelId": draw["drawChannelId"], "currency": "HTG", "lines": lines}
-    prev = seller.post("/tenant/cashier/tickets/preview", json=payload, headers=rid())
-    show(prev, limit=1200)
-    if prev.status_code < 300:
-        pdata = data_of(prev) or {}
-        promo = pdata.get("promotion") or pdata.get("promotionDecision") or pdata.get("promotions")
-        print(f"    maryaj-gratis / promotion in preview: {promo}")
-    sold = seller.post("/tenant/cashier/tickets/sell", json=payload,
-                       idempotency_key=str(uuid.uuid4()), headers=rid())
+    prep = seller.post("/tenant/sales/preparations", json=payload, headers=rid())
+    show(prep, limit=1200)
+    preparation_id = (data_of(prep) or {}).get("preparationId")
+    if prep.status_code < 300:
+        pdata = data_of(prep) or {}
+        print(f"    maryaj-gratis promotionLines: {pdata.get('promotionLines')}")
+    sold = seller.post(f"/tenant/sales/preparations/{preparation_id}/confirm", json={},
+                       idempotency_key=str(uuid.uuid4()), headers=rid()) if preparation_id else prep
     show(sold, limit=900)
-    if sold.status_code < 300 and (data_of(sold) or {}).get("outcome") == "ACCEPTED":
+    sale = (data_of(sold) or {}).get("sale") or {}
+    if sold.status_code < 300 and sale.get("outcome") == "ACCEPTED":
         print(f"{OK} sale ACCEPTED ticket={(data_of(sold) or {}).get('ticketId')}")
     else:
         print(f"{KO} sale not accepted")
@@ -230,18 +231,24 @@ def main() -> int:
     step("Seller sells a ticket over the 1000 HTG limit -> expect BLOCK")
     big_lines = [
         {"gameCode": "HT_BOLET", "betType": "MATCH_1_2D", "selection": "22",
-         "betOption": None, "stake": "600.00"},
+         "betOption": None, "stakeAmount": "600.00"},
         {"gameCode": "HT_BOLET", "betType": "MATCH_1_2D", "selection": "33",
-         "betOption": None, "stake": "600.00"},
+         "betOption": None, "stakeAmount": "600.00"},
     ]
     big_payload = {"sellerTerminalId": seller_terminal_id, "drawId": draw["drawId"],
                    "drawChannelId": draw["drawChannelId"], "currency": "HTG", "lines": big_lines}
-    breach = seller.post("/tenant/cashier/tickets/sell", json=big_payload,
-                         idempotency_key=str(uuid.uuid4()), headers=rid())
+    breach_prep = seller.post("/tenant/sales/preparations", json=big_payload, headers=rid())
+    if breach_prep.status_code < 300:
+        breach_id = (data_of(breach_prep) or {}).get("preparationId")
+        breach = seller.post(f"/tenant/sales/preparations/{breach_id}/confirm", json={},
+                             idempotency_key=str(uuid.uuid4()), headers=rid())
+    else:
+        breach = breach_prep
     show(breach, limit=900)
     bdata = data_of(breach) or {}
-    blocked = breach.status_code in (400, 409, 422) or bdata.get("outcome") in ("REJECTED", "BLOCKED")
-    print(f"{OK if blocked else KO} over-limit sale blocked (outcome={bdata.get('outcome')}, http={breach.status_code})")
+    sale = bdata.get("sale") or {}
+    blocked = breach.status_code in (400, 409, 422) or sale.get("outcome") in ("REJECTED", "BLOCKED")
+    print(f"{OK if blocked else KO} over-limit sale blocked (outcome={sale.get('outcome')}, http={breach.status_code})")
 
     # ---- 8. role separation -------------------------------------------------
     step("Role check: TENANT_ADMIN must NOT reach a SUPER_ADMIN-only endpoint")

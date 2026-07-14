@@ -122,7 +122,7 @@ def test_cashier_cannot_generate_draws(
 def test_super_admin_cannot_sell_tickets(
     super_admin_client: ApiClient,
 ) -> None:
-    """Super-admin token at /tenant/cashier/tickets/sell → 403 or 4xx.
+    """Super-admin token at /tenant/sales/preparations → 403 or 4xx.
 
     The super-admin is not a tenant cashier and should not be able to sell.
     """
@@ -132,14 +132,14 @@ def test_super_admin_cannot_sell_tickets(
         session_id="00000000-0000-0000-0000-000000000000",
     )
     response = super_admin_client.post(
-        "/tenant/cashier/tickets/sell",
+        "/tenant/sales/preparations",
         json={
             "terminalId": "00000000-0000-0000-0000-000000003101",
             "drawId": "00000000-0000-0000-0000-000000000000",
             "drawChannelId": "00000000-0000-0000-0000-000000000000",
             "currency": "HTG",
             "lines": [{"gameCode": "HT_BOLET", "betType": "MATCH_1_2D",
-                        "selection": "11", "stake": "1.00"}],
+                        "selection": "11", "stakeAmount": "1.00"}],
         },
         context=ctx,
     )

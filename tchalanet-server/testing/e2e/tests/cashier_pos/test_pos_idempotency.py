@@ -44,27 +44,20 @@ def test_sell_same_key_same_payload_is_idempotent(
     payload = flow._sale_payload(draw, [game_code])
     idem_key = str(uuid.uuid4())
 
-    # First call — must be accepted
-    first = ctx.cashier_client.post(
-        "/tenant/cashier/tickets/sell",
-        json=payload,
-        context=ctx.op_context(),
-        idempotency_key=idem_key,
-    )
+    preparation = flow.prepare_response(payload)
+    preparation_id = preparation.json()["data"]["preparationId"]
+
+    # First confirm — must be accepted
+    first = flow.confirm_response(preparation_id, idem_key)
     assert_ok(first, expected=(200, 201))
     first_data = first.json()["data"]
     first_ticket_id = first_data.get("ticketId")
-    assert first_data.get("outcome") == "ACCEPTED", (
-        f"First sell must be ACCEPTED: {first_data}"
+    assert (first_data.get("sale") or {}).get("outcome") == "ACCEPTED", (
+        f"First confirm must be ACCEPTED: {first_data}"
     )
 
-    # Second call — same key, same payload → same ticket
-    second = ctx.cashier_client.post(
-        "/tenant/cashier/tickets/sell",
-        json=payload,
-        context=ctx.op_context(),
-        idempotency_key=idem_key,
-    )
+    # Second call — same key, same preparation → same ticket
+    second = flow.confirm_response(preparation_id, idem_key)
     # Idempotent response: 200/201 with same ticket, or 409 with same ticket reference
     assert second.status_code in (200, 201, 409), (
         f"Idempotent resend must return 2xx or 409, got {second.status_code}: {second.text[:300]}"
@@ -97,7 +90,7 @@ def test_sell_same_key_different_payload_returns_conflict(
     flow = ctx.cashier_flow()
     idem_key = str(uuid.uuid4())
 
-    # First call with selection "11"
+    # First preparation with selection "11"
     payload_a = flow._sale_payload(draw, [game_codes[0]])
     # Force a different selection for payload_b
     payload_b = {
@@ -105,21 +98,14 @@ def test_sell_same_key_different_payload_returns_conflict(
         "lines": [{**payload_a["lines"][0], "selection": "99"}],
     }
 
-    first = ctx.cashier_client.post(
-        "/tenant/cashier/tickets/sell",
-        json=payload_a,
-        context=ctx.op_context(),
-        idempotency_key=idem_key,
-    )
+    prep_a = flow.prepare_response(payload_a)
+    prep_b = flow.prepare_response(payload_b)
+
+    first = flow.confirm_response(prep_a.json()["data"]["preparationId"], idem_key)
     assert_ok(first, expected=(200, 201))
 
-    # Second call — same key, different payload
-    second = ctx.cashier_client.post(
-        "/tenant/cashier/tickets/sell",
-        json=payload_b,
-        context=ctx.op_context(),
-        idempotency_key=idem_key,
-    )
+    # Second confirm — same key, different preparation/payload
+    second = flow.confirm_response(prep_b.json()["data"]["preparationId"], idem_key)
     # Backend must reject this as a conflict
     assert second.status_code in (409, 422, 400), (
         f"Different payload on same idempotency key must return 4xx conflict, "

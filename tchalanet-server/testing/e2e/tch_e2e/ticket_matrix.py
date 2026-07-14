@@ -27,7 +27,7 @@ class TicketScenario:
                 "betType": ls.bet_type,
                 "selection": ls.selection,
                 "betOption": ls.bet_option,
-                "stake": f"{ls.stake_cents / 100:.2f}",
+                "stakeAmount": f"{ls.stake_cents / 100:.2f}",
             }
             for ls in self.lines
         ]
