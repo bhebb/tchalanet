@@ -25,8 +25,14 @@ require_file() { [ -f "$1" ] || fail "Missing required file: $1"; }
 print_runtime_diagnostics() {
   log "Runtime diagnostics"
   $DOCKER_BIN ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}' >&2 || true
-  $DOCKER_BIN logs --tail 120 "tchl-traefik-$ENV" >&2 || true
-  $DOCKER_BIN logs --tail 120 "tchl-api-$ENV" >&2 || true
+  for container in "tchl-traefik-$ENV" "tchl-redis-$ENV" "tchl-api-$ENV"; do
+    if $DOCKER_BIN container inspect "$container" >/dev/null 2>&1; then
+      printf -- '--- logs: %s ---\n' "$container" >&2
+      $DOCKER_BIN logs --tail 120 "$container" >&2 || true
+    else
+      printf -- '--- missing container: %s ---\n' "$container" >&2
+    fi
+  done
   if command -v ss >/dev/null 2>&1; then
     ss -ltnp | grep -E ':(80|443)\b' >&2 || true
   elif command -v netstat >/dev/null 2>&1; then
@@ -134,6 +140,8 @@ elif [ ! -f "envs/$ENV/.secrets" ]; then
   fail "SKIP_DOPPLER=1 was set but envs/$ENV/.secrets does not exist"
 fi
 
+require_core_services_ready
+
 if [ "$DEPLOY_API" = "1" ]; then
   log "Preparing Firebase Admin credentials"
   scripts/remote/prepare-firebase-admin-credentials.sh "$ENV"
@@ -190,8 +198,6 @@ fi
 services=()
 [ "$DEPLOY_API" = "1" ] && services+=(api)
 [ "$DEPLOY_EDGE" = "1" ] && services+=(edge-service)
-
-require_core_services_ready
 
 log "Pulling runtime images deploy_api=$DEPLOY_API api=${API_IMAGE_TAG:-<unchanged>} deploy_edge=$DEPLOY_EDGE edge=${EDGE_IMAGE_TAG:-<unchanged>}"
 IMAGE_TAG="$COMPOSE_API_TAG" TCH_EDGE_TAG="$COMPOSE_EDGE_TAG" "${compose_cmd[@]}" pull "${services[@]}" || true
