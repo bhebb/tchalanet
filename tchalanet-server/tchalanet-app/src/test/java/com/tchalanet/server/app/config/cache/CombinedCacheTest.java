@@ -1,6 +1,7 @@
 package com.tchalanet.server.app.config.cache;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -73,6 +74,33 @@ class CombinedCacheTest {
             var cache = new CombinedCache("test", local, remote);
             assertThat(cache.get("k")).isNull();
             verify(remote).evict("k");
+        }
+    }
+
+    @Nested
+    @DisplayName("get(key, type)")
+    class GetTyped {
+
+        @Test
+        @DisplayName("should throw IllegalStateException on type mismatch")
+        void shouldThrowOnTypeMismatch() {
+            var vw = new SimpleValueWrapper("a-string");
+            when(local.get("k")).thenReturn(vw);
+
+            var cache = new CombinedCache("test", local, null);
+            assertThatThrownBy(() -> cache.get("k", Integer.class))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("not of required type");
+        }
+
+        @Test
+        @DisplayName("should return value when type matches")
+        void shouldReturnOnTypeMatch() {
+            var vw = new SimpleValueWrapper("val");
+            when(local.get("k")).thenReturn(vw);
+
+            var cache = new CombinedCache("test", local, null);
+            assertThat(cache.get("k", String.class)).isEqualTo("val");
         }
     }
 

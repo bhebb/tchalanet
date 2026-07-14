@@ -77,7 +77,7 @@ class SimpleCommandBusTest {
         }
 
         @Test
-        @DisplayName("should throw IllegalStateException when registry is empty (not initialized)")
+        @DisplayName("should throw IllegalStateException when registry is not initialized")
         void shouldRejectWhenRegistryNotInitialized() {
             var bus = new SimpleCommandBus(null);
 

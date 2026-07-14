@@ -83,7 +83,7 @@ public final class HandlerRegistry {
    * @return immutable map from command class to handler
    */
   public static Map<Class<?>, Object> buildCommandRegistry(
-      Map<String, CommandHandler> commandHandlers,
+      @SuppressWarnings("rawtypes") Map<String, CommandHandler> commandHandlers,
       Map<String, VoidCommandHandler<?>> voidCommandHandlers) {
 
     long startTime = System.currentTimeMillis();

@@ -17,7 +17,7 @@ public class SimpleCommandBus implements CommandBus, SmartInitializingSingleton 
 
     private final ApplicationContext ctx;
 
-    private volatile Map<Class<?>, Object> handlers = Map.of();
+    private volatile Map<Class<?>, Object> handlers;
 
     @Override
     @SuppressWarnings({"unchecked", "rawtypes"})
@@ -26,7 +26,7 @@ public class SimpleCommandBus implements CommandBus, SmartInitializingSingleton 
             (Map) ctx.getBeansOfType(CommandHandler.class, true, true);
         commandHandlers.forEach((name, bean) ->
             log.debug(
-                "QueryHandler candidate name={} proxyClass={} targetClass={}",
+                "CommandHandler candidate name={} proxyClass={} targetClass={}",
                 name,
                 bean.getClass().getName(),
                 org.springframework.aop.support.AopUtils.getTargetClass(bean).getName()
@@ -44,7 +44,7 @@ public class SimpleCommandBus implements CommandBus, SmartInitializingSingleton 
         Objects.requireNonNull(command, "Command must not be null");
 
         var registry = handlers;
-        if (registry.isEmpty()) {
+        if (registry == null) {
             throw new IllegalStateException("CommandBus registry is not initialized yet");
         }
 
