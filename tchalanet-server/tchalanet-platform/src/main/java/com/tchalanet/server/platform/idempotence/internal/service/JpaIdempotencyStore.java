@@ -31,11 +31,11 @@ public class JpaIdempotencyStore implements IdempotencyStore {
   @Override
   public BeginResult begin(
       IdempotencyScope scope, String key, String requestHash, long ttlSeconds) {
-    key = normalizeKey(key);
+    var normalizedKey = normalizeKey(key);
     var tenantId = requireTenantId();
 
     // Check-first: a resend with the same key is the common case.
-    var existing = repo.findByTenantIdAndScopeAndKey(tenantId, scope, key).orElse(null);
+    var existing = repo.findByTenantIdAndScopeAndKey(tenantId, scope, normalizedKey).orElse(null);
     if (existing != null) {
       return decisionFor(existing, requestHash);
     }
@@ -44,7 +44,7 @@ public class JpaIdempotencyStore implements IdempotencyStore {
     e.setId(UUID.randomUUID());
     e.setTenantId(tenantId);
     e.setScope(scope);
-    e.setKey(key);
+    e.setKey(normalizedKey);
     e.setRequestHash(requestHash);
     e.setStatus(IdempotencyRecordJpaEntity.Status.IN_PROGRESS);
     e.setExpiresAt(Instant.now().plusSeconds(Math.max(1, ttlSeconds)));
@@ -57,7 +57,7 @@ public class JpaIdempotencyStore implements IdempotencyStore {
       // Lost a concurrent insert race. begin() is non-transactional, so the failed insert's
       // own transaction rolled back in isolation — we can safely re-read the winning record in
       // a fresh transaction and return its real decision (e.g. ALREADY_COMPLETED replay).
-      var winner = repo.findByTenantIdAndScopeAndKey(tenantId, scope, key).orElse(null);
+      var winner = repo.findByTenantIdAndScopeAndKey(tenantId, scope, normalizedKey).orElse(null);
       return winner != null
           ? decisionFor(winner, requestHash)
           : new BeginResult(Decision.IN_PROGRESS, Optional.empty());
@@ -86,13 +86,13 @@ public class JpaIdempotencyStore implements IdempotencyStore {
       UUID resourceId,
       String responseJson) {
 
-    key = normalizeKey(key);
+    var normalizedKey = normalizeKey(key);
     var tenantId = requireTenantId();
 
     repo.markCompleted(
         tenantId,
         scope,
-        key,
+        normalizedKey,
         requestHash,
         IdempotencyRecordJpaEntity.Status.COMPLETED,
         resourceId,
@@ -108,10 +108,10 @@ public class JpaIdempotencyStore implements IdempotencyStore {
   @Override
   @Transactional(readOnly = true)
   public Optional<CompletedRecord> findCompleted(IdempotencyScope scope, String key) {
-    key = normalizeKey(key);
+    var normalizedKey = normalizeKey(key);
     var tenantId = requireTenantId();
 
-    return repo.findByTenantIdAndScopeAndKey(tenantId, scope, key)
+    return repo.findByTenantIdAndScopeAndKey(tenantId, scope, normalizedKey)
         .filter(e -> e.getStatus() == IdempotencyRecordJpaEntity.Status.COMPLETED)
         .filter(e -> e.getResourceId() != null)
         .map(e -> new CompletedRecord(e.getResourceId(), e.getResponseJson()));

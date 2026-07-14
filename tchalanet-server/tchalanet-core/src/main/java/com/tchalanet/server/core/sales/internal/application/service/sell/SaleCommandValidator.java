@@ -98,7 +98,7 @@ public class SaleCommandValidator {
     try {
       selectionApi.canonicalize(line.betType(), line.betOption(), line.rawSelection());
     } catch (IllegalArgumentException ex) {
-      throw ProblemRest.badRequest("sales.selection_invalid");
+      throw ProblemRest.badRequest("sales.selection_invalid", ex);
     }
   }
 
@@ -110,9 +110,9 @@ public class SaleCommandValidator {
       BetOption.from(line.betType(), line.betOption());
     } catch (IllegalArgumentException ex) {
       if (!line.betType().requiresOption()) {
-        throw ProblemRest.badRequest("sales.bet_option_not_allowed");
+        throw ProblemRest.badRequest("sales.bet_option_not_allowed", ex);
       }
-      throw ProblemRest.badRequest("sales.bet_option_out_of_range");
+      throw ProblemRest.badRequest("sales.bet_option_out_of_range", ex);
     }
   }
 

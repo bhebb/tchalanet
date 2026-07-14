@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -185,7 +186,7 @@ public class NotificationPublishedCommunicationListener {
   }
 
   private void addRecipient(
-      LinkedHashMap<String, OutboundRecipient> recipients,
+      Map<String, OutboundRecipient> recipients,
       OutboundRecipient recipient,
       CommunicationChannel channel) {
     var key =

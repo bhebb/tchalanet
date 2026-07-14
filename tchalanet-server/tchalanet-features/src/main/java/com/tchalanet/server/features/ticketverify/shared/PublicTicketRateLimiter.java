@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 public class PublicTicketRateLimiter {
 
   private final PublicTicketRateLimitProperties props;
-  private final ConcurrentHashMap<String, IpBucket> buckets = new ConcurrentHashMap<>();
+  private final Map<String, IpBucket> buckets = new ConcurrentHashMap<>();
 
   public PublicTicketRateLimiter(PublicTicketRateLimitProperties props) {
     this.props = props;

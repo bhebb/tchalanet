@@ -62,7 +62,9 @@ public class AccessControlBootstrapService {
   }
 
   private BootstrapAccessControlResult applyMissing(RolePermissionMatrix matrix) {
-    int permsCreated = 0, rolesCreated = 0, mappingsCreated = 0;
+    int permsCreated = 0;
+    int rolesCreated = 0;
+    int mappingsCreated = 0;
 
     // 1. Create missing permissions
     var existingPerms =

@@ -19,9 +19,17 @@ import com.tchalanet.server.core.draw.api.query.NewDrawRow;
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawLifecyclePort;
 import com.tchalanet.server.core.draw.internal.application.port.out.ResultSlotCalendarReaderPort;
 import com.tchalanet.server.core.draw.internal.domain.service.DrawScheduleCalculator;
-import java.time.*;
+import java.time.DayOfWeek;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -127,7 +135,7 @@ public class GenerateDrawsForRangeCommandHandler
     final Set<ExistingDrawKey> existingKeys =
         drawLifecyclePort.findExistingKeys(command.tenantId(), command.from(), command.to());
 
-    Map<java.util.UUID, EnumSet<DayOfWeek>> daysCache = new HashMap<>();
+    Map<java.util.UUID, Set<DayOfWeek>> daysCache = new HashMap<>();
 
     for (var c : channels) {
       var parsed = DaysOfWeekParser.parse(c.daysOfWeek());
@@ -149,7 +157,7 @@ public class GenerateDrawsForRangeCommandHandler
       for (var c : channels) {
         var zone = ZoneId.of(c.timezone());
 
-        EnumSet<DayOfWeek> allowed =
+        Set<DayOfWeek> allowed =
             daysCache.getOrDefault(c.channelId().value(), EnumSet.noneOf(DayOfWeek.class));
 
         if (!allowed.contains(date.getDayOfWeek())) {

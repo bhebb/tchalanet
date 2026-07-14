@@ -138,8 +138,7 @@ public class SlackDrawResultFetchNotificationAdapter implements DrawResultFetchN
 
     var sb = new StringBuilder();
 
-    sb.append("[INFO] Draw results fetched\n\n");
-    sb.append("Date: ").append(first.resultDate()).append('\n');
+    sb.append("[INFO] Draw results fetched\n\nDate: ").append(first.resultDate()).append('\n');
     sb.append("Results: ").append(notifications.size()).append("\n\n");
 
     for (var n : notifications) {
@@ -184,8 +183,9 @@ public class SlackDrawResultFetchNotificationAdapter implements DrawResultFetchN
 
     var sb = new StringBuilder();
 
-    sb.append("[WARN] Draw result fetch failures\n\n");
-    sb.append("Base Date: ").append(notification.baseDate()).append('\n');
+    sb.append("[WARN] Draw result fetch failures\n\nBase Date: ")
+        .append(notification.baseDate())
+        .append('\n');
     sb.append("Days Back: ").append(notification.daysBack()).append('\n');
     sb.append("Failures: ").append(notification.totalFailures()).append("\n\n");
 

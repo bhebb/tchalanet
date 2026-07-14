@@ -23,7 +23,9 @@ public class PlanLimitJsonValidator {
     try {
       limits = jsonUtils.readValue(rawJson, new TypeReference<Map<String, Integer>>() {});
     } catch (Exception e) {
-      throw ProblemRest.badRequest("plan.limits_json_invalid");
+      var ex = ProblemRest.badRequest("plan.limits_json_invalid");
+      ex.initCause(e);
+      throw ex;
     }
 
     for (var entry : limits.entrySet()) {

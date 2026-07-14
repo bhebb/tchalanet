@@ -119,22 +119,6 @@ public class HaitiProjectionService {
     return value.length() <= 12 ? value : value.substring(0, 12) + "...";
   }
 
-  private String invalidReason(String pick3, String pick4) {
-    if (pick3 == null || pick3.isBlank()) {
-      return "pick3_missing";
-    }
-    if (!pick3.matches("\\d{3}")) {
-      return "pick3_invalid_format";
-    }
-    if (pick4 == null || pick4.isBlank()) {
-      return "pick4_missing";
-    }
-    if (!pick4.matches("\\d{4}")) {
-      return "pick4_invalid_format";
-    }
-    return "unknown";
-  }
-
   private ObjectNode coerceHaitiLots(Object anyResult) {
     var out = JsonUtils.emptyObject();
 

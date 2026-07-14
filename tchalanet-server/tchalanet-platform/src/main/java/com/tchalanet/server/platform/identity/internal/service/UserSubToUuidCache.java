@@ -2,6 +2,7 @@ package com.tchalanet.server.platform.identity.internal.service;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,7 +26,7 @@ public final class UserSubToUuidCache {
     }
   }
 
-  private final ConcurrentHashMap<String, Entry> map = new ConcurrentHashMap<>();
+  private final Map<String, Entry> map = new ConcurrentHashMap<>();
 
   public Optional<UUID> getFresh(String sub) {
     if (sub == null) return Optional.empty();

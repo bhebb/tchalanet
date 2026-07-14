@@ -1,7 +1,13 @@
 package com.tchalanet.server.platform.accesscontrol.internal.persistence.entity;
 
 import com.tchalanet.server.common.persistence.BaseEntity;
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Index;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -48,13 +54,4 @@ public class AppRoleJpaEntity extends BaseEntity {
       orphanRemoval = true)
   @NotAudited
   private List<AppRolePermissionJpaEntity> rolePermissions = new ArrayList<>();
-
-  // Explicit accessors to help static analysis tools that may not resolve Lombok-generated methods
-  public UUID getId() {
-    return super.getId();
-  }
-
-  public void setId(UUID id) {
-    super.setId(id);
-  }
 }

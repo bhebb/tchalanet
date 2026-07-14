@@ -30,14 +30,10 @@ public class TenantGameCatalogProjectionService {
             .filter(TenantGame::enabled)
             .map(TenantGame::gameCode)
             .collect(java.util.stream.Collectors.toSet());
-    var allCodes =
-        tenantGames.stream().map(TenantGame::gameCode).collect(java.util.stream.Collectors.toSet());
-
     return gameCatalog.listActive().stream()
         .map(
             g -> {
               boolean enabledForTenant = enabledCodes.contains(g.code().toUpperCase());
-              boolean configured = allCodes.contains(g.code().toUpperCase());
               return new TenantGameCatalogItemView(
                   g.code(),
                   g.name(),

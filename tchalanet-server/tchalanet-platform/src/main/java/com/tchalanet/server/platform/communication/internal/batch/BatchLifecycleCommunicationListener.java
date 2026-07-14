@@ -98,9 +98,14 @@ public class BatchLifecycleCommunicationListener {
   }
 
   private String fallbackBody(JobLifecycleEvent event) {
-    var sb = new StringBuilder();
-    sb.append("*Job:* ").append(event.jobKey()).append('\n');
-    sb.append("*Status:* ").append(event.status()).append('\n');
+    var sb =
+        new StringBuilder()
+            .append("*Job:* ")
+            .append(event.jobKey())
+            .append('\n')
+            .append("*Status:* ")
+            .append(event.status())
+            .append('\n');
 
     if (event.tenantId() != null) {
       sb.append("*Tenant:* ").append(event.tenantId().value()).append('\n');

@@ -32,7 +32,7 @@ class FirebaseProviderSessionTokenIssuer implements ProviderSessionTokenIssuer {
     try {
       return firebaseAuth.createCustomToken(externalSubject);
     } catch (FirebaseAuthException ex) {
-      throw ProblemRest.internal("portal_handoff.custom_token_failed");
+      throw ProblemRest.internal("portal_handoff.custom_token_failed", ex);
     }
   }
 }

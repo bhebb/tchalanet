@@ -140,10 +140,8 @@ public class TicketAggregateMutator {
   }
 
   private static void requireSame(String field, Object actual, Object expected) {
-    if (actual instanceof BigDecimal a && expected instanceof BigDecimal e) {
-      if (a.compareTo(e) == 0) {
-        return;
-      }
+    if (actual instanceof BigDecimal a && expected instanceof BigDecimal e && a.compareTo(e) == 0) {
+      return;
     }
 
     if (!Objects.equals(actual, expected)) {

@@ -1,7 +1,10 @@
 package com.tchalanet.server.core.draw.api.event;
 
 import com.tchalanet.server.common.event.DomainEvent;
-import com.tchalanet.server.common.types.id.*;
+import com.tchalanet.server.common.types.id.DrawChannelId;
+import com.tchalanet.server.common.types.id.DrawId;
+import com.tchalanet.server.common.types.id.EventId;
+import com.tchalanet.server.common.types.id.TenantId;
 import java.time.Instant;
 import java.time.LocalDate;
 

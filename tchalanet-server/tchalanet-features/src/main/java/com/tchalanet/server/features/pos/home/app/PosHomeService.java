@@ -17,7 +17,6 @@ import com.tchalanet.server.features.pos.home.model.PosBadge;
 import com.tchalanet.server.features.pos.home.model.PosHomeDrawSummary;
 import com.tchalanet.server.features.pos.home.model.PosHomeOperationalContext;
 import com.tchalanet.server.features.pos.home.model.PosHomeResponse;
-import com.tchalanet.server.features.pos.home.model.PosHomeSessionSummary;
 import com.tchalanet.server.features.pos.home.model.PosNotification;
 import com.tchalanet.server.features.pos.home.model.PosReadinessBlocker;
 import com.tchalanet.server.features.pos.home.model.PosReadinessResponse;
@@ -128,10 +127,6 @@ public class PosHomeService {
         mobileNavigation(),
         List.of(),
         currency);
-  }
-
-  private PosHomeSessionSummary v0SessionSummary(TchRequestContext ctx) {
-    return new PosHomeSessionSummary(true, null, null, 0, money(0, ctx));
   }
 
   private PosHomeDrawSummary primaryDraw(TchRequestContext ctx) {

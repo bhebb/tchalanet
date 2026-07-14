@@ -55,7 +55,8 @@ public class GenericTypedIdDeserializer<T> extends ValueDeserializer<T> {
         return (T) parseMethod.invoke(null, str.trim());
       } catch (ReflectiveOperationException ex) {
         throw InvalidFormatException.from(
-            p, "Failed to parse " + target.getSimpleName() + " from '" + str + "'", str, target);
+                p, "Failed to parse " + target.getSimpleName() + " from '" + str + "'", str, target)
+            .withCause(ex);
       }
     }
 

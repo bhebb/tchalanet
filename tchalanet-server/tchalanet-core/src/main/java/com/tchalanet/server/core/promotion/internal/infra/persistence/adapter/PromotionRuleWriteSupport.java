@@ -339,7 +339,9 @@ class PromotionRuleWriteSupport {
     try {
       return Enum.valueOf(type, String.valueOf(raw));
     } catch (IllegalArgumentException ex) {
-      throw ProblemRest.badRequest(errorCode);
+      var problem = ProblemRest.badRequest(errorCode);
+      problem.initCause(ex);
+      throw problem;
     }
   }
 

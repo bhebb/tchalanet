@@ -77,7 +77,7 @@ public record DrawSearchCriteria(
 
   private static List<String> normalizeKeys(List<String> keys) {
     if (keys == null || keys.isEmpty()) {
-      return null;
+      return List.of();
     }
 
     var normalized =

@@ -83,7 +83,13 @@ public class NewYorkDrawResultsMapper {
           slot);
 
       // NY endpoint is ordered DESC; once target date is found, no need to inspect older rows.
-      break;
+      return new UsLotteryProviderResponse(
+          PROVIDER,
+          query.drawDate(),
+          query.drawTime(),
+          query.timezone(),
+          List.copyOf(results),
+          query.includeRaw() ? body : null);
     }
 
     return new UsLotteryProviderResponse(

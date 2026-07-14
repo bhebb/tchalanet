@@ -19,7 +19,7 @@ public final class ClientSurfacePolicy {
   }
 
   public static Set<ClientSurface> availableSurfaces(Set<TchRole> roles) {
-    EnumSet<ClientSurface> surfaces = EnumSet.noneOf(ClientSurface.class);
+    Set<ClientSurface> surfaces = EnumSet.noneOf(ClientSurface.class);
     if (hasRole(roles, TchRole.TENANT_OWNER) || hasRole(roles, TchRole.TENANT_ADMIN)) {
       surfaces.add(ClientSurface.TENANT_ADMIN_WEB);
     }

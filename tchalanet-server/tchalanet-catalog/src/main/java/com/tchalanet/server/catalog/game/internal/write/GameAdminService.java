@@ -48,7 +48,7 @@ public class GameAdminService {
     entity.setMinDigits(req.minDigits());
     entity.setMaxDigits(req.maxDigits());
     entity.setDescription(req.description());
-    entity.setActive(req.active() != null ? req.active() : true);
+    entity.setActive(req.active() == null || req.active());
     entity.setSortOrder(req.sortOrder() != null ? req.sortOrder() : 0);
     return mapper.toView(repository.save(entity));
   }

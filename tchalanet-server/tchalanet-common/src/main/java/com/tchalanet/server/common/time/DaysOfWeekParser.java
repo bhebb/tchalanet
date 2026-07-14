@@ -3,12 +3,13 @@ package com.tchalanet.server.common.time;
 import java.time.DayOfWeek;
 import java.util.EnumSet;
 import java.util.Locale;
+import java.util.Set;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class DaysOfWeekParser {
 
-  public static EnumSet<DayOfWeek> parse(String spec) {
+  public static Set<DayOfWeek> parse(String spec) {
     if (spec == null || spec.isBlank()) {
       throw new IllegalArgumentException("daysOfWeek spec is required");
     }
@@ -17,7 +18,7 @@ public class DaysOfWeekParser {
 
     // Support explicit list separated by comma: MON,TUE,FRI
     if (normalized.contains(",")) {
-      EnumSet<DayOfWeek> set = EnumSet.noneOf(DayOfWeek.class);
+      Set<DayOfWeek> set = EnumSet.noneOf(DayOfWeek.class);
       for (String raw : normalized.split(",")) {
         String token = raw.trim();
         if (token.isEmpty()) continue;
@@ -39,7 +40,7 @@ public class DaysOfWeekParser {
       return rangeInclusive(start, end);
     }
 
-    EnumSet<DayOfWeek> set = EnumSet.noneOf(DayOfWeek.class);
+    Set<DayOfWeek> set = EnumSet.noneOf(DayOfWeek.class);
     for (String p : parts) {
       String token = p.trim();
       if (token.isEmpty()) continue;
@@ -64,8 +65,8 @@ public class DaysOfWeekParser {
     };
   }
 
-  private static EnumSet<DayOfWeek> rangeInclusive(DayOfWeek start, DayOfWeek end) {
-    EnumSet<DayOfWeek> set = EnumSet.noneOf(DayOfWeek.class);
+  private static Set<DayOfWeek> rangeInclusive(DayOfWeek start, DayOfWeek end) {
+    Set<DayOfWeek> set = EnumSet.noneOf(DayOfWeek.class);
     DayOfWeek current = start;
     while (true) {
       set.add(current);

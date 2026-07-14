@@ -100,10 +100,9 @@ public class OhioDrawResultsMapper {
 
     // No slot field; infer from local hour in the drawDate string.
     var slot = inferSlot(draw);
-    if (StringUtils.isNotBlank(query.providerSlotCode())) {
-      if (slot.isBlank() || !ProviderSlotCodeMatcher.matches(slot, query.providerSlotCode())) {
-        return null;
-      }
+    if (StringUtils.isNotBlank(query.providerSlotCode())
+        && (slot.isBlank() || !ProviderSlotCodeMatcher.matches(slot, query.providerSlotCode()))) {
+      return null;
     }
 
     var main = resolveNumbers(draw, game.expectedSize());

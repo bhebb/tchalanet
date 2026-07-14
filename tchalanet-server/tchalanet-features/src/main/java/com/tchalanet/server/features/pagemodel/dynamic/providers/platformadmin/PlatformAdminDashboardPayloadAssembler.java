@@ -100,10 +100,8 @@ public class PlatformAdminDashboardPayloadAssembler {
     try {
       PlatformDashboardStatsView statsView =
           queryBus.ask(new GetPlatformDashboardStatsQuery(from, today, 5, 5));
-      if (statsView != null) {
-        if (statsView.summary() != null) {
-          if (total == 0L) total = statsView.summary().totalTenants();
-        }
+      if (statsView != null && statsView.summary() != null) {
+        if (total == 0L) total = statsView.summary().totalTenants();
         var todayPoint =
             statsView.dailyBreakdown() == null
                 ? null

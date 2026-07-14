@@ -1,7 +1,6 @@
 package com.tchalanet.server.core.limitpolicy.internal.domain.model;
 
 import com.tchalanet.server.core.limitpolicy.api.RuleKey;
-import java.util.EnumMap;
 import java.util.Map;
 
 public record EffectiveLimits(Map<RuleKey, EffectiveLimitRule> rules) {
@@ -18,7 +17,7 @@ public record EffectiveLimits(Map<RuleKey, EffectiveLimitRule> rules) {
     return new EffectiveLimits(Map.of());
   }
 
-  public static EffectiveLimits of(EnumMap<RuleKey, EffectiveLimitRule> rules) {
+  public static EffectiveLimits of(Map<RuleKey, EffectiveLimitRule> rules) {
     return new EffectiveLimits(rules);
   }
 

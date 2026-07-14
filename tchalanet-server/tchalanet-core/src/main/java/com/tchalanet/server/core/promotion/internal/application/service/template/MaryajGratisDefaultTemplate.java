@@ -87,8 +87,7 @@ public final class MaryajGratisDefaultTemplate {
     }
     var regenerable =
         choiceMode == PromotionChoiceMode.AUTO_GENERATE
-            ? cmd.regenerableBeforeConfirm() == null || cmd.regenerableBeforeConfirm()
-            : false;
+            && (cmd.regenerableBeforeConfirm() == null || cmd.regenerableBeforeConfirm());
     var maxRegenerations =
         regenerable ? positiveIntOrDefault(cmd.maxRegenerationsBeforeConfirm(), 3) : 0;
 

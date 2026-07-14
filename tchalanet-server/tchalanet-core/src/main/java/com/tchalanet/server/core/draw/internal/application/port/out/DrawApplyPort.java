@@ -1,6 +1,10 @@
 package com.tchalanet.server.core.draw.internal.application.port.out;
 
-import com.tchalanet.server.common.types.id.*;
+import com.tchalanet.server.common.types.id.DrawChannelId;
+import com.tchalanet.server.common.types.id.DrawId;
+import com.tchalanet.server.common.types.id.DrawResultId;
+import com.tchalanet.server.common.types.id.ResultSlotId;
+import com.tchalanet.server.common.types.id.TenantId;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;

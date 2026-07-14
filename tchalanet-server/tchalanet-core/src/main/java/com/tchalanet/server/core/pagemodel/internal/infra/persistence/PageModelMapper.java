@@ -41,8 +41,8 @@ final class PageModelMapper {
         );
   }
 
-  static PageModelJpaEntity toEntity(PageModelInstance d, PageModelJpaEntity e) {
-    if (e == null) e = new PageModelJpaEntity();
+  static PageModelJpaEntity toEntity(PageModelInstance d, PageModelJpaEntity existing) {
+    var e = existing == null ? new PageModelJpaEntity() : existing;
     e.setId(d.id().value());
     e.setTenantId(d.tenantId().value());
     e.setLogicalId(d.logicalId());

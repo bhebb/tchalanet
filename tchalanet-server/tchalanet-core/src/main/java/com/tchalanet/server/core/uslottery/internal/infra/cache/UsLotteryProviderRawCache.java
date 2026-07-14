@@ -2,6 +2,7 @@ package com.tchalanet.server.core.uslottery.internal.infra.cache;
 
 import com.tchalanet.server.common.cache.CacheKeyBuilder;
 import java.time.LocalDate;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
@@ -22,7 +23,7 @@ public class UsLotteryProviderRawCache {
 
   private final CacheManager cacheManager;
   private final CacheKeyBuilder keyBuilder;
-  private final ConcurrentHashMap<String, Object> locks = new ConcurrentHashMap<>();
+  private final Map<String, Object> locks = new ConcurrentHashMap<>();
 
   public String getOrFetch(
       String provider, LocalDate drawDate, String queryHash, Supplier<String> fetcher) {
@@ -92,7 +93,7 @@ public class UsLotteryProviderRawCache {
 
         return value;
       } finally {
-        locks.computeIfPresent(key, (k, v) -> v == lock ? null : v);
+        locks.computeIfPresent(key, (k, v) -> v.equals(lock) ? null : v);
       }
     }
   }

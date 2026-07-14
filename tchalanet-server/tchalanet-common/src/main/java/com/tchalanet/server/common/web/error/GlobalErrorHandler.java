@@ -20,6 +20,8 @@ import java.net.URI;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -427,9 +429,8 @@ public class GlobalErrorHandler {
     return value == null || value.isBlank() ? null : value.trim();
   }
 
-  private static LinkedHashMap<String, ArrayList<String>> fieldErrors(
-      MethodArgumentNotValidException ex) {
-    var errors = new LinkedHashMap<String, ArrayList<String>>();
+  private static Map<String, List<String>> fieldErrors(MethodArgumentNotValidException ex) {
+    var errors = new LinkedHashMap<String, List<String>>();
     for (var fieldError : ex.getBindingResult().getFieldErrors()) {
       errors
           .computeIfAbsent(fieldError.getField(), ignored -> new ArrayList<>())
@@ -438,9 +439,8 @@ public class GlobalErrorHandler {
     return errors;
   }
 
-  private static ArrayList<LinkedHashMap<String, String>> fieldViolations(
-      MethodArgumentNotValidException ex) {
-    var violations = new ArrayList<LinkedHashMap<String, String>>();
+  private static List<Map<String, String>> fieldViolations(MethodArgumentNotValidException ex) {
+    var violations = new ArrayList<Map<String, String>>();
     for (var fieldError : ex.getBindingResult().getFieldErrors()) {
       var violation = new LinkedHashMap<String, String>();
       violation.put("code", CommonErrorCodes.VALIDATION_FAILED);

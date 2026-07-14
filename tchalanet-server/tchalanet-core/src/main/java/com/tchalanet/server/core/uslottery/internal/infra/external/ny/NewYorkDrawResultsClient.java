@@ -134,8 +134,7 @@ public class NewYorkDrawResultsClient implements UsLotteryProviderClient {
     return openDataResponse;
   }
 
-  private LinkedHashMap<String, String> fetchDrupalRawByGame(
-      UsLotteryProviderQuery query, String drupalUrl) {
+  private Map<String, String> fetchDrupalRawByGame(UsLotteryProviderQuery query, String drupalUrl) {
     var rawByGame = new LinkedHashMap<String, String>();
 
     for (String gameCode : query.externalGameCodes()) {

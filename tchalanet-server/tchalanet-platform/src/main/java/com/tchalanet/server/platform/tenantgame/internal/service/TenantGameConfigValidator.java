@@ -61,7 +61,7 @@ public class TenantGameConfigValidator {
     try {
       return LocalTime.parse(value);
     } catch (DateTimeParseException e) {
-      throw new IllegalArgumentException(field + " must be a valid time (HH:mm): " + value);
+      throw new IllegalArgumentException(field + " must be a valid time (HH:mm): " + value, e);
     }
   }
 
