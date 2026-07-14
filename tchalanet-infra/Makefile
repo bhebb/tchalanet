@@ -48,7 +48,8 @@ help:
 	@echo "  print-env             Print ENV, ROOT, DOCKER_BIN"
 	@echo ""
 	@echo "Staging / Production:"
-	@echo "  up-staging / up-prod  Deploy full stack on remote server"
+	@echo "  core-staging / core-prod  Deploy core infra services (Traefik+Redis)"
+	@echo "  up-staging / up-prod  Legacy full stack deploy on remote server"
 	@echo "  deploy-staging        push-staging + SSH up-staging"
 	@echo "  deploy-prod           push-prod + SSH up-prod"
 	@echo "  smoke-staging         Run smoke tests against staging"
@@ -134,6 +135,16 @@ up-prod: ENV=prod
 up-prod: env-merge render-traefik acme-perms ensure-exec networks
 	@chmod +x scripts/utils/up-seq.sh || true
 	@scripts/utils/up-seq.sh $(ENV)
+
+core-staging: ENV=staging
+core-staging: ensure-exec
+	@chmod +x scripts/remote/deploy-core-services.sh || true
+	@ENV=staging DOCKER_BIN="$(DOCKER_BIN)" scripts/remote/deploy-core-services.sh
+
+core-prod: ENV=prod
+core-prod: ensure-exec
+	@chmod +x scripts/remote/deploy-core-services.sh || true
+	@ENV=prod DOCKER_BIN="$(DOCKER_BIN)" scripts/remote/deploy-core-services.sh
 
 down:
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down api $(ENV) || true
@@ -366,7 +377,7 @@ smoke-staging:
 .PHONY: help
 .PHONY: ensure-exec print-env networks render-traefik mkcert-local mkcert-recreate certs-staging acme-perms
 .PHONY: env-merge
-.PHONY: up up-all up-staging up-prod down down-all
+.PHONY: up up-all up-staging up-prod core-staging core-prod down down-all
 .PHONY: rebuild-api rebuild-edge rebuild-all
 .PHONY: up-api down-api up-edge down-edge ps
 .PHONY: ssh-staging ssh-prod push-staging push-prod deploy-staging deploy-prod
