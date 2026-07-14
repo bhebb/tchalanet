@@ -1,0 +1,44 @@
+management:
+  otlp:
+    metrics:
+      export:
+        enabled: true
+        url: ${GRAFANA_OTLP_ENDPOINT:https://otlp-gateway-prod-ca-east-0.grafana.net/otlp}/v1/metrics
+        headers:
+          Authorization: ${GRAFANA_OTLP_AUTH_HEADER}
+    logging:
+      export:
+        enabled: true
+      endpoint: ${GRAFANA_OTLP_ENDPOINT:https://otlp-gateway-prod-ca-east-0.grafana.net/otlp}/v1/logs
+      headers:
+        Authorization: ${GRAFANA_OTLP_AUTH_HEADER}
+      compression: gzip
+  tracing:
+    sampling:
+      probability: ${GRAFANA_TRACE_SAMPLING:1.0}
+  opentelemetry:
+    tracing:
+      export:
+        otlp:
+          endpoint: ${GRAFANA_OTLP_ENDPOINT:https://otlp-gateway-prod-ca-east-0.grafana.net/otlp}/v1/traces
+          headers:
+            Authorization: ${GRAFANA_OTLP_AUTH_HEADER}
+          compression: gzip
+
+# Log level filtering — only WARN+ exported by default to stay within Grafana free tier (50GB/mo).
+# To temporarily enable DEBUG for a specific package, set env vars:
+#   GRAFANA_LOG_APP_LEVEL=DEBUG        → com.tchalanet.server (app business logic)
+#   GRAFANA_LOG_SECURITY_LEVEL=DEBUG   → Spring Security
+#   GRAFANA_LOG_SQL_LEVEL=DEBUG        → Hibernate SQL
+#   GRAFANA_LOG_ROOT_LEVEL=INFO        → everything else
+logging:
+  level:
+    root: ${GRAFANA_LOG_ROOT_LEVEL:WARN}
+    com.tchalanet.server: ${GRAFANA_LOG_APP_LEVEL:WARN}
+    com.tchalanet.server.core.draw: ${GRAFANA_LOG_DRAW_LEVEL:INFO}
+    com.tchalanet.server.core.sale: ${GRAFANA_LOG_SALE_LEVEL:INFO}
+    com.tchalanet.server.core.payout: ${GRAFANA_LOG_PAYOUT_LEVEL:INFO}
+    com.tchalanet.server.common.security: ${GRAFANA_LOG_SECURITY_LEVEL:WARN}
+    org.springframework.security: ${GRAFANA_LOG_SPRING_SECURITY_LEVEL:WARN}
+    org.hibernate.SQL: ${GRAFANA_LOG_SQL_LEVEL:WARN}
+    io.opentelemetry.exporter: ${GRAFANA_OTEL_EXPORTER_LOG_LEVEL:WARN}
