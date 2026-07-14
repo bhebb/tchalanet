@@ -17,7 +17,6 @@ public class SaleAcceptanceEvaluator {
 
   private final SalePreparationOrchestrator policyService;
   private final SaleIssueFactory issueFactory;
-  private final SaleExposurePlanner exposurePlanner;
 
   public SaleEvaluationResult evaluatePreview(SellTicketCommand command, TchRequestContext ctx) {
     return evaluate(command, ctx, SaleEvaluationMode.PREVIEW);
@@ -31,7 +30,6 @@ public class SaleAcceptanceEvaluator {
       SellTicketCommand command, TchRequestContext ctx, SaleEvaluationMode mode) {
     try {
       var prepared = policyService.prepareSale(command, ctx, mode);
-      exposurePlanner.groupByExposureKey(command.lines());
       var issues = issueFactory.fromNotices(prepared.notices());
       var decision =
           prepared.requiresApproval() ? SaleDecision.REQUIRES_CHANGES : SaleDecision.ACCEPTABLE;
