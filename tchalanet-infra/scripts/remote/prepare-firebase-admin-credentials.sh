@@ -49,7 +49,15 @@ if [ -d "$target" ]; then
     fail "FIREBASE_CREDENTIALS_HOST_PATH points to a non-empty directory: $target"
 fi
 
-mkdir -p "$(dirname "$target")"
+target_dir="$(dirname "$target")"
+if ! mkdir -p "$target_dir" 2>/dev/null; then
+  if command -v sudo >/dev/null 2>&1; then
+    sudo mkdir -p "$target_dir"
+    sudo chown "$(id -u):$(id -g)" "$target_dir"
+  else
+    fail "Cannot create Firebase credentials directory: $target_dir"
+  fi
+fi
 umask 077
 
 json="${FIREBASE_ADMIN_JSON:-${FIREBASE_CREDENTIALS_JSON:-${FIREBASE_SERVICE_ACCOUNT_JSON:-${FIREBASE_SERVICE_ACCOUNT:-}}}}"
