@@ -6,13 +6,51 @@ on:
       server_e2e_marker:
         description: 'Pytest marker expression for server E2E'
         required: false
-        default: 'not L3 and not full_flow'
+        default: 'full_flow'
         type: string
       run_server_e2e:
-        description: 'Run server live E2E against configured environment'
+        description: 'Run server E2E against the validation environment'
         required: false
         default: true
         type: boolean
+      e2e_auth_provider:
+        description: 'Auth provider used by server E2E'
+        required: false
+        default: firebase-emulator
+        type: choice
+        options:
+          - firebase-emulator
+          - firebase
+      ensure_staging_infra:
+        description: 'Create/deploy staging core infra before E2E when needed'
+        required: false
+        default: true
+        type: boolean
+      deploy_runtime_for_e2e:
+        description: 'Build and deploy API + edge-service images before E2E'
+        required: false
+        default: true
+        type: boolean
+      run_perf:
+        description: 'Run optional Locust smoke after E2E'
+        required: false
+        default: false
+        type: boolean
+      perf_users:
+        description: 'Locust users'
+        required: false
+        default: '5'
+        type: string
+      perf_spawn_rate:
+        description: 'Locust spawn rate'
+        required: false
+        default: '1'
+        type: string
+      perf_duration:
+        description: 'Locust duration'
+        required: false
+        default: '2m'
+        type: string
       run_mobile_build:
         description: 'Build a debug Android APK'
         required: false
@@ -27,6 +65,7 @@ concurrency:
 
 permissions:
   contents: read
+  packages: write
 
 jobs:
   ensure-staging-infra:
@@ -63,23 +102,273 @@ jobs:
       - name: Maven verify with ITs
         run: ./mvnw -B verify
 
+  build-nightly-api:
+    name: Build nightly API image
+    if: github.event_name == 'schedule' || inputs.deploy_runtime_for_e2e == true
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.plan.outputs.image_tag }}
+    env:
+      REGISTRY: ghcr.io
+      IMAGE_NAMESPACE: ${{ github.repository }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Plan image tag
+        id: plan
+        run: |
+          short_sha="$(printf '%s' "${{ github.sha }}" | cut -c1-8)"
+          echo "image_tag=sha-$short_sha" >> "$GITHUB_OUTPUT"
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+
+      - name: Maven package
+        working-directory: tchalanet-server
+        run: ./mvnw -B -DskipTests -DskipITs=true package
+
+      - name: Login GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push API image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./tchalanet-server
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/tchalanet-api:${{ steps.plan.outputs.image_tag }}
+          labels: |
+            org.opencontainers.image.source=${{ github.event.repository.html_url }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.version=${{ steps.plan.outputs.image_tag }}
+
+  build-nightly-edge:
+    name: Build nightly edge-service image
+    if: github.event_name == 'schedule' || inputs.deploy_runtime_for_e2e == true
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.plan.outputs.image_tag }}
+    env:
+      REGISTRY: ghcr.io
+      IMAGE_NAMESPACE: ${{ github.repository }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Plan image tag
+        id: plan
+        run: |
+          short_sha="$(printf '%s' "${{ github.sha }}" | cut -c1-8)"
+          echo "image_tag=sha-$short_sha" >> "$GITHUB_OUTPUT"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: Enable pnpm
+        run: corepack enable && corepack prepare pnpm@11.9.0 --activate
+
+      - name: Install deps
+        working-directory: tchalanet-edge-service
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        working-directory: tchalanet-edge-service
+        run: pnpm build
+
+      - name: Login GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push edge-service image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./tchalanet-edge-service
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/tchalanet-edge:${{ steps.plan.outputs.image_tag }}
+          labels: |
+            org.opencontainers.image.source=${{ github.event.repository.html_url }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.version=${{ steps.plan.outputs.image_tag }}
+
+  ensure-nightly-infra:
+    name: Ensure nightly staging infra
+    if: github.event_name == 'schedule' || inputs.ensure_staging_infra == true
+    runs-on: ubuntu-latest
+    environment: staging
+    outputs:
+      server_host: ${{ steps.resolve-host.outputs.server_host }}
+    env:
+      HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}
+      SERVER_HOST_SECRET: ${{ secrets.SERVER_HOST }}
+      SSH_PRIVATE_KEY_VALUE: ${{ secrets.SSH_PRIVATE_KEY }}
+      DOPPLER_TOKEN_VALUE: ${{ secrets.DOPPLER_TOKEN_STG }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup hcloud
+        uses: hetznercloud/setup-hcloud@v1
+        with:
+          token: ${{ secrets.HCLOUD_TOKEN }}
+
+      - name: Validate infra secrets
+        run: |
+          set -euo pipefail
+          [ -n "$HCLOUD_TOKEN" ] || { echo "Missing HCLOUD_TOKEN" >&2; exit 1; }
+          [ -n "$SSH_PRIVATE_KEY_VALUE" ] || { echo "Missing SSH_PRIVATE_KEY" >&2; exit 1; }
+          [ -n "$DOPPLER_TOKEN_VALUE" ] || { echo "Missing DOPPLER_TOKEN_STG" >&2; exit 1; }
+
+      - name: Prepare SSH key
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY_VALUE" > ~/.ssh/tchalanet_stg
+          chmod 600 ~/.ssh/tchalanet_stg
+          ssh-keygen -y -f ~/.ssh/tchalanet_stg > ~/.ssh/tchalanet_stg.pub
+
+      - name: Create staging server when absent
+        working-directory: tchalanet-infra
+        run: |
+          set -euo pipefail
+          if hcloud server describe stg-app >/dev/null 2>&1; then
+            echo "stg-app already exists"
+          else
+            make staging-create
+          fi
+
+      - name: Resolve staging host
+        id: resolve-host
+        run: |
+          set -euo pipefail
+          ip="$(hcloud server describe stg-app -o json | jq -r '.public_net.ipv4.ip')"
+          if [ -z "$ip" ] || [ "$ip" = "null" ]; then
+            ip="$SERVER_HOST_SECRET"
+          fi
+          [ -n "$ip" ] || { echo "Unable to resolve staging server host" >&2; exit 1; }
+          echo "server_host=$ip" >> "$GITHUB_OUTPUT"
+          ssh-keyscan -H "$ip" >> ~/.ssh/known_hosts
+          echo "Nightly staging host: $ip"
+
+      - name: Push infra files to server
+        working-directory: tchalanet-infra
+        run: |
+          set -euo pipefail
+          chmod +x scripts/remote/*.sh || true
+          ./scripts/remote/push-infra-bkup.sh "${{ steps.resolve-host.outputs.server_host }}" staging
+
+      - name: Deploy core infra services
+        uses: appleboy/ssh-action@v1.2.5
+        env:
+          DOPPLER_TOKEN: ${{ env.DOPPLER_TOKEN_VALUE }}
+        with:
+          host: ${{ steps.resolve-host.outputs.server_host }}
+          username: tch
+          key: ${{ env.SSH_PRIVATE_KEY_VALUE }}
+          script_stop: true
+          envs: DOPPLER_TOKEN
+          script: |
+            set -euo pipefail
+            cd /opt/tchalanet-infra
+            if ! command -v make >/dev/null 2>&1; then
+              sudo apt-get update
+              sudo apt-get install -y make
+            fi
+            chmod +x scripts/remote/*.sh scripts/utils/*.sh || true
+            ./scripts/remote/01-bootstrap.sh staging
+            DOCKER_BIN="docker"
+            if ! docker ps >/dev/null 2>&1; then
+              DOCKER_BIN="sudo docker"
+            fi
+            DOCKER_BIN="$DOCKER_BIN" ENV=staging DOPPLER_TOKEN="$DOPPLER_TOKEN" scripts/remote/deploy-core-services.sh
+
+  deploy-nightly-runtime:
+    name: Deploy nightly runtime
+    needs: [build-nightly-api, build-nightly-edge, ensure-nightly-infra]
+    if: |
+      always() &&
+      (github.event_name == 'schedule' || inputs.deploy_runtime_for_e2e == true) &&
+      needs.build-nightly-api.result == 'success' &&
+      needs.build-nightly-edge.result == 'success' &&
+      (needs.ensure-nightly-infra.result == 'success' || needs.ensure-nightly-infra.result == 'skipped')
+    runs-on: ubuntu-latest
+    environment: staging
+    env:
+      SERVER_HOST: ${{ needs.ensure-nightly-infra.outputs.server_host || secrets.SERVER_HOST }}
+      SSH_PRIVATE_KEY_VALUE: ${{ secrets.SSH_PRIVATE_KEY }}
+      DOPPLER_TOKEN_VALUE: ${{ secrets.DOPPLER_TOKEN_STG }}
+      API_IMAGE_TAG: ${{ needs.build-nightly-api.outputs.image_tag }}
+      EDGE_IMAGE_TAG: ${{ needs.build-nightly-edge.outputs.image_tag }}
+      AUTH_PROVIDER: ${{ github.event_name == 'schedule' && 'firebase-emulator' || inputs.e2e_auth_provider }}
+    steps:
+      - name: Validate runtime deploy inputs
+        run: |
+          set -euo pipefail
+          [ -n "$SERVER_HOST" ] || { echo "Missing SERVER_HOST" >&2; exit 1; }
+          [ -n "$SSH_PRIVATE_KEY_VALUE" ] || { echo "Missing SSH_PRIVATE_KEY" >&2; exit 1; }
+          [ -n "$DOPPLER_TOKEN_VALUE" ] || { echo "Missing DOPPLER_TOKEN_STG" >&2; exit 1; }
+          [ -n "$API_IMAGE_TAG" ] || { echo "Missing API image tag" >&2; exit 1; }
+          [ -n "$EDGE_IMAGE_TAG" ] || { echo "Missing edge image tag" >&2; exit 1; }
+
+      - name: Deploy runtime in validation mode
+        uses: appleboy/ssh-action@v1.2.5
+        env:
+          API_IMAGE_TAG: ${{ env.API_IMAGE_TAG }}
+          EDGE_IMAGE_TAG: ${{ env.EDGE_IMAGE_TAG }}
+          DOPPLER_TOKEN: ${{ env.DOPPLER_TOKEN_VALUE }}
+          GHCR_USERNAME: ${{ github.actor }}
+          GHCR_TOKEN: ${{ github.token }}
+          RUNTIME_IDENTITY_PROVIDER: ${{ env.AUTH_PROVIDER }}
+          ENABLE_FIREBASE_EMULATOR: ${{ (github.event_name == 'schedule' || inputs.e2e_auth_provider == 'firebase-emulator') && '1' || '0' }}
+        with:
+          host: ${{ env.SERVER_HOST }}
+          username: tch
+          key: ${{ env.SSH_PRIVATE_KEY_VALUE }}
+          script_stop: true
+          envs: API_IMAGE_TAG,EDGE_IMAGE_TAG,DOPPLER_TOKEN,GHCR_USERNAME,GHCR_TOKEN,RUNTIME_IDENTITY_PROVIDER,ENABLE_FIREBASE_EMULATOR
+          script: |
+            set -euo pipefail
+            cd /opt/tchalanet-infra
+            DOCKER_BIN="docker"
+            if ! docker ps >/dev/null 2>&1; then
+              DOCKER_BIN="sudo docker"
+            fi
+            printf '%s\n' "$GHCR_TOKEN" | $DOCKER_BIN login ghcr.io \
+              -u "$GHCR_USERNAME" \
+              --password-stdin
+            DOCKER_BIN="$DOCKER_BIN" ENV=staging API_IMAGE_TAG="$API_IMAGE_TAG" EDGE_IMAGE_TAG="$EDGE_IMAGE_TAG" \
+              DEPLOY_API=1 DEPLOY_EDGE=1 FORCE_RECREATE=1 WEB_ORIGINS="https://tchalanet-web-stg.pages.dev" \
+              RUNTIME_IDENTITY_PROVIDER="$RUNTIME_IDENTITY_PROVIDER" ENABLE_FIREBASE_EMULATOR="$ENABLE_FIREBASE_EMULATOR" \
+              scripts/remote/deploy-runtime-services.sh
+
   server-e2e:
-    name: Server live E2E
-    needs: ensure-staging-infra
+    name: Server E2E
+    needs: [ensure-nightly-infra, deploy-nightly-runtime]
     if: |
       always() &&
       (github.event_name == 'schedule' || inputs.run_server_e2e == true) &&
-      needs.ensure-staging-infra.result == 'success'
+      (needs.ensure-nightly-infra.result == 'success' || needs.ensure-nightly-infra.result == 'skipped') &&
+      (needs.deploy-nightly-runtime.result == 'success' || needs.deploy-nightly-runtime.result == 'skipped')
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: tchalanet-server/testing/e2e
     env:
-      TCH_BASE_URL: ${{ secrets.TCH_E2E_BASE_URL }}
+      NIGHTLY_SERVER_HOST: ${{ needs.ensure-nightly-infra.outputs.server_host || secrets.SERVER_HOST }}
+      TCH_BASE_URL: ${{ secrets.TCH_E2E_BASE_URL || vars.TCH_E2E_BASE_URL || 'https://api.stg.tchalanet.com/api/v1' }}
       TCH_E2E_VERIFY_SSL: ${{ vars.TCH_E2E_VERIFY_SSL || 'true' }}
-      TCH_E2E_AUTH_PROVIDER: ${{ vars.TCH_E2E_AUTH_PROVIDER || 'firebase' }}
+      TCH_E2E_AUTH_PROVIDER: ${{ github.event_name == 'schedule' && 'firebase-emulator' || inputs.e2e_auth_provider || vars.TCH_E2E_AUTH_PROVIDER || 'firebase-emulator' }}
       TCH_FIREBASE_EMULATOR_HOST: ${{ secrets.TCH_FIREBASE_EMULATOR_HOST || vars.TCH_FIREBASE_EMULATOR_HOST }}
-      TCH_FIREBASE_PROJECT_ID: ${{ secrets.TCH_FIREBASE_PROJECT_ID || vars.TCH_FIREBASE_PROJECT_ID }}
+      TCH_FIREBASE_PROJECT_ID: ${{ secrets.TCH_FIREBASE_PROJECT_ID || vars.TCH_FIREBASE_PROJECT_ID || 'demo-tchalanet-local' }}
       TCH_FIREBASE_WEB_API_KEY: ${{ secrets.TCH_FIREBASE_WEB_API_KEY || vars.TCH_FIREBASE_WEB_API_KEY }}
       TCH_LOCAL_JWT_ISSUER: ${{ secrets.TCH_LOCAL_JWT_ISSUER }}
       TCH_LOCAL_JWT_SECRET: ${{ secrets.TCH_LOCAL_JWT_SECRET }}
@@ -106,17 +395,20 @@ jobs:
       - name: Validate E2E configuration
         run: |
           test -n "$TCH_BASE_URL" || { echo "TCH_E2E_BASE_URL secret is required"; exit 1; }
-          test -n "$TCH_SUPER_ADMIN_USERNAME" || { echo "TCH_SUPER_ADMIN_USERNAME secret is required"; exit 1; }
-          test -n "$TCH_SUPER_ADMIN_PASSWORD" || { echo "TCH_SUPER_ADMIN_PASSWORD secret is required"; exit 1; }
-          test -n "$TCH_TENANT_ADMIN_USERNAME" || { echo "TCH_TENANT_ADMIN_USERNAME secret is required"; exit 1; }
-          test -n "$TCH_TENANT_ADMIN_PASSWORD" || { echo "TCH_TENANT_ADMIN_PASSWORD secret is required"; exit 1; }
-          test -n "$TCH_SELLER_USERNAME" || { echo "TCH_SELLER_USERNAME secret is required"; exit 1; }
-          test -n "$TCH_SELLER_PASSWORD" || { echo "TCH_SELLER_PASSWORD secret is required"; exit 1; }
           if [ "$TCH_E2E_AUTH_PROVIDER" = "firebase" ]; then
+            test -n "$TCH_SUPER_ADMIN_USERNAME" || { echo "TCH_SUPER_ADMIN_USERNAME secret is required"; exit 1; }
+            test -n "$TCH_SUPER_ADMIN_PASSWORD" || { echo "TCH_SUPER_ADMIN_PASSWORD secret is required"; exit 1; }
+            test -n "$TCH_TENANT_ADMIN_USERNAME" || { echo "TCH_TENANT_ADMIN_USERNAME secret is required"; exit 1; }
+            test -n "$TCH_TENANT_ADMIN_PASSWORD" || { echo "TCH_TENANT_ADMIN_PASSWORD secret is required"; exit 1; }
+            test -n "$TCH_SELLER_USERNAME" || { echo "TCH_SELLER_USERNAME secret is required"; exit 1; }
+            test -n "$TCH_SELLER_PASSWORD" || { echo "TCH_SELLER_PASSWORD secret is required"; exit 1; }
             test -n "$TCH_FIREBASE_PROJECT_ID" || { echo "TCH_FIREBASE_PROJECT_ID secret is required for firebase E2E"; exit 1; }
             test -n "$TCH_FIREBASE_WEB_API_KEY" || { echo "TCH_FIREBASE_WEB_API_KEY secret or variable is required for firebase E2E"; exit 1; }
           fi
           if [ "$TCH_E2E_AUTH_PROVIDER" = "firebase-emulator" ]; then
+            if [ -z "$TCH_FIREBASE_EMULATOR_HOST" ] && [ -n "$NIGHTLY_SERVER_HOST" ]; then
+              TCH_FIREBASE_EMULATOR_HOST="$NIGHTLY_SERVER_HOST:9099"
+            fi
             test -n "$TCH_FIREBASE_EMULATOR_HOST" || { echo "TCH_FIREBASE_EMULATOR_HOST secret is required for firebase-emulator E2E"; exit 1; }
             test -n "$TCH_FIREBASE_PROJECT_ID" || { echo "TCH_FIREBASE_PROJECT_ID secret is required for firebase-emulator E2E"; exit 1; }
           fi
@@ -150,7 +442,80 @@ jobs:
         run: python -m pip install -e .
 
       - name: Run server E2E
-        run: python -m pytest -m "${{ inputs.server_e2e_marker || 'not L3 and not full_flow' }}"
+        run: python -m pytest -m "${{ inputs.server_e2e_marker || 'full_flow' }}"
+
+  server-perf:
+    name: Server Locust smoke
+    needs: [server-e2e, ensure-nightly-infra]
+    if: |
+      always() &&
+      (github.event_name == 'workflow_dispatch' && inputs.run_perf == true) &&
+      needs.server-e2e.result == 'success'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: tchalanet-server/testing/e2e
+    env:
+      NIGHTLY_SERVER_HOST: ${{ needs.ensure-nightly-infra.outputs.server_host || secrets.SERVER_HOST }}
+      TCH_BASE_URL: ${{ secrets.TCH_E2E_BASE_URL || vars.TCH_E2E_BASE_URL || 'https://api.stg.tchalanet.com/api/v1' }}
+      TCH_E2E_VERIFY_SSL: ${{ vars.TCH_E2E_VERIFY_SSL || 'true' }}
+      TCH_E2E_AUTH_PROVIDER: ${{ inputs.e2e_auth_provider || 'firebase-emulator' }}
+      TCH_FIREBASE_EMULATOR_HOST: ${{ secrets.TCH_FIREBASE_EMULATOR_HOST || vars.TCH_FIREBASE_EMULATOR_HOST }}
+      TCH_FIREBASE_PROJECT_ID: ${{ secrets.TCH_FIREBASE_PROJECT_ID || vars.TCH_FIREBASE_PROJECT_ID || 'demo-tchalanet-local' }}
+      TCH_FIREBASE_WEB_API_KEY: ${{ secrets.TCH_FIREBASE_WEB_API_KEY || vars.TCH_FIREBASE_WEB_API_KEY }}
+      TCH_SELLER_USERNAME: ${{ secrets.TCH_SELLER_USERNAME }}
+      TCH_SELLER_PASSWORD: ${{ secrets.TCH_SELLER_PASSWORD }}
+      TCH_LOAD_ALLOWED_HOSTS: api.stg.tchalanet.com
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: tchalanet-server/testing/e2e/pyproject.toml
+
+      - name: Install E2E perf deps
+        run: python -m pip install -e '.[perf]'
+
+      - name: Prepare perf env
+        run: |
+          set -euo pipefail
+          if [ "$TCH_E2E_AUTH_PROVIDER" = "firebase-emulator" ] && [ -z "$TCH_FIREBASE_EMULATOR_HOST" ] && [ -n "$NIGHTLY_SERVER_HOST" ]; then
+            TCH_FIREBASE_EMULATOR_HOST="$NIGHTLY_SERVER_HOST:9099"
+          fi
+          {
+            printf 'TCH_BASE_URL=%s\n' "$TCH_BASE_URL"
+            printf 'TCH_E2E_VERIFY_SSL=%s\n' "$TCH_E2E_VERIFY_SSL"
+            printf 'TCH_E2E_AUTH_PROVIDER=%s\n' "$TCH_E2E_AUTH_PROVIDER"
+            printf 'TCH_FIREBASE_EMULATOR_HOST=%s\n' "$TCH_FIREBASE_EMULATOR_HOST"
+            printf 'TCH_FIREBASE_PROJECT_ID=%s\n' "$TCH_FIREBASE_PROJECT_ID"
+            printf 'TCH_FIREBASE_WEB_API_KEY=%s\n' "$TCH_FIREBASE_WEB_API_KEY"
+            printf 'TCH_SELLER_USERNAME=%s\n' "$TCH_SELLER_USERNAME"
+            printf 'TCH_SELLER_PASSWORD=%s\n' "$TCH_SELLER_PASSWORD"
+            printf 'TCH_LOAD_ALLOWED_HOSTS=%s\n' "$TCH_LOAD_ALLOWED_HOSTS"
+          } > .env.local
+
+      - name: Run Locust smoke
+        run: |
+          mkdir -p results
+          locust -f loadtest/locustfile.py --headless \
+            -u "${{ inputs.perf_users }}" \
+            -r "${{ inputs.perf_spawn_rate }}" \
+            -t "${{ inputs.perf_duration }}" \
+            --host "$TCH_BASE_URL" \
+            --csv results/nightly \
+            --html results/nightly.html \
+            --basket-min 5 \
+            --basket-max 10
+
+      - name: Upload Locust artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: locust-nightly-results
+          path: tchalanet-server/testing/e2e/results/
 
   web-e2e:
     name: Web E2E

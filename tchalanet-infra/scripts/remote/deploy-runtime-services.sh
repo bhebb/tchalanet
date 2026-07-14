@@ -13,6 +13,9 @@ RESET_DATABASE_CONFIRM="${RESET_DATABASE_CONFIRM:-}"
 RUNTIME_DATABASE_URL="${RUNTIME_DATABASE_URL:-}"
 API_BASE_URL="${API_BASE_URL:-}"
 WEB_ORIGINS="${WEB_ORIGINS:-}"
+RUNTIME_IDENTITY_PROVIDER="${RUNTIME_IDENTITY_PROVIDER:-}"
+ENABLE_FIREBASE_EMULATOR="${ENABLE_FIREBASE_EMULATOR:-0}"
+FIREBASE_EMULATOR_PROJECT_ID="${FIREBASE_EMULATOR_PROJECT_ID:-demo-tchalanet-local}"
 DOPPLER_IMAGE="${DOPPLER_IMAGE:-dopplerhq/cli:3.75.1}"
 POSTGRES_IMAGE="${POSTGRES_IMAGE:-postgres:18.4}"
 DOCKER_BIN="${DOCKER_BIN:-docker}"
@@ -90,7 +93,22 @@ case "$DEPLOY_EDGE" in
   0|false|no) DEPLOY_EDGE="0" ;;
   *) fail "DEPLOY_EDGE must be 1/true or 0/false" ;;
 esac
+case "$ENABLE_FIREBASE_EMULATOR" in
+  1|true|yes) ENABLE_FIREBASE_EMULATOR="1" ;;
+  0|false|no) ENABLE_FIREBASE_EMULATOR="0" ;;
+  *) fail "ENABLE_FIREBASE_EMULATOR must be 1/true or 0/false" ;;
+esac
 [ "$DEPLOY_API" = "1" ] || [ "$DEPLOY_EDGE" = "1" ] || fail "At least one of DEPLOY_API or DEPLOY_EDGE must be enabled"
+
+if [ -n "$RUNTIME_IDENTITY_PROVIDER" ]; then
+  case "$RUNTIME_IDENTITY_PROVIDER" in
+    firebase|firebase-emulator|local-jwt|local-perf) ;;
+    *) fail "RUNTIME_IDENTITY_PROVIDER must be firebase, firebase-emulator, local-jwt, or local-perf" ;;
+  esac
+fi
+if [ "$ENABLE_FIREBASE_EMULATOR" = "1" ]; then
+  RUNTIME_IDENTITY_PROVIDER="${RUNTIME_IDENTITY_PROVIDER:-firebase-emulator}"
+fi
 
 if [ "$DEPLOY_EDGE" = "1" ] && [ -z "$EDGE_IMAGE_TAG" ] && [ -n "$API_IMAGE_TAG" ]; then
   EDGE_IMAGE_TAG="$API_IMAGE_TAG"
@@ -115,6 +133,9 @@ require_file "compose/docker-compose-api.yml"
 require_file "compose/docker-compose-edge-service.yml"
 require_file "scripts/remote/prepare-firebase-admin-credentials.sh"
 require_file "scripts/remote/prepare-server-signing-keys.sh"
+if [ "$ENABLE_FIREBASE_EMULATOR" = "1" ]; then
+  require_file "compose/docker-compose-firebase-emulator.yml"
+fi
 
 log "Preparing Docker networks for $ENV"
 $DOCKER_BIN network create "edge-$ENV" >/dev/null 2>&1 || true
@@ -158,9 +179,10 @@ fi
 
 require_core_services_ready
 
-if [ "$DEPLOY_API" = "1" ]; then
+if [ "$DEPLOY_API" = "1" ] && [ "${RUNTIME_IDENTITY_PROVIDER:-firebase}" != "firebase-emulator" ]; then
   log "Preparing Firebase Admin credentials"
-  scripts/remote/prepare-firebase-admin-credentials.sh "$ENV"
+  TCH_IDENTITY_PROVIDER="${RUNTIME_IDENTITY_PROVIDER:-firebase}" \
+    scripts/remote/prepare-firebase-admin-credentials.sh "$ENV"
   log "Preparing server signing keys"
   scripts/remote/prepare-server-signing-keys.sh "$ENV"
 fi
@@ -168,7 +190,21 @@ fi
 compose_env="$(mktemp /tmp/tchalanet-compose-env.XXXXXX)"
 cleanup() { rm -f "$compose_env"; }
 trap cleanup EXIT
-cat "envs/common/compose.env" "envs/$ENV/compose.env" "envs/$ENV/.secrets" > "$compose_env"
+cat "envs/common/compose.env" "envs/$ENV/compose.env" "envs/$ENV/.env.merged" "envs/$ENV/.secrets" > "$compose_env"
+if [ -n "$RUNTIME_IDENTITY_PROVIDER" ]; then
+  {
+    printf 'TCH_IDENTITY_PROVIDER=%s\n' "$RUNTIME_IDENTITY_PROVIDER"
+    if [ "$RUNTIME_IDENTITY_PROVIDER" = "firebase-emulator" ]; then
+      printf 'FIREBASE_PROJECT_ID=%s\n' "$FIREBASE_EMULATOR_PROJECT_ID"
+      printf 'FIREBASE_EMULATOR_PROJECT_ID=%s\n' "$FIREBASE_EMULATOR_PROJECT_ID"
+      printf 'FIREBASE_AUTH_EMULATOR_HOST=%s\n' "firebase-emulator:9099"
+      printf 'FIREBASE_CREDENTIALS_PATH=\n'
+      printf 'FIREBASE_CREDENTIALS_HOST_PATH=/dev/null\n'
+      printf 'FIREBASE_BOOTSTRAP_ENABLED=true\n'
+      printf 'FIREBASE_BOOTSTRAP_AUTO_RUN_ON_STARTUP=true\n'
+    fi
+  } >> "$compose_env"
+fi
 
 compose_cmd=(
   $DOCKER_BIN compose
@@ -179,6 +215,9 @@ compose_cmd=(
   -f compose/docker-compose-api.yml
   -f compose/docker-compose-edge-service.yml
 )
+if [ "$ENABLE_FIREBASE_EMULATOR" = "1" ]; then
+  compose_cmd+=(-f compose/docker-compose-firebase-emulator.yml)
+fi
 
 if [ "$RESET_DATABASE" = "1" ]; then
   [ "$DEPLOY_API" = "1" ] || fail "RESET_DATABASE requires DEPLOY_API=1"
@@ -216,9 +255,28 @@ fi
 services=()
 [ "$DEPLOY_API" = "1" ] && services+=(api)
 [ "$DEPLOY_EDGE" = "1" ] && services+=(edge-service)
+[ "$ENABLE_FIREBASE_EMULATOR" = "1" ] && services=(firebase-emulator "${services[@]}")
 
 log "Pulling runtime images deploy_api=$DEPLOY_API api=${API_IMAGE_TAG:-<unchanged>} deploy_edge=$DEPLOY_EDGE edge=${EDGE_IMAGE_TAG:-<unchanged>}"
 IMAGE_TAG="$COMPOSE_API_TAG" TCH_EDGE_TAG="$COMPOSE_EDGE_TAG" "${compose_cmd[@]}" pull "${services[@]}" || true
+
+if [ "$ENABLE_FIREBASE_EMULATOR" = "1" ]; then
+  log "Starting Firebase Auth Emulator"
+  IMAGE_TAG="$COMPOSE_API_TAG" TCH_EDGE_TAG="$COMPOSE_EDGE_TAG" \
+    "${compose_cmd[@]}" up -d --build firebase-emulator
+  for attempt in $(seq 1 24); do
+    health_status="$(inspect_health "tchl-firebase-auth-emulator-$ENV")"
+    if [ "$health_status" = "healthy" ]; then
+      printf 'OK: Firebase Auth Emulator healthy\n'
+      break
+    fi
+    if [ "$attempt" = "24" ]; then
+      $DOCKER_BIN logs --tail 120 "tchl-firebase-auth-emulator-$ENV" >&2 || true
+      fail "Firebase Auth Emulator did not become healthy, last status=$health_status"
+    fi
+    sleep 5
+  done
+fi
 
 up_args=(up -d --no-deps)
 if [ "$FORCE_RECREATE" = "1" ]; then
