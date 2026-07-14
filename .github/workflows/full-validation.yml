@@ -173,7 +173,7 @@ jobs:
           node-version: '24'
 
       - name: Enable pnpm
-        run: corepack enable && corepack prepare pnpm@11.9.0 --activate
+        run: corepack enable && corepack prepare pnpm@10.19.0 --activate
 
       - name: Install deps
         working-directory: tchalanet-edge-service
@@ -357,7 +357,14 @@ jobs:
       always() &&
       (github.event_name == 'schedule' || inputs.run_server_e2e == true) &&
       (needs.ensure-nightly-infra.result == 'success' || needs.ensure-nightly-infra.result == 'skipped') &&
-      (needs.deploy-nightly-runtime.result == 'success' || needs.deploy-nightly-runtime.result == 'skipped')
+      (
+        needs.deploy-nightly-runtime.result == 'success' ||
+        (
+          github.event_name == 'workflow_dispatch' &&
+          inputs.deploy_runtime_for_e2e != true &&
+          needs.deploy-nightly-runtime.result == 'skipped'
+        )
+      )
     runs-on: ubuntu-latest
     defaults:
       run:
