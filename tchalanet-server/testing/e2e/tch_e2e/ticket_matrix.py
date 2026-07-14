@@ -23,13 +23,14 @@ class TicketScenario:
     def to_payload_lines(self) -> list[dict[str, Any]]:
         return [
             {
+                "lineNumber": index,
                 "gameCode": ls.game_code,
                 "betType": ls.bet_type,
                 "selection": ls.selection,
                 "betOption": ls.bet_option,
                 "stakeAmount": f"{ls.stake_cents / 100:.2f}",
             }
-            for ls in self.lines
+            for index, ls in enumerate(self.lines, start=1)
         ]
 
 

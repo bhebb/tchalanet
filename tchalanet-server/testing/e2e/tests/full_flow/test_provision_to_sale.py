@@ -151,9 +151,9 @@ def test_provision_configure_and_sell(
                 "lines": lines}
 
     ok_lines = [
-        {"gameCode": "HT_BOLET", "betType": "MATCH_1_2D", "selection": "11",
+        {"lineNumber": 1, "gameCode": "HT_BOLET", "betType": "MATCH_1_2D", "selection": "11",
          "betOption": None, "stakeAmount": "5.00"},
-        {"gameCode": "HT_MARYAJ", "betType": "MARRIAGE_2D2D", "selection": "21-25",
+        {"lineNumber": 2, "gameCode": "HT_MARYAJ", "betType": "MARRIAGE_2D2D", "selection": "21-25",
          "betOption": 1, "stakeAmount": "5.00"},
     ]
     prep = seller.post("/tenant/sales/preparations", json=payload(ok_lines), headers=_rid())
@@ -169,9 +169,9 @@ def test_provision_configure_and_sell(
 
     # 8. Over-limit sale is rejected ------------------------------------------------------
     big_lines = [
-        {"gameCode": "HT_BOLET", "betType": "MATCH_1_2D", "selection": "22",
+        {"lineNumber": 1, "gameCode": "HT_BOLET", "betType": "MATCH_1_2D", "selection": "22",
          "betOption": None, "stakeAmount": "600.00"},
-        {"gameCode": "HT_BOLET", "betType": "MATCH_1_2D", "selection": "33",
+        {"lineNumber": 2, "gameCode": "HT_BOLET", "betType": "MATCH_1_2D", "selection": "33",
          "betOption": None, "stakeAmount": "600.00"},
     ]
     breach_prep = seller.post("/tenant/sales/preparations", json=payload(big_lines), headers=_rid())

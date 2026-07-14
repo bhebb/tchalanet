@@ -138,7 +138,7 @@ def test_super_admin_cannot_sell_tickets(
             "drawId": "00000000-0000-0000-0000-000000000000",
             "drawChannelId": "00000000-0000-0000-0000-000000000000",
             "currency": {"value": "HTG"},
-            "lines": [{"gameCode": "HT_BOLET", "betType": "MATCH_1_2D",
+            "lines": [{"lineNumber": 1, "gameCode": "HT_BOLET", "betType": "MATCH_1_2D",
                         "selection": "11", "stakeAmount": "1.00"}],
         },
         context=ctx,

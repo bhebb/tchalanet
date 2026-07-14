@@ -208,8 +208,8 @@ def main() -> int:
         return 3
     draw = draws[0]
     lines = [
-        {"gameCode": "HT_BOLET", "betType": "MATCH_1_2D", "selection": "11", "betOption": None, "stakeAmount": "5.00"},
-        {"gameCode": "HT_MARYAJ", "betType": "MARRIAGE_2D2D", "selection": "21-25", "betOption": 1, "stakeAmount": "5.00"},
+        {"lineNumber": 1, "gameCode": "HT_BOLET", "betType": "MATCH_1_2D", "selection": "11", "betOption": None, "stakeAmount": "5.00"},
+        {"lineNumber": 2, "gameCode": "HT_MARYAJ", "betType": "MARRIAGE_2D2D", "selection": "21-25", "betOption": 1, "stakeAmount": "5.00"},
     ]
     payload = {"sellerTerminalId": seller_terminal_id, "drawId": draw["drawId"],
                "drawChannelId": draw["drawChannelId"], "currency": HTG_CURRENCY_CODE,
@@ -232,9 +232,9 @@ def main() -> int:
     # ---- 7. limit breach ----------------------------------------------------
     step("Seller sells a ticket over the 1000 HTG limit -> expect BLOCK")
     big_lines = [
-        {"gameCode": "HT_BOLET", "betType": "MATCH_1_2D", "selection": "22",
+        {"lineNumber": 1, "gameCode": "HT_BOLET", "betType": "MATCH_1_2D", "selection": "22",
          "betOption": None, "stakeAmount": "600.00"},
-        {"gameCode": "HT_BOLET", "betType": "MATCH_1_2D", "selection": "33",
+        {"lineNumber": 2, "gameCode": "HT_BOLET", "betType": "MATCH_1_2D", "selection": "33",
          "betOption": None, "stakeAmount": "600.00"},
     ]
     big_payload = {"sellerTerminalId": seller_terminal_id, "drawId": draw["drawId"],

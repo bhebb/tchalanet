@@ -281,18 +281,21 @@ class CashierFlow:
 
     def _sale_payload(self, draw: dict[str, Any], game_codes: list[str]) -> dict[str, Any]:
         lines = []
+        line_number = 1
         for code in game_codes:
             bet_type, selections, bet_option = self._GAME_BET_PROFILE.get(
                 code, ("MATCH_1_2D", ["11"], None)
             )
             for selection in selections:
                 lines.append({
+                    "lineNumber": line_number,
                     "gameCode": code,
                     "betType": bet_type,
                     "selection": selection,
                     "betOption": bet_option,
                     "stakeAmount": f"{self.stake_cents / 100:.2f}",
                 })
+                line_number += 1
         return {
             "terminalId": self.context.terminal_id,
             "drawId": draw["drawId"],

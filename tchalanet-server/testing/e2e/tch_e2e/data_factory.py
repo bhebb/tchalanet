@@ -14,13 +14,14 @@ def build_ticket_lines(
     """Build raw line specs for /tenant/sales/preparations."""
     return [
         {
+            "lineNumber": index,
             "gameCode": game_code,
             "betType": bet_type,
             "selection": sel,
             "betOption": bet_option,
             "stakeAmount": f"{stake_cents / 100:.2f}",
         }
-        for sel in selections
+        for index, sel in enumerate(selections, start=1)
     ]
 
 
