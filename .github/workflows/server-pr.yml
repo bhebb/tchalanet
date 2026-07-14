@@ -49,6 +49,10 @@ jobs:
         continue-on-error: true
         run: ./mvnw -B pmd:check
 
+      - name: SpotBugs
+        continue-on-error: true
+        run: ./mvnw -B spotbugs:check
+
       - name: Jacoco coverage comment
         if: github.event_name == 'pull_request'
         uses: madrapps/jacoco-report@v1.7.2
