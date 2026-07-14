@@ -8,6 +8,9 @@ if [ "${3:-}" = "--no-bootstrap" ]; then
   NO_BOOTSTRAP=1
 fi
 REMOTE_DIR="/opt/tchalanet-infra"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+INFRA_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+REPO_ROOT="$(cd "$INFRA_DIR/.." && pwd)"
 
 # Déterminer la clé SSH à utiliser selon l'environnement
 case "$ENV" in
@@ -48,13 +51,13 @@ echo "→ Connecting to tch@$SERVER_HOST with key $SSH_KEY (ENV=$ENV)"
 
 ssh $SSH_OPTS tch@"$SERVER_HOST" "sudo mkdir -p $REMOTE_DIR && sudo chown -R tch:tch $REMOTE_DIR"
 
-FIREBASE_ADMIN_SRC="../tchalanet-server/tchalanet-39115-firebase-adminsdk-fbsvc-62e904a236.json"
-FIREBASE_ADMIN_DST="server/secrets/firebase-admin.json"
+FIREBASE_ADMIN_SRC="$REPO_ROOT/tchalanet-server/tchalanet-39115-firebase-adminsdk-fbsvc-62e904a236.json"
+FIREBASE_ADMIN_DST="$INFRA_DIR/server/secrets/firebase-admin.json"
 if [ -f "$FIREBASE_ADMIN_SRC" ]; then
   mkdir -p "$(dirname "$FIREBASE_ADMIN_DST")"
   cp "$FIREBASE_ADMIN_SRC" "$FIREBASE_ADMIN_DST"
   chmod 600 "$FIREBASE_ADMIN_DST"
-  echo "→ Firebase Admin credentials staged for server sync: $FIREBASE_ADMIN_DST"
+  echo "→ Firebase Admin credentials staged for server sync: server/secrets/firebase-admin.json"
 else
   echo "⚠️  Firebase Admin credentials source not found: $FIREBASE_ADMIN_SRC" >&2
   echo "   Runtime deploy will require FIREBASE_ADMIN_JSON or FIREBASE_ADMIN_JSON_BASE64 in Doppler." >&2
@@ -62,7 +65,7 @@ fi
 
 rsync -az --delete "${RSYNC_EXCLUDES[@]}" \
   -e "ssh $SSH_OPTS" \
-  ./ tch@"$SERVER_HOST":"$REMOTE_DIR/"
+  "$INFRA_DIR/" tch@"$SERVER_HOST":"$REMOTE_DIR/"
 
 # Remote preparation: prefer explicit bootstrap unless disabled
 if [ "$NO_BOOTSTRAP" -eq 0 ]; then
