@@ -14,6 +14,7 @@ concurrency:
 
 permissions:
   contents: read
+  pull-requests: write
 
 jobs:
   server-verify:
@@ -39,6 +40,22 @@ jobs:
 
       - name: Maven verify
         run: ./mvnw -B -DskipITs=true verify
+
+      - name: Jacoco coverage comment
+        if: github.event_name == 'pull_request'
+        uses: madrapps/jacoco-report@v1.7.2
+        with:
+          paths: |
+            tchalanet-server/tchalanet-common/target/site/jacoco/jacoco.xml,
+            tchalanet-server/tchalanet-catalog/target/site/jacoco/jacoco.xml,
+            tchalanet-server/tchalanet-platform/target/site/jacoco/jacoco.xml,
+            tchalanet-server/tchalanet-core/target/site/jacoco/jacoco.xml,
+            tchalanet-server/tchalanet-app/target/site/jacoco/jacoco.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-coverage-overall: 20
+          min-coverage-changed-files: 50
+          title: "## Coverage Report"
+          update-comment: true
 
       - name: Upload Jacoco reports
         if: always()

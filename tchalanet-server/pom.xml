@@ -348,22 +348,50 @@
         <version>${jacoco.plugin.version}</version>
         <configuration>
           <excludes>
+            <!-- App bootstrap / Spring config -->
             <exclude>**/*Application.*</exclude>
             <exclude>**/*AutoConfiguration.*</exclude>
             <exclude>**/*Config.*</exclude>
             <exclude>**/*Configuration.*</exclude>
             <exclude>**/*Constants.*</exclude>
-            <exclude>**/*Dto.*</exclude>
-            <exclude>**/*Exception.*</exclude>
-            <exclude>**/*MapperImpl.*</exclude>
             <exclude>**/*NativeHints.*</exclude>
             <exclude>**/*OpenApi.*</exclude>
             <exclude>**/*Properties.*</exclude>
-            <exclude>**/*Projection.*</exclude>
+
+            <!-- CQRS data carriers (records, no logic) -->
+            <exclude>**/*Command.*</exclude>
+            <exclude>**/*Query.*</exclude>
+            <exclude>**/*Result.*</exclude>
+            <exclude>**/*Event.*</exclude>
+            <exclude>**/*Dto.*</exclude>
+
+            <!-- API models (public records / enums / value objects) -->
+            <exclude>**/api/model/**</exclude>
+            <exclude>**/api/command/**</exclude>
+            <exclude>**/api/query/**</exclude>
+            <exclude>**/api/event/**</exclude>
+
+            <!-- Web layer models -->
             <exclude>**/*Request.*</exclude>
             <exclude>**/*Response.*</exclude>
             <exclude>**/*View.*</exclude>
+            <exclude>**/*Projection.*</exclude>
+
+            <!-- Infra / persistence -->
+            <exclude>**/*JpaEntity.*</exclude>
+            <exclude>**/*JpaRepository.*</exclude>
+            <exclude>**/*SpringRepository.*</exclude>
+            <exclude>**/*Controller.*</exclude>
+            <exclude>**/*Adapter.*</exclude>
+            <exclude>**/*Port.*</exclude>
+            <exclude>**/*Mapper.*</exclude>
+            <exclude>**/*MapperImpl.*</exclude>
+
+            <!-- Generated / QueryDSL -->
             <exclude>**/Q*.*</exclude>
+
+            <!-- Domain exceptions (no logic) -->
+            <exclude>**/*Exception.*</exclude>
           </excludes>
         </configuration>
         <executions>
