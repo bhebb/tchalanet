@@ -46,6 +46,26 @@ print_runtime_diagnostics() {
 inspect_health() {
   $DOCKER_BIN inspect --format='{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "$1" 2>/dev/null || true
 }
+ensure_validation_signing_keys() {
+  keys_file="envs/$ENV/.runtime-signing.env"
+  if [ -f "$keys_file" ] && grep -q '^TCH_SERVER_SIGNING_ED25519_PRIVATE_KEY_PKCS8_BASE64=' "$keys_file"; then
+    return
+  fi
+  command -v openssl >/dev/null 2>&1 || fail "openssl is required to generate disposable validation signing keys"
+
+  log "Generating disposable Ed25519 signing keys for validation runtime"
+  tmpdir="$(mktemp -d /tmp/tchalanet-signing-keys.XXXXXX)"
+  trap 'rm -rf "$tmpdir"; rm -f "$compose_env"' EXIT
+  openssl genpkey -algorithm ED25519 -out "$tmpdir/private.pem" >/dev/null 2>&1
+  openssl pkey -in "$tmpdir/private.pem" -outform DER -out "$tmpdir/private.der" >/dev/null 2>&1
+  openssl pkey -in "$tmpdir/private.pem" -pubout -outform DER -out "$tmpdir/public.der" >/dev/null 2>&1
+  {
+    printf 'TCH_SERVER_SIGNING_ED25519_PRIVATE_KEY_PKCS8_BASE64=%s\n' "$(base64 "$tmpdir/private.der" | tr -d '\n')"
+    printf 'TCH_SERVER_SIGNING_ED25519_PUBLIC_KEY_SPKI_BASE64=%s\n' "$(base64 "$tmpdir/public.der" | tr -d '\n')"
+  } > "$keys_file"
+  chmod 600 "$keys_file"
+  rm -rf "$tmpdir"
+}
 require_core_services_ready() {
   log "Checking core infra services"
   traefik_status="$(inspect_health "tchl-traefik-$ENV")"
@@ -191,7 +211,13 @@ fi
 compose_env="$(mktemp /tmp/tchalanet-compose-env.XXXXXX)"
 cleanup() { rm -f "$compose_env"; }
 trap cleanup EXIT
+if [ "${RUNTIME_IDENTITY_PROVIDER:-firebase}" = "firebase-emulator" ]; then
+  ensure_validation_signing_keys
+fi
 cat "envs/common/compose.env" "envs/$ENV/compose.env" "envs/$ENV/.env.merged" "envs/$ENV/.secrets" > "$compose_env"
+if [ "${RUNTIME_IDENTITY_PROVIDER:-firebase}" = "firebase-emulator" ]; then
+  cat "envs/$ENV/.runtime-signing.env" >> "$compose_env"
+fi
 if [ -n "$RUNTIME_IDENTITY_PROVIDER" ]; then
   {
     printf 'TCH_IDENTITY_PROVIDER=%s\n' "$RUNTIME_IDENTITY_PROVIDER"
