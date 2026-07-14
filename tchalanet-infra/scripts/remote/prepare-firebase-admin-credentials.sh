@@ -68,7 +68,7 @@ if [ -n "$json" ]; then
 elif [ -n "$json_base64" ]; then
   printf '%s' "$json_base64" | base64 -d > "$target"
 else
-  fail "Missing Firebase Admin JSON secret. Set one of FIREBASE_ADMIN_JSON, FIREBASE_CREDENTIALS_JSON, FIREBASE_SERVICE_ACCOUNT_JSON, FIREBASE_SERVICE_ACCOUNT, FIREBASE_ADMIN_JSON_BASE64, or FIREBASE_SERVICE_ACCOUNT_BASE64 in Doppler config for $DEPLOY_ENV."
+  fail "Missing Firebase Admin credentials file at $target. Ensure push-infra-bkup.sh copied tchalanet-server/tchalanet-39115-firebase-adminsdk-fbsvc-62e904a236.json, or set one of FIREBASE_ADMIN_JSON, FIREBASE_CREDENTIALS_JSON, FIREBASE_SERVICE_ACCOUNT_JSON, FIREBASE_SERVICE_ACCOUNT, FIREBASE_ADMIN_JSON_BASE64, or FIREBASE_SERVICE_ACCOUNT_BASE64 in Doppler config for $DEPLOY_ENV."
 fi
 
 if ! grep -q '"private_key"' "$target" || ! grep -q '"client_email"' "$target"; then
