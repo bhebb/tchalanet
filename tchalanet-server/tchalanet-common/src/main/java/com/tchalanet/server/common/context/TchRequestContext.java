@@ -49,6 +49,8 @@ public record TchRequestContext(
 ) {
 
     public TchRequestContext {
+        systemRoles = systemRoles == null ? Set.of() : Set.copyOf(systemRoles);
+        customRoles = customRoles == null ? Set.of() : Set.copyOf(customRoles);
         roleCodes = roleCodes == null ? Set.of() : Set.copyOf(roleCodes);
         permissionKeys = permissionKeys == null ? Set.of() : Set.copyOf(permissionKeys);
     }
@@ -299,8 +301,12 @@ public record TchRequestContext(
         }
 
         var normalized = permission.trim().toUpperCase(Locale.ROOT);
-        return customRoles.contains(permission)
-            || customRoles.contains(normalized);
+        for (var role : customRoles) {
+            if (role != null && role.trim().toUpperCase(Locale.ROOT).equals(normalized)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public OperationalContextHint operationalContextRequired() {

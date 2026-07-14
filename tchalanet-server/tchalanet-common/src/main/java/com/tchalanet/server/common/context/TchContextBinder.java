@@ -25,12 +25,20 @@ public class TchContextBinder {
     putMdc(ctx);
   }
 
+  private static final String[] MDC_KEYS = {
+      "tenant_original", "tenant_effective", "tenant_overridden",
+      "external_subject", MDC_REQUEST_ID, "reqId", "idem",
+      "tenant_uuid", "tz", "ccy"
+  };
+
   public void clear(HttpServletRequest req) {
     log.debug(
         "TchContextFilter CLEAR path={} thread={}",
         req.getRequestURI(),
         Thread.currentThread().getName());
-    MDC.clear();
+    for (var key : MDC_KEYS) {
+      MDC.remove(key);
+    }
     TchContext.clear();
   }
 
