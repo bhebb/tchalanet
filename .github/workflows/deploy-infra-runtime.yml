@@ -366,6 +366,8 @@ jobs:
 
       - name: Push infra files to server
         working-directory: tchalanet-infra
+        env:
+          FIREBASE_ADMIN_JSON_BASE64: ${{ secrets.FIREBASE_ADMIN_JSON_BASE64 }}
         run: |
           set -euo pipefail
           chmod +x scripts/remote/*.sh || true
@@ -387,12 +389,13 @@ jobs:
           DOPPLER_TOKEN: ${{ env.DOPPLER_TOKEN_VALUE }}
           GHCR_USERNAME: ${{ github.actor }}
           GHCR_TOKEN: ${{ github.token }}
+          FIREBASE_ADMIN_JSON_BASE64: ${{ secrets.FIREBASE_ADMIN_JSON_BASE64 }}
         with:
           host: ${{ env.SERVER_HOST }}
           username: tch
           key: ${{ env.SSH_PRIVATE_KEY_VALUE }}
           script_stop: true
-          envs: DEPLOY_ENV,API_IMAGE_TAG,EDGE_IMAGE_TAG,DEPLOY_API,DEPLOY_EDGE,FORCE_RECREATE,RESET_DATABASE,RESET_DATABASE_CONFIRM,WEB_ORIGINS,API_BASE_URL,DOPPLER_TOKEN,GHCR_USERNAME,GHCR_TOKEN
+          envs: DEPLOY_ENV,API_IMAGE_TAG,EDGE_IMAGE_TAG,DEPLOY_API,DEPLOY_EDGE,FORCE_RECREATE,RESET_DATABASE,RESET_DATABASE_CONFIRM,WEB_ORIGINS,API_BASE_URL,DOPPLER_TOKEN,GHCR_USERNAME,GHCR_TOKEN,FIREBASE_ADMIN_JSON_BASE64
           script: |
             set -euo pipefail
             cd /opt/tchalanet-infra
