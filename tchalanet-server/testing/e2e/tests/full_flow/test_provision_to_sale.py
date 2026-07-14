@@ -86,8 +86,9 @@ def test_provision_configure_and_sell(
     result = _data(prov)
     tenant_id = result["tenantId"]
     admin_email = result["initialAdminEmail"]
+    admin_user_id = result["initialAdminUserId"]
     assert result["profile"] == "DEFAULT_HAITI_LOTTERY"
-    assert result["initialAdminUserId"]
+    assert admin_user_id
 
     # 2. SUPER_ADMIN generates + opens today's draws --------------------------------------
     today = dt.date.today()
@@ -103,7 +104,7 @@ def test_provision_configure_and_sell(
 
     # 3. Admin logs in (minted token) and completes first login ---------------------------
     admin = ApiClient(base_url=base_url, token=fb_auth.mint(
-        subject=fb_auth.uid_for_email(admin_email), email=admin_email))
+        subject=admin_user_id, email=admin_email))
     first = admin.post("/identity/me/complete-first-login", json={
         "firstName": "Flow", "lastName": "Admin", "phoneNumber": admin_phone,
         "passwordChanged": True}, headers=_rid())

@@ -2,7 +2,8 @@
 
   1. SUPER_ADMIN provisions a tenant (DEFAULT_HAITI_LOTTERY) with an initial admin.
   2. SUPER_ADMIN generates + opens today's draws for the tenant.
-  3. The admin logs in (minted firebase-emulator token), completes first login.
+  3. The admin logs in (minted firebase-emulator token, sub = initialAdminUserId),
+     completes first login.
   4. The admin configures the tenant: maryaj gratis + a limit policy.
   5. The admin creates a seller-terminal.
   6. The seller logs in (minted token, sub = sellerTerminalId) and sells a ticket
@@ -121,8 +122,8 @@ def main() -> int:
 
     # ---- 3. admin logs in + completes first login --------------------------
     step("Admin logs in (minted token) and completes first login")
-    admin_uid = auth.uid_for_email(admin_email)
-    print(f"    admin firebase uid (emulator) = {admin_uid}")
+    admin_uid = admin_user_id
+    print(f"    admin firebase uid = {admin_uid}")
     admin = ApiClient(base_url=BASE, token=auth.mint(subject=admin_uid, email=admin_email))
     first = admin.post(
         "/identity/me/complete-first-login",
