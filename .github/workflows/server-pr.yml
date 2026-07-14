@@ -41,6 +41,14 @@ jobs:
       - name: Maven verify
         run: ./mvnw -B -DskipITs=true verify
 
+      - name: Checkstyle
+        continue-on-error: true
+        run: ./mvnw -B checkstyle:check
+
+      - name: PMD
+        continue-on-error: true
+        run: ./mvnw -B pmd:check
+
       - name: Jacoco coverage comment
         if: github.event_name == 'pull_request'
         uses: madrapps/jacoco-report@v1.7.2
