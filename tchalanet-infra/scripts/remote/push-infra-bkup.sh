@@ -40,6 +40,7 @@ RSYNC_EXCLUDES=(
   --exclude 'envs/*/.secrets.*'
   --exclude 'traefik/acme.json'
   --exclude 'traefik/certs/*.pem'
+  --exclude 'traefik/dynamic/10-routers.yaml'
   --exclude '*.pem'
 )
 

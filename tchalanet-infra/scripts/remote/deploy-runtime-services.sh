@@ -22,6 +22,38 @@ cd "$ROOT"
 log() { printf -- '-> %s\n' "$*"; }
 fail() { printf 'ERROR: %s\n' "$*" >&2; exit 1; }
 require_file() { [ -f "$1" ] || fail "Missing required file: $1"; }
+print_runtime_diagnostics() {
+  log "Runtime diagnostics"
+  $DOCKER_BIN ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}' >&2 || true
+  $DOCKER_BIN logs --tail 120 "tchl-traefik-$ENV" >&2 || true
+  $DOCKER_BIN logs --tail 120 "tchl-api-$ENV" >&2 || true
+  if command -v ss >/dev/null 2>&1; then
+    ss -ltnp | grep -E ':(80|443)\b' >&2 || true
+  elif command -v netstat >/dev/null 2>&1; then
+    netstat -ltnp 2>/dev/null | grep -E ':(80|443)\b' >&2 || true
+  fi
+}
+inspect_health() {
+  $DOCKER_BIN inspect --format='{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "$1" 2>/dev/null || true
+}
+require_core_services_ready() {
+  log "Checking core infra services"
+  traefik_status="$(inspect_health "tchl-traefik-$ENV")"
+  redis_status="$(inspect_health "tchl-redis-$ENV")"
+  if [ "$traefik_status" != "healthy" ] && [ "$traefik_status" != "running" ]; then
+    print_runtime_diagnostics
+    fail "Traefik core service is not ready, status=$traefik_status. Run the Manage Staging Infra workflow first."
+  fi
+  if ! curl -fsS --connect-timeout 2 --max-time 5 http://127.0.0.1/ping >/dev/null; then
+    print_runtime_diagnostics
+    fail "Traefik core service is not listening on local port 80. Run the Manage Staging Infra workflow first."
+  fi
+  if [ "$redis_status" != "healthy" ]; then
+    print_runtime_diagnostics
+    fail "Redis core service is not healthy, status=$redis_status. Run the Manage Staging Infra workflow first."
+  fi
+  printf 'OK: Core infra ready (traefik=%s redis=%s)\n' "$traefik_status" "$redis_status"
+}
 
 case "$ENV" in
   staging|stg)
@@ -149,26 +181,41 @@ if [ "$RESET_DATABASE" = "1" ]; then
       -c 'GRANT ALL ON SCHEMA public TO public;'
 fi
 
-services=(redis)
+services=()
 [ "$DEPLOY_API" = "1" ] && services+=(api)
 [ "$DEPLOY_EDGE" = "1" ] && services+=(edge-service)
+
+require_core_services_ready
 
 log "Pulling runtime images deploy_api=$DEPLOY_API api=${API_IMAGE_TAG:-<unchanged>} deploy_edge=$DEPLOY_EDGE edge=${EDGE_IMAGE_TAG:-<unchanged>}"
 IMAGE_TAG="$COMPOSE_API_TAG" TCH_EDGE_TAG="$COMPOSE_EDGE_TAG" "${compose_cmd[@]}" pull "${services[@]}" || true
 
-up_args=(up -d)
+up_args=(up -d --no-deps)
 if [ "$FORCE_RECREATE" = "1" ]; then
   up_args+=(--force-recreate)
 fi
 
 log "Starting runtime services"
-IMAGE_TAG="$COMPOSE_API_TAG" TCH_EDGE_TAG="$COMPOSE_EDGE_TAG" "${compose_cmd[@]}" up -d redis
 start_services=()
 [ "$DEPLOY_EDGE" = "1" ] && start_services+=(edge-service)
 [ "$DEPLOY_API" = "1" ] && start_services+=(api)
 IMAGE_TAG="$COMPOSE_API_TAG" TCH_EDGE_TAG="$COMPOSE_EDGE_TAG" "${compose_cmd[@]}" "${up_args[@]}" "${start_services[@]}"
 
 if [ "$DEPLOY_API" = "1" ]; then
+  log "Checking API container health"
+  for attempt in $(seq 1 36); do
+    health_status="$(inspect_health "tchl-api-$ENV")"
+    if [ "$health_status" = "healthy" ]; then
+      printf 'OK: API container healthy\n'
+      break
+    fi
+    if [ "$attempt" = "36" ]; then
+      print_runtime_diagnostics
+      fail "API container did not become healthy, last status=$health_status"
+    fi
+    sleep 5
+  done
+
   log "Waiting for API health"
   health_url="$API_BASE_URL/actuator/health"
   for attempt in $(seq 1 36); do
@@ -177,7 +224,7 @@ if [ "$DEPLOY_API" = "1" ]; then
       break
     fi
     if [ "$attempt" = "36" ]; then
-      $DOCKER_BIN logs --tail 120 "tchl-api-$ENV" >&2 || true
+      print_runtime_diagnostics
       fail "API did not become healthy: $health_url"
     fi
     sleep 5
