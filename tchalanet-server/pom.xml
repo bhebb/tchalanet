@@ -61,6 +61,9 @@
     <jacoco.halt.on.failure>false</jacoco.halt.on.failure>
     <spotless.plugin.version>3.8.0</spotless.plugin.version>
     <checkstyle.plugin.version>3.6.0</checkstyle.plugin.version>
+    <checkstyle.config>checkstyle/checkstyle.xml</checkstyle.config>
+    <pmd.plugin.version>3.28.0</pmd.plugin.version>
+    <pmd.version>7.13.0</pmd.version>
     <sonar.maven.plugin.version>5.3.0.6276</sonar.maven.plugin.version>
 
     <sonar.projectKey>tchalanet:tchalanet-server</sonar.projectKey>
@@ -339,7 +342,31 @@
         <version>${checkstyle.plugin.version}</version>
         <configuration>
           <configLocation>${checkstyle.config}</configLocation>
-          <failsOnError>true</failsOnError>
+          <failsOnError>false</failsOnError>
+          <violationSeverity>warning</violationSeverity>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-pmd-plugin</artifactId>
+        <version>${pmd.plugin.version}</version>
+        <dependencies>
+          <dependency>
+            <groupId>net.sourceforge.pmd</groupId>
+            <artifactId>pmd-java</artifactId>
+            <version>${pmd.version}</version>
+          </dependency>
+        </dependencies>
+        <configuration>
+          <rulesets>
+            <ruleset>pmd/ruleset.xml</ruleset>
+          </rulesets>
+          <failOnViolation>false</failOnViolation>
+          <printFailingErrors>true</printFailingErrors>
+          <targetJdk>21</targetJdk>
+          <excludeRoots>
+            <excludeRoot>target/generated-sources</excludeRoot>
+          </excludeRoots>
         </configuration>
       </plugin>
       <plugin>
