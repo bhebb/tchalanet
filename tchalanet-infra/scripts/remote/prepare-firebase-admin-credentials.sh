@@ -2,31 +2,32 @@
 # Materialize Firebase Admin service account JSON on the host for the API bind mount.
 set -euo pipefail
 
-ENV="${1:-${ENV:-staging}}"
+DEPLOY_ENV="${1:-${ENV:-staging}}"
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT"
 
 log() { printf -- '-> %s\n' "$*"; }
 fail() { printf 'ERROR: %s\n' "$*" >&2; exit 1; }
 
-case "$ENV" in
-  staging|stg) ENV="staging" ;;
-  prod|production) ENV="prod" ;;
+case "$DEPLOY_ENV" in
+  staging|stg) DEPLOY_ENV="staging" ;;
+  prod|production) DEPLOY_ENV="prod" ;;
   *) fail "ENV must be staging or prod" ;;
 esac
 
 [ -f "envs/common/compose.env" ] || fail "Missing envs/common/compose.env"
-[ -f "envs/$ENV/compose.env" ] || fail "Missing envs/$ENV/compose.env"
-[ -f "envs/$ENV/.secrets" ] || fail "Missing envs/$ENV/.secrets"
+[ -f "envs/$DEPLOY_ENV/compose.env" ] || fail "Missing envs/$DEPLOY_ENV/compose.env"
+[ -f "envs/$DEPLOY_ENV/.secrets" ] || fail "Missing envs/$DEPLOY_ENV/.secrets"
 
 set -a
 # shellcheck disable=SC1091
 . "envs/common/compose.env"
 # shellcheck disable=SC1090
-. "envs/$ENV/compose.env"
+. "envs/$DEPLOY_ENV/compose.env"
 # shellcheck disable=SC1090
-. "envs/$ENV/.secrets"
+. "envs/$DEPLOY_ENV/.secrets"
 set +a
+ENV="$DEPLOY_ENV"
 
 provider="${TCH_IDENTITY_PROVIDER:-firebase}"
 if [ "$provider" != "firebase" ]; then
@@ -59,7 +60,7 @@ if [ -n "$json" ]; then
 elif [ -n "$json_base64" ]; then
   printf '%s' "$json_base64" | base64 -d > "$target"
 else
-  fail "Missing Firebase Admin JSON secret. Set one of FIREBASE_ADMIN_JSON, FIREBASE_CREDENTIALS_JSON, FIREBASE_SERVICE_ACCOUNT_JSON, FIREBASE_SERVICE_ACCOUNT, FIREBASE_ADMIN_JSON_BASE64, or FIREBASE_SERVICE_ACCOUNT_BASE64 in Doppler config for $ENV."
+  fail "Missing Firebase Admin JSON secret. Set one of FIREBASE_ADMIN_JSON, FIREBASE_CREDENTIALS_JSON, FIREBASE_SERVICE_ACCOUNT_JSON, FIREBASE_SERVICE_ACCOUNT, FIREBASE_ADMIN_JSON_BASE64, or FIREBASE_SERVICE_ACCOUNT_BASE64 in Doppler config for $DEPLOY_ENV."
 fi
 
 if ! grep -q '"private_key"' "$target" || ! grep -q '"client_email"' "$target"; then
