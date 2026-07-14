@@ -351,27 +351,14 @@ jobs:
           [ -n "$SSH_PRIVATE_KEY_VALUE" ] || { echo "Missing SSH private key secret" >&2; exit 1; }
           [ -n "$DOPPLER_TOKEN_VALUE" ] || { echo "Missing Doppler token secret" >&2; exit 1; }
 
-      - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ env.SSH_PRIVATE_KEY_VALUE }}
-
-      - name: Prepare SSH key for infra sync
-        run: |
-          set -euo pipefail
-          mkdir -p ~/.ssh
-          printf '%s\n' "$SSH_PRIVATE_KEY_VALUE" > ~/.ssh/"$SSH_KEY_FILE"
-          chmod 600 ~/.ssh/"$SSH_KEY_FILE"
-          ssh-keyscan -H "$SERVER_HOST" >> ~/.ssh/known_hosts
-
       - name: Push infra files to server
-        working-directory: tchalanet-infra
-        env:
-          FIREBASE_ADMIN_JSON_BASE64: ${{ secrets.FIREBASE_ADMIN_JSON_BASE64 }}
-        run: |
-          set -euo pipefail
-          chmod +x scripts/remote/*.sh || true
-          ./scripts/remote/push-infra-bkup.sh "$SERVER_HOST" "$DEPLOY_ENV"
+        uses: ./.github/actions/push-infra-files
+        with:
+          server_host: ${{ env.SERVER_HOST }}
+          deploy_env: ${{ env.DEPLOY_ENV }}
+          ssh_private_key: ${{ env.SSH_PRIVATE_KEY_VALUE }}
+          key_file: ${{ env.SSH_KEY_FILE }}
+          firebase_admin_json_base64: ${{ secrets.FIREBASE_ADMIN_JSON_BASE64 }}
 
       - name: Deploy runtime services
         uses: appleboy/ssh-action@v1.2.5
