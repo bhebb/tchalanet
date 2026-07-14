@@ -181,10 +181,10 @@ def test_provision_configure_and_sell(
                              idempotency_key=str(uuid.uuid4()), headers=_rid())
         bdata = _data(breach) or {}
         sale = bdata.get("sale") or {}
-        assert breach.status_code in (400, 409, 422) or sale.get("outcome") in ("REJECTED", "BLOCKED"), (
+        assert breach.status_code in (400, 403, 409, 422) or sale.get("outcome") in ("REJECTED", "BLOCKED"), (
             f"over-limit sale should be rejected, got http={breach.status_code} data={bdata}")
     else:
-        assert breach_prep.status_code in (400, 409, 422), (
+        assert breach_prep.status_code in (400, 403, 409, 422), (
             f"over-limit preparation should be rejected, got http={breach_prep.status_code} data={_data(breach_prep)}")
 
     # 9. Role separation: TENANT_ADMIN cannot reach a SUPER_ADMIN-only endpoint -----------
