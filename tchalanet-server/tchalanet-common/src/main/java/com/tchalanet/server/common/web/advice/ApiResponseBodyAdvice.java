@@ -76,8 +76,8 @@ public class ApiResponseBodyAdvice implements ResponseBodyAdvice<Object> {
       return false;
     }
 
-    if (returnType.getMethod() != null
-        && returnType.getMethod().getAnnotation(ExceptionHandler.class) != null) {
+    var method = returnType.getMethod();
+    if (method != null && method.getAnnotation(ExceptionHandler.class) != null) {
       return false;
     }
 

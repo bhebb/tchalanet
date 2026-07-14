@@ -8,8 +8,11 @@ public final class TypedIdRegistry {
    *
    * <p>Keep this list sorted alphabetically to reduce merge conflicts.
    */
-  public static final Class<?>[] ALL = {
-    // --- Add all your *Id here (alphabetical) ---
+  public static Class<?>[] all() {
+    return ENTRIES.clone();
+  }
+
+  private static final Class<?>[] ENTRIES = {
     AddressId.class,
     BusinessDayOverrideId.class,
     DrawChannelGameId.class,
