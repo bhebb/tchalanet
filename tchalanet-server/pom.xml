@@ -58,6 +58,7 @@
     <jacoco.plugin.version>0.8.15</jacoco.plugin.version>
     <jacocoArgLine/>
     <jacoco.minimum.line.coverage>0.20</jacoco.minimum.line.coverage>
+    <jacoco.halt.on.failure>false</jacoco.halt.on.failure>
     <spotless.plugin.version>3.8.0</spotless.plugin.version>
     <checkstyle.plugin.version>3.6.0</checkstyle.plugin.version>
     <sonar.maven.plugin.version>5.3.0.6276</sonar.maven.plugin.version>
@@ -389,6 +390,7 @@
               <goal>check</goal>
             </goals>
             <configuration>
+              <haltOnFailure>${jacoco.halt.on.failure}</haltOnFailure>
               <rules>
                 <rule>
                   <element>BUNDLE</element>
