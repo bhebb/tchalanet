@@ -10,6 +10,9 @@ from tch_e2e.client import ApiClient
 from tch_e2e.config import OpContext
 
 
+HTG_CURRENCY = {"value": "HTG"}
+
+
 @dataclass
 class SoldTicket:
     ticket_id: str
@@ -72,7 +75,7 @@ class CashierFlow:
             "terminalId": self.context.terminal_id,
             "drawId": draw["drawId"],
             "drawChannelId": draw["drawChannelId"],
-            "currency": "HTG",
+            "currency": HTG_CURRENCY,
             "lines": lines,
         }
         return self._do_preview(payload)
@@ -100,7 +103,7 @@ class CashierFlow:
             "terminalId": self.context.terminal_id,
             "drawId": draw["drawId"],
             "drawChannelId": draw["drawChannelId"],
-            "currency": "HTG",
+            "currency": HTG_CURRENCY,
             "lines": lines,
         }
         return self._do_sell(payload)
@@ -294,6 +297,6 @@ class CashierFlow:
             "terminalId": self.context.terminal_id,
             "drawId": draw["drawId"],
             "drawChannelId": draw["drawChannelId"],
-            "currency": "HTG",
+            "currency": HTG_CURRENCY,
             "lines": lines,
         }

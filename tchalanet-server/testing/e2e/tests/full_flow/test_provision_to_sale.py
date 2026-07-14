@@ -28,6 +28,7 @@ from tch_e2e.client import ApiClient
 pytestmark = [pytest.mark.L2, pytest.mark.full_flow]
 
 _FIREBASE_PROVIDERS = {"firebase-emulator"}
+_HTG_CURRENCY_CODE = {"value": "HTG"}
 
 
 def _rid() -> dict:
@@ -146,7 +147,8 @@ def test_provision_configure_and_sell(
 
     def payload(lines):
         return {"sellerTerminalId": seller_terminal_id, "drawId": draw["drawId"],
-                "drawChannelId": draw["drawChannelId"], "currency": "HTG", "lines": lines}
+                "drawChannelId": draw["drawChannelId"], "currency": _HTG_CURRENCY_CODE,
+                "lines": lines}
 
     ok_lines = [
         {"gameCode": "HT_BOLET", "betType": "MATCH_1_2D", "selection": "11",

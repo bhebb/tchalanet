@@ -32,6 +32,7 @@ from tch_e2e.client import ApiClient
 BASE = os.environ.get("TCH_BASE_URL", "http://localhost:8083/api/v1")
 OK = "\033[32mPASS\033[0m"
 KO = "\033[31mFAIL\033[0m"
+HTG_CURRENCY_CODE = {"value": "HTG"}
 _step = 0
 
 
@@ -211,7 +212,8 @@ def main() -> int:
         {"gameCode": "HT_MARYAJ", "betType": "MARRIAGE_2D2D", "selection": "21-25", "betOption": 1, "stakeAmount": "5.00"},
     ]
     payload = {"sellerTerminalId": seller_terminal_id, "drawId": draw["drawId"],
-               "drawChannelId": draw["drawChannelId"], "currency": "HTG", "lines": lines}
+               "drawChannelId": draw["drawChannelId"], "currency": HTG_CURRENCY_CODE,
+               "lines": lines}
     prep = seller.post("/tenant/sales/preparations", json=payload, headers=rid())
     show(prep, limit=1200)
     preparation_id = (data_of(prep) or {}).get("preparationId")
@@ -236,7 +238,8 @@ def main() -> int:
          "betOption": None, "stakeAmount": "600.00"},
     ]
     big_payload = {"sellerTerminalId": seller_terminal_id, "drawId": draw["drawId"],
-                   "drawChannelId": draw["drawChannelId"], "currency": "HTG", "lines": big_lines}
+                   "drawChannelId": draw["drawChannelId"], "currency": HTG_CURRENCY_CODE,
+                   "lines": big_lines}
     breach_prep = seller.post("/tenant/sales/preparations", json=big_payload, headers=rid())
     if breach_prep.status_code < 300:
         breach_id = (data_of(breach_prep) or {}).get("preparationId")

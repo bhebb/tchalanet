@@ -54,7 +54,7 @@ def _sell_scenario(ctx: PosContext, draw: dict, scenario: TicketScenario) -> Non
             "terminalId": ctx.terminal_id,
             "drawId": draw["drawId"],
             "drawChannelId": draw["drawChannelId"],
-            "currency": "HTG",
+            "currency": {"value": "HTG"},
             "lines": lines,
         }
     )
