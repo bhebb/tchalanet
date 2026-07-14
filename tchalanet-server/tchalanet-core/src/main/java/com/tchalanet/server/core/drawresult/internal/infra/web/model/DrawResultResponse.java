@@ -1,8 +1,8 @@
 package com.tchalanet.server.core.drawresult.internal.infra.web.model;
 
 import com.tchalanet.server.catalog.drawchannel.api.model.DrawSource;
-import com.tchalanet.server.core.drawresult.api.model.ResultQuality;
 import com.tchalanet.server.core.drawresult.api.model.DrawResultStatus;
+import com.tchalanet.server.core.drawresult.api.model.ResultQuality;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;

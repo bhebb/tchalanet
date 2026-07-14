@@ -24,13 +24,12 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Tenant Admin • Tickets")
 public class AdminTicketSettlementController {
 
-    private final AdminTicketSettlementService service;
+  private final AdminTicketSettlementService service;
 
-    @GetMapping("/{ticketId}/settlement-variants")
-    @Operation(summary = "Computed settlement variants per ticket line (admin/support only)")
-    public ApiResponse<AdminTicketSettlementResponse> settlementVariants(
-        @PathVariable TicketId ticketId
-    ) {
-        return ApiResponse.success(service.getSettlementVariants(ticketId));
-    }
+  @GetMapping("/{ticketId}/settlement-variants")
+  @Operation(summary = "Computed settlement variants per ticket line (admin/support only)")
+  public ApiResponse<AdminTicketSettlementResponse> settlementVariants(
+      @PathVariable TicketId ticketId) {
+    return ApiResponse.success(service.getSettlementVariants(ticketId));
+  }
 }

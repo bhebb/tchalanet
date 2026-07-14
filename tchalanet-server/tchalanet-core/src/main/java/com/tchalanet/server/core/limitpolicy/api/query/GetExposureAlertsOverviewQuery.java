@@ -6,8 +6,5 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.limitpolicy.api.model.LimitScopeRef;
 
 public record GetExposureAlertsOverviewQuery(
-    TenantId tenantId,
-    DrawId drawId,
-    LimitScopeRef scope,
-    int limit
-) implements Query<ExposureAlertsOverviewView> {}
+    TenantId tenantId, DrawId drawId, LimitScopeRef scope, int limit)
+    implements Query<ExposureAlertsOverviewView> {}

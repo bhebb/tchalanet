@@ -78,17 +78,16 @@ class DefaultSupportAccessApi implements SupportAccessApi {
   @Override
   @Transactional
   public Optional<TenantId> currentTenant(UserId superAdminUserId) {
-    return currentSession(superAdminUserId, false).map(session -> TenantId.of(session.getTenantId()));
+    return currentSession(superAdminUserId, false)
+        .map(session -> TenantId.of(session.getTenantId()));
   }
 
   private Optional<SupportAccessSessionJpaEntity> currentSession(
-      UserId superAdminUserId,
-      boolean auditRestored) {
+      UserId superAdminUserId, boolean auditRestored) {
     var now = Instant.now(clock);
-    var active = sessions
-        .findFirstBySuperAdminUserIdAndClearedAtIsNullAndExpiresAtAfterOrderByGrantedAtDesc(
-            superAdminUserId.value(),
-            now);
+    var active =
+        sessions.findFirstBySuperAdminUserIdAndClearedAtIsNullAndExpiresAtAfterOrderByGrantedAtDesc(
+            superAdminUserId.value(), now);
     if (auditRestored) {
       active.ifPresent(session -> audit.log("SUPPORT_ACCESS_RESTORED", session));
     }
@@ -99,10 +98,11 @@ class DefaultSupportAccessApi implements SupportAccessApi {
     sessions
         .findFirstBySuperAdminUserIdAndClearedAtIsNullOrderByGrantedAtDesc(superAdminUserId.value())
         .filter(session -> !now.isBefore(session.getExpiresAt()))
-        .ifPresent(session -> {
-          session.setClearedAt(now);
-          audit.log("SUPPORT_ACCESS_EXPIRED", session);
-        });
+        .ifPresent(
+            session -> {
+              session.setClearedAt(now);
+              audit.log("SUPPORT_ACCESS_EXPIRED", session);
+            });
     return Optional.empty();
   }
 

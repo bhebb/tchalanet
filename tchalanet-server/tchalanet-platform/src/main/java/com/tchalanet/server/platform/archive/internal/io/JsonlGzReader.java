@@ -1,5 +1,6 @@
 package com.tchalanet.server.platform.archive.internal.io;
 
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,14 +13,12 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.zip.GZIPInputStream;
 import tools.jackson.core.type.TypeReference;
-import com.tchalanet.server.common.json.utils.JsonUtils;
 
 /**
  * Streaming reader for the {@code jsonl.gz} archive format.
  *
- * <p>Reads rows one at a time through GZIP decompression. Applies an optional
- * predicate to filter matching rows. Enforces a max-scan guard to prevent
- * runaway reads on large objects.
+ * <p>Reads rows one at a time through GZIP decompression. Applies an optional predicate to filter
+ * matching rows. Enforces a max-scan guard to prevent runaway reads on large objects.
  */
 public final class JsonlGzReader {
 
@@ -34,21 +33,22 @@ public final class JsonlGzReader {
   }
 
   public JsonlGzReader(JsonUtils jsonUtils, int maxScan) {
-    this.jsonUtils  = jsonUtils;
+    this.jsonUtils = jsonUtils;
     this.maxScan = maxScan;
   }
 
   /**
    * Scan the compressed stream and return all rows matching {@code filter}.
    *
-   * @param in     compressed input stream; caller is responsible for closing it
+   * @param in compressed input stream; caller is responsible for closing it
    * @param filter predicate to select rows; use {@code _ -> true} for all rows
    * @return matching rows (up to maxScan rows scanned)
    */
-  public List<Map<String, Object>> readMatching(InputStream in, Predicate<Map<String, Object>> filter) {
+  public List<Map<String, Object>> readMatching(
+      InputStream in, Predicate<Map<String, Object>> filter) {
     List<Map<String, Object>> results = new ArrayList<>();
-    try (var gz     = new GZIPInputStream(in, 65536);
-         var reader = new BufferedReader(new InputStreamReader(gz, StandardCharsets.UTF_8), 65536)) {
+    try (var gz = new GZIPInputStream(in, 65536);
+        var reader = new BufferedReader(new InputStreamReader(gz, StandardCharsets.UTF_8), 65536)) {
 
       int scanned = 0;
       String line;

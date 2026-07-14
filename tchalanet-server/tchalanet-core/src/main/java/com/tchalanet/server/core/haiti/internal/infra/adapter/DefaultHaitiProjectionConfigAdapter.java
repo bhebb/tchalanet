@@ -1,6 +1,5 @@
 package com.tchalanet.server.core.haiti.internal.infra.adapter;
 
-import tools.jackson.databind.JsonNode;
 import com.tchalanet.server.core.haiti.internal.application.port.out.HaitiProjectionConfigPort;
 import com.tchalanet.server.core.haiti.internal.domain.lottery.model.HaitiLot;
 import com.tchalanet.server.core.haiti.internal.domain.lottery.model.HaitiProjectionConfig;
@@ -8,6 +7,7 @@ import com.tchalanet.server.core.haiti.internal.domain.lottery.model.HaitiProjec
 import java.util.EnumMap;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import tools.jackson.databind.JsonNode;
 
 @Component
 @Slf4j
@@ -15,14 +15,14 @@ public class DefaultHaitiProjectionConfigAdapter implements HaitiProjectionConfi
 
   @Override
   public HaitiProjectionConfig getDefault() {
-      var tokens = new EnumMap<HaitiLot, HaitiProjectionToken>(HaitiLot.class);
+    var tokens = new EnumMap<HaitiLot, HaitiProjectionToken>(HaitiLot.class);
 
-      tokens.put(HaitiLot.LOT1, HaitiProjectionToken.PICK3_FULL_3);
-      tokens.put(HaitiLot.LOT2, HaitiProjectionToken.PICK4_FIRST2);
-      tokens.put(HaitiLot.LOT3, HaitiProjectionToken.PICK4_LAST2);
-      tokens.put(HaitiLot.LOT4, HaitiProjectionToken.PICK3_FIRST2);
+    tokens.put(HaitiLot.LOT1, HaitiProjectionToken.PICK3_FULL_3);
+    tokens.put(HaitiLot.LOT2, HaitiProjectionToken.PICK4_FIRST2);
+    tokens.put(HaitiLot.LOT3, HaitiProjectionToken.PICK4_LAST2);
+    tokens.put(HaitiLot.LOT4, HaitiProjectionToken.PICK3_FIRST2);
 
-      return new HaitiProjectionConfig(tokens);
+    return new HaitiProjectionConfig(tokens);
   }
 
   @Override

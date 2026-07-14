@@ -1,44 +1,42 @@
 package com.tchalanet.server.platform.identity.internal.persistence.repository;
 
 import com.tchalanet.server.platform.identity.internal.persistence.entity.AppUserJpaEntity;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
 @Repository
 public interface AppUserJpaRepository extends JpaRepository<AppUserJpaEntity, UUID> {
 
-    Optional<AppUserJpaEntity> findByEmail(String email);
+  Optional<AppUserJpaEntity> findByEmail(String email);
 
-    Optional<AppUserJpaEntity> findByPhone(String phone);
+  Optional<AppUserJpaEntity> findByPhone(String phone);
 
-    Optional<AppUserJpaEntity> findByEmailOrPhone(String email, String phone);
+  Optional<AppUserJpaEntity> findByEmailOrPhone(String email, String phone);
 
-    @Modifying
-    @Query(
-        value =
-            """
+  @Modifying
+  @Query(
+      value =
+          """
                 update app_user
                    set last_login_at = :lastLoginAt
                  where id = :appUserId
                    and deleted_at is null
                 """,
-        nativeQuery = true)
-    int touchLastLogin(
-        @Param("appUserId") UUID appUserId,
-        @Param("lastLoginAt") java.time.Instant lastLoginAt);
+      nativeQuery = true)
+  int touchLastLogin(
+      @Param("appUserId") UUID appUserId, @Param("lastLoginAt") java.time.Instant lastLoginAt);
 
-    @Query(
-        value =
-            """
+  @Query(
+      value =
+          """
                 select u.* from app_user u
                 join tenant_user tu on tu.user_id = u.id
                 where tu.tenant_id = :tenantId
@@ -46,8 +44,8 @@ public interface AppUserJpaRepository extends JpaRepository<AppUserJpaEntity, UU
                   and tu.status = 'ACTIVE'
                   and u.deleted_at is null
                 """,
-        countQuery =
-            """
+      countQuery =
+          """
                 select count(*) from app_user u
                 join tenant_user tu on tu.user_id = u.id
                 where tu.tenant_id = :tenantId
@@ -55,12 +53,13 @@ public interface AppUserJpaRepository extends JpaRepository<AppUserJpaEntity, UU
                   and tu.status = 'ACTIVE'
                   and u.deleted_at is null
                 """,
-        nativeQuery = true)
-    Page<AppUserJpaEntity> findByTenantMembership(@Param("tenantId") UUID tenantId, Pageable pageable);
+      nativeQuery = true)
+  Page<AppUserJpaEntity> findByTenantMembership(
+      @Param("tenantId") UUID tenantId, Pageable pageable);
 
-    @Query(
-        value =
-            """
+  @Query(
+      value =
+          """
                 select u.* from app_user u
                 join tenant_user tu on tu.user_id = u.id
                 join tenant_user_role tur on tur.user_id = u.id and tur.tenant_id = tu.tenant_id
@@ -76,12 +75,12 @@ public interface AppUserJpaRepository extends JpaRepository<AppUserJpaEntity, UU
                   and u.status = 'ACTIVE'
                 order by lower(coalesce(u.display_name, u.email::text, u.username))
                 """,
-        nativeQuery = true)
-    List<AppUserJpaEntity> findTenantAdminsForNotificationDelivery(@Param("tenantId") UUID tenantId);
+      nativeQuery = true)
+  List<AppUserJpaEntity> findTenantAdminsForNotificationDelivery(@Param("tenantId") UUID tenantId);
 
-    @Query(
-        value =
-            """
+  @Query(
+      value =
+          """
                 select u.* from app_user u
                 join tenant_user tu on tu.user_id = u.id
                 where tu.tenant_id = :tenantId
@@ -91,12 +90,12 @@ public interface AppUserJpaRepository extends JpaRepository<AppUserJpaEntity, UU
                   and u.status = 'ACTIVE'
                 order by lower(coalesce(u.display_name, u.email::text, u.username))
                 """,
-        nativeQuery = true)
-    List<AppUserJpaEntity> findTenantUsersForNotificationDelivery(@Param("tenantId") UUID tenantId);
+      nativeQuery = true)
+  List<AppUserJpaEntity> findTenantUsersForNotificationDelivery(@Param("tenantId") UUID tenantId);
 
-    @Query(
-        value =
-            """
+  @Query(
+      value =
+          """
                     select count(distinct u.id)
                     from app_user u
                     join tenant_user tu
@@ -116,12 +115,12 @@ public interface AppUserJpaRepository extends JpaRepository<AppUserJpaEntity, UU
                       and u.deleted_at is null
                       and u.status = 'ACTIVE'
                 """,
-        nativeQuery = true)
-    long countActiveTenantAdmins(@Param("tenantId") UUID tenantId);
+      nativeQuery = true)
+  long countActiveTenantAdmins(@Param("tenantId") UUID tenantId);
 
-    @Query(
-        value =
-            """
+  @Query(
+      value =
+          """
                 select u.*
                 from app_user u
                 where u.deleted_at is null
@@ -133,15 +132,13 @@ public interface AppUserJpaRepository extends JpaRepository<AppUserJpaEntity, UU
                 order by lower(coalesce(u.display_name, u.email::text, u.username))
                 limit :size offset :offset
                 """,
-        nativeQuery = true)
-    List<AppUserJpaEntity> findUnassigned(
-        @Param("q") String q,
-        @Param("size") int size,
-        @Param("offset") int offset);
+      nativeQuery = true)
+  List<AppUserJpaEntity> findUnassigned(
+      @Param("q") String q, @Param("size") int size, @Param("offset") int offset);
 
-    @Query(
-        value =
-            """
+  @Query(
+      value =
+          """
                 select count(*)
                 from app_user u
                 where u.deleted_at is null
@@ -151,6 +148,6 @@ public interface AppUserJpaRepository extends JpaRepository<AppUserJpaEntity, UU
                   )
                   and (:q is null or lower(coalesce(u.display_name, u.email::text, u.username)) like :q)
                 """,
-        nativeQuery = true)
-    long countUnassigned(@Param("q") String q);
+      nativeQuery = true)
+  long countUnassigned(@Param("q") String q);
 }

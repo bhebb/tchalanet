@@ -8,11 +8,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.platform.audit.api.AuditApi;
+import com.tchalanet.server.platform.audit.api.AuditLog;
 import com.tchalanet.server.platform.audit.api.model.AuditAction;
 import com.tchalanet.server.platform.audit.api.model.AuditEntityType;
-import com.tchalanet.server.common.json.utils.JsonUtils;
-import com.tchalanet.server.platform.audit.api.AuditLog;
 import com.tchalanet.server.platform.audit.api.model.request.LogAuditEventRequest;
 import java.lang.reflect.Method;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -47,8 +47,7 @@ class AuditLogAspectTest {
     var failure = new IllegalArgumentException("bad write");
     var pjp = joinPoint(null, failure);
 
-    assertThatThrownBy(() -> aspect.aroundAudit(pjp))
-        .isSameAs(failure);
+    assertThatThrownBy(() -> aspect.aroundAudit(pjp)).isSameAs(failure);
 
     var captor = ArgumentCaptor.forClass(LogAuditEventRequest.class);
     verify(auditApi).logAuditEvent(captor.capture());
@@ -65,8 +64,7 @@ class AuditLogAspectTest {
     var failure = new IllegalStateException("quota missing");
     var pjp = joinPoint("create", null, failure);
 
-    assertThatThrownBy(() -> aspect.aroundAudit(pjp))
-        .isSameAs(failure);
+    assertThatThrownBy(() -> aspect.aroundAudit(pjp)).isSameAs(failure);
 
     var captor = ArgumentCaptor.forClass(LogAuditEventRequest.class);
     verify(auditApi).logAuditEvent(captor.capture());
@@ -74,8 +72,7 @@ class AuditLogAspectTest {
     assertThat(captor.getValue().details()).containsEntry("outcome", "FAIL");
   }
 
-  private static ProceedingJoinPoint joinPoint(Object result, Throwable failure)
-      throws Throwable {
+  private static ProceedingJoinPoint joinPoint(Object result, Throwable failure) throws Throwable {
     return joinPoint("write", result, failure);
   }
 
@@ -99,7 +96,10 @@ class AuditLogAspectTest {
   }
 
   private static final class AuditedController {
-    @AuditLog(action = AuditAction.UPDATE, entity = AuditEntityType.SYSTEM, idExpression = "'role-1'")
+    @AuditLog(
+        action = AuditAction.UPDATE,
+        entity = AuditEntityType.SYSTEM,
+        idExpression = "'role-1'")
     String write() {
       return "ok";
     }

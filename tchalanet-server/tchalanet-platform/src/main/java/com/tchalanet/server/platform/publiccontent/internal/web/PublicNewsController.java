@@ -28,22 +28,26 @@ public class PublicNewsController {
   public List<PublicContentItemView> listPublicNews(
       @RequestParam(defaultValue = "20") int limit,
       @RequestParam(defaultValue = "PUBLIC_HOME") PublicContentSurface surface) {
-    return queryService.listForSurface(surface, limit)
-        .stream()
-        .map(item -> new PublicContentItemView(
-            toUuid(item.id()),
-            item.title(),
-            item.content(),
-            item.imageUrl(),
-            item.sourceUrl() != null ? item.sourceUrl().toString() : null,
-            item.sourceType(),
-            item.publishedAt()))
+    return queryService.listForSurface(surface, limit).stream()
+        .map(
+            item ->
+                new PublicContentItemView(
+                    toUuid(item.id()),
+                    item.title(),
+                    item.content(),
+                    item.imageUrl(),
+                    item.sourceUrl() != null ? item.sourceUrl().toString() : null,
+                    item.sourceType(),
+                    item.publishedAt()))
         .toList();
   }
 
   private static UUID toUuid(String id) {
     if (id == null) return null;
-    try { return UUID.fromString(id); }
-    catch (IllegalArgumentException e) { return UUID.nameUUIDFromBytes(id.getBytes()); }
+    try {
+      return UUID.fromString(id);
+    } catch (IllegalArgumentException e) {
+      return UUID.nameUUIDFromBytes(id.getBytes());
+    }
   }
 }

@@ -9,12 +9,13 @@ import lombok.RequiredArgsConstructor;
 
 @UseCase
 @RequiredArgsConstructor
-public class GetTicketForPayoutQueryHandler implements QueryHandler<GetTicketForPayoutQuery, TicketForPayoutView> {
+public class GetTicketForPayoutQueryHandler
+    implements QueryHandler<GetTicketForPayoutQuery, TicketForPayoutView> {
 
-    private final TicketProjectionReaderPort reader;
+  private final TicketProjectionReaderPort reader;
 
-    @Override
-    public TicketForPayoutView handle(GetTicketForPayoutQuery query) {
-        return reader.getForPayoutById(query.ticketId());
-    }
+  @Override
+  public TicketForPayoutView handle(GetTicketForPayoutQuery query) {
+    return reader.getForPayoutById(query.ticketId());
+  }
 }

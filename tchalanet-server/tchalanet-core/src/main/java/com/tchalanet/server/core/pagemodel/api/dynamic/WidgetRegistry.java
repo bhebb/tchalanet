@@ -7,23 +7,22 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Declares legal widget ids per (schemaVersion, source). Consumed at seed time
- * (template validation) and at resolution time (unknown widgetId → dynamic.error).
+ * Declares legal widget ids per (schemaVersion, source). Consumed at seed time (template
+ * validation) and at resolution time (unknown widgetId → dynamic.error).
  *
- * V1 sources (per dashboard-overview-runtime-v1):
- *   json_file, public_home, public_draw_results,
- *   tenant_admin_dashboard, cashier_dashboard, platform_admin_dashboard
+ * <p>V1 sources (per dashboard-overview-runtime-v1): json_file, public_home, public_draw_results,
+ * tenant_admin_dashboard, cashier_dashboard, platform_admin_dashboard
  */
 public final class WidgetRegistry {
 
-  public static final Set<String> ALLOWED_SOURCES_V1 = Set.of(
-      "jsonFile",
-      "public_home",
-      "public_draw_results",
-      "tenant_admin_dashboard",
-      "cashier_dashboard",
-      "platform_admin_dashboard"
-  );
+  public static final Set<String> ALLOWED_SOURCES_V1 =
+      Set.of(
+          "jsonFile",
+          "public_home",
+          "public_draw_results",
+          "tenant_admin_dashboard",
+          "cashier_dashboard",
+          "platform_admin_dashboard");
 
   private final Map<Key, Set<String>> widgets;
 

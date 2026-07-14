@@ -14,9 +14,10 @@ public class ClientSurfaceResolver {
 
   public ClientSurface resolve(TchRequestContext ctx, String requestedSurface) {
     if (ctx != null && ctx.actorType() == TchActorType.SELLER_TERMINAL) {
-      var surface = requestedSurface == null || requestedSurface.isBlank()
-          ? ClientSurface.MOBILE_POS
-          : parse(requestedSurface);
+      var surface =
+          requestedSurface == null || requestedSurface.isBlank()
+              ? ClientSurface.MOBILE_POS
+              : parse(requestedSurface);
       if (surface != ClientSurface.MOBILE_POS) {
         throw ProblemRest.forbidden("surface.not_allowed");
       }
@@ -24,9 +25,10 @@ public class ClientSurfaceResolver {
     }
 
     var available = ClientSurfacePolicy.availableSurfaces(ctx.systemRoles());
-    var surface = requestedSurface == null || requestedSurface.isBlank()
-        ? ClientSurfacePolicy.preferredSurface(ctx.systemRoles())
-        : parse(requestedSurface);
+    var surface =
+        requestedSurface == null || requestedSurface.isBlank()
+            ? ClientSurfacePolicy.preferredSurface(ctx.systemRoles())
+            : parse(requestedSurface);
     if (!available.contains(surface)) {
       throw ProblemRest.forbidden("surface.not_allowed");
     }

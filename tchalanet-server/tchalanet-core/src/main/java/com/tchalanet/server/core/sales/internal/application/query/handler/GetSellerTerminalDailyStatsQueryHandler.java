@@ -12,16 +12,14 @@ import lombok.RequiredArgsConstructor;
 public class GetSellerTerminalDailyStatsQueryHandler
     implements QueryHandler<GetSellerTerminalDailyStatsQuery, SellerTerminalDailyStatsView> {
 
-    private final TicketProjectionReaderPort reader;
+  private final TicketProjectionReaderPort reader;
 
-    @Override
-    public SellerTerminalDailyStatsView handle(GetSellerTerminalDailyStatsQuery query) {
-        var stats = reader.dailyStatsBySellerTerminal(
-            query.sellerTerminalId(),
-            query.tenantId(),
-            query.from(),
-            query.to()
-        );
-        return new SellerTerminalDailyStatsView(stats.ticketCount(), stats.salesTotalCents(), query.currency(), stats.breakdown());
-    }
+  @Override
+  public SellerTerminalDailyStatsView handle(GetSellerTerminalDailyStatsQuery query) {
+    var stats =
+        reader.dailyStatsBySellerTerminal(
+            query.sellerTerminalId(), query.tenantId(), query.from(), query.to());
+    return new SellerTerminalDailyStatsView(
+        stats.ticketCount(), stats.salesTotalCents(), query.currency(), stats.breakdown());
+  }
 }

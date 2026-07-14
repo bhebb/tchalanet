@@ -1,5 +1,6 @@
 package com.tchalanet.server.platform.archive.internal.io;
 
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import java.io.BufferedWriter;
 import java.io.FilterOutputStream;
 import java.io.IOException;
@@ -13,15 +14,15 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
 import java.util.Map;
 import java.util.zip.GZIPOutputStream;
-import com.tchalanet.server.common.json.utils.JsonUtils;
 
 /**
  * Streaming writer for the {@code jsonl.gz} archive format.
  *
- * <p>One JSON object per line. Computes SHA-256 on the compressed bytes and
- * counts rows as rows are written.
+ * <p>One JSON object per line. Computes SHA-256 on the compressed bytes and counts rows as rows are
+ * written.
  *
  * <p>Usage:
+ *
  * <pre>
  *   try (var writer = new JsonlGzWriter(outputStream, jsonUtils)) {
  *       writer.write(row);
@@ -49,9 +50,10 @@ public final class JsonlGzWriter implements AutoCloseable {
     try {
       MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
       this.countingOut = new CountingOutputStream(out);
-      this.digestOut  = new DigestOutputStream(countingOut, sha256);
-      this.gzipOut    = new GZIPOutputStream(digestOut, 65536);
-      this.writer     = new BufferedWriter(new OutputStreamWriter(gzipOut, StandardCharsets.UTF_8), 65536);
+      this.digestOut = new DigestOutputStream(countingOut, sha256);
+      this.gzipOut = new GZIPOutputStream(digestOut, 65536);
+      this.writer =
+          new BufferedWriter(new OutputStreamWriter(gzipOut, StandardCharsets.UTF_8), 65536);
     } catch (IOException | NoSuchAlgorithmException e) {
       throw new IllegalStateException("Failed to initialize archive writer", e);
     }

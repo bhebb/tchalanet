@@ -28,7 +28,10 @@ public class BatchFlagCache {
       return loaded;
     } catch (Exception ex) {
       log.warn(
-          "batch.flagcache.get.failed cacheKey={} cause={}", cacheKey, ex.getLocalizedMessage(), ex);
+          "batch.flagcache.get.failed cacheKey={} cause={}",
+          cacheKey,
+          ex.getLocalizedMessage(),
+          ex);
     }
     return safeLoad(loaderSupplier);
   }

@@ -5,10 +5,9 @@ import com.tchalanet.server.common.types.id.DrawId;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-
 import java.util.List;
 
 public record CloseDrawCommand(
     @NotEmpty @Size(max = DrawLifecycleCommandLimits.MAX_DRAW_IDS) List<@NotNull DrawId> drawIds,
-    @Size(max = 255) String reason
-) implements Command<Void> {}
+    @Size(max = 255) String reason)
+    implements Command<Void> {}

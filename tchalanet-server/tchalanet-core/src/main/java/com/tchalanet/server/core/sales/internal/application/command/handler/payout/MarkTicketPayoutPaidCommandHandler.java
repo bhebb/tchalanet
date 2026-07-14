@@ -40,22 +40,22 @@ public class MarkTicketPayoutPaidCommandHandler
     var saved = ticketWriter.save(paid);
     var amount = saved.winningAmount().amount();
 
-    var event = new TicketPayoutPaidEvent(
-        EventId.of(idGenerator.newUuid()),
-        command.paidAt(),
-        saved.identity().tenantId(),
-        saved.identity().id(),
-        saved.context().drawId(),
-        toCents(amount),
-        saved.money().currency().code(),
-        saved.context().sellerTerminalId(),
-        command.paidBy());
+    var event =
+        new TicketPayoutPaidEvent(
+            EventId.of(idGenerator.newUuid()),
+            command.paidAt(),
+            saved.identity().tenantId(),
+            saved.identity().id(),
+            saved.context().drawId(),
+            toCents(amount),
+            saved.money().currency().code(),
+            saved.context().sellerTerminalId(),
+            command.paidBy());
 
     AfterCommit.run(() -> eventPublisher.publish(event));
 
     return new MarkTicketPayoutPaidResult(
-        saved.identity().id(),
-        saved.lifecycle().settlement().status());
+        saved.identity().id(), saved.lifecycle().settlement().status());
   }
 
   private static long toCents(BigDecimal amount) {

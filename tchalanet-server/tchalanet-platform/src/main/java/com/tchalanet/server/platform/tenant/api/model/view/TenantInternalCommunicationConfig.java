@@ -4,15 +4,9 @@ import java.math.BigDecimal;
 
 public record TenantInternalCommunicationConfig(BuyerTicketDeliveryConfig buyerTicketDelivery) {
 
-    public record BuyerTicketDeliveryConfig(
-        DeliveryChannelConfig sms,
-        DeliveryChannelConfig whatsapp,
-        DeliveryChannelConfig email) {}
+  public record BuyerTicketDeliveryConfig(
+      DeliveryChannelConfig sms, DeliveryChannelConfig whatsapp, DeliveryChannelConfig email) {}
 
-    public record DeliveryChannelConfig(
-        Boolean enabled,
-        BigDecimal amount,
-        String currency,
-        String paidBy) {}
+  public record DeliveryChannelConfig(
+      Boolean enabled, BigDecimal amount, String currency, String paidBy) {}
 }
-

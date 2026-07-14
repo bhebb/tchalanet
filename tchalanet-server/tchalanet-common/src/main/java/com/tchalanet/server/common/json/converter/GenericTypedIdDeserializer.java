@@ -1,13 +1,12 @@
 package com.tchalanet.server.common.json.converter;
 
+import java.lang.reflect.Method;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.exc.InvalidFormatException;
-
-import java.lang.reflect.Method;
 
 /**
  * Lightweight generic deserializer for typed-id wrappers exposing a static {@code parse(String)}

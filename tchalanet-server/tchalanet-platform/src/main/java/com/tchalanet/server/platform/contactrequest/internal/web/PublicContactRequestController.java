@@ -24,38 +24,37 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Public • Contact Requests")
 public class PublicContactRequestController {
 
-    private final ContactRequestSubmissionService service;
+  private final ContactRequestSubmissionService service;
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public ApiResponse<ContactRequestSubmittedView> submit(
-        @Valid @RequestBody SubmitContactRequestHttpRequest request
-    ) {
-        var result = service.submitWithNotification(toCommand(request));
+  @PostMapping
+  @ResponseStatus(HttpStatus.CREATED)
+  public ApiResponse<ContactRequestSubmittedView> submit(
+      @Valid @RequestBody SubmitContactRequestHttpRequest request) {
+    var result = service.submitWithNotification(toCommand(request));
 
-        if (result.notificationFailed()) {
-            return ApiResponse.warn(
-                result.view(),
-                ApiNotice.warn(
-                    "CONTACT_NOTIFICATION_FAILED",
-                    "La demande a été reçue, mais la notification interne n'a pas pu être envoyée."));
-        }
-        return ApiResponse.success(result.view());
+    if (result.notificationFailed()) {
+      return ApiResponse.warn(
+          result.view(),
+          ApiNotice.warn(
+              "CONTACT_NOTIFICATION_FAILED",
+              "La demande a été reçue, mais la notification interne n'a pas pu être envoyée."));
     }
+    return ApiResponse.success(result.view());
+  }
 
-    private static SubmitContactRequestCommand toCommand(SubmitContactRequestHttpRequest req) {
-        return new SubmitContactRequestCommand(
-            req.intent(),
-            req.fullName(),
-            req.phone(),
-            req.email(),
-            req.organizationName(),
-            req.city(),
-            req.country(),
-            req.outletCount(),
-            req.preferredContactTime(),
-            req.message(),
-            req.consentToContact(),
-            req.sourcePage());
-    }
+  private static SubmitContactRequestCommand toCommand(SubmitContactRequestHttpRequest req) {
+    return new SubmitContactRequestCommand(
+        req.intent(),
+        req.fullName(),
+        req.phone(),
+        req.email(),
+        req.organizationName(),
+        req.city(),
+        req.country(),
+        req.outletCount(),
+        req.preferredContactTime(),
+        req.message(),
+        req.consentToContact(),
+        req.sourcePage());
+  }
 }

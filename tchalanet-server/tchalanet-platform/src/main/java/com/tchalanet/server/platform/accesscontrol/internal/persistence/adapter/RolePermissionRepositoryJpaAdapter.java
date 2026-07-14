@@ -1,8 +1,8 @@
 package com.tchalanet.server.platform.accesscontrol.internal.persistence.adapter;
 
 import com.tchalanet.server.common.security.TchRole;
-import com.tchalanet.server.platform.accesscontrol.internal.service.Permission;
 import com.tchalanet.server.platform.accesscontrol.internal.persistence.repository.RolePermissionJpaRepository;
+import com.tchalanet.server.platform.accesscontrol.internal.service.Permission;
 import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -38,4 +38,3 @@ public class RolePermissionRepositoryJpaAdapter {
         .collect(Collectors.collectingAndThen(Collectors.toSet(), Collections::unmodifiableSet));
   }
 }
-

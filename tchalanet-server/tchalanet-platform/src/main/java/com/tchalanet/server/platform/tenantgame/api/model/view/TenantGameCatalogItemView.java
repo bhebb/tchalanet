@@ -10,5 +10,4 @@ public record TenantGameCatalogItemView(
     boolean catalogActive,
     boolean enabledForTenant,
     boolean canEnable,
-    String disabledReason
-) {}
+    String disabledReason) {}

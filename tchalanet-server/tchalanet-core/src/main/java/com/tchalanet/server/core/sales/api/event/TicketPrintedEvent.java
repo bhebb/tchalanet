@@ -9,7 +9,6 @@ import com.tchalanet.server.platform.document.api.model.DocumentFormat;
 import com.tchalanet.server.platform.document.api.model.PaperSize;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-
 import java.time.Instant;
 
 public record TicketPrintedEvent(
@@ -20,27 +19,18 @@ public record TicketPrintedEvent(
     UserId printedBy,
     DocumentFormat outputFormat,
     PaperSize paperSize,
-    String reason
-) implements DomainEvent {
-    public static DomainEvent from(
-        EventId eventId,
-        @NotNull TenantId tenantId,
-        @NotNull TicketId ticketId,
-        @NotNull UserId printedBy,
-        @NotNull DocumentFormat outputFormat,
-        @NotNull PaperSize paperSize,
-        @Size(max = 500) String reason,
-        Instant now
-    ) {
-        return new TicketPrintedEvent(
-            eventId,
-            now,
-            tenantId,
-            ticketId,
-            printedBy,
-            outputFormat,
-            paperSize,
-            reason
-        );
-    }
+    String reason)
+    implements DomainEvent {
+  public static DomainEvent from(
+      EventId eventId,
+      @NotNull TenantId tenantId,
+      @NotNull TicketId ticketId,
+      @NotNull UserId printedBy,
+      @NotNull DocumentFormat outputFormat,
+      @NotNull PaperSize paperSize,
+      @Size(max = 500) String reason,
+      Instant now) {
+    return new TicketPrintedEvent(
+        eventId, now, tenantId, ticketId, printedBy, outputFormat, paperSize, reason);
+  }
 }

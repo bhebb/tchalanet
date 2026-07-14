@@ -18,13 +18,12 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * TENANT-LEVEL management of business-day closures. This is how a TENANT_ADMIN
- * says "the whole commerce is closed on date X".
+ * TENANT-LEVEL management of business-day closures. This is how a TENANT_ADMIN says "the whole
+ * commerce is closed on date X".
  *
  * <p>Seller-terminal operational availability is not modeled here.
  *
- * <p>Tenant is resolved from the request context (never from client input);
- * RLS enforces isolation.
+ * <p>Tenant is resolved from the request context (never from client input); RLS enforces isolation.
  */
 @RestController
 @RequestMapping("/admin/business-days")
@@ -41,8 +40,7 @@ public class BusinessDayOverrideController {
       @CurrentContext TchRequestContext ctx,
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
-    return ApiResponse.success(
-        service.list(ctx.tenantIdRequired(), from, to));
+    return ApiResponse.success(service.list(ctx.tenantIdRequired(), from, to));
   }
 
   @Operation(summary = "Mark a business day open/closed (idempotent upsert)")
@@ -50,15 +48,13 @@ public class BusinessDayOverrideController {
   public ApiResponse<BusinessDayOverrideView> upsert(
       @CurrentContext TchRequestContext ctx,
       @Valid @RequestBody UpsertBusinessDayOverrideRequest request) {
-    return ApiResponse.success(
-        service.upsert(ctx.tenantIdRequired(), request));
+    return ApiResponse.success(service.upsert(ctx.tenantIdRequired(), request));
   }
 
   @Operation(summary = "Remove an override (revert to calendar rules / default)")
   @DeleteMapping("/{id}")
   public ApiResponse<Void> delete(
-      @CurrentContext TchRequestContext ctx,
-      @PathVariable BusinessDayOverrideId id) {
+      @CurrentContext TchRequestContext ctx, @PathVariable BusinessDayOverrideId id) {
     service.softDelete(ctx.tenantIdRequired(), id);
     return ApiResponse.success(null);
   }

@@ -15,26 +15,27 @@ import org.springframework.beans.factory.annotation.Autowired;
 @DisplayName("Draw sellability Spring integration")
 class DrawSellabilitySpringIntegrationTest extends BusinessRuntimeIntegrationTestBase {
 
-    @Autowired
-    private PosDrawsService posDrawsService;
+  @Autowired private PosDrawsService posDrawsService;
 
-    @Test
-    @DisplayName("should expose generated and opened draws to cashier POS")
-    void shouldExposeGeneratedAndOpenedDrawsToCashierPos() {
-        var saleDate = LocalDate.of(2026, 7, 9);
+  @Test
+  @DisplayName("should expose generated and opened draws to cashier POS")
+  void shouldExposeGeneratedAndOpenedDrawsToCashierPos() {
+    var saleDate = LocalDate.of(2026, 7, 9);
 
-        var generated = withContext(tenantAdminContext, () ->
-            commandBus.execute(new GenerateDrawsForRangeCommand(
-                tenantId,
-                saleDate,
-                saleDate,
-                false,
-                false,
-                null)));
-        var opened = withContext(tenantAdminContext, () ->
-            commandBus.execute(new OpenDueDrawsCommand(FIXED_NOW, 100, 48, 1, false)));
+    var generated =
+        withContext(
+            tenantAdminContext,
+            () ->
+                commandBus.execute(
+                    new GenerateDrawsForRangeCommand(
+                        tenantId, saleDate, saleDate, false, false, null)));
+    var opened =
+        withContext(
+            tenantAdminContext,
+            () -> commandBus.execute(new OpenDueDrawsCommand(FIXED_NOW, 100, 48, 1, false)));
 
-        var openDrawCount = jdbc.queryForObject(
+    var openDrawCount =
+        jdbc.queryForObject(
             """
             select count(*)
             from v_draw_summary
@@ -47,22 +48,23 @@ class DrawSellabilitySpringIntegrationTest extends BusinessRuntimeIntegrationTes
             tenantId.value(),
             Timestamp.from(FIXED_NOW),
             Timestamp.from(FIXED_NOW.plusSeconds(48 * 3600)));
-        var cashierRows = withContext(sellerContext, () ->
-            queryBus.ask(new ListCashierNextDrawsQuery(48, 20)));
-        var available = withContext(sellerContext, () ->
-            posDrawsService.listAvailable(sellerContext, 48, 20));
+    var cashierRows =
+        withContext(sellerContext, () -> queryBus.ask(new ListCashierNextDrawsQuery(48, 20)));
+    var available =
+        withContext(sellerContext, () -> posDrawsService.listAvailable(sellerContext, 48, 20));
 
-        assertThat(generated.created()).isGreaterThan(0);
-        assertThat(opened.opened()).isGreaterThan(0);
-        assertThat(openDrawCount).isGreaterThan(0);
-        assertThat(cashierRows).isNotEmpty();
-        assertThat(available)
-            .isNotEmpty()
-            .allSatisfy(draw -> {
-                assertThat(draw.status()).isEqualTo("OPEN");
-                assertThat(draw.drawId()).isNotNull();
-                assertThat(draw.drawChannelId()).isNotNull();
-                assertThat(draw.gameCodes()).isNotEmpty();
+    assertThat(generated.created()).isGreaterThan(0);
+    assertThat(opened.opened()).isGreaterThan(0);
+    assertThat(openDrawCount).isGreaterThan(0);
+    assertThat(cashierRows).isNotEmpty();
+    assertThat(available)
+        .isNotEmpty()
+        .allSatisfy(
+            draw -> {
+              assertThat(draw.status()).isEqualTo("OPEN");
+              assertThat(draw.drawId()).isNotNull();
+              assertThat(draw.drawChannelId()).isNotNull();
+              assertThat(draw.gameCodes()).isNotEmpty();
             });
-    }
+  }
 }

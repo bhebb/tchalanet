@@ -21,7 +21,8 @@ public class DeliveryPolicyResolver {
       return false;
     }
 
-    return settings.findByTenantId(request.recipient().tenantId().value())
+    return settings
+        .findByTenantId(request.recipient().tenantId().value())
         .map(setting -> setting.isTenantSlackEnabled())
         .orElse(false);
   }

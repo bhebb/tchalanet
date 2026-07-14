@@ -20,8 +20,7 @@ public class BatchGateCacheImpl implements BatchGateCache {
   public Optional<Boolean> getTenant(JobKey jobKey, TenantId tenantId) {
     if (tenantId == null || jobKey == null) return Optional.empty();
     String cacheKey = NAMESPACE + ":t:" + tenantId.value() + ":" + jobKey.value();
-    return Optional.ofNullable(
-        flagCache.getBool(cacheKey, () -> loadTenantFlag(tenantId, jobKey)));
+    return Optional.ofNullable(flagCache.getBool(cacheKey, () -> loadTenantFlag(tenantId, jobKey)));
   }
 
   @Override

@@ -15,6 +15,4 @@ public record ExternalResultFetchQuery(
     String providerSlotCode,
     boolean force,
     boolean includeRaw,
-    Instant requestedAt
-) {
-}
+    Instant requestedAt) {}

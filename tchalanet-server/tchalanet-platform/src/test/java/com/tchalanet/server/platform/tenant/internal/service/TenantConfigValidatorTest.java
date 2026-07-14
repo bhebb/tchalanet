@@ -1,19 +1,20 @@
 package com.tchalanet.server.platform.tenant.internal.service;
 
+import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import com.tchalanet.server.common.json.utils.JsonUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.json.JsonMapper;
 
-import static org.assertj.core.api.Assertions.assertThatNoException;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 class TenantConfigValidatorTest {
 
-    private TenantConfigValidator validator;
+  private TenantConfigValidator validator;
 
-    /** Full valid config matching the 4 merged classpath fragments. */
-    private static final String VALID_CONFIG = """
+  /** Full valid config matching the 4 merged classpath fragments. */
+  private static final String VALID_CONFIG =
+      """
         {
               "rules": {
                 "businessCalendar": {
@@ -44,186 +45,195 @@ class TenantConfigValidatorTest {
         }
         """;
 
-    @BeforeEach
-    void setUp() {
-        validator = new TenantConfigValidator(new JsonUtils(JsonMapper.builder().build()));
-    }
+  @BeforeEach
+  void setUp() {
+    validator = new TenantConfigValidator(new JsonUtils(JsonMapper.builder().build()));
+  }
 
-    // ── validateAll ────────────────────────────────────────────────────────
+  // ── validateAll ────────────────────────────────────────────────────────
 
-    @Test
-    void validConfigPassesAllValidation() {
-        assertThatNoException().isThrownBy(() -> validator.validateAll(parse(VALID_CONFIG)));
-    }
+  @Test
+  void validConfigPassesAllValidation() {
+    assertThatNoException().isThrownBy(() -> validator.validateAll(parse(VALID_CONFIG)));
+  }
 
-    @Test
-    void nullConfigIsRejected() {
-        assertThatThrownBy(() -> validator.validateAll(null))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("must not be null");
-    }
+  @Test
+  void nullConfigIsRejected() {
+    assertThatThrownBy(() -> validator.validateAll(null))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("must not be null");
+  }
 
-    @Test
-    void unknownTopLevelKeyIsRejected() {
-        var config = VALID_CONFIG.replace("\"locale\":", "\"fees\": {}, \"locale\":");
-        assertThatThrownBy(() -> validator.validateAll(parse(config)))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("fees");
-    }
+  @Test
+  void unknownTopLevelKeyIsRejected() {
+    var config = VALID_CONFIG.replace("\"locale\":", "\"fees\": {}, \"locale\":");
+    assertThatThrownBy(() -> validator.validateAll(parse(config)))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("fees");
+  }
 
-    @Test
-    void missingTopLevelSectionIsRejectedByFullValidation() {
-        var config = """
+  @Test
+  void missingTopLevelSectionIsRejectedByFullValidation() {
+    var config =
+        """
             {
               "document": { "receipt": { "enabled": false } },
               "communication": {},
               "locale": {}
             }
             """;
-        assertThatThrownBy(() -> validator.validateAll(parse(config)))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("rules");
-    }
+    assertThatThrownBy(() -> validator.validateAll(parse(config)))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("rules");
+  }
 
-    // ── validateRulesConfig ────────────────────────────────────────────────
+  // ── validateRulesConfig ────────────────────────────────────────────────
 
-    @Test
-    void rulesDefaultOpenNullIsRejected() {
-        var config = VALID_CONFIG.replace("\"defaultOpen\": true,", "\"defaultOpen\": null,");
-        assertThatThrownBy(() -> validator.validateRulesConfig(parse(config)))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("defaultOpen");
-    }
+  @Test
+  void rulesDefaultOpenNullIsRejected() {
+    var config = VALID_CONFIG.replace("\"defaultOpen\": true,", "\"defaultOpen\": null,");
+    assertThatThrownBy(() -> validator.validateRulesConfig(parse(config)))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("defaultOpen");
+  }
 
-    @Test
-    void validRecurringTenantHolidayPassesRulesValidation() {
-        var config = VALID_CONFIG.replace(
+  @Test
+  void validRecurringTenantHolidayPassesRulesValidation() {
+    var config =
+        VALID_CONFIG.replace(
             "\"holidays\": []",
             "\"holidays\": [{ \"key\": \"christmas_day\", \"monthDay\": \"12-25\", \"open\": false, \"label\": \"Noel\" }]");
 
-        assertThatNoException().isThrownBy(() -> validator.validateRulesConfig(parse(config)));
-    }
+    assertThatNoException().isThrownBy(() -> validator.validateRulesConfig(parse(config)));
+  }
 
-    @Test
-    void invalidRecurringTenantHolidayMonthDayIsRejected() {
-        var config = VALID_CONFIG.replace(
+  @Test
+  void invalidRecurringTenantHolidayMonthDayIsRejected() {
+    var config =
+        VALID_CONFIG.replace(
             "\"holidays\": []",
             "\"holidays\": [{ \"key\": \"bad_date\", \"monthDay\": \"02-30\", \"open\": false, \"label\": \"Bad\" }]");
 
-        assertThatThrownBy(() -> validator.validateRulesConfig(parse(config)))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("monthDay");
-    }
+    assertThatThrownBy(() -> validator.validateRulesConfig(parse(config)))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("monthDay");
+  }
 
-    @Test
-    void recurringTenantHolidayOpenIntentIsRequired() {
-        var config = VALID_CONFIG.replace(
+  @Test
+  void recurringTenantHolidayOpenIntentIsRequired() {
+    var config =
+        VALID_CONFIG.replace(
             "\"holidays\": []",
             "\"holidays\": [{ \"key\": \"christmas_day\", \"monthDay\": \"12-25\", \"label\": \"Noel\" }]");
 
-        assertThatThrownBy(() -> validator.validateRulesConfig(parse(config)))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("open");
-    }
+    assertThatThrownBy(() -> validator.validateRulesConfig(parse(config)))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("open");
+  }
 
-    @Test
-    void missingRulesSectionPassesSilently() {
-        var config = """
+  @Test
+  void missingRulesSectionPassesSilently() {
+    var config =
+        """
             { "document": { "receipt": { "enabled": false } },
               "communication": {}, "locale": {} }
             """;
-        assertThatNoException().isThrownBy(() -> validator.validateRulesConfig(parse(config)));
-    }
+    assertThatNoException().isThrownBy(() -> validator.validateRulesConfig(parse(config)));
+  }
 
-    // ── validateLocaleConfig ───────────────────────────────────────────────
+  // ── validateLocaleConfig ───────────────────────────────────────────────
 
-    @Test
-    void localeSupportedLanguagesEmptyIsRejected() {
-        var config = VALID_CONFIG.replace(
-            "\"supportedLanguages\": [\"fr\", \"ht\", \"en\"]",
-            "\"supportedLanguages\": []");
-        assertThatThrownBy(() -> validator.validateLocaleConfig(parse(config)))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("supportedLanguages");
-    }
+  @Test
+  void localeSupportedLanguagesEmptyIsRejected() {
+    var config =
+        VALID_CONFIG.replace(
+            "\"supportedLanguages\": [\"fr\", \"ht\", \"en\"]", "\"supportedLanguages\": []");
+    assertThatThrownBy(() -> validator.validateLocaleConfig(parse(config)))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("supportedLanguages");
+  }
 
-    @Test
-    void localeFallbackNotInSupportedIsRejected() {
-        var config = VALID_CONFIG.replace("\"fallbackLanguage\": \"fr\"", "\"fallbackLanguage\": \"es\"");
-        assertThatThrownBy(() -> validator.validateLocaleConfig(parse(config)))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("es")
-            .hasMessageContaining("supportedLanguages");
-    }
+  @Test
+  void localeFallbackNotInSupportedIsRejected() {
+    var config =
+        VALID_CONFIG.replace("\"fallbackLanguage\": \"fr\"", "\"fallbackLanguage\": \"es\"");
+    assertThatThrownBy(() -> validator.validateLocaleConfig(parse(config)))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("es")
+        .hasMessageContaining("supportedLanguages");
+  }
 
-    @Test
-    void localeValidFallbackInSupportedPasses() {
-        assertThatNoException().isThrownBy(() -> validator.validateLocaleConfig(parse(VALID_CONFIG)));
-    }
+  @Test
+  void localeValidFallbackInSupportedPasses() {
+    assertThatNoException().isThrownBy(() -> validator.validateLocaleConfig(parse(VALID_CONFIG)));
+  }
 
-    // ── validateCommunicationConfig ────────────────────────────────────────
+  // ── validateCommunicationConfig ────────────────────────────────────────
 
-    @Test
-    void communicationNegativeAmountIsRejected() {
-        var config = VALID_CONFIG.replace(
+  @Test
+  void communicationNegativeAmountIsRejected() {
+    var config =
+        VALID_CONFIG.replace(
             "\"sms\":      { \"enabled\": true,  \"amount\": 5.00",
             "\"sms\":      { \"enabled\": true,  \"amount\": -1.00");
-        assertThatThrownBy(() -> validator.validateCommunicationConfig(parse(config)))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("amount");
-    }
+    assertThatThrownBy(() -> validator.validateCommunicationConfig(parse(config)))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("amount");
+  }
 
-    @Test
-    void communicationInvalidPaidByIsRejected() {
-        var config = VALID_CONFIG.replace("\"paidBy\": \"BUYER\"", "\"paidBy\": \"ALIEN\"");
-        assertThatThrownBy(() -> validator.validateCommunicationConfig(parse(config)))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("paidBy");
-    }
+  @Test
+  void communicationInvalidPaidByIsRejected() {
+    var config = VALID_CONFIG.replace("\"paidBy\": \"BUYER\"", "\"paidBy\": \"ALIEN\"");
+    assertThatThrownBy(() -> validator.validateCommunicationConfig(parse(config)))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("paidBy");
+  }
 
-    @Test
-    void communicationBlankCurrencyIsRejected() {
-        var config = VALID_CONFIG.replace(
+  @Test
+  void communicationBlankCurrencyIsRejected() {
+    var config =
+        VALID_CONFIG.replace(
             "\"currency\": \"HTG\", \"paidBy\": \"BUYER\"  },\n      \"whatsapp\"",
             "\"currency\": \"\",    \"paidBy\": \"BUYER\"  },\n      \"whatsapp\"");
-        assertThatThrownBy(() -> validator.validateCommunicationConfig(parse(config)))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("currency");
-    }
+    assertThatThrownBy(() -> validator.validateCommunicationConfig(parse(config)))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("currency");
+  }
 
-    // ── validateDocumentConfig ─────────────────────────────────────────────
+  // ── validateDocumentConfig ─────────────────────────────────────────────
 
-    @Test
-    void documentEnabledWithBlankTemplateKeyIsRejected() {
-        var config = VALID_CONFIG.replace(
-            "\"defaultTemplateKey\": \"sales.ticket.receipt.v1\"",
-            "\"defaultTemplateKey\": \"\"");
-        assertThatThrownBy(() -> validator.validateDocumentConfig(parse(config)))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("defaultTemplateKey");
-    }
+  @Test
+  void documentEnabledWithBlankTemplateKeyIsRejected() {
+    var config =
+        VALID_CONFIG.replace(
+            "\"defaultTemplateKey\": \"sales.ticket.receipt.v1\"", "\"defaultTemplateKey\": \"\"");
+    assertThatThrownBy(() -> validator.validateDocumentConfig(parse(config)))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("defaultTemplateKey");
+  }
 
-    @Test
-    void documentEnabledWithBlankPaperSizeIsRejected() {
-        var config = VALID_CONFIG.replace(
-            "\"defaultPaperSize\": \"RECEIPT_80MM\"",
-            "\"defaultPaperSize\": \"\"");
-        assertThatThrownBy(() -> validator.validateDocumentConfig(parse(config)))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("defaultPaperSize");
-    }
+  @Test
+  void documentEnabledWithBlankPaperSizeIsRejected() {
+    var config =
+        VALID_CONFIG.replace(
+            "\"defaultPaperSize\": \"RECEIPT_80MM\"", "\"defaultPaperSize\": \"\"");
+    assertThatThrownBy(() -> validator.validateDocumentConfig(parse(config)))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("defaultPaperSize");
+  }
 
-    @Test
-    void documentDisabledSkipsTemplateValidation() {
-        var config = VALID_CONFIG
+  @Test
+  void documentDisabledSkipsTemplateValidation() {
+    var config =
+        VALID_CONFIG
             .replace("\"enabled\": true,", "\"enabled\": false,")
             .replace("\"defaultTemplateKey\": \"sales.ticket.receipt.v1\",", "");
-        assertThatNoException().isThrownBy(() -> validator.validateDocumentConfig(parse(config)));
-    }
+    assertThatNoException().isThrownBy(() -> validator.validateDocumentConfig(parse(config)));
+  }
 
-    // ── helpers ────────────────────────────────────────────────────────────
+  // ── helpers ────────────────────────────────────────────────────────────
 
-    private tools.jackson.databind.JsonNode parse(String json) {
-        return new JsonUtils(JsonMapper.builder().build()).parse(json);
-    }
+  private tools.jackson.databind.JsonNode parse(String json) {
+    return new JsonUtils(JsonMapper.builder().build()).parse(json);
+  }
 }

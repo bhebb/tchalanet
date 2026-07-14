@@ -9,5 +9,5 @@ public final class CommonConstants {
   public static final UUID DEFAULT_TENANT_UUID =
       UUID.fromString("00000000-0000-0000-0000-000000000003");
 
-  public final static String DEFAULT_CURRENCY = "HTG";
+  public static final String DEFAULT_CURRENCY = "HTG";
 }

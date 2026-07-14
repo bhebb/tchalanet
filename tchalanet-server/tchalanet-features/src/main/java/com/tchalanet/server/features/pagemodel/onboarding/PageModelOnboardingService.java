@@ -22,37 +22,39 @@ import tools.jackson.databind.JsonNode;
 @Slf4j
 public class PageModelOnboardingService {
 
-    private final PageModelTemplateCatalog templateCatalog;
-    private final CommandBus commandBus;
-    private final QueryBus queryBus;
-    private final JsonUtils objectMapper;
+  private final PageModelTemplateCatalog templateCatalog;
+  private final CommandBus commandBus;
+  private final QueryBus queryBus;
+  private final JsonUtils objectMapper;
 
-    @Transactional
-    public void seedDefaults(TenantId tenantId) {
-        for (PageModelTemplateView tpl : templateCatalog.findDefaultGlobalTemplates()) {
-            try {
-                if (pageModelExists(tenantId, tpl.logicalId())) {
-                    log.debug("PageModel already exists for logicalId={}", tpl.logicalId());
-                    continue;
-                }
-                seedFromTemplate(tpl, tenantId);
-            } catch (Exception e) {
-                log.warn("Skipping PageModel seed for logicalId={}: {}", tpl.logicalId(), e.getMessage(), e);
-            }
+  @Transactional
+  public void seedDefaults(TenantId tenantId) {
+    for (PageModelTemplateView tpl : templateCatalog.findDefaultGlobalTemplates()) {
+      try {
+        if (pageModelExists(tenantId, tpl.logicalId())) {
+          log.debug("PageModel already exists for logicalId={}", tpl.logicalId());
+          continue;
         }
+        seedFromTemplate(tpl, tenantId);
+      } catch (Exception e) {
+        log.warn(
+            "Skipping PageModel seed for logicalId={}: {}", tpl.logicalId(), e.getMessage(), e);
+      }
     }
+  }
 
-    private boolean pageModelExists(TenantId tenantId, String logicalId) {
-        try {
-            queryBus.ask(new ResolveEffectivePageModelQuery(Optional.of(tenantId), logicalId));
-            return true;
-        } catch (TchNotFoundException e) {
-            return false;
-        }
+  private boolean pageModelExists(TenantId tenantId, String logicalId) {
+    try {
+      queryBus.ask(new ResolveEffectivePageModelQuery(Optional.of(tenantId), logicalId));
+      return true;
+    } catch (TchNotFoundException e) {
+      return false;
     }
+  }
 
-    private void seedFromTemplate(PageModelTemplateView tpl, TenantId tenantId) {
-        var cmd = new UpsertPageModelCommand(
+  private void seedFromTemplate(PageModelTemplateView tpl, TenantId tenantId) {
+    var cmd =
+        new UpsertPageModelCommand(
             Optional.empty(),
             tenantId,
             null,
@@ -62,29 +64,29 @@ public class PageModelOnboardingService {
             tpl.schemaVersion() != null ? tpl.schemaVersion() : 1,
             normalizeModel(tpl.model()),
             Optional.ofNullable(tpl.id()),
-            true
-        );
+            true);
 
-        commandBus.execute(cmd);
-        log.info("Seeded PageModel from template logicalId={} for tenant={}", tpl.logicalId(), tenantId);
-    }
+    commandBus.execute(cmd);
+    log.info(
+        "Seeded PageModel from template logicalId={} for tenant={}", tpl.logicalId(), tenantId);
+  }
 
-    private JsonNode normalizeModel(JsonNode node) {
-        if (node != null && node.isTextual()) {
-            return objectMapper.parse(node.asText());
-        }
-        return node;
+  private JsonNode normalizeModel(JsonNode node) {
+    if (node != null && node.isTextual()) {
+      return objectMapper.parse(node.asText());
     }
+    return node;
+  }
 
-    private String requireNonBlank(String value, String field) {
-        if (value == null || value.isBlank()) {
-            throw new IllegalStateException("PageModelTemplate missing required field: " + field);
-        }
-        return value;
+  private String requireNonBlank(String value, String field) {
+    if (value == null || value.isBlank()) {
+      throw new IllegalStateException("PageModelTemplate missing required field: " + field);
     }
+    return value;
+  }
 
-    @Transactional
-    public void seedDefaultsForDefaultTenant() {
-        seedDefaults(TenantId.of(CommonConstants.DEFAULT_TENANT_UUID));
-    }
+  @Transactional
+  public void seedDefaultsForDefaultTenant() {
+    seedDefaults(TenantId.of(CommonConstants.DEFAULT_TENANT_UUID));
+  }
 }

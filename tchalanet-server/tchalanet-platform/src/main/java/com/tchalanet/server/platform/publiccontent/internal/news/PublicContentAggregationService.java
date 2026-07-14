@@ -14,11 +14,12 @@ import org.springframework.stereotype.Service;
  * Aggregates internal and external (RSS) content for a given surface.
  *
  * <p>Surface filtering:
+ *
  * <ul>
- *   <li>Internal items: must be published and target the requested surface (empty = all).</li>
- *   <li>External RSS items: visible on all surfaces unless hidden.</li>
- *   <li>Hidden overlay excludes items regardless of type.</li>
- *   <li>Internal items are ordered first, then external, both descending by publishedAt.</li>
+ *   <li>Internal items: must be published and target the requested surface (empty = all).
+ *   <li>External RSS items: visible on all surfaces unless hidden.
+ *   <li>Hidden overlay excludes items regardless of type.
+ *   <li>Internal items are ordered first, then external, both descending by publishedAt.
  * </ul>
  */
 @Service
@@ -31,24 +32,26 @@ public class PublicContentAggregationService {
   private final HiddenPublicContentService hiddenService;
 
   /**
-   * Aggregate published content visible on the given surface.
-   * Pass {@code null} for surface to get all content (admin view).
+   * Aggregate published content visible on the given surface. Pass {@code null} for surface to get
+   * all content (admin view).
    */
   public List<PublicContentItem> aggregateForSurface(PublicContentSurface surface, Instant now) {
     Predicate<PublicContentItem> notHidden = item -> !hiddenService.isHidden(item);
 
     // Internal: published + surface match + not hidden
-    var internal = internalService.findPublished(now).stream()
-        .filter(item -> surface == null || item.visibleOn(surface))
-        .filter(notHidden)
-        .sorted(Comparator.comparing(PublicContentItem::publishedAt).reversed())
-        .toList();
+    var internal =
+        internalService.findPublished(now).stream()
+            .filter(item -> surface == null || item.visibleOn(surface))
+            .filter(notHidden)
+            .sorted(Comparator.comparing(PublicContentItem::publishedAt).reversed())
+            .toList();
 
     // External RSS: all cached items + not hidden
-    var external = externalService.getExternalSnapshot().stream()
-        .filter(notHidden)
-        .sorted(Comparator.comparing(PublicContentItem::publishedAt).reversed())
-        .toList();
+    var external =
+        externalService.getExternalSnapshot().stream()
+            .filter(notHidden)
+            .sorted(Comparator.comparing(PublicContentItem::publishedAt).reversed())
+            .toList();
 
     var result = new ArrayList<PublicContentItem>(internal.size() + external.size());
     result.addAll(internal);

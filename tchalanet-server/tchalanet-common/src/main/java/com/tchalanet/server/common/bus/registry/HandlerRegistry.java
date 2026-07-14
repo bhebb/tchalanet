@@ -1,22 +1,21 @@
 package com.tchalanet.server.common.bus.registry;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
-
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.bus.HandlerTypeResolver;
 import com.tchalanet.server.common.bus.VoidCommandHandler;
 import com.tchalanet.server.common.bus.exception.BusRegistrationException;
 import com.tchalanet.server.common.bus.exception.DuplicateHandlerException;
 import com.tchalanet.server.common.bus.exception.InvalidHandlerException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.support.AopUtils;
 
 /**
- * Internal utility for building immutable handler registries.
- * Discovers handler beans, resolves message types, detects duplicates, and produces an immutable map.
+ * Internal utility for building immutable handler registries. Discovers handler beans, resolves
+ * message types, detects duplicates, and produces an immutable map.
  */
 public final class HandlerRegistry {
 
@@ -34,9 +33,7 @@ public final class HandlerRegistry {
    * @return immutable map from message class to handler
    */
   public static <H> Map<Class<?>, H> buildRegistry(
-      Map<String, H> handlers,
-      Function<H, Class<?>> typeResolver,
-      String handlerTypeName) {
+      Map<String, H> handlers, Function<H, Class<?>> typeResolver, String handlerTypeName) {
 
     long startTime = System.currentTimeMillis();
     Map<Class<?>, H> registry = new HashMap<>();
@@ -61,16 +58,17 @@ public final class HandlerRegistry {
       }
 
       if (log.isDebugEnabled()) {
-        log.debug("Registered {} {} -> {}", handlerTypeName, messageType.getSimpleName(), targetClass.getSimpleName());
+        log.debug(
+            "Registered {} {} -> {}",
+            handlerTypeName,
+            messageType.getSimpleName(),
+            targetClass.getSimpleName());
       }
     }
 
     long duration = System.currentTimeMillis() - startTime;
     log.info(
-        "{} initialized: handlers={}, initTimeMs={}",
-        handlerTypeName,
-        registry.size(),
-        duration);
+        "{} initialized: handlers={}, initTimeMs={}", handlerTypeName, registry.size(), duration);
 
     return Map.copyOf(registry);
   }
@@ -101,7 +99,10 @@ public final class HandlerRegistry {
       }
 
       if (log.isDebugEnabled()) {
-        log.debug("Registered CommandHandler {} -> {}", messageType.getSimpleName(), targetClass.getSimpleName());
+        log.debug(
+            "Registered CommandHandler {} -> {}",
+            messageType.getSimpleName(),
+            targetClass.getSimpleName());
       }
     }
 
@@ -117,7 +118,10 @@ public final class HandlerRegistry {
       }
 
       if (log.isDebugEnabled()) {
-        log.debug("Registered VoidCommandHandler {} -> {}", messageType.getSimpleName(), targetClass.getSimpleName());
+        log.debug(
+            "Registered VoidCommandHandler {} -> {}",
+            messageType.getSimpleName(),
+            targetClass.getSimpleName());
       }
     }
 

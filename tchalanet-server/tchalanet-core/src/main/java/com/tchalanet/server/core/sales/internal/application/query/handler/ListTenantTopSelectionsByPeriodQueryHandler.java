@@ -18,10 +18,6 @@ public class ListTenantTopSelectionsByPeriodQueryHandler
   public TenantTopSelectionsByPeriodView handle(ListTenantTopSelectionsByPeriodQuery query) {
     int limit = Math.min(Math.max(query.limit(), 1), 20);
     return reader.findTopSelectionsByPeriod(
-        query.tenantId(),
-        query.from(),
-        query.to(),
-        query.zoneId(),
-        limit);
+        query.tenantId(), query.from(), query.to(), query.zoneId(), limit);
   }
 }

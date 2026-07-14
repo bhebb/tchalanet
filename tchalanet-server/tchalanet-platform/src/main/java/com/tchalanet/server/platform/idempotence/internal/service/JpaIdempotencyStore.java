@@ -1,8 +1,8 @@
 package com.tchalanet.server.platform.idempotence.internal.service;
 
 import com.tchalanet.server.common.context.TchContext;
-import com.tchalanet.server.platform.idempotence.api.model.IdempotencyScope;
 import com.tchalanet.server.platform.idempotence.api.IdempotencyStore;
+import com.tchalanet.server.platform.idempotence.api.model.IdempotencyScope;
 import com.tchalanet.server.platform.idempotence.internal.persistence.IdempotencyRecordJpaEntity;
 import com.tchalanet.server.platform.idempotence.internal.persistence.IdempotencyRecordRepository;
 import java.time.Instant;
@@ -29,7 +29,8 @@ public class JpaIdempotencyStore implements IdempotencyStore {
   // connection acquisition from the request's TchContext, so each of these transactions is
   // tenant-scoped. This is what makes concurrent same-key sells correct (exactly one winner).
   @Override
-  public BeginResult begin(IdempotencyScope scope, String key, String requestHash, long ttlSeconds) {
+  public BeginResult begin(
+      IdempotencyScope scope, String key, String requestHash, long ttlSeconds) {
     key = normalizeKey(key);
     var tenantId = requireTenantId();
 
@@ -79,7 +80,11 @@ public class JpaIdempotencyStore implements IdempotencyStore {
   @Override
   @Transactional
   public void complete(
-      IdempotencyScope scope, String key, String requestHash, UUID resourceId, String responseJson) {
+      IdempotencyScope scope,
+      String key,
+      String requestHash,
+      UUID resourceId,
+      String responseJson) {
 
     key = normalizeKey(key);
     var tenantId = requireTenantId();

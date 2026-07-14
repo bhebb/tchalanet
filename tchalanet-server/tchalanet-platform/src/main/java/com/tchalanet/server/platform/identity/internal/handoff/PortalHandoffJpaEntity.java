@@ -16,8 +16,8 @@ import lombok.Setter;
 @Table(
     name = "portal_auth_handoff",
     indexes = {
-        @Index(name = "ix_portal_auth_handoff__expires_at", columnList = "expires_at"),
-        @Index(name = "ix_portal_auth_handoff__subject_user", columnList = "subject_user_id")
+      @Index(name = "ix_portal_auth_handoff__expires_at", columnList = "expires_at"),
+      @Index(name = "ix_portal_auth_handoff__subject_user", columnList = "subject_user_id")
     })
 @Getter
 @Setter

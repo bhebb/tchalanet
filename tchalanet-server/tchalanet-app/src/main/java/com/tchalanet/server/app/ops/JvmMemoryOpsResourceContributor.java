@@ -17,39 +17,41 @@ public class JvmMemoryOpsResourceContributor implements OpsResourceContributor {
     long maxBytes = runtime.maxMemory();
     Integer usedMb = toMb(usedBytes);
     Integer limitMb = maxBytes <= 0 || maxBytes == Long.MAX_VALUE ? null : toMb(maxBytes);
-    Integer percent = limitMb == null || limitMb == 0
-        ? null
-        : (int) Math.round((usedBytes * 100.0) / maxBytes);
+    Integer percent =
+        limitMb == null || limitMb == 0 ? null : (int) Math.round((usedBytes * 100.0) / maxBytes);
 
     String severity = severity(percent);
-    String status = switch (severity) {
-      case "CRITICAL" -> "CRITICAL";
-      case "WARNING" -> "HIGH";
-      default -> "OK";
-    };
-    String message = switch (severity) {
-      case "CRITICAL" -> "JVM memory is critically high.";
-      case "WARNING" -> "JVM memory is elevated.";
-      default -> "JVM memory is within the expected range.";
-    };
+    String status =
+        switch (severity) {
+          case "CRITICAL" -> "CRITICAL";
+          case "WARNING" -> "HIGH";
+          default -> "OK";
+        };
+    String message =
+        switch (severity) {
+          case "CRITICAL" -> "JVM memory is critically high.";
+          case "WARNING" -> "JVM memory is elevated.";
+          default -> "JVM memory is within the expected range.";
+        };
 
-    return List.of(new OpsServiceResourceItem(
-        "runtime:jvm-memory",
-        "JVM memory",
-        status,
-        usedMb,
-        limitMb,
-        percent,
-        null,
-        null,
-        null,
-        null,
-        severity,
-        message,
-        "/app/platform/ops/resources",
-        null,
-        null,
-        null));
+    return List.of(
+        new OpsServiceResourceItem(
+            "runtime:jvm-memory",
+            "JVM memory",
+            status,
+            usedMb,
+            limitMb,
+            percent,
+            null,
+            null,
+            null,
+            null,
+            severity,
+            message,
+            "/app/platform/ops/resources",
+            null,
+            null,
+            null));
   }
 
   private static Integer toMb(long bytes) {

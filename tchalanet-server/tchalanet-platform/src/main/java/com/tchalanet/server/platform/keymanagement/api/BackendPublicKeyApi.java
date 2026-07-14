@@ -4,5 +4,5 @@ import com.tchalanet.server.platform.keymanagement.api.model.BackendPublicKeySet
 
 public interface BackendPublicKeyApi {
 
-    BackendPublicKeySetView listActivePublicKeys();
+  BackendPublicKeySetView listActivePublicKeys();
 }

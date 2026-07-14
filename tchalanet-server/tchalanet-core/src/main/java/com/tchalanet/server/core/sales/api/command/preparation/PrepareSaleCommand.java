@@ -12,16 +12,15 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 /**
- * Prepares a sale server-side: runs the full sell pipeline (lines, charges,
- * money, promotion evaluation + auto-generated free line, limits) and persists
- * a {@code SalePreparation} (DRAFT, TTL 10 min) so confirm can persist exactly
- * the previewed lines. This is a Command, not a Query — it writes state
- * (maryaj-gratis-auto-selection-v1 design §1).
+ * Prepares a sale server-side: runs the full sell pipeline (lines, charges, money, promotion
+ * evaluation + auto-generated free line, limits) and persists a {@code SalePreparation} (DRAFT, TTL
+ * 10 min) so confirm can persist exactly the previewed lines. This is a Command, not a Query — it
+ * writes state (maryaj-gratis-auto-selection-v1 design §1).
  */
 public record PrepareSaleCommand(
     @NotNull DrawId drawId,
     @NotNull DrawChannelId drawChannelId,
     @NotNull CurrencyCode currency,
     @NotEmpty List<SellTicketLineInput> lines,
-    SaleCommunicationOptions communicationOptions
-) implements Command<SalePreparationView> {}
+    SaleCommunicationOptions communicationOptions)
+    implements Command<SalePreparationView> {}

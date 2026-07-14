@@ -13,7 +13,6 @@ public class BatchCacheConfig implements CacheSpecProvider {
 
   @Override
   public List<CacheSpec> cacheSpecs() {
-    return List.of(
-        CacheSpec.of(CACHE_NAME, Duration.ofSeconds(15), Duration.ofMinutes(2)));
+    return List.of(CacheSpec.of(CACHE_NAME, Duration.ofSeconds(15), Duration.ofMinutes(2)));
   }
 }

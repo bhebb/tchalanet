@@ -20,18 +20,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AdminSetupController {
 
-    private final TenantGamesPricingService gamesPricingService;
-    private final TenantDrawSalesMatrixService drawSalesMatrixService;
+  private final TenantGamesPricingService gamesPricingService;
+  private final TenantDrawSalesMatrixService drawSalesMatrixService;
 
-    @Operation(summary = "Games & pricing configuration card")
-    @GetMapping("/games-pricing")
-    public ApiResponse<TenantGamesPricingView> gamesPricing(@CurrentContext TchRequestContext ctx) {
-        return ApiResponse.success(gamesPricingService.get(ctx.tenantIdRequired()));
-    }
+  @Operation(summary = "Games & pricing configuration card")
+  @GetMapping("/games-pricing")
+  public ApiResponse<TenantGamesPricingView> gamesPricing(@CurrentContext TchRequestContext ctx) {
+    return ApiResponse.success(gamesPricingService.get(ctx.tenantIdRequired()));
+  }
 
-    @Operation(summary = "Draw sales matrix — channels × games readiness card")
-    @GetMapping("/draw-sales-matrix")
-    public ApiResponse<TenantDrawSalesMatrixView> drawSalesMatrix(@CurrentContext TchRequestContext ctx) {
-        return ApiResponse.success(drawSalesMatrixService.get(ctx.tenantIdRequired()));
-    }
+  @Operation(summary = "Draw sales matrix — channels × games readiness card")
+  @GetMapping("/draw-sales-matrix")
+  public ApiResponse<TenantDrawSalesMatrixView> drawSalesMatrix(
+      @CurrentContext TchRequestContext ctx) {
+    return ApiResponse.success(drawSalesMatrixService.get(ctx.tenantIdRequired()));
+  }
 }

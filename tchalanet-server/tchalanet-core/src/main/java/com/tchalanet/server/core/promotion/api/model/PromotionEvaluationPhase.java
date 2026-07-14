@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.promotion.api.model;
 
 public enum PromotionEvaluationPhase {
-    SALE_PREVIEW,
-    SALE_CONFIRMATION
+  SALE_PREVIEW,
+  SALE_CONFIRMATION
 }

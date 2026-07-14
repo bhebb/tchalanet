@@ -3,10 +3,8 @@ package com.tchalanet.server.catalog.i18n.internal.mapper;
 import com.tchalanet.server.catalog.i18n.api.model.I18nOverrideView;
 import com.tchalanet.server.catalog.i18n.internal.persistence.I18nOverrideEntity;
 import com.tchalanet.server.common.mapper.CommonIdMapper;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapper;
-
 import java.util.List;
+import org.mapstruct.Mapper;
 
 /**
  * I18n Override Mapper (INTERNAL)
@@ -16,7 +14,9 @@ import java.util.List;
  *
  * <p>Uses {@link CommonIdMapper} for ID conversions (UUID ↔ typed IDs).
  */
-@Mapper(componentModel = "spring", uses = {CommonIdMapper.class})
+@Mapper(
+    componentModel = "spring",
+    uses = {CommonIdMapper.class})
 public interface I18nOverrideMapper {
 
   /**

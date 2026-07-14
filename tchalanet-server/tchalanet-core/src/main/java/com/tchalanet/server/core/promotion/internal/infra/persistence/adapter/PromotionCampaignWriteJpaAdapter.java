@@ -2,10 +2,10 @@ package com.tchalanet.server.core.promotion.internal.infra.persistence.adapter;
 
 import com.tchalanet.server.common.types.id.PromotionCampaignId;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.core.promotion.api.command.rule.AddPromotionRuleCommand;
 import com.tchalanet.server.core.promotion.api.command.lifecycle.CreatePromotionCampaignCommand;
-import com.tchalanet.server.core.promotion.api.command.rule.DeletePromotionRuleCommand;
 import com.tchalanet.server.core.promotion.api.command.lifecycle.UpdatePromotionCampaignCommand;
+import com.tchalanet.server.core.promotion.api.command.rule.AddPromotionRuleCommand;
+import com.tchalanet.server.core.promotion.api.command.rule.DeletePromotionRuleCommand;
 import com.tchalanet.server.core.promotion.api.command.rule.UpdatePromotionRuleCommand;
 import com.tchalanet.server.core.promotion.api.command.rule.UpdatePromotionRuleEffectsCommand;
 import com.tchalanet.server.core.promotion.api.command.rule.UpdatePromotionRuleEligibilityCommand;
@@ -24,79 +24,75 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 class PromotionCampaignWriteJpaAdapter implements PromotionCampaignWritePort {
 
-    private static final String DEFAULT_CONFIG_VERSION = "v1";
+  private static final String DEFAULT_CONFIG_VERSION = "v1";
 
-    private final PromotionCampaignRepository campaignRepository;
-    private final PromotionCampaignViewAssembler promotionCampaignViewAssembler;
-    private final PromotionCampaignJpaMapper mapper;
-    private final PromotionRuleWriteSupport ruleWriteSupport;
+  private final PromotionCampaignRepository campaignRepository;
+  private final PromotionCampaignViewAssembler promotionCampaignViewAssembler;
+  private final PromotionCampaignJpaMapper mapper;
+  private final PromotionRuleWriteSupport ruleWriteSupport;
 
-    @Override
-    public PromotionCampaignView create(CreatePromotionCampaignCommand cmd) {
-        var e = new PromotionCampaignJpaEntity();
+  @Override
+  public PromotionCampaignView create(CreatePromotionCampaignCommand cmd) {
+    var e = new PromotionCampaignJpaEntity();
 
-        mapper.updateFromCreate(cmd, e);
+    mapper.updateFromCreate(cmd, e);
 
-        if (e.getStatus() == null) {
-            e.setStatus(PromotionCampaignStatus.DRAFT);
-        }
-        if (e.getConfigVersion() == null || e.getConfigVersion().isBlank()) {
-            e.setConfigVersion(DEFAULT_CONFIG_VERSION);
-        }
-
-        var saved = campaignRepository.save(e);
-        ruleWriteSupport.addRules(saved, cmd.rules());
-        return promotionCampaignViewAssembler.toCampaignView(saved.getId());
+    if (e.getStatus() == null) {
+      e.setStatus(PromotionCampaignStatus.DRAFT);
+    }
+    if (e.getConfigVersion() == null || e.getConfigVersion().isBlank()) {
+      e.setConfigVersion(DEFAULT_CONFIG_VERSION);
     }
 
-    @Override
-    public PromotionCampaignView update(UpdatePromotionCampaignCommand cmd) {
-        var e = campaignRepository.getRequired(cmd.campaignId().value());
+    var saved = campaignRepository.save(e);
+    ruleWriteSupport.addRules(saved, cmd.rules());
+    return promotionCampaignViewAssembler.toCampaignView(saved.getId());
+  }
 
-        mapper.updateFromUpdate(cmd, e);
+  @Override
+  public PromotionCampaignView update(UpdatePromotionCampaignCommand cmd) {
+    var e = campaignRepository.getRequired(cmd.campaignId().value());
 
-        // Entity is managed. save() is not strictly required after getRequired(),
-        // but keeping it is acceptable and explicit.
-        campaignRepository.save(e);
+    mapper.updateFromUpdate(cmd, e);
 
-        return promotionCampaignViewAssembler.toCampaignView(cmd.campaignId().value());
-    }
+    // Entity is managed. save() is not strictly required after getRequired(),
+    // but keeping it is acceptable and explicit.
+    campaignRepository.save(e);
 
+    return promotionCampaignViewAssembler.toCampaignView(cmd.campaignId().value());
+  }
 
-    @Override
-    public PromotionCampaignView changeStatus(
-        TenantId tenantId,
-        PromotionCampaignId campaignId,
-        PromotionCampaignStatus status
-    ) {
-        var e = campaignRepository.getRequired(campaignId.value());
-        e.setStatus(status);
-        campaignRepository.save(e);
-        return promotionCampaignViewAssembler.toCampaignView(campaignId.value());
-    }
+  @Override
+  public PromotionCampaignView changeStatus(
+      TenantId tenantId, PromotionCampaignId campaignId, PromotionCampaignStatus status) {
+    var e = campaignRepository.getRequired(campaignId.value());
+    e.setStatus(status);
+    campaignRepository.save(e);
+    return promotionCampaignViewAssembler.toCampaignView(campaignId.value());
+  }
 
-    @Override
-    public PromotionCampaignView addRule(AddPromotionRuleCommand cmd) {
-        return ruleWriteSupport.addRule(cmd);
-    }
+  @Override
+  public PromotionCampaignView addRule(AddPromotionRuleCommand cmd) {
+    return ruleWriteSupport.addRule(cmd);
+  }
 
-    @Override
-    public PromotionCampaignView updateRule(UpdatePromotionRuleCommand cmd) {
-        return ruleWriteSupport.updateRule(cmd);
-    }
+  @Override
+  public PromotionCampaignView updateRule(UpdatePromotionRuleCommand cmd) {
+    return ruleWriteSupport.updateRule(cmd);
+  }
 
-    @Override
-    public PromotionCampaignView deleteRule(DeletePromotionRuleCommand cmd) {
-        return ruleWriteSupport.deleteRule(cmd);
-    }
+  @Override
+  public PromotionCampaignView deleteRule(DeletePromotionRuleCommand cmd) {
+    return ruleWriteSupport.deleteRule(cmd);
+  }
 
-    @Override
-    public PromotionCampaignView updateRuleEffects(UpdatePromotionRuleEffectsCommand cmd) {
-        return ruleWriteSupport.updateRuleEffects(cmd);
-    }
+  @Override
+  public PromotionCampaignView updateRuleEffects(UpdatePromotionRuleEffectsCommand cmd) {
+    return ruleWriteSupport.updateRuleEffects(cmd);
+  }
 
-    @Override
-    public PromotionCampaignView updateRuleEligibility(UpdatePromotionRuleEligibilityCommand cmd) {
-        return ruleWriteSupport.updateRuleEligibility(cmd);
-    }
+  @Override
+  public PromotionCampaignView updateRuleEligibility(UpdatePromotionRuleEligibilityCommand cmd) {
+    return ruleWriteSupport.updateRuleEligibility(cmd);
+  }
 }

@@ -9,5 +9,6 @@ package com.tchalanet.server.core.limitpolicy;
 public enum BreachOutcome {
   ALLOW,
   WARN,
-    REQUIRE_APPROVAL, BLOCK
+  REQUIRE_APPROVAL,
+  BLOCK
 }

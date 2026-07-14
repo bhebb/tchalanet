@@ -14,17 +14,16 @@ public record TenantCapabilitySnapshot(
     boolean activeSubscription,
     Map<String, Boolean> features,
     Map<String, Integer> limits,
-    Instant resolvedAt
-) {
-    public boolean hasFeature(String key) {
-        return features != null && features.getOrDefault(key, false);
-    }
+    Instant resolvedAt) {
+  public boolean hasFeature(String key) {
+    return features != null && features.getOrDefault(key, false);
+  }
 
-    public OptionalInt getLimit(String key) {
-        if (limits == null || !limits.containsKey(key)) {
-            return OptionalInt.empty();
-        }
-        var value = limits.get(key);
-        return value == null ? OptionalInt.empty() : OptionalInt.of(value);
+  public OptionalInt getLimit(String key) {
+    if (limits == null || !limits.containsKey(key)) {
+      return OptionalInt.empty();
     }
+    var value = limits.get(key);
+    return value == null ? OptionalInt.empty() : OptionalInt.of(value);
+  }
 }

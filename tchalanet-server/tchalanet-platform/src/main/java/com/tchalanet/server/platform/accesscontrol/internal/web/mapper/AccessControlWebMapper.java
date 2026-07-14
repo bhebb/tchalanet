@@ -22,11 +22,6 @@ public final class AccessControlWebMapper {
 
   public static PermissionResponse toPermissionResponse(PermissionView permission) {
     return new PermissionResponse(
-        permission.code(),
-        permission.name(),
-        permission.category(),
-        permission.description());
+        permission.code(), permission.name(), permission.category(), permission.description());
   }
 }
-
-

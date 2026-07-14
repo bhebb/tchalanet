@@ -45,12 +45,17 @@ class PublicHomeProviderTest {
     @DisplayName("home.news returns items from payload.news()")
     void newsWidget() {
       var news = List.of(new NewsItem("1", "n1", null, null, null, null));
-      when(assembler.assemble(anyInt(), any())).thenReturn(
-          new PublicHomePayloadAssembler.Payload(news, List.of()));
+      when(assembler.assemble(anyInt(), any()))
+          .thenReturn(new PublicHomePayloadAssembler.Payload(news, List.of()));
 
-      Object result = provider.load(
-          null, "home.news",
-          widgetConfigWithLimit(7), "fr", null, new PageModelResolutionContext());
+      Object result =
+          provider.load(
+              null,
+              "home.news",
+              widgetConfigWithLimit(7),
+              "fr",
+              null,
+              new PageModelResolutionContext());
 
       assertThat(result).isInstanceOf(Map.class);
       assertThat(((Map<?, ?>) result).get("items")).isEqualTo(news);
@@ -60,12 +65,17 @@ class PublicHomeProviderTest {
     @DisplayName("home.plans returns plans from payload.plans()")
     void plansWidget() {
       var plans = List.of(new PlanItem("demo", null, null, null, null, null, Map.of(), false));
-      when(assembler.assemble(anyInt(), any())).thenReturn(
-          new PublicHomePayloadAssembler.Payload(List.of(), plans));
+      when(assembler.assemble(anyInt(), any()))
+          .thenReturn(new PublicHomePayloadAssembler.Payload(List.of(), plans));
 
-      Object result = provider.load(
-          null, "home.plans",
-          widgetConfigWithLimit(5), "fr", null, new PageModelResolutionContext());
+      Object result =
+          provider.load(
+              null,
+              "home.plans",
+              widgetConfigWithLimit(5),
+              "fr",
+              null,
+              new PageModelResolutionContext());
 
       assertThat(((Map<?, ?>) result).get("plans")).isEqualTo(plans);
     }
@@ -73,13 +83,20 @@ class PublicHomeProviderTest {
     @Test
     @DisplayName("unknown widgetId raises PUBLIC_HOME_UNKNOWN_WIDGET")
     void unknownWidget() {
-      when(assembler.assemble(anyInt(), any())).thenReturn(
-          new PublicHomePayloadAssembler.Payload(List.of(), List.of()));
+      when(assembler.assemble(anyInt(), any()))
+          .thenReturn(new PublicHomePayloadAssembler.Payload(List.of(), List.of()));
 
-      assertThatThrownBy(() -> provider.load(
-          null, "home.hero",
-          widgetConfigWithLimit(5), "fr", null, new PageModelResolutionContext()))
-          .isInstanceOfSatisfying(PageModelDynamicProviderException.class,
+      assertThatThrownBy(
+              () ->
+                  provider.load(
+                      null,
+                      "home.hero",
+                      widgetConfigWithLimit(5),
+                      "fr",
+                      null,
+                      new PageModelResolutionContext()))
+          .isInstanceOfSatisfying(
+              PageModelDynamicProviderException.class,
               e -> assertThat(e.code()).isEqualTo("PUBLIC_HOME_UNKNOWN_WIDGET"));
     }
   }
@@ -91,8 +108,8 @@ class PublicHomeProviderTest {
     @Test
     @DisplayName("two widgets sharing the same limit reuse a single assembly")
     void sharedAssembly() {
-      when(assembler.assemble(anyInt(), any())).thenReturn(
-          new PublicHomePayloadAssembler.Payload(List.of(), List.of()));
+      when(assembler.assemble(anyInt(), any()))
+          .thenReturn(new PublicHomePayloadAssembler.Payload(List.of(), List.of()));
 
       var ctx = new PageModelResolutionContext();
       provider.load(null, "home.news", widgetConfigWithLimit(5), "fr", null, ctx);
@@ -104,8 +121,8 @@ class PublicHomeProviderTest {
     @Test
     @DisplayName("two widgets with different limits trigger two assemblies")
     void distinctLimits() {
-      when(assembler.assemble(anyInt(), any())).thenReturn(
-          new PublicHomePayloadAssembler.Payload(List.of(), List.of()));
+      when(assembler.assemble(anyInt(), any()))
+          .thenReturn(new PublicHomePayloadAssembler.Payload(List.of(), List.of()));
 
       var ctx = new PageModelResolutionContext();
       provider.load(null, "home.news", widgetConfigWithLimit(3), "fr", null, ctx);

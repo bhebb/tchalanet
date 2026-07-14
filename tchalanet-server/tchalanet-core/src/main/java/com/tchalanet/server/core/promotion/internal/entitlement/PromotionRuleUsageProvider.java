@@ -11,19 +11,19 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class PromotionRuleUsageProvider implements UsageProvider {
 
-    private final PromotionRuleRepository repository;
+  private final PromotionRuleRepository repository;
 
-    @Override
-    public boolean supports(String usageKey) {
-        return UsageKeys.PROMOTION_RULES_ACTIVE.equals(usageKey);
+  @Override
+  public boolean supports(String usageKey) {
+    return UsageKeys.PROMOTION_RULES_ACTIVE.equals(usageKey);
+  }
+
+  @Override
+  public int currentUsage(TenantId tenantId, String usageKey) {
+    if (!supports(usageKey)) {
+      throw new IllegalArgumentException("Unsupported usageKey: " + usageKey);
     }
 
-    @Override
-    public int currentUsage(TenantId tenantId, String usageKey) {
-        if (!supports(usageKey)) {
-            throw new IllegalArgumentException("Unsupported usageKey: " + usageKey);
-        }
-
-        return Math.toIntExact(repository.countByTenantIdAndDeletedAtIsNull(tenantId.value()));
-    }
+    return Math.toIntExact(repository.countByTenantIdAndDeletedAtIsNull(tenantId.value()));
+  }
 }

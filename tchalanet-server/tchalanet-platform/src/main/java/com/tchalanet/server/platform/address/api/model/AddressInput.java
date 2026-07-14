@@ -1,17 +1,11 @@
 package com.tchalanet.server.platform.address.api.model;
 
 /**
- * Input DTO for address operations.
- * Used by AddressCrudService and other services that need to create/update addresses.
+ * Input DTO for address operations. Used by AddressCrudService and other services that need to
+ * create/update addresses.
  */
 public record AddressInput(
-    String line1,
-    String line2,
-    String city,
-    String region,
-    String country,
-    String postalCode
-) {
+    String line1, String line2, String city, String region, String country, String postalCode) {
 
   public AddressInput {
     if (line1 == null || line1.isBlank()) {

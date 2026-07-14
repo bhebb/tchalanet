@@ -13,9 +13,7 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-/**
- * Membership-only service. Role assignment is handled by platform.accesscontrol.
- */
+/** Membership-only service. Role assignment is handled by platform.accesscontrol. */
 @Service
 @RequiredArgsConstructor
 public class TenantMembershipService {
@@ -36,8 +34,10 @@ public class TenantMembershipService {
   }
 
   public void assign(TenantId tenantId, UserId userId, boolean owner) {
-    var membership = memberships.findByTenantAndUser(tenantId, userId)
-        .orElseGet(() -> TenantMembership.active(tenantId, userId));
+    var membership =
+        memberships
+            .findByTenantAndUser(tenantId, userId)
+            .orElseGet(() -> TenantMembership.active(tenantId, userId));
     memberships.upsert(membership.assign(owner));
   }
 

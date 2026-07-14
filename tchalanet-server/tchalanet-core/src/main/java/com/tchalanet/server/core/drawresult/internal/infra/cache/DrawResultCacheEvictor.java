@@ -10,19 +10,19 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class DrawResultCacheEvictor {
 
-    private final CacheManager cacheManager;
+  private final CacheManager cacheManager;
 
-    public void evictAll() {
-        evict(DrawResultCacheNames.BY_ID);
-        evict(DrawResultCacheNames.ID_BY_SLOT_OCCURRED);
-    }
+  public void evictAll() {
+    evict(DrawResultCacheNames.BY_ID);
+    evict(DrawResultCacheNames.ID_BY_SLOT_OCCURRED);
+  }
 
-    private void evict(String cacheName) {
-        var cache = cacheManager.getCache(cacheName);
-        if (cache == null) {
-            log.debug("drawresult cache not configured: {}", cacheName);
-            return;
-        }
-        cache.clear();
+  private void evict(String cacheName) {
+    var cache = cacheManager.getCache(cacheName);
+    if (cache == null) {
+      log.debug("drawresult cache not configured: {}", cacheName);
+      return;
     }
+    cache.clear();
+  }
 }

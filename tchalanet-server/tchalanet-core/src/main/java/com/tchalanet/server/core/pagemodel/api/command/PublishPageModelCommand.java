@@ -5,9 +5,7 @@ import com.tchalanet.server.common.types.id.PageModelId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
 
-// [Phase 2A-1] ajout de tenantId + actorId pour supprimer TchContext.get() des handlers (analysis §BLOQUANT)
-public record PublishPageModelCommand(
-    PageModelId id,
-    TenantId tenantId,
-    UserId actorId
-) implements Command<Void> {}
+// [Phase 2A-1] ajout de tenantId + actorId pour supprimer TchContext.get() des handlers (analysis
+// §BLOQUANT)
+public record PublishPageModelCommand(PageModelId id, TenantId tenantId, UserId actorId)
+    implements Command<Void> {}

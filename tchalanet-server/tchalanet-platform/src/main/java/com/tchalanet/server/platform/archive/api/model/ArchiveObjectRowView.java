@@ -6,8 +6,8 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 /**
- * One {@code archive_object} row, verbatim — same field set/JSON keys as the previous
- * {@code SELECT *} raw map so existing consumers see an unchanged contract.
+ * One {@code archive_object} row, verbatim — same field set/JSON keys as the previous {@code SELECT
+ * *} raw map so existing consumers see an unchanged contract.
  */
 public record ArchiveObjectRowView(
     UUID id,
@@ -27,5 +27,4 @@ public record ArchiveObjectRowView(
     @JsonProperty("checksum_sha256") String checksumSha256,
     @JsonProperty("schema_version") int schemaVersion,
     String status,
-    @JsonProperty("created_at") Instant createdAt
-) {}
+    @JsonProperty("created_at") Instant createdAt) {}

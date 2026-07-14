@@ -8,5 +8,4 @@ public record CommissionOverviewView(
     long countAtDefaultRate,
     long countWithCustomRate,
     BigDecimal minRate,
-    BigDecimal maxRate
-) {}
+    BigDecimal maxRate) {}

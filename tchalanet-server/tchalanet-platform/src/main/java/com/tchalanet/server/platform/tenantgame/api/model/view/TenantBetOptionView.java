@@ -6,5 +6,4 @@ public record TenantBetOptionView(
     String description,
     boolean enabled,
     boolean visibleInPos,
-    int displayOrder
-) {}
+    int displayOrder) {}

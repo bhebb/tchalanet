@@ -43,17 +43,11 @@ public enum BetType {
   }
 
   public short betOptionMin() {
-    return allowedOptions().stream()
-        .map(BetOption::code)
-        .min(Short::compare)
-        .orElse((short) 0);
+    return allowedOptions().stream().map(BetOption::code).min(Short::compare).orElse((short) 0);
   }
 
   public short betOptionMax() {
-    return allowedOptions().stream()
-        .map(BetOption::code)
-        .max(Short::compare)
-        .orElse((short) 0);
+    return allowedOptions().stream().map(BetOption::code).max(Short::compare).orElse((short) 0);
   }
 
   public boolean isPattern() {

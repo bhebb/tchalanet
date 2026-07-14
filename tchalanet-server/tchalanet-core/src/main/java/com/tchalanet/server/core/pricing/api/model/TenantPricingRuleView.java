@@ -12,5 +12,4 @@ public record TenantPricingRuleView(
     BigDecimal odds,
     PayoutRuleType payoutRuleType,
     BigDecimal fixedAmount,
-    boolean active
-) {}
+    boolean active) {}

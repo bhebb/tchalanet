@@ -10,12 +10,12 @@ import lombok.RequiredArgsConstructor;
 
 @UseCase
 @RequiredArgsConstructor
-public class ListPromotionCampaignsQueryHandler implements QueryHandler<ListPromotionCampaignsQuery, TchPage<PromotionCampaignView>> {
-    private final PromotionCampaignReadPort readPort;
+public class ListPromotionCampaignsQueryHandler
+    implements QueryHandler<ListPromotionCampaignsQuery, TchPage<PromotionCampaignView>> {
+  private final PromotionCampaignReadPort readPort;
 
-    @Override
-    public TchPage<PromotionCampaignView> handle(ListPromotionCampaignsQuery query) {
-        return readPort.findCampaigns(query.pageable());
-    }
+  @Override
+  public TchPage<PromotionCampaignView> handle(ListPromotionCampaignsQuery query) {
+    return readPort.findCampaigns(query.pageable());
+  }
 }
-

@@ -7,5 +7,4 @@ public record PublicDrawResultListResponse(
     int page,
     int size,
     long totalItems,
-    int totalPages
-) {}
+    int totalPages) {}

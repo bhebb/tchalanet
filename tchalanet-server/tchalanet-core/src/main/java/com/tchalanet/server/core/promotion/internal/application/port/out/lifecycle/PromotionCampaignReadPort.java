@@ -4,19 +4,15 @@ import com.tchalanet.server.common.types.id.PromotionCampaignId;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.core.promotion.api.model.lifecycle.PromotionCampaignView;
 import jakarta.validation.constraints.NotNull;
+import java.util.Optional;
 import org.springframework.data.domain.Pageable;
 
-import java.util.Optional;
-
 public interface PromotionCampaignReadPort {
-    TchPage<PromotionCampaignView> findCampaigns(Pageable pageable);
+  TchPage<PromotionCampaignView> findCampaigns(Pageable pageable);
 
-    Optional<PromotionCampaignView> findById(PromotionCampaignId id);
+  Optional<PromotionCampaignView> findById(PromotionCampaignId id);
 
-    Optional<PromotionCampaignView> findByCode(String code);
+  Optional<PromotionCampaignView> findByCode(String code);
 
-    PromotionCampaignView getRequired(@NotNull PromotionCampaignId promotionCampaignId);
-
+  PromotionCampaignView getRequired(@NotNull PromotionCampaignId promotionCampaignId);
 }
-
-

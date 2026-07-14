@@ -8,36 +8,35 @@ import org.springframework.stereotype.Component;
 @Component
 public class TicketVerifyMapper {
 
-    public TicketVerifyResponse toResponse(TicketVerificationView view) {
-        return new TicketVerifyResponse(
-            view.publicCode(),
-            view.displayCode(),
-            view.status(),
-            view.totalAmount(),
-            view.winningAmount(),
-            view.placedAt(),
-            view.outlet() != null ? new TicketVerifyOutletView(view.outlet().name()) : null,
-            new TicketVerifyResponse.DrawView(
-                view.draw().channelKey(),
-                view.draw().channelName(),
-                view.draw().resultSlotKey(),
-                view.draw().provider(),
-                view.draw().timezone(),
-                view.draw().drawDate(),
-                view.draw().scheduledAt()
-            ),
-            view.lines().stream()
-                .map(l -> new TicketVerifyResponse.LineView(
-                    l.lineNumber(),
-                    l.gameDisplayName(),
-                    l.betTypeLabel(),
-                    l.optionLabel(),
-                    l.selection(),
-                    l.stake(),
-                    l.promotional(),
-                    l.promotionLabel()
-                ))
-                .toList()
-        );
-    }
+  public TicketVerifyResponse toResponse(TicketVerificationView view) {
+    return new TicketVerifyResponse(
+        view.publicCode(),
+        view.displayCode(),
+        view.status(),
+        view.totalAmount(),
+        view.winningAmount(),
+        view.placedAt(),
+        view.outlet() != null ? new TicketVerifyOutletView(view.outlet().name()) : null,
+        new TicketVerifyResponse.DrawView(
+            view.draw().channelKey(),
+            view.draw().channelName(),
+            view.draw().resultSlotKey(),
+            view.draw().provider(),
+            view.draw().timezone(),
+            view.draw().drawDate(),
+            view.draw().scheduledAt()),
+        view.lines().stream()
+            .map(
+                l ->
+                    new TicketVerifyResponse.LineView(
+                        l.lineNumber(),
+                        l.gameDisplayName(),
+                        l.betTypeLabel(),
+                        l.optionLabel(),
+                        l.selection(),
+                        l.stake(),
+                        l.promotional(),
+                        l.promotionLabel()))
+            .toList());
+  }
 }

@@ -35,9 +35,7 @@ class PortalHandoffService {
 
   @Transactional
   CreatePortalHandoffResponse create(
-      PortalTarget targetPortal,
-      String entryRoute,
-      UUID supportAccessSessionId) {
+      PortalTarget targetPortal, String entryRoute, UUID supportAccessSessionId) {
     var ctx = contextResolver.currentOrThrow();
     var subjectUserId = ctx.userUuid();
     if (subjectUserId == null) {
@@ -70,20 +68,19 @@ class PortalHandoffService {
   }
 
   @Transactional
-  ConsumePortalHandoffResponse consume(
-      UUID handoffId,
-      String code,
-      PortalTarget expectedTarget) {
-    var handoff = handoffs.findById(handoffId)
-        .orElseThrow(() -> gone("portal_handoff.not_found_or_expired"));
+  ConsumePortalHandoffResponse consume(UUID handoffId, String code, PortalTarget expectedTarget) {
+    var handoff =
+        handoffs.findById(handoffId).orElseThrow(() -> gone("portal_handoff.not_found_or_expired"));
     var now = Instant.now(clock);
 
     if (handoff.getTargetPortal() != expectedTarget) {
-      audit.log("PORTAL_HANDOFF_TARGET_MISMATCH", handoffId, handoff.getSubjectUserId(), expectedTarget);
+      audit.log(
+          "PORTAL_HANDOFF_TARGET_MISMATCH", handoffId, handoff.getSubjectUserId(), expectedTarget);
       throw ProblemRest.forbidden("portal_handoff.target_mismatch");
     }
     if (handoff.getConsumedAt() != null) {
-      audit.log("PORTAL_HANDOFF_REPLAY_DETECTED", handoffId, handoff.getSubjectUserId(), expectedTarget);
+      audit.log(
+          "PORTAL_HANDOFF_REPLAY_DETECTED", handoffId, handoff.getSubjectUserId(), expectedTarget);
       throw gone("portal_handoff.replayed");
     }
     if (!now.isBefore(handoff.getExpiresAt())) {
@@ -96,7 +93,8 @@ class PortalHandoffService {
 
     var updated = handoffs.markConsumed(handoffId, now);
     if (updated != 1) {
-      audit.log("PORTAL_HANDOFF_REPLAY_DETECTED", handoffId, handoff.getSubjectUserId(), expectedTarget);
+      audit.log(
+          "PORTAL_HANDOFF_REPLAY_DETECTED", handoffId, handoff.getSubjectUserId(), expectedTarget);
       throw gone("portal_handoff.replayed");
     }
 
@@ -110,9 +108,7 @@ class PortalHandoffService {
   }
 
   private void validateTargetAccess(
-      Set<String> roles,
-      PortalTarget targetPortal,
-      UUID supportAccessSessionId) {
+      Set<String> roles, PortalTarget targetPortal, UUID supportAccessSessionId) {
     var normalizedRoles = roles == null ? Set.<String>of() : roles;
     if (targetPortal == PortalTarget.PLATFORM && normalizedRoles.contains("SUPER_ADMIN")) {
       return;

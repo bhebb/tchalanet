@@ -2,35 +2,34 @@ package com.tchalanet.server.core.sales.internal.infra.persistence.adapter;
 
 import com.tchalanet.server.catalog.game.api.model.BetType;
 import com.tchalanet.server.catalog.game.api.model.GameCode;
+import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.money.CurrencyCode;
 import com.tchalanet.server.common.types.money.Money;
-import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.sales.api.model.status.TicketResultStatus;
 import com.tchalanet.server.core.sales.api.model.status.TicketSaleStatus;
 import com.tchalanet.server.core.sales.api.model.status.TicketSettlementStatus;
 import com.tchalanet.server.core.sales.internal.application.port.out.TicketVerificationProjection;
 import com.tchalanet.server.core.sales.internal.application.port.out.TicketVerificationReaderPort;
-import lombok.RequiredArgsConstructor;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.stereotype.Component;
-
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
 public class TicketVerificationJdbcAdapter implements TicketVerificationReaderPort {
 
-    private final NamedParameterJdbcTemplate jdbc;
+  private final NamedParameterJdbcTemplate jdbc;
 
-    private static final String HEADER_SQL = """
+  private static final String HEADER_SQL =
+      """
         SELECT t.id                AS ticket_id,
                t.tenant_id,
                t.public_code,
@@ -59,7 +58,8 @@ public class TicketVerificationJdbcAdapter implements TicketVerificationReaderPo
           AND t.sale_status NOT IN ('PENDING_APPROVAL', 'REJECTED')
         """;
 
-    private static final String LINES_SQL = """
+  private static final String LINES_SQL =
+      """
         SELECT line_number, game_code, bet_type, bet_option, display_selection,
                stake_amount, origin, pricing_source,
                promotion_label
@@ -69,23 +69,21 @@ public class TicketVerificationJdbcAdapter implements TicketVerificationReaderPo
         ORDER BY line_number
         """;
 
-    @Override
-    public Optional<TicketVerificationProjection> findByPublicCode(
-        String publicCode
-    ) {
-        var params = new MapSqlParameterSource()
-            .addValue("publicCode", publicCode);
+  @Override
+  public Optional<TicketVerificationProjection> findByPublicCode(String publicCode) {
+    var params = new MapSqlParameterSource().addValue("publicCode", publicCode);
 
-        var rows = jdbc.query(HEADER_SQL, params, (rs, i) -> mapHeader(rs));
-        if (rows.isEmpty()) return Optional.empty();
+    var rows = jdbc.query(HEADER_SQL, params, (rs, i) -> mapHeader(rs));
+    if (rows.isEmpty()) return Optional.empty();
 
-        var h = rows.getFirst();
-        var currency = CurrencyCode.of(h.currency());
+    var h = rows.getFirst();
+    var currency = CurrencyCode.of(h.currency());
 
-        var lineParams = new MapSqlParameterSource("ticketId", h.ticketId());
-        var lines = jdbc.query(LINES_SQL, lineParams, (rs, i) -> mapLine(rs, currency));
+    var lineParams = new MapSqlParameterSource("ticketId", h.ticketId());
+    var lines = jdbc.query(LINES_SQL, lineParams, (rs, i) -> mapLine(rs, currency));
 
-        return Optional.of(new TicketVerificationProjection(
+    return Optional.of(
+        new TicketVerificationProjection(
             TenantId.of(h.tenantId()),
             h.publicCode(),
             displayPublicCode(h.publicCode()),
@@ -102,109 +100,136 @@ public class TicketVerificationJdbcAdapter implements TicketVerificationReaderPo
                 h.resultProvider(),
                 h.resultTimezone(),
                 h.drawDate(),
-                h.scheduledAt()
-            ),
-            h.sellerTerminalName() != null ? new TicketVerificationProjection.OutletProjection(h.sellerTerminalName()) : null,
-            lines
-        ));
-    }
+                h.scheduledAt()),
+            h.sellerTerminalName() != null
+                ? new TicketVerificationProjection.OutletProjection(h.sellerTerminalName())
+                : null,
+            lines));
+  }
 
-    private HeaderRow mapHeader(ResultSet rs) throws SQLException {
-        UUID ticketId = rs.getObject("ticket_id", UUID.class);
-        UUID tenantId = rs.getObject("tenant_id", UUID.class);
-        String publicCode = rs.getString("public_code");
-        var saleStatus = parseEnum(TicketSaleStatus.class, rs.getString("sale_status"));
-        var resultStatus = parseEnum(TicketResultStatus.class, rs.getString("result_status"));
-        var settlementStatus = parseEnum(TicketSettlementStatus.class, rs.getString("settlement_status"));
-        var placedAtTs = rs.getTimestamp("placed_at");
-        Instant placedAt = placedAtTs != null ? placedAtTs.toInstant() : null;
-        BigDecimal totalAmount = rs.getBigDecimal("total_amount");
-        BigDecimal winningAmount = rs.getBigDecimal("winning_amount");
-        String currency = rs.getString("currency");
-        var drawDateVal = rs.getObject("draw_date", java.sql.Date.class);
-        LocalDate drawDate = drawDateVal != null ? drawDateVal.toLocalDate() : null;
-        var scheduledAtTs = rs.getTimestamp("scheduled_at");
-        Instant scheduledAt = scheduledAtTs != null ? scheduledAtTs.toInstant() : null;
-        String drawChannelName = rs.getString("draw_channel_name");
-        String drawChannelKey = rs.getString("draw_channel_key");
-        String resultSlotKey = rs.getString("result_slot_key");
-        String resultProvider = rs.getString("result_provider");
-        String resultTimezone = rs.getString("result_timezone");
-        String sellerTerminalName = rs.getString("seller_terminal_name");
-        return new HeaderRow(ticketId, tenantId, publicCode, saleStatus, resultStatus, settlementStatus,
-            placedAt, totalAmount, winningAmount, currency, drawDate, scheduledAt, drawChannelKey,
-            drawChannelName, resultSlotKey, resultProvider, resultTimezone, sellerTerminalName);
-    }
+  private HeaderRow mapHeader(ResultSet rs) throws SQLException {
+    UUID ticketId = rs.getObject("ticket_id", UUID.class);
+    UUID tenantId = rs.getObject("tenant_id", UUID.class);
+    String publicCode = rs.getString("public_code");
+    var saleStatus = parseEnum(TicketSaleStatus.class, rs.getString("sale_status"));
+    var resultStatus = parseEnum(TicketResultStatus.class, rs.getString("result_status"));
+    var settlementStatus =
+        parseEnum(TicketSettlementStatus.class, rs.getString("settlement_status"));
+    var placedAtTs = rs.getTimestamp("placed_at");
+    Instant placedAt = placedAtTs != null ? placedAtTs.toInstant() : null;
+    BigDecimal totalAmount = rs.getBigDecimal("total_amount");
+    BigDecimal winningAmount = rs.getBigDecimal("winning_amount");
+    String currency = rs.getString("currency");
+    var drawDateVal = rs.getObject("draw_date", java.sql.Date.class);
+    LocalDate drawDate = drawDateVal != null ? drawDateVal.toLocalDate() : null;
+    var scheduledAtTs = rs.getTimestamp("scheduled_at");
+    Instant scheduledAt = scheduledAtTs != null ? scheduledAtTs.toInstant() : null;
+    String drawChannelName = rs.getString("draw_channel_name");
+    String drawChannelKey = rs.getString("draw_channel_key");
+    String resultSlotKey = rs.getString("result_slot_key");
+    String resultProvider = rs.getString("result_provider");
+    String resultTimezone = rs.getString("result_timezone");
+    String sellerTerminalName = rs.getString("seller_terminal_name");
+    return new HeaderRow(
+        ticketId,
+        tenantId,
+        publicCode,
+        saleStatus,
+        resultStatus,
+        settlementStatus,
+        placedAt,
+        totalAmount,
+        winningAmount,
+        currency,
+        drawDate,
+        scheduledAt,
+        drawChannelKey,
+        drawChannelName,
+        resultSlotKey,
+        resultProvider,
+        resultTimezone,
+        sellerTerminalName);
+  }
 
-    private TicketVerificationProjection.LineProjection mapLine(ResultSet rs, CurrencyCode currency)
-        throws SQLException {
-        int lineNumber = rs.getInt("line_number");
-        var gameCode = parseEnum(GameCode.class, rs.getString("game_code"));
-        var betType = parseEnum(BetType.class, rs.getString("bet_type"));
-        Short betOption = getNullableShort(rs, "bet_option");
-        String displaySelection = rs.getString("display_selection");
-        BigDecimal stakeAmount = rs.getBigDecimal("stake_amount");
-        var origin = rs.getString("origin");
-        var pricingSource = rs.getString("pricing_source");
-        var promotionLabel = rs.getString("promotion_label");
-        var promotional = "PROMOTION".equals(origin)
+  private TicketVerificationProjection.LineProjection mapLine(ResultSet rs, CurrencyCode currency)
+      throws SQLException {
+    int lineNumber = rs.getInt("line_number");
+    var gameCode = parseEnum(GameCode.class, rs.getString("game_code"));
+    var betType = parseEnum(BetType.class, rs.getString("bet_type"));
+    Short betOption = getNullableShort(rs, "bet_option");
+    String displaySelection = rs.getString("display_selection");
+    BigDecimal stakeAmount = rs.getBigDecimal("stake_amount");
+    var origin = rs.getString("origin");
+    var pricingSource = rs.getString("pricing_source");
+    var promotionLabel = rs.getString("promotion_label");
+    var promotional =
+        "PROMOTION".equals(origin)
             || "PROMOTION".equals(pricingSource)
             || (promotionLabel != null && !promotionLabel.isBlank());
-        return new TicketVerificationProjection.LineProjection(
-            lineNumber,
-            gameCode,
-            betType,
-            betOption,
-            gameCode == null ? null : gameCode.name(),
-            betType == null ? null : betType.name(),
-            optionLabel(betType, betOption),
-            displaySelection,
-            new Money(stakeAmount, currency),
-            promotional,
-            promotionLabel
-        );
-    }
+    return new TicketVerificationProjection.LineProjection(
+        lineNumber,
+        gameCode,
+        betType,
+        betOption,
+        gameCode == null ? null : gameCode.name(),
+        betType == null ? null : betType.name(),
+        optionLabel(betType, betOption),
+        displaySelection,
+        new Money(stakeAmount, currency),
+        promotional,
+        promotionLabel);
+  }
 
-    private Short getNullableShort(ResultSet rs, String column) throws SQLException {
-        short value = rs.getShort(column);
-        return rs.wasNull() ? null : value;
-    }
+  private Short getNullableShort(ResultSet rs, String column) throws SQLException {
+    short value = rs.getShort(column);
+    return rs.wasNull() ? null : value;
+  }
 
-    private String optionLabel(BetType betType, Short betOption) {
-        if (betType == null || betOption == null) {
-            return null;
-        }
-        try {
-            var option = com.tchalanet.server.catalog.game.api.model.BetOption.from(betType, betOption);
-            return option == null ? null : option.label();
-        } catch (IllegalArgumentException ex) {
-            return null;
-        }
+  private String optionLabel(BetType betType, Short betOption) {
+    if (betType == null || betOption == null) {
+      return null;
     }
-
-    private String displayPublicCode(String publicCode) {
-        if (publicCode == null || publicCode.length() != 8) {
-            return publicCode;
-        }
-        return publicCode.substring(0, 4) + "-" + publicCode.substring(4);
+    try {
+      var option = com.tchalanet.server.catalog.game.api.model.BetOption.from(betType, betOption);
+      return option == null ? null : option.label();
+    } catch (IllegalArgumentException ex) {
+      return null;
     }
+  }
 
-    private <E extends Enum<E>> E parseEnum(Class<E> cls, String val) {
-        if (val == null || val.isBlank()) return null;
-        try {
-            return Enum.valueOf(cls, val);
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
+  private String displayPublicCode(String publicCode) {
+    if (publicCode == null || publicCode.length() != 8) {
+      return publicCode;
     }
+    return publicCode.substring(0, 4) + "-" + publicCode.substring(4);
+  }
 
-    private record HeaderRow(
-        UUID ticketId, UUID tenantId, String publicCode,
-        TicketSaleStatus saleStatus, TicketResultStatus resultStatus,
-        TicketSettlementStatus settlementStatus,
-        Instant placedAt, BigDecimal totalAmount, BigDecimal winningAmount,
-        String currency, LocalDate drawDate, Instant scheduledAt,
-        String drawChannelKey, String drawChannelName, String resultSlotKey, String resultProvider,
-        String resultTimezone, String sellerTerminalName
-    ) {}
+  private <E extends Enum<E>> E parseEnum(Class<E> cls, String val) {
+    if (val == null || val.isBlank()) return null;
+    try {
+      return Enum.valueOf(cls, val);
+    } catch (IllegalArgumentException e) {
+      return null;
+    }
+  }
+
+  private record HeaderRow(
+      UUID ticketId,
+      UUID tenantId,
+      String publicCode,
+      TicketSaleStatus saleStatus,
+      TicketResultStatus resultStatus,
+      TicketSettlementStatus settlementStatus,
+      Instant placedAt,
+      BigDecimal totalAmount,
+      BigDecimal winningAmount,
+      String currency,
+      LocalDate drawDate,
+      Instant scheduledAt,
+      String drawChannelKey,
+      String drawChannelName,
+      String resultSlotKey,
+      String resultProvider,
+      String resultTimezone,
+      String sellerTerminalName) {}
 }

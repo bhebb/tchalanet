@@ -5,21 +5,22 @@ package com.tchalanet.server.common.security;
  *
  * <p>This enum is a context/security compatibility primitive.
  *
- * <p>Role assignment, provider mapping, persistence and permission evaluation
- * belong to platform accesscontrol / identity.
+ * <p>Role assignment, provider mapping, persistence and permission evaluation belong to platform
+ * accesscontrol / identity.
  *
  * <p>New authorization should prefer:
+ *
  * <ul>
- *   <li>{@code TchActorType} for actor kind: APP_USER, SELLER_TERMINAL, SYSTEM;</li>
- *   <li>{@code roleCodes: Set<String>} for effective role codes;</li>
- *   <li>{@code permissionKeys: Set<String>} for effective permissions.</li>
+ *   <li>{@code TchActorType} for actor kind: APP_USER, SELLER_TERMINAL, SYSTEM;
+ *   <li>{@code roleCodes: Set<String>} for effective role codes;
+ *   <li>{@code permissionKeys: Set<String>} for effective permissions.
  * </ul>
  *
- * <p>SellerTerminal is not represented as a role; it is represented by
- * {@code TchActorType.SELLER_TERMINAL}.
+ * <p>SellerTerminal is not represented as a role; it is represented by {@code
+ * TchActorType.SELLER_TERMINAL}.
  */
 public enum TchRole {
-    SUPER_ADMIN,
-    TENANT_OWNER,
-    TENANT_ADMIN
+  SUPER_ADMIN,
+  TENANT_OWNER,
+  TENANT_ADMIN
 }

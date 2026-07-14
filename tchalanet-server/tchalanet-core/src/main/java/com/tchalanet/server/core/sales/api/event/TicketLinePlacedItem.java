@@ -12,23 +12,21 @@ import com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSo
 /**
  * One ticket line as published inside {@link TicketPlacedEvent}.
  *
- * <p>Naming: this is a payload <em>item</em>, not a standalone event. The
- * {@code *Event} suffix is reserved for events published on the bus.
+ * <p>Naming: this is a payload <em>item</em>, not a standalone event. The {@code *Event} suffix is
+ * reserved for events published on the bus.
  */
 public record TicketLinePlacedItem(
     TicketLineId lineId,
     int lineNumber,
     GameCode gameCode,
     BetType betType,
-    String selectionKey,         // canonical key (stable across clients)
-    String selectionDisplay,     // human-readable
-    Short betOption,             // null when betType doesn't require one
+    String selectionKey, // canonical key (stable across clients)
+    String selectionDisplay, // human-readable
+    Short betOption, // null when betType doesn't require one
     Money stakeAmount,
     TicketLineOrigin origin,
     TicketLinePricingSource pricingSource,
     TicketLineSelectionSource selectionSource,
     PromotionDecisionId promotionDecisionId,
     String promotionLabel,
-    String promotionEffectType
-) {
-}
+    String promotionEffectType) {}

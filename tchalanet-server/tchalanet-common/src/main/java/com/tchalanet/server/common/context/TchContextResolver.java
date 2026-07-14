@@ -1,6 +1,5 @@
 package com.tchalanet.server.common.context;
 
-import com.tchalanet.server.common.types.id.TenantId;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 

@@ -23,69 +23,62 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class TchJobAspect {
 
-    private final ApplicationEventPublisher events;
-    private final Clock clock;
-    private final IdGenerator idGenerator;
-    private final TchContextResolver contextResolver;
+  private final ApplicationEventPublisher events;
+  private final Clock clock;
+  private final IdGenerator idGenerator;
+  private final TchContextResolver contextResolver;
 
-    @Around("@annotation(job)")
-    public Object around(ProceedingJoinPoint pjp, TchJob job) throws Throwable {
-        var jobKey = job.value();
+  @Around("@annotation(job)")
+  public Object around(ProceedingJoinPoint pjp, TchJob job) throws Throwable {
+    var jobKey = job.value();
 
-        publish(jobKey, JobLifecycleStatus.STARTED, null, null, Map.of());
+    publish(jobKey, JobLifecycleStatus.STARTED, null, null, Map.of());
 
-        try {
-            var result = pjp.proceed();
+    try {
+      var result = pjp.proceed();
 
-            publish(jobKey, JobLifecycleStatus.SUCCEEDED, null, null, Map.of());
-            return result;
+      publish(jobKey, JobLifecycleStatus.SUCCEEDED, null, null, Map.of());
+      return result;
 
-        } catch (JobSkippedException e) {
-            publish(jobKey, JobLifecycleStatus.SKIPPED, e.code(), e.getMessage(), Map.of());
-            return null;
+    } catch (JobSkippedException e) {
+      publish(jobKey, JobLifecycleStatus.SKIPPED, e.code(), e.getMessage(), Map.of());
+      return null;
 
-        } catch (Throwable e) {
-            publish(
-                jobKey,
-                JobLifecycleStatus.FAILED,
-                e.getClass().getSimpleName(),
-                e.getMessage(),
-                Map.of("exception", e.getClass().getName())
-            );
+    } catch (Throwable e) {
+      publish(
+          jobKey,
+          JobLifecycleStatus.FAILED,
+          e.getClass().getSimpleName(),
+          e.getMessage(),
+          Map.of("exception", e.getClass().getName()));
 
-            throw e;
-        }
+      throw e;
     }
+  }
 
-    private void publish(
-        String jobKey,
-        JobLifecycleStatus status,
-        String code,
-        String message,
-        Map<String, Object> details
-    ) {
-        try {
-            var ctx = contextResolver.currentOrNull();
+  private void publish(
+      String jobKey,
+      JobLifecycleStatus status,
+      String code,
+      String message,
+      Map<String, Object> details) {
+    try {
+      var ctx = contextResolver.currentOrNull();
 
-            events.publishEvent(new JobLifecycleEvent(
-                EventId.of(idGenerator.newUuid()),
-                clock.instant(),
-                ctx == null ? null : ctx.effectiveTenantIdOrNull(),
-                ctx == null ? null : ctx.requestId(),
-                jobKey,
-                status,
-                code,
-                message,
-                details
-            ));
-        } catch (Exception e) {
-            log.warn(
-                "job.lifecycle.publish.failed jobKey={} status={} value={}",
-                jobKey,
-                status,
-                code,
-                e
-            );
-        }
+      events.publishEvent(
+          new JobLifecycleEvent(
+              EventId.of(idGenerator.newUuid()),
+              clock.instant(),
+              ctx == null ? null : ctx.effectiveTenantIdOrNull(),
+              ctx == null ? null : ctx.requestId(),
+              jobKey,
+              status,
+              code,
+              message,
+              details));
+    } catch (Exception e) {
+      log.warn(
+          "job.lifecycle.publish.failed jobKey={} status={} value={}", jobKey, status, code, e);
     }
+  }
 }

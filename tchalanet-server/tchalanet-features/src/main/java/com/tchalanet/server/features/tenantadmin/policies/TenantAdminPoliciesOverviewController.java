@@ -22,7 +22,8 @@ public class TenantAdminPoliciesOverviewController {
 
   @GetMapping("/overview")
   @Operation(summary = "Tenant policies overview — limits summary")
-  public ApiResponse<TenantAdminPoliciesOverviewView> overview(@CurrentContext TchRequestContext ctx) {
+  public ApiResponse<TenantAdminPoliciesOverviewView> overview(
+      @CurrentContext TchRequestContext ctx) {
     return ApiResponse.success(service.getOverview(ctx));
   }
 }

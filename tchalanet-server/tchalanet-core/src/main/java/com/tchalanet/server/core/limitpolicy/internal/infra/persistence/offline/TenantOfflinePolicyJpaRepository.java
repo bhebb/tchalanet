@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface TenantOfflinePolicyJpaRepository
     extends JpaRepository<TenantOfflinePolicyJpaEntity, UUID> {
 
-    Optional<TenantOfflinePolicyJpaEntity> findByTenantId(UUID tenantId);
+  Optional<TenantOfflinePolicyJpaEntity> findByTenantId(UUID tenantId);
 }

@@ -8,17 +8,14 @@ import java.util.Objects;
  *
  * <p>This class lives in app because it contains the Spring Batch bean name.
  */
-public record SpringTchRegisteredJob(
-    RegisteredJob metadata,
-    String springJobBeanName
-) {
+public record SpringTchRegisteredJob(RegisteredJob metadata, String springJobBeanName) {
 
-    public SpringTchRegisteredJob {
-        Objects.requireNonNull(metadata, "metadata");
-        Objects.requireNonNull(springJobBeanName, "springJobBeanName");
+  public SpringTchRegisteredJob {
+    Objects.requireNonNull(metadata, "metadata");
+    Objects.requireNonNull(springJobBeanName, "springJobBeanName");
 
-        if (springJobBeanName.isBlank()) {
-            throw new IllegalArgumentException("springJobBeanName cannot be blank");
-        }
+    if (springJobBeanName.isBlank()) {
+      throw new IllegalArgumentException("springJobBeanName cannot be blank");
     }
+  }
 }

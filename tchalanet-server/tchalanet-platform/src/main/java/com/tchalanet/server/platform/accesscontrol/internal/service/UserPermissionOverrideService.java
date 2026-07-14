@@ -22,24 +22,40 @@ public class UserPermissionOverrideService {
 
   @Transactional
   public void grantUserPermission(GrantUserPermissionRequest request) {
-    upsertOverride(request.tenantId(), request.userId().value(), request.permissionCode(),
-        "GRANT", request.reason(), request.grantedBy() == null ? null : request.grantedBy().value());
+    upsertOverride(
+        request.tenantId(),
+        request.userId().value(),
+        request.permissionCode(),
+        "GRANT",
+        request.reason(),
+        request.grantedBy() == null ? null : request.grantedBy().value());
   }
 
   @Transactional
   public void denyUserPermission(DenyUserPermissionRequest request) {
-    upsertOverride(request.tenantId(), request.userId().value(), request.permissionCode(),
-        "DENY", request.reason(), request.deniedBy() == null ? null : request.deniedBy().value());
+    upsertOverride(
+        request.tenantId(),
+        request.userId().value(),
+        request.permissionCode(),
+        "DENY",
+        request.reason(),
+        request.deniedBy() == null ? null : request.deniedBy().value());
   }
 
   @Transactional
   public void removeUserPermissionOverride(RemoveUserPermissionOverrideRequest request) {
-    int removed = overrideRepository.softDelete(
-        request.tenantId().value(), request.userId().value(), request.permissionCode());
-    log.info("Removed {} permission override(s) for {} on {}", removed, request.userId(), request.permissionCode());
+    int removed =
+        overrideRepository.softDelete(
+            request.tenantId().value(), request.userId().value(), request.permissionCode());
+    log.info(
+        "Removed {} permission override(s) for {} on {}",
+        removed,
+        request.userId(),
+        request.permissionCode());
   }
 
-  private void upsertOverride(TenantId tenantId, UUID userId, String code, String effect, String reason, UUID actorId) {
+  private void upsertOverride(
+      TenantId tenantId, UUID userId, String code, String effect, String reason, UUID actorId) {
     // Soft-delete existing active override first (unique active constraint)
     overrideRepository.softDelete(tenantId.value(), userId, code);
     var entity = new UserPermissionOverrideJpaEntity();

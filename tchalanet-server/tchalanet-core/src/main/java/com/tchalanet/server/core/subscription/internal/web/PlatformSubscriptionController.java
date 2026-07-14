@@ -24,35 +24,37 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('SUPER_ADMIN')")
 public class PlatformSubscriptionController {
-    private final CommandBus commandBus;
-    private final QueryBus queryBus;
+  private final CommandBus commandBus;
+  private final QueryBus queryBus;
 
-    @GetMapping("/{tenantId}")
-    public ApiResponse<SubscriptionView> resolve(@PathVariable TenantId tenantId) {
-        var view = queryBus.ask(new ResolveTenantSubscriptionQuery(tenantId));
-        return ApiResponse.success(view);
-    }
+  @GetMapping("/{tenantId}")
+  public ApiResponse<SubscriptionView> resolve(@PathVariable TenantId tenantId) {
+    var view = queryBus.ask(new ResolveTenantSubscriptionQuery(tenantId));
+    return ApiResponse.success(view);
+  }
 
-    @PostMapping("/{tenantId}/apply")
-    @ResponseStatus(HttpStatus.CREATED)
-    @AuditLog(action = AuditAction.CREATE, entity = AuditEntityType.SUBSCRIPTION,
-              idExpression = "#result.subscriptionId",
-              detailsExpression = "{ 'planCode': #req.planCode(), 'tenantId': #tenantId }")
-    public ApiResponse<ApplyTenantPlanResult> apply(
-            @PathVariable TenantId tenantId,
-            @Valid @RequestBody ApplyPlanRequest req) {
-        var cmd = new ApplyTenantPlanCommand(tenantId, req.planCode(), req.effectiveAt(), null);
-        return ApiResponse.created(commandBus.execute(cmd));
-    }
+  @PostMapping("/{tenantId}/apply")
+  @ResponseStatus(HttpStatus.CREATED)
+  @AuditLog(
+      action = AuditAction.CREATE,
+      entity = AuditEntityType.SUBSCRIPTION,
+      idExpression = "#result.subscriptionId",
+      detailsExpression = "{ 'planCode': #req.planCode(), 'tenantId': #tenantId }")
+  public ApiResponse<ApplyTenantPlanResult> apply(
+      @PathVariable TenantId tenantId, @Valid @RequestBody ApplyPlanRequest req) {
+    var cmd = new ApplyTenantPlanCommand(tenantId, req.planCode(), req.effectiveAt(), null);
+    return ApiResponse.created(commandBus.execute(cmd));
+  }
 
-    @PostMapping("/{tenantId}/change")
-    @AuditLog(action = AuditAction.UPDATE, entity = AuditEntityType.SUBSCRIPTION,
-              idExpression = "#result.subscriptionId",
-              detailsExpression = "{ 'newPlanCode': #req.newPlanCode(), 'tenantId': #tenantId }")
-    public ApiResponse<ChangePlanResult> change(
-            @PathVariable TenantId tenantId,
-            @Valid @RequestBody ChangePlanRequest req) {
-        var cmd = new ChangePlanCommand(tenantId, req.newPlanCode(), req.effectiveAt(), null);
-        return ApiResponse.success(commandBus.execute(cmd));
-    }
+  @PostMapping("/{tenantId}/change")
+  @AuditLog(
+      action = AuditAction.UPDATE,
+      entity = AuditEntityType.SUBSCRIPTION,
+      idExpression = "#result.subscriptionId",
+      detailsExpression = "{ 'newPlanCode': #req.newPlanCode(), 'tenantId': #tenantId }")
+  public ApiResponse<ChangePlanResult> change(
+      @PathVariable TenantId tenantId, @Valid @RequestBody ChangePlanRequest req) {
+    var cmd = new ChangePlanCommand(tenantId, req.newPlanCode(), req.effectiveAt(), null);
+    return ApiResponse.success(commandBus.execute(cmd));
+  }
 }

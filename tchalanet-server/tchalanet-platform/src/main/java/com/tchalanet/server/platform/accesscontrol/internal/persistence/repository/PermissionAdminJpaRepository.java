@@ -1,7 +1,6 @@
 package com.tchalanet.server.platform.accesscontrol.internal.persistence.repository;
 
 import com.tchalanet.server.platform.accesscontrol.internal.persistence.entity.PermissionJpaEntity;
-
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -27,4 +26,3 @@ public interface PermissionAdminJpaRepository extends JpaRepository<PermissionJp
           + " or lower(p.description) like lower(concat('%', :q, '%'))) ")
   Page<PermissionJpaEntity> searchActive(@Param("q") String query, Pageable pageable);
 }
-

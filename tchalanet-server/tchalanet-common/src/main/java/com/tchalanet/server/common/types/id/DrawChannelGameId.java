@@ -16,7 +16,8 @@ public record DrawChannelGameId(UUID value) {
   }
 
   public static DrawChannelGameId parse(String raw) {
-    if (raw == null || raw.isBlank()) throw new IllegalArgumentException("DrawChannelGameId string is required");
+    if (raw == null || raw.isBlank())
+      throw new IllegalArgumentException("DrawChannelGameId string is required");
     return new DrawChannelGameId(UUID.fromString(raw));
   }
 

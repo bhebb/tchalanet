@@ -1,8 +1,5 @@
 package com.tchalanet.server.platform.audit.internal.web;
 
-import com.tchalanet.server.platform.audit.api.model.AuditAction;
-import com.tchalanet.server.platform.audit.api.model.AuditEntityType;
-import com.tchalanet.server.platform.audit.api.model.AuditEventView;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.paging.TchPage;
@@ -11,9 +8,12 @@ import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.common.web.paging.TchPaging;
 import com.tchalanet.server.platform.audit.api.AuditApi;
 import com.tchalanet.server.platform.audit.api.AuditLog;
+import com.tchalanet.server.platform.audit.api.model.AuditAction;
+import com.tchalanet.server.platform.audit.api.model.AuditEntityType;
+import com.tchalanet.server.platform.audit.api.model.AuditEventView;
+import com.tchalanet.server.platform.audit.api.model.PurgeOldAuditEventsResult;
 import com.tchalanet.server.platform.audit.api.model.request.ListAuditEventsRequest;
 import com.tchalanet.server.platform.audit.api.model.request.PurgeOldAuditEventsRequest;
-import com.tchalanet.server.platform.audit.api.model.PurgeOldAuditEventsResult;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.Instant;
@@ -46,23 +46,27 @@ public class AuditEventRestController {
       @RequestParam(required = false) AuditAction action,
       @RequestParam(required = false) String actorId,
       @RequestParam(required = false) String ip,
-      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant from,
-      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant to,
+      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+          Instant from,
+      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+          Instant to,
       @TchPaging(
-          allowedSort = {"occurredAt", "action", "entityType", "entityId", "actorId"},
-          defaultSort = {"occurredAt,DESC"})
+              allowedSort = {"occurredAt", "action", "entityType", "entityId", "actorId"},
+              defaultSort = {"occurredAt,DESC"})
           TchPageRequest pageReq) {
 
-    var page = auditApi.listAuditEvents(new ListAuditEventsRequest(
-        TenantId.nullableOf(tenantId),
-        entityType,
-        entityId,
-        action,
-        actorId,
-        ip,
-        from,
-        to,
-        pageReq.pageable()));
+    var page =
+        auditApi.listAuditEvents(
+            new ListAuditEventsRequest(
+                TenantId.nullableOf(tenantId),
+                entityType,
+                entityId,
+                action,
+                actorId,
+                ip,
+                from,
+                to,
+                pageReq.pageable()));
 
     return ApiResponse.success(TchPageMapper.map(page, this::toResponse));
   }

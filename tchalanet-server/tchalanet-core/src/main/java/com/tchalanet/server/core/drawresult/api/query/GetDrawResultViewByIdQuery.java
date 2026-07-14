@@ -4,7 +4,4 @@ import com.tchalanet.server.common.bus.Query;
 import com.tchalanet.server.common.types.id.DrawResultId;
 import com.tchalanet.server.core.drawresult.api.query.view.DrawResultView;
 
-public record GetDrawResultViewByIdQuery(
-    DrawResultId id
-) implements Query<DrawResultView> {
-}
+public record GetDrawResultViewByIdQuery(DrawResultId id) implements Query<DrawResultView> {}

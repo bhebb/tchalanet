@@ -10,6 +10,4 @@ public record PosTicketCancelResponse(
     TicketId ticketId,
     CancelTicketResult.CancelTicketOutcome outcome,
     Instant cancelledAt,
-    List<SaleIssueView> issues
-) {
-}
+    List<SaleIssueView> issues) {}

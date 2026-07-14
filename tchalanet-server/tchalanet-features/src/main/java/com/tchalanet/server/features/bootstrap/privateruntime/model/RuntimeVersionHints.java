@@ -12,9 +12,8 @@ public record RuntimeVersionHints(
     @Nullable String entitlementsVersion,
     @Nullable String themeVersion,
     @Nullable String i18nVersion,
-    @Nullable String settingsVersion
-) {
-    public static RuntimeVersionHints of(String bootstrapVersion) {
-        return new RuntimeVersionHints(bootstrapVersion, null, null, null, null, null);
-    }
+    @Nullable String settingsVersion) {
+  public static RuntimeVersionHints of(String bootstrapVersion) {
+    return new RuntimeVersionHints(bootstrapVersion, null, null, null, null, null);
+  }
 }

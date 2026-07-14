@@ -13,14 +13,13 @@ public class AnalyticsCacheSpecProvider implements CacheSpecProvider {
   public List<CacheSpec> cacheSpecs() {
     return List.of(
         // Cashier today: refreshed frequently (session KPIs are live)
-        CacheSpec.of(AnalyticsCacheNames.CASHIER_TODAY,
-            Duration.ofSeconds(30), Duration.ofMinutes(2)),
+        CacheSpec.of(
+            AnalyticsCacheNames.CASHIER_TODAY, Duration.ofSeconds(30), Duration.ofMinutes(2)),
         // Admin overview: slightly longer — aggregates across tenants/outlets
-        CacheSpec.of(AnalyticsCacheNames.ADMIN_OVERVIEW,
-            Duration.ofMinutes(1), Duration.ofMinutes(5)),
+        CacheSpec.of(
+            AnalyticsCacheNames.ADMIN_OVERVIEW, Duration.ofMinutes(1), Duration.ofMinutes(5)),
         // Sales summary report: longer TTL — used for historical date ranges
-        CacheSpec.of(AnalyticsCacheNames.SALES_SUMMARY,
-            Duration.ofMinutes(5), Duration.ofMinutes(30))
-    );
+        CacheSpec.of(
+            AnalyticsCacheNames.SALES_SUMMARY, Duration.ofMinutes(5), Duration.ofMinutes(30)));
   }
 }

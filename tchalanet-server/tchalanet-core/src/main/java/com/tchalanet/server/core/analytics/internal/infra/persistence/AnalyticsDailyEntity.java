@@ -18,8 +18,8 @@ import lombok.NoArgsConstructor;
 /**
  * JPA mapping for {@code analytics_daily}.
  *
- * <p>Write path goes through {@link AnalyticsDailyRepository#upsertAndIncrement}
- * (native SQL upsert) — JPA save is used only during recompute (full row replace).
+ * <p>Write path goes through {@link AnalyticsDailyRepository#upsertAndIncrement} (native SQL
+ * upsert) — JPA save is used only during recompute (full row replace).
  */
 @Entity
 @Table(name = "analytics_daily")

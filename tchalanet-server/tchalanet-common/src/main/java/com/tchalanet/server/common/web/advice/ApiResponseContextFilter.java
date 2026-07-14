@@ -10,16 +10,14 @@ import org.springframework.web.filter.OncePerRequestFilter;
 /** Clears ApiResponseContext ThreadLocal at the end of each HTTP request. */
 public class ApiResponseContextFilter extends OncePerRequestFilter {
 
-    @Override
-    protected void doFilterInternal(
-        HttpServletRequest request,
-        HttpServletResponse response,
-        FilterChain chain
-    ) throws ServletException, IOException {
-        try {
-            chain.doFilter(request, response);
-        } finally {
-            ApiResponseContext.clear();
-        }
+  @Override
+  protected void doFilterInternal(
+      HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+      throws ServletException, IOException {
+    try {
+      chain.doFilter(request, response);
+    } finally {
+      ApiResponseContext.clear();
     }
+  }
 }

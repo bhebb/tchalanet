@@ -9,5 +9,4 @@ public record BackendPublicKeyView(
     String publicKey,
     Instant validFrom,
     Instant validUntil,
-    String status
-) {}
+    String status) {}

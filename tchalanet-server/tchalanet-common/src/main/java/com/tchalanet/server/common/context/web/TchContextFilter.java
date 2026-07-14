@@ -1,5 +1,8 @@
 package com.tchalanet.server.common.context.web;
 
+import static com.tchalanet.server.common.http.TchHeaders.X_TCH_ACT_AS_TERMINAL;
+import static com.tchalanet.server.common.http.TchHeaders.X_TCH_OVERRIDE_REASON;
+
 import com.tchalanet.server.common.context.ResolvedAccessContext;
 import com.tchalanet.server.common.context.TchContextBinder;
 import com.tchalanet.server.common.context.TchContextProperties;
@@ -13,6 +16,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -22,135 +26,127 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import java.io.IOException;
-
-import static com.tchalanet.server.common.http.TchHeaders.X_TCH_ACT_AS_TERMINAL;
-import static com.tchalanet.server.common.http.TchHeaders.X_TCH_OVERRIDE_REASON;
-
 @Component
 @Order(Ordered.LOWEST_PRECEDENCE - 50)
 @RequiredArgsConstructor
 @Slf4j
 public class TchContextFilter extends OncePerRequestFilter {
 
-    private final TchContextProperties contextProperties;
-    private final TenantContextResolver tenantContextResolver;
-    private final TchRequestContextFactory contextFactory;
-    private final TchContextBinder contextBinder;
-    private final ObjectProvider<OperationalContextResolver> operationalContextResolver;
+  private final TchContextProperties contextProperties;
+  private final TenantContextResolver tenantContextResolver;
+  private final TchRequestContextFactory contextFactory;
+  private final TchContextBinder contextBinder;
+  private final ObjectProvider<OperationalContextResolver> operationalContextResolver;
 
-    @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) {
-        var path = request.getRequestURI();
-        return (path.startsWith("/api/v1/platform/auth/portal-handoffs/")
-            && path.endsWith("/consume"))
-            || (path.startsWith("/platform/auth/portal-handoffs/")
-            && path.endsWith("/consume"));
+  @Override
+  protected boolean shouldNotFilter(HttpServletRequest request) {
+    var path = request.getRequestURI();
+    return (path.startsWith("/api/v1/platform/auth/portal-handoffs/") && path.endsWith("/consume"))
+        || (path.startsWith("/platform/auth/portal-handoffs/") && path.endsWith("/consume"));
+  }
+
+  @Override
+  protected void doFilterInternal(
+      @Nonnull HttpServletRequest req, @Nonnull HttpServletResponse res, @Nonnull FilterChain chain)
+      throws ServletException, IOException {
+
+    try {
+      var resolvedAccess =
+          (ResolvedAccessContext) req.getAttribute(TchContextRequestAttributes.RESOLVED_ACCESS);
+
+      if (resolvedAccess != null) {
+        handleResolvedAccess(req, res, chain, resolvedAccess);
+        return;
+      }
+      handlePublicOrLegacy(req, res, chain);
+    } finally {
+      contextBinder.clear(req);
+    }
+  }
+
+  private void handleResolvedAccess(
+      HttpServletRequest req,
+      HttpServletResponse res,
+      FilterChain chain,
+      ResolvedAccessContext resolvedAccess)
+      throws ServletException, IOException {
+    var scope = ApiScopeResolver.resolve(req);
+    if (resolvedAccess.tenantOverride()
+        && StringUtils.isBlank(req.getHeader(X_TCH_OVERRIDE_REASON))) {
+      res.sendError(HttpServletResponse.SC_FORBIDDEN, "Super-admin override reason required");
+      return;
     }
 
-    @Override
-    protected void doFilterInternal(
-        @Nonnull HttpServletRequest req,
-        @Nonnull HttpServletResponse res,
-        @Nonnull FilterChain chain
-    ) throws ServletException, IOException {
+    var ctx = contextFactory.createFromResolvedAccess(req, scope, resolvedAccess);
 
-        try {
-            var resolvedAccess = (ResolvedAccessContext)
-                req.getAttribute(TchContextRequestAttributes.RESOLVED_ACCESS);
+    // Hydrate tenant metadata only (code/timezone/currency). Tenant access was already
+    // decided by AccessResolutionStep; this does not re-resolve or validate membership.
+    ctx = tenantContextResolver.hydrateResolvedTenant(res, ctx);
 
-            if (resolvedAccess != null) {
-                handleResolvedAccess(req, res, chain, resolvedAccess);
-                return;
-            }
-            handlePublicOrLegacy(req, res, chain);
-        } finally {
-            contextBinder.clear(req);
-        }
+    if (ctx == null) {
+      return;
     }
 
-    private void handleResolvedAccess(
-        HttpServletRequest req,
-        HttpServletResponse res,
-        FilterChain chain,
-        ResolvedAccessContext resolvedAccess
-    ) throws ServletException, IOException {
-        var scope = ApiScopeResolver.resolve(req);
-        if (resolvedAccess.tenantOverride()
-            && StringUtils.isBlank(req.getHeader(X_TCH_OVERRIDE_REASON))) {
-            res.sendError(HttpServletResponse.SC_FORBIDDEN, "Super-admin override reason required");
-            return;
-        }
+    // Bind early so RLS is active before operational DB lookups.
+    contextBinder.bind(req, ctx);
 
-        var ctx = contextFactory.createFromResolvedAccess(req, scope, resolvedAccess);
-
-        // Hydrate tenant metadata only (code/timezone/currency). Tenant access was already
-        // decided by AccessResolutionStep; this does not re-resolve or validate membership.
-        ctx = tenantContextResolver.hydrateResolvedTenant(res, ctx);
-
-        if (ctx == null) {
-            return;
-        }
-
-        // Bind early so RLS is active before operational DB lookups.
-        contextBinder.bind(req, ctx);
-
-        var resolver = operationalContextResolver.getIfAvailable();
-        ctx = ctx.withOperationalContext(
+    var resolver = operationalContextResolver.getIfAvailable();
+    ctx =
+        ctx.withOperationalContext(
             resolver == null
                 ? OperationalContextHeaderParser.parseHint(req::getHeader)
-                : resolver.resolve(ctx, req::getHeader)
-        );
+                : resolver.resolve(ctx, req::getHeader));
 
-        // Admin-to-seller-terminal bridge: inject sellerTerminalId when a TENANT_ADMIN (or
-        // SUPER_ADMIN) sends X-Tch-Act-As-Terminal so that POS cashier services work as if the
-        // admin IS that terminal.  The header value must be a valid seller terminal UUID.
-        var actAsTerminal = req.getHeader(X_TCH_ACT_AS_TERMINAL);
-        if (actAsTerminal != null && !actAsTerminal.isBlank()
-            && (ctx.isTenantAdmin() || ctx.isSuperAdmin())) {
-            try {
-                ctx = ctx.withSellerTerminalId(SellerTerminalId.of(java.util.UUID.fromString(actAsTerminal.trim())));
-            } catch (IllegalArgumentException ignored) {
-                // Malformed UUID — ignore; downstream sellerTerminalIdRequired() will reject.
-                log.warn("X-Tch-Act-As-Terminal header is not a valid UUID: '{}'", actAsTerminal);
-            }
-        }
-
-        contextBinder.bind(req, ctx);
-
-        chain.doFilter(req, res);
+    // Admin-to-seller-terminal bridge: inject sellerTerminalId when a TENANT_ADMIN (or
+    // SUPER_ADMIN) sends X-Tch-Act-As-Terminal so that POS cashier services work as if the
+    // admin IS that terminal.  The header value must be a valid seller terminal UUID.
+    var actAsTerminal = req.getHeader(X_TCH_ACT_AS_TERMINAL);
+    if (actAsTerminal != null
+        && !actAsTerminal.isBlank()
+        && (ctx.isTenantAdmin() || ctx.isSuperAdmin())) {
+      try {
+        ctx =
+            ctx.withSellerTerminalId(
+                SellerTerminalId.of(java.util.UUID.fromString(actAsTerminal.trim())));
+      } catch (IllegalArgumentException ignored) {
+        // Malformed UUID — ignore; downstream sellerTerminalIdRequired() will reject.
+        log.warn("X-Tch-Act-As-Terminal header is not a valid UUID: '{}'", actAsTerminal);
+      }
     }
 
-    private void handlePublicOrLegacy(
-        HttpServletRequest req,
-        HttpServletResponse res,
-        FilterChain chain
-    ) throws ServletException, IOException {
+    contextBinder.bind(req, ctx);
 
-        var scope = ApiScopeResolver.resolve(req);
+    chain.doFilter(req, res);
+  }
 
-        var defaultTenantCode =
-            ApiScopeResolver.allowDefaultTenant(req)
-                ? normalize(contextProperties.publicDefaultTenantCode())
-                : null;
+  private void handlePublicOrLegacy(
+      HttpServletRequest req, HttpServletResponse res, FilterChain chain)
+      throws ServletException, IOException {
 
-        var ctx = contextFactory.create(req, defaultTenantCode, scope);
+    var scope = ApiScopeResolver.resolve(req);
 
-        ctx = tenantContextResolver.resolveForScope(req, res, ctx, scope, defaultTenantCode);
+    var defaultTenantCode =
+        ApiScopeResolver.allowDefaultTenant(req)
+            ? normalize(contextProperties.publicDefaultTenantCode())
+            : null;
 
-        if (ctx == null) {
-            return;
-        }
-        contextBinder.bind(req, ctx);
-        chain.doFilter(req, res);
+    var ctx = contextFactory.create(req, defaultTenantCode, scope);
+
+    ctx = tenantContextResolver.resolveForScope(req, res, ctx, scope, defaultTenantCode);
+
+    if (ctx == null) {
+      return;
+    }
+    contextBinder.bind(req, ctx);
+    chain.doFilter(req, res);
+  }
+
+  private static String normalize(String value) {
+    if (value == null) {
+      return null;
     }
 
-    private static String normalize(String value) {
-        if (value == null) {
-            return null;
-        }
-
-        var trimmed = value.trim();
-        return trimmed.isBlank() ? null : trimmed;
-    }
+    var trimmed = value.trim();
+    return trimmed.isBlank() ? null : trimmed;
+  }
 }

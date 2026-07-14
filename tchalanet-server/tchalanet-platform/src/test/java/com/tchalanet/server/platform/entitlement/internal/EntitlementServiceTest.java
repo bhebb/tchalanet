@@ -50,13 +50,8 @@ class EntitlementServiceTest {
   }
 
   private static EntitlementCapabilitiesGetter getter(Map<String, Integer> limits) {
-    return tenantId -> new TenantCapabilitySnapshot(
-        tenantId,
-        "TEST",
-        true,
-        Map.of(),
-        limits,
-        Instant.parse("2026-05-25T00:00:00Z")
-    );
+    return tenantId ->
+        new TenantCapabilitySnapshot(
+            tenantId, "TEST", true, Map.of(), limits, Instant.parse("2026-05-25T00:00:00Z"));
   }
 }

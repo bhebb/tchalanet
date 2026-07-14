@@ -14,38 +14,35 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-class SellerTerminalPromotionEffectOverrideJpaAdapter implements SellerTerminalPromotionEffectOverrideReadPort {
-    private final SellerTerminalPromotionEffectOverrideRepository repository;
+class SellerTerminalPromotionEffectOverrideJpaAdapter
+    implements SellerTerminalPromotionEffectOverrideReadPort {
+  private final SellerTerminalPromotionEffectOverrideRepository repository;
 
-    @Override
-    public List<SellerTerminalPromotionEffectOverride> findActiveOverrides(
-        TenantId tenantId,
-        SellerTerminalId sellerTerminalId
-    ) {
-        return repository
-            .findByTenantIdAndSellerTerminalIdAndActiveTrueOrderByCampaignIdAscRuleIdAscEffectTypeAscGameCodeAsc(
-                tenantId.value(),
-                sellerTerminalId.value()
-            )
-            .stream()
-            .map(this::toDomain)
-            .toList();
-    }
+  @Override
+  public List<SellerTerminalPromotionEffectOverride> findActiveOverrides(
+      TenantId tenantId, SellerTerminalId sellerTerminalId) {
+    return repository
+        .findByTenantIdAndSellerTerminalIdAndActiveTrueOrderByCampaignIdAscRuleIdAscEffectTypeAscGameCodeAsc(
+            tenantId.value(), sellerTerminalId.value())
+        .stream()
+        .map(this::toDomain)
+        .toList();
+  }
 
-    private SellerTerminalPromotionEffectOverride toDomain(SellerTerminalPromotionEffectOverrideJpaEntity entity) {
-        return new SellerTerminalPromotionEffectOverride(
-            entity.getId(),
-            SellerTerminalId.of(entity.getSellerTerminalId()),
-            PromotionCampaignId.of(entity.getCampaignId()),
-            PromotionRuleId.of(entity.getRuleId()),
-            entity.getEffectType(),
-            entity.getGameCode(),
-            entity.getEffectEnabled(),
-            entity.getQuantity(),
-            entity.getChoiceMode(),
-            entity.getGenerationStrategy(),
-            entity.getRegenerableBeforeConfirm(),
-            entity.getMaxRegenerationsBeforeConfirm()
-        );
-    }
+  private SellerTerminalPromotionEffectOverride toDomain(
+      SellerTerminalPromotionEffectOverrideJpaEntity entity) {
+    return new SellerTerminalPromotionEffectOverride(
+        entity.getId(),
+        SellerTerminalId.of(entity.getSellerTerminalId()),
+        PromotionCampaignId.of(entity.getCampaignId()),
+        PromotionRuleId.of(entity.getRuleId()),
+        entity.getEffectType(),
+        entity.getGameCode(),
+        entity.getEffectEnabled(),
+        entity.getQuantity(),
+        entity.getChoiceMode(),
+        entity.getGenerationStrategy(),
+        entity.getRegenerableBeforeConfirm(),
+        entity.getMaxRegenerationsBeforeConfirm());
+  }
 }

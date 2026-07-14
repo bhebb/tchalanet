@@ -16,27 +16,26 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping({
-    "/tenant/seller-terminal/operational-context",
-    "/tenant/me/operational-context"
-})
+@RequestMapping({"/tenant/seller-terminal/operational-context", "/tenant/me/operational-context"})
 @PreAuthorize("hasAuthority('ACTOR_SELLER_TERMINAL')")
 @Tag(name = "Terminal • Operational Context")
 @RequiredArgsConstructor
 public class CurrentOperationalContextController {
 
-    private final QueryBus queryBus;
+  private final QueryBus queryBus;
 
-    @GetMapping
-    @Operation(summary = "Read the operational context attached to the current request")
-    @RequiresPermission("seller_terminal.operational_context.read")
-    public ApiResponse<CurrentOperationalContextView> current(@CurrentContext TchRequestContext ctx) {
-        var operationalContext = ctx.operationalContext();
-        return ApiResponse.success(queryBus.ask(new GetCurrentOperationalContextQuery(
-            ctx.tenantIdRequired(),
-            ctx.sellerTerminalIdRequired(),
-            operationalContext != null ? operationalContext.source() : null,
-            operationalContext != null ? operationalContext.trust() : null,
-            operationalContext != null && operationalContext.trustedForSensitiveOperation())));
-    }
+  @GetMapping
+  @Operation(summary = "Read the operational context attached to the current request")
+  @RequiresPermission("seller_terminal.operational_context.read")
+  public ApiResponse<CurrentOperationalContextView> current(@CurrentContext TchRequestContext ctx) {
+    var operationalContext = ctx.operationalContext();
+    return ApiResponse.success(
+        queryBus.ask(
+            new GetCurrentOperationalContextQuery(
+                ctx.tenantIdRequired(),
+                ctx.sellerTerminalIdRequired(),
+                operationalContext != null ? operationalContext.source() : null,
+                operationalContext != null ? operationalContext.trust() : null,
+                operationalContext != null && operationalContext.trustedForSensitiveOperation())));
+  }
 }

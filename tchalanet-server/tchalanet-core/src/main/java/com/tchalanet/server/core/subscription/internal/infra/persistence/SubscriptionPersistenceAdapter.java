@@ -2,19 +2,18 @@ package com.tchalanet.server.core.subscription.internal.infra.persistence;
 
 import com.tchalanet.server.common.types.id.SubscriptionId;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.core.subscription.api.model.SubscriptionStatus;
 import com.tchalanet.server.core.subscription.internal.application.port.out.SubscriptionPersistencePort;
 import com.tchalanet.server.core.subscription.internal.application.port.out.SubscriptionReaderPort;
 import com.tchalanet.server.core.subscription.internal.domain.model.Subscription;
-import com.tchalanet.server.core.subscription.api.model.SubscriptionStatus;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.Optional;
-
 /**
- * Adapter implementing subscription persistence ports.
- * Maps domain Subscription <-> JPA SubscriptionJpaEntity.
- * Per REFACTORING_GUIDE.md: planId → planCode (string), no billingProvider fields.
+ * Adapter implementing subscription persistence ports. Maps domain Subscription <-> JPA
+ * SubscriptionJpaEntity. Per REFACTORING_GUIDE.md: planId → planCode (string), no billingProvider
+ * fields.
  */
 @Component
 @RequiredArgsConstructor
@@ -25,8 +24,10 @@ public class SubscriptionPersistenceAdapter
 
   @Override
   public Subscription save(Subscription subscription) {
-    var entity = repository.findByTenantIdAndDeletedAtIsNull(subscription.tenantId().value())
-        .orElse(new SubscriptionJpaEntity());
+    var entity =
+        repository
+            .findByTenantIdAndDeletedAtIsNull(subscription.tenantId().value())
+            .orElse(new SubscriptionJpaEntity());
 
     entity.setTenantId(subscription.tenantId().value());
     entity.setPlanCode(subscription.planCode()); // ✅ string soft reference
@@ -43,8 +44,7 @@ public class SubscriptionPersistenceAdapter
 
   @Override
   public Optional<Subscription> findByTenantId(TenantId tenantId) {
-    return repository.findByTenantIdAndDeletedAtIsNull(tenantId.value())
-        .map(this::toDomain);
+    return repository.findByTenantIdAndDeletedAtIsNull(tenantId.value()).map(this::toDomain);
   }
 
   private Subscription toDomain(SubscriptionJpaEntity entity) {
@@ -61,7 +61,6 @@ public class SubscriptionPersistenceAdapter
         entity.getVersion(),
         entity.getCreatedAt(),
         entity.getUpdatedAt(),
-        entity.getCreatedBy() != null ? entity.getCreatedBy().toString() : "system"
-    );
+        entity.getCreatedBy() != null ? entity.getCreatedBy().toString() : "system");
   }
 }

@@ -25,21 +25,21 @@ import org.junit.jupiter.api.Test;
 
 class FlywayAuditAlignmentArchTest {
 
-  private static final Path MIGRATIONS_DIR =
-      Path.of("src/main/resources/db/migration");
+  private static final Path MIGRATIONS_DIR = Path.of("src/main/resources/db/migration");
 
   @Test
   void auditedEntitiesMustHaveAnEnversAuditTableInFlyway() throws IOException {
     String migrationsSql = readMigrationsSql();
 
     var missingTables =
-        new ClassFileImporter().importPackages("com.tchalanet.server").stream()
-            .filter(javaClass -> javaClass.isAnnotatedWith(Entity.class))
-            .filter(javaClass -> javaClass.isAnnotatedWith(Audited.class))
-            .map(FlywayAuditAlignmentArchTest::tableName)
-            .map(tableName -> tableName + "_aud")
-            .filter(auditTable -> !containsCreateTable(migrationsSql, auditTable))
-            .toList();
+        new ClassFileImporter()
+            .importPackages("com.tchalanet.server").stream()
+                .filter(javaClass -> javaClass.isAnnotatedWith(Entity.class))
+                .filter(javaClass -> javaClass.isAnnotatedWith(Audited.class))
+                .map(FlywayAuditAlignmentArchTest::tableName)
+                .map(tableName -> tableName + "_aud")
+                .filter(auditTable -> !containsCreateTable(migrationsSql, auditTable))
+                .toList();
 
     assertThat(missingTables)
         .as("Every @Audited JPA entity must have a matching Envers *_aud table in Flyway")
@@ -52,19 +52,20 @@ class FlywayAuditAlignmentArchTest {
 
     var missingColumns = new java.util.LinkedHashMap<String, Set<String>>();
 
-    new ClassFileImporter().importPackages("com.tchalanet.server").stream()
-        .filter(javaClass -> javaClass.isAnnotatedWith(Entity.class))
-        .filter(javaClass -> javaClass.isAnnotatedWith(Audited.class))
-        .forEach(
-            javaClass -> {
-              String auditTable = tableName(javaClass) + "_aud";
-              Set<String> auditColumns = auditTableColumns(migrationsSql, auditTable);
-              Set<String> expectedColumns = persistentAuditedColumns(javaClass.reflect());
-              expectedColumns.removeAll(auditColumns);
-              if (!expectedColumns.isEmpty()) {
-                missingColumns.put(auditTable, expectedColumns);
-              }
-            });
+    new ClassFileImporter()
+        .importPackages("com.tchalanet.server").stream()
+            .filter(javaClass -> javaClass.isAnnotatedWith(Entity.class))
+            .filter(javaClass -> javaClass.isAnnotatedWith(Audited.class))
+            .forEach(
+                javaClass -> {
+                  String auditTable = tableName(javaClass) + "_aud";
+                  Set<String> auditColumns = auditTableColumns(migrationsSql, auditTable);
+                  Set<String> expectedColumns = persistentAuditedColumns(javaClass.reflect());
+                  expectedColumns.removeAll(auditColumns);
+                  if (!expectedColumns.isEmpty()) {
+                    missingColumns.put(auditTable, expectedColumns);
+                  }
+                });
 
     assertThat(missingColumns)
         .as("Every audited persistent entity column must be mirrored in its Flyway *_aud table")
@@ -100,9 +101,7 @@ class FlywayAuditAlignmentArchTest {
     // Parse CREATE TABLE
     var createPattern =
         Pattern.compile(
-            "\\bcreate\\s+table\\s+(?:public\\.)?"
-                + tableName
-                + "\\s*\\((.*?)\\);",
+            "\\bcreate\\s+table\\s+(?:public\\.)?" + tableName + "\\s*\\((.*?)\\);",
             Pattern.DOTALL);
     var createMatcher = createPattern.matcher(migrationsSql);
     if (createMatcher.find()) {
@@ -117,9 +116,7 @@ class FlywayAuditAlignmentArchTest {
     // Parse ALTER TABLE ... ADD COLUMN
     var alterPattern =
         Pattern.compile(
-            "\\balter\\s+table\\s+(?:public\\.)?"
-                + tableName
-                + "\\s+add\\s+column\\s+(\\w+)",
+            "\\balter\\s+table\\s+(?:public\\.)?" + tableName + "\\s+add\\s+column\\s+(\\w+)",
             Pattern.CASE_INSENSITIVE);
     var alterMatcher = alterPattern.matcher(migrationsSql);
     while (alterMatcher.find()) {

@@ -12,5 +12,4 @@ public record TicketForPayoutView(
     TicketSaleStatus status,
     DrawId drawId,
     long winAmountCents,
-    String currency
-) {}
+    String currency) {}

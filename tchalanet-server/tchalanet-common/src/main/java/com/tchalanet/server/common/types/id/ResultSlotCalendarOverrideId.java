@@ -4,7 +4,8 @@ import java.util.UUID;
 
 public record ResultSlotCalendarOverrideId(UUID value) {
   public ResultSlotCalendarOverrideId {
-    if (value == null) throw new IllegalArgumentException("ResultSlotCalendarOverrideId value is null");
+    if (value == null)
+      throw new IllegalArgumentException("ResultSlotCalendarOverrideId value is null");
   }
 
   public UUID uuid() {

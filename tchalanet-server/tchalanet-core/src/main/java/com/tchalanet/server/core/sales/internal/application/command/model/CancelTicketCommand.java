@@ -13,6 +13,6 @@ public record CancelTicketCommand(
     @NotNull TicketId ticketId,
     @NotNull UserId cancelledBy,
     @NotBlank(message = "Cancellation reason is required")
-    @Size(min = 3, max = 500, message = "Reason must be between 3 and 500 characters")
-    String reason
-) implements Command<CancelTicketResult> {}
+        @Size(min = 3, max = 500, message = "Reason must be between 3 and 500 characters")
+        String reason)
+    implements Command<CancelTicketResult> {}

@@ -2,15 +2,15 @@ package com.tchalanet.server.core.draw.api.event;
 
 import com.tchalanet.server.common.event.DomainEvent;
 import com.tchalanet.server.common.types.id.*;
-
 import java.time.Instant;
 import java.time.LocalDate;
 
 /**
- * Publié quand un {@code Draw} est annulé (statut {@code CANCELLED}).
- * Signal tenant-scoped — consommé par {@code core.sales}, {@code core.analytics} et le cache.
+ * Publié quand un {@code Draw} est annulé (statut {@code CANCELLED}). Signal tenant-scoped —
+ * consommé par {@code core.sales}, {@code core.analytics} et le cache.
  *
- * @see com.tchalanet.server.core.drawresult.internal.domain.event.DrawResultIngestedEvent événement global
+ * @see com.tchalanet.server.core.drawresult.internal.domain.event.DrawResultIngestedEvent événement
+ *     global
  */
 public record DrawCancelledEvent(
     EventId eventId,
@@ -21,5 +21,4 @@ public record DrawCancelledEvent(
     LocalDate drawDate,
     String reasonCode,
     String reasonLabel)
-    implements DomainEvent {
-}
+    implements DomainEvent {}

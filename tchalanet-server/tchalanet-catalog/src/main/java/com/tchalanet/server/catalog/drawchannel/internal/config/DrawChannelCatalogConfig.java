@@ -7,15 +7,14 @@ import org.springframework.context.annotation.Configuration;
 /**
  * Spring configuration for the drawchannel catalog module.
  *
- * <p>Registers {@link DrawChannelDisplayFormatter} as a bean from internal/ so that
- * the class itself stays free of Spring annotations inside api/ (per catalog layer rules).
+ * <p>Registers {@link DrawChannelDisplayFormatter} as a bean from internal/ so that the class
+ * itself stays free of Spring annotations inside api/ (per catalog layer rules).
  */
 @Configuration
 public class DrawChannelCatalogConfig {
 
-    @Bean
-    public DrawChannelDisplayFormatter drawChannelDisplayFormatter() {
-        return new DrawChannelDisplayFormatter();
-    }
+  @Bean
+  public DrawChannelDisplayFormatter drawChannelDisplayFormatter() {
+    return new DrawChannelDisplayFormatter();
+  }
 }
-

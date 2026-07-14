@@ -8,13 +8,14 @@ import java.util.UUID;
 
 public interface SalePreparationStorePort {
 
-    SalePreparation create(SalePreparation preparation);
+  SalePreparation create(SalePreparation preparation);
 
-    Optional<SalePreparation> findById(UUID preparationId);
+  Optional<SalePreparation> findById(UUID preparationId);
 
-    void updateStatus(UUID preparationId, SalePreparationStatus status);
+  void updateStatus(UUID preparationId, SalePreparationStatus status);
 
-    void updateLineSelection(UUID preparationId, String lineRef, String selection, int regenerationCount);
+  void updateLineSelection(
+      UUID preparationId, String lineRef, String selection, int regenerationCount);
 
-    void confirm(UUID preparationId, UUID ticketId, String idempotencyKey, Instant confirmedAt);
+  void confirm(UUID preparationId, UUID ticketId, String idempotencyKey, Instant confirmedAt);
 }

@@ -13,10 +13,10 @@ import lombok.RequiredArgsConstructor;
 public class ListSellerTerminalsQueryHandler
     implements QueryHandler<ListSellerTerminalsQuery, TchPage<SellerTerminalSummaryRow>> {
 
-    private final SellerTerminalReaderPort reader;
+  private final SellerTerminalReaderPort reader;
 
-    @Override
-    public TchPage<SellerTerminalSummaryRow> handle(ListSellerTerminalsQuery q) {
-        return reader.search(q.tenantId(), q.criteria(), q.pageRequest());
-    }
+  @Override
+  public TchPage<SellerTerminalSummaryRow> handle(ListSellerTerminalsQuery q) {
+    return reader.search(q.tenantId(), q.criteria(), q.pageRequest());
+  }
 }

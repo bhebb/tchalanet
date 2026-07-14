@@ -11,5 +11,4 @@ public record DrawResultProjectionOpsResponse(
     String lot2,
     String lot3,
     String lot4,
-    List<String> derivedPairs
-) {}
+    List<String> derivedPairs) {}

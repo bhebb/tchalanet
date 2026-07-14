@@ -1,8 +1,6 @@
 package com.tchalanet.server.common.bus.exception;
 
-/**
- * Exception thrown when no handler is registered for a command or query.
- */
+/** Exception thrown when no handler is registered for a command or query. */
 public class NoHandlerException extends IllegalStateException {
 
   public NoHandlerException(String message) {
@@ -17,4 +15,3 @@ public class NoHandlerException extends IllegalStateException {
     return new NoHandlerException("No handler registered for query: " + queryType.getName());
   }
 }
-

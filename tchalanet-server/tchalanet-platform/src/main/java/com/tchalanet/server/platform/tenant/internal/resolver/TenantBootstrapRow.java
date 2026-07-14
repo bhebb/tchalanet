@@ -4,8 +4,8 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 /**
- * Full raw row from the {@code tenant} table, bypassing RLS.
- * Used by {@link TenantRegistryApi} to build both bootstrap and registry views.
+ * Full raw row from the {@code tenant} table, bypassing RLS. Used by {@link TenantRegistryApi} to
+ * build both bootstrap and registry views.
  */
 public record TenantBootstrapRow(
     UUID id,
@@ -20,5 +20,4 @@ public record TenantBootstrapRow(
     String defaultLocale,
     UUID addressId,
     UUID activeThemeId,
-    BigDecimal defaultCommissionRate
-) {}
+    BigDecimal defaultCommissionRate) {}

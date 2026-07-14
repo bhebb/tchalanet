@@ -12,14 +12,15 @@ import org.springframework.stereotype.Component;
 @Component
 public class BatchAlertNotificationRule extends AbstractNotificationRule {
 
-  private static final Set<String> QUIET_SKIP_CODES = Set.of(
-      "scheduler_disabled",
-      "generate_disabled",
-      "open_today_disabled",
-      "processing_disabled",
-      "watchdog_disabled",
-      "gate_disabled",
-      "no_active_tenants");
+  private static final Set<String> QUIET_SKIP_CODES =
+      Set.of(
+          "scheduler_disabled",
+          "generate_disabled",
+          "open_today_disabled",
+          "processing_disabled",
+          "watchdog_disabled",
+          "gate_disabled",
+          "no_active_tenants");
 
   @Override
   public String handlerKey() {
@@ -35,18 +36,20 @@ public class BatchAlertNotificationRule extends AbstractNotificationRule {
   public Stream<NotificationIntent> map(Object event) {
     var lifecycle = (JobLifecycleEvent) event;
     var failed = lifecycle.status() == JobLifecycleStatus.FAILED;
-    var templateKey = failed ? "notification.system.ops.job_failed" : "notification.system.ops.job_skipped";
+    var templateKey =
+        failed ? "notification.system.ops.job_failed" : "notification.system.ops.job_skipped";
     var severity = failed ? NotificationSeverity.CRITICAL : NotificationSeverity.WARNING;
     var kind = failed ? NotificationKind.SYSTEM_ERROR : NotificationKind.WARNING;
 
-    return Stream.of(platformIntent(
-        lifecycle,
-        templateKey,
-        severity,
-        kind,
-        NotificationCategory.BATCH,
-        title(lifecycle),
-        message(lifecycle)));
+    return Stream.of(
+        platformIntent(
+            lifecycle,
+            templateKey,
+            severity,
+            kind,
+            NotificationCategory.BATCH,
+            title(lifecycle),
+            message(lifecycle)));
   }
 
   private boolean shouldNotify(JobLifecycleEvent event) {
@@ -70,7 +73,11 @@ public class BatchAlertNotificationRule extends AbstractNotificationRule {
 
   private String message(JobLifecycleEvent event) {
     var builder = new StringBuilder();
-    builder.append("Job ").append(event.jobKey()).append(" ended with status ").append(event.status());
+    builder
+        .append("Job ")
+        .append(event.jobKey())
+        .append(" ended with status ")
+        .append(event.status());
     if (event.code() != null && !event.code().isBlank()) {
       builder.append(" (").append(event.code()).append(")");
     }

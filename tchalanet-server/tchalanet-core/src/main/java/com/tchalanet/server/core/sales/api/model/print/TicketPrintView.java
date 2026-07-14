@@ -12,9 +12,8 @@ public record TicketPrintView(
     List<TicketPrintLine> lines,
     TicketPrintMoney money,
     TicketPrintQrPayload qr,
-    TicketPrintMetadata metadata
-) {
-    public TicketPrintView {
-        lines = List.copyOf(lines);
-    }
+    TicketPrintMetadata metadata) {
+  public TicketPrintView {
+    lines = List.copyOf(lines);
+  }
 }

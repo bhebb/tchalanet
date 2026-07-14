@@ -4,7 +4,4 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 
-public record CreateDrawRequest(
-    @NotBlank String channelCode,
-    @NotNull LocalDate scheduledDate
-) {}
+public record CreateDrawRequest(@NotBlank String channelCode, @NotNull LocalDate scheduledDate) {}

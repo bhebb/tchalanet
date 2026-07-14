@@ -9,9 +9,9 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class TenantReadinessService {
 
-    private final TenantReadinessAssembler assembler;
+  private final TenantReadinessAssembler assembler;
 
-    public TenantReadinessView current() {
-        return assembler.assemble(TchContext.currentOrNull());
-    }
+  public TenantReadinessView current() {
+    return assembler.assemble(TchContext.currentOrNull());
+  }
 }

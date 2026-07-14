@@ -41,75 +41,67 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 public class TenantAdminPricingController {
 
-    private final QueryBus queryBus;
-    private final CommandBus commandBus;
+  private final QueryBus queryBus;
+  private final CommandBus commandBus;
 
-    @Operation(summary = "List tenant pricing rules")
-    @GetMapping
-    public ApiResponse<List<TenantPricingRuleView>> list(
-        @RequestParam(required = false) String gameCode,
-        @CurrentContext TchRequestContext ctx
-    ) {
-        return ApiResponse.success(queryBus.ask(new ListTenantPricingRulesQuery(ctx.tenantIdRequired(), gameCode)));
-    }
+  @Operation(summary = "List tenant pricing rules")
+  @GetMapping
+  public ApiResponse<List<TenantPricingRuleView>> list(
+      @RequestParam(required = false) String gameCode, @CurrentContext TchRequestContext ctx) {
+    return ApiResponse.success(
+        queryBus.ask(new ListTenantPricingRulesQuery(ctx.tenantIdRequired(), gameCode)));
+  }
 
-    @Operation(summary = "Create or update a tenant pricing rule by pricing variant")
-    @PutMapping
-    @AuditLog(
-        entity = AuditEntityType.ODDS,
-        action = AuditAction.UPDATE,
-        idExpression = "#req.gameCode() + ':' + #req.pricingVariantCode().name()",
-        detailsExpression = "#req")
-    public ApiResponse<TenantPricingRuleView> upsert(
-        @Valid @RequestBody UpsertTenantPricingRuleRequest req,
-        @CurrentContext TchRequestContext ctx
-    ) {
-        var result = commandBus.execute(new UpsertTenantPricingRuleCommand(
-            ctx.tenantIdRequired(),
-            req.gameCode(),
-            req.pricingVariantCode(),
-            req.betType(),
-            req.betOption(),
-            req.odds(),
-            req.payoutRuleType(),
-            req.fixedAmount(),
-            ctx.userId()
-        ));
-        return ApiResponse.success(result);
-    }
+  @Operation(summary = "Create or update a tenant pricing rule by pricing variant")
+  @PutMapping
+  @AuditLog(
+      entity = AuditEntityType.ODDS,
+      action = AuditAction.UPDATE,
+      idExpression = "#req.gameCode() + ':' + #req.pricingVariantCode().name()",
+      detailsExpression = "#req")
+  public ApiResponse<TenantPricingRuleView> upsert(
+      @Valid @RequestBody UpsertTenantPricingRuleRequest req,
+      @CurrentContext TchRequestContext ctx) {
+    var result =
+        commandBus.execute(
+            new UpsertTenantPricingRuleCommand(
+                ctx.tenantIdRequired(),
+                req.gameCode(),
+                req.pricingVariantCode(),
+                req.betType(),
+                req.betOption(),
+                req.odds(),
+                req.payoutRuleType(),
+                req.fixedAmount(),
+                ctx.userId()));
+    return ApiResponse.success(result);
+  }
 
-    @Operation(summary = "Delete a tenant pricing rule by pricing variant")
-    @DeleteMapping
-    @AuditLog(
-        entity = AuditEntityType.ODDS,
-        action = AuditAction.DELETE,
-        idExpression = "#req.gameCode() + ':' + #req.pricingVariantCode().name()",
-        detailsExpression = "#req")
-    public ApiResponse<Void> delete(
-        @Valid @RequestBody DeleteTenantPricingRuleRequestBody req,
-        @CurrentContext TchRequestContext ctx
-    ) {
-        commandBus.execute(new DeleteTenantPricingRuleCommand(
-            ctx.tenantIdRequired(),
-            req.gameCode(),
-            req.pricingVariantCode(),
-            ctx.userId()
-        ));
-        return ApiResponse.success(null);
-    }
+  @Operation(summary = "Delete a tenant pricing rule by pricing variant")
+  @DeleteMapping
+  @AuditLog(
+      entity = AuditEntityType.ODDS,
+      action = AuditAction.DELETE,
+      idExpression = "#req.gameCode() + ':' + #req.pricingVariantCode().name()",
+      detailsExpression = "#req")
+  public ApiResponse<Void> delete(
+      @Valid @RequestBody DeleteTenantPricingRuleRequestBody req,
+      @CurrentContext TchRequestContext ctx) {
+    commandBus.execute(
+        new DeleteTenantPricingRuleCommand(
+            ctx.tenantIdRequired(), req.gameCode(), req.pricingVariantCode(), ctx.userId()));
+    return ApiResponse.success(null);
+  }
 
-    public record UpsertTenantPricingRuleRequest(
-        @NotBlank String gameCode,
-        @NotNull PricingVariantCode pricingVariantCode,
-        @NotBlank String betType,
-        Short betOption,
-        @DecimalMin(value = "0.0001", inclusive = false) BigDecimal odds,
-        PayoutRuleType payoutRuleType,
-        @DecimalMin(value = "0", inclusive = true) BigDecimal fixedAmount
-    ) {}
+  public record UpsertTenantPricingRuleRequest(
+      @NotBlank String gameCode,
+      @NotNull PricingVariantCode pricingVariantCode,
+      @NotBlank String betType,
+      Short betOption,
+      @DecimalMin(value = "0.0001", inclusive = false) BigDecimal odds,
+      PayoutRuleType payoutRuleType,
+      @DecimalMin(value = "0", inclusive = true) BigDecimal fixedAmount) {}
 
-    public record DeleteTenantPricingRuleRequestBody(
-        @NotBlank String gameCode,
-        @NotNull PricingVariantCode pricingVariantCode
-    ) {}
+  public record DeleteTenantPricingRuleRequestBody(
+      @NotBlank String gameCode, @NotNull PricingVariantCode pricingVariantCode) {}
 }

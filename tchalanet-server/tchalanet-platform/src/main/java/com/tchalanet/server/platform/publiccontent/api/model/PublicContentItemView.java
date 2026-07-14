@@ -10,5 +10,4 @@ public record PublicContentItemView(
     String imageUrl,
     String sourceUrl,
     PublicContentSourceType sourceType,
-    Instant publishedAt
-) {}
+    Instant publishedAt) {}

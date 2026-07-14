@@ -10,21 +10,13 @@ import java.util.List;
  * <p>Scoped to a single seller/user for today and optionally a short window.
  */
 public record CashierDashboardStatsView(
-    LocalDate refDate,
-    CashierSummaryCard today,
-    List<CashierGameBreakdown> gameBreakdown
-) {
+    LocalDate refDate, CashierSummaryCard today, List<CashierGameBreakdown> gameBreakdown) {
 
   public record CashierSummaryCard(
-      long       ticketsSold,
+      long ticketsSold,
       BigDecimal grossSales,
       BigDecimal winningsCalculated,
-      BigDecimal netRevenueEstimated
-  ) {}
+      BigDecimal netRevenueEstimated) {}
 
-  public record CashierGameBreakdown(
-      String     gameCode,
-      long       ticketsSold,
-      BigDecimal grossSales
-  ) {}
+  public record CashierGameBreakdown(String gameCode, long ticketsSold, BigDecimal grossSales) {}
 }

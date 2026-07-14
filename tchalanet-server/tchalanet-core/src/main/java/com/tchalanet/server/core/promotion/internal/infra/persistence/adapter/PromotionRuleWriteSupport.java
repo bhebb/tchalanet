@@ -10,9 +10,7 @@ import com.tchalanet.server.core.promotion.api.model.PromotionChoiceMode;
 import com.tchalanet.server.core.promotion.api.model.lifecycle.PromotionCampaignStatus;
 import com.tchalanet.server.core.promotion.api.model.lifecycle.PromotionCampaignView;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffectConfigInput;
-import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffectType;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionEligibilityConfigInput;
-import com.tchalanet.server.core.promotion.api.model.rule.PromotionEligibilityType;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionQuantityMode;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionRuleConfigInput;
 import com.tchalanet.server.core.promotion.internal.infra.persistence.entity.PromotionCampaignJpaEntity;
@@ -36,335 +34,356 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 class PromotionRuleWriteSupport {
 
-    private final PromotionCampaignRepository campaignRepository;
-    private final PromotionRuleRepository ruleRepository;
-    private final PromotionRuleEffectRepository effectRepository;
-    private final PromotionRuleEligibilityLineRepository eligibilityLineRepository;
-    private final PromotionCampaignViewAssembler viewAssembler;
+  private final PromotionCampaignRepository campaignRepository;
+  private final PromotionRuleRepository ruleRepository;
+  private final PromotionRuleEffectRepository effectRepository;
+  private final PromotionRuleEligibilityLineRepository eligibilityLineRepository;
+  private final PromotionCampaignViewAssembler viewAssembler;
 
-    PromotionCampaignView addRule(AddPromotionRuleCommand cmd) {
-        var campaign = campaignRepository.getRequired(cmd.campaignId().value());
-        requireDraft(campaign);
-        addRule(campaign, new PromotionRuleConfigInput(
-            cmd.ruleKey(),
-            cmd.priority(),
-            cmd.eligibilityItems(),
-            cmd.effectItems()
-        ));
+  PromotionCampaignView addRule(AddPromotionRuleCommand cmd) {
+    var campaign = campaignRepository.getRequired(cmd.campaignId().value());
+    requireDraft(campaign);
+    addRule(
+        campaign,
+        new PromotionRuleConfigInput(
+            cmd.ruleKey(), cmd.priority(), cmd.eligibilityItems(), cmd.effectItems()));
 
-        return viewAssembler.toCampaignView(campaign.getId());
+    return viewAssembler.toCampaignView(campaign.getId());
+  }
+
+  void addRules(PromotionCampaignJpaEntity campaign, List<PromotionRuleConfigInput> rules) {
+    if (rules == null || rules.isEmpty()) {
+      throw ProblemRest.badRequest("promotion.campaign.rules_required");
+    }
+    requireDraft(campaign);
+    rules.forEach(rule -> addRule(campaign, rule));
+  }
+
+  private void addRule(PromotionCampaignJpaEntity campaign, PromotionRuleConfigInput input) {
+    ensureRuleKeyAvailable(campaign.getId(), input.ruleKey());
+
+    var rule = new PromotionRuleJpaEntity();
+    rule.setCampaignId(campaign.getId());
+    rule.setRuleKey(requiredText(input.ruleKey(), "promotion.rule.rule_key_required"));
+    rule.setPriority(nonNegativePriority(input.priority()));
+
+    var saved = ruleRepository.save(rule);
+    applyEligibility(saved, input.eligibilityItems());
+    ruleRepository.save(saved);
+    replaceEffects(saved.getId(), input.effectItems());
+  }
+
+  PromotionCampaignView updateRule(UpdatePromotionRuleCommand cmd) {
+    var campaign = campaignRepository.getRequired(cmd.campaignId().value());
+    requireDraft(campaign);
+    var rule = getRuleRequired(cmd.campaignId().value(), cmd.ruleId().value());
+
+    if (cmd.ruleKey() != null
+        && !cmd.ruleKey().isBlank()
+        && !cmd.ruleKey().equals(rule.getRuleKey())) {
+      ensureRuleKeyAvailable(cmd.campaignId().value(), cmd.ruleKey());
+      rule.setRuleKey(cmd.ruleKey());
     }
 
-    void addRules(PromotionCampaignJpaEntity campaign, List<PromotionRuleConfigInput> rules) {
-        if (rules == null || rules.isEmpty()) {
-            throw ProblemRest.badRequest("promotion.campaign.rules_required");
+    if (cmd.priority() != null) {
+      rule.setPriority(nonNegativePriority(cmd.priority()));
+    }
+
+    ruleRepository.save(rule);
+    return viewAssembler.toCampaignView(cmd.campaignId().value());
+  }
+
+  PromotionCampaignView updateRuleEligibility(UpdatePromotionRuleEligibilityCommand cmd) {
+    var campaign = campaignRepository.getRequired(cmd.campaignId().value());
+    requireDraft(campaign);
+    var rule = getRuleRequired(cmd.campaignId().value(), cmd.ruleId().value());
+    applyEligibility(rule, cmd.items());
+    ruleRepository.save(rule);
+    return viewAssembler.toCampaignView(cmd.campaignId().value());
+  }
+
+  PromotionCampaignView updateRuleEffects(UpdatePromotionRuleEffectsCommand cmd) {
+    var campaign = campaignRepository.getRequired(cmd.campaignId().value());
+    requireDraftOrDefaultMaryajGratis(campaign);
+    getRuleRequired(cmd.campaignId().value(), cmd.ruleId().value());
+    replaceEffects(cmd.ruleId().value(), cmd.items());
+    return viewAssembler.toCampaignView(cmd.campaignId().value());
+  }
+
+  PromotionCampaignView deleteRule(DeletePromotionRuleCommand cmd) {
+    var campaign = campaignRepository.getRequired(cmd.campaignId().value());
+    requireDraft(campaign);
+    var rule = getRuleRequired(cmd.campaignId().value(), cmd.ruleId().value());
+    effectRepository.deleteByRuleId(rule.getId());
+    eligibilityLineRepository.deleteByRuleId(rule.getId());
+    ruleRepository.delete(rule);
+    return viewAssembler.toCampaignView(cmd.campaignId().value());
+  }
+
+  private PromotionRuleJpaEntity getRuleRequired(UUID campaignId, UUID ruleId) {
+    return ruleRepository
+        .findByIdAndCampaignId(ruleId, campaignId)
+        .orElseThrow(() -> ProblemRest.notFound("promotion.rule.not_found"));
+  }
+
+  private void requireDraft(PromotionCampaignJpaEntity campaign) {
+    if (campaign.getStatus() != PromotionCampaignStatus.DRAFT) {
+      throw ProblemRest.badRequest("promotion.campaign.rules_edit_requires_draft");
+    }
+  }
+
+  private void requireDraftOrDefaultMaryajGratis(PromotionCampaignJpaEntity campaign) {
+    if ("DEFAULT_MARYAJ_GRATIS".equals(campaign.getCode())) {
+      return;
+    }
+    requireDraft(campaign);
+  }
+
+  private void ensureRuleKeyAvailable(UUID campaignId, String ruleKey) {
+    if (ruleKey == null || ruleKey.isBlank()) {
+      throw ProblemRest.badRequest("promotion.rule.rule_key_required");
+    }
+    if (ruleRepository.existsByCampaignIdAndRuleKey(campaignId, ruleKey)) {
+      throw ProblemRest.conflict("promotion.rule.rule_key_already_exists");
+    }
+  }
+
+  private void applyEligibility(
+      PromotionRuleJpaEntity rule, List<PromotionEligibilityConfigInput> items) {
+    rule.setMinPaidTotal(null);
+    rule.setBeforeLocalTime(null);
+    eligibilityLineRepository.deleteByRuleId(rule.getId());
+
+    if (items == null || items.isEmpty()) {
+      throw ProblemRest.badRequest("promotion.rule.eligibility_required");
+    }
+
+    for (var item : items) {
+      if (item.type() == null) {
+        throw ProblemRest.badRequest("promotion.rule.eligibility_type_required");
+      }
+      switch (item.type()) {
+        case MIN_PAID_TOTAL ->
+            rule.setMinPaidTotal(positiveDecimal(item.params(), "amount", "minPaidTotal"));
+        case BEFORE_LOCAL_TIME ->
+            rule.setBeforeLocalTime(localTime(item.params(), "time", "beforeLocalTime"));
+        case PAID_LINE_COUNT ->
+            eligibilityLineRepository.save(eligibilityLine(rule.getId(), item.params()));
+      }
+    }
+  }
+
+  private PromotionRuleEligibilityLineJpaEntity eligibilityLine(
+      UUID ruleId, Map<String, Object> params) {
+    var line = new PromotionRuleEligibilityLineJpaEntity();
+    line.setRuleId(ruleId);
+    line.setGameCode(requiredString(params, "gameCode"));
+    line.setMinCount(positiveInt(params, "minCount", "count"));
+    return line;
+  }
+
+  private void replaceEffects(UUID ruleId, List<PromotionEffectConfigInput> items) {
+    effectRepository.deleteByRuleId(ruleId);
+    effectRepository.flush();
+    if (items == null || items.isEmpty()) {
+      throw ProblemRest.badRequest("promotion.rule.effects_required");
+    }
+    items.stream().map(item -> effect(ruleId, item)).forEach(effectRepository::save);
+  }
+
+  private PromotionRuleEffectJpaEntity effect(UUID ruleId, PromotionEffectConfigInput item) {
+    if (item.type() == null) {
+      throw ProblemRest.badRequest("promotion.rule.effect_type_required");
+    }
+    var effect = new PromotionRuleEffectJpaEntity();
+    effect.setRuleId(ruleId);
+    effect.setEffectType(item.type());
+    var params = item.params() == null ? Map.<String, Object>of() : item.params();
+    switch (item.type()) {
+      case FREE_GAME_LINE -> {
+        effect.setGameCode(requiredString(params, "gameCode"));
+        effect.setPayoutBaseAmount(positiveDecimal(params, "payoutBaseAmount", "amount"));
+        effect.setQuantity(params.containsKey("quantity") ? positiveInt(params, "quantity") : 1);
+        applyQuantityMode(effect, params);
+        applySelectionGeneration(effect, params);
+      }
+      case BOOST_ODDS -> {
+        effect.setGameCode(requiredString(params, "gameCode"));
+        var oddsOverride = positiveDecimal(params, "oddsOverride");
+        // Reject >4 significant decimals at config time: the sell-time
+        // PromotionOddsBoostApplier does setScale(4, UNNECESSARY), which would
+        // otherwise crash the sale on a mis-configured boost. Fail fast here.
+        if (oddsOverride.stripTrailingZeros().scale() > 4) {
+          throw ProblemRest.badRequest("promotion.rule.boost_odds_scale");
         }
-        requireDraft(campaign);
-        rules.forEach(rule -> addRule(campaign, rule));
+        effect.setOddsOverride(oddsOverride);
+      }
+      case WAIVE_CHARGE -> effect.setChargeType(requiredString(params, "chargeType", "chargeCode"));
     }
+    return effect;
+  }
 
-    private void addRule(PromotionCampaignJpaEntity campaign, PromotionRuleConfigInput input) {
-        ensureRuleKeyAvailable(campaign.getId(), input.ruleKey());
-
-        var rule = new PromotionRuleJpaEntity();
-        rule.setCampaignId(campaign.getId());
-        rule.setRuleKey(requiredText(input.ruleKey(), "promotion.rule.rule_key_required"));
-        rule.setPriority(nonNegativePriority(input.priority()));
-
-        var saved = ruleRepository.save(rule);
-        applyEligibility(saved, input.eligibilityItems());
-        ruleRepository.save(saved);
-        replaceEffects(saved.getId(), input.effectItems());
-    }
-
-    PromotionCampaignView updateRule(UpdatePromotionRuleCommand cmd) {
-        var campaign = campaignRepository.getRequired(cmd.campaignId().value());
-        requireDraft(campaign);
-        var rule = getRuleRequired(cmd.campaignId().value(), cmd.ruleId().value());
-
-        if (cmd.ruleKey() != null && !cmd.ruleKey().isBlank() && !cmd.ruleKey().equals(rule.getRuleKey())) {
-            ensureRuleKeyAvailable(cmd.campaignId().value(), cmd.ruleKey());
-            rule.setRuleKey(cmd.ruleKey());
-        }
-
-        if (cmd.priority() != null) {
-            rule.setPriority(nonNegativePriority(cmd.priority()));
-        }
-
-        ruleRepository.save(rule);
-        return viewAssembler.toCampaignView(cmd.campaignId().value());
-    }
-
-    PromotionCampaignView updateRuleEligibility(UpdatePromotionRuleEligibilityCommand cmd) {
-        var campaign = campaignRepository.getRequired(cmd.campaignId().value());
-        requireDraft(campaign);
-        var rule = getRuleRequired(cmd.campaignId().value(), cmd.ruleId().value());
-        applyEligibility(rule, cmd.items());
-        ruleRepository.save(rule);
-        return viewAssembler.toCampaignView(cmd.campaignId().value());
-    }
-
-    PromotionCampaignView updateRuleEffects(UpdatePromotionRuleEffectsCommand cmd) {
-        var campaign = campaignRepository.getRequired(cmd.campaignId().value());
-        requireDraftOrDefaultMaryajGratis(campaign);
-        getRuleRequired(cmd.campaignId().value(), cmd.ruleId().value());
-        replaceEffects(cmd.ruleId().value(), cmd.items());
-        return viewAssembler.toCampaignView(cmd.campaignId().value());
-    }
-
-    PromotionCampaignView deleteRule(DeletePromotionRuleCommand cmd) {
-        var campaign = campaignRepository.getRequired(cmd.campaignId().value());
-        requireDraft(campaign);
-        var rule = getRuleRequired(cmd.campaignId().value(), cmd.ruleId().value());
-        effectRepository.deleteByRuleId(rule.getId());
-        eligibilityLineRepository.deleteByRuleId(rule.getId());
-        ruleRepository.delete(rule);
-        return viewAssembler.toCampaignView(cmd.campaignId().value());
-    }
-
-    private PromotionRuleJpaEntity getRuleRequired(UUID campaignId, UUID ruleId) {
-        return ruleRepository.findByIdAndCampaignId(ruleId, campaignId)
-            .orElseThrow(() -> ProblemRest.notFound("promotion.rule.not_found"));
-    }
-
-    private void requireDraft(PromotionCampaignJpaEntity campaign) {
-        if (campaign.getStatus() != PromotionCampaignStatus.DRAFT) {
-            throw ProblemRest.badRequest("promotion.campaign.rules_edit_requires_draft");
-        }
-    }
-
-    private void requireDraftOrDefaultMaryajGratis(PromotionCampaignJpaEntity campaign) {
-        if ("DEFAULT_MARYAJ_GRATIS".equals(campaign.getCode())) {
-            return;
-        }
-        requireDraft(campaign);
-    }
-
-    private void ensureRuleKeyAvailable(UUID campaignId, String ruleKey) {
-        if (ruleKey == null || ruleKey.isBlank()) {
-            throw ProblemRest.badRequest("promotion.rule.rule_key_required");
-        }
-        if (ruleRepository.existsByCampaignIdAndRuleKey(campaignId, ruleKey)) {
-            throw ProblemRest.conflict("promotion.rule.rule_key_already_exists");
-        }
-    }
-
-    private void applyEligibility(PromotionRuleJpaEntity rule, List<PromotionEligibilityConfigInput> items) {
-        rule.setMinPaidTotal(null);
-        rule.setBeforeLocalTime(null);
-        eligibilityLineRepository.deleteByRuleId(rule.getId());
-
-        if (items == null || items.isEmpty()) {
-            throw ProblemRest.badRequest("promotion.rule.eligibility_required");
-        }
-
-        for (var item : items) {
-            if (item.type() == null) {
-                throw ProblemRest.badRequest("promotion.rule.eligibility_type_required");
-            }
-            switch (item.type()) {
-                case MIN_PAID_TOTAL -> rule.setMinPaidTotal(positiveDecimal(item.params(), "amount", "minPaidTotal"));
-                case BEFORE_LOCAL_TIME -> rule.setBeforeLocalTime(localTime(item.params(), "time", "beforeLocalTime"));
-                case PAID_LINE_COUNT -> eligibilityLineRepository.save(eligibilityLine(rule.getId(), item.params()));
-            }
-        }
-    }
-
-    private PromotionRuleEligibilityLineJpaEntity eligibilityLine(UUID ruleId, Map<String, Object> params) {
-        var line = new PromotionRuleEligibilityLineJpaEntity();
-        line.setRuleId(ruleId);
-        line.setGameCode(requiredString(params, "gameCode"));
-        line.setMinCount(positiveInt(params, "minCount", "count"));
-        return line;
-    }
-
-    private void replaceEffects(UUID ruleId, List<PromotionEffectConfigInput> items) {
-        effectRepository.deleteByRuleId(ruleId);
-        effectRepository.flush();
-        if (items == null || items.isEmpty()) {
-            throw ProblemRest.badRequest("promotion.rule.effects_required");
-        }
-        items.stream()
-            .map(item -> effect(ruleId, item))
-            .forEach(effectRepository::save);
-    }
-
-    private PromotionRuleEffectJpaEntity effect(UUID ruleId, PromotionEffectConfigInput item) {
-        if (item.type() == null) {
-            throw ProblemRest.badRequest("promotion.rule.effect_type_required");
-        }
-        var effect = new PromotionRuleEffectJpaEntity();
-        effect.setRuleId(ruleId);
-        effect.setEffectType(item.type());
-        var params = item.params() == null ? Map.<String, Object>of() : item.params();
-        switch (item.type()) {
-            case FREE_GAME_LINE -> {
-                effect.setGameCode(requiredString(params, "gameCode"));
-                effect.setPayoutBaseAmount(positiveDecimal(params, "payoutBaseAmount", "amount"));
-                effect.setQuantity(params.containsKey("quantity") ? positiveInt(params, "quantity") : 1);
-                applyQuantityMode(effect, params);
-                applySelectionGeneration(effect, params);
-            }
-            case BOOST_ODDS -> {
-                effect.setGameCode(requiredString(params, "gameCode"));
-                var oddsOverride = positiveDecimal(params, "oddsOverride");
-                // Reject >4 significant decimals at config time: the sell-time
-                // PromotionOddsBoostApplier does setScale(4, UNNECESSARY), which would
-                // otherwise crash the sale on a mis-configured boost. Fail fast here.
-                if (oddsOverride.stripTrailingZeros().scale() > 4) {
-                    throw ProblemRest.badRequest("promotion.rule.boost_odds_scale");
-                }
-                effect.setOddsOverride(oddsOverride);
-            }
-            case WAIVE_CHARGE -> effect.setChargeType(requiredString(params, "chargeType", "chargeCode"));
-        }
-        return effect;
-    }
-
-    private void applyQuantityMode(PromotionRuleEffectJpaEntity effect, Map<String, Object> params) {
-        var mode = enumParam(params, "quantityMode", PromotionQuantityMode.class,
+  private void applyQuantityMode(PromotionRuleEffectJpaEntity effect, Map<String, Object> params) {
+    var mode =
+        enumParam(
+            params,
+            "quantityMode",
+            PromotionQuantityMode.class,
             "promotion.rule.quantity_mode_invalid");
-        if (mode == null) {
-            mode = PromotionQuantityMode.FIXED;
-        }
+    if (mode == null) {
+      mode = PromotionQuantityMode.FIXED;
+    }
 
-        effect.setQuantityMode(mode);
-        if (mode == PromotionQuantityMode.FIXED) {
-            effect.setMaxQuantity(effect.getQuantity());
-            effect.setQuantityTiers(List.of());
-            return;
-        }
+    effect.setQuantityMode(mode);
+    if (mode == PromotionQuantityMode.FIXED) {
+      effect.setMaxQuantity(effect.getQuantity());
+      effect.setQuantityTiers(List.of());
+      return;
+    }
 
-        if (mode == PromotionQuantityMode.TIERED_PAID_AMOUNT) {
-            var tiers = quantityTiers(params);
-            effect.setMaxQuantity(params.containsKey("maxQuantity")
-                ? positiveInt(params, "maxQuantity")
-                : tiers.stream().mapToInt(t -> positiveInt(t, "quantity")).max().orElse(effect.getQuantity()));
-            effect.setQuantityTiers(tiers);
-            return;
-        }
+    if (mode == PromotionQuantityMode.TIERED_PAID_AMOUNT) {
+      var tiers = quantityTiers(params);
+      effect.setMaxQuantity(
+          params.containsKey("maxQuantity")
+              ? positiveInt(params, "maxQuantity")
+              : tiers.stream()
+                  .mapToInt(t -> positiveInt(t, "quantity"))
+                  .max()
+                  .orElse(effect.getQuantity()));
+      effect.setQuantityTiers(tiers);
+      return;
+    }
 
-        effect.setStepPaidAmount(positiveDecimal(params, "stepPaidAmount"));
-        effect.setQuantityPerStep(
-            params.containsKey("quantityPerStep") ? positiveInt(params, "quantityPerStep") : 1);
-        effect.setMaxQuantity(params.containsKey("maxQuantity")
+    effect.setStepPaidAmount(positiveDecimal(params, "stepPaidAmount"));
+    effect.setQuantityPerStep(
+        params.containsKey("quantityPerStep") ? positiveInt(params, "quantityPerStep") : 1);
+    effect.setMaxQuantity(
+        params.containsKey("maxQuantity")
             ? positiveInt(params, "maxQuantity")
             : effect.getQuantity());
-        effect.setQuantityTiers(List.of());
-    }
+    effect.setQuantityTiers(List.of());
+  }
 
-    @SuppressWarnings("unchecked")
-    private List<Map<String, Object>> quantityTiers(Map<String, Object> params) {
-        var raw = params.get("quantityTiers");
-        if (!(raw instanceof List<?> list) || list.isEmpty()) {
-            throw ProblemRest.badRequest("promotion.rule.quantity_tiers_required");
-        }
-        return list.stream()
-            .map(item -> {
-                if (!(item instanceof Map<?, ?> map)) {
-                    throw ProblemRest.badRequest("promotion.rule.quantity_tiers_invalid");
-                }
-                var tier = (Map<String, Object>) map;
-                var min = positiveDecimal(tier, "minPaidAmount");
-                var max = tier.containsKey("maxPaidAmount") && tier.get("maxPaidAmount") != null
-                    ? positiveDecimal(tier, "maxPaidAmount")
-                    : null;
-                if (max != null && max.compareTo(min) < 0) {
-                    throw ProblemRest.badRequest("promotion.rule.quantity_tier_range_invalid");
-                }
-                var quantity = positiveInt(tier, "quantity");
-                Map<String, Object> out = new java.util.LinkedHashMap<>();
-                out.put("minPaidAmount", min.stripTrailingZeros().toPlainString());
-                if (max != null) {
-                    out.put("maxPaidAmount", max.stripTrailingZeros().toPlainString());
-                }
-                out.put("quantity", quantity);
-                return out;
+  @SuppressWarnings("unchecked")
+  private List<Map<String, Object>> quantityTiers(Map<String, Object> params) {
+    var raw = params.get("quantityTiers");
+    if (!(raw instanceof List<?> list) || list.isEmpty()) {
+      throw ProblemRest.badRequest("promotion.rule.quantity_tiers_required");
+    }
+    return list.stream()
+        .map(
+            item -> {
+              if (!(item instanceof Map<?, ?> map)) {
+                throw ProblemRest.badRequest("promotion.rule.quantity_tiers_invalid");
+              }
+              var tier = (Map<String, Object>) map;
+              var min = positiveDecimal(tier, "minPaidAmount");
+              var max =
+                  tier.containsKey("maxPaidAmount") && tier.get("maxPaidAmount") != null
+                      ? positiveDecimal(tier, "maxPaidAmount")
+                      : null;
+              if (max != null && max.compareTo(min) < 0) {
+                throw ProblemRest.badRequest("promotion.rule.quantity_tier_range_invalid");
+              }
+              var quantity = positiveInt(tier, "quantity");
+              Map<String, Object> out = new java.util.LinkedHashMap<>();
+              out.put("minPaidAmount", min.stripTrailingZeros().toPlainString());
+              if (max != null) {
+                out.put("maxPaidAmount", max.stripTrailingZeros().toPlainString());
+              }
+              out.put("quantity", quantity);
+              return out;
             })
-            .toList();
-    }
+        .toList();
+  }
 
-    private void applySelectionGeneration(PromotionRuleEffectJpaEntity effect, Map<String, Object> params) {
-        PromotionChoiceMode choiceMode = enumParam(
+  private void applySelectionGeneration(
+      PromotionRuleEffectJpaEntity effect, Map<String, Object> params) {
+    PromotionChoiceMode choiceMode =
+        enumParam(
             params, "choiceMode", PromotionChoiceMode.class, "promotion.rule.choice_mode_invalid");
-        SelectionGenerationStrategy strategy = enumParam(
-            params, "generationStrategy", SelectionGenerationStrategy.class,
+    SelectionGenerationStrategy strategy =
+        enumParam(
+            params,
+            "generationStrategy",
+            SelectionGenerationStrategy.class,
             "promotion.rule.generation_strategy_invalid");
 
-        if (strategy == SelectionGenerationStrategy.LOW_EXPOSURE_RANDOM) {
-            throw ProblemRest.badRequest("promotion.rule.generation_strategy_unsupported");
-        }
-        if (choiceMode == PromotionChoiceMode.AUTO_GENERATE && strategy == null) {
-            strategy = SelectionGenerationStrategy.RANDOM;
-        }
-        if (strategy != null && choiceMode != PromotionChoiceMode.AUTO_GENERATE) {
-            throw ProblemRest.badRequest("promotion.rule.generation_strategy_requires_auto_generate");
-        }
-
-        effect.setChoiceMode(choiceMode);
-        effect.setGenerationStrategy(strategy);
-        effect.setRegenerableBeforeConfirm(
-            Boolean.parseBoolean(String.valueOf(params.getOrDefault("regenerableBeforeConfirm", "false"))));
-        effect.setMaxRegenerationsBeforeConfirm(
-            params.containsKey("maxRegenerationsBeforeConfirm")
-                ? positiveInt(params, "maxRegenerationsBeforeConfirm")
-                : 3);
+    if (strategy == SelectionGenerationStrategy.LOW_EXPOSURE_RANDOM) {
+      throw ProblemRest.badRequest("promotion.rule.generation_strategy_unsupported");
+    }
+    if (choiceMode == PromotionChoiceMode.AUTO_GENERATE && strategy == null) {
+      strategy = SelectionGenerationStrategy.RANDOM;
+    }
+    if (strategy != null && choiceMode != PromotionChoiceMode.AUTO_GENERATE) {
+      throw ProblemRest.badRequest("promotion.rule.generation_strategy_requires_auto_generate");
     }
 
-    private <E extends Enum<E>> E enumParam(
-        Map<String, Object> params, String key, Class<E> type, String errorCode) {
-        var raw = params.get(key);
-        if (raw == null || String.valueOf(raw).isBlank()) {
-            return null;
-        }
-        try {
-            return Enum.valueOf(type, String.valueOf(raw));
-        } catch (IllegalArgumentException ex) {
-            throw ProblemRest.badRequest(errorCode);
-        }
-    }
+    effect.setChoiceMode(choiceMode);
+    effect.setGenerationStrategy(strategy);
+    effect.setRegenerableBeforeConfirm(
+        Boolean.parseBoolean(
+            String.valueOf(params.getOrDefault("regenerableBeforeConfirm", "false"))));
+    effect.setMaxRegenerationsBeforeConfirm(
+        params.containsKey("maxRegenerationsBeforeConfirm")
+            ? positiveInt(params, "maxRegenerationsBeforeConfirm")
+            : 3);
+  }
 
-    private int nonNegativePriority(Integer priority) {
-        if (priority == null || priority < 0) {
-            throw ProblemRest.badRequest("promotion.rule.priority_must_be_non_negative");
-        }
-        return priority;
+  private <E extends Enum<E>> E enumParam(
+      Map<String, Object> params, String key, Class<E> type, String errorCode) {
+    var raw = params.get(key);
+    if (raw == null || String.valueOf(raw).isBlank()) {
+      return null;
     }
+    try {
+      return Enum.valueOf(type, String.valueOf(raw));
+    } catch (IllegalArgumentException ex) {
+      throw ProblemRest.badRequest(errorCode);
+    }
+  }
 
-    private BigDecimal positiveDecimal(Map<String, Object> params, String... keys) {
-        var value = new BigDecimal(requiredString(params, keys));
-        if (value.signum() <= 0) {
-            throw ProblemRest.badRequest("promotion.rule.value_must_be_positive");
-        }
-        return value;
+  private int nonNegativePriority(Integer priority) {
+    if (priority == null || priority < 0) {
+      throw ProblemRest.badRequest("promotion.rule.priority_must_be_non_negative");
     }
+    return priority;
+  }
 
-    private int positiveInt(Map<String, Object> params, String... keys) {
-        var value = Integer.parseInt(requiredString(params, keys));
-        if (value <= 0) {
-            throw ProblemRest.badRequest("promotion.rule.value_must_be_positive");
-        }
-        return value;
+  private BigDecimal positiveDecimal(Map<String, Object> params, String... keys) {
+    var value = new BigDecimal(requiredString(params, keys));
+    if (value.signum() <= 0) {
+      throw ProblemRest.badRequest("promotion.rule.value_must_be_positive");
     }
+    return value;
+  }
 
-    private LocalTime localTime(Map<String, Object> params, String... keys) {
-        return LocalTime.parse(requiredString(params, keys));
+  private int positiveInt(Map<String, Object> params, String... keys) {
+    var value = Integer.parseInt(requiredString(params, keys));
+    if (value <= 0) {
+      throw ProblemRest.badRequest("promotion.rule.value_must_be_positive");
     }
+    return value;
+  }
 
-    private String requiredText(String value, String errorCode) {
-        if (value == null || value.isBlank()) {
-            throw ProblemRest.badRequest(errorCode);
-        }
-        return value;
-    }
+  private LocalTime localTime(Map<String, Object> params, String... keys) {
+    return LocalTime.parse(requiredString(params, keys));
+  }
 
-    private String requiredString(Map<String, Object> params, String... keys) {
-        for (var key : keys) {
-            var value = params == null ? null : params.get(key);
-            if (value != null && !String.valueOf(value).isBlank()) {
-                return String.valueOf(value);
-            }
-        }
-        throw ProblemRest.badRequest("promotion.rule.required_field_missing");
+  private String requiredText(String value, String errorCode) {
+    if (value == null || value.isBlank()) {
+      throw ProblemRest.badRequest(errorCode);
     }
+    return value;
+  }
+
+  private String requiredString(Map<String, Object> params, String... keys) {
+    for (var key : keys) {
+      var value = params == null ? null : params.get(key);
+      if (value != null && !String.valueOf(value).isBlank()) {
+        return String.valueOf(value);
+      }
+    }
+    throw ProblemRest.badRequest("promotion.rule.required_field_missing");
+  }
 }

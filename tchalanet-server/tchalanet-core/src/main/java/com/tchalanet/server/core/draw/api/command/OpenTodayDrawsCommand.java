@@ -7,8 +7,5 @@ import java.time.Instant;
 import java.time.LocalDate;
 
 public record OpenTodayDrawsCommand(
-    @NotNull Instant now,
-    LocalDate drawDate,
-    @Positive int batchSize,
-    boolean dryRun)
+    @NotNull Instant now, LocalDate drawDate, @Positive int batchSize, boolean dryRun)
     implements Command<OpenDueDrawsResult> {}

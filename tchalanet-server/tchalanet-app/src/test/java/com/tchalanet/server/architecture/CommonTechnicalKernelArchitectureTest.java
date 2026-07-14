@@ -66,7 +66,8 @@ class CommonTechnicalKernelArchitectureTest {
         .should()
         .beAnnotatedWith(org.springframework.boot.autoconfigure.SpringBootApplication.class)
         .orShould()
-        .beAnnotatedWith(org.springframework.batch.core.configuration.annotation.EnableBatchProcessing.class)
+        .beAnnotatedWith(
+            org.springframework.batch.core.configuration.annotation.EnableBatchProcessing.class)
         .orShould()
         .beAnnotatedWith(org.springframework.scheduling.annotation.EnableScheduling.class)
         .orShould()
@@ -93,9 +94,7 @@ class CommonTechnicalKernelArchitectureTest {
     assertThat(classes)
         .filteredOn(
             javaClass ->
-                javaClass
-                    .getPackageName()
-                    .equals("com.tchalanet.server.common.types.enums"))
+                javaClass.getPackageName().equals("com.tchalanet.server.common.types.enums"))
         .noneMatch(javaClass -> EXTRACTED_BUSINESS_ENUMS.contains(javaClass.getSimpleName()));
   }
 }

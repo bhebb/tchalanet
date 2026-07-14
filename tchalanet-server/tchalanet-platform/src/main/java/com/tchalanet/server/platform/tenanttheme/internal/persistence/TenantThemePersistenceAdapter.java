@@ -7,9 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 /**
- * Persistence adapter for TenantTheme.
- * Maps to spec requirement T6.
- * RLS is enforced at DB level via policies.
+ * Persistence adapter for TenantTheme. Maps to spec requirement T6. RLS is enforced at DB level via
+ * policies.
  */
 @Component
 @RequiredArgsConstructor
@@ -18,8 +17,10 @@ public class TenantThemePersistenceAdapter {
   private final TenantThemeJpaRepository repository;
 
   public TenantTheme save(TenantTheme tenantTheme) {
-    var entity = repository.findByTenantId(tenantTheme.tenantId().value())
-        .orElse(new TenantThemeJpaEntity());
+    var entity =
+        repository
+            .findByTenantId(tenantTheme.tenantId().value())
+            .orElse(new TenantThemeJpaEntity());
     entity.setTenantId(tenantTheme.tenantId().value());
     entity.setPresetCode(tenantTheme.presetCode());
     entity.setDefaultMode(tenantTheme.defaultMode() != null ? tenantTheme.defaultMode() : "SYSTEM");
@@ -31,10 +32,13 @@ public class TenantThemePersistenceAdapter {
   }
 
   public void deactivate(TenantId tenantId) {
-    repository.findByTenantId(tenantId.value()).ifPresent(e -> {
-      e.setActive(false);
-      repository.save(e);
-    });
+    repository
+        .findByTenantId(tenantId.value())
+        .ifPresent(
+            e -> {
+              e.setActive(false);
+              repository.save(e);
+            });
   }
 
   public Optional<TenantTheme> findByTenantId(TenantId tenantId) {

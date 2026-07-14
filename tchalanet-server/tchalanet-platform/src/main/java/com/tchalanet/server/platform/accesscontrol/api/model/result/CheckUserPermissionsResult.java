@@ -11,5 +11,3 @@ public record CheckUserPermissionsResult(boolean allowed, Set<String> missingPer
     missingPermissions = Collections.unmodifiableSet(missingPermissions);
   }
 }
-
-

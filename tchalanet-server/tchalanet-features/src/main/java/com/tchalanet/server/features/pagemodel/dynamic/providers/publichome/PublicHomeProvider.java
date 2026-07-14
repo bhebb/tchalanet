@@ -10,13 +10,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 /**
- * Single provider for source {@code public_home} (dashboard-overview-runtime-v1).
- * Loads the bundled payload once per request via {@link PageModelResolutionContext}
- * and dispatches the relevant slice by widgetId.
+ * Single provider for source {@code public_home} (dashboard-overview-runtime-v1). Loads the bundled
+ * payload once per request via {@link PageModelResolutionContext} and dispatches the relevant slice
+ * by widgetId.
  *
- * Supported widget ids (V1 révision 2 — hero/features/tchala sont désormais sur json_file) :
- *   - home.news  → ticker des dernières news (limit via props)
- *   - home.plans → grille des plans actifs
+ * <p>Supported widget ids (V1 révision 2 — hero/features/tchala sont désormais sur json_file) : -
+ * home.news → ticker des dernières news (limit via props) - home.plans → grille des plans actifs
  */
 @Component
 @RequiredArgsConstructor
@@ -51,9 +50,10 @@ public class PublicHomeProvider implements PageModelDynamicProvider {
     return switch (widgetId == null ? "" : widgetId) {
       case "home.news" -> Map.of("items", payload.news());
       case "home.plans" -> Map.of("plans", payload.plans());
-      default -> throw new PageModelDynamicProviderException(
-          "PUBLIC_HOME_UNKNOWN_WIDGET",
-          "Unknown widgetId for source=" + SOURCE + ": " + widgetId);
+      default ->
+          throw new PageModelDynamicProviderException(
+              "PUBLIC_HOME_UNKNOWN_WIDGET",
+              "Unknown widgetId for source=" + SOURCE + ": " + widgetId);
     };
   }
 
@@ -67,7 +67,10 @@ public class PublicHomeProvider implements PageModelDynamicProvider {
     Object value = config.props().get(key);
     if (value instanceof Number n) return n.intValue();
     if (value instanceof String s) {
-      try { return Integer.parseInt(s); } catch (NumberFormatException ignored) { }
+      try {
+        return Integer.parseInt(s);
+      } catch (NumberFormatException ignored) {
+      }
     }
     return defaultValue;
   }

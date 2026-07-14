@@ -10,6 +10,4 @@ public record TicketContextPayload(
     DrawChannelId drawChannelId,
     SellerTerminalId sellerTerminalId,
     BigDecimal sellerCommissionRate,
-    BigDecimal sellerCommissionAmount
-) {
-}
+    BigDecimal sellerCommissionAmount) {}

@@ -14,11 +14,10 @@ import org.springframework.stereotype.Component;
 /**
  * Applies per-line profitability deltas to {@code analytics_selection} rows.
  *
- * <p>Each placed ticket line is projected independently so dashboards can
- * display bet-type and selection-level stats without touching raw ticket tables.
- * Winnings are projected separately via {@code TicketWinningSettlementCreatedEvent} (handled by
- * {@link AnalyticsDailyProjector} for now; selection-level winnings require a
- * future enrichment pass).
+ * <p>Each placed ticket line is projected independently so dashboards can display bet-type and
+ * selection-level stats without touching raw ticket tables. Winnings are projected separately via
+ * {@code TicketWinningSettlementCreatedEvent} (handled by {@link AnalyticsDailyProjector} for now;
+ * selection-level winnings require a future enrichment pass).
  */
 @Component
 @RequiredArgsConstructor
@@ -33,9 +32,9 @@ public class AnalyticsSelectionProjector {
       return;
     }
 
-    UUID tenantId       = event.tenantId().value();
-    UUID drawChannelId  = event.context().drawChannelId() != null
-        ? event.context().drawChannelId().value() : null;
+    UUID tenantId = event.tenantId().value();
+    UUID drawChannelId =
+        event.context().drawChannelId() != null ? event.context().drawChannelId().value() : null;
 
     for (TicketLinePlacedItem line : event.lines()) {
       long stakeCents = toCents(line.stakeAmount() != null ? line.stakeAmount().amount() : null);

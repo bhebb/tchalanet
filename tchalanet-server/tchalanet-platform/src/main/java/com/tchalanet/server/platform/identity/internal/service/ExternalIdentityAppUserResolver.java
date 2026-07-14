@@ -1,13 +1,13 @@
 package com.tchalanet.server.platform.identity.internal.service;
 
 import com.tchalanet.server.common.context.TchContextResolver;
-import com.tchalanet.server.platform.identity.api.ExternalAuthenticatedUser;
-import com.tchalanet.server.platform.identity.api.IdentityProviderType;
-import com.tchalanet.server.platform.identity.api.model.UserStatus;
 import com.tchalanet.server.platform.audit.api.AuditApi;
 import com.tchalanet.server.platform.audit.api.model.AuditAction;
 import com.tchalanet.server.platform.audit.api.model.AuditEntityType;
 import com.tchalanet.server.platform.audit.api.model.request.LogAuditEventRequest;
+import com.tchalanet.server.platform.identity.api.ExternalAuthenticatedUser;
+import com.tchalanet.server.platform.identity.api.IdentityProviderType;
+import com.tchalanet.server.platform.identity.api.model.UserStatus;
 import com.tchalanet.server.platform.identity.internal.persistence.entity.AppUserExternalIdentityJpaEntity;
 import com.tchalanet.server.platform.identity.internal.persistence.entity.AppUserJpaEntity;
 import com.tchalanet.server.platform.identity.internal.persistence.repository.AppUserExternalIdentityJpaRepository;
@@ -52,17 +52,20 @@ public class ExternalIdentityAppUserResolver {
             appUsers
                 .findById(externalIdentity.getAppUserId())
                 .filter(appUser -> appUser.getDeletedAt() == null)
-                .map(appUser -> new AppUserIdentityResolution(appUser.getId(), appUser.getStatus())));
+                .map(
+                    appUser ->
+                        new AppUserIdentityResolution(appUser.getId(), appUser.getStatus())));
   }
 
   private Optional<AppUserExternalIdentityJpaEntity> bootstrapMapping(
       ExternalAuthenticatedUser externalUser) {
-    var mapping = switch (bootstrapProperties.effectiveMode()) {
-      case DENY -> Optional.<AppUserExternalIdentityJpaEntity>empty();
-      case INVITE_ONLY -> linkPreprovisionedUser(externalUser, UserStatus.INVITED);
-      case ADMIN_PREPROVISIONED -> linkPreprovisionedUser(externalUser, UserStatus.ACTIVE);
-      case CONTROLLED_AUTO -> createControlledUser(externalUser);
-    };
+    var mapping =
+        switch (bootstrapProperties.effectiveMode()) {
+          case DENY -> Optional.<AppUserExternalIdentityJpaEntity>empty();
+          case INVITE_ONLY -> linkPreprovisionedUser(externalUser, UserStatus.INVITED);
+          case ADMIN_PREPROVISIONED -> linkPreprovisionedUser(externalUser, UserStatus.ACTIVE);
+          case CONTROLLED_AUTO -> createControlledUser(externalUser);
+        };
     if (mapping.isEmpty()) {
       audit(externalUser, null, AuditAction.APP_USER_BOOTSTRAP_DENIED, "policy_denied");
     }
@@ -168,7 +171,9 @@ public class ExternalIdentityAppUserResolver {
     auditApi.logAuditEvent(
         new LogAuditEventRequest(
             AuditEntityType.USER,
-            appUserId == null ? externalSubjectReference(externalUser.subject()) : appUserId.toString(),
+            appUserId == null
+                ? externalSubjectReference(externalUser.subject())
+                : appUserId.toString(),
             action,
             Map.of(
                 "provider", externalUser.provider().name(),
@@ -183,7 +188,8 @@ public class ExternalIdentityAppUserResolver {
 
   private static String externalSubjectReference(String subject) {
     try {
-      var digest = MessageDigest.getInstance("SHA-256").digest(subject.getBytes(StandardCharsets.UTF_8));
+      var digest =
+          MessageDigest.getInstance("SHA-256").digest(subject.getBytes(StandardCharsets.UTF_8));
       return HexFormat.of().formatHex(digest, 0, 12);
     } catch (NoSuchAlgorithmException ex) {
       throw new IllegalStateException("SHA-256 is required", ex);

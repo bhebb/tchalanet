@@ -11,34 +11,27 @@ import org.springframework.stereotype.Component;
 @Component
 public class PromotionCampaignAdminWebMapper {
 
-    public CreatePromotionCampaignCommand toCommand(
-        TenantId tenantId,
-        CreatePromotionCampaignRequest request
-    ) {
-        return new CreatePromotionCampaignCommand(
-            tenantId,
-            request.name(),
-            request.description(),
-            request.startsAt(),
-            request.endsAt(),
-            request.priority(),
-            request.rules()
-        );
-    }
+  public CreatePromotionCampaignCommand toCommand(
+      TenantId tenantId, CreatePromotionCampaignRequest request) {
+    return new CreatePromotionCampaignCommand(
+        tenantId,
+        request.name(),
+        request.description(),
+        request.startsAt(),
+        request.endsAt(),
+        request.priority(),
+        request.rules());
+  }
 
-    public UpdatePromotionCampaignCommand toCommand(
-        TenantId tenantId,
-        PromotionCampaignId campaignId,
-        UpdatePromotionCampaignRequest request
-    ) {
-        return new UpdatePromotionCampaignCommand(
-            tenantId,
-            campaignId,
-            request.name(),
-            request.description(),
-            request.startsAt(),
-            request.endsAt(),
-            request.priority()
-        );
-    }
+  public UpdatePromotionCampaignCommand toCommand(
+      TenantId tenantId, PromotionCampaignId campaignId, UpdatePromotionCampaignRequest request) {
+    return new UpdatePromotionCampaignCommand(
+        tenantId,
+        campaignId,
+        request.name(),
+        request.description(),
+        request.startsAt(),
+        request.endsAt(),
+        request.priority());
+  }
 }

@@ -13,7 +13,8 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface OutboundMessageJpaRepository extends JpaRepository<OutboundMessageJpaEntity, UUID> {
+public interface OutboundMessageJpaRepository
+    extends JpaRepository<OutboundMessageJpaEntity, UUID> {
 
   @Query(
       """
@@ -23,8 +24,7 @@ public interface OutboundMessageJpaRepository extends JpaRepository<OutboundMess
          and m.correlationKey = :correlationKey
       """)
   Optional<OutboundMessageJpaEntity> findByTenantAndCorrelationKey(
-      @Param("tenantId") UUID tenantId,
-      @Param("correlationKey") String correlationKey);
+      @Param("tenantId") UUID tenantId, @Param("correlationKey") String correlationKey);
 
   @Lock(LockModeType.PESSIMISTIC_WRITE)
   @Query(
@@ -36,9 +36,7 @@ public interface OutboundMessageJpaRepository extends JpaRepository<OutboundMess
        order by m.priority desc, m.createdAt asc
       """)
   List<OutboundMessageJpaEntity> findDueForDispatch(
-      @Param("status") DeliveryStatus status,
-      @Param("now") Instant now,
-      Pageable pageable);
+      @Param("status") DeliveryStatus status, @Param("now") Instant now, Pageable pageable);
 
   @Query(
       """
@@ -52,7 +50,8 @@ public interface OutboundMessageJpaRepository extends JpaRepository<OutboundMess
       """)
   Page<OutboundMessageJpaEntity> searchOpsMessages(
       @Param("status") DeliveryStatus status,
-      @Param("channel") com.tchalanet.server.platform.communication.api.model.value.CommunicationChannel channel,
+      @Param("channel")
+          com.tchalanet.server.platform.communication.api.model.value.CommunicationChannel channel,
       @Param("tenantId") UUID tenantId,
       @Param("recipientPattern") String recipientPattern,
       Pageable pageable);

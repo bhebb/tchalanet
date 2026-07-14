@@ -15,49 +15,52 @@ import org.springframework.stereotype.Service;
 @Slf4j
 class CoreSellerTerminalIdentityProvisionAdapter implements SellerTerminalIdentityProvisionPort {
 
-    private final SellerTerminalIdentityProvisioningApi identityProvisioning;
-    private final SellerTerminalExternalIdentityJpaRepository identityRepo;
+  private final SellerTerminalIdentityProvisioningApi identityProvisioning;
+  private final SellerTerminalExternalIdentityJpaRepository identityRepo;
 
-    @Override
-    public void provision(
-        SellerTerminalId id,
-        TenantId tenantId,
-        String terminalCode,
-        String displayName,
-        String initialPin
-    ) {
-        if (identityRepo.existsBySellerTerminalId(id.value())) {
-            log.info("SellerTerminal {} already has external identity - skipping", id.value());
-            return;
-        }
-        var result = identityProvisioning.provisionSellerTerminal(
-            id, terminalCode, displayName, initialPin);
-
-        var entity = new SellerTerminalExternalIdentityJpaEntity();
-        entity.setId(id.value());
-        entity.setTenantId(tenantId.value());
-        entity.setSellerTerminalId(id.value());
-        entity.setProvider(result.provider().name());
-        entity.setIssuer(result.issuer());
-        entity.setExternalSubject(result.externalSubject());
-        identityRepo.save(entity);
-
-        log.info(
-            "Provisioned external identity for SellerTerminal {} subject={}",
-            id.value(),
-            result.externalSubject());
+  @Override
+  public void provision(
+      SellerTerminalId id,
+      TenantId tenantId,
+      String terminalCode,
+      String displayName,
+      String initialPin) {
+    if (identityRepo.existsBySellerTerminalId(id.value())) {
+      log.info("SellerTerminal {} already has external identity - skipping", id.value());
+      return;
     }
+    var result =
+        identityProvisioning.provisionSellerTerminal(id, terminalCode, displayName, initialPin);
 
-    @Override
-    public boolean hasExternalIdentity(SellerTerminalId id) {
-        return identityRepo.existsBySellerTerminalId(id.value());
-    }
+    var entity = new SellerTerminalExternalIdentityJpaEntity();
+    entity.setId(id.value());
+    entity.setTenantId(tenantId.value());
+    entity.setSellerTerminalId(id.value());
+    entity.setProvider(result.provider().name());
+    entity.setIssuer(result.issuer());
+    entity.setExternalSubject(result.externalSubject());
+    identityRepo.save(entity);
 
-    @Override
-    public void resetPin(SellerTerminalId id, TenantId tenantId, String newPin) {
-        var identity = identityRepo.findBySellerTerminalId(id.value())
-            .orElseThrow(() -> new IllegalStateException(
-                "No external identity found for SellerTerminal " + id.value()));
-        identityProvisioning.resetPasswordForSubject(identity.getExternalSubject(), newPin);
-    }
+    log.info(
+        "Provisioned external identity for SellerTerminal {} subject={}",
+        id.value(),
+        result.externalSubject());
+  }
+
+  @Override
+  public boolean hasExternalIdentity(SellerTerminalId id) {
+    return identityRepo.existsBySellerTerminalId(id.value());
+  }
+
+  @Override
+  public void resetPin(SellerTerminalId id, TenantId tenantId, String newPin) {
+    var identity =
+        identityRepo
+            .findBySellerTerminalId(id.value())
+            .orElseThrow(
+                () ->
+                    new IllegalStateException(
+                        "No external identity found for SellerTerminal " + id.value()));
+    identityProvisioning.resetPasswordForSubject(identity.getExternalSubject(), newPin);
+  }
 }

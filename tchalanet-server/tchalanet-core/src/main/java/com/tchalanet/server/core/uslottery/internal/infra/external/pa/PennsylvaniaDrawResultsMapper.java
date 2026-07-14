@@ -31,234 +31,239 @@ import tools.jackson.databind.JsonNode;
  * entry is the midday draw and nests its evening draw under {@code RelatedEveningDrawing}.
  *
  * <p>{@code DrawingNumbersAsList} holds {@code GameBallCount} digits followed by PA's Wild Ball, so
- * the main numbers are the first {@code GameBallCount} entries and the trailing value is surfaced as
- * an extra. {@code IsMidDayDrawing} selects the slot (MIDDAY / EVENING).
+ * the main numbers are the first {@code GameBallCount} entries and the trailing value is surfaced
+ * as an extra. {@code IsMidDayDrawing} selects the slot (MIDDAY / EVENING).
  */
 @Component
 @Slf4j
 @RequiredArgsConstructor
 public class PennsylvaniaDrawResultsMapper {
 
-    private static final UsLotteryProvider PROVIDER = UsLotteryProvider.PA;
-    private static final String ORIGIN = "PA_API";
+  private static final UsLotteryProvider PROVIDER = UsLotteryProvider.PA;
+  private static final String ORIGIN = "PA_API";
 
-    private static final DateTimeFormatter MDY = DateTimeFormatter.ofPattern("M/d/uuuu", Locale.US);
-    private static final Pattern MS_DATE = Pattern.compile("/Date\\((-?\\d+)");
+  private static final DateTimeFormatter MDY = DateTimeFormatter.ofPattern("M/d/uuuu", Locale.US);
+  private static final Pattern MS_DATE = Pattern.compile("/Date\\((-?\\d+)");
 
-    private final JsonbUtils json;
+  private final JsonbUtils json;
 
-    public UsLotteryProviderResponse map(
-        String body, String sourceHash, String url, UsLotteryProviderQuery query) {
+  public UsLotteryProviderResponse map(
+      String body, String sourceHash, String url, UsLotteryProviderQuery query) {
 
-        var entries = parseEntries(body);
-        if (entries.isEmpty()) {
-            return UsLotteryProviderResponse.empty(PROVIDER, query);
-        }
-
-        var wantedCodes = normalizeWantedCodes(query.externalGameCodes());
-
-        var results = new ArrayList<UsLotteryProviderResult>();
-        for (var entry : entries) {
-            // Each top-level entry is one draw; its evening counterpart is nested.
-            addIfMatches(entry, wantedCodes, sourceHash, url, query, results);
-            addIfMatches(entry.get("RelatedEveningDrawing"), wantedCodes, sourceHash, url, query, results);
-        }
-
-        return new UsLotteryProviderResponse(
-            PROVIDER,
-            query.drawDate(),
-            query.drawTime(),
-            query.timezone(),
-            List.copyOf(results),
-            query.includeRaw() ? body : null);
+    var entries = parseEntries(body);
+    if (entries.isEmpty()) {
+      return UsLotteryProviderResponse.empty(PROVIDER, query);
     }
 
-    private void addIfMatches(
-        JsonNode node,
-        Set<String> wantedCodes,
-        String sourceHash,
-        String url,
-        UsLotteryProviderQuery query,
-        List<UsLotteryProviderResult> sink) {
+    var wantedCodes = normalizeWantedCodes(query.externalGameCodes());
 
-        if (node == null || node.isNull()) {
-            return;
-        }
+    var results = new ArrayList<UsLotteryProviderResult>();
+    for (var entry : entries) {
+      // Each top-level entry is one draw; its evening counterpart is nested.
+      addIfMatches(entry, wantedCodes, sourceHash, url, query, results);
+      addIfMatches(
+          entry.get("RelatedEveningDrawing"), wantedCodes, sourceHash, url, query, results);
+    }
+
+    return new UsLotteryProviderResponse(
+        PROVIDER,
+        query.drawDate(),
+        query.drawTime(),
+        query.timezone(),
+        List.copyOf(results),
+        query.includeRaw() ? body : null);
+  }
+
+  private void addIfMatches(
+      JsonNode node,
+      Set<String> wantedCodes,
+      String sourceHash,
+      String url,
+      UsLotteryProviderQuery query,
+      List<UsLotteryProviderResult> sink) {
+
+    if (node == null || node.isNull()) {
+      return;
+    }
+    try {
+      var mapped = mapDrawing(node, wantedCodes, sourceHash, url, query);
+      if (mapped != null) {
+        sink.add(mapped);
+      }
+    } catch (Exception ex) {
+      log.warn(
+          "pa-client skipped invalid entry drawDate={} providerSlotCode={} err={}",
+          query.drawDate(),
+          query.providerSlotCode(),
+          ex.getMessage(),
+          ex);
+    }
+  }
+
+  private UsLotteryProviderResult mapDrawing(
+      JsonNode node,
+      Set<String> wantedCodes,
+      String sourceHash,
+      String url,
+      UsLotteryProviderQuery query) {
+
+    var gameCode = normalizeGameCode(text(node, "GameName"));
+    if (gameCode.isBlank()) {
+      return null;
+    }
+    if (!wantedCodes.isEmpty() && !wantedCodes.contains(gameCode)) {
+      return null;
+    }
+
+    var slot = isMidday(node) ? "MIDDAY" : "EVENING";
+    if (!ProviderSlotCodeMatcher.matches(slot, query.providerSlotCode())) {
+      return null;
+    }
+
+    var drawDate = resolveDate(node, query);
+    if (drawDate == null || !query.drawDate().equals(drawDate)) {
+      return null;
+    }
+
+    var ballCount = intValue(node.get("GameBallCount"));
+    var digits = digits(node.get("DrawingNumbersAsList"));
+    if (digits.isEmpty()) {
+      return null;
+    }
+
+    // DrawingNumbersAsList = GameBallCount main digits + trailing Wild Ball.
+    List<String> main;
+    List<String> extras;
+    if (ballCount > 0 && digits.size() > ballCount) {
+      main = List.copyOf(digits.subList(0, ballCount));
+      extras = List.copyOf(digits.subList(ballCount, digits.size()));
+    } else {
+      main = digits;
+      extras = List.of();
+    }
+
+    var quality =
+        ballCount > 0 && main.size() == ballCount ? ResultQuality.COMPLETE : ResultQuality.SUSPECT;
+
+    var metadata = new LinkedHashMap<String, String>();
+    metadata.put("provider", PROVIDER.name());
+    metadata.put("game_code", gameCode);
+    metadata.put("draw_date", drawDate.toString());
+    metadata.put("provider_slot_code", slot);
+    metadata.put(
+        "expected_provider_slot_code", ProviderSlotCodeMatcher.normalize(query.providerSlotCode()));
+    metadata.put("drawing_name", text(node, "DrawingName"));
+    if (!extras.isEmpty()) {
+      metadata.put("wild_ball", String.join(",", extras));
+    }
+
+    var flags = new UsProviderSourceFlags(ORIGIN, sourceHash, url, Map.copyOf(metadata));
+
+    return new UsLotteryProviderResult(
+        gameCode,
+        main,
+        extras,
+        quality,
+        flags,
+        query.drawDate().atTime(query.drawTime()).atZone(query.timezone()).toInstant(),
+        query.includeRaw() ? node.toString() : null);
+  }
+
+  private List<JsonNode> parseEntries(String body) {
+    var nodes = new ArrayList<JsonNode>();
+    try {
+      JsonNode root = json.readTree(body);
+      if (root != null && root.isArray()) {
+        root.forEach(nodes::add);
+      }
+    } catch (Exception ex) {
+      log.warn("pa-client parse failed: {}", ex.getMessage(), ex);
+    }
+    return nodes;
+  }
+
+  private LocalDate resolveDate(JsonNode node, UsLotteryProviderQuery query) {
+    var ms = node.get("DrawingDate");
+    if (ms != null && !ms.isNull()) {
+      var matcher = MS_DATE.matcher(ms.asString());
+      if (matcher.find()) {
         try {
-            var mapped = mapDrawing(node, wantedCodes, sourceHash, url, query);
-            if (mapped != null) {
-                sink.add(mapped);
-            }
-        } catch (Exception ex) {
-            log.warn(
-                "pa-client skipped invalid entry drawDate={} providerSlotCode={} err={}",
-                query.drawDate(), query.providerSlotCode(), ex.getMessage(), ex);
+          return Instant.ofEpochMilli(Long.parseLong(matcher.group(1)))
+              .atZone(query.timezone())
+              .toLocalDate();
+        } catch (Exception ignored) {
+          // fall through to string date
         }
+      }
     }
-
-    private UsLotteryProviderResult mapDrawing(
-        JsonNode node,
-        Set<String> wantedCodes,
-        String sourceHash,
-        String url,
-        UsLotteryProviderQuery query) {
-
-        var gameCode = normalizeGameCode(text(node, "GameName"));
-        if (gameCode.isBlank()) {
-            return null;
-        }
-        if (!wantedCodes.isEmpty() && !wantedCodes.contains(gameCode)) {
-            return null;
-        }
-
-        var slot = isMidday(node) ? "MIDDAY" : "EVENING";
-        if (!ProviderSlotCodeMatcher.matches(slot, query.providerSlotCode())) {
-            return null;
-        }
-
-        var drawDate = resolveDate(node, query);
-        if (drawDate == null || !query.drawDate().equals(drawDate)) {
-            return null;
-        }
-
-        var ballCount = intValue(node.get("GameBallCount"));
-        var digits = digits(node.get("DrawingNumbersAsList"));
-        if (digits.isEmpty()) {
-            return null;
-        }
-
-        // DrawingNumbersAsList = GameBallCount main digits + trailing Wild Ball.
-        List<String> main;
-        List<String> extras;
-        if (ballCount > 0 && digits.size() > ballCount) {
-            main = List.copyOf(digits.subList(0, ballCount));
-            extras = List.copyOf(digits.subList(ballCount, digits.size()));
-        } else {
-            main = digits;
-            extras = List.of();
-        }
-
-        var quality = ballCount > 0 && main.size() == ballCount
-            ? ResultQuality.COMPLETE
-            : ResultQuality.SUSPECT;
-
-        var metadata = new LinkedHashMap<String, String>();
-        metadata.put("provider", PROVIDER.name());
-        metadata.put("game_code", gameCode);
-        metadata.put("draw_date", drawDate.toString());
-        metadata.put("provider_slot_code", slot);
-        metadata.put("expected_provider_slot_code", ProviderSlotCodeMatcher.normalize(query.providerSlotCode()));
-        metadata.put("drawing_name", text(node, "DrawingName"));
-        if (!extras.isEmpty()) {
-            metadata.put("wild_ball", String.join(",", extras));
-        }
-
-        var flags = new UsProviderSourceFlags(ORIGIN, sourceHash, url, Map.copyOf(metadata));
-
-        return new UsLotteryProviderResult(
-            gameCode,
-            main,
-            extras,
-            quality,
-            flags,
-            query.drawDate().atTime(query.drawTime()).atZone(query.timezone()).toInstant(),
-            query.includeRaw() ? node.toString() : null);
+    var raw = text(node, "DrawingDateAsString");
+    if (StringUtils.isNotBlank(raw)) {
+      try {
+        return LocalDate.parse(raw.trim(), MDY);
+      } catch (Exception ex) {
+        log.warn("pa-client failed to parse date '{}': {}", raw, ex.getMessage());
+      }
     }
+    return null;
+  }
 
-    private List<JsonNode> parseEntries(String body) {
-        var nodes = new ArrayList<JsonNode>();
-        try {
-            JsonNode root = json.readTree(body);
-            if (root != null && root.isArray()) {
-                root.forEach(nodes::add);
-            }
-        } catch (Exception ex) {
-            log.warn("pa-client parse failed: {}", ex.getMessage(), ex);
-        }
-        return nodes;
-    }
+  private static boolean isMidday(JsonNode node) {
+    var flag = node.get("IsMidDayDrawing");
+    return flag != null && !flag.isNull() && "true".equalsIgnoreCase(flag.asString());
+  }
 
-    private LocalDate resolveDate(JsonNode node, UsLotteryProviderQuery query) {
-        var ms = node.get("DrawingDate");
-        if (ms != null && !ms.isNull()) {
-            var matcher = MS_DATE.matcher(ms.asString());
-            if (matcher.find()) {
-                try {
-                    return Instant.ofEpochMilli(Long.parseLong(matcher.group(1)))
-                        .atZone(query.timezone()).toLocalDate();
-                } catch (Exception ignored) {
-                    // fall through to string date
-                }
-            }
-        }
-        var raw = text(node, "DrawingDateAsString");
-        if (StringUtils.isNotBlank(raw)) {
-            try {
-                return LocalDate.parse(raw.trim(), MDY);
-            } catch (Exception ex) {
-                log.warn("pa-client failed to parse date '{}': {}", raw, ex.getMessage());
-            }
-        }
-        return null;
+  private static List<String> digits(JsonNode list) {
+    if (list == null || !list.isArray()) {
+      return List.of();
     }
+    var out = new ArrayList<String>();
+    for (var el : list) {
+      if (el == null || el.isNull()) {
+        continue;
+      }
+      var v = el.asString().trim();
+      if (v.matches("\\d+")) {
+        out.add(v);
+      }
+    }
+    return out;
+  }
 
-    private static boolean isMidday(JsonNode node) {
-        var flag = node.get("IsMidDayDrawing");
-        return flag != null && !flag.isNull() && "true".equalsIgnoreCase(flag.asString());
+  private static int intValue(JsonNode node) {
+    if (node == null || node.isNull()) {
+      return 0;
     }
+    try {
+      return Integer.parseInt(node.asString().trim());
+    } catch (Exception ex) {
+      return 0;
+    }
+  }
 
-    private static List<String> digits(JsonNode list) {
-        if (list == null || !list.isArray()) {
-            return List.of();
-        }
-        var out = new ArrayList<String>();
-        for (var el : list) {
-            if (el == null || el.isNull()) {
-                continue;
-            }
-            var v = el.asString().trim();
-            if (v.matches("\\d+")) {
-                out.add(v);
-            }
-        }
-        return out;
-    }
+  private static String text(JsonNode node, String field) {
+    var value = node.get(field);
+    return value == null || value.isNull() ? "" : value.asString().trim();
+  }
 
-    private static int intValue(JsonNode node) {
-        if (node == null || node.isNull()) {
-            return 0;
-        }
-        try {
-            return Integer.parseInt(node.asString().trim());
-        } catch (Exception ex) {
-            return 0;
-        }
-    }
+  private static String normalizeGameCode(String raw) {
+    var n = ProviderSlotCodeMatcher.normalize(raw);
+    return switch (n) {
+      case "PICK2" -> "PICK2";
+      case "PICK3" -> "PICK3";
+      case "PICK4" -> "PICK4";
+      case "PICK5" -> "PICK5";
+      default -> "";
+    };
+  }
 
-    private static String text(JsonNode node, String field) {
-        var value = node.get(field);
-        return value == null || value.isNull() ? "" : value.asString().trim();
+  private static Set<String> normalizeWantedCodes(Set<String> codes) {
+    if (codes == null || codes.isEmpty()) {
+      return Set.of();
     }
-
-    private static String normalizeGameCode(String raw) {
-        var n = ProviderSlotCodeMatcher.normalize(raw);
-        return switch (n) {
-            case "PICK2" -> "PICK2";
-            case "PICK3" -> "PICK3";
-            case "PICK4" -> "PICK4";
-            case "PICK5" -> "PICK5";
-            default -> "";
-        };
-    }
-
-    private static Set<String> normalizeWantedCodes(Set<String> codes) {
-        if (codes == null || codes.isEmpty()) {
-            return Set.of();
-        }
-        return codes.stream()
-            .filter(Objects::nonNull)
-            .map(PennsylvaniaDrawResultsMapper::normalizeGameCode)
-            .filter(s -> !s.isBlank())
-            .collect(Collectors.toUnmodifiableSet());
-    }
+    return codes.stream()
+        .filter(Objects::nonNull)
+        .map(PennsylvaniaDrawResultsMapper::normalizeGameCode)
+        .filter(s -> !s.isBlank())
+        .collect(Collectors.toUnmodifiableSet());
+  }
 }

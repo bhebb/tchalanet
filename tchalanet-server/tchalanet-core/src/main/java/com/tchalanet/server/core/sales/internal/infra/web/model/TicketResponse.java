@@ -25,5 +25,4 @@ public record TicketResponse(
     Money totalAmount,
     TicketPrintStatus printStatus,
     Instant soldAt,
-    Instant placedAt
-) {}
+    Instant placedAt) {}

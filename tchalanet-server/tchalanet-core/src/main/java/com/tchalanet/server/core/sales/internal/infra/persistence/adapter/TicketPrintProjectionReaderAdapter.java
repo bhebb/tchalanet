@@ -15,18 +15,23 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class TicketPrintProjectionReaderAdapter implements TicketPrintReaderPort {
 
-    private final TicketPrintHeaderViewRepository headerRepository;
-    private final TicketJpaRepository ticketRepository;
-    private final TicketJpaMapper ticketMapper;
-    private final TicketPrintViewMapper ticketPrintViewMapper;
+  private final TicketPrintHeaderViewRepository headerRepository;
+  private final TicketJpaRepository ticketRepository;
+  private final TicketJpaMapper ticketMapper;
+  private final TicketPrintViewMapper ticketPrintViewMapper;
 
-    @Override
-    @Transactional(readOnly = true)
-    public TicketPrintView findPrintViewRequired(TicketId ticketId) {
-        var header = headerRepository.getRequired(ticketId.value());
-        var ticketEntity = ticketRepository.findById(ticketId.uuid())
-            .orElseThrow(() -> new IllegalStateException("Ticket aggregate not found for print header: " + ticketId));
-        var ticket = ticketMapper.toDomain(ticketEntity);
-        return ticketPrintViewMapper.toPrintView(header, ticket);
-    }
+  @Override
+  @Transactional(readOnly = true)
+  public TicketPrintView findPrintViewRequired(TicketId ticketId) {
+    var header = headerRepository.getRequired(ticketId.value());
+    var ticketEntity =
+        ticketRepository
+            .findById(ticketId.uuid())
+            .orElseThrow(
+                () ->
+                    new IllegalStateException(
+                        "Ticket aggregate not found for print header: " + ticketId));
+    var ticket = ticketMapper.toDomain(ticketEntity);
+    return ticketPrintViewMapper.toPrintView(header, ticket);
+  }
 }

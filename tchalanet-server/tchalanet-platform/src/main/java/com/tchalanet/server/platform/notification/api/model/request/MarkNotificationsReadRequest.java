@@ -5,4 +5,5 @@ import com.tchalanet.server.common.types.id.UserId;
 import jakarta.validation.constraints.NotEmpty;
 import java.util.List;
 
-public record MarkNotificationsReadRequest(@NotEmpty List<NotificationId> notificationIds, UserId actorId) {}
+public record MarkNotificationsReadRequest(
+    @NotEmpty List<NotificationId> notificationIds, UserId actorId) {}

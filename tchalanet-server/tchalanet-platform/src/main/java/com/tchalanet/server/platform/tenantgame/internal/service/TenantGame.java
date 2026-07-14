@@ -4,15 +4,14 @@ import com.tchalanet.server.common.types.id.GameId;
 import com.tchalanet.server.common.types.id.TenantGameId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.platform.tenantgame.api.model.TenantBetTypeOptionConfig;
-
 import java.math.BigDecimal;
 import java.time.LocalTime;
 import java.util.List;
 
 /**
- * Tenant game domain model — tenant-owned fields only.
- * Catalog fields (name, category, combination, minDigits, maxDigits) are NOT stored here.
- * Fetch them from {@code GameCatalog} when needed for display/validation.
+ * Tenant game domain model — tenant-owned fields only. Catalog fields (name, category, combination,
+ * minDigits, maxDigits) are NOT stored here. Fetch them from {@code GameCatalog} when needed for
+ * display/validation.
  */
 public record TenantGame(
     TenantGameId tenantGameId,
@@ -29,5 +28,4 @@ public record TenantGame(
     String availabilityDays,
     LocalTime startLocalTime,
     LocalTime endLocalTime,
-    List<TenantBetTypeOptionConfig> betOptionConfig
-) {}
+    List<TenantBetTypeOptionConfig> betOptionConfig) {}

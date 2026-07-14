@@ -7,7 +7,6 @@ import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.core.sales.api.model.view.TicketRow;
-
 import java.time.Instant;
 
 public record ListTicketsQuery(
@@ -17,11 +16,11 @@ public record ListTicketsQuery(
     String q,
     Instant from,
     Instant to,
-    TchPageRequest page
-) implements Query<TchPage<TicketRow>> {
-    public ListTicketsQuery {
-        if (from != null && to != null && to.isBefore(from)) {
-            throw ProblemRest.badRequest("ticket.filter.invalid_date_range");
-        }
+    TchPageRequest page)
+    implements Query<TchPage<TicketRow>> {
+  public ListTicketsQuery {
+    if (from != null && to != null && to.isBefore(from)) {
+      throw ProblemRest.badRequest("ticket.filter.invalid_date_range");
     }
+  }
 }

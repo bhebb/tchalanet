@@ -11,14 +11,14 @@ import jakarta.persistence.UniqueConstraint;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.envers.Audited;
 
 @Entity
 @Table(
     name = "tenant_user",
     uniqueConstraints =
         @UniqueConstraint(
-            name = "ux_tenant_user_tenant_user", columnNames = {"tenant_id", "user_id"}))
+            name = "ux_tenant_user_tenant_user",
+            columnNames = {"tenant_id", "user_id"}))
 @Getter
 @Setter
 public class TenantUserJpaEntity extends BaseTenantEntity {

@@ -9,11 +9,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @RequiredArgsConstructor
 class IdempotencyWebMvcConfig implements WebMvcConfigurer {
 
-    private final RequireIdempotencyInterceptor requireIdempotencyInterceptor;
+  private final RequireIdempotencyInterceptor requireIdempotencyInterceptor;
 
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        // Applies globally; interceptor checks @RequireIdempotency per handler.
-        registry.addInterceptor(requireIdempotencyInterceptor);
-    }
+  @Override
+  public void addInterceptors(InterceptorRegistry registry) {
+    // Applies globally; interceptor checks @RequireIdempotency per handler.
+    registry.addInterceptor(requireIdempotencyInterceptor);
+  }
 }

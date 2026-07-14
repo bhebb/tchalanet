@@ -9,190 +9,218 @@ import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptTextLine;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptView;
 import com.tchalanet.server.core.sales.internal.application.receipt.formatter.ReceiptTextLayout;
 import com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketReceiptBrandingFormatter;
+import com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketReceiptDrawFormatter;
 import com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketReceiptFactsFormatter;
 import com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketReceiptGameLinesFormatter;
 import com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketReceiptI18nResolver;
 import com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketReceiptLabelResolver;
 import com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketReceiptLayoutProfile;
-import com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketReceiptDrawFormatter;
 import com.tchalanet.server.platform.document.api.model.DocumentPrintProfile;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
 public class TicketReceiptPrintFormatter {
 
-    private final TicketReceiptBrandingFormatter brandingFormatter;
-    private final TicketReceiptFactsFormatter factsFormatter;
-    private final TicketReceiptDrawFormatter drawFormatter;
-    private final TicketReceiptGameLinesFormatter gameLinesFormatter;
-    private final TicketReceiptLabelResolver labelResolver;
-    private final TicketReceiptI18nResolver i18nResolver;
-    private final ReceiptTextLayout layout;
-    private final com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketReceiptMoneyFormatter moneyFormatter;
+  private final TicketReceiptBrandingFormatter brandingFormatter;
+  private final TicketReceiptFactsFormatter factsFormatter;
+  private final TicketReceiptDrawFormatter drawFormatter;
+  private final TicketReceiptGameLinesFormatter gameLinesFormatter;
+  private final TicketReceiptLabelResolver labelResolver;
+  private final TicketReceiptI18nResolver i18nResolver;
+  private final ReceiptTextLayout layout;
+  private final com.tchalanet.server.core.sales.internal.application.receipt.formatter
+          .TicketReceiptMoneyFormatter
+      moneyFormatter;
 
-    public TicketReceiptPrintContent format(TicketReceiptView receipt, DocumentPrintProfile documentProfile) {
-        var translations = i18nResolver.resolve(receipt.locale(), receipt.tenantId());
-        var layoutProfile = TicketReceiptLayoutProfile.from(documentProfile);
+  public TicketReceiptPrintContent format(
+      TicketReceiptView receipt, DocumentPrintProfile documentProfile) {
+    var translations = i18nResolver.resolve(receipt.locale(), receipt.tenantId());
+    var layoutProfile = TicketReceiptLayoutProfile.from(documentProfile);
 
-        var header = new ArrayList<TicketReceiptTextLine>();
-        // Copy marker: ORIGINAL on first print, DUPLICATA on reprints.
-        // Sourced from i18n (receipt.copy.original / receipt.copy.duplicate), seeded by V220.
-        var copyKey = receipt.isReprint()
+    var header = new ArrayList<TicketReceiptTextLine>();
+    // Copy marker: ORIGINAL on first print, DUPLICATA on reprints.
+    // Sourced from i18n (receipt.copy.original / receipt.copy.duplicate), seeded by V220.
+    var copyKey =
+        receipt.isReprint()
             ? TicketReceiptI18nKeys.COPY_DUPLICATE
             : TicketReceiptI18nKeys.COPY_ORIGINAL;
-        var copyLabel = translations.text(copyKey);
-        if (copyLabel != null && !copyLabel.isBlank()) {
-            header.add(TicketReceiptTextLine.bold(layout.truncate(copyLabel, layoutProfile.charsPerLine())));
-        }
-        header.addAll(brandingFormatter.headerLines(receipt, layoutProfile));
-        // separator between branding and ticket facts
-        add(header, layout.separator(layoutProfile));
-        header.addAll(factsFormatter.ticketIdentityLines(receipt, translations, layoutProfile));
-        add(header, layout.separator(layoutProfile));
+    var copyLabel = translations.text(copyKey);
+    if (copyLabel != null && !copyLabel.isBlank()) {
+      header.add(
+          TicketReceiptTextLine.bold(layout.truncate(copyLabel, layoutProfile.charsPerLine())));
+    }
+    header.addAll(brandingFormatter.headerLines(receipt, layoutProfile));
+    // separator between branding and ticket facts
+    add(header, layout.separator(layoutProfile));
+    header.addAll(factsFormatter.ticketIdentityLines(receipt, translations, layoutProfile));
+    add(header, layout.separator(layoutProfile));
 
-        var sections = new ArrayList<TicketReceiptSectionContent>();
-        // draw section (no separator between draw and games)
-        sections.add(drawFormatter.drawSection(receipt, translations, layoutProfile));
+    var sections = new ArrayList<TicketReceiptSectionContent>();
+    // draw section (no separator between draw and games)
+    sections.add(drawFormatter.drawSection(receipt, translations, layoutProfile));
 
-        // optional single currency note for receipt paper
-        var currencyNote = moneyFormatter.currencyNote(receipt.stakeTotal(), layoutProfile, translations);
-        if (currencyNote != null && !currencyNote.isBlank()) {
-            sections.add(new TicketReceiptSectionContent(
-                null,
-                List.of(TicketReceiptTextLine.normal(currencyNote))
-            ));
-        }
+    // optional single currency note for receipt paper
+    var currencyNote =
+        moneyFormatter.currencyNote(receipt.stakeTotal(), layoutProfile, translations);
+    if (currencyNote != null && !currencyNote.isBlank()) {
+      sections.add(
+          new TicketReceiptSectionContent(
+              null, List.of(TicketReceiptTextLine.normal(currencyNote))));
+    }
+    sections.add(blankSection());
+
+    boolean firstGame = true;
+
+    for (var section : receipt.gameSections()) {
+      if (!firstGame) {
         sections.add(blankSection());
+      }
 
-        boolean firstGame = true;
+      var gameTitle = labelResolver.gameTitle(section, translations);
+      var safeTitle = layout.truncate(gameTitle, layoutProfile.charsPerLine());
 
-        for (var section : receipt.gameSections()) {
-            if (!firstGame) {
-                sections.add(blankSection());
-            }
+      sections.add(
+          new TicketReceiptSectionContent(
+              safeTitle, gameLinesFormatter.format(section.lines(), translations, layoutProfile)));
 
-            var gameTitle = labelResolver.gameTitle(section, translations);
-            var safeTitle = layout.truncate(gameTitle, layoutProfile.charsPerLine());
-
-            sections.add(new TicketReceiptSectionContent(
-                safeTitle,
-                gameLinesFormatter.format(section.lines(), translations, layoutProfile)
-            ));
-
-            firstGame = false;
-        }
-
-        var totals = new ArrayList<TicketReceiptTextLine>();
-        // separator before money summary
-        add(totals, layout.separator(layoutProfile));
-        addLabel(totals, translations.text(TicketReceiptI18nKeys.TOTAL_STAKE), receipt.stakeTotal(), false, layoutProfile);
-        addLabel(totals, translations.text(TicketReceiptI18nKeys.TOTAL_AMOUNT), receipt.totalAmount(), true, layoutProfile);
-
-        // Verification footer (A4 + thermal): show the public code under a
-        // "Vérification" label and invite scanning the QR. Never print the full
-        // verification URL as text — the QR (built from verificationUrl) carries it.
-        var footer = new ArrayList<TicketReceiptTextLine>();
-        add(footer, layout.separator(layoutProfile));
-        addLabel(footer, translations.text(TicketReceiptI18nKeys.VERIFICATION), receipt.displayCode(), false, layoutProfile);
-        var scan = translations.text(TicketReceiptI18nKeys.SCAN_TO_VERIFY);
-        if (scan != null && !scan.isBlank()) {
-            add(footer, layout.truncate(scan, layoutProfile.charsPerLine()));
-        }
-
-        var postQr = new ArrayList<TicketReceiptTextLine>();
-        postQr.addAll(brandingFormatter.footerLines(receipt, layoutProfile));
-
-        // Assert no produced line exceeds the layout width (guard anti-overflow)
-        assertLines("header", header, layoutProfile);
-        for (var section : sections) {
-            if (section.title() != null && section.title().length() > layoutProfile.charsPerLine()) {
-                throw new IllegalStateException(
-                    "Receipt section title exceeds width "
-                        + layoutProfile.charsPerLine() + ": " + section.title()
-                );
-            }
-            assertLines("section", section.lines(), layoutProfile);
-        }
-        assertLines("totals", totals, layoutProfile);
-        assertLines("footer", footer, layoutProfile);
-        assertLines("postQr", postQr, layoutProfile);
-
-        return new TicketReceiptPrintContent(
-            firstNonBlank(receipt.tenantDisplayName(), "Ticket Tchalanet"),
-            header,
-            sections,
-            totals,
-            footer,
-            postQr,
-            new TicketReceiptQrView(receipt.verificationUrl(), receipt.verificationUrl()),
-            "ticket-" + receipt.displayCode(),
-            receipt.locale(),
-            receipt.timezone(),
-            Map.of(
-                "ticketId", receipt.ticketId().value().toString(),
-                "publicCode", receipt.publicCode(),
-                "displayCode", receipt.displayCode(),
-                "format", documentProfile.outputFormat().name(),
-                "paperSize", documentProfile.paperSize().name()
-            )
-        );
+      firstGame = false;
     }
 
-    private TicketReceiptSectionContent blankSection() {
-        return new TicketReceiptSectionContent(
-            null,
-            List.of(TicketReceiptTextLine.normal(""))
-        );
+    var totals = new ArrayList<TicketReceiptTextLine>();
+    // separator before money summary
+    add(totals, layout.separator(layoutProfile));
+    addLabel(
+        totals,
+        translations.text(TicketReceiptI18nKeys.TOTAL_STAKE),
+        receipt.stakeTotal(),
+        false,
+        layoutProfile);
+    addLabel(
+        totals,
+        translations.text(TicketReceiptI18nKeys.TOTAL_AMOUNT),
+        receipt.totalAmount(),
+        true,
+        layoutProfile);
+
+    // Verification footer (A4 + thermal): show the public code under a
+    // "Vérification" label and invite scanning the QR. Never print the full
+    // verification URL as text — the QR (built from verificationUrl) carries it.
+    var footer = new ArrayList<TicketReceiptTextLine>();
+    add(footer, layout.separator(layoutProfile));
+    addLabel(
+        footer,
+        translations.text(TicketReceiptI18nKeys.VERIFICATION),
+        receipt.displayCode(),
+        false,
+        layoutProfile);
+    var scan = translations.text(TicketReceiptI18nKeys.SCAN_TO_VERIFY);
+    if (scan != null && !scan.isBlank()) {
+      add(footer, layout.truncate(scan, layoutProfile.charsPerLine()));
     }
 
-    private void add(List<TicketReceiptTextLine> lines, String value) {
-        add(lines, value, false);
-    }
+    var postQr = new ArrayList<TicketReceiptTextLine>();
+    postQr.addAll(brandingFormatter.footerLines(receipt, layoutProfile));
 
-    private void add(List<TicketReceiptTextLine> lines, String value, boolean bold) {
-        if (value != null && !value.isBlank()) {
-            lines.add(bold ? TicketReceiptTextLine.bold(value) : TicketReceiptTextLine.normal(value));
-        }
+    // Assert no produced line exceeds the layout width (guard anti-overflow)
+    assertLines("header", header, layoutProfile);
+    for (var section : sections) {
+      if (section.title() != null && section.title().length() > layoutProfile.charsPerLine()) {
+        throw new IllegalStateException(
+            "Receipt section title exceeds width "
+                + layoutProfile.charsPerLine()
+                + ": "
+                + section.title());
+      }
+      assertLines("section", section.lines(), layoutProfile);
     }
+    assertLines("totals", totals, layoutProfile);
+    assertLines("footer", footer, layoutProfile);
+    assertLines("postQr", postQr, layoutProfile);
 
-    private void addLabel(List<TicketReceiptTextLine> lines, String label, Money value, boolean bold, TicketReceiptLayoutProfile profile) {
-        if (value != null) {
-            var formatted = moneyFormatter.format(value, profile);
-            if (formatted != null && !formatted.isBlank()) {
-                var text = layout.labelValue(label, formatted, profile);
-                lines.add(bold ? TicketReceiptTextLine.bold(text) : TicketReceiptTextLine.normal(text));
-            }
-        }
-    }
+    return new TicketReceiptPrintContent(
+        firstNonBlank(receipt.tenantDisplayName(), "Ticket Tchalanet"),
+        header,
+        sections,
+        totals,
+        footer,
+        postQr,
+        new TicketReceiptQrView(receipt.verificationUrl(), receipt.verificationUrl()),
+        "ticket-" + receipt.displayCode(),
+        receipt.locale(),
+        receipt.timezone(),
+        Map.of(
+            "ticketId", receipt.ticketId().value().toString(),
+            "publicCode", receipt.publicCode(),
+            "displayCode", receipt.displayCode(),
+            "format", documentProfile.outputFormat().name(),
+            "paperSize", documentProfile.paperSize().name()));
+  }
 
-    private void addLabel(List<TicketReceiptTextLine> lines, String label, String value, boolean bold, TicketReceiptLayoutProfile profile) {
-        if (value != null && !value.isBlank()) {
-            var text = layout.labelValue(label, value, profile);
-            lines.add(bold ? TicketReceiptTextLine.bold(text) : TicketReceiptTextLine.normal(text));
-        }
-    }
+  private TicketReceiptSectionContent blankSection() {
+    return new TicketReceiptSectionContent(null, List.of(TicketReceiptTextLine.normal("")));
+  }
 
-    private void assertLines(String part, List<TicketReceiptTextLine> lines, TicketReceiptLayoutProfile profile) {
-        if (lines == null) {
-            return;
-        }
-        for (var line : lines) {
-            if (line.text().length() > profile.charsPerLine()) {
-                throw new IllegalStateException(
-                    "Receipt " + part + " line exceeds width "
-                        + profile.charsPerLine() + ": " + line.text()
-                );
-            }
-        }
-    }
+  private void add(List<TicketReceiptTextLine> lines, String value) {
+    add(lines, value, false);
+  }
 
-    private String firstNonBlank(String preferred, String fallback) {
-        return preferred == null || preferred.isBlank() ? fallback : preferred;
+  private void add(List<TicketReceiptTextLine> lines, String value, boolean bold) {
+    if (value != null && !value.isBlank()) {
+      lines.add(bold ? TicketReceiptTextLine.bold(value) : TicketReceiptTextLine.normal(value));
     }
+  }
+
+  private void addLabel(
+      List<TicketReceiptTextLine> lines,
+      String label,
+      Money value,
+      boolean bold,
+      TicketReceiptLayoutProfile profile) {
+    if (value != null) {
+      var formatted = moneyFormatter.format(value, profile);
+      if (formatted != null && !formatted.isBlank()) {
+        var text = layout.labelValue(label, formatted, profile);
+        lines.add(bold ? TicketReceiptTextLine.bold(text) : TicketReceiptTextLine.normal(text));
+      }
+    }
+  }
+
+  private void addLabel(
+      List<TicketReceiptTextLine> lines,
+      String label,
+      String value,
+      boolean bold,
+      TicketReceiptLayoutProfile profile) {
+    if (value != null && !value.isBlank()) {
+      var text = layout.labelValue(label, value, profile);
+      lines.add(bold ? TicketReceiptTextLine.bold(text) : TicketReceiptTextLine.normal(text));
+    }
+  }
+
+  private void assertLines(
+      String part, List<TicketReceiptTextLine> lines, TicketReceiptLayoutProfile profile) {
+    if (lines == null) {
+      return;
+    }
+    for (var line : lines) {
+      if (line.text().length() > profile.charsPerLine()) {
+        throw new IllegalStateException(
+            "Receipt "
+                + part
+                + " line exceeds width "
+                + profile.charsPerLine()
+                + ": "
+                + line.text());
+      }
+    }
+  }
+
+  private String firstNonBlank(String preferred, String fallback) {
+    return preferred == null || preferred.isBlank() ? fallback : preferred;
+  }
 }

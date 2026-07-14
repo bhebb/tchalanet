@@ -8,8 +8,7 @@ import java.lang.annotation.Target;
 /**
  * Declarative permission check marker.
  *
- * <p>Usage : @RequiresPermission("ticket.sell") @RequiresPermission({"ticket.sell",
- * "ticket.pay"})
+ * <p>Usage : @RequiresPermission("ticket.sell") @RequiresPermission({"ticket.sell", "ticket.pay"})
  *
  * <p>Sémantique : l'utilisateur doit posséder TOUTES les permissions listées.
  */

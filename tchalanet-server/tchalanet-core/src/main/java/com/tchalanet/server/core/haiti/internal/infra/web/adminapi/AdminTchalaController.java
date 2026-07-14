@@ -111,11 +111,10 @@ public class AdminTchalaController {
 
   @PostMapping(value = "/import", consumes = "multipart/form-data")
   @ResponseStatus(HttpStatus.OK)
-  public ApiResponse<ImportTchalaReport>
-      uploadImport(
-          @RequestParam(defaultValue = "fr") String lang,
-          @RequestParam ImportTchalaEntriesCommand.ImportMode mode,
-          @RequestPart("file") org.springframework.web.multipart.MultipartFile file) {
+  public ApiResponse<ImportTchalaReport> uploadImport(
+      @RequestParam(defaultValue = "fr") String lang,
+      @RequestParam ImportTchalaEntriesCommand.ImportMode mode,
+      @RequestPart("file") org.springframework.web.multipart.MultipartFile file) {
 
     if (file == null || file.isEmpty()) throw new IllegalArgumentException("file is empty");
 

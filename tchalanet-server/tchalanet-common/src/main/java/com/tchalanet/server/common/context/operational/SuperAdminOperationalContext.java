@@ -8,11 +8,11 @@ public record SuperAdminOperationalContext(
     UserId actorUserId,
     String overrideReason,
     OperationalContextSource source,
-    OperationalContextTrust trustLevel
-) implements OperationalRequestContext {
+    OperationalContextTrust trustLevel)
+    implements OperationalRequestContext {
 
-    @Override
-    public OperationalContextRole role() {
-        return OperationalContextRole.SUPER_ADMIN;
-    }
+  @Override
+  public OperationalContextRole role() {
+    return OperationalContextRole.SUPER_ADMIN;
+  }
 }

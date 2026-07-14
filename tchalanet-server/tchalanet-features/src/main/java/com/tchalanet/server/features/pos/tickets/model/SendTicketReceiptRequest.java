@@ -10,6 +10,4 @@ public record SendTicketReceiptRequest(
     @NotNull CommunicationChannel channel,
     String to,
     String channelKey,
-    Locale locale
-) {
-}
+    Locale locale) {}

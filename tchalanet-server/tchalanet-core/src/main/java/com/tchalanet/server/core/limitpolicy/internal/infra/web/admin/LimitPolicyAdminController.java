@@ -1,28 +1,29 @@
 package com.tchalanet.server.core.limitpolicy.internal.infra.web.admin;
 
-import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
-import com.tchalanet.server.core.limitpolicy.api.TargetType;
+import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.LimitAssignmentId;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.web.api.ApiResponse;
+import com.tchalanet.server.core.limitpolicy.api.TargetType;
 import com.tchalanet.server.core.limitpolicy.api.command.DeleteLimitAssignmentCommand;
 import com.tchalanet.server.core.limitpolicy.api.command.DeleteLimitAssignmentResult;
 import com.tchalanet.server.core.limitpolicy.api.command.UpsertLimitAssignmentCommand;
 import com.tchalanet.server.core.limitpolicy.api.command.UpsertLimitAssignmentResult;
+import com.tchalanet.server.core.limitpolicy.api.model.LimitScopeRef;
+import com.tchalanet.server.core.limitpolicy.api.query.LimitRuleSpec;
+import com.tchalanet.server.core.limitpolicy.api.query.LimitScopeQueryRef;
+import com.tchalanet.server.core.limitpolicy.api.query.ListAvailableLimitRulesQuery;
 import com.tchalanet.server.core.limitpolicy.api.query.ListLimitAssignmentsByScopeQuery;
 import com.tchalanet.server.core.limitpolicy.api.query.ListLimitAssignmentsView;
-import com.tchalanet.server.core.limitpolicy.api.query.LimitRuleSpec;
-import com.tchalanet.server.core.limitpolicy.api.query.ListAvailableLimitRulesQuery;
-import com.tchalanet.server.core.limitpolicy.api.query.LimitScopeQueryRef;
-import com.tchalanet.server.core.limitpolicy.api.model.LimitScopeRef;
 import com.tchalanet.server.core.limitpolicy.internal.infra.web.admin.model.UpsertLimitAssignmentRequest;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -35,8 +36,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/admin/policies/limits")
 @PreAuthorize("hasPermission(null, 'limit.read')")
@@ -45,33 +44,28 @@ import java.util.List;
 @Validated
 public class LimitPolicyAdminController {
 
-    private final CommandBus commandBus;
-    private final QueryBus queryBus;
+  private final CommandBus commandBus;
+  private final QueryBus queryBus;
 
-    @GetMapping("/assignments")
-    public ApiResponse<ListLimitAssignmentsView> listAssignments(
-        @CurrentContext TchRequestContext context,
-        @RequestParam("target") TargetType targetType,
-        @RequestParam(value = "targetId", required = false) String targetId
-    ) {
-        var scope = toLimitScopeQueryRef(context, targetType, targetId);
+  @GetMapping("/assignments")
+  public ApiResponse<ListLimitAssignmentsView> listAssignments(
+      @CurrentContext TchRequestContext context,
+      @RequestParam("target") TargetType targetType,
+      @RequestParam(value = "targetId", required = false) String targetId) {
+    var scope = toLimitScopeQueryRef(context, targetType, targetId);
 
-        return ApiResponse.success(
-            queryBus.ask(new ListLimitAssignmentsByScopeQuery(scope)));
-    }
+    return ApiResponse.success(queryBus.ask(new ListLimitAssignmentsByScopeQuery(scope)));
+  }
 
-    @PutMapping("/assignments")
-    @PreAuthorize("hasPermission(null, 'limit.manage')")
-    public ApiResponse<UpsertLimitAssignmentResult> upsertAssignment(
-        @CurrentContext TchRequestContext context,
-        @Valid @RequestBody UpsertLimitAssignmentRequest req
-    ) {
-        var scope = toLimitScopeRef(
-            context,
-            req.targetType(),
-            req.targetId());
+  @PutMapping("/assignments")
+  @PreAuthorize("hasPermission(null, 'limit.manage')")
+  public ApiResponse<UpsertLimitAssignmentResult> upsertAssignment(
+      @CurrentContext TchRequestContext context,
+      @Valid @RequestBody UpsertLimitAssignmentRequest req) {
+    var scope = toLimitScopeRef(context, req.targetType(), req.targetId());
 
-        var cmd = new UpsertLimitAssignmentCommand(
+    var cmd =
+        new UpsertLimitAssignmentCommand(
             context.tenantIdRequired(),
             req.ruleKey(),
             scope,
@@ -81,89 +75,80 @@ public class LimitPolicyAdminController {
             req.startsAt(),
             req.endsAt());
 
-        return ApiResponse.success(commandBus.execute(cmd));
+    return ApiResponse.success(commandBus.execute(cmd));
+  }
+
+  @DeleteMapping("/assignments/{id}")
+  @PreAuthorize("hasPermission(null, 'limit.manage')")
+  public ApiResponse<DeleteLimitAssignmentResult> deleteAssignment(
+      @PathVariable LimitAssignmentId id) {
+    return ApiResponse.success(commandBus.execute(new DeleteLimitAssignmentCommand(id)));
+  }
+
+  @GetMapping("/rules")
+  public ApiResponse<List<LimitRuleSpec>> listAvailableRules() {
+    return ApiResponse.success(queryBus.ask(new ListAvailableLimitRulesQuery()));
+  }
+
+  private LimitScopeRef toLimitScopeRef(
+      TchRequestContext context, TargetType targetType, String targetId) {
+    if (targetType == null) {
+      throw new IllegalArgumentException("targetType is required");
     }
 
-    @DeleteMapping("/assignments/{id}")
-    @PreAuthorize("hasPermission(null, 'limit.manage')")
-    public ApiResponse<DeleteLimitAssignmentResult> deleteAssignment(
-        @PathVariable LimitAssignmentId id
-    ) {
-        return ApiResponse.success(
-            commandBus.execute(new DeleteLimitAssignmentCommand(id)));
+    return switch (targetType) {
+      case TENANT -> LimitScopeRef.tenant(context.tenantIdRequired());
+
+      case AGENT -> {
+        requireTargetId(targetType, targetId);
+        yield LimitScopeRef.agent(UserId.parse(targetId));
+      }
+
+      case TERMINAL, SELLER_TERMINAL -> {
+        requireTargetId(targetType, targetId);
+        yield LimitScopeRef.sellerTerminal(SellerTerminalId.parse(targetId));
+      }
+
+      case DRAW_CHANNEL -> {
+        requireTargetId(targetType, targetId);
+        yield LimitScopeRef.drawChannel(DrawChannelId.parse(targetId));
+      }
+
+      default -> throw new IllegalArgumentException("Unsupported targetType: " + targetType);
+    };
+  }
+
+  private LimitScopeQueryRef toLimitScopeQueryRef(
+      TchRequestContext context, TargetType targetType, String targetId) {
+    if (targetType == null) {
+      throw new IllegalArgumentException("targetType is required");
     }
 
-    @GetMapping("/rules")
-    public ApiResponse<List<LimitRuleSpec>> listAvailableRules() {
-        return ApiResponse.success(
-            queryBus.ask(new ListAvailableLimitRulesQuery()));
+    return switch (targetType) {
+      case TENANT -> LimitScopeQueryRef.tenant(context.tenantIdRequired());
+
+      case AGENT -> {
+        requireTargetId(targetType, targetId);
+        yield LimitScopeQueryRef.agent(UserId.parse(targetId));
+      }
+
+      case TERMINAL, SELLER_TERMINAL -> {
+        requireTargetId(targetType, targetId);
+        yield LimitScopeQueryRef.sellerTerminal(SellerTerminalId.parse(targetId));
+      }
+
+      case DRAW_CHANNEL -> {
+        requireTargetId(targetType, targetId);
+        yield LimitScopeQueryRef.drawChannel(DrawChannelId.parse(targetId));
+      }
+
+      default -> throw new IllegalArgumentException("Unsupported targetType: " + targetType);
+    };
+  }
+
+  private void requireTargetId(TargetType targetType, String targetId) {
+    if (targetId == null || targetId.isBlank()) {
+      throw new IllegalArgumentException("targetId is required for " + targetType);
     }
-
-    private LimitScopeRef toLimitScopeRef(
-        TchRequestContext context,
-        TargetType targetType,
-        String targetId
-    ) {
-        if (targetType == null) {
-            throw new IllegalArgumentException("targetType is required");
-        }
-
-        return switch (targetType) {
-            case TENANT -> LimitScopeRef.tenant(context.tenantIdRequired());
-
-            case AGENT -> {
-                requireTargetId(targetType, targetId);
-                yield LimitScopeRef.agent(UserId.parse(targetId));
-            }
-
-            case TERMINAL, SELLER_TERMINAL -> {
-                requireTargetId(targetType, targetId);
-                yield LimitScopeRef.sellerTerminal(SellerTerminalId.parse(targetId));
-            }
-
-            case DRAW_CHANNEL -> {
-                requireTargetId(targetType, targetId);
-                yield LimitScopeRef.drawChannel(DrawChannelId.parse(targetId));
-            }
-
-            default -> throw new IllegalArgumentException("Unsupported targetType: " + targetType);
-        };
-    }
-
-    private LimitScopeQueryRef toLimitScopeQueryRef(
-        TchRequestContext context,
-        TargetType targetType,
-        String targetId
-    ) {
-        if (targetType == null) {
-            throw new IllegalArgumentException("targetType is required");
-        }
-
-        return switch (targetType) {
-            case TENANT -> LimitScopeQueryRef.tenant(context.tenantIdRequired());
-
-            case AGENT -> {
-                requireTargetId(targetType, targetId);
-                yield LimitScopeQueryRef.agent(UserId.parse(targetId));
-            }
-
-            case TERMINAL, SELLER_TERMINAL -> {
-                requireTargetId(targetType, targetId);
-                yield LimitScopeQueryRef.sellerTerminal(SellerTerminalId.parse(targetId));
-            }
-
-            case DRAW_CHANNEL -> {
-                requireTargetId(targetType, targetId);
-                yield LimitScopeQueryRef.drawChannel(DrawChannelId.parse(targetId));
-            }
-
-            default -> throw new IllegalArgumentException("Unsupported targetType: " + targetType);
-        };
-    }
-
-    private void requireTargetId(TargetType targetType, String targetId) {
-        if (targetId == null || targetId.isBlank()) {
-            throw new IllegalArgumentException("targetId is required for " + targetType);
-        }
-    }
+  }
 }

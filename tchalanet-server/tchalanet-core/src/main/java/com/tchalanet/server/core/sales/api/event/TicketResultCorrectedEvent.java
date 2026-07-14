@@ -6,7 +6,6 @@ import com.tchalanet.server.common.types.id.DrawResultId;
 import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TicketId;
-
 import java.time.Instant;
 
 public record TicketResultCorrectedEvent(
@@ -17,6 +16,5 @@ public record TicketResultCorrectedEvent(
     TicketId ticketId,
     DrawResultId previousDrawResultId,
     DrawResultId correctedDrawResultId,
-    String reason
-) implements DomainEvent {
-}
+    String reason)
+    implements DomainEvent {}

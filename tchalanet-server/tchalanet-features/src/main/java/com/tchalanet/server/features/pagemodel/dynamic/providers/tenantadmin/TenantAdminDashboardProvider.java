@@ -11,22 +11,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 /**
- * Single provider for source {@code tenant_admin_dashboard} (dashboard-overview-runtime-v1).
- * Loads the bundled payload once per request via {@link PageModelResolutionContext}
- * and dispatches the relevant slice by widgetId.
+ * Single provider for source {@code tenant_admin_dashboard} (dashboard-overview-runtime-v1). Loads
+ * the bundled payload once per request via {@link PageModelResolutionContext} and dispatches the
+ * relevant slice by widgetId.
  *
- * Supported widget ids:
- *   - dashboard.tenantAdmin.header
- *   - dashboard.tenantAdmin.kpis
- *   - dashboard.tenantAdmin.salesTrend
- *   - dashboard.tenantAdmin.gameBreakdown
- *   - dashboard.tenantAdmin.readiness
- *   - dashboard.tenantAdmin.alerts
- *   - dashboard.tenantAdmin.operations
- *   - dashboard.tenantAdmin.commercial
- *   - dashboard.tenantAdmin.commission
- *   - dashboard.tenantAdmin.publicContent
- *   - dashboard.tenantAdmin.quickActions
+ * <p>Supported widget ids: - dashboard.tenantAdmin.header - dashboard.tenantAdmin.kpis -
+ * dashboard.tenantAdmin.salesTrend - dashboard.tenantAdmin.gameBreakdown -
+ * dashboard.tenantAdmin.readiness - dashboard.tenantAdmin.alerts - dashboard.tenantAdmin.operations
+ * - dashboard.tenantAdmin.commercial - dashboard.tenantAdmin.commission -
+ * dashboard.tenantAdmin.publicContent - dashboard.tenantAdmin.quickActions
  */
 @Component
 @RequiredArgsConstructor
@@ -67,9 +60,10 @@ public class TenantAdminDashboardProvider implements PageModelDynamicProvider {
       case "dashboard.tenantAdmin.commission" -> payload.commission();
       case "dashboard.tenantAdmin.publicContent" -> payload.publicContent();
       case "dashboard.tenantAdmin.quickActions" -> payload.quickActions();
-      default -> throw new PageModelDynamicProviderException(
-          "TENANT_ADMIN_DASHBOARD_UNKNOWN_WIDGET",
-          "Unknown widgetId for source=" + SOURCE + ": " + widgetId);
+      default ->
+          throw new PageModelDynamicProviderException(
+              "TENANT_ADMIN_DASHBOARD_UNKNOWN_WIDGET",
+              "Unknown widgetId for source=" + SOURCE + ": " + widgetId);
     };
   }
 

@@ -6,11 +6,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.tchalanet.server.common.context.TchContextResolver;
+import com.tchalanet.server.platform.audit.api.AuditApi;
+import com.tchalanet.server.platform.audit.api.model.AuditAction;
 import com.tchalanet.server.platform.identity.api.ExternalAuthenticatedUser;
 import com.tchalanet.server.platform.identity.api.IdentityProviderType;
 import com.tchalanet.server.platform.identity.api.model.UserStatus;
-import com.tchalanet.server.platform.audit.api.AuditApi;
-import com.tchalanet.server.platform.audit.api.model.AuditAction;
 import com.tchalanet.server.platform.identity.internal.persistence.entity.AppUserExternalIdentityJpaEntity;
 import com.tchalanet.server.platform.identity.internal.persistence.entity.AppUserJpaEntity;
 import com.tchalanet.server.platform.identity.internal.persistence.repository.AppUserExternalIdentityJpaRepository;
@@ -54,8 +54,7 @@ class ExternalIdentityAppUserResolverTest {
 
     var result = resolver.resolve(externalUser);
 
-    assertThat(result)
-        .contains(new AppUserIdentityResolution(appUserId, UserStatus.ACTIVE));
+    assertThat(result).contains(new AppUserIdentityResolution(appUserId, UserStatus.ACTIVE));
   }
 
   @Test
@@ -73,7 +72,8 @@ class ExternalIdentityAppUserResolverTest {
             externalUser.subject()))
         .thenReturn(Optional.of(legacy));
     when(externalIdentities.save(legacy)).thenReturn(legacy);
-    when(appUsers.findById(appUserId)).thenReturn(Optional.of(appUser(appUserId, UserStatus.ACTIVE)));
+    when(appUsers.findById(appUserId))
+        .thenReturn(Optional.of(appUser(appUserId, UserStatus.ACTIVE)));
 
     assertThat(resolver.resolve(externalUser)).isPresent();
     assertThat(legacy.getIssuer()).isEqualTo(externalUser.issuer());
@@ -96,7 +96,9 @@ class ExternalIdentityAppUserResolverTest {
   }
 
   @ParameterizedTest
-  @EnumSource(value = AppUserBootstrapMode.class, names = {"INVITE_ONLY", "ADMIN_PREPROVISIONED"})
+  @EnumSource(
+      value = AppUserBootstrapMode.class,
+      names = {"INVITE_ONLY", "ADMIN_PREPROVISIONED"})
   void linksVerifiedExternalIdentityToEligiblePreprovisionedUser(AppUserBootstrapMode mode) {
     var externalUser = externalUser(IdentityProviderType.FIREBASE, "firebase-subject");
     var appUserId = UUID.randomUUID();
@@ -227,7 +229,9 @@ class ExternalIdentityAppUserResolverTest {
 
     var result = controlledAutoResolver().resolve(externalUser);
 
-    assertThat(result).get().extracting(AppUserIdentityResolution::status)
+    assertThat(result)
+        .get()
+        .extracting(AppUserIdentityResolution::status)
         .isEqualTo(UserStatus.PENDING_APPROVAL);
     verify(appUsers).save(org.mockito.ArgumentMatchers.any(AppUserJpaEntity.class));
     verify(auditApi)
@@ -235,7 +239,10 @@ class ExternalIdentityAppUserResolverTest {
             org.mockito.ArgumentMatchers.argThat(
                 event ->
                     event.action() == AuditAction.APP_USER_BOOTSTRAP_CREATED
-                        && !event.details().get("externalSubjectRef").equals(externalUser.subject())));
+                        && !event
+                            .details()
+                            .get("externalSubjectRef")
+                            .equals(externalUser.subject())));
   }
 
   @Test
@@ -273,7 +280,8 @@ class ExternalIdentityAppUserResolverTest {
     return new ExternalIdentityAppUserResolver(
         externalIdentities,
         appUsers,
-        new UserBootstrapProperties(true, false, mode, java.util.List.of(), java.util.List.of(), false),
+        new UserBootstrapProperties(
+            true, false, mode, java.util.List.of(), java.util.List.of(), false),
         auditApi,
         contextResolver);
   }
@@ -310,9 +318,7 @@ class ExternalIdentityAppUserResolverTest {
         "firebase-phone-subject",
         null,
         false,
-        Map.of(
-            "phone_number", phone,
-            "firebase", Map.of("sign_in_provider", signInProvider)));
+        Map.of("phone_number", phone, "firebase", Map.of("sign_in_provider", signInProvider)));
   }
 
   private static AppUserExternalIdentityJpaEntity mapping(

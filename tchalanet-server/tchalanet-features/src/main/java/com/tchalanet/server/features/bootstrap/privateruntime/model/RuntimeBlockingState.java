@@ -9,7 +9,9 @@ public record RuntimeBlockingState(
     String titleKey,
     String messageKey,
     Severity severity,
-    @Nullable RuntimeBlockingAction action
-) {
-    public enum Severity { WARN, ERROR }
+    @Nullable RuntimeBlockingAction action) {
+  public enum Severity {
+    WARN,
+    ERROR
+  }
 }

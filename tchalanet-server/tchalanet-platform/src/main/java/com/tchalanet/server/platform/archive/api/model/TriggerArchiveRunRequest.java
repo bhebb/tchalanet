@@ -9,5 +9,4 @@ public record TriggerArchiveRunRequest(
     @NotBlank String strategy,
     @NotNull LocalDate periodStart,
     @NotNull LocalDate periodEnd,
-    @NotBlank @Size(min = 10, max = 500) String reason
-) {}
+    @NotBlank @Size(min = 10, max = 500) String reason) {}

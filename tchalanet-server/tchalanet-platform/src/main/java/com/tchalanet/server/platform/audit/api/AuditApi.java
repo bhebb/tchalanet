@@ -9,9 +9,9 @@ import com.tchalanet.server.platform.audit.api.model.request.PurgeOldAuditEvents
 
 public interface AuditApi {
 
-    void logAuditEvent(LogAuditEventRequest request);
+  void logAuditEvent(LogAuditEventRequest request);
 
-    TchPage<AuditEventView> listAuditEvents(ListAuditEventsRequest request);
+  TchPage<AuditEventView> listAuditEvents(ListAuditEventsRequest request);
 
-    PurgeOldAuditEventsResult purgeOldAuditEvents(PurgeOldAuditEventsRequest request);
+  PurgeOldAuditEventsResult purgeOldAuditEvents(PurgeOldAuditEventsRequest request);
 }

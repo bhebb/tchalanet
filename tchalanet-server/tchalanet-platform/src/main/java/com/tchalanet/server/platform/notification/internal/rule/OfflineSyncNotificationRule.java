@@ -21,13 +21,14 @@ public class OfflineSyncNotificationRule extends AbstractNotificationRule {
 
   @Override
   public Stream<NotificationIntent> map(Object event) {
-    return Stream.of(intent(
-        event,
-        "offlinesync.event",
-        NotificationSeverity.WARNING,
-        NotificationKind.ACTION_REQUIRED,
-        NotificationCategory.SYSTEM,
-        "Offline sync update",
-        event.getClass().getSimpleName()));
+    return Stream.of(
+        intent(
+            event,
+            "offlinesync.event",
+            NotificationSeverity.WARNING,
+            NotificationKind.ACTION_REQUIRED,
+            NotificationCategory.SYSTEM,
+            "Offline sync update",
+            event.getClass().getSimpleName()));
   }
 }

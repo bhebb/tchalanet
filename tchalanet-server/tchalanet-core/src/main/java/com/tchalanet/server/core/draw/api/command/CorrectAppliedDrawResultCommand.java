@@ -11,6 +11,5 @@ public record CorrectAppliedDrawResultCommand(
     DrawResultId correctedDrawResultId,
     @Size(max = 255) String reason,
     String idempotencyKey,
-    boolean force
-) implements Command<Void> {
-}
+    boolean force)
+    implements Command<Void> {}

@@ -4,10 +4,10 @@ import com.tchalanet.server.platform.contactrequest.api.model.ContactRequestSubm
 import com.tchalanet.server.platform.contactrequest.api.model.SubmitContactRequestCommand;
 
 /**
- * Platform API for contact request submission.
- * Admin CRUD is internal — consumed only by platform controllers.
+ * Platform API for contact request submission. Admin CRUD is internal — consumed only by platform
+ * controllers.
  */
 public interface ContactRequestApi {
 
-    ContactRequestSubmittedView submit(SubmitContactRequestCommand command);
+  ContactRequestSubmittedView submit(SubmitContactRequestCommand command);
 }

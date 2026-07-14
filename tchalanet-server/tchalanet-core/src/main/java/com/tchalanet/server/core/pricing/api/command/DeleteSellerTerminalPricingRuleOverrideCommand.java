@@ -5,6 +5,4 @@ import com.tchalanet.server.common.types.id.SellerTerminalOddsOverrideId;
 import com.tchalanet.server.common.types.id.UserId;
 
 public record DeleteSellerTerminalPricingRuleOverrideCommand(
-    SellerTerminalOddsOverrideId overrideId,
-    UserId actorId
-) implements Command<Void> {}
+    SellerTerminalOddsOverrideId overrideId, UserId actorId) implements Command<Void> {}

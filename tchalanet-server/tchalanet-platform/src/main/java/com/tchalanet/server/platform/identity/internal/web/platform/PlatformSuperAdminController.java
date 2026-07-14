@@ -39,48 +39,59 @@ public class PlatformSuperAdminController {
   @GetMapping
   @Operation(summary = "List platform super admins")
   public ApiResponse<List<PlatformSuperAdminView>> list() {
-    return ApiResponse.success(platformUserRoles.listSuperAdmins().stream()
-        .map(row -> new PlatformSuperAdminView(
-            row.userId().toString(),
-            row.email(),
-            row.displayName(),
-            row.status(),
-            row.assignedAt()))
-        .toList());
+    return ApiResponse.success(
+        platformUserRoles.listSuperAdmins().stream()
+            .map(
+                row ->
+                    new PlatformSuperAdminView(
+                        row.userId().toString(),
+                        row.email(),
+                        row.displayName(),
+                        row.status(),
+                        row.assignedAt()))
+            .toList());
   }
 
   @PostMapping
   @Operation(summary = "Create a platform super admin")
-  @AuditLog(action = AuditAction.USER_CREATE, entity = AuditEntityType.USER, idExpression = "#result.data().id()")
+  @AuditLog(
+      action = AuditAction.USER_CREATE,
+      entity = AuditEntityType.USER,
+      idExpression = "#result.data().id()")
   public ApiResponse<PlatformSuperAdminView> create(
       @CurrentContext TchRequestContext ctx,
       @Valid @RequestBody CreatePlatformSuperAdminRequest request) {
     var names = splitDisplayName(request.displayName());
-    var created = users.createUser(
-        request.email(),
-        request.phoneNumber(),
-        names.firstName(),
-        names.lastName(),
-        null,
-        null,
-        null,
-        null,
-        null,
-        false,
-        java.util.Set.of());
+    var created =
+        users.createUser(
+            request.email(),
+            request.phoneNumber(),
+            names.firstName(),
+            names.lastName(),
+            null,
+            null,
+            null,
+            null,
+            null,
+            false,
+            java.util.Set.of());
     platformUserRoles.assignSuperAdmin(created.userId(), ctx.currentUserIdRequired());
     var profile = users.profile(created.userId());
-    return ApiResponse.success(new PlatformSuperAdminView(
-        created.userId().value().toString(),
-        profile.email(),
-        profile.displayName(),
-        profile.status(),
-        Instant.now()));
+    return ApiResponse.success(
+        new PlatformSuperAdminView(
+            created.userId().value().toString(),
+            profile.email(),
+            profile.displayName(),
+            profile.status(),
+            Instant.now()));
   }
 
   @DeleteMapping("/{userId}")
   @Operation(summary = "Revoke platform super admin access")
-  @AuditLog(action = AuditAction.USER_ROLE_CHANGE, entity = AuditEntityType.USER, idExpression = "#userId")
+  @AuditLog(
+      action = AuditAction.USER_ROLE_CHANGE,
+      entity = AuditEntityType.USER,
+      idExpression = "#userId")
   public ApiResponse<Void> revoke(@PathVariable UserId userId) {
     platformUserRoles.removeSuperAdmin(userId);
     return ApiResponse.<Void>success(null);
@@ -98,14 +109,8 @@ public class PlatformSuperAdminController {
   private record Names(String firstName, String lastName) {}
 
   public record CreatePlatformSuperAdminRequest(
-      @Email @NotBlank String email,
-      @NotBlank String displayName,
-      String phoneNumber) {}
+      @Email @NotBlank String email, @NotBlank String displayName, String phoneNumber) {}
 
   public record PlatformSuperAdminView(
-      String id,
-      String email,
-      String displayName,
-      String status,
-      Instant assignedAt) {}
+      String id, String email, String displayName, String status, Instant assignedAt) {}
 }

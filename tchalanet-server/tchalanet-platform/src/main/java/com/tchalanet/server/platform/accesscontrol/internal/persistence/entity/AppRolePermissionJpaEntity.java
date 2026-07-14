@@ -22,4 +22,3 @@ public class AppRolePermissionJpaEntity {
   @JoinColumn(name = "permission_code", referencedColumnName = "code", nullable = false)
   private PermissionJpaEntity permission;
 }
-

@@ -130,6 +130,5 @@ public interface NotificationRecipientJpaRepository
          )
       """)
   int purgeRetainedActorStates(
-      @Param("actorStateCutoff") Instant actorStateCutoff,
-      @Param("now") Instant now);
+      @Param("actorStateCutoff") Instant actorStateCutoff, @Param("now") Instant now);
 }

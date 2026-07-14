@@ -18,5 +18,4 @@ public record ExpectedTicketOutcomeRow(
     TicketResultStatus expectedResultStatus,
     TicketSettlementStatus expectedSettlementStatus,
     BigDecimal expectedPayoutAmount,
-    int winningLineCount
-) {}
+    int winningLineCount) {}

@@ -16,8 +16,11 @@ public class ArchiveLegalHoldJdbcRepository {
 
   private final NamedParameterJdbcTemplate jdbc;
 
-  public boolean hasActiveHoldForPeriod(String datasetCode, LocalDate periodStart, LocalDate periodEnd) {
-    Integer count = jdbc.queryForObject("""
+  public boolean hasActiveHoldForPeriod(
+      String datasetCode, LocalDate periodStart, LocalDate periodEnd) {
+    Integer count =
+        jdbc.queryForObject(
+            """
         SELECT COUNT(*)
           FROM archive_legal_hold
          WHERE status = 'ACTIVE'
@@ -29,18 +32,26 @@ public class ArchiveLegalHoldJdbcRepository {
              OR (period_start < :periodEnd AND period_end > :periodStart)
            )
         """,
-        new MapSqlParameterSource()
-            .addValue("dataset", datasetCode)
-            .addValue("periodStart", periodStart)
-            .addValue("periodEnd", periodEnd),
-        Integer.class);
+            new MapSqlParameterSource()
+                .addValue("dataset", datasetCode)
+                .addValue("periodStart", periodStart)
+                .addValue("periodEnd", periodEnd),
+            Integer.class);
     return count != null && count > 0;
   }
 
-  public UUID create(UUID tenantId, String datasetCode, String entityType, String entityId,
-      LocalDate periodStart, LocalDate periodEnd, String reason, UUID createdBy) {
+  public UUID create(
+      UUID tenantId,
+      String datasetCode,
+      String entityType,
+      String entityId,
+      LocalDate periodStart,
+      LocalDate periodEnd,
+      String reason,
+      UUID createdBy) {
     UUID id = UUID.randomUUID();
-    jdbc.update("""
+    jdbc.update(
+        """
         INSERT INTO archive_legal_hold
           (id, tenant_id, dataset_code, entity_type, entity_id, period_start, period_end,
            reason, created_by_actor_id)
@@ -62,7 +73,8 @@ public class ArchiveLegalHoldJdbcRepository {
   }
 
   public void release(UUID id, UUID releasedBy, String releaseReason) {
-    jdbc.update("""
+    jdbc.update(
+        """
         UPDATE archive_legal_hold
            SET status = 'RELEASED',
                released_by_actor_id = :releasedBy,
@@ -78,7 +90,8 @@ public class ArchiveLegalHoldJdbcRepository {
   }
 
   public List<ArchiveLegalHoldRowView> listActive(int limit) {
-    return jdbc.query("""
+    return jdbc.query(
+        """
         SELECT *
           FROM archive_legal_hold
          WHERE status = 'ACTIVE'
@@ -86,20 +99,23 @@ public class ArchiveLegalHoldJdbcRepository {
          LIMIT :limit
         """,
         Map.of("limit", limit),
-        (rs, rowNum) -> new ArchiveLegalHoldRowView(
-            rs.getObject("id", UUID.class),
-            rs.getObject("tenant_id", UUID.class),
-            rs.getString("dataset_code"),
-            rs.getString("entity_type"),
-            rs.getString("entity_id"),
-            rs.getObject("period_start", LocalDate.class),
-            rs.getObject("period_end", LocalDate.class),
-            rs.getString("reason"),
-            rs.getString("status"),
-            rs.getObject("created_by_actor_id", UUID.class),
-            rs.getTimestamp("created_at").toInstant(),
-            rs.getObject("released_by_actor_id", UUID.class),
-            rs.getTimestamp("released_at") == null ? null : rs.getTimestamp("released_at").toInstant(),
-            rs.getString("release_reason")));
+        (rs, rowNum) ->
+            new ArchiveLegalHoldRowView(
+                rs.getObject("id", UUID.class),
+                rs.getObject("tenant_id", UUID.class),
+                rs.getString("dataset_code"),
+                rs.getString("entity_type"),
+                rs.getString("entity_id"),
+                rs.getObject("period_start", LocalDate.class),
+                rs.getObject("period_end", LocalDate.class),
+                rs.getString("reason"),
+                rs.getString("status"),
+                rs.getObject("created_by_actor_id", UUID.class),
+                rs.getTimestamp("created_at").toInstant(),
+                rs.getObject("released_by_actor_id", UUID.class),
+                rs.getTimestamp("released_at") == null
+                    ? null
+                    : rs.getTimestamp("released_at").toInstant(),
+                rs.getString("release_reason")));
   }
 }

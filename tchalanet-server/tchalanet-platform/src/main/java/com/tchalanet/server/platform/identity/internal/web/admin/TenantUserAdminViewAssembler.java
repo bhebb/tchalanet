@@ -8,8 +8,8 @@ import com.tchalanet.server.platform.identity.internal.model.TenantMembership;
 import com.tchalanet.server.platform.identity.internal.service.CurrentUserProfileService;
 import com.tchalanet.server.platform.identity.internal.service.ExternalIdentityLinkService;
 import com.tchalanet.server.platform.identity.internal.service.TenantMembershipService;
-import com.tchalanet.server.platform.identity.internal.web.admin.model.InvitationStatus;
 import com.tchalanet.server.platform.identity.internal.web.admin.model.ExternalIdentitySyncStatus;
+import com.tchalanet.server.platform.identity.internal.web.admin.model.InvitationStatus;
 import com.tchalanet.server.platform.identity.internal.web.admin.model.TenantUserAdminResponse;
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;
@@ -30,8 +30,8 @@ public class TenantUserAdminViewAssembler {
   private final ExternalIdentityLinkService externalIdentities;
 
   /**
-   * Fails with 403 when the target user is not a member of the effective tenant.
-   * SUPER_ADMIN without tenant context bypasses this check (global action).
+   * Fails with 403 when the target user is not a member of the effective tenant. SUPER_ADMIN
+   * without tenant context bypasses this check (global action).
    */
   public void assertTenantScoped(TchRequestContext ctx, UserId userId) {
     if (ctx.isSuperAdmin() && !ctx.hasTenant()) return;
@@ -41,21 +41,34 @@ public class TenantUserAdminViewAssembler {
   }
 
   /**
-   * Loads and maps the full admin response for a user.
-   * When SUPER_ADMIN has no tenant context, membership info is omitted (profile only).
+   * Loads and maps the full admin response for a user. When SUPER_ADMIN has no tenant context,
+   * membership info is omitted (profile only).
    */
   public TenantUserAdminResponse load(
-      TchRequestContext ctx, UserId userId, InvitationStatus invitationStatus, Instant createdAtOverride) {
+      TchRequestContext ctx,
+      UserId userId,
+      InvitationStatus invitationStatus,
+      Instant createdAtOverride) {
     assertTenantScoped(ctx, userId);
     var profile = profiles.getUserProfile(userId);
     if (ctx.isSuperAdmin() && !ctx.hasTenant()) {
       return new TenantUserAdminResponse(
-          profile.id(), profile.username(), profile.email(), profile.phone(),
+          profile.id(),
+          profile.username(),
+          profile.email(),
+          profile.phone(),
           profile.status() == null ? null : profile.status().name(),
-          null, null, ExternalIdentitySyncStatus.NOT_REQUIRED,
-          invitationStatus, createdAtOverride,
-          profile.firstName(), profile.lastName(), profile.displayName(),
-          null, null, null);
+          null,
+          null,
+          ExternalIdentitySyncStatus.NOT_REQUIRED,
+          invitationStatus,
+          createdAtOverride,
+          profile.firstName(),
+          profile.lastName(),
+          profile.displayName(),
+          null,
+          null,
+          null);
     }
     var tenantId = ctx.tenantIdRequired();
     var membership = memberships.findByTenantAndUser(tenantId, userId).orElse(null);
@@ -77,21 +90,36 @@ public class TenantUserAdminViewAssembler {
         profile.firstName(),
         profile.lastName(),
         profile.displayName(),
-        null, null, null);
+        null,
+        null,
+        null);
   }
 
-  /** Builds a cross-tenant response from a native SQL projection row (SUPER_ADMIN global list/detail). */
+  /**
+   * Builds a cross-tenant response from a native SQL projection row (SUPER_ADMIN global
+   * list/detail).
+   */
   public TenantUserAdminResponse fromGlobalRow(TenantAdminGlobalAccessRow r) {
     return new TenantUserAdminResponse(
-        UserId.of(r.userId()), null, r.email(), null, r.status(),
-        null, null, ExternalIdentitySyncStatus.NOT_REQUIRED, InvitationStatus.NOT_SENT,
-        r.assignedAt(), null, null, r.displayName(),
+        UserId.of(r.userId()),
+        null,
+        r.email(),
+        null,
+        r.status(),
+        null,
+        null,
+        ExternalIdentitySyncStatus.NOT_REQUIRED,
+        InvitationStatus.NOT_SENT,
+        r.assignedAt(),
+        null,
+        null,
+        r.displayName(),
         r.tenantId() != null ? r.tenantId().toString() : null,
-        r.tenantName(), r.tenantCode());
+        r.tenantName(),
+        r.tenantCode());
   }
 
-  private ExternalIdentitySyncStatus resolveSyncStatus(
-      UserId userId, TenantMembership membership) {
+  private ExternalIdentitySyncStatus resolveSyncStatus(UserId userId, TenantMembership membership) {
     if (membership == null) {
       return ExternalIdentitySyncStatus.NOT_REQUIRED;
     }

@@ -115,13 +115,14 @@ public class DrawOpsBatchJobConfig {
       LocalDate start = parseDate(from, todayUtc());
       int ahead = parseInt(daysAhead, 7);
       LocalDate end = parseDate(to, start.plusDays(Math.max(1, ahead) - 1L));
-      commandBus.execute(new GenerateDrawsForRangeCommand(
-          parseTenantId(tenantId),
-          start,
-          end,
-          parseBoolean(dryRun),
-          parseBoolean(force),
-          trimToNull(reason)));
+      commandBus.execute(
+          new GenerateDrawsForRangeCommand(
+              parseTenantId(tenantId),
+              start,
+              end,
+              parseBoolean(dryRun),
+              parseBoolean(force),
+              trimToNull(reason)));
       return RepeatStatus.FINISHED;
     };
   }
@@ -133,11 +134,12 @@ public class DrawOpsBatchJobConfig {
       @Value("#{jobParameters['max_items']}") String maxItems,
       @Value("#{jobParameters['dry_run']}") String dryRun) {
     return (contribution, chunkContext) -> {
-      commandBus.execute(new OpenTodayDrawsCommand(
-          Instant.now(clock),
-          parseDateOrNull(date),
-          parseInt(maxItems, 100),
-          parseBoolean(dryRun)));
+      commandBus.execute(
+          new OpenTodayDrawsCommand(
+              Instant.now(clock),
+              parseDateOrNull(date),
+              parseInt(maxItems, 100),
+              parseBoolean(dryRun)));
       return RepeatStatus.FINISHED;
     };
   }
@@ -148,10 +150,9 @@ public class DrawOpsBatchJobConfig {
       @Value("#{jobParameters['max_items']}") String maxItems,
       @Value("#{jobParameters['dry_run']}") String dryRun) {
     return (contribution, chunkContext) -> {
-      commandBus.execute(new CloseDueDrawsCommand(
-          Instant.now(clock),
-          parseInt(maxItems, 100),
-          parseBoolean(dryRun)));
+      commandBus.execute(
+          new CloseDueDrawsCommand(
+              Instant.now(clock), parseInt(maxItems, 100), parseBoolean(dryRun)));
       return RepeatStatus.FINISHED;
     };
   }
@@ -170,16 +171,17 @@ public class DrawOpsBatchJobConfig {
       @Value("#{jobParameters['reason']}") String reason,
       @Value("#{jobParameters['include_raw']}") String includeRaw) {
     return (contribution, chunkContext) -> {
-      commandBus.execute(new FetchExternalResultsWindowCommand(
-          parseOptionalTenantId(tenantId),
-          parseDate(date, todayUtc()),
-          parseInt(daysBack, 0),
-          parseSlotKeys(slotKey, slotKeys),
-          parseBoolean(force),
-          parseBoolean(dryRun),
-          parseInt(maxSlots, 1),
-          trimToNull(reason),
-          parseBoolean(includeRaw)));
+      commandBus.execute(
+          new FetchExternalResultsWindowCommand(
+              parseOptionalTenantId(tenantId),
+              parseDate(date, todayUtc()),
+              parseInt(daysBack, 0),
+              parseSlotKeys(slotKey, slotKeys),
+              parseBoolean(force),
+              parseBoolean(dryRun),
+              parseInt(maxSlots, 1),
+              trimToNull(reason),
+              parseBoolean(includeRaw)));
       return RepeatStatus.FINISHED;
     };
   }
@@ -197,24 +199,22 @@ public class DrawOpsBatchJobConfig {
       @Value("#{jobParameters['force']}") String force,
       @Value("#{jobParameters['reason']}") String reason) {
     return (contribution, chunkContext) -> {
-      commandBus.execute(new ApplyExternalResultsWindowCommand(
-          parseTenantId(tenantId),
-          parseDate(date, todayUtc()),
-          parseInt(daysBack, 0),
-          parseSlotKeys(slotKey, slotKeys),
-          parseBoolean(force),
-          parseBoolean(dryRun),
-          parseInt(maxSlots, 1),
-          trimToNull(reason)));
+      commandBus.execute(
+          new ApplyExternalResultsWindowCommand(
+              parseTenantId(tenantId),
+              parseDate(date, todayUtc()),
+              parseInt(daysBack, 0),
+              parseSlotKeys(slotKey, slotKeys),
+              parseBoolean(force),
+              parseBoolean(dryRun),
+              parseInt(maxSlots, 1),
+              trimToNull(reason)));
       return RepeatStatus.FINISHED;
     };
   }
 
   private Job job(String name, Step step) {
-    return new JobBuilder(name, jobRepository)
-        .listener(listener)
-        .start(step)
-        .build();
+    return new JobBuilder(name, jobRepository).listener(listener).start(step).build();
   }
 
   private Step taskletStep(String name, Tasklet tasklet) {

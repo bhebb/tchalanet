@@ -30,7 +30,8 @@ public class DatabaseCapacityOpsResourceContributor implements OpsResourceContri
 
   @Override
   public List<OpsServiceResourceItem> services() {
-    String sql = """
+    String sql =
+        """
         SELECT
           n.nspname AS schema_name,
           COUNT(c.oid) FILTER (WHERE c.relkind IN ('r', 'p')) AS table_count,
@@ -43,36 +44,41 @@ public class DatabaseCapacityOpsResourceContributor implements OpsResourceContri
         ORDER BY n.nspname
         """;
 
-    return jdbc.query(sql, (rs, rowNum) -> {
-      String schema = rs.getString("schema_name");
-      int tableCount = rs.getInt("table_count");
-      int sizeMb = toMb(rs.getLong("total_bytes"));
-      int indexMb = toMb(rs.getLong("index_bytes"));
-      String severity = severity(sizeMb);
-      String status = switch (severity) {
-        case "CRITICAL" -> "CRITICAL";
-        case "WARNING" -> "HIGH";
-        default -> "OK";
-      };
+    return jdbc
+        .query(
+            sql,
+            (rs, rowNum) -> {
+              String schema = rs.getString("schema_name");
+              int tableCount = rs.getInt("table_count");
+              int sizeMb = toMb(rs.getLong("total_bytes"));
+              int indexMb = toMb(rs.getLong("index_bytes"));
+              String severity = severity(sizeMb);
+              String status =
+                  switch (severity) {
+                    case "CRITICAL" -> "CRITICAL";
+                    case "WARNING" -> "HIGH";
+                    default -> "OK";
+                  };
 
-      return new OpsServiceResourceItem(
-          "database:schema:" + schema,
-          "DB schema " + schema,
-          status,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          severity,
-          "Schema " + schema + " uses " + sizeMb + " MB across " + tableCount + " tables.",
-          "/app/platform/ops/resources",
-          sizeMb,
-          indexMb,
-          tableCount);
-    }).stream()
+              return new OpsServiceResourceItem(
+                  "database:schema:" + schema,
+                  "DB schema " + schema,
+                  status,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  severity,
+                  "Schema " + schema + " uses " + sizeMb + " MB across " + tableCount + " tables.",
+                  "/app/platform/ops/resources",
+                  sizeMb,
+                  indexMb,
+                  tableCount);
+            })
+        .stream()
         .sorted((a, b) -> schemaOrder(a.serviceKey()) - schemaOrder(b.serviceKey()))
         .toList();
   }

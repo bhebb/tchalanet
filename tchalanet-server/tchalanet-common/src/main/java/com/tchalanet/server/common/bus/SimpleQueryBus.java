@@ -2,10 +2,9 @@ package com.tchalanet.server.common.bus;
 
 import com.tchalanet.server.common.bus.exception.NoHandlerException;
 import com.tchalanet.server.common.bus.registry.HandlerRegistry;
+import com.tchalanet.server.common.stereotype.UseCase;
 import java.util.Map;
 import java.util.Objects;
-
-import com.tchalanet.server.common.stereotype.UseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.support.AopUtils;
@@ -18,64 +17,64 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class SimpleQueryBus implements QueryBus, SmartInitializingSingleton {
 
-    private final ApplicationContext ctx;
+  private final ApplicationContext ctx;
 
-    private volatile Map<Class<?>, QueryHandler<?, ?>> handlers;
+  private volatile Map<Class<?>, QueryHandler<?, ?>> handlers;
 
-    @Override
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    public void afterSingletonsInstantiated() {
-        Map<String, QueryHandler<?, ?>> beans =
-            (Map) ctx.getBeansOfType(QueryHandler.class, true, true);
-        beans.forEach((name, bean) ->
+  @Override
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  public void afterSingletonsInstantiated() {
+    Map<String, QueryHandler<?, ?>> beans =
+        (Map) ctx.getBeansOfType(QueryHandler.class, true, true);
+    beans.forEach(
+        (name, bean) ->
             log.debug(
                 "QueryHandler candidate name={} proxyClass={} targetClass={}",
                 name,
                 bean.getClass().getName(),
-                org.springframework.aop.support.AopUtils.getTargetClass(bean).getName()
-            )
-        );
-        handlers = HandlerRegistry.buildRegistry(
-            beans,
-            HandlerTypeResolver::resolveQueryHandlerMessageType,
-            "QueryBus"
-        );
-        auditUseCaseQueryHandlers(beans);
+                org.springframework.aop.support.AopUtils.getTargetClass(bean).getName()));
+    handlers =
+        HandlerRegistry.buildRegistry(
+            beans, HandlerTypeResolver::resolveQueryHandlerMessageType, "QueryBus");
+    auditUseCaseQueryHandlers(beans);
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public <R> R ask(Query<R> query) {
+    Objects.requireNonNull(query, "Query must not be null");
+
+    var registry = handlers;
+    if (registry == null) {
+      throw new IllegalStateException("QueryBus registry is not initialized yet");
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public <R> R ask(Query<R> query) {
-        Objects.requireNonNull(query, "Query must not be null");
+    QueryHandler<Query<R>, R> handler = (QueryHandler<Query<R>, R>) registry.get(query.getClass());
 
-        var registry = handlers;
-        if (registry == null) {
-            throw new IllegalStateException("QueryBus registry is not initialized yet");
-        }
-
-        QueryHandler<Query<R>, R> handler =
-            (QueryHandler<Query<R>, R>) registry.get(query.getClass());
-
-        if (handler == null) {
-            throw NoHandlerException.forQuery(query.getClass());
-        }
-
-        return handler.handle(query);
+    if (handler == null) {
+      throw NoHandlerException.forQuery(query.getClass());
     }
 
-    private void auditUseCaseQueryHandlers(Map<String, QueryHandler<?, ?>> discovered) {
-        var discoveredNames = discovered.keySet();
+    return handler.handle(query);
+  }
 
-        ctx.getBeansWithAnnotation(UseCase.class).forEach((name, bean) -> {
-            var targetClass = AopUtils.getTargetClass(bean);
+  private void auditUseCaseQueryHandlers(Map<String, QueryHandler<?, ?>> discovered) {
+    var discoveredNames = discovered.keySet();
 
-            if (QueryHandler.class.isAssignableFrom(targetClass)
-                && !discoveredNames.contains(name)) {
+    ctx.getBeansWithAnnotation(UseCase.class)
+        .forEach(
+            (name, bean) -> {
+              var targetClass = AopUtils.getTargetClass(bean);
+
+              if (QueryHandler.class.isAssignableFrom(targetClass)
+                  && !discoveredNames.contains(name)) {
                 throw new IllegalStateException(
-                    "Bean " + name + " (" + targetClass.getName()
-                        + ") implements QueryHandler but was not discovered by getBeansOfType(QueryHandler.class)"
-                );
-            }
-        });
-    }
+                    "Bean "
+                        + name
+                        + " ("
+                        + targetClass.getName()
+                        + ") implements QueryHandler but was not discovered by getBeansOfType(QueryHandler.class)");
+              }
+            });
+  }
 }

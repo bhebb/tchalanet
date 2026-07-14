@@ -8,9 +8,7 @@ import com.tchalanet.server.core.analytics.internal.infra.persistence.SalesRepor
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 
-/**
- * Handles {@link GetSalesReportQuery} — reads per-day per-game sales breakdown.
- */
+/** Handles {@link GetSalesReportQuery} — reads per-day per-game sales breakdown. */
 @UseCase
 @RequiredArgsConstructor
 public class GetSalesReportQueryHandler

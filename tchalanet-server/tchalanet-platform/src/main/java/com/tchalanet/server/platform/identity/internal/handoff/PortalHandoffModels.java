@@ -11,8 +11,7 @@ public final class PortalHandoffModels {
   public record CreatePortalHandoffRequest(
       @NotNull PortalTarget targetPortal,
       @NotBlank String entryRoute,
-      UUID supportAccessSessionId
-  ) {}
+      UUID supportAccessSessionId) {}
 
   public record CreatePortalHandoffResponse(
       UUID handoffId,
@@ -20,18 +19,14 @@ public final class PortalHandoffModels {
       PortalTarget targetPortal,
       String targetUrl,
       String entryRoute,
-      Instant expiresAt
-  ) {}
+      Instant expiresAt) {}
 
   public record ConsumePortalHandoffRequest(
-      @NotBlank String code,
-      @NotNull PortalTarget targetPortal
-  ) {}
+      @NotBlank String code, @NotNull PortalTarget targetPortal) {}
 
   public record ConsumePortalHandoffResponse(
       String customToken,
       PortalTarget targetPortal,
       String entryRoute,
-      UUID supportAccessSessionId
-  ) {}
+      UUID supportAccessSessionId) {}
 }

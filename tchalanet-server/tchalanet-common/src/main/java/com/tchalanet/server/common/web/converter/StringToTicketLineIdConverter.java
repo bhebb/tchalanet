@@ -1,6 +1,5 @@
 package com.tchalanet.server.common.web.converter;
 
-import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.types.id.TicketLineId;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;

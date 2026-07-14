@@ -14,5 +14,4 @@ public record SalePreparationPromotionLineView(
     String promotionRuleKey,
     String promotionEffectType,
     boolean regenerable,
-    int regenerationsRemaining
-) {}
+    int regenerationsRemaining) {}

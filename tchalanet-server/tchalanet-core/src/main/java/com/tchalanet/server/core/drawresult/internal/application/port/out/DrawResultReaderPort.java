@@ -13,24 +13,26 @@ import java.util.Optional;
 
 public interface DrawResultReaderPort {
 
-    DrawResult getById(DrawResultId id);
+  DrawResult getById(DrawResultId id);
 
-    Optional<DrawResultView> findViewById(DrawResultId id);
+  Optional<DrawResultView> findViewById(DrawResultId id);
 
-    Optional<DrawResultView> findViewBySlotKeyAndOccurredAt(String slotKey, Instant occurredAt);
+  Optional<DrawResultView> findViewBySlotKeyAndOccurredAt(String slotKey, Instant occurredAt);
 
-    Optional<DrawResultProjection> findProjectionById(DrawResultId id);
+  Optional<DrawResultProjection> findProjectionById(DrawResultId id);
 
-    Optional<DrawResultProjection> findProjectionBySlotKeyAndOccurredAt(String slotKey, Instant occurredAt);
+  Optional<DrawResultProjection> findProjectionBySlotKeyAndOccurredAt(
+      String slotKey, Instant occurredAt);
 
-    Optional<DrawResultId> findByResultSlotIdAndOccurredAt(ResultSlotId resultSlotId, Instant occurredAt);
+  Optional<DrawResultId> findByResultSlotIdAndOccurredAt(
+      ResultSlotId resultSlotId, Instant occurredAt);
 
-    Optional<DrawResultId> findByResultSlotIdAndResultDate(ResultSlotId resultSlotId, LocalDate resultDate);
+  Optional<DrawResultId> findByResultSlotIdAndResultDate(
+      ResultSlotId resultSlotId, LocalDate resultDate);
 
-    TchPage<DrawResultView> findViewsByCriteria(DrawResultsCriteria criteria);
+  TchPage<DrawResultView> findViewsByCriteria(DrawResultsCriteria criteria);
 
-    Optional<DrawResultView> findByDrawId(DrawId drawId);
+  Optional<DrawResultView> findByDrawId(DrawId drawId);
 
-    boolean existsUsableExternalResult(ResultSlotId resultSlotId, LocalDate resultDate);
-
+  boolean existsUsableExternalResult(ResultSlotId resultSlotId, LocalDate resultDate);
 }

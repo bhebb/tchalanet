@@ -1,14 +1,13 @@
 package com.tchalanet.server.core.drawresult.api.query.view;
 
 import com.tchalanet.server.catalog.drawchannel.api.model.DrawSource;
-import com.tchalanet.server.core.drawresult.api.model.ResultQuality;
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.common.types.id.DrawResultId;
+import com.tchalanet.server.core.drawresult.api.model.DrawResultStatus;
+import com.tchalanet.server.core.drawresult.api.model.ResultQuality;
 import java.time.Instant;
 import java.time.LocalDate;
-
-import com.tchalanet.server.core.drawresult.api.model.DrawResultStatus;
 import tools.jackson.databind.JsonNode;
-import com.tchalanet.server.common.json.utils.JsonUtils;
 
 public record DrawResultView(
     DrawResultId id,
@@ -23,8 +22,7 @@ public record DrawResultView(
     JsonNode sourceResult,
     JsonNode haitiResult,
     JsonNode rawPayload,
-    String overrideReason
-) {
+    String overrideReason) {
   // Normalize null -> empty object for consistent L2 cache round-trip (null JsonNode -> NullNode).
   public DrawResultView {
     sourceResult = sourceResult != null ? sourceResult : JsonUtils.emptyObject();

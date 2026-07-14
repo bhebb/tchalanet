@@ -6,12 +6,12 @@ import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageMapper;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.platform.identity.api.model.TenantUserStatus;
+import com.tchalanet.server.platform.identity.internal.model.TenantMembership;
+import com.tchalanet.server.platform.identity.internal.model.TenantUserRow;
 import com.tchalanet.server.platform.identity.internal.persistence.entity.AppUserJpaEntity;
 import com.tchalanet.server.platform.identity.internal.persistence.entity.TenantUserJpaEntity;
 import com.tchalanet.server.platform.identity.internal.persistence.mapper.IdentityPersistenceMapper;
 import com.tchalanet.server.platform.identity.internal.persistence.repository.TenantUserJpaRepository;
-import com.tchalanet.server.platform.identity.internal.model.TenantMembership;
-import com.tchalanet.server.platform.identity.internal.model.TenantUserRow;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
 import java.time.Instant;
@@ -55,10 +55,11 @@ public class TenantMembershipJpaAdapter {
   public void softDelete(TenantId tenantId, UserId userId, Instant when) {
     repository
         .findByTenantIdAndUserIdAndDeletedAtIsNull(tenantId.value(), userId.value())
-        .ifPresent(entity -> {
-          entity.setDeletedAt(when);
-          repository.save(entity);
-        });
+        .ifPresent(
+            entity -> {
+              entity.setDeletedAt(when);
+              repository.save(entity);
+            });
   }
 
   public TchPage<TenantUserRow> listByTenant(TenantId tenantId, TchPageRequest pageRequest) {
@@ -90,8 +91,11 @@ public class TenantMembershipJpaAdapter {
     var countRoot = countQuery.from(TenantUserJpaEntity.class);
     countQuery
         .select(cb.count(countRoot))
-        .where(cb.equal(countRoot.get("tenantId"), tenantId.value()), cb.isNull(countRoot.get("deletedAt")));
-    var page = new PageImpl<>(rows, pageable, entityManager.createQuery(countQuery).getSingleResult());
+        .where(
+            cb.equal(countRoot.get("tenantId"), tenantId.value()),
+            cb.isNull(countRoot.get("deletedAt")));
+    var page =
+        new PageImpl<>(rows, pageable, entityManager.createQuery(countQuery).getSingleResult());
     return TchPageMapper.map(page, row -> row);
   }
 

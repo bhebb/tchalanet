@@ -4,11 +4,9 @@ import com.tchalanet.server.common.bus.QueryBus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-
 @Component
 @RequiredArgsConstructor
 public class PosSaleContextResolver {
 
-    private final QueryBus queryBus;
-
+  private final QueryBus queryBus;
 }

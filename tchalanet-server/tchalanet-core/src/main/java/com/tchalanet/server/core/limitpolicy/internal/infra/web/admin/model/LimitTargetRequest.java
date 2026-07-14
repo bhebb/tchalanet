@@ -4,5 +4,8 @@ import com.tchalanet.server.common.types.id.UserId;
 import jakarta.validation.constraints.NotNull;
 
 public record LimitTargetRequest(@NotNull Target targetType, UserId userId) {
-  public enum Target { TENANT, USER }
+  public enum Target {
+    TENANT,
+    USER
+  }
 }

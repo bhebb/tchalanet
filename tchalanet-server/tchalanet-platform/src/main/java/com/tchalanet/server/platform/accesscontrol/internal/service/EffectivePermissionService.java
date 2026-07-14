@@ -35,15 +35,18 @@ public class EffectivePermissionService {
   private final UserPermissionOverrideJpaRepository overrideRepository;
 
   public CheckUserPermissionsResult checkPermissions(CheckUserPermissionsRequest request) {
-    Set<String> required = request.requiredPermissions() == null ? Set.of() : request.requiredPermissions();
+    Set<String> required =
+        request.requiredPermissions() == null ? Set.of() : request.requiredPermissions();
     if (required.isEmpty()) {
       return new CheckUserPermissionsResult(true, Set.of());
     }
-    var effective = getEffectivePermissions(
-        new GetEffectivePermissionsRequest(request.userId(), request.tenantId()));
-    var missing = required.stream()
-        .filter(p -> !effective.permissionCodes().contains(p))
-        .collect(Collectors.toSet());
+    var effective =
+        getEffectivePermissions(
+            new GetEffectivePermissionsRequest(request.userId(), request.tenantId()));
+    var missing =
+        required.stream()
+            .filter(p -> !effective.permissionCodes().contains(p))
+            .collect(Collectors.toSet());
     return new CheckUserPermissionsResult(missing.isEmpty(), missing);
   }
 
@@ -57,11 +60,12 @@ public class EffectivePermissionService {
     }
 
     // 1. Collect permissions from all active roles
-    var roleIds = tenantUserRoleRepository
-        .findActiveByTenantAndUser(tenantId.value(), userId.value())
-        .stream()
-        .map(r -> RoleId.of(r.getRoleId()))
-        .toList();
+    var roleIds =
+        tenantUserRoleRepository
+            .findActiveByTenantAndUser(tenantId.value(), userId.value())
+            .stream()
+            .map(r -> RoleId.of(r.getRoleId()))
+            .toList();
 
     Set<String> rolePermissions = new HashSet<>();
     for (var roleId : roleIds) {
@@ -69,18 +73,19 @@ public class EffectivePermissionService {
     }
 
     // 2. Apply user-level overrides: GRANT adds, DENY removes (DENY wins)
-    var overrides = overrideRepository
-        .findActiveByTenantAndUser(tenantId.value(), userId.value());
+    var overrides = overrideRepository.findActiveByTenantAndUser(tenantId.value(), userId.value());
 
-    Set<String> grants = overrides.stream()
-        .filter(o -> "GRANT".equals(o.getEffect()))
-        .map(UserPermissionOverrideJpaEntity::getPermissionCode)
-        .collect(Collectors.toSet());
+    Set<String> grants =
+        overrides.stream()
+            .filter(o -> "GRANT".equals(o.getEffect()))
+            .map(UserPermissionOverrideJpaEntity::getPermissionCode)
+            .collect(Collectors.toSet());
 
-    Set<String> denies = overrides.stream()
-        .filter(o -> "DENY".equals(o.getEffect()))
-        .map(UserPermissionOverrideJpaEntity::getPermissionCode)
-        .collect(Collectors.toSet());
+    Set<String> denies =
+        overrides.stream()
+            .filter(o -> "DENY".equals(o.getEffect()))
+            .map(UserPermissionOverrideJpaEntity::getPermissionCode)
+            .collect(Collectors.toSet());
 
     Set<String> effective = new HashSet<>(rolePermissions);
     effective.addAll(grants);
@@ -89,12 +94,12 @@ public class EffectivePermissionService {
     return new EffectivePermissionsView(tenantId, userId, roleIds, Set.copyOf(effective));
   }
 
-  private EffectivePermissionsView getPlatformEffectivePermissions(com.tchalanet.server.common.types.id.UserId userId) {
-    var roleIds = platformUserRoleRepository
-        .findActivePlatformAssignmentsByUser(userId.value())
-        .stream()
-        .map(r -> RoleId.of(r.getRoleId()))
-        .toList();
+  private EffectivePermissionsView getPlatformEffectivePermissions(
+      com.tchalanet.server.common.types.id.UserId userId) {
+    var roleIds =
+        platformUserRoleRepository.findActivePlatformAssignmentsByUser(userId.value()).stream()
+            .map(r -> RoleId.of(r.getRoleId()))
+            .toList();
 
     Set<String> effective = new HashSet<>();
     for (var roleId : roleIds) {

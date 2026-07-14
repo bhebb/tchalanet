@@ -7,8 +7,8 @@ import java.util.List;
 /**
  * Result of {@code POST /platform/tenant-onboarding/provision}.
  *
- * Includes per-domain status, the next steps and the freshly-computed
- * {@link TenantReadinessView} for the newly provisioned tenant.
+ * <p>Includes per-domain status, the next steps and the freshly-computed {@link
+ * TenantReadinessView} for the newly provisioned tenant.
  */
 public record TenantProvisioningResultView(
     String tenantId,

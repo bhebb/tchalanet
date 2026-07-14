@@ -23,53 +23,67 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 public class ContactRequestAdminService implements ContactRequestAdminApi {
 
-    private final ContactRequestJpaRepository repository;
-    private final ContactRequestMapper mapper;
+  private final ContactRequestJpaRepository repository;
+  private final ContactRequestMapper mapper;
 
-    public TchPage<ContactRequestSummaryView> list(
-        ContactRequestStatus status,
-        ContactRequestIntent intent,
-        TchSearchQuery search,
-        TchPageRequest pageRequest
-    ) {
-        return list(status, intent, search, pageRequest.pageable());
-    }
+  public TchPage<ContactRequestSummaryView> list(
+      ContactRequestStatus status,
+      ContactRequestIntent intent,
+      TchSearchQuery search,
+      TchPageRequest pageRequest) {
+    return list(status, intent, search, pageRequest.pageable());
+  }
 
-    public TchPage<ContactRequestSummaryView> list(
-        ContactRequestStatus status,
-        ContactRequestIntent intent,
-        TchSearchQuery search,
-        Pageable pageable
-    ) {
-        return TchPageMapper.map(
-            repository.search(status, intent, search == null ? null : search.likePattern(), pageable),
-            mapper::toSummaryView);
-    }
+  public TchPage<ContactRequestSummaryView> list(
+      ContactRequestStatus status,
+      ContactRequestIntent intent,
+      TchSearchQuery search,
+      Pageable pageable) {
+    return TchPageMapper.map(
+        repository.search(status, intent, search == null ? null : search.likePattern(), pageable),
+        mapper::toSummaryView);
+  }
 
-    public ContactRequestAdminDetailView get(UUID id) {
-        return repository.findById(id)
-            .map(mapper::toDetailView)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Contact request not found: " + id));
-    }
+  public ContactRequestAdminDetailView get(UUID id) {
+    return repository
+        .findById(id)
+        .map(mapper::toDetailView)
+        .orElseThrow(
+            () ->
+                new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "Contact request not found: " + id));
+  }
 
-    @Transactional
-    public void updateStatus(UUID id, ContactRequestStatus newStatus) {
-        var entity = repository.findById(id)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Contact request not found: " + id));
-        entity.setStatus(newStatus);
-    }
+  @Transactional
+  public void updateStatus(UUID id, ContactRequestStatus newStatus) {
+    var entity =
+        repository
+            .findById(id)
+            .orElseThrow(
+                () ->
+                    new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Contact request not found: " + id));
+    entity.setStatus(newStatus);
+  }
 
-    @Transactional
-    public void updateNotes(UUID id, String internalNotes, String externalTool, String externalReference) {
-        var entity = repository.findById(id)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Contact request not found: " + id));
-        entity.setInternalNotes(internalNotes);
-        entity.setExternalTool(externalTool);
-        entity.setExternalReference(externalReference);
-    }
+  @Transactional
+  public void updateNotes(
+      UUID id, String internalNotes, String externalTool, String externalReference) {
+    var entity =
+        repository
+            .findById(id)
+            .orElseThrow(
+                () ->
+                    new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Contact request not found: " + id));
+    entity.setInternalNotes(internalNotes);
+    entity.setExternalTool(externalTool);
+    entity.setExternalReference(externalReference);
+  }
 
-    @Override
-    public TchPage<ContactRequestSummaryView> list(ContactRequestStatus status, ContactRequestIntent intent, TchPageRequest pageRequest) {
-        return null;
-    }
+  @Override
+  public TchPage<ContactRequestSummaryView> list(
+      ContactRequestStatus status, ContactRequestIntent intent, TchPageRequest pageRequest) {
+    return null;
+  }
 }

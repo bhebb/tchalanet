@@ -13,5 +13,4 @@ public record TicketDetailsResponse(
     long totalAmountCents,
     String currency,
     Instant placedAt,
-    Instant cancelledAt
-) {}
+    Instant cancelledAt) {}

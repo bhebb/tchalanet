@@ -9,54 +9,48 @@ import com.tchalanet.server.features.pagemodel.dynamic.PageModelDynamicResolver;
 import com.tchalanet.server.features.pagemodel.runtime.PageRuntimeAssembler;
 import com.tchalanet.server.features.pagemodel.runtime.PageRuntimeResponse;
 import com.tchalanet.server.features.pagemodel.shared.LangResolver;
+import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
-
-/**
- * Public managers page resolver — resolves the static PageModel "public.managers".
- */
+/** Public managers page resolver — resolves the static PageModel "public.managers". */
 @Service
 @RequiredArgsConstructor
 public class PublicManagersService {
 
-    private final QueryBus queryBus;
-    private final TchContextResolver contextResolver;
-    private final LangResolver langResolver;
-    private final PageModelDynamicResolver dynamicResolver;
-    private final PageRuntimeAssembler runtimeAssembler;
+  private final QueryBus queryBus;
+  private final TchContextResolver contextResolver;
+  private final LangResolver langResolver;
+  private final PageModelDynamicResolver dynamicResolver;
+  private final PageRuntimeAssembler runtimeAssembler;
 
-    public PageRuntimeResponse resolve(Optional<String> langFromUrl) {
-        String logicalId = "public.managers";
-        var ctxHolder = contextResolver.currentOrNull();
+  public PageRuntimeResponse resolve(Optional<String> langFromUrl) {
+    String logicalId = "public.managers";
+    var ctxHolder = contextResolver.currentOrNull();
 
-        var doc = queryBus.ask(new ResolveEffectivePageModelQuery(Optional.empty(), logicalId));
+    var doc = queryBus.ask(new ResolveEffectivePageModelQuery(Optional.empty(), logicalId));
 
-        if (doc == null || doc.meta() == null || !"public".equals(doc.meta().scope())) {
-            throw new TchNotFoundException(
-                "PAGE_MODEL_NOT_FOUND",
-                "Page model not found: " + logicalId);
-        }
-
-        var currentLang = resolveLang(doc, langFromUrl);
-        var dynamic = dynamicResolver.resolve(doc, currentLang, ctxHolder);
-        return runtimeAssembler.assemble(doc, dynamic);
+    if (doc == null || doc.meta() == null || !"public".equals(doc.meta().scope())) {
+      throw new TchNotFoundException("PAGE_MODEL_NOT_FOUND", "Page model not found: " + logicalId);
     }
 
-    private String resolveLang(PageModelDoc doc, Optional<String> langFromUrl) {
-        boolean hasDocLangs = doc.meta() != null
-            && doc.meta().langs() != null
-            && !doc.meta().langs().isEmpty();
+    var currentLang = resolveLang(doc, langFromUrl);
+    var dynamic = dynamicResolver.resolve(doc, currentLang, ctxHolder);
+    return runtimeAssembler.assemble(doc, dynamic);
+  }
 
-        return langResolver.resolve(
-            new LangResolver.LangResolverContext(
-                langFromUrl,
-                Optional.empty(),
-                Optional.empty(),
-                Optional.ofNullable(doc.meta() != null ? doc.meta().defaultLang() : null),
-                hasDocLangs ? doc.meta().langs() : List.of(),
-                "fr"));
-    }
+  private String resolveLang(PageModelDoc doc, Optional<String> langFromUrl) {
+    boolean hasDocLangs =
+        doc.meta() != null && doc.meta().langs() != null && !doc.meta().langs().isEmpty();
+
+    return langResolver.resolve(
+        new LangResolver.LangResolverContext(
+            langFromUrl,
+            Optional.empty(),
+            Optional.empty(),
+            Optional.ofNullable(doc.meta() != null ? doc.meta().defaultLang() : null),
+            hasDocLangs ? doc.meta().langs() : List.of(),
+            "fr"));
+  }
 }

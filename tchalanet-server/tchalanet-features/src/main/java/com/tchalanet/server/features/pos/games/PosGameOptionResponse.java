@@ -13,9 +13,8 @@ public record PosGameOptionResponse(
     boolean requiresOption,
     SelectionPolicy selectionPolicy,
     List<PosBetOptionResponse> options,
-    String selectionHint
-) {
-    public PosGameOptionResponse {
-        options = options == null ? List.of() : List.copyOf(options);
-    }
+    String selectionHint) {
+  public PosGameOptionResponse {
+    options = options == null ? List.of() : List.copyOf(options);
+  }
 }

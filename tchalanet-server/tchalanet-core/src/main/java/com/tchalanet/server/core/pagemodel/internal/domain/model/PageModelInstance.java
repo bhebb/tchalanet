@@ -6,100 +6,108 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.core.pagemodel.internal.domain.exception.PageModelNotEditableException;
 import com.tchalanet.server.core.pagemodel.internal.domain.exception.PageModelStateException;
-import tools.jackson.databind.JsonNode;
-
 import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import tools.jackson.databind.JsonNode;
 
 public final class PageModelInstance {
 
-    private final PageModelId id;
-    private final TenantId tenantId;
-    private final String logicalId;
-    private final String scope;
-    private final String slug;
+  private final PageModelId id;
+  private final TenantId tenantId;
+  private final String logicalId;
+  private final String scope;
+  private final String slug;
 
-    private PageModelStatus status;
-    private int schemaVersion;
-    private JsonNode modelJson;
-    private PageModelTemplateId templateId;
+  private PageModelStatus status;
+  private int schemaVersion;
+  private JsonNode modelJson;
+  private PageModelTemplateId templateId;
 
-    private Instant createdAt;
-    private Instant updatedAt;
-    private UserId createdBy;
-    private UserId updatedBy;
+  private Instant createdAt;
+  private Instant updatedAt;
+  private UserId createdBy;
+  private UserId updatedBy;
 
-    private Instant publishedAt;
-    private Instant archivedAt;
-    private Instant deletedAt;
+  private Instant publishedAt;
+  private Instant archivedAt;
+  private Instant deletedAt;
 
-    //todo add value
-    private PageModelInstance(
-        PageModelId id,
-        TenantId tenantId,
-        String logicalId,
-        String scope,
-        String slug,
-        PageModelStatus status,
-        int schemaVersion,
-        JsonNode modelJson,
-        PageModelTemplateId templateId) {
+  // todo add value
+  private PageModelInstance(
+      PageModelId id,
+      TenantId tenantId,
+      String logicalId,
+      String scope,
+      String slug,
+      PageModelStatus status,
+      int schemaVersion,
+      JsonNode modelJson,
+      PageModelTemplateId templateId) {
 
-        this.id = Objects.requireNonNull(id, "id");
-        this.tenantId = Objects.requireNonNull(tenantId, "tenantId");
-        this.logicalId = Objects.requireNonNull(logicalId, "logicalId");
-        this.scope = scope;
-        this.slug = slug;
-        this.status = Objects.requireNonNull(status, "status");
-        this.schemaVersion = schemaVersion;
-        this.modelJson = Objects.requireNonNull(modelJson, "modelJson");
-        this.templateId = templateId;
-    }
+    this.id = Objects.requireNonNull(id, "id");
+    this.tenantId = Objects.requireNonNull(tenantId, "tenantId");
+    this.logicalId = Objects.requireNonNull(logicalId, "logicalId");
+    this.scope = scope;
+    this.slug = slug;
+    this.status = Objects.requireNonNull(status, "status");
+    this.schemaVersion = schemaVersion;
+    this.modelJson = Objects.requireNonNull(modelJson, "modelJson");
+    this.templateId = templateId;
+  }
 
-    public static PageModelInstance createDraft(
-        PageModelId id,
-        TenantId tenantId,
-        String logicalId,
-        String scope,
-        String slug,
-        int schemaVersion,
-        JsonNode modelJson,
-        PageModelTemplateId templateId,
-        Instant now,
-        UserId actorId) {
+  public static PageModelInstance createDraft(
+      PageModelId id,
+      TenantId tenantId,
+      String logicalId,
+      String scope,
+      String slug,
+      int schemaVersion,
+      JsonNode modelJson,
+      PageModelTemplateId templateId,
+      Instant now,
+      UserId actorId) {
 
-        var inst = new PageModelInstance(
-            id, tenantId, logicalId, scope, slug,
-            PageModelStatus.DRAFT, schemaVersion, modelJson, templateId);
+    var inst =
+        new PageModelInstance(
+            id,
+            tenantId,
+            logicalId,
+            scope,
+            slug,
+            PageModelStatus.DRAFT,
+            schemaVersion,
+            modelJson,
+            templateId);
 
-        inst.createdAt = now;
-        inst.updatedAt = now;
-        inst.createdBy = actorId;
-        inst.updatedBy = actorId;
-        return inst;
-    }
+    inst.createdAt = now;
+    inst.updatedAt = now;
+    inst.createdBy = actorId;
+    inst.updatedBy = actorId;
+    return inst;
+  }
 
-    public static PageModelInstance rehydrate(
-        UUID id,
-        UUID tenantId,
-        String logicalId,
-        String scope,
-        String slug,
-        PageModelStatus status,
-        int schemaVersion,
-        JsonNode modelJson,
-        UUID templateId,
-        Instant createdAt,
-        Instant updatedAt,
-        UUID createdBy,
-        UUID updatedBy,
-        Instant publishedAt,
-        Instant archivedAt,
-        Instant deletedAt) {
+  public static PageModelInstance rehydrate(
+      UUID id,
+      UUID tenantId,
+      String logicalId,
+      String scope,
+      String slug,
+      PageModelStatus status,
+      int schemaVersion,
+      JsonNode modelJson,
+      UUID templateId,
+      Instant createdAt,
+      Instant updatedAt,
+      UUID createdBy,
+      UUID updatedBy,
+      Instant publishedAt,
+      Instant archivedAt,
+      Instant deletedAt) {
 
-        var inst = new PageModelInstance(
+    var inst =
+        new PageModelInstance(
             PageModelId.of(id),
             TenantId.of(tenantId),
             logicalId,
@@ -110,152 +118,149 @@ public final class PageModelInstance {
             modelJson,
             PageModelTemplateId.nullableOf(templateId));
 
-        inst.createdAt = createdAt;
-        inst.updatedAt = updatedAt;
-        inst.createdBy = UserId.nullableOf(createdBy);
-        inst.updatedBy = UserId.nullableOf(updatedBy);
-        inst.publishedAt = publishedAt;
-        inst.archivedAt = archivedAt;
-        inst.deletedAt = deletedAt;
-        return inst;
+    inst.createdAt = createdAt;
+    inst.updatedAt = updatedAt;
+    inst.createdBy = UserId.nullableOf(createdBy);
+    inst.updatedBy = UserId.nullableOf(updatedBy);
+    inst.publishedAt = publishedAt;
+    inst.archivedAt = archivedAt;
+    inst.deletedAt = deletedAt;
+    return inst;
+  }
+
+  public void applyUpsert(
+      String scope,
+      String slug,
+      int schemaVersion,
+      JsonNode modelJson,
+      PageModelTemplateId templateId,
+      Instant now,
+      UserId actorId) {
+
+    ensureEditable();
+
+    this.schemaVersion = schemaVersion;
+    this.modelJson = Objects.requireNonNull(modelJson, "modelJson");
+    this.templateId = templateId;
+    this.updatedAt = now;
+    this.updatedBy = actorId;
+  }
+
+  public void markPublished(Instant now, UserId actorId) {
+    if (deletedAt != null) {
+      throw new PageModelStateException("Cannot publish a deleted PageModel");
+    }
+    if (status == PageModelStatus.ARCHIVED) {
+      throw new PageModelStateException("Cannot publish an archived PageModel");
     }
 
-    public void applyUpsert(
-        String scope,
-        String slug,
-        int schemaVersion,
-        JsonNode modelJson,
-        PageModelTemplateId templateId,
-        Instant now,
-        UserId actorId) {
+    this.status = PageModelStatus.PUBLISHED;
+    this.publishedAt = now;
+    this.updatedAt = now;
+    this.updatedBy = actorId;
+  }
 
-        ensureEditable();
-
-        this.schemaVersion = schemaVersion;
-        this.modelJson = Objects.requireNonNull(modelJson, "modelJson");
-        this.templateId = templateId;
-        this.updatedAt = now;
-        this.updatedBy = actorId;
+  public void markArchived(Instant now, UserId actorId) {
+    if (deletedAt != null) {
+      throw new PageModelStateException("Cannot archive a deleted PageModel");
     }
 
-    public void markPublished(Instant now, UserId actorId) {
-        if (deletedAt != null) {
-            throw new PageModelStateException("Cannot publish a deleted PageModel");
-        }
-        if (status == PageModelStatus.ARCHIVED) {
-            throw new PageModelStateException("Cannot publish an archived PageModel");
-        }
+    this.status = PageModelStatus.ARCHIVED;
+    this.archivedAt = now;
+    this.updatedAt = now;
+    this.updatedBy = actorId;
+  }
 
-        this.status = PageModelStatus.PUBLISHED;
-        this.publishedAt = now;
-        this.updatedAt = now;
-        this.updatedBy = actorId;
+  public PageModelInstance resetToTemplate(
+      JsonNode templateModel, int schemaVersion, Instant now, UserId actorId) {
+
+    ensureEditable();
+
+    this.modelJson = Objects.requireNonNull(templateModel, "templateModel");
+    this.schemaVersion = schemaVersion;
+    this.status = PageModelStatus.DRAFT;
+    this.publishedAt = null;
+    this.updatedAt = now;
+    this.updatedBy = actorId;
+    return this;
+  }
+
+  public void softDelete(Instant now, UserId actorId) {
+    this.deletedAt = now;
+    this.updatedAt = now;
+    this.updatedBy = actorId;
+  }
+
+  private void ensureEditable() {
+    if (deletedAt != null) {
+      throw new PageModelNotEditableException("Cannot update a deleted PageModel");
     }
-
-    public void markArchived(Instant now, UserId actorId) {
-        if (deletedAt != null) {
-            throw new PageModelStateException("Cannot archive a deleted PageModel");
-        }
-
-        this.status = PageModelStatus.ARCHIVED;
-        this.archivedAt = now;
-        this.updatedAt = now;
-        this.updatedBy = actorId;
+    if (status == PageModelStatus.ARCHIVED) {
+      throw new PageModelNotEditableException("Cannot update an archived PageModel");
     }
+  }
 
-    public PageModelInstance resetToTemplate(
-        JsonNode templateModel,
-        int schemaVersion,
-        Instant now,
-        UserId actorId) {
+  public PageModelId id() {
+    return id;
+  }
 
-        ensureEditable();
+  public TenantId tenantId() {
+    return tenantId;
+  }
 
-        this.modelJson = Objects.requireNonNull(templateModel, "templateModel");
-        this.schemaVersion = schemaVersion;
-        this.status = PageModelStatus.DRAFT;
-        this.publishedAt = null;
-        this.updatedAt = now;
-        this.updatedBy = actorId;
-        return this;
-    }
+  public String logicalId() {
+    return logicalId;
+  }
 
-    public void softDelete(Instant now, UserId actorId) {
-        this.deletedAt = now;
-        this.updatedAt = now;
-        this.updatedBy = actorId;
-    }
+  public String scope() {
+    return scope;
+  }
 
-    private void ensureEditable() {
-        if (deletedAt != null) {
-            throw new PageModelNotEditableException("Cannot update a deleted PageModel");
-        }
-        if (status == PageModelStatus.ARCHIVED) {
-            throw new PageModelNotEditableException("Cannot update an archived PageModel");
-        }
-    }
+  public String slug() {
+    return slug;
+  }
 
-    public PageModelId id() {
-        return id;
-    }
+  public PageModelStatus status() {
+    return status;
+  }
 
-    public TenantId tenantId() {
-        return tenantId;
-    }
+  public int schemaVersion() {
+    return schemaVersion;
+  }
 
-    public String logicalId() {
-        return logicalId;
-    }
+  public JsonNode modelJson() {
+    return modelJson;
+  }
 
-    public String scope() {
-        return scope;
-    }
+  public Optional<PageModelTemplateId> templateId() {
+    return Optional.ofNullable(templateId);
+  }
 
-    public String slug() {
-        return slug;
-    }
+  public Instant createdAt() {
+    return createdAt;
+  }
 
-    public PageModelStatus status() {
-        return status;
-    }
+  public Instant updatedAt() {
+    return updatedAt;
+  }
 
-    public int schemaVersion() {
-        return schemaVersion;
-    }
+  public UserId createdBy() {
+    return createdBy;
+  }
 
-    public JsonNode modelJson() {
-        return modelJson;
-    }
+  public UserId updatedBy() {
+    return updatedBy;
+  }
 
-    public Optional<PageModelTemplateId> templateId() {
-        return Optional.ofNullable(templateId);
-    }
+  public Optional<Instant> publishedAt() {
+    return Optional.ofNullable(publishedAt);
+  }
 
-    public Instant createdAt() {
-        return createdAt;
-    }
+  public Optional<Instant> archivedAt() {
+    return Optional.ofNullable(archivedAt);
+  }
 
-    public Instant updatedAt() {
-        return updatedAt;
-    }
-
-    public UserId createdBy() {
-        return createdBy;
-    }
-
-    public UserId updatedBy() {
-        return updatedBy;
-    }
-
-    public Optional<Instant> publishedAt() {
-        return Optional.ofNullable(publishedAt);
-    }
-
-    public Optional<Instant> archivedAt() {
-        return Optional.ofNullable(archivedAt);
-    }
-
-    public Optional<Instant> deletedAt() {
-        return Optional.ofNullable(deletedAt);
-    }
+  public Optional<Instant> deletedAt() {
+    return Optional.ofNullable(deletedAt);
+  }
 }

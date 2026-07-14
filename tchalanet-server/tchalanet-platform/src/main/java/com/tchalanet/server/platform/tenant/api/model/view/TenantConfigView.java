@@ -1,20 +1,19 @@
 package com.tchalanet.server.platform.tenant.api.model.view;
 
-import com.tchalanet.server.platform.tenant.api.model.TenantStatus;
-import com.tchalanet.server.platform.tenant.api.model.TenantType;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.ThemePresetId;
 import com.tchalanet.server.platform.address.api.model.AddressView;
-import tools.jackson.databind.JsonNode;
-
+import com.tchalanet.server.platform.tenant.api.model.TenantStatus;
+import com.tchalanet.server.platform.tenant.api.model.TenantType;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Currency;
+import tools.jackson.databind.JsonNode;
 
 /**
- * Tenant configuration view for queries.
- * Per user request: includes both activeThemeId (for reference) and activeThemeCode (for display).
+ * Tenant configuration view for queries. Per user request: includes both activeThemeId (for
+ * reference) and activeThemeCode (for display).
  */
 public record TenantConfigView(
     TenantId tenantId,
@@ -25,11 +24,10 @@ public record TenantConfigView(
     ZoneId timezone,
     Currency currency,
     TenantStatus status,
-    ThemePresetId activeThemeId,      // ID for reference/operations
-    String activeThemeCode,            // code for display (e.g. "modern-light")
+    ThemePresetId activeThemeId, // ID for reference/operations
+    String activeThemeCode, // code for display (e.g. "modern-light")
     AddressView address,
     JsonNode internalSettings,
     BigDecimal defaultCommissionRate,
     Instant createdAt,
-    Instant updatedAt
-) {}
+    Instant updatedAt) {}

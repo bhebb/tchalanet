@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.sellerterminal.internal.infra.web.admin;
 
+import com.tchalanet.server.catalog.plan.api.PlanLimitKeys;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
@@ -9,7 +10,6 @@ import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.common.web.paging.TchPaging;
-import com.tchalanet.server.catalog.plan.api.PlanLimitKeys;
 import com.tchalanet.server.core.sellerterminal.api.command.BlockSellerTerminalCommand;
 import com.tchalanet.server.core.sellerterminal.api.command.CreateSellerTerminalCommand;
 import com.tchalanet.server.core.sellerterminal.api.command.DisableSellerTerminalCommand;
@@ -39,6 +39,8 @@ import com.tchalanet.server.platform.entitlement.api.UsageKeys;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -54,9 +56,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-
 @RestController
 @RequestMapping("/admin/seller-terminals")
 @PreAuthorize("hasAnyRole('TENANT_OWNER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
@@ -64,138 +63,140 @@ import java.math.RoundingMode;
 @RequiredArgsConstructor
 public class SellerTerminalAdminController {
 
-    private static final int SUMMARY_MAX_TERMINALS = 500;
+  private static final int SUMMARY_MAX_TERMINALS = 500;
 
-    private final CommandBus commandBus;
-    private final QueryBus queryBus;
+  private final CommandBus commandBus;
+  private final QueryBus queryBus;
 
-    // ── Queries ───────────────────────────────────────────────────────────────
+  // ── Queries ───────────────────────────────────────────────────────────────
 
-    @GetMapping("/summary")
-    @RequiresPermission("seller_terminal.read")
-    @Operation(summary = "Seller terminals summary")
-    public ApiResponse<SellerTerminalsSummaryResponse> summary(@CurrentContext TchRequestContext ctx) {
-        var page = queryBus.ask(new ListSellerTerminalsQuery(
-            ctx.tenantIdRequired(),
-            SellerTerminalSearchCriteria.empty(),
-            new TchPageRequest(PageRequest.of(0, SUMMARY_MAX_TERMINALS))));
+  @GetMapping("/summary")
+  @RequiresPermission("seller_terminal.read")
+  @Operation(summary = "Seller terminals summary")
+  public ApiResponse<SellerTerminalsSummaryResponse> summary(
+      @CurrentContext TchRequestContext ctx) {
+    var page =
+        queryBus.ask(
+            new ListSellerTerminalsQuery(
+                ctx.tenantIdRequired(),
+                SellerTerminalSearchCriteria.empty(),
+                new TchPageRequest(PageRequest.of(0, SUMMARY_MAX_TERMINALS))));
 
-        long activeCount = 0L;
-        long blockedCount = 0L;
-        BigDecimal salesTodayAmount = BigDecimal.ZERO;
-        BigDecimal commissionTotal = BigDecimal.ZERO;
-        long commissionCount = 0L;
+    long activeCount = 0L;
+    long blockedCount = 0L;
+    BigDecimal salesTodayAmount = BigDecimal.ZERO;
+    BigDecimal commissionTotal = BigDecimal.ZERO;
+    long commissionCount = 0L;
 
-        for (SellerTerminalSummaryRow row : page.items()) {
-            if (row.status() == SellerTerminalStatus.ACTIVE) {
-                activeCount++;
-            } else if (row.status() == SellerTerminalStatus.BLOCKED) {
-                blockedCount++;
-            }
-            if (row.todaySalesAmount() != null) {
-                salesTodayAmount = salesTodayAmount.add(row.todaySalesAmount());
-            }
-            if (row.commissionRate() != null) {
-                commissionTotal = commissionTotal.add(row.commissionRate());
-                commissionCount++;
-            }
-        }
+    for (SellerTerminalSummaryRow row : page.items()) {
+      if (row.status() == SellerTerminalStatus.ACTIVE) {
+        activeCount++;
+      } else if (row.status() == SellerTerminalStatus.BLOCKED) {
+        blockedCount++;
+      }
+      if (row.todaySalesAmount() != null) {
+        salesTodayAmount = salesTodayAmount.add(row.todaySalesAmount());
+      }
+      if (row.commissionRate() != null) {
+        commissionTotal = commissionTotal.add(row.commissionRate());
+        commissionCount++;
+      }
+    }
 
-        BigDecimal averageCommissionRate = commissionCount == 0L
+    BigDecimal averageCommissionRate =
+        commissionCount == 0L
             ? BigDecimal.ZERO
             : commissionTotal.divide(BigDecimal.valueOf(commissionCount), 2, RoundingMode.HALF_UP);
 
-        return ApiResponse.success(new SellerTerminalsSummaryResponse(
-            activeCount,
-            blockedCount,
-            salesTodayAmount,
-            averageCommissionRate,
-            "HTG"));
-    }
+    return ApiResponse.success(
+        new SellerTerminalsSummaryResponse(
+            activeCount, blockedCount, salesTodayAmount, averageCommissionRate, "HTG"));
+  }
 
-    @GetMapping
-    @RequiresPermission("seller_terminal.read")
-    @Operation(summary = "List seller terminals")
-    public ApiResponse<TchPage<SellerTerminalSummaryRow>> list(
-        @CurrentContext TchRequestContext ctx,
-        @RequestParam(required = false) String q,
-        @RequestParam(required = false) SellerTerminalStatus status,
-        @TchPaging(defaultSort = {"displayName,ASC"}, allowedSort = {"displayName", "terminalCode", "status", "createdAt"})
-        TchPageRequest pageRequest
-    ) {
-        var criteria = new SellerTerminalSearchCriteria(q, status);
-        return ApiResponse.success(queryBus.ask(
-            new ListSellerTerminalsQuery(ctx.tenantIdRequired(), criteria, pageRequest)));
-    }
+  @GetMapping
+  @RequiresPermission("seller_terminal.read")
+  @Operation(summary = "List seller terminals")
+  public ApiResponse<TchPage<SellerTerminalSummaryRow>> list(
+      @CurrentContext TchRequestContext ctx,
+      @RequestParam(required = false) String q,
+      @RequestParam(required = false) SellerTerminalStatus status,
+      @TchPaging(
+              defaultSort = {"displayName,ASC"},
+              allowedSort = {"displayName", "terminalCode", "status", "createdAt"})
+          TchPageRequest pageRequest) {
+    var criteria = new SellerTerminalSearchCriteria(q, status);
+    return ApiResponse.success(
+        queryBus.ask(new ListSellerTerminalsQuery(ctx.tenantIdRequired(), criteria, pageRequest)));
+  }
 
-    @GetMapping("/suggested-code")
-    @RequiresPermission("seller_terminal.manage")
-    @Operation(summary = "Suggest the next seller terminal code")
-    public ApiResponse<SellerTerminalCodeSuggestionView> suggestedCode(@CurrentContext TchRequestContext ctx) {
-        return ApiResponse.success(queryBus.ask(
-            new SuggestSellerTerminalCodeQuery(ctx.tenantIdRequired())));
-    }
+  @GetMapping("/suggested-code")
+  @RequiresPermission("seller_terminal.manage")
+  @Operation(summary = "Suggest the next seller terminal code")
+  public ApiResponse<SellerTerminalCodeSuggestionView> suggestedCode(
+      @CurrentContext TchRequestContext ctx) {
+    return ApiResponse.success(
+        queryBus.ask(new SuggestSellerTerminalCodeQuery(ctx.tenantIdRequired())));
+  }
 
-    @GetMapping("/{id}")
-    @RequiresPermission("seller_terminal.read")
-    @Operation(summary = "Get seller terminal by id")
-    public ApiResponse<SellerTerminalView> get(
-        @CurrentContext TchRequestContext ctx,
-        @PathVariable SellerTerminalId id
-    ) {
-        return ApiResponse.success(queryBus.ask(
-            new GetSellerTerminalQuery(ctx.tenantIdRequired(), id)));
-    }
+  @GetMapping("/{id}")
+  @RequiresPermission("seller_terminal.read")
+  @Operation(summary = "Get seller terminal by id")
+  public ApiResponse<SellerTerminalView> get(
+      @CurrentContext TchRequestContext ctx, @PathVariable SellerTerminalId id) {
+    return ApiResponse.success(
+        queryBus.ask(new GetSellerTerminalQuery(ctx.tenantIdRequired(), id)));
+  }
 
-    // ── Commands ──────────────────────────────────────────────────────────────
+  // ── Commands ──────────────────────────────────────────────────────────────
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    @RequiresPermission("seller_terminal.manage")
-    @RequiredQuota(
-        limit = PlanLimitKeys.SELLER_TERMINALS_MAX,
-        usage = UsageKeys.SELLER_TERMINALS_ACTIVE
-    )
-    @Operation(summary = "Create a seller-terminal")
-    @AuditLog(
-        entity = AuditEntityType.SELLER_TERMINAL,
-        action = AuditAction.SELLER_TERMINAL_CREATE,
-        idExpression = "#result.data.value().toString()",
-        detailsExpression = "#request")
-    public ApiResponse<SellerTerminalId> create(
-        @CurrentContext TchRequestContext ctx,
-        @Valid @RequestBody CreateSellerTerminalRequest request
-    ) {
-        var id = commandBus.execute(new CreateSellerTerminalCommand(
+  @PostMapping
+  @ResponseStatus(HttpStatus.CREATED)
+  @RequiresPermission("seller_terminal.manage")
+  @RequiredQuota(
+      limit = PlanLimitKeys.SELLER_TERMINALS_MAX,
+      usage = UsageKeys.SELLER_TERMINALS_ACTIVE)
+  @Operation(summary = "Create a seller-terminal")
+  @AuditLog(
+      entity = AuditEntityType.SELLER_TERMINAL,
+      action = AuditAction.SELLER_TERMINAL_CREATE,
+      idExpression = "#result.data.value().toString()",
+      detailsExpression = "#request")
+  public ApiResponse<SellerTerminalId> create(
+      @CurrentContext TchRequestContext ctx,
+      @Valid @RequestBody CreateSellerTerminalRequest request) {
+    var id =
+        commandBus.execute(
+            new CreateSellerTerminalCommand(
+                ctx.tenantIdRequired(),
+                request.terminalCode(),
+                request.displayName(),
+                request.firstName(),
+                request.lastName(),
+                request.email(),
+                request.phoneNumber(),
+                request.addressId(),
+                request.commissionRate(),
+                request.initialPin(),
+                ctx.currentUserIdRequired()));
+    return ApiResponse.created(id);
+  }
+
+  @PutMapping("/{id}")
+  @RequiresPermission("seller_terminal.manage")
+  @Operation(summary = "Update a seller terminal")
+  @AuditLog(
+      entity = AuditEntityType.SELLER_TERMINAL,
+      action = AuditAction.SELLER_TERMINAL_UPDATE,
+      idExpression = "#id.value().toString()",
+      detailsExpression = "#request")
+  public void update(
+      @CurrentContext TchRequestContext ctx,
+      @PathVariable SellerTerminalId id,
+      @Valid @RequestBody UpdateSellerTerminalRequest request) {
+    commandBus.execute(
+        new UpdateSellerTerminalCommand(
             ctx.tenantIdRequired(),
-            request.terminalCode(),
-            request.displayName(),
-            request.firstName(),
-            request.lastName(),
-            request.email(),
-            request.phoneNumber(),
-            request.addressId(),
-            request.commissionRate(),
-            request.initialPin(),
-            ctx.currentUserIdRequired()));
-        return ApiResponse.created(id);
-    }
-
-    @PutMapping("/{id}")
-    @RequiresPermission("seller_terminal.manage")
-    @Operation(summary = "Update a seller terminal")
-    @AuditLog(
-        entity = AuditEntityType.SELLER_TERMINAL,
-        action = AuditAction.SELLER_TERMINAL_UPDATE,
-        idExpression = "#id.value().toString()",
-        detailsExpression = "#request")
-    public void update(
-        @CurrentContext TchRequestContext ctx,
-        @PathVariable SellerTerminalId id,
-        @Valid @RequestBody UpdateSellerTerminalRequest request
-    ) {
-        commandBus.execute(new UpdateSellerTerminalCommand(
-            ctx.tenantIdRequired(), id,
+            id,
             request.displayName(),
             request.firstName(),
             request.lastName(),
@@ -204,110 +205,96 @@ public class SellerTerminalAdminController {
             request.addressId(),
             request.commissionRate(),
             ctx.currentUserIdRequired()));
-    }
+  }
 
-    @PatchMapping("/{id}/block")
-    @RequiresPermission("seller_terminal.block")
-    @Operation(summary = "Block a seller terminal")
-    @AuditLog(
-        entity = AuditEntityType.SELLER_TERMINAL,
-        action = AuditAction.SELLER_TERMINAL_BLOCK,
-        idExpression = "#id.value().toString()",
-        detailsExpression = "#request")
-    public void block(
-        @CurrentContext TchRequestContext ctx,
-        @PathVariable SellerTerminalId id,
-        @Valid @RequestBody BlockSellerTerminalRequest request
-    ) {
-        commandBus.execute(new BlockSellerTerminalCommand(
-            ctx.tenantIdRequired(), id,
-            request.reason(),
-            ctx.currentUserIdRequired()));
-    }
+  @PatchMapping("/{id}/block")
+  @RequiresPermission("seller_terminal.block")
+  @Operation(summary = "Block a seller terminal")
+  @AuditLog(
+      entity = AuditEntityType.SELLER_TERMINAL,
+      action = AuditAction.SELLER_TERMINAL_BLOCK,
+      idExpression = "#id.value().toString()",
+      detailsExpression = "#request")
+  public void block(
+      @CurrentContext TchRequestContext ctx,
+      @PathVariable SellerTerminalId id,
+      @Valid @RequestBody BlockSellerTerminalRequest request) {
+    commandBus.execute(
+        new BlockSellerTerminalCommand(
+            ctx.tenantIdRequired(), id, request.reason(), ctx.currentUserIdRequired()));
+  }
 
-    @PatchMapping("/{id}/unblock")
-    @RequiresPermission("seller_terminal.block")
-    @Operation(summary = "Unblock a seller terminal")
-    @AuditLog(
-        entity = AuditEntityType.SELLER_TERMINAL,
-        action = AuditAction.SELLER_TERMINAL_UNBLOCK,
-        idExpression = "#id.value().toString()")
-    public void unblock(
-        @CurrentContext TchRequestContext ctx,
-        @PathVariable SellerTerminalId id
-    ) {
-        commandBus.execute(new UnblockSellerTerminalCommand(
-            ctx.tenantIdRequired(), id,
-            ctx.currentUserIdRequired()));
-    }
+  @PatchMapping("/{id}/unblock")
+  @RequiresPermission("seller_terminal.block")
+  @Operation(summary = "Unblock a seller terminal")
+  @AuditLog(
+      entity = AuditEntityType.SELLER_TERMINAL,
+      action = AuditAction.SELLER_TERMINAL_UNBLOCK,
+      idExpression = "#id.value().toString()")
+  public void unblock(@CurrentContext TchRequestContext ctx, @PathVariable SellerTerminalId id) {
+    commandBus.execute(
+        new UnblockSellerTerminalCommand(ctx.tenantIdRequired(), id, ctx.currentUserIdRequired()));
+  }
 
-    @PatchMapping("/{id}/disable")
-    @RequiresPermission("seller_terminal.manage")
-    @Operation(summary = "Disable a seller terminal permanently")
-    @AuditLog(
-        entity = AuditEntityType.SELLER_TERMINAL,
-        action = AuditAction.SELLER_TERMINAL_DISABLE,
-        idExpression = "#id.value().toString()")
-    public void disable(
-        @CurrentContext TchRequestContext ctx,
-        @PathVariable SellerTerminalId id
-    ) {
-        commandBus.execute(new DisableSellerTerminalCommand(
-            ctx.tenantIdRequired(), id,
-            ctx.currentUserIdRequired()));
-    }
+  @PatchMapping("/{id}/disable")
+  @RequiresPermission("seller_terminal.manage")
+  @Operation(summary = "Disable a seller terminal permanently")
+  @AuditLog(
+      entity = AuditEntityType.SELLER_TERMINAL,
+      action = AuditAction.SELLER_TERMINAL_DISABLE,
+      idExpression = "#id.value().toString()")
+  public void disable(@CurrentContext TchRequestContext ctx, @PathVariable SellerTerminalId id) {
+    commandBus.execute(
+        new DisableSellerTerminalCommand(ctx.tenantIdRequired(), id, ctx.currentUserIdRequired()));
+  }
 
-    @PatchMapping("/{id}/reset-access")
-    @RequiresPermission("seller_terminal.reset_access")
-    @Operation(summary = "Reset PIN for a seller terminal (admin provides PIN)")
-    @AuditLog(
-        entity = AuditEntityType.SELLER_TERMINAL,
-        action = AuditAction.SELLER_TERMINAL_RESET_ACCESS,
-        idExpression = "#id.value().toString()")
-    public void resetAccess(
-        @CurrentContext TchRequestContext ctx,
-        @PathVariable SellerTerminalId id,
-        @Valid @RequestBody ResetPinRequest request
-    ) {
-        commandBus.execute(new ResetSellerTerminalAccessCommand(
-            ctx.tenantIdRequired(), id,
-            request.newPin(),
-            ctx.currentUserIdRequired()));
-    }
+  @PatchMapping("/{id}/reset-access")
+  @RequiresPermission("seller_terminal.reset_access")
+  @Operation(summary = "Reset PIN for a seller terminal (admin provides PIN)")
+  @AuditLog(
+      entity = AuditEntityType.SELLER_TERMINAL,
+      action = AuditAction.SELLER_TERMINAL_RESET_ACCESS,
+      idExpression = "#id.value().toString()")
+  public void resetAccess(
+      @CurrentContext TchRequestContext ctx,
+      @PathVariable SellerTerminalId id,
+      @Valid @RequestBody ResetPinRequest request) {
+    commandBus.execute(
+        new ResetSellerTerminalAccessCommand(
+            ctx.tenantIdRequired(), id, request.newPin(), ctx.currentUserIdRequired()));
+  }
 
-    @PostMapping("/{id}/pin-reset")
-    @RequiresPermission("seller_terminal.pin.reset")
-    @Operation(summary = "Reset PIN for a seller terminal — backend generates temporary PIN")
-    @AuditLog(
-        entity = AuditEntityType.SELLER_TERMINAL,
-        action = AuditAction.SELLER_TERMINAL_PIN_RESET,
-        idExpression = "#id.value().toString()",
-        detailsExpression = "#request")
-    public ApiResponse<ResetSellerTerminalPinView> resetPin(
-        @CurrentContext TchRequestContext ctx,
-        @PathVariable SellerTerminalId id,
-        @Valid @RequestBody PinResetRequest request
-    ) {
-        var result = commandBus.execute(new ResetSellerTerminalPinCommand(
-            ctx.tenantIdRequired(), id,
-            request.reason(),
-            ctx.currentUserIdRequired()));
-        return ApiResponse.success(result);
-    }
+  @PostMapping("/{id}/pin-reset")
+  @RequiresPermission("seller_terminal.pin.reset")
+  @Operation(summary = "Reset PIN for a seller terminal — backend generates temporary PIN")
+  @AuditLog(
+      entity = AuditEntityType.SELLER_TERMINAL,
+      action = AuditAction.SELLER_TERMINAL_PIN_RESET,
+      idExpression = "#id.value().toString()",
+      detailsExpression = "#request")
+  public ApiResponse<ResetSellerTerminalPinView> resetPin(
+      @CurrentContext TchRequestContext ctx,
+      @PathVariable SellerTerminalId id,
+      @Valid @RequestBody PinResetRequest request) {
+    var result =
+        commandBus.execute(
+            new ResetSellerTerminalPinCommand(
+                ctx.tenantIdRequired(), id, request.reason(), ctx.currentUserIdRequired()));
+    return ApiResponse.success(result);
+  }
 
-    public record ResetPinRequest(
-        @jakarta.validation.constraints.Pattern(
-            regexp = "\\d{6}", message = "PIN must be exactly 6 digits")
-        String newPin) {}
+  public record ResetPinRequest(
+      @jakarta.validation.constraints.Pattern(
+              regexp = "\\d{6}",
+              message = "PIN must be exactly 6 digits")
+          String newPin) {}
 
-    public record PinResetRequest(
-        @jakarta.validation.constraints.NotNull
-        PinResetReason reason) {}
+  public record PinResetRequest(@jakarta.validation.constraints.NotNull PinResetReason reason) {}
 
-    public record SellerTerminalsSummaryResponse(
-        long activeCount,
-        long blockedCount,
-        BigDecimal salesTodayAmount,
-        BigDecimal averageCommissionRate,
-        String currency) {}
+  public record SellerTerminalsSummaryResponse(
+      long activeCount,
+      long blockedCount,
+      BigDecimal salesTodayAmount,
+      BigDecimal averageCommissionRate,
+      String currency) {}
 }

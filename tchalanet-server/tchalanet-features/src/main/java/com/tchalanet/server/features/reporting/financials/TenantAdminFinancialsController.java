@@ -38,21 +38,21 @@ public class TenantAdminFinancialsController {
       @RequestParam(required = false) LocalDate from,
       @RequestParam(required = false) LocalDate to,
       @RequestParam(defaultValue = "100") int drawLimit,
-      @RequestParam(defaultValue = "100") int sellerTerminalLimit
-  ) {
+      @RequestParam(defaultValue = "100") int sellerTerminalLimit) {
     ZoneId zoneId = ctx.tenantZoneId() != null ? ctx.tenantZoneId() : ZoneId.systemDefault();
     LocalDate effectiveTo = to != null ? to : LocalDate.now(zoneId);
     LocalDate effectiveFrom = from != null ? from : effectiveTo;
 
-    return ApiResponse.success(queryBus.ask(new GetTenantFinancialBreakdownQuery(
-        ctx.tenantIdRequired(),
-        effectiveFrom,
-        effectiveTo,
-        drawLimit,
-        sellerTerminalLimit,
-        java.util.List.of(),
-        java.util.List.of()
-    )));
+    return ApiResponse.success(
+        queryBus.ask(
+            new GetTenantFinancialBreakdownQuery(
+                ctx.tenantIdRequired(),
+                effectiveFrom,
+                effectiveTo,
+                drawLimit,
+                sellerTerminalLimit,
+                java.util.List.of(),
+                java.util.List.of())));
   }
 
   @GetMapping("/draws/{drawId}/top-selections")
@@ -60,12 +60,8 @@ public class TenantAdminFinancialsController {
   public ApiResponse<DrawTopSelectionsView> drawTopSelections(
       @CurrentContext TchRequestContext ctx,
       @PathVariable DrawId drawId,
-      @RequestParam(defaultValue = "5") int limit
-  ) {
-    return ApiResponse.success(queryBus.ask(new ListDrawTopSelectionsQuery(
-        ctx.tenantIdRequired(),
-        drawId,
-        limit
-    )));
+      @RequestParam(defaultValue = "5") int limit) {
+    return ApiResponse.success(
+        queryBus.ask(new ListDrawTopSelectionsQuery(ctx.tenantIdRequired(), drawId, limit)));
   }
 }

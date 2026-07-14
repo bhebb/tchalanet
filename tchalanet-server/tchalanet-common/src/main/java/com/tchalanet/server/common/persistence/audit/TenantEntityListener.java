@@ -11,87 +11,83 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class TenantEntityListener {
 
-    @PrePersist
-    public void prePersist(Object entity) {
-        if (!(entity instanceof BaseTenantEntity e)) {
-            return;
-        }
-
-        UUID currentTenant = resolveTenantUuidOrNull();
-        UUID entityTenant = e.getTenantId();
-
-        if (entityTenant != null) {
-            if (currentTenant != null && !entityTenant.equals(currentTenant)) {
-                throw tenantMismatch("persisting", entity, entityTenant, currentTenant);
-            }
-            return;
-        }
-
-        if (currentTenant == null) {
-            throw new IllegalStateException(
-                "Missing tenant context while persisting " + entity.getClass().getSimpleName());
-        }
-
-        e.setTenantId(currentTenant);
+  @PrePersist
+  public void prePersist(Object entity) {
+    if (!(entity instanceof BaseTenantEntity e)) {
+      return;
     }
 
-    @PreUpdate
-    public void preUpdate(Object entity) {
-        if (!(entity instanceof BaseTenantEntity e)) {
-            return;
-        }
+    UUID currentTenant = resolveTenantUuidOrNull();
+    UUID entityTenant = e.getTenantId();
 
-        UUID currentTenant = resolveTenantUuidOrNull();
-        UUID entityTenant = e.getTenantId();
-
-        if (currentTenant == null) {
-            throw new IllegalStateException(
-                "Missing tenant context while updating " + entity.getClass().getSimpleName());
-        }
-
-        if (entityTenant == null) {
-            // Updates must operate on a managed entity that already carries its tenant.
-            // Auto-filling here would hide detached-merge bugs in sensitive writers.
-            throw new IllegalStateException(
-                "Missing entity tenant while updating " + entity.getClass().getSimpleName());
-        }
-
-        if (!entityTenant.equals(currentTenant)) {
-            throw tenantMismatch("updating", entity, entityTenant, currentTenant);
-        }
+    if (entityTenant != null) {
+      if (currentTenant != null && !entityTenant.equals(currentTenant)) {
+        throw tenantMismatch("persisting", entity, entityTenant, currentTenant);
+      }
+      return;
     }
 
-    private IllegalStateException tenantMismatch(
-        String action,
-        Object entity,
-        UUID entityTenant,
-        UUID currentTenant
-    ) {
-        return new IllegalStateException(
-            "Tenant mismatch while "
-                + action
-                + " "
-                + entity.getClass().getSimpleName()
-                + " (entityTenant="
-                + entityTenant
-                + ", currentTenant="
-                + currentTenant
-                + ")");
+    if (currentTenant == null) {
+      throw new IllegalStateException(
+          "Missing tenant context while persisting " + entity.getClass().getSimpleName());
     }
 
-    private UUID resolveTenantUuidOrNull() {
-        try {
-            TchRequestContext tch = TchContext.currentOrNull();
-            if (tch == null) {
-                return null;
-            }
+    e.setTenantId(currentTenant);
+  }
 
-            // Prefer effective tenant, especially for SUPER_ADMIN override.
-            return tch.effectiveTenantIdRequired().value();
-
-        } catch (Exception e) {
-            log.debug("Failed to resolve tenant from TchContext", e);
-            return null;
-        }
+  @PreUpdate
+  public void preUpdate(Object entity) {
+    if (!(entity instanceof BaseTenantEntity e)) {
+      return;
     }
+
+    UUID currentTenant = resolveTenantUuidOrNull();
+    UUID entityTenant = e.getTenantId();
+
+    if (currentTenant == null) {
+      throw new IllegalStateException(
+          "Missing tenant context while updating " + entity.getClass().getSimpleName());
+    }
+
+    if (entityTenant == null) {
+      // Updates must operate on a managed entity that already carries its tenant.
+      // Auto-filling here would hide detached-merge bugs in sensitive writers.
+      throw new IllegalStateException(
+          "Missing entity tenant while updating " + entity.getClass().getSimpleName());
+    }
+
+    if (!entityTenant.equals(currentTenant)) {
+      throw tenantMismatch("updating", entity, entityTenant, currentTenant);
+    }
+  }
+
+  private IllegalStateException tenantMismatch(
+      String action, Object entity, UUID entityTenant, UUID currentTenant) {
+    return new IllegalStateException(
+        "Tenant mismatch while "
+            + action
+            + " "
+            + entity.getClass().getSimpleName()
+            + " (entityTenant="
+            + entityTenant
+            + ", currentTenant="
+            + currentTenant
+            + ")");
+  }
+
+  private UUID resolveTenantUuidOrNull() {
+    try {
+      TchRequestContext tch = TchContext.currentOrNull();
+      if (tch == null) {
+        return null;
+      }
+
+      // Prefer effective tenant, especially for SUPER_ADMIN override.
+      return tch.effectiveTenantIdRequired().value();
+
+    } catch (Exception e) {
+      log.debug("Failed to resolve tenant from TchContext", e);
+      return null;
+    }
+  }
 }

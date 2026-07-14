@@ -8,9 +8,5 @@ import java.time.ZoneId;
 public interface TenantTopSelectionsReaderPort {
 
   TenantTopSelectionsByPeriodView findTopSelectionsByPeriod(
-      TenantId tenantId,
-      LocalDate from,
-      LocalDate to,
-      ZoneId zoneId,
-      int limit);
+      TenantId tenantId, LocalDate from, LocalDate to, ZoneId zoneId, int limit);
 }

@@ -5,8 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.modulith.core.ApplicationModules;
 
 /**
- * Spring Modulith verification — ensures package boundaries are respected
- * and all module dependencies are declared correctly.
+ * Spring Modulith verification — ensures package boundaries are respected and all module
+ * dependencies are declared correctly.
  *
  * <p>Run: ./mvnw -pl tchalanet-app -am test -Dtest=ModulithVerificationTest
  */

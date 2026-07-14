@@ -8,11 +8,8 @@ import java.util.Optional;
 
 public interface TenantPricingOddsReaderPort {
 
-    List<TenantPricingOdds> findActiveByTenant(TenantId tenantId, String gameCode);
+  List<TenantPricingOdds> findActiveByTenant(TenantId tenantId, String gameCode);
 
-    Optional<TenantPricingOdds> findByNaturalKey(
-        TenantId tenantId,
-        String gameCode,
-        PricingVariantCode pricingVariantCode
-    );
+  Optional<TenantPricingOdds> findByNaturalKey(
+      TenantId tenantId, String gameCode, PricingVariantCode pricingVariantCode);
 }

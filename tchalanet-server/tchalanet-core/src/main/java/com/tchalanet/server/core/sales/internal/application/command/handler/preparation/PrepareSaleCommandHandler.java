@@ -29,29 +29,30 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Prepare flow (DOMAIN_SALES.md §11): paidLines -> EvaluatePromotionQuery ->
- * FREE_GAME_LINE -> SelectionGenerationService (via the sell pipeline's
- * effect applier) -> persist SalePreparation -> SalePreparationView.
+ * Prepare flow (DOMAIN_SALES.md §11): paidLines -> EvaluatePromotionQuery -> FREE_GAME_LINE ->
+ * SelectionGenerationService (via the sell pipeline's effect applier) -> persist SalePreparation ->
+ * SalePreparationView.
  */
 @UseCase
 @RequiredArgsConstructor
 public class PrepareSaleCommandHandler
     implements CommandHandler<PrepareSaleCommand, SalePreparationView> {
 
-    static final Duration TTL = Duration.ofMinutes(10);
+  static final Duration TTL = Duration.ofMinutes(10);
 
-    private final SalePreparationOrchestrator orchestrator;
-    private final SalePreparationStorePort store;
-    private final SalePreparationInputCodec codec;
-    private final SalePreparationViewAssembler assembler;
-    private final IdGenerator idGenerator;
-    private final TchTimeProvider timeProvider;
+  private final SalePreparationOrchestrator orchestrator;
+  private final SalePreparationStorePort store;
+  private final SalePreparationInputCodec codec;
+  private final SalePreparationViewAssembler assembler;
+  private final IdGenerator idGenerator;
+  private final TchTimeProvider timeProvider;
 
-    @Override
-    @TchTx
-    public SalePreparationView handle(PrepareSaleCommand cmd) {
-        var ctx = TchContext.currentOrThrow();
-        var sell = new SellTicketCommand(
+  @Override
+  @TchTx
+  public SalePreparationView handle(PrepareSaleCommand cmd) {
+    var ctx = TchContext.currentOrThrow();
+    var sell =
+        new SellTicketCommand(
             cmd.drawId(),
             cmd.drawChannelId(),
             cmd.currency(),
@@ -61,66 +62,70 @@ public class PrepareSaleCommandHandler
                 : cmd.communicationOptions(),
             List.of());
 
-        var prepared = orchestrator.prepareSale(sell, ctx, SaleEvaluationMode.FINAL);
+    var prepared = orchestrator.prepareSale(sell, ctx, SaleEvaluationMode.FINAL);
 
-        var now = timeProvider.now();
-        var preparation = store.create(new SalePreparation(
-            idGenerator.newUuid(),
-            SalePreparationStatus.DRAFT,
-            ctx.sellerTerminalIdRequired(),
-            cmd.drawId().value(),
-            codec.hash(sell),
-            codec.toMap(sell),
-            prepared.promotionDecision() == null
-                ? null : prepared.promotionDecision().decisionId().value(),
-            null,
-            null,
-            now.plus(TTL),
-            null,
-            promotionLines(prepared.ticketLines(), prepared.promotionDecision())));
+    var now = timeProvider.now();
+    var preparation =
+        store.create(
+            new SalePreparation(
+                idGenerator.newUuid(),
+                SalePreparationStatus.DRAFT,
+                ctx.sellerTerminalIdRequired(),
+                cmd.drawId().value(),
+                codec.hash(sell),
+                codec.toMap(sell),
+                prepared.promotionDecision() == null
+                    ? null
+                    : prepared.promotionDecision().decisionId().value(),
+                null,
+                null,
+                now.plus(TTL),
+                null,
+                promotionLines(prepared.ticketLines(), prepared.promotionDecision())));
 
-        return assembler.toView(preparation, prepared);
+    return assembler.toView(preparation, prepared);
+  }
+
+  private List<SalePreparationPromotionLine> promotionLines(
+      List<TicketLine> finalLines, PromotionDecision decision) {
+    var out = new ArrayList<SalePreparationPromotionLine>();
+    for (var line : finalLines) {
+      if (line.origin() != TicketLineOrigin.PROMOTION) {
+        continue;
+      }
+      var effect = matchingEffect(decision, line);
+      out.add(
+          new SalePreparationPromotionLine(
+              idGenerator.newUuid().toString(),
+              line.gameCode().name(),
+              line.betType().name(),
+              line.betOption(),
+              line.selection().key().value(),
+              line.selectionSource(),
+              effect == null ? null : effect.choiceMode(),
+              line.promotionDecisionId() == null ? null : line.promotionDecisionId().value(),
+              effect == null || effect.ruleId() == null ? null : effect.ruleId().value(),
+              effect == null ? null : effect.ruleKey(),
+              line.promotionEffectType(),
+              decision == null ? null : decision.contextHash(),
+              decision == null ? null : decision.engineVersion(),
+              effect != null && effect.regenerableBeforeConfirm(),
+              effect == null
+                  ? PromotionEffect.DEFAULT_MAX_REGENERATIONS
+                  : effect.maxRegenerationsBeforeConfirm(),
+              0));
     }
+    return out;
+  }
 
-    private List<SalePreparationPromotionLine> promotionLines(
-        List<TicketLine> finalLines, PromotionDecision decision) {
-        var out = new ArrayList<SalePreparationPromotionLine>();
-        for (var line : finalLines) {
-            if (line.origin() != TicketLineOrigin.PROMOTION) {
-                continue;
-            }
-            var effect = matchingEffect(decision, line);
-            out.add(new SalePreparationPromotionLine(
-                idGenerator.newUuid().toString(),
-                line.gameCode().name(),
-                line.betType().name(),
-                line.betOption(),
-                line.selection().key().value(),
-                line.selectionSource(),
-                effect == null ? null : effect.choiceMode(),
-                line.promotionDecisionId() == null ? null : line.promotionDecisionId().value(),
-                effect == null || effect.ruleId() == null ? null : effect.ruleId().value(),
-                effect == null ? null : effect.ruleKey(),
-                line.promotionEffectType(),
-                decision == null ? null : decision.contextHash(),
-                decision == null ? null : decision.engineVersion(),
-                effect != null && effect.regenerableBeforeConfirm(),
-                effect == null
-                    ? PromotionEffect.DEFAULT_MAX_REGENERATIONS
-                    : effect.maxRegenerationsBeforeConfirm(),
-                0));
-        }
-        return out;
+  private PromotionEffect matchingEffect(PromotionDecision decision, TicketLine line) {
+    if (decision == null) {
+      return null;
     }
-
-    private PromotionEffect matchingEffect(PromotionDecision decision, TicketLine line) {
-        if (decision == null) {
-            return null;
-        }
-        return decision.effects().stream()
-            .filter(e -> e.type() == PromotionEffectType.FREE_GAME_LINE)
-            .filter(e -> line.gameCode().name().equals(e.gameCode()))
-            .findFirst()
-            .orElse(null);
-    }
+    return decision.effects().stream()
+        .filter(e -> e.type() == PromotionEffectType.FREE_GAME_LINE)
+        .filter(e -> line.gameCode().name().equals(e.gameCode()))
+        .findFirst()
+        .orElse(null);
+  }
 }

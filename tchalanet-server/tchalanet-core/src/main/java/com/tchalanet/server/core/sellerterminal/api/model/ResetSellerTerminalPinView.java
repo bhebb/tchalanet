@@ -8,5 +8,4 @@ public record ResetSellerTerminalPinView(
     String terminalCode,
     String temporaryPin,
     boolean mustChangePin,
-    Instant pinResetAt
-) {}
+    Instant pinResetAt) {}

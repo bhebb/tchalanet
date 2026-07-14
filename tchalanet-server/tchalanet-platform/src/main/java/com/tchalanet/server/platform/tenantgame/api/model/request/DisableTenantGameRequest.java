@@ -5,8 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 /**
- * Command to disable a game for a tenant.
- * Maps to spec requirement TG1 (enable/disable commands).
+ * Command to disable a game for a tenant. Maps to spec requirement TG1 (enable/disable commands).
  * Uses TenantId typed wrapper per typed_ids.md.
  */
 @Getter

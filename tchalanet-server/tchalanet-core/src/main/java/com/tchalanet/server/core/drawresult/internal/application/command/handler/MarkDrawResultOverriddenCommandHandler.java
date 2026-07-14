@@ -8,8 +8,8 @@ import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawRe
 import lombok.RequiredArgsConstructor;
 
 /**
- * Handler pour marquer un DrawResult comme OVERRIDDEN.
- * Appelé suite à un événement DrawResultCorrectedEvent.
+ * Handler pour marquer un DrawResult comme OVERRIDDEN. Appelé suite à un événement
+ * DrawResultCorrectedEvent.
  */
 @UseCase
 @RequiredArgsConstructor
@@ -21,11 +21,6 @@ public class MarkDrawResultOverriddenCommandHandler
   @Override
   @TchTx
   public void handle(MarkDrawResultOverriddenCommand command) {
-    writer.markAsOverridden(
-        command.drawResultId(),
-        command.reason(),
-        command.overriddenAt()
-    );
+    writer.markAsOverridden(command.drawResultId(), command.reason(), command.overriddenAt());
   }
 }
-

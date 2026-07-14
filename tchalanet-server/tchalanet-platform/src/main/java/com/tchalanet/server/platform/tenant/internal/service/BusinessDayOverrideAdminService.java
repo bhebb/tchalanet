@@ -19,9 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * TENANT-LEVEL writes for {@code business_day_override}.
  *
- * <p>Idempotent upsert on the natural key (tenant, date). Tenant isolation is
- * enforced by RLS; {@code tenantId} comes from the request context, never from
- * client input.
+ * <p>Idempotent upsert on the natural key (tenant, date). Tenant isolation is enforced by RLS;
+ * {@code tenantId} comes from the request context, never from client input.
  */
 @Service
 @RequiredArgsConstructor
@@ -35,8 +34,8 @@ public class BusinessDayOverrideAdminService {
     Objects.requireNonNull(tenantId, "tenantId is required");
     Objects.requireNonNull(req.businessDate(), "businessDate is required");
 
-    var existing = repo.findByTenantIdAndBusinessDateAndDeletedAtIsNull(
-        tenantId.value(), req.businessDate());
+    var existing =
+        repo.findByTenantIdAndBusinessDateAndDeletedAtIsNull(tenantId.value(), req.businessDate());
 
     var e = existing.orElseGet(BusinessDayOverrideJpaEntity::new);
     if (existing.isEmpty()) {
@@ -59,8 +58,9 @@ public class BusinessDayOverrideAdminService {
   @Transactional
   public void softDelete(TenantId tenantId, BusinessDayOverrideId id) {
     var uuid = (id == null) ? null : id.value();
-    var e = repo.findByIdAndDeletedAtIsNull(uuid)
-        .orElseThrow(() -> new EntityNotFoundException("business_day_override_not_found"));
+    var e =
+        repo.findByIdAndDeletedAtIsNull(uuid)
+            .orElseThrow(() -> new EntityNotFoundException("business_day_override_not_found"));
     // RLS already guarantees the row belongs to the current tenant.
     e.setDeletedAt(Instant.now());
     repo.save(e);

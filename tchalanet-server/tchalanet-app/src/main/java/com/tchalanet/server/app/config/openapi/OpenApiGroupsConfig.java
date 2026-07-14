@@ -8,36 +8,39 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class OpenApiGroupsConfig {
 
-    @Bean
-    public GroupedOpenApi publicApi() {
-        return group("public", "/public/**");
-    }
+  @Bean
+  public GroupedOpenApi publicApi() {
+    return group("public", "/public/**");
+  }
 
-    @Bean
-    public GroupedOpenApi platformApi() {
-        return group("platform", "/platform/**");
-    }
+  @Bean
+  public GroupedOpenApi platformApi() {
+    return group("platform", "/platform/**");
+  }
 
-    @Bean
-    public GroupedOpenApi adminApi() {
-        return group("admin", "/admin/**");
-    }
+  @Bean
+  public GroupedOpenApi adminApi() {
+    return group("admin", "/admin/**");
+  }
 
-    @Bean
-    public GroupedOpenApi tenantApi() {
-        return group("tenant", "/tenant/**");
-    }
+  @Bean
+  public GroupedOpenApi tenantApi() {
+    return group("tenant", "/tenant/**");
+  }
 
-    @Bean
-    public OpenApiCustomizer sortTagsAlphabetically() {
-        return openApi -> {
-            if (openApi.getTags() != null) {
-                openApi.setTags(openApi.getTags().stream().sorted(java.util.Comparator.comparing(io.swagger.v3.oas.models.tags.Tag::getName)).toList());
-            }
-        };
-    }
+  @Bean
+  public OpenApiCustomizer sortTagsAlphabetically() {
+    return openApi -> {
+      if (openApi.getTags() != null) {
+        openApi.setTags(
+            openApi.getTags().stream()
+                .sorted(java.util.Comparator.comparing(io.swagger.v3.oas.models.tags.Tag::getName))
+                .toList());
+      }
+    };
+  }
 
-    private GroupedOpenApi group(String name, String pattern) {
-        return GroupedOpenApi.builder().group(name).pathsToMatch(pattern).build();
-    }
+  private GroupedOpenApi group(String name, String pattern) {
+    return GroupedOpenApi.builder().group(name).pathsToMatch(pattern).build();
+  }
 }

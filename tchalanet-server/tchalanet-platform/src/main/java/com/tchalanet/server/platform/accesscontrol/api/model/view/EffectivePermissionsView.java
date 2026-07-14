@@ -8,16 +8,14 @@ import java.util.List;
 import java.util.Set;
 
 public record EffectivePermissionsView(
-    TenantId tenantId,
-    UserId userId,
-    List<RoleId> roleIds,
-    Set<String> permissionCodes) {
+    TenantId tenantId, UserId userId, List<RoleId> roleIds, Set<String> permissionCodes) {
 
   public EffectivePermissionsView {
     if (userId == null) {
       throw new IllegalArgumentException("userId cannot be null");
     }
     roleIds = roleIds == null ? List.of() : List.copyOf(roleIds);
-    permissionCodes = permissionCodes == null ? Set.of() : Collections.unmodifiableSet(permissionCodes);
+    permissionCodes =
+        permissionCodes == null ? Set.of() : Collections.unmodifiableSet(permissionCodes);
   }
 }

@@ -15,7 +15,8 @@ public final class NotificationMapper {
 
   private NotificationMapper() {}
 
-  public static NotificationJpaEntity toEntity(Notification notification, NotificationJpaEntity entity) {
+  public static NotificationJpaEntity toEntity(
+      Notification notification, NotificationJpaEntity entity) {
     var target = entity == null ? new NotificationJpaEntity() : entity;
     target.setId(notification.id().value());
     target.setTenantId(notification.tenantId() == null ? null : notification.tenantId().value());
@@ -37,7 +38,8 @@ public final class NotificationMapper {
     target.setActionUrl(notification.action() == null ? null : notification.action().url());
     target.setActionRoute(notification.action() == null ? null : notification.action().url());
     target.setStatus(notification.status());
-    target.setPublishedAt(notification.status() == NotificationStatus.PUBLISHED ? notification.createdAt() : null);
+    target.setPublishedAt(
+        notification.status() == NotificationStatus.PUBLISHED ? notification.createdAt() : null);
     target.setExpiresAt(notification.expiresAt());
     target.setCreatedAt(notification.createdAt());
     target.setUpdatedAt(notification.updatedAt());

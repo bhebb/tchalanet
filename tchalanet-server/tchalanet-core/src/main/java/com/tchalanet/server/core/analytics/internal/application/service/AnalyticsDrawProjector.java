@@ -16,8 +16,8 @@ import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.stream.Collectors;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -26,8 +26,8 @@ import org.springframework.stereotype.Component;
  * Ensures an {@code analytics_draw} row exists for every resulted draw.
  *
  * <p>The row is created with zero counters; downstream ticket-settlement events
- * (TicketWinningSettlementCreatedEvent) updates the winnings columns via the daily projector.
- * The draw row exists primarily to serve per-draw breakdown queries.
+ * (TicketWinningSettlementCreatedEvent) updates the winnings columns via the daily projector. The
+ * draw row exists primarily to serve per-draw breakdown queries.
  */
 @Component
 @RequiredArgsConstructor
@@ -50,33 +50,38 @@ public class AnalyticsDrawProjector {
     var charges = ChargeTotals.from(event);
     var promotions = PromotionTotals.from(event);
 
-    AnalyticsDrawEntity entity = repo.findByDrawId(drawId)
-        .orElseGet(() -> AnalyticsDrawEntity.builder()
-            .drawId(drawId)
-            .tenantId(event.tenantId().value())
-            .gameCode(gameCodeFor(event))
-            .drawChannelCode(event.context().drawChannelId() != null
-                ? event.context().drawChannelId().value().toString() : null)
-            .scheduledAt(event.occurredAt())
-            .refDate(refDate)
-            .ticketsSoldCount(0L)
-            .ticketsCancelledCount(0L)
-            .grossSalesCents(0L)
-            .stakeTotalCents(0L)
-            .winningsCalculatedCents(0L)
-            .payoutsPaidCents(0L)
-            .sellerCommissionCents(0L)
-            .buyerChargeCents(0L)
-            .sellerChargeCents(0L)
-            .tenantChargeCents(0L)
-            .waivedChargeCents(0L)
-            .promotionLineCount(0L)
-            .promotionPricedLineCount(0L)
-            .netRevenueEstimatedCents(0L)
-            .netRevenuePaidBasisCents(0L)
-            .createdAt(now)
-            .updatedAt(now)
-            .build());
+    AnalyticsDrawEntity entity =
+        repo.findByDrawId(drawId)
+            .orElseGet(
+                () ->
+                    AnalyticsDrawEntity.builder()
+                        .drawId(drawId)
+                        .tenantId(event.tenantId().value())
+                        .gameCode(gameCodeFor(event))
+                        .drawChannelCode(
+                            event.context().drawChannelId() != null
+                                ? event.context().drawChannelId().value().toString()
+                                : null)
+                        .scheduledAt(event.occurredAt())
+                        .refDate(refDate)
+                        .ticketsSoldCount(0L)
+                        .ticketsCancelledCount(0L)
+                        .grossSalesCents(0L)
+                        .stakeTotalCents(0L)
+                        .winningsCalculatedCents(0L)
+                        .payoutsPaidCents(0L)
+                        .sellerCommissionCents(0L)
+                        .buyerChargeCents(0L)
+                        .sellerChargeCents(0L)
+                        .tenantChargeCents(0L)
+                        .waivedChargeCents(0L)
+                        .promotionLineCount(0L)
+                        .promotionPricedLineCount(0L)
+                        .netRevenueEstimatedCents(0L)
+                        .netRevenuePaidBasisCents(0L)
+                        .createdAt(now)
+                        .updatedAt(now)
+                        .build());
 
     entity.setTicketsSoldCount(entity.getTicketsSoldCount() + 1);
     entity.setGrossSalesCents(entity.getGrossSalesCents() + stakeCents);
@@ -87,17 +92,25 @@ public class AnalyticsDrawProjector {
     entity.setTenantChargeCents(entity.getTenantChargeCents() + charges.tenantCents());
     entity.setWaivedChargeCents(entity.getWaivedChargeCents() + charges.waivedCents());
     entity.setPromotionLineCount(entity.getPromotionLineCount() + promotions.lineCount());
-    entity.setPromotionPricedLineCount(entity.getPromotionPricedLineCount() + promotions.pricedLineCount());
+    entity.setPromotionPricedLineCount(
+        entity.getPromotionPricedLineCount() + promotions.pricedLineCount());
     entity.setNetRevenueEstimatedCents(
-        entity.getNetRevenueEstimatedCents() + stakeCents - sellerCommissionCents - charges.tenantCents());
+        entity.getNetRevenueEstimatedCents()
+            + stakeCents
+            - sellerCommissionCents
+            - charges.tenantCents());
     entity.setNetRevenuePaidBasisCents(
-        entity.getNetRevenuePaidBasisCents() + stakeCents - sellerCommissionCents - charges.tenantCents());
+        entity.getNetRevenuePaidBasisCents()
+            + stakeCents
+            - sellerCommissionCents
+            - charges.tenantCents());
     entity.setUpdatedAt(now);
 
     repo.save(entity);
   }
 
-  public void applyTicketWinningSettlementCreated(TicketWinningSettlementCreatedEvent event, LocalDate refDate) {
+  public void applyTicketWinningSettlementCreated(
+      TicketWinningSettlementCreatedEvent event, LocalDate refDate) {
     applyWinningsCalculatedDelta(
         event.drawId().value(),
         event.tenantId().value(),
@@ -106,7 +119,8 @@ public class AnalyticsDrawProjector {
         event.amountCents());
   }
 
-  public void applyTicketWinningSettlementReversed(TicketWinningSettlementReversedEvent event, LocalDate refDate) {
+  public void applyTicketWinningSettlementReversed(
+      TicketWinningSettlementReversedEvent event, LocalDate refDate) {
     applyWinningsCalculatedDelta(
         event.drawId().value(),
         event.tenantId().value(),
@@ -137,32 +151,36 @@ public class AnalyticsDrawProjector {
   public void ensureDrawRow(DrawResultAppliedEvent event) {
     UUID drawId = event.drawId().value();
     Instant now = Instant.now(clock);
-    AnalyticsDrawEntity entity = repo.findByDrawId(drawId)
-        .orElseGet(() -> AnalyticsDrawEntity.builder()
-            .drawId(drawId)
-            .ticketsSoldCount(0L)
-            .ticketsCancelledCount(0L)
-            .grossSalesCents(0L)
-            .stakeTotalCents(0L)
-            .winningsCalculatedCents(0L)
-            .payoutsPaidCents(0L)
-            .sellerCommissionCents(0L)
-            .buyerChargeCents(0L)
-            .sellerChargeCents(0L)
-            .tenantChargeCents(0L)
-            .waivedChargeCents(0L)
-            .promotionLineCount(0L)
-            .promotionPricedLineCount(0L)
-            .netRevenueEstimatedCents(0L)
-            .netRevenuePaidBasisCents(0L)
-            .createdAt(now)
-            .build());
+    AnalyticsDrawEntity entity =
+        repo.findByDrawId(drawId)
+            .orElseGet(
+                () ->
+                    AnalyticsDrawEntity.builder()
+                        .drawId(drawId)
+                        .ticketsSoldCount(0L)
+                        .ticketsCancelledCount(0L)
+                        .grossSalesCents(0L)
+                        .stakeTotalCents(0L)
+                        .winningsCalculatedCents(0L)
+                        .payoutsPaidCents(0L)
+                        .sellerCommissionCents(0L)
+                        .buyerChargeCents(0L)
+                        .sellerChargeCents(0L)
+                        .tenantChargeCents(0L)
+                        .waivedChargeCents(0L)
+                        .promotionLineCount(0L)
+                        .promotionPricedLineCount(0L)
+                        .netRevenueEstimatedCents(0L)
+                        .netRevenuePaidBasisCents(0L)
+                        .createdAt(now)
+                        .build());
 
     entity.setTenantId(event.tenantId().value());
     if (entity.getGameCode() == null) {
       entity.setGameCode("UNKNOWN"); // enriched by recompute or TicketPlaced aggregation
     }
-    entity.setDrawChannelCode(event.drawChannelId() != null ? event.drawChannelId().value().toString() : null);
+    entity.setDrawChannelCode(
+        event.drawChannelId() != null ? event.drawChannelId().value().toString() : null);
     entity.setScheduledAt(event.occurredAt());
     entity.setRefDate(event.drawDate());
     entity.setUpdatedAt(now);
@@ -172,11 +190,7 @@ public class AnalyticsDrawProjector {
   }
 
   private void applyWinningsCalculatedDelta(
-      UUID drawId,
-      UUID tenantId,
-      LocalDate refDate,
-      Instant occurredAt,
-      long winningsCentsDelta) {
+      UUID drawId, UUID tenantId, LocalDate refDate, Instant occurredAt, long winningsCentsDelta) {
 
     var entity = ensureFinancialRow(drawId, tenantId, refDate, occurredAt);
     entity.setWinningsCalculatedCents(entity.getWinningsCalculatedCents() + winningsCentsDelta);
@@ -186,11 +200,7 @@ public class AnalyticsDrawProjector {
   }
 
   private void applyPayoutPaidDelta(
-      UUID drawId,
-      UUID tenantId,
-      LocalDate refDate,
-      Instant occurredAt,
-      long paidCentsDelta) {
+      UUID drawId, UUID tenantId, LocalDate refDate, Instant occurredAt, long paidCentsDelta) {
 
     var entity = ensureFinancialRow(drawId, tenantId, refDate, occurredAt);
     entity.setPayoutsPaidCents(entity.getPayoutsPaidCents() + paidCentsDelta);
@@ -200,37 +210,36 @@ public class AnalyticsDrawProjector {
   }
 
   private AnalyticsDrawEntity ensureFinancialRow(
-      UUID drawId,
-      UUID tenantId,
-      LocalDate refDate,
-      Instant occurredAt) {
+      UUID drawId, UUID tenantId, LocalDate refDate, Instant occurredAt) {
 
     Instant now = Instant.now(clock);
     return repo.findByDrawId(drawId)
-        .orElseGet(() -> AnalyticsDrawEntity.builder()
-            .drawId(drawId)
-            .tenantId(tenantId)
-            .gameCode("UNKNOWN")
-            .scheduledAt(occurredAt)
-            .refDate(refDate)
-            .ticketsSoldCount(0L)
-            .ticketsCancelledCount(0L)
-            .grossSalesCents(0L)
-            .stakeTotalCents(0L)
-            .winningsCalculatedCents(0L)
-            .payoutsPaidCents(0L)
-            .sellerCommissionCents(0L)
-            .buyerChargeCents(0L)
-            .sellerChargeCents(0L)
-            .tenantChargeCents(0L)
-            .waivedChargeCents(0L)
-            .promotionLineCount(0L)
-            .promotionPricedLineCount(0L)
-            .netRevenueEstimatedCents(0L)
-            .netRevenuePaidBasisCents(0L)
-            .createdAt(now)
-            .updatedAt(now)
-            .build());
+        .orElseGet(
+            () ->
+                AnalyticsDrawEntity.builder()
+                    .drawId(drawId)
+                    .tenantId(tenantId)
+                    .gameCode("UNKNOWN")
+                    .scheduledAt(occurredAt)
+                    .refDate(refDate)
+                    .ticketsSoldCount(0L)
+                    .ticketsCancelledCount(0L)
+                    .grossSalesCents(0L)
+                    .stakeTotalCents(0L)
+                    .winningsCalculatedCents(0L)
+                    .payoutsPaidCents(0L)
+                    .sellerCommissionCents(0L)
+                    .buyerChargeCents(0L)
+                    .sellerChargeCents(0L)
+                    .tenantChargeCents(0L)
+                    .waivedChargeCents(0L)
+                    .promotionLineCount(0L)
+                    .promotionPricedLineCount(0L)
+                    .netRevenueEstimatedCents(0L)
+                    .netRevenuePaidBasisCents(0L)
+                    .createdAt(now)
+                    .updatedAt(now)
+                    .build());
   }
 
   private static long toCents(BigDecimal amount) {
@@ -238,9 +247,8 @@ public class AnalyticsDrawProjector {
   }
 
   private static String gameCodeFor(TicketPlacedEvent event) {
-    var gameCodes = event.lines().stream()
-        .map(line -> line.gameCode().name())
-        .collect(Collectors.toSet());
+    var gameCodes =
+        event.lines().stream().map(line -> line.gameCode().name()).collect(Collectors.toSet());
     if (gameCodes.size() == 1) {
       return gameCodes.iterator().next();
     }
@@ -274,11 +282,7 @@ public class AnalyticsDrawProjector {
     }
   }
 
-  record PromotionTotals(
-      long lineCount,
-      long pricedLineCount,
-      long payoutBaseCents
-  ) {
+  record PromotionTotals(long lineCount, long pricedLineCount, long payoutBaseCents) {
     static PromotionTotals from(TicketPlacedEvent event) {
       long lineCount = 0L;
       long pricedLineCount = 0L;

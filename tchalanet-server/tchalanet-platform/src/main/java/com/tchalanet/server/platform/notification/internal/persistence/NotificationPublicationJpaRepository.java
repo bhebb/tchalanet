@@ -20,7 +20,8 @@ public interface NotificationPublicationJpaRepository
       findFirstByNotificationIdAndDeletedAtIsNullOrderByPublicationNoDesc(UUID notificationId);
 
   List<NotificationPublicationJpaEntity>
-      findByNotificationIdInAndDeletedAtIsNullOrderByPublicationNoDesc(Collection<UUID> notificationIds);
+      findByNotificationIdInAndDeletedAtIsNullOrderByPublicationNoDesc(
+          Collection<UUID> notificationIds);
 
   boolean existsByNotificationIdAndDeletedAtIsNull(UUID notificationId);
 

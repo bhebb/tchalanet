@@ -14,20 +14,17 @@ public final class AdminReportResponses {
       List<AdminReportRows.DailyRow> dailyRows,
       List<AdminReportRows.DrawRow> drawRows,
       List<AdminReportRows.SellerTerminalRow> sellerTerminalRows,
-      List<AdminReportRows.TopSelectionRow> topSelections
-  ) {}
+      List<AdminReportRows.TopSelectionRow> topSelections) {}
 
   public record Draws(
       LocalDate from,
       LocalDate to,
       AdminReportSummaryResponse summary,
-      List<AdminReportRows.DrawRow> rows
-  ) {}
+      List<AdminReportRows.DrawRow> rows) {}
 
   public record SellerTerminals(
       LocalDate from,
       LocalDate to,
       AdminReportSummaryResponse summary,
-      List<AdminReportRows.SellerTerminalRow> rows
-  ) {}
+      List<AdminReportRows.SellerTerminalRow> rows) {}
 }

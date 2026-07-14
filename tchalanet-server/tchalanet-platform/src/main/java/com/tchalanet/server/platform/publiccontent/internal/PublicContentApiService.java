@@ -28,7 +28,8 @@ public class PublicContentApiService implements PublicContentApi {
 
   @Override
   public List<PublicContentItemView> listPlatformAdminDashboardNews(int limit) {
-    return toViews(queryService.listForSurface(PublicContentSurface.PLATFORM_ADMIN_DASHBOARD, limit));
+    return toViews(
+        queryService.listForSurface(PublicContentSurface.PLATFORM_ADMIN_DASHBOARD, limit));
   }
 
   @Override

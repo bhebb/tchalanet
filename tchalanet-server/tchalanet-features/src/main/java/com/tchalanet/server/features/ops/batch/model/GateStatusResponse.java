@@ -7,5 +7,4 @@ public record GateStatusResponse(
     @JsonProperty("job_key") String jobKey,
     boolean enabled,
     String scope,
-    @JsonProperty("tenant_id") String tenantId
-) {}
+    @JsonProperty("tenant_id") String tenantId) {}

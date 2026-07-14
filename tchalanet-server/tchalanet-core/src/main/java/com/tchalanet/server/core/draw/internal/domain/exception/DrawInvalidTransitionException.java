@@ -5,11 +5,8 @@ import com.tchalanet.server.core.draw.api.model.DrawStatus;
 
 public class DrawInvalidTransitionException extends RuntimeException {
 
-    public DrawInvalidTransitionException(
-        DrawId drawId,
-        DrawStatus current,
-        DrawStatus expected,
-        String message) {
-        super(message + " drawId=" + drawId.value() + " current=" + current + " expected=" + expected);
-    }
+  public DrawInvalidTransitionException(
+      DrawId drawId, DrawStatus current, DrawStatus expected, String message) {
+    super(message + " drawId=" + drawId.value() + " current=" + current + " expected=" + expected);
+  }
 }

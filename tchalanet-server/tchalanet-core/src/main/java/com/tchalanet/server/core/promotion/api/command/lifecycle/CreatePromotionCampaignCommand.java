@@ -17,5 +17,5 @@ public record CreatePromotionCampaignCommand(
     @NotNull Instant startsAt,
     Instant endsAt,
     @NotNull Integer priority,
-    @NotEmpty List<@Valid PromotionRuleConfigInput> rules
-) implements Command<PromotionCampaignView> {}
+    @NotEmpty List<@Valid PromotionRuleConfigInput> rules)
+    implements Command<PromotionCampaignView> {}

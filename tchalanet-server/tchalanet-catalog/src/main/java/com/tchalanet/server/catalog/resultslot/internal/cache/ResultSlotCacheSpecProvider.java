@@ -7,9 +7,9 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 /**
- * Result slot definitions (distinct from the calendar overrides in
- * {@link ResultSlotCalendarCacheSpecProvider}). Platform referential, edited very rarely and
- * evicted on write. Tier A: 30 min / 12 h.
+ * Result slot definitions (distinct from the calendar overrides in {@link
+ * ResultSlotCalendarCacheSpecProvider}). Platform referential, edited very rarely and evicted on
+ * write. Tier A: 30 min / 12 h.
  */
 @Component
 public class ResultSlotCacheSpecProvider implements CacheSpecProvider {

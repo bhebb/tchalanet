@@ -4,11 +4,11 @@ import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.job.gate.BatchGate;
 import com.tchalanet.server.common.job.registry.RegisteredJob;
 import com.tchalanet.server.common.job.registry.TchJobRegistry;
-import com.tchalanet.server.features.pagemodel.contract.ActionItem;
-import com.tchalanet.server.features.pagemodel.contract.QuickActionsPayload;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.common.web.paging.TchSearchQuery;
+import com.tchalanet.server.features.pagemodel.contract.ActionItem;
+import com.tchalanet.server.features.pagemodel.contract.QuickActionsPayload;
 import com.tchalanet.server.platform.contactrequest.api.ContactRequestAdminApi;
 import com.tchalanet.server.platform.contactrequest.api.ContactRequestStatus;
 import com.tchalanet.server.platform.contactrequest.api.model.ContactRequestSummaryView;
@@ -17,7 +17,6 @@ import com.tchalanet.server.platform.notification.api.model.NotificationActorTyp
 import com.tchalanet.server.platform.notification.api.model.NotificationSeverity;
 import com.tchalanet.server.platform.notification.api.model.NotificationStatus;
 import com.tchalanet.server.platform.notification.api.model.view.NotificationItemView;
-import com.tchalanet.server.platform.ops.api.OpsResourceContributor;
 import com.tchalanet.server.platform.ops.api.OpsSchedulerHistoryProvider;
 import com.tchalanet.server.platform.ops.api.OpsServiceResourceItem;
 import com.tchalanet.server.platform.ops.api.PlatformHealthProbe;
@@ -72,9 +71,8 @@ public class PlatformAdminOpsDashboardPayloadAssembler {
         m.forEach((k, v) -> typed.put(String.valueOf(k), String.valueOf(v)));
         components = java.util.Collections.unmodifiableMap(typed);
       }
-      long upCount = components.values().stream()
-          .filter(status -> "UP".equalsIgnoreCase(status))
-          .count();
+      long upCount =
+          components.values().stream().filter(status -> "UP".equalsIgnoreCase(status)).count();
       return new PlatformHealthPayload(global, components, upCount + "/" + components.size());
     } catch (RuntimeException e) {
       return new PlatformHealthPayload("UNKNOWN", Map.of(), "0/0");
@@ -82,22 +80,34 @@ public class PlatformAdminOpsDashboardPayloadAssembler {
   }
 
   private QuickActionsPayload buildQuickActions() {
-    return new QuickActionsPayload(java.util.List.of(
-        new ActionItem("DRAW_RESULTS", "quickaction.platform.draw_results", "fact_check", "/app/platform/ops/draw-results"),
-        new ActionItem("BATCH", "quickaction.platform.batch", "schedule", "/app/platform/ops/batch"),
-        new ActionItem("CACHE", "quickaction.platform.cache", "cached", "/app/platform/ops/cache"),
-        new ActionItem("IDENTITY_SYNC", "quickaction.platform.identity_sync", "sync", "/app/platform/ops/identity-sync"),
-        new ActionItem("AUDIT", "quickaction.platform.audit", "assignment_turned_in", "/app/platform/ops/audit")));
+    return new QuickActionsPayload(
+        java.util.List.of(
+            new ActionItem(
+                "DRAW_RESULTS",
+                "quickaction.platform.draw_results",
+                "fact_check",
+                "/app/platform/ops/draw-results"),
+            new ActionItem(
+                "BATCH", "quickaction.platform.batch", "schedule", "/app/platform/ops/batch"),
+            new ActionItem(
+                "CACHE", "quickaction.platform.cache", "cached", "/app/platform/ops/cache"),
+            new ActionItem(
+                "IDENTITY_SYNC",
+                "quickaction.platform.identity_sync",
+                "sync",
+                "/app/platform/ops/identity-sync"),
+            new ActionItem(
+                "AUDIT",
+                "quickaction.platform.audit",
+                "assignment_turned_in",
+                "/app/platform/ops/audit")));
   }
 
   private OpsResourceSummaryPayload buildResourceSummary() {
     OpsResourceMetricsProvider provider = resourceMetricsProvider.getIfAvailable();
     if (provider == null) {
       return new OpsResourceSummaryPayload(
-          java.time.Instant.now().toString(),
-          0,
-          0,
-          java.util.List.of());
+          java.time.Instant.now().toString(), 0, 0, java.util.List.of());
     }
     return provider.snapshot();
   }
@@ -107,58 +117,65 @@ public class PlatformAdminOpsDashboardPayloadAssembler {
     BatchGate gate = batchGateProvider.getIfAvailable();
     if (registry == null || gate == null) {
       return new OpsSchedulerSummaryPayload(
-          Instant.now().toString(),
-          0,
-          0,
-          0,
-          0,
-          0,
-          false,
-          List.of());
+          Instant.now().toString(), 0, 0, 0, 0, 0, false, List.of());
     }
 
     try {
       List<RegisteredJob> jobs = List.copyOf(registry.list());
-      List<OpsSchedulerJobItem> disabled = jobs.stream()
-          .filter(job -> !gate.enabled(job.jobKey(), null))
-          .map(job -> new OpsSchedulerJobItem(
-              job.jobKey().value(),
-              job.displayName(),
-              job.scope().name(),
-              "DISABLED",
-              "WARNING",
-              "/app/platform/ops/batch",
-              null))
-          .toList();
+      List<OpsSchedulerJobItem> disabled =
+          jobs.stream()
+              .filter(job -> !gate.enabled(job.jobKey(), null))
+              .map(
+                  job ->
+                      new OpsSchedulerJobItem(
+                          job.jobKey().value(),
+                          job.displayName(),
+                          job.scope().name(),
+                          "DISABLED",
+                          "WARNING",
+                          "/app/platform/ops/batch",
+                          null))
+              .toList();
       OpsSchedulerHistoryProvider.Snapshot history = buildSchedulerHistory();
-      java.util.LinkedHashMap<String, OpsSchedulerJobItem> uniqueItems = new java.util.LinkedHashMap<>();
+      java.util.LinkedHashMap<String, OpsSchedulerJobItem> uniqueItems =
+          new java.util.LinkedHashMap<>();
       disabled.forEach(item -> uniqueItems.put(item.jobKey(), item));
-      history.items().forEach(item -> {
-        OpsSchedulerJobItem mapped = new OpsSchedulerJobItem(
-            item.jobKey(),
-            item.displayName(),
-            item.scope(),
-            item.status(),
-            item.severity(),
-            item.detailsPath(),
-            item.context());
-        uniqueItems.merge(mapped.jobKey(), mapped, PlatformAdminOpsDashboardPayloadAssembler::pickMostSevere);
-      });
+      history
+          .items()
+          .forEach(
+              item -> {
+                OpsSchedulerJobItem mapped =
+                    new OpsSchedulerJobItem(
+                        item.jobKey(),
+                        item.displayName(),
+                        item.scope(),
+                        item.status(),
+                        item.severity(),
+                        item.detailsPath(),
+                        item.context());
+                uniqueItems.merge(
+                    mapped.jobKey(),
+                    mapped,
+                    PlatformAdminOpsDashboardPayloadAssembler::pickMostSevere);
+              });
       if (history.items().isEmpty()) {
-        java.util.Set<String> disabledKeys = disabled.stream()
-            .map(OpsSchedulerJobItem::jobKey)
-            .collect(java.util.stream.Collectors.toSet());
+        java.util.Set<String> disabledKeys =
+            disabled.stream()
+                .map(OpsSchedulerJobItem::jobKey)
+                .collect(java.util.stream.Collectors.toSet());
         jobs.stream()
             .filter(job -> !disabledKeys.contains(job.jobKey().value()))
             .limit(5)
-            .map(job -> new OpsSchedulerJobItem(
-                job.jobKey().value(),
-                job.displayName(),
-                job.scope().name(),
-                "REGISTERED",
-                "OK",
-                "/app/platform/ops/batch",
-                null))
+            .map(
+                job ->
+                    new OpsSchedulerJobItem(
+                        job.jobKey().value(),
+                        job.displayName(),
+                        job.scope().name(),
+                        "REGISTERED",
+                        "OK",
+                        "/app/platform/ops/batch",
+                        null))
             .forEach(item -> uniqueItems.putIfAbsent(item.jobKey(), item));
       }
       return new OpsSchedulerSummaryPayload(
@@ -179,14 +196,15 @@ public class PlatformAdminOpsDashboardPayloadAssembler {
           0,
           0,
           false,
-          List.of(new OpsSchedulerJobItem(
-              "batch-runtime",
-              "Batch runtime",
-              "GLOBAL",
-              "UNKNOWN",
-              "WARNING",
-              "/app/platform/ops/batch",
-              null)));
+          List.of(
+              new OpsSchedulerJobItem(
+                  "batch-runtime",
+                  "Batch runtime",
+                  "GLOBAL",
+                  "UNKNOWN",
+                  "WARNING",
+                  "/app/platform/ops/batch",
+                  null)));
     }
   }
 
@@ -203,14 +221,15 @@ public class PlatformAdminOpsDashboardPayloadAssembler {
           0,
           0,
           false,
-          List.of(new OpsSchedulerHistoryProvider.Item(
-              "batch-history",
-              "Batch history",
-              "GLOBAL",
-              "UNKNOWN",
-              "WARNING",
-              "/app/platform/ops/batch",
-              null)));
+          List.of(
+              new OpsSchedulerHistoryProvider.Item(
+                  "batch-history",
+                  "Batch history",
+                  "GLOBAL",
+                  "UNKNOWN",
+                  "WARNING",
+                  "/app/platform/ops/batch",
+                  null)));
     }
   }
 
@@ -224,49 +243,63 @@ public class PlatformAdminOpsDashboardPayloadAssembler {
     }
     String roleCode = ctx.currentRole() != null ? ctx.currentRole().name() : null;
     try {
-      var unreadCount = notificationApi.countUnread(
-          NotificationActorType.APP_USER,
-          ctx.userId().value(),
-          ctx.userId(),
-          roleCode);
-      TchPage<NotificationItemView> notificationPage = notificationApi.listMyNotifications(
-          NotificationActorType.APP_USER,
-          ctx.userId().value(),
-          ctx.userId(),
-          roleCode,
-          Optional.of(NotificationStatus.PUBLISHED),
-          Optional.empty(),
-          Optional.empty(),
-          Optional.empty(),
-          TchSearchQuery.empty(),
-          new TchPageRequest(PageRequest.of(0, 5, Sort.by(Sort.Order.desc("createdAt")))));
-      List<NotificationItemView> notifications = notificationPage != null && notificationPage.items() != null
-          ? notificationPage.items().stream().filter(PlatformAdminOpsDashboardPayloadAssembler::isUnread).toList()
-          : List.of();
-      long criticalCount = notifications.stream()
-          .filter(notification -> notification.severity() == NotificationSeverity.CRITICAL)
-          .count();
+      var unreadCount =
+          notificationApi.countUnread(
+              NotificationActorType.APP_USER, ctx.userId().value(), ctx.userId(), roleCode);
+      TchPage<NotificationItemView> notificationPage =
+          notificationApi.listMyNotifications(
+              NotificationActorType.APP_USER,
+              ctx.userId().value(),
+              ctx.userId(),
+              roleCode,
+              Optional.of(NotificationStatus.PUBLISHED),
+              Optional.empty(),
+              Optional.empty(),
+              Optional.empty(),
+              TchSearchQuery.empty(),
+              new TchPageRequest(PageRequest.of(0, 5, Sort.by(Sort.Order.desc("createdAt")))));
+      List<NotificationItemView> notifications =
+          notificationPage != null && notificationPage.items() != null
+              ? notificationPage.items().stream()
+                  .filter(PlatformAdminOpsDashboardPayloadAssembler::isUnread)
+                  .toList()
+              : List.of();
+      long criticalCount =
+          notifications.stream()
+              .filter(notification -> notification.severity() == NotificationSeverity.CRITICAL)
+              .count();
       return new OpsAlertPayload(
           unreadCount != null ? unreadCount.unreadCount() : notifications.size(),
           criticalCount,
           notifications.stream()
-              .map(notification -> new OpsAlertItem(
-                  notification.id() != null ? notification.id().value().toString() : "",
-                  firstNonBlank(notification.titleText(), notification.titleKey(), "Notification"),
-                  firstNonBlank(notification.messageText(), notification.messageKey(), ""),
-                  notification.severity() != null ? mapNotificationSeverity(notification.severity().name()) : "INFO"))
+              .map(
+                  notification ->
+                      new OpsAlertItem(
+                          notification.id() != null ? notification.id().value().toString() : "",
+                          firstNonBlank(
+                              notification.titleText(), notification.titleKey(), "Notification"),
+                          firstNonBlank(notification.messageText(), notification.messageKey(), ""),
+                          notification.severity() != null
+                              ? mapNotificationSeverity(notification.severity().name())
+                              : "INFO"))
               .toList());
     } catch (RuntimeException e) {
-      return new OpsAlertPayload(0, 0, List.of(new OpsAlertItem(
-          "notifications-unavailable",
-          "Notifications indisponibles",
-          "Le dashboard continue sans bloquer la page.",
-          "WARN")));
+      return new OpsAlertPayload(
+          0,
+          0,
+          List.of(
+              new OpsAlertItem(
+                  "notifications-unavailable",
+                  "Notifications indisponibles",
+                  "Le dashboard continue sans bloquer la page.",
+                  "WARN")));
     }
   }
 
   private static boolean isUnread(NotificationItemView notification) {
-    return notification != null && notification.readAt() == null && notification.archivedAt() == null;
+    return notification != null
+        && notification.readAt() == null
+        && notification.archivedAt() == null;
   }
 
   private OpsAlertPayload buildContactRequests() {
@@ -275,27 +308,39 @@ public class PlatformAdminOpsDashboardPayloadAssembler {
       return new OpsAlertPayload(0, 0, List.of());
     }
     try {
-      TchPage<ContactRequestSummaryView> page = contactApi.list(
-          ContactRequestStatus.RECEIVED,
-          null,
-          new TchPageRequest(PageRequest.of(0, 5, Sort.by(Sort.Order.desc("createdAt")))));
-      List<ContactRequestSummaryView> items = page != null && page.items() != null ? page.items() : List.of();
+      TchPage<ContactRequestSummaryView> page =
+          contactApi.list(
+              ContactRequestStatus.RECEIVED,
+              null,
+              new TchPageRequest(PageRequest.of(0, 5, Sort.by(Sort.Order.desc("createdAt")))));
+      List<ContactRequestSummaryView> items =
+          page != null && page.items() != null ? page.items() : List.of();
       return new OpsAlertPayload(
           page != null ? page.totalElements() : 0,
           0,
           items.stream()
-              .map(contact -> new OpsAlertItem(
-                  contact.id() != null ? contact.id().toString() : contact.reference(),
-                  firstNonBlank(contact.fullName(), contact.reference(), "Contact"),
-                  firstNonBlank(contact.intent() != null ? contact.intent().name() : null, contact.email(), contact.phone(), ""),
-                  "INFO"))
+              .map(
+                  contact ->
+                      new OpsAlertItem(
+                          contact.id() != null ? contact.id().toString() : contact.reference(),
+                          firstNonBlank(contact.fullName(), contact.reference(), "Contact"),
+                          firstNonBlank(
+                              contact.intent() != null ? contact.intent().name() : null,
+                              contact.email(),
+                              contact.phone(),
+                              ""),
+                          "INFO"))
               .toList());
     } catch (RuntimeException e) {
-      return new OpsAlertPayload(0, 0, List.of(new OpsAlertItem(
-          "contacts-unavailable",
-          "Contacts indisponibles",
-          "Le dashboard continue sans bloquer la page.",
-          "WARN")));
+      return new OpsAlertPayload(
+          0,
+          0,
+          List.of(
+              new OpsAlertItem(
+                  "contacts-unavailable",
+                  "Contacts indisponibles",
+                  "Le dashboard continue sans bloquer la page.",
+                  "WARN")));
     }
   }
 
@@ -315,7 +360,8 @@ public class PlatformAdminOpsDashboardPayloadAssembler {
     };
   }
 
-  private static OpsSchedulerJobItem pickMostSevere(OpsSchedulerJobItem left, OpsSchedulerJobItem right) {
+  private static OpsSchedulerJobItem pickMostSevere(
+      OpsSchedulerJobItem left, OpsSchedulerJobItem right) {
     return severityRank(right.severity()) < severityRank(left.severity()) ? right : left;
   }
 
@@ -337,9 +383,7 @@ public class PlatformAdminOpsDashboardPayloadAssembler {
       QuickActionsPayload quickActions) {}
 
   public record PlatformHealthPayload(
-      String global,
-      Map<String, String> components,
-      String servicesUp) {}
+      String global, Map<String, String> components, String servicesUp) {}
 
   public record OpsResourceSummaryPayload(
       String generatedAt,
@@ -366,14 +410,7 @@ public class PlatformAdminOpsDashboardPayloadAssembler {
       String detailsPath,
       String context) {}
 
-  public record OpsAlertPayload(
-      long totalCount,
-      long criticalCount,
-      List<OpsAlertItem> items) {}
+  public record OpsAlertPayload(long totalCount, long criticalCount, List<OpsAlertItem> items) {}
 
-  public record OpsAlertItem(
-      String id,
-      String title,
-      String message,
-      String severity) {}
+  public record OpsAlertItem(String id, String title, String message, String severity) {}
 }

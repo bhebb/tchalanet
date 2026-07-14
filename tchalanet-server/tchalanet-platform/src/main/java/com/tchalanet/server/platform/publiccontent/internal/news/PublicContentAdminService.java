@@ -14,8 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 /**
- * Write operations for platform admin management of public content.
- * Fix from spec: forceRefresh() triggers real RSS refresh (not empty snapshot).
+ * Write operations for platform admin management of public content. Fix from spec: forceRefresh()
+ * triggers real RSS refresh (not empty snapshot).
  */
 @Service
 @RequiredArgsConstructor
@@ -29,13 +29,15 @@ public class PublicContentAdminService {
 
   /** List internal items and visible external RSS items for admin management. */
   public List<PublicContentItem> listAll() {
-    var internal = internalService.findAll().stream()
-        .sorted(Comparator.comparing(PublicContentItem::publishedAt).reversed())
-        .toList();
-    var external = externalRssService.getExternalSnapshot().stream()
-        .filter(item -> !hiddenService.isHidden(item))
-        .sorted(Comparator.comparing(PublicContentItem::publishedAt).reversed())
-        .toList();
+    var internal =
+        internalService.findAll().stream()
+            .sorted(Comparator.comparing(PublicContentItem::publishedAt).reversed())
+            .toList();
+    var external =
+        externalRssService.getExternalSnapshot().stream()
+            .filter(item -> !hiddenService.isHidden(item))
+            .sorted(Comparator.comparing(PublicContentItem::publishedAt).reversed())
+            .toList();
     return java.util.stream.Stream.concat(internal.stream(), external.stream()).toList();
   }
 
@@ -58,32 +60,42 @@ public class PublicContentAdminService {
 
     var existing = internalService.findById(resolvedId);
 
-    PublicContentItem item = existing.map(e ->
-        new PublicContentItem(
-            resolvedId, "internal", PublicContentSourceType.INTERNAL,
-            title != null ? title : e.title(),
-            content != null ? content : e.content(),
-            contentHtml != null ? contentHtml : e.contentHtml(),
-            imageUrl != null ? imageUrl : e.imageUrl(),
-            sourceUrl != null ? java.net.URI.create(sourceUrl) : e.sourceUrl(),
-            "Tchalanet",
-            resolvedStatus,
-            targetSurfaces != null ? targetSurfaces : e.targetSurfaces(),
-            resolvedPublishedAt,
-            expiresAt != null ? expiresAt : e.expiresAt(),
-            List.of())
-    ).orElseGet(() ->
-        new PublicContentItem(
-            resolvedId, "internal", PublicContentSourceType.INTERNAL,
-            title, content, contentHtml, imageUrl,
-            sourceUrl != null ? java.net.URI.create(sourceUrl) : null,
-            "Tchalanet",
-            resolvedStatus,
-            targetSurfaces != null ? targetSurfaces : Set.of(),
-            resolvedPublishedAt,
-            expiresAt,
-            List.of())
-    );
+    PublicContentItem item =
+        existing
+            .map(
+                e ->
+                    new PublicContentItem(
+                        resolvedId,
+                        "internal",
+                        PublicContentSourceType.INTERNAL,
+                        title != null ? title : e.title(),
+                        content != null ? content : e.content(),
+                        contentHtml != null ? contentHtml : e.contentHtml(),
+                        imageUrl != null ? imageUrl : e.imageUrl(),
+                        sourceUrl != null ? java.net.URI.create(sourceUrl) : e.sourceUrl(),
+                        "Tchalanet",
+                        resolvedStatus,
+                        targetSurfaces != null ? targetSurfaces : e.targetSurfaces(),
+                        resolvedPublishedAt,
+                        expiresAt != null ? expiresAt : e.expiresAt(),
+                        List.of()))
+            .orElseGet(
+                () ->
+                    new PublicContentItem(
+                        resolvedId,
+                        "internal",
+                        PublicContentSourceType.INTERNAL,
+                        title,
+                        content,
+                        contentHtml,
+                        imageUrl,
+                        sourceUrl != null ? java.net.URI.create(sourceUrl) : null,
+                        "Tchalanet",
+                        resolvedStatus,
+                        targetSurfaces != null ? targetSurfaces : Set.of(),
+                        resolvedPublishedAt,
+                        expiresAt,
+                        List.of()));
 
     var saved = internalService.save(item);
     // Creating or republishing removes from hidden overlay
@@ -104,8 +116,8 @@ public class PublicContentAdminService {
   }
 
   /**
-   * Force refresh: triggers a live RSS fetch and stores fresh snapshot.
-   * Fix from spec: does NOT write an empty snapshot.
+   * Force refresh: triggers a live RSS fetch and stores fresh snapshot. Fix from spec: does NOT
+   * write an empty snapshot.
    */
   public void forceRefreshExternal() {
     log.info("publiccontent: admin forced external RSS refresh");

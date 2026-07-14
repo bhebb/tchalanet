@@ -10,5 +10,4 @@ public record PublicNextResultTimeView(
     LocalTime localTime,
     String timezone,
     long countdownSeconds,
-    String status
-) {}
+    String status) {}

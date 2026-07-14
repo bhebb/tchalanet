@@ -5,8 +5,4 @@ import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.platform.notification.api.model.NotificationTarget;
 
 public record NotificationRecipientContact(
-    TenantId tenantId,
-    NotificationTarget target,
-    UserId userId,
-    String email,
-    String phone) {}
+    TenantId tenantId, NotificationTarget target, UserId userId, String email, String phone) {}

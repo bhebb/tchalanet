@@ -17,8 +17,8 @@ import lombok.Setter;
 @Table(
     name = "support_access_session",
     indexes = {
-        @Index(name = "ix_support_access_session__super_admin", columnList = "super_admin_user_id"),
-        @Index(name = "ix_support_access_session__tenant", columnList = "tenant_id")
+      @Index(name = "ix_support_access_session__super_admin", columnList = "super_admin_user_id"),
+      @Index(name = "ix_support_access_session__tenant", columnList = "tenant_id")
     })
 @Getter
 @Setter

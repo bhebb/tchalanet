@@ -1,7 +1,7 @@
 package com.tchalanet.server.platform.identity.internal.persistence.entity;
 
-import com.tchalanet.server.common.persistence.BaseEntity;
 import com.tchalanet.server.catalog.theme.api.ThemeMode;
+import com.tchalanet.server.common.persistence.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -16,12 +16,12 @@ import java.util.Currency;
 import java.util.Locale;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.envers.Audited;
 
 @Entity
 @Table(
     name = "user_preference",
-    uniqueConstraints = @UniqueConstraint(name = "ux_user_preference_user_id", columnNames = "user_id"))
+    uniqueConstraints =
+        @UniqueConstraint(name = "ux_user_preference_user_id", columnNames = "user_id"))
 @Getter
 @Setter
 public class UserPreferenceJpaEntity extends BaseEntity {

@@ -2,5 +2,5 @@ package com.tchalanet.server.core.drawresult.internal.application.port.out.exter
 
 public interface ExternalResultsFetchPort {
 
-    ExternalResultFetchBundle fetchProviderResults(ExternalResultFetchQuery query);
+  ExternalResultFetchBundle fetchProviderResults(ExternalResultFetchQuery query);
 }

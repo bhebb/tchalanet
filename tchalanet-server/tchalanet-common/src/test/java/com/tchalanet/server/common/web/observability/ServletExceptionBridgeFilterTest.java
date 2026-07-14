@@ -29,9 +29,10 @@ class ServletExceptionBridgeFilterTest {
             });
     var filter = new ServletExceptionBridgeFilter(resolver);
     var response = new MockHttpServletResponse();
-    FilterChain chain = (request, res) -> {
-      throw new IllegalStateException("failed before dispatcher");
-    };
+    FilterChain chain =
+        (request, res) -> {
+          throw new IllegalStateException("failed before dispatcher");
+        };
 
     filter.doFilter(new MockHttpServletRequest(), response, chain);
 
@@ -43,14 +44,14 @@ class ServletExceptionBridgeFilterTest {
   void rethrowsUnresolvedException() {
     var resolver = mock(HandlerExceptionResolver.class);
     var filter = new ServletExceptionBridgeFilter(resolver);
-    FilterChain chain = (request, response) -> {
-      throw new IllegalStateException("unresolved");
-    };
+    FilterChain chain =
+        (request, response) -> {
+          throw new IllegalStateException("unresolved");
+        };
 
     assertThatThrownBy(
             () ->
-                filter.doFilter(
-                    new MockHttpServletRequest(), new MockHttpServletResponse(), chain))
+                filter.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(), chain))
         .isInstanceOf(ServletException.class)
         .hasRootCauseMessage("unresolved");
   }

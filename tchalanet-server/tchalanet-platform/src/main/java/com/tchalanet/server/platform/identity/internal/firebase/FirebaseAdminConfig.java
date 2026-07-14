@@ -1,7 +1,7 @@
 package com.tchalanet.server.platform.identity.internal.firebase;
 
-import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.AccessToken;
+import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.auth.FirebaseAuth;
@@ -32,9 +32,7 @@ class FirebaseAdminConfig {
       @Value("${FIREBASE_AUTH_EMULATOR_HOST:}") String emulatorHost) {
     validateEmulatorHost(provider, emulatorHost);
     var existingApp =
-        FirebaseApp.getApps().stream()
-            .filter(app -> APP_NAME.equals(app.getName()))
-            .findFirst();
+        FirebaseApp.getApps().stream().filter(app -> APP_NAME.equals(app.getName())).findFirst();
     if (existingApp.isPresent()) {
       return FirebaseAuth.getInstance(existingApp.orElseThrow());
     }
@@ -48,8 +46,7 @@ class FirebaseAdminConfig {
   }
 
   static void validateEmulatorHost(String provider, String emulatorHost) {
-    if ("firebase-emulator".equals(provider)
-        && (emulatorHost == null || emulatorHost.isBlank())) {
+    if ("firebase-emulator".equals(provider) && (emulatorHost == null || emulatorHost.isBlank())) {
       throw new IllegalStateException(
           "firebase-emulator requires FIREBASE_AUTH_EMULATOR_HOST, for example localhost:9099");
     }

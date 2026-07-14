@@ -10,16 +10,16 @@ import com.tchalanet.server.platform.notification.api.model.NotificationCategory
 import com.tchalanet.server.platform.notification.api.model.NotificationKind;
 import com.tchalanet.server.platform.notification.api.model.NotificationSeverity;
 import com.tchalanet.server.platform.notification.api.model.NotificationStatus;
+import com.tchalanet.server.platform.notification.api.model.SendNotificationResult;
 import com.tchalanet.server.platform.notification.api.model.request.ArchiveNotificationRequest;
 import com.tchalanet.server.platform.notification.api.model.request.CreateNotificationRequest;
 import com.tchalanet.server.platform.notification.api.model.request.GetNotificationSummaryRequest;
 import com.tchalanet.server.platform.notification.api.model.request.ListNotificationsRequest;
 import com.tchalanet.server.platform.notification.api.model.request.MarkNotificationReadRequest;
+import com.tchalanet.server.platform.notification.api.model.request.SendNotificationRequest;
 import com.tchalanet.server.platform.notification.api.model.view.NotificationItemView;
 import com.tchalanet.server.platform.notification.api.model.view.NotificationSummaryView;
 import com.tchalanet.server.platform.notification.api.model.view.NotificationUnreadCountView;
-import com.tchalanet.server.platform.notification.api.model.request.SendNotificationRequest;
-import com.tchalanet.server.platform.notification.api.model.SendNotificationResult;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -89,10 +89,7 @@ class DefaultNotificationApi implements NotificationApi {
 
   @Override
   public NotificationUnreadCountView countUnread(
-      NotificationActorType actorType,
-      UUID actorId,
-      UserId userId,
-      String roleCode) {
+      NotificationActorType actorType, UUID actorId, UserId userId, String roleCode) {
     return notificationService.countUnread(actorType, actorId, userId, roleCode);
   }
 }

@@ -4,8 +4,8 @@ import com.tchalanet.server.common.types.id.TenantId;
 import java.time.Instant;
 
 /**
- * Notice emitted when theme preset fallback is applied.
- * Maps to spec requirement DP3 (NF1 - Observability).
+ * Notice emitted when theme preset fallback is applied. Maps to spec requirement DP3 (NF1 -
+ * Observability).
  */
 public record TenantThemeNotice(
     String code,

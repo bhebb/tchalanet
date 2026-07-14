@@ -14,8 +14,8 @@ import com.tchalanet.server.platform.identity.api.model.result.CreateUserResult;
 import com.tchalanet.server.platform.identity.api.model.view.AppUserView;
 import com.tchalanet.server.platform.identity.api.model.view.CurrentUserView;
 import com.tchalanet.server.platform.identity.api.model.view.UserProfileView;
-import com.tchalanet.server.platform.identity.internal.persistence.entity.AppUserJpaEntity;
 import com.tchalanet.server.platform.identity.internal.persistence.adapter.AppUserJpaAdapter;
+import com.tchalanet.server.platform.identity.internal.persistence.entity.AppUserJpaEntity;
 import com.tchalanet.server.platform.identity.internal.persistence.repository.AppUserJpaRepository;
 import com.tchalanet.server.platform.identity.internal.persistence.repository.TenantUserJpaRepository;
 import com.tchalanet.server.platform.identity.internal.service.CurrentUserProfileService;
@@ -125,7 +125,8 @@ public class IdentityApiAdapter implements IdentityApi {
       String firstName,
       String lastName,
       TchRole role) {
-    return provisioningService.provisionTenantUser(tenantId, tenantCode, email, firstName, lastName, role);
+    return provisioningService.provisionTenantUser(
+        tenantId, tenantCode, email, firstName, lastName, role);
   }
 
   private AppUserView toView(AppUserJpaEntity user) {

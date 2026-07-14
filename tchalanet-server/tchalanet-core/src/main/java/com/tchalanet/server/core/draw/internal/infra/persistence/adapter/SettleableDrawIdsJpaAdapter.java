@@ -13,23 +13,24 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class SettleableDrawIdsJpaAdapter implements FindSettleableDrawIdsPort {
 
-    private final DrawBatchQueryRepository repo;
+  private final DrawBatchQueryRepository repo;
 
-    @Override
-    public List<DrawId> findSettleableDrawIds(SettleableDrawCriteria criteria) {
-        Objects.requireNonNull(criteria, "criteria is required");
-        Objects.requireNonNull(criteria.tenantId(), "tenantId is required");
-        Objects.requireNonNull(criteria.from(), "from is required");
-        Objects.requireNonNull(criteria.to(), "to is required");
+  @Override
+  public List<DrawId> findSettleableDrawIds(SettleableDrawCriteria criteria) {
+    Objects.requireNonNull(criteria, "criteria is required");
+    Objects.requireNonNull(criteria.tenantId(), "tenantId is required");
+    Objects.requireNonNull(criteria.from(), "from is required");
+    Objects.requireNonNull(criteria.to(), "to is required");
 
-        return repo.findSettleableDrawIds(
-                criteria.tenantId().value(),
-                Timestamp.from(criteria.from()),
-                Timestamp.from(criteria.to()),
-                criteria.maxDraws(),
-                criteria.force())
-            .stream()
-            .map(DrawId::of)
-            .toList();
-    }
+    return repo
+        .findSettleableDrawIds(
+            criteria.tenantId().value(),
+            Timestamp.from(criteria.from()),
+            Timestamp.from(criteria.to()),
+            criteria.maxDraws(),
+            criteria.force())
+        .stream()
+        .map(DrawId::of)
+        .toList();
+  }
 }

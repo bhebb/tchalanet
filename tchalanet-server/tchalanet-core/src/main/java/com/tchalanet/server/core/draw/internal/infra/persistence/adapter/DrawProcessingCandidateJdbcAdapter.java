@@ -2,8 +2,8 @@ package com.tchalanet.server.core.draw.internal.infra.persistence.adapter;
 
 import com.tchalanet.server.catalog.drawchannel.api.model.DrawSource;
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawProcessingCandidateReaderPort;
-import com.tchalanet.server.core.drawresult.api.model.ResultQuality;
 import com.tchalanet.server.core.drawresult.api.model.DrawResultStatus;
+import com.tchalanet.server.core.drawresult.api.model.ResultQuality;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,24 +16,24 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class DrawProcessingCandidateJdbcAdapter implements DrawProcessingCandidateReaderPort {
 
-    private static final String DRAW_STATUS_CLOSED = "CLOSED";
-    private static final String DRAW_STATUS_RESULTED = "RESULTED";
+  private static final String DRAW_STATUS_CLOSED = "CLOSED";
+  private static final String DRAW_STATUS_RESULTED = "RESULTED";
 
-    private final JdbcTemplate jdbc;
+  private final JdbcTemplate jdbc;
 
-    @Override
-    public boolean hasApplyCandidates(List<DrawProcessingSlotDate> candidates) {
-        var cleanCandidates = normalize(candidates);
+  @Override
+  public boolean hasApplyCandidates(List<DrawProcessingSlotDate> candidates) {
+    var cleanCandidates = normalize(candidates);
 
-        if (cleanCandidates.isEmpty()) {
-            return false;
-        }
+    if (cleanCandidates.isEmpty()) {
+      return false;
+    }
 
-        var params = new ArrayList<Object>();
-        var valuesSql = valuesSql(cleanCandidates, params);
+    var params = new ArrayList<Object>();
+    var valuesSql = valuesSql(cleanCandidates, params);
 
-        var sql =
-            """
+    var sql =
+        """
             with candidates(result_slot_id, draw_date, expected_occurred_at) as (
               values %s
             )
@@ -60,32 +60,32 @@ public class DrawProcessingCandidateJdbcAdapter implements DrawProcessingCandida
               limit 1
             )
             """
-                .formatted(valuesSql);
+            .formatted(valuesSql);
 
-        params.add(DRAW_STATUS_CLOSED);
-        params.add(DrawSource.EXTERNAL.name());
-        params.add(ResultQuality.COMPLETE.name());
-        params.add(DrawResultStatus.PROVISIONAL.name());
-        params.add(DrawResultStatus.CONFIRMED.name());
-        params.add(DrawResultStatus.OVERRIDDEN.name());
+    params.add(DRAW_STATUS_CLOSED);
+    params.add(DrawSource.EXTERNAL.name());
+    params.add(ResultQuality.COMPLETE.name());
+    params.add(DrawResultStatus.PROVISIONAL.name());
+    params.add(DrawResultStatus.CONFIRMED.name());
+    params.add(DrawResultStatus.OVERRIDDEN.name());
 
-        var result = jdbc.queryForObject(sql, Boolean.class, params.toArray());
-        return Boolean.TRUE.equals(result);
+    var result = jdbc.queryForObject(sql, Boolean.class, params.toArray());
+    return Boolean.TRUE.equals(result);
+  }
+
+  @Override
+  public boolean hasSettleCandidates(List<DrawProcessingSlotDate> candidates) {
+    var cleanCandidates = normalize(candidates);
+
+    if (cleanCandidates.isEmpty()) {
+      return false;
     }
 
-    @Override
-    public boolean hasSettleCandidates(List<DrawProcessingSlotDate> candidates) {
-        var cleanCandidates = normalize(candidates);
+    var params = new ArrayList<Object>();
+    var valuesSql = valuesSql(cleanCandidates, params);
 
-        if (cleanCandidates.isEmpty()) {
-            return false;
-        }
-
-        var params = new ArrayList<Object>();
-        var valuesSql = valuesSql(cleanCandidates, params);
-
-        var sql =
-            """
+    var sql =
+        """
             with candidates(result_slot_id, draw_date, expected_occurred_at) as (
               values %s
             )
@@ -105,41 +105,39 @@ public class DrawProcessingCandidateJdbcAdapter implements DrawProcessingCandida
               limit 1
             )
             """
-                .formatted(valuesSql);
+            .formatted(valuesSql);
 
-        params.add(DRAW_STATUS_RESULTED);
+    params.add(DRAW_STATUS_RESULTED);
 
-        var result = jdbc.queryForObject(sql, Boolean.class, params.toArray());
-        return Boolean.TRUE.equals(result);
+    var result = jdbc.queryForObject(sql, Boolean.class, params.toArray());
+    return Boolean.TRUE.equals(result);
+  }
+
+  private static List<DrawProcessingSlotDate> normalize(List<DrawProcessingSlotDate> candidates) {
+    if (candidates == null || candidates.isEmpty()) {
+      return List.of();
     }
 
-    private static List<DrawProcessingSlotDate> normalize(List<DrawProcessingSlotDate> candidates) {
-        if (candidates == null || candidates.isEmpty()) {
-            return List.of();
-        }
+    return candidates.stream()
+        .filter(Objects::nonNull)
+        .filter(c -> c.resultSlotId() != null)
+        .filter(c -> c.drawDate() != null)
+        .filter(c -> c.expectedOccurredAt() != null)
+        .distinct()
+        .toList();
+  }
 
-        return candidates.stream()
-            .filter(Objects::nonNull)
-            .filter(c -> c.resultSlotId() != null)
-            .filter(c -> c.drawDate() != null)
-            .filter(c -> c.expectedOccurredAt() != null)
-            .distinct()
-            .toList();
+  private static String valuesSql(List<DrawProcessingSlotDate> candidates, List<Object> params) {
+
+    var values = new ArrayList<String>();
+
+    for (var candidate : candidates) {
+      values.add("(?::uuid, ?::date, ?::timestamptz)");
+      params.add(candidate.resultSlotId().value());
+      params.add(java.sql.Date.valueOf(candidate.drawDate()));
+      params.add(Timestamp.from(candidate.expectedOccurredAt()));
     }
 
-    private static String valuesSql(
-        List<DrawProcessingSlotDate> candidates,
-        List<Object> params) {
-
-        var values = new ArrayList<String>();
-
-        for (var candidate : candidates) {
-            values.add("(?::uuid, ?::date, ?::timestamptz)");
-            params.add(candidate.resultSlotId().value());
-            params.add(java.sql.Date.valueOf(candidate.drawDate()));
-            params.add(Timestamp.from(candidate.expectedOccurredAt()));
-        }
-
-        return String.join(", ", values);
-    }
+    return String.join(", ", values);
+  }
 }

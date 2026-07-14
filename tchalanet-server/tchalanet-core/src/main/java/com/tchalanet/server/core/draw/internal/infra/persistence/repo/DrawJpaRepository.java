@@ -5,6 +5,10 @@ import com.tchalanet.server.core.draw.internal.infra.persistence.DrawJpaEntity;
 import com.tchalanet.server.core.draw.internal.infra.persistence.projection.DueToCloseProjection;
 import com.tchalanet.server.core.draw.internal.infra.persistence.projection.OpenableDrawProjection;
 import jakarta.persistence.LockModeType;
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
@@ -12,16 +16,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
 @Repository
 public interface DrawJpaRepository extends JpaRepository<DrawJpaEntity, UUID> {
 
-    @Query(
-        value = """
+  @Query(
+      value =
+          """
             select d.tenant_id as tenantId,
                    d.id as drawId,
                    d.locked as locked
@@ -34,16 +34,14 @@ public interface DrawJpaRepository extends JpaRepository<DrawJpaEntity, UUID> {
             order by d.cutoff_at asc
             limit :limit
             """,
-        nativeQuery = true)
-    List<DueToCloseProjection> findDueToClose(
-        @Param("tenantId") UUID tenantId,
-        @Param("now") Instant now,
-        @Param("limit") int limit
-    );
+      nativeQuery = true)
+  List<DueToCloseProjection> findDueToClose(
+      @Param("tenantId") UUID tenantId, @Param("now") Instant now, @Param("limit") int limit);
 
-    @Modifying
-    @Query(
-        value = """
+  @Modifying
+  @Query(
+      value =
+          """
             update draw
             set status = 'CLOSED',
                 closed_at = :now,
@@ -53,11 +51,12 @@ public interface DrawJpaRepository extends JpaRepository<DrawJpaEntity, UUID> {
               and id = any(:ids)
               and status = 'OPEN'
             """,
-        nativeQuery = true)
-    int bulkClose(@Param("ids") UUID[] ids, @Param("now") Instant now);
+      nativeQuery = true)
+  int bulkClose(@Param("ids") UUID[] ids, @Param("now") Instant now);
 
-    @Query(
-        value = """
+  @Query(
+      value =
+          """
             select d.tenant_id as tenantId,
                    d.id as drawId,
                    dc.result_slot_id as resultSlotId,
@@ -77,21 +76,21 @@ public interface DrawJpaRepository extends JpaRepository<DrawJpaEntity, UUID> {
             order by d.scheduled_at asc
             limit :limit
             """,
-        nativeQuery = true)
-    List<OpenableDrawProjection> findOpenable(
-        @Param("tenantId") UUID tenantId,
-        @Param("now") Instant now,
-        @Param("limit") int limit,
-        @Param("windowStart") Instant windowStart,
-        @Param("windowEnd") Instant windowEnd
-    );
+      nativeQuery = true)
+  List<OpenableDrawProjection> findOpenable(
+      @Param("tenantId") UUID tenantId,
+      @Param("now") Instant now,
+      @Param("limit") int limit,
+      @Param("windowStart") Instant windowStart,
+      @Param("windowEnd") Instant windowEnd);
 
-    List<DrawJpaEntity> findByDrawResultId(UUID drawResultId);
+  List<DrawJpaEntity> findByDrawResultId(UUID drawResultId);
 
-    List<DrawJpaEntity> findByTenantIdAndDrawDate(UUID tenantId, java.time.LocalDate drawDate);
+  List<DrawJpaEntity> findByTenantIdAndDrawDate(UUID tenantId, java.time.LocalDate drawDate);
 
-    @Query(
-        value = """
+  @Query(
+      value =
+          """
             select d.tenant_id as tenantId,
                    d.id as drawId,
                    dc.result_slot_id as resultSlotId,
@@ -114,17 +113,17 @@ public interface DrawJpaRepository extends JpaRepository<DrawJpaEntity, UUID> {
             order by d.scheduled_at asc
             limit :limit
             """,
-        nativeQuery = true)
-    List<OpenableDrawProjection> findOpenableForSalesOpenTime(
-        @Param("tenantId") UUID tenantId,
-        @Param("now") Instant now,
-        @Param("drawDate") java.time.LocalDate drawDate,
-        @Param("defaultSalesOpenTime") java.time.LocalTime defaultSalesOpenTime,
-        @Param("limit") int limit
-    );
+      nativeQuery = true)
+  List<OpenableDrawProjection> findOpenableForSalesOpenTime(
+      @Param("tenantId") UUID tenantId,
+      @Param("now") Instant now,
+      @Param("drawDate") java.time.LocalDate drawDate,
+      @Param("defaultSalesOpenTime") java.time.LocalTime defaultSalesOpenTime,
+      @Param("limit") int limit);
 
-    @Query(
-        value = """
+  @Query(
+      value =
+          """
             select d.tenant_id as tenantId,
                    d.id as drawId,
                    dc.result_slot_id as resultSlotId,
@@ -147,17 +146,17 @@ public interface DrawJpaRepository extends JpaRepository<DrawJpaEntity, UUID> {
             order by d.scheduled_at asc
             limit :limit
             """,
-        nativeQuery = true)
-    List<OpenableDrawProjection> findOpenableForEffectiveToday(
-        @Param("tenantId") UUID tenantId,
-        @Param("now") Instant now,
-        @Param("defaultSalesOpenTime") java.time.LocalTime defaultSalesOpenTime,
-        @Param("limit") int limit
-    );
+      nativeQuery = true)
+  List<OpenableDrawProjection> findOpenableForEffectiveToday(
+      @Param("tenantId") UUID tenantId,
+      @Param("now") Instant now,
+      @Param("defaultSalesOpenTime") java.time.LocalTime defaultSalesOpenTime,
+      @Param("limit") int limit);
 
-    @Modifying
-    @Query(
-        value = """
+  @Modifying
+  @Query(
+      value =
+          """
             update draw
             set status = 'OPEN',
                 opened_at = :now,
@@ -167,12 +166,13 @@ public interface DrawJpaRepository extends JpaRepository<DrawJpaEntity, UUID> {
               and status = 'SCHEDULED'
               and id = any(:ids)
             """,
-        nativeQuery = true)
-    int bulkOpen(@Param("ids") UUID[] ids, @Param("now") Instant now);
+      nativeQuery = true)
+  int bulkOpen(@Param("ids") UUID[] ids, @Param("now") Instant now);
 
-    @Modifying
-    @Query(
-        value = """
+  @Modifying
+  @Query(
+      value =
+          """
             update draw
             set status = 'CANCELED',
                 canceled_at = :now,
@@ -184,35 +184,26 @@ public interface DrawJpaRepository extends JpaRepository<DrawJpaEntity, UUID> {
               and status = 'SCHEDULED'
               and id = any(:ids)
             """,
-        nativeQuery = true)
-    int bulkCancelScheduled(
-        @Param("ids") UUID[] ids,
-        @Param("reasonCode") String reasonCode,
-        @Param("reasonLabel") String reasonLabel,
-        @Param("now") Instant now);
+      nativeQuery = true)
+  int bulkCancelScheduled(
+      @Param("ids") UUID[] ids,
+      @Param("reasonCode") String reasonCode,
+      @Param("reasonLabel") String reasonLabel,
+      @Param("now") Instant now);
 
-    Optional<DrawJpaEntity> findByTenantIdAndIdAndDeletedAtIsNull(UUID tenantId, UUID id);
+  Optional<DrawJpaEntity> findByTenantIdAndIdAndDeletedAtIsNull(UUID tenantId, UUID id);
 
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("select d from DrawJpaEntity d where d.tenantId = :tenantId and d.id = :id and d.deletedAt is null")
-    Optional<DrawJpaEntity> findByTenantIdAndIdAndDeletedAtIsNullForUpdate(
-        @Param("tenantId") UUID tenantId,
-        @Param("id") UUID id
-    );
+  @Lock(LockModeType.PESSIMISTIC_WRITE)
+  @Query(
+      "select d from DrawJpaEntity d where d.tenantId = :tenantId and d.id = :id and d.deletedAt is null")
+  Optional<DrawJpaEntity> findByTenantIdAndIdAndDeletedAtIsNullForUpdate(
+      @Param("tenantId") UUID tenantId, @Param("id") UUID id);
 
-    boolean existsByTenantIdAndDrawResultIdAndStatusAndDeletedAtIsNull(
-        UUID tenantId,
-        UUID drawResultId,
-        DrawStatus status
-    );
+  boolean existsByTenantIdAndDrawResultIdAndStatusAndDeletedAtIsNull(
+      UUID tenantId, UUID drawResultId, DrawStatus status);
 
-    List<DrawJpaEntity> findByTenantIdAndDrawResultIdAndDeletedAtIsNull(
-        UUID tenantId,
-        UUID drawResultId
-    );
+  List<DrawJpaEntity> findByTenantIdAndDrawResultIdAndDeletedAtIsNull(
+      UUID tenantId, UUID drawResultId);
 
-    List<DrawJpaEntity> findAllByTenantIdAndIdInAndDeletedAtIsNull(
-        UUID tenantId,
-        List<UUID> ids
-    );
+  List<DrawJpaEntity> findAllByTenantIdAndIdInAndDeletedAtIsNull(UUID tenantId, List<UUID> ids);
 }

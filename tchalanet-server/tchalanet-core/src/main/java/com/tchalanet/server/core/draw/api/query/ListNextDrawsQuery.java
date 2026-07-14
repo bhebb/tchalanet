@@ -5,14 +5,7 @@ import com.tchalanet.server.common.types.id.ResultSlotId;
 import com.tchalanet.server.common.web.paging.TchPage;
 import org.springframework.data.domain.Pageable;
 
-/**
- * Query pour lister les prochains draws.
- * Remplace GetNextDrawsQuery.
- */
+/** Query pour lister les prochains draws. Remplace GetNextDrawsQuery. */
 public record ListNextDrawsQuery(
-    ResultSlotId resultSlotId,
-    int lookaheadHours,
-    int limitPerChannel,
-    Pageable pageable
-) implements Query<TchPage<DrawSummary>> {
-}
+    ResultSlotId resultSlotId, int lookaheadHours, int limitPerChannel, Pageable pageable)
+    implements Query<TchPage<DrawSummary>> {}

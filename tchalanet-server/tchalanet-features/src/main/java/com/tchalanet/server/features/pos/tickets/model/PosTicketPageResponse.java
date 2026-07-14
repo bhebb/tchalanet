@@ -21,5 +21,4 @@ public record PosTicketPageResponse(
     Instant drawScheduledAt,
     long totalAmountCents,
     String currency,
-    Instant placedAt
-) {}
+    Instant placedAt) {}

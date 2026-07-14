@@ -13,7 +13,6 @@ import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.core.drawresult.api.query.ListPublicDrawResultSlotsQuery;
 import com.tchalanet.server.core.drawresult.api.query.SearchPublicDrawResultsQuery;
 import com.tchalanet.server.core.drawresult.api.query.view.PublicDrawResultHistoryRowView;
-
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -35,8 +34,8 @@ class PublicDrawResultsPayloadAssemblerTest {
     void homeSpecSkipsHistory() {
       when(queryBus.ask(any(ListPublicDrawResultSlotsQuery.class))).thenReturn(List.of());
 
-      var spec = new PublicDrawResultsPayloadAssembler.Spec(
-          List.of("haiti.midi"), "haiti", false, 0);
+      var spec =
+          new PublicDrawResultsPayloadAssembler.Spec(List.of("haiti.midi"), "haiti", false, 0);
       var payload = assembler.assemble(spec);
 
       assertThat(payload.history()).isEmpty();
@@ -48,11 +47,10 @@ class PublicDrawResultsPayloadAssemblerTest {
     @DisplayName("page spec (includeHistory=true) issues exactly one history query")
     void pageSpecLoadsHistory() {
       when(queryBus.ask(any(ListPublicDrawResultSlotsQuery.class))).thenReturn(List.of());
-      when(queryBus.ask(any(SearchPublicDrawResultsQuery.class)))
-          .thenReturn(emptyHistoryPage());
+      when(queryBus.ask(any(SearchPublicDrawResultsQuery.class))).thenReturn(emptyHistoryPage());
 
-      var spec = new PublicDrawResultsPayloadAssembler.Spec(
-          List.of("haiti.midi"), "haiti", true, 10);
+      var spec =
+          new PublicDrawResultsPayloadAssembler.Spec(List.of("haiti.midi"), "haiti", true, 10);
       assembler.assemble(spec);
 
       verify(queryBus, times(1)).ask(any(ListPublicDrawResultSlotsQuery.class));
@@ -63,15 +61,12 @@ class PublicDrawResultsPayloadAssemblerTest {
     @DisplayName("history limit is clamped between 1 and 100")
     void clampsLimit() {
       when(queryBus.ask(any(ListPublicDrawResultSlotsQuery.class))).thenReturn(List.of());
-      when(queryBus.ask(any(SearchPublicDrawResultsQuery.class)))
-          .thenReturn(emptyHistoryPage());
+      when(queryBus.ask(any(SearchPublicDrawResultsQuery.class))).thenReturn(emptyHistoryPage());
 
       var captor = ArgumentCaptor.forClass(SearchPublicDrawResultsQuery.class);
 
-      assembler.assemble(new PublicDrawResultsPayloadAssembler.Spec(
-          List.of(), null, true, -5));
-      assembler.assemble(new PublicDrawResultsPayloadAssembler.Spec(
-          List.of(), null, true, 999));
+      assembler.assemble(new PublicDrawResultsPayloadAssembler.Spec(List.of(), null, true, -5));
+      assembler.assemble(new PublicDrawResultsPayloadAssembler.Spec(List.of(), null, true, 999));
 
       verify(queryBus, times(2)).ask(captor.capture());
       assertThat(captor.getAllValues().get(0).pageable().getPageSize()).isEqualTo(1);
@@ -109,8 +104,8 @@ class PublicDrawResultsPayloadAssemblerTest {
     void nullSlotsHandled() {
       when(queryBus.ask(any(ListPublicDrawResultSlotsQuery.class))).thenReturn(null);
 
-      var payload = assembler.assemble(new PublicDrawResultsPayloadAssembler.Spec(
-          List.of(), null, false, 0));
+      var payload =
+          assembler.assemble(new PublicDrawResultsPayloadAssembler.Spec(List.of(), null, false, 0));
 
       assertThat(payload.slots()).isEmpty();
     }

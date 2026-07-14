@@ -11,7 +11,8 @@ import org.springframework.data.repository.query.Param;
 
 public interface ContactRequestJpaRepository extends JpaRepository<ContactRequestJpaEntity, UUID> {
 
-    @Query("""
+  @Query(
+      """
         SELECT c FROM ContactRequestJpaEntity c
         WHERE c.deletedAt IS NULL
           AND (:status IS NULL OR c.status = :status)
@@ -28,9 +29,9 @@ public interface ContactRequestJpaRepository extends JpaRepository<ContactReques
             OR lower(c.message) LIKE :searchPattern
           )
         """)
-    Page<ContactRequestJpaEntity> search(
-        @Param("status") ContactRequestStatus status,
-        @Param("intent") ContactRequestIntent intent,
-        @Param("searchPattern") String searchPattern,
-        Pageable pageable);
+  Page<ContactRequestJpaEntity> search(
+      @Param("status") ContactRequestStatus status,
+      @Param("intent") ContactRequestIntent intent,
+      @Param("searchPattern") String searchPattern,
+      Pageable pageable);
 }

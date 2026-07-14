@@ -12,7 +12,8 @@ class LocalIdentityPropertiesTest {
   @NullAndEmptySource
   @ValueSource(strings = {"short", "less-than-thirty-two-characters"})
   void rejectsMissingOrWeakSecret(String secret) {
-    assertThatThrownBy(() -> new LocalIdentityProperties("tchalanet-local", secret).requiredSecret())
+    assertThatThrownBy(
+            () -> new LocalIdentityProperties("tchalanet-local", secret).requiredSecret())
         .isInstanceOf(IllegalStateException.class)
         .hasMessageContaining("32");
   }

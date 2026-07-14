@@ -11,8 +11,9 @@ import org.springframework.data.repository.query.Param;
 @org.springframework.stereotype.Repository
 public interface DrawBatchQueryRepository extends Repository<DrawJpaEntity, UUID> {
 
-    @Query(
-        value = """
+  @Query(
+      value =
+          """
           select d.id
           from draw d
           where d.deleted_at is null
@@ -29,12 +30,11 @@ public interface DrawBatchQueryRepository extends Repository<DrawJpaEntity, UUID
           order by d.resulted_at asc
           limit coalesce(:maxDraws, 1000000000)
           """,
-        nativeQuery = true)
-    List<UUID> findSettleableDrawIds(
-        @Param("tenantId") UUID tenantId,
-        @Param("fromTs") Timestamp fromTs,
-        @Param("toTs") Timestamp toTs,
-        @Param("maxDraws") Long maxDraws,
-        @Param("force") boolean force
-    );
+      nativeQuery = true)
+  List<UUID> findSettleableDrawIds(
+      @Param("tenantId") UUID tenantId,
+      @Param("fromTs") Timestamp fromTs,
+      @Param("toTs") Timestamp toTs,
+      @Param("maxDraws") Long maxDraws,
+      @Param("force") boolean force);
 }

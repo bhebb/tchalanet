@@ -14,39 +14,43 @@ import com.tchalanet.server.platform.entitlement.api.EntitlementCacheInvalidatio
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 
-/**
- * Handler for SuspendSubscriptionCommand.
- */
+/** Handler for SuspendSubscriptionCommand. */
 @UseCase
 @RequiredArgsConstructor
 public class SuspendSubscriptionCommandHandler
     implements CommandHandler<SuspendSubscriptionCommand, SuspendSubscriptionResult> {
 
-    private final SubscriptionReaderPort readerPort;
-    private final SubscriptionPersistencePort persistencePort;
-    private final ApplicationEventPublisher eventPublisher;
-    private final TchTimeProvider timeProvider;
-    private final EntitlementCacheInvalidationApi entitlementCacheInvalidationApi;
+  private final SubscriptionReaderPort readerPort;
+  private final SubscriptionPersistencePort persistencePort;
+  private final ApplicationEventPublisher eventPublisher;
+  private final TchTimeProvider timeProvider;
+  private final EntitlementCacheInvalidationApi entitlementCacheInvalidationApi;
 
-    @Override
-    @TchTx
-    public SuspendSubscriptionResult handle(SuspendSubscriptionCommand cmd) {
-        var subscription = readerPort.findByTenantId(cmd.tenantId())
-            .orElseThrow(() -> new IllegalArgumentException("Subscription not found for tenant: " + cmd.tenantId()));
-        var now = timeProvider.now();
-        var suspended = subscription.suspend(now);
-        var saved = persistencePort.save(suspended);
-        AfterCommit.run(() -> {
-            entitlementCacheInvalidationApi.evictTenantSnapshot(cmd.tenantId());
-            eventPublisher.publishEvent(new TenantSubscriptionUpdatedEvent(
-                saved.tenantId(),
-                saved.planCode(),
-                saved.status(),
-                saved.version(),
-                now,
-                "system"
-            ));
+  @Override
+  @TchTx
+  public SuspendSubscriptionResult handle(SuspendSubscriptionCommand cmd) {
+    var subscription =
+        readerPort
+            .findByTenantId(cmd.tenantId())
+            .orElseThrow(
+                () ->
+                    new IllegalArgumentException(
+                        "Subscription not found for tenant: " + cmd.tenantId()));
+    var now = timeProvider.now();
+    var suspended = subscription.suspend(now);
+    var saved = persistencePort.save(suspended);
+    AfterCommit.run(
+        () -> {
+          entitlementCacheInvalidationApi.evictTenantSnapshot(cmd.tenantId());
+          eventPublisher.publishEvent(
+              new TenantSubscriptionUpdatedEvent(
+                  saved.tenantId(),
+                  saved.planCode(),
+                  saved.status(),
+                  saved.version(),
+                  now,
+                  "system"));
         });
-        return new SuspendSubscriptionResult(saved.id(), saved.status());
-    }
+    return new SuspendSubscriptionResult(saved.id(), saved.status());
+  }
 }

@@ -1,7 +1,6 @@
 package com.tchalanet.server.core.uslottery.internal.application.port.out;
 
 import com.tchalanet.server.core.drawresult.api.model.ResultQuality;
-
 import java.util.List;
 
 public record UsLotteryProviderResult(
@@ -13,7 +12,7 @@ public record UsLotteryProviderResult(
     java.time.Instant occurredAt,
     Object rawPayload) {
 
-    public boolean found() {
-        return main != null && !main.isEmpty();
-    }
+  public boolean found() {
+    return main != null && !main.isEmpty();
+  }
 }

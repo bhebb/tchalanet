@@ -7,20 +7,19 @@ import java.util.List;
 /**
  * Analytics projection for the tenant-admin dashboard.
  *
- * <p>Summary card covers the requested date window.
- * Daily breakdown is ordered ascending by {@code refDate}.
+ * <p>Summary card covers the requested date window. Daily breakdown is ordered ascending by {@code
+ * refDate}.
  */
 public record TenantDashboardStatsView(
     LocalDate from,
     LocalDate to,
     TenantSummaryCard summary,
     List<TenantDailyPoint> dailyBreakdown,
-    List<TenantGameBreakdown> gameBreakdown
-) {
+    List<TenantGameBreakdown> gameBreakdown) {
 
   /** Aggregated KPIs for the full window. */
   public record TenantSummaryCard(
-      long    ticketsSold,
+      long ticketsSold,
       BigDecimal grossSales,
       BigDecimal winningsCalculated,
       BigDecimal payoutsPaid,
@@ -32,26 +31,23 @@ public record TenantDashboardStatsView(
       long promotionLines,
       long promotionPricedLines,
       BigDecimal netRevenueEstimated,
-      long    sessionsOpened
-  ) {}
+      long sessionsOpened) {}
 
   /** Single date point for a sparkline/chart. */
   public record TenantDailyPoint(
       LocalDate refDate,
-      long      ticketsSold,
+      long ticketsSold,
       BigDecimal grossSales,
       BigDecimal sellerCommission,
       BigDecimal tenantCharges,
       long promotionLines,
-      BigDecimal netRevenueEstimated
-  ) {}
+      BigDecimal netRevenueEstimated) {}
 
   /** Per-game breakdown for the window. */
   public record TenantGameBreakdown(
-      String    gameCode,
-      String    gameLabel,
-      long      ticketsSold,
+      String gameCode,
+      String gameLabel,
+      long ticketsSold,
       BigDecimal grossSales,
-      BigDecimal netRevenueEstimated
-  ) {}
+      BigDecimal netRevenueEstimated) {}
 }

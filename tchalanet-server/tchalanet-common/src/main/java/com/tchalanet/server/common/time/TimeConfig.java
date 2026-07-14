@@ -7,8 +7,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class TimeConfig {
 
-    @Bean
-    public Clock clock(TchRuntimeProperties properties) {
-        return Clock.system(properties.zoneId());
-    }
+  @Bean
+  public Clock clock(TchRuntimeProperties properties) {
+    return Clock.system(properties.zoneId());
+  }
 }

@@ -15,6 +15,5 @@ public record UpdatePromotionRuleEffectsCommand(
     @NotNull TenantId tenantId,
     @NotNull PromotionCampaignId campaignId,
     @NotNull PromotionRuleId ruleId,
-    @NotEmpty List<@Valid PromotionEffectConfigInput> items
-) implements Command<PromotionCampaignView> {}
-
+    @NotEmpty List<@Valid PromotionEffectConfigInput> items)
+    implements Command<PromotionCampaignView> {}

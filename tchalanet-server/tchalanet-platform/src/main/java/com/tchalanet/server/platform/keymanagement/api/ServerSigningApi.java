@@ -5,5 +5,5 @@ import com.tchalanet.server.platform.keymanagement.api.model.ServerSigningPurpos
 
 public interface ServerSigningApi {
 
-    ServerSignatureResult sign(ServerSigningPurpose purpose, byte[] canonicalPayload);
+  ServerSignatureResult sign(ServerSigningPurpose purpose, byte[] canonicalPayload);
 }

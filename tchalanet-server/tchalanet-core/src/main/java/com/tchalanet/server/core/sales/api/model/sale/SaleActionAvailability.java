@@ -6,13 +6,12 @@ public record SaleActionAvailability(
     boolean canSendSms,
     boolean canSendWhatsapp,
     boolean canSendEmail,
-    boolean canCopy
-) {
-    public static SaleActionAvailability rejected() {
-        return new SaleActionAvailability(false, false, false, false, false, false);
-    }
+    boolean canCopy) {
+  public static SaleActionAvailability rejected() {
+    return new SaleActionAvailability(false, false, false, false, false, false);
+  }
 
-    public static SaleActionAvailability accepted() {
-        return new SaleActionAvailability(false, true, true, true, true, true);
-    }
+  public static SaleActionAvailability accepted() {
+    return new SaleActionAvailability(false, true, true, true, true, true);
+  }
 }

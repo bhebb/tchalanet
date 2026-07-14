@@ -11,10 +11,9 @@ class CacheOpsResourceContributorTest {
   @Test
   @DisplayName("reports plan caches as ok when critical regions are resolvable")
   void reportsPlanCachesOk() {
-    var manager = new ConcurrentMapCacheManager(
-        "catalog:plan:active_plans",
-        "catalog:plan:plan_by_code",
-        "catalog:plan:plan_by_id");
+    var manager =
+        new ConcurrentMapCacheManager(
+            "catalog:plan:active_plans", "catalog:plan:plan_by_code", "catalog:plan:plan_by_id");
 
     var item = new CacheOpsResourceContributor(manager).services().getFirst();
 

@@ -6,6 +6,4 @@ public record TicketPrintSellerContext(
     SellerTerminalId sellerTerminalId,
     String sellerTerminalCode,
     String sellerTerminalLabel,
-    String sellerTerminalDisplayName
-) {
-}
+    String sellerTerminalDisplayName) {}

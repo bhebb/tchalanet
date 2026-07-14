@@ -3,15 +3,14 @@ package com.tchalanet.server.catalog.i18n.internal.write;
 import com.tchalanet.server.catalog.i18n.api.I18nOverridesAdminCatalog;
 import com.tchalanet.server.catalog.i18n.api.model.CreateI18nOverrideAdminRequest;
 import com.tchalanet.server.catalog.i18n.api.model.I18nOverrideLevel;
-import com.tchalanet.server.catalog.i18n.internal.web.model.CreateI18nOverrideRequest;
 import com.tchalanet.server.catalog.i18n.api.model.I18nOverrideView;
-import com.tchalanet.server.catalog.i18n.internal.web.model.UpdateI18nOverrideRequest;
 import com.tchalanet.server.catalog.i18n.internal.cache.I18nOverridesCacheNames;
 import com.tchalanet.server.catalog.i18n.internal.mapper.I18nOverrideMapper;
 import com.tchalanet.server.catalog.i18n.internal.persistence.I18nOverrideEntity;
 import com.tchalanet.server.catalog.i18n.internal.persistence.I18nOverrideRepository;
+import com.tchalanet.server.catalog.i18n.internal.web.model.CreateI18nOverrideRequest;
+import com.tchalanet.server.catalog.i18n.internal.web.model.UpdateI18nOverrideRequest;
 import com.tchalanet.server.common.types.id.I18nOverrideId;
-
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
@@ -25,8 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * I18n Overrides Admin Service (WRITE SIDE)
  *
- * <p>Handles all write operations for i18n overrides (create, update, delete). This service is
- * ONLY used by admin controllers and MUST NOT be called by core/features.
+ * <p>Handles all write operations for i18n overrides (create, update, delete). This service is ONLY
+ * used by admin controllers and MUST NOT be called by core/features.
  *
  * <p>All writes trigger cache eviction via {@code @CacheEvict}.
  */
@@ -68,9 +67,9 @@ public class I18nOverridesAdminService implements I18nOverridesAdminCatalog {
     checkUniqueness(request);
 
     // Create entity
-      var entity = createI18nOverrideEntity(request);
+    var entity = createI18nOverrideEntity(request);
 
-      entity = repository.save(entity);
+    entity = repository.save(entity);
     log.info("Created i18n override with ID: {}", entity.getId());
 
     return mapper.toView(entity);
@@ -96,26 +95,28 @@ public class I18nOverridesAdminService implements I18nOverridesAdminCatalog {
             request.i18nValue()));
   }
 
-    private static @NonNull I18nOverrideEntity createI18nOverrideEntity(CreateI18nOverrideRequest request) {
-        var entity = new I18nOverrideEntity();
-        entity.setId(UUID.randomUUID());
-        entity.setLevel(request.level());
-        if (request.level() == com.tchalanet.server.catalog.i18n.api.model.I18nOverrideLevel.GLOBAL) {
-            entity.setTenantId(null);
-        } else {
-            entity.setTenantId(request.tenantId().value());
-        }
-        entity.setSurface(request.surface() != null
+  private static @NonNull I18nOverrideEntity createI18nOverrideEntity(
+      CreateI18nOverrideRequest request) {
+    var entity = new I18nOverrideEntity();
+    entity.setId(UUID.randomUUID());
+    entity.setLevel(request.level());
+    if (request.level() == com.tchalanet.server.catalog.i18n.api.model.I18nOverrideLevel.GLOBAL) {
+      entity.setTenantId(null);
+    } else {
+      entity.setTenantId(request.tenantId().value());
+    }
+    entity.setSurface(
+        request.surface() != null
             ? request.surface()
             : com.tchalanet.server.catalog.i18n.api.model.I18nSurface.INTERNAL);
-        entity.setLocale(request.locale());
-        entity.setI18nKey(request.i18nKey());
-        entity.setI18nValue(request.i18nValue());
-        entity.setActive(true);
-        return entity;
-    }
+    entity.setLocale(request.locale());
+    entity.setI18nKey(request.i18nKey());
+    entity.setI18nValue(request.i18nValue());
+    entity.setActive(true);
+    return entity;
+  }
 
-    /**
+  /**
    * Update an existing i18n override.
    *
    * @param id override ID
@@ -237,20 +238,24 @@ public class I18nOverridesAdminService implements I18nOverridesAdminCatalog {
 
     Optional<I18nOverrideEntity> existing;
     if (request.level() == com.tchalanet.server.catalog.i18n.api.model.I18nOverrideLevel.TENANT) {
-      existing = repository.findFirstByTenantIdAndLocaleAndSurfaceAndI18nKeyAndActiveTrue(
-          request.tenantId().value(), request.locale(), surface, request.i18nKey());
+      existing =
+          repository.findFirstByTenantIdAndLocaleAndSurfaceAndI18nKeyAndActiveTrue(
+              request.tenantId().value(), request.locale(), surface, request.i18nKey());
     } else {
-      existing = repository.findFirstByLocaleAndSurfaceAndI18nKeyAndLevel(
-          request.locale(), surface, request.i18nKey(), request.level());
+      existing =
+          repository.findFirstByLocaleAndSurfaceAndI18nKeyAndLevel(
+              request.locale(), surface, request.i18nKey(), request.level());
     }
 
     if (existing.isPresent()) {
       throw new IllegalArgumentException(
           "I18n override already exists: "
-              + surface + ":" + request.locale() + ":" + request.i18nKey()
+              + surface
+              + ":"
+              + request.locale()
+              + ":"
+              + request.i18nKey()
               + (request.tenantId() != null ? " for tenant " + request.tenantId() : " (GLOBAL)"));
     }
   }
-
-
 }

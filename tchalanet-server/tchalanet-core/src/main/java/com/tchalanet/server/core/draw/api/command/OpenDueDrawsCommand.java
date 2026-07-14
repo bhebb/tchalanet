@@ -8,13 +8,13 @@ import java.time.Instant;
 /**
  * Ouvre les tirages dont l'heure programmée est imminente.
  *
- * @param now          horodatage de référence (UTC) pour le calcul de la fenêtre
- * @param batchSize    nombre maximum de tirages à ouvrir par exécution (garde-fou anti-boucle)
- * @param lookaheadHours nombre d'heures à l'avance avant {@code scheduledAt} à partir duquel
- *                         un tirage devient éligible à l'ouverture
- * @param lagHours delay de grâce en heures après {@code cutoffAt} :
- *                     un tirage reste ouvert jusqu'à {@code cutoffAt + lagHours}
- * @param dryRun       si {@code true}, simule sans aucune écriture en base
+ * @param now horodatage de référence (UTC) pour le calcul de la fenêtre
+ * @param batchSize nombre maximum de tirages à ouvrir par exécution (garde-fou anti-boucle)
+ * @param lookaheadHours nombre d'heures à l'avance avant {@code scheduledAt} à partir duquel un
+ *     tirage devient éligible à l'ouverture
+ * @param lagHours delay de grâce en heures après {@code cutoffAt} : un tirage reste ouvert jusqu'à
+ *     {@code cutoffAt + lagHours}
+ * @param dryRun si {@code true}, simule sans aucune écriture en base
  */
 public record OpenDueDrawsCommand(
     @NotNull Instant now,

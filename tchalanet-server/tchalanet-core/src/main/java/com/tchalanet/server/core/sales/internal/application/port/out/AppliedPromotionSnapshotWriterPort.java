@@ -6,5 +6,6 @@ import com.tchalanet.server.core.sales.internal.domain.model.ticket.Ticket;
 import java.time.Instant;
 
 public interface AppliedPromotionSnapshotWriterPort {
-    void createIfAbsent(TicketId ticketId, PromotionDecision decision, Ticket ticket, Instant appliedAt);
+  void createIfAbsent(
+      TicketId ticketId, PromotionDecision decision, Ticket ticket, Instant appliedAt);
 }

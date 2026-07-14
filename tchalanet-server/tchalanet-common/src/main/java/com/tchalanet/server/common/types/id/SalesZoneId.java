@@ -9,10 +9,17 @@ public record SalesZoneId(UUID value) {
     }
   }
 
-  public static SalesZoneId of(UUID value) { return new SalesZoneId(value); }
-  public static SalesZoneId nullableOf(UUID raw) { return raw == null ? null : new SalesZoneId(raw); }
+  public static SalesZoneId of(UUID value) {
+    return new SalesZoneId(value);
+  }
+
+  public static SalesZoneId nullableOf(UUID raw) {
+    return raw == null ? null : new SalesZoneId(raw);
+  }
+
   public static SalesZoneId parse(String raw) {
-    if (raw == null || raw.isBlank()) throw new IllegalArgumentException("SalesZoneId string is required");
+    if (raw == null || raw.isBlank())
+      throw new IllegalArgumentException("SalesZoneId string is required");
     return new SalesZoneId(UUID.fromString(raw));
   }
 }

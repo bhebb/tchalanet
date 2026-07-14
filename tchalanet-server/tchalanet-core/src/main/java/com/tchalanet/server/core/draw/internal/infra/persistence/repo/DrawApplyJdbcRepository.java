@@ -14,24 +14,20 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class DrawApplyJdbcRepository {
 
-    private final JdbcTemplate jdbc;
+  private final JdbcTemplate jdbc;
 
-    public record AppliedRow(UUID drawId, UUID drawChannelId) {}
+  public record AppliedRow(UUID drawId, UUID drawChannelId) {}
 
-    public List<AppliedRow> attachResultBySlotReturning(
-        UUID tenantId,
-        LocalDate drawDate,
-        UUID resultSlotId,
-        UUID drawResultId,
-        Instant now
-    ) {
-        Objects.requireNonNull(tenantId, "tenantId is required");
-        Objects.requireNonNull(drawDate, "drawDate is required");
-        Objects.requireNonNull(resultSlotId, "resultSlotId is required");
-        Objects.requireNonNull(drawResultId, "drawResultId is required");
-        Objects.requireNonNull(now, "now is required");
+  public List<AppliedRow> attachResultBySlotReturning(
+      UUID tenantId, LocalDate drawDate, UUID resultSlotId, UUID drawResultId, Instant now) {
+    Objects.requireNonNull(tenantId, "tenantId is required");
+    Objects.requireNonNull(drawDate, "drawDate is required");
+    Objects.requireNonNull(resultSlotId, "resultSlotId is required");
+    Objects.requireNonNull(drawResultId, "drawResultId is required");
+    Objects.requireNonNull(now, "now is required");
 
-        var sql = """
+    var sql =
+        """
         update draw d
         set draw_result_id = ?,
             status = 'RESULTED',
@@ -53,24 +49,20 @@ public class DrawApplyJdbcRepository {
         returning d.id, d.draw_channel_id
         """;
 
-        var timestamp = Timestamp.from(now);
+    var timestamp = Timestamp.from(now);
 
-        return jdbc.query(
-            sql,
-            ps -> {
-                int i = 1;
-                ps.setObject(i++, drawResultId);
-                ps.setTimestamp(i++, timestamp);
-                ps.setTimestamp(i++, timestamp);
-                ps.setObject(i++, drawResultId); // vérifie dr.id
-                ps.setObject(i++, tenantId);
-                ps.setDate(i++, java.sql.Date.valueOf(drawDate));
-                ps.setObject(i++, resultSlotId);
-            },
-            (rs, rowNum) -> new AppliedRow(
-                (UUID) rs.getObject(1),
-                (UUID) rs.getObject(2)
-            )
-        );
-    }
+    return jdbc.query(
+        sql,
+        ps -> {
+          int i = 1;
+          ps.setObject(i++, drawResultId);
+          ps.setTimestamp(i++, timestamp);
+          ps.setTimestamp(i++, timestamp);
+          ps.setObject(i++, drawResultId); // vérifie dr.id
+          ps.setObject(i++, tenantId);
+          ps.setDate(i++, java.sql.Date.valueOf(drawDate));
+          ps.setObject(i++, resultSlotId);
+        },
+        (rs, rowNum) -> new AppliedRow((UUID) rs.getObject(1), (UUID) rs.getObject(2)));
+  }
 }

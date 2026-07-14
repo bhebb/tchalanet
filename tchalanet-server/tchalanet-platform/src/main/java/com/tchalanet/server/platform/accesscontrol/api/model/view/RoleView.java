@@ -11,5 +11,3 @@ public record RoleView(
     TenantId tenantId,
     RoleId parentRoleId,
     boolean system) {}
-
-

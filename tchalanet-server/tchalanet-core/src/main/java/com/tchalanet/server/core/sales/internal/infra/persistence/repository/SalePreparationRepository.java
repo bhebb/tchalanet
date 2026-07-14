@@ -13,26 +13,28 @@ import org.springframework.data.repository.query.Param;
 
 public interface SalePreparationRepository extends JpaRepository<SalePreparationJpaEntity, UUID> {
 
-    Optional<SalePreparationJpaEntity> findByIdempotencyKey(String idempotencyKey);
+  Optional<SalePreparationJpaEntity> findByIdempotencyKey(String idempotencyKey);
 
-    List<SalePreparationJpaEntity> findTop100ByStatusAndExpiresAtBefore(
-        SalePreparationStatus status, Instant threshold);
+  List<SalePreparationJpaEntity> findTop100ByStatusAndExpiresAtBefore(
+      SalePreparationStatus status, Instant threshold);
 
-    @Modifying
-    @Query("""
+  @Modifying
+  @Query(
+      """
         UPDATE SalePreparationJpaEntity p
         SET p.status = com.tchalanet.server.core.sales.api.model.preparation.SalePreparationStatus.EXPIRED
         WHERE p.status = com.tchalanet.server.core.sales.api.model.preparation.SalePreparationStatus.DRAFT
           AND p.expiresAt < :threshold
     """)
-    int expireDrafts(@Param("threshold") Instant threshold);
+  int expireDrafts(@Param("threshold") Instant threshold);
 
-    @Modifying
-    @Query("""
+  @Modifying
+  @Query(
+      """
         DELETE FROM SalePreparationJpaEntity p
         WHERE p.status IN :statuses AND p.updatedAt < :threshold
     """)
-    int purgeByStatusOlderThan(
-        @Param("statuses") List<SalePreparationStatus> statuses,
-        @Param("threshold") Instant threshold);
+  int purgeByStatusOlderThan(
+      @Param("statuses") List<SalePreparationStatus> statuses,
+      @Param("threshold") Instant threshold);
 }

@@ -9,22 +9,24 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface SupportAccessSessionJpaRepository extends JpaRepository<SupportAccessSessionJpaEntity, UUID> {
+public interface SupportAccessSessionJpaRepository
+    extends JpaRepository<SupportAccessSessionJpaEntity, UUID> {
 
   Optional<SupportAccessSessionJpaEntity>
       findFirstBySuperAdminUserIdAndClearedAtIsNullAndExpiresAtAfterOrderByGrantedAtDesc(
-          UUID superAdminUserId,
-          Instant now);
+          UUID superAdminUserId, Instant now);
 
   Optional<SupportAccessSessionJpaEntity>
       findFirstBySuperAdminUserIdAndClearedAtIsNullOrderByGrantedAtDesc(UUID superAdminUserId);
 
   @Modifying
-  @Query("""
+  @Query(
+      """
       update SupportAccessSessionJpaEntity s
       set s.clearedAt = :clearedAt
       where s.superAdminUserId = :superAdminUserId
         and s.clearedAt is null
       """)
-  int clearCurrent(@Param("superAdminUserId") UUID superAdminUserId, @Param("clearedAt") Instant clearedAt);
+  int clearCurrent(
+      @Param("superAdminUserId") UUID superAdminUserId, @Param("clearedAt") Instant clearedAt);
 }

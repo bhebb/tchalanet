@@ -12,18 +12,18 @@ import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
-import com.tchalanet.server.platform.notification.api.model.request.ArchiveNotificationRequest;
-import com.tchalanet.server.platform.notification.api.model.request.GetNotificationSummaryRequest;
-import com.tchalanet.server.platform.notification.api.model.request.MarkNotificationReadRequest;
-import com.tchalanet.server.platform.notification.api.model.NotificationCategory;
 import com.tchalanet.server.platform.notification.api.model.NotificationActorType;
-import com.tchalanet.server.platform.notification.api.model.view.NotificationItemView;
 import com.tchalanet.server.platform.notification.api.model.NotificationAudienceType;
+import com.tchalanet.server.platform.notification.api.model.NotificationCategory;
 import com.tchalanet.server.platform.notification.api.model.NotificationKind;
 import com.tchalanet.server.platform.notification.api.model.NotificationSeverity;
 import com.tchalanet.server.platform.notification.api.model.NotificationStatus;
 import com.tchalanet.server.platform.notification.api.model.NotificationTranslationInput;
+import com.tchalanet.server.platform.notification.api.model.request.ArchiveNotificationRequest;
 import com.tchalanet.server.platform.notification.api.model.request.CreateNotificationRequest;
+import com.tchalanet.server.platform.notification.api.model.request.GetNotificationSummaryRequest;
+import com.tchalanet.server.platform.notification.api.model.request.MarkNotificationReadRequest;
+import com.tchalanet.server.platform.notification.api.model.view.NotificationItemView;
 import com.tchalanet.server.platform.notification.api.model.view.NotificationSummaryView;
 import com.tchalanet.server.platform.notification.api.model.view.NotificationUnreadCountView;
 import com.tchalanet.server.platform.notification.internal.persistence.NotificationTranslationJpaEntity;
@@ -45,7 +45,9 @@ class NotificationServiceTest {
   @Test
   void markReadUsesPersonalActorState() {
     var reader = new RecordingNotificationReader(new NotificationSummaryView(0, 0, 0, false));
-    var service = new NotificationService(CLOCK, null, null, null, reader, null, null, null, null, null, null, null, null, null);
+    var service =
+        new NotificationService(
+            CLOCK, null, null, null, reader, null, null, null, null, null, null, null, null, null);
     var notificationId = NotificationId.of(UUID.randomUUID());
     var actorId = UserId.of(UUID.randomUUID());
 
@@ -59,7 +61,9 @@ class NotificationServiceTest {
   @Test
   void archiveDismissesPersonalActorState() {
     var reader = new RecordingNotificationReader(new NotificationSummaryView(0, 0, 0, false));
-    var service = new NotificationService(CLOCK, null, null, null, reader, null, null, null, null, null, null, null, null, null);
+    var service =
+        new NotificationService(
+            CLOCK, null, null, null, reader, null, null, null, null, null, null, null, null, null);
     var notificationId = NotificationId.of(UUID.randomUUID());
     var actorId = UserId.of(UUID.randomUUID());
 
@@ -75,7 +79,9 @@ class NotificationServiceTest {
     var userId = UserId.of(UUID.randomUUID());
     var summary = new NotificationSummaryView(4, 1, 2, true);
     var reader = new RecordingNotificationReader(summary);
-    var service = new NotificationService(null, null, null, null, reader, null, null, null, null, null, null, null, null, null);
+    var service =
+        new NotificationService(
+            null, null, null, null, reader, null, null, null, null, null, null, null, null, null);
 
     var result =
         service.getNotificationSummary(new GetNotificationSummaryRequest(userId, "TENANT_ADMIN"));
@@ -87,7 +93,9 @@ class NotificationServiceTest {
 
   @Test
   void createNotificationRequiresAllManualTranslations() {
-    var service = notificationCreationService(new RecordingNotificationWriter(), mock(NotificationTranslationJpaRepository.class));
+    var service =
+        notificationCreationService(
+            new RecordingNotificationWriter(), mock(NotificationTranslationJpaRepository.class));
 
     assertThatThrownBy(() -> service.createNotification(manualCreateRequest(Map.of())))
         .hasMessageContaining("notification.translation_required_fr");
@@ -99,11 +107,12 @@ class NotificationServiceTest {
     var savedTranslations = new ArrayList<NotificationTranslationJpaEntity>();
     var translations = mock(NotificationTranslationJpaRepository.class);
     when(translations.save(any(NotificationTranslationJpaEntity.class)))
-        .thenAnswer(invocation -> {
-          var entity = invocation.getArgument(0, NotificationTranslationJpaEntity.class);
-          savedTranslations.add(entity);
-          return entity;
-        });
+        .thenAnswer(
+            invocation -> {
+              var entity = invocation.getArgument(0, NotificationTranslationJpaEntity.class);
+              savedTranslations.add(entity);
+              return entity;
+            });
     var service = notificationCreationService(writer, translations);
 
     service.createNotification(
@@ -115,7 +124,8 @@ class NotificationServiceTest {
 
     assertThat(writer.saved).isNotNull();
     assertThat(savedTranslations).hasSize(3);
-    assertThat(savedTranslations).extracting(NotificationTranslationJpaEntity::getLocale)
+    assertThat(savedTranslations)
+        .extracting(NotificationTranslationJpaEntity::getLocale)
         .containsExactlyInAnyOrder("fr", "en", "ht");
   }
 
@@ -127,7 +137,9 @@ class NotificationServiceTest {
     when(renderer.render(any(), any(), any(), any(), any(), any(), any()))
         .thenReturn(new RenderedNotification("Titre", "Message"));
     var publications =
-        mock(com.tchalanet.server.platform.notification.internal.persistence.NotificationPublicationJpaRepository.class);
+        mock(
+            com.tchalanet.server.platform.notification.internal.persistence
+                .NotificationPublicationJpaRepository.class);
     when(publications.findFirstByNotificationIdAndDeletedAtIsNullOrderByPublicationNoDesc(any()))
         .thenReturn(Optional.empty());
     return new NotificationService(
@@ -138,12 +150,20 @@ class NotificationServiceTest {
         null,
         renderer,
         null,
-        mock(com.tchalanet.server.platform.notification.internal.persistence.NotificationJpaRepository.class),
+        mock(
+            com.tchalanet.server.platform.notification.internal.persistence
+                .NotificationJpaRepository.class),
         translations,
         publications,
-        mock(com.tchalanet.server.platform.notification.internal.persistence.NotificationDeliveryPolicyJpaRepository.class),
-        mock(com.tchalanet.server.platform.notification.internal.persistence.NotificationRecipientJpaRepository.class),
-        mock(com.tchalanet.server.platform.notification.internal.persistence.NotificationUserStateJpaRepository.class),
+        mock(
+            com.tchalanet.server.platform.notification.internal.persistence
+                .NotificationDeliveryPolicyJpaRepository.class),
+        mock(
+            com.tchalanet.server.platform.notification.internal.persistence
+                .NotificationRecipientJpaRepository.class),
+        mock(
+            com.tchalanet.server.platform.notification.internal.persistence
+                .NotificationUserStateJpaRepository.class),
         mock(org.springframework.context.ApplicationEventPublisher.class));
   }
 
@@ -263,21 +283,24 @@ class NotificationServiceTest {
     }
 
     @Override
-    public void markRead(NotificationId notificationId, NotificationActorType actorType, UUID actorId) {
+    public void markRead(
+        NotificationId notificationId, NotificationActorType actorType, UUID actorId) {
       this.lastReadId = notificationId;
       this.lastActorType = actorType;
       this.lastActorId = actorId;
     }
 
     @Override
-    public void dismiss(NotificationId notificationId, NotificationActorType actorType, UUID actorId) {
+    public void dismiss(
+        NotificationId notificationId, NotificationActorType actorType, UUID actorId) {
       this.lastDismissedId = notificationId;
       this.lastActorType = actorType;
       this.lastActorId = actorId;
     }
 
     @Override
-    public void markAllRead(NotificationActorType actorType, UUID actorId, UserId userId, String roleCode) {
+    public void markAllRead(
+        NotificationActorType actorType, UUID actorId, UserId userId, String roleCode) {
       throw new UnsupportedOperationException("Not needed by this test");
     }
   }

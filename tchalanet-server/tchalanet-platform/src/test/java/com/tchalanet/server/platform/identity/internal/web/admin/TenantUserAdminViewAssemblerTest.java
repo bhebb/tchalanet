@@ -16,8 +16,8 @@ import com.tchalanet.server.platform.identity.internal.model.TenantMembership;
 import com.tchalanet.server.platform.identity.internal.service.CurrentUserProfileService;
 import com.tchalanet.server.platform.identity.internal.service.ExternalIdentityLinkService;
 import com.tchalanet.server.platform.identity.internal.service.TenantMembershipService;
-import com.tchalanet.server.platform.identity.internal.web.admin.model.InvitationStatus;
 import com.tchalanet.server.platform.identity.internal.web.admin.model.ExternalIdentitySyncStatus;
+import com.tchalanet.server.platform.identity.internal.web.admin.model.InvitationStatus;
 import java.time.Instant;
 import java.util.Currency;
 import java.util.Locale;
@@ -32,12 +32,14 @@ class TenantUserAdminViewAssemblerTest {
 
   private final CurrentUserProfileService profiles = mock(CurrentUserProfileService.class);
   private final TenantMembershipService memberships = mock(TenantMembershipService.class);
-  private final ExternalIdentityLinkService externalIdentities = mock(ExternalIdentityLinkService.class);
+  private final ExternalIdentityLinkService externalIdentities =
+      mock(ExternalIdentityLinkService.class);
   private final TenantUserAdminViewAssembler assembler =
       new TenantUserAdminViewAssembler(profiles, memberships, externalIdentities);
 
   @Test
-  @DisplayName("assertTenantScoped throws 403 when the user is not a member of the effective tenant")
+  @DisplayName(
+      "assertTenantScoped throws 403 when the user is not a member of the effective tenant")
   void assertTenantScopedRejectsOutsideUser() {
     var tenantId = TenantId.of(UUID.randomUUID());
     var userId = UserId.of(UUID.randomUUID());
@@ -49,7 +51,8 @@ class TenantUserAdminViewAssemblerTest {
   }
 
   @Test
-  @DisplayName("load composes profile + membership + sync status, omits role, and honours createdAt override")
+  @DisplayName(
+      "load composes profile + membership + sync status, omits role, and honours createdAt override")
   void loadComposesView() {
     var tenantId = TenantId.of(UUID.randomUUID());
     var userId = UserId.of(UUID.randomUUID());
@@ -81,7 +84,8 @@ class TenantUserAdminViewAssemblerTest {
     assertThat(response.id()).isEqualTo(userId);
     assertThat(response.username()).isEqualTo("tenant.user");
     assertThat(response.status()).isEqualTo("ACTIVE");
-    assertThat(response.role()).isNull(); // roles are served by /admin/access-control/users/{id}/roles
+    assertThat(response.role())
+        .isNull(); // roles are served by /admin/access-control/users/{id}/roles
     assertThat(response.membershipStatus()).isEqualTo("ACTIVE");
     assertThat(response.externalIdentitySyncStatus()).isEqualTo(ExternalIdentitySyncStatus.SYNCED);
     assertThat(response.invitationStatus()).isEqualTo(InvitationStatus.SENT);
@@ -110,6 +114,10 @@ class TenantUserAdminViewAssemblerTest {
         java.time.ZoneId.of("America/Port-au-Prince"),
         Currency.getInstance("USD"),
         null,
-        null, null, null, null, null);
+        null,
+        null,
+        null,
+        null,
+        null);
   }
 }

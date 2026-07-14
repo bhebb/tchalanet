@@ -14,53 +14,55 @@ import com.tchalanet.server.core.sales.internal.application.command.model.Cancel
 import com.tchalanet.server.core.sales.internal.application.port.out.TicketReaderPort;
 import com.tchalanet.server.core.sales.internal.application.port.out.TicketWriterPort;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.Ticket;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
 import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @UseCase
 @RequiredArgsConstructor
 @Slf4j
-public class CancelTicketCommandHandler implements CommandHandler<CancelTicketCommand, CancelTicketResult> {
+public class CancelTicketCommandHandler
+    implements CommandHandler<CancelTicketCommand, CancelTicketResult> {
 
-    private final TicketReaderPort ticketReader;
-    private final TicketWriterPort ticketWriter;
-    private final DomainEventPublisher publisher;
-    private final Clock clock;
-    private final IdGenerator idGenerator;
+  private final TicketReaderPort ticketReader;
+  private final TicketWriterPort ticketWriter;
+  private final DomainEventPublisher publisher;
+  private final Clock clock;
+  private final IdGenerator idGenerator;
 
-    @Override
-    @TchTx
-    public CancelTicketResult handle(CancelTicketCommand cmd) {
-        TchContext.currentOrThrow();
-        Ticket ticket = ticketReader.getRequired(cmd.ticketId());
+  @Override
+  @TchTx
+  public CancelTicketResult handle(CancelTicketCommand cmd) {
+    TchContext.currentOrThrow();
+    Ticket ticket = ticketReader.getRequired(cmd.ticketId());
 
-        Instant now = Instant.now(clock);
+    Instant now = Instant.now(clock);
 
-        // Domain transition
-        Ticket updated = ticket.cancel(cmd.cancelledBy(), cmd.reason(), now);
+    // Domain transition
+    Ticket updated = ticket.cancel(cmd.cancelledBy(), cmd.reason(), now);
 
-        // Persist
-        var saved = ticketWriter.save(updated);
+    // Persist
+    var saved = ticketWriter.save(updated);
 
-        // Publish event after commit
-        AfterCommit.run(() -> publisher.publish(
-            new TicketCancelledEvent(
-                EventId.of(idGenerator.newUuid()),
-                now,
-                saved.identity().tenantId(),
-                saved.identity().id(),
-                cmd.cancelledBy(),
-                cmd.reason()
-            )
-        ));
+    // Publish event after commit
+    AfterCommit.run(
+        () ->
+            publisher.publish(
+                new TicketCancelledEvent(
+                    EventId.of(idGenerator.newUuid()),
+                    now,
+                    saved.identity().tenantId(),
+                    saved.identity().id(),
+                    cmd.cancelledBy(),
+                    cmd.reason())));
 
-        log.info("Ticket cancelled ticketId={} tenantId={}", saved.identity().id(), saved.identity().tenantId());
+    log.info(
+        "Ticket cancelled ticketId={} tenantId={}",
+        saved.identity().id(),
+        saved.identity().tenantId());
 
-        return new CancelTicketResult(saved, CancelTicketResult.CancelOutcome.SUCCESS, List.of());
-    }
+    return new CancelTicketResult(saved, CancelTicketResult.CancelOutcome.SUCCESS, List.of());
+  }
 }
-

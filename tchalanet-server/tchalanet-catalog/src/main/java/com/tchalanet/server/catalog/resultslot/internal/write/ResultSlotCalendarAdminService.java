@@ -5,10 +5,10 @@ import com.tchalanet.server.catalog.resultslot.internal.cache.ResultSlotCalendar
 import com.tchalanet.server.catalog.resultslot.internal.mapper.ResultSlotCalendarOverrideMapper;
 import com.tchalanet.server.catalog.resultslot.internal.persistence.ResultSlotCalendarOverrideJpaEntity;
 import com.tchalanet.server.catalog.resultslot.internal.persistence.ResultSlotCalendarOverrideJpaRepository;
-import com.tchalanet.server.common.types.id.ResultSlotCalendarOverrideId;
-import com.tchalanet.server.common.types.id.ResultSlotId;
 import com.tchalanet.server.catalog.resultslot.internal.web.model.CreateResultSlotCalendarOverrideRequest;
 import com.tchalanet.server.catalog.resultslot.internal.web.model.UpdateResultSlotCalendarOverrideRequest;
+import com.tchalanet.server.common.types.id.ResultSlotCalendarOverrideId;
+import com.tchalanet.server.common.types.id.ResultSlotId;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;
@@ -72,8 +72,7 @@ public class ResultSlotCalendarAdminService {
     boolean hasDate = date != null;
     boolean hasMd = recurringMd != null && !recurringMd.isBlank();
     if (hasDate == hasMd) {
-      throw new IllegalArgumentException(
-          "Provide exactly one of slotLocalDate or recurringMd");
+      throw new IllegalArgumentException("Provide exactly one of slotLocalDate or recurringMd");
     }
   }
 

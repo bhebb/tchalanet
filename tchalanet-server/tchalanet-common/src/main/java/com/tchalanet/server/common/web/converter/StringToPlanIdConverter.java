@@ -5,8 +5,8 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
 /**
- * Spring MVC converter for PathVariable/RequestParam PlanId.
- * Delegates to PlanId.parse() per typed_ids.md convention.
+ * Spring MVC converter for PathVariable/RequestParam PlanId. Delegates to PlanId.parse() per
+ * typed_ids.md convention.
  */
 @Component
 public class StringToPlanIdConverter implements Converter<String, PlanId> {

@@ -1,8 +1,8 @@
 package com.tchalanet.server.platform.identity.internal.model;
 
-import com.tchalanet.server.platform.identity.api.model.UserStatus;
 import com.tchalanet.server.common.types.id.ExternalUserSubject;
 import com.tchalanet.server.common.types.id.UserId;
+import com.tchalanet.server.platform.identity.api.model.UserStatus;
 import java.time.Instant;
 
 public record AppUser(
@@ -125,7 +125,8 @@ public record AppUser(
         temporaryCredentialIssuedAt);
   }
 
-  public AppUser completeFirstLogin(String firstName, String lastName, String phone, Instant completedAt) {
+  public AppUser completeFirstLogin(
+      String firstName, String lastName, String phone, Instant completedAt) {
     var resolvedFirstName = firstName != null ? firstName : this.firstName;
     var resolvedLastName = lastName != null ? lastName : this.lastName;
     return new AppUser(
@@ -186,7 +187,8 @@ public record AppUser(
   }
 
   private static String buildDisplayName(String firstName, String lastName, String fallback) {
-    var value = ((firstName == null ? "" : firstName) + " " + (lastName == null ? "" : lastName)).trim();
+    var value =
+        ((firstName == null ? "" : firstName) + " " + (lastName == null ? "" : lastName)).trim();
     return value.isBlank() ? fallback : value;
   }
 }

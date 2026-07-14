@@ -1,10 +1,10 @@
 package com.tchalanet.server.platform.entitlement.api.model;
 
 public enum TenantPlanStatus {
-    NONE,
-    TRIAL,
-    ACTIVE,
-    SUSPENDED,
-    CANCELED,
-    EXPIRED
+  NONE,
+  TRIAL,
+  ACTIVE,
+  SUSPENDED,
+  CANCELED,
+  EXPIRED
 }

@@ -17,7 +17,7 @@ public record SearchI18nOverridesCriteria(
     TenantId tenantId,
     Set<I18nSurface> surfaces,
     String visibility // "active" | "deleted" | "all"
-) {
+    ) {
   public static SearchI18nOverridesCriteria empty() {
     return new SearchI18nOverridesCriteria(null, null, null, null, null, null, null);
   }

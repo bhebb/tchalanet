@@ -12,5 +12,5 @@ public record ApproveTicketSaleCommand(
     @NotNull TenantId tenantId,
     @NotNull TicketId ticketId,
     @NotNull UserId approvedBy,
-    @Size(max = 500) String reason
-) implements Command<Ticket> {}
+    @Size(max = 500) String reason)
+    implements Command<Ticket> {}

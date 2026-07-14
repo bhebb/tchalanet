@@ -6,9 +6,8 @@ import java.time.Instant;
 import java.util.UUID;
 
 /**
- * Domain model for Address (tenant-scoped).
- * Represents a physical/postal address with deduplication support.
- * Provides factory methods for construction (createNew, restore).
+ * Domain model for Address (tenant-scoped). Represents a physical/postal address with deduplication
+ * support. Provides factory methods for construction (createNew, restore).
  */
 public record Address(
     AddressId id,
@@ -22,8 +21,7 @@ public record Address(
     String normalizedKey,
     boolean deleted,
     Instant createdAt,
-    Instant updatedAt
-) {
+    Instant updatedAt) {
 
   public Address {
     if (id == null) {
@@ -40,10 +38,7 @@ public record Address(
     }
   }
 
-  /**
-   * Factory: create a new active address.
-   * Generated ID, createdAt = updatedAt = now.
-   */
+  /** Factory: create a new active address. Generated ID, createdAt = updatedAt = now. */
   public static Address createNew(
       TenantId tenantId,
       String line1,
@@ -70,8 +65,8 @@ public record Address(
   }
 
   /**
-   * Factory: restore/update an existing address.
-   * Preserves ID, tenantId. createdAt typically null (impl should preserve existing).
+   * Factory: restore/update an existing address. Preserves ID, tenantId. createdAt typically null
+   * (impl should preserve existing).
    */
   public static Address restore(
       AddressId id,

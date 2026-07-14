@@ -1,12 +1,12 @@
 package com.tchalanet.server.common.persistence.converter;
 
-import com.tchalanet.server.common.json.utils.JsonUtilsHolder;
-import tools.jackson.core.type.TypeReference;
 import com.tchalanet.server.common.json.utils.JsonUtils;
+import com.tchalanet.server.common.json.utils.JsonUtilsHolder;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 import java.util.Collections;
 import java.util.Map;
+import tools.jackson.core.type.TypeReference;
 
 @Converter
 public class MapStringToJsonConverter implements AttributeConverter<Map<String, String>, String> {

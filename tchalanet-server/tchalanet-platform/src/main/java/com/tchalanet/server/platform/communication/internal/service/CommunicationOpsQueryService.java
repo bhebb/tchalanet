@@ -31,11 +31,14 @@ public class CommunicationOpsQueryService {
       Pageable pageable) {
     var page = messages.searchOpsMessages(status, channel, tenantId, recipientPattern, pageable);
     var messageIds = page.getContent().stream().map(OutboundMessageJpaEntity::getId).toList();
-    var attemptsByMessage = messageIds.isEmpty()
-        ? Map.<UUID, List<MessageDeliveryAttemptJpaEntity>>of()
-        : attempts.findRecentForMessages(messageIds, PageRequest.of(0, Math.max(20, page.getContent().size() * 3)))
-            .stream()
-            .collect(Collectors.groupingBy(MessageDeliveryAttemptJpaEntity::getMessageId));
+    var attemptsByMessage =
+        messageIds.isEmpty()
+            ? Map.<UUID, List<MessageDeliveryAttemptJpaEntity>>of()
+            : attempts
+                .findRecentForMessages(
+                    messageIds, PageRequest.of(0, Math.max(20, page.getContent().size() * 3)))
+                .stream()
+                .collect(Collectors.groupingBy(MessageDeliveryAttemptJpaEntity::getMessageId));
     return new QueueSnapshot(page, attemptsByMessage, summary());
   }
 
@@ -55,10 +58,5 @@ public class CommunicationOpsQueryService {
       QueueSummary summary) {}
 
   public record QueueSummary(
-      long pending,
-      long dispatching,
-      long sent,
-      long failed,
-      long skipped,
-      long cancelled) {}
+      long pending, long dispatching, long sent, long failed, long skipped, long cancelled) {}
 }

@@ -6,7 +6,10 @@ import java.time.Duration;
 import java.util.List;
 import org.springframework.stereotype.Component;
 
-/** Resolved i18n overrides per tenant/locale, changed rarely and evicted on write. Tier B: 15 min / 6 h. */
+/**
+ * Resolved i18n overrides per tenant/locale, changed rarely and evicted on write. Tier B: 15 min /
+ * 6 h.
+ */
 @Component
 public class I18nOverridesCacheSpecProvider implements CacheSpecProvider {
 
@@ -14,6 +17,8 @@ public class I18nOverridesCacheSpecProvider implements CacheSpecProvider {
   public List<CacheSpec> cacheSpecs() {
     return List.of(
         CacheSpec.of(
-            I18nOverridesCacheNames.RESOLVED_BY_LOCALE, Duration.ofMinutes(15), Duration.ofHours(6)));
+            I18nOverridesCacheNames.RESOLVED_BY_LOCALE,
+            Duration.ofMinutes(15),
+            Duration.ofHours(6)));
   }
 }

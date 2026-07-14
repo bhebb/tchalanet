@@ -9,10 +9,17 @@ public record AppliedPromotionSnapshotId(UUID value) {
     }
   }
 
-  public static AppliedPromotionSnapshotId of(UUID value) { return new AppliedPromotionSnapshotId(value); }
-  public static AppliedPromotionSnapshotId nullableOf(UUID raw) { return raw == null ? null : new AppliedPromotionSnapshotId(raw); }
+  public static AppliedPromotionSnapshotId of(UUID value) {
+    return new AppliedPromotionSnapshotId(value);
+  }
+
+  public static AppliedPromotionSnapshotId nullableOf(UUID raw) {
+    return raw == null ? null : new AppliedPromotionSnapshotId(raw);
+  }
+
   public static AppliedPromotionSnapshotId parse(String raw) {
-    if (raw == null || raw.isBlank()) throw new IllegalArgumentException("AppliedPromotionSnapshotId string is required");
+    if (raw == null || raw.isBlank())
+      throw new IllegalArgumentException("AppliedPromotionSnapshotId string is required");
     return new AppliedPromotionSnapshotId(UUID.fromString(raw));
   }
 }

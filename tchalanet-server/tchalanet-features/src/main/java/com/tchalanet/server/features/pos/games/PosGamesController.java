@@ -15,15 +15,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/tenant/cashier/games")
 @RequiredArgsConstructor
-@PreAuthorize("hasAuthority('ACTOR_SELLER_TERMINAL') or hasAnyRole('TENANT_OWNER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
+@PreAuthorize(
+    "hasAuthority('ACTOR_SELLER_TERMINAL') or hasAnyRole('TENANT_OWNER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
 @Tag(name = "Cashier • Games")
 public class PosGamesController {
 
-    private final PosGamesService service;
+  private final PosGamesService service;
 
-    @GetMapping("/available")
-    @Operation(summary = "List cashier game choices with seller-facing bet option labels")
-    public ApiResponse<List<PosGameOptionResponse>> available(@CurrentContext TchRequestContext ctx) {
-        return ApiResponse.success(service.listAvailable(ctx.tenantIdRequired()));
-    }
+  @GetMapping("/available")
+  @Operation(summary = "List cashier game choices with seller-facing bet option labels")
+  public ApiResponse<List<PosGameOptionResponse>> available(@CurrentContext TchRequestContext ctx) {
+    return ApiResponse.success(service.listAvailable(ctx.tenantIdRequired()));
+  }
 }

@@ -16,8 +16,8 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * Handles {@link GetCashierDashboardStatsQuery}.
  *
- * <p>Reads the SELLER-dimension row for today to provide KPIs to the cashier dashboard.
- * Returns zeroes if no projection row exists yet (first sale not yet processed).
+ * <p>Reads the SELLER-dimension row for today to provide KPIs to the cashier dashboard. Returns
+ * zeroes if no projection row exists yet (first sale not yet processed).
  */
 @UseCase
 @RequiredArgsConstructor
@@ -30,15 +30,18 @@ public class GetCashierDashboardStatsQueryHandler
   @Override
   public CashierDashboardStatsView handle(GetCashierDashboardStatsQuery query) {
     Optional<AnalyticsDailyEntity> row =
-        repo.findSellerTerminalRow(query.tenantId().value(), query.sellerId().value(), query.refDate());
+        repo.findSellerTerminalRow(
+            query.tenantId().value(), query.sellerId().value(), query.refDate());
 
-    CashierSummaryCard today = row
-        .map(r -> new CashierSummaryCard(
-            r.getTicketsSoldCount(),
-            fromCents(r.getGrossSalesCents()),
-            fromCents(r.getWinningsCalculatedCents()),
-            fromCents(r.getGrossSalesCents() - r.getWinningsCalculatedCents())))
-        .orElse(new CashierSummaryCard(0L, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO));
+    CashierSummaryCard today =
+        row.map(
+                r ->
+                    new CashierSummaryCard(
+                        r.getTicketsSoldCount(),
+                        fromCents(r.getGrossSalesCents()),
+                        fromCents(r.getWinningsCalculatedCents()),
+                        fromCents(r.getGrossSalesCents() - r.getWinningsCalculatedCents())))
+            .orElse(new CashierSummaryCard(0L, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO));
 
     return new CashierDashboardStatsView(query.refDate(), today, List.of());
   }

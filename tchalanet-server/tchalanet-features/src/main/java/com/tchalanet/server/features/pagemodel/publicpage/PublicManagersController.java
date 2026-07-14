@@ -11,9 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * Endpoint public (anonymous) pour la page gestionnaires (/public/managers).
- */
+/** Endpoint public (anonymous) pour la page gestionnaires (/public/managers). */
 @RestController
 @RequestMapping("/public/managers")
 @RequiredArgsConstructor

@@ -20,115 +20,122 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 class SalePreparationJpaAdapter implements SalePreparationStorePort {
 
-    private final SalePreparationRepository preparationRepository;
-    private final SalePreparationPromotionLineRepository lineRepository;
+  private final SalePreparationRepository preparationRepository;
+  private final SalePreparationPromotionLineRepository lineRepository;
 
-    @Override
-    public SalePreparation create(SalePreparation preparation) {
-        var entity = new SalePreparationJpaEntity();
-        entity.setId(preparation.id());
-        entity.setSellerTerminalId(preparation.sellerTerminalId().value());
-        entity.setDrawId(preparation.drawId());
-        entity.setStatus(preparation.status());
-        entity.setInputHash(preparation.inputHash());
-        entity.setPaidLinesJson(preparation.input());
-        entity.setPromotionDecisionId(preparation.promotionDecisionId());
-        entity.setExpiresAt(preparation.expiresAt());
-        var saved = preparationRepository.save(entity);
+  @Override
+  public SalePreparation create(SalePreparation preparation) {
+    var entity = new SalePreparationJpaEntity();
+    entity.setId(preparation.id());
+    entity.setSellerTerminalId(preparation.sellerTerminalId().value());
+    entity.setDrawId(preparation.drawId());
+    entity.setStatus(preparation.status());
+    entity.setInputHash(preparation.inputHash());
+    entity.setPaidLinesJson(preparation.input());
+    entity.setPromotionDecisionId(preparation.promotionDecisionId());
+    entity.setExpiresAt(preparation.expiresAt());
+    var saved = preparationRepository.save(entity);
 
-        for (var line : preparation.promotionLines()) {
-            var lineEntity = new SalePreparationPromotionLineJpaEntity();
-            lineEntity.setPreparationId(saved.getId());
-            lineEntity.setLineRef(line.lineRef());
-            lineEntity.setGameCode(line.gameCode());
-            lineEntity.setBetType(line.betType());
-            lineEntity.setBetOption(line.betOption());
-            lineEntity.setSelection(line.selection());
-            lineEntity.setSelectionSource(line.selectionSource());
-            lineEntity.setChoiceMode(line.choiceMode());
-            lineEntity.setPromotionDecisionId(line.promotionDecisionId());
-            lineEntity.setPromotionRuleId(line.promotionRuleId());
-            lineEntity.setPromotionRuleKey(line.promotionRuleKey());
-            lineEntity.setPromotionEffectType(line.promotionEffectType());
-            lineEntity.setPromotionDecisionContextHash(line.promotionDecisionContextHash());
-            lineEntity.setPromotionDecisionEngineVersion(line.promotionDecisionEngineVersion());
-            lineEntity.setRegenerable(line.regenerable());
-            lineEntity.setMaxRegenerations(line.maxRegenerations());
-            lineEntity.setRegenerationCount(line.regenerationCount());
-            lineRepository.save(lineEntity);
-        }
-        return findById(saved.getId()).orElseThrow();
+    for (var line : preparation.promotionLines()) {
+      var lineEntity = new SalePreparationPromotionLineJpaEntity();
+      lineEntity.setPreparationId(saved.getId());
+      lineEntity.setLineRef(line.lineRef());
+      lineEntity.setGameCode(line.gameCode());
+      lineEntity.setBetType(line.betType());
+      lineEntity.setBetOption(line.betOption());
+      lineEntity.setSelection(line.selection());
+      lineEntity.setSelectionSource(line.selectionSource());
+      lineEntity.setChoiceMode(line.choiceMode());
+      lineEntity.setPromotionDecisionId(line.promotionDecisionId());
+      lineEntity.setPromotionRuleId(line.promotionRuleId());
+      lineEntity.setPromotionRuleKey(line.promotionRuleKey());
+      lineEntity.setPromotionEffectType(line.promotionEffectType());
+      lineEntity.setPromotionDecisionContextHash(line.promotionDecisionContextHash());
+      lineEntity.setPromotionDecisionEngineVersion(line.promotionDecisionEngineVersion());
+      lineEntity.setRegenerable(line.regenerable());
+      lineEntity.setMaxRegenerations(line.maxRegenerations());
+      lineEntity.setRegenerationCount(line.regenerationCount());
+      lineRepository.save(lineEntity);
     }
+    return findById(saved.getId()).orElseThrow();
+  }
 
-    @Override
-    public Optional<SalePreparation> findById(UUID preparationId) {
-        return preparationRepository.findById(preparationId).map(this::toDomain);
-    }
+  @Override
+  public Optional<SalePreparation> findById(UUID preparationId) {
+    return preparationRepository.findById(preparationId).map(this::toDomain);
+  }
 
-    @Override
-    public void updateStatus(UUID preparationId, SalePreparationStatus status) {
-        var entity = getRequired(preparationId);
-        entity.setStatus(status);
-        preparationRepository.save(entity);
-    }
+  @Override
+  public void updateStatus(UUID preparationId, SalePreparationStatus status) {
+    var entity = getRequired(preparationId);
+    entity.setStatus(status);
+    preparationRepository.save(entity);
+  }
 
-    @Override
-    public void updateLineSelection(
-        UUID preparationId, String lineRef, String selection, int regenerationCount) {
-        var line = lineRepository.findByPreparationIdAndLineRef(preparationId, lineRef)
+  @Override
+  public void updateLineSelection(
+      UUID preparationId, String lineRef, String selection, int regenerationCount) {
+    var line =
+        lineRepository
+            .findByPreparationIdAndLineRef(preparationId, lineRef)
             .orElseThrow(() -> ProblemRest.notFound("sales.preparation.promotion_line_not_found"));
-        line.setSelection(selection);
-        line.setRegenerationCount(regenerationCount);
-        lineRepository.save(line);
-    }
+    line.setSelection(selection);
+    line.setRegenerationCount(regenerationCount);
+    lineRepository.save(line);
+  }
 
-    @Override
-    public void confirm(UUID preparationId, UUID ticketId, String idempotencyKey, Instant confirmedAt) {
-        var entity = getRequired(preparationId);
-        entity.setStatus(SalePreparationStatus.CONFIRMED);
-        entity.setTicketId(ticketId);
-        entity.setIdempotencyKey(idempotencyKey);
-        entity.setConfirmedAt(confirmedAt);
-        preparationRepository.save(entity);
-    }
+  @Override
+  public void confirm(
+      UUID preparationId, UUID ticketId, String idempotencyKey, Instant confirmedAt) {
+    var entity = getRequired(preparationId);
+    entity.setStatus(SalePreparationStatus.CONFIRMED);
+    entity.setTicketId(ticketId);
+    entity.setIdempotencyKey(idempotencyKey);
+    entity.setConfirmedAt(confirmedAt);
+    preparationRepository.save(entity);
+  }
 
-    private SalePreparationJpaEntity getRequired(UUID preparationId) {
-        return preparationRepository.findById(preparationId)
-            .orElseThrow(() -> ProblemRest.notFound("sales.preparation.not_found"));
-    }
+  private SalePreparationJpaEntity getRequired(UUID preparationId) {
+    return preparationRepository
+        .findById(preparationId)
+        .orElseThrow(() -> ProblemRest.notFound("sales.preparation.not_found"));
+  }
 
-    private SalePreparation toDomain(SalePreparationJpaEntity entity) {
-        var lines = lineRepository.findByPreparationIdOrderByLineRefAsc(entity.getId()).stream()
-            .map(l -> new SalePreparationPromotionLine(
-                l.getLineRef(),
-                l.getGameCode(),
-                l.getBetType(),
-                l.getBetOption(),
-                l.getSelection(),
-                l.getSelectionSource(),
-                l.getChoiceMode(),
-                l.getPromotionDecisionId(),
-                l.getPromotionRuleId(),
-                l.getPromotionRuleKey(),
-                l.getPromotionEffectType(),
-                l.getPromotionDecisionContextHash(),
-                l.getPromotionDecisionEngineVersion(),
-                l.isRegenerable(),
-                l.getMaxRegenerations(),
-                l.getRegenerationCount()))
+  private SalePreparation toDomain(SalePreparationJpaEntity entity) {
+    var lines =
+        lineRepository.findByPreparationIdOrderByLineRefAsc(entity.getId()).stream()
+            .map(
+                l ->
+                    new SalePreparationPromotionLine(
+                        l.getLineRef(),
+                        l.getGameCode(),
+                        l.getBetType(),
+                        l.getBetOption(),
+                        l.getSelection(),
+                        l.getSelectionSource(),
+                        l.getChoiceMode(),
+                        l.getPromotionDecisionId(),
+                        l.getPromotionRuleId(),
+                        l.getPromotionRuleKey(),
+                        l.getPromotionEffectType(),
+                        l.getPromotionDecisionContextHash(),
+                        l.getPromotionDecisionEngineVersion(),
+                        l.isRegenerable(),
+                        l.getMaxRegenerations(),
+                        l.getRegenerationCount()))
             .toList();
-        return new SalePreparation(
-            entity.getId(),
-            entity.getStatus(),
-            SellerTerminalId.of(entity.getSellerTerminalId()),
-            entity.getDrawId(),
-            entity.getInputHash(),
-            entity.getPaidLinesJson(),
-            entity.getPromotionDecisionId(),
-            entity.getIdempotencyKey(),
-            entity.getTicketId(),
-            entity.getExpiresAt(),
-            entity.getConfirmedAt(),
-            lines);
-    }
+    return new SalePreparation(
+        entity.getId(),
+        entity.getStatus(),
+        SellerTerminalId.of(entity.getSellerTerminalId()),
+        entity.getDrawId(),
+        entity.getInputHash(),
+        entity.getPaidLinesJson(),
+        entity.getPromotionDecisionId(),
+        entity.getIdempotencyKey(),
+        entity.getTicketId(),
+        entity.getExpiresAt(),
+        entity.getConfirmedAt(),
+        lines);
+  }
 }

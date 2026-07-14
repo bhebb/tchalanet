@@ -5,5 +5,5 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
 
 public interface TenantUserRoleWriterPort {
-    void setUserRole(TenantId tenantId, UserId userId, RoleId roleId);
+  void setUserRole(TenantId tenantId, UserId userId, RoleId roleId);
 }

@@ -1,8 +1,8 @@
 package com.tchalanet.server.platform.identity.api.model.view;
 
 import com.tchalanet.server.catalog.theme.api.ThemeMode;
-import com.tchalanet.server.platform.identity.api.model.UserStatus;
 import com.tchalanet.server.common.types.id.UserId;
+import com.tchalanet.server.platform.identity.api.model.UserStatus;
 
 public record UserProfileView(
     UserId id,

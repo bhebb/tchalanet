@@ -8,5 +8,4 @@ public record TenantBetTypeOptionConfigView(
     BetType betType,
     SelectionPolicy selectionPolicy,
     Short defaultOption,
-    List<TenantBetOptionView> options
-) {}
+    List<TenantBetOptionView> options) {}

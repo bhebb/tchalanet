@@ -10,7 +10,8 @@ import org.springframework.stereotype.Component;
 @Component
 final class LocalIdentityProductionGuard {
 
-  private static final Set<String> FORBIDDEN_PRODUCTION_PROVIDERS = Set.of("local-jwt", "local-perf", "keycloak");
+  private static final Set<String> FORBIDDEN_PRODUCTION_PROVIDERS =
+      Set.of("local-jwt", "local-perf", "keycloak");
 
   private final String provider;
   private final Environment environment;

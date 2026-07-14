@@ -9,11 +9,12 @@ import lombok.RequiredArgsConstructor;
 
 @UseCase
 @RequiredArgsConstructor
-public class GetPromotionCampaignQueryHandler implements QueryHandler<GetPromotionCampaignQuery, PromotionCampaignView> {
-    private final PromotionCampaignReadPort readPort;
+public class GetPromotionCampaignQueryHandler
+    implements QueryHandler<GetPromotionCampaignQuery, PromotionCampaignView> {
+  private final PromotionCampaignReadPort readPort;
 
-    @Override
-    public PromotionCampaignView handle(GetPromotionCampaignQuery query) {
-        return readPort.getRequired(query.campaignId());
-    }
+  @Override
+  public PromotionCampaignView handle(GetPromotionCampaignQuery query) {
+    return readPort.getRequired(query.campaignId());
+  }
 }

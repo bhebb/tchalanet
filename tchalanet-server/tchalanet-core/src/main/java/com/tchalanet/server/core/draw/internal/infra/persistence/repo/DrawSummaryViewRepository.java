@@ -12,17 +12,20 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Repository;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
 @Repository
 public interface DrawSummaryViewRepository
-    extends JpaRepository<DrawSummaryViewEntity, UUID>, JpaSpecificationExecutor<DrawSummaryViewEntity> {
+    extends JpaRepository<DrawSummaryViewEntity, UUID>,
+        JpaSpecificationExecutor<DrawSummaryViewEntity> {
 
-    Optional<DrawSummaryViewEntity> findByTenantIdAndDrawId(UUID tenantId, UUID drawId);
+  Optional<DrawSummaryViewEntity> findByTenantIdAndDrawId(UUID tenantId, UUID drawId);
 
-    // cast() forces typed CAST for nullable params — avoids PostgreSQL
-    // "could not determine data type of parameter $N" with Hibernate 6.
-    @Query("""
+  // cast() forces typed CAST for nullable params — avoids PostgreSQL
+  // "could not determine data type of parameter $N" with Hibernate 6.
+  @Query(
+      """
         select v
         from DrawSummaryViewEntity v
         where v.tenantId = :tenantId
@@ -31,16 +34,16 @@ public interface DrawSummaryViewRepository
           and (cast(:fromDate as java.time.LocalDate) is null or v.drawDate >= :fromDate)
           and (cast(:toDate as java.time.LocalDate) is null or v.drawDate <= :toDate)
         """)
-    Page<DrawSummaryViewEntity> search(
-        @Param("tenantId") UUID tenantId,
-        @Param("resultSlotId") UUID resultSlotId,
-        @Param("status") DrawStatus status,
-        @Param("fromDate") LocalDate fromDate,
-        @Param("toDate") LocalDate toDate,
-        Pageable pageable
-    );
+  Page<DrawSummaryViewEntity> search(
+      @Param("tenantId") UUID tenantId,
+      @Param("resultSlotId") UUID resultSlotId,
+      @Param("status") DrawStatus status,
+      @Param("fromDate") LocalDate fromDate,
+      @Param("toDate") LocalDate toDate,
+      Pageable pageable);
 
-    @Query("""
+  @Query(
+      """
         select v
         from DrawSummaryViewEntity v
         where v.tenantId = :tenantId
@@ -50,16 +53,16 @@ public interface DrawSummaryViewRepository
           and v.status in :statuses
         order by v.scheduledAt asc
         """)
-    Page<DrawSummaryViewEntity> next(
-        @Param("tenantId") UUID tenantId,
-        @Param("resultSlotId") UUID resultSlotId,
-        @Param("now") Instant now,
-        @Param("until") Instant until,
-        @Param("statuses") List<DrawStatus> statuses,
-        Pageable pageable
-    );
+  Page<DrawSummaryViewEntity> next(
+      @Param("tenantId") UUID tenantId,
+      @Param("resultSlotId") UUID resultSlotId,
+      @Param("now") Instant now,
+      @Param("until") Instant until,
+      @Param("statuses") List<DrawStatus> statuses,
+      Pageable pageable);
 
-    @Query("""
+  @Query(
+      """
         select v
         from DrawSummaryViewEntity v
         where v.tenantId = :tenantId
@@ -67,26 +70,25 @@ public interface DrawSummaryViewRepository
           and (:resultSlotKeysEmpty = true or v.resultSlotKey in :resultSlotKeys)
         order by v.resultedAt desc nulls last, v.scheduledAt desc
         """)
-    Page<DrawSummaryViewEntity> latestWithResults(
-        @Param("tenantId") UUID tenantId,
-        @Param("resultSlotKeys") List<String> resultSlotKeys,
-        @Param("resultSlotKeysEmpty") boolean resultSlotKeysEmpty,
-        Pageable pageable
-    );
+  Page<DrawSummaryViewEntity> latestWithResults(
+      @Param("tenantId") UUID tenantId,
+      @Param("resultSlotKeys") List<String> resultSlotKeys,
+      @Param("resultSlotKeysEmpty") boolean resultSlotKeysEmpty,
+      Pageable pageable);
 
-    @Query("""
+  @Query(
+      """
         select v
         from DrawSummaryViewEntity v
         where v.tenantId = :tenantId
           and v.drawResultId = :drawResultId
         order by v.scheduledAt asc
         """)
-    List<DrawSummaryViewEntity> findByTenantIdAndDrawResultId(
-        @Param("tenantId") UUID tenantId,
-        @Param("drawResultId") UUID drawResultId
-    );
+  List<DrawSummaryViewEntity> findByTenantIdAndDrawResultId(
+      @Param("tenantId") UUID tenantId, @Param("drawResultId") UUID drawResultId);
 
-    @Query("""
+  @Query(
+      """
         select v
         from DrawSummaryViewEntity v
         where v.tenantId = :tenantId
@@ -95,8 +97,6 @@ public interface DrawSummaryViewRepository
           and v.resultedAt < :threshold
         order by v.resultedAt asc
         """)
-    List<DrawSummaryViewEntity> findResultedProvisionalOlderThan(
-        @Param("tenantId") UUID tenantId,
-        @Param("threshold") Instant threshold
-    );
+  List<DrawSummaryViewEntity> findResultedProvisionalOlderThan(
+      @Param("tenantId") UUID tenantId, @Param("threshold") Instant threshold);
 }

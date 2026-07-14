@@ -1,17 +1,17 @@
 package com.tchalanet.server.catalog.drawchannel.internal.persistence;
 
-import tools.jackson.databind.JsonNode;
+import com.tchalanet.server.common.persistence.BaseTenantEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
 import jakarta.persistence.Index;
+import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
-import com.tchalanet.server.common.persistence.BaseTenantEntity;
+import tools.jackson.databind.JsonNode;
 
 @Entity
 @Table(
@@ -21,7 +21,7 @@ import com.tchalanet.server.common.persistence.BaseTenantEntity;
             name = "uq_draw_channel_game",
             columnNames = {"tenant_id", "draw_channel_id", "tenant_game_id"}),
     indexes = {
-      @Index(name = "ix_dcg_tenant_channel",     columnList = "tenant_id, draw_channel_id"),
+      @Index(name = "ix_dcg_tenant_channel", columnList = "tenant_id, draw_channel_id"),
       @Index(name = "ix_dcg_tenant_tenant_game", columnList = "tenant_id, tenant_game_id")
     })
 @Getter

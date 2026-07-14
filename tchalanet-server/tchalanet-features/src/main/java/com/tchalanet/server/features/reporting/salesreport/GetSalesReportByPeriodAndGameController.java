@@ -4,7 +4,6 @@ import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.features.reporting.ReportPeriodResolver;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.LocalDate;
@@ -33,11 +32,9 @@ public class GetSalesReportByPeriodAndGameController {
       @RequestParam(name = "to", required = false) LocalDate to,
       @RequestParam(name = "gameCode", required = false) String gameCode) {
     var period = periodResolver.resolve(from, to, ctx.tenantZoneId());
-    var criteria = new SalesReportCriteria(
-        ctx.tenantIdRequired().value(),
-        period.from(),
-        period.to(),
-        gameCode);
+    var criteria =
+        new SalesReportCriteria(
+            ctx.tenantIdRequired().value(), period.from(), period.to(), gameCode);
     return ApiResponse.success(service.getReport(criteria));
   }
 }

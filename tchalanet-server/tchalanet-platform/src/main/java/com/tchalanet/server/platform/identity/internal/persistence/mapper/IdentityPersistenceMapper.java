@@ -1,16 +1,16 @@
 package com.tchalanet.server.platform.identity.internal.persistence.mapper;
 
-import com.tchalanet.server.platform.identity.api.model.TenantUserStatus;
 import com.tchalanet.server.common.types.id.ExternalUserSubject;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
+import com.tchalanet.server.platform.identity.api.model.TenantUserStatus;
 import com.tchalanet.server.platform.identity.api.model.view.AppUserView;
-import com.tchalanet.server.platform.identity.internal.persistence.entity.AppUserJpaEntity;
-import com.tchalanet.server.platform.identity.internal.persistence.entity.TenantUserJpaEntity;
-import com.tchalanet.server.platform.identity.internal.persistence.entity.UserPreferenceJpaEntity;
 import com.tchalanet.server.platform.identity.internal.model.AppUser;
 import com.tchalanet.server.platform.identity.internal.model.TenantMembership;
 import com.tchalanet.server.platform.identity.internal.model.UserPreference;
+import com.tchalanet.server.platform.identity.internal.persistence.entity.AppUserJpaEntity;
+import com.tchalanet.server.platform.identity.internal.persistence.entity.TenantUserJpaEntity;
+import com.tchalanet.server.platform.identity.internal.persistence.entity.UserPreferenceJpaEntity;
 
 public final class IdentityPersistenceMapper {
 

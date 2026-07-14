@@ -11,16 +11,15 @@ import org.springframework.stereotype.Component;
 /**
  * Reads aggregated tenant KPIs from the {@code analytics_daily} projection tables.
  *
- * <p>Active outlets and active cashiers are computed by counting distinct
- * OUTLET and SELLER dimension rows in the period — a proxy for "did this entity sell anything".
+ * <p>Active outlets and active cashiers are computed by counting distinct OUTLET and SELLER
+ * dimension rows in the period — a proxy for "did this entity sell anything".
  *
  * <p>Architecture: only reads from analytics_daily — owned by core.analytics.
  */
 @Component
 public class TenantKpisAnalyticsReader {
 
-  @PersistenceContext
-  private EntityManager em;
+  @PersistenceContext private EntityManager em;
 
   public TenantKpisView computeTenantKpis(UUID tenantId, LocalDate fromDate, LocalDate toDate) {
     String summarySql =
@@ -36,15 +35,17 @@ public class TenantKpisAnalyticsReader {
           AND ref_date BETWEEN :fromDate AND :toDate
         """;
 
-    Object[] summary = (Object[]) em.createNativeQuery(summarySql)
-        .setParameter("tenantId", tenantId)
-        .setParameter("fromDate", fromDate)
-        .setParameter("toDate", toDate)
-        .getSingleResult();
+    Object[] summary =
+        (Object[])
+            em.createNativeQuery(summarySql)
+                .setParameter("tenantId", tenantId)
+                .setParameter("fromDate", fromDate)
+                .setParameter("toDate", toDate)
+                .getSingleResult();
 
-    long ticketsSold      = ((Number) summary[0]).longValue();
+    long ticketsSold = ((Number) summary[0]).longValue();
     BigDecimal totalSales = fromCents(((Number) summary[1]).longValue());
-    BigDecimal totalPayout= fromCents(((Number) summary[2]).longValue());
+    BigDecimal totalPayout = fromCents(((Number) summary[2]).longValue());
     BigDecimal netRevenue = fromCents(((Number) summary[3]).longValue());
 
     // Active outlets = distinct OUTLET dimension rows with at least 1 ticket sold
@@ -57,11 +58,14 @@ public class TenantKpisAnalyticsReader {
           AND ref_date BETWEEN :fromDate AND :toDate
           AND tickets_sold_count > 0
         """;
-    long activeOutlets = ((Number) em.createNativeQuery(outletSql)
-        .setParameter("tenantId", tenantId)
-        .setParameter("fromDate", fromDate)
-        .setParameter("toDate", toDate)
-        .getSingleResult()).longValue();
+    long activeOutlets =
+        ((Number)
+                em.createNativeQuery(outletSql)
+                    .setParameter("tenantId", tenantId)
+                    .setParameter("fromDate", fromDate)
+                    .setParameter("toDate", toDate)
+                    .getSingleResult())
+            .longValue();
 
     // Active cashiers = distinct SELLER dimension rows with at least 1 ticket sold
     String sellerSql =
@@ -73,14 +77,17 @@ public class TenantKpisAnalyticsReader {
           AND ref_date BETWEEN :fromDate AND :toDate
           AND tickets_sold_count > 0
         """;
-    long activeCashiers = ((Number) em.createNativeQuery(sellerSql)
-        .setParameter("tenantId", tenantId)
-        .setParameter("fromDate", fromDate)
-        .setParameter("toDate", toDate)
-        .getSingleResult()).longValue();
+    long activeCashiers =
+        ((Number)
+                em.createNativeQuery(sellerSql)
+                    .setParameter("tenantId", tenantId)
+                    .setParameter("fromDate", fromDate)
+                    .setParameter("toDate", toDate)
+                    .getSingleResult())
+            .longValue();
 
-    return new TenantKpisView(ticketsSold, totalSales, totalPayout, netRevenue,
-        activeOutlets, activeCashiers);
+    return new TenantKpisView(
+        ticketsSold, totalSales, totalPayout, netRevenue, activeOutlets, activeCashiers);
   }
 
   private static BigDecimal fromCents(long cents) {

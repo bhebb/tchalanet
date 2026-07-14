@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component;
 /**
  * Micrometer metrics for the archive system.
  *
- * <p>All counters and timers are eagerly registered at construction time so they appear
- * in the metrics endpoint with zero values even before the first archive run.
+ * <p>All counters and timers are eagerly registered at construction time so they appear in the
+ * metrics endpoint with zero values even before the first archive run.
  */
 @Component
 public class ArchiveMetrics {
@@ -33,27 +33,32 @@ public class ArchiveMetrics {
   public ArchiveMetrics(MeterRegistry registry) {
     this.registry = registry;
 
-    runsCompleted = Counter.builder("archive.runs.total")
-        .tag("status", "COMPLETED")
-        .description("Total archive runs completed successfully")
-        .register(registry);
+    runsCompleted =
+        Counter.builder("archive.runs.total")
+            .tag("status", "COMPLETED")
+            .description("Total archive runs completed successfully")
+            .register(registry);
 
-    runsFailed = Counter.builder("archive.runs.total")
-        .tag("status", "FAILED")
-        .description("Total archive runs that failed")
-        .register(registry);
+    runsFailed =
+        Counter.builder("archive.runs.total")
+            .tag("status", "FAILED")
+            .description("Total archive runs that failed")
+            .register(registry);
 
-    runDuration = Timer.builder("archive.run.duration")
-        .description("Duration of an archive run")
-        .register(registry);
+    runDuration =
+        Timer.builder("archive.run.duration")
+            .description("Duration of an archive run")
+            .register(registry);
 
-    lookupFallbacks = Counter.builder("archive.lookup.fallback.total")
-        .description("Times archive lookup was used because entity not found in hot table")
-        .register(registry);
+    lookupFallbacks =
+        Counter.builder("archive.lookup.fallback.total")
+            .description("Times archive lookup was used because entity not found in hot table")
+            .register(registry);
 
-    objectReadErrors = Counter.builder("archive.object.read.errors.total")
-        .description("Errors reading archive objects from storage")
-        .register(registry);
+    objectReadErrors =
+        Counter.builder("archive.object.read.errors.total")
+            .description("Errors reading archive objects from storage")
+            .register(registry);
   }
 
   // ── Recording methods ───────────────────────────────────────────────────────

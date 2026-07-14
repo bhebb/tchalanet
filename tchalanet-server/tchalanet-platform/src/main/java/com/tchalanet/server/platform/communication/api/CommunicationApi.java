@@ -6,7 +6,7 @@ import com.tchalanet.server.platform.communication.api.model.value.MessageId;
 
 public interface CommunicationApi {
 
-    MessageId enqueue(SendOutboundMessageRequest request);
+  MessageId enqueue(SendOutboundMessageRequest request);
 
-    SendOutboundMessageResult sendNow(SendOutboundMessageRequest request);
+  SendOutboundMessageResult sendNow(SendOutboundMessageRequest request);
 }

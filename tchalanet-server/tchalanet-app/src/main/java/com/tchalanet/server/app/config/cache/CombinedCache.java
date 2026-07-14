@@ -48,7 +48,8 @@ public class CombinedCache implements Cache {
         return rv;
       }
     }
-    // Miss on both tiers: the caller (@Cacheable) will now invoke the underlying method (DB / provider).
+    // Miss on both tiers: the caller (@Cacheable) will now invoke the underlying method (DB /
+    // provider).
     if (log.isDebugEnabled()) log.debug("cache-miss source=DB cache={} key={}", name, key);
     return null;
   }
@@ -62,8 +63,14 @@ public class CombinedCache implements Cache {
     Object val = v.get();
     if (val != null && type != null && !type.isInstance(val)) {
       throw new IllegalStateException(
-          "Cached value for key [" + key + "] in cache '" + name
-              + "' is not of required type [" + type.getName() + "]: " + val.getClass().getName());
+          "Cached value for key ["
+              + key
+              + "] in cache '"
+              + name
+              + "' is not of required type ["
+              + type.getName()
+              + "]: "
+              + val.getClass().getName());
     }
     return (T) val;
   }

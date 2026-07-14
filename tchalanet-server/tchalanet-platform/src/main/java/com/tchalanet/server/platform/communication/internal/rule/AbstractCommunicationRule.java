@@ -6,7 +6,8 @@ import java.util.Map;
 
 abstract class AbstractCommunicationRule<T> implements CommunicationRule<T> {
 
-  protected Map<String, Object> metadata(String templateKey, String correlationKey, String title, String message) {
+  protected Map<String, Object> metadata(
+      String templateKey, String correlationKey, String title, String message) {
     var metadata = new LinkedHashMap<String, Object>();
     metadata.put("templateKey", templateKey);
     metadata.put("correlationKey", correlationKey);

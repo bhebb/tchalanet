@@ -1,7 +1,6 @@
 package com.tchalanet.server.core.limitpolicy.api.query;
 
 import com.tchalanet.server.catalog.game.api.model.BetType;
-
 import java.math.BigDecimal;
 
 public record ExposureAlertItemView(
@@ -10,5 +9,4 @@ public record ExposureAlertItemView(
     BigDecimal stakeTotal,
     long salesCount,
     BigDecimal maxStakeExposureLimit,
-    BigDecimal stakeRatio
-) {}
+    BigDecimal stakeRatio) {}

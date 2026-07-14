@@ -18,15 +18,23 @@ public class SalesReportService {
     TenantId tenantId = criteria.tenantId() != null ? TenantId.of(criteria.tenantId()) : null;
 
     List<com.tchalanet.server.core.analytics.api.model.SalesReportLine> analyticsLines =
-        queryBus.ask(new GetSalesReportQuery(
-            tenantId, criteria.fromDate(), criteria.toDate(), criteria.gameCode()));
+        queryBus.ask(
+            new GetSalesReportQuery(
+                tenantId, criteria.fromDate(), criteria.toDate(), criteria.gameCode()));
 
     // Map from core.analytics model to local features.reporting model
-    List<SalesReportLine> lines = analyticsLines.stream()
-        .map(l -> new SalesReportLine(
-            l.date(), l.gameCode(), l.ticketsSold(),
-            l.totalSales(), l.totalPayout(), l.netRevenue()))
-        .toList();
+    List<SalesReportLine> lines =
+        analyticsLines.stream()
+            .map(
+                l ->
+                    new SalesReportLine(
+                        l.date(),
+                        l.gameCode(),
+                        l.ticketsSold(),
+                        l.totalSales(),
+                        l.totalPayout(),
+                        l.netRevenue()))
+            .toList();
 
     return new SalesReportResponse(
         criteria.fromDate(), criteria.toDate(), criteria.gameCode(), lines);

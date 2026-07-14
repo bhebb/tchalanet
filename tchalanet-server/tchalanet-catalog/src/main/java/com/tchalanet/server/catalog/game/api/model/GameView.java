@@ -4,9 +4,8 @@ import com.tchalanet.server.common.types.id.GameId;
 import java.time.Instant;
 
 /**
- * Immutable view for Game catalog (reference data).
- * Maps to spec requirement G4 (mapping boundaries).
- * Exposed by GameCatalog API (catalog/game/api).
+ * Immutable view for Game catalog (reference data). Maps to spec requirement G4 (mapping
+ * boundaries). Exposed by GameCatalog API (catalog/game/api).
  */
 public record GameView(
     GameId id,
@@ -20,5 +19,4 @@ public record GameView(
     boolean active,
     int sortOrder,
     Instant createdAt,
-    Instant updatedAt
-) {}
+    Instant updatedAt) {}

@@ -12,11 +12,11 @@ import lombok.RequiredArgsConstructor;
 public class ListDrawTopSelectionsQueryHandler
     implements QueryHandler<ListDrawTopSelectionsQuery, DrawTopSelectionsView> {
 
-    private final CashierTicketDashboardReaderPort reader;
+  private final CashierTicketDashboardReaderPort reader;
 
-    @Override
-    public DrawTopSelectionsView handle(ListDrawTopSelectionsQuery query) {
-        int limit = Math.min(Math.max(query.limit(), 1), 10);
-        return reader.findTopSelectionsByDraw(query.tenantId(), query.drawId(), limit);
-    }
+  @Override
+  public DrawTopSelectionsView handle(ListDrawTopSelectionsQuery query) {
+    int limit = Math.min(Math.max(query.limit(), 1), 10);
+    return reader.findTopSelectionsByDraw(query.tenantId(), query.drawId(), limit);
+  }
 }

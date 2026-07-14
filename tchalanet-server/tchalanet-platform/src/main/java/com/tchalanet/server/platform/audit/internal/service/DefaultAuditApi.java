@@ -1,7 +1,7 @@
 package com.tchalanet.server.platform.audit.internal.service;
 
-import com.tchalanet.server.common.context.TchContextScope;
 import com.tchalanet.server.common.context.TchContextResolver;
+import com.tchalanet.server.common.context.TchContextScope;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.platform.audit.api.AuditApi;
 import com.tchalanet.server.platform.audit.api.model.AuditEventView;
@@ -47,7 +47,8 @@ public class DefaultAuditApi implements AuditApi {
             () -> auditService.logAuditEvent(request));
         return;
       }
-      TchContextScope.runWithTemporaryTenant(request.tenantId(), "audit", () -> auditService.logAuditEvent(request));
+      TchContextScope.runWithTemporaryTenant(
+          request.tenantId(), "audit", () -> auditService.logAuditEvent(request));
       return;
     }
     auditService.logAuditEvent(request);

@@ -13,12 +13,9 @@ public interface AnalyticsSellerTerminalDrawRepository
     extends JpaRepository<AnalyticsSellerTerminalDrawEntity, UUID> {
 
   Optional<AnalyticsSellerTerminalDrawEntity> findByTenantIdAndSellerTerminalIdAndDrawId(
-      UUID tenantId,
-      UUID sellerTerminalId,
-      UUID drawId);
+      UUID tenantId, UUID sellerTerminalId, UUID drawId);
 
-  List<AnalyticsSellerTerminalDrawEntity> findByTenantIdAndRefDateBetweenOrderByRefDateDescUpdatedAtDesc(
-      UUID tenantId,
-      LocalDate from,
-      LocalDate to);
+  List<AnalyticsSellerTerminalDrawEntity>
+      findByTenantIdAndRefDateBetweenOrderByRefDateDescUpdatedAtDesc(
+          UUID tenantId, LocalDate from, LocalDate to);
 }

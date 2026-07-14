@@ -4,32 +4,28 @@ import com.tchalanet.server.core.drawresult.api.command.FetchExternalResultsWind
 
 public final class FetchCounters {
 
-    public int inserted;
-    public int updated;
-    public int skipped;
-    public int alreadyFetched;
-    public int skippedConfirmed;
-    public int skippedOverridden;
-    public int slotNotFound;
-    public int slotInactive;
-    public int noExternalResult;
-    public int errors;
-    public int dryRunMatched;
+  public int inserted;
+  public int updated;
+  public int skipped;
+  public int alreadyFetched;
+  public int skippedConfirmed;
+  public int skippedOverridden;
+  public int slotNotFound;
+  public int slotInactive;
+  public int noExternalResult;
+  public int errors;
+  public int dryRunMatched;
 
-    public int notFoundTotal() {
-        return slotNotFound + slotInactive + noExternalResult;
-    }
+  public int notFoundTotal() {
+    return slotNotFound + slotInactive + noExternalResult;
+  }
 
-    public int skippedTotal() {
-        return skipped + alreadyFetched + dryRunMatched + skippedConfirmed + skippedOverridden;
-    }
+  public int skippedTotal() {
+    return skipped + alreadyFetched + dryRunMatched + skippedConfirmed + skippedOverridden;
+  }
 
-    public FetchExternalResultsWindowResult toResult() {
-        return new FetchExternalResultsWindowResult(
-            inserted,
-            updated,
-            errors,
-            skippedTotal(),
-            notFoundTotal());
-    }
+  public FetchExternalResultsWindowResult toResult() {
+    return new FetchExternalResultsWindowResult(
+        inserted, updated, errors, skippedTotal(), notFoundTotal());
+  }
 }

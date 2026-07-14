@@ -3,10 +3,7 @@ package com.tchalanet.server.platform.identity.api;
 import java.util.Objects;
 
 public record ProvisionedExternalUser(
-    IdentityProviderType provider,
-    String issuer,
-    String externalSubject,
-    boolean created) {
+    IdentityProviderType provider, String issuer, String externalSubject, boolean created) {
 
   public ProvisionedExternalUser {
     Objects.requireNonNull(provider, "provider is required");
@@ -21,4 +18,3 @@ public record ProvisionedExternalUser(
     return value;
   }
 }
-

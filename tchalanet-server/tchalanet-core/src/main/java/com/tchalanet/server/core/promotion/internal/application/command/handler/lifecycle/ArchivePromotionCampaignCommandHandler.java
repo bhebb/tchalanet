@@ -15,24 +15,24 @@ import lombok.RequiredArgsConstructor;
 
 @UseCase
 @RequiredArgsConstructor
-public class ArchivePromotionCampaignCommandHandler implements CommandHandler<ArchivePromotionCampaignCommand, PromotionCampaignView> {
+public class ArchivePromotionCampaignCommandHandler
+    implements CommandHandler<ArchivePromotionCampaignCommand, PromotionCampaignView> {
 
-    private final PromotionCampaignReadPort readerPort;
-    private final PromotionCampaignWritePort writePort;
-    private final PromotionCampaignStateMachine stateMachine;
-    private final PromotionCacheEvictorPort cacheEvictor;
+  private final PromotionCampaignReadPort readerPort;
+  private final PromotionCampaignWritePort writePort;
+  private final PromotionCampaignStateMachine stateMachine;
+  private final PromotionCacheEvictorPort cacheEvictor;
 
-    @Override
-    @TchTx
-    public PromotionCampaignView handle(ArchivePromotionCampaignCommand cmd) {
-        var campaign = readerPort.getRequired(cmd.campaignId());
+  @Override
+  @TchTx
+  public PromotionCampaignView handle(ArchivePromotionCampaignCommand cmd) {
+    var campaign = readerPort.getRequired(cmd.campaignId());
 
-        var nextStatus = stateMachine.apply(campaign.status(), PromotionCampaignTransition.ARCHIVE);
+    var nextStatus = stateMachine.apply(campaign.status(), PromotionCampaignTransition.ARCHIVE);
 
-        var out = writePort.changeStatus(cmd.tenantId(), cmd.campaignId(), nextStatus);
-        AfterCommit.run(() -> cacheEvictor.evictAfterCampaignMutation(cmd.tenantId(), cmd.campaignId()));
-        return out;
-    }
+    var out = writePort.changeStatus(cmd.tenantId(), cmd.campaignId(), nextStatus);
+    AfterCommit.run(
+        () -> cacheEvictor.evictAfterCampaignMutation(cmd.tenantId(), cmd.campaignId()));
+    return out;
+  }
 }
-
-

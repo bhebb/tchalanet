@@ -2,7 +2,6 @@ package com.tchalanet.server.features.tenantadmin.policies;
 
 import com.tchalanet.server.core.limitpolicy.api.query.LimitRuleSpec;
 import com.tchalanet.server.core.limitpolicy.api.query.ListLimitAssignmentsView;
-
 import java.util.List;
 
 public record TenantAdminPoliciesOverviewView(
@@ -10,8 +9,7 @@ public record TenantAdminPoliciesOverviewView(
     List<ScopeCard> scopeCards,
     List<ActionLink> actionLinks,
     List<Alert> alerts,
-    List<GlobalRule> globalRules
-) {
+    List<GlobalRule> globalRules) {
 
   public record Summary(
       int activeRules,
@@ -19,8 +17,7 @@ public record TenantAdminPoliciesOverviewView(
       int sellerOverrides,
       int channelOverrides,
       int numberRules,
-      int warnings
-  ) {}
+      int warnings) {}
 
   public record ScopeCard(
       String id,
@@ -30,24 +27,12 @@ public record TenantAdminPoliciesOverviewView(
       String metric,
       String status,
       String route,
-      String cta
-  ) {}
+      String cta) {}
 
   public record ActionLink(
-      String id,
-      String icon,
-      String label,
-      String description,
-      String route
-  ) {}
+      String id, String icon, String label, String description, String route) {}
 
-  public record Alert(
-      String severity,
-      String message
-  ) {}
+  public record Alert(String severity, String message) {}
 
-  public record GlobalRule(
-      LimitRuleSpec spec,
-      ListLimitAssignmentsView.Item assignment
-  ) {}
+  public record GlobalRule(LimitRuleSpec spec, ListLimitAssignmentsView.Item assignment) {}
 }

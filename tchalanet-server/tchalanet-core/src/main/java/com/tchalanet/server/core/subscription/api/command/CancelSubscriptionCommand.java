@@ -5,11 +5,9 @@ import com.tchalanet.server.common.types.id.TenantId;
 import jakarta.validation.constraints.NotNull;
 
 /**
- * Command to cancel a tenant subscription.
- * Maps to SUBSCRIPTION_COMMANDS.md (CancelSubscriptionCommand).
+ * Command to cancel a tenant subscription. Maps to SUBSCRIPTION_COMMANDS.md
+ * (CancelSubscriptionCommand).
  */
 public record CancelSubscriptionCommand(
-    @NotNull TenantId tenantId,
-    String reason,
-    String idempotencyKey
-) implements Command<CancelSubscriptionResult> {}
+    @NotNull TenantId tenantId, String reason, String idempotencyKey)
+    implements Command<CancelSubscriptionResult> {}

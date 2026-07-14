@@ -6,5 +6,5 @@ import java.util.Optional;
 
 public interface TenantPlanSnapshotProvider {
 
-    Optional<TenantPlanSnapshot> findCurrentPlan(TenantId tenantId);
+  Optional<TenantPlanSnapshot> findCurrentPlan(TenantId tenantId);
 }

@@ -4,8 +4,8 @@ import com.tchalanet.server.catalog.settings.api.SettingsCatalog;
 import com.tchalanet.server.catalog.settings.api.model.SearchSettingsAdminCriteria;
 import com.tchalanet.server.catalog.settings.api.model.SettingExposure;
 import com.tchalanet.server.catalog.settings.api.model.SettingLevel;
-import com.tchalanet.server.catalog.settings.api.model.SettingsCatalogStatsView;
 import com.tchalanet.server.catalog.settings.api.model.SettingView;
+import com.tchalanet.server.catalog.settings.api.model.SettingsCatalogStatsView;
 import com.tchalanet.server.catalog.settings.internal.web.model.CreateSettingRequest;
 import com.tchalanet.server.catalog.settings.internal.web.model.UpdateSettingRequest;
 import com.tchalanet.server.catalog.settings.internal.write.SettingsAdminService;
@@ -27,8 +27,8 @@ import org.springframework.web.bind.annotation.*;
 /**
  * Platform Settings Admin Controller
  *
- * <p>Uses {@link SearchSettingsAdminCriteria} from api/ to avoid coupling controller
- * to internal web models.
+ * <p>Uses {@link SearchSettingsAdminCriteria} from api/ to avoid coupling controller to internal
+ * web models.
  */
 @RestController
 @RequestMapping("/platform/settings")
@@ -50,15 +50,16 @@ public class PlatformSettingsController {
       @RequestParam(required = false) UUID tenantId,
       @RequestParam(required = false) Boolean active,
       @TchPaging(allowedSort = {"namespace", "settingKey", "level", "exposure", "active"})
-      TchPageRequest pageRequest) {
+          TchPageRequest pageRequest) {
 
-    var criteria = new SearchSettingsAdminCriteria(
-        namespace,
-        settingKey,
-        level,
-        exposure,
-        tenantId != null ? TenantId.of(tenantId) : null,
-        active);
+    var criteria =
+        new SearchSettingsAdminCriteria(
+            namespace,
+            settingKey,
+            level,
+            exposure,
+            tenantId != null ? TenantId.of(tenantId) : null,
+            active);
 
     return ApiResponse.success(adminService.search(criteria, pageRequest));
   }

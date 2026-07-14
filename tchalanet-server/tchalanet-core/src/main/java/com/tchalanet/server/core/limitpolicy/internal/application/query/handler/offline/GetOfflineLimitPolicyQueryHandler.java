@@ -13,10 +13,10 @@ import lombok.RequiredArgsConstructor;
 
 /**
  * Resolves the offline policy for a tenant:
+ *
  * <ol>
- *   <li>Look up the {@code tenant_offline_policy} row for this tenant.</li>
- *   <li>If none, fall back to the global defaults from
- *       {@link OfflineLimitPolicyProperties}.</li>
+ *   <li>Look up the {@code tenant_offline_policy} row for this tenant.
+ *   <li>If none, fall back to the global defaults from {@link OfflineLimitPolicyProperties}.
  * </ol>
  */
 @UseCase
@@ -24,25 +24,23 @@ import lombok.RequiredArgsConstructor;
 public class GetOfflineLimitPolicyQueryHandler
     implements QueryHandler<GetOfflineLimitPolicyQuery, OfflineLimitPolicy> {
 
-    private final TenantOfflinePolicyReaderPort tenantPolicyReader;
-    private final OfflineLimitPolicyProperties rawProperties;
+  private final TenantOfflinePolicyReaderPort tenantPolicyReader;
+  private final OfflineLimitPolicyProperties rawProperties;
 
-    @Override
-    @TchTx(readOnly = true)
-    public OfflineLimitPolicy handle(GetOfflineLimitPolicyQuery query) {
-        return tenantPolicyReader.findByTenantId(query.tenantId())
-            .orElseGet(this::globalDefault);
-    }
+  @Override
+  @TchTx(readOnly = true)
+  public OfflineLimitPolicy handle(GetOfflineLimitPolicyQuery query) {
+    return tenantPolicyReader.findByTenantId(query.tenantId()).orElseGet(this::globalDefault);
+  }
 
-    private OfflineLimitPolicy globalDefault() {
-        var p = rawProperties.withDefaults();
-        return new OfflineLimitPolicy(
-            p.enabled(),
-            p.batchSize(),
-            p.validityDuration(),
-            p.syncAcceptedExtension(),
-            p.maxTicketCount(),
-            new Money(p.maxTotalAmount(), CurrencyCode.of(p.currency()))
-        );
-    }
+  private OfflineLimitPolicy globalDefault() {
+    var p = rawProperties.withDefaults();
+    return new OfflineLimitPolicy(
+        p.enabled(),
+        p.batchSize(),
+        p.validityDuration(),
+        p.syncAcceptedExtension(),
+        p.maxTicketCount(),
+        new Money(p.maxTotalAmount(), CurrencyCode.of(p.currency())));
+  }
 }

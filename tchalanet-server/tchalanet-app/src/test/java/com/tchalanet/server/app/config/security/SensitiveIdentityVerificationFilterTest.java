@@ -1,5 +1,13 @@
 package com.tchalanet.server.app.config.security;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.tchalanet.server.platform.identity.api.ExternalAuthenticatedUser;
 import com.tchalanet.server.platform.identity.api.IdentityProviderApi;
 import com.tchalanet.server.platform.identity.api.IdentityProviderException;
@@ -17,14 +25,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 class SensitiveIdentityVerificationFilterTest {
 
@@ -44,9 +44,8 @@ class SensitiveIdentityVerificationFilterTest {
     var externalUser =
         new ExternalAuthenticatedUser(
             IdentityProviderType.FIREBASE, "issuer", "subject", null, false, Map.of());
-    when(
-            identityProviderApi.mapVerifiedToken(
-                any(VerifiedExternalToken.class), eq(IdentityVerificationPolicy.SENSITIVE)))
+    when(identityProviderApi.mapVerifiedToken(
+            any(VerifiedExternalToken.class), eq(IdentityVerificationPolicy.SENSITIVE)))
         .thenReturn(externalUser);
     SecurityContextHolder.getContext().setAuthentication(authentication);
     var chain = new MockFilterChain();
@@ -57,7 +56,8 @@ class SensitiveIdentityVerificationFilterTest {
         chain);
 
     verify(identityProviderApi)
-        .mapVerifiedToken(any(VerifiedExternalToken.class), eq(IdentityVerificationPolicy.SENSITIVE));
+        .mapVerifiedToken(
+            any(VerifiedExternalToken.class), eq(IdentityVerificationPolicy.SENSITIVE));
     assertThat(authentication.getDetails()).isEqualTo(externalUser);
     assertThat(chain.getRequest()).isNotNull();
   }
@@ -78,9 +78,8 @@ class SensitiveIdentityVerificationFilterTest {
 
   @Test
   void failsClosedBeforeHandlerWhenSensitiveVerificationFails() throws Exception {
-    when(
-            identityProviderApi.mapVerifiedToken(
-                any(VerifiedExternalToken.class), eq(IdentityVerificationPolicy.SENSITIVE)))
+    when(identityProviderApi.mapVerifiedToken(
+            any(VerifiedExternalToken.class), eq(IdentityVerificationPolicy.SENSITIVE)))
         .thenThrow(new IdentityProviderException("revoked", "Token revoked", null));
     SecurityContextHolder.getContext().setAuthentication(authentication());
     var chain = new MockFilterChain();

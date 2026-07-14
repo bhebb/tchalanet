@@ -13,26 +13,25 @@ import com.tchalanet.server.core.sales.api.model.view.TicketForDrawSettlementVie
 import com.tchalanet.server.core.sales.api.model.view.TicketForPayoutView;
 import com.tchalanet.server.core.sales.api.model.view.TicketRow;
 import com.tchalanet.server.core.sales.api.query.ListTicketsQuery;
-
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
 public interface TicketProjectionReaderPort {
-    TicketDetailsView getDetailsById(TicketId ticketId);
+  TicketDetailsView getDetailsById(TicketId ticketId);
 
-    TicketPrintView getPrintViewById(TicketId ticketId);
+  TicketPrintView getPrintViewById(TicketId ticketId);
 
-    TicketForPayoutView getForPayoutById(TicketId ticketId);
+  TicketForPayoutView getForPayoutById(TicketId ticketId);
 
-    List<TicketForDrawSettlementView> findForDrawSettlement(DrawId drawId);
+  List<TicketForDrawSettlementView> findForDrawSettlement(DrawId drawId);
 
-    TchPage<TicketRow> list(ListTicketsQuery query);
+  TchPage<TicketRow> list(ListTicketsQuery query);
 
-    Optional<TicketPrintView> findPrintView(TicketId ticketId);
+  Optional<TicketPrintView> findPrintView(TicketId ticketId);
 
-    SellerTerminalDailyStatsView dailyStatsBySellerTerminal(
-        SellerTerminalId sellerTerminalId, TenantId tenantId, Instant from, Instant to);
+  SellerTerminalDailyStatsView dailyStatsBySellerTerminal(
+      SellerTerminalId sellerTerminalId, TenantId tenantId, Instant from, Instant to);
 
-    TenantDailySalesStatsView dailyStatsByTenant(TenantId tenantId, Instant from, Instant to);
+  TenantDailySalesStatsView dailyStatsByTenant(TenantId tenantId, Instant from, Instant to);
 }

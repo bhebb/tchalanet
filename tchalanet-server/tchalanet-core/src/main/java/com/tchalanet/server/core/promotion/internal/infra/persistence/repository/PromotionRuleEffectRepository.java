@@ -6,10 +6,11 @@ import java.util.List;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface PromotionRuleEffectRepository extends JpaRepository<PromotionRuleEffectJpaEntity, UUID> {
-    List<PromotionRuleEffectJpaEntity> findByRuleIdOrderByIdAsc(UUID ruleId);
+public interface PromotionRuleEffectRepository
+    extends JpaRepository<PromotionRuleEffectJpaEntity, UUID> {
+  List<PromotionRuleEffectJpaEntity> findByRuleIdOrderByIdAsc(UUID ruleId);
 
-    List<PromotionRuleEffectJpaEntity> findByRuleIdIn(Collection<UUID> ruleIds);
+  List<PromotionRuleEffectJpaEntity> findByRuleIdIn(Collection<UUID> ruleIds);
 
-    void deleteByRuleId(UUID ruleId);
+  void deleteByRuleId(UUID ruleId);
 }

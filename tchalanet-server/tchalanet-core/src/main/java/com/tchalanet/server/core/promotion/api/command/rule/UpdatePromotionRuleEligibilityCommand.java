@@ -15,6 +15,5 @@ public record UpdatePromotionRuleEligibilityCommand(
     @NotNull TenantId tenantId,
     @NotNull PromotionCampaignId campaignId,
     @NotNull PromotionRuleId ruleId,
-    @NotEmpty List<@Valid PromotionEligibilityConfigInput> items
-) implements Command<PromotionCampaignView> {}
-
+    @NotEmpty List<@Valid PromotionEligibilityConfigInput> items)
+    implements Command<PromotionCampaignView> {}

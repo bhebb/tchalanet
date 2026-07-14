@@ -25,4 +25,3 @@ public class GetPublicDrawResultDetailByIdQueryHandler
                     "Public draw result not found with id=" + query.id()));
   }
 }
-

@@ -31,9 +31,7 @@ public class PublicDrawResultViewMapper {
     if (limit != null && limit > 0) {
       stream = stream.limit(limit);
     }
-    return new PublicDrawResultLatestResponse(
-        stream.map(this::toLatestItem).toList(),
-        serverNow);
+    return new PublicDrawResultLatestResponse(stream.map(this::toLatestItem).toList(), serverNow);
   }
 
   private PublicDrawResultLatestItem toLatestItem(PublicDrawResultSlotView slot) {
@@ -124,8 +122,8 @@ public class PublicDrawResultViewMapper {
   // ── Private helpers ────────────────────────────────────────────────────────
 
   /**
-   * Extrait les numéros tirés (lot1…lot4) d'un nœud JSON haïtien.
-   * Les entrées null ou vides sont ignorées.
+   * Extrait les numéros tirés (lot1…lot4) d'un nœud JSON haïtien. Les entrées null ou vides sont
+   * ignorées.
    */
   private List<String> extractNumbers(JsonNode haiti) {
     if (haiti == null || haiti.isNull() || haiti.isEmpty()) {

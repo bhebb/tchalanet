@@ -5,8 +5,12 @@ import java.util.UUID;
 
 public interface PlatformSuperAdminRow {
   UUID getUserId();
+
   String getEmail();
+
   String getDisplayName();
+
   String getStatus();
+
   Instant getAssignedAt();
 }

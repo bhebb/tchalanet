@@ -1,7 +1,6 @@
 package com.tchalanet.server.platform.identity.api;
 
 import com.tchalanet.server.platform.identity.api.model.SellerTerminalIdentityBootstrapView;
-
 import java.util.Optional;
 
 /**
@@ -12,9 +11,6 @@ import java.util.Optional;
  */
 public interface SellerTerminalIdentityLookup {
 
-    Optional<SellerTerminalIdentityBootstrapView> findByExternalIdentity(
-        IdentityProviderType provider,
-        String issuer,
-        String externalSubject
-    );
+  Optional<SellerTerminalIdentityBootstrapView> findByExternalIdentity(
+      IdentityProviderType provider, String issuer, String externalSubject);
 }

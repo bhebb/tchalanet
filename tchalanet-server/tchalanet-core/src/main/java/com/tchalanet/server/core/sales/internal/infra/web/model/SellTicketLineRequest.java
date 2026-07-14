@@ -7,7 +7,6 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-
 import java.math.BigDecimal;
 
 public record SellTicketLineRequest(
@@ -16,16 +15,9 @@ public record SellTicketLineRequest(
     @NotNull BetType betType,
     @NotBlank String selection,
     Short betOption,
-    @NotNull @DecimalMin(value = "0.0001") BigDecimal stakeAmount
-) {
-    public SellTicketLineInput toLine() {
-        return new SellTicketLineInput(
-            lineNumber,
-            gameCode,
-            betType,
-            selection,
-            betOption,
-            stakeAmount
-        );
-    }
+    @NotNull @DecimalMin(value = "0.0001") BigDecimal stakeAmount) {
+  public SellTicketLineInput toLine() {
+    return new SellTicketLineInput(
+        lineNumber, gameCode, betType, selection, betOption, stakeAmount);
+  }
 }

@@ -17,7 +17,8 @@ public record VerifiedExternalToken(
   public VerifiedExternalToken {
     issuer = requireText(issuer, "issuer");
     subject = requireText(subject, "subject");
-    verifiedClaims = Map.copyOf(Objects.requireNonNull(verifiedClaims, "verifiedClaims is required"));
+    verifiedClaims =
+        Map.copyOf(Objects.requireNonNull(verifiedClaims, "verifiedClaims is required"));
   }
 
   private static String requireText(String value, String field) {
@@ -27,4 +28,3 @@ public record VerifiedExternalToken(
     return value;
   }
 }
-

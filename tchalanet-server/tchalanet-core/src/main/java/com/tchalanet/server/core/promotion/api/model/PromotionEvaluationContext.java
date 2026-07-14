@@ -22,11 +22,10 @@ public record PromotionEvaluationContext(
     BigDecimal paidTotal,
     String currency,
     List<String> paidGameCodes,
-    boolean offline
-) {
-    public PromotionEvaluationContext {
-        agentPath = agentPath == null ? List.of() : List.copyOf(agentPath);
-        zonePath = zonePath == null ? List.of() : List.copyOf(zonePath);
-        paidGameCodes = paidGameCodes == null ? List.of() : List.copyOf(paidGameCodes);
-    }
+    boolean offline) {
+  public PromotionEvaluationContext {
+    agentPath = agentPath == null ? List.of() : List.copyOf(agentPath);
+    zonePath = zonePath == null ? List.of() : List.copyOf(zonePath);
+    paidGameCodes = paidGameCodes == null ? List.of() : List.copyOf(paidGameCodes);
+  }
 }

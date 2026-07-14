@@ -13,4 +13,3 @@ public final class IdentityProviderException extends RuntimeException {
     return code;
   }
 }
-

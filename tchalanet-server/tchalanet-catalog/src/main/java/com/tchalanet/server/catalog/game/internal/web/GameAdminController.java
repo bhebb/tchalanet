@@ -15,16 +15,15 @@ import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.common.web.paging.TchPaging;
 import com.tchalanet.server.common.web.paging.TchSearchQuery;
 import jakarta.validation.Valid;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
-
 /**
- * REST controller for platform game admin (catalog/game).
- * Translates web requests into service-layer commands.
+ * REST controller for platform game admin (catalog/game). Translates web requests into
+ * service-layer commands.
  */
 @RestController
 @RequestMapping("/platform/catalog/games")
@@ -39,34 +38,49 @@ public class GameAdminController {
   public ApiResponse<TchPage<GameView>> list(
       @RequestParam(required = false) Boolean active,
       @RequestParam(required = false) String q,
-      @TchPaging(allowedSort = {"sortOrder", "name", "code", "createdAt"}, defaultSort = {"sortOrder,ASC"})
-      TchPageRequest pageReq) {
+      @TchPaging(
+              allowedSort = {"sortOrder", "name", "code", "createdAt"},
+              defaultSort = {"sortOrder,ASC"})
+          TchPageRequest pageReq) {
     return ApiResponse.success(gameAdminService.search(active, TchSearchQuery.of(q), pageReq));
   }
 
   @GetMapping("/{id}")
   public ApiResponse<GameView> get(@PathVariable GameId id) {
     return ApiResponse.success(
-        gameCatalog.findById(id)
-            .orElseThrow(() -> ProblemRest.notFound("Game not found", id)));
+        gameCatalog.findById(id).orElseThrow(() -> ProblemRest.notFound("Game not found", id)));
   }
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
   public ApiResponse<GameView> create(@Valid @RequestBody GameCreateRequest request) {
-    var cmd = new GameAdminService.CreateCommand(
-        request.code(), request.name(), request.category(), request.combination(),
-        request.minDigits(), request.maxDigits(), request.description(),
-        request.active(), request.sortOrder());
+    var cmd =
+        new GameAdminService.CreateCommand(
+            request.code(),
+            request.name(),
+            request.category(),
+            request.combination(),
+            request.minDigits(),
+            request.maxDigits(),
+            request.description(),
+            request.active(),
+            request.sortOrder());
     return ApiResponse.created(gameAdminService.create(cmd));
   }
 
   @PutMapping("/{id}")
-  public ApiResponse<GameView> update(@PathVariable("id") GameId id, @Valid @RequestBody GameUpdateRequest request) {
-    var cmd = new GameAdminService.UpdateCommand(
-        request.name(), request.category(), request.combination(),
-        request.minDigits(), request.maxDigits(), request.description(),
-        request.active(), request.sortOrder());
+  public ApiResponse<GameView> update(
+      @PathVariable("id") GameId id, @Valid @RequestBody GameUpdateRequest request) {
+    var cmd =
+        new GameAdminService.UpdateCommand(
+            request.name(),
+            request.category(),
+            request.combination(),
+            request.minDigits(),
+            request.maxDigits(),
+            request.description(),
+            request.active(),
+            request.sortOrder());
     return ApiResponse.success(gameAdminService.update(id, cmd));
   }
 
@@ -79,13 +93,13 @@ public class GameAdminController {
   @PostMapping("/{id}/deactivate")
   public ApiResponse<Void> deactivate(@PathVariable("id") GameId id) {
     gameAdminService.deactivate(id);
-    var notice = new ApiNotice(
-        "GAME_DEACTIVATED",
-        "Le jeu a été désactivé avec succès.",
-        "game",
-        NoticeSeverity.INFO,
-        Map.of("gameId", id.value())
-    );
+    var notice =
+        new ApiNotice(
+            "GAME_DEACTIVATED",
+            "Le jeu a été désactivé avec succès.",
+            "game",
+            NoticeSeverity.INFO,
+            Map.of("gameId", id.value()));
     return ApiResponse.warn(null, notice);
   }
 }

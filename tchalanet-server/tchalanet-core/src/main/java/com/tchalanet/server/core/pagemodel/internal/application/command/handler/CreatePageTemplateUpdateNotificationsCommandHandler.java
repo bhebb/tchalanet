@@ -2,20 +2,13 @@ package com.tchalanet.server.core.pagemodel.internal.application.command.handler
 
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.CommandHandler;
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.common.json.utils.JsonUtils;
-import com.tchalanet.server.platform.notification.api.model.request.CreateNotificationRequest;
-import com.tchalanet.server.platform.notification.api.model.NotificationAudienceType;
-import com.tchalanet.server.platform.notification.api.model.NotificationCategory;
-import com.tchalanet.server.platform.notification.api.model.NotificationChannel;
-import com.tchalanet.server.platform.notification.api.model.NotificationKind;
-import com.tchalanet.server.platform.notification.api.model.NotificationSeverity;
 import com.tchalanet.server.core.pagemodel.api.command.CreatePageTemplateUpdateNotificationsCommand;
 import com.tchalanet.server.core.pagemodel.internal.application.port.out.PageModelReadPort;
 import java.util.Map;
-import java.util.Set;
 import lombok.RequiredArgsConstructor;
 
 @UseCase
@@ -46,7 +39,7 @@ public class CreatePageTemplateUpdateNotificationsCommandHandler
                   "schemaVersion", command.newSchemaVersion(),
                   "compatibility", compatibility,
                   "recommendedAction", recommendedAction));
-// todo add notification
+      // todo add notification
       created++;
     }
     return created;
@@ -62,7 +55,8 @@ public class CreatePageTemplateUpdateNotificationsCommandHandler
     return "MAJOR";
   }
 
-  private static String dedupeKey(TenantId tenantId, CreatePageTemplateUpdateNotificationsCommand command) {
+  private static String dedupeKey(
+      TenantId tenantId, CreatePageTemplateUpdateNotificationsCommand command) {
     return "pagemodel-template-update:"
         + tenantId.value()
         + ":"

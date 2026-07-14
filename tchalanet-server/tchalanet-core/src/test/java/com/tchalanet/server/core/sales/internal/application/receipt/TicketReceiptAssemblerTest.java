@@ -46,59 +46,76 @@ import org.junit.jupiter.api.Test;
 
 class TicketReceiptAssemblerTest {
 
-    private static final CurrencyCode HTG = CurrencyCode.of("HTG");
+  private static final CurrencyCode HTG = CurrencyCode.of("HTG");
 
-    @Test
-    void receiptLineUsesCommercialBetOptionLabel() {
-        var receipt = assembler().assemble(printViewWithLoto4BoxLine(), Locale.FRENCH);
+  @Test
+  void receiptLineUsesCommercialBetOptionLabel() {
+    var receipt = assembler().assemble(printViewWithLoto4BoxLine(), Locale.FRENCH);
 
-        var line = receipt.gameSections().getFirst().lines().getFirst();
-        assertThat(line.betType()).isEqualTo(BetType.LOTTO4_PATTERN.name());
-        assertThat(line.betOption()).isEqualTo((short) 2);
-        assertThat(line.optionLabel()).isEqualTo("Désordre / Box");
-    }
+    var line = receipt.gameSections().getFirst().lines().getFirst();
+    assertThat(line.betType()).isEqualTo(BetType.LOTTO4_PATTERN.name());
+    assertThat(line.betOption()).isEqualTo((short) 2);
+    assertThat(line.optionLabel()).isEqualTo("Désordre / Box");
+  }
 
-    @Test
-    void receiptLineKeepsSelectionPolicySnapshotWithoutTechnicalVariantLabels() {
-        var receipt = assembler().assemble(printViewWithExactPlusBoxLine(), Locale.FRENCH);
+  @Test
+  void receiptLineKeepsSelectionPolicySnapshotWithoutTechnicalVariantLabels() {
+    var receipt = assembler().assemble(printViewWithExactPlusBoxLine(), Locale.FRENCH);
 
-        var line = receipt.gameSections().getFirst().lines().getFirst();
-        assertThat(line.optionLabel()).isEqualTo("Exact + Permuté");
-        assertThat(line.selectionPolicySnapshot()).isEqualTo(SelectionPolicy.EXPLICIT_ONLY);
-    }
+    var line = receipt.gameSections().getFirst().lines().getFirst();
+    assertThat(line.optionLabel()).isEqualTo("Exact + Permuté");
+    assertThat(line.selectionPolicySnapshot()).isEqualTo(SelectionPolicy.EXPLICIT_ONLY);
+  }
 
-    @Test
-    void reprintKeepsTicketSnapshotLabelsIndependentFromCurrentPricingOrPromotionConfig() {
-        var receipt = assembler().assemble(reprintViewWithSnapshotLabels(), Locale.FRENCH);
+  @Test
+  void reprintKeepsTicketSnapshotLabelsIndependentFromCurrentPricingOrPromotionConfig() {
+    var receipt = assembler().assemble(reprintViewWithSnapshotLabels(), Locale.FRENCH);
 
-        var line = receipt.gameSections().getFirst().lines().getFirst();
-        assertThat(receipt.isReprint()).isTrue();
-        assertThat(line.optionLabel()).isEqualTo("Ancien exact + permuté");
-        assertThat(line.promotionLabel()).isEqualTo("Ancienne promo Maryaj");
-    }
+    var line = receipt.gameSections().getFirst().lines().getFirst();
+    assertThat(receipt.isReprint()).isTrue();
+    assertThat(line.optionLabel()).isEqualTo("Ancien exact + permuté");
+    assertThat(line.promotionLabel()).isEqualTo("Ancienne promo Maryaj");
+  }
 
-    private TicketReceiptAssembler assembler() {
-        return new TicketReceiptAssembler(
-            new TicketPublicCodeFormatter(),
-            new TicketVerificationUrlBuilder(new TicketPublicProperties("https://tickets.test", "/check/{code}"))
-        );
-    }
+  private TicketReceiptAssembler assembler() {
+    return new TicketReceiptAssembler(
+        new TicketPublicCodeFormatter(),
+        new TicketVerificationUrlBuilder(
+            new TicketPublicProperties("https://tickets.test", "/check/{code}")));
+  }
 
-    private TicketPrintView printViewWithLoto4BoxLine() {
-        var now = Instant.parse("2026-07-06T15:00:00Z");
-        var stake = money("25");
-        return new TicketPrintView(
-            new TicketPrintIdentity(TicketId.of(UUID.randomUUID()), TenantId.of(UUID.randomUUID()),
-                "T-0001", "abcd1234", "111222"),
-            new TicketPrintLifecycle(TicketSaleStatus.APPROVED, TicketResultStatus.NOT_RESULTED,
-                TicketSettlementStatus.NOT_SETTLED),
-            TicketPrintState.notPrinted(),
-            new TicketPrintDraw(DrawId.of(UUID.randomUUID()), DrawChannelId.of(UUID.randomUUID()),
-                "NY", "MIDDAY", "provider-1", "America/Port-au-Prince", "Midi", "New York",
-                LocalDate.parse("2026-07-06"), now, now.plusSeconds(3600)),
-            new TicketPrintSellerContext(SellerTerminalId.of(UUID.randomUUID()), "TERM-1", "Terminal 1", "Terminal 1"),
-            new TicketPrintBranding("Tenant", null, null),
-            List.of(new TicketPrintLine(
+  private TicketPrintView printViewWithLoto4BoxLine() {
+    var now = Instant.parse("2026-07-06T15:00:00Z");
+    var stake = money("25");
+    return new TicketPrintView(
+        new TicketPrintIdentity(
+            TicketId.of(UUID.randomUUID()),
+            TenantId.of(UUID.randomUUID()),
+            "T-0001",
+            "abcd1234",
+            "111222"),
+        new TicketPrintLifecycle(
+            TicketSaleStatus.APPROVED,
+            TicketResultStatus.NOT_RESULTED,
+            TicketSettlementStatus.NOT_SETTLED),
+        TicketPrintState.notPrinted(),
+        new TicketPrintDraw(
+            DrawId.of(UUID.randomUUID()),
+            DrawChannelId.of(UUID.randomUUID()),
+            "NY",
+            "MIDDAY",
+            "provider-1",
+            "America/Port-au-Prince",
+            "Midi",
+            "New York",
+            LocalDate.parse("2026-07-06"),
+            now,
+            now.plusSeconds(3600)),
+        new TicketPrintSellerContext(
+            SellerTerminalId.of(UUID.randomUUID()), "TERM-1", "Terminal 1", "Terminal 1"),
+        new TicketPrintBranding("Tenant", null, null),
+        List.of(
+            new TicketPrintLine(
                 1,
                 GameCode.HT_LOTO4,
                 BetType.LOTTO4_PATTERN,
@@ -114,30 +131,51 @@ class TicketReceiptAssemblerTest {
                 TicketLineSelectionSource.CUSTOMER_SELECTED,
                 null,
                 null,
-                null
-            )),
-            new TicketPrintMoney(stake, List.of(), money("0"), stake),
-            new TicketPrintQrPayload("v1", "ABCD1234", "111222", "https://tickets.test/check/ABCD1234", "payload"),
-            new TicketPrintMetadata(now, Locale.FRENCH, ZoneId.of("America/Port-au-Prince"),
-                TicketSaleChannel.POS_ONLINE, HTG.value(), Map.of())
-        );
-    }
+                null)),
+        new TicketPrintMoney(stake, List.of(), money("0"), stake),
+        new TicketPrintQrPayload(
+            "v1", "ABCD1234", "111222", "https://tickets.test/check/ABCD1234", "payload"),
+        new TicketPrintMetadata(
+            now,
+            Locale.FRENCH,
+            ZoneId.of("America/Port-au-Prince"),
+            TicketSaleChannel.POS_ONLINE,
+            HTG.value(),
+            Map.of()));
+  }
 
-    private TicketPrintView printViewWithExactPlusBoxLine() {
-        var now = Instant.parse("2026-07-06T15:00:00Z");
-        var stake = money("20");
-        return new TicketPrintView(
-            new TicketPrintIdentity(TicketId.of(UUID.randomUUID()), TenantId.of(UUID.randomUUID()),
-                "T-0001", "abcd1234", "111222"),
-            new TicketPrintLifecycle(TicketSaleStatus.APPROVED, TicketResultStatus.NOT_RESULTED,
-                TicketSettlementStatus.NOT_SETTLED),
-            TicketPrintState.notPrinted(),
-            new TicketPrintDraw(DrawId.of(UUID.randomUUID()), DrawChannelId.of(UUID.randomUUID()),
-                "NY", "MIDDAY", "provider-1", "America/Port-au-Prince", "Midi", "New York",
-                LocalDate.parse("2026-07-06"), now, now.plusSeconds(3600)),
-            new TicketPrintSellerContext(SellerTerminalId.of(UUID.randomUUID()), "TERM-1", "Terminal 1", "Terminal 1"),
-            new TicketPrintBranding("Tenant", null, null),
-            List.of(new TicketPrintLine(
+  private TicketPrintView printViewWithExactPlusBoxLine() {
+    var now = Instant.parse("2026-07-06T15:00:00Z");
+    var stake = money("20");
+    return new TicketPrintView(
+        new TicketPrintIdentity(
+            TicketId.of(UUID.randomUUID()),
+            TenantId.of(UUID.randomUUID()),
+            "T-0001",
+            "abcd1234",
+            "111222"),
+        new TicketPrintLifecycle(
+            TicketSaleStatus.APPROVED,
+            TicketResultStatus.NOT_RESULTED,
+            TicketSettlementStatus.NOT_SETTLED),
+        TicketPrintState.notPrinted(),
+        new TicketPrintDraw(
+            DrawId.of(UUID.randomUUID()),
+            DrawChannelId.of(UUID.randomUUID()),
+            "NY",
+            "MIDDAY",
+            "provider-1",
+            "America/Port-au-Prince",
+            "Midi",
+            "New York",
+            LocalDate.parse("2026-07-06"),
+            now,
+            now.plusSeconds(3600)),
+        new TicketPrintSellerContext(
+            SellerTerminalId.of(UUID.randomUUID()), "TERM-1", "Terminal 1", "Terminal 1"),
+        new TicketPrintBranding("Tenant", null, null),
+        List.of(
+            new TicketPrintLine(
                 1,
                 GameCode.HT_LOTO3,
                 BetType.LOTTO3_3D,
@@ -153,34 +191,51 @@ class TicketReceiptAssemblerTest {
                 TicketLineSelectionSource.CUSTOMER_SELECTED,
                 null,
                 null,
-                null
-            )),
-            new TicketPrintMoney(stake, List.of(), money("0"), stake),
-            new TicketPrintQrPayload("v1", "ABCD1234", "111222", "https://tickets.test/check/ABCD1234", "payload"),
-            new TicketPrintMetadata(now, Locale.FRENCH, ZoneId.of("America/Port-au-Prince"),
-                TicketSaleChannel.POS_ONLINE, HTG.value(), Map.of())
-        );
-    }
+                null)),
+        new TicketPrintMoney(stake, List.of(), money("0"), stake),
+        new TicketPrintQrPayload(
+            "v1", "ABCD1234", "111222", "https://tickets.test/check/ABCD1234", "payload"),
+        new TicketPrintMetadata(
+            now,
+            Locale.FRENCH,
+            ZoneId.of("America/Port-au-Prince"),
+            TicketSaleChannel.POS_ONLINE,
+            HTG.value(),
+            Map.of()));
+  }
 
-    private TicketPrintView reprintViewWithSnapshotLabels() {
-        var now = Instant.parse("2026-07-06T15:00:00Z");
-        var stake = money("0");
-        return new TicketPrintView(
-            new TicketPrintIdentity(TicketId.of(UUID.randomUUID()), TenantId.of(UUID.randomUUID()),
-                "T-0001", "abcd1234", "111222"),
-            new TicketPrintLifecycle(TicketSaleStatus.APPROVED, TicketResultStatus.NOT_RESULTED,
-                TicketSettlementStatus.NOT_SETTLED),
-            new TicketPrintState(
-                TicketPrintStateStatus.REPRINTED,
-                2,
-                now,
-                now.plusSeconds(60)),
-            new TicketPrintDraw(DrawId.of(UUID.randomUUID()), DrawChannelId.of(UUID.randomUUID()),
-                "NY", "MIDDAY", "provider-1", "America/Port-au-Prince", "Midi", "New York",
-                LocalDate.parse("2026-07-06"), now, now.plusSeconds(3600)),
-            new TicketPrintSellerContext(SellerTerminalId.of(UUID.randomUUID()), "TERM-1", "Terminal 1", "Terminal 1"),
-            new TicketPrintBranding("Tenant", null, null),
-            List.of(new TicketPrintLine(
+  private TicketPrintView reprintViewWithSnapshotLabels() {
+    var now = Instant.parse("2026-07-06T15:00:00Z");
+    var stake = money("0");
+    return new TicketPrintView(
+        new TicketPrintIdentity(
+            TicketId.of(UUID.randomUUID()),
+            TenantId.of(UUID.randomUUID()),
+            "T-0001",
+            "abcd1234",
+            "111222"),
+        new TicketPrintLifecycle(
+            TicketSaleStatus.APPROVED,
+            TicketResultStatus.NOT_RESULTED,
+            TicketSettlementStatus.NOT_SETTLED),
+        new TicketPrintState(TicketPrintStateStatus.REPRINTED, 2, now, now.plusSeconds(60)),
+        new TicketPrintDraw(
+            DrawId.of(UUID.randomUUID()),
+            DrawChannelId.of(UUID.randomUUID()),
+            "NY",
+            "MIDDAY",
+            "provider-1",
+            "America/Port-au-Prince",
+            "Midi",
+            "New York",
+            LocalDate.parse("2026-07-06"),
+            now,
+            now.plusSeconds(3600)),
+        new TicketPrintSellerContext(
+            SellerTerminalId.of(UUID.randomUUID()), "TERM-1", "Terminal 1", "Terminal 1"),
+        new TicketPrintBranding("Tenant", null, null),
+        List.of(
+            new TicketPrintLine(
                 1,
                 GameCode.HT_MARYAJ_GRATIS,
                 BetType.MARRIAGE_2D2D,
@@ -196,16 +251,20 @@ class TicketReceiptAssemblerTest {
                 TicketLineSelectionSource.PROMOTION_GENERATED,
                 null,
                 "Ancienne promo Maryaj",
-                "FREE_GAME_LINE"
-            )),
-            new TicketPrintMoney(stake, List.of(), money("0"), stake),
-            new TicketPrintQrPayload("v1", "ABCD1234", "111222", "https://tickets.test/check/ABCD1234", "payload"),
-            new TicketPrintMetadata(now, Locale.FRENCH, ZoneId.of("America/Port-au-Prince"),
-                TicketSaleChannel.POS_ONLINE, HTG.value(), Map.of())
-        );
-    }
+                "FREE_GAME_LINE")),
+        new TicketPrintMoney(stake, List.of(), money("0"), stake),
+        new TicketPrintQrPayload(
+            "v1", "ABCD1234", "111222", "https://tickets.test/check/ABCD1234", "payload"),
+        new TicketPrintMetadata(
+            now,
+            Locale.FRENCH,
+            ZoneId.of("America/Port-au-Prince"),
+            TicketSaleChannel.POS_ONLINE,
+            HTG.value(),
+            Map.of()));
+  }
 
-    private Money money(String amount) {
-        return new Money(new BigDecimal(amount), HTG);
-    }
+  private Money money(String amount) {
+    return new Money(new BigDecimal(amount), HTG);
+  }
 }

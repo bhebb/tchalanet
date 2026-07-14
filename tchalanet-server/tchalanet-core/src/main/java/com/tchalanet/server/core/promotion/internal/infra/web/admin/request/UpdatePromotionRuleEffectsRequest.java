@@ -7,13 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Map;
 
-public record UpdatePromotionRuleEffectsRequest(
-    @NotEmpty
-    List<@Valid EffectItem> items
-) {
-    public record EffectItem(
-        @NotNull PromotionEffectType type,
-        @NotNull Map<String, Object> params
-    ) {}
+public record UpdatePromotionRuleEffectsRequest(@NotEmpty List<@Valid EffectItem> items) {
+  public record EffectItem(
+      @NotNull PromotionEffectType type, @NotNull Map<String, Object> params) {}
 }
-

@@ -7,8 +7,5 @@ import com.tchalanet.server.core.sales.api.model.view.TicketForDrawSettlementVie
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
-public record
-GetTicketForDrawSettlementQuery(
-    @NotNull TenantId tenantId,
-    @NotNull DrawId drawId
-) implements Query<List<TicketForDrawSettlementView>> {}
+public record GetTicketForDrawSettlementQuery(@NotNull TenantId tenantId, @NotNull DrawId drawId)
+    implements Query<List<TicketForDrawSettlementView>> {}

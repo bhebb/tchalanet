@@ -9,25 +9,27 @@ import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalCommissi
 import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalSummaryRow;
 import com.tchalanet.server.core.sellerterminal.api.query.SellerTerminalSearchCriteria;
 import com.tchalanet.server.core.sellerterminal.internal.domain.model.SellerTerminal;
-
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
 public interface SellerTerminalReaderPort {
 
-    Optional<SellerTerminal> findById(TenantId tenantId, SellerTerminalId id);
+  Optional<SellerTerminal> findById(TenantId tenantId, SellerTerminalId id);
 
-    Optional<SellerTerminal> findByExternalSubject(String provider, String issuer, String externalSubject);
+  Optional<SellerTerminal> findByExternalSubject(
+      String provider, String issuer, String externalSubject);
 
-    TchPage<SellerTerminalSummaryRow> search(TenantId tenantId, SellerTerminalSearchCriteria criteria, TchPageRequest pageRequest);
+  TchPage<SellerTerminalSummaryRow> search(
+      TenantId tenantId, SellerTerminalSearchCriteria criteria, TchPageRequest pageRequest);
 
-    List<String> terminalCodes(TenantId tenantId);
+  List<String> terminalCodes(TenantId tenantId);
 
-    SellerTerminalCommissionStatsView commissionStats(TenantId tenantId, BigDecimal tenantDefaultRate);
+  SellerTerminalCommissionStatsView commissionStats(
+      TenantId tenantId, BigDecimal tenantDefaultRate);
 
-    default SellerTerminal getRequired(TenantId tenantId, SellerTerminalId id) {
-        return findById(tenantId, id)
-            .orElseThrow(() -> new TchNotFoundException(id.toString(), "SellerTerminal not found: "));
-    }
+  default SellerTerminal getRequired(TenantId tenantId, SellerTerminalId id) {
+    return findById(tenantId, id)
+        .orElseThrow(() -> new TchNotFoundException(id.toString(), "SellerTerminal not found: "));
+  }
 }

@@ -8,6 +8,4 @@ public record TicketPrintIdentity(
     TenantId tenantId,
     String ticketCode,
     String publicCode,
-    String verificationCode
-) {
-}
+    String verificationCode) {}

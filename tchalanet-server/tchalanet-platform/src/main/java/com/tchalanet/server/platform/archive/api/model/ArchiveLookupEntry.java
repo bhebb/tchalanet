@@ -7,9 +7,9 @@ import java.util.UUID;
 /**
  * One row to insert into {@code archive_lookup_index}.
  *
- * <p>Providers return these from
- * {@link com.tchalanet.server.platform.archive.api.ArchiveDatasetProvider#generateLookupRows}
- * after the executor has persisted the archive object and obtained its id.
+ * <p>Providers return these from {@link
+ * com.tchalanet.server.platform.archive.api.ArchiveDatasetProvider#generateLookupRows} after the
+ * executor has persisted the archive object and obtained its id.
  */
 public record ArchiveLookupEntry(
     String tableName,
@@ -21,5 +21,4 @@ public record ArchiveLookupEntry(
     Instant occurredAt,
     UUID archiveObjectId,
     Long objectOffset,
-    Long objectLength
-) {}
+    Long objectLength) {}

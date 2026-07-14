@@ -17,123 +17,171 @@ class FeatureArchitectureTest {
   private static final String CORE = "com.tchalanet.server.core..";
   private static final String CATALOG = "com.tchalanet.server.catalog..";
 
-  private final JavaClasses classes = new ClassFileImporter().importPackages("com.tchalanet.server");
+  private final JavaClasses classes =
+      new ClassFileImporter().importPackages("com.tchalanet.server");
 
   @Test
   void coreMustNotDependOnFeatures() {
-    ArchRule rule = noClasses()
-        .that().resideInAPackage(CORE)
-        .should().dependOnClassesThat().resideInAPackage(FEATURES);
+    ArchRule rule =
+        noClasses()
+            .that()
+            .resideInAPackage(CORE)
+            .should()
+            .dependOnClassesThat()
+            .resideInAPackage(FEATURES);
 
     rule.check(classes);
   }
 
   @Test
   void catalogMustNotDependOnCoreOrFeatures() {
-    ArchRule rule = noClasses()
-        .that().resideInAPackage(CATALOG)
-        .should().dependOnClassesThat().resideInAnyPackage(CORE, FEATURES);
+    ArchRule rule =
+        noClasses()
+            .that()
+            .resideInAPackage(CATALOG)
+            .should()
+            .dependOnClassesThat()
+            .resideInAnyPackage(CORE, FEATURES);
 
     rule.check(classes);
   }
 
   @Test
   void featuresMustNotOwnCommandHandlers() {
-    ArchRule rule = noClasses()
-        .that().resideInAPackage(FEATURES)
-        .should().beAssignableTo(CommandHandler.class)
-        .orShould().beAssignableTo(VoidCommandHandler.class)
-        .orShould().beAssignableTo(QueryHandler.class)
-        .because("features are BFF/orchestration surfaces; domain command handlers belong to core");
+    ArchRule rule =
+        noClasses()
+            .that()
+            .resideInAPackage(FEATURES)
+            .should()
+            .beAssignableTo(CommandHandler.class)
+            .orShould()
+            .beAssignableTo(VoidCommandHandler.class)
+            .orShould()
+            .beAssignableTo(QueryHandler.class)
+            .because(
+                "features are BFF/orchestration surfaces; domain command handlers belong to core");
 
     rule.check(classes);
   }
 
   @Test
   void featuresMustNotUseLegacyLayerPackages() {
-    ArchRule rule = noClasses()
-        .that().resideInAPackage(FEATURES)
-        .should().resideInAnyPackage(
-            "..features..application..",
-            "..features..adapter..",
-            "..features..dto..",
-            "..features..handler..",
-            "..features..infra..",
-            "..features..port..",
-            "..features..query..",
-            "..features..repo..")
-        .because("feature slices use vertical BFF roles such as web, app, model, mapper, dynamic and shared");
+    ArchRule rule =
+        noClasses()
+            .that()
+            .resideInAPackage(FEATURES)
+            .should()
+            .resideInAnyPackage(
+                "..features..application..",
+                "..features..adapter..",
+                "..features..dto..",
+                "..features..handler..",
+                "..features..infra..",
+                "..features..port..",
+                "..features..query..",
+                "..features..repo..")
+            .because(
+                "feature slices use vertical BFF roles such as web, app, model, mapper, dynamic and shared");
 
     rule.check(classes);
   }
 
   @Test
   void featuresMustNotUseUseCaseClassNames() {
-    ArchRule rule = ArchRuleDefinition.classes()
-        .that().resideInAPackage(FEATURES)
-        .should().haveSimpleNameNotEndingWith("UseCase")
-        .because("feature orchestration classes are named Services or Orchestrators, not UseCases");
+    ArchRule rule =
+        ArchRuleDefinition.classes()
+            .that()
+            .resideInAPackage(FEATURES)
+            .should()
+            .haveSimpleNameNotEndingWith("UseCase")
+            .because(
+                "feature orchestration classes are named Services or Orchestrators, not UseCases");
 
     rule.check(classes);
   }
 
   @Test
   void featuresMustNotUseDtoClassNames() {
-    ArchRule rule = ArchRuleDefinition.classes()
-        .that().resideInAPackage(FEATURES)
-        .should().haveSimpleNameNotEndingWith("Dto")
-        .because("feature UI contracts are named Request, Response, View, Item or Summary");
+    ArchRule rule =
+        ArchRuleDefinition.classes()
+            .that()
+            .resideInAPackage(FEATURES)
+            .should()
+            .haveSimpleNameNotEndingWith("Dto")
+            .because("feature UI contracts are named Request, Response, View, Item or Summary");
 
     rule.check(classes);
   }
 
   @Test
   void featuresMustNotUseHandlerOrQueryClassNames() {
-    ArchRule rule = ArchRuleDefinition.classes()
-        .that().resideInAPackage(FEATURES)
-        .should().haveSimpleNameNotEndingWith("Handler")
-        .andShould().haveSimpleNameNotEndingWith("Query")
-        .because("feature slices expose BFF services with criteria/models, not command/query handlers");
+    ArchRule rule =
+        ArchRuleDefinition.classes()
+            .that()
+            .resideInAPackage(FEATURES)
+            .should()
+            .haveSimpleNameNotEndingWith("Handler")
+            .andShould()
+            .haveSimpleNameNotEndingWith("Query")
+            .because(
+                "feature slices expose BFF services with criteria/models, not command/query handlers");
 
     rule.check(classes);
   }
 
   @Test
   void featureAppPackagesMustNotDefineRepositories() {
-    ArchRule rule = ArchRuleDefinition.classes()
-        .that().resideInAPackage("..features..app..")
-        .should().haveSimpleNameNotEndingWith("Repository")
-        .because("feature app packages orchestrate; read access contracts are readers or persistence internals");
+    ArchRule rule =
+        ArchRuleDefinition.classes()
+            .that()
+            .resideInAPackage("..features..app..")
+            .should()
+            .haveSimpleNameNotEndingWith("Repository")
+            .because(
+                "feature app packages orchestrate; read access contracts are readers or persistence internals");
 
     rule.check(classes);
   }
 
   @Test
   void cashierPackageMustNotExist() {
-    ArchRule rule = noClasses()
-        .that().resideInAPackage("com.tchalanet.server.features.cashier..")
-        .should().resideOutsideOfPackage("com.tchalanet.server.features.cashier..")
-        .allowEmptyShould(true)
-        .because("features.cashier is retired — POS functionality lives in features.pos");
+    ArchRule rule =
+        noClasses()
+            .that()
+            .resideInAPackage("com.tchalanet.server.features.cashier..")
+            .should()
+            .resideOutsideOfPackage("com.tchalanet.server.features.cashier..")
+            .allowEmptyShould(true)
+            .because("features.cashier is retired — POS functionality lives in features.pos");
     rule.check(classes);
   }
 
   @Test
   void posFeatureMustNotImportCoreSalesInternals() {
-    ArchRule rule = noClasses()
-        .that().resideInAPackage("com.tchalanet.server.features.pos..")
-        .should().dependOnClassesThat().resideInAPackage("com.tchalanet.server.core.sales.internal..")
-        .because("features.pos must only use core.sales public API (commands, queries, models) via CommandBus/QueryBus");
+    ArchRule rule =
+        noClasses()
+            .that()
+            .resideInAPackage("com.tchalanet.server.features.pos..")
+            .should()
+            .dependOnClassesThat()
+            .resideInAPackage("com.tchalanet.server.core.sales.internal..")
+            .because(
+                "features.pos must only use core.sales public API (commands, queries, models) via CommandBus/QueryBus");
 
     rule.check(classes);
   }
 
   @Test
   void featuresMustNotImportCoreSellerTerminalInternals() {
-    ArchRule rule = noClasses()
-        .that().resideInAPackage(FEATURES)
-        .should().dependOnClassesThat().resideInAPackage("com.tchalanet.server.core.sellerterminal.internal..")
-        .because("features must use the public core.sellerterminal API, not its persistence or internals");
+    ArchRule rule =
+        noClasses()
+            .that()
+            .resideInAPackage(FEATURES)
+            .should()
+            .dependOnClassesThat()
+            .resideInAPackage("com.tchalanet.server.core.sellerterminal.internal..")
+            .because(
+                "features must use the public core.sellerterminal API, not its persistence or internals");
 
     rule.check(classes);
   }

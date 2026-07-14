@@ -16,11 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Security • Backend Public Keys")
 public class BackendPublicKeysController {
 
-    private final BackendPublicKeyApi backendPublicKeyApi;
+  private final BackendPublicKeyApi backendPublicKeyApi;
 
-    @GetMapping
-    @Operation(summary = "List active backend public signing keys (no auth required)")
-    public ApiResponse<BackendPublicKeySetView> listActiveKeys() {
-        return ApiResponse.success(backendPublicKeyApi.listActivePublicKeys());
-    }
+  @GetMapping
+  @Operation(summary = "List active backend public signing keys (no auth required)")
+  public ApiResponse<BackendPublicKeySetView> listActiveKeys() {
+    return ApiResponse.success(backendPublicKeyApi.listActivePublicKeys());
+  }
 }

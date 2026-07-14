@@ -39,11 +39,11 @@ public class AdminReportsController {
       @RequestParam(defaultValue = "100") int drawLimit,
       @RequestParam(defaultValue = "100") int sellerTerminalLimit,
       @RequestParam(required = false) List<UUID> drawIds,
-      @RequestParam(required = false) List<UUID> sellerTerminalIds
-  ) {
-    return ApiResponse.success(service.overview(
-        ctx.tenantIdRequired(),
-        request(ctx, from, to, drawLimit, sellerTerminalLimit, drawIds, sellerTerminalIds)));
+      @RequestParam(required = false) List<UUID> sellerTerminalIds) {
+    return ApiResponse.success(
+        service.overview(
+            ctx.tenantIdRequired(),
+            request(ctx, from, to, drawLimit, sellerTerminalLimit, drawIds, sellerTerminalIds)));
   }
 
   @GetMapping("/draws")
@@ -53,11 +53,11 @@ public class AdminReportsController {
       @RequestParam(required = false) LocalDate from,
       @RequestParam(required = false) LocalDate to,
       @RequestParam(defaultValue = "100") int limit,
-      @RequestParam(required = false) List<UUID> drawIds
-  ) {
-    return ApiResponse.success(service.draws(
-        ctx.tenantIdRequired(),
-        request(ctx, from, to, limit, DEFAULT_SELLER_TERMINAL_LIMIT, drawIds, List.of())));
+      @RequestParam(required = false) List<UUID> drawIds) {
+    return ApiResponse.success(
+        service.draws(
+            ctx.tenantIdRequired(),
+            request(ctx, from, to, limit, DEFAULT_SELLER_TERMINAL_LIMIT, drawIds, List.of())));
   }
 
   @GetMapping("/seller-terminals")
@@ -67,11 +67,11 @@ public class AdminReportsController {
       @RequestParam(required = false) LocalDate from,
       @RequestParam(required = false) LocalDate to,
       @RequestParam(defaultValue = "100") int limit,
-      @RequestParam(required = false) List<UUID> sellerTerminalIds
-  ) {
-    return ApiResponse.success(service.sellerTerminals(
-        ctx.tenantIdRequired(),
-        request(ctx, from, to, DEFAULT_DRAW_LIMIT, limit, List.of(), sellerTerminalIds)));
+      @RequestParam(required = false) List<UUID> sellerTerminalIds) {
+    return ApiResponse.success(
+        service.sellerTerminals(
+            ctx.tenantIdRequired(),
+            request(ctx, from, to, DEFAULT_DRAW_LIMIT, limit, List.of(), sellerTerminalIds)));
   }
 
   private AdminReportPeriodRequest request(
@@ -81,8 +81,7 @@ public class AdminReportsController {
       int drawLimit,
       int sellerTerminalLimit,
       List<UUID> drawIds,
-      List<UUID> sellerTerminalIds
-  ) {
+      List<UUID> sellerTerminalIds) {
     var period = periodResolver.resolve(from, to, ctx.tenantZoneId());
     return new AdminReportPeriodRequest(
         period.from(),

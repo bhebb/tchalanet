@@ -9,5 +9,4 @@ public record PurgeExecutionsResponse(
     int step_execution_rows,
     int job_execution_param_rows,
     int job_execution_rows,
-    int job_instance_rows
-) {}
+    int job_instance_rows) {}

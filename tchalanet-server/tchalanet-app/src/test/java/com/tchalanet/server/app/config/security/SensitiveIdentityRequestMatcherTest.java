@@ -1,10 +1,10 @@
 package com.tchalanet.server.app.config.security;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.mock.web.MockHttpServletRequest;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class SensitiveIdentityRequestMatcherTest {
 

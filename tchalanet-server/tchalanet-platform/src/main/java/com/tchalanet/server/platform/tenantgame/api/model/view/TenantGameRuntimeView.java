@@ -3,8 +3,8 @@ package com.tchalanet.server.platform.tenantgame.api.model.view;
 import java.math.BigDecimal;
 
 /**
- * Safe runtime view for POS/sales/bootstrap.
- * No internal IDs, no deleted flags, no admin-only config.
+ * Safe runtime view for POS/sales/bootstrap. No internal IDs, no deleted flags, no admin-only
+ * config.
  */
 public record TenantGameRuntimeView(
     String gameCode,
@@ -18,5 +18,4 @@ public record TenantGameRuntimeView(
     boolean availabilityEnabled,
     String availabilityDays,
     String startLocalTime,
-    String endLocalTime
-) {}
+    String endLocalTime) {}

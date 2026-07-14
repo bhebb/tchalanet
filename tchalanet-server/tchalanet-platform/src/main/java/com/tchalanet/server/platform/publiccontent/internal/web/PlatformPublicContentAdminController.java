@@ -40,29 +40,44 @@ public class PlatformPublicContentAdminController {
 
   @Operation(summary = "Create or update a public content item")
   @PostMapping
-  @AuditLog(entity = AuditEntityType.PUBLIC_CONTENT, action = AuditAction.UPDATE,
-      idExpression = "#request.id()", detailsExpression = "#request.title()")
+  @AuditLog(
+      entity = AuditEntityType.PUBLIC_CONTENT,
+      action = AuditAction.UPDATE,
+      idExpression = "#request.id()",
+      detailsExpression = "#request.title()")
   public PublicContentAdminItemView upsert(@Valid @RequestBody UpsertPublicContentRequest request) {
-    var item = adminService.upsert(
-        request.id(), request.title(), request.content(), request.contentHtml(),
-        request.imageUrl(), request.sourceUrl(), request.status(),
-        request.targetSurfaces(), request.publishedAt(), request.expiresAt());
+    var item =
+        adminService.upsert(
+            request.id(),
+            request.title(),
+            request.content(),
+            request.contentHtml(),
+            request.imageUrl(),
+            request.sourceUrl(),
+            request.status(),
+            request.targetSurfaces(),
+            request.publishedAt(),
+            request.expiresAt());
     return toAdminView(item);
   }
 
   @Operation(summary = "Change status of a public content item")
   @PostMapping("/{id}/status")
-  @AuditLog(entity = AuditEntityType.PUBLIC_CONTENT, action = AuditAction.STATE_CHANGE,
-      idExpression = "#id", detailsExpression = "#request.status()")
+  @AuditLog(
+      entity = AuditEntityType.PUBLIC_CONTENT,
+      action = AuditAction.STATE_CHANGE,
+      idExpression = "#id",
+      detailsExpression = "#request.status()")
   public PublicContentAdminItemView changeStatus(
-      @PathVariable String id,
-      @Valid @RequestBody ChangePublicContentStatusRequest request) {
+      @PathVariable String id, @Valid @RequestBody ChangePublicContentStatusRequest request) {
     return toAdminView(adminService.changeStatus(id, request.status()));
   }
 
   @Operation(summary = "Hide a public content item (admin overlay)")
   @PostMapping("/{id}/hide")
-  @AuditLog(entity = AuditEntityType.PUBLIC_CONTENT, action = AuditAction.STATE_CHANGE,
+  @AuditLog(
+      entity = AuditEntityType.PUBLIC_CONTENT,
+      action = AuditAction.STATE_CHANGE,
       idExpression = "#id")
   public void hide(@PathVariable String id) {
     adminService.hide(id);
@@ -70,7 +85,9 @@ public class PlatformPublicContentAdminController {
 
   @Operation(summary = "Show (unhide) a public content item")
   @PostMapping("/{id}/show")
-  @AuditLog(entity = AuditEntityType.PUBLIC_CONTENT, action = AuditAction.STATE_CHANGE,
+  @AuditLog(
+      entity = AuditEntityType.PUBLIC_CONTENT,
+      action = AuditAction.STATE_CHANGE,
       idExpression = "#id")
   public void show(@PathVariable String id) {
     adminService.show(id);
@@ -85,17 +102,28 @@ public class PlatformPublicContentAdminController {
   private PublicContentAdminItemView toAdminView(PublicContentItem item) {
     UUID id = toUuid(item.id());
     return new PublicContentAdminItemView(
-        id, item.title(), item.content(), item.imageUrl(),
+        id,
+        item.title(),
+        item.content(),
+        item.imageUrl(),
         item.sourceUrl() != null ? item.sourceUrl().toString() : null,
         item.sourceType() != null ? item.sourceType() : PublicContentSourceType.INTERNAL,
-        item.status(), item.publishedAt(), item.expiresAt(),
+        item.status(),
+        item.publishedAt(),
+        item.expiresAt(),
         item.targetSurfaces(),
-        null, null, null, null); // audit fields V1: not tracked yet
+        null,
+        null,
+        null,
+        null); // audit fields V1: not tracked yet
   }
 
   private static UUID toUuid(String id) {
     if (id == null) return null;
-    try { return UUID.fromString(id); }
-    catch (IllegalArgumentException e) { return UUID.nameUUIDFromBytes(id.getBytes()); }
+    try {
+      return UUID.fromString(id);
+    } catch (IllegalArgumentException e) {
+      return UUID.nameUUIDFromBytes(id.getBytes());
+    }
   }
 }

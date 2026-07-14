@@ -1,8 +1,6 @@
 package com.tchalanet.server.core.draw.internal.infra.web.model;
 
-import com.tchalanet.server.common.types.id.DrawResultId;
 import com.tchalanet.server.core.drawresult.api.model.DrawResultStatus;
-
 import java.time.Instant;
 
 public record HaitiDrawResultSummaryReponse(
@@ -12,6 +10,4 @@ public record HaitiDrawResultSummaryReponse(
     String lot1,
     String lot2,
     String lot3,
-    String lot4
-) {
-}
+    String lot4) {}

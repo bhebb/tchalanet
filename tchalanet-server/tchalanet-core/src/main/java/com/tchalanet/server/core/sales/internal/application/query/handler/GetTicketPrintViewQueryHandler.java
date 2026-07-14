@@ -12,10 +12,10 @@ import lombok.RequiredArgsConstructor;
 public class GetTicketPrintViewQueryHandler
     implements QueryHandler<GetTicketPrintViewQuery, TicketPrintView> {
 
-    private final TicketPrintReaderPort reader;
+  private final TicketPrintReaderPort reader;
 
-    @Override
-    public TicketPrintView handle(GetTicketPrintViewQuery query) {
-        return reader.findPrintViewRequired(query.ticketId());
-    }
+  @Override
+  public TicketPrintView handle(GetTicketPrintViewQuery query) {
+    return reader.findPrintViewRequired(query.ticketId());
+  }
 }

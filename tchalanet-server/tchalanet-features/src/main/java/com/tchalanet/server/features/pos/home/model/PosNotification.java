@@ -9,9 +9,8 @@ public record PosNotification(
     String messageKey,
     String actionType,
     String actionKey,
-    Map<String, Object> params
-) {
-    public PosNotification {
-        params = params == null ? Map.of() : Map.copyOf(params);
-    }
+    Map<String, Object> params) {
+  public PosNotification {
+    params = params == null ? Map.of() : Map.copyOf(params);
+  }
 }

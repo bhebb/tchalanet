@@ -14,28 +14,26 @@ import lombok.Setter;
 @Entity
 @Table(
     name = "promotion_rule",
-    uniqueConstraints = @UniqueConstraint(
-        name = "uq_promotion_rule_tenant_campaign_key",
-        columnNames = {"tenant_id", "campaign_id", "rule_key"}
-    )
-)
+    uniqueConstraints =
+        @UniqueConstraint(
+            name = "uq_promotion_rule_tenant_campaign_key",
+            columnNames = {"tenant_id", "campaign_id", "rule_key"}))
 @Getter
 @Setter
 public class PromotionRuleJpaEntity extends BaseTenantEntity {
 
-    @Column(name = "campaign_id", nullable = false)
-    private UUID campaignId;
+  @Column(name = "campaign_id", nullable = false)
+  private UUID campaignId;
 
-    @Column(name = "rule_key", nullable = false, length = 96)
-    private String ruleKey;
+  @Column(name = "rule_key", nullable = false, length = 96)
+  private String ruleKey;
 
-    @Column(nullable = false)
-    private int priority;
+  @Column(nullable = false)
+  private int priority;
 
-    @Column(name = "min_paid_total", precision = 19, scale = 4)
-    private BigDecimal minPaidTotal;
+  @Column(name = "min_paid_total", precision = 19, scale = 4)
+  private BigDecimal minPaidTotal;
 
-    @Column(name = "before_local_time")
-    private LocalTime beforeLocalTime;
-
+  @Column(name = "before_local_time")
+  private LocalTime beforeLocalTime;
 }

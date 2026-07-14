@@ -11,9 +11,8 @@ public record OpenTodayDrawsRequest(
     Instant now,
     LocalDate drawDate,
     @Min(1) Integer limit,
-    Boolean dryRun
-) {
-    public OpenTodayDrawsRequest {
-        if (dryRun == null) dryRun = Boolean.FALSE;
-    }
+    Boolean dryRun) {
+  public OpenTodayDrawsRequest {
+    if (dryRun == null) dryRun = Boolean.FALSE;
+  }
 }

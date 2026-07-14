@@ -1,8 +1,6 @@
 package com.tchalanet.server.common.bus.exception;
 
-/**
- * Exception thrown when multiple handlers are registered for the same message class.
- */
+/** Exception thrown when multiple handlers are registered for the same message class. */
 public class DuplicateHandlerException extends BusRegistrationException {
 
   public DuplicateHandlerException(String message) {
@@ -17,4 +15,3 @@ public class DuplicateHandlerException extends BusRegistrationException {
             messageType.getName(), existingHandler.getName(), newHandler.getName()));
   }
 }
-

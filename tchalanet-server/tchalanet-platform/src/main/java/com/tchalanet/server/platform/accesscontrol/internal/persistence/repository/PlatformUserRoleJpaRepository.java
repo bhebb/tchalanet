@@ -8,9 +8,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-public interface PlatformUserRoleJpaRepository extends JpaRepository<PlatformUserRoleJpaEntity, UUID> {
 
-  @Query("""
+public interface PlatformUserRoleJpaRepository
+    extends JpaRepository<PlatformUserRoleJpaEntity, UUID> {
+
+  @Query(
+      """
       select r
       from PlatformUserRoleJpaEntity r
       where r.userId = :userId
@@ -18,10 +21,10 @@ public interface PlatformUserRoleJpaRepository extends JpaRepository<PlatformUse
         and r.deletedAt is null
       """)
   Optional<PlatformUserRoleJpaEntity> findActiveAssignment(
-      @Param("userId") UUID userId,
-      @Param("roleId") UUID roleId);
+      @Param("userId") UUID userId, @Param("roleId") UUID roleId);
 
-  @Query("""
+  @Query(
+      """
       select r
       from PlatformUserRoleJpaEntity r
       join AppRoleJpaEntity role on role.id = r.roleId
@@ -35,7 +38,8 @@ public interface PlatformUserRoleJpaRepository extends JpaRepository<PlatformUse
   List<PlatformUserRoleJpaEntity> findActivePlatformAssignmentsByUser(@Param("userId") UUID userId);
 
   @Modifying
-  @Query("""
+  @Query(
+      """
       update PlatformUserRoleJpaEntity r
       set r.deletedAt = current_timestamp
       where r.userId = :userId
@@ -49,7 +53,8 @@ public interface PlatformUserRoleJpaRepository extends JpaRepository<PlatformUse
    * granted permissions (left join, so a role with no permissions still yields a row with a null
    * permission code). Used by {@code AccessControlSnapshotResolver#resolvePlatform}.
    */
-  @Query("""
+  @Query(
+      """
       select role.code as roleCode, rp.id.permissionCode as permissionCode
       from PlatformUserRoleJpaEntity assignment
       join AppRoleJpaEntity role on role.id = assignment.roleId
@@ -64,7 +69,8 @@ public interface PlatformUserRoleJpaRepository extends JpaRepository<PlatformUse
   List<RoleAccessRow> findPlatformRoleAccessRows(@Param("userId") UUID userId);
 
   @Query(
-      value = """
+      value =
+          """
           select
             u.id as "userId",
             u.email::text as "email",

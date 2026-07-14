@@ -5,4 +5,5 @@ import com.tchalanet.server.common.types.id.UserId;
 import jakarta.validation.constraints.NotEmpty;
 import java.util.List;
 
-public record ArchiveNotificationsRequest(@NotEmpty List<NotificationId> notificationIds, UserId actorId) {}
+public record ArchiveNotificationsRequest(
+    @NotEmpty List<NotificationId> notificationIds, UserId actorId) {}

@@ -6,7 +6,6 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-
 import java.math.BigDecimal;
 
 public record UpdateSellerTerminalRequest(
@@ -16,5 +15,4 @@ public record UpdateSellerTerminalRequest(
     @Email @Size(max = 254) String email,
     @Size(max = 64) String phoneNumber,
     AddressId addressId,
-    @DecimalMin("0.00") @DecimalMax("100.00") BigDecimal commissionRate
-) {}
+    @DecimalMin("0.00") @DecimalMax("100.00") BigDecimal commissionRate) {}

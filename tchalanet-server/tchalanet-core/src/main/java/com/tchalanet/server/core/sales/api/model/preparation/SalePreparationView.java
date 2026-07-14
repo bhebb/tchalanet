@@ -14,5 +14,4 @@ public record SalePreparationView(
     BigDecimal totalAmount,
     List<SalePreparationLineView> lines,
     List<SalePreparationPromotionLineView> promotionLines,
-    List<ApiNotice> notices
-) {}
+    List<ApiNotice> notices) {}

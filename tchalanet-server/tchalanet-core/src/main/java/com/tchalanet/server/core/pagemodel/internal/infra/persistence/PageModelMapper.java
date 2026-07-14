@@ -1,13 +1,12 @@
 package com.tchalanet.server.core.pagemodel.internal.infra.persistence;
 
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.common.types.id.PageModelTemplateId;
-import tools.jackson.databind.JsonNode;
 import com.tchalanet.server.core.pagemodel.internal.domain.model.PageModelInstance;
 import com.tchalanet.server.core.pagemodel.internal.domain.model.PageModelStatus;
-import com.tchalanet.server.common.json.utils.JsonUtils;
+import tools.jackson.databind.JsonNode;
 
 final class PageModelMapper {
-
 
   static PageModelInstance toDomain(PageModelJpaEntity e) {
     JsonNode node = null;
@@ -39,7 +38,7 @@ final class PageModelMapper {
         e.getPublishedAt(),
         null, // archivedAt not present on entity yet
         null // deletedAt not present on entity yet
-    );
+        );
   }
 
   static PageModelJpaEntity toEntity(PageModelInstance d, PageModelJpaEntity e) {
@@ -48,10 +47,17 @@ final class PageModelMapper {
     e.setTenantId(d.tenantId().value());
     e.setLogicalId(d.logicalId());
     e.setScope(d.scope());
-    e.setCode(d.logicalId() + "-" + d.schemaVersion()); // value is logicalId + schemaVersion for uniqueness
-    e.setName(d.logicalId() + "-" + d.schemaVersion()); // value is logicalId + schemaVersion for uniqueness
+    e.setCode(
+        d.logicalId()
+            + "-"
+            + d.schemaVersion()); // value is logicalId + schemaVersion for uniqueness
+    e.setName(
+        d.logicalId()
+            + "-"
+            + d.schemaVersion()); // value is logicalId + schemaVersion for uniqueness
     e.setSlug(d.slug());
-    // [Phase 1] correction: PageStatus inexistant — le type correct est PageModelStatus (analysis §BLOQUANT)
+    // [Phase 1] correction: PageStatus inexistant — le type correct est PageModelStatus (analysis
+    // §BLOQUANT)
     e.setStatus(d.status());
     e.setSchemaVersion(d.schemaVersion());
     e.setModel(d.modelJson());
@@ -59,8 +65,8 @@ final class PageModelMapper {
 
     e.setCreatedAt(d.createdAt());
     e.setUpdatedAt(d.updatedAt());
-    e.setCreatedBy(d.createdBy() != null ? d.createdBy().value(): null);
-    e.setUpdatedBy(d.updatedBy() != null ? d.updatedBy().value(): null);
+    e.setCreatedBy(d.createdBy() != null ? d.createdBy().value() : null);
+    e.setUpdatedBy(d.updatedBy() != null ? d.updatedBy().value() : null);
     e.setPublishedAt(d.publishedAt().orElse(null));
     e.setSchema(JsonUtils.emptyObject());
     // archivedAt / deletedAt not stored on this entity yet

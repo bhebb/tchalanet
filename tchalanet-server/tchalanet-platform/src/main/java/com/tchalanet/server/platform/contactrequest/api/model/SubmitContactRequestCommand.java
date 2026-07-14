@@ -14,5 +14,4 @@ public record SubmitContactRequestCommand(
     String preferredContactTime,
     String message,
     boolean consentToContact,
-    String sourcePage
-) {}
+    String sourcePage) {}

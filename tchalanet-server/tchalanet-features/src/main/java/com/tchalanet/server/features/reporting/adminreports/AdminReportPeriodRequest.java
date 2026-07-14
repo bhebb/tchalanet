@@ -12,5 +12,4 @@ public record AdminReportPeriodRequest(
     int drawLimit,
     int sellerTerminalLimit,
     List<UUID> drawIds,
-    List<UUID> sellerTerminalIds
-) {}
+    List<UUID> sellerTerminalIds) {}

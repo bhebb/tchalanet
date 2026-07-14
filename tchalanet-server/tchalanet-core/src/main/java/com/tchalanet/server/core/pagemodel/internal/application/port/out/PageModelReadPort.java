@@ -24,11 +24,11 @@ public interface PageModelReadPort {
   List<PageModelInstance> findAllByTemplateId(PageModelTemplateId templateId);
 
   // [Phase 3C] list(UUID...) supprimé — UUID interdit dans les ports (typed_ids §2)
-  // [Phase 3B] paged search pour ListPageModelsHandler (analysis §gap — ListPageModelsHandler absent)
+  // [Phase 3B] paged search pour ListPageModelsHandler (analysis §gap — ListPageModelsHandler
+  // absent)
   Page<PageModelInstance> search(
       Optional<TenantId> tenantId,
       Optional<String> scope,
       Optional<String> logicalId,
-      Pageable pageable
-  );
+      Pageable pageable);
 }

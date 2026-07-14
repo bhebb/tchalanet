@@ -14,10 +14,10 @@ import com.tchalanet.server.platform.archive.internal.service.ArchiveDomainPurge
 import com.tchalanet.server.platform.archive.internal.service.ArchiveDomainPurgeService.DomainPurgeDataset;
 import com.tchalanet.server.platform.archive.internal.service.ArchiveDomainPurgeService.DomainPurgeMode;
 import com.tchalanet.server.platform.archive.internal.service.ArchiveDomainPurgeService.DomainPurgeResult;
+import com.tchalanet.server.platform.archive.internal.service.ArchiveOpsQueryService;
 import com.tchalanet.server.platform.archive.internal.service.ArchivePartitionCleanupService;
 import com.tchalanet.server.platform.archive.internal.service.ArchivePartitionCleanupService.CleanupMode;
 import com.tchalanet.server.platform.archive.internal.service.ArchivePartitionCleanupService.PartitionCleanupPlan;
-import com.tchalanet.server.platform.archive.internal.service.ArchiveOpsQueryService;
 import com.tchalanet.server.platform.archive.internal.service.ArchiveRestoreService;
 import com.tchalanet.server.platform.archive.internal.service.ArchiveTicketPurgeService;
 import com.tchalanet.server.platform.archive.internal.service.ArchiveTicketPurgeService.TicketPurgeMode;
@@ -46,8 +46,8 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * Platform archive management endpoints (SUPER_ADMIN only).
  *
- * <p>External route prefix: {@code /api/v1/platform/archive/**}.
- * Controller mapping: {@code /platform/archive/**} (no /api/v1).
+ * <p>External route prefix: {@code /api/v1/platform/archive/**}. Controller mapping: {@code
+ * /platform/archive/**} (no /api/v1).
  */
 @Tag(name = "Platform - Archive")
 @RestController
@@ -69,17 +69,14 @@ public class PlatformArchiveController {
   @PostMapping("/runs")
   @ResponseStatus(HttpStatus.ACCEPTED)
   public ApiResponse<ArchiveRunView> triggerRun(
-      @Valid @RequestBody TriggerArchiveRunRequest request,
-      @CurrentContext TchRequestContext ctx) {
+      @Valid @RequestBody TriggerArchiveRunRequest request, @CurrentContext TchRequestContext ctx) {
 
-    return ApiResponse.success(
-        archiveApi.triggerRun(request, ctx.currentUserIdRequired().value()));
+    return ApiResponse.success(archiveApi.triggerRun(request, ctx.currentUserIdRequired().value()));
   }
 
   @Operation(summary = "List recent archive runs")
   @GetMapping("/runs")
-  public ApiResponse<List<ArchiveRunView>> listRuns(
-      @RequestParam(defaultValue = "50") int limit) {
+  public ApiResponse<List<ArchiveRunView>> listRuns(@RequestParam(defaultValue = "50") int limit) {
 
     return ApiResponse.success(archiveApi.listRuns(limit));
   }
@@ -90,17 +87,17 @@ public class PlatformArchiveController {
   @PostMapping("/restore/audit-log")
   @ResponseStatus(HttpStatus.ACCEPTED)
   public ApiResponse<UUID> restoreAuditLog(
-      @Valid @RequestBody RestoreAuditLogRequest request,
-      @CurrentContext TchRequestContext ctx) {
+      @Valid @RequestBody RestoreAuditLogRequest request, @CurrentContext TchRequestContext ctx) {
 
-    UUID restoreRunId = restoreService.restoreAuditLog(
-        request.tenantId(),
-        request.entityType(),
-        request.entityId(),
-        request.from(),
-        request.to(),
-        ctx.currentUserIdRequired().value(),
-        request.reason());
+    UUID restoreRunId =
+        restoreService.restoreAuditLog(
+            request.tenantId(),
+            request.entityType(),
+            request.entityId(),
+            request.from(),
+            request.to(),
+            ctx.currentUserIdRequired().value(),
+            request.reason());
 
     return ApiResponse.success(restoreRunId);
   }
@@ -129,34 +126,35 @@ public class PlatformArchiveController {
   @Operation(summary = "Purge archived ticket rows from hot storage (DRY_RUN by default)")
   @PostMapping("/ticket-purge")
   public ApiResponse<TicketPurgeResult> purgeArchivedTickets(
-      @Valid @RequestBody TicketPurgeRequest request,
-      @CurrentContext TchRequestContext ctx) {
+      @Valid @RequestBody TicketPurgeRequest request, @CurrentContext TchRequestContext ctx) {
 
-    return ApiResponse.success(ticketPurgeService.purge(
-        request.tenantId(),
-        request.periodStart(),
-        request.periodEnd(),
-        request.batchSize() == null ? 5_000 : request.batchSize(),
-        request.mode() == null ? TicketPurgeMode.DRY_RUN : request.mode(),
-        ctx.currentUserIdRequired().value(),
-        request.reason()));
+    return ApiResponse.success(
+        ticketPurgeService.purge(
+            request.tenantId(),
+            request.periodStart(),
+            request.periodEnd(),
+            request.batchSize() == null ? 5_000 : request.batchSize(),
+            request.mode() == null ? TicketPurgeMode.DRY_RUN : request.mode(),
+            ctx.currentUserIdRequired().value(),
+            request.reason()));
   }
 
-  @Operation(summary = "Purge archived draw, draw_result or Envers revision rows (DRY_RUN by default)")
+  @Operation(
+      summary = "Purge archived draw, draw_result or Envers revision rows (DRY_RUN by default)")
   @PostMapping("/domain-purge")
   public ApiResponse<DomainPurgeResult> purgeArchivedDomainRows(
-      @Valid @RequestBody DomainPurgeRequest request,
-      @CurrentContext TchRequestContext ctx) {
+      @Valid @RequestBody DomainPurgeRequest request, @CurrentContext TchRequestContext ctx) {
 
-    return ApiResponse.success(domainPurgeService.purge(
-        request.dataset(),
-        request.tenantId(),
-        request.periodStart(),
-        request.periodEnd(),
-        request.batchSize() == null ? 5_000 : request.batchSize(),
-        request.mode() == null ? DomainPurgeMode.DRY_RUN : request.mode(),
-        ctx.currentUserIdRequired().value(),
-        request.reason()));
+    return ApiResponse.success(
+        domainPurgeService.purge(
+            request.dataset(),
+            request.tenantId(),
+            request.periodStart(),
+            request.periodEnd(),
+            request.batchSize() == null ? 5_000 : request.batchSize(),
+            request.mode() == null ? DomainPurgeMode.DRY_RUN : request.mode(),
+            ctx.currentUserIdRequired().value(),
+            request.reason()));
   }
 
   // ── Legal holds ────────────────────────────────────────────────────────────
@@ -165,18 +163,18 @@ public class PlatformArchiveController {
   @PostMapping("/legal-holds")
   @ResponseStatus(HttpStatus.CREATED)
   public ApiResponse<UUID> createLegalHold(
-      @Valid @RequestBody CreateLegalHoldRequest request,
-      @CurrentContext TchRequestContext ctx) {
+      @Valid @RequestBody CreateLegalHoldRequest request, @CurrentContext TchRequestContext ctx) {
 
-    UUID id = opsQueryService.createLegalHold(
-        request.tenantId(),
-        request.datasetCode(),
-        request.entityType(),
-        request.entityId(),
-        request.periodStart(),
-        request.periodEnd(),
-        request.reason(),
-        ctx.currentUserIdRequired().value());
+    UUID id =
+        opsQueryService.createLegalHold(
+            request.tenantId(),
+            request.datasetCode(),
+            request.entityType(),
+            request.entityId(),
+            request.periodStart(),
+            request.periodEnd(),
+            request.reason(),
+            ctx.currentUserIdRequired().value());
     return ApiResponse.success(id);
   }
 
@@ -228,8 +226,7 @@ public class PlatformArchiveController {
       @NotNull UUID entityId,
       @NotNull LocalDate from,
       @NotNull LocalDate to,
-      @NotBlank @Size(min = 10, max = 500) String reason
-  ) {}
+      @NotBlank @Size(min = 10, max = 500) String reason) {}
 
   public record CreateLegalHoldRequest(
       UUID tenantId,
@@ -238,12 +235,9 @@ public class PlatformArchiveController {
       String entityId,
       @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate periodStart,
       @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate periodEnd,
-      @NotBlank @Size(min = 10, max = 1000) String reason
-  ) {}
+      @NotBlank @Size(min = 10, max = 1000) String reason) {}
 
-  public record ReleaseLegalHoldRequest(
-      @NotBlank @Size(min = 10, max = 1000) String reason
-  ) {}
+  public record ReleaseLegalHoldRequest(@NotBlank @Size(min = 10, max = 1000) String reason) {}
 
   public record TicketPurgeRequest(
       UUID tenantId,
@@ -251,8 +245,7 @@ public class PlatformArchiveController {
       @NotNull @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate periodEnd,
       Integer batchSize,
       TicketPurgeMode mode,
-      @NotBlank @Size(min = 10, max = 1000) String reason
-  ) {}
+      @NotBlank @Size(min = 10, max = 1000) String reason) {}
 
   public record DomainPurgeRequest(
       @NotNull DomainPurgeDataset dataset,
@@ -261,6 +254,5 @@ public class PlatformArchiveController {
       @NotNull @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate periodEnd,
       Integer batchSize,
       DomainPurgeMode mode,
-      @NotBlank @Size(min = 10, max = 1000) String reason
-  ) {}
+      @NotBlank @Size(min = 10, max = 1000) String reason) {}
 }

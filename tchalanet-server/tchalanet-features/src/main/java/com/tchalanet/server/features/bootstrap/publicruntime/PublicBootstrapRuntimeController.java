@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,12 +18,14 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Runtime")
 public class PublicBootstrapRuntimeController {
 
-    private final PublicRuntimeBootstrapService service;
+  private final PublicRuntimeBootstrapService service;
 
-    @GetMapping({"/public/runtime/bootstrap", "/public/bootstrap"})
-    @Operation(summary = "Public runtime bootstrap (no auth) — public settings, theme, i18n, navigation, readiness and pageModelRef")
-    public ApiResponse<PublicBootstrapResponse> publicBootstrap(
-        @RequestParam(required = false) String locale) {
-        return ApiResponse.success(service.publicBootstrap(locale));
-    }
+  @GetMapping({"/public/runtime/bootstrap", "/public/bootstrap"})
+  @Operation(
+      summary =
+          "Public runtime bootstrap (no auth) — public settings, theme, i18n, navigation, readiness and pageModelRef")
+  public ApiResponse<PublicBootstrapResponse> publicBootstrap(
+      @RequestParam(required = false) String locale) {
+    return ApiResponse.success(service.publicBootstrap(locale));
+  }
 }

@@ -1,17 +1,19 @@
 package com.tchalanet.server.core.pagemodel.internal.application.command.handler;
 
+import com.tchalanet.server.common.bus.VoidCommandHandler;
+import com.tchalanet.server.common.stereotype.TchTx;
+import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.pagemodel.api.command.PublishPageModelCommand;
 import com.tchalanet.server.core.pagemodel.internal.application.port.out.PageModelReadPort;
 import com.tchalanet.server.core.pagemodel.internal.application.port.out.PageModelWritePort;
-import com.tchalanet.server.common.stereotype.TchTx;
-import com.tchalanet.server.common.bus.VoidCommandHandler;
-import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.pagemodel.internal.domain.policy.PublishPolicy;
 import java.time.Clock;
 import lombok.RequiredArgsConstructor;
 
-// [Phase 2A-2] suppression de TchContext.get() — actorId lu depuis cmd.actorId() (analysis §BLOQUANT)
-// [Phase 3A] @UseCase + VoidCommandHandler pour câblage CQRS (analysis §MAJEUR command_query_handlers.md §3.2)
+// [Phase 2A-2] suppression de TchContext.get() — actorId lu depuis cmd.actorId() (analysis
+// §BLOQUANT)
+// [Phase 3A] @UseCase + VoidCommandHandler pour câblage CQRS (analysis §MAJEUR
+// command_query_handlers.md §3.2)
 @UseCase
 @RequiredArgsConstructor
 public class PublishPageModelCommandHandler implements VoidCommandHandler<PublishPageModelCommand> {

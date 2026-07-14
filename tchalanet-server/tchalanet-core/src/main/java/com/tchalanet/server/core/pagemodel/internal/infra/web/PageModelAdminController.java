@@ -1,14 +1,13 @@
 package com.tchalanet.server.core.pagemodel.internal.infra.web;
 
-import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.common.context.web.CurrentContext;
-import tools.jackson.databind.JsonNode;
 import com.tchalanet.server.common.bus.Command;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
+import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.common.context.web.CurrentContext;
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.common.types.id.PageModelId;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.common.web.paging.TchPaging;
@@ -28,8 +27,10 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import tools.jackson.databind.JsonNode;
 
-// [Phase 2A-3] extraction de tenantId/actorId depuis TchRequestContext — plus de TchContext dans les handlers
+// [Phase 2A-3] extraction de tenantId/actorId depuis TchRequestContext — plus de TchContext dans
+// les handlers
 // [Phase 2C] @PreAuthorize ajouté sur tous les endpoints (analysis §BLOQUANT security)
 // [Phase 3B] list() paginée via @TchPaging + Optional<TenantId>
 // [Phase 3C] PageModelId.of(String) → PageModelId.parse(String)
@@ -51,19 +52,18 @@ public class PageModelAdminController {
       @RequestParam(value = "scope", required = false) String scope,
       @RequestParam(value = "logicalId", required = false) String logicalId,
       @TchPaging TchPageRequest pageReq) {
-    var query = new ListPageModelsQuery(
-        Optional.ofNullable(tenantId).map(TenantId::of),
-        Optional.ofNullable(scope).filter(s -> !s.isBlank()),
-        Optional.ofNullable(logicalId).filter(s -> !s.isBlank()),
-        pageReq.pageable()
-    );
+    var query =
+        new ListPageModelsQuery(
+            Optional.ofNullable(tenantId).map(TenantId::of),
+            Optional.ofNullable(scope).filter(s -> !s.isBlank()),
+            Optional.ofNullable(logicalId).filter(s -> !s.isBlank()),
+            pageReq.pageable());
     return ApiResponse.success(queryBus.ask(query));
   }
 
   @PostMapping("/{id}/publish")
   public ApiResponse<?> publish(
-      @PathVariable("id") String id,
-      @CurrentContext TchRequestContext ctx) {
+      @PathVariable("id") String id, @CurrentContext TchRequestContext ctx) {
     PageModelId pid = PageModelId.parse(id);
     Command<Void> cmd = new PublishPageModelCommand(pid, ctx.tenantIdSafe(), ctx.userId());
     commandBus.execute(cmd);
@@ -72,20 +72,19 @@ public class PageModelAdminController {
 
   @PostMapping
   public ApiResponse<?> create(
-      @RequestBody PageModelAdminUpsertRequest req,
-      @CurrentContext TchRequestContext ctx) {
+      @RequestBody PageModelAdminUpsertRequest req, @CurrentContext TchRequestContext ctx) {
     JsonNode modelJson = req.model() == null ? null : jsonUtils.toJsonNode(req.model());
-    var cmd = new UpsertPageModelCommand(
-        Optional.empty(),
-        ctx.tenantIdSafe(),
-        ctx.userId(),
-        req.logicalId(),
-        req.scope(),
-        req.slug(),
-        req.schemaVersion(),
-        modelJson,
-        Optional.empty()
-    );
+    var cmd =
+        new UpsertPageModelCommand(
+            Optional.empty(),
+            ctx.tenantIdSafe(),
+            ctx.userId(),
+            req.logicalId(),
+            req.scope(),
+            req.slug(),
+            req.schemaVersion(),
+            modelJson,
+            Optional.empty());
     return ApiResponse.success(commandBus.execute(cmd));
   }
 
@@ -96,27 +95,27 @@ public class PageModelAdminController {
       @CurrentContext TchRequestContext ctx) {
     PageModelId pid = PageModelId.parse(id);
     JsonNode modelJson = req.model() == null ? null : jsonUtils.toJsonNode(req.model());
-    var cmd = new UpsertPageModelCommand(
-        Optional.of(pid),
-        ctx.tenantIdSafe(),
-        ctx.userId(),
-        req.logicalId(),
-        req.scope(),
-        req.slug(),
-        req.schemaVersion(),
-        modelJson,
-        Optional.empty()
-    );
+    var cmd =
+        new UpsertPageModelCommand(
+            Optional.of(pid),
+            ctx.tenantIdSafe(),
+            ctx.userId(),
+            req.logicalId(),
+            req.scope(),
+            req.slug(),
+            req.schemaVersion(),
+            modelJson,
+            Optional.empty());
     return ApiResponse.success(commandBus.execute(cmd));
   }
 
   // ------------------------------------------------------------------ preview
 
-  @Operation(summary = "Preview a page model (admin) — retourne le PageModel tel quel sans résolution dynamique")
+  @Operation(
+      summary =
+          "Preview a page model (admin) — retourne le PageModel tel quel sans résolution dynamique")
   @GetMapping("/{id}/preview")
-  public ApiResponse<PageModelAdminDetailDto> preview(
-      @PathVariable PageModelId id
-  ) {
+  public ApiResponse<PageModelAdminDetailDto> preview(@PathVariable PageModelId id) {
     return ApiResponse.success(queryBus.ask(new PreviewPageModelQuery(id)));
   }
 
@@ -128,14 +127,13 @@ public class PageModelAdminController {
       @PathVariable PageModelId id,
       @RequestParam(required = false) @Size(max = 128) String logicalId,
       @RequestParam(required = false) @Size(max = 128) String slug,
-      @CurrentContext TchRequestContext ctx
-  ) {
-    var cmd = new DuplicatePageModelCommand(
-        id,
-        ctx.userId(),
-        Optional.ofNullable(logicalId).filter(s -> !s.isBlank()),
-        Optional.ofNullable(slug).filter(s -> !s.isBlank())
-    );
+      @CurrentContext TchRequestContext ctx) {
+    var cmd =
+        new DuplicatePageModelCommand(
+            id,
+            ctx.userId(),
+            Optional.ofNullable(logicalId).filter(s -> !s.isBlank()),
+            Optional.ofNullable(slug).filter(s -> !s.isBlank()));
     return ApiResponse.success(commandBus.execute(cmd));
   }
 
@@ -144,9 +142,7 @@ public class PageModelAdminController {
   @Operation(summary = "Reset a page model to template defaults (admin) — repasse en DRAFT")
   @PostMapping("/{id}/reset")
   public ApiResponse<PageModelAdminDetailDto> reset(
-      @PathVariable PageModelId id,
-      @CurrentContext TchRequestContext ctx
-  ) {
+      @PathVariable PageModelId id, @CurrentContext TchRequestContext ctx) {
     var cmd = new ResetPageModelCommand(id, ctx.currentUserIdRequired());
     return ApiResponse.success(commandBus.execute(cmd));
   }

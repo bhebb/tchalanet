@@ -13,14 +13,13 @@ import org.springframework.stereotype.Component;
 /**
  * Reads per-day per-game sales breakdown from {@code analytics_draw}.
  *
- * <p>Groups draw-level aggregates by {@code ref_date + game_code} to produce
- * a daily sales report. This avoids re-reading the live ticket table.
+ * <p>Groups draw-level aggregates by {@code ref_date + game_code} to produce a daily sales report.
+ * This avoids re-reading the live ticket table.
  */
 @Component
 public class SalesReportAnalyticsReader {
 
-  @PersistenceContext
-  private EntityManager em;
+  @PersistenceContext private EntityManager em;
 
   public List<SalesReportLine> findSalesByPeriodAndGame(
       UUID tenantId, LocalDate fromDate, LocalDate toDate, String gameCode) {
@@ -43,21 +42,24 @@ public class SalesReportAnalyticsReader {
         """;
 
     @SuppressWarnings("unchecked")
-    List<Object[]> rows = em.createNativeQuery(sql)
-        .setParameter("tenantId", tenantId)
-        .setParameter("fromDate", fromDate)
-        .setParameter("toDate", toDate)
-        .setParameter("gameCode", gameCode)
-        .getResultList();
+    List<Object[]> rows =
+        em.createNativeQuery(sql)
+            .setParameter("tenantId", tenantId)
+            .setParameter("fromDate", fromDate)
+            .setParameter("toDate", toDate)
+            .setParameter("gameCode", gameCode)
+            .getResultList();
 
     return rows.stream()
-        .map(r -> new SalesReportLine(
-            ((Date) r[0]).toLocalDate(),
-            (String) r[1],
-            ((Number) r[2]).longValue(),
-            fromCents(((Number) r[3]).longValue()),
-            fromCents(((Number) r[4]).longValue()),
-            fromCents(((Number) r[5]).longValue())))
+        .map(
+            r ->
+                new SalesReportLine(
+                    ((Date) r[0]).toLocalDate(),
+                    (String) r[1],
+                    ((Number) r[2]).longValue(),
+                    fromCents(((Number) r[3]).longValue()),
+                    fromCents(((Number) r[4]).longValue()),
+                    fromCents(((Number) r[5]).longValue())))
         .toList();
   }
 

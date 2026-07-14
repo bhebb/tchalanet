@@ -5,20 +5,19 @@ import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.sales.api.query.CashierRecentTicketView;
 import com.tchalanet.server.core.sales.api.query.ListCashierRecentTicketsQuery;
 import com.tchalanet.server.core.sales.internal.application.port.out.CashierTicketDashboardReaderPort;
-import lombok.RequiredArgsConstructor;
-
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 @UseCase
 @RequiredArgsConstructor
 public class ListCashierRecentTicketsQueryHandler
     implements QueryHandler<ListCashierRecentTicketsQuery, List<CashierRecentTicketView>> {
 
-    private final CashierTicketDashboardReaderPort reader;
+  private final CashierTicketDashboardReaderPort reader;
 
-    @Override
-    public List<CashierRecentTicketView> handle(ListCashierRecentTicketsQuery query) {
-        int limit = Math.min(Math.max(query.limit(), 1), 20);
-        return reader.findRecentByCashier(query.cashierId(), limit);
-    }
+  @Override
+  public List<CashierRecentTicketView> handle(ListCashierRecentTicketsQuery query) {
+    int limit = Math.min(Math.max(query.limit(), 1), 20);
+    return reader.findRecentByCashier(query.cashierId(), limit);
+  }
 }

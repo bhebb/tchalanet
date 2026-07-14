@@ -1,10 +1,10 @@
 package com.tchalanet.server.platform.idempotence.internal.aspect;
 
 import com.tchalanet.server.common.http.TchHeaders;
-import com.tchalanet.server.platform.idempotence.api.RequireIdempotency;
 import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.platform.idempotence.api.IdempotencyStore;
+import com.tchalanet.server.platform.idempotence.api.RequireIdempotency;
 import com.tchalanet.server.platform.idempotence.internal.service.RequestHasher;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Optional;
@@ -26,7 +26,8 @@ public class RequireIdempotencyAspect {
   private final IdempotencyStore store;
   private final JsonUtils jsonUtils;
 
-  @Around("@annotation(com.tchalanet.server.platform.idempotence.api.RequireIdempotency) || @within(com.tchalanet.server.platform.idempotence.api.RequireIdempotency)")
+  @Around(
+      "@annotation(com.tchalanet.server.platform.idempotence.api.RequireIdempotency) || @within(com.tchalanet.server.platform.idempotence.api.RequireIdempotency)")
   public Object around(ProceedingJoinPoint pjp) throws Throwable {
     var sig = (MethodSignature) pjp.getSignature();
     RequireIdempotency ann = sig.getMethod().getAnnotation(RequireIdempotency.class);

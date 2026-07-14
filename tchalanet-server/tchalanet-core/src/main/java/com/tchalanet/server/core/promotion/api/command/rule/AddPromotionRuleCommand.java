@@ -17,5 +17,5 @@ public record AddPromotionRuleCommand(
     @NotNull String ruleKey,
     @NotNull Integer priority,
     @NotEmpty List<@Valid PromotionEligibilityConfigInput> eligibilityItems,
-    @NotEmpty List<@Valid PromotionEffectConfigInput> effectItems
-) implements Command<PromotionCampaignView> {}
+    @NotEmpty List<@Valid PromotionEffectConfigInput> effectItems)
+    implements Command<PromotionCampaignView> {}

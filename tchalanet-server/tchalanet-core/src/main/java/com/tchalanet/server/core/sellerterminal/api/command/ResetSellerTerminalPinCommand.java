@@ -8,8 +8,5 @@ import com.tchalanet.server.core.sellerterminal.api.model.PinResetReason;
 import com.tchalanet.server.core.sellerterminal.api.model.ResetSellerTerminalPinView;
 
 public record ResetSellerTerminalPinCommand(
-    TenantId tenantId,
-    SellerTerminalId terminalId,
-    PinResetReason reason,
-    UserId actorUserId
-) implements Command<ResetSellerTerminalPinView> {}
+    TenantId tenantId, SellerTerminalId terminalId, PinResetReason reason, UserId actorUserId)
+    implements Command<ResetSellerTerminalPinView> {}

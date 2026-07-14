@@ -25,4 +25,3 @@ public record ExternalAuthenticatedUser(
     return value;
   }
 }
-

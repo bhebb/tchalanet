@@ -8,9 +8,8 @@ public record SellerTerminalCommissionStatsView(
     long countWithCustomRate,
     BigDecimal minRate,
     BigDecimal maxRate,
-    BigDecimal avgRate
-) {
-    public static SellerTerminalCommissionStatsView empty() {
-        return new SellerTerminalCommissionStatsView(0L, 0L, 0L, null, null, null);
-    }
+    BigDecimal avgRate) {
+  public static SellerTerminalCommissionStatsView empty() {
+    return new SellerTerminalCommissionStatsView(0L, 0L, 0L, null, null, null);
+  }
 }

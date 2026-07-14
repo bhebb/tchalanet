@@ -8,5 +8,4 @@ public record PromotionChoiceInput(
     String gameCode,
     int index,
     String rawSelection,
-    TicketLineSelectionSource selectionSource
-) {}
+    TicketLineSelectionSource selectionSource) {}

@@ -81,7 +81,8 @@ abstract class AbstractNotificationRule implements NotificationRule {
     if (eventId != null) {
       return eventId.toString();
     }
-    for (String methodName : java.util.List.of("sourceId", "id", "tenantId", "sellerTerminalId", "drawId", "ticketId")) {
+    for (String methodName :
+        java.util.List.of("sourceId", "id", "tenantId", "sellerTerminalId", "drawId", "ticketId")) {
       var value = value(event, methodName);
       if (value != null) {
         return value.toString();

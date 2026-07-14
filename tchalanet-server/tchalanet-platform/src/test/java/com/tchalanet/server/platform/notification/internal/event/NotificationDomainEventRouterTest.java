@@ -9,9 +9,9 @@ import static org.mockito.Mockito.when;
 
 import com.tchalanet.server.common.job.lifecycle.JobLifecycleEvent;
 import com.tchalanet.server.common.job.lifecycle.JobLifecycleStatus;
-import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.common.types.id.EventId;
+import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.platform.idempotence.api.ProcessedEventPort;
 import com.tchalanet.server.platform.notification.api.model.NotificationAudienceType;
 import com.tchalanet.server.platform.notification.api.model.NotificationKind;
@@ -82,16 +82,17 @@ class NotificationDomainEventRouterTest {
             processedEvents);
     var eventId = UUID.randomUUID();
 
-    router.on(new JobLifecycleEvent(
-        EventId.of(eventId),
-        Instant.parse("2026-06-26T12:00:00Z"),
-        null,
-        "req-1",
-        "results:external:fetch",
-        JobLifecycleStatus.FAILED,
-        "IllegalStateException",
-        "Provider NY_EVE failed",
-        Map.of("providerKey", "NY_EVE")));
+    router.on(
+        new JobLifecycleEvent(
+            EventId.of(eventId),
+            Instant.parse("2026-06-26T12:00:00Z"),
+            null,
+            "req-1",
+            "results:external:fetch",
+            JobLifecycleStatus.FAILED,
+            "IllegalStateException",
+            "Provider NY_EVE failed",
+            Map.of("providerKey", "NY_EVE")));
 
     var captor = ArgumentCaptor.forClass(CreateNotificationRequest.class);
     verify(processedEvents.getIfAvailable())

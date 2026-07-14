@@ -45,13 +45,16 @@ import org.mockito.ArgumentCaptor;
 
 class AnalyticsSellerTerminalDrawProjectorTest {
 
-  private static final TenantId TENANT_ID = TenantId.of(UUID.fromString("10000000-0000-0000-0000-000000000001"));
+  private static final TenantId TENANT_ID =
+      TenantId.of(UUID.fromString("10000000-0000-0000-0000-000000000001"));
   private static final SellerTerminalId SELLER_TERMINAL_ID =
       SellerTerminalId.of(UUID.fromString("20000000-0000-0000-0000-000000000001"));
-  private static final DrawId DRAW_ID = DrawId.of(UUID.fromString("30000000-0000-0000-0000-000000000001"));
+  private static final DrawId DRAW_ID =
+      DrawId.of(UUID.fromString("30000000-0000-0000-0000-000000000001"));
   private static final DrawChannelId DRAW_CHANNEL_ID =
       DrawChannelId.of(UUID.fromString("40000000-0000-0000-0000-000000000001"));
-  private static final TicketId TICKET_ID = TicketId.of(UUID.fromString("50000000-0000-0000-0000-000000000001"));
+  private static final TicketId TICKET_ID =
+      TicketId.of(UUID.fromString("50000000-0000-0000-0000-000000000001"));
   private static final CurrencyCode HTG = CurrencyCode.of("HTG");
   private static final Instant NOW = Instant.parse("2026-06-25T10:00:00Z");
   private static final LocalDate REF_DATE = LocalDate.parse("2026-06-25");
@@ -60,14 +63,13 @@ class AnalyticsSellerTerminalDrawProjectorTest {
   void projectsSaleSnapshotsThenWinningAndPaidDeltasBySellerTerminalAndDraw() {
     var repository = mock(AnalyticsSellerTerminalDrawRepository.class);
     when(repository.findByTenantIdAndSellerTerminalIdAndDrawId(
-        TENANT_ID.value(), SELLER_TERMINAL_ID.value(), DRAW_ID.value()))
+            TENANT_ID.value(), SELLER_TERMINAL_ID.value(), DRAW_ID.value()))
         .thenReturn(Optional.empty());
     when(repository.save(any(AnalyticsSellerTerminalDrawEntity.class)))
         .thenAnswer(invocation -> invocation.getArgument(0));
 
-    var projector = new AnalyticsSellerTerminalDrawProjector(
-        repository,
-        Clock.fixed(NOW, ZoneOffset.UTC));
+    var projector =
+        new AnalyticsSellerTerminalDrawProjector(repository, Clock.fixed(NOW, ZoneOffset.UTC));
 
     projector.applyTicketPlaced(ticketPlaced(), REF_DATE);
 
@@ -89,7 +91,7 @@ class AnalyticsSellerTerminalDrawProjectorTest {
     assertThat(row.getNetRevenuePaidBasisCents()).isEqualTo(550L);
 
     when(repository.findByTenantIdAndSellerTerminalIdAndDrawId(
-        TENANT_ID.value(), SELLER_TERMINAL_ID.value(), DRAW_ID.value()))
+            TENANT_ID.value(), SELLER_TERMINAL_ID.value(), DRAW_ID.value()))
         .thenReturn(Optional.of(row));
 
     projector.applyTicketWinningSettlementCreated(winningCreated(4000L), REF_DATE);
@@ -125,9 +127,17 @@ class AnalyticsSellerTerminalDrawProjectorTest {
                 new TicketMoneyPayload.ChargeItem(
                     TicketChargeType.BUYER_SMS, money("5.00"), ChargePaidBy.BUYER, false, null),
                 new TicketMoneyPayload.ChargeItem(
-                    TicketChargeType.BUYER_WHATSAPP, money("3.00"), ChargePaidBy.TENANT, false, null),
+                    TicketChargeType.BUYER_WHATSAPP,
+                    money("3.00"),
+                    ChargePaidBy.TENANT,
+                    false,
+                    null),
                 new TicketMoneyPayload.ChargeItem(
-                    TicketChargeType.BUYER_SMS, money("2.00"), ChargePaidBy.BUYER, true, "WAIVE_CHARGE"))),
+                    TicketChargeType.BUYER_SMS,
+                    money("2.00"),
+                    ChargePaidBy.BUYER,
+                    true,
+                    "WAIVE_CHARGE"))),
         List.of(
             line(1, TicketLineOrigin.CUSTOMER, TicketLinePricingSource.STANDARD, money("10.00")),
             line(2, TicketLineOrigin.PROMOTION, TicketLinePricingSource.PROMOTION, money("0.00"))),
@@ -135,10 +145,7 @@ class AnalyticsSellerTerminalDrawProjectorTest {
   }
 
   private static TicketLinePlacedItem line(
-      int lineNumber,
-      TicketLineOrigin origin,
-      TicketLinePricingSource pricingSource,
-      Money stake) {
+      int lineNumber, TicketLineOrigin origin, TicketLinePricingSource pricingSource, Money stake) {
     return new TicketLinePlacedItem(
         TicketLineId.of(UUID.fromString("80000000-0000-0000-0000-00000000000" + lineNumber)),
         lineNumber,

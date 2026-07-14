@@ -5,7 +5,6 @@ import com.tchalanet.server.platform.communication.internal.rule.CommunicationRu
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -26,8 +25,10 @@ public class CommunicationDomainEventRouter {
       }
 
       rule.map(event).ifPresent(communicationApi::enqueue);
-      log.debug("Communication rule evaluated rule={} event={}",
-          rule.getClass().getSimpleName(), event.getClass().getSimpleName());
+      log.debug(
+          "Communication rule evaluated rule={} event={}",
+          rule.getClass().getSimpleName(),
+          event.getClass().getSimpleName());
     }
   }
 }

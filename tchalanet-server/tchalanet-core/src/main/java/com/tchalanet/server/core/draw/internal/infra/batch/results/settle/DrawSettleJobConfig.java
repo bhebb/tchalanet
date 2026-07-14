@@ -19,31 +19,31 @@ import org.springframework.transaction.PlatformTransactionManager;
 @RequiredArgsConstructor
 public class DrawSettleJobConfig {
 
-    private final JobRepository jobRepository;
-    private final PlatformTransactionManager batchTxManager;
+  private final JobRepository jobRepository;
+  private final PlatformTransactionManager batchTxManager;
 
-    private final ItemReader<DrawId> settleableDrawIdsReader;
-    private final ItemProcessor<DrawId, DrawId> settleProcessor;
-    private final ItemWriter<DrawId> settleWriter;
+  private final ItemReader<DrawId> settleableDrawIdsReader;
+  private final ItemProcessor<DrawId, DrawId> settleProcessor;
+  private final ItemWriter<DrawId> settleWriter;
 
-    private final JobExecutionListener listener;
+  private final JobExecutionListener listener;
 
-    @Bean(name = "settleDrawsJob") // must match app registry runtime bean name
-    public Job settleDrawsJob() {
-        return new JobBuilder("settle_draws", jobRepository)
-            .listener(listener)
-            .start(settleStep())
-            .build();
-    }
+  @Bean(name = "settleDrawsJob") // must match app registry runtime bean name
+  public Job settleDrawsJob() {
+    return new JobBuilder("settle_draws", jobRepository)
+        .listener(listener)
+        .start(settleStep())
+        .build();
+  }
 
-    @Bean
-    public Step settleStep() {
-        return new StepBuilder("settleDrawsStep", jobRepository)
-            .<DrawId, DrawId>chunk(10)          // ✅ SB6: use chunk(int)
-            .transactionManager(batchTxManager) // ✅ SB6: set tx manager here
-            .reader(settleableDrawIdsReader)
-            .processor(settleProcessor)
-            .writer(settleWriter)
-            .build();
-    }
+  @Bean
+  public Step settleStep() {
+    return new StepBuilder("settleDrawsStep", jobRepository)
+        .<DrawId, DrawId>chunk(10) // ✅ SB6: use chunk(int)
+        .transactionManager(batchTxManager) // ✅ SB6: set tx manager here
+        .reader(settleableDrawIdsReader)
+        .processor(settleProcessor)
+        .writer(settleWriter)
+        .build();
+  }
 }

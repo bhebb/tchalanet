@@ -17,5 +17,5 @@ public record ResolveSellerTerminalOddsQuery(
     String gameCode,
     PricingVariantCode pricingVariantCode,
     String betType,
-    Short betOption
-) implements Query<SellerTerminalOddsResolutionView> {}
+    Short betOption)
+    implements Query<SellerTerminalOddsResolutionView> {}

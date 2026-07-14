@@ -6,8 +6,8 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 /**
- * One {@code archive_legal_hold} row, verbatim — same field set/JSON keys as the previous
- * {@code SELECT *} raw map so existing consumers see an unchanged contract.
+ * One {@code archive_legal_hold} row, verbatim — same field set/JSON keys as the previous {@code
+ * SELECT *} raw map so existing consumers see an unchanged contract.
  */
 public record ArchiveLegalHoldRowView(
     UUID id,
@@ -23,5 +23,4 @@ public record ArchiveLegalHoldRowView(
     @JsonProperty("created_at") Instant createdAt,
     @JsonProperty("released_by_actor_id") UUID releasedByActorId,
     @JsonProperty("released_at") Instant releasedAt,
-    @JsonProperty("release_reason") String releaseReason
-) {}
+    @JsonProperty("release_reason") String releaseReason) {}

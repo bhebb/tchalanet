@@ -1,7 +1,6 @@
 package com.tchalanet.server.core.drawresult.api.query.view;
 
 import com.tchalanet.server.common.types.id.DrawResultId;
-
 import java.time.Instant;
 import java.util.List;
 
@@ -13,6 +12,4 @@ public record DrawResultProjection(
     String lot2,
     String lot3,
     String lot4,
-    List<String> derivedPairs
-) {
-}
+    List<String> derivedPairs) {}

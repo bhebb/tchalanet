@@ -18,5 +18,4 @@ public record RuntimeBootstrapResponse(
     PageModelRef pageModelRef,
     String entryRoute,
     RuntimePortalConfigView portalConfig,
-    @Nullable List<RuntimeBootstrapNotice> notices
-) {}
+    @Nullable List<RuntimeBootstrapNotice> notices) {}

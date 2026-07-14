@@ -10,21 +10,9 @@ import java.time.Instant;
 import java.util.List;
 
 public record CreatePromotionCampaignRequest(
-    @NotBlank
-    @Size(max = 160)
-    String name,
-
-    @Size(max = 500)
-    String description,
-
-    @NotNull
-    Instant startsAt,
-
+    @NotBlank @Size(max = 160) String name,
+    @Size(max = 500) String description,
+    @NotNull Instant startsAt,
     Instant endsAt,
-
-    @NotNull
-    Integer priority,
-
-    @NotEmpty
-    List<@Valid PromotionRuleConfigInput> rules
-) {}
+    @NotNull Integer priority,
+    @NotEmpty List<@Valid PromotionRuleConfigInput> rules) {}

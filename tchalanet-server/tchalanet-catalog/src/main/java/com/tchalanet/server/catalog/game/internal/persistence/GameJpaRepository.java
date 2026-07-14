@@ -14,10 +14,12 @@ import org.springframework.stereotype.Repository;
 public interface GameJpaRepository extends JpaRepository<GameJpaEntity, UUID> {
   List<GameJpaEntity> findByActiveTrueAndDeletedAtIsNull();
 
-  @Query("SELECT g FROM GameJpaEntity g WHERE g.deletedAt IS NULL " +
-         "AND (:active IS NULL OR g.active = :active) " +
-         "AND (:q IS NULL OR LOWER(g.name) LIKE :q OR LOWER(g.code) LIKE :q)")
-  Page<GameJpaEntity> searchLive(@Param("active") Boolean active, @Param("q") String q, Pageable pageable);
+  @Query(
+      "SELECT g FROM GameJpaEntity g WHERE g.deletedAt IS NULL "
+          + "AND (:active IS NULL OR g.active = :active) "
+          + "AND (:q IS NULL OR LOWER(g.name) LIKE :q OR LOWER(g.code) LIKE :q)")
+  Page<GameJpaEntity> searchLive(
+      @Param("active") Boolean active, @Param("q") String q, Pageable pageable);
 
   Optional<GameJpaEntity> findByIdAndDeletedAtIsNull(UUID id);
 

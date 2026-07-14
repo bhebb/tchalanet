@@ -5,8 +5,8 @@ import java.time.Instant;
 import java.util.UUID;
 
 /**
- * One {@code archive_run} row, verbatim — same field set/JSON keys as the previous
- * {@code SELECT *} raw map so existing consumers see an unchanged contract.
+ * One {@code archive_run} row, verbatim — same field set/JSON keys as the previous {@code SELECT *}
+ * raw map so existing consumers see an unchanged contract.
  */
 public record ArchiveRunRowView(
     UUID id,
@@ -19,5 +19,4 @@ public record ArchiveRunRowView(
     @JsonProperty("requested_by") UUID requestedBy,
     String reason,
     @JsonProperty("error_message") String errorMessage,
-    @JsonProperty("created_at") Instant createdAt
-) {}
+    @JsonProperty("created_at") Instant createdAt) {}

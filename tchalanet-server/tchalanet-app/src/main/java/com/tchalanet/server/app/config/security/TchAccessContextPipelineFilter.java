@@ -6,49 +6,43 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import java.io.IOException;
 
 @Component
 @RequiredArgsConstructor
 public class TchAccessContextPipelineFilter extends OncePerRequestFilter {
 
-    private final IdentityBootstrapStep identityBootstrapStep;
-    private final AccessResolutionStep accessResolutionStep;
+  private final IdentityBootstrapStep identityBootstrapStep;
+  private final AccessResolutionStep accessResolutionStep;
 
+  @Override
+  protected boolean shouldNotFilter(HttpServletRequest request) {
+    String path = request.getRequestURI();
 
-    @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) {
-        String path = request.getRequestURI();
+    return path.startsWith("/public/")
+        || path.startsWith("/api/v1/public/")
+        || (path.startsWith("/api/v1/platform/auth/portal-handoffs/") && path.endsWith("/consume"))
+        || (path.startsWith("/platform/auth/portal-handoffs/") && path.endsWith("/consume"))
+        || path.startsWith("/actuator/health")
+        || path.startsWith("/api/v1/actuator/health")
+        || path.startsWith("/swagger-ui")
+        || path.startsWith("/api/v1/swagger-ui")
+        || path.startsWith("/v3/api-docs")
+        || path.startsWith("/openapi")
+        || path.startsWith("/api/v1/openapi")
+        || path.equals("/error")
+        || path.equals("/api/v1/error");
+  }
 
-        return path.startsWith("/public/")
-            || path.startsWith("/api/v1/public/")
-            || (path.startsWith("/api/v1/platform/auth/portal-handoffs/")
-                && path.endsWith("/consume"))
-            || (path.startsWith("/platform/auth/portal-handoffs/")
-                && path.endsWith("/consume"))
-            || path.startsWith("/actuator/health")
-            || path.startsWith("/api/v1/actuator/health")
-            || path.startsWith("/swagger-ui")
-            || path.startsWith("/api/v1/swagger-ui")
-            || path.startsWith("/v3/api-docs")
-            || path.startsWith("/openapi")
-            || path.startsWith("/api/v1/openapi")
-            || path.equals("/error")
-            || path.equals("/api/v1/error");
-    }
-
-    @Override
-    protected void doFilterInternal(
-        HttpServletRequest request,
-        HttpServletResponse response,
-        FilterChain filterChain
-    ) throws ServletException, IOException {
-        identityBootstrapStep.bootstrap(request);
-        accessResolutionStep.resolve(request);
-        filterChain.doFilter(request, response);
-    }
+  @Override
+  protected void doFilterInternal(
+      HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+      throws ServletException, IOException {
+    identityBootstrapStep.bootstrap(request);
+    accessResolutionStep.resolve(request);
+    filterChain.doFilter(request, response);
+  }
 }

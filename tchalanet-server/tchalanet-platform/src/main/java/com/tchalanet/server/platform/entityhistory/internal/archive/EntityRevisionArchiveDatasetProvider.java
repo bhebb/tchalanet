@@ -39,19 +39,24 @@ public class EntityRevisionArchiveDatasetProvider implements ArchiveDatasetProvi
 
   @Override
   public ArchiveDatasetPlan plan(ArchivePeriod period, UUID tenantId) {
-    long count = jdbc.queryForObject("""
+    long count =
+        jdbc.queryForObject(
+            """
         SELECT COUNT(*)
           FROM revinfo
          WHERE rev_timestamp >= :fromMillis
            AND rev_timestamp < :toMillis
-        """, params(period), Long.class);
+        """,
+            params(period),
+            Long.class);
     return new ArchiveDatasetPlan(KEY, period, tenantId, count, count > 0);
   }
 
   @Override
   public ArchiveExportResult export(ArchiveExportRequest request) {
     long[] exported = {0};
-    jdbc.query("""
+    jdbc.query(
+        """
         SELECT
           r.rev,
           r.rev_timestamp,
@@ -81,25 +86,35 @@ public class EntityRevisionArchiveDatasetProvider implements ArchiveDatasetProvi
         WHERE r.rev_timestamp >= :fromMillis
           AND r.rev_timestamp < :toMillis
         ORDER BY r.rev_timestamp, r.rev
-        """, params(request.period()), rs -> {
-          request.rowSink().accept(Map.ofEntries(
-              Map.entry("rev", rs.getInt("rev")),
-              Map.entry("rev_timestamp", rs.getLong("rev_timestamp")),
-              Map.entry("revision_time", rs.getTimestamp("revision_time").toInstant()),
-              Map.entry("tenant_id", value(rs.getObject("tenant_id"))),
-              Map.entry("user_id", value(rs.getObject("user_id"))),
-              Map.entry("request_id", value(rs.getString("request_id"))),
-              Map.entry("actor_type", value(rs.getString("actor_type"))),
-              Map.entry("api_scope", value(rs.getString("api_scope"))),
-              Map.entry("tenant_overridden", rs.getBoolean("tenant_overridden")),
-              Map.entry("draw_result_aud_json", rs.getString("draw_result_aud_json")),
-              Map.entry("limit_assignment_aud_json", rs.getString("limit_assignment_aud_json")),
-              Map.entry("seller_terminal_aud_json", rs.getString("seller_terminal_aud_json"))));
+        """,
+        params(request.period()),
+        rs -> {
+          request
+              .rowSink()
+              .accept(
+                  Map.ofEntries(
+                      Map.entry("rev", rs.getInt("rev")),
+                      Map.entry("rev_timestamp", rs.getLong("rev_timestamp")),
+                      Map.entry("revision_time", rs.getTimestamp("revision_time").toInstant()),
+                      Map.entry("tenant_id", value(rs.getObject("tenant_id"))),
+                      Map.entry("user_id", value(rs.getObject("user_id"))),
+                      Map.entry("request_id", value(rs.getString("request_id"))),
+                      Map.entry("actor_type", value(rs.getString("actor_type"))),
+                      Map.entry("api_scope", value(rs.getString("api_scope"))),
+                      Map.entry("tenant_overridden", rs.getBoolean("tenant_overridden")),
+                      Map.entry("draw_result_aud_json", rs.getString("draw_result_aud_json")),
+                      Map.entry(
+                          "limit_assignment_aud_json", rs.getString("limit_assignment_aud_json")),
+                      Map.entry(
+                          "seller_terminal_aud_json", rs.getString("seller_terminal_aud_json"))));
           exported[0]++;
         });
 
-    log.info("entity revision archive export: {} revisions period={}/{}",
-        exported[0], request.period().start(), request.period().end());
+    log.info(
+        "entity revision archive export: {} revisions period={}/{}",
+        exported[0],
+        request.period().start(),
+        request.period().end());
     return new ArchiveExportResult(exported[0], SCHEMA_VERSION);
   }
 

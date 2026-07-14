@@ -1,5 +1,7 @@
 package com.tchalanet.server.features.pos.games;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.tchalanet.server.catalog.game.api.model.BetType;
 import com.tchalanet.server.catalog.game.api.model.GameCode;
 import com.tchalanet.server.common.types.id.TenantGameId;
@@ -22,15 +24,15 @@ import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 class PosGamesServiceTest {
 
-    @Test
-    void availableHidesDisabledOrInvisibleTenantOptions() {
-        var tenantId = TenantId.of(UUID.randomUUID());
-        var config =
-            new TenantGameBetOptionConfigView(GameCode.HT_LOTO3.name(), List.of(
+  @Test
+  void availableHidesDisabledOrInvisibleTenantOptions() {
+    var tenantId = TenantId.of(UUID.randomUUID());
+    var config =
+        new TenantGameBetOptionConfigView(
+            GameCode.HT_LOTO3.name(),
+            List.of(
                 new TenantBetTypeOptionConfigView(
                     BetType.LOTTO3_3D,
                     SelectionPolicy.EXPLICIT_ONLY,
@@ -38,23 +40,29 @@ class PosGamesServiceTest {
                     List.of(
                         new TenantBetOptionView((short) 1, "Exact", "Exact", true, true, 1),
                         new TenantBetOptionView((short) 2, "Box", "Box", false, true, 2)))));
-        var tenantGameApi = new FakeTenantGameApi(config);
+    var tenantGameApi = new FakeTenantGameApi(config);
 
-        var result = new PosGamesService(tenantGameApi).listAvailable(tenantId);
+    var result = new PosGamesService(tenantGameApi).listAvailable(tenantId);
 
-        assertThat(result).singleElement().satisfies(game -> {
-            assertThat(game.gameCode()).isEqualTo(GameCode.HT_LOTO3);
-            assertThat(game.options()).singleElement()
-                .extracting(PosBetOptionResponse::code)
-                .isEqualTo((short) 1);
-        });
-    }
+    assertThat(result)
+        .singleElement()
+        .satisfies(
+            game -> {
+              assertThat(game.gameCode()).isEqualTo(GameCode.HT_LOTO3);
+              assertThat(game.options())
+                  .singleElement()
+                  .extracting(PosBetOptionResponse::code)
+                  .isEqualTo((short) 1);
+            });
+  }
 
-    @Test
-    void availableHidesOptionsWhenSelectionPolicyIsImplicitBestMatch() {
-        var tenantId = TenantId.of(UUID.randomUUID());
-        var config =
-            new TenantGameBetOptionConfigView(GameCode.HT_LOTO3.name(), List.of(
+  @Test
+  void availableHidesOptionsWhenSelectionPolicyIsImplicitBestMatch() {
+    var tenantId = TenantId.of(UUID.randomUUID());
+    var config =
+        new TenantGameBetOptionConfigView(
+            GameCode.HT_LOTO3.name(),
+            List.of(
                 new TenantBetTypeOptionConfigView(
                     BetType.LOTTO3_3D,
                     SelectionPolicy.IMPLICIT_BEST_MATCH,
@@ -62,58 +70,64 @@ class PosGamesServiceTest {
                     List.of(
                         new TenantBetOptionView((short) 1, "Exact", "Exact", true, true, 1),
                         new TenantBetOptionView((short) 2, "Box", "Box", true, true, 2)))));
-        var tenantGameApi = new FakeTenantGameApi(config);
+    var tenantGameApi = new FakeTenantGameApi(config);
 
-        var result = new PosGamesService(tenantGameApi).listAvailable(tenantId);
+    var result = new PosGamesService(tenantGameApi).listAvailable(tenantId);
 
-        assertThat(result).singleElement().satisfies(game -> {
-            assertThat(game.gameCode()).isEqualTo(GameCode.HT_LOTO3);
-            assertThat(game.selectionPolicy()).isEqualTo(SelectionPolicy.IMPLICIT_BEST_MATCH);
-            assertThat(game.options()).isEmpty();
-        });
+    assertThat(result)
+        .singleElement()
+        .satisfies(
+            game -> {
+              assertThat(game.gameCode()).isEqualTo(GameCode.HT_LOTO3);
+              assertThat(game.selectionPolicy()).isEqualTo(SelectionPolicy.IMPLICIT_BEST_MATCH);
+              assertThat(game.options()).isEmpty();
+            });
+  }
+
+  private record FakeTenantGameApi(TenantGameBetOptionConfigView config) implements TenantGameApi {
+
+    @Override
+    public EnableTenantGameResult enableTenantGame(EnableTenantGameRequest request) {
+      throw new UnsupportedOperationException();
     }
 
-    private record FakeTenantGameApi(TenantGameBetOptionConfigView config) implements TenantGameApi {
-
-        @Override
-        public EnableTenantGameResult enableTenantGame(EnableTenantGameRequest request) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public DisableTenantGameResult disableTenantGame(DisableTenantGameRequest request) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void updateTenantGameSettings(UpdateTenantGameSettingsRequest request) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public TenantGameBetOptionConfigView getBetOptionConfig(TenantId tenantId, String gameCode) {
-            return config;
-        }
-
-        @Override
-        public TenantGameBetOptionConfigView updateBetOptionConfig(UpdateTenantGameBetOptionConfigRequest request) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void ensureTenantGame(EnsureTenantGamesRequest request) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public Optional<TenantGameRefView> findByTenantGameId(TenantId tenantId, TenantGameId tenantGameId) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public List<TenantGameRefView> listGames(TenantId tenantId) {
-            return List.of(new TenantGameRefView(
-                null, null, GameCode.HT_LOTO3.name(), true, true, null, 1, null, null));
-        }
+    @Override
+    public DisableTenantGameResult disableTenantGame(DisableTenantGameRequest request) {
+      throw new UnsupportedOperationException();
     }
+
+    @Override
+    public void updateTenantGameSettings(UpdateTenantGameSettingsRequest request) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public TenantGameBetOptionConfigView getBetOptionConfig(TenantId tenantId, String gameCode) {
+      return config;
+    }
+
+    @Override
+    public TenantGameBetOptionConfigView updateBetOptionConfig(
+        UpdateTenantGameBetOptionConfigRequest request) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void ensureTenantGame(EnsureTenantGamesRequest request) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Optional<TenantGameRefView> findByTenantGameId(
+        TenantId tenantId, TenantGameId tenantGameId) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<TenantGameRefView> listGames(TenantId tenantId) {
+      return List.of(
+          new TenantGameRefView(
+              null, null, GameCode.HT_LOTO3.name(), true, true, null, 1, null, null));
+    }
+  }
 }

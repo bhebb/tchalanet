@@ -11,15 +11,15 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Handles {@link RecomputeAnalyticsDailyCommand}.
  *
- * <p><b>V1 stub implementation</b>: deletes existing rows older than {@code from - 1 day}
- * and logs the operation. Full recompute from source-of-truth tables (sales_ticket,
- * payout, session) is implemented in {@code migrate-feature-stats-to-core-analytics}.
+ * <p><b>V1 stub implementation</b>: deletes existing rows older than {@code from - 1 day} and logs
+ * the operation. Full recompute from source-of-truth tables (sales_ticket, payout, session) is
+ * implemented in {@code migrate-feature-stats-to-core-analytics}.
  *
- * <p>The stub is safe to deploy: it clears stale rows and event-driven projectors
- * will rebuild from the next activity.
+ * <p>The stub is safe to deploy: it clears stale rows and event-driven projectors will rebuild from
+ * the next activity.
  *
- * TODO migrate-feature-stats-to-core-analytics: replace stub with real
- * source-of-truth aggregation queries.
+ * <p>TODO migrate-feature-stats-to-core-analytics: replace stub with real source-of-truth
+ * aggregation queries.
  */
 @UseCase
 @RequiredArgsConstructor
@@ -32,9 +32,11 @@ public class RecomputeAnalyticsDailyCommandHandler
   @Override
   @Transactional
   public Void handle(RecomputeAnalyticsDailyCommand cmd) {
-    log.info("analytics recompute: tenant={} from={} to={}",
+    log.info(
+        "analytics recompute: tenant={} from={} to={}",
         cmd.tenantId() != null ? cmd.tenantId().value() : "ALL",
-        cmd.from(), cmd.to());
+        cmd.from(),
+        cmd.to());
 
     // V1 stub: purge the window; projectors rebuild on next activity.
     int deleted = repo.deleteOlderThan(cmd.from().minusDays(1));

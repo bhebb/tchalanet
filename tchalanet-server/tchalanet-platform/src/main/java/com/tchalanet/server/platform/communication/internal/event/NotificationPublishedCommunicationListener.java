@@ -157,15 +157,22 @@ public class NotificationPublishedCommunicationListener {
   }
 
   private List<NotificationRecipientContact> contactsFor(NotificationPublishedEvent event) {
-    if (event.audienceType() == com.tchalanet.server.platform.notification.api.model.NotificationAudienceType.SPECIFIC_ACTORS) {
+    if (event.audienceType()
+        == com.tchalanet.server.platform.notification.api.model.NotificationAudienceType
+            .SPECIFIC_ACTORS) {
       return recipientResolvers.stream()
-          .filter(resolver -> event.targets() != null && event.targets().stream().anyMatch(target -> resolver.supportsTarget(target.actorType())))
+          .filter(
+              resolver ->
+                  event.targets() != null
+                      && event.targets().stream()
+                          .anyMatch(target -> resolver.supportsTarget(target.actorType())))
           .flatMap(resolver -> resolver.resolveTargets(event.tenantId(), event.targets()).stream())
           .toList();
     }
     return recipientResolvers.stream()
         .filter(resolver -> resolver.supportsAudience(event.audienceType()))
-        .flatMap(resolver -> resolver.resolveAudience(event.tenantId(), event.audienceType()).stream())
+        .flatMap(
+            resolver -> resolver.resolveAudience(event.tenantId(), event.audienceType()).stream())
         .toList();
   }
 
@@ -184,7 +191,8 @@ public class NotificationPublishedCommunicationListener {
     var key =
         switch (channel) {
           case SLACK, SLACK_INTERNAL, SLACK_TENANT_WEBHOOK -> "slack:" + recipient.channelKey();
-          case EMAIL, SMS, WHATSAPP, PUSH -> recipient.to() == null ? null : channel.name() + ":" + recipient.to();
+          case EMAIL, SMS, WHATSAPP, PUSH ->
+              recipient.to() == null ? null : channel.name() + ":" + recipient.to();
         };
     if (key != null && !key.isBlank()) {
       recipients.putIfAbsent(key, recipient);
@@ -226,6 +234,11 @@ public class NotificationPublishedCommunicationListener {
           case SLACK, SLACK_INTERNAL, SLACK_TENANT_WEBHOOK -> recipient.channelKey();
           case EMAIL, SMS, WHATSAPP, PUSH -> recipient.to();
         };
-    return String.join(":", "notification", publication, channel.name(), destination == null ? "default" : destination);
+    return String.join(
+        ":",
+        "notification",
+        publication,
+        channel.name(),
+        destination == null ? "default" : destination);
   }
 }

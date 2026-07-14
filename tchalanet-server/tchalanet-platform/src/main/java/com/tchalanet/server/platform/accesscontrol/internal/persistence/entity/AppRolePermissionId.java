@@ -44,5 +44,3 @@ public class AppRolePermissionId implements Serializable {
     return Objects.hash(roleId, permissionCode);
   }
 }
-
-

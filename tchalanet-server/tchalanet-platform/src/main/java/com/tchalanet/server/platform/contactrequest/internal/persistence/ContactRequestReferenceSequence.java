@@ -8,11 +8,9 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ContactRequestReferenceSequence {
 
-    private final JdbcTemplate jdbc;
+  private final JdbcTemplate jdbc;
 
-    public long nextValue() {
-        return jdbc.queryForObject(
-            "SELECT nextval('contact_request_ref_seq')",
-            Long.class);
-    }
+  public long nextValue() {
+    return jdbc.queryForObject("SELECT nextval('contact_request_ref_seq')", Long.class);
+  }
 }

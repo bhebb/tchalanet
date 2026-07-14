@@ -6,6 +6,5 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalForSaleValidationView;
 
 public record GetSellerTerminalForSaleValidationQuery(
-    TenantId tenantId,
-    SellerTerminalId terminalId
-) implements Query<SellerTerminalForSaleValidationView> {}
+    TenantId tenantId, SellerTerminalId terminalId)
+    implements Query<SellerTerminalForSaleValidationView> {}

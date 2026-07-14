@@ -1,9 +1,9 @@
 package com.tchalanet.server.core.drawresult.internal.infra.persistence.mapper;
 
 import com.tchalanet.server.catalog.drawchannel.api.model.DrawSource;
+import com.tchalanet.server.core.drawresult.api.model.DrawResultStatus;
 import com.tchalanet.server.core.drawresult.api.model.ResultQuality;
 import com.tchalanet.server.core.drawresult.internal.domain.model.DrawResult;
-import com.tchalanet.server.core.drawresult.api.model.DrawResultStatus;
 import com.tchalanet.server.core.drawresult.internal.infra.persistence.DrawResultJpaEntity;
 import org.mapstruct.Mapper;
 

@@ -9,8 +9,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface SalePreparationPromotionLineRepository
     extends JpaRepository<SalePreparationPromotionLineJpaEntity, UUID> {
 
-    List<SalePreparationPromotionLineJpaEntity> findByPreparationIdOrderByLineRefAsc(UUID preparationId);
+  List<SalePreparationPromotionLineJpaEntity> findByPreparationIdOrderByLineRefAsc(
+      UUID preparationId);
 
-    Optional<SalePreparationPromotionLineJpaEntity> findByPreparationIdAndLineRef(
-        UUID preparationId, String lineRef);
+  Optional<SalePreparationPromotionLineJpaEntity> findByPreparationIdAndLineRef(
+      UUID preparationId, String lineRef);
 }

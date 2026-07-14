@@ -1,7 +1,6 @@
 package com.tchalanet.server.core.draw.internal.infra.persistence.adapter;
 
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotCalendarCatalog;
-import com.tchalanet.server.catalog.resultslot.api.ResultSlotCalendarOverrideView;
 import com.tchalanet.server.common.types.id.ResultSlotId;
 import com.tchalanet.server.core.draw.internal.application.port.out.ResultSlotCalendarReaderPort;
 import java.time.LocalDate;
@@ -14,10 +13,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 /**
- * Reads provider no-draw dates via the cached {@link ResultSlotCalendarCatalog}
- * (24h TTL). The catalog owns storage + cache; this adapter owns the date logic:
- * it materializes recurring 'MM-dd' rules across the requested range and lets a
- * specific {@code available=true} row override a recurring closure.
+ * Reads provider no-draw dates via the cached {@link ResultSlotCalendarCatalog} (24h TTL). The
+ * catalog owns storage + cache; this adapter owns the date logic: it materializes recurring 'MM-dd'
+ * rules across the requested range and lets a specific {@code available=true} row override a
+ * recurring closure.
  */
 @Component
 @RequiredArgsConstructor

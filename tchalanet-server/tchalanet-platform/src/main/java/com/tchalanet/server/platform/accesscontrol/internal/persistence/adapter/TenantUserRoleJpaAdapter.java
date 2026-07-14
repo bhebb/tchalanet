@@ -27,11 +27,13 @@ public class TenantUserRoleJpaAdapter implements TenantUserDirectoryPort, Tenant
 
   @Override
   public Optional<TenantUserSnapshot> findActiveMembership(TenantId tenantId, UserId userId) {
-    var roles = tenantUserRoleRepository.findActiveByTenantAndUser(tenantId.value(), userId.value());
+    var roles =
+        tenantUserRoleRepository.findActiveByTenantAndUser(tenantId.value(), userId.value());
     if (roles.isEmpty()) return Optional.empty();
     var primary = roles.get(0);
-    return Optional.of(new TenantUserSnapshot(
-        tenantId, userId, RoleId.of(primary.getRoleId()), AutonomyLevel.FULL, false));
+    return Optional.of(
+        new TenantUserSnapshot(
+            tenantId, userId, RoleId.of(primary.getRoleId()), AutonomyLevel.FULL, false));
   }
 
   @Override
@@ -59,10 +61,14 @@ public class TenantUserRoleJpaAdapter implements TenantUserDirectoryPort, Tenant
 
   @Transactional
   public void assign(TenantId tenantId, UserId userId, String roleCode, UserId assignedBy) {
-    var role = appRoleRepository.findActiveSystemRoleByCodeAndScope(roleCode, TENANT_ROLE_SCOPE)
-        .orElseThrow(() -> new IllegalArgumentException("Role not found: " + roleCode));
+    var role =
+        appRoleRepository
+            .findActiveSystemRoleByCodeAndScope(roleCode, TENANT_ROLE_SCOPE)
+            .orElseThrow(() -> new IllegalArgumentException("Role not found: " + roleCode));
     var roleId = role.getId();
-    if (tenantUserRoleRepository.findActiveAssignment(tenantId.value(), userId.value(), roleId).isEmpty()) {
+    if (tenantUserRoleRepository
+        .findActiveAssignment(tenantId.value(), userId.value(), roleId)
+        .isEmpty()) {
       var entity = new TenantUserRoleJpaEntity();
       entity.setTenantId(tenantId.value());
       entity.setUserId(userId.value());
@@ -74,7 +80,11 @@ public class TenantUserRoleJpaAdapter implements TenantUserDirectoryPort, Tenant
 
   @Transactional
   public void remove(TenantId tenantId, UserId userId, String roleCode) {
-    appRoleRepository.findActiveSystemRoleByCodeAndScope(roleCode, TENANT_ROLE_SCOPE).ifPresent(role ->
-        tenantUserRoleRepository.softDeleteAssignment(tenantId.value(), userId.value(), role.getId()));
+    appRoleRepository
+        .findActiveSystemRoleByCodeAndScope(roleCode, TENANT_ROLE_SCOPE)
+        .ifPresent(
+            role ->
+                tenantUserRoleRepository.softDeleteAssignment(
+                    tenantId.value(), userId.value(), role.getId()));
   }
 }

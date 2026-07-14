@@ -1,13 +1,16 @@
 package com.tchalanet.server.platform.tenant.internal.web;
 
-import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.context.TchContextResolver;
+import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.common.web.paging.TchPaging;
 import com.tchalanet.server.common.web.paging.TchSearchQuery;
+import com.tchalanet.server.platform.accesscontrol.api.SupportAccessApi;
+import com.tchalanet.server.platform.accesscontrol.api.model.StartSupportAccessSessionRequest;
+import com.tchalanet.server.platform.accesscontrol.api.model.SupportAccessSessionView;
 import com.tchalanet.server.platform.tenant.api.model.TenantStatus;
 import com.tchalanet.server.platform.tenant.api.model.request.ActivateTenantRequest;
 import com.tchalanet.server.platform.tenant.api.model.request.ArchiveTenantRequest;
@@ -20,12 +23,10 @@ import com.tchalanet.server.platform.tenant.api.model.request.UpdateTenantIdenti
 import com.tchalanet.server.platform.tenant.api.model.view.TenantConfigView;
 import com.tchalanet.server.platform.tenant.api.model.view.TenantSummaryView;
 import com.tchalanet.server.platform.tenant.internal.service.TenantConfigService;
-import com.tchalanet.server.platform.accesscontrol.api.SupportAccessApi;
-import com.tchalanet.server.platform.accesscontrol.api.model.StartSupportAccessSessionRequest;
-import com.tchalanet.server.platform.accesscontrol.api.model.SupportAccessSessionView;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -39,8 +40,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.time.Instant;
 
 @Tag(name = "Platform - Tenants")
 @RestController
@@ -59,12 +58,20 @@ public class TenantAdminController {
       @RequestParam(required = false) String q,
       @RequestParam(required = false) TenantStatus status,
       @TchPaging(
-          allowedSort = {"createdAt", "updatedAt", "code", "name", "status", "type", "currency"},
-          defaultSort = {"updatedAt,desc"}
-      ) TchPageRequest pageReq) {
-    return ApiResponse.success(tenants.listTenants(
-        new ListTenantsRequest(pageReq.pageable(), TchSearchQuery.of(q), status)
-    ));
+              allowedSort = {
+                "createdAt",
+                "updatedAt",
+                "code",
+                "name",
+                "status",
+                "type",
+                "currency"
+              },
+              defaultSort = {"updatedAt,desc"})
+          TchPageRequest pageReq) {
+    return ApiResponse.success(
+        tenants.listTenants(
+            new ListTenantsRequest(pageReq.pageable(), TchSearchQuery.of(q), status)));
   }
 
   @GetMapping("/{id}")
@@ -96,14 +103,16 @@ public class TenantAdminController {
   @PostMapping("/{id}/suspend")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @PreAuthorize("hasPermission(null, 'tenant.suspend')")
-  public void suspend(@PathVariable TenantId id, @RequestBody(required = false) ReasonRequest body) {
+  public void suspend(
+      @PathVariable TenantId id, @RequestBody(required = false) ReasonRequest body) {
     tenants.suspendTenant(new SuspendTenantRequest(id, body == null ? null : body.reason()));
   }
 
   @PostMapping("/{id}/archive")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @PreAuthorize("hasPermission(null, 'tenant.update')")
-  public void archive(@PathVariable TenantId id, @RequestBody(required = false) ReasonRequest body) {
+  public void archive(
+      @PathVariable TenantId id, @RequestBody(required = false) ReasonRequest body) {
     tenants.archiveTenant(new ArchiveTenantRequest(id, body == null ? null : body.reason()));
   }
 
@@ -112,28 +121,34 @@ public class TenantAdminController {
   @Operation(summary = "Update identity fields of a tenant")
   @PreAuthorize("hasPermission(null, 'tenant.update')")
   public void update(@PathVariable TenantId id, @Valid @RequestBody UpdateTenantIdentityBody body) {
-    tenants.updateTenantIdentity(new UpdateTenantIdentityRequest(id, body.name(), body.displayName(), body.timezone(), body.currency()));
+    tenants.updateTenantIdentity(
+        new UpdateTenantIdentityRequest(
+            id, body.name(), body.displayName(), body.timezone(), body.currency()));
   }
 
   @PostMapping("/{id}/admin-access")
   @Operation(summary = "Start a platform support tenant-admin access session")
   @PreAuthorize("hasRole('SUPER_ADMIN')")
   public ApiResponse<TenantAdminAccessSessionResponse> startAdminAccess(
-      @PathVariable TenantId id,
-      @Valid @RequestBody StartTenantAdminAccessRequest body) {
+      @PathVariable TenantId id, @Valid @RequestBody StartTenantAdminAccessRequest body) {
     var tenant = tenants.getTenantById(new GetTenantByIdRequest(id));
     var requestedMode = body.mode();
-    var mode = requestedMode == SupportAccessMode.SUPPORT_READONLY || tenant.status() != TenantStatus.ACTIVE
-        ? SupportAccessMode.SUPPORT_READONLY
-        : SupportAccessMode.SUPPORT_OVERRIDE;
+    var mode =
+        requestedMode == SupportAccessMode.SUPPORT_READONLY
+                || tenant.status() != TenantStatus.ACTIVE
+            ? SupportAccessMode.SUPPORT_READONLY
+            : SupportAccessMode.SUPPORT_OVERRIDE;
     var actor = contextResolver.currentOrThrow().userId();
-    var session = supportAccess.start(new StartSupportAccessSessionRequest(
-        actor,
-        tenant.tenantId(),
-        tenant.code(),
-        tenant.displayName(),
-        body.reason(),
-        com.tchalanet.server.platform.accesscontrol.api.model.SupportAccessMode.valueOf(mode.name())));
+    var session =
+        supportAccess.start(
+            new StartSupportAccessSessionRequest(
+                actor,
+                tenant.tenantId(),
+                tenant.code(),
+                tenant.displayName(),
+                body.reason(),
+                com.tchalanet.server.platform.accesscontrol.api.model.SupportAccessMode.valueOf(
+                    mode.name())));
     return ApiResponse.success(toResponse(session));
   }
 
@@ -142,7 +157,8 @@ public class TenantAdminController {
   @PreAuthorize("hasRole('SUPER_ADMIN')")
   public ApiResponse<TenantAdminAccessSessionResponse> currentAdminAccess() {
     var actor = contextResolver.currentOrThrow().userId();
-    return supportAccess.current(actor)
+    return supportAccess
+        .current(actor)
         .map(session -> ApiResponse.success(toResponse(session)))
         .orElseGet(() -> ApiResponse.success(null));
   }
@@ -156,7 +172,10 @@ public class TenantAdminController {
   }
 
   public record ReasonRequest(String reason) {}
-  public record UpdateTenantIdentityBody(String name, String displayName, String timezone, String currency) {}
+
+  public record UpdateTenantIdentityBody(
+      String name, String displayName, String timezone, String currency) {}
+
   public record StartTenantAdminAccessRequest(String reason, SupportAccessMode mode) {
     public StartTenantAdminAccessRequest {
       if (reason == null || reason.trim().length() < 10) {
@@ -167,10 +186,12 @@ public class TenantAdminController {
       }
     }
   }
+
   public enum SupportAccessMode {
     SUPPORT_OVERRIDE,
     SUPPORT_READONLY
   }
+
   public record TenantAdminAccessSessionResponse(
       String sessionId,
       String tenantId,
@@ -180,8 +201,7 @@ public class TenantAdminController {
       Instant expiresAt,
       String actorRole,
       SupportAccessMode mode,
-      boolean sensitiveDataMasked
-  ) {}
+      boolean sensitiveDataMasked) {}
 
   private static TenantAdminAccessSessionResponse toResponse(SupportAccessSessionView session) {
     return new TenantAdminAccessSessionResponse(

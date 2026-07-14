@@ -7,8 +7,5 @@ import com.tchalanet.server.core.promotion.api.model.lifecycle.PromotionCampaign
 import jakarta.validation.constraints.NotNull;
 
 public record PausePromotionCampaignCommand(
-    @NotNull TenantId tenantId,
-    @NotNull PromotionCampaignId campaignId
-) implements Command<PromotionCampaignView> {}
-
-
+    @NotNull TenantId tenantId, @NotNull PromotionCampaignId campaignId)
+    implements Command<PromotionCampaignView> {}

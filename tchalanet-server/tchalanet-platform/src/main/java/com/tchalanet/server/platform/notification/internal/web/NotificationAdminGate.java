@@ -7,8 +7,8 @@ import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.common.web.paging.TchSearchQuery;
-import com.tchalanet.server.platform.notification.api.model.NotificationAudienceType;
 import com.tchalanet.server.platform.notification.api.model.NotificationActorType;
+import com.tchalanet.server.platform.notification.api.model.NotificationAudienceType;
 import com.tchalanet.server.platform.notification.api.model.NotificationCategory;
 import com.tchalanet.server.platform.notification.api.model.NotificationKind;
 import com.tchalanet.server.platform.notification.api.model.NotificationSeverity;
@@ -17,7 +17,6 @@ import com.tchalanet.server.platform.notification.api.model.request.ArchiveNotif
 import com.tchalanet.server.platform.notification.api.model.request.CreateNotificationRequest;
 import com.tchalanet.server.platform.notification.api.model.request.GetNotificationSummaryRequest;
 import com.tchalanet.server.platform.notification.api.model.request.ListNotificationsRequest;
-import com.tchalanet.server.platform.notification.api.model.request.MarkNotificationReadRequest;
 import com.tchalanet.server.platform.notification.api.model.view.NotificationItemView;
 import com.tchalanet.server.platform.notification.api.model.view.NotificationSummaryView;
 import com.tchalanet.server.platform.notification.api.model.view.NotificationUnreadCountView;
@@ -87,7 +86,9 @@ class NotificationAdminGate {
   void createForTenant(CreateNotificationBody request, TchRequestContext context) {
     var tenantId = context.tenantIdRequired();
     var audienceType =
-        request.audienceType() == null ? NotificationAudienceType.TENANT_ADMINS : request.audienceType();
+        request.audienceType() == null
+            ? NotificationAudienceType.TENANT_ADMINS
+            : request.audienceType();
     if (audienceType == NotificationAudienceType.PLATFORM_ADMINS
         || audienceType == NotificationAudienceType.ALL_APP_USERS) {
       throw ProblemRest.forbidden("notification.platform_audience_requires_platform_scope");
@@ -97,7 +98,9 @@ class NotificationAdminGate {
 
   void createForPlatform(CreateNotificationBody request) {
     var audienceType =
-        request.audienceType() == null ? NotificationAudienceType.PLATFORM_ADMINS : request.audienceType();
+        request.audienceType() == null
+            ? NotificationAudienceType.PLATFORM_ADMINS
+            : request.audienceType();
     if (audienceType == NotificationAudienceType.TENANT_ADMINS
         || audienceType == NotificationAudienceType.TENANT_APP_USERS
         || audienceType == NotificationAudienceType.TENANT_SELLER_TERMINALS) {
@@ -108,7 +111,9 @@ class NotificationAdminGate {
 
   void createForTenantFromPlatform(CreateNotificationBody request, TenantId tenantId) {
     var audienceType =
-        request.audienceType() == null ? NotificationAudienceType.TENANT_ADMINS : request.audienceType();
+        request.audienceType() == null
+            ? NotificationAudienceType.TENANT_ADMINS
+            : request.audienceType();
     if (audienceType == NotificationAudienceType.PLATFORM_ADMINS
         || audienceType == NotificationAudienceType.ALL_APP_USERS) {
       throw ProblemRest.forbidden("notification.platform_audience_requires_platform_scope");
@@ -140,7 +145,8 @@ class NotificationAdminGate {
     return notificationService.publish(id, context.currentUserIdRequired(), reason(request));
   }
 
-  Object republish(NotificationId id, NotificationLifecycleBody request, TchRequestContext context) {
+  Object republish(
+      NotificationId id, NotificationLifecycleBody request, TchRequestContext context) {
     return notificationService.republish(id, context.currentUserIdRequired(), reason(request));
   }
 

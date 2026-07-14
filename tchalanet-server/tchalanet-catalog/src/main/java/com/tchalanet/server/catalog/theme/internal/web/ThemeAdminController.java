@@ -9,11 +9,10 @@ import com.tchalanet.server.catalog.theme.internal.write.ThemePresetAdminService
 import com.tchalanet.server.common.types.id.ThemePresetId;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.error.ProblemRest;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/platform/catalog/theme-presets")
@@ -21,41 +20,41 @@ import java.util.List;
 @PreAuthorize("hasRole('SUPER_ADMIN')")
 public class ThemeAdminController {
 
-    private final ThemePresetAdminService admin;
-    private final ThemeCatalog themeCatalog;
+  private final ThemePresetAdminService admin;
+  private final ThemeCatalog themeCatalog;
 
-    @GetMapping
-    public ApiResponse<List<ThemePresetView>> listActive() {
-        return ApiResponse.success(themeCatalog.listActive());
-    }
+  @GetMapping
+  public ApiResponse<List<ThemePresetView>> listActive() {
+    return ApiResponse.success(themeCatalog.listActive());
+  }
 
-    @GetMapping("/{id}")
-    public ApiResponse<ThemePresetView> get(@PathVariable ThemePresetId id) {
-        return ApiResponse.success(
-            themeCatalog.findById(id)
-                .orElseThrow(() -> ProblemRest.notFound("Theme not found", id)));
-    }
+  @GetMapping("/{id}")
+  public ApiResponse<ThemePresetView> get(@PathVariable ThemePresetId id) {
+    return ApiResponse.success(
+        themeCatalog.findById(id).orElseThrow(() -> ProblemRest.notFound("Theme not found", id)));
+  }
 
-    @GetMapping("/overview")
-    public ApiResponse<ThemePresetStatsView> overview() {
-        return ApiResponse.success(themeCatalog.stats());
-    }
+  @GetMapping("/overview")
+  public ApiResponse<ThemePresetStatsView> overview() {
+    return ApiResponse.success(themeCatalog.stats());
+  }
 
-    @PostMapping
-    public ApiResponse<ThemePresetView> create(@RequestBody ThemePresetCreateRequest req) {
-        var created = admin.create(req);
-        return ApiResponse.created(created);
-    }
+  @PostMapping
+  public ApiResponse<ThemePresetView> create(@RequestBody ThemePresetCreateRequest req) {
+    var created = admin.create(req);
+    return ApiResponse.created(created);
+  }
 
-    @PutMapping("/{id}")
-    public ApiResponse<ThemePresetView> update(@PathVariable ThemePresetId id, @RequestBody ThemePresetUpdateRequest req) {
-        var updated = admin.update(id, req);
-        return ApiResponse.success(updated);
-    }
+  @PutMapping("/{id}")
+  public ApiResponse<ThemePresetView> update(
+      @PathVariable ThemePresetId id, @RequestBody ThemePresetUpdateRequest req) {
+    var updated = admin.update(id, req);
+    return ApiResponse.success(updated);
+  }
 
-    @DeleteMapping("/{id}")
-    public ApiResponse<Void> delete(@PathVariable ThemePresetId id) {
-        admin.softDelete(id);
-        return ApiResponse.success(null);
-    }
+  @DeleteMapping("/{id}")
+  public ApiResponse<Void> delete(@PathVariable ThemePresetId id) {
+    admin.softDelete(id);
+    return ApiResponse.success(null);
+  }
 }

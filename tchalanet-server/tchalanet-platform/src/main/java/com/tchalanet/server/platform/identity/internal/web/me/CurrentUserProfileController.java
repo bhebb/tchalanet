@@ -1,7 +1,7 @@
 package com.tchalanet.server.platform.identity.internal.web.me;
 
-import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.error.ProblemRest;
@@ -53,7 +53,8 @@ public class CurrentUserProfileController {
   @Operation(summary = "Patch current user profile")
   public ApiResponse<UserResponse> updateProfile(
       @CurrentContext TchRequestContext ctx,
-      @Valid @RequestBody com.tchalanet.server.platform.identity.internal.web.model.UpdateUserProfileRequest req) {
+      @Valid @RequestBody
+          com.tchalanet.server.platform.identity.internal.web.model.UpdateUserProfileRequest req) {
     if (ctx.userId() == null) {
       throw ProblemRest.notFound("User not found for current principal");
     }
@@ -76,11 +77,9 @@ public class CurrentUserProfileController {
             profile.displayName()));
   }
 
-  private static MeResponse toMeResponse(CurrentUserView view, TchRequestContext ctx, boolean isNew) {
-    var roles =
-        ctx.systemRoles() == null
-            ? Set.<TchRole>of()
-            : ctx.systemRoles();
+  private static MeResponse toMeResponse(
+      CurrentUserView view, TchRequestContext ctx, boolean isNew) {
+    var roles = ctx.systemRoles() == null ? Set.<TchRole>of() : ctx.systemRoles();
     var availableSurfaces = ClientSurfacePolicy.availableSurfaces(roles);
     return new MeResponse(
         view.id(),

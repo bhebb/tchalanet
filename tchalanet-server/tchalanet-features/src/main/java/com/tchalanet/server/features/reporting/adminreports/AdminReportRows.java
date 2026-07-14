@@ -18,8 +18,7 @@ public final class AdminReportRows {
       BigDecimal sellerCommission,
       BigDecimal tenantCharges,
       BigDecimal netRevenueEstimated,
-      BigDecimal netRevenuePaidBasis
-  ) {}
+      BigDecimal netRevenuePaidBasis) {}
 
   public record DrawRow(
       UUID drawId,
@@ -34,8 +33,7 @@ public final class AdminReportRows {
       BigDecimal sellerCommission,
       BigDecimal tenantCharges,
       BigDecimal netRevenueEstimated,
-      BigDecimal netRevenuePaidBasis
-  ) {}
+      BigDecimal netRevenuePaidBasis) {}
 
   public record SellerTerminalRow(
       UUID sellerTerminalId,
@@ -53,8 +51,7 @@ public final class AdminReportRows {
       long drawCount,
       BigDecimal averageGrossSalesPerDraw,
       BigDecimal netRevenueEstimated,
-      BigDecimal netRevenuePaidBasis
-  ) {}
+      BigDecimal netRevenuePaidBasis) {}
 
   public record TopSelectionRow(
       int rank,
@@ -63,6 +60,5 @@ public final class AdminReportRows {
       String betType,
       Short betOption,
       long lineCount,
-      BigDecimal totalStake
-  ) {}
+      BigDecimal totalStake) {}
 }

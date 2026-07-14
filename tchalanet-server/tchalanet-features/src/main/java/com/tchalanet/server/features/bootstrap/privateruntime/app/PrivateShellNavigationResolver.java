@@ -15,34 +15,37 @@ import tools.jackson.core.type.TypeReference;
 @RequiredArgsConstructor
 class PrivateShellNavigationResolver {
 
-    private final PageModelJsonFragmentRegistry fragmentRegistry;
-    private final JsonUtils jsonUtils;
-    private final ConcurrentMap<PrivateBootstrapSpace, Map<String, Object>> cache = new ConcurrentHashMap<>();
+  private final PageModelJsonFragmentRegistry fragmentRegistry;
+  private final JsonUtils jsonUtils;
+  private final ConcurrentMap<PrivateBootstrapSpace, Map<String, Object>> cache =
+      new ConcurrentHashMap<>();
 
-    Map<String, Object> resolve(PrivateBootstrapSpace space) {
-        return cache.computeIfAbsent(space, this::load);
-    }
+  Map<String, Object> resolve(PrivateBootstrapSpace space) {
+    return cache.computeIfAbsent(space, this::load);
+  }
 
-    private Map<String, Object> load(PrivateBootstrapSpace space) {
-        String fileKey = switch (space) {
-            case ADMIN -> "private_shell_tenantadmin";
-            case PLATFORM -> "private_shell_superadmin";
-            case CASHIER -> "private_shell_cashier";
+  private Map<String, Object> load(PrivateBootstrapSpace space) {
+    String fileKey =
+        switch (space) {
+          case ADMIN -> "private_shell_tenantadmin";
+          case PLATFORM -> "private_shell_superadmin";
+          case CASHIER -> "private_shell_cashier";
         };
-        String resourcePath = fragmentRegistry.resolve(fileKey);
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        try (InputStream is = classLoader.getResourceAsStream(resourcePath)) {
-            if (is == null) {
-                throw new IllegalStateException("Private shell fragment not found: " + fileKey);
-            }
-            var root = jsonUtils.parse(is);
-            var navigation = root == null ? null : root.get("navigationDrawer");
-            if (navigation == null || !navigation.isObject()) {
-                throw new IllegalStateException("Private shell fragment has no navigationDrawer: " + fileKey);
-            }
-            return jsonUtils.convertValue(navigation, new TypeReference<Map<String, Object>>() {});
-        } catch (Exception e) {
-            throw new IllegalStateException("Failed to load private shell navigation: " + fileKey, e);
-        }
+    String resourcePath = fragmentRegistry.resolve(fileKey);
+    ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+    try (InputStream is = classLoader.getResourceAsStream(resourcePath)) {
+      if (is == null) {
+        throw new IllegalStateException("Private shell fragment not found: " + fileKey);
+      }
+      var root = jsonUtils.parse(is);
+      var navigation = root == null ? null : root.get("navigationDrawer");
+      if (navigation == null || !navigation.isObject()) {
+        throw new IllegalStateException(
+            "Private shell fragment has no navigationDrawer: " + fileKey);
+      }
+      return jsonUtils.convertValue(navigation, new TypeReference<Map<String, Object>>() {});
+    } catch (Exception e) {
+      throw new IllegalStateException("Failed to load private shell navigation: " + fileKey, e);
     }
+  }
 }

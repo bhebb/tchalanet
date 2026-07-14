@@ -11,5 +11,5 @@ public record GetCurrentOperationalContextQuery(
     SellerTerminalId sellerTerminalId,
     OperationalContextSource source,
     OperationalContextTrust trust,
-    boolean trustedForSensitiveOperation
-) implements Query<CurrentOperationalContextView> {}
+    boolean trustedForSensitiveOperation)
+    implements Query<CurrentOperationalContextView> {}

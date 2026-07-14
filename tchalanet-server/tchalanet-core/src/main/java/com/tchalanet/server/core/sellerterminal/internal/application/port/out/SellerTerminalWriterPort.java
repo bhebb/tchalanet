@@ -4,5 +4,5 @@ import com.tchalanet.server.core.sellerterminal.internal.domain.model.SellerTerm
 
 public interface SellerTerminalWriterPort {
 
-    SellerTerminal save(SellerTerminal terminal);
+  SellerTerminal save(SellerTerminal terminal);
 }

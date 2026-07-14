@@ -17,72 +17,62 @@ import lombok.RequiredArgsConstructor;
 public class UpsertLimitAssignmentCommandHandler
     implements CommandHandler<UpsertLimitAssignmentCommand, UpsertLimitAssignmentResult> {
 
-    private final LimitAssignmentReaderPort reader;
-    private final LimitAssignmentWriterPort writer;
-    private final IdGenerator idGenerator;
+  private final LimitAssignmentReaderPort reader;
+  private final LimitAssignmentWriterPort writer;
+  private final IdGenerator idGenerator;
 
-    @Override
-    @TchTx
-    public UpsertLimitAssignmentResult handle(UpsertLimitAssignmentCommand c) {
-        validate(c);
+  @Override
+  @TchTx
+  public UpsertLimitAssignmentResult handle(UpsertLimitAssignmentCommand c) {
+    validate(c);
 
-        var existing = reader.findByNaturalKey(c.target(), c.ruleKey()).orElse(null);
+    var existing = reader.findByNaturalKey(c.target(), c.ruleKey()).orElse(null);
 
-        var assignment = existing == null
-            ? create(c)
-            : update(existing, c);
+    var assignment = existing == null ? create(c) : update(existing, c);
 
-        var saved = writer.save(assignment);
-        return new UpsertLimitAssignmentResult(saved.id());
+    var saved = writer.save(assignment);
+    return new UpsertLimitAssignmentResult(saved.id());
+  }
+
+  private LimitAssignment create(UpsertLimitAssignmentCommand c) {
+    return LimitAssignment.createNew(
+        LimitAssignmentId.of(idGenerator.newUuid()),
+        c.ruleKey(),
+        c.target(),
+        c.enabled(),
+        c.onBreach(),
+        c.params(),
+        c.startsAt(),
+        c.endsAt());
+  }
+
+  private LimitAssignment update(LimitAssignment existing, UpsertLimitAssignmentCommand c) {
+    return existing.update(c.enabled(), c.onBreach(), c.params(), c.startsAt(), c.endsAt());
+  }
+
+  private void validate(UpsertLimitAssignmentCommand c) {
+    if (c.tenantId() == null) {
+      throw new IllegalArgumentException("tenantId is required");
     }
 
-    private LimitAssignment create(UpsertLimitAssignmentCommand c) {
-        return LimitAssignment.createNew(
-            LimitAssignmentId.of(idGenerator.newUuid()),
-            c.ruleKey(),
-            c.target(),
-            c.enabled(),
-            c.onBreach(),
-            c.params(),
-            c.startsAt(),
-            c.endsAt());
+    if (c.ruleKey() == null) {
+      throw new IllegalArgumentException("ruleKey is required");
     }
 
-    private LimitAssignment update(
-        LimitAssignment existing,
-        UpsertLimitAssignmentCommand c
-    ) {
-        return existing.update(
-            c.enabled(),
-            c.onBreach(),
-            c.params(),
-            c.startsAt(),
-            c.endsAt());
+    if (c.target() == null) {
+      throw new IllegalArgumentException("limitScopeRef is required");
     }
 
-    private void validate(UpsertLimitAssignmentCommand c) {
-        if (c.tenantId() == null) {
-            throw new IllegalArgumentException("tenantId is required");
-        }
-
-        if (c.ruleKey() == null) {
-            throw new IllegalArgumentException("ruleKey is required");
-        }
-
-        if (c.target() == null) {
-            throw new IllegalArgumentException("limitScopeRef is required");
-        }
-
-        if (c.onBreach() == null) {
-            throw new IllegalArgumentException("onBreach is required");
-        }
-
-        if (c.params() == null) {
-            throw new IllegalArgumentException("params is required");
-        }
-
-        if (c.startsAt() != null && c.endsAt() != null && !c.startsAt().isBefore(c.endsAt())) {
-            throw new IllegalArgumentException("startsAt must be before endsAt");
-        }
+    if (c.onBreach() == null) {
+      throw new IllegalArgumentException("onBreach is required");
     }
+
+    if (c.params() == null) {
+      throw new IllegalArgumentException("params is required");
+    }
+
+    if (c.startsAt() != null && c.endsAt() != null && !c.startsAt().isBefore(c.endsAt())) {
+      throw new IllegalArgumentException("startsAt must be before endsAt");
+    }
+  }
 }

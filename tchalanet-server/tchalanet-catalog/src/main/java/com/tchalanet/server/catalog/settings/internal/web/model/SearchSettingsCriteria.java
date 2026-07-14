@@ -5,8 +5,8 @@ import com.tchalanet.server.catalog.settings.api.model.SettingLevel;
 import com.tchalanet.server.common.types.id.TenantId;
 
 /**
- * Internal search criteria for settings.
- * exposure: null = no filter (admin); non-null = filter by exposure.
+ * Internal search criteria for settings. exposure: null = no filter (admin); non-null = filter by
+ * exposure.
  */
 public record SearchSettingsCriteria(
     String namespace,

@@ -5,7 +5,6 @@ import com.tchalanet.server.platform.notification.api.model.NotificationKind;
 import com.tchalanet.server.platform.notification.api.model.NotificationSeverity;
 import com.tchalanet.server.platform.notification.api.model.NotificationStatus;
 import java.time.Instant;
-import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
@@ -232,9 +231,7 @@ public interface NotificationJpaRepository extends JpaRepository<NotificationJpa
            or (n.expiresAt is not null and n.expiresAt <= :lifecycleCutoff)
          )
       """)
-  int purgeLifecycle(
-      @Param("now") Instant now,
-      @Param("lifecycleCutoff") Instant lifecycleCutoff);
+  int purgeLifecycle(@Param("now") Instant now, @Param("lifecycleCutoff") Instant lifecycleCutoff);
 
   @Query(
       """

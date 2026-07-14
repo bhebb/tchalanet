@@ -4,4 +4,3 @@ public enum IdentityVerificationPolicy {
   STANDARD,
   SENSITIVE
 }
-

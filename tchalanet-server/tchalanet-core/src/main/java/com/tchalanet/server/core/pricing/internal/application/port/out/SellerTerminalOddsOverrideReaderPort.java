@@ -5,23 +5,19 @@ import com.tchalanet.server.common.types.id.SellerTerminalOddsOverrideId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.pricing.api.model.PricingVariantCode;
 import com.tchalanet.server.core.pricing.internal.domain.SellerTerminalOddsOverride;
-
 import java.util.List;
 import java.util.Optional;
 
 public interface SellerTerminalOddsOverrideReaderPort {
 
-    Optional<SellerTerminalOddsOverride> findById(SellerTerminalOddsOverrideId id);
+  Optional<SellerTerminalOddsOverride> findById(SellerTerminalOddsOverrideId id);
 
-    List<SellerTerminalOddsOverride> findActiveBySellerTerminal(
-        TenantId tenantId,
-        SellerTerminalId sellerTerminalId
-    );
+  List<SellerTerminalOddsOverride> findActiveBySellerTerminal(
+      TenantId tenantId, SellerTerminalId sellerTerminalId);
 
-    Optional<SellerTerminalOddsOverride> findActiveByNaturalKey(
-        TenantId tenantId,
-        SellerTerminalId sellerTerminalId,
-        String gameCode,
-        PricingVariantCode pricingVariantCode
-    );
+  Optional<SellerTerminalOddsOverride> findActiveByNaturalKey(
+      TenantId tenantId,
+      SellerTerminalId sellerTerminalId,
+      String gameCode,
+      PricingVariantCode pricingVariantCode);
 }

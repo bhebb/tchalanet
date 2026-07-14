@@ -6,9 +6,8 @@ import lombok.Getter;
 import tools.jackson.databind.JsonNode;
 
 /**
- * Command to update a tenant game policy (limits, flags, etc).
- * Maps to spec requirement TG3 (policies per tenant game).
- * Uses TenantId typed wrapper per typed_ids.md.
+ * Command to update a tenant game policy (limits, flags, etc). Maps to spec requirement TG3
+ * (policies per tenant game). Uses TenantId typed wrapper per typed_ids.md.
  */
 @Getter
 @Builder

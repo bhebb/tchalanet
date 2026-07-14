@@ -82,11 +82,13 @@ public final class FirebaseIdentityProvider implements IdentityProviderApi {
       throw new IdentityProviderException("invalid_issuer", "Invalid Firebase token issuer", null);
     }
     if (token.subject().length() > 128) {
-      throw new IdentityProviderException("invalid_subject", "Invalid Firebase token subject", null);
+      throw new IdentityProviderException(
+          "invalid_subject", "Invalid Firebase token subject", null);
     }
     var audience = audience(token.verifiedClaims().get("aud"));
     if (!audience.contains(properties.requiredProjectId())) {
-      throw new IdentityProviderException("invalid_audience", "Invalid Firebase token audience", null);
+      throw new IdentityProviderException(
+          "invalid_audience", "Invalid Firebase token audience", null);
     }
   }
 

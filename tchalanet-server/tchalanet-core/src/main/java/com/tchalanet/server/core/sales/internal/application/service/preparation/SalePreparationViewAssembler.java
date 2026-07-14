@@ -11,59 +11,64 @@ import org.springframework.stereotype.Component;
 @Component
 public class SalePreparationViewAssembler {
 
-    /** Full view at prepare time, with the freshly computed sale lines. */
-    public SalePreparationView toView(SalePreparation preparation, PreparedSale prepared) {
-        var lines = prepared.ticketLines().stream()
-            .map(line -> new SalePreparationLineView(
-                line.lineNumber(),
-                line.gameCode().name(),
-                line.betType().name(),
-                line.betOption(),
-                line.selection().key().value(),
-                line.stakeAmount().amount(),
-                line.origin().name()))
+  /** Full view at prepare time, with the freshly computed sale lines. */
+  public SalePreparationView toView(SalePreparation preparation, PreparedSale prepared) {
+    var lines =
+        prepared.ticketLines().stream()
+            .map(
+                line ->
+                    new SalePreparationLineView(
+                        line.lineNumber(),
+                        line.gameCode().name(),
+                        line.betType().name(),
+                        line.betOption(),
+                        line.selection().key().value(),
+                        line.stakeAmount().amount(),
+                        line.origin().name()))
             .toList();
-        return new SalePreparationView(
-            preparation.id(),
-            preparation.status(),
-            preparation.expiresAt(),
-            prepared.moneyBreakdown().total().currency().value(),
-            prepared.moneyBreakdown().total().amount(),
-            lines,
-            promotionLines(preparation),
-            prepared.notices());
-    }
+    return new SalePreparationView(
+        preparation.id(),
+        preparation.status(),
+        preparation.expiresAt(),
+        prepared.moneyBreakdown().total().currency().value(),
+        prepared.moneyBreakdown().total().amount(),
+        lines,
+        promotionLines(preparation),
+        prepared.notices());
+  }
 
-    /**
-     * Lightweight view after a mutation on a stored preparation (regenerate):
-     * paid lines are unchanged client-side and are not re-derived here.
-     */
-    public SalePreparationView toView(SalePreparation preparation) {
-        return new SalePreparationView(
-            preparation.id(),
-            preparation.status(),
-            preparation.expiresAt(),
-            null,
-            null,
-            List.of(),
-            promotionLines(preparation),
-            List.of());
-    }
+  /**
+   * Lightweight view after a mutation on a stored preparation (regenerate): paid lines are
+   * unchanged client-side and are not re-derived here.
+   */
+  public SalePreparationView toView(SalePreparation preparation) {
+    return new SalePreparationView(
+        preparation.id(),
+        preparation.status(),
+        preparation.expiresAt(),
+        null,
+        null,
+        List.of(),
+        promotionLines(preparation),
+        List.of());
+  }
 
-    private List<SalePreparationPromotionLineView> promotionLines(SalePreparation preparation) {
-        return preparation.promotionLines().stream()
-            .map(l -> new SalePreparationPromotionLineView(
-                l.lineRef(),
-                l.gameCode(),
-                l.betType(),
-                l.betOption(),
-                l.selection(),
-                l.selectionSource(),
-                l.choiceMode(),
-                l.promotionRuleKey(),
-                l.promotionEffectType(),
-                l.regenerable(),
-                Math.max(0, l.maxRegenerations() - l.regenerationCount())))
-            .toList();
-    }
+  private List<SalePreparationPromotionLineView> promotionLines(SalePreparation preparation) {
+    return preparation.promotionLines().stream()
+        .map(
+            l ->
+                new SalePreparationPromotionLineView(
+                    l.lineRef(),
+                    l.gameCode(),
+                    l.betType(),
+                    l.betOption(),
+                    l.selection(),
+                    l.selectionSource(),
+                    l.choiceMode(),
+                    l.promotionRuleKey(),
+                    l.promotionEffectType(),
+                    l.regenerable(),
+                    Math.max(0, l.maxRegenerations() - l.regenerationCount())))
+        .toList();
+  }
 }

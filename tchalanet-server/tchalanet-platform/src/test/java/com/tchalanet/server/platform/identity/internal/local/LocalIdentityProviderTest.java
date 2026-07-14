@@ -33,12 +33,18 @@ class LocalIdentityProviderTest {
         .thenReturn(
             jwt(
                 Map.of(
-                    "iss", ISSUER,
-                    "sub", "local-subject",
-                    "email", "seller@example.com",
-                    "email_verified", true,
-                    "roles", java.util.List.of("SUPER_ADMIN"),
-                    "preferred_username", "seller")));
+                    "iss",
+                    ISSUER,
+                    "sub",
+                    "local-subject",
+                    "email",
+                    "seller@example.com",
+                    "email_verified",
+                    true,
+                    "roles",
+                    java.util.List.of("SUPER_ADMIN"),
+                    "preferred_username",
+                    "seller")));
 
     var user = provider.verifyBearerToken("token", IdentityVerificationPolicy.STANDARD);
 

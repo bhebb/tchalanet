@@ -13,46 +13,44 @@ import org.springframework.stereotype.Component;
 @Component
 public class QrPngDocumentRenderer implements DocumentRenderer {
 
-    private final QrRenderer qrPng;
+  private final QrRenderer qrPng;
 
-    public QrPngDocumentRenderer(@Qualifier("qrPngRenderer") QrRenderer qrPng) {
-        this.qrPng = qrPng;
+  public QrPngDocumentRenderer(@Qualifier("qrPngRenderer") QrRenderer qrPng) {
+    this.qrPng = qrPng;
+  }
+
+  @Override
+  public DocumentFormat format() {
+    return DocumentFormat.PNG;
+  }
+
+  @Override
+  public RenderedDocument render(DocumentRenderRequest request) {
+    DocumentAsset qr = request.firstAssetOfKind(AssetKind.QR);
+
+    if (qr == null) {
+      throw new IllegalArgumentException("PNG render requires a QR asset");
     }
 
-    @Override
-    public DocumentFormat format() {
-        return DocumentFormat.PNG;
+    byte[] bytes;
+
+    if (qr.bytes() != null && qr.bytes().length > 0) {
+      bytes = qr.bytes();
+    } else {
+      if (qr.payload() == null || qr.payload().isBlank()) {
+        throw new IllegalArgumentException("QR asset must provide bytes or payload");
+      }
+
+      int sizePx =
+          qr.sizePx() != null && qr.sizePx() > 0
+              ? qr.sizePx()
+              : request.options().qrSizePxOrDefault(280);
+
+      bytes = qrPng.render(qr.payload(), new QrRenderer.QrRenderSpec(sizePx));
     }
 
-    @Override
-    public RenderedDocument render(DocumentRenderRequest request) {
-        DocumentAsset qr = request.firstAssetOfKind(AssetKind.QR);
+    String filename = SafeFilename.of(request.metadataValue("filename", "qr"), "qr") + ".png";
 
-        if (qr == null) {
-            throw new IllegalArgumentException("PNG render requires a QR asset");
-        }
-
-        byte[] bytes;
-
-        if (qr.bytes() != null && qr.bytes().length > 0) {
-            bytes = qr.bytes();
-        } else {
-            if (qr.payload() == null || qr.payload().isBlank()) {
-                throw new IllegalArgumentException("QR asset must provide bytes or payload");
-            }
-
-            int sizePx = qr.sizePx() != null && qr.sizePx() > 0
-                ? qr.sizePx()
-                : request.options().qrSizePxOrDefault(280);
-
-            bytes = qrPng.render(qr.payload(), new QrRenderer.QrRenderSpec(sizePx));
-        }
-
-        String filename = SafeFilename.of(
-            request.metadataValue("filename", "qr"),
-            "qr"
-        ) + ".png";
-
-        return RenderedDocument.of(bytes, DocumentFormat.PNG, filename);
-    }
+    return RenderedDocument.of(bytes, DocumentFormat.PNG, filename);
+  }
 }

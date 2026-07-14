@@ -23,8 +23,8 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * Handles {@link GetPlatformDashboardStatsQuery}.
  *
- * <p>Reads PLATFORM rows for the global summary and TENANT rows for the
- * per-tenant ranking (top N by gross sales).
+ * <p>Reads PLATFORM rows for the global summary and TENANT rows for the per-tenant ranking (top N
+ * by gross sales).
  */
 @UseCase
 @RequiredArgsConstructor
@@ -38,44 +38,45 @@ public class GetPlatformDashboardStatsQueryHandler
   @Override
   public PlatformDashboardStatsView handle(GetPlatformDashboardStatsQuery query) {
     // Global rollup from PLATFORM rows
-    List<AnalyticsDailyEntity> platformRows =
-        repo.findPlatformRows(query.from(), query.to());
+    List<AnalyticsDailyEntity> platformRows = repo.findPlatformRows(query.from(), query.to());
 
-    long ticketsSold    = 0L;
-    long grossCents     = 0L;
-    long winningsCents  = 0L;
-    long payoutsCents   = 0L;
+    long ticketsSold = 0L;
+    long grossCents = 0L;
+    long winningsCents = 0L;
+    long payoutsCents = 0L;
     long commissionCents = 0L;
     long tenantChargeCents = 0L;
     long promotionLines = 0L;
 
     for (AnalyticsDailyEntity r : platformRows) {
-      ticketsSold   += r.getTicketsSoldCount();
-      grossCents    += r.getGrossSalesCents();
+      ticketsSold += r.getTicketsSoldCount();
+      grossCents += r.getGrossSalesCents();
       winningsCents += r.getWinningsCalculatedCents();
-      payoutsCents  += r.getPayoutsPaidCents();
+      payoutsCents += r.getPayoutsPaidCents();
       commissionCents += r.getSellerCommissionCents();
       tenantChargeCents += r.getTenantChargeCents();
       promotionLines += r.getPromotionLineCount();
     }
 
-    List<PlatformDailyPoint> daily = platformRows.stream()
-        .map(r -> new PlatformDailyPoint(
-            r.getRefDate(),
-            r.getTicketsSoldCount(),
-            fromCents(r.getGrossSalesCents()),
-            fromCents(r.getWinningsCalculatedCents()),
-            fromCents(r.getPayoutsPaidCents()),
-            fromCents(r.getSellerCommissionCents()),
-            fromCents(r.getTenantChargeCents()),
-            r.getPromotionLineCount(),
-            fromCents(r.getNetRevenueEstimatedCents()),
-            fromCents(r.getNetRevenuePaidBasisCents())))
-        .toList();
+    List<PlatformDailyPoint> daily =
+        platformRows.stream()
+            .map(
+                r ->
+                    new PlatformDailyPoint(
+                        r.getRefDate(),
+                        r.getTicketsSoldCount(),
+                        fromCents(r.getGrossSalesCents()),
+                        fromCents(r.getWinningsCalculatedCents()),
+                        fromCents(r.getPayoutsPaidCents()),
+                        fromCents(r.getSellerCommissionCents()),
+                        fromCents(r.getTenantChargeCents()),
+                        r.getPromotionLineCount(),
+                        fromCents(r.getNetRevenueEstimatedCents()),
+                        fromCents(r.getNetRevenuePaidBasisCents())))
+            .toList();
 
     // Per-tenant rows for ranking
-    List<AnalyticsDailyEntity> tenantRows =
-        repo.findAllTenantRows(query.from(), query.to());
+    List<AnalyticsDailyEntity> tenantRows = repo.findAllTenantRows(query.from(), query.to());
 
     // Aggregate per tenantId
     Map<UUID, long[]> tenantAgg = new HashMap<>();
@@ -93,34 +94,46 @@ public class GetPlatformDashboardStatsQueryHandler
     tenantAgg.entrySet().stream()
         .sorted((a, b) -> Long.compare(b.getValue()[1], a.getValue()[1])) // desc gross sales
         .limit(query.topTenantsLimit())
-        .forEach(e -> topTenants.add(new TenantRankRow(
-            e.getKey().toString(), // tenant code not available here — consumer can enrich
-            e.getValue()[0],
-            fromCents(e.getValue()[1]),
-            fromCents(e.getValue()[1] - e.getValue()[2] - e.getValue()[3] - e.getValue()[4]))));
+        .forEach(
+            e ->
+                topTenants.add(
+                    new TenantRankRow(
+                        e.getKey()
+                            .toString(), // tenant code not available here — consumer can enrich
+                        e.getValue()[0],
+                        fromCents(e.getValue()[1]),
+                        fromCents(
+                            e.getValue()[1]
+                                - e.getValue()[2]
+                                - e.getValue()[3]
+                                - e.getValue()[4]))));
 
-    PlatformSummaryCard summary = new PlatformSummaryCard(
-        tenantAgg.size(),
-        ticketsSold,
-        fromCents(grossCents),
-        fromCents(winningsCents),
-        fromCents(payoutsCents),
-        fromCents(commissionCents),
-        fromCents(tenantChargeCents),
-        promotionLines,
-        fromCents(grossCents - winningsCents - commissionCents - tenantChargeCents),
-        fromCents(grossCents - payoutsCents - commissionCents - tenantChargeCents));
+    PlatformSummaryCard summary =
+        new PlatformSummaryCard(
+            tenantAgg.size(),
+            ticketsSold,
+            fromCents(grossCents),
+            fromCents(winningsCents),
+            fromCents(payoutsCents),
+            fromCents(commissionCents),
+            fromCents(tenantChargeCents),
+            promotionLines,
+            fromCents(grossCents - winningsCents - commissionCents - tenantChargeCents),
+            fromCents(grossCents - payoutsCents - commissionCents - tenantChargeCents));
 
-    List<PlatformGameBreakdown> gameBreakdown = gameBreakdownReader
-        .findPlatformGameBreakdown(query.from(), query.to(), query.gameBreakdownLimit())
-        .stream()
-        .map(row -> new PlatformGameBreakdown(
-            row.gameCode(),
-            row.gameCode(),
-            row.ticketsSold(),
-            row.grossSales(),
-            row.netRevenueEstimated()))
-        .toList();
+    List<PlatformGameBreakdown> gameBreakdown =
+        gameBreakdownReader
+            .findPlatformGameBreakdown(query.from(), query.to(), query.gameBreakdownLimit())
+            .stream()
+            .map(
+                row ->
+                    new PlatformGameBreakdown(
+                        row.gameCode(),
+                        row.gameCode(),
+                        row.ticketsSold(),
+                        row.grossSales(),
+                        row.netRevenueEstimated()))
+            .toList();
 
     return new PlatformDashboardStatsView(
         query.from(), query.to(), summary, daily, gameBreakdown, topTenants);

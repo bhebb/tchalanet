@@ -15,5 +15,4 @@ public record PrivateRuntimeStateResponse(
     RuntimeNotificationSummary notifications,
     @Nullable RuntimeBlockingState blocking,
     RuntimeVersionHints versions,
-    @Nullable List<RuntimeBootstrapNotice> notices
-) {}
+    @Nullable List<RuntimeBootstrapNotice> notices) {}

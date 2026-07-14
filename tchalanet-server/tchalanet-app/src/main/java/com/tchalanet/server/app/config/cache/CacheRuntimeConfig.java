@@ -39,7 +39,8 @@ public class CacheRuntimeConfig {
         redisCacheManager != null
             ? new CombinedCacheManager(caffeineCacheManager, redisCacheManager)
             : caffeineCacheManager;
-    // Wrap so every cache honours the runtime kill-switch (Ops can disable a cache without redeploy).
+    // Wrap so every cache honours the runtime kill-switch (Ops can disable a cache without
+    // redeploy).
     return new ToggleableCacheManager(base, cacheToggle);
   }
 }

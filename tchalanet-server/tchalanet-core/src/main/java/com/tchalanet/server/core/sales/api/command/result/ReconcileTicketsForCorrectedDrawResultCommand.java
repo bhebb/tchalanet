@@ -12,6 +12,5 @@ public record ReconcileTicketsForCorrectedDrawResultCommand(
     @NotNull DrawId drawId,
     @NotNull DrawResultId previousDrawResultId,
     @NotNull DrawResultId correctedDrawResultId,
-    @NotBlank String reason
-) implements Command<ReconcileTicketsForCorrectedDrawResultResult> {
-}
+    @NotBlank String reason)
+    implements Command<ReconcileTicketsForCorrectedDrawResultResult> {}

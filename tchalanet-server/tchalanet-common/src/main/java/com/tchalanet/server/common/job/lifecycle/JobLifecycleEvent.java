@@ -14,5 +14,4 @@ public record JobLifecycleEvent(
     JobLifecycleStatus status,
     String code,
     String message,
-    Map<String, Object> details
-) {}
+    Map<String, Object> details) {}

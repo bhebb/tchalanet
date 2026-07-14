@@ -1,7 +1,7 @@
 package com.tchalanet.server.platform.identity.internal.service;
 
-import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.catalog.theme.api.ThemeMode;
+import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.platform.identity.api.model.request.UpdateUserProfileRequest;
 import com.tchalanet.server.platform.identity.api.model.view.CurrentUserView;
@@ -23,19 +23,25 @@ public class CurrentUserProfileService {
   private final TchContextResolver contextResolver;
 
   public CurrentUserView getCurrentUser(UserId userId) {
-    var user = users.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
+    var user =
+        users
+            .findById(userId)
+            .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
     var pref = preferences.findByUserId(userId).orElse(null);
     var ctx = contextResolver.currentOrNull();
 
     var requestLocale = ctx != null && ctx.locale() != null ? ctx.locale().toLanguageTag() : null;
-    var tenantTimeZone = ctx != null && ctx.tenantZoneId() != null ? ctx.tenantZoneId().getId() : null;
-    var tenantCurrency = ctx != null && ctx.tenantCurrency() != null ? ctx.tenantCurrency().getCurrencyCode() : null;
+    var tenantTimeZone =
+        ctx != null && ctx.tenantZoneId() != null ? ctx.tenantZoneId().getId() : null;
+    var tenantCurrency =
+        ctx != null && ctx.tenantCurrency() != null ? ctx.tenantCurrency().getCurrencyCode() : null;
     var tenantId = ctx == null ? null : ctx.tenantIdSafe();
     var tenantCode = ctx == null ? null : ctx.effectiveTenantCode();
 
     var prefLocale = pref != null && pref.locale() != null ? pref.locale().toLanguageTag() : null;
     var prefTimeZone = pref != null && pref.timeZone() != null ? pref.timeZone().getId() : null;
-    var prefCurrency = pref != null && pref.currency() != null ? pref.currency().getCurrencyCode() : null;
+    var prefCurrency =
+        pref != null && pref.currency() != null ? pref.currency().getCurrencyCode() : null;
 
     return new CurrentUserView(
         user.id(),
@@ -56,11 +62,16 @@ public class CurrentUserProfileService {
         user.mustChangePassword(),
         user.mustCompleteProfile(),
         user.firstLoginCompletedAt() == null ? null : user.firstLoginCompletedAt().toString(),
-        user.temporaryCredentialIssuedAt() == null ? null : user.temporaryCredentialIssuedAt().toString());
+        user.temporaryCredentialIssuedAt() == null
+            ? null
+            : user.temporaryCredentialIssuedAt().toString());
   }
 
   public UserProfileView getUserProfile(UserId userId) {
-    var user = users.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
+    var user =
+        users
+            .findById(userId)
+            .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
     var pref = preferences.findByUserId(userId).orElse(null);
     return new UserProfileView(
         user.id(),
@@ -98,7 +109,8 @@ public class CurrentUserProfileService {
                 displayName,
                 existing.avatarUrl()));
 
-    var currentPref = preferences.findByUserId(saved.id()).orElseGet(() -> UserPreference.forUser(saved.id()));
+    var currentPref =
+        preferences.findByUserId(saved.id()).orElseGet(() -> UserPreference.forUser(saved.id()));
     preferences.upsert(
         currentPref.applyOverrides(null, null, request.locale().orElse(null), null, null));
   }

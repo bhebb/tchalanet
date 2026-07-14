@@ -1,10 +1,9 @@
 package com.tchalanet.server.common.json.converter;
 
+import java.lang.reflect.Method;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ValueSerializer;
-
-import java.lang.reflect.Method;
 
 /**
  * Generic serializer for simple typed-id wrapper objects (Jackson 3 / {@link ValueSerializer}).

@@ -1,9 +1,8 @@
 package com.tchalanet.server.platform.communication.internal.rule;
 
 import com.tchalanet.server.platform.communication.api.model.request.SendOutboundMessageRequest;
-import org.springframework.stereotype.Component;
-
 import java.util.Optional;
+import org.springframework.stereotype.Component;
 
 @Component
 public class SalesCommunicationRule extends AbstractCommunicationRule<Object> {

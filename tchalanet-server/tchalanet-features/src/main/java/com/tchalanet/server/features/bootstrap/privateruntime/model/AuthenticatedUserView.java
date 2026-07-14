@@ -14,5 +14,4 @@ public record AuthenticatedUserView(
     boolean mustChangePassword,
     boolean mustCompleteProfile,
     String firstLoginCompletedAt,
-    String temporaryCredentialIssuedAt
-) {}
+    String temporaryCredentialIssuedAt) {}

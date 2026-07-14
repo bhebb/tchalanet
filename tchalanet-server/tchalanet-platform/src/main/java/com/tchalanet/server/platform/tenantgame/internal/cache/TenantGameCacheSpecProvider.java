@@ -6,7 +6,10 @@ import java.time.Duration;
 import java.util.List;
 import org.springframework.stereotype.Component;
 
-/** Tenant game runtime/projection: read on every POS session, changed rarely, evicted on write. Tier B. */
+/**
+ * Tenant game runtime/projection: read on every POS session, changed rarely, evicted on write. Tier
+ * B.
+ */
 @Component
 public class TenantGameCacheSpecProvider implements CacheSpecProvider {
 

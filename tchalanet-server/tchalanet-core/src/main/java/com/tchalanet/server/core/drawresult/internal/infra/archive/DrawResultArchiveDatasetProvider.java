@@ -50,13 +50,19 @@ public class DrawResultArchiveDatasetProvider implements ArchiveDatasetProvider 
     Instant to = request.period().end().atStartOfDay(ZoneOffset.UTC).toInstant();
 
     long[] exported = {0};
-    drawResultRepo.streamByOccurredPeriod(from, to, row -> {
-      request.rowSink().accept(row);
-      exported[0]++;
-    });
+    drawResultRepo.streamByOccurredPeriod(
+        from,
+        to,
+        row -> {
+          request.rowSink().accept(row);
+          exported[0]++;
+        });
 
-    log.info("draw_result export: {} rows period={}/{}",
-        exported[0], request.period().start(), request.period().end());
+    log.info(
+        "draw_result export: {} rows period={}/{}",
+        exported[0],
+        request.period().start(),
+        request.period().end());
     return new ArchiveExportResult(exported[0], SCHEMA_VERSION);
   }
 
@@ -73,18 +79,19 @@ public class DrawResultArchiveDatasetProvider implements ArchiveDatasetProvider 
     Instant to = period.end().atStartOfDay(ZoneOffset.UTC).toInstant();
 
     return drawResultRepo.findLookupRows(from, to).stream()
-        .map(r -> new ArchiveLookupEntry(
-            TABLE,
-            null,
-            "DRAW_RESULT",
-            (UUID) r.get("id"),
-            (String) r.get("source_hash"),
-            (java.time.LocalDate) r.get("result_date"),
-            (Instant) r.get("occurred_at"),
-            archiveObjectId,
-            null,
-            null
-        ))
+        .map(
+            r ->
+                new ArchiveLookupEntry(
+                    TABLE,
+                    null,
+                    "DRAW_RESULT",
+                    (UUID) r.get("id"),
+                    (String) r.get("source_hash"),
+                    (java.time.LocalDate) r.get("result_date"),
+                    (Instant) r.get("occurred_at"),
+                    archiveObjectId,
+                    null,
+                    null))
         .toList();
   }
 }

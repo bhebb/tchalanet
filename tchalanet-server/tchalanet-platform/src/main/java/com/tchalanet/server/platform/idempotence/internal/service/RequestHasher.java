@@ -1,14 +1,13 @@
 package com.tchalanet.server.platform.idempotence.internal.service;
 
+import com.tchalanet.server.common.json.utils.JsonUtils;
+import java.security.MessageDigest;
+import java.util.HexFormat;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.NullNode;
 import tools.jackson.databind.node.ObjectNode;
-import com.tchalanet.server.common.json.utils.JsonUtils;
-
-import java.security.MessageDigest;
-import java.util.HexFormat;
 
 public final class RequestHasher {
 

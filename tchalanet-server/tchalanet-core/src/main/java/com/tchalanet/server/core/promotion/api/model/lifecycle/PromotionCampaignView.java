@@ -1,10 +1,9 @@
 package com.tchalanet.server.core.promotion.api.model.lifecycle;
 
 import com.tchalanet.server.common.types.id.PromotionCampaignId;
-
+import com.tchalanet.server.core.promotion.api.model.rule.PromotionRuleView;
 import java.time.Instant;
 import java.util.List;
-import com.tchalanet.server.core.promotion.api.model.rule.PromotionRuleView;
 
 public record PromotionCampaignView(
     PromotionCampaignId id,
@@ -14,7 +13,4 @@ public record PromotionCampaignView(
     int priority,
     Instant startsAt,
     Instant endsAt,
-    List<PromotionRuleView> rules
-) {
-}
-
+    List<PromotionRuleView> rules) {}

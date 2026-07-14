@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component;
 /**
  * Scheduled cleanup of expired temporary restore runs.
  *
- * <p>Runs daily at 03:30 UTC by default. Safe to run concurrently — the underlying
- * {@link ArchiveRestoreService#cleanupExpired()} is idempotent.
+ * <p>Runs daily at 03:30 UTC by default. Safe to run concurrently — the underlying {@link
+ * ArchiveRestoreService#cleanupExpired()} is idempotent.
  */
 @Component
 @RequiredArgsConstructor

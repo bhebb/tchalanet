@@ -7,7 +7,6 @@ import com.tchalanet.server.platform.identity.api.VerifiedExternalToken;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 
@@ -21,7 +20,9 @@ final class LocalIdentitySupport {
   private final IdentityProviderType providerType;
 
   LocalIdentitySupport(
-      JwtDecoder jwtDecoder, LocalIdentityProperties properties, IdentityProviderType providerType) {
+      JwtDecoder jwtDecoder,
+      LocalIdentityProperties properties,
+      IdentityProviderType providerType) {
     this.jwtDecoder = jwtDecoder;
     this.properties = properties;
     this.providerType = providerType;

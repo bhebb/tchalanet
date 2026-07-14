@@ -30,9 +30,7 @@ public class InternalPublicContentService {
 
   /** Returns only PUBLISHED items within the publication window. */
   public List<PublicContentItem> findPublished(Instant now) {
-    return findAll().stream()
-        .filter(item -> item.isPublishedAt(now))
-        .toList();
+    return findAll().stream().filter(item -> item.isPublishedAt(now)).toList();
   }
 
   public Optional<PublicContentItem> findById(String id) {
@@ -40,8 +38,8 @@ public class InternalPublicContentService {
   }
 
   /**
-   * Upsert by ID — updates existing item or appends new one.
-   * Does NOT replace the entire snapshot with a single item (bug fix).
+   * Upsert by ID — updates existing item or appends new one. Does NOT replace the entire snapshot
+   * with a single item (bug fix).
    */
   public PublicContentItem save(PublicContentItem item) {
     var current = new ArrayList<>(findAll());
@@ -61,8 +59,8 @@ public class InternalPublicContentService {
   }
 
   public PublicContentItem changeStatus(String id, PublicContentStatus newStatus) {
-    var existing = findById(id)
-        .orElseThrow(() -> new NoSuchElementException("Content item not found: " + id));
+    var existing =
+        findById(id).orElseThrow(() -> new NoSuchElementException("Content item not found: " + id));
     return save(existing.withStatus(newStatus));
   }
 

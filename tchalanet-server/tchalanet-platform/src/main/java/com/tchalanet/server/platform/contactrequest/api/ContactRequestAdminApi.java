@@ -6,9 +6,6 @@ import com.tchalanet.server.platform.contactrequest.api.model.ContactRequestSumm
 
 public interface ContactRequestAdminApi {
 
-    TchPage<ContactRequestSummaryView> list(
-        ContactRequestStatus status,
-        ContactRequestIntent intent,
-        TchPageRequest pageRequest
-    );
+  TchPage<ContactRequestSummaryView> list(
+      ContactRequestStatus status, ContactRequestIntent intent, TchPageRequest pageRequest);
 }

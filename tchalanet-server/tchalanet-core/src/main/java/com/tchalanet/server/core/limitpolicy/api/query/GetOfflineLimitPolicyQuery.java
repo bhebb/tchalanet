@@ -5,7 +5,7 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.limitpolicy.api.model.offline.OfflineLimitPolicy;
 
 /**
- * Looks up the offline sales policy for the given tenant. Result is the canonical input
- * for {@code OfflineGrantPolicy} and {@code OfflineSubmissionTechnicalPolicy}.
+ * Looks up the offline sales policy for the given tenant. Result is the canonical input for {@code
+ * OfflineGrantPolicy} and {@code OfflineSubmissionTechnicalPolicy}.
  */
 public record GetOfflineLimitPolicyQuery(TenantId tenantId) implements Query<OfflineLimitPolicy> {}

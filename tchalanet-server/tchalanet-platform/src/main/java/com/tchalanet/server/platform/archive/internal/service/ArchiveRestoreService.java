@@ -1,5 +1,6 @@
 package com.tchalanet.server.platform.archive.internal.service;
 
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.platform.archive.api.model.ArchiveObjectRowView;
 import com.tchalanet.server.platform.archive.internal.config.ArchiveProperties;
 import com.tchalanet.server.platform.archive.internal.io.JsonlGzReader;
@@ -23,14 +24,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import tools.jackson.core.JacksonException;
-import com.tchalanet.server.common.json.utils.JsonUtils;
 
 /**
- * Platform-only restore service. Copies archived rows into TTL-bounded restore tables
- * so they can be queried for investigation without requiring a full re-import.
+ * Platform-only restore service. Copies archived rows into TTL-bounded restore tables so they can
+ * be queried for investigation without requiring a full re-import.
  *
- * <p>All operations require SUPER_ADMIN authority and a mandatory reason (enforced at
- * the controller layer via {@link @PreAuthorize} + {@link @Valid}).
+ * <p>All operations require SUPER_ADMIN authority and a mandatory reason (enforced at the
+ * controller layer via {@link @PreAuthorize} + {@link @Valid}).
  */
 @Service
 @RequiredArgsConstructor
@@ -50,17 +50,23 @@ public class ArchiveRestoreService {
   /**
    * Restore archived audit_log rows for the given entity into the temporary restore table.
    *
-   * @param tenantId    (nullable) filter to one tenant, or null for global
-   * @param entityType  entity type filter
-   * @param entityId    entity ID filter
-   * @param from        start of date range (inclusive)
-   * @param to          end of date range (exclusive)
+   * @param tenantId (nullable) filter to one tenant, or null for global
+   * @param entityType entity type filter
+   * @param entityId entity ID filter
+   * @param from start of date range (inclusive)
+   * @param to end of date range (exclusive)
    * @param requestedBy SUPER_ADMIN user ID
-   * @param reason      mandatory justification (min 10 chars, validated at controller)
+   * @param reason mandatory justification (min 10 chars, validated at controller)
    * @return restore run ID
    */
-  public UUID restoreAuditLog(UUID tenantId, String entityType, UUID entityId,
-      LocalDate from, LocalDate to, UUID requestedBy, String reason) {
+  public UUID restoreAuditLog(
+      UUID tenantId,
+      String entityType,
+      UUID entityId,
+      LocalDate from,
+      LocalDate to,
+      UUID requestedBy,
+      String reason) {
 
     checkActiveRestoreLimit();
 
@@ -97,18 +103,21 @@ public class ArchiveRestoreService {
 
       List<RestoreAuditRow> batch = new ArrayList<>();
       try (InputStream in = storage.openRead(uri)) {
-        List<Map<String, Object>> rows = reader.readMatching(in, row ->
-            entityType.equals(row.get("entity_type"))
-                && entityIdStr.equals(String.valueOf(row.get("entity_id"))));
+        List<Map<String, Object>> rows =
+            reader.readMatching(
+                in,
+                row ->
+                    entityType.equals(row.get("entity_type"))
+                        && entityIdStr.equals(String.valueOf(row.get("entity_id"))));
 
         for (Map<String, Object> row : rows) {
-          batch.add(new RestoreAuditRow(
-              toUuid(row.get("tenant_id")),
-              toUuid(row.get("id")),
-              toInstant(row.get("occurred_at")),
-              serialize(row),
-              schemaVersion
-          ));
+          batch.add(
+              new RestoreAuditRow(
+                  toUuid(row.get("tenant_id")),
+                  toUuid(row.get("id")),
+                  toInstant(row.get("occurred_at")),
+                  serialize(row),
+                  schemaVersion));
         }
       } catch (IOException ex) {
         throw new UncheckedIOException("Failed to read archive for restore: " + uri, ex);
@@ -121,16 +130,21 @@ public class ArchiveRestoreService {
       }
     }
 
-    log.info("archive restore: restoreRun={} entity={}:{} rows={} expiresAt={}",
-        restoreRunId, entityType, entityId, totalRestored, expiresAt);
+    log.info(
+        "archive restore: restoreRun={} entity={}:{} rows={} expiresAt={}",
+        restoreRunId,
+        entityType,
+        entityId,
+        totalRestored,
+        expiresAt);
     return restoreRunId;
   }
 
   // ── Cleanup ─────────────────────────────────────────────────────────────────
 
   /**
-   * Delete rows from expired restore runs and mark runs as CLEANED.
-   * Safe to call repeatedly — idempotent on already-cleaned runs.
+   * Delete rows from expired restore runs and mark runs as CLEANED. Safe to call repeatedly —
+   * idempotent on already-cleaned runs.
    */
   public int cleanupExpired() {
     List<Map<String, Object>> expired = restoreRunRepo.findExpiredActive();
@@ -170,7 +184,11 @@ public class ArchiveRestoreService {
   private static UUID toUuid(Object val) {
     if (val == null) return null;
     if (val instanceof UUID u) return u;
-    try { return UUID.fromString(val.toString()); } catch (IllegalArgumentException e) { return null; }
+    try {
+      return UUID.fromString(val.toString());
+    } catch (IllegalArgumentException e) {
+      return null;
+    }
   }
 
   private static Instant toInstant(Object val) {

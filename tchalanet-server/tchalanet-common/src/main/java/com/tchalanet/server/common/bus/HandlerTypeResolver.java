@@ -5,8 +5,8 @@ import org.springframework.aop.support.AopUtils;
 import org.springframework.core.ResolvableType;
 
 /**
- * Resolves the message type from a handler bean using Spring ResolvableType.
- * Supports CommandHandler, VoidCommandHandler, and QueryHandler.
+ * Resolves the message type from a handler bean using Spring ResolvableType. Supports
+ * CommandHandler, VoidCommandHandler, and QueryHandler.
  */
 public final class HandlerTypeResolver {
 

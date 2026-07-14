@@ -7,11 +7,8 @@ import com.tchalanet.server.core.pagemodel.internal.infra.web.dto.PageModelAdmin
 import jakarta.validation.constraints.NotNull;
 
 /**
- * Commande de réinitialisation d'un PageModel vers les valeurs du template lié.
- * Retourne le PageModelAdminDetailDto de l'instance réinitialisée.
+ * Commande de réinitialisation d'un PageModel vers les valeurs du template lié. Retourne le
+ * PageModelAdminDetailDto de l'instance réinitialisée.
  */
-public record ResetPageModelCommand(
-    @NotNull PageModelId id,
-    UserId actorId
-) implements Command<PageModelAdminDetailDto> {}
-
+public record ResetPageModelCommand(@NotNull PageModelId id, UserId actorId)
+    implements Command<PageModelAdminDetailDto> {}

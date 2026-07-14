@@ -19,11 +19,7 @@ public interface PublicDrawResultSlotReaderPort {
       List<String> slotKeys, String provider, LocalDate resultDate, int historyLimit);
 
   TchPage<PublicDrawResultHistoryRowView> searchPublicHistory(
-      List<String> slotKeys,
-      String provider,
-      LocalDate from,
-      LocalDate to,
-      Pageable pageable);
+      List<String> slotKeys, String provider, LocalDate from, LocalDate to, Pageable pageable);
 
   Optional<PublicDrawResultDetailView> findPublicResultDetailById(DrawResultId id);
 }

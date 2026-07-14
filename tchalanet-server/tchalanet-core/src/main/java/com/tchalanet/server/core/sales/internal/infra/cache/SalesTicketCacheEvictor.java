@@ -12,35 +12,35 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class SalesTicketCacheEvictor {
 
-    public static final String TICKET_LIST = "core.sales.ticket.list";
-    public static final String TICKET_DETAILS = "core.sales.ticket.details";
-    public static final String TICKET_PRINT = "core.sales.ticket.print";
-    public static final String TICKET_VERIFY = "core.sales.ticket.verify";
+  public static final String TICKET_LIST = "core.sales.ticket.list";
+  public static final String TICKET_DETAILS = "core.sales.ticket.details";
+  public static final String TICKET_PRINT = "core.sales.ticket.print";
+  public static final String TICKET_VERIFY = "core.sales.ticket.verify";
 
-    private final CacheManager cacheManager;
+  private final CacheManager cacheManager;
 
-    public void evictByDraw(DrawId drawId) {
-        clear(TICKET_LIST);
-        log.debug("sales.cache.evict drawId={}", drawId);
+  public void evictByDraw(DrawId drawId) {
+    clear(TICKET_LIST);
+    log.debug("sales.cache.evict drawId={}", drawId);
+  }
+
+  public void evictByTicket(TicketId ticketId) {
+    evict(TICKET_DETAILS, ticketId.value());
+    evict(TICKET_PRINT, ticketId.value());
+    evict(TICKET_VERIFY, ticketId.value());
+  }
+
+  private void clear(String cacheName) {
+    var cache = cacheManager.getCache(cacheName);
+    if (cache != null) {
+      cache.clear();
     }
+  }
 
-    public void evictByTicket(TicketId ticketId) {
-        evict(TICKET_DETAILS, ticketId.value());
-        evict(TICKET_PRINT, ticketId.value());
-        evict(TICKET_VERIFY, ticketId.value());
+  private void evict(String cacheName, Object key) {
+    var cache = cacheManager.getCache(cacheName);
+    if (cache != null) {
+      cache.evict(key);
     }
-
-    private void clear(String cacheName) {
-        var cache = cacheManager.getCache(cacheName);
-        if (cache != null) {
-            cache.clear();
-        }
-    }
-
-    private void evict(String cacheName, Object key) {
-        var cache = cacheManager.getCache(cacheName);
-        if (cache != null) {
-            cache.evict(key);
-        }
-    }
+  }
 }

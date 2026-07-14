@@ -1,7 +1,6 @@
 package com.tchalanet.server.core.drawresult.internal.application.port.out.external;
 
 import com.tchalanet.server.core.drawresult.api.model.ResultQuality;
-
 import java.time.Instant;
 import java.util.List;
 
@@ -12,15 +11,14 @@ public record ExternalResultItem(
     ResultQuality quality,
     ExternalSourceFlags sourceFlags,
     Instant occurredAt,
-    Object rawPayload
-) {
-    public ExternalResultItem {
-        main = main == null ? List.of() : List.copyOf(main);
-        extras = extras == null ? List.of() : List.copyOf(extras);
-        quality = quality == null ? ResultQuality.SUSPECT : quality;
-    }
+    Object rawPayload) {
+  public ExternalResultItem {
+    main = main == null ? List.of() : List.copyOf(main);
+    extras = extras == null ? List.of() : List.copyOf(extras);
+    quality = quality == null ? ResultQuality.SUSPECT : quality;
+  }
 
-    public boolean found() {
-        return !main.isEmpty();
-    }
+  public boolean found() {
+    return !main.isEmpty();
+  }
 }

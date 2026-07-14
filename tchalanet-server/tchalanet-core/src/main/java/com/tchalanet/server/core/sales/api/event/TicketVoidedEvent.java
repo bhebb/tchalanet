@@ -13,5 +13,5 @@ public record TicketVoidedEvent(
     TenantId tenantId,
     TicketId ticketId,
     UserId voidedBy,
-    String reason
-) implements DomainEvent {}
+    String reason)
+    implements DomainEvent {}

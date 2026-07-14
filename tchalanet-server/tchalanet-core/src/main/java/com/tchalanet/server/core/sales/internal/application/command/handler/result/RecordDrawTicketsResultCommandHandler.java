@@ -20,12 +20,11 @@ import com.tchalanet.server.core.sales.internal.application.port.out.TicketReade
 import com.tchalanet.server.core.sales.internal.application.port.out.TicketWriterPort;
 import com.tchalanet.server.core.sales.internal.application.service.result.TicketWinningCalculator;
 import com.tchalanet.server.core.sales.internal.infra.cache.SalesTicketCacheEvictor;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
 import java.time.Clock;
 import java.util.Objects;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @UseCase
 @RequiredArgsConstructor
@@ -33,126 +32,130 @@ import java.util.UUID;
 public class RecordDrawTicketsResultCommandHandler
     implements CommandHandler<RecordDrawTicketsResultCommand, RecordDrawTicketsResultResult> {
 
-    private static final UserId SYSTEM_ACTOR = UserId.of(UUID.nameUUIDFromBytes(
-        "sales:draw-result-applied".getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+  private static final UserId SYSTEM_ACTOR =
+      UserId.of(
+          UUID.nameUUIDFromBytes(
+              "sales:draw-result-applied".getBytes(java.nio.charset.StandardCharsets.UTF_8)));
 
-    private final TicketReaderPort ticketReader;
-    private final TicketWriterPort ticketWriter;
-    private final QueryBus queryBus;
-    private final TicketWinningCalculator ticketWinningCalculator;
-    private final DomainEventPublisher eventPublisher;
-    private final SalesTicketCacheEvictor salesTicketCacheEvictor;
-    private final IdGenerator idGenerator;
-    private final Clock clock;
+  private final TicketReaderPort ticketReader;
+  private final TicketWriterPort ticketWriter;
+  private final QueryBus queryBus;
+  private final TicketWinningCalculator ticketWinningCalculator;
+  private final DomainEventPublisher eventPublisher;
+  private final SalesTicketCacheEvictor salesTicketCacheEvictor;
+  private final IdGenerator idGenerator;
+  private final Clock clock;
 
-    @Override
-    @TchTx
-    public RecordDrawTicketsResultResult handle(RecordDrawTicketsResultCommand command) {
-        Objects.requireNonNull(command, "command is required");
-        Objects.requireNonNull(command.tenantId(), "tenantId is required");
-        Objects.requireNonNull(command.drawId(), "drawId is required");
-        Objects.requireNonNull(command.drawResultId(), "drawResultId is required");
-        var projection = queryBus.ask(new GetDrawResultProjectionByDrawIdQuery(command.drawId()));
+  @Override
+  @TchTx
+  public RecordDrawTicketsResultResult handle(RecordDrawTicketsResultCommand command) {
+    Objects.requireNonNull(command, "command is required");
+    Objects.requireNonNull(command.tenantId(), "tenantId is required");
+    Objects.requireNonNull(command.drawId(), "drawId is required");
+    Objects.requireNonNull(command.drawResultId(), "drawResultId is required");
+    var projection = queryBus.ask(new GetDrawResultProjectionByDrawIdQuery(command.drawId()));
 
-        var tickets = ticketReader.findByDrawId(command.drawId());
+    var tickets = ticketReader.findByDrawId(command.drawId());
 
-        if (tickets.isEmpty()) {
-            return new RecordDrawTicketsResultResult(0, 0, 0);
+    if (tickets.isEmpty()) {
+      return new RecordDrawTicketsResultResult(0, 0, 0);
+    }
+
+    var now = clock.instant();
+
+    var resultedEvents = new java.util.ArrayList<TicketResultedEvent>();
+    var winningSettlementEvents = new java.util.ArrayList<TicketWinningSettlementCreatedEvent>();
+    var payoutPaidEvents = new java.util.ArrayList<TicketPayoutPaidEvent>();
+    var affectedTicketIds =
+        new java.util.ArrayList<com.tchalanet.server.common.types.id.TicketId>();
+    int skipped = 0;
+
+    for (var ticket : tickets) {
+      try {
+        if (!ticket.identity().tenantId().equals(command.tenantId())) {
+          skipped++;
+          log.warn(
+              "sales.record-result.skip tenant mismatch ticketId={} ticketTenant={} commandTenant={}",
+              ticket.identity().id(),
+              ticket.identity().tenantId(),
+              command.tenantId());
+          continue;
         }
 
-        var now = clock.instant();
-
-        var resultedEvents = new java.util.ArrayList<TicketResultedEvent>();
-        var winningSettlementEvents = new java.util.ArrayList<TicketWinningSettlementCreatedEvent>();
-        var payoutPaidEvents = new java.util.ArrayList<TicketPayoutPaidEvent>();
-        var affectedTicketIds = new java.util.ArrayList<com.tchalanet.server.common.types.id.TicketId>();
-        int skipped = 0;
-
-        for (var ticket : tickets) {
-            try {
-                if (!ticket.identity().tenantId().equals(command.tenantId())) {
-                    skipped++;
-                    log.warn(
-                        "sales.record-result.skip tenant mismatch ticketId={} ticketTenant={} commandTenant={}",
-                        ticket.identity().id(),
-                        ticket.identity().tenantId(),
-                        command.tenantId()
-                    );
-                    continue;
-                }
-
-                if (ticket.lifecycle().result().status()
-                    != com.tchalanet.server.core.sales.api.model.status.TicketResultStatus.NOT_RESULTED) {
-                    skipped++;
-                    continue;
-                }
-
-                var lineResults = ticketWinningCalculator.computeLineResults(ticket, projection);
-                var updated = ticket.applyOfficialResult(lineResults, SYSTEM_ACTOR, now)
-                    .autoSettleAfterResult(SYSTEM_ACTOR, now);
-                var saved = ticketWriter.save(updated);
-
-                affectedTicketIds.add(saved.identity().id());
-
-                var resultStatus = saved.lifecycle().result().status();
-                var winningAmount = saved.winningAmount().amount();
-
-                resultedEvents.add(new TicketResultedEvent(
-                    EventId.of(idGenerator.newUuid()),
-                    now,
-                    saved.identity().tenantId(),
-                    saved.identity().id(),
-                    resultStatus,
-                    saved.lifecycle().settlement().status(),
-                    winningAmount,
-                    saved.money().currency().code(),
-                    saved.context().sellerTerminalId()
-                ));
-
-                if (resultStatus == TicketResultStatus.WON
-                    && winningAmount != null
-                    && winningAmount.signum() > 0) {
-                    winningSettlementEvents.add(new TicketWinningSettlementCreatedEvent(
-                        EventId.of(idGenerator.newUuid()),
-                        now,
-                        saved.identity().tenantId(),
-                        saved.identity().id(),
-                        command.drawId(),
-                        winningAmount.movePointRight(2).longValueExact(),
-                        saved.money().currency().code(),
-                        saved.context().sellerTerminalId()
-                    ));
-                    payoutPaidEvents.add(new TicketPayoutPaidEvent(
-                        EventId.of(idGenerator.newUuid()),
-                        now,
-                        saved.identity().tenantId(),
-                        saved.identity().id(),
-                        command.drawId(),
-                        winningAmount.movePointRight(2).longValueExact(),
-                        saved.money().currency().code(),
-                        saved.context().sellerTerminalId(),
-                        SYSTEM_ACTOR
-                    ));
-                }
-            } catch (Exception ex) {
-                skipped++;
-                log.warn(
-                    "sales.record-result.skip ticketId={} drawId={} cause={}",
-                    ticket.identity().id(),
-                    command.drawId(),
-                    ex.toString()
-                );
-            }
+        if (ticket.lifecycle().result().status()
+            != com.tchalanet.server.core.sales.api.model.status.TicketResultStatus.NOT_RESULTED) {
+          skipped++;
+          continue;
         }
 
-        AfterCommit.run(() -> {
-            resultedEvents.forEach(eventPublisher::publish);
-            winningSettlementEvents.forEach(eventPublisher::publish);
-            payoutPaidEvents.forEach(eventPublisher::publish);
-            salesTicketCacheEvictor.evictByDraw(command.drawId());
-            affectedTicketIds.forEach(salesTicketCacheEvictor::evictByTicket);
+        var lineResults = ticketWinningCalculator.computeLineResults(ticket, projection);
+        var updated =
+            ticket
+                .applyOfficialResult(lineResults, SYSTEM_ACTOR, now)
+                .autoSettleAfterResult(SYSTEM_ACTOR, now);
+        var saved = ticketWriter.save(updated);
+
+        affectedTicketIds.add(saved.identity().id());
+
+        var resultStatus = saved.lifecycle().result().status();
+        var winningAmount = saved.winningAmount().amount();
+
+        resultedEvents.add(
+            new TicketResultedEvent(
+                EventId.of(idGenerator.newUuid()),
+                now,
+                saved.identity().tenantId(),
+                saved.identity().id(),
+                resultStatus,
+                saved.lifecycle().settlement().status(),
+                winningAmount,
+                saved.money().currency().code(),
+                saved.context().sellerTerminalId()));
+
+        if (resultStatus == TicketResultStatus.WON
+            && winningAmount != null
+            && winningAmount.signum() > 0) {
+          winningSettlementEvents.add(
+              new TicketWinningSettlementCreatedEvent(
+                  EventId.of(idGenerator.newUuid()),
+                  now,
+                  saved.identity().tenantId(),
+                  saved.identity().id(),
+                  command.drawId(),
+                  winningAmount.movePointRight(2).longValueExact(),
+                  saved.money().currency().code(),
+                  saved.context().sellerTerminalId()));
+          payoutPaidEvents.add(
+              new TicketPayoutPaidEvent(
+                  EventId.of(idGenerator.newUuid()),
+                  now,
+                  saved.identity().tenantId(),
+                  saved.identity().id(),
+                  command.drawId(),
+                  winningAmount.movePointRight(2).longValueExact(),
+                  saved.money().currency().code(),
+                  saved.context().sellerTerminalId(),
+                  SYSTEM_ACTOR));
+        }
+      } catch (Exception ex) {
+        skipped++;
+        log.warn(
+            "sales.record-result.skip ticketId={} drawId={} cause={}",
+            ticket.identity().id(),
+            command.drawId(),
+            ex.toString());
+      }
+    }
+
+    AfterCommit.run(
+        () -> {
+          resultedEvents.forEach(eventPublisher::publish);
+          winningSettlementEvents.forEach(eventPublisher::publish);
+          payoutPaidEvents.forEach(eventPublisher::publish);
+          salesTicketCacheEvictor.evictByDraw(command.drawId());
+          affectedTicketIds.forEach(salesTicketCacheEvictor::evictByTicket);
         });
 
-        return new RecordDrawTicketsResultResult(tickets.size(), resultedEvents.size(), skipped);
-    }
+    return new RecordDrawTicketsResultResult(tickets.size(), resultedEvents.size(), skipped);
+  }
 }

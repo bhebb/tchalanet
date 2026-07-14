@@ -16,7 +16,7 @@ public record FetchExternalResultsWindowCommand(
     int maxSlots, // safety cap (channels * dates)
     String reason, // required if force=true
     boolean includeRaw // false by default
-) implements Command<FetchExternalResultsWindowResult> {
+    ) implements Command<FetchExternalResultsWindowResult> {
 
   @AssertTrue(message = "reason is required when force is true")
   public boolean isReasonValidForForce() {

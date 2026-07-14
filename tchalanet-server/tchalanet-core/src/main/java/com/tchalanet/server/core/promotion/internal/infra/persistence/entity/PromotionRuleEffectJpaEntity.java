@@ -24,56 +24,56 @@ import org.hibernate.type.SqlTypes;
 @Getter
 @Setter
 public class PromotionRuleEffectJpaEntity extends BaseTenantEntity {
-    @Column(name = "rule_id", nullable = false)
-    private UUID ruleId;
+  @Column(name = "rule_id", nullable = false)
+  private UUID ruleId;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "effect_type", nullable = false, length = 32)
-    private PromotionEffectType effectType;
+  @Enumerated(EnumType.STRING)
+  @Column(name = "effect_type", nullable = false, length = 32)
+  private PromotionEffectType effectType;
 
-    @Column(name = "game_code", length = 64)
-    private String gameCode;
+  @Column(name = "game_code", length = 64)
+  private String gameCode;
 
-    @Column(name = "payout_base_amount", precision = 19, scale = 4)
-    private BigDecimal payoutBaseAmount;
+  @Column(name = "payout_base_amount", precision = 19, scale = 4)
+  private BigDecimal payoutBaseAmount;
 
-    @Column(name = "quantity")
-    private Integer quantity;
+  @Column(name = "quantity")
+  private Integer quantity;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "quantity_mode", nullable = false, length = 32)
-    private PromotionQuantityMode quantityMode = PromotionQuantityMode.FIXED;
+  @Enumerated(EnumType.STRING)
+  @Column(name = "quantity_mode", nullable = false, length = 32)
+  private PromotionQuantityMode quantityMode = PromotionQuantityMode.FIXED;
 
-    @Column(name = "step_paid_amount", precision = 19, scale = 4)
-    private BigDecimal stepPaidAmount;
+  @Column(name = "step_paid_amount", precision = 19, scale = 4)
+  private BigDecimal stepPaidAmount;
 
-    @Column(name = "quantity_per_step")
-    private Integer quantityPerStep;
+  @Column(name = "quantity_per_step")
+  private Integer quantityPerStep;
 
-    @Column(name = "max_quantity")
-    private Integer maxQuantity;
+  @Column(name = "max_quantity")
+  private Integer maxQuantity;
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "quantity_tiers", nullable = false, columnDefinition = "jsonb")
-    private List<Map<String, Object>> quantityTiers = List.of();
+  @JdbcTypeCode(SqlTypes.JSON)
+  @Column(name = "quantity_tiers", nullable = false, columnDefinition = "jsonb")
+  private List<Map<String, Object>> quantityTiers = List.of();
 
-    @Column(name = "odds_override", precision = 19, scale = 6)
-    private BigDecimal oddsOverride;
+  @Column(name = "odds_override", precision = 19, scale = 6)
+  private BigDecimal oddsOverride;
 
-    @Column(name = "charge_type", length = 64)
-    private String chargeType;
+  @Column(name = "charge_type", length = 64)
+  private String chargeType;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "choice_mode", length = 32)
-    private PromotionChoiceMode choiceMode;
+  @Enumerated(EnumType.STRING)
+  @Column(name = "choice_mode", length = 32)
+  private PromotionChoiceMode choiceMode;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "generation_strategy", length = 32)
-    private SelectionGenerationStrategy generationStrategy;
+  @Enumerated(EnumType.STRING)
+  @Column(name = "generation_strategy", length = 32)
+  private SelectionGenerationStrategy generationStrategy;
 
-    @Column(name = "regenerable_before_confirm", nullable = false)
-    private boolean regenerableBeforeConfirm;
+  @Column(name = "regenerable_before_confirm", nullable = false)
+  private boolean regenerableBeforeConfirm;
 
-    @Column(name = "max_regenerations_before_confirm", nullable = false)
-    private int maxRegenerationsBeforeConfirm = 3;
+  @Column(name = "max_regenerations_before_confirm", nullable = false)
+  private int maxRegenerationsBeforeConfirm = 3;
 }

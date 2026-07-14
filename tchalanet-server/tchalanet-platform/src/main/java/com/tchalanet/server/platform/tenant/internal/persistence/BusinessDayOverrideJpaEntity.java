@@ -12,10 +12,9 @@ import lombok.Setter;
 /**
  * Tenant-level business-day open/close override (holidays, exceptional closures).
  *
- * <p>Tenant-scoped via RLS; {@code tenant_id} is set explicitly by the write
- * service from the request context (this entity extends {@link BaseEntity}, not
- * {@code BaseTenantEntity}, because there is no {@code business_day_override_aud}
- * table — it is not Envers-audited).
+ * <p>Tenant-scoped via RLS; {@code tenant_id} is set explicitly by the write service from the
+ * request context (this entity extends {@link BaseEntity}, not {@code BaseTenantEntity}, because
+ * there is no {@code business_day_override_aud} table — it is not Envers-audited).
  */
 @Entity
 @Table(name = "business_day_override")

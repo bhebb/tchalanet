@@ -9,5 +9,4 @@ public record GameCreateRequest(
     Integer maxDigits,
     String description,
     Boolean active,
-    Integer sortOrder
-) {}
+    Integer sortOrder) {}

@@ -13,10 +13,10 @@ import lombok.RequiredArgsConstructor;
 public class GetSellerTerminalMeQueryHandler
     implements QueryHandler<GetSellerTerminalMeQuery, SellerTerminalView> {
 
-    private final SellerTerminalReaderPort reader;
+  private final SellerTerminalReaderPort reader;
 
-    @Override
-    public SellerTerminalView handle(GetSellerTerminalMeQuery q) {
-        return SellerTerminalViews.detail(reader.getRequired(q.tenantId(), q.sellerTerminalId()));
-    }
+  @Override
+  public SellerTerminalView handle(GetSellerTerminalMeQuery q) {
+    return SellerTerminalViews.detail(reader.getRequired(q.tenantId(), q.sellerTerminalId()));
+  }
 }

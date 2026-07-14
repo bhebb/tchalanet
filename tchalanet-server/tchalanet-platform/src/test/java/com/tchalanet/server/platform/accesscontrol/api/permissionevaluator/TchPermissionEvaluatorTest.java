@@ -19,103 +19,117 @@ import org.springframework.security.core.Authentication;
 
 class TchPermissionEvaluatorTest {
 
-    // §9.2 — permission present → true
+  // §9.2 — permission present → true
 
-    @Test
-    void permissionPresent_returnsTrue() {
-        var evaluator = evaluator(contextWith(Set.of("payout:approve")));
+  @Test
+  void permissionPresent_returnsTrue() {
+    var evaluator = evaluator(contextWith(Set.of("payout:approve")));
 
-        assertThat(evaluator.hasPermission(auth(), null, "payout:approve")).isTrue();
+    assertThat(evaluator.hasPermission(auth(), null, "payout:approve")).isTrue();
+  }
+
+  // §9.2 — permission absent → false
+
+  @Test
+  void permissionAbsent_returnsFalse() {
+    var evaluator = evaluator(contextWith(Set.of("payout:approve")));
+
+    assertThat(evaluator.hasPermission(auth(), null, "other.permission")).isFalse();
+  }
+
+  // §9.2 — context absent → false
+
+  @Test
+  void contextAbsent_returnsFalse() {
+    var evaluator = evaluator(null);
+
+    assertThat(evaluator.hasPermission(auth(), null, "payout:approve")).isFalse();
+  }
+
+  // §9.2 — authentication absent → false
+
+  @Test
+  void authenticationAbsent_returnsFalse() {
+    var evaluator = evaluator(contextWith(Set.of("payout:approve")));
+
+    assertThat(evaluator.hasPermission(null, null, "payout:approve")).isFalse();
+  }
+
+  // §9.2 — permission DENY: resolved context does not contain the key → false
+
+  @Test
+  void permissionNotInResolvedSet_returnsFalse() {
+    var evaluator = evaluator(contextWith(Set.of("ticket.read")));
+
+    assertThat(evaluator.hasPermission(auth(), null, "payout:approve")).isFalse();
+  }
+
+  // §9.2 — ticket.sell works for active seller terminal.
+
+  @Test
+  void sellerTerminalSell_presentInPermissions_returnsTrue() {
+    var evaluator = evaluator(contextWith(Set.of("ticket.sell")));
+
+    assertThat(evaluator.hasPermission(auth(), null, "ticket.sell")).isTrue();
+  }
+
+  @Test
+  void sellerTerminalSell_absentFromPermissions_returnsFalse() {
+    var evaluator = evaluator(contextWith(Set.of()));
+
+    assertThat(evaluator.hasPermission(auth(), null, "ticket.sell")).isFalse();
+  }
+
+  // ── helpers ──────────────────────────────────────────────────────────────
+
+  private static TchPermissionEvaluator evaluator(TchRequestContext ctx) {
+    return new TchPermissionEvaluator(new StaticContextResolver(ctx));
+  }
+
+  private static Authentication auth() {
+    return new UsernamePasswordAuthenticationToken("user", "n/a", Set.of());
+  }
+
+  private static TchRequestContext contextWith(Set<String> permissionKeys) {
+    var tenantId = UUID.randomUUID();
+    return new TchRequestContext(
+        "tenant",
+        tenantId,
+        "tenant",
+        tenantId,
+        UUID.randomUUID(),
+        EnumSet.of(TchRole.TENANT_ADMIN),
+        Set.of(),
+        Locale.ENGLISH,
+        "request-id",
+        "127.0.0.1",
+        "test",
+        false,
+        null,
+        "active",
+        ApiScope.TENANT,
+        null,
+        TenantId.of(tenantId),
+        ZoneId.of("UTC"),
+        Currency.getInstance("USD"),
+        null,
+        null,
+        null,
+        Set.of(), // roleCodes
+        permissionKeys, // permissionKeys — the set under test
+        null);
+  }
+
+  private static final class StaticContextResolver extends TchContextResolver {
+    private final TchRequestContext context;
+
+    StaticContextResolver(TchRequestContext context) {
+      this.context = context;
     }
 
-    // §9.2 — permission absent → false
-
-    @Test
-    void permissionAbsent_returnsFalse() {
-        var evaluator = evaluator(contextWith(Set.of("payout:approve")));
-
-        assertThat(evaluator.hasPermission(auth(), null, "other.permission")).isFalse();
+    @Override
+    public TchRequestContext currentOrNull() {
+      return context;
     }
-
-    // §9.2 — context absent → false
-
-    @Test
-    void contextAbsent_returnsFalse() {
-        var evaluator = evaluator(null);
-
-        assertThat(evaluator.hasPermission(auth(), null, "payout:approve")).isFalse();
-    }
-
-    // §9.2 — authentication absent → false
-
-    @Test
-    void authenticationAbsent_returnsFalse() {
-        var evaluator = evaluator(contextWith(Set.of("payout:approve")));
-
-        assertThat(evaluator.hasPermission(null, null, "payout:approve")).isFalse();
-    }
-
-    // §9.2 — permission DENY: resolved context does not contain the key → false
-
-    @Test
-    void permissionNotInResolvedSet_returnsFalse() {
-        var evaluator = evaluator(contextWith(Set.of("ticket.read")));
-
-        assertThat(evaluator.hasPermission(auth(), null, "payout:approve")).isFalse();
-    }
-
-    // §9.2 — ticket.sell works for active seller terminal.
-
-    @Test
-    void sellerTerminalSell_presentInPermissions_returnsTrue() {
-        var evaluator = evaluator(contextWith(Set.of("ticket.sell")));
-
-        assertThat(evaluator.hasPermission(auth(), null, "ticket.sell")).isTrue();
-    }
-
-    @Test
-    void sellerTerminalSell_absentFromPermissions_returnsFalse() {
-        var evaluator = evaluator(contextWith(Set.of()));
-
-        assertThat(evaluator.hasPermission(auth(), null, "ticket.sell")).isFalse();
-    }
-
-    // ── helpers ──────────────────────────────────────────────────────────────
-
-    private static TchPermissionEvaluator evaluator(TchRequestContext ctx) {
-        return new TchPermissionEvaluator(new StaticContextResolver(ctx));
-    }
-
-    private static Authentication auth() {
-        return new UsernamePasswordAuthenticationToken("user", "n/a", Set.of());
-    }
-
-    private static TchRequestContext contextWith(Set<String> permissionKeys) {
-        var tenantId = UUID.randomUUID();
-        return new TchRequestContext(
-            "tenant", tenantId, "tenant", tenantId,
-            UUID.randomUUID(),
-            EnumSet.of(TchRole.TENANT_ADMIN), Set.of(),
-            Locale.ENGLISH, "request-id", "127.0.0.1", "test",
-            false, null, "active", ApiScope.TENANT,
-            null, TenantId.of(tenantId), ZoneId.of("UTC"), Currency.getInstance("USD"),
-            null,
-            null, null,
-            Set.of(),            // roleCodes
-            permissionKeys,      // permissionKeys — the set under test
-            null);
-    }
-
-    private static final class StaticContextResolver extends TchContextResolver {
-        private final TchRequestContext context;
-
-        StaticContextResolver(TchRequestContext context) {
-            this.context = context;
-        }
-
-        @Override
-        public TchRequestContext currentOrNull() {
-            return context;
-        }
-    }
+  }
 }

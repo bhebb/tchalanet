@@ -9,12 +9,12 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ContactRequestReferenceGenerator {
 
-    private final ContactRequestReferenceSequence sequence;
-    private final Clock clock;
+  private final ContactRequestReferenceSequence sequence;
+  private final Clock clock;
 
-    public String nextReference() {
-        int year = Year.now(clock).getValue() % 100;
-        long value = sequence.nextValue();
-        return "CT-%02d-%06d".formatted(year, value);
-    }
+  public String nextReference() {
+    int year = Year.now(clock).getValue() % 100;
+    long value = sequence.nextValue();
+    return "CT-%02d-%06d".formatted(year, value);
+  }
 }

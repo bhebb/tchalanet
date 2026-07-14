@@ -2,7 +2,6 @@ package com.tchalanet.server.core.sales.api.model.print;
 
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.DrawId;
-
 import java.time.Instant;
 import java.time.LocalDate;
 
@@ -17,6 +16,4 @@ public record TicketPrintDraw(
     String drawChannelName,
     LocalDate drawDate,
     Instant scheduledAt,
-    Instant cutoffAt
-) {
-}
+    Instant cutoffAt) {}

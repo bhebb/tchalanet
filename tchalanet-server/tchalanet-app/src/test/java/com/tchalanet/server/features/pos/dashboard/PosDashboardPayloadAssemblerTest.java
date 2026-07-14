@@ -31,8 +31,7 @@ import org.junit.jupiter.api.Test;
 class PosDashboardPayloadAssemblerTest {
 
   private final QueryBus queryBus = mock(QueryBus.class);
-  private final PosDashboardPayloadAssembler assembler =
-      new PosDashboardPayloadAssembler(queryBus);
+  private final PosDashboardPayloadAssembler assembler = new PosDashboardPayloadAssembler(queryBus);
 
   private final TenantId tenantId = TenantId.of(UUID.randomUUID());
   private final UserId userId = UserId.of(UUID.randomUUID());
@@ -76,12 +75,14 @@ class PosDashboardPayloadAssemblerTest {
     void v0LoadsDashboardReads() {
       stubDashboardQueries();
 
-      var payload = assembler.assemble(context(TchActorType.SELLER_TERMINAL, sellerTerminalId, true, true));
+      var payload =
+          assembler.assemble(context(TchActorType.SELLER_TERMINAL, sellerTerminalId, true, true));
 
       verify(queryBus, times(1)).ask(any(GetCashierDashboardOverviewQuery.class));
       verify(queryBus, times(1)).ask(any(ListCashierNextDrawsQuery.class));
       verify(queryBus, times(1)).ask(any(ListCashierRecentTicketsQuery.class));
-      assertThat(payload.identity().cashierDisplayName()).isEqualTo(sellerTerminalId.value().toString());
+      assertThat(payload.identity().cashierDisplayName())
+          .isEqualTo(sellerTerminalId.value().toString());
       assertThat(payload.session().active()).isTrue();
       assertThat(payload.overview().sessionOpen()).isTrue();
       assertThat(payload.overview().ticketCount()).isEqualTo(12L);
@@ -97,7 +98,8 @@ class PosDashboardPayloadAssemblerTest {
     void readyWhenSellerTerminalPresent() {
       stubDashboardQueries();
 
-      var payload = assembler.assemble(context(TchActorType.SELLER_TERMINAL, sellerTerminalId, true, true));
+      var payload =
+          assembler.assemble(context(TchActorType.SELLER_TERMINAL, sellerTerminalId, true, true));
 
       assertThat(payload.readiness().ready()).isTrue();
       assertThat(payload.readiness().trusted()).isTrue();
@@ -133,10 +135,7 @@ class PosDashboardPayloadAssemblerTest {
   }
 
   private TchRequestContext context(
-      TchActorType actorType,
-      SellerTerminalId terminalId,
-      boolean hasTenantId,
-      boolean hasUserId) {
+      TchActorType actorType, SellerTerminalId terminalId, boolean hasTenantId, boolean hasUserId) {
     return new TchRequestContext(
         "tenant-demo",
         hasTenantId ? tenantId.value() : null,

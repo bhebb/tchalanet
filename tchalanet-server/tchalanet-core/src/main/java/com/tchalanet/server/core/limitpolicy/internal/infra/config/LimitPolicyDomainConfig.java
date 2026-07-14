@@ -12,40 +12,36 @@ import com.tchalanet.server.core.limitpolicy.internal.domain.rule.MaxStakePerBet
 import com.tchalanet.server.core.limitpolicy.internal.domain.rule.MaxStakePerLineEvaluator;
 import com.tchalanet.server.core.limitpolicy.internal.domain.rule.MaxStakePerSelectionPerTicketEvaluator;
 import com.tchalanet.server.core.limitpolicy.internal.domain.rule.MaxStakePerTicketEvaluator;
+import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.List;
 
 @Configuration
 public class LimitPolicyDomainConfig {
 
-    @Bean
-    public LimitResolver limitResolver() {
-        return new LimitResolver();
-    }
+  @Bean
+  public LimitResolver limitResolver() {
+    return new LimitResolver();
+  }
 
-    @Bean
-    public List<LimitRuleEvaluator> limitRuleEvaluators() {
-        return List.of(
-            new MaxStakePerLineEvaluator(),
-            new MaxStakePerTicketEvaluator(),
-            new MaxLinesPerTicketEvaluator(),
-            new MaxStakePerBetTypePerTicketEvaluator(),
-            new MaxStakePerSelectionPerTicketEvaluator(),
-            new BlockBetTypeEvaluator(),
-            new BlockSelectionPerDrawEvaluator(),
+  @Bean
+  public List<LimitRuleEvaluator> limitRuleEvaluators() {
+    return List.of(
+        new MaxStakePerLineEvaluator(),
+        new MaxStakePerTicketEvaluator(),
+        new MaxLinesPerTicketEvaluator(),
+        new MaxStakePerBetTypePerTicketEvaluator(),
+        new MaxStakePerSelectionPerTicketEvaluator(),
+        new BlockBetTypeEvaluator(),
+        new BlockSelectionPerDrawEvaluator(),
 
-            // exposure
-            new MaxStakeExposurePerSelectionPerDrawEvaluator(),
-            new MaxSalesCountPerSelectionPerDrawEvaluator()
-        );
-    }
+        // exposure
+        new MaxStakeExposurePerSelectionPerDrawEvaluator(),
+        new MaxSalesCountPerSelectionPerDrawEvaluator());
+  }
 
-    @Bean
-    public LimitEvaluationEngine limitEvaluationEngine(
-        List<LimitRuleEvaluator> evaluators
-    ) {
-        return new LimitEvaluationEngine(evaluators);
-    }
+  @Bean
+  public LimitEvaluationEngine limitEvaluationEngine(List<LimitRuleEvaluator> evaluators) {
+    return new LimitEvaluationEngine(evaluators);
+  }
 }

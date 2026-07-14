@@ -25,7 +25,8 @@ public class PlatformUserRoleService implements PlatformUserRoleApi {
 
   private static final String PLATFORM_ROLE_SCOPE = "PLATFORM";
   private static final String SUPER_ADMIN_ROLE = "SUPER_ADMIN";
-  private static final Set<String> ALLOWED_SORT_FIELDS = Set.of("displayName", "status", "createdAt");
+  private static final Set<String> ALLOWED_SORT_FIELDS =
+      Set.of("displayName", "status", "createdAt");
 
   private final AppRoleJpaRepository appRoleRepository;
   private final PlatformUserRoleJpaRepository platformUserRoleRepository;
@@ -50,17 +51,19 @@ public class PlatformUserRoleService implements PlatformUserRoleApi {
 
   /**
    * Global search of TENANT_ADMIN users across all tenants (SUPER_ADMIN use only).
+   *
    * @param q optional name/email filter (case-insensitive LIKE)
    * @param page zero-based page index
    * @param size page size
    */
   @Transactional(readOnly = true)
   @Override
-  public List<TenantAdminGlobalAccessRow> searchTenantAdmins(String q, int page, int size, String sort) {
+  public List<TenantAdminGlobalAccessRow> searchTenantAdmins(
+      String q, int page, int size, String sort) {
     String nameLike = (q == null || q.isBlank()) ? null : "%" + q.trim().toLowerCase() + "%";
     int offset = page * size;
     String field = "displayName";
-    String dir   = "asc";
+    String dir = "asc";
     if (sort != null && sort.contains(",")) {
       var parts = sort.split(",", 2);
       if (ALLOWED_SORT_FIELDS.contains(parts[0].trim())) field = parts[0].trim();
@@ -75,7 +78,8 @@ public class PlatformUserRoleService implements PlatformUserRoleApi {
   @Override
   public Optional<TenantAdminGlobalAccessRow> findTenantAdmin(UserId userId) {
     Objects.requireNonNull(userId, "userId");
-    return tenantUserRoleRepository.findTenantAdminByUserId(userId.value())
+    return tenantUserRoleRepository
+        .findTenantAdminByUserId(userId.value())
         .map(PlatformUserRoleService::toTenantAdminGlobalAccessRow);
   }
 
@@ -89,14 +93,18 @@ public class PlatformUserRoleService implements PlatformUserRoleApi {
   @Transactional(readOnly = true)
   @Override
   public boolean hasPlatformRole(UserId userId) {
-    return userId != null && !platformUserRoleRepository.findPlatformRoleAccessRows(userId.value()).isEmpty();
+    return userId != null
+        && !platformUserRoleRepository.findPlatformRoleAccessRows(userId.value()).isEmpty();
   }
 
   @Transactional
   @Override
   public void assignSuperAdmin(UserId userId, UserId assignedBy) {
-    var role = appRoleRepository.findActiveSystemRoleByCodeAndScope(SUPER_ADMIN_ROLE, PLATFORM_ROLE_SCOPE)
-        .orElseThrow(() -> new IllegalStateException("Platform role not found: " + SUPER_ADMIN_ROLE));
+    var role =
+        appRoleRepository
+            .findActiveSystemRoleByCodeAndScope(SUPER_ADMIN_ROLE, PLATFORM_ROLE_SCOPE)
+            .orElseThrow(
+                () -> new IllegalStateException("Platform role not found: " + SUPER_ADMIN_ROLE));
     if (platformUserRoleRepository.findActiveAssignment(userId.value(), role.getId()).isPresent()) {
       return;
     }
@@ -110,12 +118,16 @@ public class PlatformUserRoleService implements PlatformUserRoleApi {
   @Transactional
   @Override
   public void removeSuperAdmin(UserId userId) {
-    var role = appRoleRepository.findActiveSystemRoleByCodeAndScope(SUPER_ADMIN_ROLE, PLATFORM_ROLE_SCOPE)
-        .orElseThrow(() -> new IllegalStateException("Platform role not found: " + SUPER_ADMIN_ROLE));
+    var role =
+        appRoleRepository
+            .findActiveSystemRoleByCodeAndScope(SUPER_ADMIN_ROLE, PLATFORM_ROLE_SCOPE)
+            .orElseThrow(
+                () -> new IllegalStateException("Platform role not found: " + SUPER_ADMIN_ROLE));
     platformUserRoleRepository.softDeleteAssignment(userId.value(), role.getId());
   }
 
-  private static PlatformSuperAdminAccessRow toPlatformSuperAdminAccessRow(PlatformSuperAdminRow row) {
+  private static PlatformSuperAdminAccessRow toPlatformSuperAdminAccessRow(
+      PlatformSuperAdminRow row) {
     return new PlatformSuperAdminAccessRow(
         row.getUserId(),
         row.getEmail(),

@@ -9,5 +9,6 @@ import org.springframework.stereotype.Repository;
 public interface NotificationTranslationJpaRepository
     extends JpaRepository<NotificationTranslationJpaEntity, UUID> {
 
-  List<NotificationTranslationJpaEntity> findByNotificationIdAndDeletedAtIsNull(UUID notificationId);
+  List<NotificationTranslationJpaEntity> findByNotificationIdAndDeletedAtIsNull(
+      UUID notificationId);
 }

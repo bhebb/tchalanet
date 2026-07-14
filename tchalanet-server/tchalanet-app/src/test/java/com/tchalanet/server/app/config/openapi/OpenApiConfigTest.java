@@ -46,8 +46,7 @@ class OpenApiConfigTest {
               assertThat(parameter.getIn()).isEqualTo("header");
               assertThat(parameter.getRequired()).isTrue();
               assertThat(parameter.getExample()).isEqualTo("tch_req_swagger_test_0001");
-              assertThat(parameter.getSchema().getDefault())
-                  .isEqualTo("tch_req_swagger_test_0001");
+              assertThat(parameter.getSchema().getDefault()).isEqualTo("tch_req_swagger_test_0001");
             });
   }
 
@@ -77,8 +76,7 @@ class OpenApiConfigTest {
 
     assertThat(transformed)
         .contains("request.headers['X-Request-Id'] = 'tch_req_swagger_test_0001'")
-        .contains(
-            "request.headers['X-Request-Id'] || request.headers['x-request-id']");
+        .contains("request.headers['X-Request-Id'] || request.headers['x-request-id']");
     assertThat(
             RequestIdSwaggerIndexTransformer.addRequestIdInterceptor(
                 transformed, "tch_req_swagger_test_0001"))

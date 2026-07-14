@@ -11,22 +11,22 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class TicketCodesGenerator implements TicketCodeGeneratorPort {
 
-    private final CrockfordPublicCodeGenerator crockfordPublicCodeGenerator;
-    private final TimeBasedTicketNumberGenerator timeBasedTicketNumberGenerator;
-    private final VerificationCodeGenerator verificationCodeGenerator;
+  private final CrockfordPublicCodeGenerator crockfordPublicCodeGenerator;
+  private final TimeBasedTicketNumberGenerator timeBasedTicketNumberGenerator;
+  private final VerificationCodeGenerator verificationCodeGenerator;
 
-    @Override
-    public TicketCode nextTicketCode() {
-        return TicketCode.of(timeBasedTicketNumberGenerator.generate());
-    }
+  @Override
+  public TicketCode nextTicketCode() {
+    return TicketCode.of(timeBasedTicketNumberGenerator.generate());
+  }
 
-    @Override
-    public PublicCode nextPublicCode() {
-        return PublicCode.of(crockfordPublicCodeGenerator.generate());
-    }
+  @Override
+  public PublicCode nextPublicCode() {
+    return PublicCode.of(crockfordPublicCodeGenerator.generate());
+  }
 
-    @Override
-    public VerificationCode nextVerificationCode() {
-        return VerificationCode.of(verificationCodeGenerator.generate());
-    }
+  @Override
+  public VerificationCode nextVerificationCode() {
+    return VerificationCode.of(verificationCodeGenerator.generate());
+  }
 }

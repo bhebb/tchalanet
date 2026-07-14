@@ -13,5 +13,5 @@ public record RecordTicketPrintCommand(
     @NotNull PrintOptionsRequest printOptionsRequest,
     @Size(max = 500) String reason,
     UserId actorUserId,
-    CorrelationId correlationId
-) implements Command<RecordTicketPrintResult> {}
+    CorrelationId correlationId)
+    implements Command<RecordTicketPrintResult> {}

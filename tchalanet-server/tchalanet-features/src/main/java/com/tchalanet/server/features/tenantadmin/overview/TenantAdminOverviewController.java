@@ -14,10 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * Tenant overview endpoint — structural diagnosis and navigation.
  *
- * Spec dashboard-overview-runtime-v1 §tenant-admin-runtime:
- *   - feature endpoint, not a PageModel provider
- *   - MUST NOT repeat dashboard KPIs
- *   - returns sections with status, summary, issues and route
+ * <p>Spec dashboard-overview-runtime-v1 §tenant-admin-runtime: - feature endpoint, not a PageModel
+ * provider - MUST NOT repeat dashboard KPIs - returns sections with status, summary, issues and
+ * route
  */
 @RestController
 @RequestMapping("/admin")

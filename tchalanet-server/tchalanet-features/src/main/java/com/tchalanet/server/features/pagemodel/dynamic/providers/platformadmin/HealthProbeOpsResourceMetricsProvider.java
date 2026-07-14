@@ -1,5 +1,8 @@
 package com.tchalanet.server.features.pagemodel.dynamic.providers.platformadmin;
 
+import com.tchalanet.server.platform.ops.api.OpsResourceContributor;
+import com.tchalanet.server.platform.ops.api.OpsServiceResourceItem;
+import com.tchalanet.server.platform.ops.api.PlatformHealthProbe;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,9 +11,6 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Component;
-import com.tchalanet.server.platform.ops.api.OpsResourceContributor;
-import com.tchalanet.server.platform.ops.api.OpsServiceResourceItem;
-import com.tchalanet.server.platform.ops.api.PlatformHealthProbe;
 
 @Component
 @RequiredArgsConstructor
@@ -32,8 +32,7 @@ class HealthProbeOpsResourceMetricsProvider implements OpsResourceMetricsProvide
         return withContributors(emptyServices("Health snapshot unavailable."));
       }
 
-      List<OpsServiceResourceItem> services =
-          new ArrayList<>(mapServices(snapshot));
+      List<OpsServiceResourceItem> services = new ArrayList<>(mapServices(snapshot));
       return withContributors(services);
     } catch (RuntimeException e) {
       return withContributors(emptyServices("Resource metrics could not be collected."));
@@ -42,46 +41,46 @@ class HealthProbeOpsResourceMetricsProvider implements OpsResourceMetricsProvide
 
   private PlatformAdminOpsDashboardPayloadAssembler.OpsResourceSummaryPayload withContributors(
       List<OpsServiceResourceItem> baseServices) {
-    List<OpsServiceResourceItem> services =
-        new ArrayList<>(baseServices);
-    resourceContributors.orderedStream().forEach(contributor -> services.addAll(safeServices(contributor)));
-    long criticalCount = services.stream().filter(item -> "CRITICAL".equals(item.severity())).count();
+    List<OpsServiceResourceItem> services = new ArrayList<>(baseServices);
+    resourceContributors
+        .orderedStream()
+        .forEach(contributor -> services.addAll(safeServices(contributor)));
+    long criticalCount =
+        services.stream().filter(item -> "CRITICAL".equals(item.severity())).count();
     long warningCount = services.stream().filter(item -> "WARNING".equals(item.severity())).count();
     return new PlatformAdminOpsDashboardPayloadAssembler.OpsResourceSummaryPayload(
-        Instant.now().toString(),
-        criticalCount,
-        warningCount,
-        List.copyOf(services));
+        Instant.now().toString(), criticalCount, warningCount, List.copyOf(services));
   }
 
-  private static List<OpsServiceResourceItem> safeServices(
-      OpsResourceContributor contributor) {
+  private static List<OpsServiceResourceItem> safeServices(OpsResourceContributor contributor) {
     try {
       List<OpsServiceResourceItem> services = contributor.services();
       return services == null ? List.of() : services;
     } catch (RuntimeException e) {
-      return List.of(new OpsServiceResourceItem(
-          "ops-resource-contributor",
-          "Ops resource contributor",
-          "UNKNOWN",
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          "WARNING",
-          "Resource contributor could not be collected.",
-          "/app/platform/ops/resources",
-          null,
-          null,
-          null));
+      return List.of(
+          new OpsServiceResourceItem(
+              "ops-resource-contributor",
+              "Ops resource contributor",
+              "UNKNOWN",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              "WARNING",
+              "Resource contributor could not be collected.",
+              "/app/platform/ops/resources",
+              null,
+              null,
+              null));
     }
   }
 
   private static List<OpsServiceResourceItem> emptyServices(String message) {
-    return List.of(new OpsServiceResourceItem(
+    return List.of(
+        new OpsServiceResourceItem(
             "observability",
             "Observability",
             "UNKNOWN",
@@ -100,33 +99,37 @@ class HealthProbeOpsResourceMetricsProvider implements OpsResourceMetricsProvide
             null));
   }
 
-  private static List<OpsServiceResourceItem> mapServices(
-      Map<String, Object> snapshot) {
+  private static List<OpsServiceResourceItem> mapServices(Map<String, Object> snapshot) {
     List<OpsServiceResourceItem> services = new ArrayList<>();
-    services.add(mapService("api", "API service", snapshot.getOrDefault("global", "UNKNOWN"), snapshot.get("appVersion")));
+    services.add(
+        mapService(
+            "api",
+            "API service",
+            snapshot.getOrDefault("global", "UNKNOWN"),
+            snapshot.get("appVersion")));
 
     Object rawComponents = snapshot.get("components");
     if (rawComponents instanceof Map<?, ?> components) {
-      components.forEach((key, value) -> services.add(mapService(String.valueOf(key), displayName(key), value, null)));
+      components.forEach(
+          (key, value) ->
+              services.add(mapService(String.valueOf(key), displayName(key), value, null)));
     }
 
     return List.copyOf(services);
   }
 
   private static OpsServiceResourceItem mapService(
-      String key,
-      String displayName,
-      Object statusValue,
-      Object versionValue) {
+      String key, String displayName, Object statusValue, Object versionValue) {
     String status = normalizeStatus(statusValue);
     String severity = severity(status);
     String version = versionValue == null ? "" : String.valueOf(versionValue).trim();
     String versionLabel = version.isBlank() ? "" : " v" + version;
-    String message = switch (severity) {
-      case "CRITICAL" -> displayName + versionLabel + " is down.";
-      case "WARNING" -> displayName + versionLabel + " status is " + status + ".";
-      default -> displayName + versionLabel + " is healthy.";
-    };
+    String message =
+        switch (severity) {
+          case "CRITICAL" -> displayName + versionLabel + " is down.";
+          case "WARNING" -> displayName + versionLabel + " status is " + status + ".";
+          default -> displayName + versionLabel + " is healthy.";
+        };
     return new OpsServiceResourceItem(
         key,
         displayName,
@@ -166,13 +169,17 @@ class HealthProbeOpsResourceMetricsProvider implements OpsResourceMetricsProvide
 
   private static String displayName(Object key) {
     String normalized = String.valueOf(key).trim().toLowerCase(Locale.ROOT);
-    if ("db".equals(normalized) || "postgres".equals(normalized) || "postgresql".equals(normalized)) {
+    if ("db".equals(normalized)
+        || "postgres".equals(normalized)
+        || "postgresql".equals(normalized)) {
       return "Postgres";
     }
     if ("redis".equals(normalized)) {
       return "Redis";
     }
-    if ("edge".equals(normalized) || "edge-service".equals(normalized) || "edge_service".equals(normalized)) {
+    if ("edge".equals(normalized)
+        || "edge-service".equals(normalized)
+        || "edge_service".equals(normalized)) {
       return "Edge service";
     }
     String raw = String.valueOf(key).replace('_', ' ').replace('-', ' ').trim();

@@ -1,18 +1,18 @@
 package com.tchalanet.server.platform.audit.internal.adapter;
 
-import com.tchalanet.server.platform.audit.api.model.AuditAction;
-import com.tchalanet.server.platform.audit.api.model.AuditActorType;
-import com.tchalanet.server.platform.audit.api.model.AuditEntityType;
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageMapper;
+import com.tchalanet.server.platform.audit.api.model.AuditAction;
+import com.tchalanet.server.platform.audit.api.model.AuditActorType;
+import com.tchalanet.server.platform.audit.api.model.AuditEntityType;
 import com.tchalanet.server.platform.audit.internal.persistence.AuditEventJpaEntity;
 import com.tchalanet.server.platform.audit.internal.persistence.AuditEventJpaRepository;
 import com.tchalanet.server.platform.audit.internal.service.AuditEvent;
 import com.tchalanet.server.platform.audit.internal.service.AuditEventReaderPort;
 import com.tchalanet.server.platform.audit.internal.service.AuditEventWriterPort;
 import com.tchalanet.server.platform.audit.internal.service.AuditEventsCriteria;
-import com.tchalanet.server.common.json.utils.JsonUtils;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.time.Instant;
@@ -47,9 +47,10 @@ public class AuditEventRepositoryAdapter implements AuditEventReaderPort, AuditE
 
   @Override
   public TchPage<AuditEvent> findByCriteria(AuditEventsCriteria criteria) {
-    var pageable = criteria == null || criteria.pageable() == null
-        ? PageRequest.of(0, 20)
-        : criteria.pageable();
+    var pageable =
+        criteria == null || criteria.pageable() == null
+            ? PageRequest.of(0, 20)
+            : criteria.pageable();
 
     var page = jpa.findAll(toSpecification(criteria), pageable);
     return TchPageMapper.map(page, this::toDomain);

@@ -1,7 +1,6 @@
 package com.tchalanet.server.platform.identity.internal.web.admin.model;
 
 import com.tchalanet.server.common.types.id.UserId;
-
 import java.time.Instant;
 
 public record TenantUserAdminResponse(
@@ -21,5 +20,4 @@ public record TenantUserAdminResponse(
     // Populated for SUPER_ADMIN cross-tenant requests (null for tenant-scoped requests)
     String tenantId,
     String tenantName,
-    String tenantCode
-) {}
+    String tenantCode) {}

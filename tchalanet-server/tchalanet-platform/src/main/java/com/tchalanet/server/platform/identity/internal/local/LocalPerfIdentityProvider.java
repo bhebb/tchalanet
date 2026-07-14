@@ -17,7 +17,8 @@ public final class LocalPerfIdentityProvider implements IdentityProviderApi {
   private final LocalIdentitySupport support;
 
   public LocalPerfIdentityProvider(JwtDecoder jwtDecoder, LocalIdentityProperties properties) {
-    this.support = new LocalIdentitySupport(jwtDecoder, properties, IdentityProviderType.LOCAL_PERF);
+    this.support =
+        new LocalIdentitySupport(jwtDecoder, properties, IdentityProviderType.LOCAL_PERF);
   }
 
   @Override

@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,8 +27,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @Tag(name = "Admin • Theme")
 @RestController
 @RequestMapping("/admin/theme")
@@ -35,54 +34,53 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TenantThemeAdminController {
 
-    private final TenantThemeAdminService adminService;
-    private final ThemeCatalog themeCatalog;
+  private final TenantThemeAdminService adminService;
+  private final ThemeCatalog themeCatalog;
 
-    @Operation(summary = "Get current tenant theme")
-    @GetMapping
-    public ApiResponse<TenantThemeAdminView> get(@CurrentContext TchRequestContext ctx) {
-        return ApiResponse.success(adminService.getAdminView(ctx.tenantIdRequired()));
-    }
+  @Operation(summary = "Get current tenant theme")
+  @GetMapping
+  public ApiResponse<TenantThemeAdminView> get(@CurrentContext TchRequestContext ctx) {
+    return ApiResponse.success(adminService.getAdminView(ctx.tenantIdRequired()));
+  }
 
-    @Operation(summary = "List available theme presets")
-    @GetMapping("/presets")
-    public ApiResponse<List<ThemePresetView>> listPresets() {
-        return ApiResponse.success(themeCatalog.listActive());
-    }
+  @Operation(summary = "List available theme presets")
+  @GetMapping("/presets")
+  public ApiResponse<List<ThemePresetView>> listPresets() {
+    return ApiResponse.success(themeCatalog.listActive());
+  }
 
-    @Operation(summary = "Apply a theme preset")
-    @PostMapping("/preset")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasPermission(null, 'theme.manage')")
-    public ApiResponse<Void> applyPreset(
-        @Valid @RequestBody ApplyPresetRequest body,
-        @CurrentContext TchRequestContext ctx) {
-        adminService.applyPreset(new ApplyTenantThemeRequest(ctx.tenantIdRequired(), body.presetCode()));
-        return ApiResponse.success(null);
-    }
+  @Operation(summary = "Apply a theme preset")
+  @PostMapping("/preset")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @PreAuthorize("hasPermission(null, 'theme.manage')")
+  public ApiResponse<Void> applyPreset(
+      @Valid @RequestBody ApplyPresetRequest body, @CurrentContext TchRequestContext ctx) {
+    adminService.applyPreset(
+        new ApplyTenantThemeRequest(ctx.tenantIdRequired(), body.presetCode()));
+    return ApiResponse.success(null);
+  }
 
-    @Operation(summary = "Update theme settings (defaultMode)")
-    @PatchMapping("/settings")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasPermission(null, 'theme.manage')")
-    public ApiResponse<Void> updateSettings(
-        @Valid @RequestBody UpdateSettingsRequest body,
-        @CurrentContext TchRequestContext ctx) {
-        adminService.updateSettings(new UpdateTenantThemeSettingsRequest(
-            ctx.tenantIdRequired(), body.defaultMode()));
-        return ApiResponse.success(null);
-    }
+  @Operation(summary = "Update theme settings (defaultMode)")
+  @PatchMapping("/settings")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @PreAuthorize("hasPermission(null, 'theme.manage')")
+  public ApiResponse<Void> updateSettings(
+      @Valid @RequestBody UpdateSettingsRequest body, @CurrentContext TchRequestContext ctx) {
+    adminService.updateSettings(
+        new UpdateTenantThemeSettingsRequest(ctx.tenantIdRequired(), body.defaultMode()));
+    return ApiResponse.success(null);
+  }
 
-    @Operation(summary = "Deactivate tenant theme (reset to default)")
-    @DeleteMapping
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasPermission(null, 'theme.manage')")
-    public ApiResponse<Void> deactivate(@CurrentContext TchRequestContext ctx) {
-        adminService.deactivate(new DeactivateTenantThemeRequest(ctx.tenantIdRequired()));
-        return ApiResponse.success(null);
-    }
+  @Operation(summary = "Deactivate tenant theme (reset to default)")
+  @DeleteMapping
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @PreAuthorize("hasPermission(null, 'theme.manage')")
+  public ApiResponse<Void> deactivate(@CurrentContext TchRequestContext ctx) {
+    adminService.deactivate(new DeactivateTenantThemeRequest(ctx.tenantIdRequired()));
+    return ApiResponse.success(null);
+  }
 
-    public record ApplyPresetRequest(@NotBlank String presetCode) {}
+  public record ApplyPresetRequest(@NotBlank String presetCode) {}
 
-    public record UpdateSettingsRequest(String defaultMode) {}
+  public record UpdateSettingsRequest(String defaultMode) {}
 }

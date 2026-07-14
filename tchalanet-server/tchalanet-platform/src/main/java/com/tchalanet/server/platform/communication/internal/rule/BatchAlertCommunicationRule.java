@@ -16,11 +16,12 @@ public class BatchAlertCommunicationRule extends AbstractCommunicationRule<Objec
 
   @Override
   public Optional<SendOutboundMessageRequest> map(Object event) {
-    return Optional.of(new SendOutboundMessageRequest(
-        "OPS_BATCH_FAILED",
-        internalSlack(),
-        OutboundRecipient.slack("batch-draws"),
-        Locale.ENGLISH,
-        metadata("ops.batch.failed", "batch:failed", "Batch failed", event.toString())));
+    return Optional.of(
+        new SendOutboundMessageRequest(
+            "OPS_BATCH_FAILED",
+            internalSlack(),
+            OutboundRecipient.slack("batch-draws"),
+            Locale.ENGLISH,
+            metadata("ops.batch.failed", "batch:failed", "Batch failed", event.toString())));
   }
 }

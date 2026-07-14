@@ -8,8 +8,10 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class PromotionContextHasher {
-    public String hash(PromotionEvaluationContext c) {
-        var raw = String.join("|",
+  public String hash(PromotionEvaluationContext c) {
+    var raw =
+        String.join(
+            "|",
             String.valueOf(c.tenantId()),
             String.valueOf(c.phase()),
             String.valueOf(c.sellerTerminalId()),
@@ -17,13 +19,13 @@ public class PromotionContextHasher {
             String.valueOf(c.paidTotal()),
             String.valueOf(c.currency()),
             String.join(",", c.paidGameCodes()),
-            String.valueOf(c.offline())
-        );
-        try {
-            var digest = MessageDigest.getInstance("SHA-256").digest(raw.getBytes(StandardCharsets.UTF_8));
-            return HexFormat.of().formatHex(digest);
-        } catch (Exception e) {
-            throw new IllegalStateException("promotionDecision.context_hash_failed", e);
-        }
+            String.valueOf(c.offline()));
+    try {
+      var digest =
+          MessageDigest.getInstance("SHA-256").digest(raw.getBytes(StandardCharsets.UTF_8));
+      return HexFormat.of().formatHex(digest);
+    } catch (Exception e) {
+      throw new IllegalStateException("promotionDecision.context_hash_failed", e);
     }
+  }
 }

@@ -13,12 +13,12 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PromotionRuleEligibilityLineJpaEntity extends BaseTenantEntity {
-    @Column(name = "rule_id", nullable = false)
-    private UUID ruleId;
+  @Column(name = "rule_id", nullable = false)
+  private UUID ruleId;
 
-    @Column(name = "game_code", nullable = false, length = 64)
-    private String gameCode;
+  @Column(name = "game_code", nullable = false, length = 64)
+  private String gameCode;
 
-    @Column(name = "min_count", nullable = false)
-    private int minCount;
+  @Column(name = "min_count", nullable = false)
+  private int minCount;
 }

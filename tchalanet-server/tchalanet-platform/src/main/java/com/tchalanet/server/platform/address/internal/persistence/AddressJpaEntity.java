@@ -9,18 +9,16 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * JPA entity for address (tenant-scoped).
- * Includes normalized_key for deduplication with unique tenant-scoped index.
- * Per spec: RLS enabled at DB level.
+ * JPA entity for address (tenant-scoped). Includes normalized_key for deduplication with unique
+ * tenant-scoped index. Per spec: RLS enabled at DB level.
  */
 @Entity
 @Table(
     name = "address",
-    uniqueConstraints = @UniqueConstraint(
-        name = "uq_address_tenant_normalized_key",
-        columnNames = {"tenant_id", "normalized_key"}
-    )
-)
+    uniqueConstraints =
+        @UniqueConstraint(
+            name = "uq_address_tenant_normalized_key",
+            columnNames = {"tenant_id", "normalized_key"}))
 @Getter
 @Setter
 public class AddressJpaEntity extends BaseTenantEntity {

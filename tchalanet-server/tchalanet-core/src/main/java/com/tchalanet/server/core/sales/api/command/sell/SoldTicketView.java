@@ -26,5 +26,4 @@ public record SoldTicketView(
     Money totalAmount,
     TicketPrintStatus printStatus,
     Instant soldAt,
-    Instant placedAt
-) {}
+    Instant placedAt) {}

@@ -10,8 +10,8 @@ import java.util.UUID;
 public class PublishPolicy {
 
   /**
-   * Enforce: only one PUBLISHED per logicalId (within tenant context).
-   * Strategy: archive other published, publish limitScopeRef.
+   * Enforce: only one PUBLISHED per logicalId (within tenant context). Strategy: archive other
+   * published, publish limitScopeRef.
    */
   public List<PageModelInstance> apply(
       PageModelInstance toPublish,

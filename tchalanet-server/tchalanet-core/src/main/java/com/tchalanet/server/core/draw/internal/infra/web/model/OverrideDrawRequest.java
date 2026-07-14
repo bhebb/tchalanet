@@ -9,5 +9,4 @@ public record OverrideDrawRequest(
     Instant scheduledAt, // Nullable
     Instant cutoffAt, // Nullable
     @Size(max = 255) String reason,
-    boolean force
-) {}
+    boolean force) {}

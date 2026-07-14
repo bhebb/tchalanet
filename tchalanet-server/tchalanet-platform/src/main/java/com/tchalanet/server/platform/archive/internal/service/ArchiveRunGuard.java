@@ -11,15 +11,19 @@ import org.springframework.stereotype.Component;
 /**
  * Idempotency guard for archive runs.
  *
- * <p>Enforces the rule: same idempotency key must not create a second run when one is
- * COMPLETED. A FAILED run may be retried; a STARTED run is resumed.
+ * <p>Enforces the rule: same idempotency key must not create a second run when one is COMPLETED. A
+ * FAILED run may be retried; a STARTED run is resumed.
  */
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class ArchiveRunGuard {
 
-  public enum Decision { CREATED, RESUMED, ALREADY_COMPLETED }
+  public enum Decision {
+    CREATED,
+    RESUMED,
+    ALREADY_COMPLETED
+  }
 
   public record GuardResult(UUID runId, Decision decision) {}
 
@@ -29,14 +33,14 @@ public class ArchiveRunGuard {
    * Begin a new run or return an existing one for the given idempotency key.
    *
    * <ul>
-   *   <li>No existing row → insert new run, return CREATED.</li>
-   *   <li>Existing COMPLETED → no-op, return ALREADY_COMPLETED.</li>
-   *   <li>Existing STARTED → return RESUMED (executor picks up where it left off).</li>
-   *   <li>Existing FAILED → reset to STARTED, return RESUMED.</li>
+   *   <li>No existing row → insert new run, return CREATED.
+   *   <li>Existing COMPLETED → no-op, return ALREADY_COMPLETED.
+   *   <li>Existing STARTED → return RESUMED (executor picks up where it left off).
+   *   <li>Existing FAILED → reset to STARTED, return RESUMED.
    * </ul>
    */
-  public GuardResult beginOrResume(String idempotencyKey, String strategy,
-      String triggerType, UUID requestedBy, String reason) {
+  public GuardResult beginOrResume(
+      String idempotencyKey, String strategy, String triggerType, UUID requestedBy, String reason) {
 
     Optional<ArchiveRunRowView> existing = runRepo.findByIdempotencyKey(idempotencyKey);
 
@@ -46,11 +50,15 @@ public class ArchiveRunGuard {
       UUID runId = run.id();
 
       if ("COMPLETED".equals(status)) {
-        log.info("archive guard: run={} key={} already COMPLETED — skipping", runId, idempotencyKey);
+        log.info(
+            "archive guard: run={} key={} already COMPLETED — skipping", runId, idempotencyKey);
         return new GuardResult(runId, Decision.ALREADY_COMPLETED);
       }
       if ("FAILED".equals(status)) {
-        log.info("archive guard: run={} key={} was FAILED — resetting to STARTED", runId, idempotencyKey);
+        log.info(
+            "archive guard: run={} key={} was FAILED — resetting to STARTED",
+            runId,
+            idempotencyKey);
         runRepo.updateStatus(runId, "STARTED");
       } else {
         log.info("archive guard: run={} key={} resuming status={}", runId, status, idempotencyKey);

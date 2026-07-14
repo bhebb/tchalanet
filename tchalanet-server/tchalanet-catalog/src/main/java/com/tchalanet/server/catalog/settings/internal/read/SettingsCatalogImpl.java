@@ -1,9 +1,9 @@
 package com.tchalanet.server.catalog.settings.internal.read;
 
+import com.tchalanet.server.catalog.settings.api.SettingsCatalog;
 import com.tchalanet.server.catalog.settings.api.model.ResolveSettingsCriteria;
 import com.tchalanet.server.catalog.settings.api.model.ResolvedSettingView;
 import com.tchalanet.server.catalog.settings.api.model.SettingLevel;
-import com.tchalanet.server.catalog.settings.api.SettingsCatalog;
 import com.tchalanet.server.catalog.settings.api.model.SettingsCatalogStatsView;
 import com.tchalanet.server.catalog.settings.internal.cache.SettingsCacheNames;
 import com.tchalanet.server.catalog.settings.internal.mapper.SettingMapper;
@@ -38,14 +38,12 @@ public class SettingsCatalogImpl implements SettingsCatalog {
   @Override
   @Cacheable(
       value = SettingsCacheNames.RESOLVED_SETTINGS,
-      key = "T(com.tchalanet.server.catalog.settings.internal.cache.SettingsCacheKey).of(#criteria)")
+      key =
+          "T(com.tchalanet.server.catalog.settings.internal.cache.SettingsCacheKey).of(#criteria)")
   public List<ResolvedSettingView> resolve(ResolveSettingsCriteria criteria) {
     List<String> namespaces = criteria.namespaces();
 
-    log.debug(
-        "Resolving settings for tenant={}, namespaces={}",
-        criteria.tenantId(),
-        namespaces);
+    log.debug("Resolving settings for tenant={}, namespaces={}", criteria.tenantId(), namespaces);
 
     // Handle empty namespace filter (= all namespaces)
     List<String> effectiveNamespaces =
@@ -110,11 +108,14 @@ public class SettingsCatalogImpl implements SettingsCatalog {
   @Override
   public SettingsCatalogStatsView stats() {
     // total global settings (GLOBAL level)
-    int totalGlobal = repository.findByActiveTrueAndDeletedAtIsNullAndLevel(SettingLevel.GLOBAL).size();
+    int totalGlobal =
+        repository.findByActiveTrueAndDeletedAtIsNullAndLevel(SettingLevel.GLOBAL).size();
     // total tenant settings (TENANT level)
-    int totalTenant = repository.findByActiveTrueAndDeletedAtIsNullAndLevel(SettingLevel.TENANT).size();
+    int totalTenant =
+        repository.findByActiveTrueAndDeletedAtIsNullAndLevel(SettingLevel.TENANT).size();
     // total active settings across all levels
-    long totalActiveLong = repository.findByActiveTrueAndDeletedAtIsNull(Pageable.unpaged()).getTotalElements();
+    long totalActiveLong =
+        repository.findByActiveTrueAndDeletedAtIsNull(Pageable.unpaged()).getTotalElements();
     int totalActive = (int) totalActiveLong; // Cast to int
     return new SettingsCatalogStatsView(totalGlobal, totalTenant, totalActive);
   }

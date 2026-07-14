@@ -4,7 +4,6 @@ import com.tchalanet.server.common.types.id.AddressId;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
-
 import java.math.BigDecimal;
 import java.time.Instant;
 
@@ -32,5 +31,4 @@ public record SellerTerminalView(
     Instant disabledAt,
     // pin state
     boolean mustChangePin,
-    Instant pinResetAt
-) {}
+    Instant pinResetAt) {}

@@ -30,26 +30,28 @@ public class SupportContactNotificationRule extends AbstractNotificationRule {
   public Stream<NotificationIntent> map(Object event) {
     var name = event.getClass().getSimpleName();
     if (name.startsWith("PublicContact")) {
-      return Stream.of(platformIntent(
-          event,
-          "notification.system.support.public_contact_received",
-          NotificationSeverity.INFO,
-          NotificationKind.ACTION_REQUIRED,
-          NotificationCategory.SYSTEM,
-          "Public contact received",
-          name));
+      return Stream.of(
+          platformIntent(
+              event,
+              "notification.system.support.public_contact_received",
+              NotificationSeverity.INFO,
+              NotificationKind.ACTION_REQUIRED,
+              NotificationCategory.SYSTEM,
+              "Public contact received",
+              name));
     }
-    return Stream.of(intent(
-        event,
-        name.equals("SellerTerminalHelpRequestedEvent")
-            ? "notification.system.seller_terminal.help_requested"
-            : "notification.system.support.tenant_request",
-        NotificationSeverity.WARNING,
-        NotificationKind.ACTION_REQUIRED,
-        NotificationCategory.SYSTEM,
-        name.equals("SellerTerminalHelpRequestedEvent")
-            ? "Seller terminal help requested"
-            : "Tenant support request",
-        name));
+    return Stream.of(
+        intent(
+            event,
+            name.equals("SellerTerminalHelpRequestedEvent")
+                ? "notification.system.seller_terminal.help_requested"
+                : "notification.system.support.tenant_request",
+            NotificationSeverity.WARNING,
+            NotificationKind.ACTION_REQUIRED,
+            NotificationCategory.SYSTEM,
+            name.equals("SellerTerminalHelpRequestedEvent")
+                ? "Seller terminal help requested"
+                : "Tenant support request",
+            name));
   }
 }

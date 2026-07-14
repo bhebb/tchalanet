@@ -16,15 +16,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 /**
- * Loads the grouped payload for source {@code cashier_dashboard}.
- * One assembly per request — memoized via {@code PageModelResolutionContext}.
+ * Loads the grouped payload for source {@code cashier_dashboard}. One assembly per request —
+ * memoized via {@code PageModelResolutionContext}.
  *
- * Grouped reads (target ≤ 4 per dashboard-overview-runtime-v1 §12) :
- *   1. overview       — {@link GetCashierDashboardOverviewQuery}
- *   2. nextDraws      — {@link ListCashierNextDrawsQuery}
- *   3. recentTickets  — {@link ListCashierRecentTicketsQuery}
+ * <p>Grouped reads (target ≤ 4 per dashboard-overview-runtime-v1 §12) : 1. overview — {@link
+ * GetCashierDashboardOverviewQuery} 2. nextDraws — {@link ListCashierNextDrawsQuery} 3.
+ * recentTickets — {@link ListCashierRecentTicketsQuery}
  *
- * Readiness and alerts are derived from the seller-terminal context already carried by the HTTP
+ * <p>Readiness and alerts are derived from the seller-terminal context already carried by the HTTP
  * request — no extra read.
  */
 @Component
@@ -42,18 +41,18 @@ public class PosDashboardPayloadAssembler {
       return Payload.empty();
     }
 
-    CashierIdentityPayload identity    = loadIdentity(ctx);
-    CashierSessionPayload session      = CashierSessionPayload.v0();
-    CashierOverviewPayload overview    = loadOverview(ctx);
-    List<?> nextDraws                  = loadNextDraws();
-    List<?> recentTickets              = loadRecentTickets(ctx);
-    CashierReadinessPayload readiness  = buildReadiness(ctx);
-    CashierAlertsPayload alerts        = buildAlerts(ctx);
-    CashierStatsPayload stats          = loadAnalyticsStats(ctx);
-    CashierOfflineSyncPayload offline  = buildOfflineSyncPlaceholder();
+    CashierIdentityPayload identity = loadIdentity(ctx);
+    CashierSessionPayload session = CashierSessionPayload.v0();
+    CashierOverviewPayload overview = loadOverview(ctx);
+    List<?> nextDraws = loadNextDraws();
+    List<?> recentTickets = loadRecentTickets(ctx);
+    CashierReadinessPayload readiness = buildReadiness(ctx);
+    CashierAlertsPayload alerts = buildAlerts(ctx);
+    CashierStatsPayload stats = loadAnalyticsStats(ctx);
+    CashierOfflineSyncPayload offline = buildOfflineSyncPlaceholder();
 
-    return new Payload(identity, session, overview, nextDraws, recentTickets,
-        readiness, alerts, stats, offline);
+    return new Payload(
+        identity, session, overview, nextDraws, recentTickets, readiness, alerts, stats, offline);
   }
 
   private CashierIdentityPayload loadIdentity(TchRequestContext ctx) {
@@ -67,8 +66,9 @@ public class PosDashboardPayloadAssembler {
   private CashierOverviewPayload loadOverview(TchRequestContext ctx) {
     LocalDate businessDate = LocalDate.now(ZoneOffset.UTC);
 
-    var view = queryBus.ask(
-        new GetCashierDashboardOverviewQuery(ctx.tenantId(), ctx.userId(), businessDate));
+    var view =
+        queryBus.ask(
+            new GetCashierDashboardOverviewQuery(ctx.tenantId(), ctx.userId(), businessDate));
 
     return new CashierOverviewPayload(
         true,
@@ -83,38 +83,43 @@ public class PosDashboardPayloadAssembler {
   }
 
   private List<?> loadNextDraws() {
-    var items = queryBus.ask(
-        new ListCashierNextDrawsQuery(DEFAULT_NEXT_DRAWS_LOOKAHEAD_HOURS, DEFAULT_NEXT_DRAWS_LIMIT));
+    var items =
+        queryBus.ask(
+            new ListCashierNextDrawsQuery(
+                DEFAULT_NEXT_DRAWS_LOOKAHEAD_HOURS, DEFAULT_NEXT_DRAWS_LIMIT));
     return items != null ? items : List.of();
   }
 
   private List<?> loadRecentTickets(TchRequestContext ctx) {
-    var items = queryBus.ask(
-        new ListCashierRecentTicketsQuery(ctx.userId(), DEFAULT_RECENT_TICKETS_LIMIT));
+    var items =
+        queryBus.ask(new ListCashierRecentTicketsQuery(ctx.userId(), DEFAULT_RECENT_TICKETS_LIMIT));
     return items != null ? items : List.of();
   }
 
   /**
-   * Pre-aggregated analytics stats for today (seller scope).
-   * Falls back to empty if analytics data is not yet available.
+   * Pre-aggregated analytics stats for today (seller scope). Falls back to empty if analytics data
+   * is not yet available.
    */
   private CashierStatsPayload loadAnalyticsStats(TchRequestContext ctx) {
     try {
       LocalDate today = LocalDate.now(ZoneOffset.UTC);
-      CashierDashboardStatsView view = queryBus.ask(
-          new GetCashierDashboardStatsQuery(ctx.tenantId(), ctx.userId(), today));
+      CashierDashboardStatsView view =
+          queryBus.ask(new GetCashierDashboardStatsQuery(ctx.tenantId(), ctx.userId(), today));
       if (view == null || view.today() == null) {
         return CashierStatsPayload.unavailable();
       }
       var card = view.today();
       List<GameBreakdownItem> breakdown = List.of();
       if (view.gameBreakdown() != null) {
-        breakdown = view.gameBreakdown().stream()
-            .map(g -> new GameBreakdownItem(
-                g.gameCode() != null ? g.gameCode() : "",
-                g.ticketsSold(),
-                g.grossSales() != null ? g.grossSales() : BigDecimal.ZERO))
-            .toList();
+        breakdown =
+            view.gameBreakdown().stream()
+                .map(
+                    g ->
+                        new GameBreakdownItem(
+                            g.gameCode() != null ? g.gameCode() : "",
+                            g.ticketsSold(),
+                            g.grossSales() != null ? g.grossSales() : BigDecimal.ZERO))
+                .toList();
       }
       return new CashierStatsPayload(
           true,
@@ -134,9 +139,7 @@ public class PosDashboardPayloadAssembler {
     return new CashierOfflineSyncPayload("PARKED", 0);
   }
 
-  /**
-   * Operational readiness derived from seller-terminal context carried by the HTTP context.
-   */
+  /** Operational readiness derived from seller-terminal context carried by the HTTP context. */
   private CashierReadinessPayload buildReadiness(TchRequestContext ctx) {
     List<String> missing = new ArrayList<>();
     if (ctx == null || ctx.sellerTerminalId() == null) missing.add("SELLER_TERMINAL");
@@ -145,21 +148,17 @@ public class PosDashboardPayloadAssembler {
     boolean ready = missing.isEmpty() && trusted;
 
     return new CashierReadinessPayload(
-        ready,
-        trusted,
-        trusted ? "SELLER_TERMINAL" : "NONE",
-        List.copyOf(missing));
+        ready, trusted, trusted ? "SELLER_TERMINAL" : "NONE", List.copyOf(missing));
   }
 
-  /**
-   * Operational alerts (blockers/warnings) — derived from context flags only.
-   */
+  /** Operational alerts (blockers/warnings) — derived from context flags only. */
   private CashierAlertsPayload buildAlerts(TchRequestContext ctx) {
     List<CashierAlertItem> warnings = new ArrayList<>();
 
     if (ctx == null || ctx.sellerTerminalId() == null) {
-      warnings.add(new CashierAlertItem("BLOCKER", "SELLER_TERMINAL_MISSING",
-          "alert.cashier.seller_terminal_missing"));
+      warnings.add(
+          new CashierAlertItem(
+              "BLOCKER", "SELLER_TERMINAL_MISSING", "alert.cashier.seller_terminal_missing"));
     }
 
     return new CashierAlertsPayload(warnings.size(), List.copyOf(warnings));
@@ -196,10 +195,7 @@ public class PosDashboardPayloadAssembler {
 
   /** Cashier identity — display name, outlet, terminal, tenant context. */
   public record CashierIdentityPayload(
-      String cashierDisplayName,
-      String outletName,
-      String terminalLabel,
-      String tenantCode) {}
+      String cashierDisplayName, String outletName, String terminalLabel, String tenantCode) {}
 
   /** Cashier session state. */
   public record CashierSessionPayload(
@@ -238,27 +234,16 @@ public class PosDashboardPayloadAssembler {
 
   /** Operational readiness flags derived from HTTP context — no extra DB read. */
   public record CashierReadinessPayload(
-      boolean ready,
-      boolean trusted,
-      String source,
-      List<String> missing) {}
+      boolean ready, boolean trusted, String source, List<String> missing) {}
 
   /** Single operational alert item. */
-  public record CashierAlertItem(
-      String severity,
-      String code,
-      String messageKey) {}
+  public record CashierAlertItem(String severity, String code, String messageKey) {}
 
   /** Cashier alerts summary (blockers + warnings). */
-  public record CashierAlertsPayload(
-      int count,
-      List<CashierAlertItem> items) {}
+  public record CashierAlertsPayload(int count, List<CashierAlertItem> items) {}
 
   /** Per-game breakdown inside analytics stats. */
-  public record GameBreakdownItem(
-      String gameCode,
-      long ticketsSold,
-      BigDecimal grossSales) {}
+  public record GameBreakdownItem(String gameCode, long ticketsSold, BigDecimal grossSales) {}
 
   /** Analytics stats for today (seller scope). */
   public record CashierStatsPayload(
@@ -271,13 +256,11 @@ public class PosDashboardPayloadAssembler {
       List<GameBreakdownItem> gameBreakdown) {
 
     public static CashierStatsPayload unavailable() {
-      return new CashierStatsPayload(false, "", 0L,
-          BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, List.of());
+      return new CashierStatsPayload(
+          false, "", 0L, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, List.of());
     }
   }
 
   /** Offline/sync placeholder — V1, no server-side sync tracking yet. */
-  public record CashierOfflineSyncPayload(
-      String status,
-      int pendingSyncCount) {}
+  public record CashierOfflineSyncPayload(String status, int pendingSyncCount) {}
 }

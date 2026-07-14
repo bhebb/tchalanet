@@ -29,11 +29,11 @@ class PortalHandoffController {
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
   @Operation(summary = "Create a one-time cross-origin portal auth handoff")
-  ApiResponse<CreatePortalHandoffResponse> create(@Valid @RequestBody CreatePortalHandoffRequest request) {
-    return ApiResponse.success(service.create(
-        request.targetPortal(),
-        request.entryRoute(),
-        request.supportAccessSessionId()));
+  ApiResponse<CreatePortalHandoffResponse> create(
+      @Valid @RequestBody CreatePortalHandoffRequest request) {
+    return ApiResponse.success(
+        service.create(
+            request.targetPortal(), request.entryRoute(), request.supportAccessSessionId()));
   }
 
   @PostMapping("/{handoffId}/consume")

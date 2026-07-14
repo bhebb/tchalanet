@@ -14,7 +14,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableAspectJAutoProxy
 public class TchalanetApplication {
 
-    static void main(String[] args) {
-        SpringApplication.run(TchalanetApplication.class, args);
-    }
+  static void main(String[] args) {
+    SpringApplication.run(TchalanetApplication.class, args);
+  }
 }

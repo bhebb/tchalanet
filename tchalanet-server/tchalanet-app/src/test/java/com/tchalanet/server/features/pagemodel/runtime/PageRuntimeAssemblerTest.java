@@ -71,7 +71,9 @@ class PageRuntimeAssemblerTest {
     assertThat(runtime.shell()).isInstanceOf(PageRuntimeResponse.PublicShell.class);
     assertThat(runtime.content().widgets().get("home.hero").props())
         .isEqualTo(Map.of("titleKey", "home.hero.title"));
-    assertThat(runtime.dynamic().widgets()).containsKey("home.draws").doesNotContainKey("home.hero");
+    assertThat(runtime.dynamic().widgets())
+        .containsKey("home.draws")
+        .doesNotContainKey("home.hero");
     assertThat(runtime.dynamic().errors().getFirst().code()).isEqualTo("DEGRADED");
     assertThat(json)
         .contains("\"dynamic\"")

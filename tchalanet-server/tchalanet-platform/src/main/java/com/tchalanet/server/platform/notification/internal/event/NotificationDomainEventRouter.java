@@ -43,26 +43,27 @@ public class NotificationDomainEventRouter {
       return;
     }
 
-    notificationService.createNotification(new CreateNotificationRequest(
-        intent.tenantId(),
-        intent.sourceType(),
-        intent.sourceEventId() == null ? null : intent.sourceEventId().toString(),
-        intent.correlationKey(),
-        intent.audienceType(),
-        intent.targets(),
-        intent.severity(),
-        intent.kind(),
-        intent.category(),
-        intent.templateKey(),
-        intent.templateKey(),
-        intent.title(),
-        intent.message(),
-        null,
-        jsonUtils.toJsonNode(intent.variables()),
-        null,
-        null,
-        null,
-        Set.of(NotificationChannel.WEB)));
+    notificationService.createNotification(
+        new CreateNotificationRequest(
+            intent.tenantId(),
+            intent.sourceType(),
+            intent.sourceEventId() == null ? null : intent.sourceEventId().toString(),
+            intent.correlationKey(),
+            intent.audienceType(),
+            intent.targets(),
+            intent.severity(),
+            intent.kind(),
+            intent.category(),
+            intent.templateKey(),
+            intent.templateKey(),
+            intent.title(),
+            intent.message(),
+            null,
+            jsonUtils.toJsonNode(intent.variables()),
+            null,
+            null,
+            null,
+            Set.of(NotificationChannel.WEB)));
   }
 
   private boolean markTriggered(NotificationRule rule, NotificationIntent intent) {
@@ -96,8 +97,10 @@ public class NotificationDomainEventRouter {
       var port = processedEvents.getIfAvailable();
       return port == null || port.markProcessedIfAbsent(rule.handlerKey(), intent.sourceEventId());
     } catch (RuntimeException ex) {
-      log.debug("Processed-event check unavailable for notification rule {}; using notification dedupe key",
-          rule.handlerKey(), ex);
+      log.debug(
+          "Processed-event check unavailable for notification rule {}; using notification dedupe key",
+          rule.handlerKey(),
+          ex);
       return true;
     }
   }

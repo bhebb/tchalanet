@@ -43,13 +43,16 @@ import org.mockito.ArgumentCaptor;
 
 class AnalyticsDrawProjectorTest {
 
-  private static final TenantId TENANT_ID = TenantId.of(UUID.fromString("10000000-0000-0000-0000-000000000001"));
-  private static final DrawId DRAW_ID = DrawId.of(UUID.fromString("20000000-0000-0000-0000-000000000001"));
+  private static final TenantId TENANT_ID =
+      TenantId.of(UUID.fromString("10000000-0000-0000-0000-000000000001"));
+  private static final DrawId DRAW_ID =
+      DrawId.of(UUID.fromString("20000000-0000-0000-0000-000000000001"));
   private static final DrawChannelId DRAW_CHANNEL_ID =
       DrawChannelId.of(UUID.fromString("30000000-0000-0000-0000-000000000001"));
   private static final SellerTerminalId SELLER_TERMINAL_ID =
       SellerTerminalId.of(UUID.fromString("40000000-0000-0000-0000-000000000001"));
-  private static final TicketId TICKET_ID = TicketId.of(UUID.fromString("50000000-0000-0000-0000-000000000001"));
+  private static final TicketId TICKET_ID =
+      TicketId.of(UUID.fromString("50000000-0000-0000-0000-000000000001"));
   private static final CurrencyCode HTG = CurrencyCode.of("HTG");
   private static final Instant NOW = Instant.parse("2026-06-25T10:00:00Z");
   private static final LocalDate REF_DATE = LocalDate.parse("2026-06-25");
@@ -58,7 +61,8 @@ class AnalyticsDrawProjectorTest {
   void postResultAmountsComeFromRealizedSettlementEvents() {
     var repository = mock(AnalyticsDrawRepository.class);
     when(repository.findByDrawId(DRAW_ID.value())).thenReturn(Optional.empty());
-    when(repository.save(any(AnalyticsDrawEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+    when(repository.save(any(AnalyticsDrawEntity.class)))
+        .thenAnswer(invocation -> invocation.getArgument(0));
 
     var projector = new AnalyticsDrawProjector(repository, Clock.fixed(NOW, ZoneOffset.UTC));
 
