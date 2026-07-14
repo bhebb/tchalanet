@@ -29,3 +29,9 @@ The runtime deployment workflow SHALL build, pull, and deploy API and edge-servi
 - **WHEN** the runtime deployment workflow runs and core services are ready
 - **THEN** it may deploy API, edge-service, or both
 - **AND** it does not start, recreate, or implicitly repair Traefik or Redis.
+
+#### Scenario: Runtime deploy prepares Firebase Admin credentials
+
+- **WHEN** the runtime deployment workflow deploys the API with Firebase identity enabled
+- **THEN** it writes the Firebase Admin service account JSON to the host path used by the API bind mount before starting the API container
+- **AND** it fails before container startup if the credential secret is missing or invalid.
