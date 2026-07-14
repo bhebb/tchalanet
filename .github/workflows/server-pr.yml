@@ -33,5 +33,19 @@ jobs:
           java-version: '25'
           cache: maven
 
+      - name: Spotless check
+        continue-on-error: true
+        run: ./mvnw -B spotless:check
+
       - name: Maven verify
         run: ./mvnw -B -DskipITs=true verify
+
+      - name: Upload Jacoco reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: server-jacoco-reports
+          path: |
+            tchalanet-server/**/target/site/jacoco/**
+            tchalanet-server/**/target/jacoco.exec
+          if-no-files-found: warn

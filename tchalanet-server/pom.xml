@@ -56,6 +56,9 @@
     <maven.surefire.plugin.version>3.5.6</maven.surefire.plugin.version>
     <maven.failsafe.plugin.version>3.5.5</maven.failsafe.plugin.version>
     <jacoco.plugin.version>0.8.15</jacoco.plugin.version>
+    <jacocoArgLine/>
+    <jacoco.minimum.line.coverage>0.20</jacoco.minimum.line.coverage>
+    <jacoco.halt.on.failure>false</jacoco.halt.on.failure>
     <spotless.plugin.version>3.8.0</spotless.plugin.version>
     <checkstyle.plugin.version>3.6.0</checkstyle.plugin.version>
     <sonar.maven.plugin.version>5.3.0.6276</sonar.maven.plugin.version>
@@ -313,6 +316,7 @@
         <version>${maven.surefire.plugin.version}</version>
         <configuration>
           <argLine>
+            @{jacocoArgLine}
             -javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar
             --enable-native-access=ALL-UNNAMED
             -XX:+EnableDynamicAgentLoading
@@ -342,6 +346,66 @@
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
         <version>${jacoco.plugin.version}</version>
+        <configuration>
+          <excludes>
+            <exclude>**/*Application.*</exclude>
+            <exclude>**/*AutoConfiguration.*</exclude>
+            <exclude>**/*Config.*</exclude>
+            <exclude>**/*Configuration.*</exclude>
+            <exclude>**/*Constants.*</exclude>
+            <exclude>**/*Dto.*</exclude>
+            <exclude>**/*Exception.*</exclude>
+            <exclude>**/*MapperImpl.*</exclude>
+            <exclude>**/*NativeHints.*</exclude>
+            <exclude>**/*OpenApi.*</exclude>
+            <exclude>**/*Properties.*</exclude>
+            <exclude>**/*Projection.*</exclude>
+            <exclude>**/*Request.*</exclude>
+            <exclude>**/*Response.*</exclude>
+            <exclude>**/*View.*</exclude>
+            <exclude>**/Q*.*</exclude>
+          </excludes>
+        </configuration>
+        <executions>
+          <execution>
+            <id>prepare-agent</id>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+            <configuration>
+              <propertyName>jacocoArgLine</propertyName>
+            </configuration>
+          </execution>
+          <execution>
+            <id>report</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>report</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>check</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+            <configuration>
+              <haltOnFailure>${jacoco.halt.on.failure}</haltOnFailure>
+              <rules>
+                <rule>
+                  <element>BUNDLE</element>
+                  <limits>
+                    <limit>
+                      <counter>LINE</counter>
+                      <value>COVEREDRATIO</value>
+                      <minimum>${jacoco.minimum.line.coverage}</minimum>
+                    </limit>
+                  </limits>
+                </rule>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
