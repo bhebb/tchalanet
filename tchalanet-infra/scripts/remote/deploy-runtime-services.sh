@@ -229,6 +229,7 @@ if [ -n "$RUNTIME_IDENTITY_PROVIDER" ]; then
       printf 'FIREBASE_CREDENTIALS_HOST_PATH=/dev/null\n'
       printf 'FIREBASE_BOOTSTRAP_ENABLED=true\n'
       printf 'FIREBASE_BOOTSTRAP_AUTO_RUN_ON_STARTUP=true\n'
+      printf 'TCH_SECURITY_USER_BOOTSTRAP_MODE=ADMIN_PREPROVISIONED\n'
     fi
   } >> "$compose_env"
 fi

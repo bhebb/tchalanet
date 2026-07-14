@@ -449,7 +449,11 @@ jobs:
         run: python -m pip install -e .
 
       - name: Run server E2E
-        run: python -m pytest -m "${{ inputs.server_e2e_marker || 'full_flow' }}"
+        run: |
+          if [ "$TCH_E2E_AUTH_PROVIDER" = "firebase-emulator" ] && [ -z "$TCH_FIREBASE_EMULATOR_HOST" ] && [ -n "$NIGHTLY_SERVER_HOST" ]; then
+            export TCH_FIREBASE_EMULATOR_HOST="$NIGHTLY_SERVER_HOST:9099"
+          fi
+          python -m pytest -m "${{ inputs.server_e2e_marker || 'full_flow' }}"
 
   server-perf:
     name: Server Locust smoke
