@@ -58,9 +58,19 @@ if [ -f "$FIREBASE_ADMIN_SRC" ]; then
   cp "$FIREBASE_ADMIN_SRC" "$FIREBASE_ADMIN_DST"
   chmod 600 "$FIREBASE_ADMIN_DST"
   echo "→ Firebase Admin credentials staged for server sync: server/secrets/firebase-admin.json"
+elif [ -n "${FIREBASE_ADMIN_JSON_BASE64:-}" ]; then
+  mkdir -p "$(dirname "$FIREBASE_ADMIN_DST")"
+  printf '%s' "$FIREBASE_ADMIN_JSON_BASE64" | base64 -d > "$FIREBASE_ADMIN_DST"
+  if ! grep -q '"private_key"' "$FIREBASE_ADMIN_DST" || ! grep -q '"client_email"' "$FIREBASE_ADMIN_DST"; then
+    rm -f "$FIREBASE_ADMIN_DST"
+    echo "❌ FIREBASE_ADMIN_JSON_BASE64 did not decode to a Firebase service account JSON" >&2
+    exit 1
+  fi
+  chmod 600 "$FIREBASE_ADMIN_DST"
+  echo "→ Firebase Admin credentials staged from FIREBASE_ADMIN_JSON_BASE64: server/secrets/firebase-admin.json"
 else
   echo "⚠️  Firebase Admin credentials source not found: $FIREBASE_ADMIN_SRC" >&2
-  echo "   Runtime deploy will require FIREBASE_ADMIN_JSON or FIREBASE_ADMIN_JSON_BASE64 in Doppler." >&2
+  echo "   Set FIREBASE_ADMIN_JSON_BASE64 env var or add credentials to Doppler config." >&2
 fi
 
 rsync -az --delete "${RSYNC_EXCLUDES[@]}" \
