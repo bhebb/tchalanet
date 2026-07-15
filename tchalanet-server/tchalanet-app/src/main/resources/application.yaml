@@ -29,7 +29,7 @@ tch:
         auto-run-on-startup: ${FIREBASE_BOOTSTRAP_AUTO_RUN_ON_STARTUP:false}
         default-user-password: ${FIREBASE_BOOTSTRAP_DEFAULT_USER_PASSWORD:Changeme1!}
         users:
-          - super_admin
+          - superadmin
           - admin
     invitations:
       magic-link-enabled: ${TCH_IDENTITY_MAGIC_LINK_ENABLED:false}
