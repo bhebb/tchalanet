@@ -228,9 +228,46 @@
   width: 100%;
 }
 
-.login-card__form mat-icon[matPrefix] {
+.login-card__field-icon {
+  display: inline-grid;
+  flex: none;
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
   margin-inline: 0.25rem 0.625rem;
+  place-items: center;
   color: var(--tch-color-on-surface-variant);
+  font-size: 1.375rem;
+  line-height: 1;
+}
+
+.login-card__visibility-button {
+  display: inline-grid;
+  flex: none;
+  inline-size: 2.75rem;
+  block-size: 2.75rem;
+  margin-inline: 0.25rem;
+  padding: 0;
+  place-items: center;
+  border: 0;
+  @include ui.rounded(var(--tch-radius-pill));
+  color: var(--tch-color-on-surface-variant);
+  background: transparent;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--tch-color-on-surface);
+    background: var(--tch-color-surface-container-highest);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--tch-color-primary);
+    outline-offset: 2px;
+  }
+
+  .material-symbols-outlined {
+    font-size: 1.5rem;
+    line-height: 1;
+  }
 }
 
 .login-card__forgot-row {

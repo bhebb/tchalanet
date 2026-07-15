@@ -64,7 +64,13 @@
         <form class="login-card__form" (ngSubmit)="submit()" #loginForm="ngForm">
           <mat-form-field appearance="outline">
             <mat-label>{{ 'auth.login.form.identifierLabel' | translate }}</mat-label>
-            <mat-icon matPrefix aria-hidden="true">person</mat-icon>
+            <span
+              matPrefix
+              class="login-card__field-icon material-symbols-outlined"
+              aria-hidden="true"
+            >
+              person
+            </span>
             <input
               matInput
               type="text"
@@ -82,7 +88,13 @@
 
           <mat-form-field appearance="outline">
             <mat-label>{{ 'common.field.password' | translate }}</mat-label>
-            <mat-icon matPrefix aria-hidden="true">lock</mat-icon>
+            <span
+              matPrefix
+              class="login-card__field-icon material-symbols-outlined"
+              aria-hidden="true"
+            >
+              lock
+            </span>
             <input
               matInput
               [type]="passwordVisible() ? 'text' : 'password'"
@@ -93,8 +105,8 @@
               [(ngModel)]="password"
             />
             <button
-              mat-icon-button
               matSuffix
+              class="login-card__visibility-button"
               type="button"
               (click)="togglePasswordVisibility()"
               [attr.aria-label]="
@@ -102,7 +114,9 @@
                   | translate
               "
             >
-              <mat-icon>{{ passwordVisible() ? 'visibility_off' : 'visibility' }}</mat-icon>
+              <span class="material-symbols-outlined" aria-hidden="true">
+                {{ passwordVisible() ? 'visibility_off' : 'visibility' }}
+              </span>
             </button>
           </mat-form-field>
 
