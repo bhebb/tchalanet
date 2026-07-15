@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -29,7 +29,7 @@ import { LanguageSwitcher } from '@tch/core/i18n';
   templateUrl: './login.page.html',
   styleUrl: './login.page.scss',
 })
-export class LoginPage implements OnInit {
+export class LoginPage implements OnInit, OnDestroy {
   identifier = '';
   password = '';
 
@@ -37,6 +37,8 @@ export class LoginPage implements OnInit {
   readonly errorKey = signal<string | null>(null);
   readonly infoKey = signal<string | null>(null);
   readonly passwordVisible = signal(false);
+  readonly installHintVisible = signal(false);
+  readonly installPromptAvailable = signal(false);
   readonly brandLogo = TCH_BRAND_ASSETS.logo;
   readonly brandLogoInverse = TCH_BRAND_ASSETS.logoInverse;
 
@@ -53,9 +55,30 @@ export class LoginPage implements OnInit {
   // up to 15s to fail. A shorter window closes before the bounce returns, so the loop
   // would never be detected. 20s leaves a safety margin over the 15s timeout.
   private static readonly RESTORE_WINDOW_MS = 20_000;
+  private installPromptEvent: BeforeInstallPromptEvent | null = null;
+
+  private readonly handleBeforeInstallPrompt = (event: Event): void => {
+    event.preventDefault();
+    this.installPromptEvent = event as BeforeInstallPromptEvent;
+    this.installPromptAvailable.set(true);
+    this.installHintVisible.set(!this.isStandaloneMode());
+  };
+
+  private readonly handleAppInstalled = (): void => {
+    this.installPromptEvent = null;
+    this.installPromptAvailable.set(false);
+    this.installHintVisible.set(false);
+  };
 
   ngOnInit(): void {
+    this.setupInstallHint();
     void this.redirectRestoredSession();
+  }
+
+  ngOnDestroy(): void {
+    const windowRef = globalThis.window;
+    windowRef?.removeEventListener('beforeinstallprompt', this.handleBeforeInstallPrompt);
+    windowRef?.removeEventListener('appinstalled', this.handleAppInstalled);
   }
 
   private async redirectRestoredSession(): Promise<void> {
@@ -88,6 +111,26 @@ export class LoginPage implements OnInit {
 
   togglePasswordVisibility(): void {
     this.passwordVisible.update(visible => !visible);
+  }
+
+  async installApp(): Promise<void> {
+    this.errorKey.set(null);
+    this.infoKey.set(null);
+
+    if (!this.installPromptEvent) {
+      this.infoKey.set(this.isAppleTouchDevice() ? 'auth.login.install.iosHint' : 'auth.login.install.browserHint');
+      return;
+    }
+
+    const promptEvent = this.installPromptEvent;
+    this.installPromptEvent = null;
+    this.installPromptAvailable.set(false);
+
+    await promptEvent.prompt();
+    const choice = await promptEvent.userChoice;
+    if (choice.outcome === 'accepted') {
+      this.installHintVisible.set(false);
+    }
   }
 
   async submit(): Promise<void> {
@@ -130,6 +173,38 @@ export class LoginPage implements OnInit {
       this.loading.set(false);
     }
   }
+
+  private setupInstallHint(): void {
+    const windowRef = globalThis.window;
+    if (!windowRef || this.isStandaloneMode()) return;
+
+    this.installHintVisible.set(this.isMobileViewport());
+    windowRef.addEventListener('beforeinstallprompt', this.handleBeforeInstallPrompt);
+    windowRef.addEventListener('appinstalled', this.handleAppInstalled);
+  }
+
+  private isMobileViewport(): boolean {
+    return globalThis.window?.matchMedia?.('(max-width: 599px)').matches ?? false;
+  }
+
+  private isStandaloneMode(): boolean {
+    const windowRef = globalThis.window;
+    const navigatorRef = windowRef?.navigator as NavigatorWithStandalone | undefined;
+    return windowRef?.matchMedia?.('(display-mode: standalone)').matches === true || navigatorRef?.standalone === true;
+  }
+
+  private isAppleTouchDevice(): boolean {
+    return /iphone|ipad|ipod/i.test(globalThis.window?.navigator.userAgent ?? '');
+  }
+}
+
+interface BeforeInstallPromptEvent extends Event {
+  readonly userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>;
+  prompt(): Promise<void>;
+}
+
+interface NavigatorWithStandalone extends Navigator {
+  readonly standalone?: boolean;
 }
 
 function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {

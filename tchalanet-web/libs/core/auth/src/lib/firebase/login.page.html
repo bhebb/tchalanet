@@ -61,15 +61,40 @@
           <p>{{ 'auth.login.form.body' | translate }}</p>
         </header>
 
+        @if (installHintVisible()) {
+        <section class="login-card__install" aria-labelledby="login-install-title">
+          <span class="material-symbols-outlined login-card__install-icon" aria-hidden="true">
+            add_to_home_screen
+          </span>
+          <div class="login-card__install-copy">
+            <h3 id="login-install-title">{{ 'auth.login.install.title' | translate }}</h3>
+            <p>{{ 'auth.login.install.body' | translate }}</p>
+          </div>
+          <button type="button" class="login-card__install-button" (click)="installApp()">
+            {{ 'auth.login.install.action' | translate }}
+          </button>
+        </section>
+        }
+
         <form class="login-card__form" (ngSubmit)="submit()" #loginForm="ngForm">
           <mat-form-field appearance="outline">
             <mat-label>{{ 'auth.login.form.identifierLabel' | translate }}</mat-label>
-            <mat-icon matPrefix aria-hidden="true">person</mat-icon>
+            <span
+              matPrefix
+              class="login-card__field-icon material-symbols-outlined"
+              aria-hidden="true"
+            >
+              person
+            </span>
             <input
               matInput
               type="text"
               name="identifier"
               autocomplete="username"
+              autocapitalize="none"
+              autocorrect="off"
+              spellcheck="false"
+              enterkeyhint="next"
               required
               [placeholder]="'auth.login.form.identifierPlaceholder' | translate"
               [(ngModel)]="identifier"
@@ -78,18 +103,25 @@
 
           <mat-form-field appearance="outline">
             <mat-label>{{ 'common.field.password' | translate }}</mat-label>
-            <mat-icon matPrefix aria-hidden="true">lock</mat-icon>
+            <span
+              matPrefix
+              class="login-card__field-icon material-symbols-outlined"
+              aria-hidden="true"
+            >
+              lock
+            </span>
             <input
               matInput
               [type]="passwordVisible() ? 'text' : 'password'"
               name="password"
               autocomplete="current-password"
+              enterkeyhint="done"
               required
               [(ngModel)]="password"
             />
             <button
-              mat-icon-button
               matSuffix
+              class="login-card__visibility-button"
               type="button"
               (click)="togglePasswordVisibility()"
               [attr.aria-label]="
@@ -97,7 +129,9 @@
                   | translate
               "
             >
-              <mat-icon>{{ passwordVisible() ? 'visibility_off' : 'visibility' }}</mat-icon>
+              <span class="material-symbols-outlined" aria-hidden="true">
+                {{ passwordVisible() ? 'visibility_off' : 'visibility' }}
+              </span>
             </button>
           </mat-form-field>
 

@@ -1,0 +1,19 @@
+{
+  "name": "Tchalanet Plateforme",
+  "short_name": "Tch Platform",
+  "description": "Console mobile pour piloter la plateforme Tchalanet.",
+  "start_url": "/platform/login",
+  "scope": "/platform/",
+  "display": "standalone",
+  "background_color": "#f7f5fb",
+  "theme_color": "#17144d",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/assets/brand/tchalanet-app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
