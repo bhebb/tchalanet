@@ -61,6 +61,21 @@
           <p>{{ 'auth.login.form.body' | translate }}</p>
         </header>
 
+        @if (installHintVisible()) {
+        <section class="login-card__install" aria-labelledby="login-install-title">
+          <span class="material-symbols-outlined login-card__install-icon" aria-hidden="true">
+            add_to_home_screen
+          </span>
+          <div class="login-card__install-copy">
+            <h3 id="login-install-title">{{ 'auth.login.install.title' | translate }}</h3>
+            <p>{{ 'auth.login.install.body' | translate }}</p>
+          </div>
+          <button type="button" class="login-card__install-button" (click)="installApp()">
+            {{ 'auth.login.install.action' | translate }}
+          </button>
+        </section>
+        }
+
         <form class="login-card__form" (ngSubmit)="submit()" #loginForm="ngForm">
           <mat-form-field appearance="outline">
             <mat-label>{{ 'auth.login.form.identifierLabel' | translate }}</mat-label>

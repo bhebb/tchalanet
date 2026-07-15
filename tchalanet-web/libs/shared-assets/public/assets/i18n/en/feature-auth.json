@@ -107,6 +107,13 @@
         "submit": "Sign in",
         "title": "Welcome back"
       },
+      "install": {
+        "action": "Add to Home Screen",
+        "body": "Open Tchalanet from this phone with one tap.",
+        "browserHint": "If the native prompt does not appear, open the browser menu and choose Add to Home Screen.",
+        "iosHint": "On iPhone, use the Share button, then Add to Home Screen.",
+        "title": "Quick access"
+      },
       "links": {
         "help": "Help",
         "privacy": "Privacy",
