@@ -11,17 +11,16 @@ def build_ticket_lines(
     stake_cents: int,
     bet_option: int | None = None,
 ) -> list[dict[str, Any]]:
-    """Build raw line specs for /tenant/sales/preparations."""
+    """Build raw line specs for sale preparation or direct sale requests."""
     return [
         {
-            "lineNumber": index,
             "gameCode": game_code,
             "betType": bet_type,
             "selection": sel,
             "betOption": bet_option,
-            "stakeAmount": f"{stake_cents / 100:.2f}",
+            "stake": f"{stake_cents / 100:.2f}",
         }
-        for index, sel in enumerate(selections, start=1)
+        for sel in selections
     ]
 
 

@@ -57,18 +57,13 @@ def _ticket_ids_of_2xx(results: list) -> set[str]:
     ids: set[str] = set()
     for r in results:
         if 200 <= r.status_code < 300:
-            tid = (r.json().get("data") or {}).get("ticketId")
+            data = r.json().get("data") or {}
+            sale = data.get("sale") or data
+            ticket = sale.get("ticket") or {}
+            tid = data.get("ticketId") or ticket.get("ticketId") or sale.get("ticketId")
             if tid:
                 ids.add(tid)
     return ids
-
-
-def _prepare(ctx: PosContext, payload: dict) -> str:
-    response = ctx.cashier_flow().prepare_response(payload)
-    assert 200 <= response.status_code < 300, (
-        f"Preparation failed before concurrency probe: {response.status_code} {response.text[:300]}"
-    )
-    return response.json()["data"]["preparationId"]
 
 
 # ===========================================================================
@@ -93,12 +88,12 @@ def test_concurrent_same_key_same_payload_creates_one_ticket(
     ensure_draws_today(super_admin_client, seed_ids)
     draw, game_code = _require_draw_and_game(ctx)
 
-    payload = ctx.cashier_flow()._sale_payload(draw, [game_code])
-    preparation_id = _prepare(ctx, payload)
+    flow = ctx.cashier_flow()
+    preparation = flow.prepare(flow._sale_payload(draw, [game_code]))
     idem_key = str(uuid.uuid4())
 
     def fire():
-        return ctx.cashier_flow().confirm_response(preparation_id, idem_key)
+        return flow._post_confirm(preparation["preparationId"], idem_key)
 
     results = run_concurrent(fire, n=_N)
     _no_5xx(results)
@@ -133,7 +128,8 @@ def test_concurrent_same_key_different_payload_rejected_cleanly(
     ensure_draws_today(super_admin_client, seed_ids)
     draw, game_code = _require_draw_and_game(ctx)
 
-    base = ctx.cashier_flow()._sale_payload(draw, [game_code])
+    flow = ctx.cashier_flow()
+    base = flow._sale_payload(draw, [game_code])
     idem_key = str(uuid.uuid4())
 
     # Each thread sends a distinct selection under the *same* idempotency key.
@@ -141,8 +137,8 @@ def test_concurrent_same_key_different_payload_rejected_cleanly(
 
     def fire(selection: str):
         payload = {**base, "lines": [{**base["lines"][0], "selection": selection}]}
-        preparation_id = _prepare(ctx, payload)
-        return ctx.cashier_flow().confirm_response(preparation_id, idem_key)
+        preparation = flow.prepare(payload)
+        return flow._post_confirm(preparation["preparationId"], idem_key)
 
     with ThreadPoolExecutor(max_workers=len(selections)) as pool:
         results = list(pool.map(fire, selections))
@@ -176,13 +172,12 @@ def test_concurrent_distinct_keys_all_create_tickets(
     ensure_draws_today(super_admin_client, seed_ids)
     draw, game_code = _require_draw_and_game(ctx)
 
-    payload = ctx.cashier_flow()._sale_payload(draw, [game_code])
+    flow = ctx.cashier_flow()
+    payload = flow._sale_payload(draw, [game_code])
 
     def fire():
-        preparation_id = _prepare(ctx, payload)
-        return ctx.cashier_flow().confirm_response(
-            preparation_id, str(uuid.uuid4())  # distinct key per call
-        )
+        preparation = flow.prepare(payload)
+        return flow._post_confirm(preparation["preparationId"], str(uuid.uuid4()))
 
     results = run_concurrent(fire, n=_N)
     _no_5xx(results)

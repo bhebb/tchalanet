@@ -1,4 +1,4 @@
-"""Cashier business flow: prepare, confirm, print, send, get, list."""
+"""Cashier business flow: prepare sale, confirm, print, send, get, list."""
 from __future__ import annotations
 
 import uuid
@@ -8,9 +8,6 @@ from typing import Any
 from tch_e2e.api_response import assert_ok, get_data
 from tch_e2e.client import ApiClient
 from tch_e2e.config import OpContext
-
-
-HTG_CURRENCY = {"value": "HTG"}
 
 
 @dataclass
@@ -65,32 +62,28 @@ class CashierFlow:
     # --- tickets -----------------------------------------------------------
 
     def preview(self, draw: dict[str, Any], game_code: str) -> dict[str, Any]:
-        return self._do_preview(self._sale_payload(draw, [game_code]))
+        return self.prepare(self._sale_payload(draw, [game_code]))
 
     def preview_multi_game(self, draw: dict[str, Any], game_codes: list[str]) -> dict[str, Any]:
-        return self._do_preview(self._sale_payload(draw, game_codes))
+        return self.prepare(self._sale_payload(draw, game_codes))
 
     def preview_lines(self, draw: dict[str, Any], lines: list[dict[str, Any]]) -> dict[str, Any]:
         payload = {
-            "terminalId": self.context.terminal_id,
             "drawId": draw["drawId"],
             "drawChannelId": draw["drawChannelId"],
-            "currency": HTG_CURRENCY,
+            "currency": "HTG",
             "lines": lines,
         }
-        return self._do_preview(payload)
+        return self.prepare(payload)
 
-    def _do_preview(self, payload: dict[str, Any]) -> dict[str, Any]:
-        return get_data(self.prepare_response(payload))
-
-    def prepare_response(self, payload: dict[str, Any]):
+    def prepare(self, payload: dict[str, Any]) -> dict[str, Any]:
         response = self.client.post(
             "/tenant/sales/preparations",
-            json=payload,
+            json=self._prepare_payload(payload),
             context=self.context,
         )
         assert_ok(response)
-        return response
+        return response.json()["data"]
 
     def sell(self, draw: dict[str, Any], game_code: str) -> SoldTicket:
         return self._do_sell(self._sale_payload(draw, [game_code]))
@@ -100,10 +93,9 @@ class CashierFlow:
 
     def sell_lines(self, draw: dict[str, Any], lines: list[dict[str, Any]]) -> SoldTicket:
         payload = {
-            "terminalId": self.context.terminal_id,
             "drawId": draw["drawId"],
             "drawChannelId": draw["drawChannelId"],
-            "currency": HTG_CURRENCY,
+            "currency": "HTG",
             "lines": lines,
         }
         return self._do_sell(payload)
@@ -116,10 +108,13 @@ class CashierFlow:
         Returns the raw response data dict (does NOT raise on rejection).
         Raises only if the server returns an unexpected 5xx.
         """
-        response = self.sell_response(self._sale_payload(draw, [game_code]))
+        response = self._post_prepare(self._sale_payload(draw, [game_code]))
+        if 200 <= response.status_code < 300:
+            preparation = response.json()["data"]
+            response = self._post_confirm(preparation["preparationId"], str(uuid.uuid4()))
         if response.status_code >= 500:
             raise AssertionError(
-                f"Unexpected 5xx from prepared sell: {response.status_code} — {response.text}"
+                f"Unexpected 5xx from sell: {response.status_code} — {response.text}"
             )
         try:
             return response.json().get("data") or response.json()
@@ -127,7 +122,9 @@ class CashierFlow:
             return {"_raw_status": response.status_code, "_raw_body": response.text}
 
     def _do_sell(self, payload: dict[str, Any]) -> SoldTicket:
-        response = self.sell_response(payload)
+        idem = str(uuid.uuid4())
+        preparation = self.prepare(payload)
+        response = self._post_confirm(preparation["preparationId"], idem)
         assert_ok(response, expected=(200, 201))
         data = self._flatten_confirm_response(response.json()["data"])
         if data.get("outcome") != "ACCEPTED" or data.get("ticketId") is None:
@@ -145,40 +142,63 @@ class CashierFlow:
             backup=data.get("backup") or {},
         )
 
-    def sell_response(self, payload: dict[str, Any], idempotency_key: str | None = None):
-        prep = self.client.post(
+    def _post_prepare(self, payload: dict[str, Any]):
+        return self.client.post(
             "/tenant/sales/preparations",
-            json=payload,
+            json=self._prepare_payload(payload),
             context=self.context,
         )
-        if prep.status_code >= 400:
-            return prep
-        preparation_id = get_data(prep)["preparationId"]
-        return self.confirm_response(preparation_id, idempotency_key)
 
-    def confirm_response(self, preparation_id: str, idempotency_key: str | None = None):
-        response = self.client.post(
+    def _post_confirm(self, preparation_id: str, idempotency_key: str):
+        return self.client.post(
             f"/tenant/sales/preparations/{preparation_id}/confirm",
-            json={},
             context=self.context,
-            idempotency_key=idempotency_key or str(uuid.uuid4()),
+            idempotency_key=idempotency_key,
         )
-        return response
 
-    @staticmethod
-    def _flatten_confirm_response(data: dict[str, Any]) -> dict[str, Any]:
-        sale = data.get("sale") or {}
-        ticket = sale.get("ticket") or {}
+    def confirm_prepared_sale(self, preparation_id: str, idempotency_key: str) -> dict[str, Any]:
+        response = self._post_confirm(preparation_id, idempotency_key)
+        assert_ok(response, expected=(200, 201))
+        return self._flatten_confirm_response(response.json()["data"])
+
+    def _prepare_payload(self, payload: dict[str, Any]) -> dict[str, Any]:
+        lines: list[dict[str, Any]] = []
+        for idx, line in enumerate(payload.get("lines") or [], start=1):
+            stake = line.get("stakeAmount", line.get("stake"))
+            prepared = {
+                "lineNumber": line.get("lineNumber", idx),
+                "gameCode": line["gameCode"],
+                "betType": line["betType"],
+                "selection": line["selection"],
+                "stakeAmount": stake,
+            }
+            if line.get("betOption") is not None:
+                prepared["betOption"] = line.get("betOption")
+            lines.append(prepared)
         return {
+            "drawId": payload["drawId"],
+            "drawChannelId": payload["drawChannelId"],
+            "currency": {"value": payload.get("currency", "HTG")},
+            "lines": lines,
+        }
+
+    def _flatten_confirm_response(self, data: dict[str, Any]) -> dict[str, Any]:
+        sale = data.get("sale") or data
+        ticket = sale.get("ticket") or {}
+        flattened = {
+            "preparationId": data.get("preparationId"),
+            "alreadyConfirmed": data.get("alreadyConfirmed"),
             "outcome": sale.get("outcome"),
-            "ticketId": data.get("ticketId") or ticket.get("ticketId"),
+            "ticketId": data.get("ticketId") or ticket.get("ticketId") or sale.get("ticketId"),
             "ticketCode": ticket.get("ticketCode") or sale.get("ticketCode"),
             "publicCode": ticket.get("publicCode") or sale.get("publicCode"),
             "saleStatus": ticket.get("saleStatus") or sale.get("saleStatus"),
             "issues": sale.get("issues"),
-            "backup": sale.get("backup"),
+            "backup": sale.get("backup") or {},
+            "actionAvailability": sale.get("actionAvailability"),
             "sellerInstruction": sale.get("sellerInstruction"),
         }
+        return flattened
 
     def get_ticket(self, ticket_id: str) -> dict[str, Any]:
         response = self.client.get(
@@ -273,33 +293,29 @@ class CashierFlow:
 
     _GAME_BET_PROFILE: dict[str, tuple[str, list[str], int | None]] = {
         "HT_BOLET":  ("MATCH_1_2D",      ["11", "22", "33"],          None),
-        "HT_MARYAJ": ("MARRIAGE_2D2D",   ["21-25", "33-77"],          None),
-        "HT_LOTO3":  ("LOTTO3_3D",       ["012", "345"],              None),
-        "HT_LOTO4":  ("LOTTO4_PATTERN",  ["1234", "5678"],            None),
-        "HT_LOTO5":  ("LOTTO5_PATTERN",  ["12345", "67890"],          None),
+        "HT_MARYAJ": ("MARRIAGE_2D2D",   ["21-25", "33-77"],          1),
+        "HT_LOTO3":  ("LOTTO3_3D",       ["012", "345"],              1),
+        "HT_LOTO4":  ("LOTTO4_PATTERN",  ["1234", "5678"],            1),
+        "HT_LOTO5":  ("LOTTO5_PATTERN",  ["12345", "67890"],          1),
     }
 
     def _sale_payload(self, draw: dict[str, Any], game_codes: list[str]) -> dict[str, Any]:
         lines = []
-        line_number = 1
         for code in game_codes:
             bet_type, selections, bet_option = self._GAME_BET_PROFILE.get(
                 code, ("MATCH_1_2D", ["11"], None)
             )
             for selection in selections:
                 lines.append({
-                    "lineNumber": line_number,
                     "gameCode": code,
                     "betType": bet_type,
                     "selection": selection,
                     "betOption": bet_option,
-                    "stakeAmount": f"{self.stake_cents / 100:.2f}",
+                    "stake": f"{self.stake_cents / 100:.2f}",
                 })
-                line_number += 1
         return {
-            "terminalId": self.context.terminal_id,
             "drawId": draw["drawId"],
             "drawChannelId": draw["drawChannelId"],
-            "currency": HTG_CURRENCY,
+            "currency": "HTG",
             "lines": lines,
         }

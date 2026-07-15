@@ -99,82 +99,18 @@ def build_pos_context(
     seed_ids: "SeedIds",
     *,
     tenant_admin_client: "ApiClient | None" = None,
+    seller_terminal_id: str | None = None,
 ) -> PosContext:
-    """Build a fully onboarded POS context ready for cashier sell operations.
-
-    Steps
-    -----
-    1. Idempotent terminal bind via ``OnboardingFlow`` (tolerates 409 already-bound
-       and pytest.skip from WIP endpoints).
-    2. Open or reuse the current OPEN session via ``ensure_pos_session_open``
-       (calls pytest.skip if same-day close constraint blocks a new session).
-    3. Ensure today's draws are generated and open.
-    4. Probe the first available OPEN draw (non-critical — stored as a convenience
-       shortcut; tests that sell must assert it themselves).
-    """
-    import _pytest.outcomes
-    from flows.onboarding import OnboardingFlow
+    """Build a POS context for the current SellerTerminal model."""
     from prereqs.draws import ensure_draws_today
-    from prereqs.session import ensure_pos_session_open
     from tch_e2e.config import OpContext
 
-    # Use tenant admin client when available (preferred for /admin/* endpoints).
-    # Fall back to super_admin_client with X-Tenant-Id scoped to seed tenant.
-    admin_client = tenant_admin_client or super_admin_client.with_tenant(seed_ids.tenant_id)
-    onboarding = OnboardingFlow(admin_client)
+    del tenant_admin_client
+    terminal_id = seller_terminal_id or seed_ids.terminal_id
+    ctx = OpContext(outlet_id=seed_ids.outlet_id, terminal_id=terminal_id)
 
-    # Step 1a — ensure the cashier user has a seller profile assigned to the outlet.
-    # This is required for the sell endpoint (SELLER_NO_SELLER_FOR_USER / SELLER_NOT_ASSIGNED_TO_OUTLET).
-    if seed_ids.cashier_user_id:
-        try:
-            onboarding.ensure_seller_for_user(
-                user_id=seed_ids.cashier_user_id,
-                outlet_id=seed_ids.outlet_id,
-            )
-        except _pytest.outcomes.OutcomeException:
-            pass  # WIP or 409 — seeded seller assumed already present
-
-    # Step 1b — assign the terminal to the cashier user.
-    # The seed assigns the terminal to the tenant admin, but the cashier is the one
-    # operating it. ValidateTerminalForOperationQueryHandler requires BOTH
-    # terminal.assigned_user_id == cashier AND an ACTIVE terminal_assignment row for
-    # the cashier; the assign-user command maintains both. Idempotent: 200 on (re)assign,
-    # 409 if already assigned — both fine. This keeps onboarding self-sufficient and
-    # reproducible instead of depending on the seed's terminal→user assignment.
-    if seed_ids.cashier_user_id:
-        assign = admin_client.post(
-            f"/admin/terminals/{seed_ids.terminal_id}/assign-user",
-            json={"userId": seed_ids.cashier_user_id},
-        )
-        # 404/405 = endpoint not routed (older backend); 422 = business rule — tolerate,
-        # the seed assignment is then assumed correct. Only a 5xx is a real surprise.
-        if assign.status_code >= 500:
-            raise AssertionError(
-                f"assign-user returned {assign.status_code}: {assign.text}"
-            )
-
-    # Step 1c — idempotent terminal bind
-    # 409 = already bound; pytest.skip = endpoint WIP; both are fine
-    try:
-        OnboardingFlow(super_admin_client).bind_terminal(
-            tenant_id=seed_ids.tenant_id,
-            terminal_id=seed_ids.terminal_id,
-        )
-    except _pytest.outcomes.OutcomeException:
-        pass  # WIP endpoint — seed terminal assumed already bound
-
-    # Step 2 — open or reuse OPEN session
-    # If a CLOSED session blocks opening a new one, auto-finalize via admin client.
-    ctx = ensure_pos_session_open(
-        cashier_client,
-        OpContext(outlet_id=seed_ids.outlet_id, terminal_id=seed_ids.terminal_id),
-        super_admin_client=super_admin_client,
-    )
-
-    # Step 3 — ensure draws exist and are open
     ensure_draws_today(super_admin_client, seed_ids)
 
-    # Step 4 — find the first OPEN draw (best-effort)
     from flows.cashier import CashierFlow
     draw_id: str | None = None
     try:
@@ -188,7 +124,7 @@ def build_pos_context(
     return PosContext(
         tenant_id=seed_ids.tenant_id,
         outlet_id=seed_ids.outlet_id,
-        terminal_id=seed_ids.terminal_id,
+        terminal_id=terminal_id,
         session_id=ctx.session_id,
         cashier_client=cashier_client,
         draw_id=draw_id,

@@ -40,15 +40,15 @@ def test_cashier_can_access_home(
 def test_cashier_can_read_own_profile(
     cashier_client_a: ApiClient,
 ) -> None:
-    """GET /tenant/me/profile with cashier token → 200."""
-    response = cashier_client_a.get("/tenant/me/profile")
+    """GET /tenant/seller-terminal/me with seller-terminal token → 200."""
+    response = cashier_client_a.get("/tenant/seller-terminal/me")
     assert response.status_code == 200, (
         f"Cashier should read own profile, got {response.status_code}: {response.text[:300]}"
     )
     body = response.json()
     data = (body.get("data") or body) if isinstance(body, dict) else {}
     # Profile must include some identity field
-    assert data.get("username") or data.get("userId") or data.get("id"), (
+    assert data.get("terminalCode") or data.get("sellerTerminalId") or data.get("id"), (
         f"Profile missing identity field: {data}"
     )
 
@@ -134,7 +134,6 @@ def test_super_admin_cannot_sell_tickets(
     response = super_admin_client.post(
         "/tenant/sales/preparations",
         json={
-            "terminalId": "00000000-0000-0000-0000-000000003101",
             "drawId": "00000000-0000-0000-0000-000000000000",
             "drawChannelId": "00000000-0000-0000-0000-000000000000",
             "currency": {"value": "HTG"},

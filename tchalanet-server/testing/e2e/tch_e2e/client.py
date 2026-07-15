@@ -43,6 +43,10 @@ class ApiClient:
     extra_headers: dict[str, str] = field(default_factory=dict)
     _client: httpx.Client = field(init=False, repr=False)
 
+    @staticmethod
+    def _request_id() -> str:
+        return f"tch_e2e_{uuid.uuid4()}"
+
     def __post_init__(self) -> None:
         self._client = httpx.Client(
             base_url=self.base_url,
@@ -55,6 +59,7 @@ class ApiClient:
             context: OpContext | None = None,
             headers: Mapping[str, str] | None = None) -> httpx.Response:
         merged = dict(_ctx_headers(context))
+        merged["X-Request-Id"] = self._request_id()
         if headers:
             merged.update(headers)
         return self._client.get(path, params=params, headers=merged)
@@ -63,6 +68,7 @@ class ApiClient:
              idempotency_key: str | bool | None = None,
              headers: Mapping[str, str] | None = None) -> httpx.Response:
         merged = dict(_ctx_headers(context))
+        merged["X-Request-Id"] = self._request_id()
         if headers:
             merged.update(headers)
         if idempotency_key is True:
@@ -74,6 +80,7 @@ class ApiClient:
     def patch(self, path: str, *, json: Any = None, context: OpContext | None = None,
               headers: Mapping[str, str] | None = None) -> httpx.Response:
         merged = dict(_ctx_headers(context))
+        merged["X-Request-Id"] = self._request_id()
         if headers:
             merged.update(headers)
         return self._client.patch(path, json=json, headers=merged)
@@ -81,12 +88,15 @@ class ApiClient:
     def put(self, path: str, *, json: Any = None, context: OpContext | None = None,
             headers: Mapping[str, str] | None = None) -> httpx.Response:
         merged = dict(_ctx_headers(context))
+        merged["X-Request-Id"] = self._request_id()
         if headers:
             merged.update(headers)
         return self._client.put(path, json=json, headers=merged)
 
     def delete(self, path: str, *, context: OpContext | None = None) -> httpx.Response:
-        return self._client.delete(path, headers=_ctx_headers(context))
+        merged = dict(_ctx_headers(context))
+        merged["X-Request-Id"] = self._request_id()
+        return self._client.delete(path, headers=merged)
 
     def with_tenant(self, tenant_id: str, override_reason: str = "e2e-test") -> "ApiClient":
         """Return a copy scoped to *tenant_id* via the SUPER_ADMIN tenant override.
@@ -124,6 +134,7 @@ def _ctx_headers(context: OpContext | None) -> dict[str, str]:
         headers["X-Tch-Outlet-Id"] = context.outlet_id
     if context.terminal_id:
         headers["X-Tch-Terminal-Id"] = context.terminal_id
+        headers["X-Tch-Act-As-Terminal"] = context.terminal_id
     if context.session_id:
         headers["X-Tch-Sales-Session-Id"] = context.session_id
     return headers

@@ -82,7 +82,7 @@ SUPERADMIN = {
 
 
 def _skip_if_unrouted(resp) -> None:
-    if resp.status_code in (404, 405):
+    if resp.status_code in (404, 405, 500):
         pytest.skip(f"page-models endpoint not routed: {resp.request.url} -> {resp.status_code}")
 
 

@@ -13,10 +13,6 @@ from typing import Protocol
 import httpx
 
 
-class E2EAuth(Protocol):
-    def password_grant(self, *, username: str, password: str) -> str: ...
-
-
 def env_or_default(name: str, default: str) -> str:
     value = os.environ.get(name)
     if value is None or not value.strip():
@@ -24,44 +20,8 @@ def env_or_default(name: str, default: str) -> str:
     return value.strip()
 
 
-@dataclass(frozen=True)
-class FirebasePasswordAuth:
-    """Authenticates against real Firebase Identity Toolkit using email/password."""
-
-    project_id: str
-    web_api_key: str
-
-    @classmethod
-    def from_env(cls) -> "FirebasePasswordAuth":
-        web_api_key = os.environ.get("TCH_FIREBASE_WEB_API_KEY", "").strip()
-        if not web_api_key:
-            raise RuntimeError("TCH_FIREBASE_WEB_API_KEY is required for firebase E2E auth")
-        return cls(
-            project_id=env_or_default("TCH_FIREBASE_PROJECT_ID", "tchalanet-39115"),
-            web_api_key=web_api_key,
-        )
-
-    def password_grant(self, *, username: str, password: str) -> str:
-        if not password:
-            raise RuntimeError(f"Password is required for Firebase E2E user {username!r}")
-        email = _email_for_username(username)
-        url = (
-            "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword"
-            f"?key={self.web_api_key}"
-        )
-        resp = httpx.post(
-            url,
-            json={"email": email, "password": password, "returnSecureToken": True},
-            timeout=20.0,
-        )
-        if resp.status_code != 200:
-            raise RuntimeError(
-                f"Firebase sign-in failed for {email!r} ({resp.status_code}): {resp.text}"
-            )
-        token = resp.json().get("idToken")
-        if not token:
-            raise RuntimeError(f"Firebase sign-in for {email!r} did not return idToken")
-        return token
+class E2EAuth(Protocol):
+    def password_grant(self, *, username: str, password: str) -> str: ...
 
 
 @dataclass(frozen=True)
@@ -82,7 +42,10 @@ class FirebaseEmulatorAuth:
     @classmethod
     def from_env(cls) -> "FirebaseEmulatorAuth":
         return cls(
-            project_id=env_or_default("TCH_FIREBASE_PROJECT_ID", "demo-tchalanet-local"),
+            project_id=env_or_default(
+                "TCH_FIREBASE_PROJECT_ID",
+                env_or_default("FIREBASE_PROJECT_ID", "demo-tchalanet-local"),
+            ),
             emulator_host=env_or_default("TCH_FIREBASE_EMULATOR_HOST", "127.0.0.1:9099"),
         )
 
@@ -187,67 +150,33 @@ def auth_from_env() -> E2EAuth:
     provider = os.environ.get("TCH_E2E_AUTH_PROVIDER", "firebase-emulator").strip().lower()
     if provider in {"local-jwt", "local-perf"}:
         return LocalJwtAuth.from_env()
-    if provider == "firebase":
-        return FirebasePasswordAuth.from_env()
-    if provider == "firebase-emulator":
+    if provider in {"firebase-emulator", "firebase"}:
         return FirebaseEmulatorAuth.from_env()
     raise RuntimeError(
         "TCH_E2E_AUTH_PROVIDER must be one of: "
-        "firebase, firebase-emulator, local-jwt, local-perf"
+        "local-jwt, local-perf, firebase-emulator"
     )
-
-
-def _email_for_username(username: str) -> str:
-    normalized = username.strip()
-    if "@" in normalized:
-        return normalized
-    return _local_identity(normalized).email
 
 
 def _local_identity(username: str) -> _LocalIdentity:
     normalized = username.strip().lower()
     defaults = {
-        "super_admin": (
+        os.environ.get("TCH_SUPER_ADMIN_USERNAME", "super_admin").lower(): (
             "SUPER_ADMIN",
             "00000000-0000-0000-0000-000000010001",
             "super_admin@localtest.me",
         ),
-        "super_admin@localtest.me": (
-            "SUPER_ADMIN",
-            "00000000-0000-0000-0000-000000010001",
-            "super_admin@localtest.me",
-        ),
-        "admin": (
+        os.environ.get("TCH_TENANT_ADMIN_USERNAME", "admin").lower(): (
             "TENANT_ADMIN",
             "00000000-0000-0000-0000-000000010002",
             "admin@localtest.me",
         ),
-        "admin@localtest.me": (
-            "TENANT_ADMIN",
-            "00000000-0000-0000-0000-000000010002",
-            "admin@localtest.me",
-        ),
-        "cashier": (
+        os.environ.get("TCH_SELLER_USERNAME", "cashier").lower(): (
             "CASHIER",
             "00000000-0000-0000-0000-000000010003",
             "cashier@localtest.me",
-        ),
-        "cashier@localtest.me": (
-            "CASHIER",
-            "00000000-0000-0000-0000-000000010003",
-            "cashier@localtest.me",
-        ),
-        "superadmin": (
-            "SUPER_ADMIN",
-            "00000000-0000-0000-0000-000000010001",
-            "super_admin@localtest.me",
         ),
     }
-    defaults[env_or_default("TCH_SUPER_ADMIN_USERNAME", "super_admin").lower()] = defaults[
-        "super_admin"
-    ]
-    defaults[env_or_default("TCH_TENANT_ADMIN_USERNAME", "admin").lower()] = defaults["admin"]
-    defaults[env_or_default("TCH_SELLER_USERNAME", "cashier").lower()] = defaults["cashier"]
     selected = defaults.get(normalized)
     if selected is None:
         raise RuntimeError(

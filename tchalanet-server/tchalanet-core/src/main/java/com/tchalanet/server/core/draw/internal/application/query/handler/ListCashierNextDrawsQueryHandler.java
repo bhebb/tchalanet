@@ -34,6 +34,8 @@ public class ListCashierNextDrawsQueryHandler
 
     return page.items().stream()
         .filter(d -> d.status() == DrawStatus.OPEN)
+        .filter(d -> d.drawChannelActive())
+        .filter(d -> d.resultActive())
         .filter(d -> d.cutoffAt() != null && now.isBefore(d.cutoffAt()))
         .limit(limit)
         .map(

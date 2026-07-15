@@ -2,8 +2,7 @@
 
   1. SUPER_ADMIN provisions a tenant (DEFAULT_HAITI_LOTTERY) with an initial admin.
   2. SUPER_ADMIN generates + opens today's draws for the tenant.
-  3. The admin logs in (minted firebase-emulator token, sub = initialAdminUserId),
-     completes first login.
+  3. The admin logs in (minted firebase-emulator token), completes first login.
   4. The admin configures the tenant: maryaj gratis + a limit policy.
   5. The admin creates a seller-terminal.
   6. The seller logs in (minted token, sub = sellerTerminalId) and sells a ticket
@@ -32,7 +31,6 @@ from tch_e2e.client import ApiClient
 BASE = os.environ.get("TCH_BASE_URL", "http://localhost:8083/api/v1")
 OK = "\033[32mPASS\033[0m"
 KO = "\033[31mFAIL\033[0m"
-HTG_CURRENCY_CODE = {"value": "HTG"}
 _step = 0
 
 
@@ -123,8 +121,8 @@ def main() -> int:
 
     # ---- 3. admin logs in + completes first login --------------------------
     step("Admin logs in (minted token) and completes first login")
-    admin_uid = admin_user_id
-    print(f"    admin firebase uid = {admin_uid}")
+    admin_uid = auth.uid_for_email(admin_email)
+    print(f"    admin firebase uid (emulator) = {admin_uid}")
     admin = ApiClient(base_url=BASE, token=auth.mint(subject=admin_uid, email=admin_email))
     first = admin.post(
         "/identity/me/complete-first-login",
@@ -208,50 +206,72 @@ def main() -> int:
         return 3
     draw = draws[0]
     lines = [
-        {"lineNumber": 1, "gameCode": "HT_BOLET", "betType": "MATCH_1_2D", "selection": "11", "betOption": None, "stakeAmount": "5.00"},
-        {"lineNumber": 2, "gameCode": "HT_MARYAJ", "betType": "MARRIAGE_2D2D", "selection": "21-25", "betOption": None, "stakeAmount": "5.00"},
+        {"gameCode": "HT_BOLET", "betType": "MATCH_1_2D", "selection": "11", "betOption": None, "stake": "5.00"},
+        {"gameCode": "HT_MARYAJ", "betType": "MARRIAGE_2D2D", "selection": "21-25", "betOption": 1, "stake": "5.00"},
     ]
-    payload = {"sellerTerminalId": seller_terminal_id, "drawId": draw["drawId"],
-               "drawChannelId": draw["drawChannelId"], "currency": HTG_CURRENCY_CODE,
-               "lines": lines}
-    prep = seller.post("/tenant/sales/preparations", json=payload, headers=rid())
-    show(prep, limit=1200)
-    preparation_id = (data_of(prep) or {}).get("preparationId")
-    if prep.status_code < 300:
-        pdata = data_of(prep) or {}
-        print(f"    maryaj-gratis promotionLines: {pdata.get('promotionLines')}")
-    sold = seller.post(f"/tenant/sales/preparations/{preparation_id}/confirm", json={},
-                       idempotency_key=str(uuid.uuid4()), headers=rid()) if preparation_id else prep
+    def payload(raw_lines):
+        prepared_lines = []
+        for index, line in enumerate(raw_lines, start=1):
+            prepared = {
+                "lineNumber": index,
+                "gameCode": line["gameCode"],
+                "betType": line["betType"],
+                "selection": line["selection"],
+                "stakeAmount": line.get("stakeAmount", line.get("stake")),
+            }
+            if line.get("betOption") is not None:
+                prepared["betOption"] = line["betOption"]
+            prepared_lines.append(prepared)
+        return {"drawId": draw["drawId"], "drawChannelId": draw["drawChannelId"],
+                "currency": {"value": "HTG"}, "lines": prepared_lines}
+
+    def confirm(preparation_id: str):
+        resp = seller.post(
+            f"/tenant/sales/preparations/{preparation_id}/confirm",
+            idempotency_key=str(uuid.uuid4()),
+            headers=rid(),
+        )
+        data = data_of(resp) or {}
+        sale = data.get("sale") or data
+        ticket = sale.get("ticket") or {}
+        flattened = {
+            "outcome": sale.get("outcome"),
+            "ticketId": data.get("ticketId") or ticket.get("ticketId") or sale.get("ticketId"),
+            "issues": sale.get("issues"),
+        }
+        return resp, flattened
+
+    prev = seller.post("/tenant/sales/preparations", json=payload(lines), headers=rid())
+    show(prev, limit=1200)
+    if prev.status_code < 300:
+        pdata = data_of(prev) or {}
+        promo = pdata.get("promotionLines") or pdata.get("promotion") or pdata.get("promotionDecision")
+        print(f"    maryaj-gratis / promotion in preparation: {promo}")
+        sold, sold_data = confirm(pdata["preparationId"])
+    else:
+        sold, sold_data = prev, data_of(prev) or {}
     show(sold, limit=900)
-    sale = (data_of(sold) or {}).get("sale") or {}
-    if sold.status_code < 300 and sale.get("outcome") == "ACCEPTED":
-        print(f"{OK} sale ACCEPTED ticket={(data_of(sold) or {}).get('ticketId')}")
+    if sold.status_code < 300 and sold_data.get("outcome") == "ACCEPTED":
+        print(f"{OK} sale ACCEPTED ticket={sold_data.get('ticketId')}")
     else:
         print(f"{KO} sale not accepted")
 
     # ---- 7. limit breach ----------------------------------------------------
     step("Seller sells a ticket over the 1000 HTG limit -> expect BLOCK")
     big_lines = [
-        {"lineNumber": 1, "gameCode": "HT_BOLET", "betType": "MATCH_1_2D", "selection": "22",
-         "betOption": None, "stakeAmount": "600.00"},
-        {"lineNumber": 2, "gameCode": "HT_BOLET", "betType": "MATCH_1_2D", "selection": "33",
-         "betOption": None, "stakeAmount": "600.00"},
+        {"gameCode": "HT_BOLET", "betType": "MATCH_1_2D", "selection": "22",
+         "betOption": None, "stake": "600.00"},
+        {"gameCode": "HT_BOLET", "betType": "MATCH_1_2D", "selection": "33",
+         "betOption": None, "stake": "600.00"},
     ]
-    big_payload = {"sellerTerminalId": seller_terminal_id, "drawId": draw["drawId"],
-                   "drawChannelId": draw["drawChannelId"], "currency": HTG_CURRENCY_CODE,
-                   "lines": big_lines}
-    breach_prep = seller.post("/tenant/sales/preparations", json=big_payload, headers=rid())
-    if breach_prep.status_code < 300:
-        breach_id = (data_of(breach_prep) or {}).get("preparationId")
-        breach = seller.post(f"/tenant/sales/preparations/{breach_id}/confirm", json={},
-                             idempotency_key=str(uuid.uuid4()), headers=rid())
+    breach_prepare = seller.post("/tenant/sales/preparations", json=payload(big_lines), headers=rid())
+    if breach_prepare.status_code < 300:
+        breach, bdata = confirm((data_of(breach_prepare) or {})["preparationId"])
     else:
-        breach = breach_prep
+        breach, bdata = breach_prepare, data_of(breach_prepare) or {}
     show(breach, limit=900)
-    bdata = data_of(breach) or {}
-    sale = bdata.get("sale") or {}
-    blocked = breach.status_code in (400, 409, 422) or sale.get("outcome") in ("REJECTED", "BLOCKED")
-    print(f"{OK if blocked else KO} over-limit sale blocked (outcome={sale.get('outcome')}, http={breach.status_code})")
+    blocked = breach.status_code in (400, 409, 422) or bdata.get("outcome") in ("REJECTED", "BLOCKED")
+    print(f"{OK if blocked else KO} over-limit sale blocked (outcome={bdata.get('outcome')}, http={breach.status_code})")
 
     # ---- 8. role separation -------------------------------------------------
     step("Role check: TENANT_ADMIN must NOT reach a SUPER_ADMIN-only endpoint")

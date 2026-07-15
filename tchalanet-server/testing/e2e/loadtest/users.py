@@ -55,7 +55,7 @@ class CashierUser(User):
         lines = random_basket(self._min, self._max, self._stake)
         try:
             self.flow.preview_lines(draw, lines)  # timed as POST /tenant/sales/preparations
-            self.flow.sell_lines(draw, lines)     # timed as POST /tenant/sales/preparations/{id}/confirm
+            self.flow.sell_lines(draw, lines)     # prepare + POST /tenant/sales/preparations/{id}/confirm
         except Exception:
             # Per-request outcomes are already reported by LocustApiClient; keep the user alive.
             pass

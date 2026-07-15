@@ -27,8 +27,7 @@ from tch_e2e.client import ApiClient
 
 pytestmark = [pytest.mark.L2, pytest.mark.full_flow]
 
-_FIREBASE_PROVIDERS = {"firebase-emulator"}
-_HTG_CURRENCY_CODE = {"value": "HTG"}
+_FIREBASE_PROVIDERS = {"firebase-emulator", "firebase"}
 
 
 def _rid() -> dict:
@@ -49,8 +48,7 @@ def fb_auth() -> FirebaseEmulatorAuth:
     if provider not in _FIREBASE_PROVIDERS:
         pytest.skip(
             "Full provision→sell flow needs identity provisioning — set "
-            "TCH_E2E_AUTH_PROVIDER=firebase-emulator (API + emulator on firebase-emulator). "
-            "Real Firebase cannot mint arbitrary dynamic identities from the E2E harness."
+            "TCH_E2E_AUTH_PROVIDER=firebase-emulator (API + emulator on firebase-emulator)."
         )
     return FirebaseEmulatorAuth.from_env()
 
@@ -87,9 +85,8 @@ def test_provision_configure_and_sell(
     result = _data(prov)
     tenant_id = result["tenantId"]
     admin_email = result["initialAdminEmail"]
-    admin_user_id = result["initialAdminUserId"]
     assert result["profile"] == "DEFAULT_HAITI_LOTTERY"
-    assert admin_user_id
+    assert result["initialAdminUserId"]
 
     # 2. SUPER_ADMIN generates + opens today's draws --------------------------------------
     today = dt.date.today()
@@ -105,7 +102,7 @@ def test_provision_configure_and_sell(
 
     # 3. Admin logs in (minted token) and completes first login ---------------------------
     admin = ApiClient(base_url=base_url, token=fb_auth.mint(
-        subject=admin_user_id, email=admin_email))
+        subject=fb_auth.uid_for_email(admin_email), email=admin_email))
     first = admin.post("/identity/me/complete-first-login", json={
         "firstName": "Flow", "lastName": "Admin", "phoneNumber": admin_phone,
         "passwordChanged": True}, headers=_rid())
@@ -146,46 +143,68 @@ def test_provision_configure_and_sell(
     draw = draws[0]
 
     def payload(lines):
-        return {"sellerTerminalId": seller_terminal_id, "drawId": draw["drawId"],
-                "drawChannelId": draw["drawChannelId"], "currency": _HTG_CURRENCY_CODE,
-                "lines": lines}
+        prepared_lines = []
+        for index, line in enumerate(lines, start=1):
+            prepared = {
+                "lineNumber": index,
+                "gameCode": line["gameCode"],
+                "betType": line["betType"],
+                "selection": line["selection"],
+                "stakeAmount": line.get("stakeAmount", line.get("stake")),
+            }
+            if line.get("betOption") is not None:
+                prepared["betOption"] = line["betOption"]
+            prepared_lines.append(prepared)
+        return {"drawId": draw["drawId"], "drawChannelId": draw["drawChannelId"],
+                "currency": {"value": "HTG"}, "lines": prepared_lines}
+
+    def confirm(preparation_id: str):
+        resp = seller.post(
+            f"/tenant/sales/preparations/{preparation_id}/confirm",
+            idempotency_key=str(uuid.uuid4()),
+            headers=_rid(),
+        )
+        if resp.status_code >= 300:
+            return resp, _data(resp) or {}
+        data = _data(resp) or {}
+        sale = data.get("sale") or data
+        ticket = sale.get("ticket") or {}
+        return resp, {
+            "outcome": sale.get("outcome"),
+            "ticketId": data.get("ticketId") or ticket.get("ticketId") or sale.get("ticketId"),
+            "ticketCode": ticket.get("ticketCode") or sale.get("ticketCode"),
+            "issues": sale.get("issues"),
+        }
 
     ok_lines = [
-        {"lineNumber": 1, "gameCode": "HT_BOLET", "betType": "MATCH_1_2D", "selection": "11",
-         "betOption": None, "stakeAmount": "5.00"},
-        {"lineNumber": 2, "gameCode": "HT_MARYAJ", "betType": "MARRIAGE_2D2D", "selection": "21-25",
-         "betOption": None, "stakeAmount": "5.00"},
+        {"gameCode": "HT_BOLET", "betType": "MATCH_1_2D", "selection": "11",
+         "betOption": None, "stake": "5.00"},
+        {"gameCode": "HT_MARYAJ", "betType": "MARRIAGE_2D2D", "selection": "21-25",
+         "betOption": 1, "stake": "5.00"},
     ]
-    prep = seller.post("/tenant/sales/preparations", json=payload(ok_lines), headers=_rid())
-    assert_ok(prep, expected=(200, 201))
-    preparation_id = _data(prep)["preparationId"]
+    prev = seller.post("/tenant/sales/preparations", json=payload(ok_lines), headers=_rid())
+    assert_ok(prev)
+    assert _data(prev)["status"] == "DRAFT"
 
-    sold = seller.post(f"/tenant/sales/preparations/{preparation_id}/confirm", json={},
-                       idempotency_key=str(uuid.uuid4()), headers=_rid())
+    sold, sold_data = confirm(_data(prev)["preparationId"])
     assert_ok(sold, expected=(200, 201))
-    sold_data = _data(sold)
+    assert sold_data["outcome"] == "ACCEPTED"
     assert sold_data["ticketId"]
-    assert sold_data["sale"]["outcome"] == "ACCEPTED"
 
     # 8. Over-limit sale is rejected ------------------------------------------------------
     big_lines = [
-        {"lineNumber": 1, "gameCode": "HT_BOLET", "betType": "MATCH_1_2D", "selection": "22",
-         "betOption": None, "stakeAmount": "600.00"},
-        {"lineNumber": 2, "gameCode": "HT_BOLET", "betType": "MATCH_1_2D", "selection": "33",
-         "betOption": None, "stakeAmount": "600.00"},
+        {"gameCode": "HT_BOLET", "betType": "MATCH_1_2D", "selection": "22",
+         "betOption": None, "stake": "600.00"},
+        {"gameCode": "HT_BOLET", "betType": "MATCH_1_2D", "selection": "33",
+         "betOption": None, "stake": "600.00"},
     ]
-    breach_prep = seller.post("/tenant/sales/preparations", json=payload(big_lines), headers=_rid())
-    if breach_prep.status_code < 300:
-        breach_preparation_id = _data(breach_prep)["preparationId"]
-        breach = seller.post(f"/tenant/sales/preparations/{breach_preparation_id}/confirm", json={},
-                             idempotency_key=str(uuid.uuid4()), headers=_rid())
-        bdata = _data(breach) or {}
-        sale = bdata.get("sale") or {}
-        assert breach.status_code in (400, 403, 409, 422) or sale.get("outcome") in ("REJECTED", "BLOCKED"), (
-            f"over-limit sale should be rejected, got http={breach.status_code} data={bdata}")
+    breach_prepare = seller.post("/tenant/sales/preparations", json=payload(big_lines), headers=_rid())
+    if breach_prepare.status_code < 300:
+        breach, bdata = confirm(_data(breach_prepare)["preparationId"])
     else:
-        assert breach_prep.status_code in (400, 403, 409, 422), (
-            f"over-limit preparation should be rejected, got http={breach_prep.status_code} data={_data(breach_prep)}")
+        breach, bdata = breach_prepare, _data(breach_prepare) or {}
+    assert breach.status_code in (400, 409, 422) or bdata.get("outcome") in ("REJECTED", "BLOCKED"), (
+        f"over-limit sale should be rejected, got http={breach.status_code} data={bdata}")
 
     # 9. Role separation: TENANT_ADMIN cannot reach a SUPER_ADMIN-only endpoint -----------
     forbidden = admin.post("/platform/tenant-onboarding/provision", json={

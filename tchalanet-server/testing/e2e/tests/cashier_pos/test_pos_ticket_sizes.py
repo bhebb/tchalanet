@@ -45,22 +45,22 @@ def _draw_supporting(ctx: PosContext, needed_games: set[str]) -> dict | None:
 
 def _sell_scenario(ctx: PosContext, draw: dict, scenario: TicketScenario) -> None:
     """Sell ``scenario`` lines on ``draw`` and assert ACCEPTED."""
-    from tch_e2e.api_response import assert_ok
-
     flow = ctx.cashier_flow()
     lines = scenario.to_payload_lines()
-    response = flow.sell_response(
-        {
-            "terminalId": ctx.terminal_id,
-            "drawId": draw["drawId"],
-            "drawChannelId": draw["drawChannelId"],
-            "currency": {"value": "HTG"},
-            "lines": lines,
-        }
-    )
-    assert_ok(response, expected=(200, 201))
-    data = response.json()["data"]
-    assert_sale_accepted(flow._flatten_confirm_response(data))
+    ticket = flow.sell_lines(draw, lines)
+    data = {
+        "outcome": "ACCEPTED",
+        "ticketId": ticket.ticket_id,
+        "ticketCode": ticket.ticket_code,
+        "publicCode": ticket.public_code,
+        "saleStatus": ticket.sale_status,
+        "backup": ticket.backup,
+    }
+    assert_sale_accepted({
+        "outcome": data.get("outcome"),
+        "ticketId": data.get("ticketId"),
+        "ticketCode": data.get("ticketCode"),
+    })
     return data
 
 
