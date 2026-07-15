@@ -344,6 +344,7 @@
         <version>${checkstyle.plugin.version}</version>
         <configuration>
           <configLocation>${checkstyle.config}</configLocation>
+          <suppressionsLocation>checkstyle/suppressions.xml</suppressionsLocation>
           <failsOnError>false</failsOnError>
           <violationSeverity>warning</violationSeverity>
         </configuration>

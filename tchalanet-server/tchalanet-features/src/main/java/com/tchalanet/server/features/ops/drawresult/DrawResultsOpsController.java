@@ -12,7 +12,12 @@ import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.common.web.paging.TchPaging;
-import com.tchalanet.server.core.drawresult.api.command.*;
+import com.tchalanet.server.core.drawresult.api.command.ConfirmDrawResultCommand;
+import com.tchalanet.server.core.drawresult.api.command.ConfirmDrawResultResult;
+import com.tchalanet.server.core.drawresult.api.command.OverrideDrawResultCommand;
+import com.tchalanet.server.core.drawresult.api.command.OverrideDrawResultResult;
+import com.tchalanet.server.core.drawresult.api.command.RecordManualDrawResultCommand;
+import com.tchalanet.server.core.drawresult.api.command.RecordManualDrawResultResult;
 import com.tchalanet.server.core.drawresult.api.model.DrawResultStatus;
 import com.tchalanet.server.core.drawresult.api.model.ResultQuality;
 import com.tchalanet.server.core.drawresult.api.query.GetDrawResultViewByIdQuery;
@@ -20,7 +25,10 @@ import com.tchalanet.server.core.drawresult.api.query.GetDrawResultViewBySlotQue
 import com.tchalanet.server.core.drawresult.api.query.ListDrawResultsQuery;
 import com.tchalanet.server.features.ops.batch.OpsBatchLaunchFacade;
 import com.tchalanet.server.features.ops.batch.model.OpsLaunchResponse;
-import com.tchalanet.server.features.ops.drawresult.model.*;
+import com.tchalanet.server.features.ops.drawresult.model.DrawResultOpsResponse;
+import com.tchalanet.server.features.ops.drawresult.model.FetchExternalResultsRequest;
+import com.tchalanet.server.features.ops.drawresult.model.OverrideDrawResultRequest;
+import com.tchalanet.server.features.ops.drawresult.model.RecordManualDrawResultRequest;
 import com.tchalanet.server.platform.audit.api.AuditLog;
 import com.tchalanet.server.platform.audit.api.model.AuditAction;
 import com.tchalanet.server.platform.audit.api.model.AuditEntityType;
@@ -38,7 +46,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/platform/ops/draw-results")
