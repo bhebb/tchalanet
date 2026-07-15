@@ -16,6 +16,7 @@ import jakarta.persistence.criteria.Predicate;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -62,6 +63,15 @@ public class AppUserJpaAdapter {
       return repository.findByPhone(phone).map(this::toUser);
     }
     return Optional.empty();
+  }
+
+  public Optional<AppUser> findByNormalizedUsername(String username) {
+    if (username == null || username.isBlank()) {
+      return Optional.empty();
+    }
+    return repository
+        .findActiveCandidateByNormalizedUsername(username.trim().toLowerCase(Locale.ROOT))
+        .map(this::toUser);
   }
 
   public AppUser save(AppUser user) {

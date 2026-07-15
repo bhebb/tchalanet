@@ -88,8 +88,8 @@
       "errors": {
         "accessDenied": "Sign-in succeeded, but your Tchalanet access is not authorized yet.",
         "emailLinkFailed": "The sign-in link is invalid or expired.",
-        "emailRequired": "Please enter your email address.",
-        "invalidCredentials": "Invalid email address or password."
+        "emailRequired": "Please enter your username or email address.",
+        "invalidCredentials": "Invalid username or password."
       },
       "form": {
         "body": "Use the credentials associated with your Tchalanet account.",
@@ -97,6 +97,8 @@
         "forgotPassword": "Forgot password?",
         "resetEmailSent": "A password reset link has been sent to your email address.",
         "emailPlaceholder": "name@organization.com",
+        "identifierLabel": "Username or email",
+        "identifierPlaceholder": "admin or name@organization.com",
         "eyebrow": "Secure portal",
         "hidePassword": "Hide password",
         "security": "Your connection is secured by Firebase Authentication.",

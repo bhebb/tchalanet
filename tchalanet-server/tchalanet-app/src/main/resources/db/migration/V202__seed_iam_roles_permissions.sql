@@ -207,7 +207,7 @@ SELECT '00000000-0000-0000-0000-000000000302'::uuid, unnest(ARRAY[
 ]) ON CONFLICT DO NOTHING;
 
 -- ─────────────────────────────────────────────────────────────────────────────
--- 4. Local dev / E2E seed users (super_admin, admin)
+-- 4. Local dev / E2E seed users (superadmin, admin)
 --    These users exist only for local dev and E2E runs.
 -- ─────────────────────────────────────────────────────────────────────────────
 DO $$
@@ -217,12 +217,12 @@ BEGIN
   RAISE NOTICE 'V202: seeding local dev users';
   SELECT id INTO t_id FROM tenant WHERE code = 'tchalanet' LIMIT 1;
 
-  -- super_admin
+  -- superadmin
   INSERT INTO app_user (id, username, email, display_name, status, created_at, updated_at)
   VALUES ('00000000-0000-0000-0000-000000010001'::uuid,
-          'super_admin', 'super_admin@localtest.me', 'Super Admin', 'ACTIVE', now(), now())
+          'superadmin', 'super_admin@localtest.me', 'Super Admin', 'ACTIVE', now(), now())
   ON CONFLICT (id) DO UPDATE SET
-    username = 'super_admin', email = 'super_admin@localtest.me',
+    username = 'superadmin', email = 'super_admin@localtest.me',
     display_name = 'Super Admin', status = 'ACTIVE', updated_at = now();
 
   -- admin (TENANT_ADMIN)

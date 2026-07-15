@@ -1,12 +1,13 @@
 {
   "appId": "public-portal",
-  "production": true,
-  "apiBaseUrl": "https://api.stg.tchalanet.com/api/v1",
-  "authBaseUrl": "https://api.stg.tchalanet.com/auth",
+  "production": false,
+  "apiBaseUrl": "/api/v1",
+  "authBaseUrl": "https://auth.localtest.me",
   "assetsBaseUrl": "/assets",
-  "enableSandbox": false,
+  "firebaseAuthEmulatorUrl": null,
+  "enableSandbox": true,
   "portalBaseUrls": {
-    "admin-portal": "/admin",
-    "platform-portal": "/platform"
+    "admin-portal": "http://localhost:4302",
+    "platform-portal": "http://localhost:4202"
   }
 }

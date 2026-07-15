@@ -21,6 +21,16 @@ public interface AppUserJpaRepository extends JpaRepository<AppUserJpaEntity, UU
 
   Optional<AppUserJpaEntity> findByEmailOrPhone(String email, String phone);
 
+  @Query(
+      """
+          select u
+            from AppUserJpaEntity u
+           where u.deletedAt is null
+             and lower(u.username) = :username
+          """)
+  Optional<AppUserJpaEntity> findActiveCandidateByNormalizedUsername(
+      @Param("username") String username);
+
   @Modifying
   @Query(
       value =

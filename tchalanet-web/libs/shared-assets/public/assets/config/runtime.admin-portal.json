@@ -1,12 +1,9 @@
 {
   "appId": "admin-portal",
-  "production": true,
-  "apiBaseUrl": "https://api.stg.tchalanet.com/api/v1",
-  "authBaseUrl": "https://api.stg.tchalanet.com/auth",
+  "production": false,
+  "apiBaseUrl": "/api/v1",
+  "authBaseUrl": "https://auth.localtest.me",
   "assetsBaseUrl": "/assets",
-  "portalBaseUrls": {
-    "admin-portal": "/admin",
-    "platform-portal": "/platform"
-  },
-  "enableSandbox": false
+  "firebaseAuthEmulatorUrl": null,
+  "enableSandbox": true
 }
