@@ -1,0 +1,40 @@
+name: Prepare SSH key
+description: Write a private SSH key for workflow steps and optionally trust a host.
+
+inputs:
+  private_key:
+    description: SSH private key content.
+    required: true
+  key_file:
+    description: File name under ~/.ssh.
+    required: true
+  known_host:
+    description: Host to add to known_hosts.
+    required: false
+    default: ''
+  derive_public_key:
+    description: Whether to write a .pub file with ssh-keygen -y.
+    required: false
+    default: 'false'
+
+runs:
+  using: composite
+  steps:
+    - name: Write SSH key
+      shell: bash
+      env:
+        PRIVATE_KEY: ${{ inputs.private_key }}
+        KEY_FILE: ${{ inputs.key_file }}
+        KNOWN_HOST: ${{ inputs.known_host }}
+        DERIVE_PUBLIC_KEY: ${{ inputs.derive_public_key }}
+      run: |
+        set -euo pipefail
+        mkdir -p ~/.ssh
+        printf '%s\n' "$PRIVATE_KEY" > ~/.ssh/"$KEY_FILE"
+        chmod 600 ~/.ssh/"$KEY_FILE"
+        if [ "$DERIVE_PUBLIC_KEY" = "true" ]; then
+          ssh-keygen -y -f ~/.ssh/"$KEY_FILE" > ~/.ssh/"$KEY_FILE".pub
+        fi
+        if [ -n "$KNOWN_HOST" ]; then
+          ssh-keyscan -H "$KNOWN_HOST" >> ~/.ssh/known_hosts
+        fi

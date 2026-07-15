@@ -1,0 +1,56 @@
+name: Push infra files
+description: Prepare SSH and sync tchalanet-infra files to a remote host.
+
+inputs:
+  server_host:
+    description: Remote host or IP.
+    required: true
+  deploy_env:
+    description: Deployment environment passed to push-infra-bkup.sh.
+    required: true
+  ssh_private_key:
+    description: SSH private key content.
+    required: true
+  key_file:
+    description: File name under ~/.ssh.
+    required: true
+  firebase_admin_json_base64:
+    description: Optional Firebase Admin service account JSON encoded as base64.
+    required: false
+    default: ''
+  derive_public_key:
+    description: Whether to write a .pub file with ssh-keygen -y.
+    required: false
+    default: 'false'
+  run_bootstrap:
+    description: Whether push-infra-bkup.sh should run remote bootstrap after sync.
+    required: false
+    default: 'true'
+
+runs:
+  using: composite
+  steps:
+    - name: Prepare SSH key
+      uses: ./.github/actions/prepare-ssh-key
+      with:
+        private_key: ${{ inputs.ssh_private_key }}
+        key_file: ${{ inputs.key_file }}
+        known_host: ${{ inputs.server_host }}
+        derive_public_key: ${{ inputs.derive_public_key }}
+
+    - name: Push infra files to server
+      shell: bash
+      env:
+        SERVER_HOST: ${{ inputs.server_host }}
+        DEPLOY_ENV: ${{ inputs.deploy_env }}
+        FIREBASE_ADMIN_JSON_BASE64: ${{ inputs.firebase_admin_json_base64 }}
+        RUN_BOOTSTRAP: ${{ inputs.run_bootstrap }}
+      run: |
+        set -euo pipefail
+        cd tchalanet-infra
+        chmod +x scripts/remote/*.sh || true
+        args=("$SERVER_HOST" "$DEPLOY_ENV")
+        if [ "$RUN_BOOTSTRAP" != "true" ]; then
+          args+=("--no-bootstrap")
+        fi
+        ./scripts/remote/push-infra-bkup.sh "${args[@]}"

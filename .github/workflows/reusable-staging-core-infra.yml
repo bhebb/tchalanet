@@ -1,0 +1,135 @@
+name: Reusable - Staging Core Infra
+
+on:
+  workflow_call:
+    inputs:
+      create_if_missing:
+        description: Create stg-app if absent.
+        required: false
+        default: false
+        type: boolean
+      deploy_core:
+        description: Deploy Traefik/Redis core services.
+        required: false
+        default: true
+        type: boolean
+      server_host:
+        description: Optional known staging server host/IP.
+        required: false
+        default: ''
+        type: string
+    outputs:
+      server_host:
+        description: Resolved staging server host/IP.
+        value: ${{ jobs.ensure-core.outputs.server_host }}
+    secrets:
+      HCLOUD_TOKEN:
+        required: true
+      SERVER_HOST:
+        required: false
+      SSH_PRIVATE_KEY:
+        required: true
+      DOPPLER_TOKEN_STG:
+        required: true
+      FIREBASE_ADMIN_JSON_BASE64:
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  ensure-core:
+    name: Ensure staging core infra
+    runs-on: ubuntu-latest
+    environment: staging
+    outputs:
+      server_host: ${{ steps.resolve-host.outputs.server_host }}
+    env:
+      HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}
+      SERVER_HOST_INPUT: ${{ inputs.server_host }}
+      SERVER_HOST_SECRET: ${{ secrets.SERVER_HOST }}
+      SSH_PRIVATE_KEY_VALUE: ${{ secrets.SSH_PRIVATE_KEY }}
+      DOPPLER_TOKEN_VALUE: ${{ secrets.DOPPLER_TOKEN_STG }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup hcloud
+        uses: hetznercloud/setup-hcloud@v1
+        with:
+          token: ${{ secrets.HCLOUD_TOKEN }}
+
+      - name: Validate infra secrets
+        run: |
+          set -euo pipefail
+          [ -n "$HCLOUD_TOKEN" ] || { echo "Missing HCLOUD_TOKEN" >&2; exit 1; }
+          [ -n "$SSH_PRIVATE_KEY_VALUE" ] || { echo "Missing SSH_PRIVATE_KEY" >&2; exit 1; }
+          [ -n "$DOPPLER_TOKEN_VALUE" ] || { echo "Missing DOPPLER_TOKEN_STG" >&2; exit 1; }
+
+      - name: Prepare SSH key for provisioning
+        uses: ./.github/actions/prepare-ssh-key
+        with:
+          private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          key_file: tchalanet_stg
+          derive_public_key: 'true'
+
+      - name: Create staging server when absent
+        if: inputs.create_if_missing == true
+        working-directory: tchalanet-infra
+        run: |
+          set -euo pipefail
+          if hcloud server describe stg-app >/dev/null 2>&1; then
+            echo "stg-app already exists"
+          else
+            make staging-create
+          fi
+
+      - name: Resolve staging host
+        id: resolve-host
+        run: |
+          set -euo pipefail
+          ip="$SERVER_HOST_INPUT"
+          if [ -z "$ip" ] && hcloud server describe stg-app >/dev/null 2>&1; then
+            ip="$(hcloud server describe stg-app -o json | jq -r '.public_net.ipv4.ip')"
+          fi
+          if [ -z "$ip" ] || [ "$ip" = "null" ]; then
+            ip="$SERVER_HOST_SECRET"
+          fi
+          [ -n "$ip" ] || { echo "Unable to resolve staging server host" >&2; exit 1; }
+          echo "server_host=$ip" >> "$GITHUB_OUTPUT"
+          echo "Staging server host: $ip"
+
+      - name: Push infra files to server
+        uses: ./.github/actions/push-infra-files
+        with:
+          server_host: ${{ steps.resolve-host.outputs.server_host }}
+          deploy_env: staging
+          ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          key_file: tchalanet_stg
+          firebase_admin_json_base64: ${{ secrets.FIREBASE_ADMIN_JSON_BASE64 }}
+          derive_public_key: 'true'
+
+      - name: Deploy core infra services
+        if: inputs.deploy_core == true
+        uses: appleboy/ssh-action@v1.2.5
+        env:
+          DOPPLER_TOKEN: ${{ env.DOPPLER_TOKEN_VALUE }}
+        with:
+          host: ${{ steps.resolve-host.outputs.server_host }}
+          username: tch
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script_stop: true
+          envs: DOPPLER_TOKEN
+          script: |
+            set -euo pipefail
+            cd /opt/tchalanet-infra
+            if ! command -v make >/dev/null 2>&1; then
+              sudo apt-get update
+              sudo apt-get install -y make
+            fi
+            chmod +x scripts/remote/*.sh scripts/utils/*.sh || true
+            ./scripts/remote/01-bootstrap.sh staging
+            DOCKER_BIN="docker"
+            if ! docker ps >/dev/null 2>&1; then
+              DOCKER_BIN="sudo docker"
+            fi
+            DOCKER_BIN="$DOCKER_BIN" ENV=staging DOPPLER_TOKEN="$DOPPLER_TOKEN" scripts/remote/deploy-core-services.sh

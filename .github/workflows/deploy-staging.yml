@@ -49,12 +49,11 @@ jobs:
 
       - name: Prepare SSH key for optional backup
         if: inputs.skip_destroy_backup == false
-        run: |
-          set -euo pipefail
-          mkdir -p ~/.ssh
-          printf '%s\n' "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/tchalanet_stg
-          chmod 600 ~/.ssh/tchalanet_stg
-          ssh-keyscan -H "${{ secrets.SERVER_HOST }}" >> ~/.ssh/known_hosts || true
+        uses: ./.github/actions/prepare-ssh-key
+        with:
+          private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          key_file: tchalanet_stg
+          known_host: ${{ secrets.SERVER_HOST }}
 
       - name: Destroy staging server
         working-directory: tchalanet-infra
@@ -90,12 +89,11 @@ jobs:
           token: ${{ secrets.HCLOUD_TOKEN }}
 
       - name: Prepare SSH key for provisioning
-        run: |
-          set -euo pipefail
-          mkdir -p ~/.ssh
-          printf '%s\n' "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/tchalanet_stg
-          chmod 600 ~/.ssh/tchalanet_stg
-          ssh-keygen -y -f ~/.ssh/tchalanet_stg > ~/.ssh/tchalanet_stg.pub
+        uses: ./.github/actions/prepare-ssh-key
+        with:
+          private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          key_file: tchalanet_stg
+          derive_public_key: 'true'
 
       - name: Create staging server
         working-directory: tchalanet-infra
@@ -120,64 +118,14 @@ jobs:
       (inputs.infra_action == 'deploy-core' || inputs.infra_action == 'create' || inputs.infra_action == 'recreate') &&
       (needs.infra-destroy.result == 'success' || needs.infra-destroy.result == 'skipped') &&
       (needs.infra-create.result == 'success' || needs.infra-create.result == 'skipped')
-    runs-on: ubuntu-latest
-    environment: staging
-    env:
-      SERVER_HOST: ${{ needs.infra-create.outputs.server_host || secrets.SERVER_HOST }}
-    steps:
-      - uses: actions/checkout@v7
-
-      - name: Validate environment secrets
-        env:
-          SSH_PRIVATE_KEY_VALUE: ${{ secrets.SSH_PRIVATE_KEY }}
-          DOPPLER_TOKEN_VALUE: ${{ secrets.DOPPLER_TOKEN_STG }}
-        run: |
-          set -euo pipefail
-          [ -n "$SERVER_HOST" ] || { echo "Missing SERVER_HOST" >&2; exit 1; }
-          [ -n "$SSH_PRIVATE_KEY_VALUE" ] || { echo "Missing SSH_PRIVATE_KEY" >&2; exit 1; }
-          [ -n "$DOPPLER_TOKEN_VALUE" ] || { echo "Missing DOPPLER_TOKEN_STG" >&2; exit 1; }
-
-      - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      - name: Prepare SSH key for infra sync
-        run: |
-          set -euo pipefail
-          mkdir -p ~/.ssh
-          printf '%s\n' "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/tchalanet_stg
-          chmod 600 ~/.ssh/tchalanet_stg
-          ssh-keyscan -H "$SERVER_HOST" >> ~/.ssh/known_hosts
-
-      - name: Push infra files to server
-        working-directory: tchalanet-infra
-        run: |
-          set -euo pipefail
-          chmod +x scripts/remote/*.sh || true
-          ./scripts/remote/push-infra-bkup.sh "$SERVER_HOST" staging
-
-      - name: Deploy core infra services
-        uses: appleboy/ssh-action@v1.2.5
-        env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_STG }}
-        with:
-          host: ${{ env.SERVER_HOST }}
-          username: tch
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script_stop: true
-          envs: DOPPLER_TOKEN
-          script: |
-            set -euo pipefail
-            cd /opt/tchalanet-infra
-            if ! command -v make >/dev/null 2>&1; then
-              sudo apt-get update
-              sudo apt-get install -y make
-            fi
-            chmod +x scripts/remote/*.sh scripts/utils/*.sh || true
-            ./scripts/remote/01-bootstrap.sh staging
-            DOCKER_BIN="docker"
-            if ! docker ps >/dev/null 2>&1; then
-              DOCKER_BIN="sudo docker"
-            fi
-            DOCKER_BIN="$DOCKER_BIN" ENV=staging DOPPLER_TOKEN="$DOPPLER_TOKEN" scripts/remote/deploy-core-services.sh
+    uses: ./.github/workflows/reusable-staging-core-infra.yml
+    with:
+      create_if_missing: false
+      deploy_core: true
+      server_host: ${{ needs.infra-create.outputs.server_host }}
+    secrets:
+      HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}
+      SERVER_HOST: ${{ secrets.SERVER_HOST }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      DOPPLER_TOKEN_STG: ${{ secrets.DOPPLER_TOKEN_STG }}
+      FIREBASE_ADMIN_JSON_BASE64: ${{ secrets.FIREBASE_ADMIN_JSON_BASE64 }}

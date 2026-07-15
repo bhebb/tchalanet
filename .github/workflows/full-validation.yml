@@ -29,6 +29,20 @@ permissions:
   contents: read
 
 jobs:
+  ensure-staging-infra:
+    name: Ensure staging infra
+    if: github.event_name == 'schedule' || inputs.run_server_e2e == true
+    uses: ./.github/workflows/reusable-staging-core-infra.yml
+    with:
+      create_if_missing: true
+      deploy_core: true
+    secrets:
+      HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}
+      SERVER_HOST: ${{ secrets.SERVER_HOST }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      DOPPLER_TOKEN_STG: ${{ secrets.DOPPLER_TOKEN_STG }}
+      FIREBASE_ADMIN_JSON_BASE64: ${{ secrets.FIREBASE_ADMIN_JSON_BASE64 }}
+
   server-it:
     name: Server IT
     runs-on: ubuntu-latest
@@ -51,7 +65,11 @@ jobs:
 
   server-e2e:
     name: Server live E2E
-    if: github.event_name == 'schedule' || inputs.run_server_e2e == true
+    needs: ensure-staging-infra
+    if: |
+      always() &&
+      (github.event_name == 'schedule' || inputs.run_server_e2e == true) &&
+      needs.ensure-staging-infra.result == 'success'
     runs-on: ubuntu-latest
     defaults:
       run:
