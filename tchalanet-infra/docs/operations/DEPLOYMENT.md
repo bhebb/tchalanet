@@ -37,6 +37,15 @@ make env-merge ENV=prod
 make up-prod
 ```
 
+## Smoke & rollback
+
+Smoke post-deploy, décision et procédure de rollback (applicatif / DB) et clear
+cache : voir [`runbooks/RB-04-release-rollback.md`](./runbooks/RB-04-release-rollback.md).
+
+```bash
+make smoke-staging      # smoke automatisé staging
+```
+
 ---
 
 ## Plans de déploiement web
