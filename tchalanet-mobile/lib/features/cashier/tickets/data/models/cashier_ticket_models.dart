@@ -294,7 +294,6 @@ class CashierTicketLineDetail {
     this.betTypeLabel,
     required this.selection,
     required this.stakeAmountCents,
-    required this.potentialPayoutCents,
     this.promotional = false,
     this.promotionLabel,
   });
@@ -306,14 +305,11 @@ class CashierTicketLineDetail {
   final String? betTypeLabel;
   final String selection;
   final int stakeAmountCents;
-  final int potentialPayoutCents;
   final bool promotional;
   final String? promotionLabel;
 
   String get formattedStake =>
       (stakeAmountCents / 100).toStringAsFixed(2);
-  String get formattedPayout =>
-      (potentialPayoutCents / 100).toStringAsFixed(2);
 
   factory CashierTicketLineDetail.fromJson(Map<String, dynamic> json) =>
       CashierTicketLineDetail(
@@ -324,8 +320,6 @@ class CashierTicketLineDetail {
         betTypeLabel: json['betTypeLabel'] as String?,
         selection: json['selection'] as String? ?? '',
         stakeAmountCents: (json['stakeAmountCents'] as num?)?.toInt() ?? 0,
-        potentialPayoutCents:
-            (json['potentialPayoutCents'] as num?)?.toInt() ?? 0,
         promotional: json['promotional'] as bool? ?? false,
         promotionLabel: json['promotionLabel'] as String?,
       );
@@ -381,7 +375,6 @@ class CashierTicketDetailsView extends CashierTicketSummaryView {
     this.sellerDisplayName,
     this.lines = const [],
     this.stakeCents = 0,
-    this.potentialPayoutCents = 0,
     this.charges = const [],
   });
 
@@ -391,12 +384,9 @@ class CashierTicketDetailsView extends CashierTicketSummaryView {
   final String? sellerDisplayName;
   final List<CashierTicketLineDetail> lines;
   final int stakeCents;
-  final int potentialPayoutCents;
   final List<CashierTicketChargeDetail> charges;
 
   String get formattedStake => (stakeCents / 100).toStringAsFixed(2);
-  String get formattedPotentialPayout =>
-      (potentialPayoutCents / 100).toStringAsFixed(2);
 
   factory CashierTicketDetailsView.fromJson(Map<String, dynamic> json) =>
       CashierTicketDetailsView(
@@ -426,8 +416,6 @@ class CashierTicketDetailsView extends CashierTicketSummaryView {
                 .toList() ??
             const [],
         stakeCents: (json['stakeCents'] as num?)?.toInt() ?? 0,
-        potentialPayoutCents:
-            (json['potentialPayoutCents'] as num?)?.toInt() ?? 0,
         charges: (json['charges'] as List<dynamic>?)
                 ?.map((e) => CashierTicketChargeDetail.fromJson(
                     e as Map<String, dynamic>))

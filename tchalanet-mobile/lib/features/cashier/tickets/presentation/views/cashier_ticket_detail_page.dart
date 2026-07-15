@@ -420,12 +420,6 @@ class _ReceiptCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: TchSpacing.s4),
-                _SummaryRow(
-                  label: 'Gain maximal',
-                  value:
-                      '${detail.formattedPotentialPayout} ${detail.currency}',
-                ),
               ],
             ),
           ),
@@ -512,11 +506,6 @@ class _LineRow extends StatelessWidget {
                 '${line.formattedStake} HTG',
                 style: textTheme.bodyMedium
                     ?.copyWith(fontWeight: FontWeight.w700),
-              ),
-              Text(
-                'max ${line.formattedPayout}',
-                style: textTheme.labelSmall
-                    ?.copyWith(color: scheme.onSurfaceVariant),
               ),
             ],
           ),
