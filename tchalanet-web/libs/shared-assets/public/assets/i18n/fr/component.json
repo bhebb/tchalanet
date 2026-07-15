@@ -4,6 +4,7 @@
   },
   "console": {
     "gamesTable": {
+      "title": "Jeux",
       "column": {
         "code": "Code",
         "name": "Nom",

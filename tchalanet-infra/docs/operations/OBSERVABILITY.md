@@ -21,17 +21,35 @@
 
 ### Activation
 
-The `grafana-cloud` profile is added to `SPRING_PROFILES_ACTIVE` in staging env files:
-- `tchalanet-infra/envs/staging/api.env`
+The `grafana-cloud` profile is added to `SPRING_PROFILES_ACTIVE` in staging and production compose env files:
 - `tchalanet-infra/envs/staging/compose.env`
+- `tchalanet-infra/envs/prod/compose.env`
+
+Each runtime also sets an explicit OTel service name so traces are easy to find in Tempo:
+
+| Environment | `API_OTEL_SERVICE_NAME` |
+|-------------|--------------------------|
+| dev | `tchalanet-api-dev` |
+| staging | `tchalanet-api-staging` |
+| prod | `tchalanet-api-prod` |
 
 ### Secrets
 
 | Secret | Location | Description |
 |--------|----------|-------------|
-| `GRAFANA_OTLP_AUTH_HEADER` | Doppler (stg config) | `Basic <base64(instanceId:apiKey)>` |
+| `GRAFANA_OTLP_AUTH_HEADER` | Doppler (`dev`, `stg`, `prd`) | `Basic <base64(instanceId:apiKey)>` |
 
-The API container receives it via `docker-compose-api.yml` environment variable.
+The API container receives the secret and non-secret OTel settings via `docker-compose-api.yml` environment variables.
+
+Important runtime variables passed explicitly:
+
+| Env var | Purpose |
+|---------|---------|
+| `GRAFANA_OTLP_ENDPOINT` | Base OTLP endpoint, default `https://otlp-gateway-prod-ca-east-0.grafana.net/otlp` |
+| `MANAGEMENT_OPENTELEMETRY_TRACING_EXPORT_OTLP_ENDPOINT` | Spring Boot trace endpoint, `${GRAFANA_OTLP_ENDPOINT}/v1/traces` |
+| `MANAGEMENT_OPENTELEMETRY_TRACING_EXPORT_OTLP_HEADERS_AUTHORIZATION` | Spring Boot trace auth header |
+| `OTEL_SERVICE_NAME` | Tempo service name, for example `tchalanet-api-staging` |
+| `OTEL_RESOURCE_ATTRIBUTES` | Includes `service.name` and `deployment.environment` |
 
 ## Log Export Strategy
 
@@ -64,6 +82,16 @@ GRAFANA_LOG_SPRING_SECURITY_LEVEL=DEBUG
 
 `GRAFANA_TRACE_SAMPLING` controls the sampling probability (default `1.0` = 100%). Reduce to `0.1`–`0.5` if trace volume becomes too high.
 
+### Tempo smoke check
+
+After deployment, generate API traffic and query Tempo with:
+
+```text
+service.name = tchalanet-api-staging
+```
+
+Use a short time range first, for example **Last 15 minutes**.
+
 ## What happens at 50 GB?
 
 Grafana Cloud stops ingesting new data. The API continues running normally — OTLP exports fail silently (HTTP 429). No crash, no blocking. Existing data remains queryable.
@@ -87,5 +115,5 @@ All static analysis tools run in `continue-on-error` mode (warn, not block).
 
 - `application-grafana-cloud.yaml` — Spring profile with OTLP endpoints + log level config
 - `logback-spring.xml` — Console/file appenders (OTLP logs handled by Spring Boot native)
-- `docker-compose-api.yml` — Passes `GRAFANA_OTLP_AUTH_HEADER` to API container
+- `docker-compose-api.yml` — Passes Grafana Cloud/OTel variables to API container
 - `docker-compose-otel.yml` — Local Jaeger for dev

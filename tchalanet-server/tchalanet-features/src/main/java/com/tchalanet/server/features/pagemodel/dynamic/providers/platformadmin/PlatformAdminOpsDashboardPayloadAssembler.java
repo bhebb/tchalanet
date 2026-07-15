@@ -1,9 +1,6 @@
 package com.tchalanet.server.features.pagemodel.dynamic.providers.platformadmin;
 
 import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.common.job.gate.BatchGate;
-import com.tchalanet.server.common.job.registry.RegisteredJob;
-import com.tchalanet.server.common.job.registry.TchJobRegistry;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.common.web.paging.TchSearchQuery;
@@ -17,14 +14,16 @@ import com.tchalanet.server.platform.notification.api.model.NotificationActorTyp
 import com.tchalanet.server.platform.notification.api.model.NotificationSeverity;
 import com.tchalanet.server.platform.notification.api.model.NotificationStatus;
 import com.tchalanet.server.platform.notification.api.model.view.NotificationItemView;
-import com.tchalanet.server.platform.ops.api.OpsSchedulerHistoryProvider;
 import com.tchalanet.server.platform.ops.api.OpsServiceResourceItem;
 import com.tchalanet.server.platform.ops.api.PlatformHealthProbe;
 import java.time.Instant;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -32,24 +31,26 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class PlatformAdminOpsDashboardPayloadAssembler {
 
   private final ObjectProvider<PlatformHealthProbe> healthProbeProvider;
   private final ObjectProvider<OpsResourceMetricsProvider> resourceMetricsProvider;
-  private final ObjectProvider<TchJobRegistry> jobRegistryProvider;
-  private final ObjectProvider<BatchGate> batchGateProvider;
-  private final ObjectProvider<OpsSchedulerHistoryProvider> schedulerHistoryProvider;
   private final ObjectProvider<NotificationApi> notificationApiProvider;
   private final ObjectProvider<ContactRequestAdminApi> contactRequestAdminApiProvider;
 
   public Payload assemble(TchRequestContext ctx) {
-    return new Payload(
-        buildHealth(),
-        buildSchedulerSummary(),
-        buildResourceSummary(),
-        buildAppNotifications(ctx),
-        buildContactRequests(),
-        buildQuickActions());
+    DashboardTiming timing = DashboardTiming.start();
+    Payload payload =
+        new Payload(
+            timing.record("health", this::buildHealth),
+            buildSchedulerSummary(),
+            timing.record("resources", this::buildResourceSummary),
+            timing.record("notifications", () -> buildAppNotifications(ctx)),
+            timing.record("contactRequests", this::buildContactRequests),
+            timing.record("quickActions", this::buildQuickActions));
+    timing.logPlatformOps(ctx);
+    return payload;
   }
 
   @SuppressWarnings("unchecked")
@@ -113,123 +114,7 @@ public class PlatformAdminOpsDashboardPayloadAssembler {
   }
 
   private OpsSchedulerSummaryPayload buildSchedulerSummary() {
-    TchJobRegistry registry = jobRegistryProvider.getIfAvailable();
-    BatchGate gate = batchGateProvider.getIfAvailable();
-    if (registry == null || gate == null) {
-      return new OpsSchedulerSummaryPayload(
-          Instant.now().toString(), 0, 0, 0, 0, 0, false, List.of());
-    }
-
-    try {
-      List<RegisteredJob> jobs = List.copyOf(registry.list());
-      List<OpsSchedulerJobItem> disabled =
-          jobs.stream()
-              .filter(job -> !gate.enabled(job.jobKey(), null))
-              .map(
-                  job ->
-                      new OpsSchedulerJobItem(
-                          job.jobKey().value(),
-                          job.displayName(),
-                          job.scope().name(),
-                          "DISABLED",
-                          "WARNING",
-                          "/app/platform/ops/batch",
-                          null))
-              .toList();
-      OpsSchedulerHistoryProvider.Snapshot history = buildSchedulerHistory();
-      java.util.Map<String, OpsSchedulerJobItem> uniqueItems = new java.util.LinkedHashMap<>();
-      disabled.forEach(item -> uniqueItems.put(item.jobKey(), item));
-      history
-          .items()
-          .forEach(
-              item -> {
-                OpsSchedulerJobItem mapped =
-                    new OpsSchedulerJobItem(
-                        item.jobKey(),
-                        item.displayName(),
-                        item.scope(),
-                        item.status(),
-                        item.severity(),
-                        item.detailsPath(),
-                        item.context());
-                uniqueItems.merge(
-                    mapped.jobKey(),
-                    mapped,
-                    PlatformAdminOpsDashboardPayloadAssembler::pickMostSevere);
-              });
-      if (history.items().isEmpty()) {
-        java.util.Set<String> disabledKeys =
-            disabled.stream()
-                .map(OpsSchedulerJobItem::jobKey)
-                .collect(java.util.stream.Collectors.toSet());
-        jobs.stream()
-            .filter(job -> !disabledKeys.contains(job.jobKey().value()))
-            .limit(5)
-            .map(
-                job ->
-                    new OpsSchedulerJobItem(
-                        job.jobKey().value(),
-                        job.displayName(),
-                        job.scope().name(),
-                        "REGISTERED",
-                        "OK",
-                        "/app/platform/ops/batch",
-                        null))
-            .forEach(item -> uniqueItems.putIfAbsent(item.jobKey(), item));
-      }
-      return new OpsSchedulerSummaryPayload(
-          Instant.now().toString(),
-          jobs.size(),
-          disabled.size(),
-          history.failedCount(),
-          history.staleCount(),
-          history.neverRunCount(),
-          history.historyAvailable(),
-          List.copyOf(uniqueItems.values()));
-    } catch (RuntimeException e) {
-      return new OpsSchedulerSummaryPayload(
-          Instant.now().toString(),
-          0,
-          0,
-          0,
-          0,
-          0,
-          false,
-          List.of(
-              new OpsSchedulerJobItem(
-                  "batch-runtime",
-                  "Batch runtime",
-                  "GLOBAL",
-                  "UNKNOWN",
-                  "WARNING",
-                  "/app/platform/ops/batch",
-                  null)));
-    }
-  }
-
-  private OpsSchedulerHistoryProvider.Snapshot buildSchedulerHistory() {
-    OpsSchedulerHistoryProvider provider = schedulerHistoryProvider.getIfAvailable();
-    if (provider == null) {
-      return new OpsSchedulerHistoryProvider.Snapshot(0, 0, 0, false, List.of());
-    }
-    try {
-      return provider.snapshot();
-    } catch (RuntimeException e) {
-      return new OpsSchedulerHistoryProvider.Snapshot(
-          0,
-          0,
-          0,
-          false,
-          List.of(
-              new OpsSchedulerHistoryProvider.Item(
-                  "batch-history",
-                  "Batch history",
-                  "GLOBAL",
-                  "UNKNOWN",
-                  "WARNING",
-                  "/app/platform/ops/batch",
-                  null)));
-    }
+    return new OpsSchedulerSummaryPayload(Instant.now().toString(), 0, 0, 0, 0, 0, false, List.of());
   }
 
   private OpsAlertPayload buildAppNotifications(TchRequestContext ctx) {
@@ -359,20 +244,6 @@ public class PlatformAdminOpsDashboardPayloadAssembler {
     };
   }
 
-  private static OpsSchedulerJobItem pickMostSevere(
-      OpsSchedulerJobItem left, OpsSchedulerJobItem right) {
-    return severityRank(right.severity()) < severityRank(left.severity()) ? right : left;
-  }
-
-  private static int severityRank(String severity) {
-    return switch (severity) {
-      case "CRITICAL" -> 0;
-      case "WARNING" -> 1;
-      case "OK" -> 2;
-      default -> 1;
-    };
-  }
-
   public record Payload(
       PlatformHealthPayload health,
       OpsSchedulerSummaryPayload schedulerSummary,
@@ -412,4 +283,34 @@ public class PlatformAdminOpsDashboardPayloadAssembler {
   public record OpsAlertPayload(long totalCount, long criticalCount, List<OpsAlertItem> items) {}
 
   public record OpsAlertItem(String id, String title, String message, String severity) {}
+
+  private static final class DashboardTiming {
+    private final long startedAt = System.nanoTime();
+    private final Map<String, Long> durationsMs = new LinkedHashMap<>();
+
+    static DashboardTiming start() {
+      return new DashboardTiming();
+    }
+
+    <T> T record(String name, Supplier<T> supplier) {
+      long before = System.nanoTime();
+      try {
+        return supplier.get();
+      } finally {
+        durationsMs.put(name + "Ms", elapsedMs(before));
+      }
+    }
+
+    void logPlatformOps(TchRequestContext ctx) {
+      log.warn(
+          "dashboard_timing surface=platform_admin_ops totalMs={} userId={} blocks={}",
+          elapsedMs(startedAt),
+          ctx != null && ctx.userId() != null ? ctx.userId().value() : null,
+          durationsMs);
+    }
+
+    private static long elapsedMs(long startedAt) {
+      return (System.nanoTime() - startedAt) / 1_000_000L;
+    }
+  }
 }

@@ -1,4 +1,64 @@
 <div class="console-games-table">
+  <div class="console-games-table__mobile-list" [attr.aria-label]="'console.gamesTable.title' | translate">
+    @for (row of rows(); track row.id) {
+      <article class="console-games-table__mobile-card">
+        <div class="console-games-table__mobile-head">
+          <span class="console-games-table__logo" aria-hidden="true">
+            @if (row.logoUrl || (row.code | consoleGameLogoUrl); as logoUrl) {
+              <img [src]="logoUrl" [alt]="''" />
+            } @else {
+              {{ row.code | consoleGameLogoText:row.name }}
+            }
+          </span>
+          <span class="console-games-table__copy">
+            <strong>{{ row.code | consoleGameName:row.name }}</strong>
+            <span class="console-games-table__code">{{ row.code }}</span>
+          </span>
+          <tch-admin-status-pill [label]="row.statusLabel" [tone]="row.statusTone" />
+        </div>
+
+        @if (row.supporting) {
+          <p class="console-games-table__mobile-supporting">{{ row.supporting }}</p>
+        }
+
+        <dl class="console-games-table__mobile-meta">
+          <div>
+            <dt>{{ 'console.gamesTable.column.code' | translate }}</dt>
+            <dd><code>{{ row.code }}</code></dd>
+          </div>
+          <div>
+            <dt>{{ 'console.gamesTable.column.category' | translate }}</dt>
+            <dd>{{ row.category || '—' }}</dd>
+          </div>
+          @if (showSortOrder()) {
+            <div>
+              <dt>{{ 'console.gamesTable.column.sortOrder' | translate }}</dt>
+              <dd>{{ row.sortOrder ?? '—' }}</dd>
+            </div>
+          }
+        </dl>
+
+        @if (showActions() && (row.actions?.length ?? 0) > 0) {
+          <div class="console-games-table__mobile-actions">
+            @for (action of row.actions ?? []; track action.id) {
+              <button
+                mat-icon-button
+                type="button"
+                [title]="action.label"
+                [disabled]="action.disabled"
+                [class.console-games-table__action--danger]="action.tone === 'danger'"
+                [class.console-games-table__action--primary]="action.tone === 'primary'"
+                (click)="emitAction(row, action)"
+              >
+                <span class="material-symbols-outlined">{{ action.icon || 'more_horiz' }}</span>
+              </button>
+            }
+          </div>
+        }
+      </article>
+    }
+  </div>
+
   <table mat-table [dataSource]="rows()">
     <ng-container matColumnDef="code">
       <th mat-header-cell *matHeaderCellDef>{{ 'console.gamesTable.column.code' | translate }}</th>

@@ -69,6 +69,53 @@
 
         <ng-template tchAsyncReady>
           <div class="tenants-page__table">
+            <div class="tenants-page__mobile-list" [attr.aria-label]="'platform.tenants.title' | translate">
+              @for (row of items(); track tenantId(row)) {
+                <article
+                  class="tenants-page__mobile-card"
+                  [routerLink]="[tenantId(row)]"
+                  tabindex="0"
+                >
+                  <div class="tenants-page__mobile-card-main">
+                    <div class="tenants-page__mobile-card-title">
+                      <strong class="tenants-page__name">{{ row.name }}</strong>
+                      <code class="tenants-page__code">{{ row.code }}</code>
+                    </div>
+                    <tch-status-badge
+                      [label]="statusLabel(row.status)"
+                      [status]="statusBadge(row.status)"
+                    />
+                  </div>
+
+                  <dl class="tenants-page__mobile-card-meta">
+                    <div>
+                      <dt>{{ 'platform.tenants.column.type' | translate }}</dt>
+                      <dd>{{ typeLabel(row.type) }}</dd>
+                    </div>
+                    <div>
+                      <dt>{{ 'platform.tenants.column.currency' | translate }}</dt>
+                      <dd>{{ row.currency ?? '—' }}</dd>
+                    </div>
+                    <div>
+                      <dt>{{ 'platform.tenants.column.updatedAt' | translate }}</dt>
+                      <dd>{{ row.updatedAt | date: 'dd/MM/y HH:mm' }}</dd>
+                    </div>
+                  </dl>
+
+                  <button
+                    mat-icon-button
+                    class="tenants-page__mobile-card-menu"
+                    [matMenuTriggerFor]="rowMenu"
+                    [matMenuTriggerData]="{ row }"
+                    [attr.aria-label]="'platform.tenants.action.openMenu' | translate"
+                    (click)="$event.stopPropagation()"
+                  >
+                    <span class="material-symbols-outlined" aria-hidden="true">more_vert</span>
+                  </button>
+                </article>
+              }
+            </div>
+
             <table mat-table [dataSource]="items()" matSort
                    [matSortActive]="parsedSort().active"
                    [matSortDirection]="parsedSort().direction"

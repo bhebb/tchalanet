@@ -21,7 +21,10 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -49,23 +52,30 @@ public class PlatformAdminDashboardPayloadAssembler {
 
   public Payload assemble(TchRequestContext ctx) {
     LocalDate today = LocalDate.now(ZoneOffset.UTC);
+    DashboardTiming timing = DashboardTiming.start();
 
-    TenantKpiSummaryPayload tenants = buildTenantsKpi(today);
-    PlatformSalesPayload sales = buildPlatformSales(tenants);
-    TenantRankingPayload tenantRanking = buildTenantRanking(tenants);
-    SubscriptionSummaryPayload subscriptions = buildSubscriptions();
-    OnboardingAlertsPayload onboardingAlerts = buildOnboardingAlerts();
-    PublicContentPayload publicContent = buildPublicContent();
-    QuickActionsPayload quickActions = buildQuickActions();
+    TenantKpiSummaryPayload tenants = timing.record("tenantsKpi", () -> buildTenantsKpi(today));
+    PlatformSalesPayload sales = timing.record("sales", () -> buildPlatformSales(tenants));
+    TenantRankingPayload tenantRanking =
+        timing.record("tenantRanking", () -> buildTenantRanking(tenants));
+    SubscriptionSummaryPayload subscriptions =
+        timing.record("subscriptions", this::buildSubscriptions);
+    OnboardingAlertsPayload onboardingAlerts =
+        timing.record("onboardingAlerts", this::buildOnboardingAlerts);
+    PublicContentPayload publicContent = timing.record("publicContent", this::buildPublicContent);
+    QuickActionsPayload quickActions = timing.record("quickActions", this::buildQuickActions);
 
-    return new Payload(
-        tenants,
-        sales,
-        tenantRanking,
-        subscriptions,
-        onboardingAlerts,
-        publicContent,
-        quickActions);
+    Payload payload =
+        new Payload(
+            tenants,
+            sales,
+            tenantRanking,
+            subscriptions,
+            onboardingAlerts,
+            publicContent,
+            quickActions);
+    timing.logPlatformCommercial(ctx);
+    return payload;
   }
 
   /**
@@ -363,6 +373,36 @@ public class PlatformAdminDashboardPayloadAssembler {
 
     public static OnboardingAlertsPayload empty() {
       return new OnboardingAlertsPayload(List.of(), 0);
+    }
+  }
+
+  private static final class DashboardTiming {
+    private final long startedAt = System.nanoTime();
+    private final Map<String, Long> durationsMs = new LinkedHashMap<>();
+
+    static DashboardTiming start() {
+      return new DashboardTiming();
+    }
+
+    <T> T record(String name, Supplier<T> supplier) {
+      long before = System.nanoTime();
+      try {
+        return supplier.get();
+      } finally {
+        durationsMs.put(name + "Ms", elapsedMs(before));
+      }
+    }
+
+    void logPlatformCommercial(TchRequestContext ctx) {
+      log.warn(
+          "dashboard_timing surface=platform_admin_commercial totalMs={} userId={} blocks={}",
+          elapsedMs(startedAt),
+          ctx != null && ctx.userId() != null ? ctx.userId().value() : null,
+          durationsMs);
+    }
+
+    private static long elapsedMs(long startedAt) {
+      return (System.nanoTime() - startedAt) / 1_000_000L;
     }
   }
 }
