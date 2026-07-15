@@ -61,11 +61,6 @@ public final class GenericTypedIdSerializer<T> extends ValueSerializer<T> {
       // fall through to toString() fallback
     }
 
-    String s = value.toString();
-    if (s == null) {
-      gen.writeNull();
-    } else {
-      gen.writeString(s);
-    }
+    gen.writeString(value.toString());
   }
 }

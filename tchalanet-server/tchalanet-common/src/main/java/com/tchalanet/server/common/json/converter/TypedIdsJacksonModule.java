@@ -11,7 +11,7 @@ public final class TypedIdsJacksonModule {
   public static JacksonModule create() {
     SimpleModule m = new SimpleModule("tch-typed-ids");
 
-    for (Class<?> raw : TypedIdRegistry.ALL) {
+    for (Class<?> raw : TypedIdRegistry.all()) {
       @SuppressWarnings("unchecked")
       Class<Object> idClass = (Class<Object>) raw;
       m.addDeserializer(idClass, new GenericTypedIdDeserializer<>(idClass));

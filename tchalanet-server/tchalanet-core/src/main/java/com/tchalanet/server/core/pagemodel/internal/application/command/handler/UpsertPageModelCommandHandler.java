@@ -45,6 +45,9 @@ public class UpsertPageModelCommandHandler
     if (node != null && node.isTextual()) {
       node = jsonUtils.parse(node.asText());
     }
+    if (node == null) {
+      node = JsonUtils.emptyObject();
+    }
 
     if (cmd.id().isEmpty()) {
       inst =

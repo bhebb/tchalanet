@@ -249,7 +249,7 @@ class PromotionRuleWriteSupport {
               : tiers.stream()
                   .mapToInt(t -> positiveInt(t, "quantity"))
                   .max()
-                  .orElse(effect.getQuantity()));
+                  .orElse(effect.getQuantity().intValue()));
       effect.setQuantityTiers(tiers);
       return;
     }
@@ -259,7 +259,7 @@ class PromotionRuleWriteSupport {
         params.containsKey("quantityPerStep") ? positiveInt(params, "quantityPerStep") : 1);
     effect.setMaxQuantity(
         params.containsKey("maxQuantity")
-            ? positiveInt(params, "maxQuantity")
+            ? Integer.valueOf(positiveInt(params, "maxQuantity"))
             : effect.getQuantity());
     effect.setQuantityTiers(List.of());
   }

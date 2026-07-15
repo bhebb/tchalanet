@@ -3,7 +3,17 @@
         "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
         "https://checkstyle.org/dtds/suppressions_1_2.dtd">
 <suppressions>
-    <!-- Ignore generated code & limitScopeRef -->
-    <suppress files="target/.*"/>
-    <suppress files=".*Generated.*"/>
+    <!-- Ignore generated code -->
+    <suppress checks=".*" files="target[\\/].*"/>
+    <suppress checks=".*" files=".*Generated.*"/>
+
+    <!-- Spring Data derived query methods use underscores for property traversal -->
+    <suppress checks="MethodName" files=".*Repository\.java"/>
+
+    <!-- Domain lottery terminology: lot1_3d, lot2_2d etc. -->
+    <suppress checks="LocalVariableName" files="TicketWinningCalculator\.java"/>
+    <suppress checks="MemberName" files="TicketResultFacts\.java"/>
+
+    <!-- Intentional switch fallthrough in scope mapping -->
+    <suppress checks="FallThrough" files="ScopePersistenceMapper\.java"/>
 </suppressions>

@@ -51,7 +51,7 @@ public class CreateSellerTerminalCommandHandler
       identityProvision.provision(
           id, cmd.tenantId(), cmd.terminalCode(), cmd.displayName(), cmd.initialPin());
       var now = Instant.now(clock);
-      terminal = writer.save(terminal.resetPin(now).activate(now));
+      writer.save(terminal.resetPin(now).activate(now));
     }
     return id;
   }

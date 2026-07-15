@@ -31,7 +31,11 @@ public final class SpringBeans implements ApplicationContextAware {
 
   @Override
   public void setApplicationContext(ApplicationContext applicationContext) {
-    SpringBeans.context = applicationContext;
+    setContext(applicationContext);
+  }
+
+  private static void setContext(ApplicationContext applicationContext) {
+    context = applicationContext;
   }
 
   public static <T> T getBean(Class<T> type) {

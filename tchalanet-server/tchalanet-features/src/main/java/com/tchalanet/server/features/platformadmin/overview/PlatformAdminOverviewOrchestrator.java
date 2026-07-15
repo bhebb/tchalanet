@@ -1,6 +1,12 @@
 package com.tchalanet.server.features.platformadmin.overview;
 
-import static com.tchalanet.server.features.platformadmin.overview.PlatformAdminOverviewView.*;
+import static com.tchalanet.server.features.platformadmin.overview.PlatformAdminOverviewView.CatalogStats;
+import static com.tchalanet.server.features.platformadmin.overview.PlatformAdminOverviewView.CoreStats;
+import static com.tchalanet.server.features.platformadmin.overview.PlatformAdminOverviewView.CountItem;
+import static com.tchalanet.server.features.platformadmin.overview.PlatformAdminOverviewView.PlatformStats;
+import static com.tchalanet.server.features.platformadmin.overview.PlatformAdminOverviewView.SectionStatusItem;
+import static com.tchalanet.server.features.platformadmin.overview.PlatformAdminOverviewView.SubscriptionStats;
+import static com.tchalanet.server.features.platformadmin.overview.PlatformAdminOverviewView.TenantStats;
 
 import com.tchalanet.server.catalog.game.api.GameCatalog;
 import com.tchalanet.server.catalog.i18n.api.I18nOverridesCatalog;

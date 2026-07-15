@@ -55,7 +55,7 @@ public class PageModelTemplateMapper {
 
     e.setSchema(jsonUtils.toJson(v.schema()));
     e.setModel(jsonUtils.toJson(v.model()));
-    e.setSchemaVersion(v.schemaVersion() == null ? 1 : v.schemaVersion());
+    e.setSchemaVersion(v.schemaVersion() == null ? Integer.valueOf(1) : v.schemaVersion());
 
     e.setDefault(v.isDefault());
     e.setLevel(v.level());

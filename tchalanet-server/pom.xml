@@ -344,6 +344,7 @@
         <version>${checkstyle.plugin.version}</version>
         <configuration>
           <configLocation>${checkstyle.config}</configLocation>
+          <suppressionsLocation>checkstyle/suppressions.xml</suppressionsLocation>
           <failsOnError>false</failsOnError>
           <violationSeverity>warning</violationSeverity>
         </configuration>
@@ -387,6 +388,7 @@
         <artifactId>dependency-check-maven</artifactId>
         <version>${owasp.plugin.version}</version>
         <configuration>
+          <nvdApiKey>${env.NVD_API_KEY}</nvdApiKey>
           <failBuildOnCVSS>11</failBuildOnCVSS>
           <suppressionFiles>
             <suppressionFile>dependency-check-suppressions.xml</suppressionFile>
