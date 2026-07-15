@@ -2,7 +2,7 @@ server:
   port: 8083
 app:
   cors:
-    allowed-origins: https://app.localtest.me,http://localhost:4200
+    allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:*,https://app.localtest.me}
   apiBaseUrl: ${APP_API_BASEURL:http://localhost:8083}
   security:
     required-audience: ""
