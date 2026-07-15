@@ -10,9 +10,9 @@ Deployment must copy one profile-specific file to the stable name before serving
 
 Profiles:
 
-- `*.local-ide.json` points to `http://localhost:8083/api/v1`.
+- `*.local-ide.json` points to `/api/v1` through the local dev-server proxy.
 - `*.dev-docker.json` points to `https://api.localtest.me/api/v1`.
-- `*.local-ide-emulator.json` uses the same API as `local-ide` with Firebase Auth emulator.
+- `*.local-ide-emulator.json` uses the same proxied API as `local-ide` with Firebase Auth emulator.
 - `*.dev-docker-emulator.json` uses the same API as `dev-docker` with Firebase Auth emulator.
 - `*.stg-cloudflare.json` points to `https://api.stg.tchalanet.com/api/v1`.
 - `*.prod-cloudflare.json` points to `https://api.tchalanet.com/api/v1`.

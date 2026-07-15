@@ -1,7 +1,7 @@
 {
   "appId": "platform-portal",
   "production": false,
-  "apiBaseUrl": "http://localhost:8083/api/v1",
+  "apiBaseUrl": "/api/v1",
   "authBaseUrl": "https://auth.localtest.me",
   "assetsBaseUrl": "/assets",
   "firebaseAuthEmulatorUrl": null,
