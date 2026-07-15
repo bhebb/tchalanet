@@ -33,8 +33,8 @@ pnpm runtime:local-ide
 Profils disponibles:
 
 ```bash
-pnpm runtime:local-ide          # API http://localhost:8083/api/v1, Firebase réel
-pnpm runtime:local-ide-emulator # API http://localhost:8083/api/v1, Firebase Auth emulator
+pnpm runtime:local-ide          # API /api/v1 via proxy dev local, Firebase réel
+pnpm runtime:local-ide-emulator # API /api/v1 via proxy dev local, Firebase Auth emulator
 pnpm runtime:dev-docker         # API https://api.localtest.me/api/v1, Firebase réel
 pnpm runtime:dev-docker-emulator
 pnpm runtime:stg-cloudflare
