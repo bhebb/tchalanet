@@ -48,7 +48,10 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -90,41 +93,62 @@ public class TenantAdminDashboardPayloadAssembler {
 
     // Use tenant timezone for business-date "today"
     ZoneId tz = ctx.tenantZoneId() != null ? ctx.tenantZoneId() : ZoneOffset.UTC;
+    DashboardTiming timing = DashboardTiming.start();
 
     // Grouped reads — loaded once, shared across builders.
-    TenantContextLookupView registry = tenantPreContextLookupApi.findById(tenantId).orElse(null);
-    OperationsBundle ops = loadOperationsBundle(tenantId);
-    CommercialBundle commercial = loadCommercialBundle(tenantId);
-    TenantKpisView kpisView = loadActiveSellerTerminals(tenantId, tz);
-    TenantDashboardStatsView analytics = loadDashboardStats(tenantId, tz);
+    TenantContextLookupView registry =
+        timing.record("registry", () -> tenantPreContextLookupApi.findById(tenantId).orElse(null));
+    OperationsBundle ops = timing.record("operations", () -> loadOperationsBundle(tenantId));
+    CommercialBundle commercial =
+        timing.record("commercial", () -> loadCommercialBundle(tenantId));
+    TenantKpisView kpisView =
+        timing.record("activeSellerTerminals", () -> loadActiveSellerTerminals(tenantId, tz));
+    TenantDashboardStatsView analytics =
+        timing.record("analytics", () -> loadDashboardStats(tenantId, tz));
     TenantDailySalesStatsView liveTodaySales =
-        loadLiveTodaySales(
-            tenantId,
-            tz,
-            ctx.tenantCurrency() != null ? ctx.tenantCurrency().getCurrencyCode() : "");
-    long openDraws = loadOpenDrawCount();
-    long closedDraws = loadDrawCount(DrawStatus.CLOSED);
-    long notifCount = loadNotificationCount(ctx);
+        timing.record(
+            "liveSales",
+            () ->
+                loadLiveTodaySales(
+                    tenantId,
+                    tz,
+                    ctx.tenantCurrency() != null ? ctx.tenantCurrency().getCurrencyCode() : ""));
+    long openDraws = timing.record("openDraws", this::loadOpenDrawCount);
+    long closedDraws = timing.record("closedDraws", () -> loadDrawCount(DrawStatus.CLOSED));
+    long notifCount = timing.record("notifications", () -> loadNotificationCount(ctx));
 
     BigDecimal tenantDefaultRate =
         registry != null ? registry.defaultCommissionRate().orElse(null) : null;
-    TenantCommissionSummaryPayload commission = loadCommissionSummary(tenantId, tenantDefaultRate);
+    TenantCommissionSummaryPayload commission =
+        timing.record("commission", () -> loadCommissionSummary(tenantId, tenantDefaultRate));
 
-    TenantDashboardHeaderPayload header = buildHeader(ctx, registry);
+    TenantDashboardHeaderPayload header =
+        timing.record("buildHeader", () -> buildHeader(ctx, registry));
     TenantKpiGridPayload kpis =
-        buildKpis(analytics, kpisView, liveTodaySales, openDraws, notifCount, tz);
-    TenantSalesTrendPayload salesTrend = buildSalesTrend(analytics, liveTodaySales, tz);
-    TenantGameBreakdownPayload gameBreakdown = buildGameBreakdown(analytics, liveTodaySales);
+        timing.record(
+            "buildKpis",
+            () -> buildKpis(analytics, kpisView, liveTodaySales, openDraws, notifCount, tz));
+    TenantSalesTrendPayload salesTrend =
+        timing.record("buildSalesTrend", () -> buildSalesTrend(analytics, liveTodaySales, tz));
+    TenantGameBreakdownPayload gameBreakdown =
+        timing.record("buildGameBreakdown", () -> buildGameBreakdown(analytics, liveTodaySales));
     TenantReadinessSummaryPayload readiness =
-        buildReadinessSummary(registry, ops, commercial, commission, closedDraws);
+        timing.record(
+            "buildReadiness",
+            () -> buildReadinessSummary(registry, ops, commercial, commission, closedDraws));
     TenantAlertsPayload alerts =
-        buildAlerts(notifCount, ops.blockedSellerTerminalCount(), closedDraws);
-    TenantOperationsSummaryPayload operations = buildOperationsSummary(ops);
-    TenantCommercialSummaryPayload commercialSummary = buildCommercialSummary(commercial);
-    PublicContentPayload publicContent = buildPublicContent();
-    QuickActionsPayload quickActions = buildQuickActions();
+        timing.record(
+            "buildAlerts",
+            () -> buildAlerts(notifCount, ops.blockedSellerTerminalCount(), closedDraws));
+    TenantOperationsSummaryPayload operations =
+        timing.record("buildOperations", () -> buildOperationsSummary(ops));
+    TenantCommercialSummaryPayload commercialSummary =
+        timing.record("buildCommercial", () -> buildCommercialSummary(commercial));
+    PublicContentPayload publicContent = timing.record("publicContent", this::buildPublicContent);
+    QuickActionsPayload quickActions = timing.record("quickActions", this::buildQuickActions);
 
-    return new Payload(
+    Payload payload =
+        new Payload(
         header,
         kpis,
         salesTrend,
@@ -136,6 +160,8 @@ public class TenantAdminDashboardPayloadAssembler {
         commission,
         publicContent,
         quickActions);
+    timing.logTenant(tenantId, ctx.effectiveTenantCode());
+    return payload;
   }
 
   // ---------------------- grouped bundle loaders ----------------------
@@ -772,4 +798,35 @@ public class TenantAdminDashboardPayloadAssembler {
   /** Grouped commercial data — loaded once, shared by readiness + commercial builders. */
   record CommercialBundle(
       List<GameView> games, List<DrawChannelSummaryView> channels, long enabledLimitCount) {}
+
+  private static final class DashboardTiming {
+    private final long startedAt = System.nanoTime();
+    private final Map<String, Long> durationsMs = new LinkedHashMap<>();
+
+    static DashboardTiming start() {
+      return new DashboardTiming();
+    }
+
+    <T> T record(String name, Supplier<T> supplier) {
+      long before = System.nanoTime();
+      try {
+        return supplier.get();
+      } finally {
+        durationsMs.put(name + "Ms", elapsedMs(before));
+      }
+    }
+
+    void logTenant(TenantId tenantId, String tenantCode) {
+      log.warn(
+          "dashboard_timing surface=tenant_admin totalMs={} tenantId={} tenantCode={} blocks={}",
+          elapsedMs(startedAt),
+          tenantId != null ? tenantId.value() : null,
+          tenantCode,
+          durationsMs);
+    }
+
+    private static long elapsedMs(long startedAt) {
+      return (System.nanoTime() - startedAt) / 1_000_000L;
+    }
+  }
 }

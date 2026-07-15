@@ -4,17 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.tchalanet.server.common.job.gate.BatchGate;
-import com.tchalanet.server.common.job.key.JobKey;
-import com.tchalanet.server.common.job.registry.RegisteredJob;
-import com.tchalanet.server.common.job.registry.TchJobRegistry;
-import com.tchalanet.server.platform.ops.api.OpsSchedulerHistoryProvider;
 import com.tchalanet.server.platform.ops.api.OpsServiceResourceItem;
 import com.tchalanet.server.platform.ops.api.PlatformHealthProbe;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -55,9 +48,6 @@ class PlatformAdminOpsDashboardPayloadAssemblerTest {
             healthProvider,
             mockProvider(metricsProvider),
             mockProvider(null),
-            mockProvider(null),
-            mockProvider(null),
-            mockProvider(null),
             mockProvider(null));
 
     var payload = assembler.assemble(null);
@@ -86,59 +76,24 @@ class PlatformAdminOpsDashboardPayloadAssemblerTest {
   }
 
   @Test
-  @DisplayName("scheduler summary includes disabled gates and failed job history")
+  @DisplayName("scheduler summary is omitted from platform ops dashboard loading")
   void schedulerSummary() {
-    TchJobRegistry registry = mock(TchJobRegistry.class);
-    BatchGate gate = mock(BatchGate.class);
-    var jobKey = JobKey.of("results:external:fetch");
-    var job =
-        new RegisteredJob(
-            jobKey, "Fetch results", RegisteredJob.JobScope.GLOBAL, Set.of(), Set.of());
-    var disabledJobKey = JobKey.of("draw:lifecycle:generate");
-    var disabledJob =
-        new RegisteredJob(
-            disabledJobKey, "Generate draws", RegisteredJob.JobScope.TENANT, Set.of(), Set.of());
-    when(registry.list()).thenReturn(List.of(job, disabledJob));
-    when(registry.find(jobKey)).thenReturn(Optional.of(job));
-    when(gate.enabled(jobKey, null)).thenReturn(true);
-    when(gate.enabled(disabledJobKey, null)).thenReturn(false);
-    OpsSchedulerHistoryProvider historyProvider =
-        () ->
-            new OpsSchedulerHistoryProvider.Snapshot(
-                2,
-                1,
-                1,
-                true,
-                List.of(
-                    new OpsSchedulerHistoryProvider.Item(
-                        jobKey.value(),
-                        "Fetch results",
-                        "GLOBAL",
-                        "FAILED",
-                        "CRITICAL",
-                        "/app/platform/ops/batch",
-                        "NY_EVE")));
     var assembler =
         new PlatformAdminOpsDashboardPayloadAssembler(
             mockProvider(null),
             mockProvider(null),
-            mockProvider(registry),
-            mockProvider(gate),
-            mockProvider(historyProvider),
             mockProvider(null),
             mockProvider(null));
 
     var payload = assembler.assemble(null);
 
-    assertThat(payload.schedulerSummary().registeredCount()).isEqualTo(2);
-    assertThat(payload.schedulerSummary().disabledGateCount()).isEqualTo(1);
-    assertThat(payload.schedulerSummary().failedCount()).isEqualTo(2);
-    assertThat(payload.schedulerSummary().staleCount()).isEqualTo(1);
-    assertThat(payload.schedulerSummary().neverRunCount()).isEqualTo(1);
-    assertThat(payload.schedulerSummary().historyAvailable()).isTrue();
-    assertThat(payload.schedulerSummary().items())
-        .extracting("severity")
-        .contains("WARNING", "CRITICAL");
+    assertThat(payload.schedulerSummary().registeredCount()).isZero();
+    assertThat(payload.schedulerSummary().disabledGateCount()).isZero();
+    assertThat(payload.schedulerSummary().failedCount()).isZero();
+    assertThat(payload.schedulerSummary().staleCount()).isZero();
+    assertThat(payload.schedulerSummary().neverRunCount()).isZero();
+    assertThat(payload.schedulerSummary().historyAvailable()).isFalse();
+    assertThat(payload.schedulerSummary().items()).isEmpty();
   }
 
   @SuppressWarnings("unchecked")
