@@ -30,7 +30,7 @@ import { LanguageSwitcher } from '@tch/core/i18n';
   styleUrl: './login.page.scss',
 })
 export class LoginPage implements OnInit {
-  email = '';
+  identifier = '';
   password = '';
 
   readonly loading = signal(false);
@@ -96,7 +96,7 @@ export class LoginPage implements OnInit {
     this.infoKey.set(null);
 
     try {
-      const session = await this.authSession.login(this.email, this.password);
+      const session = await this.authSession.login(this.identifier, this.password);
 
       if (!session.authenticated) {
         this.errorKey.set('auth.login.errors.accessDenied');
@@ -112,7 +112,7 @@ export class LoginPage implements OnInit {
   }
 
   async forgotPassword(): Promise<void> {
-    if (!this.email.trim()) {
+    if (!this.identifier.trim()) {
       this.errorKey.set('auth.login.errors.emailRequired');
       return;
     }
@@ -122,7 +122,7 @@ export class LoginPage implements OnInit {
     this.infoKey.set(null);
 
     try {
-      await this.authSession.sendPasswordResetEmail(this.email);
+      await this.authSession.sendPasswordResetEmail(this.identifier);
       this.infoKey.set('auth.login.form.resetEmailSent');
     } catch {
       this.errorKey.set('auth.login.errors.emailLinkFailed');

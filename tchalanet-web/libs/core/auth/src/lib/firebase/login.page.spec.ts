@@ -88,7 +88,7 @@ describe('LoginPage', () => {
     await configure(authSession, authRedirect, authClient);
 
     const page = TestBed.runInInjectionContext(() => new LoginPage());
-    page.email = 'admin@example.com';
+    page.identifier = 'admin@example.com';
     page.password = 'secret';
 
     await page.submit();

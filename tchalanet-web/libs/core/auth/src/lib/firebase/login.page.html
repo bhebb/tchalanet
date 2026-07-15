@@ -63,16 +63,16 @@
 
         <form class="login-card__form" (ngSubmit)="submit()" #loginForm="ngForm">
           <mat-form-field appearance="outline">
-            <mat-label>{{ 'common.field.email' | translate }}</mat-label>
-            <mat-icon matPrefix aria-hidden="true">mail</mat-icon>
+            <mat-label>{{ 'auth.login.form.identifierLabel' | translate }}</mat-label>
+            <mat-icon matPrefix aria-hidden="true">person</mat-icon>
             <input
               matInput
-              type="email"
-              name="email"
-              autocomplete="email"
+              type="text"
+              name="identifier"
+              autocomplete="username"
               required
-              [placeholder]="'auth.login.form.emailPlaceholder' | translate"
-              [(ngModel)]="email"
+              [placeholder]="'auth.login.form.identifierPlaceholder' | translate"
+              [(ngModel)]="identifier"
             />
           </mat-form-field>
 

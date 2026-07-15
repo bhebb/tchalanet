@@ -88,8 +88,8 @@
       "errors": {
         "accessDenied": "Connexion réussie, mais votre accès Tchalanet n'est pas encore autorisé.",
         "emailLinkFailed": "Le lien de connexion est invalide ou expiré.",
-        "emailRequired": "Veuillez entrer votre adresse e-mail.",
-        "invalidCredentials": "Adresse e-mail ou mot de passe invalide."
+        "emailRequired": "Veuillez entrer votre identifiant ou votre adresse e-mail.",
+        "invalidCredentials": "Identifiant ou mot de passe invalide."
       },
       "form": {
         "body": "Utilisez les identifiants associés à votre compte Tchalanet.",
@@ -97,6 +97,8 @@
         "forgotPassword": "Mot de passe oublié ?",
         "resetEmailSent": "Un lien de réinitialisation a été envoyé à votre adresse e-mail.",
         "emailPlaceholder": "nom@organisation.com",
+        "identifierLabel": "Identifiant ou email",
+        "identifierPlaceholder": "admin ou nom@organisation.com",
         "eyebrow": "Portail sécurisé",
         "hidePassword": "Masquer le mot de passe",
         "security": "Votre connexion est sécurisée par Firebase Authentication.",

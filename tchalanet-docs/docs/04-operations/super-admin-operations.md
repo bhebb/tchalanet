@@ -35,6 +35,38 @@ Points importants :
 - quitter le mode support vide la session locale et redirige vers l'espace plateforme ;
 - les actions sensibles doivent conserver une raison et une trace d'audit fonctionnel.
 
+### Support tenant et vente de tickets
+
+Le mode support ne transforme jamais le super admin en vendeur POS. Pendant une session support,
+le super admin reste un `APP_USER` réel avec rôle `SUPER_ADMIN`, et le tenant cible vient du
+contexte support audité.
+
+Pour exécuter une vente depuis l'espace admin du tenant, il faut ensuite passer explicitement par le
+flow **Admin POS** :
+
+1. Ouvrir le tenant en mode support avec une raison.
+2. Sélectionner un SellerTerminal actif du tenant cible.
+3. Préparer la vente.
+4. Confirmer la vente avec une clé d'idempotence.
+5. Quitter le contexte POS quand l'intervention est terminée.
+
+Cette séparation est volontaire :
+
+| Élément | Valeur attendue |
+|---|---|
+| Acteur réel | `APP_USER` super admin |
+| Tenant effectif | tenant du mode support |
+| Contexte POS | SellerTerminal sélectionné explicitement |
+| Source opérationnelle | `ADMIN_SELECTION` |
+| Audit | acteur réel + tenant cible + SellerTerminal + raison support |
+
+Un super admin ne doit pas utiliser le PIN Firebase d'un SellerTerminal pour vendre. La vente support
+doit rester traçable comme une action d'admin opérant avec un contexte POS sélectionné.
+
+Comme pour l'Admin POS tenant, `mustChangePin` ne bloque pas la vente support : cette règle bloque
+le SellerTerminal quand il s'authentifie lui-même avec son PIN. En support, le prérequis est que le
+SellerTerminal sélectionné soit `ACTIVE` et appartienne au tenant cible.
+
 ## Jobs Spring Batch vs endpoints ops
 
 Spring Batch est le moteur unique des traitements operationnels recurrents ou rejouables.

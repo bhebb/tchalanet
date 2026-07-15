@@ -73,17 +73,20 @@ Les rôles sont des étiquettes coarsées sur un `APP_USER`. Ils servent à dér
 
 **`SELLER_TERMINAL` n'a pas de rôle.** Son autorisation est évaluée directement depuis :
 - son statut (`ACTIVE` / `BLOCKED` / `PENDING` / `DISABLED`)
-- son flag `mustChangePin` — bloque les actions de vente (`ticket.sell`, etc.) ; ne bloque pas la connexion elle-même
+- son flag `mustChangePin` — bloque les actions de vente (`ticket.sell`, etc.) quand l'acteur est
+  le `SELLER_TERMINAL` lui-même ; ne bloque pas la connexion elle-même
 - ses permissions directes (accordées à l'entité, pas via un rôle)
 - l'authority Spring `ACTOR_SELLER_TERMINAL` publiée par le pipeline
 
 ---
 
-## SellerTerminal — identité machine, pas identité personne
+## SellerTerminal — identité technique + vendeur courant
 
 C'est la distinction la plus importante du modèle.
 
-Un `SellerTerminal` est une **identité POS physique**, pas un utilisateur humain.
+Un `SellerTerminal` est une **identité POS technique stable** qui porte aussi les informations du
+vendeur courant. Il ne correspond pas à un `APP_USER`, mais il n'est pas non plus anonyme : le tenant
+sait quel vendeur courant est associé au terminal.
 
 ```
 terminal "TERM-0042" appartient au tenant "haitiloto"
@@ -93,17 +96,24 @@ terminal "TERM-0042" appartient au tenant "haitiloto"
         issuer   = <firebase-project>
         subject  = <firebase-uid>
         → stocké dans seller_terminal_external_identity (pas dans seller_terminal)
-  ↳ transactions           :  scoped à TERM-0042, pas à une personne
+  ↳ vendeur courant        :  firstName / lastName / displayName / phoneNumber
+  ↳ transactions           :  scoped à TERM-0042 + vendeur courant connu du tenant
 ```
 
 **Le terminal peut changer de mains.** Seller A gère TERM-0042 pendant 3 mois, Seller B prend sa place. C'est normal et attendu :
-- l'identité Firebase reste celle de TERM-0042 (pas de la personne)
-- le tenant sait qui possède ce terminal, pas qui l'utilise à l'instant T
-- les limites, tickets, audits sont tous attachés à TERM-0042
+- l'identité Firebase reste celle de TERM-0042 ;
+- l'admin met à jour les champs du vendeur courant ;
+- les limites, tickets, commissions et audits restent attachés à TERM-0042, avec le vendeur courant
+  consultable côté tenant.
 
-**Le PIN est la clé de délégation opérationnelle.** Quand un terminal change de mains, l'admin reset le PIN via `POST /admin/seller-terminals/{id}/pin-reset` → `mustChangePin=true`. Jusqu'au changement de PIN, les actions de vente (`ticket.sell`) sont bloquées — la connexion reste possible. Le nouvel opérateur change le PIN à la première utilisation. L'identité du terminal dans Tchalanet ne change pas.
+**Le PIN est la clé de délégation opérationnelle.** Quand un terminal change de mains, l'admin reset le PIN via `POST /admin/seller-terminals/{id}/pin-reset` → `mustChangePin=true`. Jusqu'au changement de PIN, les actions de vente du SellerTerminal lui-même (`ticket.sell`) sont bloquées — la connexion reste possible. Le nouvel opérateur change le PIN à la première utilisation. L'identité du terminal dans Tchalanet ne change pas.
 
-> Ce modèle est similaire à une caisse enregistreuse physique : la caisse a une identité fiscale (numéro de série), pas l'employé qui l'opère. Ce qui compte pour le comptable, c'est la caisse 42, pas qui était derrière le comptoir.
+Exception : en Admin POS ou support, l'acteur reste `APP_USER`. Le système peut sélectionner un
+SellerTerminal `ACTIVE` comme contexte opérationnel même si `mustChangePin=true`, parce que le PIN
+du SellerTerminal n'est pas utilisé par l'admin.
+
+L'email Firebase construit (`terminalCode@tenant.tchalanet`) appartient à l'identité technique POS.
+Il ne doit pas être remplacé par l'email personnel du vendeur courant.
 
 ---
 
@@ -400,10 +410,29 @@ Résout le contexte opérationnel **après** que le RLS est bindé (pour permett
 
 Pour `SELLER_TERMINAL` : `sellerTerminalId` est déjà dans `TchRequestContext` depuis `ResolvedAccessContext`. Pas de header séparé.
 
-Pour `APP_USER` Admin POS / simulation support : sélection explicite via `POST /pos/operational-context/select`.  
+Pour `APP_USER` Admin POS / simulation support : sélection explicite via
+`POST /tenant/cashier/operational-context/select`.
 L'`X-Tch-Operational-Source` header peut indiquer la source de l'operational context (`ADMIN_SELECTION`, `CLIENT_CLAIM`, etc.).
 
 > Ce flow n'est **pas** le flow normal V0. Le flow normal POS est `SELLER_TERMINAL` authentifié directement. Le mode admin POS est réservé au support/dev — permission-gated et audité.
+
+Quand un admin vend un ticket, le modèle reste :
+
+```
+actorType = APP_USER
+roleCodes contient TENANT_ADMIN ou SUPER_ADMIN
+operationalSource = ADMIN_SELECTION
+sellerTerminalId = sélection explicite et validée
+```
+
+Les endpoints de vente (`/tenant/sales/preparations` puis `/confirm`) peuvent appeler
+`ctx.sellerTerminalIdRequired()`, mais cette valeur vient du contexte opérationnel résolu, pas
+d'une usurpation d'identité SellerTerminal. Le PIN Firebase du SellerTerminal n'est jamais utilisé
+par un admin.
+
+La validation de vente doit donc suivre la même exception que le code :
+`requirePinChangeCompleted = (ctx.actorType() == SELLER_TERMINAL)`. Pour `APP_USER` en
+`ADMIN_SELECTION`, `mustChangePin` ne bloque pas ; `status = ACTIVE` reste obligatoire.
 
 **Ne valide pas le contexte opérationnel à ce stade.** La validation métier est faite par action.
 

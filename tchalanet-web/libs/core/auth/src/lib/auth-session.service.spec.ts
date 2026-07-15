@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 
+import { TchBackendClient } from '@tch/api';
 import { RuntimeBootstrapResponse } from './runtime/private-bootstrap.model';
 import { PrivateRuntimeInitializer } from './runtime/private-runtime-initializer';
 import { AUTH_CLIENT, AuthClient } from './auth-client';
@@ -13,9 +14,13 @@ describe('AuthSessionService', () => {
     logout: vi.fn(),
     getAccessToken: vi.fn(),
     getTokenExpiresAt: vi.fn(),
+    sendPasswordResetEmail: vi.fn(),
   };
   const runtime = {
     initialize: vi.fn(),
+  };
+  const backend = {
+    post: vi.fn(),
   };
 
   beforeEach(() => {
@@ -25,6 +30,7 @@ describe('AuthSessionService', () => {
         AuthSessionService,
         { provide: AUTH_CLIENT, useValue: auth },
         { provide: PrivateRuntimeInitializer, useValue: runtime },
+        { provide: TchBackendClient, useValue: backend },
       ],
     });
   });
@@ -164,7 +170,7 @@ describe('AuthSessionService', () => {
     expect(runtime.initialize).not.toHaveBeenCalled();
   });
 
-  it('delegates login credentials to the configured auth client', async () => {
+  it('delegates email login credentials directly to the configured auth client', async () => {
     vi.mocked(auth.isAuthenticated).mockResolvedValue(true);
     vi.mocked(auth.login).mockResolvedValue(undefined);
     vi.mocked(auth.getAccessToken).mockResolvedValue('fresh-token');
@@ -173,11 +179,47 @@ describe('AuthSessionService', () => {
 
     await TestBed.inject(AuthSessionService).login('admin@example.com', 'secret');
 
+    expect(backend.post).not.toHaveBeenCalled();
     expect(auth.login).toHaveBeenCalledWith({
       username: 'admin@example.com',
       password: 'secret',
     });
     expect(auth.getAccessToken).toHaveBeenCalledWith(true);
+  });
+
+  it('resolves username login before calling the configured auth client', async () => {
+    vi.mocked(auth.isAuthenticated).mockResolvedValue(true);
+    vi.mocked(auth.login).mockResolvedValue(undefined);
+    vi.mocked(auth.getAccessToken).mockResolvedValue('fresh-token');
+    vi.mocked(auth.getTokenExpiresAt).mockResolvedValue(undefined);
+    backend.post.mockReturnValue(of({ resolvedIdentifier: 'admin@example.com' }));
+    runtime.initialize.mockReturnValue(of(bootstrap()));
+
+    await TestBed.inject(AuthSessionService).login(' Admin ', 'secret');
+
+    expect(backend.post).toHaveBeenCalledWith(
+      '/public/auth/login-identifier/resolve',
+      { identifier: 'admin' },
+      { suppressShellFeedback: true },
+    );
+    expect(auth.login).toHaveBeenCalledWith({
+      username: 'admin@example.com',
+      password: 'secret',
+    });
+  });
+
+  it('resolves username before sending a password reset email', async () => {
+    backend.post.mockReturnValue(of({ resolvedIdentifier: 'admin@example.com' }));
+    vi.mocked(auth.sendPasswordResetEmail!).mockResolvedValue(undefined);
+
+    await TestBed.inject(AuthSessionService).sendPasswordResetEmail(' Admin ');
+
+    expect(backend.post).toHaveBeenCalledWith(
+      '/public/auth/login-identifier/resolve',
+      { identifier: 'admin' },
+      { suppressShellFeedback: true },
+    );
+    expect(auth.sendPasswordResetEmail).toHaveBeenCalledWith('admin@example.com');
   });
 
   it('delegates logout and clears the application session', async () => {

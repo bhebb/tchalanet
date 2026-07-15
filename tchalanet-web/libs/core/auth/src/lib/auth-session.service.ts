@@ -3,6 +3,7 @@ import { computed, DestroyRef, inject, Injectable, PLATFORM_ID, signal } from '@
 import { firstValueFrom, timeout } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 
+import { TchBackendClient } from '@tch/api';
 import { TchRuntimeConfigStore } from '@tch/shared-config';
 import { PrivateRuntimeInitializer } from './runtime/private-runtime-initializer';
 import { AUTH_CLIENT } from './auth-client';
@@ -16,6 +17,7 @@ const PERMISSION_REFRESH_INTERVAL_MS = 30 * 60 * 1000;
 export class AuthSessionService {
   private readonly auth = inject(AUTH_CLIENT);
   private readonly runtime = inject(PrivateRuntimeInitializer);
+  private readonly backend = inject(TchBackendClient);
   private readonly runtimeConfig = inject(TchRuntimeConfigStore);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly destroyRef = inject(DestroyRef);
@@ -94,10 +96,15 @@ export class AuthSessionService {
     return !!normalized && (this.session().permissions ?? []).includes(normalized);
   }
 
-  async login(email: string, password: string): Promise<UserSession> {
+  async login(identifier: string, password: string): Promise<UserSession> {
+    const resolvedIdentifier = await withTimeout(
+      this.resolveLoginIdentifier(identifier),
+      AUTH_OPERATION_TIMEOUT_MS,
+      'auth.login_lookup.timeout',
+    );
     await withTimeout(
       this.auth.login({
-        username: email,
+        username: resolvedIdentifier,
         password,
       }),
       AUTH_OPERATION_TIMEOUT_MS,
@@ -126,11 +133,16 @@ export class AuthSessionService {
     return completed ? this.refreshSession(true) : null;
   }
 
-  async sendPasswordResetEmail(email: string): Promise<void> {
+  async sendPasswordResetEmail(identifier: string): Promise<void> {
     if (!this.auth.sendPasswordResetEmail) {
       throw new Error('Password reset is not supported by this auth client');
     }
-    await this.auth.sendPasswordResetEmail(email);
+    const resolvedIdentifier = await withTimeout(
+      this.resolveLoginIdentifier(identifier),
+      AUTH_OPERATION_TIMEOUT_MS,
+      'auth.login_lookup.timeout',
+    );
+    await this.auth.sendPasswordResetEmail(resolvedIdentifier);
   }
 
   async changePassword(currentPassword: string, newPassword: string): Promise<void> {
@@ -178,6 +190,22 @@ export class AuthSessionService {
     return typeof configured === 'number' && configured > 0
       ? configured
       : PERMISSION_REFRESH_INTERVAL_MS;
+  }
+
+  private async resolveLoginIdentifier(identifier: string): Promise<string> {
+    const trimmed = identifier.trim();
+    if (trimmed.includes('@')) {
+      return trimmed;
+    }
+    const normalized = trimmed.toLowerCase();
+    const response = await firstValueFrom(
+      this.backend.post<{ resolvedIdentifier: string }, { identifier: string }>(
+        '/public/auth/login-identifier/resolve',
+        { identifier: normalized },
+        { suppressShellFeedback: true },
+      ),
+    );
+    return response.resolvedIdentifier;
   }
 }
 

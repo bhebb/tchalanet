@@ -126,6 +126,8 @@ CreateSellerTerminalCommand
 - Endpoints `/api/v1/tenant/seller-terminal/me/**` → `ACTOR_SELLER_TERMINAL` (self)
 - `mustChangePin = true` → `GET /cashier/home` retourne `requiredStep: MUST_CHANGE_PIN`
 - Le PIN temporaire (reset admin) est retourné **une seule fois** dans la réponse et n'est jamais stocké
+- V0 : aucun TTL applicatif n'est appliqué au PIN temporaire ; il reste le password Firebase
+  jusqu'à `ChangeSellerTerminalPinCommand`.
 
 ---
 

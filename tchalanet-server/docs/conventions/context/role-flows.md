@@ -81,12 +81,27 @@ Le SellerTerminal est lui-même le contexte opérationnel.
 ## Acteur : Admin en mode POS
 
 Un `TENANT_ADMIN` peut accéder aux fonctions POS en sélectionnant explicitement un SellerTerminal.
+Un `SUPER_ADMIN` peut le faire uniquement après avoir ouvert un tenant en mode support/override,
+avec raison auditée.
 
 **Prérequis supplémentaires :**
 
 1. Même prérequis que Tenant Admin normal
 2. Sélection POS explicite — `POST /tenant/cashier/operational-context/select`
-3. SellerTerminal sélectionné : actif et non bloqué
+3. SellerTerminal sélectionné : actif et non bloqué (`mustChangePin` ne bloque pas l'Admin POS)
+4. Vente via le flow préparé : `POST /tenant/sales/preparations` puis
+   `POST /tenant/sales/preparations/{preparationId}/confirm`
+
+**Invariants :**
+
+- l'acteur reste `APP_USER` ; il ne devient jamais `SELLER_TERMINAL` ;
+- le `sellerTerminalId` de la vente vient du `TchRequestContext`, pas du body client comme source
+  de vérité ;
+- le PIN du SellerTerminal n'est pas utilisé par l'admin ;
+- `mustChangePin` bloque le SellerTerminal authentifié comme `SELLER_TERMINAL`, pas l'admin
+  `APP_USER` en contexte `ADMIN_SELECTION` ;
+- l'audit doit conserver `actorUserId`, tenant effectif, `sellerTerminalId` sélectionné et source
+  `ADMIN_SELECTION`.
 
 → Voir [admin-pos-selection](../../../02-functional/flows/admin-pos-selection.md)
 
@@ -154,7 +169,7 @@ Sous-flows :
 |---|---|---|---|---|
 | SellerTerminal POS | `SELLER_TERMINAL` | `seller_terminal` | `TENANT`, sellerTerminalId | Sell, payout, offline |
 | Tenant Admin | `APP_USER` | `app_user` | `ADMIN`, roleCodes | Gestion SellerTerminals, users, settings |
-| Admin POS | `APP_USER` | `app_user` | `ADMIN`, sélection explicite | Sell via sélection SellerTerminal |
+| Admin POS | `APP_USER` | `app_user` | `ADMIN`, sélection explicite | Prepare/confirm sale via sélection SellerTerminal |
 | Super-admin | `APP_USER` | `app_user` | `PLATFORM`, override tenant | Platform ops, override |
 | System/Batch | `SYSTEM` | — | Construit explicitement | Batch, scheduler, replay |
 | Public | — | — | `PUBLIC` | Verify ticket, draw results |

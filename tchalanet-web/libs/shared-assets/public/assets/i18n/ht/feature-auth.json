@@ -88,8 +88,8 @@
       "errors": {
         "accessDenied": "Koneksyon an reyisi, men aksè Tchalanet ou poko otorize.",
         "emailLinkFailed": "Lyen koneksyon an pa valid oswa li ekspire.",
-        "emailRequired": "Tanpri antre adrès imèl ou.",
-        "invalidCredentials": "Adrès imèl oswa modpas la pa valab."
+        "emailRequired": "Tanpri antre idantifyan ou oswa adrès imèl ou.",
+        "invalidCredentials": "Idantifyan oswa modpas la pa valab."
       },
       "form": {
         "body": "Itilize idantifyan ki asosye ak kont Tchalanet ou.",
@@ -97,6 +97,8 @@
         "forgotPassword": "Modpas bliye ?",
         "resetEmailSent": "Yon lyen reyinisyalizasyon voye nan adrès imèl ou.",
         "emailPlaceholder": "non@oganizasyon.com",
+        "identifierLabel": "Idantifyan oswa imèl",
+        "identifierPlaceholder": "admin oswa non@oganizasyon.com",
         "eyebrow": "Pòtay sekirize",
         "hidePassword": "Kache modpas la",
         "security": "Firebase Authentication pwoteje koneksyon ou.",

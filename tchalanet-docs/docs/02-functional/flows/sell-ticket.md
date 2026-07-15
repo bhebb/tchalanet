@@ -11,11 +11,11 @@
 ```
 SellerTerminal POS
     │
-    ├─ Preview ─────────────────── Validation read-only + promotion PROPOSED (pas d'effet)
-    │                              → Décision: ACCEPTABLE / REQUIRES_CHANGES / REJECTED_FINAL
-    │                              → Si promotion avec choix : PROPOSED + choiceMode
+    ├─ Prepare ─────────────────── Validation + génération des lignes promotionnelles
+    │                              → préparation persistée / régénérable avant confirmation
+    │                              → aucune vente créée
     │
-    ├─ Sell ──────────────────────── Transaction : validate → promotion appliquée → save → event
+    ├─ Confirm ─────────────────── Transaction : confirmer exactement la préparation → save → event
     │         ├─ ACCEPTED (201)   → afficher displayCode immédiatement
     │         ├─ PENDING_APPROVAL (202) → workflow admin
     │         └─ REJECTED         → aucun ticket créé
@@ -42,39 +42,48 @@ Un ticket `SOLD` + `WON` + `PAYOUT_PENDING` = gagnant, paiement à effectuer.
 
 ---
 
-## Phase 1 — Preview (validation read-only)
+## Phase 1 — Prepare (validation + préparation)
 
 ```
-POST /tenant/cashier/tickets/preview
-  { sellerTerminalId, drawId, drawChannelId, currency, lines:[...] }
-  → SaleAcceptanceEvaluator.evaluatePreview()
+POST /tenant/sales/preparations
+  { drawId, drawChannelId, currency, lines:[...], promotionChoiceInput?: {...} }
+  → SalePreparationOrchestrator.prepare()
 ```
 
-**Pas de write.** Pas de réservation d'exposition.
+La préparation est une étape contrôlée côté serveur : elle valide le panier, normalise les lignes,
+génère les lignes promotionnelles implicites lorsque la configuration le permet, et retourne une
+`preparationId`.
+
+**Aucun ticket n'est vendu à ce stade.** Une préparation peut être régénérée avant confirmation si
+le flow de promotion le permet.
 
 | Décision | Signification | Action mobile |
 |---|---|---|
-| `ACCEPTABLE` | Panier valide, vente autorisée | Activer "Vendre" |
+| `ACCEPTABLE` | Panier valide, vente autorisée | Activer "Confirmer" |
 | `REQUIRES_CHANGES` | Approbation requise (mise > autonomie) | Afficher `sellerInstruction`, modifier |
 | `REJECTED_FINAL` | Tirage fermé | Bloquer |
 
-> ⚠ Preview ne réserve pas l'exposition. Un sell peut encore retourner `EXPOSURE_CHANGED` si une autre vente arrive entre preview et sell.
+> ⚠ Prepare ne réserve pas définitivement l'exposition. La confirmation peut encore échouer si le
+> contexte métier a changé entre préparation et confirmation.
 
 ---
 
-## Phase 2 — Vente (transaction)
+## Phase 2 — Confirm (transaction)
 
 ```
-POST /tenant/cashier/tickets/sell
+POST /tenant/sales/preparations/{preparationId}/confirm
 Idempotency-Key: <uuid-v4>
-{ sellerTerminalId, drawId, drawChannelId, currency, lines:[...], promotionChoiceInput?: {...} }
+{ }
 ```
+
+La confirmation persiste **exactement** les lignes préparées côté serveur. Le client ne renvoie pas
+les lignes du ticket dans `confirm`.
 
 ### Pipeline interne (`SalePreparationOrchestrator`, `@TchTx`)
 
 ```
 1. DrawCutoffRule()             → now < draw.cutoffAt
-3. normalize + toTicketLines()  → snapshot odds via PricingCatalog
+3. lignes préparées             → préparation serveur chargée par `preparationId`
 4. saleChargeCalculator()       → charges initiales (ex: frais SMS)
 5. SalePromotionEvaluator       → EvaluatePromotionQuery → core.promotion
    ├─ decision.status = APPLIED / NOT_ELIGIBLE / PROPOSED / DECLINED / ERROR
@@ -110,16 +119,18 @@ Idempotency-Key: <uuid-v4>
 
 ## Promotions — intégration dans le sell
 
-### Évaluation : preview vs final
+### Évaluation : préparation vs confirmation
 
-La promotion est évaluée à **chaque appel** (preview et sell), mais les effets ne sont matérialisés que sur le sell final :
+La promotion est évaluée pendant la préparation, puis vérifiée à la confirmation. Les effets vendus
+sont ceux persistés dans la préparation serveur :
 
 | Phase | `EvaluatePromotionQuery` | Effets appliqués |
 |---|---|---|
-| `SALE_PREVIEW` | Oui — décision calculée | **Non** — lignes inchangées |
-| `SALE_CONFIRMATION` | Oui — décision recalculée | **Oui** — lignes modifiées |
+| `SALE_PREPARATION` | Oui — décision calculée | **Oui** — lignes préparées côté serveur |
+| `SALE_CONFIRMATION` | Oui — décision vérifiée | **Déjà matérialisé** — confirmation des lignes préparées |
 
-> La décision en preview peut retourner `PROPOSED` avec des effets lisibles — c'est l'information pour l'UI. Les effets réels sont calculés et stockés uniquement lors du sell.
+> La décision en préparation peut retourner une proposition ou des lignes générées. Les effets
+> vendus sont ceux stockés dans la préparation confirmée.
 
 ### Statuts de décision
 
@@ -127,7 +138,7 @@ La promotion est évaluée à **chaque appel** (preview et sell), mais les effet
 |---|---|
 | `NOT_ELIGIBLE` | Aucune campagne active ne correspond au contexte |
 | `PROPOSED` | Promotion applicable — affichée au vendeur/client |
-| `APPLIED` | Effets matérialisés sur le ticket (sell final uniquement) |
+| `APPLIED` | Effets matérialisés sur la préparation confirmée |
 | `DECLINED` | Promotion proposée mais refusée (ex: client ne veut pas) |
 | `ERROR` | Erreur d'évaluation — dégradé silencieux, pas de blocage |
 
@@ -158,7 +169,7 @@ Exemples :
 Quand `choiceMode = CUSTOMER_SELECTS` ou `SELLER_SELECTS`, la promotion propose un effet mais le numéro doit être fourni :
 
 ```
-1. Preview → response inclut promotionDecision :
+1. Prepare → response inclut promotionDecision :
    {
      decisionId: "uuid",
      status: "PROPOSED",
@@ -167,7 +178,7 @@ Quand `choiceMode = CUSTOMER_SELECTS` ou `SELLER_SELECTS`, la promotion propose 
 
 2. Client/vendeur choisit le numéro gratuit
 
-3. Sell → inclure promotionChoiceInput :
+3. Re-prepare ou regenerate → inclure promotionChoiceInput :
    {
      "promotionChoiceInput": {
        "decisionId": "<uuid du PROPOSED>",
@@ -179,7 +190,8 @@ Quand `choiceMode = CUSTOMER_SELECTS` ou `SELLER_SELECTS`, la promotion propose 
    }
 ```
 
-Sans `promotionChoiceInput` quand requis → la ligne gratuite n'est pas générée.
+Sans `promotionChoiceInput` quand requis → la ligne gratuite n'est pas générée ou la préparation
+reste non confirmable selon la règle de promotion.
 
 ### Snapshot et settlement
 
@@ -195,9 +207,9 @@ Les promotions requièrent une connexion pour l'évaluation en temps réel.
 
 ### Règle idempotency
 
-`Idempotency-Key` = UNE FOIS par panier.  
-Si timeout → re-poster le **même payload avec la même clé** → réponse stockée rejouée.  
-Si panier change → **générer une nouvelle clé**.
+`Idempotency-Key` = UNE FOIS par confirmation.
+Si timeout → re-poster le **même confirm avec la même clé** → réponse stockée rejouée.
+Si le panier change → créer ou régénérer une préparation, puis **générer une nouvelle clé**.
 
 ### Sur ACCEPTED : afficher `backup.displayCode` immédiatement
 
@@ -250,7 +262,7 @@ Au-delà → `REJECTED` + issue `CANCEL_WINDOW_EXPIRED`.
 
 | Event | Producteur | Consommateurs |
 |---|---|---|
-| `TicketPlacedEvent` | `SellTicketCommandHandler` · `ApproveTicketSaleCommandHandler` | `core.limitpolicy` (exposure), `features.stats` (×2) |
+| `TicketPlacedEvent` | `SalePreparationOrchestrator.confirm` · `ApproveTicketSaleCommandHandler` | `core.limitpolicy` (exposure), `features.stats` (×2) |
 | `TicketCancelledEvent` | `CancelSaleCommandHandler` | `core.limitpolicy`, `features.stats` |
 | `TicketResultedEvent` | `RecordDrawTicketsResultCommandHandler` | `features.stats`, `core.sales` → settlement |
 | `TicketWinningSettlementCreatedEvent` | `core.sales` | claim de gain (non documenté) |

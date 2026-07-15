@@ -79,7 +79,7 @@ protected login(): void {
 async submit(): Promise<void> {
   this.loading.set(true);
   try {
-    const session = await this.authSession.login(this.email, this.password, this.remember);
+    const session = await this.authSession.login(this.identifier, this.password);
     if (!session.authenticated) { this.errorKey.set('auth.login.errors.accessDenied'); return; }
     await this.authRedirect.navigateAfterLogin(session);
   } catch {
@@ -90,11 +90,62 @@ async submit(): Promise<void> {
 }
 ```
 
+### Identifiant saisi : email direct ou username lookup
+
+Le formulaire de login doit exposer un seul champ **Identifiant ou email**.
+
+Ce flow concerne les `APP_USER` (admin, super admin, opérateur). Les `SELLER_TERMINAL` gardent leur
+exception POS : email fictif `<terminalCode>@<tenant>.tchalanet` + PIN Firebase, avec
+`X-Tch-Client-Type: POS`.
+
+Règle V0 :
+
+| Saisie | Comportement |
+|---|---|
+| Contient `@` | Appel Firebase direct avec cet email |
+| Ne contient pas `@` | Résolution publique `username -> resolvedIdentifier`, puis appel Firebase |
+
+Le lookup username se fait **uniquement au submit** du formulaire. Il ne se fait jamais au chargement
+de `/login`, ni pendant la restauration silencieuse d'une session Firebase persistée.
+
+Flux cible :
+
+```ts
+const identifier = form.identifier.trim().toLowerCase();
+const resolvedIdentifier = identifier.includes('@')
+  ? identifier
+  : await publicAuthApi.resolveLoginIdentifier(identifier);
+
+await signInWithEmailAndPassword(firebaseAuth, resolvedIdentifier, password);
+```
+
+Le backend doit retourner une erreur générique pour un username inconnu, non autorisé, inactif ou
+sans identité Firebase utilisable. Le front affiche le même message que pour des identifiants
+Firebase invalides, afin d'éviter l'énumération de comptes.
+
+### Mot de passe oublié — admin / super admin
+
+Le bouton « Mot de passe oublié ? » réutilise le même champ **Identifiant ou email**.
+
+| Saisie | Comportement |
+|---|---|
+| Contient `@` | Envoi direct d'un email de reset Firebase à cette adresse |
+| Ne contient pas `@` | Résolution publique `username -> resolvedIdentifier`, puis envoi du reset Firebase |
+
+Le backend garde le même comportement non-énumérant que le login : username inconnu, inactif,
+non autorisé ou sans identité Firebase utilisable → erreur générique côté front. L'utilisateur voit
+le message d'échec standard du lien email, sans détail permettant de confirmer l'existence du compte.
+
+Ce flow concerne uniquement les `APP_USER` comme `TENANT_ADMIN` et `SUPER_ADMIN`. Le reset PIN
+SellerTerminal reste un flow métier séparé côté admin POS : réinitialisation du PIN, affichage du
+code temporaire à communiquer au vendeur, puis connexion POS avec l'identité technique du terminal.
+
 ### `AuthSessionService.login()`
 
 ```ts
 // auth-session.service.ts  — chaque étape bornée par withTimeout (15 s)
-await withTimeout(this.auth.login({ username, password, remember }), 15_000, 'auth.login.timeout');
+const signInEmail = await resolveIdentifierIfNeeded(identifier);
+await withTimeout(this.auth.login({ username: signInEmail, password, remember }), 15_000, 'auth.login.timeout');
 await withTimeout(this.auth.getAccessToken(true), 15_000, 'auth.token.timeout');   // force refresh JWT
 return withTimeout(this.refreshSession(true), 15_000, 'auth.session.timeout');     // bootstrap backend
 ```
@@ -112,6 +163,10 @@ async login(request: AuthLoginRequest): Promise<void> {
   await signInWithEmailAndPassword(this.auth, request.username, request.password);
 }
 ```
+
+`FirebaseAuthService` reste volontairement email/password : il ne connaît pas les usernames
+Tchalanet. Le mapping username → email appartient à la couche session/web API avant l'appel
+Firebase. Il ne remplace pas le login POS SellerTerminal par PIN.
 
 La persistance est fixée **une seule fois** dans le constructeur, dans le contexte d'injection
 Angular (corrige l'avertissement AngularFire « outside injection context ») :
@@ -277,6 +332,8 @@ Points clés :
 - `localAuthenticatedEntryRoute()` est **hardcodée par app** (`admin-portal → /app/admin`,
   `platform-portal → /app/platform`, public-portal → `null`). Sur public-portal, aucune
   auto-redirection : la vitrine reste accessible.
+- La restauration ne lit jamais le champ identifiant et ne déclenche pas de lookup username. Elle
+  s'appuie seulement sur l'état Firebase local (`auth.currentUser` / persistance SDK).
 - **Détection de boucle** : `RESTORE_WINDOW_MS = 20 s` doit dépasser le timeout du bootstrap
   (`AUTH_OPERATION_TIMEOUT_MS = 15 s`). Si le guard rejette la session et renvoie sur `/login`, le
   rebond (jusqu'à 15 s) tombe dans la fenêtre de 20 s → la redirection n'est pas rejouée. Une
@@ -422,6 +479,7 @@ token localStorage supprimé. `PrivateBootstrapStore` n'est pas explicitement re
 | Token expiré renouvelé silencieusement | `authBearerInterceptor` retry 401 `forceRefresh=true` |
 | Session effacée au logout | `signOut` + `setAnonymousSession` |
 | Redirection inter-portail explicite | `AuthRedirectService` (`location.assign` cross-app) |
+| Lookup username non énumérant | Même erreur UI pour username inconnu, mot de passe faux ou accès refusé |
 
 ---
 
@@ -448,6 +506,9 @@ token localStorage supprimé. `PrivateBootstrapStore` n'est pas explicitement re
 - **Duplication `withTimeout`** : une implémentation dans `login.page.ts` (2 s, restauration) et
   une dans `auth-session.service.ts` (15 s, opérations). Candidates à factoriser dans un util
   partagé `@tch/core/auth`.
+- **Lookup username** : ne jamais l'exécuter dans `ngOnInit()` ou dans les guards. Il est déclenché
+  uniquement par `submit()`. Toute optimisation de cache doit rester courte et locale au navigateur
+  (`sessionStorage` au maximum), jamais source d'autorisation.
 
 ---
 
@@ -459,7 +520,9 @@ Public (public-portal)
   clic « Connexion » → router /login
 
 Login (n'importe quelle app)
-  auth.login → signInWithEmailAndPassword  (persistance locale)
+  si identifiant contient @ → Firebase direct
+  sinon → POST /public/auth/login-identifier/resolve → resolvedIdentifier
+  auth.login → signInWithEmailAndPassword(resolvedIdentifier, password)  (persistance locale)
   getAccessToken(true)                     (JWT frais)
   refreshSession(true) → GET /runtime/private  Bearer=<jwt>
     → space + roles + tenantContext

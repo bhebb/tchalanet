@@ -7,11 +7,13 @@
 
 ## Goal
 
-Sell a ticket for a given draw and terminal session:
+Sell a ticket for a given draw and operational POS context using a two-step flow:
 
 - Validate sale window (draw cutoff)
 - Normalize and merge lines
 - Evaluate limits and autonomy
+- Create a server-side sale preparation
+- Confirm exactly that preparation with idempotency
 - Persist ticket as `SOLD` or `PENDING_APPROVAL`
 - Return identifiers (`ticket_code`, `public_code`) and status
 
@@ -26,40 +28,56 @@ Sell a ticket for a given draw and terminal session:
 
 ## Actors
 
-- Seller (terminal/web): creates the sale
+- Seller terminal: creates the sale
+- Tenant admin or super admin in Admin POS mode: creates the sale after selecting a terminal context
 - Operator/Admin: approves/rejects (separate features)
 
 ---
 
 ## User stories
 
-1. As a seller, I can sell a ticket for a draw and receive a `ticket_code` and `public_code`.
-2. As a seller, if the network fails, I can retry safely without creating duplicates (idempotency).
-3. As a seller with partial autonomy, my ticket is created as `PENDING_APPROVAL`.
+1. As a seller, I can prepare a sale for a draw before committing it.
+2. As a seller, I can confirm a prepared sale and receive a `ticket_code` and `public_code`.
+3. As a seller, if confirmation fails over the network, I can retry safely without creating duplicates (idempotency).
+4. As a seller with partial autonomy, my ticket is created as `PENDING_APPROVAL`.
 
 ---
 
 ## Use case summary
 
-Input:
+Prepare input:
 
 - Tenant context + terminal context
 - Draw id
 - Lines[]: selections, stake, bet_type, bet_option
 
-Processing pipeline (normative):
+Prepare pipeline (normative):
 
 1. Validate at least one line
-2. Validate open POS session for terminal
+2. Resolve operational POS context:
+   - `SELLER_TERMINAL` actor from terminal session, or
+   - `APP_USER` admin actor with explicit Admin POS terminal selection
 3. Validate draw is before cutoff
 4. Normalize selections (server canonicalization)
 5. Merge duplicates (server sums stakes)
-6. Evaluate limits and autonomy
-7. Create ticket:
+6. Evaluate promotions and generate prepared promotional lines
+7. Persist sale preparation and return `preparationId`
+
+Confirm input:
+
+- `preparationId`
+- `Idempotency-Key`
+
+Confirm pipeline (normative):
+
+1. Load the server-side preparation
+2. Re-check cutoff and sale context
+3. Re-check limits/autonomy on prepared final lines
+4. Create ticket:
    - If approval required -> `PENDING_APPROVAL`
    - Else -> `SOLD`
-8. Emit audit + AfterCommit event(s)
-9. Return response
+5. Emit audit + AfterCommit event(s)
+6. Return response
 
 ---
 
