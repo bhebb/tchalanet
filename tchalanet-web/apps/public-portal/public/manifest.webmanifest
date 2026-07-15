@@ -1,0 +1,19 @@
+{
+  "name": "Tchalanet",
+  "short_name": "Tchalanet",
+  "description": "Portail public Tchalanet.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f7f5fb",
+  "theme_color": "#17144d",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/assets/brand/tchalanet-app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

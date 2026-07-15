@@ -1,0 +1,19 @@
+{
+  "name": "Tchalanet Administration",
+  "short_name": "Tch Admin",
+  "description": "Console mobile pour administrer les opérations tenant Tchalanet.",
+  "start_url": "/admin/login",
+  "scope": "/admin/",
+  "display": "standalone",
+  "background_color": "#f7f5fb",
+  "theme_color": "#17144d",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/assets/brand/tchalanet-app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -70,6 +70,10 @@
               type="text"
               name="identifier"
               autocomplete="username"
+              autocapitalize="none"
+              autocorrect="off"
+              spellcheck="false"
+              enterkeyhint="next"
               required
               [placeholder]="'auth.login.form.identifierPlaceholder' | translate"
               [(ngModel)]="identifier"
@@ -84,6 +88,7 @@
               [type]="passwordVisible() ? 'text' : 'password'"
               name="password"
               autocomplete="current-password"
+              enterkeyhint="done"
               required
               [(ngModel)]="password"
             />
