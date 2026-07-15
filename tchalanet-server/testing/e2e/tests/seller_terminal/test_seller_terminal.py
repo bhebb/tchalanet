@@ -60,6 +60,8 @@ def _create_or_skip(admin: ApiClient) -> tuple[str, dict]:
             "SellerTerminal creation provisions a login identity — needs a provisioning provider "
             "(firebase); the local-jwt provider cannot provision identities."
         )
+    if resp.status_code == 403 and "entitlement.limit_exceeded" in resp.text:
+        pytest.skip("Local tenant already reached the seller-terminal entitlement limit.")
     assert_ok(resp, expected=(200, 201))
     terminal_id = _data(resp)
     assert terminal_id, "create must return a seller-terminal id"

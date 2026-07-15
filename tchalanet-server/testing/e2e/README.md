@@ -25,13 +25,15 @@ longer apply.
 
 | Provider | Signs | Can provision? | Use for |
 |---|---|---|---|
-| `firebase-emulator` | ID tokens via the running emulator | ✅ yes | create seller-terminal, sell, maryaj, limits |
+| `firebase` | ID tokens via real Firebase password sign-in | ✅ via API | nightly live E2E against staging/prod-like API |
+| `firebase-emulator` | ID tokens via the running emulator | ✅ yes | local create seller-terminal, sell, maryaj, limits |
 | `local-jwt` / `local-perf` | HS256 for seeded `super_admin`/`admin`/`cashier` | ❌ read/auth only | read endpoints, perf, RLS/isolation |
 | `keycloak` | password grant | (legacy) | legacy targets only |
 
-Creating a seller-terminal (and anything that mints a login identity) requires a
-**provisioning-capable provider = `firebase-emulator`**. Under `local-jwt` those tests skip
-cleanly; read endpoints (list/summary) still run.
+Creating a seller-terminal is supported by Firebase-backed APIs. Tests that need to mint
+arbitrary dynamic identities from the harness itself, such as `full_flow`, still require
+**`firebase-emulator`**. Under `local-jwt` those tests skip cleanly; read endpoints
+(list/summary) still run.
 
 **Done & green.**
 - **`firebase-emulator` provider + full business flow.** `tch_e2e/auth.py` has a

@@ -22,11 +22,13 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class ExternalIdentityAppUserResolver {
 
   static final String LEGACY_KEYCLOAK_ISSUER = "legacy:keycloak";
@@ -44,6 +46,7 @@ public class ExternalIdentityAppUserResolver {
         externalIdentities
             .findByProviderAndIssuerAndExternalSubject(
                 externalUser.provider(), externalUser.issuer(), externalUser.subject())
+            .or(() -> findFirebaseMappingBySubject(externalUser))
             .or(() -> claimLegacyKeycloakMapping(externalUser))
             .or(() -> bootstrapMapping(externalUser));
 
@@ -55,6 +58,21 @@ public class ExternalIdentityAppUserResolver {
                 .map(
                     appUser ->
                         new AppUserIdentityResolution(appUser.getId(), appUser.getStatus())));
+  }
+
+  private Optional<AppUserExternalIdentityJpaEntity> findFirebaseMappingBySubject(
+      ExternalAuthenticatedUser externalUser) {
+    if (externalUser.provider() != IdentityProviderType.FIREBASE) {
+      return Optional.empty();
+    }
+    var mapping = externalIdentities.findFirstByProviderAndExternalSubject(
+        IdentityProviderType.FIREBASE, externalUser.subject());
+    log.warn(
+        "identity.firebase.exact_mapping_miss issuer={} subjectRef={} fallbackFound={}",
+        externalUser.issuer(),
+        externalSubjectReference(externalUser.subject()),
+        mapping.isPresent());
+    return mapping;
   }
 
   private Optional<AppUserExternalIdentityJpaEntity> bootstrapMapping(

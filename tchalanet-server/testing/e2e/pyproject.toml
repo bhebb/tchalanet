@@ -10,6 +10,16 @@ dependencies = [
     "pydantic>=2.5",
 ]
 
+[tool.setuptools]
+packages = [
+    "fixtures",
+    "flows",
+    "loadtest",
+    "prereqs",
+    "scripts_flow",
+    "tch_e2e",
+]
+
 [project.optional-dependencies]
 # Load / perf testing harness (see loadtest/). Install with: pip install -e '.[perf]'
 perf = [

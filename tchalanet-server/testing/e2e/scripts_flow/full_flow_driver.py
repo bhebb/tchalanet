@@ -209,19 +209,50 @@ def main() -> int:
         {"gameCode": "HT_BOLET", "betType": "MATCH_1_2D", "selection": "11", "betOption": None, "stake": "5.00"},
         {"gameCode": "HT_MARYAJ", "betType": "MARRIAGE_2D2D", "selection": "21-25", "betOption": 1, "stake": "5.00"},
     ]
-    payload = {"sellerTerminalId": seller_terminal_id, "drawId": draw["drawId"],
-               "drawChannelId": draw["drawChannelId"], "currency": "HTG", "lines": lines}
-    prev = seller.post("/tenant/cashier/tickets/preview", json=payload, headers=rid())
+    def payload(raw_lines):
+        prepared_lines = []
+        for index, line in enumerate(raw_lines, start=1):
+            prepared = {
+                "lineNumber": index,
+                "gameCode": line["gameCode"],
+                "betType": line["betType"],
+                "selection": line["selection"],
+                "stakeAmount": line.get("stakeAmount", line.get("stake")),
+            }
+            if line.get("betOption") is not None:
+                prepared["betOption"] = line["betOption"]
+            prepared_lines.append(prepared)
+        return {"drawId": draw["drawId"], "drawChannelId": draw["drawChannelId"],
+                "currency": {"value": "HTG"}, "lines": prepared_lines}
+
+    def confirm(preparation_id: str):
+        resp = seller.post(
+            f"/tenant/sales/preparations/{preparation_id}/confirm",
+            idempotency_key=str(uuid.uuid4()),
+            headers=rid(),
+        )
+        data = data_of(resp) or {}
+        sale = data.get("sale") or data
+        ticket = sale.get("ticket") or {}
+        flattened = {
+            "outcome": sale.get("outcome"),
+            "ticketId": data.get("ticketId") or ticket.get("ticketId") or sale.get("ticketId"),
+            "issues": sale.get("issues"),
+        }
+        return resp, flattened
+
+    prev = seller.post("/tenant/sales/preparations", json=payload(lines), headers=rid())
     show(prev, limit=1200)
     if prev.status_code < 300:
         pdata = data_of(prev) or {}
-        promo = pdata.get("promotion") or pdata.get("promotionDecision") or pdata.get("promotions")
-        print(f"    maryaj-gratis / promotion in preview: {promo}")
-    sold = seller.post("/tenant/cashier/tickets/sell", json=payload,
-                       idempotency_key=str(uuid.uuid4()), headers=rid())
+        promo = pdata.get("promotionLines") or pdata.get("promotion") or pdata.get("promotionDecision")
+        print(f"    maryaj-gratis / promotion in preparation: {promo}")
+        sold, sold_data = confirm(pdata["preparationId"])
+    else:
+        sold, sold_data = prev, data_of(prev) or {}
     show(sold, limit=900)
-    if sold.status_code < 300 and (data_of(sold) or {}).get("outcome") == "ACCEPTED":
-        print(f"{OK} sale ACCEPTED ticket={(data_of(sold) or {}).get('ticketId')}")
+    if sold.status_code < 300 and sold_data.get("outcome") == "ACCEPTED":
+        print(f"{OK} sale ACCEPTED ticket={sold_data.get('ticketId')}")
     else:
         print(f"{KO} sale not accepted")
 
@@ -233,12 +264,12 @@ def main() -> int:
         {"gameCode": "HT_BOLET", "betType": "MATCH_1_2D", "selection": "33",
          "betOption": None, "stake": "600.00"},
     ]
-    big_payload = {"sellerTerminalId": seller_terminal_id, "drawId": draw["drawId"],
-                   "drawChannelId": draw["drawChannelId"], "currency": "HTG", "lines": big_lines}
-    breach = seller.post("/tenant/cashier/tickets/sell", json=big_payload,
-                         idempotency_key=str(uuid.uuid4()), headers=rid())
+    breach_prepare = seller.post("/tenant/sales/preparations", json=payload(big_lines), headers=rid())
+    if breach_prepare.status_code < 300:
+        breach, bdata = confirm((data_of(breach_prepare) or {})["preparationId"])
+    else:
+        breach, bdata = breach_prepare, data_of(breach_prepare) or {}
     show(breach, limit=900)
-    bdata = data_of(breach) or {}
     blocked = breach.status_code in (400, 409, 422) or bdata.get("outcome") in ("REJECTED", "BLOCKED")
     print(f"{OK if blocked else KO} over-limit sale blocked (outcome={bdata.get('outcome')}, http={breach.status_code})")
 

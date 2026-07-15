@@ -13,6 +13,13 @@ from typing import Protocol
 import httpx
 
 
+def env_or_default(name: str, default: str) -> str:
+    value = os.environ.get(name)
+    if value is None or not value.strip():
+        return default
+    return value.strip()
+
+
 class E2EAuth(Protocol):
     def password_grant(self, *, username: str, password: str) -> str: ...
 
@@ -35,10 +42,11 @@ class FirebaseEmulatorAuth:
     @classmethod
     def from_env(cls) -> "FirebaseEmulatorAuth":
         return cls(
-            project_id=os.environ.get("TCH_FIREBASE_PROJECT_ID", "demo-tchalanet-local").strip(),
-            emulator_host=os.environ.get(
-                "TCH_FIREBASE_EMULATOR_HOST", "127.0.0.1:9099"
-            ).strip(),
+            project_id=env_or_default(
+                "TCH_FIREBASE_PROJECT_ID",
+                env_or_default("FIREBASE_PROJECT_ID", "demo-tchalanet-local"),
+            ),
+            emulator_host=env_or_default("TCH_FIREBASE_EMULATOR_HOST", "127.0.0.1:9099"),
         )
 
     def password_grant(self, *, username: str, password: str) -> str:

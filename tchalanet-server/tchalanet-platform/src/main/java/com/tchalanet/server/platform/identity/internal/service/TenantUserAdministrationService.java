@@ -17,6 +17,7 @@ import com.tchalanet.server.platform.identity.internal.persistence.adapter.AppUs
 import com.tchalanet.server.platform.identity.internal.persistence.adapter.UserPreferenceJpaAdapter;
 import java.time.Instant;
 import java.util.Set;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -51,16 +52,21 @@ public class TenantUserAdministrationService {
     }
 
     var username = resolveUsername(email, phone);
+    var userId = UserId.of(UUID.randomUUID());
     var externalUser =
         identityProvisioning.provisionUser(
             new ProvisionExternalUserRequest(
-                null, email, phone, buildDisplayName(firstName, lastName), null));
+                userId.value().toString(),
+                email,
+                phone,
+                buildDisplayName(firstName, lastName),
+                null));
 
     var now = timeProvider.nowInstant();
     var user =
         users.save(
             AppUser.createNew(
-                    null,
+                    userId,
                     null,
                     username,
                     email,
@@ -103,6 +109,7 @@ public class TenantUserAdministrationService {
       return new CreateUserResult(saved.id(), false, false, null);
     }
     var username = resolveUsername(email, phone);
+    var userId = UserId.of(UUID.randomUUID());
     var temporaryPassword =
         temporaryCredentials.adminTemporaryCredentialsEnabled()
             ? temporaryCredentials.adminTemporaryPassword()
@@ -110,12 +117,16 @@ public class TenantUserAdministrationService {
     var externalUser =
         identityProvisioning.provisionUser(
             new ProvisionExternalUserRequest(
-                null, email, phone, buildDisplayName(firstName, lastName), temporaryPassword));
+                userId.value().toString(),
+                email,
+                phone,
+                buildDisplayName(firstName, lastName),
+                temporaryPassword));
     var now = timeProvider.nowInstant();
     var user =
         users.save(
             AppUser.createNew(
-                    null,
+                    userId,
                     null,
                     username,
                     email,

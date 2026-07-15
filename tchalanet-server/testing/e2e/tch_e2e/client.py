@@ -20,15 +20,32 @@ def _resolve_verify() -> bool | str:
     return raw
 
 
+def _resolve_timeout() -> float:
+    raw = os.environ.get("TCH_E2E_HTTP_TIMEOUT", "").strip()
+    if not raw:
+        return 30.0
+    try:
+        timeout = float(raw)
+    except ValueError as exc:
+        raise ValueError("TCH_E2E_HTTP_TIMEOUT must be a number of seconds") from exc
+    if timeout <= 0:
+        raise ValueError("TCH_E2E_HTTP_TIMEOUT must be greater than zero")
+    return timeout
+
+
 @dataclass
 class ApiClient:
     """Thin wrapper around httpx.Client preserving JWT + X-Tch-* headers."""
 
     base_url: str
     token: str
-    timeout: float = 30.0
+    timeout: float = field(default_factory=_resolve_timeout)
     extra_headers: dict[str, str] = field(default_factory=dict)
     _client: httpx.Client = field(init=False, repr=False)
+
+    @staticmethod
+    def _request_id() -> str:
+        return f"tch_e2e_{uuid.uuid4()}"
 
     def __post_init__(self) -> None:
         self._client = httpx.Client(
@@ -42,6 +59,7 @@ class ApiClient:
             context: OpContext | None = None,
             headers: Mapping[str, str] | None = None) -> httpx.Response:
         merged = dict(_ctx_headers(context))
+        merged["X-Request-Id"] = self._request_id()
         if headers:
             merged.update(headers)
         return self._client.get(path, params=params, headers=merged)
@@ -50,6 +68,7 @@ class ApiClient:
              idempotency_key: str | bool | None = None,
              headers: Mapping[str, str] | None = None) -> httpx.Response:
         merged = dict(_ctx_headers(context))
+        merged["X-Request-Id"] = self._request_id()
         if headers:
             merged.update(headers)
         if idempotency_key is True:
@@ -61,6 +80,7 @@ class ApiClient:
     def patch(self, path: str, *, json: Any = None, context: OpContext | None = None,
               headers: Mapping[str, str] | None = None) -> httpx.Response:
         merged = dict(_ctx_headers(context))
+        merged["X-Request-Id"] = self._request_id()
         if headers:
             merged.update(headers)
         return self._client.patch(path, json=json, headers=merged)
@@ -68,12 +88,15 @@ class ApiClient:
     def put(self, path: str, *, json: Any = None, context: OpContext | None = None,
             headers: Mapping[str, str] | None = None) -> httpx.Response:
         merged = dict(_ctx_headers(context))
+        merged["X-Request-Id"] = self._request_id()
         if headers:
             merged.update(headers)
         return self._client.put(path, json=json, headers=merged)
 
     def delete(self, path: str, *, context: OpContext | None = None) -> httpx.Response:
-        return self._client.delete(path, headers=_ctx_headers(context))
+        merged = dict(_ctx_headers(context))
+        merged["X-Request-Id"] = self._request_id()
+        return self._client.delete(path, headers=merged)
 
     def with_tenant(self, tenant_id: str, override_reason: str = "e2e-test") -> "ApiClient":
         """Return a copy scoped to *tenant_id* via the SUPER_ADMIN tenant override.
@@ -111,6 +134,7 @@ def _ctx_headers(context: OpContext | None) -> dict[str, str]:
         headers["X-Tch-Outlet-Id"] = context.outlet_id
     if context.terminal_id:
         headers["X-Tch-Terminal-Id"] = context.terminal_id
+        headers["X-Tch-Act-As-Terminal"] = context.terminal_id
     if context.session_id:
         headers["X-Tch-Sales-Session-Id"] = context.session_id
     return headers

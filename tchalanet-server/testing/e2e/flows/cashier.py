@@ -1,4 +1,4 @@
-"""Cashier business flow: preview, sell, print, send, get, list."""
+"""Cashier business flow: prepare sale, confirm, print, send, get, list."""
 from __future__ import annotations
 
 import uuid
@@ -62,25 +62,24 @@ class CashierFlow:
     # --- tickets -----------------------------------------------------------
 
     def preview(self, draw: dict[str, Any], game_code: str) -> dict[str, Any]:
-        return self._do_preview(self._sale_payload(draw, [game_code]))
+        return self.prepare(self._sale_payload(draw, [game_code]))
 
     def preview_multi_game(self, draw: dict[str, Any], game_codes: list[str]) -> dict[str, Any]:
-        return self._do_preview(self._sale_payload(draw, game_codes))
+        return self.prepare(self._sale_payload(draw, game_codes))
 
     def preview_lines(self, draw: dict[str, Any], lines: list[dict[str, Any]]) -> dict[str, Any]:
         payload = {
-            "terminalId": self.context.terminal_id,
             "drawId": draw["drawId"],
             "drawChannelId": draw["drawChannelId"],
             "currency": "HTG",
             "lines": lines,
         }
-        return self._do_preview(payload)
+        return self.prepare(payload)
 
-    def _do_preview(self, payload: dict[str, Any]) -> dict[str, Any]:
+    def prepare(self, payload: dict[str, Any]) -> dict[str, Any]:
         response = self.client.post(
-            "/tenant/cashier/tickets/preview",
-            json=payload,
+            "/tenant/sales/preparations",
+            json=self._prepare_payload(payload),
             context=self.context,
         )
         assert_ok(response)
@@ -94,7 +93,6 @@ class CashierFlow:
 
     def sell_lines(self, draw: dict[str, Any], lines: list[dict[str, Any]]) -> SoldTicket:
         payload = {
-            "terminalId": self.context.terminal_id,
             "drawId": draw["drawId"],
             "drawChannelId": draw["drawChannelId"],
             "currency": "HTG",
@@ -105,18 +103,15 @@ class CashierFlow:
     def sell_expecting_rejection(
         self, draw: dict[str, Any], game_code: str
     ) -> dict[str, Any]:
-        """Call /sell expecting a rejected outcome or a 4xx response.
+        """Call prepare/confirm expecting a rejected outcome or a 4xx response.
 
         Returns the raw response data dict (does NOT raise on rejection).
         Raises only if the server returns an unexpected 5xx.
         """
-        idem = str(uuid.uuid4())
-        response = self.client.post(
-            "/tenant/cashier/tickets/sell",
-            json=self._sale_payload(draw, [game_code]),
-            context=self.context,
-            idempotency_key=idem,
-        )
+        response = self._post_prepare(self._sale_payload(draw, [game_code]))
+        if 200 <= response.status_code < 300:
+            preparation = response.json()["data"]
+            response = self._post_confirm(preparation["preparationId"], str(uuid.uuid4()))
         if response.status_code >= 500:
             raise AssertionError(
                 f"Unexpected 5xx from sell: {response.status_code} — {response.text}"
@@ -128,14 +123,10 @@ class CashierFlow:
 
     def _do_sell(self, payload: dict[str, Any]) -> SoldTicket:
         idem = str(uuid.uuid4())
-        response = self.client.post(
-            "/tenant/cashier/tickets/sell",
-            json=payload,
-            context=self.context,
-            idempotency_key=idem,
-        )
+        preparation = self.prepare(payload)
+        response = self._post_confirm(preparation["preparationId"], idem)
         assert_ok(response, expected=(200, 201))
-        data = response.json()["data"]
+        data = self._flatten_confirm_response(response.json()["data"])
         if data.get("outcome") != "ACCEPTED" or data.get("ticketId") is None:
             raise AssertionError(
                 f"Sell did not result in ACCEPTED — outcome={data.get('outcome')}\n"
@@ -150,6 +141,64 @@ class CashierFlow:
             sale_status=data["saleStatus"],
             backup=data.get("backup") or {},
         )
+
+    def _post_prepare(self, payload: dict[str, Any]):
+        return self.client.post(
+            "/tenant/sales/preparations",
+            json=self._prepare_payload(payload),
+            context=self.context,
+        )
+
+    def _post_confirm(self, preparation_id: str, idempotency_key: str):
+        return self.client.post(
+            f"/tenant/sales/preparations/{preparation_id}/confirm",
+            context=self.context,
+            idempotency_key=idempotency_key,
+        )
+
+    def confirm_prepared_sale(self, preparation_id: str, idempotency_key: str) -> dict[str, Any]:
+        response = self._post_confirm(preparation_id, idempotency_key)
+        assert_ok(response, expected=(200, 201))
+        return self._flatten_confirm_response(response.json()["data"])
+
+    def _prepare_payload(self, payload: dict[str, Any]) -> dict[str, Any]:
+        lines: list[dict[str, Any]] = []
+        for idx, line in enumerate(payload.get("lines") or [], start=1):
+            stake = line.get("stakeAmount", line.get("stake"))
+            prepared = {
+                "lineNumber": line.get("lineNumber", idx),
+                "gameCode": line["gameCode"],
+                "betType": line["betType"],
+                "selection": line["selection"],
+                "stakeAmount": stake,
+            }
+            if line.get("betOption") is not None:
+                prepared["betOption"] = line.get("betOption")
+            lines.append(prepared)
+        return {
+            "drawId": payload["drawId"],
+            "drawChannelId": payload["drawChannelId"],
+            "currency": {"value": payload.get("currency", "HTG")},
+            "lines": lines,
+        }
+
+    def _flatten_confirm_response(self, data: dict[str, Any]) -> dict[str, Any]:
+        sale = data.get("sale") or data
+        ticket = sale.get("ticket") or {}
+        flattened = {
+            "preparationId": data.get("preparationId"),
+            "alreadyConfirmed": data.get("alreadyConfirmed"),
+            "outcome": sale.get("outcome"),
+            "ticketId": data.get("ticketId") or ticket.get("ticketId") or sale.get("ticketId"),
+            "ticketCode": ticket.get("ticketCode") or sale.get("ticketCode"),
+            "publicCode": ticket.get("publicCode") or sale.get("publicCode"),
+            "saleStatus": ticket.get("saleStatus") or sale.get("saleStatus"),
+            "issues": sale.get("issues"),
+            "backup": sale.get("backup") or {},
+            "actionAvailability": sale.get("actionAvailability"),
+            "sellerInstruction": sale.get("sellerInstruction"),
+        }
+        return flattened
 
     def get_ticket(self, ticket_id: str) -> dict[str, Any]:
         response = self.client.get(
@@ -265,7 +314,6 @@ class CashierFlow:
                     "stake": f"{self.stake_cents / 100:.2f}",
                 })
         return {
-            "terminalId": self.context.terminal_id,
             "drawId": draw["drawId"],
             "drawChannelId": draw["drawChannelId"],
             "currency": "HTG",

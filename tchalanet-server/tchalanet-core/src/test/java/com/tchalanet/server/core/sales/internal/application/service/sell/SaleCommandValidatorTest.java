@@ -16,6 +16,7 @@ import com.tchalanet.server.core.sales.api.command.sell.SellTicketLineInput;
 import com.tchalanet.server.core.selection.api.SelectionApi;
 import com.tchalanet.server.core.selection.api.model.Selection;
 import com.tchalanet.server.core.selection.api.model.SelectionValidationResult;
+import com.tchalanet.server.core.selection.internal.application.DefaultSelectionApi;
 import com.tchalanet.server.platform.tenantgame.api.TenantGameApi;
 import com.tchalanet.server.platform.tenantgame.api.model.DisableTenantGameResult;
 import com.tchalanet.server.platform.tenantgame.api.model.EnableTenantGameResult;
@@ -113,11 +114,24 @@ class SaleCommandValidatorTest {
   @DisplayName("implicit-best-match accepts a missing client option")
   void implicitBestMatchAcceptsMissingOption() {
     var validator =
-        new SaleCommandValidator(new PassingSelectionApi(), TenantGameApiStub.implicitBestMatch());
+        new SaleCommandValidator(new DefaultSelectionApi(), TenantGameApiStub.implicitBestMatch());
     var command = command(line(GameCode.HT_LOTO4, BetType.LOTTO4_PATTERN, null, "1234"));
 
     validator.validateCommand(command);
     validator.validateTenantConfiguration(command, TENANT_ID);
+  }
+
+  @Test
+  @DisplayName("implicit-best-match rejects invalid selections using the effective option")
+  void implicitBestMatchRejectsInvalidSelection() {
+    var validator =
+        new SaleCommandValidator(new DefaultSelectionApi(), TenantGameApiStub.implicitBestMatch());
+    var command = command(line(GameCode.HT_LOTO4, BetType.LOTTO4_PATTERN, null, "12"));
+
+    validator.validateCommand(command);
+    assertThatThrownBy(() -> validator.validateTenantConfiguration(command, TENANT_ID))
+        .isInstanceOf(ProblemRestException.class)
+        .hasMessageContaining("sales.selection_invalid");
   }
 
   @Test

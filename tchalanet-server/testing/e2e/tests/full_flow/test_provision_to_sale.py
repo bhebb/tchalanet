@@ -143,8 +143,38 @@ def test_provision_configure_and_sell(
     draw = draws[0]
 
     def payload(lines):
-        return {"sellerTerminalId": seller_terminal_id, "drawId": draw["drawId"],
-                "drawChannelId": draw["drawChannelId"], "currency": "HTG", "lines": lines}
+        prepared_lines = []
+        for index, line in enumerate(lines, start=1):
+            prepared = {
+                "lineNumber": index,
+                "gameCode": line["gameCode"],
+                "betType": line["betType"],
+                "selection": line["selection"],
+                "stakeAmount": line.get("stakeAmount", line.get("stake")),
+            }
+            if line.get("betOption") is not None:
+                prepared["betOption"] = line["betOption"]
+            prepared_lines.append(prepared)
+        return {"drawId": draw["drawId"], "drawChannelId": draw["drawChannelId"],
+                "currency": {"value": "HTG"}, "lines": prepared_lines}
+
+    def confirm(preparation_id: str):
+        resp = seller.post(
+            f"/tenant/sales/preparations/{preparation_id}/confirm",
+            idempotency_key=str(uuid.uuid4()),
+            headers=_rid(),
+        )
+        if resp.status_code >= 300:
+            return resp, _data(resp) or {}
+        data = _data(resp) or {}
+        sale = data.get("sale") or data
+        ticket = sale.get("ticket") or {}
+        return resp, {
+            "outcome": sale.get("outcome"),
+            "ticketId": data.get("ticketId") or ticket.get("ticketId") or sale.get("ticketId"),
+            "ticketCode": ticket.get("ticketCode") or sale.get("ticketCode"),
+            "issues": sale.get("issues"),
+        }
 
     ok_lines = [
         {"gameCode": "HT_BOLET", "betType": "MATCH_1_2D", "selection": "11",
@@ -152,14 +182,12 @@ def test_provision_configure_and_sell(
         {"gameCode": "HT_MARYAJ", "betType": "MARRIAGE_2D2D", "selection": "21-25",
          "betOption": 1, "stake": "5.00"},
     ]
-    prev = seller.post("/tenant/cashier/tickets/preview", json=payload(ok_lines), headers=_rid())
+    prev = seller.post("/tenant/sales/preparations", json=payload(ok_lines), headers=_rid())
     assert_ok(prev)
-    assert _data(prev)["decision"] == "ACCEPTABLE"
+    assert _data(prev)["status"] == "DRAFT"
 
-    sold = seller.post("/tenant/cashier/tickets/sell", json=payload(ok_lines),
-                       idempotency_key=str(uuid.uuid4()), headers=_rid())
+    sold, sold_data = confirm(_data(prev)["preparationId"])
     assert_ok(sold, expected=(200, 201))
-    sold_data = _data(sold)
     assert sold_data["outcome"] == "ACCEPTED"
     assert sold_data["ticketId"]
 
@@ -170,9 +198,11 @@ def test_provision_configure_and_sell(
         {"gameCode": "HT_BOLET", "betType": "MATCH_1_2D", "selection": "33",
          "betOption": None, "stake": "600.00"},
     ]
-    breach = seller.post("/tenant/cashier/tickets/sell", json=payload(big_lines),
-                         idempotency_key=str(uuid.uuid4()), headers=_rid())
-    bdata = _data(breach) or {}
+    breach_prepare = seller.post("/tenant/sales/preparations", json=payload(big_lines), headers=_rid())
+    if breach_prepare.status_code < 300:
+        breach, bdata = confirm(_data(breach_prepare)["preparationId"])
+    else:
+        breach, bdata = breach_prepare, _data(breach_prepare) or {}
     assert breach.status_code in (400, 409, 422) or bdata.get("outcome") in ("REJECTED", "BLOCKED"), (
         f"over-limit sale should be rejected, got http={breach.status_code} data={bdata}")
 

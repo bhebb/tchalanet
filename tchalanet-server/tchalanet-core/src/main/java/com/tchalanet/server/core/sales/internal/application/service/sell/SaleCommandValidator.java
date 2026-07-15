@@ -77,6 +77,10 @@ public class SaleCommandValidator {
               gameCode, code -> tenantGameApi.getBetOptionConfig(tenantId, code));
       var betTypeConfig = requireTenantBetTypeConfig(optionConfig, line.betType());
       validateTenantBetOption(line.betOption(), line.betType(), betTypeConfig);
+      validateSelection(
+          line.betType(),
+          effectiveSelectionBetOption(line.betOption(), line.betType(), betTypeConfig),
+          line.rawSelection());
     }
   }
 
@@ -91,15 +95,33 @@ public class SaleCommandValidator {
     if (line.stakeAmount() == null || line.stakeAmount().signum() <= 0)
       throw ProblemRest.badRequest("sales.invalid_stake_amount");
     validateBetOption(line);
-    validateSelection(line);
+    if (!line.betType().requiresOption() || line.betOption() != null) {
+      validateSelection(line.betType(), line.betOption(), line.rawSelection());
+    }
   }
 
-  private void validateSelection(SellTicketLineInput line) {
+  private void validateSelection(BetType betType, Short betOption, String rawSelection) {
     try {
-      selectionApi.canonicalize(line.betType(), line.betOption(), line.rawSelection());
+      selectionApi.canonicalize(betType, betOption, rawSelection);
     } catch (IllegalArgumentException ex) {
       throw ProblemRest.badRequest("sales.selection_invalid", ex);
     }
+  }
+
+  private static Short effectiveSelectionBetOption(
+      Short betOption, BetType betType, TenantBetTypeOptionConfigView betTypeConfig) {
+    if (!betType.requiresOption() || betOption != null) {
+      return betOption;
+    }
+    if (betTypeConfig.selectionPolicy() != SelectionPolicy.IMPLICIT_BEST_MATCH) {
+      return betOption;
+    }
+    return betTypeConfig.options().stream()
+        .filter(TenantBetOptionView::enabled)
+        .sorted(java.util.Comparator.comparingInt(TenantBetOptionView::displayOrder))
+        .map(TenantBetOptionView::code)
+        .findFirst()
+        .orElseThrow(() -> ProblemRest.badRequest("sales.tenant_bet_option_not_configured"));
   }
 
   private void validateBetOption(SellTicketLineInput line) {

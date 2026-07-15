@@ -40,15 +40,15 @@ def test_cashier_can_access_home(
 def test_cashier_can_read_own_profile(
     cashier_client_a: ApiClient,
 ) -> None:
-    """GET /tenant/me/profile with cashier token → 200."""
-    response = cashier_client_a.get("/tenant/me/profile")
+    """GET /tenant/seller-terminal/me with seller-terminal token → 200."""
+    response = cashier_client_a.get("/tenant/seller-terminal/me")
     assert response.status_code == 200, (
         f"Cashier should read own profile, got {response.status_code}: {response.text[:300]}"
     )
     body = response.json()
     data = (body.get("data") or body) if isinstance(body, dict) else {}
     # Profile must include some identity field
-    assert data.get("username") or data.get("userId") or data.get("id"), (
+    assert data.get("terminalCode") or data.get("sellerTerminalId") or data.get("id"), (
         f"Profile missing identity field: {data}"
     )
 
@@ -122,7 +122,7 @@ def test_cashier_cannot_generate_draws(
 def test_super_admin_cannot_sell_tickets(
     super_admin_client: ApiClient,
 ) -> None:
-    """Super-admin token at /tenant/cashier/tickets/sell → 403 or 4xx.
+    """Super-admin token at /tenant/sales/preparations → 403 or 4xx.
 
     The super-admin is not a tenant cashier and should not be able to sell.
     """
@@ -132,14 +132,13 @@ def test_super_admin_cannot_sell_tickets(
         session_id="00000000-0000-0000-0000-000000000000",
     )
     response = super_admin_client.post(
-        "/tenant/cashier/tickets/sell",
+        "/tenant/sales/preparations",
         json={
-            "terminalId": "00000000-0000-0000-0000-000000003101",
             "drawId": "00000000-0000-0000-0000-000000000000",
             "drawChannelId": "00000000-0000-0000-0000-000000000000",
-            "currency": "HTG",
-            "lines": [{"gameCode": "HT_BOLET", "betType": "MATCH_1_2D",
-                        "selection": "11", "stake": "1.00"}],
+            "currency": {"value": "HTG"},
+            "lines": [{"lineNumber": 1, "gameCode": "HT_BOLET", "betType": "MATCH_1_2D",
+                        "selection": "11", "stakeAmount": "1.00"}],
         },
         context=ctx,
     )
