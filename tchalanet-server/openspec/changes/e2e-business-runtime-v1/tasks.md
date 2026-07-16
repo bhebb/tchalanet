@@ -32,13 +32,31 @@
 - [x] Create terminals.
 - [x] Bind terminals.
 - [x] Open sessions.
-- [ ] Configure A/B limits differently.
-- [ ] Configure A/B promotions differently.
+- [x] Configure A/B limits differently.
+- [x] Configure A/B promotions differently.
 - [x] Store IDs/tokens in fixture world (`PosContext`).
 - [ ] Add cleanup/deactivation policy.
 
 > Multi-tenant B/C provisioning not yet in conftest — current suite runs single-tenant.
-> Limits/promotions configuration for A vs B blocked on multi-tenant world.
+> Business-day happy-path scenario provisions five isolated, mixed tenants with implicit/explicit/
+> disabled Maryaj gratis, multiple seller-terminals per tenant, at least one seller-terminal with
+> commission + bolet odds override, and tenant/draw-channel limit policies. Maryaj variants are
+> explicit per tenant: `HT_MARYAJ_GRATIS` fixed-amount game pricing with auto-generate,
+> `HT_MARYAJ_GRATIS` fixed-amount game pricing with seller-selects and a winning choice,
+> and disabled. The forbidden multiplier scenario is intentionally excluded while current policy
+> rejects `HT_MARYAJ_GRATIS` as STAKE_MULTIPLIER. It uses the
+> DEFAULT_HAITI_LOTTERY profile, reads all active tenant draw channels created by provisioning,
+> selects one draw per active channel/result slot, and sells the documented basket from
+> `tch_e2e.business_day` on every selected draw. The basket covers short/non-winning tickets,
+> Maryaj gratis, Bolet lot1-only, Loto5 lot1-lot2, Loto5 lot1-lot3, Loto3/Loto4/Loto5 mixed
+> winners, and non-winning volume. Scenario definitions live in `tch_e2e.business_day` so future
+> pytest or Locust flows can reuse the same payload plan.
+> Manual result entry is followed by configurable result processing:
+> `TCH_E2E_RESULT_APPLY_MODE=force` for quick deterministic runs,
+> `scheduler` to wait for the configured `draw.processing` tick, or
+> `scheduler_then_force` to measure the scheduler path before unblocking the data run.
+> The current scheduler only scans today/yesterday slot dates; the 2026-07-09 week backfill
+> therefore uses force apply unless the start/draw selection is narrowed to today/yesterday.
 
 ## 2. Public runtime
 
@@ -199,6 +217,22 @@
 > Current sell tests assert `ticketId` presence only. Deep snapshot assertions (lines, stakes, payout,
 > money breakdown) are the remaining gap in this section.
 > HIGH_STAKE scenario requires Tenant B with explicit limit rule (threshold > 500 HTG) — assert rule active before scenario.
+> Business-day happy-path now asserts prepared/confirmed amount-to-pay, Maryaj gratis promotion-line
+> presence/absence, manual winning results for bolet/Maryaj/loto selections, report gross sales,
+> deterministic winnings floor, bounded random auto-promo winnings, promotion counts, top
+> selections, and seller-terminal commission rows. Auto-generated Maryaj gratis is no longer flaky:
+> generated promo presence/source are exact, while auto promo winnings remain bounded until an E2E
+> seed/deterministic generator exists.
+> Additional sale-availability gate coverage asserts that sales are blocked when a seller-terminal
+> is blocked, tenant game is disabled, tenant is suspended, draw channel is inactive, or draw is not
+> open. It also disables one seeded Texas result slot and restores it in `finally` to assert that
+> inactive result slots block sale without leaving the shared catalog mutated. The catalog-mutation
+> test is marked `serial_catalog_mutation` and skipped unless `TCH_E2E_ALLOW_CATALOG_MUTATION=true`
+> is set in an isolated E2E environment. Tenant suspension is restored with platform-admin and a
+> control tenant sells successfully while the target tenant is suspended.
+> Exposure-limit rejection is a separate negative sale: the cap is temporarily lowered to 100
+> minor units for a selection absent from the happy-path basket, a 200-minor-unit sale is rejected,
+> ticket count is verified unchanged, and the original cap is restored.
 
 ## 8. Limits
 
@@ -207,6 +241,8 @@
 > Prérequis : Tenant B configuré avec threshold stake > 500 HTG pour SHORT_SINGLE_GAME.
 
 - [ ] Configure Tenant B limit rule (stake > 500 HTG per line, SHORT_SINGLE_GAME) via admin API or seed.
+- [x] Configure tenant/draw-channel limit rules via admin API in the business-day scenario
+      (`BLOCK_SELECTION_PER_DRAW`, `MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW`).
 - [ ] Assert limit rule active before running blocked scenarios.
 - [ ] Below limit succeeds (100 HTG — `SHORT_SINGLE_GAME_ALLOWED_STAKE`).
 - [ ] Exactly at limit follows documented rule.
@@ -253,6 +289,7 @@
 - [x] Document smoke/critical/concurrency/full commands (`testing/e2e/README.md` §4).
 - [x] Document env vars (`testing/e2e/README.md` §3).
 - [x] Document seed assumptions (`testing/e2e/README.md` §3).
+- [x] Document business-day happy-path scenario matrix (`testing/e2e/docs/business-day-scenarios.md`).
 - [ ] Document cleanup policy.
 - [x] Document E2E is not performance/load testing (`testing/e2e/README.md` §9, design §2).
 
