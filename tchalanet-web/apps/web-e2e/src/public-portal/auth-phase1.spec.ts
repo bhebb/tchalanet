@@ -13,7 +13,7 @@ test.describe('Phase 1 — public', () => {
 
   test('login page is reachable from the public app', async ({ loginPage }) => {
     await loginPage.goto();
-    await expect(loginPage.email).toBeVisible();
+    await expect(loginPage.identifier).toBeVisible();
     await expect(loginPage.submit).toBeVisible();
   });
 
