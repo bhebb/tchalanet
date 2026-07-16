@@ -6,6 +6,11 @@ const publicBaseURL = process.env['PUBLIC_BASE_URL'] || 'http://localhost:4301';
 const adminBaseURL = process.env['ADMIN_BASE_URL'] || 'http://localhost:4302';
 const platformBaseURL = process.env['PLATFORM_BASE_URL'] || 'http://localhost:4303';
 
+// CI runs against already-deployed portals (staging): skip the local dev servers
+// and point the base URLs at the deployed origins via env. Local runs (unset)
+// keep serving the three portals with `nx serve`.
+const externalTargets = process.env['WEB_E2E_EXTERNAL'] === '1';
+
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
@@ -23,27 +28,30 @@ export default defineConfig({
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
   },
-  /* Run your local dev server before starting the tests */
-  webServer: [
-    {
-      command: 'pnpm exec nx run public-portal:serve --port=4301',
-      url: publicBaseURL,
-      reuseExistingServer: true,
-      cwd: workspaceRoot,
-    },
-    {
-      command: 'pnpm exec nx run admin-portal:serve --port=4302',
-      url: adminBaseURL,
-      reuseExistingServer: true,
-      cwd: workspaceRoot,
-    },
-    {
-      command: 'pnpm exec nx run platform-portal:serve --port=4303',
-      url: platformBaseURL,
-      reuseExistingServer: true,
-      cwd: workspaceRoot,
-    },
-  ],
+  /* Run the local dev servers before the tests — unless targeting deployed
+   * portals (WEB_E2E_EXTERNAL=1), in which case the base URLs are already live. */
+  webServer: externalTargets
+    ? undefined
+    : [
+        {
+          command: 'pnpm exec nx run public-portal:serve --port=4301',
+          url: publicBaseURL,
+          reuseExistingServer: true,
+          cwd: workspaceRoot,
+        },
+        {
+          command: 'pnpm exec nx run admin-portal:serve --port=4302',
+          url: adminBaseURL,
+          reuseExistingServer: true,
+          cwd: workspaceRoot,
+        },
+        {
+          command: 'pnpm exec nx run platform-portal:serve --port=4303',
+          url: platformBaseURL,
+          reuseExistingServer: true,
+          cwd: workspaceRoot,
+        },
+      ],
   projects: [
     {
       name: 'public-portal',

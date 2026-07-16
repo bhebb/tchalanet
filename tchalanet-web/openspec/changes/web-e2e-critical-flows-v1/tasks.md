@@ -75,9 +75,17 @@ source — that is the only production-source edit this change allows.
 
 ## 6. CI wiring
 
-- [ ] Add a `web-e2e` CI target (needs emulator + API + a seeded tenant),
-      non-blocking initially like Python E2E.
-- [ ] Document the local run command in `apps/web-e2e/README.md`
+- [x] `web-e2e` target runs in `.github/workflows/full-validation.yml` (nightly +
+      dispatch). Made **non-blocking** (`continue-on-error`) + Playwright report
+      artifact.
+- [x] `playwright.config.ts`: `WEB_E2E_EXTERNAL=1` skips the local `nx serve` and
+      targets deployed portals (PUBLIC/ADMIN/PLATFORM_BASE_URL) — lets CI point at
+      staging with the firebase-emulator + seeded tenant.
+- [ ] Provision the deployed-target env in CI (repo vars/secrets:
+      `WEB_E2E_*_BASE_URL`, reuse `TCH_*_ADMIN_*` creds, `TCH_E2E_TENANT_ID` /
+      `TCH_E2E_SELLER_TERMINAL_ID`) so the auth/context flows actually execute
+      instead of skipping. Then keep observational until green, gate later.
+- [x] Document the local run command in `apps/web-e2e/README.md`
       (`pnpm exec nx e2e web-e2e`, prerequisites, per-project selection).
 
 ## 7. Verify no duplication
