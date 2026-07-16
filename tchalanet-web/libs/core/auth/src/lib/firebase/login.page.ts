@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -29,7 +29,7 @@ import { LanguageSwitcher } from '@tch/core/i18n';
   templateUrl: './login.page.html',
   styleUrl: './login.page.scss',
 })
-export class LoginPage implements OnInit {
+export class LoginPage implements OnInit, OnDestroy {
   identifier = '';
   password = '';
 
@@ -37,6 +37,8 @@ export class LoginPage implements OnInit {
   readonly errorKey = signal<string | null>(null);
   readonly infoKey = signal<string | null>(null);
   readonly passwordVisible = signal(false);
+  readonly installHintVisible = signal(false);
+  readonly installPromptAvailable = signal(false);
   readonly brandLogo = TCH_BRAND_ASSETS.logo;
   readonly brandLogoInverse = TCH_BRAND_ASSETS.logoInverse;
 
@@ -53,9 +55,45 @@ export class LoginPage implements OnInit {
   // up to 15s to fail. A shorter window closes before the bounce returns, so the loop
   // would never be detected. 20s leaves a safety margin over the 15s timeout.
   private static readonly RESTORE_WINDOW_MS = 20_000;
+  private static readonly INSTALL_HINT_DISMISSED_KEY = 'tch-install-hint-dismissed';
+  private installPromptEvent: BeforeInstallPromptEvent | null = null;
+  private installInstructionsShown = false;
+
+  private readonly handleBeforeInstallPrompt = (event: Event): void => {
+    event.preventDefault();
+    this.installPromptEvent = event as BeforeInstallPromptEvent;
+    this.installPromptAvailable.set(true);
+    this.installHintVisible.set(!this.isStandaloneMode());
+  };
+
+  private readonly handleAppInstalled = (): void => {
+    this.installPromptEvent = null;
+    this.installPromptAvailable.set(false);
+    this.dismissInstallHint();
+  };
+
+  private readonly handleInstallVisibilityRefresh = (): void => {
+    if (this.isStandaloneMode()) {
+      this.dismissInstallHint();
+      return;
+    }
+
+    if (this.installInstructionsShown && this.isAppleTouchDevice()) {
+      this.dismissInstallHint();
+    }
+  };
 
   ngOnInit(): void {
+    this.setupInstallHint();
     void this.redirectRestoredSession();
+  }
+
+  ngOnDestroy(): void {
+    const windowRef = globalThis.window;
+    windowRef?.removeEventListener('beforeinstallprompt', this.handleBeforeInstallPrompt);
+    windowRef?.removeEventListener('appinstalled', this.handleAppInstalled);
+    windowRef?.removeEventListener('focus', this.handleInstallVisibilityRefresh);
+    windowRef?.document.removeEventListener('visibilitychange', this.handleInstallVisibilityRefresh);
   }
 
   private async redirectRestoredSession(): Promise<void> {
@@ -88,6 +126,27 @@ export class LoginPage implements OnInit {
 
   togglePasswordVisibility(): void {
     this.passwordVisible.update(visible => !visible);
+  }
+
+  async installApp(): Promise<void> {
+    this.errorKey.set(null);
+    this.infoKey.set(null);
+
+    if (!this.installPromptEvent) {
+      this.infoKey.set(this.installFallbackHintKey());
+      this.installInstructionsShown = true;
+      return;
+    }
+
+    const promptEvent = this.installPromptEvent;
+    this.installPromptEvent = null;
+    this.installPromptAvailable.set(false);
+
+    await promptEvent.prompt();
+    const choice = await promptEvent.userChoice;
+    if (choice.outcome === 'accepted') {
+      this.dismissInstallHint();
+    }
   }
 
   async submit(): Promise<void> {
@@ -130,6 +189,70 @@ export class LoginPage implements OnInit {
       this.loading.set(false);
     }
   }
+
+  private setupInstallHint(): void {
+    const windowRef = globalThis.window;
+    if (!windowRef || this.isStandaloneMode() || this.installHintDismissed()) return;
+
+    this.installHintVisible.set(this.isMobileViewport());
+    windowRef.addEventListener('beforeinstallprompt', this.handleBeforeInstallPrompt);
+    windowRef.addEventListener('appinstalled', this.handleAppInstalled);
+    windowRef.addEventListener('focus', this.handleInstallVisibilityRefresh);
+    windowRef.document.addEventListener('visibilitychange', this.handleInstallVisibilityRefresh);
+  }
+
+  private isMobileViewport(): boolean {
+    return globalThis.window?.matchMedia?.('(max-width: 599px)').matches ?? false;
+  }
+
+  private isStandaloneMode(): boolean {
+    const windowRef = globalThis.window;
+    const navigatorRef = windowRef?.navigator as NavigatorWithStandalone | undefined;
+    return windowRef?.matchMedia?.('(display-mode: standalone)').matches === true || navigatorRef?.standalone === true;
+  }
+
+  private isAppleTouchDevice(): boolean {
+    return /iphone|ipad|ipod/i.test(globalThis.window?.navigator.userAgent ?? '');
+  }
+
+  private isAndroidDevice(): boolean {
+    return /android/i.test(globalThis.window?.navigator.userAgent ?? '');
+  }
+
+  private installFallbackHintKey(): string {
+    if (this.isAppleTouchDevice()) {
+      return 'auth.login.install.iosHint';
+    }
+    if (this.isAndroidDevice()) {
+      return 'auth.login.install.androidHint';
+    }
+    return 'auth.login.install.browserHint';
+  }
+
+  private dismissInstallHint(): void {
+    this.installPromptEvent = null;
+    this.installPromptAvailable.set(false);
+    this.installHintVisible.set(false);
+    this.infoKey.update(key => (key?.startsWith('auth.login.install.') ? null : key));
+    this.localStorage()?.setItem(LoginPage.INSTALL_HINT_DISMISSED_KEY, 'true');
+  }
+
+  private installHintDismissed(): boolean {
+    return this.localStorage()?.getItem(LoginPage.INSTALL_HINT_DISMISSED_KEY) === 'true';
+  }
+
+  private localStorage(): Storage | null {
+    return globalThis.window?.localStorage ?? null;
+  }
+}
+
+interface BeforeInstallPromptEvent extends Event {
+  readonly userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>;
+  prompt(): Promise<void>;
+}
+
+interface NavigatorWithStandalone extends Navigator {
+  readonly standalone?: boolean;
 }
 
 function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {

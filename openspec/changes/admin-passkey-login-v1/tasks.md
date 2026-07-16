@@ -1,6 +1,8 @@
 # Tasks: Admin passkey login V1
 
 - [x] Define product and security behavior for passkey enrollment and login.
+- [x] Defer implementation; keep V0 as username/email + password, password manager, reset password,
+  and mobile PWA install guidance.
 - [ ] Decide RP ID and allowed origins for production, staging, local development, PWA, and previews.
 - [ ] Verify production Firebase passkey support before choosing the adapter.
 - [ ] Choose native Firebase passkey adapter or Tchalanet WebAuthn + Firebase custom token adapter.

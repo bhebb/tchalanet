@@ -8,6 +8,18 @@ the issuer of the final ID token consumed by Tchalanet.
 Passkeys improve mobile login ergonomics and phishing resistance. They do not replace Tchalanet
 authorization, tenant resolution, or account-status checks.
 
+## Current Decision
+
+Implementation is intentionally deferred.
+
+The current V0 remains username/email + password, browser password-manager support, password reset,
+and mobile PWA installation guidance. This gives a usable mobile login path on iOS and Android
+without introducing WebAuthn operational risk before the relying-party, Firebase adapter, recovery,
+audit, and rate-limit decisions are closed.
+
+This change records the desired passkey contract for a later implementation slice; it does not add
+backend endpoints, credential storage, Firebase custom-token exchange, or web passkey ceremonies.
+
 ## Why
 
 Tenant admins and platform admins primarily use phones. Username login and PWA installation reduce
