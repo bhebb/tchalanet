@@ -17,6 +17,22 @@ Base URLs are env-driven (`PUBLIC_BASE_URL` / `ADMIN_BASE_URL` /
 `PLATFORM_BASE_URL`); `playwright.config.ts` serves the three portals via
 `nx serve` with `reuseExistingServer`.
 
+## Pattern
+
+**One Nx e2e project (`web-e2e`) covers all three apps** — not one project per
+app. Each app is a Playwright *project* in `playwright.config.ts` (own base URL,
+`testMatch` by `src/<portal>/` folder). Shared code lives in `src/support/`:
+
+- `support/pages/` — **Page Objects** (`LoginPage`, …): selectors + actions for a
+  screen, reused across the three portals (the login screen is the same
+  `tch-login-page` component in every app).
+- `support/fixtures.ts` — Playwright `test.extend` injecting the page objects
+  (`loginPage`). **Specs import `test` / `expect` from `../support/fixtures`**,
+  not from `@playwright/test`.
+- `support/env.ts` — env-driven credentials / seeded ids.
+
+Selectors use `data-testid` (Playwright `getByTestId`) — no text/CSS coupling.
+
 ## Prerequisites
 
 The suite treats the backend as a **fixture** — it does not provision. Bring up
