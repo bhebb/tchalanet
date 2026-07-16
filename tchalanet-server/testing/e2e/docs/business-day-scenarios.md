@@ -146,6 +146,7 @@ can be reintroduced when duplicate winning free lines are supported explicitly.
 | Result processing | Manual results are recorded, then result application runs through the selected mode; force mode is used for historical backfill; draw lifecycle settle is not required for the reporting happy path |
 | Admin reports | `ticketsSold`, `grossSales`, paid-line winnings, and `promotionLines` match exactly; seller-selected promotional lines are asserted exactly but non-winning while duplicate paid/free Maryaj selections are rejected; random auto-generated promotional winnings are asserted as a bounded optional amount until the generator is deterministic; selected draw IDs and channel identifiers appear in draw reports |
 | Seller reports | Per-seller ticket count, gross sales, and commission match the seller-terminal plan; promotional/free lines do not add paid gross or commission |
+| Seller × draw reports | `sellerTerminalDrawRows` contains one exact row per configured seller terminal and selected draw; every selected draw must show participation from all seller terminals with exact ticket count, gross sales, and commission |
 | Stats/top selections | Winning selection `12` appears in top selections after sales and results |
 | Isolation | Aggregated foreign-draw report queries return zero totals; draw reports do not expose foreign draw rows/metadata; unfiltered reports stay scoped to the current tenant |
 
@@ -208,6 +209,9 @@ truth. That keeps pytest and load tests comparable.
 | `TCH_E2E_BUSINESS_DAY_TENANTS` | all five tenants | Comma-separated tenant keys for focused QA runs, for example `alpha,delta`; isolation assertions require at least two tenants |
 | `TCH_E2E_BUSINESS_DAY_BASKET_REPEATS` | `1` | Multiply the basket per seller/draw |
 | `TCH_E2E_BUSINESS_DAY_MIN_TICKETS_PER_DRAW` | `10` | Guardrail for report reliability |
+| `TCH_E2E_TICKET_PRINT_MODE` | `none` | Optional receipt rendering: `none`, `sample` for one PDF per tenant/seller, or `all` |
+| `TCH_E2E_TICKET_SLACK_MODE` | `none` | Optional ticket delivery to Slack: `none`, `sample` for one send per tenant/seller, or `all` |
+| `TCH_TEST_SLACK_CHANNEL_KEY` | `delivery` | Slack channel key used by `/tenant/cashier/tickets/{id}/send` when Slack mode is enabled |
 | `TCH_E2E_HOST_HEADER` | unset | Optional HTTP `Host` override, useful for Traefik routes such as `api.localtest.me` when local DNS is unavailable |
 | `TCH_E2E_RESULT_APPLY_MODE` | `force` | `force`, `scheduler`, or `scheduler_then_force` |
 | `TCH_E2E_RESULT_REPORT_MAX_SECONDS` | `20` | Max wait for report projections after forced result application; legacy `TCH_E2E_RESULT_SETTLE_MAX_SECONDS` is still accepted |

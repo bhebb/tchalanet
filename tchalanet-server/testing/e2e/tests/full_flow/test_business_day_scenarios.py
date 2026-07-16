@@ -75,6 +75,7 @@ class ExpectedTenantTotals:
     auto_promo_winning_ceiling: Decimal = Decimal("0.00")
     seller_commission: Decimal = Decimal("0.00")
     by_seller: dict[str, "ExpectedTenantTotals"] | None = None
+    by_seller_draw: dict[tuple[str, str], "ExpectedTenantTotals"] | None = None
 
     @property
     def winning_ceiling(self) -> Decimal:
@@ -84,6 +85,11 @@ class ExpectedTenantTotals:
         if self.by_seller is None:
             self.by_seller = {}
         return self.by_seller.setdefault(seller_terminal_id, ExpectedTenantTotals())
+
+    def seller_draw(self, seller_terminal_id: str, draw_id_value: str) -> "ExpectedTenantTotals":
+        if self.by_seller_draw is None:
+            self.by_seller_draw = {}
+        return self.by_seller_draw.setdefault((seller_terminal_id, draw_id_value), ExpectedTenantTotals())
 
 
 @dataclass(frozen=True)
@@ -196,6 +202,13 @@ def _result_apply_mode() -> str:
 def _catalog_mutation_allowed() -> bool:
     raw = os.environ.get("TCH_E2E_ALLOW_CATALOG_MUTATION", "").strip().lower()
     return raw in {"1", "true", "yes"}
+
+
+def _env_mode(name: str, default: str, allowed: set[str]) -> str:
+    raw = os.environ.get(name, default).strip().lower()
+    if raw not in allowed:
+        raise AssertionError(f"{name} must be one of {sorted(allowed)}, got {raw!r}")
+    return raw
 
 
 def _start_date() -> dt.date:
@@ -840,6 +853,65 @@ def _sell_ticket(
     return _id(ticket_id), total_amount, scenario.expected_promotion_lines, scenario.expected_winnings
 
 
+def _print_ticket_pdf(seller: SellerRuntime, ticket_id: str) -> bytes:
+    response = seller.client.post(
+        f"/tenant/cashier/tickets/{ticket_id}/print",
+        json={
+            "terminalId": seller.seller_terminal_id,
+            "printOptionsRequest": {
+                "outputFormat": "PDF",
+                "paperSize": "RECEIPT_80MM",
+            },
+            "recordPrint": True,
+            "deliveryOptions": ["RETURN_FILE"],
+        },
+        headers=_rid(),
+    )
+    assert_ok(response)
+    assert response.content, f"ticket print should return PDF bytes for {ticket_id}"
+    return response.content
+
+
+def _send_ticket_to_slack(seller: SellerRuntime, ticket_id: str) -> dict[str, Any]:
+    channel_key = os.environ.get("TCH_TEST_SLACK_CHANNEL_KEY", "delivery").strip() or "delivery"
+    response = seller.client.post(
+        f"/tenant/cashier/tickets/{ticket_id}/send",
+        json={
+            "terminalId": seller.seller_terminal_id,
+            "channel": "SLACK_INTERNAL",
+            "channelKey": channel_key,
+            "locale": "fr",
+        },
+        headers=_rid(),
+    )
+    assert_ok(response, expected=(200, 202))
+    return _data(response) or {}
+
+
+def _maybe_print_and_deliver_ticket(
+    runtime: TenantRuntime,
+    seller: SellerRuntime,
+    ticket_id: str,
+    *,
+    printed_or_sent: set[tuple[str, str]],
+) -> None:
+    print_mode = _env_mode("TCH_E2E_TICKET_PRINT_MODE", "none", {"none", "sample", "all"})
+    slack_mode = _env_mode("TCH_E2E_TICKET_SLACK_MODE", "none", {"none", "sample", "all"})
+    sample_key = (runtime.code, seller.seller_terminal_id)
+    should_sample = sample_key not in printed_or_sent
+
+    if print_mode == "all" or (print_mode == "sample" and should_sample):
+        pdf = _print_ticket_pdf(seller, ticket_id)
+        assert pdf.startswith(b"%PDF"), f"ticket print should return a PDF document for {ticket_id}"
+
+    if slack_mode == "all" or (slack_mode == "sample" and should_sample):
+        sent = _send_ticket_to_slack(seller, ticket_id)
+        assert sent is not None, f"ticket Slack delivery should return data for {ticket_id}"
+
+    if should_sample and (print_mode == "sample" or slack_mode == "sample"):
+        printed_or_sent.add(sample_key)
+
+
 def _record_manual_results(sa: ApiClient, draws: list[dict[str, Any]], result: ManualResultPlan) -> float:
     started = time.monotonic()
     seen: set[tuple[str, str]] = set()
@@ -1059,6 +1131,25 @@ def _assert_reports(
         assert (
             sum((_decimal(row["sellerCommission"]) for row in seller_rows), Decimal("0.00"))
             == seller_expected.seller_commission
+        )
+    rows_by_seller_draw = {
+        (row["sellerTerminalId"], row["drawId"]): row for row in financials["sellerTerminalDrawRows"]
+    }
+    sellers_per_draw: dict[str, set[str]] = {draw_id_value: set() for draw_id_value in draw_ids}
+    for (seller_id, draw_id_value), seller_draw_expected in (expected.by_seller_draw or {}).items():
+        row = rows_by_seller_draw.get((seller_id, draw_id_value))
+        assert row, (
+            f"{runtime.code} financial breakdown missing seller×draw row: "
+            f"seller={seller_id} draw={draw_id_value}"
+        )
+        assert row["ticketsSold"] == seller_draw_expected.tickets
+        assert _decimal(row["grossSales"]) == seller_draw_expected.gross_sales
+        assert _decimal(row["sellerCommission"]) == seller_draw_expected.seller_commission
+        sellers_per_draw.setdefault(draw_id_value, set()).add(seller_id)
+    for draw_id_value, seller_ids in sellers_per_draw.items():
+        assert len(seller_ids) == len(runtime.sellers), (
+            f"{runtime.code} draw {draw_id_value} should have participation from every configured "
+            f"seller terminal; expected={len(runtime.sellers)} actual={len(seller_ids)} sellers={seller_ids}"
         )
 
     direct_top = _draw_top_selections(runtime, draws[0])
@@ -1316,8 +1407,10 @@ def test_business_day_happy_path_supports_reports_results_and_future_locust(
 
         expected = ExpectedTenantTotals()
         winning_probes: list[WinningTicketProbe] = []
+        printed_or_sent: set[tuple[str, str]] = set()
         for draw_index, draw in enumerate(draws):
             ticket_index = 0
+            draw_id_value = draw_id(draw)
             for _ in range(config.basket_repeats):
                 for seller_offset in range(len(runtime.sellers)):
                     seller = runtime.sellers[(draw_index + seller_offset) % len(runtime.sellers)]
@@ -1343,6 +1436,18 @@ def test_business_day_happy_path_supports_reports_results_and_future_locust(
                         seller_expected.seller_commission += (
                             total * Decimal(seller.plan.commission_rate) / Decimal("100")
                         ).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+                        seller_draw_expected = expected.seller_draw(seller.seller_terminal_id, draw_id_value)
+                        seller_draw_expected.tickets += 1
+                        seller_draw_expected.gross_sales += total
+                        seller_draw_expected.seller_commission += (
+                            total * Decimal(seller.plan.commission_rate) / Decimal("100")
+                        ).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+                        _maybe_print_and_deliver_ticket(
+                            runtime,
+                            seller,
+                            ticket_id,
+                            printed_or_sent=printed_or_sent,
+                        )
                         ticket_index += 1
 
             min_tickets = _env_int("TCH_E2E_BUSINESS_DAY_MIN_TICKETS_PER_DRAW", 10)
