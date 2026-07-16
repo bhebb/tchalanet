@@ -109,6 +109,7 @@
       },
       "install": {
         "action": "Ajoute sou ekran akèy",
+        "androidHint": "Sou Android, ouvri meni navigatè a, epi chwazi Enstale aplikasyon an oswa Ajoute sou ekran akèy.",
         "body": "Louvri Tchalanet sou telefòn sa a ak yon sèl jès.",
         "browserHint": "Si bouton natif la pa parèt, ouvri meni navigatè a epi chwazi Ajoute sou ekran akèy.",
         "iosHint": "Sou iPhone, itilize bouton Pataje a, apre sa Ajoute sou ekran akèy.",
