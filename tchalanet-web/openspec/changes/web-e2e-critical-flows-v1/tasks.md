@@ -40,6 +40,20 @@ source — that is the only production-source edit this change allows.
 - [ ] **Wrong-role cross-app block** — `test.fixme` pending confirmation of the
       `location.assign` landing (open question).
 
+## 1c. Phase 2 — Platform support mode (`specs/web-e2e-support-tenant-phase2`)
+
+> Super-admin support-tenant flow. Reuses the Phase 1 harness (LoginPage
+> fixture). **Landed** (`support/pages/support-tenant.page.ts`,
+> `src/platform-portal/support-tenant.spec.ts`, `data-testid`s on the
+> support-tenant page + start-access dialog). Auth/data tests `test.skip` until
+> creds/seeded tenants are provided.
+
+- [x] `/app/platform/support-tenant` guarded → `/login` when unauthenticated.
+- [x] Super-admin renders the support-tenant screen (table or empty-state).
+- [x] "Mode support admin" row action opens `tch-start-tenant-admin-access-dialog`.
+- [ ] Confirm start-access → session starts (deeper flow; needs a seeded tenant +
+      backend, left for a follow-up).
+
 ## 2. Public portal (`specs/public-portal-e2e`)
 
 - [ ] Keep the existing shell smoke.

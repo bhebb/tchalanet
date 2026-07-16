@@ -12,7 +12,13 @@
   <section class="support-tenant-page__filters" [formGroup]="filters">
     <mat-form-field appearance="outline">
       <mat-label>Rechercher</mat-label>
-      <input matInput formControlName="q" placeholder="Nom, code..." (keyup.enter)="applyFilters()" />
+      <input
+        matInput
+        formControlName="q"
+        data-testid="support-tenant-search"
+        placeholder="Nom, code..."
+        (keyup.enter)="applyFilters()"
+      />
     </mat-form-field>
 
     <mat-form-field appearance="outline">
@@ -74,7 +80,13 @@
       <ng-container matColumnDef="actions">
         <th mat-header-cell *matHeaderCellDef></th>
         <td mat-cell *matCellDef="let row" class="support-tenant-page__actions">
-          <button mat-flat-button color="primary" type="button" (click)="openSupportAccess(row)">
+          <button
+            mat-flat-button
+            color="primary"
+            type="button"
+            data-testid="support-tenant-open-access"
+            (click)="openSupportAccess(row)"
+          >
             <span class="material-symbols-outlined" aria-hidden="true">admin_panel_settings</span>
             Mode support admin
           </button>

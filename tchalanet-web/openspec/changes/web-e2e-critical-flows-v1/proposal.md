@@ -86,3 +86,14 @@ overrides. Config/general screens (setup, limits editing, POS sale, reporting)
 remain Phase 2. Grounding: `libs/core/auth` (`LoginPage`, `AuthRedirectService`,
 `auth.guard.ts`), `libs/api` (`TchBackendClient.asTenantAdmin`),
 `apps/admin-portal/src/app/features/seller-terminals`.
+
+## Deepened — 2026-07-15 — Phase 2 (platform support mode)
+
+Second slice (`specs/web-e2e-support-tenant-phase2`, `tasks.md §1c`): the
+super-admin **support-tenant** flow — open `/app/platform/support-tenant`, render
+the tenant list/empty-state, and open the start-tenant-admin-access dialog on a
+tenant row. Reuses the Phase 1 harness (LoginPage fixture) and adds a
+`SupportTenantPage` page object. Grounding:
+`apps/platform-portal/src/app/features/support-tenant` and the shared
+`start-tenant-admin-access-dialog`. Completing the start-access session (backend
+side effect) is left for a follow-up.
