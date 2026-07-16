@@ -532,6 +532,12 @@ jobs:
   web-e2e:
     name: Web E2E
     runs-on: ubuntu-latest
+    # Non-blocking: the browser suite is observational (auth flows skip without
+    # seeded creds; portal <-> backend wiring still being confirmed), so a red
+    # run must not fail the nightly. Point at deployed portals by setting
+    # WEB_E2E_EXTERNAL=1 + PUBLIC/ADMIN/PLATFORM_BASE_URL and the TCH_E2E_* creds
+    # (repo vars/secrets); unset keeps the local `nx serve` targets.
+    continue-on-error: true
     defaults:
       run:
         working-directory: tchalanet-web
@@ -559,6 +565,17 @@ jobs:
 
       - name: Run web E2E
         run: pnpm nx e2e web-e2e
+
+      - name: Upload Playwright report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-e2e-report
+          path: |
+            tchalanet-web/apps/web-e2e/playwright-report
+            tchalanet-web/dist/.playwright/apps/web-e2e/playwright-report
+          if-no-files-found: ignore
+          retention-days: 7
 
   mobile-full:
     name: Mobile full check
