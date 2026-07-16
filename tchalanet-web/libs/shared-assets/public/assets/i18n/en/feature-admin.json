@@ -213,6 +213,7 @@
         "emptyMessage": "No sales activity was found for this period.",
         "action": {
           "print": "Print",
+          "exportPdf": "Export PDF",
           "exportCsv": "Export CSV"
         },
         "filters": {
@@ -238,6 +239,7 @@
         "emptyMessage": "Draw sales will appear here once tickets are sold.",
         "action": {
           "print": "Print",
+          "exportPdf": "Export PDF",
           "exportCsv": "Export CSV"
         },
         "filters": {
@@ -275,6 +277,7 @@
         "emptyMessage": "Seller performance will appear here once tickets are sold.",
         "action": {
           "print": "Print",
+          "exportPdf": "Export PDF",
           "exportCsv": "Export CSV"
         },
         "filters": {

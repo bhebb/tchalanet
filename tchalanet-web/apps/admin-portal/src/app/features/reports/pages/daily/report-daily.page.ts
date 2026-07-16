@@ -15,6 +15,7 @@ import {
 } from '../../components/daily-sales-chart/daily-sales-chart.component';
 import { ReportMetricCardComponent } from '../../components/report-metric-card/report-metric-card.component';
 import { AdminReportDailyRow, AdminReportOverview, AdminReportsApi } from '../../data-access/admin-reports-api.service';
+import { exportReportCsv, exportReportPdf } from '../../utils/report-export.util';
 
 const DEFAULT_CURRENCY = 'HTG';
 
@@ -86,8 +87,8 @@ export class AdminReportDailyPage {
 
   exportCsv(vm: AdminReportOverview): void {
     const header = ['refDate', 'ticketsSold', 'grossSales', 'payoutsPaid', 'sellerCommission', 'tenantCharges', 'netRevenueEstimated'];
-    const lines = [
-      header.join(','),
+    exportReportCsv(`rapport-journee-${vm.from}-${vm.to}.csv`, [
+      header,
       ...vm.dailyRows.map(row => [
         row.refDate,
         row.ticketsSold,
@@ -96,19 +97,12 @@ export class AdminReportDailyPage {
         row.sellerCommission,
         row.tenantCharges,
         row.netRevenueEstimated,
-      ].join(',')),
-    ];
-    const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement('a');
-    anchor.href = url;
-    anchor.download = `rapport-journee-${vm.from}-${vm.to}.csv`;
-    anchor.click();
-    URL.revokeObjectURL(url);
+      ]),
+    ]);
   }
 
-  printReport(): void {
-    window.print();
+  exportPdf(): void {
+    exportReportPdf();
   }
 
   trackDailyRow(_index: number, row: AdminReportDailyRow): string {

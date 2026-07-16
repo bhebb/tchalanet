@@ -16,6 +16,7 @@ import {
   AdminReportSellerTerminals,
   AdminReportsApi,
 } from '../../data-access/admin-reports-api.service';
+import { exportReportCsv, exportReportPdf } from '../../utils/report-export.util';
 
 const DEFAULT_CURRENCY = 'HTG';
 const SELLER_SORT_VALUES = [
@@ -167,8 +168,8 @@ export class AdminReportSellersPage {
       'drawCount',
       'averageGrossSalesPerDraw',
     ];
-    const lines = [
-      header.join(','),
+    exportReportCsv(`rapport-vendeurs-${vm.from}-${vm.to}.csv`, [
+      header,
       ...this.sortedRows(vm.rows).map(row => [
         row.sellerTerminalId,
         row.terminalCode ?? '',
@@ -181,19 +182,12 @@ export class AdminReportSellersPage {
         row.netRevenueEstimated,
         row.drawCount,
         row.averageGrossSalesPerDraw,
-      ].map(csvCell).join(',')),
-    ];
-    const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement('a');
-    anchor.href = url;
-    anchor.download = `rapport-vendeurs-${vm.from}-${vm.to}.csv`;
-    anchor.click();
-    URL.revokeObjectURL(url);
+      ]),
+    ]);
   }
 
-  printReport(): void {
-    window.print();
+  exportPdf(): void {
+    exportReportPdf();
   }
 }
 
@@ -208,9 +202,4 @@ function compareSellerRows(a: AdminReportSellerTerminalRow, b: AdminReportSeller
     default:
       return a.grossSales - b.grossSales;
   }
-}
-
-function csvCell(value: string | number): string {
-  const text = String(value);
-  return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 }

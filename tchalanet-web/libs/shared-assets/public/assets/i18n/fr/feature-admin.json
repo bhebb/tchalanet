@@ -429,6 +429,7 @@
         "emptyMessage": "Aucune vente trouvée pour cette période.",
         "action": {
           "print": "Imprimer",
+          "exportPdf": "Exporter PDF",
           "exportCsv": "Exporter CSV"
         },
         "filters": {
@@ -454,6 +455,7 @@
         "emptyMessage": "Les ventes par tirage apparaîtront ici après la vente de tickets.",
         "action": {
           "print": "Imprimer",
+          "exportPdf": "Exporter PDF",
           "exportCsv": "Exporter CSV"
         },
         "filters": {
@@ -491,6 +493,7 @@
         "emptyMessage": "La performance vendeur apparaîtra ici après la vente de tickets.",
         "action": {
           "print": "Imprimer",
+          "exportPdf": "Exporter PDF",
           "exportCsv": "Exporter CSV"
         },
         "filters": {

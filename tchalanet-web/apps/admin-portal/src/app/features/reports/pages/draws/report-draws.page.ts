@@ -13,6 +13,7 @@ import { Observable } from 'rxjs';
 import { DrawReportFilterBarComponent } from '../../components/draw-report-filter-bar/draw-report-filter-bar.component';
 import { ReportMetricCardComponent } from '../../components/report-metric-card/report-metric-card.component';
 import { AdminReportDrawRow, AdminReportDraws, AdminReportsApi } from '../../data-access/admin-reports-api.service';
+import { exportReportCsv, exportReportPdf } from '../../utils/report-export.util';
 
 const DEFAULT_CURRENCY = 'HTG';
 const DRAW_SORT_VALUES = [
@@ -124,15 +125,15 @@ export class AdminReportDrawsPage {
     return [...rows].sort((a, b) => compareDrawRows(a, b, field) * factor);
   }
 
-  printReport(): void {
-    window.print();
+  exportPdf(): void {
+    exportReportPdf();
   }
 
   exportCsv(vm: AdminReportDraws): void {
     const rows = this.sortedRows(vm.rows);
     const header = ['drawId', 'scheduledAt', 'drawChannelCode', 'gameCode', 'ticketsSold', 'grossSales', 'payoutsPaid', 'netRevenueEstimated'];
-    const lines = [
-      header.join(','),
+    exportReportCsv(`rapport-tirages-${vm.from}-${vm.to}.csv`, [
+      header,
       ...rows.map(row => [
         row.drawId,
         row.scheduledAt,
@@ -142,15 +143,8 @@ export class AdminReportDrawsPage {
         row.grossSales,
         row.payoutsPaid,
         row.netRevenueEstimated,
-      ].map(csvCell).join(',')),
-    ];
-    const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement('a');
-    anchor.href = url;
-    anchor.download = `rapport-tirages-${vm.from}-${vm.to}.csv`;
-    anchor.click();
-    URL.revokeObjectURL(url);
+      ]),
+    ]);
   }
 }
 
@@ -163,9 +157,4 @@ function compareDrawRows(a: AdminReportDrawRow, b: AdminReportDrawRow, field: st
     default:
       return a.scheduledAt.localeCompare(b.scheduledAt);
   }
-}
-
-function csvCell(value: string | number): string {
-  const text = String(value);
-  return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 }

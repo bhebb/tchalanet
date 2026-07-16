@@ -221,6 +221,7 @@
         "emptyMessage": "Pa gen vant pou peryòd sa a.",
         "action": {
           "print": "Enprime",
+          "exportPdf": "Ekspòte PDF",
           "exportCsv": "Ekspòte CSV"
         },
         "filters": {
@@ -246,6 +247,7 @@
         "emptyMessage": "Vant pa tiraj ap parèt isit la lè tikè vann.",
         "action": {
           "print": "Enprime",
+          "exportPdf": "Ekspòte PDF",
           "exportCsv": "Ekspòte CSV"
         },
         "filters": {
@@ -283,6 +285,7 @@
         "emptyMessage": "Pèfòmans vandè ap parèt isit la lè tikè vann.",
         "action": {
           "print": "Enprime",
+          "exportPdf": "Ekspòte PDF",
           "exportCsv": "Ekspòte CSV"
         },
         "filters": {
