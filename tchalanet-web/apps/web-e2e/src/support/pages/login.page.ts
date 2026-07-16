@@ -9,14 +9,15 @@ import type { Credentials } from '../env';
  */
 export class LoginPage {
   readonly root: Locator;
-  readonly email: Locator;
+  readonly identifier: Locator;
   readonly password: Locator;
   readonly submit: Locator;
   readonly error: Locator;
 
   constructor(private readonly page: Page) {
     this.root = page.locator('tch-login-page');
-    this.email = page.getByTestId('login-email');
+    // The login accepts an identifier (username or email).
+    this.identifier = page.getByTestId('login-identifier');
     this.password = page.getByTestId('login-password');
     this.submit = page.getByTestId('login-submit');
     this.error = page.getByTestId('login-error');
@@ -28,7 +29,7 @@ export class LoginPage {
   }
 
   private async fillAndSubmit(creds: Credentials): Promise<void> {
-    await this.email.fill(creds.email);
+    await this.identifier.fill(creds.email);
     await this.password.fill(creds.password);
     await this.submit.click();
   }
