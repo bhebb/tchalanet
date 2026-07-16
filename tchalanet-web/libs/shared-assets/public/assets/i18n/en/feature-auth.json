@@ -109,6 +109,7 @@
       },
       "install": {
         "action": "Add to Home Screen",
+        "androidHint": "On Android, open the browser menu, then choose Install app or Add to Home Screen.",
         "body": "Open Tchalanet from this phone with one tap.",
         "browserHint": "If the native prompt does not appear, open the browser menu and choose Add to Home Screen.",
         "iosHint": "On iPhone, use the Share button, then Add to Home Screen.",
