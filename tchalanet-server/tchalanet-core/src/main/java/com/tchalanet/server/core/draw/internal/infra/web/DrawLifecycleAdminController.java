@@ -134,7 +134,7 @@ public class DrawLifecycleAdminController {
 
   @Operation(summary = "Settle multiple draws")
   @PostMapping("/settle")
-  @PreAuthorize("hasRole('SUPER_ADMIN') and hasPermission(null, 'draw.lifecycle.settle')")
+  @PreAuthorize("hasPermission(null, 'draw.lifecycle.settle')")
   @AuditLog(
       entity = AuditEntityType.DRAW,
       action = AuditAction.DRAW_SETTLE,

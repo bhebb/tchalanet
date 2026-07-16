@@ -4,6 +4,7 @@ import com.tchalanet.server.common.bus.Command;
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.money.CurrencyCode;
+import com.tchalanet.server.core.sales.api.command.sell.PromotionChoiceInput;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketLineInput;
 import com.tchalanet.server.core.sales.api.model.communication.SaleCommunicationOptions;
 import com.tchalanet.server.core.sales.api.model.preparation.SalePreparationView;
@@ -22,5 +23,16 @@ public record PrepareSaleCommand(
     @NotNull DrawChannelId drawChannelId,
     @NotNull CurrencyCode currency,
     @NotEmpty List<SellTicketLineInput> lines,
-    SaleCommunicationOptions communicationOptions)
-    implements Command<SalePreparationView> {}
+    SaleCommunicationOptions communicationOptions,
+    List<PromotionChoiceInput> promotionChoices)
+    implements Command<SalePreparationView> {
+
+  public PrepareSaleCommand(
+      DrawId drawId,
+      DrawChannelId drawChannelId,
+      CurrencyCode currency,
+      List<SellTicketLineInput> lines,
+      SaleCommunicationOptions communicationOptions) {
+    this(drawId, drawChannelId, currency, lines, communicationOptions, List.of());
+  }
+}

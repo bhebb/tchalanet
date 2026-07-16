@@ -35,6 +35,7 @@
     {"code": "seller_terminal.manage", "label": "Manage seller terminals", "category": "seller_terminal", "system": true, "active": true},
     {"code": "seller_terminal.block", "label": "Block/unblock seller terminals", "category": "seller_terminal", "system": true, "active": true},
     {"code": "seller_terminal.pin.reset", "label": "Reset seller terminal PIN", "category": "seller_terminal", "system": true, "active": true},
+    {"code": "ticket.payout.adjust", "label": "Adjust ticket paid payout amount", "category": "ticket", "system": true, "active": true},
     {"code": "report.read", "label": "Read reports", "category": "report", "system": true, "active": true},
     {"code": "audit.read", "label": "Read audit", "category": "audit", "system": true, "active": true}
   ],
@@ -62,6 +63,7 @@
         "promotion.manage",
         "theme.read",
         "theme.manage",
+        "ticket.payout.adjust",
         "audit.read"
       ]
     },
@@ -97,7 +99,8 @@
         "report.read",
         "seller_terminal.manage",
         "seller_terminal.block",
-        "seller_terminal.pin.reset"
+        "seller_terminal.pin.reset",
+        "ticket.payout.adjust"
       ]
     },
     {

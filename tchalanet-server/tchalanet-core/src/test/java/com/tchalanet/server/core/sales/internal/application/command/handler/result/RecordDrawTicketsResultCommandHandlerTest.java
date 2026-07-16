@@ -23,7 +23,6 @@ import com.tchalanet.server.core.drawresult.api.query.view.DrawResultProjection;
 import com.tchalanet.server.core.sales.api.command.result.RecordDrawTicketsResultCommand;
 import com.tchalanet.server.core.sales.api.event.TicketPayoutPaidEvent;
 import com.tchalanet.server.core.sales.api.event.TicketResultedEvent;
-import com.tchalanet.server.core.sales.api.event.TicketWinningSettlementCreatedEvent;
 import com.tchalanet.server.core.sales.api.model.line.TicketLineResult;
 import com.tchalanet.server.core.sales.api.model.money.TicketMoneyBreakdown;
 import com.tchalanet.server.core.sales.api.model.origin.TicketSaleChannel;
@@ -102,7 +101,7 @@ class RecordDrawTicketsResultCommandHandlerTest {
   }
 
   @Test
-  void winningTicketIsSettledPaidAndPublishesRealizedWinningEvents() {
+  void winningTicketIsSettledPaidAndPublishesSingleFinancialEvent() {
     var store = new CapturingTicketStore(ticket("45"));
     var publisher = new CapturingEventPublisher();
     var handler = handler(store, publisher);
@@ -120,14 +119,6 @@ class RecordDrawTicketsResultCommandHandlerTest {
     assertThat(saved.lines().getFirst().payoutAmount().amount()).isEqualByComparingTo("125.00");
 
     assertThat(publisher.events()).filteredOn(TicketResultedEvent.class::isInstance).hasSize(1);
-    assertThat(publisher.events())
-        .filteredOn(TicketWinningSettlementCreatedEvent.class::isInstance)
-        .hasSize(1)
-        .first()
-        .satisfies(
-            event ->
-                assertThat(((TicketWinningSettlementCreatedEvent) event).amountCents())
-                    .isEqualTo(12_500L));
     assertThat(publisher.events())
         .filteredOn(TicketPayoutPaidEvent.class::isInstance)
         .hasSize(1)
@@ -156,7 +147,6 @@ class RecordDrawTicketsResultCommandHandlerTest {
 
     assertThat(publisher.events()).filteredOn(TicketResultedEvent.class::isInstance).hasSize(1);
     assertThat(publisher.events())
-        .noneMatch(TicketWinningSettlementCreatedEvent.class::isInstance)
         .noneMatch(TicketPayoutPaidEvent.class::isInstance);
   }
 

@@ -14,8 +14,6 @@ import com.tchalanet.server.core.sales.api.command.result.ReconcileTicketsForCor
 import com.tchalanet.server.core.sales.api.event.TicketPayoutPaidEvent;
 import com.tchalanet.server.core.sales.api.event.TicketPayoutReversedEvent;
 import com.tchalanet.server.core.sales.api.event.TicketResultCorrectedEvent;
-import com.tchalanet.server.core.sales.api.event.TicketWinningSettlementCreatedEvent;
-import com.tchalanet.server.core.sales.api.event.TicketWinningSettlementReversedEvent;
 import com.tchalanet.server.core.sales.api.model.status.TicketResultStatus;
 import com.tchalanet.server.core.sales.api.model.status.TicketSettlementStatus;
 import com.tchalanet.server.core.sales.internal.application.port.out.TicketReaderPort;
@@ -71,9 +69,6 @@ public class ReconcileTicketsForCorrectedDrawResultCommandHandler
     var now = clock.instant();
 
     var correctedEvents = new java.util.ArrayList<TicketResultCorrectedEvent>();
-    var winningSettlementEvents = new java.util.ArrayList<TicketWinningSettlementCreatedEvent>();
-    var winningSettlementReversedEvents =
-        new java.util.ArrayList<TicketWinningSettlementReversedEvent>();
     var payoutPaidEvents = new java.util.ArrayList<TicketPayoutPaidEvent>();
     var payoutReversedEvents = new java.util.ArrayList<TicketPayoutReversedEvent>();
     var affectedTicketIds =
@@ -101,19 +96,6 @@ public class ReconcileTicketsForCorrectedDrawResultCommandHandler
         var correctedWinningAmount = saved.winningAmount().amount();
         var correctedWon = correctedWinningAmount != null && correctedWinningAmount.signum() > 0;
 
-        if (previousWinning) {
-          winningSettlementReversedEvents.add(
-              new TicketWinningSettlementReversedEvent(
-                  EventId.of(idGenerator.newUuid()),
-                  now,
-                  ticket.identity().tenantId(),
-                  ticket.identity().id(),
-                  command.drawId(),
-                  previousWinningAmount.movePointRight(2).longValueExact(),
-                  ticket.money().currency().code(),
-                  ticket.context().sellerTerminalId(),
-                  SYSTEM_ACTOR));
-        }
         if (previousPaid) {
           payoutReversedEvents.add(
               new TicketPayoutReversedEvent(
@@ -128,16 +110,6 @@ public class ReconcileTicketsForCorrectedDrawResultCommandHandler
                   SYSTEM_ACTOR));
         }
         if (correctedWon) {
-          winningSettlementEvents.add(
-              new TicketWinningSettlementCreatedEvent(
-                  EventId.of(idGenerator.newUuid()),
-                  now,
-                  saved.identity().tenantId(),
-                  saved.identity().id(),
-                  command.drawId(),
-                  correctedWinningAmount.movePointRight(2).longValueExact(),
-                  saved.money().currency().code(),
-                  saved.context().sellerTerminalId()));
           payoutPaidEvents.add(
               new TicketPayoutPaidEvent(
                   EventId.of(idGenerator.newUuid()),
@@ -174,9 +146,7 @@ public class ReconcileTicketsForCorrectedDrawResultCommandHandler
     AfterCommit.run(
         () -> {
           correctedEvents.forEach(eventPublisher::publish);
-          winningSettlementReversedEvents.forEach(eventPublisher::publish);
           payoutReversedEvents.forEach(eventPublisher::publish);
-          winningSettlementEvents.forEach(eventPublisher::publish);
           payoutPaidEvents.forEach(eventPublisher::publish);
           salesTicketCacheEvictor.evictByDraw(command.drawId());
           affectedTicketIds.forEach(salesTicketCacheEvictor::evictByTicket);

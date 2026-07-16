@@ -67,7 +67,6 @@ Elles ne touchent pas aux tables analytics directement.
 | `GetPlatformDashboardStatsQuery` | Vue plateforme agrégée |
 | `GetTenantKpisQuery` | KPIs détaillés tenant |
 | `GetTenantFinancialBreakdownQuery` | Drilldowns tenant par jour, tirage et seller-terminal/jour |
-| `GetSalesReportQuery` | Rapport ventes |
 | `GetOutletReportQuery` | Rapport par outlet |
 
 ---
@@ -79,16 +78,18 @@ Elles ne touchent pas aux tables analytics directement.
 | `TicketPlacedEvent` | Incrémente les ventes officielles quand le ticket est APPROVED |
 | `TicketCancelledEvent` | Décrémente le nombre de tickets vendus et incrémente les annulations |
 | `DrawResultAppliedEvent` | Assure/enrichit la ligne `analytics_draw` |
-| `TicketWinningSettlementCreatedEvent` | Incrémente `winningsCalculated` |
-| `TicketPayoutPaidEvent` | Incrémente `payoutsPaid` |
-| `TicketPayoutReversedEvent` | Décrémente `payoutsPaid` en V1 |
+| `TicketPayoutPaidEvent` | Incrémente `winningsCalculated` et `payoutsPaid` |
+| `TicketPayoutPaidAmountAdjustedEvent` | Ajuste uniquement `payoutsPaid` |
+| `TicketPayoutReversedEvent` | Décrémente `winningsCalculated` et `payoutsPaid` |
 | `SalesSessionClosedEvent` | Ferme les métriques de session |
 
 Les projectors utilisent `ProcessedEventPort` pour l'idempotence.
-Après résultat, `winningsCalculated` consomme le montant réalisé publié par
-`TicketWinningSettlementCreatedEvent`; analytics ne recalcule pas un gain depuis les règles de
-settlement courantes. Après paiement, `payoutsPaid` consomme le montant réalisé de
-`TicketPayoutPaidEvent`.
+Après résultat, Tchalanet V1 considère le ticket gagnant comme réglé et payé par le système:
+`TicketPayoutPaidEvent` est l'unique événement financier consommé par analytics pour alimenter
+à la fois `winningsCalculated` et `payoutsPaid`. Analytics ne recalcule pas un gain depuis les
+règles de settlement courantes. Si le montant réellement payé doit être corrigé sans modifier le
+gain calculé, `TicketPayoutPaidAmountAdjustedEvent` applique seulement le delta de paiement à
+`payoutsPaid`; une erreur de calcul doit être corrigée dans les règles/code puis rejouée.
 
 ---
 

@@ -63,7 +63,8 @@ public class SalePreparationController {
                 body.drawChannelId(),
                 body.currency(),
                 body.lines().stream().map(SellTicketLineRequest::toLine).toList(),
-                body.serviceOptions()));
+                body.serviceOptions(),
+                body.promotionChoices() == null ? java.util.List.of() : body.promotionChoices()));
     return ApiResponse.success(result);
   }
 

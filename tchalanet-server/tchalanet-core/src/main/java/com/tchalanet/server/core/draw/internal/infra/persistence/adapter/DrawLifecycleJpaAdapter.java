@@ -231,8 +231,6 @@ public class DrawLifecycleJpaAdapter implements DrawLifecyclePort {
     requireSame("tenantId", entity.getTenantId(), draw.tenantId().value());
     requireSame("drawChannelId", entity.getDrawChannelId(), draw.drawChannelId().value());
     requireSame("drawDate", entity.getDrawDate(), draw.drawDate());
-    requireSame("scheduledAt", entity.getScheduledAt(), draw.scheduledAt());
-    requireSame("cutoffAt", entity.getCutoffAt(), draw.cutoffAt());
     requireSame("systemGenerated", entity.isSystemGenerated(), draw.systemGenerated());
   }
 

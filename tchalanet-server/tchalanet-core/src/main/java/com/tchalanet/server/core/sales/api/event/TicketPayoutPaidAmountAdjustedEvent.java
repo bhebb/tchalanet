@@ -9,14 +9,18 @@ import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.types.id.UserId;
 import java.time.Instant;
 
-public record TicketWinningSettlementReversedEvent(
+public record TicketPayoutPaidAmountAdjustedEvent(
     EventId eventId,
     Instant occurredAt,
     TenantId tenantId,
     TicketId ticketId,
     DrawId drawId,
-    long amountCents,
+    long calculatedAmountCents,
+    long previousPaidAmountCents,
+    long adjustedPaidAmountCents,
+    long deltaAmountCents,
     String currency,
     SellerTerminalId sellerTerminalId,
-    UserId reversedBy)
+    String reason,
+    UserId adjustedBy)
     implements DomainEvent {}

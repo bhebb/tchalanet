@@ -21,6 +21,9 @@ import com.tchalanet.server.core.sales.internal.application.service.sell.promoti
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
 import com.tchalanet.server.platform.identity.api.model.AutonomyLevel;
 import com.tchalanet.server.platform.tenant.api.TenantBusinessCalendarApi;
+import com.tchalanet.server.platform.tenant.api.TenantConfigApi;
+import com.tchalanet.server.platform.tenant.api.model.TenantStatus;
+import com.tchalanet.server.platform.tenant.api.model.request.GetTenantByIdRequest;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -48,6 +51,7 @@ public class SalePreparationOrchestrator {
   private final PosSaleContextResolver posSaleContextResolver;
   private final SaleMoneyCalculator saleMoneyCalculator;
   private final TenantBusinessCalendarApi tenantBusinessCalendarApi;
+  private final TenantConfigApi tenantConfigApi;
   private final QueryBus queryBus;
   private final SalePromotionEffectApplier promotionEffectApplier;
 
@@ -61,6 +65,7 @@ public class SalePreparationOrchestrator {
 
     var now = tchTimeProvider.now();
     var tenantId = ctx.effectiveTenantIdRequired();
+    assertTenantActive(tenantId);
     assertTenantBusinessOpen(ctx, tenantId, now);
     saleCommandValidator.validateTenantConfiguration(command, tenantId);
 
@@ -183,6 +188,13 @@ public class SalePreparationOrchestrator {
 
   private static long toCents(BigDecimal amount) {
     return amount.movePointRight(2).longValue();
+  }
+
+  private void assertTenantActive(TenantId tenantId) {
+    var tenant = tenantConfigApi.getTenantById(new GetTenantByIdRequest(tenantId));
+    if (tenant.status() != TenantStatus.ACTIVE) {
+      throw ProblemRest.forbidden("sales.tenant_disabled:" + tenant.status());
+    }
   }
 
   private void assertTenantBusinessOpen(TchRequestContext ctx, TenantId tenantId, Instant now) {

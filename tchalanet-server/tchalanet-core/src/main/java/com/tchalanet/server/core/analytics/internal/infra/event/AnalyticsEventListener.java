@@ -8,10 +8,9 @@ import com.tchalanet.server.core.analytics.internal.application.service.Analytic
 import com.tchalanet.server.core.draw.api.event.DrawResultAppliedEvent;
 import com.tchalanet.server.core.sales.api.event.TicketCancelledEvent;
 import com.tchalanet.server.core.sales.api.event.TicketPayoutPaidEvent;
+import com.tchalanet.server.core.sales.api.event.TicketPayoutPaidAmountAdjustedEvent;
 import com.tchalanet.server.core.sales.api.event.TicketPayoutReversedEvent;
 import com.tchalanet.server.core.sales.api.event.TicketPlacedEvent;
-import com.tchalanet.server.core.sales.api.event.TicketWinningSettlementCreatedEvent;
-import com.tchalanet.server.core.sales.api.event.TicketWinningSettlementReversedEvent;
 import com.tchalanet.server.platform.idempotence.api.ProcessedEventPort;
 import com.tchalanet.server.platform.tenant.api.TenantZoneApi;
 import java.time.LocalDate;
@@ -19,6 +18,7 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -55,7 +55,7 @@ public class AnalyticsEventListener {
 
   // ── ticket placed ─────────────────────────────────────────────────────────
 
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
   public void onTicketPlaced(TicketPlacedEvent event) {
     if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_DAILY, event.eventId().value())) {
       log.debug("analytics: duplicate TicketPlacedEvent {}", event.eventId().value());
@@ -67,7 +67,7 @@ public class AnalyticsEventListener {
 
   // ── ticket cancelled ──────────────────────────────────────────────────────
 
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
   public void onTicketCancelled(TicketCancelledEvent event) {
     if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_DAILY, event.eventId().value())) {
       log.debug("analytics: duplicate TicketCancelledEvent {}", event.eventId().value());
@@ -77,115 +77,39 @@ public class AnalyticsEventListener {
     dailyProjector.applyTicketCancelled(event, refDate);
   }
 
-  // ── winning settlement created ────────────────────────────────────────────
+  // ── ticket settled and paid / reversed ────────────────────────────────────
 
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-  public void onTicketWinningSettlementCreated(TicketWinningSettlementCreatedEvent event) {
-    if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_DAILY, event.eventId().value())) {
-      log.debug(
-          "analytics: duplicate TicketWinningSettlementCreatedEvent {}", event.eventId().value());
-      return;
-    }
-    LocalDate refDate = refDate(event);
-    dailyProjector.applyTicketWinningSettlementCreated(event, refDate);
-  }
-
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-  public void onTicketWinningSettlementReversed(TicketWinningSettlementReversedEvent event) {
-    if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_DAILY, event.eventId().value())) {
-      log.debug(
-          "analytics: duplicate TicketWinningSettlementReversedEvent {}", event.eventId().value());
-      return;
-    }
-    LocalDate refDate = refDate(event);
-    dailyProjector.applyTicketWinningSettlementReversed(event, refDate);
-  }
-
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-  public void onTicketWinningSettlementCreatedForDraw(TicketWinningSettlementCreatedEvent event) {
-    if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_DRAW, event.eventId().value())) {
-      log.debug(
-          "analytics: duplicate TicketWinningSettlementCreatedEvent (draw) {}",
-          event.eventId().value());
-      return;
-    }
-    LocalDate refDate = refDate(event);
-    drawProjector.applyTicketWinningSettlementCreated(event, refDate);
-  }
-
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-  public void onTicketWinningSettlementCreatedForSellerTerminalDraw(
-      TicketWinningSettlementCreatedEvent event) {
-    if (!processedEvent.markProcessedIfAbsent(
-        HANDLER_KEY_SELLER_TERMINAL_DRAW, event.eventId().value())) {
-      log.debug(
-          "analytics: duplicate TicketWinningSettlementCreatedEvent (seller-terminal-draw) {}",
-          event.eventId().value());
-      return;
-    }
-    LocalDate refDate = refDate(event);
-    sellerTerminalDrawProjector.applyTicketWinningSettlementCreated(event, refDate);
-  }
-
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-  public void onTicketWinningSettlementReversedForDraw(TicketWinningSettlementReversedEvent event) {
-    if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_DRAW, event.eventId().value())) {
-      log.debug(
-          "analytics: duplicate TicketWinningSettlementReversedEvent (draw) {}",
-          event.eventId().value());
-      return;
-    }
-    LocalDate refDate = refDate(event);
-    drawProjector.applyTicketWinningSettlementReversed(event, refDate);
-  }
-
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-  public void onTicketWinningSettlementReversedForSellerTerminalDraw(
-      TicketWinningSettlementReversedEvent event) {
-    if (!processedEvent.markProcessedIfAbsent(
-        HANDLER_KEY_SELLER_TERMINAL_DRAW, event.eventId().value())) {
-      log.debug(
-          "analytics: duplicate TicketWinningSettlementReversedEvent (seller-terminal-draw) {}",
-          event.eventId().value());
-      return;
-    }
-    LocalDate refDate = refDate(event);
-    sellerTerminalDrawProjector.applyTicketWinningSettlementReversed(event, refDate);
-  }
-
-  // ── payout paid / reversed ────────────────────────────────────────────────
-
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  @EventListener
   public void onTicketPayoutPaid(TicketPayoutPaidEvent event) {
     if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_DAILY, event.eventId().value())) {
       log.debug("analytics: duplicate TicketPayoutPaidEvent {}", event.eventId().value());
       return;
     }
     LocalDate refDate = refDate(event);
-    dailyProjector.applyTicketPayoutPaid(event, refDate);
+    dailyProjector.applyTicketSettledAndPaid(event, refDate);
   }
 
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  @EventListener
   public void onTicketPayoutReversed(TicketPayoutReversedEvent event) {
     if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_DAILY, event.eventId().value())) {
       log.debug("analytics: duplicate TicketPayoutReversedEvent {}", event.eventId().value());
       return;
     }
     LocalDate refDate = refDate(event);
-    dailyProjector.applyTicketPayoutReversed(event, refDate);
+    dailyProjector.applyTicketSettlementAndPayoutReversed(event, refDate);
   }
 
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  @EventListener
   public void onTicketPayoutPaidForDraw(TicketPayoutPaidEvent event) {
     if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_DRAW, event.eventId().value())) {
       log.debug("analytics: duplicate TicketPayoutPaidEvent (draw) {}", event.eventId().value());
       return;
     }
     LocalDate refDate = refDate(event);
-    drawProjector.applyTicketPayoutPaid(event, refDate);
+    drawProjector.applyTicketSettledAndPaid(event, refDate);
   }
 
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  @EventListener
   public void onTicketPayoutPaidForSellerTerminalDraw(TicketPayoutPaidEvent event) {
     if (!processedEvent.markProcessedIfAbsent(
         HANDLER_KEY_SELLER_TERMINAL_DRAW, event.eventId().value())) {
@@ -195,10 +119,47 @@ public class AnalyticsEventListener {
       return;
     }
     LocalDate refDate = refDate(event);
-    sellerTerminalDrawProjector.applyTicketPayoutPaid(event, refDate);
+    sellerTerminalDrawProjector.applyTicketSettledAndPaid(event, refDate);
   }
 
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  @EventListener
+  public void onTicketPayoutPaidAmountAdjusted(TicketPayoutPaidAmountAdjustedEvent event) {
+    if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_DAILY, event.eventId().value())) {
+      log.debug(
+          "analytics: duplicate TicketPayoutPaidAmountAdjustedEvent {}", event.eventId().value());
+      return;
+    }
+    LocalDate refDate = refDate(event);
+    dailyProjector.applyTicketPayoutPaidAmountAdjusted(event, refDate);
+  }
+
+  @EventListener
+  public void onTicketPayoutPaidAmountAdjustedForDraw(TicketPayoutPaidAmountAdjustedEvent event) {
+    if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_DRAW, event.eventId().value())) {
+      log.debug(
+          "analytics: duplicate TicketPayoutPaidAmountAdjustedEvent (draw) {}",
+          event.eventId().value());
+      return;
+    }
+    LocalDate refDate = refDate(event);
+    drawProjector.applyTicketPayoutPaidAmountAdjusted(event, refDate);
+  }
+
+  @EventListener
+  public void onTicketPayoutPaidAmountAdjustedForSellerTerminalDraw(
+      TicketPayoutPaidAmountAdjustedEvent event) {
+    if (!processedEvent.markProcessedIfAbsent(
+        HANDLER_KEY_SELLER_TERMINAL_DRAW, event.eventId().value())) {
+      log.debug(
+          "analytics: duplicate TicketPayoutPaidAmountAdjustedEvent (seller-terminal-draw) {}",
+          event.eventId().value());
+      return;
+    }
+    LocalDate refDate = refDate(event);
+    sellerTerminalDrawProjector.applyTicketPayoutPaidAmountAdjusted(event, refDate);
+  }
+
+  @EventListener
   public void onTicketPayoutReversedForDraw(TicketPayoutReversedEvent event) {
     if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_DRAW, event.eventId().value())) {
       log.debug(
@@ -206,10 +167,10 @@ public class AnalyticsEventListener {
       return;
     }
     LocalDate refDate = refDate(event);
-    drawProjector.applyTicketPayoutReversed(event, refDate);
+    drawProjector.applyTicketSettlementAndPayoutReversed(event, refDate);
   }
 
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  @EventListener
   public void onTicketPayoutReversedForSellerTerminalDraw(TicketPayoutReversedEvent event) {
     if (!processedEvent.markProcessedIfAbsent(
         HANDLER_KEY_SELLER_TERMINAL_DRAW, event.eventId().value())) {
@@ -219,12 +180,12 @@ public class AnalyticsEventListener {
       return;
     }
     LocalDate refDate = refDate(event);
-    sellerTerminalDrawProjector.applyTicketPayoutReversed(event, refDate);
+    sellerTerminalDrawProjector.applyTicketSettlementAndPayoutReversed(event, refDate);
   }
 
   // ── selection projector ───────────────────────────────────────────────────
 
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
   public void onTicketPlacedForSelection(TicketPlacedEvent event) {
     if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_SELECTION, event.eventId().value())) {
       log.debug("analytics: duplicate TicketPlacedEvent (selection) {}", event.eventId().value());
@@ -234,7 +195,7 @@ public class AnalyticsEventListener {
     selectionProjector.applyTicketPlaced(event, refDate);
   }
 
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
   public void onTicketPlacedForDraw(TicketPlacedEvent event) {
     if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_DRAW, event.eventId().value())) {
       log.debug("analytics: duplicate TicketPlacedEvent (draw) {}", event.eventId().value());
@@ -244,7 +205,7 @@ public class AnalyticsEventListener {
     drawProjector.applyTicketPlaced(event, refDate);
   }
 
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
   public void onTicketPlacedForSellerTerminalDraw(TicketPlacedEvent event) {
     if (!processedEvent.markProcessedIfAbsent(
         HANDLER_KEY_SELLER_TERMINAL_DRAW, event.eventId().value())) {
@@ -259,7 +220,7 @@ public class AnalyticsEventListener {
 
   // ── draw resulted ─────────────────────────────────────────────────────────
 
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
   public void onDrawResultApplied(DrawResultAppliedEvent event) {
     if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_DRAW, event.eventId().value())) {
       log.debug("analytics: duplicate DrawResultAppliedEvent {}", event.eventId().value());

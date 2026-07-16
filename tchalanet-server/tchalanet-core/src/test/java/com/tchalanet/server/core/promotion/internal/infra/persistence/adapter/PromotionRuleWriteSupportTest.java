@@ -144,6 +144,56 @@ class PromotionRuleWriteSupportTest {
         .hasMessageContaining("promotion.rule.boost_odds_scale");
   }
 
+  @Test
+  void sellerSelectedMaryajGratisCanPersistZeroRegenerations() {
+    var campaigns = mock(PromotionCampaignRepository.class);
+    var rules = mock(PromotionRuleRepository.class);
+    var effects = mock(PromotionRuleEffectRepository.class);
+    var eligibility = mock(PromotionRuleEligibilityLineRepository.class);
+    var viewAssembler = mock(PromotionCampaignViewAssembler.class);
+    var support =
+        new PromotionRuleWriteSupport(campaigns, rules, effects, eligibility, viewAssembler);
+
+    when(campaigns.getRequired(CAMPAIGN_ID.value())).thenReturn(defaultMaryajCampaign());
+    when(rules.findByIdAndCampaignId(RULE_ID.value(), CAMPAIGN_ID.value()))
+        .thenReturn(Optional.of(rule()));
+    when(effects.save(any(PromotionRuleEffectJpaEntity.class)))
+        .thenAnswer(invocation -> invocation.getArgument(0));
+
+    support.updateRuleEffects(
+        new UpdatePromotionRuleEffectsCommand(
+            TENANT,
+            CAMPAIGN_ID,
+            RULE_ID,
+            List.of(
+                new PromotionEffectConfigInput(
+                    PromotionEffectType.FREE_GAME_LINE,
+                    Map.of(
+                        "gameCode",
+                        "HT_MARYAJ_GRATIS",
+                        "payoutBaseAmount",
+                        "50",
+                        "quantity",
+                        "1",
+                        "quantityMode",
+                        PromotionQuantityMode.FIXED.name(),
+                        "choiceMode",
+                        PromotionChoiceMode.SELLER_SELECTS.name(),
+                        "regenerableBeforeConfirm",
+                        "false",
+                        "maxRegenerationsBeforeConfirm",
+                        "0")))));
+
+    var saved = ArgumentCaptor.forClass(PromotionRuleEffectJpaEntity.class);
+    verify(effects).deleteByRuleId(RULE_ID.value());
+    verify(effects).flush();
+    verify(effects).save(saved.capture());
+
+    assertThat(saved.getValue().getChoiceMode()).isEqualTo(PromotionChoiceMode.SELLER_SELECTS);
+    assertThat(saved.getValue().isRegenerableBeforeConfirm()).isFalse();
+    assertThat(saved.getValue().getMaxRegenerationsBeforeConfirm()).isZero();
+  }
+
   private PromotionCampaignJpaEntity defaultMaryajCampaign() {
     var campaign = new PromotionCampaignJpaEntity();
     campaign.setId(CAMPAIGN_ID.value());

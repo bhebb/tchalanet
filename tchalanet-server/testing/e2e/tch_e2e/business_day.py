@@ -5,7 +5,7 @@ The business-day flow is intentionally data-heavy and explicit:
 * provision five isolated tenants with mixed Maryaj gratis/limits/overrides;
 * select one draw per active draw channel/result slot created by the DEFAULT_HAITI_LOTTERY profile;
 * sell a documented ticket basket on every selected draw;
-* record manual results, apply/settle them, then assert tenant/seller/draw stats.
+* record manual results, apply them, then assert tenant/seller/draw stats.
 
 Keep this file free of pytest imports so Locust can reuse the same tenant, draw and sales plans.
 """
@@ -83,7 +83,7 @@ class TenantScenarioPlan:
     draw_channel_codes: tuple[str, ...] = ()
     blocked_selection: str | None = None
     draw_channel_exposure_limit_cents: int | None = None
-    maryaj_gratis_fixed_amount: str = "500.00"
+    maryaj_gratis_fixed_amount: str = "50.00"
 
     @property
     def maryaj_gratis_expected(self) -> bool:
@@ -119,7 +119,7 @@ class TicketScenario:
     @property
     def auto_generated_promo_winning_ceiling(self) -> Decimal:
         if self.requires_maryaj_gratis and not self.seller_selects_promo_selection:
-            return Decimal("500.00")
+            return Decimal("50.00")
         return Decimal("0.00")
 
 
@@ -237,14 +237,11 @@ def exposure_limit_probe_ticket() -> TicketScenario:
 
 def maryaj_gratis_ticket(result: ManualResultPlan, plan: TenantScenarioPlan) -> TicketScenario:
     lines = (
-        line(1, "HT_BOLET", "MATCH_1_2D", "18", None, 100),
-        line(2, "HT_MARYAJ", "MARRIAGE_2D2D", result.maryaj_win, 1, 100),
+        line(1, "HT_MARYAJ", "MARRIAGE_2D2D", result.maryaj_win, 1, 10_000),
     )
-    expected = 100_000
-    # Seller-selects pins the free Maryaj selection to the winning numbers; auto-generated lines
-    # validate promo generation but are not deterministic winning selections.
-    if plan.maryaj_seller_selects_expected:
-        expected += int(Decimal(plan.maryaj_gratis_fixed_amount) * Decimal(100))
+    expected = 9_500_000
+    # Seller-selects must choose a free selection distinct from the paid Maryaj line; the happy path
+    # keeps that seller-selected promo non-winning until duplicate winning free lines are supported.
     return scenario(
         f"maryaj-{plan.maryaj_variant}",
         "Maryaj winning ticket; variant controls free-line fixed payout, boost odds, or disabled state.",

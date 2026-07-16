@@ -2,7 +2,7 @@
 
 **Status:** implementation companion doc
 **Scope:** full happy-path server E2E for tenant provisioning, draw opening,
-cashier sales, manual results, settlement/apply, reporting, and tenant isolation.
+cashier sales, manual results, result application, reporting, and tenant isolation.
 **Test entry point:** `testing/e2e/tests/full_flow/test_business_day_scenarios.py`
 **Reusable scenario data:** `testing/e2e/tch_e2e/business_day.py`
 
@@ -20,7 +20,7 @@ The default run provisions **5 tenants** with **2 seller terminals each**:
 every configured seller terminal.
 
 All money amounts in this document are expressed in tenant currency **minor
-units** unless the value is explicitly formatted as an amount such as `500.00`.
+units** unless the value is explicitly formatted as an amount such as `50.00`.
 
 ## 2. Draw Scenario
 
@@ -34,7 +34,7 @@ units** unless the value is explicitly formatted as an amount such as `500.00`.
 | Optional cap | `TCH_E2E_BUSINESS_DAY_DRAW_COUNT`; unset or `0` means all active channels |
 
 Manual result entry uses one result per `(drawDate, slotKey)` and then runs
-result processing. `TCH_E2E_RESULT_APPLY_MODE=force` is the default because the
+result application. `TCH_E2E_RESULT_APPLY_MODE=force` is the default because the
 current scheduler scans only today/yesterday slot dates. `scheduler` and
 `scheduler_then_force` are kept to measure the real scheduler path on eligible
 dates.
@@ -52,14 +52,28 @@ Execution modes are intentionally separate:
 - `scheduler_then_force`: give the scheduler a chance, then force apply so the
   data run can complete deterministically.
 
+The happy path intentionally treats **result application** as the business
+trigger. Applying a confirmed manual result evaluates the sold tickets,
+auto-settles the winning ticket state, and emits `TicketPayoutPaidEvent` as the
+single financial event used by analytics for both `winningsCalculated` and
+`payoutsPaid`. The draw lifecycle `settle` operation can still mark a draw as
+`SETTLED`, but the reporting assertions do not depend on that extra draw-state
+transition for now.
+
+If operations must correct the amount actually paid, the paid amount adjustment
+API emits an audited payment-adjustment event that changes `payoutsPaid` only.
+It does not mutate the ticket's calculated winning amount; a wrong calculated
+winning amount means the settlement code/configuration must be fixed and
+replayed.
+
 ## 3. Tenant Configuration Matrix
 
 | Tenant key | Maryaj gratis config | Seller terminals | Limits | Overrides | Core assertions |
 |------------|----------------------|------------------|--------|-----------|-----------------|
 | `alpha` | `HT_MARYAJ_GRATIS` fixed amount, auto-generate | `main` at 10%; `override` at 17.50% | Block selection `44`; draw-channel exposure cap `100000` minor units | `override` has Bolet odds `65.0000` | Auto promo line exists; generated source is `PROMOTION_GENERATED`; blocked selection fails; override commission and Bolet payout apply |
 | `beta` | `HT_MARYAJ_GRATIS` fixed amount, auto-generate | `main` at 10%; `commission` at 15.00% | None | Seller commission override only | Auto promo line exists; seller report commission uses 15.00% for `commission` |
-| `gamma` | Maryaj gratis disabled | `main` at 10%; `backup` at 10% | Block selection `44` | None | No promotion line is created; blocked selection fails; normal winning tickets still settle |
-| `delta` | `HT_MARYAJ_GRATIS` fixed amount, seller selects number | `main` at 10%; `override` at 12.50% | Draw-channel exposure cap `100000` minor units | `override` has Bolet odds `65.0000` | Promo line exists; `choiceMode=SELLER_SELECTS`; selected free Maryaj is `12-21`; fixed free-line payout is included |
+| `gamma` | Maryaj gratis disabled | `main` at 10%; `backup` at 10% | Block selection `44` | None | No promotion line is created; blocked selection fails; normal winning tickets are calculated after result application |
+| `delta` | `HT_MARYAJ_GRATIS` fixed amount, seller selects number | `main` at 10%; `override` at 12.50% | Draw-channel exposure cap `100000` minor units | `override` has Bolet odds `65.0000` | Promo line exists; `choiceMode=SELLER_SELECTS`; selected free Maryaj is `13-21`; duplicate paid/free selection rejection is avoided |
 | `epsilon` | `HT_MARYAJ_GRATIS` fixed amount, auto-generate | `main` at 10%; `backup` at 10% | None | None | Control tenant for base totals and cross-tenant report isolation |
 
 The multiplier Maryaj gratis case is intentionally excluded. Current
@@ -105,11 +119,11 @@ is needed.
 | Ticket key | Lines | Paid stake | Expected win | Assertions |
 |------------|-------|------------|--------------|------------|
 | `short` | One non-winning Bolet `17` | `100` minor units | `0` | Prepared amount equals paid stake; no winner |
-| `maryaj-*` | Paid Bolet `18` plus paid Maryaj `12-21`; optional free Maryaj gratis line | `200` minor units | `100000` minor units for paid Maryaj; plus `50000` minor units only when seller selects `12-21` | Maryaj gratis present/absent by tenant config; paid Maryaj win is included; seller-selected free line win is deterministic |
+| `maryaj-*` | Paid Maryaj `12-21`; optional free Maryaj gratis line | `100` minor units | `95000` minor units for paid Maryaj | Maryaj gratis present/absent by tenant config; paid Maryaj win is included; seller-selected free line uses `13-21` because duplicate paid/free selection is currently rejected |
 | `win-lot1-only` | Bolet `12` | `100` minor units | `5000` minor units, or `6500` minor units for seller Bolet odds override | Bolet payout uses seller-specific odds snapshot |
 | `win-lot1-lot2` | Loto5 option 1, `11221` | `100` minor units | `2500000` minor units | Loto5 lot1-lot2 payout included |
 | `win-lot1-lot3` | Loto5 option 2, `11225` | `100` minor units | `2500000` minor units | Loto5 lot1-lot3 payout included |
-| `win-lot1-lot2-lot3` | Loto3 `112`, Loto4 `2125`, Loto5 mixed `22125` | `300` minor units | `3050000` minor units | Multiple winning games on one ticket settle together |
+| `win-lot1-lot2-lot3` | Loto3 `112`, Loto4 `2125`, Loto5 mixed `22125` | `300` minor units | `3050000` minor units | Multiple winning games on one ticket are calculated together |
 | `volume-nonwinner-00..05` | Non-winning Bolet, Maryaj, and Loto3 lines | `300` minor units each | `0` | Report totals get realistic volume without changing winnings |
 
 Auto-generated Maryaj gratis validates that the free-game line is generated and
@@ -117,7 +131,9 @@ reported, and marked with `selectionSource=PROMOTION_GENERATED`. Because the
 current runtime generator is random, auto-generated promotional winnings are
 excluded from exact aggregate-winning assertions until an E2E seed or
 deterministic generator override is available. The seller-selects tenant uses
-`12-21`, so its promotional payout remains deterministic.
+`13-21` for now because the runtime rejects a free Maryaj selection that
+duplicates the paid `12-21` line; promotional seller-selected winning payout
+can be reintroduced when duplicate winning free lines are supported explicitly.
 
 ## 6. Assertions
 
@@ -125,10 +141,10 @@ deterministic generator override is available. The seller-selects tenant uses
 |------|------------|
 | Provisioning/config | Every tenant is provisioned from `DEFAULT_HAITI_LOTTERY`; active draw channels are non-empty; configured limits/promotions/overrides are applied before sales |
 | Sale preparation | Prepared total equals the scenario paid stake; confirmed sale is accepted; promotion lines match the tenant Maryaj gratis mode |
-| Maryaj gratis | Enabled tenants create exactly one promotion line per eligible ticket; auto tenants create `choiceMode=AUTO_GENERATE` and `selectionSource=PROMOTION_GENERATED`; seller-selects tenant creates `choiceMode=SELLER_SELECTS`, `selectionSource=CUSTOMER_SELECTED`, selection `12-21`; disabled tenant creates zero promo lines |
+| Maryaj gratis | Enabled tenants create exactly one promotion line per eligible ticket; auto tenants create `choiceMode=AUTO_GENERATE` and `selectionSource=PROMOTION_GENERATED`; seller-selects tenant creates `choiceMode=SELLER_SELECTS`, `selectionSource=CUSTOMER_SELECTED`, selection `13-21`; disabled tenant creates zero promo lines |
 | Limits | Tenants with blocked selection `44` reject that sale; exposure-limit tenants complete the happy path, then a dedicated `99` selection sale proves the cap rejects without creating a ticket |
-| Result processing | Manual results are recorded, then apply/settle runs through the selected mode; force mode is used for historical backfill |
-| Admin reports | `ticketsSold`, `grossSales`, paid-line winnings, and `promotionLines` match exactly; seller-selected promotional winnings match exactly; random auto-generated promotional winnings are asserted as a bounded optional amount until the generator is deterministic; selected draw IDs and channel codes appear in draw reports |
+| Result processing | Manual results are recorded, then result application runs through the selected mode; force mode is used for historical backfill; draw lifecycle settle is not required for the reporting happy path |
+| Admin reports | `ticketsSold`, `grossSales`, paid-line winnings, and `promotionLines` match exactly; seller-selected promotional lines are asserted exactly but non-winning while duplicate paid/free Maryaj selections are rejected; random auto-generated promotional winnings are asserted as a bounded optional amount until the generator is deterministic; selected draw IDs and channel identifiers appear in draw reports |
 | Seller reports | Per-seller ticket count, gross sales, and commission match the seller-terminal plan; promotional/free lines do not add paid gross or commission |
 | Stats/top selections | Winning selection `12` appears in top selections after sales and results |
 | Isolation | Aggregated foreign-draw report queries return zero totals; draw reports do not expose foreign draw rows/metadata; unfiltered reports stay scoped to the current tenant |
@@ -189,7 +205,27 @@ truth. That keeps pytest and load tests comparable.
 |---------|---------|-----|
 | `TCH_E2E_BUSINESS_DAY_START` | `2026-07-09` | Start date for generated draws |
 | `TCH_E2E_BUSINESS_DAY_DRAW_COUNT` | all active channels | Cap selected draws for shorter runs |
+| `TCH_E2E_BUSINESS_DAY_TENANTS` | all five tenants | Comma-separated tenant keys for focused QA runs, for example `alpha,delta`; isolation assertions require at least two tenants |
 | `TCH_E2E_BUSINESS_DAY_BASKET_REPEATS` | `1` | Multiply the basket per seller/draw |
 | `TCH_E2E_BUSINESS_DAY_MIN_TICKETS_PER_DRAW` | `10` | Guardrail for report reliability |
+| `TCH_E2E_HOST_HEADER` | unset | Optional HTTP `Host` override, useful for Traefik routes such as `api.localtest.me` when local DNS is unavailable |
 | `TCH_E2E_RESULT_APPLY_MODE` | `force` | `force`, `scheduler`, or `scheduler_then_force` |
+| `TCH_E2E_RESULT_REPORT_MAX_SECONDS` | `20` | Max wait for report projections after forced result application; legacy `TCH_E2E_RESULT_SETTLE_MAX_SECONDS` is still accepted |
 | `TCH_E2E_ALLOW_CATALOG_MUTATION` | unset | Required `true` for the serialized availability-gates test that mutates result-slot/draw-channel kill switches |
+
+Useful QA commands:
+
+```bash
+# Fast parameterized happy-path probe: two tenants, one draw per tenant.
+TCH_E2E_AUTH_PROVIDER=firebase-emulator \
+TCH_E2E_BUSINESS_DAY_TENANTS=alpha,delta \
+TCH_E2E_BUSINESS_DAY_DRAW_COUNT=1 \
+TCH_E2E_RESULT_APPLY_MODE=force \
+pytest -q tests/full_flow/test_business_day_scenarios.py::test_business_day_happy_path_supports_reports_results_and_future_locust
+
+# Isolated availability-gates run. Do not run in parallel with other E2E jobs.
+TCH_E2E_AUTH_PROVIDER=firebase-emulator \
+TCH_E2E_ALLOW_CATALOG_MUTATION=true \
+TCH_E2E_BUSINESS_DAY_DRAW_COUNT=1 \
+pytest -q tests/full_flow/test_business_day_scenarios.py::test_sale_availability_gates_block_unavailable_runtime_state
+```

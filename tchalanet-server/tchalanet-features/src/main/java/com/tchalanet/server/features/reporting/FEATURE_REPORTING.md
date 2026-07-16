@@ -26,14 +26,8 @@ Service : `AdminReportsService` · Source : `GetTenantFinancialBreakdownQuery`.
 GET /admin/financials/breakdown
 GET /admin/financials/draws/{drawId}/top-selections
 ```
-Rapports financiers tenant-admin conservant les routes publiques existantes.
+Rapports financiers tenant-admin.
 Service : `TenantAdminFinancialsController` · Sources : `core.analytics.api`, `core.sales.api`.
-
-```http
-GET /tenant/reports/sales-by-period-and-game
-```
-Rapport ventes par période et jeu.  
-Service : `SalesReportService` · Critères : `SalesReportCriteria` · Sortie : `SalesReportResponse`.
 
 ```http
 GET /tenant/reports/outlet-performance

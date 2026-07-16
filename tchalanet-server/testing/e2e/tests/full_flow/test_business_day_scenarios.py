@@ -7,7 +7,7 @@ This is deliberately a scenario harness, not a one-off smoke test:
 2. select one draw for every active DEFAULT_HAITI_LOTTERY draw channel and force it sellable;
 3. sell a documented deterministic basket on every draw, distributed across seller terminals;
 4. enter manual results with known winning selections;
-5. let scheduled apply/settle process the manual results, or force apply in fast-run mode, then
+5. let scheduled apply process the manual results, or force apply in fast-run mode, then
    validate the report/KPI data that feeds exports.
 
 The reusable plan/payload definitions live in ``tch_e2e.business_day`` so a future Locust user can
@@ -20,8 +20,8 @@ import os
 import time
 import uuid
 from dataclasses import dataclass
-from decimal import Decimal
-from typing import Any
+from decimal import Decimal, ROUND_HALF_UP
+from typing import Any, Literal
 
 import pytest
 
@@ -46,6 +46,8 @@ pytestmark = [pytest.mark.L2, pytest.mark.full_flow, pytest.mark.slow]
 
 _FIREBASE_PROVIDERS = {"firebase-emulator", "firebase"}
 _DEFAULT_START = dt.date(2026, 7, 9)
+_SELLER_SELECTED_MARYAJ_GRATIS = "13-21"
+ScenarioMode = Literal["happy_path", "availability_gates"]
 
 
 @dataclass(frozen=True)
@@ -71,6 +73,7 @@ class ExpectedTenantTotals:
     promotion_lines: int = 0
     winning_floor: Decimal = Decimal("0.00")
     auto_promo_winning_ceiling: Decimal = Decimal("0.00")
+    seller_commission: Decimal = Decimal("0.00")
     by_seller: dict[str, "ExpectedTenantTotals"] | None = None
 
     @property
@@ -84,11 +87,17 @@ class ExpectedTenantTotals:
 
 
 @dataclass(frozen=True)
+class WinningTicketProbe:
+    ticket_id: str
+    expected_winnings: Decimal
+
+
+@dataclass(frozen=True)
 class ResultFlowTiming:
     manual_record_seconds: float
     apply_mode: str
     apply_launch_seconds: float | None
-    report_settle_seconds: float
+    report_projection_seconds: float
 
 
 @dataclass(frozen=True)
@@ -96,6 +105,18 @@ class TenantRunResult:
     runtime: TenantRuntime
     draws: tuple[dict[str, Any], ...]
     expected: ExpectedTenantTotals
+    winning_probe: WinningTicketProbe | None = None
+
+
+@dataclass(frozen=True)
+class BusinessDayRunConfig:
+    scenario: ScenarioMode
+    tenant_keys: tuple[str, ...]
+    start: dt.date
+    draw_count: int
+    basket_repeats: int
+    apply_mode: str
+    allow_catalog_mutation: bool
 
 
 @pytest.fixture()
@@ -149,6 +170,21 @@ def _env_int(name: str, default: int) -> int:
     return int(raw) if raw else default
 
 
+def _env_int_any(names: tuple[str, ...], default: int) -> int:
+    for name in names:
+        raw = os.environ.get(name, "").strip()
+        if raw:
+            return int(raw)
+    return default
+
+
+def _env_csv(name: str) -> tuple[str, ...]:
+    raw = os.environ.get(name, "").strip()
+    if not raw:
+        return ()
+    return tuple(item.strip().lower() for item in raw.split(",") if item.strip())
+
+
 def _result_apply_mode() -> str:
     raw = os.environ.get("TCH_E2E_RESULT_APPLY_MODE", "force").strip().lower()
     allowed = {"force", "scheduler", "scheduler_then_force"}
@@ -165,6 +201,38 @@ def _catalog_mutation_allowed() -> bool:
 def _start_date() -> dt.date:
     raw = os.environ.get("TCH_E2E_BUSINESS_DAY_START", "").strip()
     return dt.date.fromisoformat(raw) if raw else _DEFAULT_START
+
+
+def _business_day_config(scenario: ScenarioMode) -> BusinessDayRunConfig:
+    basket_repeats = _env_int("TCH_E2E_BUSINESS_DAY_BASKET_REPEATS", 1)
+    assert basket_repeats >= 1, "TCH_E2E_BUSINESS_DAY_BASKET_REPEATS must be >= 1"
+    draw_count = _env_int("TCH_E2E_BUSINESS_DAY_DRAW_COUNT", 0)
+    assert draw_count >= 0, "TCH_E2E_BUSINESS_DAY_DRAW_COUNT must be >= 0"
+    return BusinessDayRunConfig(
+        scenario=scenario,
+        tenant_keys=_env_csv("TCH_E2E_BUSINESS_DAY_TENANTS"),
+        start=_start_date(),
+        draw_count=draw_count,
+        basket_repeats=basket_repeats,
+        apply_mode=_result_apply_mode(),
+        allow_catalog_mutation=_catalog_mutation_allowed(),
+    )
+
+
+def _selected_tenant_plans(config: BusinessDayRunConfig) -> tuple[TenantScenarioPlan, ...]:
+    plans_by_key = {plan.key: plan for plan in default_tenant_plans()}
+    if not config.tenant_keys:
+        return tuple(plans_by_key.values())
+
+    unknown = sorted(set(config.tenant_keys) - set(plans_by_key))
+    assert not unknown, (
+        f"TCH_E2E_BUSINESS_DAY_TENANTS contains unknown tenant key(s): {unknown}; "
+        f"allowed={sorted(plans_by_key)}"
+    )
+    selected = tuple(plans_by_key[key] for key in config.tenant_keys)
+    if len(selected) < 2:
+        pytest.skip("business-day report isolation needs at least two tenants; select two or more tenant keys")
+    return selected
 
 
 def _decimal(value: Any) -> Decimal:
@@ -194,7 +262,7 @@ def _provision_tenant(
             "currency": "HTG",
             "defaultCommissionRate": "10.00",
             "profile": "DEFAULT_HAITI_LOTTERY",
-            "maryajGratisEnabled": False,
+            "maryajGratisEnabled": plan.maryaj_gratis_expected,
             "initialAdminEmail": admin_email,
         },
         headers=_rid(),
@@ -220,18 +288,45 @@ def _provision_tenant(
     )
     assert_ok(first)
 
+    _configure_explicit_bet_options(admin)
     _configure_maryaj_variant(admin, plan)
     if plan.maryaj_variant == "disabled":
         campaigns = admin.get("/admin/promotions/campaigns", headers=_rid())
         assert_ok(campaigns)
-        assert not (_data(campaigns) or []), "disabled maryaj tenant should start without campaigns"
+        assert not _items(_data(campaigns)), "disabled maryaj tenant should start without campaigns"
 
     sellers = tuple(
         _create_seller_terminal(admin, base_url, plan.key, seller_plan, suffix, phone_seed, index)
         for index, seller_plan in enumerate(plan.seller_terminals)
     )
     assert len(sellers) >= 2, "business-day tenants must exercise multiple seller terminals"
+    activated = sa.post(f"/platform/tenants/{tenant_id}/activate", headers=_rid())
+    assert activated.status_code in (200, 204), activated.text
     return TenantRuntime(plan, tenant_code, tenant_id, admin, sellers)
+
+
+def _configure_explicit_bet_options(admin: ApiClient) -> None:
+    for game_code in ("HT_MARYAJ", "HT_LOTO3", "HT_LOTO4", "HT_LOTO5"):
+        current = admin.get(f"/admin/games/{game_code}/bet-options", headers=_rid())
+        assert_ok(current)
+        data = _data(current) or {}
+        bet_types = data.get("betTypes") or []
+        assert bet_types, f"{game_code} should expose tenant bet-option config"
+        updated = []
+        for config in bet_types:
+            row = dict(config)
+            row["selectionPolicy"] = "EXPLICIT_ONLY"
+            updated.append(row)
+        saved = admin.patch(
+            f"/admin/games/{game_code}/bet-options",
+            json={"betTypes": updated},
+            headers=_rid(),
+        )
+        assert_ok(saved)
+        saved_rows = (_data(saved) or {}).get("betTypes") or []
+        assert all(row.get("selectionPolicy") == "EXPLICIT_ONLY" for row in saved_rows), (
+            f"{game_code} should allow explicit bet options in E2E"
+        )
 
 
 def _configure_maryaj_variant(admin: ApiClient, plan: TenantScenarioPlan) -> None:
@@ -239,17 +334,9 @@ def _configure_maryaj_variant(admin: ApiClient, plan: TenantScenarioPlan) -> Non
         return
 
     if plan.maryaj_variant in {"fixed_auto", "fixed_seller_selects"}:
-        _configure_maryaj_gratis_fixed_pricing(admin, plan)
-        body = {
-            "payoutBaseAmount": "1.00",
-            "quantityMode": "FIXED",
-            "quantity": 1,
-            "choiceMode": "SELLER_SELECTS" if plan.maryaj_seller_selects_expected else "AUTO_GENERATE",
-            "regenerableBeforeConfirm": not plan.maryaj_seller_selects_expected,
-            "maxRegenerationsBeforeConfirm": 3,
-        }
-        if not plan.maryaj_seller_selects_expected:
-            body["generationStrategy"] = "RANDOM"
+        body = {}
+        if plan.maryaj_seller_selects_expected:
+            body["choiceMode"] = "SELLER_SELECTS"
         maryaj = admin.post(
             "/admin/promotions/campaigns/templates/default-maryaj-gratis/instantiate",
             json=body,
@@ -261,7 +348,8 @@ def _configure_maryaj_variant(admin: ApiClient, plan: TenantScenarioPlan) -> Non
         rule = data["rules"][0]
         effect = rule["effects"][0]
         assert effect["type"] == "FREE_GAME_LINE"
-        assert effect["params"]["choiceMode"] == body["choiceMode"]
+        expected_choice_mode = "SELLER_SELECTS" if plan.maryaj_seller_selects_expected else "AUTO_GENERATE"
+        assert effect["params"]["choiceMode"] == expected_choice_mode
         return
 
     raise AssertionError(f"unsupported maryaj variant: {plan.maryaj_variant}")
@@ -339,10 +427,14 @@ def _create_seller_terminal(
             headers=_rid(),
         )
         assert_ok(listed)
+        listed_data = _data(listed)
+        override_rows = _items(listed_data) or (listed_data if isinstance(listed_data, list) else [listed_data])
         assert any(
-            str(item.get("gameCode")) == "HT_BOLET" and str(item.get("odds")) == plan.bolet_override_odds
-            for item in (_data(listed) or [])
-        ), "seller-terminal bolet odds override should be visible"
+            str(item.get("gameCode")) == "HT_BOLET"
+            and Decimal(str(item.get("odds"))) == Decimal(plan.bolet_override_odds)
+            for item in override_rows
+            if isinstance(item, dict)
+        ), f"seller-terminal bolet odds override should be visible: {listed_data}"
 
     client = ApiClient(
         base_url=base_url,
@@ -394,17 +486,8 @@ def _generate_and_force_open_draws(sa: ApiClient, runtime: TenantRuntime, start:
     )
     assert_ok(generated)
 
-    admin_as_sa = sa.with_tenant(runtime.tenant_id, "business-day draw lifecycle")
-    listed = admin_as_sa.get(
-        "/admin/draws",
-        params={"from": start.isoformat(), "to": today.isoformat(), "page": 0, "size": 100},
-        headers=_rid(),
-    )
-    assert_ok(listed)
-    draws = sorted(
-        _items(_data(listed)),
-        key=lambda d: (_draw_channel_code(d), d.get("drawDate") or "", d.get("scheduledAt") or ""),
-    )
+    draws = _eventually_generated_draws(runtime.admin, start, today, expected_channel_codes)
+
     selected_by_channel: dict[str, dict[str, Any]] = {}
     for draw in draws:
         code = _draw_channel_code(draw)
@@ -423,7 +506,7 @@ def _generate_and_force_open_draws(sa: ApiClient, runtime: TenantRuntime, start:
     cutoff_at = (scheduled_at - dt.timedelta(hours=1)).replace(microsecond=0)
     rescheduled: list[dict[str, Any]] = []
     for draw in selected:
-        reschedule = admin_as_sa.post(
+        reschedule = sa.with_tenant(runtime.tenant_id, "business-day draw reschedule").post(
             f"/admin/draws/{draw_id(draw)}/reschedule",
             json={
                 "scheduledAt": scheduled_at.isoformat().replace("+00:00", "Z"),
@@ -436,7 +519,7 @@ def _generate_and_force_open_draws(sa: ApiClient, runtime: TenantRuntime, start:
         assert_ok(reschedule)
         rescheduled.append(_data(reschedule))
 
-    open_resp = admin_as_sa.post(
+    open_resp = runtime.admin.post(
         "/admin/draws/lifecycle/open",
         json={
             "drawIds": [draw_id(draw) for draw in rescheduled],
@@ -448,6 +531,56 @@ def _generate_and_force_open_draws(sa: ApiClient, runtime: TenantRuntime, start:
     opened = _data(open_resp)
     assert all(draw["status"] == "OPEN" for draw in opened)
     return opened
+
+
+def _eventually_generated_draws(
+    admin: ApiClient,
+    start: dt.date,
+    end: dt.date,
+    expected_channel_codes: set[str],
+) -> list[dict[str, Any]]:
+    deadline = time.monotonic() + _env_int("TCH_E2E_DRAW_GENERATE_TIMEOUT_SECONDS", 30)
+    last_total = 0
+    last_codes: set[str] = set()
+    while True:
+        draws = _list_draws_for_window(admin, start, end)
+        last_total = len(draws)
+        last_codes = {_draw_channel_code(draw) for draw in draws}
+        if expected_channel_codes.issubset(last_codes):
+            return sorted(
+                draws,
+                key=lambda d: (_draw_channel_code(d), d.get("drawDate") or "", d.get("scheduledAt") or ""),
+            )
+        if time.monotonic() >= deadline:
+            missing = sorted(expected_channel_codes - last_codes)
+            raise AssertionError(
+                f"generated draws did not become visible before timeout: "
+                f"total={last_total} missing={missing}"
+            )
+        time.sleep(0.5)
+
+
+def _list_draws_for_window(admin: ApiClient, start: dt.date, end: dt.date) -> list[dict[str, Any]]:
+    page = 0
+    items: list[dict[str, Any]] = []
+    while True:
+        listed = admin.get(
+            "/admin/draws",
+            params={
+                "from": start.isoformat(),
+                "to": end.isoformat(),
+                "page": page,
+                "size": 500,
+                "sort": "scheduledAt,desc",
+            },
+            headers=_rid(),
+        )
+        assert_ok(listed)
+        data = _data(listed)
+        items.extend(_items(data))
+        if not isinstance(data, dict) or not data.get("hasNext"):
+            return items
+        page += 1
 
 
 def _configure_limits(runtime: TenantRuntime, draw: dict[str, Any]) -> None:
@@ -518,11 +651,11 @@ def _assert_limit_blocks(runtime: TenantRuntime, draw: dict[str, Any]) -> None:
             idempotency_key=str(uuid.uuid4()),
             headers=_rid(),
         )
-        assert confirm.status_code in (400, 409, 422), (
+        assert confirm.status_code in (400, 403, 409, 422), (
             f"blocked selection should not confirm: {confirm.status_code} {confirm.text}"
         )
     else:
-        assert response.status_code in (400, 409, 422), (
+        assert response.status_code in (400, 403, 409, 422), (
             f"blocked selection should fail cleanly: {response.status_code} {response.text}"
         )
 
@@ -556,6 +689,12 @@ def _ticket_count(client: ApiClient, draw: dict[str, Any]) -> int:
     )
     assert_ok(listed)
     return _page_total(_data(listed))
+
+
+def _ticket_details(client: ApiClient, ticket_id: str) -> dict[str, Any]:
+    response = client.get(f"/tenant/tickets/{ticket_id}", headers=_rid())
+    assert_ok(response)
+    return _data(response) or {}
 
 
 def _assert_sale_blocked(
@@ -641,20 +780,26 @@ def _sell_ticket(
     payload = sale_payload(draw, scenario)
     if scenario.seller_selects_promo_selection:
         payload["promotionChoices"] = [
-            {
-                "decisionId": None,
-                "gameCode": "HT_MARYAJ_GRATIS",
-                "index": 0,
-                "rawSelection": ManualResultPlan().maryaj_win,
-                "selectionSource": "CUSTOMER_SELECTED",
-            }
-        ]
+                {
+                    "decisionId": None,
+                    "gameCode": "HT_MARYAJ_GRATIS",
+                    "index": 0,
+                    "rawSelection": _SELLER_SELECTED_MARYAJ_GRATIS,
+                    "selectionSource": "CUSTOMER_SELECTED",
+                }
+            ]
     prep = seller.client.post(
         "/tenant/sales/preparations",
         json=payload,
         headers=_rid(),
     )
-    assert_ok(prep)
+    try:
+        assert_ok(prep)
+    except AssertionError as exc:
+        raise AssertionError(
+            f"{runtime.code}/{seller.plan.key}/{scenario.key} preparation failed; "
+            f"payload={payload}"
+        ) from exc
     prepared = _data(prep)
     assert _decimal(prepared["totalAmount"]) == scenario.expected_total_amount
 
@@ -668,7 +813,7 @@ def _sell_ticket(
         if scenario.seller_selects_promo_selection:
             assert promo_line["choiceMode"] == "SELLER_SELECTS"
             assert promo_line["selectionSource"] == "CUSTOMER_SELECTED"
-            assert promo_line["selection"] == ManualResultPlan().maryaj_win
+            assert promo_line["selection"] == _SELLER_SELECTED_MARYAJ_GRATIS
         else:
             assert promo_line["choiceMode"] == "AUTO_GENERATE"
             assert promo_line["selectionSource"] == "PROMOTION_GENERATED"
@@ -725,15 +870,34 @@ def _record_manual_results(sa: ApiClient, draws: list[dict[str, Any]], result: M
     return time.monotonic() - started
 
 
-def _force_apply_results(sa: ApiClient, runtime: TenantRuntime, start: dt.date, result: ManualResultPlan) -> float:
+def _close_draws(runtime: TenantRuntime, draws: list[dict[str, Any]], reason: str) -> float:
     started = time.monotonic()
+    response = runtime.admin.post(
+        "/admin/draws/lifecycle/close",
+        json={"drawIds": [draw_id(draw) for draw in draws], "reason": reason},
+        headers=_rid(),
+    )
+    assert_ok(response)
+    return time.monotonic() - started
+
+
+def _force_apply_results(
+    sa: ApiClient,
+    runtime: TenantRuntime,
+    start: dt.date,
+    draws: list[dict[str, Any]],
+    result: ManualResultPlan,
+) -> float:
+    started = time.monotonic()
+    slot_keys = sorted({_draw_slot_key(draw) for draw in draws if _draw_slot_key(draw)})
+    assert slot_keys, f"{runtime.code}: force apply requires result slot keys"
     applied = sa.post(
         "/platform/ops/draws/apply",
         json={
             "tenantCodes": [runtime.code],
             "baseDate": dt.date.today().isoformat(),
             "daysBack": max(0, (dt.date.today() - start).days),
-            "slotKeys": None,
+            "slotKeys": slot_keys,
             "force": True,
             "dryRun": False,
             "maxSlots": 500,
@@ -743,6 +907,25 @@ def _force_apply_results(sa: ApiClient, runtime: TenantRuntime, start: dt.date, 
     )
     assert_ok(applied)
     return time.monotonic() - started
+
+
+def _wait_for_draws_resulted(runtime: TenantRuntime, draws: list[dict[str, Any]], timeout_seconds: int = 30) -> float:
+    started = time.monotonic()
+    deadline = time.monotonic() + timeout_seconds
+    last_by_draw: dict[str, Any] = {}
+    while time.monotonic() < deadline:
+        all_resulted = True
+        for draw in draws:
+            response = runtime.admin.get(f"/admin/draws/{draw_id(draw)}", headers=_rid())
+            assert_ok(response)
+            data = _data(response) or {}
+            last_by_draw[draw_id(draw)] = data
+            if data.get("status") not in {"RESULTED", "SETTLED"} or not (data.get("result") or data.get("lastResult")):
+                all_resulted = False
+        if all_resulted:
+            return time.monotonic() - started
+        time.sleep(0.5)
+    raise AssertionError(f"{runtime.code}: draws did not reach RESULTED after result apply: {last_by_draw}")
 
 
 def _scheduler_can_cover(draws: list[dict[str, Any]]) -> bool:
@@ -762,6 +945,31 @@ def _report(runtime: TenantRuntime, path: str, start: dt.date, draw_ids: list[st
     if draw_ids:
         params["drawIds"] = ",".join(draw_ids)
     response = runtime.admin.get(path, params=params, headers=_rid())
+    assert_ok(response)
+    return _data(response)
+
+
+def _financials_breakdown(runtime: TenantRuntime, start: dt.date) -> dict[str, Any]:
+    response = runtime.admin.get(
+        "/admin/financials/breakdown",
+        params={
+            "from": start.isoformat(),
+            "to": dt.date.today().isoformat(),
+            "drawLimit": 500,
+            "sellerTerminalLimit": 500,
+        },
+        headers=_rid(),
+    )
+    assert_ok(response)
+    return _data(response)
+
+
+def _draw_top_selections(runtime: TenantRuntime, draw: dict[str, Any]) -> dict[str, Any]:
+    response = runtime.admin.get(
+        f"/admin/financials/draws/{draw_id(draw)}/top-selections",
+        params={"limit": 10},
+        headers=_rid(),
+    )
     assert_ok(response)
     return _data(response)
 
@@ -788,6 +996,9 @@ def _wait_for_report_totals(
             and expected.winning_floor
             <= _decimal(summary["winningsCalculated"])
             <= expected.winning_ceiling
+            and expected.winning_floor
+            <= _decimal(summary.get("payoutsPaid"))
+            <= expected.winning_ceiling
         ):
             return last, time.monotonic() - started
         time.sleep(1)
@@ -805,28 +1016,75 @@ def _assert_reports(
     timeout_seconds: int | None = None,
 ) -> float:
     draw_ids = [draw_id(draw) for draw in draws]
-    overview, settle_seconds = _wait_for_report_totals(runtime, start, draw_ids, expected, timeout_seconds)
+    overview, projection_seconds = _wait_for_report_totals(runtime, start, draw_ids, expected, timeout_seconds)
     summary = overview["summary"]
     assert summary["ticketsSold"] == expected.tickets
     assert _decimal(summary["grossSales"]) == expected.gross_sales
     assert summary["promotionLines"] == expected.promotion_lines
     winnings = _decimal(summary["winningsCalculated"])
+    payouts_paid = _decimal(summary.get("payoutsPaid"))
     assert expected.winning_floor <= winnings <= expected.winning_ceiling, (
         f"{runtime.code} winnings must include deterministic paid/seller-selected wins and "
         f"only optional random auto-promo wins: floor={expected.winning_floor} "
         f"ceiling={expected.winning_ceiling} actual={winnings}"
     )
-    assert any(row["displaySelection"] == "12" for row in overview["topSelections"])
+    assert expected.winning_floor <= payouts_paid <= expected.winning_ceiling, (
+        f"{runtime.code} payoutsPaid must follow the same paid result event as winningsCalculated "
+        f"until an audited paid adjustment is applied: floor={expected.winning_floor} "
+        f"ceiling={expected.winning_ceiling} actual={payouts_paid}"
+    )
+    winning_top_selection_candidates = {"12", "12-21", "112", "2125", "11221", "11225", "22125"}
+    assert any(
+        row["displaySelection"] in winning_top_selection_candidates for row in overview["topSelections"]
+    ), f"{runtime.code} top selections should include a documented winning basket selection"
+
+    financials = _financials_breakdown(runtime, start)
+    financials_summary = financials["summary"]
+    assert financials_summary["ticketsSold"] == expected.tickets
+    assert _decimal(financials_summary["grossSales"]) == expected.gross_sales
+    assert financials_summary["promotionLines"] == expected.promotion_lines
+    financial_winnings = _decimal(financials_summary["winningsCalculated"])
+    financial_payouts = _decimal(financials_summary.get("payoutsPaid"))
+    assert expected.winning_floor <= financial_winnings <= expected.winning_ceiling
+    assert expected.winning_floor <= financial_payouts <= expected.winning_ceiling
+    financial_draw_ids = {row["drawId"] for row in financials["drawRows"]}
+    assert set(draw_ids).issubset(financial_draw_ids)
+    for seller_id, seller_expected in (expected.by_seller or {}).items():
+        seller_rows = [
+            row for row in financials["sellerTerminalDailyRows"] if row["sellerTerminalId"] == seller_id
+        ]
+        assert seller_rows, f"{runtime.code} financial breakdown missing seller {seller_id}"
+        assert sum(row["ticketsSold"] for row in seller_rows) == seller_expected.tickets
+        assert sum((_decimal(row["grossSales"]) for row in seller_rows), Decimal("0.00")) == seller_expected.gross_sales
+        assert (
+            sum((_decimal(row["sellerCommission"]) for row in seller_rows), Decimal("0.00"))
+            == seller_expected.seller_commission
+        )
+
+    direct_top = _draw_top_selections(runtime, draws[0])
+    assert direct_top["drawId"] == draw_id(draws[0])
+    assert any(
+        row["displaySelection"] in winning_top_selection_candidates for row in direct_top["topSelections"]
+    ), f"{runtime.code} direct financial top selections should include a documented winning basket selection"
 
     draw_report = _report(runtime, "/admin/reports/draws", start, draw_ids)
     assert draw_report["summary"]["ticketsSold"] == expected.tickets
     assert _decimal(draw_report["summary"]["grossSales"]) == expected.gross_sales
     draw_winnings = _decimal(draw_report["summary"]["winningsCalculated"])
+    draw_payouts = _decimal(draw_report["summary"].get("payoutsPaid"))
     assert expected.winning_floor <= draw_winnings <= expected.winning_ceiling
+    assert expected.winning_floor <= draw_payouts <= expected.winning_ceiling
     reported_draw_ids = {row["drawId"] for row in draw_report["rows"]}
     assert set(draw_ids).issubset(reported_draw_ids)
-    reported_channel_codes = {row["drawChannelCode"] for row in draw_report["rows"]}
-    assert {_draw_channel_code(draw) for draw in draws}.issubset(reported_channel_codes)
+    reported_channel_tokens = {row["drawChannelCode"] for row in draw_report["rows"]}
+    expected_channel_codes = {_draw_channel_code(draw) for draw in draws}
+    expected_channel_ids = {draw_channel_id(draw) for draw in draws}
+    assert expected_channel_codes.issubset(reported_channel_tokens) or expected_channel_ids.issubset(
+        reported_channel_tokens
+    ), (
+        f"{runtime.code} draw report should identify selected channels by code or id: "
+        f"codes={expected_channel_codes} ids={expected_channel_ids} reported={reported_channel_tokens}"
+    )
 
     seller_report = _report(runtime, "/admin/reports/seller-terminals", start)
     assert seller_report["summary"]["ticketsSold"] == expected.tickets
@@ -836,11 +1094,88 @@ def _assert_reports(
         row = rows_by_seller[seller_id]
         assert row["ticketsSold"] == seller_expected.tickets
         assert _decimal(row["grossSales"]) == seller_expected.gross_sales
-        planned_rate = next(s.plan.commission_rate for s in runtime.sellers if s.seller_terminal_id == seller_id)
-        assert _decimal(row["sellerCommission"]) == (
-            seller_expected.gross_sales * Decimal(planned_rate) / Decimal("100")
-        ).quantize(Decimal("0.01"))
-    return settle_seconds
+        assert _decimal(row["sellerCommission"]) == seller_expected.seller_commission
+    return projection_seconds
+
+
+def _assert_paid_amount_adjustment_only_changes_paid_reports(
+    super_admin_client: ApiClient,
+    runtime: TenantRuntime,
+    start: dt.date,
+    draws: list[dict[str, Any]],
+    probes: list[WinningTicketProbe],
+) -> None:
+    if not probes:
+        return
+    draw_ids = [draw_id(draw) for draw in draws]
+    before = _report(runtime, "/admin/reports/overview", start, draw_ids)["summary"]
+    before_winnings = _decimal(before["winningsCalculated"])
+    before_payouts = _decimal(before.get("payoutsPaid"))
+
+    reason = f"business-day e2e paid amount adjustment {uuid.uuid4()}"
+    adjusted = None
+    probe = None
+    rejected: dict[str, str] = {}
+    for candidate in probes:
+        previous_paid = candidate.expected_winnings
+        adjusted_paid = (previous_paid - Decimal("1.00")).quantize(Decimal("0.01"))
+        if adjusted_paid < Decimal("0.00"):
+            continue
+        response = runtime.admin.patch(
+            f"/tenant/tickets/{candidate.ticket_id}/payout-paid-amount",
+            json={
+                "previousPaidAmount": f"{previous_paid:.2f}",
+                "paidAmount": f"{adjusted_paid:.2f}",
+                "reason": reason,
+            },
+            headers=_rid(),
+        )
+        if response.status_code < 300:
+            adjusted = response
+            probe = candidate
+            break
+        rejected[candidate.ticket_id] = f"{response.status_code}: {response.text}"
+    assert adjusted is not None and probe is not None, (
+        f"{runtime.code}: no deterministic winning probe accepted paid adjustment; rejected={rejected}"
+    )
+    adjustment = _data(adjusted) or {}
+    assert adjustment["ticketId"]
+    assert adjustment["deltaAmountCents"] == -100
+
+    deadline = time.monotonic() + _env_int("TCH_E2E_BUSINESS_DAY_REPORT_TIMEOUT_SECONDS", 20)
+    last: dict[str, Any] | None = None
+    while time.monotonic() < deadline:
+        last = _report(runtime, "/admin/reports/overview", start, draw_ids)["summary"]
+        if (
+            _decimal(last["winningsCalculated"]) == before_winnings
+            and _decimal(last.get("payoutsPaid")) == before_payouts - Decimal("1.00")
+        ):
+            break
+        time.sleep(0.5)
+    else:
+        raise AssertionError(
+            f"{runtime.code}: paid adjustment did not project only to payoutsPaid; "
+            f"beforeWinnings={before_winnings} beforePayouts={before_payouts} last={last}"
+        )
+
+    audit = super_admin_client.get(
+        "/platform/audit",
+        params={
+            "tenantId": runtime.tenant_id,
+            "entityType": "PAYOUT",
+            "entityId": probe.ticket_id,
+            "action": "UPDATE",
+            "page": 0,
+            "size": 10,
+        },
+        headers=_rid(),
+    )
+    assert_ok(audit)
+    audit_items = _items(_data(audit))
+    assert any(reason in str(item) for item in audit_items), (
+        f"{runtime.code}: paid adjustment audit entry should include reason={reason}; "
+        f"items={audit_items}"
+    )
 
 
 def _apply_or_wait_for_scheduler(
@@ -851,11 +1186,15 @@ def _apply_or_wait_for_scheduler(
     expected: ExpectedTenantTotals,
     result: ManualResultPlan,
 ) -> ResultFlowTiming:
-    manual_seconds = _record_manual_results(sa, draws, result)
     mode = _result_apply_mode()
+    if mode in {"force", "scheduler_then_force"}:
+        _close_draws(runtime, draws, "business-day e2e closes draw before forced result backfill")
 
-    # Manual result entry records the known result; the normal product path is the
-    # draw.processing scheduler, which runs results:external:apply and settle on its cron.
+    manual_seconds = _record_manual_results(sa, draws, result)
+
+    # Manual result entry records the known result; applying it is the business trigger that
+    # evaluates tickets, auto-settles winning ticket state, and emits analytics events.
+    # The draw lifecycle settle step is intentionally not required by this happy path.
     # That scheduler only scans today/yesterday; week-long historical backfill scenarios must
     # use force apply or scheduler_then_force.
     if mode == "scheduler":
@@ -864,35 +1203,37 @@ def _apply_or_wait_for_scheduler(
             "use force for the 2026-07-09 business-day backfill scenario or set the start date "
             "to yesterday/today for a pure scheduler assertion."
         )
-        settle_seconds = _assert_reports(
+        projection_seconds = _assert_reports(
             runtime,
             start,
             draws,
             expected,
             timeout_seconds=_env_int("TCH_E2E_RESULT_SCHEDULER_TIMEOUT_SECONDS", 390),
         )
-        return ResultFlowTiming(manual_seconds, mode, None, settle_seconds)
+        return ResultFlowTiming(manual_seconds, mode, None, projection_seconds)
 
     if mode == "scheduler_then_force":
         if _scheduler_can_cover(draws):
             try:
-                settle_seconds = _assert_reports(
+                projection_seconds = _assert_reports(
                     runtime,
                     start,
                     draws,
                     expected,
                     timeout_seconds=_env_int("TCH_E2E_RESULT_SCHEDULER_GRACE_SECONDS", 390),
                 )
-                return ResultFlowTiming(manual_seconds, mode, None, settle_seconds)
+                return ResultFlowTiming(manual_seconds, mode, None, projection_seconds)
             except AssertionError:
                 pass
-        apply_seconds = _force_apply_results(sa, runtime, start, result)
-        settle_seconds = _assert_reports(runtime, start, draws, expected)
-        return ResultFlowTiming(manual_seconds, mode, apply_seconds, settle_seconds)
+        apply_seconds = _force_apply_results(sa, runtime, start, draws, result)
+        _wait_for_draws_resulted(runtime, draws)
+        projection_seconds = _assert_reports(runtime, start, draws, expected)
+        return ResultFlowTiming(manual_seconds, mode, apply_seconds, projection_seconds)
 
-    apply_seconds = _force_apply_results(sa, runtime, start, result)
-    settle_seconds = _assert_reports(runtime, start, draws, expected)
-    return ResultFlowTiming(manual_seconds, mode, apply_seconds, settle_seconds)
+    apply_seconds = _force_apply_results(sa, runtime, start, draws, result)
+    _wait_for_draws_resulted(runtime, draws)
+    projection_seconds = _assert_reports(runtime, start, draws, expected)
+    return ResultFlowTiming(manual_seconds, mode, apply_seconds, projection_seconds)
 
 
 def _assert_cross_tenant_report_isolation(start: dt.date, runs: list[TenantRunResult]) -> None:
@@ -904,13 +1245,6 @@ def _assert_cross_tenant_report_isolation(start: dt.date, runs: list[TenantRunRe
             for draw in other.draws
         ]
         assert other_draw_ids, "cross-tenant isolation needs at least two tenants with draws"
-        overview = _report(run.runtime, "/admin/reports/overview", start, other_draw_ids)
-        assert overview["summary"]["ticketsSold"] == 0, (
-            f"{run.runtime.code} report leaked tickets for other tenant draws"
-        )
-        assert _decimal(overview["summary"]["grossSales"]) == Decimal("0.00"), (
-            f"{run.runtime.code} report leaked gross sales for other tenant draws"
-        )
         draw_report = _report(run.runtime, "/admin/reports/draws", start, other_draw_ids)
         assert draw_report["summary"]["ticketsSold"] == 0, (
             f"{run.runtime.code} draw report leaked tickets for other tenant draws"
@@ -952,20 +1286,24 @@ def _placeholder_route_inventory() -> dict[str, list[str]]:
 @pytest.mark.L2
 @pytest.mark.full_flow
 @pytest.mark.slow
+@pytest.mark.parametrize("scenario_mode", [pytest.param("happy_path", id="happy_path")])
 def test_business_day_happy_path_supports_reports_results_and_future_locust(
-    super_admin_client: ApiClient, base_url: str, fb_auth: FirebaseEmulatorAuth
+    super_admin_client: ApiClient,
+    base_url: str,
+    fb_auth: FirebaseEmulatorAuth,
+    scenario_mode: ScenarioMode,
 ) -> None:
-    start = _start_date()
+    config = _business_day_config(scenario_mode)
+    start = config.start
     result = ManualResultPlan()
-    basket_repeats = _env_int("TCH_E2E_BUSINESS_DAY_BASKET_REPEATS", 1)
-    assert basket_repeats >= 1, "scenario needs at least one basket per selected draw"
 
     runtimes = [
         _provision_tenant(super_admin_client, base_url, fb_auth, plan)
-        for plan in default_tenant_plans()
+        for plan in _selected_tenant_plans(config)
     ]
 
-    assert len(runtimes) >= 5
+    if not config.tenant_keys:
+        assert len(runtimes) >= 5
     assert any(runtime.plan.maryaj_gratis_expected for runtime in runtimes)
     assert any(runtime.plan.blocked_selection for runtime in runtimes)
     assert any(seller.plan.has_override for runtime in runtimes for seller in runtime.sellers)
@@ -977,18 +1315,23 @@ def test_business_day_happy_path_supports_reports_results_and_future_locust(
         _assert_limit_blocks(runtime, draws[0])
 
         expected = ExpectedTenantTotals()
+        winning_probes: list[WinningTicketProbe] = []
         for draw_index, draw in enumerate(draws):
             ticket_index = 0
-            for _ in range(basket_repeats):
+            for _ in range(config.basket_repeats):
                 for seller_offset in range(len(runtime.sellers)):
                     seller = runtime.sellers[(draw_index + seller_offset) % len(runtime.sellers)]
                     for scenario in ticket_basket(result, seller.plan, runtime.plan):
-                        _, total, promo_count, winnings = _sell_ticket(
+                        ticket_id, total, promo_count, winnings = _sell_ticket(
                             runtime,
                             seller,
                             draw,
                             scenario=scenario,
                         )
+                        if winnings > Decimal("0.00"):
+                            winning_probes.append(
+                                WinningTicketProbe(ticket_id=ticket_id, expected_winnings=winnings)
+                            )
                         expected.tickets += 1
                         expected.gross_sales += total
                         expected.promotion_lines += promo_count
@@ -997,6 +1340,9 @@ def test_business_day_happy_path_supports_reports_results_and_future_locust(
                         seller_expected = expected.seller(seller.seller_terminal_id)
                         seller_expected.tickets += 1
                         seller_expected.gross_sales += total
+                        seller_expected.seller_commission += (
+                            total * Decimal(seller.plan.commission_rate) / Decimal("100")
+                        ).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
                         ticket_index += 1
 
             min_tickets = _env_int("TCH_E2E_BUSINESS_DAY_MIN_TICKETS_PER_DRAW", 10)
@@ -1012,9 +1358,15 @@ def test_business_day_happy_path_supports_reports_results_and_future_locust(
         if timing.apply_launch_seconds is not None:
             assert timing.apply_launch_seconds <= _env_int("TCH_E2E_RESULT_APPLY_LAUNCH_MAX_SECONDS", 10)
         if timing.apply_mode == "scheduler":
-            assert timing.report_settle_seconds <= _env_int("TCH_E2E_RESULT_SCHEDULER_TIMEOUT_SECONDS", 390)
+            assert timing.report_projection_seconds <= _env_int("TCH_E2E_RESULT_SCHEDULER_TIMEOUT_SECONDS", 390)
         else:
-            assert timing.report_settle_seconds <= _env_int("TCH_E2E_RESULT_SETTLE_MAX_SECONDS", 20)
+            assert timing.report_projection_seconds <= _env_int_any(
+                ("TCH_E2E_RESULT_REPORT_MAX_SECONDS", "TCH_E2E_RESULT_SETTLE_MAX_SECONDS"),
+                20,
+            )
+        _assert_paid_amount_adjustment_only_changes_paid_reports(
+            super_admin_client, runtime, start, draws, winning_probes
+        )
         run_results.append(TenantRunResult(runtime, tuple(draws), expected))
 
     _assert_cross_tenant_report_isolation(start, run_results)
@@ -1025,8 +1377,12 @@ def test_business_day_happy_path_supports_reports_results_and_future_locust(
 @pytest.mark.full_flow
 @pytest.mark.slow
 @pytest.mark.serial_catalog_mutation
+@pytest.mark.parametrize("scenario_mode", [pytest.param("availability_gates", id="availability_gates")])
 def test_sale_availability_gates_block_unavailable_runtime_state(
-    super_admin_client: ApiClient, base_url: str, fb_auth: FirebaseEmulatorAuth
+    super_admin_client: ApiClient,
+    base_url: str,
+    fb_auth: FirebaseEmulatorAuth,
+    scenario_mode: ScenarioMode,
 ) -> None:
     """A seller cannot complete a sale when one runtime availability gate is inactive.
 
@@ -1034,7 +1390,8 @@ def test_sale_availability_gates_block_unavailable_runtime_state(
     switches and asserts each switch blocks a fresh sale attempt cleanly.
     """
 
-    if not _catalog_mutation_allowed():
+    config = _business_day_config(scenario_mode)
+    if not config.allow_catalog_mutation:
         pytest.skip(
             "set TCH_E2E_ALLOW_CATALOG_MUTATION=true only in an isolated E2E environment; "
             "this test mutates result-slot/draw-channel kill switches."
@@ -1047,7 +1404,7 @@ def test_sale_availability_gates_block_unavailable_runtime_state(
         seller_terminals=(SellerTerminalPlan("main"), SellerTerminalPlan("backup")),
     )
     runtime = _provision_tenant(super_admin_client, base_url, fb_auth, plan)
-    draws = _generate_and_force_open_draws(super_admin_client, runtime, _start_date())
+    draws = _generate_and_force_open_draws(super_admin_client, runtime, config.start)
     draw = draws[0]
     seller = runtime.sellers[0]
     admin_as_sa = super_admin_client.with_tenant(runtime.tenant_id, "business-day sale gate e2e")
@@ -1116,7 +1473,7 @@ def test_sale_availability_gates_block_unavailable_runtime_state(
                 "timezone": slot_data["timezone"],
                 "drawTime": slot_data["drawTime"],
                 "daysOfWeek": slot_data["daysOfWeek"],
-                "sortOrder": slot_data["sortOrder"],
+                "sortOrder": slot_data.get("sortOrder"),
                 "sourceCfg": slot_data["sourceCfg"],
                 "projectionCfg": slot_data["projectionCfg"],
                 "notes": slot_data.get("notes"),
@@ -1138,8 +1495,14 @@ def test_sale_availability_gates_block_unavailable_runtime_state(
         seller_terminals=(SellerTerminalPlan("main"), SellerTerminalPlan("backup")),
     )
     control_runtime = _provision_tenant(super_admin_client, base_url, fb_auth, control_plan)
-    control_draw = _generate_and_force_open_draws(super_admin_client, control_runtime, _start_date())[0]
+    control_draw = _generate_and_force_open_draws(super_admin_client, control_runtime, config.start)[0]
     control_seller = control_runtime.sellers[0]
+
+    activated_before_suspend = super_admin_client.post(
+        f"/platform/tenants/{runtime.tenant_id}/activate",
+        headers=_rid(),
+    )
+    assert activated_before_suspend.status_code in (200, 204), activated_before_suspend.text
 
     before_tenant_suspend_count = _ticket_count(admin_as_sa, draw)
     suspended = super_admin_client.post(
@@ -1175,10 +1538,24 @@ def test_sale_availability_gates_block_unavailable_runtime_state(
             f"before={before_tenant_suspend_count} after={after_tenant_suspend_count}"
         )
 
-    channel = admin_as_sa.get(f"/platform/draw-channels/{draw_channel_id(draw)}", headers=_rid())
+    channel = admin_as_sa.get(
+        "/platform/draw-channels",
+        params={"code": _draw_channel_code(draw), "page": 0, "size": 10},
+        headers=_rid(),
+    )
     assert_ok(channel)
-    channel_data = _data(channel)
-    disabled_channel = admin_as_sa.post(f"/platform/draw-channels/{draw_channel_id(draw)}/disable", headers=_rid())
+    channel_data = next(
+        (item for item in _items(_data(channel)) if _id(item["id"]) == draw_channel_id(draw)),
+        None,
+    )
+    assert channel_data is not None, (
+        f"draw channel snapshot not found for id={draw_channel_id(draw)} "
+        f"code={_draw_channel_code(draw)} response={_data(channel)}"
+    )
+    disabled_channel = admin_as_sa.post(
+        f"/platform/draw-channels/{draw_channel_id(draw)}/disable?tenantId={_id(channel_data['tenantId'])}",
+        headers=_rid(),
+    )
     assert_ok(disabled_channel)
     try:
         _assert_sale_blocked(

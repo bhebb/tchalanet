@@ -7,6 +7,7 @@ import com.tchalanet.server.catalog.drawchannel.internal.web.model.CreateDrawCha
 import com.tchalanet.server.catalog.drawchannel.internal.web.model.UpdateDrawChannelFlagsRequest;
 import com.tchalanet.server.catalog.drawchannel.internal.web.model.UpdateDrawChannelRequest;
 import com.tchalanet.server.catalog.drawchannel.internal.write.DrawChannelAdminService;
+import com.tchalanet.server.common.context.TchContextScope;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.types.id.DrawChannelId;
@@ -91,8 +92,14 @@ public class PlatformDrawChannelController {
   @PutMapping("/{id}")
   @PreAuthorize("hasRole('SUPER_ADMIN') and hasPermission(null, 'draw_channel.manage')")
   public ApiResponse<DrawChannelView> update(
-      @PathVariable DrawChannelId id, @RequestBody UpdateDrawChannelRequest req) {
-    var view = adminService.updateFromRequest(id, req);
+      @PathVariable DrawChannelId id,
+      @RequestBody UpdateDrawChannelRequest req,
+      @CurrentContext TchRequestContext ctx) {
+    var tenantId = req.tenantId() == null ? ctx.effectiveTenantIdRequired() : req.tenantId();
+    var view =
+        TchContextScope.runWithContextResult(
+            ctx.withEffectiveTenantUuid(tenantId.value()),
+            () -> adminService.updateFromRequest(id, req));
     return ApiResponse.success(view);
   }
 
@@ -116,8 +123,15 @@ public class PlatformDrawChannelController {
   @Operation(summary = "Disable a draw channel — kill switch (platform)")
   @PostMapping("/{id}/disable")
   @PreAuthorize("hasRole('SUPER_ADMIN') and hasPermission(null, 'draw_channel.manage')")
-  public ApiResponse<Void> disable(@PathVariable DrawChannelId id) {
-    adminService.disableChannel(id);
+  public ApiResponse<Void> disable(
+      @PathVariable DrawChannelId id,
+      @RequestParam(required = false) TenantId tenantId,
+      @CurrentContext TchRequestContext ctx) {
+    if (tenantId == null) {
+      tenantId = ctx.effectiveTenantIdRequired();
+    }
+    TchContextScope.runWithContext(
+        ctx.withEffectiveTenantUuid(tenantId.value()), () -> adminService.disableChannel(id));
     return ApiResponse.success(null);
   }
 }

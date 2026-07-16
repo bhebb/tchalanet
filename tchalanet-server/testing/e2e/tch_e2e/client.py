@@ -33,6 +33,14 @@ def _resolve_timeout() -> float:
     return timeout
 
 
+def _base_headers(token: str, extra_headers: Mapping[str, str]) -> dict[str, str]:
+    headers = {"Authorization": f"Bearer {token}", **extra_headers}
+    host_header = os.environ.get("TCH_E2E_HOST_HEADER", "").strip()
+    if host_header and "Host" not in headers:
+        headers["Host"] = host_header
+    return headers
+
+
 @dataclass
 class ApiClient:
     """Thin wrapper around httpx.Client preserving JWT + X-Tch-* headers."""
@@ -52,7 +60,7 @@ class ApiClient:
             base_url=self.base_url,
             timeout=self.timeout,
             verify=_resolve_verify(),
-            headers={"Authorization": f"Bearer {self.token}", **self.extra_headers},
+            headers=_base_headers(self.token, self.extra_headers),
         )
 
     def get(self, path: str, *, params: Mapping[str, Any] | None = None,
