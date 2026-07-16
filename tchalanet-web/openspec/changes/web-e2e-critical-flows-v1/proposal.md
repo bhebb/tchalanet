@@ -64,3 +64,25 @@ behavior only.
 - No performance/load in the browser (Locust owns capacity/latency).
 - No mobile (Flutter) coverage — different runtime, different change.
 - No coverage gate in V1 (tracked, enabled later).
+
+## Deepened — 2026-07-15 — Phase 1 (auth & context)
+
+The first implementation slice is carved out as **Phase 1 — authentication, role
+dispatch and context override** (`specs/web-e2e-auth-phase1`, `tasks.md §1b`),
+sequenced before the per-screen config/general flows:
+
+1. Public anonymous baseline + login entry.
+2. Real-UI login for `admin` and `super_admin` → role-based dispatch
+   (`/app/admin`, `/app/platform`).
+3. Guards & redirection (`authGuard`, `roleGuard`, `spaceDispatchGuard` via
+   `session.entryRoute`; activation redirect).
+4. **Super-admin acting within a tenant** (platform → `asTenantAdmin` /
+   `X-Tenant-Id` override; tenant scope shown, then restored).
+5. **Admin acting on a seller terminal** (`admin-portal/features/seller-terminals`).
+
+Flows 4 and 5 are **new** vs the original per-portal task list, which covered
+login/dispatch but not the tenant-impersonation and seller-terminal context
+overrides. Config/general screens (setup, limits editing, POS sale, reporting)
+remain Phase 2. Grounding: `libs/core/auth` (`LoginPage`, `AuthRedirectService`,
+`auth.guard.ts`), `libs/api` (`TchBackendClient.asTenantAdmin`),
+`apps/admin-portal/src/app/features/seller-terminals`.

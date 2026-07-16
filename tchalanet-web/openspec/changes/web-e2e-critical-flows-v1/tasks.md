@@ -15,6 +15,28 @@ source — that is the only production-source edit this change allows.
 - [ ] Confirm base-URL wiring for the three projects is env-driven (already in
       `playwright.config.ts`); add per-project `storageState`.
 
+## 1b. Phase 1 — Authentication, role dispatch & context override (DO FIRST)
+
+> Emphasis for the first slice (`specs/web-e2e-auth-phase1`): the login / session
+> / redirection backbone across the 3 portals, plus the two context-override
+> flows. Auth-only — config/general screens are **Phase 2** (§2–§4 below).
+
+- [ ] **Public baseline** — `/` renders public shell anonymously, no `Authorization`
+      header, "Connexion" → `/login`.
+- [ ] **Admin real-UI login** — valid creds on `/login` → dispatched to `/app/admin`,
+      tenant-admin nav renders.
+- [ ] **Super-admin real-UI login** — valid creds → dispatched to `/app/platform`.
+- [ ] **Invalid credentials** — inline error, no navigation, button re-enabled.
+- [ ] **Guards / redirection** — unauthenticated `/app/**` → `/login`; wrong-role
+      → forbidden/redirect (`roleGuard`); `spaceDispatchGuard` honors
+      `session.entryRoute`; un-activated TENANT_ADMIN → `/account/activation`.
+- [ ] **Super-admin acting within a tenant** — from platform portal, act on a
+      tenant (`asTenantAdmin` / `X-Tenant-Id`) → tenant-scoped screen renders +
+      active-tenant indicator; exit restores platform scope.
+- [ ] **Admin acting on a seller terminal** — `admin-portal/features/seller-terminals`
+      → open a terminal → that terminal's context screen renders; cross-tenant
+      terminal id → not-found/forbidden.
+
 ## 2. Public portal (`specs/public-portal-e2e`)
 
 - [ ] Keep the existing shell smoke.
