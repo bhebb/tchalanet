@@ -109,9 +109,10 @@
       },
       "install": {
         "action": "Ajouter à l'écran d'accueil",
+        "androidHint": "Sur Android, ouvrez le menu du navigateur, puis choisissez Installer l'application ou Ajouter à l'écran d'accueil.",
         "body": "Ouvrez l'accès Tchalanet en un geste depuis ce téléphone.",
         "browserHint": "Si le bouton natif n'apparaît pas, ouvrez le menu du navigateur et choisissez Ajouter à l'écran d'accueil.",
-        "iosHint": "Sur iPhone, utilisez le bouton Partager puis Sur l'écran d'accueil.",
+        "iosHint": "Sur iPhone, touchez le menu ... en bas à droite, puis Partager, puis Ajouter à l'écran d'accueil.",
         "title": "Accès rapide"
       },
       "links": {

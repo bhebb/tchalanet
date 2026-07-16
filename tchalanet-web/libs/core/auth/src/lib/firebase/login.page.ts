@@ -55,7 +55,9 @@ export class LoginPage implements OnInit, OnDestroy {
   // up to 15s to fail. A shorter window closes before the bounce returns, so the loop
   // would never be detected. 20s leaves a safety margin over the 15s timeout.
   private static readonly RESTORE_WINDOW_MS = 20_000;
+  private static readonly INSTALL_HINT_DISMISSED_KEY = 'tch-install-hint-dismissed';
   private installPromptEvent: BeforeInstallPromptEvent | null = null;
+  private installInstructionsShown = false;
 
   private readonly handleBeforeInstallPrompt = (event: Event): void => {
     event.preventDefault();
@@ -67,7 +69,18 @@ export class LoginPage implements OnInit, OnDestroy {
   private readonly handleAppInstalled = (): void => {
     this.installPromptEvent = null;
     this.installPromptAvailable.set(false);
-    this.installHintVisible.set(false);
+    this.dismissInstallHint();
+  };
+
+  private readonly handleInstallVisibilityRefresh = (): void => {
+    if (this.isStandaloneMode()) {
+      this.dismissInstallHint();
+      return;
+    }
+
+    if (this.installInstructionsShown && this.isAppleTouchDevice()) {
+      this.dismissInstallHint();
+    }
   };
 
   ngOnInit(): void {
@@ -79,6 +92,8 @@ export class LoginPage implements OnInit, OnDestroy {
     const windowRef = globalThis.window;
     windowRef?.removeEventListener('beforeinstallprompt', this.handleBeforeInstallPrompt);
     windowRef?.removeEventListener('appinstalled', this.handleAppInstalled);
+    windowRef?.removeEventListener('focus', this.handleInstallVisibilityRefresh);
+    windowRef?.document.removeEventListener('visibilitychange', this.handleInstallVisibilityRefresh);
   }
 
   private async redirectRestoredSession(): Promise<void> {
@@ -118,7 +133,8 @@ export class LoginPage implements OnInit, OnDestroy {
     this.infoKey.set(null);
 
     if (!this.installPromptEvent) {
-      this.infoKey.set(this.isAppleTouchDevice() ? 'auth.login.install.iosHint' : 'auth.login.install.browserHint');
+      this.infoKey.set(this.installFallbackHintKey());
+      this.installInstructionsShown = true;
       return;
     }
 
@@ -129,7 +145,7 @@ export class LoginPage implements OnInit, OnDestroy {
     await promptEvent.prompt();
     const choice = await promptEvent.userChoice;
     if (choice.outcome === 'accepted') {
-      this.installHintVisible.set(false);
+      this.dismissInstallHint();
     }
   }
 
@@ -176,11 +192,13 @@ export class LoginPage implements OnInit, OnDestroy {
 
   private setupInstallHint(): void {
     const windowRef = globalThis.window;
-    if (!windowRef || this.isStandaloneMode()) return;
+    if (!windowRef || this.isStandaloneMode() || this.installHintDismissed()) return;
 
     this.installHintVisible.set(this.isMobileViewport());
     windowRef.addEventListener('beforeinstallprompt', this.handleBeforeInstallPrompt);
     windowRef.addEventListener('appinstalled', this.handleAppInstalled);
+    windowRef.addEventListener('focus', this.handleInstallVisibilityRefresh);
+    windowRef.document.addEventListener('visibilitychange', this.handleInstallVisibilityRefresh);
   }
 
   private isMobileViewport(): boolean {
@@ -195,6 +213,36 @@ export class LoginPage implements OnInit, OnDestroy {
 
   private isAppleTouchDevice(): boolean {
     return /iphone|ipad|ipod/i.test(globalThis.window?.navigator.userAgent ?? '');
+  }
+
+  private isAndroidDevice(): boolean {
+    return /android/i.test(globalThis.window?.navigator.userAgent ?? '');
+  }
+
+  private installFallbackHintKey(): string {
+    if (this.isAppleTouchDevice()) {
+      return 'auth.login.install.iosHint';
+    }
+    if (this.isAndroidDevice()) {
+      return 'auth.login.install.androidHint';
+    }
+    return 'auth.login.install.browserHint';
+  }
+
+  private dismissInstallHint(): void {
+    this.installPromptEvent = null;
+    this.installPromptAvailable.set(false);
+    this.installHintVisible.set(false);
+    this.infoKey.update(key => (key?.startsWith('auth.login.install.') ? null : key));
+    this.localStorage()?.setItem(LoginPage.INSTALL_HINT_DISMISSED_KEY, 'true');
+  }
+
+  private installHintDismissed(): boolean {
+    return this.localStorage()?.getItem(LoginPage.INSTALL_HINT_DISMISSED_KEY) === 'true';
+  }
+
+  private localStorage(): Storage | null {
+    return globalThis.window?.localStorage ?? null;
   }
 }
 
