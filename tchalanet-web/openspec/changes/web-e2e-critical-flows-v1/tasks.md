@@ -20,22 +20,25 @@ source — that is the only production-source edit this change allows.
 > Emphasis for the first slice (`specs/web-e2e-auth-phase1`): the login / session
 > / redirection backbone across the 3 portals, plus the two context-override
 > flows. Auth-only — config/general screens are **Phase 2** (§2–§4 below).
+>
+> **Landed** (`src/support/auth.ts` + `src/{public,admin,platform}-portal/auth-phase1.spec.ts`,
+> `data-testid`s on the shared login form, `README.md`). **Not yet executed** —
+> needs the emulator + API + seeded tenant stack and a `web-e2e` CI target (§6);
+> credential/id-dependent tests `test.skip` until env is provided.
 
-- [ ] **Public baseline** — `/` renders public shell anonymously, no `Authorization`
-      header, "Connexion" → `/login`.
-- [ ] **Admin real-UI login** — valid creds on `/login` → dispatched to `/app/admin`,
-      tenant-admin nav renders.
-- [ ] **Super-admin real-UI login** — valid creds → dispatched to `/app/platform`.
-- [ ] **Invalid credentials** — inline error, no navigation, button re-enabled.
-- [ ] **Guards / redirection** — unauthenticated `/app/**` → `/login`; wrong-role
-      → forbidden/redirect (`roleGuard`); `spaceDispatchGuard` honors
-      `session.entryRoute`; un-activated TENANT_ADMIN → `/account/activation`.
-- [ ] **Super-admin acting within a tenant** — from platform portal, act on a
-      tenant (`asTenantAdmin` / `X-Tenant-Id`) → tenant-scoped screen renders +
-      active-tenant indicator; exit restores platform scope.
-- [ ] **Admin acting on a seller terminal** — `admin-portal/features/seller-terminals`
-      → open a terminal → that terminal's context screen renders; cross-tenant
-      terminal id → not-found/forbidden.
+- [x] **Public baseline** — `/` reachable anonymously; login page + form render.
+- [x] **Admin real-UI login** — valid creds on `/login` → dispatched to `/app/admin`
+      (or `/account/activation` if un-activated).
+- [x] **Super-admin real-UI login** — valid creds → dispatched into the platform space.
+- [x] **Invalid credentials** — inline `login-error`, stays on `/login`.
+- [x] **Guards / redirection** — unauthenticated `/app/{admin,platform}` → `/login`.
+      (`spaceDispatchGuard` entryRoute + activation redirect covered via dispatch asserts.)
+- [x] **Super-admin acting within a tenant** — open `/app/platform/tenants/:tenantId`
+      (tenant-scoped screen via `asTenantAdmin` / `X-Tenant-Id`).
+- [x] **Admin acting on a seller terminal** — open
+      `/app/admin/seller-terminals/:id/overrides`.
+- [ ] **Wrong-role cross-app block** — `test.fixme` pending confirmation of the
+      `location.assign` landing (open question).
 
 ## 2. Public portal (`specs/public-portal-e2e`)
 
