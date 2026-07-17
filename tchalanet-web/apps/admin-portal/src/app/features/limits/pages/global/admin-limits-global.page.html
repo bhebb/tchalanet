@@ -14,6 +14,7 @@
       <button
         mat-flat-button
         color="primary"
+        data-testid="admin-limits-add"
         (click)="openAdd()"
         [disabled]="unassignedRules().length === 0">
         <span class="material-symbols-outlined">add</span>
@@ -63,6 +64,7 @@
       />
     } @else {
       <tch-limit-assignments-table
+        data-testid="admin-limits-active-table"
         [rows]="activeRows()"
         [canEdit]="true"
         (upsert)="openUpsert($event)"

@@ -81,8 +81,16 @@ source — that is the only production-source edit this change allows.
 - [ ] Admin login → space dispatch lands `/app/admin/dashboard`.
 - [ ] First-login activation guard routes un-activated TENANT_ADMIN to
       `/account/activation`.
-- [ ] `/app/admin/setup` renders setup/readiness sections, navigable.
-- [ ] `/app/admin/limits` renders policy list; invalid edit → inline validation.
+- [x] `/app/admin/setup` renders setup/readiness sections, navigable.
+- [x] `/app/admin/limits/global` renders policy list; invalid number-limit edit
+      remains unsavable with inline validation.
+- [x] `/app/admin/maryaj-gratis` renders game/offer panels; seller-selection
+      toggle save dispatches the expected update request.
+- [x] `/app/admin/reports/sellers` renders multi-terminal rows, French monetary
+      formatting, CSV download, and PDF print scope bound to `data-report-export-root`.
+- [ ] Add deployed-API admin fixtures before enabling these business UI contract
+      tests in `WEB_E2E_API=1` mode. Current `business-admin-v1.spec.ts` is
+      deterministic stub/emulator coverage only.
 - [ ] Cashier blocked from tenant-admin-only route → forbidden/redirect.
 - [ ] POS sale happy path (UI): build ticket → visible success/receipt feedback →
       form resets.

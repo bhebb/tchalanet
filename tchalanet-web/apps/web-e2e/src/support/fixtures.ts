@@ -1,6 +1,10 @@
 import { test as base } from '@playwright/test';
 
 import { ApiStub } from './api-stub';
+import { AdminLimitsPage } from './pages/admin-limits.page';
+import { AdminMaryajGratisPage } from './pages/admin-maryaj-gratis.page';
+import { AdminSellerReportPage } from './pages/admin-seller-report.page';
+import { AdminSetupPage } from './pages/admin-setup.page';
 import { LoginPage } from './pages/login.page';
 import { PrivateShellPage } from './pages/private-shell.page';
 import { SupportTenantPage } from './pages/support-tenant.page';
@@ -20,6 +24,10 @@ interface Fixtures {
   readonly loginPage: LoginPage;
   readonly privateShell: PrivateShellPage;
   readonly supportTenantPage: SupportTenantPage;
+  readonly adminSetupPage: AdminSetupPage;
+  readonly adminMaryajGratisPage: AdminMaryajGratisPage;
+  readonly adminLimitsPage: AdminLimitsPage;
+  readonly adminSellerReportPage: AdminSellerReportPage;
   readonly apiStub: ApiStub;
 }
 
@@ -32,6 +40,18 @@ export const test = base.extend<Fixtures>({
   },
   supportTenantPage: async ({ page }, use) => {
     await use(new SupportTenantPage(page));
+  },
+  adminSetupPage: async ({ page }, use) => {
+    await use(new AdminSetupPage(page));
+  },
+  adminMaryajGratisPage: async ({ page }, use) => {
+    await use(new AdminMaryajGratisPage(page));
+  },
+  adminLimitsPage: async ({ page }, use) => {
+    await use(new AdminLimitsPage(page));
+  },
+  adminSellerReportPage: async ({ page }, use) => {
+    await use(new AdminSellerReportPage(page));
   },
   apiStub: async ({ page }, use) => {
     const stub = new ApiStub(page);

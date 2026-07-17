@@ -24,37 +24,79 @@ pnpm build:platform-portal
 
 ## Lancer les apps en local
 
-Choisir d'abord le profil runtime:
+Le plus simple pour lancer les trois portails:
 
 ```bash
-pnpm runtime:local-ide
+pnpm serve:portals
 ```
+
+Puis ouvrir:
+
+- Public: http://localhost:4301
+- Admin: http://localhost:4302
+- Platform: http://localhost:4303
 
 Profils disponibles:
 
 ```bash
-pnpm runtime:local-ide          # API /api/v1 via proxy dev local, Firebase réel
-pnpm runtime:local-ide-emulator # API /api/v1 via proxy dev local, Firebase Auth emulator
-pnpm runtime:dev-docker         # API https://api.localtest.me/api/v1, Firebase réel
+pnpm serve:portals                  # runtime local-ide, Firebase réel (défaut dev)
+pnpm serve:portals:emulator         # runtime local-ide-emulator, Firebase Auth emulator
+pnpm serve:portals:docker           # runtime dev-docker, API https://api.localtest.me/api/v1
+pnpm serve:portals:docker-emulator  # runtime dev-docker-emulator + Firebase Auth emulator
+pnpm serve:portals:stg              # runtime stg-cloudflare
+pnpm serve:portals:prod             # runtime prod-cloudflare
+```
+
+Pour lancer une app seule:
+
+```bash
+pnpm serve:public
+pnpm serve:admin
+pnpm serve:platform
+```
+
+Variantes fréquentes pour l'admin seul:
+
+```bash
+pnpm serve:admin:emulator
+pnpm serve:admin:docker
+pnpm serve:admin:docker-emulator
+```
+
+Le script accepte aussi un sous-ensemble:
+
+```bash
+pnpm serve:portals -- --only=admin,platform
+pnpm serve:portals:docker-emulator -- --only=admin
+```
+
+Si tu veux choisir le runtime manuellement:
+
+```bash
+pnpm runtime:local-ide
+pnpm runtime:local-ide-emulator
+pnpm runtime:dev-docker
 pnpm runtime:dev-docker-emulator
 pnpm runtime:stg-cloudflare
 pnpm runtime:prod-cloudflare
 ```
 
-Lancer une app:
+## Tests web E2E
+
+Run standard local: Firebase Auth emulator + API REST mockée par Playwright.
 
 ```bash
-pnpm serve:public-portal
-pnpm serve:admin-portal
-pnpm serve:platform-portal
+make -C ../tchalanet-infra up-firebase-emulator
+pnpm e2e:web
 ```
 
-Lancer les trois apps en même temps avec des ports séparés:
+Commandes utiles:
 
 ```bash
-pnpm nx run public-portal:serve --port=4200
-pnpm nx run admin-portal:serve --port=4201
-pnpm nx run platform-portal:serve --port=4202
+pnpm e2e:web                    # tous les projets Playwright
+pnpm e2e:web:admin              # projet admin seulement
+pnpm e2e:web:admin-business     # setup + Maryaj gratis + limites + rapport vendeur
+pnpm e2e:web:api                # Docker API mode, sans REST mocks Playwright
 ```
 
 ## Structure

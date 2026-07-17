@@ -1,4 +1,4 @@
-<section id="offer" class="maryaj-offer">
+<section id="offer" class="maryaj-offer" data-testid="maryaj-gratis-offer-panel">
   @if (campaign() && !editing()) {
     @if (campaign(); as campaign) {
     <div class="maryaj-offer__campaign">
@@ -32,7 +32,7 @@
             Mettre en pause
           </button>
         }
-        <button mat-stroked-button [disabled]="saving()" (click)="editOffer.emit()">
+        <button mat-stroked-button data-testid="maryaj-gratis-edit-offer" [disabled]="saving()" (click)="editOffer.emit()">
           <mat-icon>edit</mat-icon>
           Modifier l'offre
         </button>
@@ -165,7 +165,7 @@
         </mat-form-field>
       </section>
 
-      <mat-form-field appearance="outline" class="maryaj-offer__field--wide">
+      <mat-form-field appearance="outline" class="maryaj-offer__field--wide" data-testid="maryaj-gratis-quantity-mode">
         <mat-label>Mode d'attribution</mat-label>
         <mat-select formControlName="quantityMode">
           <mat-option value="TIERED_PAID_AMOUNT">Par paliers de vente</mat-option>
@@ -249,6 +249,7 @@
           <p>Le vendeur ne choisit rien sauf si l’option manuelle est activée.</p>
         </div>
         <mat-checkbox
+          data-testid="maryaj-gratis-seller-selects-toggle"
           [checked]="manualSelectionEnabled()"
           (change)="manualSelectionChange.emit($event.checked)"
         >
@@ -283,6 +284,7 @@
       <button
         mat-flat-button
         color="primary"
+        data-testid="maryaj-gratis-save"
         [disabled]="saving() || form().invalid || !gameReady()"
         (click)="campaign() ? saveOffer.emit() : instantiateOffer.emit()"
       >
