@@ -80,6 +80,24 @@ export const superAdminPrivateBootstrap = {
   pageModelRef: null,
 } as const;
 
+/** Minimal `/runtime/private` bootstrap for a tenant admin. */
+export const tenantAdminPrivateBootstrap = {
+  user: {
+    userId: 'stub-tenant-admin',
+    username: 'admin',
+    email: 'admin@example.com',
+    displayName: 'Stub Tenant Admin',
+    roles: ['TENANT_ADMIN'],
+    mustChangePassword: false,
+    mustCompleteProfile: false,
+  },
+  entitlements: { roles: ['TENANT_ADMIN'], permissions: [] },
+  space: 'ADMIN',
+  tenantContext: { tenantId: 'stub-tenant', tenantCode: 'STUB' },
+  entryRoute: '/app/admin',
+  pageModelRef: null,
+} as const;
+
 export class ApiStub {
   constructor(private readonly page: Page) {}
 

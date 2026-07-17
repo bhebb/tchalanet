@@ -57,6 +57,17 @@
           "optimization": false,
           "extractLicenses": false,
           "sourceMap": true
+        },
+        "emulator": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true,
+          "fileReplacements": [
+            {
+              "replace": "apps/admin-portal/src/environments/environment.ts",
+              "with": "apps/admin-portal/src/environments/environment.emulator.ts"
+            }
+          ]
         }
       }
     },
@@ -73,6 +84,9 @@
         },
         "development": {
           "buildTarget": "admin-portal:build:development"
+        },
+        "emulator": {
+          "buildTarget": "admin-portal:build:emulator"
         }
       }
     },

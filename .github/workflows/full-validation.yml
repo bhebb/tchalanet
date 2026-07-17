@@ -532,12 +532,21 @@ jobs:
   web-e2e:
     name: Web E2E
     runs-on: ubuntu-latest
-    # Non-blocking: the browser suite is observational (auth flows skip without
-    # seeded creds; portal <-> backend wiring still being confirmed), so a red
-    # run must not fail the nightly. Point at deployed portals by setting
-    # WEB_E2E_EXTERNAL=1 + PUBLIC/ADMIN/PLATFORM_BASE_URL and the TCH_E2E_* creds
-    # (repo vars/secrets); unset keeps the local `nx serve` targets.
+    # Non-blocking (observational) so a red web run never fails the nightly.
+    # Variant A: the firebase-emulator (Docker, on the runner) provides the
+    # browser session; portals are served with their `emulator` configuration and
+    # REST is stubbed by the suite — no backend API required.
     continue-on-error: true
+    env:
+      WEB_E2E_EMULATOR: '1'
+      TCH_FIREBASE_EMULATOR_HOST: '127.0.0.1:9099'
+      # Self-contained test identities: global-setup creates them in the emulator
+      # and roles come from the stubbed /runtime/private, so these are fixtures,
+      # not secrets.
+      TCH_E2E_SUPERADMIN_EMAIL: super_admin@e2e.local
+      TCH_E2E_SUPERADMIN_PASSWORD: e2e-password-123
+      TCH_E2E_ADMIN_EMAIL: admin@e2e.local
+      TCH_E2E_ADMIN_PASSWORD: e2e-password-123
     defaults:
       run:
         working-directory: tchalanet-web
@@ -563,8 +572,17 @@ jobs:
       - name: Install Playwright browsers
         run: pnpm exec playwright install --with-deps chromium
 
+      - name: Start firebase auth emulator
+        working-directory: tchalanet-infra
+        run: make up-firebase-emulator
+
       - name: Run web E2E
         run: pnpm nx e2e web-e2e
+
+      - name: Stop firebase auth emulator
+        if: ${{ always() }}
+        working-directory: tchalanet-infra
+        run: make down-firebase-emulator
 
       - name: Upload Playwright report
         if: ${{ !cancelled() }}

@@ -15,10 +15,15 @@ test.describe('Phase 1 — platform', () => {
     await expect(loginPage.root).toBeVisible();
   });
 
-  test('super admin login dispatches into the platform space', async ({ page, loginPage }) => {
+  test('super admin login dispatches into the platform space', async ({
+    page,
+    loginPage,
+    apiStub,
+  }) => {
     const creds = credsFor('superAdmin');
     test.skip(!creds, 'TCH_E2E_SUPERADMIN_EMAIL/PASSWORD not configured');
 
+    void apiStub; // stubs /runtime/private with a SUPER_ADMIN bootstrap
     await loginPage.login(creds!);
     // Platform space is served under /app/platform and at the guarded root.
     await expect(page).not.toHaveURL(/\/(login|forbidden)\b/);
@@ -27,12 +32,14 @@ test.describe('Phase 1 — platform', () => {
   test('super admin can open a tenant detail (acting within a tenant)', async ({
     page,
     loginPage,
+    apiStub,
   }) => {
     const creds = credsFor('superAdmin');
     const tenantId = seededTenantId();
     test.skip(!creds, 'TCH_E2E_SUPERADMIN_EMAIL/PASSWORD not configured');
     test.skip(!tenantId, 'TCH_E2E_TENANT_ID not configured');
 
+    void apiStub;
     await loginPage.login(creds!);
     // Opening a tenant scopes the platform screens to that tenant
     // (client reads through the asTenantAdmin / X-Tenant-Id override).
