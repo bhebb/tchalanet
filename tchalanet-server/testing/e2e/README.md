@@ -88,8 +88,9 @@ canonical `tch_e2e.business_day` builders instead of defining a second scenario.
 cd tchalanet-infra
 make local-product-up            # Traefik + Postgres + Redis + API + edge-service
 
-# 2. Sanity: stack reachable
-curl -sk https://api.localtest.me/api/v1/actuator/health      # {"status":"UP"}
+# 2. Sanity: stack reachable.
+# Actuator is routed outside /api/v1; application endpoints stay under /api/v1.
+curl -sk https://api.localtest.me/actuator/health             # {"status":"UP"}
 
 # 3. Run the tests (from tchalanet-server/testing/e2e/)
 cd ../tchalanet-server/testing/e2e
@@ -184,10 +185,13 @@ The canonical runner intentionally exports `TCH_E2E_AUTH_PROVIDER=firebase-emula
 For Firebase-independent E2E/performance validation, including Locust, start the API with
 `TCH_IDENTITY_PROVIDER=local-jwt` or `local-perf`, configure the same
 `TCH_LOCAL_JWT_ISSUER`/`TCH_LOCAL_JWT_SECRET` in the harness, and set
-`TCH_E2E_AUTH_PROVIDER` accordingly. The harness signs tokens only for the seeded
-`super_admin`, `admin`, and `cashier`. Their token roles are routing hints; the API replaces them
-with database-owned roles and permissions before executing handlers. The existing multitenant L3
-suite then exercises the normal context, permission, pooled-connection, and PostgreSQL RLS path.
+`TCH_E2E_AUTH_PROVIDER` accordingly. The harness signs seeded app-user tokens for
+`super_admin` and `admin`; Locust signs seller-terminal tokens with
+`sub=<sellerTerminalId>` after `scripts_prepare_locust_local_perf.py` mirrors the
+terminal identities into `LOCAL_PERF`. Token roles are routing hints; the API
+replaces them with database-owned roles and permissions before executing
+handlers. The existing multitenant L3 suite then exercises the normal context,
+permission, pooled-connection, and PostgreSQL RLS path.
 
 Do not run Locust against Firebase Auth Emulator. The emulator is useful for
 deterministic provisioning and destructive server E2E, but it is not the auth
@@ -365,7 +369,7 @@ docker compose --project-name tch-dev \
 
 Traefik routes by labels, so the container name doesn't matter for `api.localtest.me`.
 Verify with `docker inspect <api-container> --format '{{.Image}}'` against the new build SHA,
-and `curl -sk https://api.localtest.me/api/v1/actuator/health`.
+and `curl -sk https://api.localtest.me/actuator/health`.
 
 ---
 

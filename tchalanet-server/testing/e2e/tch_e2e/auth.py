@@ -119,22 +119,40 @@ class LocalJwtAuth:
     def password_grant(self, *, username: str, password: str) -> str:
         del password
         identity = _local_identity(username)
-        now = int(time.time())
-        return _hs256(
-            {
-                "iss": self.issuer,
-                "sub": identity.subject,
-                "iat": now,
-                "exp": now + 3600,
-                "email": identity.email,
-                "email_verified": True,
-                "preferred_username": identity.username,
-                "tenant_code": identity.tenant_code,
-                # Hint only. TchRequestContext replaces this with DB-owned authorization.
-                "roles": [identity.role],
-            },
-            self.secret,
+        return self.mint(
+            subject=identity.subject,
+            email=identity.email,
+            username=identity.username,
+            tenant_code=identity.tenant_code,
+            role=identity.role,
         )
+
+    def mint(
+        self,
+        *,
+        subject: str,
+        email: str | None = None,
+        username: str | None = None,
+        tenant_code: str | None = None,
+        role: str = "SELLER_TERMINAL",
+    ) -> str:
+        now = int(time.time())
+        claims = {
+            "iss": self.issuer,
+            "sub": subject,
+            "iat": now,
+            "exp": now + 3600,
+            "email_verified": True,
+            # Hint only. TchRequestContext replaces this with DB-owned authorization.
+            "roles": [role],
+        }
+        if email:
+            claims["email"] = email
+        if username:
+            claims["preferred_username"] = username
+        if tenant_code:
+            claims["tenant_code"] = tenant_code
+        return _hs256(claims, self.secret)
 
 
 @dataclass(frozen=True)
