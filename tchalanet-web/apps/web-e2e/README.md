@@ -33,6 +33,19 @@ app. Each app is a Playwright *project* in `playwright.config.ts` (own base URL,
 
 Selectors use `data-testid` (Playwright `getByTestId`) — no text/CSS coupling.
 
+### API stub / mocks
+
+`support/api-stub.ts` (`ApiStub`) intercepts backend REST (`/api/v1/**`) with
+Playwright `page.route`, exposed via the **`apiStub`** fixture — list it in a
+test's args to run backend-free with deterministic data
+(`await apiStub.tenants([...])`, `apiStub.privateBootstrap(...)`).
+
+**Limit**: auth is decided by the Firebase Auth SDK in the browser, not a REST
+call, so the stub **cannot fake a session**. Pure stubs cover the
+**unauthenticated** surface (public shell, login page, guard redirects);
+authenticated flows still need the firebase-emulator for the session, with the
+REST stubs making the data deterministic (hybrid).
+
 ## Prerequisites
 
 The suite treats the backend as a **fixture** — it does not provision. Bring up

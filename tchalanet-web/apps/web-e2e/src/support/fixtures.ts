@@ -1,17 +1,24 @@
 import { test as base } from '@playwright/test';
 
+import { ApiStub } from './api-stub';
 import { LoginPage } from './pages/login.page';
 import { SupportTenantPage } from './pages/support-tenant.page';
 
 /**
- * Shared test fixtures for the single web-e2e suite. Page objects are injected
- * here so every Playwright project (public / admin / platform) reuses the same
- * page abstractions. Import `test` / `expect` from this module, not directly
- * from `@playwright/test`.
+ * Shared test fixtures for the single web-e2e suite. Page objects and the API
+ * stub are injected here so every Playwright project (public / admin / platform)
+ * reuses the same abstractions. Import `test` / `expect` from this module, not
+ * directly from `@playwright/test`.
+ *
+ * - `loginPage`, `supportTenantPage` — Page Objects.
+ * - `apiStub` — opt-in network stub (default stubs installed); list it in a
+ *   test's args to run that test backend-free / with deterministic REST data.
+ *   Note: it cannot fake the Firebase session — see api-stub.ts.
  */
 interface Fixtures {
   readonly loginPage: LoginPage;
   readonly supportTenantPage: SupportTenantPage;
+  readonly apiStub: ApiStub;
 }
 
 export const test = base.extend<Fixtures>({
@@ -20,6 +27,11 @@ export const test = base.extend<Fixtures>({
   },
   supportTenantPage: async ({ page }, use) => {
     await use(new SupportTenantPage(page));
+  },
+  apiStub: async ({ page }, use) => {
+    const stub = new ApiStub(page);
+    await stub.install();
+    await use(stub);
   },
 });
 
