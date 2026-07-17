@@ -237,6 +237,14 @@ the pytest body. A business-day Locust flow must reuse:
 Locust should vary concurrency and repeat counts, not rewrite the business
 truth. That keeps pytest and load tests comparable.
 
+Auth rule for Locust:
+
+- do not load-test Firebase Auth Emulator;
+- use `TCH_IDENTITY_PROVIDER=local-perf` or `local-jwt` on the API;
+- use `TCH_E2E_AUTH_PROVIDER=local-perf` or `local-jwt` in the harness;
+- share the same `TCH_LOCAL_JWT_ISSUER` and `TCH_LOCAL_JWT_SECRET` between API
+  and harness.
+
 The current `loadtest/` package still contains the generic POS load harness. It
 is not a second scenario matrix. The next Locust step is to add a business-day
 user that consumes this registry's tenant plans, seller-terminal plans, selected

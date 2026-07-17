@@ -27,6 +27,7 @@ is decommissioned** (§5 kept only for legacy targets). `TCH_OUTLET_ID` /
 | Runtime | API identity provider | Harness auth provider | Notes |
 |---------|-----------------------|-----------------------|-------|
 | Server E2E local Docker dev | `firebase-emulator` | `firebase-emulator` | Deterministic identities, bootstrap users, disposable data |
+| Local load/perf with Locust | `local-perf` or `local-jwt` | `local-perf` or `local-jwt` | Avoids loading Firebase Auth Emulator; uses signed local JWTs for seeded actors |
 | Local IDE | `firebase` | manual/dev client | Real Firebase by default; use emulator only by explicit developer override |
 | Staging | `firebase` | `firebase` for live smoke | No `FIREBASE_AUTH_EMULATOR_HOST` |
 | Production | `firebase` | no destructive E2E | No emulator, no test provisioning |
@@ -43,7 +44,7 @@ documents stack setup, auth, env vars, and run commands only.
 |---|---|---|---|
 | `firebase` | ID tokens via real Firebase password sign-in | ✅ via API | nightly live E2E against staging/prod-like API |
 | `firebase-emulator` | ID tokens via the running emulator | ✅ yes | local create seller-terminal, sell, maryaj, limits |
-| `local-jwt` / `local-perf` | HS256 for seeded `super_admin`/`admin`/`cashier` | ❌ read/auth only | read endpoints, perf, RLS/isolation |
+| `local-jwt` / `local-perf` | HS256 for seeded `super_admin`/`admin`/`cashier` | ❌ read/auth only | read endpoints, perf/load, RLS/isolation |
 | `keycloak` | password grant | (legacy) | legacy targets only |
 
 Creating a seller-terminal is supported by Firebase-backed APIs. Tests that need to mint
@@ -180,13 +181,17 @@ Keycloak variables are legacy and documented in §5 only for old targets.
 Do not switch the E2E runner to real Firebase for local destructive scenarios.
 The canonical runner intentionally exports `TCH_E2E_AUTH_PROVIDER=firebase-emulator`.
 
-For Firebase-independent E2E/performance validation, start the API with
+For Firebase-independent E2E/performance validation, including Locust, start the API with
 `TCH_IDENTITY_PROVIDER=local-jwt` or `local-perf`, configure the same
 `TCH_LOCAL_JWT_ISSUER`/`TCH_LOCAL_JWT_SECRET` in the harness, and set
 `TCH_E2E_AUTH_PROVIDER` accordingly. The harness signs tokens only for the seeded
 `super_admin`, `admin`, and `cashier`. Their token roles are routing hints; the API replaces them
 with database-owned roles and permissions before executing handlers. The existing multitenant L3
 suite then exercises the normal context, permission, pooled-connection, and PostgreSQL RLS path.
+
+Do not run Locust against Firebase Auth Emulator. The emulator is useful for
+deterministic provisioning and destructive server E2E, but it is not the auth
+surface we want to benchmark under load.
 
 For targeted read-model/RLS debugging after the canonical runner has passed:
 

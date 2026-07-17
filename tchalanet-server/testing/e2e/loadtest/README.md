@@ -22,10 +22,16 @@ pip install -e '.[perf]'        # installs locust + the e2e deps
 
 ## Configure (env — same vars as the e2e suite)
 
+Locust must not use Firebase Auth Emulator for load. Run the API with
+`TCH_IDENTITY_PROVIDER=local-perf` or `local-jwt`, and configure the harness with
+the same issuer/secret.
+
 | Var | Meaning |
 |-----|---------|
 | `TCH_BASE_URL` | API base URL (**non-prod**; prod hosts are refused, see `safety.py`) |
-| `TCH_E2E_AUTH_PROVIDER` | Use the same provider as the target E2E run, usually `firebase-emulator` locally |
+| `TCH_E2E_AUTH_PROVIDER` | `local-perf` or `local-jwt` for Locust |
+| `TCH_LOCAL_JWT_ISSUER` | Must match the API runtime issuer, usually `tchalanet-local` |
+| `TCH_LOCAL_JWT_SECRET` | Must match the API runtime secret; at least 32 characters |
 | `TCH_SELLER_USERNAME` / `TCH_SELLER_PASSWORD` | Legacy POS harness credentials |
 | `TCH_TENANT_ID` / `TCH_OUTLET_ID` / `TCH_TERMINAL_ID` | Legacy seeded POS context for the current v1 harness |
 | `TCH_STAKE_CENTS` | per-line stake for the current v1 harness |
@@ -35,6 +41,9 @@ pip install -e '.[perf]'        # installs locust + the e2e deps
 ## Run — Web UI (the operation page)
 
 ```bash
+export TCH_E2E_AUTH_PROVIDER=local-perf
+export TCH_LOCAL_JWT_ISSUER=tchalanet-local
+export TCH_LOCAL_JWT_SECRET=dev-only-change-me-at-least-32-characters
 locust -f loadtest/locustfile.py --class-picker --host "$TCH_BASE_URL"
 # open http://localhost:8089
 ```
@@ -46,6 +55,9 @@ RPS / p50-p95-p99 / failures; adjust users at runtime; download CSV.
 ## Run — headless (CI / scripted)
 
 ```bash
+export TCH_E2E_AUTH_PROVIDER=local-perf
+export TCH_LOCAL_JWT_ISSUER=tchalanet-local
+export TCH_LOCAL_JWT_SECRET=dev-only-change-me-at-least-32-characters
 locust -f loadtest/locustfile.py --headless \
   -u 10 -r 2 -t 2m --host "$TCH_BASE_URL" \
   --csv results/run --html results/run.html \
