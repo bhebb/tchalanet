@@ -27,6 +27,10 @@ const json = (route: Route, body: unknown, status = 200): Promise<void> =>
     body: JSON.stringify(body),
   });
 
+// The backend client unwraps an ApiResponse envelope (`response.data`), so every
+// stubbed REST body must be wrapped the same way.
+const envelope = (data: unknown) => ({ status: 'SUCCESS', data, notices: [] });
+
 /** A `TchPage<T>` envelope as consumed by the console pages. */
 export function page<T>(items: T[], overrides: Partial<TchPageLike<T>> = {}): TchPageLike<T> {
   return {
@@ -64,38 +68,60 @@ export interface TenantSummaryStub {
  * the private runtime initializer needs more fields.
  */
 export const superAdminPrivateBootstrap = {
+  space: 'PLATFORM',
   user: {
     userId: 'stub-super-admin',
     username: 'super_admin',
-    email: 'super_admin@example.com',
     displayName: 'Stub Super Admin',
+    email: 'super_admin@e2e.local',
     roles: ['SUPER_ADMIN'],
+    defaultSpace: 'PLATFORM',
+    preferredLocale: 'fr',
+    preferredTimezone: 'America/Toronto',
     mustChangePassword: false,
     mustCompleteProfile: false,
   },
-  entitlements: { roles: ['SUPER_ADMIN'], permissions: [] },
-  space: 'PLATFORM',
   tenantContext: null,
+  entitlements: { roles: ['SUPER_ADMIN'], permissions: [] },
+  readiness: { status: 'READY', checks: [] },
+  notifications: { unreadCount: 0, criticalCount: 0 },
+  navigationDrawer: null,
+  pageModelRef: { route: '/app/platform', endpoint: '/api/v1/platform/runtime/page' },
   entryRoute: '/app/platform',
-  pageModelRef: null,
+  theme: null,
+  i18n: null,
+  settings: null,
+  portalConfig: null,
+  notices: [],
 } as const;
 
-/** Minimal `/runtime/private` bootstrap for a tenant admin. */
+/** `/runtime/private` bootstrap for a tenant admin. */
 export const tenantAdminPrivateBootstrap = {
+  space: 'ADMIN',
   user: {
     userId: 'stub-tenant-admin',
     username: 'admin',
-    email: 'admin@example.com',
     displayName: 'Stub Tenant Admin',
+    email: 'admin@e2e.local',
     roles: ['TENANT_ADMIN'],
+    defaultSpace: 'ADMIN',
+    preferredLocale: 'fr',
+    preferredTimezone: 'America/Toronto',
     mustChangePassword: false,
     mustCompleteProfile: false,
   },
+  tenantContext: { tenantId: 'stub-tenant', tenantCode: 'STUB', tenantName: 'Stub Tenant' },
   entitlements: { roles: ['TENANT_ADMIN'], permissions: [] },
-  space: 'ADMIN',
-  tenantContext: { tenantId: 'stub-tenant', tenantCode: 'STUB' },
+  readiness: { status: 'READY', checks: [] },
+  notifications: { unreadCount: 0, criticalCount: 0 },
+  navigationDrawer: null,
+  pageModelRef: { route: '/app/admin', endpoint: '/api/v1/admin/runtime/page' },
   entryRoute: '/app/admin',
-  pageModelRef: null,
+  theme: null,
+  i18n: null,
+  settings: null,
+  portalConfig: null,
+  notices: [],
 } as const;
 
 export class ApiStub {
@@ -103,23 +129,22 @@ export class ApiStub {
 
   /** Install default stubs (empty catch-all + empty tenants + super-admin bootstrap). */
   async install(): Promise<void> {
-    // Catch-all first (lowest precedence): stray API calls resolve empty instead
-    // of hanging or 500-ing the UI.
-    await this.page.route('**/api/v1/**', (r) => json(r, {}));
-    await this.page.route('**/api/v1/**/public/runtime/bootstrap*', (r) => json(r, {}));
-    await this.page.route('**/api/v1/**/runtime/private*', (r) =>
-      json(r, superAdminPrivateBootstrap),
-    );
+    // RegExp matchers (not globs) to avoid URL-glob ambiguity. Catch-all first
+    // (lowest precedence): stray API calls resolve empty instead of hanging or
+    // 500-ing the UI. Later-registered routes win, so specifics override it.
+    await this.page.route(/\/api\/v1\//, (r) => json(r, envelope(null)));
+    await this.page.route(/\/public\/runtime\/bootstrap/, (r) => json(r, envelope(null)));
+    await this.page.route(/\/runtime\/private/, (r) => json(r, envelope(superAdminPrivateBootstrap)));
     await this.tenants([]);
   }
 
   /** Override the `/platform/tenants` list. */
   async tenants(items: TenantSummaryStub[], overrides: Partial<TchPageLike<TenantSummaryStub>> = {}): Promise<void> {
-    await this.page.route('**/api/v1/**/platform/tenants*', (r) => json(r, page(items, overrides)));
+    await this.page.route(/\/platform\/tenants/, (r) => json(r, envelope(page(items, overrides))));
   }
 
   /** Override the `/runtime/private` bootstrap. */
   async privateBootstrap(bootstrap: unknown): Promise<void> {
-    await this.page.route('**/api/v1/**/runtime/private*', (r) => json(r, bootstrap));
+    await this.page.route(/\/runtime\/private/, (r) => json(r, envelope(bootstrap)));
   }
 }
