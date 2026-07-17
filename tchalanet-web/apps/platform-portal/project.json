@@ -68,6 +68,17 @@
               "with": "apps/platform-portal/src/environments/environment.emulator.ts"
             }
           ]
+        },
+        "e2e-api": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": false,
+          "fileReplacements": [
+            {
+              "replace": "apps/platform-portal/src/environments/environment.ts",
+              "with": "apps/platform-portal/src/environments/environment.e2e-api.ts"
+            }
+          ]
         }
       }
     },
@@ -87,6 +98,9 @@
         },
         "emulator": {
           "buildTarget": "platform-portal:build:emulator"
+        },
+        "e2e-api": {
+          "buildTarget": "platform-portal:build:e2e-api"
         }
       }
     },

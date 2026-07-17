@@ -14,7 +14,12 @@ const externalTargets = process.env['WEB_E2E_EXTERNAL'] === '1';
 // Emulator run (variant A): serve the portals with their `emulator` configuration
 // so the Firebase Auth SDK connects to the local emulator (:9099). Otherwise the
 // default `serve` (development) targets the real Firebase.
-const serveTarget = process.env['WEB_E2E_EMULATOR'] === '1' ? 'serve:emulator' : 'serve';
+const emulatorTargets = process.env['WEB_E2E_EMULATOR'] === '1';
+// Docker API integration: keep Firebase Auth Emulator, but load the runtime JSON
+// selected by `pnpm runtime:dev-docker-emulator` so REST calls hit the real API.
+const apiTargets = process.env['WEB_E2E_API'] === '1';
+const serveTarget = apiTargets ? 'serve:e2e-api' : emulatorTargets ? 'serve:emulator' : 'serve';
+const reuseExistingServer = !emulatorTargets && !apiTargets;
 
 /**
  * Read environment variables from file.
@@ -47,19 +52,19 @@ export default defineConfig({
         {
           command: `pnpm exec nx run public-portal:${serveTarget} --port=4301`,
           url: publicBaseURL,
-          reuseExistingServer: true,
+          reuseExistingServer,
           cwd: workspaceRoot,
         },
         {
           command: `pnpm exec nx run admin-portal:${serveTarget} --port=4302`,
           url: adminBaseURL,
-          reuseExistingServer: true,
+          reuseExistingServer,
           cwd: workspaceRoot,
         },
         {
           command: `pnpm exec nx run platform-portal:${serveTarget} --port=4303`,
           url: platformBaseURL,
-          reuseExistingServer: true,
+          reuseExistingServer,
           cwd: workspaceRoot,
         },
       ],

@@ -1,10 +1,10 @@
 import type { TchRuntimeConfig } from '@tch/shared-config';
 
-// web-e2e emulator build: connect the Firebase Auth SDK to the local emulator
-// (:9099, project demo-tchalanet-local). Used by `nx serve … --configuration=emulator`.
+// web-e2e API build: Firebase Auth SDK uses the local emulator, while runtime
+// config is loaded from assets so REST calls can target the Docker API profile.
 export const environment = {
   production: false,
-  runtimeConfigPath: null,
+  runtimeConfigPath: '/assets/config/runtime.public-portal.json',
   fallbackConfig: {
     appId: 'public-portal',
     production: false,

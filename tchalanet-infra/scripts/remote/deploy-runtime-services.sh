@@ -215,6 +215,13 @@ if [ "${RUNTIME_IDENTITY_PROVIDER:-firebase}" = "firebase-emulator" ]; then
   ensure_validation_signing_keys
 fi
 cat "envs/common/compose.env" "envs/$ENV/compose.env" "envs/$ENV/.env.merged" "envs/$ENV/.secrets" > "$compose_env"
+if [ -n "$WEB_ORIGINS" ]; then
+  {
+    printf '\n'
+    printf '# Runtime deploy override generated from WEB_ORIGINS\n'
+    printf 'APP_CORS_ALLOWED_ORIGINS=%s\n' "$(printf '%s' "$WEB_ORIGINS" | tr ' ' ',')"
+  } >> "$compose_env"
+fi
 if [ "${RUNTIME_IDENTITY_PROVIDER:-firebase}" = "firebase-emulator" ]; then
   cat "envs/$ENV/.runtime-signing.env" >> "$compose_env"
 fi

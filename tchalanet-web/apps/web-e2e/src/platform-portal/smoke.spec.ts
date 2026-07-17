@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from '../support/fixtures';
 
 test('serves the platform portal', async ({ page }) => {
   const response = await page.goto('/login');

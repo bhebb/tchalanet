@@ -11,6 +11,20 @@
     (settingsRequested)="goToSettings()"
     (logoutRequested)="logout()"
   >
+    @if (supportSession(); as session) {
+      <section
+        private-shell-before-content
+        class="admin-portal__support-banner"
+        data-testid="support-access-banner"
+      >
+        <span class="material-symbols-outlined" aria-hidden="true">support_agent</span>
+        <strong data-testid="support-access-tenant-name">{{ session.tenantName }}</strong>
+        <span>{{ session.mode }}</span>
+        <button type="button" data-testid="support-access-return" (click)="returnToPlatform()">
+          Retour plateforme
+        </button>
+      </section>
+    }
     <router-outlet />
   </tch-private-shell-layout>
 } @else {

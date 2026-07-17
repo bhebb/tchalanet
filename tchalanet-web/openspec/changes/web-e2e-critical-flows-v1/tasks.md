@@ -54,6 +54,20 @@ source — that is the only production-source edit this change allows.
 - [ ] Confirm start-access → session starts (deeper flow; needs a seeded tenant +
       backend, left for a follow-up).
 
+## 1d. Phase 3 — Auth completion and support round-trip
+
+- [x] Login with email and login with username lookup both dispatch to the same
+      admin shell.
+- [x] Public-portal login creates a portal handoff and lands on the correct
+      private platform shell without a re-login loop.
+- [x] Logout from an authenticated shell returns to `/login` and renders
+      `tch-login-page`.
+- [x] Support-tenant start-access confirms through the dialog, lands in admin
+      support mode, displays the tenant support banner, and returns to platform
+      after clearing the support session.
+- [x] Add stable test ids for logout, support access banner, support return, and
+      start-access dialog controls.
+
 ## 2. Public portal (`specs/public-portal-e2e`)
 
 - [ ] Keep the existing shell smoke.

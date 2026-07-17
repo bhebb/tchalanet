@@ -75,6 +75,7 @@ export class App {
       },
     ];
   });
+  protected readonly supportSession = computed(() => this.supportAccess.session());
   protected readonly sections = computed(() => {
     const options = { maryajGratisEnabled: this.maryajGratisEnabled() };
     if (this.bootstrap.space() !== 'ADMIN') {
@@ -122,6 +123,14 @@ export class App {
   protected async logout(): Promise<void> {
     await this.auth.logout();
     await this.router.navigateByUrl('/login');
+  }
+
+  protected returnToPlatform(): void {
+    this.supportAccess.clearSession();
+    const platformBaseUrl = withoutTrailingSlash(
+      this.runtimeConfig.config().portalBaseUrls?.['platform-portal'] ?? '/platform',
+    );
+    globalThis.location.assign(`${platformBaseUrl}/app/platform`);
   }
 
   protected goToProfile(): void {

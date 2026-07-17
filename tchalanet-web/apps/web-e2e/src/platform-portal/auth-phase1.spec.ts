@@ -1,4 +1,5 @@
 import { expect, test } from '../support/fixtures';
+import { tenantAdminPrivateBootstrap } from '../support/api-stub';
 import { credsFor, seededTenantId } from '../support/env';
 
 /**
@@ -49,15 +50,17 @@ test.describe('Phase 1 — platform', () => {
     await expect(page).toHaveURL(new RegExp(`/tenants/${tenantId}\\b`));
   });
 
-  // Wrong-role handling on the platform portal involves a cross-app
-  // (location.assign) redirect whose exact landing is environment-dependent;
-  // confirm the observed behavior before asserting it. See open question in
-  // specs/web-e2e-auth-phase1.
-  test.fixme('tenant admin is blocked from the platform space', async ({ page, loginPage }) => {
+  test('tenant admin is blocked from the platform space', async ({
+    page,
+    loginPage,
+    apiStub,
+  }) => {
     const creds = credsFor('admin');
     test.skip(!creds, 'TCH_E2E_ADMIN_EMAIL/PASSWORD not configured');
 
+    await apiStub.privateBootstrap(tenantAdminPrivateBootstrap);
     await loginPage.login(creds!);
-    await expect(page).not.toHaveURL(/\/app\/platform\/(dashboard|tenants)/);
+    await expect(page).not.toHaveURL(/\/app\/platform\b/);
+    await expect(page).toHaveURL(/\/forbidden\b/);
   });
 });

@@ -4,7 +4,7 @@ import type { TchRuntimeConfig } from '@tch/shared-config';
 // (:9099, project demo-tchalanet-local). Used by `nx serve … --configuration=emulator`.
 export const environment = {
   production: false,
-  runtimeConfigPath: '/assets/config/runtime.platform-portal.json',
+  runtimeConfigPath: null,
   fallbackConfig: {
     appId: 'platform-portal',
     production: false,
@@ -13,7 +13,7 @@ export const environment = {
     assetsBaseUrl: '/assets',
     portalBaseUrls: {
       'admin-portal': 'http://localhost:4302',
-      'platform-portal': 'http://localhost:4202',
+      'platform-portal': 'http://localhost:4303',
     },
     enableSandbox: true,
     firebaseAuthEmulatorUrl: 'http://localhost:9099',

@@ -1,6 +1,7 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from '../support/fixtures';
 
-test('renders the public portal shell', async ({ page }) => {
+test('renders the public portal shell', async ({ page, apiStub }) => {
+  void apiStub;
   const response = await page.goto('/');
 
   expect(response?.ok()).toBe(true);
