@@ -5,6 +5,8 @@ the expected structure. These are smoke contracts, not business truth.
 """
 from __future__ import annotations
 
+import os
+
 import httpx
 import pytest
 
@@ -14,7 +16,17 @@ from tch_e2e.client import _resolve_verify
 def _anon_get(base_url: str, path: str) -> httpx.Response:
     """Unauthenticated GET — public endpoints only."""
     url = base_url.rstrip("/") + path
-    return httpx.get(url, timeout=10.0, verify=_resolve_verify(), follow_redirects=True)
+    headers = {}
+    host_header = os.environ.get("TCH_E2E_HOST_HEADER", "").strip()
+    if host_header:
+        headers["Host"] = host_header
+    return httpx.get(
+        url,
+        timeout=10.0,
+        verify=_resolve_verify(),
+        follow_redirects=True,
+        headers=headers,
+    )
 
 
 # ===========================================================================

@@ -13,13 +13,19 @@ client would. No mocks.
 
 ---
 
-## Current status & progress — 2026-07-08
+## Current status & progress — 2026-07-17
 
 **Domain model (current).** The seller actor is **`SellerTerminal`** (`core.sellerterminal`).
 The old `outlet` / `terminal` / `seller` trio is **removed** — ignore those flows/fixtures.
 Auth is **Firebase only**: `firebase-emulator` locally, real Firebase in prod. **Keycloak is
 decommissioned** (§5 kept only for legacy targets). `TCH_OUTLET_ID` / `TCH_TERMINAL_ID` no
 longer apply.
+
+**Scenario source of truth.** The canonical server E2E entry point is
+[`docs/business-day-scenarios.md`](docs/business-day-scenarios.md). There is one
+current scenario: business-day. Do not add scenario matrices in this README or
+in `loadtest/README.md`; add new scenarios to that file first. This README
+documents stack setup, auth, env vars, and run commands only.
 
 **Auth providers for tests (`TCH_E2E_AUTH_PROVIDER`).**
 
@@ -35,28 +41,16 @@ arbitrary dynamic identities from the harness itself, such as `full_flow`, still
 **`firebase-emulator`**. Under `local-jwt` those tests skip cleanly; read endpoints
 (list/summary) still run.
 
-**Done & green.**
-- **`firebase-emulator` provider + full business flow.** `tch_e2e/auth.py` has a
-  `FirebaseEmulatorAuth` provider that mints unsigned (alg=none) Firebase tokens and resolves
-  provisioned users' uids via the emulator (`uid_for_email`). `tests/full_flow/test_provision_to_sale.py`
-  (marker `full_flow`, L2) drives the whole product-owner flow **green, one role at a time**:
-  SUPER_ADMIN provisions a `DEFAULT_HAITI_LOTTERY` tenant + admin → generates/opens draws →
-  admin completes first login, configures maryaj gratis + a stake limit, creates a
-  seller-terminal → a POS sale is ACCEPTED, an over-limit sale is REJECTED, and a TENANT_ADMIN
-  is denied a SUPER_ADMIN endpoint. `scripts_flow/full_flow_driver.py` is the verbose live
-  driver (prints each step) behind the same steps.
-- `tests/seller_terminal/test_seller_terminal.py` — all pass under `firebase-emulator`
-  (create/block/unblock); under `local-jwt` the provisioning ones skip cleanly.
-- Server fixes on this branch: always-registered fallback `ProviderSessionTokenIssuer` (boot
-  fix) + `@Primary` Firebase issuer; `with_tenant` now sends `X-Tch-Tenant-Override` +
-  `X-Tch-Override-Reason` (was the removed `X-Tenant-Id`); `ApiClient.put` added.
-- Locust load harness v1 scaffold — `loadtest/` (see `loadtest/README.md`).
+**Validated locally after the migration cleanup on 2026-07-17.** `pytest -m L0`
+passed, the reduced business-day path passed with `alpha,delta` and one draw,
+and the BetOptions support check passed. See the canonical entry point for what
+the business-day scenario means and which checks are isolated.
 
 **How the firebase-emulator path works (key facts).**
 - Bring it up: `make up-firebase-emulator` (`:9099`, project `demo-tchalanet-local`), then run
   the API with `TCH_IDENTITY_PROVIDER=firebase-emulator`, `FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099`,
   `FIREBASE_PROJECT_ID=demo-tchalanet-local`, bootstrap on, and
-  `TCH_IDENTITY_FIREBASE_BOOTSTRAP_USERS=super_admin,admin,cashier` (bootstrap keys on
+  `TCH_IDENTITY_FIREBASE_BOOTSTRAP_USERS=superadmin,admin` (bootstrap keys on
   **username**; its built-in default is emails and matches nothing).
 - Tokens are **unsigned** (`alg=none`), `iss=https://securetoken.google.com/<projectId>`,
   `aud=<projectId>`. `sub` must equal the FIREBASE external subject.
@@ -68,13 +62,10 @@ arbitrary dynamic identities from the harness itself, such as `full_flow`, still
   body. (`X-Tch-Client-Type: POS` selects the seller-terminal identity resolver for a genuine
   seller token.)
 
-**Pending / deferred.**
-- Fully assert the maryaj-gratis **free-line grant** (the campaign is active and
-  `HT_MARYAJ_GRATIS` is offered; the flow sells a paid maryaj line but does not yet drive the
-  free-line promotion decision / `promotionChoices`).
-- Legacy cleanup: `flows/{onboarding,outlet,seller,terminal}.py` + `tests/onboarding/*`.
-- Load harness §3–5, §8–11 (see the OpenSpec `perf-load-testing-locust-v1` tasks).
-- Refresh §5–7 of this README (Keycloak/rebuild) for the Firebase-emulator world.
+**Pending / deferred.** Legacy Keycloak/outlet/cashier documentation below is
+kept only for old targets and should not be used for new SellerTerminal work.
+The next load-testing step is a Locust business-day user that reuses the
+canonical `tch_e2e.business_day` builders instead of defining a second scenario.
 
 ---
 
@@ -83,22 +74,20 @@ arbitrary dynamic identities from the harness itself, such as `full_flow`, still
 ```bash
 # 1. Bring the stack up (from tchalanet-infra/)
 cd tchalanet-infra
-make local-product-up            # Traefik + Postgres + Keycloak + Redis + API + edge-service
+make local-product-up            # Traefik + Postgres + Redis + API + edge-service
 
-# 2. Sanity: stack reachable + auth works
+# 2. Sanity: stack reachable
 curl -sk https://api.localtest.me/api/v1/actuator/health      # {"status":"UP"}
-curl -sk -X POST https://auth.localtest.me/realms/tchalanet/protocol/openid-connect/token \
-  -d grant_type=password -d client_id=tchalanet-swagger -d scope=openid \
-  -d username=super_admin -d password='Changeme1!' | python3 -c 'import sys,json;print("OK" if "access_token" in json.load(sys.stdin) else "FAIL")'
 
 # 3. Run the tests (from tchalanet-server/testing/e2e/)
 cd ../tchalanet-server/testing/e2e
 source .venv/bin/activate
-python -m pytest -m L0                       # boot smoke (fast)
-python -m pytest -m "not L3"                 # full business suite (no concurrency)
+bash scripts_agent_run.sh agent
 ```
 
-If auth says `FAIL` or a smoke test 500s on user lookup → **§5 Keycloak gotcha** (restart KC).
+If a Firebase-backed test returns `external_identity.not_linked`, verify the API
+was started with Firebase bootstrap enabled and
+`TCH_IDENTITY_FIREBASE_BOOTSTRAP_USERS=superadmin,admin`.
 
 ---
 
@@ -107,16 +96,17 @@ If auth says `FAIL` or a smoke test 500s on user lookup → **§5 Keycloak gotch
 | Layer | URL (dev) | Notes |
 |---|---|---|
 | API | `https://api.localtest.me/api/v1` | Traefik TLS; HTTP→HTTPS 301. Context path `/api/v1` is **auto-added** by the servlet — controllers must NOT repeat it. |
-| Keycloak | `https://auth.localtest.me/realms/tchalanet` | Realm `tchalanet`. Direct-access (password) grant client = **`tchalanet-swagger`** (public, no secret). `tchalanet-api` is confidential and has direct-access **disabled** — don't use it for password grant. |
+| Firebase Auth Emulator | `http://127.0.0.1:9099` | Local auth provider for dynamic tenant/admin/seller-terminal E2E. |
+| Keycloak | `https://auth.localtest.me/realms/tchalanet` | Legacy targets only. Do not use for new SellerTerminal scenarios. |
 | edge-service | `http://edge-service:3000` (in-cluster) | Slack/email relay. API reaches it by Docker DNS name, not localhost. |
-| Postgres | `tchl-postgres-dev` | App DB `tchalanet` (user `app_user`), KC DB `keycloak_db` (user `kc_user`). |
+| Postgres | `tchl-postgres-dev` | App DB `tchalanet_db` (user `app_user`). |
 
 Test code lives in `tchalanet-server/testing/e2e/`:
 
 ```
 tch_e2e/        harness: config, auth, client, api_response, scenario_world, assertions,
                 data_factory, ticket_matrix, concurrency
-flows/          high-level flows (cashier, onboarding, outlet, terminal, seller, ...)
+flows/          high-level helpers; legacy outlet/terminal/seller helpers are not scenario truth
 prereqs/        idempotent setup helpers (draws, app_user, session)
 fixtures/       pos_context.py (fully-onboarded POS context fixture)
 tests/          public/ auth_context/ onboarding/ dashboard/ overview/
@@ -134,7 +124,7 @@ All `make` targets run from **`tchalanet-infra/`**. Project name is `tch-<ENV>` 
 
 | Target | What it gives you |
 |---|---|
-| `make local-ide-up` | P0: Traefik + Postgres + Keycloak (API runs in your IDE) |
+| `make local-ide-up` | P0: Traefik + Postgres (API runs in your IDE) |
 | `make local-ide-up-redis` | P0 + Redis |
 | `make local-api-up` | P0 + Redis + **API in Docker** |
 | `make local-product-up` | **Full stack**: API + edge-service + web ← use this for E2E |
@@ -144,9 +134,9 @@ All `make` targets run from **`tchalanet-infra/`**. Project name is `tch-<ENV>` 
 | `make logs-api` / `make logs-<svc>` | tail a service's logs |
 | `make local-product-down` | tear the full stack down |
 
-Ordering is handled by `depends_on`: Postgres → `keycloak-init` (one-shot realm import) →
-Keycloak server → API. A **cold** bring-up is correct and reproducible on any machine
-(the KC server starts *after* the import). See §5 for the one case where it isn't.
+Ordering is handled by `depends_on`: Postgres/Redis/Firebase emulator are made
+available before the API. A cold bring-up is correct and reproducible on any
+machine when the dev env contains the Firebase bootstrap settings above.
 
 > The user-requested manual order — `make up` (P0), then `make up-edge`, then `make local-api-up` —
 > works too; `local-product-up` just bundles them.
@@ -166,30 +156,15 @@ Copy `.env.example` to one of those and fill in passwords. Key vars:
 |---|---|---|
 | `TCH_BASE_URL` | `https://api.localtest.me/api/v1` | API root |
 | `TCH_E2E_VERIFY_SSL` | `false` | accept the local mkcert cert |
-| `TCH_E2E_AUTH_PROVIDER` | `keycloak` | `keycloak`, `local-jwt`, or `local-perf` |
-| `TCH_LOCAL_JWT_ISSUER` / `_SECRET` | `tchalanet-local` / dev-only secret | Required when using local auth; must match API config |
-| `TCH_KEYCLOAK_TOKEN_URL` | `https://auth.localtest.me/realms/tchalanet/protocol/openid-connect/token` | token endpoint |
-| `TCH_KEYCLOAK_CLIENT_ID` | `tchalanet-swagger` | **public** direct-access client (default if unset) |
-| `TCH_KEYCLOAK_CLIENT_SECRET` | *(leave unset)* | a secret on a public client → `invalid_client` |
+| `TCH_E2E_AUTH_PROVIDER` | `firebase-emulator` | `firebase-emulator`, `firebase`, `local-jwt`, `local-perf`; `keycloak` is legacy |
+| `TCH_FIREBASE_PROJECT_ID` | `demo-tchalanet-local` | Firebase emulator project id |
 | `TCH_SUPER_ADMIN_USERNAME` / `_PASSWORD` | `super_admin` / `Changeme1!` | platform role |
-| `TCH_SELLER_USERNAME` / `_PASSWORD` | `cashier` / `Changeme1!` | POS cashier |
 | `TCH_TENANT_ADMIN_USERNAME` / `_PASSWORD` | `admin` / `Changeme1!` | `/admin/*` endpoints |
-| `TCH_TENANT_CODE` / `TCH_TENANT_ID` | `tchalanet` / `…0003` | seeded Tenant A |
-| `TCH_OUTLET_ID` / `TCH_TERMINAL_ID` | `…3001` / `…3101` | seeded outlet/terminal (V205) |
+| `TCH_E2E_HOST_HEADER` | `api.localtest.me` when using `https://127.0.0.1/api/v1` | Optional Host override for Traefik when local DNS is unavailable |
 | `TCH_TEST_SLACK_CHANNEL_KEY` | `delivery` | enables the POS "send ticket" step (§6) |
-| `TCH_TENANT_2_*` | *(unset)* | Tenant B — enables `multitenant/` + `concurrency/` |
+| `TCH_TENANT_2_*` | *(unset)* | Enables focused multitenant/concurrency checks when using seeded tenants |
 
-> **Common mistake:** `.env.local` setting `TCH_KEYCLOAK_CLIENT_SECRET` while
-> `TCH_KEYCLOAK_CLIENT_ID` defaults to the *public* `tchalanet-swagger`. A public client
-> rejects a secret → `invalid_client`. Either leave the secret unset, or set the client id
-> to a confidential client that has direct-access grants enabled.
-
-Seeded users (realm import), all password `Changeme1!`:
-`super_admin`, `admin` (tenant admin), `operator`, `cashier`, plus edge-case cashiers
-(`cashier_blocked`, `cashier_no_terminal`, `cashier_offline_allowed`, `cashier_offline_denied`).
-The deterministic users (`super_admin`/`admin`/`cashier`/`operator`) have fixed Keycloak external
-subjects in `app_user_external_identity`
-matching the `app_user` seeds, so no sync is needed for the happy path.
+Keycloak variables are legacy and documented in §5 only for old targets.
 
 For Firebase-independent E2E/performance validation, start the API with
 `TCH_IDENTITY_PROVIDER=local-jwt` or `local-perf`, configure the same
@@ -199,7 +174,7 @@ For Firebase-independent E2E/performance validation, start the API with
 with database-owned roles and permissions before executing handlers. The existing multitenant L3
 suite then exercises the normal context, permission, pooled-connection, and PostgreSQL RLS path.
 
-After recreating the database with the current canonical migrations:
+For targeted read-model/RLS debugging after the canonical runner has passed:
 
 ```bash
 export TCH_E2E_AUTH_PROVIDER=local-perf
@@ -224,20 +199,40 @@ From `tchalanet-server/testing/e2e/` with the venv active (`source .venv/bin/act
 | `L3` | concurrency correctness (small parallel races) | on demand |
 | `public` `cashier_pos` `onboarding` `auth_context` `ticket_sizes` `slow` | topical | as needed |
 
-### Recipes
+### Runner
 
 ```bash
-python -m pytest -m L0                       # boot smoke
-python -m pytest -m "L0 or L1"               # daily smoke
-python -m pytest -m "not L3"                 # everything except concurrency (CI default)
-python -m pytest -m cashier_pos              # just the POS flow
-python -m pytest tests/onboarding -q         # one directory
-python -m pytest -m L3                        # concurrency (needs Tenant B, §3)
-python -m pytest -k happy_path -q            # by name
+bash scripts_agent_run.sh agent              # default agent check
+bash scripts_agent_run.sh smoke              # L0 only
+bash scripts_agent_run.sh business-day       # reduced canonical scenario
+bash scripts_agent_run.sh full-business-day  # full canonical scenario
+bash scripts_agent_run.sh bet-options        # support check
 ```
 
 Tests that need an unconfigured prerequisite **skip** (not fail) — e.g. Tenant B tests skip
 with a clear `UserWarning` until `TCH_TENANT_2_*` is set.
+
+Direct `pytest` commands are for debugging a failed check after the runner has
+identified the failing area. Do not add direct pytest recipes here for new
+business scenarios; add a named runner mode first.
+
+### Canonical runner details
+
+For scenario intent, expected totals, and no-duplicate rules, read
+[`docs/business-day-scenarios.md`](docs/business-day-scenarios.md). Agents should
+use the runner instead of assembling pytest commands manually:
+
+```bash
+bash scripts_agent_run.sh agent
+
+bash scripts_agent_run.sh smoke
+bash scripts_agent_run.sh business-day
+bash scripts_agent_run.sh bet-options
+
+# Isolated availability gates. Do not run in parallel with other E2E jobs.
+TCH_E2E_ALLOW_CATALOG_MUTATION=true \
+bash scripts_agent_run.sh availability-gates
+```
 
 > Tip for sandboxes with a tiny `/tmp`: prefix with `CLAUDE_CODE_TMPDIR=/tmp/tch-e2e`.
 
@@ -359,9 +354,10 @@ and `curl -sk https://api.localtest.me/api/v1/actuator/health`.
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
-| auth `invalid_client` | secret sent to public client | unset `TCH_KEYCLOAK_CLIENT_SECRET` |
-| auth `invalid_grant` for `cashier` but `super_admin` works | KC cache stale after re-import | `docker restart tchl-keycloak-dev` (§5) |
-| `users/count` = 0 but DB has rows | same KC cache gotcha | restart KC (§5) |
+| Firebase auth `external_identity.not_linked` | bootstrap users not synced | restart API with Firebase bootstrap enabled and `TCH_IDENTITY_FIREBASE_BOOTSTRAP_USERS=superadmin,admin` |
+| legacy Keycloak auth `invalid_client` | secret sent to public client | unset `TCH_KEYCLOAK_CLIENT_SECRET` |
+| legacy Keycloak auth `invalid_grant` for `cashier` but `super_admin` works | KC cache stale after re-import | `docker restart tchl-keycloak-dev` (§5) |
+| legacy Keycloak `users/count` = 0 but DB has rows | same KC cache gotcha | restart KC (§5) |
 | code changes don't take effect | stale API image | rebuild via §7, not `make rebuild-api` |
 | slack-test `I/O error localhost:3000` | edge URL env drift / wrong network | §6 |
 | Tenant B tests all skip | `TCH_TENANT_2_*` unset | configure Tenant B (§3) |
@@ -373,5 +369,6 @@ and `curl -sk https://api.localtest.me/api/v1/actuator/health`.
 
 - Proposal/design/tasks: `tchalanet-server/openspec/changes/e2e-business-runtime-v1/`
 - These tests are **scenario-first, not endpoint-first**. Concurrency here means
-  *correctness under small parallelism* (2–10 requests), **not** load/perf — that's a
-  separate future suite.
+  *correctness under small parallelism* (2-10 requests), **not** load/perf. Load/perf lives
+  under `loadtest/` and must reuse the canonical scenario entry point instead of defining new
+  business truth.

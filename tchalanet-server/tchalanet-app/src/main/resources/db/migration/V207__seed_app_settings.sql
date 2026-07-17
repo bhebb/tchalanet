@@ -47,7 +47,8 @@ VALUES
     ('GLOBAL', 'batch.gate', 'draw:lifecycle:open',         'BOOLEAN', 'true', true, 'INTERNAL'),
     ('GLOBAL', 'batch.gate', 'draw:lifecycle:close',        'BOOLEAN', 'true', true, 'INTERNAL'),
     ('GLOBAL', 'batch.gate', 'draw:lifecycle:settle',       'BOOLEAN', 'true', true, 'INTERNAL'),
-    ('GLOBAL', 'batch.gate', 'draw:watchdog:provisional',   'BOOLEAN', 'true', true, 'INTERNAL')
+    ('GLOBAL', 'batch.gate', 'draw:watchdog:provisional',   'BOOLEAN', 'true', true, 'INTERNAL'),
+    ('GLOBAL', 'batch.gate', 'drawresult:reminder:run',     'BOOLEAN', 'true', true, 'INTERNAL')
     ON CONFLICT DO NOTHING;
 
 SELECT set_config('app.current_tenant', '', true);
