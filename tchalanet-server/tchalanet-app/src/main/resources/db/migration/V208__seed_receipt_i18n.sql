@@ -20,9 +20,12 @@ WITH receipt_i18n(locale, i18n_key, i18n_value) AS (
     ('fr', 'receipt.verification', 'Verification'),
     ('fr', 'receipt.qr', 'QR'),
     ('fr', 'receipt.ref', 'Ref'),
+    ('fr', 'receipt.copy.original', 'Original'),
+    ('fr', 'receipt.copy.duplicate', 'Copie'),
+    ('fr', 'receipt.copy.reprint', 'Réimpression'),
     ('fr', 'receipt.scan_to_verify', 'Scannez pour vérifier'),
     ('fr', 'receipt.promotion', 'Promotion'),
-    ('fr', 'receipt.promotion.free_game_line', 'Maryaj gratuit'),
+    ('fr', 'receipt.promotion.free_game_line', 'Maryaj gratis'),
     ('fr', 'receipt.promotion.free_game_short', 'GRATIS'),
     ('fr', 'receipt.promotion.maryaj_offered_note', '* Maryaj offert'),
     ('fr', 'receipt.promotion.boost_odds', 'Cote boostee'),
@@ -108,9 +111,12 @@ WITH receipt_i18n(locale, i18n_key, i18n_value) AS (
     ('en', 'receipt.verification', 'Verification'),
     ('en', 'receipt.qr', 'QR'),
     ('en', 'receipt.ref', 'Ref'),
+    ('en', 'receipt.copy.original', 'Original'),
+    ('en', 'receipt.copy.duplicate', 'Copy'),
+    ('en', 'receipt.copy.reprint', 'Reprint'),
     ('en', 'receipt.scan_to_verify', 'Scan to verify'),
     ('en', 'receipt.promotion', 'Promotion'),
-    ('en', 'receipt.promotion.free_game_line', 'Free Maryaj'),
+    ('en', 'receipt.promotion.free_game_line', 'Maryaj gratis'),
     ('en', 'receipt.promotion.free_game_short', 'FREE'),
     ('en', 'receipt.promotion.maryaj_offered_note', '* Free Maryaj'),
     ('en', 'receipt.promotion.boost_odds', 'Boosted odds'),
@@ -196,6 +202,9 @@ WITH receipt_i18n(locale, i18n_key, i18n_value) AS (
     ('ht', 'receipt.verification', 'Verifikasyon'),
     ('ht', 'receipt.qr', 'QR'),
     ('ht', 'receipt.ref', 'Ref'),
+    ('ht', 'receipt.copy.original', 'Orijinal'),
+    ('ht', 'receipt.copy.duplicate', 'Kopi'),
+    ('ht', 'receipt.copy.reprint', 'Reenpresyon'),
     ('ht', 'receipt.scan_to_verify', 'Eskane pou verifye'),
     ('ht', 'receipt.promotion', 'Pwomosyon'),
     ('ht', 'receipt.promotion.free_game_line', 'Maryaj gratis'),
@@ -270,12 +279,12 @@ WITH receipt_i18n(locale, i18n_key, i18n_value) AS (
     ('ht', 'pos.readiness.session_closed.message', 'Louvri yon sesyon pou komanse.')
     -- Game titles
     ,('fr', 'receipt.game.HT_BOLET', 'Borlette')
-    ,('fr', 'receipt.game.HT_MARYAJ', 'Mariage')
-    ,('fr', 'receipt.game.HT_MARYAJ_GRATIS', 'Mariage gratuit')
+    ,('fr', 'receipt.game.HT_MARYAJ', 'Maryaj')
+    ,('fr', 'receipt.game.HT_MARYAJ_GRATIS', 'Maryaj gratis')
 
     ,('en', 'receipt.game.HT_BOLET', 'Bolet')
-    ,('en', 'receipt.game.HT_MARYAJ', 'Marriage')
-    ,('en', 'receipt.game.HT_MARYAJ_GRATIS', 'Free Marriage')
+    ,('en', 'receipt.game.HT_MARYAJ', 'Maryaj')
+    ,('en', 'receipt.game.HT_MARYAJ_GRATIS', 'Maryaj gratis')
 
     ,('ht', 'receipt.game.HT_BOLET', 'Bolèt')
     ,('ht', 'receipt.game.HT_MARYAJ', 'Maryaj')

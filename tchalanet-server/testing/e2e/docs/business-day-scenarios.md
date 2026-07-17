@@ -1,10 +1,47 @@
-# Business-Day E2E Scenario Matrix
+# Canonical Server E2E Entry Point
 
-**Status:** implementation companion doc
-**Scope:** full happy-path server E2E for tenant provisioning, draw opening,
-cashier sales, manual results, result application, reporting, and tenant isolation.
-**Test entry point:** `testing/e2e/tests/full_flow/test_business_day_scenarios.py`
+**Status:** single canonical scenario entry point.
+**Operational runner:** `testing/e2e/scripts_agent_run.sh`
+**Canonical scenario:** business-day.
+**Primary test:** `testing/e2e/tests/full_flow/test_business_day_scenarios.py`
 **Reusable scenario data:** `testing/e2e/tch_e2e/business_day.py`
+
+This file is the source of truth for server E2E scenario intent. There is
+currently **one** canonical scenario: business-day. Do not create parallel
+scenario matrices in `README.md`, `loadtest/README.md`, individual test comments,
+or new docs. When a new scenario such as draw lifecycle is needed, add it here
+first, then wire a named mode in `scripts_agent_run.sh`.
+
+## 0. Entry Point
+
+Agents should run:
+
+```bash
+cd tchalanet-server/testing/e2e
+bash scripts_agent_run.sh agent
+```
+
+Auth rule:
+
+- local server E2E runs against Firebase Auth Emulator only;
+- `scripts_agent_run.sh` refuses destructive/canonical modes unless
+  `TCH_E2E_AUTH_PROVIDER=firebase-emulator`;
+- local IDE, staging, and prod use real Firebase outside this runner.
+
+Named modes:
+
+| Mode | Purpose |
+|------|---------|
+| `agent` | Default agent check: L0 smoke, reduced business-day, BetOptions support check |
+| `smoke` | L0 only |
+| `business-day` | Reduced canonical business-day run: two tenants and one draw |
+| `full-business-day` | Canonical business-day with all configured tenants/draws |
+| `bet-options` | Support check for option snapshots/settlement used by business-day products |
+| `availability-gates` | Isolated support check for sale rejection gates; requires `TCH_E2E_ALLOW_CATALOG_MUTATION=true` |
+
+Only `business-day` is a scenario. Other modes are either boot smoke or support
+checks for the scenario. Do not add new pytest entry points to this table unless
+they are first modeled as a new canonical scenario in this file.
 
 ## 1. Goal
 
@@ -190,7 +227,7 @@ It is skipped unless `TCH_E2E_ALLOW_CATALOG_MUTATION=true` is set.
 ## 8. Locust Reuse Notes
 
 The tenant plans and sale basket live in `tch_e2e.business_day` instead of inside
-the pytest body. A Locust flow should reuse:
+the pytest body. A business-day Locust flow must reuse:
 
 - `default_tenant_plans()` for tenant and seller-terminal provisioning shape,
 - `ticket_basket(result, seller, plan)` for repeatable sale payloads,
@@ -199,6 +236,19 @@ the pytest body. A Locust flow should reuse:
 
 Locust should vary concurrency and repeat counts, not rewrite the business
 truth. That keeps pytest and load tests comparable.
+
+Auth rule for Locust:
+
+- do not load-test Firebase Auth Emulator;
+- use `TCH_IDENTITY_PROVIDER=local-perf` or `local-jwt` on the API;
+- use `TCH_E2E_AUTH_PROVIDER=local-perf` or `local-jwt` in the harness;
+- share the same `TCH_LOCAL_JWT_ISSUER` and `TCH_LOCAL_JWT_SECRET` between API
+  and harness.
+
+The current `loadtest/` package still contains the generic POS load harness. It
+is not a second scenario matrix. The next Locust step is to add a business-day
+user that consumes this registry's tenant plans, seller-terminal plans, selected
+draws, and ticket basket.
 
 ## 9. Runtime Knobs
 
@@ -220,16 +270,16 @@ truth. That keeps pytest and load tests comparable.
 Useful QA commands:
 
 ```bash
-# Fast parameterized happy-path probe: two tenants, one draw per tenant.
-TCH_E2E_AUTH_PROVIDER=firebase-emulator \
-TCH_E2E_BUSINESS_DAY_TENANTS=alpha,delta \
-TCH_E2E_BUSINESS_DAY_DRAW_COUNT=1 \
-TCH_E2E_RESULT_APPLY_MODE=force \
-pytest -q tests/full_flow/test_business_day_scenarios.py::test_business_day_happy_path_supports_reports_results_and_future_locust
+# Default agent run: L0 + reduced business-day + BetOptions support check.
+bash scripts_agent_run.sh agent
+
+# Reduced canonical business-day only.
+bash scripts_agent_run.sh business-day
+
+# Full canonical business-day with all configured tenants/draws.
+bash scripts_agent_run.sh full-business-day
 
 # Isolated availability-gates run. Do not run in parallel with other E2E jobs.
-TCH_E2E_AUTH_PROVIDER=firebase-emulator \
 TCH_E2E_ALLOW_CATALOG_MUTATION=true \
-TCH_E2E_BUSINESS_DAY_DRAW_COUNT=1 \
-pytest -q tests/full_flow/test_business_day_scenarios.py::test_sale_availability_gates_block_unavailable_runtime_state
+bash scripts_agent_run.sh availability-gates
 ```

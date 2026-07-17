@@ -1116,7 +1116,7 @@ CREATE TABLE sales_ticket (
   deleted_by uuid,
   version bigint NOT NULL DEFAULT 0,
   CONSTRAINT uk_sales_ticket__tenant_code UNIQUE (tenant_id, ticket_code),
-  CONSTRAINT uk_sales_ticket__public_code UNIQUE (tenant_id, public_code),
+  CONSTRAINT uk_sales_ticket__public_code UNIQUE (public_code),
   CONSTRAINT uk_sales_ticket__verification_code UNIQUE (tenant_id, verification_code),
   CONSTRAINT fk_sales_ticket__seller_terminal FOREIGN KEY (seller_terminal_id) REFERENCES seller_terminal(id)
 );

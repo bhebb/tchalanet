@@ -436,7 +436,8 @@ ALTER TABLE outbound_message FORCE ROW LEVEL SECURITY;
 CREATE POLICY outbound_message_rls_all ON outbound_message
   FOR ALL
   USING (
-    (
+    public.allow_platform_cross_tenant_select()
+    OR (
       public.current_tenant() IS NOT NULL
       AND tenant_id = public.current_tenant()
       AND (public.deleted_visibility() = 'all'
@@ -446,7 +447,8 @@ CREATE POLICY outbound_message_rls_all ON outbound_message
     OR (tenant_id IS NULL AND public.allow_platform_cross_tenant_select())
   )
   WITH CHECK (
-    (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant())
+    public.allow_platform_cross_tenant_select()
+    OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant())
     OR (tenant_id IS NULL AND public.allow_platform_cross_tenant_select())
   );
 

@@ -9,12 +9,17 @@ URL with IDs — so stats aggregate per endpoint.
 """
 from __future__ import annotations
 
+import re
 import time
 from typing import Any
 
 import httpx
 
 from tch_e2e.client import ApiClient
+
+_UUID_RE = re.compile(
+    r"\b[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\b"
+)
 
 
 class LocustApiClient:
@@ -52,6 +57,7 @@ class LocustApiClient:
     # --- timing / reporting ------------------------------------------------
 
     def _timed(self, method: str, name: str, fn, *args: Any, **kwargs: Any) -> httpx.Response:
+        metric_name = _UUID_RE.sub("{id}", name)
         start = time.perf_counter()
         exception: Exception | None = None
         response: httpx.Response | None = None
@@ -62,10 +68,10 @@ class LocustApiClient:
             # Infra failure: any 5xx, or an unexpected 4xx. Expected business blocks
             # (limit / cutoff) belong to dedicated failure-path tasks, not this default path.
             if response.status_code >= 500:
-                exception = RuntimeError(f"{method} {name} -> {response.status_code}")
+                exception = RuntimeError(f"{method} {metric_name} -> {response.status_code}")
             elif response.status_code >= 400:
                 exception = RuntimeError(
-                    f"{method} {name} -> {response.status_code} {response.text[:120]}"
+                    f"{method} {metric_name} -> {response.status_code} {response.text[:120]}"
                 )
         except Exception as exc:  # network / timeout
             exception = exc
@@ -74,7 +80,7 @@ class LocustApiClient:
             elapsed_ms = (time.perf_counter() - start) * 1000.0
             self._request.fire(
                 request_type=method,
-                name=name,
+                name=metric_name,
                 response_time=elapsed_ms,
                 response_length=length,
                 response=response,

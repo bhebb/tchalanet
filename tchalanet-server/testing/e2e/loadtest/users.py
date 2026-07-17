@@ -1,4 +1,4 @@
-"""Locust virtual users driving the real POS flows through tch_e2e."""
+"""Locust virtual users driving the real seller-terminal POS flows through tch_e2e."""
 from __future__ import annotations
 
 import random
@@ -7,18 +7,18 @@ from locust import User, between, tag, task
 
 from flows.cashier import CashierFlow
 from loadtest.basket import random_basket
-from loadtest.bootstrap import new_cashier_api, run_id
+from loadtest.bootstrap import new_seller_terminal_api, run_id
 from loadtest.client import LocustApiClient
 
 
 class CashierUser(User):
-    """A cashier: authenticates once (on_start), then sells 5–10 line baskets and reads POS draws."""
+    """A seller-terminal: authenticates once, then sells 5–10 line baskets and reads POS draws."""
 
     weight = 3
     wait_time = between(0.5, 2.0)
 
     def on_start(self) -> None:
-        api, ctx, stake = new_cashier_api()
+        api, ctx, stake = new_seller_terminal_api()
         self._client = LocustApiClient(
             api, self.environment.events.request, run_context={"run_id": run_id()}
         )

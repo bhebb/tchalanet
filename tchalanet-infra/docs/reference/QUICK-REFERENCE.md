@@ -17,7 +17,15 @@ TCH_IDENTITY_PROVIDER=firebase
 FIREBASE_PROJECT_ID=<project-id>
 ```
 
-Local IDE uses Firebase Auth Emulator:
+Local IDE uses real Firebase by default:
+
+```bash
+SPRING_PROFILES_ACTIVE=local-ide
+TCH_IDENTITY_PROVIDER=firebase
+FIREBASE_PROJECT_ID=<project-id>
+```
+
+Local E2E / Docker dev uses Firebase Auth Emulator:
 
 ```bash
 TCH_IDENTITY_PROVIDER=firebase-emulator
