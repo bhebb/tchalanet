@@ -28,8 +28,7 @@
 
   &__filters,
   &__kpis,
-  &__grid,
-  &__table {
+  &__grid {
     display: grid;
   }
 
@@ -49,40 +48,57 @@
     gap: 1rem;
   }
 
-  &__header,
-  &__row {
-    display: grid;
-    grid-template-columns: minmax(150px, 1fr) minmax(80px, 0.5fr) repeat(3, minmax(110px, 0.7fr));
-    gap: 0.75rem;
-    align-items: center;
+  &__table {
+    overflow: hidden;
+    border: 1px solid var(--tch-color-outline-variant);
+    border-radius: var(--tch-radius-lg);
+    background: var(--tch-color-surface);
   }
 
-  &__header {
-    padding-bottom: 0.5rem;
+  &__mat-table {
+    width: 100%;
+    background: var(--tch-color-surface);
+  }
+
+  &__data-row {
+    background: var(--tch-color-surface);
     border-bottom: 1px solid var(--tch-color-outline-variant);
+    transition: background-color 150ms ease;
+
+    &:hover {
+      background: var(--tch-color-surface-container-low);
+    }
+  }
+
+  &__total-row {
+    border-top: 2px solid var(--tch-color-outline-variant);
+    background: var(--tch-color-surface-container-high);
+    font-weight: 800;
+  }
+
+  &__number {
+    text-align: right;
+  }
+
+  &__amount--strong {
+    color: var(--tch-color-on-surface);
+    font-weight: 800;
+  }
+
+  .mat-mdc-header-cell,
+  .mat-mdc-cell,
+  .mat-mdc-footer-cell {
+    border-bottom: 0;
+    color: var(--tch-color-on-surface);
+  }
+
+  .mat-mdc-header-cell {
     color: var(--tch-color-on-surface-variant);
-    font-size: 0.8125rem;
-    font-weight: 700;
+    font-weight: 800;
   }
 
-  &__row {
-    padding: 0.75rem 0;
-    border-bottom: 1px solid var(--tch-color-outline-variant);
-
-    &:last-child {
-      border-bottom: 0;
-    }
-
-    strong {
-      color: var(--tch-color-on-surface);
-      overflow-wrap: anywhere;
-    }
-
-    span {
-      color: var(--tch-color-on-surface-variant);
-      font-size: 0.875rem;
-      line-height: 1.35;
-    }
+  .mat-mdc-footer-cell {
+    color: var(--tch-color-on-surface);
   }
 }
 
@@ -94,14 +110,8 @@
       flex-direction: column;
     }
 
-    &__filters,
-    &__header,
-    &__row {
+    &__filters {
       grid-template-columns: 1fr;
-    }
-
-    &__header {
-      display: none;
     }
   }
 }
@@ -113,10 +123,8 @@
       display: none;
     }
 
-    &__toolbar,
-    &__row,
-    &__header {
-      border-color: #999;
+    &__toolbar {
+      border-color: var(--tch-color-outline);
     }
   }
 }

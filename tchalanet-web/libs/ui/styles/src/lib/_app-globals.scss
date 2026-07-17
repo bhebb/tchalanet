@@ -9,3 +9,21 @@ body {
   color: var(--tch-color-foreground);
   font-family: var(--tch-font-family);
 }
+
+@media print {
+  body.tch-report-printing * {
+    visibility: hidden;
+  }
+
+  body.tch-report-printing [data-report-export-root],
+  body.tch-report-printing [data-report-export-root] * {
+    visibility: visible;
+  }
+
+  body.tch-report-printing [data-report-export-root] {
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 100%;
+    background: var(--tch-color-surface);
+  }
+}

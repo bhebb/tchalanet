@@ -200,7 +200,26 @@
         }
       },
       "today": {
-        "title": "Daily report"
+        "title": "Daily report",
+        "description": "Sales, stakes, and net revenue by game for the selected day.",
+        "loading": "Loading report...",
+        "errorTitle": "Error",
+        "errorMessage": "Unable to load the report.",
+        "emptyTitle": "No sales",
+        "emptyMessage": "No sales recorded for this day.",
+        "totalSales": "Total stakes",
+        "totalPayout": "Total payouts",
+        "netRevenue": "Net revenue",
+        "filters": {
+          "date": "Date"
+        },
+        "column": {
+          "game": "Game",
+          "tickets": "Tickets",
+          "sales": "Stakes",
+          "payouts": "Payouts",
+          "net": "Net revenue"
+        }
       },
       "daily": {
         "title": "Daily report",
@@ -275,10 +294,17 @@
         "rowsTitle": "Seller terminal rows",
         "emptyTitle": "No seller activity",
         "emptyMessage": "Seller performance will appear here once tickets are sold.",
+        "totalRow": "Report total",
         "action": {
           "print": "Print",
           "exportPdf": "Export PDF",
-          "exportCsv": "Export CSV"
+          "exportCsv": "Export CSV",
+          "viewDetails": "View details"
+        },
+        "status": {
+          "active": "Active",
+          "blocked": "Blocked",
+          "disabled": "Disabled"
         },
         "filters": {
           "aria": "Seller report filters",
@@ -290,6 +316,8 @@
           "sort": "Sort"
         },
         "sort": {
+          "ticketsDesc": "Tickets high to low",
+          "ticketsAsc": "Tickets low to high",
           "salesDesc": "Sales high to low",
           "salesAsc": "Sales low to high",
           "commissionDesc": "Commission high to low",
@@ -297,7 +325,9 @@
           "netDesc": "Net revenue high to low",
           "netAsc": "Net revenue low to high",
           "averageDrawDesc": "Average per draw high to low",
-          "averageDrawAsc": "Average per draw low to high"
+          "averageDrawAsc": "Average per draw low to high",
+          "averageTicketDesc": "Average ticket high to low",
+          "averageTicketAsc": "Average ticket low to high"
         },
         "column": {
           "seller": "Seller terminal",
@@ -306,7 +336,9 @@
           "sales": "Sales",
           "commission": "Commission",
           "net": "Estimated net",
-          "averageDraw": "Avg / draw"
+          "averageDraw": "Avg / draw",
+          "averageTicket": "Average ticket",
+          "actions": "Actions"
         }
       },
       "export": {

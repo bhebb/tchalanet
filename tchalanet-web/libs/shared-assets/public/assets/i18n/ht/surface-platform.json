@@ -178,6 +178,98 @@
       "netRevenue": {
         "label": "Net estime"
       }
+    },
+    "ops": {
+      "salesSimulation": {
+        "title": "Similasyon vant",
+        "description": "Kreye volim tikè QA pa tenant, tiraj ak tèminal vandè atravè vrè flux prepare/confirm lan.",
+        "errorTitle": "Aksyon pa disponib",
+        "noticeTitle": "Similasyon",
+        "noTenant": "Pa gen tenant chwazi",
+        "drawsSelected": "{{selected}} / {{total}} tiraj chwazi",
+        "requestedTickets": "Tikè mande",
+        "simulationId": "Similasyon {{id}}",
+        "action": {
+          "loadDraws": "Chaje tiraj yo",
+          "calculate": "Kalkile",
+          "execute": "Egzekite",
+          "selectAll": "Chwazi tout",
+          "clear": "Efase"
+        },
+        "section": {
+          "target": "Sib",
+          "draws": "Tiraj",
+          "ticketMix": "Melanj tikè",
+          "execution": "Egzekisyon",
+          "result": "Rezilta",
+          "byGame": "Pa jwèt",
+          "failures": "Echèk"
+        },
+        "field": {
+          "tenant": "Tenant",
+          "sellerTerminals": "Tèminal vandè",
+          "status": "Estati",
+          "slot": "Slot",
+          "from": "Soti",
+          "to": "Rive",
+          "mode": "Mòd",
+          "currency": "Deviz",
+          "stake": "Miz",
+          "seed": "Seed",
+          "maxTickets": "Maks tikè",
+          "reason": "Rezon"
+        },
+        "placeholder": {
+          "tenant": "Chèche tenant",
+          "sellerTerminals": "Chèche vandè"
+        },
+        "empty": {
+          "tenant": "Pa gen tenant jwenn",
+          "sellerTerminal": "Pa gen tèminal vandè aktif",
+          "drawsTitle": "Pa gen tiraj chaje",
+          "drawsMessage": "Chwazi yon tenant, apre sa chaje tiraj yo."
+        },
+        "status": {
+          "all": "Tout",
+          "open": "Ouvè",
+          "scheduled": "Planifye",
+          "closed": "Fèmen",
+          "resulted": "Rezilta antre"
+        },
+        "game": {
+          "bolet": "Borlette",
+          "maryaj": "Maryaj",
+          "loto3": "Loto 3",
+          "loto4": "Loto 4",
+          "loto5": "Loto 5"
+        },
+        "mode": {
+          "dryRun": "Dry-run",
+          "execute": "Kreye tikè yo"
+        },
+        "loading": {
+          "draws": "Chajman tiraj yo...",
+          "simulation": "Similasyon ap fèt..."
+        },
+        "notice": {
+          "dryRun": "Plan an kalkile san kreye tikè.",
+          "executed": "Similasyon egzekite."
+        },
+        "error": {
+          "selectTenantBeforeDraws": "Chwazi yon tenant anvan ou chaje tiraj yo.",
+          "loadDraws": "Pa kapab chaje tiraj yo.",
+          "missingRunInputs": "Chwazi yon tenant, omwen yon tiraj, omwen yon tèminal vandè ak yon melanj ki pa vid.",
+          "run": "Similasyon an echwe."
+        },
+        "metric": {
+          "planned": "Planifye",
+          "prepared": "Prepare",
+          "confirmed": "Konfime",
+          "rejected": "Rejte",
+          "failed": "Echèk",
+          "gross": "Brit"
+        }
+      }
     }
   },
   "layout": {

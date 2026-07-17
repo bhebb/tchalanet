@@ -208,7 +208,26 @@
         }
       },
       "today": {
-        "title": "Rapò jodi a"
+        "title": "Rapò jounen an",
+        "description": "Vant, miz ak revni nèt pa jwèt pou jounen ou chwazi a.",
+        "loading": "Chajman rapò a...",
+        "errorTitle": "Erè",
+        "errorMessage": "Nou pa kapab chaje rapò a.",
+        "emptyTitle": "Pa gen vant",
+        "emptyMessage": "Pa gen okenn vant ki anrejistre pou jounen sa a.",
+        "totalSales": "Total miz",
+        "totalPayout": "Total peman",
+        "netRevenue": "Revni nèt",
+        "filters": {
+          "date": "Dat"
+        },
+        "column": {
+          "game": "Jwèt",
+          "tickets": "Tikè",
+          "sales": "Miz",
+          "payouts": "Peman",
+          "net": "Revni nèt"
+        }
       },
       "daily": {
         "title": "Rapò jounen",
@@ -283,10 +302,17 @@
         "rowsTitle": "Liy pa tèminal vandè",
         "emptyTitle": "Pa gen aktivite vandè",
         "emptyMessage": "Pèfòmans vandè ap parèt isit la lè tikè vann.",
+        "totalRow": "Total rapò a",
         "action": {
           "print": "Enprime",
           "exportPdf": "Ekspòte PDF",
-          "exportCsv": "Ekspòte CSV"
+          "exportCsv": "Ekspòte CSV",
+          "viewDetails": "Gade detay"
+        },
+        "status": {
+          "active": "Aktif",
+          "blocked": "Bloke",
+          "disabled": "Dezaktive"
         },
         "filters": {
           "aria": "Filtè rapò vandè a",
@@ -298,6 +324,8 @@
           "sort": "Triye"
         },
         "sort": {
+          "ticketsDesc": "Tikè wo pou ba",
+          "ticketsAsc": "Tikè ba pou wo",
           "salesDesc": "Vant wo pou ba",
           "salesAsc": "Vant ba pou wo",
           "commissionDesc": "Komisyon wo pou ba",
@@ -305,7 +333,9 @@
           "netDesc": "Nèt wo pou ba",
           "netAsc": "Nèt ba pou wo",
           "averageDrawDesc": "Mwayèn pa tiraj wo pou ba",
-          "averageDrawAsc": "Mwayèn pa tiraj ba pou wo"
+          "averageDrawAsc": "Mwayèn pa tiraj ba pou wo",
+          "averageTicketDesc": "Tikè mwayen wo pou ba",
+          "averageTicketAsc": "Tikè mwayen ba pou wo"
         },
         "column": {
           "seller": "Tèminal vandè",
@@ -314,7 +344,9 @@
           "sales": "Vant",
           "commission": "Komisyon",
           "net": "Nèt estime",
-          "averageDraw": "Mway. / tiraj"
+          "averageDraw": "Mway. / tiraj",
+          "averageTicket": "Tikè mwayen",
+          "actions": "Aksyon"
         }
       },
       "export": {

@@ -19,7 +19,7 @@
       "context": "private_dashboard_superadmin_ops",
       "schemaVersion": 2,
       "langs": ["fr", "en", "ht"],
-      "defaultLang": "fr"
+      "defaultLang": "ht"
     },
     "theme": {
       "presetId": "tchalanet",

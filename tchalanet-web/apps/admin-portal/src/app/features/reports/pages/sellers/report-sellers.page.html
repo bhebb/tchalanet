@@ -11,6 +11,7 @@
   >
     <ng-template tchAsyncReady>
       @if (sellers.value(); as vm) {
+        <div class="report-sellers__export-root" data-report-export-root>
         <header class="report-sellers__toolbar">
           <div>
             <span>{{ 'admin.reports.common.period' | translate }}</span>
@@ -76,33 +77,21 @@
               [message]="'admin.reports.sellers.emptyMessage' | translate"
             />
           } @else {
-            <div class="report-sellers__table">
-              <div class="report-sellers__header" aria-hidden="true">
-                <span>{{ 'admin.reports.sellers.column.seller' | translate }}</span>
-                <span>{{ 'admin.reports.sellers.column.status' | translate }}</span>
-                <span>{{ 'admin.reports.sellers.column.tickets' | translate }}</span>
-                <span>{{ 'admin.reports.sellers.column.sales' | translate }}</span>
-                <span>{{ 'admin.reports.sellers.column.commission' | translate }}</span>
-                <span>{{ 'admin.reports.sellers.column.net' | translate }}</span>
-                <span>{{ 'admin.reports.sellers.column.averageDraw' | translate }}</span>
-              </div>
-              @for (row of sortedRows(vm.rows); track sellerRowKey(row)) {
-                <div class="report-sellers__row">
-                  <div class="report-sellers__identity">
-                    <strong>{{ sellerLabel(row) }}</strong>
-                    <span>{{ sellerSubtitle(row) || (row.refDate | date:'mediumDate') }}</span>
-                  </div>
-                  <span>{{ sellerStatus(row) }}</span>
-                  <span>{{ row.ticketsSold | number }}</span>
-                  <strong>{{ amountDisplay(row.grossSales) }} {{ currency }}</strong>
-                  <span>{{ amountDisplay(row.sellerCommission) }} {{ currency }}</span>
-                  <span>{{ amountDisplay(row.netRevenueEstimated) }} {{ currency }}</span>
-                  <span>{{ amountDisplay(row.averageGrossSalesPerDraw) }} {{ currency }}</span>
-                </div>
-              }
-            </div>
+            <tch-seller-report-table
+              [rows]="sellerRows(vm.rows)"
+              [totals]="sellerTotals(vm)"
+              [sortActive]="sortActive()"
+              [sortDirection]="sortDirection()"
+              [pageIndex]="pageIndex()"
+              [pageSize]="pageSize()"
+              [pageSizeOptions]="pageSizeOptions"
+              [currency]="currency"
+              (sortChange)="onTableSort($event)"
+              (pageChange)="onPageChange($event)"
+            />
           }
         </tch-admin-section-card>
+        </div>
       }
     </ng-template>
   </tch-async-view>

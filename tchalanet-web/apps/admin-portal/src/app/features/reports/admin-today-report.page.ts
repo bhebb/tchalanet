@@ -22,6 +22,7 @@ import {
   AdminEmptyState,
 } from '@tch/ui/components';
 import { consoleGameName } from '@tch/web/console';
+import { TranslatePipe } from '@ngx-translate/core';
 
 import { AdminFinancialsApi, type DrawFinancialRow } from './data-access/admin-financials-api.service';
 
@@ -71,6 +72,7 @@ type PageState =
     MatInputModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    TranslatePipe,
     TchLoading,
     TchErrorPanel,
     AdminPageHeader,

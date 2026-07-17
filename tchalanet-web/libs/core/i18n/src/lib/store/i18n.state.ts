@@ -6,7 +6,7 @@ export interface I18nState {
 }
 
 export const i18nInitialState: I18nState = {
-  currentLanguage: 'fr',
+  currentLanguage: 'ht',
   error: null,
   initialized: false,
   languages: ['fr', 'en', 'ht'],

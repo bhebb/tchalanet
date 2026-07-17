@@ -1,8 +1,9 @@
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTableModule } from '@angular/material/table';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AdminEmptyStateComponent, AdminPageShellComponent, AdminSectionCardComponent } from '@tch/ui/console';
 import type { TchSearchOption } from '@tch/ui/components';
@@ -37,7 +38,6 @@ function isDrawReportSort(value: string): value is DrawReportSort {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
-    DecimalPipe,
     RouterLink,
     TranslatePipe,
     AdminEmptyStateComponent,
@@ -50,6 +50,7 @@ function isDrawReportSort(value: string): value is DrawReportSort {
     TchAsyncViewComponent,
     MatButtonModule,
     MatIconModule,
+    MatTableModule,
   ],
   templateUrl: './report-draws.page.html',
   styleUrls: ['./report-draws.page.scss'],
@@ -80,6 +81,7 @@ export class AdminReportDrawsPage {
   readonly draws = this.api.drawsResource(this.query, { suppressShellFeedback: true });
   readonly drawsError = resourceErrorVm(this.draws, 'admin.reports.draws');
   readonly currency = DEFAULT_CURRENCY;
+  readonly displayedColumns = ['draw', 'tickets', 'sales', 'payouts', 'net'];
 
   reload(): void {
     this.refreshTick.update(value => value + 1);
@@ -107,7 +109,7 @@ export class AdminReportDrawsPage {
     this.api.searchDraws(query, { suppressShellFeedback: true });
 
   amountDisplay(amount: number): string {
-    return amount.toFixed(2);
+    return amountFormatter.format(amount);
   }
 
   payoutRatePercent(vm: AdminReportDraws): number {
@@ -147,6 +149,11 @@ export class AdminReportDrawsPage {
     ]);
   }
 }
+
+const amountFormatter = new Intl.NumberFormat('fr-FR', {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
 
 function compareDrawRows(a: AdminReportDrawRow, b: AdminReportDrawRow, field: string): number {
   switch (field) {

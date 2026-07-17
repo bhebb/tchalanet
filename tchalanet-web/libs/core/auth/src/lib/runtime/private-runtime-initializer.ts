@@ -37,7 +37,7 @@ export class PrivateRuntimeInitializer {
       tokens: response.theme?.tokens,
     });
     this.settings.applyBootstrapSettings({
-      locale: response.settings?.locale ?? response.user.preferredLocale ?? 'fr',
+      locale: response.settings?.locale ?? response.user.preferredLocale ?? 'ht',
       timezone: response.settings?.timezone ?? response.user.preferredTimezone ?? 'America/Toronto',
       currency: response.settings?.currency ?? 'HTG',
       features: response.settings?.features ?? {},

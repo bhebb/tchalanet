@@ -1,0 +1,79 @@
+{
+  "code": "private.ops.sales_simulations",
+  "logicalId": "private.ops.sales_simulations",
+  "scope": "private",
+  "slug": "ops/sales-simulations",
+  "name": "Platform sales simulations",
+  "label": "Platform sales simulations",
+  "schemaVersion": 2,
+  "schema": {},
+  "isDefault": true,
+  "level": "GLOBAL",
+  "tenantId": null,
+  "description": "Superadmin sales simulation operations page.",
+  "model": {
+    "meta": {
+      "id": "private.ops.sales_simulations",
+      "scope": "private",
+      "slug": "ops/sales-simulations",
+      "context": "private_ops_sales_simulations",
+      "schemaVersion": 2,
+      "langs": ["fr", "en", "ht"],
+      "defaultLang": "ht"
+    },
+    "theme": {
+      "presetId": "tchalanet",
+      "mode": "light",
+      "density": 0
+    },
+    "shell": {
+      "component": "PrivateShell",
+      "binding": {
+        "mode": "dynamic",
+        "source": "jsonFile"
+      },
+      "props": {
+        "fileKey": "private_shell_superadmin"
+      }
+    },
+    "content": {
+      "layout": {
+        "component": "GridLayout",
+        "rows": [
+          {
+            "id": "salesSimulation",
+            "labelKey": "platform.ops.salesSimulation.title",
+            "columns": [
+              {
+                "span": 12,
+                "widgets": ["platform.ops.salesSimulation.launch"]
+              }
+            ]
+          }
+        ]
+      },
+      "widgets": {
+        "platform.ops.salesSimulation.launch": {
+          "type": "QuickActionsWidget",
+          "binding": {
+            "mode": "static"
+          },
+          "props": {
+            "titleKey": "platform.ops.salesSimulation.title",
+            "actions": [
+              {
+                "id": "openSalesSimulation",
+                "labelKey": "platform.ops.salesSimulation.title",
+                "icon": "science",
+                "destination": {
+                  "kind": "route",
+                  "value": "/app/platform/ops/sales-simulations"
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

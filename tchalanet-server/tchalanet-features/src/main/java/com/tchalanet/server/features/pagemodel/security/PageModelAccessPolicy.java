@@ -25,7 +25,8 @@ public class PageModelAccessPolicy {
       Map.of(
           "private.dashboard.tenant_admin", Set.of(TchRole.TENANT_OWNER, TchRole.TENANT_ADMIN),
           "private.dashboard.superadmin", Set.of(TchRole.SUPER_ADMIN),
-          "private.dashboard.superadmin.ops", Set.of(TchRole.SUPER_ADMIN));
+          "private.dashboard.superadmin.ops", Set.of(TchRole.SUPER_ADMIN),
+          "private.ops.sales_simulations", Set.of(TchRole.SUPER_ADMIN));
 
   /**
    * Returns true if {@code role} is allowed to access the PageModel identified by {@code

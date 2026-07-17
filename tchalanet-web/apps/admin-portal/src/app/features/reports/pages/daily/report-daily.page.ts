@@ -1,10 +1,11 @@
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatTableModule } from '@angular/material/table';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AdminEmptyStateComponent, AdminPageShellComponent, AdminSectionCardComponent } from '@tch/ui/console';
 import { TchAsyncReadyDirective, TchAsyncViewComponent, resourceErrorVm } from '@tch/web/async';
@@ -25,7 +26,6 @@ const DEFAULT_CURRENCY = 'HTG';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
-    DecimalPipe,
     RouterLink,
     TranslatePipe,
     AdminEmptyStateComponent,
@@ -39,6 +39,7 @@ const DEFAULT_CURRENCY = 'HTG';
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
+    MatTableModule,
   ],
   templateUrl: './report-daily.page.html',
   styleUrls: ['./report-daily.page.scss'],
@@ -60,6 +61,7 @@ export class AdminReportDailyPage {
   readonly daily = this.api.overviewResource(this.query, { suppressShellFeedback: true });
   readonly dailyError = resourceErrorVm(this.daily, 'admin.reports.daily');
   readonly currency = DEFAULT_CURRENCY;
+  readonly displayedColumns = ['date', 'tickets', 'sales', 'payouts', 'net'];
 
   onFromFilter(value: string): void {
     this.fromFilter.set(value || this.today);
@@ -74,7 +76,7 @@ export class AdminReportDailyPage {
   }
 
   amountDisplay(amount: number): string {
-    return amount.toFixed(2);
+    return amountFormatter.format(amount);
   }
 
   chartPoints(vm: AdminReportOverview): readonly DailySalesChartPoint[] {
@@ -109,3 +111,8 @@ export class AdminReportDailyPage {
     return row.refDate;
   }
 }
+
+const amountFormatter = new Intl.NumberFormat('fr-FR', {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
