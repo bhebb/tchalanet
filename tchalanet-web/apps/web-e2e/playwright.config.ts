@@ -27,6 +27,9 @@ export default defineConfig({
   use: {
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
+    ...(process.env['PW_CHROMIUM_PATH']
+      ? { launchOptions: { executablePath: process.env['PW_CHROMIUM_PATH'] } }
+      : {}),
   },
   /* Run the local dev servers before the tests — unless targeting deployed
    * portals (WEB_E2E_EXTERNAL=1), in which case the base URLs are already live. */
