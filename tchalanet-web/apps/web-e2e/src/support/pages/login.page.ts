@@ -46,7 +46,9 @@ export class LoginPage {
   async loginExpectingError(creds: Credentials): Promise<void> {
     await this.goto();
     await this.fillAndSubmit(creds);
-    await expect(this.error).toBeVisible();
+    // The error can take up to the auth-operation timeout (~15s) to surface when
+    // the identity provider rejects/times out, not just on a fast auth error.
+    await expect(this.error).toBeVisible({ timeout: 20_000 });
     await expect(this.page).toHaveURL(/\/login\b/);
   }
 }

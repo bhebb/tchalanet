@@ -4,6 +4,6 @@ test('renders the public portal shell', async ({ page }) => {
   const response = await page.goto('/');
 
   expect(response?.ok()).toBe(true);
-  await expect(page).toHaveTitle(/public-portal/i);
+  await expect(page).toHaveTitle(/tchalanet/i);
   await expect(page.locator('tch-public-shell')).toBeVisible();
 });
