@@ -147,4 +147,16 @@ export class ApiStub {
   async privateBootstrap(bootstrap: unknown): Promise<void> {
     await this.page.route(/\/runtime\/private/, (r) => json(r, envelope(bootstrap)));
   }
+
+  /** Stub the username→email lookup (POST /public/auth/login-identifier/resolve). */
+  async resolveLoginIdentifier(email: string): Promise<void> {
+    await this.page.route(/\/login-identifier\/resolve/, (r) =>
+      json(r, envelope({ resolvedIdentifier: email })),
+    );
+  }
+
+  /** Stub start-tenant-admin-access (POST /platform/tenants/:id/admin-access). */
+  async startAdminAccess(session: Record<string, unknown>): Promise<void> {
+    await this.page.route(/\/admin-access/, (r) => json(r, envelope(session)));
+  }
 }

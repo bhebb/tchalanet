@@ -50,4 +50,35 @@ test.describe('Phase 2 — support tenant', () => {
     await supportTenantPage.openAccessForFirstTenant();
     await expect(supportTenantPage.accessSubmit).toBeVisible();
   });
+
+  test('super admin confirms start-access (support round-trip, platform side)', async ({
+    loginPage,
+    supportTenantPage,
+    apiStub,
+  }) => {
+    const creds = credsFor('superAdmin');
+    test.skip(!creds, 'TCH_E2E_SUPERADMIN_EMAIL/PASSWORD not configured');
+
+    await apiStub.tenants([
+      { tenantId: 'stub-tenant-1', code: 'ACME', name: 'Acme Lottery', status: 'ACTIVE' },
+    ]);
+    await apiStub.startAdminAccess({
+      sessionId: 'stub-support-session',
+      tenantId: 'stub-tenant-1',
+      tenantCode: 'ACME',
+      tenantName: 'Acme Lottery',
+      actorRole: 'SUPER_ADMIN',
+      mode: 'SUPPORT_OVERRIDE',
+      sensitiveDataMasked: false,
+      startedAt: new Date().toISOString(),
+    });
+
+    await loginPage.login(creds!);
+    await supportTenantPage.goto();
+    await supportTenantPage.openAccessForFirstTenant();
+    await supportTenantPage.confirmAccess();
+
+    // On success the dialog closes and the app hands off to the admin portal.
+    await expect(supportTenantPage.accessDialog).toBeHidden({ timeout: 15_000 });
+  });
 });

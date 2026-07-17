@@ -42,6 +42,19 @@ export class LoginPage {
     await expect(this.root).toHaveCount(0);
   }
 
+  /**
+   * Log in with a username (not an email). The app resolves it to an email via
+   * `/public/auth/login-identifier/resolve` — stub that first (apiStub).
+   */
+  async loginWithUsername(username: string, password: string): Promise<void> {
+    await this.goto();
+    await this.identifier.fill(username);
+    await this.password.fill(password);
+    await this.submit.click();
+    await expect(this.page).not.toHaveURL(/\/login\b/, { timeout: 20_000 });
+    await expect(this.root).toHaveCount(0);
+  }
+
   /** Log in expecting an inline error and no navigation. */
   async loginExpectingError(creds: Credentials): Promise<void> {
     await this.goto();

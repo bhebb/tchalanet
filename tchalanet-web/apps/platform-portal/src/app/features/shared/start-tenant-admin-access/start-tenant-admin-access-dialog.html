@@ -23,6 +23,7 @@
         matInput
         formControlName="reason"
         rows="3"
+        data-testid="start-access-reason"
         placeholder="Décrivez la raison de cet accès (min. 10 caractères)"
       ></textarea>
       @if (form.controls.reason.invalid && form.controls.reason.touched) {
@@ -30,7 +31,7 @@
       }
     </mat-form-field>
 
-    <mat-checkbox formControlName="confirmed">
+    <mat-checkbox formControlName="confirmed" data-testid="start-access-confirm">
       Je confirme vouloir accéder au tenant <strong>{{ data.tenantCode }}</strong> en mode
       {{ mode }}.
     </mat-checkbox>

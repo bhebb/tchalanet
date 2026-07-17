@@ -54,6 +54,20 @@ source — that is the only production-source edit this change allows.
 - [ ] Confirm start-access → session starts (deeper flow; needs a seeded tenant +
       backend, left for a follow-up).
 
+## 1d. Phase 3 — Complete the auth flow (validated on emulator)
+
+> `src/{admin,public}-portal/auth-phase3.spec.ts` + support-tenant confirm.
+> **Green on a real firebase emulator** (variant A).
+
+- [x] Username login → resolved via `/public/auth/login-identifier/resolve` → dispatch.
+- [x] Logout (user-menu) → back to `/login`.
+- [x] Support banner shows `Support: <tenantName>` when acting in support mode
+      (seeded session + stubbed `admin-access/current`).
+- [x] Support round-trip (platform side): open dialog → reason + confirm → submit
+      (`startAdminAccess` stubbed) → dialog closes / hands off.
+- [ ] Cross-app handoff from **public** → role portal — `test.fixme` (needs the
+      served ports to match `portalBaseUrls` + stable cross-origin nav).
+
 ## 2. Public portal (`specs/public-portal-e2e`)
 
 - [ ] Keep the existing shell smoke.

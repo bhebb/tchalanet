@@ -13,6 +13,8 @@ export class SupportTenantPage {
   readonly emptyState: Locator;
   readonly accessDialog: Locator;
   readonly accessSubmit: Locator;
+  readonly accessReason: Locator;
+  readonly accessConfirm: Locator;
 
   constructor(private readonly page: Page) {
     this.root = page.locator('tch-platform-support-tenant-page');
@@ -21,6 +23,8 @@ export class SupportTenantPage {
     this.emptyState = page.locator('tch-admin-empty-state');
     this.accessDialog = page.locator('tch-start-tenant-admin-access-dialog');
     this.accessSubmit = page.getByTestId('start-access-submit');
+    this.accessReason = page.getByTestId('start-access-reason');
+    this.accessConfirm = page.getByTestId('start-access-confirm');
   }
 
   async goto(): Promise<void> {
@@ -31,5 +35,12 @@ export class SupportTenantPage {
   async openAccessForFirstTenant(): Promise<void> {
     await this.openAccessButtons.first().click();
     await expect(this.accessDialog).toBeVisible();
+  }
+
+  /** Fill the reason + confirmation and submit the start-access dialog. */
+  async confirmAccess(reason = 'E2E support access verification'): Promise<void> {
+    await this.accessReason.fill(reason);
+    await this.accessConfirm.click();
+    await this.accessSubmit.click();
   }
 }

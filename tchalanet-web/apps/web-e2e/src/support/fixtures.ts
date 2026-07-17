@@ -2,6 +2,7 @@ import { test as base } from '@playwright/test';
 
 import { ApiStub } from './api-stub';
 import { LoginPage } from './pages/login.page';
+import { ShellPage } from './pages/shell.page';
 import { SupportTenantPage } from './pages/support-tenant.page';
 
 /**
@@ -17,6 +18,7 @@ import { SupportTenantPage } from './pages/support-tenant.page';
  */
 interface Fixtures {
   readonly loginPage: LoginPage;
+  readonly shellPage: ShellPage;
   readonly supportTenantPage: SupportTenantPage;
   readonly apiStub: ApiStub;
 }
@@ -24,6 +26,9 @@ interface Fixtures {
 export const test = base.extend<Fixtures>({
   loginPage: async ({ page }, use) => {
     await use(new LoginPage(page));
+  },
+  shellPage: async ({ page }, use) => {
+    await use(new ShellPage(page));
   },
   supportTenantPage: async ({ page }, use) => {
     await use(new SupportTenantPage(page));
