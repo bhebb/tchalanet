@@ -74,6 +74,7 @@ export const PLATFORM_NAVIGATION: readonly NavigationSection[] = [
         activeRoutes: [
           '/app/platform/ops/draws',
           '/app/platform/ops/draw-results',
+          '/app/platform/ops/sales-simulations',
         ],
         children: [
           {
@@ -94,6 +95,12 @@ export const PLATFORM_NAVIGATION: readonly NavigationSection[] = [
             labelKey: 'platform.nav.drawResults',
             icon: 'fact_check',
             destination: { kind: 'route', value: '/app/platform/ops/draw-results' },
+          },
+          {
+            id: 'ops-sales-simulations',
+            labelKey: 'platform.nav.salesSimulations',
+            icon: 'point_of_sale',
+            destination: { kind: 'route', value: '/app/platform/ops/sales-simulations' },
           },
           {
             id: 'ops-jobs',
