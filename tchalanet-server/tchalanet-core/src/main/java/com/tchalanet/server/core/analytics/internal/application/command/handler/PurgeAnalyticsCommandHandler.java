@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.analytics.internal.application.command.handler;
 
 import com.tchalanet.server.common.bus.CommandHandler;
+import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.analytics.api.command.PurgeAnalyticsCommand;
 import com.tchalanet.server.core.analytics.api.model.PurgeAnalyticsResult;
@@ -10,7 +11,6 @@ import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Handles {@link PurgeAnalyticsCommand}.
@@ -38,7 +38,7 @@ public class PurgeAnalyticsCommandHandler
   private int drawRetentionMonths;
 
   @Override
-  @Transactional
+  @TchTx
   public PurgeAnalyticsResult handle(PurgeAnalyticsCommand cmd) {
     LocalDate dailyCutoff = LocalDate.now().minusMonths(dailyRetentionMonths);
     LocalDate drawCutoff = LocalDate.now().minusMonths(drawRetentionMonths);

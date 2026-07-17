@@ -1,5 +1,9 @@
+const REPORT_PRINTING_CLASS = 'tch-report-printing';
+
 export function exportReportPdf(): void {
+  document.body.classList.add(REPORT_PRINTING_CLASS);
   window.print();
+  window.setTimeout(() => document.body.classList.remove(REPORT_PRINTING_CLASS), 0);
 }
 
 export function exportReportCsv(filename: string, rows: readonly (readonly (string | number | null | undefined)[])[]): void {

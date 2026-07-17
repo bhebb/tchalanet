@@ -146,7 +146,7 @@ export class AdminConfigPage {
 
   readonly localeForm = this.fb.group({
     supportedLanguages: new FormControl<string[]>([...this.runtimeSettings.tenantSupportedLanguages()], { nonNullable: true, validators: [Validators.required] }),
-    fallbackLanguage: new FormControl<string>(this.runtimeSettings.tenantSupportedLanguages()[0] ?? 'fr', { nonNullable: true }),
+    fallbackLanguage: new FormControl<string>(this.runtimeSettings.tenantSupportedLanguages()[0] ?? 'ht', { nonNullable: true }),
   });
 
   readonly receiptForm = this.fb.group({
@@ -354,7 +354,7 @@ export class AdminConfigPage {
     if (!loc) return;
     this.localeForm.patchValue({
       supportedLanguages: loc.supportedLanguages ?? [...this.runtimeSettings.tenantSupportedLanguages()],
-      fallbackLanguage: loc.fallbackLanguage ?? this.runtimeSettings.tenantSupportedLanguages()[0] ?? 'fr',
+      fallbackLanguage: loc.fallbackLanguage ?? this.runtimeSettings.tenantSupportedLanguages()[0] ?? 'ht',
     });
   }
 

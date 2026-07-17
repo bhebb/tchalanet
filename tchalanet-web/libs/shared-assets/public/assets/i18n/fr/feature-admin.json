@@ -364,7 +364,6 @@
       "common": {
         "grossSales": "Ventes brutes",
         "overview": "Vue d'ensemble",
-        "netRevenue": "Revenu net",
         "payoutsPaid": "Paiements versés",
         "period": "Période du rapport",
         "refresh": "Rafraîchir",
@@ -420,22 +419,15 @@
         "title": "Rapport du jour",
         "description": "Ventes, mises et revenus nets par jeu pour la journée sélectionnée.",
         "loading": "Chargement du rapport...",
+        "errorTitle": "Erreur",
         "errorMessage": "Impossible de charger le rapport.",
-        "kpisAria": "Résumé du rapport du jour",
-        "rowsTitle": "Lignes par jeu",
         "emptyTitle": "Aucune vente",
         "emptyMessage": "Aucune vente enregistrée pour cette journée.",
-        "total": "Total",
-        "action": {
-          "exportPdf": "Exporter PDF",
-          "exportCsv": "Exporter CSV"
-        },
+        "totalSales": "Total mises",
+        "totalPayout": "Total paiements",
+        "netRevenue": "Revenu net",
         "filters": {
-          "aria": "Filtres du rapport du jour",
           "date": "Date"
-        },
-        "kpi": {
-          "totalSales": "Total mises"
         },
         "column": {
           "game": "Jeu",
@@ -518,10 +510,17 @@
         "rowsTitle": "Lignes par terminal vendeur",
         "emptyTitle": "Aucune activité vendeur",
         "emptyMessage": "La performance vendeur apparaîtra ici après la vente de tickets.",
+        "totalRow": "Total du rapport",
         "action": {
           "print": "Imprimer",
           "exportPdf": "Exporter PDF",
-          "exportCsv": "Exporter CSV"
+          "exportCsv": "Exporter CSV",
+          "viewDetails": "Voir détails"
+        },
+        "status": {
+          "active": "Actif",
+          "blocked": "Bloqué",
+          "disabled": "Désactivé"
         },
         "filters": {
           "aria": "Filtres du rapport vendeur",
@@ -533,6 +532,8 @@
           "sort": "Tri"
         },
         "sort": {
+          "ticketsDesc": "Tickets décroissants",
+          "ticketsAsc": "Tickets croissants",
           "salesDesc": "Ventes décroissantes",
           "salesAsc": "Ventes croissantes",
           "commissionDesc": "Commission décroissante",
@@ -540,7 +541,9 @@
           "netDesc": "Net décroissant",
           "netAsc": "Net croissant",
           "averageDrawDesc": "Moyenne par tirage décroissante",
-          "averageDrawAsc": "Moyenne par tirage croissante"
+          "averageDrawAsc": "Moyenne par tirage croissante",
+          "averageTicketDesc": "Ticket moyen décroissant",
+          "averageTicketAsc": "Ticket moyen croissant"
         },
         "column": {
           "seller": "Terminal vendeur",
@@ -549,7 +552,9 @@
           "sales": "Ventes",
           "commission": "Commission",
           "net": "Net estimé",
-          "averageDraw": "Moy. / tirage"
+          "averageDraw": "Moy. / tirage",
+          "averageTicket": "Ticket moyen",
+          "actions": "Actions"
         }
       },
       "export": {

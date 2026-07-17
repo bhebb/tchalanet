@@ -13,8 +13,8 @@ export const API_PATHS = {
 // Backend translations are delivered inside the runtime bootstrap response and overlaid via
 // TranslateService.setTranslation; the loader only serves local fallback bundles.
 export const PORTAL_I18N_CONFIG = {
-  fallbackLang: 'fr',
-  defaultLang: 'fr',
+  fallbackLang: 'ht',
+  defaultLang: 'ht',
   assetsPrefix: `${TCH_I18N_ASSETS.basePath}/`,
   assetsSuffix: '.json',
   bundles: [

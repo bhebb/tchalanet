@@ -7,6 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import {
   TchLoading,
   TchMultiSearchSelect,
@@ -61,6 +62,7 @@ const DEFAULT_TICKET_MIX = {
     TchMultiSearchSelect,
     TchSearchSelect,
     TchSectionError,
+    TranslatePipe,
     MatButtonModule,
     MatCheckboxModule,
     MatFormFieldModule,
@@ -75,6 +77,7 @@ export class PlatformOpsSalesSimulationPage {
   private readonly api = inject(PlatformOpsApi);
   private readonly tenantsApi = inject(PlatformTenantsApi);
   private readonly sellerTerminalApi = inject(PlatformRecipientSellerTerminalsApi);
+  private readonly translate = inject(TranslateService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly selectedTenant = signal<TenantSummaryView | null>(null);
@@ -153,7 +156,7 @@ export class PlatformOpsSalesSimulationPage {
   loadDraws(): void {
     const tenantId = this.selectedTenantId();
     if (!tenantId) {
-      this.error.set('Sélectionnez un tenant avant de charger les tirages.');
+      this.error.set(this.t('platform.ops.salesSimulation.error.selectTenantBeforeDraws'));
       return;
     }
     this.loadingDraws.set(true);
@@ -173,7 +176,7 @@ export class PlatformOpsSalesSimulationPage {
         this.loadingDraws.set(false);
       },
       error: err => {
-        this.error.set(errorMessage(err, 'Chargement des tirages impossible.'));
+        this.error.set(errorMessage(err, this.t('platform.ops.salesSimulation.error.loadDraws')));
         this.loadingDraws.set(false);
       },
     });
@@ -200,7 +203,7 @@ export class PlatformOpsSalesSimulationPage {
   run(): void {
     const tenantId = this.selectedTenantId();
     if (!tenantId || !this.canRun()) {
-      this.error.set('Sélectionnez un tenant, au moins un tirage, au moins un seller terminal et un mix non vide.');
+      this.error.set(this.t('platform.ops.salesSimulation.error.missingRunInputs'));
       return;
     }
     const dryRun = this.modeControl.value === 'dry-run';
@@ -227,11 +230,13 @@ export class PlatformOpsSalesSimulationPage {
     }, { suppressShellFeedback: true }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: result => {
         this.result.set(result);
-        this.notice.set(dryRun ? 'Plan calculé sans création de tickets.' : 'Simulation exécutée.');
+        this.notice.set(this.t(dryRun
+          ? 'platform.ops.salesSimulation.notice.dryRun'
+          : 'platform.ops.salesSimulation.notice.executed'));
         this.running.set(false);
       },
       error: err => {
-        this.error.set(errorMessage(err, 'Simulation impossible.'));
+        this.error.set(errorMessage(err, this.t('platform.ops.salesSimulation.error.run')));
         this.running.set(false);
       },
     });
@@ -239,7 +244,7 @@ export class PlatformOpsSalesSimulationPage {
 
   tenantLabel(): string {
     const tenant = this.selectedTenant();
-    return tenant ? `${tenant.name} (${tenant.code})` : 'Aucun tenant sélectionné';
+    return tenant ? `${tenant.name} (${tenant.code})` : this.t('platform.ops.salesSimulation.noTenant');
   }
 
   trackDraw(_: number, draw: DrawView): string {
@@ -286,6 +291,10 @@ export class PlatformOpsSalesSimulationPage {
       disabled: !id || row.status !== 'ACTIVE',
       data: terminal,
     };
+  }
+
+  private t(key: string): string {
+    return this.translate.instant(key);
   }
 }
 

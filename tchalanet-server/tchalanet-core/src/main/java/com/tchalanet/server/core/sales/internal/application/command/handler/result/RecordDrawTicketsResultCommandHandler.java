@@ -3,6 +3,7 @@ package com.tchalanet.server.core.sales.internal.application.command.handler.res
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.event.DomainEventPublisher;
+import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.id.EventId;
@@ -24,7 +25,6 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 @UseCase
 @RequiredArgsConstructor
@@ -47,7 +47,7 @@ public class RecordDrawTicketsResultCommandHandler
   private final Clock clock;
 
   @Override
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  @TchTx(propagation = Propagation.REQUIRES_NEW)
   public RecordDrawTicketsResultResult handle(RecordDrawTicketsResultCommand command) {
     Objects.requireNonNull(command, "command is required");
     Objects.requireNonNull(command.tenantId(), "tenantId is required");

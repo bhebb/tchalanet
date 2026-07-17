@@ -1,0 +1,160 @@
+<div class="seller-report-table">
+  <div class="seller-report-table__desktop">
+    <table
+      mat-table
+      matSort
+      matSortDisableClear
+      [dataSource]="pagedRows()"
+      [matSortActive]="sortActive()"
+      [matSortDirection]="sortDirection()"
+      (matSortChange)="sortChange.emit($event)"
+      class="seller-report-table__mat-table"
+    >
+      <ng-container matColumnDef="seller">
+        <th mat-header-cell *matHeaderCellDef>
+          {{ 'admin.reports.sellers.column.seller' | translate }}
+        </th>
+        <td mat-cell *matCellDef="let row">
+          <div class="seller-report-table__identity">
+            <strong>{{ row.terminalName }}</strong>
+            <span>{{ row.terminalCode }}</span>
+          </div>
+        </td>
+        <td mat-footer-cell *matFooterCellDef>
+          {{ 'admin.reports.sellers.totalRow' | translate }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>
+          {{ 'admin.reports.sellers.column.status' | translate }}
+        </th>
+        <td mat-cell *matCellDef="let row">
+          <tch-status-badge [status]="row.status" [label]="row.statusLabelKey | translate" />
+        </td>
+        <td mat-footer-cell *matFooterCellDef></td>
+      </ng-container>
+
+      <ng-container matColumnDef="tickets">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header="ticketsSold" class="seller-report-table__number">
+          {{ 'admin.reports.sellers.column.tickets' | translate }}
+        </th>
+        <td mat-cell *matCellDef="let row" class="seller-report-table__number">
+          {{ integerDisplay(row.ticketsSold) }}
+        </td>
+        <td mat-footer-cell *matFooterCellDef class="seller-report-table__number">
+          {{ integerDisplay(totals().ticketsSold) }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="sales">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header="grossSales" class="seller-report-table__number">
+          {{ 'admin.reports.sellers.column.sales' | translate }}
+        </th>
+        <td mat-cell *matCellDef="let row" class="seller-report-table__number seller-report-table__amount--strong">
+          {{ amountDisplay(row.grossSales) }}
+        </td>
+        <td mat-footer-cell *matFooterCellDef class="seller-report-table__number seller-report-table__amount--strong">
+          {{ amountDisplay(totals().grossSales) }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="commission">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header="sellerCommission" class="seller-report-table__number">
+          {{ 'admin.reports.sellers.column.commission' | translate }}
+        </th>
+        <td mat-cell *matCellDef="let row" class="seller-report-table__number">
+          <span class="seller-report-table__secondary-amount">{{ amountDisplay(row.sellerCommission) }}</span>
+          <span class="seller-report-table__rate">{{ percentDisplay(row.commissionRate) }}</span>
+        </td>
+        <td mat-footer-cell *matFooterCellDef class="seller-report-table__number">
+          <span class="seller-report-table__secondary-amount">{{ amountDisplay(totals().sellerCommission) }}</span>
+          <span class="seller-report-table__rate">{{ percentDisplay(totals().commissionRate) }}</span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="net">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header="netRevenueEstimated" class="seller-report-table__number">
+          {{ 'admin.reports.sellers.column.net' | translate }}
+        </th>
+        <td mat-cell *matCellDef="let row" class="seller-report-table__number seller-report-table__amount--strong">
+          {{ amountDisplay(row.netRevenueEstimated) }}
+        </td>
+        <td mat-footer-cell *matFooterCellDef class="seller-report-table__number seller-report-table__amount--strong">
+          {{ amountDisplay(totals().netRevenueEstimated) }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="averageTicket">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header="averageTicket" class="seller-report-table__number">
+          {{ 'admin.reports.sellers.column.averageTicket' | translate }}
+        </th>
+        <td mat-cell *matCellDef="let row" class="seller-report-table__number">
+          {{ amountDisplay(row.averageTicket) }}
+        </td>
+        <td mat-footer-cell *matFooterCellDef class="seller-report-table__number">
+          {{ amountDisplay(totals().averageTicket) }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef class="seller-report-table__actions">
+          {{ 'admin.reports.sellers.column.actions' | translate }}
+        </th>
+        <td mat-cell *matCellDef="let row" class="seller-report-table__actions">
+          <a mat-icon-button [routerLink]="['/app/admin/seller-terminals', row.id]" [attr.aria-label]="'admin.reports.sellers.action.viewDetails' | translate">
+            <mat-icon aria-hidden="true">open_in_new</mat-icon>
+          </a>
+        </td>
+        <td mat-footer-cell *matFooterCellDef></td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns" class="seller-report-table__data-row"></tr>
+      <tr mat-footer-row *matFooterRowDef="displayedColumns" class="seller-report-table__total-row"></tr>
+    </table>
+  </div>
+
+  <div class="seller-report-table__mobile">
+    @for (row of pagedRows(); track row.key) {
+      <article class="seller-report-table__card">
+        <div class="seller-report-table__card-header">
+          <div class="seller-report-table__identity">
+            <strong>{{ row.terminalName }}</strong>
+            <span>{{ row.terminalCode }}</span>
+          </div>
+          <tch-status-badge [status]="row.status" [label]="row.statusLabelKey | translate" />
+        </div>
+        <dl class="seller-report-table__card-facts">
+          <div>
+            <dt>{{ 'admin.reports.sellers.column.sales' | translate }}</dt>
+            <dd class="seller-report-table__amount--strong">{{ amountDisplay(row.grossSales) }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'admin.reports.sellers.column.commission' | translate }}</dt>
+            <dd>
+              {{ amountDisplay(row.sellerCommission) }}
+              <span>{{ percentDisplay(row.commissionRate) }}</span>
+            </dd>
+          </div>
+          <div>
+            <dt>{{ 'admin.reports.sellers.column.net' | translate }}</dt>
+            <dd class="seller-report-table__amount--strong">{{ amountDisplay(row.netRevenueEstimated) }}</dd>
+          </div>
+        </dl>
+        <a mat-button [routerLink]="['/app/admin/seller-terminals', row.id]">
+          {{ 'admin.reports.sellers.action.viewDetails' | translate }}
+        </a>
+      </article>
+    }
+  </div>
+
+  <mat-paginator
+    [length]="rows().length"
+    [pageIndex]="pageIndex()"
+    [pageSize]="pageSize()"
+    [pageSizeOptions]="pageSizeOptions()"
+    showFirstLastButtons
+    (page)="pageChange.emit($event)"
+  />
+</div>

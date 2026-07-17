@@ -5,7 +5,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { DecimalPipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -13,21 +13,18 @@ import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { catchError, of, startWith, switchMap } from 'rxjs';
-import { TranslatePipe } from '@ngx-translate/core';
 import {
   TchLoading,
   TchErrorPanel,
+  AdminPageHeader,
   AdminEmptyState,
 } from '@tch/ui/components';
-import { AdminPageShellComponent, AdminSectionCardComponent } from '@tch/ui/console';
 import { consoleGameName } from '@tch/web/console';
+import { TranslatePipe } from '@ngx-translate/core';
 
-import { ReportMetricCardComponent } from './components/report-metric-card/report-metric-card.component';
 import { AdminFinancialsApi, type DrawFinancialRow } from './data-access/admin-financials-api.service';
-import { exportReportCsv, exportReportPdf } from './utils/report-export.util';
 
 function toIso(date: Date): string {
   return date.toISOString().slice(0, 10);
@@ -52,42 +49,34 @@ interface SalesReportLine {
   readonly netRevenue: number;
 }
 
-interface ReadyPageState {
-  readonly status: 'ready';
-  readonly lines: readonly SalesReportLine[];
-  readonly totals: ReportTotals;
-  readonly from: string;
-  readonly to: string;
-}
-
 type PageState =
   | { readonly status: 'loading' }
   | { readonly status: 'error' }
-  | ReadyPageState;
-
-const DEFAULT_CURRENCY = 'HTG';
+  | {
+      readonly status: 'ready';
+      readonly lines: readonly SalesReportLine[];
+      readonly totals: ReportTotals;
+      readonly from: string;
+      readonly to: string;
+    };
 
 @Component({
   selector: 'tch-admin-today-report-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    DatePipe,
     DecimalPipe,
     FormsModule,
-    RouterLink,
-    TranslatePipe,
     MatButtonModule,
     MatIconModule,
     MatFormFieldModule,
     MatInputModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    TranslatePipe,
     TchLoading,
     TchErrorPanel,
+    AdminPageHeader,
     AdminEmptyState,
-    AdminPageShellComponent,
-    AdminSectionCardComponent,
-    ReportMetricCardComponent,
   ],
   templateUrl: './admin-today-report.page.html',
   styleUrl: './admin-today-report.page.scss',
@@ -97,7 +86,6 @@ export class AdminTodayReportPage {
 
   readonly selectedDate = signal<Date>(today());
   readonly maxDate = today();
-  readonly currency = DEFAULT_CURRENCY;
 
   private readonly dateParams = computed(() => {
     const iso = toIso(this.selectedDate());
@@ -139,36 +127,8 @@ export class AdminTodayReportPage {
     if (date) this.selectedDate.set(date);
   }
 
-  reload(): void {
-    this.selectedDate.update(date => new Date(date));
-  }
-
-  amountDisplay(amount: number): string {
-    return amount.toFixed(2);
-  }
-
   gameLabel(code: string): string {
     return consoleGameName(code);
-  }
-
-  exportCsv(vm: ReadyPageState): void {
-    const header = ['gameCode', 'gameLabel', 'ticketsSold', 'grossSales', 'payoutsPaid', 'netRevenue'];
-    exportReportCsv(`rapport-du-jour-${vm.from}.csv`, [
-      header,
-      ...vm.lines.map(line => [
-        line.gameCode,
-        this.gameLabel(line.gameCode),
-        line.ticketsSold,
-        line.totalSales,
-        line.totalPayout,
-        line.netRevenue,
-      ]),
-      ['TOTAL', 'Total', vm.totals.ticketsSold, vm.totals.totalSales, vm.totals.totalPayout, vm.totals.netRevenue],
-    ]);
-  }
-
-  exportPdf(): void {
-    exportReportPdf();
   }
 
   private linesByGame(rows: readonly DrawFinancialRow[]): readonly SalesReportLine[] {
