@@ -4,14 +4,20 @@ import com.tchalanet.server.catalog.drawchannel.api.model.DrawSource;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotView;
 import com.tchalanet.server.common.bus.CommandHandler;
+import com.tchalanet.server.common.event.DomainEventPublisher;
 import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.time.OccurredAtResolver;
+import com.tchalanet.server.common.tx.AfterCommit;
+import com.tchalanet.server.common.types.id.EventId;
+import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.drawresult.api.command.RecordManualDrawResultCommand;
 import com.tchalanet.server.core.drawresult.api.command.RecordManualDrawResultResult;
+import com.tchalanet.server.core.drawresult.api.event.GlobalDrawResultAvailableEvent;
 import com.tchalanet.server.core.drawresult.api.model.DrawResultStatus;
 import com.tchalanet.server.core.drawresult.api.model.ResultQuality;
+import com.tchalanet.server.core.drawresult.api.model.ResultSource;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultWriterPort;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.external.ExternalSourceFlags;
 import com.tchalanet.server.core.haiti.api.HaitiProjectionOutput;
@@ -35,6 +41,8 @@ public class RecordManualDrawResultCommandHandler
   private final HaitiLotteryPort haitiLotteryPort;
   private final JsonUtils jsonUtils;
   private final HaitiProjectionConfigPort haitiProjectionConfigPort;
+  private final DomainEventPublisher eventPublisher;
+  private final IdGenerator idGenerator;
 
   @Override
   public RecordManualDrawResultResult handle(RecordManualDrawResultCommand command) {
@@ -71,6 +79,22 @@ public class RecordManualDrawResultCommandHandler
         res.id(),
         res.created(),
         res.updated());
+
+    if (res.created()) {
+      var event =
+          new GlobalDrawResultAvailableEvent(
+              EventId.of(idGenerator.newUuid()),
+              Instant.now(),
+              null,
+              slot.id(),
+              slot.slotKey(),
+              res.id(),
+              occurredAt,
+              command.drawDate(),
+              slot.provider(),
+              ResultSource.MANUAL_ENTRY);
+      AfterCommit.run(() -> eventPublisher.publish(event));
+    }
 
     return new RecordManualDrawResultResult(res.id(), res.created(), res.updated());
   }

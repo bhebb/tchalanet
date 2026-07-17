@@ -13,6 +13,11 @@ public interface UsLotteryProviderClient {
   /** Provider identifier (NY, FL, GA, ...) */
   UsLotteryProvider provider();
 
+  /** Whether this client performs a real automatic fetch for operational classification. */
+  default boolean supportsAutomaticFetch() {
+    return true;
+  }
+
   /**
    * Fetch draws according to the provided query. Prefer fetching for a single date per call. The
    * caller (orchestrator) may call this for several dates when daysBack & maxDraws are used.

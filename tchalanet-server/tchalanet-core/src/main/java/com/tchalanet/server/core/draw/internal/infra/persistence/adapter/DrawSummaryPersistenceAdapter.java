@@ -1,11 +1,15 @@
 package com.tchalanet.server.core.draw.internal.infra.persistence.adapter;
 
 import com.tchalanet.server.common.context.TchContextResolver;
+import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.DrawId;
+import com.tchalanet.server.common.types.id.ResultSlotId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageMapper;
+import com.tchalanet.server.core.draw.api.DrawResultAffectedTenantApi;
 import com.tchalanet.server.core.draw.api.model.DrawStatus;
+import com.tchalanet.server.core.draw.api.query.DrawResultAffectedTenant;
 import com.tchalanet.server.core.draw.api.query.DrawSearchCriteria;
 import com.tchalanet.server.core.draw.api.query.DrawSummary;
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawSummaryReaderPort;
@@ -27,7 +31,8 @@ import org.springframework.stereotype.Component;
 @Component
 @Primary
 @RequiredArgsConstructor
-public class DrawSummaryPersistenceAdapter implements DrawSummaryReaderPort {
+public class DrawSummaryPersistenceAdapter
+    implements DrawSummaryReaderPort, DrawResultAffectedTenantApi {
 
   private static final int DEFAULT_LOOKAHEAD_HOURS = 24;
 
@@ -133,6 +138,25 @@ public class DrawSummaryPersistenceAdapter implements DrawSummaryReaderPort {
     var page = repo.latestWithResults(tenantId.value(), keys, empty, pageable);
 
     return TchPageMapper.map(page, mapper::toProjection);
+  }
+
+  @Override
+  public List<DrawResultAffectedTenant> listAffectedTenants(
+      ResultSlotId resultSlotId, java.time.LocalDate drawDate) {
+    Objects.requireNonNull(resultSlotId, "resultSlotId is required");
+    Objects.requireNonNull(drawDate, "drawDate is required");
+
+    return repo.findAffectedByResultSlotAndDrawDate(resultSlotId.value(), drawDate).stream()
+        .map(
+            v ->
+                new DrawResultAffectedTenant(
+                    TenantId.of(v.getTenantId()),
+                    DrawId.of(v.getDrawId()),
+                    DrawChannelId.of(v.getDrawChannelId()),
+                    v.getDrawChannelCode(),
+                    v.getDrawChannelLabel(),
+                    v.getResultSlotKey()))
+        .toList();
   }
 
   private TenantId currentTenantId() {

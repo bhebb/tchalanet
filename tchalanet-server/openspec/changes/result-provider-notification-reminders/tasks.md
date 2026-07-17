@@ -1,0 +1,25 @@
+# Tasks
+
+- [x] Audit current result-slot seeds and registered `uslottery` clients.
+- [x] Document the provider classification rule and current manual/automatic matrix.
+- [x] Add explicit provider client capability (`AUTOMATIC` / `NO_OP` or `supportsAutomaticFetch()`).
+- [x] Add a runtime classifier for result slots (`AUTOMATIC`, `MANUAL`, `INACTIVE`) backed by seed config and provider-client capability.
+- [x] Add `ResultSource` metadata: `PROVIDER`, `MANUAL_ENTRY`, `MANUAL_OVERRIDE`.
+- [x] Add `DRAW_RESULT_ACTION_REQUIRED` notification type with reasons `MANUAL_ENTRY_REQUIRED` and `AUTOMATIC_FETCH_OVERDUE`.
+- [x] Add `CreateMissingResultReminderCommand` and handler that rechecks result absence and computes backend-owned correlation keys.
+- [x] Add scheduler step or thin scheduler for `result-reminder` between fetch and apply.
+- [x] Add config `tch.draw.scheduler.processing.result-reminder.*` and batch gate `drawresult:reminder:run`.
+- [x] Add manual-slot reminder due 5 minutes after slot occurrence when no global result exists.
+- [x] Add automatic-provider-overdue reminder due 60 minutes after slot occurrence when no global result exists.
+- [x] Route action-required notifications through `NotificationApi`, then notification/communication bridge to Slack.
+- [x] Add expiration policy: `min(createdAt + 24h, nextResultSlotOccurrence - 1 minute)`.
+- [x] Publish `GlobalDrawResultAvailableEvent` only on first global result creation and resolve open action-required notifications.
+- [x] Publish `GlobalDrawResultCorrectedEvent` when an existing global result is overridden.
+- [x] Ensure overrides do not re-send tenant result-available notifications.
+- [x] Evaluate an internal platform-ops-only "draw result corrected" notification.
+- [x] Resolve affected tenants via owner-domain read API using tenant channel config, exact slot applicability, and matching non-cancelled tenant draws.
+- [x] Publish result-available tenant notifications only for affected tenant admin/operator audiences; never seller terminals.
+- [x] Apply the same subscription/applicability filter for provider results, first manual entries, and optional tenant correction notifications.
+- [x] Make all result-arrived, action-required, and Slack bridge messages idempotent with stable correlation keys.
+- [x] Add focused tests for seed/client classification, manual reminders, automatic overdue, expiration, resolution, and Slack bridge behavior.
+- [x] Run targeted backend tests and OpenSpec validation.

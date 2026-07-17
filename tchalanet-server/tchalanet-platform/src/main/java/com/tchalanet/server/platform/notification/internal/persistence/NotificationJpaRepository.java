@@ -5,6 +5,7 @@ import com.tchalanet.server.platform.notification.api.model.NotificationKind;
 import com.tchalanet.server.platform.notification.api.model.NotificationSeverity;
 import com.tchalanet.server.platform.notification.api.model.NotificationStatus;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
@@ -179,6 +180,20 @@ public interface NotificationJpaRepository extends JpaRepository<NotificationJpa
          and n.status = com.tchalanet.server.platform.notification.api.model.NotificationStatus.PUBLISHED
       """)
   int expire(@Param("now") Instant now);
+
+  @Modifying
+  @Query(
+      """
+      update NotificationJpaEntity n
+         set n.status = com.tchalanet.server.platform.notification.api.model.NotificationStatus.EXPIRED,
+             n.expiresAt = :now,
+             n.updatedAt = :now
+       where n.deletedAt is null
+         and n.dedupeKey in :dedupeKeys
+         and n.status = com.tchalanet.server.platform.notification.api.model.NotificationStatus.PUBLISHED
+      """)
+  int expireByDedupeKeys(
+      @Param("dedupeKeys") Collection<String> dedupeKeys, @Param("now") Instant now);
 
   @Modifying
   @Query(

@@ -3,9 +3,11 @@ package com.tchalanet.server.core.uslottery.internal.infra.adapter;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.external.ExternalResultFetchBundle;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.external.ExternalResultFetchQuery;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.external.ExternalResultItem;
+import com.tchalanet.server.core.drawresult.internal.application.port.out.external.ExternalResultProviderCapabilityPort;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.external.ExternalResultsFetchPort;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.external.ExternalSourceFlags;
 import com.tchalanet.server.core.uslottery.internal.application.model.UsLotteryProvider;
+import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderClient;
 import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderQuery;
 import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderResponse;
 import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderResult;
@@ -18,9 +20,22 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class UsLotteryExternalResultsFetchAdapter implements ExternalResultsFetchPort {
+public class UsLotteryExternalResultsFetchAdapter
+    implements ExternalResultsFetchPort, ExternalResultProviderCapabilityPort {
 
   private final ProviderClientRegistry registry;
+
+  @Override
+  public boolean supportsAutomaticFetch(String providerCode) {
+    var provider = resolveProvider(providerCode);
+    if (provider == null) {
+      return false;
+    }
+    return registry
+        .find(provider)
+        .map(UsLotteryProviderClient::supportsAutomaticFetch)
+        .orElse(false);
+  }
 
   @Override
   public ExternalResultFetchBundle fetchProviderResults(ExternalResultFetchQuery query) {

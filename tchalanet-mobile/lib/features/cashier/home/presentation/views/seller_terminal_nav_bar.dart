@@ -10,6 +10,7 @@ class SellerTerminalNavBar extends StatelessWidget {
     (icon: Icons.point_of_sale_rounded, label: 'Accueil', route: '/pos'),
     (icon: Icons.history_rounded, label: 'Historique', route: '/pos/history'),
     (icon: Icons.bar_chart_rounded, label: 'Stats', route: '/pos/stats'),
+    (icon: Icons.person_rounded, label: 'Profil', route: '/pos/profile'),
   ];
 
   @override

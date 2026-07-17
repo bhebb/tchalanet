@@ -2,6 +2,7 @@ package com.tchalanet.server.core.draw.internal.infra.scheduler;
 
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotView;
+import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.job.annotation.TchJob;
 import com.tchalanet.server.common.job.context.JobContextBinder;
 import com.tchalanet.server.common.job.gate.BatchGate;
@@ -14,8 +15,12 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawProcessingCandidateReaderPort;
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawProcessingCandidateReaderPort.DrawProcessingSlotDate;
 import com.tchalanet.server.core.draw.internal.infra.config.DrawProperties;
+import com.tchalanet.server.core.drawresult.api.command.CreateMissingResultReminderCommand;
 import com.tchalanet.server.core.drawresult.api.model.DrawResultStatus;
+import com.tchalanet.server.core.drawresult.api.model.ResultReminderReason;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultReaderPort;
+import com.tchalanet.server.core.drawresult.internal.application.service.ResultSlotSourceClassification;
+import com.tchalanet.server.core.drawresult.internal.application.service.ResultSlotSourceClassifier;
 import com.tchalanet.server.platform.tenant.api.TenantPreContextLookupApi;
 import java.time.Clock;
 import java.time.Instant;
@@ -47,6 +52,7 @@ public class DrawProcessingTickScheduler {
   private static final JobKey DRAW_SETTLE = JobKey.of("draw:lifecycle:settle");
   private static final JobKey RESULTS_EXTERNAL_FETCH = JobKey.of("results:external:fetch");
   private static final JobKey RESULTS_EXTERNAL_APPLY = JobKey.of("results:external:apply");
+  private static final JobKey DRAWRESULT_REMINDER = JobKey.of("drawresult:reminder:run");
   private static final String DATE = "date";
   private static final String DAYS_BACK = "days_back";
   private static final String MAX_DRAWS = "max_draws";
@@ -55,6 +61,7 @@ public class DrawProcessingTickScheduler {
   private static final String SLOT_KEYS = "slot_keys";
 
   private final BatchJobStarter batchJobStarter;
+  private final CommandBus commandBus;
   private final BatchGate gate;
   private final TenantPreContextLookupApi tenantRegistry;
   private final ResultSlotCatalog resultSlotCatalog;
@@ -66,6 +73,7 @@ public class DrawProcessingTickScheduler {
   private final JsonUtils jsonUtils;
   private final AtomicBoolean configLogged = new AtomicBoolean(false);
   private final DrawProcessingCandidateReaderPort candidateReader;
+  private final ResultSlotSourceClassifier resultSlotSourceClassifier;
 
   @TchJob("draw:processing")
   @Scheduled(cron = "${tch.draw.scheduler.processing.cron:0 */5 * * * *}", zone = "UTC")
@@ -81,13 +89,15 @@ public class DrawProcessingTickScheduler {
     var now = clock.instant();
     var closeSummary = runClose(now);
     var fetchSummary = runFetch(now);
+    var reminderSummary = runResultReminder(now);
     var applySummary = runApply(now);
     var settleSummary = runSettle(now);
 
     log.info(
-        "draw.processing.tick summary close={} fetch={} apply={} settle={}",
+        "draw.processing.tick summary close={} fetch={} reminder={} apply={} settle={}",
         closeSummary,
         fetchSummary,
+        reminderSummary,
         applySummary,
         settleSummary);
   }
@@ -175,6 +185,52 @@ public class DrawProcessingTickScheduler {
             ex);
       }
     }
+    return new StepSummary(processed, due.size(), errors, null);
+  }
+
+  private StepSummary runResultReminder(Instant now) {
+    var cfg = drawProperties.getScheduler().getProcessing().getResultReminder();
+
+    if (!cfg.isActive()) {
+      return StepSummary.skipped("inactive");
+    }
+
+    if (!gate.enabled(DRAWRESULT_REMINDER, null)) {
+      return StepSummary.skipped("gate_disabled");
+    }
+
+    var due =
+        dueResultReminderCandidates(now, cfg).stream()
+            .limit(Math.max(1, cfg.getMaxSlotsPerTick()))
+            .toList();
+
+    int processed = 0;
+    int errors = 0;
+
+    for (var candidate : due) {
+      try {
+        commandBus.execute(
+            new CreateMissingResultReminderCommand(
+                candidate.slot().id(),
+                candidate.drawDate(),
+                occurredAt(new SlotDate(candidate.slot(), candidate.drawDate())),
+                candidate.reason(),
+                candidate.slot().provider(),
+                candidate.slot().slotKey(),
+                requestId("drawresult-reminder", now)));
+        processed++;
+      } catch (Exception ex) {
+        errors++;
+        log.warn(
+            "draw.processing.result-reminder failed slot={} drawDate={} reason={} err={}",
+            candidate.slot().slotKey(),
+            candidate.drawDate(),
+            candidate.reason(),
+            ex.getMessage(),
+            ex);
+      }
+    }
+
     return new StepSummary(processed, due.size(), errors, null);
   }
 
@@ -432,6 +488,59 @@ public class DrawProcessingTickScheduler {
     return candidates;
   }
 
+  private List<ResultReminderCandidate> dueResultReminderCandidates(
+      Instant now, DrawProperties.ResultReminder config) {
+    var candidates = new ArrayList<ResultReminderCandidate>();
+    List<?> activeSlots = resultSlotCatalog.listActive();
+    for (Object rawSlot : activeSlots) {
+      var slot = toResultSlotView(rawSlot);
+      if (slot == null || slot.drawTime() == null || slot.timezone() == null) {
+        continue;
+      }
+
+      var classification = resultSlotSourceClassifier.classify(slot);
+      if (classification == ResultSlotSourceClassification.INACTIVE) {
+        continue;
+      }
+
+      var today = LocalDate.now(clock.withZone(slot.timezone()));
+      for (LocalDate drawDate : List.of(today, today.minusDays(1))) {
+        var slotDate = new SlotDate(slot, drawDate);
+        var occurredAt = occurredAt(slotDate);
+        var reason = reminderReason(classification, occurredAt, now, config);
+
+        if (reason == null || hasAnyResult(slotDate)) {
+          continue;
+        }
+
+        candidates.add(new ResultReminderCandidate(slot, drawDate, reason));
+      }
+    }
+    return candidates;
+  }
+
+  private ResultReminderReason reminderReason(
+      ResultSlotSourceClassification classification,
+      Instant occurredAt,
+      Instant now,
+      DrawProperties.ResultReminder config) {
+    if (classification == ResultSlotSourceClassification.MANUAL
+        && !now.isBefore(
+            occurredAt.plus(
+                java.time.Duration.ofMinutes(config.getManualStartMinutesAfterDraw())))) {
+      return ResultReminderReason.MANUAL_ENTRY_REQUIRED;
+    }
+
+    if (classification == ResultSlotSourceClassification.AUTOMATIC
+        && !now.isBefore(
+            occurredAt.plus(
+                java.time.Duration.ofMinutes(config.getAutomaticOverdueMinutesAfterDraw())))) {
+      return ResultReminderReason.AUTOMATIC_FETCH_OVERDUE;
+    }
+
+    return null;
+  }
+
   private ResultSlotView toResultSlotView(Object rawSlot) {
     if (rawSlot instanceof ResultSlotView slotView) {
       return slotView;
@@ -543,7 +652,7 @@ public class DrawProcessingTickScheduler {
     }
     var processing = drawProperties.getScheduler().getProcessing();
     log.info(
-        "draw.processing.config active={} cron={} timezone={} close.max={} fetch.start={} fetch.retry={} fetch.stop={} fetch.max={} apply.start={} apply.retry={} apply.stop={} apply.max={} settle.start={} settle.retry={} settle.stop={} settle.max={}",
+        "draw.processing.config active={} cron={} timezone={} close.max={} fetch.start={} fetch.retry={} fetch.stop={} fetch.max={} reminder.manualStart={} reminder.autoOverdue={} reminder.max={} apply.start={} apply.retry={} apply.stop={} apply.max={} settle.start={} settle.retry={} settle.stop={} settle.max={}",
         processing.isActive(),
         processing.getCron(),
         processing.getTimezone(),
@@ -552,6 +661,9 @@ public class DrawProcessingTickScheduler {
         processing.getFetch().getRetryEveryMinutes(),
         processing.getFetch().getStopMinutesAfterDraw(),
         processing.getFetch().getMaxSlotsPerTick(),
+        processing.getResultReminder().getManualStartMinutesAfterDraw(),
+        processing.getResultReminder().getAutomaticOverdueMinutesAfterDraw(),
+        processing.getResultReminder().getMaxSlotsPerTick(),
         processing.getApply().getStartMinutesAfterDraw(),
         processing.getApply().getRetryEveryMinutes(),
         processing.getApply().getStopMinutesAfterDraw(),
@@ -563,6 +675,9 @@ public class DrawProcessingTickScheduler {
   }
 
   private record SlotDate(ResultSlotView slot, LocalDate drawDate) {}
+
+  private record ResultReminderCandidate(
+      ResultSlotView slot, LocalDate drawDate, ResultReminderReason reason) {}
 
   private record StepSummary(int processed, int candidates, int errors, String skippedReason) {
     static StepSummary skipped(String reason) {

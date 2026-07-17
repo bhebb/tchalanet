@@ -31,6 +31,11 @@ tch:
           retry-every-minutes: 10
           stop-minutes-after-draw: 240
           max-slots-per-tick: 10
+        result-reminder:
+          active: true
+          manual-start-minutes-after-draw: 5
+          automatic-overdue-minutes-after-draw: 60
+          max-slots-per-tick: 25
         apply:
           active: true
           start-minutes-after-draw: 10

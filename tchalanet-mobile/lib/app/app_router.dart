@@ -8,6 +8,7 @@ import '../features/auth/presentation/view_models/auth_controller.dart';
 import '../features/auth/presentation/views/forbidden_page.dart';
 import '../features/auth/presentation/views/login_page.dart';
 import '../features/cashier/home/presentation/views/cashier_home_page.dart';
+import '../features/cashier/home/presentation/views/seller_terminal_profile_page.dart';
 import '../features/cashier/home/presentation/views/seller_terminal_stats_page.dart';
 import '../features/cashier/tickets/presentation/views/cashier_history_page.dart';
 import '../features/cashier/tickets/presentation/views/cashier_scan_page.dart';
@@ -15,7 +16,6 @@ import '../features/cashier/tickets/presentation/views/cashier_sell_page.dart';
 import '../features/cashier/tickets/presentation/views/cashier_sell_success_page.dart';
 import '../features/cashier/tickets/presentation/views/cashier_ticket_detail_page.dart';
 import '../features/notifications/presentation/views/notification_center_page.dart';
-import '../features/pos/presentation/views/pos_stub_page.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -56,7 +56,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/pos/profile',
-        builder: (context, _) => const PosStubPage(title: 'Profil', index: 3),
+        builder: (context, _) => const SellerTerminalProfilePage(),
       ),
       GoRoute(
         path: '/pos/notifications',

@@ -4,14 +4,19 @@ import com.tchalanet.server.catalog.drawchannel.api.model.DrawSource;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotView;
 import com.tchalanet.server.common.bus.CommandHandler;
+import com.tchalanet.server.common.event.DomainEventPublisher;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.time.DateWindows;
 import com.tchalanet.server.common.time.OccurredAtResolver;
 import com.tchalanet.server.common.tx.AfterCommit;
+import com.tchalanet.server.common.types.id.EventId;
+import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.core.drawresult.api.command.FetchExternalResultsWindowCommand;
 import com.tchalanet.server.core.drawresult.api.command.FetchExternalResultsWindowResult;
+import com.tchalanet.server.core.drawresult.api.event.GlobalDrawResultAvailableEvent;
 import com.tchalanet.server.core.drawresult.api.model.DrawResultStatus;
+import com.tchalanet.server.core.drawresult.api.model.ResultSource;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultReaderPort;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultWriterPort;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.notification.DrawResultFetchNotificationPort;
@@ -21,6 +26,8 @@ import com.tchalanet.server.core.drawresult.internal.application.service.Externa
 import com.tchalanet.server.core.drawresult.internal.application.service.FetchCounters;
 import com.tchalanet.server.core.drawresult.internal.application.service.HaitiProjectionService;
 import com.tchalanet.server.core.drawresult.internal.application.service.ResolvedExternalResults;
+import com.tchalanet.server.core.drawresult.internal.application.service.ResultSlotSourceClassification;
+import com.tchalanet.server.core.drawresult.internal.application.service.ResultSlotSourceClassifier;
 import com.tchalanet.server.core.drawresult.internal.application.service.ResultSlotSourceConfigResolver;
 import com.tchalanet.server.core.drawresult.internal.infra.config.DrawResultsProperties;
 import java.time.Clock;
@@ -48,7 +55,10 @@ public class FetchExternalResultsWindowCommandHandler
   private final Clock clock;
   private final ExternalResultFetcher externalResultFetcher;
   private final ResultSlotSourceConfigResolver resultSlotSourceConfigResolver;
+  private final ResultSlotSourceClassifier resultSlotSourceClassifier;
   private final DrawResultFetchNotificationPort drawResultFetchNotificationPort;
+  private final DomainEventPublisher eventPublisher;
+  private final IdGenerator idGenerator;
 
   @Override
   @TchTx
@@ -108,6 +118,18 @@ public class FetchExternalResultsWindowCommandHandler
 
     try {
       var sourceCfg = resultSlotSourceConfigResolver.resolve(slot.sourceCfg());
+
+      var classification = resultSlotSourceClassifier.classify(slot);
+      if (classification != ResultSlotSourceClassification.AUTOMATIC) {
+        counters.skipped++;
+        log.debug(
+            "draw-results.fetch.skip non_automatic_slot slot={} provider={} date={} classification={}",
+            slot.slotKey(),
+            slot.provider(),
+            date,
+            classification);
+        return;
+      }
 
       if (!sourceCfg.hasAnyActiveGame()) {
         counters.skipped++;
@@ -173,6 +195,22 @@ public class FetchExternalResultsWindowCommandHandler
       if (changed) {
         fetchedNotifications.add(
             buildDrawResultNotification(slot, date, expectedOccurredAt, external, payload));
+      }
+
+      if (upsert.created()) {
+        var event =
+            new GlobalDrawResultAvailableEvent(
+                EventId.of(idGenerator.newUuid()),
+                now,
+                null,
+                slot.id(),
+                slot.slotKey(),
+                upsert.id(),
+                expectedOccurredAt,
+                date,
+                slot.provider(),
+                ResultSource.PROVIDER);
+        AfterCommit.run(() -> eventPublisher.publish(event));
       }
 
     } catch (Exception e) {

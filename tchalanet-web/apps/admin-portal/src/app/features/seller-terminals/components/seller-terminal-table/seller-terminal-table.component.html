@@ -55,14 +55,14 @@
       mat-row
       class="seller-terminal-table__row"
       *matRowDef="let row; columns: displayedColumns"
-      [routerLink]="['/app/admin/sellers', row.id.value]"
+      [routerLink]="['/app/admin/seller-terminals', row.id.value]"
     ></tr>
   </table>
 </div>
 
 <mat-menu #rowMenu="matMenu">
   <ng-template matMenuContent let-row="row">
-    <button mat-menu-item [routerLink]="['/app/admin/sellers', row.id.value]">
+    <button mat-menu-item [routerLink]="['/app/admin/seller-terminals', row.id.value]">
       <span class="material-symbols-outlined">edit</span>
       {{ 'admin.sellerTerminals.list.action.detail' | translate }}
     </button>

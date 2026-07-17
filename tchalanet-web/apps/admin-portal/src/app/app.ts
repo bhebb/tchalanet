@@ -99,6 +99,10 @@ export class App {
   protected readonly darkMode = computed(() => this.theme.activeTheme().effectiveMode === 'dark');
 
   constructor() {
+    this.clearStaleSupportAccessForCurrentUser();
+
+    effect(() => this.clearStaleSupportAccessForCurrentUser());
+
     effect(() => {
       if (this.bootstrap.space() !== 'ADMIN' || this.tenantConfigLoaded) {
         return;
@@ -126,6 +130,12 @@ export class App {
 
   protected goToSettings(): void {
     void this.router.navigateByUrl('/app/admin/settings');
+  }
+
+  private clearStaleSupportAccessForCurrentUser(): void {
+    if (this.auth.authenticated() && !this.auth.hasRole('SUPER_ADMIN') && this.supportAccess.session()) {
+      this.supportAccess.clearSession();
+    }
   }
 }
 

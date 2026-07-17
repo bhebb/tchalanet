@@ -25,13 +25,6 @@ export const adminRoutes: Route[] = [
   { path: 'complete-config', redirectTo: 'setup', pathMatch: 'full' },
   // ── Vendeurs ───────────────────────────────────────────────────────────────
   {
-    path: 'sellers',
-    loadChildren: () =>
-      import('./seller-terminals/admin-seller-terminals.routes').then(
-        m => m.adminSellerTerminalsRoutes,
-      ),
-  },
-  {
     path: 'seller-terminals',
     loadChildren: () =>
       import('./seller-terminals/admin-seller-terminals.routes').then(

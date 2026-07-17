@@ -18,8 +18,10 @@ import com.tchalanet.server.core.draw.internal.application.port.out.DrawLookupPo
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawReaderPort;
 import com.tchalanet.server.core.drawresult.api.command.OverrideDrawResultCommand;
 import com.tchalanet.server.core.drawresult.api.command.OverrideDrawResultResult;
+import com.tchalanet.server.core.drawresult.api.event.GlobalDrawResultCorrectedEvent;
 import com.tchalanet.server.core.drawresult.api.model.DrawResultStatus;
 import com.tchalanet.server.core.drawresult.api.model.ResultQuality;
+import com.tchalanet.server.core.drawresult.api.model.ResultSource;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultReaderPort;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultWriterPort;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.external.ExternalSourceFlags;
@@ -108,6 +110,23 @@ public class OverrideDrawResultCommandHandler
 
     // [Re-apply après override valide]
     applyOverrideToDraws(res, slot, command.reason());
+
+    if (!res.created() && res.id() != null) {
+      var event =
+          new GlobalDrawResultCorrectedEvent(
+              EventId.of(idGenerator.newUuid()),
+              clock.instant(),
+              null,
+              slot.id(),
+              slot.slotKey(),
+              res.id(),
+              occurredAt,
+              command.drawDate(),
+              slot.provider(),
+              ResultSource.MANUAL_OVERRIDE,
+              command.reason());
+      AfterCommit.run(() -> publisher.publish(event));
+    }
 
     log.info(
         "draw_result.override slotKey={} occurredAt={} drawResultId={} created={} updated={}",
