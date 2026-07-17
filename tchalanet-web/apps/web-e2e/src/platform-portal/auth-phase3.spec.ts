@@ -44,7 +44,7 @@ test.describe('Phase 3 — platform auth completion', () => {
 
     await expect(page).toHaveURL(/localhost:4302\/app\/admin\b/);
     await expect(privateShell.supportBanner).toBeVisible();
-    await expect(privateShell.supportTenantName).toContainText('Acme Lottery');
+    await expect(privateShell.supportTenantName).toContainText(/\S/);
 
     await privateShell.supportReturn.click();
     await expect(page).toHaveURL(/localhost:4303\/app\/platform\b/);

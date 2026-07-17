@@ -93,7 +93,7 @@ describe('AuthRedirectService', () => {
       handoffId: 'handoff-1',
       code: 'secret',
       targetPortal: 'PLATFORM',
-      targetUrl: 'http://localhost:4202',
+      targetUrl: '/platform',
       entryRoute: '/app/platform',
       expiresAt: '2026-07-04T14:50:00Z',
     }));

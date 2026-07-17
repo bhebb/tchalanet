@@ -132,8 +132,9 @@ export class StartTenantAdminAccessDialog {
         { suppressShellFeedback: true },
       ),
     );
+    const handoffTargetUrl = resolveHandoffTargetUrl(handoff.targetUrl, adminBaseUrl);
     this.document.defaultView?.location.assign(
-      `${withoutTrailingSlash(handoff.targetUrl)}/login/handoff#code=${handoff.handoffId}.${handoff.code}`,
+      `${handoffTargetUrl}/login/handoff#code=${handoff.handoffId}.${handoff.code}`,
     );
   }
 
@@ -148,4 +149,11 @@ export class StartTenantAdminAccessDialog {
 
 function withoutTrailingSlash(value: string): string {
   return value.length > 1 ? value.replace(/\/+$/, '') : value;
+}
+
+function resolveHandoffTargetUrl(handoffTargetUrl: string, runtimeTargetBaseUrl: string): string {
+  if (/^https?:\/\//i.test(handoffTargetUrl)) {
+    return withoutTrailingSlash(handoffTargetUrl);
+  }
+  return withoutTrailingSlash(runtimeTargetBaseUrl);
 }
