@@ -209,6 +209,11 @@ class NotificationServiceTest {
     public int expire(Instant now) {
       return 0;
     }
+
+    @Override
+    public int expireByDedupeKeys(java.util.Collection<String> dedupeKeys, Instant now) {
+      return 0;
+    }
   }
 
   private static final class RecordingNotificationReader implements NotificationReader {

@@ -130,6 +130,14 @@ class ListCashierNextDrawsQueryHandlerTest {
       return emptyPage();
     }
 
+    @Override
+    public List<com.tchalanet.server.core.draw.api.query.DrawResultAffectedTenant>
+        listAffectedTenants(
+            com.tchalanet.server.common.types.id.ResultSlotId resultSlotId,
+            java.time.LocalDate drawDate) {
+      return List.of();
+    }
+
     private TchPage<DrawSummary> emptyPage() {
       return TchPage.of(List.of(), 0, 20, 0, 0, true, false, false);
     }

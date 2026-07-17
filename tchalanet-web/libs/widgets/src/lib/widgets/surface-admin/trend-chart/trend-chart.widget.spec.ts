@@ -53,4 +53,25 @@ describe('TrendChartWidget', () => {
     expect(cmp.points()).toEqual([]);
     expect(cmp.linePoints()).toBe('');
   });
+
+  it('builds drawable points for a single live sales day', () => {
+    const cmp = component(
+      {
+        type: 'TrendChartWidget',
+        props: {
+          points: { source: 'dynamic', path: 'points' },
+          labelPath: 'label',
+          labelFormat: 'date-short',
+          valuePath: 'grossSales',
+        },
+      },
+      {
+        points: [{ id: '2026-07-16', label: '2026-07-16', grossSales: '250.00' }],
+      },
+    );
+
+    expect(cmp.points()).toEqual([{ id: '2026-07-16', label: '07/16', value: 250 }]);
+    expect(cmp.linePoints()).toBe('0.00,12.00');
+    expect(cmp.areaPoints()).toBe('0,96 0.00,12.00 100,96');
+  });
 });

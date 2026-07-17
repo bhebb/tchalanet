@@ -13,6 +13,7 @@ import com.tchalanet.server.platform.notification.api.model.NotificationStatus;
 import com.tchalanet.server.platform.notification.api.model.SendNotificationResult;
 import com.tchalanet.server.platform.notification.api.model.request.ArchiveNotificationRequest;
 import com.tchalanet.server.platform.notification.api.model.request.CreateNotificationRequest;
+import com.tchalanet.server.platform.notification.api.model.request.ExpireNotificationsByDedupeKeysRequest;
 import com.tchalanet.server.platform.notification.api.model.request.GetNotificationSummaryRequest;
 import com.tchalanet.server.platform.notification.api.model.request.ListNotificationsRequest;
 import com.tchalanet.server.platform.notification.api.model.request.MarkNotificationReadRequest;
@@ -50,6 +51,11 @@ class DefaultNotificationApi implements NotificationApi {
   @Override
   public void archiveNotification(ArchiveNotificationRequest request) {
     notificationService.archiveNotification(request);
+  }
+
+  @Override
+  public int expireByDedupeKeys(ExpireNotificationsByDedupeKeysRequest request) {
+    return notificationService.expireByDedupeKeys(request);
   }
 
   @Override

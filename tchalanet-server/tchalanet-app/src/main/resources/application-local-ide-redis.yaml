@@ -25,7 +25,7 @@ tch:
 # - Hibernate SQL DEBUG            -> a SQL statement appears only on a cache miss (DB was hit)
 logging:
   level:
-    com.tchalanet.server.app.config.cache: DEBUG
+    com.tchalanet.server.app.config.cache: INFO
     org.springframework.data.redis: INFO
     org.hibernate.SQL: INFO
 

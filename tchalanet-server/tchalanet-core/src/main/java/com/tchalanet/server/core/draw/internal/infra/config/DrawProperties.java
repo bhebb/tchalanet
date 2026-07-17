@@ -79,6 +79,7 @@ public class DrawProperties {
     private ZoneId timezone = ZoneId.of("America/New_York");
     private Close close = new Close();
     private Fetch fetch = new Fetch();
+    private ResultReminder resultReminder = new ResultReminder();
     private Apply apply = new Apply();
     private Settle settle = new Settle();
   }
@@ -109,6 +110,15 @@ public class DrawProperties {
       setRetryEveryMinutes(10);
       setStopMinutesAfterDraw(240);
     }
+  }
+
+  @Getter
+  @Setter
+  public static class ResultReminder {
+    private boolean active = true;
+    private int manualStartMinutesAfterDraw = 5;
+    private int automaticOverdueMinutesAfterDraw = 60;
+    private int maxSlotsPerTick = 25;
   }
 
   @Getter

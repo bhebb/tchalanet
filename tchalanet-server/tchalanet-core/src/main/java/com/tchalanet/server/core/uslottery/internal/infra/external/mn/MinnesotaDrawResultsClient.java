@@ -26,6 +26,11 @@ public class MinnesotaDrawResultsClient implements UsLotteryProviderClient {
   }
 
   @Override
+  public boolean supportsAutomaticFetch() {
+    return false;
+  }
+
+  @Override
   public UsLotteryProviderResponse fetch(UsLotteryProviderQuery query) {
     log.debug("MN lottery fetch called (manual mode) - returning empty results");
     return UsLotteryProviderResponse.empty(provider(), query);

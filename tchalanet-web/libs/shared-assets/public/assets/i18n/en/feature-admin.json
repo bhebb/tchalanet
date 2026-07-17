@@ -148,6 +148,7 @@
       "common": {
         "grossSales": "Gross sales",
         "overview": "Overview",
+        "netRevenue": "Net revenue",
         "payoutsPaid": "Payouts paid",
         "period": "Reporting period",
         "refresh": "Refresh",
@@ -200,7 +201,33 @@
         }
       },
       "today": {
-        "title": "Daily report"
+        "title": "Daily sales report",
+        "description": "Sales, stakes and net revenue by game for the selected day.",
+        "loading": "Loading report...",
+        "errorMessage": "Unable to load the report.",
+        "kpisAria": "Daily sales report summary",
+        "rowsTitle": "Rows by game",
+        "emptyTitle": "No sales",
+        "emptyMessage": "No sales were recorded for this day.",
+        "total": "Total",
+        "action": {
+          "exportPdf": "Export PDF",
+          "exportCsv": "Export CSV"
+        },
+        "filters": {
+          "aria": "Daily sales report filters",
+          "date": "Date"
+        },
+        "kpi": {
+          "totalSales": "Total stakes"
+        },
+        "column": {
+          "game": "Game",
+          "tickets": "Tickets",
+          "sales": "Stakes",
+          "payouts": "Payouts",
+          "net": "Net revenue"
+        }
       },
       "daily": {
         "title": "Daily report",

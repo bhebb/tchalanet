@@ -156,6 +156,7 @@
       "common": {
         "grossSales": "Vant brit",
         "overview": "Apèsi",
+        "netRevenue": "Revni nèt",
         "payoutsPaid": "Peman fèt",
         "period": "Peryòd rapò a",
         "refresh": "Rafrechi",
@@ -208,7 +209,33 @@
         }
       },
       "today": {
-        "title": "Rapò jodi a"
+        "title": "Rapò jounen an",
+        "description": "Vant, miz ak revni nèt pa jwèt pou jou ou chwazi a.",
+        "loading": "Chajman rapò a...",
+        "errorMessage": "Pa kapab chaje rapò a.",
+        "kpisAria": "Rezime rapò jounen an",
+        "rowsTitle": "Liy pa jwèt",
+        "emptyTitle": "Pa gen vant",
+        "emptyMessage": "Pa gen vant ki anrejistre pou jou sa a.",
+        "total": "Total",
+        "action": {
+          "exportPdf": "Ekspòte PDF",
+          "exportCsv": "Ekspòte CSV"
+        },
+        "filters": {
+          "aria": "Filtè rapò jounen an",
+          "date": "Dat"
+        },
+        "kpi": {
+          "totalSales": "Total miz"
+        },
+        "column": {
+          "game": "Jwèt",
+          "tickets": "Tikè",
+          "sales": "Miz",
+          "payouts": "Peman",
+          "net": "Revni nèt"
+        }
       },
       "daily": {
         "title": "Rapò jounen",

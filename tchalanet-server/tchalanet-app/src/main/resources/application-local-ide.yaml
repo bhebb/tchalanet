@@ -80,7 +80,7 @@ management:
 logging:
   level:
     com.tchalanet.server.common.bus: INFO
-    io.opentelemetry.exporter.otlp: DEBUG   # remove after confirming traces flow to Jaeger
+    io.opentelemetry.exporter.otlp: INFO   # remove after confirming traces flow to Jaeger
 
 # No signing key set here — Ed25519ServerSigningService generates an ephemeral keypair
 # at startup for local/dev profiles. Set TCH_SERVER_SIGNING_ED25519_PRIVATE_KEY_PKCS8_BASE64

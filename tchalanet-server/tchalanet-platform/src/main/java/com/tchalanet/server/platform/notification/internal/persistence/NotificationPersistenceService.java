@@ -25,6 +25,7 @@ import com.tchalanet.server.platform.notification.internal.service.NotificationR
 import com.tchalanet.server.platform.notification.internal.service.NotificationWriter;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
@@ -65,6 +66,14 @@ public class NotificationPersistenceService implements NotificationWriter, Notif
   @Override
   public int expire(Instant now) {
     return notifications.expire(now);
+  }
+
+  @Override
+  public int expireByDedupeKeys(Collection<String> dedupeKeys, Instant now) {
+    if (dedupeKeys == null || dedupeKeys.isEmpty()) {
+      return 0;
+    }
+    return notifications.expireByDedupeKeys(dedupeKeys, now);
   }
 
   @Override

@@ -34,7 +34,7 @@ public class CombinedCache implements Cache {
   public ValueWrapper get(Object key) {
     ValueWrapper v = local.get(key);
     if (v != null) {
-      if (log.isDebugEnabled()) log.debug("cache-hit source=L1 cache={} key={}", name, key);
+      log.debug("cache-hit source=L1 cache={} key={}", name, key);
       return v;
     }
 
@@ -42,15 +42,13 @@ public class CombinedCache implements Cache {
       ValueWrapper rv = remoteGet(key);
       if (rv != null) {
         local.put(key, rv.get());
-        if (log.isDebugEnabled()) {
-          log.debug("cache-hit source=L2 (promoted to L1) cache={} key={}", name, key);
-        }
+        log.debug("cache-hit source=L2 (promoted to L1) cache={} key={}", name, key);
         return rv;
       }
     }
     // Miss on both tiers: the caller (@Cacheable) will now invoke the underlying method (DB /
     // provider).
-    if (log.isDebugEnabled()) log.debug("cache-miss source=DB cache={} key={}", name, key);
+    log.debug("cache-miss source=DB cache={} key={}", name, key);
     return null;
   }
 

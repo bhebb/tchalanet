@@ -197,7 +197,7 @@ export class AdminSellerTerminalNewPage implements OnInit {
   }
 
   onOpenOverrides(result: CreateSellerTerminalResult): void {
-    void this.router.navigate(['/app/admin/sellers', result.sellerTerminalId, 'overrides']);
+    void this.router.navigate(['/app/admin/seller-terminals', result.sellerTerminalId, 'overrides']);
   }
 
   onCreateAnother(): void {

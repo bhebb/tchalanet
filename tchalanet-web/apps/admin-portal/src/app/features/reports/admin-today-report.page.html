@@ -1,98 +1,118 @@
-<tch-admin-page-header
-  title="Rapport du jour"
-  description="Ventes, mises et revenus nets par jeu pour la journée sélectionnée."
-/>
+<tch-admin-page-shell
+  [title]="'admin.reports.today.title' | translate"
+  [description]="'admin.reports.today.description' | translate"
+>
+  @let vm = state();
 
-<div class="report-controls">
-  <mat-form-field appearance="outline" class="date-picker">
-    <mat-label>Date</mat-label>
-    <input
-      matInput
-      [matDatepicker]="picker"
-      [ngModel]="selectedDate()"
-      [max]="maxDate"
-      (ngModelChange)="onDateChange($event)"
-    />
-    <mat-datepicker-toggle matIconSuffix [for]="picker" />
-    <mat-datepicker #picker />
-  </mat-form-field>
-</div>
-
-@let vm = state();
-
-@switch (vm.status) {
-  @case ('loading') {
-    <tch-loading label="Chargement du rapport…" />
-  }
-  @case ('error') {
-    <tch-error-panel title="Erreur" message="Impossible de charger le rapport." />
-  }
-  @case ('ready') {
-    @if (vm.lines.length === 0) {
-      <tch-admin-empty-state
-        icon="bar_chart"
-        title="Aucune vente"
-        message="Aucune vente enregistrée pour cette journée."
+  @switch (vm.status) {
+    @case ('loading') {
+      <tch-loading [label]="'admin.reports.today.loading' | translate" />
+    }
+    @case ('error') {
+      <tch-error-panel
+        [title]="'common.error.title' | translate"
+        [message]="'admin.reports.today.errorMessage' | translate"
       />
-    } @else {
-      <!-- Summary cards -->
-      <div class="summary-grid">
-        <div class="stat-card">
-          <span class="stat-card__label">Billets vendus</span>
-          <span class="stat-card__value">{{ vm.totals.ticketsSold | number }}</span>
+    }
+    @case ('ready') {
+      <header class="report-today__toolbar">
+        <div>
+          <span>{{ 'admin.reports.common.period' | translate }}</span>
+          <strong>{{ vm.from | date:'mediumDate' }}</strong>
         </div>
-        <div class="stat-card">
-          <span class="stat-card__label">Total mises</span>
-          <span class="stat-card__value">{{ vm.totals.totalSales | number:'1.2-2' }}</span>
+        <div class="report-today__actions">
+          <a mat-button routerLink="/app/admin/reports/overview">
+            <mat-icon aria-hidden="true">arrow_back</mat-icon>
+            {{ 'admin.reports.common.overview' | translate }}
+          </a>
+          <button type="button" mat-button (click)="exportPdf()">
+            <mat-icon aria-hidden="true">print</mat-icon>
+            {{ 'admin.reports.today.action.exportPdf' | translate }}
+          </button>
+          <button type="button" mat-button (click)="exportCsv(vm)">
+            <mat-icon aria-hidden="true">download</mat-icon>
+            {{ 'admin.reports.today.action.exportCsv' | translate }}
+          </button>
+          <button type="button" mat-stroked-button (click)="reload()">
+            <mat-icon aria-hidden="true">refresh</mat-icon>
+            {{ 'admin.reports.common.refresh' | translate }}
+          </button>
         </div>
-        <div class="stat-card">
-          <span class="stat-card__label">Total paiements</span>
-          <span class="stat-card__value stat-card__value--payout">{{ vm.totals.totalPayout | number:'1.2-2' }}</span>
-        </div>
-        <div class="stat-card stat-card--revenue">
-          <span class="stat-card__label">Revenu net</span>
-          <span class="stat-card__value">{{ vm.totals.netRevenue | number:'1.2-2' }}</span>
-        </div>
-      </div>
+      </header>
 
-      <!-- Breakdown table -->
-      <div class="table-card">
-        <table class="report-table">
-          <thead>
-            <tr>
-              <th>Jeu</th>
-              <th class="col-num">Billets</th>
-              <th class="col-num">Mises</th>
-              <th class="col-num">Paiements</th>
-              <th class="col-num">Revenu net</th>
-            </tr>
-          </thead>
-          <tbody>
+      <section class="report-today__filters" [attr.aria-label]="'admin.reports.today.filters.aria' | translate">
+        <mat-form-field appearance="outline" class="report-today__date-picker" subscriptSizing="dynamic">
+          <mat-label>{{ 'admin.reports.today.filters.date' | translate }}</mat-label>
+          <input
+            matInput
+            [matDatepicker]="picker"
+            [ngModel]="selectedDate()"
+            [max]="maxDate"
+            (ngModelChange)="onDateChange($event)"
+          />
+          <mat-datepicker-toggle matIconSuffix [for]="picker" />
+          <mat-datepicker #picker />
+        </mat-form-field>
+      </section>
+
+      <section class="report-today__kpis" [attr.aria-label]="'admin.reports.today.kpisAria' | translate">
+        <tch-report-metric-card
+          [label]="'admin.reports.common.ticketsSold' | translate"
+          [value]="(vm.totals.ticketsSold | number) ?? '0'"
+        />
+        <tch-report-metric-card
+          [label]="'admin.reports.today.kpi.totalSales' | translate"
+          [value]="amountDisplay(vm.totals.totalSales) + ' ' + currency"
+        />
+        <tch-report-metric-card
+          [label]="'admin.reports.common.payoutsPaid' | translate"
+          [value]="amountDisplay(vm.totals.totalPayout) + ' ' + currency"
+        />
+        <tch-report-metric-card
+          [label]="'admin.reports.common.netRevenue' | translate"
+          [value]="amountDisplay(vm.totals.netRevenue) + ' ' + currency"
+        />
+      </section>
+
+      <tch-admin-section-card [title]="'admin.reports.today.rowsTitle' | translate" icon="table_rows">
+        @if (vm.lines.length === 0) {
+          <tch-admin-empty-state
+            icon="bar_chart"
+            [title]="'admin.reports.today.emptyTitle' | translate"
+            [message]="'admin.reports.today.emptyMessage' | translate"
+          />
+        } @else {
+          <div class="report-today__table">
+            <div class="report-today__header" aria-hidden="true">
+              <span>{{ 'admin.reports.today.column.game' | translate }}</span>
+              <span>{{ 'admin.reports.today.column.tickets' | translate }}</span>
+              <span>{{ 'admin.reports.today.column.sales' | translate }}</span>
+              <span>{{ 'admin.reports.today.column.payouts' | translate }}</span>
+              <span>{{ 'admin.reports.today.column.net' | translate }}</span>
+            </div>
             @for (line of vm.lines; track line.gameCode) {
-              <tr class="report-row" [class.report-row--negative]="line.netRevenue < 0">
-                <td class="report-row__game">{{ gameLabel(line.gameCode) }}</td>
-                <td class="col-num">{{ line.ticketsSold | number }}</td>
-                <td class="col-num">{{ line.totalSales | number:'1.2-2' }}</td>
-                <td class="col-num">{{ line.totalPayout | number:'1.2-2' }}</td>
-                <td class="col-num col-num--revenue" [class.negative]="line.netRevenue < 0">
-                  {{ line.netRevenue | number:'1.2-2' }}
-                </td>
-              </tr>
+              <div class="report-today__row">
+                <strong>{{ gameLabel(line.gameCode) }}</strong>
+                <span>{{ line.ticketsSold | number }}</span>
+                <strong>{{ amountDisplay(line.totalSales) }} {{ currency }}</strong>
+                <span>{{ amountDisplay(line.totalPayout) }} {{ currency }}</span>
+                <span [class.report-today__negative]="line.netRevenue < 0">
+                  {{ amountDisplay(line.netRevenue) }} {{ currency }}
+                </span>
+              </div>
             }
-          </tbody>
-          <tfoot>
-            <tr class="report-total">
-              <td>Total</td>
-              <td class="col-num">{{ vm.totals.ticketsSold | number }}</td>
-              <td class="col-num">{{ vm.totals.totalSales | number:'1.2-2' }}</td>
-              <td class="col-num">{{ vm.totals.totalPayout | number:'1.2-2' }}</td>
-              <td class="col-num col-num--revenue" [class.negative]="vm.totals.netRevenue < 0">
-                {{ vm.totals.netRevenue | number:'1.2-2' }}
-              </td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
+            <div class="report-today__row report-today__row--total">
+              <strong>{{ 'admin.reports.today.total' | translate }}</strong>
+              <span>{{ vm.totals.ticketsSold | number }}</span>
+              <strong>{{ amountDisplay(vm.totals.totalSales) }} {{ currency }}</strong>
+              <span>{{ amountDisplay(vm.totals.totalPayout) }} {{ currency }}</span>
+              <span [class.report-today__negative]="vm.totals.netRevenue < 0">
+                {{ amountDisplay(vm.totals.netRevenue) }} {{ currency }}
+              </span>
+            </div>
+          </div>
+        }
+      </tch-admin-section-card>
     }
   }
-}
+</tch-admin-page-shell>

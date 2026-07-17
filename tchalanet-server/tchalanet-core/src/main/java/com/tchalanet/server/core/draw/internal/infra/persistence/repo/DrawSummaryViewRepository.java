@@ -91,6 +91,20 @@ public interface DrawSummaryViewRepository
       """
         select v
         from DrawSummaryViewEntity v
+        where v.resultSlotId = :resultSlotId
+          and v.drawDate = :drawDate
+          and v.drawChannelActive = true
+          and v.resultActive = true
+          and v.status not in ('CANCELED', 'ARCHIVED')
+        order by v.tenantId asc, v.drawChannelCode asc
+        """)
+  List<DrawSummaryViewEntity> findAffectedByResultSlotAndDrawDate(
+      @Param("resultSlotId") UUID resultSlotId, @Param("drawDate") LocalDate drawDate);
+
+  @Query(
+      """
+        select v
+        from DrawSummaryViewEntity v
         where v.tenantId = :tenantId
           and v.status = 'RESULTED'
           and v.drawResultStatus = 'PROVISIONAL'

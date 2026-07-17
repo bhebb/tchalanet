@@ -29,6 +29,7 @@ import com.tchalanet.server.platform.notification.api.model.SendNotificationResu
 import com.tchalanet.server.platform.notification.api.model.request.ArchiveNotificationRequest;
 import com.tchalanet.server.platform.notification.api.model.request.ArchiveNotificationsRequest;
 import com.tchalanet.server.platform.notification.api.model.request.CreateNotificationRequest;
+import com.tchalanet.server.platform.notification.api.model.request.ExpireNotificationsByDedupeKeysRequest;
 import com.tchalanet.server.platform.notification.api.model.request.ExpireNotificationsRequest;
 import com.tchalanet.server.platform.notification.api.model.request.GetNotificationSummaryRequest;
 import com.tchalanet.server.platform.notification.api.model.request.ListNotificationsRequest;
@@ -664,6 +665,24 @@ public class NotificationService {
   public Integer expireNotifications(ExpireNotificationsRequest request) {
     var now = request.now() == null ? clock.instant() : request.now();
     return notificationWriter.expire(now);
+  }
+
+  @TchTx
+  public Integer expireByDedupeKeys(ExpireNotificationsByDedupeKeysRequest request) {
+    if (request == null || request.dedupeKeys() == null || request.dedupeKeys().isEmpty()) {
+      return 0;
+    }
+    var now = request.now() == null ? clock.instant() : request.now();
+    var keys =
+        request.dedupeKeys().stream()
+            .filter(key -> key != null && !key.isBlank())
+            .map(String::trim)
+            .distinct()
+            .toList();
+    if (keys.isEmpty()) {
+      return 0;
+    }
+    return notificationWriter.expireByDedupeKeys(keys, now);
   }
 
   public NotificationSummaryView getNotificationSummary(GetNotificationSummaryRequest request) {

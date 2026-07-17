@@ -364,6 +364,7 @@
       "common": {
         "grossSales": "Ventes brutes",
         "overview": "Vue d'ensemble",
+        "netRevenue": "Revenu net",
         "payoutsPaid": "Paiements versés",
         "period": "Période du rapport",
         "refresh": "Rafraîchir",
@@ -416,7 +417,33 @@
         }
       },
       "today": {
-        "title": "Rapport journalier"
+        "title": "Rapport du jour",
+        "description": "Ventes, mises et revenus nets par jeu pour la journée sélectionnée.",
+        "loading": "Chargement du rapport...",
+        "errorMessage": "Impossible de charger le rapport.",
+        "kpisAria": "Résumé du rapport du jour",
+        "rowsTitle": "Lignes par jeu",
+        "emptyTitle": "Aucune vente",
+        "emptyMessage": "Aucune vente enregistrée pour cette journée.",
+        "total": "Total",
+        "action": {
+          "exportPdf": "Exporter PDF",
+          "exportCsv": "Exporter CSV"
+        },
+        "filters": {
+          "aria": "Filtres du rapport du jour",
+          "date": "Date"
+        },
+        "kpi": {
+          "totalSales": "Total mises"
+        },
+        "column": {
+          "game": "Jeu",
+          "tickets": "Billets",
+          "sales": "Mises",
+          "payouts": "Paiements",
+          "net": "Revenu net"
+        }
       },
       "daily": {
         "title": "Rapport journée",

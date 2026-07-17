@@ -1,9 +1,13 @@
 package com.tchalanet.server.core.draw.internal.application.port.out;
 
 import com.tchalanet.server.common.types.id.DrawId;
+import com.tchalanet.server.common.types.id.ResultSlotId;
 import com.tchalanet.server.common.web.paging.TchPage;
+import com.tchalanet.server.core.draw.api.query.DrawResultAffectedTenant;
 import com.tchalanet.server.core.draw.api.query.DrawSearchCriteria;
 import com.tchalanet.server.core.draw.api.query.DrawSummary;
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Pageable;
 
@@ -24,4 +28,8 @@ public interface DrawSummaryReaderPort {
 
   /** Liste les derniers draws avec résultats appliqués. */
   TchPage<DrawSummary> listLatestWithResults(DrawSearchCriteria criteria, Pageable pageable);
+
+  /** Liste les tenants qui ont un draw correspondant, actif et applicable à un résultat global. */
+  List<DrawResultAffectedTenant> listAffectedTenants(
+      ResultSlotId resultSlotId, LocalDate drawDate);
 }

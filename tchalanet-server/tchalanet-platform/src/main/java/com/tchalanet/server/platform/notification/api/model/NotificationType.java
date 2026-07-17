@@ -11,6 +11,8 @@ public enum NotificationType {
   /** Message système / info plateforme. */
   BATCH_MESSAGE,
 
+  DRAW_RESULT_ACTION_REQUIRED,
+
   SYSTEM_MESSAGE,
 
   /** Type libre pour des usages futurs. */
