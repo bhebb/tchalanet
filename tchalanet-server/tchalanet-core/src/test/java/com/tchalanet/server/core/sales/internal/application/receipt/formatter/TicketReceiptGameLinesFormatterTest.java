@@ -89,7 +89,8 @@ class TicketReceiptGameLinesFormatterTest {
 
     var text = joined(lines);
     assertThat(text).contains("12 × 34");
-    assertThat(text).contains("Permuté");
+    assertThat(text).contains("Box");
+    assertThat(text).contains("12 × 34  Box  5.00");
     assertThat(text).contains("* 56 × 78");
     assertThat(text).contains("GRATIS");
     assertThat(text).contains("* Maryaj offert");
@@ -119,9 +120,35 @@ class TicketReceiptGameLinesFormatterTest {
 
     var text = joined(lines);
     assertThat(text).contains("12 × 34");
-    assertThat(text).contains("Permuté");
+    assertThat(text).contains("Box");
     assertThat(text).doesNotContain("* 12 × 34");
     assertThat(text).doesNotContain("* Maryaj offert");
+  }
+
+  @Test
+  void compactsLongExplicitOptionLabelsOnPrintedTicket() {
+    var lines =
+        formatter.format(
+            List.of(
+                new TicketReceiptLineView(
+                    1,
+                    "HT_LOTO5",
+                    "LOTTO5_PATTERN",
+                    (short) 3,
+                    "Mixte 1er/2e/3e lot",
+                    "LOTO 5 CHIFFRES",
+                    "22125",
+                    money("1"),
+                    SelectionPolicy.EXPLICIT_ONLY,
+                    false,
+                    null,
+                    null)),
+            translations(),
+            THERMAL_58);
+
+    var text = joined(lines);
+    assertThat(text).contains("Mixte 1-2-3");
+    assertThat(text).doesNotContain("Mixte 1er/2e/3e lot");
   }
 
   @Test
@@ -148,6 +175,9 @@ class TicketReceiptGameLinesFormatterTest {
     var text = joined(lines);
     assertThat(text).contains("* 56 × 78");
     assertThat(text).contains("GRATIS");
+    assertThat(text).doesNotContain("No");
+    assertThat(text).doesNotContain("Mise");
+    assertThat(text).doesNotContain("* Maryaj offert");
     assertThat(text).doesNotContain("2000");
     assertThat(text).doesNotContain("10000");
     assertThat(text).doesNotContain("50");

@@ -22,7 +22,12 @@ export interface MessageDeliveryResult {
   to?: string;
   channelKey?: string;
   accepted: boolean;
+  providerMessageId?: string;
   reason?: string;
+}
+
+export interface MessageSendResult {
+  providerMessageId?: string;
 }
 
 export interface SendMessageResponse {

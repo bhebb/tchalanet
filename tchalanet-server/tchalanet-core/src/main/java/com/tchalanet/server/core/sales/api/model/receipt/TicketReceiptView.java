@@ -3,6 +3,7 @@ package com.tchalanet.server.core.sales.api.model.receipt;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.types.money.Money;
+import com.tchalanet.server.core.sales.api.model.print.TicketPrintStateStatus;
 import com.tchalanet.server.core.sales.api.model.status.TicketResultStatus;
 import com.tchalanet.server.core.sales.api.model.status.TicketSaleStatus;
 import com.tchalanet.server.core.sales.api.model.status.TicketSettlementStatus;
@@ -43,7 +44,9 @@ public record TicketReceiptView(
     Money totalAmount,
     String tenantReceiptFooter,
     String verificationUrl,
-    // false = first print (ORIGINAL), true = any subsequent print (DUPLICATA)
+    // NOT_PRINTED = original, PRINTED = copy, REPRINTED = reprint
+    TicketPrintStateStatus printStateStatus,
+    // false = first print (ORIGINAL), true = any subsequent print (copy/reprint)
     boolean isReprint) {
   public TicketReceiptView {
     Objects.requireNonNull(ticketId, "ticketId is required");
@@ -52,5 +55,72 @@ public record TicketReceiptView(
     Objects.requireNonNull(displayCode, "displayCode is required");
     Objects.requireNonNull(publicCode, "publicCode is required");
     gameSections = List.copyOf(gameSections);
+    printStateStatus =
+        printStateStatus == null
+            ? (isReprint ? TicketPrintStateStatus.REPRINTED : TicketPrintStateStatus.NOT_PRINTED)
+            : printStateStatus;
+  }
+
+  public TicketReceiptView(
+      TicketId ticketId,
+      TenantId tenantId,
+      String ticketCode,
+      String displayCode,
+      String publicCode,
+      String verificationCode,
+      TicketSaleStatus saleStatus,
+      TicketResultStatus resultStatus,
+      TicketSettlementStatus settlementStatus,
+      String tenantDisplayName,
+      String tenantReceiptHeader,
+      String drawChannelCode,
+      String resultSlotKey,
+      String resultProvider,
+      String resultTimezone,
+      String drawLabel,
+      String drawChannelLabel,
+      Instant drawScheduledAt,
+      String terminalCode,
+      String sellerDisplayName,
+      Instant placedAt,
+      Locale locale,
+      ZoneId timezone,
+      List<TicketReceiptGameSectionView> gameSections,
+      Money stakeTotal,
+      Money totalAmount,
+      String tenantReceiptFooter,
+      String verificationUrl,
+      boolean isReprint) {
+    this(
+        ticketId,
+        tenantId,
+        ticketCode,
+        displayCode,
+        publicCode,
+        verificationCode,
+        saleStatus,
+        resultStatus,
+        settlementStatus,
+        tenantDisplayName,
+        tenantReceiptHeader,
+        drawChannelCode,
+        resultSlotKey,
+        resultProvider,
+        resultTimezone,
+        drawLabel,
+        drawChannelLabel,
+        drawScheduledAt,
+        terminalCode,
+        sellerDisplayName,
+        placedAt,
+        locale,
+        timezone,
+        gameSections,
+        stakeTotal,
+        totalAmount,
+        tenantReceiptFooter,
+        verificationUrl,
+        isReprint ? TicketPrintStateStatus.REPRINTED : TicketPrintStateStatus.NOT_PRINTED,
+        isReprint);
   }
 }

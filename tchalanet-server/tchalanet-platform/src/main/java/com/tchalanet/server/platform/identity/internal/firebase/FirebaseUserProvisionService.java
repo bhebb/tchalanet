@@ -11,6 +11,7 @@ import com.tchalanet.server.platform.identity.api.ProvisionedExternalUser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionSynchronization;
@@ -25,6 +26,9 @@ public class FirebaseUserProvisionService implements IdentityProvisioningApi {
 
   private final ObjectProvider<FirebaseAuth> firebaseAuthProvider;
   private final FirebaseIdentityProperties firebaseIdentityProperties;
+
+  @Value("${tch.identity.provider:firebase}")
+  private String identityProvider;
 
   @Override
   public ProvisionedExternalUser provisionUser(ProvisionExternalUserRequest request) {
@@ -122,11 +126,28 @@ public class FirebaseUserProvisionService implements IdentityProvisioningApi {
     try {
       return lookup.get();
     } catch (FirebaseAuthException ex) {
-      if (ex.getAuthErrorCode() == AuthErrorCode.USER_NOT_FOUND) {
+      if (isUserNotFound(ex)) {
+        return null;
+      }
+      if (isFirebaseEmulator()) {
+        log.warn("Firebase emulator lookup failed before create; treating as user absent: {}", ex.getMessage());
         return null;
       }
       throw new IllegalStateException("Firebase user lookup failed", ex);
     }
+  }
+
+  private boolean isFirebaseEmulator() {
+    return "firebase-emulator".equalsIgnoreCase(identityProvider);
+  }
+
+  private boolean isUserNotFound(FirebaseAuthException ex) {
+    if (ex.getAuthErrorCode() == AuthErrorCode.USER_NOT_FOUND) {
+      return true;
+    }
+    var message = ex.getMessage();
+    return message != null
+        && (message.contains("USER_NOT_FOUND") || message.toLowerCase().contains("no user record"));
   }
 
   private void registerRollbackCompensation(FirebaseAuth firebaseAuth, String uid) {

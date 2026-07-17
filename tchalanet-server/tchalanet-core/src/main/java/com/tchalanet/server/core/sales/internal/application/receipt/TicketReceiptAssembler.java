@@ -1,7 +1,8 @@
 package com.tchalanet.server.core.sales.internal.application.receipt;
 
-import com.tchalanet.server.catalog.game.api.model.GameCode;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintLine;
+import com.tchalanet.server.core.sales.api.model.print.TicketPrintState;
+import com.tchalanet.server.core.sales.api.model.print.TicketPrintStateStatus;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintView;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptGameSectionView;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptLineView;
@@ -68,14 +69,21 @@ public class TicketReceiptAssembler {
         printView.money().totalAmount(),
         printView.branding() == null ? null : printView.branding().tenantReceiptFooter(),
         verificationUrl,
+        printStateStatus(printView.printState()),
         // isReprint: printCount > 0 means at least one prior print → DUPLICATA
         printView.printState() != null && printView.printState().printCount() > 0);
+  }
+
+  private TicketPrintStateStatus printStateStatus(TicketPrintState printState) {
+    return printState == null ? TicketPrintStateStatus.NOT_PRINTED : printState.status();
   }
 
   private List<TicketReceiptGameSectionView> gameSections(List<TicketPrintLine> lines) {
     var grouped = new LinkedHashMap<String, List<TicketPrintLine>>();
     for (var line : lines) {
-      grouped.computeIfAbsent(gameGroupKey(line), ignored -> new java.util.ArrayList<>()).add(line);
+      grouped
+          .computeIfAbsent(line.gameCode().name(), ignored -> new java.util.ArrayList<>())
+          .add(line);
     }
     return grouped.entrySet().stream()
         .map(
@@ -103,10 +111,4 @@ public class TicketReceiptAssembler {
         line.promotionEffectType());
   }
 
-  private String gameGroupKey(TicketPrintLine line) {
-    if (line.gameCode() == GameCode.HT_MARYAJ_GRATIS) {
-      return GameCode.HT_MARYAJ.name();
-    }
-    return line.gameCode().name();
-  }
 }

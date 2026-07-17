@@ -123,6 +123,7 @@ public class TicketPrintViewMapper {
         line.selection() == null ? null : line.selection().key().value(),
         line.stakeAmount(),
         line.selectionPolicySnapshot(),
+        line.settlementTermsSnapshot(),
         line.origin(),
         line.pricingSource(),
         line.selectionSource(),

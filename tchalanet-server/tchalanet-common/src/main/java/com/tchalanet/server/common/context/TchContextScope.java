@@ -29,6 +29,14 @@ public final class TchContextScope {
     return runWithContextResult(startupTenantContext(tenantId, requestId), work);
   }
 
+  public static void runPlatformSystem(String requestId, Runnable work) {
+    runWithContext(platformSystemContext(requestId), work);
+  }
+
+  public static <T> T runPlatformSystemResult(String requestId, Supplier<T> work) {
+    return runWithContextResult(platformSystemContext(requestId), work);
+  }
+
   public static void runWithTemporaryTenant(UUID tenantId, String requestId, Runnable work) {
     runWithContext(temporaryTenantContext(tenantId, requestId), work);
   }
@@ -64,6 +72,35 @@ public final class TchContextScope {
 
   private static TchRequestContext temporaryTenantContext(UUID tenantId, String requestId) {
     return tenantContext(tenantId, requestId == null ? "temporary-tenant" : requestId);
+  }
+
+  private static TchRequestContext platformSystemContext(String requestId) {
+    return new TchRequestContext(
+        null,
+        null,
+        null,
+        null,
+        null,
+        EnumSet.of(TchRole.SUPER_ADMIN),
+        Set.of(),
+        Locale.getDefault(),
+        requestId == null ? "platform-system" : requestId,
+        "127.0.0.1",
+        null,
+        false,
+        null,
+        "active",
+        ApiScope.PLATFORM,
+        null,
+        null,
+        ZoneId.systemDefault(),
+        Currency.getInstance(CommonConstants.DEFAULT_CURRENCY),
+        null,
+        TchActorType.SYSTEM,
+        null,
+        Set.of(TchRole.SUPER_ADMIN.name()),
+        Set.of(),
+        null);
   }
 
   private static TchRequestContext tenantContext(UUID tenantId, String requestId) {

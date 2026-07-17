@@ -73,7 +73,7 @@ import org.hibernate.envers.NotAudited;
           columnNames = {"tenant_id", "ticket_code"}),
       @UniqueConstraint(
           name = "uk_sales_ticket_public_code",
-          columnNames = {"tenant_id", "public_code"}),
+          columnNames = {"public_code"}),
       @UniqueConstraint(
           name = "uk_sales_ticket_verification_code",
           columnNames = {"tenant_id", "verification_code"})

@@ -2,7 +2,6 @@ package com.tchalanet.server.core.sales.internal.application.command.handler.res
 
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.event.DomainEventPublisher;
-import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.id.EventId;
@@ -25,6 +24,8 @@ import java.time.Clock;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @UseCase
 @RequiredArgsConstructor
@@ -49,7 +50,7 @@ public class ReconcileTicketsForCorrectedDrawResultCommandHandler
   private final Clock clock;
 
   @Override
-  @TchTx
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
   public ReconcileTicketsForCorrectedDrawResultResult handle(
       ReconcileTicketsForCorrectedDrawResultCommand command) {
     var projection =
@@ -142,6 +143,8 @@ public class ReconcileTicketsForCorrectedDrawResultCommandHandler
             ex.toString());
       }
     }
+
+    ticketWriter.flushPending();
 
     AfterCommit.run(
         () -> {

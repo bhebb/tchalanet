@@ -3,6 +3,7 @@ package com.tchalanet.server.platform.tenantgame.internal.service;
 import com.tchalanet.server.catalog.game.api.GameCatalog;
 import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.platform.tenantgame.api.model.DisableTenantGameResult;
 import com.tchalanet.server.platform.tenantgame.api.model.EnableTenantGameResult;
 import com.tchalanet.server.platform.tenantgame.api.model.TenantGameDisabledEvent;
@@ -239,7 +240,12 @@ public class TenantGameAdminService {
                 () ->
                     new IllegalArgumentException(
                         "Tenant game not found: " + request.getGameCode()));
-    var normalized = betOptionConfigs.normalize(gameCode, request.getBetTypes());
+    List<com.tchalanet.server.platform.tenantgame.api.model.TenantBetTypeOptionConfig> normalized;
+    try {
+      normalized = betOptionConfigs.normalize(gameCode, request.getBetTypes());
+    } catch (IllegalArgumentException ex) {
+      throw ProblemRest.badRequest(ex.getMessage());
+    }
     var updated =
         new TenantGame(
             existing.tenantGameId(),

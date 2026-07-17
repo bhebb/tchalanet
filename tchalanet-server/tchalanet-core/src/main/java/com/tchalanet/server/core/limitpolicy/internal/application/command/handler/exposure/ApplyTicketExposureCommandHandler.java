@@ -1,13 +1,14 @@
 package com.tchalanet.server.core.limitpolicy.internal.application.command.handler.exposure;
 
 import com.tchalanet.server.common.bus.VoidCommandHandler;
-import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.limitpolicy.api.command.ApplyTicketExposureCommand;
 import com.tchalanet.server.core.limitpolicy.internal.application.port.out.exposure.ExposureProjectorPort;
 import com.tchalanet.server.platform.idempotence.api.ProcessedEventPort;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @UseCase
 @RequiredArgsConstructor
@@ -20,7 +21,7 @@ public class ApplyTicketExposureCommandHandler
   private final ExposureProjectorPort projector;
 
   @Override
-  @TchTx
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void handle(ApplyTicketExposureCommand c) {
     var e = c.event();
 

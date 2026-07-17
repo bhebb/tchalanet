@@ -56,7 +56,7 @@ public class PdfDocumentRenderer implements DocumentRenderer {
             toReceiptModel(
                 null,
                 new ReceiptDocumentContent(
-                    List.of(), List.of(), List.of(), List.of(), receipt.postQrLines())),
+                    List.of(), List.of(), List.of(), receipt.postQrLines(), List.of())),
             request.options().paperSizeOrDefault());
 
     return RenderedDocument.of(bytes, DocumentFormat.PDF, fileName(request, "pdf"));

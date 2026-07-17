@@ -23,6 +23,7 @@ from dataclasses import dataclass
 from decimal import Decimal, ROUND_HALF_UP
 from typing import Any, Literal
 
+import httpx
 import pytest
 
 from tch_e2e.api_response import assert_ok
@@ -40,7 +41,7 @@ from tch_e2e.business_day import (
     ticket_basket,
     ticket_scenario,
 )
-from tch_e2e.client import ApiClient
+from tch_e2e.client import ApiClient, _resolve_verify
 
 pytestmark = [pytest.mark.L2, pytest.mark.full_flow, pytest.mark.slow]
 
@@ -96,6 +97,7 @@ class ExpectedTenantTotals:
 class WinningTicketProbe:
     ticket_id: str
     expected_winnings: Decimal
+    scenario_key: str
 
 
 @dataclass(frozen=True)
@@ -252,6 +254,15 @@ def _decimal(value: Any) -> Decimal:
     if isinstance(value, dict):
         value = value.get("amount") or value.get("value")
     return Decimal(str(value or "0")).quantize(Decimal("0.01"))
+
+
+def _currency(value: Any) -> str | None:
+    if isinstance(value, dict):
+        if "currency" in value:
+            return _currency(value["currency"])
+        if "value" in value:
+            return _currency(value["value"])
+    return str(value) if value is not None else None
 
 
 def _provision_tenant(
@@ -705,7 +716,29 @@ def _ticket_count(client: ApiClient, draw: dict[str, Any]) -> int:
 
 
 def _ticket_details(client: ApiClient, ticket_id: str) -> dict[str, Any]:
+    response = client.get(f"/tenant/cashier/tickets/{ticket_id}", headers=_rid())
+    assert_ok(response)
+    return _data(response) or {}
+
+
+def _admin_ticket_details(client: ApiClient, ticket_id: str) -> dict[str, Any]:
     response = client.get(f"/tenant/tickets/{ticket_id}", headers=_rid())
+    assert_ok(response)
+    return _data(response) or {}
+
+
+def _public_verify_ticket(client: ApiClient, public_code: str) -> dict[str, Any]:
+    headers = _rid()
+    host_header = os.environ.get("TCH_E2E_HOST_HEADER", "").strip()
+    if host_header:
+        headers["Host"] = host_header
+    response = httpx.post(
+        f"{client.base_url.rstrip('/')}/public/tickets/verify",
+        json={"publicCode": public_code},
+        headers=headers,
+        timeout=client.timeout,
+        verify=_resolve_verify(),
+    )
     assert_ok(response)
     return _data(response) or {}
 
@@ -888,7 +921,69 @@ def _send_ticket_to_slack(seller: SellerRuntime, ticket_id: str) -> dict[str, An
     return _data(response) or {}
 
 
+def _dispatch_due_communications(super_admin_client: ApiClient) -> int:
+    response = super_admin_client.post("/platform/ops/communication/dispatch-due", headers=_rid())
+    assert_ok(response)
+    data = _data(response) or {}
+    return int(data.get("dispatched") or 0)
+
+
+def _assert_ticket_slack_delivery_sent(
+    super_admin_client: ApiClient,
+    runtime: TenantRuntime,
+    ticket_id: str,
+) -> None:
+    channel_key = os.environ.get("TCH_TEST_SLACK_CHANNEL_KEY", "delivery").strip() or "delivery"
+    correlation_key = f"{ticket_id}:slack_internal:{channel_key}".lower()
+    deadline = time.monotonic() + _env_int("TCH_E2E_TICKET_SLACK_TIMEOUT_SECONDS", 45)
+    last_match: dict[str, Any] | None = None
+    last_summary: dict[str, Any] | None = None
+
+    while time.monotonic() < deadline:
+        _dispatch_due_communications(super_admin_client)
+        response = super_admin_client.get(
+            "/platform/ops/communication/messages",
+            params={
+                "tenantId": runtime.tenant_id,
+                "channel": "SLACK_INTERNAL",
+                "recipient": channel_key,
+                "page": 0,
+                "size": 50,
+            },
+            headers=_rid(),
+        )
+        assert_ok(response)
+        data = _data(response) or {}
+        if isinstance(data, dict):
+            last_summary = data.get("summary")
+            messages_page = data.get("messages") or {}
+        else:
+            messages_page = {}
+        for message in _items(messages_page):
+            if str(message.get("correlationKey") or "").lower() != correlation_key:
+                continue
+            last_match = message
+            attempts = message.get("attempts") or []
+            if message.get("status") == "SENT" and any(
+                attempt.get("status") == "SENT" and attempt.get("provider") == "edge"
+                for attempt in attempts
+            ):
+                return
+            if message.get("status") in {"FAILED", "SKIPPED", "CANCELLED"}:
+                raise AssertionError(
+                    f"{runtime.code}: Slack delivery ended as {message.get('status')} "
+                    f"for ticket={ticket_id}: {message}"
+                )
+        time.sleep(0.5)
+
+    raise AssertionError(
+        f"{runtime.code}: Slack delivery did not reach SENT for ticket={ticket_id}; "
+        f"lastMatch={last_match} summary={last_summary}"
+    )
+
+
 def _maybe_print_and_deliver_ticket(
+    super_admin_client: ApiClient,
     runtime: TenantRuntime,
     seller: SellerRuntime,
     ticket_id: str,
@@ -907,6 +1002,7 @@ def _maybe_print_and_deliver_ticket(
     if slack_mode == "all" or (slack_mode == "sample" and should_sample):
         sent = _send_ticket_to_slack(seller, ticket_id)
         assert sent is not None, f"ticket Slack delivery should return data for {ticket_id}"
+        _assert_ticket_slack_delivery_sent(super_admin_client, runtime, ticket_id)
 
     if should_sample and (print_mode == "sample" or slack_mode == "sample"):
         printed_or_sent.add(sample_key)
@@ -1269,6 +1365,93 @@ def _assert_paid_amount_adjustment_only_changes_paid_reports(
     )
 
 
+def _assert_winning_ticket_can_be_verified(runtime: TenantRuntime, probes: list[WinningTicketProbe]) -> None:
+    if not probes:
+        return
+    probe = next((item for item in probes if not item.scenario_key.startswith("maryaj-")), probes[0])
+    details = _ticket_details(runtime.sellers[0].client, probe.ticket_id)
+    assert _id(details.get("id")) == probe.ticket_id
+    assert details.get("publicCode"), f"{runtime.code}: winning ticket detail should expose publicCode"
+    assert details.get("lines"), f"{runtime.code}: winning ticket detail should expose sold lines"
+
+    public_data: dict[str, Any] = {}
+    deadline = time.monotonic() + _env_int("TCH_E2E_WINNING_TICKET_VERIFY_TIMEOUT_SECONDS", 20)
+    data: dict[str, Any] = {}
+    while time.monotonic() < deadline:
+        verified = runtime.sellers[0].client.post(
+            "/tenant/cashier/tickets/verify",
+            json={"scannedValue": details["publicCode"]},
+            headers=_rid(),
+        )
+        assert_ok(verified)
+        data = _data(verified) or {}
+        public_data = _public_verify_ticket(runtime.admin, details["publicCode"])
+        if data.get("status") in {"PAYABLE", "ALREADY_PAID"} and public_data.get("status") in {
+            "WON_CLAIMABLE",
+            "WON_PAID",
+        }:
+            break
+        time.sleep(0.5)
+    else:
+        latest_details = _ticket_details(runtime.sellers[0].client, probe.ticket_id)
+        raise AssertionError(
+            f"{runtime.code}: winning ticket should verify as payable/paid after result apply; "
+            f"ticket={probe.ticket_id} publicCode={details['publicCode']} "
+            f"lastCashierVerify={data} lastPublicVerify={public_data} latestDetails={latest_details}"
+        )
+    params = data.get("params") or {}
+    assert _decimal(params.get("amount")) == probe.expected_winnings, (
+        f"{runtime.code}: winning ticket verify amount mismatch; "
+        f"ticket={probe.ticket_id} expected={probe.expected_winnings} response={data}"
+    )
+    assert params.get("currency") == "HTG"
+    assert _decimal(public_data.get("winningAmount")) == probe.expected_winnings, (
+        f"{runtime.code}: public winning ticket verify amount mismatch; "
+        f"ticket={probe.ticket_id} expected={probe.expected_winnings} response={public_data}"
+    )
+    assert _currency(public_data.get("winningAmount")) == "HTG"
+
+
+def _assert_winning_ticket_before_apply(runtime: TenantRuntime, probes: list[WinningTicketProbe]) -> None:
+    if not probes:
+        return
+    probe = next((item for item in probes if not item.scenario_key.startswith("maryaj-")), probes[0])
+
+    cashier_details = _ticket_details(runtime.sellers[0].client, probe.ticket_id)
+    admin_details = _admin_ticket_details(runtime.admin, probe.ticket_id)
+    assert _id(cashier_details.get("id")) == probe.ticket_id
+    assert _id(admin_details.get("id")) == probe.ticket_id
+    assert cashier_details.get("status") == "APPROVED"
+    if admin_details.get("resultStatus") is not None:
+        assert admin_details["resultStatus"] == "NOT_RESULTED"
+    if admin_details.get("settlementStatus") is not None:
+        assert admin_details["settlementStatus"] == "NOT_SETTLED"
+    assert cashier_details.get("publicCode"), f"{runtime.code}: pre-apply detail should expose publicCode"
+
+    cashier_verified = runtime.sellers[0].client.post(
+        "/tenant/cashier/tickets/verify",
+        json={"scannedValue": cashier_details["publicCode"]},
+        headers=_rid(),
+    )
+    assert_ok(cashier_verified)
+    data = _data(cashier_verified) or {}
+    assert data.get("status") in {"NOT_PAYABLE_PENDING_DRAW", "NOT_PAYABLE_RESULT_PENDING"}, (
+        f"{runtime.code}: pre-apply winning candidate should not be payable yet; "
+        f"ticket={probe.ticket_id} response={data} cashierDetails={cashier_details} "
+        f"adminDetails={admin_details}"
+    )
+    params = data.get("params") or {}
+    assert _decimal(params.get("amount")) == Decimal("0.00")
+    assert params.get("ticketStatus") == "AWAITING_RESULT"
+
+    public_data = _public_verify_ticket(runtime.admin, cashier_details["publicCode"])
+    assert public_data.get("status") == "AWAITING_RESULT", (
+        f"{runtime.code}: public pre-apply verification should await result; "
+        f"ticket={probe.ticket_id} response={public_data}"
+    )
+    assert public_data.get("winningAmount") is None
+
+
 def _apply_or_wait_for_scheduler(
     sa: ApiClient,
     runtime: TenantRuntime,
@@ -1423,7 +1606,11 @@ def test_business_day_happy_path_supports_reports_results_and_future_locust(
                         )
                         if winnings > Decimal("0.00"):
                             winning_probes.append(
-                                WinningTicketProbe(ticket_id=ticket_id, expected_winnings=winnings)
+                                WinningTicketProbe(
+                                    ticket_id=ticket_id,
+                                    expected_winnings=winnings,
+                                    scenario_key=scenario.key,
+                                )
                             )
                         expected.tickets += 1
                         expected.gross_sales += total
@@ -1443,6 +1630,7 @@ def test_business_day_happy_path_supports_reports_results_and_future_locust(
                             total * Decimal(seller.plan.commission_rate) / Decimal("100")
                         ).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
                         _maybe_print_and_deliver_ticket(
+                            super_admin_client,
                             runtime,
                             seller,
                             ticket_id,
@@ -1458,6 +1646,7 @@ def test_business_day_happy_path_supports_reports_results_and_future_locust(
 
         _assert_exposure_limit_blocks(runtime, draws[0])
 
+        _assert_winning_ticket_before_apply(runtime, winning_probes)
         timing = _apply_or_wait_for_scheduler(super_admin_client, runtime, start, draws, expected, result)
         assert timing.manual_record_seconds <= _env_int("TCH_E2E_MANUAL_RESULT_MAX_SECONDS", 10)
         if timing.apply_launch_seconds is not None:
@@ -1469,6 +1658,7 @@ def test_business_day_happy_path_supports_reports_results_and_future_locust(
                 ("TCH_E2E_RESULT_REPORT_MAX_SECONDS", "TCH_E2E_RESULT_SETTLE_MAX_SECONDS"),
                 20,
             )
+        _assert_winning_ticket_can_be_verified(runtime, winning_probes)
         _assert_paid_amount_adjustment_only_changes_paid_reports(
             super_admin_client, runtime, start, draws, winning_probes
         )

@@ -359,7 +359,7 @@ BatchFailedEvent(alertKey=batch.failed)
 
 Errors remain `ProblemDetail` and are not wrapped.
 
-Communication failures during async delivery are stored in `outbound_message` and `message_delivery_attempt`; they are not returned as HTTP notices unless the request was a `sendNow`/test endpoint.
+Communication failures during async delivery are stored in `outbound_message` and `message_delivery_attempt`; they are not returned as HTTP notices unless the request was a `sendNow`/test endpoint. When a provider returns a delivery identifier, it is persisted as `message_delivery_attempt.provider_message_id` for ops/provider reconciliation.
 
 ## Idempotency
 
