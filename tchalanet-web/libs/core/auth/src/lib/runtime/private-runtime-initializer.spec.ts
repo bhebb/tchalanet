@@ -67,7 +67,7 @@ describe('PrivateRuntimeInitializer', () => {
     expect(bootstrapStore.setBootstrap).toHaveBeenCalled();
   });
 
-  it('merges portal URLs from private bootstrap into runtime config', () => {
+  it('keeps runtime portal URLs ahead of private bootstrap fallbacks', () => {
     const runtimeConfig = TestBed.inject(TchRuntimeConfigStore);
     runtimeConfig.setConfig({
       appId: 'platform-portal',
@@ -76,8 +76,8 @@ describe('PrivateRuntimeInitializer', () => {
       authBaseUrl: '/auth',
       assetsBaseUrl: '/assets',
       portalBaseUrls: {
-        'admin-portal': '/admin',
-        'platform-portal': '/platform',
+        'admin-portal': 'http://localhost:4302',
+        'platform-portal': 'http://localhost:4303',
       },
       enableSandbox: false,
       firebaseAuthEmulatorUrl: null,
@@ -94,8 +94,8 @@ describe('PrivateRuntimeInitializer', () => {
       ...bootstrapWithoutRuntimeBlocks(),
       portalConfig: {
         portalBaseUrls: {
-          'admin-portal': 'http://localhost:4302',
-          'platform-portal': 'http://localhost:4202',
+          'admin-portal': '/admin',
+          'platform-portal': '/platform',
         },
       },
     }));
@@ -104,7 +104,7 @@ describe('PrivateRuntimeInitializer', () => {
 
     expect(runtimeConfig.config().portalBaseUrls).toEqual({
       'admin-portal': 'http://localhost:4302',
-      'platform-portal': 'http://localhost:4202',
+      'platform-portal': 'http://localhost:4303',
     });
   });
 });

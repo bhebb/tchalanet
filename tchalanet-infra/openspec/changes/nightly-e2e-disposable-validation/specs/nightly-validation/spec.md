@@ -33,3 +33,21 @@ Load testing SHALL remain an explicit workflow choice and SHALL not run as part 
 - **WHEN** Full Validation is manually dispatched with `run_perf=true`
 - **THEN** it runs Locust after successful server E2E
 - **AND** it uploads Locust artifacts for inspection.
+
+### Requirement: Web E2E Receives Disposable Runtime Coordinates
+
+The Full Validation workflow SHALL pass runtime coordinates from the deployment job to browser E2E instead of relying on static or pre-known base paths.
+
+#### Scenario: Disposable runtime is deployed before web E2E
+
+- **WHEN** the runtime deployment job completes successfully
+- **THEN** it exposes the API base URL and Firebase emulator coordinates as job outputs
+- **AND** it configures API CORS for the Playwright localhost portal origins
+- **AND** the web E2E job uses those outputs to generate the portal runtime JSON files before starting Playwright
+- **AND** the web E2E suite runs with REST stubs disabled.
+
+#### Scenario: Runtime deployment is skipped for a web-only run
+
+- **WHEN** no disposable runtime coordinates are available
+- **THEN** web E2E falls back to the self-contained Firebase-emulator plus REST-stub harness
+- **AND** it does not assume staging or run-specific API URLs.

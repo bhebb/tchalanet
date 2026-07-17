@@ -3,7 +3,7 @@ server:
 app:
   cors:
     allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:*,https://app.localtest.me}
-  apiBaseUrl: ${APP_API_BASEURL:http://localhost:8083}
+  api-base-url: ${APP_API_BASEURL:http://localhost:8083}
   security:
     required-audience: ""
 # Feature flag to disable scheduled tasks inside the app even if @EnableScheduling is present

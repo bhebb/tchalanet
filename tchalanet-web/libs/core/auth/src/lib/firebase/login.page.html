@@ -96,6 +96,7 @@
               spellcheck="false"
               enterkeyhint="next"
               required
+              data-testid="login-identifier"
               [placeholder]="'auth.login.form.identifierPlaceholder' | translate"
               [(ngModel)]="identifier"
             />
@@ -117,6 +118,7 @@
               autocomplete="current-password"
               enterkeyhint="done"
               required
+              data-testid="login-password"
               [(ngModel)]="password"
             />
             <button
@@ -142,7 +144,7 @@
           </div>
 
           @if (errorKey(); as error) {
-          <p class="login-card__error" role="alert">
+          <p class="login-card__error" role="alert" data-testid="login-error">
             <mat-icon aria-hidden="true">error</mat-icon>
             <span>{{ error | translate }}</span>
           </p>
@@ -153,7 +155,12 @@
           </p>
           }
 
-          <button class="login-submit" type="submit" [disabled]="loading() || loginForm.invalid">
+          <button
+            class="login-submit"
+            type="submit"
+            data-testid="login-submit"
+            [disabled]="loading() || loginForm.invalid"
+          >
             @if (loading()) {
             <span class="material-symbols-outlined login-card__spinner" aria-hidden="true">
               progress_activity

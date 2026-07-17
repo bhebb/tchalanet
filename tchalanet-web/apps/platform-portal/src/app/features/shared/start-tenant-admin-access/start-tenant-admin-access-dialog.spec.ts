@@ -84,7 +84,7 @@ describe(StartTenantAdminAccessDialog.name, () => {
       handoffId: 'handoff-1',
       code: 'secret',
       targetPortal: 'ADMIN',
-      targetUrl: 'https://admin.stg.tchalanet.com',
+      targetUrl: '/admin',
       entryRoute: '/app/admin',
       expiresAt: '2026-07-12T10:05:00Z',
     }));

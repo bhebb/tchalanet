@@ -14,6 +14,7 @@ import { TranslatePipe } from '@ngx-translate/core';
     <button
       type="button"
       class="user-menu__trigger"
+      data-testid="user-menu-trigger"
       [matMenuTriggerFor]="menu"
       [attr.aria-label]="name() || ('nav.profile' | translate)"
     >
@@ -36,7 +37,7 @@ import { TranslatePipe } from '@ngx-translate/core';
         <span class="material-symbols-outlined" aria-hidden="true">settings</span>
         {{ 'nav.settings' | translate }}
       </button>
-      <button mat-menu-item type="button" (click)="logout.emit()">
+      <button mat-menu-item type="button" data-testid="user-menu-logout" (click)="logout.emit()">
         <span class="material-symbols-outlined" aria-hidden="true">logout</span>
         {{ 'auth.logout' | translate }}
       </button>

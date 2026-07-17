@@ -80,8 +80,8 @@ export class PrivateRuntimeInitializer {
     this.runtimeConfig.setConfig({
       ...current,
       portalBaseUrls: {
-        ...(current.portalBaseUrls ?? {}),
         ...portalBaseUrls,
+        ...(current.portalBaseUrls ?? {}),
       },
     });
   }

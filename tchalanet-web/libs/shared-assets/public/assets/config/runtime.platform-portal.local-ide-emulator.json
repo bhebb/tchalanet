@@ -7,7 +7,7 @@
   "firebaseAuthEmulatorUrl": "http://localhost:9099",
   "portalBaseUrls": {
     "admin-portal": "http://localhost:4302",
-    "platform-portal": "http://localhost:4202"
+    "platform-portal": "http://localhost:4303"
   },
   "enableSandbox": true
 }

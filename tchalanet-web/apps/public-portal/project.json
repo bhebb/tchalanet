@@ -57,6 +57,28 @@
           "optimization": false,
           "extractLicenses": false,
           "sourceMap": true
+        },
+        "emulator": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true,
+          "fileReplacements": [
+            {
+              "replace": "apps/public-portal/src/environments/environment.ts",
+              "with": "apps/public-portal/src/environments/environment.emulator.ts"
+            }
+          ]
+        },
+        "e2e-api": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": false,
+          "fileReplacements": [
+            {
+              "replace": "apps/public-portal/src/environments/environment.ts",
+              "with": "apps/public-portal/src/environments/environment.e2e-api.ts"
+            }
+          ]
         }
       }
     },
@@ -73,6 +95,12 @@
         },
         "development": {
           "buildTarget": "public-portal:build:development"
+        },
+        "emulator": {
+          "buildTarget": "public-portal:build:emulator"
+        },
+        "e2e-api": {
+          "buildTarget": "public-portal:build:e2e-api"
         }
       }
     },
