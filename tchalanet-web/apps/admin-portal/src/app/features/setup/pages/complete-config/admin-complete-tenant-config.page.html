@@ -22,9 +22,10 @@
       [complete]="setup()?.status === 'COMPLETE'"
     />
 
-    <div class="setup__grid">
+    <div class="setup__grid" data-testid="admin-setup-checklist">
       @for (card of setupCards(); track card.id) {
         <tch-setup-checklist-card
+          [attr.data-testid]="'admin-setup-card-' + card.id"
           [icon]="card.icon"
           [titleKey]="card.titleKey"
           [status]="card.status"

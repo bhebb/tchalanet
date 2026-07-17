@@ -52,13 +52,13 @@ Everything self-contained; **no backend API** (REST is stubbed):
 
 ```bash
 make up-firebase-emulator                       # infra, Docker, :9099
-WEB_E2E_EMULATOR=1 \
-  TCH_E2E_SUPERADMIN_EMAIL=super_admin@e2e.local TCH_E2E_SUPERADMIN_PASSWORD=e2e-password-123 \
-  TCH_E2E_ADMIN_EMAIL=admin@e2e.local TCH_E2E_ADMIN_PASSWORD=e2e-password-123 \
-  TCH_E2E_TENANT_ID=stub-tenant-1 TCH_E2E_SELLER_TERMINAL_ID=stub-terminal-1 \
-  pnpm exec nx e2e web-e2e
+pnpm e2e:web
 make down-firebase-emulator
 ```
+
+`pnpm e2e:web` sets the default local emulator credentials and seeded ids for
+the stubbed suite. Override any `TCH_E2E_*` variable inline when a scenario needs
+different data.
 
 - `WEB_E2E_EMULATOR=1` → portals serve with their **`emulator`** configuration
   (`environment.emulator.ts` → `connectAuthEmulator(:9099)`, project
@@ -74,6 +74,10 @@ make down-firebase-emulator
   for load (Locust) only.
 - Phase 3 also covers username lookup, public → private portal handoff, logout,
   and the support-tenant → admin support mode → return-platform round trip.
+- Admin business V1 (`src/admin-portal/business-admin-v1.spec.ts`) covers the
+  current admin web UI contract for setup, Maryaj gratis, tenant limits, and
+  seller reports. Keep new admin scenarios in that file unless a new feature area
+  genuinely needs its own spec.
 
 CI can still run this self-contained variant when no disposable API was
 deployed. In the full validation workflow, a successful runtime deploy switches
@@ -99,11 +103,9 @@ cd ../tchalanet-web
 pnpm runtime:dev-docker-emulator
 
 # 3. Browser E2E against the real Docker API.
-WEB_E2E_API=1 \
-  TCH_FIREBASE_EMULATOR_HOST=127.0.0.1:9099 \
-  TCH_E2E_SUPERADMIN_EMAIL=super_admin@localtest.me TCH_E2E_SUPERADMIN_PASSWORD=Changeme1! \
+TCH_E2E_SUPERADMIN_EMAIL=super_admin@localtest.me TCH_E2E_SUPERADMIN_PASSWORD=Changeme1! \
   TCH_E2E_ADMIN_EMAIL=admin@localtest.me TCH_E2E_ADMIN_PASSWORD=Changeme1! \
-  pnpm exec nx e2e web-e2e
+  pnpm e2e:web:api
 ```
 
 What this mode does:
@@ -114,6 +116,9 @@ What this mode does:
 - `pnpm runtime:dev-docker-emulator` copies runtime files whose `apiBaseUrl` is
   `https://api.localtest.me/api/v1`.
 - `apiStub` is a no-op, so an unmocked API problem fails against the real API.
+- `business-admin-v1.spec.ts` is skipped in this mode until the disposable API
+  seed exposes deterministic setup/Maryaj/limits/report fixtures. Backend
+  business correctness remains covered by the Python E2E suite.
 - `global-setup.ts` verifies the seed users can sign in; it does not create them.
   Creating them from Playwright would generate emulator UIDs that are not linked
   to `app_user_external_identity`.
@@ -194,6 +199,25 @@ pass the resulting IDs through env. For deployed portal integration, point
 `PUBLIC_BASE_URL`, `ADMIN_BASE_URL`, and `PLATFORM_BASE_URL` at the deployed
 origins with `WEB_E2E_EXTERNAL=1`.
 
+Portal serving shortcuts live at the workspace root:
+
+```bash
+pnpm serve:portals                  # local-ide
+pnpm serve:portals:emulator         # local-ide-emulator
+pnpm serve:portals:docker           # dev-docker
+pnpm serve:portals:docker-emulator  # dev-docker-emulator
+pnpm serve:portals:stg              # stg-cloudflare
+pnpm serve:portals:prod             # prod-cloudflare
+```
+
+Use `--only` when you do not need every portal:
+
+```bash
+pnpm serve:admin
+pnpm serve:admin:docker-emulator
+pnpm serve:portals -- --only=admin,platform
+```
+
 ## Environment (Phase 1 — auth)
 
 Login runs through the real UI form; credentials and seeded ids come from env so
@@ -213,13 +237,16 @@ tests **skip** when not configured (they never hard-fail on a missing fixture):
 | Phase 1 | Public shell, login page, invalid credentials, admin/platform login dispatch, guards, tenant/seller-terminal context URLs |
 | Phase 2 | Platform support-tenant screen and start-access dialog opening |
 | Phase 3 | Email and username login, public handoff to platform, logout, support access round trip with visible tenant support banner and return |
+| Admin business V1 | Setup checklist, Maryaj gratis panels/save request, limits invalid-edit guard, seller report rows/CSV/PDF print root |
 
 ## Run
 
 ```bash
-pnpm exec nx e2e web-e2e                      # all projects
-pnpm exec nx e2e web-e2e --project=admin-portal
-pnpm exec nx e2e web-e2e -- src/**/auth-phase1.spec.ts
+pnpm e2e:web                                 # all projects, emulator + REST stubs
+pnpm e2e:web:admin                           # admin project only
+pnpm e2e:web:admin-business                  # admin setup/Maryaj/limits/report scenario
+pnpm e2e:web -- src/**/auth-phase1.spec.ts
+pnpm e2e:web:api                             # Docker API mode, no Playwright REST stubs
 ```
 
 > Status: the suite is wired into `full-validation.yml` as non-blocking while it

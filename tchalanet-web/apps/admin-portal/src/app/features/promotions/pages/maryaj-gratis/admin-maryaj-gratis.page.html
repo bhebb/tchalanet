@@ -16,7 +16,7 @@
   } @else {
     <tch-admin-detail-layout class="maryaj-page__layout">
       <div main>
-        <div class="maryaj-page__stack">
+        <div class="maryaj-page__stack" data-testid="admin-maryaj-gratis-page">
           <tch-maryaj-game-settings-panel
             [game]="store.maryajGame()"
             (configure)="openGameSettings($event)"

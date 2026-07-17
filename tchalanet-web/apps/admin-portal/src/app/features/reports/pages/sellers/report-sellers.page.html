@@ -22,11 +22,11 @@
               <mat-icon aria-hidden="true">arrow_back</mat-icon>
               {{ 'admin.reports.common.overview' | translate }}
             </a>
-            <button type="button" mat-button (click)="exportPdf()">
+            <button type="button" mat-button data-testid="seller-report-export-pdf" (click)="exportPdf()">
               <mat-icon aria-hidden="true">print</mat-icon>
               {{ 'admin.reports.sellers.action.exportPdf' | translate }}
             </button>
-            <button type="button" mat-button (click)="exportCsv(vm)">
+            <button type="button" mat-button data-testid="seller-report-export-csv" (click)="exportCsv(vm)">
               <mat-icon aria-hidden="true">download</mat-icon>
               {{ 'admin.reports.sellers.action.exportCsv' | translate }}
             </button>

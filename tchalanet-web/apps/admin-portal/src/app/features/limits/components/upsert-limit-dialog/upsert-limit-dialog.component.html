@@ -8,7 +8,7 @@
   @if (mode() === 'add') {
     <mat-form-field appearance="outline" class="upsert-limit-dialog__rule-picker">
       <mat-label>Type de limite</mat-label>
-      <mat-select (selectionChange)="onRuleSelected($event.value)">
+      <mat-select data-testid="limit-rule-select" (selectionChange)="onRuleSelected($event.value)">
         @for (rule of availableRules(); track rule.ruleKey) {
           <mat-option [value]="rule.ruleKey">{{ rule.label || rule.ruleKey }}</mat-option>
         }
@@ -95,6 +95,7 @@
               </mat-chip>
             }
             <input
+              data-testid="limit-selection-input"
               placeholder="Ex : 13, appuyez Entrée"
               [matChipInputFor]="chipGrid"
               [matChipInputSeparatorKeyCodes]="separatorKeyCodes"
@@ -102,10 +103,12 @@
             />
           </mat-chip-grid>
           <mat-hint>Entrez un numéro puis appuyez sur Entrée ou virgule.</mat-hint>
-          @if (selections().length === 0) {
-            <mat-error>Ajoutez au moins un numéro.</mat-error>
-          }
         </mat-form-field>
+        @if (selections().length === 0) {
+          <p class="upsert-limit-dialog__field-error" data-testid="limit-selection-required">
+            Ajoutez au moins un numéro.
+          </p>
+        }
       }
 
       <mat-checkbox formControlName="enabled">Règle active</mat-checkbox>
@@ -149,6 +152,7 @@
   <button
     mat-flat-button
     color="primary"
+    data-testid="limit-save"
     [disabled]="!canSave()"
     (click)="save()">
     {{ saving() ? 'Enregistrement…' : 'Enregistrer' }}

@@ -20,14 +20,42 @@ pnpm install
 ### Démarrer les applications
 
 ```bash
-pnpm runtime:local-ide
-pnpm nx run public-portal:serve --port=4301
-pnpm nx run admin-portal:serve --port=4302
-pnpm nx run platform-portal:serve --port=4303
+pnpm serve:portals
+```
+
+URLs locales:
+
+- Public: http://localhost:4301
+- Admin: http://localhost:4302
+- Platform: http://localhost:4303
+
+Variantes:
+
+```bash
+pnpm serve:portals:emulator
+pnpm serve:portals:docker
+pnpm serve:portals:docker-emulator
+pnpm serve:portals:stg
+pnpm serve:portals:prod
 ```
 
 Chaque app peut aussi être lancée seule via `pnpm serve:public-portal`,
-`pnpm serve:admin-portal` ou `pnpm serve:platform-portal`.
+`pnpm serve:admin-portal` ou `pnpm serve:platform-portal`, mais les raccourcis
+recommandés gardent les ports standards:
+
+```bash
+pnpm serve:public
+pnpm serve:admin
+pnpm serve:platform
+pnpm serve:admin:docker-emulator
+```
+
+Pour lancer seulement un sous-ensemble:
+
+```bash
+pnpm serve:portals -- --only=admin,platform
+pnpm serve:portals:docker-emulator -- --only=admin
+```
 
 ### Lancer les tests unitaires
 
@@ -38,11 +66,20 @@ pnpm test
 ### Lancer les tests end-to-end
 
 ```bash
-pnpm nx e2e web-e2e
+make -C ../tchalanet-infra up-firebase-emulator
+pnpm e2e:web
 ```
 
 `web-e2e` est le projet Playwright unique. Les tests sont rangés par surface sous
 `apps/web-e2e/src/{public-portal,admin-portal,platform-portal}`.
+
+Raccourcis utiles:
+
+```bash
+pnpm e2e:web:admin
+pnpm e2e:web:admin-business
+pnpm e2e:web:api
+```
 
 ---
 

@@ -103,6 +103,243 @@ const defaultSupportAccessSession = {
   sensitiveDataMasked: false,
 } satisfies SupportAccessSessionStub;
 
+const adminOverviewStub = {
+  header: {
+    tenantId: 'stub-tenant',
+    tenantCode: 'STUB',
+    tenantName: 'Stub Tenant',
+    timezone: 'America/Port-au-Prince',
+    currency: 'HTG',
+    tenantType: 'LOTTERY',
+    tenantStatus: 'ACTIVE',
+    address: {
+      line1: '12 Rue Test',
+      city: 'Port-au-Prince',
+      region: 'Ouest',
+      country: 'HT',
+      postalCode: null,
+    },
+  },
+  status: 'PARTIAL',
+  missingCount: 2,
+  sections: [
+    { id: 'identity', labelKey: 'admin.setup.section.identity', status: 'READY', route: '/app/admin/business-profile', issues: [] },
+    { id: 'address', labelKey: 'admin.setup.section.address', status: 'READY', route: '/app/admin/business-profile', issues: [] },
+    { id: 'settings', labelKey: 'admin.setup.section.settings', status: 'READY', route: '/app/admin/general', issues: [] },
+    { id: 'games_pricing', labelKey: 'admin.setup.section.games', status: 'READY', route: '/app/admin/games', issues: [] },
+    { id: 'draws', labelKey: 'admin.setup.section.draws', status: 'MISSING', route: '/app/admin/draw-channels', issues: [] },
+    { id: 'generated_draws', labelKey: 'admin.setup.section.generatedDraws', status: 'MISSING', route: '/app/admin/draws', issues: [] },
+    { id: 'theme', labelKey: 'admin.setup.section.theme', status: 'UNKNOWN', route: '/app/admin/appearance', issues: [] },
+  ],
+  setup: {
+    totalSteps: 5,
+    completedSteps: 3,
+    status: 'INCOMPLETE',
+    canCreateSellerTerminal: false,
+    blockingSteps: ['draws', 'generated_draws'],
+    nextRecommendedStep: 'draws',
+  },
+};
+
+const tenantConfigStub = {
+  rules: { promotions: { maryajGratisEnabled: true } },
+  document: {
+    receipt: {
+      enabled: true,
+      headerMessage: 'Lotto officiel - Bonne chance',
+      footerMessage: 'Merci de votre confiance',
+      showQrCode: true,
+    },
+  },
+  locale: {
+    supportedLanguages: ['ht', 'fr', 'en'],
+    fallbackLanguage: 'ht',
+  },
+};
+
+const subscriptionStub = {
+  tenantId: 'stub-tenant',
+  planCode: 'HAITI_LOTTERY',
+  status: 'ACTIVE',
+  startedAt: '2026-07-01T00:00:00Z',
+  endsAt: null,
+  version: 1,
+  updatedAt: '2026-07-17T00:00:00Z',
+};
+
+const gamesPricingStub = {
+  games: [
+    {
+      gameCode: 'HT_MARYAJ_GRATIS',
+      tenantGameId: { value: 'game-maryaj-gratis' },
+      catalogName: 'Maryaj gratis',
+      displayName: 'Maryaj gratis',
+      enabled: true,
+      visibleInPos: true,
+      minStake: 1,
+      maxStake: 1,
+      limits: {
+        configured: true,
+        assignments: [
+          { ruleKey: 'MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW', params: { valueCents: 500000 } },
+        ],
+      },
+      pricing: {
+        configured: true,
+        entries: [
+          {
+            betType: 'MARRIAGE',
+            betOption: null,
+            pricingVariantCode: 'MARRIAGE_EXACT_ORDER',
+            odds: 800,
+            payoutRuleType: 'STAKE_MULTIPLIER',
+            fixedAmount: null,
+          },
+          {
+            betType: 'MARRIAGE',
+            betOption: null,
+            pricingVariantCode: 'MARRIAGE_REVERSE_ALLOWED',
+            odds: 400,
+            payoutRuleType: 'STAKE_MULTIPLIER',
+            fixedAmount: null,
+          },
+        ],
+      },
+    },
+  ],
+};
+
+const maryajCampaignStub = {
+  id: { value: 'campaign-maryaj-gratis' },
+  code: 'DEFAULT_MARYAJ_GRATIS',
+  name: 'Maryaj gratis',
+  status: 'ACTIVE',
+  priority: 100,
+  startsAt: '2026-07-01T00:00:00Z',
+  endsAt: '2036-07-01T23:59:59Z',
+  rules: [
+    {
+      id: { value: 'rule-maryaj-gratis' },
+      ruleKey: 'maryaj-gratis-default',
+      priority: 100,
+      eligibility: [],
+      effects: [
+        {
+          type: 'FREE_GAME_LINE',
+          params: {
+            gameCode: 'HT_MARYAJ_GRATIS',
+            payoutBaseAmount: 50,
+            quantityMode: 'TIERED_PAID_AMOUNT',
+            quantity: 1,
+            quantityTiers: [
+              { minPaidAmount: 100, maxPaidAmount: 199, quantity: 1 },
+              { minPaidAmount: 200, maxPaidAmount: 499, quantity: 2 },
+              { minPaidAmount: 500, maxPaidAmount: null, quantity: 3 },
+            ],
+            maxQuantity: 3,
+            choiceMode: 'AUTO_GENERATE',
+            generationStrategy: 'RANDOM',
+            regenerableBeforeConfirm: true,
+            maxRegenerationsBeforeConfirm: 3,
+          },
+        },
+      ],
+    },
+  ],
+};
+
+const limitRulesStub = [
+  {
+    ruleKey: 'MAX_STAKE_PER_TICKET',
+    label: 'Mise maximum par ticket',
+    description: 'Bloque un ticket au-dessus du montant configuré.',
+    defaultOutcome: 'BLOCK',
+    category: 'TICKET',
+    stateless: false,
+    paramsTemplate: { valueCents: 100000 },
+  },
+  {
+    ruleKey: 'BLOCK_SELECTION_PER_DRAW',
+    label: 'Numéros bloqués par tirage',
+    description: 'Bloque une ou plusieurs sélections pour un tirage.',
+    defaultOutcome: 'BLOCK',
+    category: 'BLOCKING',
+    stateless: false,
+    paramsTemplate: { selections: [] },
+  },
+];
+
+const limitAssignmentsStub = [
+  {
+    id: { value: 'limit-assignment-1' },
+    ruleKey: 'MAX_STAKE_PER_TICKET',
+    enabled: true,
+    onBreach: 'BLOCK',
+    params: { valueCents: 25000 },
+    startsAt: null,
+    endsAt: null,
+  },
+];
+
+const sellerReportStub = {
+  from: '2026-07-09',
+  to: '2026-07-17',
+  summary: {
+    ticketsSold: 24,
+    grossSales: 250,
+    winningsCalculated: 0,
+    payoutsPaid: 0,
+    sellerCommission: 25,
+    buyerCharges: 0,
+    sellerCharges: 0,
+    tenantCharges: 0,
+    waivedCharges: 0,
+    promotionLines: 4,
+    promotionPricedLines: 0,
+    promotionPayoutBase: 0,
+    netRevenueEstimated: 225,
+    netRevenuePaidBasis: 225,
+  },
+  rows: [
+    {
+      sellerTerminalId: 'seller-terminal-main',
+      terminalCode: 'BD-EPSILON-MAIN-4048C0B5',
+      displayName: 'BD EPSILON main',
+      status: 'ACTIVE',
+      refDate: '2026-07-17',
+      ticketsSold: 12,
+      grossSales: 125,
+      sellerCommission: 12.5,
+      buyerCharges: 0,
+      sellerCharges: 0,
+      tenantCharges: 0,
+      waivedCharges: 0,
+      drawCount: 1,
+      averageGrossSalesPerDraw: 125,
+      netRevenueEstimated: 112.5,
+      netRevenuePaidBasis: 112.5,
+    },
+    {
+      sellerTerminalId: 'seller-terminal-backup',
+      terminalCode: 'BD-EPSILON-BACKUP-4048C0B5',
+      displayName: 'BD EPSILON backup',
+      status: 'ACTIVE',
+      refDate: '2026-07-17',
+      ticketsSold: 12,
+      grossSales: 125,
+      sellerCommission: 12.5,
+      buyerCharges: 0,
+      sellerCharges: 0,
+      tenantCharges: 0,
+      waivedCharges: 0,
+      drawCount: 1,
+      averageGrossSalesPerDraw: 125,
+      netRevenueEstimated: 112.5,
+      netRevenuePaidBasis: 112.5,
+    },
+  ],
+};
+
 /**
  * Minimal `/runtime/private` bootstrap for a super-admin. Shape follows
  * `RuntimeBootstrapResponse` (see refreshSession); refine against a real run if
@@ -225,6 +462,7 @@ export class ApiStub {
       ),
     );
     await this.supportAccess(defaultSupportAccessSession);
+    await this.adminBusiness();
     await this.tenants([]);
   }
 
@@ -295,6 +533,54 @@ export class ApiStub {
           supportAccessSessionId: targetPortal === 'ADMIN' ? defaultSupportAccessSession.sessionId : null,
         }),
       ),
+    );
+  }
+
+  /** Deterministic admin business screens used by the browser E2E suite. */
+  async adminBusiness(): Promise<void> {
+    if (!this.enabled) return;
+
+    await this.page.route(/\/admin\/overview(?:\?|$)/, (r) => json(r, envelope(adminOverviewStub)));
+    await this.page.route(/\/tenant\/subscription(?:\?|$)/, (r) => json(r, envelope(subscriptionStub)));
+    await this.page.route(/\/admin\/tenant-config(?:\?|$)/, (r) => json(r, envelope(tenantConfigStub)));
+    await this.page.route(/\/admin\/setup\/games-pricing(?:\?|$)/, (r) => json(r, envelope(gamesPricingStub)));
+    await this.page.route(/\/admin\/promotions\/campaigns(?:\?|$)/, (r) =>
+      json(r, envelope(page([maryajCampaignStub]))),
+    );
+    await this.page.route(/\/admin\/promotions\/campaigns\/campaign-maryaj-gratis$/, (r) =>
+      json(r, envelope(maryajCampaignStub)),
+    );
+    await this.page.route(/\/admin\/promotions\/campaigns\/campaign-maryaj-gratis\/rules\/rule-maryaj-gratis\/effects$/, (r) =>
+      json(r, envelope(maryajCampaignStub)),
+    );
+    await this.page.route(/\/admin\/promotions\/campaigns\/campaign-maryaj-gratis$/, (r) =>
+      json(r, envelope(maryajCampaignStub)),
+    );
+    await this.page.route(/\/admin\/policies\/limits\/rules(?:\?|$)/, (r) => json(r, envelope(limitRulesStub)));
+    await this.page.route(/\/admin\/policies\/limits\/assignments(?:\?|$)/, (r) => {
+      if (r.request().method() === 'PUT') {
+        return json(r, envelope({ id: { value: 'limit-assignment-new' } }));
+      }
+      return json(r, envelope({ limitScopeRef: null, items: limitAssignmentsStub }));
+    });
+    await this.page.route(/\/admin\/reports\/seller-terminals(?:\?|$)/, (r) =>
+      json(r, envelope(sellerReportStub)),
+    );
+    await this.page.route(/\/admin\/seller-terminals(?:\?|$)/, (r) =>
+      json(r, envelope(page([
+        {
+          id: { value: 'seller-terminal-main' },
+          terminalCode: 'BD-EPSILON-MAIN-4048C0B5',
+          displayName: 'BD EPSILON main',
+          status: 'ACTIVE',
+        },
+        {
+          id: { value: 'seller-terminal-backup' },
+          terminalCode: 'BD-EPSILON-BACKUP-4048C0B5',
+          displayName: 'BD EPSILON backup',
+          status: 'ACTIVE',
+        },
+      ]))),
     );
   }
 }
