@@ -46,6 +46,31 @@ call, so the stub **cannot fake a session**. Pure stubs cover the
 authenticated flows still need the firebase-emulator for the session, with the
 REST stubs making the data deterministic (hybrid).
 
+### Emulator run — authenticated flows (variant A)
+
+Everything self-contained; **no backend API** (REST is stubbed):
+
+```bash
+make up-firebase-emulator                       # infra, Docker, :9099
+WEB_E2E_EMULATOR=1 \
+  TCH_E2E_SUPERADMIN_EMAIL=super_admin@e2e.local TCH_E2E_SUPERADMIN_PASSWORD=e2e-password-123 \
+  TCH_E2E_ADMIN_EMAIL=admin@e2e.local TCH_E2E_ADMIN_PASSWORD=e2e-password-123 \
+  pnpm exec nx e2e web-e2e
+make down-firebase-emulator
+```
+
+- `WEB_E2E_EMULATOR=1` → portals serve with their **`emulator`** configuration
+  (`environment.emulator.ts` → `connectAuthEmulator(:9099)`, project
+  `demo-tchalanet-local`).
+- `global-setup.ts` **fails fast** if the emulator isn't up (answers "launch it
+  first") and **creates the seeded users** (idempotent).
+- Real UI login → Firebase token → guard → **stubbed `/runtime/private`** gives
+  the role (SUPER_ADMIN / TENANT_ADMIN) → dispatch. Data (tenants) stubbed too.
+- Same identities/provider as the Python E2E (firebase-emulator); `local-jwt` is
+  for load (Locust) only.
+
+CI runs this on the runner (`full-validation.yml` → `web-e2e`, non-blocking).
+
 ## Prerequisites
 
 The suite treats the backend as a **fixture** — it does not provision. Bring up

@@ -57,6 +57,17 @@
           "optimization": false,
           "extractLicenses": false,
           "sourceMap": true
+        },
+        "emulator": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true,
+          "fileReplacements": [
+            {
+              "replace": "apps/public-portal/src/environments/environment.ts",
+              "with": "apps/public-portal/src/environments/environment.emulator.ts"
+            }
+          ]
         }
       }
     },
@@ -73,6 +84,9 @@
         },
         "development": {
           "buildTarget": "public-portal:build:development"
+        },
+        "emulator": {
+          "buildTarget": "public-portal:build:emulator"
         }
       }
     },
