@@ -14,7 +14,14 @@
 TCH_IDENTITY_PROVIDER=firebase
 ```
 
-Local IDE peut utiliser :
+Environment rule:
+
+- `local-ide` uses real Firebase by default.
+- local server E2E uses Firebase Auth Emulator.
+- Docker `dev` API is configured for the emulator because it is the E2E runtime.
+- `staging` and `prod` use real Firebase and must not set `FIREBASE_AUTH_EMULATOR_HOST`.
+
+E2E / Docker dev emulator values:
 
 ```bash
 TCH_IDENTITY_PROVIDER=firebase-emulator

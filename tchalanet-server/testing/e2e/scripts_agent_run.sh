@@ -30,6 +30,10 @@ Local defaults:
 
 Canonical scenario truth:
   docs/business-day-scenarios.md
+
+Auth rule:
+  This runner is for local server E2E and defaults to Firebase Auth Emulator.
+  Local IDE and staging/prod use real Firebase outside this runner.
 USAGE
 }
 
@@ -50,6 +54,14 @@ export TCH_FIREBASE_PROJECT_ID="${TCH_FIREBASE_PROJECT_ID:-demo-tchalanet-local}
 export TCH_BASE_URL="${TCH_BASE_URL:-https://127.0.0.1/api/v1}"
 export TCH_E2E_HOST_HEADER="${TCH_E2E_HOST_HEADER:-api.localtest.me}"
 export TCH_E2E_VERIFY_SSL="${TCH_E2E_VERIFY_SSL:-false}"
+
+if [[ "$MODE" == "agent" || "$MODE" == "business-day" || "$MODE" == "full-business-day" || "$MODE" == "bet-options" || "$MODE" == "availability-gates" ]]; then
+  if [[ "$TCH_E2E_AUTH_PROVIDER" != "firebase-emulator" ]]; then
+    echo "Refusing destructive/local E2E mode with TCH_E2E_AUTH_PROVIDER=$TCH_E2E_AUTH_PROVIDER." >&2
+    echo "Use firebase-emulator for local server E2E; local-ide/staging/prod use real Firebase outside this runner." >&2
+    exit 4
+  fi
+fi
 
 run_pytest() {
   echo

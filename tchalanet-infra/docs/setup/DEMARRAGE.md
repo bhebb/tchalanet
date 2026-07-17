@@ -6,7 +6,8 @@
 make local-ide-up ENV=dev
 ```
 
-Démarre Traefik, PostgreSQL et Firebase Auth Emulator.
+Démarre Traefik et PostgreSQL. L'API lancée dans l'IDE utilise Firebase réel
+par défaut avec `SPRING_PROFILES_ACTIVE=local-ide`.
 
 ## Local IDE avec Redis
 
@@ -28,7 +29,16 @@ make local-product-up ENV=dev
 
 ## Auth
 
-Local :
+Local IDE :
+
+```bash
+SPRING_PROFILES_ACTIVE=local-ide
+TCH_IDENTITY_PROVIDER=firebase
+FIREBASE_PROJECT_ID=<project-id>
+FIREBASE_CREDENTIALS_PATH=<local firebase admin json>
+```
+
+E2E local / API Docker dev :
 
 ```bash
 TCH_IDENTITY_PROVIDER=firebase-emulator

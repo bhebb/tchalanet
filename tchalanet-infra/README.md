@@ -14,8 +14,8 @@ Services standard :
 - API
 - Edge service
 
-Local IDE ajoute Firebase Auth Emulator pour tester l'authentification sans
-secret Firebase réel.
+Local IDE utilise Firebase réel par défaut. Les tests E2E locaux utilisent
+Firebase Auth Emulator pour obtenir des identités déterministes et jetables.
 
 ## Commandes principales
 
@@ -31,10 +31,11 @@ make up-prod
 
 ## Modes
 
-- `local-ide-up` : Traefik + PostgreSQL + Firebase Auth Emulator. L'API tourne
-  dans l'IDE.
+- `local-ide-up` : Traefik + PostgreSQL. L'API tourne dans l'IDE avec Firebase
+  réel par défaut.
 - `local-ide-up-redis` : ajoute Redis.
-- `local-api-up` : Traefik + PostgreSQL + Redis + API en container.
+- `local-api-up` : Traefik + PostgreSQL + Redis + API en container; ce mode
+  Docker dev est configuré pour Firebase Auth Emulator afin de servir les E2E.
 - `local-product-up` : ajoute edge-service et web.
 - `up-staging` / `up-prod` : Traefik + PostgreSQL + Redis + API + edge-service.
 
@@ -48,13 +49,19 @@ FIREBASE_PROJECT_ID=<project-id>
 FIREBASE_CREDENTIALS_PATH=/run/secrets/firebase-admin.json
 ```
 
-Local emulator :
+E2E local / API Docker dev :
 
 ```bash
 TCH_IDENTITY_PROVIDER=firebase-emulator
 FIREBASE_PROJECT_ID=demo-tchalanet-local
 FIREBASE_AUTH_EMULATOR_HOST=localhost:9099
 ```
+
+Règle :
+
+- `local-ide` : Firebase réel, sauf override volontaire du développeur.
+- E2E serveur local : Firebase Auth Emulator.
+- `staging` / `prod` : Firebase réel, jamais `FIREBASE_AUTH_EMULATOR_HOST`.
 
 ## Structure
 

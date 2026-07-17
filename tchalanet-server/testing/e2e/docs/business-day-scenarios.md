@@ -21,6 +21,13 @@ cd tchalanet-server/testing/e2e
 bash scripts_agent_run.sh agent
 ```
 
+Auth rule:
+
+- local server E2E runs against Firebase Auth Emulator only;
+- `scripts_agent_run.sh` refuses destructive/canonical modes unless
+  `TCH_E2E_AUTH_PROVIDER=firebase-emulator`;
+- local IDE, staging, and prod use real Firebase outside this runner.
+
 Named modes:
 
 | Mode | Purpose |

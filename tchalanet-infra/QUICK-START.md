@@ -11,16 +11,18 @@ Cela démarre :
 
 - Traefik
 - PostgreSQL
-- Firebase Auth Emulator
 
 L'API reste lancée depuis l'IDE avec :
 
 ```bash
 SPRING_PROFILES_ACTIVE=local-ide
-TCH_IDENTITY_PROVIDER=firebase-emulator
-FIREBASE_PROJECT_ID=demo-tchalanet-local
-FIREBASE_AUTH_EMULATOR_HOST=localhost:9099
+TCH_IDENTITY_PROVIDER=firebase
+FIREBASE_PROJECT_ID=<project-id>
+FIREBASE_CREDENTIALS_PATH=<local firebase admin json>
 ```
+
+Le profil `local-ide` utilise Firebase réel par défaut. N'utilisez
+`firebase-emulator` dans l'IDE que pour une session de debug volontaire.
 
 ## Local API en container
 
@@ -29,6 +31,9 @@ make local-api-up ENV=dev
 ```
 
 Cela démarre Traefik, PostgreSQL, Redis et API.
+
+Ce mode Docker dev est celui utilisé par les E2E locaux. Il utilise Firebase
+Auth Emulator via `envs/dev/.env` et `envs/dev/compose.env`.
 
 ## Local produit
 

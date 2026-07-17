@@ -17,9 +17,19 @@ client would. No mocks.
 
 **Domain model (current).** The seller actor is **`SellerTerminal`** (`core.sellerterminal`).
 The old `outlet` / `terminal` / `seller` trio is **removed** — ignore those flows/fixtures.
-Auth is **Firebase only**: `firebase-emulator` locally, real Firebase in prod. **Keycloak is
-decommissioned** (§5 kept only for legacy targets). `TCH_OUTLET_ID` / `TCH_TERMINAL_ID` no
-longer apply.
+Auth is **Firebase only**. Server E2E uses `firebase-emulator` locally. Local
+IDE uses real Firebase by default, and staging/prod use real Firebase. **Keycloak
+is decommissioned** (§5 kept only for legacy targets). `TCH_OUTLET_ID` /
+`TCH_TERMINAL_ID` no longer apply.
+
+**Auth environment rule.**
+
+| Runtime | API identity provider | Harness auth provider | Notes |
+|---------|-----------------------|-----------------------|-------|
+| Server E2E local Docker dev | `firebase-emulator` | `firebase-emulator` | Deterministic identities, bootstrap users, disposable data |
+| Local IDE | `firebase` | manual/dev client | Real Firebase by default; use emulator only by explicit developer override |
+| Staging | `firebase` | `firebase` for live smoke | No `FIREBASE_AUTH_EMULATOR_HOST` |
+| Production | `firebase` | no destructive E2E | No emulator, no test provisioning |
 
 **Scenario source of truth.** The canonical server E2E entry point is
 [`docs/business-day-scenarios.md`](docs/business-day-scenarios.md). There is one
@@ -48,7 +58,8 @@ the business-day scenario means and which checks are isolated.
 
 **How the firebase-emulator path works (key facts).**
 - Bring it up: `make up-firebase-emulator` (`:9099`, project `demo-tchalanet-local`), then run
-  the API with `TCH_IDENTITY_PROVIDER=firebase-emulator`, `FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099`,
+  the Docker dev API with `TCH_IDENTITY_PROVIDER=firebase-emulator`,
+  `FIREBASE_AUTH_EMULATOR_HOST=firebase-emulator:9099`,
   `FIREBASE_PROJECT_ID=demo-tchalanet-local`, bootstrap on, and
   `TCH_IDENTITY_FIREBASE_BOOTSTRAP_USERS=superadmin,admin` (bootstrap keys on
   **username**; its built-in default is emails and matches nothing).
@@ -165,6 +176,9 @@ Copy `.env.example` to one of those and fill in passwords. Key vars:
 | `TCH_TENANT_2_*` | *(unset)* | Enables focused multitenant/concurrency checks when using seeded tenants |
 
 Keycloak variables are legacy and documented in §5 only for old targets.
+
+Do not switch the E2E runner to real Firebase for local destructive scenarios.
+The canonical runner intentionally exports `TCH_E2E_AUTH_PROVIDER=firebase-emulator`.
 
 For Firebase-independent E2E/performance validation, start the API with
 `TCH_IDENTITY_PROVIDER=local-jwt` or `local-perf`, configure the same
