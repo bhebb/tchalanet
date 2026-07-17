@@ -4,10 +4,9 @@ import com.tchalanet.server.core.analytics.api.model.AnalyticsDimensionType;
 import com.tchalanet.server.core.analytics.internal.infra.persistence.AnalyticsDailyRepository;
 import com.tchalanet.server.core.sales.api.event.TicketCancelledEvent;
 import com.tchalanet.server.core.sales.api.event.TicketPayoutPaidEvent;
+import com.tchalanet.server.core.sales.api.event.TicketPayoutPaidAmountAdjustedEvent;
 import com.tchalanet.server.core.sales.api.event.TicketPayoutReversedEvent;
 import com.tchalanet.server.core.sales.api.event.TicketPlacedEvent;
-import com.tchalanet.server.core.sales.api.event.TicketWinningSettlementCreatedEvent;
-import com.tchalanet.server.core.sales.api.event.TicketWinningSettlementReversedEvent;
 import com.tchalanet.server.core.sales.api.model.money.ChargePaidBy;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineOrigin;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSource;
@@ -156,20 +155,6 @@ public class AnalyticsDailyProjector {
         0);
   }
 
-  // ── winning settlement created ────────────────────────────────────────────
-
-  public void applyTicketWinningSettlementCreated(
-      TicketWinningSettlementCreatedEvent event, LocalDate refDate) {
-
-    applyWinningsCalculatedDelta(event.tenantId().value(), refDate, event.amountCents());
-  }
-
-  public void applyTicketWinningSettlementReversed(
-      TicketWinningSettlementReversedEvent event, LocalDate refDate) {
-
-    applyWinningsCalculatedDelta(event.tenantId().value(), refDate, -event.amountCents());
-  }
-
   private void applyWinningsCalculatedDelta(
       UUID tenantId, LocalDate refDate, long winningsCentsDelta) {
     upsert(
@@ -208,8 +193,24 @@ public class AnalyticsDailyProjector {
 
   // ── payout paid / reversed ────────────────────────────────────────────────
 
+  public void applyTicketSettledAndPaid(TicketPayoutPaidEvent event, LocalDate refDate) {
+    applyWinningsCalculatedDelta(event.tenantId().value(), refDate, event.amountCents());
+    applyPayoutPaidDelta(event.tenantId().value(), refDate, event.amountCents());
+  }
+
+  public void applyTicketSettlementAndPayoutReversed(
+      TicketPayoutReversedEvent event, LocalDate refDate) {
+    applyWinningsCalculatedDelta(event.tenantId().value(), refDate, -event.amountCents());
+    applyPayoutPaidDelta(event.tenantId().value(), refDate, -event.amountCents());
+  }
+
   public void applyTicketPayoutPaid(TicketPayoutPaidEvent event, LocalDate refDate) {
     applyPayoutPaidDelta(event.tenantId().value(), refDate, event.amountCents());
+  }
+
+  public void applyTicketPayoutPaidAmountAdjusted(
+      TicketPayoutPaidAmountAdjustedEvent event, LocalDate refDate) {
+    applyPayoutPaidDelta(event.tenantId().value(), refDate, event.deltaAmountCents());
   }
 
   public void applyTicketPayoutReversed(TicketPayoutReversedEvent event, LocalDate refDate) {

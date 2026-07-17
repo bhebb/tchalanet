@@ -1,5 +1,15 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+  untracked,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -151,6 +161,7 @@ export class TchSidebarNav {
   readonly sections = input<readonly NavigationSection[]>([]);
   readonly secondary = input<readonly ActionItem[]>([]);
   readonly ariaLabel = input('Navigation principale');
+  readonly itemActivated = output<ActionItem>();
   readonly actionRoute = actionRoute;
   readonly actionHref = actionHref;
   readonly actionQueryParams = actionQueryParams;
@@ -238,9 +249,12 @@ export class TchSidebarNav {
   }
 
   onItemClick(event: Event, item: ActionItem): void {
-    if (!item.disabled) return;
-    event.preventDefault();
-    event.stopPropagation();
+    if (item.disabled) {
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
+    this.itemActivated.emit(item);
   }
 
   private isRouteActive(item: ActionItem, route: string, siblings: readonly ActionItem[] = []): boolean {

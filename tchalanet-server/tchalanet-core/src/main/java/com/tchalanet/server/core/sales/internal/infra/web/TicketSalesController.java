@@ -73,7 +73,7 @@ public class TicketSalesController {
                 body.currency(),
                 toLines(body.lines()),
                 body.serviceOptions(),
-                List.of()));
+                body.promotionChoices() == null ? List.of() : body.promotionChoices()));
 
     var responseCtx = ApiResponseContext.get();
     result.notices().forEach(responseCtx::addNotice);

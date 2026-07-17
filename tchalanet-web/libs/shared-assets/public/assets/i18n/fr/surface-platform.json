@@ -63,6 +63,7 @@
       "operations": "Opérations",
       "jobs": "Jobs",
       "drawResults": "Résultats",
+      "salesSimulations": "Simulation de ventes",
       "providers": "Providers",
       "schedulers": "Tâches planifiées",
       "cache": "Cache",
@@ -176,6 +177,98 @@
       },
       "netRevenue": {
         "label": "Net estimé"
+      }
+    },
+    "ops": {
+      "salesSimulation": {
+        "title": "Simulation de ventes",
+        "description": "Créer un volume QA de tickets par tenant, tirage et terminal vendeur via le vrai flux prepare/confirm.",
+        "errorTitle": "Action impossible",
+        "noticeTitle": "Simulation",
+        "noTenant": "Aucun tenant sélectionné",
+        "drawsSelected": "{{selected}} / {{total}} tirage(s) sélectionné(s)",
+        "requestedTickets": "Tickets demandés",
+        "simulationId": "Simulation {{id}}",
+        "action": {
+          "loadDraws": "Charger les tirages",
+          "calculate": "Calculer",
+          "execute": "Exécuter",
+          "selectAll": "Tout sélectionner",
+          "clear": "Effacer"
+        },
+        "section": {
+          "target": "Cible",
+          "draws": "Tirages",
+          "ticketMix": "Mix de tickets",
+          "execution": "Exécution",
+          "result": "Résultat",
+          "byGame": "Par jeu",
+          "failures": "Échecs"
+        },
+        "field": {
+          "tenant": "Tenant",
+          "sellerTerminals": "Terminaux vendeurs",
+          "status": "Statut",
+          "slot": "Slot",
+          "from": "Du",
+          "to": "Au",
+          "mode": "Mode",
+          "currency": "Devise",
+          "stake": "Mise",
+          "seed": "Seed",
+          "maxTickets": "Max tickets",
+          "reason": "Raison"
+        },
+        "placeholder": {
+          "tenant": "Rechercher un tenant",
+          "sellerTerminals": "Rechercher un vendeur"
+        },
+        "empty": {
+          "tenant": "Aucun tenant trouvé",
+          "sellerTerminal": "Aucun terminal vendeur actif",
+          "drawsTitle": "Aucun tirage chargé",
+          "drawsMessage": "Sélectionnez un tenant puis chargez les tirages."
+        },
+        "status": {
+          "all": "Tous",
+          "open": "Ouvert",
+          "scheduled": "Planifié",
+          "closed": "Fermé",
+          "resulted": "Résultat saisi"
+        },
+        "game": {
+          "bolet": "Borlette",
+          "maryaj": "Maryaj",
+          "loto3": "Loto 3",
+          "loto4": "Loto 4",
+          "loto5": "Loto 5"
+        },
+        "mode": {
+          "dryRun": "Dry-run",
+          "execute": "Créer les tickets"
+        },
+        "loading": {
+          "draws": "Chargement des tirages...",
+          "simulation": "Simulation en cours..."
+        },
+        "notice": {
+          "dryRun": "Plan calculé sans création de tickets.",
+          "executed": "Simulation exécutée."
+        },
+        "error": {
+          "selectTenantBeforeDraws": "Sélectionnez un tenant avant de charger les tirages.",
+          "loadDraws": "Chargement des tirages impossible.",
+          "missingRunInputs": "Sélectionnez un tenant, au moins un tirage, au moins un terminal vendeur et un mix non vide.",
+          "run": "Simulation impossible."
+        },
+        "metric": {
+          "planned": "Planifiés",
+          "prepared": "Préparés",
+          "confirmed": "Confirmés",
+          "rejected": "Rejetés",
+          "failed": "Échecs",
+          "gross": "Gross"
+        }
       }
     }
   },

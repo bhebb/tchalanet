@@ -85,6 +85,13 @@ export const platformOperationsRoutes: Route[] = [
       import('./pages/ops/platform-ops-draw-results.page').then(m => m.PlatformOpsDrawResultsPage),
   },
   {
+    path: 'sales-simulations',
+    loadComponent: () =>
+      import('./pages/ops/platform-ops-sales-simulation.page').then(
+        m => m.PlatformOpsSalesSimulationPage,
+      ),
+  },
+  {
     path: 'cache',
     loadComponent: () =>
       import('./pages/ops/platform-ops-cache.page').then(m => m.PlatformOpsCachePage),

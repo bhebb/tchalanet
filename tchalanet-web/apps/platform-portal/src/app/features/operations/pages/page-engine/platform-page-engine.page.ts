@@ -20,7 +20,6 @@ import {
   resourceErrorVm,
 } from '@tch/web/async';
 import {
-  PageModelAdminDetailView,
   PageModelStatus,
   PageModelSummaryView,
   PlatformPageEngineApi,
@@ -257,7 +256,7 @@ function minimalModel(logicalId: string, scope: string, slug: string): unknown {
       slug,
       schemaVersion: 2,
       langs: ['fr', 'en', 'ht'],
-      defaultLang: 'fr',
+      defaultLang: 'ht',
     },
     content: {
       layout: {

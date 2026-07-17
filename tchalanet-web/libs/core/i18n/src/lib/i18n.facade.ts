@@ -14,7 +14,7 @@ export class I18nFacade {
   readonly initialized = this.store.selectSignal(i18nFeature.selectInitialized);
   readonly languages = this.store.selectSignal(i18nFeature.selectLanguages);
 
-  init(languages: readonly string[] = ['fr', 'en', 'ht'], defaultLanguage = 'fr'): void {
+  init(languages: readonly string[] = ['fr', 'en', 'ht'], defaultLanguage = 'ht'): void {
     if (this.initialized()) {
       return;
     }

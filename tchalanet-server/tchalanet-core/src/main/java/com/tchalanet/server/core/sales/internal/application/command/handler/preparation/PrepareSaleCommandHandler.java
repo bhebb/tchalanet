@@ -60,7 +60,7 @@ public class PrepareSaleCommandHandler
             cmd.communicationOptions() == null
                 ? SaleCommunicationOptions.none()
                 : cmd.communicationOptions(),
-            List.of());
+            cmd.promotionChoices() == null ? List.of() : cmd.promotionChoices());
 
     var prepared = orchestrator.prepareSale(sell, ctx, SaleEvaluationMode.FINAL);
 

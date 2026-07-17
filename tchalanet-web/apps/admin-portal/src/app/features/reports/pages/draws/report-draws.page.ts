@@ -1,8 +1,9 @@
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTableModule } from '@angular/material/table';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AdminEmptyStateComponent, AdminPageShellComponent, AdminSectionCardComponent } from '@tch/ui/console';
 import type { TchSearchOption } from '@tch/ui/components';
@@ -13,6 +14,7 @@ import { Observable } from 'rxjs';
 import { DrawReportFilterBarComponent } from '../../components/draw-report-filter-bar/draw-report-filter-bar.component';
 import { ReportMetricCardComponent } from '../../components/report-metric-card/report-metric-card.component';
 import { AdminReportDrawRow, AdminReportDraws, AdminReportsApi } from '../../data-access/admin-reports-api.service';
+import { exportReportCsv, exportReportPdf } from '../../utils/report-export.util';
 
 const DEFAULT_CURRENCY = 'HTG';
 const DRAW_SORT_VALUES = [
@@ -36,7 +38,6 @@ function isDrawReportSort(value: string): value is DrawReportSort {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
-    DecimalPipe,
     RouterLink,
     TranslatePipe,
     AdminEmptyStateComponent,
@@ -49,6 +50,7 @@ function isDrawReportSort(value: string): value is DrawReportSort {
     TchAsyncViewComponent,
     MatButtonModule,
     MatIconModule,
+    MatTableModule,
   ],
   templateUrl: './report-draws.page.html',
   styleUrls: ['./report-draws.page.scss'],
@@ -79,6 +81,7 @@ export class AdminReportDrawsPage {
   readonly draws = this.api.drawsResource(this.query, { suppressShellFeedback: true });
   readonly drawsError = resourceErrorVm(this.draws, 'admin.reports.draws');
   readonly currency = DEFAULT_CURRENCY;
+  readonly displayedColumns = ['draw', 'tickets', 'sales', 'payouts', 'net'];
 
   reload(): void {
     this.refreshTick.update(value => value + 1);
@@ -106,7 +109,7 @@ export class AdminReportDrawsPage {
     this.api.searchDraws(query, { suppressShellFeedback: true });
 
   amountDisplay(amount: number): string {
-    return amount.toFixed(2);
+    return amountFormatter.format(amount);
   }
 
   payoutRatePercent(vm: AdminReportDraws): number {
@@ -124,15 +127,15 @@ export class AdminReportDrawsPage {
     return [...rows].sort((a, b) => compareDrawRows(a, b, field) * factor);
   }
 
-  printReport(): void {
-    window.print();
+  exportPdf(): void {
+    exportReportPdf();
   }
 
   exportCsv(vm: AdminReportDraws): void {
     const rows = this.sortedRows(vm.rows);
     const header = ['drawId', 'scheduledAt', 'drawChannelCode', 'gameCode', 'ticketsSold', 'grossSales', 'payoutsPaid', 'netRevenueEstimated'];
-    const lines = [
-      header.join(','),
+    exportReportCsv(`rapport-tirages-${vm.from}-${vm.to}.csv`, [
+      header,
       ...rows.map(row => [
         row.drawId,
         row.scheduledAt,
@@ -142,17 +145,15 @@ export class AdminReportDrawsPage {
         row.grossSales,
         row.payoutsPaid,
         row.netRevenueEstimated,
-      ].map(csvCell).join(',')),
-    ];
-    const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement('a');
-    anchor.href = url;
-    anchor.download = `rapport-tirages-${vm.from}-${vm.to}.csv`;
-    anchor.click();
-    URL.revokeObjectURL(url);
+      ]),
+    ]);
   }
 }
+
+const amountFormatter = new Intl.NumberFormat('fr-FR', {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
 
 function compareDrawRows(a: AdminReportDrawRow, b: AdminReportDrawRow, field: string): number {
   switch (field) {
@@ -163,9 +164,4 @@ function compareDrawRows(a: AdminReportDrawRow, b: AdminReportDrawRow, field: st
     default:
       return a.scheduledAt.localeCompare(b.scheduledAt);
   }
-}
-
-function csvCell(value: string | number): string {
-  const text = String(value);
-  return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 }

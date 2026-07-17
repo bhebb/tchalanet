@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor
@@ -70,41 +71,54 @@ public class TicketVerificationJdbcAdapter implements TicketVerificationReaderPo
         """;
 
   @Override
+  @Transactional(readOnly = true)
   public Optional<TicketVerificationProjection> findByPublicCode(String publicCode) {
-    var params = new MapSqlParameterSource().addValue("publicCode", publicCode);
+    bindPlatformReadScope();
+    try {
+      var params = new MapSqlParameterSource().addValue("publicCode", publicCode);
 
-    var rows = jdbc.query(HEADER_SQL, params, (rs, i) -> mapHeader(rs));
-    if (rows.isEmpty()) return Optional.empty();
+      var rows = jdbc.query(HEADER_SQL, params, (rs, i) -> mapHeader(rs));
+      if (rows.isEmpty()) return Optional.empty();
 
-    var h = rows.getFirst();
-    var currency = CurrencyCode.of(h.currency());
+      var h = rows.getFirst();
+      var currency = CurrencyCode.of(h.currency());
 
-    var lineParams = new MapSqlParameterSource("ticketId", h.ticketId());
-    var lines = jdbc.query(LINES_SQL, lineParams, (rs, i) -> mapLine(rs, currency));
+      var lineParams = new MapSqlParameterSource("ticketId", h.ticketId());
+      var lines = jdbc.query(LINES_SQL, lineParams, (rs, i) -> mapLine(rs, currency));
 
-    return Optional.of(
-        new TicketVerificationProjection(
-            TenantId.of(h.tenantId()),
-            h.publicCode(),
-            displayPublicCode(h.publicCode()),
-            h.saleStatus(),
-            h.resultStatus(),
-            h.settlementStatus(),
-            h.placedAt(),
-            new Money(h.totalAmount(), currency),
-            h.winningAmount() != null ? new Money(h.winningAmount(), currency) : null,
-            new TicketVerificationProjection.DrawProjection(
-                h.drawChannelKey(),
-                h.drawChannelName(),
-                h.resultSlotKey(),
-                h.resultProvider(),
-                h.resultTimezone(),
-                h.drawDate(),
-                h.scheduledAt()),
-            h.sellerTerminalName() != null
-                ? new TicketVerificationProjection.OutletProjection(h.sellerTerminalName())
-                : null,
-            lines));
+      return Optional.of(
+          new TicketVerificationProjection(
+              TenantId.of(h.tenantId()),
+              h.publicCode(),
+              displayPublicCode(h.publicCode()),
+              h.saleStatus(),
+              h.resultStatus(),
+              h.settlementStatus(),
+              h.placedAt(),
+              new Money(h.totalAmount(), currency),
+              h.winningAmount() != null ? new Money(h.winningAmount(), currency) : null,
+              new TicketVerificationProjection.DrawProjection(
+                  h.drawChannelKey(),
+                  h.drawChannelName(),
+                  h.resultSlotKey(),
+                  h.resultProvider(),
+                  h.resultTimezone(),
+                  h.drawDate(),
+                  h.scheduledAt()),
+              h.sellerTerminalName() != null
+                  ? new TicketVerificationProjection.OutletProjection(h.sellerTerminalName())
+                  : null,
+              lines));
+    } finally {
+      jdbc.getJdbcTemplate().execute("select public.reset_rls_context()");
+    }
+  }
+
+  private void bindPlatformReadScope() {
+    jdbc.getJdbcTemplate().execute("select set_config('app.current_tenant', '', false)");
+    jdbc.getJdbcTemplate().execute("select set_config('app.deleted_visibility', 'active', false)");
+    jdbc.getJdbcTemplate().execute("select set_config('app.api_scope', 'platform', false)");
+    jdbc.getJdbcTemplate().execute("select set_config('app.is_super_admin', 'true', false)");
   }
 
   private HeaderRow mapHeader(ResultSet rs) throws SQLException {

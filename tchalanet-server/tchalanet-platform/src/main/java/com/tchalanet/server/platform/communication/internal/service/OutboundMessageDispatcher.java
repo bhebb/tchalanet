@@ -1,5 +1,6 @@
 package com.tchalanet.server.platform.communication.internal.service;
 
+import com.tchalanet.server.common.context.TchContextScope;
 import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.platform.communication.api.model.request.OutboundAttachment;
 import com.tchalanet.server.platform.communication.api.model.request.SendOutboundMessageRequest;
@@ -37,6 +38,11 @@ public class OutboundMessageDispatcher {
 
   @Transactional
   public int dispatchDueMessages() {
+    return TchContextScope.runPlatformSystemResult(
+        "communication-dispatcher", this::dispatchDueMessagesAsPlatform);
+  }
+
+  private int dispatchDueMessagesAsPlatform() {
     var due =
         messages.findDueForDispatch(
             DeliveryStatus.PENDING, clock.instant(), PageRequest.of(0, BATCH_SIZE));
@@ -56,6 +62,7 @@ public class OutboundMessageDispatcher {
           message,
           result.sent() ? DeliveryStatus.SENT : DeliveryStatus.SKIPPED,
           result.provider(),
+          result.providerMessageId(),
           null,
           result.reason());
       if (result.sent()) {
@@ -77,6 +84,7 @@ public class OutboundMessageDispatcher {
           message,
           DeliveryStatus.FAILED,
           message.getChannel().name(),
+          null,
           "PROVIDER_ERROR",
           ex.getMessage());
       message.setStatus(DeliveryStatus.PENDING);
@@ -89,6 +97,7 @@ public class OutboundMessageDispatcher {
       OutboundMessageJpaEntity message,
       DeliveryStatus status,
       String provider,
+      String providerMessageId,
       String errorCode,
       String errorMessage) {
     var attempt = new MessageDeliveryAttemptJpaEntity();
@@ -96,6 +105,7 @@ public class OutboundMessageDispatcher {
     attempt.setAttemptedAt(clock.instant());
     attempt.setStatus(status);
     attempt.setProvider(provider == null ? "unknown" : provider);
+    attempt.setProviderMessageId(providerMessageId);
     attempt.setErrorCode(errorCode);
     attempt.setErrorMessage(errorMessage);
     attempts.save(attempt);

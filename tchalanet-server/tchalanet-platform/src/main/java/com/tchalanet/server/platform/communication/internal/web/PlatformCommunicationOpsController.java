@@ -175,7 +175,8 @@ public class PlatformCommunicationOpsController {
   private ResponseEntity<ApiResponse<CommunicationTestResponse>> response(
       String channel, SendOutboundMessageResult result) {
     var body =
-        new CommunicationTestResponse(result.sent(), result.provider(), result.reason(), channel);
+        new CommunicationTestResponse(
+            result.sent(), result.provider(), result.reason(), result.providerMessageId(), channel);
     if (result.sent()) {
       return ResponseEntity.ok(ApiResponse.success(body));
     }
@@ -253,7 +254,7 @@ public class PlatformCommunicationOpsController {
       @NotBlank String to, @NotBlank String title, @NotBlank String message) {}
 
   public record CommunicationTestResponse(
-      boolean sent, String provider, String reason, String channel) {}
+      boolean sent, String provider, String reason, String providerMessageId, String channel) {}
 
   public record CommunicationQueueView(
       CommunicationQueueSummary summary, TchPage<CommunicationMessageView> messages) {}

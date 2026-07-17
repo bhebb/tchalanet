@@ -6,6 +6,7 @@ import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.drawresult.api.command.MarkDrawResultOverriddenCommand;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultWriterPort;
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Propagation;
 
 /**
  * Handler pour marquer un DrawResult comme OVERRIDDEN. Appelé suite à un événement
@@ -19,7 +20,7 @@ public class MarkDrawResultOverriddenCommandHandler
   private final DrawResultWriterPort writer;
 
   @Override
-  @TchTx
+  @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void handle(MarkDrawResultOverriddenCommand command) {
     writer.markAsOverridden(command.drawResultId(), command.reason(), command.overriddenAt());
   }

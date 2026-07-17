@@ -35,4 +35,21 @@ describe('PrivateShellLayoutComponent', () => {
     expect(emitted).toBe(1);
     expect(component.themeIcon()).toBe('dark_mode');
   });
+
+  it('closes the drawer when a sidebar item is activated', () => {
+    const fixture = TestBed.createComponent(PrivateShellLayoutComponent);
+    fixture.componentRef.setInput('primary', [
+      {
+        id: 'dashboard',
+        label: 'Dashboard',
+        destination: { kind: 'route', value: '/app/admin' },
+      },
+    ]);
+    fixture.componentInstance.drawerOpen.set(true);
+    fixture.detectChanges();
+
+    fixture.nativeElement.querySelector('tch-sidebar-nav a').click();
+
+    expect(fixture.componentInstance.drawerOpen()).toBe(false);
+  });
 });

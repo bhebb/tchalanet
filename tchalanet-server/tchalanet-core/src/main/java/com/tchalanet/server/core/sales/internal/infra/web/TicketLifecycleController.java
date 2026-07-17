@@ -5,10 +5,13 @@ import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.web.api.ApiResponse;
+import com.tchalanet.server.core.sales.api.command.payout.AdjustTicketPayoutPaidAmountCommand;
 import com.tchalanet.server.core.sales.internal.application.command.model.ApproveTicketSaleCommand;
 import com.tchalanet.server.core.sales.internal.application.command.model.CancelTicketCommand;
 import com.tchalanet.server.core.sales.internal.application.command.model.RejectTicketSaleCommand;
 import com.tchalanet.server.core.sales.internal.infra.web.mapper.TicketWebMapper;
+import com.tchalanet.server.core.sales.internal.infra.web.model.AdjustTicketPayoutPaidAmountRequest;
+import com.tchalanet.server.core.sales.internal.infra.web.model.AdjustTicketPayoutPaidAmountResponse;
 import com.tchalanet.server.core.sales.internal.infra.web.model.ApproveTicketRequest;
 import com.tchalanet.server.core.sales.internal.infra.web.model.CancelTicketRequest;
 import com.tchalanet.server.core.sales.internal.infra.web.model.RejectTicketRequest;
@@ -154,5 +157,45 @@ public class TicketLifecycleController {
     var cmd = new CancelTicketCommand(ctx.tenantId(), ticketId, ctx.userId(), request.reason());
     var result = commandBus.execute(cmd);
     return ApiResponse.success(mapper.toTicketResponse(result.ticket()));
+  }
+
+  @Operation(
+      operationId = "adjustTicketPayoutPaidAmount",
+      summary = "Adjust the actual paid amount for a paid ticket",
+      description =
+          "Audits and projects a correction to the amount actually paid. The calculated winning"
+              + " amount stored on the ticket is not modified.")
+  @PatchMapping("/{ticketId}/payout-paid-amount")
+  @PreAuthorize("hasPermission(null, 'ticket.payout.adjust')")
+  @AuditLog(
+      action = AuditAction.UPDATE,
+      entity = AuditEntityType.PAYOUT,
+      idExpression = "#ticketId",
+      detailsExpression =
+          "{ 'previousPaidAmount': #request.previousPaidAmount(),"
+              + " 'paidAmount': #request.paidAmount(),"
+              + " 'reason': #request.reason() }")
+  @ResponseStatus(HttpStatus.OK)
+  public ApiResponse<AdjustTicketPayoutPaidAmountResponse> adjustPayoutPaidAmount(
+      @CurrentContext TchRequestContext ctx,
+      @PathVariable TicketId ticketId,
+      @Valid @RequestBody AdjustTicketPayoutPaidAmountRequest request) {
+    var result =
+        commandBus.execute(
+            new AdjustTicketPayoutPaidAmountCommand(
+                ctx.tenantId(),
+                ticketId,
+                request.previousPaidAmount(),
+                request.paidAmount(),
+                request.reason(),
+                ctx.userId(),
+                java.time.Instant.now()));
+    return ApiResponse.success(
+        new AdjustTicketPayoutPaidAmountResponse(
+            result.ticketId(),
+            result.calculatedAmountCents(),
+            result.previousPaidAmountCents(),
+            result.adjustedPaidAmountCents(),
+            result.deltaAmountCents()));
   }
 }

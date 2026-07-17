@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.sales.internal.application.receipt;
 
 import com.tchalanet.server.common.types.money.Money;
+import com.tchalanet.server.core.sales.api.model.print.TicketPrintStateStatus;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptI18nKeys;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptPrintContent;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptQrView;
@@ -43,12 +44,8 @@ public class TicketReceiptPrintFormatter {
     var layoutProfile = TicketReceiptLayoutProfile.from(documentProfile);
 
     var header = new ArrayList<TicketReceiptTextLine>();
-    // Copy marker: ORIGINAL on first print, DUPLICATA on reprints.
-    // Sourced from i18n (receipt.copy.original / receipt.copy.duplicate), seeded by V220.
-    var copyKey =
-        receipt.isReprint()
-            ? TicketReceiptI18nKeys.COPY_DUPLICATE
-            : TicketReceiptI18nKeys.COPY_ORIGINAL;
+    // Copy marker: ORIGINAL before first print, COPY after first print, REPRINT after later prints.
+    var copyKey = copyKey(receipt.printStateStatus());
     var copyLabel = translations.text(copyKey);
     if (copyLabel != null && !copyLabel.isBlank()) {
       header.add(
@@ -96,12 +93,6 @@ public class TicketReceiptPrintFormatter {
     add(totals, layout.separator(layoutProfile));
     addLabel(
         totals,
-        translations.text(TicketReceiptI18nKeys.TOTAL_STAKE),
-        receipt.stakeTotal(),
-        false,
-        layoutProfile);
-    addLabel(
-        totals,
         translations.text(TicketReceiptI18nKeys.TOTAL_AMOUNT),
         receipt.totalAmount(),
         true,
@@ -122,9 +113,9 @@ public class TicketReceiptPrintFormatter {
     if (scan != null && !scan.isBlank()) {
       add(footer, layout.truncate(scan, layoutProfile.charsPerLine()));
     }
+    footer.addAll(brandingFormatter.footerLines(receipt, layoutProfile));
 
     var postQr = new ArrayList<TicketReceiptTextLine>();
-    postQr.addAll(brandingFormatter.footerLines(receipt, layoutProfile));
 
     // Assert no produced line exceeds the layout width (guard anti-overflow)
     assertLines("header", header, layoutProfile);
@@ -163,6 +154,14 @@ public class TicketReceiptPrintFormatter {
 
   private TicketReceiptSectionContent blankSection() {
     return new TicketReceiptSectionContent(null, List.of(TicketReceiptTextLine.normal("")));
+  }
+
+  private String copyKey(TicketPrintStateStatus status) {
+    return switch (status == null ? TicketPrintStateStatus.NOT_PRINTED : status) {
+      case NOT_PRINTED -> TicketReceiptI18nKeys.COPY_ORIGINAL;
+      case PRINTED -> TicketReceiptI18nKeys.COPY_DUPLICATE;
+      case REPRINTED -> TicketReceiptI18nKeys.COPY_REPRINT;
+    };
   }
 
   private void add(List<TicketReceiptTextLine> lines, String value) {

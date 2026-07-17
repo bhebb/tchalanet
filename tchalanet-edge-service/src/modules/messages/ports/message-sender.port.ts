@@ -1,6 +1,6 @@
-import type { MessageRecipient, SendMessageRequest } from '../domain/message.js';
+import type { MessageRecipient, MessageSendResult, SendMessageRequest } from '../domain/message.js';
 
 export interface MessageSender {
   supports(recipient: MessageRecipient): boolean;
-  send(message: SendMessageRequest, recipient: MessageRecipient): Promise<void>;
+  send(message: SendMessageRequest, recipient: MessageRecipient): Promise<MessageSendResult | void>;
 }

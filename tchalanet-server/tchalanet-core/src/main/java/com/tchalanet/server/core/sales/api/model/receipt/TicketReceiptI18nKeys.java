@@ -6,6 +6,7 @@ public final class TicketReceiptI18nKeys {
 
   public static final String COPY_ORIGINAL = "receipt.copy.original";
   public static final String COPY_DUPLICATE = "receipt.copy.duplicate";
+  public static final String COPY_REPRINT = "receipt.copy.reprint";
 
   public static final String TICKET = "receipt.ticket";
   public static final String PUBLIC_CODE = "receipt.public_code";
@@ -43,6 +44,9 @@ public final class TicketReceiptI18nKeys {
 
   public static final List<String> ALL =
       List.of(
+          COPY_ORIGINAL,
+          COPY_DUPLICATE,
+          COPY_REPRINT,
           TICKET,
           PUBLIC_CODE,
           SALE_TIMESTAMP,

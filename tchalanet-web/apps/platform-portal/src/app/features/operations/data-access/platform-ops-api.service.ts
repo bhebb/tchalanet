@@ -263,6 +263,102 @@ export interface CorrectDrawResultRequest {
   force?: boolean;
 }
 
+// ── Sales Simulation ────────────────────────────────────────────────────────
+
+export interface OpsSalesSimulationTicketMix {
+  bolet?: number;
+  maryaj?: number;
+  loto3?: number;
+  loto4?: number;
+  loto5?: number;
+}
+
+export interface OpsSalesSimulationRequest {
+  tenantId: string;
+  drawIds: string[];
+  sellerTerminalIds: string[];
+  ticketMix?: OpsSalesSimulationTicketMix;
+  currency?: string;
+  stakeAmount?: number;
+  seed?: number;
+  dryRun?: boolean;
+  maxTickets?: number;
+  reason?: string;
+}
+
+export interface OpsSalesSimulationDrawSummary {
+  drawId: string;
+  channelCode: string;
+  status: string;
+  planned: number;
+  confirmed: number;
+  rejected: number;
+  failed: number;
+}
+
+export interface OpsSalesSimulationSellerSummary {
+  sellerTerminalId: string;
+  terminalCode: string;
+  displayName: string;
+  planned: number;
+  confirmed: number;
+  rejected: number;
+  failed: number;
+}
+
+export interface OpsSalesSimulationGameSummary {
+  game: string;
+  gameCode: string;
+  betType: string;
+  betOption?: number | null;
+  planned: number;
+  confirmed: number;
+  rejected: number;
+  failed: number;
+}
+
+export interface OpsSalesSimulationTicketResult {
+  drawId: string;
+  sellerTerminalId: string;
+  game: string;
+  selection: string;
+  preparationId?: string | null;
+  ticketId?: string | null;
+  publicCode?: string | null;
+  amount?: number | null;
+}
+
+export interface OpsSalesSimulationFailure {
+  drawId: string;
+  sellerTerminalId: string;
+  game: string;
+  selection: string;
+  status?: number | null;
+  message: string;
+}
+
+export interface OpsSalesSimulationResponse {
+  simulationId: string;
+  tenantId: string;
+  dryRun: boolean;
+  currency: string;
+  stakeAmount: number;
+  seed: number;
+  requestedTickets: number;
+  plannedTickets: number;
+  preparedTickets: number;
+  confirmedTickets: number;
+  rejectedTickets: number;
+  failedTickets: number;
+  confirmedGross: number;
+  draws: OpsSalesSimulationDrawSummary[];
+  sellers: OpsSalesSimulationSellerSummary[];
+  games: OpsSalesSimulationGameSummary[];
+  tickets: OpsSalesSimulationTicketResult[];
+  failures: OpsSalesSimulationFailure[];
+  nextActions: string[];
+}
+
 // ── Batch Executions ─────────────────────────────────────────────────────────
 
 export interface ExecutionResponse {
@@ -527,6 +623,17 @@ export class PlatformOpsApi {
       `/admin/draws/${drawId}/results/correct`,
       req,
       tenantAdminOptions(tenantId, 'SUPER_ADMIN: correct draw result', options),
+    );
+  }
+
+  simulateSales(
+    req: OpsSalesSimulationRequest,
+    options?: TchRequestOptions,
+  ): Observable<OpsSalesSimulationResponse> {
+    return this.backend.post<OpsSalesSimulationResponse>(
+      '/platform/ops/sales-simulations',
+      req,
+      options,
     );
   }
 

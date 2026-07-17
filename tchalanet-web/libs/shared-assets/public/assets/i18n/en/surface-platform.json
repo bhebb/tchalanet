@@ -63,6 +63,7 @@
       "operations": "Operations",
       "jobs": "Jobs",
       "drawResults": "Results",
+      "salesSimulations": "Sales simulations",
       "providers": "Providers",
       "schedulers": "Scheduled tasks",
       "cache": "Cache",
@@ -176,6 +177,98 @@
       },
       "netRevenue": {
         "label": "Estimated net"
+      }
+    },
+    "ops": {
+      "salesSimulation": {
+        "title": "Sales simulation",
+        "description": "Create QA ticket volume per tenant, draw, and seller terminal through the real prepare/confirm flow.",
+        "errorTitle": "Action unavailable",
+        "noticeTitle": "Simulation",
+        "noTenant": "No tenant selected",
+        "drawsSelected": "{{selected}} / {{total}} draw(s) selected",
+        "requestedTickets": "Requested tickets",
+        "simulationId": "Simulation {{id}}",
+        "action": {
+          "loadDraws": "Load draws",
+          "calculate": "Calculate",
+          "execute": "Execute",
+          "selectAll": "Select all",
+          "clear": "Clear"
+        },
+        "section": {
+          "target": "Target",
+          "draws": "Draws",
+          "ticketMix": "Ticket mix",
+          "execution": "Execution",
+          "result": "Result",
+          "byGame": "By game",
+          "failures": "Failures"
+        },
+        "field": {
+          "tenant": "Tenant",
+          "sellerTerminals": "Seller terminals",
+          "status": "Status",
+          "slot": "Slot",
+          "from": "From",
+          "to": "To",
+          "mode": "Mode",
+          "currency": "Currency",
+          "stake": "Stake",
+          "seed": "Seed",
+          "maxTickets": "Max tickets",
+          "reason": "Reason"
+        },
+        "placeholder": {
+          "tenant": "Search tenant",
+          "sellerTerminals": "Search seller"
+        },
+        "empty": {
+          "tenant": "No tenant found",
+          "sellerTerminal": "No active seller terminal",
+          "drawsTitle": "No draws loaded",
+          "drawsMessage": "Select a tenant, then load draws."
+        },
+        "status": {
+          "all": "All",
+          "open": "Open",
+          "scheduled": "Scheduled",
+          "closed": "Closed",
+          "resulted": "Resulted"
+        },
+        "game": {
+          "bolet": "Borlette",
+          "maryaj": "Maryaj",
+          "loto3": "Loto 3",
+          "loto4": "Loto 4",
+          "loto5": "Loto 5"
+        },
+        "mode": {
+          "dryRun": "Dry-run",
+          "execute": "Create tickets"
+        },
+        "loading": {
+          "draws": "Loading draws...",
+          "simulation": "Simulation running..."
+        },
+        "notice": {
+          "dryRun": "Plan calculated without creating tickets.",
+          "executed": "Simulation executed."
+        },
+        "error": {
+          "selectTenantBeforeDraws": "Select a tenant before loading draws.",
+          "loadDraws": "Unable to load draws.",
+          "missingRunInputs": "Select a tenant, at least one draw, at least one seller terminal, and a non-empty mix.",
+          "run": "Simulation failed."
+        },
+        "metric": {
+          "planned": "Planned",
+          "prepared": "Prepared",
+          "confirmed": "Confirmed",
+          "rejected": "Rejected",
+          "failed": "Failures",
+          "gross": "Gross"
+        }
       }
     }
   },

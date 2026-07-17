@@ -15,8 +15,8 @@ import org.springframework.stereotype.Component;
  * Applies per-line profitability deltas to {@code analytics_selection} rows.
  *
  * <p>Each placed ticket line is projected independently so dashboards can display bet-type and
- * selection-level stats without touching raw ticket tables. Winnings are projected separately via
- * {@code TicketWinningSettlementCreatedEvent} (handled by {@link AnalyticsDailyProjector} for now;
+ * selection-level stats without touching raw ticket tables. Winnings are projected separately from
+ * {@code TicketPayoutPaidEvent} (handled by {@link AnalyticsDailyProjector} for now;
  * selection-level winnings require a future enrichment pass).
  */
 @Component

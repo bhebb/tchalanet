@@ -40,8 +40,8 @@ export class SendMessageService {
     }
 
     try {
-      await sender.send(request, recipient);
-      return { ...base, accepted: true };
+      const sendResult = await sender.send(request, recipient);
+      return { ...base, accepted: true, providerMessageId: sendResult?.providerMessageId };
     } catch (err) {
       const reason = err instanceof Error ? err.message : 'UNKNOWN_ERROR';
       return { ...base, accepted: false, reason };

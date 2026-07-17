@@ -21,11 +21,12 @@ public class TicketReceiptLabelResolver {
 
     try {
       return switch (GameCode.valueOf(code)) {
-        case HT_BOLET -> "BORLETTE";
-        case HT_MARYAJ, HT_MARYAJ_GRATIS -> "MARYAJ";
-        case HT_LOTO3 -> "LOTO 3 CHIFFRES";
-        case HT_LOTO4 -> "LOTO 4 CHIFFRES";
-        case HT_LOTO5 -> "LOTO 5 CHIFFRES";
+        case HT_BOLET -> "Borlette";
+        case HT_MARYAJ -> "Maryaj";
+        case HT_MARYAJ_GRATIS -> "Maryaj gratis";
+        case HT_LOTO3 -> "Loto 3 chiffres";
+        case HT_LOTO4 -> "Loto 4 chiffres";
+        case HT_LOTO5 -> "Loto 5 chiffres";
       };
     } catch (IllegalArgumentException ex) {
       return code;
@@ -37,9 +38,25 @@ public class TicketReceiptLabelResolver {
     if (line.selectionPolicySnapshot() == SelectionPolicy.EXPLICIT_ONLY
         && line.optionLabel() != null
         && !line.optionLabel().isBlank()) {
-      return line.optionLabel();
+      return compactOptionLabel(line.optionLabel());
     }
     return " ";
+  }
+
+  private String compactOptionLabel(String label) {
+    var normalized = label.trim();
+    return switch (normalized) {
+      case "Ordre exact" -> "Exact";
+      case "Revers / Double" -> "Revers";
+      case "Exact + Permuté", "Exact + Box" -> "Exact+Box";
+      case "Permuté", "Désordre / Box" -> "Box";
+      case "Avant 2 chiffres" -> "Avant";
+      case "Arrière 2 chiffres" -> "Arrière";
+      case "1er et 2e lots" -> "Lot 1-2";
+      case "1er et 3e lots" -> "Lot 1-3";
+      case "Mixte 1er/2e/3e lot" -> "Mixte 1-2-3";
+      default -> normalized;
+    };
   }
 
   private String translationOrNull(TicketReceiptTranslations translations, String key) {

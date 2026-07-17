@@ -46,21 +46,31 @@ public class EdgeCommunicationGateway {
     var signed = hmacSigner.sign(properties.hmacSecret(), edgeRequest);
 
     try {
-      edgeCommunicationClient
-          .post()
-          .uri(properties.messagesPath())
-          .contentType(MediaType.APPLICATION_JSON)
-          .header("X-Request-Id", requestId)
-          .header("Idempotency-Key", idempotencyKey)
-          .header("X-Tch-Timestamp", signed.timestamp())
-          .header("X-Tch-Signature", signed.signature())
-          .body(signed.rawJsonBody())
-          .retrieve()
-          .toBodilessEntity();
+      var response =
+          edgeCommunicationClient
+              .post()
+              .uri(properties.messagesPath())
+              .contentType(MediaType.APPLICATION_JSON)
+              .header("X-Request-Id", requestId)
+              .header("Idempotency-Key", idempotencyKey)
+              .header("X-Tch-Timestamp", signed.timestamp())
+              .header("X-Tch-Signature", signed.signature())
+              .body(signed.rawJsonBody())
+              .retrieve()
+              .body(EdgeCommunicationResponse.class);
+
+      if (response == null || !response.accepted()) {
+        var reason = response == null ? "empty edge response" : response.deliveryReasons();
+        throw new EdgeCommunicationException(
+            "Edge rejected message delivery: " + reason, new IllegalStateException(reason));
+      }
 
       log.debug(
-          "Edge message sent successfully: type={} channel={}", request.type(), request.channel());
-      return SendOutboundMessageResult.sent(PROVIDER);
+          "Edge message sent successfully: type={} channel={} eventId={}",
+          request.type(),
+          request.channel(),
+          response.eventId());
+      return SendOutboundMessageResult.sent(PROVIDER, response.providerMessageId());
     } catch (Exception e) {
       log.error(
           "Failed to send edge message: type={} channel={}", request.type(), request.channel(), e);
@@ -119,6 +129,10 @@ public class EdgeCommunicationGateway {
   private Map<String, Object> buildContext(SendOutboundMessageRequest request) {
     var context = new HashMap<String, Object>(request.metadata());
     var recipient = request.recipient();
+
+    if (!request.attachments().isEmpty()) {
+      context.put("attachments", request.attachments().stream().map(a -> a.toMetadata()).toList());
+    }
 
     if (recipient != null) {
       if (recipient.tenantId() != null) {
@@ -184,4 +198,34 @@ public class EdgeCommunicationGateway {
       Map<String, Object> context) {}
 
   record EdgeCommunicationRecipient(String channel, String to, String channelKey) {}
+
+  record EdgeCommunicationResponse(
+      boolean accepted, String eventId, List<EdgeDeliveryResponse> deliveries) {
+    String providerMessageId() {
+      if (deliveries == null) {
+        return null;
+      }
+      return deliveries.stream()
+          .filter(EdgeDeliveryResponse::accepted)
+          .map(EdgeDeliveryResponse::providerMessageId)
+          .filter(id -> id != null && !id.isBlank())
+          .findFirst()
+          .orElse(null);
+    }
+
+    String deliveryReasons() {
+      if (deliveries == null || deliveries.isEmpty()) {
+        return "no delivery details";
+      }
+      return deliveries.toString();
+    }
+  }
+
+  record EdgeDeliveryResponse(
+      String channel,
+      String to,
+      String channelKey,
+      boolean accepted,
+      String providerMessageId,
+      String reason) {}
 }

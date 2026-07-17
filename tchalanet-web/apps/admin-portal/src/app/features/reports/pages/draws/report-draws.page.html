@@ -11,90 +11,113 @@
   >
     <ng-template tchAsyncReady>
       @if (draws.value(); as vm) {
-        <header class="report-draws__toolbar">
-          <div>
-            <span>{{ 'admin.reports.common.period' | translate }}</span>
-            <strong>{{ vm.from | date:'mediumDate' }} - {{ vm.to | date:'mediumDate' }}</strong>
-          </div>
-          <div class="report-draws__actions">
-            <a mat-button routerLink="/app/admin/reports/overview">
-              <mat-icon aria-hidden="true">arrow_back</mat-icon>
-              {{ 'admin.reports.common.overview' | translate }}
-            </a>
-            <button type="button" mat-button (click)="printReport()">
-              <mat-icon aria-hidden="true">print</mat-icon>
-              {{ 'admin.reports.draws.action.print' | translate }}
-            </button>
-            <button type="button" mat-button (click)="exportCsv(vm)">
-              <mat-icon aria-hidden="true">download</mat-icon>
-              {{ 'admin.reports.draws.action.exportCsv' | translate }}
-            </button>
-            <button type="button" mat-stroked-button (click)="reload()">
-              <mat-icon aria-hidden="true">refresh</mat-icon>
-              {{ 'admin.reports.common.refresh' | translate }}
-            </button>
-          </div>
-        </header>
-
-        <tch-draw-report-filter-bar
-          [from]="fromFilter()"
-          [to]="toFilter()"
-          [sort]="sortFilter()"
-          [sortOptions]="sortOptions"
-          [searchDraws]="searchDraws"
-          (fromChange)="onFromFilter($event)"
-          (toChange)="onToFilter($event)"
-          (drawsChange)="onDrawsFilter($event)"
-          (sortChange)="onSortFilter($event)"
-        />
-
-        <section class="report-draws__kpis" [attr.aria-label]="'admin.reports.draws.kpisAria' | translate">
-          <tch-report-metric-card
-            [label]="'admin.reports.common.ticketsSold' | translate"
-            [value]="(vm.summary.ticketsSold | number) ?? '0'"
-          />
-          <tch-report-metric-card
-            [label]="'admin.reports.common.grossSales' | translate"
-            [value]="amountDisplay(vm.summary.grossSales) + ' ' + currency"
-          />
-          <tch-report-metric-card
-            [label]="'admin.reports.common.payoutsPaid' | translate"
-            [value]="amountDisplay(vm.summary.payoutsPaid) + ' ' + currency"
-            [hint]="(payoutRatePercent(vm) | number:'1.0-1') + '%'"
-          />
-        </section>
-
-        <tch-admin-section-card [title]="'admin.reports.draws.rowsTitle' | translate" icon="event">
-          @if (vm.rows.length === 0) {
-            <tch-admin-empty-state
-              icon="event_busy"
-              [title]="'admin.reports.draws.emptyTitle' | translate"
-              [message]="'admin.reports.draws.emptyMessage' | translate"
-            />
-          } @else {
-            <div class="report-draws__table">
-              <div class="report-draws__header" aria-hidden="true">
-                <span>{{ 'admin.reports.draws.column.draw' | translate }}</span>
-                <span>{{ 'admin.reports.draws.column.tickets' | translate }}</span>
-                <span>{{ 'admin.reports.draws.column.sales' | translate }}</span>
-                <span>{{ 'admin.reports.draws.column.payouts' | translate }}</span>
-                <span>{{ 'admin.reports.draws.column.net' | translate }}</span>
-              </div>
-              @for (row of sortedRows(vm.rows); track row.drawId) {
-                <div class="report-draws__row">
-                  <div class="report-draws__identity">
-                    <strong>{{ row.gameCode | consoleGameName }}</strong>
-                    <span>{{ drawChannel(row) }} - {{ row.scheduledAt | date:'short' }}</span>
-                  </div>
-                  <span>{{ row.ticketsSold | number }}</span>
-                  <strong>{{ amountDisplay(row.grossSales) }} {{ currency }}</strong>
-                  <span>{{ amountDisplay(row.payoutsPaid) }} {{ currency }}</span>
-                  <span>{{ amountDisplay(row.netRevenueEstimated) }} {{ currency }}</span>
-                </div>
-              }
+        <div class="report-draws__export-root" data-report-export-root>
+          <header class="report-draws__toolbar">
+            <div>
+              <span>{{ 'admin.reports.common.period' | translate }}</span>
+              <strong>{{ vm.from | date:'mediumDate' }} - {{ vm.to | date:'mediumDate' }}</strong>
             </div>
-          }
-        </tch-admin-section-card>
+            <div class="report-draws__actions">
+              <a mat-button routerLink="/app/admin/reports/overview">
+                <mat-icon aria-hidden="true">arrow_back</mat-icon>
+                {{ 'admin.reports.common.overview' | translate }}
+              </a>
+              <button type="button" mat-button (click)="exportPdf()">
+                <mat-icon aria-hidden="true">print</mat-icon>
+                {{ 'admin.reports.draws.action.exportPdf' | translate }}
+              </button>
+              <button type="button" mat-button (click)="exportCsv(vm)">
+                <mat-icon aria-hidden="true">download</mat-icon>
+                {{ 'admin.reports.draws.action.exportCsv' | translate }}
+              </button>
+              <button type="button" mat-stroked-button (click)="reload()">
+                <mat-icon aria-hidden="true">refresh</mat-icon>
+                {{ 'admin.reports.common.refresh' | translate }}
+              </button>
+            </div>
+          </header>
+
+          <tch-draw-report-filter-bar
+            [from]="fromFilter()"
+            [to]="toFilter()"
+            [sort]="sortFilter()"
+            [sortOptions]="sortOptions"
+            [searchDraws]="searchDraws"
+            (fromChange)="onFromFilter($event)"
+            (toChange)="onToFilter($event)"
+            (drawsChange)="onDrawsFilter($event)"
+            (sortChange)="onSortFilter($event)"
+          />
+
+          <section class="report-draws__kpis" [attr.aria-label]="'admin.reports.draws.kpisAria' | translate">
+            <tch-report-metric-card
+              [label]="'admin.reports.common.ticketsSold' | translate"
+              [value]="(vm.summary.ticketsSold | number) ?? '0'"
+            />
+            <tch-report-metric-card
+              [label]="'admin.reports.common.grossSales' | translate"
+              [value]="amountDisplay(vm.summary.grossSales) + ' ' + currency"
+            />
+            <tch-report-metric-card
+              [label]="'admin.reports.common.payoutsPaid' | translate"
+              [value]="amountDisplay(vm.summary.payoutsPaid) + ' ' + currency"
+              [hint]="(payoutRatePercent(vm) | number:'1.0-1') + '%'"
+            />
+          </section>
+
+          <tch-admin-section-card [title]="'admin.reports.draws.rowsTitle' | translate" icon="event">
+            @if (vm.rows.length === 0) {
+              <tch-admin-empty-state
+                icon="event_busy"
+                [title]="'admin.reports.draws.emptyTitle' | translate"
+                [message]="'admin.reports.draws.emptyMessage' | translate"
+              />
+            } @else {
+              <div class="report-draws__table">
+                <table mat-table [dataSource]="sortedRows(vm.rows)" class="report-draws__mat-table">
+                  <ng-container matColumnDef="draw">
+                    <th mat-header-cell *matHeaderCellDef>{{ 'admin.reports.draws.column.draw' | translate }}</th>
+                    <td mat-cell *matCellDef="let row">
+                      <div class="report-draws__identity">
+                        <strong>{{ row.gameCode | consoleGameName }}</strong>
+                        <span>{{ drawChannel(row) }} - {{ row.scheduledAt | date:'short' }}</span>
+                      </div>
+                    </td>
+                    <td mat-footer-cell *matFooterCellDef>{{ 'admin.reports.sellers.totalRow' | translate }}</td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="tickets">
+                    <th mat-header-cell *matHeaderCellDef class="report-draws__number">{{ 'admin.reports.draws.column.tickets' | translate }}</th>
+                    <td mat-cell *matCellDef="let row" class="report-draws__number">{{ row.ticketsSold | number }}</td>
+                    <td mat-footer-cell *matFooterCellDef class="report-draws__number">{{ vm.summary.ticketsSold | number }}</td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="sales">
+                    <th mat-header-cell *matHeaderCellDef class="report-draws__number">{{ 'admin.reports.draws.column.sales' | translate }}</th>
+                    <td mat-cell *matCellDef="let row" class="report-draws__number report-draws__amount--strong">{{ amountDisplay(row.grossSales) }}</td>
+                    <td mat-footer-cell *matFooterCellDef class="report-draws__number report-draws__amount--strong">{{ amountDisplay(vm.summary.grossSales) }}</td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="payouts">
+                    <th mat-header-cell *matHeaderCellDef class="report-draws__number">{{ 'admin.reports.draws.column.payouts' | translate }}</th>
+                    <td mat-cell *matCellDef="let row" class="report-draws__number">{{ amountDisplay(row.payoutsPaid) }}</td>
+                    <td mat-footer-cell *matFooterCellDef class="report-draws__number">{{ amountDisplay(vm.summary.payoutsPaid) }}</td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="net">
+                    <th mat-header-cell *matHeaderCellDef class="report-draws__number">{{ 'admin.reports.draws.column.net' | translate }}</th>
+                    <td mat-cell *matCellDef="let row" class="report-draws__number report-draws__amount--strong">{{ amountDisplay(row.netRevenueEstimated) }}</td>
+                    <td mat-footer-cell *matFooterCellDef class="report-draws__number report-draws__amount--strong">{{ amountDisplay(vm.summary.netRevenueEstimated) }}</td>
+                  </ng-container>
+
+                  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                  <tr mat-row *matRowDef="let row; columns: displayedColumns" class="report-draws__data-row"></tr>
+                  <tr mat-footer-row *matFooterRowDef="displayedColumns" class="report-draws__total-row"></tr>
+                </table>
+              </div>
+            }
+          </tch-admin-section-card>
+        </div>
       }
     </ng-template>
   </tch-async-view>

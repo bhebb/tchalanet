@@ -1,0 +1,238 @@
+<tch-admin-page-shell
+  [title]="'platform.ops.salesSimulation.title' | translate"
+  [description]="'platform.ops.salesSimulation.description' | translate"
+>
+  <button actions mat-stroked-button type="button" (click)="loadDraws()" [disabled]="!selectedTenantId() || loadingDraws()">
+    <mat-icon>refresh</mat-icon>
+    {{ 'platform.ops.salesSimulation.action.loadDraws' | translate }}
+  </button>
+  <button actions mat-flat-button color="primary" type="button" (click)="run()" [disabled]="!canRun()">
+    <mat-icon>{{ modeControl.value === 'dry-run' ? 'rule' : 'play_arrow' }}</mat-icon>
+    {{ (modeControl.value === 'dry-run' ? 'platform.ops.salesSimulation.action.calculate' : 'platform.ops.salesSimulation.action.execute') | translate }}
+  </button>
+
+  @if (error(); as message) {
+    <tch-section-error
+      class="sales-simulation__feedback"
+      [title]="'platform.ops.salesSimulation.errorTitle' | translate"
+      [message]="message"
+      severity="error"
+    />
+  }
+
+  @if (notice(); as message) {
+    <tch-section-error
+      class="sales-simulation__feedback"
+      [title]="'platform.ops.salesSimulation.noticeTitle' | translate"
+      [message]="message"
+      severity="info"
+    />
+  }
+
+  <div class="sales-simulation">
+    <section class="sales-simulation__main">
+      <tch-admin-section-card [title]="'platform.ops.salesSimulation.section.target' | translate" icon="travel_explore">
+        <div class="sales-simulation__target-grid">
+          <tch-search-select
+            [label]="'platform.ops.salesSimulation.field.tenant' | translate"
+            [placeholder]="'platform.ops.salesSimulation.placeholder.tenant' | translate"
+            icon="apartment"
+            [emptyLabel]="'platform.ops.salesSimulation.empty.tenant' | translate"
+            [searchFn]="searchTenants"
+            (valueChange)="selectTenant($event)"
+          />
+
+          <tch-multi-search-select
+            [label]="'platform.ops.salesSimulation.field.sellerTerminals' | translate"
+            [placeholder]="'platform.ops.salesSimulation.placeholder.sellerTerminals' | translate"
+            icon="point_of_sale"
+            [emptyLabel]="'platform.ops.salesSimulation.empty.sellerTerminal' | translate"
+            [searchFn]="searchSellerTerminals"
+            (valueChange)="updateSellerTerminals($event)"
+          />
+        </div>
+
+        <div class="sales-simulation__summary-line">
+          <span>{{ 'platform.ops.salesSimulation.field.tenant' | translate }}</span>
+          <strong>{{ tenantLabel() }}</strong>
+        </div>
+      </tch-admin-section-card>
+
+      <tch-admin-section-card [title]="'platform.ops.salesSimulation.section.draws' | translate" icon="event_available">
+        <div class="sales-simulation__filters">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'platform.ops.salesSimulation.field.status' | translate }}</mat-label>
+            <mat-select [formControl]="statusControl">
+              <mat-option value="">{{ 'platform.ops.salesSimulation.status.all' | translate }}</mat-option>
+              <mat-option value="OPEN">{{ 'platform.ops.salesSimulation.status.open' | translate }}</mat-option>
+              <mat-option value="SCHEDULED">{{ 'platform.ops.salesSimulation.status.scheduled' | translate }}</mat-option>
+              <mat-option value="CLOSED">{{ 'platform.ops.salesSimulation.status.closed' | translate }}</mat-option>
+              <mat-option value="RESULTED">{{ 'platform.ops.salesSimulation.status.resulted' | translate }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'platform.ops.salesSimulation.field.slot' | translate }}</mat-label>
+            <input matInput [formControl]="slotKeyControl" placeholder="NY_EVE" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'platform.ops.salesSimulation.field.from' | translate }}</mat-label>
+            <input matInput type="date" [formControl]="fromControl" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'platform.ops.salesSimulation.field.to' | translate }}</mat-label>
+            <input matInput type="date" [formControl]="toControl" />
+          </mat-form-field>
+          <button mat-stroked-button type="button" (click)="loadDraws()" [disabled]="!selectedTenantId() || loadingDraws()">
+            <mat-icon>search</mat-icon>
+          </button>
+        </div>
+
+        <div class="sales-simulation__draw-actions">
+          <span>{{ 'platform.ops.salesSimulation.drawsSelected' | translate:{ selected: selectedDrawIds().size, total: draws().length } }}</span>
+          <button mat-button type="button" (click)="selectAllDraws()" [disabled]="draws().length === 0">
+            {{ 'platform.ops.salesSimulation.action.selectAll' | translate }}
+          </button>
+          <button mat-button type="button" (click)="clearDraws()" [disabled]="selectedDrawIds().size === 0">
+            {{ 'platform.ops.salesSimulation.action.clear' | translate }}
+          </button>
+        </div>
+
+        @if (loadingDraws()) {
+          <tch-loading [label]="'platform.ops.salesSimulation.loading.draws' | translate" />
+        } @else if (draws().length === 0) {
+          <tch-admin-empty-state
+            icon="event_busy"
+            [title]="'platform.ops.salesSimulation.empty.drawsTitle' | translate"
+            [message]="'platform.ops.salesSimulation.empty.drawsMessage' | translate"
+          />
+        } @else {
+          <div class="sales-simulation__draw-list">
+            @for (draw of draws(); track trackDraw($index, draw)) {
+              <button
+                class="sales-simulation__draw-row"
+                type="button"
+                (click)="toggleDraw(draw.id, !selectedDrawIds().has(draw.id))"
+              >
+                <mat-checkbox
+                  [checked]="selectedDrawIds().has(draw.id)"
+                  (click)="$event.stopPropagation()"
+                  (change)="toggleDraw(draw.id, $event.checked)"
+                />
+                <span>
+                  <strong>{{ draw.channel.code }}</strong>
+                  <small>{{ draw.slot.key }} · {{ draw.drawDate }} · {{ draw.status }}</small>
+                </span>
+              </button>
+            }
+          </div>
+        }
+      </tch-admin-section-card>
+
+      <tch-admin-section-card [title]="'platform.ops.salesSimulation.section.ticketMix' | translate" icon="confirmation_number">
+        <div class="sales-simulation__mix-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'platform.ops.salesSimulation.game.bolet' | translate }}</mat-label>
+            <input matInput type="number" min="0" [formControl]="boletControl" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'platform.ops.salesSimulation.game.maryaj' | translate }}</mat-label>
+            <input matInput type="number" min="0" [formControl]="maryajControl" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'platform.ops.salesSimulation.game.loto3' | translate }}</mat-label>
+            <input matInput type="number" min="0" [formControl]="loto3Control" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'platform.ops.salesSimulation.game.loto4' | translate }}</mat-label>
+            <input matInput type="number" min="0" [formControl]="loto4Control" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'platform.ops.salesSimulation.game.loto5' | translate }}</mat-label>
+            <input matInput type="number" min="0" [formControl]="loto5Control" />
+          </mat-form-field>
+        </div>
+      </tch-admin-section-card>
+    </section>
+
+    <aside class="sales-simulation__aside">
+      <tch-admin-section-card [title]="'platform.ops.salesSimulation.section.execution' | translate" icon="tune">
+        <div class="sales-simulation__settings">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'platform.ops.salesSimulation.field.mode' | translate }}</mat-label>
+            <mat-select [formControl]="modeControl">
+              <mat-option value="dry-run">{{ 'platform.ops.salesSimulation.mode.dryRun' | translate }}</mat-option>
+              <mat-option value="execute">{{ 'platform.ops.salesSimulation.mode.execute' | translate }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'platform.ops.salesSimulation.field.currency' | translate }}</mat-label>
+            <input matInput [formControl]="currencyControl" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'platform.ops.salesSimulation.field.stake' | translate }}</mat-label>
+            <input matInput type="number" min="0.01" step="0.01" [formControl]="stakeAmountControl" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'platform.ops.salesSimulation.field.seed' | translate }}</mat-label>
+            <input matInput type="number" [formControl]="seedControl" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'platform.ops.salesSimulation.field.maxTickets' | translate }}</mat-label>
+            <input matInput type="number" min="1" [formControl]="maxTicketsControl" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'platform.ops.salesSimulation.field.reason' | translate }}</mat-label>
+            <textarea matInput rows="3" [formControl]="reasonControl"></textarea>
+          </mat-form-field>
+        </div>
+
+        <div class="sales-simulation__estimate">
+          <span>{{ 'platform.ops.salesSimulation.requestedTickets' | translate }}</span>
+          <strong>{{ requestedTickets() }}</strong>
+        </div>
+      </tch-admin-section-card>
+
+      @if (running()) {
+        <tch-loading [label]="'platform.ops.salesSimulation.loading.simulation' | translate" />
+      }
+
+      @if (result(); as vm) {
+        <tch-admin-section-card [title]="'platform.ops.salesSimulation.section.result' | translate" icon="analytics">
+          <div class="sales-simulation__metrics">
+            <div><span>{{ 'platform.ops.salesSimulation.metric.planned' | translate }}</span><strong>{{ vm.plannedTickets }}</strong></div>
+            <div><span>{{ 'platform.ops.salesSimulation.metric.prepared' | translate }}</span><strong>{{ vm.preparedTickets }}</strong></div>
+            <div><span>{{ 'platform.ops.salesSimulation.metric.confirmed' | translate }}</span><strong>{{ vm.confirmedTickets }}</strong></div>
+            <div><span>{{ 'platform.ops.salesSimulation.metric.rejected' | translate }}</span><strong>{{ vm.rejectedTickets }}</strong></div>
+            <div><span>{{ 'platform.ops.salesSimulation.metric.failed' | translate }}</span><strong>{{ vm.failedTickets }}</strong></div>
+            <div><span>{{ 'platform.ops.salesSimulation.metric.gross' | translate }}</span><strong>{{ vm.confirmedGross }} {{ vm.currency }}</strong></div>
+          </div>
+          <p class="sales-simulation__result-id">{{ 'platform.ops.salesSimulation.simulationId' | translate:{ id: vm.simulationId } }}</p>
+        </tch-admin-section-card>
+
+        <tch-admin-section-card [title]="'platform.ops.salesSimulation.section.byGame' | translate" icon="casino">
+          <div class="sales-simulation__compact-table">
+            @for (game of vm.games; track game.game) {
+              <div>
+                <strong>{{ game.game }}</strong>
+                <span>{{ game.confirmed }} / {{ game.planned }}</span>
+              </div>
+            }
+          </div>
+        </tch-admin-section-card>
+
+        @if (vm.failures.length > 0) {
+          <tch-admin-section-card [title]="'platform.ops.salesSimulation.section.failures' | translate" icon="warning">
+            <div class="sales-simulation__failures">
+              @for (failure of vm.failures.slice(0, 8); track failure.drawId + failure.sellerTerminalId + failure.game + failure.selection) {
+                <p>
+                  <strong>{{ failure.game }} {{ failure.selection }}</strong>
+                  <span>{{ failure.status || 'ERR' }} · {{ failure.message }}</span>
+                </p>
+              }
+            </div>
+          </tch-admin-section-card>
+        }
+      }
+    </aside>
+  </div>
+</tch-admin-page-shell>

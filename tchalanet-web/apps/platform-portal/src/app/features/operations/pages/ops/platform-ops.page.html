@@ -54,6 +54,22 @@
       </tch-admin-section-card>
 
       <tch-admin-section-card
+        title="Simulation de ventes"
+        icon="point_of_sale"
+      >
+        <div class="ops-overview__metrics">
+          <div>
+            <strong>QA</strong>
+            <span>tickets par tenant, tirage et vendeur</span>
+          </div>
+        </div>
+        <a mat-stroked-button routerLink="/app/platform/ops/sales-simulations">
+          <mat-icon>arrow_forward</mat-icon>
+          Ouvrir simulation
+        </a>
+      </tch-admin-section-card>
+
+      <tch-admin-section-card
         title="Jobs"
         icon="schedule"
         tchSectionErrorTarget="platform.ops.overview.jobs"

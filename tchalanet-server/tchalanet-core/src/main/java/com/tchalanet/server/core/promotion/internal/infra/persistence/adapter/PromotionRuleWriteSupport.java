@@ -326,7 +326,7 @@ class PromotionRuleWriteSupport {
             String.valueOf(params.getOrDefault("regenerableBeforeConfirm", "false"))));
     effect.setMaxRegenerationsBeforeConfirm(
         params.containsKey("maxRegenerationsBeforeConfirm")
-            ? positiveInt(params, "maxRegenerationsBeforeConfirm")
+            ? nonNegativeInt(params, "maxRegenerationsBeforeConfirm")
             : 3);
   }
 
@@ -364,6 +364,14 @@ class PromotionRuleWriteSupport {
     var value = Integer.parseInt(requiredString(params, keys));
     if (value <= 0) {
       throw ProblemRest.badRequest("promotion.rule.value_must_be_positive");
+    }
+    return value;
+  }
+
+  private int nonNegativeInt(Map<String, Object> params, String... keys) {
+    var value = Integer.parseInt(requiredString(params, keys));
+    if (value < 0) {
+      throw ProblemRest.badRequest("promotion.rule.value_must_be_non_negative");
     }
     return value;
   }

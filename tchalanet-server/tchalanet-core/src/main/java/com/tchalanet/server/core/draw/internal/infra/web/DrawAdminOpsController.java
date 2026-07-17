@@ -65,7 +65,7 @@ public class DrawAdminOpsController {
 
   @Operation(summary = "Reschedule a draw")
   @PostMapping("/{drawId}/reschedule")
-  @PreAuthorize("hasRole('SUPER_ADMIN') and hasPermission(null, 'draw.schedule.manage')")
+  @PreAuthorize("hasPermission(null, 'draw.schedule.manage')")
   @AuditLog(
       entity = AuditEntityType.DRAW,
       action = AuditAction.DRAW_RESCHEDULE,

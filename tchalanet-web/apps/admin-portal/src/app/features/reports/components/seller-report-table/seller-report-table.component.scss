@@ -1,0 +1,171 @@
+.seller-report-table {
+  overflow: hidden;
+  border: 1px solid var(--tch-color-outline-variant);
+  border-radius: var(--tch-radius-lg);
+  background: var(--tch-color-surface);
+
+  &__desktop {
+    overflow-x: auto;
+  }
+
+  &__mat-table {
+    width: 100%;
+    min-width: 960px;
+    background: var(--tch-color-surface);
+  }
+
+  &__data-row {
+    background: var(--tch-color-surface);
+    border-bottom: 1px solid var(--tch-color-outline-variant);
+    transition: background-color 150ms ease;
+
+    &:hover {
+      background: var(--tch-color-surface-container-low);
+    }
+  }
+
+  &__total-row {
+    border-top: 2px solid var(--tch-color-outline-variant);
+    background: var(--tch-color-surface-container-high);
+    font-weight: 800;
+  }
+
+  &__identity {
+    display: grid;
+    gap: 0.125rem;
+    min-width: 0;
+
+    strong,
+    span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    span {
+      color: var(--tch-color-on-surface-variant);
+      font-size: var(--tch-font-size-label-sm);
+    }
+  }
+
+  &__number {
+    text-align: right;
+  }
+
+  &__actions {
+    width: 1%;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  &__amount--strong {
+    color: var(--tch-color-on-surface);
+    font-weight: 800;
+  }
+
+  &__secondary-amount,
+  &__rate {
+    display: block;
+  }
+
+  &__secondary-amount {
+    color: var(--tch-color-on-surface-variant);
+  }
+
+  &__rate {
+    margin-top: 0.125rem;
+    color: var(--tch-color-on-surface-variant);
+    font-size: var(--tch-font-size-label-sm);
+  }
+
+  &__mobile {
+    display: none;
+  }
+
+  &__card {
+    display: grid;
+    gap: 1rem;
+    padding: 1rem;
+    border-bottom: 1px solid var(--tch-color-outline-variant);
+    background: var(--tch-color-surface);
+
+    &:last-child {
+      border-bottom: 0;
+    }
+  }
+
+  &__card-header {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+
+  &__card-facts {
+    display: grid;
+    gap: 0.75rem;
+    margin: 0;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+
+    div {
+      display: grid;
+      gap: 0.125rem;
+    }
+
+    dt {
+      color: var(--tch-color-on-surface-variant);
+      font-size: var(--tch-font-size-label-sm);
+      font-weight: 700;
+    }
+
+    dd {
+      margin: 0;
+      color: var(--tch-color-on-surface);
+      font-weight: 700;
+
+      span {
+        display: block;
+        color: var(--tch-color-on-surface-variant);
+        font-size: var(--tch-font-size-label-sm);
+        font-weight: 600;
+      }
+    }
+  }
+  .mat-mdc-header-cell,
+  .mat-mdc-cell,
+  .mat-mdc-footer-cell {
+    border-bottom: 0;
+    color: var(--tch-color-on-surface);
+  }
+
+  .mat-mdc-header-cell {
+    color: var(--tch-color-on-surface-variant);
+    font-weight: 800;
+  }
+
+  .mat-mdc-footer-cell {
+    color: var(--tch-color-on-surface);
+  }
+
+  .mat-mdc-paginator {
+    border-top: 1px solid var(--tch-color-outline-variant);
+    background: var(--tch-color-surface-container-low);
+    color: var(--tch-color-on-surface-variant);
+  }
+}
+
+@media (max-width: 760px) {
+  .seller-report-table {
+    &__desktop {
+      display: none;
+    }
+
+    &__mobile {
+      display: block;
+    }
+
+    &__card-facts {
+      grid-template-columns: 1fr;
+    }
+  }
+}

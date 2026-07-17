@@ -21,8 +21,8 @@ import com.tchalanet.server.core.analytics.internal.infra.persistence.AnalyticsS
 import com.tchalanet.server.core.analytics.internal.infra.persistence.AnalyticsSellerTerminalDrawRepository;
 import com.tchalanet.server.core.sales.api.event.TicketLinePlacedItem;
 import com.tchalanet.server.core.sales.api.event.TicketPayoutPaidEvent;
+import com.tchalanet.server.core.sales.api.event.TicketPayoutPaidAmountAdjustedEvent;
 import com.tchalanet.server.core.sales.api.event.TicketPlacedEvent;
-import com.tchalanet.server.core.sales.api.event.TicketWinningSettlementCreatedEvent;
 import com.tchalanet.server.core.sales.api.event.payload.TicketContextPayload;
 import com.tchalanet.server.core.sales.api.event.payload.TicketMoneyPayload;
 import com.tchalanet.server.core.sales.api.model.money.ChargePaidBy;
@@ -60,7 +60,7 @@ class AnalyticsSellerTerminalDrawProjectorTest {
   private static final LocalDate REF_DATE = LocalDate.parse("2026-06-25");
 
   @Test
-  void projectsSaleSnapshotsThenWinningAndPaidDeltasBySellerTerminalAndDraw() {
+  void projectsSaleSnapshotsThenSettledAndPaidDeltaBySellerTerminalAndDraw() {
     var repository = mock(AnalyticsSellerTerminalDrawRepository.class);
     when(repository.findByTenantIdAndSellerTerminalIdAndDrawId(
             TENANT_ID.value(), SELLER_TERMINAL_ID.value(), DRAW_ID.value()))
@@ -94,13 +94,19 @@ class AnalyticsSellerTerminalDrawProjectorTest {
             TENANT_ID.value(), SELLER_TERMINAL_ID.value(), DRAW_ID.value()))
         .thenReturn(Optional.of(row));
 
-    projector.applyTicketWinningSettlementCreated(winningCreated(4000L), REF_DATE);
-    projector.applyTicketPayoutPaid(payoutPaid(2500L), REF_DATE);
+    projector.applyTicketSettledAndPaid(payoutPaid(4000L), REF_DATE);
 
     assertThat(row.getWinningsCalculatedCents()).isEqualTo(4000L);
-    assertThat(row.getPayoutsPaidCents()).isEqualTo(2500L);
+    assertThat(row.getPayoutsPaidCents()).isEqualTo(4000L);
     assertThat(row.getNetRevenueEstimatedCents()).isEqualTo(-3450L);
-    assertThat(row.getNetRevenuePaidBasisCents()).isEqualTo(-1950L);
+    assertThat(row.getNetRevenuePaidBasisCents()).isEqualTo(-3450L);
+
+    projector.applyTicketPayoutPaidAmountAdjusted(payoutAdjusted(4000L, 3500L), REF_DATE);
+
+    assertThat(row.getWinningsCalculatedCents()).isEqualTo(4000L);
+    assertThat(row.getPayoutsPaidCents()).isEqualTo(3500L);
+    assertThat(row.getNetRevenueEstimatedCents()).isEqualTo(-3450L);
+    assertThat(row.getNetRevenuePaidBasisCents()).isEqualTo(-2950L);
   }
 
   private static TicketPlacedEvent ticketPlaced() {
@@ -163,18 +169,6 @@ class AnalyticsSellerTerminalDrawProjectorTest {
         null);
   }
 
-  private static TicketWinningSettlementCreatedEvent winningCreated(long amountCents) {
-    return new TicketWinningSettlementCreatedEvent(
-        EventId.of(UUID.fromString("90000000-0000-0000-0000-000000000001")),
-        NOW,
-        TENANT_ID,
-        TICKET_ID,
-        DRAW_ID,
-        amountCents,
-        "HTG",
-        SELLER_TERMINAL_ID);
-  }
-
   private static TicketPayoutPaidEvent payoutPaid(long amountCents) {
     return new TicketPayoutPaidEvent(
         EventId.of(UUID.fromString("90000000-0000-0000-0000-000000000002")),
@@ -185,6 +179,24 @@ class AnalyticsSellerTerminalDrawProjectorTest {
         amountCents,
         "HTG",
         SELLER_TERMINAL_ID,
+        null);
+  }
+
+  private static TicketPayoutPaidAmountAdjustedEvent payoutAdjusted(
+      long previousAmountCents, long adjustedAmountCents) {
+    return new TicketPayoutPaidAmountAdjustedEvent(
+        EventId.of(UUID.fromString("90000000-0000-0000-0000-000000000003")),
+        NOW,
+        TENANT_ID,
+        TICKET_ID,
+        DRAW_ID,
+        4000L,
+        previousAmountCents,
+        adjustedAmountCents,
+        adjustedAmountCents - previousAmountCents,
+        "HTG",
+        SELLER_TERMINAL_ID,
+        "cashier paid less than calculated",
         null);
   }
 

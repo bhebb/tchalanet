@@ -18,7 +18,7 @@
       "context": "public_managers",
       "schemaVersion": 2,
       "langs": ["fr", "en", "ht"],
-      "defaultLang": "fr"
+      "defaultLang": "ht"
     },
     "theme": {
       "presetId": "tchalanet",

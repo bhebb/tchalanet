@@ -213,6 +213,13 @@
                 "icon": "fact_check"
               },
               {
+                "id": "ops-sales-simulations",
+                "label_key": "platform.nav.salesSimulations",
+                "path": "/app/platform/ops/sales-simulations",
+                "kind": "internal",
+                "icon": "science"
+              },
+              {
                 "id": "ops-jobs",
                 "label_key": "platform.nav.jobs",
                 "path": "/app/platform/ops/jobs",

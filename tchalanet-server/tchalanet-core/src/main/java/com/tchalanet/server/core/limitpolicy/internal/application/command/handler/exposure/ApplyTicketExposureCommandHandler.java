@@ -8,6 +8,7 @@ import com.tchalanet.server.core.limitpolicy.internal.application.port.out.expos
 import com.tchalanet.server.platform.idempotence.api.ProcessedEventPort;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Propagation;
 
 @UseCase
 @RequiredArgsConstructor
@@ -20,7 +21,7 @@ public class ApplyTicketExposureCommandHandler
   private final ExposureProjectorPort projector;
 
   @Override
-  @TchTx
+  @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void handle(ApplyTicketExposureCommand c) {
     var e = c.event();
 

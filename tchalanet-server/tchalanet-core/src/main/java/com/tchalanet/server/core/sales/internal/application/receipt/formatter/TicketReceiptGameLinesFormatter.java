@@ -23,7 +23,13 @@ public class TicketReceiptGameLinesFormatter {
       TicketReceiptTranslations translations,
       TicketReceiptLayoutProfile profile) {
     var lines = new ArrayList<TicketReceiptTextLine>();
-    add(lines, header(translations, profile), false);
+    var complimentaryMaryajOnly =
+        receiptLines != null
+            && !receiptLines.isEmpty()
+            && receiptLines.stream().allMatch(this::isComplimentaryMaryaj);
+    if (!complimentaryMaryajOnly) {
+      add(lines, header(translations, profile), false);
+    }
     var hasComplimentaryMaryaj = false;
     for (var line : receiptLines) {
       add(lines, lineRow(line, translations, profile), false);
@@ -36,7 +42,7 @@ public class TicketReceiptGameLinesFormatter {
       }
       hasComplimentaryMaryaj = hasComplimentaryMaryaj || isComplimentaryMaryaj(line);
     }
-    if (hasComplimentaryMaryaj) {
+    if (hasComplimentaryMaryaj && !complimentaryMaryajOnly) {
       add(
           lines,
           layout.truncate(
@@ -83,8 +89,12 @@ public class TicketReceiptGameLinesFormatter {
     if (optionLabel != null && !optionLabel.isBlank()) {
       choice = choice + "  " + optionLabel;
     }
+    var stake = stakeDisplay(line, translations, profile);
+    if (choice.length() + stake.length() + 2 <= profile.charsPerLine()) {
+      return choice + "  " + stake;
+    }
     var choicePart = layout.rightPad(choice, choiceW);
-    var stakePart = layout.leftPad(stakeDisplay(line, translations, profile), stakeW);
+    var stakePart = layout.leftPad(stake, stakeW);
 
     var row = choicePart + " " + stakePart;
     return layout.truncate(row, profile.charsPerLine());

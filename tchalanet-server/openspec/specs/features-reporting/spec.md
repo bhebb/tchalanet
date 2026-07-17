@@ -19,10 +19,10 @@ The reporting feature SHALL use `core.analytics` queries for KPI/report data.
 - **AND** dispatch through `QueryBus`
 - **AND** return a reporting response DTO.
 
-#### Scenario: Sales report endpoint is called
+#### Scenario: Tenant financial report endpoint is called
 
-- **WHEN** a user requests a sales report by period/game
-- **THEN** `features.reporting` SHALL dispatch `GetSalesReportQuery`
+- **WHEN** a user requests tenant financial reports
+- **THEN** `features.reporting` SHALL dispatch `GetTenantFinancialBreakdownQuery`
 - **AND** it SHALL NOT query `sales_ticket` or `ticket` tables directly.
 
 ### Requirement: Reporting feature owns exports, not metrics truth

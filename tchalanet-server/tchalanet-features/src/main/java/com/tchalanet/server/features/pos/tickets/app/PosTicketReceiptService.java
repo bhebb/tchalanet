@@ -15,6 +15,7 @@ import com.tchalanet.server.features.pos.tickets.model.PrintTicketRequest;
 import com.tchalanet.server.features.pos.tickets.model.SendTicketReceiptRequest;
 import com.tchalanet.server.features.pos.tickets.model.SendTicketReceiptResponse;
 import com.tchalanet.server.platform.communication.api.CommunicationApi;
+import com.tchalanet.server.platform.communication.api.model.request.OutboundAttachment;
 import com.tchalanet.server.platform.communication.api.model.request.SendOutboundMessageRequest;
 import com.tchalanet.server.platform.communication.api.model.value.CommunicationChannel;
 import com.tchalanet.server.platform.communication.api.model.value.OutboundRecipient;
@@ -29,6 +30,7 @@ import com.tchalanet.server.platform.tenant.api.TenantConfigApi;
 import com.tchalanet.server.platform.tenant.api.model.request.GetTenantByIdRequest;
 import com.tchalanet.server.platform.tenant.api.model.view.TenantInternalDocumentConfig;
 import java.util.LinkedHashMap;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.CacheControl;
@@ -124,9 +126,19 @@ public class PosTicketReceiptService {
     metadata.put("body", message.body());
     metadata.put("message", message.body());
 
+    var attachments =
+        request.channel() == CommunicationChannel.EMAIL
+            ? List.of(renderEmailAttachment(ctx, ticketId, request))
+            : List.<OutboundAttachment>of();
+
     communicationApi.enqueue(
         new SendOutboundMessageRequest(
-            "TICKET_RECEIPT", request.channel(), recipient, message.locale(), metadata));
+            "TICKET_RECEIPT",
+            request.channel(),
+            recipient,
+            message.locale(),
+            metadata,
+            attachments));
 
     return new SendTicketReceiptResponse(
         ticketId, request.channel(), recipientValue(request), true, false);
@@ -184,6 +196,27 @@ public class PosTicketReceiptService {
             profileResolver.resolve(communicationPrintOptions)));
   }
 
+  private OutboundAttachment renderEmailAttachment(
+      TchRequestContext ctx, TicketId ticketId, SendTicketReceiptRequest request) {
+    var profile = profileResolver.resolve(new PrintOptionsRequest(DocumentFormat.PDF, PaperSize.A4));
+    var receipt =
+        queryBus.ask(new FormatTicketReceiptPrintQuery(ticketId, profile, request.locale()));
+    var pdfRequest =
+        new PrintTicketRequest(
+            request.sellerTerminalId(),
+            new PrintOptionsRequest(DocumentFormat.PDF, PaperSize.A4),
+            false,
+            null,
+            List.of(),
+            null,
+            request.to(),
+            request.locale());
+    var rendered =
+        documentApi.render(
+            documentMapper.toRenderRequest(receipt, pdfRequest, resolveReceiptConfig(ctx), profile));
+    return new OutboundAttachment(rendered.filename(), rendered.contentType(), rendered.bytes());
+  }
+
   // -- send helpers -------------------------------------------------------------
 
   private OutboundRecipient recipient(TchRequestContext ctx, SendTicketReceiptRequest request) {
@@ -214,7 +247,8 @@ public class PosTicketReceiptService {
   }
 
   private String dedupKey(TicketId ticketId, CommunicationChannel channel, String recipient) {
-    return ticketId.value() + ":" + channel.name() + ":" + recipient;
+    var mode = channel == CommunicationChannel.EMAIL ? ":pdf" : "";
+    return ticketId.value() + ":" + channel.name() + ":" + recipient + mode;
   }
 
   // -- operational context ------------------------------------------------------

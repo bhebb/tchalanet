@@ -22,8 +22,9 @@ import {
   AdminEmptyState,
 } from '@tch/ui/components';
 import { consoleGameName } from '@tch/web/console';
+import { TranslatePipe } from '@ngx-translate/core';
 
-import { ReportsAdminApi, type SalesReportLine } from './data-access/reports-admin.api.service';
+import { AdminFinancialsApi, type DrawFinancialRow } from './data-access/admin-financials-api.service';
 
 function toIso(date: Date): string {
   return date.toISOString().slice(0, 10);
@@ -38,6 +39,14 @@ interface ReportTotals {
   totalSales: number;
   totalPayout: number;
   netRevenue: number;
+}
+
+interface SalesReportLine {
+  readonly gameCode: string;
+  readonly ticketsSold: number;
+  readonly totalSales: number;
+  readonly totalPayout: number;
+  readonly netRevenue: number;
 }
 
 type PageState =
@@ -63,6 +72,7 @@ type PageState =
     MatInputModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    TranslatePipe,
     TchLoading,
     TchErrorPanel,
     AdminPageHeader,
@@ -72,7 +82,7 @@ type PageState =
   styleUrl: './admin-today-report.page.scss',
 })
 export class AdminTodayReportPage {
-  private readonly api = inject(ReportsAdminApi);
+  private readonly api = inject(AdminFinancialsApi);
 
   readonly selectedDate = signal<Date>(today());
   readonly maxDate = today();
@@ -85,9 +95,10 @@ export class AdminTodayReportPage {
   readonly state = toSignal(
     toObservable(this.dateParams).pipe(
       switchMap(params =>
-        this.api.getSalesReport(params).pipe(
+        this.api.getBreakdown(params).pipe(
           switchMap(resp => {
-            const totals: ReportTotals = resp.lines.reduce(
+            const lines = this.linesByGame(resp.drawRows);
+            const totals: ReportTotals = lines.reduce(
               (acc, l) => ({
                 ticketsSold: acc.ticketsSold + l.ticketsSold,
                 totalSales: acc.totalSales + l.totalSales,
@@ -98,10 +109,10 @@ export class AdminTodayReportPage {
             );
             return of({
               status: 'ready',
-              lines: resp.lines,
+              lines,
               totals,
-              from: resp.fromDate,
-              to: resp.toDate,
+              from: resp.from,
+              to: resp.to,
             } as PageState);
           }),
           catchError(() => of({ status: 'error' } as PageState)),
@@ -118,5 +129,26 @@ export class AdminTodayReportPage {
 
   gameLabel(code: string): string {
     return consoleGameName(code);
+  }
+
+  private linesByGame(rows: readonly DrawFinancialRow[]): readonly SalesReportLine[] {
+    const byGame = new Map<string, SalesReportLine>();
+    for (const row of rows) {
+      const current = byGame.get(row.gameCode) ?? {
+        gameCode: row.gameCode,
+        ticketsSold: 0,
+        totalSales: 0,
+        totalPayout: 0,
+        netRevenue: 0,
+      };
+      byGame.set(row.gameCode, {
+        gameCode: row.gameCode,
+        ticketsSold: current.ticketsSold + row.ticketsSold,
+        totalSales: current.totalSales + row.grossSales,
+        totalPayout: current.totalPayout + row.payoutsPaid,
+        netRevenue: current.netRevenue + row.netRevenuePaidBasis,
+      });
+    }
+    return [...byGame.values()].sort((a, b) => a.gameCode.localeCompare(b.gameCode));
   }
 }

@@ -5,11 +5,11 @@ import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptMessageCon
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptPrintContent;
 import com.tchalanet.server.features.pos.tickets.model.PrintDeliveryOption;
 import com.tchalanet.server.features.pos.tickets.model.PrintTicketRequest;
+import com.tchalanet.server.platform.communication.api.model.request.OutboundAttachment;
 import com.tchalanet.server.platform.communication.api.model.request.SendOutboundMessageRequest;
 import com.tchalanet.server.platform.communication.api.model.value.CommunicationChannel;
 import com.tchalanet.server.platform.communication.api.model.value.OutboundRecipient;
 import com.tchalanet.server.platform.document.api.model.RenderedDocument;
-import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -56,7 +56,8 @@ public class TicketPrintCommunicationMapper {
         channel,
         recipient,
         locale,
-        metadata(ctx, receipt, message, rendered, channel));
+        metadata(ctx, receipt, message, rendered, channel),
+        attachments(rendered, channel));
   }
 
   private Map<String, Object> metadata(
@@ -93,25 +94,23 @@ public class TicketPrintCommunicationMapper {
     metadata.put("documentContentType", rendered.contentType());
     metadata.put("documentFormat", rendered.format().name());
 
-    if (supportsAttachment(channel)) {
-      if (rendered.bytes().length > MAX_INLINE_ATTACHMENT_BYTES) {
-        throw new IllegalStateException("Document too large for inline communication attachment");
-      }
-      metadata.put(
-          "attachments",
-          List.of(
-              Map.of(
-                  "filename", rendered.filename(),
-                  "contentType", rendered.contentType(),
-                  "contentBase64", Base64.getEncoder().encodeToString(rendered.bytes()),
-                  "disposition", "attachment")));
-    }
-
     return Map.copyOf(metadata);
   }
 
+  private List<OutboundAttachment> attachments(
+      RenderedDocument rendered, CommunicationChannel channel) {
+    if (!supportsAttachment(channel)) {
+      return List.of();
+    }
+    if (rendered.bytes().length > MAX_INLINE_ATTACHMENT_BYTES) {
+      throw new IllegalStateException("Document too large for inline communication attachment");
+    }
+    return List.of(
+        new OutboundAttachment(rendered.filename(), rendered.contentType(), rendered.bytes()));
+  }
+
   private boolean supportsAttachment(CommunicationChannel channel) {
-    return channel == CommunicationChannel.EMAIL || channel == CommunicationChannel.WHATSAPP;
+    return channel == CommunicationChannel.EMAIL;
   }
 
   private CommunicationChannel toChannel(PrintDeliveryOption option) {

@@ -14,7 +14,6 @@ import com.tchalanet.server.core.sales.api.command.result.RecordDrawTicketsResul
 import com.tchalanet.server.core.sales.api.command.result.RecordDrawTicketsResultResult;
 import com.tchalanet.server.core.sales.api.event.TicketPayoutPaidEvent;
 import com.tchalanet.server.core.sales.api.event.TicketResultedEvent;
-import com.tchalanet.server.core.sales.api.event.TicketWinningSettlementCreatedEvent;
 import com.tchalanet.server.core.sales.api.model.status.TicketResultStatus;
 import com.tchalanet.server.core.sales.internal.application.port.out.TicketReaderPort;
 import com.tchalanet.server.core.sales.internal.application.port.out.TicketWriterPort;
@@ -25,6 +24,7 @@ import java.util.Objects;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Propagation;
 
 @UseCase
 @RequiredArgsConstructor
@@ -47,7 +47,7 @@ public class RecordDrawTicketsResultCommandHandler
   private final Clock clock;
 
   @Override
-  @TchTx
+  @TchTx(propagation = Propagation.REQUIRES_NEW)
   public RecordDrawTicketsResultResult handle(RecordDrawTicketsResultCommand command) {
     Objects.requireNonNull(command, "command is required");
     Objects.requireNonNull(command.tenantId(), "tenantId is required");
@@ -64,7 +64,6 @@ public class RecordDrawTicketsResultCommandHandler
     var now = clock.instant();
 
     var resultedEvents = new java.util.ArrayList<TicketResultedEvent>();
-    var winningSettlementEvents = new java.util.ArrayList<TicketWinningSettlementCreatedEvent>();
     var payoutPaidEvents = new java.util.ArrayList<TicketPayoutPaidEvent>();
     var affectedTicketIds =
         new java.util.ArrayList<com.tchalanet.server.common.types.id.TicketId>();
@@ -115,16 +114,6 @@ public class RecordDrawTicketsResultCommandHandler
         if (resultStatus == TicketResultStatus.WON
             && winningAmount != null
             && winningAmount.signum() > 0) {
-          winningSettlementEvents.add(
-              new TicketWinningSettlementCreatedEvent(
-                  EventId.of(idGenerator.newUuid()),
-                  now,
-                  saved.identity().tenantId(),
-                  saved.identity().id(),
-                  command.drawId(),
-                  winningAmount.movePointRight(2).longValueExact(),
-                  saved.money().currency().code(),
-                  saved.context().sellerTerminalId()));
           payoutPaidEvents.add(
               new TicketPayoutPaidEvent(
                   EventId.of(idGenerator.newUuid()),
@@ -147,10 +136,11 @@ public class RecordDrawTicketsResultCommandHandler
       }
     }
 
+    ticketWriter.flushPending();
+
     AfterCommit.run(
         () -> {
           resultedEvents.forEach(eventPublisher::publish);
-          winningSettlementEvents.forEach(eventPublisher::publish);
           payoutPaidEvents.forEach(eventPublisher::publish);
           salesTicketCacheEvictor.evictByDraw(command.drawId());
           affectedTicketIds.forEach(salesTicketCacheEvictor::evictByTicket);

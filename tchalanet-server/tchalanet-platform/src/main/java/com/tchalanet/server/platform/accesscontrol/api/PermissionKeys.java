@@ -107,6 +107,7 @@ public final class PermissionKeys {
   public static final String TICKET_REJECT = "ticket.reject";
   public static final String TICKET_CANCEL = "ticket.cancel";
   public static final String TICKET_CANCEL_OWN = "ticket.cancel-own";
+  public static final String TICKET_PAYOUT_ADJUST = "ticket.payout.adjust";
 
   // Cashier / POS (hardcoded for SELLER_TERMINAL actor)
   public static final String CASHIER_HOME_READ = "cashier.home.read";

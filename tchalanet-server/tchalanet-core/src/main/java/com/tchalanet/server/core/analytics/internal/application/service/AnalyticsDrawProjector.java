@@ -4,10 +4,9 @@ import com.tchalanet.server.core.analytics.internal.infra.persistence.AnalyticsD
 import com.tchalanet.server.core.analytics.internal.infra.persistence.AnalyticsDrawRepository;
 import com.tchalanet.server.core.draw.api.event.DrawResultAppliedEvent;
 import com.tchalanet.server.core.sales.api.event.TicketPayoutPaidEvent;
+import com.tchalanet.server.core.sales.api.event.TicketPayoutPaidAmountAdjustedEvent;
 import com.tchalanet.server.core.sales.api.event.TicketPayoutReversedEvent;
 import com.tchalanet.server.core.sales.api.event.TicketPlacedEvent;
-import com.tchalanet.server.core.sales.api.event.TicketWinningSettlementCreatedEvent;
-import com.tchalanet.server.core.sales.api.event.TicketWinningSettlementReversedEvent;
 import com.tchalanet.server.core.sales.api.model.money.ChargePaidBy;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineOrigin;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSource;
@@ -21,13 +20,15 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Ensures an {@code analytics_draw} row exists for every resulted draw.
  *
- * <p>The row is created with zero counters; downstream ticket-settlement events
- * (TicketWinningSettlementCreatedEvent) updates the winnings columns via the daily projector. The
- * draw row exists primarily to serve per-draw breakdown queries.
+ * <p>The row is created with zero counters; downstream payout-paid events update both winnings and
+ * payouts because result application auto-settles winning tickets. The draw row exists primarily to
+ * serve per-draw breakdown queries.
  */
 @Component
 @RequiredArgsConstructor
@@ -37,6 +38,7 @@ public class AnalyticsDrawProjector {
   private final AnalyticsDrawRepository repo;
   private final Clock clock;
 
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void applyTicketPlaced(TicketPlacedEvent event, LocalDate refDate) {
     if (event.saleStatus() != TicketSaleStatus.APPROVED) {
       log.debug("analytics-draw: skip PENDING ticket {}", event.ticketId().value());
@@ -109,9 +111,15 @@ public class AnalyticsDrawProjector {
     repo.save(entity);
   }
 
-  public void applyTicketWinningSettlementCreated(
-      TicketWinningSettlementCreatedEvent event, LocalDate refDate) {
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public void applyTicketSettledAndPaid(TicketPayoutPaidEvent event, LocalDate refDate) {
     applyWinningsCalculatedDelta(
+        event.drawId().value(),
+        event.tenantId().value(),
+        refDate,
+        event.occurredAt(),
+        event.amountCents());
+    applyPayoutPaidDelta(
         event.drawId().value(),
         event.tenantId().value(),
         refDate,
@@ -119,9 +127,16 @@ public class AnalyticsDrawProjector {
         event.amountCents());
   }
 
-  public void applyTicketWinningSettlementReversed(
-      TicketWinningSettlementReversedEvent event, LocalDate refDate) {
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public void applyTicketSettlementAndPayoutReversed(
+      TicketPayoutReversedEvent event, LocalDate refDate) {
     applyWinningsCalculatedDelta(
+        event.drawId().value(),
+        event.tenantId().value(),
+        refDate,
+        event.occurredAt(),
+        -event.amountCents());
+    applyPayoutPaidDelta(
         event.drawId().value(),
         event.tenantId().value(),
         refDate,
@@ -129,6 +144,7 @@ public class AnalyticsDrawProjector {
         -event.amountCents());
   }
 
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void applyTicketPayoutPaid(TicketPayoutPaidEvent event, LocalDate refDate) {
     applyPayoutPaidDelta(
         event.drawId().value(),
@@ -138,6 +154,18 @@ public class AnalyticsDrawProjector {
         event.amountCents());
   }
 
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public void applyTicketPayoutPaidAmountAdjusted(
+      TicketPayoutPaidAmountAdjustedEvent event, LocalDate refDate) {
+    applyPayoutPaidDelta(
+        event.drawId().value(),
+        event.tenantId().value(),
+        refDate,
+        event.occurredAt(),
+        event.deltaAmountCents());
+  }
+
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void applyTicketPayoutReversed(TicketPayoutReversedEvent event, LocalDate refDate) {
     applyPayoutPaidDelta(
         event.drawId().value(),
@@ -148,6 +176,7 @@ public class AnalyticsDrawProjector {
   }
 
   /** Ensure a draw row exists and enrich metadata known when the result is applied. */
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void ensureDrawRow(DrawResultAppliedEvent event) {
     UUID drawId = event.drawId().value();
     Instant now = Instant.now(clock);

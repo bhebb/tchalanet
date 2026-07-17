@@ -321,7 +321,12 @@ public class DrawResultJdbcRepository {
   private static String text(JsonNode node, String key) {
     if (node == null || node.isNull()) return null;
     var value = node.get(key);
-    return value != null && value.isTextual() ? value.asText() : null;
+    if (value != null && value.isTextual()) return value.asText();
+
+    var lots = node.get("lots");
+    if (lots == null || !lots.isObject()) return null;
+    var lotValue = lots.get(key.toUpperCase(java.util.Locale.ROOT));
+    return lotValue != null && lotValue.isTextual() ? lotValue.asText() : null;
   }
 
   private static List<String> list(JsonNode node, String key) {
