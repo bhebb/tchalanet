@@ -1,12 +1,12 @@
 package com.tchalanet.server.core.analytics.internal.application.command.handler;
 
 import com.tchalanet.server.common.bus.CommandHandler;
+import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.analytics.api.command.RecomputeAnalyticsDailyCommand;
 import com.tchalanet.server.core.analytics.internal.infra.persistence.AnalyticsDailyRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Handles {@link RecomputeAnalyticsDailyCommand}.
@@ -30,7 +30,7 @@ public class RecomputeAnalyticsDailyCommandHandler
   private final AnalyticsDailyRepository repo;
 
   @Override
-  @Transactional
+  @TchTx
   public Void handle(RecomputeAnalyticsDailyCommand cmd) {
     log.info(
         "analytics recompute: tenant={} from={} to={}",
