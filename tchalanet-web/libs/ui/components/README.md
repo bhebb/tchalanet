@@ -36,6 +36,7 @@ The public API is exported from `src/index.ts`. Error primitives are documented 
 | `tch-multi-search-select` | `TchMultiSearchSelect` | Multi server-backed autocomplete selector with chips |
 | `tch-section-header` | `TchSectionHeader` | Section title + optional action |
 | `tch-field-error` | `TchFieldError` | Form field error message |
+| `tch-form-error-summary` | `TchFormErrorSummary` | Form-owned summary for unconsumed field violations |
 | `tch-lang-switcher` | `TchLangSwitcher` | Language selector |
 | `tch-lang-theme-group` | `TchLangThemeGroup` | Combined lang + theme controls |
 | *(service)* | `TchBreakpointService` | Responsive tier signals (`handset/tablet/desktop`) |
@@ -46,7 +47,9 @@ The public API is exported from `src/index.ts`. Error primitives are documented 
 Every component in this library:
 
 - is a standalone Angular component with `ChangeDetectionStrategy.OnPush`;
-- uses `input()` / `output()` signals, never `@Input`/`@Output`;
+- uses `input()` / `output()` signals by default. Recovery primitives may expose a minimal
+  decorator-backed input/output adapter when the JIT test runner cannot retain signal-input
+  metadata; the adapter must only feed internal signals and must not own feature state;
 - declares `:host` with `--comp-<block>-*` variables falling back to `--tch-*`;
 - uses BEM-like class names prefixed with `tch-` for generic blocks;
 - has no dependency on feature stores, facades, auth, or PageModel;

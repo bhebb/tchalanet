@@ -146,6 +146,46 @@
         "title": "Active promotions"
       }
     },
+    "sellerTerminal": {
+      "pos": {
+        "dialog": {
+          "title": {
+            "saleSuccess": "Ticket sold",
+            "ticketActions": "Ticket actions"
+          },
+          "summaryAria": "Ticket summary",
+          "actionsAria": "Ticket actions",
+          "deliveryAria": "Send ticket",
+          "field": {
+            "ticket": "Ticket",
+            "publicCode": "Public code",
+            "totalPaid": "Total paid",
+            "lines": "Lines",
+            "freeLines": "{{count}} free line(s)"
+          },
+          "action": {
+            "print": "Print",
+            "printing": "Printing...",
+            "details": "View details",
+            "close": "Close",
+            "newTicket": "New ticket"
+          },
+          "delivery": {
+            "title": "Send ticket",
+            "phone": "Phone",
+            "phonePlaceholder": "+509 0000 0000",
+            "email": "Email",
+            "emailPlaceholder": "name@example.com"
+          },
+          "feedback": {
+            "printSuccess": "The ticket is ready to print.",
+            "printError": "Unable to print the ticket. Try again.",
+            "sendSuccess": "The ticket was sent.",
+            "sendError": "Unable to send the ticket. Try again."
+          }
+        }
+      }
+    },
     "reports": {
       "title": "Reports",
       "common": {
@@ -153,6 +193,7 @@
         "overview": "Overview",
         "payoutsPaid": "Payouts paid",
         "period": "Reporting period",
+        "netRevenue": "Net revenue",
         "refresh": "Refresh",
         "sellerCommission": "Seller commission",
         "ticketsSold": "Tickets sold",
@@ -554,6 +595,7 @@
       "required": "Requis",
       "blocking": "Blocking",
       "blockedBy": "Blocked by:",
+      "backToSetup": "Back to setup",
       "section": {
         "identity": "Identité",
         "address": "Adresse",
@@ -736,6 +778,18 @@
         "statusLabel": {
           "pinResetRequired": "PIN reset required",
           "activeNeverSeen": "Active · never connected"
+        },
+        "notice": {
+          "created": "The seller was created successfully.",
+          "blocked": "The seller has been blocked."
+        },
+        "dialog": {
+          "block": {
+            "title": "Block seller",
+            "description": "Blocking {{name}} ({{code}}) prevents all sales until the seller is unblocked.",
+            "reason": "Reason for blocking",
+            "reasonPlaceholder": "For example: terminal not returned, suspected fraud..."
+          }
         }
       },
       "empty": {

@@ -19,4 +19,7 @@ public class CommonErrorCodes {
   public static final String REQUEST_TYPE_MISMATCH = "request.type_mismatch";
   public static final String VALIDATION_CONSTRAINT_VIOLATION = "validation.constraint_violation";
   public static final String VALIDATION_FAILED = "validation.failed";
+  public static final String VALIDATION_INVALID_FORMAT = "validation.invalid_format";
+  public static final String VALIDATION_OUT_OF_RANGE = "validation.out_of_range";
+  public static final String VALIDATION_REQUIRED = "validation.required";
 }

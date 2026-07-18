@@ -3,6 +3,8 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { firstValueFrom } from 'rxjs';
 
+import { problemDetailInterceptor } from '@tch/api';
+
 import { authBearerInterceptor } from './auth-bearer.interceptor';
 import { AUTH_CLIENT, AuthClient } from './auth-client';
 
@@ -22,7 +24,9 @@ describe('authBearerInterceptor', () => {
     vi.clearAllMocks();
     TestBed.configureTestingModule({
       providers: [
-        provideHttpClient(withInterceptors([authBearerInterceptor])),
+        // The problem mapper is outermost, so auth sees a raw 401 and may retry before
+        // consumers receive a normalized ProblemDetail.
+        provideHttpClient(withInterceptors([problemDetailInterceptor, authBearerInterceptor])),
         provideHttpClientTesting(),
         { provide: AUTH_CLIENT, useValue: auth },
       ],

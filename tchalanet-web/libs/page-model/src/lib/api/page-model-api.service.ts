@@ -15,7 +15,7 @@ export class PageModelApi {
   getPublicPage(lang?: string): Observable<PageRuntimeResponse> {
     return this.backend.getApiResponse<PageRuntimeResponse>('/public/page', {
       params: langParams(lang),
-      suppressShellFeedback: true,
+      feedback: { owner: 'feature', mode: 'local', target: 'page-model' },
     }).pipe(map(withSectionNotices));
   }
 
@@ -54,22 +54,21 @@ export class PageModelApi {
 function withSectionNotices(response: ApiResponse<PageRuntimeResponse>): PageRuntimeResponse {
   assertPageRuntimeResponse(response.data);
 
-  const existingKeys = new Set(
-    response.data.dynamic.errors.map(error => widgetErrorKey(error.widgetId, error.code)),
-  );
+  const existingErrors = response.data.dynamic.errors.map(sanitizeWidgetError);
+  const existingKeys = new Set(existingErrors.map(error => widgetErrorKey(error.widgetId, error.code)));
   const widgetErrors = (response.notices ?? [])
     .map(notice => widgetErrorFromNotice(notice, response.trace))
     .filter((error): error is WidgetDynamicError => error !== null)
     .filter(error => !existingKeys.has(widgetErrorKey(error.widgetId, error.code)));
 
-  if (!widgetErrors.length) return response.data;
+  if (!widgetErrors.length && !existingErrors.length) return response.data;
 
   return {
     ...response.data,
     dynamic: {
       ...response.data.dynamic,
       errors: [
-        ...(response.data.dynamic?.errors ?? []),
+        ...existingErrors,
         ...widgetErrors,
       ],
     },
@@ -99,11 +98,22 @@ function widgetErrorFromNotice(
   return {
     widgetId: target,
     code: notice.code,
-    message: notice.message,
     severity: noticeSeverity(notice.severity),
     requestId: stringMeta(meta, 'requestId') ?? trace?.requestId,
     traceId: stringMeta(meta, 'traceId') ?? trace?.traceId,
     errorId: stringMeta(meta, 'errorId'),
+  };
+}
+
+/** Dynamic widget errors carry stable identifiers and support references, never transport prose. */
+function sanitizeWidgetError(error: WidgetDynamicError): WidgetDynamicError {
+  return {
+    widgetId: error.widgetId,
+    code: error.code,
+    severity: error.severity,
+    requestId: error.requestId,
+    traceId: error.traceId,
+    errorId: error.errorId,
   };
 }
 

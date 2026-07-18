@@ -66,6 +66,18 @@
           "failed": {
             "title": "Information to correct",
             "message": "Correct the highlighted fields and try again."
+          },
+          "invalid_format": {
+            "title": "Invalid format",
+            "message": "Correct the format of the highlighted field and try again."
+          },
+          "out_of_range": {
+            "title": "Invalid value",
+            "message": "Enter a value within the expected limits and try again."
+          },
+          "required": {
+            "title": "Missing information",
+            "message": "Complete the highlighted field and try again."
           }
         },
         "platform": {

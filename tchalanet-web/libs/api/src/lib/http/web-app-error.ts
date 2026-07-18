@@ -15,6 +15,17 @@ export type WebErrorSeverity = 'info' | 'warn' | 'error';
 export type WebErrorSurface = 'page' | 'section' | 'field' | 'shell';
 export type WebErrorPlacement = 'top' | 'inline' | 'summary';
 
+/**
+ * Transport diagnostics are retained for telemetry and support correlation only.
+ * They must never be rendered as user-facing copy.
+ */
+export interface WebErrorDiagnostics {
+  readonly problemTitle?: string;
+  readonly problemDetail?: string;
+  readonly noticeMessage?: string;
+  readonly serviceMessage?: string;
+}
+
 export interface WebAppError {
   readonly id: string;
   readonly origin: WebErrorOrigin;
@@ -35,6 +46,7 @@ export interface WebAppError {
   readonly field?: string;
   readonly retryable: boolean;
   readonly dedupeKey: string;
+  readonly diagnostics?: WebErrorDiagnostics;
 }
 
 export function webAppErrorFromProblemDetail(
@@ -62,8 +74,8 @@ export function webAppErrorFromProblemDetail(
     severity,
     surface,
     placement: surface === 'field' ? 'inline' : 'top',
-    title: userSafeTitle(code, category, problem.title),
-    message: userSafeMessage(code, category, problem.detail ?? problem.title),
+    title: userSafeTitle(code, category),
+    message: userSafeMessage(category),
     code,
     status: problem.status,
     requestId: problem.requestId ?? problem.correlationId,
@@ -75,6 +87,10 @@ export function webAppErrorFromProblemDetail(
     field: undefined,
     retryable: isRetryable(category, problem.status),
     dedupeKey: dedupeKey(code, category, problem.status, resolvedSource, surface),
+    diagnostics: {
+      problemTitle: problem.title,
+      problemDetail: problem.detail,
+    },
   };
 }
 
@@ -105,8 +121,8 @@ export function webAppErrorFromNotice(
     severity,
     surface: resolvedSurface,
     placement,
-    title: userSafeTitle(notice.code, category, notice.message),
-    message: userSafeMessage(notice.code, category, notice.message),
+    title: userSafeTitle(notice.code, category),
+    message: userSafeMessage(category),
     code: notice.code,
     status,
     requestId,
@@ -126,6 +142,7 @@ export function webAppErrorFromNotice(
       target,
       field,
     ),
+    diagnostics: { noticeMessage: notice.message },
   };
 }
 
@@ -142,7 +159,6 @@ export function webAppErrorsFromProblemDetailFields(
   return violations.map(violation => {
     const code = violation.code ?? problem.code ?? 'validation.failed';
     const target = violation.target ?? violation.field;
-    const message = violation.message ?? problem.detail ?? problem.title;
     const category: WebErrorCategory = 'validation';
 
     return {
@@ -160,8 +176,8 @@ export function webAppErrorsFromProblemDetailFields(
       severity: 'error',
       surface: 'field',
       placement: 'inline',
-      title: userSafeTitle(code, category, problem.title),
-      message: userSafeMessage(code, category, message),
+      title: userSafeTitle(code, category),
+      message: userSafeMessage(category),
       code,
       status: problem.status,
       requestId: problem.requestId ?? problem.correlationId,
@@ -181,6 +197,10 @@ export function webAppErrorsFromProblemDetailFields(
         target,
         violation.field,
       ),
+      diagnostics: {
+        problemTitle: problem.title,
+        problemDetail: violation.message ?? problem.detail,
+      },
     } satisfies WebAppError;
   });
 }
@@ -211,8 +231,8 @@ export function webAppErrorFromServiceStatus(
     severity,
     surface: 'shell',
     placement: 'top',
-    title: userSafeTitle(code, category, service.message ?? resolvedSource),
-    message: userSafeMessage(code, category, service.message ?? resolvedSource),
+    title: userSafeTitle(code, category),
+    message: userSafeMessage(category),
     code,
     requestId: trace?.requestId,
     traceId: trace?.traceId,
@@ -222,6 +242,7 @@ export function webAppErrorFromServiceStatus(
     field: undefined,
     retryable: true,
     dedupeKey: dedupeKey(code, category, undefined, resolvedSource, 'shell', undefined, undefined),
+    diagnostics: { serviceMessage: service.message ?? undefined },
   };
 }
 
@@ -325,11 +346,7 @@ function stableErrorId(
   return [kind, errorId, requestId, traceId, code, category, source].filter(Boolean).join('|');
 }
 
-function userSafeTitle(
-  code: string | undefined,
-  category: WebErrorCategory,
-  fallback: string,
-): string {
+function userSafeTitle(code: string | undefined, category: WebErrorCategory): string {
   if (code) return code;
   switch (category) {
     case 'auth_required':
@@ -349,16 +366,11 @@ function userSafeTitle(
     case 'service_unavailable':
       return 'Service temporairement indisponible';
     default:
-      return fallback || 'Erreur inattendue';
+      return 'Erreur inattendue';
   }
 }
 
-function userSafeMessage(
-  code: string | undefined,
-  category: WebErrorCategory,
-  fallback: string,
-): string {
-  if (code) return fallback || code;
+function userSafeMessage(category: WebErrorCategory): string {
   switch (category) {
     case 'auth_required':
       return 'Reconnectez-vous pour continuer.';

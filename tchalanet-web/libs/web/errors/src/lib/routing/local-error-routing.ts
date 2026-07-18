@@ -1,5 +1,6 @@
-import { AbstractControl, FormGroup } from '@angular/forms';
+import { AbstractControl, FormArray, FormGroup } from '@angular/forms';
 import { WebAppError } from '@tch/api';
+import { Subscription } from 'rxjs';
 
 import { resolveErrorFeedbackCopy, TchTranslateLookup } from '../copy/error-feedback-copy';
 import { TchErrorViewModel } from '../models/error-view-model';
@@ -48,7 +49,7 @@ export function applyServerFieldErrors(
 
     control.setErrors({
       ...(control.errors ?? {}),
-      server: error,
+      server: [...serverErrors(control.errors?.['server']), error],
     });
     control.markAsTouched();
   }
@@ -67,6 +68,31 @@ export function clearServerFieldErrors(control: AbstractControl): void {
   if (control instanceof FormGroup) {
     Object.values(control.controls).forEach(child => clearServerFieldErrors(child));
   }
+
+  if (control instanceof FormArray) {
+    control.controls.forEach(child => clearServerFieldErrors(child));
+  }
+}
+
+/**
+ * Clears a server violation only after the user changes the affected control. The caller owns the
+ * subscription lifetime, normally through `DestroyRef.onDestroy`.
+ */
+export function clearServerFieldErrorsOnEdit(control: AbstractControl): Subscription {
+  const subscriptions = new Subscription();
+
+  if (control instanceof FormGroup) {
+    Object.values(control.controls).forEach(child => subscriptions.add(clearServerFieldErrorsOnEdit(child)));
+    return subscriptions;
+  }
+
+  if (control instanceof FormArray) {
+    control.controls.forEach(child => subscriptions.add(clearServerFieldErrorsOnEdit(child)));
+    return subscriptions;
+  }
+
+  subscriptions.add(control.valueChanges.subscribe(() => clearServerFieldErrors(control)));
+  return subscriptions;
 }
 
 export function toErrorViewModel(
@@ -131,4 +157,13 @@ function controlForError(
   }
 
   return null;
+}
+
+function serverErrors(value: unknown): readonly WebAppError[] {
+  if (Array.isArray(value)) return value.filter(isWebAppError);
+  return isWebAppError(value) ? [value] : [];
+}
+
+function isWebAppError(value: unknown): value is WebAppError {
+  return typeof value === 'object' && value !== null && 'code' in value && 'surface' in value;
 }

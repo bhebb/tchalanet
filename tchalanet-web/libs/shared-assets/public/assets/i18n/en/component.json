@@ -121,6 +121,25 @@
       "tenants_alerts": "Tenants & alerts"
     }
   },
+  "dashboard": {
+    "fallback": {
+      "title": "Dashboard",
+      "notice": {
+        "title": "Information",
+        "empty": "No alerts"
+      },
+      "status": {
+        "title": "Dashboard temporarily limited",
+        "runtime": "Dashboard data",
+        "support": "Support"
+      },
+      "actions": {
+        "title": "Available actions",
+        "setup": "General setup",
+        "support": "Support"
+      }
+    }
+  },
   "widget": {
     "error": "This content is temporarily unavailable.",
     "invalid": "Invalid widget.",

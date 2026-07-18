@@ -55,6 +55,33 @@ Examples:
 Shell feedback may survive route changes inside the same shell, but it must stay bounded,
 deduplicated, and scoped to public/private shell context.
 
+The HTTP shell-feedback router is deliberately opt-in during migration. A request reaches the shell
+only when it declares:
+
+```ts
+feedback: { owner: 'shell', mode: 'inherit' }
+```
+
+`local` and `silent` never reach the shell. `inherit` without `owner: 'shell'` is non-rendering
+until a feature explicitly selects an owner. This prevents an interceptor from duplicating a page,
+section, form, or field error while older call sites are being migrated.
+
+### Form mutation boundary
+
+`problemDetailInterceptor` exposes the final error as a `ProblemDetail`; older tests or call sites
+may still provide an `HttpErrorResponse`. Form owners must normalize either form before extracting
+violations:
+
+```ts
+const problem = mapHttpErrorToProblemDetail(error);
+const fields = webAppErrorsFromProblemDetailFields(problem, 'tenant.identity');
+const unconsumed = applyServerFieldErrors(form, fields, targetMap);
+```
+
+Do not read `error.error` in presentation code. It drops direct normalized failures, which turns a
+field validation response into an unrelated generic form error. `unconsumed` violations belong in
+the form summary; a field renderer handles only targets it can resolve.
+
 ### Page top
 
 Use page-level errors when the routed page owns the failure.
@@ -285,8 +312,10 @@ dialog targets:
 ```
 
 List load failures render as the page error. Row action failures render once in the list surface or
-inside the owning dialog. These API calls must suppress shell feedback. Successful create/unblock
-and disable actions close or reload the owning surface without creating a snackbar.
+inside the owning dialog. These API calls must suppress shell feedback. A mutation dialog returns a
+typed `{ reload: true, noticeKey }` result; the list page owns the localized `tch-notice` confirmation
+and reloads its resources. A dialog must render unmapped field violations in `tch-form-error-summary`,
+instead of losing them or escalating them to shell feedback.
 
 Seller-terminal POS failures are split by runtime block:
 

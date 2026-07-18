@@ -18,8 +18,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import java.net.URI;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -189,21 +187,18 @@ public class GlobalErrorHandler {
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<ProblemDetail> handleMethodArgumentNotValid(
       MethodArgumentNotValidException ex, HttpServletRequest req) {
-    var detail =
-        ex.getBindingResult().getFieldErrors().stream()
-            .map(fe -> fe.getField() + ": " + fe.getDefaultMessage())
-            .findFirst()
-            .orElse("Invalid request");
-
-    var pd = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, detail);
+    var pd = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Validation failed");
     pd.setTitle("Validation failed");
     pd.setProperty("code", CommonErrorCodes.VALIDATION_FAILED);
-    pd.setProperty("errors", fieldErrors(ex));
     pd.setProperty("violations", fieldViolations(ex));
 
     decorate(pd, req, ex, true);
 
-    log.warn("[400] {} {} - {}", req.getMethod(), req.getRequestURI(), detail);
+    log.warn(
+        "[400] {} {} - validation fields={}",
+        req.getMethod(),
+        req.getRequestURI(),
+        ex.getBindingResult().getFieldErrors().stream().map(fieldError -> fieldError.getField()).toList());
 
     return buildResponse(pd, req, HttpStatus.BAD_REQUEST);
   }
@@ -213,21 +208,23 @@ public class GlobalErrorHandler {
    *
    * <p>Without this handler Spring's DefaultHandlerExceptionResolver short-circuits to the
    * BasicErrorController, leaking a bare {@code {"timestamp",...,"status":400}} response that
-   * bypasses our problem+json contract. We surface the most specific cause message instead.
+   * bypasses our problem+json contract. The parsing failure remains in server logs only; arbitrary
+   * request content or Jackson/provider prose is never returned as a client message.
    */
   @ExceptionHandler(HttpMessageNotReadableException.class)
   public ResponseEntity<ProblemDetail> handleNotReadable(
       HttpMessageNotReadableException ex, HttpServletRequest req) {
-    var cause = ex.getMostSpecificCause();
-    var detail = cause != null ? cause.getMessage() : ex.getMessage();
-
-    var pd = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, detail);
+    var pd = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Malformed request body");
     pd.setTitle("Malformed request body");
     pd.setProperty("code", CommonErrorCodes.REQUEST_NOT_READABLE);
 
     decorate(pd, req, ex, true);
 
-    log.warn("[400] {} {} - not readable: {}", req.getMethod(), req.getRequestURI(), detail);
+    log.warn(
+        "[400] {} {} - not readable cause={}",
+        req.getMethod(),
+        req.getRequestURI(),
+        ex.getMostSpecificCause().getClass().getSimpleName());
 
     return buildResponse(pd, req, HttpStatus.BAD_REQUEST);
   }
@@ -235,15 +232,24 @@ public class GlobalErrorHandler {
   @ExceptionHandler(MissingServletRequestParameterException.class)
   public ResponseEntity<ProblemDetail> handleMissingParam(
       MissingServletRequestParameterException ex, HttpServletRequest req) {
-    var detail = "Missing required request parameter: " + ex.getParameterName();
-
-    var pd = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, detail);
+    var pd = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Missing request parameter");
     pd.setTitle("Missing request parameter");
     pd.setProperty("code", CommonErrorCodes.REQUEST_MISSING_PARAMETER);
+    pd.setProperty(
+        "violations",
+        List.of(
+            Map.of(
+                "code", CommonErrorCodes.VALIDATION_REQUIRED,
+                "field", ex.getParameterName(),
+                "target", ex.getParameterName())));
 
     decorate(pd, req, ex, true);
 
-    log.warn("[400] {} {} - {}", req.getMethod(), req.getRequestURI(), detail);
+    log.warn(
+        "[400] {} {} - missing parameter={}",
+        req.getMethod(),
+        req.getRequestURI(),
+        ex.getParameterName());
 
     return buildResponse(pd, req, HttpStatus.BAD_REQUEST);
   }
@@ -251,19 +257,24 @@ public class GlobalErrorHandler {
   @ExceptionHandler(MethodArgumentTypeMismatchException.class)
   public ResponseEntity<ProblemDetail> handleTypeMismatch(
       MethodArgumentTypeMismatchException ex, HttpServletRequest req) {
-    var detail = "Invalid value for '" + ex.getName() + "'";
-    var cause = ex.getMostSpecificCause();
-    if (cause.getMessage() != null) {
-      detail += ": " + cause.getMessage();
-    }
-
-    var pd = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, detail);
+    var pd = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Invalid request parameter");
     pd.setTitle("Type mismatch");
     pd.setProperty("code", CommonErrorCodes.REQUEST_TYPE_MISMATCH);
+    pd.setProperty(
+        "violations",
+        List.of(
+            Map.of(
+                "code", CommonErrorCodes.VALIDATION_INVALID_FORMAT,
+                "field", ex.getName(),
+                "target", ex.getName())));
 
     decorate(pd, req, ex, true);
 
-    log.warn("[400] {} {} - {}", req.getMethod(), req.getRequestURI(), detail);
+    log.warn(
+        "[400] {} {} - type mismatch parameter={}",
+        req.getMethod(),
+        req.getRequestURI(),
+        ex.getName());
 
     return buildResponse(pd, req, HttpStatus.BAD_REQUEST);
   }
@@ -271,13 +282,18 @@ public class GlobalErrorHandler {
   @ExceptionHandler(ConstraintViolationException.class)
   public ResponseEntity<ProblemDetail> handleConstraintViolation(
       ConstraintViolationException ex, HttpServletRequest req) {
-    var pd = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+    var pd = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Validation failed");
     pd.setTitle("Constraint violation");
     pd.setProperty("code", CommonErrorCodes.VALIDATION_CONSTRAINT_VIOLATION);
+    pd.setProperty("violations", constraintViolations(ex));
 
     decorate(pd, req, ex, true);
 
-    log.warn("[400] {} {} - {}", req.getMethod(), req.getRequestURI(), ex.getMessage());
+    log.warn(
+        "[400] {} {} - constraint violations={}",
+        req.getMethod(),
+        req.getRequestURI(),
+        ex.getConstraintViolations().size());
 
     return buildResponse(pd, req, HttpStatus.BAD_REQUEST);
   }
@@ -429,28 +445,41 @@ public class GlobalErrorHandler {
     return value == null || value.isBlank() ? null : value.trim();
   }
 
-  private static Map<String, List<String>> fieldErrors(MethodArgumentNotValidException ex) {
-    var errors = new LinkedHashMap<String, List<String>>();
-    for (var fieldError : ex.getBindingResult().getFieldErrors()) {
-      errors
-          .computeIfAbsent(fieldError.getField(), ignored -> new ArrayList<>())
-          .add(fieldError.getDefaultMessage());
-    }
-    return errors;
+  private static List<Map<String, String>> fieldViolations(MethodArgumentNotValidException ex) {
+    return ex.getBindingResult().getFieldErrors().stream()
+        .map(
+            fieldError ->
+                Map.of(
+                    "code", validationCode(fieldError.getCode()),
+                    "field", fieldError.getField(),
+                    "target", fieldError.getField()))
+        .toList();
   }
 
-  private static List<Map<String, String>> fieldViolations(MethodArgumentNotValidException ex) {
-    var violations = new ArrayList<Map<String, String>>();
-    for (var fieldError : ex.getBindingResult().getFieldErrors()) {
-      var violation = new LinkedHashMap<String, String>();
-      violation.put("code", CommonErrorCodes.VALIDATION_FAILED);
-      violation.put("field", fieldError.getField());
-      violation.put("target", fieldError.getField());
-      if (fieldError.getDefaultMessage() != null) {
-        violation.put("message", fieldError.getDefaultMessage());
-      }
-      violations.add(violation);
+  private static List<Map<String, String>> constraintViolations(ConstraintViolationException ex) {
+    return ex.getConstraintViolations().stream()
+        .map(
+            violation -> {
+              var target = violation.getPropertyPath().toString();
+              return Map.of(
+                  "code", validationCode(violation.getConstraintDescriptor().getAnnotation().annotationType().getSimpleName()),
+                  "field", target,
+                  "target", target);
+            })
+        .toList();
+  }
+
+  private static String validationCode(String constraintCode) {
+    if (constraintCode == null) {
+      return CommonErrorCodes.VALIDATION_FAILED;
     }
-    return violations;
+
+    return switch (constraintCode) {
+      case "NotBlank", "NotEmpty", "NotNull" -> CommonErrorCodes.VALIDATION_REQUIRED;
+      case "Email", "Pattern" -> CommonErrorCodes.VALIDATION_INVALID_FORMAT;
+      case "DecimalMax", "DecimalMin", "Max", "Min", "Size" ->
+          CommonErrorCodes.VALIDATION_OUT_OF_RANGE;
+      default -> CommonErrorCodes.VALIDATION_FAILED;
+    };
   }
 }

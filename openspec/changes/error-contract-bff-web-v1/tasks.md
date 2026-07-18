@@ -39,6 +39,8 @@ portals, Flutter mobile, client-originated failures, i18n, accessibility, recove
       `ProblemRest` factory, without changing legacy message-first call sites.
 - [x] Migrate the first critical POS producer: receipt print-profile validation now emits
       `pos.receipt.print_options_invalid` without exposing the underlying exception prose.
+- [x] Normalize framework validation failures to stable field violations without serializing Bean
+      Validation or request-deserialization prose; retain only code, field, and target.
 - [ ] Reconcile the related `complete-apiresponse-notices` OpenSpec with production code and archive
       it only after its tasks/tests match reality.
 - [ ] Define common technical contract types as needed: `ErrorCode`, `ErrorCategory`,
@@ -55,8 +57,8 @@ portals, Flutter mobile, client-originated failures, i18n, accessibility, recove
       when available, and generated error ID when applicable. These prose fields are diagnostic-only.
 - [ ] Prevent serialization of stacks, nested exception/provider prose, credentials, or enumeration
       signals from security/identity/tenant failures.
-- [ ] Normalize Bean/Jakarta validation to a stable violation shape: `code`, `field`, `target`, and
-      safe parameters. Bean-validation text is never the client translation contract.
+- [ ] Extend the stable validation shape with approved safe parameters where a specific form needs
+      them; Bean-validation text is never the client translation contract.
 - [ ] Provide approved generic and domain field codes; remove detail-text inference once producers
       have migrated.
 
@@ -105,44 +107,63 @@ portals, Flutter mobile, client-originated failures, i18n, accessibility, recove
 
 ## Phase 5 — Angular envelope retention and normalized errors
 
-- [ ] Review every `TchBackendClient` data-only method and `unwrapApiResponse()` use. Introduce
-      retained result/resource methods or explicit `ApiResponse<T>` ownership without breaking every
-      legacy return type at once.
+- [~] Review every `TchBackendClient` data-only method and `unwrapApiResponse()` use. The retained
+      `*ApiResponse` family now covers CRUD, paged data, multipart requests, and GET resources
+      without breaking legacy return types; consumer migration remains.
 - [ ] Mark data-only methods unsuitable for BFFs, dashboards, mutations, and business-notice
       endpoints; add a lint/code-review gate for new callsites.
 - [ ] Migrate first POS, login/session, tenant/platform dashboards, Ops, and sensitive forms; retain
       status/notices/services/trace through normal and paged resources.
 - [ ] Treat `PARTIAL` as successful degraded state; superseded resource cancellation as silent;
       malformed 2xx envelope as stable client invalid-response failure.
-- [ ] Evolve `WebAppError` to retain code/category/origin/status/retryability/owner/dedupe key and
-      diagnostic-only data, not final translated prose.
+- [~] Evolve `WebAppError` to retain code/category/origin/status/retryability/owner/dedupe key and
+      diagnostic-only data, not final translated prose. Initial factories now retain raw ProblemDetail,
+      notice, violation, and service text only under diagnostics; the complete key-based model remains.
 - [ ] Add factories for backend `ProblemDetail`, violations, notice/service states, and client-origin
       network/timeout/cancellation/invalid response/auth/storage/print/frontend failures.
-- [ ] Remove hardcoded French and raw `ProblemDetail.title/detail` or `ApiNotice.message` fallbacks.
-      Known codes use descriptors; status/substrings are legacy/unknown fallback only.
+- [~] Remove hardcoded French and raw `ProblemDetail.title/detail` or `ApiNotice.message` fallbacks.
+      Existing normalization and feedback-copy fallbacks no longer render raw backend prose; descriptor
+      lookup and legacy category classification still need their registry migration.
 
 ## Phase 6 — Angular transport boundary and ownership routing
 
 - [ ] Keep `problemDetailInterceptor` transport-only; handle valid/invalid ProblemDetail, text/HTML,
       empty errors, network, timeout, cancellation, and correlation headers without displaying copy.
-- [ ] Replace boolean-only `suppressShellFeedback` with explicit feedback context/owner/mode while
-      preserving a migration bridge. API clients normalize but never choose toast/banner/panel.
+- [~] Replace boolean-only `suppressShellFeedback` with explicit feedback context/owner/mode while
+      preserving a migration bridge. `TCH_FEEDBACK_CONTEXT` now carries `owner`, `mode`, and
+      `target`; legacy calls map to local ownership and PageModel is migrated. A shell interceptor is
+      now registered in all three portals and routes only explicit `owner: 'shell'` failures;
+      local/silent/inherited-without-owner requests remain non-rendering. Inventory confirms the
+      current boolean was not read before this migration, so feature owner adoption and dedupe remain.
+      API clients normalize but never choose toast/banner/panel. Interceptor composition now keeps
+      the auth retry closer to the transport, so it handles raw 401 responses before the final
+      ProblemDetail normalization or shell feedback presentation.
 - [ ] Add envelope consumption helper and development diagnostics for unconsumed feedback or duplicate
       ownership; dedupe by code/source/target/owner/correlation, never translated text.
-- [ ] Implement lifecycle rules: clear on successful reload; retain during retry; clear server field
+- [~] Implement lifecycle rules: clear on successful reload; retain during retry; clear server field
       error on field edit; clear form summary at submit; retain support reference to recovery/navigation.
+      `clearServerFieldErrorsOnEdit` now clears only the edited reactive control and is active for
+      business-profile plus seller-terminal create/block; Signal Form controls and remaining forms
+      still need adoption.
 - [ ] Ensure shell owns only session/global outage/maintenance/global restriction; page owns blocking
       route data; section optional BFF degradation; form and field validation; feature domain notices.
 
 ## Phase 7 — Angular forms, recovery, and uncaught errors
 
-- [ ] Upgrade field mapping for nested groups/arrays and multiple errors; preserve unknown targets in
-      form summary and log them in development without discarding them.
+- [~] Upgrade field mapping for nested groups/arrays and multiple errors; preserve unknown targets in
+      form summary and log them in development without discarding them. The shared router now keeps
+      all mapped server errors on a control and returns unknown targets to its caller. The shared
+      mobile-first `tch-form-error-summary` now renders safe unconsumed violations and moves focus
+      to itself; tenant business-profile is the first consumer. Nested/array paths, development
+      diagnostics, and field-change lifecycle remain.
 - [ ] Merge local/server validation by stable code without overwriting unrelated validators; provide
       accessible summaries, `aria-describedby`, links, and deterministic focus.
-- [ ] Deliver mobile-first reusable page/section/form/field/shell feedback surfaces with localized
+- [~] Deliver mobile-first reusable page/section/form/field/shell feedback surfaces with localized
       copy, owner-declared retry, back, copyable support reference, correct aria-live behavior, and
-      no duplicate announcement.
+      no duplicate announcement. The shared `tch-error-panel` and `tch-page-error` now support safe
+      support references, owner-declared retry state, and narrow-screen actions. `tch-field-error`
+      now translates local validator keys and `tch-form-error-summary` focuses unconsumed violations;
+      section/form/shell wiring and duplicate-announcement tests remain.
 - [ ] Apply focus policy: page failure heading; restored retry target; mutation confirmation; form
       summary or first invalid field; preserve focus for section degradation.
 - [ ] Review Angular global ErrorHandler/route fallback: map unexpected frontend crashes to a stable
@@ -150,6 +171,10 @@ portals, Flutter mobile, client-originated failures, i18n, accessibility, recove
 
 ## Phase 8 — Web catalogs and tests
 
+- [x] Restore the i18n coverage gate: it validates referenced keys, locale parity, and forbidden
+      placement; the POS confirmation/delivery dialog and common error bundle are now included.
+- [ ] Clean the existing duplicate declarations and legacy bundle roots reported by the inventory;
+      keep them visible as diagnostics until the ownership migration is complete.
 - [ ] Define the exact-code/category/generic namespace and strict lookup order. Add all registered
       backend and client codes to shipped `ht`, `fr`, and `en` bundles with safe interpolation rules.
 - [ ] Add CI catalog parity for duplicate/orphan/missing codes and invalid interpolation. A known

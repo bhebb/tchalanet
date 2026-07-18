@@ -96,6 +96,7 @@
     "actionLabel": "Action",
     "reset": "Reset",
     "all": "All",
+    "total": "Total",
     "sending": "Sending...",
     "field": {
       "name": "Name",

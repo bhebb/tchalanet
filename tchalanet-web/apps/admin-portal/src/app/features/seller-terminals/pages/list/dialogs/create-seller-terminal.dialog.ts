@@ -1,5 +1,5 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
-import { AbstractControl, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -7,12 +7,17 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { TranslateService } from '@ngx-translate/core';
-import { ProblemDetail, webAppErrorFromProblemDetail, webAppErrorsFromProblemDetailFields } from '@tch/api';
+import {
+  mapHttpErrorToProblemDetail,
+  webAppErrorFromProblemDetail,
+  webAppErrorsFromProblemDetailFields,
+} from '@tch/api';
 
-import { TchErrorPanel, TchFieldError } from '@tch/ui/components';
+import { TchErrorPanel, TchFieldError, TchFormErrorSummary } from '@tch/ui/components';
 import {
   applyServerFieldErrors,
   clearServerFieldErrors,
+  clearServerFieldErrorsOnEdit,
   ErrorViewModel,
   toErrorViewModel,
   withResolvedErrorCopies,
@@ -21,6 +26,7 @@ import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { AdminSectionCardComponent } from '@tch/ui/console';
 import { CreateSellerTerminalRequest, SellerTerminalApi } from '../../../data-access/seller-terminal-api.service';
 import { SELLER_TERMINAL_CREATE_FIELD_TARGETS } from '../../../seller-terminal-error-targets';
+import { SellerTerminalDialogResult } from './seller-terminal-dialog-result';
 
 @Component({
   selector: 'tch-create-seller-terminal-dialog',
@@ -31,6 +37,7 @@ import { SELLER_TERMINAL_CREATE_FIELD_TARGETS } from '../../../seller-terminal-e
     AdminSectionCardComponent,
     TchErrorPanel,
     TchFieldError,
+    TchFormErrorSummary,
     MatButtonModule,
     MatDialogModule,
     MatFormFieldModule,
@@ -43,12 +50,14 @@ import { SELLER_TERMINAL_CREATE_FIELD_TARGETS } from '../../../seller-terminal-e
 })
 export class CreateSellerTerminalDialog implements OnInit {
   private readonly api = inject(SellerTerminalApi);
-  private readonly dialogRef = inject(MatDialogRef<CreateSellerTerminalDialog>);
+  private readonly dialogRef = inject(MatDialogRef<CreateSellerTerminalDialog, SellerTerminalDialogResult>);
   private readonly fb = inject(FormBuilder);
   private readonly translate = inject(TranslateService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly saving = signal(false);
   readonly error = signal<ErrorViewModel | null>(null);
+  readonly formSummary = signal<readonly string[]>([]);
 
   readonly form = this.fb.group({
     terminalCode: ['', [Validators.required, Validators.maxLength(64)]],
@@ -69,6 +78,11 @@ export class CreateSellerTerminalDialog implements OnInit {
     ],
   });
 
+  constructor() {
+    const cleanup = clearServerFieldErrorsOnEdit(this.form);
+    this.destroyRef.onDestroy(() => cleanup.unsubscribe());
+  }
+
   ngOnInit(): void {
     this.api.getCommissionOverview().subscribe({
       next: overview => {
@@ -84,6 +98,7 @@ export class CreateSellerTerminalDialog implements OnInit {
     if (this.saving()) return;
     clearServerFieldErrors(this.form);
     this.error.set(null);
+    this.formSummary.set([]);
     this.form.markAllAsTouched();
     if (this.form.invalid) return;
 
@@ -103,7 +118,10 @@ export class CreateSellerTerminalDialog implements OnInit {
     this.api.create(req, { suppressShellFeedback: true }).subscribe({
       next: () => {
         this.saving.set(false);
-        this.dialogRef.close({ reload: true });
+        this.dialogRef.close({
+          reload: true,
+          noticeKey: 'admin.sellerTerminals.list.notice.created',
+        });
       },
       error: (err: unknown) => {
         this.saving.set(false);
@@ -112,40 +130,31 @@ export class CreateSellerTerminalDialog implements OnInit {
     });
   }
 
-  serverFieldMessage(control: AbstractControl | null): string {
-    const server = control?.errors?.['server'];
-    return typeof server === 'object' &&
-      server !== null &&
-      'message' in server &&
-      typeof (server as { message?: unknown }).message === 'string'
-      ? (server as { message: string }).message
-      : '';
-  }
-
   private handleCreateError(err: unknown): void {
-    const problem = (err as { error?: ProblemDetail })?.error;
-    if (problem) {
-      const fieldErrors = withResolvedErrorCopies(
-        webAppErrorsFromProblemDetailFields(problem, 'admin.sellerTerminal.create'),
-        key => this.translate.instant(key),
-      );
-      const remaining = applyServerFieldErrors(this.form, fieldErrors, SELLER_TERMINAL_CREATE_FIELD_TARGETS);
+    const problem = mapHttpErrorToProblemDetail(err);
+    const fieldErrors = withResolvedErrorCopies(
+      webAppErrorsFromProblemDetailFields(problem, 'admin.sellerTerminal.create'),
+      key => this.translate.instant(key),
+    );
+    const remaining = applyServerFieldErrors(this.form, fieldErrors, SELLER_TERMINAL_CREATE_FIELD_TARGETS);
 
-      if (fieldErrors.length && !remaining.length) {
-        this.error.set(null);
-        return;
-      }
-
-      const normalized = webAppErrorFromProblemDetail(problem, 'admin.sellerTerminal.create', 'page');
-      const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
-      this.error.set(toErrorViewModel(normalized, copy));
+    if (fieldErrors.length && !remaining.length) {
+      this.error.set(null);
       return;
     }
 
-    this.error.set({
-      title: this.translate.instant('common.errors.fallback.title'),
-      message: this.translate.instant('common.errors.fallback.message'),
-      severity: 'error',
-    });
+    if (remaining.length) {
+      this.formSummary.set(this.messagesForErrors(remaining));
+      this.error.set(null);
+      return;
+    }
+
+    const normalized = webAppErrorFromProblemDetail(problem, 'admin.sellerTerminal.create', 'page');
+    const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+    this.error.set(toErrorViewModel(normalized, copy));
+  }
+
+  private messagesForErrors(errors: readonly { readonly message?: string }[]): readonly string[] {
+    return errors.flatMap(error => error.message ? [error.message] : []);
   }
 }

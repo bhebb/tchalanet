@@ -11,7 +11,11 @@ import { Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { TranslatePipe } from '@ngx-translate/core';
 import { TranslateService } from '@ngx-translate/core';
-import { ProblemDetail, webAppErrorFromProblemDetail, webAppErrorsFromProblemDetailFields } from '@tch/api';
+import {
+  mapHttpErrorToProblemDetail,
+  webAppErrorFromProblemDetail,
+  webAppErrorsFromProblemDetailFields,
+} from '@tch/api';
 
 import {
   ErrorViewModel,
@@ -223,27 +227,18 @@ export class AdminSellerTerminalNewPage implements OnInit {
   }
 
   private handleCreateError(err: unknown): void {
-    const problem = (err as { error?: ProblemDetail })?.error;
-    if (problem) {
-      const fieldErrors = withResolvedErrorCopies(
-        webAppErrorsFromProblemDetailFields(problem, 'admin.sellerTerminal.create'),
-        key => this.translate.instant(key),
-      );
+    const problem = mapHttpErrorToProblemDetail(err);
+    const fieldErrors = withResolvedErrorCopies(
+      webAppErrorsFromProblemDetailFields(problem, 'admin.sellerTerminal.create'),
+      key => this.translate.instant(key),
+    );
 
-      const normalized = webAppErrorFromProblemDetail(problem, 'admin.sellerTerminal.create', 'page');
-      const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
-      this.error.set(toErrorViewModel(normalized, {
-        ...copy,
-        message: fieldErrors[0]?.message ?? copy.message,
-      }));
-      return;
-    }
-
-    this.error.set({
-      title: this.translate.instant('common.errors.fallback.title'),
-      message: this.translate.instant('common.errors.fallback.message'),
-      severity: 'error',
-    });
+    const normalized = webAppErrorFromProblemDetail(problem, 'admin.sellerTerminal.create', 'page');
+    const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+    this.error.set(toErrorViewModel(normalized, {
+      ...copy,
+      message: fieldErrors[0]?.message ?? copy.message,
+    }));
   }
 
   private initialFormModel(rate = this.fallbackCommissionRate): SellerTerminalCreateFormModel {

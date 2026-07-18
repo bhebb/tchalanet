@@ -102,9 +102,25 @@ The web consumes the backend contract; it does not redefine it:
 - non-blocking BFF degradation stays in `ApiResponse.notices` and, when useful, service metadata;
 - blocking failures stay as `ProblemDetail`.
 
-API clients unwrap successful responses before exposing data to stores/components. They also mark
-locally owned requests with `TchRequestOptions.suppressShellFeedback` so the shell does not render a
-duplicate banner when a page, section, dialog, or form owns the failure.
+Data-only APIs (`get`, `getPage`, `post`, `put`, `patch`, `delete`, multipart variants) unwrap
+successful responses for legacy/simple endpoints. They are not suitable for a BFF, dashboard,
+mutation, or other flow that can return notices, service state, `PARTIAL`, or trace metadata.
+
+Those flows use the retained family instead: `getApiResponse`, `getPageApiResponse`,
+`postApiResponse`, `putApiResponse`, `patchApiResponse`, `deleteApiResponse`,
+`deleteWithBodyApiResponse`, multipart `*ApiResponse`, or `getApiResponseResource`. The feature
+then owns routing its envelope feedback to exactly one surface.
+
+Declare local ownership with `TchRequestOptions.feedback`:
+
+```ts
+feedback: { owner: 'section', mode: 'local', target: 'dashboard.commissions' }
+```
+
+`owner` is one of `shell`, `page`, `section`, `form`, `field`, or `feature`; `mode` is `inherit`,
+`local`, or `silent`. `suppressShellFeedback` is deprecated and maps to `{ mode: 'local' }` during
+migration. The context currently records intent only; do not assume it displays or suppresses UI
+until the shell feedback router is implemented.
 
 Backend notices intended for web display should include stable metadata:
 
@@ -155,6 +171,19 @@ Global interceptors may add:
 - correlation/request id;
 - app/API metadata headers;
 - centralized error mapping.
+
+### Ordre des intercepteurs
+
+Pour les portails privés, déclarer les intercepteurs ainsi :
+
+```text
+correlation → problem-detail → shell-feedback → auth-bearer → support-access
+```
+
+Les erreurs traversent la chaîne en sens inverse. `auth-bearer` doit donc rester plus près du
+transport que `problem-detail` : il voit un `HttpErrorResponse` 401 brut, renouvelle le JWT, puis
+rejoue la requête avant toute normalisation ou présentation de feedback. Le portail public omet
+simplement `support-access`.
 
 Operational headers are scoped. Cashier sale context and terminal proof headers must be attached only by cashier/POS flows that own that operation.
 

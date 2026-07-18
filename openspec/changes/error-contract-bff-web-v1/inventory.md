@@ -7,7 +7,7 @@ feature BFF is classified. It records observed behaviour, not desired behaviour.
 
 | Producer | Current behaviour | Contract gap / follow-up |
 |---|---|---|
-| `GlobalErrorHandler` | Handles `ProblemRestException`, typed `TchException`s, JPA, Jakarta/Spring validation, request deserialization, security, and catch-all errors. Adds correlation fields. | Several handlers derive `detail` from exception/cause text. It must become diagnostic-only; validation needs stable safe violation codes/parameters. |
+| `GlobalErrorHandler` | Handles `ProblemRestException`, typed `TchException`s, JPA, Jakarta/Spring validation, request deserialization, security, and catch-all errors. Adds correlation fields. Framework validation and malformed-body paths now emit safe fixed detail plus structured violations. | Typed legacy exceptions, JPA, type mismatch, and `IllegalStateException` still have message-first risks that must be migrated deliberately. |
 | `ProblemRest` / `ProblemRestException` | Common direct producer of stable-ish HTTP error codes. | Calls mix codes and human prose. Inventory and descriptor registry must separate safe code from diagnostic detail. |
 | `RequireIdempotencyAspect` | Emits `idempotency.missing`, `idempotency.payload_mismatch`, `idempotency.in_progress`, and `idempotency.completed_no_response`. | Good first catalog candidates; verify exact client translation and retry semantics. |
 | `ApiResponseContext` + `ApiResponseBodyAdvice` | Collects request-local notices/services and merges them into successful envelopes. | Must be tested for cleanup/async/204 and must not make message fields visible contracts. |
@@ -18,12 +18,73 @@ feature BFF is classified. It records observed behaviour, not desired behaviour.
 
 | Location | Evidence | Required migration direction |
 |---|---|---|
-| `GlobalErrorHandler.handleNotReadable` | Uses Jackson most-specific cause text as `ProblemDetail.detail`. | Replace visible diagnostic text with stable code/approved parameter; retain redacted cause only in logs. |
-| `GlobalErrorHandler.handleTypeMismatch` | Appends the most-specific cause message to detail. | Same: stable violation/code plus safe field parameter only. |
-| `GlobalErrorHandler.handleConstraintViolation` | Uses raw constraint exception message. | Convert to structured violations; never use Bean Validation prose for product UI. |
+| `GlobalErrorHandler.handleNotReadable` | **Migrated:** fixed `Malformed request body` detail and a stable `request.not_readable` code; parser prose is omitted from the response. | Add contract fixtures and client translation coverage. |
+| `GlobalErrorHandler.handleMethodArgumentNotValid` / `handleConstraintViolation` | **Migrated baseline:** returns `violations` with only stable `code`, `field`, and `target`; no Bean Validation message, rejected value, or legacy `errors` map. | Add approved safe parameters only where a form needs them, then add exact three-locale client catalog entries. |
+| `GlobalErrorHandler.handleTypeMismatch` | No longer appends the most-specific conversion cause. | Normalize its remaining target/detail to the same structured validation path. |
 | `GlobalErrorHandler.handleLegacyIllegalState` | Exposes `IllegalStateException` message and maps every instance to 422. | Remove blind legacy mapping after callers use explicit typed business errors. |
 | `GlobalErrorHandler.handleJpaNotFound` | Exposes JPA exception message. | Migrate callers to a stable typed not-found code. |
 | `PosTicketReceiptService` | Wraps `ex.getMessage()` in `ProblemRest.badRequest`. | High-priority POS path: map exception to stable receipt/delivery code and log root cause privately. |
+
+### POS sales contract gap
+
+The POS controllers delegate sale preparation and confirmation to `core.sales`, where 66 current
+`ProblemRest.*(String)` call sites use strings that often look like codes (for example
+`sales.preparation.expired`, `sales.stake_below_tenant_min`, and `seller_terminal.cannot_sell`).
+The legacy `String` overload writes these values to `ProblemDetail.detail` only; it does **not** set
+the `code`, `category`, or `retryPolicy` properties. The Angular client deliberately accepts only
+`limits.blocked` as a temporary legacy-detail code and rejects all other `detail` values to avoid
+turning arbitrary server prose into a user-facing contract.
+
+One POS producer is also invalid as a stable contract:
+
+```text
+sales.tenant_disabled:<tenant-status>
+```
+
+It makes the apparent code dynamic. This must become a constant code such as
+`sales.tenant_disabled`, with the status retained only as server-side diagnostics or an approved
+safe parameter if the product needs it.
+
+**Required next backend slice:** introduce code-first `ErrorDescriptor`s in the sales owner package
+for preparation, confirmation, limit/availability, seller-terminal, receipt, and delivery errors;
+migrate POS-reachable handlers/services to those descriptors; then add MVC/contract tests asserting
+the serialized `ProblemDetail.code` for prepare, confirm, receipt-send, print/reprint, verify, and
+ticket-detail failures. Do not expand the web legacy-detail allowlist.
+
+## Contract producer priority matrix
+
+This is the explicit audit boundary for the first backend pass. Counts are static signals of
+`ProblemRest`, direct `ProblemDetail`, and thrown exception use as of 2026-07-18; they are not a
+claim that every site is an HTTP producer. Each domain audit must classify the reachable producers,
+replace client-relevant legacy strings with owner `ErrorDescriptor`s, and add contract tests for the
+HTTP paths named below.
+
+| Priority | Owner | Signal count | Why it is first | Required contract proof |
+|---|---|---:|---|---|
+| P0 | `core.sales` | 174 | Determines prepare, confirm, ticket lifecycle, print and payment eligibility. | `ProblemDetail.code` for invalid sale input, availability/cutoff, limit block, seller-terminal block, preparation expiry/replay, ticket not found, print/reprint and delivery failures. |
+| P0 | `core.limitpolicy` | 35 | Directly decides allow/warn/approval/block for a sale. | Stable code/category/retry policy for every blocking outcome; a rejected sale carries the policy code rather than a generic 403. |
+| P0 | `platform.accesscontrol` | 16 | Resolves effective tenant and support/admin actor scope before a POS or admin action. | Non-enumerating codes for missing/forbidden actor, tenant override and ambiguous membership; 401/403 semantics remain deterministic. |
+| P0 | `platform.identity` | 79 | Owns login/session/bootstrap/handoff and account activation. | Authentication errors are generic where enumeration matters; session/activation/handoff codes are stable and serialized. |
+| P1 | `core.promotion` | 39 | Shapes Maryaj gratis and can reject/alter prepared sales. | Promotion configuration and selection failures return stable field/business codes; no generator/provider prose reaches clients. |
+| P1 | `platform.tenant` | 58 | Tenant status, business day and tenant configuration gate every sale. | Stable active/closed/configuration codes, with no dynamic status embedded in the code. |
+| P1 | `platform.tenantgame` | 18 | Controls game/bet option visibility and availability in the POS. | Stable disabled/not-configured/not-visible codes for prepare and confirm. |
+| P1 | `features.pos` | 18 | HTTP adapters for POS draws, games, tickets, receipt/send and home. | Controllers preserve core `ProblemDetail` unchanged and successful envelopes retain notices/trace. |
+| P2 | `features.tenantadmin` | 7 | Tenant configuration BFF/form surface; it must expose useful field failures without leaking IDs. | Ownership matrix for overview/config slices plus contract tests for tenant-game/draw-channel mutations. |
+| P2 | `features.pagemodel` | 20 | Public/private BFF aggregation and optional-widget degradation. | Required failure is `ProblemDetail`; optional failure is typed unavailable section plus a stable degradation notice, never a silent zero. |
+
+### Audit order
+
+1. `core.sales` + `core.limitpolicy` + `platform.tenantgame`: one sale decision contract from
+   prepare through confirm.
+2. `platform.accesscontrol` + `platform.identity` + `platform.tenant`: actor/session/tenant gates
+   and enumeration review.
+3. `core.promotion`: Maryaj and promotion-specific selection/validation paths.
+4. `features.pos`: controller/adaptor pass with MVC contracts and retained success envelopes.
+5. `features.tenantadmin` + `features.pagemodel`: BFF slice matrices, PARTIAL semantics, and
+   section-notice contracts.
+
+No web or mobile screen is considered migrated merely because it has a generic fallback. A screen
+gets exact feedback only after its owning backend path has a tested stable code.
 
 ## Legacy `ProblemRest` contract audit
 
@@ -120,6 +181,108 @@ the next pass.
 3. Do not expose server exception text merely because a client translation key is missing.
 4. Treat receipt delivery, sale, authentication, and print paths as priority flows once the common
    contract fixtures exist.
+
+## Translation gate status
+
+`pnpm i18n:inventory -- --check` was run on 2026-07-18 after adding the initial shared validation
+codes in all three shipped bundles. The new `validation.required`, `validation.invalid_format`, and
+`validation.out_of_range` keys are aligned across `ht`, `fr`, and `en`.
+
+The inventory now has zero referenced missing keys. This fixed the POS confirmation/delivery dialog
+that rendered raw `admin.sellerTerminal.pos.dialog.*` keys, plus the report and navigation labels.
+The inventory was also missing the `errors` bundle entirely, so valid `common.errors.*` entries were
+wrongly reported absent; it now reads the same bundle set as the runtime loader.
+
+The check mode blocks missing references, locale parity, and forbidden key placement. It still
+prints the pre-existing duplicate and legacy-root diagnostics without blocking CI; those are an
+explicit taxonomy-cleanup slice, not an excuse to hide missing user copy.
+
+## Web normalization baseline
+
+`WebAppError` now stores raw `ProblemDetail.title/detail`, `ApiNotice.message`, field violation
+messages, and `ServiceStatus.message` only in an optional diagnostic object. Its user-facing
+title/message values and the shared feedback-copy resolver use stable code/category translation
+lookup, then a safe generic fallback; neither path renders transport prose. Tests cover all four
+incoming sources. This is intentionally an intermediate state: the model still has legacy string
+display fields until envelope retention, ownership, and key-only rendering are migrated together.
+
+`TchBackendClient` now has a complete retained `*ApiResponse` family, including paged responses,
+multipart requests, and a `getApiResponseResource` for reactive BFF/dashboard reads. Existing
+data-only methods remain compatible and are documented as unsuitable for endpoints that emit
+notices, service metadata, `PARTIAL`, or trace information. The POS preparation/confirmation flow
+already follows this pattern; dashboard and form migrations remain an explicit consumer pass.
+
+### First form/dialog consumer vertical: seller terminals
+
+The seller-terminal creation page, list actions, block dialog, reset-PIN dialog, and limits dialog
+now normalize both raw `HttpErrorResponse` values and already-normalized `ProblemDetail` values via
+`mapHttpErrorToProblemDetail`. The block/create dialogs attach known violations to controls, place
+unmapped violations in `tch-form-error-summary`, and clear only server errors on field edits. The
+block dialog returns a typed reload/notice result; the list owns the localized success notice and
+resource reload. This is the reference migration for the remaining CRUD/dialog features.
+
+The admin POS seller picker, terminal sale, ticket verification, and ticket detail pages use the same
+normalizer for their local failures. They retain their existing local ownership and
+`suppressShellFeedback` policy. This closes the raw transport-reader pass for the POS sales feature;
+the next step is retained-envelope consumption for successful notices and partial responses.
+
+The PageModel boundary sanitizes dynamic widget errors to stable code, severity, widget target, and
+support references. It does not carry `ApiNotice.message` or a raw backend widget message into the
+render model. A PageModel test covers both inputs.
+
+## Ownership gap
+
+`SUPPRESS_SHELL_FEEDBACK` is currently written by many feature calls but no shell/interceptor reads
+it. It therefore does not route or suppress anything today; it is only an intent marker. Do not
+assume it prevents duplicate UI feedback. Phase 6 must introduce an explicit request feedback
+context (`owner`, `target`, `mode`) and wire it into the eventual shell feedback router before
+migrating call sites. Until then, feature-local presenters remain the effective renderer.
+
+The first compatibility step now exists in `@tch/api`: `TCH_FEEDBACK_CONTEXT` carries explicit
+`owner`, `mode`, and optional `target`, while legacy `suppressShellFeedback` maps to local mode and
+still writes its deprecated token. PageModel uses `{ owner: 'feature', mode: 'local',
+target: 'page-model' }`. This is deliberately passive until a tested router consumes it.
+
+The first router now lives in `@tch/web/shell` and is registered in public, admin, and platform HTTP
+chains before the transport-only ProblemDetail mapper. It adds a deduplicated shell banner only for
+an explicit `feedback: { owner: 'shell', mode: 'inherit' }` request; `local`, `silent`, and ownerless
+`inherit` requests cannot create shell feedback. This conservative default avoids duplicate rendering
+while page/form/section consumers migrate. A shell-owned error keeps only stable translated copy and
+safe correlation identifiers in its copyable support reference. The response path is deliberately
+`support-access → auth-bearer → shell-feedback → problem-detail`: a raw 401 can be retried by auth
+before an error is normalized or presented. `AuthSessionService` accepts both raw and normalized
+401/403 values when it decides whether to clear a stale application session.
+
+## Shared recovery surface baseline
+
+`tch-error-panel` and `tch-page-error` now accept only owner-supplied normalized title/message,
+safe support reference, and retry state. They expose retry/copy events but never perform requests,
+routing, clipboard access, or translation lookup. Both give their action controls a touch-safe size;
+the full-page surface stacks actions on narrow screens. Tests cover support-reference rendering and
+the disabled retry state. The owner/router and i18n layers still need to supply localized labels,
+copy support references, and move focus after recovery.
+
+`TchFieldError` now translates local Angular validator keys instead of embedding French copy. It
+still expects feature code to attach already-resolved presentation copy for server errors; this is
+intentional because the UI library does not own backend-code resolution.
+
+`applyServerFieldErrors` now appends mapped `WebAppError` values under the server error key rather
+than overwriting an earlier violation on the same control. Unknown fields remain unconsumed so the
+form owner can present them in a summary. Nested paths, arrays, and field-change cleanup are still
+pending. `TchFormErrorSummary` now renders safe unconsumed violations and focuses
+itself when it appears. The tenant business-profile page is the first migrated form consumer: its
+identity, region, commission, and address mutations normalize both a direct `ProblemDetail` and a
+legacy `HttpErrorResponse` through `mapHttpErrorToProblemDetail` before routing field violations.
+It is the reference pattern for the next form migrations.
+
+The seller-terminal create and block dialogs now follow the same boundary. They no longer inspect
+`err.error` or collapse the server error list to one message: `TchFieldError` receives the control,
+renders each resolved violation, and local validator feedback has one owner rather than competing
+with an inline Material error.
+
+`clearServerFieldErrorsOnEdit` recursively subscribes to reactive controls and removes only the
+server error associated with the control the user changed. It is active on business-profile and both
+seller-terminal dialogs; Signal Form support and the remaining form inventory are still pending.
 
 ## Next inventory pass
 
