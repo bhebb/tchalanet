@@ -9,6 +9,7 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.promotion.api.model.PromotionChoiceMode;
 import com.tchalanet.server.core.promotion.api.model.PromotionEvaluationContext;
 import com.tchalanet.server.core.promotion.api.model.PromotionEvaluationPhase;
+import com.tchalanet.server.core.promotion.api.model.PromotionNoticeCodes;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffect;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffectType;
 import com.tchalanet.server.core.promotion.api.query.EvaluatePromotionQuery;
@@ -67,7 +68,9 @@ class EvaluatePromotionQueryHandlerTest {
         .isEqualTo(PromotionChoiceMode.SELLER_SELECTS);
     assertThat(decision.contextHash()).contains(".");
     assertThat(decision.notices())
-        .contains("promotionDecision.applied", "promotionDecision.terminalOverrideApplied");
+        .contains(
+            PromotionNoticeCodes.DECISION_APPLIED,
+            PromotionNoticeCodes.TERMINAL_OVERRIDE_APPLIED);
   }
 
   private PromotionEvaluationContext context(TenantId tenantId, SellerTerminalId terminalId) {

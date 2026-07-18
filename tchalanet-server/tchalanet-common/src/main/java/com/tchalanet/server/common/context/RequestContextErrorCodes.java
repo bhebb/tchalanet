@@ -24,6 +24,24 @@ public class RequestContextErrorCodes {
           PRIVATE_AUDIENCES,
           Set.of());
 
+  public static final ErrorDescriptor TENANT_UNAVAILABLE =
+      new ErrorDescriptor(
+          "access.context.tenant_unavailable",
+          ErrorCategory.AUTHORIZATION,
+          HttpStatus.FORBIDDEN,
+          ErrorRetryPolicy.AFTER_USER_ACTION,
+          PRIVATE_AUDIENCES,
+          Set.of());
+
+  public static final ErrorDescriptor TENANT_OVERRIDE_REASON_REQUIRED =
+      new ErrorDescriptor(
+          "access.context.tenant_override_reason_required",
+          ErrorCategory.AUTHORIZATION,
+          HttpStatus.FORBIDDEN,
+          ErrorRetryPolicy.AFTER_USER_ACTION,
+          PRIVATE_AUDIENCES,
+          Set.of());
+
   public static final ErrorDescriptor USER_NOT_BOOTSTRAPPED =
       new ErrorDescriptor(
           "access.context.user_not_bootstrapped",
@@ -63,6 +81,8 @@ public class RequestContextErrorCodes {
   public static Set<ErrorDescriptor> all() {
     return Set.of(
         TENANT_REQUIRED,
+        TENANT_UNAVAILABLE,
+        TENANT_OVERRIDE_REASON_REQUIRED,
         USER_NOT_BOOTSTRAPPED,
         SELLER_TERMINAL_REQUIRED,
         OPERATIONAL_CONTEXT_REQUIRED,

@@ -2,11 +2,13 @@ package com.tchalanet.server.common.context.web;
 
 import static com.tchalanet.server.common.context.TchContextRequestAttributes.RESOLVED_ACCESS;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.tchalanet.server.common.context.ResolvedAccessContext;
+import com.tchalanet.server.common.context.RequestContextErrorCodes;
 import com.tchalanet.server.common.context.TchActorType;
 import com.tchalanet.server.common.context.TchContext;
 import com.tchalanet.server.common.context.TchContextBinder;
@@ -19,6 +21,7 @@ import com.tchalanet.server.common.context.tenant.TenantContextResolver;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
+import com.tchalanet.server.common.web.error.ProblemRestException;
 import java.time.ZoneId;
 import java.util.Currency;
 import java.util.Optional;
@@ -68,16 +71,18 @@ class TchContextFilterSlice5Test {
   // ── §8.3 tenant/admin without effective tenant blocks ────────────────────
 
   @Test
-  void tenantScopeWithoutTenant_blocks() throws Exception {
+  void tenantScopeWithoutTenant_raisesStableProblem() {
     // No RESOLVED_ACCESS, no X-Tenant-Id header
     var request = new MockHttpServletRequest();
     request.setRequestURI("/api/v1/tenant/something");
 
-    var response = new MockHttpServletResponse();
-    filter().doFilter(request, response, new MockFilterChain());
-
-    assertThat(response.getStatus()).isEqualTo(403);
-    assertThat(response.getErrorMessage()).isEqualTo("Tenant required");
+    assertThatThrownBy(() -> filter().doFilter(request, new MockHttpServletResponse(), new MockFilterChain()))
+        .isInstanceOf(ProblemRestException.class)
+        .satisfies(
+            error ->
+                assertThat(((ProblemRestException) error).getProblem().getProperties())
+                    .containsEntry("code", RequestContextErrorCodes.TENANT_REQUIRED.code())
+                    .doesNotContainKey("message"));
   }
 
   // ── §8.3 platform super admin without override can have tenant null ───────
@@ -107,6 +112,47 @@ class TchContextFilterSlice5Test {
     assertThat(capturedCtx[0].actorType()).isEqualTo(TchActorType.APP_USER);
     assertThat(capturedCtx[0].roleCodes()).contains("SUPER_ADMIN");
     assertThat(capturedCtx[0].tenantIdSafe()).isNull();
+  }
+
+  @Test
+  void resolvedTenantThatNoLongerExists_raisesStableUnavailableProblem() {
+    var request = tenantRequest(TENANT_ID);
+    request.setAttribute(
+        RESOLVED_ACCESS,
+        appUserAccess(UserId.of(UUID.randomUUID()), TENANT_ID, Set.of("TENANT_ADMIN"), Set.of()));
+
+    assertThatThrownBy(() -> filter().doFilter(request, new MockHttpServletResponse(), new MockFilterChain()))
+        .isInstanceOf(ProblemRestException.class)
+        .satisfies(
+            error ->
+                assertThat(((ProblemRestException) error).getProblem().getProperties())
+                    .containsEntry("code", RequestContextErrorCodes.TENANT_UNAVAILABLE.code())
+                    .doesNotContainKey("message"));
+  }
+
+  @Test
+  void tenantOverrideWithoutReason_raisesStableProblemBeforeTenantHydration() {
+    var request = tenantRequest(TENANT_ID);
+    request.setAttribute(
+        RESOLVED_ACCESS,
+        new ResolvedAccessContext(
+            TchActorType.APP_USER,
+            UserId.of(UUID.randomUUID()),
+            null,
+            TENANT_ID,
+            false,
+            true,
+            Set.of("SUPER_ADMIN"),
+            Set.of("platform.tenant.override")));
+
+    assertThatThrownBy(() -> filter().doFilter(request, new MockHttpServletResponse(), new MockFilterChain()))
+        .isInstanceOf(ProblemRestException.class)
+        .satisfies(
+            error ->
+                assertThat(((ProblemRestException) error).getProblem().getProperties())
+                    .containsEntry(
+                        "code", RequestContextErrorCodes.TENANT_OVERRIDE_REASON_REQUIRED.code())
+                    .doesNotContainKey("message"));
   }
 
   // ── §8.3 SellerTerminal context has actorType and terminal id ─────────────
@@ -185,7 +231,7 @@ class TchContextFilterSlice5Test {
   // ── §8.3 unauthenticated tenant request is deny-safe ──────────────────────
 
   @Test
-  void unauthenticatedTenantRequest_withSensitiveHeader_isBlocked() throws Exception {
+  void unauthenticatedTenantRequest_withSensitiveHeader_raisesStableProblem() {
     // No RESOLVED_ACCESS: legacy path. A sensitive header (X-Deleted-Visibility) cannot grant
     // elevation — the deleted-visibility hint is only honored for resolved SUPER_ADMIN actors,
     // and a tenant-scoped request with no resolvable tenant is denied before the controller.
@@ -193,11 +239,12 @@ class TchContextFilterSlice5Test {
     request.setRequestURI("/api/v1/tenant/something");
     request.addHeader("X-Deleted-Visibility", "all");
 
-    var response = new MockHttpServletResponse();
-    filter().doFilter(request, response, new MockFilterChain());
-
-    assertThat(response.getStatus()).isEqualTo(403);
-    assertThat(response.getErrorMessage()).isEqualTo("Tenant required");
+    assertThatThrownBy(() -> filter().doFilter(request, new MockHttpServletResponse(), new MockFilterChain()))
+        .isInstanceOf(ProblemRestException.class)
+        .satisfies(
+            error ->
+                assertThat(((ProblemRestException) error).getProblem().getProperties())
+                    .containsEntry("code", RequestContextErrorCodes.TENANT_REQUIRED.code()));
   }
 
   // ── helpers ───────────────────────────────────────────────────────────────

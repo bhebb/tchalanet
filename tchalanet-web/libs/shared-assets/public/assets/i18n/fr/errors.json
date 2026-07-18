@@ -58,6 +58,14 @@
               "title": "Espace requis",
               "message": "Sélectionnez un espace actif avant de continuer."
             },
+            "tenant_unavailable": {
+              "title": "Espace indisponible",
+              "message": "Cet espace n'est plus disponible. Revenez à un espace autorisé."
+            },
+            "tenant_override_reason_required": {
+              "title": "Motif requis",
+              "message": "Indiquez le motif du support avant de continuer dans cet espace."
+            },
             "user_not_bootstrapped": {
               "title": "Session non prête",
               "message": "Reconnectez-vous pour continuer."
@@ -137,6 +145,14 @@
           }
         },
         "sales": {
+          "promotion_applied": {
+            "title": "Maryaj gratuit ajoute",
+            "message": "Le ticket inclut des lignes gratuites appliquees par la promotion."
+          },
+          "promotion_terminal_override_applied": {
+            "title": "Regle promotionnelle vendeur appliquee",
+            "message": "Le ticket utilise la regle promotionnelle specifique a ce vendeur."
+          },
           "acceptable": {
             "title": "Vente prête",
             "message": "Le ticket peut être vendu."

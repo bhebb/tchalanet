@@ -101,6 +101,8 @@ public class SaleIssueFactory {
           case "STAKE_TOO_LOW" -> "sales.stake_too_low";
           case "BASKET_LINE_COUNT_EXCEEDED" -> "sales.basket_line_count_exceeded";
           case "BASKET_TOTAL_EXCEEDED" -> "sales.basket_total_exceeded";
+          case "PROMOTION_DECISION_APPLIED" -> "sales.promotion_applied";
+          case "PROMOTION_TERMINAL_OVERRIDE_APPLIED" -> "sales.promotion_terminal_override_applied";
           default -> null;
         };
 

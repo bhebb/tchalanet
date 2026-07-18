@@ -58,6 +58,14 @@
               "title": "Workspace required",
               "message": "Select an active workspace before continuing."
             },
+            "tenant_unavailable": {
+              "title": "Workspace unavailable",
+              "message": "This workspace is no longer available. Return to an authorized workspace."
+            },
+            "tenant_override_reason_required": {
+              "title": "Reason required",
+              "message": "Provide the support reason before continuing in this workspace."
+            },
             "user_not_bootstrapped": {
               "title": "Session not ready",
               "message": "Sign in again to continue."
@@ -137,6 +145,14 @@
           }
         },
         "sales": {
+          "promotion_applied": {
+            "title": "Free Maryaj added",
+            "message": "The ticket includes free lines applied by the promotion."
+          },
+          "promotion_terminal_override_applied": {
+            "title": "Seller promotion rule applied",
+            "message": "The ticket uses the promotion rule specific to this seller terminal."
+          },
           "acceptable": {
             "title": "Sale ready",
             "message": "The ticket can be sold."

@@ -154,7 +154,7 @@ public class UsLotteryConfig {
     var p = props.getProviders() != null ? props.getProviders().get(OH_PROVIDER_KEY) : null;
     var baseUrl = p != null ? p.getAuthBaseUrl() : null;
 
-    log.info("Configuring Ohio auth RestClient with base URL: {} et prop:  {}", baseUrl, p);
+    log.info("Configuring Ohio auth RestClient with base URL configured={}", hasText(baseUrl));
     return factory
         .builder()
         .baseUrl(baseUrl)
@@ -180,5 +180,9 @@ public class UsLotteryConfig {
     }
 
     return b.build();
+  }
+
+  private boolean hasText(String value) {
+    return value != null && !value.isBlank();
   }
 }
