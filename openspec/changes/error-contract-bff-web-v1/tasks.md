@@ -56,6 +56,11 @@ portals, Flutter mobile, client-originated failures, i18n, accessibility, recove
 - [x] Establish Wave 0 for authenticated request context: `tenant`, user, seller-terminal, and
       operational-context failures now use owned descriptors rather than hybrid prose in `detail`.
 
+- [~] Begin Wave 1 for public login/session: username lookup now uses the generic
+      `identity.auth.invalid_credentials` descriptor for malformed, unknown, inactive, and
+      provider-unlinked identities. Session expiry, provider-token, PIN, and client-originated
+      authentication failures remain to migrate.
+
 - [x] Establish an additive code-first descriptor baseline in `common.web.error` and a tested
       `ProblemRest` factory, without changing legacy message-first call sites.
 - [x] Migrate the first critical POS producer: receipt print-profile validation now emits
@@ -80,9 +85,11 @@ portals, Flutter mobile, client-originated failures, i18n, accessibility, recove
       code-first factory path. Convert each ledger class deliberately: register existing stable codes,
       mint owner codes for business prose, split hybrid/dynamic strings into code plus approved safe
       parameters or server-only diagnostics, and map framework/technical producers explicitly.
-- [ ] Add an owner-distributed descriptor registry/collector validated at startup or test time and an
+- [~] Add an owner-distributed descriptor registry/collector validated at startup or test time and an
       ArchUnit/static guard against raw externally visible codes in controllers/services. Block new
-      message-first producers with a baseline allowlist that only shrinks.
+      message-first producers with a baseline allowlist that only shrinks. The Spring registry now
+      validates the initial common/context/POS contributors at startup; the raw-producer guard and
+      shrinking migration allowlist remain.
 - [ ] Ensure every `ProblemDetail` has code, status, title, detail, instance, request/trace/span IDs
       when available, and generated error ID when applicable. These prose fields are diagnostic-only.
 - [~] Prevent serialization of stacks, nested exception/provider prose, credentials, or enumeration
