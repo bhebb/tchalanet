@@ -10,6 +10,8 @@ portals, Flutter mobile, client-originated failures, i18n, accessibility, recove
 - [x] Inspect the current server error/advice chain and web/mobile client paths.
 - [x] Establish the initial gaps: no shipped exact-code web catalog, envelope-loss risk, raw mobile
       server-copy fallback, and incomplete generic recovery.
+- [x] Capture initial server-producer and high-risk dashboard evidence in `inventory.md`; the full
+      BFF and producer inventories remain open until every feature endpoint is classified.
 - [ ] Inventory every blocking backend producer: `GlobalErrorHandler`, direct `ProblemDetail`,
       `ProblemRest`/`ProblemRestException` where present, validation, security, idempotency, and
       feature/BFF catches.
