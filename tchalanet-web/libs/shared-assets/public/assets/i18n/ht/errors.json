@@ -66,6 +66,18 @@
           "failed": {
             "title": "Enfomasyon pou korije",
             "message": "Korije chan ki make yo epi eseye anko."
+          },
+          "invalid_format": {
+            "title": "Foma pa valid",
+            "message": "Korije foma nan chan ki make a epi eseye anko."
+          },
+          "out_of_range": {
+            "title": "Vale a pa valid",
+            "message": "Mete yon vale ki nan limit yo epi eseye anko."
+          },
+          "required": {
+            "title": "Enfomasyon manke",
+            "message": "Ranpli chan ki make a epi eseye anko."
           }
         },
         "platform": {

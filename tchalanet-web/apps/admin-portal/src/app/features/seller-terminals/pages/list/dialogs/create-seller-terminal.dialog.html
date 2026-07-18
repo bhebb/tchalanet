@@ -4,24 +4,19 @@
       @if (error(); as pageError) {
         <tch-error-panel [title]="pageError.title" [message]="pageError.message" />
       }
+      <tch-form-error-summary [messages]="formSummary()" />
 
       <mat-form-field appearance="outline" class="create-seller-terminal-dialog__field">
         <mat-label>Code terminal vendeur</mat-label>
         <input matInput formControlName="terminalCode" placeholder="ex: ST-001" />
-        @if (form.controls.terminalCode.invalid && form.controls.terminalCode.touched) {
-          <mat-error>Code requis (max 64 caractères).</mat-error>
-        }
       </mat-form-field>
-      <tch-field-error [message]="serverFieldMessage(form.controls.terminalCode)" />
+      <tch-field-error [control]="form.controls.terminalCode" />
 
       <mat-form-field appearance="outline" class="create-seller-terminal-dialog__field">
         <mat-label>Nom affiché</mat-label>
         <input matInput formControlName="displayName" placeholder="ex: Jean Pierre" />
-        @if (form.controls.displayName.invalid && form.controls.displayName.touched) {
-          <mat-error>Nom requis (max 180 caractères).</mat-error>
-        }
       </mat-form-field>
-      <tch-field-error [message]="serverFieldMessage(form.controls.displayName)" />
+      <tch-field-error [control]="form.controls.displayName" />
 
       <div class="create-seller-terminal-dialog__two-col">
         <div class="create-seller-terminal-dialog__field-stack">
@@ -29,14 +24,14 @@
             <mat-label>Prénom (optionnel)</mat-label>
             <input matInput formControlName="firstName" />
           </mat-form-field>
-          <tch-field-error [message]="serverFieldMessage(form.controls.firstName)" />
+          <tch-field-error [control]="form.controls.firstName" />
         </div>
         <div class="create-seller-terminal-dialog__field-stack">
           <mat-form-field appearance="outline">
             <mat-label>Nom de famille (optionnel)</mat-label>
             <input matInput formControlName="lastName" />
           </mat-form-field>
-          <tch-field-error [message]="serverFieldMessage(form.controls.lastName)" />
+          <tch-field-error [control]="form.controls.lastName" />
         </div>
       </div>
 
@@ -45,29 +40,23 @@
           <mat-form-field appearance="outline">
             <mat-label>Email (optionnel)</mat-label>
             <input matInput formControlName="email" type="email" placeholder="vendeur@exemple.com" />
-            @if (form.controls.email.invalid && form.controls.email.touched) {
-              <mat-error>Email invalide.</mat-error>
-            }
           </mat-form-field>
-          <tch-field-error [message]="serverFieldMessage(form.controls.email)" />
+          <tch-field-error [control]="form.controls.email" />
         </div>
         <div class="create-seller-terminal-dialog__field-stack">
           <mat-form-field appearance="outline">
             <mat-label>Téléphone (optionnel)</mat-label>
             <input matInput formControlName="phoneNumber" type="tel" placeholder="+509 XXXX XXXX" />
           </mat-form-field>
-          <tch-field-error [message]="serverFieldMessage(form.controls.phoneNumber)" />
+          <tch-field-error [control]="form.controls.phoneNumber" />
         </div>
       </div>
 
       <mat-form-field appearance="outline" class="create-seller-terminal-dialog__field">
         <mat-label>Taux de commission % (optionnel)</mat-label>
         <input matInput formControlName="commissionRate" type="number" min="0" max="100" step="0.01" />
-        @if (form.controls.commissionRate.invalid && form.controls.commissionRate.touched) {
-          <mat-error>Taux entre 0 et 100.</mat-error>
-        }
       </mat-form-field>
-      <tch-field-error [message]="serverFieldMessage(form.controls.commissionRate)" />
+      <tch-field-error [control]="form.controls.commissionRate" />
 
       <mat-form-field appearance="outline" class="create-seller-terminal-dialog__field">
         <mat-label>PIN initial</mat-label>
@@ -80,11 +69,8 @@
           maxlength="6"
           placeholder="6 chiffres"
         />
-        @if (form.controls.initialPin.invalid && form.controls.initialPin.touched) {
-          <mat-error>PIN requis : 6 chiffres uniquement.</mat-error>
-        }
       </mat-form-field>
-      <tch-field-error [message]="serverFieldMessage(form.controls.initialPin)" />
+      <tch-field-error [control]="form.controls.initialPin" />
 
       <div class="create-seller-terminal-dialog__actions">
         <button mat-button type="button" mat-dialog-close>Annuler</button>

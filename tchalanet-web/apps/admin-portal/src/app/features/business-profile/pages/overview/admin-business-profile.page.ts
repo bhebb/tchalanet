@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   OnInit,
   computed,
   inject,
@@ -14,11 +15,16 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { ProblemDetail, webAppErrorFromProblemDetail, webAppErrorsFromProblemDetailFields } from '@tch/api';
+import {
+  mapHttpErrorToProblemDetail,
+  webAppErrorFromProblemDetail,
+  webAppErrorsFromProblemDetailFields,
+} from '@tch/api';
 import {
   BadgeStatus,
   TchErrorPanel,
   TchFieldError,
+  TchFormErrorSummary,
   TchLoading,
   TchNotice,
   TchStatusBadge,
@@ -41,6 +47,7 @@ import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import {
   applyServerFieldErrors,
   clearServerFieldErrors,
+  clearServerFieldErrorsOnEdit,
   ErrorViewModel,
   toErrorViewModel,
   withResolvedErrorCopies,
@@ -91,6 +98,7 @@ const ADDRESS_SECTION_TARGET = 'admin.businessProfile.address';
     TchLoading,
     TchErrorPanel,
     TchFieldError,
+    TchFormErrorSummary,
     TchNotice,
     TchStatusBadge,
   ],
@@ -101,6 +109,7 @@ export class AdminBusinessProfilePage implements OnInit {
   private readonly api = inject(AdminOverviewApiService);
   private readonly fb = inject(FormBuilder);
   private readonly translate = inject(TranslateService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly pageState = signal<PageState>('loading');
   readonly pageError = signal<ErrorViewModel | null>(null);
@@ -112,6 +121,7 @@ export class AdminBusinessProfilePage implements OnInit {
   readonly showIdentityForm = signal(false);
   readonly identityFormState = signal<FormState>('idle');
   readonly identityFormError = signal<string | null>(null);
+  readonly identityFormSummary = signal<readonly string[]>([]);
   readonly identityForm = this.fb.group({
     name: ['', [Validators.required, Validators.maxLength(200)]],
   });
@@ -120,6 +130,7 @@ export class AdminBusinessProfilePage implements OnInit {
   readonly showRegionForm = signal(false);
   readonly regionFormState = signal<FormState>('idle');
   readonly regionFormError = signal<string | null>(null);
+  readonly regionFormSummary = signal<readonly string[]>([]);
   readonly regionForm = this.fb.group({
     timezone: ['', Validators.maxLength(100)],
     currency: ['', Validators.maxLength(10)],
@@ -129,6 +140,7 @@ export class AdminBusinessProfilePage implements OnInit {
   readonly showCommissionForm = signal(false);
   readonly commissionFormState = signal<FormState>('idle');
   readonly commissionFormError = signal<string | null>(null);
+  readonly commissionFormSummary = signal<readonly string[]>([]);
   readonly commissionForm = this.fb.group({
     rate: [null as number | null, [Validators.required, Validators.min(0), Validators.max(100)]],
   });
@@ -137,6 +149,7 @@ export class AdminBusinessProfilePage implements OnInit {
   readonly showAddressForm = signal(false);
   readonly addressFormState = signal<FormState>('idle');
   readonly addressFormError = signal<string | null>(null);
+  readonly addressFormSummary = signal<readonly string[]>([]);
   readonly addressModel = signal<AddressFormModel>({
     line1: '',
     line2: '',
@@ -156,6 +169,15 @@ export class AdminBusinessProfilePage implements OnInit {
     maxLength(path.country, 2, { message: 'common.validation.invalid' });
     maxLength(path.postalCode, 20, { message: 'common.validation.invalid' });
   });
+
+  constructor() {
+    const cleanup = [
+      clearServerFieldErrorsOnEdit(this.identityForm),
+      clearServerFieldErrorsOnEdit(this.regionForm),
+      clearServerFieldErrorsOnEdit(this.commissionForm),
+    ];
+    this.destroyRef.onDestroy(() => cleanup.forEach(subscription => subscription.unsubscribe()));
+  }
 
   readonly header = computed(() => this.overview()?.header ?? null);
   readonly hasAddress = computed(() => {
@@ -190,9 +212,13 @@ export class AdminBusinessProfilePage implements OnInit {
     this.pageError.set(null);
     this.sectionErrors.set([]);
     this.identityFormState.set('idle');
+    this.identityFormSummary.set([]);
     this.regionFormState.set('idle');
+    this.regionFormSummary.set([]);
     this.commissionFormState.set('idle');
+    this.commissionFormSummary.set([]);
     this.addressFormState.set('idle');
+    this.addressFormSummary.set([]);
     this.api.getOverview({ suppressShellFeedback: true }).subscribe({
       next: data => {
         this.overview.set(data);
@@ -222,6 +248,7 @@ export class AdminBusinessProfilePage implements OnInit {
     this.showIdentityForm.set(true);
     this.identityFormState.set('idle');
     this.identityFormError.set(null);
+    this.identityFormSummary.set([]);
     clearServerFieldErrors(this.identityForm);
     this.showRegionForm.set(false);
     this.showAddressForm.set(false);
@@ -230,6 +257,7 @@ export class AdminBusinessProfilePage implements OnInit {
   cancelIdentityForm(): void {
     this.showIdentityForm.set(false);
     this.identityFormError.set(null);
+    this.identityFormSummary.set([]);
     clearServerFieldErrors(this.identityForm);
     this.identityForm.patchValue({ name: this.header()?.tenantName ?? '' });
   }
@@ -241,6 +269,7 @@ export class AdminBusinessProfilePage implements OnInit {
     if (!h) return;
     this.identityFormState.set('submitting');
     this.identityFormError.set(null);
+    this.identityFormSummary.set([]);
     this.clearSectionError(IDENTITY_SECTION_TARGET);
     const v = this.identityForm.getRawValue();
     this.api.updateIdentity({
@@ -263,6 +292,7 @@ export class AdminBusinessProfilePage implements OnInit {
     this.showRegionForm.set(true);
     this.regionFormState.set('idle');
     this.regionFormError.set(null);
+    this.regionFormSummary.set([]);
     clearServerFieldErrors(this.regionForm);
     this.showIdentityForm.set(false);
     this.showAddressForm.set(false);
@@ -271,6 +301,7 @@ export class AdminBusinessProfilePage implements OnInit {
   cancelRegionForm(): void {
     this.showRegionForm.set(false);
     this.regionFormError.set(null);
+    this.regionFormSummary.set([]);
     clearServerFieldErrors(this.regionForm);
     this.regionForm.patchValue({ timezone: this.header()?.timezone ?? '', currency: this.header()?.currency ?? '' });
   }
@@ -282,6 +313,7 @@ export class AdminBusinessProfilePage implements OnInit {
     if (!h) return;
     this.regionFormState.set('submitting');
     this.regionFormError.set(null);
+    this.regionFormSummary.set([]);
     this.clearSectionError(REGION_SECTION_TARGET);
     const v = this.regionForm.getRawValue();
     this.api.updateIdentity({
@@ -304,6 +336,7 @@ export class AdminBusinessProfilePage implements OnInit {
     this.showCommissionForm.set(true);
     this.commissionFormState.set('idle');
     this.commissionFormError.set(null);
+    this.commissionFormSummary.set([]);
     clearServerFieldErrors(this.commissionForm);
     this.showIdentityForm.set(false);
     this.showRegionForm.set(false);
@@ -313,6 +346,7 @@ export class AdminBusinessProfilePage implements OnInit {
   cancelCommissionForm(): void {
     this.showCommissionForm.set(false);
     this.commissionFormError.set(null);
+    this.commissionFormSummary.set([]);
     clearServerFieldErrors(this.commissionForm);
     this.commissionForm.patchValue({ rate: this.commissionRate() });
   }
@@ -324,6 +358,7 @@ export class AdminBusinessProfilePage implements OnInit {
     if (rate == null) return;
     this.commissionFormState.set('submitting');
     this.commissionFormError.set(null);
+    this.commissionFormSummary.set([]);
     this.clearSectionError(COMMERCIAL_SECTION_TARGET);
     this.api.updateDefaultCommissionRate(rate, { suppressShellFeedback: true }).subscribe({
       next: () => {
@@ -344,6 +379,7 @@ export class AdminBusinessProfilePage implements OnInit {
     this.showAddressForm.set(true);
     this.addressFormState.set('idle');
     this.addressFormError.set(null);
+    this.addressFormSummary.set([]);
     this.showIdentityForm.set(false);
     this.showRegionForm.set(false);
     this.showCommissionForm.set(false);
@@ -352,6 +388,7 @@ export class AdminBusinessProfilePage implements OnInit {
   cancelAddressForm(): void {
     this.showAddressForm.set(false);
     this.addressFormError.set(null);
+    this.addressFormSummary.set([]);
     this.prefillAddressForm(this.header()?.address ?? null);
   }
 
@@ -359,6 +396,7 @@ export class AdminBusinessProfilePage implements OnInit {
     submit(this.addressForm, async () => {
       this.addressFormState.set('submitting');
       this.addressFormError.set(null);
+      this.addressFormSummary.set([]);
       this.clearSectionError(ADDRESS_SECTION_TARGET);
       const v = this.addressModel();
       this.api.upsertAddress({
@@ -429,111 +467,107 @@ export class AdminBusinessProfilePage implements OnInit {
   }
 
   private handleCommissionSubmitError(err: unknown): void {
-    const problem = (err as { error?: ProblemDetail })?.error;
-    if (problem) {
-      const fieldErrors = withResolvedErrorCopies(
-        webAppErrorsFromProblemDetailFields(problem, 'admin.businessProfile.commission'),
-        key => this.translate.instant(key),
-      );
-      const remaining = applyServerFieldErrors(this.commissionForm, fieldErrors, {
-        'commission.rate': 'rate',
-        'admin.businessProfile.commission.rate': 'rate',
-      });
+    const fieldErrors = this.serverFieldErrors(err, 'admin.businessProfile.commission');
+    const remaining = applyServerFieldErrors(this.commissionForm, fieldErrors, {
+      'commission.rate': 'rate',
+      'admin.businessProfile.commission.rate': 'rate',
+    });
 
-      if (fieldErrors.length && !remaining.length) {
-        this.commissionFormError.set(null);
-        return;
-      }
+    if (fieldErrors.length && !remaining.length) {
+      this.commissionFormError.set(null);
+      return;
+    }
+
+    if (remaining.length) {
+      this.commissionFormSummary.set(this.messagesForErrors(remaining));
+      this.commissionFormError.set(null);
+      return;
     }
 
     this.commissionFormError.set(this.errorViewModel(err, 'admin.businessProfile.commission', 'section').message);
   }
 
   private handleAddressSubmitError(err: unknown): void {
-    const problem = (err as { error?: ProblemDetail })?.error;
-    if (problem) {
-      const fieldErrors = withResolvedErrorCopies(
-        webAppErrorsFromProblemDetailFields(problem, 'admin.businessProfile.address'),
-        key => this.translate.instant(key),
-      );
-      if (fieldErrors.length) {
-        this.addressFormError.set(fieldErrors[0]?.message ?? null);
-        return;
-      }
+    const fieldErrors = this.serverFieldErrors(err, 'admin.businessProfile.address');
+    if (fieldErrors.length) {
+      this.addressFormSummary.set(this.messagesForErrors(fieldErrors));
+      this.addressFormError.set(null);
+      return;
     }
 
     this.addressFormError.set(this.errorViewModel(err, ADDRESS_SECTION_TARGET, 'section').message);
   }
 
   private handleIdentitySubmitError(err: unknown): void {
-    const problem = (err as { error?: ProblemDetail })?.error;
-    if (problem) {
-      const fieldErrors = withResolvedErrorCopies(
-        webAppErrorsFromProblemDetailFields(problem, IDENTITY_SECTION_TARGET),
-        key => this.translate.instant(key),
-      );
-      const remaining = applyServerFieldErrors(this.identityForm, fieldErrors, {
-        name: 'name',
-        'tenant.name': 'name',
-        'identity.name': 'name',
-        'admin.businessProfile.identity.name': 'name',
-      });
+    const fieldErrors = this.serverFieldErrors(err, IDENTITY_SECTION_TARGET);
+    const remaining = applyServerFieldErrors(this.identityForm, fieldErrors, {
+      name: 'name',
+      'tenant.name': 'name',
+      'identity.name': 'name',
+      'admin.businessProfile.identity.name': 'name',
+    });
 
-      if (fieldErrors.length && !remaining.length) {
-        this.identityFormError.set(null);
-        return;
-      }
+    if (fieldErrors.length && !remaining.length) {
+      this.identityFormError.set(null);
+      return;
+    }
+
+    if (remaining.length) {
+      this.identityFormSummary.set(this.messagesForErrors(remaining));
+      this.identityFormError.set(null);
+      return;
     }
 
     this.identityFormError.set(this.errorViewModel(err, IDENTITY_SECTION_TARGET, 'section').message);
   }
 
   private handleRegionSubmitError(err: unknown): void {
-    const problem = (err as { error?: ProblemDetail })?.error;
-    if (problem) {
-      const fieldErrors = withResolvedErrorCopies(
-        webAppErrorsFromProblemDetailFields(problem, REGION_SECTION_TARGET),
-        key => this.translate.instant(key),
-      );
-      const remaining = applyServerFieldErrors(this.regionForm, fieldErrors, {
-        timezone: 'timezone',
-        currency: 'currency',
-        'tenant.timezone': 'timezone',
-        'tenant.currency': 'currency',
-        'identity.timezone': 'timezone',
-        'identity.currency': 'currency',
-        'admin.businessProfile.region.timezone': 'timezone',
-        'admin.businessProfile.region.currency': 'currency',
-      });
+    const fieldErrors = this.serverFieldErrors(err, REGION_SECTION_TARGET);
+    const remaining = applyServerFieldErrors(this.regionForm, fieldErrors, {
+      timezone: 'timezone',
+      currency: 'currency',
+      'tenant.timezone': 'timezone',
+      'tenant.currency': 'currency',
+      'identity.timezone': 'timezone',
+      'identity.currency': 'currency',
+      'admin.businessProfile.region.timezone': 'timezone',
+      'admin.businessProfile.region.currency': 'currency',
+    });
 
-      if (fieldErrors.length && !remaining.length) {
-        this.regionFormError.set(null);
-        return;
-      }
+    if (fieldErrors.length && !remaining.length) {
+      this.regionFormError.set(null);
+      return;
+    }
+
+    if (remaining.length) {
+      this.regionFormSummary.set(this.messagesForErrors(remaining));
+      this.regionFormError.set(null);
+      return;
     }
 
     this.regionFormError.set(this.errorViewModel(err, REGION_SECTION_TARGET, 'section').message);
   }
 
   private sectionErrorFromUnknown(err: unknown, target: string): AdminSectionTargetError {
-    const problem = (err as { error?: ProblemDetail })?.error;
-    if (problem) {
-      const normalized = webAppErrorFromProblemDetail(problem, target, 'section');
-      const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
-      return {
-        target,
-        severity: normalized.severity,
-        title: copy.title,
-        message: copy.message,
-      };
-    }
-
+    const normalized = webAppErrorFromProblemDetail(mapHttpErrorToProblemDetail(err), target, 'section');
+    const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
     return {
       target,
-      severity: 'warn',
-      title: this.translate.instant('common.errors.categories.service_unavailable.title'),
-      message: this.translate.instant('common.errors.categories.service_unavailable.message'),
+      severity: normalized.severity,
+      title: copy.title,
+      message: copy.message,
     };
+  }
+
+  private serverFieldErrors(err: unknown, target: string) {
+    return withResolvedErrorCopies(
+      webAppErrorsFromProblemDetailFields(mapHttpErrorToProblemDetail(err), target),
+      key => this.translate.instant(key),
+    );
+  }
+
+  private messagesForErrors(errors: readonly { readonly message?: string }[]): readonly string[] {
+    return errors.flatMap(error => error.message ? [error.message] : []);
   }
 
   private errorViewModel(
@@ -541,18 +575,9 @@ export class AdminBusinessProfilePage implements OnInit {
     source: string,
     surface: 'page' | 'section',
   ): ErrorViewModel {
-    const problem = (err as { error?: ProblemDetail })?.error;
-    if (problem) {
-      const normalized = webAppErrorFromProblemDetail(problem, source, surface);
-      const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
-      return toErrorViewModel(normalized, copy);
-    }
-
-    return {
-      title: this.translate.instant('common.errors.fallback.title'),
-      message: this.translate.instant('common.errors.fallback.message'),
-      severity: 'error',
-    };
+    const normalized = webAppErrorFromProblemDetail(mapHttpErrorToProblemDetail(err), source, surface);
+    const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+    return toErrorViewModel(normalized, copy);
   }
 
   private setSectionError(error: AdminSectionTargetError): void {

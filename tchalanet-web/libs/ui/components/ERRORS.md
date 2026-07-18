@@ -17,6 +17,7 @@ tchalanet-web/docs/conventions/error-management.md
 | `tch-page-error` | `TchPageError` | page | full page | Route/page-level error such as not found or access denied. |
 | `tch-section-error` | `TchSectionError` | section | top | Local block/widget/card warning or error. |
 | `tch-field-error` | `TchFieldError` | field | inline | Form-control error text, including server errors attached to the control. |
+| `tch-form-error-summary` | `TchFormErrorSummary` | form | top | Unconsumed, safe form violations; focuses itself when shown. |
 
 ## Rules
 
@@ -24,8 +25,17 @@ tchalanet-web/docs/conventions/error-management.md
 - Components must not own API calls, stores, routing decisions, or retry policy.
 - Shell feedback is shell-owned (`libs/web/shell`), not part of this UI lib.
 - Feature/page code decides which component to render based on error ownership.
+- Blocking panels can receive a support reference and emit `copySupport`; the owner formats and
+  copies the reference. They never receive or display raw backend `detail`, exception messages,
+  stack traces, provider payloads, tokens, PINs, or passwords.
+- Retry state belongs to the owner. It must set `retryPending` while a retry is in flight so the
+  component cannot trigger a duplicate request.
 - Field errors should be attached to `FormControl.errors.server` by feature code before rendering
   `tch-field-error`.
+- `tch-field-error` translates local Angular validator keys (`common.validation.*`). Server messages
+  must already be presentation-owned localized copy, never raw backend detail.
+- A feature must pass violations without a resolvable control to `tch-form-error-summary`; it must
+  not drop them or represent them as a page failure.
 
 ## Styling
 
@@ -68,4 +78,10 @@ Field error:
   <input matInput type="number" formControlName="rate" />
 </mat-form-field>
 <tch-field-error [control]="form.controls.rate" />
+```
+
+Form summary:
+
+```html
+<tch-form-error-summary [messages]="unconsumedFieldMessages" />
 ```

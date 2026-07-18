@@ -1,10 +1,17 @@
 import { AbstractControl } from '@angular/forms';
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, Input, signal } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'tch-field-error',
+  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `@if (displayMessage()) { <p class="tch-field-error" role="alert">{{ displayMessage() }}</p> }`,
+  imports: [TranslatePipe],
+  template: `
+    @for (message of displayMessages(); track message) {
+      <p class="tch-field-error" role="alert">{{ message | translate }}</p>
+    }
+  `,
   styles: [`
     :host {
       --comp-field-error-fg: var(--tch-color-error);
@@ -14,29 +21,45 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
   `],
 })
 export class TchFieldError {
-  readonly message = input('');
-  readonly control = input<AbstractControl | null>(null);
+  private readonly messageValue = signal('');
+  private readonly controlValue = signal<AbstractControl | null>(null);
 
-  readonly displayMessage = computed(() => this.message() || controlErrorMessage(this.control()));
+  @Input() set message(value: string) { this.messageValue.set(value); }
+  @Input() set control(value: AbstractControl | null) { this.controlValue.set(value); }
+
+  readonly displayMessages = computed(() => {
+    if (this.messageValue()) return [this.messageValue()];
+    return controlErrorMessages(this.controlValue());
+  });
 }
 
-function controlErrorMessage(control: AbstractControl | null): string {
-  if (!control || !control.touched || !control.errors) return '';
+function controlErrorMessages(control: AbstractControl | null): readonly string[] {
+  if (!control || !control.touched || !control.errors) return [];
 
-  const server = control.errors['server'];
-  if (isMessageCarrier(server)) return server.message;
+  const serverMessages = messagesForServerError(control.errors['server']);
+  if (serverMessages.length) return serverMessages;
 
-  if (control.errors['required']) return 'Ce champ est obligatoire.';
-  if (control.errors['email']) return 'Adresse courriel invalide.';
-  if (control.errors['minlength']) return 'La valeur est trop courte.';
-  if (control.errors['maxlength']) return 'La valeur est trop longue.';
+  if (control.errors['required']) return ['common.validation.required'];
+  if (control.errors['email']) return ['common.validation.email'];
+  if (
+    control.errors['minlength'] ||
+    control.errors['maxlength'] ||
+    control.errors['min'] ||
+    control.errors['max'] ||
+    control.errors['pattern']
+  ) {
+    return ['common.validation.invalid'];
+  }
 
-  return '';
+  return [];
+}
+
+function messagesForServerError(value: unknown): readonly string[] {
+  const values = Array.isArray(value) ? value : [value];
+  return values.flatMap(value => isMessageCarrier(value) ? [value.message] : []);
 }
 
 function isMessageCarrier(value: unknown): value is { readonly message: string } {
-  return typeof value === 'object' &&
-    value !== null &&
-    'message' in value &&
-    typeof (value as { message?: unknown }).message === 'string';
+  return typeof value === 'object' && value !== null &&
+    'message' in value && typeof (value as { message?: unknown }).message === 'string';
 }

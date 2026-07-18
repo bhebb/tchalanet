@@ -11,9 +11,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
+import { mapHttpErrorToProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 
-import { AdminListStatusOption, AdminListSurface, TchErrorPanel } from '@tch/ui/components';
+import { AdminListStatusOption, AdminListSurface, TchErrorPanel, TchNotice } from '@tch/ui/components';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
@@ -34,6 +34,7 @@ import { BlockSellerTerminalDialog } from './dialogs/block-seller-terminal.dialo
 import { ResetPinDialog } from './dialogs/reset-pin.dialog';
 import { ConfirmDisableDialog } from './dialogs/confirm-disable.dialog';
 import { SellerTerminalLimitsDialog } from './dialogs/seller-terminal-limits.dialog';
+import { SellerTerminalDialogResult } from './dialogs/seller-terminal-dialog-result';
 
 @Component({
   selector: 'tch-admin-seller-terminals-page',
@@ -45,6 +46,7 @@ import { SellerTerminalLimitsDialog } from './dialogs/seller-terminal-limits.dia
     AdminListSurface,
     AdminEmptyStateComponent,
     TchErrorPanel,
+    TchNotice,
     TchAsyncReadyDirective,
     TchAsyncViewComponent,
     SellerTerminalKpiStripComponent,
@@ -64,6 +66,7 @@ export class AdminSellerTerminalsPage {
   private readonly translate = inject(TranslateService);
 
   readonly actionError = signal<ErrorViewModel | null>(null);
+  readonly actionSuccess = signal<string | null>(null);
   private readonly queryParamMap = toSignal(this.route.queryParamMap, {
     initialValue: this.route.snapshot.queryParamMap,
   });
@@ -135,9 +138,12 @@ export class AdminSellerTerminalsPage {
   }
 
   openBlock(row: SellerTerminalSummaryRow): void {
+    this.actionSuccess.set(null);
     const ref = this.dialog.open(BlockSellerTerminalDialog, { data: row, width: '480px' });
-    ref.afterClosed().subscribe((result?: { reload: boolean }) => {
-      if (result?.reload) this.reload();
+    ref.afterClosed().subscribe((result?: SellerTerminalDialogResult) => {
+      if (!result?.reload) return;
+      this.actionSuccess.set(result.noticeKey);
+      this.reload();
     });
   }
 
@@ -194,18 +200,9 @@ export class AdminSellerTerminalsPage {
   }
 
   private errorViewModel(err: unknown, source: string): ErrorViewModel {
-    const problem = (err as { error?: ProblemDetail })?.error;
-    if (problem) {
-      const normalized = webAppErrorFromProblemDetail(problem, source, 'page');
-      const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
-      return toErrorViewModel(normalized, copy);
-    }
-
-    return {
-      title: this.translate.instant('common.errors.fallback.title'),
-      message: this.translate.instant('common.errors.fallback.message'),
-      severity: 'error',
-    };
+    const normalized = webAppErrorFromProblemDetail(mapHttpErrorToProblemDetail(err), source, 'page');
+    const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+    return toErrorViewModel(normalized, copy);
   }
 }
 

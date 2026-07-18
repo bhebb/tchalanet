@@ -151,6 +151,46 @@
         "title": "Pwomosyon aktif"
       }
     },
+    "sellerTerminal": {
+      "pos": {
+        "dialog": {
+          "title": {
+            "saleSuccess": "Tikè vann",
+            "ticketActions": "Aksyon pou tikè a"
+          },
+          "summaryAria": "Rezime tikè a",
+          "actionsAria": "Aksyon tikè a",
+          "deliveryAria": "Voye tikè a",
+          "field": {
+            "ticket": "Tikè",
+            "publicCode": "Kòd piblik",
+            "totalPaid": "Total peye",
+            "lines": "Liy",
+            "freeLines": "{{count}} liy gratis"
+          },
+          "action": {
+            "print": "Enprime",
+            "printing": "Y ap enprime...",
+            "details": "Wè detay",
+            "close": "Fèmen",
+            "newTicket": "Nouvo tikè"
+          },
+          "delivery": {
+            "title": "Voye tikè a",
+            "phone": "Telefòn",
+            "phonePlaceholder": "+509 0000 0000",
+            "email": "Imèl",
+            "emailPlaceholder": "non@egzanp.com"
+          },
+          "feedback": {
+            "printSuccess": "Tikè a pare pou enprime.",
+            "printError": "Pa kapab enprime tikè a. Eseye ankò.",
+            "sendSuccess": "Tikè a voye.",
+            "sendError": "Pa kapab voye tikè a. Eseye ankò."
+          }
+        }
+      }
+    },
     "reports": {
       "title": "Rapò",
       "common": {
@@ -158,6 +198,7 @@
         "overview": "Apèsi",
         "payoutsPaid": "Peman fèt",
         "period": "Peryòd rapò a",
+        "netRevenue": "Revni nèt",
         "refresh": "Rafrechi",
         "sellerCommission": "Komisyon vandè",
         "ticketsSold": "Tikè vann",
@@ -559,6 +600,7 @@
       "required": "Requis",
       "blocking": "Bloke",
       "blockedBy": "Bloke pa :",
+      "backToSetup": "Retounen nan konfigirasyon",
       "section": {
         "identity": "Identité",
         "address": "Adresse",
@@ -740,6 +782,18 @@
         "statusLabel": {
           "pinResetRequired": "PIN pou remèt",
           "activeNeverSeen": "Aktif · poko konekte"
+        },
+        "notice": {
+          "created": "Vandè a kreye avèk siksè.",
+          "blocked": "Vandè a bloke."
+        },
+        "dialog": {
+          "block": {
+            "title": "Bloke vandè",
+            "description": "Bloke {{name}} ({{code}}) ap anpeche tout lavant jouk yo debloke li.",
+            "reason": "Rezon blokaj la",
+            "reasonPlaceholder": "Egzanp: terminal la pa retounen, sispèk fwod..."
+          }
         }
       },
       "new": {

@@ -30,6 +30,11 @@ describe('web app error normalization', () => {
     expect(error.traceId).toBe('trace-1');
     expect(error.errorId).toBe('err-1');
     expect(error.dedupeKey).toContain('access.denied');
+    expect(error.message).not.toBe('Access denied');
+    expect(error.diagnostics).toEqual({
+      problemTitle: 'Forbidden',
+      problemDetail: 'Access denied',
+    });
   });
 
   it('uses an allowed legacy ProblemDetail detail as code when the code field is missing', () => {
@@ -89,6 +94,8 @@ describe('web app error normalization', () => {
     expect(error.requestId).toBe('req-2');
     expect(error.traceId).toBe('trace-2');
     expect(error.errorId).toBe('err-2');
+    expect(error.message).not.toBe(notice.message);
+    expect(error.diagnostics).toEqual({ noticeMessage: notice.message });
   });
 
   it('keeps targeted section notices out of the shell surface', () => {
@@ -138,6 +145,8 @@ describe('web app error normalization', () => {
       target: 'profile.email',
       category: 'validation',
     });
+    expect(errors[0].message).not.toBe('Email is invalid');
+    expect(errors[0].diagnostics?.problemDetail).toBe('Email is invalid');
   });
 
   it('normalizes degraded service status with response trace fallback', () => {
@@ -151,5 +160,7 @@ describe('web app error normalization', () => {
     expect(error.code).toBe('service.uslottery.degraded');
     expect(error.requestId).toBe('req-3');
     expect(error.traceId).toBe('trace-3');
+    expect(error.message).not.toBe('Latest results unavailable');
+    expect(error.diagnostics?.serviceMessage).toBe('Latest results unavailable');
   });
 });

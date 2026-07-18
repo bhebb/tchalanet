@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 
 import { TchBackendClient } from '@tch/api';
 import { RuntimeBootstrapResponse } from './runtime/private-bootstrap.model';
@@ -168,6 +168,27 @@ describe('AuthSessionService', () => {
       roles: [],
     });
     expect(runtime.initialize).not.toHaveBeenCalled();
+  });
+
+  it('clears an existing session when the normalized bootstrap error is access denied', async () => {
+    vi.mocked(auth.isAuthenticated).mockResolvedValue(true);
+    vi.mocked(auth.getTokenExpiresAt).mockResolvedValue(undefined);
+    runtime.initialize
+      .mockReturnValueOnce(of(bootstrap()))
+      .mockReturnValueOnce(
+        throwError(() => ({
+          title: 'Access denied',
+          status: 403,
+          code: 'identity.access.denied',
+        })),
+      );
+
+    const service = TestBed.inject(AuthSessionService);
+    await service.refreshSession();
+
+    const session = await service.refreshSession(true);
+
+    expect(session).toEqual({ authenticated: false, roles: [] });
   });
 
   it('delegates email login credentials directly to the configured auth client', async () => {

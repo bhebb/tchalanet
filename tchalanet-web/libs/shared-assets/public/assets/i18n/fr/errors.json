@@ -66,6 +66,18 @@
           "failed": {
             "title": "Information a corriger",
             "message": "Corrigez les champs signales puis reessayez."
+          },
+          "invalid_format": {
+            "title": "Format invalide",
+            "message": "Corrigez le format du champ signale puis reessayez."
+          },
+          "out_of_range": {
+            "title": "Valeur invalide",
+            "message": "Saisissez une valeur comprise dans les limites attendues puis reessayez."
+          },
+          "required": {
+            "title": "Information manquante",
+            "message": "Remplissez le champ signale puis reessayez."
           }
         },
         "platform": {

@@ -38,14 +38,20 @@ describe('resolveErrorFeedbackCopy', () => {
     expect(result.message).toBe('Try again later.');
   });
 
-  it('uses built-in copy for entitlement quota errors when translations are absent', () => {
+  it('never uses raw error state when translations are absent', () => {
     const result = resolveErrorFeedbackCopy(
-      { ...baseError, code: 'entitlement.limit_exceeded', category: 'access_denied' },
+      {
+        ...baseError,
+        code: 'entitlement.limit_exceeded',
+        category: 'access_denied',
+        title: 'Raw backend title',
+        message: 'Raw backend message',
+      },
       key => key,
     );
 
-    expect(result.title).toBe('Quota du plan atteint');
-    expect(result.message).toBe('Cette action depasse la limite autorisee par le plan actif.');
+    expect(result.title).toBe('Unexpected error');
+    expect(result.message).toBe('Try again or contact support if the problem persists.');
   });
 
   it('falls back to safe generic copy when no translation exists', () => {

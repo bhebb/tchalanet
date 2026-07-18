@@ -1,10 +1,11 @@
 import '@angular/compiler';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
 import { createEnvironmentInjector, EnvironmentInjector, runInInjectionContext } from '@angular/core';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { of } from 'rxjs';
 
 import { TCH_API_BASE, TCH_API_BASE_RESOLVER } from '../http/api-base';
+import { SUPPRESS_SHELL_FEEDBACK, TCH_FEEDBACK_CONTEXT } from '../http/api-feedback-context';
 import { TchBackendClient } from './tch-backend-client';
 
 describe('TchBackendClient', () => {
@@ -98,6 +99,37 @@ describe('TchBackendClient', () => {
     });
   });
 
+  it('retains notices and trace metadata with a normalized paged response', () => {
+    let received: unknown;
+
+    response = {
+      status: 'PARTIAL',
+      notices: [{ code: 'dashboard.recent_tickets.unavailable', message: 'diagnostic', severity: 'WARN' }],
+      trace: { requestId: 'req-1', traceId: 'trace-1' },
+      data: { items: ['one'], totalElements: 3 },
+    };
+
+    client.getPageApiResponse<string>('/items', { params: { page: '1', size: '2' } }).subscribe(value => {
+      received = value;
+    });
+
+    expect(received).toEqual({
+      status: 'PARTIAL',
+      notices: [{ code: 'dashboard.recent_tickets.unavailable', message: 'diagnostic', severity: 'WARN' }],
+      trace: { requestId: 'req-1', traceId: 'trace-1' },
+      data: {
+        items: ['one'],
+        totalElements: 3,
+        totalPages: 2,
+        page: 1,
+        size: 2,
+        last: true,
+        hasNext: false,
+        hasPrevious: true,
+      },
+    });
+  });
+
   it('resolves the API base URL at request time', () => {
     response = {
       status: 'SUCCESS',
@@ -109,5 +141,31 @@ describe('TchBackendClient', () => {
     client.get('/runtime/private').subscribe();
 
     expect(requests[0]?.url).toBe('https://api.stg.tchalanet.com/api/v1/runtime/private');
+  });
+
+  it('passes explicit feedback ownership through request context', () => {
+    response = { status: 'SUCCESS', notices: [], data: { ok: true } };
+
+    client.get('/dashboard', {
+      feedback: { owner: 'section', mode: 'local', target: 'dashboard.commissions' },
+    }).subscribe();
+
+    const context = (requests[0]?.options as { context?: HttpContext }).context;
+    expect(context?.get(TCH_FEEDBACK_CONTEXT)).toEqual({
+      owner: 'section',
+      mode: 'local',
+      target: 'dashboard.commissions',
+    });
+    expect(context?.get(SUPPRESS_SHELL_FEEDBACK)).toBe(false);
+  });
+
+  it('maps the legacy suppression flag to local feedback ownership during migration', () => {
+    response = { status: 'SUCCESS', notices: [], data: { ok: true } };
+
+    client.get('/dashboard', { suppressShellFeedback: true }).subscribe();
+
+    const context = (requests[0]?.options as { context?: HttpContext }).context;
+    expect(context?.get(TCH_FEEDBACK_CONTEXT)).toEqual({ mode: 'local' });
+    expect(context?.get(SUPPRESS_SHELL_FEEDBACK)).toBe(true);
   });
 });

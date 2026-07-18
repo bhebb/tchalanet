@@ -359,6 +359,46 @@
         "noLines": "Ajoutez au moins une ligne pour confirmer la vente."
       }
     },
+    "sellerTerminal": {
+      "pos": {
+        "dialog": {
+          "title": {
+            "saleSuccess": "Ticket vendu",
+            "ticketActions": "Actions du ticket"
+          },
+          "summaryAria": "Résumé du ticket",
+          "actionsAria": "Actions du ticket",
+          "deliveryAria": "Envoyer le ticket",
+          "field": {
+            "ticket": "Ticket",
+            "publicCode": "Code public",
+            "totalPaid": "Total payé",
+            "lines": "Lignes",
+            "freeLines": "{{count}} ligne(s) gratuite(s)"
+          },
+          "action": {
+            "print": "Imprimer",
+            "printing": "Impression...",
+            "details": "Voir les détails",
+            "close": "Fermer",
+            "newTicket": "Nouveau ticket"
+          },
+          "delivery": {
+            "title": "Envoyer le ticket",
+            "phone": "Téléphone",
+            "phonePlaceholder": "+509 0000 0000",
+            "email": "E-mail",
+            "emailPlaceholder": "nom@exemple.com"
+          },
+          "feedback": {
+            "printSuccess": "Le ticket est prêt à imprimer.",
+            "printError": "Impossible d’imprimer le ticket. Réessayez.",
+            "sendSuccess": "Le ticket a été envoyé.",
+            "sendError": "Impossible d’envoyer le ticket. Réessayez."
+          }
+        }
+      }
+    },
     "reports": {
       "title": "Rapports",
       "common": {
@@ -366,6 +406,7 @@
         "overview": "Vue d'ensemble",
         "payoutsPaid": "Paiements versés",
         "period": "Période du rapport",
+        "netRevenue": "Revenu net",
         "refresh": "Rafraîchir",
         "sellerCommission": "Commission vendeur",
         "ticketsSold": "Tickets vendus",
@@ -746,6 +787,7 @@
       "required": "Requis",
       "blocking": "Bloquant",
       "blockedBy": "Bloqué par :",
+      "backToSetup": "Retour à la configuration",
       "progress": {
         "title": "Configuration du tenant",
         "subtitle": "Suivi de l'état de préparation"
@@ -933,6 +975,18 @@
         "statusLabel": {
           "pinResetRequired": "PIN à remettre",
           "activeNeverSeen": "Actif · jamais connecté"
+        },
+        "notice": {
+          "created": "Le vendeur a été créé avec succès.",
+          "blocked": "Le vendeur a été bloqué."
+        },
+        "dialog": {
+          "block": {
+            "title": "Bloquer le vendeur",
+            "description": "Bloquer {{name}} ({{code}}) empêche toute vente jusqu'au déblocage.",
+            "reason": "Raison du blocage",
+            "reasonPlaceholder": "Ex. : terminal non retourné, suspicion de fraude..."
+          }
         }
       },
       "new": {
