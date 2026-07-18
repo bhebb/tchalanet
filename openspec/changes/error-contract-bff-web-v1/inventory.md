@@ -25,6 +25,36 @@ feature BFF is classified. It records observed behaviour, not desired behaviour.
 | `GlobalErrorHandler.handleJpaNotFound` | Exposes JPA exception message. | Migrate callers to a stable typed not-found code. |
 | `PosTicketReceiptService` | Wraps `ex.getMessage()` in `ProblemRest.badRequest`. | High-priority POS path: map exception to stable receipt/delivery code and log root cause privately. |
 
+## Legacy `ProblemRest` contract audit
+
+The current `ProblemRest` API names its main argument `detail` and writes it directly into
+`ProblemDetail.detail`. It does not require or add a `code` property. `ProblemRestException` has the
+same legacy message-first shape. This is materially different from the desired error contract.
+
+Initial scan across common/core/platform/catalog/features:
+
+| Measure | Result | Meaning |
+|---|---:|---|
+| `ProblemRest.*` call sites | 232 | Most must be classified before changing the API. |
+| Direct `ProblemDetail` construction sites | 33 | Must be either migrated to descriptor factories or explicitly justified as framework adapters. |
+| Clearly unsafe/prose/dynamic `ProblemRest` examples in first pass | 30+ | They cannot form a stable client translation key. |
+
+Representative unsafe examples:
+
+| Category | Example pattern | Why it is unsafe |
+|---|---|---|
+| Exception prose | `ProblemRest.badRequest(ex.getMessage(), ex)` | A provider/library message becomes client-visible error detail. |
+| Human sentence | `ProblemRest.conflict("Draw is not open for sales")` | Translatable only by parsing prose; not a stable API contract. |
+| Dynamic value in code/detail | `"ops.sales_simulation.draw_not_in_tenant: " + drawUuid` | Creates unbounded keys and leaks an internal identifier. |
+| Entity/id appended by helper | `notFound("Result slot not found", id)` | Adds an ID into client detail and cannot be cataloged. |
+| Context prose | `"sales.tenant_disabled:" + tenant.status()` | Turns a variable business state into a dynamic code/detail. |
+| Security/identity prose | `"No account found for this email"` | Risks enumeration and cannot be a generic public login response. |
+
+**Migration decision recorded:** Phase 1 must introduce a code-first factory/descriptor path while
+keeping `ProblemRest` only as a temporary compatibility bridge. The bridge must emit a stable
+fallback code plus diagnostic-only legacy detail, and a static rule must prevent new message-first
+call sites. It must not silently infer a code by parsing `detail`.
+
 ## Observed BFF / aggregated read behaviour
 
 | Surface / entry point | Primary result | Secondary slices observed | Current failure behaviour | Initial classification |

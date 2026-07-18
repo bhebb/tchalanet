@@ -35,6 +35,8 @@ portals, Flutter mobile, client-originated failures, i18n, accessibility, recove
 
 ## Phase 1 — Canonical server error model
 
+- [x] Establish an additive code-first descriptor baseline in `common.web.error` and a tested
+      `ProblemRest` factory, without changing legacy message-first call sites.
 - [ ] Reconcile the related `complete-apiresponse-notices` OpenSpec with production code and archive
       it only after its tasks/tests match reality.
 - [ ] Define common technical contract types as needed: `ErrorCode`, `ErrorCategory`,
@@ -43,6 +45,8 @@ portals, Flutter mobile, client-originated failures, i18n, accessibility, recove
 - [ ] Define lowercase dotted code syntax, stable owner/category/retry policy, uniqueness and expected
       HTTP status where applicable. Reject vague codes, HTTP prose, Java class names, and inline
       string invention.
+- [ ] Replace the message-first `ProblemRest`/`ProblemRestException` contract through a compatible
+      code-first factory path; classify all 232 existing call sites and block new legacy uses.
 - [ ] Add a descriptor registry/collector validated at startup or test time and an ArchUnit/static
       guard against raw externally visible codes in controllers/services.
 - [ ] Ensure every `ProblemDetail` has code, status, title, detail, instance, request/trace/span IDs
