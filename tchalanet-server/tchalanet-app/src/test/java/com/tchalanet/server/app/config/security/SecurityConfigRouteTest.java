@@ -74,6 +74,11 @@ class SecurityConfigRouteTest {
     mockMvc.perform(get("/platform/ping")).andExpect(status().isUnauthorized());
   }
 
+  @Test
+  void retiredAdminOpsPath_withoutToken_returns401() throws Exception {
+    mockMvc.perform(get("/admin/ops/ping")).andExpect(status().isUnauthorized());
+  }
+
   // ── test support ──────────────────────────────────────────────────────────
 
   @RestController
@@ -100,6 +105,11 @@ class SecurityConfigRouteTest {
 
     @GetMapping("/platform/ping")
     ResponseEntity<Void> platform() {
+      return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/admin/ops/ping")
+    ResponseEntity<Void> retiredAdminOps() {
       return ResponseEntity.ok().build();
     }
   }
@@ -140,12 +150,6 @@ class SecurityConfigRouteTest {
                           "/public/**")
                       .permitAll()
                       .requestMatchers("/error", "/api/v1/error")
-                      .permitAll()
-                      .requestMatchers(
-                          "/api/v1/admin/ops",
-                          "/api/v1/admin/ops/**",
-                          "/admin/ops",
-                          "/admin/ops/**")
                       .permitAll()
                       .anyRequest()
                       .authenticated())

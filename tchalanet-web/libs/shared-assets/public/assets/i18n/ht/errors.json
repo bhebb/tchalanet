@@ -58,6 +58,14 @@
               "title": "Espas obligatwa",
               "message": "Chwazi yon espas aktif anvan ou kontinye."
             },
+            "tenant_unavailable": {
+              "title": "Espas pa disponib",
+              "message": "Espas sa a pa disponib ankò. Retounen nan espas ki otorize a."
+            },
+            "tenant_override_reason_required": {
+              "title": "Rezon obligatwa",
+              "message": "Bay rezon sipò a anvan ou kontinye nan espas sa a."
+            },
             "user_not_bootstrapped": {
               "title": "Sesyon pa pare",
               "message": "Konekte ankò pou kontinye."
@@ -137,6 +145,14 @@
           }
         },
         "sales": {
+          "promotion_applied": {
+            "title": "Maryaj gratis ajoute",
+            "message": "Tikè a gen liy gratis ki aplike selon pwomosyon an."
+          },
+          "promotion_terminal_override_applied": {
+            "title": "Règ pwomosyon vandè aplike",
+            "message": "Tikè a sèvi ak règ pwomosyon ki espesifik pou vandè sa a."
+          },
           "acceptable": {
             "title": "Vant lan pare",
             "message": "Tikè a ka vann."

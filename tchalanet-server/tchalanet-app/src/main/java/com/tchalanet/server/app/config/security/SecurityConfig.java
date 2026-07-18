@@ -74,9 +74,6 @@ public class SecurityConfig {
                         "/error",
                         "/api/v1/error")
                     .permitAll()
-                    .requestMatchers(
-                        "/api/v1/admin/ops", "/api/v1/admin/ops/**", "/admin/ops", "/admin/ops/**")
-                    .permitAll()
                     .anyRequest()
                     .authenticated())
         .oauth2ResourceServer(
@@ -90,7 +87,7 @@ public class SecurityConfig {
         .exceptionHandling(
             errors -> errors.accessDeniedHandler(securityFailureHandler))
         .addFilterAfter(sensitiveIdentityVerificationFilter, BearerTokenAuthenticationFilter.class)
-        .addFilterAfter(tchAccessContextPipelineFilter, BearerTokenAuthenticationFilter.class)
+        .addFilterAfter(tchAccessContextPipelineFilter, SensitiveIdentityVerificationFilter.class)
         .addFilterBefore(
             tchContextFilter,
             org.springframework.security.web.access.intercept.AuthorizationFilter.class);

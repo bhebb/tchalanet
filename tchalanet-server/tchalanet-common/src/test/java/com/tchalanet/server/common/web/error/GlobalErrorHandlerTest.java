@@ -2,6 +2,7 @@ package com.tchalanet.server.common.web.error;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.tchalanet.server.common.context.RequestContextErrorCodes;
 import com.tchalanet.server.common.web.api.CommonErrorCodes;
 import jakarta.persistence.EntityNotFoundException;
 import java.lang.reflect.Method;
@@ -89,6 +90,21 @@ class GlobalErrorHandlerTest {
         .containsEntry("category", "unexpected")
         .doesNotContainKey("cause");
     assertThat(problem.toString()).doesNotContain("confidential_usage_key");
+  }
+
+  @Test
+  void structuredFilterProblemRetainsStableCodeWithoutDiagnosticProse() {
+    var response =
+        handler.handleProblemRest(ProblemRest.of(RequestContextErrorCodes.TENANT_UNAVAILABLE), request());
+
+    var problem = response.getBody();
+    assertThat(problem).isNotNull();
+    assertThat(response.getStatusCode()).isEqualTo(org.springframework.http.HttpStatus.FORBIDDEN);
+    assertThat(problem.getDetail()).isEqualTo("Request could not be completed");
+    assertThat(problem.getProperties())
+        .containsEntry("code", RequestContextErrorCodes.TENANT_UNAVAILABLE.code())
+        .containsEntry("category", "access_denied")
+        .doesNotContainKey("message");
   }
 
   @Test
