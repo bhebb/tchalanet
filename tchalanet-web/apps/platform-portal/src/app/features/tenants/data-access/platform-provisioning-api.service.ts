@@ -18,7 +18,8 @@ export interface TenantProvisioningRequest {
   defaultCommissionRate: number;
   profile: TenantProvisioningProfile;
   maryajGratisEnabled?: boolean | null;
-  initialAdminEmail?: string | null;
+  initialAdminUsername: string;
+  initialAdminEmail: string;
   planCode?: string | null;
 }
 
@@ -55,6 +56,7 @@ export interface TenantProvisioningResultView {
   appliedPlanCode?: string | null;
   readiness: TenantReadinessView;
   initialAdminUserId?: string | null;
+  initialAdminUsername?: string | null;
   initialAdminEmail?: string | null;
   initialAdminCredentialStatus?: string | null;
   initialAdminTemporaryPassword?: string | null;

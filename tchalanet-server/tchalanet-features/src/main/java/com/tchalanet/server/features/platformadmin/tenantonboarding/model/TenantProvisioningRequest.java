@@ -3,8 +3,10 @@ package com.tchalanet.server.features.platformadmin.tenantonboarding.model;
 import com.tchalanet.server.platform.tenant.api.model.TenantType;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import java.math.BigDecimal;
 import java.time.ZoneId;
 import java.util.Currency;
@@ -25,5 +27,10 @@ public record TenantProvisioningRequest(
         BigDecimal defaultCommissionRate,
     @NotNull TenantProvisioningProfile profile,
     Boolean maryajGratisEnabled,
-    String initialAdminEmail,
+    @NotBlank
+        @Pattern(
+            regexp = "^[A-Za-z0-9._-]{3,64}$",
+            message = "initialAdminUsername must be 3-64 letters, digits, dots, underscores, or hyphens")
+        String initialAdminUsername,
+    @NotBlank @Email String initialAdminEmail,
     String planCode) {}

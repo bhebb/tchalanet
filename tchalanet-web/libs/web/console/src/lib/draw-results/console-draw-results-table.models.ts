@@ -23,7 +23,11 @@ export interface ConsoleDrawResultRow {
   readonly logoText?: string;
   readonly slotKey?: string;
   readonly identity: ConsoleDrawSlotIdentity;
-  readonly numbers: readonly string[];
+  /**
+   * Haiti lottery lots are positional: lot1 through lot4. A null entry means that this
+   * particular lot was not provided yet, rather than that the result has no numbers.
+   */
+  readonly numbers: readonly (string | null)[];
   readonly statusLabel: string;
   readonly statusTone: AdminStatusTone;
   readonly qualityLabel: string;

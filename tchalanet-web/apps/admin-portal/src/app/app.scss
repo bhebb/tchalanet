@@ -9,3 +9,68 @@
   color: var(--tch-color-on-background, #1a1c1e);
   font-family: var(--tch-font-family, system-ui, sans-serif);
 }
+
+.admin-portal__support-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-block-end: 1rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--tch-color-outline-variant);
+  border-radius: var(--tch-radius-lg, 0.75rem);
+  background: var(--tch-color-secondary-container);
+  color: var(--tch-color-on-secondary-container);
+  box-shadow: var(--tch-elevation-1, 0 1px 3px rgb(0 0 0 / 12%));
+}
+
+.admin-portal__support-copy {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 12rem;
+}
+
+.admin-portal__support-title {
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.admin-portal__support-mode {
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.35;
+  opacity: 0.78;
+}
+
+.admin-portal__support-return {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  min-height: 2.5rem;
+  margin-inline-start: auto;
+  padding: 0 0.875rem;
+  border: 1px solid currentColor;
+  border-radius: var(--tch-radius-pill, 999px);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.admin-portal__support-return:hover {
+  background: color-mix(in srgb, currentColor 10%, transparent);
+}
+
+.admin-portal__support-return .material-symbols-outlined {
+  font-size: 1.25rem;
+}
+
+@media (max-width: 720px) {
+  .admin-portal__support-return {
+    width: 100%;
+    margin-inline-start: 0;
+  }
+}

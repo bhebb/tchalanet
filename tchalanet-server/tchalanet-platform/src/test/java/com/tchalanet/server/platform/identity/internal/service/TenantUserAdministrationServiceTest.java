@@ -43,6 +43,7 @@ class TenantUserAdministrationServiceTest {
   @Test
   void tenantUserCreationRequestsFirebaseSubjectFromAppUserId() {
     when(users.findByEmailOrPhone("admin@example.test", null)).thenReturn(Optional.empty());
+    when(users.findByNormalizedUsername("ada.min")).thenReturn(Optional.empty());
     when(timeProvider.nowInstant()).thenReturn(Instant.parse("2026-07-14T00:00:00Z"));
     when(temporaryCredentials.adminTemporaryCredentialsEnabled()).thenReturn(false);
     when(users.save(any(AppUser.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -58,13 +59,17 @@ class TenantUserAdministrationServiceTest {
             });
 
     var result =
-        service.createUserForTenant("admin@example.test", null, "Ada", "Min", "flowtenant");
+        service.createUserForTenant(
+            "ada.min", "admin@example.test", null, "Ada", "Min", "flowtenant");
 
     var requestCaptor = ArgumentCaptor.forClass(ProvisionExternalUserRequest.class);
     verify(identityProvisioning).provisionUser(requestCaptor.capture());
     var requestedSubject = requestCaptor.getValue().requestedExternalSubject();
 
     assertThat(requestedSubject).isEqualTo(result.userId().value().toString());
+    var userCaptor = ArgumentCaptor.forClass(AppUser.class);
+    verify(users).save(userCaptor.capture());
+    assertThat(userCaptor.getValue().username()).isEqualTo("ada.min");
     verify(externalIdentityLinks)
         .link(
             eq(result.userId()),

@@ -482,17 +482,20 @@
         "defaultCommissionRate": "Default commission",
         "profile": "Profile",
         "maryajGratisEnabled": "Offer Maryaj gratis",
+        "initialAdminUsername": "Initial admin username",
         "initialAdminEmail": "Initial admin email"
       },
       "hint": {
         "defaultCommissionRate": "Commission applied by default to seller-terminals without a specific rate.",
         "maryajGratisEnabled": "Shows the Maryaj gratis page in the tenant and adds its setup card.",
-        "initialAdminEmail": "Leave empty to create the tenant without an initial administrator."
+        "initialAdminUsername": "3–64 characters: letters, numbers, dots, underscores, or hyphens.",
+        "initialAdminEmail": "Required to create the initial administrator."
       },
       "error": {
         "code": "Required format: lowercase letters, numbers, hyphens (3–30 characters).",
         "required": "Required field.",
         "email": "Invalid email address.",
+        "username": "Username must contain 3–64 letters, numbers, dots, underscores, or hyphens.",
         "commissionRate": "Commission must be between 0 and 100%.",
         "submitTitle": "Provisioning failed"
       },
@@ -511,7 +514,6 @@
         "createAnother": "Create another tenant"
       },
       "warning": {
-        "initialAdminMissing": "No initial admin provided. The tenant can still be created, but an administrator will need to be added later.",
         "existingUserAttached": "An existing user was attached as the tenant administrator.",
         "temporaryCredentialNotReturned": "Temporary credentials could not be displayed. Reset the password from the tenant detail page.",
         "temporaryPasswordIssued": "A temporary password was issued for the initial administrator.",
@@ -533,6 +535,7 @@
         "nextSteps": "Next steps",
         "warnings": "Warnings",
         "initialAdmin": "Initial admin",
+        "adminUsername": "Username",
         "adminEmail": "Email",
         "adminStatus": "Status",
         "temporaryAccessCreated": "Temporary access created",

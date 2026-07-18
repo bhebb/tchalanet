@@ -130,7 +130,9 @@ public class FirebaseUserProvisionService implements IdentityProvisioningApi {
         return null;
       }
       if (isFirebaseEmulator()) {
-        log.warn("Firebase emulator lookup failed before create; treating as user absent: {}", ex.getMessage());
+        log.warn(
+            "Firebase emulator lookup failed before create; treating as user absent: {}",
+            ex.getMessage());
         return null;
       }
       throw new IllegalStateException("Firebase user lookup failed", ex);

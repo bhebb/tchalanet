@@ -9,7 +9,7 @@ app:
   cors:
     allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:https://app.localtest.me}
     allowed-methods: GET,POST,PUT,PATCH,DELETE,OPTIONS
-    allowed-headers: ${APP_CORS_ALLOWED_HEADERS:Authorization,Content-Type,Accept,Origin,X-Request-Id,X-Tch-Tenant-Override,X-Tch-Act-As,X-Tch-Override-Reason}
+    allowed-headers: ${APP_CORS_ALLOWED_HEADERS:Authorization,Content-Type,Accept,Origin,Idempotency-Key,X-Request-Id,X-Tenant-Id,X-Deleted-Visibility,X-Tch-Tenant-Override,X-Tch-Act-As,X-Tch-Act-As-Terminal,X-Tch-Override-Reason,X-Tch-Client-Type,X-Tch-Surface,X-Tch-Operational-Source,X-Tch-Terminal-Id,X-Tch-Outlet-Id,X-Tch-Sales-Session-Id}
     exposed-headers: Location
     allow-credentials: true
 

@@ -1,10 +1,12 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
   OnInit,
   computed,
   inject,
   signal,
+  viewChild,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { form, maxLength, required, submit } from '@angular/forms/signals';
@@ -101,6 +103,7 @@ export class AdminBusinessProfilePage implements OnInit {
   private readonly api = inject(AdminOverviewApiService);
   private readonly fb = inject(FormBuilder);
   private readonly translate = inject(TranslateService);
+  private readonly pageTop = viewChild<ElementRef<HTMLElement>>('pageTop');
 
   readonly pageState = signal<PageState>('loading');
   readonly pageError = signal<ErrorViewModel | null>(null);
@@ -185,19 +188,24 @@ export class AdminBusinessProfilePage implements OnInit {
     this.load();
   }
 
-  load(): void {
+  load(options: { readonly focusTop?: boolean; readonly resetFormFeedback?: boolean } = {}): void {
     this.pageState.set('loading');
     this.pageError.set(null);
     this.sectionErrors.set([]);
-    this.identityFormState.set('idle');
-    this.regionFormState.set('idle');
-    this.commissionFormState.set('idle');
-    this.addressFormState.set('idle');
+    if (options.resetFormFeedback !== false) {
+      this.identityFormState.set('idle');
+      this.regionFormState.set('idle');
+      this.commissionFormState.set('idle');
+      this.addressFormState.set('idle');
+    }
     this.api.getOverview({ suppressShellFeedback: true }).subscribe({
       next: data => {
         this.overview.set(data);
         this.pageState.set('ready');
         this.prefillForms(data.header);
+        if (options.focusTop) {
+          this.focusPageTop();
+        }
       },
       error: (err: unknown) => {
         this.pageError.set(this.errorViewModel(err, 'admin.businessProfile.overview', 'page'));
@@ -249,7 +257,11 @@ export class AdminBusinessProfilePage implements OnInit {
       timezone: h.timezone ?? '',
       currency: h.currency ?? '',
     }, { suppressShellFeedback: true }).subscribe({
-      next: () => { this.identityFormState.set('success'); this.showIdentityForm.set(false); this.load(); },
+      next: () => {
+        this.identityFormState.set('success');
+        this.showIdentityForm.set(false);
+        this.load({ focusTop: true, resetFormFeedback: false });
+      },
       error: (err: unknown) => {
         this.handleIdentitySubmitError(err);
         this.identityFormState.set('error');
@@ -290,7 +302,11 @@ export class AdminBusinessProfilePage implements OnInit {
       timezone: v.timezone ?? '',
       currency: v.currency ?? '',
     }, { suppressShellFeedback: true }).subscribe({
-      next: () => { this.regionFormState.set('success'); this.showRegionForm.set(false); this.load(); },
+      next: () => {
+        this.regionFormState.set('success');
+        this.showRegionForm.set(false);
+        this.load({ focusTop: true, resetFormFeedback: false });
+      },
       error: (err: unknown) => {
         this.handleRegionSubmitError(err);
         this.regionFormState.set('error');
@@ -330,6 +346,7 @@ export class AdminBusinessProfilePage implements OnInit {
         this.commissionFormState.set('success');
         this.showCommissionForm.set(false);
         this.commissionRate.set(rate);
+        this.focusPageTop();
       },
       error: (err: unknown) => {
         this.handleCommissionSubmitError(err);
@@ -369,7 +386,11 @@ export class AdminBusinessProfilePage implements OnInit {
         country: v.country,
         postalCode: v.postalCode || null,
       }, { suppressShellFeedback: true }).subscribe({
-        next: () => { this.addressFormState.set('success'); this.showAddressForm.set(false); this.load(); },
+        next: () => {
+          this.addressFormState.set('success');
+          this.showAddressForm.set(false);
+          this.load({ focusTop: true, resetFormFeedback: false });
+        },
         error: (err: unknown) => {
           this.handleAddressSubmitError(err);
           this.addressFormState.set('error');
@@ -564,5 +585,18 @@ export class AdminBusinessProfilePage implements OnInit {
 
   private clearSectionError(target: string): void {
     this.sectionErrors.update(errors => errors.filter(item => item.target !== target));
+  }
+
+  private focusPageTop(): void {
+    const schedule = globalThis.requestAnimationFrame ?? ((callback: FrameRequestCallback) => {
+      globalThis.setTimeout(callback, 0);
+      return 0;
+    });
+
+    schedule(() => {
+      const top = this.pageTop()?.nativeElement;
+      top?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      top?.focus({ preventScroll: true });
+    });
   }
 }

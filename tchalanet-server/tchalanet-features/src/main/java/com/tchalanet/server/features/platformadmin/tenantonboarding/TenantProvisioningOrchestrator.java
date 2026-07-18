@@ -133,7 +133,10 @@ public class TenantProvisioningOrchestrator {
             () -> {
               var initialAdmin =
                   provisionInitialAdmin(
-                      TenantId.of(tenantId), created.code(), request.initialAdminEmail());
+                      TenantId.of(tenantId),
+                      created.code(),
+                      request.initialAdminUsername(),
+                      request.initialAdminEmail());
               var readiness = readinessAssembler.assemble(TchContext.currentOrNull());
               return new TenantProvisioningContextResult(readiness, initialAdmin);
             });
@@ -150,6 +153,7 @@ public class TenantProvisioningOrchestrator {
         appliedPlanCode,
         contextResult.readiness(),
         initialAdmin.userId(),
+        blankToNull(request.initialAdminUsername()),
         blankToNull(request.initialAdminEmail()),
         initialAdmin.credentialStatus(),
         initialAdmin.temporaryPassword(),
@@ -193,9 +197,6 @@ public class TenantProvisioningOrchestrator {
 
   private static List<String> warnings(TenantProvisioningRequest request) {
     List<String> warnings = new ArrayList<>();
-    if (request.initialAdminEmail() == null || request.initialAdminEmail().isBlank()) {
-      warnings.add("INITIAL_ADMIN_EMAIL_MISSING");
-    }
     return warnings;
   }
 
@@ -317,14 +318,23 @@ public class TenantProvisioningOrchestrator {
   }
 
   private InitialAdminProvisioningResult provisionInitialAdmin(
-      TenantId tenantId, String tenantCode, String initialAdminEmail) {
-    if (initialAdminEmail == null || initialAdminEmail.isBlank()) {
-      return InitialAdminProvisioningResult.empty();
+      TenantId tenantId, String tenantCode, String initialAdminUsername, String initialAdminEmail) {
+    if (initialAdminUsername == null
+        || initialAdminUsername.isBlank()
+        || initialAdminEmail == null
+        || initialAdminEmail.isBlank()) {
+      throw new IllegalArgumentException("Initial admin username and email are required");
     }
 
     var adminResult =
         identityApi.createTenantUser(
-            tenantId, tenantCode, initialAdminEmail, null, null, TchRole.TENANT_ADMIN);
+            tenantId,
+            tenantCode,
+            initialAdminUsername,
+            initialAdminEmail,
+            null,
+            null,
+            TchRole.TENANT_ADMIN);
     String credentialStatus =
         adminResult.temporaryCredentialIssued()
             ? "TEMPORARY_PASSWORD_ISSUED"
@@ -394,10 +404,5 @@ public class TenantProvisioningOrchestrator {
       String credentialStatus,
       String temporaryPassword,
       Boolean mustChangePassword,
-      Boolean mustCompleteProfile) {
-
-    private static InitialAdminProvisioningResult empty() {
-      return new InitialAdminProvisioningResult(null, null, null, null, null);
-    }
-  }
+      Boolean mustCompleteProfile) {}
 }

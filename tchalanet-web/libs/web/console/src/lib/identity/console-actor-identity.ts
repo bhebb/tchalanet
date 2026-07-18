@@ -11,6 +11,7 @@ export interface ConsoleActorIdentity {
   readonly kind: ConsoleActorKind;
   readonly id: string;
   readonly displayName?: string | null;
+  readonly username?: string | null;
   readonly email?: string | null;
   readonly phone?: string | null;
   readonly status: string;
@@ -45,7 +46,7 @@ export function consoleActorSecondaryLabel(actor: ConsoleActorIdentity): string 
   if (actor.kind === 'SELLER_TERMINAL') {
     return joinLabels(actor.code, actor.email, actor.phone);
   }
-  return firstText(actor.email, actor.phone, actor.tenantName, actor.tenantCode);
+  return joinLabels(actor.username, actor.email, actor.phone, actor.tenantName, actor.tenantCode);
 }
 
 export function consoleActorTenantLabel(actor: ConsoleActorIdentity): string | null {

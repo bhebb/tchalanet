@@ -127,14 +127,7 @@ class OpsSalesSimulationService {
                   commandBus.execute(
                       new ConfirmPreparedSaleCommand(
                           preparation.preparationId(),
-                          "ops-sales-sim:"
-                              + simulationId
-                              + ":"
-                              + ticket.drawId()
-                              + ":"
-                              + ticket.sellerTerminalId()
-                              + ":"
-                              + stats.attempted)));
+                          idempotencyKey(simulationId, stats.attempted))));
 
       if (result.sale() != null && result.sale().outcome() == SellTicketOutcome.REJECTED) {
         stats.rejected(ticket, "sales.rejected");
@@ -245,15 +238,16 @@ class OpsSalesSimulationService {
         currentUser() == null ? null : currentUser().toString());
   }
 
-  private TchRequestContext sellerContext(
+  TchRequestContext sellerContext(
       UUID tenantId, UUID sellerTerminalId, String currency, String requestId) {
+    var user = currentUser();
     return new TchRequestContext(
         "ops",
         tenantId,
         "ops",
         tenantId,
-        currentUser(),
-        java.util.Set.of(),
+        user,
+        java.util.Set.of(TchRole.SUPER_ADMIN),
         java.util.Set.of(),
         Locale.FRENCH,
         requestId,
@@ -268,11 +262,15 @@ class OpsSalesSimulationService {
         ZoneId.of("America/Port-au-Prince"),
         Currency.getInstance(currency),
         null,
-        TchActorType.SELLER_TERMINAL,
+        TchActorType.APP_USER,
         SellerTerminalId.of(sellerTerminalId),
-        java.util.Set.of("SELLER_TERMINAL"),
-        java.util.Set.of("seller_terminal.sell", "seller_terminal.me.read"),
-        sellerTerminalId.toString());
+        java.util.Set.of(TchRole.SUPER_ADMIN.name()),
+        java.util.Set.of("admin.access"),
+        user == null ? null : user.toString());
+  }
+
+  String idempotencyKey(UUID simulationId, int ticketIndex) {
+    return "ops-sales-sim:" + simulationId + ":" + ticketIndex;
   }
 
   private UUID currentUser() {

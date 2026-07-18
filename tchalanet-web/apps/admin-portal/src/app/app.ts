@@ -12,6 +12,7 @@ import { TchRuntimeConfigStore } from '@tch/shared-config';
 import { ThemeStore } from '@tch/ui/theme';
 import { ThemeSandboxComponent } from '@tch/web/sandbox';
 import { filterTenantAdminNavigation, PrivateShellLayoutComponent, TENANT_ADMIN_NAVIGATION } from '@tch/web/shell';
+import { TranslatePipe } from '@ngx-translate/core';
 import { filter, map, startWith } from 'rxjs';
 import {
   TenantConfigApiService,
@@ -27,7 +28,7 @@ const ADMIN_BRAND: ActionItem = {
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [PrivateShellLayoutComponent, RouterOutlet, ThemeSandboxComponent],
+  imports: [PrivateShellLayoutComponent, RouterOutlet, ThemeSandboxComponent, TranslatePipe],
   selector: 'tch-root',
   templateUrl: './app.html',
   styleUrl: './app.scss',
@@ -121,6 +122,25 @@ export class App {
   }
 
   protected async logout(): Promise<void> {
+    const supportSession = this.supportAccess.session();
+    this.supportAccess.clearSession();
+
+    if (supportSession) {
+      const platformBaseUrl = withoutTrailingSlash(
+        this.runtimeConfig.config().portalBaseUrls?.['platform-portal'] ?? '/platform',
+      );
+      const adminBaseUrl = withoutTrailingSlash(
+        this.runtimeConfig.config().portalBaseUrls?.['admin-portal'] ?? '/admin',
+      );
+      const adminLoginUrl = new URL(`${adminBaseUrl}/login`, globalThis.location.origin).toString();
+      try {
+        await this.auth.logout();
+      } finally {
+        globalThis.location.assign(`${platformBaseUrl}/logout?returnTo=${encodeURIComponent(adminLoginUrl)}`);
+      }
+      return;
+    }
+
     await this.auth.logout();
     await this.router.navigateByUrl('/login');
   }
@@ -131,6 +151,12 @@ export class App {
       this.runtimeConfig.config().portalBaseUrls?.['platform-portal'] ?? '/platform',
     );
     globalThis.location.assign(`${platformBaseUrl}/app/platform`);
+  }
+
+  protected supportModeKey(mode: 'SUPPORT_OVERRIDE' | 'SUPPORT_READONLY'): string {
+    return mode === 'SUPPORT_READONLY'
+      ? 'surface.supportAccess.readonlyMode'
+      : 'surface.supportAccess.overrideMode';
   }
 
   protected goToProfile(): void {

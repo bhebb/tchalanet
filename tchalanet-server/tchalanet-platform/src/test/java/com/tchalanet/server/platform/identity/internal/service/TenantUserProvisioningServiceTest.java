@@ -79,11 +79,11 @@ class TenantUserProvisioningServiceTest {
   void onboardingPathUsesExplicitTenantCode() {
     var tenantId = TenantId.of(UUID.randomUUID());
     var createdUserId = UserId.of(UUID.randomUUID());
-    when(userAdminService.createUserForTenant(any(), isNull(), any(), any(), eq("acme")))
+    when(userAdminService.createUserForTenant(any(), any(), isNull(), any(), any(), eq("acme")))
         .thenReturn(new CreateUserResult(createdUserId));
 
     service.provisionTenantUser(
-        tenantId, "acme", "admin@tchalanet.test", "Ada", "Min", TchRole.TENANT_ADMIN);
+        tenantId, "acme", "ada.min", "admin@tchalanet.test", "Ada", "Min", TchRole.TENANT_ADMIN);
 
     verify(memberships).assign(tenantId, createdUserId, false);
     verify(accessControlApi).assignRoleToUser(any(AssignRoleToUserRequest.class));

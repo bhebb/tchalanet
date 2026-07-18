@@ -6,6 +6,8 @@ import java.util.UUID;
 public interface PlatformSuperAdminRow {
   UUID getUserId();
 
+  String getUsername();
+
   String getEmail();
 
   String getDisplayName();

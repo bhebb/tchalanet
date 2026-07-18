@@ -8,6 +8,7 @@ import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.scope.ApiScope;
 import com.tchalanet.server.common.context.tenant.TenantContextInfo;
 import com.tchalanet.server.common.context.tenant.TenantContextLookup;
+import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.common.job.context.JobContextBinder;
 import com.tchalanet.server.common.types.id.TenantId;
 import java.time.ZoneId;
@@ -53,8 +54,8 @@ public class SpringBatchJobContextBinder implements JobContextBinder {
             null,
             null,
             null,
-            Set.of(),
-            Set.of(),
+            Set.of(TchRole.SUPER_ADMIN),
+            Set.of(TchRole.SUPER_ADMIN.name()),
             Locale.FRENCH,
             requestId,
             "batch",

@@ -23,6 +23,7 @@ import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalCodeSugg
 import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalStatus;
 import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalSummaryRow;
 import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalView;
+import com.tchalanet.server.core.sales.api.query.GetTenantDailySalesStatsQuery;
 import com.tchalanet.server.core.sellerterminal.api.query.GetSellerTerminalQuery;
 import com.tchalanet.server.core.sellerterminal.api.query.ListSellerTerminalsQuery;
 import com.tchalanet.server.core.sellerterminal.api.query.SellerTerminalSearchCriteria;
@@ -41,6 +42,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -84,7 +88,6 @@ public class SellerTerminalAdminController {
 
     long activeCount = 0L;
     long blockedCount = 0L;
-    BigDecimal salesTodayAmount = BigDecimal.ZERO;
     BigDecimal commissionTotal = BigDecimal.ZERO;
     long commissionCount = 0L;
 
@@ -93,9 +96,6 @@ public class SellerTerminalAdminController {
         activeCount++;
       } else if (row.status() == SellerTerminalStatus.BLOCKED) {
         blockedCount++;
-      }
-      if (row.todaySalesAmount() != null) {
-        salesTodayAmount = salesTodayAmount.add(row.todaySalesAmount());
       }
       if (row.commissionRate() != null) {
         commissionTotal = commissionTotal.add(row.commissionRate());
@@ -108,9 +108,23 @@ public class SellerTerminalAdminController {
             ? BigDecimal.ZERO
             : commissionTotal.divide(BigDecimal.valueOf(commissionCount), 2, RoundingMode.HALF_UP);
 
+    ZoneId tenantZone = ctx.tenantZoneId() != null ? ctx.tenantZoneId() : ZoneOffset.UTC;
+    LocalDate today = LocalDate.now(tenantZone);
+    var salesToday =
+        queryBus.ask(
+            new GetTenantDailySalesStatsQuery(
+                ctx.tenantIdRequired(),
+                today.atStartOfDay(tenantZone).toInstant(),
+                today.plusDays(1).atStartOfDay(tenantZone).toInstant(),
+                ctx.tenantCurrency() == null ? "HTG" : ctx.tenantCurrency().getCurrencyCode()));
+
     return ApiResponse.success(
         new SellerTerminalsSummaryResponse(
-            activeCount, blockedCount, salesTodayAmount, averageCommissionRate, "HTG"));
+            activeCount,
+            blockedCount,
+            BigDecimal.valueOf(salesToday.salesTotalCents()).movePointLeft(2),
+            averageCommissionRate,
+            salesToday.currency()));
   }
 
   @GetMapping

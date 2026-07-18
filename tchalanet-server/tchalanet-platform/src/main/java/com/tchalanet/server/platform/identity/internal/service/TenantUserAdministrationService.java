@@ -51,7 +51,7 @@ public class TenantUserAdministrationService {
       throw new IllegalStateException("User already exists with this email or phone");
     }
 
-    var username = resolveUsername(email, phone);
+    var username = resolveUsername(null, email, phone);
     var userId = UserId.of(UUID.randomUUID());
     var externalUser =
         identityProvisioning.provisionUser(
@@ -101,14 +101,22 @@ public class TenantUserAdministrationService {
    */
   @Transactional
   public CreateUserResult createUserForTenant(
-      String email, String phone, String firstName, String lastName, String tenantCode) {
+      String username,
+      String email,
+      String phone,
+      String firstName,
+      String lastName,
+      String tenantCode) {
     var existing = users.findByEmailOrPhone(email, phone);
     if (existing.isPresent()) {
       var now = timeProvider.nowInstant();
       var saved = users.save(existing.get().requireFirstLoginActivation(now));
       return new CreateUserResult(saved.id(), false, false, null);
     }
-    var username = resolveUsername(email, phone);
+    var resolvedUsername = resolveUsername(username, email, phone);
+    if (users.findByNormalizedUsername(resolvedUsername).isPresent()) {
+      throw new IllegalStateException("User already exists with this username");
+    }
     var userId = UserId.of(UUID.randomUUID());
     var temporaryPassword =
         temporaryCredentials.adminTemporaryCredentialsEnabled()
@@ -128,7 +136,7 @@ public class TenantUserAdministrationService {
             AppUser.createNew(
                     userId,
                     null,
-                    username,
+                    resolvedUsername,
                     email,
                     phone,
                     firstName,
@@ -249,7 +257,8 @@ public class TenantUserAdministrationService {
                 user.status().name()));
   }
 
-  private static String resolveUsername(String email, String phone) {
+  private static String resolveUsername(String username, String email, String phone) {
+    if (username != null && !username.isBlank()) return username.trim();
     if (email != null && !email.isBlank()) return email.trim();
     if (phone != null && !phone.isBlank()) return phone.trim();
     throw new IllegalArgumentException("Either email or phone must be provided");

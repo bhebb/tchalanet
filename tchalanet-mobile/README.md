@@ -6,40 +6,65 @@ This app lives outside the Nx workspace — it is managed entirely by the Flutte
 
 ## Prerequisites
 
-- [Flutter 3.29+](https://docs.flutter.dev/get-started/install) (or use [fvm](https://fvm.app/) — run `fvm use` at repo root if a `.fvmrc` is present)
+- Flutter 3.44.0 via [FVM](https://fvm.app/) (`.fvmrc` is committed)
 - Android Studio with the Flutter and Dart plugins installed
 - An Android emulator or physical device connected via USB/Wi-Fi
+
+From the repository root:
+
+```bash
+cd tchalanet-mobile
+fvm use
+```
 
 ## Standard commands
 
 ```bash
 # Install dependencies
-flutter pub get
+fvm flutter pub get
+
+# Show dependency drift
+fvm flutter pub outdated
 
 # Analyse the code
-flutter analyze
+fvm flutter analyze
 
 # Run unit and widget tests
-flutter test
+fvm flutter test
 
-# Run on a connected device or emulator (local backend via Android emulator)
-flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8080/api/v1
+# Run on a connected Android emulator against the local Traefik/backend facade
+adb reverse tcp:8443 tcp:8443
+fvm flutter run \
+  --dart-define=API_BASE_URL=https://api.localtest.me:8443/api/v1
 ```
 
 ## Local backend URL
 
-The Android emulator maps `10.0.2.2` to the host machine's `localhost`.
-When running against a local backend, use:
+The default mobile API URL is:
 
 ```
-http://10.0.2.2:8080/api/v1
+https://api.localtest.me:8443/api/v1
 ```
 
-If you are running on a physical device connected to the same Wi-Fi network,
-replace `10.0.2.2` with your host machine's LAN IP address (e.g. `192.168.1.42`):
+For Android emulator access, expose the local HTTPS facade to the device:
 
 ```bash
-flutter run --dart-define=API_BASE_URL=http://192.168.1.42:8080/api/v1
+adb reverse tcp:8443 tcp:8443
+```
+
+For macOS desktop/Chrome local runs, use:
+
+```bash
+fvm flutter run \
+  --dart-define=API_BASE_URL=https://api.localtest.me/api/v1
+```
+
+For a physical Android device on the same Wi-Fi network, pass your host LAN URL
+or the environment-specific API URL:
+
+```bash
+fvm flutter run \
+  --dart-define=API_BASE_URL=https://<host-or-env>/api/v1
 ```
 
 ## Android Studio setup
@@ -49,14 +74,17 @@ flutter run --dart-define=API_BASE_URL=http://192.168.1.42:8080/api/v1
 3. Open **Device Manager** → create an AVD (Android Virtual Device):
    - Recommended: Pixel 6, API 34 (Android 14).
 4. Start the emulator.
-5. Run `flutter devices` to confirm it is detected.
-6. Run `flutter run` from the `tchalanet-mobile/` directory.
+5. Run `fvm flutter devices` to confirm it is detected.
+6. Run `fvm flutter run` from the `tchalanet-mobile/` directory.
 
-## Environment variable
+## Runtime defines
 
-| Variable       | Default                       | Description                            |
-| -------------- | ----------------------------- | -------------------------------------- |
-| `API_BASE_URL` | `http://10.0.2.2:8080/api/v1` | Base URL for the Tchalanet backend API |
+| Variable | Default | Description |
+| --- | --- | --- |
+| `API_BASE_URL` | `https://api.localtest.me:8443/api/v1` | Base URL for the Tchalanet backend API |
+| `TERMINAL_EMAIL_DOMAIN` | `terminal.tchalanet.local` | Domain used to derive Firebase terminal emails |
+| `POS_DEVICE_BINDING` | `e2e-cred-dev` | Dev device-binding credential sent as `X-Device-Binding` |
+| `POS_DEVICE` | `false` | Enables POS terminal layout hints when set to `true` |
 
 Set via `--dart-define` at runtime — never hardcoded in source.
 

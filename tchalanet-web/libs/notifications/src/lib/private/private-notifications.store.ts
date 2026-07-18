@@ -1,6 +1,7 @@
-import { Injectable, computed, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { Injectable, computed, effect, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router } from '@angular/router';
+import { filter, forkJoin, map, startWith } from 'rxjs';
 
 import { AuthSessionService } from '@tch/core/auth';
 import {
@@ -8,12 +9,22 @@ import {
   PrivateNotificationScope,
   PrivateNotificationsApi,
 } from './private-notifications-api.service';
+import { PrivateNotificationsRealtimeService } from './private-notifications-realtime.service';
 
 @Injectable({ providedIn: 'root' })
 export class PrivateNotificationsStore {
   private readonly api = inject(PrivateNotificationsApi);
   private readonly auth = inject(AuthSessionService);
   private readonly router = inject(Router);
+  private readonly realtime = inject(PrivateNotificationsRealtimeService);
+  private readonly currentUrl = toSignal(
+    this.router.events.pipe(
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+      map(event => event.urlAfterRedirects),
+      startWith(this.router.url),
+    ),
+    { initialValue: this.router.url },
+  );
 
   private readonly loadingSignal = signal(false);
   private readonly errorSignal = signal<string | null>(null);
@@ -26,11 +37,30 @@ export class PrivateNotificationsStore {
   readonly unreadCount = this.unreadCountSignal.asReadonly();
   readonly hasUnread = computed(() => this.unreadCountSignal() > 0);
   readonly scope = computed<PrivateNotificationScope>(() =>
-    this.auth.session().roles.includes('SUPER_ADMIN') ? 'platform' : 'admin',
+    this.currentUrl().startsWith('/app/admin')
+      ? 'admin'
+      : this.auth.session().roles.includes('SUPER_ADMIN')
+        ? 'platform'
+        : 'admin',
   );
   readonly centerRoute = computed(() =>
     this.scope() === 'platform' ? '/app/platform/notifications' : '/app/admin/notifications',
   );
+
+  constructor() {
+    effect(onCleanup => {
+      const session = this.auth.session();
+      const scope = this.scope();
+      if (!session.authenticated) {
+        this.realtime.disconnect();
+        return;
+      }
+
+      this.loadLatest({ silent: true });
+      this.realtime.connect(scope, () => this.loadLatest({ silent: true }));
+      onCleanup(() => this.realtime.disconnect());
+    });
+  }
 
   loadLatest(options: { silent?: boolean } = {}): void {
     if (this.loadingSignal()) return;

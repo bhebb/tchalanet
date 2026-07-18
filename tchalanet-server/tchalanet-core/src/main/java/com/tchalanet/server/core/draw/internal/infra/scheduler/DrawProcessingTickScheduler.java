@@ -207,31 +207,36 @@ public class DrawProcessingTickScheduler {
     int processed = 0;
     int errors = 0;
 
-    for (var candidate : due) {
-      try {
-        commandBus.execute(
-            new CreateMissingResultReminderCommand(
-                candidate.slot().id(),
-                candidate.drawDate(),
-                occurredAt(new SlotDate(candidate.slot(), candidate.drawDate())),
-                candidate.reason(),
-                candidate.slot().provider(),
-                candidate.slot().slotKey(),
-                requestId("drawresult-reminder", now)));
-        processed++;
-      } catch (Exception ex) {
-        errors++;
-        log.warn(
-            "draw.processing.result-reminder failed slot={} drawDate={} reason={} err={}",
-            candidate.slot().slotKey(),
-            candidate.drawDate(),
-            candidate.reason(),
-            ex.getMessage(),
-            ex);
+    try {
+      // Result reminders are platform-owned notifications, so their RLS write needs platform scope.
+      binder.bindPlatform("draw-processing-result-reminder");
+      for (var candidate : due) {
+        try {
+          commandBus.execute(
+              new CreateMissingResultReminderCommand(
+                  candidate.slot().id(),
+                  candidate.drawDate(),
+                  occurredAt(new SlotDate(candidate.slot(), candidate.drawDate())),
+                  candidate.reason(),
+                  candidate.slot().provider(),
+                  candidate.slot().slotKey(),
+                  requestId("drawresult-reminder", now)));
+          processed++;
+        } catch (Exception ex) {
+          errors++;
+          log.warn(
+              "draw.processing.result-reminder failed slot={} drawDate={} reason={} err={}",
+              candidate.slot().slotKey(),
+              candidate.drawDate(),
+              candidate.reason(),
+              ex.getMessage(),
+              ex);
+        }
       }
+      return new StepSummary(processed, due.size(), errors, null);
+    } finally {
+      clearContext("draw.processing.result-reminder", null);
     }
-
-    return new StepSummary(processed, due.size(), errors, null);
   }
 
   private StepSummary runApply(Instant now) {

@@ -370,13 +370,13 @@ export class PlatformOpsDrawResultsPage implements OnInit {
     return actions;
   }
 
-  private resultNumbers(row: DrawResultOpsResponse): string[] {
+  private resultNumbers(row: DrawResultOpsResponse): Array<string | null> {
     const lots = this.haitiLots(row);
-    return [lots.lot1, lots.lot2, lots.lot3, lots.lot4]
-      .map(value =>
-        typeof value === 'string' || typeof value === 'number' ? String(value).trim() : '',
-      )
-      .filter(Boolean);
+    const values = [lots.lot1, lots.lot2, lots.lot3, lots.lot4].map(value =>
+      typeof value === 'string' || typeof value === 'number' ? String(value).trim() || null : null,
+    );
+
+    return values.some(Boolean) ? values : [];
   }
 
   private formatDate(value: string | null | undefined, timeZone?: string): string {

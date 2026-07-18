@@ -6,6 +6,7 @@ import { map } from 'rxjs/operators';
 
 export interface PlatformSuperAdminView {
   readonly id: string;
+  readonly username: string;
   readonly email: string;
   readonly displayName: string;
   readonly status: string;
@@ -20,6 +21,7 @@ export interface CreatePlatformSuperAdminRequest {
 
 interface IdentityUserResponse {
   readonly id: string;
+  readonly username: string;
   readonly email: string;
   readonly displayName: string;
   readonly status: string;
@@ -56,6 +58,7 @@ export class PlatformSuperAdminsApi {
 function toPlatformSuperAdminView(user: IdentityUserResponse): PlatformSuperAdminView {
   return {
     id: user.id,
+    username: user.username,
     email: user.email,
     displayName: user.displayName,
     status: user.status,

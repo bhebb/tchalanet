@@ -2,7 +2,13 @@
   "surface": {
     "cashier": "Cashier",
     "platform_admin": "Platform",
-    "tenant_admin": "Administration"
+    "tenant_admin": "Administration",
+    "supportAccess": {
+      "activeLabel": "Support active on {{tenant}}",
+      "overrideMode": "You are acting as tenant admin and can sell.",
+      "readonlyMode": "Read-only support access.",
+      "backToPlatform": "Back to platform"
+    }
   },
   "nav": {
     "pagemodels": "Modèles de pages",

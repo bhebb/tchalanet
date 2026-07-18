@@ -1,9 +1,13 @@
 {
   "appId": "admin-portal",
   "production": false,
-  "apiBaseUrl": "/api/v1",
+  "apiBaseUrl": "https://api.localtest.me/api/v1",
   "authBaseUrl": "https://auth.localtest.me",
   "assetsBaseUrl": "/assets",
-  "firebaseAuthEmulatorUrl": null,
+  "firebaseAuthEmulatorUrl": "http://localhost:9099",
+  "portalBaseUrls": {
+    "admin-portal": "http://localhost:4302",
+    "platform-portal": "http://localhost:4303"
+  },
   "enableSandbox": true
 }

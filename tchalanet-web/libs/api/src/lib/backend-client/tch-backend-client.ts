@@ -49,6 +49,11 @@ export class TchBackendClient {
     return `${this.resolveBase?.() || this.fallbackBase}${path}`;
   }
 
+  /** Resolves an application endpoint for transports that are not handled by HttpClient. */
+  resolveUrl(path: string): string {
+    return this.url(path);
+  }
+
   private resolve(options?: TchRequestOptions): ResolvedOptions {
     const result: ResolvedOptions = {};
 
