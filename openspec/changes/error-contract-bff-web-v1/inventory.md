@@ -36,6 +36,44 @@ feature BFF is classified. It records observed behaviour, not desired behaviour.
 | Tenant admin overview (`TenantAdminOverviewService`) | Tenant overview | address, registry, readiness | Address/registry errors become `null` silently. | Optional header fields; need explicit degradation or intentionally documented absence. |
 | Platform overview (`PlatformAdminOverviewOrchestrator`) | Platform overview payload | tenant, catalog, subscription reads | No local catch; any failure fails whole response. | Provisional blocking until the slice matrix decides otherwise. |
 
+## Initial BFF endpoint matrix
+
+The feature module currently has 34 HTTP controllers. A controller is not automatically a BFF: this
+matrix starts with endpoints that resolve a page, assemble a multi-domain payload, or contain an
+orchestrator. Remaining controllers are to be recorded as either a simple feature API or a BFF in
+the next pass.
+
+| Endpoint | Assembler/orchestrator | Primary response | Current error mode | Matrix status |
+|---|---|---|---|---|
+| `GET /tenant/dashboard` | `DashboardPageModelService` → `PageModelDynamicResolver` | Tenant PageModel runtime | Blocking access/model failures; per-widget catch and notice; tenant settings catch silently returns original page. | In progress |
+| `GET /platform/dashboard` | `DashboardPageModelService` → `PageModelDynamicResolver` | Platform PageModel runtime | Blocking access/model failures; per-widget catch and notice. | In progress |
+| `GET /public/page`, `GET /public/managers` | Public PageModel services → dynamic resolver | Public PageModel runtime | Uses same dynamic-resolution semantics; public disclosure/retry policy still unclassified. | In progress |
+| `GET /tenant/cashier/home` | `PosHomeService` / cashier payload assemblers | Compact POS home | Separate home/readiness payload; dashboard analytics has an unavailable state without envelope notice. | In progress |
+| `GET /platform/overview` | `PlatformAdminOverviewOrchestrator` | Platform overview | Multi-domain reads currently fail as one blocking request. | In progress |
+| `GET /admin/overview` | `TenantAdminOverviewService` | Tenant overview | Optional address/registry failures become null. | In progress |
+
+### PageModel dashboard slice candidates
+
+| Dashboard | Candidate functional slice | Current fallback | Needed decision |
+|---|---|---|---|
+| Tenant admin | `operations` | counts become zero | Is a zero count valid? If yes, expose `UNAVAILABLE` separately on failure. |
+| Tenant admin | `commercial` | empty games/channels and zero limits | Same empty-versus-unavailable distinction. |
+| Tenant admin | `analytics`, `liveSales` | `null` or empty values | Section degradation, local retry policy, and report-safe copy. |
+| Tenant admin | `openDraws`, `closedDraws`, `notifications`, `commission` | zero/empty | Decide which are expected optional slices and which block operational decisions. |
+| Platform admin | `tenantCatalog`, `analytics`, `subscriptions`, `onboarding`, `publicContent` | zero/empty | Explicit `UNAVAILABLE` state and one degradation notice per functional slice. |
+| Cashier | `analytics` | `available=false` | Preserve this good typed state, add code/correlation/feature ownership; classify overview/draws/tickets separately. |
+
+## Initial implementation findings that alter the design
+
+- `PageModelDynamicResolver` currently emits `surface=section` and `placement=top` in notice meta.
+  The contract will replace these with at most a stable functional `target`; a portal owns visual
+  placement.
+- `DashboardPageModelService.withTenantSettings` catches all runtime failures and returns the page
+  unchanged. It needs explicit optional-slice treatment, otherwise settings absence is invisible.
+- `PosDashboardPayloadAssembler`, tenant admin dashboard, and platform dashboard prove that an
+  `ApiResponse` success status alone cannot be trusted to mean complete data. Their section states
+  and envelopes must become part of the matrix before client migration.
+
 ## Immediate implementation guardrails
 
 1. Do not turn all caught exceptions into shell banners. Each migrated slice must declare an owner.
