@@ -16,6 +16,7 @@ import com.tchalanet.server.common.web.error.ProblemRestException;
 import com.tchalanet.server.platform.identity.api.ExternalAuthenticatedUser;
 import com.tchalanet.server.platform.identity.api.IdentityProviderType;
 import com.tchalanet.server.platform.identity.api.SellerTerminalIdentityLookup;
+import com.tchalanet.server.platform.identity.api.error.IdentityErrorCodes;
 import com.tchalanet.server.platform.identity.api.model.SellerTerminalBootstrapStatus;
 import com.tchalanet.server.platform.identity.api.model.SellerTerminalIdentityBootstrapView;
 import com.tchalanet.server.platform.identity.api.model.UserStatus;
@@ -94,7 +95,9 @@ class UserBootstrapFilterImplTest {
 
     assertThatThrownBy(() -> filter.bootstrap(posRequest()))
         .isInstanceOf(ProblemRestException.class)
-        .hasMessage("terminal.external_identity_not_linked");
+        .extracting(
+            error -> ((ProblemRestException) error).getProblem().getProperties().get("code"))
+        .isEqualTo(IdentityErrorCodes.SELLER_TERMINAL_NOT_LINKED.code());
     verifyNoInteractions(appUserResolver);
   }
 
@@ -111,7 +114,9 @@ class UserBootstrapFilterImplTest {
 
     assertThatThrownBy(() -> filter.bootstrap(posRequest()))
         .isInstanceOf(ProblemRestException.class)
-        .hasMessage("terminal.not_active");
+        .extracting(
+            error -> ((ProblemRestException) error).getProblem().getProperties().get("code"))
+        .isEqualTo(IdentityErrorCodes.SELLER_TERMINAL_INACTIVE.code());
   }
 
   // ── No POS header → AppUser resolver only ───────────────────────────────────
@@ -135,7 +140,9 @@ class UserBootstrapFilterImplTest {
 
     assertThatThrownBy(() -> filter.bootstrap(new MockHttpServletRequest()))
         .isInstanceOf(ProblemRestException.class)
-        .hasMessage("external_identity.not_linked");
+        .extracting(
+            error -> ((ProblemRestException) error).getProblem().getProperties().get("code"))
+        .isEqualTo(IdentityErrorCodes.EXTERNAL_IDENTITY_NOT_LINKED.code());
     verifyNoInteractions(sellerTerminalIdentityLookup);
   }
 

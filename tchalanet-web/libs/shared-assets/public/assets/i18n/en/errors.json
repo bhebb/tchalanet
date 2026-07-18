@@ -82,6 +82,20 @@
               "title": "Invalid operational context",
               "message": "Reopen the operation from a valid context."
             }
+          },
+          "actor": { "type_unsupported": { "title": "Access denied", "message": "This account type cannot use this operation." } },
+          "terminal": { "tenant_selection_not_allowed": { "title": "Selection not allowed", "message": "A seller terminal cannot select another workspace." } },
+          "tenant": {
+            "override_not_super_admin": { "title": "Access denied", "message": "Only a super administrator can select another workspace." },
+            "override_forbidden": { "title": "Access denied", "message": "Your account cannot select this workspace." },
+            "override_reason_required": { "title": "Reason required", "message": "Provide a support reason before continuing." },
+            "override_invalid": { "title": "Invalid workspace", "message": "Select a valid workspace and try again." },
+            "ambiguous_membership": { "title": "Workspace selection required", "message": "Your account belongs to multiple workspaces. Select one before continuing." }
+          },
+          "support": {
+            "authenticated_actor_required": { "title": "Session required", "message": "Sign in again to continue." },
+            "tenant_required": { "title": "Workspace required", "message": "Select the workspace to support." },
+            "reason_required": { "title": "Reason required", "message": "Provide a sufficiently specific support reason." }
           }
         },
         "identity": {
@@ -90,6 +104,49 @@
               "title": "Invalid sign-in details",
               "message": "Check your identifier and try again."
             }
+          },
+          "session": {
+            "verified_identity_required": { "title": "Invalid session", "message": "Sign in again to continue." },
+            "external_identity_not_linked": { "title": "Account not linked", "message": "This sign-in is not linked to a Tchalanet account. Contact an administrator." },
+            "user_inactive": { "title": "Inactive account", "message": "This account cannot be used at the moment. Contact an administrator." },
+            "seller_terminal_not_linked": { "title": "Terminal not linked", "message": "This sign-in is not linked to a seller terminal. Reopen an authorized terminal." },
+            "seller_terminal_inactive": { "title": "Inactive terminal", "message": "This seller terminal cannot be used at the moment. Contact an administrator." }
+          },
+          "handoff": {
+            "authenticated_user_required": { "title": "Session required", "message": "Sign in again to continue." },
+            "target_mismatch": { "title": "Invalid access", "message": "This handoff is not available for this workspace." },
+            "invalid_code": { "title": "Invalid handoff", "message": "This handoff cannot be used. Start again from the portal." },
+            "target_forbidden": { "title": "Access denied", "message": "Your account cannot access this workspace." },
+            "entry_route_not_allowed": { "title": "Invalid page", "message": "This entry page is not allowed." },
+            "not_found_or_expired": { "title": "Expired handoff", "message": "This handoff has expired or is no longer available. Start again from the portal." },
+            "replayed": { "title": "Handoff already used", "message": "This handoff has already been used. Start again from the portal." },
+            "expired": { "title": "Expired handoff", "message": "This handoff has expired. Start again from the portal." },
+            "rate_limited": { "title": "Too many attempts", "message": "Wait a moment before trying again." },
+            "external_identity_missing": { "title": "Account not ready", "message": "This sign-in is not ready for handoff. Contact an administrator." },
+            "custom_token_unsupported_provider": { "title": "Handoff unavailable", "message": "This sign-in method does not support handoff." },
+            "custom_token_failed": { "title": "Handoff unavailable", "message": "Try again later or return to the portal." }
+          },
+          "user": {
+            "not_found": { "title": "Account not found", "message": "This account is no longer available." },
+            "action_forbidden": { "title": "Action not allowed", "message": "Your account cannot perform this action for this user." },
+            "outside_tenant_scope": { "title": "Access denied", "message": "This user does not belong to the active workspace." }
+          },
+          "external_identity": {
+            "not_linked": { "title": "Account not linked", "message": "This account is not linked to the required sign-in method." }
+          },
+          "membership": {
+            "cross_tenant_forbidden": { "title": "Access denied", "message": "You cannot assign a user to another workspace." }
+          },
+          "admin": {
+            "super_admin_assignment_forbidden": { "title": "Role not allowed", "message": "The platform administrator role cannot be assigned in this workspace." }
+          },
+          "profile": {
+            "locale_invalid": { "title": "Invalid language", "message": "Choose a supported language and try again." },
+            "time_zone_invalid": { "title": "Invalid time zone", "message": "Choose a supported time zone and try again." },
+            "currency_invalid": { "title": "Invalid currency", "message": "Choose a supported currency and try again." }
+          },
+          "role": {
+            "invalid": { "title": "Invalid role", "message": "Choose a supported role and try again." }
           }
         },
         "request": {
@@ -137,6 +194,12 @@
               }
             }
           }
+        },
+        "entitlement": {
+          "feature_required": { "title": "Feature unavailable", "message": "This feature is not included in your workspace’s current configuration." },
+          "limit_missing": { "title": "Configuration unavailable", "message": "The required limit is unavailable at the moment. Try again later." },
+          "limit_exceeded": { "title": "Limit reached", "message": "This action exceeds a limit for your workspace." },
+          "usage_provider_unavailable": { "title": "Verification unavailable", "message": "This limit cannot be checked at the moment. Try again later." }
         },
         "limits": {
           "blocked": {

@@ -42,9 +42,7 @@ public class SecurityConfig {
     var securityFailureHandler = new ProblemDetailSecurityFailureHandler();
     var sensitiveIdentityVerificationFilter =
         new SensitiveIdentityVerificationFilter(
-            identityProviderApi,
-            new SensitiveIdentityRequestMatcher(),
-            securityFailureHandler);
+            identityProviderApi, new SensitiveIdentityRequestMatcher(), securityFailureHandler);
 
     http.csrf(AbstractHttpConfigurer::disable)
         .cors(withDefaults())
@@ -78,14 +76,14 @@ public class SecurityConfig {
                     .authenticated())
         .oauth2ResourceServer(
             oauth ->
-                oauth.jwt(
-                    jwt ->
-                        jwt.decoder(jwtDecoder)
-                            .jwtAuthenticationConverter(
-                                token -> convert(token, identityProviderApi)))
+                oauth
+                    .jwt(
+                        jwt ->
+                            jwt.decoder(jwtDecoder)
+                                .jwtAuthenticationConverter(
+                                    token -> convert(token, identityProviderApi)))
                     .authenticationEntryPoint(securityFailureHandler))
-        .exceptionHandling(
-            errors -> errors.accessDeniedHandler(securityFailureHandler))
+        .exceptionHandling(errors -> errors.accessDeniedHandler(securityFailureHandler))
         .addFilterAfter(sensitiveIdentityVerificationFilter, BearerTokenAuthenticationFilter.class)
         .addFilterAfter(tchAccessContextPipelineFilter, SensitiveIdentityVerificationFilter.class)
         .addFilterBefore(

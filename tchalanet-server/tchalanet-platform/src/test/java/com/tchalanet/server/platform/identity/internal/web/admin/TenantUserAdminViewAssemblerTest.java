@@ -10,6 +10,7 @@ import com.tchalanet.server.common.context.scope.ApiScope;
 import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
+import com.tchalanet.server.common.web.error.ProblemRestException;
 import com.tchalanet.server.platform.identity.api.model.UserStatus;
 import com.tchalanet.server.platform.identity.api.model.view.UserProfileView;
 import com.tchalanet.server.platform.identity.internal.model.TenantMembership;
@@ -47,7 +48,11 @@ class TenantUserAdminViewAssemblerTest {
     when(memberships.findByTenantAndUser(tenantId, userId)).thenReturn(Optional.empty());
 
     assertThatThrownBy(() -> assembler.assertTenantScoped(ctx, userId))
-        .hasMessageContaining("outside effective tenant scope");
+        .isInstanceOf(ProblemRestException.class)
+        .satisfies(
+            throwable ->
+                assertThat(((ProblemRestException) throwable).getProblem().getProperties())
+                    .containsEntry("code", "identity.user.outside_tenant_scope"));
   }
 
   @Test

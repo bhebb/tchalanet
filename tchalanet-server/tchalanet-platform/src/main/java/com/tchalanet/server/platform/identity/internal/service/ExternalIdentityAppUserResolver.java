@@ -65,8 +65,9 @@ public class ExternalIdentityAppUserResolver {
     if (externalUser.provider() != IdentityProviderType.FIREBASE) {
       return Optional.empty();
     }
-    var mapping = externalIdentities.findFirstByProviderAndExternalSubject(
-        IdentityProviderType.FIREBASE, externalUser.subject());
+    var mapping =
+        externalIdentities.findFirstByProviderAndExternalSubject(
+            IdentityProviderType.FIREBASE, externalUser.subject());
     log.warn(
         "identity.firebase.exact_mapping_miss issuer={} subjectRef={} fallbackFound={}",
         externalUser.issuer(),

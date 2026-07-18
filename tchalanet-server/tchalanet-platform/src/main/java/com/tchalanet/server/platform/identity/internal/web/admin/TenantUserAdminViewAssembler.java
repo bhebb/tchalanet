@@ -4,6 +4,7 @@ import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.platform.accesscontrol.api.model.TenantAdminGlobalAccessRow;
+import com.tchalanet.server.platform.identity.api.error.IdentityErrorCodes;
 import com.tchalanet.server.platform.identity.internal.model.TenantMembership;
 import com.tchalanet.server.platform.identity.internal.service.CurrentUserProfileService;
 import com.tchalanet.server.platform.identity.internal.service.ExternalIdentityLinkService;
@@ -36,7 +37,7 @@ public class TenantUserAdminViewAssembler {
   public void assertTenantScoped(TchRequestContext ctx, UserId userId) {
     if (ctx.isSuperAdmin() && !ctx.hasTenant()) return;
     if (memberships.findByTenantAndUser(ctx.tenantIdRequired(), userId).isEmpty()) {
-      throw ProblemRest.forbidden("User is outside effective tenant scope");
+      throw ProblemRest.of(IdentityErrorCodes.USER_OUTSIDE_TENANT_SCOPE);
     }
   }
 

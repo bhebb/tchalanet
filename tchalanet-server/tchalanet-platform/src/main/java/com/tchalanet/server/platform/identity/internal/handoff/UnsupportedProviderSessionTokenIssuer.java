@@ -1,6 +1,7 @@
 package com.tchalanet.server.platform.identity.internal.handoff;
 
 import com.tchalanet.server.common.web.error.ProblemRest;
+import com.tchalanet.server.platform.identity.api.error.IdentityErrorCodes;
 import java.util.UUID;
 import org.springframework.stereotype.Component;
 
@@ -11,6 +12,6 @@ import org.springframework.stereotype.Component;
 class UnsupportedProviderSessionTokenIssuer implements ProviderSessionTokenIssuer {
   @Override
   public String createCustomToken(UUID appUserId) {
-    throw ProblemRest.unprocessable("portal_handoff.custom_token_unsupported_provider");
+    throw ProblemRest.of(IdentityErrorCodes.HANDOFF_CUSTOM_TOKEN_UNSUPPORTED);
   }
 }

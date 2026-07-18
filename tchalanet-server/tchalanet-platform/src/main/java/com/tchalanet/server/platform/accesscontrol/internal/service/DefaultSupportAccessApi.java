@@ -4,6 +4,7 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.platform.accesscontrol.api.SupportAccessApi;
+import com.tchalanet.server.platform.accesscontrol.api.error.AccessControlErrorCodes;
 import com.tchalanet.server.platform.accesscontrol.api.model.StartSupportAccessSessionRequest;
 import com.tchalanet.server.platform.accesscontrol.api.model.SupportAccessSessionView;
 import com.tchalanet.server.platform.accesscontrol.internal.persistence.entity.SupportAccessSessionJpaEntity;
@@ -28,13 +29,13 @@ class DefaultSupportAccessApi implements SupportAccessApi {
   @Transactional
   public SupportAccessSessionView start(StartSupportAccessSessionRequest request) {
     if (request.superAdminUserId() == null || request.superAdminUserId().value() == null) {
-      throw ProblemRest.unauthorized("support_access.super_admin_required");
+      throw ProblemRest.of(AccessControlErrorCodes.SUPPORT_AUTHENTICATED_ACTOR_REQUIRED);
     }
     if (request.tenantId() == null || request.tenantId().value() == null) {
-      throw ProblemRest.badRequest("support_access.tenant_required");
+      throw ProblemRest.of(AccessControlErrorCodes.SUPPORT_TENANT_REQUIRED);
     }
     if (request.reason() == null || request.reason().trim().length() < 10) {
-      throw ProblemRest.badRequest("support_access.reason_required");
+      throw ProblemRest.of(AccessControlErrorCodes.SUPPORT_REASON_REQUIRED);
     }
 
     var now = Instant.now(clock);

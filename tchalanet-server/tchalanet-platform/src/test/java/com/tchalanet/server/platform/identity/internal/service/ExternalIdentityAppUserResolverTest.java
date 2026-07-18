@@ -68,8 +68,7 @@ class ExternalIdentityAppUserResolverTest {
             true,
             Map.of());
     var appUserId = UUID.randomUUID();
-    var mapping =
-        new AppUserExternalIdentityJpaEntity();
+    var mapping = new AppUserExternalIdentityJpaEntity();
     mapping.setAppUserId(appUserId);
     mapping.setProvider(IdentityProviderType.FIREBASE);
     mapping.setIssuer("https://securetoken.google.com/tchalanet-39115");
