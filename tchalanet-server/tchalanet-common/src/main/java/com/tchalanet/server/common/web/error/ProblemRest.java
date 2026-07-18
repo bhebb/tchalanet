@@ -23,12 +23,18 @@ public final class ProblemRest {
    * translate a stable {@code code} without parsing diagnostics.
    */
   public static ProblemRestException of(HttpStatus status, ErrorDescriptor descriptor) {
+    return of(status, descriptor, null);
+  }
+
+  /** Code-first variant that preserves the root cause for server logging only. */
+  public static ProblemRestException of(
+      HttpStatus status, ErrorDescriptor descriptor, Throwable cause) {
     ProblemDetail pd = ProblemDetail.forStatus(status);
     pd.setDetail(descriptor.code());
     pd.setProperty("code", descriptor.code());
     pd.setProperty("category", descriptor.category().name());
     pd.setProperty("retryPolicy", descriptor.retryPolicy().name());
-    return new ProblemRestException(pd);
+    return cause == null ? new ProblemRestException(pd) : new ProblemRestException(pd, cause);
   }
 
   public static ProblemRestException of(
@@ -45,6 +51,10 @@ public final class ProblemRest {
 
   public static ProblemRestException badRequest(ErrorDescriptor descriptor) {
     return of(HttpStatus.BAD_REQUEST, descriptor);
+  }
+
+  public static ProblemRestException badRequest(ErrorDescriptor descriptor, Throwable cause) {
+    return of(HttpStatus.BAD_REQUEST, descriptor, cause);
   }
 
   public static ProblemRestException badRequest(String detail, Throwable cause) {

@@ -55,6 +55,14 @@ keeping `ProblemRest` only as a temporary compatibility bridge. The bridge must 
 fallback code plus diagnostic-only legacy detail, and a static rule must prevent new message-first
 call sites. It must not silently infer a code by parsing `detail`.
 
+### First migrated producer
+
+`PosTicketReceiptService` now maps invalid print options to
+`pos.receipt.print_options_invalid` with `VALIDATION` / `AFTER_USER_ACTION`. The original
+`IllegalArgumentException` remains the exception cause for server-side diagnostics, while the
+serialized ProblemDetail contains the stable code rather than its prose. Other receipt validation
+codes remain legacy until their form/POS ownership and client translations are migrated together.
+
 ## Observed BFF / aggregated read behaviour
 
 | Surface / entry point | Primary result | Secondary slices observed | Current failure behaviour | Initial classification |
