@@ -37,6 +37,8 @@ portals, Flutter mobile, client-originated failures, i18n, accessibility, recove
 
 - [x] Establish an additive code-first descriptor baseline in `common.web.error` and a tested
       `ProblemRest` factory, without changing legacy message-first call sites.
+- [x] Migrate the first critical POS producer: receipt print-profile validation now emits
+      `pos.receipt.print_options_invalid` without exposing the underlying exception prose.
 - [ ] Reconcile the related `complete-apiresponse-notices` OpenSpec with production code and archive
       it only after its tasks/tests match reality.
 - [ ] Define common technical contract types as needed: `ErrorCode`, `ErrorCategory`,

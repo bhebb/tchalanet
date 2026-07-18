@@ -32,4 +32,20 @@ class ErrorDescriptorTest {
                 new ErrorDescriptor(
                     "Draw is not open", ErrorCategory.BUSINESS_RULE, ErrorRetryPolicy.NEVER));
   }
+
+  @Test
+  void preservesCauseForServerDiagnosticsWithoutUsingItAsProblemDetail() {
+    var descriptor =
+        new ErrorDescriptor(
+            "pos.receipt.print_options_invalid",
+            ErrorCategory.VALIDATION,
+            ErrorRetryPolicy.AFTER_USER_ACTION);
+    var cause = new IllegalArgumentException("ESC_POS cannot use A4");
+
+    var exception = ProblemRest.badRequest(descriptor, cause);
+
+    assertThat(exception.getCause()).isSameAs(cause);
+    assertThat(exception.getProblem().getDetail()).isEqualTo("pos.receipt.print_options_invalid");
+    assertThat(exception.getProblem().getDetail()).doesNotContain("ESC_POS");
+  }
 }

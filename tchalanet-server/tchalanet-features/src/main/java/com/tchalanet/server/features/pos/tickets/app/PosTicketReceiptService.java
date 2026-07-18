@@ -11,6 +11,7 @@ import com.tchalanet.server.core.sales.api.query.receipt.FormatTicketReceiptMess
 import com.tchalanet.server.core.sales.api.query.receipt.FormatTicketReceiptPrintQuery;
 import com.tchalanet.server.features.pos.tickets.mapper.TicketPrintCommunicationMapper;
 import com.tchalanet.server.features.pos.tickets.mapper.TicketPrintDocumentMapper;
+import com.tchalanet.server.features.pos.tickets.error.PosTicketReceiptErrorCodes;
 import com.tchalanet.server.features.pos.tickets.model.PrintTicketRequest;
 import com.tchalanet.server.features.pos.tickets.model.SendTicketReceiptRequest;
 import com.tchalanet.server.features.pos.tickets.model.SendTicketReceiptResponse;
@@ -67,7 +68,7 @@ public class PosTicketReceiptService {
     try {
       profile = profileResolver.resolve(request.printOptionsRequest());
     } catch (IllegalArgumentException ex) {
-      throw ProblemRest.badRequest(ex.getMessage(), ex);
+      throw ProblemRest.badRequest(PosTicketReceiptErrorCodes.PRINT_OPTIONS_INVALID, ex);
     }
 
     // Use resolved profile for formatting and document rendering
