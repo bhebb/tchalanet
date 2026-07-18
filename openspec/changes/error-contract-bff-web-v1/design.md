@@ -82,10 +82,12 @@ The response remains `2xx` and uses:
   - optional `slice` or `operation`;
   - optional `surface`, `placement`, and `target`.
 
-`surface`/`placement`/`target` are reserved for a BFF that owns a recoverable screen or block.
-They are not a universal requirement. A domain notice such as a sales limit, promotion, fee, or
-approval remains UI-agnostic and is rendered by the feature that owns the transaction. Core domain
-code must never depend on a web or Flutter component id.
+`target` MAY be a stable functional identifier such as `recentTickets` or `salesSummary`; it is not
+an Angular selector, Flutter widget key, or backend placement instruction. The server does not emit
+`surface` or `placement`: the client-side feature determines rendering ownership from its request
+context and local screen model. A domain notice such as a sales limit, promotion, fee, or approval
+remains UI-agnostic and is rendered by the feature that owns the transaction. Core domain code must
+never depend on a web or Flutter component id.
 
 Example code shape:
 
@@ -317,7 +319,8 @@ Each response has one owner. The client adapter does not make that decision from
 
 The public, admin, and platform shells use the same decision tree, while each keeps its own route
 and visual component tree. Flutter uses the same ownership semantics and maps temporary banners only
-after the feature or screen has accepted the notice.
+after the feature or screen has accepted the notice. Transport interceptors normalize and retain
+feedback but never select a visual destination.
 
 ## Recovery and post-submit focus
 

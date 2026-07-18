@@ -153,7 +153,9 @@ The contract SHALL distinguish BFF presentation degradation from feature-owned d
 #### Scenario: Optional dashboard slice fails
 
 - **WHEN** a BFF can return the page while one optional slice fails
-- **THEN** its notice MAY include reserved presentation metadata `surface`, `placement`, and `target`
+- **THEN** its notice MAY include a stable functional `target` such as `recentTickets`
+- **AND** the client request context and screen model decide page versus section ownership
+- **AND** the server does not name an Angular/Flutter component or visual placement
 - **AND** the matching page or section renders the warning without converting it into a blocking error
 
 #### Scenario: Sales domain emits a limit or promotion notice
