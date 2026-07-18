@@ -3,8 +3,8 @@ package com.tchalanet.server.platform.entitlement.internal;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.platform.entitlement.api.EntitlementApi;
+import com.tchalanet.server.platform.entitlement.api.error.EntitlementErrorCodes;
 import com.tchalanet.server.platform.entitlement.api.model.TenantCapabilitySnapshot;
-import java.util.Map;
 import java.util.OptionalInt;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +30,7 @@ public class EntitlementService implements EntitlementApi {
   @Override
   public void requireFeature(TenantId tenantId, String featureKey) {
     if (!checkFeature(tenantId, featureKey)) {
-      throw ProblemRest.forbidden("entitlement.feature_required", Map.of("feature", featureKey));
+      throw ProblemRest.of(EntitlementErrorCodes.FEATURE_REQUIRED);
     }
   }
 
@@ -43,14 +43,9 @@ public class EntitlementService implements EntitlementApi {
   public void requireLimitAtMost(TenantId tenantId, String limitKey, int currentUsage) {
     int limit =
         limitValue(tenantId, limitKey)
-            .orElseThrow(
-                () ->
-                    ProblemRest.forbidden(
-                        "entitlement.limit_missing", Map.of("limitKey", limitKey)));
+            .orElseThrow(() -> ProblemRest.of(EntitlementErrorCodes.LIMIT_MISSING));
     if (currentUsage > limit) {
-      throw ProblemRest.forbidden(
-          "entitlement.limit_exceeded",
-          Map.of("limitKey", limitKey, "limit", limit, "current", currentUsage));
+      throw ProblemRest.of(EntitlementErrorCodes.LIMIT_EXCEEDED);
     }
   }
 }

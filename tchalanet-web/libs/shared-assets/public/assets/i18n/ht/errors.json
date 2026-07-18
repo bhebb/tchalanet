@@ -82,6 +82,20 @@
               "title": "Kontèks operasyon pa valid",
               "message": "Relouvri operasyon an nan yon kontèks ki valid."
             }
+          },
+          "actor": { "type_unsupported": { "title": "Aksè refize", "message": "Kalite kont sa a pa ka sèvi ak operasyon sa a." } },
+          "terminal": { "tenant_selection_not_allowed": { "title": "Seleksyon pa otorize", "message": "Yon tèminal vandè pa ka chwazi yon lòt espas." } },
+          "tenant": {
+            "override_not_super_admin": { "title": "Aksè refize", "message": "Se yon sipè administratè sèlman ki ka chwazi yon lòt espas." },
+            "override_forbidden": { "title": "Aksè refize", "message": "Kont ou pa ka chwazi espas sa a." },
+            "override_reason_required": { "title": "Rezon obligatwa", "message": "Bay yon rezon sipò anvan ou kontinye." },
+            "override_invalid": { "title": "Espas pa valid", "message": "Chwazi yon espas ki valid epi eseye ankò." },
+            "ambiguous_membership": { "title": "Chwa espas obligatwa", "message": "Kont ou nan plizyè espas. Chwazi youn anvan ou kontinye." }
+          },
+          "support": {
+            "authenticated_actor_required": { "title": "Sesyon obligatwa", "message": "Konekte ankò pou kontinye." },
+            "tenant_required": { "title": "Espas obligatwa", "message": "Chwazi espas ou pral sipòte a." },
+            "reason_required": { "title": "Rezon obligatwa", "message": "Bay yon rezon sipò ki ase presi." }
           }
         },
         "identity": {
@@ -90,6 +104,49 @@
               "title": "Enfòmasyon koneksyon pa valab",
               "message": "Verifye idantifyan ou epi eseye ankò."
             }
+          },
+          "session": {
+            "verified_identity_required": { "title": "Sesyon pa valid", "message": "Konekte ankò pou kontinye." },
+            "external_identity_not_linked": { "title": "Kont pa konekte", "message": "Kont koneksyon sa a pa lye ak yon kont Tchalanet. Kontakte administratè a." },
+            "user_inactive": { "title": "Kont pa aktif", "message": "Kont sa a pa ka itilize kounye a. Kontakte administratè a." },
+            "seller_terminal_not_linked": { "title": "Tèminal pa konekte", "message": "Kont sa a pa lye ak yon tèminal vandè. Relouvri tèminal ki otorize a." },
+            "seller_terminal_inactive": { "title": "Tèminal pa aktif", "message": "Tèminal vandè sa a pa ka itilize kounye a. Kontakte administratè a." }
+          },
+          "handoff": {
+            "authenticated_user_required": { "title": "Sesyon obligatwa", "message": "Konekte ankò pou kontinye." },
+            "target_mismatch": { "title": "Aksè pa valid", "message": "Transfè sa a pa disponib pou espas sa a." },
+            "invalid_code": { "title": "Transfè pa valid", "message": "Transfè sa a pa ka itilize. Rekòmanse depi pòtal la." },
+            "target_forbidden": { "title": "Aksè refize", "message": "Kont ou pa ka antre nan espas sa a." },
+            "entry_route_not_allowed": { "title": "Paj pa valid", "message": "Paj antre sa a pa otorize." },
+            "not_found_or_expired": { "title": "Transfè ekspire", "message": "Transfè sa a ekspire oswa pa disponib ankò. Rekòmanse depi pòtal la." },
+            "replayed": { "title": "Transfè deja itilize", "message": "Transfè sa a deja itilize. Rekòmanse depi pòtal la." },
+            "expired": { "title": "Transfè ekspire", "message": "Transfè sa a ekspire. Rekòmanse depi pòtal la." },
+            "rate_limited": { "title": "Twòp esè", "message": "Tann yon ti moman avan ou eseye ankò." },
+            "external_identity_missing": { "title": "Kont pa pare", "message": "Kont koneksyon sa a pa pare pou transfè a. Kontakte administratè a." },
+            "custom_token_unsupported_provider": { "title": "Transfè pa disponib", "message": "Metòd koneksyon sa a pa sipòte transfè a." },
+            "custom_token_failed": { "title": "Transfè pa disponib", "message": "Eseye ankò pita oswa retounen nan pòtal la." }
+          },
+          "user": {
+            "not_found": { "title": "Kont pa jwenn", "message": "Kont sa a pa disponib ankò." },
+            "action_forbidden": { "title": "Aksyon pa otorize", "message": "Kont ou pa ka fè aksyon sa a sou itilizatè sa a." },
+            "outside_tenant_scope": { "title": "Aksè refize", "message": "Itilizatè sa a pa nan espas aktif la." }
+          },
+          "external_identity": {
+            "not_linked": { "title": "Kont pa konekte", "message": "Kont sa a pa lye ak metòd koneksyon ki nesesè a." }
+          },
+          "membership": {
+            "cross_tenant_forbidden": { "title": "Aksè refize", "message": "Ou pa ka mete yon itilizatè nan yon lòt espas." }
+          },
+          "admin": {
+            "super_admin_assignment_forbidden": { "title": "Wòl pa otorize", "message": "Wòl administratè platfòm nan pa ka bay nan espas sa a." }
+          },
+          "profile": {
+            "locale_invalid": { "title": "Lang pa valid", "message": "Chwazi yon lang ki sipòte epi eseye ankò." },
+            "time_zone_invalid": { "title": "Fizo orè pa valid", "message": "Chwazi yon fizo orè ki sipòte epi eseye ankò." },
+            "currency_invalid": { "title": "Deviz pa valid", "message": "Chwazi yon deviz ki sipòte epi eseye ankò." }
+          },
+          "role": {
+            "invalid": { "title": "Wòl pa valid", "message": "Chwazi yon wòl ki sipòte epi eseye ankò." }
           }
         },
         "request": {
@@ -137,6 +194,12 @@
               }
             }
           }
+        },
+        "entitlement": {
+          "feature_required": { "title": "Fonksyon pa disponib", "message": "Fonksyon sa a pa nan konfigirasyon espas ou a kounye a." },
+          "limit_missing": { "title": "Konfigirasyon pa disponib", "message": "Limit ki nesesè a pa disponib kounye a. Eseye ankò pita." },
+          "limit_exceeded": { "title": "Limit rive", "message": "Aksyon sa a depase yon limit nan espas ou a." },
+          "usage_provider_unavailable": { "title": "Verifikasyon pa disponib", "message": "Nou pa ka verifye limit sa a kounye a. Eseye ankò pita." }
         },
         "limits": {
           "blocked": {

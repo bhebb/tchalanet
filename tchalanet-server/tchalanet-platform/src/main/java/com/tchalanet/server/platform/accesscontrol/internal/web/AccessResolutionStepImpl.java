@@ -9,6 +9,7 @@ import com.tchalanet.server.common.context.web.ApiScopeResolver;
 import com.tchalanet.server.common.http.TchHeaders;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.platform.accesscontrol.api.AccessResolutionStep;
+import com.tchalanet.server.platform.accesscontrol.api.error.AccessControlErrorCodes;
 import com.tchalanet.server.platform.accesscontrol.internal.service.AccessControlSnapshotResolver;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -59,7 +60,7 @@ public class AccessResolutionStepImpl implements AccessResolutionStep {
     } else if (bootstrappedActor.isAppUser()) {
       resolved = resolveAppUser(request, bootstrappedActor);
     } else {
-      throw ProblemRest.forbidden("unknown.actor_type");
+      throw ProblemRest.of(AccessControlErrorCodes.ACTOR_TYPE_UNSUPPORTED);
     }
 
     request.setAttribute(TchContextRequestAttributes.RESOLVED_ACCESS, resolved);
@@ -139,7 +140,7 @@ public class AccessResolutionStepImpl implements AccessResolutionStep {
   private void rejectTenantSelectionHeadersForTerminal(HttpServletRequest request) {
     if (StringUtils.isNotBlank(request.getHeader(TchHeaders.X_TENANT_ID))
         || StringUtils.isNotBlank(request.getHeader(TchHeaders.X_TCH_TENANT_OVERRIDE))) {
-      throw ProblemRest.forbidden("terminal.tenant_selection_not_allowed");
+      throw ProblemRest.of(AccessControlErrorCodes.TERMINAL_TENANT_SELECTION_NOT_ALLOWED);
     }
   }
 

@@ -6,9 +6,11 @@ import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.web.api.ApiResponse;
+import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.platform.audit.api.AuditLog;
 import com.tchalanet.server.platform.audit.api.model.AuditAction;
 import com.tchalanet.server.platform.audit.api.model.AuditEntityType;
+import com.tchalanet.server.platform.identity.api.error.IdentityErrorCodes;
 import com.tchalanet.server.platform.identity.internal.service.IdentityUserCrudService;
 import com.tchalanet.server.platform.identity.internal.service.TenantUserAdministrationService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -106,8 +108,7 @@ public class IdentityUserCrudController {
     try {
       role = TchRole.valueOf(request.role());
     } catch (IllegalArgumentException e) {
-      throw com.tchalanet.server.common.web.error.ProblemRest.badRequest(
-          "Unknown role: " + request.role(), e);
+      throw ProblemRest.of(IdentityErrorCodes.ROLE_INVALID, java.util.Map.of(), e);
     }
     service.assignMembership(UserId.of(userId), TenantId.of(request.tenantId()), role, ctx);
   }

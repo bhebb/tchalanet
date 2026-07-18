@@ -30,7 +30,10 @@ class EntitlementServiceTest {
 
     assertThatThrownBy(() -> service.requireLimitAtMost(TENANT_ID, LIMIT_KEY, 1))
         .isInstanceOf(ProblemRestException.class)
-        .hasMessage("entitlement.limit_missing");
+        .satisfies(
+            throwable ->
+                assertThat(((ProblemRestException) throwable).getProblem().getProperties())
+                    .containsEntry("code", "entitlement.limit_missing"));
   }
 
   @Test
@@ -46,7 +49,10 @@ class EntitlementServiceTest {
 
     assertThatThrownBy(() -> service.requireLimitAtMost(TENANT_ID, LIMIT_KEY, 3))
         .isInstanceOf(ProblemRestException.class)
-        .hasMessage("entitlement.limit_exceeded");
+        .satisfies(
+            throwable ->
+                assertThat(((ProblemRestException) throwable).getProblem().getProperties())
+                    .containsEntry("code", "entitlement.limit_exceeded"));
   }
 
   private static EntitlementCapabilitiesGetter getter(Map<String, Integer> limits) {

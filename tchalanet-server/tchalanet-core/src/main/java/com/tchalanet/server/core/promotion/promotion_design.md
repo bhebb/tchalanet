@@ -697,3 +697,4 @@ DEFAULT_MARYAJ_GRATIS (seed versionné en code, pas de campagne globale runtime)
   campagne `DEFAULT_MARYAJ_GRATIS` existe déjà, l'endpoint reste idempotent et
   retourne l'existant ; les changements de règle passent par une nouvelle
   campagne/règle, pas par mutation silencieuse d'une campagne active.
+

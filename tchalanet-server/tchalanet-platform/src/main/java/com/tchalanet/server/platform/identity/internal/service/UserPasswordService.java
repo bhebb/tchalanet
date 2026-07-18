@@ -3,6 +3,7 @@ package com.tchalanet.server.platform.identity.internal.service;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.platform.identity.api.IdentityProviderType;
 import com.tchalanet.server.platform.identity.api.IdentityProvisioningApi;
+import com.tchalanet.server.platform.identity.api.error.IdentityErrorCodes;
 import com.tchalanet.server.platform.identity.internal.persistence.adapter.AppUserJpaAdapter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,12 +19,11 @@ public class UserPasswordService {
     var user =
         users
             .findByEmailOrPhone(email, null)
-            .orElseThrow(() -> ProblemRest.notFound("No account found for this email"));
+            .orElseThrow(() -> ProblemRest.of(IdentityErrorCodes.AUTH_INVALID_CREDENTIALS));
     var externalSubject =
         users
             .findExternalSubject(user.id(), IdentityProviderType.FIREBASE)
-            .orElseThrow(
-                () -> ProblemRest.unprocessable("No Firebase identity linked for this account"));
+            .orElseThrow(() -> ProblemRest.of(IdentityErrorCodes.AUTH_INVALID_CREDENTIALS));
     identityProvisioning.resetPassword(externalSubject, newPassword);
   }
 }

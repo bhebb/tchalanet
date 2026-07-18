@@ -5,6 +5,7 @@ import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.error.ProblemRest;
+import com.tchalanet.server.platform.identity.api.error.IdentityErrorCodes;
 import com.tchalanet.server.platform.identity.api.model.request.UpdateUserProfileRequest;
 import com.tchalanet.server.platform.identity.api.model.surface.ClientSurface;
 import com.tchalanet.server.platform.identity.api.model.surface.ClientSurfacePolicy;
@@ -44,7 +45,7 @@ public class CurrentUserProfileController {
   @Operation(summary = "Get current user profile")
   public ApiResponse<MeResponse> me(@CurrentContext TchRequestContext ctx) {
     if (ctx.userId() == null) {
-      throw ProblemRest.notFound("User not found for current principal");
+      throw ProblemRest.of(IdentityErrorCodes.USER_NOT_FOUND);
     }
     return ApiResponse.success(toMeResponse(profiles.getCurrentUser(ctx.userId()), ctx, false));
   }
@@ -56,7 +57,7 @@ public class CurrentUserProfileController {
       @Valid @RequestBody
           com.tchalanet.server.platform.identity.internal.web.model.UpdateUserProfileRequest req) {
     if (ctx.userId() == null) {
-      throw ProblemRest.notFound("User not found for current principal");
+      throw ProblemRest.of(IdentityErrorCodes.USER_NOT_FOUND);
     }
     profiles.updateProfile(
         new UpdateUserProfileRequest(

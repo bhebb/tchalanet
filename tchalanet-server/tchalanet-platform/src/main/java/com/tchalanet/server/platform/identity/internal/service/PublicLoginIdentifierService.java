@@ -20,7 +20,10 @@ public class PublicLoginIdentifierService {
 
   public String resolveIdentifier(String identifier) {
     var normalized = normalizeUsername(identifier);
-    var user = users.findByNormalizedUsername(normalized).orElseThrow(PublicLoginIdentifierService::genericFailure);
+    var user =
+        users
+            .findByNormalizedUsername(normalized)
+            .orElseThrow(PublicLoginIdentifierService::genericFailure);
     if (user.status() != UserStatus.ACTIVE || isBlank(user.email())) {
       throw genericFailure();
     }

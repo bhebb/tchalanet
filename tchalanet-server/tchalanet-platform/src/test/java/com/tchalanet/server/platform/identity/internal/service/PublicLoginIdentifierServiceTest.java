@@ -51,7 +51,8 @@ class PublicLoginIdentifierServiceTest {
 
   @Test
   void rejectsEmailInputBecauseEmailBypassesLookup() {
-    assertGenericFailure(() -> service.resolveIdentifier("admin@example.com"), HttpStatus.FORBIDDEN);
+    assertGenericFailure(
+        () -> service.resolveIdentifier("admin@example.com"), HttpStatus.FORBIDDEN);
   }
 
   @Test
@@ -81,7 +82,8 @@ class PublicLoginIdentifierServiceTest {
               assertThat(problem.getProperties())
                   .containsEntry("code", IdentityErrorCodes.AUTH_INVALID_CREDENTIALS.code())
                   .containsEntry(
-                      "category", IdentityErrorCodes.AUTH_INVALID_CREDENTIALS.category().wireValue())
+                      "category",
+                      IdentityErrorCodes.AUTH_INVALID_CREDENTIALS.category().wireValue())
                   .doesNotContainKey("username");
             });
   }

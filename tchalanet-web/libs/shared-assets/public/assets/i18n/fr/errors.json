@@ -82,6 +82,20 @@
               "title": "Contexte opérationnel invalide",
               "message": "Rouvrez l’opération depuis un contexte valide."
             }
+          },
+          "actor": { "type_unsupported": { "title": "Accès refusé", "message": "Ce type de compte ne peut pas utiliser cette opération." } },
+          "terminal": { "tenant_selection_not_allowed": { "title": "Sélection non autorisée", "message": "Un terminal vendeur ne peut pas sélectionner un autre espace." } },
+          "tenant": {
+            "override_not_super_admin": { "title": "Accès refusé", "message": "Seul un super administrateur peut sélectionner un autre espace." },
+            "override_forbidden": { "title": "Accès refusé", "message": "Votre compte ne peut pas sélectionner cet espace." },
+            "override_reason_required": { "title": "Motif requis", "message": "Indiquez un motif de support avant de continuer." },
+            "override_invalid": { "title": "Espace invalide", "message": "Sélectionnez un espace valide puis réessayez." },
+            "ambiguous_membership": { "title": "Espace à choisir", "message": "Votre compte est associé à plusieurs espaces. Sélectionnez-en un avant de continuer." }
+          },
+          "support": {
+            "authenticated_actor_required": { "title": "Session requise", "message": "Reconnectez-vous pour continuer." },
+            "tenant_required": { "title": "Espace requis", "message": "Sélectionnez l’espace à assister." },
+            "reason_required": { "title": "Motif requis", "message": "Indiquez un motif de support suffisamment précis." }
           }
         },
         "identity": {
@@ -90,6 +104,49 @@
               "title": "Informations de connexion invalides",
               "message": "Vérifiez votre identifiant puis réessayez."
             }
+          },
+          "session": {
+            "verified_identity_required": { "title": "Session non valide", "message": "Reconnectez-vous pour continuer." },
+            "external_identity_not_linked": { "title": "Compte non associé", "message": "Cette connexion n’est pas associée à un compte Tchalanet. Contactez un administrateur." },
+            "user_inactive": { "title": "Compte inactif", "message": "Ce compte ne peut pas être utilisé actuellement. Contactez un administrateur." },
+            "seller_terminal_not_linked": { "title": "Terminal non associé", "message": "Cette connexion n’est pas associée à un terminal vendeur. Rouvrez un terminal autorisé." },
+            "seller_terminal_inactive": { "title": "Terminal inactif", "message": "Ce terminal vendeur ne peut pas être utilisé actuellement. Contactez un administrateur." }
+          },
+          "handoff": {
+            "authenticated_user_required": { "title": "Session requise", "message": "Reconnectez-vous pour continuer." },
+            "target_mismatch": { "title": "Accès invalide", "message": "Ce transfert n’est pas disponible pour cet espace." },
+            "invalid_code": { "title": "Transfert invalide", "message": "Ce transfert ne peut pas être utilisé. Recommencez depuis le portail." },
+            "target_forbidden": { "title": "Accès refusé", "message": "Votre compte ne peut pas accéder à cet espace." },
+            "entry_route_not_allowed": { "title": "Page invalide", "message": "Cette page d’entrée n’est pas autorisée." },
+            "not_found_or_expired": { "title": "Transfert expiré", "message": "Ce transfert a expiré ou n’est plus disponible. Recommencez depuis le portail." },
+            "replayed": { "title": "Transfert déjà utilisé", "message": "Ce transfert a déjà été utilisé. Recommencez depuis le portail." },
+            "expired": { "title": "Transfert expiré", "message": "Ce transfert a expiré. Recommencez depuis le portail." },
+            "rate_limited": { "title": "Trop de tentatives", "message": "Attendez un instant avant de réessayer." },
+            "external_identity_missing": { "title": "Compte non prêt", "message": "Cette connexion n’est pas prête pour le transfert. Contactez un administrateur." },
+            "custom_token_unsupported_provider": { "title": "Transfert indisponible", "message": "Cette méthode de connexion ne prend pas en charge le transfert." },
+            "custom_token_failed": { "title": "Transfert indisponible", "message": "Réessayez plus tard ou revenez au portail." }
+          },
+          "user": {
+            "not_found": { "title": "Compte introuvable", "message": "Ce compte n’est plus disponible." },
+            "action_forbidden": { "title": "Action non autorisée", "message": "Votre compte ne peut pas effectuer cette action pour cet utilisateur." },
+            "outside_tenant_scope": { "title": "Accès refusé", "message": "Cet utilisateur n’appartient pas à l’espace actif." }
+          },
+          "external_identity": {
+            "not_linked": { "title": "Compte non associé", "message": "Ce compte n’est pas associé à la méthode de connexion nécessaire." }
+          },
+          "membership": {
+            "cross_tenant_forbidden": { "title": "Accès refusé", "message": "Vous ne pouvez pas affecter un utilisateur à un autre espace." }
+          },
+          "admin": {
+            "super_admin_assignment_forbidden": { "title": "Rôle non autorisé", "message": "Le rôle d’administrateur plateforme ne peut pas être attribué dans cet espace." }
+          },
+          "profile": {
+            "locale_invalid": { "title": "Langue invalide", "message": "Choisissez une langue prise en charge puis réessayez." },
+            "time_zone_invalid": { "title": "Fuseau horaire invalide", "message": "Choisissez un fuseau horaire pris en charge puis réessayez." },
+            "currency_invalid": { "title": "Devise invalide", "message": "Choisissez une devise prise en charge puis réessayez." }
+          },
+          "role": {
+            "invalid": { "title": "Rôle invalide", "message": "Choisissez un rôle pris en charge puis réessayez." }
           }
         },
         "request": {
@@ -137,6 +194,12 @@
               }
             }
           }
+        },
+        "entitlement": {
+          "feature_required": { "title": "Fonction non disponible", "message": "Cette fonction n’est pas incluse dans la configuration actuelle de votre espace." },
+          "limit_missing": { "title": "Configuration indisponible", "message": "La limite nécessaire n’est pas disponible pour le moment. Réessayez plus tard." },
+          "limit_exceeded": { "title": "Limite atteinte", "message": "Cette action dépasse une limite de votre espace." },
+          "usage_provider_unavailable": { "title": "Vérification indisponible", "message": "La vérification de cette limite est indisponible pour le moment. Réessayez plus tard." }
         },
         "limits": {
           "blocked": {

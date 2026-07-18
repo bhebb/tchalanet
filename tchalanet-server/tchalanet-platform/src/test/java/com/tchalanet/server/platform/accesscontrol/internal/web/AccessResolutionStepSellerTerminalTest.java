@@ -65,7 +65,10 @@ class AccessResolutionStepSellerTerminalTest {
 
     assertThatThrownBy(() -> step.resolveSellerTerminal(request, terminalActor()))
         .isInstanceOf(ProblemRestException.class)
-        .hasMessage("terminal.tenant_selection_not_allowed");
+        .satisfies(
+            throwable ->
+                assertThat(((ProblemRestException) throwable).getProblem().getProperties())
+                    .containsEntry("code", "access.terminal.tenant_selection_not_allowed"));
   }
 
   @Test
@@ -75,6 +78,9 @@ class AccessResolutionStepSellerTerminalTest {
 
     assertThatThrownBy(() -> step.resolveSellerTerminal(request, terminalActor()))
         .isInstanceOf(ProblemRestException.class)
-        .hasMessage("terminal.tenant_selection_not_allowed");
+        .satisfies(
+            throwable ->
+                assertThat(((ProblemRestException) throwable).getProblem().getProperties())
+                    .containsEntry("code", "access.terminal.tenant_selection_not_allowed"));
   }
 }

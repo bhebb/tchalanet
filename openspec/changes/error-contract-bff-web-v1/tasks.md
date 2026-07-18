@@ -56,10 +56,12 @@ portals, Flutter mobile, client-originated failures, i18n, accessibility, recove
 - [x] Establish Wave 0 for authenticated request context: `tenant`, user, seller-terminal, and
       operational-context failures now use owned descriptors rather than hybrid prose in `detail`.
 
-- [~] Begin Wave 1 for public login/session: username lookup now uses the generic
-      `identity.auth.invalid_credentials` descriptor for malformed, unknown, inactive, and
-      provider-unlinked identities. Session expiry, provider-token, PIN, and client-originated
-      authentication failures remain to migrate.
+- [~] Advance Wave 1 for public login/session: username lookup and the legacy public password
+      reset path use generic `identity.auth.invalid_credentials` copy; bootstrap, handoff,
+      current-user/admin identity flows now use owned descriptors; filter-chain `401/403` writes
+      structured redacted logs with request/trace correlation. Session expiry, provider-token,
+      PIN, and client-originated authentication failures remain to migrate. The password-reset
+      security redesign is deliberately deferred as a separate task.
 
 - [x] Establish an additive code-first descriptor baseline in `common.web.error` and a tested
       `ProblemRest` factory, without changing legacy message-first call sites.
@@ -293,3 +295,10 @@ portals, Flutter mobile, client-originated failures, i18n, accessibility, recove
 - [ ] Verify Definition of Done: stable codes; retained envelopes; complete `ht/fr/en` client copy;
       exactly one rendering owner; no raw prose; deterministic field/page/section recovery and focus;
       redacted correlation; and BFF slice/recovery tests required for new endpoints.
+
+## Deferred Security Follow-up — Public Password Reset
+
+- [ ] Replace `POST /public/identity/reset-password`, which currently accepts a caller-supplied
+      password, with a rate-limited reset-request flow. It must always return `202 Accepted`, avoid
+      account enumeration, issue a short-lived provider-verified one-time link, and let the identity
+      provider own the final password change. Keep this separate from the error-contract migration.

@@ -1,12 +1,12 @@
 package com.tchalanet.server.platform.identity.internal.handoff;
 
 import com.tchalanet.server.common.web.error.ProblemRest;
+import com.tchalanet.server.platform.identity.api.error.IdentityErrorCodes;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -42,7 +42,7 @@ class PortalHandoffRateLimiter {
               return new Bucket(current.windowStart, current.attempts + 1);
             });
     if (bucket.attempts > MAX_ATTEMPTS) {
-      throw ProblemRest.of(HttpStatus.TOO_MANY_REQUESTS, "portal_handoff.rate_limited");
+      throw ProblemRest.of(IdentityErrorCodes.HANDOFF_RATE_LIMITED);
     }
   }
 
