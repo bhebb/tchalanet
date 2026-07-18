@@ -284,7 +284,7 @@ class SalesPolicyPromotionSpringIntegrationTest extends BusinessRuntimeIntegrati
     var duplicate = formatReceipt(ticketId);
 
     assertReceiptContainsTenantBrandingAndMaryajGratis(duplicate);
-    assertCopyMarker(duplicate, "duplicate", "duplicata");
+    assertCopyMarker(duplicate, "copy", "copie");
     assertMaryajGratisSnapshot(ticketId, "2000", "SELLER_TERMINAL_OVERRIDE");
   }
 
@@ -434,13 +434,15 @@ class SalesPolicyPromotionSpringIntegrationTest extends BusinessRuntimeIntegrati
       TicketReceiptPrintContent content) {
     assertThat(content.headerLines())
         .anySatisfy(line -> assertThat(line.text()).contains("IT HEADER MARYAJ GRATIS"));
-    assertThat(content.postQrLines())
+    assertThat(content.footerLines())
         .anySatisfy(line -> assertThat(line.text()).contains("IT FOOTER MARYAJ GRATIS"));
     assertThat(content.qrPayload()).contains(content.metadata().get("publicCode"));
 
     var body = content.bodyLines();
     assertThat(body).anySatisfy(line -> assertThat(line).contains("GRATIS"));
-    assertThat(body).anySatisfy(line -> assertThat(line).contains("* Maryaj offert"));
+    // Since #332, the free maryaj prints in its own section without the
+    // "* Maryaj offert" note (see TicketReceiptGameLinesFormatter).
+    assertThat(body).noneSatisfy(line -> assertThat(line).contains("* Maryaj offert"));
   }
 
   private void assertCopyMarker(TicketReceiptPrintContent content, String english, String french) {

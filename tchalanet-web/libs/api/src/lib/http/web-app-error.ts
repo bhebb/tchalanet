@@ -5,6 +5,7 @@ export type WebErrorCategory =
   | 'auth_required'
   | 'access_denied'
   | 'validation'
+  | 'business_rule'
   | 'not_found'
   | 'conflict'
   | 'rate_limited'
@@ -14,17 +15,6 @@ export type WebErrorCategory =
 export type WebErrorSeverity = 'info' | 'warn' | 'error';
 export type WebErrorSurface = 'page' | 'section' | 'field' | 'shell';
 export type WebErrorPlacement = 'top' | 'inline' | 'summary';
-
-/**
- * Transport diagnostics are retained for telemetry and support correlation only.
- * They must never be rendered as user-facing copy.
- */
-export interface WebErrorDiagnostics {
-  readonly problemTitle?: string;
-  readonly problemDetail?: string;
-  readonly noticeMessage?: string;
-  readonly serviceMessage?: string;
-}
 
 export interface WebAppError {
   readonly id: string;
@@ -45,8 +35,9 @@ export interface WebAppError {
   readonly target?: string;
   readonly field?: string;
   readonly retryable: boolean;
+  readonly retryPolicy?: string;
+  readonly params?: Readonly<Record<string, string | number | boolean>>;
   readonly dedupeKey: string;
-  readonly diagnostics?: WebErrorDiagnostics;
 }
 
 export function webAppErrorFromProblemDetail(
@@ -55,7 +46,7 @@ export function webAppErrorFromProblemDetail(
   surface: WebErrorSurface = 'shell',
 ): WebAppError {
   const code = problem.code ?? legacyDetailCode(problem.detail) ?? problemTypeCode(problem.type);
-  const category = categoryFromCodeStatus(code, problem.status);
+  const category = categoryFromWireValue(problem.category) ?? categoryFromCodeStatus(code, problem.status);
   const severity = problem.status >= 500 || problem.status === 0 ? 'error' : 'warn';
   const resolvedSource = problem.instance ?? source;
 
@@ -74,7 +65,7 @@ export function webAppErrorFromProblemDetail(
     severity,
     surface,
     placement: surface === 'field' ? 'inline' : 'top',
-    title: userSafeTitle(code, category),
+    title: userSafeTitle(category),
     message: userSafeMessage(category),
     code,
     status: problem.status,
@@ -85,12 +76,10 @@ export function webAppErrorFromProblemDetail(
     source: resolvedSource,
     target: undefined,
     field: undefined,
-    retryable: isRetryable(category, problem.status),
+    retryable: problem.retryable ?? isRetryable(category, problem.status),
+    retryPolicy: problem.retryPolicy,
+    params: problem.params,
     dedupeKey: dedupeKey(code, category, problem.status, resolvedSource, surface),
-    diagnostics: {
-      problemTitle: problem.title,
-      problemDetail: problem.detail,
-    },
   };
 }
 
@@ -103,7 +92,7 @@ export function webAppErrorFromNotice(
   const meta = notice.meta ?? {};
   const noticeSource = stringMeta(meta, 'source') ?? notice.target ?? notice.domain ?? source;
   const status = numberMeta(meta, 'status');
-  const category = categoryFromCodeStatus(notice.code, status);
+  const category = categoryFromWireValue(stringMeta(meta, 'category')) ?? categoryFromCodeStatus(notice.code, status);
   const severity = severityFromNotice(notice.severity);
   const requestId = stringMeta(meta, 'requestId') ?? trace?.requestId;
   const traceId = stringMeta(meta, 'traceId') ?? trace?.traceId;
@@ -121,7 +110,7 @@ export function webAppErrorFromNotice(
     severity,
     surface: resolvedSurface,
     placement,
-    title: userSafeTitle(notice.code, category),
+    title: userSafeTitle(category),
     message: userSafeMessage(category),
     code: notice.code,
     status,
@@ -132,7 +121,9 @@ export function webAppErrorFromNotice(
     source: noticeSource,
     target,
     field,
-    retryable: isRetryable(category, status),
+    retryable: notice.retryable ?? isRetryable(category, status),
+    retryPolicy: notice.retryPolicy,
+    params: notice.params,
     dedupeKey: dedupeKey(
       notice.code,
       category,
@@ -142,7 +133,6 @@ export function webAppErrorFromNotice(
       target,
       field,
     ),
-    diagnostics: { noticeMessage: notice.message },
   };
 }
 
@@ -176,7 +166,7 @@ export function webAppErrorsFromProblemDetailFields(
       severity: 'error',
       surface: 'field',
       placement: 'inline',
-      title: userSafeTitle(code, category),
+      title: userSafeTitle(category),
       message: userSafeMessage(category),
       code,
       status: problem.status,
@@ -197,10 +187,6 @@ export function webAppErrorsFromProblemDetailFields(
         target,
         violation.field,
       ),
-      diagnostics: {
-        problemTitle: problem.title,
-        problemDetail: violation.message ?? problem.detail,
-      },
     } satisfies WebAppError;
   });
 }
@@ -231,7 +217,7 @@ export function webAppErrorFromServiceStatus(
     severity,
     surface: 'shell',
     placement: 'top',
-    title: userSafeTitle(code, category),
+    title: userSafeTitle(category),
     message: userSafeMessage(category),
     code,
     requestId: trace?.requestId,
@@ -242,7 +228,6 @@ export function webAppErrorFromServiceStatus(
     field: undefined,
     retryable: true,
     dedupeKey: dedupeKey(code, category, undefined, resolvedSource, 'shell', undefined, undefined),
-    diagnostics: { serviceMessage: service.message ?? undefined },
   };
 }
 
@@ -298,6 +283,24 @@ function categoryFromCodeStatus(
   }
 }
 
+function categoryFromWireValue(value: string | undefined): WebErrorCategory | undefined {
+  switch (value) {
+    case 'auth_required':
+    case 'access_denied':
+    case 'validation':
+    case 'business_rule':
+    case 'not_found':
+    case 'conflict':
+    case 'rate_limited':
+    case 'network_unavailable':
+    case 'service_unavailable':
+    case 'unexpected':
+      return value;
+    default:
+      return undefined;
+  }
+}
+
 function severityFromNotice(severity: ApiNotice['severity']): WebErrorSeverity {
   switch (severity) {
     case 'ERROR':
@@ -346,8 +349,7 @@ function stableErrorId(
   return [kind, errorId, requestId, traceId, code, category, source].filter(Boolean).join('|');
 }
 
-function userSafeTitle(code: string | undefined, category: WebErrorCategory): string {
-  if (code) return code;
+function userSafeTitle(category: WebErrorCategory): string {
   switch (category) {
     case 'auth_required':
       return 'Session requise';
@@ -355,6 +357,8 @@ function userSafeTitle(code: string | undefined, category: WebErrorCategory): st
       return 'Acces non autorise';
     case 'validation':
       return 'Information a corriger';
+    case 'business_rule':
+      return 'Action indisponible';
     case 'not_found':
       return 'Element introuvable';
     case 'conflict':
@@ -378,6 +382,8 @@ function userSafeMessage(category: WebErrorCategory): string {
       return 'Votre compte ne permet pas cette action.';
     case 'validation':
       return 'Verifiez les champs et reessayez.';
+    case 'business_rule':
+      return 'Les conditions actuelles ne permettent pas cette action.';
     case 'not_found':
       return 'La ressource demandee n est plus disponible.';
     case 'conflict':

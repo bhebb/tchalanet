@@ -18,6 +18,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import java.net.URI;
 import java.time.Instant;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -47,14 +48,15 @@ public class GlobalErrorHandler {
   public ResponseEntity<ProblemDetail> handleProblemRest(
       ProblemRestException ex, HttpServletRequest req) {
     var pd = ex.getProblem();
-    decorate(pd, req, ex, false);
 
     var status = HttpStatus.resolve(pd.getStatus());
     if (status == null) {
       status = HttpStatus.INTERNAL_SERVER_ERROR;
     }
+    normalizeLegacyProblem(pd, status);
+    decorate(pd, req, ex, false);
 
-    logByStatus(status, req, pd.getDetail(), ex);
+    logByStatus(status, req, pd);
     return buildResponse(pd, req, status);
   }
 
@@ -63,12 +65,7 @@ public class GlobalErrorHandler {
       TchNotFoundException ex, HttpServletRequest req) {
     var pd = problem(HttpStatus.NOT_FOUND, "Resource not found", ex);
     decorate(pd, req, ex, true);
-    log.warn(
-        "[404] {} {} - code={} message={}",
-        req.getMethod(),
-        req.getRequestURI(),
-        ex.code(),
-        ex.getMessage());
+    log.warn("[404] {} {} - code={}", req.getMethod(), req.getRequestURI(), ex.code());
     return buildResponse(pd, req, HttpStatus.NOT_FOUND);
   }
 
@@ -77,12 +74,7 @@ public class GlobalErrorHandler {
       TchValidationException ex, HttpServletRequest req) {
     var pd = problem(HttpStatus.BAD_REQUEST, "Validation failed", ex);
     decorate(pd, req, ex, true);
-    log.warn(
-        "[400] {} {} - code={} message={}",
-        req.getMethod(),
-        req.getRequestURI(),
-        ex.code(),
-        ex.getMessage());
+    log.warn("[400] {} {} - code={}", req.getMethod(), req.getRequestURI(), ex.code());
     return buildResponse(pd, req, HttpStatus.BAD_REQUEST);
   }
 
@@ -91,12 +83,7 @@ public class GlobalErrorHandler {
       TchForbiddenException ex, HttpServletRequest req) {
     var pd = problem(HttpStatus.FORBIDDEN, "Forbidden", ex);
     decorate(pd, req, ex, true);
-    log.warn(
-        "[403] {} {} - code={} message={}",
-        req.getMethod(),
-        req.getRequestURI(),
-        ex.code(),
-        ex.getMessage());
+    log.warn("[403] {} {} - code={}", req.getMethod(), req.getRequestURI(), ex.code());
     return buildResponse(pd, req, HttpStatus.FORBIDDEN);
   }
 
@@ -105,12 +92,7 @@ public class GlobalErrorHandler {
       TchConflictException ex, HttpServletRequest req) {
     var pd = problem(HttpStatus.CONFLICT, "Conflict", ex);
     decorate(pd, req, ex, true);
-    log.warn(
-        "[409] {} {} - code={} message={}",
-        req.getMethod(),
-        req.getRequestURI(),
-        ex.code(),
-        ex.getMessage());
+    log.warn("[409] {} {} - code={}", req.getMethod(), req.getRequestURI(), ex.code());
     return buildResponse(pd, req, HttpStatus.CONFLICT);
   }
 
@@ -119,12 +101,7 @@ public class GlobalErrorHandler {
       TchBusinessRuleException ex, HttpServletRequest req) {
     var pd = problem(HttpStatus.UNPROCESSABLE_ENTITY, "Business rule violation", ex);
     decorate(pd, req, ex, true);
-    log.warn(
-        "[422] {} {} - code={} message={}",
-        req.getMethod(),
-        req.getRequestURI(),
-        ex.code(),
-        ex.getMessage());
+    log.warn("[422] {} {} - code={}", req.getMethod(), req.getRequestURI(), ex.code());
     return buildResponse(pd, req, HttpStatus.UNPROCESSABLE_ENTITY);
   }
 
@@ -136,12 +113,7 @@ public class GlobalErrorHandler {
 
     decorate(pd, req, ex, true);
 
-    log.warn(
-        "[423] {} {} - code={} jobKey={}",
-        req.getMethod(),
-        req.getRequestURI(),
-        ex.code(),
-        ex.jobKey());
+    log.warn("[423] {} {} - code={}", req.getMethod(), req.getRequestURI(), ex.code());
 
     return buildResponse(pd, req, HttpStatus.LOCKED);
   }
@@ -157,12 +129,7 @@ public class GlobalErrorHandler {
     var pd = problem(HttpStatus.UNPROCESSABLE_ENTITY, "Application error", ex);
     decorate(pd, req, ex, true);
 
-    log.warn(
-        "[422] {} {} - code={} message={}",
-        req.getMethod(),
-        req.getRequestURI(),
-        ex.code(),
-        ex.getMessage());
+    log.warn("[422] {} {} - code={}", req.getMethod(), req.getRequestURI(), ex.code());
 
     return buildResponse(pd, req, HttpStatus.UNPROCESSABLE_ENTITY);
   }
@@ -175,11 +142,16 @@ public class GlobalErrorHandler {
   @ExceptionHandler(EntityNotFoundException.class)
   public ResponseEntity<ProblemDetail> handleJpaNotFound(
       EntityNotFoundException ex, HttpServletRequest req) {
-    var pd = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+    var pd = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, "Requested resource is unavailable");
     pd.setTitle("Resource not found");
-    decorate(pd, req, ex, true);
+    pd.setProperty("code", CommonErrorCodes.RESOURCE_NOT_FOUND);
+    decorate(pd, req, ex, false);
 
-    log.warn("[404] {} {} - {}", req.getMethod(), req.getRequestURI(), ex.getMessage());
+    log.warn(
+        "[404] {} {} - code={}",
+        req.getMethod(),
+        req.getRequestURI(),
+        CommonErrorCodes.RESOURCE_NOT_FOUND);
 
     return buildResponse(pd, req, HttpStatus.NOT_FOUND);
   }
@@ -306,15 +278,21 @@ public class GlobalErrorHandler {
   @ExceptionHandler(IllegalStateException.class)
   public ResponseEntity<ProblemDetail> handleLegacyIllegalState(
       IllegalStateException ex, HttpServletRequest req) {
-    var pd = ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage());
-    pd.setTitle("Business rule violation");
-    pd.setProperty("code", CommonErrorCodes.BUSINESS_RULE_VIOLATION);
+    var pd =
+        ProblemDetail.forStatusAndDetail(
+            HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred");
+    pd.setTitle("Unexpected error");
+    pd.setProperty("code", CommonErrorCodes.INTERNAL_UNEXPECTED);
 
-    decorate(pd, req, ex, true);
+    decorate(pd, req, ex, false);
 
-    log.warn("[422] {} {} - {}", req.getMethod(), req.getRequestURI(), ex.getMessage());
+    log.error(
+        "[500] {} {} - code={}",
+        req.getMethod(),
+        req.getRequestURI(),
+        CommonErrorCodes.INTERNAL_UNEXPECTED);
 
-    return buildResponse(pd, req, HttpStatus.UNPROCESSABLE_ENTITY);
+    return buildResponse(pd, req, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
   /**
@@ -347,16 +325,76 @@ public class GlobalErrorHandler {
 
     decorate(pd, req, ex, false);
 
-    log.error("[500] {} {}", req.getMethod(), req.getRequestURI(), ex);
+    log.error(
+        "[500] {} {} - code={}",
+        req.getMethod(),
+        req.getRequestURI(),
+        CommonErrorCodes.INTERNAL_UNEXPECTED);
 
     return buildResponse(pd, req, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
   private static ProblemDetail problem(HttpStatus status, String title, TchException ex) {
-    var pd = ProblemDetail.forStatusAndDetail(status, ex.getMessage());
+    var pd = ProblemDetail.forStatusAndDetail(status, "Request could not be completed");
     pd.setTitle(title);
     pd.setProperty("code", ex.code());
+    pd.setProperty("category", categoryFor(status));
+    pd.setProperty("retryPolicy", ErrorRetryPolicy.NEVER.name());
+    pd.setProperty("retryable", false);
     return pd;
+  }
+
+  /**
+   * Migration firewall for message-first {@link ProblemRestException} producers.
+   *
+   * <p>Legacy producers used {@code detail} for either a stable code or arbitrary diagnostics.
+   * A complete descriptor contract is retained; anything else is reduced to a stable code and
+   * neutral detail before it crosses the HTTP boundary.
+   */
+  private static void normalizeLegacyProblem(ProblemDetail pd, HttpStatus status) {
+    var properties = pd.getProperties();
+    if (properties != null
+        && properties.containsKey("code")
+        && properties.containsKey("category")
+        && properties.containsKey("retryPolicy")
+        && properties.containsKey("retryable")) {
+      return;
+    }
+
+    var existingCode = properties == null ? null : properties.get("code");
+    var code =
+        existingCode instanceof String value && ErrorDescriptor.isValidCode(value)
+            ? value
+            : ErrorDescriptor.isValidCode(pd.getDetail()) ? pd.getDetail() : fallbackCode(status);
+
+    pd.setTitle(titleFor(status));
+    pd.setDetail("Request could not be completed");
+    pd.setProperties(new LinkedHashMap<>());
+    pd.setProperty("code", code);
+    pd.setProperty("category", categoryFor(status));
+    pd.setProperty("retryPolicy", ErrorRetryPolicy.NEVER.name());
+    pd.setProperty("retryable", false);
+  }
+
+  private static String fallbackCode(HttpStatus status) {
+    return switch (status) {
+      case NOT_FOUND -> CommonErrorCodes.RESOURCE_NOT_FOUND;
+      case SERVICE_UNAVAILABLE, GATEWAY_TIMEOUT, BAD_GATEWAY -> CommonErrorCodes.SERVICE_UNAVAILABLE;
+      case INTERNAL_SERVER_ERROR -> CommonErrorCodes.INTERNAL_UNEXPECTED;
+      default -> CommonErrorCodes.REQUEST_REJECTED;
+    };
+  }
+
+  private static String titleFor(HttpStatus status) {
+    return switch (status) {
+      case NOT_FOUND -> "Resource not found";
+      case FORBIDDEN -> "Access denied";
+      case UNAUTHORIZED -> "Authentication required";
+      case CONFLICT -> "Request conflict";
+      case SERVICE_UNAVAILABLE, GATEWAY_TIMEOUT, BAD_GATEWAY -> "Service unavailable";
+      case INTERNAL_SERVER_ERROR -> "Unexpected error";
+      default -> "Request rejected";
+    };
   }
 
   private ResponseEntity<ProblemDetail> buildResponse(
@@ -424,20 +462,47 @@ public class GlobalErrorHandler {
       pd.setProperty("version", version.trim());
     }
 
-    if (verbose) {
-      pd.setProperty("cause", ex.getClass().getSimpleName());
+    var properties = pd.getProperties();
+    if (properties == null || !properties.containsKey("category")) {
+      pd.setProperty("category", categoryFor(HttpStatus.valueOf(pd.getStatus())));
+    }
+    if (properties == null || !properties.containsKey("retryPolicy")) {
+      pd.setProperty("retryPolicy", ErrorRetryPolicy.NEVER.name());
+    }
+    if (properties == null || !properties.containsKey("retryable")) {
+      pd.setProperty("retryable", false);
     }
   }
 
-  private static void logByStatus(
-      HttpStatus status, HttpServletRequest req, String detail, Throwable ex) {
+  private static String categoryFor(HttpStatus status) {
+    return switch (status) {
+      case UNAUTHORIZED -> ErrorCategory.AUTHENTICATION.wireValue();
+      case FORBIDDEN -> ErrorCategory.AUTHORIZATION.wireValue();
+      case NOT_FOUND -> ErrorCategory.NOT_FOUND.wireValue();
+      case CONFLICT -> ErrorCategory.CONFLICT.wireValue();
+      case TOO_MANY_REQUESTS -> ErrorCategory.RATE_LIMITED.wireValue();
+      case BAD_REQUEST, UNPROCESSABLE_ENTITY -> ErrorCategory.VALIDATION.wireValue();
+      case SERVICE_UNAVAILABLE, GATEWAY_TIMEOUT -> ErrorCategory.SERVICE_UNAVAILABLE.wireValue();
+      default -> ErrorCategory.UNEXPECTED.wireValue();
+    };
+  }
+
+  private static void logByStatus(HttpStatus status, HttpServletRequest req, ProblemDetail pd) {
+    var code = errorCode(pd);
     if (status.is5xxServerError()) {
-      log.error(
-          "[{}] {} {} - {}", status.value(), req.getMethod(), req.getRequestURI(), detail, ex);
+      log.error("[{}] {} {} - code={}", status.value(), req.getMethod(), req.getRequestURI(), code);
       return;
     }
 
-    log.warn("[{}] {} {} - {}", status.value(), req.getMethod(), req.getRequestURI(), detail, ex);
+    log.warn("[{}] {} {} - code={}", status.value(), req.getMethod(), req.getRequestURI(), code);
+  }
+
+  private static String errorCode(ProblemDetail pd) {
+    var properties = pd.getProperties();
+    if (properties != null && properties.get("code") instanceof String code) {
+      return code;
+    }
+    return CommonErrorCodes.INTERNAL_UNEXPECTED;
   }
 
   private static String headerOrNull(HttpServletRequest req, String name) {

@@ -15,5 +15,13 @@ public enum ErrorCategory {
   BUSINESS_RULE,
   RATE_LIMITED,
   SERVICE_UNAVAILABLE,
-  UNEXPECTED
+  UNEXPECTED;
+
+  public String wireValue() {
+    return switch (this) {
+      case AUTHENTICATION -> "auth_required";
+      case AUTHORIZATION -> "access_denied";
+      default -> name().toLowerCase(java.util.Locale.ROOT);
+    };
+  }
 }

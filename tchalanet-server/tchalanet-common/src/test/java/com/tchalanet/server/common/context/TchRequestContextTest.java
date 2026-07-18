@@ -3,6 +3,7 @@ package com.tchalanet.server.common.context;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.tchalanet.server.common.web.error.ProblemRestException;
 import com.tchalanet.server.common.context.scope.ApiScope;
 import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.common.types.id.TenantId;
@@ -170,7 +171,16 @@ class TchRequestContextTest {
               Set.of(),
               Set.of(),
               null);
-      assertThatThrownBy(ctx::tenantIdRequired).hasMessageContaining("tenant");
+      assertThatThrownBy(ctx::tenantIdRequired)
+          .isInstanceOf(ProblemRestException.class)
+          .satisfies(
+              error -> {
+                var problem = ((ProblemRestException) error).getProblem();
+                assertThat(problem.getProperties())
+                    .containsEntry("code", "access.context.tenant_required")
+                    .containsEntry("category", "business_rule")
+                    .containsEntry("retryPolicy", "AFTER_USER_ACTION");
+              });
     }
 
     @Test

@@ -2,207 +2,271 @@
 
 ## ADDED Requirements
 
-### Requirement: BFF slice failures are classified before response mapping
+### Requirement: Canonical blocking error payload
 
-BFF orchestration SHALL classify each downstream or domain slice dependency as blocking,
-non-blocking, or background before mapping the response.
+Application JSON endpoint blocking failures SHALL use `ProblemDetail`
+(`application/problem+json`) with a stable `code`, closed `category`, canonical `retryPolicy`,
+derived `retryable`, typed public `params`, and available `requestId`, `traceId`, `spanId`, and
+generated `errorId`.
 
-The existing HTTP response semantics SHALL be preserved: successful/partial responses use
-`ApiResponse<T>`, and blocking HTTP failures use `ProblemDetail`.
+The guarantee applies to application JSON endpoints. Proxy/CORS failures, binary downloads,
+SSE/WebSocket, and empty/HEAD responses SHALL use documented transport adapters rather than promise
+a JSON body they cannot safely carry.
 
-#### Scenario: Required slice fails
+`title` and `detail` remain wire-compatible during migration but SHALL be static, non-displayable
+text. Clients SHALL never render or interpolate them. Redacted operational correlation remains
+available through server-side observability using stable codes and correlation identifiers.
 
-- **WHEN** a required slice fails and the BFF cannot produce a valid user-facing result
-- **THEN** the BFF fails the request
-- **AND** the server returns `ProblemDetail`
-- **AND** the `ProblemDetail` includes a stable `code` and available trace identifiers
+The closed server category vocabulary is `auth_required`, `access_denied`, `validation`,
+`not_found`, `conflict`, `business_rule`, `rate_limited`, `service_unavailable`, and
+`unexpected`. Client-only categories may additionally include `network_unavailable`.
+
+#### Scenario: Blocking business failure
+
+- **WHEN** a sale request reaches a draw whose cutoff has passed
+- **THEN** the server returns a `409 ProblemDetail` with
+  `code = sales.draw.cutoff_passed`, `category = conflict`, and an approved recovery policy
+- **AND** public `params` contain only descriptor-approved display-safe values
+- **AND** the body includes no tenant-foreign or internal draw identifier
+
+#### Scenario: Unknown technical failure
+
+- **WHEN** an unexpected exception reaches the catch-all handler
+- **THEN** the server returns `500 ProblemDetail` with `code = internal.unexpected` and
+  `category = unexpected`
+- **AND** the body contains no exception message, class name, stack element, provider prose, or
+  interpolated internal identifier
+
+### Requirement: Owner-defined descriptors validate codes, parameters, and recovery
+
+Every externally visible server code SHALL be declared as an `ErrorDescriptor` in its owning package.
+The descriptor SHALL define code, category, expected HTTP status, retry policy, client audiences,
+and typed public parameter specifications. A common collector SHALL validate uniqueness, lowercase
+dotted syntax (`^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$`), category membership, and descriptor
+metadata at startup or test time. Concrete business codes SHALL not be collected in one global
+business enum.
+
+Framework authentication and authorization failures that occur before controller advice SHALL use
+the same descriptor-backed `application/problem+json` writer. They SHALL return generic codes and
+must not expose token, provider, account, tenant, or policy diagnostics.
+
+#### Scenario: Filter-chain authentication failure
+
+- **WHEN** a JWT is missing, invalid, or fails sensitive identity verification before a controller
+- **THEN** the response is a `401 ProblemDetail` with
+  `code = access.authentication_required`, `category = auth_required`, and
+  `retryPolicy = AFTER_REAUTH`
+- **AND** it contains no bearer-token, provider, account, or seller-terminal diagnostic
+
+#### Scenario: Filter-chain authorization failure
+
+- **WHEN** Spring Security rejects an authenticated request before controller advice
+- **THEN** the response is a `403 ProblemDetail` with `code = access.denied`
+- **AND** it contains no tenant or access-policy diagnostic
+
+Each public parameter specification SHALL declare its name, primitive or display-safe type, and
+permitted audience. A parameter name alone SHALL NOT authorize an internal identifier.
+
+#### Scenario: Duplicate descriptor code
+
+- **WHEN** two descriptors declare the same code
+- **THEN** descriptor validation fails and names both declaration sites
+
+#### Scenario: Non-conforming code
+
+- **WHEN** a descriptor declares `APPROVAL_REQUIRED` or `NotFound`
+- **THEN** descriptor validation fails with the expected lowercase dotted syntax
+
+#### Scenario: Unsafe parameter
+
+- **WHEN** a producer supplies an unknown parameter, object payload, PIN, token, credential,
+  provider/SQL payload, or non-public identifier
+- **THEN** construction fails in development/test or drops and logs that parameter in production
+- **AND** the value never reaches the serialized payload
+
+#### Scenario: Meaningful recovery policy
+
+- **WHEN** a descriptor represents a recoverable failure
+- **THEN** its policy distinguishes `AFTER_USER_ACTION`, `AFTER_REAUTH`, `AFTER_DELAY`, or
+  `RETRY_SAME_INTENT` from `NEVER`
+- **AND** clients do not automatically retry a non-idempotent sale mutation
+
+### Requirement: Producers are code-first
+
+`ProblemRest` SHALL expose a code-first production factory taking an `ErrorDescriptor` and approved
+public parameters. Legacy message-first factories are deprecated migration bridges. An
+ArchUnit/static rule SHALL fail any new message-first producer while a baseline allowlist only
+shrinks.
+
+Producers SHALL not introduce free-text detail, inline external codes, or hybrid `code: prose`
+strings. Inventoried legacy producers SHALL be classified as stable code, business prose,
+hybrid/dynamic, or framework/technical before migration.
+
+#### Scenario: New legacy call site
+
+- **WHEN** a developer adds `ProblemRest.conflict("Draw is not open for sales")`
+- **THEN** the architecture suite fails identifying the call site
+
+#### Scenario: Existing hybrid producer migrates
+
+- **WHEN** a producer previously emits `sales.tenant_disabled: <status>`
+- **THEN** it uses a registered stable descriptor
+- **AND** any product-visible value is a typed approved public parameter
+- **AND** operational correlation remains available only through redacted server-side observability
+
+### Requirement: Validation failures are structured and safe
+
+Bean Validation, framework binding, and domain validation failures SHALL serialize a `violations`
+array. Each violation SHALL contain a translatable per-constraint code, nested/array-capable field
+path, and typed approved public parameters. Bean-validation prose SHALL never be a client
+translation contract.
+
+Legacy `errors` maps and per-violation message/target fields SHALL be removed only after their
+clients have migrated.
+
+#### Scenario: Bean Validation failure
+
+- **WHEN** `name` violates `@NotBlank` and `lines[2].amount` violates `@Max(500)`
+- **THEN** the response has `code = validation.failed`
+- **AND** violations contain `validation.not_blank` for `name` and `validation.max` for
+  `lines[2].amount` with approved `{ max: 500 }`
+- **AND** no `defaultMessage` text appears in the payload
+
+#### Scenario: Unreadable request body
+
+- **WHEN** a request body contains malformed JSON
+- **THEN** the response has `code = request.not_readable`
+- **AND** contains no Jackson cause message, payload excerpt, or Java class name
+
+### Requirement: Error and notice payloads are redacted
+
+Serialized errors, notices, capabilities, and support references SHALL NOT contain exception
+messages or class names, stack traces, nested provider/HTTP-client prose, credentials, tokens, PINs,
+SQL/provider payloads, internal service/component identifiers, or security/identity/tenant
+enumeration signals. A representative redaction regression suite SHALL run in CI before endpoint
+migration proceeds.
+
+Server logs SHALL use the stable error code and correlation identifiers. They SHALL NOT emit raw
+exception messages, request payloads, or unredacted stack traces from an error boundary.
+
+#### Scenario: Security response does not enumerate
+
+- **WHEN** an authentication or tenant-scoping failure concerns an existing or non-existing
+  principal/tenant
+- **THEN** the responses are semantically identical apart from generated correlation identifiers
+- **AND** neither response reveals the existence of the principal or tenant
+
+### Requirement: Non-blocking notices are typed and UI-agnostic
+
+`ApiNotice` SHALL contain stable code, `kind` (`business`, `degradation`, or `information`),
+severity, domain, optional stable functional target, retry policy, typed public params, and a
+structured correlation block. `target` identifies a feature or slice, never an internal service,
+class, framework component, or visual placement.
+
+Free-form `meta` and `message` are migration-only and SHALL not be client display contracts. They
+are removed when the migration ledger reaches zero.
+
+#### Scenario: Business warning
+
+- **WHEN** a sale succeeds while approaching a seller limit
+- **THEN** it emits a `business` warning with `code = sales.limit.approaching`
+- **AND** it contains only approved public params such as remaining amount
+- **AND** the response status is `SUCCESS_WITH_WARNINGS`
 
 #### Scenario: Optional slice fails
 
-- **WHEN** an optional slice fails and the BFF can still produce useful primary data
-- **THEN** the BFF returns a successful `ApiResponse`
-- **AND** the response includes an `ApiNotice` and/or `ServiceStatus`
-- **AND** the notice includes a stable code, severity, source/domain, and support correlation metadata
+- **WHEN** a BFF catches a non-blocking stats failure
+- **THEN** it emits exactly one `degradation` notice whose target is `stats`
+- **AND** no internal service name, exception prose, or UI placement reaches the client
 
-### Requirement: Blocking errors use ProblemDetail with stable codes
+### Requirement: Optional BFF sections have explicit availability state
 
-Blocking backend errors SHALL be represented as `ProblemDetail` and SHALL include stable machine
-codes that the web app can translate without parsing human-readable text.
+BFF orchestration SHALL classify dependencies as blocking, non-blocking, or background before
+response mapping. Independently recoverable optional sections SHALL represent availability as
+`AVAILABLE`, `EMPTY`, or `UNAVAILABLE`. A nullable business value alone SHALL NOT encode a failed
+slice because null may be a legitimate domain value.
 
-#### Scenario: Application exception is handled globally
+Only BFF orchestration decides whether a dependency blocks the response; a downstream HTTP status
+alone does not decide it. A required technical failure SHALL use the canonical error contract and
+never flow through a legacy `IllegalStateException -> 422` bridge.
 
-- **WHEN** `GlobalErrorHandler` handles a `TchException` or known request exception
-- **THEN** the emitted `ProblemDetail` includes `code`
-- **AND** includes `requestId`, `traceId`, `spanId`, or `errorId` when available
-- **AND** backend `title/detail` are not required to be suitable for direct public UI copy
+#### Scenario: Dashboard has one unavailable section
 
-### Requirement: Non-blocking errors travel in successful response notices
+- **WHEN** required summary succeeds and optional stats times out
+- **THEN** the response is `200 PARTIAL` with stats state `UNAVAILABLE`
+- **AND** exactly one targeted degradation notice describes stats
+- **AND** a local retry is offered only when its descriptor policy permits it
 
-Non-blocking slice failures SHALL travel inside `ApiResponse.notices` or service health metadata,
-not as thrown HTTP errors.
+#### Scenario: Optional query is empty
 
-#### Scenario: BFF returns partial dashboard data
+- **WHEN** recent tickets succeeds with zero rows
+- **THEN** its state is `EMPTY`
+- **AND** no degradation notice is emitted
 
-- **WHEN** a dashboard BFF returns core data but one optional stats slice fails
-- **THEN** the HTTP response remains successful
-- **AND** `ApiResponse.status` indicates warnings or partial data
-- **AND** an `ApiNotice` describes the optional failure with code, severity, domain/source, and trace
-  metadata
-- **AND** clients do not treat the notice as a blocking HTTP error
+### Requirement: Capability health is distinct from response completeness
 
-### Requirement: Notice metadata uses reserved generic keys
+`ServiceStatus` SHALL describe cross-cutting functional capability health only. It SHALL use a
+functional capability name, `UP`, `DEGRADED`, or `DOWN`, stable code, retry policy, and optional
+retry-after duration. It SHALL not contain a message or internal service/class name, and duplicate
+capability states SHALL be collapsed within a response.
 
-Non-blocking failure notices SHALL use a small reserved metadata vocabulary for support correlation
-and source identification.
+`PARTIAL` SHALL mean expected response data is unavailable. A business warning or degraded
+capability with complete response data SHALL result in `SUCCESS_WITH_WARNINGS`. `PENDING` is
+explicit handler intent and SHALL never be inferred by response advice from a sentinel code.
 
-#### Scenario: Optional slice failure is converted to a notice
+An unusable requested primary resource SHALL be a `404 ProblemDetail`; no `ApiResponse.notFound`
+factory may represent it as `SUCCESS` plus an error notice.
 
-- **WHEN** a BFF catches a non-blocking slice failure
-- **THEN** the notice metadata uses reserved keys such as `source`, `service`, `operation`,
-  `requestId`, `traceId`, `spanId`, and `errorId`
-- **AND** frontend behavior does not depend on many feature-specific metadata keys
-- **AND** domain-specific metadata remains optional and diagnostic-only
+#### Scenario: Printing capability is degraded
 
-### Requirement: Notice creation is centralized through a helper
+- **WHEN** printing is degraded but the response has all expected data
+- **THEN** it returns `SUCCESS_WITH_WARNINGS`
+- **AND** contains one capability state for `printing`
 
-Backend application code SHALL have a small helper/factory for adding response notices with standard
-metadata.
+### Requirement: Clients normalize contracts without transport prose
 
-#### Scenario: BFF emits a warning notice
+Web and mobile normalized errors SHALL carry code, category, origin, status, retry policy, owner,
+target, field, correlation identifiers, and deterministic dedupe key. Known category and recovery
+metadata SHALL come from the payload descriptor, not substring or status heuristics.
 
-- **WHEN** BFF code emits a non-blocking warning
-- **THEN** it can call a helper with code, message, domain, severity/source information, and optional
-  exception
-- **AND** the helper attaches trace identifiers and generated `errorId`
-- **AND** the helper stores the notice in `ApiResponseContext`
-- **AND** controllers/services do not manually recreate the same metadata map each time
+Production client state, support references, and telemetry SHALL contain only redacted structured
+context and correlation identifiers. They SHALL not retain raw server title/detail, notice message,
+HTTP response text, or exception text. Client-originated failures SHALL use registered `client.*`
+codes and translated catalogs; hardcoded normalizer copy is prohibited.
 
-### Requirement: Error codes are centralized and namespaced
+#### Scenario: Missing exact translation
 
-Backend error and notice codes SHALL be centralized by owner and SHALL use stable namespaced strings.
-Centralization SHALL be owner-based rather than one large global enum.
+- **WHEN** a known code has no exact catalog entry in the active locale
+- **THEN** the client renders translated category copy and then generic copy
+- **AND** it never displays the raw code, title, or detail
 
-#### Scenario: Feature emits an identity activation failure notice
+#### Scenario: Correlation headers remain distinct
 
-- **WHEN** platform identity activation cannot complete as part of an optional BFF slice
-- **THEN** the emitted notice uses a stable code such as `platform.identity.activation.error`
-- **AND** controllers/services do not invent alternate strings for the same condition
+- **WHEN** a response has `X-Request-Id` but no trace header
+- **THEN** the client sets request ID and leaves trace ID absent
+- **AND** it never assigns request ID to a trace field
 
-#### Scenario: Blocking exception carries a stable code
+### Requirement: Product-visible codes have audience-complete catalogs
 
-- **WHEN** application code throws a `TchException` with an owner-defined stable code
-- **THEN** `GlobalErrorHandler` emits that code in `ProblemDetail`
-- **AND** adds support correlation fields through the normal error decoration path
-- **AND** callers do not manually assemble the final HTTP error body
+Every product-visible code SHALL declare its receiving client audiences. Each receiving client SHALL
+ship exact-code, category, and generic copy in Haitian Creole, French, and English. Lookup order is
+exact code, category, then generic. CI SHALL fail for duplicate/orphan/missing applicable keys or
+invalid interpolation against descriptor parameter specifications.
 
-#### Scenario: Non-blocking notice carries a stable code
+#### Scenario: Applicable locale is missing
 
-- **WHEN** BFF code records a non-blocking warning or error through the notice helper
-- **THEN** `ApiResponseContext` stores the notice
-- **AND** `ApiResponseBodyAdvice` emits it in the successful `ApiResponse`
-- **AND** callers do not manually assemble the final `ApiResponse` envelope
+- **WHEN** an admin-visible registered code lacks Haitian Creole or English copy in the admin portal
+- **THEN** catalog CI fails naming the code and missing locales
 
-### Requirement: Web translation prefers exact codes over fallback
+### Requirement: Shared fixtures prove cross-client conformance
 
-The web app SHALL translate backend errors and notices by exact stable code before using category or
-generic fallback messages.
+Versioned JSON fixtures SHALL define blocking errors, validation failures, success with warnings,
+partial BFF results with unavailable sections, capability degradation, explicit pending results,
+malformed envelopes, and void responses. Java, TypeScript, and Dart tests SHALL consume the same
+fixtures directly; runtime implementation remains independent.
 
-#### Scenario: Known code is received
+#### Scenario: Partial dashboard fixture
 
-- **WHEN** the web app receives a `ProblemDetail` or `ApiNotice` with a known code
-- **THEN** it renders the localized copy for that exact code
-- **AND** avoids showing raw backend `message`, `title`, or `detail` as the primary user message
-
-#### Scenario: Raw backend diagnostic text is present
-
-- **WHEN** backend diagnostic text, provider messages, SQL messages, or stack traces are available
-- **THEN** public/minimal web views do not render those values
-- **AND** support diagnostics preserve only safe correlation fields
-
-#### Scenario: Unknown code is received
-
-- **WHEN** the web app receives an unknown code
-- **THEN** it falls back to category/severity copy
-- **AND** retains the original code and trace identifiers in support-safe diagnostics
-
-### Requirement: Product-visible error codes have verified client copy
-
-Every product-visible backend error or notice code SHALL have title and message copy in the shipped
-Haitian Creole, French, and English bundles for every client family that can receive it. Backend
-human-readable text SHALL NOT be the normal visible fallback.
-
-#### Scenario: Known backend code reaches a client
-
-- **WHEN** a public, admin, platform, or mobile client receives a known product-visible code
-- **THEN** it renders its local exact-code translation
-- **AND** a CI parity test proves that the locale bundle contains title and message copy
-- **AND** it does not display `ProblemDetail.title`, `ProblemDetail.detail`, or `ApiNotice.message`
-  as primary product copy
-
-#### Scenario: Client receives an unknown code
-
-- **WHEN** a client receives a code absent from its local catalog
-- **THEN** it renders a localized category or generic fallback
-- **AND** it preserves the code and support-safe correlation reference
-- **AND** telemetry/diagnostics make the missing catalog entry discoverable
-
-### Requirement: BFF presentation notices and domain notices have different owners
-
-The contract SHALL distinguish BFF presentation degradation from feature-owned domain notices.
-
-#### Scenario: Optional dashboard slice fails
-
-- **WHEN** a BFF can return the page while one optional slice fails
-- **THEN** its notice MAY include a stable functional `target` such as `recentTickets`
-- **AND** the client request context and screen model decide page versus section ownership
-- **AND** the server does not name an Angular/Flutter component or visual placement
-- **AND** the matching page or section renders the warning without converting it into a blocking error
-
-#### Scenario: Sales domain emits a limit or promotion notice
-
-- **WHEN** core sales emits a notice about a limit, price, promotion, fee, or approval
-- **THEN** the notice remains UI-agnostic
-- **AND** the sales feature owns its placement
-- **AND** core sales does not contain a web or mobile component target
-
-### Requirement: Clients retain and route response feedback explicitly
-
-Public, admin, platform, and mobile clients SHALL retain the successful response envelope until its
-notices have been routed to an explicit owner.
-
-#### Scenario: BFF response carries a section warning
-
-- **WHEN** a client receives `ApiResponse<T>` with a targeted BFF notice
-- **THEN** it does not discard the notice while unwrapping `data`
-- **AND** it routes the notice to the declared section or page owner
-- **AND** it does not show a duplicate shell notification
-
-### Requirement: Feedback recovery is accessible and mobile-first
-
-Blocking page failures and mutation outcomes SHALL use an owner-aware recovery model in web and
-mobile clients.
-
-#### Scenario: Read resource fails on a phone
-
-- **WHEN** a blocking page resource fails on a narrow viewport
-- **THEN** the recovery surface presents localized copy, an owner-declared retry when safe, a back
-  action, and a copyable safe support reference without requiring hover or horizontal scrolling
-
-#### Scenario: Form validation fails
-
-- **WHEN** a backend validation response identifies invalid fields
-- **THEN** the client renders the error in the form/field owner
-- **AND** focus moves to the first invalid field
-- **AND** a generic shell error is not shown in duplicate
-
-### Requirement: Support references exist for blocking and non-blocking failures
-
-Both blocking errors and non-blocking notices SHALL preserve support correlation identifiers whenever
-they are available.
-
-#### Scenario: User copies support reference for a warning
-
-- **WHEN** a non-blocking warning is shown to an authenticated user
-- **THEN** the copied support reference includes code, severity, source/domain, route, and available
-  trace/request/error identifiers
-- **AND** excludes stack traces, tokens, request bodies, response bodies, and personal data
+- **WHEN** Java, Angular, and Flutter tests consume the partial-dashboard fixture
+- **THEN** each asserts the same response status, section state, notice routing, and correlation
+  semantics

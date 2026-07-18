@@ -7,8 +7,9 @@ feature BFF is classified. It records observed behaviour, not desired behaviour.
 
 | Producer | Current behaviour | Contract gap / follow-up |
 |---|---|---|
-| `GlobalErrorHandler` | Handles `ProblemRestException`, typed `TchException`s, JPA, Jakarta/Spring validation, request deserialization, security, and catch-all errors. Adds correlation fields. Framework validation and malformed-body paths now emit safe fixed detail plus structured violations. | Typed legacy exceptions, JPA, type mismatch, and `IllegalStateException` still have message-first risks that must be migrated deliberately. |
-| `ProblemRest` / `ProblemRestException` | Common direct producer of stable-ish HTTP error codes. | Calls mix codes and human prose. Inventory and descriptor registry must separate safe code from diagnostic detail. |
+| `GlobalErrorHandler` | Handles `ProblemRestException`, typed `TchException`s, JPA, Jakarta/Spring validation, request deserialization, security, and catch-all errors. Adds correlation fields and now acts as a migration firewall: legacy `ProblemRest` prose becomes neutral detail plus a stable code before serialization. | Typed legacy exceptions and framework adapters still need owner descriptors and exact product copy; the firewall is protection, not final classification. |
+| Spring Security filter chain | **Migrated baseline:** the OAuth resource-server entry point, access-denied handler, and sensitive identity verification failure share `ProblemDetailSecurityFailureHandler`, backed by `ProblemDetailResponseWriter`. | Running app-level handler tests are temporarily blocked by pre-existing app `testCompile` missing-class failures; retain direct handler tests and restore app test compilation before closing this row. |
+| `ProblemRest` / `ProblemRestException` | Common direct producer of stable-ish HTTP error codes. The preferred `ErrorDescriptor` path carries category/retry/approved params. | Legacy overloads remain, but dynamic prose/properties are stripped at the HTTP boundary. Inventory and descriptor registry must still migrate each owner deliberately. |
 | `RequireIdempotencyAspect` | Emits `idempotency.missing`, `idempotency.payload_mismatch`, `idempotency.in_progress`, and `idempotency.completed_no_response`. | Good first catalog candidates; verify exact client translation and retry semantics. |
 | `ApiResponseContext` + `ApiResponseBodyAdvice` | Collects request-local notices/services and merges them into successful envelopes. | Must be tested for cleanup/async/204 and must not make message fields visible contracts. |
 | `ApiResponseNotices` | Adds code/message/domain/severity and trace metadata. | `message` is currently required and remains potentially visible. Define diagnostic-only migration and safe parameters. |
@@ -21,9 +22,11 @@ feature BFF is classified. It records observed behaviour, not desired behaviour.
 | `GlobalErrorHandler.handleNotReadable` | **Migrated:** fixed `Malformed request body` detail and a stable `request.not_readable` code; parser prose is omitted from the response. | Add contract fixtures and client translation coverage. |
 | `GlobalErrorHandler.handleMethodArgumentNotValid` / `handleConstraintViolation` | **Migrated baseline:** returns `violations` with only stable `code`, `field`, and `target`; no Bean Validation message, rejected value, or legacy `errors` map. | Add approved safe parameters only where a form needs them, then add exact three-locale client catalog entries. |
 | `GlobalErrorHandler.handleTypeMismatch` | No longer appends the most-specific conversion cause. | Normalize its remaining target/detail to the same structured validation path. |
-| `GlobalErrorHandler.handleLegacyIllegalState` | Exposes `IllegalStateException` message and maps every instance to 422. | Remove blind legacy mapping after callers use explicit typed business errors. |
-| `GlobalErrorHandler.handleJpaNotFound` | Exposes JPA exception message. | Migrate callers to a stable typed not-found code. |
-| `PosTicketReceiptService` | Wraps `ex.getMessage()` in `ProblemRest.badRequest`. | High-priority POS path: map exception to stable receipt/delivery code and log root cause privately. |
+| `GlobalErrorHandler.handleLegacyIllegalState` | **Migrated safety baseline:** returns 500 `internal.unexpected`; exception type/message remains server-side only. | Remove this broad legacy handler after callers use explicit typed business errors. |
+| `GlobalErrorHandler.handleJpaNotFound` | **Migrated safety baseline:** returns 404 `resource.not_found` without JPA/RLS detail. | Migrate callers to owner-specific typed not-found codes where product semantics require it. |
+| `GlobalErrorHandler.handleProblemRest` | **Migrated safety baseline:** old code-in-detail becomes structured `code`; prose/dynamic parameters are removed and receive a category fallback code. | Convert each producer to an owner descriptor so approved safe params and exact client translations can be restored intentionally. |
+| Security `AuthenticationEntryPoint` / `AccessDeniedHandler` | **Migrated:** filter-chain `401`/`403` responses use stable `access.authentication_required` / `access.denied` descriptors and omit exception/protocol detail. | Add exact three-locale code catalogs and a running security-chain test after app `testCompile` is repaired. |
+| `PosTicketReceiptService` | **Migrated:** invalid print options use `pos.receipt.print_options_invalid` with a descriptor and private root cause. | Migrate delivery/channel/recipient validation together with the POS delivery form ownership. |
 
 ### POS sales contract gap
 
@@ -88,9 +91,11 @@ gets exact feedback only after its owning backend path has a tested stable code.
 
 ## Legacy `ProblemRest` contract audit
 
-The current `ProblemRest` API names its main argument `detail` and writes it directly into
-`ProblemDetail.detail`. It does not require or add a `code` property. `ProblemRestException` has the
-same legacy message-first shape. This is materially different from the desired error contract.
+The legacy `ProblemRest` overloads still name their main argument `detail` and create a
+message-first `ProblemDetail`. `GlobalErrorHandler` now neutralizes that shape at the HTTP boundary:
+a valid dotted legacy value becomes `code`, arbitrary prose receives a status-safe fallback code,
+and legacy properties are dropped. The preferred descriptor factory is the only path that retains
+category, retry policy, and approved public parameters.
 
 Initial scan across common/core/platform/catalog/features:
 
@@ -111,10 +116,11 @@ Representative unsafe examples:
 | Context prose | `"sales.tenant_disabled:" + tenant.status()` | Turns a variable business state into a dynamic code/detail. |
 | Security/identity prose | `"No account found for this email"` | Risks enumeration and cannot be a generic public login response. |
 
-**Migration decision recorded:** Phase 1 must introduce a code-first factory/descriptor path while
-keeping `ProblemRest` only as a temporary compatibility bridge. The bridge must emit a stable
-fallback code plus diagnostic-only legacy detail, and a static rule must prevent new message-first
-call sites. It must not silently infer a code by parsing `detail`.
+**Migration decision recorded:** Phase 1 keeps `ProblemRest` as a temporary compatibility bridge.
+The bridge emits a stable fallback code and neutral response detail; it does not serialize legacy
+detail or properties. It may recognize an already-valid dotted legacy code strictly as a migration
+bridge, but must never promote arbitrary prose. A baseline/allowlist guard must prevent new
+message-first call sites and only shrink as owners migrate.
 
 ### First migrated producer
 
@@ -199,12 +205,11 @@ explicit taxonomy-cleanup slice, not an excuse to hide missing user copy.
 
 ## Web normalization baseline
 
-`WebAppError` now stores raw `ProblemDetail.title/detail`, `ApiNotice.message`, field violation
-messages, and `ServiceStatus.message` only in an optional diagnostic object. Its user-facing
-title/message values and the shared feedback-copy resolver use stable code/category translation
-lookup, then a safe generic fallback; neither path renders transport prose. Tests cover all four
-incoming sources. This is intentionally an intermediate state: the model still has legacy string
-display fields until envelope retention, ownership, and key-only rendering are migrated together.
+`WebAppError` retains stable code/category/retry/params and correlation only. It does not retain
+raw `ProblemDetail.title/detail`, `ApiNotice.message`, field violation messages, or
+`ServiceStatus.message` in client state. Its legacy title/message placeholders are still an
+intermediate presentation bridge; the next client wave replaces them with exact catalog key lookup
+and removes hardcoded French fallback copy.
 
 `TchBackendClient` now has a complete retained `*ApiResponse` family, including paged responses,
 multipart requests, and a `getApiResponseResource` for reactive BFF/dashboard reads. Existing

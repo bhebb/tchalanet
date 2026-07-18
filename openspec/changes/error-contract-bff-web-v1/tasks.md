@@ -1,17 +1,32 @@
 # Tasks — error-contract-bff-web-v1
 
-**Status:** PENDING
+**Status:** IN PROGRESS
 
 **Scope:** backend BFF aggregation, shared HTTP error contract, public/admin/platform Angular
 portals, Flutter mobile, client-originated failures, i18n, accessibility, recovery, and migration.
 
-## Phase 0 — Contract decisions and inventory
+## Phase 0 — Contract decisions, security baseline, and inventory
 
 - [x] Inspect the current server error/advice chain and web/mobile client paths.
 - [x] Establish the initial gaps: no shipped exact-code web catalog, envelope-loss risk, raw mobile
       server-copy fallback, and incomplete generic recovery.
 - [x] Capture initial server-producer and high-risk dashboard evidence in `inventory.md`; the full
       BFF and producer inventories remain open until every feature endpoint is classified.
+- [~] Establish redaction regression tests before broad migration. The baseline now covers malformed request bodies,
+      `decorate(..., verbose=true)`, legacy exception handlers, provider failures, security and RLS
+      denials through `GlobalErrorHandler`; assert that response bodies never expose exception/parser/provider prose,
+      Java class names, PINs, passwords, tokens, or rejected sensitive values. Extend this to concrete
+      provider adapters, telemetry, and a running SecurityFilterChain test once the pre-existing app
+      `testCompile` failures are repaired before closing the task.
+- [ ] Classify every legacy `ProblemRest`/direct-`ProblemDetail` producer as `STABLE_CODE`,
+      `BUSINESS_PROSE`, `HYBRID_OR_DYNAMIC`, or `FRAMEWORK_OR_TECHNICAL`. Record the owner,
+      HTTP reachability, conversion outcome, and any temporary bridge in the migration ledger.
+- [ ] Decide and document the owner of the existing `BffSlices` helper. Remove the ambiguity that
+      places feature-composition policy in `common.web.advice`, and prove a required technical slice
+      failure cannot reach the legacy `IllegalStateException -> 422` mapper.
+- [ ] Name and resolve current response-semantic contradictions before new BFF migration:
+      `ApiResponse.notFound()` must not emit `SUCCESS` for unusable primary data, and
+      `APPROVAL_REQUIRED` must not remain a transport-layer `PENDING` sentinel.
 - [ ] Inventory every blocking backend producer: `GlobalErrorHandler`, direct `ProblemDetail`,
       `ProblemRest`/`ProblemRestException` where present, validation, security, idempotency, and
       feature/BFF catches.
@@ -32,8 +47,14 @@ portals, Flutter mobile, client-originated failures, i18n, accessibility, recove
       Each feedback item has exactly one renderer; normalization never implies rendering.
 - [ ] Document trusted visible inputs (stable code, approved parameters, explicit category fallback)
       and diagnostic-only inputs (exception/detail/provider/HTTP prose, stack trace, arbitrary meta).
+- [ ] Scope the `ProblemDetail` guarantee to application JSON endpoints and document explicit
+      exceptions/adapters for proxy/CORS failures, binary downloads, SSE/WebSocket, and empty/HEAD
+      responses. Do not promise a JSON body where the transport cannot carry one.
 
-## Phase 1 — Canonical server error model
+## Phase 1 — Executable server contract and migration guard
+
+- [x] Establish Wave 0 for authenticated request context: `tenant`, user, seller-terminal, and
+      operational-context failures now use owned descriptors rather than hybrid prose in `detail`.
 
 - [x] Establish an additive code-first descriptor baseline in `common.web.error` and a tested
       `ProblemRest` factory, without changing legacy message-first call sites.
@@ -43,20 +64,32 @@ portals, Flutter mobile, client-originated failures, i18n, accessibility, recove
       Validation or request-deserialization prose; retain only code, field, and target.
 - [ ] Reconcile the related `complete-apiresponse-notices` OpenSpec with production code and archive
       it only after its tasks/tests match reality.
-- [ ] Define common technical contract types as needed: `ErrorCode`, `ErrorCategory`,
-      `ErrorDescriptor`, `ErrorSeverity`, and `ErrorRetryPolicy`; keep concrete business codes in
+- [x] Define common technical contract types as needed: `ErrorCode`, `ErrorCategory`,
+      `ErrorDescriptor`, `ErrorSeverity`, `ErrorRetryPolicy`, and typed `ErrorParamSpec`; keep concrete business codes in
       their owning package (`core`, `platform`, or `features`).
 - [ ] Define lowercase dotted code syntax, stable owner/category/retry policy, uniqueness and expected
       HTTP status where applicable. Reject vague codes, HTTP prose, Java class names, and inline
       string invention.
+- [x] Define public parameter specs per descriptor: approved name, primitive/display-safe value type,
+      optional formatting semantics, and audience. Reject or drop-and-log every unknown, unsafe,
+      object, internal-ID, credential, token, PIN, provider, or SQL parameter before serialization.
+- [x] Keep `retryable` as a derived presentation property but make `ErrorRetryPolicy` canonical:
+      distinguish no retry, user correction, reauthentication, delayed retry, and retry of the same
+      idempotent intent. Clients must never automatically retry a non-idempotent sale mutation.
 - [ ] Replace the message-first `ProblemRest`/`ProblemRestException` contract through a compatible
-      code-first factory path; classify all 232 existing call sites and block new legacy uses.
-- [ ] Add a descriptor registry/collector validated at startup or test time and an ArchUnit/static
-      guard against raw externally visible codes in controllers/services.
+      code-first factory path. Convert each ledger class deliberately: register existing stable codes,
+      mint owner codes for business prose, split hybrid/dynamic strings into code plus approved safe
+      parameters or server-only diagnostics, and map framework/technical producers explicitly.
+- [ ] Add an owner-distributed descriptor registry/collector validated at startup or test time and an
+      ArchUnit/static guard against raw externally visible codes in controllers/services. Block new
+      message-first producers with a baseline allowlist that only shrinks.
 - [ ] Ensure every `ProblemDetail` has code, status, title, detail, instance, request/trace/span IDs
       when available, and generated error ID when applicable. These prose fields are diagnostic-only.
-- [ ] Prevent serialization of stacks, nested exception/provider prose, credentials, or enumeration
-      signals from security/identity/tenant failures.
+- [~] Prevent serialization of stacks, nested exception/provider prose, credentials, or enumeration
+      signals from security/identity/tenant failures. The global legacy-problem firewall and handler
+      regression tests are in place; owner migrations and authentication enumeration tests remain.
+- [ ] Add locale fixtures and CI parity for every first migrated product-visible code in `ht`, `fr`,
+      and `en`. A new registered code cannot rely only on a category fallback.
 - [ ] Extend the stable validation shape with approved safe parameters where a specific form needs
       them; Bean-validation text is never the client translation contract.
 - [ ] Provide approved generic and domain field codes; remove detail-text inference once producers
@@ -71,6 +104,10 @@ portals, Flutter mobile, client-originated failures, i18n, accessibility, recove
       or backend UI placement (`PAGE`, `FORM`, etc.).
 - [ ] Separate safe parameters from arbitrary metadata and reject/redact PINs, passwords, tokens,
       customer payloads, SQL/provider payloads, and sensitive internal identifiers.
+- [ ] Replace free-form notice metadata with typed `kind`, functional `target`, public params,
+      retry policy, and structured correlation. A target is a stable feature/slice key, never an
+      internal service, class, component, or visual placement. Remove `message` and `meta` only
+      after the migration ledger reaches zero.
 - [ ] Add approved helpers such as business/degradation/information notices and service
       down/degraded states; attach correlation metadata and deduplicate deterministically.
 - [ ] Implement deterministic status precedence: explicit `PENDING`, then `PARTIAL`, then
@@ -78,22 +115,32 @@ portals, Flutter mobile, client-originated failures, i18n, accessibility, recove
 
 ## Phase 3 — BFF orchestration and compatibility
 
-- [ ] Add a small `features`-owned aggregation helper only if the inventory shows repeated logic;
-      do not introduce a fake async bus abstraction.
+- [ ] Implement the Phase 0 ownership decision for BFF aggregation. Keep transport normalization in
+      `common`; keep feature slice classification and required/optional policy in a feature-owned
+      composition support module. Do not introduce a fake async bus abstraction.
 - [ ] Ensure required slices stop composition and preserve/map to an approved stable error code.
 - [ ] Ensure optional failures retain primary data, produce one degradation notice per functional
-      slice, return `PARTIAL`, and represent section state deterministically (`AVAILABLE`,
-      `UNAVAILABLE`, `EMPTY`) where local retry is useful.
+      slice, return `PARTIAL`, and represent independently recoverable sections deterministically
+      (`AVAILABLE`, `EMPTY`, `UNAVAILABLE`) rather than relying on nullable business values.
+- [ ] Resolve response status from meaning, not merely any warning: `PARTIAL` only when expected
+      response data is unavailable; capability degradation without missing data is
+      `SUCCESS_WITH_WARNINGS`. `PENDING` is explicit handler intent and its HTTP status is decided
+      per operation, never inferred by advice.
 - [ ] Keep empty business data distinct from a failed optional section; avoid forced full-page reload
       when an individual section can be retried.
-- [ ] Preserve root causes in server logs only; prevent duplicate notices/service floods from a single
-      outage; set timeouts only for external calls.
+- [ ] Preserve root-cause classification through redacted structured observability only (stable code,
+      correlation IDs, and approved diagnostic type); prevent duplicate notices/service floods from
+      a single outage; set timeouts only for external calls.
 - [ ] Add BFF contract tests for all-success, required failure, single/multiple optional failure,
       empty optional result, warning-without-failure, duplicate failure, and unknown technical error.
 - [ ] Review `ApiResponseBodyAdvice` exclusions, ThreadLocal cleanup on success/failure/async, 201/
       202/204 behavior, and legacy auto-wrap compatibility. Prefer explicit envelopes for new BFFs.
 
-## Phase 4 — Shared fixtures, observability, privacy
+## Phase 4 — Shared fixtures, observability, and privacy hardening
+
+- [~] Publish the first versioned blocking-error fixtures. Broaden fixture consumption in the
+      server, web, and mobile transport tests to validation, warning, partial, malformed envelope,
+      and void cases before treating fixture coverage as complete.
 
 - [ ] Publish versioned JSON fixtures for blocking errors, validation failures, successful warnings,
       partial BFF results, malformed envelopes, and void responses; share fixtures, not runtime code,
@@ -102,8 +149,11 @@ portals, Flutter mobile, client-originated failures, i18n, accessibility, recove
       aliases and the mobile bug that assigns request ID to trace ID.
 - [ ] Define support-reference copy format and structured diagnostics: stable code, route/screen,
       owner, trace IDs, retry count, and permitted tenant/slice context only.
-- [ ] Add redaction and security tests: auth/tenant enumeration, RLS/access-denied behavior, rejected
-      secrets, telemetry, screenshots, and support references must not leak sensitive data.
+- [ ] Define client diagnostics as redacted structured context only. Raw server `title`, `detail`,
+      notice message, exception text, and response snippets are not retained in production client
+      state, support references, or telemetry.
+- [ ] Extend the Phase 0 redaction suite to telemetry, screenshots, support references, auth/tenant
+      enumeration, and RLS/access-denied behavior. The baseline must remain green as producers move.
 
 ## Phase 5 — Angular envelope retention and normalized errors
 
@@ -117,13 +167,17 @@ portals, Flutter mobile, client-originated failures, i18n, accessibility, recove
 - [ ] Treat `PARTIAL` as successful degraded state; superseded resource cancellation as silent;
       malformed 2xx envelope as stable client invalid-response failure.
 - [~] Evolve `WebAppError` to retain code/category/origin/status/retryability/owner/dedupe key and
-      diagnostic-only data, not final translated prose. Initial factories now retain raw ProblemDetail,
-      notice, violation, and service text only under diagnostics; the complete key-based model remains.
+      structured public params, not final translated prose. Initial factories no longer retain raw
+      ProblemDetail, notice, violation, or service text in client state; the complete key-based
+      model and removal of fallback copy remain.
 - [ ] Add factories for backend `ProblemDetail`, violations, notice/service states, and client-origin
       network/timeout/cancellation/invalid response/auth/storage/print/frontend failures.
-- [~] Remove hardcoded French and raw `ProblemDetail.title/detail` or `ApiNotice.message` fallbacks.
-      Existing normalization and feedback-copy fallbacks no longer render raw backend prose; descriptor
-      lookup and legacy category classification still need their registry migration.
+- [ ] Align the closed category vocabulary across server and clients, including a client network
+      category, and use payload descriptor metadata rather than substring/status inference for known
+      codes.
+- [ ] Remove hardcoded French and all raw `ProblemDetail.title/detail` or `ApiNotice.message`
+      fallbacks. `WebAppError` must not render a raw code as its title either; descriptor lookup must
+      replace substring categorization and the temporary `legacyDetailCode` bridge must only shrink.
 
 ## Phase 6 — Angular transport boundary and ownership routing
 
@@ -177,8 +231,9 @@ portals, Flutter mobile, client-originated failures, i18n, accessibility, recove
       keep them visible as diagnostics until the ownership migration is complete.
 - [ ] Define the exact-code/category/generic namespace and strict lookup order. Add all registered
       backend and client codes to shipped `ht`, `fr`, and `en` bundles with safe interpolation rules.
-- [ ] Add CI catalog parity for duplicate/orphan/missing codes and invalid interpolation. A known
-      production code missing a locale must fail CI; unknown runtime code uses translated generic copy.
+- [ ] Add CI catalog parity for duplicate/orphan/missing codes and invalid interpolation, scoped by
+      descriptor audience/client surface. A known production code missing an applicable `ht`, `fr`,
+      or `en` translation must fail CI; unknown runtime code uses translated generic copy.
 - [ ] Test public/admin/platform: envelope retention, warning/partial states, transport failures,
       ownership and dedupe, field mapping, focus/recovery, support references, and mobile/desktop
       light/dark rendering.

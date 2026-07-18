@@ -44,6 +44,38 @@
         }
       },
       "codes": {
+        "access": {
+          "authentication_required": {
+            "title": "Session required",
+            "message": "Sign in again to continue."
+          },
+          "denied": {
+            "title": "Access denied",
+            "message": "Your account cannot perform this action."
+          },
+          "context": {
+            "tenant_required": {
+              "title": "Workspace required",
+              "message": "Select an active workspace before continuing."
+            },
+            "user_not_bootstrapped": {
+              "title": "Session not ready",
+              "message": "Sign in again to continue."
+            },
+            "seller_terminal_required": {
+              "title": "Seller required",
+              "message": "Select an active seller before continuing."
+            },
+            "operational_context_required": {
+              "title": "Operational context required",
+              "message": "Return to the operational workspace and try again."
+            },
+            "operational_context_untrusted": {
+              "title": "Invalid operational context",
+              "message": "Reopen the operation from a valid context."
+            }
+          }
+        },
         "request": {
           "missing_parameter": {
             "title": "Missing information",
