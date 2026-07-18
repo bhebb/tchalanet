@@ -17,6 +17,7 @@ import { PrivateNotificationsStore } from './private-notifications.store';
       <button
         type="button"
         class="notification-bell__trigger"
+        data-testid="notification-bell-trigger"
         [class.has-unread]="store.hasUnread()"
         [attr.aria-expanded]="open()"
         aria-controls="private-notification-menu"
@@ -33,6 +34,7 @@ import { PrivateNotificationsStore } from './private-notifications.store';
         <section
           id="private-notification-menu"
           class="notification-menu"
+          data-testid="notification-menu"
           [attr.aria-label]="'common.notifications.label' | translate"
         >
           <header class="notification-menu__header">
@@ -271,6 +273,21 @@ import { PrivateNotificationsStore } from './private-notifications.store';
         color: var(--tch-color-on-surface-variant, #5f5a66);
         cursor: default;
         opacity: 0.55;
+      }
+
+      @media (max-width: 720px) {
+        .notification-menu {
+          position: fixed;
+          top: 5.75rem;
+          right: 0.75rem;
+          left: 0.75rem;
+          width: auto;
+          max-height: calc(100dvh - 6.5rem);
+        }
+
+        .notification-list {
+          max-height: min(26rem, calc(100dvh - 14rem));
+        }
       }
     `,
   ],

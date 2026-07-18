@@ -15,7 +15,9 @@
       <strong>{{ titleKey() | translate }}</strong>
     }
     <div class="utilities">
-      <ng-content select="[private-shell-utility]" />
+      <div class="projected-utilities">
+        <ng-content select="[private-shell-utility]" />
+      </div>
       <tch-private-notification-bell />
       <button
         type="button"
