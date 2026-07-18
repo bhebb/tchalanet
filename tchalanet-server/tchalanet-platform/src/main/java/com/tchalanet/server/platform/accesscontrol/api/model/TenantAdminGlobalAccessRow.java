@@ -5,6 +5,7 @@ import java.util.UUID;
 
 public record TenantAdminGlobalAccessRow(
     UUID userId,
+    String username,
     String email,
     String displayName,
     String status,

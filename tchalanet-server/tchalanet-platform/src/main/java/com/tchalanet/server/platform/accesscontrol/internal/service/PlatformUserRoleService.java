@@ -130,6 +130,7 @@ public class PlatformUserRoleService implements PlatformUserRoleApi {
       PlatformSuperAdminRow row) {
     return new PlatformSuperAdminAccessRow(
         row.getUserId(),
+        row.getUsername(),
         row.getEmail(),
         row.getDisplayName(),
         row.getStatus(),
@@ -139,6 +140,7 @@ public class PlatformUserRoleService implements PlatformUserRoleApi {
   private static TenantAdminGlobalAccessRow toTenantAdminGlobalAccessRow(TenantAdminGlobalRow row) {
     return new TenantAdminGlobalAccessRow(
         row.getUserId(),
+        row.getUsername(),
         row.getEmail(),
         row.getDisplayName(),
         row.getStatus(),

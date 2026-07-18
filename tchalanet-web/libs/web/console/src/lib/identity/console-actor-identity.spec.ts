@@ -34,6 +34,12 @@ describe('consoleActorIdentity', () => {
     }))).toBe('TERM-1 · terminal@example.com · +509');
   });
 
+  it('shows the username before the email for an administrator account', () => {
+    expect(consoleActorSecondaryLabel(actor({ username: 'test.family' }))).toBe(
+      'test.family · marie@example.com',
+    );
+  });
+
   it('resolves tenant labels without blanks', () => {
     expect(consoleActorTenantLabel(actor({ tenantName: 'Tchalanet', tenantCode: 'tch' }))).toBe('Tchalanet');
     expect(consoleActorTenantLabel(actor({ tenantName: null, tenantCode: 'tch' }))).toBe('tch');

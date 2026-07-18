@@ -132,7 +132,8 @@ export class PlatformTenantProvisioningPage implements OnInit, OnDestroy {
     ],
     profile: ['DEFAULT_HAITI_LOTTERY' as TenantProvisioningProfile, Validators.required],
     maryajGratisEnabled: [true],
-    initialAdminEmail: ['', [Validators.email]],
+    initialAdminUsername: ['', [Validators.required, Validators.pattern(/^[A-Za-z0-9._-]{3,64}$/)]],
+    initialAdminEmail: ['', [Validators.required, Validators.email]],
     planCode: ['' as string],
   });
 
@@ -242,7 +243,8 @@ export class PlatformTenantProvisioningPage implements OnInit, OnDestroy {
       defaultCommissionRate: value.defaultCommissionRate!,
       profile: value.profile!,
       maryajGratisEnabled: value.maryajGratisEnabled ?? true,
-      initialAdminEmail: value.initialAdminEmail || null,
+      initialAdminUsername: value.initialAdminUsername!,
+      initialAdminEmail: value.initialAdminEmail!,
       planCode: value.planCode || null,
     };
   }

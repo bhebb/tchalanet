@@ -91,7 +91,7 @@ public class TicketReceiptGameLinesFormatter {
     }
     var stake = stakeDisplay(line, translations, profile);
     if (choice.length() + stake.length() + 2 <= profile.charsPerLine()) {
-      return choice + "  " + stake;
+      return layout.leftRight(choice, stake, profile);
     }
     var choicePart = layout.rightPad(choice, choiceW);
     var stakePart = layout.leftPad(stake, stakeW);

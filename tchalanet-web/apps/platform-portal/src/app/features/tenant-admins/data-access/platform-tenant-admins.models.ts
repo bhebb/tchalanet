@@ -1,5 +1,6 @@
 export interface TenantAdminGlobalRow {
   readonly id: string;
+  readonly username: string | null;
   readonly displayName: string | null;
   readonly email: string | null;
   readonly status: string;

@@ -549,17 +549,20 @@
         "defaultCommissionRate": "Commission par défaut",
         "profile": "Profil",
         "maryajGratisEnabled": "Offrir Maryaj gratis",
+        "initialAdminUsername": "Nom d'utilisateur de l’admin initial",
         "initialAdminEmail": "Email de l'admin initial"
       },
       "hint": {
         "defaultCommissionRate": "Commission appliquée par défaut aux seller-terminals qui n'ont pas de taux spécifique.",
         "maryajGratisEnabled": "Affiche la page Maryaj gratis dans le tenant et ajoute la carte de configuration.",
-        "initialAdminEmail": "Si vide, le tenant sera créé sans administrateur initial."
+        "initialAdminUsername": "3 à 64 caractères : lettres, chiffres, points, soulignés ou tirets.",
+        "initialAdminEmail": "Obligatoire pour créer l’administrateur initial."
       },
       "error": {
         "code": "Format requis : lettres minuscules, chiffres, tirets (3–30 caractères).",
         "required": "Champ requis.",
         "email": "Adresse email invalide.",
+        "username": "Le nom d'utilisateur doit contenir 3 à 64 lettres, chiffres, points, soulignés ou tirets.",
         "commissionRate": "La commission doit être comprise entre 0 et 100 %.",
         "submitTitle": "Provisionnement impossible"
       },
@@ -578,7 +581,6 @@
         "createAnother": "Créer un autre tenant"
       },
       "warning": {
-        "initialAdminMissing": "Admin initial non renseigné. Le tenant pourra être créé, mais un administrateur devra être ajouté ensuite.",
         "existingUserAttached": "Un utilisateur existant a été rattaché comme administrateur du tenant.",
         "temporaryCredentialNotReturned": "Les identifiants temporaires n'ont pas pu être affichés. Réinitialisez le mot de passe depuis le détail du tenant.",
         "temporaryPasswordIssued": "Un mot de passe temporaire a été généré pour l'administrateur initial.",
@@ -600,6 +602,7 @@
         "nextSteps": "Prochaines étapes",
         "warnings": "Alertes",
         "initialAdmin": "Admin initial",
+        "adminUsername": "Nom d'utilisateur",
         "adminEmail": "Email",
         "adminStatus": "Statut",
         "temporaryAccessCreated": "Accès temporaire créé",

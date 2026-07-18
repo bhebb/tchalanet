@@ -45,7 +45,7 @@
   }
 
   &__primary-actions,
-  &__delivery-actions {
+  &__delivery-modes {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
@@ -59,6 +59,20 @@
       margin: 0;
       font-size: 0.9375rem;
     }
+  }
+
+  &__delivery-mode {
+    min-width: 6.75rem;
+
+    &--active {
+      border-color: var(--tch-color-primary, #141545);
+      background: color-mix(in oklab, var(--tch-color-primary, #141545) 9%, transparent);
+      color: var(--tch-color-primary, #141545);
+    }
+  }
+
+  &__delivery-send {
+    justify-self: start;
   }
 
   &__feedback {

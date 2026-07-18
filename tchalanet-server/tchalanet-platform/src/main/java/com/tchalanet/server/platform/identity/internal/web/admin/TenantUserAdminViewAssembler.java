@@ -102,7 +102,7 @@ public class TenantUserAdminViewAssembler {
   public TenantUserAdminResponse fromGlobalRow(TenantAdminGlobalAccessRow r) {
     return new TenantUserAdminResponse(
         UserId.of(r.userId()),
-        null,
+        r.username(),
         r.email(),
         null,
         r.status(),

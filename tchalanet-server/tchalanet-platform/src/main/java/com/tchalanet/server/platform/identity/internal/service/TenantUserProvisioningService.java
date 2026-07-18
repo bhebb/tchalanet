@@ -34,13 +34,15 @@ public class TenantUserProvisioningService {
   public CreateUserResult provisionTenantUser(
       TenantId tenantId,
       String tenantCode,
+      String username,
       String email,
       String firstName,
       String lastName,
       TchRole role) {
 
     var created =
-        userAdminService.createUserForTenant(email, null, firstName, lastName, tenantCode);
+        userAdminService.createUserForTenant(
+            username, email, null, firstName, lastName, tenantCode);
     assignMembershipAndRole(tenantId, created.userId(), role, null);
     return created;
   }

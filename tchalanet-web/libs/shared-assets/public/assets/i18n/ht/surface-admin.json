@@ -2,7 +2,13 @@
   "surface": {
     "cashier": "Kesye",
     "platform_admin": "Platfòm",
-    "tenant_admin": "Administrasyon"
+    "tenant_admin": "Administrasyon",
+    "supportAccess": {
+      "activeLabel": "Sipò aktif sou {{tenant}}",
+      "overrideMode": "W ap aji kòm admin tenant epi ou ka vann.",
+      "readonlyMode": "Aksè sipò an lekti sèlman.",
+      "backToPlatform": "Retounen platfòm"
+    }
   },
   "nav": {
     "pagemodels": "Modèles de pages",

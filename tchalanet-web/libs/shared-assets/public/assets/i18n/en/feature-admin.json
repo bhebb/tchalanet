@@ -42,6 +42,9 @@
         "save": "Unable to save the changes."
       }
     },
+    "setup": {
+      "backToSetup": "General setup"
+    },
     "dashboard": {
       "title": "Administration",
       "description": "Tenant administration overview",
@@ -1206,10 +1209,16 @@
         },
         "delivery": {
           "title": "Send receipt",
+          "channel": {
+            "sms": "SMS",
+            "whatsapp": "WhatsApp",
+            "email": "Email"
+          },
           "phone": "Customer phone",
           "phonePlaceholder": "+509...",
           "email": "Customer email",
-          "emailPlaceholder": "client@example.com"
+          "emailPlaceholder": "client@example.com",
+          "send": "Send"
         },
         "feedback": {
           "printSuccess": "Receipt ready to print.",

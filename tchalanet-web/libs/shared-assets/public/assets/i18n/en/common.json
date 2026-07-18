@@ -55,6 +55,14 @@
     "save": "Save",
     "saving": "Saving...",
     "refresh": "Refresh",
+    "notifications": {
+      "label": "Notifications",
+      "unread": "{{count}} unread",
+      "loading": "Loading...",
+      "empty": "No recent notifications.",
+      "markAllRead": "Mark all as read",
+      "viewAll": "View all"
+    },
     "yes": "Oui",
     "no": "Non",
     "weekday": {

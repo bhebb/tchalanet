@@ -45,6 +45,7 @@ public class PlatformSuperAdminController {
                 row ->
                     new PlatformSuperAdminView(
                         row.userId().toString(),
+                        row.username(),
                         row.email(),
                         row.displayName(),
                         row.status(),
@@ -80,6 +81,7 @@ public class PlatformSuperAdminController {
     return ApiResponse.success(
         new PlatformSuperAdminView(
             created.userId().value().toString(),
+            profile.username(),
             profile.email(),
             profile.displayName(),
             profile.status(),
@@ -112,5 +114,10 @@ public class PlatformSuperAdminController {
       @Email @NotBlank String email, @NotBlank String displayName, String phoneNumber) {}
 
   public record PlatformSuperAdminView(
-      String id, String email, String displayName, String status, Instant assignedAt) {}
+      String id,
+      String username,
+      String email,
+      String displayName,
+      String status,
+      Instant assignedAt) {}
 }

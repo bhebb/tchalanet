@@ -9,6 +9,7 @@ import com.tchalanet.server.common.context.TchContext;
 import com.tchalanet.server.common.context.scope.ApiScope;
 import com.tchalanet.server.common.context.tenant.TenantContextInfo;
 import com.tchalanet.server.common.context.tenant.TenantContextLookup;
+import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.common.types.id.TenantId;
 import java.time.ZoneId;
 import java.util.Currency;
@@ -68,6 +69,8 @@ class SpringBatchJobContextBinderTest {
     assertThat(ctx).isNotNull();
     assertThat(ctx.actorType()).isEqualTo(TchActorType.SYSTEM);
     assertThat(ctx.apiScope()).isEqualTo(ApiScope.PLATFORM);
+    assertThat(ctx.isSuperAdmin()).isTrue();
+    assertThat(ctx.systemRoles()).containsExactly(TchRole.SUPER_ADMIN);
     assertThat(ctx.effectiveTenantIdOrNull()).isNull();
     assertThat(MDC.get("tenant_code")).isEqualTo("PLATFORM");
   }

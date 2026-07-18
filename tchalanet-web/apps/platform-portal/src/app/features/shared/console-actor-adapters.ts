@@ -2,6 +2,7 @@ import { ConsoleActorIdentity, consoleSellerTerminalActorIdentity } from '@tch/w
 
 export interface PlatformSuperAdminActorSource {
   readonly id: string;
+  readonly username?: string | null;
   readonly email?: string | null;
   readonly displayName?: string | null;
   readonly status: string;
@@ -10,6 +11,7 @@ export interface PlatformSuperAdminActorSource {
 
 export interface PlatformTenantAdminActorSource {
   readonly id: string;
+  readonly username?: string | null;
   readonly email?: string | null;
   readonly phone?: string | null;
   readonly displayName?: string | null;
@@ -39,6 +41,7 @@ export function platformSuperAdminActorIdentity(
   return {
     kind: 'SUPER_ADMIN',
     id: admin.id,
+    username: admin.username,
     email: admin.email,
     displayName: admin.displayName,
     status: admin.status,
@@ -52,6 +55,7 @@ export function platformTenantAdminActorIdentity(
   return {
     kind: 'TENANT_ADMIN',
     id: admin.id,
+    username: admin.username,
     email: admin.email,
     phone: admin.phone,
     displayName: admin.displayName,

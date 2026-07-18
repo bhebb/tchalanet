@@ -40,6 +40,7 @@ public interface IdentityApi {
   CreateUserResult createTenantUser(
       TenantId tenantId,
       String tenantCode,
+      String username,
       String email,
       String firstName,
       String lastName,

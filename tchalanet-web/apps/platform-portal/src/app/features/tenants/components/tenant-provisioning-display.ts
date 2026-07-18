@@ -52,7 +52,6 @@ export const STEP_ICONS: Record<string, string> = {
 };
 
 const WARNING_LABEL_KEYS: Record<string, string> = {
-  INITIAL_ADMIN_EMAIL_MISSING: 'platform.tenantProvisioning.warning.initialAdminMissing',
   EXISTING_USER_ATTACHED: 'platform.tenantProvisioning.warning.existingUserAttached',
   TEMPORARY_CREDENTIAL_NOT_RETURNED: 'platform.tenantProvisioning.warning.temporaryCredentialNotReturned',
   TEMPORARY_PASSWORD_ISSUED: 'platform.tenantProvisioning.warning.temporaryPasswordIssued',

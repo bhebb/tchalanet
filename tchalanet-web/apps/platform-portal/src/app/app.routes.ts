@@ -9,8 +9,13 @@ import {
   spaceDispatchGuard,
 } from '@tch/core/auth';
 import { consoleAccountRoutes, consoleProfileRoutes } from '@tch/ui/console';
+import { PlatformPortalLogoutPage } from './features/logout/platform-portal-logout.page';
 
 export const appRoutes: Route[] = [
+  {
+    path: 'logout',
+    component: PlatformPortalLogoutPage,
+  },
   {
     path: 'login/handoff',
     component: PortalHandoffPage,

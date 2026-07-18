@@ -12,6 +12,10 @@
   >
     <dl class="tenant-provisioning-success__result">
       <div>
+        <dt>{{ 'platform.tenantProvisioning.result.adminUsername' | translate }}</dt>
+        <dd>{{ result().initialAdminUsername }}</dd>
+      </div>
+      <div>
         <dt>{{ 'platform.tenantProvisioning.result.adminEmail' | translate }}</dt>
         <dd>{{ result().initialAdminEmail }}</dd>
       </div>

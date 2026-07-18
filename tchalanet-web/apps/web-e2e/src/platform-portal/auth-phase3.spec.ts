@@ -50,4 +50,34 @@ test.describe('Phase 3 — platform auth completion', () => {
     await expect(page).toHaveURL(/localhost:4303\/app\/platform\b/);
     await expect(privateShell.supportBanner).toHaveCount(0);
   });
+
+  test('logging out while supporting a tenant also clears the platform session', async ({
+    page,
+    loginPage,
+    privateShell,
+    supportTenantPage,
+    apiStub,
+  }) => {
+    const creds = credsFor('superAdmin');
+    test.skip(!creds, 'TCH_E2E_SUPERADMIN_EMAIL/PASSWORD not configured');
+
+    await apiStub.portalHandoff('ADMIN', 'http://localhost:4302', '/app/admin');
+    await apiStub.tenants([
+      { tenantId: 'stub-tenant-1', code: 'ACME', name: 'Acme Lottery', status: 'ACTIVE' },
+    ]);
+
+    await loginPage.login(creds!);
+    await supportTenantPage.goto();
+    await supportTenantPage.openAccessForFirstTenant();
+    await apiStub.privateBootstrap(tenantAdminPrivateBootstrap);
+    await supportTenantPage.confirmAccess();
+    await expect(privateShell.supportBanner).toBeVisible();
+
+    await privateShell.logoutFromShell();
+    await expect(page).toHaveURL('http://localhost:4302/login');
+    await expect(loginPage.root).toBeVisible();
+
+    await page.goto('http://localhost:4303/app/platform');
+    await expect(page).toHaveURL(/localhost:4303\/login\b/);
+  });
 });

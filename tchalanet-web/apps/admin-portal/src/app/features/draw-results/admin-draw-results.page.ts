@@ -244,16 +244,24 @@ export class AdminDrawResultsPage implements OnInit {
       '—';
   }
 
-  resultNumbers(row: DrawResultView): string[] {
-    const fromResponse = row.numbers?.map(n => String(n).trim()).filter(Boolean) ?? [];
-    if (fromResponse.length > 0) return fromResponse;
+  resultNumbers(row: DrawResultView): Array<string | null> {
+    for (const payload of [row.haitiResult, row.sourceResult, row.rawPayload]) {
+      const lots = this.haitiLots(payload);
+      if (lots) return lots;
+    }
 
-    const payload = row.haitiResult ?? row.sourceResult ?? row.rawPayload;
-    if (!payload) return [];
-    return ['lot1', 'lot2', 'lot3', 'lot4', 'pick3', 'pick4']
-      .map(key => payload[key])
-      .map(value => typeof value === 'string' || typeof value === 'number' ? String(value).trim() : '')
-      .filter(Boolean);
+    return row.numbers?.map(n => String(n).trim()).filter(Boolean) ?? [];
+  }
+
+  private haitiLots(payload: Record<string, unknown> | null | undefined): Array<string | null> | null {
+    if (!payload) return null;
+
+    const values = ['lot1', 'lot2', 'lot3', 'lot4'].map(key => {
+      const value = payload[key];
+      return typeof value === 'string' || typeof value === 'number' ? String(value).trim() || null : null;
+    });
+
+    return values.some(Boolean) ? values : null;
   }
 
   private payloadText(row: DrawResultView, key: string): string | null {

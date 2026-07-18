@@ -55,6 +55,14 @@
     "save": "Anregistre",
     "saving": "Ap anregistre...",
     "refresh": "Aktyalize",
+    "notifications": {
+      "label": "Notifikasyon",
+      "unread": "{{count}} ki poko li",
+      "loading": "Ap chaje...",
+      "empty": "Pa gen notifikasyon resan.",
+      "markAllRead": "Make tout li",
+      "viewAll": "Gade tout"
+    },
     "yes": "Oui",
     "no": "Non",
     "weekday": {

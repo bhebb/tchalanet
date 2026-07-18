@@ -18,10 +18,20 @@
         data-testid="support-access-banner"
       >
         <span class="material-symbols-outlined" aria-hidden="true">support_agent</span>
-        <strong data-testid="support-access-tenant-name">{{ session.tenantName }}</strong>
-        <span>{{ session.mode }}</span>
-        <button type="button" data-testid="support-access-return" (click)="returnToPlatform()">
-          Retour plateforme
+        <span class="admin-portal__support-copy">
+          <strong class="admin-portal__support-title" data-testid="support-access-tenant-name">
+            {{ 'surface.supportAccess.activeLabel' | translate: { tenant: session.tenantName } }}
+          </strong>
+          <span class="admin-portal__support-mode">{{ supportModeKey(session.mode) | translate }}</span>
+        </span>
+        <button
+          class="admin-portal__support-return"
+          type="button"
+          data-testid="support-access-return"
+          (click)="returnToPlatform()"
+        >
+          <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+          {{ 'surface.supportAccess.backToPlatform' | translate }}
         </button>
       </section>
     }

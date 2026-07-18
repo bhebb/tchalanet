@@ -121,12 +121,13 @@ public class IdentityApiAdapter implements IdentityApi {
   public CreateUserResult createTenantUser(
       TenantId tenantId,
       String tenantCode,
+      String username,
       String email,
       String firstName,
       String lastName,
       TchRole role) {
     return provisioningService.provisionTenantUser(
-        tenantId, tenantCode, email, firstName, lastName, role);
+        tenantId, tenantCode, username, email, firstName, lastName, role);
   }
 
   private AppUserView toView(AppUserJpaEntity user) {

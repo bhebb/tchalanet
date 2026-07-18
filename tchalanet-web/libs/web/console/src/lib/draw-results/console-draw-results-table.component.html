@@ -13,8 +13,11 @@
         <div class="console-draw-results-table__numbers-cell">
           @if (row.numbers.length > 0) {
             <span class="console-draw-results-table__numbers">
-              @for (n of row.numbers; track n) {
-                <span class="console-draw-results-table__number">{{ n }}</span>
+              @for (n of row.numbers; track $index) {
+                <span
+                  class="console-draw-results-table__number"
+                  [class.console-draw-results-table__number--missing]="!n"
+                >{{ n || '×' }}</span>
               }
             </span>
           } @else {

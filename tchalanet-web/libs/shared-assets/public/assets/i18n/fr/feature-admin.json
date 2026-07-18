@@ -42,6 +42,9 @@
         "save": "Impossible d’enregistrer les modifications."
       }
     },
+    "setup": {
+      "backToSetup": "Configuration générale"
+    },
     "drawChannels": {
       "title": "Canaux de tirage",
       "description": "Configurez les providers, sources de résultats et créneaux de vente actifs pour votre espace.",
@@ -334,10 +337,16 @@
         },
         "delivery": {
           "title": "Envoyer le reçu",
+          "channel": {
+            "sms": "SMS",
+            "whatsapp": "WhatsApp",
+            "email": "Email"
+          },
           "phone": "Téléphone client",
           "phonePlaceholder": "+509...",
           "email": "Email client",
-          "emailPlaceholder": "client@example.com"
+          "emailPlaceholder": "client@example.com",
+          "send": "Envoyer"
         },
         "feedback": {
           "printSuccess": "Reçu prêt pour impression.",

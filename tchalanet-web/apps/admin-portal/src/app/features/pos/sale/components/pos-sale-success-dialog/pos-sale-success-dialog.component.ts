@@ -58,6 +58,7 @@ export class PosSaleSuccessDialogComponent implements OnInit {
 
   readonly phoneNumber = signal('');
   readonly email = signal('');
+  readonly selectedDeliveryChannel = signal<DeliveryChannel | null>(null);
   readonly printing = signal(false);
   readonly sending = signal<DeliveryChannel | null>(null);
   readonly communicationAvailability = signal<PosSaleActionAvailabilityView | null>(null);
@@ -65,8 +66,8 @@ export class PosSaleSuccessDialogComponent implements OnInit {
 
   readonly titleKey = computed(() =>
     this.data.mode === 'ticket-actions'
-      ? 'admin.sellerTerminal.pos.dialog.title.ticketActions'
-      : 'admin.sellerTerminal.pos.dialog.title.saleSuccess',
+      ? 'admin.pos.dialog.title.ticketActions'
+      : 'admin.pos.dialog.title.saleSuccess',
   );
 
   readonly titleIcon = computed(() =>
@@ -95,6 +96,28 @@ export class PosSaleSuccessDialogComponent implements OnInit {
   readonly hasDeliveryActions = computed(() =>
     this.canSendSms() || this.canSendWhatsapp() || this.canSendEmail(),
   );
+  readonly availableDeliveryChannels = computed<readonly DeliveryChannel[]>(() => {
+    const channels: DeliveryChannel[] = [];
+    if (this.canSendSms()) channels.push('SMS');
+    if (this.canSendWhatsapp()) channels.push('WHATSAPP');
+    if (this.canSendEmail()) channels.push('EMAIL');
+    return channels;
+  });
+  readonly activeDeliveryChannel = computed<DeliveryChannel | null>(() => {
+    const selected = this.selectedDeliveryChannel();
+    const availableChannels = this.availableDeliveryChannels();
+    if (selected && availableChannels.includes(selected)) return selected;
+    return availableChannels[0] ?? null;
+  });
+  readonly deliveryRecipient = computed(() => {
+    const channel = this.activeDeliveryChannel();
+    if (!channel) return '';
+    return this.recipientFor(channel).trim();
+  });
+  readonly canSendSelectedDelivery = computed(() => {
+    const channel = this.activeDeliveryChannel();
+    return !!channel && !this.sending() && this.isValidRecipient(channel, this.deliveryRecipient());
+  });
 
   readonly currency = computed(() => this.data.currency ?? 'HTG');
   readonly showSaleActions = computed(() => this.data.mode !== 'ticket-actions');
@@ -109,6 +132,58 @@ export class PosSaleSuccessDialogComponent implements OnInit {
         this.communicationAvailability.set(null);
       },
     });
+  }
+
+  selectDeliveryChannel(channel: DeliveryChannel): void {
+    if (!this.availableDeliveryChannels().includes(channel)) return;
+    if (this.activeDeliveryChannel() !== channel) {
+      this.phoneNumber.set('');
+      this.email.set('');
+      this.feedback.set(null);
+    }
+    this.selectedDeliveryChannel.set(channel);
+  }
+
+  deliveryChannelLabelKey(channel: DeliveryChannel): string {
+    return `admin.pos.dialog.delivery.channel.${channel.toLowerCase()}`;
+  }
+
+  deliveryChannelIcon(channel: DeliveryChannel): string {
+    if (channel === 'SMS') return 'sms';
+    if (channel === 'WHATSAPP') return 'chat';
+    return 'mail';
+  }
+
+  deliveryFieldLabelKey(channel: DeliveryChannel): string {
+    return channel === 'EMAIL'
+      ? 'admin.pos.dialog.delivery.email'
+      : 'admin.pos.dialog.delivery.phone';
+  }
+
+  deliveryFieldPlaceholderKey(channel: DeliveryChannel): string {
+    return channel === 'EMAIL'
+      ? 'admin.pos.dialog.delivery.emailPlaceholder'
+      : 'admin.pos.dialog.delivery.phonePlaceholder';
+  }
+
+  deliveryInputType(channel: DeliveryChannel): string {
+    return channel === 'EMAIL' ? 'email' : 'tel';
+  }
+
+  deliveryInputMode(channel: DeliveryChannel): string {
+    return channel === 'EMAIL' ? 'email' : 'tel';
+  }
+
+  recipientFor(channel: DeliveryChannel): string {
+    return channel === 'EMAIL' ? this.email() : this.phoneNumber();
+  }
+
+  setRecipientFor(channel: DeliveryChannel, value: string): void {
+    if (channel === 'EMAIL') {
+      this.email.set(value);
+    } else {
+      this.phoneNumber.set(value);
+    }
   }
 
   print(): void {
@@ -135,22 +210,23 @@ export class PosSaleSuccessDialogComponent implements OnInit {
         this.printing.set(false);
         this.feedback.set({
           type: 'success',
-          message: this.translate.instant('admin.sellerTerminal.pos.dialog.feedback.printSuccess'),
+          message: this.translate.instant('admin.pos.dialog.feedback.printSuccess'),
         });
       },
       error: () => {
         this.printing.set(false);
         this.feedback.set({
           type: 'error',
-          message: this.translate.instant('admin.sellerTerminal.pos.dialog.feedback.printError'),
+          message: this.translate.instant('admin.pos.dialog.feedback.printError'),
         });
       },
     });
   }
 
-  send(channel: DeliveryChannel): void {
-    const to = channel === 'EMAIL' ? this.email().trim() : this.phoneNumber().trim();
-    if (!to || this.sending()) return;
+  sendSelectedDelivery(): void {
+    const channel = this.activeDeliveryChannel();
+    const to = this.deliveryRecipient();
+    if (!channel || !this.isValidRecipient(channel, to) || this.sending()) return;
 
     this.sending.set(channel);
     this.feedback.set(null);
@@ -164,14 +240,14 @@ export class PosSaleSuccessDialogComponent implements OnInit {
         this.sending.set(null);
         this.feedback.set({
           type: 'success',
-          message: this.translate.instant('admin.sellerTerminal.pos.dialog.feedback.sendSuccess'),
+          message: this.translate.instant('admin.pos.dialog.feedback.sendSuccess'),
         });
       },
       error: () => {
         this.sending.set(null);
         this.feedback.set({
           type: 'error',
-          message: this.translate.instant('admin.sellerTerminal.pos.dialog.feedback.sendError'),
+          message: this.translate.instant('admin.pos.dialog.feedback.sendError'),
         });
       },
     });
@@ -183,5 +259,11 @@ export class PosSaleSuccessDialogComponent implements OnInit {
 
   details(): void {
     this.dialogRef.close('details');
+  }
+
+  private isValidRecipient(channel: DeliveryChannel, to: string): boolean {
+    if (!to) return false;
+    if (channel !== 'EMAIL') return to.replace(/\D/g, '').length >= 8;
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to);
   }
 }

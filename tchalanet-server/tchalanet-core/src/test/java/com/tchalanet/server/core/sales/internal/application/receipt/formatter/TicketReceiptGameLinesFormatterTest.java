@@ -90,7 +90,8 @@ class TicketReceiptGameLinesFormatterTest {
     var text = joined(lines);
     assertThat(text).contains("12 × 34");
     assertThat(text).contains("Box");
-    assertThat(text).contains("12 × 34  Box  5.00");
+    assertThat(text).contains("12 × 34  Box");
+    assertThat(text).containsPattern("12 × 34  Box\\s{2,}5\\.00");
     assertThat(text).contains("* 56 × 78");
     assertThat(text).contains("GRATIS");
     assertThat(text).contains("* Maryaj offert");

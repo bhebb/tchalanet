@@ -66,6 +66,14 @@
     "save": "Enregistrer",
     "saving": "Enregistrement...",
     "refresh": "Actualiser",
+    "notifications": {
+      "label": "Notifications",
+      "unread": "{{count}} non lue(s)",
+      "loading": "Chargement...",
+      "empty": "Aucune notification récente.",
+      "markAllRead": "Tout marquer lu",
+      "viewAll": "Voir tout"
+    },
     "add": "Ajouter",
     "create": "Créer",
     "delete": "Supprimer",

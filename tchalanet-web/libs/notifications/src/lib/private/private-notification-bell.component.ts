@@ -1,6 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
 
 import { PrivateNotificationItem } from './private-notifications-api.service';
 import { PrivateNotificationsStore } from './private-notifications.store';
@@ -8,7 +9,7 @@ import { PrivateNotificationsStore } from './private-notifications.store';
 @Component({
   selector: 'tch-private-notification-bell',
   standalone: true,
-  imports: [DatePipe, RouterLink],
+  imports: [DatePipe, RouterLink, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { '(document:keydown.escape)': 'close()' },
   template: `
@@ -19,7 +20,7 @@ import { PrivateNotificationsStore } from './private-notifications.store';
         [class.has-unread]="store.hasUnread()"
         [attr.aria-expanded]="open()"
         aria-controls="private-notification-menu"
-        aria-label="Notifications"
+        [attr.aria-label]="'common.notifications.label' | translate"
         (click)="toggle()"
       >
         <span class="material-symbols-outlined" aria-hidden="true">notifications</span>
@@ -29,21 +30,30 @@ import { PrivateNotificationsStore } from './private-notifications.store';
       </button>
 
       @if (open()) {
-        <section id="private-notification-menu" class="notification-menu" aria-label="Notifications">
+        <section
+          id="private-notification-menu"
+          class="notification-menu"
+          [attr.aria-label]="'common.notifications.label' | translate"
+        >
           <header class="notification-menu__header">
             <div>
-              <h2>Notifications</h2>
-              <p>{{ store.unreadCount() }} non lue(s)</p>
+              <h2>{{ 'common.notifications.label' | translate }}</h2>
+              <p>{{ 'common.notifications.unread' | translate: { count: store.unreadCount() } }}</p>
             </div>
-            <button type="button" class="icon-button" aria-label="Rafraîchir" (click)="refresh($event)">
+            <button
+              type="button"
+              class="icon-button"
+              [attr.aria-label]="'common.refresh' | translate"
+              (click)="refresh($event)"
+            >
               <span class="material-symbols-outlined" aria-hidden="true">refresh</span>
             </button>
           </header>
 
           @if (store.loading()) {
-            <div class="notification-menu__state">Chargement...</div>
+            <div class="notification-menu__state">{{ 'common.notifications.loading' | translate }}</div>
           } @else if (store.items().length === 0) {
-            <div class="notification-menu__state">Aucune notification récente.</div>
+            <div class="notification-menu__state">{{ 'common.notifications.empty' | translate }}</div>
           } @else {
             <div class="notification-list">
               @for (item of store.items(); track itemKey(item)) {
@@ -58,7 +68,12 @@ import { PrivateNotificationsStore } from './private-notifications.store';
                       <time>{{ item.createdAt | date:'dd/MM HH:mm' }}</time>
                     </span>
                   </button>
-                  <button type="button" class="icon-button" aria-label="Fermer" (click)="dismiss($event, item)">
+                  <button
+                    type="button"
+                    class="icon-button"
+                    [attr.aria-label]="'common.close' | translate"
+                    (click)="dismiss($event, item)"
+                  >
                     <span class="material-symbols-outlined" aria-hidden="true">close</span>
                   </button>
                 </article>
@@ -68,9 +83,11 @@ import { PrivateNotificationsStore } from './private-notifications.store';
 
           <footer class="notification-menu__footer">
             <button type="button" class="text-button" [disabled]="!store.hasUnread()" (click)="markAllRead($event)">
-              Tout marquer lu
+              {{ 'common.notifications.markAllRead' | translate }}
             </button>
-            <a [routerLink]="store.centerRoute()" (click)="close()">Voir tout</a>
+            <a [routerLink]="store.centerRoute()" (click)="close()">
+              {{ 'common.notifications.viewAll' | translate }}
+            </a>
           </footer>
         </section>
       }
@@ -268,9 +285,6 @@ export class PrivateNotificationBellComponent {
 
   toggle(): void {
     this.open.update(value => !value);
-    if (this.open()) {
-      this.store.loadLatest();
-    }
   }
 
   close(): void {

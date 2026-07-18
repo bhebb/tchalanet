@@ -9,6 +9,7 @@ import {
 import { TranslatePipe } from '@ngx-translate/core';
 
 import { ActionItem, NavigationSection } from '@tch/api';
+import { PrivateNotificationBellComponent } from '@tch/notifications';
 import { TchBrand, TchSidebarNav, TchUserMenu } from '@tch/ui/components';
 
 import { ShellFeedbackOutletComponent } from '../feedback/shell-feedback-outlet.component';
@@ -16,7 +17,14 @@ import { ShellFeedbackVerbosity } from '../feedback/shell-feedback.model';
 
 @Component({
   selector: 'tch-private-shell-layout',
-  imports: [ShellFeedbackOutletComponent, TchBrand, TchSidebarNav, TchUserMenu, TranslatePipe],
+  imports: [
+    ShellFeedbackOutletComponent,
+    PrivateNotificationBellComponent,
+    TchBrand,
+    TchSidebarNav,
+    TchUserMenu,
+    TranslatePipe,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { '(document:keydown.escape)': 'closeDrawer()' },
   templateUrl: './private-shell-layout.component.html',

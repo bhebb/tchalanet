@@ -7,6 +7,8 @@ import java.util.UUID;
 public interface TenantAdminGlobalRow {
   UUID getUserId();
 
+  String getUsername();
+
   String getEmail();
 
   String getDisplayName();

@@ -10,6 +10,7 @@ import com.tchalanet.server.common.context.scope.ApiScope;
 import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
+import com.tchalanet.server.platform.accesscontrol.api.model.TenantAdminGlobalAccessRow;
 import com.tchalanet.server.platform.identity.api.model.UserStatus;
 import com.tchalanet.server.platform.identity.api.model.view.UserProfileView;
 import com.tchalanet.server.platform.identity.internal.model.TenantMembership;
@@ -90,6 +91,29 @@ class TenantUserAdminViewAssemblerTest {
     assertThat(response.externalIdentitySyncStatus()).isEqualTo(ExternalIdentitySyncStatus.SYNCED);
     assertThat(response.invitationStatus()).isEqualTo(InvitationStatus.SENT);
     assertThat(response.createdAt()).isEqualTo(createdAt);
+  }
+
+  @Test
+  @DisplayName("global tenant-admin rows retain the username")
+  void globalRowRetainsUsername() {
+    var userId = UUID.randomUUID();
+    var assignedAt = Instant.parse("2026-07-17T12:00:00Z");
+
+    var response =
+        assembler.fromGlobalRow(
+            new TenantAdminGlobalAccessRow(
+                userId,
+                "test.family",
+                "test.family@example.test",
+                "Test Family",
+                "ACTIVE",
+                UUID.randomUUID(),
+                "Family Lottery",
+                "family",
+                assignedAt));
+
+    assertThat(response.username()).isEqualTo("test.family");
+    assertThat(response.email()).isEqualTo("test.family@example.test");
   }
 
   private static TchRequestContext context(TenantId tenantId) {

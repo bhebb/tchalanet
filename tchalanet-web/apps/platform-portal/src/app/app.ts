@@ -61,7 +61,7 @@ export class App {
 
 function isPrivateShellRoute(url: string): boolean {
   const path = url.split('?')[0] ?? '';
-  return !['/login', '/forgot-password', '/forbidden'].some(publicPath =>
+  return !['/login', '/logout', '/forgot-password', '/forbidden'].some(publicPath =>
     path.startsWith(publicPath),
   );
 }

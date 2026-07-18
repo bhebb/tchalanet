@@ -165,7 +165,19 @@
             [title]="'platform.tenantProvisioning.section.initialAdmin' | translate"
             icon="admin_panel_settings"
           >
-            <mat-form-field appearance="outline" class="tenant-provisioning__field">
+            <div class="tenant-provisioning__grid tenant-provisioning__grid--two">
+              <mat-form-field appearance="outline" class="tenant-provisioning__field">
+                <mat-label>
+                  {{ 'platform.tenantProvisioning.field.initialAdminUsername' | translate }}
+                </mat-label>
+                <input matInput formControlName="initialAdminUsername" autocomplete="username" />
+                @if (form.controls.initialAdminUsername.invalid && form.controls.initialAdminUsername.touched) {
+                  <mat-error>{{ 'platform.tenantProvisioning.error.username' | translate }}</mat-error>
+                }
+                <mat-hint>{{ 'platform.tenantProvisioning.hint.initialAdminUsername' | translate }}</mat-hint>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="tenant-provisioning__field">
               <mat-label>
                 {{ 'platform.tenantProvisioning.field.initialAdminEmail' | translate }}
               </mat-label>
@@ -175,6 +187,7 @@
               }
               <mat-hint>{{ 'platform.tenantProvisioning.hint.initialAdminEmail' | translate }}</mat-hint>
             </mat-form-field>
+            </div>
           </tch-admin-section-card>
 
           <tch-admin-section-card

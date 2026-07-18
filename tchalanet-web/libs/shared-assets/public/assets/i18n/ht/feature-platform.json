@@ -482,17 +482,20 @@
         "defaultCommissionRate": "Komisyon pa defo",
         "profile": "Pwofil",
         "maryajGratisEnabled": "Ofri Maryaj gratis",
+        "initialAdminUsername": "Non itilizatè admin inisyal",
         "initialAdminEmail": "Imèl admin inisyal"
       },
       "hint": {
         "defaultCommissionRate": "Komisyon yo aplike pa defo sou seller-terminal ki pa gen yon to espesifik.",
         "maryajGratisEnabled": "Montre paj Maryaj gratis nan tenant lan epi ajoute kat konfigirasyon li.",
-        "initialAdminEmail": "Si li vid, tenant lan ap kreye san administratè inisyal."
+        "initialAdminUsername": "3 a 64 karaktè: lèt, chif, pwen, souliyé oswa tirè.",
+        "initialAdminEmail": "Obligatwa pou kreye admin inisyal la."
       },
       "error": {
         "code": "Fòma obligatwa: ti lèt, chif, tirè (3–30 karaktè).",
         "required": "Chan obligatwa.",
         "email": "Adrès imèl pa valid.",
+        "username": "Non itilizatè a dwe genyen 3 a 64 lèt, chif, pwen, souliyé oswa tirè.",
         "commissionRate": "Komisyon an dwe ant 0 ak 100 %.",
         "submitTitle": "Pwovizyonman enposib"
       },
@@ -511,7 +514,6 @@
         "createAnother": "Kreye yon lòt tenant"
       },
       "warning": {
-        "initialAdminMissing": "Pa gen admin inisyal. Tenant lan ka kreye, men yon administratè ap dwe ajoute apre.",
         "existingUserAttached": "Yon itilizatè ki egziste deja vin administratè tenant lan.",
         "temporaryCredentialNotReturned": "Idantifyan tanporè yo pa t ka afiche. Reinisyalize modpas la depi paj detay tenant lan.",
         "temporaryPasswordIssued": "Yon modpas tanporè kreye pou administratè inisyal la.",
@@ -533,6 +535,7 @@
         "nextSteps": "Pwochen etap",
         "warnings": "Avètisman",
         "initialAdmin": "Admin inisyal",
+        "adminUsername": "Non itilizatè",
         "adminEmail": "Imèl",
         "adminStatus": "Estati",
         "temporaryAccessCreated": "Aksè tanporè kreye",

@@ -21,6 +21,7 @@ public record TenantProvisioningResultView(
     String appliedPlanCode,
     TenantReadinessView readiness,
     String initialAdminUserId,
+    String initialAdminUsername,
     String initialAdminEmail,
     String initialAdminCredentialStatus,
     String initialAdminTemporaryPassword,

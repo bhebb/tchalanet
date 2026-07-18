@@ -58,15 +58,16 @@ class PublicLoginIdentifierServiceTest {
   void rejectsUsernameWithoutFirebaseIdentityWithGenericFailure() {
     when(users.findByNormalizedUsername("admin"))
         .thenReturn(Optional.of(user("admin", "admin@example.com", UserStatus.ACTIVE)));
-    when(users.findExternalSubject(USER_ID, IdentityProviderType.FIREBASE)).thenReturn(Optional.empty());
+    when(users.findExternalSubject(USER_ID, IdentityProviderType.FIREBASE))
+        .thenReturn(Optional.empty());
 
     assertGenericFailure(() -> service.resolveIdentifier("admin"), HttpStatus.FORBIDDEN);
   }
 
   private static AppUser user(String username, String email, UserStatus status) {
     return new AppUser(
-        USER_ID, null, username, email, null, null, null, null, null, status, null, null, null, false,
-        false, null, null);
+        USER_ID, null, username, email, null, null, null, null, null, status, null, null, null,
+        false, false, null, null);
   }
 
   private static void assertGenericFailure(Runnable action, HttpStatus status) {

@@ -42,6 +42,9 @@
         "save": "Pa kapab anrejistre chanjman yo."
       }
     },
+    "setup": {
+      "backToSetup": "Konfigirasyon jeneral"
+    },
     "dashboard": {
       "title": "Administrasyon",
       "description": "Rezime administrasyon tenant",
@@ -1194,10 +1197,16 @@
         },
         "delivery": {
           "title": "Voye resi",
+          "channel": {
+            "sms": "SMS",
+            "whatsapp": "WhatsApp",
+            "email": "Imèl"
+          },
           "phone": "Telefòn kliyan",
           "phonePlaceholder": "+509...",
           "email": "Imèl kliyan",
-          "emailPlaceholder": "client@example.com"
+          "emailPlaceholder": "client@example.com",
+          "send": "Voye"
         },
         "feedback": {
           "printSuccess": "Resi a pare pou enprime.",

@@ -24,7 +24,7 @@ export interface ConsoleDrawResultRowViewModelInput {
   readonly meta?: string | null;
   readonly labelKey?: string | null;
   readonly slotKey?: string | null;
-  readonly numbers: readonly string[];
+  readonly numbers: readonly (string | null)[];
   readonly statusLabel: string;
   readonly statusTone: AdminStatusTone;
   readonly qualityLabel: string;

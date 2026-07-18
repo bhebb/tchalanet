@@ -35,7 +35,7 @@
                 <dd>{{ profile()!.email }}</dd>
               </div>
             }
-            @if (profile()!.username && profile()!.username !== profile()!.email) {
+            @if (profile()!.username) {
               <div>
                 <dt>{{ 'profile.field.username' | translate }}</dt>
                 <dd>{{ profile()!.username }}</dd>
