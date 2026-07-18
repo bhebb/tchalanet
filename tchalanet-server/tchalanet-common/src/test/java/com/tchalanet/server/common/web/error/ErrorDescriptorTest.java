@@ -110,4 +110,35 @@ class ErrorDescriptorTest {
                         new ErrorDescriptorRegistry.DescriptorRegistration("second", descriptor))))
         .withMessageContaining("Duplicate error descriptor code");
   }
+
+  @Test
+  void registryBuildsAnImmutableStartupCatalogFromOwnerContributors() {
+    var descriptor =
+        new ErrorDescriptor(
+            "sales.ticket.closed",
+            ErrorCategory.BUSINESS_RULE,
+            HttpStatus.CONFLICT,
+            ErrorRetryPolicy.AFTER_USER_ACTION,
+            Set.of(ErrorAudience.WEB_ADMIN),
+            Set.of());
+    var registry =
+        new ErrorDescriptorRegistry(
+            java.util.List.of(
+                new ErrorDescriptorContributor() {
+                  @Override
+                  public String owner() {
+                    return "core.sales";
+                  }
+
+                  @Override
+                  public java.util.Collection<ErrorDescriptor> descriptors() {
+                    return Set.of(descriptor);
+                  }
+                }));
+
+    assertThat(registry.require(descriptor.code())).isEqualTo(descriptor);
+    assertThatIllegalArgumentException().isThrownBy(() -> registry.require("sales.unknown"));
+    org.assertj.core.api.Assertions.assertThatExceptionOfType(UnsupportedOperationException.class)
+        .isThrownBy(() -> registry.descriptors().put("sales.other", descriptor));
+  }
 }

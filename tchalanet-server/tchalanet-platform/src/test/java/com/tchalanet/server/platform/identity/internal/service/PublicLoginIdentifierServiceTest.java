@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.web.error.ProblemRestException;
 import com.tchalanet.server.platform.identity.api.IdentityProviderType;
+import com.tchalanet.server.platform.identity.api.error.IdentityErrorCodes;
 import com.tchalanet.server.platform.identity.api.model.UserStatus;
 import com.tchalanet.server.platform.identity.internal.model.AppUser;
 import com.tchalanet.server.platform.identity.internal.persistence.adapter.AppUserJpaAdapter;
@@ -50,8 +51,7 @@ class PublicLoginIdentifierServiceTest {
 
   @Test
   void rejectsEmailInputBecauseEmailBypassesLookup() {
-    assertGenericFailure(
-        () -> service.resolveIdentifier("admin@example.com"), HttpStatus.BAD_REQUEST);
+    assertGenericFailure(() -> service.resolveIdentifier("admin@example.com"), HttpStatus.FORBIDDEN);
   }
 
   @Test
@@ -77,7 +77,12 @@ class PublicLoginIdentifierServiceTest {
             error -> {
               var problem = ((ProblemRestException) error).getProblem();
               assertThat(problem.getStatus()).isEqualTo(status.value());
-              assertThat(problem.getDetail()).isEqualTo("auth.invalid_credentials");
+              assertThat(problem.getDetail()).isEqualTo("Request could not be completed");
+              assertThat(problem.getProperties())
+                  .containsEntry("code", IdentityErrorCodes.AUTH_INVALID_CREDENTIALS.code())
+                  .containsEntry(
+                      "category", IdentityErrorCodes.AUTH_INVALID_CREDENTIALS.category().wireValue())
+                  .doesNotContainKey("username");
             });
   }
 }

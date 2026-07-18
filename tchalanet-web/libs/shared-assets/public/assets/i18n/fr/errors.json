@@ -76,6 +76,14 @@
             }
           }
         },
+        "identity": {
+          "auth": {
+            "invalid_credentials": {
+              "title": "Informations de connexion invalides",
+              "message": "Vérifiez votre identifiant puis réessayez."
+            }
+          }
+        },
         "request": {
           "missing_parameter": {
             "title": "Information manquante",

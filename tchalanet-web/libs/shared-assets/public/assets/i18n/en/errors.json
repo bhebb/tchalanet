@@ -76,6 +76,14 @@
             }
           }
         },
+        "identity": {
+          "auth": {
+            "invalid_credentials": {
+              "title": "Invalid sign-in details",
+              "message": "Check your identifier and try again."
+            }
+          }
+        },
         "request": {
           "missing_parameter": {
             "title": "Missing information",

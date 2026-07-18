@@ -76,6 +76,14 @@
             }
           }
         },
+        "identity": {
+          "auth": {
+            "invalid_credentials": {
+              "title": "Enfòmasyon koneksyon pa valab",
+              "message": "Verifye idantifyan ou epi eseye ankò."
+            }
+          }
+        },
         "request": {
           "missing_parameter": {
             "title": "Enfomasyon manke",

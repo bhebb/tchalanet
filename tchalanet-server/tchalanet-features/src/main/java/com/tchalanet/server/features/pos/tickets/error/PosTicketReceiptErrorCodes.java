@@ -20,4 +20,8 @@ public class PosTicketReceiptErrorCodes {
           ErrorRetryPolicy.AFTER_USER_ACTION,
           Set.of(ErrorAudience.WEB_ADMIN, ErrorAudience.MOBILE),
           Set.of());
+
+  public static Set<ErrorDescriptor> all() {
+    return Set.of(PRINT_OPTIONS_INVALID);
+  }
 }
