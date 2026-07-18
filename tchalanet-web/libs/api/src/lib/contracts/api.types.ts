@@ -16,9 +16,14 @@ export type NoticeSeverity = 'INFO' | 'WARN' | 'ERROR' | 'info' | 'success' | 'w
 
 export interface ApiNotice {
   readonly code: string;
+  /** Diagnostic-only during migration. Clients translate the stable code. */
   readonly message: string;
   readonly domain?: string | null;
   readonly severity: NoticeSeverity;
+  readonly kind?: 'BUSINESS' | 'DEGRADATION' | 'INFORMATION' | string;
+  readonly retryPolicy?: string;
+  readonly retryable?: boolean;
+  readonly params?: Readonly<Record<string, string | number | boolean>>;
   readonly meta?: Readonly<Record<string, unknown>> | null;
   readonly target?: string;
 }
@@ -44,6 +49,7 @@ export interface ProblemFieldViolation {
   readonly code?: string;
   readonly field: string;
   readonly target?: string;
+  /** Diagnostic-only during migration. */
   readonly message?: string;
 }
 
@@ -62,6 +68,10 @@ export interface ProblemDetail {
   readonly spanId?: string;
   readonly errorId?: string;
   readonly code?: string;
+  readonly category?: string;
+  readonly retryPolicy?: string;
+  readonly retryable?: boolean;
+  readonly params?: Readonly<Record<string, string | number | boolean>>;
 }
 
 export interface TchPage<T> {

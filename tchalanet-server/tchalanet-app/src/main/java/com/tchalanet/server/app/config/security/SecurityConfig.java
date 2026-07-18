@@ -39,9 +39,12 @@ public class SecurityConfig {
       TchAccessContextPipelineFilter tchAccessContextPipelineFilter,
       TchContextFilter tchContextFilter)
       throws Exception {
+    var securityFailureHandler = new ProblemDetailSecurityFailureHandler();
     var sensitiveIdentityVerificationFilter =
         new SensitiveIdentityVerificationFilter(
-            identityProviderApi, new SensitiveIdentityRequestMatcher());
+            identityProviderApi,
+            new SensitiveIdentityRequestMatcher(),
+            securityFailureHandler);
 
     http.csrf(AbstractHttpConfigurer::disable)
         .cors(withDefaults())
@@ -82,7 +85,10 @@ public class SecurityConfig {
                     jwt ->
                         jwt.decoder(jwtDecoder)
                             .jwtAuthenticationConverter(
-                                token -> convert(token, identityProviderApi))))
+                                token -> convert(token, identityProviderApi)))
+                    .authenticationEntryPoint(securityFailureHandler))
+        .exceptionHandling(
+            errors -> errors.accessDeniedHandler(securityFailureHandler))
         .addFilterAfter(sensitiveIdentityVerificationFilter, BearerTokenAuthenticationFilter.class)
         .addFilterAfter(tchAccessContextPipelineFilter, BearerTokenAuthenticationFilter.class)
         .addFilterBefore(

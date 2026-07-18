@@ -17,21 +17,64 @@ Today this boundary is not explicit enough:
   known backend codes are translated in Haitian Creole, French, and English;
 - the mobile client can display raw `ProblemDetail`/notice text, and neither client family has a
   common ownership policy for BFF degradation, form errors, and page recovery.
+- the legacy server boundary uses the same `ProblemDetail.detail` field for stable-looking codes,
+  human prose, and hybrid strings containing internal data. A client cannot safely infer a product
+  contract from that field.
+- several compatibility paths can misclassify a technical failure as a business `422`, or express a
+  missing primary resource as a successful envelope with an error notice.
+
+## Delivery order
+
+This is a contract-first migration. It SHALL not be delivered as parallel UI normalization work.
+
+1. Establish a safe server boundary: no parser/provider/exception prose or Java class names in a
+   client response, with regression tests before broad migration.
+2. Make the contract executable: owner-defined code-first descriptors, central validation of their
+   metadata, versioned fixtures, and a static guard against new message-first producers.
+3. Migrate and prove the sale decision vertical first: sales, limits, tenant-game availability,
+   access, identity, and the POS HTTP adapters.
+4. Resolve BFF composition semantics and the legacy response-envelope contradictions.
+5. Migrate Angular and Flutter consumers only when their backend path has a tested stable code and
+   locale-complete copy.
+
+Legacy producers SHALL be classified before conversion as one of: an existing stable code, a human
+business sentence, a hybrid code/prose or dynamic-value string, or a framework/technical producer.
+The conversion outcome differs by class: retain and register an existing stable code; introduce an
+owner code for a business sentence; split a hybrid into a code plus approved safe parameters or
+server-only diagnostics; and map technical producers to approved generic or integration codes.
 
 ## What changes
 
 - Clarify the existing shared backend/web/mobile error contract for BFF aggregation.
+- Make the backend contract code-first and enforce it before further portal or mobile screen
+  migration. Concrete codes remain owned by their domains; a common validator collects and checks
+  descriptors rather than creating one giant business enum.
+- Define typed public parameter specifications and an explicit retry policy. A descriptor allowlist
+  is not merely a list of parameter names: it also constrains value type and display safety, so an
+  internal identifier cannot become visible merely because its key was approved.
+- Add a redaction regression gate before migrating existing producers. `detail`, `title`, notices,
+  service metadata, and support references are never a vehicle for exception, provider, parser,
+  credential, PIN, token, or Java-class prose.
 - Require each BFF slice call to classify failures as blocking or non-blocking.
 - Use `ProblemDetail` with stable `code` and trace identifiers for blocking failures.
 - Use `ApiResponse.notices` and/or `services` with stable codes, severity, domain/source, and trace
   metadata for non-blocking failures.
+- Represent independently recoverable BFF sections with a typed availability state. A nullable
+  business value alone cannot distinguish an intentionally absent value from an unavailable slice.
 - Require every client to translate stable codes from an actually shipped, locale-complete catalog
-  before category fallback and generic fallback.
+  before category fallback and generic fallback. The catalog gate applies to Haitian Creole, French,
+  and English for each client audience that can receive the code.
 - Define feedback ownership: shell, page, BFF section, form, field, or feature-owned business
   notice. This prevents a response envelope from being silently discarded or shown twice.
 - Define a mobile-first error-recovery surface for blocking page failures, plus deterministic focus
   behavior after a successful mutation, a block error, or field validation failure.
 - Establish a central error-code catalog so controllers/services do not invent unrelated strings.
+- Resolve the ownership and failure semantics of the existing BFF slice helper. A required technical
+  failure must never become a legacy business `422`; a helper with feature-composition policy cannot
+  remain an accidental `common.web.advice` contract.
+- Remove semantic contradictions in compatibility APIs, including a `PENDING` sentinel embedded in
+  transport advice and any `notFound` factory that represents an unusable primary resource as
+  `SUCCESS` plus an error notice.
 - Extend the existing `ApiResponse` documentation with simple examples and helpers so teams do not
   have to remember low-level notice metadata by hand.
 
@@ -48,10 +91,14 @@ Today this boundary is not explicit enough:
 
 - No immediate migration of every existing endpoint or every legacy screen; the inventory defines
   an explicit migration order and a gate for new BFFs.
+- No additional screen-level error migration based on parsing legacy `detail` text. Temporary
+  compatibility bridges are measured, allowlisted, and removed once their producers are code-first.
 - No redesign of the existing backend response contract:
   `2xx = ApiResponse<T>` and `4xx/5xx = ProblemDetail`.
 - No exposure of backend stack traces or raw exception messages to users.
 - No backend domain decision inside controllers; BFF orchestration remains in `features`.
+- No production client-side diagnostic store, support reference, or telemetry event carries raw
+  server prose. It carries only redacted structured context and correlation identifiers.
 
 ## Context packs
 

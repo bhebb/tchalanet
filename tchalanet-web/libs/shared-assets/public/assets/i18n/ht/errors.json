@@ -44,6 +44,38 @@
         }
       },
       "codes": {
+        "access": {
+          "authentication_required": {
+            "title": "Sesyon obligatwa",
+            "message": "Konekte ankò pou kontinye."
+          },
+          "denied": {
+            "title": "Aksè refize",
+            "message": "Kont ou pa ka fè aksyon sa a."
+          },
+          "context": {
+            "tenant_required": {
+              "title": "Espas obligatwa",
+              "message": "Chwazi yon espas aktif anvan ou kontinye."
+            },
+            "user_not_bootstrapped": {
+              "title": "Sesyon pa pare",
+              "message": "Konekte ankò pou kontinye."
+            },
+            "seller_terminal_required": {
+              "title": "Vandè obligatwa",
+              "message": "Chwazi yon vandè aktif anvan ou kontinye."
+            },
+            "operational_context_required": {
+              "title": "Kontèks operasyon obligatwa",
+              "message": "Retounen nan espas operasyon an epi eseye ankò."
+            },
+            "operational_context_untrusted": {
+              "title": "Kontèks operasyon pa valid",
+              "message": "Relouvri operasyon an nan yon kontèks ki valid."
+            }
+          }
+        },
         "request": {
           "missing_parameter": {
             "title": "Enfomasyon manke",

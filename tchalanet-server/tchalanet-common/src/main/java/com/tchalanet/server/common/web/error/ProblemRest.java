@@ -23,18 +23,66 @@ public final class ProblemRest {
    * translate a stable {@code code} without parsing diagnostics.
    */
   public static ProblemRestException of(HttpStatus status, ErrorDescriptor descriptor) {
-    return of(status, descriptor, null);
+    return of(status, descriptor, Map.of(), null);
   }
 
   /** Code-first variant that preserves the root cause for server logging only. */
   public static ProblemRestException of(
       HttpStatus status, ErrorDescriptor descriptor, Throwable cause) {
+    return of(status, descriptor, Map.of(), cause);
+  }
+
+  /** Preferred code-first factory for new producers. */
+  public static ProblemRestException of(ErrorDescriptor descriptor) {
+    return of(descriptor.expectedStatus(), descriptor, Map.of(), null);
+  }
+
+  /** Preferred code-first factory for new producers with descriptor-approved public parameters. */
+  public static ProblemRestException of(
+      ErrorDescriptor descriptor, Map<String, ?> params, Throwable cause) {
+    return of(descriptor.expectedStatus(), descriptor, params, cause);
+  }
+
+  private static ProblemRestException of(
+      HttpStatus status, ErrorDescriptor descriptor, Map<String, ?> params, Throwable cause) {
+    if (status != descriptor.expectedStatus()) {
+      throw new IllegalArgumentException(
+          "Descriptor status does not match the status requested by the producer");
+    }
+    var safeParams = approvedParams(descriptor, params);
     ProblemDetail pd = ProblemDetail.forStatus(status);
-    pd.setDetail(descriptor.code());
+    pd.setDetail("Request could not be completed");
     pd.setProperty("code", descriptor.code());
-    pd.setProperty("category", descriptor.category().name());
+    pd.setProperty("category", descriptor.category().wireValue());
     pd.setProperty("retryPolicy", descriptor.retryPolicy().name());
+    pd.setProperty("retryable", descriptor.retryPolicy().retryable());
+    if (!safeParams.isEmpty()) {
+      pd.setProperty("params", safeParams);
+    }
     return cause == null ? new ProblemRestException(pd) : new ProblemRestException(pd, cause);
+  }
+
+  private static Map<String, Object> approvedParams(
+      ErrorDescriptor descriptor, Map<String, ?> supplied) {
+    if (supplied == null || supplied.isEmpty()) {
+      return Map.of();
+    }
+    var approved = new LinkedHashMap<String, Object>();
+    for (var entry : supplied.entrySet()) {
+      var parameter =
+          descriptor.publicParams().stream()
+              .filter(spec -> spec.name().equals(entry.getKey()))
+              .findFirst()
+              .orElse(null);
+      if (parameter == null) {
+        throw new IllegalArgumentException("Error parameter is not declared by the descriptor");
+      }
+      if (!parameter.accepts(entry.getValue())) {
+        throw new IllegalArgumentException("Error parameter does not match its declared type");
+      }
+      approved.put(entry.getKey(), entry.getValue());
+    }
+    return Map.copyOf(approved);
   }
 
   public static ProblemRestException of(

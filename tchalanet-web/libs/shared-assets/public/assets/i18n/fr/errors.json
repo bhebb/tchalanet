@@ -44,6 +44,38 @@
         }
       },
       "codes": {
+        "access": {
+          "authentication_required": {
+            "title": "Session requise",
+            "message": "Reconnectez-vous pour continuer."
+          },
+          "denied": {
+            "title": "Accès refusé",
+            "message": "Votre compte ne peut pas effectuer cette action."
+          },
+          "context": {
+            "tenant_required": {
+              "title": "Espace requis",
+              "message": "Sélectionnez un espace actif avant de continuer."
+            },
+            "user_not_bootstrapped": {
+              "title": "Session non prête",
+              "message": "Reconnectez-vous pour continuer."
+            },
+            "seller_terminal_required": {
+              "title": "Vendeur requis",
+              "message": "Sélectionnez un vendeur actif avant de continuer."
+            },
+            "operational_context_required": {
+              "title": "Contexte opérationnel requis",
+              "message": "Revenez dans l’espace opérationnel puis réessayez."
+            },
+            "operational_context_untrusted": {
+              "title": "Contexte opérationnel invalide",
+              "message": "Rouvrez l’opération depuis un contexte valide."
+            }
+          }
+        },
         "request": {
           "missing_parameter": {
             "title": "Information manquante",

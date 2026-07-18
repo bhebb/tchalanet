@@ -3,12 +3,14 @@ package com.tchalanet.server.common.web.error;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.tchalanet.server.common.web.api.CommonErrorCodes;
+import jakarta.persistence.EntityNotFoundException;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.mock.http.MockHttpInputMessage;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -55,6 +57,82 @@ class GlobalErrorHandlerTest {
     assertThat(problem).isNotNull();
     assertThat(problem.getDetail()).isEqualTo("Malformed request body");
     assertThat(problem.getProperties().toString()).doesNotContain("secret");
+    assertThat(problem.getProperties()).doesNotContainKey("cause");
+  }
+
+  @Test
+  void doesNotExposeLegacyIllegalStateMessageOrClassName() {
+    var response =
+        handler.handleLegacyIllegalState(
+            new IllegalStateException("seller PIN 123456 should never leave the server"), request());
+
+    var problem = response.getBody();
+    assertThat(problem).isNotNull();
+    assertThat(response.getStatusCode()).isEqualTo(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR);
+    assertThat(problem.getDetail()).doesNotContain("123456");
+    assertThat(problem.getProperties().toString()).doesNotContain("IllegalStateException");
+    assertThat(problem.getProperties()).doesNotContainKey("cause");
+  }
+
+  @Test
+  void legacyProblemRestProseIsNeverReturnedAndGetsAFallbackCode() {
+    var response =
+        handler.handleProblemRest(
+            ProblemRest.internal("No usage provider found for usageKey: confidential_usage_key"),
+            request());
+
+    var problem = response.getBody();
+    assertThat(problem).isNotNull();
+    assertThat(problem.getDetail()).isEqualTo("Request could not be completed");
+    assertThat(problem.getProperties())
+        .containsEntry("code", CommonErrorCodes.INTERNAL_UNEXPECTED)
+        .containsEntry("category", "unexpected")
+        .doesNotContainKey("cause");
+    assertThat(problem.toString()).doesNotContain("confidential_usage_key");
+  }
+
+  @Test
+  void legacyCodeInDetailBecomesStructuredCodeWithoutLeakingProperties() {
+    var response =
+        handler.handleProblemRest(
+            ProblemRest.forbidden(
+                "entitlement.feature_required", Map.of("feature", "private_feature_key")), request());
+
+    var problem = response.getBody();
+    assertThat(problem).isNotNull();
+    assertThat(problem.getDetail()).isEqualTo("Request could not be completed");
+    assertThat(problem.getProperties())
+        .containsEntry("code", "entitlement.feature_required")
+        .doesNotContainKey("feature");
+    assertThat(problem.toString()).doesNotContain("private_feature_key");
+  }
+
+  @Test
+  void securityDenialDoesNotExposeTenantOrPolicyDiagnostics() {
+    var response =
+        handler.handleAccessDenied(
+            new AccessDeniedException("tenant=private-tenant permission=results.override"), request());
+
+    var problem = response.getBody();
+    assertThat(problem).isNotNull();
+    assertThat(problem.getProperties()).containsEntry("code", CommonErrorCodes.ACCESS_DENIED);
+    assertThat(problem.toString())
+        .doesNotContain("private-tenant")
+        .doesNotContain("results.override");
+  }
+
+  @Test
+  void persistenceNotFoundDoesNotExposeRlsOrQueryDiagnostics() {
+    var response =
+        handler.handleJpaNotFound(
+            new EntityNotFoundException("RLS tenant=private-tenant query=select secret_pin"), request());
+
+    var problem = response.getBody();
+    assertThat(problem).isNotNull();
+    assertThat(problem.getProperties()).containsEntry("code", CommonErrorCodes.RESOURCE_NOT_FOUND);
+    assertThat(problem.toString())
+        .doesNotContain("private-tenant")
+        .doesNotContain("secret_pin");
   }
 
   @Test

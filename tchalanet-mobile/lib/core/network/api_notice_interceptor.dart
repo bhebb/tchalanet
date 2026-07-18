@@ -22,7 +22,7 @@ class ApiNoticeInterceptor extends Interceptor {
 List<ApiNotice> extractApiNotices(Response<dynamic> response) {
   final body = response.data;
   if (body is! Map || body['notices'] is! List) return const [];
-  final traceId = response.headers.value('X-Request-Id');
+  final traceId = response.headers.value('X-Trace-Id');
   return [
     for (final raw in body['notices'] as List)
       if (raw is Map)

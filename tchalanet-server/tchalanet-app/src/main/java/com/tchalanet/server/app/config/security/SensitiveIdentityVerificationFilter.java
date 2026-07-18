@@ -13,7 +13,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
-import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -26,7 +25,7 @@ final class SensitiveIdentityVerificationFilter extends OncePerRequestFilter {
 
   SensitiveIdentityVerificationFilter(
       IdentityProviderApi identityProviderApi, RequestMatcher sensitiveRequestMatcher) {
-    this(identityProviderApi, sensitiveRequestMatcher, new BearerTokenAuthenticationEntryPoint());
+    this(identityProviderApi, sensitiveRequestMatcher, new ProblemDetailSecurityFailureHandler());
   }
 
   SensitiveIdentityVerificationFilter(

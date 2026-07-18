@@ -65,6 +65,10 @@ ApiException mapDioException(DioException e) {
       spanId: _extractSpanId(e.response),
       errorId: _extractString(e.response?.data, 'errorId'),
       code: _extractString(e.response?.data, 'code'),
+      category: _extractString(e.response?.data, 'category'),
+      retryPolicy: _extractString(e.response?.data, 'retryPolicy'),
+      retryable: _extractBool(e.response?.data, 'retryable'),
+      params: _extractParams(e.response?.data),
     ),
     DioExceptionType.connectionError => ApiException(
       message: 'Impossible de se connecter au serveur',
@@ -101,10 +105,18 @@ String? _extractString(dynamic data, String key) {
   return value == null || value.isEmpty ? null : value;
 }
 
+bool _extractBool(dynamic data, String key) {
+  if (data is! Map) return false;
+  return data[key] is bool && data[key] as bool;
+}
+
+Map<String, Object?> _extractParams(dynamic data) {
+  if (data is! Map || data['params'] is! Map) return const {};
+  return Map<String, Object?>.from(data['params'] as Map);
+}
+
 String _extractErrorMessage(dynamic data) {
-  if (data is Map<String, dynamic>) {
-    return (data['detail'] ?? data['message'] ?? data['title'])?.toString() ??
-        'Erreur serveur';
-  }
+  // Detail, title and message are diagnostics, never a mobile display contract.
+  // UI migration will resolve the stable code through the active locale bundle.
   return 'Erreur serveur';
 }
