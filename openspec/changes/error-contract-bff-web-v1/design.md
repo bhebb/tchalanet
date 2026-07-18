@@ -1,5 +1,25 @@
 # Design — error-contract-bff-web-v1
 
+## Reconciliation status
+
+This change was previously marked complete. That was inaccurate. The server has much of the
+envelope infrastructure (`GlobalErrorHandler`, `ApiResponseBodyAdvice`, response context and
+notice helper), but a reliable product contract is not complete until all clients can retain,
+classify, translate, place, and test the feedback.
+
+The audit found the following gaps:
+
+- the web code resolver supports exact keys, but no shipped web locale bundle currently defines
+  `common.errors.codes.*`; its tests use synthetic translation maps;
+- the documented `api-feedback.interceptor` does not exist, and data-only client helpers can drop
+  `ApiResponse.notices` before a page owns them;
+- Flutter maps some server `detail`/`message` values directly into visible copy and treats all 2xx
+  notices as temporary notifications;
+- the generic web page error is only a minimal panel, without an owner-declared retry policy,
+  support action, or consistent focus recovery.
+
+The implementation is therefore a controlled reconciliation, not a second error system.
+
 ## Server contract
 
 The server already has two response channels:
@@ -53,12 +73,19 @@ The response remains `2xx` and uses:
 - `ApiNotice.code` as a stable machine code;
 - `ApiNotice.severity` as `INFO`, `WARN`, or `ERROR`;
 - `ApiNotice.domain` or source as the owning slice;
-- `ApiNotice.meta` for support correlation:
+- `ApiNotice.meta` for support correlation and, only for BFF presentation degradation, a small
+  presentation descriptor:
   - `requestId`;
   - `traceId`;
   - `spanId`;
   - `errorId`;
-  - optional `slice` or `operation`.
+  - optional `slice` or `operation`;
+  - optional `surface`, `placement`, and `target`.
+
+`surface`/`placement`/`target` are reserved for a BFF that owns a recoverable screen or block.
+They are not a universal requirement. A domain notice such as a sales limit, promotion, fee, or
+approval remains UI-agnostic and is rendered by the feature that owns the transaction. Core domain
+code must never depend on a web or Flutter component id.
 
 Example code shape:
 
@@ -256,6 +283,11 @@ Frontend resolution order:
 
 Fallback exists for resilience, not as the normal state for known product errors.
 
+This rule applies to the three web apps (public, admin, platform) and Flutter. A stable backend code
+is a machine contract, not product copy. Client copy MUST come from its shipped locale bundles.
+`message`, `detail`, and `title` can be retained as protected diagnostics but MUST NOT be the normal
+visible fallback for a customer or operator.
+
 Translation key examples:
 
 ```text
@@ -264,6 +296,50 @@ common.errors.codes.platform.identity.activation.error.message
 common.errors.categories.service_unavailable.title
 common.errors.categories.service_unavailable.message
 ```
+
+Every product-visible code in the backend catalog must be represented in the actual `ht`, `fr`, and
+`en` bundles of both client families. The parity test reads the shipped bundles; it must not use a
+mock translation function. An unknown code renders a generic localized category message while
+preserving the code and support reference for diagnostics.
+
+## Client feedback ownership
+
+Each response has one owner. The client adapter does not make that decision from HTTP status alone.
+
+| Feedback kind | Owner | Expected presentation |
+|---|---|---|
+| Blocking navigation/read failure | page | recovery surface |
+| Optional BFF slice degradation | BFF target section, otherwise page | section/page warning with support reference |
+| Domain sales/promotion/limit notice | feature | transaction/POS notice, never global shell by default |
+| Form-wide business rejection | form block | block error above the relevant controls |
+| Field validation | field/form | inline field error and first-invalid focus |
+| Unowned session/cross-cutting failure | shell | shell feedback or login recovery |
+
+The public, admin, and platform shells use the same decision tree, while each keeps its own route
+and visual component tree. Flutter uses the same ownership semantics and maps temporary banners only
+after the feature or screen has accepted the notice.
+
+## Recovery and post-submit focus
+
+The generic recovery UI is a dedicated surface, not a replacement for loading/empty/section states.
+It is mobile-first: one column, 16px minimum inline margin, full-width primary action, readable
+support reference, and no hidden hover-only action. Desktop may constrain the measure but cannot
+remove the actions.
+
+It accepts a typed view model with localized title/message, `retryable`, a safe primary retry action,
+a back action, and an authenticated-admin support action. Retrying is opt-in from the owning read
+resource; a mutation is never retried automatically.
+
+Mutation outcome is explicit:
+
+```text
+editing -> submitting -> confirmed | field-errors | block-error
+```
+
+- confirmed/warning outcomes remain visible in the affected block and receive focus;
+- a field error marks the field, exposes inline text, and moves focus to the first invalid control;
+- a block error is announced and receives focus;
+- generic shell feedback is only a fallback when no local owner exists.
 
 ## Trace and support reference
 
