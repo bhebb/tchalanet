@@ -125,6 +125,74 @@ generic fallback messages.
 - **THEN** it falls back to category/severity copy
 - **AND** retains the original code and trace identifiers in support-safe diagnostics
 
+### Requirement: Product-visible error codes have verified client copy
+
+Every product-visible backend error or notice code SHALL have title and message copy in the shipped
+Haitian Creole, French, and English bundles for every client family that can receive it. Backend
+human-readable text SHALL NOT be the normal visible fallback.
+
+#### Scenario: Known backend code reaches a client
+
+- **WHEN** a public, admin, platform, or mobile client receives a known product-visible code
+- **THEN** it renders its local exact-code translation
+- **AND** a CI parity test proves that the locale bundle contains title and message copy
+- **AND** it does not display `ProblemDetail.title`, `ProblemDetail.detail`, or `ApiNotice.message`
+  as primary product copy
+
+#### Scenario: Client receives an unknown code
+
+- **WHEN** a client receives a code absent from its local catalog
+- **THEN** it renders a localized category or generic fallback
+- **AND** it preserves the code and support-safe correlation reference
+- **AND** telemetry/diagnostics make the missing catalog entry discoverable
+
+### Requirement: BFF presentation notices and domain notices have different owners
+
+The contract SHALL distinguish BFF presentation degradation from feature-owned domain notices.
+
+#### Scenario: Optional dashboard slice fails
+
+- **WHEN** a BFF can return the page while one optional slice fails
+- **THEN** its notice MAY include reserved presentation metadata `surface`, `placement`, and `target`
+- **AND** the matching page or section renders the warning without converting it into a blocking error
+
+#### Scenario: Sales domain emits a limit or promotion notice
+
+- **WHEN** core sales emits a notice about a limit, price, promotion, fee, or approval
+- **THEN** the notice remains UI-agnostic
+- **AND** the sales feature owns its placement
+- **AND** core sales does not contain a web or mobile component target
+
+### Requirement: Clients retain and route response feedback explicitly
+
+Public, admin, platform, and mobile clients SHALL retain the successful response envelope until its
+notices have been routed to an explicit owner.
+
+#### Scenario: BFF response carries a section warning
+
+- **WHEN** a client receives `ApiResponse<T>` with a targeted BFF notice
+- **THEN** it does not discard the notice while unwrapping `data`
+- **AND** it routes the notice to the declared section or page owner
+- **AND** it does not show a duplicate shell notification
+
+### Requirement: Feedback recovery is accessible and mobile-first
+
+Blocking page failures and mutation outcomes SHALL use an owner-aware recovery model in web and
+mobile clients.
+
+#### Scenario: Read resource fails on a phone
+
+- **WHEN** a blocking page resource fails on a narrow viewport
+- **THEN** the recovery surface presents localized copy, an owner-declared retry when safe, a back
+  action, and a copyable safe support reference without requiring hover or horizontal scrolling
+
+#### Scenario: Form validation fails
+
+- **WHEN** a backend validation response identifies invalid fields
+- **THEN** the client renders the error in the form/field owner
+- **AND** focus moves to the first invalid field
+- **AND** a generic shell error is not shown in duplicate
+
 ### Requirement: Support references exist for blocking and non-blocking failures
 
 Both blocking errors and non-blocking notices SHALL preserve support correlation identifiers whenever
