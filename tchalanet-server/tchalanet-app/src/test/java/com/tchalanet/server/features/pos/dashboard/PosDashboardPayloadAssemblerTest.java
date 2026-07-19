@@ -15,7 +15,7 @@ import com.tchalanet.server.common.context.scope.ApiScope;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.common.web.api.ApiResponseContext;
+import com.tchalanet.server.common.web.advice.ApiResponseContext;
 import com.tchalanet.server.core.analytics.api.query.GetCashierDashboardStatsQuery;
 import com.tchalanet.server.core.draw.api.query.ListCashierNextDrawsQuery;
 import com.tchalanet.server.core.sales.api.query.CashierDashboardOverviewView;

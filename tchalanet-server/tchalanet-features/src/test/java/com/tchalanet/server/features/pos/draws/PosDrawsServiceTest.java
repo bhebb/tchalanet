@@ -88,7 +88,9 @@ class PosDrawsServiceTest {
             (id, date) -> new TenantBusinessDayView(id, date, true, null, null),
             new FixedTimeProvider(scheduledAt));
 
-    var draw = service.listAvailable(ctx(tenantId), 24, 20).single();
+    var availableDraws = service.listAvailable(ctx(tenantId), 24, 20);
+    assertThat(availableDraws).hasSize(1);
+    var draw = availableDraws.getFirst();
 
     assertThat(draw.providerDate()).isEqualTo(LocalDate.of(2026, 7, 19));
     assertThat(draw.providerTime()).isEqualTo(LocalTime.of(18, 59));
