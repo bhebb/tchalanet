@@ -14,18 +14,31 @@ export interface TchDiagnosticInfo {
 
 export type NoticeSeverity = 'INFO' | 'WARN' | 'ERROR' | 'info' | 'success' | 'warning' | 'error';
 
+export interface ApiNoticeSource {
+  readonly source: string;
+  readonly service?: string;
+  readonly operation?: string;
+}
+
+export interface ApiNoticeTrace extends TchDiagnosticInfo {
+  readonly errorId?: string;
+}
+
 export interface ApiNotice {
   readonly code: string;
   /** Diagnostic-only during migration. Clients translate the stable code. */
-  readonly message: string;
+  readonly message?: string | null;
   readonly domain?: string | null;
   readonly severity: NoticeSeverity;
   readonly kind?: 'BUSINESS' | 'DEGRADATION' | 'INFORMATION' | string;
   readonly retryPolicy?: string;
   readonly retryable?: boolean;
-  readonly params?: Readonly<Record<string, string | number | boolean>>;
-  readonly meta?: Readonly<Record<string, unknown>> | null;
+  readonly source?: ApiNoticeSource;
   readonly target?: string;
+  readonly params?: Readonly<Record<string, string | number | boolean>>;
+  readonly trace?: ApiNoticeTrace;
+  /** @deprecated Compatibility bridge for producers not yet emitting structured fields. */
+  readonly meta?: Readonly<Record<string, unknown>> | null;
 }
 
 export interface ServiceStatus {

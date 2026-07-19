@@ -1,15 +1,17 @@
-package com.tchalanet.server.common.web.advice;
+package com.tchalanet.server.features.shared.bff;
 
+import com.tchalanet.server.common.web.advice.ApiResponseContext;
+import com.tchalanet.server.common.web.advice.ApiResponseNotices;
 import com.tchalanet.server.common.web.api.ServiceStatus;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Deterministic helper for BFF endpoints that aggregate required and optional slices.
+ * Feature composition support for required and optional BFF slices.
  *
- * <p>Required slices preserve normal exception flow. Optional slices add a standardized notice and
- * return their fallback value so {@code ApiResponseBodyAdvice} can publish one partial-success
- * response.
+ * <p>Required slices preserve their exception flow. Optional slices retain primary data, publish a
+ * degradation notice, and return their explicit fallback. The helper deliberately does not catch
+ * JVM {@link Error}s.
  */
 @UtilityClass
 @Slf4j
@@ -22,16 +24,13 @@ public class BffSlices {
   public static <T> T optional(BffSlicePolicy<T> policy, SliceSupplier<T> supplier) {
     try {
       return supplier.get();
-    } catch (RuntimeException | Error ex) {
-      addFailure(policy, ex);
-      return policy.fallback().get();
-    } catch (Exception ex) {
+    } catch (RuntimeException ex) {
       addFailure(policy, ex);
       return policy.fallback().get();
     }
   }
 
-  private static void addFailure(BffSlicePolicy<?> policy, Throwable ex) {
+  private static void addFailure(BffSlicePolicy<?> policy, RuntimeException ex) {
     log.warn(
         "bff_slice.degraded code={} domain={} source={} operation={}",
         policy.code(),
@@ -45,7 +44,8 @@ public class BffSlices {
         policy.severity(),
         policy.source(),
         ex,
-        policy.safeParams());
+        policy.safeParams(),
+        policy.target());
 
     if (policy.serviceStatus() != null && policy.source().service() != null) {
       ApiResponseContext.get()

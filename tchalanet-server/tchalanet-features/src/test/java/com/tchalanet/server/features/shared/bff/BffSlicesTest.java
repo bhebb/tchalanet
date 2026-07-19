@@ -1,8 +1,9 @@
-package com.tchalanet.server.common.web.advice;
+package com.tchalanet.server.features.shared.bff;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.tchalanet.server.common.web.advice.ApiResponseContext;
 import com.tchalanet.server.common.web.api.NoticeKind;
 import com.tchalanet.server.common.web.api.NoticeSeverity;
 import com.tchalanet.server.common.web.api.NoticeSource;
@@ -21,19 +22,13 @@ class BffSlicesTest {
   void requiredSlicePreservesBlockingExceptionFlow() {
     var failure = new IllegalStateException("stable-code-owner-exception");
 
-    assertThatThrownBy(
-            () ->
-                BffSlices.required(
-                    () -> {
-                      throw failure;
-                    }))
-        .isSameAs(failure);
+    assertThatThrownBy(() -> BffSlices.required(() -> { throw failure; })).isSameAs(failure);
 
     assertThat(ApiResponseContext.get().getNotices()).isEmpty();
   }
 
   @Test
-  void optionalSliceReturnsFallbackAndAddsNotice() {
+  void optionalSliceReturnsFallbackAndAddsDegradationNotice() {
     var result =
         BffSlices.optional(
             BffSlicePolicy.warn(
@@ -51,21 +46,19 @@ class BffSlicesTest {
         .singleElement()
         .satisfies(
             notice -> {
-              assertThat(notice.code()).isEqualTo("platform.identity.activation.error");
-              assertThat(notice.severity()).isEqualTo(NoticeSeverity.WARN);
               assertThat(notice.kind()).isEqualTo(NoticeKind.DEGRADATION);
               assertThat(notice.message()).isNull();
+              assertThat(notice.target()).isEqualTo("identity.activation");
               assertThat(notice.meta())
                   .containsEntry("source", "identityActivation")
                   .containsEntry("service", "keycloak")
-                  .containsEntry("surface", "section")
-                  .containsEntry("target", "identity.activation")
+                  .doesNotContainKeys("target", "surface", "placement")
                   .containsKey("errorId");
             });
   }
 
   @Test
-  void optionalSliceCanMarkDownstreamServiceDegraded() {
+  void optionalSliceCanMarkAnActualDownstreamCapabilityDegraded() {
     BffSlices.optional(
         BffSlicePolicy.warn(
                 "features.dashboard.provider_results.degraded",
@@ -85,5 +78,25 @@ class BffSlicesTest {
               assertThat(service.status()).isEqualTo(ServiceHealth.DEGRADED);
               assertThat(service.message()).isNull();
             });
+  }
+
+  @Test
+  void optionalSliceDoesNotSwallowJvmErrors() {
+    var failure = new AssertionError("fatal test failure");
+
+    assertThatThrownBy(
+            () ->
+                BffSlices.optional(
+                    BffSlicePolicy.warn(
+                        "features.dashboard.slice_unavailable",
+                        "features.dashboard",
+                        NoticeSource.of("dashboard"),
+                        "fallback"),
+                    () -> {
+                      throw failure;
+                    }))
+        .isSameAs(failure);
+
+    assertThat(ApiResponseContext.get().getNotices()).isEmpty();
   }
 }

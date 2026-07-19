@@ -9,6 +9,9 @@ import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchActorType;
 import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
+import com.tchalanet.server.common.web.error.ProblemRestException;
+import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
@@ -39,6 +42,54 @@ class OpsSalesSimulationServiceTest {
 
     assertThat(key).isEqualTo("ops-sales-sim:30000000-0000-0000-0000-000000000001:12345");
     assertThat(key).hasSizeLessThanOrEqualTo(96);
+  }
+
+  @Test
+  void rejectsAnEmptyTicketMixWithTheDeclaredStableCode() {
+    var exception =
+        org.assertj.core.api.Assertions.catchThrowableOfType(
+            () -> service.simulate(request(new OpsSalesSimulationRequest.TicketMix(0, 0, 0, 0, 0), true, 1, null)),
+            ProblemRestException.class);
+
+    assertThat(exception.getProblem().getProperties()).containsEntry("code", "ops.sales_simulation.empty_mix");
+  }
+
+  @Test
+  void rejectsExcessiveVolumeWithOnlyDeclaredPublicParameters() {
+    var exception =
+        org.assertj.core.api.Assertions.catchThrowableOfType(
+            () -> service.simulate(request(new OpsSalesSimulationRequest.TicketMix(2, 0, 0, 0, 0), true, 1, null)),
+            ProblemRestException.class);
+
+    assertThat(exception.getProblem().getProperties())
+        .containsEntry("code", "ops.sales_simulation.too_many_tickets")
+        .containsEntry("params", java.util.Map.of("requestedTickets", 2, "maxTickets", 1));
+  }
+
+  @Test
+  void requiresAnAuditReasonBeforeExecutingSales() {
+    var exception =
+        org.assertj.core.api.Assertions.catchThrowableOfType(
+            () -> service.simulate(request(new OpsSalesSimulationRequest.TicketMix(1, 0, 0, 0, 0), false, 2, "  ")),
+            ProblemRestException.class);
+
+    assertThat(exception.getProblem().getProperties())
+        .containsEntry("code", "ops.sales_simulation.reason_required");
+  }
+
+  private static OpsSalesSimulationRequest request(
+      OpsSalesSimulationRequest.TicketMix mix, boolean dryRun, int maxTickets, String reason) {
+    return new OpsSalesSimulationRequest(
+        UUID.randomUUID(),
+        List.of(UUID.randomUUID()),
+        List.of(UUID.randomUUID()),
+        mix,
+        "HTG",
+        BigDecimal.ONE,
+        1L,
+        dryRun,
+        maxTickets,
+        reason);
   }
 
   private static final class FailingCommandBus implements CommandBus {

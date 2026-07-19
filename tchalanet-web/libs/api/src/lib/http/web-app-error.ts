@@ -91,19 +91,21 @@ export function webAppErrorFromNotice(
   surface: WebErrorSurface = 'shell',
 ): WebAppError {
   const meta = notice.meta ?? {};
-  const noticeSource = stringMeta(meta, 'source') ?? notice.target ?? notice.domain ?? source;
+  const noticeSource =
+    notice.source?.source ?? stringMeta(meta, 'source') ?? notice.target ?? notice.domain ?? source;
   const status = numberMeta(meta, 'status');
   const category =
     categoryFromWireValue(stringMeta(meta, 'category')) ??
     categoryFromCodeStatus(notice.code, status);
   const severity = severityFromNotice(notice.severity);
-  const requestId = stringMeta(meta, 'requestId') ?? trace?.requestId;
-  const traceId = stringMeta(meta, 'traceId') ?? trace?.traceId;
-  const spanId = stringMeta(meta, 'spanId') ?? trace?.spanId;
-  const errorId = stringMeta(meta, 'errorId');
+  const requestId =
+    notice.trace?.requestId ?? stringMeta(meta, 'requestId') ?? trace?.requestId;
+  const traceId = notice.trace?.traceId ?? stringMeta(meta, 'traceId') ?? trace?.traceId;
+  const spanId = notice.trace?.spanId ?? stringMeta(meta, 'spanId') ?? trace?.spanId;
+  const errorId = notice.trace?.errorId ?? stringMeta(meta, 'errorId');
   const resolvedSurface = surfaceFromMeta(meta) ?? surface;
   const placement = placementFromMeta(meta) ?? defaultPlacement(resolvedSurface);
-  const target = stringMeta(meta, 'target') ?? notice.target;
+  const target = notice.target ?? stringMeta(meta, 'target');
   const field = stringMeta(meta, 'field');
 
   return {

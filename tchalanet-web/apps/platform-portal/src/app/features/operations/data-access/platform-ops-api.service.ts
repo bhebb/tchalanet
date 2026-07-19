@@ -334,7 +334,7 @@ export interface OpsSalesSimulationFailure {
   game: string;
   selection: string;
   status?: number | null;
-  message: string;
+  code: string;
 }
 
 export interface OpsSalesSimulationResponse {

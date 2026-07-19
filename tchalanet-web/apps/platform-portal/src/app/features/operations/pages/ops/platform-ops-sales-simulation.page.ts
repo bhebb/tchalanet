@@ -137,6 +137,12 @@ export class PlatformOpsSalesSimulationPage {
     );
   };
 
+  failureMessage(code: string): string {
+    const key = `common.errors.codes.${code}.message`;
+    const translated = this.translate.instant(key);
+    return translated === key ? this.t('common.errors.fallback.message') : translated;
+  }
+
   selectTenant(option: TchSearchOption | null): void {
     this.selectedTenant.set((option?.data as TenantSummaryView | undefined) ?? null);
     this.sellerTerminals.set([]);

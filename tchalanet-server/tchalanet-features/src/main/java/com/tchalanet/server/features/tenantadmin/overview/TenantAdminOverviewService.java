@@ -1,8 +1,8 @@
 package com.tchalanet.server.features.tenantadmin.overview;
 
 import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.common.web.advice.BffSlicePolicy;
-import com.tchalanet.server.common.web.advice.BffSlices;
+import com.tchalanet.server.features.shared.bff.BffSlicePolicy;
+import com.tchalanet.server.features.shared.bff.BffSlices;
 import com.tchalanet.server.common.web.api.NoticeSource;
 import com.tchalanet.server.features.tenantadmin.error.TenantAdminErrorCodes;
 import com.tchalanet.server.features.tenantadmin.readiness.TenantReadinessAssembler;

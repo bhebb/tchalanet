@@ -358,6 +358,12 @@
             "message": "This sale exceeds a configured limit for this draw or number. Reduce the stake, choose another number, or remove the affected line."
           }
         },
+        "subscription": {
+          "cancelled": { "title": "Subscription cancelled", "message": "The subscription has been cancelled." },
+          "renewed": { "title": "Subscription renewed", "message": "The subscription has been renewed." },
+          "resumed": { "title": "Subscription resumed", "message": "The subscription has been resumed." },
+          "suspended": { "title": "Subscription suspended", "message": "The subscription has been suspended." }
+        },
         "sales": {
           "promotion_applied": {
             "title": "Free Maryaj added",
@@ -1279,6 +1285,16 @@
             "delete_in_use": {
               "title": "Deletion unavailable",
               "message": "This game is already used in a tenant configuration."
+            },
+            "deactivated": {
+              "title": "Game deactivated",
+              "message": "The game has been deactivated."
+            }
+          },
+          "plan": {
+            "deactivated": {
+              "title": "Plan deactivated",
+              "message": "The plan has been deactivated."
             }
           },
           "drawchannel": {
@@ -1307,6 +1323,42 @@
             "game_key_invalid": {
               "title": "Invalid game",
               "message": "Choose a supported game for this slot."
+            }
+          }
+        },
+        "platform": {
+          "communication": {
+            "test_degraded": {
+              "title": "Communication test incomplete",
+              "message": "The test could not reach its destination. Check the channel configuration."
+            }
+          }
+        },
+        "public": {
+          "contact_request": {
+            "notification_failed": {
+              "title": "Request received",
+              "message": "Your request was received, but our team has not yet received the notification."
+            }
+          }
+        },
+        "ops": {
+          "sales_simulation": {
+            "empty_mix": {
+              "title": "Ticket mix required",
+              "message": "Add at least one ticket to the mix."
+            },
+            "too_many_tickets": {
+              "title": "Too many tickets",
+              "message": "Reduce the ticket count before running the simulation."
+            },
+            "reason_required": {
+              "title": "Reason required",
+              "message": "Provide a reason before executing the simulation."
+            },
+            "draw_not_in_tenant": {
+              "title": "Invalid draw",
+              "message": "One of the draws does not belong to the selected tenant."
             }
           }
         }

@@ -58,3 +58,17 @@ platform.<capability>.api  for transversal application service
 catalog.<name>.api         for reference data
 common                     only for pure technical primitives
 ```
+
+## 6. BFF aggregation
+
+Feature endpoints own the meaning of their composed slices. A feature must classify each dependency
+as required or optional; only this orchestration decides whether a downstream failure blocks the
+whole response.
+
+- Keep HTTP envelopes, response context, trace metadata, and transport normalization in `common`.
+- Keep required/optional slice policy and fallback composition in `features.shared.bff`.
+- A required slice preserves its stable blocking failure; it must not be converted into a partial
+  result.
+- An optional slice returns an explicit fallback, emits one stable degradation notice, and never
+  catches JVM `Error`s.
+- Empty business data and an unavailable slice are distinct states.

@@ -66,19 +66,24 @@ describe('web app error normalization', () => {
     expect(error.dedupeKey).not.toContain('provider.internal_failure');
   });
 
-  it('normalizes non-blocking ApiNotice metadata without turning it into an HTTP error', () => {
+  it('prefers structured non-blocking ApiNotice fields over its legacy meta bridge', () => {
     const notice: ApiNotice = {
       code: 'platform.identity.activation.error',
       message: 'Identity activation could not be completed.',
       domain: 'platform.identity',
       severity: 'WARN',
-      meta: {
+      source: {
         source: 'identityActivation',
         service: 'identity-provider',
         operation: 'completeFirstLogin',
-        requestId: 'req-2',
-        traceId: 'trace-2',
-        errorId: 'err-2',
+      },
+      target: 'identity.activation',
+      trace: { requestId: 'req-2', traceId: 'trace-2', spanId: 'span-2', errorId: 'err-2' },
+      meta: {
+        source: 'legacy-source',
+        requestId: 'legacy-request',
+        traceId: 'legacy-trace',
+        errorId: 'legacy-error',
       },
     };
 
@@ -90,6 +95,7 @@ describe('web app error normalization', () => {
     expect(error.source).toBe('identityActivation');
     expect(error.requestId).toBe('req-2');
     expect(error.traceId).toBe('trace-2');
+    expect(error.spanId).toBe('span-2');
     expect(error.errorId).toBe('err-2');
     expect(error.message).not.toBe(notice.message);
     expect(error).not.toHaveProperty('diagnostics');
@@ -101,10 +107,12 @@ describe('web app error normalization', () => {
       message: 'Commissions are temporarily unavailable.',
       domain: 'dashboard',
       severity: 'WARN',
+      source: { source: 'commissions' },
+      target: 'dashboard.commissions',
       meta: {
         surface: 'section',
         placement: 'top',
-        target: 'dashboard.commissions',
+        target: 'legacy-target',
         source: 'commissions',
       },
     };

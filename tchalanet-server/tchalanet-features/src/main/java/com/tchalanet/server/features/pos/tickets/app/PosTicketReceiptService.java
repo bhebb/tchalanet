@@ -12,6 +12,7 @@ import com.tchalanet.server.core.sales.api.query.receipt.FormatTicketReceiptPrin
 import com.tchalanet.server.features.pos.tickets.error.PosTicketReceiptErrorCodes;
 import com.tchalanet.server.features.pos.tickets.mapper.TicketPrintCommunicationMapper;
 import com.tchalanet.server.features.pos.tickets.mapper.TicketPrintDocumentMapper;
+import com.tchalanet.server.features.pos.tickets.model.PrintDeliveryOption;
 import com.tchalanet.server.features.pos.tickets.model.PrintTicketRequest;
 import com.tchalanet.server.features.pos.tickets.model.SendTicketReceiptRequest;
 import com.tchalanet.server.features.pos.tickets.model.SendTicketReceiptResponse;

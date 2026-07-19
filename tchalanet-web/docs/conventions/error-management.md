@@ -112,17 +112,22 @@ The backend should send a notice like:
   "message": "Commissions are temporarily unavailable.",
   "domain": "dashboard",
   "severity": "WARN",
-  "meta": {
-    "surface": "section",
-    "placement": "top",
-    "target": "tenant_admin_dashboard.commission",
+  "source": {
     "source": "commissions",
-    "service": "commission-service",
-    "operation": "loadWidget",
+    "operation": "loadWidget"
+  },
+  "kind": "DEGRADATION",
+  "target": "tenant_admin_dashboard.commission",
+  "trace": {
     "traceId": "..."
-  }
+  },
+  "meta": {}
 }
 ```
+
+`source`, `target`, safe `params`, and `trace` are the structured API contract. `meta` is a
+temporary compatibility bridge only. A `DEGRADATION` with a functional `target` belongs to the
+client section resolved from that target; the backend never chooses a component or visual placement.
 
 `target` must be a stable functional target. For PageModel dashboards, it names the failed slice
 (for example `tenant_admin_dashboard.commission`), never a widget/component identifier. The
@@ -906,10 +911,8 @@ Required notice shape:
 - stable `code`;
 - `domain`;
 - `severity`;
-- `meta.surface`;
-- `meta.placement`;
-- `meta.target`;
-- correlation fields when available.
+- structured `source`, functional `target`, safe `params`, and `trace` when available;
+- no backend-owned visual placement; a `DEGRADATION` target is mapped to a client section.
 
 Backend BFFs should use `BffSlices.optional(...)` or `ApiResponseNotices` so metadata is assembled
 consistently.

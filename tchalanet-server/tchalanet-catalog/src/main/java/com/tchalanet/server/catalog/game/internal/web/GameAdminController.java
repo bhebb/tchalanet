@@ -9,6 +9,7 @@ import com.tchalanet.server.catalog.game.internal.write.GameAdminService;
 import com.tchalanet.server.common.types.id.GameId;
 import com.tchalanet.server.common.web.api.ApiNotice;
 import com.tchalanet.server.common.web.api.ApiResponse;
+import com.tchalanet.server.common.web.api.NoticeSource;
 import com.tchalanet.server.common.web.api.NoticeSeverity;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.common.web.paging.TchPage;
@@ -16,7 +17,6 @@ import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.common.web.paging.TchPaging;
 import com.tchalanet.server.common.web.paging.TchSearchQuery;
 import jakarta.validation.Valid;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -106,12 +106,13 @@ public class GameAdminController {
   public ApiResponse<Void> deactivate(@PathVariable("id") GameId id) {
     gameAdminService.deactivate(id);
     var notice =
-        new ApiNotice(
-            "GAME_DEACTIVATED",
-            "Le jeu a été désactivé avec succès.",
+        ApiNotice.business(
+            "catalog.game.deactivated",
             "game",
             NoticeSeverity.INFO,
-            Map.of("gameId", id.value()));
+            NoticeSource.of("gameAdmin").operation("deactivate"),
+            "catalog.games",
+            java.util.Map.of("gameId", id.value().toString()));
     return ApiResponse.warn(null, notice);
   }
 }

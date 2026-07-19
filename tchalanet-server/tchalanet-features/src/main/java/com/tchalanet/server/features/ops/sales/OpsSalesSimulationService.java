@@ -13,6 +13,7 @@ import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.money.CurrencyCode;
+import com.tchalanet.server.common.web.api.CommonErrorCodes;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.common.web.error.ProblemRestException;
 import com.tchalanet.server.core.draw.api.query.DrawSummary;
@@ -23,6 +24,7 @@ import com.tchalanet.server.core.sales.api.command.sell.SellTicketOutcome;
 import com.tchalanet.server.core.sales.api.model.communication.SaleCommunicationOptions;
 import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalView;
 import com.tchalanet.server.core.sellerterminal.api.query.GetSellerTerminalQuery;
+import com.tchalanet.server.features.ops.error.OpsErrorCodes;
 import java.math.BigDecimal;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -50,19 +52,17 @@ class OpsSalesSimulationService {
     var normalized = normalize(request);
     int requestedTickets = planner.requestedTickets(normalized);
     if (requestedTickets <= 0) {
-      throw ProblemRest.badRequest("ops.sales_simulation.empty_mix");
+      throw ProblemRest.of(OpsErrorCodes.SALES_SIMULATION_EMPTY_MIX);
     }
     int maxTickets =
         normalized.maxTickets() == null ? DEFAULT_MAX_TICKETS : normalized.maxTickets();
     if (maxTickets <= 0 || requestedTickets > maxTickets) {
-      throw ProblemRest.badRequest(
-          "ops.sales_simulation.too_many_tickets: requested="
-              + requestedTickets
-              + ", max="
-              + maxTickets);
+      throw ProblemRest.of(
+          OpsErrorCodes.SALES_SIMULATION_TOO_MANY_TICKETS,
+          Map.of("requestedTickets", requestedTickets, "maxTickets", maxTickets));
     }
     if (!normalized.dryRun() && (normalized.reason() == null || normalized.reason().isBlank())) {
-      throw ProblemRest.badRequest("ops.sales_simulation.reason_required");
+      throw ProblemRest.of(OpsErrorCodes.SALES_SIMULATION_REASON_REQUIRED);
     }
 
     var simulationId = UUID.randomUUID();
@@ -145,9 +145,9 @@ class OpsSalesSimulationService {
               request.stakeAmount()));
     } catch (ProblemRestException ex) {
       Integer status = ex.getProblem() == null ? null : ex.getProblem().getStatus();
-      stats.failed(ticket, status, ex.getMessage());
+      stats.failed(ticket, status, errorCode(ex));
     } catch (RuntimeException ex) {
-      stats.failed(ticket, null, ex.getMessage());
+      stats.failed(ticket, null, CommonErrorCodes.INTERNAL_UNEXPECTED);
     } finally {
       stats.attempted++;
     }
@@ -161,7 +161,7 @@ class OpsSalesSimulationService {
           TchContextScope.runWithContextResult(
               tenantContext, () -> queryBus.ask(new GetDrawByIdQuery(DrawId.of(drawUuid))));
       if (!tenantId.equals(draw.tenantId())) {
-        throw ProblemRest.badRequest("ops.sales_simulation.draw_not_in_tenant: " + drawUuid);
+        throw ProblemRest.of(OpsErrorCodes.SALES_SIMULATION_DRAW_NOT_IN_TENANT);
       }
       out.put(drawUuid, draw);
     }
@@ -274,6 +274,14 @@ class OpsSalesSimulationService {
   private UUID currentUser() {
     var current = TchContext.currentOrNull();
     return current == null ? null : current.userUuid();
+  }
+
+  private static String errorCode(ProblemRestException exception) {
+    var properties = exception.getProblem() == null ? null : exception.getProblem().getProperties();
+    if (properties != null && properties.get("code") instanceof String code && !code.isBlank()) {
+      return code;
+    }
+    return CommonErrorCodes.INTERNAL_UNEXPECTED;
   }
 
   private static final class Stats {
