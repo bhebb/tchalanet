@@ -146,8 +146,7 @@ class RecordDrawTicketsResultCommandHandlerTest {
     assertThat(saved.lines().getFirst().payoutAmount().amount()).isEqualByComparingTo("0.00");
 
     assertThat(publisher.events()).filteredOn(TicketResultedEvent.class::isInstance).hasSize(1);
-    assertThat(publisher.events())
-        .noneMatch(TicketPayoutPaidEvent.class::isInstance);
+    assertThat(publisher.events()).noneMatch(TicketPayoutPaidEvent.class::isInstance);
   }
 
   @Test

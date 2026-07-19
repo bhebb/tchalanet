@@ -30,6 +30,5 @@ public interface DrawSummaryReaderPort {
   TchPage<DrawSummary> listLatestWithResults(DrawSearchCriteria criteria, Pageable pageable);
 
   /** Liste les tenants qui ont un draw correspondant, actif et applicable à un résultat global. */
-  List<DrawResultAffectedTenant> listAffectedTenants(
-      ResultSlotId resultSlotId, LocalDate drawDate);
+  List<DrawResultAffectedTenant> listAffectedTenants(ResultSlotId resultSlotId, LocalDate drawDate);
 }

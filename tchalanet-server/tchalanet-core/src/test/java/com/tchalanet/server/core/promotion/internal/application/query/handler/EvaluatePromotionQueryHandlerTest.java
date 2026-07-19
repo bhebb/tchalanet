@@ -69,8 +69,7 @@ class EvaluatePromotionQueryHandlerTest {
     assertThat(decision.contextHash()).contains(".");
     assertThat(decision.notices())
         .contains(
-            PromotionNoticeCodes.DECISION_APPLIED,
-            PromotionNoticeCodes.TERMINAL_OVERRIDE_APPLIED);
+            PromotionNoticeCodes.DECISION_APPLIED, PromotionNoticeCodes.TERMINAL_OVERRIDE_APPLIED);
   }
 
   private PromotionEvaluationContext context(TenantId tenantId, SellerTerminalId terminalId) {

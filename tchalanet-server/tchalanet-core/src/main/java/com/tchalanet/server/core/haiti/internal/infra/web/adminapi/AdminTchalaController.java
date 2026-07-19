@@ -36,7 +36,6 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-
 /**
  * Admin REST API for managing Tchala entries: moderation, merge and import.
  *
