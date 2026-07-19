@@ -2,24 +2,27 @@
 
 class CashierTicketLineRequest {
   const CashierTicketLineRequest({
+    required this.lineNumber,
     required this.gameCode,
     required this.betType,
     required this.selection,
-    required this.stake,
+    required this.stakeAmount,
     this.betOption,
   });
 
+  final int lineNumber;
   final String gameCode; // e.g. "BORLETTE"
   final String betType; // e.g. "SHORT_SINGLE_GAME"
   final String selection; // e.g. "42"
-  final double stake;
+  final double stakeAmount;
   final int? betOption; // 1–4, optional
 
   Map<String, dynamic> toJson() => {
+    'lineNumber': lineNumber,
     'gameCode': gameCode,
     'betType': betType,
     'selection': selection,
-    'stake': stake,
+    'stakeAmount': stakeAmount,
     if (betOption != null) 'betOption': betOption,
   };
 }
@@ -95,38 +98,43 @@ class CashierSaleIssue {
 
 class CashierTicketPreviewResponse {
   const CashierTicketPreviewResponse({
-    required this.decision,
-    required this.issues,
+    required this.status,
     this.preparationId,
+    this.expiresAt,
     this.currency,
     this.totalAmount,
+    this.lines = const [],
     this.promotionLines = const [],
     this.notices = const [],
-    this.sellerInstruction,
-    this.warning,
   });
 
-  // Backend SaleDecision: ACCEPTABLE | REQUIRES_CHANGES | REJECTED_FINAL
-  final String decision;
-  final List<CashierSaleIssue> issues;
+  // Backend SalePreparationStatus: DRAFT | CONFIRMED | EXPIRED | CANCELLED
+  final String status;
   final String? preparationId;
+  final DateTime? expiresAt;
   final String? currency;
   final double? totalAmount;
+  final List<CashierPreparationLine> lines;
   final List<CashierPreparationPromotionLine> promotionLines;
   final List<CashierPreparationNotice> notices;
-  final String? sellerInstruction;
-  final String? warning;
 
-  bool get isAccepted => decision == 'ACCEPTABLE' && preparationId != null;
-  bool get requiresChanges => decision == 'REQUIRES_CHANGES';
-  bool get isRejected => decision == 'REJECTED_FINAL';
+  bool get isAccepted => status == 'DRAFT' && preparationId != null;
 
   factory CashierTicketPreviewResponse.fromJson(Map<String, dynamic> json) =>
       CashierTicketPreviewResponse(
-        decision: json['decision'] as String? ?? 'ACCEPTABLE',
+        status: json['status'] as String? ?? 'UNKNOWN',
         preparationId: json['preparationId']?.toString(),
+        expiresAt: json['expiresAt'] != null
+            ? DateTime.tryParse(json['expiresAt'] as String)
+            : null,
         currency: json['currency'] as String?,
         totalAmount: (json['totalAmount'] as num?)?.toDouble(),
+        lines:
+            (json['lines'] as List<dynamic>?)
+                ?.whereType<Map<String, dynamic>>()
+                .map(CashierPreparationLine.fromJson)
+                .toList() ??
+            const [],
         promotionLines:
             (json['promotionLines'] as List<dynamic>?)
                 ?.whereType<Map<String, dynamic>>()
@@ -139,40 +147,84 @@ class CashierTicketPreviewResponse {
                 .map(CashierPreparationNotice.fromJson)
                 .toList() ??
             const [],
-        issues:
-            (json['issues'] as List<dynamic>?)
-                ?.map(
-                  (e) => CashierSaleIssue.fromJson(e as Map<String, dynamic>),
-                )
-                .toList() ??
-            [],
-        sellerInstruction: json['sellerInstruction'] as String?,
-        warning: json['warning'] as String?,
+      );
+}
+
+class CashierPreparationLine {
+  const CashierPreparationLine({
+    required this.lineNumber,
+    required this.gameCode,
+    required this.betType,
+    required this.selection,
+    required this.stakeAmount,
+    required this.origin,
+    this.betOption,
+  });
+
+  final int lineNumber;
+  final String gameCode;
+  final String betType;
+  final int? betOption;
+  final String selection;
+  final double stakeAmount;
+  final String origin;
+
+  factory CashierPreparationLine.fromJson(Map<String, dynamic> json) =>
+      CashierPreparationLine(
+        lineNumber: (json['lineNumber'] as num?)?.toInt() ?? 0,
+        gameCode: json['gameCode'] as String? ?? '',
+        betType: json['betType'] as String? ?? '',
+        betOption: (json['betOption'] as num?)?.toInt(),
+        selection: json['selection'] as String? ?? '',
+        stakeAmount: (json['stakeAmount'] as num?)?.toDouble() ?? 0,
+        origin: json['origin'] as String? ?? '',
       );
 }
 
 class CashierPreparationPromotionLine {
   const CashierPreparationPromotionLine({
+    required this.lineRef,
     required this.gameCode,
+    required this.betType,
     required this.selection,
     required this.selectionSource,
     required this.choiceMode,
+    required this.promotionRuleKey,
+    required this.promotionEffectType,
+    required this.regenerable,
+    required this.regenerationsRemaining,
+    this.betOption,
   });
 
+  final String lineRef;
   final String gameCode;
+  final String betType;
+  final int? betOption;
   final String selection;
   final String? selectionSource;
   final String? choiceMode;
+  final String? promotionRuleKey;
+  final String? promotionEffectType;
+  final bool regenerable;
+  final int regenerationsRemaining;
 
   bool get isMaryaj => gameCode == 'MARYAJ';
   bool get isGenerated => selectionSource == 'PROMOTION_GENERATED';
 
   factory CashierPreparationPromotionLine.fromJson(Map<String, dynamic> json) =>
       CashierPreparationPromotionLine(
+        lineRef: json['lineRef'] as String? ?? '',
         gameCode: json['gameCode'] as String? ?? '',
+        betType: json['betType'] as String? ?? '',
+        betOption: (json['betOption'] as num?)?.toInt(),
         selection: json['selection'] as String? ?? '',
         selectionSource: json['selectionSource'] as String?,
         choiceMode: json['choiceMode'] as String?,
+        promotionRuleKey: json['promotionRuleKey'] as String?,
+        promotionEffectType: json['promotionEffectType'] as String?,
+        regenerable: json['regenerable'] as bool? ?? false,
+        regenerationsRemaining:
+            (json['regenerationsRemaining'] as num?)?.toInt() ?? 0,
       );
 }
 
@@ -209,25 +261,35 @@ abstract final class CashierPreparationCopy {
 
 class CashierSellTicketResponse {
   const CashierSellTicketResponse({
+    required this.preparationId,
+    required this.alreadyConfirmed,
     required this.outcome,
-    required this.ticketId,
+    this.ticketId,
     required this.ticketCode,
     this.publicCode,
     this.saleStatus,
     this.backup,
     this.sellerInstruction,
+    this.issues = const [],
+    this.notices = const [],
   });
 
-  // Backend SellTicketOutcome: ACCEPTED | REJECTED | PENDING_APPROVAL
+  final String? preparationId;
+  final bool alreadyConfirmed;
+  // Backend SellTicketOutcome: ACCEPTED | REJECTED | PENDING_APPROVAL.
+  // It is null on an idempotent replay, where alreadyConfirmed is true.
   final String outcome;
-  final String ticketId;
+  final String? ticketId;
   final String ticketCode;
   final String? publicCode;
   final String? saleStatus;
   final CashierTicketBackupView? backup;
   final String? sellerInstruction;
+  final List<CashierSaleIssue> issues;
+  final List<CashierPreparationNotice> notices;
 
-  bool get isSold => outcome == 'ACCEPTED';
+  bool get isSold =>
+      ticketId != null && (outcome == 'ACCEPTED' || alreadyConfirmed);
   bool get isPending => outcome == 'PENDING_APPROVAL';
   bool get isRejected => outcome == 'REJECTED';
 
@@ -236,9 +298,10 @@ class CashierSellTicketResponse {
     final ticket = sale?['ticket'] as Map<String, dynamic>?;
     final backup = sale?['backup'] ?? json['backup'];
     return CashierSellTicketResponse(
+      preparationId: json['preparationId']?.toString(),
+      alreadyConfirmed: json['alreadyConfirmed'] as bool? ?? false,
       outcome: sale?['outcome'] as String? ?? 'CONFIRMED',
-      ticketId:
-          json['ticketId']?.toString() ?? ticket?['ticketId']?.toString() ?? '',
+      ticketId: json['ticketId']?.toString() ?? ticket?['ticketId']?.toString(),
       ticketCode: ticket?['ticketCode'] as String? ?? '',
       publicCode: ticket?['publicCode'] as String?,
       saleStatus: ticket?['saleStatus'] as String?,
@@ -246,6 +309,18 @@ class CashierSellTicketResponse {
           ? CashierTicketBackupView.fromJson(backup)
           : null,
       sellerInstruction: sale?['sellerInstruction'] as String?,
+      issues:
+          (sale?['issues'] as List<dynamic>?)
+              ?.whereType<Map<String, dynamic>>()
+              .map(CashierSaleIssue.fromJson)
+              .toList() ??
+          const [],
+      notices:
+          (sale?['notices'] as List<dynamic>?)
+              ?.whereType<Map<String, dynamic>>()
+              .map(CashierPreparationNotice.fromJson)
+              .toList() ??
+          const [],
     );
   }
 }

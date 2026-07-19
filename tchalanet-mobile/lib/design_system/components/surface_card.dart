@@ -12,12 +12,16 @@ class SurfaceCard extends StatelessWidget {
     this.emphasis = SurfaceCardEmphasis.lowest,
     this.padding = const EdgeInsets.all(TchSpacing.s16),
     this.onTap,
+    this.backgroundColor,
+    this.borderColor,
   });
 
   final Widget child;
   final SurfaceCardEmphasis emphasis;
   final EdgeInsetsGeometry padding;
   final VoidCallback? onTap;
+  final Color? backgroundColor;
+  final Color? borderColor;
 
   Color _background(ColorScheme scheme) => switch (emphasis) {
     SurfaceCardEmphasis.lowest => scheme.surfaceContainerLowest,
@@ -31,10 +35,10 @@ class SurfaceCard extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
 
     return Material(
-      color: _background(scheme),
+      color: backgroundColor ?? _background(scheme),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(TchRadius.md),
-        side: BorderSide(color: scheme.outlineVariant),
+        side: BorderSide(color: borderColor ?? scheme.outlineVariant),
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(

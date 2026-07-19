@@ -30,13 +30,15 @@ class SellLine {
   final String selection;
   final double stake;
 
-  CashierTicketLineRequest toRequest() => CashierTicketLineRequest(
-    gameCode: gameCode,
-    betType: betType,
-    selection: selection,
-    stake: stake,
-    betOption: betOption,
-  );
+  CashierTicketLineRequest toRequest(int lineNumber) =>
+      CashierTicketLineRequest(
+        lineNumber: lineNumber,
+        gameCode: gameCode,
+        betType: betType,
+        selection: selection,
+        stakeAmount: stake,
+        betOption: betOption,
+      );
 
   /// Display label for the committed line chip, e.g. "Bolet  42 – 10.00"
   /// Lot variants (1er lot…) are omitted — the payout engine handles them.
@@ -311,12 +313,24 @@ class SellController extends Notifier<SellState> {
     );
   }
 
+  /// Returns from the server-calculated recap to the editable ticket.
+  void editPreparedTicket() {
+    final current = state;
+    if (current is! SellReady || current.previewResult == null) return;
+    state = SellReady(current.form);
+  }
+
   Future<void> prepare() async {
     final current = state;
     if (current is! SellReady || !current.form.canPreview) return;
     final form = current.form;
     final lines = form.allLines;
+    final drawChannelId = form.selectedDraw?.drawChannelId;
     if (lines.isEmpty) return;
+    if (drawChannelId == null || drawChannelId.isEmpty) {
+      state = SellReady(form, errorKeys: const ['pos.sale.draw_unavailable']);
+      return;
+    }
 
     state = SellPreviewing(form);
     try {
@@ -325,9 +339,12 @@ class SellController extends Notifier<SellState> {
           .prepare(
             CashierTicketPreviewRequest(
               drawId: form.selectedDrawId!,
-              drawChannelId: form.selectedDraw?.drawChannelId,
+              drawChannelId: drawChannelId,
               currency: form.currency,
-              lines: lines.map((l) => l.toRequest()).toList(),
+              lines: [
+                for (var index = 0; index < lines.length; index++)
+                  lines[index].toRequest(index + 1),
+              ],
             ),
           );
       state = SellReady(form, previewResult: result);
@@ -350,7 +367,15 @@ class SellController extends Notifier<SellState> {
       final response = await ref
           .read(cashierTicketServiceProvider)
           .confirm(preview.preparationId!, idempotencyKey: _idempotencyKey);
-      state = SellSuccess(response);
+      if (response.isSold) {
+        state = SellSuccess(response);
+      } else {
+        state = SellReady(
+          form,
+          previewResult: preview,
+          errorKeys: const ['pos.sale.sale_rejected'],
+        );
+      }
     } catch (e) {
       state = SellReady(
         form,

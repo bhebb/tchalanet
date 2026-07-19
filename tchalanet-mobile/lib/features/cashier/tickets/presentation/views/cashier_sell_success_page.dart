@@ -10,7 +10,7 @@ import '../../../home/presentation/view_models/cashier_home_providers.dart';
 import '../print_ticket_action.dart';
 
 /// Shown after a successful sale. Ticket delivery is print-only for V0.
-class CashierSellSuccessPage extends ConsumerWidget {
+class CashierSellSuccessPage extends ConsumerStatefulWidget {
   const CashierSellSuccessPage({
     super.key,
     required this.ticketId,
@@ -25,12 +25,27 @@ class CashierSellSuccessPage extends ConsumerWidget {
   final String? shareableText;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CashierSellSuccessPage> createState() =>
+      _CashierSellSuccessPageState();
+}
+
+class _CashierSellSuccessPageState
+    extends ConsumerState<CashierSellSuccessPage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) printTicket(context, ref, widget.ticketId);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final session = ref.watch(userSessionProvider);
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
-    final displayCode = publicCode ?? ticketCode;
+    final displayCode = widget.publicCode ?? widget.ticketCode;
 
     return Scaffold(
       appBar: AppBar(
@@ -168,7 +183,8 @@ class CashierSellSuccessPage extends ConsumerWidget {
                         _ActionTile(
                           icon: Icons.print_rounded,
                           label: 'Imprimer',
-                          onTap: () => printTicket(context, ref, ticketId),
+                          onTap: () =>
+                              printTicket(context, ref, widget.ticketId),
                         ),
                       ],
                     ),

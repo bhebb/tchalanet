@@ -4,13 +4,55 @@ import 'package:tchalanet_mobile/features/cashier/tickets/data/models/cashier_se
 import 'package:tchalanet_mobile/features/cashier/tickets/data/models/cashier_ticket_models.dart';
 
 void main() {
+  test('prepare request matches the server sale-line contract', () {
+    const request = CashierTicketPreviewRequest(
+      drawId: 'draw-1',
+      drawChannelId: 'channel-1',
+      currency: 'HTG',
+      lines: [
+        CashierTicketLineRequest(
+          lineNumber: 1,
+          gameCode: 'HT_BOLET',
+          betType: 'SHORT_SINGLE_GAME',
+          selection: '12',
+          stakeAmount: 15,
+        ),
+      ],
+    );
+
+    expect(request.toJson(), {
+      'drawId': 'draw-1',
+      'drawChannelId': 'channel-1',
+      'currency': 'HTG',
+      'lines': [
+        {
+          'lineNumber': 1,
+          'gameCode': 'HT_BOLET',
+          'betType': 'SHORT_SINGLE_GAME',
+          'selection': '12',
+          'stakeAmount': 15.0,
+        },
+      ],
+    });
+  });
+
   test('prepare response accepts a persisted preparation', () {
     final response = CashierTicketPreviewResponse.fromJson({
       'preparationId': 'preparation-1',
-      'status': 'PREPARED',
+      'status': 'DRAFT',
+      'expiresAt': '2026-07-19T19:10:00Z',
       'currency': 'HTG',
       'totalAmount': 15.0,
-      'lines': const [],
+      'lines': [
+        {
+          'lineNumber': 1,
+          'gameCode': 'HT_BOLET',
+          'betType': 'SHORT_SINGLE_GAME',
+          'selection': '12',
+          'stakeAmount': 15.0,
+          'origin': 'PAID',
+        },
+      ],
       'promotionLines': const [],
       'notices': [
         {'code': 'promotion.decision.applied', 'severity': 'INFO'},
@@ -19,6 +61,8 @@ void main() {
 
     expect(response.preparationId, 'preparation-1');
     expect(response.isAccepted, isTrue);
+    expect(response.lines.single.stakeAmount, 15.0);
+    expect(response.expiresAt, DateTime.parse('2026-07-19T19:10:00Z'));
     expect(response.notices.single.code, 'promotion.decision.applied');
   });
 
@@ -27,10 +71,14 @@ void main() {
       'preparationId': 'preparation-1',
       'promotionLines': [
         {
+          'lineRef': 'promotion-1',
           'gameCode': 'MARYAJ',
+          'betType': 'MARRIAGE',
           'selection': '12-21',
           'selectionSource': 'PROMOTION_GENERATED',
           'choiceMode': 'AUTO_GENERATE',
+          'regenerable': true,
+          'regenerationsRemaining': 2,
         },
       ],
     });
@@ -39,6 +87,7 @@ void main() {
     expect(line.isMaryaj, isTrue);
     expect(line.isGenerated, isTrue);
     expect(line.selection, '12-21');
+    expect(line.regenerationsRemaining, 2);
   });
 
   test('confirm response reads the nested sale ticket', () {
@@ -47,7 +96,7 @@ void main() {
       'ticketId': 'ticket-1',
       'alreadyConfirmed': false,
       'sale': {
-        'outcome': 'SOLD',
+        'outcome': 'ACCEPTED',
         'ticket': {
           'ticketId': 'ticket-1',
           'ticketCode': 'TCK-1',
@@ -60,7 +109,8 @@ void main() {
     expect(response.ticketId, 'ticket-1');
     expect(response.ticketCode, 'TCK-1');
     expect(response.publicCode, 'PUB-1');
-    expect(response.outcome, 'SOLD');
+    expect(response.outcome, 'ACCEPTED');
+    expect(response.alreadyConfirmed, isFalse);
   });
 
   test('idempotent confirm replay preserves the ticket identifier', () {
@@ -74,6 +124,8 @@ void main() {
     expect(response.ticketId, 'ticket-1');
     expect(response.outcome, 'CONFIRMED');
     expect(response.ticketCode, isEmpty);
+    expect(response.alreadyConfirmed, isTrue);
+    expect(response.isSold, isTrue);
   });
 
   test('available draw retains provider and tenant-local schedules', () {
@@ -97,6 +149,34 @@ void main() {
       '2026-07-19 · 18:59 · America/Port-au-Prince',
     );
   });
+
+  test(
+    'available draw exposes a cashier-facing provider identity and countdown',
+    () {
+      final draw = CashierAvailableDrawView.fromJson({
+        'drawId': 'draw-1',
+        'channelCode': 'HT_NY_MID',
+        'resultSlotKey': 'NY_MID',
+        'channelLabel': 'Haïti • New York • Midday (14:30)',
+        'gameCodes': const ['HT_BOLET'],
+        'status': 'OPEN',
+        'cutoffAt': '2026-07-19T18:05:09Z',
+        'providerDate': '2026-07-19',
+        'providerTime': '14:30:00',
+        'providerTimezone': 'America/New_York',
+        'localDate': '2026-07-19',
+        'localTime': '14:30:00',
+        'localTimezone': 'America/Port-au-Prince',
+      });
+
+      expect(draw.displayChannelLabel, 'New York · Midday');
+      expect(draw.providerCode, 'NY');
+      expect(
+        draw.cutoffCountdownAt(DateTime.parse('2026-07-19T18:00:00Z')),
+        '00:05:09',
+      );
+    },
+  );
 
   test('selection shape follows the configured bet option', () {
     final game = CashierGameOptionResponse.fromJson({

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../../core/network/api_exception.dart';
+import '../../../../../design_system/components/components.dart';
 import '../../../../../design_system/tokens/tch_colors.dart';
 import '../../../../../design_system/tokens/tch_radius.dart';
 import '../../../../../design_system/tokens/tch_spacing.dart';
@@ -28,7 +29,8 @@ class _CashierHistoryPageState extends ConsumerState<CashierHistoryPage> {
   String _search = '';
 
   List<CashierTicketSummaryView> _applyFilter(
-      List<CashierTicketSummaryView> all) {
+    List<CashierTicketSummaryView> all,
+  ) {
     final now = DateTime.now();
     final todayStart = DateTime(now.year, now.month, now.day);
     final yesterdayStart = todayStart.subtract(const Duration(days: 1));
@@ -74,8 +76,7 @@ class _CashierHistoryPageState extends ConsumerState<CashierHistoryPage> {
             ),
             decoration: BoxDecoration(
               color: scheme.surfaceContainerLowest,
-              border: Border(
-                  bottom: BorderSide(color: scheme.outlineVariant)),
+              border: Border(bottom: BorderSide(color: scheme.outlineVariant)),
             ),
             child: Row(
               children: [
@@ -92,7 +93,8 @@ class _CashierHistoryPageState extends ConsumerState<CashierHistoryPage> {
                       _FilterTab(
                         label: "Aujourd'hui",
                         selected: _filter == _DateFilter.today,
-                        onTap: () => setState(() => _filter = _DateFilter.today),
+                        onTap: () =>
+                            setState(() => _filter = _DateFilter.today),
                       ),
                       const SizedBox(width: 4),
                       _FilterTab(
@@ -140,8 +142,11 @@ class _CashierHistoryPageState extends ConsumerState<CashierHistoryPage> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.cloud_off_rounded,
-                        size: 48, color: scheme.error),
+                    Icon(
+                      Icons.cloud_off_rounded,
+                      size: 48,
+                      color: scheme.error,
+                    ),
                     const SizedBox(height: TchSpacing.s16),
                     Text(userMessage(e), textAlign: TextAlign.center),
                     const SizedBox(height: TchSpacing.s24),
@@ -159,16 +164,18 @@ class _CashierHistoryPageState extends ConsumerState<CashierHistoryPage> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.receipt_long_rounded,
-                            size: 48,
-                            color: scheme.onSurface.withValues(alpha: 0.2)),
+                        Icon(
+                          Icons.receipt_long_rounded,
+                          size: 48,
+                          color: scheme.onSurface.withValues(alpha: 0.2),
+                        ),
                         const SizedBox(height: TchSpacing.s16),
                         Text(
                           _search.isNotEmpty
                               ? 'Aucun ticket correspondant'
                               : _filter == _DateFilter.today
-                                  ? 'Aucun ticket aujourd\'hui'
-                                  : 'Aucun ticket hier',
+                              ? 'Aucun ticket aujourd\'hui'
+                              : 'Aucun ticket hier',
                           style: textTheme.bodyMedium?.copyWith(
                             color: scheme.onSurfaceVariant,
                           ),
@@ -183,8 +190,7 @@ class _CashierHistoryPageState extends ConsumerState<CashierHistoryPage> {
                       Divider(height: 1, color: scheme.outlineVariant),
                   itemBuilder: (context, i) => _TicketRow(
                     ticket: filtered[i],
-                    onTap: () =>
-                        context.push('/pos/tickets/${filtered[i].id}'),
+                    onTap: () => context.push('/pos/tickets/${filtered[i].id}'),
                     onPrint: () {}, // TODO: wire print
                   ),
                 );
@@ -230,17 +236,16 @@ class _FilterTab extends StatelessWidget {
                   BoxShadow(
                     color: scheme.shadow.withValues(alpha: 0.1),
                     blurRadius: 4,
-                  )
+                  ),
                 ]
               : null,
         ),
         child: Text(
           label,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: selected ? scheme.primary : scheme.onSurfaceVariant,
-                fontWeight:
-                    selected ? FontWeight.w600 : FontWeight.w400,
-              ),
+            color: selected ? scheme.primary : scheme.onSurfaceVariant,
+            fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+          ),
         ),
       ),
     );
@@ -264,7 +269,8 @@ class _TicketRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    final isCancelled = ticket.status == 'CANCELLED' || ticket.status == 'VOIDED';
+    final isCancelled =
+        ticket.status == 'CANCELLED' || ticket.status == 'VOIDED';
     final time = ticket.placedAt != null
         ? '${ticket.placedAt!.toLocal().hour.toString().padLeft(2, '0')}:${ticket.placedAt!.toLocal().minute.toString().padLeft(2, '0')}'
         : '—';
@@ -292,6 +298,14 @@ class _TicketRow extends StatelessWidget {
                         : scheme.onSurface,
                   ),
                 ),
+              ),
+              const SizedBox(width: TchSpacing.s12),
+
+              TchProviderLogo(
+                providerCode: TchProviderLogo.providerCodeFromLabel(
+                  ticket.drawChannelName,
+                ),
+                size: 32,
               ),
               const SizedBox(width: TchSpacing.s12),
 
@@ -343,14 +357,8 @@ class _TicketRow extends StatelessWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _IconBtn(
-                    icon: Icons.visibility_rounded,
-                    onTap: onTap,
-                  ),
-                  _IconBtn(
-                    icon: Icons.print_rounded,
-                    onTap: onPrint,
-                  ),
+                  _IconBtn(icon: Icons.visibility_rounded, onTap: onTap),
+                  _IconBtn(icon: Icons.print_rounded, onTap: onPrint),
                 ],
               ),
             ],
@@ -373,10 +381,10 @@ class _StatusBadge extends StatelessWidget {
       'PLACED' => (TchColors.successContainer, TchColors.success, 'VALIDÉ'),
       'CANCELLED' => (scheme.errorContainer, scheme.onErrorContainer, 'ANNULÉ'),
       'VOIDED' => (
-          scheme.surfaceContainerHighest,
-          scheme.onSurfaceVariant,
-          'INVALIDÉ'
-        ),
+        scheme.surfaceContainerHighest,
+        scheme.onSurfaceVariant,
+        'INVALIDÉ',
+      ),
       _ => (scheme.surfaceContainerHigh, scheme.onSurface, status),
     };
     return Container(

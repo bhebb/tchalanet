@@ -17,14 +17,17 @@ const _knownViewModelDataSourceImports = {
   'lib/features/cashier/home/presentation/view_models/cashier_home_providers.dart|../../data/services/cashier_home_service.dart',
   'lib/features/cashier/home/presentation/view_models/cashier_home_providers.dart|../../data/services/terminal_stats_service.dart',
   'lib/features/cashier/home/presentation/view_models/cashier_home_providers.dart|../../../tickets/data/services/cashier_sell_catalog_service.dart',
+  'lib/features/cashier/home/presentation/view_models/cashier_home_providers.dart|../../../tickets/data/services/cashier_ticket_service.dart',
   'lib/features/cashier/tickets/presentation/view_models/sell_controller.dart|../../data/services/cashier_sell_catalog_service.dart',
   'lib/features/cashier/tickets/presentation/view_models/sell_controller.dart|../../data/services/cashier_ticket_service.dart',
   'lib/features/draw/presentation/view_models/draw_providers.dart|../../data/services/draw_result_service.dart',
 };
 
 const _knownCrossFeatureImports = {
+  'lib/features/auth/presentation/views/change_pin_page.dart|../../../cashier/home/presentation/view_models/cashier_home_providers.dart',
   'lib/features/cashier/home/presentation/views/cashier_home_page.dart|../../../../auth/presentation/view_models/auth_controller.dart',
   'lib/features/cashier/home/presentation/views/cashier_home_page.dart|../../../../notifications/presentation/view_models/notification_summary_controller.dart',
+  'lib/features/cashier/home/presentation/views/seller_terminal_profile_page.dart|../../../../auth/presentation/view_models/auth_controller.dart',
   'lib/features/cashier/tickets/presentation/views/cashier_sell_success_page.dart|../../../../auth/presentation/view_models/auth_controller.dart',
 };
 
@@ -35,17 +38,15 @@ const _knownProvidersDeclaredInViews = {
 };
 
 const _knownHardcodedUiLiteralCounts = <String, int>{
-  'lib/features/cashier/home/presentation/views/cashier_home_page.dart': 16,
-  'lib/features/cashier/home/presentation/views/seller_terminal_nav_bar.dart':
-      4,
+  'lib/features/cashier/home/presentation/views/cashier_home_page.dart': 3,
   'lib/features/cashier/home/presentation/views/seller_terminal_profile_page.dart':
-      13,
+      3,
   'lib/features/cashier/home/presentation/views/seller_terminal_stats_page.dart':
-      11,
+      2,
   'lib/features/cashier/tickets/presentation/views/cashier_history_page.dart':
       5,
   'lib/features/cashier/tickets/presentation/views/cashier_scan_page.dart': 14,
-  'lib/features/cashier/tickets/presentation/views/cashier_sell_page.dart': 12,
+  'lib/features/cashier/tickets/presentation/views/cashier_sell_page.dart': 6,
   'lib/features/cashier/tickets/presentation/views/cashier_sell_success_page.dart':
       9,
   'lib/features/cashier/tickets/presentation/views/cashier_ticket_detail_page.dart':
@@ -58,7 +59,7 @@ const _routedScreens = {
   '/change-pin': 'ChangePinPage',
   '/pos': 'CashierHomePage',
   '/pos/history': 'CashierHistoryPage',
-  '/pos/stats': 'SellerTerminalStatsPage',
+  '/pos/reports': 'SellerTerminalStatsPage',
   '/pos/scan': 'CashierScanPage',
   '/pos/profile': 'SellerTerminalProfilePage',
   '/pos/notifications': 'NotificationCenterPage',

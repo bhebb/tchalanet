@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../../core/i18n/i18n_models.dart';
 import '../../../../../core/i18n/i18n_repository.dart';
 import '../../../../../core/runtime/runtime_controller.dart';
 import '../../../../../design_system/components/feedback_state.dart';
 import '../../../../../design_system/tokens/tch_radius.dart';
 import '../../../../../design_system/tokens/tch_spacing.dart';
+import '../../../../auth/presentation/view_models/auth_controller.dart';
 import '../view_models/cashier_home_providers.dart';
 import 'seller_terminal_nav_bar.dart';
 
@@ -20,7 +22,7 @@ class SellerTerminalProfilePage extends ConsumerWidget {
     final translations = ref.watch(i18nBundleProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Profil')),
+      appBar: AppBar(title: Text(translations.translate('pos.profile.title'))),
       bottomNavigationBar: const SellerTerminalNavBar(currentIndex: 3),
       body: SafeArea(
         child: RefreshIndicator(
@@ -32,11 +34,11 @@ class SellerTerminalProfilePage extends ConsumerWidget {
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (error, _) => ListView(
               padding: const EdgeInsets.all(TchSpacing.s24),
-              children: const [
+              children: [
                 FeedbackState(
                   kind: FeedbackStateKind.offline,
-                  title: 'Profil indisponible',
-                  message: 'Verifiez la connexion puis reessayez.',
+                  title: translations.translate('pos.profile.title'),
+                  message: translations.translate('common.error.network'),
                 ),
               ],
             ),
@@ -47,36 +49,39 @@ class SellerTerminalProfilePage extends ConsumerWidget {
                   label:
                       home.operationalContext?.sellerTerminalLabel ??
                       home.header?.title ??
-                      'Terminal vendeur',
+                      translations.translate('pos.profile.terminal'),
                   subtitle: home.header?.subtitle,
                   ready: home.operationalContext?.ready ?? home.isOperational,
                 ),
                 const SizedBox(height: TchSpacing.s16),
                 _Section(
-                  title: 'Terminal',
+                  title: translations.translate('pos.profile.terminal'),
                   children: [
                     _InfoRow(
                       icon: Icons.badge_rounded,
-                      label: 'Nom',
+                      label: translations.translate('pos.profile.name'),
                       value:
-                          home.operationalContext?.sellerTerminalLabel ??
-                          'Non renseigne',
+                          home.operationalContext?.sellerTerminalLabel ?? '-',
                     ),
                     _InfoRow(
                       icon: Icons.verified_user_rounded,
-                      label: 'Contexte',
+                      label: translations.translate('pos.profile.context'),
                       value: home.operationalContext?.trusted == true
-                          ? 'Verifie'
-                          : 'A verifier',
+                          ? translations.translate('pos.profile.verified')
+                          : translations.translate(
+                              'pos.profile.needs_verification',
+                            ),
                     ),
                     _InfoRow(
                       icon: Icons.confirmation_number_rounded,
-                      label: 'Tickets aujourd hui',
+                      label: translations.translate(
+                        'pos.profile.tickets_today',
+                      ),
                       value: '${home.session?.ticketCount ?? 0}',
                     ),
                     _InfoRow(
                       icon: Icons.payments_rounded,
-                      label: 'Ventes aujourd hui',
+                      label: translations.translate('pos.profile.sales_today'),
                       value:
                           home.session?.salesTotal ??
                           '0 ${home.currency ?? 'HTG'}',
@@ -85,28 +90,42 @@ class SellerTerminalProfilePage extends ConsumerWidget {
                 ),
                 const SizedBox(height: TchSpacing.s16),
                 _Section(
-                  title: 'Compte',
+                  title: translations.translate('pos.profile.account'),
                   children: [
                     _InfoRow(
                       icon: Icons.person_rounded,
-                      label: 'Utilisateur',
+                      label: translations.translate('pos.profile.user'),
                       value:
                           runtimeState.bootstrap?.user?.displayName ??
                           runtimeState.bootstrap?.user?.username ??
-                          'Connecte',
+                          '-',
                     ),
                     _InfoRow(
                       icon: Icons.store_rounded,
-                      label: 'Tenant',
+                      label: translations.translate('pos.profile.tenant'),
                       value:
                           runtimeState.bootstrap?.tenantContext?.tenantCode ??
                           runtimeState.bootstrap?.tenantContext?.tenantId ??
-                          'Actif',
+                          '-',
                     ),
                     _InfoRow(
                       icon: Icons.health_and_safety_rounded,
-                      label: 'Readiness',
+                      label: translations.translate('pos.profile.readiness'),
                       value: runtimeState.snapshot?.readinessStatus ?? 'READY',
+                    ),
+                  ],
+                ),
+                const SizedBox(height: TchSpacing.s24),
+                _Section(
+                  title: translations.translate('pos.profile.app'),
+                  children: [
+                    _LocaleSelector(
+                      label: translations.translate('pos.profile.language'),
+                    ),
+                    _InfoRow(
+                      icon: Icons.info_outline_rounded,
+                      label: translations.translate('pos.profile.version'),
+                      value: '1.0.0',
                     ),
                   ],
                 ),
@@ -117,7 +136,7 @@ class SellerTerminalProfilePage extends ConsumerWidget {
                     ref.invalidate(cashierHomeProvider);
                   },
                   icon: const Icon(Icons.password_rounded),
-                  label: Text(translations.translate('auth.change_pin.title')),
+                  label: Text(translations.translate('pos.profile.change_pin')),
                 ),
                 const SizedBox(height: TchSpacing.s12),
                 FilledButton.icon(
@@ -126,12 +145,72 @@ class SellerTerminalProfilePage extends ConsumerWidget {
                     ref.invalidate(runtimeControllerProvider);
                   },
                   icon: const Icon(Icons.refresh_rounded),
-                  label: const Text('Actualiser'),
+                  label: Text(translations.translate('pos.profile.refresh')),
+                ),
+                const SizedBox(height: TchSpacing.s12),
+                OutlinedButton.icon(
+                  onPressed: () => _confirmLogout(context, ref, translations),
+                  icon: const Icon(Icons.logout_rounded),
+                  label: Text(translations.translate('pos.profile.sign_out')),
                 ),
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+Future<void> _confirmLogout(
+  BuildContext context,
+  WidgetRef ref,
+  I18nBundle translations,
+) async {
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      title: Text(translations.translate('pos.profile.sign_out_title')),
+      content: Text(translations.translate('pos.profile.sign_out_message')),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(dialogContext).pop(false),
+          child: Text(translations.translate('common.cancel')),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.of(dialogContext).pop(true),
+          child: Text(translations.translate('pos.profile.sign_out')),
+        ),
+      ],
+    ),
+  );
+  if (confirmed != true) return;
+
+  await ref.read(authControllerProvider.notifier).logout();
+  if (context.mounted) context.go('/login');
+}
+
+class _LocaleSelector extends ConsumerWidget {
+  const _LocaleSelector({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final activeLocale = ref.watch(localeProvider);
+    return ListTile(
+      leading: const Icon(Icons.language_rounded),
+      title: Text(label),
+      subtitle: SegmentedButton<String>(
+        showSelectedIcon: false,
+        segments: const [
+          ButtonSegment(value: 'ht', label: Text('Kreyòl')),
+          ButtonSegment(value: 'fr', label: Text('Français')),
+          ButtonSegment(value: 'en', label: Text('English')),
+        ],
+        selected: {activeLocale},
+        onSelectionChanged: (selection) =>
+            ref.read(localeProvider.notifier).setLocale(selection.single),
       ),
     );
   }
