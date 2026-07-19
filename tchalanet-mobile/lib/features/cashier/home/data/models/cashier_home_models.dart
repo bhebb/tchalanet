@@ -1,3 +1,11 @@
+/// Typed ids arrive either as a bare string or wrapped (`{"value": "<uuid>"}`)
+/// depending on the server serializer — accept both.
+String? idValue(dynamic raw) => switch (raw) {
+  String s => s,
+  Map<String, dynamic> m => m['value'] as String?,
+  _ => null,
+};
+
 class CashierHomeHeader {
   const CashierHomeHeader({required this.title, this.subtitle});
 
@@ -53,9 +61,10 @@ class CashierHomeOpCtx {
         ready: json['ready'] as bool? ?? false,
         trusted: json['trusted'] as bool? ?? false,
         source: json['source'] as String?,
-        sellerTerminalId: json['sellerTerminalId'] as String?,
+        sellerTerminalId: idValue(json['sellerTerminalId']),
         sellerTerminalLabel: json['sellerTerminalLabel'] as String?,
-        missing: (json['missing'] as List<dynamic>?)
+        missing:
+            (json['missing'] as List<dynamic>?)
                 ?.map((e) => e as String)
                 .toList() ??
             [],
@@ -113,8 +122,8 @@ class CashierHomeDrawSummary {
 
   factory CashierHomeDrawSummary.fromJson(Map<String, dynamic> json) =>
       CashierHomeDrawSummary(
-        drawId: json['drawId'] as String?,
-        drawChannelId: json['drawChannelId'] as String?,
+        drawId: idValue(json['drawId']),
+        drawChannelId: idValue(json['drawChannelId']),
         label: json['label'] as String?,
         scheduledAt: json['scheduledAt'] != null
             ? DateTime.tryParse(json['scheduledAt'] as String)
@@ -142,11 +151,11 @@ class HomeAction {
   final String route;
 
   factory HomeAction.fromJson(Map<String, dynamic> json) => HomeAction(
-        type: json['type'] as String? ?? '',
-        label: json['label'] as String? ?? '',
-        enabled: json['enabled'] as bool? ?? false,
-        route: json['route'] as String? ?? '',
-      );
+    type: json['type'] as String? ?? '',
+    label: json['label'] as String? ?? '',
+    enabled: json['enabled'] as bool? ?? false,
+    route: json['route'] as String? ?? '',
+  );
 }
 
 class HomeWidget {
@@ -163,11 +172,11 @@ class HomeWidget {
   final Map<String, dynamic> data;
 
   factory HomeWidget.fromJson(Map<String, dynamic> json) => HomeWidget(
-        key: json['key'] as String? ?? '',
-        title: json['title'] as String?,
-        type: json['type'] as String? ?? '',
-        data: (json['data'] as Map<String, dynamic>?) ?? {},
-      );
+    key: json['key'] as String? ?? '',
+    title: json['title'] as String?,
+    type: json['type'] as String? ?? '',
+    data: (json['data'] as Map<String, dynamic>?) ?? {},
+  );
 }
 
 class HomeNavigationItem {
@@ -218,6 +227,7 @@ class CashierHomeResponse {
   final List<HomeWidget> widgets;
   final List<HomeNavigationItem> navigation;
   final List<String> notices;
+
   /// Tenant currency code from backend (e.g. "HTG"). Never hardcode client-side.
   final String? currency;
 
@@ -227,52 +237,55 @@ class CashierHomeResponse {
   /// (session/outlet selection were removed with the SellerTerminal model).
   bool get mustChangePin => requiredStep?.type == 'MUST_CHANGE_PIN';
 
-  factory CashierHomeResponse.fromJson(Map<String, dynamic> json) =>
-      CashierHomeResponse(
-        surface: json['surface'] as String?,
-        version: json['version'] as String?,
-        header: json['header'] != null
-            ? CashierHomeHeader.fromJson(json['header'] as Map<String, dynamic>)
-            : null,
-        requiredStep: json['requiredStep'] != null
-            ? CashierHomeRequiredStep.fromJson(
-                json['requiredStep'] as Map<String, dynamic>)
-            : null,
-        operationalContext: json['operationalContext'] != null
-            ? CashierHomeOpCtx.fromJson(
-                json['operationalContext'] as Map<String, dynamic>)
-            : null,
-        session: json['session'] != null
-            ? CashierHomeSession.fromJson(
-                json['session'] as Map<String, dynamic>)
-            : null,
-        primaryDraw: json['primaryDraw'] != null
-            ? CashierHomeDrawSummary.fromJson(
-                json['primaryDraw'] as Map<String, dynamic>)
-            : null,
-        primaryAction: json['primaryAction'] != null
-            ? HomeAction.fromJson(
-                json['primaryAction'] as Map<String, dynamic>)
-            : null,
-        quickActions: (json['quickActions'] as List<dynamic>?)
-                ?.map((e) => HomeAction.fromJson(e as Map<String, dynamic>))
-                .toList() ??
-            [],
-        widgets: (json['widgets'] as List<dynamic>?)
-                ?.map((e) => HomeWidget.fromJson(e as Map<String, dynamic>))
-                .toList() ??
-            [],
-        navigation: (json['navigation'] as List<dynamic>?)
-                ?.map((e) =>
-                    HomeNavigationItem.fromJson(e as Map<String, dynamic>))
-                .toList() ??
-            [],
-        notices: (json['notices'] as List<dynamic>?)
-                ?.map((e) => e as String)
-                .toList() ??
-            [],
-        currency: json['currency'] as String?,
-      );
+  factory CashierHomeResponse.fromJson(
+    Map<String, dynamic> json,
+  ) => CashierHomeResponse(
+    surface: json['surface'] as String?,
+    version: json['version'] as String?,
+    header: json['header'] != null
+        ? CashierHomeHeader.fromJson(json['header'] as Map<String, dynamic>)
+        : null,
+    requiredStep: json['requiredStep'] != null
+        ? CashierHomeRequiredStep.fromJson(
+            json['requiredStep'] as Map<String, dynamic>,
+          )
+        : null,
+    operationalContext: json['operationalContext'] != null
+        ? CashierHomeOpCtx.fromJson(
+            json['operationalContext'] as Map<String, dynamic>,
+          )
+        : null,
+    session: json['session'] != null
+        ? CashierHomeSession.fromJson(json['session'] as Map<String, dynamic>)
+        : null,
+    primaryDraw: json['primaryDraw'] != null
+        ? CashierHomeDrawSummary.fromJson(
+            json['primaryDraw'] as Map<String, dynamic>,
+          )
+        : null,
+    primaryAction: json['primaryAction'] != null
+        ? HomeAction.fromJson(json['primaryAction'] as Map<String, dynamic>)
+        : null,
+    quickActions:
+        (json['quickActions'] as List<dynamic>?)
+            ?.map((e) => HomeAction.fromJson(e as Map<String, dynamic>))
+            .toList() ??
+        [],
+    widgets:
+        (json['widgets'] as List<dynamic>?)
+            ?.map((e) => HomeWidget.fromJson(e as Map<String, dynamic>))
+            .toList() ??
+        [],
+    navigation:
+        (json['navigation'] as List<dynamic>?)
+            ?.map((e) => HomeNavigationItem.fromJson(e as Map<String, dynamic>))
+            .toList() ??
+        [],
+    notices:
+        (json['notices'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+        [],
+    currency: json['currency'] as String?,
+  );
 }
 
 // ─── Readiness models ─────────────────────────────────────────────────────────
@@ -321,11 +334,11 @@ class CashierBadge {
   final Map<String, dynamic> params;
 
   factory CashierBadge.fromJson(Map<String, dynamic> json) => CashierBadge(
-        type: json['type'] as String? ?? '',
-        attentionLevel: _parseAttentionLevel(json['attentionLevel'] as String?),
-        titleKey: json['titleKey'] as String? ?? '',
-        params: (json['params'] as Map<String, dynamic>?) ?? {},
-      );
+    type: json['type'] as String? ?? '',
+    attentionLevel: _parseAttentionLevel(json['attentionLevel'] as String?),
+    titleKey: json['titleKey'] as String? ?? '',
+    params: (json['params'] as Map<String, dynamic>?) ?? {},
+  );
 }
 
 class CashierNotification {
@@ -377,21 +390,27 @@ class CashierReadinessResponse {
   factory CashierReadinessResponse.fromJson(Map<String, dynamic> json) =>
       CashierReadinessResponse(
         ready: json['ready'] as bool? ?? false,
-        attentionLevel:
-            _parseAttentionLevel(json['attentionLevel'] as String?),
-        badges: (json['badges'] as List<dynamic>?)
-                ?.map((e) =>
-                    CashierBadge.fromJson(e as Map<String, dynamic>))
+        attentionLevel: _parseAttentionLevel(json['attentionLevel'] as String?),
+        badges:
+            (json['badges'] as List<dynamic>?)
+                ?.map((e) => CashierBadge.fromJson(e as Map<String, dynamic>))
                 .toList() ??
             [],
-        notifications: (json['notifications'] as List<dynamic>?)
-                ?.map((e) =>
-                    CashierNotification.fromJson(e as Map<String, dynamic>))
+        notifications:
+            (json['notifications'] as List<dynamic>?)
+                ?.map(
+                  (e) =>
+                      CashierNotification.fromJson(e as Map<String, dynamic>),
+                )
                 .toList() ??
             [],
-        blockers: (json['blockers'] as List<dynamic>?)
-                ?.map((e) =>
-                    CashierReadinessBlocker.fromJson(e as Map<String, dynamic>))
+        blockers:
+            (json['blockers'] as List<dynamic>?)
+                ?.map(
+                  (e) => CashierReadinessBlocker.fromJson(
+                    e as Map<String, dynamic>,
+                  ),
+                )
                 .toList() ??
             [],
       );

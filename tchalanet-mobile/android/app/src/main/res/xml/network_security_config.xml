@@ -13,8 +13,10 @@
 -->
 <network-security-config>
 
-    <!-- Trust mkcert CA for local HTTPS domains (Traefik dev proxy) -->
-    <domain-config>
+    <!-- Trust mkcert CA for local HTTPS domains (Traefik dev proxy).
+         Cleartext is allowed because the Firebase Auth emulator speaks plain
+         HTTP on localtest.me:9099 (via adb reverse). -->
+    <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="true">localtest.me</domain>
         <trust-anchors>
             <certificates src="@raw/mkcert_ca"/>
