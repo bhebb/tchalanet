@@ -24,8 +24,7 @@ class ResultReminderExpirationPolicyTest {
     var policy = new ResultReminderExpirationPolicy(emptyCalendar());
     var createdAt = Instant.parse("2026-07-16T18:00:00Z");
 
-    assertThat(policy.expiresAt(slot, createdAt))
-        .isEqualTo(Instant.parse("2026-07-16T23:59:00Z"));
+    assertThat(policy.expiresAt(slot, createdAt)).isEqualTo(Instant.parse("2026-07-16T23:59:00Z"));
   }
 
   @Test
@@ -34,8 +33,7 @@ class ResultReminderExpirationPolicyTest {
     var policy = new ResultReminderExpirationPolicy(emptyCalendar());
     var createdAt = Instant.parse("2026-07-14T18:00:00Z");
 
-    assertThat(policy.expiresAt(slot, createdAt))
-        .isEqualTo(Instant.parse("2026-07-15T18:00:00Z"));
+    assertThat(policy.expiresAt(slot, createdAt)).isEqualTo(Instant.parse("2026-07-15T18:00:00Z"));
   }
 
   @Test
@@ -53,8 +51,7 @@ class ResultReminderExpirationPolicyTest {
     var policy = new ResultReminderExpirationPolicy(resultSlotId -> List.of(override));
     var createdAt = Instant.parse("2026-07-16T18:00:00Z");
 
-    assertThat(policy.expiresAt(slot, createdAt))
-        .isEqualTo(Instant.parse("2026-07-17T18:00:00Z"));
+    assertThat(policy.expiresAt(slot, createdAt)).isEqualTo(Instant.parse("2026-07-17T18:00:00Z"));
   }
 
   private static ResultSlotCalendarCatalog emptyCalendar() {

@@ -55,7 +55,9 @@ class CreateMissingResultReminderCommandHandlerTest {
     assertThat(request.channels())
         .containsExactlyInAnyOrder(NotificationChannel.WEB, NotificationChannel.SLACK);
     assertThat(request.dedupeKey())
-        .isEqualTo("drawresult.action-required:manual:%s:%s".formatted(fixture.resultSlotId.value(), DRAW_DATE));
+        .isEqualTo(
+            "drawresult.action-required:manual:%s:%s"
+                .formatted(fixture.resultSlotId.value(), DRAW_DATE));
     assertThat(request.translations()).containsOnlyKeys("fr", "en", "ht");
     assertThat(request.translations().get("fr").title()).contains("Résultat manuel requis");
     assertThat(request.translations().get("en").body()).contains("manual entry required");

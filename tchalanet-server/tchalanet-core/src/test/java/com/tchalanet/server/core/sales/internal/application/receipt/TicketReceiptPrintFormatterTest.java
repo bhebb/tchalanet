@@ -64,11 +64,18 @@ class TicketReceiptPrintFormatterTest {
     var formatter = formatter();
     var profile = DocumentPrintProfile.of(DocumentFormat.ESC_POS, PaperSize.RECEIPT_58MM);
 
-    assertThat(text(formatter.format(receipt(TicketPrintStateStatus.NOT_PRINTED), profile).headerLines()))
+    assertThat(
+            text(
+                formatter
+                    .format(receipt(TicketPrintStateStatus.NOT_PRINTED), profile)
+                    .headerLines()))
         .contains("ORIGINAL");
-    assertThat(text(formatter.format(receipt(TicketPrintStateStatus.PRINTED), profile).headerLines()))
+    assertThat(
+            text(formatter.format(receipt(TicketPrintStateStatus.PRINTED), profile).headerLines()))
         .contains("COPIE");
-    assertThat(text(formatter.format(receipt(TicketPrintStateStatus.REPRINTED), profile).headerLines()))
+    assertThat(
+            text(
+                formatter.format(receipt(TicketPrintStateStatus.REPRINTED), profile).headerLines()))
         .contains("RÉIMPRESSION");
   }
 
@@ -94,7 +101,9 @@ class TicketReceiptPrintFormatterTest {
     assertThat(
             text(
                 formatter
-                    .format(receipt(TicketPrintStateStatus.REPRINTED, Locale.forLanguageTag("ht")), profile)
+                    .format(
+                        receipt(TicketPrintStateStatus.REPRINTED, Locale.forLanguageTag("ht")),
+                        profile)
                     .headerLines()))
         .contains("Reenpresyon")
         .doesNotContain("receipt.copy");
@@ -110,9 +119,7 @@ class TicketReceiptPrintFormatterTest {
         content.sections().stream()
             .map(
                 section ->
-                    (section.title() == null ? "" : section.title())
-                        + "\n"
-                        + text(section.lines()))
+                    (section.title() == null ? "" : section.title()) + "\n" + text(section.lines()))
             .reduce("", (left, right) -> left + "\n" + right);
 
     assertThat(sectionText)
@@ -128,7 +135,8 @@ class TicketReceiptPrintFormatterTest {
         .doesNotContain("Maryaj gratuit")
         .doesNotContain("LOTO 3 CHIFFRES");
     assertThat(sectionText.indexOf("Maryaj gratis")).isGreaterThan(sectionText.indexOf("Maryaj"));
-    assertThat(sectionText.indexOf("* 20 × 85")).isGreaterThan(sectionText.indexOf("Maryaj gratis"));
+    assertThat(sectionText.indexOf("* 20 × 85"))
+        .isGreaterThan(sectionText.indexOf("Maryaj gratis"));
   }
 
   @Test
