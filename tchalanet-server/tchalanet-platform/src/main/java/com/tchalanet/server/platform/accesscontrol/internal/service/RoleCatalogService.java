@@ -2,6 +2,8 @@ package com.tchalanet.server.platform.accesscontrol.internal.service;
 
 import com.tchalanet.server.common.types.id.RoleId;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.web.error.ProblemRest;
+import com.tchalanet.server.platform.accesscontrol.api.error.AccessControlErrorCodes;
 import com.tchalanet.server.platform.accesscontrol.api.model.request.CreateRoleRequest;
 import com.tchalanet.server.platform.accesscontrol.api.model.request.GrantPermissionToRoleRequest;
 import com.tchalanet.server.platform.accesscontrol.api.model.request.ListRolePermissionsRequest;
@@ -71,7 +73,7 @@ public class RoleCatalogService {
     var entity =
         appRoleRepository
             .findById(request.id().value())
-            .orElseThrow(() -> new IllegalArgumentException("Role not found: " + request.id()));
+            .orElseThrow(() -> ProblemRest.of(AccessControlErrorCodes.ROLE_NOT_FOUND));
     entity.setCode(request.code());
     entity.setName(request.name());
     entity.setDescription(request.description());

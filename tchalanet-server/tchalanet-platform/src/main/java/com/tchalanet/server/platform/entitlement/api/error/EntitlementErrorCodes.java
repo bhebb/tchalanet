@@ -22,9 +22,16 @@ public class EntitlementErrorCodes {
   public static final ErrorDescriptor LIMIT_EXCEEDED = businessRule("entitlement.limit_exceeded");
   public static final ErrorDescriptor USAGE_PROVIDER_UNAVAILABLE =
       serviceUnavailable("entitlement.usage_provider_unavailable");
+  public static final ErrorDescriptor PLAN_UNAVAILABLE =
+      serviceUnavailable("entitlement.plan_unavailable");
 
   public static Set<ErrorDescriptor> all() {
-    return Set.of(FEATURE_REQUIRED, LIMIT_MISSING, LIMIT_EXCEEDED, USAGE_PROVIDER_UNAVAILABLE);
+    return Set.of(
+        FEATURE_REQUIRED,
+        LIMIT_MISSING,
+        LIMIT_EXCEEDED,
+        USAGE_PROVIDER_UNAVAILABLE,
+        PLAN_UNAVAILABLE);
   }
 
   private static ErrorDescriptor businessRule(String code) {

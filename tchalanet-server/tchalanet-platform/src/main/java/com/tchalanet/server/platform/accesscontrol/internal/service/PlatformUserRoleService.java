@@ -1,7 +1,9 @@
 package com.tchalanet.server.platform.accesscontrol.internal.service;
 
 import com.tchalanet.server.common.types.id.UserId;
+import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.platform.accesscontrol.api.PlatformUserRoleApi;
+import com.tchalanet.server.platform.accesscontrol.api.error.AccessControlErrorCodes;
 import com.tchalanet.server.platform.accesscontrol.api.model.PlatformSuperAdminAccessRow;
 import com.tchalanet.server.platform.accesscontrol.api.model.TenantAdminGlobalAccessRow;
 import com.tchalanet.server.platform.accesscontrol.internal.persistence.entity.PlatformUserRoleJpaEntity;
@@ -103,8 +105,7 @@ public class PlatformUserRoleService implements PlatformUserRoleApi {
     var role =
         appRoleRepository
             .findActiveSystemRoleByCodeAndScope(SUPER_ADMIN_ROLE, PLATFORM_ROLE_SCOPE)
-            .orElseThrow(
-                () -> new IllegalStateException("Platform role not found: " + SUPER_ADMIN_ROLE));
+            .orElseThrow(() -> ProblemRest.of(AccessControlErrorCodes.PLATFORM_ROLE_UNAVAILABLE));
     if (platformUserRoleRepository.findActiveAssignment(userId.value(), role.getId()).isPresent()) {
       return;
     }
@@ -121,8 +122,7 @@ public class PlatformUserRoleService implements PlatformUserRoleApi {
     var role =
         appRoleRepository
             .findActiveSystemRoleByCodeAndScope(SUPER_ADMIN_ROLE, PLATFORM_ROLE_SCOPE)
-            .orElseThrow(
-                () -> new IllegalStateException("Platform role not found: " + SUPER_ADMIN_ROLE));
+            .orElseThrow(() -> ProblemRest.of(AccessControlErrorCodes.PLATFORM_ROLE_UNAVAILABLE));
     platformUserRoleRepository.softDeleteAssignment(userId.value(), role.getId());
   }
 

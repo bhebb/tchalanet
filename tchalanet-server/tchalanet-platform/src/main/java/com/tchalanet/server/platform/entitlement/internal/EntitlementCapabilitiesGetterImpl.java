@@ -4,7 +4,9 @@ import com.tchalanet.server.catalog.plan.api.PlanCatalog;
 import com.tchalanet.server.catalog.plan.api.PlanView;
 import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.platform.entitlement.api.TenantPlanSnapshotProvider;
+import com.tchalanet.server.platform.entitlement.api.error.EntitlementErrorCodes;
 import com.tchalanet.server.platform.entitlement.api.model.TenantCapabilitySnapshot;
 import com.tchalanet.server.platform.entitlement.internal.infra.cache.EntitlementCacheSpecProvider;
 import java.time.Clock;
@@ -53,7 +55,7 @@ public class EntitlementCapabilitiesGetterImpl implements EntitlementCapabilitie
     var plan =
         planCatalog
             .findByCode(sub.planCode())
-            .orElseThrow(() -> new IllegalStateException("Plan not found: " + sub.planCode()));
+            .orElseThrow(() -> ProblemRest.of(EntitlementErrorCodes.PLAN_UNAVAILABLE));
 
     // 3. Parse JSON capabilities
     var features = parseFeatures(plan);

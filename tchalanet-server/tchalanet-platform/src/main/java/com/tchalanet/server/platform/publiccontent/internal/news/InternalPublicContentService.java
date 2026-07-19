@@ -1,11 +1,12 @@
 package com.tchalanet.server.platform.publiccontent.internal.news;
 
 import com.tchalanet.server.common.cache.CacheKeyBuilder;
+import com.tchalanet.server.common.web.error.ProblemRest;
+import com.tchalanet.server.platform.publiccontent.api.error.PublicContentErrorCodes;
 import com.tchalanet.server.platform.publiccontent.api.model.PublicContentStatus;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -60,7 +61,7 @@ public class InternalPublicContentService {
 
   public PublicContentItem changeStatus(String id, PublicContentStatus newStatus) {
     var existing =
-        findById(id).orElseThrow(() -> new NoSuchElementException("Content item not found: " + id));
+        findById(id).orElseThrow(() -> ProblemRest.of(PublicContentErrorCodes.ITEM_NOT_FOUND));
     return save(existing.withStatus(newStatus));
   }
 

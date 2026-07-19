@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 /**
  * Annotation to mark an application entry point (e.g., a controller method) as requiring a specific
  * feature to be enabled for the current tenant. If the feature is not enabled, a {@code
- * ProblemRest.forbidden} exception will be thrown.
+ * code-first {@code ProblemRestException} will be thrown.
  *
  * <p>This annotation relies on {@link
  * EntitlementApi#requireFeature(com.tchalanet.server.common.types.id.TenantId, String)}.

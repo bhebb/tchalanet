@@ -96,7 +96,11 @@
             "authenticated_actor_required": { "title": "Session required", "message": "Sign in again to continue." },
             "tenant_required": { "title": "Workspace required", "message": "Select the workspace to support." },
             "reason_required": { "title": "Reason required", "message": "Provide a sufficiently specific support reason." }
-          }
+          },
+          "role": { "not_found": { "title": "Role not found", "message": "This role is no longer available." } },
+          "permission": { "not_found": { "title": "Permission not found", "message": "This permission is no longer available." } },
+          "role_permission_input_required": { "title": "Role and permission required", "message": "Select a role and a permission to continue." },
+          "platform_role_unavailable": { "title": "Access configuration unavailable", "message": "The platform role cannot be verified right now. Try again later." }
         },
         "identity": {
           "auth": {
@@ -199,7 +203,8 @@
           "feature_required": { "title": "Feature unavailable", "message": "This feature is not included in your workspace’s current configuration." },
           "limit_missing": { "title": "Configuration unavailable", "message": "The required limit is unavailable at the moment. Try again later." },
           "limit_exceeded": { "title": "Limit reached", "message": "This action exceeds a limit for your workspace." },
-          "usage_provider_unavailable": { "title": "Verification unavailable", "message": "This limit cannot be checked at the moment. Try again later." }
+          "usage_provider_unavailable": { "title": "Verification unavailable", "message": "This limit cannot be checked at the moment. Try again later." },
+          "plan_unavailable": { "title": "Plan unavailable", "message": "This tenant plan cannot be read right now. Try again later." }
         },
         "limits": {
           "blocked": {
@@ -417,6 +422,56 @@
           "override_settled_forbidden": { "title": "Correction unavailable", "message": "This result is already linked to a settled draw." },
           "external_pick_invalid": { "title": "Invalid numbers", "message": "Enter 3 digits for the first number and 4 digits for the second." },
           "projection_failed": { "title": "Result cannot be processed", "message": "The result cannot be processed at the moment. Try again or contact support." }
+        },
+        "promotion": {
+          "campaign": {
+            "not_found": { "title": "Promotion not found", "message": "This campaign is no longer available." },
+            "dates_required_for_activation": { "title": "Dates required", "message": "Set the start and end dates before activation." },
+            "start_must_be_before_end": { "title": "Invalid dates", "message": "The start date must be before the end date." },
+            "no_rules": { "title": "Rule required", "message": "Add at least one rule before activation." },
+            "rule_missing_effects": { "title": "Effect required", "message": "Each rule must contain at least one effect." },
+            "rule_effect_type_unsupported": { "title": "Unsupported effect", "message": "This effect is not available for this campaign." },
+            "rule_generation_strategy_unsupported": { "title": "Unsupported strategy", "message": "This generation strategy is not available." }
+          },
+          "maryaj_gratis": {
+            "choice_mode_invalid": { "title": "Invalid choice", "message": "Choose a supported Maryaj gratis mode." },
+            "generation_strategy_unsupported": { "title": "Unsupported strategy", "message": "This generation strategy is not available." },
+            "generation_strategy_requires_auto_generate": { "title": "Automatic mode required", "message": "The generation strategy requires automatic mode." },
+            "regeneration_requires_auto_generate": { "title": "Regeneration unavailable", "message": "Regeneration requires automatic mode." },
+            "step_paid_amount_required": { "title": "Amount required", "message": "Provide the amount per step." },
+            "quantity_tiers_required": { "title": "Tiers required", "message": "Provide at least one quantity tier." }
+          }
+        },
+        "limits": {
+          "blocked": { "title": "Limit exceeded", "message": "This sale exceeds the configured limit." },
+          "target_type_required": { "title": "Target required", "message": "Select the limit target type." },
+          "target_type_unsupported": { "title": "Unsupported target", "message": "This target type is not available for limits." },
+          "target_id_required": { "title": "Target required", "message": "Select the limit target." },
+          "target_id_invalid": { "title": "Invalid target", "message": "Select a valid limit target." }
+        },
+        "notification": {
+          "not_found": { "title": "Notification not found", "message": "This notification is no longer available." },
+          "publication_not_found": { "title": "Publication not found", "message": "This notification publication is no longer available." },
+          "not_publishable": { "title": "Publishing unavailable", "message": "This notification cannot be published in its current state." },
+          "not_republishable": { "title": "Republishing unavailable", "message": "This notification cannot be republished in its current state." },
+          "reason_required": { "title": "Reason required", "message": "Enter a reason to continue." },
+          "system_keys_required": { "title": "Translation keys required", "message": "Provide both the title and message keys." },
+          "translation_required": { "title": "Translation required", "message": "Provide the required translations." },
+          "translation_locale_unsupported": { "title": "Unsupported language", "message": "Choose a supported notification language." },
+          "tenant_required": { "title": "Tenant required", "message": "Select the notification tenant." },
+          "target_required": { "title": "Recipient required", "message": "Select at least one recipient." },
+          "platform_audience_requires_platform_scope": { "title": "Access denied", "message": "This audience requires platform context." },
+          "tenant_audience_requires_tenant_scope": { "title": "Access denied", "message": "This audience requires tenant context." },
+          "recipients_required": { "title": "Recipient required", "message": "Select at least one recipient." },
+          "slack_channel_key_required": { "title": "Slack channel required", "message": "Provide the Slack channel." },
+          "email_required": { "title": "Email required", "message": "Provide the recipient email address." },
+          "email_invalid": { "title": "Invalid email", "message": "Provide a valid email address." },
+          "phone_required": { "title": "Phone required", "message": "Provide the recipient phone number." },
+          "phone_invalid": { "title": "Invalid phone", "message": "Provide a valid international phone number." },
+          "send_failed": { "title": "Sending unavailable", "message": "The notification cannot be sent right now. Try again later." }
+        },
+        "publiccontent": {
+          "item": { "not_found": { "title": "Content not found", "message": "This public content is no longer available." } }
         },
         "catalog": {
           "game": {

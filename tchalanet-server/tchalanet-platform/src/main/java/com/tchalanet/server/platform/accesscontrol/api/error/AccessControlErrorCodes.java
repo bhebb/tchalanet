@@ -35,6 +35,13 @@ public class AccessControlErrorCodes {
       validation("access.support.tenant_required");
   public static final ErrorDescriptor SUPPORT_REASON_REQUIRED =
       validation("access.support.reason_required");
+  public static final ErrorDescriptor ROLE_NOT_FOUND = notFound("access.role.not_found");
+  public static final ErrorDescriptor PERMISSION_NOT_FOUND =
+      notFound("access.permission.not_found");
+  public static final ErrorDescriptor ROLE_PERMISSION_INPUT_REQUIRED =
+      validation("access.role_permission_input_required");
+  public static final ErrorDescriptor PLATFORM_ROLE_UNAVAILABLE =
+      serviceUnavailable("access.platform_role_unavailable");
 
   public static Set<ErrorDescriptor> all() {
     return Set.of(
@@ -47,7 +54,11 @@ public class AccessControlErrorCodes {
         TENANT_AMBIGUOUS_MEMBERSHIP,
         SUPPORT_AUTHENTICATED_ACTOR_REQUIRED,
         SUPPORT_TENANT_REQUIRED,
-        SUPPORT_REASON_REQUIRED);
+        SUPPORT_REASON_REQUIRED,
+        ROLE_NOT_FOUND,
+        PERMISSION_NOT_FOUND,
+        ROLE_PERMISSION_INPUT_REQUIRED,
+        PLATFORM_ROLE_UNAVAILABLE);
   }
 
   private static ErrorDescriptor authorization(String code) {
@@ -76,6 +87,26 @@ public class AccessControlErrorCodes {
         ErrorCategory.VALIDATION,
         HttpStatus.BAD_REQUEST,
         ErrorRetryPolicy.AFTER_USER_ACTION,
+        AUTHENTICATED_AUDIENCES,
+        Set.of());
+  }
+
+  private static ErrorDescriptor notFound(String code) {
+    return new ErrorDescriptor(
+        code,
+        ErrorCategory.NOT_FOUND,
+        HttpStatus.NOT_FOUND,
+        ErrorRetryPolicy.NEVER,
+        AUTHENTICATED_AUDIENCES,
+        Set.of());
+  }
+
+  private static ErrorDescriptor serviceUnavailable(String code) {
+    return new ErrorDescriptor(
+        code,
+        ErrorCategory.SERVICE_UNAVAILABLE,
+        HttpStatus.SERVICE_UNAVAILABLE,
+        ErrorRetryPolicy.AFTER_DELAY,
         AUTHENTICATED_AUDIENCES,
         Set.of());
   }

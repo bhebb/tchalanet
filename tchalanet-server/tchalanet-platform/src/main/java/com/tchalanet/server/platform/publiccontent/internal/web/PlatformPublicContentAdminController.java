@@ -4,6 +4,7 @@ import com.tchalanet.server.platform.audit.api.AuditLog;
 import com.tchalanet.server.platform.audit.api.model.AuditAction;
 import com.tchalanet.server.platform.audit.api.model.AuditEntityType;
 import com.tchalanet.server.platform.publiccontent.api.model.PublicContentAdminItemView;
+import com.tchalanet.server.platform.publiccontent.api.model.PublicContentRefreshResult;
 import com.tchalanet.server.platform.publiccontent.api.model.PublicContentSourceType;
 import com.tchalanet.server.platform.publiccontent.internal.news.PublicContentAdminService;
 import com.tchalanet.server.platform.publiccontent.internal.news.PublicContentItem;
@@ -95,8 +96,8 @@ public class PlatformPublicContentAdminController {
 
   @Operation(summary = "Force refresh external RSS feed")
   @PostMapping("/force-refresh")
-  public void forceRefresh() {
-    adminService.forceRefreshExternal();
+  public PublicContentRefreshResult forceRefresh() {
+    return adminService.forceRefreshExternal();
   }
 
   private PublicContentAdminItemView toAdminView(PublicContentItem item) {

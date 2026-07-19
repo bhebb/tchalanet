@@ -96,7 +96,11 @@
             "authenticated_actor_required": { "title": "Session requise", "message": "Reconnectez-vous pour continuer." },
             "tenant_required": { "title": "Espace requis", "message": "Sélectionnez l’espace à assister." },
             "reason_required": { "title": "Motif requis", "message": "Indiquez un motif de support suffisamment précis." }
-          }
+          },
+          "role": { "not_found": { "title": "Rôle introuvable", "message": "Ce rôle n’est plus disponible." } },
+          "permission": { "not_found": { "title": "Permission introuvable", "message": "Cette permission n’est plus disponible." } },
+          "role_permission_input_required": { "title": "Rôle et permission requis", "message": "Sélectionnez un rôle et une permission pour continuer." },
+          "platform_role_unavailable": { "title": "Configuration d’accès indisponible", "message": "Le rôle plateforme ne peut pas être vérifié pour le moment. Réessayez plus tard." }
         },
         "identity": {
           "auth": {
@@ -199,7 +203,8 @@
           "feature_required": { "title": "Fonction non disponible", "message": "Cette fonction n’est pas incluse dans la configuration actuelle de votre espace." },
           "limit_missing": { "title": "Configuration indisponible", "message": "La limite nécessaire n’est pas disponible pour le moment. Réessayez plus tard." },
           "limit_exceeded": { "title": "Limite atteinte", "message": "Cette action dépasse une limite de votre espace." },
-          "usage_provider_unavailable": { "title": "Vérification indisponible", "message": "La vérification de cette limite est indisponible pour le moment. Réessayez plus tard." }
+          "usage_provider_unavailable": { "title": "Vérification indisponible", "message": "La vérification de cette limite est indisponible pour le moment. Réessayez plus tard." },
+          "plan_unavailable": { "title": "Plan indisponible", "message": "Le plan de ce tenant ne peut pas être lu pour le moment. Réessayez plus tard." }
         },
         "limits": {
           "blocked": {
@@ -417,6 +422,56 @@
           "override_settled_forbidden": { "title": "Correction impossible", "message": "Ce résultat est déjà lié à un tirage réglé." },
           "external_pick_invalid": { "title": "Numéros invalides", "message": "Saisissez 3 chiffres pour le premier numéro et 4 chiffres pour le second." },
           "projection_failed": { "title": "Résultat non traitable", "message": "Le résultat ne peut pas être traité pour le moment. Réessayez ou contactez le support." }
+        },
+        "promotion": {
+          "campaign": {
+            "not_found": { "title": "Promotion introuvable", "message": "Cette campagne n’est plus disponible." },
+            "dates_required_for_activation": { "title": "Dates requises", "message": "Renseignez les dates de début et de fin avant l’activation." },
+            "start_must_be_before_end": { "title": "Dates invalides", "message": "La date de début doit précéder la date de fin." },
+            "no_rules": { "title": "Règle requise", "message": "Ajoutez au moins une règle avant l’activation." },
+            "rule_missing_effects": { "title": "Effet requis", "message": "Chaque règle doit contenir au moins un effet." },
+            "rule_effect_type_unsupported": { "title": "Effet non pris en charge", "message": "Cet effet n’est pas disponible pour cette campagne." },
+            "rule_generation_strategy_unsupported": { "title": "Stratégie non prise en charge", "message": "Cette stratégie de génération n’est pas disponible." }
+          },
+          "maryaj_gratis": {
+            "choice_mode_invalid": { "title": "Choix invalide", "message": "Choisissez un mode Maryaj gratis pris en charge." },
+            "generation_strategy_unsupported": { "title": "Stratégie non prise en charge", "message": "Cette stratégie de génération n’est pas disponible." },
+            "generation_strategy_requires_auto_generate": { "title": "Mode automatique requis", "message": "La stratégie de génération requiert le mode automatique." },
+            "regeneration_requires_auto_generate": { "title": "Régénération indisponible", "message": "La régénération requiert le mode automatique." },
+            "step_paid_amount_required": { "title": "Montant requis", "message": "Renseignez le montant par étape." },
+            "quantity_tiers_required": { "title": "Paliers requis", "message": "Renseignez au moins un palier de quantité." }
+          }
+        },
+        "limits": {
+          "blocked": { "title": "Limite dépassée", "message": "Cette vente dépasse la limite configurée." },
+          "target_type_required": { "title": "Cible requise", "message": "Sélectionnez le type de cible de la limite." },
+          "target_type_unsupported": { "title": "Cible non prise en charge", "message": "Ce type de cible n’est pas disponible pour les limites." },
+          "target_id_required": { "title": "Cible requise", "message": "Sélectionnez la cible de la limite." },
+          "target_id_invalid": { "title": "Cible invalide", "message": "Sélectionnez une cible de limite valide." }
+        },
+        "notification": {
+          "not_found": { "title": "Notification introuvable", "message": "Cette notification n’est plus disponible." },
+          "publication_not_found": { "title": "Publication introuvable", "message": "Cette publication de notification n’est plus disponible." },
+          "not_publishable": { "title": "Publication indisponible", "message": "Cette notification ne peut pas être publiée dans son état actuel." },
+          "not_republishable": { "title": "Republication indisponible", "message": "Cette notification ne peut pas être republiée dans son état actuel." },
+          "reason_required": { "title": "Motif requis", "message": "Indiquez un motif pour continuer." },
+          "system_keys_required": { "title": "Clés de traduction requises", "message": "Renseignez ensemble les clés de titre et de message." },
+          "translation_required": { "title": "Traduction requise", "message": "Renseignez les traductions obligatoires." },
+          "translation_locale_unsupported": { "title": "Langue non prise en charge", "message": "Choisissez une langue de notification prise en charge." },
+          "tenant_required": { "title": "Tenant requis", "message": "Sélectionnez le tenant de la notification." },
+          "target_required": { "title": "Destinataire requis", "message": "Sélectionnez au moins un destinataire." },
+          "platform_audience_requires_platform_scope": { "title": "Accès refusé", "message": "Cette audience nécessite le contexte plateforme." },
+          "tenant_audience_requires_tenant_scope": { "title": "Accès refusé", "message": "Cette audience nécessite le contexte tenant." },
+          "recipients_required": { "title": "Destinataire requis", "message": "Sélectionnez au moins un destinataire." },
+          "slack_channel_key_required": { "title": "Canal Slack requis", "message": "Renseignez le canal Slack." },
+          "email_required": { "title": "E-mail requis", "message": "Renseignez l’adresse e-mail du destinataire." },
+          "email_invalid": { "title": "E-mail invalide", "message": "Renseignez une adresse e-mail valide." },
+          "phone_required": { "title": "Téléphone requis", "message": "Renseignez le numéro de téléphone du destinataire." },
+          "phone_invalid": { "title": "Téléphone invalide", "message": "Renseignez un numéro international valide." },
+          "send_failed": { "title": "Envoi indisponible", "message": "La notification ne peut pas être envoyée maintenant. Réessayez plus tard." }
+        },
+        "publiccontent": {
+          "item": { "not_found": { "title": "Contenu introuvable", "message": "Ce contenu public n’est plus disponible." } }
         },
         "catalog": {
           "game": {
