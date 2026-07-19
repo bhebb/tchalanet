@@ -2,7 +2,9 @@ package com.tchalanet.server.features.pagemodel.security;
 
 import com.tchalanet.server.common.context.TchContext;
 import com.tchalanet.server.common.security.TchRole;
+import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.pagemodel.api.model.PageModelDoc;
+import com.tchalanet.server.features.pagemodel.error.PageModelErrorCodes;
 import java.util.Map;
 import java.util.Set;
 import org.springframework.stereotype.Component;
@@ -47,9 +49,7 @@ public class PageModelAccessPolicy {
     TchRole role = TchContext.currentOrThrow().currentRole();
 
     if (doc == null || doc.meta() == null || !permits(logicalId, role)) {
-      throw new com.tchalanet.server.common.exception.TchForbiddenException(
-          "PAGE_MODEL_ACCESS_DENIED",
-          "Role " + role + " is not authorized to access PageModel: " + logicalId);
+      throw ProblemRest.of(PageModelErrorCodes.ACCESS_DENIED);
     }
   }
 }

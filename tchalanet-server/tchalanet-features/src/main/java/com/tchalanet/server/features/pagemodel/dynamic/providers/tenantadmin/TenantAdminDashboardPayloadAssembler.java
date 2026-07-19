@@ -99,8 +99,7 @@ public class TenantAdminDashboardPayloadAssembler {
     TenantContextLookupView registry =
         timing.record("registry", () -> tenantPreContextLookupApi.findById(tenantId).orElse(null));
     OperationsBundle ops = timing.record("operations", () -> loadOperationsBundle(tenantId));
-    CommercialBundle commercial =
-        timing.record("commercial", () -> loadCommercialBundle(tenantId));
+    CommercialBundle commercial = timing.record("commercial", () -> loadCommercialBundle(tenantId));
     TenantKpisView kpisView =
         timing.record("activeSellerTerminals", () -> loadActiveSellerTerminals(tenantId, tz));
     TenantDashboardStatsView analytics =
@@ -149,17 +148,17 @@ public class TenantAdminDashboardPayloadAssembler {
 
     Payload payload =
         new Payload(
-        header,
-        kpis,
-        salesTrend,
-        gameBreakdown,
-        readiness,
-        alerts,
-        operations,
-        commercialSummary,
-        commission,
-        publicContent,
-        quickActions);
+            header,
+            kpis,
+            salesTrend,
+            gameBreakdown,
+            readiness,
+            alerts,
+            operations,
+            commercialSummary,
+            commission,
+            publicContent,
+            quickActions);
     timing.logTenant(tenantId, ctx.effectiveTenantCode());
     return payload;
   }

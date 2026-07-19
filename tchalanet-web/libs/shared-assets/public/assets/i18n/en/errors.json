@@ -473,6 +473,72 @@
         "publiccontent": {
           "item": { "not_found": { "title": "Content not found", "message": "This public content is no longer available." } }
         },
+        "document": {
+          "request_invalid": { "title": "Invalid document", "message": "Check the document information and try again." },
+          "renderer_unavailable": { "title": "Printing unavailable", "message": "The document cannot be prepared at the moment. Try again later." },
+          "render_failed": { "title": "Printing unavailable", "message": "The document cannot be prepared at the moment. Try again later." }
+        },
+        "pagemodel": {
+          "access_denied": { "title": "Access denied", "message": "Your account cannot open this page." },
+          "tenant_override_forbidden": { "title": "Access denied", "message": "Your account cannot select this tenant." },
+          "not_found": { "title": "Page not found", "message": "The requested page is no longer available." },
+          "widget": {
+            "unavailable": { "title": "Section unavailable", "message": "This section is temporarily unavailable. Try again." },
+            "no_provider": { "title": "Section unavailable", "message": "This section is temporarily unavailable. Try again." },
+            "role_denied": { "title": "Access denied", "message": "Your account cannot view this section." }
+          },
+          "fragment": {
+            "key_required": { "title": "Invalid page", "message": "The page configuration is incomplete." },
+            "not_found": { "title": "Section not found", "message": "The page section is no longer available." },
+            "invalid": { "title": "Section unavailable", "message": "The page section cannot be loaded right now." }
+          }
+        },
+        "pos": {
+          "surface": { "not_allowed": { "title": "Access denied", "message": "This session cannot use this surface." } },
+          "home": { "seller_terminal_required": { "title": "Seller terminal required", "message": "Reopen the session from a valid seller terminal." } },
+          "dashboard": { "analytics_unavailable": { "title": "Statistics unavailable", "message": "Seller statistics are temporarily unavailable. Try again." } },
+          "tickets": { "seller_terminal_mismatch": { "title": "Access denied", "message": "This seller terminal does not match your session." } },
+          "receipt": {
+            "print_options_invalid": { "title": "Invalid print options", "message": "Check the print options and try again." },
+            "delivery_channel_required": { "title": "Delivery channel required", "message": "Select a valid delivery channel." },
+            "delivery_recipient_required": { "title": "Recipient required", "message": "Provide the recipient phone number or email address." },
+            "attachment_too_large": { "title": "Attachment too large", "message": "The document is too large to send as an attachment." },
+            "seller_terminal_required": { "title": "Seller terminal required", "message": "Reopen a valid seller-terminal session to continue." }
+          }
+        },
+        "communication": {
+          "request_invalid": { "title": "Invalid delivery", "message": "Check the delivery information and try again." },
+          "channel_disabled": { "title": "Delivery channel unavailable", "message": "This delivery channel is not enabled for this tenant." },
+          "enqueue_failed": { "title": "Delivery unavailable", "message": "The message cannot be prepared for delivery at the moment. Try again later." },
+          "provider_unavailable": { "title": "Delivery service unavailable", "message": "The message delivery service is temporarily unavailable." },
+          "delivery_failed": { "title": "Delivery unavailable", "message": "The message cannot be sent at the moment. Try again later." }
+        },
+        "tenantgame": {
+          "catalog_game_not_found": { "title": "Game not found", "message": "This catalog game is no longer available." },
+          "not_found": { "title": "Tenant game not found", "message": "This game is not enabled for this tenant." },
+          "catalog_game_inactive": { "title": "Inactive game", "message": "This catalog game cannot be enabled." },
+          "display_name_too_long": { "title": "Name too long", "message": "Shorten the game name." },
+          "display_order_invalid": { "title": "Invalid order", "message": "Enter an order greater than or equal to zero." },
+          "min_stake_invalid": { "title": "Invalid minimum stake", "message": "Enter a valid minimum stake." },
+          "max_stake_invalid": { "title": "Invalid maximum stake", "message": "Enter a valid maximum stake." },
+          "stake_range_invalid": { "title": "Invalid stake range", "message": "The minimum stake cannot exceed the maximum stake." },
+          "availability_day_invalid": { "title": "Invalid day", "message": "Select supported availability days." },
+          "time_invalid": { "title": "Invalid time", "message": "Enter a time in HH:mm format." },
+          "bet_type_required": { "title": "Bet type required", "message": "Select a bet type." },
+          "bet_type_unsupported": { "title": "Unsupported bet type", "message": "This bet type is not available for this game." },
+          "bet_type_duplicate": { "title": "Duplicate bet type", "message": "Each bet type must appear only once." },
+          "bet_option_invalid": { "title": "Invalid bet option", "message": "Select an option available for this bet type." },
+          "bet_option_duplicate": { "title": "Duplicate bet option", "message": "Each option must appear only once." },
+          "bet_option_enabled_required": { "title": "Active option required", "message": "Enable at least one bet option." },
+          "bet_option_default_invalid": { "title": "Invalid default option", "message": "Select an enabled default option." }
+        },
+        "tenant": {
+          "not_found": { "title": "Tenant not found", "message": "This tenant is no longer available." },
+          "activation_not_allowed": { "title": "Activation unavailable", "message": "This tenant cannot be activated in its current state." },
+          "suspension_not_allowed": { "title": "Suspension unavailable", "message": "This tenant cannot be suspended in its current state." },
+          "settings_invalid": { "title": "Invalid configuration", "message": "Correct the tenant configuration, then try again." },
+          "support_reason_invalid": { "title": "Invalid support reason", "message": "Provide a support reason of at least 10 characters." }
+        },
         "catalog": {
           "game": {
             "not_found": { "title": "Game not found", "message": "This game is no longer available in the catalog." },

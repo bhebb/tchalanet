@@ -3,6 +3,7 @@ package com.tchalanet.server.features.pagemodel.dynamic;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.tchalanet.server.common.web.advice.ApiResponseContext;
+import com.tchalanet.server.common.web.api.NoticeKind;
 import com.tchalanet.server.common.web.api.NoticeSeverity;
 import com.tchalanet.server.core.pagemodel.api.dynamic.PageModelDynamicProvider;
 import com.tchalanet.server.core.pagemodel.api.dynamic.PageModelDynamicProviderException;
@@ -32,17 +33,18 @@ class PageModelDynamicResolverTest {
             error -> {
               assertThat(error.widgetId()).isEqualTo("dashboard.tenantAdmin.commission");
               assertThat(error.provider()).isEqualTo("tenant_admin_dashboard");
-              assertThat(error.code()).isEqualTo("dashboard.commissions.unavailable");
+              assertThat(error.code()).isEqualTo("pagemodel.widget.unavailable");
             });
 
     assertThat(ApiResponseContext.get().getNotices())
         .singleElement()
         .satisfies(
             notice -> {
-              assertThat(notice.code()).isEqualTo("dashboard.commissions.unavailable");
+              assertThat(notice.code()).isEqualTo("pagemodel.widget.unavailable");
               assertThat(notice.domain()).isEqualTo("features.pagemodel");
               assertThat(notice.severity()).isEqualTo(NoticeSeverity.WARN);
-              assertThat(notice.message()).isEqualTo("Page section unavailable.");
+              assertThat(notice.kind()).isEqualTo(NoticeKind.DEGRADATION);
+              assertThat(notice.message()).isNull();
               assertThat(notice.meta())
                   .containsEntry("surface", "section")
                   .containsEntry("placement", "top")

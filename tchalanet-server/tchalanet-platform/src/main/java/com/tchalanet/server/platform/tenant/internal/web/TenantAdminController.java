@@ -11,6 +11,7 @@ import com.tchalanet.server.common.web.paging.TchSearchQuery;
 import com.tchalanet.server.platform.accesscontrol.api.SupportAccessApi;
 import com.tchalanet.server.platform.accesscontrol.api.model.StartSupportAccessSessionRequest;
 import com.tchalanet.server.platform.accesscontrol.api.model.SupportAccessSessionView;
+import com.tchalanet.server.platform.tenant.api.error.TenantErrorCodes;
 import com.tchalanet.server.platform.tenant.api.model.TenantStatus;
 import com.tchalanet.server.platform.tenant.api.model.request.ActivateTenantRequest;
 import com.tchalanet.server.platform.tenant.api.model.request.ArchiveTenantRequest;
@@ -179,7 +180,7 @@ public class TenantAdminController {
   public record StartTenantAdminAccessRequest(String reason, SupportAccessMode mode) {
     public StartTenantAdminAccessRequest {
       if (reason == null || reason.trim().length() < 10) {
-        throw ProblemRest.badRequest("reason must contain at least 10 characters");
+        throw ProblemRest.of(TenantErrorCodes.SUPPORT_REASON_INVALID);
       }
       if (mode == null) {
         mode = SupportAccessMode.SUPPORT_READONLY;

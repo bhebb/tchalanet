@@ -7,8 +7,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.tchalanet.server.common.context.ResolvedAccessContext;
 import com.tchalanet.server.common.context.RequestContextErrorCodes;
+import com.tchalanet.server.common.context.ResolvedAccessContext;
 import com.tchalanet.server.common.context.TchActorType;
 import com.tchalanet.server.common.context.TchContext;
 import com.tchalanet.server.common.context.TchContextBinder;
@@ -76,7 +76,8 @@ class TchContextFilterSlice5Test {
     var request = new MockHttpServletRequest();
     request.setRequestURI("/api/v1/tenant/something");
 
-    assertThatThrownBy(() -> filter().doFilter(request, new MockHttpServletResponse(), new MockFilterChain()))
+    assertThatThrownBy(
+            () -> filter().doFilter(request, new MockHttpServletResponse(), new MockFilterChain()))
         .isInstanceOf(ProblemRestException.class)
         .satisfies(
             error ->
@@ -121,7 +122,8 @@ class TchContextFilterSlice5Test {
         RESOLVED_ACCESS,
         appUserAccess(UserId.of(UUID.randomUUID()), TENANT_ID, Set.of("TENANT_ADMIN"), Set.of()));
 
-    assertThatThrownBy(() -> filter().doFilter(request, new MockHttpServletResponse(), new MockFilterChain()))
+    assertThatThrownBy(
+            () -> filter().doFilter(request, new MockHttpServletResponse(), new MockFilterChain()))
         .isInstanceOf(ProblemRestException.class)
         .satisfies(
             error ->
@@ -145,7 +147,8 @@ class TchContextFilterSlice5Test {
             Set.of("SUPER_ADMIN"),
             Set.of("platform.tenant.override")));
 
-    assertThatThrownBy(() -> filter().doFilter(request, new MockHttpServletResponse(), new MockFilterChain()))
+    assertThatThrownBy(
+            () -> filter().doFilter(request, new MockHttpServletResponse(), new MockFilterChain()))
         .isInstanceOf(ProblemRestException.class)
         .satisfies(
             error ->
@@ -239,7 +242,8 @@ class TchContextFilterSlice5Test {
     request.setRequestURI("/api/v1/tenant/something");
     request.addHeader("X-Deleted-Visibility", "all");
 
-    assertThatThrownBy(() -> filter().doFilter(request, new MockHttpServletResponse(), new MockFilterChain()))
+    assertThatThrownBy(
+            () -> filter().doFilter(request, new MockHttpServletResponse(), new MockFilterChain()))
         .isInstanceOf(ProblemRestException.class)
         .satisfies(
             error ->

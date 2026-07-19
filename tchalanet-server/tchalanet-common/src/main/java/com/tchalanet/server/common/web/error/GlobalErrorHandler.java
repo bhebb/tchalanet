@@ -142,7 +142,8 @@ public class GlobalErrorHandler {
   @ExceptionHandler(EntityNotFoundException.class)
   public ResponseEntity<ProblemDetail> handleJpaNotFound(
       EntityNotFoundException ex, HttpServletRequest req) {
-    var pd = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, "Requested resource is unavailable");
+    var pd =
+        ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, "Requested resource is unavailable");
     pd.setTitle("Resource not found");
     pd.setProperty("code", CommonErrorCodes.RESOURCE_NOT_FOUND);
     decorate(pd, req, ex, false);
@@ -170,7 +171,9 @@ public class GlobalErrorHandler {
         "[400] {} {} - validation fields={}",
         req.getMethod(),
         req.getRequestURI(),
-        ex.getBindingResult().getFieldErrors().stream().map(fieldError -> fieldError.getField()).toList());
+        ex.getBindingResult().getFieldErrors().stream()
+            .map(fieldError -> fieldError.getField())
+            .toList());
 
     return buildResponse(pd, req, HttpStatus.BAD_REQUEST);
   }
@@ -347,9 +350,9 @@ public class GlobalErrorHandler {
   /**
    * Migration firewall for message-first {@link ProblemRestException} producers.
    *
-   * <p>Legacy producers used {@code detail} for either a stable code or arbitrary diagnostics.
-   * A complete descriptor contract is retained; anything else is reduced to a stable code and
-   * neutral detail before it crosses the HTTP boundary.
+   * <p>Legacy producers used {@code detail} for either a stable code or arbitrary diagnostics. A
+   * complete descriptor contract is retained; anything else is reduced to a stable code and neutral
+   * detail before it crosses the HTTP boundary.
    */
   private static void normalizeLegacyProblem(ProblemDetail pd, HttpStatus status) {
     var properties = pd.getProperties();
@@ -379,7 +382,8 @@ public class GlobalErrorHandler {
   private static String fallbackCode(HttpStatus status) {
     return switch (status) {
       case NOT_FOUND -> CommonErrorCodes.RESOURCE_NOT_FOUND;
-      case SERVICE_UNAVAILABLE, GATEWAY_TIMEOUT, BAD_GATEWAY -> CommonErrorCodes.SERVICE_UNAVAILABLE;
+      case SERVICE_UNAVAILABLE, GATEWAY_TIMEOUT, BAD_GATEWAY ->
+          CommonErrorCodes.SERVICE_UNAVAILABLE;
       case INTERNAL_SERVER_ERROR -> CommonErrorCodes.INTERNAL_UNEXPECTED;
       default -> CommonErrorCodes.REQUEST_REJECTED;
     };
@@ -527,7 +531,13 @@ public class GlobalErrorHandler {
             violation -> {
               var target = violation.getPropertyPath().toString();
               return Map.of(
-                  "code", validationCode(violation.getConstraintDescriptor().getAnnotation().annotationType().getSimpleName()),
+                  "code",
+                      validationCode(
+                          violation
+                              .getConstraintDescriptor()
+                              .getAnnotation()
+                              .annotationType()
+                              .getSimpleName()),
                   "field", target,
                   "target", target);
             })

@@ -3,10 +3,10 @@ package com.tchalanet.server.common.context;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.tchalanet.server.common.web.error.ProblemRestException;
 import com.tchalanet.server.common.context.scope.ApiScope;
 import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.web.error.ProblemRestException;
 import java.time.ZoneId;
 import java.util.Currency;
 import java.util.EnumSet;

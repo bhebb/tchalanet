@@ -5,6 +5,7 @@ import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.core.pagemodel.api.dynamic.PageModelDynamicProvider;
 import com.tchalanet.server.core.pagemodel.api.dynamic.PageModelDynamicProviderException;
 import com.tchalanet.server.core.pagemodel.api.model.PageModelDoc;
+import com.tchalanet.server.features.pagemodel.error.PageModelErrorCodes;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -48,7 +49,8 @@ public class JsonFileProvider implements PageModelDynamicProvider {
     try (InputStream is = classLoader.getResourceAsStream(resourcePath)) {
       if (is == null) {
         throw new PageModelDynamicProviderException(
-            "JSON_FRAGMENT_NOT_FOUND", "JSON fragment resource not found: " + fileKey);
+            PageModelErrorCodes.FRAGMENT_NOT_FOUND.code(),
+            "JSON fragment resource not found: " + fileKey);
       }
 
       return jsonUtils.parse(is);
@@ -56,7 +58,7 @@ public class JsonFileProvider implements PageModelDynamicProvider {
       throw e;
     } catch (Exception e) {
       throw new PageModelDynamicProviderException(
-          "JSON_FRAGMENT_INVALID", "Invalid JSON fragment: " + fileKey, e);
+          PageModelErrorCodes.FRAGMENT_INVALID.code(), "Invalid JSON fragment: " + fileKey, e);
     }
   }
 

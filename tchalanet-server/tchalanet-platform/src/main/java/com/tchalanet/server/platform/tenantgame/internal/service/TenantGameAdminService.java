@@ -4,6 +4,7 @@ import com.tchalanet.server.catalog.game.api.GameCatalog;
 import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.web.error.ProblemRest;
+import com.tchalanet.server.platform.tenantgame.api.error.TenantGameErrorCodes;
 import com.tchalanet.server.platform.tenantgame.api.model.DisableTenantGameResult;
 import com.tchalanet.server.platform.tenantgame.api.model.EnableTenantGameResult;
 import com.tchalanet.server.platform.tenantgame.api.model.TenantGameDisabledEvent;
@@ -43,8 +44,7 @@ public class TenantGameAdminService {
     var game =
         gameCatalog
             .findByCode(request.getGameCode().toUpperCase())
-            .orElseThrow(
-                () -> new IllegalArgumentException("Game not found: " + request.getGameCode()));
+            .orElseThrow(() -> ProblemRest.of(TenantGameErrorCodes.CATALOG_GAME_NOT_FOUND));
     validator.validateEnableGame(game);
 
     var existing = persistence.findByTenantIdAndGameCode(request.getTenantId(), game.code());
@@ -117,10 +117,7 @@ public class TenantGameAdminService {
     var existing =
         persistence
             .findByTenantIdAndGameCode(request.getTenantId(), request.getGameCode().toUpperCase())
-            .orElseThrow(
-                () ->
-                    new IllegalArgumentException(
-                        "Tenant game not found: " + request.getGameCode()));
+            .orElseThrow(() -> ProblemRest.of(TenantGameErrorCodes.NOT_FOUND));
     var updated =
         new TenantGame(
             existing.tenantGameId(),
@@ -160,10 +157,7 @@ public class TenantGameAdminService {
     var existing =
         persistence
             .findByTenantIdAndGameCode(request.getTenantId(), request.getGameCode().toUpperCase())
-            .orElseThrow(
-                () ->
-                    new IllegalArgumentException(
-                        "Tenant game not found: " + request.getGameCode()));
+            .orElseThrow(() -> ProblemRest.of(TenantGameErrorCodes.NOT_FOUND));
 
     var availabilityEnabled =
         request.getAvailabilityEnabled() != null
@@ -222,7 +216,7 @@ public class TenantGameAdminService {
     var existing =
         persistence
             .findByTenantIdAndGameCode(tenantId, gameCode.toUpperCase())
-            .orElseThrow(() -> new IllegalArgumentException("Tenant game not found: " + gameCode));
+            .orElseThrow(() -> ProblemRest.of(TenantGameErrorCodes.NOT_FOUND));
     return betOptionConfigs.toView(existing);
   }
 
@@ -236,16 +230,9 @@ public class TenantGameAdminService {
     var existing =
         persistence
             .findByTenantIdAndGameCode(request.getTenantId(), gameCode)
-            .orElseThrow(
-                () ->
-                    new IllegalArgumentException(
-                        "Tenant game not found: " + request.getGameCode()));
+            .orElseThrow(() -> ProblemRest.of(TenantGameErrorCodes.NOT_FOUND));
     List<com.tchalanet.server.platform.tenantgame.api.model.TenantBetTypeOptionConfig> normalized;
-    try {
-      normalized = betOptionConfigs.normalize(gameCode, request.getBetTypes());
-    } catch (IllegalArgumentException ex) {
-      throw ProblemRest.badRequest(ex.getMessage());
-    }
+    normalized = betOptionConfigs.normalize(gameCode, request.getBetTypes());
     var updated =
         new TenantGame(
             existing.tenantGameId(),

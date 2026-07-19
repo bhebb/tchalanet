@@ -3,6 +3,8 @@ package com.tchalanet.server.platform.tenantgame.internal.service;
 import com.tchalanet.server.catalog.game.api.model.BetOption;
 import com.tchalanet.server.catalog.game.api.model.BetType;
 import com.tchalanet.server.catalog.game.api.model.GameCode;
+import com.tchalanet.server.common.web.error.ProblemRest;
+import com.tchalanet.server.platform.tenantgame.api.error.TenantGameErrorCodes;
 import com.tchalanet.server.platform.tenantgame.api.model.SelectionPolicy;
 import com.tchalanet.server.platform.tenantgame.api.model.TenantBetOptionConfig;
 import com.tchalanet.server.platform.tenantgame.api.model.TenantBetTypeOptionConfig;
@@ -85,7 +87,7 @@ class TenantGameBetOptionConfigs {
 
   private TenantBetTypeOptionConfig normalizeBetType(TenantBetTypeOptionConfig config) {
     if (config.betType() == null) {
-      throw new IllegalArgumentException("betType is required");
+      throw ProblemRest.of(TenantGameErrorCodes.BET_TYPE_REQUIRED);
     }
     var policy =
         config.selectionPolicy() == null ? SelectionPolicy.EXPLICIT_ONLY : config.selectionPolicy();
@@ -93,8 +95,7 @@ class TenantGameBetOptionConfigs {
     var allowedOptions = BetOption.allowedFor(config.betType());
     if (allowedOptions.isEmpty()) {
       if (config.defaultOption() != null) {
-        throw new IllegalArgumentException(
-            "defaultOption is not allowed for betType: " + config.betType());
+        throw ProblemRest.of(TenantGameErrorCodes.BET_OPTION_DEFAULT_INVALID);
       }
       return new TenantBetTypeOptionConfig(config.betType(), policy, null, List.of());
     }
@@ -116,10 +117,7 @@ class TenantGameBetOptionConfigs {
                 .findFirst()
                 .map(TenantBetOptionConfig::code)
                 .orElseThrow(
-                    () ->
-                        new IllegalArgumentException(
-                            "At least one option must be enabled for betType: "
-                                + config.betType()));
+                    () -> ProblemRest.of(TenantGameErrorCodes.BET_OPTION_ENABLED_REQUIRED));
     return new TenantBetTypeOptionConfig(
         config.betType(), policy, defaultOption, normalizedOptions);
   }
@@ -129,14 +127,13 @@ class TenantGameBetOptionConfigs {
     var seen = new HashSet<BetType>();
     for (var config : configs) {
       if (config.betType() == null) {
-        throw new IllegalArgumentException("betType is required");
+        throw ProblemRest.of(TenantGameErrorCodes.BET_TYPE_REQUIRED);
       }
       if (!code.supports(config.betType())) {
-        throw new IllegalArgumentException(
-            "Unsupported betType " + config.betType() + " for game " + gameCode);
+        throw ProblemRest.of(TenantGameErrorCodes.BET_TYPE_UNSUPPORTED);
       }
       if (!seen.add(config.betType())) {
-        throw new IllegalArgumentException("Duplicate betType: " + config.betType());
+        throw ProblemRest.of(TenantGameErrorCodes.BET_TYPE_DUPLICATE);
       }
     }
   }
@@ -146,25 +143,26 @@ class TenantGameBetOptionConfigs {
     var seen = new HashSet<Short>();
     var enabled = new HashSet<Short>();
     for (var option : options) {
-      BetOption.from(betType, option.code());
+      try {
+        BetOption.from(betType, option.code());
+      } catch (IllegalArgumentException ex) {
+        throw ProblemRest.of(TenantGameErrorCodes.BET_OPTION_INVALID, java.util.Map.of(), ex);
+      }
       if (!seen.add(option.code())) {
-        throw new IllegalArgumentException(
-            "Duplicate betOption " + option.code() + " for betType " + betType);
+        throw ProblemRest.of(TenantGameErrorCodes.BET_OPTION_DUPLICATE);
       }
       if (option.displayOrder() < 0) {
-        throw new IllegalArgumentException("displayOrder must be >= 0");
+        throw ProblemRest.of(TenantGameErrorCodes.DISPLAY_ORDER_INVALID);
       }
       if (option.enabled()) {
         enabled.add(option.code());
       }
     }
     if (enabled.isEmpty()) {
-      throw new IllegalArgumentException(
-          "At least one option must be enabled for betType: " + betType);
+      throw ProblemRest.of(TenantGameErrorCodes.BET_OPTION_ENABLED_REQUIRED);
     }
     if (defaultOption != null && !enabled.contains(defaultOption)) {
-      throw new IllegalArgumentException(
-          "defaultOption must be an enabled option for betType: " + betType);
+      throw ProblemRest.of(TenantGameErrorCodes.BET_OPTION_DEFAULT_INVALID);
     }
   }
 

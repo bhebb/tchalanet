@@ -8,11 +8,11 @@ import com.tchalanet.server.core.pagemodel.api.dynamic.PageModelDynamicProvider;
 import com.tchalanet.server.core.pagemodel.api.dynamic.PageModelDynamicProviderException;
 import com.tchalanet.server.core.pagemodel.api.dynamic.PageModelResolutionContext;
 import com.tchalanet.server.core.pagemodel.api.model.PageModelDoc;
+import com.tchalanet.server.features.pagemodel.error.PageModelErrorCodes;
 import com.tchalanet.server.features.pagemodel.security.PageModelAllowedRoles;
 import com.tchalanet.server.features.pagemodel.shared.PageDynamicPayload;
 import com.tchalanet.server.features.pagemodel.shared.WidgetDynamicError;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -180,15 +180,10 @@ public class PageModelDynamicResolver {
                       new WidgetDynamicError(
                           widgetId,
                           provider.providerKey(),
-                          "PROVIDER_ROLE_DENIED",
-                          "Provider "
-                              + provider.providerKey()
-                              + " requires one of "
-                              + Arrays.toString(roleAnnotation.value())
-                              + " but current role is "
-                              + currentRole);
+                          PageModelErrorCodes.WIDGET_ROLE_DENIED.code(),
+                          null);
                   errors.add(error);
-                  addWidgetNotice(error, "Page section unavailable.", NoticeSeverity.WARN, null);
+                  addWidgetNotice(error, NoticeSeverity.WARN, null);
                   return;
                 }
               }
@@ -197,42 +192,34 @@ public class PageModelDynamicResolver {
                 widgets.put(widgetId, payload);
               } catch (PageModelDynamicProviderException e) {
                 var error =
-                    new WidgetDynamicError(widgetId, provider.providerKey(), e.code(), safeMsg(e));
+                    new WidgetDynamicError(
+                        widgetId, provider.providerKey(), normalizeProviderCode(e.code()), null);
                 errors.add(error);
-                addWidgetNotice(error, "Page section unavailable.", NoticeSeverity.WARN, e);
+                addWidgetNotice(error, NoticeSeverity.WARN, e);
               } catch (Exception e) {
                 var error =
                     new WidgetDynamicError(
                         widgetId,
                         provider.providerKey(),
-                        "pagemodel.widget.unavailable",
-                        safeMsg(e));
+                        PageModelErrorCodes.WIDGET_UNAVAILABLE.code(),
+                        null);
                 errors.add(error);
-                addWidgetNotice(error, "Page section unavailable.", NoticeSeverity.WARN, e);
+                addWidgetNotice(error, NoticeSeverity.WARN, e);
               }
             },
             () -> {
               var error =
                   new WidgetDynamicError(
-                      widgetId,
-                      "resolver",
-                      "pagemodel.widget.no_provider",
-                      "No provider found for logicalId="
-                          + logicalId
-                          + ", widgetType="
-                          + widgetType
-                          + ", source="
-                          + source);
+                      widgetId, "resolver", PageModelErrorCodes.WIDGET_NO_PROVIDER.code(), null);
               errors.add(error);
-              addWidgetNotice(error, "Page section unavailable.", NoticeSeverity.WARN, null);
+              addWidgetNotice(error, NoticeSeverity.WARN, null);
             });
   }
 
   private static void addWidgetNotice(
-      WidgetDynamicError error, String message, NoticeSeverity severity, Exception ex) {
-    ApiResponseNotices.add(
+      WidgetDynamicError error, NoticeSeverity severity, Exception ex) {
+    ApiResponseNotices.degradation(
         error.code(),
-        message,
         "features.pagemodel",
         severity,
         NoticeSource.of(error.widgetId()).service(error.provider()).operation("loadWidget"),
@@ -243,8 +230,12 @@ public class PageModelDynamicResolver {
             "target", error.widgetId()));
   }
 
-  private static String safeMsg(Exception e) {
-    String msg = e.getMessage();
-    return (msg == null || msg.isBlank()) ? e.getClass().getSimpleName() : msg;
+  private static String normalizeProviderCode(String code) {
+    return switch (code) {
+      case "pagemodel.fragment.key_required" -> PageModelErrorCodes.FRAGMENT_KEY_REQUIRED.code();
+      case "pagemodel.fragment.not_found" -> PageModelErrorCodes.FRAGMENT_NOT_FOUND.code();
+      case "pagemodel.fragment.invalid" -> PageModelErrorCodes.FRAGMENT_INVALID.code();
+      default -> PageModelErrorCodes.WIDGET_UNAVAILABLE.code();
+    };
   }
 }

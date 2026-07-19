@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.tchalanet.server.common.web.api.ApiNotice;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.api.ApiStatus;
+import com.tchalanet.server.common.web.api.NoticeKind;
 import com.tchalanet.server.common.web.api.NoticeSeverity;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
@@ -81,6 +82,31 @@ class ApiResponseBodyAdviceTest {
     assertThat(result.notices())
         .extracting(ApiNotice::code)
         .containsExactly("core.sales.limit.warning", "features.dashboard.partial");
+  }
+
+  @Test
+  void reportsPartialWhenAnOptionalSliceIsUnavailable() {
+    ApiResponseNotices.degradation(
+        "tenantadmin.dashboard.analytics_unavailable",
+        "features.tenantadmin",
+        NoticeSeverity.WARN,
+        null,
+        new IllegalStateException("database connection refused"),
+        java.util.Map.of("target", "analytics"));
+
+    var result = (ApiResponse<?>) invokeAdvice("payload");
+
+    assertThat(result.status()).isEqualTo(ApiStatus.PARTIAL);
+    assertThat(result.notices())
+        .singleElement()
+        .satisfies(
+            notice -> {
+              assertThat(notice.code()).isEqualTo("tenantadmin.dashboard.analytics_unavailable");
+              assertThat(notice.kind()).isEqualTo(NoticeKind.DEGRADATION);
+              assertThat(notice.message()).isNull();
+              assertThat(notice.meta()).doesNotContainKey("exception");
+              assertThat(notice.meta()).containsEntry("target", "analytics");
+            });
   }
 
   @Test

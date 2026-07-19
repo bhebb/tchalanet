@@ -1,6 +1,8 @@
 package com.tchalanet.server.platform.tenantgame.internal.service;
 
 import com.tchalanet.server.catalog.game.api.model.GameView;
+import com.tchalanet.server.common.web.error.ProblemRest;
+import com.tchalanet.server.platform.tenantgame.api.error.TenantGameErrorCodes;
 import com.tchalanet.server.platform.tenantgame.api.model.request.UpdateTenantGameSettingsRequest;
 import java.math.BigDecimal;
 import java.time.LocalTime;
@@ -16,16 +18,16 @@ public class TenantGameConfigValidator {
 
   public void validateEnableGame(GameView game) {
     if (!game.active()) {
-      throw new IllegalArgumentException("Cannot enable inactive catalog game: " + game.code());
+      throw ProblemRest.of(TenantGameErrorCodes.CATALOG_GAME_INACTIVE);
     }
   }
 
   public void validateSettings(UpdateTenantGameSettingsRequest req) {
     if (req.getDisplayName() != null && req.getDisplayName().length() > 128) {
-      throw new IllegalArgumentException("displayName must be <= 128 characters");
+      throw ProblemRest.of(TenantGameErrorCodes.DISPLAY_NAME_TOO_LONG);
     }
     if (req.getDisplayOrder() != null && req.getDisplayOrder() < 0) {
-      throw new IllegalArgumentException("displayOrder must be >= 0");
+      throw ProblemRest.of(TenantGameErrorCodes.DISPLAY_ORDER_INVALID);
     }
     validateStakeRange(req.getMinStake(), req.getMaxStake());
     if (hasText(req.getAvailabilityDays())) {
@@ -37,13 +39,13 @@ public class TenantGameConfigValidator {
 
   public void validateStakeRange(BigDecimal min, BigDecimal max) {
     if (min != null && min.signum() < 0) {
-      throw new IllegalArgumentException("minStake must be >= 0");
+      throw ProblemRest.of(TenantGameErrorCodes.MIN_STAKE_INVALID);
     }
     if (max != null && max.signum() < 0) {
-      throw new IllegalArgumentException("maxStake must be >= 0");
+      throw ProblemRest.of(TenantGameErrorCodes.MAX_STAKE_INVALID);
     }
     if (min != null && max != null && min.compareTo(max) > 0) {
-      throw new IllegalArgumentException("minStake must be <= maxStake");
+      throw ProblemRest.of(TenantGameErrorCodes.STAKE_RANGE_INVALID);
     }
   }
 
@@ -51,8 +53,7 @@ public class TenantGameConfigValidator {
     for (String day : days.split(",")) {
       var code = day.trim().toUpperCase();
       if (!VALID_DAY_CODES.contains(code)) {
-        throw new IllegalArgumentException(
-            "Invalid availability day code: '" + code + "'. Valid: " + VALID_DAY_CODES);
+        throw ProblemRest.of(TenantGameErrorCodes.AVAILABILITY_DAY_INVALID);
       }
     }
   }
@@ -61,7 +62,7 @@ public class TenantGameConfigValidator {
     try {
       return LocalTime.parse(value);
     } catch (DateTimeParseException e) {
-      throw new IllegalArgumentException(field + " must be a valid time (HH:mm): " + value, e);
+      throw ProblemRest.of(TenantGameErrorCodes.TIME_INVALID, java.util.Map.of(), e);
     }
   }
 

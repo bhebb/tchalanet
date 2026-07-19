@@ -73,7 +73,10 @@ class PosHomeServiceTest {
   void non_seller_terminal_actor_is_rejected_for_mobile_home() {
     assertThatThrownBy(() -> service.mobileHome(context(TchActorType.APP_USER, null), "MOBILE_POS"))
         .isInstanceOf(ProblemRestException.class)
-        .hasMessageContaining("seller_terminal.actor_required");
+        .satisfies(
+            error ->
+                assertThat(((ProblemRestException) error).getProblem().getProperties())
+                    .containsEntry("code", "pos.home.seller_terminal_required"));
   }
 
   @Test
@@ -83,7 +86,10 @@ class PosHomeServiceTest {
                 service.mobileHome(
                     context(TchActorType.SELLER_TERMINAL, sellerTerminalId), "PLATFORM_ADMIN_WEB"))
         .isInstanceOf(ProblemRestException.class)
-        .hasMessageContaining("surface.not_allowed");
+        .satisfies(
+            error ->
+                assertThat(((ProblemRestException) error).getProblem().getProperties())
+                    .containsEntry("code", "pos.surface.not_allowed"));
   }
 
   @Test

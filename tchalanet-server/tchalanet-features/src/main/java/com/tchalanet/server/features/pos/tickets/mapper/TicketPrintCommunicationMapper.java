@@ -1,8 +1,10 @@
 package com.tchalanet.server.features.pos.tickets.mapper;
 
 import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptMessageContent;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptPrintContent;
+import com.tchalanet.server.features.pos.tickets.error.PosTicketReceiptErrorCodes;
 import com.tchalanet.server.features.pos.tickets.model.PrintDeliveryOption;
 import com.tchalanet.server.features.pos.tickets.model.PrintTicketRequest;
 import com.tchalanet.server.platform.communication.api.model.request.OutboundAttachment;
@@ -103,7 +105,7 @@ public class TicketPrintCommunicationMapper {
       return List.of();
     }
     if (rendered.bytes().length > MAX_INLINE_ATTACHMENT_BYTES) {
-      throw new IllegalStateException("Document too large for inline communication attachment");
+      throw ProblemRest.of(PosTicketReceiptErrorCodes.ATTACHMENT_TOO_LARGE);
     }
     return List.of(
         new OutboundAttachment(rendered.filename(), rendered.contentType(), rendered.bytes()));
@@ -119,7 +121,7 @@ public class TicketPrintCommunicationMapper {
       case WHATSAPP -> CommunicationChannel.WHATSAPP;
       case EMAIL -> CommunicationChannel.EMAIL;
       case RETURN_FILE ->
-          throw new IllegalArgumentException("RETURN_FILE is not an external channel");
+          throw ProblemRest.of(PosTicketReceiptErrorCodes.DELIVERY_CHANNEL_REQUIRED);
     };
   }
 

@@ -76,12 +76,15 @@ class ErrorDescriptorTest {
             Set.of(new ErrorParamSpec("remainingMinorUnits", ErrorParamType.INTEGER)));
 
     assertThatIllegalArgumentException()
-        .isThrownBy(() -> ProblemRest.of(descriptor, java.util.Map.of("tenantId", "internal"), null));
+        .isThrownBy(
+            () -> ProblemRest.of(descriptor, java.util.Map.of("tenantId", "internal"), null));
     assertThatIllegalArgumentException()
         .isThrownBy(
             () ->
                 ProblemRest.of(
-                    descriptor, java.util.Map.of("remainingMinorUnits", java.util.Map.of("bad", 1)), null));
+                    descriptor,
+                    java.util.Map.of("remainingMinorUnits", java.util.Map.of("bad", 1)),
+                    null));
     assertThatIllegalArgumentException()
         .isThrownBy(
             () -> ProblemRest.of(descriptor, java.util.Map.of("remainingMinorUnits", "100"), null));
@@ -98,8 +101,11 @@ class ErrorDescriptorTest {
             Set.of(ErrorAudience.WEB_ADMIN),
             Set.of());
 
-    assertThat(ErrorDescriptorRegistry.validate(
-            Set.of(new ErrorDescriptorRegistry.DescriptorRegistration("common.context", descriptor))))
+    assertThat(
+            ErrorDescriptorRegistry.validate(
+                Set.of(
+                    new ErrorDescriptorRegistry.DescriptorRegistration(
+                        "common.context", descriptor))))
         .containsEntry(descriptor.code(), descriptor);
     assertThatIllegalArgumentException()
         .isThrownBy(
