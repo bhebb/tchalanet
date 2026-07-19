@@ -7,6 +7,7 @@ import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.common.web.paging.TchSearchQuery;
+import com.tchalanet.server.platform.notification.api.error.NotificationErrorCodes;
 import com.tchalanet.server.platform.notification.api.model.NotificationActorType;
 import com.tchalanet.server.platform.notification.api.model.NotificationAudienceType;
 import com.tchalanet.server.platform.notification.api.model.NotificationCategory;
@@ -91,7 +92,7 @@ class NotificationAdminGate {
             : request.audienceType();
     if (audienceType == NotificationAudienceType.PLATFORM_ADMINS
         || audienceType == NotificationAudienceType.ALL_APP_USERS) {
-      throw ProblemRest.forbidden("notification.platform_audience_requires_platform_scope");
+      throw ProblemRest.of(NotificationErrorCodes.PLATFORM_AUDIENCE_REQUIRES_PLATFORM_SCOPE);
     }
     create(request, tenantId, audienceType, "ADMIN");
   }
@@ -104,7 +105,7 @@ class NotificationAdminGate {
     if (audienceType == NotificationAudienceType.TENANT_ADMINS
         || audienceType == NotificationAudienceType.TENANT_APP_USERS
         || audienceType == NotificationAudienceType.TENANT_SELLER_TERMINALS) {
-      throw ProblemRest.forbidden("notification.tenant_audience_requires_tenant_scope");
+      throw ProblemRest.of(NotificationErrorCodes.TENANT_AUDIENCE_REQUIRES_TENANT_SCOPE);
     }
     create(request, null, audienceType, "SUPER_ADMIN");
   }
@@ -116,7 +117,7 @@ class NotificationAdminGate {
             : request.audienceType();
     if (audienceType == NotificationAudienceType.PLATFORM_ADMINS
         || audienceType == NotificationAudienceType.ALL_APP_USERS) {
-      throw ProblemRest.forbidden("notification.platform_audience_requires_platform_scope");
+      throw ProblemRest.of(NotificationErrorCodes.PLATFORM_AUDIENCE_REQUIRES_PLATFORM_SCOPE);
     }
     create(request, tenantId, audienceType, "SUPER_ADMIN");
   }

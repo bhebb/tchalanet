@@ -1,6 +1,7 @@
 package com.tchalanet.server.platform.publiccontent.internal.news;
 
 import com.tchalanet.server.common.cache.CacheKeyBuilder;
+import com.tchalanet.server.platform.publiccontent.api.model.PublicContentRefreshResult;
 import com.tchalanet.server.platform.publiccontent.internal.news.provider.NewsProvider;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -34,18 +35,18 @@ public class ExternalRssNewsService {
    * Fetch RSS from provider and store in cache. Called by scheduler and admin force-refresh.
    * Failure is logged and stale cache is preserved (empty on cold start).
    */
-  public List<PublicContentItem> refreshExternalSnapshot() {
+  public PublicContentRefreshResult refreshExternalSnapshot() {
     try {
       var items = newsProvider.fetchLatestNews();
       cache.putExternalSnapshot(cacheKeyBuilder.newsExternalKey(), items);
       log.info("publiccontent: refreshed external RSS snapshot ({} items)", items.size());
-      return items;
+      return PublicContentRefreshResult.refreshed(items.size());
     } catch (Exception e) {
       log.error(
           "publiccontent: failed to refresh external RSS — keeping stale cache: {}",
           e.getMessage(),
           e);
-      return getExternalSnapshot();
+      return PublicContentRefreshResult.staleCacheRetained(getExternalSnapshot().size());
     }
   }
 }

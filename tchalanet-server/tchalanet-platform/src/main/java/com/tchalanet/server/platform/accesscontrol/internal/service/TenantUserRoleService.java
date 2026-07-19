@@ -1,6 +1,8 @@
 package com.tchalanet.server.platform.accesscontrol.internal.service;
 
 import com.tchalanet.server.common.types.id.RoleId;
+import com.tchalanet.server.common.web.error.ProblemRest;
+import com.tchalanet.server.platform.accesscontrol.api.error.AccessControlErrorCodes;
 import com.tchalanet.server.platform.accesscontrol.api.model.request.AssignRoleToUserRequest;
 import com.tchalanet.server.platform.accesscontrol.api.model.request.RemoveRoleFromUserRequest;
 import com.tchalanet.server.platform.accesscontrol.api.model.request.SetTenantUserRoleRequest;
@@ -53,7 +55,7 @@ public class TenantUserRoleService {
     var roleEntity =
         appRoleRepository
             .findActiveSystemRoleByCodeAndScope(request.role().name(), TENANT_ROLE_SCOPE)
-            .orElseThrow(() -> new IllegalArgumentException("Role not found: " + request.role()));
+            .orElseThrow(() -> ProblemRest.of(AccessControlErrorCodes.ROLE_NOT_FOUND));
     tenantUserRoleWriter.setUserRole(
         request.tenantId(), request.userId(), RoleId.of(roleEntity.getId()));
   }

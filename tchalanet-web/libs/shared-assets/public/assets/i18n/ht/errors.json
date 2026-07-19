@@ -96,7 +96,11 @@
             "authenticated_actor_required": { "title": "Sesyon obligatwa", "message": "Konekte ankò pou kontinye." },
             "tenant_required": { "title": "Espas obligatwa", "message": "Chwazi espas ou pral sipòte a." },
             "reason_required": { "title": "Rezon obligatwa", "message": "Bay yon rezon sipò ki ase presi." }
-          }
+          },
+          "role": { "not_found": { "title": "Wòl pa jwenn", "message": "Wòl sa a pa disponib ankò." } },
+          "permission": { "not_found": { "title": "Pèmisyon pa jwenn", "message": "Pèmisyon sa a pa disponib ankò." } },
+          "role_permission_input_required": { "title": "Wòl ak pèmisyon obligatwa", "message": "Chwazi yon wòl ak yon pèmisyon pou kontinye." },
+          "platform_role_unavailable": { "title": "Konfigirasyon aksè pa disponib", "message": "Nou pa ka verifye wòl platfòm nan kounye a. Eseye ankò pita." }
         },
         "identity": {
           "auth": {
@@ -199,7 +203,8 @@
           "feature_required": { "title": "Fonksyon pa disponib", "message": "Fonksyon sa a pa nan konfigirasyon espas ou a kounye a." },
           "limit_missing": { "title": "Konfigirasyon pa disponib", "message": "Limit ki nesesè a pa disponib kounye a. Eseye ankò pita." },
           "limit_exceeded": { "title": "Limit rive", "message": "Aksyon sa a depase yon limit nan espas ou a." },
-          "usage_provider_unavailable": { "title": "Verifikasyon pa disponib", "message": "Nou pa ka verifye limit sa a kounye a. Eseye ankò pita." }
+          "usage_provider_unavailable": { "title": "Verifikasyon pa disponib", "message": "Nou pa ka verifye limit sa a kounye a. Eseye ankò pita." },
+          "plan_unavailable": { "title": "Plan pa disponib", "message": "Nou pa ka li plan espas sa a kounye a. Eseye ankò pita." }
         },
         "limits": {
           "blocked": {
@@ -417,6 +422,56 @@
           "override_settled_forbidden": { "title": "Koreksyon enposib", "message": "Rezilta sa a deja relye ak yon tiraj ki regle." },
           "external_pick_invalid": { "title": "Nimewo pa valid", "message": "Antre 3 chif pou premye nimewo a ak 4 chif pou dezyèm nimewo a." },
           "projection_failed": { "title": "Rezilta pa ka trete", "message": "Rezilta a pa ka trete kounye a. Eseye ankò oswa kontakte sipò." }
+        },
+        "promotion": {
+          "campaign": {
+            "not_found": { "title": "Pwomosyon pa jwenn", "message": "Kanpay sa a pa disponib ankò." },
+            "dates_required_for_activation": { "title": "Dat obligatwa", "message": "Mete dat kòmansman ak dat fen anvan aktivasyon." },
+            "start_must_be_before_end": { "title": "Dat pa valid", "message": "Dat kòmansman an dwe anvan dat fen an." },
+            "no_rules": { "title": "Règ obligatwa", "message": "Ajoute omwen yon règ anvan aktivasyon." },
+            "rule_missing_effects": { "title": "Efè obligatwa", "message": "Chak règ dwe gen omwen yon efè." },
+            "rule_effect_type_unsupported": { "title": "Efè pa sipòte", "message": "Efè sa a pa disponib pou kanpay sa a." },
+            "rule_generation_strategy_unsupported": { "title": "Metòd pa sipòte", "message": "Metòd jenerasyon sa a pa disponib." }
+          },
+          "maryaj_gratis": {
+            "choice_mode_invalid": { "title": "Chwa pa valid", "message": "Chwazi yon mòd Maryaj gratis ki sipòte." },
+            "generation_strategy_unsupported": { "title": "Metòd pa sipòte", "message": "Metòd jenerasyon sa a pa disponib." },
+            "generation_strategy_requires_auto_generate": { "title": "Mòd jenerasyon obligatwa", "message": "Metòd jenerasyon mande mòd otomatik la." },
+            "regeneration_requires_auto_generate": { "title": "Rejenere pa disponib", "message": "Rejenere mande mòd otomatik la." },
+            "step_paid_amount_required": { "title": "Montan obligatwa", "message": "Mete montan pa etap la." },
+            "quantity_tiers_required": { "title": "Nivo obligatwa", "message": "Mete omwen yon nivo kantite." }
+          }
+        },
+        "limits": {
+          "blocked": { "title": "Limit depase", "message": "Vant sa a depase limit ki konfigurasyon an pèmèt." },
+          "target_type_required": { "title": "Sib obligatwa", "message": "Chwazi kalite sib limit la." },
+          "target_type_unsupported": { "title": "Sib pa sipòte", "message": "Kalite sib sa a pa disponib pou limit yo." },
+          "target_id_required": { "title": "Sib obligatwa", "message": "Chwazi sib limit la." },
+          "target_id_invalid": { "title": "Sib pa valid", "message": "Chwazi yon sib limit ki valid." }
+        },
+        "notification": {
+          "not_found": { "title": "Notifikasyon pa jwenn", "message": "Notifikasyon sa a pa disponib ankò." },
+          "publication_not_found": { "title": "Piblikasyon pa jwenn", "message": "Piblikasyon notifikasyon sa a pa disponib ankò." },
+          "not_publishable": { "title": "Piblikasyon pa disponib", "message": "Notifikasyon sa a pa ka pibliye nan eta li ye a." },
+          "not_republishable": { "title": "Repiblikasyon pa disponib", "message": "Notifikasyon sa a pa ka pibliye ankò nan eta li ye a." },
+          "reason_required": { "title": "Rezon obligatwa", "message": "Mete yon rezon pou kontinye." },
+          "system_keys_required": { "title": "Kle tradiksyon obligatwa", "message": "Mete kle tit ak mesaj ansanm." },
+          "translation_required": { "title": "Tradiksyon obligatwa", "message": "Ranpli tradiksyon ki obligatwa yo." },
+          "translation_locale_unsupported": { "title": "Lang pa sipòte", "message": "Chwazi yon lang notifikasyon ki sipòte." },
+          "tenant_required": { "title": "Espas obligatwa", "message": "Chwazi espas notifikasyon an." },
+          "target_required": { "title": "Moun k ap resevwa a obligatwa", "message": "Chwazi omwen yon moun k ap resevwa notifikasyon an." },
+          "platform_audience_requires_platform_scope": { "title": "Aksè refize", "message": "Gwoup platfòm nan mande kontèks platfòm nan." },
+          "tenant_audience_requires_tenant_scope": { "title": "Aksè refize", "message": "Gwoup espas la mande kontèks espas la." },
+          "recipients_required": { "title": "Moun k ap resevwa a obligatwa", "message": "Chwazi omwen yon moun k ap resevwa." },
+          "slack_channel_key_required": { "title": "Chanèl Slack obligatwa", "message": "Mete chanèl Slack la." },
+          "email_required": { "title": "Imèl obligatwa", "message": "Mete adrès imèl moun k ap resevwa a." },
+          "email_invalid": { "title": "Imèl pa valid", "message": "Mete yon adrès imèl ki valid." },
+          "phone_required": { "title": "Telefòn obligatwa", "message": "Mete nimewo telefòn moun k ap resevwa a." },
+          "phone_invalid": { "title": "Telefòn pa valid", "message": "Mete yon nimewo telefòn entènasyonal ki valid." },
+          "send_failed": { "title": "Voye a pa disponib", "message": "Nou pa ka voye notifikasyon an kounye a. Eseye ankò pita." }
+        },
+        "publiccontent": {
+          "item": { "not_found": { "title": "Kontni pa jwenn", "message": "Kontni piblik sa a pa disponib ankò." } }
         },
         "catalog": {
           "game": {

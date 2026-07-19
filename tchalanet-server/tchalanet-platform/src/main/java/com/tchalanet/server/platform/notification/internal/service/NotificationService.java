@@ -11,6 +11,7 @@ import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.common.web.paging.TchSearchQuery;
+import com.tchalanet.server.platform.notification.api.error.NotificationErrorCodes;
 import com.tchalanet.server.platform.notification.api.model.NotificationActorType;
 import com.tchalanet.server.platform.notification.api.model.NotificationAudienceType;
 import com.tchalanet.server.platform.notification.api.model.NotificationCategory;
@@ -166,7 +167,7 @@ public class NotificationService {
     var now = clock.instant();
     if (entity.getStatus() == NotificationStatus.CANCELLED
         || entity.getStatus() == NotificationStatus.PURGED) {
-      throw ProblemRest.unprocessable("notification.not_publishable");
+      throw ProblemRest.of(NotificationErrorCodes.NOT_PUBLISHABLE);
     }
     notifications.publishDraft(notificationId.value(), now);
     entity.setStatus(NotificationStatus.PUBLISHED);
@@ -181,12 +182,12 @@ public class NotificationService {
   public NotificationPublicationId republish(
       NotificationId notificationId, UserId actorId, String reason) {
     if (reason == null || reason.isBlank()) {
-      throw ProblemRest.badRequest("notification.reason_required");
+      throw ProblemRest.of(NotificationErrorCodes.REASON_REQUIRED);
     }
     var entity = notificationEntity(notificationId);
     if (entity.getStatus() == NotificationStatus.CANCELLED
         || entity.getStatus() == NotificationStatus.PURGED) {
-      throw ProblemRest.unprocessable("notification.not_republishable");
+      throw ProblemRest.of(NotificationErrorCodes.NOT_REPUBLISHABLE);
     }
     var now = clock.instant();
     var previous = latestPublication(entity.getId()).orElse(null);
@@ -202,19 +203,19 @@ public class NotificationService {
     var entity = notificationEntity(notificationId);
     var publication =
         latestPublication(entity.getId())
-            .orElseThrow(() -> ProblemRest.notFound("notification.publication_not_found"));
+            .orElseThrow(() -> ProblemRest.of(NotificationErrorCodes.PUBLICATION_NOT_FOUND));
     return replayRecipients(entity, publication);
   }
 
   @TchTx
   public void cancel(NotificationId notificationId, String reason) {
     if (reason == null || reason.isBlank()) {
-      throw ProblemRest.badRequest("notification.reason_required");
+      throw ProblemRest.of(NotificationErrorCodes.REASON_REQUIRED);
     }
     var now = clock.instant();
     var updated = notifications.cancel(notificationId.value(), reason.trim(), now);
     if (updated == 0) {
-      throw ProblemRest.notFound("notification.not_found");
+      throw ProblemRest.of(NotificationErrorCodes.NOT_FOUND);
     }
     publications.updatePublishedStatus(
         notificationId.value(), NotificationPublicationStatus.CANCELLED);
@@ -273,7 +274,7 @@ public class NotificationService {
     return notifications
         .findById(notificationId.value())
         .filter(entity -> entity.getDeletedAt() == null)
-        .orElseThrow(() -> ProblemRest.notFound("notification.not_found"));
+        .orElseThrow(() -> ProblemRest.of(NotificationErrorCodes.NOT_FOUND));
   }
 
   private Optional<
@@ -487,7 +488,7 @@ public class NotificationService {
     var hasMessageKey = request.messageKey() != null && !request.messageKey().isBlank();
     if (hasTitleKey || hasMessageKey) {
       if (!hasTitleKey || !hasMessageKey) {
-        throw ProblemRest.badRequest("notification.system_keys_required");
+        throw ProblemRest.of(NotificationErrorCodes.SYSTEM_KEYS_REQUIRED);
       }
       return;
     }
@@ -498,7 +499,7 @@ public class NotificationService {
           || translation.title().isBlank()
           || translation.body() == null
           || translation.body().isBlank()) {
-        throw ProblemRest.badRequest("notification.translation_required_" + locale);
+        throw ProblemRest.of(NotificationErrorCodes.TRANSLATION_REQUIRED);
       }
     }
   }
@@ -513,7 +514,7 @@ public class NotificationService {
     values.forEach(
         (locale, value) -> {
           if (!java.util.Set.of("fr", "en", "ht").contains(locale)) {
-            throw ProblemRest.badRequest("notification.translation_locale_unsupported");
+            throw ProblemRest.of(NotificationErrorCodes.TRANSLATION_LOCALE_UNSUPPORTED);
           }
           if (value == null || value.title() == null || value.title().isBlank()) {
             return;
@@ -607,8 +608,7 @@ public class NotificationService {
             recipient.channel(),
             e.getMessage(),
             e);
-        return SendNotificationResult.failed(
-            "Failed to send notification: " + e.getMessage(), idempotencyKey);
+        throw ProblemRest.of(NotificationErrorCodes.SEND_FAILED, Map.of(), e);
       }
     }
 
@@ -832,7 +832,7 @@ public class NotificationService {
             || normalizedType == NotificationAudienceType.TENANT_ADMINS
             || normalizedType == NotificationAudienceType.TENANT_SELLER_TERMINALS)
         && tenantId == null) {
-      throw ProblemRest.unprocessable("notification.tenant_required");
+      throw ProblemRest.of(NotificationErrorCodes.TENANT_REQUIRED);
     }
   }
 
@@ -849,7 +849,7 @@ public class NotificationService {
       targets.stream().filter(java.util.Objects::nonNull).forEach(values::add);
     }
     if (values.isEmpty()) {
-      throw ProblemRest.unprocessable("notification.target_required");
+      throw ProblemRest.of(NotificationErrorCodes.TARGET_REQUIRED);
     }
     return java.util.Collections.unmodifiableSet(values);
   }

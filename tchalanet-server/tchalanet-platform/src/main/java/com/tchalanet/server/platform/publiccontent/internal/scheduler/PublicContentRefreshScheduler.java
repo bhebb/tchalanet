@@ -19,6 +19,10 @@ public class PublicContentRefreshScheduler {
   public void refreshExternalContent() {
     var cron = props.refresh() != null ? props.refresh().cron() : "default";
     log.info("publiccontent: scheduled external RSS refresh (cron={})", cron);
-    externalRssService.refreshExternalSnapshot();
+    var result = externalRssService.refreshExternalSnapshot();
+    log.info(
+        "publiccontent: scheduled external RSS refresh outcome={} itemCount={}",
+        result.status(),
+        result.itemCount());
   }
 }
