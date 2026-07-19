@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/i18n/i18n_repository.dart';
 import '../../../../design_system/tokens/tch_spacing.dart';
+import '../../../cashier/home/presentation/view_models/cashier_home_providers.dart';
 import '../view_models/change_pin_controller.dart';
 
 class ChangePinPage extends ConsumerStatefulWidget {
@@ -48,7 +50,8 @@ class _ChangePinPageState extends ConsumerState<ChangePinPage> {
           content: Text(translations.translate('auth.change_pin.success')),
         ),
       );
-      Navigator.of(context).pop();
+      ref.invalidate(cashierHomeProvider);
+      context.go('/pos');
     });
 
     final errorKey = state.errorKeys.isEmpty
