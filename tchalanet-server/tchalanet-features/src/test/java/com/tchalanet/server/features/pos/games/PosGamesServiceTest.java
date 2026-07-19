@@ -53,6 +53,10 @@ class PosGamesServiceTest {
                   .singleElement()
                   .extracting(PosBetOptionResponse::code)
                   .isEqualTo((short) 1);
+              assertThat(game.selectionDigits()).isEqualTo(3);
+              assertThat(game.selectionSegments()).isEqualTo(1);
+              assertThat(game.options().getFirst().selectionDigits()).isEqualTo(3);
+              assertThat(game.options().getFirst().selectionSegments()).isEqualTo(1);
             });
   }
 

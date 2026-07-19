@@ -1,5 +1,6 @@
 package com.tchalanet.server.features.pos.draws;
 
+import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.web.api.ApiResponse;
@@ -22,13 +23,18 @@ import org.springframework.web.bind.annotation.RestController;
 public class PosDrawsController {
 
   private final PosDrawsService service;
+  private final ResultSlotCatalog resultSlotCatalog;
 
   @GetMapping("/available")
   @Operation(summary = "List draws available to the cashier for sale (next N hours)")
-  public ApiResponse<List<PosAvailableDrawView>> available(
+  public ApiResponse<List<PosAvailableDrawResponse>> available(
       @CurrentContext TchRequestContext ctx,
       @RequestParam(defaultValue = "24") int lookaheadHours,
       @RequestParam(defaultValue = "20") int limit) {
-    return ApiResponse.success(service.listAvailable(ctx, lookaheadHours, limit));
+    var draws =
+        service.listAvailable(ctx, lookaheadHours, limit).stream()
+            .map(draw -> PosAvailableDrawResponse.from(draw, resultSlotCatalog, ctx.tenantZoneId()))
+            .toList();
+    return ApiResponse.success(draws);
   }
 }
