@@ -49,13 +49,17 @@ class _SellerTerminalStatsPageState
     final translations = ref.watch(i18nBundleProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Statistiques')),
+      appBar: AppBar(title: Text(translations.translate('pos.reports.title'))),
       bottomNavigationBar: const SellerTerminalNavBar(currentIndex: 2),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _DateToggleBar(selected: _selectedDate, onChanged: _onDateChanged),
+            _DateToggleBar(
+              selected: _selectedDate,
+              onChanged: _onDateChanged,
+              translations: translations,
+            ),
             Expanded(
               child: statsAsync.when(
                 loading: () => const Center(child: CircularProgressIndicator()),
@@ -81,10 +85,15 @@ class _SellerTerminalStatsPageState
 // ─── Date toggle ──────────────────────────────────────────────────────────────
 
 class _DateToggleBar extends StatelessWidget {
-  const _DateToggleBar({required this.selected, required this.onChanged});
+  const _DateToggleBar({
+    required this.selected,
+    required this.onChanged,
+    required this.translations,
+  });
 
   final DateTime selected;
   final ValueChanged<DateTime> onChanged;
+  final I18nBundle translations;
 
   @override
   Widget build(BuildContext context) {
@@ -103,9 +112,15 @@ class _DateToggleBar extends StatelessWidget {
         0,
       ),
       child: SegmentedButton<String>(
-        segments: const [
-          ButtonSegment(value: 'today', label: Text("Aujourd'hui")),
-          ButtonSegment(value: 'yesterday', label: Text('Hier')),
+        segments: [
+          ButtonSegment(
+            value: 'today',
+            label: Text(translations.translate('pos.reports.today')),
+          ),
+          ButtonSegment(
+            value: 'yesterday',
+            label: Text(translations.translate('pos.reports.yesterday')),
+          ),
         ],
         selected: {isToday ? 'today' : 'yesterday'},
         onSelectionChanged: (s) {
@@ -173,23 +188,30 @@ class _StatsBody extends StatelessWidget {
         ),
         if (stats.breakdown.isNotEmpty) ...[
           const SizedBox(height: TchSpacing.s24),
-          const _SectionLabel('PAR TIRAGE'),
+          _SectionLabel(translations.translate('pos.reports.by_draw')),
           const SizedBox(height: TchSpacing.s12),
           _DrawFilterChips(
             breakdown: stats.breakdown,
             selected: drawFilter,
             onSelected: onDrawFilter,
+            allLabel: translations.translate('pos.reports.all'),
           ),
           const SizedBox(height: TchSpacing.s12),
           for (final line in filtered)
-            _DrawStatRow(line: line, currency: stats.currency),
+            _DrawStatRow(
+              line: line,
+              currency: stats.currency,
+              ticketLabel: translations.translate(
+                'common.cashier_stats.tickets',
+              ),
+            ),
         ],
         if (stats.ticketCount == 0)
           Padding(
             padding: const EdgeInsets.only(top: TchSpacing.s32),
             child: Center(
               child: Text(
-                'Aucune vente pour cette journée',
+                translations.translate('pos.reports.empty'),
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
@@ -223,11 +245,13 @@ class _DrawFilterChips extends StatelessWidget {
     required this.breakdown,
     required this.selected,
     required this.onSelected,
+    required this.allLabel,
   });
 
   final List<DrawStatLine> breakdown;
   final String? selected;
   final ValueChanged<String?> onSelected;
+  final String allLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -236,7 +260,7 @@ class _DrawFilterChips extends StatelessWidget {
       child: Row(
         children: [
           FilterChip(
-            label: const Text('Tous'),
+            label: Text(allLabel),
             selected: selected == null,
             onSelected: (_) => onSelected(null),
           ),
@@ -256,10 +280,15 @@ class _DrawFilterChips extends StatelessWidget {
 }
 
 class _DrawStatRow extends StatelessWidget {
-  const _DrawStatRow({required this.line, required this.currency});
+  const _DrawStatRow({
+    required this.line,
+    required this.currency,
+    required this.ticketLabel,
+  });
 
   final DrawStatLine line;
   final String currency;
+  final String ticketLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -287,7 +316,7 @@ class _DrawStatRow extends StatelessWidget {
             ),
           ),
           Text(
-            '${line.ticketCount} tickets',
+            '${line.ticketCount} $ticketLabel',
             style: textTheme.bodySmall?.copyWith(
               color: scheme.onSurfaceVariant,
             ),
@@ -308,23 +337,27 @@ class _DrawStatRow extends StatelessWidget {
 
 // ─── Error ────────────────────────────────────────────────────────────────────
 
-class _StatsError extends StatelessWidget {
+class _StatsError extends ConsumerWidget {
   const _StatsError({required this.onRetry});
 
   final VoidCallback onRetry;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final scheme = Theme.of(context).colorScheme;
+    final translations = ref.watch(i18nBundleProvider);
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(Icons.cloud_off_rounded, size: 48, color: scheme.error),
           const SizedBox(height: TchSpacing.s16),
-          const Text('Impossible de charger les statistiques'),
+          Text(translations.translate('pos.reports.load_error')),
           const SizedBox(height: TchSpacing.s12),
-          TextButton(onPressed: onRetry, child: const Text('Réessayer')),
+          TextButton(
+            onPressed: onRetry,
+            child: Text(translations.translate('common.retry')),
+          ),
         ],
       ),
     );

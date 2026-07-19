@@ -11,3 +11,5 @@ export 'semantic_action_button.dart';
 export 'stat_card.dart';
 export 'status_badge.dart';
 export 'surface_card.dart';
+export 'tch_brand_mark.dart';
+export 'tch_provider_logo.dart';

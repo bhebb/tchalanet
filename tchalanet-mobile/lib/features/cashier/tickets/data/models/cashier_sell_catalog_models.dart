@@ -14,6 +14,7 @@ class CashierAvailableDrawView {
     required this.localTimezone,
     this.drawChannelId,
     this.channelCode,
+    this.resultSlotKey,
     this.scheduledAt,
     this.cutoffAt,
     this.cutoffLabel,
@@ -22,6 +23,7 @@ class CashierAvailableDrawView {
   final String drawId;
   final String? drawChannelId;
   final String? channelCode;
+  final String? resultSlotKey;
   final String channelLabel;
   final List<String> gameCodes;
   final String status;
@@ -38,6 +40,49 @@ class CashierAvailableDrawView {
   final String localTimezone;
 
   bool get isOpen => status == 'OPEN' || status == 'SCHEDULED';
+
+  /// Tenant channel names can be prefixed with a product label such as
+  /// "Haïti •". The seller needs the actual provider/slot identity instead.
+  String get displayChannelLabel {
+    final segments = channelLabel
+        .split(RegExp(r'\s*[•·]\s*'))
+        .map((segment) => segment.trim())
+        .where((segment) => segment.isNotEmpty)
+        .toList(growable: false);
+    final display = segments.length >= 3
+        ? segments.skip(1).join(' · ')
+        : channelLabel.trim();
+    return display.replaceFirst(RegExp(r'\s*\([^)]*\)\s*$'), '').trim();
+  }
+
+  String get providerCode {
+    final source = (resultSlotKey?.isNotEmpty ?? false)
+        ? resultSlotKey!
+        : (channelCode ?? '');
+    final parts = source.split(RegExp(r'[_-]'));
+    if (parts.length > 1 && parts.first.toUpperCase() == 'HT') {
+      return parts[1].toUpperCase();
+    }
+    return parts.isEmpty || parts.first.isEmpty
+        ? '—'
+        : parts.first.toUpperCase();
+  }
+
+  String cutoffCountdownAt(DateTime now) {
+    if (cutoffAt == null) return '—';
+    final remaining = cutoffAt!.difference(now);
+    if (remaining.isNegative) return '00:00:00';
+    final hours = remaining.inHours.toString().padLeft(2, '0');
+    final minutes = remaining.inMinutes
+        .remainder(60)
+        .toString()
+        .padLeft(2, '0');
+    final seconds = remaining.inSeconds
+        .remainder(60)
+        .toString()
+        .padLeft(2, '0');
+    return '$hours:$minutes:$seconds';
+  }
 
   String get formattedCutoff {
     if (cutoffAt == null) return '';
@@ -61,6 +106,7 @@ class CashierAvailableDrawView {
         drawId: json['drawId'] as String? ?? '',
         drawChannelId: json['drawChannelId'] as String?,
         channelCode: json['channelCode'] as String?,
+        resultSlotKey: json['resultSlotKey'] as String?,
         channelLabel: json['channelLabel'] as String? ?? '',
         gameCodes:
             (json['gameCodes'] as List<dynamic>?)
