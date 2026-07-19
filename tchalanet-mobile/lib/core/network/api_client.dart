@@ -87,6 +87,9 @@ ApiException mapDioException(DioException e) {
     DioExceptionType.sendTimeout ||
     DioExceptionType.receiveTimeout => ApiException(
       message: 'Délai de connexion dépassé',
+      code: 'client.network.timeout',
+      category: 'network',
+      retryable: true,
     ),
     DioExceptionType.badResponse => ApiException(
       message: _extractErrorMessage(e.response?.data),
@@ -103,9 +106,18 @@ ApiException mapDioException(DioException e) {
     ),
     DioExceptionType.connectionError => ApiException(
       message: 'Impossible de se connecter au serveur',
+      code: 'client.network.unavailable',
+      category: 'network',
+      retryable: true,
     ),
-    DioExceptionType.cancel => ApiException(message: 'Requête annulée'),
-    _ => ApiException(message: 'Erreur réseau inattendue'),
+    DioExceptionType.cancel => ApiException(
+      message: 'Requête annulée',
+      code: 'client.request.cancelled',
+    ),
+    _ => ApiException(
+      message: 'Erreur réseau inattendue',
+      code: 'client.unexpected',
+    ),
   };
 }
 

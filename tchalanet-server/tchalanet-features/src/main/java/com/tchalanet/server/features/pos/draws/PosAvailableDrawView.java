@@ -5,6 +5,7 @@ import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.ResultSlotId;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 public record PosAvailableDrawView(
@@ -18,4 +19,10 @@ public record PosAvailableDrawView(
     List<String> gameCodes,
     String status,
     Instant scheduledAt,
-    Instant cutoffAt) {}
+    Instant cutoffAt,
+    LocalDate providerDate,
+    LocalTime providerTime,
+    String providerTimezone,
+    LocalDate localDate,
+    LocalTime localTime,
+    String localTimezone) {}

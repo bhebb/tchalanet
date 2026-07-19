@@ -18,6 +18,16 @@
       "terminal_binding_notice": "Après connexion, le système vérifiera cet appareil et son terminal associé."
     },
     "logout": "Déconnexion",
+    "change_pin": {
+      "title": "Changer le PIN",
+      "description": "Choisissez un nouveau PIN à six chiffres pour ce terminal.",
+      "new_pin": "Nouveau PIN",
+      "confirm_pin": "Confirmer le nouveau PIN",
+      "submit": "Enregistrer le PIN",
+      "invalid": "Le PIN doit contenir exactement six chiffres.",
+      "mismatch": "Les deux PIN ne correspondent pas.",
+      "success": "Votre PIN a été modifié."
+    },
     "forbidden": {
       "title": "Accès refusé",
       "message": "Vous n'avez pas les droits nécessaires pour accéder à cette page.",

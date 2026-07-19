@@ -9,70 +9,40 @@ class CashierTicketLineRequest {
     this.betOption,
   });
 
-  final String gameCode;   // e.g. "BORLETTE"
-  final String betType;    // e.g. "SHORT_SINGLE_GAME"
-  final String selection;  // e.g. "42"
+  final String gameCode; // e.g. "BORLETTE"
+  final String betType; // e.g. "SHORT_SINGLE_GAME"
+  final String selection; // e.g. "42"
   final double stake;
-  final int? betOption;    // 1–4, optional
+  final int? betOption; // 1–4, optional
 
   Map<String, dynamic> toJson() => {
-        'gameCode': gameCode,
-        'betType': betType,
-        'selection': selection,
-        'stake': stake,
-        if (betOption != null) 'betOption': betOption,
-      };
+    'gameCode': gameCode,
+    'betType': betType,
+    'selection': selection,
+    'stake': stake,
+    if (betOption != null) 'betOption': betOption,
+  };
 }
 
 class CashierTicketPreviewRequest {
   const CashierTicketPreviewRequest({
-    required this.sellerTerminalId,
     required this.drawId,
     required this.currency,
     required this.lines,
     this.drawChannelId,
   });
 
-  final String sellerTerminalId;
   final String drawId;
   final String? drawChannelId;
   final String currency;
   final List<CashierTicketLineRequest> lines;
 
   Map<String, dynamic> toJson() => {
-        'sellerTerminalId': sellerTerminalId,
-        'drawId': drawId,
-        if (drawChannelId != null) 'drawChannelId': drawChannelId,
-        'currency': currency,
-        'lines': lines.map((l) => l.toJson()).toList(),
-      };
-}
-
-class CashierSellTicketRequest {
-  const CashierSellTicketRequest({
-    required this.sellerTerminalId,
-    required this.drawId,
-    required this.currency,
-    required this.lines,
-    this.drawChannelId,
-    this.promotionChoices,
-  });
-
-  final String sellerTerminalId;
-  final String drawId;
-  final String? drawChannelId;
-  final String currency;
-  final List<CashierTicketLineRequest> lines;
-  final List<Map<String, dynamic>>? promotionChoices;
-
-  Map<String, dynamic> toJson() => {
-        'sellerTerminalId': sellerTerminalId,
-        'drawId': drawId,
-        if (drawChannelId != null) 'drawChannelId': drawChannelId,
-        'currency': currency,
-        'lines': lines.map((l) => l.toJson()).toList(),
-        if (promotionChoices != null) 'promotionChoices': promotionChoices,
-      };
+    'drawId': drawId,
+    if (drawChannelId != null) 'drawChannelId': drawChannelId,
+    'currency': currency,
+    'lines': lines.map((l) => l.toJson()).toList(),
+  };
 }
 
 class CashierVerifyTicketRequest {
@@ -127,6 +97,11 @@ class CashierTicketPreviewResponse {
   const CashierTicketPreviewResponse({
     required this.decision,
     required this.issues,
+    this.preparationId,
+    this.currency,
+    this.totalAmount,
+    this.promotionLines = const [],
+    this.notices = const [],
     this.sellerInstruction,
     this.warning,
   });
@@ -134,24 +109,102 @@ class CashierTicketPreviewResponse {
   // Backend SaleDecision: ACCEPTABLE | REQUIRES_CHANGES | REJECTED_FINAL
   final String decision;
   final List<CashierSaleIssue> issues;
+  final String? preparationId;
+  final String? currency;
+  final double? totalAmount;
+  final List<CashierPreparationPromotionLine> promotionLines;
+  final List<CashierPreparationNotice> notices;
   final String? sellerInstruction;
   final String? warning;
 
-  bool get isAccepted => decision == 'ACCEPTABLE';
+  bool get isAccepted => decision == 'ACCEPTABLE' && preparationId != null;
   bool get requiresChanges => decision == 'REQUIRES_CHANGES';
   bool get isRejected => decision == 'REJECTED_FINAL';
 
   factory CashierTicketPreviewResponse.fromJson(Map<String, dynamic> json) =>
       CashierTicketPreviewResponse(
-        decision: json['decision'] as String? ?? 'UNKNOWN',
-        issues: (json['issues'] as List<dynamic>?)
-                ?.map((e) =>
-                    CashierSaleIssue.fromJson(e as Map<String, dynamic>))
+        decision: json['decision'] as String? ?? 'ACCEPTABLE',
+        preparationId: json['preparationId']?.toString(),
+        currency: json['currency'] as String?,
+        totalAmount: (json['totalAmount'] as num?)?.toDouble(),
+        promotionLines:
+            (json['promotionLines'] as List<dynamic>?)
+                ?.whereType<Map<String, dynamic>>()
+                .map(CashierPreparationPromotionLine.fromJson)
+                .toList() ??
+            const [],
+        notices:
+            (json['notices'] as List<dynamic>?)
+                ?.whereType<Map<String, dynamic>>()
+                .map(CashierPreparationNotice.fromJson)
+                .toList() ??
+            const [],
+        issues:
+            (json['issues'] as List<dynamic>?)
+                ?.map(
+                  (e) => CashierSaleIssue.fromJson(e as Map<String, dynamic>),
+                )
                 .toList() ??
             [],
         sellerInstruction: json['sellerInstruction'] as String?,
         warning: json['warning'] as String?,
       );
+}
+
+class CashierPreparationPromotionLine {
+  const CashierPreparationPromotionLine({
+    required this.gameCode,
+    required this.selection,
+    required this.selectionSource,
+    required this.choiceMode,
+  });
+
+  final String gameCode;
+  final String selection;
+  final String? selectionSource;
+  final String? choiceMode;
+
+  bool get isMaryaj => gameCode == 'MARYAJ';
+  bool get isGenerated => selectionSource == 'PROMOTION_GENERATED';
+
+  factory CashierPreparationPromotionLine.fromJson(Map<String, dynamic> json) =>
+      CashierPreparationPromotionLine(
+        gameCode: json['gameCode'] as String? ?? '',
+        selection: json['selection'] as String? ?? '',
+        selectionSource: json['selectionSource'] as String?,
+        choiceMode: json['choiceMode'] as String?,
+      );
+}
+
+class CashierPreparationNotice {
+  const CashierPreparationNotice({required this.code, required this.severity});
+
+  final String code;
+  final String severity;
+
+  String get translationKey => switch (code) {
+    'promotion.decision.applied' => 'common.preparation.promotion_applied',
+    'promotion.terminal_override.applied' =>
+      'common.preparation.terminal_override_applied',
+    'sales.approval_required' => 'common.preparation.approval_required',
+    _ => 'common.preparation.notice',
+  };
+
+  factory CashierPreparationNotice.fromJson(Map<String, dynamic> json) =>
+      CashierPreparationNotice(
+        code: json['code'] as String? ?? 'unknown',
+        severity: json['severity'] as String? ?? 'INFO',
+      );
+}
+
+abstract final class CashierPreparationCopy {
+  static const totalKey = 'common.preparation.total';
+  static const maryajFreeKey = 'common.preparation.maryaj_free';
+  static const freeGameKey = 'common.preparation.free_game';
+  static const freeKey = 'common.preparation.free';
+  static const autoSelectionKey = 'common.preparation.auto_selection';
+  static const sellerSelectionKey = 'common.preparation.seller_selection';
+  static const genericNoticeKey = 'common.preparation.notice';
 }
 
 class CashierSellTicketResponse {
@@ -178,19 +231,23 @@ class CashierSellTicketResponse {
   bool get isPending => outcome == 'PENDING_APPROVAL';
   bool get isRejected => outcome == 'REJECTED';
 
-  factory CashierSellTicketResponse.fromJson(Map<String, dynamic> json) =>
-      CashierSellTicketResponse(
-        outcome: json['outcome'] as String? ?? 'UNKNOWN',
-        ticketId: json['ticketId'] as String? ?? '',
-        ticketCode: json['ticketCode'] as String? ?? '',
-        publicCode: json['publicCode'] as String?,
-        saleStatus: json['saleStatus'] as String?,
-        backup: json['backup'] != null
-            ? CashierTicketBackupView.fromJson(
-                json['backup'] as Map<String, dynamic>)
-            : null,
-        sellerInstruction: json['sellerInstruction'] as String?,
-      );
+  factory CashierSellTicketResponse.fromJson(Map<String, dynamic> json) {
+    final sale = json['sale'] as Map<String, dynamic>?;
+    final ticket = sale?['ticket'] as Map<String, dynamic>?;
+    final backup = sale?['backup'] ?? json['backup'];
+    return CashierSellTicketResponse(
+      outcome: sale?['outcome'] as String? ?? 'CONFIRMED',
+      ticketId:
+          json['ticketId']?.toString() ?? ticket?['ticketId']?.toString() ?? '',
+      ticketCode: ticket?['ticketCode'] as String? ?? '',
+      publicCode: ticket?['publicCode'] as String?,
+      saleStatus: ticket?['saleStatus'] as String?,
+      backup: backup is Map<String, dynamic>
+          ? CashierTicketBackupView.fromJson(backup)
+          : null,
+      sellerInstruction: sale?['sellerInstruction'] as String?,
+    );
+  }
 }
 
 class CashierAction {
@@ -207,11 +264,11 @@ class CashierAction {
   final Map<String, dynamic> params;
 
   factory CashierAction.fromJson(Map<String, dynamic> json) => CashierAction(
-        type: json['type'] as String? ?? '',
-        labelKey: json['labelKey'] as String? ?? '',
-        enabled: json['enabled'] as bool? ?? false,
-        params: (json['params'] as Map<String, dynamic>?) ?? {},
-      );
+    type: json['type'] as String? ?? '',
+    labelKey: json['labelKey'] as String? ?? '',
+    enabled: json['enabled'] as bool? ?? false,
+    params: (json['params'] as Map<String, dynamic>?) ?? {},
+  );
 }
 
 class CashierTicketSummaryView {
@@ -255,9 +312,20 @@ class CashierTicketSummaryView {
   }
 
   static String _monthFr(int m) => const [
-        '', 'jan', 'fév', 'mars', 'avr', 'mai', 'juin',
-        'juil', 'août', 'sep', 'oct', 'nov', 'déc'
-      ][m];
+    '',
+    'jan',
+    'fév',
+    'mars',
+    'avr',
+    'mai',
+    'juin',
+    'juil',
+    'août',
+    'sep',
+    'oct',
+    'nov',
+    'déc',
+  ][m];
 
   String get formattedAmount {
     final amount = totalAmountCents / 100;
@@ -308,8 +376,7 @@ class CashierTicketLineDetail {
   final bool promotional;
   final String? promotionLabel;
 
-  String get formattedStake =>
-      (stakeAmountCents / 100).toStringAsFixed(2);
+  String get formattedStake => (stakeAmountCents / 100).toStringAsFixed(2);
 
   factory CashierTicketLineDetail.fromJson(Map<String, dynamic> json) =>
       CashierTicketLineDetail(
@@ -388,40 +455,47 @@ class CashierTicketDetailsView extends CashierTicketSummaryView {
 
   String get formattedStake => (stakeCents / 100).toStringAsFixed(2);
 
-  factory CashierTicketDetailsView.fromJson(Map<String, dynamic> json) =>
-      CashierTicketDetailsView(
-        id: json['id'] as String? ?? '',
-        ticketCode: json['ticketCode'] as String? ?? '',
-        publicCode: json['publicCode'] as String?,
-        status: json['status'] as String? ?? 'UNKNOWN',
-        totalAmountCents: (json['totalAmountCents'] as num?)?.toInt() ?? 0,
-        currency: json['currency'] as String? ?? 'HTG',
-        drawId: json['drawId'] as String?,
-        drawChannelName: json['drawChannelName'] as String?,
-        drawScheduledAt: json['drawScheduledAt'] != null
-            ? DateTime.tryParse(json['drawScheduledAt'] as String)
-            : null,
-        placedAt: json['placedAt'] != null
-            ? DateTime.tryParse(json['placedAt'] as String)
-            : null,
-        cancelledAt: json['cancelledAt'] != null
-            ? DateTime.tryParse(json['cancelledAt'] as String)
-            : null,
-        outletName: json['outletName'] as String?,
-        terminalCode: json['terminalCode'] as String?,
-        sellerDisplayName: json['sellerDisplayName'] as String?,
-        lines: (json['lines'] as List<dynamic>?)
-                ?.map((e) => CashierTicketLineDetail.fromJson(
-                    e as Map<String, dynamic>))
-                .toList() ??
-            const [],
-        stakeCents: (json['stakeCents'] as num?)?.toInt() ?? 0,
-        charges: (json['charges'] as List<dynamic>?)
-                ?.map((e) => CashierTicketChargeDetail.fromJson(
-                    e as Map<String, dynamic>))
-                .toList() ??
-            const [],
-      );
+  factory CashierTicketDetailsView.fromJson(
+    Map<String, dynamic> json,
+  ) => CashierTicketDetailsView(
+    id: json['id'] as String? ?? '',
+    ticketCode: json['ticketCode'] as String? ?? '',
+    publicCode: json['publicCode'] as String?,
+    status: json['status'] as String? ?? 'UNKNOWN',
+    totalAmountCents: (json['totalAmountCents'] as num?)?.toInt() ?? 0,
+    currency: json['currency'] as String? ?? 'HTG',
+    drawId: json['drawId'] as String?,
+    drawChannelName: json['drawChannelName'] as String?,
+    drawScheduledAt: json['drawScheduledAt'] != null
+        ? DateTime.tryParse(json['drawScheduledAt'] as String)
+        : null,
+    placedAt: json['placedAt'] != null
+        ? DateTime.tryParse(json['placedAt'] as String)
+        : null,
+    cancelledAt: json['cancelledAt'] != null
+        ? DateTime.tryParse(json['cancelledAt'] as String)
+        : null,
+    outletName: json['outletName'] as String?,
+    terminalCode: json['terminalCode'] as String?,
+    sellerDisplayName: json['sellerDisplayName'] as String?,
+    lines:
+        (json['lines'] as List<dynamic>?)
+            ?.map(
+              (e) =>
+                  CashierTicketLineDetail.fromJson(e as Map<String, dynamic>),
+            )
+            .toList() ??
+        const [],
+    stakeCents: (json['stakeCents'] as num?)?.toInt() ?? 0,
+    charges:
+        (json['charges'] as List<dynamic>?)
+            ?.map(
+              (e) =>
+                  CashierTicketChargeDetail.fromJson(e as Map<String, dynamic>),
+            )
+            .toList() ??
+        const [],
+  );
 }
 
 class CashierTicketVerificationResponse {
@@ -448,17 +522,18 @@ class CashierTicketVerificationResponse {
       availableActions.any((a) => a.type == 'PAY_WINNER' && a.enabled);
 
   factory CashierTicketVerificationResponse.fromJson(
-          Map<String, dynamic> json) =>
-      CashierTicketVerificationResponse(
-        status: json['status'] as String? ?? 'UNKNOWN',
-        severity: json['severity'] as String? ?? 'INFO',
-        ticketId: json['ticketId'] as String?,
-        titleKey: json['titleKey'] as String?,
-        messageKey: json['messageKey'] as String?,
-        params: json['params'] as Map<String, dynamic>?,
-        availableActions: (json['availableActions'] as List<dynamic>?)
-                ?.map((e) => CashierAction.fromJson(e as Map<String, dynamic>))
-                .toList() ??
-            [],
-      );
+    Map<String, dynamic> json,
+  ) => CashierTicketVerificationResponse(
+    status: json['status'] as String? ?? 'UNKNOWN',
+    severity: json['severity'] as String? ?? 'INFO',
+    ticketId: json['ticketId'] as String?,
+    titleKey: json['titleKey'] as String?,
+    messageKey: json['messageKey'] as String?,
+    params: json['params'] as Map<String, dynamic>?,
+    availableActions:
+        (json['availableActions'] as List<dynamic>?)
+            ?.map((e) => CashierAction.fromJson(e as Map<String, dynamic>))
+            .toList() ??
+        [],
+  );
 }

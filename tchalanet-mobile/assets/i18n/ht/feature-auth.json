@@ -18,6 +18,16 @@
       "terminal_binding_notice": "Apre koneksyon an, sistèm nan ap verifye aparèy la ak tèminal ki asosye a."
     },
     "logout": "Dekonekte",
+    "change_pin": {
+      "title": "Chanje PIN",
+      "description": "Chwazi yon nouvo PIN sis chif pou tèminal sa a.",
+      "new_pin": "Nouvo PIN",
+      "confirm_pin": "Konfime nouvo PIN",
+      "submit": "Anrejistre PIN",
+      "invalid": "PIN lan dwe gen egzakteman sis chif.",
+      "mismatch": "De PIN yo pa menm.",
+      "success": "PIN ou chanje."
+    },
     "forbidden": {
       "title": "Aksè refize",
       "message": "Ou pa gen otorizasyon ki nesesè pou antre sou paj sa a.",

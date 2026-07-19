@@ -29,10 +29,34 @@ class ApiException implements Exception {
   String toString() => 'ApiException($statusCode): $message';
 }
 
-/// User-facing message for any caught error.
+/// Ordered, user-safe translation candidates for an API failure.
 ///
-/// For [ApiException] this returns the clean [ApiException.message] (already
-/// localized by `mapDioException`), avoiding the `ApiException(400): …` prefix
-/// leaking into the UI. Any other error falls back to `toString()`.
+/// Raw exception messages remain diagnostic data. UI code resolves the first
+/// available key from the active locale bundle and never renders them directly.
+List<String> userErrorTranslationKeys(Object error) {
+  if (error is! ApiException) return const ['common.error.unknown'];
+
+  final keys = <String>[];
+  if (error.code case final code? when code.isNotEmpty) {
+    keys.add('common.errors.codes.$code.message');
+  }
+  if (error.category case final category? when category.isNotEmpty) {
+    keys.add('common.errors.categories.$category.message');
+  }
+
+  switch (error.statusCode) {
+    case 401:
+      keys.add('common.error.auth_required');
+    case 408:
+      keys.add('common.error.timeout');
+  }
+  if (error.code?.startsWith('client.network.') ?? false) {
+    keys.add('common.error.network');
+  }
+  keys.add('common.error.unknown');
+  return keys;
+}
+
+@Deprecated('Resolve userErrorTranslationKeys through the active i18n bundle.')
 String userMessage(Object error) =>
-    error is ApiException ? error.message : error.toString();
+    error is ApiException ? 'Erreur serveur' : 'Erreur inattendue';

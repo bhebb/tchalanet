@@ -51,8 +51,14 @@ class PosGamesServiceTest {
               assertThat(game.gameCode()).isEqualTo(GameCode.HT_LOTO3);
               assertThat(game.options())
                   .singleElement()
-                  .extracting(PosBetOptionResponse::code)
-                  .isEqualTo((short) 1);
+                  .satisfies(
+                      option -> {
+                        assertThat(option.code()).isEqualTo((short) 1);
+                        assertThat(option.selectionDigits()).isEqualTo(3);
+                        assertThat(option.selectionSegments()).isEqualTo(1);
+                      });
+              assertThat(game.selectionDigits()).isEqualTo(3);
+              assertThat(game.selectionSegments()).isEqualTo(1);
             });
   }
 

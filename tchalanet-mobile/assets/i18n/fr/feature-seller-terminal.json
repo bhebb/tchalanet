@@ -1,5 +1,11 @@
 {
   "pos": {
+    "sale": {
+      "draw": {
+        "local_time": "Local",
+        "provider_time": "Fournisseur"
+      }
+    },
     "dashboard": {
       "title": "Tchalanet POS"
     },

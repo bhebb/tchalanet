@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../core/runtime/runtime_controller.dart';
 import '../core/runtime/runtime_models.dart';
 import '../features/auth/presentation/view_models/auth_controller.dart';
+import '../features/auth/presentation/views/change_pin_page.dart';
 import '../features/auth/presentation/views/forbidden_page.dart';
 import '../features/auth/presentation/views/login_page.dart';
 import '../features/cashier/home/presentation/views/cashier_home_page.dart';
@@ -44,6 +45,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     },
     routes: [
       GoRoute(path: '/login', builder: (context, _) => const LoginPage()),
+      GoRoute(
+        path: '/change-pin',
+        builder: (context, _) => const ChangePinPage(),
+      ),
       GoRoute(path: '/pos', builder: (context, _) => const CashierHomePage()),
       // Bottom nav: Ventes | Historique | Scanner | Profil
       GoRoute(
