@@ -1,6 +1,7 @@
 package com.tchalanet.server.catalog.resultslot.internal.write;
 
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotView;
+import com.tchalanet.server.catalog.resultslot.api.error.ResultSlotErrorCodes;
 import com.tchalanet.server.catalog.resultslot.internal.cache.ResultSlotCacheNames;
 import com.tchalanet.server.catalog.resultslot.internal.mapper.ResultSlotMapper;
 import com.tchalanet.server.catalog.resultslot.internal.persistence.ResultSlotJpaEntity;
@@ -10,7 +11,7 @@ import com.tchalanet.server.catalog.resultslot.internal.web.model.UpdateResultSl
 import com.tchalanet.server.catalog.resultslot.internal.web.model.UpdateResultSlotRequest;
 import com.tchalanet.server.catalog.resultslot.internal.web.model.UpdateResultSlotSourceConfigRequest;
 import com.tchalanet.server.common.types.id.ResultSlotId;
-import jakarta.persistence.EntityNotFoundException;
+import com.tchalanet.server.common.web.error.ProblemRest;
 import java.time.Instant;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
@@ -57,7 +58,7 @@ public class ResultSlotAdminService {
     java.util.UUID uuid = (id == null) ? null : id.value();
     var e =
         repo.findByIdAndDeletedAtIsNull(uuid)
-            .orElseThrow(() -> new EntityNotFoundException("result_slot_not_found"));
+            .orElseThrow(() -> ProblemRest.of(ResultSlotErrorCodes.NOT_FOUND));
     apply(req, e);
     if (req.active() != null) e.setActive(req.active());
     var saved = repo.save(e);
@@ -108,7 +109,7 @@ public class ResultSlotAdminService {
     java.util.UUID uuid = (id == null) ? null : id.value();
     var e =
         repo.findByIdAndDeletedAtIsNull(uuid)
-            .orElseThrow(() -> new EntityNotFoundException("result_slot_not_found"));
+            .orElseThrow(() -> ProblemRest.of(ResultSlotErrorCodes.NOT_FOUND));
     e.setDeletedAt(Instant.now());
     repo.save(e);
   }
@@ -124,7 +125,7 @@ public class ResultSlotAdminService {
   public void disableSlot(String slotKey) {
     var e =
         repo.findFirstBySlotKeyIgnoreCaseAndDeletedAtIsNull(slotKey)
-            .orElseThrow(() -> new EntityNotFoundException("result_slot_not_found: " + slotKey));
+            .orElseThrow(() -> ProblemRest.of(ResultSlotErrorCodes.NOT_FOUND));
     e.setActive(false);
     repo.save(e);
   }
@@ -139,13 +140,12 @@ public class ResultSlotAdminService {
       allEntries = true)
   public void disableGame(String slotKey, String gameKey) {
     if (!VALID_GAME_KEYS.contains(gameKey)) {
-      throw new IllegalArgumentException(
-          "invalid game key: " + gameKey + " — must be pick3 or pick4");
+      throw ProblemRest.of(ResultSlotErrorCodes.GAME_KEY_INVALID);
     }
 
     var e =
         repo.findFirstBySlotKeyIgnoreCaseAndDeletedAtIsNull(slotKey)
-            .orElseThrow(() -> new EntityNotFoundException("result_slot_not_found: " + slotKey));
+            .orElseThrow(() -> ProblemRest.of(ResultSlotErrorCodes.NOT_FOUND));
 
     var sourceCfg = e.getSourceCfg();
     if (sourceCfg instanceof ObjectNode root) {
@@ -185,6 +185,6 @@ public class ResultSlotAdminService {
   private ResultSlotJpaEntity findActiveEntity(ResultSlotId id) {
     java.util.UUID uuid = (id == null) ? null : id.value();
     return repo.findByIdAndDeletedAtIsNull(uuid)
-        .orElseThrow(() -> new EntityNotFoundException("result_slot_not_found"));
+        .orElseThrow(() -> ProblemRest.of(ResultSlotErrorCodes.NOT_FOUND));
   }
 }

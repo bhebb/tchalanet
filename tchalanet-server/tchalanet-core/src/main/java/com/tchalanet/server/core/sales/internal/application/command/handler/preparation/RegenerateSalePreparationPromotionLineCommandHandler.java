@@ -9,6 +9,7 @@ import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.time.TchTimeProvider;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.sales.api.command.preparation.RegenerateSalePreparationPromotionLineCommand;
+import com.tchalanet.server.core.sales.api.error.SalesErrorCodes;
 import com.tchalanet.server.core.sales.api.model.preparation.SalePreparationStatus;
 import com.tchalanet.server.core.sales.api.model.preparation.SalePreparationView;
 import com.tchalanet.server.core.sales.api.model.selection.SelectionGenerationPurpose;
@@ -41,20 +42,21 @@ public class RegenerateSalePreparationPromotionLineCommandHandler
     var preparation =
         store
             .findById(cmd.preparationId())
-            .orElseThrow(() -> ProblemRest.notFound("sales.preparation.not_found"));
+            .orElseThrow(() -> ProblemRest.of(SalesErrorCodes.PREPARATION_NOT_FOUND));
 
     requireDraftNotExpired(preparation);
 
     var line =
         preparation
             .line(cmd.lineRef())
-            .orElseThrow(() -> ProblemRest.notFound("sales.preparation.promotion_line_not_found"));
+            .orElseThrow(
+                () -> ProblemRest.of(SalesErrorCodes.PREPARATION_PROMOTION_LINE_NOT_FOUND));
 
     if (!line.regenerable()) {
-      throw ProblemRest.conflict("sales.preparation.line_not_regenerable");
+      throw ProblemRest.of(SalesErrorCodes.PREPARATION_LINE_NOT_REGENERABLE);
     }
     if (line.regenerationCount() >= line.maxRegenerations()) {
-      throw ProblemRest.conflict("sales.preparation.max_regenerations_reached");
+      throw ProblemRest.of(SalesErrorCodes.PREPARATION_MAX_REGENERATIONS_REACHED);
     }
 
     var selection =
@@ -83,13 +85,13 @@ public class RegenerateSalePreparationPromotionLineCommandHandler
   private void requireDraftNotExpired(SalePreparation preparation) {
     if (preparation.isExpired(timeProvider.now())) {
       store.updateStatus(preparation.id(), SalePreparationStatus.EXPIRED);
-      throw ProblemRest.conflict("sales.preparation.expired");
+      throw ProblemRest.of(SalesErrorCodes.PREPARATION_EXPIRED);
     }
     if (preparation.status() != SalePreparationStatus.DRAFT) {
       throw switch (preparation.status()) {
-        case CONFIRMED -> ProblemRest.conflict("sales.preparation.already_confirmed");
-        case EXPIRED -> ProblemRest.conflict("sales.preparation.expired");
-        case CANCELLED -> ProblemRest.conflict("sales.preparation.cancelled");
+        case CONFIRMED -> ProblemRest.of(SalesErrorCodes.PREPARATION_ALREADY_CONFIRMED);
+        case EXPIRED -> ProblemRest.of(SalesErrorCodes.PREPARATION_EXPIRED);
+        case CANCELLED -> ProblemRest.of(SalesErrorCodes.PREPARATION_CANCELLED);
         case DRAFT -> new IllegalStateException("unreachable");
       };
     }

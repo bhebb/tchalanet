@@ -343,6 +343,96 @@
           "seller_terminal_actor_required": {
             "title": "Vendeur requis",
             "message": "Cette vente n’est pas rattachée à un vendeur. Revenez à la liste des vendeurs et ouvrez la vente depuis un vendeur actif."
+          },
+          "draw": {
+            "not_open": { "title": "Tirage fermé", "message": "Choisissez un autre tirage ouvert." },
+            "cutoff_elapsed": { "title": "Vente fermée pour ce tirage", "message": "L’heure limite est passée. Choisissez un autre tirage ouvert." }
+          },
+          "draw_channel": {
+            "inactive": { "title": "Canal indisponible", "message": "Ce canal n’accepte pas de vente actuellement." },
+            "mismatch": { "title": "Canal invalide", "message": "Rechargez le tirage puis réessayez." }
+          },
+          "result_slot": {
+            "inactive": { "title": "Tirage indisponible", "message": "Ce résultat n’accepte pas de vente actuellement." }
+          },
+          "seller_terminal": {
+            "required": { "title": "Vendeur requis", "message": "Ouvrez la vente depuis un vendeur actif." }
+          },
+          "tenant": {
+            "disabled": { "title": "Espace désactivé", "message": "Les ventes sont désactivées pour cet espace. Contactez un administrateur." },
+            "business_closed": { "title": "Ventes fermées", "message": "Les ventes sont fermées pour cet espace actuellement." }
+          },
+          "draw_channel_required": { "title": "Canal manquant", "message": "Rechargez le tirage puis réessayez." },
+          "tenant_game_not_configured": { "title": "Jeu indisponible", "message": "Ce jeu n’est pas configuré pour cet espace." },
+          "tenant_game_disabled": { "title": "Jeu désactivé", "message": "Ce jeu est désactivé pour cet espace." },
+          "tenant_game_not_visible_in_pos": { "title": "Jeu indisponible", "message": "Ce jeu n’est pas disponible sur ce terminal." },
+          "invalid_line_number": { "title": "Ligne invalide", "message": "Corrigez la ligne puis réessayez." },
+          "selection_invalid": { "title": "Numéro à corriger", "message": "Corrigez le numéro selon le jeu choisi." },
+          "tenant_bet_option_not_configured": { "title": "Option indisponible", "message": "Cette option n’est pas configurée pour ce jeu." },
+          "tenant_bet_option_disabled": { "title": "Option désactivée", "message": "Cette option est désactivée pour ce jeu." },
+          "tenant_bet_option_not_visible_in_pos": { "title": "Option indisponible", "message": "Cette option n’est pas disponible sur ce terminal." },
+          "stake_below_tenant_min": { "title": "Mise trop faible", "message": "Augmentez la mise de cette ligne puis réessayez." },
+          "stake_above_tenant_max": { "title": "Mise trop élevée", "message": "Réduisez la mise de cette ligne puis réessayez." },
+          "tenant_bet_type_not_configured": { "title": "Type de jeu indisponible", "message": "Ce type de pari n’est pas configuré pour ce jeu." },
+          "preparation": {
+            "not_found": { "title": "Préparation introuvable", "message": "Revenez au ticket et recommencez la préparation." },
+            "promotion_line_not_found": { "title": "Ligne gratuite introuvable", "message": "Rechargez le ticket puis réessayez." },
+            "already_confirmed": { "title": "Ticket déjà confirmé", "message": "Ce ticket a déjà été vendu." },
+            "expired": { "title": "Préparation expirée", "message": "Vérifiez le ticket puis préparez la vente à nouveau." },
+            "not_confirmable": { "title": "Préparation indisponible", "message": "Préparez le ticket à nouveau avant de confirmer." },
+            "line_not_regenerable": { "title": "Ligne non modifiable", "message": "Cette ligne gratuite ne peut pas être régénérée." },
+            "max_regenerations_reached": { "title": "Limite de régénération atteinte", "message": "Confirmez le ticket ou préparez-en un nouveau." },
+            "cancelled": { "title": "Préparation annulée", "message": "Préparez le ticket à nouveau." }
+          }
+        },
+        "ticket": {
+          "not_found": { "title": "Ticket introuvable", "message": "Vérifiez le code du ticket puis réessayez." },
+          "print": {
+            "voided_not_allowed": { "title": "Impression indisponible", "message": "Un ticket annulé ne peut pas être imprimé." },
+            "sale_not_accepted": { "title": "Impression indisponible", "message": "Le ticket doit être accepté avant son impression." }
+          },
+          "reprint": {
+            "reason_required": { "title": "Motif requis", "message": "Indiquez le motif de la réimpression." },
+            "reason_too_long": { "title": "Motif trop long", "message": "Raccourcissez le motif de la réimpression." }
+          }
+        },
+        "draw": {
+          "correct_result": {
+            "reason_required": { "title": "Motif requis", "message": "Indiquez le motif de la correction." },
+            "reason_too_short": { "title": "Motif trop court", "message": "Décrivez davantage le motif de la correction." },
+            "idempotency_key_required": { "title": "Correction invalide", "message": "Relancez la correction depuis la page du tirage." },
+            "no_result_applied": { "title": "Aucun résultat appliqué", "message": "Appliquez un résultat avant de le corriger." },
+            "same_result": { "title": "Résultat inchangé", "message": "Choisissez un résultat différent pour effectuer une correction." }
+          },
+          "lookahead_days_invalid": { "title": "Période invalide", "message": "Choisissez une période entre 1 et 30 jours." },
+          "schedule_invalid": { "title": "Horaire invalide", "message": "L’heure limite doit précéder l’heure du tirage." },
+          "lifecycle": {
+            "draw_ids_required": { "title": "Tirage requis", "message": "Sélectionnez au moins un tirage." },
+            "draw_ids_limit_exceeded": { "title": "Trop de tirages", "message": "Réduisez la sélection puis réessayez." }
+          }
+        },
+        "drawresult": {
+          "not_found": { "title": "Résultat introuvable", "message": "Ce résultat n’est plus disponible." },
+          "result_slot": { "not_found": { "title": "Slot introuvable", "message": "Le slot de résultat demandé n’est plus disponible." } },
+          "override_settled_forbidden": { "title": "Correction impossible", "message": "Ce résultat est déjà lié à un tirage réglé." },
+          "external_pick_invalid": { "title": "Numéros invalides", "message": "Saisissez 3 chiffres pour le premier numéro et 4 chiffres pour le second." },
+          "projection_failed": { "title": "Résultat non traitable", "message": "Le résultat ne peut pas être traité pour le moment. Réessayez ou contactez le support." }
+        },
+        "catalog": {
+          "game": {
+            "not_found": { "title": "Jeu introuvable", "message": "Ce jeu n’est plus disponible dans le catalogue." },
+            "structural_update_in_use": { "title": "Modification impossible", "message": "Ce jeu est déjà utilisé dans une configuration tenant." },
+            "delete_in_use": { "title": "Suppression impossible", "message": "Ce jeu est déjà utilisé dans une configuration tenant." }
+          },
+          "drawchannel": {
+            "deleted": { "title": "Canal introuvable", "message": "Ce canal n’est plus disponible." },
+            "flags_required": { "title": "Configuration requise", "message": "Renseignez la configuration du canal." },
+            "flags_invalid": { "title": "Configuration invalide", "message": "Corrigez la configuration du canal puis réessayez." }
+          },
+          "resultslot": {
+            "not_found": { "title": "Slot introuvable", "message": "Ce slot de résultat n’est plus disponible." },
+            "config_invalid": { "title": "Configuration invalide", "message": "Corrigez la configuration du slot puis réessayez." },
+            "game_key_invalid": { "title": "Jeu invalide", "message": "Choisissez un jeu pris en charge pour ce slot." }
           }
         }
       }

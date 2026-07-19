@@ -9,6 +9,7 @@ import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.draw.api.command.CorrectAppliedDrawResultCommand;
 import com.tchalanet.server.core.draw.api.command.RescheduleDrawCommand;
+import com.tchalanet.server.core.draw.api.error.DrawErrorCodes;
 import com.tchalanet.server.core.draw.api.query.GetDrawByIdQuery;
 import com.tchalanet.server.core.draw.internal.infra.web.mapper.DrawAdminWebMapper;
 import com.tchalanet.server.core.draw.internal.infra.web.model.AdminDrawManualResultRequest;
@@ -75,7 +76,7 @@ public class DrawAdminOpsController {
       @PathVariable DrawId drawId, @RequestBody @Valid RescheduleDrawRequest request) {
 
     if (!request.cutoffAt().isBefore(request.scheduledAt())) {
-      throw ProblemRest.badRequest("draw.schedule_invalid");
+      throw ProblemRest.of(DrawErrorCodes.SCHEDULE_INVALID);
     }
 
     commandBus.execute(

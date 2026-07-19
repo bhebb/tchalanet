@@ -11,6 +11,7 @@ import com.tchalanet.server.common.time.OccurredAtResolver;
 import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.IdGenerator;
+import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.draw.api.event.DrawResultAppliedEvent;
 import com.tchalanet.server.core.draw.api.model.DrawStatus;
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawLifecyclePort;
@@ -18,6 +19,7 @@ import com.tchalanet.server.core.draw.internal.application.port.out.DrawLookupPo
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawReaderPort;
 import com.tchalanet.server.core.drawresult.api.command.OverrideDrawResultCommand;
 import com.tchalanet.server.core.drawresult.api.command.OverrideDrawResultResult;
+import com.tchalanet.server.core.drawresult.api.error.DrawResultErrorCodes;
 import com.tchalanet.server.core.drawresult.api.event.GlobalDrawResultCorrectedEvent;
 import com.tchalanet.server.core.drawresult.api.model.DrawResultStatus;
 import com.tchalanet.server.core.drawresult.api.model.ResultQuality;
@@ -25,9 +27,9 @@ import com.tchalanet.server.core.drawresult.api.model.ResultSource;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultReaderPort;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultWriterPort;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.external.ExternalSourceFlags;
-import com.tchalanet.server.core.drawresult.internal.domain.exception.DrawResultOverrideForbiddenException;
 import com.tchalanet.server.core.haiti.internal.application.port.out.HaitiLotteryPort;
 import com.tchalanet.server.core.haiti.internal.application.port.out.HaitiProjectionConfigPort;
+import com.tchalanet.server.core.haiti.internal.domain.lottery.exception.InvalidExternalPickException;
 import com.tchalanet.server.core.haiti.internal.domain.lottery.model.ExternalPick;
 import java.time.Clock;
 import java.time.Instant;
@@ -63,7 +65,7 @@ public class OverrideDrawResultCommandHandler
     var slot =
         slotReader
             .findByKey(slotKey)
-            .orElseThrow(() -> new IllegalArgumentException("result_slot not found: " + slotKey));
+            .orElseThrow(() -> ProblemRest.of(DrawResultErrorCodes.RESULT_SLOT_NOT_FOUND));
 
     // [D7] Use OccurredAtResolver instead of ResultSlotTimes
     Instant occurredAt =
@@ -76,7 +78,7 @@ public class OverrideDrawResultCommandHandler
         .ifPresent(
             drId -> {
               if (drawReader.existsSettledDrawForResult(drId)) {
-                throw new DrawResultOverrideForbiddenException(drId);
+                throw ProblemRest.of(DrawResultErrorCodes.OVERRIDE_SETTLED_FORBIDDEN);
               }
             });
 
@@ -87,10 +89,7 @@ public class OverrideDrawResultCommandHandler
     var flags = jsonUtils.toJsonNode(ExternalSourceFlags.override(command.reason()));
 
     // [D10] Use enum.name()
-    var haitiResult =
-        haitiPort.projectResult(
-            ExternalPick.of(command.pick3(), command.pick4()),
-            haitiProjectionConfigPort.resolve(slot.projectionCfg()));
+    var haitiResult = projectHaiti(command, slot);
 
     var res =
         writer.upsert(
@@ -137,6 +136,23 @@ public class OverrideDrawResultCommandHandler
         res.updated());
 
     return new OverrideDrawResultResult(res.id(), res.created(), res.updated());
+  }
+
+  private com.tchalanet.server.core.haiti.api.HaitiProjectionOutput projectHaiti(
+      OverrideDrawResultCommand command, ResultSlotView slot) {
+    try {
+      var projection =
+          haitiPort.projectResult(
+              ExternalPick.of(command.pick3(), command.pick4()),
+              haitiProjectionConfigPort.resolve(slot.projectionCfg()));
+      if (!projection.flags().projectionOk() || projection.result() == null) {
+        log.error("draw_result.override projection_failed slotKey={}", slot.slotKey());
+        throw ProblemRest.of(DrawResultErrorCodes.PROJECTION_FAILED);
+      }
+      return projection;
+    } catch (InvalidExternalPickException e) {
+      throw ProblemRest.of(DrawResultErrorCodes.INVALID_EXTERNAL_PICK);
+    }
   }
 
   private void applyOverrideToDraws(
