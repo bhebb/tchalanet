@@ -9,6 +9,7 @@ import com.tchalanet.server.core.sales.api.command.print.RecordTicketPrintComman
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptPrintContent;
 import com.tchalanet.server.core.sales.api.query.receipt.FormatTicketReceiptMessageQuery;
 import com.tchalanet.server.core.sales.api.query.receipt.FormatTicketReceiptPrintQuery;
+import com.tchalanet.server.features.pos.tickets.error.PosTicketReceiptErrorCodes;
 import com.tchalanet.server.features.pos.tickets.mapper.TicketPrintCommunicationMapper;
 import com.tchalanet.server.features.pos.tickets.mapper.TicketPrintDocumentMapper;
 import com.tchalanet.server.features.pos.tickets.model.PrintTicketRequest;
@@ -32,6 +33,7 @@ import com.tchalanet.server.platform.tenant.api.model.view.TenantInternalDocumen
 import java.util.LinkedHashMap;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.CacheControl;
 import org.springframework.http.ContentDisposition;
@@ -47,6 +49,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PosTicketReceiptService {
 
   private final QueryBus queryBus;
@@ -61,13 +64,14 @@ public class PosTicketReceiptService {
   public ResponseEntity<ByteArrayResource> print(
       TchRequestContext ctx, TicketId ticketId, PrintTicketRequest request) {
     validateSellerContext(ctx);
+    validatePrintDelivery(request);
 
     // Resolve print profile once here (applies defaults and rejects invalid combos like ESC_POS+A4)
     final DocumentPrintProfile profile;
     try {
       profile = profileResolver.resolve(request.printOptionsRequest());
     } catch (IllegalArgumentException ex) {
-      throw ProblemRest.badRequest(ex.getMessage());
+      throw ProblemRest.badRequest(PosTicketReceiptErrorCodes.PRINT_OPTIONS_INVALID, ex);
     }
 
     // Use resolved profile for formatting and document rendering
@@ -99,7 +103,7 @@ public class PosTicketReceiptService {
           queryBus.ask(new FormatTicketReceiptMessageQuery(ticketId, request.buyerLocale()));
       communicationMapper
           .toOutboundMessages(ctx, receipt, message, outboundDocument, request)
-          .forEach(communicationApi::enqueue);
+          .forEach(outbound -> enqueueAfterSuccessfulPrint(ticketId, outbound));
     }
 
     return toFileResponse(rendered);
@@ -198,7 +202,8 @@ public class PosTicketReceiptService {
 
   private OutboundAttachment renderEmailAttachment(
       TchRequestContext ctx, TicketId ticketId, SendTicketReceiptRequest request) {
-    var profile = profileResolver.resolve(new PrintOptionsRequest(DocumentFormat.PDF, PaperSize.A4));
+    var profile =
+        profileResolver.resolve(new PrintOptionsRequest(DocumentFormat.PDF, PaperSize.A4));
     var receipt =
         queryBus.ask(new FormatTicketReceiptPrintQuery(ticketId, profile, request.locale()));
     var pdfRequest =
@@ -213,7 +218,8 @@ public class PosTicketReceiptService {
             request.locale());
     var rendered =
         documentApi.render(
-            documentMapper.toRenderRequest(receipt, pdfRequest, resolveReceiptConfig(ctx), profile));
+            documentMapper.toRenderRequest(
+                receipt, pdfRequest, resolveReceiptConfig(ctx), profile));
     return new OutboundAttachment(rendered.filename(), rendered.contentType(), rendered.bytes());
   }
 
@@ -230,12 +236,42 @@ public class PosTicketReceiptService {
   }
 
   private void validateRecipient(SendTicketReceiptRequest request) {
-    if (request.channel() == null) {
-      throw ProblemRest.badRequest("channel.required");
+    if (request == null || request.channel() == null) {
+      throw ProblemRest.of(PosTicketReceiptErrorCodes.DELIVERY_CHANNEL_REQUIRED);
     }
     var recipient = recipientValue(request);
     if (recipient == null || recipient.isBlank()) {
-      throw ProblemRest.badRequest("recipient.required");
+      throw ProblemRest.of(PosTicketReceiptErrorCodes.DELIVERY_RECIPIENT_REQUIRED);
+    }
+  }
+
+  private void validatePrintDelivery(PrintTicketRequest request) {
+    if (request == null || !request.shouldSendToBuyer()) {
+      return;
+    }
+    var requiresPhone =
+        request.deliveryOptions().contains(PrintDeliveryOption.SMS)
+            || request.deliveryOptions().contains(PrintDeliveryOption.WHATSAPP);
+    if (requiresPhone
+        && (request.buyerPhoneNumber() == null || request.buyerPhoneNumber().isBlank())) {
+      throw ProblemRest.of(PosTicketReceiptErrorCodes.DELIVERY_RECIPIENT_REQUIRED);
+    }
+    if (request.deliveryOptions().contains(PrintDeliveryOption.EMAIL)
+        && (request.buyerEmail() == null || request.buyerEmail().isBlank())) {
+      throw ProblemRest.of(PosTicketReceiptErrorCodes.DELIVERY_RECIPIENT_REQUIRED);
+    }
+  }
+
+  private void enqueueAfterSuccessfulPrint(
+      TicketId ticketId, SendOutboundMessageRequest outboundMessage) {
+    try {
+      communicationApi.enqueue(outboundMessage);
+    } catch (RuntimeException ex) {
+      log.warn(
+          "pos.receipt.delivery.enqueue_failed ticketId={} channel={}",
+          ticketId.value(),
+          outboundMessage.channel(),
+          ex);
     }
   }
 
@@ -255,7 +291,7 @@ public class PosTicketReceiptService {
 
   private void validateSellerContext(TchRequestContext ctx) {
     if (ctx == null) {
-      throw ProblemRest.forbidden("seller_terminal.required");
+      throw ProblemRest.of(PosTicketReceiptErrorCodes.SELLER_TERMINAL_REQUIRED);
     }
     ctx.sellerTerminalIdRequired();
   }

@@ -15,7 +15,7 @@ export class PageModelApi {
   getPublicPage(lang?: string): Observable<PageRuntimeResponse> {
     return this.backend.getApiResponse<PageRuntimeResponse>('/public/page', {
       params: langParams(lang),
-      suppressShellFeedback: true,
+      feedback: { owner: 'feature', mode: 'local', target: 'page-model' },
     }).pipe(map(withSectionNotices));
   }
 
@@ -54,22 +54,21 @@ export class PageModelApi {
 function withSectionNotices(response: ApiResponse<PageRuntimeResponse>): PageRuntimeResponse {
   assertPageRuntimeResponse(response.data);
 
-  const existingKeys = new Set(
-    response.data.dynamic.errors.map(error => widgetErrorKey(error.widgetId, error.code)),
-  );
+  const existingErrors = response.data.dynamic.errors.map(sanitizeWidgetError);
+  const existingKeys = new Set(existingErrors.map(error => widgetErrorKey(error.widgetId, error.code)));
   const widgetErrors = (response.notices ?? [])
-    .map(notice => widgetErrorFromNotice(notice, response.trace))
+    .map(notice => widgetErrorFromNotice(notice, response.data, response.trace))
     .filter((error): error is WidgetDynamicError => error !== null)
     .filter(error => !existingKeys.has(widgetErrorKey(error.widgetId, error.code)));
 
-  if (!widgetErrors.length) return response.data;
+  if (!widgetErrors.length && !existingErrors.length) return response.data;
 
   return {
     ...response.data,
     dynamic: {
       ...response.data.dynamic,
       errors: [
-        ...(response.data.dynamic?.errors ?? []),
+        ...existingErrors,
         ...widgetErrors,
       ],
     },
@@ -88,22 +87,52 @@ function widgetErrorKey(widgetId: string, code: string | undefined): string {
 
 function widgetErrorFromNotice(
   notice: ApiNotice,
+  page: PageRuntimeResponse,
   trace: ApiResponse<PageRuntimeResponse>['trace'],
 ): WidgetDynamicError | null {
   const meta = notice.meta ?? {};
   if (meta['surface'] !== 'section') return null;
 
   const target = stringMeta(meta, 'target') ?? notice.target;
-  if (!target) return null;
+  const widgetId = target ? resolveWidgetId(page, target) : null;
+  if (!widgetId) return null;
 
   return {
-    widgetId: target,
+    widgetId,
     code: notice.code,
-    message: notice.message,
     severity: noticeSeverity(notice.severity),
     requestId: stringMeta(meta, 'requestId') ?? trace?.requestId,
     traceId: stringMeta(meta, 'traceId') ?? trace?.traceId,
     errorId: stringMeta(meta, 'errorId'),
+  };
+}
+
+/**
+ * PageModel notices name a stable functional slice. The resolved runtime config declares which
+ * widget owns it, so the client never mirrors backend templates or component identifiers.
+ * Direct widget ids remain accepted for resolver-generated widget failures during migration.
+ */
+function resolveWidgetId(page: PageRuntimeResponse, target: string): string | null {
+  if (page.content.widgets[target]) return target;
+
+  for (const [widgetId, config] of Object.entries(page.content.widgets)) {
+    const feedbackTargets = config.props?.['feedbackTargets'];
+    if (Array.isArray(feedbackTargets) && feedbackTargets.includes(target)) {
+      return widgetId;
+    }
+  }
+  return null;
+}
+
+/** Dynamic widget errors carry stable identifiers and support references, never transport prose. */
+function sanitizeWidgetError(error: WidgetDynamicError): WidgetDynamicError {
+  return {
+    widgetId: error.widgetId,
+    code: error.code,
+    severity: error.severity,
+    requestId: error.requestId,
+    traceId: error.traceId,
+    errorId: error.errorId,
   };
 }
 

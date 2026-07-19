@@ -26,7 +26,13 @@ public record OpsSalesSimulationResponse(
     List<String> nextActions) {
 
   public record DrawSummary(
-      UUID drawId, String channelCode, String status, int planned, int confirmed, int rejected, int failed) {}
+      UUID drawId,
+      String channelCode,
+      String status,
+      int planned,
+      int confirmed,
+      int rejected,
+      int failed) {}
 
   public record SellerSummary(
       UUID sellerTerminalId,

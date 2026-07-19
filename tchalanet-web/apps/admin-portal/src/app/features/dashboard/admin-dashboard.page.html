@@ -9,10 +9,17 @@
       <tch-error-panel
         [title]="'common.error.title' | translate"
         [message]="'dashboard.loadError' | translate"
+        [showRetry]="true"
+        [retryLabel]="'common.retry' | translate"
+        (retry)="reload()"
       />
     }
     @case ('ready') {
-      <tch-page-model [content]="vm.response.content" [dynamic]="vm.response.dynamic" />
+      <tch-page-model
+        [content]="vm.response.content"
+        [dynamic]="vm.response.dynamic"
+        (widgetRetry)="reload()"
+      />
     }
   }
 </section>

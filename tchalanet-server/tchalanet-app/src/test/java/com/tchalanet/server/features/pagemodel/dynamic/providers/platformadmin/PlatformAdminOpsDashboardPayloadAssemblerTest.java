@@ -45,10 +45,7 @@ class PlatformAdminOpsDashboardPayloadAssemblerTest {
                         null)));
     var assembler =
         new PlatformAdminOpsDashboardPayloadAssembler(
-            healthProvider,
-            mockProvider(metricsProvider),
-            mockProvider(null),
-            mockProvider(null));
+            healthProvider, mockProvider(metricsProvider), mockProvider(null), mockProvider(null));
 
     var payload = assembler.assemble(null);
 
@@ -80,10 +77,7 @@ class PlatformAdminOpsDashboardPayloadAssemblerTest {
   void schedulerSummary() {
     var assembler =
         new PlatformAdminOpsDashboardPayloadAssembler(
-            mockProvider(null),
-            mockProvider(null),
-            mockProvider(null),
-            mockProvider(null));
+            mockProvider(null), mockProvider(null), mockProvider(null), mockProvider(null));
 
     var payload = assembler.assemble(null);
 

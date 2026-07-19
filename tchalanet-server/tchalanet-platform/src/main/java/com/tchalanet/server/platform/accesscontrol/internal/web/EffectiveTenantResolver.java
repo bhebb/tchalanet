@@ -5,6 +5,7 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.platform.accesscontrol.api.SupportAccessApi;
+import com.tchalanet.server.platform.accesscontrol.api.error.AccessControlErrorCodes;
 import com.tchalanet.server.platform.accesscontrol.internal.persistence.repository.TenantUserRoleJpaRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Collection;
@@ -102,16 +103,16 @@ public class EffectiveTenantResolver {
       Set<String> permissionKeys,
       String overrideHeader) {
     if (!superAdmin) {
-      throw ProblemRest.forbidden("tenant.override_not_super_admin");
+      throw ProblemRest.of(AccessControlErrorCodes.TENANT_OVERRIDE_NOT_SUPER_ADMIN);
     }
     if (permissionKeys == null || !permissionKeys.contains(PERMISSION_TENANT_OVERRIDE)) {
-      throw ProblemRest.forbidden("tenant.override_forbidden");
+      throw ProblemRest.of(AccessControlErrorCodes.TENANT_OVERRIDE_FORBIDDEN);
     }
     if (normalize(request.getHeader(TchHeaders.X_TCH_OVERRIDE_REASON)) == null) {
-      throw ProblemRest.forbidden("tenant.override_reason_required");
+      throw ProblemRest.of(AccessControlErrorCodes.TENANT_OVERRIDE_REASON_REQUIRED);
     }
 
-    var target = parseTenantId(overrideHeader, "tenant.override_invalid");
+    var target = parseTenantId(overrideHeader);
     log.info("tenant_override.requested userId={} targetTenant={}", userId.value(), target.value());
     return new EffectiveTenant(target, true, false);
   }
@@ -125,7 +126,7 @@ public class EffectiveTenantResolver {
       return null;
     }
     if (permissionKeys == null || !permissionKeys.contains(PERMISSION_TENANT_OVERRIDE)) {
-      throw ProblemRest.forbidden("tenant.override_forbidden");
+      throw ProblemRest.of(AccessControlErrorCodes.TENANT_OVERRIDE_FORBIDDEN);
     }
     log.info(
         "tenant_support_session.restored userId={} targetTenant={}",
@@ -143,7 +144,7 @@ public class EffectiveTenantResolver {
       return EffectiveTenant.none();
     }
     if (tenantIds.size() > 1) {
-      throw ProblemRest.forbidden("tenant.ambiguous_membership");
+      throw ProblemRest.of(AccessControlErrorCodes.TENANT_AMBIGUOUS_MEMBERSHIP);
     }
     return new EffectiveTenant(TenantId.of(tenantIds.getFirst()), false, false);
   }
@@ -155,16 +156,16 @@ public class EffectiveTenantResolver {
       return EffectiveTenant.none();
     }
     if (distinct.size() > 1) {
-      throw ProblemRest.forbidden("tenant.ambiguous_membership");
+      throw ProblemRest.of(AccessControlErrorCodes.TENANT_AMBIGUOUS_MEMBERSHIP);
     }
     return new EffectiveTenant(distinct.iterator().next(), false, false);
   }
 
-  private static TenantId parseTenantId(String raw, String errorCode) {
+  private static TenantId parseTenantId(String raw) {
     try {
       return TenantId.of(UUID.fromString(raw));
     } catch (IllegalArgumentException ex) {
-      throw ProblemRest.forbidden(errorCode);
+      throw ProblemRest.of(AccessControlErrorCodes.TENANT_OVERRIDE_INVALID);
     }
   }
 

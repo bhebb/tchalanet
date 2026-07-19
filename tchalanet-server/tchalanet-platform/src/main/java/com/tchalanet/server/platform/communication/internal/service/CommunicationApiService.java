@@ -1,7 +1,10 @@
 package com.tchalanet.server.platform.communication.internal.service;
 
 import com.tchalanet.server.common.json.utils.JsonUtils;
+import com.tchalanet.server.common.web.error.ProblemRest;
+import com.tchalanet.server.common.web.error.ProblemRestException;
 import com.tchalanet.server.platform.communication.api.CommunicationApi;
+import com.tchalanet.server.platform.communication.api.error.CommunicationErrorCodes;
 import com.tchalanet.server.platform.communication.api.model.request.SendOutboundMessageRequest;
 import com.tchalanet.server.platform.communication.api.model.result.SendOutboundMessageResult;
 import com.tchalanet.server.platform.communication.api.model.value.DeliveryStatus;
@@ -31,8 +34,11 @@ class CommunicationApiService implements CommunicationApi {
   @Override
   @Transactional
   public MessageId enqueue(SendOutboundMessageRequest request) {
+    if (request == null || request.channel() == null) {
+      throw ProblemRest.of(CommunicationErrorCodes.REQUEST_INVALID);
+    }
     if (!deliveryPolicyResolver.canCreateOutboundMessage(request)) {
-      throw new IllegalStateException("Communication channel disabled by tenant settings");
+      throw ProblemRest.of(CommunicationErrorCodes.CHANNEL_DISABLED);
     }
 
     try {
@@ -67,15 +73,27 @@ class CommunicationApiService implements CommunicationApi {
       entity.setNextAttemptAt(clock.instant());
 
       return MessageId.of(messages.save(entity).getId());
-    } catch (Exception e) {
-      log.error(e.getLocalizedMessage(), e);
+    } catch (ProblemRestException ex) {
+      throw ex;
+    } catch (RuntimeException ex) {
+      log.error("communication.enqueue.failed channel={}", request.channel(), ex);
+      throw ProblemRest.of(CommunicationErrorCodes.ENQUEUE_FAILED, java.util.Map.of(), ex);
     }
-    return null;
   }
 
   @Override
   public SendOutboundMessageResult sendNow(SendOutboundMessageRequest request) {
-    return providers.providerFor(request.channel()).send(request);
+    if (request == null || request.channel() == null) {
+      throw ProblemRest.of(CommunicationErrorCodes.REQUEST_INVALID);
+    }
+    try {
+      return providers.providerFor(request.channel()).send(request);
+    } catch (ProblemRestException ex) {
+      throw ex;
+    } catch (RuntimeException ex) {
+      log.error("communication.send_now.failed channel={}", request.channel(), ex);
+      throw ProblemRest.of(CommunicationErrorCodes.DELIVERY_FAILED, java.util.Map.of(), ex);
+    }
   }
 
   private String recipientType(SendOutboundMessageRequest request) {

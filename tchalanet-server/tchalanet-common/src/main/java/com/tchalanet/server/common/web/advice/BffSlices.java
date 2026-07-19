@@ -2,6 +2,7 @@ package com.tchalanet.server.common.web.advice;
 
 import com.tchalanet.server.common.web.api.ServiceStatus;
 import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Deterministic helper for BFF endpoints that aggregate required and optional slices.
@@ -11,16 +12,11 @@ import lombok.experimental.UtilityClass;
  * response.
  */
 @UtilityClass
+@Slf4j
 public class BffSlices {
 
   public static <T> T required(SliceSupplier<T> supplier) {
-    try {
-      return supplier.get();
-    } catch (RuntimeException | Error ex) {
-      throw ex;
-    } catch (Exception ex) {
-      throw new IllegalStateException(ex);
-    }
+    return supplier.get();
   }
 
   public static <T> T optional(BffSlicePolicy<T> policy, SliceSupplier<T> supplier) {
@@ -36,25 +32,30 @@ public class BffSlices {
   }
 
   private static void addFailure(BffSlicePolicy<?> policy, Throwable ex) {
-    ApiResponseNotices.add(
+    log.warn(
+        "bff_slice.degraded code={} domain={} source={} operation={}",
         policy.code(),
-        policy.message(),
+        policy.domain(),
+        policy.source().source(),
+        policy.source().operation(),
+        ex);
+    ApiResponseNotices.degradation(
+        policy.code(),
         policy.domain(),
         policy.severity(),
         policy.source(),
         ex,
-        java.util.Map.of());
+        policy.safeParams());
 
     if (policy.serviceStatus() != null && policy.source().service() != null) {
       ApiResponseContext.get()
           .addServiceStatus(
-              new ServiceStatus(
-                  policy.source().service(), policy.serviceStatus(), policy.serviceMessage()));
+              new ServiceStatus(policy.source().service(), policy.serviceStatus(), null));
     }
   }
 
   @FunctionalInterface
   public interface SliceSupplier<T> {
-    T get() throws Exception;
+    T get();
   }
 }

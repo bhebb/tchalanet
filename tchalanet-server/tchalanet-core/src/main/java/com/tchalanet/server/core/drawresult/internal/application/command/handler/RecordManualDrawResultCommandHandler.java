@@ -12,8 +12,10 @@ import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.drawresult.api.command.RecordManualDrawResultCommand;
 import com.tchalanet.server.core.drawresult.api.command.RecordManualDrawResultResult;
+import com.tchalanet.server.core.drawresult.api.error.DrawResultErrorCodes;
 import com.tchalanet.server.core.drawresult.api.event.GlobalDrawResultAvailableEvent;
 import com.tchalanet.server.core.drawresult.api.model.DrawResultStatus;
 import com.tchalanet.server.core.drawresult.api.model.ResultQuality;
@@ -23,6 +25,7 @@ import com.tchalanet.server.core.drawresult.internal.application.port.out.extern
 import com.tchalanet.server.core.haiti.api.HaitiProjectionOutput;
 import com.tchalanet.server.core.haiti.internal.application.port.out.HaitiLotteryPort;
 import com.tchalanet.server.core.haiti.internal.application.port.out.HaitiProjectionConfigPort;
+import com.tchalanet.server.core.haiti.internal.domain.lottery.exception.InvalidExternalPickException;
 import com.tchalanet.server.core.haiti.internal.domain.lottery.model.ExternalPick;
 import java.time.Instant;
 import java.util.Locale;
@@ -137,9 +140,19 @@ public class RecordManualDrawResultCommandHandler
 
   private HaitiProjectionOutput projectHaiti(
       RecordManualDrawResultCommand command, ResultSlotView slot) {
-    return haitiLotteryPort.projectResult(
-        ExternalPick.of(command.pick3(), command.pick4()),
-        haitiProjectionConfigPort.resolve(slot.projectionCfg()));
+    try {
+      var projection =
+          haitiLotteryPort.projectResult(
+              ExternalPick.of(command.pick3(), command.pick4()),
+              haitiProjectionConfigPort.resolve(slot.projectionCfg()));
+      if (!projection.flags().projectionOk() || projection.result() == null) {
+        log.error("draw_result.manual projection_failed slotKey={}", slot.slotKey());
+        throw ProblemRest.of(DrawResultErrorCodes.PROJECTION_FAILED);
+      }
+      return projection;
+    } catch (InvalidExternalPickException e) {
+      throw ProblemRest.of(DrawResultErrorCodes.INVALID_EXTERNAL_PICK);
+    }
   }
 
   private static void putIfNotBlank(ObjectNode node, String field, String value) {

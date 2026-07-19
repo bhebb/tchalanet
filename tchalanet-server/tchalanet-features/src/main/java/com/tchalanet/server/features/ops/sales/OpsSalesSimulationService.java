@@ -52,7 +52,8 @@ class OpsSalesSimulationService {
     if (requestedTickets <= 0) {
       throw ProblemRest.badRequest("ops.sales_simulation.empty_mix");
     }
-    int maxTickets = normalized.maxTickets() == null ? DEFAULT_MAX_TICKETS : normalized.maxTickets();
+    int maxTickets =
+        normalized.maxTickets() == null ? DEFAULT_MAX_TICKETS : normalized.maxTickets();
     if (maxTickets <= 0 || requestedTickets > maxTickets) {
       throw ProblemRest.badRequest(
           "ops.sales_simulation.too_many_tickets: requested="
@@ -65,11 +66,14 @@ class OpsSalesSimulationService {
     }
 
     var simulationId = UUID.randomUUID();
-    long seed = normalized.seed() == null ? simulationId.getMostSignificantBits() : normalized.seed();
+    long seed =
+        normalized.seed() == null ? simulationId.getMostSignificantBits() : normalized.seed();
     var planned = planner.plan(normalized, normalized.stakeAmount(), seed);
     var tenantId = TenantId.of(normalized.tenantId());
     var currency = CurrencyCode.of(normalized.currency());
-    var tenantContext = tenantContext(normalized.tenantId(), normalized.currency(), "ops-sales-sim-" + simulationId);
+    var tenantContext =
+        tenantContext(
+            normalized.tenantId(), normalized.currency(), "ops-sales-sim-" + simulationId);
     var draws = loadDraws(tenantContext, tenantId, normalized.drawIds());
     var sellers = loadSellers(tenantContext, tenantId, normalized.sellerTerminalIds());
     var stats = new Stats();
@@ -82,13 +86,7 @@ class OpsSalesSimulationService {
     }
 
     return stats.toResponse(
-        simulationId,
-        normalized,
-        seed,
-        requestedTickets,
-        planned.size(),
-        draws,
-        sellers);
+        simulationId, normalized, seed, requestedTickets, planned.size(), draws, sellers);
   }
 
   private void executeOne(
@@ -334,7 +332,8 @@ class OpsSalesSimulationService {
 
     private CounterGroup counters(OpsSalesSimulationPlanner.PlannedTicket ticket) {
       var draw = drawCounters.computeIfAbsent(ticket.drawId(), ignored -> new Counter());
-      var seller = sellerCounters.computeIfAbsent(ticket.sellerTerminalId(), ignored -> new Counter());
+      var seller =
+          sellerCounters.computeIfAbsent(ticket.sellerTerminalId(), ignored -> new Counter());
       var game = gameCounters.computeIfAbsent(ticket.kind(), ignored -> new Counter());
       return new CounterGroup(draw, seller, game);
     }

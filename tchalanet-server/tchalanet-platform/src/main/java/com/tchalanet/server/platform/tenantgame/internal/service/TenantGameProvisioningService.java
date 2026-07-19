@@ -1,6 +1,8 @@
 package com.tchalanet.server.platform.tenantgame.internal.service;
 
 import com.tchalanet.server.catalog.game.api.GameCatalog;
+import com.tchalanet.server.common.web.error.ProblemRest;
+import com.tchalanet.server.platform.tenantgame.api.error.TenantGameErrorCodes;
 import com.tchalanet.server.platform.tenantgame.api.model.request.EnsureTenantGamesRequest;
 import com.tchalanet.server.platform.tenantgame.internal.persistence.TenantGamePersistenceAdapter;
 import lombok.RequiredArgsConstructor;
@@ -20,8 +22,7 @@ public class TenantGameProvisioningService {
     var game =
         gameCatalog
             .findByCode(request.getGameCode().toUpperCase())
-            .orElseThrow(
-                () -> new IllegalArgumentException("Game not found: " + request.getGameCode()));
+            .orElseThrow(() -> ProblemRest.of(TenantGameErrorCodes.CATALOG_GAME_NOT_FOUND));
 
     if (persistence.findByTenantIdAndGameCode(request.getTenantId(), game.code()).isPresent()) {
       return;

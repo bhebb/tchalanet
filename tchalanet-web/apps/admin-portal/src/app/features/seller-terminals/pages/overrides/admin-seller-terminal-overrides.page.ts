@@ -4,14 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { mapHttpErrorToProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 import { forkJoin } from 'rxjs';
 import { AdminPageShellComponent, AdminSectionCardComponent } from '@tch/ui/console';
 import { TchEmptyState, TchErrorPanel, TchLoading } from '@tch/ui/components';
-import {
-  consoleBetOptionLabel,
-  consoleBetTypeLabel,
-  consoleGameIdentity,
-} from '@tch/web/console';
+import { resolveErrorFeedbackCopy } from '@tch/web/errors';
+import { TranslateService } from '@ngx-translate/core';
+import { consoleBetOptionLabel, consoleBetTypeLabel, consoleGameIdentity } from '@tch/web/console';
 
 import {
   BaremesAdminApi,
@@ -51,6 +50,7 @@ interface OverrideGroup {
 export class AdminSellerTerminalOverridesPage {
   private readonly route = inject(ActivatedRoute);
   private readonly api = inject(BaremesAdminApi);
+  private readonly translate = inject(TranslateService);
 
   readonly sellerTerminalId = this.route.snapshot.paramMap.get('sellerTerminalId') ?? '';
   readonly state = signal<PageState>('loading');
@@ -92,14 +92,18 @@ export class AdminSellerTerminalOverridesPage {
     this.rowErrors.set({});
     forkJoin({
       odds: this.api.listTenantOdds(),
-      overrides: this.api.listSellerOverrides(this.sellerTerminalId),
+      overrides: this.api.listSellerOverrides(this.sellerTerminalId, {
+        suppressShellFeedback: true,
+      }),
     }).subscribe({
       next: ({ odds, overrides }) => {
         this.odds.set(odds);
         this.overrides.set(overrides);
-        this.draftValues.set(Object.fromEntries(
-          odds.map(row => [this.rowKey(row), this.overrideValue(this.findOverride(row))]),
-        ));
+        this.draftValues.set(
+          Object.fromEntries(
+            odds.map(row => [this.rowKey(row), this.overrideValue(this.findOverride(row))]),
+          ),
+        );
         this.state.set('ready');
       },
       error: () => this.state.set('error'),
@@ -107,12 +111,7 @@ export class AdminSellerTerminalOverridesPage {
   }
 
   rowKey(row: PricingOddsEntry): string {
-    return [
-      row.gameCode,
-      row.pricingVariantCode,
-      row.betType,
-      row.betOption ?? 'none',
-    ].join('|');
+    return [row.gameCode, row.pricingVariantCode, row.betType, row.betOption ?? 'none'].join('|');
   }
 
   gameLabel(gameCode: string): string {
@@ -128,7 +127,7 @@ export class AdminSellerTerminalOverridesPage {
   }
 
   tenantValue(row: PricingOddsEntry): number | null {
-    return row.payoutRuleType === 'FIXED_AMOUNT' ? row.fixedAmount ?? null : row.odds ?? null;
+    return row.payoutRuleType === 'FIXED_AMOUNT' ? (row.fixedAmount ?? null) : (row.odds ?? null);
   }
 
   tenantPlaceholder(row: PricingOddsEntry): string {
@@ -151,13 +150,16 @@ export class AdminSellerTerminalOverridesPage {
   }
 
   findOverride(row: PricingOddsEntry): OddsOverrideEntry | null {
-    return this.overrides().find(item =>
-      item.active &&
-      item.gameCode === row.gameCode &&
-      item.pricingVariantCode === row.pricingVariantCode &&
-      item.betType === row.betType &&
-      (item.betOption ?? null) === (row.betOption ?? null),
-    ) ?? null;
+    return (
+      this.overrides().find(
+        item =>
+          item.active &&
+          item.gameCode === row.gameCode &&
+          item.pricingVariantCode === row.pricingVariantCode &&
+          item.betType === row.betType &&
+          (item.betOption ?? null) === (row.betOption ?? null),
+      ) ?? null
+    );
   }
 
   hasOverride(row: PricingOddsEntry): boolean {
@@ -176,31 +178,40 @@ export class AdminSellerTerminalOverridesPage {
     const key = this.rowKey(row);
     const value = this.draftValue(row);
     if (value === null || value <= 0) {
-      this.rowErrors.update(errors => ({ ...errors, [key]: 'Entrez une valeur supérieure à 0.' }));
+      this.rowErrors.update(errors => ({
+        ...errors,
+        [key]: this.translate.instant(this.errorMessageKeyFor(row)),
+      }));
       return;
     }
 
     this.setSaving(key, true);
     const payoutRuleType = row.payoutRuleType ?? 'STAKE_MULTIPLIER';
-    this.api.upsertOverride(this.sellerTerminalId, {
-      gameCode: row.gameCode,
-      pricingVariantCode: row.pricingVariantCode,
-      betType: row.betType,
-      betOption: row.betOption,
-      payoutRuleType,
-      odds: payoutRuleType === 'FIXED_AMOUNT' ? null : value,
-      fixedAmount: payoutRuleType === 'FIXED_AMOUNT' ? value : null,
-      reason: 'Override seller-terminal',
-    }).subscribe({
-      next: () => {
-        this.setSaving(key, false);
-        this.load();
-      },
-      error: () => {
-        this.setSaving(key, false);
-        this.rowErrors.update(errors => ({ ...errors, [key]: "Impossible d'enregistrer cet override." }));
-      },
-    });
+    this.api
+      .upsertOverride(
+        this.sellerTerminalId,
+        {
+          gameCode: row.gameCode,
+          pricingVariantCode: row.pricingVariantCode,
+          betType: row.betType,
+          betOption: row.betOption,
+          payoutRuleType,
+          odds: payoutRuleType === 'FIXED_AMOUNT' ? null : value,
+          fixedAmount: payoutRuleType === 'FIXED_AMOUNT' ? value : null,
+          reason: 'Override seller-terminal',
+        },
+        { suppressShellFeedback: true },
+      )
+      .subscribe({
+        next: () => {
+          this.setSaving(key, false);
+          this.load();
+        },
+        error: (err: unknown) => {
+          this.setSaving(key, false);
+          this.setRowError(row, err);
+        },
+      });
   }
 
   remove(row: PricingOddsEntry): void {
@@ -209,16 +220,18 @@ export class AdminSellerTerminalOverridesPage {
 
     const key = this.rowKey(row);
     this.setSaving(key, true);
-    this.api.deleteOverride(this.sellerTerminalId, overrideId).subscribe({
-      next: () => {
-        this.setSaving(key, false);
-        this.load();
-      },
-      error: () => {
-        this.setSaving(key, false);
-        this.rowErrors.update(errors => ({ ...errors, [key]: "Impossible de supprimer cet override." }));
-      },
-    });
+    this.api
+      .deleteOverride(this.sellerTerminalId, overrideId, { suppressShellFeedback: true })
+      .subscribe({
+        next: () => {
+          this.setSaving(key, false);
+          this.load();
+        },
+        error: (err: unknown) => {
+          this.setSaving(key, false);
+          this.setRowError(row, err);
+        },
+      });
   }
 
   isSaving(row: PricingOddsEntry): boolean {
@@ -232,8 +245,8 @@ export class AdminSellerTerminalOverridesPage {
   private overrideValue(override: OddsOverrideEntry | null): number | null {
     if (!override) return null;
     return override.payoutRuleType === 'FIXED_AMOUNT'
-      ? override.fixedAmount ?? null
-      : override.odds ?? null;
+      ? (override.fixedAmount ?? null)
+      : (override.odds ?? null);
   }
 
   private setSaving(key: string, saving: boolean): void {
@@ -244,9 +257,26 @@ export class AdminSellerTerminalOverridesPage {
       return next;
     });
   }
+
+  private setRowError(row: PricingOddsEntry, err: unknown): void {
+    const problem = mapHttpErrorToProblemDetail(err);
+    const normalized = webAppErrorFromProblemDetail(
+      problem,
+      'admin.sellerTerminal.override',
+      'field',
+    );
+    const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+    this.rowErrors.update(errors => ({ ...errors, [this.rowKey(row)]: copy.message }));
+  }
+
+  private errorMessageKeyFor(row: PricingOddsEntry): string {
+    return row.payoutRuleType === 'FIXED_AMOUNT'
+      ? 'errors.codes.pricing.fixed_amount_invalid.message'
+      : 'errors.codes.pricing.odds_invalid.message';
+  }
 }
 
 function idValue(value: { value?: string | null } | string | null | undefined): string | null {
   if (!value) return null;
-  return typeof value === 'string' ? value : value.value ?? null;
+  return typeof value === 'string' ? value : (value.value ?? null);
 }

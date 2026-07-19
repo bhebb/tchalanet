@@ -6,6 +6,7 @@ import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TicketId;
+import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.common.web.error.ProblemRestException;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageMapper;
@@ -17,6 +18,7 @@ import com.tchalanet.server.core.sales.api.query.GetSellerTerminalDailyStatsQuer
 import com.tchalanet.server.core.sales.api.query.GetTicketForCashierVerificationQuery;
 import com.tchalanet.server.core.sales.api.query.GetTicketPrintViewQuery;
 import com.tchalanet.server.core.sales.api.query.ListTicketsQuery;
+import com.tchalanet.server.features.pos.error.PosErrorCodes;
 import com.tchalanet.server.features.pos.tickets.mapper.PosTicketMapper;
 import com.tchalanet.server.features.pos.tickets.model.DrawStatLineItem;
 import com.tchalanet.server.features.pos.tickets.model.PosAction;
@@ -123,6 +125,9 @@ public class PosTicketsService {
       var ticket = queryBus.ask(new GetTicketForCashierVerificationQuery(publicCode));
       return verificationResponse(ticket);
     } catch (ProblemRestException ex) {
+      if (!isTicketNotFound(ex)) {
+        throw ex;
+      }
       return response(
           PosTicketVerificationStatus.NOT_FOUND,
           PosTicketVerificationSeverity.ERROR,
@@ -131,6 +136,11 @@ public class PosTicketsService {
           Map.of("publicCode", publicCode),
           List.of(PosAction.enabled(PosActionType.NONE, "pos.action.none", Map.of())));
     }
+  }
+
+  private boolean isTicketNotFound(ProblemRestException ex) {
+    var code = ex.getProblem().getProperties().get("code");
+    return "ticket.not_found".equals(code);
   }
 
   private PosTicketVerificationResponse verificationResponse(TicketCashierVerificationView ticket) {
@@ -255,11 +265,11 @@ public class PosTicketsService {
 
   private void validateSellerContext(TchRequestContext ctx, java.util.UUID sellerTerminalId) {
     if (ctx == null) {
-      throw ProblemRestException.unprocessable("seller_terminal.required");
+      throw ProblemRest.of(PosErrorCodes.SELLER_TERMINAL_REQUIRED);
     }
     var currentSellerTerminalId = ctx.sellerTerminalIdRequired();
     if (sellerTerminalId != null && !sellerTerminalId.equals(currentSellerTerminalId.value())) {
-      throw ProblemRestException.badRequest("seller_terminal.mismatch");
+      throw ProblemRest.of(PosErrorCodes.SELLER_TERMINAL_MISMATCH);
     }
   }
 }

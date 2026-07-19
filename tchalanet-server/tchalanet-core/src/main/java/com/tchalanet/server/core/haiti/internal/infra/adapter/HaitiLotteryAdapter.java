@@ -9,10 +9,12 @@ import com.tchalanet.server.core.haiti.internal.domain.lottery.service.HaitiResu
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 /** Adapter that exposes the Haiti projector as a port for application usage. */
 @Component
+@Slf4j
 public class HaitiLotteryAdapter implements HaitiLotteryPort {
 
   // bump when you change projection semantics
@@ -38,18 +40,8 @@ public class HaitiLotteryAdapter implements HaitiLotteryPort {
       return HaitiProjectionOutput.ok(result, flags);
 
     } catch (Exception e) {
-      var reason =
-          (e.getMessage() == null || e.getMessage().isBlank())
-              ? "PROJECTION_FAILED"
-              : e.getMessage();
-
-      var flags =
-          HaitiFlags.fail(
-              PROJECTION_VERSION,
-              RULE_SET,
-              reason,
-              now,
-              Map.of("error", e.getClass().getSimpleName()));
+      log.error("haiti.projection failed", e);
+      var flags = HaitiFlags.fail(PROJECTION_VERSION, RULE_SET, "PROJECTION_FAILED", now, Map.of());
       return HaitiProjectionOutput.fail(flags);
     }
   }

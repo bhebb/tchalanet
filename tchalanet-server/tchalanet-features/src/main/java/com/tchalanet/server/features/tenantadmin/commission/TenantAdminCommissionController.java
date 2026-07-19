@@ -4,10 +4,10 @@ import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.web.CurrentContext;
-import com.tchalanet.server.common.exception.TchBusinessRuleException;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.web.api.ApiResponse;
+import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.core.sellerterminal.api.command.SetSellerTerminalCommissionRateCommand;
@@ -21,6 +21,7 @@ import com.tchalanet.server.features.tenantadmin.commission.model.SetDefaultComm
 import com.tchalanet.server.features.tenantadmin.commission.model.SetSellerTerminalCommissionRateRequest;
 import com.tchalanet.server.platform.tenant.api.TenantAdminApi;
 import com.tchalanet.server.platform.tenant.api.TenantPreContextLookupApi;
+import com.tchalanet.server.platform.tenant.api.error.TenantErrorCodes;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.math.BigDecimal;
@@ -131,8 +132,7 @@ public class TenantAdminCommissionController {
     TenantId tenantId = ctx.tenantIdRequired();
     BigDecimal defaultRate = resolveDefaultRate(tenantId);
     if (defaultRate == null) {
-      throw new TchBusinessRuleException(
-          "tenant.commission.default_rate_not_set", "tenant.commission.default_rate_not_set");
+      throw ProblemRest.of(TenantErrorCodes.COMMISSION_DEFAULT_RATE_NOT_SET);
     }
     commandBus.execute(
         new SetSellerTerminalCommissionRateCommand(

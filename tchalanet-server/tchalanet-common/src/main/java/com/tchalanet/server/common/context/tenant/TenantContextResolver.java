@@ -1,12 +1,12 @@
 package com.tchalanet.server.common.context.tenant;
 
+import com.tchalanet.server.common.context.RequestContextErrorCodes;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.scope.ApiScope;
 import com.tchalanet.server.common.context.web.ApiScopeResolver;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.web.error.ProblemRest;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -28,10 +28,9 @@ public class TenantContextResolver {
    * <p>This MUST NOT validate membership, permissions, or tenant access — that decision belongs to
    * {@code platform.accesscontrol}. It only enriches the context with tenant reference data.
    *
-   * @return the hydrated context, or {@code null} after writing a 403 if the tenant is unknown.
+   * @return the hydrated context.
    */
-  public TchRequestContext hydrateResolvedTenant(HttpServletResponse res, TchRequestContext ctx)
-      throws IOException {
+  public TchRequestContext hydrateResolvedTenant(TchRequestContext ctx) {
 
     if (ctx.tenantIdSafe() == null) {
       return ctx;
@@ -40,23 +39,17 @@ public class TenantContextResolver {
     var info = tenantLookup.findById(ctx.tenantIdSafe());
 
     if (info.isEmpty()) {
-      res.sendError(HttpServletResponse.SC_FORBIDDEN, "Tenant not found");
-      return null;
+      throw ProblemRest.of(RequestContextErrorCodes.TENANT_UNAVAILABLE);
     }
 
     return ctx.withTenantContext(info.get());
   }
 
   public TchRequestContext resolveForScope(
-      HttpServletRequest req,
-      HttpServletResponse res,
-      TchRequestContext ctx,
-      ApiScope scope,
-      String defaultTenantCode)
-      throws IOException {
+      HttpServletRequest req, TchRequestContext ctx, ApiScope scope, String defaultTenantCode) {
 
     if (ApiScopeResolver.tenantRequired(req)) {
-      return requireAndResolveTenant(res, ctx);
+      return requireAndResolveTenant(ctx);
     }
 
     if (scope == ApiScope.PUBLIC) {
@@ -92,15 +85,13 @@ public class TenantContextResolver {
     return ctx.withTenantContext(tenantContextInfo.get());
   }
 
-  private TchRequestContext requireAndResolveTenant(HttpServletResponse res, TchRequestContext ctx)
-      throws IOException {
+  private TchRequestContext requireAndResolveTenant(TchRequestContext ctx) {
 
     // Fast path: tenant UUID already injected (e.g. by AccessResolutionFilter via X-Tenant-Id)
     if (ctx.tenantIdSafe() != null) {
       var info = tenantLookup.findById(ctx.tenantIdSafe());
       if (info.isEmpty()) {
-        res.sendError(HttpServletResponse.SC_FORBIDDEN, "Tenant not found");
-        return null;
+        throw ProblemRest.of(RequestContextErrorCodes.TENANT_UNAVAILABLE);
       }
       return ctx.withTenantContext(info.get());
     }
@@ -108,15 +99,13 @@ public class TenantContextResolver {
     var code = normalize(ctx.effectiveTenantCode());
 
     if (StringUtils.isBlank(code)) {
-      res.sendError(HttpServletResponse.SC_FORBIDDEN, "Tenant required");
-      return null;
+      throw ProblemRest.of(RequestContextErrorCodes.TENANT_REQUIRED);
     }
 
     var tenantContextInfo = resolveTenantContext(code);
 
     if (tenantContextInfo.isEmpty()) {
-      res.sendError(HttpServletResponse.SC_FORBIDDEN, "Tenant not found");
-      return null;
+      throw ProblemRest.of(RequestContextErrorCodes.TENANT_UNAVAILABLE);
     }
 
     return ctx.withTenantContext(tenantContextInfo.get());

@@ -9,6 +9,7 @@ import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageMapper;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.common.web.paging.TchPaging;
+import com.tchalanet.server.core.draw.api.error.DrawErrorCodes;
 import com.tchalanet.server.core.draw.api.query.DrawSearchCriteria;
 import com.tchalanet.server.core.draw.api.query.DrawSummary;
 import com.tchalanet.server.core.draw.api.query.GetDrawByIdQuery;
@@ -87,7 +88,7 @@ public class DrawQueryAdminController {
           TchPageRequest pageReq) {
 
     if (days < 1 || days > 30) {
-      throw ProblemRest.badRequest("draw.lookahead_days_invalid");
+      throw ProblemRest.of(DrawErrorCodes.LOOKAHEAD_DAYS_INVALID);
     }
 
     var criteria = DrawSearchCriteria.upcoming(resultSlotId, LocalDate.now(clock), days);

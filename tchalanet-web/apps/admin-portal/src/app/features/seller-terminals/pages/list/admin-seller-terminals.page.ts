@@ -1,28 +1,23 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
+import { mapHttpErrorToProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 
-import { AdminListStatusOption, AdminListSurface, TchErrorPanel } from '@tch/ui/components';
+import {
+  AdminListStatusOption,
+  AdminListSurface,
+  TchErrorPanel,
+  TchNotice,
+} from '@tch/ui/components';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
 import { AdminPageShellComponent } from '@tch/ui/console';
-import {
-  TchAsyncReadyDirective,
-  TchAsyncViewComponent,
-  resourceErrorVm,
-} from '@tch/web/async';
+import { TchAsyncReadyDirective, TchAsyncViewComponent, resourceErrorVm } from '@tch/web/async';
 import {
   SellerTerminalApi,
   SellerTerminalSummaryRow,
@@ -33,7 +28,9 @@ import { SellerTerminalTableComponent } from '../../components/seller-terminal-t
 import { BlockSellerTerminalDialog } from './dialogs/block-seller-terminal.dialog';
 import { ResetPinDialog } from './dialogs/reset-pin.dialog';
 import { ConfirmDisableDialog } from './dialogs/confirm-disable.dialog';
+import { ConfirmUnblockDialog } from './dialogs/confirm-unblock.dialog';
 import { SellerTerminalLimitsDialog } from './dialogs/seller-terminal-limits.dialog';
+import { SellerTerminalDialogResult } from './dialogs/seller-terminal-dialog-result';
 
 @Component({
   selector: 'tch-admin-seller-terminals-page',
@@ -45,6 +42,7 @@ import { SellerTerminalLimitsDialog } from './dialogs/seller-terminal-limits.dia
     AdminListSurface,
     AdminEmptyStateComponent,
     TchErrorPanel,
+    TchNotice,
     TchAsyncReadyDirective,
     TchAsyncViewComponent,
     SellerTerminalKpiStripComponent,
@@ -64,6 +62,7 @@ export class AdminSellerTerminalsPage {
   private readonly translate = inject(TranslateService);
 
   readonly actionError = signal<ErrorViewModel | null>(null);
+  readonly actionSuccess = signal<string | null>(null);
   private readonly queryParamMap = toSignal(this.route.queryParamMap, {
     initialValue: this.route.snapshot.queryParamMap,
   });
@@ -135,19 +134,19 @@ export class AdminSellerTerminalsPage {
   }
 
   openBlock(row: SellerTerminalSummaryRow): void {
+    this.actionSuccess.set(null);
     const ref = this.dialog.open(BlockSellerTerminalDialog, { data: row, width: '480px' });
-    ref.afterClosed().subscribe((result?: { reload: boolean }) => {
-      if (result?.reload) this.reload();
+    ref.afterClosed().subscribe((result?: SellerTerminalDialogResult) => {
+      if (!result?.reload) return;
+      this.actionSuccess.set(result.noticeKey);
+      this.reload();
     });
   }
 
   unblock(row: SellerTerminalSummaryRow): void {
-    this.actionError.set(null);
-    this.api.unblock(row.id.value, { suppressShellFeedback: true }).subscribe({
-      next: () => this.reload(),
-      error: err => {
-        this.actionError.set(this.errorViewModel(err, 'admin.sellerTerminal.unblock'));
-      },
+    const ref = this.dialog.open(ConfirmUnblockDialog, { data: row, width: '400px' });
+    ref.afterClosed().subscribe((unblocked?: boolean) => {
+      if (unblocked) this.reload();
     });
   }
 
@@ -170,13 +169,7 @@ export class AdminSellerTerminalsPage {
     const ref = this.dialog.open(ConfirmDisableDialog, { data: row, width: '400px' });
     ref.afterClosed().subscribe((confirmed: boolean) => {
       if (!confirmed) return;
-      this.actionError.set(null);
-      this.api.disable(row.id.value, { suppressShellFeedback: true }).subscribe({
-        next: () => this.reload(),
-        error: err => {
-          this.actionError.set(this.errorViewModel(err, 'admin.sellerTerminal.disable'));
-        },
-      });
+      this.reload();
     });
   }
 
@@ -194,18 +187,13 @@ export class AdminSellerTerminalsPage {
   }
 
   private errorViewModel(err: unknown, source: string): ErrorViewModel {
-    const problem = (err as { error?: ProblemDetail })?.error;
-    if (problem) {
-      const normalized = webAppErrorFromProblemDetail(problem, source, 'page');
-      const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
-      return toErrorViewModel(normalized, copy);
-    }
-
-    return {
-      title: this.translate.instant('common.errors.fallback.title'),
-      message: this.translate.instant('common.errors.fallback.message'),
-      severity: 'error',
-    };
+    const normalized = webAppErrorFromProblemDetail(
+      mapHttpErrorToProblemDetail(err),
+      source,
+      'page',
+    );
+    const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+    return toErrorViewModel(normalized, copy);
   }
 }
 

@@ -25,17 +25,6 @@ public record PrintTicketRequest(
         deliveryOptions == null || deliveryOptions.isEmpty()
             ? List.of(PrintDeliveryOption.RETURN_FILE)
             : List.copyOf(deliveryOptions);
-
-    if ((deliveryOptions.contains(PrintDeliveryOption.SMS)
-            || deliveryOptions.contains(PrintDeliveryOption.WHATSAPP))
-        && (buyerPhoneNumber == null || buyerPhoneNumber.isBlank())) {
-      throw new IllegalArgumentException("buyerPhoneNumber is required for SMS/WHATSAPP delivery");
-    }
-
-    if (deliveryOptions.contains(PrintDeliveryOption.EMAIL)
-        && (buyerEmail == null || buyerEmail.isBlank())) {
-      throw new IllegalArgumentException("buyerEmail is required for EMAIL delivery");
-    }
   }
 
   public boolean shouldReturnFile() {

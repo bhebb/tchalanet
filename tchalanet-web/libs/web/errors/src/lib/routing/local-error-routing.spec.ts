@@ -4,7 +4,12 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { WebAppError } from '@tch/api';
 import { describe, expect, it } from 'vitest';
 
-import { applyServerFieldErrors, clearServerFieldErrors, errorsForTarget } from './local-error-routing';
+import {
+  applyServerFieldErrors,
+  clearServerFieldErrors,
+  clearServerFieldErrorsOnEdit,
+  errorsForTarget,
+} from './local-error-routing';
 
 describe('local error routing', () => {
   it('selects errors for an owned section target', () => {
@@ -26,7 +31,23 @@ describe('local error routing', () => {
     ]);
 
     expect(remaining).toEqual([]);
-    expect(form.controls.email.errors?.['server']).toMatchObject({ message: 'Email invalide' });
+    expect(form.controls.email.errors?.['server']).toMatchObject([{ message: 'Email invalide' }]);
+  });
+
+  it('preserves multiple server errors on the same control', () => {
+    const form = new FormGroup({
+      amount: new FormControl(''),
+    });
+
+    applyServerFieldErrors(form, [
+      makeError({ surface: 'field', field: 'amount', code: 'validation.required', message: 'Requis' }),
+      makeError({ surface: 'field', field: 'amount', code: 'validation.out_of_range', message: 'Hors limite' }),
+    ]);
+
+    expect(form.controls.amount.errors?.['server']).toMatchObject([
+      { code: 'validation.required', message: 'Requis' },
+      { code: 'validation.out_of_range', message: 'Hors limite' },
+    ]);
   });
 
   it('returns field errors that do not map to a control', () => {
@@ -50,6 +71,22 @@ describe('local error routing', () => {
     clearServerFieldErrors(form);
 
     expect(form.controls.email.errors).toEqual({ required: true });
+  });
+
+  it('clears only the server error for the field the user edits', () => {
+    const form = new FormGroup({
+      email: new FormControl(''),
+      phone: new FormControl(''),
+    });
+    form.controls.email.setErrors({ server: makeError({ field: 'email' }) });
+    form.controls.phone.setErrors({ server: makeError({ field: 'phone' }) });
+    const cleanup = clearServerFieldErrorsOnEdit(form);
+
+    form.controls.email.setValue('seller@example.com');
+
+    expect(form.controls.email.errors).toBeNull();
+    expect(form.controls.phone.errors?.['server']).toBeDefined();
+    cleanup.unsubscribe();
   });
 });
 

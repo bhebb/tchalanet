@@ -14,6 +14,7 @@ import com.tchalanet.server.platform.communication.api.model.value.Communication
 import com.tchalanet.server.platform.communication.api.model.value.OutboundRecipient;
 import com.tchalanet.server.platform.identity.api.IdentityProviderType;
 import com.tchalanet.server.platform.identity.api.IdentityProvisioningApi;
+import com.tchalanet.server.platform.identity.api.error.IdentityErrorCodes;
 import com.tchalanet.server.platform.identity.internal.model.AppUser;
 import com.tchalanet.server.platform.identity.internal.persistence.adapter.AppUserJpaAdapter;
 import java.util.List;
@@ -67,12 +68,14 @@ public class IdentityUserCrudService {
     assertCanActOn(targetId, ctx);
 
     var target =
-        userAdapter.findById(targetId).orElseThrow(() -> ProblemRest.notFound("User not found"));
+        userAdapter
+            .findById(targetId)
+            .orElseThrow(() -> ProblemRest.of(IdentityErrorCodes.USER_NOT_FOUND));
     var externalSubject =
         userAdapter
             .findExternalSubject(targetId, IdentityProviderType.FIREBASE)
             .orElseThrow(
-                () -> ProblemRest.unprocessable("No Firebase identity linked for this account"));
+                () -> ProblemRest.of(IdentityErrorCodes.EXTERNAL_IDENTITY_NOT_LINKED_FOR_USER));
 
     var tempPassword = credentials.adminTemporaryPassword();
     identityProvisioning.resetPassword(externalSubject, tempPassword);
@@ -119,7 +122,7 @@ public class IdentityUserCrudService {
     if (!callerIsSuperAdmin) {
       var callerTenant = ctx.tenantId();
       if (callerTenant == null || !callerTenant.equals(tenantId)) {
-        throw ProblemRest.forbidden("Cannot assign membership to a different tenant");
+        throw ProblemRest.of(IdentityErrorCodes.MEMBERSHIP_CROSS_TENANT_FORBIDDEN);
       }
     }
     tenantMemberships.assign(tenantId, targetId, false);
@@ -136,7 +139,7 @@ public class IdentityUserCrudService {
     }
     boolean targetIsPlatformUser = platformUserRoles.hasPlatformRole(targetId);
     if (targetIsPlatformUser) {
-      throw ProblemRest.forbidden("Insufficient authority to act on this user");
+      throw ProblemRest.of(IdentityErrorCodes.USER_ACTION_FORBIDDEN);
     }
   }
 }

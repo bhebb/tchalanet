@@ -44,6 +44,240 @@
         }
       },
       "codes": {
+        "access": {
+          "authentication_required": {
+            "title": "Sesyon obligatwa",
+            "message": "Konekte ankò pou kontinye."
+          },
+          "denied": {
+            "title": "Aksè refize",
+            "message": "Kont ou pa ka fè aksyon sa a."
+          },
+          "context": {
+            "tenant_required": {
+              "title": "Espas obligatwa",
+              "message": "Chwazi yon espas aktif anvan ou kontinye."
+            },
+            "tenant_unavailable": {
+              "title": "Espas pa disponib",
+              "message": "Espas sa a pa disponib ankò. Retounen nan espas ki otorize a."
+            },
+            "tenant_override_reason_required": {
+              "title": "Rezon obligatwa",
+              "message": "Bay rezon sipò a anvan ou kontinye nan espas sa a."
+            },
+            "user_not_bootstrapped": {
+              "title": "Sesyon pa pare",
+              "message": "Konekte ankò pou kontinye."
+            },
+            "seller_terminal_required": {
+              "title": "Vandè obligatwa",
+              "message": "Chwazi yon vandè aktif anvan ou kontinye."
+            },
+            "operational_context_required": {
+              "title": "Kontèks operasyon obligatwa",
+              "message": "Retounen nan espas operasyon an epi eseye ankò."
+            },
+            "operational_context_untrusted": {
+              "title": "Kontèks operasyon pa valid",
+              "message": "Relouvri operasyon an nan yon kontèks ki valid."
+            }
+          },
+          "actor": {
+            "type_unsupported": {
+              "title": "Aksè refize",
+              "message": "Kalite kont sa a pa ka sèvi ak operasyon sa a."
+            }
+          },
+          "terminal": {
+            "tenant_selection_not_allowed": {
+              "title": "Seleksyon pa otorize",
+              "message": "Yon tèminal vandè pa ka chwazi yon lòt espas."
+            }
+          },
+          "tenant": {
+            "override_not_super_admin": {
+              "title": "Aksè refize",
+              "message": "Se yon sipè administratè sèlman ki ka chwazi yon lòt espas."
+            },
+            "override_forbidden": {
+              "title": "Aksè refize",
+              "message": "Kont ou pa ka chwazi espas sa a."
+            },
+            "override_reason_required": {
+              "title": "Rezon obligatwa",
+              "message": "Bay yon rezon sipò anvan ou kontinye."
+            },
+            "override_invalid": {
+              "title": "Espas pa valid",
+              "message": "Chwazi yon espas ki valid epi eseye ankò."
+            },
+            "ambiguous_membership": {
+              "title": "Chwa espas obligatwa",
+              "message": "Kont ou nan plizyè espas. Chwazi youn anvan ou kontinye."
+            }
+          },
+          "support": {
+            "authenticated_actor_required": {
+              "title": "Sesyon obligatwa",
+              "message": "Konekte ankò pou kontinye."
+            },
+            "tenant_required": {
+              "title": "Espas obligatwa",
+              "message": "Chwazi espas ou pral sipòte a."
+            },
+            "reason_required": {
+              "title": "Rezon obligatwa",
+              "message": "Bay yon rezon sipò ki ase presi."
+            }
+          },
+          "role": {
+            "not_found": { "title": "Wòl pa jwenn", "message": "Wòl sa a pa disponib ankò." }
+          },
+          "permission": {
+            "not_found": {
+              "title": "Pèmisyon pa jwenn",
+              "message": "Pèmisyon sa a pa disponib ankò."
+            }
+          },
+          "role_permission_input_required": {
+            "title": "Wòl ak pèmisyon obligatwa",
+            "message": "Chwazi yon wòl ak yon pèmisyon pou kontinye."
+          },
+          "platform_role_unavailable": {
+            "title": "Konfigirasyon aksè pa disponib",
+            "message": "Nou pa ka verifye wòl platfòm nan kounye a. Eseye ankò pita."
+          }
+        },
+        "identity": {
+          "auth": {
+            "invalid_credentials": {
+              "title": "Enfòmasyon koneksyon pa valab",
+              "message": "Verifye idantifyan ou epi eseye ankò."
+            }
+          },
+          "session": {
+            "verified_identity_required": {
+              "title": "Sesyon pa valid",
+              "message": "Konekte ankò pou kontinye."
+            },
+            "external_identity_not_linked": {
+              "title": "Kont pa konekte",
+              "message": "Kont koneksyon sa a pa lye ak yon kont Tchalanet. Kontakte administratè a."
+            },
+            "user_inactive": {
+              "title": "Kont pa aktif",
+              "message": "Kont sa a pa ka itilize kounye a. Kontakte administratè a."
+            },
+            "seller_terminal_not_linked": {
+              "title": "Tèminal pa konekte",
+              "message": "Kont sa a pa lye ak yon tèminal vandè. Relouvri tèminal ki otorize a."
+            },
+            "seller_terminal_inactive": {
+              "title": "Tèminal pa aktif",
+              "message": "Tèminal vandè sa a pa ka itilize kounye a. Kontakte administratè a."
+            }
+          },
+          "handoff": {
+            "authenticated_user_required": {
+              "title": "Sesyon obligatwa",
+              "message": "Konekte ankò pou kontinye."
+            },
+            "target_mismatch": {
+              "title": "Aksè pa valid",
+              "message": "Transfè sa a pa disponib pou espas sa a."
+            },
+            "invalid_code": {
+              "title": "Transfè pa valid",
+              "message": "Transfè sa a pa ka itilize. Rekòmanse depi pòtal la."
+            },
+            "target_forbidden": {
+              "title": "Aksè refize",
+              "message": "Kont ou pa ka antre nan espas sa a."
+            },
+            "entry_route_not_allowed": {
+              "title": "Paj pa valid",
+              "message": "Paj antre sa a pa otorize."
+            },
+            "not_found_or_expired": {
+              "title": "Transfè ekspire",
+              "message": "Transfè sa a ekspire oswa pa disponib ankò. Rekòmanse depi pòtal la."
+            },
+            "replayed": {
+              "title": "Transfè deja itilize",
+              "message": "Transfè sa a deja itilize. Rekòmanse depi pòtal la."
+            },
+            "expired": {
+              "title": "Transfè ekspire",
+              "message": "Transfè sa a ekspire. Rekòmanse depi pòtal la."
+            },
+            "rate_limited": {
+              "title": "Twòp esè",
+              "message": "Tann yon ti moman avan ou eseye ankò."
+            },
+            "external_identity_missing": {
+              "title": "Kont pa pare",
+              "message": "Kont koneksyon sa a pa pare pou transfè a. Kontakte administratè a."
+            },
+            "custom_token_unsupported_provider": {
+              "title": "Transfè pa disponib",
+              "message": "Metòd koneksyon sa a pa sipòte transfè a."
+            },
+            "custom_token_failed": {
+              "title": "Transfè pa disponib",
+              "message": "Eseye ankò pita oswa retounen nan pòtal la."
+            }
+          },
+          "user": {
+            "not_found": { "title": "Kont pa jwenn", "message": "Kont sa a pa disponib ankò." },
+            "action_forbidden": {
+              "title": "Aksyon pa otorize",
+              "message": "Kont ou pa ka fè aksyon sa a sou itilizatè sa a."
+            },
+            "outside_tenant_scope": {
+              "title": "Aksè refize",
+              "message": "Itilizatè sa a pa nan espas aktif la."
+            }
+          },
+          "external_identity": {
+            "not_linked": {
+              "title": "Kont pa konekte",
+              "message": "Kont sa a pa lye ak metòd koneksyon ki nesesè a."
+            }
+          },
+          "membership": {
+            "cross_tenant_forbidden": {
+              "title": "Aksè refize",
+              "message": "Ou pa ka mete yon itilizatè nan yon lòt espas."
+            }
+          },
+          "admin": {
+            "super_admin_assignment_forbidden": {
+              "title": "Wòl pa otorize",
+              "message": "Wòl administratè platfòm nan pa ka bay nan espas sa a."
+            }
+          },
+          "profile": {
+            "locale_invalid": {
+              "title": "Lang pa valid",
+              "message": "Chwazi yon lang ki sipòte epi eseye ankò."
+            },
+            "time_zone_invalid": {
+              "title": "Fizo orè pa valid",
+              "message": "Chwazi yon fizo orè ki sipòte epi eseye ankò."
+            },
+            "currency_invalid": {
+              "title": "Deviz pa valid",
+              "message": "Chwazi yon deviz ki sipòte epi eseye ankò."
+            }
+          },
+          "role": {
+            "invalid": {
+              "title": "Wòl pa valid",
+              "message": "Chwazi yon wòl ki sipòte epi eseye ankò."
+            }
+          }
+        },
         "request": {
           "missing_parameter": {
             "title": "Enfomasyon manke",
@@ -66,6 +300,18 @@
           "failed": {
             "title": "Enfomasyon pou korije",
             "message": "Korije chan ki make yo epi eseye anko."
+          },
+          "invalid_format": {
+            "title": "Foma pa valid",
+            "message": "Korije foma nan chan ki make a epi eseye anko."
+          },
+          "out_of_range": {
+            "title": "Vale a pa valid",
+            "message": "Mete yon vale ki nan limit yo epi eseye anko."
+          },
+          "required": {
+            "title": "Enfomasyon manke",
+            "message": "Ranpli chan ki make a epi eseye anko."
           }
         },
         "platform": {
@@ -78,6 +324,28 @@
             }
           }
         },
+        "entitlement": {
+          "feature_required": {
+            "title": "Fonksyon pa disponib",
+            "message": "Fonksyon sa a pa nan konfigirasyon espas ou a kounye a."
+          },
+          "limit_missing": {
+            "title": "Konfigirasyon pa disponib",
+            "message": "Limit ki nesesè a pa disponib kounye a. Eseye ankò pita."
+          },
+          "limit_exceeded": {
+            "title": "Limit rive",
+            "message": "Aksyon sa a depase yon limit nan espas ou a."
+          },
+          "usage_provider_unavailable": {
+            "title": "Verifikasyon pa disponib",
+            "message": "Nou pa ka verifye limit sa a kounye a. Eseye ankò pita."
+          },
+          "plan_unavailable": {
+            "title": "Plan pa disponib",
+            "message": "Nou pa ka li plan espas sa a kounye a. Eseye ankò pita."
+          }
+        },
         "limits": {
           "blocked": {
             "title": "Limit vant lan rive",
@@ -85,6 +353,14 @@
           }
         },
         "sales": {
+          "promotion_applied": {
+            "title": "Maryaj gratis ajoute",
+            "message": "Tikè a gen liy gratis ki aplike selon pwomosyon an."
+          },
+          "promotion_terminal_override_applied": {
+            "title": "Règ pwomosyon vandè aplike",
+            "message": "Tikè a sèvi ak règ pwomosyon ki espesifik pou vandè sa a."
+          },
           "acceptable": {
             "title": "Vant lan pare",
             "message": "Tikè a ka vann."
@@ -212,6 +488,790 @@
           "seller_terminal_actor_required": {
             "title": "Vandè obligatwa",
             "message": "Vant sa a pa mare ak yon vandè. Retounen nan lis vandè yo epi ouvri vant lan ak yon vandè aktif."
+          },
+          "draw": {
+            "not_open": { "title": "Tiraj fèmen", "message": "Chwazi yon lòt tiraj ki ouvè." },
+            "cutoff_elapsed": {
+              "title": "Vant fèmen pou tiraj sa a",
+              "message": "Lè limit vant lan pase. Chwazi yon lòt tiraj ki ouvè."
+            }
+          },
+          "draw_channel": {
+            "inactive": {
+              "title": "Chanèl pa disponib",
+              "message": "Chanèl sa a pa aksepte vant kounye a."
+            },
+            "mismatch": {
+              "title": "Chanèl pa valab",
+              "message": "Rechaje tiraj la epi eseye ankò."
+            }
+          },
+          "result_slot": {
+            "inactive": {
+              "title": "Tiraj pa disponib",
+              "message": "Rezilta sa a pa aksepte vant kounye a."
+            }
+          },
+          "seller_terminal": {
+            "required": {
+              "title": "Vandè obligatwa",
+              "message": "Ouvri vant lan ak yon vandè aktif."
+            },
+            "cannot_sell": {
+              "title": "Vant pa disponib",
+              "message": "Tèminal vandè sa a pa ka vann kounye a. Itilize yon tèminal aktif oswa verifye aksè li."
+            }
+          },
+          "tenant": {
+            "disabled": {
+              "title": "Espas dezaktive",
+              "message": "Vant yo dezaktive pou espas sa a. Kontakte yon administratè."
+            },
+            "business_closed": {
+              "title": "Vant fèmen",
+              "message": "Vant yo fèmen pou espas sa a kounye a."
+            }
+          },
+          "draw_channel_required": {
+            "title": "Chanèl nesesè",
+            "message": "Rechaje tiraj la epi eseye ankò."
+          },
+          "tenant_game_not_configured": {
+            "title": "Jwèt pa disponib",
+            "message": "Jwèt sa a pa konfigire pou espas sa a."
+          },
+          "tenant_game_disabled": {
+            "title": "Jwèt dezaktive",
+            "message": "Jwèt sa a dezaktive pou espas sa a."
+          },
+          "tenant_game_not_visible_in_pos": {
+            "title": "Jwèt pa disponib",
+            "message": "Jwèt sa a pa disponib sou tèminal sa a."
+          },
+          "invalid_line_number": {
+            "title": "Liy pa valab",
+            "message": "Korije liy lan epi eseye ankò."
+          },
+          "selection_invalid": {
+            "title": "Nimewo pou korije",
+            "message": "Korije nimewo a selon jwèt ou chwazi a."
+          },
+          "tenant_bet_option_not_configured": {
+            "title": "Opsyon pa disponib",
+            "message": "Opsyon sa a pa konfigire pou jwèt sa a."
+          },
+          "tenant_bet_option_disabled": {
+            "title": "Opsyon dezaktive",
+            "message": "Opsyon sa a dezaktive pou jwèt sa a."
+          },
+          "tenant_bet_option_not_visible_in_pos": {
+            "title": "Opsyon pa disponib",
+            "message": "Opsyon sa a pa disponib sou tèminal sa a."
+          },
+          "stake_below_tenant_min": {
+            "title": "Miz twò ba",
+            "message": "Ogmante miz liy sa a epi eseye ankò."
+          },
+          "stake_above_tenant_max": {
+            "title": "Miz twò wo",
+            "message": "Diminye miz liy sa a epi eseye ankò."
+          },
+          "tenant_bet_type_not_configured": {
+            "title": "Tip paryaj pa disponib",
+            "message": "Tip paryaj sa a pa konfigire pou jwèt sa a."
+          },
+          "preparation": {
+            "not_found": {
+              "title": "Preparasyon pa jwenn",
+              "message": "Retounen sou tikè a epi prepare li ankò."
+            },
+            "promotion_line_not_found": {
+              "title": "Liy gratis pa jwenn",
+              "message": "Rechaje tikè a epi eseye ankò."
+            },
+            "already_confirmed": {
+              "title": "Tikè deja konfime",
+              "message": "Tikè sa a deja vann."
+            },
+            "expired": {
+              "title": "Preparasyon ekspire",
+              "message": "Verifye tikè a epi prepare vant lan ankò."
+            },
+            "not_confirmable": {
+              "title": "Preparasyon pa disponib",
+              "message": "Prepare tikè a ankò anvan ou konfime."
+            },
+            "line_not_regenerable": {
+              "title": "Liy pa chanje",
+              "message": "Liy gratis sa a pa ka jenere ankò."
+            },
+            "max_regenerations_reached": {
+              "title": "Limit jenerasyon atenn",
+              "message": "Konfime tikè a oswa prepare yon lòt."
+            },
+            "cancelled": { "title": "Preparasyon anile", "message": "Prepare tikè a ankò." }
+          }
+        },
+        "ticket": {
+          "not_found": {
+            "title": "Tikè pa jwenn",
+            "message": "Verifye kòd tikè a epi eseye ankò."
+          },
+          "filter": {
+            "invalid_date_range": {
+              "title": "Peryòd pa valid",
+              "message": "Dat fen an dwe apre dat kòmansman an."
+            },
+            "invalid_sort": {
+              "title": "Tri pa valid",
+              "message": "Chwazi yon tri tikè ki sipòte."
+            },
+            "invalid_status": {
+              "title": "Estati pa valid",
+              "message": "Chwazi yon estati tikè ki sipòte."
+            }
+          },
+          "print": {
+            "view_not_found": {
+              "title": "Tikè pa jwenn",
+              "message": "Tikè sa a pa ka parèt kounye a."
+            },
+            "voided_not_allowed": {
+              "title": "Enprime pa disponib",
+              "message": "Yon tikè anile pa ka enprime."
+            },
+            "sale_not_accepted": {
+              "title": "Enprime pa disponib",
+              "message": "Tikè a dwe aksepte anvan enprime."
+            }
+          },
+          "reprint": {
+            "reason_required": {
+              "title": "Motif nesesè",
+              "message": "Mete rezon pou re-enprime a."
+            },
+            "reason_too_long": {
+              "title": "Motif twò long",
+              "message": "Fè rezon re-enprime a pi kout."
+            }
+          }
+        },
+        "sellerterminal": {
+          "not_found": {
+            "title": "Tèminal pa jwenn",
+            "message": "Tèminal vandè sa a pa disponib ankò."
+          },
+          "status_transition_invalid": {
+            "title": "Aksyon an enposib",
+            "message": "Estati tèminal la pa pèmèt aksyon sa a."
+          },
+          "commission_rate_invalid": {
+            "title": "Komisyon pa valid",
+            "message": "Mete yon komisyon ant 0 ak 100 %."
+          },
+          "identity_not_bound": {
+            "title": "Aksè tèminal pa disponib",
+            "message": "Tèminal sa a poko gen yon idantite koneksyon aktif."
+          },
+          "identity_provision_unavailable": {
+            "title": "Sèvis koneksyon pa disponib",
+            "message": "Kont tèminal la pa ka mete ajou kounye a. Eseye ankò pita."
+          },
+          "pin_reset_unavailable": {
+            "title": "Reyinisyalizasyon pa disponib",
+            "message": "PIN lan pa ka chanje kounye a. Eseye ankò pita."
+          }
+        },
+        "pricing": {
+          "tenant_required": {
+            "title": "Espas obligatwa",
+            "message": "Chwazi yon espas aktif anvan ou konfigire tarifikasyon an."
+          },
+          "game_code_required": {
+            "title": "Jwèt obligatwa",
+            "message": "Chwazi jwèt ki konsène a."
+          },
+          "pricing_variant_required": {
+            "title": "Opsyon obligatwa",
+            "message": "Chwazi opsyon tarifikasyon an."
+          },
+          "bet_type_required": {
+            "title": "Tip paryaj obligatwa",
+            "message": "Chwazi tip paryaj la."
+          },
+          "odds_invalid": {
+            "title": "Miltiplikatè pa valid",
+            "message": "Mete yon miltiplikatè ki pi gran pase zewo."
+          },
+          "fixed_amount_invalid": {
+            "title": "Montan fiks pa valid",
+            "message": "Mete yon montan fiks pozitif oswa zewo."
+          },
+          "payout_rule_type_invalid": {
+            "title": "Tip règ gain pa valid",
+            "message": "Jwèt sa a pa sipòte tip règ gain sa a."
+          },
+          "tenant_default_not_configured": {
+            "title": "Tarifikasyon manke",
+            "message": "Konfigure règ tarifikasyon tenant lan anvan."
+          },
+          "override_not_found": {
+            "title": "Override pa jwenn",
+            "message": "Règ espesifik tèminal sa a pa disponib ankò."
+          },
+          "override_payout_rule_type_mismatch": {
+            "title": "Override pa konpatib",
+            "message": "Yon tèminal pa ka chanje tip règ gain tenant lan defini a."
+          }
+        },
+        "draw": {
+          "correct_result": {
+            "reason_required": { "title": "Motif nesesè", "message": "Mete rezon koreksyon an." },
+            "reason_too_short": {
+              "title": "Motif twò kout",
+              "message": "Bay plis detay sou rezon koreksyon an."
+            },
+            "idempotency_key_required": {
+              "title": "Koreksyon pa valab",
+              "message": "Relanse koreksyon an sou paj tiraj la."
+            },
+            "no_result_applied": {
+              "title": "Pa gen rezilta aplike",
+              "message": "Aplike yon rezilta anvan ou korije li."
+            },
+            "same_result": {
+              "title": "Rezilta pa chanje",
+              "message": "Chwazi yon lòt rezilta pou fè koreksyon an."
+            }
+          },
+          "lookahead_days_invalid": {
+            "title": "Peryòd pa valab",
+            "message": "Chwazi yon peryòd ant 1 ak 30 jou."
+          },
+          "schedule_invalid": {
+            "title": "Orè pa valab",
+            "message": "Lè limit la dwe anvan lè tiraj la."
+          },
+          "lifecycle": {
+            "draw_ids_required": { "title": "Tiraj nesesè", "message": "Chwazi omwen yon tiraj." },
+            "draw_ids_limit_exceeded": {
+              "title": "Twòp tiraj",
+              "message": "Diminye seleksyon an epi eseye ankò."
+            }
+          }
+        },
+        "drawresult": {
+          "not_found": { "title": "Rezilta pa jwenn", "message": "Rezilta sa a pa disponib ankò." },
+          "result_slot": {
+            "not_found": { "title": "Slot pa jwenn", "message": "Slot rezilta a pa disponib ankò." }
+          },
+          "override_settled_forbidden": {
+            "title": "Koreksyon enposib",
+            "message": "Rezilta sa a deja relye ak yon tiraj ki regle."
+          },
+          "external_pick_invalid": {
+            "title": "Nimewo pa valid",
+            "message": "Antre 3 chif pou premye nimewo a ak 4 chif pou dezyèm nimewo a."
+          },
+          "projection_failed": {
+            "title": "Rezilta pa ka trete",
+            "message": "Rezilta a pa ka trete kounye a. Eseye ankò oswa kontakte sipò."
+          }
+        },
+        "promotion": {
+          "campaign": {
+            "not_found": {
+              "title": "Pwomosyon pa jwenn",
+              "message": "Kanpay sa a pa disponib ankò."
+            },
+            "dates_required_for_activation": {
+              "title": "Dat obligatwa",
+              "message": "Mete dat kòmansman ak dat fen anvan aktivasyon."
+            },
+            "start_must_be_before_end": {
+              "title": "Dat pa valid",
+              "message": "Dat kòmansman an dwe anvan dat fen an."
+            },
+            "no_rules": {
+              "title": "Règ obligatwa",
+              "message": "Ajoute omwen yon règ anvan aktivasyon."
+            },
+            "rule_missing_effects": {
+              "title": "Efè obligatwa",
+              "message": "Chak règ dwe gen omwen yon efè."
+            },
+            "rule_effect_type_unsupported": {
+              "title": "Efè pa sipòte",
+              "message": "Efè sa a pa disponib pou kanpay sa a."
+            },
+            "rule_generation_strategy_unsupported": {
+              "title": "Metòd pa sipòte",
+              "message": "Metòd jenerasyon sa a pa disponib."
+            }
+          },
+          "maryaj_gratis": {
+            "choice_mode_invalid": {
+              "title": "Chwa pa valid",
+              "message": "Chwazi yon mòd Maryaj gratis ki sipòte."
+            },
+            "generation_strategy_unsupported": {
+              "title": "Metòd pa sipòte",
+              "message": "Metòd jenerasyon sa a pa disponib."
+            },
+            "generation_strategy_requires_auto_generate": {
+              "title": "Mòd jenerasyon obligatwa",
+              "message": "Metòd jenerasyon mande mòd otomatik la."
+            },
+            "regeneration_requires_auto_generate": {
+              "title": "Rejenere pa disponib",
+              "message": "Rejenere mande mòd otomatik la."
+            },
+            "step_paid_amount_required": {
+              "title": "Montan obligatwa",
+              "message": "Mete montan pa etap la."
+            },
+            "quantity_tiers_required": {
+              "title": "Nivo obligatwa",
+              "message": "Mete omwen yon nivo kantite."
+            }
+          }
+        },
+        "limits": {
+          "blocked": {
+            "title": "Limit depase",
+            "message": "Vant sa a depase limit ki konfigurasyon an pèmèt."
+          },
+          "target_type_required": {
+            "title": "Sib obligatwa",
+            "message": "Chwazi kalite sib limit la."
+          },
+          "target_type_unsupported": {
+            "title": "Sib pa sipòte",
+            "message": "Kalite sib sa a pa disponib pou limit yo."
+          },
+          "target_id_required": { "title": "Sib obligatwa", "message": "Chwazi sib limit la." },
+          "target_id_invalid": {
+            "title": "Sib pa valid",
+            "message": "Chwazi yon sib limit ki valid."
+          }
+        },
+        "notification": {
+          "not_found": {
+            "title": "Notifikasyon pa jwenn",
+            "message": "Notifikasyon sa a pa disponib ankò."
+          },
+          "publication_not_found": {
+            "title": "Piblikasyon pa jwenn",
+            "message": "Piblikasyon notifikasyon sa a pa disponib ankò."
+          },
+          "not_publishable": {
+            "title": "Piblikasyon pa disponib",
+            "message": "Notifikasyon sa a pa ka pibliye nan eta li ye a."
+          },
+          "not_republishable": {
+            "title": "Repiblikasyon pa disponib",
+            "message": "Notifikasyon sa a pa ka pibliye ankò nan eta li ye a."
+          },
+          "reason_required": {
+            "title": "Rezon obligatwa",
+            "message": "Mete yon rezon pou kontinye."
+          },
+          "system_keys_required": {
+            "title": "Kle tradiksyon obligatwa",
+            "message": "Mete kle tit ak mesaj ansanm."
+          },
+          "translation_required": {
+            "title": "Tradiksyon obligatwa",
+            "message": "Ranpli tradiksyon ki obligatwa yo."
+          },
+          "translation_locale_unsupported": {
+            "title": "Lang pa sipòte",
+            "message": "Chwazi yon lang notifikasyon ki sipòte."
+          },
+          "tenant_required": {
+            "title": "Espas obligatwa",
+            "message": "Chwazi espas notifikasyon an."
+          },
+          "target_required": {
+            "title": "Moun k ap resevwa a obligatwa",
+            "message": "Chwazi omwen yon moun k ap resevwa notifikasyon an."
+          },
+          "platform_audience_requires_platform_scope": {
+            "title": "Aksè refize",
+            "message": "Gwoup platfòm nan mande kontèks platfòm nan."
+          },
+          "tenant_audience_requires_tenant_scope": {
+            "title": "Aksè refize",
+            "message": "Gwoup espas la mande kontèks espas la."
+          },
+          "recipients_required": {
+            "title": "Moun k ap resevwa a obligatwa",
+            "message": "Chwazi omwen yon moun k ap resevwa."
+          },
+          "slack_channel_key_required": {
+            "title": "Chanèl Slack obligatwa",
+            "message": "Mete chanèl Slack la."
+          },
+          "email_required": {
+            "title": "Imèl obligatwa",
+            "message": "Mete adrès imèl moun k ap resevwa a."
+          },
+          "email_invalid": { "title": "Imèl pa valid", "message": "Mete yon adrès imèl ki valid." },
+          "phone_required": {
+            "title": "Telefòn obligatwa",
+            "message": "Mete nimewo telefòn moun k ap resevwa a."
+          },
+          "phone_invalid": {
+            "title": "Telefòn pa valid",
+            "message": "Mete yon nimewo telefòn entènasyonal ki valid."
+          },
+          "send_failed": {
+            "title": "Voye a pa disponib",
+            "message": "Nou pa ka voye notifikasyon an kounye a. Eseye ankò pita."
+          }
+        },
+        "publiccontent": {
+          "item": {
+            "not_found": {
+              "title": "Kontni pa jwenn",
+              "message": "Kontni piblik sa a pa disponib ankò."
+            }
+          }
+        },
+        "document": {
+          "request_invalid": {
+            "title": "Dokiman pa valid",
+            "message": "Verifye enfòmasyon pou dokiman an epi eseye ankò."
+          },
+          "renderer_unavailable": {
+            "title": "Enpresyon pa disponib",
+            "message": "Dokiman an pa ka prepare kounye a. Eseye ankò pita."
+          },
+          "render_failed": {
+            "title": "Enpresyon pa disponib",
+            "message": "Dokiman an pa ka prepare kounye a. Eseye ankò pita."
+          }
+        },
+        "pagemodel": {
+          "access_denied": { "title": "Aksè refize", "message": "Kont ou pa ka louvri paj sa a." },
+          "tenant_override_forbidden": {
+            "title": "Aksè refize",
+            "message": "Kont ou pa ka chwazi espas sa a."
+          },
+          "not_found": { "title": "Paj pa jwenn", "message": "Paj ou mande a pa disponib ankò." },
+          "widget": {
+            "unavailable": {
+              "title": "Seksyon pa disponib",
+              "message": "Seksyon sa a pa disponib pou yon ti tan. Eseye ankò."
+            },
+            "no_provider": {
+              "title": "Seksyon pa disponib",
+              "message": "Seksyon sa a pa disponib pou yon ti tan. Eseye ankò."
+            },
+            "role_denied": { "title": "Aksè refize", "message": "Kont ou pa ka wè seksyon sa a." }
+          },
+          "fragment": {
+            "key_required": {
+              "title": "Paj pa valid",
+              "message": "Konfigirasyon paj la pa konplè."
+            },
+            "not_found": {
+              "title": "Seksyon pa jwenn",
+              "message": "Seksyon paj la pa disponib ankò."
+            },
+            "invalid": {
+              "title": "Seksyon pa disponib",
+              "message": "Seksyon paj la pa ka chaje kounye a."
+            }
+          }
+        },
+        "pos": {
+          "surface": {
+            "not_allowed": {
+              "title": "Aksè refize",
+              "message": "Sesyon sa a pa ka sèvi ak sifas sa a."
+            }
+          },
+          "home": {
+            "seller_terminal_required": {
+              "title": "Tèminal vandè obligatwa",
+              "message": "Relouvri sesyon an nan yon tèminal vandè ki valid."
+            }
+          },
+          "dashboard": {
+            "analytics_unavailable": {
+              "title": "Estatistik pa disponib",
+              "message": "Estatistik vandè yo pa disponib pou yon ti tan. Eseye ankò."
+            }
+          },
+          "tickets": {
+            "seller_terminal_mismatch": {
+              "title": "Aksè refize",
+              "message": "Tèminal vandè sa a pa koresponn ak sesyon ou."
+            }
+          },
+          "receipt": {
+            "print_options_invalid": {
+              "title": "Opsyon enpresyon pa valid",
+              "message": "Verifye opsyon enpresyon yo epi eseye ankò."
+            },
+            "delivery_channel_required": {
+              "title": "Mwayen voye a obligatwa",
+              "message": "Chwazi yon mwayen voye ki valid."
+            },
+            "delivery_recipient_required": {
+              "title": "Moun k ap resevwa a obligatwa",
+              "message": "Mete nimewo telefòn oswa imèl moun k ap resevwa a."
+            },
+            "attachment_too_large": {
+              "title": "Fichye a twò gwo",
+              "message": "Dokiman an twò gwo pou voye kòm fichye ansanm."
+            },
+            "seller_terminal_required": {
+              "title": "Tèminal vandè obligatwa",
+              "message": "Relouvri yon sesyon tèminal vandè ki valid pou kontinye."
+            }
+          }
+        },
+        "communication": {
+          "request_invalid": {
+            "title": "Voye a pa valid",
+            "message": "Verifye enfòmasyon pou voye a epi eseye ankò."
+          },
+          "channel_disabled": {
+            "title": "Mwayen voye a pa disponib",
+            "message": "Mwayen voye sa a pa aktive pou espas sa a."
+          },
+          "enqueue_failed": {
+            "title": "Voye a pa disponib",
+            "message": "Nou pa ka prepare voye a kounye a. Eseye ankò pita."
+          },
+          "provider_unavailable": {
+            "title": "Sèvis voye a pa disponib",
+            "message": "Sèvis pou voye mesaj la pa disponib pou yon ti tan."
+          },
+          "delivery_failed": {
+            "title": "Voye a pa disponib",
+            "message": "Mesaj la pa ka voye kounye a. Eseye ankò pita."
+          }
+        },
+        "tenantgame": {
+          "catalog_game_not_found": {
+            "title": "Jwèt pa jwenn",
+            "message": "Jwèt katalòg sa a pa disponib ankò."
+          },
+          "not_found": {
+            "title": "Jwèt espas pa jwenn",
+            "message": "Jwèt sa a pa aktive pou espas sa a."
+          },
+          "disabled": {
+            "title": "Jwèt dezaktive",
+            "message": "Jwèt sa a dezaktive pou espas sa a."
+          },
+          "catalog_game_inactive": {
+            "title": "Jwèt pa aktif",
+            "message": "Jwèt katalòg sa a pa ka aktive."
+          },
+          "display_name_too_long": {
+            "title": "Non twò long",
+            "message": "Fè non jwèt la pi kout."
+          },
+          "display_order_invalid": {
+            "title": "Lòd pa valid",
+            "message": "Mete yon lòd ki egal oswa pi gran pase zewo."
+          },
+          "min_stake_invalid": {
+            "title": "Miz minimòm pa valid",
+            "message": "Mete yon miz minimòm ki valid."
+          },
+          "max_stake_invalid": {
+            "title": "Miz maksimòm pa valid",
+            "message": "Mete yon miz maksimòm ki valid."
+          },
+          "stake_range_invalid": {
+            "title": "Entèval miz pa valid",
+            "message": "Miz minimòm nan pa ka pi gran pase miz maksimòm nan."
+          },
+          "availability_day_invalid": {
+            "title": "Jou pa valid",
+            "message": "Chwazi jou disponiblite ki sipòte."
+          },
+          "time_invalid": { "title": "Lè pa valid", "message": "Mete yon lè nan fòma HH:mm." },
+          "bet_type_required": {
+            "title": "Kalite paryaj obligatwa",
+            "message": "Chwazi yon kalite paryaj."
+          },
+          "bet_type_unsupported": {
+            "title": "Kalite paryaj pa sipòte",
+            "message": "Kalite paryaj sa a pa disponib pou jwèt sa a."
+          },
+          "bet_type_duplicate": {
+            "title": "Kalite paryaj an doub",
+            "message": "Chak kalite paryaj dwe parèt yon sèl fwa."
+          },
+          "bet_option_invalid": {
+            "title": "Opsyon paryaj pa valid",
+            "message": "Chwazi yon opsyon ki disponib pou kalite paryaj la."
+          },
+          "bet_option_duplicate": {
+            "title": "Opsyon paryaj an doub",
+            "message": "Chak opsyon dwe parèt yon sèl fwa."
+          },
+          "bet_option_enabled_required": {
+            "title": "Opsyon aktif obligatwa",
+            "message": "Aktive omwen yon opsyon paryaj."
+          },
+          "bet_option_default_invalid": {
+            "title": "Opsyon pa defo pa valid",
+            "message": "Chwazi yon opsyon aktif pa defo."
+          }
+        },
+        "tenant": {
+          "not_found": { "title": "Espas pa jwenn", "message": "Espas sa a pa disponib ankò." },
+          "activation_not_allowed": {
+            "title": "Aktivasyon pa disponib",
+            "message": "Espas sa a pa ka aktive nan eta li ye a."
+          },
+          "suspension_not_allowed": {
+            "title": "Sispansyon pa disponib",
+            "message": "Espas sa a pa ka sispann nan eta li ye a."
+          },
+          "settings_invalid": {
+            "title": "Konfigirasyon pa valid",
+            "message": "Korije konfigirasyon espas la epi eseye ankò."
+          },
+          "support_reason_invalid": {
+            "title": "Rezon sipò pa valid",
+            "message": "Bay yon rezon sipò ki gen omwen 10 karaktè."
+          },
+          "commission": {
+            "default_rate_not_set": {
+              "title": "To pa defo obligatwa",
+              "message": "Konfigire to komisyon pa defo espas la anvan."
+            }
+          }
+        },
+        "tenantadmin": {
+          "overview": {
+            "address_unavailable": {
+              "title": "Adrès pa disponib",
+              "message": "Nou pa ka chaje adrès antrepriz la kounye a. Eseye ankò."
+            },
+            "registry_unavailable": {
+              "title": "Enfòmasyon antrepriz pa disponib",
+              "message": "Nou pa ka chaje enfòmasyon antrepriz la kounye a. Eseye ankò."
+            }
+          },
+          "dashboard": {
+            "registry_unavailable": {
+              "title": "Enfòmasyon antrepriz pa disponib",
+              "message": "Nou pa ka chaje enfòmasyon antrepriz la kounye a."
+            },
+            "operations_unavailable": {
+              "title": "Operasyon pa disponib",
+              "message": "Nou pa ka chaje operasyon antrepriz la kounye a."
+            },
+            "commercial_unavailable": {
+              "title": "Konfigirasyon komèsyal pa disponib",
+              "message": "Nou pa ka chaje jwèt ak chanèl yo kounye a."
+            },
+            "kpis_unavailable": {
+              "title": "Endikatè pa disponib",
+              "message": "Nou pa ka chaje endikatè yo kounye a."
+            },
+            "analytics_unavailable": {
+              "title": "Estatistik pa disponib",
+              "message": "Nou pa ka chaje estatistik lavant yo kounye a."
+            },
+            "live_sales_unavailable": {
+              "title": "Lavant aktyèl pa disponib",
+              "message": "Nou pa ka chaje lavant jodi a kounye a."
+            },
+            "open_draws_unavailable": {
+              "title": "Tiraj ouvè pa disponib",
+              "message": "Nou pa ka chaje tiraj ouvè yo kounye a."
+            },
+            "closed_draws_unavailable": {
+              "title": "Tiraj fèmen pa disponib",
+              "message": "Nou pa ka chaje tiraj fèmen yo kounye a."
+            },
+            "notifications_unavailable": {
+              "title": "Notifikasyon pa disponib",
+              "message": "Nou pa ka chaje notifikasyon yo kounye a."
+            },
+            "commission_unavailable": {
+              "title": "Komisyon pa disponib",
+              "message": "Nou pa ka chaje rezime komisyon an kounye a."
+            },
+            "public_content_unavailable": {
+              "title": "Enfòmasyon pa disponib",
+              "message": "Nou pa ka chaje enfòmasyon piblik yo kounye a."
+            }
+          }
+        },
+        "platformadmin": {
+          "dashboard": {
+            "tenants_unavailable": {
+              "title": "Espas yo pa disponib",
+              "message": "Nou pa ka chaje endikatè espas yo kounye a."
+            },
+            "analytics_unavailable": {
+              "title": "Estatistik platfòm pa disponib",
+              "message": "Nou pa ka chaje estatistik platfòm yo kounye a."
+            },
+            "subscriptions_unavailable": {
+              "title": "Abònman pa disponib",
+              "message": "Nou pa ka chaje rezime abònman yo kounye a."
+            },
+            "onboarding_unavailable": {
+              "title": "Onboarding pa disponib",
+              "message": "Nou pa ka chaje lis onboarding lan kounye a."
+            },
+            "public_content_unavailable": {
+              "title": "Enfòmasyon pa disponib",
+              "message": "Nou pa ka chaje enfòmasyon piblik yo kounye a."
+            }
+          }
+        },
+        "catalog": {
+          "game": {
+            "not_found": {
+              "title": "Jwèt pa jwenn",
+              "message": "Jwèt sa a pa disponib ankò nan katalòg la."
+            },
+            "structural_update_in_use": {
+              "title": "Modifikasyon enposib",
+              "message": "Jwèt sa a deja itilize nan yon konfigirasyon tenant."
+            },
+            "delete_in_use": {
+              "title": "Sipresyon enposib",
+              "message": "Jwèt sa a deja itilize nan yon konfigirasyon tenant."
+            }
+          },
+          "drawchannel": {
+            "deleted": { "title": "Chanèl pa jwenn", "message": "Chanèl sa a pa disponib ankò." },
+            "flags_required": {
+              "title": "Konfigirasyon nesesè",
+              "message": "Mete konfigirasyon chanèl la."
+            },
+            "flags_invalid": {
+              "title": "Konfigirasyon pa valab",
+              "message": "Korije konfigirasyon chanèl la epi eseye ankò."
+            }
+          },
+          "resultslot": {
+            "not_found": {
+              "title": "Slot pa jwenn",
+              "message": "Slot rezilta sa a pa disponib ankò."
+            },
+            "config_invalid": {
+              "title": "Konfigirasyon pa valab",
+              "message": "Korije konfigirasyon slot la epi eseye ankò."
+            },
+            "game_key_invalid": {
+              "title": "Jwèt pa valab",
+              "message": "Chwazi yon jwèt slot sa a sipòte."
+            }
           }
         }
       }

@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.promotion.internal.application.service.lifecycle;
 
 import com.tchalanet.server.common.web.error.ProblemRest;
+import com.tchalanet.server.core.promotion.api.error.PromotionErrorCodes;
 import com.tchalanet.server.core.promotion.api.model.lifecycle.PromotionCampaignView;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffectType;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionRuleView;
@@ -27,10 +28,12 @@ public class PromotionCampaignActivationPolicy {
 
   private void validateDates(PromotionCampaignView campaign) {
     if (campaign.startsAt() == null || campaign.endsAt() == null) {
-      throw ProblemRest.badRequest("promotion.campaign.dates_required_for_activation");
+      throw ProblemRest.of(
+          PromotionErrorCodes.validation("promotion.campaign.dates_required_for_activation"));
     }
     if (!campaign.startsAt().isBefore(campaign.endsAt())) {
-      throw ProblemRest.badRequest("promotion.campaign.start_must_be_before_end");
+      throw ProblemRest.of(
+          PromotionErrorCodes.validation("promotion.campaign.start_must_be_before_end"));
     }
   }
 
@@ -38,21 +41,25 @@ public class PromotionCampaignActivationPolicy {
     var rules = campaign.rules() == null ? List.<PromotionRuleView>of() : campaign.rules();
 
     if (rules.isEmpty()) {
-      throw ProblemRest.badRequest("promotion.campaign.no_rules");
+      throw ProblemRest.of(PromotionErrorCodes.validation("promotion.campaign.no_rules"));
     }
 
     for (var rule : rules) {
       if (rule.effects() == null || rule.effects().isEmpty()) {
-        throw ProblemRest.badRequest("promotion.campaign.rule_missing_effects");
+        throw ProblemRest.of(
+            PromotionErrorCodes.validation("promotion.campaign.rule_missing_effects"));
       }
       for (var effect : rule.effects()) {
         if (effect.type() == null || !V1_SUPPORTED_EFFECTS.contains(effect.type())) {
-          throw ProblemRest.badRequest("promotion.campaign.rule_effect_type_unsupported");
+          throw ProblemRest.of(
+              PromotionErrorCodes.validation("promotion.campaign.rule_effect_type_unsupported"));
         }
         var strategy = effect.params() == null ? null : effect.params().get("generationStrategy");
         if (strategy != null
             && !SelectionGenerationStrategy.RANDOM.name().equals(String.valueOf(strategy))) {
-          throw ProblemRest.badRequest("promotion.campaign.rule_generation_strategy_unsupported");
+          throw ProblemRest.of(
+              PromotionErrorCodes.validation(
+                  "promotion.campaign.rule_generation_strategy_unsupported"));
         }
       }
     }

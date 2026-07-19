@@ -13,6 +13,7 @@ import com.tchalanet.server.core.draw.api.command.LockDrawCommand;
 import com.tchalanet.server.core.draw.api.command.OpenDrawCommand;
 import com.tchalanet.server.core.draw.api.command.SettleDrawCommand;
 import com.tchalanet.server.core.draw.api.command.UnlockDrawCommand;
+import com.tchalanet.server.core.draw.api.error.DrawErrorCodes;
 import com.tchalanet.server.core.draw.api.query.GetDrawByIdQuery;
 import com.tchalanet.server.core.draw.internal.infra.web.mapper.DrawAdminWebMapper;
 import com.tchalanet.server.core.draw.internal.infra.web.model.ArchiveDrawRequest;
@@ -158,17 +159,16 @@ public class DrawLifecycleAdminController {
 
   private List<DrawId> requireDrawIds(List<DrawId> drawIds) {
     if (drawIds == null || drawIds.isEmpty()) {
-      throw ProblemRest.badRequest("drawIds is required");
+      throw ProblemRest.of(DrawErrorCodes.LIFECYCLE_DRAW_IDS_REQUIRED);
     }
 
     var normalized = drawIds.stream().filter(id -> id != null).distinct().toList();
 
     if (normalized.isEmpty()) {
-      throw ProblemRest.badRequest("drawIds is required");
+      throw ProblemRest.of(DrawErrorCodes.LIFECYCLE_DRAW_IDS_REQUIRED);
     }
     if (normalized.size() > DrawLifecycleCommandLimits.MAX_DRAW_IDS) {
-      throw ProblemRest.badRequest(
-          "drawIds cannot contain more than " + DrawLifecycleCommandLimits.MAX_DRAW_IDS + " items");
+      throw ProblemRest.of(DrawErrorCodes.LIFECYCLE_DRAW_IDS_LIMIT_EXCEEDED);
     }
 
     return normalized;

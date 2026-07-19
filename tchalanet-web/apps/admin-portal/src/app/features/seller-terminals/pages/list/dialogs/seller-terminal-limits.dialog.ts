@@ -17,7 +17,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateService } from '@ngx-translate/core';
-import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
+import { mapHttpErrorToProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 
 import { TchLoading, TchErrorPanel } from '@tch/ui/components';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
@@ -220,17 +220,8 @@ export class SellerTerminalLimitsDialog implements OnInit {
   }
 
   private errorViewModel(err: unknown, source: string): ErrorViewModel {
-    const problem = (err as { error?: ProblemDetail })?.error;
-    if (problem) {
-      const normalized = webAppErrorFromProblemDetail(problem, source, 'page');
-      const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
-      return toErrorViewModel(normalized, copy);
-    }
-
-    return {
-      title: this.translate.instant('common.errors.fallback.title'),
-      message: this.translate.instant('common.errors.fallback.message'),
-      severity: 'error',
-    };
+    const normalized = webAppErrorFromProblemDetail(mapHttpErrorToProblemDetail(err), source, 'page');
+    const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+    return toErrorViewModel(normalized, copy);
   }
 }

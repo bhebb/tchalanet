@@ -6,6 +6,7 @@ import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.types.id.PromotionDecisionId;
 import com.tchalanet.server.core.promotion.api.model.PromotionDecision;
 import com.tchalanet.server.core.promotion.api.model.PromotionDecisionStatus;
+import com.tchalanet.server.core.promotion.api.model.PromotionNoticeCodes;
 import com.tchalanet.server.core.promotion.api.query.EvaluatePromotionQuery;
 import com.tchalanet.server.core.promotion.internal.application.port.out.rule.PromotionRuleReadPort;
 import com.tchalanet.server.core.promotion.internal.application.port.out.rule.SellerTerminalPromotionEffectOverrideReadPort;
@@ -53,10 +54,10 @@ public class EvaluatePromotionQueryHandler
         effects.isEmpty() ? PromotionDecisionStatus.NOT_ELIGIBLE : PromotionDecisionStatus.APPLIED;
     var notices = new ArrayList<String>();
     if (!effects.isEmpty()) {
-      notices.add("promotionDecision.applied");
+      notices.add(PromotionNoticeCodes.DECISION_APPLIED);
     }
     if (effectiveRules.terminalOverrideApplied()) {
-      notices.add("promotionDecision.terminalOverrideApplied");
+      notices.add(PromotionNoticeCodes.TERMINAL_OVERRIDE_APPLIED);
     }
     var decision =
         new PromotionDecision(

@@ -7,14 +7,13 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { AdminPageShellComponent } from '@tch/ui/console';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
-import { resourceErrorVm, tchMutation, TchAsyncReadyDirective, TchAsyncViewComponent } from '@tch/web/async';
+import { resourceErrorVm, TchAsyncReadyDirective, TchAsyncViewComponent } from '@tch/web/async';
 import {
   ConsolePricingActionEvent,
   ConsolePricingRow,
   ConsolePricingTableComponent,
 } from '@tch/web/console';
 import { AdminPricingApi } from './data-access/admin-pricing-api.service';
-import { UpsertTenantOddsRequest } from './data-access/admin-pricing-api.service';
 import { EditTenantOddsDialog } from './dialogs/edit-tenant-odds.dialog';
 
 @Component({
@@ -36,18 +35,13 @@ import { EditTenantOddsDialog } from './dialogs/edit-tenant-odds.dialog';
   styleUrls: ['./admin-pricing.page.scss'],
 })
 export class AdminPricingPage {
-  private readonly api       = inject(AdminPricingApi);
-  private readonly dialog    = inject(MatDialog);
+  private readonly api = inject(AdminPricingApi);
+  private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
 
   readonly oddsResource = this.api.getDefaultOddsResource({ suppressShellFeedback: true });
   readonly oddsError = resourceErrorVm(this.oddsResource, 'admin.controls.pricing');
   readonly odds = computed(() => this.oddsResource.value() ?? []);
-  readonly saveOdds = tchMutation<UpsertTenantOddsRequest, unknown>({
-    run: req => this.api.upsertTenantOdds(req, { suppressShellFeedback: true }),
-    source: 'admin.pricing.odds.save',
-    onSuccess: () => this.load(),
-  });
   readonly rows = computed<readonly ConsolePricingRow[]>(() =>
     this.odds().map(row => ({
       id: `${row.gameCode}:${row.pricingVariantCode}`,
@@ -77,8 +71,8 @@ export class AdminPricingPage {
   onRowAction(event: ConsolePricingActionEvent): void {
     if (event.action.id !== 'edit') return;
 
-    const odds = this.odds().find(row =>
-      `${row.gameCode}:${row.pricingVariantCode}` === event.row.id,
+    const odds = this.odds().find(
+      row => `${row.gameCode}:${row.pricingVariantCode}` === event.row.id,
     );
     if (!odds) return;
 
@@ -88,9 +82,8 @@ export class AdminPricingPage {
       maxWidth: '100vw',
     });
 
-    ref.afterClosed().subscribe((req?: UpsertTenantOddsRequest) => {
-      if (!req) return;
-      this.saveOdds.execute(req, { key: `${req.gameCode}:${req.pricingVariantCode}` });
+    ref.afterClosed().subscribe((saved?: boolean) => {
+      if (saved) this.load();
     });
   }
 
@@ -98,7 +91,11 @@ export class AdminPricingPage {
     return this.translate.instant(`console.pricingForm.payoutRuleType.${ruleType}`);
   }
 
-  private payoutValue(row: { payoutRuleType?: string | null; fixedAmount?: number | null; odds?: number | null }): string {
+  private payoutValue(row: {
+    payoutRuleType?: string | null;
+    fixedAmount?: number | null;
+    odds?: number | null;
+  }): string {
     if (row.payoutRuleType === 'FIXED_AMOUNT') {
       return row.fixedAmount === null || row.fixedAmount === undefined ? '—' : `${row.fixedAmount}`;
     }

@@ -7,6 +7,7 @@ import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalStatus;
 import com.tchalanet.server.core.sellerterminal.api.query.GetSellerTerminalQuery;
 import com.tchalanet.server.features.pos.draws.PosAvailableDrawView;
 import com.tchalanet.server.features.pos.draws.PosDrawsService;
+import com.tchalanet.server.features.pos.error.PosErrorCodes;
 import com.tchalanet.server.features.pos.home.model.HomeAction;
 import com.tchalanet.server.features.pos.home.model.HomeHeader;
 import com.tchalanet.server.features.pos.home.model.HomeNavigationItem;
@@ -47,12 +48,12 @@ public class PosHomeService {
 
   public PosHomeResponse mobileHome(TchRequestContext ctx, String requestedSurface) {
     if (ctx == null || ctx.sellerTerminalId() == null) {
-      throw ProblemRest.forbidden("seller_terminal.actor_required");
+      throw ProblemRest.of(PosErrorCodes.SELLER_TERMINAL_REQUIRED);
     }
 
     var surface = surfaceResolver.resolve(ctx, requestedSurface);
     if (surface != ClientSurface.MOBILE_POS) {
-      throw ProblemRest.forbidden("surface.not_allowed");
+      throw ProblemRest.of(PosErrorCodes.SURFACE_NOT_ALLOWED);
     }
 
     // Resolve tenant currency once — used in all response paths so that the

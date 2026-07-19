@@ -5,8 +5,10 @@ import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.types.id.SellerTerminalOddsOverrideId;
+import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.pricing.api.command.UpsertSellerTerminalPricingRuleOverrideCommand;
 import com.tchalanet.server.core.pricing.api.command.UpsertSellerTerminalPricingRuleOverrideResult;
+import com.tchalanet.server.core.pricing.api.error.PricingErrorCodes;
 import com.tchalanet.server.core.pricing.api.model.PayoutRuleType;
 import com.tchalanet.server.core.pricing.internal.application.port.out.SellerTerminalOddsOverrideReaderPort;
 import com.tchalanet.server.core.pricing.internal.application.port.out.SellerTerminalOddsOverrideWriterPort;
@@ -38,15 +40,9 @@ public class UpsertSellerTerminalPricingRuleOverrideCommandHandler
     var tenantDefault =
         tenantPricingReader
             .findByNaturalKey(c.tenantId(), gameCode, c.pricingVariantCode())
-            .orElseThrow(
-                () ->
-                    new IllegalStateException(
-                        "tenant default pricing rule missing for tenant=%s game=%s variant=%s"
-                            .formatted(c.tenantId(), gameCode, c.pricingVariantCode())));
+            .orElseThrow(() -> ProblemRest.of(PricingErrorCodes.TENANT_DEFAULT_NOT_CONFIGURED));
     if (tenantDefault.payoutRuleType() != ruleType(c)) {
-      throw new IllegalArgumentException(
-          "seller terminal pricing override cannot change payout rule type for game=%s variant=%s"
-              .formatted(gameCode, c.pricingVariantCode()));
+      throw ProblemRest.of(PricingErrorCodes.OVERRIDE_PAYOUT_RULE_TYPE_MISMATCH);
     }
 
     var existing =
@@ -91,23 +87,25 @@ public class UpsertSellerTerminalPricingRuleOverrideCommandHandler
 
   private void validate(UpsertSellerTerminalPricingRuleOverrideCommand c) {
     if (c.gameCode() == null || c.gameCode().isBlank()) {
-      throw new IllegalArgumentException("gameCode is required");
+      throw ProblemRest.of(PricingErrorCodes.GAME_CODE_REQUIRED);
     }
     if (c.pricingVariantCode() == null) {
-      throw new IllegalArgumentException("pricingVariantCode is required");
+      throw ProblemRest.of(PricingErrorCodes.PRICING_VARIANT_REQUIRED);
     }
     if (c.betType() == null || c.betType().isBlank()) {
-      throw new IllegalArgumentException("betType is required");
+      throw ProblemRest.of(PricingErrorCodes.BET_TYPE_REQUIRED);
     }
     var gameCode = TenantPricingOdds.normalizeGameCode(c.gameCode());
-    PricingRuleV0Policy.validateGameRuleType(gameCode, ruleType(c));
+    if (PricingRuleV0Policy.expectedRuleType(gameCode) != ruleType(c)) {
+      throw ProblemRest.of(PricingErrorCodes.PAYOUT_RULE_TYPE_INVALID);
+    }
     if (ruleType(c) == PayoutRuleType.STAKE_MULTIPLIER
         && (c.odds() == null || c.odds().compareTo(BigDecimal.ZERO) <= 0)) {
-      throw new IllegalArgumentException("odds must be positive");
+      throw ProblemRest.of(PricingErrorCodes.ODDS_INVALID);
     }
     if (ruleType(c) == PayoutRuleType.FIXED_AMOUNT
         && (c.fixedAmount() == null || c.fixedAmount().signum() < 0)) {
-      throw new IllegalArgumentException("fixedAmount must be non-negative");
+      throw ProblemRest.of(PricingErrorCodes.FIXED_AMOUNT_INVALID);
     }
   }
 

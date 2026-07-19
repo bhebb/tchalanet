@@ -3,6 +3,7 @@ package com.tchalanet.server.common.context.web;
 import static com.tchalanet.server.common.http.TchHeaders.X_TCH_ACT_AS_TERMINAL;
 import static com.tchalanet.server.common.http.TchHeaders.X_TCH_OVERRIDE_REASON;
 
+import com.tchalanet.server.common.context.RequestContextErrorCodes;
 import com.tchalanet.server.common.context.ResolvedAccessContext;
 import com.tchalanet.server.common.context.TchContextBinder;
 import com.tchalanet.server.common.context.TchContextProperties;
@@ -11,6 +12,7 @@ import com.tchalanet.server.common.context.operational.OperationalContextHeaderP
 import com.tchalanet.server.common.context.operational.OperationalContextResolver;
 import com.tchalanet.server.common.context.tenant.TenantContextResolver;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
+import com.tchalanet.server.common.web.error.ProblemRest;
 import jakarta.annotation.Nonnull;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -73,19 +75,14 @@ public class TchContextFilter extends OncePerRequestFilter {
     var scope = ApiScopeResolver.resolve(req);
     if (resolvedAccess.tenantOverride()
         && StringUtils.isBlank(req.getHeader(X_TCH_OVERRIDE_REASON))) {
-      res.sendError(HttpServletResponse.SC_FORBIDDEN, "Super-admin override reason required");
-      return;
+      throw ProblemRest.of(RequestContextErrorCodes.TENANT_OVERRIDE_REASON_REQUIRED);
     }
 
     var ctx = contextFactory.createFromResolvedAccess(req, scope, resolvedAccess);
 
     // Hydrate tenant metadata only (code/timezone/currency). Tenant access was already
     // decided by AccessResolutionStep; this does not re-resolve or validate membership.
-    ctx = tenantContextResolver.hydrateResolvedTenant(res, ctx);
-
-    if (ctx == null) {
-      return;
-    }
+    ctx = tenantContextResolver.hydrateResolvedTenant(ctx);
 
     // Bind early so RLS is active before operational DB lookups.
     contextBinder.bind(req, ctx);
@@ -132,11 +129,7 @@ public class TchContextFilter extends OncePerRequestFilter {
 
     var ctx = contextFactory.create(req, defaultTenantCode, scope);
 
-    ctx = tenantContextResolver.resolveForScope(req, res, ctx, scope, defaultTenantCode);
-
-    if (ctx == null) {
-      return;
-    }
+    ctx = tenantContextResolver.resolveForScope(req, ctx, scope, defaultTenantCode);
     contextBinder.bind(req, ctx);
     chain.doFilter(req, res);
   }

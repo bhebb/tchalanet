@@ -1,5 +1,7 @@
 package com.tchalanet.server.catalog.resultslot.internal.write;
 
+import com.tchalanet.server.catalog.resultslot.api.error.ResultSlotErrorCodes;
+import com.tchalanet.server.common.web.error.ProblemRest;
 import java.util.Locale;
 import java.util.Set;
 import org.springframework.stereotype.Component;
@@ -33,13 +35,13 @@ class ResultSlotConfigValidator {
       requireText(game.get("game_code"), "source_cfg." + gameKey + ".game_code");
       var active = game.get("active");
       if (active == null || active.isNull() || !active.isBoolean()) {
-        throw new IllegalArgumentException("source_cfg." + gameKey + ".active must be a boolean");
+        throw ProblemRest.of(ResultSlotErrorCodes.CONFIG_INVALID);
       }
       hasActiveGame = hasActiveGame || active.asBoolean(false);
     }
 
     if (!hasActiveGame) {
-      throw new IllegalArgumentException("source_cfg must enable at least one source game");
+      throw ProblemRest.of(ResultSlotErrorCodes.CONFIG_INVALID);
     }
   }
 
@@ -51,33 +53,31 @@ class ResultSlotConfigValidator {
     for (var entry : rules.properties()) {
       var lotKey = normalizeKey(entry.getKey());
       if (!HAITI_LOT_KEYS.contains(lotKey)) {
-        throw new IllegalArgumentException(
-            "projection_cfg.rules contains unknown lot: " + entry.getKey());
+        throw ProblemRest.of(ResultSlotErrorCodes.CONFIG_INVALID);
       }
       var token =
           requireText(entry.getValue(), "projection_cfg.rules." + lotKey).toUpperCase(Locale.ROOT);
       if (!HAITI_PROJECTION_TOKENS.contains(token)) {
-        throw new IllegalArgumentException(
-            "projection_cfg.rules." + lotKey + " has unknown token: " + token);
+        throw ProblemRest.of(ResultSlotErrorCodes.CONFIG_INVALID);
       }
     }
 
     for (var lotKey : HAITI_LOT_KEYS) {
       if (rules.get(lotKey) == null || rules.get(lotKey).isNull()) {
-        throw new IllegalArgumentException("projection_cfg.rules." + lotKey + " is required");
+        throw ProblemRest.of(ResultSlotErrorCodes.CONFIG_INVALID);
       }
     }
   }
 
   private static void requireObject(JsonNode node, String field) {
     if (node == null || node.isNull() || !node.isObject()) {
-      throw new IllegalArgumentException(field + " must be a JSON object");
+      throw ProblemRest.of(ResultSlotErrorCodes.CONFIG_INVALID);
     }
   }
 
   private static String requireText(JsonNode node, String field) {
     if (node == null || node.isNull() || !node.isTextual() || node.asText().isBlank()) {
-      throw new IllegalArgumentException(field + " must be a non-empty string");
+      throw ProblemRest.of(ResultSlotErrorCodes.CONFIG_INVALID);
     }
     return node.asText().trim();
   }

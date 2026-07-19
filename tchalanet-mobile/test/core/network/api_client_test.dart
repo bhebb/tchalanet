@@ -12,6 +12,10 @@ void main() {
         'traceId': 'body-trace',
         'errorId': 'error-id',
         'code': 'SERVICE_UNAVAILABLE',
+        'category': 'service_unavailable',
+        'retryPolicy': 'RETRY_SAME_INTENT',
+        'retryable': true,
+        'params': {'retryAfterSeconds': 30},
       },
       headers: Headers.fromMap({
         'X-Request-Id': ['header-trace'],
@@ -30,6 +34,11 @@ void main() {
     expect(exception.errorId, 'error-id');
     expect(exception.code, 'SERVICE_UNAVAILABLE');
     expect(exception.statusCode, 503);
+    expect(exception.category, 'service_unavailable');
+    expect(exception.retryPolicy, 'RETRY_SAME_INTENT');
+    expect(exception.retryable, isTrue);
+    expect(exception.params['retryAfterSeconds'], 30);
+    expect(exception.message, 'Erreur serveur');
   });
 
   test('X-Request-Id header is mapped to requestId (not traceId)', () {

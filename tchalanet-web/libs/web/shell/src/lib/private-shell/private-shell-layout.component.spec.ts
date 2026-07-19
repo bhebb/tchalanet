@@ -38,11 +38,16 @@ describe('PrivateShellLayoutComponent', () => {
 
   it('closes the drawer when a sidebar item is activated', () => {
     const fixture = TestBed.createComponent(PrivateShellLayoutComponent);
+    fixture.componentRef.setInput('brand', {
+      id: 'brand',
+      label: 'Tchalanet',
+      destination: { kind: 'route', value: '/' },
+    });
     fixture.componentRef.setInput('primary', [
       {
         id: 'dashboard',
         label: 'Dashboard',
-        destination: { kind: 'route', value: '/app/admin' },
+        destination: { kind: 'url', value: '#dashboard' },
       },
     ]);
     fixture.componentInstance.drawerOpen.set(true);

@@ -22,13 +22,11 @@ public class SpringDomainEventPublisher implements DomainEventPublisher {
   @Override
   public void publish(DomainEvent event) {
     delegate.publishEvent(event);
-    if (log.isDebugEnabled()) {
-      log.debug(
-          "DomainEvent published: type={} tenant={} id={}",
-          event.eventType(),
-          event.tenantId(),
-          event.eventId().value());
-    }
+    log.debug(
+        "DomainEvent published: type={} tenant={} id={}",
+        event.eventType(),
+        event.tenantId(),
+        event.eventId().value());
   }
 
   @Override

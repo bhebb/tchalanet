@@ -3,7 +3,7 @@ import '@angular/compiler';
 import { provideHttpClient, withXhr } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { SUPPRESS_SHELL_FEEDBACK } from '@tch/api';
+import { TCH_FEEDBACK_CONTEXT } from '@tch/api';
 
 import { PageModelApi } from './page-model-api.service';
 
@@ -24,7 +24,11 @@ describe('PageModelApi', () => {
   it('uses the surface-oriented runtime routes', () => {
     api.getPublicPage().subscribe();
     const publicRequest = http.expectOne('/api/v1/public/page');
-    expect(publicRequest.request.context.get(SUPPRESS_SHELL_FEEDBACK)).toBe(true);
+    expect(publicRequest.request.context.get(TCH_FEEDBACK_CONTEXT)).toEqual({
+      owner: 'feature',
+      mode: 'local',
+      target: 'page-model',
+    });
     publicRequest.flush(response());
 
     api.getTenantPage().subscribe();
@@ -92,6 +96,7 @@ describe('PageModelApi', () => {
     http
       .expectOne('/api/v1/platform/dashboard?logicalId=private.dashboard.superadmin')
       .flush(response({
+        widgets: { 'dashboard.commissions': { type: 'CommissionSummaryWidget' } },
         notices: [
           {
             code: 'dashboard.commissions.unavailable',
@@ -113,10 +118,82 @@ describe('PageModelApi', () => {
       {
         widgetId: 'dashboard.commissions',
         code: 'dashboard.commissions.unavailable',
-        message: 'Commissions are temporarily unavailable.',
         severity: 'warn',
         traceId: 'trace-1',
         errorId: 'err-1',
+      },
+    ]);
+  });
+
+  it('keeps a tenant dashboard degradation owned by its rendered widget', () => {
+    let resultErrors: unknown;
+    api.getTenantPage().subscribe(result => {
+      resultErrors = result.dynamic.errors;
+    });
+
+    http.expectOne('/api/v1/tenant/dashboard').flush(response({
+      notices: [
+        {
+          code: 'tenantadmin.dashboard.analytics_unavailable',
+          severity: 'WARN',
+          meta: {
+            surface: 'section',
+            target: 'tenant_admin_dashboard.analytics',
+          },
+        },
+      ],
+      widgets: {
+        'dashboard.tenantAdmin.salesTrend': {
+          type: 'TrendChartWidget',
+          props: { feedbackTargets: ['tenant_admin_dashboard.analytics'] },
+        },
+      },
+    }));
+
+    expect(resultErrors).toEqual([
+      {
+        widgetId: 'dashboard.tenantAdmin.salesTrend',
+        code: 'tenantadmin.dashboard.analytics_unavailable',
+        severity: 'warn',
+      },
+    ]);
+  });
+
+  it('does not retain raw notice or backend widget messages in the render model', () => {
+    let resultErrors: unknown;
+    api.getPlatformPage().subscribe(result => {
+      resultErrors = result.dynamic.errors;
+    });
+
+    http
+      .expectOne(
+        '/api/v1/platform/dashboard?logicalId=private.dashboard.superadmin',
+      )
+      .flush(response({
+        widgets: { 'dashboard.commissions': { type: 'CommissionSummaryWidget' } },
+        notices: [
+          {
+            code: 'dashboard.commissions.unavailable',
+            message: 'provider payload: secret diagnostic',
+            severity: 'WARN',
+            meta: { surface: 'section', target: 'dashboard.commissions' },
+          },
+        ],
+        errors: [
+          {
+            widgetId: 'dashboard.sales',
+            code: 'dashboard.sales.unavailable',
+            message: 'internal backend error',
+          },
+        ],
+      }));
+
+    expect(resultErrors).toEqual([
+      { widgetId: 'dashboard.sales', code: 'dashboard.sales.unavailable' },
+      {
+        widgetId: 'dashboard.commissions',
+        code: 'dashboard.commissions.unavailable',
+        severity: 'warn',
       },
     ]);
   });
@@ -130,6 +207,7 @@ describe('PageModelApi', () => {
     http
       .expectOne('/api/v1/platform/dashboard?logicalId=private.dashboard.superadmin')
       .flush(response({
+        widgets: { 'dashboard.commissions': { type: 'CommissionSummaryWidget' } },
         errors: [
           {
             widgetId: 'dashboard.commissions',
@@ -160,13 +238,17 @@ describe('PageModelApi', () => {
   });
 });
 
-function response(overrides: { notices?: readonly unknown[]; errors?: readonly unknown[] } = {}) {
+function response(overrides: {
+  notices?: readonly unknown[];
+  errors?: readonly unknown[];
+  widgets?: Readonly<Record<string, unknown>>;
+} = {}) {
   return {
     status: 'SUCCESS',
     data: {
       meta: { logicalId: 'public.home', scope: 'public', slug: 'home', schemaVersion: 2 },
       shell: { type: 'public', header: {}, footer: {} },
-      content: { layout: { rows: [] }, widgets: {} },
+      content: { layout: { rows: [] }, widgets: overrides.widgets ?? {} },
       dynamic: { widgets: {}, errors: overrides.errors ?? [] },
     },
     notices: overrides.notices ?? [],

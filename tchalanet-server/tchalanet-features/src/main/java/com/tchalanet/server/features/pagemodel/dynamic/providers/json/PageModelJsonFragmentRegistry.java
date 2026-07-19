@@ -1,6 +1,7 @@
 package com.tchalanet.server.features.pagemodel.dynamic.providers.json;
 
 import com.tchalanet.server.core.pagemodel.api.dynamic.PageModelDynamicProviderException;
+import com.tchalanet.server.features.pagemodel.error.PageModelErrorCodes;
 import java.util.Map;
 import org.springframework.stereotype.Component;
 
@@ -39,13 +40,14 @@ public class PageModelJsonFragmentRegistry {
 
   public String resolve(String fileKey) {
     if (fileKey == null || fileKey.isBlank()) {
-      throw new PageModelDynamicProviderException("MISSING_PROP", "props.fileKey is required");
+      throw new PageModelDynamicProviderException(
+          PageModelErrorCodes.FRAGMENT_KEY_REQUIRED.code(), "props.fileKey is required");
     }
 
     String resourcePath = FRAGMENTS.get(fileKey);
     if (resourcePath == null) {
       throw new PageModelDynamicProviderException(
-          "JSON_FRAGMENT_NOT_FOUND", "Unknown JSON fragment key: " + fileKey);
+          PageModelErrorCodes.FRAGMENT_NOT_FOUND.code(), "Unknown JSON fragment key: " + fileKey);
     }
 
     return resourcePath;

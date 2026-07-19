@@ -110,5 +110,4 @@ public class TicketReceiptAssembler {
         line.promotionLabel(),
         line.promotionEffectType());
   }
-
 }

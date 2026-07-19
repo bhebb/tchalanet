@@ -12,12 +12,19 @@ import { map } from 'rxjs/operators';
 
 import { ApiResponse, TchBackendPage, TchPage } from '../contracts/api.types';
 import { TCH_API_BASE, TCH_API_BASE_RESOLVER } from '../http/api-base';
-import { SUPPRESS_SHELL_FEEDBACK } from '../http/api-feedback-context';
+import {
+  SUPPRESS_SHELL_FEEDBACK,
+  TCH_FEEDBACK_CONTEXT,
+  TchFeedbackContext,
+} from '../http/api-feedback-context';
 import { unwrapApiResponse } from '../http/api-response';
 
 export interface TchRequestOptions {
   readonly params?: HttpParams | Record<string, string | ReadonlyArray<string>>;
   readonly headers?: HttpHeaders | Record<string, string>;
+  /** Explicit rendering ownership for retained envelopes and normalized errors. */
+  readonly feedback?: TchFeedbackContext;
+  /** @deprecated Use `feedback: { mode: 'local', owner, target }`. */
   readonly suppressShellFeedback?: boolean;
   readonly asTenantAdmin?: {
     readonly tenantId: string;
@@ -82,8 +89,13 @@ export class TchBackendClient {
       result.headers = headers;
     }
 
-    if (options?.suppressShellFeedback) {
-      result.context = new HttpContext().set(SUPPRESS_SHELL_FEEDBACK, true);
+    if (options?.feedback || options?.suppressShellFeedback) {
+      const feedback = options.feedback ?? { mode: 'local' as const };
+      result.context = new HttpContext().set(TCH_FEEDBACK_CONTEXT, feedback);
+
+      if (options.suppressShellFeedback) {
+        result.context = result.context.set(SUPPRESS_SHELL_FEEDBACK, true);
+      }
     }
 
     return result;
@@ -210,12 +222,87 @@ export class TchBackendClient {
     return this.http.get<ApiResponse<T>>(this.url(path), this.resolve(options));
   }
 
+  /**
+   * Retained paged response for BFFs, dashboards, mutations, and flows which own notices,
+   * service state, and trace metadata. `getPage` remains the legacy data-only convenience API.
+   */
+  getPageApiResponse<T>(
+    path: string,
+    options?: TchRequestOptions,
+  ): Observable<ApiResponse<TchPage<T>>> {
+    const fallback = this.pageFallback(options);
+
+    return this.http
+      .get<ApiResponse<TchBackendPage<T>>>(this.url(path), this.resolve(options))
+      .pipe(
+        map(response => ({
+          ...response,
+          data: this.toPage(response.data, fallback.page, fallback.size),
+        })),
+      );
+  }
+
   postApiResponse<TResponse, TBody = unknown>(
     path: string,
     body: TBody,
     options?: TchRequestOptions,
   ): Observable<ApiResponse<TResponse>> {
     return this.http.post<ApiResponse<TResponse>>(this.url(path), body, this.resolve(options));
+  }
+
+  putApiResponse<TResponse, TBody = unknown>(
+    path: string,
+    body: TBody,
+    options?: TchRequestOptions,
+  ): Observable<ApiResponse<TResponse>> {
+    return this.http.put<ApiResponse<TResponse>>(this.url(path), body, this.resolve(options));
+  }
+
+  patchApiResponse<TResponse, TBody = unknown>(
+    path: string,
+    body: TBody,
+    options?: TchRequestOptions,
+  ): Observable<ApiResponse<TResponse>> {
+    return this.http.patch<ApiResponse<TResponse>>(this.url(path), body, this.resolve(options));
+  }
+
+  deleteApiResponse<TResponse>(
+    path: string,
+    options?: TchRequestOptions,
+  ): Observable<ApiResponse<TResponse>> {
+    return this.http.delete<ApiResponse<TResponse>>(this.url(path), this.resolve(options));
+  }
+
+  deleteWithBodyApiResponse<TResponse, TBody = unknown>(
+    path: string,
+    body: TBody,
+    options?: TchRequestOptions,
+  ): Observable<ApiResponse<TResponse>> {
+    return this.http.request<ApiResponse<TResponse>>('DELETE', this.url(path), {
+      ...this.resolve(options),
+      body,
+    });
+  }
+
+  /**
+   * Resource counterpart for a retained GET envelope. Consumers explicitly own any notices and
+   * degraded state instead of losing them through the legacy `getResource` data projection.
+   */
+  getApiResponseResource<T, TRaw = T>(
+    request: () => TchResourceRequest | undefined,
+    project?: (raw: TRaw) => T,
+  ): ResourceRef<ApiResponse<T> | undefined> {
+    return rxResource<ApiResponse<T>, TchResourceRequest | undefined>({
+      injector: this.injector,
+      params: () => request(),
+      stream: ({ params }) => {
+        const req = params as TchResourceRequest;
+        const response$ = this.getApiResponse<TRaw>(req.path, req.options);
+        return (project
+          ? response$.pipe(map(response => ({ ...response, data: project(response.data) })))
+          : response$) as Observable<ApiResponse<T>>;
+      },
+    });
   }
 
   getBlob(path: string, options?: TchRequestOptions): Observable<Blob> {
@@ -276,6 +363,22 @@ export class TchBackendClient {
     return this.http
       .put<ApiResponse<TResponse>>(this.url(path), formData, this.resolve(options))
       .pipe(map(unwrapApiResponse));
+  }
+
+  postMultipartApiResponse<TResponse>(
+    path: string,
+    formData: FormData,
+    options?: TchRequestOptions,
+  ): Observable<ApiResponse<TResponse>> {
+    return this.http.post<ApiResponse<TResponse>>(this.url(path), formData, this.resolve(options));
+  }
+
+  putMultipartApiResponse<TResponse>(
+    path: string,
+    formData: FormData,
+    options?: TchRequestOptions,
+  ): Observable<ApiResponse<TResponse>> {
+    return this.http.put<ApiResponse<TResponse>>(this.url(path), formData, this.resolve(options));
   }
 
   postMultipartBlob(

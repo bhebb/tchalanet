@@ -2,10 +2,11 @@ package com.tchalanet.server.features.pagemodel.publicpage;
 
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchContextResolver;
-import com.tchalanet.server.common.exception.TchNotFoundException;
+import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.pagemodel.api.model.PageModelDoc;
 import com.tchalanet.server.core.pagemodel.api.query.ResolveEffectivePageModelQuery;
 import com.tchalanet.server.features.pagemodel.dynamic.PageModelDynamicResolver;
+import com.tchalanet.server.features.pagemodel.error.PageModelErrorCodes;
 import com.tchalanet.server.features.pagemodel.runtime.PageRuntimeAssembler;
 import com.tchalanet.server.features.pagemodel.runtime.PageRuntimeResponse;
 import com.tchalanet.server.features.pagemodel.shared.LangResolver;
@@ -32,7 +33,7 @@ public class PublicManagersService {
     var doc = queryBus.ask(new ResolveEffectivePageModelQuery(Optional.empty(), logicalId));
 
     if (doc == null || doc.meta() == null || !"public".equals(doc.meta().scope())) {
-      throw new TchNotFoundException("PAGE_MODEL_NOT_FOUND", "Page model not found: " + logicalId);
+      throw ProblemRest.of(PageModelErrorCodes.NOT_FOUND);
     }
 
     var currentLang = resolveLang(doc, langFromUrl);

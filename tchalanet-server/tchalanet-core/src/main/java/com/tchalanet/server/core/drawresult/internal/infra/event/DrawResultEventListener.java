@@ -171,9 +171,7 @@ public class DrawResultEventListener {
   }
 
   private static Map<String, Object> resultAvailablePayload(
-      GlobalDrawResultAvailableEvent event,
-      DrawResultAffectedTenant affected,
-      String dedupeKey) {
+      GlobalDrawResultAvailableEvent event, DrawResultAffectedTenant affected, String dedupeKey) {
     var payload = new LinkedHashMap<String, Object>();
     payload.put("type", "DRAW_RESULT_AVAILABLE");
     payload.put("drawResultId", event.drawResultId().value().toString());
@@ -288,13 +286,15 @@ public class DrawResultEventListener {
     return Map.of(
         "fr",
             new NotificationTranslationInput(
-                "Résultat disponible", "Résultat disponible pour %s du %s.".formatted(display, drawDate)),
+                "Résultat disponible",
+                "Résultat disponible pour %s du %s.".formatted(display, drawDate)),
         "en",
             new NotificationTranslationInput(
                 "Result available", "Result available for %s on %s.".formatted(display, drawDate)),
         "ht",
             new NotificationTranslationInput(
-                "Rezilta disponib", "Rezilta disponib pou %s jou %s.".formatted(display, drawDate)));
+                "Rezilta disponib",
+                "Rezilta disponib pou %s jou %s.".formatted(display, drawDate)));
   }
 
   private static Map<String, NotificationTranslationInput> resultCorrectedOpsTranslations(
@@ -338,9 +338,7 @@ public class DrawResultEventListener {
   }
 
   private static Map<String, Object> resultCorrectedTenantPayload(
-      GlobalDrawResultCorrectedEvent event,
-      DrawResultAffectedTenant affected,
-      String dedupeKey) {
+      GlobalDrawResultCorrectedEvent event, DrawResultAffectedTenant affected, String dedupeKey) {
     var payload = new LinkedHashMap<String, Object>();
     payload.put("type", "DRAW_RESULT_CORRECTED");
     payload.put("drawResultId", event.drawResultId().value().toString());

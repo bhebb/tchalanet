@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.web.error.ProblemRestException;
 import com.tchalanet.server.core.pricing.api.command.DeleteTenantPricingRuleCommand;
 import com.tchalanet.server.core.pricing.api.command.EnsureDefaultHaitiLotteryPricingRulesCommand;
 import com.tchalanet.server.core.pricing.api.command.UpsertTenantPricingRuleCommand;
@@ -90,8 +91,9 @@ class TenantPricingRulesCommandHandlerTest {
                         PayoutRuleType.STAKE_MULTIPLIER,
                         null,
                         null)))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("requires payoutRuleType FIXED_AMOUNT");
+        .isInstanceOf(ProblemRestException.class)
+        .extracting(ex -> ((ProblemRestException) ex).getProblem().getProperties().get("code"))
+        .isEqualTo("pricing.payout_rule_type_invalid");
   }
 
   @Test
@@ -111,8 +113,9 @@ class TenantPricingRulesCommandHandlerTest {
                         PayoutRuleType.FIXED_AMOUNT,
                         new BigDecimal("5000.0000"),
                         null)))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("requires payoutRuleType STAKE_MULTIPLIER");
+        .isInstanceOf(ProblemRestException.class)
+        .extracting(ex -> ((ProblemRestException) ex).getProblem().getProperties().get("code"))
+        .isEqualTo("pricing.payout_rule_type_invalid");
   }
 
   @Test

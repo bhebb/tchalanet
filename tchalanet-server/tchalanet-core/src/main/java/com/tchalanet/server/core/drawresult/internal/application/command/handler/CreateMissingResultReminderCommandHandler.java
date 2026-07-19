@@ -63,17 +63,29 @@ public class CreateMissingResultReminderCommandHandler
     var expiresAt =
         slot == null ? now.plus(Duration.ofHours(24)) : expirationPolicy.expiresAt(slot, now);
     var label = slot == null ? command.slotKey() : slot.slotKey();
-    var provider = command.providerCode() == null ? (slot == null ? null : slot.provider()) : command.providerCode();
+    var provider =
+        command.providerCode() == null
+            ? (slot == null ? null : slot.provider())
+            : command.providerCode();
     var title = title(command.reason(), label, command.drawDate().toString());
-    var message = message(command.reason(), provider, label, command.occurredAt(), now, command.requestId());
+    var message =
+        message(command.reason(), provider, label, command.occurredAt(), now, command.requestId());
     var translations =
-        translations(command.reason(), label, command.drawDate().toString(), provider, command.occurredAt(), now, command.requestId());
+        translations(
+            command.reason(),
+            label,
+            command.drawDate().toString(),
+            provider,
+            command.occurredAt(),
+            now,
+            command.requestId());
 
     notificationApi.createNotification(
         new CreateNotificationRequest(
             null,
             SOURCE_TYPE,
-            "%s:%s:%s".formatted(command.resultSlotId().value(), command.drawDate(), command.reason()),
+            "%s:%s:%s"
+                .formatted(command.resultSlotId().value(), command.drawDate(), command.reason()),
             dedupeKey,
             NotificationAudienceType.PLATFORM_ADMINS,
             Set.of(),
@@ -154,7 +166,8 @@ public class CreateMissingResultReminderCommandHandler
         "ht",
             new NotificationTranslationInput(
                 automatic
-                    ? "Rezilta provider an an reta apre 1 èdtan — %s pou %s.".formatted(label, drawDate)
+                    ? "Rezilta provider an an reta apre 1 èdtan — %s pou %s."
+                        .formatted(label, drawDate)
                     : "Rezilta manyèl obligatwa — %s pou %s.".formatted(label, drawDate),
                 "Provider=%s, lè=%s, lè espere=%s, reta=%d min, rezon=%s, requestId=%s"
                     .formatted(

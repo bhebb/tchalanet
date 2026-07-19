@@ -18,6 +18,7 @@ import com.tchalanet.server.core.sales.api.command.sell.SellTicketCommand;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketOutcome;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketResult;
 import com.tchalanet.server.core.sales.api.command.sell.SoldTicketView;
+import com.tchalanet.server.core.sales.api.error.SalesErrorCodes;
 import com.tchalanet.server.core.sales.api.event.TicketLinePlacedItem;
 import com.tchalanet.server.core.sales.api.event.TicketPlacedEvent;
 import com.tchalanet.server.core.sales.api.event.payload.TicketContextPayload;
@@ -90,7 +91,7 @@ public class SellTicketCommandHandler
         queryBus.ask(new GetSellerTerminalForSaleValidationQuery(tenantId, sellerTerminalId));
     var requirePinChangeCompleted = ctx.actorType() == TchActorType.SELLER_TERMINAL;
     if (!terminal.canSell(requirePinChangeCompleted)) {
-      throw ProblemRest.forbidden("seller_terminal.cannot_sell");
+      throw ProblemRest.of(SalesErrorCodes.SELLER_TERMINAL_CANNOT_SELL);
     }
     var commissionAmount =
         prepared

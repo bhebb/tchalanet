@@ -1,35 +1,32 @@
-<h2 mat-dialog-title>Bloquer le vendeur</h2>
+<h2 mat-dialog-title>{{ 'admin.sellerTerminals.list.dialog.block.title' | translate }}</h2>
 
 <mat-dialog-content>
   <p class="block-dialog__info">
-    Bloquer <strong>{{ data.displayName }}</strong> ({{ data.terminalCode }})
-    empêche toute vente jusqu'au déblocage.
+    {{ 'admin.sellerTerminals.list.dialog.block.description' | translate: { name: data.displayName, code: data.terminalCode } }}
   </p>
 
   <form [formGroup]="form" class="block-dialog__form">
     @if (error(); as pageError) {
       <tch-error-panel [title]="pageError.title" [message]="pageError.message" />
     }
+    <tch-form-error-summary [messages]="formSummary()" />
 
     <mat-form-field appearance="outline" class="block-dialog__field">
-      <mat-label>Raison du blocage</mat-label>
+      <mat-label>{{ 'admin.sellerTerminals.list.dialog.block.reason' | translate }}</mat-label>
       <textarea
         matInput
         formControlName="reason"
-        rows="3"
-        maxlength="200"
-        placeholder="Ex. : terminal non retourné, suspicion de fraude..."
-      ></textarea>
-      @if (form.controls.reason.invalid && form.controls.reason.touched) {
-        <mat-error>Raison requise.</mat-error>
-      }
+      rows="3"
+      maxlength="200"
+      [placeholder]="'admin.sellerTerminals.list.dialog.block.reasonPlaceholder' | translate"
+    ></textarea>
     </mat-form-field>
-    <tch-field-error [message]="serverFieldMessage(form.controls.reason)" />
+    <tch-field-error [control]="form.controls.reason" />
   </form>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-  <button mat-button mat-dialog-close [disabled]="saving()">Annuler</button>
+  <button mat-button mat-dialog-close [disabled]="saving()">{{ 'common.cancel' | translate }}</button>
   <button
     mat-flat-button
     color="warn"
@@ -39,6 +36,6 @@
     @if (saving()) {
       <span class="material-symbols-outlined block-dialog__spin">progress_activity</span>
     }
-    Bloquer
+    {{ 'admin.sellerTerminals.list.action.block' | translate }}
   </button>
 </mat-dialog-actions>

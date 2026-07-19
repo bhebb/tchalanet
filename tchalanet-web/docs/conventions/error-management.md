@@ -55,6 +55,33 @@ Examples:
 Shell feedback may survive route changes inside the same shell, but it must stay bounded,
 deduplicated, and scoped to public/private shell context.
 
+The HTTP shell-feedback router is deliberately opt-in during migration. A request reaches the shell
+only when it declares:
+
+```ts
+feedback: { owner: 'shell', mode: 'inherit' }
+```
+
+`local` and `silent` never reach the shell. `inherit` without `owner: 'shell'` is non-rendering
+until a feature explicitly selects an owner. This prevents an interceptor from duplicating a page,
+section, form, or field error while older call sites are being migrated.
+
+### Form mutation boundary
+
+`problemDetailInterceptor` exposes the final error as a `ProblemDetail`; older tests or call sites
+may still provide an `HttpErrorResponse`. Form owners must normalize either form before extracting
+violations:
+
+```ts
+const problem = mapHttpErrorToProblemDetail(error);
+const fields = webAppErrorsFromProblemDetailFields(problem, 'tenant.identity');
+const unconsumed = applyServerFieldErrors(form, fields, targetMap);
+```
+
+Do not read `error.error` in presentation code. It drops direct normalized failures, which turns a
+field validation response into an unrelated generic form error. `unconsumed` violations belong in
+the form summary; a field renderer handles only targets it can resolve.
+
 ### Page top
 
 Use page-level errors when the routed page owns the failure.
@@ -88,7 +115,7 @@ The backend should send a notice like:
   "meta": {
     "surface": "section",
     "placement": "top",
-    "target": "dashboard.commissions",
+    "target": "tenant_admin_dashboard.commission",
     "source": "commissions",
     "service": "commission-service",
     "operation": "loadWidget",
@@ -97,7 +124,10 @@ The backend should send a notice like:
 }
 ```
 
-`target` must be a stable UI target. For PageModel dashboards, prefer the widget id.
+`target` must be a stable functional target. For PageModel dashboards, it names the failed slice
+(for example `tenant_admin_dashboard.commission`), never a widget/component identifier. The
+resolved widget config declares that ownership through `props.feedbackTargets`; the PageModel API
+boundary maps it to the local widget error.
 
 For admin cards, prefer the host directive on the section card instead of adding a separate error
 element inside each page:
@@ -241,6 +271,23 @@ target:
 The page suppresses shell feedback because a failed default-odds load blocks the table and renders a
 single page-level `tch-error-panel`.
 
+Pricing mutations stay with the form that initiated them:
+
+```text
+apps/admin-portal/src/app/features/pricing/dialogs/edit-tenant-odds.dialog
+target: admin.pricing.odds
+
+apps/admin-portal/src/app/features/seller-terminals/pages/overrides
+target: admin.sellerTerminal.override
+```
+
+The tenant-pricing dialog remains open during the mutation. Server violations map to their
+controls; the stable `pricing.odds_invalid`, `pricing.fixed_amount_invalid`, and
+`pricing.payout_rule_type_invalid` codes are also mapped to their matching controls until the
+backend emits an explicit field violation. Any unmapped error belongs to the dialog summary or
+panel. Seller-terminal override mutations render one translated inline error on the affected row.
+All pricing mutation calls use local feedback and suppress shell feedback.
+
 Draw list and detail failures are owned by the affected tab/detail section:
 
 ```text
@@ -285,8 +332,10 @@ dialog targets:
 ```
 
 List load failures render as the page error. Row action failures render once in the list surface or
-inside the owning dialog. These API calls must suppress shell feedback. Successful create/unblock
-and disable actions close or reload the owning surface without creating a snackbar.
+inside the owning dialog. These API calls must suppress shell feedback. A mutation dialog returns a
+typed `{ reload: true, noticeKey }` result; the list page owns the localized `tch-notice` confirmation
+and reloads its resources. A dialog must render unmapped field violations in `tch-form-error-summary`,
+instead of losing them or escalating them to shell feedback.
 
 Seller-terminal POS failures are split by runtime block:
 
@@ -908,7 +957,8 @@ Use:
 - `applyServerFieldErrors(...)` plus `tch-field-error` for field inline errors.
 
 For PageModel dashboards, backend provider failures are emitted as targeted notices and mapped into
-widget-local `dynamic.errors`.
+widget-local `dynamic.errors` from the runtime widget's `feedbackTargets`. Direct widget IDs are a
+legacy resolver-only compatibility path, not a BFF contract.
 
 ## Anti-Patterns
 

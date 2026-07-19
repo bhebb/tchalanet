@@ -3,7 +3,6 @@ package com.tchalanet.server.platform.publiccontent.internal.news.provider;
 import com.rometools.rome.feed.synd.SyndFeed;
 import com.rometools.rome.io.SyndFeedInput;
 import com.rometools.rome.io.XmlReader;
-import com.tchalanet.server.common.web.error.ProblemRestException;
 import com.tchalanet.server.platform.publiccontent.internal.news.PublicContentConfigProperties;
 import com.tchalanet.server.platform.publiccontent.internal.news.PublicContentItem;
 import java.net.URI;
@@ -30,7 +29,7 @@ public class LotteryDailyRssClient implements NewsProvider {
       return new SyndFeedInput().build(new XmlReader(url));
     } catch (Exception e) {
       log.error("publiccontent: failed to fetch RSS feed from {}: {}", feedUrl, e.getMessage(), e);
-      throw ProblemRestException.unprocessable("Failed to fetch/parse RSS feed from " + feedUrl, e);
+      throw new IllegalStateException("RSS provider fetch failed", e);
     }
   }
 

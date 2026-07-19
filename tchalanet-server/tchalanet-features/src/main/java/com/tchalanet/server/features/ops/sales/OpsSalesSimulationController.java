@@ -23,7 +23,8 @@ public class OpsSalesSimulationController {
 
   private final OpsSalesSimulationService service;
 
-  @Operation(summary = "Plan or execute deterministic sales across selected draws and seller terminals")
+  @Operation(
+      summary = "Plan or execute deterministic sales across selected draws and seller terminals")
   @PostMapping
   @AuditLog(
       entity = AuditEntityType.TICKET,

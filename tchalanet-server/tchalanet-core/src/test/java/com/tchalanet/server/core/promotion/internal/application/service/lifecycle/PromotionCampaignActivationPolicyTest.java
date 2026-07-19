@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.promotion.internal.application.service.lifecycle;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -31,7 +32,12 @@ class PromotionCampaignActivationPolicyTest {
     @DisplayName("null startsAt is rejected")
     void nullStartsAt() {
       var campaign = campaign(null, T1, List.of(ruleWith(PromotionEffectType.WAIVE_CHARGE)));
-      assertThatThrownBy(() -> policy.validate(campaign)).isInstanceOf(ProblemRestException.class);
+      assertThatThrownBy(() -> policy.validate(campaign))
+          .isInstanceOfSatisfying(
+              ProblemRestException.class,
+              problem ->
+                  assertThat(problem.getProblem().getProperties().get("code"))
+                      .isEqualTo("promotion.campaign.dates_required_for_activation"));
     }
 
     @Test

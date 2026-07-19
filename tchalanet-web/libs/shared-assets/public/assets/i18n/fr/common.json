@@ -96,6 +96,7 @@
     "actionLabel": "Action",
     "reset": "Réinitialiser",
     "all": "Tout",
+    "total": "Total",
     "sending": "Envoi en cours...",
     "field": {
       "name": "Nom",

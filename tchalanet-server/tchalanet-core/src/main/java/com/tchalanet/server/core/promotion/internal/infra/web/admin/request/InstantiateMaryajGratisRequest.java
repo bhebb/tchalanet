@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.promotion.internal.infra.web.admin.request;
 
 import com.tchalanet.server.common.web.error.ProblemRest;
+import com.tchalanet.server.core.promotion.api.error.PromotionErrorCodes;
 import com.tchalanet.server.core.promotion.api.model.PromotionChoiceMode;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionQuantityMode;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionQuantityTier;
@@ -27,25 +28,33 @@ public record InstantiateMaryajGratisRequest(
     var effectiveChoiceMode = choiceMode == null ? PromotionChoiceMode.AUTO_GENERATE : choiceMode;
     if (effectiveChoiceMode != PromotionChoiceMode.AUTO_GENERATE
         && effectiveChoiceMode != PromotionChoiceMode.SELLER_SELECTS) {
-      throw ProblemRest.badRequest("promotion.maryaj_gratis.choice_mode_invalid");
+      throw ProblemRest.of(
+          PromotionErrorCodes.validation("promotion.maryaj_gratis.choice_mode_invalid"));
     }
     if (generationStrategy == SelectionGenerationStrategy.LOW_EXPOSURE_RANDOM) {
-      throw ProblemRest.badRequest("promotion.maryaj_gratis.generation_strategy_unsupported");
+      throw ProblemRest.of(
+          PromotionErrorCodes.validation(
+              "promotion.maryaj_gratis.generation_strategy_unsupported"));
     }
     if (generationStrategy != null && effectiveChoiceMode != PromotionChoiceMode.AUTO_GENERATE) {
-      throw ProblemRest.badRequest(
-          "promotion.maryaj_gratis.generation_strategy_requires_auto_generate");
+      throw ProblemRest.of(
+          PromotionErrorCodes.validation(
+              "promotion.maryaj_gratis.generation_strategy_requires_auto_generate"));
     }
     if (effectiveChoiceMode == PromotionChoiceMode.SELLER_SELECTS
         && Boolean.TRUE.equals(regenerableBeforeConfirm)) {
-      throw ProblemRest.badRequest("promotion.maryaj_gratis.regeneration_requires_auto_generate");
+      throw ProblemRest.of(
+          PromotionErrorCodes.validation(
+              "promotion.maryaj_gratis.regeneration_requires_auto_generate"));
     }
     if (quantityMode == PromotionQuantityMode.PER_PAID_AMOUNT && stepPaidAmount == null) {
-      throw ProblemRest.badRequest("promotion.maryaj_gratis.step_paid_amount_required");
+      throw ProblemRest.of(
+          PromotionErrorCodes.validation("promotion.maryaj_gratis.step_paid_amount_required"));
     }
     if (quantityMode == PromotionQuantityMode.TIERED_PAID_AMOUNT
         && (quantityTiers == null || quantityTiers.isEmpty())) {
-      throw ProblemRest.badRequest("promotion.maryaj_gratis.quantity_tiers_required");
+      throw ProblemRest.of(
+          PromotionErrorCodes.validation("promotion.maryaj_gratis.quantity_tiers_required"));
     }
   }
 }

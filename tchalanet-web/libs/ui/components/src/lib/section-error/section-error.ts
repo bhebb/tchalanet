@@ -4,6 +4,7 @@ export type TchSectionErrorSeverity = 'info' | 'warn' | 'error';
 
 @Component({
   selector: 'tch-section-error',
+  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (title() || message()) {

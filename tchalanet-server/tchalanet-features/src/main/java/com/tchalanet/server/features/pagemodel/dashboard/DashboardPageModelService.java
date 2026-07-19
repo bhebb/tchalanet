@@ -2,13 +2,13 @@ package com.tchalanet.server.features.pagemodel.dashboard;
 
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchContextResolver;
-import com.tchalanet.server.common.exception.TchForbiddenException;
-import com.tchalanet.server.common.exception.TchNotFoundException;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.pagemodel.api.model.PageModelDoc;
 import com.tchalanet.server.core.pagemodel.api.model.PageModelType;
 import com.tchalanet.server.core.pagemodel.api.query.ResolveEffectivePageModelQuery;
 import com.tchalanet.server.features.pagemodel.dynamic.PageModelDynamicResolver;
+import com.tchalanet.server.features.pagemodel.error.PageModelErrorCodes;
 import com.tchalanet.server.features.pagemodel.runtime.PageRuntimeAssembler;
 import com.tchalanet.server.features.pagemodel.runtime.PageRuntimeResponse;
 import com.tchalanet.server.features.pagemodel.security.PageModelAccessPolicy;
@@ -49,20 +49,17 @@ public class DashboardPageModelService {
     var ctxHolder = contextResolver.currentOrNull();
 
     if (ctxHolder == null) {
-      throw new TchForbiddenException("PAGE_MODEL_ACCESS_DENIED", "Authentication required");
+      throw ProblemRest.of(PageModelErrorCodes.ACCESS_DENIED);
     }
 
     var currentRole = ctxHolder.currentRole();
 
     if (!accessPolicy.permits(logicalId, currentRole)) {
-      throw new TchForbiddenException(
-          "PAGE_MODEL_ACCESS_DENIED",
-          "Role " + currentRole + " is not authorized to access PageModel: " + logicalId);
+      throw ProblemRest.of(PageModelErrorCodes.ACCESS_DENIED);
     }
 
     if (tenantIdOverride.isPresent() && !accessPolicy.canOverrideTenant(currentRole)) {
-      throw new TchForbiddenException(
-          "TENANT_OVERRIDE_DENIED", "Current role cannot override tenant context");
+      throw ProblemRest.of(PageModelErrorCodes.TENANT_OVERRIDE_FORBIDDEN);
     }
 
     Optional<TenantId> tenantId =
@@ -71,7 +68,7 @@ public class DashboardPageModelService {
     PageModelDoc doc = queryBus.ask(new ResolveEffectivePageModelQuery(tenantId, logicalId));
 
     if (doc == null) {
-      throw new TchNotFoundException("PAGE_MODEL_NOT_FOUND", "Page model not found: " + logicalId);
+      throw ProblemRest.of(PageModelErrorCodes.NOT_FOUND);
     }
 
     accessPolicy.assertCanAccess(logicalId, doc, ctxHolder);

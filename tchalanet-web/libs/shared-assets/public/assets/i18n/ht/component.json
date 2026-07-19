@@ -121,6 +121,25 @@
       "tenants_alerts": "Tenant & alèt"
     }
   },
+  "dashboard": {
+    "fallback": {
+      "title": "Tablo debò",
+      "notice": {
+        "title": "Enfòmasyon",
+        "empty": "Pa gen alèt"
+      },
+      "status": {
+        "title": "Tablo debò a limite pou yon ti tan",
+        "runtime": "Done tablo debò",
+        "support": "Sipò"
+      },
+      "actions": {
+        "title": "Aksyon ki disponib",
+        "setup": "Konfigirasyon jeneral",
+        "support": "Sipò"
+      }
+    }
+  },
   "widget": {
     "error": "Kontni sa a pa disponib pou kounye a.",
     "invalid": "Widget envalid.",

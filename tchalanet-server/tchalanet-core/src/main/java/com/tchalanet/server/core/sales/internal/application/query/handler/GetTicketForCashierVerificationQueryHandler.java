@@ -7,6 +7,7 @@ import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.types.money.CurrencyCode;
 import com.tchalanet.server.common.types.money.Money;
 import com.tchalanet.server.common.web.error.ProblemRest;
+import com.tchalanet.server.core.sales.api.error.SalesErrorCodes;
 import com.tchalanet.server.core.sales.api.model.verification.TicketCashierVerificationView;
 import com.tchalanet.server.core.sales.api.query.GetTicketForCashierVerificationQuery;
 import com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketPublicCodeFormatter;
@@ -33,7 +34,7 @@ public class GetTicketForCashierVerificationQueryHandler
     var ticket =
         repository
             .findWithLinesByPublicCode(publicCode)
-            .orElseThrow(() -> ProblemRest.notFound("ticket.not_found"));
+            .orElseThrow(() -> ProblemRest.of(SalesErrorCodes.TICKET_NOT_FOUND));
     var currency = CurrencyCode.of(ticket.getCurrency());
     return new TicketCashierVerificationView(
         TicketId.of(ticket.getId()),

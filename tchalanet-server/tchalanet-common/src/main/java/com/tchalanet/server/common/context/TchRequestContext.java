@@ -313,7 +313,7 @@ public record TchRequestContext(
   public TenantId effectiveTenantIdRequired() {
     TenantId effectiveTenantId = effectiveTenantIdOrNull();
     if (effectiveTenantId == null) {
-      throw ProblemRest.unprocessable("tenant.required: effective tenant is required");
+      throw ProblemRest.of(RequestContextErrorCodes.TENANT_REQUIRED);
     }
     return effectiveTenantId;
   }
@@ -339,14 +339,13 @@ public record TchRequestContext(
    * effectué /api/me/bootstrap (appUserId absent).
    */
   public UserId currentUserIdRequired() {
-    if (appUserId == null)
-      throw ProblemRest.unprocessable("user.not_bootstrapped: appUserId is required");
+    if (appUserId == null) throw ProblemRest.of(RequestContextErrorCodes.USER_NOT_BOOTSTRAPPED);
     return UserId.of(appUserId);
   }
 
   public SellerTerminalId sellerTerminalIdRequired() {
     if (sellerTerminalId == null) {
-      throw ProblemRest.unprocessable("seller_terminal.required: sellerTerminalId is required");
+      throw ProblemRest.of(RequestContextErrorCodes.SELLER_TERMINAL_REQUIRED);
     }
     return sellerTerminalId;
   }
@@ -442,7 +441,7 @@ public record TchRequestContext(
 
   public OperationalContextHint operationalContextRequired() {
     if (operationalContext == null) {
-      throw ProblemRest.unprocessable("operational_context.required");
+      throw ProblemRest.of(RequestContextErrorCodes.OPERATIONAL_CONTEXT_REQUIRED);
     }
     return operationalContext;
   }
@@ -450,7 +449,7 @@ public record TchRequestContext(
   public OperationalContextHint trustedOperationalContextRequired() {
     var context = operationalContextRequired();
     if (!context.trustedForSensitiveOperation()) {
-      throw ProblemRest.forbidden("operational_context.untrusted");
+      throw ProblemRest.of(RequestContextErrorCodes.OPERATIONAL_CONTEXT_UNTRUSTED);
     }
     return context;
   }

@@ -439,6 +439,17 @@ admin-portal                          platform-portal
 
 ## 9. Interceptor & rafraîchissement de token
 
+Les intercepteurs HTTP sont déclarés dans cet ordre (requête de gauche à droite, réponse/erreur
+dans l'ordre inverse) :
+
+```text
+correlation → problem-detail → shell-feedback → auth-bearer → support-access
+```
+
+`auth-bearer` reçoit donc le `401` HTTP brut, force un renouvellement Firebase et rejoue une fois
+la requête avant que `problem-detail` ne la normalise pour le consommateur. Le routeur de feedback
+shell ne reçoit que l'échec final, jamais celui qui a été résolu par le retry.
+
 ```ts
 // auth-bearer.interceptor.ts — uniquement sur les URLs API Tchalanet
 const token = await auth.getAccessToken();

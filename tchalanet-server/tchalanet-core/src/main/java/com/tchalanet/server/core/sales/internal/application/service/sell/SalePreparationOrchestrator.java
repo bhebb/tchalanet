@@ -6,6 +6,7 @@ import com.tchalanet.server.common.time.TchTimeProvider;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.limitpolicy.BreachOutcome;
+import com.tchalanet.server.core.limitpolicy.api.error.LimitPolicyErrorCodes;
 import com.tchalanet.server.core.limitpolicy.api.model.LimitContext;
 import com.tchalanet.server.core.limitpolicy.api.model.LimitLineContext;
 import com.tchalanet.server.core.limitpolicy.api.query.EvaluateLimitPolicyQuery;
@@ -13,6 +14,7 @@ import com.tchalanet.server.core.promotion.api.model.PromotionEvaluationContext;
 import com.tchalanet.server.core.promotion.api.model.PromotionEvaluationPhase;
 import com.tchalanet.server.core.promotion.api.query.EvaluatePromotionQuery;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketCommand;
+import com.tchalanet.server.core.sales.api.error.SalesErrorCodes;
 import com.tchalanet.server.core.sales.internal.application.rule.DrawCutoffRule;
 import com.tchalanet.server.core.sales.internal.application.sale.SaleEvaluationMode;
 import com.tchalanet.server.core.sales.internal.application.service.sell.model.PreparedSale;
@@ -73,7 +75,7 @@ public class SalePreparationOrchestrator {
       return prepareSaleForSellerTerminal(command, ctx, now, tenantId, mode);
     }
 
-    throw ProblemRest.forbidden("seller_terminal.actor_required");
+    throw ProblemRest.of(SalesErrorCodes.SELLER_TERMINAL_REQUIRED);
   }
 
   private PreparedSale prepareSaleForSellerTerminal(
@@ -104,7 +106,7 @@ public class SalePreparationOrchestrator {
     var policyDecision = evaluateLimits(command, ctx, tenantId, now, promoted.ticketLines());
 
     if (policyDecision.limits().outcome() == BreachOutcome.BLOCK) {
-      throw ProblemRest.forbidden("limits.blocked");
+      throw ProblemRest.of(LimitPolicyErrorCodes.LIMIT_BLOCKED);
     }
 
     return new PreparedSale(
@@ -193,7 +195,7 @@ public class SalePreparationOrchestrator {
   private void assertTenantActive(TenantId tenantId) {
     var tenant = tenantConfigApi.getTenantById(new GetTenantByIdRequest(tenantId));
     if (tenant.status() != TenantStatus.ACTIVE) {
-      throw ProblemRest.forbidden("sales.tenant_disabled:" + tenant.status());
+      throw ProblemRest.of(SalesErrorCodes.TENANT_DISABLED);
     }
   }
 
@@ -202,7 +204,7 @@ public class SalePreparationOrchestrator {
     var businessDate = now.atZone(zone).toLocalDate();
     var day = tenantBusinessCalendarApi.resolveBusinessDay(tenantId, businessDate);
     if (day != null && !day.open()) {
-      throw ProblemRest.forbidden("sales.tenant_closed");
+      throw ProblemRest.of(SalesErrorCodes.TENANT_BUSINESS_CLOSED);
     }
   }
 }

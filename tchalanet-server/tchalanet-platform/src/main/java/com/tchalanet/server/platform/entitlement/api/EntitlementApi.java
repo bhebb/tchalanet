@@ -13,7 +13,9 @@ public interface EntitlementApi {
   /** Checks if a feature is enabled. */
   boolean checkFeature(TenantId tenantId, String featureKey);
 
-  /** Requires a feature to be enabled, otherwise throws ProblemRest.forbidden. */
+  /**
+   * Requires a feature to be enabled, otherwise throws a code-first {@code ProblemRestException}.
+   */
   void requireFeature(TenantId tenantId, String featureKey);
 
   /** Gets the numeric limit for a key, if the tenant plan defines one. */

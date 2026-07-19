@@ -697,3 +697,12 @@ DEFAULT_MARYAJ_GRATIS (seed versionné en code, pas de campagne globale runtime)
   campagne `DEFAULT_MARYAJ_GRATIS` existe déjà, l'endpoint reste idempotent et
   retourne l'existant ; les changements de règle passent par une nouvelle
   campagne/règle, pas par mutation silencieuse d'une campagne active.
+
+
+TOK=$(cat /private/tmp/claude-501/-Users-bhebb-Developer-tchalanet/7b2812cb-7e6b-4ed4-b28f-cdbc48bc8140/scratchpad/tok.txt)
+curl -sk -X POST "https://api.localtest.me:8443/api/v1/tenant/seller-terminal/me/change-pin" \
+-H "Authorization: Bearer $TOK" \
+-H "X-Tch-Client-Type: POS" \
+-H "X-Request-Id: tch_req_changepin01" \
+-H "Content-Type: application/json" \
+-d '{"newPin":"123456"}' -w "\nHTTP %{http_code}\n"

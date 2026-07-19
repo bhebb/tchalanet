@@ -4,6 +4,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.platform.identity.api.IdentityProviderType;
+import com.tchalanet.server.platform.identity.api.error.IdentityErrorCodes;
 import com.tchalanet.server.platform.identity.internal.handoff.ProviderSessionTokenIssuer;
 import com.tchalanet.server.platform.identity.internal.persistence.repository.AppUserExternalIdentityJpaRepository;
 import java.util.UUID;
@@ -26,13 +27,12 @@ class FirebaseProviderSessionTokenIssuer implements ProviderSessionTokenIssuer {
     var externalSubject =
         externalIdentities
             .findFirstByAppUserIdAndProvider(appUserId, IdentityProviderType.FIREBASE)
-            .orElseThrow(
-                () -> ProblemRest.unprocessable("portal_handoff.external_identity_missing"))
+            .orElseThrow(() -> ProblemRest.of(IdentityErrorCodes.HANDOFF_EXTERNAL_IDENTITY_MISSING))
             .getExternalSubject();
     try {
       return firebaseAuth.createCustomToken(externalSubject);
     } catch (FirebaseAuthException ex) {
-      throw ProblemRest.internal("portal_handoff.custom_token_failed", ex);
+      throw ProblemRest.of(IdentityErrorCodes.HANDOFF_CUSTOM_TOKEN_FAILED, java.util.Map.of(), ex);
     }
   }
 }

@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { TchBackendClient } from '@tch/api';
+import type { TchRequestOptions } from '@tch/api';
 import { Observable } from 'rxjs';
 
 export interface PricingOddsEntry {
@@ -50,15 +51,36 @@ export class BaremesAdminApi {
     });
   }
 
-  listSellerOverrides(sellerTerminalId: string): Observable<OddsOverrideEntry[]> {
-    return this.backend.get<OddsOverrideEntry[]>(`/admin/controls/pricing-rules/seller-terminals/${sellerTerminalId}`);
+  listSellerOverrides(
+    sellerTerminalId: string,
+    options?: TchRequestOptions,
+  ): Observable<OddsOverrideEntry[]> {
+    return this.backend.get<OddsOverrideEntry[]>(
+      `/admin/controls/pricing-rules/seller-terminals/${sellerTerminalId}`,
+      options,
+    );
   }
 
-  upsertOverride(sellerTerminalId: string, req: UpsertOverrideRequest): Observable<unknown> {
-    return this.backend.put<unknown>(`/admin/controls/pricing-rules/seller-terminals/${sellerTerminalId}`, req);
+  upsertOverride(
+    sellerTerminalId: string,
+    req: UpsertOverrideRequest,
+    options?: TchRequestOptions,
+  ): Observable<unknown> {
+    return this.backend.put<unknown>(
+      `/admin/controls/pricing-rules/seller-terminals/${sellerTerminalId}`,
+      req,
+      options,
+    );
   }
 
-  deleteOverride(sellerTerminalId: string, overrideId: string): Observable<void> {
-    return this.backend.delete<void>(`/admin/controls/pricing-rules/seller-terminals/${sellerTerminalId}/overrides/${overrideId}`);
+  deleteOverride(
+    sellerTerminalId: string,
+    overrideId: string,
+    options?: TchRequestOptions,
+  ): Observable<void> {
+    return this.backend.delete<void>(
+      `/admin/controls/pricing-rules/seller-terminals/${sellerTerminalId}/overrides/${overrideId}`,
+      options,
+    );
   }
 }

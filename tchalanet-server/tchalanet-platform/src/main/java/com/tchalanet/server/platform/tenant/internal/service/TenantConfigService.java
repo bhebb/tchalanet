@@ -7,11 +7,13 @@ import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.types.id.ThemePresetId;
+import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageMapper;
 import com.tchalanet.server.platform.address.api.AddressApi;
 import com.tchalanet.server.platform.address.api.model.AddressView;
 import com.tchalanet.server.platform.tenant.api.TenantPreContextLookupApi;
+import com.tchalanet.server.platform.tenant.api.error.TenantErrorCodes;
 import com.tchalanet.server.platform.tenant.api.model.TenantContextLookupView;
 import com.tchalanet.server.platform.tenant.api.model.TenantStatus;
 import com.tchalanet.server.platform.tenant.api.model.request.ActivateTenantRequest;
@@ -210,8 +212,7 @@ public class TenantConfigService {
     return toView(
         tenantRegistry
             .findById(request.tenantId())
-            .orElseThrow(
-                () -> new IllegalArgumentException("Tenant not found: " + request.tenantId())));
+            .orElseThrow(() -> ProblemRest.of(TenantErrorCodes.NOT_FOUND)));
   }
 
   public TenantConfigView getTenantByCode(GetTenantByCodeRequest request) {
@@ -219,8 +220,7 @@ public class TenantConfigService {
     return toView(
         tenantRegistry
             .findByCode(code)
-            .orElseThrow(
-                () -> new IllegalArgumentException("Tenant not found with code: " + code)));
+            .orElseThrow(() -> ProblemRest.of(TenantErrorCodes.NOT_FOUND)));
   }
 
   public TchPage<TenantSummaryView> listTenants(ListTenantsRequest request) {
@@ -250,7 +250,13 @@ public class TenantConfigService {
     var tenant = load(request.tenantId());
     var previous = tenant.status();
     var now = Instant.now(clock);
-    var saved = tenants.update(tenant.activate(now));
+    final TenantConfig activated;
+    try {
+      activated = tenant.activate(now);
+    } catch (IllegalStateException ex) {
+      throw ProblemRest.of(TenantErrorCodes.ACTIVATION_NOT_ALLOWED, java.util.Map.of(), ex);
+    }
+    var saved = tenants.update(activated);
     if (saved.status() != previous) {
       publishStatus(now, saved.id(), previous, saved.status(), "activated_by_admin");
     }
@@ -261,7 +267,13 @@ public class TenantConfigService {
     var tenant = load(request.tenantId());
     var previous = tenant.status();
     var now = Instant.now(clock);
-    var saved = tenants.update(tenant.suspend(now));
+    final TenantConfig suspended;
+    try {
+      suspended = tenant.suspend(now);
+    } catch (IllegalStateException ex) {
+      throw ProblemRest.of(TenantErrorCodes.SUSPENSION_NOT_ALLOWED, java.util.Map.of(), ex);
+    }
+    var saved = tenants.update(suspended);
     if (saved.status() != previous) {
       publishStatus(now, saved.id(), previous, saved.status(), request.reason());
     }
@@ -314,7 +326,7 @@ public class TenantConfigService {
   public void updateTenantInternalSettings(UpdateTenantInternalSettingsRequest request) {
     var tenant = load(request.tenantId());
     var merged = mergeWithPersistedConfig(tenant, request.settings());
-    configValidator.validateAll(merged);
+    validateSettings(merged);
 
     var now = Instant.now(clock);
     tenants.update(tenant.updateConfig(merged, now));
@@ -327,7 +339,7 @@ public class TenantConfigService {
     var sectionPatch = JsonUtils.emptyObject();
     sectionPatch.set(request.section().jsonKey(), request.value());
     var merged = mergeWithPersistedConfig(tenant, sectionPatch);
-    configValidator.validateAll(merged);
+    validateSettings(merged);
 
     var now = Instant.now(clock);
     tenants.update(tenant.updateConfig(merged, now));
@@ -396,8 +408,7 @@ public class TenantConfigService {
     var registry =
         tenantRegistry
             .findById(request.tenantId())
-            .orElseThrow(
-                () -> new IllegalArgumentException("Tenant not found: " + request.tenantId()));
+            .orElseThrow(() -> ProblemRest.of(TenantErrorCodes.NOT_FOUND));
     var settings = jsonUtils.treeToValue(persistedConfigCopy(tenant), TenantInternalSettings.class);
     var supportedLocales =
         settings != null && settings.locale() != null
@@ -422,7 +433,7 @@ public class TenantConfigService {
     var registry =
         tenantRegistry
             .findByCode(code)
-            .orElseThrow(() -> new IllegalArgumentException("Tenant not found: " + code));
+            .orElseThrow(() -> ProblemRest.of(TenantErrorCodes.NOT_FOUND));
     return getTenantRuntimeView(registry.tenantId());
   }
 
@@ -432,7 +443,7 @@ public class TenantConfigService {
     var registry =
         tenantRegistry
             .findById(tenantId)
-            .orElseThrow(() -> new IllegalArgumentException("Tenant not found: " + tenantId));
+            .orElseThrow(() -> ProblemRest.of(TenantErrorCodes.NOT_FOUND));
     var locale =
         tenants
             .findByIdActive(registry.tenantId())
@@ -458,6 +469,14 @@ public class TenantConfigService {
 
   private TenantConfig load(com.tchalanet.server.common.types.id.TenantId tenantId) {
     return tenants.getRequiredByIdActive(tenantId);
+  }
+
+  private void validateSettings(ObjectNode settings) {
+    try {
+      configValidator.validateAll(settings);
+    } catch (IllegalArgumentException ex) {
+      throw ProblemRest.of(TenantErrorCodes.SETTINGS_INVALID, java.util.Map.of(), ex);
+    }
   }
 
   private TenantConfigView toView(TenantContextLookupView registry) {
