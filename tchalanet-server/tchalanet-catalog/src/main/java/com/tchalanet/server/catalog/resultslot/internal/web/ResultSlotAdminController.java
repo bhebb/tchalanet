@@ -2,6 +2,7 @@ package com.tchalanet.server.catalog.resultslot.internal.web;
 
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotView;
+import com.tchalanet.server.catalog.resultslot.api.error.ResultSlotErrorCodes;
 import com.tchalanet.server.catalog.resultslot.internal.web.model.CreateResultSlotRequest;
 import com.tchalanet.server.catalog.resultslot.internal.web.model.UpdateResultSlotProjectionConfigRequest;
 import com.tchalanet.server.catalog.resultslot.internal.web.model.UpdateResultSlotRequest;
@@ -46,7 +47,7 @@ public class ResultSlotAdminController {
   @PreAuthorize("hasAnyRole('SUPER_ADMIN','TENANT_OWNER','TENANT_ADMIN')")
   public ApiResponse<ResultSlotView> getById(@PathVariable ResultSlotId id) {
     return ApiResponse.success(
-        catalog.findById(id).orElseThrow(() -> ProblemRest.notFound("Result slot not found", id)));
+        catalog.findById(id).orElseThrow(() -> ProblemRest.of(ResultSlotErrorCodes.NOT_FOUND)));
   }
 
   @Operation(summary = "Get result slot by key (platform)")

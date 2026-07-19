@@ -118,7 +118,8 @@ class DrawCutoffRuleTest {
     void exactlyAtCutoff() {
       var rule = ruleAt(CUTOFF);
       assertThatThrownBy(() -> rule.requireBeforeCutoff(DRAW))
-          .isInstanceOf(ProblemRestException.class);
+          .isInstanceOf(ProblemRestException.class)
+          .satisfies(error -> assertCode(error, "sales.draw.cutoff_elapsed"));
     }
 
     @Test
@@ -126,7 +127,8 @@ class DrawCutoffRuleTest {
     void oneSecondAfter() {
       var rule = ruleAt(CUTOFF.plusSeconds(1));
       assertThatThrownBy(() -> rule.requireBeforeCutoff(DRAW))
-          .isInstanceOf(ProblemRestException.class);
+          .isInstanceOf(ProblemRestException.class)
+          .satisfies(error -> assertCode(error, "sales.draw.cutoff_elapsed"));
     }
 
     @Test
@@ -134,7 +136,8 @@ class DrawCutoffRuleTest {
     void wellAfterCutoff() {
       var rule = ruleAt(CUTOFF.plusSeconds(3600));
       assertThatThrownBy(() -> rule.requireBeforeCutoff(DRAW))
-          .isInstanceOf(ProblemRestException.class);
+          .isInstanceOf(ProblemRestException.class)
+          .satisfies(error -> assertCode(error, "sales.draw.cutoff_elapsed"));
     }
   }
 
@@ -147,7 +150,8 @@ class DrawCutoffRuleTest {
     void closedDraw() {
       var rule = ruleAt(CUTOFF.minusSeconds(1), makeDraw(DrawStatus.CLOSED, true, CHANNEL));
       assertThatThrownBy(() -> rule.requireBeforeCutoff(DRAW))
-          .isInstanceOf(ProblemRestException.class);
+          .isInstanceOf(ProblemRestException.class)
+          .satisfies(error -> assertCode(error, "sales.draw.not_open"));
     }
 
     @Test
@@ -155,7 +159,8 @@ class DrawCutoffRuleTest {
     void inactiveDrawChannel() {
       var rule = ruleAt(CUTOFF.minusSeconds(1), makeDraw(DrawStatus.OPEN, false, true, CHANNEL));
       assertThatThrownBy(() -> rule.requireBeforeCutoff(DRAW))
-          .isInstanceOf(ProblemRestException.class);
+          .isInstanceOf(ProblemRestException.class)
+          .satisfies(error -> assertCode(error, "sales.draw_channel.inactive"));
     }
 
     @Test
@@ -163,7 +168,8 @@ class DrawCutoffRuleTest {
     void inactiveResultSlot() {
       var rule = ruleAt(CUTOFF.minusSeconds(1), makeDraw(DrawStatus.OPEN, true, false, CHANNEL));
       assertThatThrownBy(() -> rule.requireBeforeCutoff(DRAW))
-          .isInstanceOf(ProblemRestException.class);
+          .isInstanceOf(ProblemRestException.class)
+          .satisfies(error -> assertCode(error, "sales.result_slot.inactive"));
     }
 
     @Test
@@ -171,7 +177,8 @@ class DrawCutoffRuleTest {
     void mismatchedDrawChannel() {
       var rule = ruleAt(CUTOFF.minusSeconds(1), makeDraw(DrawStatus.OPEN, true, true, CHANNEL));
       assertThatThrownBy(() -> rule.requireBeforeCutoff(DRAW, OTHER_CHANNEL))
-          .isInstanceOf(ProblemRestException.class);
+          .isInstanceOf(ProblemRestException.class)
+          .satisfies(error -> assertCode(error, "sales.draw_channel.mismatch"));
     }
   }
 
@@ -206,5 +213,10 @@ class DrawCutoffRuleTest {
         null,
         resultActive,
         null);
+  }
+
+  private static void assertCode(Throwable throwable, String expectedCode) {
+    var problem = ((ProblemRestException) throwable).getProblem();
+    assertThat(problem.getProperties()).containsEntry("code", expectedCode);
   }
 }

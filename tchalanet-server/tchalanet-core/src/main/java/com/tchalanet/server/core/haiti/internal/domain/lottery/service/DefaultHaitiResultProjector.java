@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.haiti.internal.domain.lottery.service;
 
 import com.tchalanet.server.core.haiti.api.HaitiResult;
+import com.tchalanet.server.core.haiti.internal.domain.lottery.exception.HaitiProjectionException;
 import com.tchalanet.server.core.haiti.internal.domain.lottery.model.ExternalPick;
 import com.tchalanet.server.core.haiti.internal.domain.lottery.model.HaitiLot;
 import com.tchalanet.server.core.haiti.internal.domain.lottery.model.HaitiProjectionConfig;
@@ -21,7 +22,7 @@ public final class DefaultHaitiResultProjector implements HaitiResultProjector {
     for (HaitiLot lot : HaitiLot.values()) {
       HaitiProjectionToken token = config.tokens().get(lot);
       if (token == null) {
-        throw new IllegalArgumentException("Missing token for " + lot);
+        throw new HaitiProjectionException("MISSING_TOKEN");
       }
 
       String value = projectToken(token, p3, p4);

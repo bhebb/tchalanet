@@ -10,6 +10,7 @@ import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.draw.api.command.CorrectAppliedDrawResultCommand;
+import com.tchalanet.server.core.draw.api.error.DrawErrorCodes;
 import com.tchalanet.server.core.draw.api.event.DrawResultCorrectedEvent;
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawLifecyclePort;
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawLookupPort;
@@ -55,14 +56,14 @@ public class CorrectAppliedDrawResultCommandHandler
     Objects.requireNonNull(command.correctedDrawResultId(), "correctedDrawResultId is required");
 
     if (command.reason() == null || command.reason().isBlank()) {
-      throw ProblemRest.badRequest("draw.correct_result.reason_required");
+      throw ProblemRest.of(DrawErrorCodes.CORRECT_RESULT_REASON_REQUIRED);
     }
     if (command.reason().trim().length() < 10) {
-      throw ProblemRest.badRequest("draw.correct_result.reason_too_short");
+      throw ProblemRest.of(DrawErrorCodes.CORRECT_RESULT_REASON_TOO_SHORT);
     }
 
     if (command.idempotencyKey() == null || command.idempotencyKey().isBlank()) {
-      throw ProblemRest.badRequest("draw.correct_result.idempotency_key_required");
+      throw ProblemRest.of(DrawErrorCodes.CORRECT_RESULT_IDEMPOTENCY_KEY_REQUIRED);
     }
 
     var idempotentEventId =
@@ -81,13 +82,13 @@ public class CorrectAppliedDrawResultCommandHandler
     var draw = drawLookupPort.getById(command.drawId());
 
     if (draw.drawResultId() == null) {
-      throw ProblemRest.conflict("draw.correct_result.no_result_applied");
+      throw ProblemRest.of(DrawErrorCodes.CORRECT_RESULT_NO_RESULT_APPLIED);
     }
 
     var previousDrawResultId = draw.drawResultId();
 
     if (previousDrawResultId.equals(command.correctedDrawResultId())) {
-      throw ProblemRest.conflict("draw.correct_result.same_result");
+      throw ProblemRest.of(DrawErrorCodes.CORRECT_RESULT_SAME_RESULT);
     }
 
     salesGuard.assertCanCorrectAppliedResult(

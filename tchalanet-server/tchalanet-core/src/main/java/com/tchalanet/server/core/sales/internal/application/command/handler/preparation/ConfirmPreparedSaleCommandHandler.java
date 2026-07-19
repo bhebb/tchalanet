@@ -9,6 +9,7 @@ import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.sales.api.command.preparation.ConfirmPreparedSaleCommand;
 import com.tchalanet.server.core.sales.api.command.sell.PromotionChoiceInput;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketOutcome;
+import com.tchalanet.server.core.sales.api.error.SalesErrorCodes;
 import com.tchalanet.server.core.sales.api.model.preparation.ConfirmPreparedSaleResult;
 import com.tchalanet.server.core.sales.api.model.preparation.SalePreparationStatus;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource;
@@ -47,21 +48,21 @@ public class ConfirmPreparedSaleCommandHandler
     var preparation =
         store
             .findById(cmd.preparationId())
-            .orElseThrow(() -> ProblemRest.notFound("sales.preparation.not_found"));
+            .orElseThrow(() -> ProblemRest.of(SalesErrorCodes.PREPARATION_NOT_FOUND));
 
     if (preparation.status() == SalePreparationStatus.CONFIRMED) {
       if (Objects.equals(preparation.idempotencyKey(), cmd.idempotencyKey())
           && preparation.ticketId() != null) {
         return new ConfirmPreparedSaleResult(preparation.id(), preparation.ticketId(), true, null);
       }
-      throw ProblemRest.conflict("sales.preparation.already_confirmed");
+      throw ProblemRest.of(SalesErrorCodes.PREPARATION_ALREADY_CONFIRMED);
     }
     if (preparation.isExpired(timeProvider.now())) {
       store.updateStatus(preparation.id(), SalePreparationStatus.EXPIRED);
-      throw ProblemRest.conflict("sales.preparation.expired");
+      throw ProblemRest.of(SalesErrorCodes.PREPARATION_EXPIRED);
     }
     if (preparation.status() != SalePreparationStatus.DRAFT) {
-      throw ProblemRest.conflict("sales.preparation.not_confirmable");
+      throw ProblemRest.of(SalesErrorCodes.PREPARATION_NOT_CONFIRMABLE);
     }
 
     var sell = codec.fromMap(preparation.input(), pinnedChoices(preparation));

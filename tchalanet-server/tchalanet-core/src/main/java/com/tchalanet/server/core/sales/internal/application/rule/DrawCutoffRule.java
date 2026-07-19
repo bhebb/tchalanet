@@ -8,6 +8,7 @@ import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.draw.api.model.DrawStatus;
 import com.tchalanet.server.core.draw.api.query.DrawSummary;
 import com.tchalanet.server.core.draw.api.query.GetDrawByIdQuery;
+import com.tchalanet.server.core.sales.api.error.SalesErrorCodes;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -31,19 +32,19 @@ public class DrawCutoffRule {
     var cutoff = draw.cutoffAt();
 
     if (draw.status() != DrawStatus.OPEN) {
-      throw ProblemRest.conflict("Draw is not open for sales");
+      throw ProblemRest.of(SalesErrorCodes.DRAW_NOT_OPEN);
     }
 
     if (!draw.drawChannelActive()) {
-      throw ProblemRest.conflict("Draw channel is not active for sales");
+      throw ProblemRest.of(SalesErrorCodes.DRAW_CHANNEL_INACTIVE);
     }
 
     if (!draw.resultActive()) {
-      throw ProblemRest.conflict("Result slot is not active for sales");
+      throw ProblemRest.of(SalesErrorCodes.RESULT_SLOT_INACTIVE);
     }
 
     if (!now.isBefore(cutoff)) {
-      throw ProblemRest.conflict("Draw cutoff time has passed");
+      throw ProblemRest.of(SalesErrorCodes.DRAW_CUTOFF_ELAPSED);
     }
     return draw;
   }
@@ -51,7 +52,7 @@ public class DrawCutoffRule {
   public DrawSummary requireBeforeCutoff(DrawId drawId, DrawChannelId drawChannelId) {
     var draw = requireBeforeCutoff(drawId);
     if (!Objects.equals(draw.drawChannelId(), drawChannelId)) {
-      throw ProblemRest.conflict("Draw channel does not match draw");
+      throw ProblemRest.of(SalesErrorCodes.DRAW_CHANNEL_MISMATCH);
     }
     return draw;
   }

@@ -343,6 +343,96 @@
           "seller_terminal_actor_required": {
             "title": "Seller required",
             "message": "This sale is not attached to a seller. Return to the seller list and open the sale from an active seller."
+          },
+          "draw": {
+            "not_open": { "title": "Draw closed", "message": "Choose another open draw." },
+            "cutoff_elapsed": { "title": "Sales closed for this draw", "message": "The sales cutoff has passed. Choose another open draw." }
+          },
+          "draw_channel": {
+            "inactive": { "title": "Channel unavailable", "message": "This channel does not currently accept sales." },
+            "mismatch": { "title": "Invalid channel", "message": "Reload the draw, then try again." }
+          },
+          "result_slot": {
+            "inactive": { "title": "Draw unavailable", "message": "This result slot does not currently accept sales." }
+          },
+          "seller_terminal": {
+            "required": { "title": "Seller required", "message": "Open the sale from an active seller." }
+          },
+          "tenant": {
+            "disabled": { "title": "Workspace disabled", "message": "Sales are disabled for this workspace. Contact an administrator." },
+            "business_closed": { "title": "Sales closed", "message": "Sales are currently closed for this workspace." }
+          },
+          "draw_channel_required": { "title": "Channel required", "message": "Reload the draw, then try again." },
+          "tenant_game_not_configured": { "title": "Game unavailable", "message": "This game is not configured for this workspace." },
+          "tenant_game_disabled": { "title": "Game disabled", "message": "This game is disabled for this workspace." },
+          "tenant_game_not_visible_in_pos": { "title": "Game unavailable", "message": "This game is not available on this terminal." },
+          "invalid_line_number": { "title": "Invalid line", "message": "Correct the line, then try again." },
+          "selection_invalid": { "title": "Number to correct", "message": "Correct the number for the selected game." },
+          "tenant_bet_option_not_configured": { "title": "Option unavailable", "message": "This option is not configured for this game." },
+          "tenant_bet_option_disabled": { "title": "Option disabled", "message": "This option is disabled for this game." },
+          "tenant_bet_option_not_visible_in_pos": { "title": "Option unavailable", "message": "This option is not available on this terminal." },
+          "stake_below_tenant_min": { "title": "Stake too low", "message": "Increase the stake on this line, then try again." },
+          "stake_above_tenant_max": { "title": "Stake too high", "message": "Reduce the stake on this line, then try again." },
+          "tenant_bet_type_not_configured": { "title": "Bet type unavailable", "message": "This bet type is not configured for this game." },
+          "preparation": {
+            "not_found": { "title": "Preparation not found", "message": "Return to the ticket and prepare it again." },
+            "promotion_line_not_found": { "title": "Free line not found", "message": "Reload the ticket, then try again." },
+            "already_confirmed": { "title": "Ticket already confirmed", "message": "This ticket has already been sold." },
+            "expired": { "title": "Preparation expired", "message": "Review the ticket, then prepare the sale again." },
+            "not_confirmable": { "title": "Preparation unavailable", "message": "Prepare the ticket again before confirming." },
+            "line_not_regenerable": { "title": "Line cannot be changed", "message": "This free line cannot be regenerated." },
+            "max_regenerations_reached": { "title": "Regeneration limit reached", "message": "Confirm the ticket or prepare a new one." },
+            "cancelled": { "title": "Preparation cancelled", "message": "Prepare the ticket again." }
+          }
+        },
+        "ticket": {
+          "not_found": { "title": "Ticket not found", "message": "Check the ticket code, then try again." },
+          "print": {
+            "voided_not_allowed": { "title": "Printing unavailable", "message": "A voided ticket cannot be printed." },
+            "sale_not_accepted": { "title": "Printing unavailable", "message": "The ticket must be accepted before printing." }
+          },
+          "reprint": {
+            "reason_required": { "title": "Reason required", "message": "Enter the reason for reprinting." },
+            "reason_too_long": { "title": "Reason too long", "message": "Shorten the reprint reason." }
+          }
+        },
+        "draw": {
+          "correct_result": {
+            "reason_required": { "title": "Reason required", "message": "Enter the reason for the correction." },
+            "reason_too_short": { "title": "Reason too short", "message": "Provide more detail for the correction reason." },
+            "idempotency_key_required": { "title": "Invalid correction", "message": "Start the correction again from the draw page." },
+            "no_result_applied": { "title": "No result applied", "message": "Apply a result before correcting it." },
+            "same_result": { "title": "Result unchanged", "message": "Choose a different result to make a correction." }
+          },
+          "lookahead_days_invalid": { "title": "Invalid period", "message": "Choose a period from 1 to 30 days." },
+          "schedule_invalid": { "title": "Invalid schedule", "message": "The cutoff must be before the draw time." },
+          "lifecycle": {
+            "draw_ids_required": { "title": "Draw required", "message": "Select at least one draw." },
+            "draw_ids_limit_exceeded": { "title": "Too many draws", "message": "Reduce the selection, then try again." }
+          }
+        },
+        "drawresult": {
+          "not_found": { "title": "Result not found", "message": "This result is no longer available." },
+          "result_slot": { "not_found": { "title": "Slot not found", "message": "The requested result slot is no longer available." } },
+          "override_settled_forbidden": { "title": "Correction unavailable", "message": "This result is already linked to a settled draw." },
+          "external_pick_invalid": { "title": "Invalid numbers", "message": "Enter 3 digits for the first number and 4 digits for the second." },
+          "projection_failed": { "title": "Result cannot be processed", "message": "The result cannot be processed at the moment. Try again or contact support." }
+        },
+        "catalog": {
+          "game": {
+            "not_found": { "title": "Game not found", "message": "This game is no longer available in the catalog." },
+            "structural_update_in_use": { "title": "Update unavailable", "message": "This game is already used in a tenant configuration." },
+            "delete_in_use": { "title": "Deletion unavailable", "message": "This game is already used in a tenant configuration." }
+          },
+          "drawchannel": {
+            "deleted": { "title": "Channel not found", "message": "This channel is no longer available." },
+            "flags_required": { "title": "Configuration required", "message": "Provide the channel configuration." },
+            "flags_invalid": { "title": "Invalid configuration", "message": "Correct the channel configuration, then try again." }
+          },
+          "resultslot": {
+            "not_found": { "title": "Slot not found", "message": "This result slot is no longer available." },
+            "config_invalid": { "title": "Invalid configuration", "message": "Correct the slot configuration, then try again." },
+            "game_key_invalid": { "title": "Invalid game", "message": "Choose a supported game for this slot." }
           }
         }
       }

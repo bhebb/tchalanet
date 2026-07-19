@@ -2,6 +2,7 @@ package com.tchalanet.server.core.sales.internal.application.service.print;
 
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.sales.api.command.print.RecordTicketPrintCommand;
+import com.tchalanet.server.core.sales.api.error.SalesErrorCodes;
 import com.tchalanet.server.core.sales.api.model.status.TicketSaleStatus;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.Ticket;
 import org.springframework.stereotype.Component;
@@ -22,19 +23,19 @@ public class TicketPrintPolicyService {
 
     var saleStatus = ticket.lifecycle().sale().status();
     if (saleStatus == TicketSaleStatus.VOIDED) {
-      throw ProblemRest.forbidden("ticket.print.voided_not_allowed");
+      throw ProblemRest.of(SalesErrorCodes.TICKET_PRINT_VOIDED_NOT_ALLOWED);
     }
     if (!saleStatus.isAcceptedSale()) {
-      throw ProblemRest.forbidden("ticket.print.sale_not_accepted");
+      throw ProblemRest.of(SalesErrorCodes.TICKET_PRINT_SALE_NOT_ACCEPTED);
     }
 
     var isReprint = ticket.print().printCount() > 0;
     var reason = command.reason();
     if (isReprint && (reason == null || reason.trim().length() < MIN_REPRINT_REASON_LENGTH)) {
-      throw ProblemRest.badRequest("ticket.reprint.reason_required");
+      throw ProblemRest.of(SalesErrorCodes.TICKET_REPRINT_REASON_REQUIRED);
     }
     if (reason != null && reason.length() > MAX_REASON_LENGTH) {
-      throw ProblemRest.badRequest("ticket.reprint.reason_too_long");
+      throw ProblemRest.of(SalesErrorCodes.TICKET_REPRINT_REASON_TOO_LONG);
     }
   }
 }
