@@ -42,6 +42,7 @@ public class PosGamesService {
   private PosGameOptionResponse option(
       GameCode gameCode, String gameLabel, TenantBetTypeOptionConfigView config) {
     var betType = config.betType();
+    var selectionShape = selectionShape(betType);
     return new PosGameOptionResponse(
         gameCode,
         gameLabel,
@@ -50,15 +51,23 @@ public class PosGamesService {
         betType.requiresOption(),
         config.selectionPolicy(),
         posOptions(config).stream()
-            .map(
-                option ->
-                    new PosBetOptionResponse(
-                        option.code(),
-                        option.label(),
-                        option.description(),
-                        optionSelectionHint(BetOption.from(betType, option.code()))))
+            .map(option -> toPosOption(betType, option))
             .toList(),
-        selectionHint(betType, config.selectionPolicy()));
+        selectionHint(betType, config.selectionPolicy()),
+        selectionShape.digits(),
+        selectionShape.segments());
+  }
+
+  private PosBetOptionResponse toPosOption(BetType betType, TenantBetOptionView option) {
+    var betOption = BetOption.from(betType, option.code());
+    var selectionShape = selectionShape(betOption);
+    return new PosBetOptionResponse(
+        option.code(),
+        option.label(),
+        option.description(),
+        optionSelectionHint(betOption),
+        selectionShape.digits(),
+        selectionShape.segments());
   }
 
   private List<TenantBetOptionView> posOptions(TenantBetTypeOptionConfigView config) {
@@ -124,4 +133,27 @@ public class PosGamesService {
       case LOTTO5_LOT1_LOT2, LOTTO5_LOT1_LOT3, LOTTO5_MIXED_1_2_3 -> "5 chiffres, ex: 12345";
     };
   }
+
+  private SelectionShape selectionShape(BetType betType) {
+    return switch (betType) {
+      case MATCH_1_2D, MATCH_2_2D, MATCH_3_2D -> new SelectionShape(2, 1);
+      case MARRIAGE_2D2D -> new SelectionShape(2, 2);
+      case LOTTO3_3D -> new SelectionShape(3, 1);
+      case LOTTO4_PATTERN -> new SelectionShape(4, 1);
+      case LOTTO5_PATTERN -> new SelectionShape(5, 1);
+    };
+  }
+
+  private SelectionShape selectionShape(BetOption option) {
+    return switch (option) {
+      case MARRIAGE_EXACT_ORDER, MARRIAGE_REVERSE_ALLOWED -> new SelectionShape(2, 2);
+      case LOTTO4_FRONT_PAIR, LOTTO4_BACK_PAIR -> new SelectionShape(2, 1);
+      case LOTTO3_STRAIGHT, LOTTO3_BOX, LOTTO3_EXACT_PLUS_BOX -> new SelectionShape(3, 1);
+      case LOTTO4_STRAIGHT, LOTTO4_BOX, LOTTO4_EXACT_PLUS_BOX -> new SelectionShape(4, 1);
+      case LOTTO5_LOT1_LOT2, LOTTO5_LOT1_LOT3, LOTTO5_MIXED_1_2_3 ->
+          new SelectionShape(5, 1);
+    };
+  }
+
+  private record SelectionShape(int digits, int segments) {}
 }
