@@ -1,7 +1,98 @@
 {
   "pos": {
+    "sale": {
+      "title": "Vann yon tikè",
+      "cancel": "Anile",
+      "draw_label": "Tiraj",
+      "change_draw": "Chanje",
+      "no_draws": "Pa gen tiraj ki disponib.",
+      "draw_unavailable": "Tiraj sa a pa disponib ankò.",
+      "game_label": "Jwèt",
+      "selection_label": "Nimewo / seleksyon",
+      "stake_label": "Miz",
+      "ticket_label": "Tikè a",
+      "ticket_total": "TOTAL",
+      "add_line": "Ajoute",
+      "remove_line": "Retire liy la",
+      "verify_sale": "Verifye vant la",
+      "back_to_ticket": "Retounen sou tikè a",
+      "confirm_sale": "Konfime vant la",
+      "checking_sale": "Verifikasyon...",
+      "sale_checked": "Tikè a verifye",
+      "sale_rejected": "Vant la pa aksepte",
+      "no_selection_stake": "Antre yon nimewo ak yon miz",
+      "draw": {
+        "local_time": "Lokal",
+        "provider_time": "Founisè"
+      }
+    },
+    "draw": {
+      "providers": {
+        "ca": "Kalifòni", "fl": "Florid", "ga": "Jòji", "il": "Ilinwa",
+        "mi": "Michigan", "mo": "Misouri", "ms": "Misisipi", "nj": "Nouvo Jèze",
+        "ny": "Nouyòk", "oh": "Ohio", "pa": "Pènsilvani", "tn": "Tennessee",
+        "tx": "Teksas", "wi": "Wisconsin"
+      },
+      "slots": {
+        "midday": "Midi", "evening": "Aswè", "morning": "Maten",
+        "late": "Tard", "day": "Jou"
+      }
+    },
     "dashboard": {
-      "title": "Tchalanet POS"
+      "title": "Tchalanet POS",
+      "home": "Akèy",
+      "history": "Istorik",
+      "reports": "Rapò",
+      "profile": "Pwofil",
+      "notifications": "Notifikasyon",
+      "logout": "Dekonekte",
+      "daily_summary": "Rezime jodi a",
+      "no_sales_yet": "Poko gen vant jodi a. Chwazi yon tiraj pou kòmanse vann.",
+      "last_ticket": "Dènye tikè",
+      "reprint": "Reenprime",
+      "available_draws": "Tiraj ki disponib",
+      "no_draws": "Pa gen tiraj ki disponib pou vann kounye a.",
+      "draw_load_error": "Nou pa kapab chaje tiraj yo.",
+      "provider_time": "Founisè",
+      "local_time": "Lokal",
+      "closes_in": "Fèmen nan {countdown}",
+      "closes_in_hours_minutes": "Fèmen nan {hours} è {minutes} min",
+      "closes_in_minutes": "Fèmen nan {minutes} min",
+      "closes_soon": "Prèske fèmen",
+      "closed": "Fèmen",
+      "sell": "Vann"
+    },
+    "reports": {
+      "title": "Rapò vandè",
+      "today": "Jodi a",
+      "yesterday": "Yè",
+      "by_draw": "PA TIRAJ",
+      "all": "Tout",
+      "empty": "Pa gen vant pou jounen sa a.",
+      "load_error": "Nou pa kapab chaje rapò a."
+    },
+    "profile": {
+      "title": "Pwofil",
+      "open": "Louvri pwofil",
+      "terminal": "Tèminal",
+      "account": "Kont",
+      "name": "Non",
+      "context": "Kontèks",
+      "verified": "Verifye",
+      "needs_verification": "Pou verifye",
+      "tickets_today": "Tikè jodi a",
+      "sales_today": "Vant jodi a",
+      "user": "Itilizatè",
+      "tenant": "Tenant",
+      "readiness": "Estati pare",
+      "language": "Lang",
+      "change_pin": "Chanje PIN",
+      "refresh": "Rafrechi",
+      "sign_out": "Dekonekte",
+      "sign_out_title": "Dekonekte?",
+      "sign_out_message": "W ap bezwen konekte ankò pou vann tikè.",
+      "app": "Aplikasyon",
+      "version": "Vèsyon {version}"
     },
     "session": {
       "card_title": "Sesyon",

@@ -6,8 +6,15 @@ class CashierAvailableDrawView {
     required this.channelLabel,
     required this.gameCodes,
     required this.status,
+    required this.providerDate,
+    required this.providerTime,
+    required this.providerTimezone,
+    required this.localDate,
+    required this.localTime,
+    required this.localTimezone,
     this.drawChannelId,
     this.channelCode,
+    this.resultSlotKey,
     this.scheduledAt,
     this.cutoffAt,
     this.cutoffLabel,
@@ -16,6 +23,7 @@ class CashierAvailableDrawView {
   final String drawId;
   final String? drawChannelId;
   final String? channelCode;
+  final String? resultSlotKey;
   final String channelLabel;
   final List<String> gameCodes;
   final String status;
@@ -24,25 +32,84 @@ class CashierAvailableDrawView {
 
   // Computed on the client from cutoffAt
   final String? cutoffLabel;
+  final String providerDate;
+  final String providerTime;
+  final String providerTimezone;
+  final String localDate;
+  final String localTime;
+  final String localTimezone;
 
   bool get isOpen => status == 'OPEN' || status == 'SCHEDULED';
+
+  /// Tenant channel names can be prefixed with a product label such as
+  /// "Haïti •". The seller needs the actual provider/slot identity instead.
+  String get displayChannelLabel {
+    final segments = channelLabel
+        .split(RegExp(r'\s*[•·]\s*'))
+        .map((segment) => segment.trim())
+        .where((segment) => segment.isNotEmpty)
+        .toList(growable: false);
+    final display = segments.length >= 3
+        ? segments.skip(1).join(' · ')
+        : channelLabel.trim();
+    return display.replaceFirst(RegExp(r'\s*\([^)]*\)\s*$'), '').trim();
+  }
+
+  String get providerCode {
+    final source = (resultSlotKey?.isNotEmpty ?? false)
+        ? resultSlotKey!
+        : (channelCode ?? '');
+    final parts = source.split(RegExp(r'[_-]'));
+    if (parts.length > 1 && parts.first.toUpperCase() == 'HT') {
+      return parts[1].toUpperCase();
+    }
+    return parts.isEmpty || parts.first.isEmpty
+        ? '—'
+        : parts.first.toUpperCase();
+  }
+
+  String cutoffCountdownAt(DateTime now) {
+    if (cutoffAt == null) return '—';
+    final remaining = cutoffAt!.difference(now);
+    if (remaining.isNegative) return '00:00:00';
+    final hours = remaining.inHours.toString().padLeft(2, '0');
+    final minutes = remaining.inMinutes
+        .remainder(60)
+        .toString()
+        .padLeft(2, '0');
+    final seconds = remaining.inSeconds
+        .remainder(60)
+        .toString()
+        .padLeft(2, '0');
+    return '$hours:$minutes:$seconds';
+  }
 
   String get formattedCutoff {
     if (cutoffAt == null) return '';
     final diff = cutoffAt!.difference(DateTime.now());
     if (diff.isNegative) return 'Clôturé';
-    if (diff.inHours > 0) return 'Clôture dans ${diff.inHours}h ${diff.inMinutes.remainder(60).toString().padLeft(2, '0')}m';
+    if (diff.inHours > 0) {
+      return 'Clôture dans ${diff.inHours}h ${diff.inMinutes.remainder(60).toString().padLeft(2, '0')}m';
+    }
     if (diff.inMinutes > 0) return 'Clôture dans ${diff.inMinutes}m';
     return 'Clôture imminente';
   }
+
+  String get providerScheduleLabel =>
+      _scheduleLabel(providerDate, providerTime, providerTimezone);
+
+  String get localScheduleLabel =>
+      _scheduleLabel(localDate, localTime, localTimezone);
 
   factory CashierAvailableDrawView.fromJson(Map<String, dynamic> json) =>
       CashierAvailableDrawView(
         drawId: json['drawId'] as String? ?? '',
         drawChannelId: json['drawChannelId'] as String?,
         channelCode: json['channelCode'] as String?,
+        resultSlotKey: json['resultSlotKey'] as String?,
         channelLabel: json['channelLabel'] as String? ?? '',
-        gameCodes: (json['gameCodes'] as List<dynamic>?)
+        gameCodes:
+            (json['gameCodes'] as List<dynamic>?)
                 ?.map((e) => e as String)
                 .toList() ??
             [],
@@ -53,7 +120,22 @@ class CashierAvailableDrawView {
         cutoffAt: json['cutoffAt'] != null
             ? DateTime.tryParse(json['cutoffAt'] as String)
             : null,
+        providerDate: json['providerDate'] as String,
+        providerTime: json['providerTime'] as String,
+        providerTimezone: json['providerTimezone'] as String,
+        localDate: json['localDate'] as String,
+        localTime: json['localTime'] as String,
+        localTimezone: json['localTimezone'] as String,
       );
+}
+
+String _scheduleLabel(String date, String time, String timezone) {
+  final normalizedTime = time.length < 5 ? time : time.substring(0, 5);
+  return [
+    date,
+    normalizedTime,
+    timezone,
+  ].where((part) => part.isNotEmpty).join(' · ');
 }
 
 // ─── Game ─────────────────────────────────────────────────────────────────────
@@ -64,12 +146,16 @@ class CashierBetOptionResponse {
     required this.label,
     this.description,
     this.selectionHint,
+    required this.selectionDigits,
+    required this.selectionSegments,
   });
 
   final int code; // 1–4
   final String label;
   final String? description;
   final String? selectionHint;
+  final int selectionDigits;
+  final int selectionSegments;
 
   factory CashierBetOptionResponse.fromJson(Map<String, dynamic> json) =>
       CashierBetOptionResponse(
@@ -77,6 +163,8 @@ class CashierBetOptionResponse {
         label: json['label'] as String? ?? '',
         description: json['description'] as String?,
         selectionHint: json['selectionHint'] as String?,
+        selectionDigits: (json['selectionDigits'] as num).toInt(),
+        selectionSegments: (json['selectionSegments'] as num).toInt(),
       );
 }
 
@@ -89,15 +177,30 @@ class CashierGameOptionResponse {
     required this.requiresOption,
     required this.options,
     this.selectionHint,
+    required this.selectionDigits,
+    required this.selectionSegments,
   });
 
-  final String gameCode;  // e.g. "BORLETTE"
+  final String gameCode; // e.g. "BORLETTE"
   final String gameLabel;
-  final String betType;   // e.g. "SHORT_SINGLE_GAME"
+  final String betType; // e.g. "SHORT_SINGLE_GAME"
   final String betTypeLabel;
   final bool requiresOption;
   final List<CashierBetOptionResponse> options;
   final String? selectionHint; // e.g. "Entrez un numéro 1-100"
+  final int selectionDigits;
+  final int selectionSegments;
+
+  CashierSelectionShape selectionShapeFor(int? optionCode) {
+    final matchingOptions = options.where(
+      (option) => option.code == optionCode,
+    );
+    final option = matchingOptions.isEmpty ? null : matchingOptions.first;
+    return CashierSelectionShape(
+      digits: option?.selectionDigits ?? selectionDigits,
+      segments: option?.selectionSegments ?? selectionSegments,
+    );
+  }
 
   factory CashierGameOptionResponse.fromJson(Map<String, dynamic> json) =>
       CashierGameOptionResponse(
@@ -106,11 +209,24 @@ class CashierGameOptionResponse {
         betType: json['betType'] as String? ?? '',
         betTypeLabel: json['betTypeLabel'] as String? ?? '',
         requiresOption: json['requiresOption'] as bool? ?? false,
-        options: (json['options'] as List<dynamic>?)
-                ?.map((e) => CashierBetOptionResponse.fromJson(
-                    e as Map<String, dynamic>))
+        options:
+            (json['options'] as List<dynamic>?)
+                ?.map(
+                  (e) => CashierBetOptionResponse.fromJson(
+                    e as Map<String, dynamic>,
+                  ),
+                )
                 .toList() ??
             [],
         selectionHint: json['selectionHint'] as String?,
+        selectionDigits: (json['selectionDigits'] as num).toInt(),
+        selectionSegments: (json['selectionSegments'] as num).toInt(),
       );
+}
+
+class CashierSelectionShape {
+  const CashierSelectionShape({required this.digits, required this.segments});
+
+  final int digits;
+  final int segments;
 }

@@ -213,7 +213,24 @@ abstract final class ThemeBuilder {
       // NavigationBar matches surfaceContainerLowest for bottom nav contrast.
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: scheme.surfaceContainerLowest,
-        indicatorColor: scheme.primaryContainer,
+        indicatorColor: scheme.tertiaryContainer,
+        iconTheme: WidgetStateProperty.resolveWith(
+          (states) => IconThemeData(
+            color: states.contains(WidgetState.selected)
+                ? scheme.onTertiaryContainer
+                : scheme.onSurfaceVariant,
+          ),
+        ),
+        labelTextStyle: WidgetStateProperty.resolveWith(
+          (states) => TextStyle(
+            color: states.contains(WidgetState.selected)
+                ? scheme.onSurface
+                : scheme.onSurfaceVariant,
+            fontWeight: states.contains(WidgetState.selected)
+                ? FontWeight.w700
+                : FontWeight.w500,
+          ),
+        ),
       ),
     );
   }

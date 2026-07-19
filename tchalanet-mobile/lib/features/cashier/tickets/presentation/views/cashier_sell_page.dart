@@ -4,8 +4,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../../core/i18n/i18n_models.dart';
+import '../../../../../core/i18n/i18n_repository.dart';
 import '../../../../../core/observability/diagnostic_info.dart';
 import '../../../../../core/observability/diagnostic_repository.dart';
+import '../../../../../design_system/components/components.dart';
 import '../../../../../design_system/tokens/tch_colors.dart';
 import '../../../../../design_system/tokens/tch_radius.dart';
 import '../../../../../design_system/tokens/tch_spacing.dart';
@@ -13,6 +16,7 @@ import '../../../home/data/models/cashier_home_models.dart';
 import '../../../home/presentation/view_models/cashier_home_providers.dart';
 import '../../data/models/cashier_sell_catalog_models.dart';
 import '../../data/models/cashier_ticket_models.dart';
+import '../cashier_draw_label.dart';
 import '../view_models/sell_controller.dart';
 
 class CashierSellPage extends ConsumerStatefulWidget {
@@ -28,7 +32,6 @@ class CashierSellPage extends ConsumerStatefulWidget {
 
 class _CashierSellPageState extends ConsumerState<CashierSellPage> {
   final _stakeController = TextEditingController();
-  final _selectionController = TextEditingController();
 
   @override
   void initState() {
@@ -50,13 +53,13 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
   @override
   void dispose() {
     _stakeController.dispose();
-    _selectionController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(sellControllerProvider);
+    final translations = ref.watch(i18nBundleProvider);
     final homeAsync = ref.watch(cashierHomeProvider);
     final lastDiagnostic = ref.watch(diagnosticRepositoryProvider).last;
     final opCtx = homeAsync.when(
@@ -67,10 +70,16 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
 
     ref.listen<SellState>(sellControllerProvider, (_, next) {
       if (next is SellSuccess) {
+        final ticketId = next.response.ticketId;
+        if (ticketId == null) return;
+        if (next.response.ticketCode.isEmpty) {
+          context.pushReplacement('/pos/tickets/$ticketId');
+          return;
+        }
         context.pushReplacement(
           '/pos/sell/success',
           extra: {
-            'ticketId': next.response.ticketId,
+            'ticketId': ticketId,
             'ticketCode': next.response.ticketCode,
             'publicCode': next.response.publicCode,
             'shareableText': next.response.backup?.shareableText,
@@ -81,10 +90,10 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Vendre un Ticket'),
+        title: Text(translations.translate('pos.sale.title')),
         leading: IconButton(
           icon: const Icon(Icons.close_rounded),
-          tooltip: 'Annuler',
+          tooltip: translations.translate('pos.sale.cancel'),
           onPressed: () => context.pop(),
         ),
       ),
@@ -101,24 +110,25 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
               SellLoadingCatalog() => const Center(
                 child: CircularProgressIndicator(),
               ),
-              SellCatalogError(:final message) => _ErrorBody(
-                message: message,
+              SellCatalogError(:final errorKeys) => _ErrorBody(
+                message: _translateError(translations, errorKeys),
                 diagnostic: lastDiagnostic,
                 onRetry: () =>
                     ref.read(sellControllerProvider.notifier).loadCatalog(),
               ),
               SellSuccess() => const Center(child: CircularProgressIndicator()),
-              SellReady(:final form, :final previewResult, :final error) =>
+              SellReady(:final form, :final previewResult, :final errorKeys) =>
                 _SellBody(
                   form: form,
                   previewResult: previewResult,
                   isPreviewing: false,
                   isConfirming: false,
-                  error: error,
-                  diagnostic: error != null ? lastDiagnostic : null,
+                  error: errorKeys.isEmpty
+                      ? null
+                      : _translateError(translations, errorKeys),
+                  diagnostic: errorKeys.isNotEmpty ? lastDiagnostic : null,
                   opCtx: opCtx,
                   stakeController: _stakeController,
-                  selectionController: _selectionController,
                   onSelectDraw: (id) =>
                       ref.read(sellControllerProvider.notifier).selectDraw(id),
                   onSelectGame: (g) =>
@@ -133,22 +143,20 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
                       ref.read(sellControllerProvider.notifier).updateStake(v),
                   onAddLine: () {
                     ref.read(sellControllerProvider.notifier).addLine();
-                    _selectionController.clear();
                     _stakeController.clear();
                   },
+                  onEditPreparedTicket: () => ref
+                      .read(sellControllerProvider.notifier)
+                      .editPreparedTicket(),
                   onRemoveLine: (i) =>
                       ref.read(sellControllerProvider.notifier).removeLine(i),
                   onPreview: () {
                     if (opCtx?.sellerTerminalId == null) return;
-                    ref
-                        .read(sellControllerProvider.notifier)
-                        .preview(opCtx!.sellerTerminalId!);
+                    ref.read(sellControllerProvider.notifier).prepare();
                   },
                   onConfirm: () {
                     if (opCtx?.sellerTerminalId == null) return;
-                    ref
-                        .read(sellControllerProvider.notifier)
-                        .confirmSell(opCtx!.sellerTerminalId!);
+                    ref.read(sellControllerProvider.notifier).confirmSell();
                   },
                 ),
               SellPreviewing(:final form) => _SellBody(
@@ -159,13 +167,13 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
                 error: null,
                 opCtx: opCtx,
                 stakeController: _stakeController,
-                selectionController: _selectionController,
                 onSelectDraw: (_) {},
                 onSelectGame: (_) {},
                 onSelectBetOption: (_) {},
                 onSelectionChanged: (_) {},
                 onStakeChanged: (_) {},
                 onAddLine: () {},
+                onEditPreparedTicket: () {},
                 onRemoveLine: (_) {},
                 onPreview: () {},
                 onConfirm: () {},
@@ -178,20 +186,18 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
                 error: null,
                 opCtx: opCtx,
                 stakeController: _stakeController,
-                selectionController: _selectionController,
                 onSelectDraw: (_) {},
                 onSelectGame: (_) {},
                 onSelectBetOption: (_) {},
                 onSelectionChanged: (_) {},
                 onStakeChanged: (_) {},
                 onAddLine: () {},
+                onEditPreparedTicket: () {},
                 onRemoveLine: (_) {},
                 onPreview: () {},
                 onConfirm: () {
                   if (opCtx?.sellerTerminalId == null) return;
-                  ref
-                      .read(sellControllerProvider.notifier)
-                      .confirmSell(opCtx!.sellerTerminalId!);
+                  ref.read(sellControllerProvider.notifier).confirmSell();
                 },
               ),
             },
@@ -199,15 +205,22 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
   }
 }
 
+String _translateError(I18nBundle bundle, List<String> keys) {
+  for (final key in keys) {
+    final translated = bundle.translate(key);
+    if (translated != key) return translated;
+  }
+  return bundle.translate('common.error.unknown');
+}
+
 // ─── Sell body ────────────────────────────────────────────────────────────────
 
-class _SellBody extends StatelessWidget {
+class _SellBody extends ConsumerWidget {
   const _SellBody({
     required this.form,
     required this.isPreviewing,
     required this.isConfirming,
     required this.stakeController,
-    required this.selectionController,
     required this.onSelectDraw,
     required this.onSelectGame,
     required this.onSelectBetOption,
@@ -216,6 +229,7 @@ class _SellBody extends StatelessWidget {
     required this.onPreview,
     required this.onConfirm,
     required this.onAddLine,
+    required this.onEditPreparedTicket,
     required this.onRemoveLine,
     this.previewResult,
     this.error,
@@ -231,7 +245,6 @@ class _SellBody extends StatelessWidget {
   final DiagnosticInfo? diagnostic;
   final CashierHomeOpCtx? opCtx;
   final TextEditingController stakeController;
-  final TextEditingController selectionController;
   final ValueChanged<String> onSelectDraw;
   final ValueChanged<CashierGameOptionResponse> onSelectGame;
   final ValueChanged<int> onSelectBetOption;
@@ -240,51 +253,53 @@ class _SellBody extends StatelessWidget {
   final VoidCallback onPreview;
   final VoidCallback onConfirm;
   final VoidCallback onAddLine;
+  final VoidCallback onEditPreparedTicket;
   final ValueChanged<int> onRemoveLine;
 
   bool get _isLoading => isPreviewing || isConfirming;
+  bool get _isTicketLocked => previewResult != null;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final translations = ref.watch(i18nBundleProvider);
+    final committedTotal = form.committedLines.fold<double>(
+      0,
+      (total, line) => total + line.stake,
+    );
 
     return Column(
       children: [
         Expanded(
           child: ListView(
-            padding: const EdgeInsets.all(TchSpacing.s16),
+            padding: const EdgeInsets.fromLTRB(
+              TchSpacing.s16,
+              TchSpacing.s16,
+              TchSpacing.s16,
+              164,
+            ),
             children: [
-              // ── Draw chips ──────────────────────────────────────────
               _Section(
-                label: 'TIRAGE',
+                label: translations.translate('pos.sale.draw_label'),
                 child: form.draws.isEmpty
                     ? Text(
-                        'Aucun tirage disponible',
+                        translations.translate('pos.sale.no_draws'),
                         style: textTheme.bodySmall?.copyWith(
                           color: scheme.onSurfaceVariant,
                         ),
                       )
-                    : _ChipRow(
-                        items: form.draws
-                            .map(
-                              (d) => (
-                                id: d.drawId,
-                                label: d.channelLabel,
-                                sublabel: d.formattedCutoff,
-                              ),
-                            )
-                            .toList(),
+                    : _SelectedDraw(
+                        draws: form.draws,
                         selected: form.selectedDrawId,
-                        enabled: !_isLoading,
+                        enabled: !_isLoading && !_isTicketLocked,
                         onSelect: onSelectDraw,
                       ),
               ),
 
-              // ── Game chips ──────────────────────────────────────────
               if (form.games.isNotEmpty)
                 _Section(
-                  label: 'JEU',
+                  label: translations.translate('pos.sale.game_label'),
                   child: Wrap(
                     spacing: TchSpacing.s8,
                     runSpacing: TchSpacing.s8,
@@ -302,7 +317,7 @@ class _SellBody extends StatelessWidget {
                           return _Chip(
                             label: g.gameLabel,
                             selected: selected,
-                            enabled: !_isLoading,
+                            enabled: !_isLoading && !_isTicketLocked,
                             onTap: () => onSelectGame(g),
                           );
                         },
@@ -311,7 +326,6 @@ class _SellBody extends StatelessWidget {
                   ),
                 ),
 
-              // ── Bet option chips ────────────────────────────────────
               if (form.selectedGame?.requiresOption == true &&
                   form.selectedGame!.options.isNotEmpty)
                 _Section(
@@ -324,46 +338,34 @@ class _SellBody extends StatelessWidget {
                       return _Chip(
                         label: o.label,
                         selected: selected,
-                        enabled: !_isLoading,
+                        enabled: !_isLoading && !_isTicketLocked,
                         onTap: () => onSelectBetOption(o.code),
                       );
                     }).toList(),
                   ),
                 ),
 
-              // ── Selection input ─────────────────────────────────────
               if (form.selectedGameCode != null)
                 _Section(
-                  label: 'NUMÉRO / SÉLECTION',
-                  sublabel: form.selectedGame?.selectionHint,
-                  child: TextField(
-                    controller: selectionController,
-                    enabled: !_isLoading,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp(r'[\d\-]')),
-                    ],
-                    onChanged: onSelectionChanged,
-                    decoration: InputDecoration(
-                      hintText: form.selectedGame?.selectionHint ?? 'Ex: 42',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(TchRadius.md),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: TchSpacing.s16,
-                        vertical: TchSpacing.s12,
-                      ),
+                  label: translations.translate('pos.sale.selection_label'),
+                  child: _SelectionInput(
+                    key: ValueKey(
+                      '${form.selectedGameCode}:${form.selectedBetType}:${form.selectedBetOption}',
                     ),
+                    game: form.selectedGame!,
+                    betOption: form.selectedBetOption,
+                    value: form.selection,
+                    enabled: !_isLoading && !_isTicketLocked,
+                    onChanged: onSelectionChanged,
                   ),
                 ),
 
-              // ── Stake input ─────────────────────────────────────────
               if (form.selectedGameCode != null)
                 _Section(
-                  label: 'MISE',
+                  label: translations.translate('pos.sale.stake_label'),
                   child: TextField(
                     controller: stakeController,
-                    enabled: !_isLoading,
+                    enabled: !_isLoading && !_isTicketLocked,
                     keyboardType: const TextInputType.numberWithOptions(
                       decimal: true,
                     ),
@@ -387,102 +389,30 @@ class _SellBody extends StatelessWidget {
                   ),
                 ),
 
-              // ── Committed lines list ────────────────────────────────
               if (form.committedLines.isNotEmpty) ...[
-                const SizedBox(height: TchSpacing.s8),
                 _Section(
-                  label: 'LIGNES DU TICKET (${form.committedLines.length})',
-                  child: Column(
-                    children: [
-                      for (var i = 0; i < form.committedLines.length; i++)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: TchSpacing.s8),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: TchSpacing.s12,
-                                    vertical: TchSpacing.s8,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: scheme.surfaceContainerHighest,
-                                    borderRadius: BorderRadius.circular(
-                                      TchRadius.md,
-                                    ),
-                                  ),
-                                  child: Text(
-                                    '#${i + 1}  ${form.committedLines[i].displayLabel}',
-                                    style: textTheme.bodySmall?.copyWith(
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              if (!_isLoading) ...[
-                                const SizedBox(width: TchSpacing.s4),
-                                IconButton(
-                                  icon: const Icon(
-                                    Icons.close_rounded,
-                                    size: 18,
-                                  ),
-                                  onPressed: () => onRemoveLine(i),
-                                  tooltip: 'Supprimer la ligne',
-                                  padding: EdgeInsets.zero,
-                                  constraints: const BoxConstraints(
-                                    minWidth: 32,
-                                    minHeight: 32,
-                                  ),
-                                ),
-                              ],
-                            ],
-                          ),
-                        ),
-                    ],
+                  label: translations.translate('pos.sale.ticket_label'),
+                  child: _TicketReceipt(
+                    lines: form.committedLines,
+                    currency: form.currency,
+                    enabled: !_isLoading,
+                    onRemoveLine: onRemoveLine,
                   ),
                 ),
               ],
 
-              // ── Add line button — always visible once a game is selected,
-              //    enabled only when the current entry (number + stake) is valid.
-              if (form.selectedGameCode != null && !_isLoading) ...[
-                const SizedBox(height: TchSpacing.s4),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: form.canAddLine ? onAddLine : null,
-                    icon: const Icon(Icons.add_rounded, size: 18),
-                    label: Text(
-                      form.canAddLine
-                          ? 'Ajouter une ligne'
-                          : 'Entrez un numéro et une mise',
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: TchSpacing.s12,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(TchRadius.md),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-
-              // ── Preview result ──────────────────────────────────────
               if (previewResult != null) ...[
-                const SizedBox(height: TchSpacing.s8),
                 _PreviewCard(result: previewResult!),
               ],
 
-              // ── Error ───────────────────────────────────────────────
               if (error != null) ...[
                 const SizedBox(height: TchSpacing.s8),
                 Container(
                   padding: const EdgeInsets.all(TchSpacing.s12),
                   decoration: BoxDecoration(
-                    color: scheme.errorContainer,
+                    color: scheme.surfaceContainerLow,
                     borderRadius: BorderRadius.circular(TchRadius.md),
+                    border: Border.all(color: scheme.outlineVariant),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -492,14 +422,14 @@ class _SellBody extends StatelessWidget {
                           Icon(
                             Icons.error_outline_rounded,
                             size: 18,
-                            color: scheme.onErrorContainer,
+                            color: scheme.error,
                           ),
                           const SizedBox(width: TchSpacing.s8),
                           Expanded(
                             child: Text(
                               error!,
                               style: textTheme.bodySmall?.copyWith(
-                                color: scheme.onErrorContainer,
+                                color: scheme.onSurface,
                               ),
                             ),
                           ),
@@ -513,19 +443,20 @@ class _SellBody extends StatelessWidget {
                   ),
                 ),
               ],
-
-              // Extra bottom padding so the add-line button clears the sticky CTA.
-              const SizedBox(height: 88),
             ],
           ),
         ),
 
-        // ── Bottom actions ─────────────────────────────────────────────
         _BottomActions(
           form: form,
           previewResult: previewResult,
           isPreviewing: isPreviewing,
           isConfirming: isConfirming,
+          total: previewResult?.totalAmount ?? committedTotal,
+          translations: translations,
+          canAddLine: form.canAddLine,
+          onAddLine: onAddLine,
+          onEditPreparedTicket: onEditPreparedTicket,
           onPreview: onPreview,
           onConfirm: onConfirm,
         ),
@@ -534,15 +465,115 @@ class _SellBody extends StatelessWidget {
   }
 }
 
-// ─── Preview card ─────────────────────────────────────────────────────────────
+// ─── Ticket receipt ───────────────────────────────────────────────────────────
 
-class _PreviewCard extends StatelessWidget {
+class _TicketReceipt extends ConsumerWidget {
+  const _TicketReceipt({
+    required this.lines,
+    required this.currency,
+    required this.enabled,
+    required this.onRemoveLine,
+  });
+
+  final List<SellLine> lines;
+  final String currency;
+  final bool enabled;
+  final ValueChanged<int> onRemoveLine;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final scheme = Theme.of(context).colorScheme;
+    final translations = ref.watch(i18nBundleProvider);
+    final total = lines.fold<double>(0, (sum, line) => sum + line.stake);
+    return Container(
+      padding: const EdgeInsets.all(TchSpacing.s16),
+      decoration: BoxDecoration(
+        color: scheme.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(TchRadius.md),
+        border: Border.all(color: scheme.outlineVariant),
+      ),
+      child: Column(
+        children: [
+          for (var index = 0; index < lines.length; index++) ...[
+            if (index > 0) const Divider(height: TchSpacing.s20),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '#${index + 1} ${lines[index].gameLabel}',
+                        style: Theme.of(context).textTheme.labelMedium
+                            ?.copyWith(
+                              color: scheme.onSurfaceVariant,
+                              fontWeight: FontWeight.w700,
+                            ),
+                      ),
+                      const SizedBox(height: TchSpacing.s4),
+                      Text(
+                        lines[index].selection,
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w800),
+                      ),
+                    ],
+                  ),
+                ),
+                Text(
+                  '${lines[index].stake.toStringAsFixed(2)} $currency',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+                ),
+                if (enabled) ...[
+                  const SizedBox(width: TchSpacing.s4),
+                  IconButton(
+                    onPressed: () => onRemoveLine(index),
+                    icon: const Icon(Icons.delete_outline_rounded),
+                    tooltip: translations.translate('pos.sale.remove_line'),
+                  ),
+                ],
+              ],
+            ),
+          ],
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: TchSpacing.s12),
+            child: Divider(height: 1),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                translations.translate('pos.sale.ticket_total'),
+                style: Theme.of(
+                  context,
+                ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w800),
+              ),
+              Text(
+                '${total.toStringAsFixed(2)} $currency',
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Preparation feedback ────────────────────────────────────────────────────
+
+class _PreviewCard extends ConsumerWidget {
   const _PreviewCard({required this.result});
 
   final CashierTicketPreviewResponse result;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final translations = ref.watch(i18nBundleProvider);
     final scheme = Theme.of(context).colorScheme;
     final accepted = result.isAccepted;
     final bgColor = accepted
@@ -572,7 +603,9 @@ class _PreviewCard extends StatelessWidget {
               Icon(icon, color: fgColor, size: 20),
               const SizedBox(width: TchSpacing.s8),
               Text(
-                accepted ? 'Vente acceptée' : 'Vente refusée',
+                accepted
+                    ? translations.translate('pos.sale.sale_checked')
+                    : translations.translate('pos.sale.sale_rejected'),
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
                   color: fgColor,
                   fontWeight: FontWeight.w700,
@@ -580,20 +613,25 @@ class _PreviewCard extends StatelessWidget {
               ),
             ],
           ),
-          if (result.sellerInstruction != null) ...[
+          if (result.totalAmount != null) ...[
             const SizedBox(height: TchSpacing.s8),
             Text(
-              result.sellerInstruction!,
+              _preparedTotalLabel(translations, result),
               style: Theme.of(
                 context,
               ).textTheme.bodySmall?.copyWith(color: fgColor),
             ),
           ],
-          if (result.issues.isNotEmpty) ...[
-            const SizedBox(height: TchSpacing.s8),
-            for (final issue in result.issues)
+          if (result.promotionLines.isNotEmpty) ...[
+            const SizedBox(height: TchSpacing.s12),
+            for (final line in result.promotionLines)
+              _PromotionLine(line: line, color: fgColor),
+          ],
+          if (result.notices.isNotEmpty) ...[
+            const SizedBox(height: TchSpacing.s12),
+            for (final notice in result.notices)
               Text(
-                '• ${issue.message ?? issue.code}',
+                _noticeLabel(translations, notice),
                 style: Theme.of(
                   context,
                 ).textTheme.bodySmall?.copyWith(color: fgColor),
@@ -605,28 +643,83 @@ class _PreviewCard extends StatelessWidget {
   }
 }
 
+String _preparedTotalLabel(
+  I18nBundle translations,
+  CashierTicketPreviewResponse result,
+) =>
+    '${translations.translate(CashierPreparationCopy.totalKey)}: '
+    '${result.totalAmount!.toStringAsFixed(2)} ${result.currency ?? ''}';
+
+String _noticeLabel(I18nBundle translations, CashierPreparationNotice notice) =>
+    '• ${translations.translate(notice.translationKey)}';
+
+class _PromotionLine extends ConsumerWidget {
+  const _PromotionLine({required this.line, required this.color});
+
+  final CashierPreparationPromotionLine line;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final translations = ref.watch(i18nBundleProvider);
+    final label = line.isMaryaj
+        ? translations.translate(CashierPreparationCopy.maryajFreeKey)
+        : translations.translate(CashierPreparationCopy.freeGameKey);
+    final source = line.isGenerated
+        ? translations.translate(CashierPreparationCopy.autoSelectionKey)
+        : translations.translate(CashierPreparationCopy.sellerSelectionKey);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: TchSpacing.s4),
+      child: Text(
+        _promotionLabel(translations, line, label, source),
+        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: color),
+      ),
+    );
+  }
+}
+
+String _promotionLabel(
+  I18nBundle translations,
+  CashierPreparationPromotionLine line,
+  String label,
+  String source,
+) =>
+    '$label: ${line.selection} — '
+    '${translations.translate(CashierPreparationCopy.freeKey)} ($source)';
+
 // ─── Bottom actions ───────────────────────────────────────────────────────────
 
 class _BottomActions extends StatelessWidget {
   const _BottomActions({
     required this.form,
+    required this.total,
+    required this.translations,
+    required this.canAddLine,
     required this.isPreviewing,
     required this.isConfirming,
+    required this.onAddLine,
+    required this.onEditPreparedTicket,
     required this.onPreview,
     required this.onConfirm,
     this.previewResult,
   });
 
   final SellFormData form;
+  final double total;
+  final I18nBundle translations;
+  final bool canAddLine;
   final CashierTicketPreviewResponse? previewResult;
   final bool isPreviewing;
   final bool isConfirming;
+  final VoidCallback onAddLine;
+  final VoidCallback onEditPreparedTicket;
   final VoidCallback onPreview;
   final VoidCallback onConfirm;
 
   @override
   Widget build(BuildContext context) {
-    final canPreview = form.canPreview && !isPreviewing && !isConfirming;
+    final canPrepare =
+        form.committedLines.isNotEmpty && !isPreviewing && !isConfirming;
     final canConfirm = previewResult?.isAccepted == true && !isConfirming;
     final showConfirm = previewResult?.isAccepted == true;
 
@@ -635,7 +728,7 @@ class _BottomActions extends StatelessWidget {
         TchSpacing.s16,
         TchSpacing.s8,
         TchSpacing.s16,
-        TchSpacing.s24,
+        TchSpacing.s16,
       ),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
@@ -646,64 +739,109 @@ class _BottomActions extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (showConfirm) ...[
-            SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: FilledButton.icon(
-                onPressed: canConfirm ? onConfirm : null,
-                icon: isConfirming
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: TchColors.onPrimary,
-                        ),
-                      )
-                    : const Icon(Icons.sell_rounded),
-                label: Text(
-                  isConfirming ? 'VENTE EN COURS…' : 'CONFIRMER LA VENTE',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-                style: FilledButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(TchRadius.md),
-                  ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                translations.translate(CashierPreparationCopy.totalKey),
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
-            ),
-            const SizedBox(height: TchSpacing.s8),
-          ],
-          SizedBox(
-            width: double.infinity,
-            height: 50,
-            child: OutlinedButton.icon(
-              onPressed: canPreview ? onPreview : null,
-              icon: isPreviewing
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.preview_rounded),
-              label: Text(
-                isPreviewing ? 'VÉRIFICATION…' : 'APERÇU',
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 0.5,
-                ),
+              Text(
+                '${total.toStringAsFixed(2)} ${form.currency}',
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
               ),
-              style: OutlinedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(TchRadius.md),
-                ),
-              ),
-            ),
+            ],
           ),
+          const SizedBox(height: TchSpacing.s8),
+          if (showConfirm)
+            Row(
+              children: [
+                Expanded(
+                  child: SizedBox(
+                    height: 52,
+                    child: OutlinedButton(
+                      onPressed: isConfirming ? null : onEditPreparedTicket,
+                      child: Text(
+                        translations.translate('pos.sale.back_to_ticket'),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: TchSpacing.s8),
+                Expanded(
+                  flex: 2,
+                  child: SizedBox(
+                    height: 52,
+                    child: FilledButton.icon(
+                      onPressed: canConfirm ? onConfirm : null,
+                      icon: isConfirming
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: TchColors.onPrimary,
+                              ),
+                            )
+                          : const Icon(Icons.sell_rounded),
+                      label: Text(
+                        translations.translate('pos.sale.confirm_sale'),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            )
+          else
+            Row(
+              children: [
+                Expanded(
+                  child: SizedBox(
+                    height: 52,
+                    child: FilledButton.tonalIcon(
+                      onPressed: canAddLine && !isPreviewing && !isConfirming
+                          ? onAddLine
+                          : null,
+                      icon: const Icon(Icons.add_rounded),
+                      label: Text(translations.translate('pos.sale.add_line')),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: TchSpacing.s8),
+                Expanded(
+                  flex: 2,
+                  child: SizedBox(
+                    height: 52,
+                    child: FilledButton.icon(
+                      onPressed: canPrepare ? onPreview : null,
+                      icon: isPreviewing
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: TchColors.onPrimary,
+                              ),
+                            )
+                          : const Icon(Icons.fact_check_outlined),
+                      label: Text(
+                        isPreviewing
+                            ? translations.translate('pos.sale.checking_sale')
+                            : translations.translate('pos.sale.verify_sale'),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
         ],
       ),
     );
@@ -713,10 +851,9 @@ class _BottomActions extends StatelessWidget {
 // ─── Section ──────────────────────────────────────────────────────────────────
 
 class _Section extends StatelessWidget {
-  const _Section({required this.label, required this.child, this.sublabel});
+  const _Section({required this.label, required this.child});
 
   final String label;
-  final String? sublabel;
   final Widget child;
 
   @override
@@ -737,15 +874,6 @@ class _Section extends StatelessWidget {
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              if (sublabel != null) ...[
-                const SizedBox(width: TchSpacing.s8),
-                Text(
-                  sublabel!,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.labelSmall?.copyWith(color: scheme.outline),
-                ),
-              ],
             ],
           ),
           const SizedBox(height: TchSpacing.s8),
@@ -756,96 +884,299 @@ class _Section extends StatelessWidget {
   }
 }
 
-// ─── Chip row ─────────────────────────────────────────────────────────────────
+// ─── Selected draw ───────────────────────────────────────────────────────────
 
-class _ChipRow extends StatelessWidget {
-  const _ChipRow({
-    required this.items,
+class _SelectedDraw extends ConsumerWidget {
+  const _SelectedDraw({
+    required this.draws,
     required this.selected,
     required this.enabled,
     required this.onSelect,
   });
 
-  final List<({String id, String label, String sublabel})> items;
+  final List<CashierAvailableDrawView> draws;
   final String? selected;
   final bool enabled;
   final ValueChanged<String> onSelect;
 
   @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
+  Widget build(BuildContext context, WidgetRef ref) {
+    final translations = ref.watch(i18nBundleProvider);
+    final selectedDraws = draws.where((item) => item.drawId == selected);
+    final draw = selectedDraws.isEmpty ? draws.first : selectedDraws.first;
+    final scheme = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: TchSpacing.s16,
+        vertical: TchSpacing.s12,
+      ),
+      decoration: BoxDecoration(
+        color: scheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(TchRadius.md),
+        border: Border.all(color: scheme.outlineVariant),
+      ),
       child: Row(
         children: [
-          for (int i = 0; i < items.length; i++) ...[
-            if (i > 0) const SizedBox(width: TchSpacing.s8),
-            _DrawChip(
-              item: items[i],
-              selected: items[i].id == selected,
-              enabled: enabled,
-              onTap: () => onSelect(items[i].id),
+          TchProviderLogo(providerCode: draw.providerCode),
+          const SizedBox(width: TchSpacing.s12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  localizedCashierDrawLabel(draw, translations),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+                ),
+                const SizedBox(height: TchSpacing.s4),
+                Text(
+                  _cutoffLabel(draw, translations),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: scheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
+          TextButton(
+            onPressed: enabled
+                ? () => _showDrawPicker(
+                    context,
+                    draws,
+                    draw.drawId,
+                    translations,
+                    onSelect,
+                  )
+                : null,
+            child: Text(translations.translate('pos.sale.change_draw')),
+          ),
         ],
       ),
     );
   }
 }
 
-class _DrawChip extends StatelessWidget {
-  const _DrawChip({
-    required this.item,
-    required this.selected,
+Future<void> _showDrawPicker(
+  BuildContext context,
+  List<CashierAvailableDrawView> draws,
+  String selectedId,
+  I18nBundle translations,
+  ValueChanged<String> onSelect,
+) => showModalBottomSheet<void>(
+  context: context,
+  showDragHandle: true,
+  builder: (sheetContext) => SafeArea(
+    child: ListView.separated(
+      shrinkWrap: true,
+      itemCount: draws.length,
+      separatorBuilder: (_, _) => const Divider(height: 1),
+      itemBuilder: (_, index) {
+        final draw = draws[index];
+        return ListTile(
+          leading: TchProviderLogo(providerCode: draw.providerCode, size: 32),
+          selected: draw.drawId == selectedId,
+          title: Text(localizedCashierDrawLabel(draw, translations)),
+          subtitle: Text(draw.localScheduleLabel),
+          trailing: draw.drawId == selectedId
+              ? const Icon(Icons.check_rounded)
+              : null,
+          onTap: () {
+            Navigator.of(sheetContext).pop();
+            onSelect(draw.drawId);
+          },
+        );
+      },
+    ),
+  ),
+);
+
+String _cutoffLabel(CashierAvailableDrawView draw, I18nBundle translations) {
+  if (draw.cutoffAt == null) return '—';
+  final remaining = draw.cutoffAt!.difference(DateTime.now());
+  if (remaining.isNegative) {
+    return translations.translate('pos.dashboard.closed');
+  }
+  if (remaining.inMinutes < 5) {
+    return translations.translate('pos.dashboard.closes_soon');
+  }
+  if (remaining.inHours > 0) {
+    return translations
+        .translate('pos.dashboard.closes_in_hours_minutes')
+        .replaceAll('{hours}', remaining.inHours.toString())
+        .replaceAll('{minutes}', (remaining.inMinutes % 60).toString());
+  }
+  return translations
+      .translate('pos.dashboard.closes_in_minutes')
+      .replaceAll('{minutes}', remaining.inMinutes.toString());
+}
+
+// ─── Structured number entry ─────────────────────────────────────────────────
+
+class _SelectionInput extends StatelessWidget {
+  const _SelectionInput({
+    super.key,
+    required this.game,
+    required this.betOption,
+    required this.value,
     required this.enabled,
-    required this.onTap,
+    required this.onChanged,
   });
 
-  final ({String id, String label, String sublabel}) item;
-  final bool selected;
+  final CashierGameOptionResponse game;
+  final int? betOption;
+  final String value;
   final bool enabled;
-  final VoidCallback onTap;
+  final ValueChanged<String> onChanged;
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return GestureDetector(
-      onTap: enabled ? onTap : null,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        padding: const EdgeInsets.symmetric(
-          horizontal: TchSpacing.s16,
-          vertical: TchSpacing.s8,
-        ),
-        decoration: BoxDecoration(
-          color: selected ? scheme.primary : scheme.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(TchRadius.pill),
-          border: Border.all(
-            color: selected ? scheme.primary : scheme.outlineVariant,
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+    final shape = game.selectionShapeFor(betOption);
+    return _GroupedSelectionInput(
+      shape: shape,
+      value: value,
+      enabled: enabled,
+      onChanged: onChanged,
+    );
+  }
+}
+
+class _GroupedSelectionInput extends StatefulWidget {
+  const _GroupedSelectionInput({
+    required this.shape,
+    required this.value,
+    required this.enabled,
+    required this.onChanged,
+  });
+
+  final CashierSelectionShape shape;
+  final String value;
+  final bool enabled;
+  final ValueChanged<String> onChanged;
+
+  @override
+  State<_GroupedSelectionInput> createState() => _GroupedSelectionInputState();
+}
+
+class _GroupedSelectionInputState extends State<_GroupedSelectionInput> {
+  late List<TextEditingController> _controllers;
+  late List<FocusNode> _focusNodes;
+
+  int get _fieldCount => widget.shape.segments;
+
+  @override
+  void initState() {
+    super.initState();
+    _resetControllers();
+  }
+
+  @override
+  void didUpdateWidget(covariant _GroupedSelectionInput oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.shape.digits != widget.shape.digits ||
+        oldWidget.shape.segments != widget.shape.segments) {
+      _disposeControllers();
+      _resetControllers();
+      return;
+    }
+    if (oldWidget.value != widget.value && _value() != widget.value) {
+      _applyValue(widget.value);
+    }
+  }
+
+  void _resetControllers() {
+    _controllers = List.generate(_fieldCount, (_) => TextEditingController());
+    _focusNodes = List.generate(_fieldCount, (_) => FocusNode());
+    _applyValue(widget.value);
+  }
+
+  void _applyValue(String value) {
+    final groups = value.split('-');
+    for (var index = 0; index < _controllers.length; index++) {
+      _controllers[index].text = index < groups.length
+          ? groups[index].replaceAll(RegExp(r'\D'), '')
+          : '';
+    }
+  }
+
+  String _value() {
+    final groups = <String>[];
+    for (final controller in _controllers) {
+      groups.add(controller.text);
+    }
+    if (groups.any((group) => group.length != widget.shape.digits)) return '';
+    return groups.join('-');
+  }
+
+  void _changed(int index, String value) {
+    if (value.length == widget.shape.digits && index < _focusNodes.length - 1) {
+      _focusNodes[index + 1].requestFocus();
+    }
+    widget.onChanged(_value());
+  }
+
+  @override
+  void dispose() {
+    _disposeControllers();
+    super.dispose();
+  }
+
+  void _disposeControllers() {
+    for (final controller in _controllers) {
+      controller.dispose();
+    }
+    for (final node in _focusNodes) {
+      node.dispose();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: TchSpacing.s8,
+      runSpacing: TchSpacing.s8,
+      children: [
+        for (var segment = 0; segment < widget.shape.segments; segment++) ...[
+          if (segment > 0)
             Text(
-              item.label,
-              style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                color: selected ? scheme.onPrimary : scheme.onSurface,
+              '|',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 fontWeight: FontWeight.w700,
               ),
             ),
-            if (item.sublabel.isNotEmpty)
-              Text(
-                item.sublabel,
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: selected
-                      ? scheme.onPrimary.withValues(alpha: 0.8)
-                      : scheme.outline,
-                  fontSize: 10,
+          SizedBox(
+            width: widget.shape.segments == 1 ? 152 : 112,
+            child: TextField(
+              controller: _controllers[segment],
+              focusNode: _focusNodes[segment],
+              enabled: widget.enabled,
+              textAlign: TextAlign.center,
+              keyboardType: TextInputType.number,
+              maxLength: widget.shape.digits,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                LengthLimitingTextInputFormatter(widget.shape.digits),
+              ],
+              onChanged: (value) => _changed(segment, value),
+              decoration: InputDecoration(
+                counterText: '',
+                contentPadding: const EdgeInsets.symmetric(
+                  vertical: TchSpacing.s16,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(TchRadius.md),
                 ),
               ),
-          ],
-        ),
-      ),
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.w700,
+                letterSpacing: 1,
+              ),
+            ),
+          ),
+        ],
+      ],
     );
   }
 }
@@ -870,9 +1201,11 @@ class _Chip extends StatelessWidget {
       onTap: enabled ? onTap : null,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
+        constraints: const BoxConstraints(minHeight: 48),
+        alignment: Alignment.center,
         padding: const EdgeInsets.symmetric(
           horizontal: TchSpacing.s16,
-          vertical: TchSpacing.s8,
+          vertical: TchSpacing.s12,
         ),
         decoration: BoxDecoration(
           color: selected

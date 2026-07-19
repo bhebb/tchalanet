@@ -1,6 +1,9 @@
 package com.tchalanet.server.features.pos.draws;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.tchalanet.server.catalog.drawchannel.api.DrawChannelCatalog;
 import com.tchalanet.server.catalog.drawchannel.api.DrawChannelDisplayFormatter;
@@ -10,18 +13,24 @@ import com.tchalanet.server.catalog.drawchannel.api.model.DrawChannelGameView;
 import com.tchalanet.server.catalog.drawchannel.api.model.DrawChannelSearchCriteria;
 import com.tchalanet.server.catalog.drawchannel.api.model.DrawChannelSummaryView;
 import com.tchalanet.server.catalog.drawchannel.api.model.DrawChannelView;
+import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
+import com.tchalanet.server.catalog.resultslot.api.ResultSlotView;
 import com.tchalanet.server.common.bus.Query;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.time.TchTimeProvider;
 import com.tchalanet.server.common.types.id.DrawChannelId;
+import com.tchalanet.server.common.types.id.DrawId;
+import com.tchalanet.server.common.types.id.ResultSlotId;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.core.draw.api.query.CashierNextDrawView;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.platform.tenant.api.model.TenantBusinessDayView;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -33,6 +42,65 @@ import org.junit.jupiter.api.Test;
 class PosDrawsServiceTest {
 
   @Test
+  void availableDrawCarriesProviderAndTenantLocalSchedule() {
+    var tenantId = TenantId.of(UUID.randomUUID());
+    var slotId = ResultSlotId.of(UUID.randomUUID());
+    var drawChannelId = DrawChannelId.of(UUID.randomUUID());
+    var scheduledAt = Instant.parse("2026-07-19T22:59:00Z");
+    var queryBus = mock(QueryBus.class);
+    var drawChannelCatalog = mock(DrawChannelCatalog.class);
+    var resultSlotCatalog = mock(ResultSlotCatalog.class);
+    when(queryBus.ask(any()))
+        .thenReturn(
+            List.of(
+                new CashierNextDrawView(
+                    DrawId.of(UUID.randomUUID()),
+                    drawChannelId,
+                    slotId,
+                    "GA_EVE",
+                    "GA_EVE",
+                    "Georgia",
+                    LocalDate.of(2026, 7, 19),
+                    LocalTime.of(18, 59),
+                    scheduledAt,
+                    scheduledAt.plusSeconds(900),
+                    "OPEN")));
+    when(drawChannelCatalog.listChannelGames(tenantId)).thenReturn(List.of());
+    when(resultSlotCatalog.requireByKey("GA_EVE"))
+        .thenReturn(
+            new ResultSlotView(
+                slotId,
+                "GA_EVE",
+                "GA",
+                ZoneId.of("America/New_York"),
+                LocalTime.of(18, 59),
+                "SUN",
+                true,
+                null,
+                null,
+                null));
+    var service =
+        new PosDrawsService(
+            queryBus,
+            drawChannelCatalog,
+            resultSlotCatalog,
+            new DrawChannelDisplayFormatter(),
+            (id, date) -> new TenantBusinessDayView(id, date, true, null, null),
+            new FixedTimeProvider(scheduledAt));
+
+    var availableDraws = service.listAvailable(ctx(tenantId), 24, 20);
+    assertThat(availableDraws).hasSize(1);
+    var draw = availableDraws.getFirst();
+
+    assertThat(draw.providerDate()).isEqualTo(LocalDate.of(2026, 7, 19));
+    assertThat(draw.providerTime()).isEqualTo(LocalTime.of(18, 59));
+    assertThat(draw.providerTimezone()).isEqualTo("America/New_York");
+    assertThat(draw.localDate()).isEqualTo(LocalDate.of(2026, 7, 19));
+    assertThat(draw.localTime()).isEqualTo(LocalTime.of(18, 59));
+    assertThat(draw.localTimezone()).isEqualTo("America/Port-au-Prince");
+  }
+
+  @Test
   void tenantClosedBusinessDayReturnsNoAvailableDrawsWithoutQueryingDraws() {
     var tenantId = TenantId.of(UUID.randomUUID());
     var now = Instant.parse("2026-01-02T14:00:00Z");
@@ -40,6 +108,7 @@ class PosDrawsServiceTest {
         new PosDrawsService(
             new FailingQueryBus(),
             new EmptyDrawChannelCatalog(),
+            mock(ResultSlotCatalog.class),
             new DrawChannelDisplayFormatter(),
             (id, date) ->
                 new TenantBusinessDayView(id, date, false, "TENANT_CLOSED", "Tenant closed"),

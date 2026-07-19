@@ -12,7 +12,26 @@
     "error": {
       "network": "Impossible de se connecter au serveur",
       "timeout": "Délai de connexion dépassé",
+      "auth_required": "Reconnectez-vous pour continuer.",
       "unknown": "Une erreur inattendue s'est produite"
+    },
+    "preparation": {
+      "total": "Total à payer",
+      "maryaj_free": "Maryaj gratis",
+      "free_game": "Jeu gratuit",
+      "free": "GRATUIT",
+      "auto_selection": "choix automatique",
+      "seller_selection": "choix du vendeur",
+      "promotion_applied": "La promotion est appliquée à ce ticket.",
+      "terminal_override_applied": "La règle promotionnelle spéciale du terminal est appliquée.",
+      "approval_required": "Cette vente doit être approuvée avant confirmation.",
+      "notice": "Une information doit être vérifiée avant confirmation."
+    },
+    "cashier_stats": {
+      "sales_today": "Ventes du jour",
+      "tickets": "Tickets",
+      "commission_today": "Commission du jour",
+      "total": "TOTAL"
     },
     "retry": "Réessayer",
     "manage": "Gérer",

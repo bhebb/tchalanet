@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../../core/i18n/i18n_models.dart';
+import '../../../../../core/i18n/i18n_repository.dart';
 import '../../../../../design_system/components/stat_card.dart';
 import '../../../../../design_system/tokens/tch_colors.dart';
 import '../../../../../design_system/tokens/tch_radius.dart';
@@ -44,9 +46,10 @@ class _SellerTerminalStatsPageState
   Widget build(BuildContext context) {
     final isoDate = _isoDate(_selectedDate);
     final statsAsync = ref.watch(terminalStatsByDateProvider(isoDate));
+    final translations = ref.watch(i18nBundleProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Statistiques')),
+      appBar: AppBar(title: Text(translations.translate('pos.reports.title'))),
       bottomNavigationBar: const SellerTerminalNavBar(currentIndex: 2),
       body: SafeArea(
         child: Column(
@@ -55,17 +58,18 @@ class _SellerTerminalStatsPageState
             _DateToggleBar(
               selected: _selectedDate,
               onChanged: _onDateChanged,
+              translations: translations,
             ),
             Expanded(
               child: statsAsync.when(
-                loading: () =>
-                    const Center(child: CircularProgressIndicator()),
+                loading: () => const Center(child: CircularProgressIndicator()),
                 error: (e, _) => _StatsError(
                   onRetry: () =>
                       ref.invalidate(terminalStatsByDateProvider(isoDate)),
                 ),
                 data: (stats) => _StatsBody(
                   stats: stats,
+                  translations: translations,
                   drawFilter: _drawFilter,
                   onDrawFilter: (id) => setState(() => _drawFilter = id),
                 ),
@@ -81,10 +85,15 @@ class _SellerTerminalStatsPageState
 // ─── Date toggle ──────────────────────────────────────────────────────────────
 
 class _DateToggleBar extends StatelessWidget {
-  const _DateToggleBar({required this.selected, required this.onChanged});
+  const _DateToggleBar({
+    required this.selected,
+    required this.onChanged,
+    required this.translations,
+  });
 
   final DateTime selected;
   final ValueChanged<DateTime> onChanged;
+  final I18nBundle translations;
 
   @override
   Widget build(BuildContext context) {
@@ -97,11 +106,21 @@ class _DateToggleBar extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
-          TchSpacing.s16, TchSpacing.s12, TchSpacing.s16, 0),
+        TchSpacing.s16,
+        TchSpacing.s12,
+        TchSpacing.s16,
+        0,
+      ),
       child: SegmentedButton<String>(
-        segments: const [
-          ButtonSegment(value: 'today', label: Text("Aujourd'hui")),
-          ButtonSegment(value: 'yesterday', label: Text('Hier')),
+        segments: [
+          ButtonSegment(
+            value: 'today',
+            label: Text(translations.translate('pos.reports.today')),
+          ),
+          ButtonSegment(
+            value: 'yesterday',
+            label: Text(translations.translate('pos.reports.yesterday')),
+          ),
         ],
         selected: {isToday ? 'today' : 'yesterday'},
         onSelectionChanged: (s) {
@@ -117,11 +136,13 @@ class _DateToggleBar extends StatelessWidget {
 class _StatsBody extends StatelessWidget {
   const _StatsBody({
     required this.stats,
+    required this.translations,
     required this.drawFilter,
     required this.onDrawFilter,
   });
 
   final TerminalDailyStats stats;
+  final I18nBundle translations;
   final String? drawFilter;
   final ValueChanged<String?> onDrawFilter;
 
@@ -134,13 +155,15 @@ class _StatsBody extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(TchSpacing.s16),
       children: [
-        const _SectionLabel('TOTAL'),
+        _SectionLabel(translations.translate('common.cashier_stats.total')),
         const SizedBox(height: TchSpacing.s12),
         Row(
           children: [
             Expanded(
               child: StatCardLarge(
-                label: 'Ventes',
+                label: translations.translate(
+                  'common.cashier_stats.sales_today',
+                ),
                 value: (stats.salesTotalCents / 100.0).toStringAsFixed(2),
                 unit: stats.currency,
               ),
@@ -149,34 +172,49 @@ class _StatsBody extends StatelessWidget {
             SizedBox(
               width: 100,
               child: StatCard(
-                label: 'Tickets',
+                label: translations.translate('common.cashier_stats.tickets'),
                 value: stats.ticketCount.toString(),
               ),
             ),
           ],
         ),
+        const SizedBox(height: TchSpacing.s12),
+        StatCard(
+          label: translations.translate(
+            'common.cashier_stats.commission_today',
+          ),
+          value: (stats.sellerCommissionTotalCents / 100.0).toStringAsFixed(2),
+          unit: stats.currency,
+        ),
         if (stats.breakdown.isNotEmpty) ...[
           const SizedBox(height: TchSpacing.s24),
-          const _SectionLabel('PAR TIRAGE'),
+          _SectionLabel(translations.translate('pos.reports.by_draw')),
           const SizedBox(height: TchSpacing.s12),
           _DrawFilterChips(
             breakdown: stats.breakdown,
             selected: drawFilter,
             onSelected: onDrawFilter,
+            allLabel: translations.translate('pos.reports.all'),
           ),
           const SizedBox(height: TchSpacing.s12),
           for (final line in filtered)
-            _DrawStatRow(line: line, currency: stats.currency),
+            _DrawStatRow(
+              line: line,
+              currency: stats.currency,
+              ticketLabel: translations.translate(
+                'common.cashier_stats.tickets',
+              ),
+            ),
         ],
         if (stats.ticketCount == 0)
           Padding(
             padding: const EdgeInsets.only(top: TchSpacing.s32),
             child: Center(
               child: Text(
-                'Aucune vente pour cette journée',
+                translations.translate('pos.reports.empty'),
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
             ),
           ),
@@ -194,10 +232,10 @@ class _SectionLabel extends StatelessWidget {
     return Text(
       text,
       style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-            letterSpacing: 0.5,
-            fontWeight: FontWeight.w700,
-          ),
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
+        letterSpacing: 0.5,
+        fontWeight: FontWeight.w700,
+      ),
     );
   }
 }
@@ -207,11 +245,13 @@ class _DrawFilterChips extends StatelessWidget {
     required this.breakdown,
     required this.selected,
     required this.onSelected,
+    required this.allLabel,
   });
 
   final List<DrawStatLine> breakdown;
   final String? selected;
   final ValueChanged<String?> onSelected;
+  final String allLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -220,7 +260,7 @@ class _DrawFilterChips extends StatelessWidget {
       child: Row(
         children: [
           FilterChip(
-            label: const Text('Tous'),
+            label: Text(allLabel),
             selected: selected == null,
             onSelected: (_) => onSelected(null),
           ),
@@ -240,10 +280,15 @@ class _DrawFilterChips extends StatelessWidget {
 }
 
 class _DrawStatRow extends StatelessWidget {
-  const _DrawStatRow({required this.line, required this.currency});
+  const _DrawStatRow({
+    required this.line,
+    required this.currency,
+    required this.ticketLabel,
+  });
 
   final DrawStatLine line;
   final String currency;
+  final String ticketLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -252,7 +297,9 @@ class _DrawStatRow extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: TchSpacing.s8),
       padding: const EdgeInsets.symmetric(
-          horizontal: TchSpacing.s16, vertical: TchSpacing.s12),
+        horizontal: TchSpacing.s16,
+        vertical: TchSpacing.s12,
+      ),
       decoration: BoxDecoration(
         color: scheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(TchRadius.md),
@@ -263,14 +310,16 @@ class _DrawStatRow extends StatelessWidget {
           Expanded(
             child: Text(
               line.channelLabel,
-              style:
-                  textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+              style: textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
           Text(
-            '${line.ticketCount} tickets',
-            style:
-                textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+            '${line.ticketCount} $ticketLabel',
+            style: textTheme.bodySmall?.copyWith(
+              color: scheme.onSurfaceVariant,
+            ),
           ),
           const SizedBox(width: TchSpacing.s16),
           Text(
@@ -288,23 +337,27 @@ class _DrawStatRow extends StatelessWidget {
 
 // ─── Error ────────────────────────────────────────────────────────────────────
 
-class _StatsError extends StatelessWidget {
+class _StatsError extends ConsumerWidget {
   const _StatsError({required this.onRetry});
 
   final VoidCallback onRetry;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final scheme = Theme.of(context).colorScheme;
+    final translations = ref.watch(i18nBundleProvider);
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(Icons.cloud_off_rounded, size: 48, color: scheme.error),
           const SizedBox(height: TchSpacing.s16),
-          const Text('Impossible de charger les statistiques'),
+          Text(translations.translate('pos.reports.load_error')),
           const SizedBox(height: TchSpacing.s12),
-          TextButton(onPressed: onRetry, child: const Text('Réessayer')),
+          TextButton(
+            onPressed: onRetry,
+            child: Text(translations.translate('common.retry')),
+          ),
         ],
       ),
     );

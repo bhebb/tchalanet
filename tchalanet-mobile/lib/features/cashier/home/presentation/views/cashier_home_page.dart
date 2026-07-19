@@ -1,72 +1,90 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../../core/i18n/i18n_models.dart';
 import '../../../../../core/i18n/i18n_repository.dart';
-import '../../../../../core/network/api_exception.dart';
 import '../../../../../core/network/connectivity_repository.dart';
-import '../../../../../design_system/components/online_badge.dart';
-import '../../../../../design_system/components/stat_card.dart';
+import '../../../../../design_system/components/components.dart';
 import '../../../../../design_system/tokens/tch_colors.dart';
 import '../../../../../design_system/tokens/tch_radius.dart';
 import '../../../../../design_system/tokens/tch_spacing.dart';
 import '../../../../auth/presentation/view_models/auth_controller.dart';
 import '../../../../notifications/presentation/view_models/notification_summary_controller.dart';
 import '../../../tickets/data/models/cashier_sell_catalog_models.dart';
+import '../../../tickets/data/models/cashier_ticket_models.dart';
+import '../../../tickets/presentation/cashier_draw_label.dart';
+import '../../../tickets/presentation/print_ticket_action.dart';
 import '../../data/models/cashier_home_models.dart';
 import '../../data/services/terminal_stats_service.dart';
 import '../view_models/cashier_home_providers.dart';
 import 'seller_terminal_nav_bar.dart';
 
-class CashierHomePage extends ConsumerWidget {
+class CashierHomePage extends ConsumerStatefulWidget {
   const CashierHomePage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CashierHomePage> createState() => _CashierHomePageState();
+}
+
+class _CashierHomePageState extends ConsumerState<CashierHomePage> {
+  bool _pinRedirectScheduled = false;
+
+  @override
+  Widget build(BuildContext context) {
     final homeAsync = ref.watch(cashierHomeProvider);
+    final translations = ref.watch(i18nBundleProvider);
 
     return homeAsync.when(
       loading: () => const _LoadingScaffold(),
-      error: (e, _) => _ErrorScaffold(error: userMessage(e), ref: ref),
+      error: (_, _) => _ErrorScaffold(translations: translations, ref: ref),
       data: (home) {
-        // V1 SellerTerminal model: the only blocking step the server emits is
-        // MUST_CHANGE_PIN. No more outlet/session selection.
         if (home.requiredStep != null) {
+          if (home.mustChangePin && !_pinRedirectScheduled) {
+            _pinRedirectScheduled = true;
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted) context.go('/change-pin');
+            });
+          }
           return _BlockedStepScaffold(home: home);
         }
-        return _SellerTerminalScaffold(home: home);
+        return _SellerTerminalHome(home: home);
       },
     );
   }
 }
 
-// ─── Loading ──────────────────────────────────────────────────────────────────
-
 class _LoadingScaffold extends StatelessWidget {
   const _LoadingScaffold();
 
   @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      appBar: _PosAppBar(terminalLabel: null, onMenuTap: null),
-      body: Center(child: CircularProgressIndicator()),
-    );
-  }
+  Widget build(BuildContext context) => const Scaffold(
+    body: Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TchBrandMark(size: 72),
+          SizedBox(height: TchSpacing.s20),
+          CircularProgressIndicator(),
+        ],
+      ),
+    ),
+  );
 }
 
-// ─── Error ────────────────────────────────────────────────────────────────────
-
 class _ErrorScaffold extends StatelessWidget {
-  const _ErrorScaffold({required this.error, required this.ref});
+  const _ErrorScaffold({required this.translations, required this.ref});
 
-  final String error;
+  final I18nBundle translations;
   final WidgetRef ref;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
-      appBar: const _PosAppBar(terminalLabel: null, onMenuTap: null),
+      appBar: const _PosAppBar(terminalLabel: null),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(TchSpacing.s24),
@@ -76,14 +94,14 @@ class _ErrorScaffold extends StatelessWidget {
               Icon(Icons.cloud_off_rounded, size: 48, color: scheme.error),
               const SizedBox(height: TchSpacing.s16),
               Text(
-                'Impossible de charger le tableau de bord',
+                translations.translate('common.error.network'),
                 style: Theme.of(context).textTheme.titleMedium,
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: TchSpacing.s24),
-              FilledButton.tonal(
+              const SizedBox(height: TchSpacing.s20),
+              TonalActionButton(
+                label: translations.translate('common.retry'),
                 onPressed: () => ref.invalidate(cashierHomeProvider),
-                child: const Text('Réessayer'),
               ),
             ],
           ),
@@ -92,8 +110,6 @@ class _ErrorScaffold extends StatelessWidget {
     );
   }
 }
-
-// ─── Blocking step (V1: MUST_CHANGE_PIN only) ────────────────────────────────
 
 class _BlockedStepScaffold extends ConsumerWidget {
   const _BlockedStepScaffold({required this.home});
@@ -104,12 +120,19 @@ class _BlockedStepScaffold extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final translations = ref.watch(i18nBundleProvider);
     final step = home.requiredStep!;
+    final isPinChange = step.type == 'MUST_CHANGE_PIN';
+    final title = isPinChange
+        ? translations.translate('auth.change_pin.title')
+        : step.title;
+    final message = isPinChange
+        ? translations.translate('auth.change_pin.description')
+        : step.message;
 
     return Scaffold(
       appBar: _PosAppBar(
         terminalLabel: home.operationalContext?.sellerTerminalLabel,
-        onMenuTap: null,
       ),
       body: SafeArea(
         child: Padding(
@@ -121,7 +144,7 @@ class _BlockedStepScaffold extends ConsumerWidget {
               Icon(Icons.lock_outline_rounded, size: 64, color: scheme.primary),
               const SizedBox(height: TchSpacing.s24),
               Text(
-                step.title,
+                title,
                 style: textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
@@ -129,25 +152,21 @@ class _BlockedStepScaffold extends ConsumerWidget {
               ),
               const SizedBox(height: TchSpacing.s12),
               Text(
-                step.message,
+                message,
                 style: textTheme.bodyMedium?.copyWith(
                   color: scheme.onSurfaceVariant,
                 ),
                 textAlign: TextAlign.center,
               ),
               const Spacer(),
-              FilledButton.icon(
-                onPressed: () => ref.invalidate(cashierHomeProvider),
-                icon: const Icon(Icons.refresh_rounded),
-                label: const Text('Réessayer'),
-                style: FilledButton.styleFrom(
-                  minimumSize: const Size.fromHeight(56),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(TchRadius.md),
-                  ),
-                ),
+              PrimaryActionButton(
+                label: translations.translate('auth.change_pin.title'),
+                icon: Icons.password_rounded,
+                onPressed: () async {
+                  await context.push('/change-pin');
+                  ref.invalidate(cashierHomeProvider);
+                },
               ),
-              const SizedBox(height: TchSpacing.s16),
             ],
           ),
         ),
@@ -156,33 +175,56 @@ class _BlockedStepScaffold extends ConsumerWidget {
   }
 }
 
-// ─── SellerTerminal home ──────────────────────────────────────────────────────
-
-class _SellerTerminalScaffold extends ConsumerWidget {
-  const _SellerTerminalScaffold({required this.home});
+class _SellerTerminalHome extends ConsumerStatefulWidget {
+  const _SellerTerminalHome({required this.home});
 
   final CashierHomeResponse home;
 
-  void _showDrawDetail(
-    BuildContext context,
-    WidgetRef ref,
-    CashierAvailableDrawView draw,
-  ) {
+  @override
+  ConsumerState<_SellerTerminalHome> createState() =>
+      _SellerTerminalHomeState();
+}
+
+class _SellerTerminalHomeState extends ConsumerState<_SellerTerminalHome> {
+  Timer? _countdownTimer;
+  DateTime _now = DateTime.now();
+
+  @override
+  void initState() {
+    super.initState();
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) setState(() => _now = DateTime.now());
+    });
+  }
+
+  @override
+  void dispose() {
+    _countdownTimer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _refresh() async {
+    ref.invalidate(cashierHomeProvider);
+    ref.invalidate(cashierReadinessProvider);
+    ref.invalidate(terminalDailyStatsProvider);
+    ref.invalidate(availableDrawsProvider);
+    ref.invalidate(latestTicketProvider);
+  }
+
+  void _showDrawDetail(CashierAvailableDrawView draw) {
     final statsAsync = ref.read(terminalDailyStatsProvider);
-    final drawLine = statsAsync.asData?.value.breakdown
-        .where((b) => b.drawId == draw.drawId)
+    final stat = statsAsync.asData?.value.breakdown
+        .where((line) => line.drawId == draw.drawId)
         .firstOrNull;
     showModalBottomSheet<void>(
       context: context,
       useSafeArea: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(TchRadius.lg)),
-      ),
-      builder: (sheetCtx) => _DrawDetailSheet(
+      showDragHandle: true,
+      builder: (sheetContext) => _DrawDetailSheet(
         draw: draw,
-        stat: drawLine,
+        stat: stat,
         onSell: () {
-          Navigator.of(sheetCtx).pop();
+          Navigator.of(sheetContext).pop();
           context.push('/sell', extra: {'drawId': draw.drawId});
         },
       ),
@@ -190,77 +232,87 @@ class _SellerTerminalScaffold extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final statsAsync = ref.watch(terminalDailyStatsProvider);
     final drawsAsync = ref.watch(availableDrawsProvider);
+    final translations = ref.watch(i18nBundleProvider);
 
     return Scaffold(
       appBar: _PosAppBar(
-        terminalLabel: home.operationalContext?.sellerTerminalLabel,
-        onMenuTap: null,
+        terminalLabel: widget.home.operationalContext?.sellerTerminalLabel,
       ),
       bottomNavigationBar: const SellerTerminalNavBar(currentIndex: 0),
       body: SafeArea(
+        top: false,
         child: RefreshIndicator(
-          onRefresh: () async {
-            ref.invalidate(cashierHomeProvider);
-            ref.invalidate(cashierReadinessProvider);
-            ref.invalidate(terminalDailyStatsProvider);
-            ref.invalidate(availableDrawsProvider);
-          },
+          onRefresh: _refresh,
           child: ListView(
-            padding: const EdgeInsets.all(TchSpacing.s16),
+            padding: const EdgeInsets.fromLTRB(
+              TchSpacing.s16,
+              TchSpacing.s12,
+              TchSpacing.s16,
+              TchSpacing.s32,
+            ),
             children: [
-              // Readiness attention banner (blockers / urgent notices).
               const _ReadinessBanner(),
-              // Stats
-              statsAsync.when(
-                loading: () => const _StatsPlaceholder(),
-                error: (_, _) => const _StatsPlaceholder(),
-                data: (stats) => _TerminalStatsRow(stats: stats),
+              const Divider(height: 1),
+              const SizedBox(height: TchSpacing.s16),
+              _SectionLabel(
+                label: translations.translate('pos.dashboard.available_draws'),
               ),
-              const SizedBox(height: TchSpacing.s24),
-
-              // Draws header
-              Text(
-                'TIRAGES DISPONIBLES',
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  letterSpacing: 0.5,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(height: TchSpacing.s12),
-
-              // Draw list
+              const SizedBox(height: TchSpacing.s8),
               drawsAsync.when(
-                loading: () => const Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(TchSpacing.s24),
-                    child: CircularProgressIndicator(),
-                  ),
+                loading: () => const Padding(
+                  padding: EdgeInsets.symmetric(vertical: TchSpacing.s32),
+                  child: Center(child: CircularProgressIndicator()),
                 ),
-                error: (e, _) => _DrawsError(
+                error: (_, _) => _DrawsError(
+                  translations: translations,
                   onRetry: () => ref.invalidate(availableDrawsProvider),
                 ),
                 data: (draws) => draws.isEmpty
-                    ? _NoDraws()
-                    : GridView.count(
-                        crossAxisCount: 2,
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        crossAxisSpacing: TchSpacing.s12,
-                        mainAxisSpacing: TchSpacing.s12,
-                        childAspectRatio: 1.25,
-                        children: [
-                          for (final draw in draws)
-                            _DrawTile(
-                              draw: draw,
-                              onTap: () => _showDrawDetail(context, ref, draw),
-                            ),
-                        ],
+                    ? _NoDraws(translations: translations)
+                    : _AvailableDrawList(
+                        draws: draws,
+                        now: _now,
+                        translations: translations,
+                        onDrawTap: _showDrawDetail,
                       ),
               ),
+              const SizedBox(height: TchSpacing.s32),
+              _SectionLabel(
+                label: translations.translate('pos.dashboard.daily_summary'),
+              ),
+              const SizedBox(height: TchSpacing.s8),
+              statsAsync.when(
+                loading: () => _DailySummary.placeholder(translations),
+                error: (_, _) => _DailySummary.placeholder(translations),
+                data: (stats) =>
+                    stats.ticketCount == 0 && stats.salesTotalCents == 0
+                    ? _NoSalesYet(translations: translations)
+                    : _DailySummary(stats: stats, translations: translations),
+              ),
+              const SizedBox(height: TchSpacing.s24),
+              _SectionLabel(
+                label: translations.translate('pos.dashboard.last_ticket'),
+              ),
+              const SizedBox(height: TchSpacing.s8),
+              ref
+                  .watch(latestTicketProvider)
+                  .when(
+                    loading: () => const _LastTicketCard.loading(),
+                    error: (_, _) => const SizedBox.shrink(),
+                    data: (ticket) => ticket == null
+                        ? const SizedBox.shrink()
+                        : _LastTicketCard(
+                            ticket: ticket,
+                            translations: translations,
+                            onReprint: () =>
+                                printTicket(context, ref, ticket.id),
+                            onOpen: () =>
+                                context.push('/pos/tickets/${ticket.id}'),
+                          ),
+                  ),
             ],
           ),
         ),
@@ -269,7 +321,500 @@ class _SellerTerminalScaffold extends ConsumerWidget {
   }
 }
 
-// ─── Readiness attention banner ───────────────────────────────────────────────
+class _SectionLabel extends StatelessWidget {
+  const _SectionLabel({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => Text(
+    label,
+    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+      color: Theme.of(context).colorScheme.onSurfaceVariant,
+      fontWeight: FontWeight.w800,
+      letterSpacing: 0.4,
+    ),
+  );
+}
+
+class _DailySummary extends StatelessWidget {
+  const _DailySummary({required this.stats, required this.translations})
+    : isPlaceholder = false;
+
+  const _DailySummary.placeholder(this.translations)
+    : stats = null,
+      isPlaceholder = true;
+
+  final TerminalDailyStats? stats;
+  final I18nBundle translations;
+  final bool isPlaceholder;
+
+  @override
+  Widget build(BuildContext context) {
+    final dailyStats = stats;
+    return Row(
+      children: [
+        Expanded(
+          child: _DailyMetric(
+            icon: Icons.payments_outlined,
+            label: translations.translate('common.cashier_stats.sales_today'),
+            value: dailyStats == null
+                ? '—'
+                : _money(dailyStats.salesTotalCents),
+            unit: dailyStats?.currency,
+          ),
+        ),
+        const SizedBox(width: TchSpacing.s8),
+        Expanded(
+          child: _DailyMetric(
+            icon: Icons.confirmation_number_outlined,
+            label: translations.translate('common.cashier_stats.tickets'),
+            value: dailyStats?.ticketCount.toString() ?? '—',
+          ),
+        ),
+        const SizedBox(width: TchSpacing.s8),
+        Expanded(
+          child: _DailyMetric(
+            icon: Icons.percent_rounded,
+            label: translations.translate(
+              'common.cashier_stats.commission_today',
+            ),
+            value: dailyStats == null
+                ? '—'
+                : _money(dailyStats.sellerCommissionTotalCents),
+            unit: dailyStats?.currency,
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _money(int minorUnits) => (minorUnits / 100).toStringAsFixed(2);
+}
+
+class _DailyMetric extends StatelessWidget {
+  const _DailyMetric({
+    required this.icon,
+    required this.label,
+    required this.value,
+    this.unit,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+  final String? unit;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    return SurfaceCard(
+      padding: const EdgeInsets.all(TchSpacing.s12),
+      child: SizedBox(
+        height: 96,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, size: 18, color: scheme.primary),
+            const SizedBox(height: TchSpacing.s8),
+            Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: textTheme.labelSmall?.copyWith(
+                color: scheme.onSurfaceVariant,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const Spacer(),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text(
+                value,
+                style: textTheme.headlineSmall?.copyWith(
+                  color: scheme.primary,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ),
+            if (unit != null)
+              Text(
+                unit!,
+                style: textTheme.labelSmall?.copyWith(
+                  color: scheme.onSurfaceVariant,
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _NoSalesYet extends StatelessWidget {
+  const _NoSalesYet({required this.translations});
+
+  final I18nBundle translations;
+
+  @override
+  Widget build(BuildContext context) => SurfaceCard(
+    emphasis: SurfaceCardEmphasis.low,
+    padding: const EdgeInsets.all(TchSpacing.s12),
+    child: Row(
+      children: [
+        Icon(
+          Icons.point_of_sale_outlined,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+        ),
+        const SizedBox(width: TchSpacing.s8),
+        Expanded(
+          child: Text(
+            translations.translate('pos.dashboard.no_sales_yet'),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+class _AvailableDrawList extends StatelessWidget {
+  const _AvailableDrawList({
+    required this.draws,
+    required this.now,
+    required this.translations,
+    required this.onDrawTap,
+  });
+
+  final List<CashierAvailableDrawView> draws;
+  final DateTime now;
+  final I18nBundle translations;
+  final ValueChanged<CashierAvailableDrawView> onDrawTap;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    children: [
+      for (final draw in draws) ...[
+        _AvailableDrawCard(
+          draw: draw,
+          now: now,
+          translations: translations,
+          onTap: () => onDrawTap(draw),
+        ),
+        const SizedBox(height: TchSpacing.s12),
+      ],
+    ],
+  );
+}
+
+class _AvailableDrawCard extends StatelessWidget {
+  const _AvailableDrawCard({
+    required this.draw,
+    required this.now,
+    required this.translations,
+    required this.onTap,
+  });
+
+  final CashierAvailableDrawView draw;
+  final DateTime now;
+  final I18nBundle translations;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final urgency = _drawUrgencyFor(draw, now);
+    final cutoffLabel = _cutoffLabel(draw, now, translations);
+
+    return SurfaceCard(
+      onTap: onTap,
+      backgroundColor: urgency.surfaceColor(scheme),
+      borderColor: urgency.borderColor(scheme),
+      padding: const EdgeInsets.symmetric(
+        horizontal: TchSpacing.s12,
+        vertical: TchSpacing.s8,
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          TchProviderLogo(providerCode: draw.providerCode),
+          const SizedBox(width: TchSpacing.s12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  localizedCashierDrawLabel(draw, translations),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+                ),
+                const SizedBox(height: TchSpacing.s4),
+                Text(
+                  cutoffLabel,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: urgency.foregroundColor(scheme),
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: TchSpacing.s8),
+          FilledButton.icon(
+            onPressed: onTap,
+            icon: const Icon(Icons.add_rounded, size: 18),
+            label: Text(translations.translate('pos.dashboard.sell')),
+            style: FilledButton.styleFrom(
+              minimumSize: const Size(0, 44),
+              padding: const EdgeInsets.symmetric(horizontal: TchSpacing.s12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(TchRadius.sm),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+enum _DrawUrgency { ready, soon, urgent, closed }
+
+_DrawUrgency _drawUrgencyFor(CashierAvailableDrawView draw, DateTime now) {
+  final cutoffAt = draw.cutoffAt;
+  if (cutoffAt == null) return _DrawUrgency.ready;
+  final remaining = cutoffAt.difference(now);
+  if (remaining.isNegative || remaining == Duration.zero) {
+    return _DrawUrgency.closed;
+  }
+  if (remaining.inMinutes < 10) return _DrawUrgency.urgent;
+  if (remaining.inMinutes < 30) return _DrawUrgency.soon;
+  return _DrawUrgency.ready;
+}
+
+String _cutoffLabel(
+  CashierAvailableDrawView draw,
+  DateTime now,
+  I18nBundle translations,
+) {
+  final cutoffAt = draw.cutoffAt;
+  if (cutoffAt == null) {
+    return translations.translate('pos.dashboard.closes_soon');
+  }
+
+  final remaining = cutoffAt.difference(now);
+  if (remaining.isNegative || remaining == Duration.zero) {
+    return translations.translate('pos.dashboard.closed');
+  }
+  if (remaining.inHours > 0) {
+    return _interpolate(
+      translations.translate('pos.dashboard.closes_in_hours_minutes'),
+      {
+        'hours': remaining.inHours,
+        'minutes': remaining.inMinutes.remainder(60),
+      },
+    );
+  }
+  if (remaining.inMinutes > 0) {
+    return _interpolate(
+      translations.translate('pos.dashboard.closes_in_minutes'),
+      {'minutes': remaining.inMinutes},
+    );
+  }
+  return translations.translate('pos.dashboard.closes_soon');
+}
+
+extension on _DrawUrgency {
+  Color surfaceColor(ColorScheme scheme) => switch (this) {
+    _DrawUrgency.ready => TchColors.successContainer.withValues(alpha: 0.36),
+    _DrawUrgency.soon => scheme.tertiaryContainer.withValues(alpha: 0.5),
+    _DrawUrgency.urgent => scheme.errorContainer.withValues(alpha: 0.5),
+    _DrawUrgency.closed => scheme.surfaceContainerHigh,
+  };
+
+  Color borderColor(ColorScheme scheme) => switch (this) {
+    _DrawUrgency.ready => TchColors.success.withValues(alpha: 0.55),
+    _DrawUrgency.soon => scheme.tertiary.withValues(alpha: 0.55),
+    _DrawUrgency.urgent => scheme.error.withValues(alpha: 0.55),
+    _DrawUrgency.closed => scheme.outlineVariant,
+  };
+
+  Color foregroundColor(ColorScheme scheme) => switch (this) {
+    _DrawUrgency.ready => TchColors.success,
+    _DrawUrgency.soon => scheme.onTertiaryContainer,
+    _DrawUrgency.urgent => scheme.onErrorContainer,
+    _DrawUrgency.closed => scheme.onSurfaceVariant,
+  };
+}
+
+class _LastTicketCard extends StatelessWidget {
+  const _LastTicketCard({
+    required this.ticket,
+    required this.translations,
+    required this.onReprint,
+    required this.onOpen,
+  }) : loading = false;
+
+  const _LastTicketCard.loading()
+    : ticket = null,
+      translations = null,
+      onReprint = null,
+      onOpen = null,
+      loading = true;
+
+  final CashierTicketSummaryView? ticket;
+  final I18nBundle? translations;
+  final VoidCallback? onReprint;
+  final VoidCallback? onOpen;
+  final bool loading;
+
+  @override
+  Widget build(BuildContext context) {
+    if (loading) {
+      return const SurfaceCard(
+        padding: EdgeInsets.all(TchSpacing.s16),
+        child: SizedBox(
+          height: 56,
+          child: Center(child: CircularProgressIndicator()),
+        ),
+      );
+    }
+    final currentTicket = ticket!;
+    final currentTranslations = translations!;
+    return SurfaceCard(
+      onTap: onOpen,
+      padding: const EdgeInsets.all(TchSpacing.s12),
+      child: Row(
+        children: [
+          const Icon(Icons.receipt_long_rounded),
+          const SizedBox(width: TchSpacing.s12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  currentTicket.displayCode,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+                ),
+                Text(
+                  currentTicket.formattedAmount,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          IconButton.filledTonal(
+            tooltip: currentTranslations.translate('pos.dashboard.reprint'),
+            onPressed: onReprint,
+            icon: const Icon(Icons.print_outlined),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DrawScheduleLine extends StatelessWidget {
+  const _DrawScheduleLine({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.zone,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+  final String zone;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final color = Theme.of(context).colorScheme.onSurfaceVariant;
+    return Row(
+      children: [
+        Icon(icon, size: 15, color: color),
+        const SizedBox(width: TchSpacing.s4),
+        Text(
+          '$label $value',
+          style: textTheme.bodySmall?.copyWith(
+            color: color,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        if (zone.isNotEmpty) ...[
+          const SizedBox(width: TchSpacing.s4),
+          Expanded(
+            child: Text(
+              '· $zone',
+              overflow: TextOverflow.ellipsis,
+              style: textTheme.bodySmall?.copyWith(color: color),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class _NoDraws extends StatelessWidget {
+  const _NoDraws({required this.translations});
+
+  final I18nBundle translations;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.symmetric(vertical: TchSpacing.s32),
+    child: Column(
+      children: [
+        Icon(
+          Icons.event_busy_rounded,
+          size: 44,
+          color: Theme.of(context).colorScheme.outlineVariant,
+        ),
+        const SizedBox(height: TchSpacing.s12),
+        Text(
+          translations.translate('pos.dashboard.no_draws'),
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
+      ],
+    ),
+  );
+}
+
+class _DrawsError extends StatelessWidget {
+  const _DrawsError({required this.translations, required this.onRetry});
+
+  final I18nBundle translations;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.symmetric(vertical: TchSpacing.s24),
+    child: Column(
+      children: [
+        Text(translations.translate('pos.dashboard.draw_load_error')),
+        const SizedBox(height: TchSpacing.s8),
+        TextButton(
+          onPressed: onRetry,
+          child: Text(translations.translate('common.retry')),
+        ),
+      ],
+    ),
+  );
+}
 
 class _ReadinessBanner extends ConsumerWidget {
   const _ReadinessBanner();
@@ -278,144 +823,73 @@ class _ReadinessBanner extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final readiness = ref.watch(cashierReadinessProvider).asData?.value;
     if (readiness == null) return const SizedBox.shrink();
-
-    // Priority: a hard blocker first, then the most urgent attention notice.
     final blocker = readiness.blockers.firstOrNull;
     final notice = readiness.notifications
         .where(
-          (n) =>
-              n.attentionLevel == CashierAttentionLevel.blocked ||
-              n.attentionLevel == CashierAttentionLevel.card,
+          (item) =>
+              item.attentionLevel == CashierAttentionLevel.blocked ||
+              item.attentionLevel == CashierAttentionLevel.card,
         )
         .firstOrNull;
     if (blocker == null && notice == null) return const SizedBox.shrink();
 
     final translations = ref.watch(i18nBundleProvider);
-    final scheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-
     final danger =
         blocker != null ||
         notice?.attentionLevel == CashierAttentionLevel.blocked;
-    final color = danger ? scheme.error : TchColors.warning;
+    final color = danger
+        ? Theme.of(context).colorScheme.error
+        : TchColors.warning;
+    final title = _interpolate(
+      translations.translate(blocker?.titleKey ?? notice!.titleKey),
+      blocker?.params ?? notice!.params,
+    );
+    final message = _interpolate(
+      translations.translate(blocker?.messageKey ?? notice!.messageKey),
+      blocker?.params ?? notice!.params,
+    );
 
-    final titleKey = blocker?.titleKey ?? notice!.titleKey;
-    final messageKey = blocker?.messageKey ?? notice!.messageKey;
-    final params = blocker?.params ?? notice!.params;
-    final title = _interpolate(translations.translate(titleKey), params);
-    final message = _interpolate(translations.translate(messageKey), params);
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: TchSpacing.s16),
-      padding: const EdgeInsets.all(TchSpacing.s12),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(TchRadius.md),
-        border: Border.all(color: color.withValues(alpha: 0.4)),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(
-            danger ? Icons.error_outline_rounded : Icons.warning_amber_rounded,
-            size: 20,
-            color: color,
-          ),
-          const SizedBox(width: TchSpacing.s12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: color,
-                  ),
-                ),
-                if (message.isNotEmpty) ...[
-                  const SizedBox(height: TchSpacing.s4),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: TchSpacing.s16),
+      child: SurfaceCard(
+        emphasis: SurfaceCardEmphasis.low,
+        padding: const EdgeInsets.all(TchSpacing.s12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(
+              danger
+                  ? Icons.error_outline_rounded
+                  : Icons.warning_amber_rounded,
+              color: color,
+            ),
+            const SizedBox(width: TchSpacing.s12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   Text(
-                    message,
-                    style: textTheme.bodySmall?.copyWith(
-                      color: scheme.onSurfaceVariant,
+                    title,
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      color: color,
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
+                  if (message.isNotEmpty) ...[
+                    const SizedBox(height: TchSpacing.s4),
+                    Text(message),
+                  ],
                 ],
-              ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
-
-  /// Fills `{name}` placeholders from server params (the i18n bundle has no
-  /// interpolation of its own).
-  static String _interpolate(String value, Map<String, dynamic> params) =>
-      value.replaceAllMapped(
-        RegExp(r'\{(\w+)\}'),
-        (m) => params[m[1]]?.toString() ?? m[0]!,
-      );
 }
 
-class _TerminalStatsRow extends StatelessWidget {
-  const _TerminalStatsRow({required this.stats});
-
-  final TerminalDailyStats stats;
-
-  @override
-  Widget build(BuildContext context) {
-    final amount = (stats.salesTotalCents / 100.0).toStringAsFixed(2);
-    return Row(
-      children: [
-        Expanded(
-          child: StatCardLarge(
-            label: "Ventes aujourd'hui",
-            value: amount,
-            unit: stats.currency,
-          ),
-        ),
-        const SizedBox(width: TchSpacing.s12),
-        SizedBox(
-          width: 100,
-          child: StatCard(
-            label: 'Tickets',
-            value: stats.ticketCount.toString(),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _StatsPlaceholder extends StatelessWidget {
-  const _StatsPlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Row(
-      children: [
-        Expanded(
-          child: StatCardLarge(
-            label: "Ventes aujourd'hui",
-            value: '—',
-            unit: '',
-          ),
-        ),
-        SizedBox(width: TchSpacing.s12),
-        SizedBox(
-          width: 100,
-          child: StatCard(label: 'Tickets', value: '—'),
-        ),
-      ],
-    );
-  }
-}
-
-// ─── Draw detail bottom sheet ─────────────────────────────────────────────────
-
-class _DrawDetailSheet extends StatelessWidget {
+class _DrawDetailSheet extends ConsumerWidget {
   const _DrawDetailSheet({
     required this.draw,
     required this.stat,
@@ -427,390 +901,154 @@ class _DrawDetailSheet extends StatelessWidget {
   final VoidCallback onSell;
 
   @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-    final parts = draw.channelLabel.split(' ');
-    final stateCode = parts[0];
-    final slot = parts.length > 1 ? parts.sublist(1).join(' ') : '';
-
+  Widget build(BuildContext context, WidgetRef ref) {
+    final translations = ref.watch(i18nBundleProvider);
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         TchSpacing.s24,
-        TchSpacing.s8,
+        TchSpacing.s12,
         TchSpacing.s24,
         TchSpacing.s32,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Handle
-          Container(
-            width: 40,
-            height: 4,
-            margin: const EdgeInsets.only(bottom: TchSpacing.s24),
-            decoration: BoxDecoration(
-              color: scheme.outlineVariant,
-              borderRadius: BorderRadius.circular(TchRadius.pill),
-            ),
-          ),
-
-          // Draw identity
           Row(
             children: [
-              Text(
-                stateCode,
-                style: textTheme.displaySmall?.copyWith(
-                  fontWeight: FontWeight.w900,
-                  color: scheme.onSurface,
-                  height: 1,
-                ),
-              ),
+              TchProviderLogo(providerCode: draw.providerCode),
               const SizedBox(width: TchSpacing.s12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    slot,
-                    style: textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  Text(
-                    draw.formattedCutoff,
-                    style: textTheme.bodySmall?.copyWith(
-                      color: scheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ),
-              const Spacer(),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: TchSpacing.s8,
-                  vertical: TchSpacing.s4,
-                ),
-                decoration: BoxDecoration(
-                  color: TchColors.successContainer,
-                  borderRadius: BorderRadius.circular(TchRadius.pill),
-                ),
+              Expanded(
                 child: Text(
-                  'OUVERT',
-                  style: textTheme.labelSmall?.copyWith(
-                    color: TchColors.success,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.5,
-                  ),
+                  localizedCashierDrawLabel(draw, translations),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
                 ),
               ),
             ],
           ),
-
-          const SizedBox(height: TchSpacing.s24),
-          const Divider(),
-          const SizedBox(height: TchSpacing.s16),
-
-          // Stats for this draw today
-          if (stat != null)
-            Row(
-              children: [
-                Expanded(
-                  child: StatCardLarge(
-                    label: 'Ventes ce tirage',
-                    value: stat!.totalAmount.toStringAsFixed(2),
-                    unit: '',
-                  ),
-                ),
-                const SizedBox(width: TchSpacing.s12),
-                SizedBox(
-                  width: 100,
-                  child: StatCard(
-                    label: 'Tickets',
-                    value: stat!.ticketCount.toString(),
-                  ),
-                ),
-              ],
-            )
-          else
-            Text(
-              'Aucune vente pour ce tirage aujourd\'hui',
-              style: textTheme.bodyMedium?.copyWith(
-                color: scheme.onSurfaceVariant,
-              ),
-            ),
-
-          const SizedBox(height: TchSpacing.s24),
-
-          // Vendre button
-          FilledButton.icon(
-            onPressed: onSell,
-            icon: const Icon(Icons.confirmation_number_rounded),
-            label: const Text('VENDRE'),
-            style: FilledButton.styleFrom(
-              minimumSize: const Size.fromHeight(56),
-              textStyle: textTheme.labelLarge?.copyWith(
-                fontWeight: FontWeight.w800,
-                letterSpacing: 1.5,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(TchRadius.md),
-              ),
-            ),
+          const SizedBox(height: TchSpacing.s20),
+          _DrawScheduleLine(
+            icon: Icons.public_rounded,
+            label: translations.translate('pos.dashboard.provider_time'),
+            value: _scheduleValue(draw.providerDate, draw.providerTime),
+            zone: _zoneLabel(draw.providerTimezone),
           ),
-        ],
-      ),
-    );
-  }
-}
-
-// ─── Draw tile (grid cell) ────────────────────────────────────────────────────
-
-class _DrawTile extends StatelessWidget {
-  const _DrawTile({required this.draw, required this.onTap});
-
-  final CashierAvailableDrawView draw;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-
-    // "NY Midi" → stateCode="NY", slot="Midi"
-    final parts = draw.channelLabel.split(' ');
-    final stateCode = parts[0];
-    final slot = parts.length > 1 ? parts.sublist(1).join(' ') : '';
-    final isMidi = slot.toLowerCase().contains('midi');
-
-    final slotBg = isMidi ? scheme.primaryContainer : scheme.secondaryContainer;
-    final slotFg = isMidi
-        ? scheme.onPrimaryContainer
-        : scheme.onSecondaryContainer;
-
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(TchRadius.md),
-      child: Container(
-        decoration: BoxDecoration(
-          color: scheme.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(TchRadius.md),
-          border: Border.all(
-            color: TchColors.success.withValues(alpha: 0.35),
-            width: 1.5,
+          const SizedBox(height: TchSpacing.s8),
+          _DrawScheduleLine(
+            icon: Icons.location_on_outlined,
+            label: translations.translate('pos.dashboard.local_time'),
+            value: _scheduleValue(draw.localDate, draw.localTime),
+            zone: _zoneLabel(draw.localTimezone),
           ),
-        ),
-        padding: const EdgeInsets.symmetric(
-          horizontal: TchSpacing.s12,
-          vertical: TchSpacing.s16,
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
+          if (stat != null) ...[
+            const SizedBox(height: TchSpacing.s20),
             Text(
-              stateCode,
-              style: textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.w900,
-                color: scheme.onSurface,
-                height: 1,
-              ),
-            ),
-            const SizedBox(height: TchSpacing.s8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-              decoration: BoxDecoration(
-                color: slotBg,
-                borderRadius: BorderRadius.circular(TchRadius.pill),
-              ),
-              child: Text(
-                slot,
-                style: textTheme.labelMedium?.copyWith(
-                  color: slotFg,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
-            const SizedBox(height: TchSpacing.s8),
-            Text(
-              draw.formattedCutoff,
-              style: textTheme.bodySmall?.copyWith(
-                color: scheme.onSurfaceVariant,
-              ),
-              textAlign: TextAlign.center,
+              '${stat!.ticketCount} · ${stat!.totalAmount.toStringAsFixed(2)}',
+              style: Theme.of(context).textTheme.bodyMedium,
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _NoDraws extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: TchSpacing.s32),
-      child: Column(
-        children: [
-          Icon(
-            Icons.event_busy_rounded,
-            size: 48,
-            color: scheme.outlineVariant,
-          ),
-          const SizedBox(height: TchSpacing.s12),
-          Text(
-            'Aucun tirage disponible',
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.copyWith(color: scheme.onSurfaceVariant),
+          const SizedBox(height: TchSpacing.s24),
+          PrimaryActionButton(
+            label: translations.translate('pos.dashboard.sell'),
+            icon: Icons.confirmation_number_rounded,
+            onPressed: onSell,
           ),
         ],
       ),
     );
   }
 }
-
-class _DrawsError extends StatelessWidget {
-  const _DrawsError({required this.onRetry});
-
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        children: [
-          const SizedBox(height: TchSpacing.s16),
-          Text(
-            'Impossible de charger les tirages',
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-          const SizedBox(height: TchSpacing.s12),
-          TextButton(onPressed: onRetry, child: const Text('Réessayer')),
-        ],
-      ),
-    );
-  }
-}
-
-// ─── Top app bar ──────────────────────────────────────────────────────────────
 
 class _PosAppBar extends ConsumerWidget implements PreferredSizeWidget {
-  const _PosAppBar({required this.terminalLabel, required this.onMenuTap});
+  const _PosAppBar({required this.terminalLabel});
 
   final String? terminalLabel;
-  final VoidCallback? onMenuTap;
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final scheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-    final session = ref.watch(userSessionProvider);
     final translations = ref.watch(i18nBundleProvider);
-
+    final session = ref.watch(userSessionProvider);
     return AppBar(
-      // backgroundColor, elevation, surfaceTintColor from appBarTheme in ThemeBuilder
-      leading: IconButton(
-        icon: const Icon(Icons.menu_rounded),
-        onPressed: onMenuTap,
-        color: scheme.primary,
-      ),
-      title: Text(
-        'Tchalanet',
-        style: textTheme.titleLarge?.copyWith(
-          fontWeight: FontWeight.w900,
-          color: scheme.primary,
-          letterSpacing: -0.5,
-        ),
-      ),
+      title: const TchBrandMark(size: 32, showWordmark: true),
+      titleSpacing: TchSpacing.s16,
       actions: [
         if (terminalLabel != null)
           Padding(
             padding: const EdgeInsets.only(right: TchSpacing.s8),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  terminalLabel!,
-                  style: textTheme.labelSmall?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: scheme.primary,
-                  ),
-                ),
-                OnlineBadge(
-                  online: ref.watch(isOnlineProvider).asData?.value ?? true,
-                  onlineLabel: translations.translate('common.status.online'),
-                  offlineLabel: translations.translate('common.status.offline'),
-                ),
-              ],
-            ),
+            child: _TerminalStatus(label: terminalLabel!),
           ),
-        Builder(
-          builder: (context) {
-            final summary = ref.watch(notificationSummaryProvider).summary;
-            return _NotificationCenterAction(
-              unreadCount: summary.unreadCount,
-              criticalCount: summary.criticalCount,
-              actionRequiredCount: summary.actionRequiredCount,
-              tooltip: translations.translate('notifications.center.open'),
-            );
-          },
+        _NotificationCenterAction(
+          tooltip: translations.translate('notifications.center.open'),
         ),
         Padding(
           padding: const EdgeInsets.only(right: TchSpacing.s12),
           child: _UserAvatar(
             initials: _initials(session.displayName ?? session.username),
+            tooltip: translations.translate('pos.profile.open'),
           ),
         ),
       ],
     );
   }
+}
 
-  String _initials(String? name) {
-    if (name == null || name.isEmpty) return '?';
-    final parts = name.trim().split(' ');
-    if (parts.length >= 2) {
-      return '${parts.first[0]}${parts.last[0]}'.toUpperCase();
-    }
-    return name[0].toUpperCase();
+class _TerminalStatus extends ConsumerWidget {
+  const _TerminalStatus({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final translations = ref.watch(i18nBundleProvider);
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Text(
+          label,
+          overflow: TextOverflow.ellipsis,
+          style: Theme.of(
+            context,
+          ).textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w800),
+        ),
+        OnlineBadge(
+          online: ref.watch(isOnlineProvider).asData?.value ?? true,
+          onlineLabel: translations.translate('common.status.online'),
+          offlineLabel: translations.translate('common.status.offline'),
+        ),
+      ],
+    );
   }
 }
 
-class _NotificationCenterAction extends StatelessWidget {
-  const _NotificationCenterAction({
-    required this.unreadCount,
-    required this.criticalCount,
-    required this.actionRequiredCount,
-    required this.tooltip,
-  });
+class _NotificationCenterAction extends ConsumerWidget {
+  const _NotificationCenterAction({required this.tooltip});
 
-  final int unreadCount;
-  final int criticalCount;
-  final int actionRequiredCount;
   final String tooltip;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final summary = ref.watch(notificationSummaryProvider).summary;
     final scheme = Theme.of(context).colorScheme;
-    // Badge count is the unread total; its colour signals the highest severity
-    // present so the seller reads urgency at a glance (matches the design).
-    final Color badgeColor = criticalCount > 0
+    final badgeColor = summary.criticalCount > 0
         ? scheme.error
-        : actionRequiredCount > 0
+        : summary.actionRequiredCount > 0
         ? TchColors.warning
         : scheme.primary;
-
     return IconButton(
       tooltip: tooltip,
       onPressed: () => context.push('/pos/notifications'),
       icon: Badge(
-        isLabelVisible: unreadCount > 0,
+        isLabelVisible: summary.unreadCount > 0,
         backgroundColor: badgeColor,
-        label: Text(unreadCount > 99 ? '99+' : unreadCount.toString()),
+        label: Text(
+          summary.unreadCount > 99 ? '99+' : '${summary.unreadCount}',
+        ),
         child: const Icon(Icons.notifications_outlined),
       ),
     );
@@ -818,23 +1056,53 @@ class _NotificationCenterAction extends StatelessWidget {
 }
 
 class _UserAvatar extends StatelessWidget {
-  const _UserAvatar({required this.initials});
+  const _UserAvatar({required this.initials, required this.tooltip});
 
   final String initials;
+  final String tooltip;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return CircleAvatar(
-      radius: 18,
-      backgroundColor: scheme.primaryContainer,
-      child: Text(
-        initials,
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-          fontWeight: FontWeight.w700,
-          color: scheme.onPrimaryContainer,
+    return IconButton(
+      tooltip: tooltip,
+      onPressed: () => context.go('/pos/profile'),
+      icon: CircleAvatar(
+        radius: 18,
+        backgroundColor: scheme.primary,
+        child: Text(
+          initials,
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+            color: scheme.onPrimary,
+            fontWeight: FontWeight.w800,
+          ),
         ),
       ),
     );
   }
 }
+
+String _initials(String? name) {
+  if (name == null || name.trim().isEmpty) return '?';
+  final parts = name.trim().split(RegExp(r'\s+'));
+  return parts.length > 1
+      ? '${parts.first[0]}${parts.last[0]}'.toUpperCase()
+      : parts.first[0].toUpperCase();
+}
+
+String _interpolate(String value, Map<String, dynamic> params) =>
+    value.replaceAllMapped(
+      RegExp(r'\{(\w+)\}'),
+      (match) => params[match[1]]?.toString() ?? match[0]!,
+    );
+
+String _scheduleValue(String date, String time) {
+  final datePart = date.length >= 10
+      ? '${date.substring(8, 10)}/${date.substring(5, 7)}'
+      : date;
+  final timePart = time.length >= 5 ? time.substring(0, 5) : time;
+  return '$datePart $timePart'.trim();
+}
+
+String _zoneLabel(String timezone) =>
+    timezone.split('/').last.replaceAll('_', ' ').replaceAll('-', ' ');

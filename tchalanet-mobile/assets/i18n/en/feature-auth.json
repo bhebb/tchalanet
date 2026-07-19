@@ -18,6 +18,16 @@
       "terminal_binding_notice": "After sign-in, the system will verify this device and its assigned terminal."
     },
     "logout": "Sign out",
+    "change_pin": {
+      "title": "Change PIN",
+      "description": "Choose a new six-digit PIN for this terminal.",
+      "new_pin": "New PIN",
+      "confirm_pin": "Confirm new PIN",
+      "submit": "Save PIN",
+      "invalid": "The PIN must contain exactly six digits.",
+      "mismatch": "The two PINs do not match.",
+      "success": "Your PIN has been changed."
+    },
     "forbidden": {
       "title": "Access denied",
       "message": "You do not have the required permissions to access this page.",

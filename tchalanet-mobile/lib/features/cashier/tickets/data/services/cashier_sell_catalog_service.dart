@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../../core/network/api_client.dart'
@@ -22,10 +23,27 @@ class CashierSellCatalogService {
           'limit': limit,
         },
       );
-      final items = response.data?['data'] as List<dynamic>? ?? [];
-      return items
-          .map((e) => CashierAvailableDrawView.fromJson(e as Map<String, dynamic>))
-          .toList();
+      final payload = response.data?['data'];
+      if (payload == null) return const [];
+      if (payload is! List) {
+        throw const FormatException('Cashier draws data must be a list');
+      }
+
+      try {
+        return payload
+            .map(
+              (item) => CashierAvailableDrawView.fromJson(
+                Map<String, dynamic>.from(item as Map),
+              ),
+            )
+            .toList();
+      } on Object catch (error, stackTrace) {
+        if (kDebugMode) {
+          debugPrint('TCH-DRAWS decode failed: $error');
+          debugPrintStack(stackTrace: stackTrace);
+        }
+        rethrow;
+      }
     } on DioException catch (e) {
       throw mapDioException(e);
     }

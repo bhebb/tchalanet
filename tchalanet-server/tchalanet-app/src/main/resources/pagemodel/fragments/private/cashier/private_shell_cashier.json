@@ -1,0 +1,259 @@
+{
+  "topAppBar": {
+    "title": {
+      "label_key": "surface.cashier",
+      "label": null
+    },
+    "context": {},
+    "leftActions": [
+      {
+        "id": "TOGGLE_NAVIGATION_DRAWER",
+        "type": "action",
+        "label_key": "nav.toggle_menu",
+        "label": null,
+        "path": null,
+        "kind": "action",
+        "icon": "menu",
+        "image": null,
+        "style": "neutral",
+        "disabled": false,
+        "reason_key": null,
+        "confirm": null
+      }
+    ],
+    "actions": [
+      {
+        "id": "OPEN_NOTIFICATIONS",
+        "type": "action",
+        "label_key": "nav.notifications",
+        "label": null,
+        "path": null,
+        "kind": "action",
+        "icon": "notifications",
+        "image": null,
+        "style": "neutral",
+        "disabled": false,
+        "reason_key": null,
+        "confirm": null
+      },
+      {
+        "id": "CHANGE_LANGUAGE",
+        "type": "action",
+        "label_key": "nav.language",
+        "label": null,
+        "path": null,
+        "kind": "action",
+        "icon": "language",
+        "image": null,
+        "style": "neutral",
+        "disabled": false,
+        "reason_key": null,
+        "confirm": null
+      },
+      {
+        "id": "TOGGLE_THEME",
+        "type": "action",
+        "label_key": "nav.theme_toggle",
+        "label": null,
+        "path": null,
+        "kind": "action",
+        "icon": "dark_mode",
+        "image": null,
+        "style": "neutral",
+        "disabled": false,
+        "reason_key": null,
+        "confirm": null
+      }
+    ],
+    "profile": {
+      "displayName": null,
+      "avatar": {
+        "url": null,
+        "alt_key": "profile.avatar_alt",
+        "title_key": null,
+        "width": 32,
+        "height": 32,
+        "aspect_ratio": "1:1",
+        "loading": "eager"
+      },
+      "menu": [
+        {
+          "id": "profile",
+          "type": "destination",
+          "label_key": "nav.profile",
+          "label": null,
+          "path": "/app/profile",
+          "kind": "internal",
+          "icon": "account_circle",
+          "image": null,
+          "active_match": "prefix",
+          "disabled": false,
+          "reason_key": null,
+          "badge": null,
+          "children": []
+        },
+        {
+          "id": "settings",
+          "type": "destination",
+          "label_key": "nav.settings",
+          "label": null,
+          "path": "/app/settings",
+          "kind": "internal",
+          "icon": "settings",
+          "image": null,
+          "active_match": "prefix",
+          "disabled": false,
+          "reason_key": null,
+          "badge": null,
+          "children": []
+        },
+        {
+          "id": "logout",
+          "type": "destination",
+          "label_key": "auth.logout",
+          "label": null,
+          "path": "/logout",
+          "kind": "internal",
+          "icon": "logout",
+          "image": null,
+          "active_match": "none",
+          "disabled": false,
+          "reason_key": null,
+          "badge": null,
+          "children": [],
+          "style": "danger"
+        }
+      ]
+    }
+  },
+  "navigationDrawer": {
+    "brand": {
+      "id": "cashier-brand",
+      "label_key": "app.name",
+      "label": null,
+      "subtitle_key": "surface.cashier",
+      "path": "/app/cashier",
+      "image": {
+        "url": "/assets/brand/tchalanet-logo.svg",
+        "alt_key": "brand.logo_alt",
+        "title_key": null,
+        "width": 36,
+        "height": 36,
+        "aspect_ratio": "1:1",
+        "loading": "eager"
+      }
+    },
+    "topDestinations": [
+      {
+        "id": "dashboard",
+        "type": "destination",
+        "label_key": "nav.dashboard",
+        "label": null,
+        "path": "/app/cashier",
+        "kind": "internal",
+        "icon": "dashboard",
+        "image": null,
+        "active_match": "exact",
+        "disabled": false,
+        "reason_key": null,
+        "badge": null,
+        "children": []
+      },
+      {
+        "id": "quick_sale",
+        "type": "destination",
+        "label_key": "nav.quick_sale",
+        "label": null,
+        "path": "/app/cashier/sale",
+        "kind": "internal",
+        "icon": "point_of_sale",
+        "image": null,
+        "active_match": "prefix",
+        "disabled": false,
+        "reason_key": null,
+        "badge": null,
+        "children": []
+      },
+      {
+        "id": "tickets",
+        "type": "destination",
+        "label_key": "nav.tickets",
+        "label": null,
+        "path": "/app/cashier/tickets",
+        "kind": "internal",
+        "icon": "receipt_long",
+        "image": null,
+        "active_match": "prefix",
+        "disabled": false,
+        "reason_key": null,
+        "badge": null,
+        "children": []
+      },
+      {
+        "id": "verify_ticket",
+        "type": "destination",
+        "label_key": "nav.verify_ticket",
+        "label": null,
+        "path": "/app/cashier/tickets/verify",
+        "kind": "internal",
+        "icon": "qr_code_scanner",
+        "image": null,
+        "active_match": "prefix",
+        "disabled": false,
+        "reason_key": null,
+        "badge": null,
+        "children": []
+      },
+      {
+        "id": "draws",
+        "type": "destination",
+        "label_key": "nav.draws",
+        "label": null,
+        "path": "/app/cashier/draws",
+        "kind": "internal",
+        "icon": "event",
+        "image": null,
+        "active_match": "prefix",
+        "disabled": false,
+        "reason_key": null,
+        "badge": null,
+        "children": []
+      },
+      {
+        "id": "session",
+        "type": "destination",
+        "label_key": "nav.session",
+        "label": null,
+        "path": "/app/cashier/session",
+        "kind": "internal",
+        "icon": "account_balance_wallet",
+        "image": null,
+        "active_match": "prefix",
+        "disabled": false,
+        "reason_key": null,
+        "badge": null,
+        "children": []
+      }
+    ],
+    "sections": [],
+    "footerDestinations": [
+      {
+        "id": "support",
+        "type": "destination",
+        "label_key": "footer.support",
+        "label": null,
+        "path": "/support",
+        "kind": "internal",
+        "icon": "support_agent",
+        "image": null,
+        "active_match": "prefix",
+        "disabled": false,
+        "reason_key": null,
+        "badge": null,
+        "children": []
+      }
+    ],
+    "actions": []
+  },
+  "footer": null
+}

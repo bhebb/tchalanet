@@ -28,13 +28,16 @@ void main() {
     expect(resolveStartupLocale(savedLocale: 'fr', deviceLocale: 'en'), 'fr');
   });
 
-  test(
-    'startup locale uses a supported device locale without a saved choice',
-    () {
-      expect(resolveStartupLocale(savedLocale: null, deviceLocale: 'en'), 'en');
-      expect(resolveStartupLocale(savedLocale: 'es', deviceLocale: 'fr'), 'fr');
-    },
-  );
+  test('startup locale remains Haitian Creole without a saved choice', () {
+    expect(
+      resolveStartupLocale(savedLocale: null, deviceLocale: 'en'),
+      defaultLocale,
+    );
+    expect(
+      resolveStartupLocale(savedLocale: 'es', deviceLocale: 'fr'),
+      defaultLocale,
+    );
+  });
 
   test('startup locale falls back to Haitian Creole', () {
     expect(

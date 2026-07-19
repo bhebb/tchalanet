@@ -32,9 +32,8 @@ String resolveStartupLocale({
   if (savedLocale != null && supportedLocaleCodes.contains(savedLocale)) {
     return savedLocale;
   }
-  if (deviceLocale != null && supportedLocaleCodes.contains(deviceLocale)) {
-    return deviceLocale;
-  }
+  // Tchalanet is Creole-first. The device language is not an implicit choice;
+  // the seller can deliberately select French or English from their profile.
   return defaultLocale;
 }
 

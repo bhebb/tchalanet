@@ -30,11 +30,13 @@ class SellLine {
   final String selection;
   final double stake;
 
-  CashierTicketLineRequest toRequest() => CashierTicketLineRequest(
+  CashierTicketLineRequest toRequest(int lineNumber) =>
+      CashierTicketLineRequest(
+        lineNumber: lineNumber,
         gameCode: gameCode,
         betType: betType,
         selection: selection,
-        stake: stake,
+        stakeAmount: stake,
         betOption: betOption,
       );
 
@@ -55,7 +57,8 @@ class SellFormData {
     this.selection = '',
     this.stake = 0.0,
     this.committedLines = const [],
-    this.currency = 'HTG', // default safe fallback; overridden from home response
+    this.currency =
+        'HTG', // default safe fallback; overridden from home response
   });
 
   final List<CashierAvailableDrawView> draws;
@@ -75,20 +78,18 @@ class SellFormData {
       draws.where((d) => d.drawId == selectedDrawId).firstOrNull;
 
   CashierGameOptionResponse? get selectedGame => games
-      .where((g) =>
-          g.gameCode == selectedGameCode && g.betType == selectedBetType)
+      .where(
+        (g) => g.gameCode == selectedGameCode && g.betType == selectedBetType,
+      )
       .firstOrNull;
 
   /// True when the current entry (selection + stake) forms a valid line.
   bool get canAddLine =>
-      selectedGameCode != null &&
-      selection.trim().isNotEmpty &&
-      stake > 0;
+      selectedGameCode != null && selection.trim().isNotEmpty && stake > 0;
 
   /// True when there is at least one line ready to preview (committed or current).
   bool get canPreview =>
-      selectedDrawId != null &&
-      (committedLines.isNotEmpty || canAddLine);
+      selectedDrawId != null && (committedLines.isNotEmpty || canAddLine);
 
   /// All lines to send: committed ones plus the current entry if valid.
   List<SellLine> get allLines {
@@ -119,21 +120,20 @@ class SellFormData {
     double? stake,
     String? currency,
     List<SellLine>? committedLines,
-  }) =>
-      SellFormData(
-        draws: draws ?? this.draws,
-        games: games ?? this.games,
-        selectedDrawId: selectedDrawId ?? this.selectedDrawId,
-        selectedGameCode: selectedGameCode ?? this.selectedGameCode,
-        selectedBetType: selectedBetType ?? this.selectedBetType,
-        selectedBetOption: selectedBetOption == _sentinel
-            ? this.selectedBetOption
-            : selectedBetOption as int?,
-        selection: selection ?? this.selection,
-        stake: stake ?? this.stake,
-        currency: currency ?? this.currency,
-        committedLines: committedLines ?? this.committedLines,
-      );
+  }) => SellFormData(
+    draws: draws ?? this.draws,
+    games: games ?? this.games,
+    selectedDrawId: selectedDrawId ?? this.selectedDrawId,
+    selectedGameCode: selectedGameCode ?? this.selectedGameCode,
+    selectedBetType: selectedBetType ?? this.selectedBetType,
+    selectedBetOption: selectedBetOption == _sentinel
+        ? this.selectedBetOption
+        : selectedBetOption as int?,
+    selection: selection ?? this.selection,
+    stake: stake ?? this.stake,
+    currency: currency ?? this.currency,
+    committedLines: committedLines ?? this.committedLines,
+  );
 }
 
 const _sentinel = Object();
@@ -147,10 +147,10 @@ final class SellLoadingCatalog extends SellState {
 }
 
 final class SellReady extends SellState {
-  const SellReady(this.form, {this.previewResult, this.error});
+  const SellReady(this.form, {this.previewResult, this.errorKeys = const []});
   final SellFormData form;
   final CashierTicketPreviewResponse? previewResult;
-  final String? error;
+  final List<String> errorKeys;
 }
 
 final class SellPreviewing extends SellState {
@@ -170,8 +170,8 @@ final class SellSuccess extends SellState {
 }
 
 final class SellCatalogError extends SellState {
-  const SellCatalogError(this.message);
-  final String message;
+  const SellCatalogError(this.errorKeys);
+  final List<String> errorKeys;
 }
 
 // ─── Controller ───────────────────────────────────────────────────────────────
@@ -205,20 +205,22 @@ class SellController extends Notifier<SellState> {
       final draws = results[0] as List<CashierAvailableDrawView>;
       final games = results[1] as List<CashierGameOptionResponse>;
 
-      final drawId = preselectedDrawId ??
-          draws.where((d) => d.isOpen).firstOrNull?.drawId;
+      final drawId =
+          preselectedDrawId ?? draws.where((d) => d.isOpen).firstOrNull?.drawId;
 
       // Currency from home response; fallback to HTG only if not provided.
       final resolvedCurrency = currency ?? 'HTG';
 
-      state = SellReady(SellFormData(
-        draws: draws.where((d) => d.isOpen).toList(),
-        games: games,
-        selectedDrawId: drawId,
-        currency: resolvedCurrency,
-      ));
+      state = SellReady(
+        SellFormData(
+          draws: draws.where((d) => d.isOpen).toList(),
+          games: games,
+          selectedDrawId: drawId,
+          currency: resolvedCurrency,
+        ),
+      );
     } catch (e) {
-      state = SellCatalogError(userMessage(e));
+      state = SellCatalogError(userErrorTranslationKeys(e));
     }
   }
 
@@ -249,7 +251,7 @@ class SellController extends Notifier<SellState> {
     final current = state;
     if (current is! SellReady) return;
     state = SellReady(
-      current.form.copyWith(selectedBetOption: option),
+      current.form.copyWith(selectedBetOption: option, selection: ''),
       previewResult: null,
     );
   }
@@ -266,10 +268,7 @@ class SellController extends Notifier<SellState> {
   void updateStake(double value) {
     final current = state;
     if (current is! SellReady) return;
-    state = SellReady(
-      current.form.copyWith(stake: value),
-      previewResult: null,
-    );
+    state = SellReady(current.form.copyWith(stake: value), previewResult: null);
   }
 
   /// Commits the current entry (selection + stake) to the lines list and
@@ -314,31 +313,47 @@ class SellController extends Notifier<SellState> {
     );
   }
 
-  Future<void> preview(String sellerTerminalId) async {
+  /// Returns from the server-calculated recap to the editable ticket.
+  void editPreparedTicket() {
+    final current = state;
+    if (current is! SellReady || current.previewResult == null) return;
+    state = SellReady(current.form);
+  }
+
+  Future<void> prepare() async {
     final current = state;
     if (current is! SellReady || !current.form.canPreview) return;
     final form = current.form;
     final lines = form.allLines;
+    final drawChannelId = form.selectedDraw?.drawChannelId;
     if (lines.isEmpty) return;
+    if (drawChannelId == null || drawChannelId.isEmpty) {
+      state = SellReady(form, errorKeys: const ['pos.sale.draw_unavailable']);
+      return;
+    }
 
     state = SellPreviewing(form);
     try {
-      final result = await ref.read(cashierTicketServiceProvider).preview(
+      final result = await ref
+          .read(cashierTicketServiceProvider)
+          .prepare(
             CashierTicketPreviewRequest(
-              sellerTerminalId: sellerTerminalId,
               drawId: form.selectedDrawId!,
-              drawChannelId: form.selectedDraw?.drawChannelId,
+              drawChannelId: drawChannelId,
               currency: form.currency,
-              lines: lines.map((l) => l.toRequest()).toList(),
+              lines: [
+                for (var index = 0; index < lines.length; index++)
+                  lines[index].toRequest(index + 1),
+              ],
             ),
           );
       state = SellReady(form, previewResult: result);
     } catch (e) {
-      state = SellReady(form, error: userMessage(e));
+      state = SellReady(form, errorKeys: userErrorTranslationKeys(e));
     }
   }
 
-  Future<void> confirmSell(String sellerTerminalId) async {
+  Future<void> confirmSell() async {
     final current = state;
     if (current is! SellReady) return;
     final form = current.form;
@@ -349,19 +364,24 @@ class SellController extends Notifier<SellState> {
 
     state = SellConfirming(form, preview);
     try {
-      final response = await ref.read(cashierTicketServiceProvider).sell(
-            CashierSellTicketRequest(
-              sellerTerminalId: sellerTerminalId,
-              drawId: form.selectedDrawId!,
-              drawChannelId: form.selectedDraw?.drawChannelId,
-              currency: form.currency,
-              lines: lines.map((l) => l.toRequest()).toList(),
-            ),
-            idempotencyKey: _idempotencyKey,
-          );
-      state = SellSuccess(response);
+      final response = await ref
+          .read(cashierTicketServiceProvider)
+          .confirm(preview.preparationId!, idempotencyKey: _idempotencyKey);
+      if (response.isSold) {
+        state = SellSuccess(response);
+      } else {
+        state = SellReady(
+          form,
+          previewResult: preview,
+          errorKeys: const ['pos.sale.sale_rejected'],
+        );
+      }
     } catch (e) {
-      state = SellReady(form, previewResult: preview, error: userMessage(e));
+      state = SellReady(
+        form,
+        previewResult: preview,
+        errorKeys: userErrorTranslationKeys(e),
+      );
     }
   }
 
@@ -380,5 +400,6 @@ class SellController extends Notifier<SellState> {
   }
 }
 
-final sellControllerProvider =
-    NotifierProvider<SellController, SellState>(SellController.new);
+final sellControllerProvider = NotifierProvider<SellController, SellState>(
+  SellController.new,
+);

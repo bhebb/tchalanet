@@ -1,7 +1,98 @@
 {
   "pos": {
+    "sale": {
+      "title": "Sell a ticket",
+      "cancel": "Cancel",
+      "draw_label": "Draw",
+      "change_draw": "Change",
+      "no_draws": "No draw available.",
+      "draw_unavailable": "This draw is no longer available.",
+      "game_label": "Game",
+      "selection_label": "Number / selection",
+      "stake_label": "Stake",
+      "ticket_label": "Ticket",
+      "ticket_total": "TOTAL",
+      "add_line": "Add",
+      "remove_line": "Remove line",
+      "verify_sale": "Verify sale",
+      "back_to_ticket": "Back",
+      "confirm_sale": "Confirm sale",
+      "checking_sale": "Checking...",
+      "sale_checked": "Ticket checked",
+      "sale_rejected": "Sale rejected",
+      "no_selection_stake": "Enter a number and a stake",
+      "draw": {
+        "local_time": "Local",
+        "provider_time": "Provider"
+      }
+    },
+    "draw": {
+      "providers": {
+        "ca": "California", "fl": "Florida", "ga": "Georgia", "il": "Illinois",
+        "mi": "Michigan", "mo": "Missouri", "ms": "Mississippi", "nj": "New Jersey",
+        "ny": "New York", "oh": "Ohio", "pa": "Pennsylvania", "tn": "Tennessee",
+        "tx": "Texas", "wi": "Wisconsin"
+      },
+      "slots": {
+        "midday": "Midday", "evening": "Evening", "morning": "Morning",
+        "late": "Late", "day": "Day"
+      }
+    },
     "dashboard": {
-      "title": "Tchalanet POS"
+      "title": "Tchalanet POS",
+      "home": "Home",
+      "history": "History",
+      "reports": "Reports",
+      "profile": "Profile",
+      "notifications": "Notifications",
+      "logout": "Sign out",
+      "daily_summary": "Today's summary",
+      "no_sales_yet": "No sales today. Choose a draw to start selling.",
+      "last_ticket": "Last ticket",
+      "reprint": "Reprint",
+      "available_draws": "Available draws",
+      "no_draws": "No draw is currently available for sale.",
+      "draw_load_error": "Unable to load draws.",
+      "provider_time": "Provider",
+      "local_time": "Local",
+      "closes_in": "Closes in {countdown}",
+      "closes_in_hours_minutes": "Closes in {hours} h {minutes} min",
+      "closes_in_minutes": "Closes in {minutes} min",
+      "closes_soon": "Closing soon",
+      "closed": "Closed",
+      "sell": "Sell"
+    },
+    "reports": {
+      "title": "Seller reports",
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "by_draw": "BY DRAW",
+      "all": "All",
+      "empty": "No sales for this day.",
+      "load_error": "Unable to load the report."
+    },
+    "profile": {
+      "title": "Profile",
+      "open": "Open profile",
+      "terminal": "Terminal",
+      "account": "Account",
+      "name": "Name",
+      "context": "Context",
+      "verified": "Verified",
+      "needs_verification": "Needs verification",
+      "tickets_today": "Tickets today",
+      "sales_today": "Sales today",
+      "user": "User",
+      "tenant": "Tenant",
+      "readiness": "Readiness",
+      "language": "Language",
+      "change_pin": "Change PIN",
+      "refresh": "Refresh",
+      "sign_out": "Sign out",
+      "sign_out_title": "Sign out?",
+      "sign_out_message": "You will need to sign in again to sell tickets.",
+      "app": "Application",
+      "version": "Version {version}"
     },
     "session": {
       "card_title": "Session",

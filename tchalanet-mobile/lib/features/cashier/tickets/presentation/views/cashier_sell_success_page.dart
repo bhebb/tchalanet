@@ -8,11 +8,9 @@ import '../../../../../design_system/tokens/tch_spacing.dart';
 import '../../../../auth/presentation/view_models/auth_controller.dart';
 import '../../../home/presentation/view_models/cashier_home_providers.dart';
 import '../print_ticket_action.dart';
-import 'send_receipt_sheet.dart';
 
-/// Shown after a successful `POST /sell`. Displays the ticket code and
-/// delivery actions (copy, message, print, WhatsApp/SMS).
-class CashierSellSuccessPage extends ConsumerWidget {
+/// Shown after a successful sale. Ticket delivery is print-only for V0.
+class CashierSellSuccessPage extends ConsumerStatefulWidget {
   const CashierSellSuccessPage({
     super.key,
     required this.ticketId,
@@ -27,12 +25,27 @@ class CashierSellSuccessPage extends ConsumerWidget {
   final String? shareableText;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CashierSellSuccessPage> createState() =>
+      _CashierSellSuccessPageState();
+}
+
+class _CashierSellSuccessPageState
+    extends ConsumerState<CashierSellSuccessPage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) printTicket(context, ref, widget.ticketId);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final session = ref.watch(userSessionProvider);
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
-    final displayCode = publicCode ?? ticketCode;
+    final displayCode = widget.publicCode ?? widget.ticketCode;
 
     return Scaffold(
       appBar: AppBar(
@@ -50,7 +63,9 @@ class CashierSellSuccessPage extends ConsumerWidget {
             const Icon(Icons.person_outline_rounded, size: 18),
             const SizedBox(width: TchSpacing.s8),
             Text(
-              session.displayName?.toUpperCase() ?? session.username?.toUpperCase() ?? '—',
+              session.displayName?.toUpperCase() ??
+                  session.username?.toUpperCase() ??
+                  '—',
               style: textTheme.labelMedium?.copyWith(
                 fontWeight: FontWeight.w700,
                 letterSpacing: 0.5,
@@ -142,7 +157,7 @@ class CashierSellSuccessPage extends ConsumerWidget {
 
                     const SizedBox(height: TchSpacing.s40),
 
-                    // Action bento grid 2×2
+                    // Keep the public code available to copy; ticket delivery is print-only.
                     GridView.count(
                       crossAxisCount: 2,
                       shrinkWrap: true,
@@ -155,8 +170,7 @@ class CashierSellSuccessPage extends ConsumerWidget {
                           icon: Icons.content_copy_rounded,
                           label: 'Copier code',
                           onTap: () {
-                            Clipboard.setData(
-                                ClipboardData(text: displayCode));
+                            Clipboard.setData(ClipboardData(text: displayCode));
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 content: Text('Copié !'),
@@ -167,25 +181,10 @@ class CashierSellSuccessPage extends ConsumerWidget {
                           },
                         ),
                         _ActionTile(
-                          icon: Icons.sms_rounded,
-                          label: 'Message',
-                          onTap: () => SendReceiptSheet.show(
-                            context,
-                            ticketId: ticketId,
-                          ),
-                        ),
-                        _ActionTile(
                           icon: Icons.print_rounded,
                           label: 'Imprimer',
-                          onTap: () => printTicket(context, ref, ticketId),
-                        ),
-                        _ActionTile(
-                          icon: Icons.share_rounded,
-                          label: 'WhatsApp/SMS',
-                          onTap: () => SendReceiptSheet.show(
-                            context,
-                            ticketId: ticketId,
-                          ),
+                          onTap: () =>
+                              printTicket(context, ref, widget.ticketId),
                         ),
                       ],
                     ),
@@ -197,7 +196,10 @@ class CashierSellSuccessPage extends ConsumerWidget {
             // Sticky bottom — NOUVEAU TICKET
             Padding(
               padding: const EdgeInsets.fromLTRB(
-                TchSpacing.s24, TchSpacing.s8, TchSpacing.s24, TchSpacing.s24,
+                TchSpacing.s24,
+                TchSpacing.s8,
+                TchSpacing.s24,
+                TchSpacing.s24,
               ),
               child: SizedBox(
                 width: double.infinity,
@@ -211,7 +213,9 @@ class CashierSellSuccessPage extends ConsumerWidget {
                   label: const Text(
                     'NOUVEAU TICKET',
                     style: TextStyle(
-                        fontWeight: FontWeight.w700, letterSpacing: 1),
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 1,
+                    ),
                   ),
                   style: FilledButton.styleFrom(
                     shape: RoundedRectangleBorder(
@@ -262,10 +266,10 @@ class _ActionTile extends StatelessWidget {
               Text(
                 label.toUpperCase(),
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: scheme.onSurface,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.5,
-                    ),
+                  color: scheme.onSurface,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.5,
+                ),
                 textAlign: TextAlign.center,
               ),
             ],

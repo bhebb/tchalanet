@@ -1,7 +1,98 @@
 {
   "pos": {
+    "sale": {
+      "title": "Vendre un ticket",
+      "cancel": "Annuler",
+      "draw_label": "Tirage",
+      "change_draw": "Changer",
+      "no_draws": "Aucun tirage disponible.",
+      "draw_unavailable": "Ce tirage n'est plus disponible.",
+      "game_label": "Jeu",
+      "selection_label": "Numéro / sélection",
+      "stake_label": "Mise",
+      "ticket_label": "Ticket",
+      "ticket_total": "TOTAL",
+      "add_line": "Ajouter",
+      "remove_line": "Supprimer la ligne",
+      "verify_sale": "Vérifier la vente",
+      "back_to_ticket": "Retour",
+      "confirm_sale": "Confirmer la vente",
+      "checking_sale": "Vérification...",
+      "sale_checked": "Ticket vérifié",
+      "sale_rejected": "Vente refusée",
+      "no_selection_stake": "Entrez un numéro et une mise",
+      "draw": {
+        "local_time": "Local",
+        "provider_time": "Fournisseur"
+      }
+    },
+    "draw": {
+      "providers": {
+        "ca": "Californie", "fl": "Floride", "ga": "Géorgie", "il": "Illinois",
+        "mi": "Michigan", "mo": "Missouri", "ms": "Mississippi", "nj": "New Jersey",
+        "ny": "New York", "oh": "Ohio", "pa": "Pennsylvanie", "tn": "Tennessee",
+        "tx": "Texas", "wi": "Wisconsin"
+      },
+      "slots": {
+        "midday": "Midi", "evening": "Soir", "morning": "Matin",
+        "late": "Tard", "day": "Jour"
+      }
+    },
     "dashboard": {
-      "title": "Tchalanet POS"
+      "title": "Tchalanet POS",
+      "home": "Accueil",
+      "history": "Historique",
+      "reports": "Rapports",
+      "profile": "Profil",
+      "notifications": "Notifications",
+      "logout": "Déconnexion",
+      "daily_summary": "Résumé du jour",
+      "no_sales_yet": "Aucune vente aujourd’hui. Choisissez un tirage pour commencer.",
+      "last_ticket": "Dernier ticket",
+      "reprint": "Réimprimer",
+      "available_draws": "Tirages disponibles",
+      "no_draws": "Aucun tirage n'est disponible à la vente.",
+      "draw_load_error": "Impossible de charger les tirages.",
+      "provider_time": "Fournisseur",
+      "local_time": "Local",
+      "closes_in": "Clôture dans {countdown}",
+      "closes_in_hours_minutes": "Clôture dans {hours} h {minutes} min",
+      "closes_in_minutes": "Clôture dans {minutes} min",
+      "closes_soon": "Clôture imminente",
+      "closed": "Clôturé",
+      "sell": "Vendre"
+    },
+    "reports": {
+      "title": "Rapports vendeur",
+      "today": "Aujourd'hui",
+      "yesterday": "Hier",
+      "by_draw": "PAR TIRAGE",
+      "all": "Tous",
+      "empty": "Aucune vente pour cette journée.",
+      "load_error": "Impossible de charger le rapport."
+    },
+    "profile": {
+      "title": "Profil",
+      "open": "Ouvrir le profil",
+      "terminal": "Terminal",
+      "account": "Compte",
+      "name": "Nom",
+      "context": "Contexte",
+      "verified": "Vérifié",
+      "needs_verification": "À vérifier",
+      "tickets_today": "Tickets aujourd'hui",
+      "sales_today": "Ventes aujourd'hui",
+      "user": "Utilisateur",
+      "tenant": "Tenant",
+      "readiness": "État de préparation",
+      "language": "Langue",
+      "change_pin": "Changer le PIN",
+      "refresh": "Actualiser",
+      "sign_out": "Déconnexion",
+      "sign_out_title": "Se déconnecter ?",
+      "sign_out_message": "Vous devrez vous reconnecter pour vendre des tickets.",
+      "app": "Application",
+      "version": "Version {version}"
     },
     "session": {
       "card_title": "Session",

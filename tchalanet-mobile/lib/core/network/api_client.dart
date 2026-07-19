@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../auth/firebase_auth_token_client.dart';
@@ -24,8 +25,38 @@ final apiClientProvider = Provider<Dio>((ref) {
       connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 15),
       contentType: Headers.jsonContentType,
+      headers: {
+        // The backend identity bootstrap resolves this client as a
+        // SellerTerminal (instead of an AppUser) only when this hint is set.
+        'X-Tch-Client-Type': 'POS',
+      },
     ),
   );
+
+  if (kDebugMode) {
+    // Dev-only wire log: one line per request outcome, greppable in logcat.
+    dio.interceptors.add(
+      InterceptorsWrapper(
+        onResponse: (response, handler) {
+          // ignore: avoid_print
+          print(
+            'TCH-NET ${response.requestOptions.method} '
+            '${response.requestOptions.path} -> ${response.statusCode}',
+          );
+          handler.next(response);
+        },
+        onError: (error, handler) {
+          // ignore: avoid_print
+          print(
+            'TCH-NET ${error.requestOptions.method} '
+            '${error.requestOptions.path} -> ERROR ${error.type} '
+            '${error.response?.statusCode ?? ''} ${error.message ?? ''}',
+          );
+          handler.next(error);
+        },
+      ),
+    );
+  }
 
   // RequestIdInterceptor must run first so the request ID is set before auth.
   dio.interceptors.add(RequestIdInterceptor(diagnostics));
@@ -56,6 +87,9 @@ ApiException mapDioException(DioException e) {
     DioExceptionType.sendTimeout ||
     DioExceptionType.receiveTimeout => ApiException(
       message: 'Délai de connexion dépassé',
+      code: 'client.network.timeout',
+      category: 'network',
+      retryable: true,
     ),
     DioExceptionType.badResponse => ApiException(
       message: _extractErrorMessage(e.response?.data),
@@ -72,9 +106,18 @@ ApiException mapDioException(DioException e) {
     ),
     DioExceptionType.connectionError => ApiException(
       message: 'Impossible de se connecter au serveur',
+      code: 'client.network.unavailable',
+      category: 'network',
+      retryable: true,
     ),
-    DioExceptionType.cancel => ApiException(message: 'Requête annulée'),
-    _ => ApiException(message: 'Erreur réseau inattendue'),
+    DioExceptionType.cancel => ApiException(
+      message: 'Requête annulée',
+      code: 'client.request.cancelled',
+    ),
+    _ => ApiException(
+      message: 'Erreur réseau inattendue',
+      code: 'client.unexpected',
+    ),
   };
 }
 

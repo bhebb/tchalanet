@@ -254,6 +254,9 @@ public class TicketProjectionReaderAdapter implements TicketProjectionReaderPort
     var sum =
         repository.sumTotalAmountBySellerTerminalAndPeriod(
             sellerTerminalId.value(), tenantId.value(), from, to);
+    var commission =
+        repository.sumSellerCommissionAmountBySellerTerminalAndPeriod(
+            sellerTerminalId.value(), tenantId.value(), from, to);
     var rows =
         repository.statsByDrawForSellerTerminal(
             sellerTerminalId.value(), tenantId.value(), from, to);
@@ -270,7 +273,8 @@ public class TicketProjectionReaderAdapter implements TicketProjectionReaderPort
                                 ? bd
                                 : new java.math.BigDecimal(r[3].toString()))))
             .toList();
-    return new SellerTerminalDailyStatsView(count, cents(sum), null, breakdown);
+    return new SellerTerminalDailyStatsView(
+        count, cents(sum), cents(commission), null, breakdown);
   }
 
   @Override

@@ -1,20 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class SellerTerminalNavBar extends StatelessWidget {
+import '../../../../../core/i18n/i18n_repository.dart';
+
+class SellerTerminalNavBar extends ConsumerWidget {
   const SellerTerminalNavBar({super.key, required this.currentIndex});
 
   final int currentIndex;
 
   static const _destinations = [
-    (icon: Icons.point_of_sale_rounded, label: 'Accueil', route: '/pos'),
-    (icon: Icons.history_rounded, label: 'Historique', route: '/pos/history'),
-    (icon: Icons.bar_chart_rounded, label: 'Stats', route: '/pos/stats'),
-    (icon: Icons.person_rounded, label: 'Profil', route: '/pos/profile'),
+    (
+      icon: Icons.point_of_sale_rounded,
+      labelKey: 'pos.dashboard.home',
+      route: '/pos',
+    ),
+    (
+      icon: Icons.history_rounded,
+      labelKey: 'pos.dashboard.history',
+      route: '/pos/history',
+    ),
+    (
+      icon: Icons.bar_chart_rounded,
+      labelKey: 'pos.dashboard.reports',
+      route: '/pos/reports',
+    ),
+    (
+      icon: Icons.person_rounded,
+      labelKey: 'pos.dashboard.profile',
+      route: '/pos/profile',
+    ),
   ];
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final translations = ref.watch(i18nBundleProvider);
     return NavigationBar(
       selectedIndex: currentIndex,
       onDestinationSelected: (i) {
@@ -22,7 +42,10 @@ class SellerTerminalNavBar extends StatelessWidget {
       },
       destinations: [
         for (final d in _destinations)
-          NavigationDestination(icon: Icon(d.icon), label: d.label),
+          NavigationDestination(
+            icon: Icon(d.icon),
+            label: translations.translate(d.labelKey),
+          ),
       ],
     );
   }
