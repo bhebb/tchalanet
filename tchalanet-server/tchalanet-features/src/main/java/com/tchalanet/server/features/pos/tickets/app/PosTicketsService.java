@@ -96,7 +96,11 @@ public class PosTicketsService {
                         b.drawId(), b.channelLabel(), b.ticketCount(), b.totalCents()))
             .toList();
     return new SellerTerminalDailyStatsResponse(
-        stats.ticketCount(), stats.salesTotalCents(), stats.currency(), breakdown);
+        stats.ticketCount(),
+        stats.salesTotalCents(),
+        stats.sellerCommissionTotalCents(),
+        stats.currency(),
+        breakdown);
   }
 
   public PosTicketDetailsResponse getDetails(TicketId ticketId) {

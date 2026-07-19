@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../../core/i18n/i18n_models.dart';
+import '../../../../../core/i18n/i18n_repository.dart';
 import '../../../../../design_system/components/stat_card.dart';
 import '../../../../../design_system/tokens/tch_colors.dart';
 import '../../../../../design_system/tokens/tch_radius.dart';
@@ -44,6 +46,7 @@ class _SellerTerminalStatsPageState
   Widget build(BuildContext context) {
     final isoDate = _isoDate(_selectedDate);
     final statsAsync = ref.watch(terminalStatsByDateProvider(isoDate));
+    final translations = ref.watch(i18nBundleProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Statistiques')),
@@ -52,20 +55,17 @@ class _SellerTerminalStatsPageState
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _DateToggleBar(
-              selected: _selectedDate,
-              onChanged: _onDateChanged,
-            ),
+            _DateToggleBar(selected: _selectedDate, onChanged: _onDateChanged),
             Expanded(
               child: statsAsync.when(
-                loading: () =>
-                    const Center(child: CircularProgressIndicator()),
+                loading: () => const Center(child: CircularProgressIndicator()),
                 error: (e, _) => _StatsError(
                   onRetry: () =>
                       ref.invalidate(terminalStatsByDateProvider(isoDate)),
                 ),
                 data: (stats) => _StatsBody(
                   stats: stats,
+                  translations: translations,
                   drawFilter: _drawFilter,
                   onDrawFilter: (id) => setState(() => _drawFilter = id),
                 ),
@@ -97,7 +97,11 @@ class _DateToggleBar extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
-          TchSpacing.s16, TchSpacing.s12, TchSpacing.s16, 0),
+        TchSpacing.s16,
+        TchSpacing.s12,
+        TchSpacing.s16,
+        0,
+      ),
       child: SegmentedButton<String>(
         segments: const [
           ButtonSegment(value: 'today', label: Text("Aujourd'hui")),
@@ -117,11 +121,13 @@ class _DateToggleBar extends StatelessWidget {
 class _StatsBody extends StatelessWidget {
   const _StatsBody({
     required this.stats,
+    required this.translations,
     required this.drawFilter,
     required this.onDrawFilter,
   });
 
   final TerminalDailyStats stats;
+  final I18nBundle translations;
   final String? drawFilter;
   final ValueChanged<String?> onDrawFilter;
 
@@ -134,13 +140,15 @@ class _StatsBody extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(TchSpacing.s16),
       children: [
-        const _SectionLabel('TOTAL'),
+        _SectionLabel(translations.translate('common.cashier_stats.total')),
         const SizedBox(height: TchSpacing.s12),
         Row(
           children: [
             Expanded(
               child: StatCardLarge(
-                label: 'Ventes',
+                label: translations.translate(
+                  'common.cashier_stats.sales_today',
+                ),
                 value: (stats.salesTotalCents / 100.0).toStringAsFixed(2),
                 unit: stats.currency,
               ),
@@ -149,11 +157,19 @@ class _StatsBody extends StatelessWidget {
             SizedBox(
               width: 100,
               child: StatCard(
-                label: 'Tickets',
+                label: translations.translate('common.cashier_stats.tickets'),
                 value: stats.ticketCount.toString(),
               ),
             ),
           ],
+        ),
+        const SizedBox(height: TchSpacing.s12),
+        StatCard(
+          label: translations.translate(
+            'common.cashier_stats.commission_today',
+          ),
+          value: (stats.sellerCommissionTotalCents / 100.0).toStringAsFixed(2),
+          unit: stats.currency,
         ),
         if (stats.breakdown.isNotEmpty) ...[
           const SizedBox(height: TchSpacing.s24),
@@ -175,8 +191,8 @@ class _StatsBody extends StatelessWidget {
               child: Text(
                 'Aucune vente pour cette journée',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
             ),
           ),
@@ -194,10 +210,10 @@ class _SectionLabel extends StatelessWidget {
     return Text(
       text,
       style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-            letterSpacing: 0.5,
-            fontWeight: FontWeight.w700,
-          ),
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
+        letterSpacing: 0.5,
+        fontWeight: FontWeight.w700,
+      ),
     );
   }
 }
@@ -252,7 +268,9 @@ class _DrawStatRow extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: TchSpacing.s8),
       padding: const EdgeInsets.symmetric(
-          horizontal: TchSpacing.s16, vertical: TchSpacing.s12),
+        horizontal: TchSpacing.s16,
+        vertical: TchSpacing.s12,
+      ),
       decoration: BoxDecoration(
         color: scheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(TchRadius.md),
@@ -263,14 +281,16 @@ class _DrawStatRow extends StatelessWidget {
           Expanded(
             child: Text(
               line.channelLabel,
-              style:
-                  textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+              style: textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
           Text(
             '${line.ticketCount} tickets',
-            style:
-                textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+            style: textTheme.bodySmall?.copyWith(
+              color: scheme.onSurfaceVariant,
+            ),
           ),
           const SizedBox(width: TchSpacing.s16),
           Text(

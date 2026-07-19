@@ -20,6 +20,10 @@ public class GetSellerTerminalDailyStatsQueryHandler
         reader.dailyStatsBySellerTerminal(
             query.sellerTerminalId(), query.tenantId(), query.from(), query.to());
     return new SellerTerminalDailyStatsView(
-        stats.ticketCount(), stats.salesTotalCents(), query.currency(), stats.breakdown());
+        stats.ticketCount(),
+        stats.salesTotalCents(),
+        stats.sellerCommissionTotalCents(),
+        query.currency(),
+        stats.breakdown());
   }
 }

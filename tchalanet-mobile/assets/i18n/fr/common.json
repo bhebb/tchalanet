@@ -27,6 +27,12 @@
       "approval_required": "Cette vente doit être approuvée avant confirmation.",
       "notice": "Une information doit être vérifiée avant confirmation."
     },
+    "cashier_stats": {
+      "sales_today": "Ventes du jour",
+      "tickets": "Tickets",
+      "commission_today": "Commission du jour",
+      "total": "TOTAL"
+    },
     "retry": "Réessayer",
     "manage": "Gérer",
     "back": "Retour",

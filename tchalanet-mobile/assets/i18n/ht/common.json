@@ -27,6 +27,12 @@
       "approval_required": "Vant sa a bezwen apwobasyon anvan konfimasyon.",
       "notice": "Gen yon enfòmasyon pou verifye anvan konfimasyon."
     },
+    "cashier_stats": {
+      "sales_today": "Vant jodi a",
+      "tickets": "Tikè",
+      "commission_today": "Komisyon jodi a",
+      "total": "TOTAL"
+    },
     "retry": "Eseye ankò",
     "manage": "Jere",
     "back": "Retounen",
