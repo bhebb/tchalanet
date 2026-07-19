@@ -8,6 +8,7 @@ import com.tchalanet.server.core.sellerterminal.api.command.BlockSellerTerminalC
 import com.tchalanet.server.core.sellerterminal.api.error.SellerTerminalErrorCodes;
 import com.tchalanet.server.core.sellerterminal.internal.application.port.out.SellerTerminalReaderPort;
 import com.tchalanet.server.core.sellerterminal.internal.application.port.out.SellerTerminalWriterPort;
+import com.tchalanet.server.core.sellerterminal.internal.domain.model.SellerTerminal;
 import com.tchalanet.server.core.sellerterminal.internal.domain.model.SellerTerminalStatusException;
 import java.time.Clock;
 import java.time.Instant;
@@ -26,7 +27,7 @@ public class BlockSellerTerminalCommandHandler
   @TchTx
   public Void handle(BlockSellerTerminalCommand cmd) {
     var terminal = reader.getRequired(cmd.tenantId(), cmd.terminalId());
-    final var blocked;
+    final SellerTerminal blocked;
     try {
       blocked = terminal.block(cmd.actorUserId(), cmd.reason(), Instant.now(clock));
     } catch (SellerTerminalStatusException ex) {

@@ -38,6 +38,11 @@ public final class ProblemRest {
   }
 
   /** Preferred code-first factory for new producers with descriptor-approved public parameters. */
+  public static ProblemRestException of(ErrorDescriptor descriptor, Map<String, ?> params) {
+    return of(descriptor.expectedStatus(), descriptor, params, null);
+  }
+
+  /** Preferred code-first factory for new producers with descriptor-approved public parameters. */
   public static ProblemRestException of(
       ErrorDescriptor descriptor, Map<String, ?> params, Throwable cause) {
     return of(descriptor.expectedStatus(), descriptor, params, cause);

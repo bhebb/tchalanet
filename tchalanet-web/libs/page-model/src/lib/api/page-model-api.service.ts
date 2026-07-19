@@ -91,9 +91,10 @@ function widgetErrorFromNotice(
   trace: ApiResponse<PageRuntimeResponse>['trace'],
 ): WidgetDynamicError | null {
   const meta = notice.meta ?? {};
-  if (meta['surface'] !== 'section') return null;
+  const isStructuredDegradation = notice.kind === 'DEGRADATION' && !!notice.target;
+  if (!isStructuredDegradation && meta['surface'] !== 'section') return null;
 
-  const target = stringMeta(meta, 'target') ?? notice.target;
+  const target = notice.target ?? stringMeta(meta, 'target');
   const widgetId = target ? resolveWidgetId(page, target) : null;
   if (!widgetId) return null;
 
@@ -101,9 +102,9 @@ function widgetErrorFromNotice(
     widgetId,
     code: notice.code,
     severity: noticeSeverity(notice.severity),
-    requestId: stringMeta(meta, 'requestId') ?? trace?.requestId,
-    traceId: stringMeta(meta, 'traceId') ?? trace?.traceId,
-    errorId: stringMeta(meta, 'errorId'),
+    requestId: notice.trace?.requestId ?? stringMeta(meta, 'requestId') ?? trace?.requestId,
+    traceId: notice.trace?.traceId ?? stringMeta(meta, 'traceId') ?? trace?.traceId,
+    errorId: notice.trace?.errorId ?? stringMeta(meta, 'errorId'),
   };
 }
 

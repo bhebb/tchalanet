@@ -69,5 +69,5 @@ public record OpsSalesSimulationResponse(
       String game,
       String selection,
       Integer status,
-      String message) {}
+      String code) {}
 }

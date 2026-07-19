@@ -5,9 +5,14 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
+import {
+  ApiResponse,
+  ProblemDetail,
+  webAppErrorFromNotice,
+  webAppErrorFromProblemDetail,
+} from '@tch/api';
 
-import { TchLoading, TchErrorPanel } from '@tch/ui/components';
+import { TchLoading, TchErrorPanel, TchNotice } from '@tch/ui/components';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { AdminPageShellComponent } from '@tch/ui/console';
@@ -43,6 +48,7 @@ import { CancelSubscriptionDialog } from './dialogs/cancel-subscription.dialog';
     AdminStatusPillComponent,
     TchLoading,
     TchErrorPanel,
+    TchNotice,
     MatButtonModule,
     MatIconModule,
   ],
@@ -57,6 +63,7 @@ export class AdminSubscriptionPage implements OnInit {
   readonly loading = signal(false);
   readonly error = signal<ErrorViewModel | null>(null);
   readonly sectionErrors = signal<readonly AdminSectionTargetError[]>([]);
+  readonly actionNotice = signal<string | null>(null);
   readonly subscription = signal<SubscriptionView | null>(null);
   readonly acting = signal(false);
 
@@ -82,9 +89,9 @@ export class AdminSubscriptionPage implements OnInit {
     ref.afterClosed().subscribe((newEndsAt: string | undefined) => {
       if (!newEndsAt) return;
       this.acting.set(true);
-      this.clearSectionError('admin.subscription.actions');
+      this.clearActionFeedback();
       this.api.renew(newEndsAt, { suppressShellFeedback: true }).subscribe({
-        next: () => { this.load(); this.acting.set(false); },
+        next: response => { this.setActionNotice(response); this.load(); this.acting.set(false); },
         error: err => { this.setSectionError('admin.subscription.actions', err); this.acting.set(false); },
       });
     });
@@ -95,9 +102,9 @@ export class AdminSubscriptionPage implements OnInit {
     ref.afterClosed().subscribe((reason: string | undefined) => {
       if (reason === undefined) return;
       this.acting.set(true);
-      this.clearSectionError('admin.subscription.actions');
+      this.clearActionFeedback();
       this.api.cancel(reason || undefined, { suppressShellFeedback: true }).subscribe({
-        next: () => { this.load(); this.acting.set(false); },
+        next: response => { this.setActionNotice(response); this.load(); this.acting.set(false); },
         error: err => { this.setSectionError('admin.subscription.actions', err); this.acting.set(false); },
       });
     });
@@ -105,18 +112,18 @@ export class AdminSubscriptionPage implements OnInit {
 
   suspend(): void {
     this.acting.set(true);
-    this.clearSectionError('admin.subscription.actions');
+    this.clearActionFeedback();
     this.api.suspend({ suppressShellFeedback: true }).subscribe({
-      next: () => { this.load(); this.acting.set(false); },
+      next: response => { this.setActionNotice(response); this.load(); this.acting.set(false); },
       error: err => { this.setSectionError('admin.subscription.actions', err); this.acting.set(false); },
     });
   }
 
   resume(): void {
     this.acting.set(true);
-    this.clearSectionError('admin.subscription.actions');
+    this.clearActionFeedback();
     this.api.resume({ suppressShellFeedback: true }).subscribe({
-      next: () => { this.load(); this.acting.set(false); },
+      next: response => { this.setActionNotice(response); this.load(); this.acting.set(false); },
       error: err => { this.setSectionError('admin.subscription.actions', err); this.acting.set(false); },
     });
   }
@@ -141,6 +148,28 @@ export class AdminSubscriptionPage implements OnInit {
 
   private clearSectionError(target: string): void {
     this.sectionErrors.update(errors => errors.filter(error => error.target !== target));
+  }
+
+  private clearActionFeedback(): void {
+    this.actionNotice.set(null);
+    this.clearSectionError('admin.subscription.actions');
+  }
+
+  private setActionNotice(response: ApiResponse<unknown>): void {
+    const notice = response.notices.find(
+      candidate => candidate.target === 'admin.subscription.actions',
+    );
+    if (!notice) return;
+
+    const normalized = webAppErrorFromNotice(
+      notice,
+      response.trace,
+      'admin.subscription.actions',
+      'section',
+    );
+    this.actionNotice.set(
+      resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key)).message,
+    );
   }
 
   private errorViewModel(err: unknown, source: string): ErrorViewModel {

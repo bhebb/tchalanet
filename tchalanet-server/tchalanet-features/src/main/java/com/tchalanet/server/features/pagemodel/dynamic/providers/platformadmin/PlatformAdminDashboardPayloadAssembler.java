@@ -2,8 +2,8 @@ package com.tchalanet.server.features.pagemodel.dynamic.providers.platformadmin;
 
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.common.web.advice.BffSlicePolicy;
-import com.tchalanet.server.common.web.advice.BffSlices;
+import com.tchalanet.server.features.shared.bff.BffSlicePolicy;
+import com.tchalanet.server.features.shared.bff.BffSlices;
 import com.tchalanet.server.common.web.api.NoticeSource;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.core.analytics.api.model.PlatformDashboardStatsView;

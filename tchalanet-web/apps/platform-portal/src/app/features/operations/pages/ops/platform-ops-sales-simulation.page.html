@@ -226,7 +226,7 @@
               @for (failure of vm.failures.slice(0, 8); track failure.drawId + failure.sellerTerminalId + failure.game + failure.selection) {
                 <p>
                   <strong>{{ failure.game }} {{ failure.selection }}</strong>
-                  <span>{{ failure.status || 'ERR' }} · {{ failure.message }}</span>
+                  <span>{{ failure.status || 'ERR' }} · {{ failureMessage(failure.code) }}</span>
                 </p>
               }
             </div>

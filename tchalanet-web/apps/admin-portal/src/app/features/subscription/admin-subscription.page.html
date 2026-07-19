@@ -51,6 +51,9 @@
         tchSectionErrorTarget="admin.subscription.actions"
         [tchSectionErrors]="sectionErrors()"
       >
+        @if (actionNotice(); as actionNotice) {
+          <tch-notice type="success">{{ actionNotice }}</tch-notice>
+        }
         <div class="subscription-page__actions">
           <button mat-stroked-button [disabled]="acting()" (click)="openRenew()">
             <span class="material-symbols-outlined">autorenew</span>

@@ -104,9 +104,52 @@ class ApiResponseBodyAdviceTest {
               assertThat(notice.code()).isEqualTo("tenantadmin.dashboard.analytics_unavailable");
               assertThat(notice.kind()).isEqualTo(NoticeKind.DEGRADATION);
               assertThat(notice.message()).isNull();
+              assertThat(notice.target()).isEqualTo("analytics");
+              assertThat(notice.params()).isEmpty();
               assertThat(notice.meta()).doesNotContainKey("exception");
               assertThat(notice.meta()).containsEntry("target", "analytics");
             });
+  }
+
+  @Test
+  void preservesExplicitPendingOverWarnings() {
+    var pending =
+        ApiResponse.pending(
+            ApiNotice.warn("sales.approval_required", "Approval required"), "ticket");
+    ApiResponseContext.get()
+        .addNotice("sales.limit_warning", "Limit warning", "sales", NoticeSeverity.WARN);
+
+    var result = (ApiResponse<?>) invokeAdvice(pending);
+
+    assertThat(result.status()).isEqualTo(ApiStatus.PENDING);
+  }
+
+  @Test
+  void preservesExplicitPartialWhenNoDegradationNoticeIsPresent() {
+    var result = (ApiResponse<?>) invokeAdvice(ApiResponse.partial("payload", List.of(), List.of()));
+
+    assertThat(result.status()).isEqualTo(ApiStatus.PARTIAL);
+  }
+
+  @Test
+  void doesNotInferPendingFromTheLegacyApprovalCode() {
+    var result =
+        (ApiResponse<?>)
+            invokeAdvice(
+                ApiResponse.warn(
+                    "ticket", ApiNotice.warn("APPROVAL_REQUIRED", "Legacy approval notice")));
+
+    assertThat(result.status()).isEqualTo(ApiStatus.SUCCESS_WITH_WARNINGS);
+  }
+
+  @Test
+  void mergesTheSameContextAndResponseNoticeOnlyOnce() {
+    var notice = ApiNotice.warn("sales.limit_warning", "Limit warning");
+    ApiResponseContext.get().addNotice(notice);
+
+    var result = (ApiResponse<?>) invokeAdvice(ApiResponse.warn("ticket", notice));
+
+    assertThat(result.notices()).containsExactly(notice);
   }
 
   @Test

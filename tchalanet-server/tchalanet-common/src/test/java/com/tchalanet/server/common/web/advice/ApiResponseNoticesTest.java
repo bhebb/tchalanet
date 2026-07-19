@@ -37,6 +37,19 @@ class ApiResponseNoticesTest {
     assertThat(notice.code()).isEqualTo("platform.identity.activation.error");
     assertThat(notice.domain()).isEqualTo("platform.identity");
     assertThat(notice.severity()).isEqualTo(NoticeSeverity.WARN);
+    assertThat(notice.source())
+        .isEqualTo(
+            NoticeSource.of("identityActivation").service("keycloak").operation("completeFirstLogin"));
+    assertThat(notice.target()).isNull();
+    assertThat(notice.params()).isEmpty();
+    assertThat(notice.trace())
+        .satisfies(
+            trace -> {
+              assertThat(trace.requestId()).isEqualTo("req-1");
+              assertThat(trace.traceId()).isEqualTo("trace-1");
+              assertThat(trace.spanId()).isEqualTo("span-1");
+              assertThat(trace.errorId()).isNotBlank();
+            });
     assertThat(notice.meta())
         .containsEntry("source", "identityActivation")
         .containsEntry("service", "keycloak")
@@ -58,7 +71,70 @@ class ApiResponseNoticesTest {
     var notice = ApiResponseContext.get().getNotices().getFirst();
 
     assertThat(notice.severity()).isEqualTo(NoticeSeverity.INFO);
+    assertThat(notice.source()).isEqualTo(NoticeSource.of("stats"));
+    assertThat(notice.trace()).isNull();
     assertThat(notice.meta()).containsEntry("source", "stats");
     assertThat(notice.meta()).doesNotContainKey("errorId");
+  }
+
+  @Test
+  void informationFactoryCreatesCodeFirstNoticeWithoutServerProse() {
+    var notice =
+        com.tchalanet.server.common.web.api.ApiNotice.information(
+            "subscription.cancelled",
+            "subscription",
+            NoticeSource.of("subscription").operation("cancel"),
+            "admin.subscription.actions",
+            java.util.Map.of());
+
+    assertThat(notice.code()).isEqualTo("subscription.cancelled");
+    assertThat(notice.message()).isNull();
+    assertThat(notice.target()).isEqualTo("admin.subscription.actions");
+    assertThat(notice.source()).isEqualTo(NoticeSource.of("subscription").operation("cancel"));
+    assertThat(notice.params()).isEmpty();
+  }
+
+  @Test
+  void responseContextDeduplicatesTheSameFunctionalNotice() {
+    ApiResponseNotices.degradation(
+        "tenantadmin.dashboard.analytics_unavailable",
+        "features.tenantadmin",
+        NoticeSeverity.WARN,
+        NoticeSource.of("tenantAdminDashboard"),
+        new IllegalStateException("first"),
+        java.util.Map.of("target", "tenantadmin.dashboard.analytics"));
+    ApiResponseNotices.degradation(
+        "tenantadmin.dashboard.analytics_unavailable",
+        "features.tenantadmin",
+        NoticeSeverity.WARN,
+        NoticeSource.of("tenantAdminDashboard"),
+        new IllegalStateException("second"),
+        java.util.Map.of("target", "tenantadmin.dashboard.analytics"));
+
+    assertThat(ApiResponseContext.get().getNotices()).hasSize(1);
+  }
+
+  @Test
+  void degradationKeepsOnlyPublicParamsAndUsesStructuredTarget() {
+    ApiResponseNotices.degradation(
+        "tenantadmin.dashboard.analytics_unavailable",
+        "features.tenantadmin",
+        NoticeSeverity.WARN,
+        NoticeSource.of("tenantAdminDashboard"),
+        new IllegalStateException("database connection refused"),
+        java.util.Map.of(
+            "target", "tenantadmin.dashboard.analytics",
+            "retryAfterSeconds", 15,
+            "providerPayload", "do-not-send",
+            "terminalPin", "123456",
+            "nested", java.util.Map.of("not", "public")));
+
+    var notice = ApiResponseContext.get().getNotices().getFirst();
+
+    assertThat(notice.target()).isEqualTo("tenantadmin.dashboard.analytics");
+    assertThat(notice.params()).containsEntry("retryAfterSeconds", 15).hasSize(1);
+    assertThat(notice.meta())
+        .containsEntry("target", "tenantadmin.dashboard.analytics")
+        .doesNotContainKeys("terminalPin", "providerPayload");
   }
 }

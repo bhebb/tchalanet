@@ -352,6 +352,12 @@
             "message": "Vant sa a depase yon limit ki fikse pou tiraj la oswa nimewo a. Diminye miz la, chwazi yon lòt nimewo, oswa retire liy ki konsène a."
           }
         },
+        "subscription": {
+          "cancelled": { "title": "Abònman anile", "message": "Abònman an anile." },
+          "renewed": { "title": "Abònman renouvle", "message": "Abònman an renouvle." },
+          "resumed": { "title": "Abònman aktive", "message": "Abònman an aktive ankò." },
+          "suspended": { "title": "Abònman sispann", "message": "Abònman an sispann." }
+        },
         "sales": {
           "promotion_applied": {
             "title": "Maryaj gratis ajoute",
@@ -1246,6 +1252,16 @@
             "delete_in_use": {
               "title": "Sipresyon enposib",
               "message": "Jwèt sa a deja itilize nan yon konfigirasyon tenant."
+            },
+            "deactivated": {
+              "title": "Jwèt dezaktive",
+              "message": "Jwèt la dezaktive."
+            }
+          },
+          "plan": {
+            "deactivated": {
+              "title": "Plan dezaktive",
+              "message": "Plan an dezaktive."
             }
           },
           "drawchannel": {
@@ -1271,6 +1287,42 @@
             "game_key_invalid": {
               "title": "Jwèt pa valab",
               "message": "Chwazi yon jwèt slot sa a sipòte."
+            }
+          }
+        },
+        "platform": {
+          "communication": {
+            "test_degraded": {
+              "title": "Tès kominikasyon an pa fini",
+              "message": "Tès la pa t ka rive nan destinasyon an. Verifye konfigirasyon chanèl la."
+            }
+          }
+        },
+        "public": {
+          "contact_request": {
+            "notification_failed": {
+              "title": "Demann resevwa",
+              "message": "Demann ou resevwa, men ekip nou an poko jwenn notifikasyon an."
+            }
+          }
+        },
+        "ops": {
+          "sales_simulation": {
+            "empty_mix": {
+              "title": "Melanj tikè obligatwa",
+              "message": "Mete omwen yon tikè nan melanj lan."
+            },
+            "too_many_tickets": {
+              "title": "Twòp tikè",
+              "message": "Diminye kantite tikè yo anvan ou lanse similasyon an."
+            },
+            "reason_required": {
+              "title": "Rezon obligatwa",
+              "message": "Bay yon rezon anvan ou egzekite similasyon an."
+            },
+            "draw_not_in_tenant": {
+              "title": "Tiraj pa valab",
+              "message": "Youn nan tiraj yo pa fè pati tenant yo chwazi a."
             }
           }
         }

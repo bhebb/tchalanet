@@ -5,8 +5,9 @@ import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.web.advice.ApiResponseContext;
+import com.tchalanet.server.common.web.api.ApiNotice;
 import com.tchalanet.server.common.web.api.ApiResponse;
-import com.tchalanet.server.common.web.api.NoticeSeverity;
+import com.tchalanet.server.common.web.api.NoticeSource;
 import com.tchalanet.server.core.subscription.api.command.CancelSubscriptionCommand;
 import com.tchalanet.server.core.subscription.api.command.CancelSubscriptionResult;
 import com.tchalanet.server.core.subscription.api.command.RenewSubscriptionCommand;
@@ -59,7 +60,7 @@ public class SubscriptionController {
     var result = commandBus.execute(cmd);
     ApiResponseContext.get()
         .addNotice(
-            "SUBSCRIPTION_CANCELED", "Abonnement annulé", "subscription", NoticeSeverity.INFO);
+            subscriptionNotice("subscription.cancelled", "cancel"));
     return ApiResponse.success(result);
   }
 
@@ -76,7 +77,7 @@ public class SubscriptionController {
     var result = commandBus.execute(cmd);
     ApiResponseContext.get()
         .addNotice(
-            "SUBSCRIPTION_RENEWED", "Abonnement renouvelé", "subscription", NoticeSeverity.INFO);
+            subscriptionNotice("subscription.renewed", "renew"));
     return ApiResponse.success(result);
   }
 
@@ -91,7 +92,7 @@ public class SubscriptionController {
     var result = commandBus.execute(cmd);
     ApiResponseContext.get()
         .addNotice(
-            "SUBSCRIPTION_RESUMED", "Abonnement réactivé", "subscription", NoticeSeverity.INFO);
+            subscriptionNotice("subscription.resumed", "resume"));
     return ApiResponse.success(result);
   }
 
@@ -106,11 +107,20 @@ public class SubscriptionController {
     var result = commandBus.execute(cmd);
     ApiResponseContext.get()
         .addNotice(
-            "SUBSCRIPTION_SUSPENDED", "Abonnement suspendu", "subscription", NoticeSeverity.INFO);
+            subscriptionNotice("subscription.suspended", "suspend"));
     return ApiResponse.success(result);
   }
 
   public record CancelRequest(String reason) {}
 
   public record RenewRequest(@NotNull Instant newEndsAt) {}
+
+  private static ApiNotice subscriptionNotice(String code, String operation) {
+    return ApiNotice.information(
+        code,
+        "subscription",
+        NoticeSource.of("subscription").operation(operation),
+        "admin.subscription.actions",
+        java.util.Map.of());
+  }
 }

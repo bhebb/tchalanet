@@ -2,6 +2,8 @@ package com.tchalanet.server.platform.contactrequest.internal.web;
 
 import com.tchalanet.server.common.web.api.ApiNotice;
 import com.tchalanet.server.common.web.api.ApiResponse;
+import com.tchalanet.server.common.web.api.NoticeSource;
+import com.tchalanet.server.common.web.api.NoticeSeverity;
 import com.tchalanet.server.platform.contactrequest.api.model.ContactRequestSubmittedView;
 import com.tchalanet.server.platform.contactrequest.api.model.SubmitContactRequestCommand;
 import com.tchalanet.server.platform.contactrequest.internal.service.ContactRequestSubmissionService;
@@ -35,9 +37,13 @@ public class PublicContactRequestController {
     if (result.notificationFailed()) {
       return ApiResponse.warn(
           result.view(),
-          ApiNotice.warn(
-              "CONTACT_NOTIFICATION_FAILED",
-              "La demande a été reçue, mais la notification interne n'a pas pu être envoyée."));
+          ApiNotice.business(
+              "public.contact_request.notification_failed",
+              "platform.contactrequest",
+              NoticeSeverity.WARN,
+              NoticeSource.of("contactRequest").operation("submit"),
+              "public.contact_request",
+              java.util.Map.of()));
     }
     return ApiResponse.success(result.view());
   }

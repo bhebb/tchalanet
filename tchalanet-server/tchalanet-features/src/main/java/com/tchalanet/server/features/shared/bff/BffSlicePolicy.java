@@ -1,4 +1,4 @@
-package com.tchalanet.server.common.web.advice;
+package com.tchalanet.server.features.shared.bff;
 
 import com.tchalanet.server.common.web.api.NoticeSeverity;
 import com.tchalanet.server.common.web.api.NoticeSource;
@@ -8,13 +8,14 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
 
-/** Policy for a BFF slice whose failure is not allowed to abort the whole response. */
+/** Policy for a feature-owned BFF slice whose failure does not abort the whole response. */
 public record BffSlicePolicy<T>(
     String code,
     String domain,
     NoticeSource source,
     NoticeSeverity severity,
     @Nullable ServiceHealth serviceStatus,
+    @Nullable String target,
     Map<String, Object> safeParams,
     Supplier<T> fallback) {
 
@@ -30,7 +31,7 @@ public record BffSlicePolicy<T>(
   public static <T> BffSlicePolicy<T> warn(
       String code, String domain, NoticeSource source, Supplier<T> fallback) {
     return new BffSlicePolicy<>(
-        code, domain, source, NoticeSeverity.WARN, null, Map.of(), fallback);
+        code, domain, source, NoticeSeverity.WARN, null, null, Map.of(), fallback);
   }
 
   public static <T> BffSlicePolicy<T> warn(
@@ -38,32 +39,10 @@ public record BffSlicePolicy<T>(
     return warn(code, domain, source, () -> fallback);
   }
 
-  /**
-   * @deprecated Use the code-first overload; messages are not a client-display contract.
-   */
-  @Deprecated(forRemoval = false)
-  public static <T> BffSlicePolicy<T> warn(
-      String code,
-      String ignoredMessage,
-      String domain,
-      NoticeSource source,
-      Supplier<T> fallback) {
-    return warn(code, domain, source, fallback);
-  }
-
-  /**
-   * @deprecated Use the code-first overload; messages are not a client-display contract.
-   */
-  @Deprecated(forRemoval = false)
-  public static <T> BffSlicePolicy<T> warn(
-      String code, String ignoredMessage, String domain, NoticeSource source, T fallback) {
-    return warn(code, domain, source, fallback);
-  }
-
   public static <T> BffSlicePolicy<T> error(
       String code, String domain, NoticeSource source, Supplier<T> fallback) {
     return new BffSlicePolicy<>(
-        code, domain, source, NoticeSeverity.ERROR, null, Map.of(), fallback);
+        code, domain, source, NoticeSeverity.ERROR, null, null, Map.of(), fallback);
   }
 
   public static <T> BffSlicePolicy<T> error(
@@ -78,6 +57,7 @@ public record BffSlicePolicy<T>(
         source,
         severity,
         Objects.requireNonNull(status, "status is required"),
+        target,
         safeParams,
         fallback);
   }
@@ -87,18 +67,6 @@ public record BffSlicePolicy<T>(
     if (target == null || target.isBlank()) {
       throw new IllegalArgumentException("target is required");
     }
-    var params = new java.util.LinkedHashMap<>(safeParams);
-    params.put("surface", "section");
-    params.put("placement", "top");
-    params.put("target", target);
-    return new BffSlicePolicy<>(code, domain, source, severity, serviceStatus, params, fallback);
-  }
-
-  /**
-   * @deprecated Service-status prose is diagnostic-only and must not be returned to clients.
-   */
-  @Deprecated(forRemoval = false)
-  public BffSlicePolicy<T> serviceStatus(ServiceHealth status, String ignoredMessage) {
-    return serviceStatus(status);
+    return new BffSlicePolicy<>(code, domain, source, severity, serviceStatus, target, safeParams, fallback);
   }
 }
