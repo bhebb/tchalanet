@@ -1,4 +1,9 @@
 package com.tchalanet.server.features.pos.games;
 
 public record PosBetOptionResponse(
-    short code, String label, String description, String selectionHint) {}
+    short code,
+    String label,
+    String description,
+    String selectionHint,
+    int selectionDigits,
+    int selectionSegments) {}

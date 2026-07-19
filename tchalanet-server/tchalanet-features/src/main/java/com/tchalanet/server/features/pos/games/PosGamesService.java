@@ -51,14 +51,21 @@ public class PosGamesService {
         config.selectionPolicy(),
         posOptions(config).stream()
             .map(
-                option ->
-                    new PosBetOptionResponse(
-                        option.code(),
-                        option.label(),
-                        option.description(),
-                        optionSelectionHint(BetOption.from(betType, option.code()))))
+                option -> {
+                  var betOption = BetOption.from(betType, option.code());
+                  var shape = selectionShape(betType, betOption);
+                  return new PosBetOptionResponse(
+                      option.code(),
+                      option.label(),
+                      option.description(),
+                      optionSelectionHint(betOption),
+                      shape.digits(),
+                      shape.segments());
+                })
             .toList(),
-        selectionHint(betType, config.selectionPolicy()));
+        selectionHint(betType, config.selectionPolicy()),
+        selectionShape(betType, null).digits(),
+        selectionShape(betType, null).segments());
   }
 
   private List<TenantBetOptionView> posOptions(TenantBetTypeOptionConfigView config) {
@@ -124,4 +131,19 @@ public class PosGamesService {
       case LOTTO5_LOT1_LOT2, LOTTO5_LOT1_LOT3, LOTTO5_MIXED_1_2_3 -> "5 chiffres, ex: 12345";
     };
   }
+
+  private SelectionShape selectionShape(BetType betType, BetOption option) {
+    return switch (betType) {
+      case MATCH_1_2D, MATCH_2_2D, MATCH_3_2D -> new SelectionShape(2, 1);
+      case MARRIAGE_2D2D -> new SelectionShape(2, 2);
+      case LOTTO3_3D -> new SelectionShape(3, 1);
+      case LOTTO4_PATTERN ->
+          option == BetOption.LOTTO4_FRONT_PAIR || option == BetOption.LOTTO4_BACK_PAIR
+              ? new SelectionShape(2, 1)
+              : new SelectionShape(4, 1);
+      case LOTTO5_PATTERN -> new SelectionShape(5, 1);
+    };
+  }
+
+  private record SelectionShape(int digits, int segments) {}
 }

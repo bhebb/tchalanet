@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../../core/i18n/i18n_repository.dart';
 import '../../../../../core/runtime/runtime_controller.dart';
 import '../../../../../design_system/components/feedback_state.dart';
 import '../../../../../design_system/tokens/tch_radius.dart';
@@ -15,6 +17,7 @@ class SellerTerminalProfilePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final homeAsync = ref.watch(cashierHomeProvider);
     final runtimeState = ref.watch(runtimeControllerProvider);
+    final translations = ref.watch(i18nBundleProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Profil')),
@@ -108,6 +111,15 @@ class SellerTerminalProfilePage extends ConsumerWidget {
                   ],
                 ),
                 const SizedBox(height: TchSpacing.s24),
+                FilledButton.icon(
+                  onPressed: () async {
+                    await context.push('/change-pin');
+                    ref.invalidate(cashierHomeProvider);
+                  },
+                  icon: const Icon(Icons.password_rounded),
+                  label: Text(translations.translate('auth.change_pin.title')),
+                ),
+                const SizedBox(height: TchSpacing.s12),
                 FilledButton.icon(
                   onPressed: () {
                     ref.invalidate(cashierHomeProvider);

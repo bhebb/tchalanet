@@ -12,7 +12,20 @@
     "error": {
       "network": "Nou pa kapab konekte ak sèvè a",
       "timeout": "Tan koneksyon an fini",
+      "auth_required": "Konekte ankò pou kontinye.",
       "unknown": "Gen yon erè nou pa t atann"
+    },
+    "preparation": {
+      "total": "Total pou peye",
+      "maryaj_free": "Maryaj gratis",
+      "free_game": "Jwèt gratis",
+      "free": "GRATIS",
+      "auto_selection": "chwa otomatik",
+      "seller_selection": "chwa vandè a",
+      "promotion_applied": "Pwomosyon an aplike sou tikè sa a.",
+      "terminal_override_applied": "Règ pwomosyon espesyal tèminal lan aplike.",
+      "approval_required": "Vant sa a bezwen apwobasyon anvan konfimasyon.",
+      "notice": "Gen yon enfòmasyon pou verifye anvan konfimasyon."
     },
     "retry": "Eseye ankò",
     "manage": "Jere",

@@ -12,7 +12,20 @@
     "error": {
       "network": "Unable to connect to server",
       "timeout": "Connection timed out",
+      "auth_required": "Sign in again to continue.",
       "unknown": "An unexpected error occurred"
+    },
+    "preparation": {
+      "total": "Total due",
+      "maryaj_free": "Free Maryaj",
+      "free_game": "Free game",
+      "free": "FREE",
+      "auto_selection": "automatic selection",
+      "seller_selection": "seller selection",
+      "promotion_applied": "The promotion is applied to this ticket.",
+      "terminal_override_applied": "The terminal-specific promotion rule is applied.",
+      "approval_required": "This sale requires approval before confirmation.",
+      "notice": "Information must be reviewed before confirmation."
     },
     "retry": "Retry",
     "manage": "Manage",

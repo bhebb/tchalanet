@@ -70,7 +70,7 @@ envs/**/.secrets
 acme.json
 
 # Données
-data/
+/data/
 volumes/
 pgdata*/
 traefik/dynamic/10-routers.yaml

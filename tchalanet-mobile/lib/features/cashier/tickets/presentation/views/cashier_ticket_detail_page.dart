@@ -10,11 +10,12 @@ import '../../../../../design_system/tokens/tch_spacing.dart';
 import '../../data/models/cashier_ticket_models.dart';
 import '../../data/services/cashier_ticket_service.dart';
 import '../print_ticket_action.dart';
-import 'send_receipt_sheet.dart';
 
-final _ticketDetailProvider = FutureProvider.family<CashierTicketDetailsView, String>(
-  (ref, ticketId) => ref.watch(cashierTicketServiceProvider).getDetails(ticketId),
-);
+final _ticketDetailProvider =
+    FutureProvider.family<CashierTicketDetailsView, String>(
+      (ref, ticketId) =>
+          ref.watch(cashierTicketServiceProvider).getDetails(ticketId),
+    );
 
 /// Ticket detail / receipt view — shown from History tab, Scanner, or post-sell.
 class CashierTicketDetailPage extends ConsumerWidget {
@@ -28,9 +29,7 @@ class CashierTicketDetailPage extends ConsumerWidget {
     final scheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Détails du Ticket'),
-      ),
+      appBar: AppBar(title: const Text('Détails du Ticket')),
       bottomNavigationBar: const PosBottomNavBar(currentIndex: 1),
       body: detailAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -43,7 +42,8 @@ class CashierTicketDetailPage extends ConsumerWidget {
               Text(userMessage(e), textAlign: TextAlign.center),
               const SizedBox(height: TchSpacing.s24),
               FilledButton.tonal(
-                onPressed: () => ref.invalidate(_ticketDetailProvider(ticketId)),
+                onPressed: () =>
+                    ref.invalidate(_ticketDetailProvider(ticketId)),
                 child: const Text('Réessayer'),
               ),
             ],
@@ -68,34 +68,19 @@ class _DetailBody extends ConsumerWidget {
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(
-        TchSpacing.s16, TchSpacing.s16, TchSpacing.s16, TchSpacing.s24,
+        TchSpacing.s16,
+        TchSpacing.s16,
+        TchSpacing.s16,
+        TchSpacing.s24,
       ),
       children: [
         _ReceiptCard(detail: detail),
         const SizedBox(height: TchSpacing.s16),
-        Row(
-          children: [
-            Expanded(
-              child: _ActionButton(
-                icon: Icons.share_rounded,
-                label: 'Partager',
-                primary: true,
-                onTap: () => SendReceiptSheet.show(
-                  context,
-                  ticketId: detail.id,
-                ),
-              ),
-            ),
-            const SizedBox(width: TchSpacing.s12),
-            Expanded(
-              child: _ActionButton(
-                icon: Icons.print_rounded,
-                label: 'Imprimer',
-                primary: true,
-                onTap: () => printTicket(context, ref, ticketId),
-              ),
-            ),
-          ],
+        _ActionButton(
+          icon: Icons.print_rounded,
+          label: 'Imprimer',
+          primary: true,
+          onTap: () => printTicket(context, ref, ticketId),
         ),
         if (canCancel) ...[
           const SizedBox(height: TchSpacing.s12),
@@ -131,11 +116,11 @@ class _DetailBody extends ConsumerWidget {
               Text(
                 'QR — disponible prochainement',
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: scheme.onSurfaceVariant.withValues(alpha: 0.5),
-                      letterSpacing: 0.5,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 10,
-                    ),
+                  color: scheme.onSurfaceVariant.withValues(alpha: 0.5),
+                  letterSpacing: 0.5,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 10,
+                ),
               ),
             ],
           ),
@@ -150,7 +135,8 @@ class _DetailBody extends ConsumerWidget {
       builder: (_) => AlertDialog(
         title: const Text('Annuler le ticket ?'),
         content: const Text(
-            'Cette action est irréversible. Le ticket sera annulé immédiatement.'),
+          'Cette action est irréversible. Le ticket sera annulé immédiatement.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -183,15 +169,17 @@ class _StatusBadge extends StatelessWidget {
       'PLACED' => (TchColors.successContainer, TchColors.success, 'ACTIF'),
       'CANCELLED' => (scheme.errorContainer, scheme.onErrorContainer, 'ANNULÉ'),
       'VOIDED' => (
-          scheme.surfaceContainerHighest,
-          scheme.onSurfaceVariant,
-          'INVALIDÉ'
-        ),
+        scheme.surfaceContainerHighest,
+        scheme.onSurfaceVariant,
+        'INVALIDÉ',
+      ),
       _ => (TchColors.warningContainer, TchColors.warning, status),
     };
     return Container(
       padding: const EdgeInsets.symmetric(
-          horizontal: TchSpacing.s12, vertical: TchSpacing.s4),
+        horizontal: TchSpacing.s12,
+        vertical: TchSpacing.s4,
+      ),
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(TchRadius.pill),
@@ -262,7 +250,8 @@ class _ReceiptCard extends StatelessWidget {
                           GestureDetector(
                             onTap: () {
                               Clipboard.setData(
-                                  ClipboardData(text: displayCode));
+                                ClipboardData(text: displayCode),
+                              );
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text('Code copié'),
@@ -281,9 +270,11 @@ class _ReceiptCard extends StatelessWidget {
                                   ),
                                 ),
                                 const SizedBox(width: TchSpacing.s8),
-                                Icon(Icons.copy_rounded,
-                                    size: 16,
-                                    color: scheme.onSurfaceVariant),
+                                Icon(
+                                  Icons.copy_rounded,
+                                  size: 16,
+                                  color: scheme.onSurfaceVariant,
+                                ),
                               ],
                             ),
                           ),
@@ -341,10 +332,7 @@ class _ReceiptCard extends StatelessWidget {
                 // Row 3 — vendeur
                 if (detail.sellerDisplayName != null) ...[
                   const SizedBox(height: TchSpacing.s8),
-                  _MetaItem(
-                    label: 'VENDEUR',
-                    value: detail.sellerDisplayName!,
-                  ),
+                  _MetaItem(label: 'VENDEUR', value: detail.sellerDisplayName!),
                 ],
               ],
             ),
@@ -366,13 +354,15 @@ class _ReceiptCard extends StatelessWidget {
                 ),
                 const SizedBox(height: TchSpacing.s12),
                 if (detail.lines.isEmpty)
-                  Text('—',
-                      style: textTheme.bodySmall
-                          ?.copyWith(color: scheme.onSurfaceVariant))
+                  Text(
+                    '—',
+                    style: textTheme.bodySmall?.copyWith(
+                      color: scheme.onSurfaceVariant,
+                    ),
+                  )
                 else
                   for (int i = 0; i < detail.lines.length; i++) ...[
-                    if (i > 0)
-                      Divider(color: scheme.outlineVariant, height: 1),
+                    if (i > 0) Divider(color: scheme.outlineVariant, height: 1),
                     _LineRow(line: detail.lines[i]),
                   ],
               ],
@@ -384,8 +374,7 @@ class _ReceiptCard extends StatelessWidget {
             padding: const EdgeInsets.all(TchSpacing.s16),
             decoration: BoxDecoration(
               color: scheme.surfaceContainerLow,
-              border: Border(
-                  top: BorderSide(color: scheme.outlineVariant)),
+              border: Border(top: BorderSide(color: scheme.outlineVariant)),
             ),
             child: Column(
               children: [
@@ -409,7 +398,8 @@ class _ReceiptCard extends StatelessWidget {
                     Text(
                       'TOTAL',
                       style: textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700),
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                     Text(
                       total,
@@ -449,10 +439,9 @@ class _LineRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    final gameLabel =
-        line.betTypeLabel != null && line.betTypeLabel!.isNotEmpty
-            ? '${line.gameLabel} · ${line.betTypeLabel}'
-            : line.gameLabel;
+    final gameLabel = line.betTypeLabel != null && line.betTypeLabel!.isNotEmpty
+        ? '${line.gameLabel} · ${line.betTypeLabel}'
+        : line.gameLabel;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: TchSpacing.s12),
@@ -467,7 +456,8 @@ class _LineRow extends StatelessWidget {
                   ? scheme.tertiaryContainer
                   : scheme.surfaceContainerLow,
               border: Border.all(
-                  color: scheme.outlineVariant.withValues(alpha: 0.5)),
+                color: scheme.outlineVariant.withValues(alpha: 0.5),
+              ),
               borderRadius: BorderRadius.circular(TchRadius.sm),
             ),
             child: Text(
@@ -485,9 +475,12 @@ class _LineRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(gameLabel,
-                    style: textTheme.bodySmall
-                        ?.copyWith(fontWeight: FontWeight.w700)),
+                Text(
+                  gameLabel,
+                  style: textTheme.bodySmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
                 if (line.promotional && line.promotionLabel != null)
                   Text(
                     line.promotionLabel!,
@@ -504,8 +497,9 @@ class _LineRow extends StatelessWidget {
             children: [
               Text(
                 '${line.formattedStake} HTG',
-                style: textTheme.bodyMedium
-                    ?.copyWith(fontWeight: FontWeight.w700),
+                style: textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ],
           ),
@@ -516,8 +510,11 @@ class _LineRow extends StatelessWidget {
 }
 
 class _MetaItem extends StatelessWidget {
-  const _MetaItem(
-      {required this.label, required this.value, this.alignRight = false});
+  const _MetaItem({
+    required this.label,
+    required this.value,
+    this.alignRight = false,
+  });
 
   final String label;
   final String value;
@@ -527,18 +524,25 @@ class _MetaItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Column(
-      crossAxisAlignment:
-          alignRight ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+      crossAxisAlignment: alignRight
+          ? CrossAxisAlignment.end
+          : CrossAxisAlignment.start,
       children: [
-        Text(label,
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: scheme.onSurfaceVariant, fontSize: 10, letterSpacing: 0.5)),
+        Text(
+          label,
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+            color: scheme.onSurfaceVariant,
+            fontSize: 10,
+            letterSpacing: 0.5,
+          ),
+        ),
         const SizedBox(height: 2),
-        Text(value,
-            style: Theme.of(context)
-                .textTheme
-                .bodySmall
-                ?.copyWith(fontWeight: FontWeight.w500)),
+        Text(
+          value,
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w500),
+        ),
       ],
     );
   }
@@ -556,16 +560,18 @@ class _SummaryRow extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label,
-            style: Theme.of(context)
-                .textTheme
-                .bodySmall
-                ?.copyWith(color: scheme.onSurfaceVariant)),
-        Text(value,
-            style: Theme.of(context)
-                .textTheme
-                .bodySmall
-                ?.copyWith(fontWeight: FontWeight.w600)),
+        Text(
+          label,
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+        ),
+        Text(
+          value,
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
+        ),
       ],
     );
   }
@@ -598,7 +604,8 @@ class _ActionButton extends StatelessWidget {
           minimumSize: const Size.fromHeight(48),
           side: BorderSide(color: scheme.error.withValues(alpha: 0.3)),
           shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(TchRadius.md)),
+            borderRadius: BorderRadius.circular(TchRadius.md),
+          ),
         ),
       );
     }
@@ -609,7 +616,8 @@ class _ActionButton extends StatelessWidget {
       style: FilledButton.styleFrom(
         minimumSize: const Size.fromHeight(48),
         shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(TchRadius.md)),
+          borderRadius: BorderRadius.circular(TchRadius.md),
+        ),
       ),
     );
   }

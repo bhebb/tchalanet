@@ -3,6 +3,7 @@ package com.tchalanet.server.features.pos.draws;
 import com.tchalanet.server.catalog.drawchannel.api.DrawChannelCatalog;
 import com.tchalanet.server.catalog.drawchannel.api.DrawChannelDisplayFormatter;
 import com.tchalanet.server.catalog.drawchannel.api.model.GameSummaryView;
+import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.time.TchTimeProvider;
@@ -23,6 +24,7 @@ public class PosDrawsService {
 
   private final QueryBus queryBus;
   private final DrawChannelCatalog drawChannelCatalog;
+  private final ResultSlotCatalog resultSlotCatalog;
   private final DrawChannelDisplayFormatter drawChannelDisplayFormatter;
   private final TenantBusinessCalendarApi tenantBusinessCalendarApi;
   private final TchTimeProvider timeProvider;
@@ -48,14 +50,23 @@ public class PosDrawsService {
 
     var locale = ctx.locale() == null ? Locale.FRENCH : ctx.locale();
 
-    return rows.stream().map(d -> toView(d, gamesByChannelCode, locale)).toList();
+    return rows.stream()
+        .map(d -> toView(d, gamesByChannelCode, locale, ctx.tenantZoneId()))
+        .toList();
   }
 
   private PosAvailableDrawView toView(
-      CashierNextDrawView d, Map<String, List<String>> gamesByChannelCode, Locale locale) {
+      CashierNextDrawView d,
+      Map<String, List<String>> gamesByChannelCode,
+      Locale locale,
+      ZoneId tenantZone) {
     var formattedLabel =
         drawChannelDisplayFormatter.resolve(d.channelLabel(), d.drawTime(), locale);
     var games = gamesByChannelCode.getOrDefault(d.channelCode(), List.of());
+    var providerZone = resultSlotCatalog.requireByKey(d.resultSlotKey()).timezone();
+    var providerDateTime = d.scheduledAt().atZone(providerZone);
+    var localZone = tenantZone == null ? ZoneId.of("UTC") : tenantZone;
+    var localDateTime = d.scheduledAt().atZone(localZone);
     return new PosAvailableDrawView(
         d.drawId(),
         d.drawChannelId(),
@@ -67,7 +78,13 @@ public class PosDrawsService {
         games,
         d.status(),
         d.scheduledAt(),
-        d.cutoffAt());
+        d.cutoffAt(),
+        providerDateTime.toLocalDate(),
+        providerDateTime.toLocalTime(),
+        providerZone.getId(),
+        localDateTime.toLocalDate(),
+        localDateTime.toLocalTime(),
+        localZone.getId());
   }
 
   private boolean tenantBusinessOpen(TchRequestContext ctx) {
