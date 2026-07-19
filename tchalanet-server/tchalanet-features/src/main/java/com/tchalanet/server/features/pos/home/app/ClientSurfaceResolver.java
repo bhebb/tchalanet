@@ -40,7 +40,7 @@ public class ClientSurfaceResolver {
     try {
       return ClientSurface.valueOf(requestedSurface.trim().toUpperCase(java.util.Locale.ROOT));
     } catch (IllegalArgumentException ex) {
-      throw ProblemRest.of(PosErrorCodes.SURFACE_NOT_ALLOWED, ex);
+      throw ProblemRest.of(PosErrorCodes.SURFACE_NOT_ALLOWED, java.util.Map.of(), ex);
     }
   }
 }

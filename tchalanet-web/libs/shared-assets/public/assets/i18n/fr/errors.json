@@ -358,6 +358,12 @@
             "message": "Cette vente dépasse une limite configurée pour ce tirage ou ce numéro. Réduisez la mise, choisissez un autre numéro ou retirez la ligne concernée."
           }
         },
+        "subscription": {
+          "cancelled": { "title": "Abonnement annulé", "message": "L'abonnement a été annulé." },
+          "renewed": { "title": "Abonnement renouvelé", "message": "L'abonnement a été renouvelé." },
+          "resumed": { "title": "Abonnement réactivé", "message": "L'abonnement a été réactivé." },
+          "suspended": { "title": "Abonnement suspendu", "message": "L'abonnement a été suspendu." }
+        },
         "sales": {
           "promotion_applied": {
             "title": "Maryaj gratuit ajoute",
@@ -1291,6 +1297,16 @@
             "delete_in_use": {
               "title": "Suppression impossible",
               "message": "Ce jeu est déjà utilisé dans une configuration tenant."
+            },
+            "deactivated": {
+              "title": "Jeu désactivé",
+              "message": "Le jeu a été désactivé."
+            }
+          },
+          "plan": {
+            "deactivated": {
+              "title": "Plan désactivé",
+              "message": "Le plan a été désactivé."
             }
           },
           "drawchannel": {
@@ -1319,6 +1335,42 @@
             "game_key_invalid": {
               "title": "Jeu invalide",
               "message": "Choisissez un jeu pris en charge pour ce slot."
+            }
+          }
+        },
+        "platform": {
+          "communication": {
+            "test_degraded": {
+              "title": "Test de communication incomplet",
+              "message": "Le test n'a pas pu atteindre sa destination. Vérifiez la configuration du canal."
+            }
+          }
+        },
+        "public": {
+          "contact_request": {
+            "notification_failed": {
+              "title": "Demande reçue",
+              "message": "Votre demande a été reçue, mais notre équipe n'a pas encore reçu la notification."
+            }
+          }
+        },
+        "ops": {
+          "sales_simulation": {
+            "empty_mix": {
+              "title": "Mix de tickets requis",
+              "message": "Ajoutez au moins un ticket au mix."
+            },
+            "too_many_tickets": {
+              "title": "Trop de tickets",
+              "message": "Réduisez le nombre de tickets avant de lancer la simulation."
+            },
+            "reason_required": {
+              "title": "Raison requise",
+              "message": "Indiquez une raison avant d’exécuter la simulation."
+            },
+            "draw_not_in_tenant": {
+              "title": "Tirage invalide",
+              "message": "Un des tirages ne fait pas partie du tenant sélectionné."
             }
           }
         }

@@ -7,6 +7,7 @@ import com.tchalanet.server.common.web.api.NoticeSeverity;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.promotion.api.model.PromotionNoticeCodes;
 import com.tchalanet.server.core.sales.api.error.SalesErrorCodes;
+import com.tchalanet.server.core.sales.internal.application.service.sell.SalesNoticeAssembler;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
@@ -22,13 +23,13 @@ class SaleIssueFactoryTest {
             List.of(
                 new ApiNotice(
                     PromotionNoticeCodes.DECISION_APPLIED,
-                    PromotionNoticeCodes.DECISION_APPLIED,
+                    null,
                     "promotion",
                     NoticeSeverity.INFO,
                     Map.of()),
                 new ApiNotice(
                     PromotionNoticeCodes.TERMINAL_OVERRIDE_APPLIED,
-                    PromotionNoticeCodes.TERMINAL_OVERRIDE_APPLIED,
+                    null,
                     "promotion",
                     NoticeSeverity.INFO,
                     Map.of())));
@@ -51,5 +52,14 @@ class SaleIssueFactoryTest {
     var issue = factory.fromProblem(ProblemRest.of(SalesErrorCodes.SELLER_TERMINAL_CANNOT_SELL));
 
     assertThat(issue.code()).isEqualTo("sales.seller_terminal.cannot_sell");
+  }
+
+  @Test
+  void approvalNoticeUsesTheStableSalesCodeRatherThanATransportSentinel() {
+    var notice = SalesNoticeAssembler.approvalRequired("SUPERVISOR");
+
+    assertThat(notice.code()).isEqualTo("sales.approval_required");
+    assertThat(notice.message()).isNull();
+    assertThat(notice.params()).containsEntry("approvalLevel", "SUPERVISOR");
   }
 }

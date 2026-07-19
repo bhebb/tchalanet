@@ -21,12 +21,12 @@ portals, Flutter mobile, client-originated failures, i18n, accessibility, recove
 - [ ] Classify every legacy `ProblemRest`/direct-`ProblemDetail` producer as `STABLE_CODE`,
       `BUSINESS_PROSE`, `HYBRID_OR_DYNAMIC`, or `FRAMEWORK_OR_TECHNICAL`. Record the owner,
       HTTP reachability, conversion outcome, and any temporary bridge in the migration ledger.
-- [ ] Decide and document the owner of the existing `BffSlices` helper. Remove the ambiguity that
-      places feature-composition policy in `common.web.advice`, and prove a required technical slice
-      failure cannot reach the legacy `IllegalStateException -> 422` mapper.
-- [ ] Name and resolve current response-semantic contradictions before new BFF migration:
-      `ApiResponse.notFound()` must not emit `SUCCESS` for unusable primary data, and
-      `APPROVAL_REQUIRED` must not remain a transport-layer `PENDING` sentinel.
+- [x] Decide and document the owner of the existing `BffSlices` helper. It now lives in
+      `features.shared.bff`; `common` retains only HTTP transport/context primitives. Required
+      slices preserve their exception flow and optional slices never swallow JVM `Error`s.
+- [x] Name and resolve current response-semantic contradictions before new BFF migration:
+      `ApiResponse.notFound()` no longer exists as a false-success factory, and a business approval
+      notice no longer acts as a transport-layer `PENDING` sentinel.
 - [ ] Inventory every blocking backend producer: `GlobalErrorHandler`, direct `ProblemDetail`,
       `ProblemRest`/`ProblemRestException` where present, validation, security, idempotency, and
       feature/BFF catches.
@@ -113,25 +113,43 @@ portals, Flutter mobile, client-originated failures, i18n, accessibility, recove
 
 - [ ] Review every `ApiNotice`/`ServiceStatus` field and mark user-visible versus diagnostic-only.
       `ApiNotice.message` and `ServiceStatus.message` must not be client display contracts.
-- [ ] Define safe notice fields: stable code, severity, domain/source, optional stable functional
-      target, safe parameters, retryability, and trace metadata. Do not use framework component IDs
-      or backend UI placement (`PAGE`, `FORM`, etc.).
-- [ ] Separate safe parameters from arbitrary metadata and reject/redact PINs, passwords, tokens,
-      customer payloads, SQL/provider payloads, and sensitive internal identifiers.
+- [~] Define safe notice fields: stable code, severity, domain/source, optional stable functional
+      target, safe parameters, retryability, and trace metadata. `ApiNotice` now exposes `source`,
+      `target`, `params`, and `NoticeTrace` additively. Angular contracts and normalizers now prefer
+      those fields over `meta`; BFF degradations use their structured target to resolve the owning
+      PageModel section, without backend `surface` or `placement` metadata.
+- [~] Separate safe parameters from arbitrary metadata and reject/redact PINs, passwords, tokens,
+      customer payloads, SQL/provider payloads, and sensitive internal identifiers. Helper-built
+      notices now drop sensitive/non-primitive public params and do not retain sensitive keys in
+      their meta bridge. The platform Ops sales-simulation flow now uses registered descriptors and
+      declared numeric public parameters; remaining legacy constructors/producers are tracked for
+      migration.
 - [ ] Replace free-form notice metadata with typed `kind`, functional `target`, public params,
       retry policy, and structured correlation. A target is a stable feature/slice key, never an
       internal service, class, component, or visual placement. Remove `message` and `meta` only
       after the migration ledger reaches zero.
-- [ ] Add approved helpers such as business/degradation/information notices and service
+- [~] Add approved helpers such as business/degradation/information notices and service
       down/degraded states; attach correlation metadata and deduplicate deterministically.
-- [ ] Implement deterministic status precedence: explicit `PENDING`, then `PARTIAL`, then
-      `SUCCESS_WITH_WARNINGS`, then `SUCCESS`; test notices and services together.
+      `ApiResponseNotices` now constructs the structured fields and `ApiResponseContext`/advice
+      deduplicate by code/domain/kind/source/target. Direct application producers use
+      `ApiNotice.business(...)` or code-first `ApiNotice.information(...)`; compatibility
+      constructors remain until the migration ledger is empty. Subscription cancel, renew, resume,
+      and suspend are the first mutation vertical: their retained admin response renders the
+      localized confirmation inside `admin.subscription.actions`, without consuming server prose.
+      `core.sales` preparation notices now also omit message-key prose and `SaleIssueFactory`
+      consumes typed notice parameters rather than the legacy `meta` bridge. Catalog game/plan
+      deactivation, public contact fallback, and communication-test degradation now emit stable
+      lowercase codes rather than French or provider-derived messages; exact `ht`/`fr`/`en`
+      copies are present.
+- [~] Implement deterministic status precedence: explicit `PENDING`, then `PARTIAL`, then
+      `SUCCESS_WITH_WARNINGS`, then `SUCCESS`; explicit pending/partial and legacy-code regression
+      tests are in place. Add combined notice/service matrix coverage with the typed notice contract.
 
 ## Phase 3 — BFF orchestration and compatibility
 
-- [ ] Implement the Phase 0 ownership decision for BFF aggregation. Keep transport normalization in
-      `common`; keep feature slice classification and required/optional policy in a feature-owned
-      composition support module. Do not introduce a fake async bus abstraction.
+- [x] Implement the Phase 0 ownership decision for BFF aggregation. Transport normalization remains
+      in `common`; feature slice classification and required/optional policy now live in
+      `features.shared.bff`. No asynchronous bus abstraction was introduced.
 - [ ] Ensure required slices stop composition and preserve/map to an approved stable error code.
 - [ ] Ensure optional failures retain primary data, produce one degradation notice per functional
       slice, return `PARTIAL`, and represent independently recoverable sections deterministically

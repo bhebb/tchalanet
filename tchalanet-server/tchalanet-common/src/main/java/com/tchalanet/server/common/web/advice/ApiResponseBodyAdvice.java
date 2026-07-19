@@ -35,9 +35,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
  * <p>Status decision tree (in order):
  *
  * <ol>
- *   <li>Any notice with code {@code APPROVAL_REQUIRED} → {@code PENDING}, regardless of whether a
- *       body is present. The caller will display the body (e.g. the placed ticket awaiting
- *       approval) along with a pending banner.
+ *   <li>An explicitly returned {@code PENDING} response remains pending. Pending is operation
+ *       intent, never a convention inferred from a business notice.
  *   <li>Any degradation notice or degraded service → {@code PARTIAL}.
  *   <li>Any WARN notice → {@code SUCCESS_WITH_WARNINGS}.
  *   <li>Otherwise → {@code SUCCESS}.
@@ -46,8 +45,6 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 @RestControllerAdvice(basePackages = "com.tchalanet.server")
 @Order(100)
 public class ApiResponseBodyAdvice implements ResponseBodyAdvice<Object> {
-
-  public static final String APPROVAL_REQUIRED_CODE = "APPROVAL_REQUIRED";
 
   @Override
   public boolean supports(
@@ -104,7 +101,12 @@ public class ApiResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 
     if (body instanceof ApiResponse<?> apiResponse) {
       var mergedNotices = new ArrayList<ApiNotice>(apiResponse.notices());
-      mergedNotices.addAll(notices);
+      notices.forEach(
+          notice -> {
+            if (mergedNotices.stream().noneMatch(existing -> sameNotice(existing, notice))) {
+              mergedNotices.add(notice);
+            }
+          });
 
       var mergedServices = new ArrayList<ServiceStatus>(apiResponse.services());
       mergedServices.addAll(services);
@@ -119,17 +121,14 @@ public class ApiResponseBodyAdvice implements ResponseBodyAdvice<Object> {
     return new ApiResponse<>(status, body, notices, services);
   }
 
-  /**
-   * APPROVAL_REQUIRED takes precedence over other statuses. The body (e.g. the pending ticket) is
-   * preserved so the UI can render it alongside the pending indicator.
-   */
+  /** Resolves response meaning without interpreting business codes as transport status sentinels. */
   private static ApiStatus resolveStatus(
       List<ApiNotice> notices, List<ServiceStatus> services, ApiStatus cleanStatus) {
-    boolean approvalRequired =
-        notices.stream().anyMatch(n -> APPROVAL_REQUIRED_CODE.equals(n.code()));
-
-    if (approvalRequired) {
+    if (cleanStatus == ApiStatus.PENDING) {
       return ApiStatus.PENDING;
+    }
+    if (cleanStatus == ApiStatus.PARTIAL) {
+      return ApiStatus.PARTIAL;
     }
     if (notices.stream().anyMatch(n -> n.kind() == NoticeKind.DEGRADATION)) {
       return ApiStatus.PARTIAL;
@@ -141,6 +140,14 @@ public class ApiResponseBodyAdvice implements ResponseBodyAdvice<Object> {
       return ApiStatus.SUCCESS_WITH_WARNINGS;
     }
     return cleanStatus;
+  }
+
+  private static boolean sameNotice(ApiNotice left, ApiNotice right) {
+    return java.util.Objects.equals(left.code(), right.code())
+        && java.util.Objects.equals(left.domain(), right.domain())
+        && left.kind() == right.kind()
+        && java.util.Objects.equals(left.source(), right.source())
+        && java.util.Objects.equals(left.target(), right.target());
   }
 
   @Nullable

@@ -30,7 +30,9 @@ public class ApiResponseContext {
   }
 
   public void addNotice(ApiNotice notice) {
-    notices.add(notice);
+    if (notices.stream().noneMatch(existing -> sameNotice(existing, notice))) {
+      notices.add(notice);
+    }
   }
 
   public void addNotice(String code, String message, String domain, NoticeSeverity severity) {
@@ -38,7 +40,13 @@ public class ApiResponseContext {
   }
 
   public void addServiceStatus(ServiceStatus serviceStatus) {
-    services.add(serviceStatus);
+    if (services.stream()
+        .noneMatch(
+            existing ->
+                java.util.Objects.equals(existing.service(), serviceStatus.service())
+                    && existing.status() == serviceStatus.status())) {
+      services.add(serviceStatus);
+    }
   }
 
   public void addServiceStatus(String service, ServiceHealth status, String message) {
@@ -59,5 +67,13 @@ public class ApiResponseContext {
 
   public boolean hasDegradedServices() {
     return services.stream().anyMatch(s -> s.status() != ServiceHealth.UP);
+  }
+
+  private static boolean sameNotice(ApiNotice left, ApiNotice right) {
+    return java.util.Objects.equals(left.code(), right.code())
+        && java.util.Objects.equals(left.domain(), right.domain())
+        && left.kind() == right.kind()
+        && java.util.Objects.equals(left.source(), right.source())
+        && java.util.Objects.equals(left.target(), right.target());
   }
 }

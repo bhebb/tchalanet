@@ -2,6 +2,8 @@ package com.tchalanet.server.platform.communication.internal.web;
 
 import com.tchalanet.server.common.web.api.ApiNotice;
 import com.tchalanet.server.common.web.api.ApiResponse;
+import com.tchalanet.server.common.web.api.NoticeSource;
+import com.tchalanet.server.common.web.api.NoticeSeverity;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageMapper;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
@@ -182,7 +184,15 @@ public class PlatformCommunicationOpsController {
     }
 
     return ResponseEntity.ok(
-        ApiResponse.warn(body, ApiNotice.warn("COMMUNICATION_TEST_DEGRADED", result.reason())));
+        ApiResponse.warn(
+            body,
+            ApiNotice.business(
+                "platform.communication.test_degraded",
+                "platform.communication",
+                NoticeSeverity.WARN,
+                NoticeSource.of("communicationOps").operation("test"),
+                "platform.communication.test",
+                Map.of())));
   }
 
   private CommunicationQueueSummary summary(CommunicationOpsQueryService.QueueSummary summary) {

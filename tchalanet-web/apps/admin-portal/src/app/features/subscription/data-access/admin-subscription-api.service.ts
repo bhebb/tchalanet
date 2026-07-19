@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { TchBackendClient, TchRequestOptions } from '@tch/api';
+import { ApiResponse, TchBackendClient, TchRequestOptions } from '@tch/api';
 import type { ConsoleSubscriptionStatus } from '@tch/web/console';
 import { Observable } from 'rxjs';
 
@@ -23,19 +23,23 @@ export class AdminSubscriptionApi {
     return this.backend.get<SubscriptionView>('/tenant/subscription', options);
   }
 
-  cancel(reason?: string, options?: TchRequestOptions): Observable<void> {
-    return this.backend.post<void>('/tenant/subscription/cancel', reason ? { reason } : {}, options);
+  cancel(reason?: string, options?: TchRequestOptions): Observable<ApiResponse<unknown>> {
+    return this.backend.postApiResponse<unknown>(
+      '/tenant/subscription/cancel',
+      reason ? { reason } : {},
+      options,
+    );
   }
 
-  renew(newEndsAt: string, options?: TchRequestOptions): Observable<void> {
-    return this.backend.post<void>('/tenant/subscription/renew', { newEndsAt }, options);
+  renew(newEndsAt: string, options?: TchRequestOptions): Observable<ApiResponse<unknown>> {
+    return this.backend.postApiResponse<unknown>('/tenant/subscription/renew', { newEndsAt }, options);
   }
 
-  resume(options?: TchRequestOptions): Observable<void> {
-    return this.backend.post<void>('/tenant/subscription/resume', {}, options);
+  resume(options?: TchRequestOptions): Observable<ApiResponse<unknown>> {
+    return this.backend.postApiResponse<unknown>('/tenant/subscription/resume', {}, options);
   }
 
-  suspend(options?: TchRequestOptions): Observable<void> {
-    return this.backend.post<void>('/tenant/subscription/suspend', {}, options);
+  suspend(options?: TchRequestOptions): Observable<ApiResponse<unknown>> {
+    return this.backend.postApiResponse<unknown>('/tenant/subscription/suspend', {}, options);
   }
 }

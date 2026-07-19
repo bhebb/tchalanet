@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.sales.internal.application.service.sell;
 
-import com.tchalanet.server.common.web.advice.ApiResponseBodyAdvice;
 import com.tchalanet.server.common.web.api.ApiNotice;
+import com.tchalanet.server.common.web.api.NoticeSource;
 import com.tchalanet.server.common.web.api.NoticeSeverity;
 import com.tchalanet.server.core.limitpolicy.BreachOutcome;
 import com.tchalanet.server.core.limitpolicy.api.query.LimitEvaluationView;
@@ -21,8 +21,8 @@ import java.util.Map;
  * <ul>
  *   <li>{@code sales.limit.<rule>} for limit-related notices.
  *   <li>{@code sales.charge.<type>} for charge disclosures.
- *   <li>{@link ApiResponseBodyAdvice#APPROVAL_REQUIRED_CODE} for the special APPROVAL_REQUIRED
- *       notice that drives {@code ApiStatus.PENDING}.
+ *   <li>{@code sales.approval_required} for a business approval notice. The endpoint explicitly
+ *       selects {@code ApiStatus.PENDING} when its result is pending.
  * </ul>
  */
 public final class SalesNoticeAssembler {
@@ -67,7 +67,14 @@ public final class SalesNoticeAssembler {
           breach.ruleKey() == null
               ? "sales.limit_breach"
               : "sales.limit." + breach.ruleKey().name().toLowerCase();
-      notices.add(new ApiNotice(code, breach.messageKey(), DOMAIN, severity, Map.copyOf(meta)));
+      notices.add(
+          ApiNotice.business(
+              code,
+              DOMAIN,
+              severity,
+              NoticeSource.of("salesPreparation").operation("limits"),
+              "sales.preparation",
+              Map.copyOf(meta)));
     }
     return List.copyOf(notices);
   }
@@ -90,11 +97,12 @@ public final class SalesNoticeAssembler {
     var notices = new ArrayList<ApiNotice>(charges.size());
     for (var charge : charges) {
       notices.add(
-          new ApiNotice(
+          ApiNotice.business(
               "sales.charge." + charge.type().name().toLowerCase(),
-              "sales.notice.charge_applied",
               DOMAIN,
               NoticeSeverity.INFO,
+              NoticeSource.of("salesPreparation").operation("charges"),
+              "sales.preparation",
               Map.of(
                   "chargeType", charge.type().name(),
                   "amount", charge.amount().amount(),
@@ -111,25 +119,31 @@ public final class SalesNoticeAssembler {
       return List.of();
     }
 
-    // Promotion API uses List<String> notices. Map each string to a simple ApiNotice.
+    // Promotion API exposes stable notice codes. Preserve them without adding server prose.
     return promotionDecision.notices().stream()
         .map(
             noticeStr ->
-                new ApiNotice(
-                    noticeStr, noticeStr, "promotionDecision", NoticeSeverity.INFO, Map.of()))
+                ApiNotice.business(
+                    noticeStr,
+                    "promotionDecision",
+                    NoticeSeverity.INFO,
+                    NoticeSource.of("salesPreparation").operation("promotion"),
+                    "sales.preparation",
+                    Map.of()))
         .toList();
   }
 
   // -------------------------------------------------------------------------
-  // APPROVAL_REQUIRED
+  // Approval required
   // -------------------------------------------------------------------------
 
   public static ApiNotice approvalRequired(String approvalLevel) {
-    return new ApiNotice(
-        ApiResponseBodyAdvice.APPROVAL_REQUIRED_CODE,
-        "sales.notice.approval_required",
+    return ApiNotice.business(
+        "sales.approval_required",
         DOMAIN,
         NoticeSeverity.WARN,
+        NoticeSource.of("salesPreparation").operation("approval"),
+        "sales.preparation",
         Map.of("approvalLevel", approvalLevel));
   }
 }

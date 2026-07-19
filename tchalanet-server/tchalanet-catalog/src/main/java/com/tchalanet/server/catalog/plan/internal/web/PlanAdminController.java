@@ -6,6 +6,7 @@ import com.tchalanet.server.catalog.plan.internal.write.PlanAdminService;
 import com.tchalanet.server.common.types.id.PlanId;
 import com.tchalanet.server.common.web.api.ApiNotice;
 import com.tchalanet.server.common.web.api.ApiResponse;
+import com.tchalanet.server.common.web.api.NoticeSource;
 import com.tchalanet.server.common.web.api.NoticeSeverity;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import jakarta.validation.Valid;
@@ -84,12 +85,13 @@ public class PlanAdminController {
     planAdminService.deactivate(id);
 
     var notice =
-        new ApiNotice(
-            "PLAN_DEACTIVATED",
-            "Le plan a été désactivé avec succès.",
+        ApiNotice.business(
+            "catalog.plan.deactivated",
             "plan",
             NoticeSeverity.INFO,
-            Map.of("planId", id.value()));
+            NoticeSource.of("planAdmin").operation("deactivate"),
+            "catalog.plans",
+            Map.of("planId", id.value().toString()));
 
     return ApiResponse.warn(null, notice);
   }

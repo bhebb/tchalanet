@@ -2,6 +2,7 @@ package com.tchalanet.server.core.sales.internal.application.sale;
 
 import com.tchalanet.server.common.web.api.ApiNotice;
 import com.tchalanet.server.common.web.error.ProblemRestException;
+import com.tchalanet.server.core.promotion.api.model.PromotionNoticeCodes;
 import com.tchalanet.server.core.sales.api.model.sale.SaleIssueSeverity;
 import com.tchalanet.server.core.sales.api.model.sale.SaleIssueView;
 import java.util.List;
@@ -48,7 +49,7 @@ public class SaleIssueFactory {
         toSeverity(notice.severity() == null ? null : notice.severity().name()),
         messageCode(code),
         sellerInstruction(code),
-        notice.meta());
+        notice.params());
   }
 
   private SaleIssueSeverity toSeverity(String severity) {
@@ -65,6 +66,12 @@ public class SaleIssueFactory {
   private String toIssueCode(String rawCode) {
     if (rawCode == null || rawCode.isBlank()) {
       return "SALE_EVALUATION_FAILED";
+    }
+    if (PromotionNoticeCodes.DECISION_APPLIED.equals(rawCode)) {
+      return "sales.promotion_applied";
+    }
+    if (PromotionNoticeCodes.TERMINAL_OVERRIDE_APPLIED.equals(rawCode)) {
+      return "sales.promotion_terminal_override_applied";
     }
     if (rawCode.matches("^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$")) {
       return rawCode;
