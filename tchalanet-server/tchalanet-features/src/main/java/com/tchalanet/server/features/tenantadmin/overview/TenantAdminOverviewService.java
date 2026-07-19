@@ -1,6 +1,10 @@
 package com.tchalanet.server.features.tenantadmin.overview;
 
 import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.common.web.advice.BffSlicePolicy;
+import com.tchalanet.server.common.web.advice.BffSlices;
+import com.tchalanet.server.common.web.api.NoticeSource;
+import com.tchalanet.server.features.tenantadmin.error.TenantAdminErrorCodes;
 import com.tchalanet.server.features.tenantadmin.readiness.TenantReadinessAssembler;
 import com.tchalanet.server.features.tenantadmin.readiness.model.TenantReadinessView;
 import com.tchalanet.server.platform.address.api.AddressApi;
@@ -39,18 +43,13 @@ public class TenantAdminOverviewService {
   private TenantAdminOverviewView.TenantHeader buildHeader(TchRequestContext ctx) {
     if (ctx == null || ctx.effectiveTenantIdOrNull() == null) {
       return new TenantAdminOverviewView.TenantHeader(
-          null, null, null, null, null, null, null, null);
+          null, null, null, null, null, null, null, null, false, false);
     }
 
     var tenantId = ctx.tenantIdRequired();
-    AddressView address = null;
-    try {
-      address = addressApi.findPrimaryByTenantId(tenantId).orElse(null);
-    } catch (RuntimeException ignored) {
-    }
-
-    var registry = safeFindTenant(ctx);
-    if (registry == null) {
+    HeaderSlice<AddressView> address = loadAddress(tenantId);
+    var registry = loadRegistry(ctx);
+    if (!registry.available() || registry.value() == null) {
       return new TenantAdminOverviewView.TenantHeader(
           tenantId.value().toString(),
           ctx.effectiveTenantCode(),
@@ -59,25 +58,57 @@ public class TenantAdminOverviewService {
           ctx.tenantCurrency() != null ? ctx.tenantCurrency().getCurrencyCode() : null,
           null,
           null,
-          address);
+          address.value(),
+          registry.available(),
+          address.available());
     }
     return new TenantAdminOverviewView.TenantHeader(
-        registry.tenantId().value().toString(),
-        registry.code(),
-        registry.displayName(),
-        registry.timezone() != null ? registry.timezone().toString() : null,
-        registry.currency() != null ? registry.currency().getCurrencyCode() : null,
-        registry.type() != null ? registry.type().name() : null,
-        registry.status() != null ? registry.status().name() : null,
-        address);
+        registry.value().tenantId().value().toString(),
+        registry.value().code(),
+        registry.value().displayName(),
+        registry.value().timezone() != null ? registry.value().timezone().toString() : null,
+        registry.value().currency() != null ? registry.value().currency().getCurrencyCode() : null,
+        registry.value().type() != null ? registry.value().type().name() : null,
+        registry.value().status() != null ? registry.value().status().name() : null,
+        address.value(),
+        true,
+        address.available());
   }
 
-  private com.tchalanet.server.platform.tenant.api.model.TenantContextLookupView safeFindTenant(
-      TchRequestContext ctx) {
-    try {
-      return tenantCatalog.findById(ctx.tenantIdRequired()).orElse(null);
-    } catch (RuntimeException ignored) {
-      return null;
+  private HeaderSlice<AddressView> loadAddress(
+      com.tchalanet.server.common.types.id.TenantId tenantId) {
+    return BffSlices.optional(
+        BffSlicePolicy.warn(
+                TenantAdminErrorCodes.OVERVIEW_ADDRESS_UNAVAILABLE.code(),
+                "features.tenantadmin",
+                NoticeSource.of("tenantAdminOverview").operation("loadAddress"),
+                HeaderSlice.<AddressView>unavailable())
+            .target("tenantadmin.overview.address"),
+        () -> HeaderSlice.available(addressApi.findPrimaryByTenantId(tenantId).orElse(null)));
+  }
+
+  private HeaderSlice<com.tchalanet.server.platform.tenant.api.model.TenantContextLookupView>
+      loadRegistry(TchRequestContext ctx) {
+    return BffSlices.optional(
+        BffSlicePolicy.warn(
+                TenantAdminErrorCodes.OVERVIEW_REGISTRY_UNAVAILABLE.code(),
+                "features.tenantadmin",
+                NoticeSource.of("tenantAdminOverview").operation("loadRegistry"),
+                HeaderSlice
+                    .<com.tchalanet.server.platform.tenant.api.model.TenantContextLookupView>
+                        unavailable())
+            .target("tenantadmin.overview.registry"),
+        () -> HeaderSlice.available(tenantCatalog.findById(ctx.tenantIdRequired()).orElse(null)));
+  }
+
+  private record HeaderSlice<T>(T value, boolean available) {
+
+    private static <T> HeaderSlice<T> available(T value) {
+      return new HeaderSlice<>(value, true);
+    }
+
+    private static <T> HeaderSlice<T> unavailable() {
+      return new HeaderSlice<>(null, false);
     }
   }
 }

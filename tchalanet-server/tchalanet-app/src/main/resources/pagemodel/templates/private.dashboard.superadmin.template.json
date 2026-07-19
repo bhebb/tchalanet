@@ -111,6 +111,7 @@
           },
           "props": {
             "titleKey": "dashboard.superadmin.tenants.title",
+            "feedbackTargets": ["platform_admin_dashboard.tenants"],
             "items": [
               {
                 "id": "total",
@@ -144,6 +145,7 @@
           },
           "props": {
             "titleKey": "dashboard.superadmin.sales.title",
+            "feedbackTargets": ["platform_admin_dashboard.analytics"],
             "items": [
               {
                 "id": "ticketsSoldToday",
@@ -177,6 +179,7 @@
           },
           "props": {
             "titleKey": "dashboard.superadmin.subscriptions.title",
+            "feedbackTargets": ["platform_admin_dashboard.subscriptions"],
             "items": [
               {
                 "id": "active",
@@ -210,6 +213,7 @@
           },
           "props": {
             "titleKey": "dashboard.superadmin.onboarding.title",
+            "feedbackTargets": ["platform_admin_dashboard.onboarding"],
             "items": [
               {
                 "id": "count",
@@ -230,6 +234,7 @@
           "props": {
             "titleKey": "dashboard.superadmin.public_content.title",
             "subtitleKey": "dashboard.superadmin.public_content.subtitle",
+            "feedbackTargets": ["platform_admin_dashboard.public_content"],
             "seeAllAction": {
               "id": "publicContent",
               "labelKey": "quickaction.platform.public_content",

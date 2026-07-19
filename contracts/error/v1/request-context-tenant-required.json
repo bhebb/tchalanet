@@ -1,0 +1,14 @@
+{
+  "type": "about:blank",
+  "title": "Request context unavailable",
+  "status": 422,
+  "detail": "Request could not be completed",
+  "code": "access.context.tenant_required",
+  "category": "business_rule",
+  "retryPolicy": "AFTER_USER_ACTION",
+  "retryable": true,
+  "requestId": "req_fixture_tenant_required",
+  "traceId": "trace_fixture_tenant_required",
+  "spanId": "span_fixture_tenant_required",
+  "errorId": "err_fixture_tenant_required"
+}

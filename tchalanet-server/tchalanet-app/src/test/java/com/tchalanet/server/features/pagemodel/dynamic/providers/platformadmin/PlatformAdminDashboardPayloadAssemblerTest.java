@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.tchalanet.server.common.bus.QueryBus;
+import com.tchalanet.server.common.web.api.ApiResponseContext;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.core.subscription.api.query.GetPlatformSubscriptionStatsQuery;
 import com.tchalanet.server.core.subscription.api.query.PlatformSubscriptionStatsView;
@@ -13,6 +14,7 @@ import com.tchalanet.server.platform.publiccontent.api.PublicContentApi;
 import com.tchalanet.server.platform.tenant.api.TenantPreContextLookupApi;
 import com.tchalanet.server.platform.tenant.api.model.TenantStatsView;
 import java.util.List;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -24,6 +26,11 @@ class PlatformAdminDashboardPayloadAssemblerTest {
 
   private final PlatformAdminDashboardPayloadAssembler assembler =
       new PlatformAdminDashboardPayloadAssembler(tenantCatalog, queryBus, publicContentApi);
+
+  @AfterEach
+  void clearResponseContext() {
+    ApiResponseContext.clear();
+  }
 
   @Test
   @DisplayName("tenants KPI come from TenantCatalog.stats")
@@ -57,8 +64,8 @@ class PlatformAdminDashboardPayloadAssemblerTest {
   }
 
   @Test
-  @DisplayName("subscriptions fall back to zero when query throws")
-  void subscriptionsFallback() {
+  @DisplayName("subscription failure is explicit and owned by the subscriptions widget")
+  void subscriptionsFailureIsExplicit() {
     when(tenantCatalog.stats()).thenReturn(new TenantStatsView(0, 0, 0));
     when(tenantCatalog.listTenants(any())).thenReturn(emptyPage());
     when(publicContentApi.listPlatformAdminDashboardNews(any(int.class))).thenReturn(List.of());
@@ -69,6 +76,13 @@ class PlatformAdminDashboardPayloadAssemblerTest {
 
     assertThat(payload.subscriptions().active()).isEqualTo(0L);
     assertThat(payload.subscriptions().total()).isEqualTo(0L);
+    assertThat(ApiResponseContext.get().getNotices())
+        .anySatisfy(
+            notice -> {
+              assertThat(notice.code())
+                  .isEqualTo("platformadmin.dashboard.subscriptions_unavailable");
+              assertThat(notice.target()).isEqualTo("platform_admin_dashboard.subscriptions");
+            });
   }
 
   private static <T> TchPage<T> emptyPage() {

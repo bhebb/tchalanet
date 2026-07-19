@@ -184,6 +184,42 @@ describe('TchBackendClient resources', () => {
     expect(res.value()).toEqual({ label: 'BORLETTE' });
   });
 
+  it('getApiResponseResource retains notices, trace, and a projected data value', async () => {
+    const res = client.getApiResponseResource<{ label: string }, { name: string }>(
+      () => ({ path: '/dashboard' }),
+      raw => ({ label: raw.name.toUpperCase() }),
+    );
+
+    TestBed.tick();
+    pending[0].subject.next({
+      status: 'PARTIAL',
+      notices: [
+        {
+          code: 'dashboard.recent_tickets.unavailable',
+          message: 'diagnostic only',
+          severity: 'WARN',
+        },
+      ],
+      trace: { requestId: 'req-dashboard' },
+      data: { name: 'borlette' },
+    } satisfies ApiResponse<unknown>);
+    pending[0].subject.complete();
+    await settle();
+
+    expect(res.value()).toEqual({
+      status: 'PARTIAL',
+      notices: [
+        {
+          code: 'dashboard.recent_tickets.unavailable',
+          message: 'diagnostic only',
+          severity: 'WARN',
+        },
+      ],
+      trace: { requestId: 'req-dashboard' },
+      data: { label: 'BORLETTE' },
+    });
+  });
+
   it('getPageResource projette chaque item et préserve la pagination', async () => {
     const res = client.getPageResource<{ code: string }, { id: string }>(
       () => ({ path: '/tenants' }),

@@ -14,10 +14,7 @@ import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { AdminPageShellComponent } from '@tch/ui/console';
 import { AdminSectionCardComponent } from '@tch/ui/console';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
-import {
-  AdminSectionErrorTargetDirective,
-  AdminSectionTargetError,
-} from '@tch/ui/console';
+import { AdminSectionErrorTargetDirective, AdminSectionTargetError } from '@tch/ui/console';
 import {
   AdminCommissionApi,
   CommissionOverviewView,
@@ -51,7 +48,14 @@ export class AdminCommissionPage implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
 
-  readonly sellerColumns = ['terminalCode', 'displayName', 'status', 'commissionRate', 'source', 'actions'];
+  readonly sellerColumns = [
+    'terminalCode',
+    'displayName',
+    'status',
+    'commissionRate',
+    'source',
+    'actions',
+  ];
 
   readonly loading = signal(false);
   readonly error = signal<ErrorViewModel | null>(null);
@@ -88,29 +92,15 @@ export class AdminCommissionPage implements OnInit {
   openSetDefaultRate(): void {
     const current = this.overview()?.tenantDefaultRate ?? 0;
     const ref = this.dialog.open(SetDefaultRateDialog, { data: { current }, width: '420px' });
-    ref.afterClosed().subscribe((rate: number | undefined) => {
-      if (rate == null) return;
-      this.clearSectionError('admin.commission.defaultRate');
-      this.api.setDefaultRate(rate, { suppressShellFeedback: true }).subscribe({
-        next: () => {
-          this.load();
-        },
-        error: err => this.setSectionError('admin.commission.defaultRate', err),
-      });
+    ref.afterClosed().subscribe((saved?: boolean) => {
+      if (saved) this.load();
     });
   }
 
   openSetSellerRate(row: SellerTerminalCommissionRow): void {
     const ref = this.dialog.open(SetSellerRateDialog, { data: { row }, width: '420px' });
-    ref.afterClosed().subscribe((rate: number | undefined) => {
-      if (rate == null) return;
-      this.clearSectionError('admin.commission.sellers');
-      this.api.setSellerRate(row.id.value, rate, { suppressShellFeedback: true }).subscribe({
-        next: () => {
-          this.load();
-        },
-        error: err => this.setSectionError('admin.commission.sellers', err),
-      });
+    ref.afterClosed().subscribe((saved?: boolean) => {
+      if (saved) this.load();
     });
   }
 

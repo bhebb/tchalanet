@@ -16,6 +16,7 @@ import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.scope.ApiScope;
 import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.web.advice.ApiResponseContext;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.core.analytics.api.model.TenantDashboardStatsView;
 import com.tchalanet.server.core.analytics.api.model.TenantKpisView;
@@ -39,6 +40,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -61,6 +63,11 @@ class TenantAdminDashboardPayloadAssemblerTest {
           notificationApi);
 
   private final TenantId tenantId = TenantId.of(UUID.randomUUID());
+
+  @AfterEach
+  void clearResponseContext() {
+    ApiResponseContext.clear();
+  }
 
   @Test
   @DisplayName("returns Payload.empty when ctx is null")
@@ -200,6 +207,32 @@ class TenantAdminDashboardPayloadAssemblerTest {
     verify(queryBus, times(2)).ask(any(ListSellerTerminalsQuery.class));
     verify(gameCatalog, times(1)).listActive();
     verify(drawChannelCatalog, times(1)).listAll(any(), any());
+  }
+
+  @Test
+  @DisplayName("analytics failure is an unavailable section, never a zero-sales result")
+  void analyticsFailureIsExplicit() {
+    when(queryBus.ask(any(GetTenantDashboardStatsQuery.class)))
+        .thenThrow(new IllegalStateException("analytics offline"));
+    when(queryBus.ask(any(ListSellerTerminalsQuery.class))).thenReturn(emptyPage());
+    when(gameCatalog.listActive()).thenReturn(List.of());
+    when(drawChannelCatalog.listAll(any(), any())).thenReturn(List.of());
+    when(publicContentApi.listTenantAdminDashboardNews(any(int.class))).thenReturn(List.of());
+
+    var payload = assembler.assemble(context(tenantId));
+
+    assertThat(payload.sectionStates().items())
+        .anySatisfy(
+            section -> {
+              assertThat(section.id()).isEqualTo("analytics");
+              assertThat(section.status()).isEqualTo("UNAVAILABLE");
+            });
+    assertThat(ApiResponseContext.get().getNotices())
+        .anySatisfy(
+            notice -> {
+              assertThat(notice.code()).isEqualTo("tenantadmin.dashboard.analytics_unavailable");
+              assertThat(notice.target()).isEqualTo("tenant_admin_dashboard.analytics");
+            });
   }
 
   // ---------------------- helpers ----------------------

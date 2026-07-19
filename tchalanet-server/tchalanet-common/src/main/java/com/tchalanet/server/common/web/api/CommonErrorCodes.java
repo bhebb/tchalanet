@@ -12,11 +12,18 @@ import lombok.experimental.UtilityClass;
 public class CommonErrorCodes {
 
   public static final String ACCESS_DENIED = "access.denied";
+  public static final String AUTHENTICATION_REQUIRED = "access.authentication_required";
   public static final String BUSINESS_RULE_VIOLATION = "business_rule.violation";
   public static final String INTERNAL_UNEXPECTED = "internal.unexpected";
   public static final String REQUEST_MISSING_PARAMETER = "request.missing_parameter";
   public static final String REQUEST_NOT_READABLE = "request.not_readable";
+  public static final String REQUEST_REJECTED = "request.rejected";
   public static final String REQUEST_TYPE_MISMATCH = "request.type_mismatch";
+  public static final String RESOURCE_NOT_FOUND = "resource.not_found";
+  public static final String SERVICE_UNAVAILABLE = "service.unavailable";
   public static final String VALIDATION_CONSTRAINT_VIOLATION = "validation.constraint_violation";
   public static final String VALIDATION_FAILED = "validation.failed";
+  public static final String VALIDATION_INVALID_FORMAT = "validation.invalid_format";
+  public static final String VALIDATION_OUT_OF_RANGE = "validation.out_of_range";
+  public static final String VALIDATION_REQUIRED = "validation.required";
 }

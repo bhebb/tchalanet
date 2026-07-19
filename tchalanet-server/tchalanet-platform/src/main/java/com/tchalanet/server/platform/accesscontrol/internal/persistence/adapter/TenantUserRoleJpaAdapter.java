@@ -3,6 +3,8 @@ package com.tchalanet.server.platform.accesscontrol.internal.persistence.adapter
 import com.tchalanet.server.common.types.id.RoleId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
+import com.tchalanet.server.common.web.error.ProblemRest;
+import com.tchalanet.server.platform.accesscontrol.api.error.AccessControlErrorCodes;
 import com.tchalanet.server.platform.accesscontrol.internal.persistence.entity.TenantUserRoleJpaEntity;
 import com.tchalanet.server.platform.accesscontrol.internal.persistence.repository.AppRoleJpaRepository;
 import com.tchalanet.server.platform.accesscontrol.internal.persistence.repository.TenantUserRoleJpaRepository;
@@ -64,7 +66,7 @@ public class TenantUserRoleJpaAdapter implements TenantUserDirectoryPort, Tenant
     var role =
         appRoleRepository
             .findActiveSystemRoleByCodeAndScope(roleCode, TENANT_ROLE_SCOPE)
-            .orElseThrow(() -> new IllegalArgumentException("Role not found: " + roleCode));
+            .orElseThrow(() -> ProblemRest.of(AccessControlErrorCodes.ROLE_NOT_FOUND));
     var roleId = role.getId();
     if (tenantUserRoleRepository
         .findActiveAssignment(tenantId.value(), userId.value(), roleId)

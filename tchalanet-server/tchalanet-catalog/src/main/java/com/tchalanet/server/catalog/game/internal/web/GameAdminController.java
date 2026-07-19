@@ -1,6 +1,7 @@
 package com.tchalanet.server.catalog.game.internal.web;
 
 import com.tchalanet.server.catalog.game.api.GameCatalog;
+import com.tchalanet.server.catalog.game.api.error.GameCatalogErrorCodes;
 import com.tchalanet.server.catalog.game.api.model.GameView;
 import com.tchalanet.server.catalog.game.internal.web.model.GameCreateRequest;
 import com.tchalanet.server.catalog.game.internal.web.model.GameUpdateRequest;
@@ -57,7 +58,9 @@ public class GameAdminController {
   @GetMapping("/{id}")
   public ApiResponse<GameView> get(@PathVariable GameId id) {
     return ApiResponse.success(
-        gameCatalog.findById(id).orElseThrow(() -> ProblemRest.notFound("Game not found", id)));
+        gameCatalog
+            .findById(id)
+            .orElseThrow(() -> ProblemRest.of(GameCatalogErrorCodes.NOT_FOUND)));
   }
 
   @PostMapping

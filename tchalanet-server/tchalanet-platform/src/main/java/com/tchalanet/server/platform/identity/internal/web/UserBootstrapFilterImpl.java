@@ -8,6 +8,7 @@ import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.platform.identity.api.ExternalAuthenticatedUser;
 import com.tchalanet.server.platform.identity.api.IdentityBootstrapStep;
 import com.tchalanet.server.platform.identity.api.SellerTerminalIdentityLookup;
+import com.tchalanet.server.platform.identity.api.error.IdentityErrorCodes;
 import com.tchalanet.server.platform.identity.api.model.UserStatus;
 import com.tchalanet.server.platform.identity.internal.service.ExternalIdentityAppUserResolver;
 import com.tchalanet.server.platform.identity.internal.service.UserBootstrapProperties;
@@ -50,7 +51,7 @@ public class UserBootstrapFilterImpl implements IdentityBootstrapStep {
     }
 
     if (!(auth.getDetails() instanceof ExternalAuthenticatedUser externalUser)) {
-      throw ProblemRest.forbidden("external_identity.missing_verified_identity");
+      throw ProblemRest.of(IdentityErrorCodes.VERIFIED_IDENTITY_REQUIRED);
     }
 
     if (expectedActorTypeResolver.resolve(request) == TchActorType.SELLER_TERMINAL) {
@@ -66,10 +67,10 @@ public class UserBootstrapFilterImpl implements IdentityBootstrapStep {
     var appUserResolution =
         appUserResolver
             .resolve(externalUser)
-            .orElseThrow(() -> ProblemRest.forbidden("external_identity.not_linked"));
+            .orElseThrow(() -> ProblemRest.of(IdentityErrorCodes.EXTERNAL_IDENTITY_NOT_LINKED));
 
     if (appUserResolution.status() != UserStatus.ACTIVE) {
-      throw ProblemRest.forbidden("user.not_active");
+      throw ProblemRest.of(IdentityErrorCodes.USER_INACTIVE);
     }
 
     if (props.updateLastLogin()) {
@@ -92,10 +93,10 @@ public class UserBootstrapFilterImpl implements IdentityBootstrapStep {
         sellerTerminalIdentityLookup
             .findByExternalIdentity(
                 externalUser.provider(), externalUser.issuer(), externalUser.subject())
-            .orElseThrow(() -> ProblemRest.forbidden("terminal.external_identity_not_linked"));
+            .orElseThrow(() -> ProblemRest.of(IdentityErrorCodes.SELLER_TERMINAL_NOT_LINKED));
 
     if (!terminalResolution.isActive()) {
-      throw ProblemRest.forbidden("terminal.not_active");
+      throw ProblemRest.of(IdentityErrorCodes.SELLER_TERMINAL_INACTIVE);
     }
 
     var bootstrappedActor =

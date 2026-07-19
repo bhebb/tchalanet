@@ -2,6 +2,9 @@ package com.tchalanet.server.features.pagemodel.dynamic.providers.platformadmin;
 
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.common.web.advice.BffSlicePolicy;
+import com.tchalanet.server.common.web.advice.BffSlices;
+import com.tchalanet.server.common.web.api.NoticeSource;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.core.analytics.api.model.PlatformDashboardStatsView;
 import com.tchalanet.server.core.analytics.api.query.GetPlatformDashboardStatsQuery;
@@ -11,6 +14,7 @@ import com.tchalanet.server.features.pagemodel.contract.ActionItem;
 import com.tchalanet.server.features.pagemodel.contract.NewsItem;
 import com.tchalanet.server.features.pagemodel.contract.PublicContentPayload;
 import com.tchalanet.server.features.pagemodel.contract.QuickActionsPayload;
+import com.tchalanet.server.features.platformadmin.error.PlatformAdminErrorCodes;
 import com.tchalanet.server.platform.publiccontent.api.PublicContentApi;
 import com.tchalanet.server.platform.publiccontent.api.model.PublicContentItemView;
 import com.tchalanet.server.platform.tenant.api.TenantPreContextLookupApi;
@@ -54,15 +58,57 @@ public class PlatformAdminDashboardPayloadAssembler {
     LocalDate today = LocalDate.now(ZoneOffset.UTC);
     DashboardTiming timing = DashboardTiming.start();
 
-    TenantKpiSummaryPayload tenants = timing.record("tenantsKpi", () -> buildTenantsKpi(today));
+    TenantStatsView tenantStats =
+        timing.record(
+            "tenantStats",
+            () ->
+                optionalSlice(
+                    PlatformAdminErrorCodes.DASHBOARD_TENANTS_UNAVAILABLE,
+                    "platform_admin_dashboard.tenants",
+                    tenantPreContextLookupApi::stats,
+                    () -> new TenantStatsView(0, 0, 0)));
+    LocalDate from = today.minusDays(6);
+    PlatformDashboardStatsView analytics =
+        timing.record(
+            "analytics",
+            () ->
+                optionalSlice(
+                    PlatformAdminErrorCodes.DASHBOARD_ANALYTICS_UNAVAILABLE,
+                    "platform_admin_dashboard.analytics",
+                    () -> queryBus.ask(new GetPlatformDashboardStatsQuery(from, today, 5, 5)),
+                    () -> null));
+    TenantKpiSummaryPayload tenants =
+        timing.record("tenantsKpi", () -> buildTenantsKpi(tenantStats, analytics, today));
     PlatformSalesPayload sales = timing.record("sales", () -> buildPlatformSales(tenants));
     TenantRankingPayload tenantRanking =
         timing.record("tenantRanking", () -> buildTenantRanking(tenants));
     SubscriptionSummaryPayload subscriptions =
-        timing.record("subscriptions", this::buildSubscriptions);
+        timing.record(
+            "subscriptions",
+            () ->
+                optionalSlice(
+                    PlatformAdminErrorCodes.DASHBOARD_SUBSCRIPTIONS_UNAVAILABLE,
+                    "platform_admin_dashboard.subscriptions",
+                    this::buildSubscriptions,
+                    SubscriptionSummaryPayload::empty));
     OnboardingAlertsPayload onboardingAlerts =
-        timing.record("onboardingAlerts", this::buildOnboardingAlerts);
-    PublicContentPayload publicContent = timing.record("publicContent", this::buildPublicContent);
+        timing.record(
+            "onboardingAlerts",
+            () ->
+                optionalSlice(
+                    PlatformAdminErrorCodes.DASHBOARD_ONBOARDING_UNAVAILABLE,
+                    "platform_admin_dashboard.onboarding",
+                    this::buildOnboardingAlerts,
+                    OnboardingAlertsPayload::empty));
+    PublicContentPayload publicContent =
+        timing.record(
+            "publicContent",
+            () ->
+                optionalSlice(
+                    PlatformAdminErrorCodes.DASHBOARD_PUBLIC_CONTENT_UNAVAILABLE,
+                    "platform_admin_dashboard.public_content",
+                    this::buildPublicContent,
+                    PublicContentPayload::empty));
     QuickActionsPayload quickActions = timing.record("quickActions", this::buildQuickActions);
 
     Payload payload =
@@ -82,23 +128,12 @@ public class PlatformAdminDashboardPayloadAssembler {
    * Tenant counts (from catalog) + analytics KPIs (tickets/sales today, top tenants). Two grouped
    * reads bundled in one widget section.
    */
-  private TenantKpiSummaryPayload buildTenantsKpi(LocalDate today) {
-    LocalDate from = today.minusDays(6);
-    long total = 0L;
-    long active = 0L;
-    long suspended = 0L;
+  private TenantKpiSummaryPayload buildTenantsKpi(
+      TenantStatsView catalogStats, PlatformDashboardStatsView statsView, LocalDate today) {
+    long total = catalogStats != null ? catalogStats.total() : 0L;
+    long active = catalogStats != null ? catalogStats.active() : 0L;
+    long suspended = catalogStats != null ? catalogStats.suspended() : 0L;
     long onboarding = 0L;
-
-    try {
-      TenantStatsView catalogStats = tenantPreContextLookupApi.stats();
-      if (catalogStats != null) {
-        total = catalogStats.total();
-        active = catalogStats.active();
-        suspended = catalogStats.suspended();
-      }
-    } catch (RuntimeException e) {
-      log.warn("platform_admin_dashboard: tenant catalog stats unavailable — {}", e.getMessage());
-    }
 
     long ticketsSoldToday = 0L;
     BigDecimal grossSalesToday = BigDecimal.ZERO;
@@ -107,73 +142,67 @@ public class PlatformAdminDashboardPayloadAssembler {
     List<GameBreakdownItem> gameBreakdown = List.of();
     List<TenantRankItem> topTenants = List.of();
 
-    try {
-      PlatformDashboardStatsView statsView =
-          queryBus.ask(new GetPlatformDashboardStatsQuery(from, today, 5, 5));
-      if (statsView != null && statsView.summary() != null) {
-        if (total == 0L) total = statsView.summary().totalTenants();
-        var todayPoint =
-            statsView.dailyBreakdown() == null
-                ? null
-                : statsView.dailyBreakdown().stream()
-                    .filter(p -> today.equals(p.refDate()))
-                    .findFirst()
-                    .orElse(null);
-        if (todayPoint != null) {
-          ticketsSoldToday = todayPoint.ticketsSold();
-          grossSalesToday =
-              todayPoint.grossSales() != null ? todayPoint.grossSales() : BigDecimal.ZERO;
-          netToday =
-              todayPoint.netRevenueEstimated() != null
-                  ? todayPoint.netRevenueEstimated()
-                  : BigDecimal.ZERO;
-        }
-        if (statsView.topTenants() != null) {
-          topTenants =
-              statsView.topTenants().stream()
-                  .map(
-                      r ->
-                          new TenantRankItem(
-                              r.tenantCode() != null ? r.tenantCode() : "",
-                              r.ticketsSold(),
-                              r.grossSales() != null ? r.grossSales() : BigDecimal.ZERO,
-                              r.netRevenueEstimated() != null
-                                  ? r.netRevenueEstimated()
-                                  : BigDecimal.ZERO))
-                  .toList();
-        }
-        if (statsView.dailyBreakdown() != null) {
-          dailyBreakdown =
-              statsView.dailyBreakdown().stream()
-                  .map(
-                      p ->
-                          new DailyTrendItem(
-                              p.refDate() != null ? p.refDate().toString() : "",
-                              p.ticketsSold(),
-                              p.grossSales() != null ? p.grossSales() : BigDecimal.ZERO,
-                              p.netRevenueEstimated() != null
-                                  ? p.netRevenueEstimated()
-                                  : BigDecimal.ZERO))
-                  .toList();
-        }
-        if (statsView.gameBreakdown() != null) {
-          gameBreakdown =
-              statsView.gameBreakdown().stream()
-                  .map(
-                      g ->
-                          new GameBreakdownItem(
-                              g.gameCode() != null ? g.gameCode() : "",
-                              g.gameLabel() != null ? g.gameLabel() : "",
-                              g.ticketsSold(),
-                              g.grossSales() != null ? g.grossSales() : BigDecimal.ZERO,
-                              g.netRevenueEstimated() != null
-                                  ? g.netRevenueEstimated()
-                                  : BigDecimal.ZERO))
-                  .toList();
-        }
+    if (statsView != null && statsView.summary() != null) {
+      if (total == 0L) total = statsView.summary().totalTenants();
+      var todayPoint =
+          statsView.dailyBreakdown() == null
+              ? null
+              : statsView.dailyBreakdown().stream()
+                  .filter(p -> today.equals(p.refDate()))
+                  .findFirst()
+                  .orElse(null);
+      if (todayPoint != null) {
+        ticketsSoldToday = todayPoint.ticketsSold();
+        grossSalesToday =
+            todayPoint.grossSales() != null ? todayPoint.grossSales() : BigDecimal.ZERO;
+        netToday =
+            todayPoint.netRevenueEstimated() != null
+                ? todayPoint.netRevenueEstimated()
+                : BigDecimal.ZERO;
       }
-    } catch (RuntimeException e) {
-      log.warn("platform_admin_dashboard: analytics KPIs unavailable — {}", e.getMessage());
+      if (statsView.topTenants() != null) {
+        topTenants =
+            statsView.topTenants().stream()
+                .map(
+                    r ->
+                        new TenantRankItem(
+                            r.tenantCode() != null ? r.tenantCode() : "",
+                            r.ticketsSold(),
+                            r.grossSales() != null ? r.grossSales() : BigDecimal.ZERO,
+                            r.netRevenueEstimated() != null
+                                ? r.netRevenueEstimated()
+                                : BigDecimal.ZERO))
+                .toList();
+      }
+      if (statsView.dailyBreakdown() != null) {
+        dailyBreakdown =
+            statsView.dailyBreakdown().stream()
+                .map(
+                    p ->
+                        new DailyTrendItem(
+                            p.refDate() != null ? p.refDate().toString() : "",
+                            p.ticketsSold(),
+                            p.grossSales() != null ? p.grossSales() : BigDecimal.ZERO,
+                            p.netRevenueEstimated() != null
+                                ? p.netRevenueEstimated()
+                                : BigDecimal.ZERO))
+                .toList();
+      }
+      if (statsView.gameBreakdown() != null) {
+        gameBreakdown =
+            statsView.gameBreakdown().stream()
+                .map(
+                    g ->
+                        new GameBreakdownItem(
+                            g.gameCode() != null ? g.gameCode() : "",
+                            g.gameLabel() != null ? g.gameLabel() : "",
+                            g.ticketsSold(),
+                            g.grossSales() != null ? g.grossSales() : BigDecimal.ZERO,
+                            g.netRevenueEstimated() != null
+                                ? g.netRevenueEstimated()
+                                : BigDecimal.ZERO))
+                .toList();
+      }
     }
 
     return new TenantKpiSummaryPayload(
@@ -191,19 +220,15 @@ public class PlatformAdminDashboardPayloadAssembler {
   }
 
   private SubscriptionSummaryPayload buildSubscriptions() {
-    try {
-      PlatformSubscriptionStatsView view = queryBus.ask(new GetPlatformSubscriptionStatsQuery());
-      if (view != null) {
-        return new SubscriptionSummaryPayload(
-            view.active(),
-            0L,
-            view.pastDue(),
-            view.canceled(),
-            view.total(),
-            view.byPlan() != null ? view.byPlan() : List.of());
-      }
-    } catch (RuntimeException e) {
-      log.warn("platform_admin_dashboard: subscription stats unavailable — {}", e.getMessage());
+    PlatformSubscriptionStatsView view = queryBus.ask(new GetPlatformSubscriptionStatsQuery());
+    if (view != null) {
+      return new SubscriptionSummaryPayload(
+          view.active(),
+          0L,
+          view.pastDue(),
+          view.canceled(),
+          view.total(),
+          view.byPlan() != null ? view.byPlan() : List.of());
     }
     return SubscriptionSummaryPayload.empty();
   }
@@ -226,50 +251,57 @@ public class PlatformAdminDashboardPayloadAssembler {
    * status filter is a V2 addition.
    */
   private OnboardingAlertsPayload buildOnboardingAlerts() {
-    try {
-      TchPage<TenantContextLookupView> page =
-          tenantPreContextLookupApi.listTenants(PageRequest.of(0, 50));
-      if (page != null && page.items() != null) {
-        List<OnboardingAlertItem> items = new ArrayList<>();
-        for (TenantContextLookupView t : page.items()) {
-          if (t.status() == TenantStatus.DRAFT && items.size() < 10) {
-            items.add(
-                new OnboardingAlertItem(
-                    t.tenantId().value().toString(),
-                    t.code() != null ? t.code() : "",
-                    t.displayName() != null ? t.displayName() : "",
-                    t.status().name()));
-          }
+    TchPage<TenantContextLookupView> page =
+        tenantPreContextLookupApi.listTenants(PageRequest.of(0, 50));
+    if (page != null && page.items() != null) {
+      List<OnboardingAlertItem> items = new ArrayList<>();
+      for (TenantContextLookupView t : page.items()) {
+        if (t.status() == TenantStatus.DRAFT && items.size() < 10) {
+          items.add(
+              new OnboardingAlertItem(
+                  t.tenantId().value().toString(),
+                  t.code() != null ? t.code() : "",
+                  t.displayName() != null ? t.displayName() : "",
+                  t.status().name()));
         }
-        return new OnboardingAlertsPayload(List.copyOf(items), items.size());
       }
-    } catch (RuntimeException e) {
-      log.warn("platform_admin_dashboard: onboarding alerts unavailable — {}", e.getMessage());
+      return new OnboardingAlertsPayload(List.copyOf(items), items.size());
     }
     return OnboardingAlertsPayload.empty();
   }
 
   private PublicContentPayload buildPublicContent() {
-    try {
-      List<PublicContentItemView> items =
-          publicContentApi.listPlatformAdminDashboardNews(PUBLIC_CONTENT_LIMIT);
-      List<NewsItem> news =
-          items.stream()
-              .map(
-                  i ->
-                      new NewsItem(
-                          i.id() != null ? i.id().toString() : "",
-                          i.title() != null ? i.title() : "",
-                          i.content() != null ? i.content() : "",
-                          i.sourceUrl() != null ? i.sourceUrl() : "",
-                          i.sourceType() != null ? i.sourceType().name() : "",
-                          i.publishedAt() != null ? i.publishedAt().toString() : ""))
-              .toList();
-      return new PublicContentPayload(news, news.size());
-    } catch (RuntimeException e) {
-      log.warn("platform_admin_dashboard: public content unavailable — {}", e.getMessage());
-      return PublicContentPayload.empty();
-    }
+    List<PublicContentItemView> items =
+        publicContentApi.listPlatformAdminDashboardNews(PUBLIC_CONTENT_LIMIT);
+    List<NewsItem> news =
+        (items == null ? List.<PublicContentItemView>of() : items)
+            .stream()
+                .map(
+                    i ->
+                        new NewsItem(
+                            i.id() != null ? i.id().toString() : "",
+                            i.title() != null ? i.title() : "",
+                            i.content() != null ? i.content() : "",
+                            i.sourceUrl() != null ? i.sourceUrl() : "",
+                            i.sourceType() != null ? i.sourceType().name() : "",
+                            i.publishedAt() != null ? i.publishedAt().toString() : ""))
+                .toList();
+    return new PublicContentPayload(news, news.size());
+  }
+
+  private <T> T optionalSlice(
+      com.tchalanet.server.common.web.error.ErrorDescriptor descriptor,
+      String target,
+      Supplier<T> supplier,
+      Supplier<T> fallback) {
+    return BffSlices.optional(
+        BffSlicePolicy.warn(
+                descriptor.code(),
+                "features.platformadmin",
+                NoticeSource.of("platformAdminDashboard").operation(target),
+                fallback)
+            .target(target),
+        supplier::get);
   }
 
   private QuickActionsPayload buildQuickActions() {

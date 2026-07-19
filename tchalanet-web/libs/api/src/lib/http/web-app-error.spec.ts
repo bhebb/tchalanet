@@ -30,6 +30,8 @@ describe('web app error normalization', () => {
     expect(error.traceId).toBe('trace-1');
     expect(error.errorId).toBe('err-1');
     expect(error.dedupeKey).toContain('access.denied');
+    expect(error.message).not.toBe('Access denied');
+    expect(error).not.toHaveProperty('diagnostics');
   });
 
   it('uses an allowed legacy ProblemDetail detail as code when the code field is missing', () => {
@@ -89,6 +91,8 @@ describe('web app error normalization', () => {
     expect(error.requestId).toBe('req-2');
     expect(error.traceId).toBe('trace-2');
     expect(error.errorId).toBe('err-2');
+    expect(error.message).not.toBe(notice.message);
+    expect(error).not.toHaveProperty('diagnostics');
   });
 
   it('keeps targeted section notices out of the shell surface', () => {
@@ -111,6 +115,19 @@ describe('web app error normalization', () => {
     expect(error.placement).toBe('top');
     expect(error.target).toBe('dashboard.commissions');
     expect(error.source).toBe('commissions');
+  });
+
+  it('keeps form failures local with a summary placement', () => {
+    const problem: ProblemDetail = {
+      title: 'Invalid rate',
+      status: 422,
+      code: 'tenant.settings_invalid',
+    };
+
+    const error = webAppErrorFromProblemDetail(problem, 'admin.commission.defaultRate', 'form');
+
+    expect(error.surface).toBe('form');
+    expect(error.placement).toBe('summary');
   });
 
   it('extracts server field violations from ProblemDetail', () => {
@@ -138,6 +155,8 @@ describe('web app error normalization', () => {
       target: 'profile.email',
       category: 'validation',
     });
+    expect(errors[0].message).not.toBe('Email is invalid');
+    expect(errors[0]).not.toHaveProperty('diagnostics');
   });
 
   it('normalizes degraded service status with response trace fallback', () => {
@@ -151,5 +170,7 @@ describe('web app error normalization', () => {
     expect(error.code).toBe('service.uslottery.degraded');
     expect(error.requestId).toBe('req-3');
     expect(error.traceId).toBe('trace-3');
+    expect(error.message).not.toBe('Latest results unavailable');
+    expect(error).not.toHaveProperty('diagnostics');
   });
 });

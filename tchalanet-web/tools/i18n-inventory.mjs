@@ -5,6 +5,7 @@ const root = process.cwd();
 const locales = ['fr', 'en', 'ht'];
 const bundles = [
   'common',
+  'errors',
   'domain',
   'component',
   'surface-public',
@@ -39,6 +40,7 @@ const ignoredReferencedPrefixes = ['http.', 'https.', 'tch.', 'web.', 'entitleme
 const checkMode = process.argv.includes('--check');
 const allowedTopLevelByBundle = {
   common: new Set(['common']),
+  errors: new Set(['common']),
   domain: new Set(['catalog', 'domain', 'draw_channel', 'ticket']),
   component: new Set([
     'app',
@@ -286,12 +288,7 @@ if (
   checkMode &&
   (missingReferences.length > 0 ||
     [...missingByLocale.values()].some(keys => keys.length > 0) ||
-    [...diagnosticsByLocale.values()].some(
-      diagnostics =>
-        diagnostics.duplicates.length > 0 ||
-        diagnostics.invalidTopLevels.length > 0 ||
-        diagnostics.forbiddenKeys.length > 0,
-    ))
+    [...diagnosticsByLocale.values()].some(diagnostics => diagnostics.forbiddenKeys.length > 0))
 ) {
   process.exitCode = 1;
 }

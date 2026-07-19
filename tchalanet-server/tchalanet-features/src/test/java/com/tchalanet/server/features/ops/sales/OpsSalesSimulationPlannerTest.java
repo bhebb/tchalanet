@@ -35,7 +35,8 @@ class OpsSalesSimulationPlannerTest {
 
     assertThat(planner.requestedTickets(request)).isEqualTo(24);
     assertThat(first).hasSize(24);
-    assertThat(first).extracting(OpsSalesSimulationPlanner.PlannedTicket::selection)
+    assertThat(first)
+        .extracting(OpsSalesSimulationPlanner.PlannedTicket::selection)
         .containsExactlyElementsOf(
             second.stream().map(OpsSalesSimulationPlanner.PlannedTicket::selection).toList());
     assertThat(first.stream().filter(t -> t.kind() == SimulatedGameKind.BOLET)).hasSize(8);

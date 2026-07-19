@@ -1,11 +1,13 @@
 package com.tchalanet.server.catalog.game.internal.write;
 
+import com.tchalanet.server.catalog.game.api.error.GameCatalogErrorCodes;
 import com.tchalanet.server.catalog.game.api.model.GameView;
 import com.tchalanet.server.catalog.game.internal.cache.GameCacheNames;
 import com.tchalanet.server.catalog.game.internal.mapper.GameMapper;
 import com.tchalanet.server.catalog.game.internal.persistence.GameJpaEntity;
 import com.tchalanet.server.catalog.game.internal.persistence.GameJpaRepository;
 import com.tchalanet.server.common.types.id.GameId;
+import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageMapper;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
@@ -65,7 +67,7 @@ public class GameAdminService {
     var entity =
         repository
             .findById(id.value())
-            .orElseThrow(() -> new IllegalArgumentException("Game not found: " + id));
+            .orElseThrow(() -> ProblemRest.of(GameCatalogErrorCodes.NOT_FOUND));
 
     boolean structuralChange =
         req.category() != null
@@ -74,11 +76,7 @@ public class GameAdminService {
             || req.maxDigits() != null;
 
     if (structuralChange && isGameInUse(id)) {
-      throw new IllegalStateException(
-          "Cannot update structural fields (category, combination, minDigits, maxDigits) "
-              + "on game '"
-              + entity.getCode()
-              + "' — it is referenced by tenant configuration.");
+      throw ProblemRest.of(GameCatalogErrorCodes.STRUCTURAL_UPDATE_IN_USE);
     }
 
     if (req.name() != null) entity.setName(req.name());
@@ -105,7 +103,7 @@ public class GameAdminService {
     var entity =
         repository
             .findById(id.value())
-            .orElseThrow(() -> new IllegalArgumentException("Game not found: " + id));
+            .orElseThrow(() -> ProblemRest.of(GameCatalogErrorCodes.NOT_FOUND));
     entity.setActive(false);
     repository.save(entity);
   }
@@ -120,13 +118,12 @@ public class GameAdminService {
       allEntries = true)
   public void softDelete(GameId id) {
     if (isGameInUse(id)) {
-      throw new IllegalStateException(
-          "Cannot delete game — it is referenced by tenant configuration.");
+      throw ProblemRest.of(GameCatalogErrorCodes.DELETE_IN_USE);
     }
     var entity =
         repository
             .findById(id.value())
-            .orElseThrow(() -> new IllegalArgumentException("Game not found: " + id));
+            .orElseThrow(() -> ProblemRest.of(GameCatalogErrorCodes.NOT_FOUND));
     entity.setDeletedAt(Instant.now());
     entity.setActive(false);
     repository.save(entity);

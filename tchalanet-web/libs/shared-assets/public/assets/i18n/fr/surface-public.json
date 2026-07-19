@@ -50,6 +50,7 @@
     },
     "nav": {
       "check_ticket": "Vérifier un ticket",
+      "language": "Langue",
       "help": "Aide",
       "home": "Accueil",
       "login": "Connexion",

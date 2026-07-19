@@ -3,7 +3,9 @@ package com.tchalanet.server.core.sellerterminal.internal.application.command.ha
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
+import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.sellerterminal.api.command.UpdateSellerTerminalCommand;
+import com.tchalanet.server.core.sellerterminal.api.error.SellerTerminalErrorCodes;
 import com.tchalanet.server.core.sellerterminal.internal.application.port.out.SellerTerminalReaderPort;
 import com.tchalanet.server.core.sellerterminal.internal.application.port.out.SellerTerminalWriterPort;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +34,12 @@ public class UpdateSellerTerminalCommandHandler
 
     if (cmd.commissionRate() != null
         && cmd.commissionRate().compareTo(terminal.commissionRate()) != 0) {
-      updated = updated.updateCommissionRate(cmd.commissionRate());
+      try {
+        updated = updated.updateCommissionRate(cmd.commissionRate());
+      } catch (IllegalArgumentException ex) {
+        throw ProblemRest.of(
+            SellerTerminalErrorCodes.COMMISSION_RATE_INVALID, java.util.Map.of(), ex);
+      }
     }
 
     writer.save(updated);

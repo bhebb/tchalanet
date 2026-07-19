@@ -39,9 +39,10 @@ public class SecurityConfig {
       TchAccessContextPipelineFilter tchAccessContextPipelineFilter,
       TchContextFilter tchContextFilter)
       throws Exception {
+    var securityFailureHandler = new ProblemDetailSecurityFailureHandler();
     var sensitiveIdentityVerificationFilter =
         new SensitiveIdentityVerificationFilter(
-            identityProviderApi, new SensitiveIdentityRequestMatcher());
+            identityProviderApi, new SensitiveIdentityRequestMatcher(), securityFailureHandler);
 
     http.csrf(AbstractHttpConfigurer::disable)
         .cors(withDefaults())
@@ -71,20 +72,20 @@ public class SecurityConfig {
                         "/error",
                         "/api/v1/error")
                     .permitAll()
-                    .requestMatchers(
-                        "/api/v1/admin/ops", "/api/v1/admin/ops/**", "/admin/ops", "/admin/ops/**")
-                    .permitAll()
                     .anyRequest()
                     .authenticated())
         .oauth2ResourceServer(
             oauth ->
-                oauth.jwt(
-                    jwt ->
-                        jwt.decoder(jwtDecoder)
-                            .jwtAuthenticationConverter(
-                                token -> convert(token, identityProviderApi))))
+                oauth
+                    .jwt(
+                        jwt ->
+                            jwt.decoder(jwtDecoder)
+                                .jwtAuthenticationConverter(
+                                    token -> convert(token, identityProviderApi)))
+                    .authenticationEntryPoint(securityFailureHandler))
+        .exceptionHandling(errors -> errors.accessDeniedHandler(securityFailureHandler))
         .addFilterAfter(sensitiveIdentityVerificationFilter, BearerTokenAuthenticationFilter.class)
-        .addFilterAfter(tchAccessContextPipelineFilter, BearerTokenAuthenticationFilter.class)
+        .addFilterAfter(tchAccessContextPipelineFilter, SensitiveIdentityVerificationFilter.class)
         .addFilterBefore(
             tchContextFilter,
             org.springframework.security.web.access.intercept.AuthorizationFilter.class);

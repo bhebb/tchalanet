@@ -6,6 +6,7 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketCommand;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketLineInput;
+import com.tchalanet.server.core.sales.api.error.SalesErrorCodes;
 import com.tchalanet.server.core.selection.api.SelectionApi;
 import com.tchalanet.server.platform.tenantgame.api.TenantGameApi;
 import com.tchalanet.server.platform.tenantgame.api.model.SelectionPolicy;
@@ -32,21 +33,21 @@ public class SaleCommandValidator {
 
   public void validateCommand(SellTicketCommand command) {
     if (command.drawId() == null) {
-      throw ProblemRest.badRequest("sales.draw_required");
+      throw ProblemRest.of(SalesErrorCodes.DRAW_REQUIRED);
     }
     if (command.drawChannelId() == null) {
-      throw ProblemRest.badRequest("sales.draw_channel_required");
+      throw ProblemRest.of(SalesErrorCodes.DRAW_CHANNEL_REQUIRED);
     }
     if (command.currency() == null) {
-      throw ProblemRest.badRequest("sales.currency_required");
+      throw ProblemRest.of(SalesErrorCodes.CURRENCY_REQUIRED);
     }
     if (command.lines() == null || command.lines().isEmpty()) {
-      throw ProblemRest.badRequest("sales.lines_required");
+      throw ProblemRest.of(SalesErrorCodes.LINES_REQUIRED);
     }
     var distinctLineNumbers =
         command.lines().stream().map(SellTicketLineInput::lineNumber).distinct().count();
     if (distinctLineNumbers != command.lines().size()) {
-      throw ProblemRest.badRequest("sales.duplicate_line_number");
+      throw ProblemRest.of(SalesErrorCodes.DUPLICATE_LINE_NUMBER);
     }
     for (var line : command.lines()) {
       validateLine(line);
@@ -62,13 +63,13 @@ public class SaleCommandValidator {
       var gameCode = line.gameCode().name();
       var tenantGame = gamesByCode.get(gameCode);
       if (tenantGame == null) {
-        throw ProblemRest.badRequest("sales.tenant_game_not_configured");
+        throw ProblemRest.of(SalesErrorCodes.TENANT_GAME_NOT_CONFIGURED);
       }
       if (!tenantGame.enabled()) {
-        throw ProblemRest.badRequest("sales.tenant_game_disabled");
+        throw ProblemRest.of(SalesErrorCodes.TENANT_GAME_DISABLED);
       }
       if (!tenantGame.visibleInPos()) {
-        throw ProblemRest.badRequest("sales.tenant_game_not_visible_in_pos");
+        throw ProblemRest.of(SalesErrorCodes.TENANT_GAME_NOT_VISIBLE_IN_POS);
       }
       validateTenantStake(line.stakeAmount(), tenantGame);
 
@@ -85,15 +86,15 @@ public class SaleCommandValidator {
   }
 
   private void validateLine(SellTicketLineInput line) {
-    if (line.lineNumber() <= 0) throw ProblemRest.badRequest("sales.invalid_line_number");
-    if (line.gameCode() == null) throw ProblemRest.badRequest("sales.game_required");
-    if (line.betType() == null) throw ProblemRest.badRequest("sales.bet_type_required");
+    if (line.lineNumber() <= 0) throw ProblemRest.of(SalesErrorCodes.INVALID_LINE_NUMBER);
+    if (line.gameCode() == null) throw ProblemRest.of(SalesErrorCodes.GAME_REQUIRED);
+    if (line.betType() == null) throw ProblemRest.of(SalesErrorCodes.BET_TYPE_REQUIRED);
     if (!line.gameCode().supports(line.betType()))
-      throw ProblemRest.badRequest("sales.unsupported_bet_type");
+      throw ProblemRest.of(SalesErrorCodes.UNSUPPORTED_BET_TYPE);
     if (line.rawSelection() == null || line.rawSelection().isBlank())
-      throw ProblemRest.badRequest("sales.selection_required");
+      throw ProblemRest.of(SalesErrorCodes.SELECTION_REQUIRED);
     if (line.stakeAmount() == null || line.stakeAmount().signum() <= 0)
-      throw ProblemRest.badRequest("sales.invalid_stake_amount");
+      throw ProblemRest.of(SalesErrorCodes.INVALID_STAKE_AMOUNT);
     validateBetOption(line);
     if (!line.betType().requiresOption() || line.betOption() != null) {
       validateSelection(line.betType(), line.betOption(), line.rawSelection());
@@ -104,7 +105,7 @@ public class SaleCommandValidator {
     try {
       selectionApi.canonicalize(betType, betOption, rawSelection);
     } catch (IllegalArgumentException ex) {
-      throw ProblemRest.badRequest("sales.selection_invalid", ex);
+      throw ProblemRest.badRequest(SalesErrorCodes.SELECTION_INVALID, ex);
     }
   }
 
@@ -121,7 +122,7 @@ public class SaleCommandValidator {
         .sorted(java.util.Comparator.comparingInt(TenantBetOptionView::displayOrder))
         .map(TenantBetOptionView::code)
         .findFirst()
-        .orElseThrow(() -> ProblemRest.badRequest("sales.tenant_bet_option_not_configured"));
+        .orElseThrow(() -> ProblemRest.of(SalesErrorCodes.TENANT_BET_OPTION_NOT_CONFIGURED));
   }
 
   private void validateBetOption(SellTicketLineInput line) {
@@ -132,18 +133,18 @@ public class SaleCommandValidator {
       BetOption.from(line.betType(), line.betOption());
     } catch (IllegalArgumentException ex) {
       if (!line.betType().requiresOption()) {
-        throw ProblemRest.badRequest("sales.bet_option_not_allowed", ex);
+        throw ProblemRest.badRequest(SalesErrorCodes.BET_OPTION_NOT_ALLOWED, ex);
       }
-      throw ProblemRest.badRequest("sales.bet_option_out_of_range", ex);
+      throw ProblemRest.badRequest(SalesErrorCodes.BET_OPTION_OUT_OF_RANGE, ex);
     }
   }
 
   private static void validateTenantStake(BigDecimal stakeAmount, TenantGameRefView tenantGame) {
     if (tenantGame.minStake() != null && stakeAmount.compareTo(tenantGame.minStake()) < 0) {
-      throw ProblemRest.badRequest("sales.stake_below_tenant_min");
+      throw ProblemRest.of(SalesErrorCodes.STAKE_BELOW_TENANT_MIN);
     }
     if (tenantGame.maxStake() != null && stakeAmount.compareTo(tenantGame.maxStake()) > 0) {
-      throw ProblemRest.badRequest("sales.stake_above_tenant_max");
+      throw ProblemRest.of(SalesErrorCodes.STAKE_ABOVE_TENANT_MAX);
     }
   }
 
@@ -152,7 +153,7 @@ public class SaleCommandValidator {
     return optionConfig.betTypes().stream()
         .filter(config -> config.betType() == betType)
         .findFirst()
-        .orElseThrow(() -> ProblemRest.badRequest("sales.tenant_bet_type_not_configured"));
+        .orElseThrow(() -> ProblemRest.of(SalesErrorCodes.TENANT_BET_TYPE_NOT_CONFIGURED));
   }
 
   private static void validateTenantBetOption(
@@ -162,20 +163,20 @@ public class SaleCommandValidator {
     }
     if (betTypeConfig.selectionPolicy() == SelectionPolicy.IMPLICIT_BEST_MATCH) {
       if (betOption != null) {
-        throw ProblemRest.badRequest("sales.bet_option_not_allowed");
+        throw ProblemRest.of(SalesErrorCodes.BET_OPTION_NOT_ALLOWED);
       }
       return;
     }
     if (betOption == null) {
-      throw ProblemRest.badRequest("sales.bet_option_required");
+      throw ProblemRest.of(SalesErrorCodes.BET_OPTION_REQUIRED);
     }
 
     var option = requireTenantBetOption(betOption, betTypeConfig);
     if (!option.enabled()) {
-      throw ProblemRest.badRequest("sales.tenant_bet_option_disabled");
+      throw ProblemRest.of(SalesErrorCodes.TENANT_BET_OPTION_DISABLED);
     }
     if (!option.visibleInPos()) {
-      throw ProblemRest.badRequest("sales.tenant_bet_option_not_visible_in_pos");
+      throw ProblemRest.of(SalesErrorCodes.TENANT_BET_OPTION_NOT_VISIBLE_IN_POS);
     }
   }
 
@@ -184,6 +185,6 @@ public class SaleCommandValidator {
     return betTypeConfig.options().stream()
         .filter(option -> Objects.equals(option.code(), betOption))
         .findFirst()
-        .orElseThrow(() -> ProblemRest.badRequest("sales.tenant_bet_option_not_configured"));
+        .orElseThrow(() -> ProblemRest.of(SalesErrorCodes.TENANT_BET_OPTION_NOT_CONFIGURED));
   }
 }

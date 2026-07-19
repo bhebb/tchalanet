@@ -2,11 +2,15 @@ package com.tchalanet.server.features.pos.dashboard;
 
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.common.web.advice.BffSlicePolicy;
+import com.tchalanet.server.common.web.advice.BffSlices;
+import com.tchalanet.server.common.web.api.NoticeSource;
 import com.tchalanet.server.core.analytics.api.model.CashierDashboardStatsView;
 import com.tchalanet.server.core.analytics.api.query.GetCashierDashboardStatsQuery;
 import com.tchalanet.server.core.draw.api.query.ListCashierNextDrawsQuery;
 import com.tchalanet.server.core.sales.api.query.GetCashierDashboardOverviewQuery;
 import com.tchalanet.server.core.sales.api.query.ListCashierRecentTicketsQuery;
+import com.tchalanet.server.features.pos.error.PosErrorCodes;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -101,37 +105,44 @@ public class PosDashboardPayloadAssembler {
    * is not yet available.
    */
   private CashierStatsPayload loadAnalyticsStats(TchRequestContext ctx) {
-    try {
-      LocalDate today = LocalDate.now(ZoneOffset.UTC);
-      CashierDashboardStatsView view =
-          queryBus.ask(new GetCashierDashboardStatsQuery(ctx.tenantId(), ctx.userId(), today));
-      if (view == null || view.today() == null) {
-        return CashierStatsPayload.unavailable();
-      }
-      var card = view.today();
-      List<GameBreakdownItem> breakdown = List.of();
-      if (view.gameBreakdown() != null) {
-        breakdown =
-            view.gameBreakdown().stream()
-                .map(
-                    g ->
-                        new GameBreakdownItem(
-                            g.gameCode() != null ? g.gameCode() : "",
-                            g.ticketsSold(),
-                            g.grossSales() != null ? g.grossSales() : BigDecimal.ZERO))
-                .toList();
-      }
-      return new CashierStatsPayload(
-          true,
-          view.refDate() != null ? view.refDate().toString() : today.toString(),
-          card.ticketsSold(),
-          card.grossSales() != null ? card.grossSales() : BigDecimal.ZERO,
-          card.winningsCalculated() != null ? card.winningsCalculated() : BigDecimal.ZERO,
-          card.netRevenueEstimated() != null ? card.netRevenueEstimated() : BigDecimal.ZERO,
-          breakdown);
-    } catch (RuntimeException e) {
-      return CashierStatsPayload.unavailable();
+    return BffSlices.optional(
+        BffSlicePolicy.warn(
+                PosErrorCodes.DASHBOARD_ANALYTICS_UNAVAILABLE.code(),
+                "features.pos",
+                NoticeSource.of("cashierDashboardStats").operation("loadAnalytics"),
+                CashierStatsPayload.unavailable())
+            .target("cashier_dashboard.analytics"),
+        () -> loadAnalyticsStatsRequired(ctx));
+  }
+
+  private CashierStatsPayload loadAnalyticsStatsRequired(TchRequestContext ctx) {
+    LocalDate today = LocalDate.now(ZoneOffset.UTC);
+    CashierDashboardStatsView view =
+        queryBus.ask(new GetCashierDashboardStatsQuery(ctx.tenantId(), ctx.userId(), today));
+    if (view == null || view.today() == null) {
+      throw new IllegalStateException("Cashier analytics projection is unavailable");
     }
+    var card = view.today();
+    List<GameBreakdownItem> breakdown = List.of();
+    if (view.gameBreakdown() != null) {
+      breakdown =
+          view.gameBreakdown().stream()
+              .map(
+                  g ->
+                      new GameBreakdownItem(
+                          g.gameCode() != null ? g.gameCode() : "",
+                          g.ticketsSold(),
+                          g.grossSales() != null ? g.grossSales() : BigDecimal.ZERO))
+              .toList();
+    }
+    return new CashierStatsPayload(
+        true,
+        view.refDate() != null ? view.refDate().toString() : today.toString(),
+        card.ticketsSold(),
+        card.grossSales() != null ? card.grossSales() : BigDecimal.ZERO,
+        card.winningsCalculated() != null ? card.winningsCalculated() : BigDecimal.ZERO,
+        card.netRevenueEstimated() != null ? card.netRevenueEstimated() : BigDecimal.ZERO,
+        breakdown);
   }
 
   /** V1 placeholder — offline/sync status is not tracked in V0. */

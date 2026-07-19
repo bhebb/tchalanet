@@ -1,5 +1,7 @@
 package com.tchalanet.server.platform.communication.internal.adapter;
 
+import com.tchalanet.server.common.web.error.ProblemRest;
+import com.tchalanet.server.platform.communication.api.error.CommunicationErrorCodes;
 import com.tchalanet.server.platform.communication.api.model.value.CommunicationChannel;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +17,6 @@ public class DeliveryProviderRegistry {
     return providers.stream()
         .filter(provider -> provider.supports(channel))
         .findFirst()
-        .orElseThrow(
-            () -> new IllegalStateException("No communication provider for channel " + channel));
+        .orElseThrow(() -> ProblemRest.of(CommunicationErrorCodes.PROVIDER_UNAVAILABLE));
   }
 }

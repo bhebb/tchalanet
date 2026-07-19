@@ -1,4 +1,4 @@
-package com.tchalanet.server.platform.tenant.internal.context;
+package com.tchalanet.server.platform.tenantconfig.internal.context;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

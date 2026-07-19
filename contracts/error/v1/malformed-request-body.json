@@ -1,0 +1,12 @@
+{
+  "type": "about:blank",
+  "title": "Malformed request body",
+  "status": 400,
+  "detail": "Malformed request body",
+  "code": "request.not_readable",
+  "category": "validation",
+  "retryPolicy": "AFTER_USER_ACTION",
+  "retryable": true,
+  "requestId": "req_fixture_not_readable",
+  "errorId": "err_fixture_not_readable"
+}

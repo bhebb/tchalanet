@@ -8,7 +8,7 @@ import {
   TenantDashboardSettingsInput,
 } from '@tch/shared-config';
 import { TchErrorPanel, TchLoading } from '@tch/ui/components';
-import { catchError, map, of, startWith, tap } from 'rxjs';
+import { Subject, catchError, map, of, startWith, switchMap, tap } from 'rxjs';
 
 type DashboardState =
   | { readonly status: 'loading' }
@@ -25,23 +25,33 @@ type DashboardState =
 export class AdminDashboardPage {
   private readonly pageModelApi = inject(PageModelApi);
   private readonly runtimeSettings = inject(RuntimeSettingsStore);
+  private readonly reloads = new Subject<void>();
 
   protected readonly state = toSignal(
-    this.pageModelApi.getTenantPage().pipe(
-      tap(response => {
-        this.runtimeSettings.applyTenantDashboardSettings(tenantSettingsFrom(response));
-      }),
-      map(response => ({ status: 'ready', response }) as DashboardState),
-      catchError(() =>
-        this.pageModelApi.getPrivateFallbackPage().pipe(
+    this.reloads.pipe(
+      startWith(undefined),
+      switchMap(() =>
+        this.pageModelApi.getTenantPage().pipe(
+          tap(response => {
+            this.runtimeSettings.applyTenantDashboardSettings(tenantSettingsFrom(response));
+          }),
           map(response => ({ status: 'ready', response }) as DashboardState),
-          catchError(() => of({ status: 'error' } as DashboardState)),
+          catchError(() =>
+            this.pageModelApi.getPrivateFallbackPage().pipe(
+              map(response => ({ status: 'ready', response }) as DashboardState),
+              catchError(() => of({ status: 'error' } as DashboardState)),
+            ),
+          ),
+          startWith({ status: 'loading' } as DashboardState),
         ),
       ),
-      startWith({ status: 'loading' } as DashboardState),
     ),
     { initialValue: { status: 'loading' } as DashboardState },
   );
+
+  protected reload(): void {
+    this.reloads.next();
+  }
 }
 
 function tenantSettingsFrom(response: PageRuntimeResponse): TenantDashboardSettingsInput | null {

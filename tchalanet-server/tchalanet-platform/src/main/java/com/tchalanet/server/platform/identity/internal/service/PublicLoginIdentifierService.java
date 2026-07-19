@@ -3,6 +3,7 @@ package com.tchalanet.server.platform.identity.internal.service;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.platform.identity.api.IdentityProviderType;
+import com.tchalanet.server.platform.identity.api.error.IdentityErrorCodes;
 import com.tchalanet.server.platform.identity.api.model.UserStatus;
 import com.tchalanet.server.platform.identity.internal.persistence.adapter.AppUserJpaAdapter;
 import java.util.Locale;
@@ -13,14 +14,16 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PublicLoginIdentifierService {
 
-  private static final String GENERIC_FAILURE = "auth.invalid_credentials";
   private static final Pattern USERNAME_PATTERN = Pattern.compile("^[a-z0-9._-]{3,40}$");
 
   private final AppUserJpaAdapter users;
 
   public String resolveIdentifier(String identifier) {
     var normalized = normalizeUsername(identifier);
-    var user = users.findByNormalizedUsername(normalized).orElseThrow(this::genericFailure);
+    var user =
+        users
+            .findByNormalizedUsername(normalized)
+            .orElseThrow(PublicLoginIdentifierService::genericFailure);
     if (user.status() != UserStatus.ACTIVE || isBlank(user.email())) {
       throw genericFailure();
     }
@@ -32,11 +35,11 @@ public class PublicLoginIdentifierService {
 
   private static String normalizeUsername(String identifier) {
     if (identifier == null) {
-      throw ProblemRest.badRequest(GENERIC_FAILURE);
+      throw genericFailure();
     }
     var normalized = identifier.trim().toLowerCase(Locale.ROOT);
     if (!USERNAME_PATTERN.matcher(normalized).matches()) {
-      throw ProblemRest.badRequest(GENERIC_FAILURE);
+      throw genericFailure();
     }
     return normalized;
   }
@@ -45,7 +48,7 @@ public class PublicLoginIdentifierService {
     return value == null || value.isBlank();
   }
 
-  private RuntimeException genericFailure() {
-    return ProblemRest.forbidden(GENERIC_FAILURE);
+  private static RuntimeException genericFailure() {
+    return ProblemRest.of(IdentityErrorCodes.AUTH_INVALID_CREDENTIALS);
   }
 }

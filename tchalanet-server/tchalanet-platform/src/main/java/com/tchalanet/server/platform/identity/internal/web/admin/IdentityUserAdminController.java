@@ -19,6 +19,7 @@ import com.tchalanet.server.platform.audit.api.model.AuditAction;
 import com.tchalanet.server.platform.audit.api.model.AuditEntityType;
 import com.tchalanet.server.platform.entitlement.api.RequiredQuota;
 import com.tchalanet.server.platform.entitlement.api.UsageKeys; // Import UsageKeys
+import com.tchalanet.server.platform.identity.api.error.IdentityErrorCodes;
 import com.tchalanet.server.platform.identity.api.model.request.UpdateUserProfileRequest;
 import com.tchalanet.server.platform.identity.internal.service.CurrentUserProfileService;
 import com.tchalanet.server.platform.identity.internal.service.ExternalIdentityLinkService;
@@ -112,7 +113,7 @@ public class IdentityUserAdminController {
       var row =
           platformUserRoles
               .findTenantAdmin(userId)
-              .orElseThrow(() -> ProblemRest.notFound("Tenant admin not found: " + userId));
+              .orElseThrow(() -> ProblemRest.of(IdentityErrorCodes.USER_NOT_FOUND));
       return ApiResponse.success(view.fromGlobalRow(row));
     }
     return ApiResponse.success(view.load(ctx, userId, InvitationStatus.NOT_SENT, null));
@@ -262,7 +263,7 @@ public class IdentityUserAdminController {
   private static void forbidSuperAdminAssignmentForTenantAdmin(
       TchRequestContext ctx, TchRole role) {
     if (ctx.isTenantAdmin() && role == TchRole.SUPER_ADMIN) {
-      throw ProblemRest.forbidden("Tenant admin cannot assign SUPER_ADMIN role");
+      throw ProblemRest.of(IdentityErrorCodes.SUPER_ADMIN_ROLE_ASSIGNMENT_FORBIDDEN);
     }
   }
 
@@ -271,7 +272,7 @@ public class IdentityUserAdminController {
     try {
       return Optional.of(Locale.forLanguageTag(locale));
     } catch (Exception e) {
-      throw ProblemRest.badRequest("Invalid locale: " + locale, e);
+      throw ProblemRest.of(IdentityErrorCodes.PROFILE_LOCALE_INVALID, java.util.Map.of(), e);
     }
   }
 
@@ -280,7 +281,7 @@ public class IdentityUserAdminController {
     try {
       return Optional.of(ZoneId.of(timeZone));
     } catch (Exception e) {
-      throw ProblemRest.badRequest("Invalid timeZone: " + timeZone, e);
+      throw ProblemRest.of(IdentityErrorCodes.PROFILE_TIME_ZONE_INVALID, java.util.Map.of(), e);
     }
   }
 
@@ -289,7 +290,7 @@ public class IdentityUserAdminController {
     try {
       return Optional.of(Currency.getInstance(currency.toUpperCase()));
     } catch (Exception e) {
-      throw ProblemRest.badRequest("Invalid currency: " + currency, e);
+      throw ProblemRest.of(IdentityErrorCodes.PROFILE_CURRENCY_INVALID, java.util.Map.of(), e);
     }
   }
 }

@@ -22,14 +22,23 @@ public class SaleIssueFactory {
   }
 
   public SaleIssueView fromProblem(ProblemRestException ex) {
-    var detail = ex.getProblem().getDetail();
-    var code = toIssueCode(detail);
+    var code = toIssueCode(problemCode(ex));
     return SaleIssueView.basket(
         code,
         SaleIssueSeverity.ERROR,
         messageCode(code),
         sellerInstruction(code),
         Map.of("problemStatus", ex.getProblem().getStatus()));
+  }
+
+  /**
+   * New code-first {@link ProblemRestException} instances carry the stable contract in the
+   * ProblemDetail properties. Detail is a legacy fallback only; it must never be preferred over a
+   * declared code.
+   */
+  private String problemCode(ProblemRestException ex) {
+    var value = ex.getProblem().getProperties().get("code");
+    return value instanceof String code && !code.isBlank() ? code : ex.getProblem().getDetail();
   }
 
   private SaleIssueView fromNotice(ApiNotice notice) {
@@ -56,6 +65,9 @@ public class SaleIssueFactory {
   private String toIssueCode(String rawCode) {
     if (rawCode == null || rawCode.isBlank()) {
       return "SALE_EVALUATION_FAILED";
+    }
+    if (rawCode.matches("^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$")) {
+      return rawCode;
     }
     var normalized =
         rawCode
@@ -101,6 +113,8 @@ public class SaleIssueFactory {
           case "STAKE_TOO_LOW" -> "sales.stake_too_low";
           case "BASKET_LINE_COUNT_EXCEEDED" -> "sales.basket_line_count_exceeded";
           case "BASKET_TOTAL_EXCEEDED" -> "sales.basket_total_exceeded";
+          case "PROMOTION_DECISION_APPLIED" -> "sales.promotion_applied";
+          case "PROMOTION_TERMINAL_OVERRIDE_APPLIED" -> "sales.promotion_terminal_override_applied";
           default -> null;
         };
 

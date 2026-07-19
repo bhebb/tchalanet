@@ -7,6 +7,10 @@ class ApiException implements Exception {
     this.spanId,
     this.errorId,
     this.code,
+    this.category,
+    this.retryPolicy,
+    this.retryable = false,
+    this.params = const {},
   });
 
   final String message;
@@ -16,6 +20,10 @@ class ApiException implements Exception {
   final String? spanId;
   final String? errorId;
   final String? code;
+  final String? category;
+  final String? retryPolicy;
+  final bool retryable;
+  final Map<String, Object?> params;
 
   @override
   String toString() => 'ApiException($statusCode): $message';

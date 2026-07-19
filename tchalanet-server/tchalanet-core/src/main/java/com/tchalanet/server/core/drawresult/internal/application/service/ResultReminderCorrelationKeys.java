@@ -11,9 +11,7 @@ public final class ResultReminderCorrelationKeys {
   public static String actionRequired(
       ResultReminderReason reason, ResultSlotId resultSlotId, LocalDate drawDate) {
     var reasonPart =
-        reason == ResultReminderReason.AUTOMATIC_FETCH_OVERDUE
-            ? "automatic-overdue"
-            : "manual";
+        reason == ResultReminderReason.AUTOMATIC_FETCH_OVERDUE ? "automatic-overdue" : "manual";
     return "drawresult.action-required:%s:%s:%s"
         .formatted(reasonPart, resultSlotId.value(), drawDate);
   }

@@ -44,6 +44,246 @@
         }
       },
       "codes": {
+        "access": {
+          "authentication_required": {
+            "title": "Session required",
+            "message": "Sign in again to continue."
+          },
+          "denied": {
+            "title": "Access denied",
+            "message": "Your account cannot perform this action."
+          },
+          "context": {
+            "tenant_required": {
+              "title": "Workspace required",
+              "message": "Select an active workspace before continuing."
+            },
+            "tenant_unavailable": {
+              "title": "Workspace unavailable",
+              "message": "This workspace is no longer available. Return to an authorized workspace."
+            },
+            "tenant_override_reason_required": {
+              "title": "Reason required",
+              "message": "Provide the support reason before continuing in this workspace."
+            },
+            "user_not_bootstrapped": {
+              "title": "Session not ready",
+              "message": "Sign in again to continue."
+            },
+            "seller_terminal_required": {
+              "title": "Seller required",
+              "message": "Select an active seller before continuing."
+            },
+            "operational_context_required": {
+              "title": "Operational context required",
+              "message": "Return to the operational workspace and try again."
+            },
+            "operational_context_untrusted": {
+              "title": "Invalid operational context",
+              "message": "Reopen the operation from a valid context."
+            }
+          },
+          "actor": {
+            "type_unsupported": {
+              "title": "Access denied",
+              "message": "This account type cannot use this operation."
+            }
+          },
+          "terminal": {
+            "tenant_selection_not_allowed": {
+              "title": "Selection not allowed",
+              "message": "A seller terminal cannot select another workspace."
+            }
+          },
+          "tenant": {
+            "override_not_super_admin": {
+              "title": "Access denied",
+              "message": "Only a super administrator can select another workspace."
+            },
+            "override_forbidden": {
+              "title": "Access denied",
+              "message": "Your account cannot select this workspace."
+            },
+            "override_reason_required": {
+              "title": "Reason required",
+              "message": "Provide a support reason before continuing."
+            },
+            "override_invalid": {
+              "title": "Invalid workspace",
+              "message": "Select a valid workspace and try again."
+            },
+            "ambiguous_membership": {
+              "title": "Workspace selection required",
+              "message": "Your account belongs to multiple workspaces. Select one before continuing."
+            }
+          },
+          "support": {
+            "authenticated_actor_required": {
+              "title": "Session required",
+              "message": "Sign in again to continue."
+            },
+            "tenant_required": {
+              "title": "Workspace required",
+              "message": "Select the workspace to support."
+            },
+            "reason_required": {
+              "title": "Reason required",
+              "message": "Provide a sufficiently specific support reason."
+            }
+          },
+          "role": {
+            "not_found": {
+              "title": "Role not found",
+              "message": "This role is no longer available."
+            }
+          },
+          "permission": {
+            "not_found": {
+              "title": "Permission not found",
+              "message": "This permission is no longer available."
+            }
+          },
+          "role_permission_input_required": {
+            "title": "Role and permission required",
+            "message": "Select a role and a permission to continue."
+          },
+          "platform_role_unavailable": {
+            "title": "Access configuration unavailable",
+            "message": "The platform role cannot be verified right now. Try again later."
+          }
+        },
+        "identity": {
+          "auth": {
+            "invalid_credentials": {
+              "title": "Invalid sign-in details",
+              "message": "Check your identifier and try again."
+            }
+          },
+          "session": {
+            "verified_identity_required": {
+              "title": "Invalid session",
+              "message": "Sign in again to continue."
+            },
+            "external_identity_not_linked": {
+              "title": "Account not linked",
+              "message": "This sign-in is not linked to a Tchalanet account. Contact an administrator."
+            },
+            "user_inactive": {
+              "title": "Inactive account",
+              "message": "This account cannot be used at the moment. Contact an administrator."
+            },
+            "seller_terminal_not_linked": {
+              "title": "Terminal not linked",
+              "message": "This sign-in is not linked to a seller terminal. Reopen an authorized terminal."
+            },
+            "seller_terminal_inactive": {
+              "title": "Inactive terminal",
+              "message": "This seller terminal cannot be used at the moment. Contact an administrator."
+            }
+          },
+          "handoff": {
+            "authenticated_user_required": {
+              "title": "Session required",
+              "message": "Sign in again to continue."
+            },
+            "target_mismatch": {
+              "title": "Invalid access",
+              "message": "This handoff is not available for this workspace."
+            },
+            "invalid_code": {
+              "title": "Invalid handoff",
+              "message": "This handoff cannot be used. Start again from the portal."
+            },
+            "target_forbidden": {
+              "title": "Access denied",
+              "message": "Your account cannot access this workspace."
+            },
+            "entry_route_not_allowed": {
+              "title": "Invalid page",
+              "message": "This entry page is not allowed."
+            },
+            "not_found_or_expired": {
+              "title": "Expired handoff",
+              "message": "This handoff has expired or is no longer available. Start again from the portal."
+            },
+            "replayed": {
+              "title": "Handoff already used",
+              "message": "This handoff has already been used. Start again from the portal."
+            },
+            "expired": {
+              "title": "Expired handoff",
+              "message": "This handoff has expired. Start again from the portal."
+            },
+            "rate_limited": {
+              "title": "Too many attempts",
+              "message": "Wait a moment before trying again."
+            },
+            "external_identity_missing": {
+              "title": "Account not ready",
+              "message": "This sign-in is not ready for handoff. Contact an administrator."
+            },
+            "custom_token_unsupported_provider": {
+              "title": "Handoff unavailable",
+              "message": "This sign-in method does not support handoff."
+            },
+            "custom_token_failed": {
+              "title": "Handoff unavailable",
+              "message": "Try again later or return to the portal."
+            }
+          },
+          "user": {
+            "not_found": {
+              "title": "Account not found",
+              "message": "This account is no longer available."
+            },
+            "action_forbidden": {
+              "title": "Action not allowed",
+              "message": "Your account cannot perform this action for this user."
+            },
+            "outside_tenant_scope": {
+              "title": "Access denied",
+              "message": "This user does not belong to the active workspace."
+            }
+          },
+          "external_identity": {
+            "not_linked": {
+              "title": "Account not linked",
+              "message": "This account is not linked to the required sign-in method."
+            }
+          },
+          "membership": {
+            "cross_tenant_forbidden": {
+              "title": "Access denied",
+              "message": "You cannot assign a user to another workspace."
+            }
+          },
+          "admin": {
+            "super_admin_assignment_forbidden": {
+              "title": "Role not allowed",
+              "message": "The platform administrator role cannot be assigned in this workspace."
+            }
+          },
+          "profile": {
+            "locale_invalid": {
+              "title": "Invalid language",
+              "message": "Choose a supported language and try again."
+            },
+            "time_zone_invalid": {
+              "title": "Invalid time zone",
+              "message": "Choose a supported time zone and try again."
+            },
+            "currency_invalid": {
+              "title": "Invalid currency",
+              "message": "Choose a supported currency and try again."
+            }
+          },
+          "role": {
+            "invalid": {
+              "title": "Invalid role",
+              "message": "Choose a supported role and try again."
+            }
+          }
+        },
         "request": {
           "missing_parameter": {
             "title": "Missing information",
@@ -66,6 +306,18 @@
           "failed": {
             "title": "Information to correct",
             "message": "Correct the highlighted fields and try again."
+          },
+          "invalid_format": {
+            "title": "Invalid format",
+            "message": "Correct the format of the highlighted field and try again."
+          },
+          "out_of_range": {
+            "title": "Invalid value",
+            "message": "Enter a value within the expected limits and try again."
+          },
+          "required": {
+            "title": "Missing information",
+            "message": "Complete the highlighted field and try again."
           }
         },
         "platform": {
@@ -78,6 +330,28 @@
             }
           }
         },
+        "entitlement": {
+          "feature_required": {
+            "title": "Feature unavailable",
+            "message": "This feature is not included in your workspace’s current configuration."
+          },
+          "limit_missing": {
+            "title": "Configuration unavailable",
+            "message": "The required limit is unavailable at the moment. Try again later."
+          },
+          "limit_exceeded": {
+            "title": "Limit reached",
+            "message": "This action exceeds a limit for your workspace."
+          },
+          "usage_provider_unavailable": {
+            "title": "Verification unavailable",
+            "message": "This limit cannot be checked at the moment. Try again later."
+          },
+          "plan_unavailable": {
+            "title": "Plan unavailable",
+            "message": "This tenant plan cannot be read right now. Try again later."
+          }
+        },
         "limits": {
           "blocked": {
             "title": "Sales limit reached",
@@ -85,6 +359,14 @@
           }
         },
         "sales": {
+          "promotion_applied": {
+            "title": "Free Maryaj added",
+            "message": "The ticket includes free lines applied by the promotion."
+          },
+          "promotion_terminal_override_applied": {
+            "title": "Seller promotion rule applied",
+            "message": "The ticket uses the promotion rule specific to this seller terminal."
+          },
           "acceptable": {
             "title": "Sale ready",
             "message": "The ticket can be sold."
@@ -212,6 +494,820 @@
           "seller_terminal_actor_required": {
             "title": "Seller required",
             "message": "This sale is not attached to a seller. Return to the seller list and open the sale from an active seller."
+          },
+          "draw": {
+            "not_open": { "title": "Draw closed", "message": "Choose another open draw." },
+            "cutoff_elapsed": {
+              "title": "Sales closed for this draw",
+              "message": "The sales cutoff has passed. Choose another open draw."
+            }
+          },
+          "draw_channel": {
+            "inactive": {
+              "title": "Channel unavailable",
+              "message": "This channel does not currently accept sales."
+            },
+            "mismatch": {
+              "title": "Invalid channel",
+              "message": "Reload the draw, then try again."
+            }
+          },
+          "result_slot": {
+            "inactive": {
+              "title": "Draw unavailable",
+              "message": "This result slot does not currently accept sales."
+            }
+          },
+          "seller_terminal": {
+            "required": {
+              "title": "Seller required",
+              "message": "Open the sale from an active seller."
+            },
+            "cannot_sell": {
+              "title": "Sale unavailable",
+              "message": "This seller terminal cannot sell at the moment. Use an active terminal or verify its access."
+            }
+          },
+          "tenant": {
+            "disabled": {
+              "title": "Workspace disabled",
+              "message": "Sales are disabled for this workspace. Contact an administrator."
+            },
+            "business_closed": {
+              "title": "Sales closed",
+              "message": "Sales are currently closed for this workspace."
+            }
+          },
+          "draw_channel_required": {
+            "title": "Channel required",
+            "message": "Reload the draw, then try again."
+          },
+          "tenant_game_not_configured": {
+            "title": "Game unavailable",
+            "message": "This game is not configured for this workspace."
+          },
+          "tenant_game_disabled": {
+            "title": "Game disabled",
+            "message": "This game is disabled for this workspace."
+          },
+          "tenant_game_not_visible_in_pos": {
+            "title": "Game unavailable",
+            "message": "This game is not available on this terminal."
+          },
+          "invalid_line_number": {
+            "title": "Invalid line",
+            "message": "Correct the line, then try again."
+          },
+          "selection_invalid": {
+            "title": "Number to correct",
+            "message": "Correct the number for the selected game."
+          },
+          "tenant_bet_option_not_configured": {
+            "title": "Option unavailable",
+            "message": "This option is not configured for this game."
+          },
+          "tenant_bet_option_disabled": {
+            "title": "Option disabled",
+            "message": "This option is disabled for this game."
+          },
+          "tenant_bet_option_not_visible_in_pos": {
+            "title": "Option unavailable",
+            "message": "This option is not available on this terminal."
+          },
+          "stake_below_tenant_min": {
+            "title": "Stake too low",
+            "message": "Increase the stake on this line, then try again."
+          },
+          "stake_above_tenant_max": {
+            "title": "Stake too high",
+            "message": "Reduce the stake on this line, then try again."
+          },
+          "tenant_bet_type_not_configured": {
+            "title": "Bet type unavailable",
+            "message": "This bet type is not configured for this game."
+          },
+          "preparation": {
+            "not_found": {
+              "title": "Preparation not found",
+              "message": "Return to the ticket and prepare it again."
+            },
+            "promotion_line_not_found": {
+              "title": "Free line not found",
+              "message": "Reload the ticket, then try again."
+            },
+            "already_confirmed": {
+              "title": "Ticket already confirmed",
+              "message": "This ticket has already been sold."
+            },
+            "expired": {
+              "title": "Preparation expired",
+              "message": "Review the ticket, then prepare the sale again."
+            },
+            "not_confirmable": {
+              "title": "Preparation unavailable",
+              "message": "Prepare the ticket again before confirming."
+            },
+            "line_not_regenerable": {
+              "title": "Line cannot be changed",
+              "message": "This free line cannot be regenerated."
+            },
+            "max_regenerations_reached": {
+              "title": "Regeneration limit reached",
+              "message": "Confirm the ticket or prepare a new one."
+            },
+            "cancelled": {
+              "title": "Preparation cancelled",
+              "message": "Prepare the ticket again."
+            }
+          }
+        },
+        "ticket": {
+          "not_found": {
+            "title": "Ticket not found",
+            "message": "Check the ticket code, then try again."
+          },
+          "filter": {
+            "invalid_date_range": {
+              "title": "Invalid period",
+              "message": "The end date must be after the start date."
+            },
+            "invalid_sort": {
+              "title": "Invalid sort",
+              "message": "Choose a supported ticket sort."
+            },
+            "invalid_status": {
+              "title": "Invalid status",
+              "message": "Choose a supported ticket status."
+            }
+          },
+          "print": {
+            "view_not_found": {
+              "title": "Ticket not found",
+              "message": "This ticket cannot be displayed at the moment."
+            },
+            "voided_not_allowed": {
+              "title": "Printing unavailable",
+              "message": "A voided ticket cannot be printed."
+            },
+            "sale_not_accepted": {
+              "title": "Printing unavailable",
+              "message": "The ticket must be accepted before printing."
+            }
+          },
+          "reprint": {
+            "reason_required": {
+              "title": "Reason required",
+              "message": "Enter the reason for reprinting."
+            },
+            "reason_too_long": {
+              "title": "Reason too long",
+              "message": "Shorten the reprint reason."
+            }
+          }
+        },
+        "sellerterminal": {
+          "not_found": {
+            "title": "Terminal not found",
+            "message": "This seller terminal is no longer available."
+          },
+          "status_transition_invalid": {
+            "title": "Action unavailable",
+            "message": "The terminal's current status does not allow this action."
+          },
+          "commission_rate_invalid": {
+            "title": "Invalid commission",
+            "message": "Enter a commission rate between 0 and 100%."
+          },
+          "identity_not_bound": {
+            "title": "Terminal access unavailable",
+            "message": "This terminal does not have an active sign-in identity yet."
+          },
+          "identity_provision_unavailable": {
+            "title": "Sign-in service unavailable",
+            "message": "The terminal account cannot be updated right now. Try again later."
+          },
+          "pin_reset_unavailable": {
+            "title": "Reset unavailable",
+            "message": "The PIN cannot be changed right now. Try again later."
+          }
+        },
+        "pricing": {
+          "tenant_required": {
+            "title": "Workspace required",
+            "message": "Select an active workspace before configuring pricing."
+          },
+          "game_code_required": {
+            "title": "Game required",
+            "message": "Select the affected game."
+          },
+          "pricing_variant_required": {
+            "title": "Option required",
+            "message": "Select the pricing option."
+          },
+          "bet_type_required": { "title": "Bet type required", "message": "Select the bet type." },
+          "odds_invalid": {
+            "title": "Invalid multiplier",
+            "message": "Enter a multiplier greater than zero."
+          },
+          "fixed_amount_invalid": {
+            "title": "Invalid fixed amount",
+            "message": "Enter a fixed amount that is zero or greater."
+          },
+          "payout_rule_type_invalid": {
+            "title": "Invalid payout rule type",
+            "message": "This game does not support that payout rule type."
+          },
+          "tenant_default_not_configured": {
+            "title": "Pricing missing",
+            "message": "Configure the tenant pricing rule first."
+          },
+          "override_not_found": {
+            "title": "Override not found",
+            "message": "This terminal-specific rule is no longer available."
+          },
+          "override_payout_rule_type_mismatch": {
+            "title": "Incompatible override",
+            "message": "A terminal cannot change the payout rule type set for the tenant."
+          }
+        },
+        "draw": {
+          "correct_result": {
+            "reason_required": {
+              "title": "Reason required",
+              "message": "Enter the reason for the correction."
+            },
+            "reason_too_short": {
+              "title": "Reason too short",
+              "message": "Provide more detail for the correction reason."
+            },
+            "idempotency_key_required": {
+              "title": "Invalid correction",
+              "message": "Start the correction again from the draw page."
+            },
+            "no_result_applied": {
+              "title": "No result applied",
+              "message": "Apply a result before correcting it."
+            },
+            "same_result": {
+              "title": "Result unchanged",
+              "message": "Choose a different result to make a correction."
+            }
+          },
+          "lookahead_days_invalid": {
+            "title": "Invalid period",
+            "message": "Choose a period from 1 to 30 days."
+          },
+          "schedule_invalid": {
+            "title": "Invalid schedule",
+            "message": "The cutoff must be before the draw time."
+          },
+          "lifecycle": {
+            "draw_ids_required": {
+              "title": "Draw required",
+              "message": "Select at least one draw."
+            },
+            "draw_ids_limit_exceeded": {
+              "title": "Too many draws",
+              "message": "Reduce the selection, then try again."
+            }
+          }
+        },
+        "drawresult": {
+          "not_found": {
+            "title": "Result not found",
+            "message": "This result is no longer available."
+          },
+          "result_slot": {
+            "not_found": {
+              "title": "Slot not found",
+              "message": "The requested result slot is no longer available."
+            }
+          },
+          "override_settled_forbidden": {
+            "title": "Correction unavailable",
+            "message": "This result is already linked to a settled draw."
+          },
+          "external_pick_invalid": {
+            "title": "Invalid numbers",
+            "message": "Enter 3 digits for the first number and 4 digits for the second."
+          },
+          "projection_failed": {
+            "title": "Result cannot be processed",
+            "message": "The result cannot be processed at the moment. Try again or contact support."
+          }
+        },
+        "promotion": {
+          "campaign": {
+            "not_found": {
+              "title": "Promotion not found",
+              "message": "This campaign is no longer available."
+            },
+            "dates_required_for_activation": {
+              "title": "Dates required",
+              "message": "Set the start and end dates before activation."
+            },
+            "start_must_be_before_end": {
+              "title": "Invalid dates",
+              "message": "The start date must be before the end date."
+            },
+            "no_rules": {
+              "title": "Rule required",
+              "message": "Add at least one rule before activation."
+            },
+            "rule_missing_effects": {
+              "title": "Effect required",
+              "message": "Each rule must contain at least one effect."
+            },
+            "rule_effect_type_unsupported": {
+              "title": "Unsupported effect",
+              "message": "This effect is not available for this campaign."
+            },
+            "rule_generation_strategy_unsupported": {
+              "title": "Unsupported strategy",
+              "message": "This generation strategy is not available."
+            }
+          },
+          "maryaj_gratis": {
+            "choice_mode_invalid": {
+              "title": "Invalid choice",
+              "message": "Choose a supported Maryaj gratis mode."
+            },
+            "generation_strategy_unsupported": {
+              "title": "Unsupported strategy",
+              "message": "This generation strategy is not available."
+            },
+            "generation_strategy_requires_auto_generate": {
+              "title": "Automatic mode required",
+              "message": "The generation strategy requires automatic mode."
+            },
+            "regeneration_requires_auto_generate": {
+              "title": "Regeneration unavailable",
+              "message": "Regeneration requires automatic mode."
+            },
+            "step_paid_amount_required": {
+              "title": "Amount required",
+              "message": "Provide the amount per step."
+            },
+            "quantity_tiers_required": {
+              "title": "Tiers required",
+              "message": "Provide at least one quantity tier."
+            }
+          }
+        },
+        "limits": {
+          "blocked": {
+            "title": "Limit exceeded",
+            "message": "This sale exceeds the configured limit."
+          },
+          "target_type_required": {
+            "title": "Target required",
+            "message": "Select the limit target type."
+          },
+          "target_type_unsupported": {
+            "title": "Unsupported target",
+            "message": "This target type is not available for limits."
+          },
+          "target_id_required": {
+            "title": "Target required",
+            "message": "Select the limit target."
+          },
+          "target_id_invalid": {
+            "title": "Invalid target",
+            "message": "Select a valid limit target."
+          }
+        },
+        "notification": {
+          "not_found": {
+            "title": "Notification not found",
+            "message": "This notification is no longer available."
+          },
+          "publication_not_found": {
+            "title": "Publication not found",
+            "message": "This notification publication is no longer available."
+          },
+          "not_publishable": {
+            "title": "Publishing unavailable",
+            "message": "This notification cannot be published in its current state."
+          },
+          "not_republishable": {
+            "title": "Republishing unavailable",
+            "message": "This notification cannot be republished in its current state."
+          },
+          "reason_required": {
+            "title": "Reason required",
+            "message": "Enter a reason to continue."
+          },
+          "system_keys_required": {
+            "title": "Translation keys required",
+            "message": "Provide both the title and message keys."
+          },
+          "translation_required": {
+            "title": "Translation required",
+            "message": "Provide the required translations."
+          },
+          "translation_locale_unsupported": {
+            "title": "Unsupported language",
+            "message": "Choose a supported notification language."
+          },
+          "tenant_required": {
+            "title": "Tenant required",
+            "message": "Select the notification tenant."
+          },
+          "target_required": {
+            "title": "Recipient required",
+            "message": "Select at least one recipient."
+          },
+          "platform_audience_requires_platform_scope": {
+            "title": "Access denied",
+            "message": "This audience requires platform context."
+          },
+          "tenant_audience_requires_tenant_scope": {
+            "title": "Access denied",
+            "message": "This audience requires tenant context."
+          },
+          "recipients_required": {
+            "title": "Recipient required",
+            "message": "Select at least one recipient."
+          },
+          "slack_channel_key_required": {
+            "title": "Slack channel required",
+            "message": "Provide the Slack channel."
+          },
+          "email_required": {
+            "title": "Email required",
+            "message": "Provide the recipient email address."
+          },
+          "email_invalid": {
+            "title": "Invalid email",
+            "message": "Provide a valid email address."
+          },
+          "phone_required": {
+            "title": "Phone required",
+            "message": "Provide the recipient phone number."
+          },
+          "phone_invalid": {
+            "title": "Invalid phone",
+            "message": "Provide a valid international phone number."
+          },
+          "send_failed": {
+            "title": "Sending unavailable",
+            "message": "The notification cannot be sent right now. Try again later."
+          }
+        },
+        "publiccontent": {
+          "item": {
+            "not_found": {
+              "title": "Content not found",
+              "message": "This public content is no longer available."
+            }
+          }
+        },
+        "document": {
+          "request_invalid": {
+            "title": "Invalid document",
+            "message": "Check the document information and try again."
+          },
+          "renderer_unavailable": {
+            "title": "Printing unavailable",
+            "message": "The document cannot be prepared at the moment. Try again later."
+          },
+          "render_failed": {
+            "title": "Printing unavailable",
+            "message": "The document cannot be prepared at the moment. Try again later."
+          }
+        },
+        "pagemodel": {
+          "access_denied": {
+            "title": "Access denied",
+            "message": "Your account cannot open this page."
+          },
+          "tenant_override_forbidden": {
+            "title": "Access denied",
+            "message": "Your account cannot select this tenant."
+          },
+          "not_found": {
+            "title": "Page not found",
+            "message": "The requested page is no longer available."
+          },
+          "widget": {
+            "unavailable": {
+              "title": "Section unavailable",
+              "message": "This section is temporarily unavailable. Try again."
+            },
+            "no_provider": {
+              "title": "Section unavailable",
+              "message": "This section is temporarily unavailable. Try again."
+            },
+            "role_denied": {
+              "title": "Access denied",
+              "message": "Your account cannot view this section."
+            }
+          },
+          "fragment": {
+            "key_required": {
+              "title": "Invalid page",
+              "message": "The page configuration is incomplete."
+            },
+            "not_found": {
+              "title": "Section not found",
+              "message": "The page section is no longer available."
+            },
+            "invalid": {
+              "title": "Section unavailable",
+              "message": "The page section cannot be loaded right now."
+            }
+          }
+        },
+        "pos": {
+          "surface": {
+            "not_allowed": {
+              "title": "Access denied",
+              "message": "This session cannot use this surface."
+            }
+          },
+          "home": {
+            "seller_terminal_required": {
+              "title": "Seller terminal required",
+              "message": "Reopen the session from a valid seller terminal."
+            }
+          },
+          "dashboard": {
+            "analytics_unavailable": {
+              "title": "Statistics unavailable",
+              "message": "Seller statistics are temporarily unavailable. Try again."
+            }
+          },
+          "tickets": {
+            "seller_terminal_mismatch": {
+              "title": "Access denied",
+              "message": "This seller terminal does not match your session."
+            }
+          },
+          "receipt": {
+            "print_options_invalid": {
+              "title": "Invalid print options",
+              "message": "Check the print options and try again."
+            },
+            "delivery_channel_required": {
+              "title": "Delivery channel required",
+              "message": "Select a valid delivery channel."
+            },
+            "delivery_recipient_required": {
+              "title": "Recipient required",
+              "message": "Provide the recipient phone number or email address."
+            },
+            "attachment_too_large": {
+              "title": "Attachment too large",
+              "message": "The document is too large to send as an attachment."
+            },
+            "seller_terminal_required": {
+              "title": "Seller terminal required",
+              "message": "Reopen a valid seller-terminal session to continue."
+            }
+          }
+        },
+        "communication": {
+          "request_invalid": {
+            "title": "Invalid delivery",
+            "message": "Check the delivery information and try again."
+          },
+          "channel_disabled": {
+            "title": "Delivery channel unavailable",
+            "message": "This delivery channel is not enabled for this tenant."
+          },
+          "enqueue_failed": {
+            "title": "Delivery unavailable",
+            "message": "The message cannot be prepared for delivery at the moment. Try again later."
+          },
+          "provider_unavailable": {
+            "title": "Delivery service unavailable",
+            "message": "The message delivery service is temporarily unavailable."
+          },
+          "delivery_failed": {
+            "title": "Delivery unavailable",
+            "message": "The message cannot be sent at the moment. Try again later."
+          }
+        },
+        "tenantgame": {
+          "catalog_game_not_found": {
+            "title": "Game not found",
+            "message": "This catalog game is no longer available."
+          },
+          "not_found": {
+            "title": "Tenant game not found",
+            "message": "This game is not enabled for this tenant."
+          },
+          "disabled": {
+            "title": "Game disabled",
+            "message": "This game is disabled for this tenant."
+          },
+          "catalog_game_inactive": {
+            "title": "Inactive game",
+            "message": "This catalog game cannot be enabled."
+          },
+          "display_name_too_long": {
+            "title": "Name too long",
+            "message": "Shorten the game name."
+          },
+          "display_order_invalid": {
+            "title": "Invalid order",
+            "message": "Enter an order greater than or equal to zero."
+          },
+          "min_stake_invalid": {
+            "title": "Invalid minimum stake",
+            "message": "Enter a valid minimum stake."
+          },
+          "max_stake_invalid": {
+            "title": "Invalid maximum stake",
+            "message": "Enter a valid maximum stake."
+          },
+          "stake_range_invalid": {
+            "title": "Invalid stake range",
+            "message": "The minimum stake cannot exceed the maximum stake."
+          },
+          "availability_day_invalid": {
+            "title": "Invalid day",
+            "message": "Select supported availability days."
+          },
+          "time_invalid": { "title": "Invalid time", "message": "Enter a time in HH:mm format." },
+          "bet_type_required": { "title": "Bet type required", "message": "Select a bet type." },
+          "bet_type_unsupported": {
+            "title": "Unsupported bet type",
+            "message": "This bet type is not available for this game."
+          },
+          "bet_type_duplicate": {
+            "title": "Duplicate bet type",
+            "message": "Each bet type must appear only once."
+          },
+          "bet_option_invalid": {
+            "title": "Invalid bet option",
+            "message": "Select an option available for this bet type."
+          },
+          "bet_option_duplicate": {
+            "title": "Duplicate bet option",
+            "message": "Each option must appear only once."
+          },
+          "bet_option_enabled_required": {
+            "title": "Active option required",
+            "message": "Enable at least one bet option."
+          },
+          "bet_option_default_invalid": {
+            "title": "Invalid default option",
+            "message": "Select an enabled default option."
+          }
+        },
+        "tenant": {
+          "not_found": {
+            "title": "Tenant not found",
+            "message": "This tenant is no longer available."
+          },
+          "activation_not_allowed": {
+            "title": "Activation unavailable",
+            "message": "This tenant cannot be activated in its current state."
+          },
+          "suspension_not_allowed": {
+            "title": "Suspension unavailable",
+            "message": "This tenant cannot be suspended in its current state."
+          },
+          "settings_invalid": {
+            "title": "Invalid configuration",
+            "message": "Correct the tenant configuration, then try again."
+          },
+          "support_reason_invalid": {
+            "title": "Invalid support reason",
+            "message": "Provide a support reason of at least 10 characters."
+          },
+          "commission": {
+            "default_rate_not_set": {
+              "title": "Default rate required",
+              "message": "Configure the tenant default commission rate first."
+            }
+          }
+        },
+        "tenantadmin": {
+          "overview": {
+            "address_unavailable": {
+              "title": "Address unavailable",
+              "message": "The business address cannot be loaded right now. Please try again."
+            },
+            "registry_unavailable": {
+              "title": "Business information unavailable",
+              "message": "The business information cannot be loaded right now. Please try again."
+            }
+          },
+          "dashboard": {
+            "registry_unavailable": {
+              "title": "Business information unavailable",
+              "message": "The business information cannot be loaded right now."
+            },
+            "operations_unavailable": {
+              "title": "Operations unavailable",
+              "message": "Business operations cannot be loaded right now."
+            },
+            "commercial_unavailable": {
+              "title": "Commercial configuration unavailable",
+              "message": "Games and channels cannot be loaded right now."
+            },
+            "kpis_unavailable": {
+              "title": "Indicators unavailable",
+              "message": "Indicators cannot be loaded right now."
+            },
+            "analytics_unavailable": {
+              "title": "Statistics unavailable",
+              "message": "Sales statistics cannot be loaded right now."
+            },
+            "live_sales_unavailable": {
+              "title": "Live sales unavailable",
+              "message": "Today's sales cannot be loaded right now."
+            },
+            "open_draws_unavailable": {
+              "title": "Open draws unavailable",
+              "message": "Open draws cannot be loaded right now."
+            },
+            "closed_draws_unavailable": {
+              "title": "Closed draws unavailable",
+              "message": "Closed draws cannot be loaded right now."
+            },
+            "notifications_unavailable": {
+              "title": "Notifications unavailable",
+              "message": "Notifications cannot be loaded right now."
+            },
+            "commission_unavailable": {
+              "title": "Commissions unavailable",
+              "message": "The commission summary cannot be loaded right now."
+            },
+            "public_content_unavailable": {
+              "title": "Information unavailable",
+              "message": "Public information cannot be loaded right now."
+            }
+          }
+        },
+        "platformadmin": {
+          "dashboard": {
+            "tenants_unavailable": {
+              "title": "Tenants unavailable",
+              "message": "Tenant indicators are temporarily unavailable."
+            },
+            "analytics_unavailable": {
+              "title": "Platform analytics unavailable",
+              "message": "Platform analytics are temporarily unavailable."
+            },
+            "subscriptions_unavailable": {
+              "title": "Subscriptions unavailable",
+              "message": "The subscription summary is temporarily unavailable."
+            },
+            "onboarding_unavailable": {
+              "title": "Onboarding unavailable",
+              "message": "The onboarding list is temporarily unavailable."
+            },
+            "public_content_unavailable": {
+              "title": "Information unavailable",
+              "message": "Public information is temporarily unavailable."
+            }
+          }
+        },
+        "catalog": {
+          "game": {
+            "not_found": {
+              "title": "Game not found",
+              "message": "This game is no longer available in the catalog."
+            },
+            "structural_update_in_use": {
+              "title": "Update unavailable",
+              "message": "This game is already used in a tenant configuration."
+            },
+            "delete_in_use": {
+              "title": "Deletion unavailable",
+              "message": "This game is already used in a tenant configuration."
+            }
+          },
+          "drawchannel": {
+            "deleted": {
+              "title": "Channel not found",
+              "message": "This channel is no longer available."
+            },
+            "flags_required": {
+              "title": "Configuration required",
+              "message": "Provide the channel configuration."
+            },
+            "flags_invalid": {
+              "title": "Invalid configuration",
+              "message": "Correct the channel configuration, then try again."
+            }
+          },
+          "resultslot": {
+            "not_found": {
+              "title": "Slot not found",
+              "message": "This result slot is no longer available."
+            },
+            "config_invalid": {
+              "title": "Invalid configuration",
+              "message": "Correct the slot configuration, then try again."
+            },
+            "game_key_invalid": {
+              "title": "Invalid game",
+              "message": "Choose a supported game for this slot."
+            }
           }
         }
       }

@@ -1,6 +1,8 @@
 package com.tchalanet.server.platform.accesscontrol.internal.persistence.adapter;
 
 import com.tchalanet.server.common.types.id.RoleId;
+import com.tchalanet.server.common.web.error.ProblemRest;
+import com.tchalanet.server.platform.accesscontrol.api.error.AccessControlErrorCodes;
 import com.tchalanet.server.platform.accesscontrol.internal.persistence.entity.AppRolePermissionId;
 import com.tchalanet.server.platform.accesscontrol.internal.persistence.entity.AppRolePermissionJpaEntity;
 import com.tchalanet.server.platform.accesscontrol.internal.persistence.entity.PermissionJpaEntity;
@@ -54,7 +56,7 @@ public class PermissionCatalogAdminAdapter {
   @CacheEvict(cacheNames = "role-permissions", key = "#roleId")
   public boolean grant(RoleId roleId, String permissionCode) {
     if (roleId == null || permissionCode == null || permissionCode.isBlank()) {
-      throw new IllegalArgumentException("roleId and permissionCode must not be null/blank");
+      throw ProblemRest.of(AccessControlErrorCodes.ROLE_PERMISSION_INPUT_REQUIRED);
     }
 
     var existing =
@@ -67,13 +69,12 @@ public class PermissionCatalogAdminAdapter {
     var permission =
         permissionRepository
             .findById(permissionCode)
-            .orElseThrow(
-                () -> new IllegalArgumentException("Permission not found: " + permissionCode));
+            .orElseThrow(() -> ProblemRest.of(AccessControlErrorCodes.PERMISSION_NOT_FOUND));
 
     var role =
         appRoleRepository
             .findById(roleId.value())
-            .orElseThrow(() -> new IllegalArgumentException("Role not found: " + roleId));
+            .orElseThrow(() -> ProblemRest.of(AccessControlErrorCodes.ROLE_NOT_FOUND));
 
     var link = new AppRolePermissionJpaEntity();
     link.setId(new AppRolePermissionId(roleId.value(), permissionCode));
@@ -88,7 +89,7 @@ public class PermissionCatalogAdminAdapter {
   @CacheEvict(cacheNames = "role-permissions", key = "#roleId")
   public boolean revoke(RoleId roleId, String permissionCode) {
     if (roleId == null || permissionCode == null || permissionCode.isBlank()) {
-      throw new IllegalArgumentException("roleId and permissionCode must not be null/blank");
+      throw ProblemRest.of(AccessControlErrorCodes.ROLE_PERMISSION_INPUT_REQUIRED);
     }
 
     var links = new HashSet<>(rolePermissionRepository.findByRoleId(roleId.value()));

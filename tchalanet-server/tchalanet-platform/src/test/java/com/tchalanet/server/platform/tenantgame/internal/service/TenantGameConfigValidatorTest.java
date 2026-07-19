@@ -1,10 +1,12 @@
 package com.tchalanet.server.platform.tenantgame.internal.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.tchalanet.server.catalog.game.api.model.GameView;
 import com.tchalanet.server.common.types.id.GameId;
+import com.tchalanet.server.common.web.error.ProblemRestException;
 import com.tchalanet.server.platform.tenantgame.api.model.request.UpdateTenantGameSettingsRequest;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -57,8 +59,8 @@ class TenantGameConfigValidatorTest {
   @Test
   void inactiveGameCannotBeEnabled() {
     assertThatThrownBy(() -> validator.validateEnableGame(inactiveGame()))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("inactive");
+        .isInstanceOf(ProblemRestException.class)
+        .satisfies(error -> assertCode(error, "tenantgame.catalog_game_inactive"));
   }
 
   // ── validateSettings — displayName ────────────────────────────────────
@@ -67,8 +69,8 @@ class TenantGameConfigValidatorTest {
   void displayNameOver128CharsIsRejected() {
     var req = UpdateTenantGameSettingsRequest.builder().displayName("A".repeat(129)).build();
     assertThatThrownBy(() -> validator.validateSettings(req))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("displayName");
+        .isInstanceOf(ProblemRestException.class)
+        .satisfies(error -> assertCode(error, "tenantgame.display_name_too_long"));
   }
 
   @Test
@@ -90,8 +92,8 @@ class TenantGameConfigValidatorTest {
   void negativeDisplayOrderIsRejected() {
     var req = UpdateTenantGameSettingsRequest.builder().displayOrder(-1).build();
     assertThatThrownBy(() -> validator.validateSettings(req))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("displayOrder");
+        .isInstanceOf(ProblemRestException.class)
+        .satisfies(error -> assertCode(error, "tenantgame.display_order_invalid"));
   }
 
   @Test
@@ -106,8 +108,8 @@ class TenantGameConfigValidatorTest {
   void negativeMinStakeIsRejected() {
     var req = UpdateTenantGameSettingsRequest.builder().minStake(BigDecimal.valueOf(-1)).build();
     assertThatThrownBy(() -> validator.validateSettings(req))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("minStake");
+        .isInstanceOf(ProblemRestException.class)
+        .satisfies(error -> assertCode(error, "tenantgame.min_stake_invalid"));
   }
 
   @Test
@@ -118,8 +120,8 @@ class TenantGameConfigValidatorTest {
             .maxStake(BigDecimal.valueOf(50))
             .build();
     assertThatThrownBy(() -> validator.validateSettings(req))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("minStake");
+        .isInstanceOf(ProblemRestException.class)
+        .satisfies(error -> assertCode(error, "tenantgame.stake_range_invalid"));
   }
 
   @Test
@@ -146,8 +148,8 @@ class TenantGameConfigValidatorTest {
   void effectiveMinGreaterThanExistingMaxIsRejected() {
     assertThatThrownBy(
             () -> validator.validateStakeRange(BigDecimal.valueOf(100), BigDecimal.valueOf(50)))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("minStake");
+        .isInstanceOf(ProblemRestException.class)
+        .satisfies(error -> assertCode(error, "tenantgame.stake_range_invalid"));
   }
 
   // ── validateSettings — availabilityDays ──────────────────────────────
@@ -162,8 +164,8 @@ class TenantGameConfigValidatorTest {
   void invalidDayCodeIsRejected() {
     var req = UpdateTenantGameSettingsRequest.builder().availabilityDays("MON,MONDAY").build();
     assertThatThrownBy(() -> validator.validateSettings(req))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("MONDAY");
+        .isInstanceOf(ProblemRestException.class)
+        .satisfies(error -> assertCode(error, "tenantgame.availability_day_invalid"));
   }
 
   @Test
@@ -191,13 +193,18 @@ class TenantGameConfigValidatorTest {
   void invalidTimeFormatIsRejected() {
     var req = UpdateTenantGameSettingsRequest.builder().startLocalTime("8am").build();
     assertThatThrownBy(() -> validator.validateSettings(req))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("startLocalTime");
+        .isInstanceOf(ProblemRestException.class)
+        .satisfies(error -> assertCode(error, "tenantgame.time_invalid"));
   }
 
   @Test
   void nullTimesAreAllowed() {
     var req = UpdateTenantGameSettingsRequest.builder().build();
     assertThatNoException().isThrownBy(() -> validator.validateSettings(req));
+  }
+
+  private static void assertCode(Throwable throwable, String code) {
+    assertThat(((ProblemRestException) throwable).getProblem().getProperties())
+        .containsEntry("code", code);
   }
 }

@@ -6,18 +6,28 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { form, max, maxLength, min, minLength, pattern, required, submit } from '@angular/forms/signals';
+import {
+  form,
+  max,
+  maxLength,
+  min,
+  minLength,
+  pattern,
+  required,
+  submit,
+  validate,
+} from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { TranslatePipe } from '@ngx-translate/core';
 import { TranslateService } from '@ngx-translate/core';
-import { ProblemDetail, webAppErrorFromProblemDetail, webAppErrorsFromProblemDetailFields } from '@tch/api';
-
 import {
-  ErrorViewModel,
-  toErrorViewModel,
-  withResolvedErrorCopies,
-} from '@tch/web/errors';
+  mapHttpErrorToProblemDetail,
+  webAppErrorFromProblemDetail,
+  webAppErrorsFromProblemDetailFields,
+} from '@tch/api';
+
+import { ErrorViewModel, toErrorViewModel, withResolvedErrorCopies } from '@tch/web/errors';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { AdminPageShellComponent } from '@tch/ui/console';
 import {
@@ -25,6 +35,11 @@ import {
   CreateSellerTerminalResult,
   SellerTerminalApi,
 } from '../../data-access/seller-terminal-api.service';
+import {
+  SELLER_TERMINAL_CREATE_FIELD_TARGETS,
+  SellerTerminalServerFieldError,
+  sellerTerminalServerFieldError,
+} from '../../seller-terminal-error-targets';
 import { SellerTerminalCreateFormComponent } from '../../components/seller-terminal-create-form/seller-terminal-create-form.component';
 import { SellerTerminalSuccessCardComponent } from '../../components/seller-terminal-success-card/seller-terminal-success-card.component';
 
@@ -78,36 +93,82 @@ export class AdminSellerTerminalNewPage implements OnInit {
   readonly tenantDefaultCommissionRate = signal<number | null>(null);
   readonly showPin = signal(false);
   readonly showConfirmPin = signal(false);
+  readonly serverFieldErrors = signal<Readonly<Record<string, SellerTerminalServerFieldError>>>({});
 
   readonly model = signal<SellerTerminalCreateFormModel>(this.initialFormModel());
   readonly form = form(this.model, path => {
-    required(path.terminalCode, { message: 'admin.sellerTerminals.new.validation.terminalCodeRequired' });
-    maxLength(path.terminalCode, 64, { message: 'admin.sellerTerminals.new.validation.terminalCodeMax' });
-    required(path.displayName, { message: 'admin.sellerTerminals.new.validation.displayNameRequired' });
-    minLength(path.displayName, 2, { message: 'admin.sellerTerminals.new.validation.displayNameMin' });
-    maxLength(path.displayName, 64, { message: 'admin.sellerTerminals.new.validation.displayNameMax' });
+    required(path.terminalCode, {
+      message: 'admin.sellerTerminals.new.validation.terminalCodeRequired',
+    });
+    maxLength(path.terminalCode, 64, {
+      message: 'admin.sellerTerminals.new.validation.terminalCodeMax',
+    });
+    required(path.displayName, {
+      message: 'admin.sellerTerminals.new.validation.displayNameRequired',
+    });
+    minLength(path.displayName, 2, {
+      message: 'admin.sellerTerminals.new.validation.displayNameMin',
+    });
+    maxLength(path.displayName, 64, {
+      message: 'admin.sellerTerminals.new.validation.displayNameMax',
+    });
     maxLength(path.email, 254, { message: 'admin.sellerTerminals.new.validation.emailMax' });
-    pattern(path.email, /^[^@\s]+@[^@\s]+\.[^@\s]+$|^$/, { message: 'admin.sellerTerminals.new.validation.email' });
+    pattern(path.email, /^[^@\s]+@[^@\s]+\.[^@\s]+$|^$/, {
+      message: 'admin.sellerTerminals.new.validation.email',
+    });
     required(path.initialPin, { message: 'admin.sellerTerminals.new.validation.pinRequired' });
-    pattern(path.initialPin, /^\d{6}$/, { message: 'admin.sellerTerminals.new.validation.pinFormat' });
-    required(path.confirmPin, { message: 'admin.sellerTerminals.new.validation.confirmPinRequired' });
-    pattern(path.confirmPin, /^\d{6}$/, { message: 'admin.sellerTerminals.new.validation.confirmPinFormat' });
-    required(path.commissionRate, { message: 'admin.sellerTerminals.new.validation.commissionRequired' });
-    min(path.commissionRate, 0, { message: 'admin.sellerTerminals.new.validation.commissionRange' });
-    max(path.commissionRate, 100, { message: 'admin.sellerTerminals.new.validation.commissionRange' });
+    pattern(path.initialPin, /^\d{6}$/, {
+      message: 'admin.sellerTerminals.new.validation.pinFormat',
+    });
+    required(path.confirmPin, {
+      message: 'admin.sellerTerminals.new.validation.confirmPinRequired',
+    });
+    pattern(path.confirmPin, /^\d{6}$/, {
+      message: 'admin.sellerTerminals.new.validation.confirmPinFormat',
+    });
+    required(path.commissionRate, {
+      message: 'admin.sellerTerminals.new.validation.commissionRequired',
+    });
+    min(path.commissionRate, 0, {
+      message: 'admin.sellerTerminals.new.validation.commissionRange',
+    });
+    max(path.commissionRate, 100, {
+      message: 'admin.sellerTerminals.new.validation.commissionRange',
+    });
     maxLength(path.address.line1, 200, { message: 'admin.sellerTerminals.new.validation.max200' });
     maxLength(path.address.line2, 200, { message: 'admin.sellerTerminals.new.validation.max200' });
     maxLength(path.address.city, 100, { message: 'admin.sellerTerminals.new.validation.max100' });
     maxLength(path.address.region, 100, { message: 'admin.sellerTerminals.new.validation.max100' });
     maxLength(path.address.country, 2, { message: 'admin.sellerTerminals.new.validation.country' });
-    maxLength(path.address.postalCode, 20, { message: 'admin.sellerTerminals.new.validation.postalCode' });
+    maxLength(path.address.postalCode, 20, {
+      message: 'admin.sellerTerminals.new.validation.postalCode',
+    });
+
+    validate(path.terminalCode, ({ value }) => this.serverError('terminalCode', value()));
+    validate(path.displayName, ({ value }) => this.serverError('displayName', value()));
+    validate(path.firstName, ({ value }) => this.serverError('firstName', value()));
+    validate(path.lastName, ({ value }) => this.serverError('lastName', value()));
+    validate(path.email, ({ value }) => this.serverError('email', value()));
+    validate(path.phoneNumber, ({ value }) => this.serverError('phoneNumber', value()));
+    validate(path.initialPin, ({ value }) => this.serverError('initialPin', value()));
+    validate(path.commissionRate, ({ value }) => this.serverError('commissionRate', value()));
+    validate(path.address.line1, ({ value }) => this.serverError('address.line1', value()));
+    validate(path.address.line2, ({ value }) => this.serverError('address.line2', value()));
+    validate(path.address.city, ({ value }) => this.serverError('address.city', value()));
+    validate(path.address.region, ({ value }) => this.serverError('address.region', value()));
+    validate(path.address.country, ({ value }) => this.serverError('address.country', value()));
+    validate(path.address.postalCode, ({ value }) =>
+      this.serverError('address.postalCode', value()),
+    );
   });
   readonly pinMismatch = computed(() => {
     const value = this.model();
-    return this.form.confirmPin().touched() &&
+    return (
+      this.form.confirmPin().touched() &&
       !!value.initialPin &&
       !!value.confirmPin &&
-      value.initialPin !== value.confirmPin;
+      value.initialPin !== value.confirmPin
+    );
   });
 
   ngOnInit(): void {
@@ -144,6 +205,7 @@ export class AdminSellerTerminalNewPage implements OnInit {
   onSubmit(): void {
     if (this.saving()) return;
     this.error.set(null);
+    this.serverFieldErrors.set({});
     submit(this.form, async () => {
       const raw = this.model();
       if (raw.initialPin !== raw.confirmPin) return;
@@ -163,18 +225,21 @@ export class AdminSellerTerminalNewPage implements OnInit {
           : null;
 
       this.api
-        .createFull({
-          terminalCode: raw.terminalCode,
-          displayName: raw.displayName,
-          firstName: raw.firstName || null,
-          lastName: raw.lastName || null,
-          email: raw.email || null,
-          phoneNumber: raw.phoneNumber || null,
-          commissionRate: raw.commissionRate,
-          initialPin: raw.initialPin,
-          active: raw.active,
-          address: addressPayload,
-        }, { suppressShellFeedback: true })
+        .createFull(
+          {
+            terminalCode: raw.terminalCode,
+            displayName: raw.displayName,
+            firstName: raw.firstName || null,
+            lastName: raw.lastName || null,
+            email: raw.email || null,
+            phoneNumber: raw.phoneNumber || null,
+            commissionRate: raw.commissionRate,
+            initialPin: raw.initialPin,
+            active: raw.active,
+            address: addressPayload,
+          },
+          { suppressShellFeedback: true },
+        )
         .subscribe({
           next: result => {
             this.successResult.set(result);
@@ -197,7 +262,11 @@ export class AdminSellerTerminalNewPage implements OnInit {
   }
 
   onOpenOverrides(result: CreateSellerTerminalResult): void {
-    void this.router.navigate(['/app/admin/seller-terminals', result.sellerTerminalId, 'overrides']);
+    void this.router.navigate([
+      '/app/admin/seller-terminals',
+      result.sellerTerminalId,
+      'overrides',
+    ]);
   }
 
   onCreateAnother(): void {
@@ -223,27 +292,63 @@ export class AdminSellerTerminalNewPage implements OnInit {
   }
 
   private handleCreateError(err: unknown): void {
-    const problem = (err as { error?: ProblemDetail })?.error;
-    if (problem) {
-      const fieldErrors = withResolvedErrorCopies(
-        webAppErrorsFromProblemDetailFields(problem, 'admin.sellerTerminal.create'),
-        key => this.translate.instant(key),
-      );
+    const problem = mapHttpErrorToProblemDetail(err);
+    const fieldErrors = withResolvedErrorCopies(
+      webAppErrorsFromProblemDetailFields(problem, 'admin.sellerTerminal.create'),
+      key => this.translate.instant(key),
+    );
 
-      const normalized = webAppErrorFromProblemDetail(problem, 'admin.sellerTerminal.create', 'page');
-      const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
-      this.error.set(toErrorViewModel(normalized, {
-        ...copy,
-        message: fieldErrors[0]?.message ?? copy.message,
-      }));
+    const serverErrors = Object.fromEntries(
+      fieldErrors.flatMap(error => {
+        const field = this.mappedField(error.target) ?? this.mappedField(error.field);
+        return field && error.message
+          ? [[field, { value: this.valueAt(field), message: error.message }]]
+          : [];
+      }),
+    );
+    this.serverFieldErrors.set(serverErrors);
+
+    const unconsumed = fieldErrors.filter(
+      error => !this.mappedField(error.target) && !this.mappedField(error.field),
+    );
+    if (fieldErrors.length && unconsumed.length === 0) {
+      this.error.set(null);
       return;
     }
 
-    this.error.set({
-      title: this.translate.instant('common.errors.fallback.title'),
-      message: this.translate.instant('common.errors.fallback.message'),
-      severity: 'error',
-    });
+    const normalized = webAppErrorFromProblemDetail(problem, 'admin.sellerTerminal.create', 'page');
+    const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+    this.error.set(
+      toErrorViewModel(normalized, {
+        ...copy,
+        message: unconsumed[0]?.message ?? copy.message,
+      }),
+    );
+  }
+
+  private serverError(
+    field: string,
+    value: unknown,
+  ): { kind: 'server'; message: string } | undefined {
+    return sellerTerminalServerFieldError(this.serverFieldErrors(), field, value);
+  }
+
+  private mappedField(target: string | undefined): string | undefined {
+    return target
+      ? (SELLER_TERMINAL_CREATE_FIELD_TARGETS as Record<string, string>)[target]
+      : undefined;
+  }
+
+  private valueAt(path: string): unknown {
+    return path
+      .split('.')
+      .reduce<unknown>(
+        (value, segment) =>
+          value && typeof value === 'object'
+            ? (value as Record<string, unknown>)[segment]
+            : undefined,
+        this.model(),
+      );
   }
 
   private initialFormModel(rate = this.fallbackCommissionRate): SellerTerminalCreateFormModel {

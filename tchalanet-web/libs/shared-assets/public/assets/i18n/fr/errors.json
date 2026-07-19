@@ -44,6 +44,246 @@
         }
       },
       "codes": {
+        "access": {
+          "authentication_required": {
+            "title": "Session requise",
+            "message": "Reconnectez-vous pour continuer."
+          },
+          "denied": {
+            "title": "Accès refusé",
+            "message": "Votre compte ne peut pas effectuer cette action."
+          },
+          "context": {
+            "tenant_required": {
+              "title": "Espace requis",
+              "message": "Sélectionnez un espace actif avant de continuer."
+            },
+            "tenant_unavailable": {
+              "title": "Espace indisponible",
+              "message": "Cet espace n'est plus disponible. Revenez à un espace autorisé."
+            },
+            "tenant_override_reason_required": {
+              "title": "Motif requis",
+              "message": "Indiquez le motif du support avant de continuer dans cet espace."
+            },
+            "user_not_bootstrapped": {
+              "title": "Session non prête",
+              "message": "Reconnectez-vous pour continuer."
+            },
+            "seller_terminal_required": {
+              "title": "Vendeur requis",
+              "message": "Sélectionnez un vendeur actif avant de continuer."
+            },
+            "operational_context_required": {
+              "title": "Contexte opérationnel requis",
+              "message": "Revenez dans l’espace opérationnel puis réessayez."
+            },
+            "operational_context_untrusted": {
+              "title": "Contexte opérationnel invalide",
+              "message": "Rouvrez l’opération depuis un contexte valide."
+            }
+          },
+          "actor": {
+            "type_unsupported": {
+              "title": "Accès refusé",
+              "message": "Ce type de compte ne peut pas utiliser cette opération."
+            }
+          },
+          "terminal": {
+            "tenant_selection_not_allowed": {
+              "title": "Sélection non autorisée",
+              "message": "Un terminal vendeur ne peut pas sélectionner un autre espace."
+            }
+          },
+          "tenant": {
+            "override_not_super_admin": {
+              "title": "Accès refusé",
+              "message": "Seul un super administrateur peut sélectionner un autre espace."
+            },
+            "override_forbidden": {
+              "title": "Accès refusé",
+              "message": "Votre compte ne peut pas sélectionner cet espace."
+            },
+            "override_reason_required": {
+              "title": "Motif requis",
+              "message": "Indiquez un motif de support avant de continuer."
+            },
+            "override_invalid": {
+              "title": "Espace invalide",
+              "message": "Sélectionnez un espace valide puis réessayez."
+            },
+            "ambiguous_membership": {
+              "title": "Espace à choisir",
+              "message": "Votre compte est associé à plusieurs espaces. Sélectionnez-en un avant de continuer."
+            }
+          },
+          "support": {
+            "authenticated_actor_required": {
+              "title": "Session requise",
+              "message": "Reconnectez-vous pour continuer."
+            },
+            "tenant_required": {
+              "title": "Espace requis",
+              "message": "Sélectionnez l’espace à assister."
+            },
+            "reason_required": {
+              "title": "Motif requis",
+              "message": "Indiquez un motif de support suffisamment précis."
+            }
+          },
+          "role": {
+            "not_found": {
+              "title": "Rôle introuvable",
+              "message": "Ce rôle n’est plus disponible."
+            }
+          },
+          "permission": {
+            "not_found": {
+              "title": "Permission introuvable",
+              "message": "Cette permission n’est plus disponible."
+            }
+          },
+          "role_permission_input_required": {
+            "title": "Rôle et permission requis",
+            "message": "Sélectionnez un rôle et une permission pour continuer."
+          },
+          "platform_role_unavailable": {
+            "title": "Configuration d’accès indisponible",
+            "message": "Le rôle plateforme ne peut pas être vérifié pour le moment. Réessayez plus tard."
+          }
+        },
+        "identity": {
+          "auth": {
+            "invalid_credentials": {
+              "title": "Informations de connexion invalides",
+              "message": "Vérifiez votre identifiant puis réessayez."
+            }
+          },
+          "session": {
+            "verified_identity_required": {
+              "title": "Session non valide",
+              "message": "Reconnectez-vous pour continuer."
+            },
+            "external_identity_not_linked": {
+              "title": "Compte non associé",
+              "message": "Cette connexion n’est pas associée à un compte Tchalanet. Contactez un administrateur."
+            },
+            "user_inactive": {
+              "title": "Compte inactif",
+              "message": "Ce compte ne peut pas être utilisé actuellement. Contactez un administrateur."
+            },
+            "seller_terminal_not_linked": {
+              "title": "Terminal non associé",
+              "message": "Cette connexion n’est pas associée à un terminal vendeur. Rouvrez un terminal autorisé."
+            },
+            "seller_terminal_inactive": {
+              "title": "Terminal inactif",
+              "message": "Ce terminal vendeur ne peut pas être utilisé actuellement. Contactez un administrateur."
+            }
+          },
+          "handoff": {
+            "authenticated_user_required": {
+              "title": "Session requise",
+              "message": "Reconnectez-vous pour continuer."
+            },
+            "target_mismatch": {
+              "title": "Accès invalide",
+              "message": "Ce transfert n’est pas disponible pour cet espace."
+            },
+            "invalid_code": {
+              "title": "Transfert invalide",
+              "message": "Ce transfert ne peut pas être utilisé. Recommencez depuis le portail."
+            },
+            "target_forbidden": {
+              "title": "Accès refusé",
+              "message": "Votre compte ne peut pas accéder à cet espace."
+            },
+            "entry_route_not_allowed": {
+              "title": "Page invalide",
+              "message": "Cette page d’entrée n’est pas autorisée."
+            },
+            "not_found_or_expired": {
+              "title": "Transfert expiré",
+              "message": "Ce transfert a expiré ou n’est plus disponible. Recommencez depuis le portail."
+            },
+            "replayed": {
+              "title": "Transfert déjà utilisé",
+              "message": "Ce transfert a déjà été utilisé. Recommencez depuis le portail."
+            },
+            "expired": {
+              "title": "Transfert expiré",
+              "message": "Ce transfert a expiré. Recommencez depuis le portail."
+            },
+            "rate_limited": {
+              "title": "Trop de tentatives",
+              "message": "Attendez un instant avant de réessayer."
+            },
+            "external_identity_missing": {
+              "title": "Compte non prêt",
+              "message": "Cette connexion n’est pas prête pour le transfert. Contactez un administrateur."
+            },
+            "custom_token_unsupported_provider": {
+              "title": "Transfert indisponible",
+              "message": "Cette méthode de connexion ne prend pas en charge le transfert."
+            },
+            "custom_token_failed": {
+              "title": "Transfert indisponible",
+              "message": "Réessayez plus tard ou revenez au portail."
+            }
+          },
+          "user": {
+            "not_found": {
+              "title": "Compte introuvable",
+              "message": "Ce compte n’est plus disponible."
+            },
+            "action_forbidden": {
+              "title": "Action non autorisée",
+              "message": "Votre compte ne peut pas effectuer cette action pour cet utilisateur."
+            },
+            "outside_tenant_scope": {
+              "title": "Accès refusé",
+              "message": "Cet utilisateur n’appartient pas à l’espace actif."
+            }
+          },
+          "external_identity": {
+            "not_linked": {
+              "title": "Compte non associé",
+              "message": "Ce compte n’est pas associé à la méthode de connexion nécessaire."
+            }
+          },
+          "membership": {
+            "cross_tenant_forbidden": {
+              "title": "Accès refusé",
+              "message": "Vous ne pouvez pas affecter un utilisateur à un autre espace."
+            }
+          },
+          "admin": {
+            "super_admin_assignment_forbidden": {
+              "title": "Rôle non autorisé",
+              "message": "Le rôle d’administrateur plateforme ne peut pas être attribué dans cet espace."
+            }
+          },
+          "profile": {
+            "locale_invalid": {
+              "title": "Langue invalide",
+              "message": "Choisissez une langue prise en charge puis réessayez."
+            },
+            "time_zone_invalid": {
+              "title": "Fuseau horaire invalide",
+              "message": "Choisissez un fuseau horaire pris en charge puis réessayez."
+            },
+            "currency_invalid": {
+              "title": "Devise invalide",
+              "message": "Choisissez une devise prise en charge puis réessayez."
+            }
+          },
+          "role": {
+            "invalid": {
+              "title": "Rôle invalide",
+              "message": "Choisissez un rôle pris en charge puis réessayez."
+            }
+          }
+        },
         "request": {
           "missing_parameter": {
             "title": "Information manquante",
@@ -66,6 +306,18 @@
           "failed": {
             "title": "Information a corriger",
             "message": "Corrigez les champs signales puis reessayez."
+          },
+          "invalid_format": {
+            "title": "Format invalide",
+            "message": "Corrigez le format du champ signale puis reessayez."
+          },
+          "out_of_range": {
+            "title": "Valeur invalide",
+            "message": "Saisissez une valeur comprise dans les limites attendues puis reessayez."
+          },
+          "required": {
+            "title": "Information manquante",
+            "message": "Remplissez le champ signale puis reessayez."
           }
         },
         "platform": {
@@ -78,6 +330,28 @@
             }
           }
         },
+        "entitlement": {
+          "feature_required": {
+            "title": "Fonction non disponible",
+            "message": "Cette fonction n’est pas incluse dans la configuration actuelle de votre espace."
+          },
+          "limit_missing": {
+            "title": "Configuration indisponible",
+            "message": "La limite nécessaire n’est pas disponible pour le moment. Réessayez plus tard."
+          },
+          "limit_exceeded": {
+            "title": "Limite atteinte",
+            "message": "Cette action dépasse une limite de votre espace."
+          },
+          "usage_provider_unavailable": {
+            "title": "Vérification indisponible",
+            "message": "La vérification de cette limite est indisponible pour le moment. Réessayez plus tard."
+          },
+          "plan_unavailable": {
+            "title": "Plan indisponible",
+            "message": "Le plan de ce tenant ne peut pas être lu pour le moment. Réessayez plus tard."
+          }
+        },
         "limits": {
           "blocked": {
             "title": "Limite de vente atteinte",
@@ -85,6 +359,14 @@
           }
         },
         "sales": {
+          "promotion_applied": {
+            "title": "Maryaj gratuit ajoute",
+            "message": "Le ticket inclut des lignes gratuites appliquees par la promotion."
+          },
+          "promotion_terminal_override_applied": {
+            "title": "Regle promotionnelle vendeur appliquee",
+            "message": "Le ticket utilise la regle promotionnelle specifique a ce vendeur."
+          },
           "acceptable": {
             "title": "Vente prête",
             "message": "Le ticket peut être vendu."
@@ -212,6 +494,832 @@
           "seller_terminal_actor_required": {
             "title": "Vendeur requis",
             "message": "Cette vente n’est pas rattachée à un vendeur. Revenez à la liste des vendeurs et ouvrez la vente depuis un vendeur actif."
+          },
+          "draw": {
+            "not_open": {
+              "title": "Tirage fermé",
+              "message": "Choisissez un autre tirage ouvert."
+            },
+            "cutoff_elapsed": {
+              "title": "Vente fermée pour ce tirage",
+              "message": "L’heure limite est passée. Choisissez un autre tirage ouvert."
+            }
+          },
+          "draw_channel": {
+            "inactive": {
+              "title": "Canal indisponible",
+              "message": "Ce canal n’accepte pas de vente actuellement."
+            },
+            "mismatch": {
+              "title": "Canal invalide",
+              "message": "Rechargez le tirage puis réessayez."
+            }
+          },
+          "result_slot": {
+            "inactive": {
+              "title": "Tirage indisponible",
+              "message": "Ce résultat n’accepte pas de vente actuellement."
+            }
+          },
+          "seller_terminal": {
+            "required": {
+              "title": "Vendeur requis",
+              "message": "Ouvrez la vente depuis un vendeur actif."
+            },
+            "cannot_sell": {
+              "title": "Vente indisponible",
+              "message": "Ce terminal vendeur ne peut pas vendre actuellement. Utilisez un terminal actif ou vérifiez son accès."
+            }
+          },
+          "tenant": {
+            "disabled": {
+              "title": "Espace désactivé",
+              "message": "Les ventes sont désactivées pour cet espace. Contactez un administrateur."
+            },
+            "business_closed": {
+              "title": "Ventes fermées",
+              "message": "Les ventes sont fermées pour cet espace actuellement."
+            }
+          },
+          "draw_channel_required": {
+            "title": "Canal manquant",
+            "message": "Rechargez le tirage puis réessayez."
+          },
+          "tenant_game_not_configured": {
+            "title": "Jeu indisponible",
+            "message": "Ce jeu n’est pas configuré pour cet espace."
+          },
+          "tenant_game_disabled": {
+            "title": "Jeu désactivé",
+            "message": "Ce jeu est désactivé pour cet espace."
+          },
+          "tenant_game_not_visible_in_pos": {
+            "title": "Jeu indisponible",
+            "message": "Ce jeu n’est pas disponible sur ce terminal."
+          },
+          "invalid_line_number": {
+            "title": "Ligne invalide",
+            "message": "Corrigez la ligne puis réessayez."
+          },
+          "selection_invalid": {
+            "title": "Numéro à corriger",
+            "message": "Corrigez le numéro selon le jeu choisi."
+          },
+          "tenant_bet_option_not_configured": {
+            "title": "Option indisponible",
+            "message": "Cette option n’est pas configurée pour ce jeu."
+          },
+          "tenant_bet_option_disabled": {
+            "title": "Option désactivée",
+            "message": "Cette option est désactivée pour ce jeu."
+          },
+          "tenant_bet_option_not_visible_in_pos": {
+            "title": "Option indisponible",
+            "message": "Cette option n’est pas disponible sur ce terminal."
+          },
+          "stake_below_tenant_min": {
+            "title": "Mise trop faible",
+            "message": "Augmentez la mise de cette ligne puis réessayez."
+          },
+          "stake_above_tenant_max": {
+            "title": "Mise trop élevée",
+            "message": "Réduisez la mise de cette ligne puis réessayez."
+          },
+          "tenant_bet_type_not_configured": {
+            "title": "Type de jeu indisponible",
+            "message": "Ce type de pari n’est pas configuré pour ce jeu."
+          },
+          "preparation": {
+            "not_found": {
+              "title": "Préparation introuvable",
+              "message": "Revenez au ticket et recommencez la préparation."
+            },
+            "promotion_line_not_found": {
+              "title": "Ligne gratuite introuvable",
+              "message": "Rechargez le ticket puis réessayez."
+            },
+            "already_confirmed": {
+              "title": "Ticket déjà confirmé",
+              "message": "Ce ticket a déjà été vendu."
+            },
+            "expired": {
+              "title": "Préparation expirée",
+              "message": "Vérifiez le ticket puis préparez la vente à nouveau."
+            },
+            "not_confirmable": {
+              "title": "Préparation indisponible",
+              "message": "Préparez le ticket à nouveau avant de confirmer."
+            },
+            "line_not_regenerable": {
+              "title": "Ligne non modifiable",
+              "message": "Cette ligne gratuite ne peut pas être régénérée."
+            },
+            "max_regenerations_reached": {
+              "title": "Limite de régénération atteinte",
+              "message": "Confirmez le ticket ou préparez-en un nouveau."
+            },
+            "cancelled": {
+              "title": "Préparation annulée",
+              "message": "Préparez le ticket à nouveau."
+            }
+          }
+        },
+        "ticket": {
+          "not_found": {
+            "title": "Ticket introuvable",
+            "message": "Vérifiez le code du ticket puis réessayez."
+          },
+          "filter": {
+            "invalid_date_range": {
+              "title": "Période invalide",
+              "message": "La date de fin doit être postérieure à la date de début."
+            },
+            "invalid_sort": {
+              "title": "Tri invalide",
+              "message": "Choisissez un tri de tickets pris en charge."
+            },
+            "invalid_status": {
+              "title": "Statut invalide",
+              "message": "Choisissez un statut de ticket pris en charge."
+            }
+          },
+          "print": {
+            "view_not_found": {
+              "title": "Ticket introuvable",
+              "message": "Ce ticket ne peut pas être affiché pour le moment."
+            },
+            "voided_not_allowed": {
+              "title": "Impression indisponible",
+              "message": "Un ticket annulé ne peut pas être imprimé."
+            },
+            "sale_not_accepted": {
+              "title": "Impression indisponible",
+              "message": "Le ticket doit être accepté avant son impression."
+            }
+          },
+          "reprint": {
+            "reason_required": {
+              "title": "Motif requis",
+              "message": "Indiquez le motif de la réimpression."
+            },
+            "reason_too_long": {
+              "title": "Motif trop long",
+              "message": "Raccourcissez le motif de la réimpression."
+            }
+          }
+        },
+        "sellerterminal": {
+          "not_found": {
+            "title": "Terminal introuvable",
+            "message": "Ce terminal vendeur n’est plus disponible."
+          },
+          "status_transition_invalid": {
+            "title": "Action impossible",
+            "message": "L’état actuel du terminal ne permet pas cette action."
+          },
+          "commission_rate_invalid": {
+            "title": "Commission invalide",
+            "message": "Saisissez une commission comprise entre 0 et 100 %."
+          },
+          "identity_not_bound": {
+            "title": "Accès terminal indisponible",
+            "message": "Ce terminal n’a pas encore d’identité de connexion active."
+          },
+          "identity_provision_unavailable": {
+            "title": "Service de connexion indisponible",
+            "message": "Le compte du terminal ne peut pas être mis à jour pour le moment. Réessayez plus tard."
+          },
+          "pin_reset_unavailable": {
+            "title": "Réinitialisation indisponible",
+            "message": "Le code PIN ne peut pas être modifié pour le moment. Réessayez plus tard."
+          }
+        },
+        "pricing": {
+          "tenant_required": {
+            "title": "Espace requis",
+            "message": "Sélectionnez un espace actif avant de configurer la tarification."
+          },
+          "game_code_required": {
+            "title": "Jeu requis",
+            "message": "Sélectionnez le jeu concerné."
+          },
+          "pricing_variant_required": {
+            "title": "Option requise",
+            "message": "Sélectionnez l’option de tarification."
+          },
+          "bet_type_required": {
+            "title": "Type de pari requis",
+            "message": "Sélectionnez le type de pari."
+          },
+          "odds_invalid": {
+            "title": "Multiplicateur invalide",
+            "message": "Saisissez un multiplicateur supérieur à zéro."
+          },
+          "fixed_amount_invalid": {
+            "title": "Montant fixe invalide",
+            "message": "Saisissez un montant fixe positif ou nul."
+          },
+          "payout_rule_type_invalid": {
+            "title": "Type de gain invalide",
+            "message": "Ce jeu ne prend pas en charge ce type de règle de gain."
+          },
+          "tenant_default_not_configured": {
+            "title": "Tarification manquante",
+            "message": "Configurez d’abord la règle de tarification du tenant."
+          },
+          "override_not_found": {
+            "title": "Override introuvable",
+            "message": "Cette règle spécifique au terminal n’est plus disponible."
+          },
+          "override_payout_rule_type_mismatch": {
+            "title": "Override incompatible",
+            "message": "Un terminal ne peut pas modifier le type de règle défini pour le tenant."
+          }
+        },
+        "draw": {
+          "correct_result": {
+            "reason_required": {
+              "title": "Motif requis",
+              "message": "Indiquez le motif de la correction."
+            },
+            "reason_too_short": {
+              "title": "Motif trop court",
+              "message": "Décrivez davantage le motif de la correction."
+            },
+            "idempotency_key_required": {
+              "title": "Correction invalide",
+              "message": "Relancez la correction depuis la page du tirage."
+            },
+            "no_result_applied": {
+              "title": "Aucun résultat appliqué",
+              "message": "Appliquez un résultat avant de le corriger."
+            },
+            "same_result": {
+              "title": "Résultat inchangé",
+              "message": "Choisissez un résultat différent pour effectuer une correction."
+            }
+          },
+          "lookahead_days_invalid": {
+            "title": "Période invalide",
+            "message": "Choisissez une période entre 1 et 30 jours."
+          },
+          "schedule_invalid": {
+            "title": "Horaire invalide",
+            "message": "L’heure limite doit précéder l’heure du tirage."
+          },
+          "lifecycle": {
+            "draw_ids_required": {
+              "title": "Tirage requis",
+              "message": "Sélectionnez au moins un tirage."
+            },
+            "draw_ids_limit_exceeded": {
+              "title": "Trop de tirages",
+              "message": "Réduisez la sélection puis réessayez."
+            }
+          }
+        },
+        "drawresult": {
+          "not_found": {
+            "title": "Résultat introuvable",
+            "message": "Ce résultat n’est plus disponible."
+          },
+          "result_slot": {
+            "not_found": {
+              "title": "Slot introuvable",
+              "message": "Le slot de résultat demandé n’est plus disponible."
+            }
+          },
+          "override_settled_forbidden": {
+            "title": "Correction impossible",
+            "message": "Ce résultat est déjà lié à un tirage réglé."
+          },
+          "external_pick_invalid": {
+            "title": "Numéros invalides",
+            "message": "Saisissez 3 chiffres pour le premier numéro et 4 chiffres pour le second."
+          },
+          "projection_failed": {
+            "title": "Résultat non traitable",
+            "message": "Le résultat ne peut pas être traité pour le moment. Réessayez ou contactez le support."
+          }
+        },
+        "promotion": {
+          "campaign": {
+            "not_found": {
+              "title": "Promotion introuvable",
+              "message": "Cette campagne n’est plus disponible."
+            },
+            "dates_required_for_activation": {
+              "title": "Dates requises",
+              "message": "Renseignez les dates de début et de fin avant l’activation."
+            },
+            "start_must_be_before_end": {
+              "title": "Dates invalides",
+              "message": "La date de début doit précéder la date de fin."
+            },
+            "no_rules": {
+              "title": "Règle requise",
+              "message": "Ajoutez au moins une règle avant l’activation."
+            },
+            "rule_missing_effects": {
+              "title": "Effet requis",
+              "message": "Chaque règle doit contenir au moins un effet."
+            },
+            "rule_effect_type_unsupported": {
+              "title": "Effet non pris en charge",
+              "message": "Cet effet n’est pas disponible pour cette campagne."
+            },
+            "rule_generation_strategy_unsupported": {
+              "title": "Stratégie non prise en charge",
+              "message": "Cette stratégie de génération n’est pas disponible."
+            }
+          },
+          "maryaj_gratis": {
+            "choice_mode_invalid": {
+              "title": "Choix invalide",
+              "message": "Choisissez un mode Maryaj gratis pris en charge."
+            },
+            "generation_strategy_unsupported": {
+              "title": "Stratégie non prise en charge",
+              "message": "Cette stratégie de génération n’est pas disponible."
+            },
+            "generation_strategy_requires_auto_generate": {
+              "title": "Mode automatique requis",
+              "message": "La stratégie de génération requiert le mode automatique."
+            },
+            "regeneration_requires_auto_generate": {
+              "title": "Régénération indisponible",
+              "message": "La régénération requiert le mode automatique."
+            },
+            "step_paid_amount_required": {
+              "title": "Montant requis",
+              "message": "Renseignez le montant par étape."
+            },
+            "quantity_tiers_required": {
+              "title": "Paliers requis",
+              "message": "Renseignez au moins un palier de quantité."
+            }
+          }
+        },
+        "limits": {
+          "blocked": {
+            "title": "Limite dépassée",
+            "message": "Cette vente dépasse la limite configurée."
+          },
+          "target_type_required": {
+            "title": "Cible requise",
+            "message": "Sélectionnez le type de cible de la limite."
+          },
+          "target_type_unsupported": {
+            "title": "Cible non prise en charge",
+            "message": "Ce type de cible n’est pas disponible pour les limites."
+          },
+          "target_id_required": {
+            "title": "Cible requise",
+            "message": "Sélectionnez la cible de la limite."
+          },
+          "target_id_invalid": {
+            "title": "Cible invalide",
+            "message": "Sélectionnez une cible de limite valide."
+          }
+        },
+        "notification": {
+          "not_found": {
+            "title": "Notification introuvable",
+            "message": "Cette notification n’est plus disponible."
+          },
+          "publication_not_found": {
+            "title": "Publication introuvable",
+            "message": "Cette publication de notification n’est plus disponible."
+          },
+          "not_publishable": {
+            "title": "Publication indisponible",
+            "message": "Cette notification ne peut pas être publiée dans son état actuel."
+          },
+          "not_republishable": {
+            "title": "Republication indisponible",
+            "message": "Cette notification ne peut pas être republiée dans son état actuel."
+          },
+          "reason_required": {
+            "title": "Motif requis",
+            "message": "Indiquez un motif pour continuer."
+          },
+          "system_keys_required": {
+            "title": "Clés de traduction requises",
+            "message": "Renseignez ensemble les clés de titre et de message."
+          },
+          "translation_required": {
+            "title": "Traduction requise",
+            "message": "Renseignez les traductions obligatoires."
+          },
+          "translation_locale_unsupported": {
+            "title": "Langue non prise en charge",
+            "message": "Choisissez une langue de notification prise en charge."
+          },
+          "tenant_required": {
+            "title": "Tenant requis",
+            "message": "Sélectionnez le tenant de la notification."
+          },
+          "target_required": {
+            "title": "Destinataire requis",
+            "message": "Sélectionnez au moins un destinataire."
+          },
+          "platform_audience_requires_platform_scope": {
+            "title": "Accès refusé",
+            "message": "Cette audience nécessite le contexte plateforme."
+          },
+          "tenant_audience_requires_tenant_scope": {
+            "title": "Accès refusé",
+            "message": "Cette audience nécessite le contexte tenant."
+          },
+          "recipients_required": {
+            "title": "Destinataire requis",
+            "message": "Sélectionnez au moins un destinataire."
+          },
+          "slack_channel_key_required": {
+            "title": "Canal Slack requis",
+            "message": "Renseignez le canal Slack."
+          },
+          "email_required": {
+            "title": "E-mail requis",
+            "message": "Renseignez l’adresse e-mail du destinataire."
+          },
+          "email_invalid": {
+            "title": "E-mail invalide",
+            "message": "Renseignez une adresse e-mail valide."
+          },
+          "phone_required": {
+            "title": "Téléphone requis",
+            "message": "Renseignez le numéro de téléphone du destinataire."
+          },
+          "phone_invalid": {
+            "title": "Téléphone invalide",
+            "message": "Renseignez un numéro international valide."
+          },
+          "send_failed": {
+            "title": "Envoi indisponible",
+            "message": "La notification ne peut pas être envoyée maintenant. Réessayez plus tard."
+          }
+        },
+        "publiccontent": {
+          "item": {
+            "not_found": {
+              "title": "Contenu introuvable",
+              "message": "Ce contenu public n’est plus disponible."
+            }
+          }
+        },
+        "document": {
+          "request_invalid": {
+            "title": "Document invalide",
+            "message": "Vérifiez les informations du document puis réessayez."
+          },
+          "renderer_unavailable": {
+            "title": "Impression indisponible",
+            "message": "Le document ne peut pas être préparé pour le moment. Réessayez plus tard."
+          },
+          "render_failed": {
+            "title": "Impression indisponible",
+            "message": "Le document ne peut pas être préparé pour le moment. Réessayez plus tard."
+          }
+        },
+        "pagemodel": {
+          "access_denied": {
+            "title": "Accès refusé",
+            "message": "Votre compte ne peut pas ouvrir cette page."
+          },
+          "tenant_override_forbidden": {
+            "title": "Accès refusé",
+            "message": "Votre compte ne peut pas sélectionner cet espace."
+          },
+          "not_found": {
+            "title": "Page introuvable",
+            "message": "La page demandée n'est plus disponible."
+          },
+          "widget": {
+            "unavailable": {
+              "title": "Section indisponible",
+              "message": "Cette section est temporairement indisponible. Réessayez."
+            },
+            "no_provider": {
+              "title": "Section indisponible",
+              "message": "Cette section est temporairement indisponible. Réessayez."
+            },
+            "role_denied": {
+              "title": "Accès refusé",
+              "message": "Votre compte ne peut pas voir cette section."
+            }
+          },
+          "fragment": {
+            "key_required": {
+              "title": "Page invalide",
+              "message": "La configuration de la page est incomplète."
+            },
+            "not_found": {
+              "title": "Section introuvable",
+              "message": "La section de page n'est plus disponible."
+            },
+            "invalid": {
+              "title": "Section indisponible",
+              "message": "La section de page ne peut pas être chargée pour le moment."
+            }
+          }
+        },
+        "pos": {
+          "surface": {
+            "not_allowed": {
+              "title": "Accès refusé",
+              "message": "Cette session ne peut pas utiliser cette surface."
+            }
+          },
+          "home": {
+            "seller_terminal_required": {
+              "title": "Terminal vendeur requis",
+              "message": "Rouvrez la session depuis un terminal vendeur valide."
+            }
+          },
+          "dashboard": {
+            "analytics_unavailable": {
+              "title": "Statistiques indisponibles",
+              "message": "Les statistiques vendeur sont temporairement indisponibles. Réessayez."
+            }
+          },
+          "tickets": {
+            "seller_terminal_mismatch": {
+              "title": "Accès refusé",
+              "message": "Ce terminal vendeur ne correspond pas à votre session."
+            }
+          },
+          "receipt": {
+            "print_options_invalid": {
+              "title": "Options d’impression invalides",
+              "message": "Vérifiez les options d’impression puis réessayez."
+            },
+            "delivery_channel_required": {
+              "title": "Canal d’envoi requis",
+              "message": "Sélectionnez un canal d’envoi valide."
+            },
+            "delivery_recipient_required": {
+              "title": "Destinataire requis",
+              "message": "Renseignez le téléphone ou l’e-mail du destinataire."
+            },
+            "attachment_too_large": {
+              "title": "Pièce jointe trop volumineuse",
+              "message": "Le document est trop volumineux pour être envoyé en pièce jointe."
+            },
+            "seller_terminal_required": {
+              "title": "Terminal vendeur requis",
+              "message": "Rouvrez une session de terminal vendeur valide pour continuer."
+            }
+          }
+        },
+        "communication": {
+          "request_invalid": {
+            "title": "Envoi invalide",
+            "message": "Vérifiez les informations d’envoi puis réessayez."
+          },
+          "channel_disabled": {
+            "title": "Canal d’envoi indisponible",
+            "message": "Ce canal d’envoi n’est pas activé pour ce tenant."
+          },
+          "enqueue_failed": {
+            "title": "Envoi indisponible",
+            "message": "L’envoi ne peut pas être préparé pour le moment. Réessayez plus tard."
+          },
+          "provider_unavailable": {
+            "title": "Service d’envoi indisponible",
+            "message": "Le service d’envoi de messages est temporairement indisponible."
+          },
+          "delivery_failed": {
+            "title": "Envoi indisponible",
+            "message": "Le message ne peut pas être envoyé pour le moment. Réessayez plus tard."
+          }
+        },
+        "tenantgame": {
+          "catalog_game_not_found": {
+            "title": "Jeu introuvable",
+            "message": "Ce jeu catalogue n’est plus disponible."
+          },
+          "not_found": {
+            "title": "Jeu tenant introuvable",
+            "message": "Ce jeu n’est pas activé pour ce tenant."
+          },
+          "disabled": {
+            "title": "Jeu désactivé",
+            "message": "Ce jeu est désactivé pour ce tenant."
+          },
+          "catalog_game_inactive": {
+            "title": "Jeu inactif",
+            "message": "Ce jeu catalogue ne peut pas être activé."
+          },
+          "display_name_too_long": {
+            "title": "Nom trop long",
+            "message": "Raccourcissez le nom du jeu."
+          },
+          "display_order_invalid": {
+            "title": "Ordre invalide",
+            "message": "Saisissez un ordre supérieur ou égal à zéro."
+          },
+          "min_stake_invalid": {
+            "title": "Mise minimale invalide",
+            "message": "Saisissez une mise minimale valide."
+          },
+          "max_stake_invalid": {
+            "title": "Mise maximale invalide",
+            "message": "Saisissez une mise maximale valide."
+          },
+          "stake_range_invalid": {
+            "title": "Plage de mises invalide",
+            "message": "La mise minimale ne peut pas dépasser la mise maximale."
+          },
+          "availability_day_invalid": {
+            "title": "Jour invalide",
+            "message": "Sélectionnez des jours de disponibilité pris en charge."
+          },
+          "time_invalid": {
+            "title": "Heure invalide",
+            "message": "Saisissez une heure au format HH:mm."
+          },
+          "bet_type_required": {
+            "title": "Type de pari requis",
+            "message": "Sélectionnez un type de pari."
+          },
+          "bet_type_unsupported": {
+            "title": "Type de pari non pris en charge",
+            "message": "Ce type de pari n’est pas disponible pour ce jeu."
+          },
+          "bet_type_duplicate": {
+            "title": "Type de pari en double",
+            "message": "Chaque type de pari ne doit apparaître qu’une fois."
+          },
+          "bet_option_invalid": {
+            "title": "Option de pari invalide",
+            "message": "Sélectionnez une option disponible pour ce type de pari."
+          },
+          "bet_option_duplicate": {
+            "title": "Option de pari en double",
+            "message": "Chaque option ne doit apparaître qu’une fois."
+          },
+          "bet_option_enabled_required": {
+            "title": "Option active requise",
+            "message": "Activez au moins une option de pari."
+          },
+          "bet_option_default_invalid": {
+            "title": "Option par défaut invalide",
+            "message": "Sélectionnez une option active par défaut."
+          }
+        },
+        "tenant": {
+          "not_found": {
+            "title": "Tenant introuvable",
+            "message": "Ce tenant n’est plus disponible."
+          },
+          "activation_not_allowed": {
+            "title": "Activation indisponible",
+            "message": "Ce tenant ne peut pas être activé dans son état actuel."
+          },
+          "suspension_not_allowed": {
+            "title": "Suspension indisponible",
+            "message": "Ce tenant ne peut pas être suspendu dans son état actuel."
+          },
+          "settings_invalid": {
+            "title": "Configuration invalide",
+            "message": "Corrigez la configuration du tenant puis réessayez."
+          },
+          "support_reason_invalid": {
+            "title": "Motif de support invalide",
+            "message": "Indiquez un motif de support d’au moins 10 caractères."
+          },
+          "commission": {
+            "default_rate_not_set": {
+              "title": "Taux par défaut requis",
+              "message": "Configurez d’abord le taux de commission par défaut du tenant."
+            }
+          }
+        },
+        "tenantadmin": {
+          "overview": {
+            "address_unavailable": {
+              "title": "Adresse indisponible",
+              "message": "L’adresse de l’entreprise ne peut pas être chargée pour le moment. Réessayez."
+            },
+            "registry_unavailable": {
+              "title": "Informations de l’entreprise indisponibles",
+              "message": "Les informations de l’entreprise ne peuvent pas être chargées pour le moment. Réessayez."
+            }
+          },
+          "dashboard": {
+            "registry_unavailable": {
+              "title": "Informations de l’entreprise indisponibles",
+              "message": "Les informations de l’entreprise ne peuvent pas être chargées pour le moment."
+            },
+            "operations_unavailable": {
+              "title": "Opérations indisponibles",
+              "message": "Les opérations de l’entreprise ne peuvent pas être chargées pour le moment."
+            },
+            "commercial_unavailable": {
+              "title": "Configuration commerciale indisponible",
+              "message": "Les jeux et canaux ne peuvent pas être chargés pour le moment."
+            },
+            "kpis_unavailable": {
+              "title": "Indicateurs indisponibles",
+              "message": "Les indicateurs ne peuvent pas être chargés pour le moment."
+            },
+            "analytics_unavailable": {
+              "title": "Statistiques indisponibles",
+              "message": "Les statistiques de vente ne peuvent pas être chargées pour le moment."
+            },
+            "live_sales_unavailable": {
+              "title": "Ventes en direct indisponibles",
+              "message": "Les ventes du jour ne peuvent pas être chargées pour le moment."
+            },
+            "open_draws_unavailable": {
+              "title": "Tirages ouverts indisponibles",
+              "message": "Les tirages ouverts ne peuvent pas être chargés pour le moment."
+            },
+            "closed_draws_unavailable": {
+              "title": "Tirages fermés indisponibles",
+              "message": "Les tirages fermés ne peuvent pas être chargés pour le moment."
+            },
+            "notifications_unavailable": {
+              "title": "Notifications indisponibles",
+              "message": "Les notifications ne peuvent pas être chargées pour le moment."
+            },
+            "commission_unavailable": {
+              "title": "Commissions indisponibles",
+              "message": "Le résumé des commissions ne peut pas être chargé pour le moment."
+            },
+            "public_content_unavailable": {
+              "title": "Informations indisponibles",
+              "message": "Les informations publiques ne peuvent pas être chargées pour le moment."
+            }
+          }
+        },
+        "platformadmin": {
+          "dashboard": {
+            "tenants_unavailable": {
+              "title": "Tenants indisponibles",
+              "message": "Les indicateurs des tenants sont temporairement indisponibles."
+            },
+            "analytics_unavailable": {
+              "title": "Statistiques plateforme indisponibles",
+              "message": "Les statistiques de la plateforme sont temporairement indisponibles."
+            },
+            "subscriptions_unavailable": {
+              "title": "Abonnements indisponibles",
+              "message": "Le résumé des abonnements est temporairement indisponible."
+            },
+            "onboarding_unavailable": {
+              "title": "Onboarding indisponible",
+              "message": "La liste des onboardings est temporairement indisponible."
+            },
+            "public_content_unavailable": {
+              "title": "Informations indisponibles",
+              "message": "Les informations publiques sont temporairement indisponibles."
+            }
+          }
+        },
+        "catalog": {
+          "game": {
+            "not_found": {
+              "title": "Jeu introuvable",
+              "message": "Ce jeu n’est plus disponible dans le catalogue."
+            },
+            "structural_update_in_use": {
+              "title": "Modification impossible",
+              "message": "Ce jeu est déjà utilisé dans une configuration tenant."
+            },
+            "delete_in_use": {
+              "title": "Suppression impossible",
+              "message": "Ce jeu est déjà utilisé dans une configuration tenant."
+            }
+          },
+          "drawchannel": {
+            "deleted": {
+              "title": "Canal introuvable",
+              "message": "Ce canal n’est plus disponible."
+            },
+            "flags_required": {
+              "title": "Configuration requise",
+              "message": "Renseignez la configuration du canal."
+            },
+            "flags_invalid": {
+              "title": "Configuration invalide",
+              "message": "Corrigez la configuration du canal puis réessayez."
+            }
+          },
+          "resultslot": {
+            "not_found": {
+              "title": "Slot introuvable",
+              "message": "Ce slot de résultat n’est plus disponible."
+            },
+            "config_invalid": {
+              "title": "Configuration invalide",
+              "message": "Corrigez la configuration du slot puis réessayez."
+            },
+            "game_key_invalid": {
+              "title": "Jeu invalide",
+              "message": "Choisissez un jeu pris en charge pour ce slot."
+            }
           }
         }
       }

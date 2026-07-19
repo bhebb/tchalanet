@@ -74,6 +74,7 @@
                 <input matInput formControlName="name" />
               </mat-form-field>
               <tch-field-error [control]="identityForm.controls.name" />
+              <tch-form-error-summary [messages]="identityFormSummary()" />
               @if (identityFormError()) {
                 <tch-notice type="error">{{ identityFormError() }}</tch-notice>
               }
@@ -125,6 +126,7 @@
                 <input matInput formControlName="currency" maxlength="10" />
               </mat-form-field>
               <tch-field-error [control]="regionForm.controls.currency" />
+              <tch-form-error-summary [messages]="regionFormSummary()" />
               @if (regionFormError()) {
                 <tch-notice type="error">{{ regionFormError() }}</tch-notice>
               }
@@ -171,6 +173,7 @@
                 <span matTextSuffix>%</span>
               </mat-form-field>
               <tch-field-error [control]="commissionForm.controls.rate" />
+              <tch-form-error-summary [messages]="commissionFormSummary()" />
               @if (commissionFormError()) {
                 <tch-notice type="error">{{ commissionFormError() }}</tch-notice>
               }
@@ -213,6 +216,7 @@
                 [framed]="false"
                 [required]="true"
               />
+              <tch-form-error-summary [messages]="addressFormSummary()" />
               @if (addressFormError()) {
                 <tch-notice type="error">{{ addressFormError() }}</tch-notice>
               }

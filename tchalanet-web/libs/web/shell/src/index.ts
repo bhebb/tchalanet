@@ -5,6 +5,7 @@
  * here when they are independent from one concrete app composition root.
  */
 export * from './lib/feedback/copy-error-details';
+export * from './lib/feedback/shell-feedback.interceptor';
 export * from './lib/feedback/shell-feedback-banner.component';
 export * from './lib/feedback/shell-feedback-outlet.component';
 export * from './lib/feedback/shell-feedback.model';

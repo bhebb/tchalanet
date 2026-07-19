@@ -5,6 +5,7 @@ export type WebErrorCategory =
   | 'auth_required'
   | 'access_denied'
   | 'validation'
+  | 'business_rule'
   | 'not_found'
   | 'conflict'
   | 'rate_limited'
@@ -12,7 +13,7 @@ export type WebErrorCategory =
   | 'service_unavailable'
   | 'unexpected';
 export type WebErrorSeverity = 'info' | 'warn' | 'error';
-export type WebErrorSurface = 'page' | 'section' | 'field' | 'shell';
+export type WebErrorSurface = 'page' | 'section' | 'form' | 'field' | 'shell';
 export type WebErrorPlacement = 'top' | 'inline' | 'summary';
 
 export interface WebAppError {
@@ -34,6 +35,8 @@ export interface WebAppError {
   readonly target?: string;
   readonly field?: string;
   readonly retryable: boolean;
+  readonly retryPolicy?: string;
+  readonly params?: Readonly<Record<string, string | number | boolean>>;
   readonly dedupeKey: string;
 }
 
@@ -43,7 +46,8 @@ export function webAppErrorFromProblemDetail(
   surface: WebErrorSurface = 'shell',
 ): WebAppError {
   const code = problem.code ?? legacyDetailCode(problem.detail) ?? problemTypeCode(problem.type);
-  const category = categoryFromCodeStatus(code, problem.status);
+  const category =
+    categoryFromWireValue(problem.category) ?? categoryFromCodeStatus(code, problem.status);
   const severity = problem.status >= 500 || problem.status === 0 ? 'error' : 'warn';
   const resolvedSource = problem.instance ?? source;
 
@@ -61,9 +65,9 @@ export function webAppErrorFromProblemDetail(
     category,
     severity,
     surface,
-    placement: surface === 'field' ? 'inline' : 'top',
-    title: userSafeTitle(code, category, problem.title),
-    message: userSafeMessage(code, category, problem.detail ?? problem.title),
+    placement: defaultPlacement(surface),
+    title: userSafeTitle(category),
+    message: userSafeMessage(category),
     code,
     status: problem.status,
     requestId: problem.requestId ?? problem.correlationId,
@@ -73,7 +77,9 @@ export function webAppErrorFromProblemDetail(
     source: resolvedSource,
     target: undefined,
     field: undefined,
-    retryable: isRetryable(category, problem.status),
+    retryable: problem.retryable ?? isRetryable(category, problem.status),
+    retryPolicy: problem.retryPolicy,
+    params: problem.params,
     dedupeKey: dedupeKey(code, category, problem.status, resolvedSource, surface),
   };
 }
@@ -87,7 +93,9 @@ export function webAppErrorFromNotice(
   const meta = notice.meta ?? {};
   const noticeSource = stringMeta(meta, 'source') ?? notice.target ?? notice.domain ?? source;
   const status = numberMeta(meta, 'status');
-  const category = categoryFromCodeStatus(notice.code, status);
+  const category =
+    categoryFromWireValue(stringMeta(meta, 'category')) ??
+    categoryFromCodeStatus(notice.code, status);
   const severity = severityFromNotice(notice.severity);
   const requestId = stringMeta(meta, 'requestId') ?? trace?.requestId;
   const traceId = stringMeta(meta, 'traceId') ?? trace?.traceId;
@@ -105,8 +113,8 @@ export function webAppErrorFromNotice(
     severity,
     surface: resolvedSurface,
     placement,
-    title: userSafeTitle(notice.code, category, notice.message),
-    message: userSafeMessage(notice.code, category, notice.message),
+    title: userSafeTitle(category),
+    message: userSafeMessage(category),
     code: notice.code,
     status,
     requestId,
@@ -116,7 +124,9 @@ export function webAppErrorFromNotice(
     source: noticeSource,
     target,
     field,
-    retryable: isRetryable(category, status),
+    retryable: notice.retryable ?? isRetryable(category, status),
+    retryPolicy: notice.retryPolicy,
+    params: notice.params,
     dedupeKey: dedupeKey(
       notice.code,
       category,
@@ -142,7 +152,6 @@ export function webAppErrorsFromProblemDetailFields(
   return violations.map(violation => {
     const code = violation.code ?? problem.code ?? 'validation.failed';
     const target = violation.target ?? violation.field;
-    const message = violation.message ?? problem.detail ?? problem.title;
     const category: WebErrorCategory = 'validation';
 
     return {
@@ -160,8 +169,8 @@ export function webAppErrorsFromProblemDetailFields(
       severity: 'error',
       surface: 'field',
       placement: 'inline',
-      title: userSafeTitle(code, category, problem.title),
-      message: userSafeMessage(code, category, message),
+      title: userSafeTitle(category),
+      message: userSafeMessage(category),
       code,
       status: problem.status,
       requestId: problem.requestId ?? problem.correlationId,
@@ -211,8 +220,8 @@ export function webAppErrorFromServiceStatus(
     severity,
     surface: 'shell',
     placement: 'top',
-    title: userSafeTitle(code, category, service.message ?? resolvedSource),
-    message: userSafeMessage(code, category, service.message ?? resolvedSource),
+    title: userSafeTitle(category),
+    message: userSafeMessage(category),
     code,
     requestId: trace?.requestId,
     traceId: trace?.traceId,
@@ -277,6 +286,24 @@ function categoryFromCodeStatus(
   }
 }
 
+function categoryFromWireValue(value: string | undefined): WebErrorCategory | undefined {
+  switch (value) {
+    case 'auth_required':
+    case 'access_denied':
+    case 'validation':
+    case 'business_rule':
+    case 'not_found':
+    case 'conflict':
+    case 'rate_limited':
+    case 'network_unavailable':
+    case 'service_unavailable':
+    case 'unexpected':
+      return value;
+    default:
+      return undefined;
+  }
+}
+
 function severityFromNotice(severity: ApiNotice['severity']): WebErrorSeverity {
   switch (severity) {
     case 'ERROR':
@@ -325,12 +352,7 @@ function stableErrorId(
   return [kind, errorId, requestId, traceId, code, category, source].filter(Boolean).join('|');
 }
 
-function userSafeTitle(
-  code: string | undefined,
-  category: WebErrorCategory,
-  fallback: string,
-): string {
-  if (code) return code;
+function userSafeTitle(category: WebErrorCategory): string {
   switch (category) {
     case 'auth_required':
       return 'Session requise';
@@ -338,6 +360,8 @@ function userSafeTitle(
       return 'Acces non autorise';
     case 'validation':
       return 'Information a corriger';
+    case 'business_rule':
+      return 'Action indisponible';
     case 'not_found':
       return 'Element introuvable';
     case 'conflict':
@@ -349,16 +373,11 @@ function userSafeTitle(
     case 'service_unavailable':
       return 'Service temporairement indisponible';
     default:
-      return fallback || 'Erreur inattendue';
+      return 'Erreur inattendue';
   }
 }
 
-function userSafeMessage(
-  code: string | undefined,
-  category: WebErrorCategory,
-  fallback: string,
-): string {
-  if (code) return fallback || code;
+function userSafeMessage(category: WebErrorCategory): string {
   switch (category) {
     case 'auth_required':
       return 'Reconnectez-vous pour continuer.';
@@ -366,6 +385,8 @@ function userSafeMessage(
       return 'Votre compte ne permet pas cette action.';
     case 'validation':
       return 'Verifiez les champs et reessayez.';
+    case 'business_rule':
+      return 'Les conditions actuelles ne permettent pas cette action.';
     case 'not_found':
       return 'La ressource demandee n est plus disponible.';
     case 'conflict':
@@ -394,7 +415,11 @@ function stringMeta(meta: Readonly<Record<string, unknown>>, key: string): strin
 
 function surfaceFromMeta(meta: Readonly<Record<string, unknown>>): WebErrorSurface | undefined {
   const value = stringMeta(meta, 'surface');
-  return value === 'shell' || value === 'page' || value === 'section' || value === 'field'
+  return value === 'shell' ||
+    value === 'page' ||
+    value === 'section' ||
+    value === 'form' ||
+    value === 'field'
     ? value
     : undefined;
 }
@@ -405,7 +430,9 @@ function placementFromMeta(meta: Readonly<Record<string, unknown>>): WebErrorPla
 }
 
 function defaultPlacement(surface: WebErrorSurface): WebErrorPlacement {
-  return surface === 'field' ? 'inline' : 'top';
+  if (surface === 'field') return 'inline';
+  if (surface === 'form') return 'summary';
+  return 'top';
 }
 
 function numberMeta(meta: Readonly<Record<string, unknown>>, key: string): number | undefined {

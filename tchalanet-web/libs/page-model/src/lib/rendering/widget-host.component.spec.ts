@@ -52,4 +52,20 @@ describe('WidgetHostComponent', () => {
     });
     expect(cmp.state().kind).toBe('error');
   });
+
+  it('emits the owning widget id when a local retry is requested', () => {
+    const cmp = host({
+      widgetId: 'dashboard.tenantAdmin.salesTrend',
+      config: { type: 'TrendChartWidget' },
+      errors: [{ widgetId: 'dashboard.tenantAdmin.salesTrend', code: 'analytics.unavailable' }],
+    });
+    let retriedWidget: string | undefined;
+    cmp.retry.subscribe(widgetId => {
+      retriedWidget = widgetId;
+    });
+
+    cmp.retry.emit('dashboard.tenantAdmin.salesTrend');
+
+    expect(retriedWidget).toBe('dashboard.tenantAdmin.salesTrend');
+  });
 });

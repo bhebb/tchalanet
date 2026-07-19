@@ -16,6 +16,9 @@
   @if (actionError(); as actionErrorVm) {
     <tch-error-panel feedback [title]="actionErrorVm.title" [message]="actionErrorVm.message" />
   }
+  @if (actionSuccess(); as actionSuccessKey) {
+    <tch-notice type="success">{{ actionSuccessKey | translate }}</tch-notice>
+  }
 
   <tch-async-view
     [resource]="sellers"

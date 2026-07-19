@@ -1,5 +1,6 @@
 package com.tchalanet.server.platform.publiccontent.internal.news;
 
+import com.tchalanet.server.platform.publiccontent.api.model.PublicContentRefreshResult;
 import com.tchalanet.server.platform.publiccontent.api.model.PublicContentSourceType;
 import com.tchalanet.server.platform.publiccontent.api.model.PublicContentStatus;
 import com.tchalanet.server.platform.publiccontent.api.model.PublicContentSurface;
@@ -119,8 +120,8 @@ public class PublicContentAdminService {
    * Force refresh: triggers a live RSS fetch and stores fresh snapshot. Fix from spec: does NOT
    * write an empty snapshot.
    */
-  public void forceRefreshExternal() {
+  public PublicContentRefreshResult forceRefreshExternal() {
     log.info("publiccontent: admin forced external RSS refresh");
-    externalRssService.refreshExternalSnapshot();
+    return externalRssService.refreshExternalSnapshot();
   }
 }

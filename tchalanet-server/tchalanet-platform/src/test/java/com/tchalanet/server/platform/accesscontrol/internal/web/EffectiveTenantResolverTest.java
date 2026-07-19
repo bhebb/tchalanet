@@ -69,7 +69,10 @@ class EffectiveTenantResolverTest {
     assertThatThrownBy(
             () -> resolver.resolveForAppUser(new MockHttpServletRequest(), USER, false, Set.of()))
         .isInstanceOf(ProblemRestException.class)
-        .hasMessage("tenant.ambiguous_membership");
+        .satisfies(
+            throwable ->
+                assertThat(((ProblemRestException) throwable).getProblem().getProperties())
+                    .containsEntry("code", "access.tenant.ambiguous_membership"));
   }
 
   @Test
@@ -115,7 +118,10 @@ class EffectiveTenantResolverTest {
 
     assertThatThrownBy(() -> resolver.resolveForAppUser(req, USER, true, Set.of()))
         .isInstanceOf(ProblemRestException.class)
-        .hasMessage("tenant.override_forbidden");
+        .satisfies(
+            throwable ->
+                assertThat(((ProblemRestException) throwable).getProblem().getProperties())
+                    .containsEntry("code", "access.tenant.override_forbidden"));
   }
 
   @Test
@@ -125,7 +131,10 @@ class EffectiveTenantResolverTest {
 
     assertThatThrownBy(() -> resolver.resolveForAppUser(req, USER, true, WITH_OVERRIDE_PERM))
         .isInstanceOf(ProblemRestException.class)
-        .hasMessage("tenant.override_reason_required");
+        .satisfies(
+            throwable ->
+                assertThat(((ProblemRestException) throwable).getProblem().getProperties())
+                    .containsEntry("code", "access.tenant.override_reason_required"));
   }
 
   @Test
@@ -136,7 +145,10 @@ class EffectiveTenantResolverTest {
 
     assertThatThrownBy(() -> resolver.resolveForAppUser(req, USER, false, WITH_OVERRIDE_PERM))
         .isInstanceOf(ProblemRestException.class)
-        .hasMessage("tenant.override_not_super_admin");
+        .satisfies(
+            throwable ->
+                assertThat(((ProblemRestException) throwable).getProblem().getProperties())
+                    .containsEntry("code", "access.tenant.override_not_super_admin"));
   }
 
   @Test
@@ -147,6 +159,9 @@ class EffectiveTenantResolverTest {
 
     assertThatThrownBy(() -> resolver.resolveForAppUser(req, USER, true, WITH_OVERRIDE_PERM))
         .isInstanceOf(ProblemRestException.class)
-        .hasMessage("tenant.override_invalid");
+        .satisfies(
+            throwable ->
+                assertThat(((ProblemRestException) throwable).getProblem().getProperties())
+                    .containsEntry("code", "access.tenant.override_invalid"));
   }
 }

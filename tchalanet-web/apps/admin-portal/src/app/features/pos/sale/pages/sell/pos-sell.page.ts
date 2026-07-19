@@ -4,7 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Sort, SortDirection } from '@angular/material/sort';
 import { TranslateService } from '@ngx-translate/core';
-import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
+import { mapHttpErrorToProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 
 import { AdminEmptyStateComponent } from '@tch/ui/console';
 import { AdminPageShellComponent } from '@tch/ui/console';
@@ -156,17 +156,12 @@ export class PosSellPage implements OnInit {
   }
 
   private errorViewModel(err: unknown): ErrorViewModel {
-    const problem = (err as { error?: ProblemDetail })?.error;
-    if (problem) {
-      const normalized = webAppErrorFromProblemDetail(problem, 'admin.pos.sale.sellerPicker', 'page');
-      const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
-      return toErrorViewModel(normalized, copy);
-    }
-
-    return {
-      title: 'Impossible de charger les vendeurs.',
-      message: 'Un probleme est survenu. Reessayez dans quelques instants.',
-      severity: 'error',
-    };
+    const normalized = webAppErrorFromProblemDetail(
+      mapHttpErrorToProblemDetail(err),
+      'admin.pos.sale.sellerPicker',
+      'page',
+    );
+    const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+    return toErrorViewModel(normalized, copy);
   }
 }

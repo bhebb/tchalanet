@@ -98,7 +98,14 @@ class NotificationServiceTest {
             new RecordingNotificationWriter(), mock(NotificationTranslationJpaRepository.class));
 
     assertThatThrownBy(() -> service.createNotification(manualCreateRequest(Map.of())))
-        .hasMessageContaining("notification.translation_required_fr");
+        .isInstanceOf(com.tchalanet.server.common.web.error.ProblemRestException.class)
+        .satisfies(
+            throwable ->
+                assertThat(
+                        ((com.tchalanet.server.common.web.error.ProblemRestException) throwable)
+                            .getProblem()
+                            .getProperties())
+                    .containsEntry("code", "notification.translation_required"));
   }
 
   @Test

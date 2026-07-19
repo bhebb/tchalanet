@@ -12,7 +12,11 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateService } from '@ngx-translate/core';
-import { ProblemDetail, WebAppError, webAppErrorFromProblemDetail } from '@tch/api';
+import {
+  mapHttpErrorToProblemDetail,
+  WebAppError,
+  webAppErrorFromProblemDetail,
+} from '@tch/api';
 import { throwError } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 
@@ -397,13 +401,17 @@ export class PosTerminalSalePage implements OnInit {
   }
 
   private preparationRejectedError(preparation: PreparedTicketSaleView): ErrorViewModel {
-    const instruction =
-      preparation.notices[0]?.message ??
-      'Le ticket doit être corrigé avant la vente.';
+    const firstNotice = preparation.notices[0];
+    const copy = firstNotice
+      ? resolveErrorFeedbackCopy(firstNotice, key => this.translate.instant(key))
+      : {
+          title: this.translate.instant('common.errors.codes.sales.basket_requires_changes.title'),
+          message: this.translate.instant('common.errors.codes.sales.basket_requires_changes.message'),
+        };
 
     return {
-      title: 'Vente à vérifier',
-      message: instruction,
+      title: copy.title,
+      message: copy.message,
       severity: preparation.status === 'REJECTED' ? 'error' : 'warn',
       source: 'admin.sellerTerminal.pos.preparation',
       target: 'admin.sellerTerminal.pos.sale',
@@ -523,18 +531,9 @@ export class PosTerminalSalePage implements OnInit {
       return err;
     }
 
-    const problem = (err as { error?: ProblemDetail })?.error;
-    if (problem) {
-      const normalized = webAppErrorFromProblemDetail(problem, source, 'page');
-      const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
-      return toErrorViewModel(normalized, copy);
-    }
-
-    return {
-      title: this.translate.instant('common.errors.fallback.title'),
-      message: this.translate.instant('common.errors.fallback.message'),
-      severity: 'error',
-    };
+    const normalized = webAppErrorFromProblemDetail(mapHttpErrorToProblemDetail(err), source, 'page');
+    const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+    return toErrorViewModel(normalized, copy);
   }
 }
 

@@ -5,6 +5,7 @@ import com.tchalanet.server.common.types.id.PromotionCampaignId;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageMapper;
+import com.tchalanet.server.core.promotion.api.error.PromotionErrorCodes;
 import com.tchalanet.server.core.promotion.api.model.lifecycle.PromotionCampaignView;
 import com.tchalanet.server.core.promotion.internal.application.port.out.lifecycle.PromotionCampaignReadPort;
 import com.tchalanet.server.core.promotion.internal.infra.cache.PromotionCacheSpecProvider;
@@ -70,7 +71,7 @@ class PromotionCampaignReadJpaAdapter implements PromotionCampaignReadPort {
       key = "#root.target.campaignCacheKey(#promotionCampaignId)")
   public PromotionCampaignView getRequired(PromotionCampaignId promotionCampaignId) {
     return findById(promotionCampaignId)
-        .orElseThrow(() -> ProblemRest.notFound("promotion.campaign.not_found"));
+        .orElseThrow(() -> ProblemRest.of(PromotionErrorCodes.CAMPAIGN_NOT_FOUND));
   }
 
   public String tenantKey() {

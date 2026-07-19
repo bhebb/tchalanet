@@ -4,6 +4,7 @@ import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.error.ProblemRest;
+import com.tchalanet.server.platform.identity.api.error.IdentityErrorCodes;
 import com.tchalanet.server.platform.identity.internal.service.TenantUserAdministrationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -30,7 +31,7 @@ public class IdentityActivationController {
       @CurrentContext TchRequestContext ctx,
       @Valid @RequestBody CompleteFirstLoginRequest request) {
     if (ctx.userId() == null) {
-      throw ProblemRest.notFound("User not found for current principal");
+      throw ProblemRest.of(IdentityErrorCodes.USER_NOT_FOUND);
     }
     var result =
         users.completeFirstLogin(

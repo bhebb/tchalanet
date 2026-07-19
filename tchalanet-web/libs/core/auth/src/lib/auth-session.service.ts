@@ -3,7 +3,7 @@ import { computed, DestroyRef, inject, Injectable, PLATFORM_ID, signal } from '@
 import { firstValueFrom, timeout } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { TchBackendClient } from '@tch/api';
+import { ProblemDetail, TchBackendClient } from '@tch/api';
 import { TchRuntimeConfigStore } from '@tch/shared-config';
 import { PrivateRuntimeInitializer } from './runtime/private-runtime-initializer';
 import { AUTH_CLIENT } from './auth-client';
@@ -210,7 +210,22 @@ export class AuthSessionService {
 }
 
 function isAccessDenied(err: unknown): boolean {
-  return err instanceof HttpErrorResponse && (err.status === 401 || err.status === 403);
+  const status =
+    err instanceof HttpErrorResponse
+      ? err.status
+      : isProblemDetail(err)
+        ? err.status
+        : undefined;
+  return status === 401 || status === 403;
+}
+
+function isProblemDetail(value: unknown): value is ProblemDetail {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    typeof (value as Partial<ProblemDetail>).status === 'number' &&
+    typeof (value as Partial<ProblemDetail>).title === 'string'
+  );
 }
 
 function withTimeout<T>(promise: Promise<T>, timeoutMs: number, message: string): Promise<T> {

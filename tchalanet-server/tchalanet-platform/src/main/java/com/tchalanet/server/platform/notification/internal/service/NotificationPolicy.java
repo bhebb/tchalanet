@@ -1,5 +1,7 @@
 package com.tchalanet.server.platform.notification.internal.service;
 
+import com.tchalanet.server.common.web.error.ProblemRest;
+import com.tchalanet.server.platform.notification.api.error.NotificationErrorCodes;
 import com.tchalanet.server.platform.notification.api.model.NotificationRecipient;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -17,11 +19,11 @@ public class NotificationPolicy {
    * Valide qu'une liste de destinataires respecte les règles métier.
    *
    * @param recipients destinataires à valider
-   * @throws InvalidNotificationException si la validation échoue
+   * @throws com.tchalanet.server.common.web.error.ProblemRestException si la validation échoue
    */
   public void validateRecipients(List<NotificationRecipient> recipients) {
     if (recipients == null || recipients.isEmpty()) {
-      throw new InvalidNotificationException("At least one recipient is required");
+      throw ProblemRest.of(NotificationErrorCodes.RECIPIENTS_REQUIRED);
     }
 
     for (var recipient : recipients) {
@@ -44,36 +46,34 @@ public class NotificationPolicy {
 
   private void validateSlackRecipient(NotificationRecipient recipient) {
     if (recipient.channelKey() == null || recipient.channelKey().isBlank()) {
-      throw new InvalidNotificationException("SLACK requires channelKey");
+      throw ProblemRest.of(NotificationErrorCodes.SLACK_CHANNEL_KEY_REQUIRED);
     }
   }
 
   private void validateEmailRecipient(NotificationRecipient recipient) {
     if (recipient.to() == null || recipient.to().isBlank()) {
-      throw new InvalidNotificationException("EMAIL requires to (email address)");
+      throw ProblemRest.of(NotificationErrorCodes.EMAIL_REQUIRED);
     }
     if (!isValidEmail(recipient.to())) {
-      throw new InvalidNotificationException("Invalid email format: " + recipient.to());
+      throw ProblemRest.of(NotificationErrorCodes.EMAIL_INVALID);
     }
   }
 
   private void validateSmsRecipient(NotificationRecipient recipient) {
     if (recipient.to() == null || recipient.to().isBlank()) {
-      throw new InvalidNotificationException("SMS requires to (phone number)");
+      throw ProblemRest.of(NotificationErrorCodes.PHONE_REQUIRED);
     }
     if (!isValidPhone(recipient.to())) {
-      throw new InvalidNotificationException(
-          "Invalid phone format (must start with +): " + recipient.to());
+      throw ProblemRest.of(NotificationErrorCodes.PHONE_INVALID);
     }
   }
 
   private void validateWhatsAppRecipient(NotificationRecipient recipient) {
     if (recipient.to() == null || recipient.to().isBlank()) {
-      throw new InvalidNotificationException("WHATSAPP requires to (phone number)");
+      throw ProblemRest.of(NotificationErrorCodes.PHONE_REQUIRED);
     }
     if (!isValidPhone(recipient.to())) {
-      throw new InvalidNotificationException(
-          "Invalid phone format (must start with +): " + recipient.to());
+      throw ProblemRest.of(NotificationErrorCodes.PHONE_INVALID);
     }
   }
 

@@ -1,5 +1,6 @@
 package com.tchalanet.server.catalog.drawchannel.internal.write;
 
+import com.tchalanet.server.catalog.drawchannel.api.error.DrawChannelErrorCodes;
 import com.tchalanet.server.catalog.drawchannel.api.model.DrawChannelView;
 import com.tchalanet.server.catalog.drawchannel.internal.cache.DrawChannelCacheNames;
 import com.tchalanet.server.catalog.drawchannel.internal.mapper.DrawChannelMapper;
@@ -7,6 +8,7 @@ import com.tchalanet.server.catalog.drawchannel.internal.persistence.DrawChannel
 import com.tchalanet.server.catalog.drawchannel.internal.persistence.DrawChannelRepository;
 import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.common.types.id.DrawChannelId;
+import com.tchalanet.server.common.web.error.ProblemRest;
 import java.time.Instant;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -67,8 +69,7 @@ public class DrawChannelAdminService {
         repository
             .findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Draw channel not found: " + id));
-    if (existing.getDeletedAt() != null)
-      throw new IllegalArgumentException("Draw channel deleted: " + id);
+    if (existing.getDeletedAt() != null) throw ProblemRest.of(DrawChannelErrorCodes.DELETED);
     existing.setName(dto.getName());
     existing.setTimezone(dto.getTimezone());
     existing.setDrawTime(dto.getDrawTime());
@@ -130,8 +131,7 @@ public class DrawChannelAdminService {
         repository
             .findById(id.value())
             .orElseThrow(() -> new IllegalArgumentException("draw_channel_not_found: " + id));
-    if (existing.getDeletedAt() != null)
-      throw new IllegalArgumentException("draw_channel_deleted: " + id);
+    if (existing.getDeletedAt() != null) throw ProblemRest.of(DrawChannelErrorCodes.DELETED);
     existing.setActive(false);
     existing.setUpdatedAt(Instant.now());
     repository.save(existing);
@@ -188,8 +188,7 @@ public class DrawChannelAdminService {
         repository
             .findById(id.value())
             .orElseThrow(() -> new IllegalArgumentException("Draw channel not found: " + id));
-    if (existing.getDeletedAt() != null)
-      throw new IllegalArgumentException("Draw channel deleted: " + id);
+    if (existing.getDeletedAt() != null) throw ProblemRest.of(DrawChannelErrorCodes.DELETED);
 
     // Use mapper to update existing entity in-place (it ignores id/audit/flags)
     mapper.updateEntityFromRequest(req, existing);
@@ -274,22 +273,21 @@ public class DrawChannelAdminService {
         repository
             .findById(id.value())
             .orElseThrow(() -> new IllegalArgumentException("Draw channel not found: " + id));
-    if (existing.getDeletedAt() != null)
-      throw new IllegalArgumentException("Draw channel deleted: " + id);
+    if (existing.getDeletedAt() != null) throw ProblemRest.of(DrawChannelErrorCodes.DELETED);
 
     var flags = req.flags();
     if (flags == null) {
-      throw new IllegalArgumentException("flags must be provided and not null");
+      throw ProblemRest.of(DrawChannelErrorCodes.FLAGS_REQUIRED);
     } else if (flags.isTextual()) {
       try {
         flags = jsonUtils.parse(flags.asText());
       } catch (Exception ex) {
-        throw new IllegalArgumentException("Invalid JSON provided for flags", ex);
+        throw ProblemRest.badRequest(DrawChannelErrorCodes.FLAGS_INVALID, ex);
       }
     }
 
     if (flags == null) {
-      throw new IllegalArgumentException("flags must be a valid JSON value");
+      throw ProblemRest.of(DrawChannelErrorCodes.FLAGS_INVALID);
     }
 
     existing.setFlags(flags);
