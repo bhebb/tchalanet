@@ -7,6 +7,9 @@ import com.tchalanet.server.catalog.game.api.model.GameView;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.web.advice.BffSlicePolicy;
+import com.tchalanet.server.common.web.advice.BffSlices;
+import com.tchalanet.server.common.web.api.NoticeSource;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.core.analytics.api.model.TenantDashboardStatsView;
@@ -33,6 +36,7 @@ import com.tchalanet.server.features.pagemodel.contract.AlertItem;
 import com.tchalanet.server.features.pagemodel.contract.NewsItem;
 import com.tchalanet.server.features.pagemodel.contract.PublicContentPayload;
 import com.tchalanet.server.features.pagemodel.contract.QuickActionsPayload;
+import com.tchalanet.server.features.tenantadmin.error.TenantAdminErrorCodes;
 import com.tchalanet.server.features.tenantadmin.readiness.model.TenantReadinessIssue;
 import com.tchalanet.server.features.tenantadmin.readiness.model.TenantReadinessStatus;
 import com.tchalanet.server.features.tenantadmin.readiness.model.TenantReadinessSummary;
@@ -95,55 +99,155 @@ public class TenantAdminDashboardPayloadAssembler {
     ZoneId tz = ctx.tenantZoneId() != null ? ctx.tenantZoneId() : ZoneOffset.UTC;
     DashboardTiming timing = DashboardTiming.start();
 
-    // Grouped reads — loaded once, shared across builders.
-    TenantContextLookupView registry =
-        timing.record("registry", () -> tenantPreContextLookupApi.findById(tenantId).orElse(null));
-    OperationsBundle ops = timing.record("operations", () -> loadOperationsBundle(tenantId));
-    CommercialBundle commercial = timing.record("commercial", () -> loadCommercialBundle(tenantId));
-    TenantKpisView kpisView =
-        timing.record("activeSellerTerminals", () -> loadActiveSellerTerminals(tenantId, tz));
-    TenantDashboardStatsView analytics =
-        timing.record("analytics", () -> loadDashboardStats(tenantId, tz));
-    TenantDailySalesStatsView liveTodaySales =
+    // Grouped reads — loaded once, shared across builders. A failed read becomes an explicit
+    // unavailable section rather than a value that can be mistaken for a genuine zero.
+    DashboardSlice<TenantContextLookupView> registry =
+        timing.record(
+            "registry",
+            () ->
+                optionalSlice(
+                    TenantAdminErrorCodes.DASHBOARD_REGISTRY_UNAVAILABLE,
+                    "tenant_admin_dashboard.registry",
+                    () -> tenantPreContextLookupApi.findById(tenantId).orElse(null),
+                    () -> null));
+    DashboardSlice<OperationsBundle> ops =
+        timing.record(
+            "operations",
+            () ->
+                optionalSlice(
+                    TenantAdminErrorCodes.DASHBOARD_OPERATIONS_UNAVAILABLE,
+                    "tenant_admin_dashboard.operations",
+                    () -> loadOperationsBundle(tenantId),
+                    OperationsBundle::empty));
+    DashboardSlice<CommercialBundle> commercial =
+        timing.record(
+            "commercial",
+            () ->
+                optionalSlice(
+                    TenantAdminErrorCodes.DASHBOARD_COMMERCIAL_UNAVAILABLE,
+                    "tenant_admin_dashboard.commercial",
+                    () -> loadCommercialBundle(tenantId),
+                    CommercialBundle::empty));
+    DashboardSlice<TenantKpisView> kpisView =
+        timing.record(
+            "activeSellerTerminals",
+            () ->
+                optionalSlice(
+                    TenantAdminErrorCodes.DASHBOARD_KPIS_UNAVAILABLE,
+                    "tenant_admin_dashboard.kpis",
+                    () -> loadActiveSellerTerminals(tenantId, tz),
+                    TenantKpisView::empty));
+    DashboardSlice<TenantDashboardStatsView> analytics =
+        timing.record(
+            "analytics",
+            () ->
+                optionalSlice(
+                    TenantAdminErrorCodes.DASHBOARD_ANALYTICS_UNAVAILABLE,
+                    "tenant_admin_dashboard.analytics",
+                    () -> loadDashboardStats(tenantId, tz),
+                    () -> null));
+    String currency = ctx.tenantCurrency() != null ? ctx.tenantCurrency().getCurrencyCode() : "";
+    DashboardSlice<TenantDailySalesStatsView> liveTodaySales =
         timing.record(
             "liveSales",
             () ->
-                loadLiveTodaySales(
-                    tenantId,
-                    tz,
-                    ctx.tenantCurrency() != null ? ctx.tenantCurrency().getCurrencyCode() : ""));
-    long openDraws = timing.record("openDraws", this::loadOpenDrawCount);
-    long closedDraws = timing.record("closedDraws", () -> loadDrawCount(DrawStatus.CLOSED));
-    long notifCount = timing.record("notifications", () -> loadNotificationCount(ctx));
+                optionalSlice(
+                    TenantAdminErrorCodes.DASHBOARD_LIVE_SALES_UNAVAILABLE,
+                    "tenant_admin_dashboard.live_sales",
+                    () -> loadLiveTodaySales(tenantId, tz, currency),
+                    () -> TenantDailySalesStatsView.empty(currency)));
+    DashboardSlice<Long> openDraws =
+        timing.record(
+            "openDraws",
+            () ->
+                optionalSlice(
+                    TenantAdminErrorCodes.DASHBOARD_OPEN_DRAWS_UNAVAILABLE,
+                    "tenant_admin_dashboard.open_draws",
+                    this::loadOpenDrawCount,
+                    () -> 0L));
+    DashboardSlice<Long> closedDraws =
+        timing.record(
+            "closedDraws",
+            () ->
+                optionalSlice(
+                    TenantAdminErrorCodes.DASHBOARD_CLOSED_DRAWS_UNAVAILABLE,
+                    "tenant_admin_dashboard.closed_draws",
+                    () -> loadDrawCount(DrawStatus.CLOSED),
+                    () -> 0L));
+    DashboardSlice<Long> notifCount =
+        timing.record(
+            "notifications",
+            () ->
+                optionalSlice(
+                    TenantAdminErrorCodes.DASHBOARD_NOTIFICATIONS_UNAVAILABLE,
+                    "tenant_admin_dashboard.notifications",
+                    () -> loadNotificationCount(ctx),
+                    () -> 0L));
 
     BigDecimal tenantDefaultRate =
-        registry != null ? registry.defaultCommissionRate().orElse(null) : null;
-    TenantCommissionSummaryPayload commission =
-        timing.record("commission", () -> loadCommissionSummary(tenantId, tenantDefaultRate));
+        registry.value() != null ? registry.value().defaultCommissionRate().orElse(null) : null;
+    DashboardSlice<TenantCommissionSummaryPayload> commission =
+        timing.record(
+            "commission",
+            () ->
+                optionalSlice(
+                    TenantAdminErrorCodes.DASHBOARD_COMMISSION_UNAVAILABLE,
+                    "tenant_admin_dashboard.commission",
+                    () -> loadCommissionSummary(tenantId, tenantDefaultRate),
+                    TenantCommissionSummaryPayload::empty));
 
     TenantDashboardHeaderPayload header =
-        timing.record("buildHeader", () -> buildHeader(ctx, registry));
+        timing.record("buildHeader", () -> buildHeader(ctx, registry.value()));
     TenantKpiGridPayload kpis =
         timing.record(
             "buildKpis",
-            () -> buildKpis(analytics, kpisView, liveTodaySales, openDraws, notifCount, tz));
+            () ->
+                buildKpis(
+                    analytics.value(),
+                    kpisView.value(),
+                    liveTodaySales.value(),
+                    openDraws.value(),
+                    notifCount.value(),
+                    tz));
     TenantSalesTrendPayload salesTrend =
-        timing.record("buildSalesTrend", () -> buildSalesTrend(analytics, liveTodaySales, tz));
+        timing.record(
+            "buildSalesTrend",
+            () -> buildSalesTrend(analytics.value(), liveTodaySales.value(), tz));
     TenantGameBreakdownPayload gameBreakdown =
-        timing.record("buildGameBreakdown", () -> buildGameBreakdown(analytics, liveTodaySales));
+        timing.record(
+            "buildGameBreakdown",
+            () -> buildGameBreakdown(analytics.value(), liveTodaySales.value()));
     TenantReadinessSummaryPayload readiness =
         timing.record(
             "buildReadiness",
-            () -> buildReadinessSummary(registry, ops, commercial, commission, closedDraws));
+            () ->
+                buildReadinessSummary(
+                    registry.value(),
+                    ops.value(),
+                    commercial.value(),
+                    commission.value(),
+                    closedDraws.value()));
     TenantAlertsPayload alerts =
         timing.record(
             "buildAlerts",
-            () -> buildAlerts(notifCount, ops.blockedSellerTerminalCount(), closedDraws));
+            () ->
+                buildAlerts(
+                    notifCount.value(),
+                    ops.value().blockedSellerTerminalCount(),
+                    closedDraws.value()));
     TenantOperationsSummaryPayload operations =
-        timing.record("buildOperations", () -> buildOperationsSummary(ops));
+        timing.record("buildOperations", () -> buildOperationsSummary(ops.value()));
     TenantCommercialSummaryPayload commercialSummary =
-        timing.record("buildCommercial", () -> buildCommercialSummary(commercial));
-    PublicContentPayload publicContent = timing.record("publicContent", this::buildPublicContent);
+        timing.record("buildCommercial", () -> buildCommercialSummary(commercial.value()));
+    DashboardSlice<PublicContentPayload> publicContent =
+        timing.record(
+            "publicContent",
+            () ->
+                optionalSlice(
+                    TenantAdminErrorCodes.DASHBOARD_PUBLIC_CONTENT_UNAVAILABLE,
+                    "tenant_admin_dashboard.public_content",
+                    this::buildPublicContent,
+                    PublicContentPayload::empty));
     QuickActionsPayload quickActions = timing.record("quickActions", this::buildQuickActions);
 
     Payload payload =
@@ -156,9 +260,21 @@ public class TenantAdminDashboardPayloadAssembler {
             alerts,
             operations,
             commercialSummary,
-            commission,
-            publicContent,
-            quickActions);
+            commission.value(),
+            publicContent.value(),
+            quickActions,
+            sectionStates(
+                registry,
+                ops,
+                commercial,
+                kpisView,
+                analytics,
+                liveTodaySales,
+                openDraws,
+                closedDraws,
+                notifCount,
+                commission,
+                publicContent));
     timing.logTenant(tenantId, ctx.effectiveTenantCode());
     return payload;
   }
@@ -166,100 +282,59 @@ public class TenantAdminDashboardPayloadAssembler {
   // ---------------------- grouped bundle loaders ----------------------
 
   private OperationsBundle loadOperationsBundle(TenantId tenantId) {
-    long sellerTerminalCount;
-    long blockedSellerTerminalCount;
-    try {
-      TchPage<SellerTerminalSummaryRow> page =
-          queryBus.ask(
-              new ListSellerTerminalsQuery(
-                  tenantId,
-                  SellerTerminalSearchCriteria.empty(),
-                  new TchPageRequest(PageRequest.of(0, 1))));
-      sellerTerminalCount = page != null ? page.totalElements() : 0L;
-    } catch (RuntimeException e) {
-      sellerTerminalCount = 0L;
-    }
+    TchPage<SellerTerminalSummaryRow> sellerTerminals =
+        queryBus.ask(
+            new ListSellerTerminalsQuery(
+                tenantId,
+                SellerTerminalSearchCriteria.empty(),
+                new TchPageRequest(PageRequest.of(0, 1))));
+    var blockedCriteria = new SellerTerminalSearchCriteria(null, SellerTerminalStatus.BLOCKED);
+    TchPage<SellerTerminalSummaryRow> blockedSellerTerminals =
+        queryBus.ask(
+            new ListSellerTerminalsQuery(
+                tenantId, blockedCriteria, new TchPageRequest(PageRequest.of(0, 1))));
 
-    try {
-      var criteria = new SellerTerminalSearchCriteria(null, SellerTerminalStatus.BLOCKED);
-      TchPage<SellerTerminalSummaryRow> page =
-          queryBus.ask(
-              new ListSellerTerminalsQuery(
-                  tenantId, criteria, new TchPageRequest(PageRequest.of(0, 1))));
-      blockedSellerTerminalCount = page != null ? page.totalElements() : 0L;
-    } catch (RuntimeException e) {
-      blockedSellerTerminalCount = 0L;
-    }
-
-    return new OperationsBundle(sellerTerminalCount, blockedSellerTerminalCount);
+    return new OperationsBundle(
+        sellerTerminals != null ? sellerTerminals.totalElements() : 0L,
+        blockedSellerTerminals != null ? blockedSellerTerminals.totalElements() : 0L);
   }
 
   private CommercialBundle loadCommercialBundle(TenantId tenantId) {
-    List<GameView> games;
-    try {
-      games = gameCatalog.listActive();
-    } catch (RuntimeException e) {
-      games = List.of();
-    }
+    List<GameView> games = gameCatalog.listActive();
+    List<DrawChannelSummaryView> channels = drawChannelCatalog.listAll(tenantId, Boolean.TRUE);
+    ListLimitAssignmentsView assignments =
+        queryBus.ask(new ListLimitAssignmentsByScopeQuery(LimitScopeQueryRef.tenant(tenantId)));
+    long enabledLimitCount =
+        assignments != null && assignments.items() != null
+            ? assignments.items().stream().filter(ListLimitAssignmentsView.Item::enabled).count()
+            : 0L;
 
-    List<DrawChannelSummaryView> channels;
-    try {
-      channels = drawChannelCatalog.listAll(tenantId, Boolean.TRUE);
-    } catch (RuntimeException e) {
-      channels = List.of();
-    }
-
-    long enabledLimitCount;
-    try {
-      ListLimitAssignmentsView assignments =
-          queryBus.ask(new ListLimitAssignmentsByScopeQuery(LimitScopeQueryRef.tenant(tenantId)));
-      enabledLimitCount =
-          assignments != null && assignments.items() != null
-              ? assignments.items().stream().filter(ListLimitAssignmentsView.Item::enabled).count()
-              : 0L;
-    } catch (RuntimeException e) {
-      enabledLimitCount = 0L;
-    }
-
-    return new CommercialBundle(games, channels, enabledLimitCount);
+    return new CommercialBundle(
+        games != null ? games : List.of(),
+        channels != null ? channels : List.of(),
+        enabledLimitCount);
   }
 
   private TenantKpisView loadActiveSellerTerminals(TenantId tenantId, ZoneId tz) {
-    try {
-      LocalDate today = LocalDate.now(tz);
-      TenantKpisView view = queryBus.ask(new GetTenantKpisQuery(tenantId, today, today));
-      return view != null ? view : TenantKpisView.empty();
-    } catch (RuntimeException e) {
-      log.warn(
-          "tenant_admin_dashboard: failed to load active seller terminals — {}", e.getMessage());
-      return TenantKpisView.empty();
-    }
+    LocalDate today = LocalDate.now(tz);
+    TenantKpisView view = queryBus.ask(new GetTenantKpisQuery(tenantId, today, today));
+    return view != null ? view : TenantKpisView.empty();
   }
 
   private TenantDashboardStatsView loadDashboardStats(TenantId tenantId, ZoneId tz) {
-    try {
-      LocalDate today = LocalDate.now(tz);
-      LocalDate from = today.minusDays(6);
-      return queryBus.ask(new GetTenantDashboardStatsQuery(tenantId, from, today, 5));
-    } catch (RuntimeException e) {
-      log.warn("tenant_admin_dashboard: failed to load dashboard analytics — {}", e.getMessage());
-      return null;
-    }
+    LocalDate today = LocalDate.now(tz);
+    LocalDate from = today.minusDays(6);
+    return queryBus.ask(new GetTenantDashboardStatsQuery(tenantId, from, today, 5));
   }
 
   private TenantDailySalesStatsView loadLiveTodaySales(
       TenantId tenantId, ZoneId tz, String currency) {
-    try {
-      LocalDate today = LocalDate.now(tz);
-      var from = today.atStartOfDay(tz).toInstant();
-      var to = today.plusDays(1).atStartOfDay(tz).toInstant();
-      TenantDailySalesStatsView view =
-          queryBus.ask(new GetTenantDailySalesStatsQuery(tenantId, from, to, currency));
-      return view != null ? view : TenantDailySalesStatsView.empty(currency);
-    } catch (RuntimeException e) {
-      log.warn("tenant_admin_dashboard: failed to load live sales stats — {}", e.getMessage());
-      return TenantDailySalesStatsView.empty(currency);
-    }
+    LocalDate today = LocalDate.now(tz);
+    var from = today.atStartOfDay(tz).toInstant();
+    var to = today.plusDays(1).atStartOfDay(tz).toInstant();
+    TenantDailySalesStatsView view =
+        queryBus.ask(new GetTenantDailySalesStatsQuery(tenantId, from, to, currency));
+    return view != null ? view : TenantDailySalesStatsView.empty(currency);
   }
 
   private long loadOpenDrawCount() {
@@ -267,29 +342,61 @@ public class TenantAdminDashboardPayloadAssembler {
   }
 
   private long loadDrawCount(DrawStatus status) {
-    try {
-      DrawSearchCriteria criteria =
-          new DrawSearchCriteria(null, status, null, null, null, null, null);
-      TchPage<DrawSummary> page = queryBus.ask(new ListDrawsQuery(criteria, PageRequest.of(0, 1)));
-      return page != null ? page.totalElements() : 0L;
-    } catch (RuntimeException e) {
-      log.warn("tenant_admin_dashboard: failed to load {} draws — {}", status, e.getMessage());
-      return 0L;
-    }
+    DrawSearchCriteria criteria =
+        new DrawSearchCriteria(null, status, null, null, null, null, null);
+    TchPage<DrawSummary> page = queryBus.ask(new ListDrawsQuery(criteria, PageRequest.of(0, 1)));
+    return page != null ? page.totalElements() : 0L;
   }
 
   private long loadNotificationCount(TchRequestContext ctx) {
-    try {
-      if (ctx.userId() == null) return 0L;
-      String roleCode = ctx.currentRole() != null ? ctx.currentRole().name() : null;
-      NotificationSummaryView summary =
-          notificationApi.getNotificationSummary(
-              new GetNotificationSummaryRequest(ctx.userId(), roleCode));
-      return summary != null ? summary.unreadCount() : 0L;
-    } catch (RuntimeException e) {
-      log.warn("tenant_admin_dashboard: failed to load notification count — {}", e.getMessage());
-      return 0L;
-    }
+    if (ctx.userId() == null) return 0L;
+    String roleCode = ctx.currentRole() != null ? ctx.currentRole().name() : null;
+    NotificationSummaryView summary =
+        notificationApi.getNotificationSummary(
+            new GetNotificationSummaryRequest(ctx.userId(), roleCode));
+    return summary != null ? summary.unreadCount() : 0L;
+  }
+
+  private <T> DashboardSlice<T> optionalSlice(
+      com.tchalanet.server.common.web.error.ErrorDescriptor descriptor,
+      String target,
+      Supplier<T> supplier,
+      Supplier<T> fallback) {
+    return BffSlices.optional(
+        BffSlicePolicy.warn(
+                descriptor.code(),
+                "features.tenantadmin",
+                NoticeSource.of("tenantAdminDashboard").operation(target),
+                () -> DashboardSlice.unavailable(fallback.get()))
+            .target(target),
+        () -> DashboardSlice.available(supplier.get()));
+  }
+
+  private static TenantDashboardSectionStatesPayload sectionStates(
+      DashboardSlice<?> registry,
+      DashboardSlice<?> operations,
+      DashboardSlice<?> commercial,
+      DashboardSlice<?> kpis,
+      DashboardSlice<?> analytics,
+      DashboardSlice<?> liveSales,
+      DashboardSlice<?> openDraws,
+      DashboardSlice<?> closedDraws,
+      DashboardSlice<?> notifications,
+      DashboardSlice<?> commission,
+      DashboardSlice<?> publicContent) {
+    return new TenantDashboardSectionStatesPayload(
+        List.of(
+            DashboardSectionState.of("registry", registry),
+            DashboardSectionState.of("operations", operations),
+            DashboardSectionState.of("commercial", commercial),
+            DashboardSectionState.of("kpis", kpis),
+            DashboardSectionState.of("analytics", analytics),
+            DashboardSectionState.of("liveSales", liveSales),
+            DashboardSectionState.of("openDraws", openDraws),
+            DashboardSectionState.of("closedDraws", closedDraws),
+            DashboardSectionState.of("notifications", notifications),
+            DashboardSectionState.of("commission", commission),
+            DashboardSectionState.of("publicContent", publicContent)));
   }
 
   // ---------------------- per-widget builders ----------------------
@@ -589,44 +696,35 @@ public class TenantAdminDashboardPayloadAssembler {
   }
 
   private PublicContentPayload buildPublicContent() {
-    try {
-      List<PublicContentItemView> items =
-          publicContentApi.listTenantAdminDashboardNews(PUBLIC_CONTENT_LIMIT);
-      List<NewsItem> news =
-          items.stream()
-              .map(
-                  i ->
-                      new NewsItem(
-                          i.id() != null ? i.id().toString() : "",
-                          i.title() != null ? i.title() : "",
-                          i.content() != null ? i.content() : "",
-                          i.sourceUrl() != null ? i.sourceUrl() : "",
-                          "",
-                          i.publishedAt() != null ? i.publishedAt().toString() : ""))
-              .toList();
-      return new PublicContentPayload(news, news.size());
-    } catch (RuntimeException e) {
-      log.warn("tenant_admin_dashboard: could not load public content — {}", e.getMessage());
-      return PublicContentPayload.empty();
-    }
+    List<PublicContentItemView> items =
+        publicContentApi.listTenantAdminDashboardNews(PUBLIC_CONTENT_LIMIT);
+    List<NewsItem> news =
+        (items == null ? List.<PublicContentItemView>of() : items)
+            .stream()
+                .map(
+                    i ->
+                        new NewsItem(
+                            i.id() != null ? i.id().toString() : "",
+                            i.title() != null ? i.title() : "",
+                            i.content() != null ? i.content() : "",
+                            i.sourceUrl() != null ? i.sourceUrl() : "",
+                            "",
+                            i.publishedAt() != null ? i.publishedAt().toString() : ""))
+                .toList();
+    return new PublicContentPayload(news, news.size());
   }
 
   private TenantCommissionSummaryPayload loadCommissionSummary(
       TenantId tenantId, BigDecimal tenantDefaultRate) {
-    try {
-      SellerTerminalCommissionStatsView stats =
-          queryBus.ask(new GetSellerTerminalCommissionStatsQuery(tenantId, tenantDefaultRate));
-      return new TenantCommissionSummaryPayload(
-          tenantDefaultRate,
-          stats.totalCount(),
-          stats.countAtDefaultRate(),
-          stats.countWithCustomRate(),
-          stats.minRate(),
-          stats.maxRate());
-    } catch (RuntimeException e) {
-      log.warn("tenant_admin_dashboard: failed to load commission stats — {}", e.getMessage());
-      return TenantCommissionSummaryPayload.empty();
-    }
+    SellerTerminalCommissionStatsView stats =
+        queryBus.ask(new GetSellerTerminalCommissionStatsQuery(tenantId, tenantDefaultRate));
+    return new TenantCommissionSummaryPayload(
+        tenantDefaultRate,
+        stats.totalCount(),
+        stats.countAtDefaultRate(),
+        stats.countWithCustomRate(),
+        stats.minRate(),
+        stats.maxRate());
   }
 
   private QuickActionsPayload buildQuickActions() {
@@ -675,7 +773,8 @@ public class TenantAdminDashboardPayloadAssembler {
       TenantCommercialSummaryPayload commercial,
       TenantCommissionSummaryPayload commission,
       PublicContentPayload publicContent,
-      QuickActionsPayload quickActions) {
+      QuickActionsPayload quickActions,
+      TenantDashboardSectionStatesPayload sectionStates) {
 
     public static Payload empty() {
       return new Payload(
@@ -708,7 +807,8 @@ public class TenantAdminDashboardPayloadAssembler {
               new SectionStatus("UNKNOWN", 0)),
           TenantCommissionSummaryPayload.empty(),
           PublicContentPayload.empty(),
-          QuickActionsPayload.empty());
+          QuickActionsPayload.empty(),
+          TenantDashboardSectionStatesPayload.unknown());
     }
   }
 
@@ -759,6 +859,21 @@ public class TenantAdminDashboardPayloadAssembler {
 
   public record TenantAlertsPayload(int unreadCount, List<AlertItem> items) {}
 
+  /** Explicit state for every independently loaded dashboard section. */
+  public record TenantDashboardSectionStatesPayload(List<DashboardSectionState> items) {
+
+    public static TenantDashboardSectionStatesPayload unknown() {
+      return new TenantDashboardSectionStatesPayload(List.of());
+    }
+  }
+
+  public record DashboardSectionState(String id, String status) {
+
+    private static DashboardSectionState of(String id, DashboardSlice<?> slice) {
+      return new DashboardSectionState(id, slice.availability().name());
+    }
+  }
+
   /** Status + count for an operational/commercial section. */
   public record SectionStatus(String status, long count) {}
 
@@ -792,11 +907,42 @@ public class TenantAdminDashboardPayloadAssembler {
   }
 
   /** Grouped operational data — loaded once, shared by readiness + kpis + operations builders. */
-  record OperationsBundle(long sellerTerminalCount, long blockedSellerTerminalCount) {}
+  record OperationsBundle(long sellerTerminalCount, long blockedSellerTerminalCount) {
+
+    static OperationsBundle empty() {
+      return new OperationsBundle(0L, 0L);
+    }
+  }
 
   /** Grouped commercial data — loaded once, shared by readiness + commercial builders. */
   record CommercialBundle(
-      List<GameView> games, List<DrawChannelSummaryView> channels, long enabledLimitCount) {}
+      List<GameView> games, List<DrawChannelSummaryView> channels, long enabledLimitCount) {
+
+    static CommercialBundle empty() {
+      return new CommercialBundle(List.of(), List.of(), 0L);
+    }
+  }
+
+  private record DashboardSlice<T>(T value, DashboardSectionAvailability availability) {
+
+    private static <T> DashboardSlice<T> available(T value) {
+      return new DashboardSlice<>(
+          value,
+          value == null
+              ? DashboardSectionAvailability.EMPTY
+              : DashboardSectionAvailability.AVAILABLE);
+    }
+
+    private static <T> DashboardSlice<T> unavailable(T value) {
+      return new DashboardSlice<>(value, DashboardSectionAvailability.UNAVAILABLE);
+    }
+  }
+
+  private enum DashboardSectionAvailability {
+    AVAILABLE,
+    EMPTY,
+    UNAVAILABLE
+  }
 
   private static final class DashboardTiming {
     private final long startedAt = System.nanoTime();

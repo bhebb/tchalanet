@@ -111,7 +111,7 @@ public class PosDashboardPayloadAssembler {
                 "features.pos",
                 NoticeSource.of("cashierDashboardStats").operation("loadAnalytics"),
                 CashierStatsPayload.unavailable())
-            .target("dashboard.cashier.stats"),
+            .target("cashier_dashboard.analytics"),
         () -> loadAnalyticsStatsRequired(ctx));
   }
 
@@ -120,7 +120,7 @@ public class PosDashboardPayloadAssembler {
     CashierDashboardStatsView view =
         queryBus.ask(new GetCashierDashboardStatsQuery(ctx.tenantId(), ctx.userId(), today));
     if (view == null || view.today() == null) {
-      return CashierStatsPayload.unavailable();
+      throw new IllegalStateException("Cashier analytics projection is unavailable");
     }
     var card = view.today();
     List<GameBreakdownItem> breakdown = List.of();

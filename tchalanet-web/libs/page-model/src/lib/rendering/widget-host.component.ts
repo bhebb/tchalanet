@@ -10,6 +10,7 @@ import {
   effect,
   inject,
   input,
+  output,
   signal,
   viewChild,
 } from '@angular/core';
@@ -58,9 +59,9 @@ type HostState =
           role="alert"
         >
           <strong>{{ 'widget.error' | translate }}</strong>
-          @if (errorCode()) {
-            <span class="widget-fallback__code">{{ errorCode() }}</span>
-          }
+          <button type="button" class="widget-fallback__retry" (click)="retry.emit(widgetId())">
+            {{ 'common.retry' | translate }}
+          </button>
         </div>
       }
     }
@@ -99,11 +100,15 @@ type HostState =
         color: var(--tch-color-on-primary-container, var(--mat-sys-on-primary-container));
         background: var(--tch-color-primary-container, var(--mat-sys-primary-container));
       }
-      .widget-fallback__code {
-        display: block;
-        margin-top: .25rem;
-        font-size: .75rem;
-        opacity: .75;
+      .widget-fallback__retry {
+        min-height: 2.75rem;
+        margin-top: .75rem;
+        padding-inline: 1rem;
+        border: 1px solid currentcolor;
+        border-radius: var(--tch-radius-control, 8px);
+        background: transparent;
+        color: inherit;
+        cursor: pointer;
       }
     `,
   ],
@@ -113,6 +118,7 @@ export class WidgetHostComponent {
   readonly config = input<WidgetConfig>();
   readonly dynamic = input<unknown>();
   readonly errors = input<readonly WidgetDynamicError[]>([]);
+  readonly retry = output<string>();
 
   private readonly outlet = viewChild('outlet', { read: ViewContainerRef });
   private readonly injector = inject(EnvironmentInjector);
@@ -138,7 +144,6 @@ export class WidgetHostComponent {
 
   readonly renderFailed = signal(false);
   readonly errorSeverity = computed(() => this.localError()?.severity ?? 'error');
-  readonly errorCode = computed(() => this.localError()?.code ?? '');
   private ref: ComponentRef<unknown> | null = null;
 
   constructor() {

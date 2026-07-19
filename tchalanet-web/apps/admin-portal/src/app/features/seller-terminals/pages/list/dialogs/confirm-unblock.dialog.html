@@ -1,0 +1,20 @@
+<h2 mat-dialog-title>{{ 'admin.sellerTerminals.list.dialog.unblock.title' | translate }}</h2>
+
+<mat-dialog-content>
+  @if (error(); as formError) {
+  <tch-error-panel [title]="formError.title" [message]="formError.message" />
+  }
+  <p>
+    {{ 'admin.sellerTerminals.list.dialog.unblock.description' | translate: { name:
+    data.displayName, code: data.terminalCode } }}
+  </p>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button [mat-dialog-close]="false" [disabled]="saving()">
+    {{ 'common.cancel' | translate }}
+  </button>
+  <button mat-flat-button color="primary" [disabled]="saving()" (click)="submit()">
+    {{ 'admin.sellerTerminals.list.action.unblock' | translate }}
+  </button>
+</mat-dialog-actions>

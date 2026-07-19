@@ -24,6 +24,8 @@ public class SalesErrorCodes {
       conflict("sales.draw_channel.mismatch");
   public static final ErrorDescriptor SELLER_TERMINAL_REQUIRED =
       businessRule("sales.seller_terminal.required");
+  public static final ErrorDescriptor SELLER_TERMINAL_CANNOT_SELL =
+      businessRule("sales.seller_terminal.cannot_sell");
   public static final ErrorDescriptor TENANT_DISABLED = businessRule("sales.tenant.disabled");
   public static final ErrorDescriptor TENANT_BUSINESS_CLOSED =
       businessRule("sales.tenant.business_closed");
@@ -67,6 +69,14 @@ public class SalesErrorCodes {
   public static final ErrorDescriptor TENANT_BET_OPTION_NOT_VISIBLE_IN_POS =
       validation("sales.tenant_bet_option_not_visible_in_pos");
   public static final ErrorDescriptor TICKET_NOT_FOUND = notFound("ticket.not_found");
+  public static final ErrorDescriptor TICKET_PRINT_VIEW_NOT_FOUND =
+      notFound("ticket.print_view.not_found");
+  public static final ErrorDescriptor TICKET_FILTER_INVALID_DATE_RANGE =
+      validation("ticket.filter.invalid_date_range");
+  public static final ErrorDescriptor TICKET_FILTER_INVALID_SORT =
+      validation("ticket.filter.invalid_sort");
+  public static final ErrorDescriptor TICKET_FILTER_INVALID_STATUS =
+      validation("ticket.filter.invalid_status");
   public static final ErrorDescriptor PREPARATION_NOT_FOUND =
       notFound("sales.preparation.not_found");
   public static final ErrorDescriptor PREPARATION_PROMOTION_LINE_NOT_FOUND =
@@ -99,6 +109,7 @@ public class SalesErrorCodes {
         DRAW_CUTOFF_ELAPSED,
         DRAW_CHANNEL_MISMATCH,
         SELLER_TERMINAL_REQUIRED,
+        SELLER_TERMINAL_CANNOT_SELL,
         TENANT_DISABLED,
         TENANT_BUSINESS_CLOSED,
         DRAW_REQUIRED,
@@ -126,6 +137,10 @@ public class SalesErrorCodes {
         TENANT_BET_OPTION_DISABLED,
         TENANT_BET_OPTION_NOT_VISIBLE_IN_POS,
         TICKET_NOT_FOUND,
+        TICKET_PRINT_VIEW_NOT_FOUND,
+        TICKET_FILTER_INVALID_DATE_RANGE,
+        TICKET_FILTER_INVALID_SORT,
+        TICKET_FILTER_INVALID_STATUS,
         PREPARATION_NOT_FOUND,
         PREPARATION_PROMOTION_LINE_NOT_FOUND,
         PREPARATION_ALREADY_CONFIRMED,

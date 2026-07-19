@@ -125,6 +125,9 @@ public class PosTicketsService {
       var ticket = queryBus.ask(new GetTicketForCashierVerificationQuery(publicCode));
       return verificationResponse(ticket);
     } catch (ProblemRestException ex) {
+      if (!isTicketNotFound(ex)) {
+        throw ex;
+      }
       return response(
           PosTicketVerificationStatus.NOT_FOUND,
           PosTicketVerificationSeverity.ERROR,
@@ -133,6 +136,11 @@ public class PosTicketsService {
           Map.of("publicCode", publicCode),
           List.of(PosAction.enabled(PosActionType.NONE, "pos.action.none", Map.of())));
     }
+  }
+
+  private boolean isTicketNotFound(ProblemRestException ex) {
+    var code = ex.getProblem().getProperties().get("code");
+    return "ticket.not_found".equals(code);
   }
 
   private PosTicketVerificationResponse verificationResponse(TicketCashierVerificationView ticket) {

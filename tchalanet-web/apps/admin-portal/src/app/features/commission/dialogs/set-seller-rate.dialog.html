@@ -1,20 +1,32 @@
-<h2 mat-dialog-title>Taux - {{ data.row.displayName }}</h2>
+<h2 mat-dialog-title>
+  {{ 'admin.commission.dialog.sellerRate.title' | translate: { name: data.row.displayName } }}
+</h2>
 
 <mat-dialog-content>
   <form [formGroup]="form" class="set-seller-rate-dialog__form">
+    @if (error(); as pageError) {
+    <tch-error-panel [title]="pageError.title" [message]="pageError.message" />
+    }
+    <tch-form-error-summary [messages]="formSummary()" />
+
     <mat-form-field appearance="outline" class="set-seller-rate-dialog__field">
-      <mat-label>Taux de commission (%)</mat-label>
+      <mat-label>{{ 'admin.sellerTerminals.new.field.commissionRate' | translate }}</mat-label>
       <input matInput type="number" formControlName="rate" min="0" max="100" step="0.01" />
       @if (form.controls.rate.invalid && form.controls.rate.touched) {
-        <mat-error>Taux entre 0 et 100.</mat-error>
+      <mat-error
+        >{{ 'admin.sellerTerminals.new.validation.commissionRange' | translate }}</mat-error
+      >
       }
     </mat-form-field>
+    <tch-field-error [control]="form.controls.rate" />
   </form>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-  <button mat-button mat-dialog-close>Annuler</button>
-  <button mat-flat-button color="primary" [disabled]="form.invalid" (click)="submit()">
-    Enregistrer
+  <button mat-button mat-dialog-close [disabled]="saving()">
+    {{ 'common.cancel' | translate }}
+  </button>
+  <button mat-flat-button color="primary" [disabled]="form.invalid || saving()" (click)="submit()">
+    {{ 'common.save' | translate }}
   </button>
 </mat-dialog-actions>

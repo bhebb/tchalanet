@@ -3,6 +3,7 @@ package com.tchalanet.server.core.sales.internal.infra.persistence.adapter;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.web.error.ProblemRest;
+import com.tchalanet.server.core.sales.api.error.SalesErrorCodes;
 import com.tchalanet.server.core.sales.internal.application.port.out.TicketReaderPort;
 import com.tchalanet.server.core.sales.internal.application.port.out.TicketWriterPort;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.Ticket;
@@ -56,7 +57,7 @@ public class TicketJpaAdapter implements TicketReaderPort, TicketWriterPort {
   @Override
   @Transactional(readOnly = true)
   public Ticket getRequired(TicketId ticketId) {
-    return findById(ticketId).orElseThrow(() -> ProblemRest.notFound("ticket.not_found", ticketId));
+    return findById(ticketId).orElseThrow(() -> ProblemRest.of(SalesErrorCodes.TICKET_NOT_FOUND));
   }
 
   @Override

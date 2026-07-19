@@ -2,6 +2,8 @@ package com.tchalanet.server.core.pricing.internal.application.query;
 
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
+import com.tchalanet.server.common.web.error.ProblemRest;
+import com.tchalanet.server.core.pricing.api.error.PricingErrorCodes;
 import com.tchalanet.server.core.pricing.api.model.OddsSource;
 import com.tchalanet.server.core.pricing.api.model.SellerTerminalPayoutRuleResolutionView;
 import com.tchalanet.server.core.pricing.api.query.ResolveSellerTerminalPayoutRuleQuery;
@@ -27,11 +29,7 @@ public class ResolveSellerTerminalPayoutRuleQueryHandler
                 q.tenantId(),
                 TenantPricingOdds.normalizeGameCode(q.gameCode()),
                 q.pricingVariantCode())
-            .orElseThrow(
-                () ->
-                    new IllegalStateException(
-                        "tenant default pricing rule missing for tenant=%s game=%s variant=%s"
-                            .formatted(q.tenantId(), q.gameCode(), q.pricingVariantCode())));
+            .orElseThrow(() -> ProblemRest.of(PricingErrorCodes.TENANT_DEFAULT_NOT_CONFIGURED));
 
     var override =
         overrideReader.findActiveByNaturalKey(
@@ -43,9 +41,7 @@ public class ResolveSellerTerminalPayoutRuleQueryHandler
     if (override.isPresent()) {
       var sellerOverride = override.get();
       if (sellerOverride.payoutRuleType() != tenantDefault.payoutRuleType()) {
-        throw new IllegalStateException(
-            "seller terminal pricing override cannot change payout rule type for game=%s variant=%s"
-                .formatted(q.gameCode(), q.pricingVariantCode()));
+        throw ProblemRest.of(PricingErrorCodes.OVERRIDE_PAYOUT_RULE_TYPE_MISMATCH);
       }
       return new SellerTerminalPayoutRuleResolutionView(
           q.gameCode(),

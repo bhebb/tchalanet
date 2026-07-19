@@ -1,9 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
@@ -11,12 +6,23 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { Clipboard } from '@angular/cdk/clipboard';
-import { TranslateService } from '@ngx-translate/core';
-import { mapHttpErrorToProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import {
+  mapHttpErrorToProblemDetail,
+  webAppErrorFromProblemDetail,
+  webAppErrorsFromProblemDetailFields,
+} from '@tch/api';
 
-import { TchErrorPanel } from '@tch/ui/components';
-import { resolveErrorFeedbackCopy } from '@tch/web/errors';
-import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
+import { TchErrorPanel, TchFieldError, TchFormErrorSummary } from '@tch/ui/components';
+import {
+  applyServerFieldErrors,
+  clearServerFieldErrors,
+  clearServerFieldErrorsOnEdit,
+  ErrorViewModel,
+  resolveErrorFeedbackCopy,
+  toErrorViewModel,
+  withResolvedErrorCopies,
+} from '@tch/web/errors';
 import {
   PinResetReason,
   ResetSellerTerminalPinResponse,
@@ -26,6 +32,11 @@ import {
 
 type DialogState = 'confirming' | 'submitting' | 'success' | 'error';
 
+const PIN_RESET_FIELD_TARGETS = {
+  reason: 'reason',
+  'admin.sellerTerminal.resetPin.reason': 'reason',
+} as const;
+
 @Component({
   selector: 'tch-reset-pin-dialog',
   standalone: true,
@@ -33,6 +44,9 @@ type DialogState = 'confirming' | 'submitting' | 'success' | 'error';
   imports: [
     ReactiveFormsModule,
     TchErrorPanel,
+    TchFieldError,
+    TchFormErrorSummary,
+    TranslatePipe,
     MatButtonModule,
     MatDialogModule,
     MatFormFieldModule,
@@ -49,20 +63,29 @@ export class ResetPinDialog {
   private readonly clipboard = inject(Clipboard);
   private readonly fb = inject(FormBuilder);
   private readonly translate = inject(TranslateService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly state = signal<DialogState>('confirming');
   readonly result = signal<ResetSellerTerminalPinResponse | null>(null);
   readonly error = signal<ErrorViewModel | null>(null);
+  readonly formSummary = signal<readonly string[]>([]);
   readonly pinCopied = signal(false);
 
   readonly form = this.fb.group({
     reason: [null as PinResetReason | null, Validators.required],
   });
 
+  constructor() {
+    const cleanup = clearServerFieldErrorsOnEdit(this.form);
+    this.destroyRef.onDestroy(() => cleanup.unsubscribe());
+  }
+
   submit(): void {
     if (this.form.invalid || this.state() === 'submitting') return;
     this.state.set('submitting');
+    clearServerFieldErrors(this.form);
     this.error.set(null);
+    this.formSummary.set([]);
 
     const reason = this.form.controls.reason.value;
     if (!reason) {
@@ -71,18 +94,16 @@ export class ResetPinDialog {
       return;
     }
 
-    this.api
-      .resetPin(this.data.id.value, { reason }, { suppressShellFeedback: true })
-      .subscribe({
-        next: res => {
-          this.result.set(res);
-          this.state.set('success');
-        },
-        error: (err: unknown) => {
-          this.error.set(this.errorViewModel(err));
-          this.state.set('confirming');
-        },
-      });
+    this.api.resetPin(this.data.id.value, { reason }, { suppressShellFeedback: true }).subscribe({
+      next: res => {
+        this.result.set(res);
+        this.state.set('success');
+      },
+      error: (err: unknown) => {
+        this.handleSubmitError(err);
+        this.state.set('confirming');
+      },
+    });
   }
 
   copyPin(): void {
@@ -98,13 +119,25 @@ export class ResetPinDialog {
     this.dialogRef.close({ reload: true });
   }
 
-  private errorViewModel(err: unknown): ErrorViewModel {
+  private handleSubmitError(err: unknown): void {
+    const problem = mapHttpErrorToProblemDetail(err);
+    const fieldErrors = withResolvedErrorCopies(
+      webAppErrorsFromProblemDetailFields(problem, 'admin.sellerTerminal.resetPin'),
+      key => this.translate.instant(key),
+    );
+    const remaining = applyServerFieldErrors(this.form, fieldErrors, PIN_RESET_FIELD_TARGETS);
+    if (fieldErrors.length && remaining.length) {
+      this.formSummary.set(remaining.flatMap(item => (item.message ? [item.message] : [])));
+      return;
+    }
+    if (fieldErrors.length) return;
+
     const normalized = webAppErrorFromProblemDetail(
-      mapHttpErrorToProblemDetail(err),
+      problem,
       'admin.sellerTerminal.resetPin',
-      'page',
+      'form',
     );
     const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
-    return toErrorViewModel(normalized, copy);
+    this.error.set(toErrorViewModel(normalized, copy));
   }
 }

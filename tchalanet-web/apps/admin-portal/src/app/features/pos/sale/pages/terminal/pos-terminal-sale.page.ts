@@ -401,13 +401,17 @@ export class PosTerminalSalePage implements OnInit {
   }
 
   private preparationRejectedError(preparation: PreparedTicketSaleView): ErrorViewModel {
-    const instruction =
-      preparation.notices[0]?.message ??
-      'Le ticket doit être corrigé avant la vente.';
+    const firstNotice = preparation.notices[0];
+    const copy = firstNotice
+      ? resolveErrorFeedbackCopy(firstNotice, key => this.translate.instant(key))
+      : {
+          title: this.translate.instant('common.errors.codes.sales.basket_requires_changes.title'),
+          message: this.translate.instant('common.errors.codes.sales.basket_requires_changes.message'),
+        };
 
     return {
-      title: 'Vente à vérifier',
-      message: instruction,
+      title: copy.title,
+      message: copy.message,
       severity: preparation.status === 'REJECTED' ? 'error' : 'warn',
       source: 'admin.sellerTerminal.pos.preparation',
       target: 'admin.sellerTerminal.pos.sale',

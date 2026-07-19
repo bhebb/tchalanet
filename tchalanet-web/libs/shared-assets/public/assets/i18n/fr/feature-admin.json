@@ -1,5 +1,15 @@
 {
   "admin": {
+    "commission": {
+      "dialog": {
+        "sellerRate": {
+          "title": "Modifier le taux de commission de {{name}}"
+        },
+        "defaultRate": {
+          "title": "Modifier le taux de commission par défaut"
+        }
+      }
+    },
     "appearance": {
       "title": "Apparence",
       "description": "Personnalisez le thème et l’apparence de votre espace.",
@@ -995,6 +1005,36 @@
             "description": "Bloquer {{name}} ({{code}}) empêche toute vente jusqu'au déblocage.",
             "reason": "Raison du blocage",
             "reasonPlaceholder": "Ex. : terminal non retourné, suspicion de fraude..."
+          },
+          "resetPin": {
+            "title": "Réinitialiser le PIN",
+            "description": "Un nouveau PIN temporaire sera généré pour {{code}} — {{name}}. L’ancien PIN cessera de fonctionner et le vendeur devra le changer à sa prochaine connexion.",
+            "reason": {
+              "label": "Raison",
+              "pinLost": "PIN perdu",
+              "sellerChanged": "Changement de vendeur",
+              "suspectedCompromise": "Suspicion de compromission",
+              "adminCorrection": "Correction administrative",
+              "other": "Autre",
+              "required": "Sélectionnez une raison."
+            },
+            "success": {
+              "title": "PIN temporaire généré",
+              "terminal": "Terminal",
+              "digits": "{{count}} chiffres",
+              "copy": "Copier le PIN",
+              "copied": "PIN copié",
+              "warning": "Copiez ce PIN maintenant. Il ne sera plus affiché après fermeture. Le vendeur devra le changer à sa prochaine connexion."
+            }
+          },
+          "disable": {
+            "title": "Désactiver le vendeur",
+            "description": "Désactiver {{name}} ({{code}}) ?",
+            "warning": "Cette action est difficile à annuler."
+          },
+          "unblock": {
+            "title": "Débloquer le vendeur",
+            "description": "Débloquer {{name}} ({{code}}) afin de lui permettre à nouveau de vendre des tickets ?"
           }
         }
       },

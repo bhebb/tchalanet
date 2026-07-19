@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.SellerTerminalOddsOverrideId;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.web.error.ProblemRestException;
 import com.tchalanet.server.core.pricing.api.command.UpsertSellerTerminalPricingRuleOverrideCommand;
 import com.tchalanet.server.core.pricing.api.model.PayoutRuleType;
 import com.tchalanet.server.core.pricing.api.model.PricingVariantCode;
@@ -104,8 +105,9 @@ class SellerTerminalPricingRuleOverrideCommandHandlerTest {
                         null,
                         "bad override",
                         null)))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("requires payoutRuleType STAKE_MULTIPLIER");
+        .isInstanceOf(ProblemRestException.class)
+        .extracting(ex -> ((ProblemRestException) ex).getProblem().getProperties().get("code"))
+        .isEqualTo("pricing.payout_rule_type_invalid");
   }
 
   @Test
@@ -135,8 +137,9 @@ class SellerTerminalPricingRuleOverrideCommandHandlerTest {
                         null,
                         "bad override",
                         null)))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("requires payoutRuleType FIXED_AMOUNT");
+        .isInstanceOf(ProblemRestException.class)
+        .extracting(ex -> ((ProblemRestException) ex).getProblem().getProperties().get("code"))
+        .isEqualTo("pricing.payout_rule_type_invalid");
   }
 
   @Test
@@ -158,8 +161,9 @@ class SellerTerminalPricingRuleOverrideCommandHandlerTest {
                         null,
                         "orphan override",
                         null)))
-        .isInstanceOf(IllegalStateException.class)
-        .hasMessageContaining("tenant default pricing rule missing");
+        .isInstanceOf(ProblemRestException.class)
+        .extracting(ex -> ((ProblemRestException) ex).getProblem().getProperties().get("code"))
+        .isEqualTo("pricing.tenant_default_not_configured");
   }
 
   private static TenantPricingOdds tenantDefault(

@@ -2,6 +2,7 @@ package com.tchalanet.server.core.sales.internal.infra.persistence.adapter;
 
 import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.web.error.ProblemRest;
+import com.tchalanet.server.core.sales.api.error.SalesErrorCodes;
 import com.tchalanet.server.core.sales.api.model.preparation.SalePreparationStatus;
 import com.tchalanet.server.core.sales.internal.application.port.out.preparation.SalePreparationStorePort;
 import com.tchalanet.server.core.sales.internal.domain.model.preparation.SalePreparation;
@@ -78,7 +79,8 @@ class SalePreparationJpaAdapter implements SalePreparationStorePort {
     var line =
         lineRepository
             .findByPreparationIdAndLineRef(preparationId, lineRef)
-            .orElseThrow(() -> ProblemRest.notFound("sales.preparation.promotion_line_not_found"));
+            .orElseThrow(
+                () -> ProblemRest.of(SalesErrorCodes.PREPARATION_PROMOTION_LINE_NOT_FOUND));
     line.setSelection(selection);
     line.setRegenerationCount(regenerationCount);
     lineRepository.save(line);
@@ -98,7 +100,7 @@ class SalePreparationJpaAdapter implements SalePreparationStorePort {
   private SalePreparationJpaEntity getRequired(UUID preparationId) {
     return preparationRepository
         .findById(preparationId)
-        .orElseThrow(() -> ProblemRest.notFound("sales.preparation.not_found"));
+        .orElseThrow(() -> ProblemRest.of(SalesErrorCodes.PREPARATION_NOT_FOUND));
   }
 
   private SalePreparation toDomain(SalePreparationJpaEntity entity) {

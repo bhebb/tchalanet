@@ -15,6 +15,8 @@ import com.tchalanet.server.common.context.scope.ApiScope;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
+import com.tchalanet.server.common.web.api.ApiResponseContext;
+import com.tchalanet.server.core.analytics.api.query.GetCashierDashboardStatsQuery;
 import com.tchalanet.server.core.draw.api.query.ListCashierNextDrawsQuery;
 import com.tchalanet.server.core.sales.api.query.CashierDashboardOverviewView;
 import com.tchalanet.server.core.sales.api.query.GetCashierDashboardOverviewQuery;
@@ -24,6 +26,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -36,6 +39,11 @@ class PosDashboardPayloadAssemblerTest {
   private final TenantId tenantId = TenantId.of(UUID.randomUUID());
   private final UserId userId = UserId.of(UUID.randomUUID());
   private final SellerTerminalId sellerTerminalId = SellerTerminalId.of(UUID.randomUUID());
+
+  @AfterEach
+  void clearResponseContext() {
+    ApiResponseContext.clear();
+  }
 
   @Nested
   @DisplayName("empty context")
@@ -87,6 +95,24 @@ class PosDashboardPayloadAssemblerTest {
       assertThat(payload.overview().sessionOpen()).isTrue();
       assertThat(payload.overview().ticketCount()).isEqualTo(12L);
     }
+  }
+
+  @Test
+  @DisplayName("missing analytics projection is a PARTIAL dashboard notice, never a silent zero")
+  void analyticsProjectionUnavailableIsExplicit() {
+    stubDashboardQueries();
+    when(queryBus.ask(any(GetCashierDashboardStatsQuery.class))).thenReturn(null);
+
+    var payload =
+        assembler.assemble(context(TchActorType.SELLER_TERMINAL, sellerTerminalId, true, true));
+
+    assertThat(payload.stats().available()).isFalse();
+    assertThat(ApiResponseContext.get().getNotices())
+        .anySatisfy(
+            notice -> {
+              assertThat(notice.code()).isEqualTo("pos.dashboard.analytics_unavailable");
+              assertThat(notice.target()).isEqualTo("cashier_dashboard.analytics");
+            });
   }
 
   @Nested

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 
 import { PageContentRuntime, PageDynamicPayload, WidgetConfig } from '../runtime/pagemodel.types';
 import { LabelPipe } from '../widget/label.pipe';
@@ -25,6 +25,7 @@ import { WidgetHostComponent } from './widget-host.component';
                   [config]="widgetConfig(widgetId)"
                   [dynamic]="widgetDynamic(widgetId)"
                   [errors]="errors()"
+                  (retry)="widgetRetry.emit($event)"
                 />
               }
             </div>
@@ -76,6 +77,7 @@ import { WidgetHostComponent } from './widget-host.component';
 export class PageModelComponent {
   readonly content = input.required<PageContentRuntime>();
   readonly dynamic = input.required<PageDynamicPayload>();
+  readonly widgetRetry = output<string>();
 
   readonly rows = computed(() => this.content().layout.rows);
   readonly errors = computed(() => this.dynamic().errors);

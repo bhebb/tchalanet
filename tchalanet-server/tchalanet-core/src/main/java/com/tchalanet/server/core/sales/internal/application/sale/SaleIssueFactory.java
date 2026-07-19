@@ -22,14 +22,23 @@ public class SaleIssueFactory {
   }
 
   public SaleIssueView fromProblem(ProblemRestException ex) {
-    var detail = ex.getProblem().getDetail();
-    var code = toIssueCode(detail);
+    var code = toIssueCode(problemCode(ex));
     return SaleIssueView.basket(
         code,
         SaleIssueSeverity.ERROR,
         messageCode(code),
         sellerInstruction(code),
         Map.of("problemStatus", ex.getProblem().getStatus()));
+  }
+
+  /**
+   * New code-first {@link ProblemRestException} instances carry the stable contract in the
+   * ProblemDetail properties. Detail is a legacy fallback only; it must never be preferred over a
+   * declared code.
+   */
+  private String problemCode(ProblemRestException ex) {
+    var value = ex.getProblem().getProperties().get("code");
+    return value instanceof String code && !code.isBlank() ? code : ex.getProblem().getDetail();
   }
 
   private SaleIssueView fromNotice(ApiNotice notice) {
@@ -56,6 +65,9 @@ public class SaleIssueFactory {
   private String toIssueCode(String rawCode) {
     if (rawCode == null || rawCode.isBlank()) {
       return "SALE_EVALUATION_FAILED";
+    }
+    if (rawCode.matches("^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$")) {
+      return rawCode;
     }
     var normalized =
         rawCode

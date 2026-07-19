@@ -1,10 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
@@ -27,7 +21,10 @@ import {
   toErrorViewModel,
   withResolvedErrorCopies,
 } from '@tch/web/errors';
-import { SellerTerminalApi, SellerTerminalSummaryRow } from '../../../data-access/seller-terminal-api.service';
+import {
+  SellerTerminalApi,
+  SellerTerminalSummaryRow,
+} from '../../../data-access/seller-terminal-api.service';
 import { SellerTerminalDialogResult } from './seller-terminal-dialog-result';
 
 const BLOCK_FIELD_TARGETS = {
@@ -56,7 +53,9 @@ const BLOCK_FIELD_TARGETS = {
 })
 export class BlockSellerTerminalDialog {
   protected readonly data = inject<SellerTerminalSummaryRow>(MAT_DIALOG_DATA);
-  private readonly dialogRef = inject(MatDialogRef<BlockSellerTerminalDialog, SellerTerminalDialogResult>);
+  private readonly dialogRef = inject(
+    MatDialogRef<BlockSellerTerminalDialog, SellerTerminalDialogResult>,
+  );
   private readonly api = inject(SellerTerminalApi);
   private readonly fb = inject(FormBuilder);
   private readonly translate = inject(TranslateService);
@@ -84,16 +83,19 @@ export class BlockSellerTerminalDialog {
     if (this.form.invalid) return;
 
     this.saving.set(true);
-    this.api.block(this.data.id.value, this.form.controls.reason.value, { suppressShellFeedback: true }).subscribe({
-      next: () => this.dialogRef.close({
-        reload: true,
-        noticeKey: 'admin.sellerTerminals.list.notice.blocked',
-      }),
-      error: (err: unknown) => {
-        this.handleSubmitError(err);
-        this.saving.set(false);
-      },
-    });
+    this.api
+      .block(this.data.id.value, this.form.controls.reason.value, { suppressShellFeedback: true })
+      .subscribe({
+        next: () =>
+          this.dialogRef.close({
+            reload: true,
+            noticeKey: 'admin.sellerTerminals.list.notice.blocked',
+          }),
+        error: (err: unknown) => {
+          this.handleSubmitError(err);
+          this.saving.set(false);
+        },
+      });
   }
 
   private handleSubmitError(err: unknown): void {
@@ -114,12 +116,12 @@ export class BlockSellerTerminalDialog {
       return;
     }
 
-    const normalized = webAppErrorFromProblemDetail(problem, 'admin.sellerTerminal.block', 'page');
+    const normalized = webAppErrorFromProblemDetail(problem, 'admin.sellerTerminal.block', 'form');
     const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
     this.error.set(toErrorViewModel(normalized, copy));
   }
 
   private messagesForErrors(errors: readonly { readonly message?: string }[]): readonly string[] {
-    return errors.flatMap(error => error.message ? [error.message] : []);
+    return errors.flatMap(error => (error.message ? [error.message] : []));
   }
 }

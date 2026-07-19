@@ -18,8 +18,9 @@ public class TenantGameErrorCodes {
   public static final ErrorDescriptor CATALOG_GAME_NOT_FOUND =
       notFound("tenantgame.catalog_game_not_found");
   public static final ErrorDescriptor NOT_FOUND = notFound("tenantgame.not_found");
+  public static final ErrorDescriptor DISABLED = conflict("tenantgame.disabled");
   public static final ErrorDescriptor CATALOG_GAME_INACTIVE =
-      validation("tenantgame.catalog_game_inactive");
+      conflict("tenantgame.catalog_game_inactive");
   public static final ErrorDescriptor DISPLAY_NAME_TOO_LONG =
       validation("tenantgame.display_name_too_long");
   public static final ErrorDescriptor DISPLAY_ORDER_INVALID =
@@ -52,6 +53,7 @@ public class TenantGameErrorCodes {
     return Set.of(
         CATALOG_GAME_NOT_FOUND,
         NOT_FOUND,
+        DISABLED,
         CATALOG_GAME_INACTIVE,
         DISPLAY_NAME_TOO_LONG,
         DISPLAY_ORDER_INVALID,
@@ -85,6 +87,16 @@ public class TenantGameErrorCodes {
         ErrorCategory.NOT_FOUND,
         HttpStatus.NOT_FOUND,
         ErrorRetryPolicy.NEVER,
+        AUDIENCES,
+        Set.of());
+  }
+
+  private static ErrorDescriptor conflict(String code) {
+    return new ErrorDescriptor(
+        code,
+        ErrorCategory.CONFLICT,
+        HttpStatus.CONFLICT,
+        ErrorRetryPolicy.AFTER_USER_ACTION,
         AUDIENCES,
         Set.of());
   }

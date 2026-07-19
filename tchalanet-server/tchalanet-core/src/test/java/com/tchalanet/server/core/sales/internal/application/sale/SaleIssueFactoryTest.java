@@ -4,7 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.tchalanet.server.common.web.api.ApiNotice;
 import com.tchalanet.server.common.web.api.NoticeSeverity;
+import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.promotion.api.model.PromotionNoticeCodes;
+import com.tchalanet.server.core.sales.api.error.SalesErrorCodes;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
@@ -34,5 +36,20 @@ class SaleIssueFactoryTest {
     assertThat(issues)
         .extracting(issue -> issue.code())
         .containsExactly("sales.promotion_applied", "sales.promotion_terminal_override_applied");
+  }
+
+  @Test
+  void preserves_code_first_problem_detail_code_without_parsing_detail() {
+    var issue = factory.fromProblem(ProblemRest.of(SalesErrorCodes.PREPARATION_EXPIRED));
+
+    assertThat(issue.code()).isEqualTo("sales.preparation.expired");
+    assertThat(issue.message()).isEqualTo("sales.preparation.expired.message");
+  }
+
+  @Test
+  void preserves_seller_terminal_sale_gate_code() {
+    var issue = factory.fromProblem(ProblemRest.of(SalesErrorCodes.SELLER_TERMINAL_CANNOT_SELL));
+
+    assertThat(issue.code()).isEqualTo("sales.seller_terminal.cannot_sell");
   }
 }

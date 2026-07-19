@@ -67,6 +67,11 @@ portals, Flutter mobile, client-originated failures, i18n, accessibility, recove
       `ProblemRest` factory, without changing legacy message-first call sites.
 - [x] Migrate the first critical POS producer: receipt print-profile validation now emits
       `pos.receipt.print_options_invalid` without exposing the underlying exception prose.
+- [x] Migrate the seller-terminal and pricing command/query boundaries: terminal lifecycle/PIN
+      identity failures and tenant/override pricing validation now use owner descriptors, preserve
+      causes only for server diagnostics, and ship exact HT/FR/EN copies. Their admin HTTP adapters
+      are covered through `MockMvc`: status, `application/problem+json`, exact code/category/retry
+      metadata, and neutral details are asserted for seller-terminal transitions and pricing input.
 - [x] Normalize framework validation failures to stable field violations without serializing Bean
       Validation or request-deserialization prose; retain only code, field, and target.
 - [ ] Reconcile the related `complete-apiresponse-notices` OpenSpec with production code and archive
@@ -131,6 +136,32 @@ portals, Flutter mobile, client-originated failures, i18n, accessibility, recove
 - [ ] Ensure optional failures retain primary data, produce one degradation notice per functional
       slice, return `PARTIAL`, and represent independently recoverable sections deterministically
       (`AVAILABLE`, `EMPTY`, `UNAVAILABLE`) rather than relying on nullable business values.
+      `TenantAdminOverviewService` now provides this distinction for `address` and `registry` with
+      additive availability flags. `TenantAdminDashboardPayloadAssembler` now publishes additive
+      `sectionStates` for registry, operations, commercial, KPIs, analytics, live sales, draws,
+      notifications, commission, and public content. The tenant and commercial-platform PageModel
+      consumers retain their envelopes, route a degradation locally, and offer a retry. This is a
+      vertical proof only: normalize the legacy PageModel widget-id targets into functional slice
+      targets before declaring the ownership contract complete.
+- [x] Deliver the tenant-admin dashboard vertical: optional slices are explicit, the response is
+      `PARTIAL`, the retained PageModel envelope owns the warning locally, and retry refreshes the
+      dashboard model. Covered by assembler and PageModel client tests.
+- [x] Deliver the commercial platform-dashboard vertical: tenant catalog, analytics,
+      subscriptions, onboarding and public content use stable degradation codes, retain primary
+      data, and are rendered/retried locally. The separate platform Ops dashboard is not included.
+- [x] Classify the dormant cashier-dashboard projection: `PosDashboardPayloadAssembler` now emits
+      `pos.dashboard.analytics_unavailable` for both an analytics exception and an absent
+      projection while preserving `CashierStatsPayload.unavailable()`. There is no current
+      PageModel template, Angular route, or mobile consumer for `cashier_dashboard`; do not add a
+      UI owner as part of the error migration.
+- [ ] Decide the product fate of the dormant cashier dashboard: either expose it through a
+      separately specified PageModel web surface with a local retry owner, or remove it. Mobile
+      `PosHomeService` has no analytics slice, so a mobile analytics surface is a separate product
+      decision, not a missing error renderer.
+- [~] Replace legacy PageModel widget-id targets with stable functional slice targets. Tenant and
+      commercial platform dashboard BFF notices now use `*_dashboard.<slice>` and PageModel runtime
+      widget configs declare `feedbackTargets`; direct widget IDs remain only for resolver-generated
+      compatibility failures. Remove legacy placement metadata and migrate remaining providers.
 - [ ] Resolve response status from meaning, not merely any warning: `PARTIAL` only when expected
       response data is unavailable; capability degradation without missing data is
       `SUCCESS_WITH_WARNINGS`. `PENDING` is explicit handler intent and its HTTP status is decided
@@ -171,8 +202,12 @@ portals, Flutter mobile, client-originated failures, i18n, accessibility, recove
       without breaking legacy return types; consumer migration remains.
 - [ ] Mark data-only methods unsuitable for BFFs, dashboards, mutations, and business-notice
       endpoints; add a lint/code-review gate for new callsites.
-- [ ] Migrate first POS, login/session, tenant/platform dashboards, Ops, and sensitive forms; retain
-      status/notices/services/trace through normal and paged resources.
+- [~] Migrate first POS, login/session, tenant/platform dashboards, Ops, and sensitive forms; retain
+      status/notices/services/trace through normal and paged resources. Tenant and commercial
+      platform dashboards are migrated as verticals. The admin POS preparation/confirmation path
+      retains notices and translates `SaleIssue` from stable codes only; ticket verification maps
+      only `ticket.not_found` to its business result and preserves every other failure. POS
+      dashboard, platform Ops, and remaining flows are pending.
 - [ ] Treat `PARTIAL` as successful degraded state; superseded resource cancellation as silent;
       malformed 2xx envelope as stable client invalid-response failure.
 - [~] Evolve `WebAppError` to retain code/category/origin/status/retryability/owner/dedupe key and
@@ -206,8 +241,19 @@ portals, Flutter mobile, client-originated failures, i18n, accessibility, recove
 - [~] Implement lifecycle rules: clear on successful reload; retain during retry; clear server field
       error on field edit; clear form summary at submit; retain support reference to recovery/navigation.
       `clearServerFieldErrorsOnEdit` now clears only the edited reactive control and is active for
-      business-profile plus seller-terminal create/block; Signal Form controls and remaining forms
-      still need adoption.
+      business-profile plus seller-terminal create/block. The seller-terminal creation page now uses
+      Signal Form validators that retain each server error only for its rejected value, so editing
+      that value clears it without touching local validation. The tenant-pricing dialog now keeps
+      the mutation local, clears server errors on edit, maps known pricing codes to the appropriate
+      control, and retains unmapped feedback in its dialog summary/panel. Seller-terminal pricing
+      overrides suppress shell feedback and retain the translated error on the affected row. The
+      seller commission-rate dialog now owns its mutation, maps
+      `sellerterminal.commission_rate_invalid` to `rate`, and only closes/reloads on success.
+      The tenant default-rate dialog follows the same local form contract; `WebErrorSurface.form`
+      now has a deterministic summary placement instead of overloading page or field ownership.
+      Seller-terminal block and PIN-reset dialogs now keep their failure local, map the reset-reason
+      validation to its field, and use complete HT/FR/EN copy; temporary PINs remain success-only.
+      Remaining Signal Form screens still need adoption.
 - [ ] Ensure shell owns only session/global outage/maintenance/global restriction; page owns blocking
       route data; section optional BFF degradation; form and field validation; feature domain notices.
 
@@ -275,8 +321,14 @@ portals, Flutter mobile, client-originated failures, i18n, accessibility, recove
 ## Phase 11 — End-to-end migration and enforcement
 
 - [ ] Migrate critical mobile/POS: login, PIN, prepare, confirm, sell, print/reprint.
-- [ ] Migrate critical web: login/session, cashier sale, tenant dashboard, seller-terminal forms,
+- [ ] Replace raw labels/messages in the mobile `PosHomeResponse` contract with i18n keys and safe
+      parameters before making it a retained-envelope consumer; this is separate from the admin
+      seller-terminal POS migration.
+- [~] Migrate critical web: login/session, cashier sale, tenant dashboard, seller-terminal forms,
       limits/pricing, platform dashboard/Ops; then reports, CRUD, and lower-risk legacy screens.
+      Seller-terminal lifecycle forms and tenant/seller-terminal pricing mutations now have local
+      ownership; the remaining seller-terminal forms, limits, platform Ops, reports, and lower-risk
+      CRUD remain.
 - [ ] Maintain an inventory for each endpoint/screen: envelope retained, stable code, translations,
       owner, recovery, and test coverage.
 - [ ] Add static/CI gates against raw prose in UI, inline external codes, data-only BFF unwrap,

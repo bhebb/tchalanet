@@ -1,11 +1,23 @@
-<h2 mat-dialog-title>Désactiver le vendeur</h2>
+<h2 mat-dialog-title>{{ 'admin.sellerTerminals.list.dialog.disable.title' | translate }}</h2>
 
 <mat-dialog-content>
-  <p>Désactiver <strong>{{ data.displayName }}</strong> ({{ data.terminalCode }}) ?</p>
-  <p class="confirm-disable-dialog__warning">Cette action est difficile à annuler.</p>
+  @if (error(); as formError) {
+  <tch-error-panel [title]="formError.title" [message]="formError.message" />
+  }
+  <p>
+    {{ 'admin.sellerTerminals.list.dialog.disable.description' | translate: { name:
+    data.displayName, code: data.terminalCode } }}
+  </p>
+  <p class="confirm-disable-dialog__warning">
+    {{ 'admin.sellerTerminals.list.dialog.disable.warning' | translate }}
+  </p>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-  <button mat-button [mat-dialog-close]="false">Annuler</button>
-  <button mat-flat-button color="warn" [mat-dialog-close]="true">Désactiver</button>
+  <button mat-button [mat-dialog-close]="false" [disabled]="saving()">
+    {{ 'common.cancel' | translate }}
+  </button>
+  <button mat-flat-button color="warn" [disabled]="saving()" (click)="submit()">
+    {{ 'admin.sellerTerminals.list.action.disable' | translate }}
+  </button>
 </mat-dialog-actions>

@@ -1,5 +1,15 @@
 {
   "admin": {
+    "commission": {
+      "dialog": {
+        "sellerRate": {
+          "title": "Edit commission rate for {{name}}"
+        },
+        "defaultRate": {
+          "title": "Edit default commission rate"
+        }
+      }
+    },
     "appearance": {
       "title": "Appearance",
       "description": "Customize the theme and look of your workspace.",
@@ -789,6 +799,36 @@
             "description": "Blocking {{name}} ({{code}}) prevents all sales until the seller is unblocked.",
             "reason": "Reason for blocking",
             "reasonPlaceholder": "For example: terminal not returned, suspected fraud..."
+          },
+          "resetPin": {
+            "title": "Reset PIN",
+            "description": "A new temporary PIN will be generated for {{code}} — {{name}}. The former PIN will stop working and the seller must change it at their next sign-in.",
+            "reason": {
+              "label": "Reason",
+              "pinLost": "Lost PIN",
+              "sellerChanged": "Seller changed",
+              "suspectedCompromise": "Suspected compromise",
+              "adminCorrection": "Administrative correction",
+              "other": "Other",
+              "required": "Select a reason."
+            },
+            "success": {
+              "title": "Temporary PIN generated",
+              "terminal": "Terminal",
+              "digits": "{{count}} digits",
+              "copy": "Copy PIN",
+              "copied": "PIN copied",
+              "warning": "Copy this PIN now. It will no longer be shown after closing. The seller must change it at their next sign-in."
+            }
+          },
+          "disable": {
+            "title": "Disable seller",
+            "description": "Disable {{name}} ({{code}})?",
+            "warning": "This action is difficult to undo."
+          },
+          "unblock": {
+            "title": "Unblock seller",
+            "description": "Unblock {{name}} ({{code}}) so they can sell tickets again?"
           }
         }
       },

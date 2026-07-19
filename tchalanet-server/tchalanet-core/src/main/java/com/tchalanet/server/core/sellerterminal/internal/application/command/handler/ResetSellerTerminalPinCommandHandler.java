@@ -1,11 +1,11 @@
 package com.tchalanet.server.core.sellerterminal.internal.application.command.handler;
 
 import com.tchalanet.server.common.bus.CommandHandler;
-import com.tchalanet.server.common.exception.TchConflictException;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.common.web.error.ProblemRestException;
+import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.sellerterminal.api.command.ResetSellerTerminalPinCommand;
+import com.tchalanet.server.core.sellerterminal.api.error.SellerTerminalErrorCodes;
 import com.tchalanet.server.core.sellerterminal.api.model.ResetSellerTerminalPinView;
 import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalStatus;
 import com.tchalanet.server.core.sellerterminal.internal.application.port.out.SellerTerminalIdentityProvisionPort;
@@ -16,8 +16,6 @@ import java.time.Clock;
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ProblemDetail;
 
 @UseCase
 @RequiredArgsConstructor
@@ -38,13 +36,11 @@ public class ResetSellerTerminalPinCommandHandler
     var terminal = reader.getRequired(cmd.tenantId(), cmd.terminalId());
 
     if (terminal.status() == SellerTerminalStatus.DISABLED) {
-      throw new TchConflictException(
-          "seller_terminal.archived", "Seller terminal is disabled and cannot have its PIN reset");
+      throw ProblemRest.of(SellerTerminalErrorCodes.STATUS_TRANSITION_INVALID);
     }
 
     if (!identityProvision.hasExternalIdentity(cmd.terminalId())) {
-      throw new TchConflictException(
-          "seller_terminal.identity_not_bound", "Seller terminal has no bound Firebase identity");
+      throw ProblemRest.of(SellerTerminalErrorCodes.IDENTITY_NOT_BOUND);
     }
 
     var pin = generatePin();
@@ -54,11 +50,7 @@ public class ResetSellerTerminalPinCommandHandler
       identityProvision.resetPin(cmd.terminalId(), cmd.tenantId(), pin);
     } catch (IllegalStateException ex) {
       log.error("Firebase PIN reset failed for sellerTerminal={}", cmd.terminalId().value(), ex);
-      var pd = ProblemDetail.forStatus(HttpStatus.BAD_GATEWAY);
-      pd.setTitle("Firebase error");
-      pd.setDetail("Firebase PIN reset failed");
-      pd.setProperty("code", "seller_terminal.firebase_pin_reset_failed");
-      throw new ProblemRestException(pd, ex);
+      throw ProblemRest.of(SellerTerminalErrorCodes.PIN_RESET_UNAVAILABLE, java.util.Map.of(), ex);
     }
 
     var updated = terminal.resetPin(now);

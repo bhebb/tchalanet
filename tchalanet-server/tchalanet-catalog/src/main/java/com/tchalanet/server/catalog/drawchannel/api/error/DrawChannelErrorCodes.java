@@ -12,7 +12,8 @@ import org.springframework.http.HttpStatus;
 @UtilityClass
 public class DrawChannelErrorCodes {
 
-  private static final Set<ErrorAudience> PLATFORM_AUDIENCES = Set.of(ErrorAudience.WEB_PLATFORM);
+  private static final Set<ErrorAudience> AUDIENCES =
+      Set.of(ErrorAudience.WEB_PLATFORM, ErrorAudience.WEB_ADMIN);
 
   public static final ErrorDescriptor DELETED = notFound("catalog.drawchannel.deleted");
   public static final ErrorDescriptor FLAGS_REQUIRED =
@@ -30,7 +31,7 @@ public class DrawChannelErrorCodes {
         ErrorCategory.NOT_FOUND,
         HttpStatus.NOT_FOUND,
         ErrorRetryPolicy.NEVER,
-        PLATFORM_AUDIENCES,
+        AUDIENCES,
         Set.of());
   }
 
@@ -40,7 +41,7 @@ public class DrawChannelErrorCodes {
         ErrorCategory.VALIDATION,
         HttpStatus.BAD_REQUEST,
         ErrorRetryPolicy.AFTER_USER_ACTION,
-        PLATFORM_AUDIENCES,
+        AUDIENCES,
         Set.of());
   }
 }
