@@ -6,6 +6,7 @@ import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.context.TchContext;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.web.error.ProblemRest;
+import com.tchalanet.server.core.sales.api.error.SalesErrorCodes;
 import com.tchalanet.server.core.sales.api.model.verification.CustomerTicketStatus;
 import com.tchalanet.server.core.sales.api.model.verification.TicketVerificationView;
 import com.tchalanet.server.core.sales.api.query.VerifyTicketByPublicCodeQuery;
@@ -37,10 +38,10 @@ public class VerifyTicketByPublicCodeQueryHandler
     var projection =
         reader
             .findByPublicCode(publicCode)
-            .orElseThrow(() -> ProblemRest.notFound("ticket.not_found"));
+            .orElseThrow(() -> ProblemRest.of(SalesErrorCodes.TICKET_NOT_FOUND));
 
     if (!visibilityPolicy.isPubliclyVisible(projection.placedAt())) {
-      throw ProblemRest.notFound("ticket.not_found");
+      throw ProblemRest.of(SalesErrorCodes.TICKET_NOT_FOUND);
     }
 
     var status =

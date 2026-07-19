@@ -13,7 +13,7 @@ export type WebErrorCategory =
   | 'service_unavailable'
   | 'unexpected';
 export type WebErrorSeverity = 'info' | 'warn' | 'error';
-export type WebErrorSurface = 'page' | 'section' | 'field' | 'shell';
+export type WebErrorSurface = 'page' | 'section' | 'form' | 'field' | 'shell';
 export type WebErrorPlacement = 'top' | 'inline' | 'summary';
 
 export interface WebAppError {
@@ -46,7 +46,8 @@ export function webAppErrorFromProblemDetail(
   surface: WebErrorSurface = 'shell',
 ): WebAppError {
   const code = problem.code ?? legacyDetailCode(problem.detail) ?? problemTypeCode(problem.type);
-  const category = categoryFromWireValue(problem.category) ?? categoryFromCodeStatus(code, problem.status);
+  const category =
+    categoryFromWireValue(problem.category) ?? categoryFromCodeStatus(code, problem.status);
   const severity = problem.status >= 500 || problem.status === 0 ? 'error' : 'warn';
   const resolvedSource = problem.instance ?? source;
 
@@ -64,7 +65,7 @@ export function webAppErrorFromProblemDetail(
     category,
     severity,
     surface,
-    placement: surface === 'field' ? 'inline' : 'top',
+    placement: defaultPlacement(surface),
     title: userSafeTitle(category),
     message: userSafeMessage(category),
     code,
@@ -92,7 +93,9 @@ export function webAppErrorFromNotice(
   const meta = notice.meta ?? {};
   const noticeSource = stringMeta(meta, 'source') ?? notice.target ?? notice.domain ?? source;
   const status = numberMeta(meta, 'status');
-  const category = categoryFromWireValue(stringMeta(meta, 'category')) ?? categoryFromCodeStatus(notice.code, status);
+  const category =
+    categoryFromWireValue(stringMeta(meta, 'category')) ??
+    categoryFromCodeStatus(notice.code, status);
   const severity = severityFromNotice(notice.severity);
   const requestId = stringMeta(meta, 'requestId') ?? trace?.requestId;
   const traceId = stringMeta(meta, 'traceId') ?? trace?.traceId;
@@ -412,7 +415,11 @@ function stringMeta(meta: Readonly<Record<string, unknown>>, key: string): strin
 
 function surfaceFromMeta(meta: Readonly<Record<string, unknown>>): WebErrorSurface | undefined {
   const value = stringMeta(meta, 'surface');
-  return value === 'shell' || value === 'page' || value === 'section' || value === 'field'
+  return value === 'shell' ||
+    value === 'page' ||
+    value === 'section' ||
+    value === 'form' ||
+    value === 'field'
     ? value
     : undefined;
 }
@@ -423,7 +430,9 @@ function placementFromMeta(meta: Readonly<Record<string, unknown>>): WebErrorPla
 }
 
 function defaultPlacement(surface: WebErrorSurface): WebErrorPlacement {
-  return surface === 'field' ? 'inline' : 'top';
+  if (surface === 'field') return 'inline';
+  if (surface === 'form') return 'summary';
+  return 'top';
 }
 
 function numberMeta(meta: Readonly<Record<string, unknown>>, key: string): number | undefined {

@@ -23,6 +23,8 @@ public class TenantErrorCodes {
   public static final ErrorDescriptor SETTINGS_INVALID = validation("tenant.settings_invalid");
   public static final ErrorDescriptor SUPPORT_REASON_INVALID =
       validation("tenant.support_reason_invalid");
+  public static final ErrorDescriptor COMMISSION_DEFAULT_RATE_NOT_SET =
+      businessRule("tenant.commission.default_rate_not_set");
 
   public static Set<ErrorDescriptor> all() {
     return Set.of(
@@ -30,7 +32,8 @@ public class TenantErrorCodes {
         ACTIVATION_NOT_ALLOWED,
         SUSPENSION_NOT_ALLOWED,
         SETTINGS_INVALID,
-        SUPPORT_REASON_INVALID);
+        SUPPORT_REASON_INVALID,
+        COMMISSION_DEFAULT_RATE_NOT_SET);
   }
 
   private static ErrorDescriptor notFound(String code) {

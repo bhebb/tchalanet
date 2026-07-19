@@ -42,3 +42,23 @@ export const SELLER_TERMINAL_CREATE_FIELD_TARGETS = {
   'admin.sellerTerminal.create.address.postalCode': 'address.postalCode',
   'address.postalCode': 'address.postalCode',
 } as const;
+
+export interface SellerTerminalServerFieldError {
+  readonly value: unknown;
+  readonly message: string;
+}
+
+/**
+ * Keeps a server validation error on the rejected value only. A user edit
+ * therefore clears that server-owned error without touching local validators.
+ */
+export function sellerTerminalServerFieldError(
+  errors: Readonly<Record<string, SellerTerminalServerFieldError>>,
+  field: string,
+  value: unknown,
+): { kind: 'server'; message: string } | undefined {
+  const error = errors[field];
+  return error && Object.is(error.value, value)
+    ? { kind: 'server', message: error.message }
+    : undefined;
+}

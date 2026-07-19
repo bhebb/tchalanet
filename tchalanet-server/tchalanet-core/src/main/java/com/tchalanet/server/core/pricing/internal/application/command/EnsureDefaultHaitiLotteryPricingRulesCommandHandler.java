@@ -4,7 +4,9 @@ import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.pricing.api.command.EnsureDefaultHaitiLotteryPricingRulesCommand;
+import com.tchalanet.server.core.pricing.api.error.PricingErrorCodes;
 import com.tchalanet.server.core.pricing.api.model.PayoutRuleType;
 import com.tchalanet.server.core.pricing.api.model.PricingVariantCode;
 import com.tchalanet.server.core.pricing.internal.application.port.out.TenantPricingOddsReaderPort;
@@ -26,7 +28,7 @@ public class EnsureDefaultHaitiLotteryPricingRulesCommandHandler
   @TchTx
   public Void handle(EnsureDefaultHaitiLotteryPricingRulesCommand c) {
     if (c.tenantId() == null) {
-      throw new IllegalArgumentException("tenantId is required");
+      throw ProblemRest.of(PricingErrorCodes.TENANT_REQUIRED);
     }
     for (DefaultPricingRule row : defaultHaitiLotteryPricingRules()) {
       ensureRule(c.tenantId(), row);

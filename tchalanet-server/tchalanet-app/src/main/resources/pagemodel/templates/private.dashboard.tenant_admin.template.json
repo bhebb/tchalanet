@@ -109,6 +109,11 @@
           },
           "props": {
             "titleKey": "dashboard.tenant_admin.kpis.title",
+            "feedbackTargets": [
+              "tenant_admin_dashboard.kpis",
+              "tenant_admin_dashboard.live_sales",
+              "tenant_admin_dashboard.open_draws"
+            ],
             "items": [
               {
                 "id": "salesToday",
@@ -148,7 +153,12 @@
             "source": "tenant_admin_dashboard"
           },
           "props": {
-            "titleKey": "dashboard.tenant_admin.readiness.title"
+            "titleKey": "dashboard.tenant_admin.readiness.title",
+            "feedbackTargets": [
+              "tenant_admin_dashboard.registry",
+              "tenant_admin_dashboard.operations",
+              "tenant_admin_dashboard.commercial"
+            ]
           }
         },
         "dashboard.tenantAdmin.alerts": {
@@ -159,7 +169,11 @@
           },
           "props": {
             "titleKey": "dashboard.tenant_admin.alerts.title",
-            "emptyKey": "dashboard.tenant_admin.alerts.empty"
+            "emptyKey": "dashboard.tenant_admin.alerts.empty",
+            "feedbackTargets": [
+              "tenant_admin_dashboard.closed_draws",
+              "tenant_admin_dashboard.notifications"
+            ]
           }
         },
         "dashboard.tenantAdmin.salesTrend": {
@@ -171,6 +185,7 @@
           "props": {
             "titleKey": "dashboard.tenant_admin.sales_trend.title",
             "emptyKey": "dashboard.tenant_admin.sales_trend.empty",
+            "feedbackTargets": ["tenant_admin_dashboard.analytics"],
             "points": { "source": "dynamic", "path": "points" },
             "labelPath": "label",
             "labelFormat": "date-short",
@@ -201,6 +216,7 @@
           },
           "props": {
             "titleKey": "dashboard.tenant_admin.commission.title",
+            "feedbackTargets": ["tenant_admin_dashboard.commission"],
             "manageLink": "/app/admin/controls/commission"
           }
         },
@@ -212,6 +228,7 @@
           },
           "props": {
             "titleKey": "dashboard.tenant_admin.quick_actions.title",
+            "feedbackTargets": ["tenant_admin_dashboard.public_content"],
             "actions": [
               {
                 "id": "addSellerTerminal",

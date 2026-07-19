@@ -30,13 +30,17 @@ feature BFF is classified. It records observed behaviour, not desired behaviour.
 
 ### POS sales contract gap
 
-The POS controllers delegate sale preparation and confirmation to `core.sales`, where 66 current
-`ProblemRest.*(String)` call sites use strings that often look like codes (for example
-`sales.preparation.expired`, `sales.stake_below_tenant_min`, and `seller_terminal.cannot_sell`).
-The legacy `String` overload writes these values to `ProblemDetail.detail` only; it does **not** set
-the `code`, `category`, or `retryPolicy` properties. The Angular client deliberately accepts only
-`limits.blocked` as a temporary legacy-detail code and rejects all other `detail` values to avoid
-turning arbitrary server prose into a user-facing contract.
+The POS controllers delegate sale preparation and confirmation to `core.sales`. POS-reachable sales
+producers have now migrated from `ProblemRest.*(String)` to `SalesErrorCodes` descriptors: sale
+preparation, confirmation, ticket lookup/verification, ticket-list filter validation, and
+ticket-print projection lookup all serialize `ProblemDetail.code`. The legacy String overload still
+exists elsewhere in the server and remains prohibited for new POS/sales producers.
+
+`SaleIssueFactory` now preserves a code-first `ProblemDetail.code` before using its legacy-detail
+bridge. This keeps the original stable code through preparation and confirmation responses; the
+admin POS renders the code through i18n and never the legacy `message` or `sellerInstruction` prose.
+The seller-terminal sale gate is also code-first as `sales.seller_terminal.cannot_sell`. Ticket
+lookup no longer serializes a ticket UUID in `ProblemDetail.detail`.
 
 One POS producer is also invalid as a stable contract:
 
@@ -48,11 +52,17 @@ It makes the apparent code dynamic. This must become a constant code such as
 `sales.tenant_disabled`, with the status retained only as server-side diagnostics or an approved
 safe parameter if the product needs it.
 
-**Required next backend slice:** introduce code-first `ErrorDescriptor`s in the sales owner package
-for preparation, confirmation, limit/availability, seller-terminal, receipt, and delivery errors;
-migrate POS-reachable handlers/services to those descriptors; then add MVC/contract tests asserting
-the serialized `ProblemDetail.code` for prepare, confirm, receipt-send, print/reprint, verify, and
-ticket-detail failures. Do not expand the web legacy-detail allowlist.
+**Remaining POS backend proof:** add MVC/contract tests asserting the serialized
+`ProblemDetail.code` for prepare, confirm, receipt-send, print/reprint, verify, and ticket-detail
+failures. Do not expand the web legacy-detail allowlist.
+
+### POS mobile-home copy gap
+
+`PosHomeService` still serializes display prose in `HomeHeader`, `HomeRequiredStep`, and
+`HomeAction` (for example the greeting, PIN-change message, and action labels). This is not an
+error renderer and is intentionally outside the admin seller-terminal POS slice. Before migrating
+the mobile POS home to retained envelopes, replace that transport prose with stable i18n keys and
+approved parameters; mobile must not use backend French text as its localization contract.
 
 ## Contract producer priority matrix
 
@@ -65,14 +75,16 @@ HTTP paths named below.
 | Priority | Owner | Signal count | Why it is first | Required contract proof |
 |---|---|---:|---|---|
 | P0 | `core.sales` | 174 | Determines prepare, confirm, ticket lifecycle, print and payment eligibility. | `ProblemDetail.code` for invalid sale input, availability/cutoff, limit block, seller-terminal block, preparation expiry/replay, ticket not found, print/reprint and delivery failures. |
+| P0 | `core.sellerterminal` | 47 | Owns seller-terminal admin lifecycle and POS identity. | **Migrated and HTTP-proven:** missing terminal, invalid state transition, commission validation, identity binding/provisioning, and PIN reset use registered code-first descriptors. The admin state-transition adapter serializes the exact code/category/retry policy with neutral detail. |
+| P0 | `core.pricing` | 31 | Owns tenant payout rules and seller-terminal overrides used at sale preparation. | **Migrated and HTTP-proven:** pricing validation, missing tenant defaults, override lookup, and payout-rule mismatches use registered code-first descriptors. The admin pricing adapter serializes the exact code/category/retry policy with neutral detail. |
 | P0 | `core.limitpolicy` | 35 | Directly decides allow/warn/approval/block for a sale. | Stable code/category/retry policy for every blocking outcome; a rejected sale carries the policy code rather than a generic 403. |
 | P0 | `platform.accesscontrol` | 16 | Resolves effective tenant and support/admin actor scope before a POS or admin action. | Non-enumerating codes for missing/forbidden actor, tenant override and ambiguous membership; 401/403 semantics remain deterministic. |
 | P0 | `platform.identity` | 79 | Owns login/session/bootstrap/handoff and account activation. | Authentication errors are generic where enumeration matters; session/activation/handoff codes are stable and serialized. |
 | P1 | `core.promotion` | 39 | Shapes Maryaj gratis and can reject/alter prepared sales. | Promotion configuration and selection failures return stable field/business codes; no generator/provider prose reaches clients. |
 | P1 | `platform.tenant` | 58 | Tenant status, business day and tenant configuration gate every sale. | Stable active/closed/configuration codes, with no dynamic status embedded in the code. |
 | P1 | `platform.tenantgame` | 18 | Controls game/bet option visibility and availability in the POS. | Stable disabled/not-configured/not-visible codes for prepare and confirm. |
-| P1 | `features.pos` | 18 | HTTP adapters for POS draws, games, tickets, receipt/send and home. | Controllers preserve core `ProblemDetail` unchanged and successful envelopes retain notices/trace. |
-| P2 | `features.tenantadmin` | 7 | Tenant configuration BFF/form surface; it must expose useful field failures without leaking IDs. | Ownership matrix for overview/config slices plus contract tests for tenant-game/draw-channel mutations. |
+| P1 | `features.pos` | 18 | HTTP adapters for POS draws, games, tickets, receipt/send and home. | Controllers preserve core `ProblemDetail` unchanged and successful envelopes retain notices/trace. Ticket verification maps only `ticket.not_found` to its business result; every other stable failure propagates. Admin POS maps `SaleIssue` by code only, never server prose. |
+| P2 | `features.tenantadmin` | 7 | Tenant configuration BFF/form surface; it must expose useful field failures without leaking IDs. | The overview now distinguishes unavailable address/registry slices from absent business data and emits degradation notices; draw-channel game mutations use owner descriptors. The dashboard slice matrix and remaining forms stay open. |
 | P2 | `features.pagemodel` | 20 | Public/private BFF aggregation and optional-widget degradation. | Required failure is `ProblemDetail`; optional failure is typed unavailable section plus a stable degradation notice, never a silent zero. |
 
 ### Audit order
@@ -134,11 +146,11 @@ codes remain legacy until their form/POS ownership and client translations are m
 
 | Surface / entry point | Primary result | Secondary slices observed | Current failure behaviour | Initial classification |
 |---|---|---|---|---|
-| PageModel dynamic runtime (`PageModelDynamicResolver`) | Page payload / widgets | Each dynamic provider/widget | Catches provider errors, adds `WidgetDynamicError` and `ApiNotice`. Current notice includes web placement metadata. | Non-blocking per widget; migrate target to stable functional ID and let client choose placement. |
-| Tenant admin dashboard (`TenantAdminDashboardPayloadAssembler`) | Tenant dashboard payload | registry, seller terminal counts, games/channels/limits, KPI/analytics/live sales, draws, notifications, commission, public content | Many `RuntimeException`s become `0`, empty list, or `null`, with log only. | Most are likely non-blocking sections, but currently silent and indistinguishable from real zero/empty data. |
-| Platform admin dashboard (`PlatformAdminDashboardPayloadAssembler`) | Platform dashboard payload | tenant catalog, analytics, subscriptions, onboarding, public content | Catches failures and returns zero/empty section values with log only. | Non-blocking section candidates; need explicit unavailable state and degradation code. |
-| Cashier dashboard (`PosDashboardPayloadAssembler`) | Cashier dashboard payload | overview, next draws, recent tickets, analytics | Analytics failures become `CashierStatsPayload.unavailable()`; other slices remain blocking. | Analytics is explicit unavailable state but lacks response notice/correlation; classify and render locally. |
-| Tenant admin overview (`TenantAdminOverviewService`) | Tenant overview | address, registry, readiness | Address/registry errors become `null` silently. | Optional header fields; need explicit degradation or intentionally documented absence. |
+| PageModel dynamic runtime (`PageModelDynamicResolver`) | Page payload / widgets | Each dynamic provider/widget | Catches provider errors, adds `WidgetDynamicError` and `ApiNotice`. Direct widget IDs remain only for resolver-generated compatibility errors. | Non-blocking per widget. BFF notices name a stable functional slice; resolved runtime widget configs declare `feedbackTargets`, which the API boundary maps to the renderer. |
+| Tenant admin dashboard (`TenantAdminDashboardPayloadAssembler`) | Tenant dashboard payload | registry, seller terminal counts, games/channels/limits, KPI/analytics/live sales, draws, notifications, commission, public content | Each remote/query slice now records `AVAILABLE`, `EMPTY`, or `UNAVAILABLE` in additive `sectionStates`; failures emit one stable degradation notice and return `PARTIAL` while preserving the primary payload. | Vertical migrated with assembler and PageModel tests. BFF notice targets are functional `tenant_admin_dashboard.<slice>` identifiers. |
+| Platform admin dashboard (`PlatformAdminDashboardPayloadAssembler`) | Platform dashboard payload | tenant catalog, analytics, subscriptions, onboarding, public content | Each remote/query slice now emits a stable degradation notice and returns `PARTIAL` with a fallback payload. The shared PageModel client owns the notice locally and retries through the platform dashboard reload. | Commercial vertical migrated with functional `platform_admin_dashboard.<slice>` targets. Platform Ops has its own pending slice matrix. |
+| Cashier dashboard (`PosDashboardPayloadAssembler`) | Dormant PageModel payload | overview, next draws, recent tickets, analytics | Analytics exceptions and an absent projection now become `CashierStatsPayload.unavailable()` plus `pos.dashboard.analytics_unavailable` and `PARTIAL`; other slices remain blocking. | No current PageModel template, Angular route, or mobile consumer references `cashier_dashboard`. Do not add a renderer under this change; separately decide to expose or remove the projection. `PosHomeService` is the mobile endpoint and has no analytics slice. |
+| Tenant admin overview (`TenantAdminOverviewService`) | Tenant overview | address, registry, readiness | Address/registry failures now produce `tenantadmin.overview.address_unavailable` / `tenantadmin.overview.registry_unavailable`, `PARTIAL`, and additive availability flags; a genuine missing address/registry remains business-empty. | Migrated for header slices; the web owner must render the local warning and retry action. |
 | Platform overview (`PlatformAdminOverviewOrchestrator`) | Platform overview payload | tenant, catalog, subscription reads | No local catch; any failure fails whole response. | Provisional blocking until the slice matrix decides otherwise. |
 
 ## Initial BFF endpoint matrix
@@ -150,8 +162,8 @@ the next pass.
 
 | Endpoint | Assembler/orchestrator | Primary response | Current error mode | Matrix status |
 |---|---|---|---|---|
-| `GET /tenant/dashboard` | `DashboardPageModelService` → `PageModelDynamicResolver` | Tenant PageModel runtime | Blocking access/model failures; per-widget catch and notice; tenant settings catch silently returns original page. | In progress |
-| `GET /platform/dashboard` | `DashboardPageModelService` → `PageModelDynamicResolver` | Platform PageModel runtime | Blocking access/model failures; per-widget catch and notice. | In progress |
+| `GET /tenant/dashboard` | `DashboardPageModelService` → `PageModelDynamicResolver` | Tenant PageModel runtime | Tenant dashboard optional slices are explicit `PARTIAL` degradations and are rendered/retried locally; tenant settings still catches silently. | Vertical migrated; settings and canonical functional target remain. |
+| `GET /platform/dashboard` | `DashboardPageModelService` → `PageModelDynamicResolver` | Platform PageModel runtime | Commercial platform dashboard optional slices are explicit `PARTIAL` degradations and are rendered/retried locally. | Commercial vertical migrated; Ops dashboard and canonical functional target remain. |
 | `GET /public/page`, `GET /public/managers` | Public PageModel services → dynamic resolver | Public PageModel runtime | Uses same dynamic-resolution semantics; public disclosure/retry policy still unclassified. | In progress |
 | `GET /tenant/cashier/home` | `PosHomeService` / cashier payload assemblers | Compact POS home | Separate home/readiness payload; dashboard analytics has an unavailable state without envelope notice. | In progress |
 | `GET /platform/overview` | `PlatformAdminOverviewOrchestrator` | Platform overview | Multi-domain reads currently fail as one blocking request. | In progress |
@@ -287,7 +299,9 @@ with an inline Material error.
 
 `clearServerFieldErrorsOnEdit` recursively subscribes to reactive controls and removes only the
 server error associated with the control the user changed. It is active on business-profile and both
-seller-terminal dialogs; Signal Form support and the remaining form inventory are still pending.
+seller-terminal dialogs. The seller-terminal creation page has an equivalent Signal Form validator:
+it keeps a server error only while the rejected value remains unchanged. Other Signal Form screens
+still need the same adoption.
 
 ## Next inventory pass
 

@@ -117,6 +117,19 @@ describe('web app error normalization', () => {
     expect(error.source).toBe('commissions');
   });
 
+  it('keeps form failures local with a summary placement', () => {
+    const problem: ProblemDetail = {
+      title: 'Invalid rate',
+      status: 422,
+      code: 'tenant.settings_invalid',
+    };
+
+    const error = webAppErrorFromProblemDetail(problem, 'admin.commission.defaultRate', 'form');
+
+    expect(error.surface).toBe('form');
+    expect(error.placement).toBe('summary');
+  });
+
   it('extracts server field violations from ProblemDetail', () => {
     const problem: ProblemDetail = {
       title: 'Validation failed',

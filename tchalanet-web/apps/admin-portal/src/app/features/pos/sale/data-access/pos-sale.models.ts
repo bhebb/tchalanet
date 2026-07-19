@@ -121,7 +121,6 @@ export interface ConfirmedTicketView {
   publicCode?: string | null;
   saleStatus?: string | null;
   backup?: PosTicketBackupView | null;
-  sellerInstruction?: string | null;
   actionAvailability: PosSaleActionAvailabilityView;
   warnings: readonly WebAppError[];
 }

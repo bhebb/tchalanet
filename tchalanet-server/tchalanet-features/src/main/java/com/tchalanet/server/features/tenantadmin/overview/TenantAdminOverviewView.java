@@ -31,5 +31,7 @@ public record TenantAdminOverviewView(
       String currency,
       String tenantType,
       String tenantStatus,
-      AddressView address) {}
+      AddressView address,
+      boolean registryAvailable,
+      boolean addressAvailable) {}
 }

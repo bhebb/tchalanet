@@ -1,68 +1,99 @@
 @if (state() === 'confirming' || state() === 'submitting') {
-  <h2 mat-dialog-title>Réinitialiser le PIN</h2>
-  <mat-dialog-content>
-    <p class="reset-pin-dialog__info">
-      Un nouveau PIN temporaire sera généré pour
-      <strong>{{ data.terminalCode }}</strong> - {{ data.displayName }}.<br />
-      L'ancien PIN ne fonctionnera plus.<br />
-      Le vendeur devra changer son PIN à sa prochaine connexion.
-    </p>
-    <form [formGroup]="form" class="reset-pin-dialog__form">
-      @if (error(); as pageError) {
-        <tch-error-panel [title]="pageError.title" [message]="pageError.message" />
-      }
+<h2 mat-dialog-title>{{ 'admin.sellerTerminals.list.dialog.resetPin.title' | translate }}</h2>
+<mat-dialog-content>
+  <p class="reset-pin-dialog__info">
+    {{ 'admin.sellerTerminals.list.dialog.resetPin.description' | translate: { code:
+    data.terminalCode, name: data.displayName } }}
+  </p>
+  <form [formGroup]="form" class="reset-pin-dialog__form">
+    @if (error(); as formError) {
+    <tch-error-panel [title]="formError.title" [message]="formError.message" />
+    }
+    <tch-form-error-summary [messages]="formSummary()" />
 
-      <mat-form-field appearance="outline" class="reset-pin-dialog__field">
-        <mat-label>Raison</mat-label>
-        <mat-select formControlName="reason">
-          <mat-option value="PIN_LOST">PIN perdu</mat-option>
-          <mat-option value="SELLER_CHANGED">Changement de vendeur</mat-option>
-          <mat-option value="SUSPECTED_COMPROMISE">Suspicion de compromission</mat-option>
-          <mat-option value="ADMIN_CORRECTION">Correction administrative</mat-option>
-          <mat-option value="OTHER">Autre</mat-option>
-        </mat-select>
-        @if (form.controls.reason.invalid && form.controls.reason.touched) {
-          <mat-error>Veuillez sélectionner une raison.</mat-error>
-        }
-      </mat-form-field>
-    </form>
-  </mat-dialog-content>
-  <mat-dialog-actions align="end">
-    <button mat-button mat-dialog-close [disabled]="state() === 'submitting'">Annuler</button>
-    <button
-      mat-flat-button
-      color="warn"
-      [disabled]="form.invalid || state() === 'submitting'"
-      (click)="submit()"
+    <mat-form-field appearance="outline" class="reset-pin-dialog__field">
+      <mat-label
+        >{{ 'admin.sellerTerminals.list.dialog.resetPin.reason.label' | translate }}</mat-label
+      >
+      <mat-select formControlName="reason">
+        <mat-option value="PIN_LOST"
+          >{{ 'admin.sellerTerminals.list.dialog.resetPin.reason.pinLost' | translate }}</mat-option
+        >
+        <mat-option value="SELLER_CHANGED"
+          >{{ 'admin.sellerTerminals.list.dialog.resetPin.reason.sellerChanged' | translate
+          }}</mat-option
+        >
+        <mat-option value="SUSPECTED_COMPROMISE"
+          >{{ 'admin.sellerTerminals.list.dialog.resetPin.reason.suspectedCompromise' | translate
+          }}</mat-option
+        >
+        <mat-option value="ADMIN_CORRECTION"
+          >{{ 'admin.sellerTerminals.list.dialog.resetPin.reason.adminCorrection' | translate
+          }}</mat-option
+        >
+        <mat-option value="OTHER"
+          >{{ 'admin.sellerTerminals.list.dialog.resetPin.reason.other' | translate }}</mat-option
+        >
+      </mat-select>
+      @if (form.controls.reason.invalid && form.controls.reason.touched) {
+      <mat-error
+        >{{ 'admin.sellerTerminals.list.dialog.resetPin.reason.required' | translate }}</mat-error
+      >
+      }
+    </mat-form-field>
+    <tch-field-error [control]="form.controls.reason" />
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close [disabled]="state() === 'submitting'">
+    {{ 'common.cancel' | translate }}
+  </button>
+  <button
+    mat-flat-button
+    color="warn"
+    [disabled]="form.invalid || state() === 'submitting'"
+    (click)="submit()"
+  >
+    @if (state() === 'submitting') {
+    <span class="material-symbols-outlined reset-pin-dialog__spin" aria-hidden="true"
+      >progress_activity</span
     >
-      @if (state() === 'submitting') {
-        <span class="material-symbols-outlined reset-pin-dialog__spin" aria-hidden="true">progress_activity</span>
-      }
-      Réinitialiser le PIN
+    } {{ 'admin.sellerTerminals.list.action.resetPin' | translate }}
+  </button>
+</mat-dialog-actions>
+} @if (state() === 'success' && result(); as pinResult) {
+<h2 mat-dialog-title>
+  {{ 'admin.sellerTerminals.list.dialog.resetPin.success.title' | translate }}
+</h2>
+<mat-dialog-content class="reset-pin-dialog__success">
+  <p>
+    <strong
+      >{{ 'admin.sellerTerminals.list.dialog.resetPin.success.terminal' | translate }}:</strong
+    >
+    {{ pinResult.terminalCode }}
+  </p>
+  <div class="reset-pin-dialog__pin-box">
+    <span class="reset-pin-dialog__pin">{{ pinResult.temporaryPin }}</span>
+    <span class="reset-pin-dialog__pin-size"
+      >{{ 'admin.sellerTerminals.list.dialog.resetPin.success.digits' | translate: { count:
+      pinResult.temporaryPin.length } }}</span
+    >
+    <button
+      mat-icon-button
+      (click)="copyPin()"
+      [title]="(pinCopied() ? 'admin.sellerTerminals.list.dialog.resetPin.success.copied' : 'admin.sellerTerminals.list.dialog.resetPin.success.copy') | translate"
+    >
+      <span class="material-symbols-outlined">{{ pinCopied() ? 'check' : 'content_copy' }}</span>
     </button>
-  </mat-dialog-actions>
-}
-
-@if (state() === 'success' && result(); as pinResult) {
-  <h2 mat-dialog-title>PIN temporaire généré</h2>
-  <mat-dialog-content class="reset-pin-dialog__success">
-    <p>
-      <strong>Terminal :</strong> {{ pinResult.terminalCode }}
-    </p>
-    <div class="reset-pin-dialog__pin-box">
-      <span class="reset-pin-dialog__pin">{{ pinResult.temporaryPin }}</span>
-      <span class="reset-pin-dialog__pin-size">{{ pinResult.temporaryPin.length }} chiffres</span>
-      <button mat-icon-button (click)="copyPin()" [title]="pinCopied() ? 'Copié !' : 'Copier le PIN'">
-        <span class="material-symbols-outlined">{{ pinCopied() ? 'check' : 'content_copy' }}</span>
-      </button>
-    </div>
-    <p class="reset-pin-dialog__warning">
-      <span class="material-symbols-outlined reset-pin-dialog__warning-icon">warning</span>
-      Copiez ce PIN maintenant. Il ne sera plus affiché après fermeture.<br />
-      Le vendeur devra le changer à sa prochaine connexion.
-    </p>
-  </mat-dialog-content>
-  <mat-dialog-actions align="end">
-    <button mat-flat-button color="primary" (click)="close()">Fermer</button>
-  </mat-dialog-actions>
+  </div>
+  <p class="reset-pin-dialog__warning">
+    <span class="material-symbols-outlined reset-pin-dialog__warning-icon">warning</span>
+    {{ 'admin.sellerTerminals.list.dialog.resetPin.success.warning' | translate }}
+  </p>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-flat-button color="primary" (click)="close()">
+    {{ 'common.close' | translate }}
+  </button>
+</mat-dialog-actions>
 }

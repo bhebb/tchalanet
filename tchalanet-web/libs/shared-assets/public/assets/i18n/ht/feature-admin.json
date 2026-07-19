@@ -1,5 +1,15 @@
 {
   "admin": {
+    "commission": {
+      "dialog": {
+        "sellerRate": {
+          "title": "Chanje to komisyon pou {{name}}"
+        },
+        "defaultRate": {
+          "title": "Chanje to komisyon pa defo"
+        }
+      }
+    },
     "appearance": {
       "title": "Aparans",
       "description": "Pèsonalize tèm ak aparans espas ou.",
@@ -793,6 +803,36 @@
             "description": "Bloke {{name}} ({{code}}) ap anpeche tout lavant jouk yo debloke li.",
             "reason": "Rezon blokaj la",
             "reasonPlaceholder": "Egzanp: terminal la pa retounen, sispèk fwod..."
+          },
+          "resetPin": {
+            "title": "Re-inisyalize PIN",
+            "description": "Y ap kreye yon nouvo PIN tanporè pou {{code}} — {{name}}. Ansyen PIN lan p ap mache ankò epi vandè a dwe chanje li nan pwochen koneksyon li.",
+            "reason": {
+              "label": "Rezon",
+              "pinLost": "PIN pèdi",
+              "sellerChanged": "Chanjman vandè",
+              "suspectedCompromise": "Yo sispèk PIN lan konpwomèt",
+              "adminCorrection": "Koreksyon administratif",
+              "other": "Lòt",
+              "required": "Chwazi yon rezon."
+            },
+            "success": {
+              "title": "PIN tanporè kreye",
+              "terminal": "Tèminal",
+              "digits": "{{count}} chif",
+              "copy": "Kopye PIN lan",
+              "copied": "PIN lan kopye",
+              "warning": "Kopye PIN sa a kounye a. Li p ap parèt ankò apre ou fèmen fenèt la. Vandè a dwe chanje li nan pwochen koneksyon li."
+            }
+          },
+          "disable": {
+            "title": "Dezaktive vandè",
+            "description": "Dezaktive {{name}} ({{code}}) ?",
+            "warning": "Li difisil pou anile aksyon sa a."
+          },
+          "unblock": {
+            "title": "Debloke vandè",
+            "description": "Debloke {{name}} ({{code}}) pou li ka vann tikè ankò?"
           }
         }
       },

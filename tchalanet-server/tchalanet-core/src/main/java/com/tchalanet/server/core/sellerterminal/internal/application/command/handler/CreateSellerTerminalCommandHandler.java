@@ -5,7 +5,9 @@ import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
+import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.sellerterminal.api.command.CreateSellerTerminalCommand;
+import com.tchalanet.server.core.sellerterminal.api.error.SellerTerminalErrorCodes;
 import com.tchalanet.server.core.sellerterminal.internal.application.port.out.SellerTerminalIdentityProvisionPort;
 import com.tchalanet.server.core.sellerterminal.internal.application.port.out.SellerTerminalWriterPort;
 import com.tchalanet.server.core.sellerterminal.internal.domain.model.SellerTerminal;
@@ -32,24 +34,35 @@ public class CreateSellerTerminalCommandHandler
     var id = SellerTerminalId.of(idGenerator.newUuid());
     var rate = cmd.commissionRate() != null ? cmd.commissionRate() : DEFAULT_COMMISSION_RATE;
 
-    var terminal =
-        SellerTerminal.createPending(
-            id,
-            cmd.tenantId(),
-            cmd.terminalCode(),
-            cmd.displayName(),
-            cmd.firstName(),
-            cmd.lastName(),
-            cmd.email(),
-            cmd.phoneNumber(),
-            cmd.addressId(),
-            rate);
+    SellerTerminal terminal;
+    try {
+      terminal =
+          SellerTerminal.createPending(
+              id,
+              cmd.tenantId(),
+              cmd.terminalCode(),
+              cmd.displayName(),
+              cmd.firstName(),
+              cmd.lastName(),
+              cmd.email(),
+              cmd.phoneNumber(),
+              cmd.addressId(),
+              rate);
+    } catch (IllegalArgumentException ex) {
+      throw ProblemRest.of(
+          SellerTerminalErrorCodes.COMMISSION_RATE_INVALID, java.util.Map.of(), ex);
+    }
 
     terminal = writer.save(terminal);
 
     if (cmd.initialPin() != null && !cmd.initialPin().isBlank()) {
-      identityProvision.provision(
-          id, cmd.tenantId(), cmd.terminalCode(), cmd.displayName(), cmd.initialPin());
+      try {
+        identityProvision.provision(
+            id, cmd.tenantId(), cmd.terminalCode(), cmd.displayName(), cmd.initialPin());
+      } catch (IllegalStateException ex) {
+        throw ProblemRest.of(
+            SellerTerminalErrorCodes.IDENTITY_PROVISION_UNAVAILABLE, java.util.Map.of(), ex);
+      }
       var now = Instant.now(clock);
       writer.save(terminal.resetPin(now).activate(now));
     }

@@ -4,7 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { PageModelApi, PageModelComponent, PageRuntimeResponse } from '@tch/page-model';
 import { TchErrorPanel, TchLoading } from '@tch/ui/components';
-import { catchError, map, of, startWith } from 'rxjs';
+import { Subject, catchError, map, of, startWith, switchMap } from 'rxjs';
 
 type DashboardState =
   | { readonly status: 'loading' }
@@ -25,18 +25,28 @@ export class PlatformDashboardPage {
     typeof this.route.snapshot.data['pageModelLogicalId'] === 'string'
       ? this.route.snapshot.data['pageModelLogicalId']
       : 'private.dashboard.superadmin.ops';
+  private readonly reloads = new Subject<void>();
 
   protected readonly state = toSignal(
-    this.pageModelApi.getPlatformPage(this.logicalId).pipe(
-      map(response => ({ status: 'ready', response }) as DashboardState),
-      catchError(() =>
-        this.pageModelApi.getPrivateFallbackPage().pipe(
+    this.reloads.pipe(
+      startWith(undefined),
+      switchMap(() =>
+        this.pageModelApi.getPlatformPage(this.logicalId).pipe(
           map(response => ({ status: 'ready', response }) as DashboardState),
-          catchError(() => of({ status: 'error' } as DashboardState)),
+          catchError(() =>
+            this.pageModelApi.getPrivateFallbackPage().pipe(
+              map(response => ({ status: 'ready', response }) as DashboardState),
+              catchError(() => of({ status: 'error' } as DashboardState)),
+            ),
+          ),
+          startWith({ status: 'loading' } as DashboardState),
         ),
       ),
-      startWith({ status: 'loading' } as DashboardState),
     ),
     { initialValue: { status: 'loading' } as DashboardState },
   );
+
+  protected reload(): void {
+    this.reloads.next();
+  }
 }

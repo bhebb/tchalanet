@@ -363,8 +363,8 @@ export class PosSaleApiService {
             ticketCode: ticket?.ticketCode ?? '',
             publicCode: ticket?.publicCode ?? null,
             saleStatus: ticket?.saleStatus ?? null,
-            backup: sale?.backup ?? (ticket?.displayCode ? { displayCode: ticket.displayCode } : null),
-            sellerInstruction: sale?.sellerInstruction ?? null,
+            backup:
+              sale?.backup ?? (ticket?.displayCode ? { displayCode: ticket.displayCode } : null),
             actionAvailability: actionAvailability(sale?.actionAvailability, true),
             warnings: [
               ...response.notices.map(notice =>
@@ -584,9 +584,7 @@ function posBetTypeLabel(row: PosGameOptionResponse): string {
   const normalized = labels[row.betType];
   if (normalized) return normalized;
 
-  return row.betTypeLabel && row.betTypeLabel !== row.betType
-    ? row.betTypeLabel
-    : row.betType;
+  return row.betTypeLabel && row.betTypeLabel !== row.betType ? row.betTypeLabel : row.betType;
 }
 
 function posBetOptions(row: PosGameOptionResponse): PosGameBetTypeView['options'] {
@@ -628,11 +626,10 @@ function idValue(value: string | { value?: string | null } | null | undefined): 
   return value?.value ?? '';
 }
 
-function webAppErrorFromSaleIssue(issue: PosSaleIssueApiResponse, source: string): WebAppError {
-  const message =
-    issue.sellerInstruction ??
-    issue.message ??
-    'La vente doit être vérifiée avant de continuer.';
+export function webAppErrorFromSaleIssue(
+  issue: PosSaleIssueApiResponse,
+  source: string,
+): WebAppError {
   const severity = saleIssueSeverity(issue.severity);
 
   return {
@@ -642,8 +639,10 @@ function webAppErrorFromSaleIssue(issue: PosSaleIssueApiResponse, source: string
     severity,
     surface: 'section',
     placement: 'top',
-    title: severity === 'error' ? 'Vente bloquée' : 'Vente à vérifier',
-    message,
+    // SaleIssue.message and sellerInstruction are diagnostic/legacy server fields. The rendered
+    // copy is resolved from the stable code and the active locale at the POS owner.
+    title: '',
+    message: '',
     code: issue.code,
     source,
     target: 'admin.sellerTerminal.pos.sale',
@@ -652,7 +651,6 @@ function webAppErrorFromSaleIssue(issue: PosSaleIssueApiResponse, source: string
     dedupeKey: `${source}:${issue.code}:${issue.lineIndex}:${issue.severity}`,
   };
 }
-
 
 function saleIssueSeverity(severity: string): WebAppError['severity'] {
   if (severity === 'ERROR') return 'error';

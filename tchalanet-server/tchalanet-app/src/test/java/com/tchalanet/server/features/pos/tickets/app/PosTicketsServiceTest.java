@@ -17,7 +17,9 @@ import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.types.money.CurrencyCode;
 import com.tchalanet.server.common.types.money.Money;
+import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.common.web.error.ProblemRestException;
+import com.tchalanet.server.core.sales.api.error.SalesErrorCodes;
 import com.tchalanet.server.core.sales.api.model.status.TicketResultStatus;
 import com.tchalanet.server.core.sales.api.model.status.TicketSaleStatus;
 import com.tchalanet.server.core.sales.api.model.status.TicketSettlementStatus;
@@ -150,6 +152,20 @@ class PosTicketsServiceTest {
       var response = service.verify(trustedContext(), request());
 
       assertThat(response.status()).isEqualTo("NOT_FOUND");
+    }
+
+    @Test
+    @DisplayName("a non-not-found business failure is preserved for the sale flow")
+    void non_not_found_problem_is_not_masked_as_missing_ticket() {
+      when(queryBus.ask(any(GetTicketForCashierVerificationQuery.class)))
+          .thenThrow(ProblemRest.of(SalesErrorCodes.PREPARATION_EXPIRED));
+
+      assertThatThrownBy(() -> service.verify(trustedContext(), request()))
+          .isInstanceOf(ProblemRestException.class)
+          .satisfies(
+              error ->
+                  assertThat(((ProblemRestException) error).getProblem().getProperties())
+                      .containsEntry("code", "sales.preparation.expired"));
     }
   }
 

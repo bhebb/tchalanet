@@ -7,6 +7,7 @@ import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageMapper;
+import com.tchalanet.server.core.sales.api.error.SalesErrorCodes;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintView;
 import com.tchalanet.server.core.sales.api.model.status.TicketSaleStatus;
 import com.tchalanet.server.core.sales.api.model.view.DrawStatLine;
@@ -50,7 +51,7 @@ public class TicketProjectionReaderAdapter implements TicketProjectionReaderPort
     var entity =
         repository
             .findById(ticketId.value())
-            .orElseThrow(() -> ProblemRest.notFound("ticket.not_found", ticketId));
+            .orElseThrow(() -> ProblemRest.of(SalesErrorCodes.TICKET_NOT_FOUND));
     return toDetailsView(entity);
   }
 
@@ -64,7 +65,7 @@ public class TicketProjectionReaderAdapter implements TicketProjectionReaderPort
     var entity =
         repository
             .findById(ticketId.value())
-            .orElseThrow(() -> ProblemRest.notFound("ticket.not_found", ticketId));
+            .orElseThrow(() -> ProblemRest.of(SalesErrorCodes.TICKET_NOT_FOUND));
     return toPayoutView(entity);
   }
 
@@ -162,7 +163,7 @@ public class TicketProjectionReaderAdapter implements TicketProjectionReaderPort
       case SORT_CREATED_AT -> "createdAt";
       case SORT_TOTAL_AMOUNT -> "totalAmount";
       case SORT_TICKET_CODE -> "ticketCode";
-      default -> throw ProblemRest.badRequest("ticket.filter.invalid_sort");
+      default -> throw ProblemRest.of(SalesErrorCodes.TICKET_FILTER_INVALID_SORT);
     };
   }
 
@@ -187,7 +188,7 @@ public class TicketProjectionReaderAdapter implements TicketProjectionReaderPort
     try {
       return TicketSaleStatus.valueOf(rawStatus.trim().toUpperCase(Locale.ROOT));
     } catch (IllegalArgumentException ex) {
-      throw ProblemRest.badRequest("ticket.filter.invalid_status");
+      throw ProblemRest.of(SalesErrorCodes.TICKET_FILTER_INVALID_STATUS);
     }
   }
 

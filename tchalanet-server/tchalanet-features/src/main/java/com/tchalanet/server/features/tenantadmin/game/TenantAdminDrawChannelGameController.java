@@ -1,6 +1,7 @@
 package com.tchalanet.server.features.tenantadmin.game;
 
 import com.tchalanet.server.catalog.drawchannel.api.DrawChannelCatalog;
+import com.tchalanet.server.catalog.drawchannel.api.error.DrawChannelErrorCodes;
 import com.tchalanet.server.catalog.drawchannel.internal.web.model.DrawChannelGameResponse;
 import com.tchalanet.server.catalog.drawchannel.internal.web.model.UpdateDrawChannelGameRequest;
 import com.tchalanet.server.catalog.drawchannel.internal.write.DrawChannelGameAdminService;
@@ -12,6 +13,7 @@ import com.tchalanet.server.common.types.id.TenantGameId;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.platform.tenantgame.api.TenantGameApi;
+import com.tchalanet.server.platform.tenantgame.api.error.TenantGameErrorCodes;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -52,21 +54,21 @@ public class TenantAdminDrawChannelGameController {
 
     drawChannelCatalog
         .findById(tenantId, drawChannelId)
-        .orElseThrow(() -> ProblemRest.notFound("draw_channel.not_found", drawChannelId));
+        .orElseThrow(() -> ProblemRest.of(DrawChannelErrorCodes.DELETED));
 
     var tenantGame =
         tenantGameApi
             .findByTenantGameId(tenantId, tenantGameId)
-            .orElseThrow(() -> ProblemRest.notFound("tenant_game.not_found", tenantGameId));
+            .orElseThrow(() -> ProblemRest.of(TenantGameErrorCodes.NOT_FOUND));
 
     if (!tenantGame.enabled()) {
-      throw ProblemRest.conflict("tenant_game.disabled");
+      throw ProblemRest.of(TenantGameErrorCodes.DISABLED);
     }
 
     gameCatalog
         .findById(tenantGame.gameId())
         .filter(g -> g.active())
-        .orElseThrow(() -> ProblemRest.conflict("catalog_game.inactive"));
+        .orElseThrow(() -> ProblemRest.of(TenantGameErrorCodes.CATALOG_GAME_INACTIVE));
 
     var enabled = body.enabled() == null || body.enabled();
     var result = admin.upsert(tenantId, drawChannelId, tenantGameId, enabled, body.flags());
@@ -85,7 +87,7 @@ public class TenantAdminDrawChannelGameController {
 
     drawChannelCatalog
         .findById(tenantId, drawChannelId)
-        .orElseThrow(() -> ProblemRest.notFound("draw_channel.not_found", drawChannelId));
+        .orElseThrow(() -> ProblemRest.of(DrawChannelErrorCodes.DELETED));
 
     var result = admin.update(tenantId, drawChannelId, tenantGameId, body);
     return ApiResponse.success(result);
@@ -102,7 +104,7 @@ public class TenantAdminDrawChannelGameController {
 
     drawChannelCatalog
         .findById(tenantId, drawChannelId)
-        .orElseThrow(() -> ProblemRest.notFound("draw_channel.not_found", drawChannelId));
+        .orElseThrow(() -> ProblemRest.of(DrawChannelErrorCodes.DELETED));
 
     admin.softDelete(tenantId, drawChannelId, tenantGameId);
     return ApiResponse.success(null);

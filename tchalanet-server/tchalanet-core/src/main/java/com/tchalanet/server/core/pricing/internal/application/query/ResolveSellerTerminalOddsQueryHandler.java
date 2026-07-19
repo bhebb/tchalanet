@@ -2,6 +2,8 @@ package com.tchalanet.server.core.pricing.internal.application.query;
 
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
+import com.tchalanet.server.common.web.error.ProblemRest;
+import com.tchalanet.server.core.pricing.api.error.PricingErrorCodes;
 import com.tchalanet.server.core.pricing.api.model.OddsSource;
 import com.tchalanet.server.core.pricing.api.model.SellerTerminalOddsResolutionView;
 import com.tchalanet.server.core.pricing.api.query.ResolveSellerTerminalOddsQuery;
@@ -28,11 +30,7 @@ public class ResolveSellerTerminalOddsQueryHandler
                 TenantPricingOdds.normalizeGameCode(q.gameCode()),
                 q.pricingVariantCode())
             .map(TenantPricingOdds::odds)
-            .orElseThrow(
-                () ->
-                    new IllegalStateException(
-                        "tenant default pricing odds missing for tenant=%s game=%s variant=%s"
-                            .formatted(q.tenantId(), q.gameCode(), q.pricingVariantCode())));
+            .orElseThrow(() -> ProblemRest.of(PricingErrorCodes.TENANT_DEFAULT_NOT_CONFIGURED));
 
     // Look for active seller_terminal override
     var override =

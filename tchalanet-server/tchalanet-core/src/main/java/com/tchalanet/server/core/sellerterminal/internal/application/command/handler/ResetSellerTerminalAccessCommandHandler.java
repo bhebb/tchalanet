@@ -3,7 +3,9 @@ package com.tchalanet.server.core.sellerterminal.internal.application.command.ha
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
+import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.sellerterminal.api.command.ResetSellerTerminalAccessCommand;
+import com.tchalanet.server.core.sellerterminal.api.error.SellerTerminalErrorCodes;
 import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalStatus;
 import com.tchalanet.server.core.sellerterminal.internal.application.port.out.SellerTerminalIdentityProvisionPort;
 import com.tchalanet.server.core.sellerterminal.internal.application.port.out.SellerTerminalReaderPort;
@@ -28,15 +30,20 @@ public class ResetSellerTerminalAccessCommandHandler
     var terminal = reader.getRequired(cmd.tenantId(), cmd.terminalId());
     var reset = terminal.resetAccessMetadata();
     if (cmd.newCredential() != null && !cmd.newCredential().isBlank()) {
-      if (identityProvision.hasExternalIdentity(cmd.terminalId())) {
-        identityProvision.resetPin(cmd.terminalId(), cmd.tenantId(), cmd.newCredential());
-      } else {
-        identityProvision.provision(
-            cmd.terminalId(),
-            cmd.tenantId(),
-            terminal.terminalCode(),
-            terminal.displayName(),
-            cmd.newCredential());
+      try {
+        if (identityProvision.hasExternalIdentity(cmd.terminalId())) {
+          identityProvision.resetPin(cmd.terminalId(), cmd.tenantId(), cmd.newCredential());
+        } else {
+          identityProvision.provision(
+              cmd.terminalId(),
+              cmd.tenantId(),
+              terminal.terminalCode(),
+              terminal.displayName(),
+              cmd.newCredential());
+        }
+      } catch (IllegalStateException ex) {
+        throw ProblemRest.of(
+            SellerTerminalErrorCodes.IDENTITY_PROVISION_UNAVAILABLE, java.util.Map.of(), ex);
       }
       if (terminal.status() == SellerTerminalStatus.PENDING) {
         reset = reset.activate(Instant.now(clock));
