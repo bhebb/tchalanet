@@ -18,11 +18,18 @@ import '../../data/services/terminal_stats_service.dart';
 import '../view_models/cashier_home_providers.dart';
 import 'seller_terminal_nav_bar.dart';
 
-class CashierHomePage extends ConsumerWidget {
+class CashierHomePage extends ConsumerStatefulWidget {
   const CashierHomePage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CashierHomePage> createState() => _CashierHomePageState();
+}
+
+class _CashierHomePageState extends ConsumerState<CashierHomePage> {
+  bool _pinRedirectScheduled = false;
+
+  @override
+  Widget build(BuildContext context) {
     final homeAsync = ref.watch(cashierHomeProvider);
 
     return homeAsync.when(
@@ -32,6 +39,12 @@ class CashierHomePage extends ConsumerWidget {
         // V1 SellerTerminal model: the only blocking step the server emits is
         // MUST_CHANGE_PIN. No more outlet/session selection.
         if (home.requiredStep != null) {
+          if (home.mustChangePin && !_pinRedirectScheduled) {
+            _pinRedirectScheduled = true;
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted) context.go('/change-pin');
+            });
+          }
           return _BlockedStepScaffold(home: home);
         }
         return _SellerTerminalScaffold(home: home);
@@ -104,7 +117,15 @@ class _BlockedStepScaffold extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final translations = ref.watch(i18nBundleProvider);
     final step = home.requiredStep!;
+    final isPinChange = step.type == 'MUST_CHANGE_PIN';
+    final title = isPinChange
+        ? translations.translate('auth.change_pin.title')
+        : step.title;
+    final message = isPinChange
+        ? translations.translate('auth.change_pin.description')
+        : step.message;
 
     return Scaffold(
       appBar: _PosAppBar(
@@ -121,7 +142,7 @@ class _BlockedStepScaffold extends ConsumerWidget {
               Icon(Icons.lock_outline_rounded, size: 64, color: scheme.primary),
               const SizedBox(height: TchSpacing.s24),
               Text(
-                step.title,
+                title,
                 style: textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
@@ -129,7 +150,7 @@ class _BlockedStepScaffold extends ConsumerWidget {
               ),
               const SizedBox(height: TchSpacing.s12),
               Text(
-                step.message,
+                message,
                 style: textTheme.bodyMedium?.copyWith(
                   color: scheme.onSurfaceVariant,
                 ),
@@ -137,9 +158,12 @@ class _BlockedStepScaffold extends ConsumerWidget {
               ),
               const Spacer(),
               FilledButton.icon(
-                onPressed: () => ref.invalidate(cashierHomeProvider),
-                icon: const Icon(Icons.refresh_rounded),
-                label: const Text('Réessayer'),
+                onPressed: () async {
+                  await context.push('/change-pin');
+                  ref.invalidate(cashierHomeProvider);
+                },
+                icon: const Icon(Icons.password_rounded),
+                label: Text(translations.translate('auth.change_pin.title')),
                 style: FilledButton.styleFrom(
                   minimumSize: const Size.fromHeight(56),
                   shape: RoundedRectangleBorder(

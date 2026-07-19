@@ -49,6 +49,7 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Locale;
@@ -502,7 +503,13 @@ class SalesPolicyPromotionSpringIntegrationTest extends BusinessRuntimeIntegrati
               List.of(gameCode.name()),
               "OPEN",
               rs.getTimestamp("scheduled_at").toInstant(),
-              rs.getTimestamp("cutoff_at").toInstant());
+              rs.getTimestamp("cutoff_at").toInstant(),
+              LocalDate.of(2026, 7, 19),
+              LocalTime.of(18, 0),
+              "America/Port-au-Prince",
+              LocalDate.of(2026, 7, 19),
+              LocalTime.of(18, 0),
+              "America/Port-au-Prince");
         },
         tenantId.value(),
         Timestamp.from(SALES_NOW),

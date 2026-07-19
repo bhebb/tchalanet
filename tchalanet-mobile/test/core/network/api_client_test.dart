@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tchalanet_mobile/core/network/api_client.dart';
+import 'package:tchalanet_mobile/core/network/api_exception.dart';
 
 void main() {
   test('ProblemDetail traceId is retained in mapped API exception', () {
@@ -67,5 +68,21 @@ void main() {
     expect(exception.requestId, 'tch_req_sent');
     // X-Trace-Id header maps to traceId.
     expect(exception.traceId, 'trace-from-otel');
+  });
+
+  test('network failures resolve to stable user-safe translation keys', () {
+    final exception = mapDioException(
+      DioException.connectionError(
+        requestOptions: RequestOptions(path: '/tenant/sales/preparations'),
+        reason: 'unreachable',
+      ),
+    );
+
+    expect(exception.code, 'client.network.unavailable');
+    expect(exception.retryable, isTrue);
+    expect(
+      userErrorTranslationKeys(exception),
+      contains('common.error.network'),
+    );
   });
 }

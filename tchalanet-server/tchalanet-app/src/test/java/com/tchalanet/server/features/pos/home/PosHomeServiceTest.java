@@ -29,6 +29,7 @@ import com.tchalanet.server.platform.identity.api.model.surface.ClientSurface;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Currency;
 import java.util.List;
 import java.util.Locale;
@@ -155,7 +156,13 @@ class PosHomeServiceTest {
         List.of("BOLET"),
         "OPEN",
         Instant.parse("2026-05-21T15:00:00Z"),
-        Instant.now().plusSeconds(1_800));
+        Instant.now().plusSeconds(1_800),
+        LocalDate.of(2026, 5, 21),
+        LocalTime.of(10, 0),
+        "America/Chicago",
+        LocalDate.of(2026, 5, 21),
+        LocalTime.of(11, 0),
+        "America/Port-au-Prince");
   }
 
   private TchRequestContext context(TchActorType actorType, SellerTerminalId terminalId) {

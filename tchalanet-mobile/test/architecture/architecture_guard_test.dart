@@ -35,7 +35,7 @@ const _knownProvidersDeclaredInViews = {
 };
 
 const _knownHardcodedUiLiteralCounts = <String, int>{
-  'lib/features/cashier/home/presentation/views/cashier_home_page.dart': 17,
+  'lib/features/cashier/home/presentation/views/cashier_home_page.dart': 16,
   'lib/features/cashier/home/presentation/views/seller_terminal_nav_bar.dart':
       4,
   'lib/features/cashier/home/presentation/views/seller_terminal_profile_page.dart':
@@ -45,16 +45,17 @@ const _knownHardcodedUiLiteralCounts = <String, int>{
   'lib/features/cashier/tickets/presentation/views/cashier_history_page.dart':
       5,
   'lib/features/cashier/tickets/presentation/views/cashier_scan_page.dart': 14,
-  'lib/features/cashier/tickets/presentation/views/cashier_sell_page.dart': 13,
+  'lib/features/cashier/tickets/presentation/views/cashier_sell_page.dart': 12,
   'lib/features/cashier/tickets/presentation/views/cashier_sell_success_page.dart':
-      11,
+      9,
   'lib/features/cashier/tickets/presentation/views/cashier_ticket_detail_page.dart':
-      21,
+      20,
   'lib/features/cashier/tickets/presentation/views/send_receipt_sheet.dart': 2,
 };
 
 const _routedScreens = {
   '/login': 'LoginPage',
+  '/change-pin': 'ChangePinPage',
   '/pos': 'CashierHomePage',
   '/pos/history': 'CashierHistoryPage',
   '/pos/stats': 'SellerTerminalStatsPage',

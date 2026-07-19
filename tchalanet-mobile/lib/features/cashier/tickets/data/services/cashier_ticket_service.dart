@@ -13,35 +13,36 @@ class CashierTicketService {
 
   final Dio _dio;
 
-  /// Read-only sell acceptance check — no ticket created.
-  Future<CashierTicketPreviewResponse> preview(
-      CashierTicketPreviewRequest request) async {
+  /// Persists a short-lived preparation with the final payable and promotion lines.
+  Future<CashierTicketPreviewResponse> prepare(
+    CashierTicketPreviewRequest request,
+  ) async {
     try {
       final response = await _dio.post<Map<String, dynamic>>(
-        '/tenant/cashier/tickets/preview',
+        '/tenant/sales/preparations',
         data: request.toJson(),
       );
       return CashierTicketPreviewResponse.fromJson(
-          response.data!['data'] as Map<String, dynamic>);
+        response.data!['data'] as Map<String, dynamic>,
+      );
     } on DioException catch (e) {
       throw mapDioException(e);
     }
   }
 
-  /// Idempotent sale. Pass a stable [idempotencyKey] per attempt (UUID v4).
-  /// Generate once per sell flow; reuse on retry to avoid double-sell.
-  Future<CashierSellTicketResponse> sell(
-    CashierSellTicketRequest request, {
+  /// Confirms exactly one persisted preparation. The idempotency key is stable per intent.
+  Future<CashierSellTicketResponse> confirm(
+    String preparationId, {
     required String idempotencyKey,
   }) async {
     try {
       final response = await _dio.post<Map<String, dynamic>>(
-        '/tenant/cashier/tickets/sell',
-        data: request.toJson(),
+        '/tenant/sales/preparations/$preparationId/confirm',
         options: Options(headers: {'Idempotency-Key': idempotencyKey}),
       );
       return CashierSellTicketResponse.fromJson(
-          response.data!['data'] as Map<String, dynamic>);
+        response.data!['data'] as Map<String, dynamic>,
+      );
     } on DioException catch (e) {
       throw mapDioException(e);
     }
@@ -49,24 +50,23 @@ class CashierTicketService {
 
   /// Verify a scanned public code or URL for payout readiness.
   Future<CashierTicketVerificationResponse> verify(
-      CashierVerifyTicketRequest request) async {
+    CashierVerifyTicketRequest request,
+  ) async {
     try {
       final response = await _dio.post<Map<String, dynamic>>(
         '/tenant/cashier/tickets/verify',
         data: request.toJson(),
       );
       return CashierTicketVerificationResponse.fromJson(
-          response.data!['data'] as Map<String, dynamic>);
+        response.data!['data'] as Map<String, dynamic>,
+      );
     } on DioException catch (e) {
       throw mapDioException(e);
     }
   }
 
   /// Print a ticket. Returns raw bytes (PDF or ESC/POS).
-  Future<Uint8List> print(
-    String ticketId, {
-    bool recordPrint = true,
-  }) async {
+  Future<Uint8List> print(String ticketId, {bool recordPrint = true}) async {
     try {
       final response = await _dio.post<List<int>>(
         '/tenant/cashier/tickets/$ticketId/print',
@@ -89,7 +89,8 @@ class CashierTicketService {
         '/tenant/cashier/tickets/$ticketId',
       );
       return CashierTicketDetailsView.fromJson(
-          response.data!['data'] as Map<String, dynamic>);
+        response.data!['data'] as Map<String, dynamic>,
+      );
     } on DioException catch (e) {
       throw mapDioException(e);
     }
@@ -99,16 +100,13 @@ class CashierTicketService {
     try {
       final response = await _dio.get<Map<String, dynamic>>(
         '/tenant/cashier/tickets',
-        queryParameters: {
-          'size': size,
-          'sort': 'createdAt,desc',
-        },
+        queryParameters: {'size': size, 'sort': 'createdAt,desc'},
       );
-      final items =
-          (response.data?['data']?['items'] as List<dynamic>?) ?? [];
+      final items = (response.data?['data']?['items'] as List<dynamic>?) ?? [];
       return items
-          .map((e) =>
-              CashierTicketSummaryView.fromJson(e as Map<String, dynamic>))
+          .map(
+            (e) => CashierTicketSummaryView.fromJson(e as Map<String, dynamic>),
+          )
           .toList();
     } on DioException catch (e) {
       throw mapDioException(e);
@@ -128,10 +126,7 @@ class CashierTicketService {
     try {
       await _dio.post<void>(
         '/tenant/cashier/tickets/$ticketId/send',
-        data: {
-          'channel': channel,
-          'to': to,
-        },
+        data: {'channel': channel, 'to': to},
       );
     } on DioException catch (e) {
       throw mapDioException(e);
