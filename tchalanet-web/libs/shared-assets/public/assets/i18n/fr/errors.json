@@ -473,6 +473,72 @@
         "publiccontent": {
           "item": { "not_found": { "title": "Contenu introuvable", "message": "Ce contenu public n’est plus disponible." } }
         },
+        "document": {
+          "request_invalid": { "title": "Document invalide", "message": "Vérifiez les informations du document puis réessayez." },
+          "renderer_unavailable": { "title": "Impression indisponible", "message": "Le document ne peut pas être préparé pour le moment. Réessayez plus tard." },
+          "render_failed": { "title": "Impression indisponible", "message": "Le document ne peut pas être préparé pour le moment. Réessayez plus tard." }
+        },
+        "pagemodel": {
+          "access_denied": { "title": "Accès refusé", "message": "Votre compte ne peut pas ouvrir cette page." },
+          "tenant_override_forbidden": { "title": "Accès refusé", "message": "Votre compte ne peut pas sélectionner cet espace." },
+          "not_found": { "title": "Page introuvable", "message": "La page demandée n'est plus disponible." },
+          "widget": {
+            "unavailable": { "title": "Section indisponible", "message": "Cette section est temporairement indisponible. Réessayez." },
+            "no_provider": { "title": "Section indisponible", "message": "Cette section est temporairement indisponible. Réessayez." },
+            "role_denied": { "title": "Accès refusé", "message": "Votre compte ne peut pas voir cette section." }
+          },
+          "fragment": {
+            "key_required": { "title": "Page invalide", "message": "La configuration de la page est incomplète." },
+            "not_found": { "title": "Section introuvable", "message": "La section de page n'est plus disponible." },
+            "invalid": { "title": "Section indisponible", "message": "La section de page ne peut pas être chargée pour le moment." }
+          }
+        },
+        "pos": {
+          "surface": { "not_allowed": { "title": "Accès refusé", "message": "Cette session ne peut pas utiliser cette surface." } },
+          "home": { "seller_terminal_required": { "title": "Terminal vendeur requis", "message": "Rouvrez la session depuis un terminal vendeur valide." } },
+          "dashboard": { "analytics_unavailable": { "title": "Statistiques indisponibles", "message": "Les statistiques vendeur sont temporairement indisponibles. Réessayez." } },
+          "tickets": { "seller_terminal_mismatch": { "title": "Accès refusé", "message": "Ce terminal vendeur ne correspond pas à votre session." } },
+          "receipt": {
+            "print_options_invalid": { "title": "Options d’impression invalides", "message": "Vérifiez les options d’impression puis réessayez." },
+            "delivery_channel_required": { "title": "Canal d’envoi requis", "message": "Sélectionnez un canal d’envoi valide." },
+            "delivery_recipient_required": { "title": "Destinataire requis", "message": "Renseignez le téléphone ou l’e-mail du destinataire." },
+            "attachment_too_large": { "title": "Pièce jointe trop volumineuse", "message": "Le document est trop volumineux pour être envoyé en pièce jointe." },
+            "seller_terminal_required": { "title": "Terminal vendeur requis", "message": "Rouvrez une session de terminal vendeur valide pour continuer." }
+          }
+        },
+        "communication": {
+          "request_invalid": { "title": "Envoi invalide", "message": "Vérifiez les informations d’envoi puis réessayez." },
+          "channel_disabled": { "title": "Canal d’envoi indisponible", "message": "Ce canal d’envoi n’est pas activé pour ce tenant." },
+          "enqueue_failed": { "title": "Envoi indisponible", "message": "L’envoi ne peut pas être préparé pour le moment. Réessayez plus tard." },
+          "provider_unavailable": { "title": "Service d’envoi indisponible", "message": "Le service d’envoi de messages est temporairement indisponible." },
+          "delivery_failed": { "title": "Envoi indisponible", "message": "Le message ne peut pas être envoyé pour le moment. Réessayez plus tard." }
+        },
+        "tenantgame": {
+          "catalog_game_not_found": { "title": "Jeu introuvable", "message": "Ce jeu catalogue n’est plus disponible." },
+          "not_found": { "title": "Jeu tenant introuvable", "message": "Ce jeu n’est pas activé pour ce tenant." },
+          "catalog_game_inactive": { "title": "Jeu inactif", "message": "Ce jeu catalogue ne peut pas être activé." },
+          "display_name_too_long": { "title": "Nom trop long", "message": "Raccourcissez le nom du jeu." },
+          "display_order_invalid": { "title": "Ordre invalide", "message": "Saisissez un ordre supérieur ou égal à zéro." },
+          "min_stake_invalid": { "title": "Mise minimale invalide", "message": "Saisissez une mise minimale valide." },
+          "max_stake_invalid": { "title": "Mise maximale invalide", "message": "Saisissez une mise maximale valide." },
+          "stake_range_invalid": { "title": "Plage de mises invalide", "message": "La mise minimale ne peut pas dépasser la mise maximale." },
+          "availability_day_invalid": { "title": "Jour invalide", "message": "Sélectionnez des jours de disponibilité pris en charge." },
+          "time_invalid": { "title": "Heure invalide", "message": "Saisissez une heure au format HH:mm." },
+          "bet_type_required": { "title": "Type de pari requis", "message": "Sélectionnez un type de pari." },
+          "bet_type_unsupported": { "title": "Type de pari non pris en charge", "message": "Ce type de pari n’est pas disponible pour ce jeu." },
+          "bet_type_duplicate": { "title": "Type de pari en double", "message": "Chaque type de pari ne doit apparaître qu’une fois." },
+          "bet_option_invalid": { "title": "Option de pari invalide", "message": "Sélectionnez une option disponible pour ce type de pari." },
+          "bet_option_duplicate": { "title": "Option de pari en double", "message": "Chaque option ne doit apparaître qu’une fois." },
+          "bet_option_enabled_required": { "title": "Option active requise", "message": "Activez au moins une option de pari." },
+          "bet_option_default_invalid": { "title": "Option par défaut invalide", "message": "Sélectionnez une option active par défaut." }
+        },
+        "tenant": {
+          "not_found": { "title": "Tenant introuvable", "message": "Ce tenant n’est plus disponible." },
+          "activation_not_allowed": { "title": "Activation indisponible", "message": "Ce tenant ne peut pas être activé dans son état actuel." },
+          "suspension_not_allowed": { "title": "Suspension indisponible", "message": "Ce tenant ne peut pas être suspendu dans son état actuel." },
+          "settings_invalid": { "title": "Configuration invalide", "message": "Corrigez la configuration du tenant puis réessayez." },
+          "support_reason_invalid": { "title": "Motif de support invalide", "message": "Indiquez un motif de support d’au moins 10 caractères." }
+        },
         "catalog": {
           "game": {
             "not_found": { "title": "Jeu introuvable", "message": "Ce jeu n’est plus disponible dans le catalogue." },

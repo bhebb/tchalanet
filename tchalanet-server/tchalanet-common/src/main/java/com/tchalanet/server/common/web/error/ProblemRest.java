@@ -18,9 +18,9 @@ public final class ProblemRest {
   /**
    * Code-first problem factory for new API errors.
    *
-   * <p>Legacy overloads remain during migration because many callers still pass a message as
-   * {@code detail}. New code must use this overload (or a typed domain exception) so clients can
-   * translate a stable {@code code} without parsing diagnostics.
+   * <p>Legacy overloads remain during migration because many callers still pass a message as {@code
+   * detail}. New code must use this overload (or a typed domain exception) so clients can translate
+   * a stable {@code code} without parsing diagnostics.
    */
   public static ProblemRestException of(HttpStatus status, ErrorDescriptor descriptor) {
     return of(status, descriptor, Map.of(), null);

@@ -3,6 +3,7 @@ package com.tchalanet.server.common.web.advice;
 import com.tchalanet.server.common.web.api.ApiNotice;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.api.ApiStatus;
+import com.tchalanet.server.common.web.api.NoticeKind;
 import com.tchalanet.server.common.web.api.NoticeSeverity;
 import com.tchalanet.server.common.web.api.ServiceHealth;
 import com.tchalanet.server.common.web.api.ServiceStatus;
@@ -37,7 +38,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
  *   <li>Any notice with code {@code APPROVAL_REQUIRED} → {@code PENDING}, regardless of whether a
  *       body is present. The caller will display the body (e.g. the placed ticket awaiting
  *       approval) along with a pending banner.
- *   <li>Any degraded service → {@code PARTIAL}.
+ *   <li>Any degradation notice or degraded service → {@code PARTIAL}.
  *   <li>Any WARN notice → {@code SUCCESS_WITH_WARNINGS}.
  *   <li>Otherwise → {@code SUCCESS}.
  * </ol>
@@ -129,6 +130,9 @@ public class ApiResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 
     if (approvalRequired) {
       return ApiStatus.PENDING;
+    }
+    if (notices.stream().anyMatch(n -> n.kind() == NoticeKind.DEGRADATION)) {
+      return ApiStatus.PARTIAL;
     }
     if (services.stream().anyMatch(s -> s.status() != ServiceHealth.UP)) {
       return ApiStatus.PARTIAL;

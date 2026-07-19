@@ -3,6 +3,7 @@ package com.tchalanet.server.features.pos.home.app;
 import com.tchalanet.server.common.context.TchActorType;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.web.error.ProblemRest;
+import com.tchalanet.server.features.pos.error.PosErrorCodes;
 import com.tchalanet.server.platform.identity.api.model.surface.ClientSurface;
 import com.tchalanet.server.platform.identity.api.model.surface.ClientSurfacePolicy;
 import org.springframework.stereotype.Component;
@@ -19,7 +20,7 @@ public class ClientSurfaceResolver {
               ? ClientSurface.MOBILE_POS
               : parse(requestedSurface);
       if (surface != ClientSurface.MOBILE_POS) {
-        throw ProblemRest.forbidden("surface.not_allowed");
+        throw ProblemRest.of(PosErrorCodes.SURFACE_NOT_ALLOWED);
       }
       return surface;
     }
@@ -30,7 +31,7 @@ public class ClientSurfaceResolver {
             ? ClientSurfacePolicy.preferredSurface(ctx.systemRoles())
             : parse(requestedSurface);
     if (!available.contains(surface)) {
-      throw ProblemRest.forbidden("surface.not_allowed");
+      throw ProblemRest.of(PosErrorCodes.SURFACE_NOT_ALLOWED);
     }
     return surface;
   }
@@ -39,9 +40,7 @@ public class ClientSurfaceResolver {
     try {
       return ClientSurface.valueOf(requestedSurface.trim().toUpperCase(java.util.Locale.ROOT));
     } catch (IllegalArgumentException ex) {
-      var problem = ProblemRest.forbidden("surface.not_allowed");
-      problem.initCause(ex);
-      throw problem;
+      throw ProblemRest.of(PosErrorCodes.SURFACE_NOT_ALLOWED, ex);
     }
   }
 }

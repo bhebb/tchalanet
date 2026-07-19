@@ -339,8 +339,7 @@ public record TchRequestContext(
    * effectué /api/me/bootstrap (appUserId absent).
    */
   public UserId currentUserIdRequired() {
-    if (appUserId == null)
-      throw ProblemRest.of(RequestContextErrorCodes.USER_NOT_BOOTSTRAPPED);
+    if (appUserId == null) throw ProblemRest.of(RequestContextErrorCodes.USER_NOT_BOOTSTRAPPED);
     return UserId.of(appUserId);
   }
 

@@ -33,7 +33,8 @@ public record ErrorDescriptor(
       throw new IllegalArgumentException("Error code must be lowercase and namespaced");
     }
     if (publicParams.stream().map(ErrorParamSpec::name).distinct().count() != publicParams.size()) {
-      throw new IllegalArgumentException("Error descriptor cannot declare duplicate public parameters");
+      throw new IllegalArgumentException(
+          "Error descriptor cannot declare duplicate public parameters");
     }
   }
 

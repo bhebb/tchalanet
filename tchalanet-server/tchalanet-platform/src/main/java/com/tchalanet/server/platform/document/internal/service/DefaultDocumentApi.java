@@ -1,6 +1,8 @@
 package com.tchalanet.server.platform.document.internal.service;
 
+import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.platform.document.api.DocumentApi;
+import com.tchalanet.server.platform.document.api.error.DocumentErrorCodes;
 import com.tchalanet.server.platform.document.api.model.DocumentFormat;
 import com.tchalanet.server.platform.document.api.model.DocumentRenderRequest;
 import com.tchalanet.server.platform.document.api.model.RenderedDocument;
@@ -29,11 +31,17 @@ public class DefaultDocumentApi implements DocumentApi {
 
   @Override
   public RenderedDocument render(DocumentRenderRequest request) {
-    if (request == null) throw new IllegalArgumentException("request is required");
+    if (request == null) {
+      throw ProblemRest.of(DocumentErrorCodes.REQUEST_INVALID);
+    }
     DocumentRenderer renderer = renderers.get(request.format());
     if (renderer == null) {
-      throw new IllegalStateException("No renderer registered for format " + request.format());
+      throw ProblemRest.of(DocumentErrorCodes.RENDERER_UNAVAILABLE);
     }
-    return renderer.render(request);
+    try {
+      return renderer.render(request);
+    } catch (RuntimeException ex) {
+      throw ProblemRest.of(DocumentErrorCodes.RENDER_FAILED, Map.of(), ex);
+    }
   }
 }

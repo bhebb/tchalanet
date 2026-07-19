@@ -114,7 +114,8 @@ public class PlatformAdminOpsDashboardPayloadAssembler {
   }
 
   private OpsSchedulerSummaryPayload buildSchedulerSummary() {
-    return new OpsSchedulerSummaryPayload(Instant.now().toString(), 0, 0, 0, 0, 0, false, List.of());
+    return new OpsSchedulerSummaryPayload(
+        Instant.now().toString(), 0, 0, 0, 0, 0, false, List.of());
   }
 
   private OpsAlertPayload buildAppNotifications(TchRequestContext ctx) {

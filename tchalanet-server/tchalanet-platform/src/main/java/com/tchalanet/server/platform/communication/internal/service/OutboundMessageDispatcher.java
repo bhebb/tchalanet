@@ -2,6 +2,8 @@ package com.tchalanet.server.platform.communication.internal.service;
 
 import com.tchalanet.server.common.context.TchContextScope;
 import com.tchalanet.server.common.json.utils.JsonUtils;
+import com.tchalanet.server.common.web.error.ProblemRestException;
+import com.tchalanet.server.platform.communication.api.error.CommunicationErrorCodes;
 import com.tchalanet.server.platform.communication.api.model.request.OutboundAttachment;
 import com.tchalanet.server.platform.communication.api.model.request.SendOutboundMessageRequest;
 import com.tchalanet.server.platform.communication.api.model.value.DeliveryStatus;
@@ -75,21 +77,18 @@ public class OutboundMessageDispatcher {
         message.setFailureReason(result.reason());
       }
     } catch (RuntimeException ex) {
+      var errorCode = errorCode(ex);
       log.warn(
-          "Communication dispatch failed messageId={} channel={}",
+          "communication.dispatch.failed messageId={} channel={} code={}",
           message.getId(),
           message.getChannel(),
+          errorCode,
           ex);
       recordAttempt(
-          message,
-          DeliveryStatus.FAILED,
-          message.getChannel().name(),
-          null,
-          "PROVIDER_ERROR",
-          ex.getMessage());
+          message, DeliveryStatus.FAILED, message.getChannel().name(), null, errorCode, null);
       message.setStatus(DeliveryStatus.PENDING);
       message.setNextAttemptAt(retryPlanner.nextAttempt(now, 1));
-      message.setFailureReason(ex.getMessage());
+      message.setFailureReason(errorCode);
     }
   }
 
@@ -156,5 +155,15 @@ public class OutboundMessageDispatcher {
 
   private String nullToEmpty(String value) {
     return value == null ? "" : value;
+  }
+
+  private String errorCode(RuntimeException ex) {
+    if (ex instanceof ProblemRestException problemRestException) {
+      var code = problemRestException.getProblem().getProperties().get("code");
+      if (code instanceof String stringCode && !stringCode.isBlank()) {
+        return stringCode;
+      }
+    }
+    return CommunicationErrorCodes.DELIVERY_FAILED.code();
   }
 }

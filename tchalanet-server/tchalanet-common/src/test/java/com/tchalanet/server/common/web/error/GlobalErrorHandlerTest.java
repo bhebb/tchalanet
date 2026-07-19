@@ -11,9 +11,9 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.mock.http.MockHttpInputMessage;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -65,11 +65,13 @@ class GlobalErrorHandlerTest {
   void doesNotExposeLegacyIllegalStateMessageOrClassName() {
     var response =
         handler.handleLegacyIllegalState(
-            new IllegalStateException("seller PIN 123456 should never leave the server"), request());
+            new IllegalStateException("seller PIN 123456 should never leave the server"),
+            request());
 
     var problem = response.getBody();
     assertThat(problem).isNotNull();
-    assertThat(response.getStatusCode()).isEqualTo(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR);
+    assertThat(response.getStatusCode())
+        .isEqualTo(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR);
     assertThat(problem.getDetail()).doesNotContain("123456");
     assertThat(problem.getProperties().toString()).doesNotContain("IllegalStateException");
     assertThat(problem.getProperties()).doesNotContainKey("cause");
@@ -95,7 +97,8 @@ class GlobalErrorHandlerTest {
   @Test
   void structuredFilterProblemRetainsStableCodeWithoutDiagnosticProse() {
     var response =
-        handler.handleProblemRest(ProblemRest.of(RequestContextErrorCodes.TENANT_UNAVAILABLE), request());
+        handler.handleProblemRest(
+            ProblemRest.of(RequestContextErrorCodes.TENANT_UNAVAILABLE), request());
 
     var problem = response.getBody();
     assertThat(problem).isNotNull();
@@ -112,7 +115,8 @@ class GlobalErrorHandlerTest {
     var response =
         handler.handleProblemRest(
             ProblemRest.forbidden(
-                "entitlement.feature_required", Map.of("feature", "private_feature_key")), request());
+                "entitlement.feature_required", Map.of("feature", "private_feature_key")),
+            request());
 
     var problem = response.getBody();
     assertThat(problem).isNotNull();
@@ -127,7 +131,8 @@ class GlobalErrorHandlerTest {
   void securityDenialDoesNotExposeTenantOrPolicyDiagnostics() {
     var response =
         handler.handleAccessDenied(
-            new AccessDeniedException("tenant=private-tenant permission=results.override"), request());
+            new AccessDeniedException("tenant=private-tenant permission=results.override"),
+            request());
 
     var problem = response.getBody();
     assertThat(problem).isNotNull();
@@ -141,20 +146,20 @@ class GlobalErrorHandlerTest {
   void persistenceNotFoundDoesNotExposeRlsOrQueryDiagnostics() {
     var response =
         handler.handleJpaNotFound(
-            new EntityNotFoundException("RLS tenant=private-tenant query=select secret_pin"), request());
+            new EntityNotFoundException("RLS tenant=private-tenant query=select secret_pin"),
+            request());
 
     var problem = response.getBody();
     assertThat(problem).isNotNull();
     assertThat(problem.getProperties()).containsEntry("code", CommonErrorCodes.RESOURCE_NOT_FOUND);
-    assertThat(problem.toString())
-        .doesNotContain("private-tenant")
-        .doesNotContain("secret_pin");
+    assertThat(problem.toString()).doesNotContain("private-tenant").doesNotContain("secret_pin");
   }
 
   @Test
   void mapsMissingRequestParameterToAStableFieldViolation() throws Exception {
     var response =
-        handler.handleMissingParam(new MissingServletRequestParameterException("amount", "number"), request());
+        handler.handleMissingParam(
+            new MissingServletRequestParameterException("amount", "number"), request());
 
     var problem = response.getBody();
     assertThat(problem).isNotNull();

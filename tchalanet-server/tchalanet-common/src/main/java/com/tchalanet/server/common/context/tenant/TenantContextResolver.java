@@ -46,10 +46,7 @@ public class TenantContextResolver {
   }
 
   public TchRequestContext resolveForScope(
-      HttpServletRequest req,
-      TchRequestContext ctx,
-      ApiScope scope,
-      String defaultTenantCode) {
+      HttpServletRequest req, TchRequestContext ctx, ApiScope scope, String defaultTenantCode) {
 
     if (ApiScopeResolver.tenantRequired(req)) {
       return requireAndResolveTenant(ctx);

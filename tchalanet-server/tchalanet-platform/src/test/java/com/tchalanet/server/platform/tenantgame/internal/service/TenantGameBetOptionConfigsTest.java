@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.tchalanet.server.catalog.game.api.model.BetType;
+import com.tchalanet.server.common.web.error.ProblemRestException;
 import com.tchalanet.server.platform.tenantgame.api.model.SelectionPolicy;
 import com.tchalanet.server.platform.tenantgame.api.model.TenantBetOptionConfig;
 import com.tchalanet.server.platform.tenantgame.api.model.TenantBetTypeOptionConfig;
@@ -54,8 +55,8 @@ class TenantGameBetOptionConfigsTest {
                 List.of(new TenantBetOptionConfig((short) 1, true, true, 1))));
 
     assertThatThrownBy(() -> configs.normalize("HT_LOTO3", requested))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("Unsupported betType");
+        .isInstanceOf(ProblemRestException.class)
+        .satisfies(error -> assertCode(error, "tenantgame.bet_type_unsupported"));
   }
 
   @Test
@@ -71,8 +72,8 @@ class TenantGameBetOptionConfigsTest {
                     new TenantBetOptionConfig((short) 2, false, true, 2))));
 
     assertThatThrownBy(() -> configs.normalize("HT_LOTO3", requested))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("defaultOption");
+        .isInstanceOf(ProblemRestException.class)
+        .satisfies(error -> assertCode(error, "tenantgame.bet_option_default_invalid"));
   }
 
   @Test
@@ -93,5 +94,10 @@ class TenantGameBetOptionConfigsTest {
             config ->
                 assertThat(config.selectionPolicy())
                     .isEqualTo(SelectionPolicy.IMPLICIT_BEST_MATCH));
+  }
+
+  private static void assertCode(Throwable throwable, String code) {
+    assertThat(((ProblemRestException) throwable).getProblem().getProperties())
+        .containsEntry("code", code);
   }
 }

@@ -3,6 +3,7 @@ package com.tchalanet.server.common.web.advice;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.tchalanet.server.common.web.api.NoticeKind;
 import com.tchalanet.server.common.web.api.NoticeSeverity;
 import com.tchalanet.server.common.web.api.NoticeSource;
 import com.tchalanet.server.common.web.api.ServiceHealth;
@@ -36,11 +37,11 @@ class BffSlicesTest {
     var result =
         BffSlices.optional(
             BffSlicePolicy.warn(
-                "platform.identity.activation.error",
-                "Identity activation could not be completed.",
-                "platform.identity",
-                NoticeSource.of("identityActivation").service("keycloak"),
-                "fallback-view"),
+                    "platform.identity.activation.error",
+                    "platform.identity",
+                    NoticeSource.of("identityActivation").service("keycloak"),
+                    "fallback-view")
+                .target("identity.activation"),
             () -> {
               throw new IllegalStateException("provider details");
             });
@@ -52,9 +53,13 @@ class BffSlicesTest {
             notice -> {
               assertThat(notice.code()).isEqualTo("platform.identity.activation.error");
               assertThat(notice.severity()).isEqualTo(NoticeSeverity.WARN);
+              assertThat(notice.kind()).isEqualTo(NoticeKind.DEGRADATION);
+              assertThat(notice.message()).isNull();
               assertThat(notice.meta())
                   .containsEntry("source", "identityActivation")
                   .containsEntry("service", "keycloak")
+                  .containsEntry("surface", "section")
+                  .containsEntry("target", "identity.activation")
                   .containsKey("errorId");
             });
   }
@@ -64,11 +69,10 @@ class BffSlicesTest {
     BffSlices.optional(
         BffSlicePolicy.warn(
                 "features.dashboard.provider_results.degraded",
-                "Some provider results are temporarily unavailable.",
                 "features.dashboard",
                 NoticeSource.of("providerResults").service("uslottery"),
                 "fallback-results")
-            .serviceStatus(ServiceHealth.DEGRADED, "Latest results unavailable"),
+            .serviceStatus(ServiceHealth.DEGRADED),
         () -> {
           throw new IllegalStateException("provider down");
         });
@@ -79,7 +83,7 @@ class BffSlicesTest {
             service -> {
               assertThat(service.service()).isEqualTo("uslottery");
               assertThat(service.status()).isEqualTo(ServiceHealth.DEGRADED);
-              assertThat(service.message()).isEqualTo("Latest results unavailable");
+              assertThat(service.message()).isNull();
             });
   }
 }
