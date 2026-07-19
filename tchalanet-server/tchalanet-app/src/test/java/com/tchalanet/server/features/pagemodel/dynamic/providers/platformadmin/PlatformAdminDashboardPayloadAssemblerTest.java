@@ -6,7 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.tchalanet.server.common.bus.QueryBus;
-import com.tchalanet.server.common.web.api.ApiResponseContext;
+import com.tchalanet.server.common.web.advice.ApiResponseContext;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.core.subscription.api.query.GetPlatformSubscriptionStatsQuery;
 import com.tchalanet.server.core.subscription.api.query.PlatformSubscriptionStatsView;
