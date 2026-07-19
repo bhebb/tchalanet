@@ -64,6 +64,14 @@ public interface TicketJpaRepository extends TchJpaRepository<TicketJpaEntity, U
       @Param("to") Instant to);
 
   @Query(
+      "SELECT COALESCE(SUM(t.sellerCommissionAmountSnapshot), 0) FROM TicketJpaEntity t WHERE t.sellerTerminalId = :sellerTerminalId AND t.tenantId = :tenantId AND t.createdAt >= :from AND t.createdAt < :to")
+  BigDecimal sumSellerCommissionAmountBySellerTerminalAndPeriod(
+      @Param("sellerTerminalId") UUID sellerTerminalId,
+      @Param("tenantId") UUID tenantId,
+      @Param("from") Instant from,
+      @Param("to") Instant to);
+
+  @Query(
       "SELECT t.drawId, t.drawChannelName, COUNT(t), COALESCE(SUM(t.totalAmount), 0) "
           + "FROM TicketJpaEntity t "
           + "WHERE t.sellerTerminalId = :sellerTerminalId AND t.tenantId = :tenantId "

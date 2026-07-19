@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:tchalanet_mobile/features/cashier/home/data/services/terminal_stats_service.dart';
 import 'package:tchalanet_mobile/features/cashier/tickets/data/models/cashier_sell_catalog_models.dart';
 import 'package:tchalanet_mobile/features/cashier/tickets/data/models/cashier_ticket_models.dart';
 
@@ -118,5 +119,18 @@ void main() {
 
     expect(game.selectionShapeFor(null).digits, 4);
     expect(game.selectionShapeFor(3).digits, 2);
+  });
+
+  test('daily terminal stats retain the ticket commission snapshot total', () {
+    final stats = TerminalDailyStats.fromJson({
+      'ticketCount': 3,
+      'salesTotalCents': 12500,
+      'sellerCommissionTotalCents': 1625,
+      'currency': 'HTG',
+    });
+
+    expect(stats.ticketCount, 3);
+    expect(stats.salesTotalCents, 12500);
+    expect(stats.sellerCommissionTotalCents, 1625);
   });
 }

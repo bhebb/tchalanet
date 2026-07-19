@@ -27,6 +27,12 @@
       "approval_required": "This sale requires approval before confirmation.",
       "notice": "Information must be reviewed before confirmation."
     },
+    "cashier_stats": {
+      "sales_today": "Today's sales",
+      "tickets": "Tickets",
+      "commission_today": "Today's commission",
+      "total": "TOTAL"
+    },
     "retry": "Retry",
     "manage": "Manage",
     "back": "Back",

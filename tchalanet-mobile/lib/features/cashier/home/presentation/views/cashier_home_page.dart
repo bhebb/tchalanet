@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../../core/i18n/i18n_models.dart';
 import '../../../../../core/i18n/i18n_repository.dart';
 import '../../../../../core/network/api_exception.dart';
 import '../../../../../core/network/connectivity_repository.dart';
@@ -217,6 +218,7 @@ class _SellerTerminalScaffold extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final statsAsync = ref.watch(terminalDailyStatsProvider);
     final drawsAsync = ref.watch(availableDrawsProvider);
+    final translations = ref.watch(i18nBundleProvider);
 
     return Scaffold(
       appBar: _PosAppBar(
@@ -239,9 +241,10 @@ class _SellerTerminalScaffold extends ConsumerWidget {
               const _ReadinessBanner(),
               // Stats
               statsAsync.when(
-                loading: () => const _StatsPlaceholder(),
-                error: (_, _) => const _StatsPlaceholder(),
-                data: (stats) => _TerminalStatsRow(stats: stats),
+                loading: () => _StatsPlaceholder(translations: translations),
+                error: (_, _) => _StatsPlaceholder(translations: translations),
+                data: (stats) =>
+                    _TerminalStatsRow(stats: stats, translations: translations),
               ),
               const SizedBox(height: TchSpacing.s24),
 
@@ -384,29 +387,44 @@ class _ReadinessBanner extends ConsumerWidget {
 }
 
 class _TerminalStatsRow extends StatelessWidget {
-  const _TerminalStatsRow({required this.stats});
+  const _TerminalStatsRow({required this.stats, required this.translations});
 
   final TerminalDailyStats stats;
+  final I18nBundle translations;
 
   @override
   Widget build(BuildContext context) {
     final amount = (stats.salesTotalCents / 100.0).toStringAsFixed(2);
-    return Row(
+    final commission = (stats.sellerCommissionTotalCents / 100.0)
+        .toStringAsFixed(2);
+    return Column(
       children: [
-        Expanded(
-          child: StatCardLarge(
-            label: "Ventes aujourd'hui",
-            value: amount,
-            unit: stats.currency,
-          ),
+        StatCardLarge(
+          label: translations.translate('common.cashier_stats.sales_today'),
+          value: amount,
+          unit: stats.currency,
         ),
-        const SizedBox(width: TchSpacing.s12),
-        SizedBox(
-          width: 100,
-          child: StatCard(
-            label: 'Tickets',
-            value: stats.ticketCount.toString(),
-          ),
+        const SizedBox(height: TchSpacing.s12),
+        Row(
+          children: [
+            Expanded(
+              child: StatCard(
+                label: translations.translate(
+                  'common.cashier_stats.commission_today',
+                ),
+                value: commission,
+                unit: stats.currency,
+              ),
+            ),
+            const SizedBox(width: TchSpacing.s12),
+            SizedBox(
+              width: 100,
+              child: StatCard(
+                label: translations.translate('common.cashier_stats.tickets'),
+                value: stats.ticketCount.toString(),
+              ),
+            ),
+          ],
         ),
       ],
     );
@@ -414,23 +432,40 @@ class _TerminalStatsRow extends StatelessWidget {
 }
 
 class _StatsPlaceholder extends StatelessWidget {
-  const _StatsPlaceholder();
+  const _StatsPlaceholder({required this.translations});
+
+  final I18nBundle translations;
 
   @override
   Widget build(BuildContext context) {
-    return const Row(
+    return Column(
       children: [
-        Expanded(
-          child: StatCardLarge(
-            label: "Ventes aujourd'hui",
-            value: '—',
-            unit: '',
-          ),
+        StatCardLarge(
+          label: translations.translate('common.cashier_stats.sales_today'),
+          value: '—',
+          unit: '',
         ),
-        SizedBox(width: TchSpacing.s12),
-        SizedBox(
-          width: 100,
-          child: StatCard(label: 'Tickets', value: '—'),
+        const SizedBox(height: TchSpacing.s12),
+        Row(
+          children: [
+            Expanded(
+              child: StatCard(
+                label: translations.translate(
+                  'common.cashier_stats.commission_today',
+                ),
+                value: '—',
+                unit: '',
+              ),
+            ),
+            const SizedBox(width: TchSpacing.s12),
+            SizedBox(
+              width: 100,
+              child: StatCard(
+                label: translations.translate('common.cashier_stats.tickets'),
+                value: '—',
+              ),
+            ),
+          ],
         ),
       ],
     );

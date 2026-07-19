@@ -20,23 +20,25 @@ class DrawStatLine {
   double get totalAmount => totalCents / 100.0;
 
   factory DrawStatLine.fromJson(Map<String, dynamic> json) => DrawStatLine(
-        drawId: json['drawId'] as String? ?? '',
-        channelLabel: json['channelLabel'] as String? ?? '',
-        ticketCount: (json['ticketCount'] as num?)?.toInt() ?? 0,
-        totalCents: (json['totalCents'] as num?)?.toInt() ?? 0,
-      );
+    drawId: json['drawId'] as String? ?? '',
+    channelLabel: json['channelLabel'] as String? ?? '',
+    ticketCount: (json['ticketCount'] as num?)?.toInt() ?? 0,
+    totalCents: (json['totalCents'] as num?)?.toInt() ?? 0,
+  );
 }
 
 class TerminalDailyStats {
   const TerminalDailyStats({
     required this.ticketCount,
     required this.salesTotalCents,
+    required this.sellerCommissionTotalCents,
     required this.currency,
     this.breakdown = const [],
   });
 
   final int ticketCount;
   final int salesTotalCents;
+  final int sellerCommissionTotalCents;
   final String currency;
   final List<DrawStatLine> breakdown;
 
@@ -49,15 +51,22 @@ class TerminalDailyStats {
       TerminalDailyStats(
         ticketCount: (json['ticketCount'] as num?)?.toInt() ?? 0,
         salesTotalCents: (json['salesTotalCents'] as num?)?.toInt() ?? 0,
+        sellerCommissionTotalCents:
+            (json['sellerCommissionTotalCents'] as num?)?.toInt() ?? 0,
         currency: json['currency'] as String? ?? 'HTG',
-        breakdown: (json['breakdown'] as List<dynamic>?)
+        breakdown:
+            (json['breakdown'] as List<dynamic>?)
                 ?.map((e) => DrawStatLine.fromJson(e as Map<String, dynamic>))
                 .toList() ??
             const [],
       );
 
-  static TerminalDailyStats empty(String currency) =>
-      TerminalDailyStats(ticketCount: 0, salesTotalCents: 0, currency: currency);
+  static TerminalDailyStats empty(String currency) => TerminalDailyStats(
+    ticketCount: 0,
+    salesTotalCents: 0,
+    sellerCommissionTotalCents: 0,
+    currency: currency,
+  );
 }
 
 class TerminalStatsService {
@@ -72,7 +81,8 @@ class TerminalStatsService {
         queryParameters: date != null ? {'date': date} : null,
       );
       return TerminalDailyStats.fromJson(
-          response.data?['data'] as Map<String, dynamic>? ?? {});
+        response.data?['data'] as Map<String, dynamic>? ?? {},
+      );
     } on DioException catch (e) {
       throw mapDioException(e);
     }
