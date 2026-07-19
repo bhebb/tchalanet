@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../auth/firebase_auth_token_client.dart';
@@ -24,8 +25,38 @@ final apiClientProvider = Provider<Dio>((ref) {
       connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 15),
       contentType: Headers.jsonContentType,
+      headers: {
+        // The backend identity bootstrap resolves this client as a
+        // SellerTerminal (instead of an AppUser) only when this hint is set.
+        'X-Tch-Client-Type': 'POS',
+      },
     ),
   );
+
+  if (kDebugMode) {
+    // Dev-only wire log: one line per request outcome, greppable in logcat.
+    dio.interceptors.add(
+      InterceptorsWrapper(
+        onResponse: (response, handler) {
+          // ignore: avoid_print
+          print(
+            'TCH-NET ${response.requestOptions.method} '
+            '${response.requestOptions.path} -> ${response.statusCode}',
+          );
+          handler.next(response);
+        },
+        onError: (error, handler) {
+          // ignore: avoid_print
+          print(
+            'TCH-NET ${error.requestOptions.method} '
+            '${error.requestOptions.path} -> ERROR ${error.type} '
+            '${error.response?.statusCode ?? ''} ${error.message ?? ''}',
+          );
+          handler.next(error);
+        },
+      ),
+    );
+  }
 
   // RequestIdInterceptor must run first so the request ID is set before auth.
   dio.interceptors.add(RequestIdInterceptor(diagnostics));
