@@ -51,6 +51,9 @@ class _ChangePinPageState extends ConsumerState<ChangePinPage> {
         ),
       );
       ref.invalidate(cashierHomeProvider);
+      ref.invalidate(cashierReadinessProvider);
+      ref.invalidate(terminalDailyStatsProvider);
+      ref.invalidate(availableDrawsProvider);
       context.go('/pos');
     });
 
