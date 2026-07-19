@@ -6,6 +6,7 @@ import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.UserRecord;
 import com.tchalanet.server.platform.identity.api.IdentityProviderType;
 import com.tchalanet.server.platform.identity.api.IdentityProvisioningApi;
+import com.tchalanet.server.platform.identity.api.IdentityUserNotFoundException;
 import com.tchalanet.server.platform.identity.api.ProvisionExternalUserRequest;
 import com.tchalanet.server.platform.identity.api.ProvisionedExternalUser;
 import lombok.RequiredArgsConstructor;
@@ -98,6 +99,9 @@ public class FirebaseUserProvisionService implements IdentityProvisioningApi {
       firebaseAuth.updateUser(new UserRecord.UpdateRequest(uid).setPassword(newPassword));
       log.info("Firebase password reset uid={}", uid);
     } catch (FirebaseAuthException ex) {
+      if (isUserNotFound(ex)) {
+        throw new IdentityUserNotFoundException("Firebase user not found for uid=" + uid, ex);
+      }
       throw new IllegalStateException("Firebase password reset failed for uid=" + uid, ex);
     }
   }
