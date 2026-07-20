@@ -21,6 +21,10 @@ class PrivateShellNavigationResolver {
       new ConcurrentHashMap<>();
 
   Map<String, Object> resolve(PrivateBootstrapSpace space) {
+    // Cashier navigation is owned by the Flutter bottom navigation, not a web drawer fragment.
+    if (space == PrivateBootstrapSpace.CASHIER) {
+      return Map.of();
+    }
     return cache.computeIfAbsent(space, this::load);
   }
 
@@ -29,7 +33,7 @@ class PrivateShellNavigationResolver {
         switch (space) {
           case ADMIN -> "private_shell_tenantadmin";
           case PLATFORM -> "private_shell_superadmin";
-          case CASHIER -> "private_shell_cashier";
+          case CASHIER -> throw new IllegalStateException("Cashier navigation is resolved directly");
         };
     String resourcePath = fragmentRegistry.resolve(fileKey);
     ClassLoader classLoader = Thread.currentThread().getContextClassLoader();

@@ -91,6 +91,10 @@ tch:
         - /api/v1/swagger-ui/**
         - /v3/api-docs/**
         - /api/v1/openapi/**
+        # Browser EventSource cannot send X-Request-Id. Keep this exception
+        # limited to authenticated, read-only notification streams.
+        - /api/v1/platform/notifications/stream
+        - /api/v1/admin/notifications/stream
         - /openapi/**
         - /error
         - /api/v1/error

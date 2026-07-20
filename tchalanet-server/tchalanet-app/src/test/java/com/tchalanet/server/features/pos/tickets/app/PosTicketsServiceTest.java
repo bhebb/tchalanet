@@ -126,6 +126,7 @@ class PosTicketsServiceTest {
       var response = service.verify(trustedContext(), request());
 
       assertThat(response.status()).isEqualTo("PAYABLE");
+      assertThat(response.ticketId()).isEqualTo(ticketId.value());
       assertThat(response.availableActions())
           .extracting(PosAction::type)
           .doesNotContain(PosActionType.EXECUTE_PAYOUT);
@@ -153,6 +154,7 @@ class PosTicketsServiceTest {
       var response = service.verify(trustedContext(), request());
 
       assertThat(response.status()).isEqualTo("NOT_FOUND");
+      assertThat(response.ticketId()).isNull();
     }
 
     @Test

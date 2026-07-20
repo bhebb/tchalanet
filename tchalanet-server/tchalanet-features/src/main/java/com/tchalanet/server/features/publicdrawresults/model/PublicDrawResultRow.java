@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Une ligne de la réponse paginée {@code GET /public/draw-results/history}. Contient les champs
@@ -29,5 +30,7 @@ public record PublicDrawResultRow(
     String status,
     /** Numéros tirés extraits de la projection haïtienne (lot1…lot4). */
     List<String> numbers,
+    /** Valeurs de lot nommées (LOT1…LOT4). Une valeur {@code null} indique un lot absent. */
+    Map<String, String> lots,
     /** Chemin relatif vers le détail : {@code /public/results/{drawResultId}}. */
     String detailPath) {}

@@ -15,6 +15,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.JsonNode;
 
@@ -96,6 +97,7 @@ public class PublicDrawResultViewMapper {
         row.occurredAt(),
         row.status(),
         extractNumbers(row.haiti()),
+        extractLots(row.haiti()),
         row.drawResultId() != null ? DETAIL_PATH_PREFIX + row.drawResultId() : null);
   }
 
@@ -137,5 +139,19 @@ public class PublicDrawResultViewMapper {
       }
     }
     return Collections.unmodifiableList(numbers);
+  }
+
+  /**
+   * Preserves the named Haiti lot positions for clients that need to distinguish an absent lot
+   * from a compact result list. All four expected positions are present; incomplete provider
+   * results therefore retain explicit {@code null} values.
+   */
+  private Map<String, String> extractLots(JsonNode haiti) {
+    var lots = new java.util.LinkedHashMap<String, String>(4);
+    for (var lot : List.of("LOT1", "LOT2", "LOT3", "LOT4")) {
+      var node = haiti == null || haiti.isNull() ? null : haiti.get(lot.toLowerCase());
+      lots.put(lot, node == null || node.isNull() || node.asText().isBlank() ? null : node.asText());
+    }
+    return Collections.unmodifiableMap(lots);
   }
 }

@@ -19,9 +19,6 @@ public class PageModelJsonFragmentRegistry {
           Map.entry("public_tchala", "pagemodel/fragments/public/public_tchala.json"),
           // Private shell fragments (v2 typed — topAppBar + navigationDrawer per surface)
           Map.entry(
-              "private_shell_cashier",
-              "pagemodel/fragments/private/cashier/private_shell_cashier.json"),
-          Map.entry(
               "private_shell_tenantadmin",
               "pagemodel/fragments/private/tenantadmin/private_shell_tenantadmin.json"),
           Map.entry(
