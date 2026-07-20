@@ -131,6 +131,33 @@
       "reprint_confirm": "Reprint",
       "receipt_empty": "No document is available to print."
     },
+    "ticket": {
+      "verify": {
+        "title": "Verify ticket",
+        "back_home": "Back to home",
+        "new": "New",
+        "scan_unavailable": "QR scanning is not available yet.",
+        "scan_prompt": "Tap to scan",
+        "or_manual_entry": "or enter manually",
+        "code_label": "Ticket code or URL",
+        "code_hint": "Example: 40CP-JBMR",
+        "details": "VIEW DETAILS",
+        "checking": "CHECKING...",
+        "check": "VERIFY",
+        "payable": {"title": "Winning ticket", "message": "Winning amount: {amount} {currency}."},
+        "already_paid": {"title": "Ticket already paid", "message": "This ticket is already settled."},
+        "not_payable_lost": {"title": "Ticket did not win", "message": "This ticket is not a winner."},
+        "not_payable_pending_draw": {"title": "Draw not held yet", "message": "Wait for the draw before checking again."},
+        "not_payable_result_pending": {"title": "Result pending", "message": "The draw result is not available yet."},
+        "cancelled": {"title": "Ticket cancelled", "message": "This ticket is cancelled."},
+        "voided": {"title": "Ticket voided", "message": "This ticket is no longer valid."},
+        "not_found": {"title": "Ticket not found", "message": "We could not find this ticket."},
+        "blocked": {"title": "Ticket blocked", "message": "Contact an administrator."},
+        "repair_required": {"title": "Verification required", "message": "Contact an administrator before proceeding."},
+        "operation_not_allowed": {"title": "Action not allowed", "message": "This terminal cannot verify tickets."},
+        "unknown": {"title": "Ticket verification", "message": "We cannot determine this ticket's status."}
+      }
+    },
     "profile": {
       "title": "Profile",
       "open": "Open profile",

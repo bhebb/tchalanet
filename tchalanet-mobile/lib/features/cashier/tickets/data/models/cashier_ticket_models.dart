@@ -590,9 +590,6 @@ class CashierTicketVerificationResponse {
   final Map<String, dynamic>? params;
   final List<CashierAction> availableActions;
 
-  bool get isPayable =>
-      availableActions.any((a) => a.type == 'PAY_WINNER' && a.enabled);
-
   factory CashierTicketVerificationResponse.fromJson(
     Map<String, dynamic> json,
   ) => CashierTicketVerificationResponse(
