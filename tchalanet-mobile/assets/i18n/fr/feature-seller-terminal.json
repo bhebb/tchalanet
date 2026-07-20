@@ -42,6 +42,7 @@
       "title": "Tchalanet POS",
       "home": "Accueil",
       "history": "Historique",
+      "results": "Résultats",
       "reports": "Rapports",
       "profile": "Profil",
       "notifications": "Notifications",
@@ -61,6 +62,20 @@
       "closes_soon": "Clôture imminente",
       "closed": "Clôturé",
       "sell": "Vendre"
+    },
+    "results": {
+      "title": "Résultats des tirages",
+      "loading": "Chargement des résultats",
+      "last_7_days": "7 derniers jours",
+      "last_30_days": "30 derniers jours",
+      "draw_filter": "Filtrer par tirage",
+      "all_draws": "Tous les tirages",
+      "empty": "Aucun résultat pour ces filtres.",
+      "load_error": "Impossible de charger les résultats.",
+      "status_confirmed": "Confirmé",
+      "status_provisional": "Provisoire",
+      "status_corrected": "Corrigé",
+      "status_available": "Disponible"
     },
     "reports": {
       "title": "Rapports vendeur",

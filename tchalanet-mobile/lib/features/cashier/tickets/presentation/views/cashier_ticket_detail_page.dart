@@ -3,10 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../../core/network/api_exception.dart';
-import '../../../../../design_system/components/pos_bottom_nav_bar.dart';
 import '../../../../../design_system/tokens/tch_colors.dart';
 import '../../../../../design_system/tokens/tch_radius.dart';
 import '../../../../../design_system/tokens/tch_spacing.dart';
+import '../../../../cashier/home/presentation/views/seller_terminal_nav_bar.dart';
 import '../../data/models/cashier_ticket_models.dart';
 import '../../data/services/cashier_ticket_service.dart';
 import '../print_ticket_action.dart';
@@ -30,7 +30,7 @@ class CashierTicketDetailPage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Détails du Ticket')),
-      bottomNavigationBar: const PosBottomNavBar(currentIndex: 1),
+      bottomNavigationBar: const SellerTerminalNavBar(currentIndex: 1),
       body: detailAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(

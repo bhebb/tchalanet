@@ -21,14 +21,14 @@ class SellerTerminalNavBar extends ConsumerWidget {
       route: '/pos/history',
     ),
     (
+      icon: Icons.emoji_events_outlined,
+      labelKey: 'pos.dashboard.results',
+      route: '/pos/results',
+    ),
+    (
       icon: Icons.bar_chart_rounded,
       labelKey: 'pos.dashboard.reports',
       route: '/pos/reports',
-    ),
-    (
-      icon: Icons.person_rounded,
-      labelKey: 'pos.dashboard.profile',
-      route: '/pos/profile',
     ),
   ];
 

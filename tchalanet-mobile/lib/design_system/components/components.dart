@@ -5,7 +5,6 @@ export 'feedback_state.dart';
 export 'field_error.dart';
 export 'online_badge.dart';
 export 'pos_action_button.dart';
-export 'pos_bottom_nav_bar.dart';
 export 'section_header.dart';
 export 'semantic_action_button.dart';
 export 'stat_card.dart';
