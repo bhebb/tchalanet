@@ -21,6 +21,9 @@
       "sale_checked": "Ticket vérifié",
       "sale_rejected": "Vente refusée",
       "no_selection_stake": "Entrez un numéro et une mise",
+      "terminal_unavailable": "Ce terminal ne peut pas vendre pour le moment.",
+      "copy_diagnostic": "Copier la référence support",
+      "diagnostic_copied": "Référence support copiée",
       "draw": {
         "local_time": "Local",
         "provider_time": "Fournisseur"
@@ -84,7 +87,17 @@
       "status_confirmed": "Confirmé",
       "status_provisional": "Provisoire",
       "status_corrected": "Corrigé",
-      "status_available": "Disponible"
+      "status_unavailable": "Indisponible",
+      "status_unknown": "Statut inconnu",
+      "quality_complete": "Complet",
+      "quality_suspect": "À vérifier",
+      "quality_invalid": "Invalide",
+      "quality_unknown": "Qualité inconnue",
+      "no_numbers": "Aucun numéro disponible pour ce résultat.",
+      "lot1": "Lot 1",
+      "lot2": "Lot 2",
+      "lot3": "Lot 3",
+      "lot4": "Lot 4"
     },
     "reports": {
       "title": "Rapports vendeur",

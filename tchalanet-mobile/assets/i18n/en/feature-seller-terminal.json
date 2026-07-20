@@ -21,6 +21,9 @@
       "sale_checked": "Ticket checked",
       "sale_rejected": "Sale rejected",
       "no_selection_stake": "Enter a number and a stake",
+      "terminal_unavailable": "This terminal cannot sell at the moment.",
+      "copy_diagnostic": "Copy support reference",
+      "diagnostic_copied": "Support reference copied",
       "draw": {
         "local_time": "Local",
         "provider_time": "Provider"
@@ -84,7 +87,17 @@
       "status_confirmed": "Confirmed",
       "status_provisional": "Provisional",
       "status_corrected": "Corrected",
-      "status_available": "Available"
+      "status_unavailable": "Unavailable",
+      "status_unknown": "Unknown status",
+      "quality_complete": "Complete",
+      "quality_suspect": "Needs review",
+      "quality_invalid": "Invalid",
+      "quality_unknown": "Unknown quality",
+      "no_numbers": "No numbers are available for this result.",
+      "lot1": "Lot 1",
+      "lot2": "Lot 2",
+      "lot3": "Lot 3",
+      "lot4": "Lot 4"
     },
     "reports": {
       "title": "Seller reports",

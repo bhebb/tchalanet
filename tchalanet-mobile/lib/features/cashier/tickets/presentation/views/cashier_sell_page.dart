@@ -103,7 +103,7 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
       // Only block when we positively know it cannot sell (null = still loading).
       body: (opCtx != null && !opCtx.ready)
           ? _ErrorBody(
-              message: 'Ce terminal ne peut pas vendre pour le moment.',
+              message: translations.translate('pos.sale.terminal_unavailable'),
               onRetry: () => ref.invalidate(cashierHomeProvider),
             )
           : switch (state) {
@@ -1230,7 +1230,7 @@ class _Chip extends StatelessWidget {
 
 // ─── Error body ───────────────────────────────────────────────────────────────
 
-class _ErrorBody extends StatelessWidget {
+class _ErrorBody extends ConsumerWidget {
   const _ErrorBody({
     required this.message,
     required this.onRetry,
@@ -1242,8 +1242,9 @@ class _ErrorBody extends StatelessWidget {
   final DiagnosticInfo? diagnostic;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final scheme = Theme.of(context).colorScheme;
+    final translations = ref.watch(i18nBundleProvider);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(TchSpacing.s24),
@@ -1256,7 +1257,7 @@ class _ErrorBody extends StatelessWidget {
             const SizedBox(height: TchSpacing.s24),
             FilledButton.tonal(
               onPressed: onRetry,
-              child: const Text('Réessayer'),
+              child: Text(translations.translate('common.retry')),
             ),
             if (diagnostic != null && diagnostic!.hasAny) ...[
               const SizedBox(height: TchSpacing.s12),
@@ -1271,27 +1272,33 @@ class _ErrorBody extends StatelessWidget {
 
 // ─── Copy diagnostic ──────────────────────────────────────────────────────────
 
-class _CopyDiagnosticButton extends StatefulWidget {
+class _CopyDiagnosticButton extends ConsumerStatefulWidget {
   const _CopyDiagnosticButton({required this.diagnostic});
 
   final DiagnosticInfo diagnostic;
 
   @override
-  State<_CopyDiagnosticButton> createState() => _CopyDiagnosticButtonState();
+  ConsumerState<_CopyDiagnosticButton> createState() =>
+      _CopyDiagnosticButtonState();
 }
 
-class _CopyDiagnosticButtonState extends State<_CopyDiagnosticButton> {
+class _CopyDiagnosticButtonState extends ConsumerState<_CopyDiagnosticButton> {
   bool _copied = false;
 
   @override
   Widget build(BuildContext context) {
+    final translations = ref.watch(i18nBundleProvider);
     return TextButton.icon(
       onPressed: _copy,
       icon: Icon(
         _copied ? Icons.check_rounded : Icons.content_copy_rounded,
         size: 16,
       ),
-      label: Text(_copied ? 'Copié' : 'Copier diagnostic'),
+      label: Text(
+        translations.translate(
+          _copied ? 'pos.sale.diagnostic_copied' : 'pos.sale.copy_diagnostic',
+        ),
+      ),
       style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
     );
   }

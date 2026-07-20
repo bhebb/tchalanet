@@ -21,6 +21,9 @@
       "sale_checked": "Tikè a verifye",
       "sale_rejected": "Vant la pa aksepte",
       "no_selection_stake": "Antre yon nimewo ak yon miz",
+      "terminal_unavailable": "Tèminal sa a pa ka vann pou kounye a.",
+      "copy_diagnostic": "Kopye referans sipò",
+      "diagnostic_copied": "Referans sipò kopye",
       "draw": {
         "local_time": "Lokal",
         "provider_time": "Founisè"
@@ -84,7 +87,17 @@
       "status_confirmed": "Konfime",
       "status_provisional": "Pwovizwa",
       "status_corrected": "Korije",
-      "status_available": "Disponib"
+      "status_unavailable": "Pa disponib",
+      "status_unknown": "Estati enkoni",
+      "quality_complete": "Konplè",
+      "quality_suspect": "Pou verifye",
+      "quality_invalid": "Pa valab",
+      "quality_unknown": "Kalite enkoni",
+      "no_numbers": "Pa gen nimewo ki disponib pou rezilta sa a.",
+      "lot1": "Lot 1",
+      "lot2": "Lot 2",
+      "lot3": "Lot 3",
+      "lot4": "Lot 4"
     },
     "reports": {
       "title": "Rapò vandè",

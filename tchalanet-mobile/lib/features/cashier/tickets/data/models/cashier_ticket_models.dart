@@ -43,7 +43,8 @@ class CashierTicketPreviewRequest {
   Map<String, dynamic> toJson() => {
     'drawId': drawId,
     if (drawChannelId != null) 'drawChannelId': drawChannelId,
-    'currency': currency,
+    // CurrencyCode is a Java value object and is deserialized as {"value": "HTG"}.
+    'currency': {'value': currency},
     'lines': lines.map((l) => l.toJson()).toList(),
   };
 }

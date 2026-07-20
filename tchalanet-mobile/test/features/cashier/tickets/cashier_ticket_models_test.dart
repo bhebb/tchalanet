@@ -23,7 +23,7 @@ void main() {
     expect(request.toJson(), {
       'drawId': 'draw-1',
       'drawChannelId': 'channel-1',
-      'currency': 'HTG',
+      'currency': {'value': 'HTG'},
       'lines': [
         {
           'lineNumber': 1,
