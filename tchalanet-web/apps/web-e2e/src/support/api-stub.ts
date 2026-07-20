@@ -438,6 +438,12 @@ export class ApiStub {
       json(r, envelope({ resolvedIdentifier: 'admin@e2e.local' })),
     );
     await this.page.route(/\/runtime\/private/, (r) => json(r, envelope(superAdminPrivateBootstrap)));
+    await this.page.route(/\/(?:admin|platform)\/notifications\/unread-count(?:\?|$)/, (r) =>
+      json(r, envelope({ unreadCount: 0 })),
+    );
+    await this.page.route(/\/(?:admin|platform)\/notifications(?:\?|$)/, (r) =>
+      json(r, envelope(page([]))),
+    );
     await this.page.route(/\/platform\/auth\/portal-handoffs$/, (r) =>
       json(
         r,

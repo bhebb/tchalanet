@@ -25,6 +25,10 @@
   justify-content: flex-end;
 }
 
+.projected-utilities {
+  display: contents;
+}
+
 .mode-toggle {
   display: inline-flex;
   align-items: center;
@@ -103,7 +107,7 @@
     display: contents;
   }
 
-  .utilities > :not(.mode-toggle):not(tch-private-notification-bell):not(tch-user-menu) {
+  .projected-utilities {
     display: none;
   }
 
