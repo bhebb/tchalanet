@@ -26,6 +26,15 @@
         "provider_time": "Fournisseur"
       }
     },
+    "sale_completion": {
+      "back_home": "Retour à l'accueil",
+      "accepted": "Vente acceptée",
+      "printing": "Le ticket est envoyé à l'imprimante.",
+      "give_code": "Donnez ce code au client.",
+      "code_copied": "Code copié",
+      "print": "Imprimer",
+      "new_ticket": "NOUVEAU TICKET"
+    },
     "draw": {
       "providers": {
         "ca": "Californie", "fl": "Floride", "ga": "Géorgie", "il": "Illinois",

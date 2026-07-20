@@ -26,6 +26,15 @@
         "provider_time": "Founisè"
       }
     },
+    "sale_completion": {
+      "back_home": "Retounen sou akèy",
+      "accepted": "Vant la aksepte",
+      "printing": "N ap voye tikè a nan enprimant lan.",
+      "give_code": "Bay kliyan an kòd sa a.",
+      "code_copied": "Kòd la kopye",
+      "print": "Enprime",
+      "new_ticket": "NOUVO TIKÈ"
+    },
     "draw": {
       "providers": {
         "ca": "Kalifòni", "fl": "Florid", "ga": "Jòji", "il": "Ilinwa",

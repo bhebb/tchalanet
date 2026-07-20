@@ -26,6 +26,15 @@
         "provider_time": "Provider"
       }
     },
+    "sale_completion": {
+      "back_home": "Back to home",
+      "accepted": "Sale accepted",
+      "printing": "The ticket is being sent to the printer.",
+      "give_code": "Give this code to the customer.",
+      "code_copied": "Code copied",
+      "print": "Print",
+      "new_ticket": "NEW TICKET"
+    },
     "draw": {
       "providers": {
         "ca": "California", "fl": "Florida", "ga": "Georgia", "il": "Illinois",
