@@ -213,4 +213,25 @@ void main() {
     expect(stats.salesTotalCents, 12500);
     expect(stats.sellerCommissionTotalCents, 1625);
   });
+
+  test(
+    'ticket history retains stable result identity for localized surfaces',
+    () {
+      final ticket = CashierTicketSummaryView.fromJson({
+        'id': 'ticket-1',
+        'ticketCode': 'TCK-1',
+        'status': 'PLACED',
+        'totalAmountCents': 1500,
+        'currency': 'HTG',
+        'resultProvider': 'NY',
+        'resultSlotKey': 'NY_MID',
+        'drawChannelName': 'New York · Midday',
+        'drawScheduledAt': '2026-07-19T18:30:00Z',
+      });
+
+      expect(ticket.resultProvider, 'NY');
+      expect(ticket.resultSlotKey, 'NY_MID');
+      expect(ticket.drawLabel, 'New York · Midday — 19/07/2026 14:30');
+    },
+  );
 }

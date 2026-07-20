@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:tchalanet_mobile/core/i18n/draw_identity_label.dart';
 import 'package:tchalanet_mobile/core/i18n/i18n_models.dart';
 import 'package:tchalanet_mobile/features/cashier/tickets/data/models/cashier_sell_catalog_models.dart';
 import 'package:tchalanet_mobile/features/cashier/tickets/presentation/cashier_draw_label.dart';
@@ -29,5 +30,25 @@ void main() {
     );
 
     expect(localizedCashierDrawLabel(draw, translations), 'Nouyòk · Midi');
+  });
+
+  test('localizes ticket draw identity from result provider and slot keys', () {
+    const translations = I18nBundle(
+      locale: 'ht',
+      translations: {
+        'pos.draw.providers.ny': 'Nouyòk',
+        'pos.draw.slots.midday': 'Midi',
+      },
+    );
+
+    expect(
+      localizedDrawIdentityLabel(
+        providerCode: 'NY',
+        slotKey: 'NY_MID',
+        fallback: 'New York · Midday',
+        translations: translations,
+      ),
+      'Nouyòk · Midi',
+    );
   });
 }

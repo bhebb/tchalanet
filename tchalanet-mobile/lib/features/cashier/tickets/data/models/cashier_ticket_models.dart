@@ -355,6 +355,8 @@ class CashierTicketSummaryView {
     required this.currency,
     this.publicCode,
     this.drawId,
+    this.resultSlotKey,
+    this.resultProvider,
     this.drawChannelName,
     this.drawScheduledAt,
     this.placedAt,
@@ -367,13 +369,16 @@ class CashierTicketSummaryView {
   final int totalAmountCents;
   final String currency;
   final String? drawId;
+  final String? resultSlotKey;
+  final String? resultProvider;
   final String? drawChannelName;
   final DateTime? drawScheduledAt;
   final DateTime? placedAt;
 
   String get displayCode => publicCode ?? ticketCode;
 
-  /// "Haïti • New York • Midday — 3 juin 12:00"
+  /// Fallback identity for catalog entries that do not yet expose a stable
+  /// provider/slot pair. Seller views prefer localized stable codes.
   String get drawLabel {
     final name = drawChannelName;
     final dt = drawScheduledAt?.toLocal();
@@ -381,26 +386,12 @@ class CashierTicketSummaryView {
     if (dt == null) return name ?? '—';
     final time =
         '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
-    final day = '${dt.day} ${_monthFr(dt.month)}';
+    final day =
+        '${dt.day.toString().padLeft(2, '0')}/'
+        '${dt.month.toString().padLeft(2, '0')}/${dt.year}';
     final suffix = '$day $time';
     return name != null ? '$name — $suffix' : suffix;
   }
-
-  static String _monthFr(int m) => const [
-    '',
-    'jan',
-    'fév',
-    'mars',
-    'avr',
-    'mai',
-    'juin',
-    'juil',
-    'août',
-    'sep',
-    'oct',
-    'nov',
-    'déc',
-  ][m];
 
   String get formattedAmount {
     final amount = totalAmountCents / 100;
@@ -416,6 +407,8 @@ class CashierTicketSummaryView {
         totalAmountCents: (json['totalAmountCents'] as num?)?.toInt() ?? 0,
         currency: json['currency'] as String? ?? 'HTG',
         drawId: json['drawId'] as String?,
+        resultSlotKey: json['resultSlotKey'] as String?,
+        resultProvider: json['resultProvider'] as String?,
         drawChannelName: json['drawChannelName'] as String?,
         drawScheduledAt: json['drawScheduledAt'] != null
             ? DateTime.tryParse(json['drawScheduledAt'] as String)
@@ -508,6 +501,8 @@ class CashierTicketDetailsView extends CashierTicketSummaryView {
     required super.currency,
     super.publicCode,
     super.drawId,
+    super.resultSlotKey,
+    super.resultProvider,
     super.drawChannelName,
     super.drawScheduledAt,
     super.placedAt,
@@ -540,6 +535,8 @@ class CashierTicketDetailsView extends CashierTicketSummaryView {
     totalAmountCents: (json['totalAmountCents'] as num?)?.toInt() ?? 0,
     currency: json['currency'] as String? ?? 'HTG',
     drawId: json['drawId'] as String?,
+    resultSlotKey: json['resultSlotKey'] as String?,
+    resultProvider: json['resultProvider'] as String?,
     drawChannelName: json['drawChannelName'] as String?,
     drawScheduledAt: json['drawScheduledAt'] != null
         ? DateTime.tryParse(json['drawScheduledAt'] as String)
