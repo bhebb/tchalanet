@@ -2,10 +2,12 @@ package com.tchalanet.server.features.pos.tickets.model;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public record PosTicketVerificationResponse(
     String status,
     String severity,
+    UUID ticketId,
     String titleKey,
     String messageKey,
     Map<String, Object> params,

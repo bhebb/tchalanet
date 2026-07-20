@@ -38,6 +38,7 @@ import java.time.ZoneId;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -116,6 +117,7 @@ public class PosTicketsService {
       return response(
           PosTicketVerificationStatus.OPERATION_NOT_ALLOWED,
           PosTicketVerificationSeverity.ERROR,
+          null,
           "pos.ticket.verify.operation_not_allowed.title",
           "pos.ticket.verify.operation_not_allowed.message",
           Map.of(),
@@ -135,6 +137,7 @@ public class PosTicketsService {
       return response(
           PosTicketVerificationStatus.NOT_FOUND,
           PosTicketVerificationSeverity.ERROR,
+          null,
           "pos.ticket.verify.not_found.title",
           "pos.ticket.verify.not_found.message",
           Map.of("publicCode", publicCode),
@@ -213,6 +216,7 @@ public class PosTicketsService {
     return response(
         status,
         severity,
+        ticket.ticketId().value(),
         "pos.ticket.verify." + key(status) + ".title",
         "pos.ticket.verify." + key(status) + ".message",
         params,
@@ -222,12 +226,13 @@ public class PosTicketsService {
   private PosTicketVerificationResponse response(
       PosTicketVerificationStatus status,
       PosTicketVerificationSeverity severity,
+      UUID ticketId,
       String titleKey,
       String messageKey,
       Map<String, Object> params,
       List<PosAction> actions) {
     return new PosTicketVerificationResponse(
-        status.name(), severity.name(), titleKey, messageKey, params, actions);
+        status.name(), severity.name(), ticketId, titleKey, messageKey, params, actions);
   }
 
   private List<PosAction> actions(

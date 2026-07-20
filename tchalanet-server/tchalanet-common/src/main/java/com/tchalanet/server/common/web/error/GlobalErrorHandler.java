@@ -22,6 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -43,6 +44,8 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 public class GlobalErrorHandler {
 
   private static final MediaType PROBLEM_JSON = MediaType.APPLICATION_PROBLEM_JSON;
+  private static final Pattern JSON_MAPPING_PATH_SEGMENT =
+      Pattern.compile("\\[\\\"([A-Za-z0-9_]+)\\\"\\]|\\[([0-9]+)]");
 
   @ExceptionHandler(ProblemRestException.class)
   public ResponseEntity<ProblemDetail> handleProblemRest(
@@ -196,12 +199,54 @@ public class GlobalErrorHandler {
     decorate(pd, req, ex, true);
 
     log.warn(
-        "[400] {} {} - not readable cause={}",
+        "[400] {} {} - not readable cause={} target={}",
         req.getMethod(),
         req.getRequestURI(),
-        ex.getMostSpecificCause().getClass().getSimpleName());
+        ex.getMostSpecificCause().getClass().getSimpleName(),
+        safeMappingTarget(ex.getMostSpecificCause()));
 
     return buildResponse(pd, req, HttpStatus.BAD_REQUEST);
+  }
+
+  /**
+   * Keeps the log useful for contract debugging without logging a rejected value,
+   * request body, or Jackson diagnostic prose.
+   */
+  private static String safeMappingTarget(Throwable cause) {
+    if (!isJsonMappingException(cause)) {
+      return "root";
+    }
+
+    final String pathReference;
+    try {
+      pathReference = String.valueOf(cause.getClass().getMethod("getPathReference").invoke(cause));
+    } catch (ReflectiveOperationException ignored) {
+      return "root";
+    }
+
+    var target = new StringBuilder();
+    var matcher = JSON_MAPPING_PATH_SEGMENT.matcher(pathReference);
+    while (matcher.find()) {
+      var field = matcher.group(1);
+      if (field != null) {
+        if (target.length() > 0) {
+          target.append('.');
+        }
+        target.append(field);
+      } else {
+        target.append('[').append(matcher.group(2)).append(']');
+      }
+    }
+    return target.isEmpty() ? "root" : target.toString();
+  }
+
+  private static boolean isJsonMappingException(Throwable cause) {
+    for (Class<?> type = cause.getClass(); type != null; type = type.getSuperclass()) {
+      if ("com.fasterxml.jackson.databind.JsonMappingException".equals(type.getName())) {
+        return true;
+      }
+    }
+    return false;
   }
 
   @ExceptionHandler(MissingServletRequestParameterException.class)
@@ -289,11 +334,7 @@ public class GlobalErrorHandler {
 
     decorate(pd, req, ex, false);
 
-    log.error(
-        "[500] {} {} - code={}",
-        req.getMethod(),
-        req.getRequestURI(),
-        CommonErrorCodes.INTERNAL_UNEXPECTED);
+    logUnexpected(req, pd, ex);
 
     return buildResponse(pd, req, HttpStatus.INTERNAL_SERVER_ERROR);
   }
@@ -328,11 +369,7 @@ public class GlobalErrorHandler {
 
     decorate(pd, req, ex, false);
 
-    log.error(
-        "[500] {} {} - code={}",
-        req.getMethod(),
-        req.getRequestURI(),
-        CommonErrorCodes.INTERNAL_UNEXPECTED);
+    logUnexpected(req, pd, ex);
 
     return buildResponse(pd, req, HttpStatus.INTERNAL_SERVER_ERROR);
   }
@@ -507,6 +544,50 @@ public class GlobalErrorHandler {
       return code;
     }
     return CommonErrorCodes.INTERNAL_UNEXPECTED;
+  }
+
+  private static String errorId(ProblemDetail pd) {
+    var properties = pd.getProperties();
+    if (properties != null && properties.get("errorId") instanceof String errorId) {
+      return errorId;
+    }
+    return "unknown";
+  }
+
+  /**
+   * Logs a debuggable stack without putting exception messages, rejected values, or payload
+   * fragments into application logs. The {@code errorId} ties this diagnostic to the client-safe
+   * ProblemDetail.
+   */
+  private static void logUnexpected(HttpServletRequest req, ProblemDetail pd, Throwable ex) {
+    log.error(
+        "[500] {} {} - errorId={} code={} exception={} stack={}",
+        req.getMethod(),
+        req.getRequestURI(),
+        errorId(pd),
+        CommonErrorCodes.INTERNAL_UNEXPECTED,
+        ex.getClass().getName(),
+        safeStackTrace(ex));
+  }
+
+  private static String safeStackTrace(Throwable throwable) {
+    var stack = new StringBuilder();
+    var current = throwable;
+    for (int depth = 0; current != null && depth < 4; depth++, current = current.getCause()) {
+      if (depth > 0) {
+        stack.append(" caused-by=");
+      }
+      stack.append(current.getClass().getName()).append('[');
+      var frames = current.getStackTrace();
+      for (int index = 0; index < frames.length && index < 32; index++) {
+        if (index > 0) {
+          stack.append(" <- ");
+        }
+        stack.append(frames[index]);
+      }
+      stack.append(']');
+    }
+    return stack.toString();
   }
 
   private static String headerOrNull(HttpServletRequest req, String name) {
