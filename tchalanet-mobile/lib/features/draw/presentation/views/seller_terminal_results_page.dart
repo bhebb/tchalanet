@@ -219,6 +219,7 @@ class _ResultCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final status = _resultStatus(result.status, translations);
+    final quality = _resultQuality(result.quality, translations);
 
     return SurfaceCard(
       child: Column(
@@ -249,34 +250,122 @@ class _ResultCard extends StatelessWidget {
                   ],
                 ),
               ),
-              StatusBadge(label: status.label, kind: status.kind),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  StatusBadge(label: status.label, kind: status.kind),
+                  if (quality != null) ...[
+                    const SizedBox(height: TchSpacing.s4),
+                    StatusBadge(label: quality.label, kind: quality.kind),
+                  ],
+                ],
+              ),
             ],
           ),
           const SizedBox(height: TchSpacing.s16),
-          Wrap(
-            spacing: TchSpacing.s8,
-            runSpacing: TchSpacing.s8,
-            children: result.numbers
-                .map(
-                  (number) => Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: TchSpacing.s12,
-                      vertical: TchSpacing.s8,
+          if (result.hasKnownLots)
+            Wrap(
+              spacing: TchSpacing.s8,
+              runSpacing: TchSpacing.s8,
+              children: [
+                for (final lot in const ['LOT1', 'LOT2', 'LOT3', 'LOT4'])
+                  _LotValue(
+                    label: translations.translate(
+                      'pos.results.${lot.toLowerCase()}',
                     ),
-                    decoration: BoxDecoration(
-                      color: scheme.primary,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(
-                      number,
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        color: scheme.onPrimary,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
+                    value: result.lotValue(lot),
                   ),
-                )
-                .toList(growable: false),
+              ],
+            )
+          // Existing API deployments expose only `numbers`. Keep results usable
+          // during the API rollout; named lots supersede this once available.
+          else if (result.numbers.isNotEmpty)
+            Wrap(
+              spacing: TchSpacing.s8,
+              runSpacing: TchSpacing.s8,
+              children: [
+                for (final number in result.numbers) _ResultNumber(value: number),
+              ],
+            )
+          else
+            Text(
+              translations.translate('pos.results.no_numbers'),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ResultNumber extends StatelessWidget {
+  const _ResultNumber({required this.value});
+
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Container(
+      constraints: const BoxConstraints(minWidth: 48),
+      padding: const EdgeInsets.symmetric(
+        horizontal: TchSpacing.s12,
+        vertical: TchSpacing.s8,
+      ),
+      decoration: BoxDecoration(
+        color: scheme.primary,
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Text(
+        value,
+        textAlign: TextAlign.center,
+        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+          color: scheme.onPrimary,
+          fontWeight: FontWeight.w800,
+        ),
+      ),
+    );
+  }
+}
+
+class _LotValue extends StatelessWidget {
+  const _LotValue({required this.label, required this.value});
+
+  final String label;
+  final String? value;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final isMissing = value == null || value!.isEmpty;
+    return Container(
+      width: 72,
+      padding: const EdgeInsets.symmetric(
+        horizontal: TchSpacing.s8,
+        vertical: TchSpacing.s8,
+      ),
+      decoration: BoxDecoration(
+        color: isMissing ? scheme.surfaceContainerHigh : scheme.primary,
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: isMissing ? scheme.onSurfaceVariant : scheme.onPrimary,
+            ),
+          ),
+          const SizedBox(height: TchSpacing.s4),
+          Text(
+            isMissing ? '×' : value!,
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+              color: isMissing ? scheme.onSurfaceVariant : scheme.onPrimary,
+              fontWeight: FontWeight.w800,
+            ),
           ),
         ],
       ),
@@ -287,24 +376,54 @@ class _ResultCard extends StatelessWidget {
 ({String label, StatusBadgeKind kind}) _resultStatus(
   String status,
   I18nBundle translations,
-) => switch (status) {
-  'CONFIRMED' => (
+) => switch (drawResultDisplayStatus(status)) {
+  DrawResultDisplayStatus.confirmed => (
     label: translations.translate('pos.results.status_confirmed'),
     kind: StatusBadgeKind.ready,
   ),
-  'PROVISIONAL' => (
+  DrawResultDisplayStatus.provisional => (
     label: translations.translate('pos.results.status_provisional'),
     kind: StatusBadgeKind.warning,
   ),
-  'OVERRIDDEN' => (
+  DrawResultDisplayStatus.corrected => (
     label: translations.translate('pos.results.status_corrected'),
     kind: StatusBadgeKind.warning,
   ),
-  _ => (
-    label: translations.translate('pos.results.status_available'),
+  DrawResultDisplayStatus.unavailable => (
+    label: translations.translate('pos.results.status_unavailable'),
+    kind: StatusBadgeKind.blocked,
+  ),
+  DrawResultDisplayStatus.unknown => (
+    label: translations.translate('pos.results.status_unknown'),
     kind: StatusBadgeKind.neutral,
   ),
 };
+
+({String label, StatusBadgeKind kind})? _resultQuality(
+  String? quality,
+  I18nBundle translations,
+) {
+  final displayQuality = drawResultDisplayQuality(quality);
+  if (displayQuality == null) return null;
+  return switch (displayQuality) {
+    DrawResultDisplayQuality.complete => (
+      label: translations.translate('pos.results.quality_complete'),
+      kind: StatusBadgeKind.ready,
+    ),
+    DrawResultDisplayQuality.suspect => (
+      label: translations.translate('pos.results.quality_suspect'),
+      kind: StatusBadgeKind.warning,
+    ),
+    DrawResultDisplayQuality.invalid => (
+      label: translations.translate('pos.results.quality_invalid'),
+      kind: StatusBadgeKind.blocked,
+    ),
+    DrawResultDisplayQuality.unknown => (
+      label: translations.translate('pos.results.quality_unknown'),
+      kind: StatusBadgeKind.missing,
+    ),
+  };
+}
 
 String _resultOccurrenceLabel(PublicDrawResultRow result) => [
   result.resultDate,

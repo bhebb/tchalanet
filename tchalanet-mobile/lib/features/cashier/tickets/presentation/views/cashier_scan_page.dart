@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../../core/i18n/i18n_models.dart';
+import '../../../../../core/i18n/i18n_repository.dart';
 import '../../../../../core/network/api_exception.dart';
 import '../../../../../design_system/tokens/tch_colors.dart';
 import '../../../../../design_system/tokens/tch_radius.dart';
@@ -31,8 +33,8 @@ final class VerifyResult extends VerifyState {
 }
 
 final class VerifyError extends VerifyState {
-  const VerifyError(this.message);
-  final String message;
+  const VerifyError(this.errorKeys);
+  final List<String> errorKeys;
 }
 
 class VerifyController extends Notifier<VerifyState> {
@@ -45,10 +47,12 @@ class VerifyController extends Notifier<VerifyState> {
     try {
       final result = await ref
           .read(cashierTicketServiceProvider)
-          .verify(CashierVerifyTicketRequest(scannedValue: scannedValue.trim()));
+          .verify(
+            CashierVerifyTicketRequest(scannedValue: scannedValue.trim()),
+          );
       state = VerifyResult(result, scannedValue.trim());
     } catch (e) {
-      state = VerifyError(userMessage(e));
+      state = VerifyError(userErrorTranslationKeys(e));
     }
   }
 
@@ -81,14 +85,15 @@ class _CashierScanPageState extends ConsumerState<CashierScanPage> {
     final state = ref.watch(verifyControllerProvider);
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final translations = ref.watch(i18nBundleProvider);
     final isLoading = state is VerifyInProgress;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Scanner / Vérifier'),
+        title: Text(translations.translate('pos.ticket.verify.title')),
         leading: IconButton(
           icon: const Icon(Icons.close_rounded),
-          tooltip: 'Accueil',
+          tooltip: translations.translate('pos.ticket.verify.back_home'),
           onPressed: () => context.go('/pos'),
         ),
         actions: [
@@ -98,7 +103,7 @@ class _CashierScanPageState extends ConsumerState<CashierScanPage> {
                 _controller.clear();
                 ref.read(verifyControllerProvider.notifier).reset();
               },
-              child: const Text('Nouveau'),
+              child: Text(translations.translate('pos.ticket.verify.new')),
             ),
         ],
       ),
@@ -116,8 +121,12 @@ class _CashierScanPageState extends ConsumerState<CashierScanPage> {
                       onTap: () {
                         // Future: launch camera QR scanner
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Scan QR — bientôt disponible'),
+                          SnackBar(
+                            content: Text(
+                              translations.translate(
+                                'pos.ticket.verify.scan_unavailable',
+                              ),
+                            ),
                             behavior: SnackBarBehavior.floating,
                           ),
                         );
@@ -142,7 +151,9 @@ class _CashierScanPageState extends ConsumerState<CashierScanPage> {
                             ),
                             const SizedBox(height: TchSpacing.s8),
                             Text(
-                              'Appuyez pour scanner',
+                              translations.translate(
+                                'pos.ticket.verify.scan_prompt',
+                              ),
                               style: textTheme.bodySmall?.copyWith(
                                 color: scheme.onSurfaceVariant,
                               ),
@@ -160,9 +171,12 @@ class _CashierScanPageState extends ConsumerState<CashierScanPage> {
                         Expanded(child: Divider(color: scheme.outlineVariant)),
                         Padding(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: TchSpacing.s12),
+                            horizontal: TchSpacing.s12,
+                          ),
                           child: Text(
-                            'ou saisir manuellement',
+                            translations.translate(
+                              'pos.ticket.verify.or_manual_entry',
+                            ),
                             style: textTheme.labelSmall?.copyWith(
                               color: scheme.onSurfaceVariant,
                             ),
@@ -181,14 +195,21 @@ class _CashierScanPageState extends ConsumerState<CashierScanPage> {
                       textCapitalization: TextCapitalization.characters,
                       inputFormatters: [
                         FilteringTextInputFormatter.allow(
-                            RegExp(r'[A-Za-z0-9\-]')),
+                          RegExp(r'[A-Za-z0-9\-]'),
+                        ),
                         UpperCaseTextFormatter(),
                       ],
                       onSubmitted: (_) => _verify(),
                       decoration: InputDecoration(
-                        labelText: 'Code ou URL du ticket',
-                        hintText: 'Ex: 40CP-JBMR',
-                        prefixIcon: const Icon(Icons.confirmation_number_outlined),
+                        labelText: translations.translate(
+                          'pos.ticket.verify.code_label',
+                        ),
+                        hintText: translations.translate(
+                          'pos.ticket.verify.code_hint',
+                        ),
+                        prefixIcon: const Icon(
+                          Icons.confirmation_number_outlined,
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(TchRadius.md),
                         ),
@@ -209,9 +230,14 @@ class _CashierScanPageState extends ConsumerState<CashierScanPage> {
 
                     // Result
                     if (state is VerifyResult)
-                      _VerifyResultCard(result: state.response)
+                      _VerifyResultCard(
+                        result: state.response,
+                        translations: translations,
+                      )
                     else if (state is VerifyError)
-                      _ErrorCard(message: state.message),
+                      _ErrorCard(
+                        message: _translateError(translations, state.errorKeys),
+                      ),
                   ],
                 ),
               ),
@@ -220,35 +246,13 @@ class _CashierScanPageState extends ConsumerState<CashierScanPage> {
             // CTA
             Padding(
               padding: const EdgeInsets.fromLTRB(
-                TchSpacing.s24, TchSpacing.s8, TchSpacing.s24, TchSpacing.s24,
+                TchSpacing.s24,
+                TchSpacing.s8,
+                TchSpacing.s24,
+                TchSpacing.s24,
               ),
               child: Column(
                 children: [
-                  // Payout action (when PAYABLE)
-                  if (state is VerifyResult &&
-                      state.response.isPayable) ...[
-                    SizedBox(
-                      width: double.infinity,
-                      height: 56,
-                      child: FilledButton.icon(
-                        onPressed: () => _showPayoutConfirm(context, state),
-                        icon: const Icon(Icons.payments_rounded),
-                        label: const Text(
-                          'PAYER LE GAGNANT',
-                          style: TextStyle(
-                              fontWeight: FontWeight.w700, letterSpacing: 0.5),
-                        ),
-                        style: FilledButton.styleFrom(
-                          backgroundColor: TchColors.success,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(TchRadius.md),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: TchSpacing.s8),
-                  ],
-
                   // View detail action — only enabled when ticketId is available
                   if (state is VerifyResult) ...[
                     SizedBox(
@@ -257,10 +261,13 @@ class _CashierScanPageState extends ConsumerState<CashierScanPage> {
                       child: OutlinedButton.icon(
                         onPressed: state.response.ticketId != null
                             ? () => context.push(
-                                '/pos/tickets/${state.response.ticketId}')
+                                '/pos/tickets/${state.response.ticketId}',
+                              )
                             : null,
                         icon: const Icon(Icons.receipt_long_rounded),
-                        label: const Text('VOIR LES DÉTAILS'),
+                        label: Text(
+                          translations.translate('pos.ticket.verify.details'),
+                        ),
                         style: OutlinedButton.styleFrom(
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(TchRadius.md),
@@ -282,13 +289,21 @@ class _CashierScanPageState extends ConsumerState<CashierScanPage> {
                               width: 18,
                               height: 18,
                               child: CircularProgressIndicator(
-                                  strokeWidth: 2, color: TchColors.onPrimary),
+                                strokeWidth: 2,
+                                color: TchColors.onPrimary,
+                              ),
                             )
                           : const Icon(Icons.search_rounded),
                       label: Text(
-                        isLoading ? 'VÉRIFICATION…' : 'VÉRIFIER',
+                        isLoading
+                            ? translations.translate(
+                                'pos.ticket.verify.checking',
+                              )
+                            : translations.translate('pos.ticket.verify.check'),
                         style: const TextStyle(
-                            fontWeight: FontWeight.w700, letterSpacing: 0.5),
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.5,
+                        ),
                       ),
                       style: FilledButton.styleFrom(
                         shape: RoundedRectangleBorder(
@@ -311,45 +326,15 @@ class _CashierScanPageState extends ConsumerState<CashierScanPage> {
     if (value.isEmpty) return;
     ref.read(verifyControllerProvider.notifier).verify(value);
   }
-
-  void _showPayoutConfirm(BuildContext context, VerifyResult state) {
-    showDialog<void>(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Confirmer le paiement'),
-        content: Text(
-          'Voulez-vous payer le gagnant pour le ticket ${state.scannedValue} ?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Annuler'),
-          ),
-          FilledButton(
-            onPressed: () {
-              Navigator.pop(context);
-              // TODO: POST /payout — next cycle
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Paiement — bientôt disponible'),
-                  behavior: SnackBarBehavior.floating,
-                ),
-              );
-            },
-            child: const Text('Confirmer'),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 // ─── Verification result card ─────────────────────────────────────────────────
 
 class _VerifyResultCard extends StatelessWidget {
-  const _VerifyResultCard({required this.result});
+  const _VerifyResultCard({required this.result, required this.translations});
 
   final CashierTicketVerificationResponse result;
+  final I18nBundle translations;
 
   @override
   Widget build(BuildContext context) {
@@ -358,43 +343,43 @@ class _VerifyResultCard extends StatelessWidget {
 
     final (bgColor, fgColor, borderColor, icon) = switch (result.severity) {
       'SUCCESS' => (
-          TchColors.successContainer,
-          TchColors.success,
-          TchColors.successContainer,
-          Icons.check_circle_outline_rounded,
-        ),
+        TchColors.successContainer,
+        TchColors.success,
+        TchColors.successContainer,
+        Icons.check_circle_outline_rounded,
+      ),
       'WARNING' => (
-          TchColors.warningContainer,
-          TchColors.warning,
-          TchColors.warning,
-          Icons.warning_amber_rounded,
-        ),
+        TchColors.warningContainer,
+        TchColors.warning,
+        TchColors.warning,
+        Icons.warning_amber_rounded,
+      ),
       'ERROR' => (
-          scheme.errorContainer,
-          scheme.onErrorContainer,
-          scheme.error.withValues(alpha: 0.3),
-          Icons.cancel_outlined,
-        ),
+        scheme.errorContainer,
+        scheme.onErrorContainer,
+        scheme.error.withValues(alpha: 0.3),
+        Icons.cancel_outlined,
+      ),
       _ => (
-          scheme.surfaceContainerLow,
-          scheme.onSurface,
-          scheme.outlineVariant,
-          Icons.info_outline_rounded,
-        ),
+        scheme.surfaceContainerLow,
+        scheme.onSurface,
+        scheme.outlineVariant,
+        Icons.info_outline_rounded,
+      ),
     };
 
-    final statusLabel = switch (result.status) {
-      'PAYABLE' => 'Ticket gagnant — prêt à payer',
-      'ALREADY_PAID' => 'Ticket déjà payé',
-      'NOT_PAYABLE_LOST' => 'Ticket perdant',
-      'NOT_PAYABLE_PENDING_DRAW' => 'Tirage non encore effectué',
-      'NOT_PAYABLE_RESULT_PENDING' => 'Résultats en attente',
-      'CANCELLED' => 'Ticket annulé',
-      'VOIDED' => 'Ticket invalidé',
-      'NOT_FOUND' => 'Ticket introuvable',
-      'BLOCKED' => 'Ticket bloqué — contacter l\'admin',
-      _ => result.status,
-    };
+    final title = _translateServerKey(
+      translations,
+      result.titleKey,
+      fallback: 'pos.ticket.verify.unknown.title',
+      params: result.params,
+    );
+    final message = _translateServerKey(
+      translations,
+      result.messageKey,
+      fallback: 'pos.ticket.verify.unknown.message',
+      params: result.params,
+    );
 
     return Container(
       padding: const EdgeInsets.all(TchSpacing.s16),
@@ -412,7 +397,7 @@ class _VerifyResultCard extends StatelessWidget {
               const SizedBox(width: TchSpacing.s8),
               Expanded(
                 child: Text(
-                  statusLabel,
+                  title,
                   style: textTheme.titleSmall?.copyWith(
                     color: fgColor,
                     fontWeight: FontWeight.w700,
@@ -421,45 +406,11 @@ class _VerifyResultCard extends StatelessWidget {
               ),
             ],
           ),
-          if (result.availableActions.isNotEmpty) ...[
+          if (message.isNotEmpty) ...[
             const SizedBox(height: TchSpacing.s12),
-            Wrap(
-              spacing: TchSpacing.s8,
-              children: result.availableActions
-                  .where((a) => a.enabled && a.type != 'NONE')
-                  .map((a) => _ActionBadge(action: a, fgColor: fgColor))
-                  .toList(),
-            ),
+            Text(message, style: textTheme.bodySmall?.copyWith(color: fgColor)),
           ],
         ],
-      ),
-    );
-  }
-}
-
-class _ActionBadge extends StatelessWidget {
-  const _ActionBadge({required this.action, required this.fgColor});
-
-  final CashierAction action;
-  final Color fgColor;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: TchSpacing.s8,
-        vertical: TchSpacing.s4,
-      ),
-      decoration: BoxDecoration(
-        color: fgColor.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(TchRadius.pill),
-      ),
-      child: Text(
-        action.type.replaceAll('_', ' '),
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: fgColor,
-              fontWeight: FontWeight.w600,
-            ),
       ),
     );
   }
@@ -481,16 +432,18 @@ class _ErrorCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(Icons.error_outline_rounded,
-              size: 18, color: scheme.onErrorContainer),
+          Icon(
+            Icons.error_outline_rounded,
+            size: 18,
+            color: scheme.onErrorContainer,
+          ),
           const SizedBox(width: TchSpacing.s8),
           Expanded(
             child: Text(
               message,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall
-                  ?.copyWith(color: scheme.onErrorContainer),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: scheme.onErrorContainer),
             ),
           ),
         ],
@@ -499,12 +452,38 @@ class _ErrorCard extends StatelessWidget {
   }
 }
 
+String _translateError(I18nBundle translations, List<String> keys) {
+  for (final key in keys) {
+    final translated = translations.translate(key);
+    if (translated != key) return translated;
+  }
+  return translations.translate('common.error.unknown');
+}
+
+String _translateServerKey(
+  I18nBundle translations,
+  String? key, {
+  required String fallback,
+  Map<String, dynamic>? params,
+}) {
+  final translated = key == null ? fallback : translations.translate(key);
+  final text = translated == key
+      ? translations.translate(fallback)
+      : translated;
+  return (params ?? const {}).entries.fold<String>(
+    text,
+    (current, entry) => current.replaceAll('{${entry.key}}', '${entry.value}'),
+  );
+}
+
 // ─── Formatter ────────────────────────────────────────────────────────────────
 
 class UpperCaseTextFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
-      TextEditingValue old, TextEditingValue updated) {
+    TextEditingValue old,
+    TextEditingValue updated,
+  ) {
     return updated.copyWith(text: updated.text.toUpperCase());
   }
 }

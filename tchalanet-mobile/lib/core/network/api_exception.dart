@@ -1,3 +1,5 @@
+import '../i18n/i18n_models.dart';
+
 class ApiException implements Exception {
   ApiException({
     required this.message,
@@ -55,6 +57,15 @@ List<String> userErrorTranslationKeys(Object error) {
   }
   keys.add('common.error.unknown');
   return keys;
+}
+
+String localizedUserError(I18nBundle translations, Object error) {
+  for (final key in userErrorTranslationKeys(error)) {
+    if (translations.translations.containsKey(key)) {
+      return translations.translate(key);
+    }
+  }
+  return translations.translate('common.error.unknown');
 }
 
 @Deprecated('Resolve userErrorTranslationKeys through the active i18n bundle.')

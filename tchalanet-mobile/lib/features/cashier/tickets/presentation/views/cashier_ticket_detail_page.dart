@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../../core/network/api_exception.dart';
+import '../../../../../core/i18n/draw_identity_label.dart';
+import '../../../../../core/i18n/i18n_models.dart';
+import '../../../../../core/i18n/i18n_repository.dart';
+import '../../../../../design_system/components/components.dart';
 import '../../../../../design_system/tokens/tch_colors.dart';
 import '../../../../../design_system/tokens/tch_radius.dart';
 import '../../../../../design_system/tokens/tch_spacing.dart';
@@ -17,7 +20,7 @@ final _ticketDetailProvider =
           ref.watch(cashierTicketServiceProvider).getDetails(ticketId),
     );
 
-/// Ticket detail / receipt view — shown from History tab, Scanner, or post-sell.
+/// Customer-safe receipt detail shown from the ticket history.
 class CashierTicketDetailPage extends ConsumerWidget {
   const CashierTicketDetailPage({super.key, required this.ticketId});
 
@@ -26,46 +29,46 @@ class CashierTicketDetailPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final detailAsync = ref.watch(_ticketDetailProvider(ticketId));
-    final scheme = Theme.of(context).colorScheme;
+    final translations = ref.watch(i18nBundleProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Détails du Ticket')),
+      appBar: AppBar(
+        title: Text(translations.translate('pos.tickets.detail_title')),
+      ),
       bottomNavigationBar: const SellerTerminalNavBar(currentIndex: 1),
       body: detailAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.cloud_off_rounded, size: 48, color: scheme.error),
-              const SizedBox(height: TchSpacing.s16),
-              Text(userMessage(e), textAlign: TextAlign.center),
-              const SizedBox(height: TchSpacing.s24),
-              FilledButton.tonal(
-                onPressed: () =>
-                    ref.invalidate(_ticketDetailProvider(ticketId)),
-                child: const Text('Réessayer'),
-              ),
-            ],
+        error: (_, _) => Center(
+          child: FeedbackState(
+            kind: FeedbackStateKind.offline,
+            title: translations.translate('pos.tickets.load_error'),
+            actionLabel: translations.translate('common.retry'),
+            onAction: () => ref.invalidate(_ticketDetailProvider(ticketId)),
           ),
         ),
-        data: (detail) => _DetailBody(detail: detail, ticketId: ticketId),
+        data: (detail) => _DetailBody(
+          detail: detail,
+          ticketId: ticketId,
+          translations: translations,
+        ),
       ),
     );
   }
 }
 
 class _DetailBody extends ConsumerWidget {
-  const _DetailBody({required this.detail, required this.ticketId});
+  const _DetailBody({
+    required this.detail,
+    required this.ticketId,
+    required this.translations,
+  });
 
   final CashierTicketDetailsView detail;
   final String ticketId;
+  final I18nBundle translations;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final scheme = Theme.of(context).colorScheme;
-    final canCancel = detail.status == 'PLACED';
-
     return ListView(
       padding: const EdgeInsets.fromLTRB(
         TchSpacing.s16,
@@ -74,106 +77,49 @@ class _DetailBody extends ConsumerWidget {
         TchSpacing.s24,
       ),
       children: [
-        _ReceiptCard(detail: detail),
+        _ReceiptCard(detail: detail, translations: translations),
         const SizedBox(height: TchSpacing.s16),
         _ActionButton(
           icon: Icons.print_rounded,
-          label: 'Imprimer',
+          label: translations.translate('pos.tickets.reprint_confirm'),
           primary: true,
-          onTap: () => printTicket(context, ref, ticketId),
-        ),
-        if (canCancel) ...[
-          const SizedBox(height: TchSpacing.s12),
-          _ActionButton(
-            icon: Icons.cancel_outlined,
-            label: 'Annuler le ticket',
-            primary: false,
-            isDestructive: true,
-            onTap: () => _confirmCancel(context),
-          ),
-        ],
-        const SizedBox(height: TchSpacing.s32),
-        // TODO(qr): replace with real QR once verificationUrl/publicCode available
-        Center(
-          child: Column(
-            children: [
-              Container(
-                width: 96,
-                height: 96,
-                padding: const EdgeInsets.all(TchSpacing.s8),
-                decoration: BoxDecoration(
-                  color: scheme.surfaceContainerLowest,
-                  border: Border.all(color: scheme.outlineVariant),
-                  borderRadius: BorderRadius.circular(TchRadius.md),
-                ),
-                child: Icon(
-                  Icons.qr_code_2_rounded,
-                  size: 64,
-                  color: scheme.onSurface.withValues(alpha: 0.3),
-                ),
-              ),
-              const SizedBox(height: TchSpacing.s8),
-              Text(
-                'QR — disponible prochainement',
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: scheme.onSurfaceVariant.withValues(alpha: 0.5),
-                  letterSpacing: 0.5,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 10,
-                ),
-              ),
-            ],
-          ),
+          onTap: () => requestTicketReprint(context, ref, ticketId),
         ),
       ],
     );
   }
-
-  void _confirmCancel(BuildContext context) {
-    showDialog<void>(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Annuler le ticket ?'),
-        content: const Text(
-          'Cette action est irréversible. Le ticket sera annulé immédiatement.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Retour'),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.error,
-            ),
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Annuler le ticket'),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
-// ─── Receipt card ─────────────────────────────────────────────────────────────
-
 class _StatusBadge extends StatelessWidget {
-  const _StatusBadge({required this.status});
+  const _StatusBadge({required this.status, required this.translations});
 
   final String status;
+  final I18nBundle translations;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final (bgColor, fgColor, label) = switch (status) {
-      'PLACED' => (TchColors.successContainer, TchColors.success, 'ACTIF'),
-      'CANCELLED' => (scheme.errorContainer, scheme.onErrorContainer, 'ANNULÉ'),
+    final (bgColor, fgColor, key) = switch (status) {
+      'PLACED' => (
+        TchColors.successContainer,
+        TchColors.success,
+        'pos.tickets.status_placed',
+      ),
+      'CANCELLED' => (
+        scheme.errorContainer,
+        scheme.onErrorContainer,
+        'pos.tickets.status_cancelled',
+      ),
       'VOIDED' => (
         scheme.surfaceContainerHighest,
         scheme.onSurfaceVariant,
-        'INVALIDÉ',
+        'pos.tickets.status_voided',
       ),
-      _ => (TchColors.warningContainer, TchColors.warning, status),
+      _ => (
+        TchColors.warningContainer,
+        TchColors.warning,
+        'pos.tickets.status_unknown',
+      ),
     };
     return Container(
       padding: const EdgeInsets.symmetric(
@@ -185,7 +131,7 @@ class _StatusBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(TchRadius.pill),
       ),
       child: Text(
-        label,
+        translations.translate(key),
         style: TextStyle(
           color: fgColor,
           fontWeight: FontWeight.w700,
@@ -198,16 +144,22 @@ class _StatusBadge extends StatelessWidget {
 }
 
 class _ReceiptCard extends StatelessWidget {
-  const _ReceiptCard({required this.detail});
+  const _ReceiptCard({required this.detail, required this.translations});
 
   final CashierTicketDetailsView detail;
+  final I18nBundle translations;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final displayCode = detail.publicCode ?? detail.ticketCode;
-    final total = detail.formattedAmount;
+    final drawLabel = localizedDrawIdentityLabel(
+      providerCode: detail.resultProvider,
+      slotKey: detail.resultSlotKey,
+      fallback: detail.drawLabel,
+      translations: translations,
+    );
 
     return Container(
       decoration: BoxDecoration(
@@ -218,16 +170,10 @@ class _ReceiptCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Header
           Container(
             padding: const EdgeInsets.all(TchSpacing.s16),
             decoration: BoxDecoration(
-              border: Border(
-                bottom: BorderSide(
-                  color: scheme.outlineVariant,
-                  style: BorderStyle.solid,
-                ),
-              ),
+              border: Border(bottom: BorderSide(color: scheme.outlineVariant)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -240,33 +186,41 @@ class _ReceiptCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'CODE PUBLIC',
+                            translations.translate('pos.tickets.public_code'),
                             style: textTheme.labelSmall?.copyWith(
                               color: scheme.onSurfaceVariant,
                               letterSpacing: 0.5,
                             ),
                           ),
                           const SizedBox(height: TchSpacing.s4),
-                          GestureDetector(
+                          InkWell(
                             onTap: () {
                               Clipboard.setData(
                                 ClipboardData(text: displayCode),
                               );
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Code copié'),
-                                  duration: Duration(seconds: 1),
+                                SnackBar(
+                                  content: Text(
+                                    translations.translate(
+                                      'pos.tickets.copied',
+                                    ),
+                                  ),
+                                  duration: const Duration(seconds: 1),
                                   behavior: SnackBarBehavior.floating,
                                 ),
                               );
                             },
                             child: Row(
+                              mainAxisSize: MainAxisSize.min,
                               children: [
-                                Text(
-                                  displayCode,
-                                  style: textTheme.headlineMedium?.copyWith(
-                                    color: scheme.primary,
-                                    fontWeight: FontWeight.w700,
+                                Flexible(
+                                  child: Text(
+                                    displayCode,
+                                    style: textTheme.headlineMedium?.copyWith(
+                                      color: scheme.primary,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
                                 const SizedBox(width: TchSpacing.s8),
@@ -281,31 +235,32 @@ class _ReceiptCard extends StatelessWidget {
                         ],
                       ),
                     ),
-                    _StatusBadge(status: detail.status),
+                    _StatusBadge(
+                      status: detail.status,
+                      translations: translations,
+                    ),
                   ],
                 ),
                 const SizedBox(height: TchSpacing.s12),
-                // Row 1 — sale time + draw
                 Row(
                   children: [
                     Expanded(
                       child: _MetaItem(
-                        label: 'HEURE DE VENTE',
-                        value: detail.placedAt != null
-                            ? _fmtDateTime(detail.placedAt!)
-                            : '—',
+                        label: translations.translate('pos.tickets.sale_time'),
+                        value: detail.placedAt == null
+                            ? '—'
+                            : _fmtDateTime(detail.placedAt!),
                       ),
                     ),
                     Expanded(
                       child: _MetaItem(
-                        label: 'TIRAGE',
-                        value: detail.drawLabel,
+                        label: translations.translate('pos.tickets.draw'),
+                        value: drawLabel,
                         alignRight: true,
                       ),
                     ),
                   ],
                 ),
-                // Row 2 — outlet + terminal (context enrichi)
                 if (detail.outletName != null ||
                     detail.terminalCode != null) ...[
                   const SizedBox(height: TchSpacing.s8),
@@ -314,14 +269,16 @@ class _ReceiptCard extends StatelessWidget {
                       if (detail.outletName != null)
                         Expanded(
                           child: _MetaItem(
-                            label: 'POINT DE VENTE',
+                            label: translations.translate('pos.tickets.outlet'),
                             value: detail.outletName!,
                           ),
                         ),
                       if (detail.terminalCode != null)
                         Expanded(
                           child: _MetaItem(
-                            label: 'TERMINAL',
+                            label: translations.translate(
+                              'pos.tickets.terminal',
+                            ),
                             value: detail.terminalCode!,
                             alignRight: true,
                           ),
@@ -329,23 +286,23 @@ class _ReceiptCard extends StatelessWidget {
                     ],
                   ),
                 ],
-                // Row 3 — vendeur
                 if (detail.sellerDisplayName != null) ...[
                   const SizedBox(height: TchSpacing.s8),
-                  _MetaItem(label: 'VENDEUR', value: detail.sellerDisplayName!),
+                  _MetaItem(
+                    label: translations.translate('pos.tickets.seller'),
+                    value: detail.sellerDisplayName!,
+                  ),
                 ],
               ],
             ),
           ),
-
-          // Entries
           Padding(
             padding: const EdgeInsets.all(TchSpacing.s16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'DÉTAIL DES JEUX',
+                  translations.translate('pos.tickets.game_details'),
                   style: textTheme.labelSmall?.copyWith(
                     color: scheme.onSurfaceVariant,
                     letterSpacing: 0.5,
@@ -354,22 +311,19 @@ class _ReceiptCard extends StatelessWidget {
                 ),
                 const SizedBox(height: TchSpacing.s12),
                 if (detail.lines.isEmpty)
-                  Text(
-                    '—',
-                    style: textTheme.bodySmall?.copyWith(
-                      color: scheme.onSurfaceVariant,
-                    ),
-                  )
+                  Text('—', style: textTheme.bodySmall)
                 else
-                  for (int i = 0; i < detail.lines.length; i++) ...[
-                    if (i > 0) Divider(color: scheme.outlineVariant, height: 1),
-                    _LineRow(line: detail.lines[i]),
+                  for (var index = 0; index < detail.lines.length; index++) ...[
+                    if (index > 0)
+                      Divider(color: scheme.outlineVariant, height: 1),
+                    _LineRow(
+                      line: detail.lines[index],
+                      currency: detail.currency,
+                    ),
                   ],
               ],
             ),
           ),
-
-          // Financial summary
           Container(
             padding: const EdgeInsets.all(TchSpacing.s16),
             decoration: BoxDecoration(
@@ -379,36 +333,21 @@ class _ReceiptCard extends StatelessWidget {
             child: Column(
               children: [
                 _SummaryRow(
-                  label: 'Mise',
+                  label: translations.translate('pos.tickets.stake'),
                   value: '${detail.formattedStake} ${detail.currency}',
                 ),
                 for (final charge in detail.charges) ...[
                   const SizedBox(height: TchSpacing.s4),
                   _SummaryRow(
                     label: charge.displayLabel,
-                    value: charge.waived
-                        ? '0.00 (offert)'
-                        : '${charge.formattedAmount} ${detail.currency}',
+                    value: '${charge.formattedAmount} ${detail.currency}',
                   ),
                 ],
                 const Divider(height: TchSpacing.s24),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'TOTAL',
-                      style: textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    Text(
-                      total,
-                      style: textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: scheme.primary,
-                      ),
-                    ),
-                  ],
+                _SummaryRow(
+                  label: translations.translate('pos.tickets.total'),
+                  value: detail.formattedAmount,
+                  emphasized: true,
                 ),
               ],
             ),
@@ -418,31 +357,28 @@ class _ReceiptCard extends StatelessWidget {
     );
   }
 
-  static String _fmtDateTime(DateTime dt) {
-    final l = dt.toLocal();
-    return '${l.day.toString().padLeft(2, '0')}/'
-        '${l.month.toString().padLeft(2, '0')}/'
-        '${l.year} '
-        '${l.hour.toString().padLeft(2, '0')}:'
-        '${l.minute.toString().padLeft(2, '0')}';
+  static String _fmtDateTime(DateTime value) {
+    final local = value.toLocal();
+    return '${local.day.toString().padLeft(2, '0')}/'
+        '${local.month.toString().padLeft(2, '0')}/${local.year} '
+        '${local.hour.toString().padLeft(2, '0')}:'
+        '${local.minute.toString().padLeft(2, '0')}';
   }
 }
 
-// ─── Small widgets ────────────────────────────────────────────────────────────
-
 class _LineRow extends StatelessWidget {
-  const _LineRow({required this.line});
+  const _LineRow({required this.line, required this.currency});
 
   final CashierTicketLineDetail line;
+  final String currency;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    final gameLabel = line.betTypeLabel != null && line.betTypeLabel!.isNotEmpty
+    final gameLabel = line.betTypeLabel?.isNotEmpty == true
         ? '${line.gameLabel} · ${line.betTypeLabel}'
         : line.gameLabel;
-
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: TchSpacing.s12),
       child: Row(
@@ -455,9 +391,7 @@ class _LineRow extends StatelessWidget {
               color: line.promotional
                   ? scheme.tertiaryContainer
                   : scheme.surfaceContainerLow,
-              border: Border.all(
-                color: scheme.outlineVariant.withValues(alpha: 0.5),
-              ),
+              border: Border.all(color: scheme.outlineVariant),
               borderRadius: BorderRadius.circular(TchRadius.sm),
             ),
             child: Text(
@@ -466,7 +400,6 @@ class _LineRow extends StatelessWidget {
                   : line.selection,
               style: textTheme.labelLarge?.copyWith(
                 fontWeight: FontWeight.w700,
-                color: line.promotional ? scheme.onTertiaryContainer : null,
               ),
             ),
           ),
@@ -486,22 +419,14 @@ class _LineRow extends StatelessWidget {
                     line.promotionLabel!,
                     style: textTheme.labelSmall?.copyWith(
                       color: scheme.tertiary,
-                      fontWeight: FontWeight.w600,
                     ),
                   ),
               ],
             ),
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                '${line.formattedStake} HTG',
-                style: textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ],
+          Text(
+            '${line.formattedStake} $currency',
+            style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
           ),
         ],
       ),
@@ -522,26 +447,20 @@ class _MetaItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
     return Column(
       crossAxisAlignment: alignRight
           ? CrossAxisAlignment.end
           : CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            color: scheme.onSurfaceVariant,
-            fontSize: 10,
-            letterSpacing: 0.5,
-          ),
-        ),
-        const SizedBox(height: 2),
+        Text(label, style: textTheme.labelSmall),
+        const SizedBox(height: TchSpacing.s4),
         Text(
           value,
-          style: Theme.of(
-            context,
-          ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w500),
+          textAlign: alignRight ? TextAlign.right : TextAlign.left,
+          style: textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
         ),
       ],
     );
@@ -549,29 +468,28 @@ class _MetaItem extends StatelessWidget {
 }
 
 class _SummaryRow extends StatelessWidget {
-  const _SummaryRow({required this.label, required this.value});
+  const _SummaryRow({
+    required this.label,
+    required this.value,
+    this.emphasized = false,
+  });
 
   final String label;
   final String value;
+  final bool emphasized;
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final style = emphasized
+        ? Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)
+        : Theme.of(context).textTheme.bodyMedium;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          label,
-          style: Theme.of(
-            context,
-          ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
-        ),
-        Text(
-          value,
-          style: Theme.of(
-            context,
-          ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
-        ),
+        Text(label, style: style),
+        Text(value, style: style),
       ],
     );
   }
@@ -583,42 +501,23 @@ class _ActionButton extends StatelessWidget {
     required this.label,
     required this.primary,
     required this.onTap,
-    this.isDestructive = false,
   });
 
   final IconData icon;
   final String label;
   final bool primary;
-  final bool isDestructive;
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    if (isDestructive) {
-      return OutlinedButton.icon(
-        onPressed: onTap,
-        icon: Icon(icon, color: scheme.error),
-        label: Text(label, style: TextStyle(color: scheme.error)),
-        style: OutlinedButton.styleFrom(
-          minimumSize: const Size.fromHeight(48),
-          side: BorderSide(color: scheme.error.withValues(alpha: 0.3)),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(TchRadius.md),
-          ),
-        ),
-      );
-    }
-    return FilledButton.icon(
-      onPressed: onTap,
-      icon: Icon(icon),
-      label: Text(label),
-      style: FilledButton.styleFrom(
-        minimumSize: const Size.fromHeight(48),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(TchRadius.md),
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => primary
+      ? FilledButton.icon(
+          onPressed: onTap,
+          icon: Icon(icon),
+          label: Text(label),
+        )
+      : OutlinedButton.icon(
+          onPressed: onTap,
+          icon: Icon(icon),
+          label: Text(label),
+        );
 }

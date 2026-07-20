@@ -23,7 +23,7 @@ void main() {
     expect(request.toJson(), {
       'drawId': 'draw-1',
       'drawChannelId': 'channel-1',
-      'currency': 'HTG',
+      'currency': {'value': 'HTG'},
       'lines': [
         {
           'lineNumber': 1,
@@ -128,6 +128,25 @@ void main() {
     expect(response.isSold, isTrue);
   });
 
+  test(
+    'ticket verification retains the resolved ticket and winning amount',
+    () {
+      final response = CashierTicketVerificationResponse.fromJson({
+        'status': 'PAYABLE',
+        'severity': 'SUCCESS',
+        'ticketId': '56d4c901-6920-4cec-8f45-bae7d86f3a9d',
+        'titleKey': 'pos.ticket.verify.payable.title',
+        'messageKey': 'pos.ticket.verify.payable.message',
+        'params': {'amount': '500.00', 'currency': 'HTG'},
+        'availableActions': const [],
+      });
+
+      expect(response.ticketId, '56d4c901-6920-4cec-8f45-bae7d86f3a9d');
+      expect(response.titleKey, 'pos.ticket.verify.payable.title');
+      expect(response.params?['amount'], '500.00');
+    },
+  );
+
   test('available draw retains provider and tenant-local schedules', () {
     final draw = CashierAvailableDrawView.fromJson({
       'drawId': 'draw-1',
@@ -213,4 +232,25 @@ void main() {
     expect(stats.salesTotalCents, 12500);
     expect(stats.sellerCommissionTotalCents, 1625);
   });
+
+  test(
+    'ticket history retains stable result identity for localized surfaces',
+    () {
+      final ticket = CashierTicketSummaryView.fromJson({
+        'id': 'ticket-1',
+        'ticketCode': 'TCK-1',
+        'status': 'PLACED',
+        'totalAmountCents': 1500,
+        'currency': 'HTG',
+        'resultProvider': 'NY',
+        'resultSlotKey': 'NY_MID',
+        'drawChannelName': 'New York · Midday',
+        'drawScheduledAt': '2026-07-19T18:30:00Z',
+      });
+
+      expect(ticket.resultProvider, 'NY');
+      expect(ticket.resultSlotKey, 'NY_MID');
+      expect(ticket.drawLabel, 'New York · Midday — 19/07/2026 14:30');
+    },
+  );
 }

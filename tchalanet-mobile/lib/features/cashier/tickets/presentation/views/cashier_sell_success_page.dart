@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../../core/i18n/i18n_repository.dart';
 import '../../../../../design_system/tokens/tch_radius.dart';
 import '../../../../../design_system/tokens/tch_spacing.dart';
 import '../../../../auth/presentation/view_models/auth_controller.dart';
@@ -17,12 +18,14 @@ class CashierSellSuccessPage extends ConsumerStatefulWidget {
     required this.ticketCode,
     this.publicCode,
     this.shareableText,
+    this.autoPrint = true,
   });
 
   final String ticketId;
   final String ticketCode;
   final String? publicCode;
   final String? shareableText;
+  final bool autoPrint;
 
   @override
   ConsumerState<CashierSellSuccessPage> createState() =>
@@ -35,13 +38,16 @@ class _CashierSellSuccessPageState
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) printTicket(context, ref, widget.ticketId);
+      if (mounted && widget.autoPrint) {
+        printTicket(context, ref, widget.ticketId);
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final session = ref.watch(userSessionProvider);
+    final translations = ref.watch(i18nBundleProvider);
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
@@ -52,7 +58,7 @@ class _CashierSellSuccessPageState
         automaticallyImplyLeading: false,
         leading: IconButton(
           icon: const Icon(Icons.close_rounded),
-          tooltip: 'Retour à l\'accueil',
+          tooltip: translations.translate('pos.sale_completion.back_home'),
           onPressed: () {
             ref.invalidate(cashierHomeProvider);
             context.go('/pos');
@@ -108,14 +114,14 @@ class _CashierSellSuccessPageState
                     ),
                     const SizedBox(height: TchSpacing.s16),
                     Text(
-                      'Vente acceptée',
+                      translations.translate('pos.sale_completion.accepted'),
                       style: textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.w700,
                       ),
                     ),
                     const SizedBox(height: TchSpacing.s4),
                     Text(
-                      'Paiement validé avec succès.',
+                      translations.translate('pos.sale_completion.printing'),
                       style: textTheme.bodySmall?.copyWith(
                         color: scheme.onSurfaceVariant,
                       ),
@@ -128,9 +134,13 @@ class _CashierSellSuccessPageState
                       onTap: () {
                         Clipboard.setData(ClipboardData(text: displayCode));
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Code copié'),
-                            duration: Duration(seconds: 1),
+                          SnackBar(
+                            content: Text(
+                              translations.translate(
+                                'pos.sale_completion.code_copied',
+                              ),
+                            ),
+                            duration: const Duration(seconds: 1),
                             behavior: SnackBarBehavior.floating,
                           ),
                         );
@@ -147,7 +157,7 @@ class _CashierSellSuccessPageState
                     ),
                     const SizedBox(height: TchSpacing.s12),
                     Text(
-                      'Donnez ce code au client.',
+                      translations.translate('pos.sale_completion.give_code'),
                       style: textTheme.bodyMedium?.copyWith(
                         fontWeight: FontWeight.w500,
                         color: scheme.onSurface,
@@ -172,9 +182,13 @@ class _CashierSellSuccessPageState
                           onTap: () {
                             Clipboard.setData(ClipboardData(text: displayCode));
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Copié !'),
-                                duration: Duration(seconds: 1),
+                              SnackBar(
+                                content: Text(
+                                  translations.translate(
+                                    'pos.sale_completion.code_copied',
+                                  ),
+                                ),
+                                duration: const Duration(seconds: 1),
                                 behavior: SnackBarBehavior.floating,
                               ),
                             );
@@ -182,7 +196,9 @@ class _CashierSellSuccessPageState
                         ),
                         _ActionTile(
                           icon: Icons.print_rounded,
-                          label: 'Imprimer',
+                          label: translations.translate(
+                            'pos.sale_completion.print',
+                          ),
                           onTap: () =>
                               printTicket(context, ref, widget.ticketId),
                         ),
@@ -210,9 +226,9 @@ class _CashierSellSuccessPageState
                     context.go('/pos');
                   },
                   icon: const Icon(Icons.add_rounded),
-                  label: const Text(
-                    'NOUVEAU TICKET',
-                    style: TextStyle(
+                  label: Text(
+                    translations.translate('pos.sale_completion.new_ticket'),
+                    style: const TextStyle(
                       fontWeight: FontWeight.w700,
                       letterSpacing: 1,
                     ),

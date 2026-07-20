@@ -4,6 +4,9 @@ Standalone Flutter application for Tchalanet. Android-first (POS terminal + pers
 
 This app lives outside the Nx workspace — it is managed entirely by the Flutter CLI and Gradle.
 
+For creating and installing an Android test APK, then preparing the signed
+operator distribution, see [the Android distribution guide](docs/RELEASE.md).
+
 ## Prerequisites
 
 - Flutter 3.44.0 via [FVM](https://fvm.app/) (`.fvmrc` is committed)

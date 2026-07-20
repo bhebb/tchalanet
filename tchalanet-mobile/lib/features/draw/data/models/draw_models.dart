@@ -132,6 +132,8 @@ class PublicDrawResultRow {
     required this.resultDate,
     required this.drawTime,
     required this.status,
+    this.quality,
+    this.lots = const {},
     required this.numbers,
   });
 
@@ -142,7 +144,14 @@ class PublicDrawResultRow {
   final String resultDate;
   final String drawTime;
   final String status;
+  final String? quality;
+  final Map<String, String?> lots;
   final List<String> numbers;
+
+  bool get hasKnownLots =>
+      lots.values.any((value) => value != null && value.isNotEmpty);
+
+  String? lotValue(String lot) => lots[lot];
 
   String get displayDrawTime =>
       drawTime.length >= 5 ? drawTime.substring(0, 5) : drawTime;
@@ -156,6 +165,8 @@ class PublicDrawResultRow {
         resultDate: json['resultDate'] as String? ?? '',
         drawTime: json['drawTime'] as String? ?? '',
         status: json['status'] as String? ?? 'UNKNOWN',
+        quality: json['quality'] as String?,
+        lots: _resultLots(json['lots']),
         numbers:
             (json['numbers'] as List<dynamic>?)
                 ?.whereType<String>()
@@ -163,6 +174,15 @@ class PublicDrawResultRow {
                 .toList(growable: false) ??
             const [],
       );
+}
+
+Map<String, String?> _resultLots(dynamic value) {
+  final raw = value as Map<String, dynamic>?;
+  if (raw == null) return const {};
+  return {
+    for (final lot in const ['LOT1', 'LOT2', 'LOT3', 'LOT4'])
+      lot: raw[lot] as String?,
+  };
 }
 
 class PublicDrawResultHistory {

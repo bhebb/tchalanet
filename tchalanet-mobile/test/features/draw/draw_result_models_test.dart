@@ -23,6 +23,8 @@ void main() {
           'resultDate': '2026-07-19',
           'drawTime': null,
           'status': 'CONFIRMED',
+          'quality': 'COMPLETE',
+          'lots': {'LOT1': '123', 'LOT2': null, 'LOT3': null, 'LOT4': '45'},
           'numbers': ['123', null, '45'],
         },
       ],
@@ -34,7 +36,47 @@ void main() {
     expect(history.items, hasLength(1));
     expect(history.items.single.drawChannelLabel, isEmpty);
     expect(history.items.single.displayDrawTime, isEmpty);
+    expect(history.items.single.quality, 'COMPLETE');
+    expect(history.items.single.lotValue('LOT1'), '123');
+    expect(history.items.single.lotValue('LOT2'), isNull);
+    expect(history.items.single.hasKnownLots, isTrue);
     expect(history.items.single.numbers, ['123', '45']);
+  });
+
+  test('result status and quality preserve their business meaning', () {
+    expect(
+      drawResultDisplayStatus('CONFIRMED'),
+      DrawResultDisplayStatus.confirmed,
+    );
+    expect(
+      drawResultDisplayStatus('PROVISIONAL'),
+      DrawResultDisplayStatus.provisional,
+    );
+    expect(
+      drawResultDisplayStatus('OVERRIDDEN'),
+      DrawResultDisplayStatus.corrected,
+    );
+    expect(
+      drawResultDisplayStatus('ERROR'),
+      DrawResultDisplayStatus.unavailable,
+    );
+    expect(
+      drawResultDisplayStatus('FUTURE_STATUS'),
+      DrawResultDisplayStatus.unknown,
+    );
+    expect(
+      drawResultDisplayQuality('COMPLETE'),
+      DrawResultDisplayQuality.complete,
+    );
+    expect(
+      drawResultDisplayQuality('SUSPECT'),
+      DrawResultDisplayQuality.suspect,
+    );
+    expect(
+      drawResultDisplayQuality('INVALID'),
+      DrawResultDisplayQuality.invalid,
+    );
+    expect(drawResultDisplayQuality(null), isNull);
   });
 
   test('result labels resolve provider and slot in the active locale', () {

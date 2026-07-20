@@ -66,13 +66,18 @@ class CashierTicketService {
   }
 
   /// Print a ticket. Returns raw bytes (PDF or ESC/POS).
-  Future<Uint8List> print(String ticketId, {bool recordPrint = true}) async {
+  Future<Uint8List> print(
+    String ticketId, {
+    bool recordPrint = true,
+    String? reprintReason,
+  }) async {
     try {
       final response = await _dio.post<List<int>>(
         '/tenant/cashier/tickets/$ticketId/print',
         // sellerTerminalId is derived server-side from the auth token.
         data: {
           'recordPrint': recordPrint,
+          if (reprintReason case final String reason) 'reprintReason': reason,
           'deliveryOptions': ['RETURN_FILE'],
         },
         options: Options(responseType: ResponseType.bytes),
@@ -96,11 +101,22 @@ class CashierTicketService {
     }
   }
 
-  Future<List<CashierTicketSummaryView>> listRecent({int size = 20}) async {
+  Future<List<CashierTicketSummaryView>> listRecent({
+    int size = 20,
+    String? query,
+    DateTime? fromDate,
+    DateTime? toDate,
+  }) async {
     try {
       final response = await _dio.get<Map<String, dynamic>>(
         '/tenant/cashier/tickets',
-        queryParameters: {'size': size, 'sort': 'createdAt,desc'},
+        queryParameters: {
+          'size': size,
+          'sort': 'createdAt,desc',
+          if (query != null && query.trim().isNotEmpty) 'q': query.trim(),
+          if (fromDate != null) 'fromDate': _isoDate(fromDate),
+          if (toDate != null) 'toDate': _isoDate(toDate),
+        },
       );
       final items = (response.data?['data']?['items'] as List<dynamic>?) ?? [];
       return items
@@ -155,6 +171,11 @@ class CashierTicketService {
     return '${h.substring(0, 8)}-${h.substring(8, 12)}-${h.substring(12, 16)}-${h.substring(16, 20)}-${h.substring(20)}';
   }
 }
+
+String _isoDate(DateTime value) =>
+    '${value.year.toString().padLeft(4, '0')}-'
+    '${value.month.toString().padLeft(2, '0')}-'
+    '${value.day.toString().padLeft(2, '0')}';
 
 final cashierTicketServiceProvider = Provider<CashierTicketService>(
   (ref) => CashierTicketService(ref.watch(apiClientProvider)),

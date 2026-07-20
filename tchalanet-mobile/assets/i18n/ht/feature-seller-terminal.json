@@ -21,10 +21,22 @@
       "sale_checked": "Tikè a verifye",
       "sale_rejected": "Vant la pa aksepte",
       "no_selection_stake": "Antre yon nimewo ak yon miz",
+      "terminal_unavailable": "Tèminal sa a pa ka vann pou kounye a.",
+      "copy_diagnostic": "Kopye referans sipò",
+      "diagnostic_copied": "Referans sipò kopye",
       "draw": {
         "local_time": "Lokal",
         "provider_time": "Founisè"
       }
+    },
+    "sale_completion": {
+      "back_home": "Retounen sou akèy",
+      "accepted": "Vant la aksepte",
+      "printing": "N ap voye tikè a nan enprimant lan.",
+      "give_code": "Bay kliyan an kòd sa a.",
+      "code_copied": "Kòd la kopye",
+      "print": "Enprime",
+      "new_ticket": "NOUVO TIKÈ"
     },
     "draw": {
       "providers": {
@@ -75,7 +87,17 @@
       "status_confirmed": "Konfime",
       "status_provisional": "Pwovizwa",
       "status_corrected": "Korije",
-      "status_available": "Disponib"
+      "status_unavailable": "Pa disponib",
+      "status_unknown": "Estati enkoni",
+      "quality_complete": "Konplè",
+      "quality_suspect": "Pou verifye",
+      "quality_invalid": "Pa valab",
+      "quality_unknown": "Kalite enkoni",
+      "no_numbers": "Pa gen nimewo ki disponib pou rezilta sa a.",
+      "lot1": "Lot 1",
+      "lot2": "Lot 2",
+      "lot3": "Lot 3",
+      "lot4": "Lot 4"
     },
     "reports": {
       "title": "Rapò vandè",
@@ -85,6 +107,72 @@
       "all": "Tout",
       "empty": "Pa gen vant pou jounen sa a.",
       "load_error": "Nou pa kapab chaje rapò a."
+    },
+    "tickets": {
+      "history_title": "Istorik tikè",
+      "today": "Jodi a",
+      "yesterday": "Yè",
+      "search": "Chèche tikè",
+      "empty_today": "Pa gen tikè jodi a.",
+      "empty_yesterday": "Pa gen tikè yè.",
+      "empty_search": "Pa gen tikè ki koresponn.",
+      "load_error": "Nou pa kapab chaje tikè yo.",
+      "detail_title": "Detay tikè",
+      "public_code": "KÒD PIBLIK",
+      "sale_time": "LÈ VANT",
+      "draw": "TIRAJ",
+      "outlet": "PÒS VANT",
+      "terminal": "TÈMINAL",
+      "seller": "VANDÈ",
+      "game_details": "DETAY JWÈT YO",
+      "stake": "Miz",
+      "total": "TOTAL",
+      "copied": "Kòd la kopye",
+      "status_placed": "VALIDE",
+      "status_cancelled": "ANILE",
+      "status_voided": "ANILE",
+      "status_unknown": "ESTATI PA KONI",
+      "reprint_title": "Reenprime tikè a",
+      "reprint_message": "Chwazi oswa modifye rezon pou reenprime a.",
+      "reprint_preset": "Rezon abityèl",
+      "reprint_reason": "Rezon",
+      "reprint_reason_invalid": "Rezon an dwe gen omwen 10 karaktè.",
+      "reprint_default": "Vandè mande reenprime",
+      "reprint_printer_failure": "Pwoblèm enprimant",
+      "reprint_illegible": "Tikè a pa lizib",
+      "reprint_customer_request": "Demann kliyan",
+      "reprint_confirm": "Reenprime",
+      "receipt_empty": "Pa gen dokiman pou enprime."
+    },
+    "ticket": {
+      "verify": {
+        "title": "Verifye tikè",
+        "back_home": "Retounen sou akèy",
+        "new": "Nouvo",
+        "scan_unavailable": "Eskanè QR a poko disponib.",
+        "scan_prompt": "Peze pou eskane",
+        "or_manual_entry": "oswa antre li manyèlman",
+        "code_label": "Kòd oswa URL tikè a",
+        "code_hint": "Egzanp: 40CP-JBMR",
+        "details": "WÈ DETAY YO",
+        "checking": "N AP VERIFYE...",
+        "check": "VERIFYE",
+        "payable": {
+          "title": "Tikè gayan",
+          "message": "Montan ki genyen an: {amount} {currency}."
+        },
+        "already_paid": {"title": "Tikè deja peye", "message": "Tikè sa a deja regle."},
+        "not_payable_lost": {"title": "Tikè pa genyen", "message": "Tikè sa a pa genyen."},
+        "not_payable_pending_draw": {"title": "Tiraj poko fèt", "message": "Tann tiraj la anvan w verifye ankò."},
+        "not_payable_result_pending": {"title": "Rezilta ap tann", "message": "Rezilta tiraj la poko disponib."},
+        "cancelled": {"title": "Tikè anile", "message": "Tikè sa a anile."},
+        "voided": {"title": "Tikè invalid", "message": "Tikè sa a pa valab ankò."},
+        "not_found": {"title": "Tikè pa jwenn", "message": "Nou pa jwenn tikè sa a."},
+        "blocked": {"title": "Tikè bloke", "message": "Kontakte administratè a."},
+        "repair_required": {"title": "Verifikasyon nesesè", "message": "Kontakte administratè a anvan w kontinye."},
+        "operation_not_allowed": {"title": "Aksyon pa otorize", "message": "Tèminal sa a pa ka verifye tikè."},
+        "unknown": {"title": "Verifikasyon tikè", "message": "Nou pa kapab detèmine estati tikè a."}
+      }
     },
     "profile": {
       "title": "Pwofil",

@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../../core/network/api_exception.dart';
+import '../../../../../core/i18n/draw_identity_label.dart';
+import '../../../../../core/i18n/i18n_models.dart';
+import '../../../../../core/i18n/i18n_repository.dart';
 import '../../../../../design_system/components/components.dart';
 import '../../../../../design_system/tokens/tch_colors.dart';
 import '../../../../../design_system/tokens/tch_radius.dart';
@@ -10,12 +12,43 @@ import '../../../../../design_system/tokens/tch_spacing.dart';
 import '../../../../cashier/home/presentation/views/seller_terminal_nav_bar.dart';
 import '../../data/models/cashier_ticket_models.dart';
 import '../../data/services/cashier_ticket_service.dart';
+import '../print_ticket_action.dart';
 
 enum _DateFilter { today, yesterday }
 
-final _historyProvider = FutureProvider<List<CashierTicketSummaryView>>(
-  (ref) => ref.watch(cashierTicketServiceProvider).listRecent(size: 50),
-);
+final _historyProvider = FutureProvider.autoDispose
+    .family<List<CashierTicketSummaryView>, _TicketHistoryQuery>((ref, query) {
+      return ref
+          .watch(cashierTicketServiceProvider)
+          .listRecent(
+            size: 50,
+            query: query.search,
+            fromDate: query.fromDate,
+            toDate: query.toDate,
+          );
+    });
+
+class _TicketHistoryQuery {
+  const _TicketHistoryQuery({
+    required this.search,
+    required this.fromDate,
+    required this.toDate,
+  });
+
+  final String search;
+  final DateTime fromDate;
+  final DateTime toDate;
+
+  @override
+  bool operator ==(Object other) =>
+      other is _TicketHistoryQuery &&
+      other.search == search &&
+      other.fromDate == fromDate &&
+      other.toDate == toDate;
+
+  @override
+  int get hashCode => Object.hash(search, fromDate, toDate);
+}
 
 class CashierHistoryPage extends ConsumerStatefulWidget {
   const CashierHistoryPage({super.key});
@@ -25,174 +58,102 @@ class CashierHistoryPage extends ConsumerStatefulWidget {
 }
 
 class _CashierHistoryPageState extends ConsumerState<CashierHistoryPage> {
+  final _searchController = TextEditingController();
   _DateFilter _filter = _DateFilter.today;
   String _search = '';
 
-  List<CashierTicketSummaryView> _applyFilter(
-    List<CashierTicketSummaryView> all,
-  ) {
-    final now = DateTime.now();
-    final todayStart = DateTime(now.year, now.month, now.day);
-    final yesterdayStart = todayStart.subtract(const Duration(days: 1));
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
-    return all.where((t) {
-      if (t.placedAt == null) return false;
-      final local = t.placedAt!.toLocal();
-      final inRange = _filter == _DateFilter.today
-          ? !local.isBefore(todayStart)
-          : !local.isBefore(yesterdayStart) && local.isBefore(todayStart);
-      if (!inRange) return false;
-      if (_search.isEmpty) return true;
-      final q = _search.toUpperCase();
-      return t.ticketCode.toUpperCase().contains(q) ||
-          (t.publicCode?.toUpperCase().contains(q) ?? false) ||
-          (t.drawChannelName?.toUpperCase().contains(q) ?? false);
-    }).toList();
+  _TicketHistoryQuery get _query {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final date = _filter == _DateFilter.today
+        ? today
+        : today.subtract(const Duration(days: 1));
+    return _TicketHistoryQuery(search: _search, fromDate: date, toDate: date);
+  }
+
+  void _applySearch(String value) {
+    final normalized = value.trim();
+    if (normalized == _search) return;
+    setState(() => _search = normalized);
   }
 
   @override
   Widget build(BuildContext context) {
-    final historyAsync = ref.watch(_historyProvider);
+    final query = _query;
+    final historyAsync = ref.watch(_historyProvider(query));
+    final translations = ref.watch(i18nBundleProvider);
     final scheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Historique Des Tickets'),
+        title: Text(translations.translate('pos.tickets.history_title')),
         actions: [
           IconButton(
+            tooltip: translations.translate('common.refresh'),
             icon: const Icon(Icons.refresh_rounded),
-            onPressed: () => ref.invalidate(_historyProvider),
+            onPressed: () => ref.invalidate(_historyProvider(query)),
           ),
         ],
       ),
       body: Column(
         children: [
-          // Filter bar
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: TchSpacing.s16,
-              vertical: TchSpacing.s12,
-            ),
-            decoration: BoxDecoration(
-              color: scheme.surfaceContainerLowest,
-              border: Border(bottom: BorderSide(color: scheme.outlineVariant)),
-            ),
-            child: Row(
-              children: [
-                // Segmented filter
-                Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: scheme.surfaceContainerLow,
-                    borderRadius: BorderRadius.circular(TchRadius.md),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _FilterTab(
-                        label: "Aujourd'hui",
-                        selected: _filter == _DateFilter.today,
-                        onTap: () =>
-                            setState(() => _filter = _DateFilter.today),
-                      ),
-                      const SizedBox(width: 4),
-                      _FilterTab(
-                        label: 'Hier',
-                        selected: _filter == _DateFilter.yesterday,
-                        onTap: () =>
-                            setState(() => _filter = _DateFilter.yesterday),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: TchSpacing.s12),
-                // Search
-                Expanded(
-                  child: TextField(
-                    onChanged: (v) => setState(() => _search = v),
-                    decoration: InputDecoration(
-                      hintText: 'Rechercher ticket…',
-                      prefixIcon: const Icon(Icons.search_rounded, size: 18),
-                      isDense: true,
-                      contentPadding: const EdgeInsets.symmetric(
-                        vertical: TchSpacing.s8,
-                        horizontal: TchSpacing.s12,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(TchRadius.md),
-                        borderSide: BorderSide(color: scheme.outlineVariant),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(TchRadius.md),
-                        borderSide: BorderSide(color: scheme.outlineVariant),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+          _HistoryFilters(
+            selected: _filter,
+            searchController: _searchController,
+            translations: translations,
+            onFilterChanged: (filter) => setState(() => _filter = filter),
+            onSearch: _applySearch,
+            onClearSearch: () {
+              _searchController.clear();
+              _applySearch('');
+            },
           ),
-
-          // List
           Expanded(
             child: historyAsync.when(
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.cloud_off_rounded,
-                      size: 48,
-                      color: scheme.error,
-                    ),
-                    const SizedBox(height: TchSpacing.s16),
-                    Text(userMessage(e), textAlign: TextAlign.center),
-                    const SizedBox(height: TchSpacing.s24),
-                    FilledButton.tonal(
-                      onPressed: () => ref.invalidate(_historyProvider),
-                      child: const Text('Réessayer'),
-                    ),
-                  ],
+              error: (_, _) => Center(
+                child: FeedbackState(
+                  kind: FeedbackStateKind.offline,
+                  title: translations.translate('pos.tickets.load_error'),
+                  actionLabel: translations.translate('common.retry'),
+                  onAction: () => ref.invalidate(_historyProvider(query)),
                 ),
               ),
-              data: (all) {
-                final filtered = _applyFilter(all);
-                if (filtered.isEmpty) {
+              data: (tickets) {
+                if (tickets.isEmpty) {
+                  final emptyKey = _search.isNotEmpty
+                      ? 'pos.tickets.empty_search'
+                      : _filter == _DateFilter.today
+                      ? 'pos.tickets.empty_today'
+                      : 'pos.tickets.empty_yesterday';
                   return Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.receipt_long_rounded,
-                          size: 48,
-                          color: scheme.onSurface.withValues(alpha: 0.2),
-                        ),
-                        const SizedBox(height: TchSpacing.s16),
-                        Text(
-                          _search.isNotEmpty
-                              ? 'Aucun ticket correspondant'
-                              : _filter == _DateFilter.today
-                              ? 'Aucun ticket aujourd\'hui'
-                              : 'Aucun ticket hier',
-                          style: textTheme.bodyMedium?.copyWith(
-                            color: scheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
+                    child: FeedbackState(
+                      kind: FeedbackStateKind.empty,
+                      title: translations.translate(emptyKey),
+                      compact: true,
                     ),
                   );
                 }
                 return ListView.separated(
-                  itemCount: filtered.length,
+                  itemCount: tickets.length,
                   separatorBuilder: (_, _) =>
                       Divider(height: 1, color: scheme.outlineVariant),
-                  itemBuilder: (context, i) => _TicketRow(
-                    ticket: filtered[i],
-                    onTap: () => context.push('/pos/tickets/${filtered[i].id}'),
-                    onPrint: () {}, // TODO: wire print
-                  ),
+                  itemBuilder: (context, index) {
+                    final ticket = tickets[index];
+                    return _TicketRow(
+                      ticket: ticket,
+                      translations: translations,
+                      onTap: () => context.push('/pos/tickets/${ticket.id}'),
+                      onPrint: () =>
+                          requestTicketReprint(context, ref, ticket.id),
+                    );
+                  },
                 );
               },
             ),
@@ -204,64 +165,81 @@ class _CashierHistoryPageState extends ConsumerState<CashierHistoryPage> {
   }
 }
 
-// ─── Filter tab ───────────────────────────────────────────────────────────────
-
-class _FilterTab extends StatelessWidget {
-  const _FilterTab({
-    required this.label,
+class _HistoryFilters extends StatelessWidget {
+  const _HistoryFilters({
     required this.selected,
-    required this.onTap,
+    required this.searchController,
+    required this.translations,
+    required this.onFilterChanged,
+    required this.onSearch,
+    required this.onClearSearch,
   });
 
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
+  final _DateFilter selected;
+  final TextEditingController searchController;
+  final I18nBundle translations;
+  final ValueChanged<_DateFilter> onFilterChanged;
+  final ValueChanged<String> onSearch;
+  final VoidCallback onClearSearch;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        padding: const EdgeInsets.symmetric(
-          horizontal: TchSpacing.s16,
-          vertical: TchSpacing.s8,
-        ),
-        decoration: BoxDecoration(
-          color: selected ? scheme.surfaceContainerLowest : Colors.transparent,
-          borderRadius: BorderRadius.circular(TchRadius.sm),
-          boxShadow: selected
-              ? [
-                  BoxShadow(
-                    color: scheme.shadow.withValues(alpha: 0.1),
-                    blurRadius: 4,
-                  ),
-                ]
-              : null,
-        ),
-        child: Text(
-          label,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: selected ? scheme.primary : scheme.onSurfaceVariant,
-            fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+    return Container(
+      padding: const EdgeInsets.all(TchSpacing.s16),
+      decoration: BoxDecoration(
+        color: scheme.surfaceContainerLowest,
+        border: Border(bottom: BorderSide(color: scheme.outlineVariant)),
+      ),
+      child: Column(
+        children: [
+          SegmentedButton<_DateFilter>(
+            segments: [
+              ButtonSegment(
+                value: _DateFilter.today,
+                label: Text(translations.translate('pos.tickets.today')),
+              ),
+              ButtonSegment(
+                value: _DateFilter.yesterday,
+                label: Text(translations.translate('pos.tickets.yesterday')),
+              ),
+            ],
+            selected: {selected},
+            onSelectionChanged: (value) => onFilterChanged(value.first),
+            showSelectedIcon: false,
           ),
-        ),
+          const SizedBox(height: TchSpacing.s12),
+          TextField(
+            controller: searchController,
+            textInputAction: TextInputAction.search,
+            onSubmitted: onSearch,
+            decoration: InputDecoration(
+              hintText: translations.translate('pos.tickets.search'),
+              prefixIcon: const Icon(Icons.search_rounded, size: 20),
+              suffixIcon: searchController.text.isEmpty
+                  ? null
+                  : IconButton(
+                      icon: const Icon(Icons.close_rounded),
+                      onPressed: onClearSearch,
+                    ),
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
-// ─── Ticket row ───────────────────────────────────────────────────────────────
-
 class _TicketRow extends StatelessWidget {
   const _TicketRow({
     required this.ticket,
+    required this.translations,
     required this.onTap,
     required this.onPrint,
   });
 
   final CashierTicketSummaryView ticket;
+  final I18nBundle translations;
   final VoidCallback onTap;
   final VoidCallback onPrint;
 
@@ -271,9 +249,16 @@ class _TicketRow extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final isCancelled =
         ticket.status == 'CANCELLED' || ticket.status == 'VOIDED';
-    final time = ticket.placedAt != null
-        ? '${ticket.placedAt!.toLocal().hour.toString().padLeft(2, '0')}:${ticket.placedAt!.toLocal().minute.toString().padLeft(2, '0')}'
-        : '—';
+    final time = ticket.placedAt == null
+        ? '—'
+        : '${ticket.placedAt!.toLocal().hour.toString().padLeft(2, '0')}:'
+              '${ticket.placedAt!.toLocal().minute.toString().padLeft(2, '0')}';
+    final drawLabel = localizedDrawIdentityLabel(
+      providerCode: ticket.resultProvider,
+      slotKey: ticket.resultSlotKey,
+      fallback: ticket.drawLabel,
+      translations: translations,
+    );
 
     return InkWell(
       onTap: onTap,
@@ -286,9 +271,8 @@ class _TicketRow extends StatelessWidget {
           ),
           child: Row(
             children: [
-              // Time
               SizedBox(
-                width: 48,
+                width: 44,
                 child: Text(
                   time,
                   style: textTheme.labelMedium?.copyWith(
@@ -299,19 +283,17 @@ class _TicketRow extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: TchSpacing.s12),
-
+              const SizedBox(width: TchSpacing.s8),
               TchProviderLogo(
-                providerCode: TchProviderLogo.providerCodeFromLabel(
-                  ticket.drawChannelName,
-                ),
+                providerCode:
+                    ticket.resultProvider ??
+                    TchProviderLogo.providerCodeFromLabel(
+                      ticket.drawChannelName,
+                    ),
                 size: 32,
               ),
               const SizedBox(width: TchSpacing.s12),
-
-              // Public code + draw channel name
               Expanded(
-                flex: 2,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -325,7 +307,7 @@ class _TicketRow extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      ticket.drawLabel,
+                      drawLabel,
                       style: textTheme.labelSmall?.copyWith(
                         color: scheme.onSurfaceVariant,
                       ),
@@ -334,32 +316,32 @@ class _TicketRow extends StatelessWidget {
                   ],
                 ),
               ),
-
-              // Amount
-              Expanded(
-                flex: 2,
-                child: Text(
-                  ticket.formattedAmount,
-                  style: textTheme.labelMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: isCancelled
-                        ? scheme.onSurfaceVariant
-                        : scheme.onSurface,
-                  ),
-                ),
-              ),
-
-              // Status badge
-              _StatusBadge(status: ticket.status),
               const SizedBox(width: TchSpacing.s8),
-
-              // Actions
-              Row(
-                mainAxisSize: MainAxisSize.min,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  _IconBtn(icon: Icons.visibility_rounded, onTap: onTap),
-                  _IconBtn(icon: Icons.print_rounded, onTap: onPrint),
+                  Text(
+                    ticket.formattedAmount,
+                    style: textTheme.labelMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: isCancelled
+                          ? scheme.onSurfaceVariant
+                          : scheme.onSurface,
+                    ),
+                  ),
+                  const SizedBox(height: TchSpacing.s4),
+                  _StatusBadge(
+                    status: ticket.status,
+                    translations: translations,
+                  ),
                 ],
+              ),
+              const SizedBox(width: TchSpacing.s4),
+              IconButton(
+                tooltip: translations.translate('pos.tickets.reprint_confirm'),
+                icon: const Icon(Icons.print_rounded, size: 20),
+                onPressed: onPrint,
+                color: scheme.onSurfaceVariant,
               ),
             ],
           ),
@@ -370,22 +352,35 @@ class _TicketRow extends StatelessWidget {
 }
 
 class _StatusBadge extends StatelessWidget {
-  const _StatusBadge({required this.status});
+  const _StatusBadge({required this.status, required this.translations});
 
   final String status;
+  final I18nBundle translations;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final (bgColor, fgColor, label) = switch (status) {
-      'PLACED' => (TchColors.successContainer, TchColors.success, 'VALIDÉ'),
-      'CANCELLED' => (scheme.errorContainer, scheme.onErrorContainer, 'ANNULÉ'),
+    final (bgColor, fgColor, key) = switch (status) {
+      'PLACED' => (
+        TchColors.successContainer,
+        TchColors.success,
+        'pos.tickets.status_placed',
+      ),
+      'CANCELLED' => (
+        scheme.errorContainer,
+        scheme.onErrorContainer,
+        'pos.tickets.status_cancelled',
+      ),
       'VOIDED' => (
         scheme.surfaceContainerHighest,
         scheme.onSurfaceVariant,
-        'INVALIDÉ',
+        'pos.tickets.status_voided',
       ),
-      _ => (scheme.surfaceContainerHigh, scheme.onSurface, status),
+      _ => (
+        scheme.surfaceContainerHigh,
+        scheme.onSurface,
+        'pos.tickets.status_unknown',
+      ),
     };
     return Container(
       padding: const EdgeInsets.symmetric(
@@ -397,7 +392,7 @@ class _StatusBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(TchRadius.xs),
       ),
       child: Text(
-        label,
+        translations.translate(key),
         style: TextStyle(
           color: fgColor,
           fontWeight: FontWeight.w700,
@@ -405,23 +400,6 @@ class _StatusBadge extends StatelessWidget {
           letterSpacing: 0.3,
         ),
       ),
-    );
-  }
-}
-
-class _IconBtn extends StatelessWidget {
-  const _IconBtn({required this.icon, required this.onTap});
-
-  final IconData icon;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      icon: Icon(icon, size: 20),
-      visualDensity: VisualDensity.compact,
-      onPressed: onTap,
-      color: Theme.of(context).colorScheme.onSurfaceVariant,
     );
   }
 }

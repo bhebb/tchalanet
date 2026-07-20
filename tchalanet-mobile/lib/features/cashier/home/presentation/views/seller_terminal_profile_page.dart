@@ -30,16 +30,7 @@ class SellerTerminalProfilePage extends ConsumerWidget {
           },
           child: homeAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (error, _) => ListView(
-              padding: const EdgeInsets.all(TchSpacing.s24),
-              children: [
-                FeedbackState(
-                  kind: FeedbackStateKind.offline,
-                  title: translations.translate('pos.profile.title'),
-                  message: translations.translate('common.error.network'),
-                ),
-              ],
-            ),
+            error: (_, _) => const _ProfileUnavailable(),
             data: (home) => ListView(
               padding: const EdgeInsets.all(TchSpacing.s16),
               children: [
@@ -156,6 +147,63 @@ class SellerTerminalProfilePage extends ConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// The profile remains an escape hatch when operational dashboard data is down.
+/// A seller must always be able to change a required PIN, choose a language, or sign out.
+class _ProfileUnavailable extends ConsumerWidget {
+  const _ProfileUnavailable();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final translations = ref.watch(i18nBundleProvider);
+    final session = ref.watch(userSessionProvider);
+
+    return ListView(
+      padding: const EdgeInsets.all(TchSpacing.s16),
+      children: [
+        _ProfileHeader(
+          label:
+              session.displayName ??
+              session.username ??
+              translations.translate('pos.profile.terminal'),
+          ready: false,
+        ),
+        const SizedBox(height: TchSpacing.s16),
+        FeedbackState(
+          kind: FeedbackStateKind.offline,
+          title: translations.translate('pos.profile.title'),
+          message: translations.translate('common.error.network'),
+        ),
+        const SizedBox(height: TchSpacing.s24),
+        _Section(
+          title: translations.translate('pos.profile.app'),
+          children: [
+            _LocaleSelector(
+              label: translations.translate('pos.profile.language'),
+            ),
+            _InfoRow(
+              icon: Icons.info_outline_rounded,
+              label: translations.translate('pos.profile.version'),
+              value: '1.0.0',
+            ),
+          ],
+        ),
+        const SizedBox(height: TchSpacing.s24),
+        FilledButton.icon(
+          onPressed: () => context.push('/change-pin'),
+          icon: const Icon(Icons.password_rounded),
+          label: Text(translations.translate('pos.profile.change_pin')),
+        ),
+        const SizedBox(height: TchSpacing.s12),
+        OutlinedButton.icon(
+          onPressed: () => _confirmLogout(context, ref, translations),
+          icon: const Icon(Icons.logout_rounded),
+          label: Text(translations.translate('pos.profile.sign_out')),
+        ),
+      ],
     );
   }
 }
