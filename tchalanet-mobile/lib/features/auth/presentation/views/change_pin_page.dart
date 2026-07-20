@@ -18,6 +18,8 @@ class _ChangePinPageState extends ConsumerState<ChangePinPage> {
   final _formKey = GlobalKey<FormState>();
   final _pin = TextEditingController();
   final _confirmation = TextEditingController();
+  var _completionHandled = false;
+
   @override
   void dispose() {
     _pin.dispose();
@@ -28,6 +30,51 @@ class _ChangePinPageState extends ConsumerState<ChangePinPage> {
   Future<void> _submit() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
     await ref.read(changePinControllerProvider.notifier).submit(_pin.text);
+  }
+
+  Future<void> _completePinChange() async {
+    try {
+      final home = await ref.refresh(cashierHomeProvider.future);
+      if (!mounted) return;
+
+      if (home.mustChangePin) {
+        setState(() => _completionHandled = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              ref
+                  .read(i18nBundleProvider)
+                  .translate('auth.change_pin.refresh_failed'),
+            ),
+          ),
+        );
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            ref.read(i18nBundleProvider).translate('auth.change_pin.success'),
+          ),
+        ),
+      );
+      ref.invalidate(cashierReadinessProvider);
+      ref.invalidate(terminalDailyStatsProvider);
+      ref.invalidate(availableDrawsProvider);
+      context.go('/pos');
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _completionHandled = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            ref
+                .read(i18nBundleProvider)
+                .translate('auth.change_pin.refresh_failed'),
+          ),
+        ),
+      );
+    }
   }
 
   String _errorTranslationKey(List<String> errorKeys) {
@@ -44,17 +91,9 @@ class _ChangePinPageState extends ConsumerState<ChangePinPage> {
     final state = ref.watch(changePinControllerProvider);
 
     ref.listen<ChangePinState>(changePinControllerProvider, (_, next) {
-      if (!next.completed) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(translations.translate('auth.change_pin.success')),
-        ),
-      );
-      ref.invalidate(cashierHomeProvider);
-      ref.invalidate(cashierReadinessProvider);
-      ref.invalidate(terminalDailyStatsProvider);
-      ref.invalidate(availableDrawsProvider);
-      context.go('/pos');
+      if (!next.completed || _completionHandled) return;
+      _completionHandled = true;
+      _completePinChange();
     });
 
     final errorKey = state.errorKeys.isEmpty
@@ -112,11 +151,17 @@ class _ChangePinPageState extends ConsumerState<ChangePinPage> {
               ],
               const SizedBox(height: TchSpacing.s24),
               FilledButton(
-                onPressed: state.submitting ? null : _submit,
+                onPressed: state.submitting
+                    ? null
+                    : state.completed
+                    ? (_completionHandled ? null : _completePinChange)
+                    : _submit,
                 child: Text(
                   translations.translate(
                     state.submitting
                         ? 'common.saving'
+                        : state.completed
+                        ? 'common.retry'
                         : 'auth.change_pin.submit',
                   ),
                 ),

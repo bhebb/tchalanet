@@ -29,6 +29,9 @@ class DrawStatLine {
 
 class TerminalDailyStats {
   const TerminalDailyStats({
+    required this.available,
+    required this.trustState,
+    required this.trustReasonCode,
     required this.ticketCount,
     required this.salesTotalCents,
     required this.sellerCommissionTotalCents,
@@ -36,6 +39,9 @@ class TerminalDailyStats {
     this.breakdown = const [],
   });
 
+  final bool available;
+  final String trustState;
+  final String trustReasonCode;
   final int ticketCount;
   final int salesTotalCents;
   final int sellerCommissionTotalCents;
@@ -49,6 +55,10 @@ class TerminalDailyStats {
 
   factory TerminalDailyStats.fromJson(Map<String, dynamic> json) =>
       TerminalDailyStats(
+        available: json['available'] as bool? ?? true,
+        trustState: json['trustState'] as String? ?? 'READY',
+        trustReasonCode:
+            json['trustReasonCode'] as String? ?? 'analytics.trust.ready',
         ticketCount: (json['ticketCount'] as num?)?.toInt() ?? 0,
         salesTotalCents: (json['salesTotalCents'] as num?)?.toInt() ?? 0,
         sellerCommissionTotalCents:
@@ -62,6 +72,9 @@ class TerminalDailyStats {
       );
 
   static TerminalDailyStats empty(String currency) => TerminalDailyStats(
+    available: false,
+    trustState: 'UNAVAILABLE',
+    trustReasonCode: 'analytics.trust.unknown',
     ticketCount: 0,
     salesTotalCents: 0,
     sellerCommissionTotalCents: 0,

@@ -26,7 +26,8 @@
       "submit": "Save PIN",
       "invalid": "The PIN must contain exactly six digits.",
       "mismatch": "The two PINs do not match.",
-      "success": "Your PIN has been changed."
+      "success": "Your PIN has been changed.",
+      "refresh_failed": "Your PIN has been changed, but the sales workspace is not ready yet. Try again."
     },
     "forbidden": {
       "title": "Access denied",

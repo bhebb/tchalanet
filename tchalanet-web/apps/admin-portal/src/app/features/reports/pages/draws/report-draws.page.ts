@@ -114,7 +114,7 @@ export class AdminReportDrawsPage {
   }
 
   payoutRatePercent(vm: AdminReportDraws): number {
-    if (vm.summary.grossSales === 0) return 0;
+    if (vm.summary == null || vm.summary.grossSales === 0) return 0;
     return (vm.summary.payoutsPaid / vm.summary.grossSales) * 100;
   }
 

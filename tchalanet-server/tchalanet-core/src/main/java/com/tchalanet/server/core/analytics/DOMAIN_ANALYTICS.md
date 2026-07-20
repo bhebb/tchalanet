@@ -63,11 +63,12 @@ Elles ne touchent pas aux tables analytics directement.
 | Query | Vue produite |
 |---|---|
 | `GetTenantDashboardStatsQuery` | KPIs tenant (ventes, tickets, winnings, payouts) |
-| `GetCashierDashboardStatsQuery` | Stats session cashier POS |
+| `GetCashierDashboardStatsQuery` | KPI POS projetés par terminal vendeur et journée métier |
 | `GetPlatformDashboardStatsQuery` | Vue plateforme agrégée |
 | `GetTenantKpisQuery` | KPIs détaillés tenant |
 | `GetTenantFinancialBreakdownQuery` | Drilldowns tenant par jour, tirage et seller-terminal/jour |
 | `GetOutletReportQuery` | Rapport par outlet |
+| `GetAnalyticsTrustStateQuery` | Couverture fiable d'un scope KPI; absence de projection = `UNAVAILABLE`, jamais zéro implicite |
 
 ---
 

@@ -40,7 +40,7 @@ class PublicDrawResultViewMapperTest {
     var response =
         mapper.toHistoryResponse(new TchPage<>(List.of(view), 0, 50, 1L, 1, true, false, false));
 
-    var row = response.items().single();
+    var row = response.items().getFirst();
     assertThat(row.numbers()).containsExactly("123", "45");
     assertThat(row.lots())
         .containsEntry("LOT1", "123")

@@ -1,7 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/network/api_exception.dart';
-import '../../../../core/runtime/runtime_controller.dart';
 import '../../data/repositories/change_pin_repository.dart';
 import '../../data/repositories/change_pin_repository_impl.dart';
 
@@ -31,7 +30,6 @@ class ChangePinController extends Notifier<ChangePinState> {
     state = const ChangePinState(submitting: true);
     try {
       await _repository.changePin(newPin);
-      await ref.read(runtimeControllerProvider.notifier).loadTenant();
       state = const ChangePinState(completed: true);
     } catch (error) {
       state = ChangePinState(errorKeys: userErrorTranslationKeys(error));

@@ -26,7 +26,8 @@
       "submit": "Enregistrer le PIN",
       "invalid": "Le PIN doit contenir exactement six chiffres.",
       "mismatch": "Les deux PIN ne correspondent pas.",
-      "success": "Votre PIN a été modifié."
+      "success": "Votre PIN a été modifié.",
+      "refresh_failed": "Le PIN a été modifié, mais l'espace de vente n'est pas encore prêt. Réessayez."
     },
     "forbidden": {
       "title": "Accès refusé",

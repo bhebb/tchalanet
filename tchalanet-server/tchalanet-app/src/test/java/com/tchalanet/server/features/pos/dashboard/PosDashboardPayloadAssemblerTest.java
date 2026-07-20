@@ -16,11 +16,15 @@ import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.web.advice.ApiResponseContext;
+import com.tchalanet.server.core.analytics.api.model.AnalyticsTrustStateView;
+import com.tchalanet.server.core.analytics.api.model.CashierDashboardStatsView;
+import com.tchalanet.server.core.analytics.api.model.CashierDashboardStatsView.CashierSummaryCard;
+import com.tchalanet.server.core.analytics.api.query.GetAnalyticsTrustStateQuery;
 import com.tchalanet.server.core.analytics.api.query.GetCashierDashboardStatsQuery;
 import com.tchalanet.server.core.draw.api.query.ListCashierNextDrawsQuery;
-import com.tchalanet.server.core.sales.api.query.CashierDashboardOverviewView;
-import com.tchalanet.server.core.sales.api.query.GetCashierDashboardOverviewQuery;
 import com.tchalanet.server.core.sales.api.query.ListCashierRecentTicketsQuery;
+import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Currency;
 import java.util.List;
 import java.util.Locale;
@@ -79,14 +83,14 @@ class PosDashboardPayloadAssemblerTest {
   class GroupedReads {
 
     @Test
-    @DisplayName("V0 loads overview, nextDraws and recentTickets")
+    @DisplayName("V0 loads analytics, nextDraws and recentTickets")
     void v0LoadsDashboardReads() {
       stubDashboardQueries();
 
       var payload =
           assembler.assemble(context(TchActorType.SELLER_TERMINAL, sellerTerminalId, true, true));
 
-      verify(queryBus, times(1)).ask(any(GetCashierDashboardOverviewQuery.class));
+      verify(queryBus, times(1)).ask(any(GetCashierDashboardStatsQuery.class));
       verify(queryBus, times(1)).ask(any(ListCashierNextDrawsQuery.class));
       verify(queryBus, times(1)).ask(any(ListCashierRecentTicketsQuery.class));
       assertThat(payload.identity().cashierDisplayName())
@@ -101,12 +105,20 @@ class PosDashboardPayloadAssemblerTest {
   @DisplayName("missing analytics projection is a PARTIAL dashboard notice, never a silent zero")
   void analyticsProjectionUnavailableIsExplicit() {
     stubDashboardQueries();
-    when(queryBus.ask(any(GetCashierDashboardStatsQuery.class))).thenReturn(null);
+    when(queryBus.ask(any(GetAnalyticsTrustStateQuery.class)))
+        .thenAnswer(
+            invocation -> {
+              var query = invocation.getArgument(0, GetAnalyticsTrustStateQuery.class);
+              return AnalyticsTrustStateView.unavailable(
+                  query.scope(), List.of(java.time.LocalDate.of(2026, 5, 21)), Instant.now());
+            });
 
     var payload =
         assembler.assemble(context(TchActorType.SELLER_TERMINAL, sellerTerminalId, true, true));
 
     assertThat(payload.stats().available()).isFalse();
+    assertThat(payload.overview().analyticsAvailable()).isFalse();
+    assertThat(payload.overview().salesTotalCents()).isNull();
     assertThat(ApiResponseContext.get().getNotices())
         .anySatisfy(
             notice -> {
@@ -150,14 +162,28 @@ class PosDashboardPayloadAssemblerTest {
   }
 
   private void stubDashboardQueries() {
-    when(queryBus.ask(any(GetCashierDashboardOverviewQuery.class))).thenReturn(sampleOverview());
+    when(queryBus.ask(any(GetAnalyticsTrustStateQuery.class)))
+        .thenAnswer(
+            invocation -> {
+              var query = invocation.getArgument(0, GetAnalyticsTrustStateQuery.class);
+              return AnalyticsTrustStateView.ready(query.scope(), Instant.now());
+            });
+    when(queryBus.ask(any(GetCashierDashboardStatsQuery.class))).thenReturn(sampleAnalytics());
     when(queryBus.ask(any(ListCashierNextDrawsQuery.class))).thenReturn(List.of());
     when(queryBus.ask(any(ListCashierRecentTicketsQuery.class))).thenReturn(List.of());
   }
 
-  private static CashierDashboardOverviewView sampleOverview() {
-    return new CashierDashboardOverviewView(
-        java.time.LocalDate.parse("2026-05-21"), 12L, 50000L, 0L, 0L, List.of());
+  private static CashierDashboardStatsView sampleAnalytics() {
+    return new CashierDashboardStatsView(
+        java.time.LocalDate.parse("2026-05-21"),
+        new CashierSummaryCard(
+            12L,
+            new BigDecimal("500.00"),
+            BigDecimal.ZERO,
+            new BigDecimal("65.00"),
+            new BigDecimal("500.00")),
+        List.of(),
+        List.of());
   }
 
   private TchRequestContext context(

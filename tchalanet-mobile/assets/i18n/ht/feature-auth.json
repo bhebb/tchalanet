@@ -26,7 +26,8 @@
       "submit": "Anrejistre PIN",
       "invalid": "PIN lan dwe gen egzakteman sis chif.",
       "mismatch": "De PIN yo pa menm.",
-      "success": "PIN ou chanje."
+      "success": "PIN ou chanje.",
+      "refresh_failed": "PIN lan chanje, men espas vant lan poko pare. Eseye ankò."
     },
     "forbidden": {
       "title": "Aksè refize",

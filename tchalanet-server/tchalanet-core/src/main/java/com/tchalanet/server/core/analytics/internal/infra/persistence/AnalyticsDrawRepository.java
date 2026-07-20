@@ -20,6 +20,9 @@ public interface AnalyticsDrawRepository extends JpaRepository<AnalyticsDrawEnti
   List<AnalyticsDrawEntity> findByTenantIdAndRefDateBetweenOrderByRefDate(
       UUID tenantId, LocalDate from, LocalDate to);
 
+  List<AnalyticsDrawEntity> findByTenantIdAndDrawIdAndRefDateBetweenOrderByRefDate(
+      UUID tenantId, UUID drawId, LocalDate from, LocalDate to);
+
   @Transactional
   @Modifying
   @Query("DELETE FROM AnalyticsDrawEntity a WHERE a.refDate < :cutoff")

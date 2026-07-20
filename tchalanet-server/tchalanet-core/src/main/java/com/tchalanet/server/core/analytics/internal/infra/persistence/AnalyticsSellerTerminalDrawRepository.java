@@ -18,4 +18,12 @@ public interface AnalyticsSellerTerminalDrawRepository
   List<AnalyticsSellerTerminalDrawEntity>
       findByTenantIdAndRefDateBetweenOrderByRefDateDescUpdatedAtDesc(
           UUID tenantId, LocalDate from, LocalDate to);
+
+  List<AnalyticsSellerTerminalDrawEntity>
+      findByTenantIdAndSellerTerminalIdAndRefDateOrderByScheduledAtAsc(
+          UUID tenantId, UUID sellerTerminalId, LocalDate refDate);
+
+  List<AnalyticsSellerTerminalDrawEntity>
+      findByTenantIdAndSellerTerminalIdAndDrawIdAndRefDate(
+          UUID tenantId, UUID sellerTerminalId, UUID drawId, LocalDate refDate);
 }

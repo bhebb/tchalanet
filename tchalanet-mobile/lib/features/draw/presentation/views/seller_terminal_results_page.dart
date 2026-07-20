@@ -22,15 +22,23 @@ class SellerTerminalResultsPage extends ConsumerStatefulWidget {
 
 class _SellerTerminalResultsPageState
     extends ConsumerState<SellerTerminalResultsPage> {
-  _ResultPeriod _period = _ResultPeriod.sevenDays;
+  _ResultPeriod? _period;
+  String? _provider;
   String? _slotKey;
+  DateTime? _drawDate;
 
   PublicDrawResultHistoryQuery get _query {
     final today = _startOfDay(DateTime.now());
-    final days = _period == _ResultPeriod.sevenDays ? 7 : 30;
+    final selectedDate = _drawDate;
+    final days = switch (_period) {
+      _ResultPeriod.sevenDays => 7,
+      _ResultPeriod.thirtyDays => 30,
+      null => 2,
+    };
     return PublicDrawResultHistoryQuery(
-      from: today.subtract(Duration(days: days - 1)),
-      to: today,
+      from: selectedDate ?? today.subtract(Duration(days: days - 1)),
+      to: selectedDate ?? today,
+      provider: _provider,
       slotKey: _slotKey,
     );
   }
@@ -68,11 +76,24 @@ class _SellerTerminalResultsPageState
           children: [
             _ResultsFilters(
               period: _period,
+              provider: _provider,
               slotKey: _slotKey,
+              drawDate: _drawDate,
               slots: slots,
               translations: translations,
-              onPeriodChanged: (period) => setState(() => _period = period),
+              onPeriodChanged: (period) => setState(() {
+                _period = period;
+                _drawDate = null;
+              }),
+              onProviderChanged: (provider) => setState(() {
+                _provider = provider;
+                _slotKey = null;
+              }),
               onSlotChanged: (slotKey) => setState(() => _slotKey = slotKey),
+              onDrawDateChanged: (drawDate) => setState(() {
+                _drawDate = drawDate;
+                if (drawDate != null) _period = null;
+              }),
             ),
             Expanded(
               child: historyAsync.when(
@@ -107,78 +128,202 @@ class _SellerTerminalResultsPageState
 class _ResultsFilters extends StatelessWidget {
   const _ResultsFilters({
     required this.period,
+    required this.provider,
     required this.slotKey,
+    required this.drawDate,
     required this.slots,
     required this.translations,
     required this.onPeriodChanged,
+    required this.onProviderChanged,
     required this.onSlotChanged,
+    required this.onDrawDateChanged,
   });
 
-  final _ResultPeriod period;
+  final _ResultPeriod? period;
+  final String? provider;
   final String? slotKey;
+  final DateTime? drawDate;
   final List<PublicDrawResultSlot> slots;
   final I18nBundle translations;
-  final ValueChanged<_ResultPeriod> onPeriodChanged;
+  final ValueChanged<_ResultPeriod?> onPeriodChanged;
+  final ValueChanged<String?> onProviderChanged;
   final ValueChanged<String?> onSlotChanged;
+  final ValueChanged<DateTime?> onDrawDateChanged;
 
   @override
-  Widget build(BuildContext context) => Container(
-    width: double.infinity,
-    padding: const EdgeInsets.fromLTRB(
-      TchSpacing.s16,
-      TchSpacing.s12,
-      TchSpacing.s16,
-      TchSpacing.s12,
-    ),
-    decoration: BoxDecoration(
-      border: Border(
-        bottom: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
+  Widget build(BuildContext context) {
+    final providers =
+        slots
+            .map((slot) => slot.provider)
+            .where((provider) => provider.isNotEmpty)
+            .toSet()
+            .toList()
+          ..sort();
+    final providerSlots = provider == null
+        ? const <PublicDrawResultSlot>[]
+        : slots.where((slot) => slot.provider == provider).toList();
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(
+        TchSpacing.s16,
+        TchSpacing.s12,
+        TchSpacing.s16,
+        TchSpacing.s12,
       ),
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        SegmentedButton<_ResultPeriod>(
-          segments: [
-            ButtonSegment(
-              value: _ResultPeriod.sevenDays,
-              label: Text(translations.translate('pos.results.last_7_days')),
-            ),
-            ButtonSegment(
-              value: _ResultPeriod.thirtyDays,
-              label: Text(translations.translate('pos.results.last_30_days')),
-            ),
-          ],
-          selected: {period},
-          onSelectionChanged: (selection) => onPeriodChanged(selection.first),
-        ),
-        const SizedBox(height: TchSpacing.s12),
-        DropdownButtonFormField<String?>(
-          key: ValueKey(slotKey),
-          initialValue: slotKey,
-          decoration: InputDecoration(
-            labelText: translations.translate('pos.results.draw_filter'),
-            prefixIcon: const Icon(Icons.filter_alt_outlined),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: Theme.of(context).colorScheme.outlineVariant,
           ),
-          items: [
-            DropdownMenuItem<String?>(
-              value: null,
-              child: Text(translations.translate('pos.results.all_draws')),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SegmentedButton<_ResultPeriod>(
+            segments: [
+              ButtonSegment(
+                value: _ResultPeriod.sevenDays,
+                label: Text(translations.translate('pos.results.last_7_days')),
+              ),
+              ButtonSegment(
+                value: _ResultPeriod.thirtyDays,
+                label: Text(translations.translate('pos.results.last_30_days')),
+              ),
+            ],
+            selected: period == null ? {} : {period!},
+            emptySelectionAllowed: true,
+            onSelectionChanged: (selection) =>
+                onPeriodChanged(selection.isEmpty ? null : selection.first),
+          ),
+          const SizedBox(height: TchSpacing.s12),
+          DropdownButtonFormField<String?>(
+            key: ValueKey(provider),
+            initialValue: provider,
+            decoration: InputDecoration(
+              labelText: translations.translate('pos.results.provider_filter'),
+              prefixIcon: const Icon(Icons.location_on_outlined),
             ),
-            for (final slot in slots)
+            items: [
               DropdownMenuItem<String?>(
-                value: slot.slotKey,
+                value: null,
                 child: Text(
-                  localizedPublicDrawResultSlotLabel(slot, translations),
-                  overflow: TextOverflow.ellipsis,
+                  translations.translate('pos.results.all_providers'),
                 ),
               ),
-          ],
-          onChanged: onSlotChanged,
+              for (final providerCode in providers)
+                DropdownMenuItem<String?>(
+                  value: providerCode,
+                  child: Text(
+                    _providerLabel(providerCode, translations),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+            ],
+            onChanged: onProviderChanged,
+          ),
+          const SizedBox(height: TchSpacing.s12),
+          DropdownButtonFormField<String?>(
+            key: ValueKey(slotKey),
+            initialValue: slotKey,
+            decoration: InputDecoration(
+              labelText: translations.translate('pos.results.draw_filter'),
+              prefixIcon: const Icon(Icons.filter_alt_outlined),
+            ),
+            items: [
+              DropdownMenuItem<String?>(
+                value: null,
+                child: Text(
+                  provider == null
+                      ? translations.translate(
+                          'pos.results.select_provider_first',
+                        )
+                      : translations.translate('pos.results.all_draws'),
+                ),
+              ),
+              for (final slot in providerSlots)
+                DropdownMenuItem<String?>(
+                  value: slot.slotKey,
+                  child: Text(
+                    localizedPublicDrawResultSlotLabel(slot, translations),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+            ],
+            onChanged: provider == null ? null : onSlotChanged,
+          ),
+          const SizedBox(height: TchSpacing.s12),
+          _DrawDateFilter(
+            selectedDate: drawDate,
+            translations: translations,
+            onChanged: onDrawDateChanged,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+String _providerLabel(String providerCode, I18nBundle translations) {
+  final translationKey = 'pos.draw.providers.${providerCode.toLowerCase()}';
+  final providerName = translations.translate(translationKey);
+  return providerName == translationKey
+      ? providerCode
+      : '$providerCode · $providerName';
+}
+
+class _DrawDateFilter extends StatelessWidget {
+  const _DrawDateFilter({
+    required this.selectedDate,
+    required this.translations,
+    required this.onChanged,
+  });
+
+  final DateTime? selectedDate;
+  final I18nBundle translations;
+  final ValueChanged<DateTime?> onChanged;
+
+  Future<void> _selectDate(BuildContext context) async {
+    final today = _startOfDay(DateTime.now());
+    final selected = await showDatePicker(
+      context: context,
+      initialDate: selectedDate ?? today,
+      firstDate: DateTime(2020),
+      lastDate: today,
+      helpText: translations.translate('pos.results.draw_date_filter'),
+    );
+    if (selected != null) onChanged(_startOfDay(selected));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final dateLabel = selectedDate == null
+        ? translations.translate('pos.results.select_draw_date')
+        : MaterialLocalizations.of(context).formatMediumDate(selectedDate!);
+
+    return InputDecorator(
+      decoration: InputDecoration(
+        labelText: translations.translate('pos.results.draw_date_filter'),
+        prefixIcon: const Icon(Icons.calendar_month_outlined),
+        suffixIcon: selectedDate == null
+            ? null
+            : IconButton(
+                tooltip: translations.translate('pos.results.clear_draw_date'),
+                onPressed: () => onChanged(null),
+                icon: const Icon(Icons.close_rounded),
+              ),
+      ),
+      child: InkWell(
+        key: const Key('results-draw-date-filter'),
+        onTap: () => _selectDate(context),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: TchSpacing.s4),
+          child: Text(dateLabel),
         ),
-      ],
-    ),
-  );
+      ),
+    );
+  }
 }
 
 class _ResultsList extends StatelessWidget {
@@ -284,7 +429,8 @@ class _ResultCard extends StatelessWidget {
               spacing: TchSpacing.s8,
               runSpacing: TchSpacing.s8,
               children: [
-                for (final number in result.numbers) _ResultNumber(value: number),
+                for (final number in result.numbers)
+                  _ResultNumber(value: number),
               ],
             )
           else

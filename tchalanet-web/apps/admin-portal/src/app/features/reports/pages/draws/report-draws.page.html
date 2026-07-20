@@ -22,11 +22,11 @@
                 <mat-icon aria-hidden="true">arrow_back</mat-icon>
                 {{ 'admin.reports.common.overview' | translate }}
               </a>
-              <button type="button" mat-button (click)="exportPdf()">
+              <button type="button" mat-button [disabled]="!vm.analytics.available" (click)="exportPdf()">
                 <mat-icon aria-hidden="true">print</mat-icon>
                 {{ 'admin.reports.draws.action.exportPdf' | translate }}
               </button>
-              <button type="button" mat-button (click)="exportCsv(vm)">
+              <button type="button" mat-button [disabled]="!vm.analytics.available" (click)="exportCsv(vm)">
                 <mat-icon aria-hidden="true">download</mat-icon>
                 {{ 'admin.reports.draws.action.exportCsv' | translate }}
               </button>
@@ -49,18 +49,25 @@
             (sortChange)="onSortFilter($event)"
           />
 
+          @if (!vm.analytics.available) {
+            <tch-admin-empty-state
+              icon="query_stats"
+              [title]="'common.errors.categories.service_unavailable.title' | translate"
+              [message]="'common.errors.categories.service_unavailable.message' | translate"
+            />
+          } @else if (vm.summary; as summary) {
           <section class="report-draws__kpis" [attr.aria-label]="'admin.reports.draws.kpisAria' | translate">
             <tch-report-metric-card
               [label]="'admin.reports.common.ticketsSold' | translate"
-              [value]="(vm.summary.ticketsSold | number) ?? '0'"
+              [value]="(summary.ticketsSold | number) ?? '0'"
             />
             <tch-report-metric-card
               [label]="'admin.reports.common.grossSales' | translate"
-              [value]="amountDisplay(vm.summary.grossSales) + ' ' + currency"
+              [value]="amountDisplay(summary.grossSales) + ' ' + currency"
             />
             <tch-report-metric-card
               [label]="'admin.reports.common.payoutsPaid' | translate"
-              [value]="amountDisplay(vm.summary.payoutsPaid) + ' ' + currency"
+              [value]="amountDisplay(summary.payoutsPaid) + ' ' + currency"
               [hint]="(payoutRatePercent(vm) | number:'1.0-1') + '%'"
             />
           </section>
@@ -89,25 +96,25 @@
                   <ng-container matColumnDef="tickets">
                     <th mat-header-cell *matHeaderCellDef class="report-draws__number">{{ 'admin.reports.draws.column.tickets' | translate }}</th>
                     <td mat-cell *matCellDef="let row" class="report-draws__number">{{ row.ticketsSold | number }}</td>
-                    <td mat-footer-cell *matFooterCellDef class="report-draws__number">{{ vm.summary.ticketsSold | number }}</td>
+                    <td mat-footer-cell *matFooterCellDef class="report-draws__number">{{ summary.ticketsSold | number }}</td>
                   </ng-container>
 
                   <ng-container matColumnDef="sales">
                     <th mat-header-cell *matHeaderCellDef class="report-draws__number">{{ 'admin.reports.draws.column.sales' | translate }}</th>
                     <td mat-cell *matCellDef="let row" class="report-draws__number report-draws__amount--strong">{{ amountDisplay(row.grossSales) }}</td>
-                    <td mat-footer-cell *matFooterCellDef class="report-draws__number report-draws__amount--strong">{{ amountDisplay(vm.summary.grossSales) }}</td>
+                    <td mat-footer-cell *matFooterCellDef class="report-draws__number report-draws__amount--strong">{{ amountDisplay(summary.grossSales) }}</td>
                   </ng-container>
 
                   <ng-container matColumnDef="payouts">
                     <th mat-header-cell *matHeaderCellDef class="report-draws__number">{{ 'admin.reports.draws.column.payouts' | translate }}</th>
                     <td mat-cell *matCellDef="let row" class="report-draws__number">{{ amountDisplay(row.payoutsPaid) }}</td>
-                    <td mat-footer-cell *matFooterCellDef class="report-draws__number">{{ amountDisplay(vm.summary.payoutsPaid) }}</td>
+                    <td mat-footer-cell *matFooterCellDef class="report-draws__number">{{ amountDisplay(summary.payoutsPaid) }}</td>
                   </ng-container>
 
                   <ng-container matColumnDef="net">
                     <th mat-header-cell *matHeaderCellDef class="report-draws__number">{{ 'admin.reports.draws.column.net' | translate }}</th>
                     <td mat-cell *matCellDef="let row" class="report-draws__number report-draws__amount--strong">{{ amountDisplay(row.netRevenueEstimated) }}</td>
-                    <td mat-footer-cell *matFooterCellDef class="report-draws__number report-draws__amount--strong">{{ amountDisplay(vm.summary.netRevenueEstimated) }}</td>
+                    <td mat-footer-cell *matFooterCellDef class="report-draws__number report-draws__amount--strong">{{ amountDisplay(summary.netRevenueEstimated) }}</td>
                   </ng-container>
 
                   <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
@@ -117,6 +124,7 @@
               </div>
             }
           </tch-admin-section-card>
+          }
         </div>
       }
     </ng-template>

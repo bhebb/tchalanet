@@ -17,11 +17,13 @@ import com.tchalanet.server.common.context.scope.ApiScope;
 import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.web.advice.ApiResponseContext;
+import com.tchalanet.server.core.analytics.api.model.AnalyticsTrustStateView;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.core.analytics.api.model.TenantDashboardStatsView;
 import com.tchalanet.server.core.analytics.api.model.TenantKpisView;
 import com.tchalanet.server.core.analytics.api.query.GetTenantDashboardStatsQuery;
 import com.tchalanet.server.core.analytics.api.query.GetTenantKpisQuery;
+import com.tchalanet.server.core.analytics.api.query.GetAnalyticsTrustStateQuery;
 import com.tchalanet.server.core.draw.api.query.DrawSummary;
 import com.tchalanet.server.core.draw.api.query.ListDrawsQuery;
 import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalSummaryRow;
@@ -34,6 +36,7 @@ import com.tchalanet.server.platform.tenant.api.model.TenantStatus;
 import com.tchalanet.server.platform.tenant.api.model.TenantType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.Instant;
 import java.util.Currency;
 import java.util.List;
 import java.util.Locale;
@@ -41,6 +44,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -63,6 +67,16 @@ class TenantAdminDashboardPayloadAssemblerTest {
           notificationApi);
 
   private final TenantId tenantId = TenantId.of(UUID.randomUUID());
+
+  @BeforeEach
+  void analyticsTrustIsReadyByDefault() {
+    when(queryBus.ask(any(GetAnalyticsTrustStateQuery.class)))
+        .thenAnswer(
+            invocation -> {
+              var query = invocation.getArgument(0, GetAnalyticsTrustStateQuery.class);
+              return AnalyticsTrustStateView.ready(query.scope(), Instant.now());
+            });
+  }
 
   @AfterEach
   void clearResponseContext() {
@@ -212,8 +226,13 @@ class TenantAdminDashboardPayloadAssemblerTest {
   @Test
   @DisplayName("analytics failure is an unavailable section, never a zero-sales result")
   void analyticsFailureIsExplicit() {
-    when(queryBus.ask(any(GetTenantDashboardStatsQuery.class)))
-        .thenThrow(new IllegalStateException("analytics offline"));
+    when(queryBus.ask(any(GetAnalyticsTrustStateQuery.class)))
+        .thenAnswer(
+            invocation -> {
+              var query = invocation.getArgument(0, GetAnalyticsTrustStateQuery.class);
+              return AnalyticsTrustStateView.unavailable(
+                  query.scope(), List.of(LocalDate.now()), Instant.now());
+            });
     when(queryBus.ask(any(ListSellerTerminalsQuery.class))).thenReturn(emptyPage());
     when(gameCatalog.listActive()).thenReturn(List.of());
     when(drawChannelCatalog.listAll(any(), any())).thenReturn(List.of());
@@ -225,6 +244,12 @@ class TenantAdminDashboardPayloadAssemblerTest {
         .anySatisfy(
             section -> {
               assertThat(section.id()).isEqualTo("analytics");
+              assertThat(section.status()).isEqualTo("UNAVAILABLE");
+            });
+    assertThat(payload.sectionStates().items())
+        .anySatisfy(
+            section -> {
+              assertThat(section.id()).isEqualTo("kpis");
               assertThat(section.status()).isEqualTo("UNAVAILABLE");
             });
     assertThat(ApiResponseContext.get().getNotices())

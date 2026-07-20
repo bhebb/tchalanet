@@ -7,7 +7,14 @@ public final class AdminReportResponses {
 
   private AdminReportResponses() {}
 
+  public record AnalyticsAvailability(
+      boolean available,
+      String trustState,
+      String trustReasonCode,
+      List<LocalDate> missingBusinessDates) {}
+
   public record Overview(
+      AnalyticsAvailability analytics,
       LocalDate from,
       LocalDate to,
       AdminReportSummaryResponse summary,
@@ -17,12 +24,14 @@ public final class AdminReportResponses {
       List<AdminReportRows.TopSelectionRow> topSelections) {}
 
   public record Draws(
+      AnalyticsAvailability analytics,
       LocalDate from,
       LocalDate to,
       AdminReportSummaryResponse summary,
       List<AdminReportRows.DrawRow> rows) {}
 
   public record SellerTerminals(
+      AnalyticsAvailability analytics,
       LocalDate from,
       LocalDate to,
       AdminReportSummaryResponse summary,

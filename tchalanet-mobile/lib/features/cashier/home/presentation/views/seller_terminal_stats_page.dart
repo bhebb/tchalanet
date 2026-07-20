@@ -148,6 +148,20 @@ class _StatsBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (!stats.available) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(TchSpacing.s24),
+          child: Text(
+            translations.translate('pos.reports.analytics_unavailable'),
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ),
+      );
+    }
     final filtered = drawFilter == null
         ? stats.breakdown
         : stats.breakdown.where((b) => b.drawId == drawFilter).toList();

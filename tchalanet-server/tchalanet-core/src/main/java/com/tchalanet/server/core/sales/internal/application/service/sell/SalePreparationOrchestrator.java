@@ -21,7 +21,6 @@ import com.tchalanet.server.core.sales.internal.application.service.sell.model.P
 import com.tchalanet.server.core.sales.internal.application.service.sell.model.SalePolicyDecision;
 import com.tchalanet.server.core.sales.internal.application.service.sell.promotion.SalePromotionEffectApplier;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
-import com.tchalanet.server.platform.identity.api.model.AutonomyLevel;
 import com.tchalanet.server.platform.tenant.api.TenantBusinessCalendarApi;
 import com.tchalanet.server.platform.tenant.api.TenantConfigApi;
 import com.tchalanet.server.platform.tenant.api.model.TenantStatus;
@@ -105,7 +104,7 @@ public class SalePreparationOrchestrator {
         saleMoneyCalculator.compute(promoted.ticketLines(), promoted.charges(), command);
     var policyDecision = evaluateLimits(command, ctx, tenantId, now, promoted.ticketLines());
 
-    if (policyDecision.limits().outcome() == BreachOutcome.BLOCK) {
+    if (isBlockedInV0(policyDecision.limits().outcome())) {
       throw ProblemRest.of(LimitPolicyErrorCodes.LIMIT_BLOCKED);
     }
 
@@ -183,13 +182,17 @@ public class SalePreparationOrchestrator {
 
     return switch (eval.outcome()) {
       case BLOCK -> SalePolicyDecision.allowed(eval); // blocked handled by caller
-      case REQUIRE_APPROVAL -> SalePolicyDecision.requiresApproval(eval, AutonomyLevel.NONE);
+      case REQUIRE_APPROVAL -> SalePolicyDecision.allowed(eval);
       case WARN, ALLOW -> SalePolicyDecision.allowed(eval);
     };
   }
 
   private static long toCents(BigDecimal amount) {
     return amount.movePointRight(2).longValue();
+  }
+
+  static boolean isBlockedInV0(BreachOutcome outcome) {
+    return outcome == BreachOutcome.BLOCK || outcome == BreachOutcome.REQUIRE_APPROVAL;
   }
 
   private void assertTenantActive(TenantId tenantId) {
