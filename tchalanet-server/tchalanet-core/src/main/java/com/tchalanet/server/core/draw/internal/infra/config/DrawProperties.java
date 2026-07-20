@@ -1,6 +1,5 @@
 package com.tchalanet.server.core.draw.internal.infra.config;
 
-import java.time.LocalTime;
 import java.time.ZoneId;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,9 +12,6 @@ public class DrawProperties {
 
   private Cache cache = new Cache();
   private Scheduler scheduler = new Scheduler();
-  private Lifecycle lifecycle = new Lifecycle();
-  private Settlement settlement = new Settlement();
-  private Watchdog watchdog = new Watchdog();
 
   @Getter
   @Setter
@@ -33,23 +29,11 @@ public class DrawProperties {
 
   @Getter
   @Setter
-  public static class Windows {
-    private boolean enabled = true;
-    private ZoneId timezone = ZoneId.of("America/New_York");
-    private String fetchResults = "12:00-14:00,20:00-23:00";
-    private String applyResults = "12:00-14:00,20:00-23:00";
-    private String settleDraws = "12:00-15:00,20:00-23:30";
-    private String closeDraws = "11:30-14:00,19:30-23:00";
-    private String openDraws = "02:00-06:00";
-  }
-
-  @Getter
-  @Setter
   public static class Scheduler {
     private boolean active = true;
-    private Windows windows = new Windows();
+    private ZoneId timezone = ZoneId.of("America/Port-au-Prince");
     private Generate generate = new Generate();
-    private OpenToday openToday = new OpenToday();
+    private Open open = new Open();
     private Processing processing = new Processing();
   }
 
@@ -57,17 +41,18 @@ public class DrawProperties {
   @Setter
   public static class Generate {
     private boolean active = true;
-    private String cron = "0 0 5 * * *";
+    private String cron = "0 5 0 * * *";
     private int daysAhead = 7;
     private int maxTenantsPerRun = 1000;
   }
 
   @Getter
   @Setter
-  public static class OpenToday {
+  public static class Open {
     private boolean active = true;
-    private String cron = "0 */5 4-10 * * *";
-    private LocalTime defaultSalesOpenTime = LocalTime.of(5, 30);
+    private String cron = "0 15 0 * * *";
+    private int lookaheadHours = 24;
+    private int lagHours = 1;
     private int maxItemsPerRun = 10000;
   }
 
@@ -76,7 +61,6 @@ public class DrawProperties {
   public static class Processing {
     private boolean active = true;
     private String cron = "0 */5 * * * *";
-    private ZoneId timezone = ZoneId.of("America/New_York");
     private Close close = new Close();
     private Fetch fetch = new Fetch();
     private ResultReminder resultReminder = new ResultReminder();
@@ -118,6 +102,7 @@ public class DrawProperties {
     private boolean active = true;
     private int manualStartMinutesAfterDraw = 5;
     private int automaticOverdueMinutesAfterDraw = 60;
+    private int provisionalStuckMinutesAfterDraw = 30;
     private int maxSlotsPerTick = 25;
   }
 
@@ -128,7 +113,7 @@ public class DrawProperties {
 
     public Apply() {
       setStartMinutesAfterDraw(10);
-      setRetryEveryMinutes(30);
+      setRetryEveryMinutes(5);
       setStopMinutesAfterDraw(720);
     }
   }
@@ -139,38 +124,10 @@ public class DrawProperties {
     private int maxItemsPerTick = 1000;
 
     public Settle() {
-      setStartMinutesAfterDraw(20);
-      setRetryEveryMinutes(30);
+      setStartMinutesAfterDraw(10);
+      setRetryEveryMinutes(5);
       setStopMinutesAfterDraw(1440);
     }
   }
 
-  @Getter
-  @Setter
-  public static class Lifecycle {
-    private boolean active = true;
-    private String generateCron = "0 0 5 * * *";
-    private String openCloseCron = "0 */5 * * * *";
-    private int generationDays = 7;
-    private int batchSize = 500;
-    private int lookaheadHours = 24;
-    private int lagHours = 12;
-  }
-
-  @Getter
-  @Setter
-  public static class Watchdog {
-    private boolean active = true;
-    private int provisionalStuckMinutes = 30;
-    private String provisionalCron = "0 */15 * * * *";
-  }
-
-  @Getter
-  @Setter
-  public static class Settlement {
-    private boolean active = true;
-    private String cron = "0 */5 * * * *";
-    private int daysBack = 1;
-    private int maxDrawsPerTenant = 500;
-  }
 }

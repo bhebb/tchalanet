@@ -7,7 +7,9 @@ import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.drawresult.api.command.CreateMissingResultReminderCommand;
 import com.tchalanet.server.core.drawresult.api.command.CreateMissingResultReminderResult;
+import com.tchalanet.server.core.drawresult.api.model.DrawResultStatus;
 import com.tchalanet.server.core.drawresult.api.model.ResultReminderReason;
+import com.tchalanet.server.core.drawresult.api.query.view.DrawResultView;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultReaderPort;
 import com.tchalanet.server.core.drawresult.internal.application.service.ResultReminderCorrelationKeys;
 import com.tchalanet.server.core.drawresult.internal.application.service.ResultReminderExpirationPolicy;
@@ -52,9 +54,10 @@ public class CreateMissingResultReminderCommandHandler
         ResultReminderCorrelationKeys.actionRequired(
             command.reason(), command.resultSlotId(), command.drawDate());
 
-    if (drawResultReader
-        .findByResultSlotIdAndOccurredAt(command.resultSlotId(), command.occurredAt())
-        .isPresent()) {
+    var resultId =
+        drawResultReader.findByResultSlotIdAndOccurredAt(command.resultSlotId(), command.occurredAt());
+    var result = resultId.flatMap(drawResultReader::findViewById).orElse(null);
+    if (!isReminderStillRequired(command.reason(), resultId.isPresent(), result)) {
       return new CreateMissingResultReminderResult(dedupeKey, false, true);
     }
 
@@ -108,6 +111,7 @@ public class CreateMissingResultReminderCommandHandler
 
   private static NotificationSeverity severity(ResultReminderReason reason) {
     return reason == ResultReminderReason.AUTOMATIC_FETCH_OVERDUE
+            || reason == ResultReminderReason.PROVISIONAL_RESULT_STUCK
         ? NotificationSeverity.WARNING
         : NotificationSeverity.INFO;
   }
@@ -115,6 +119,9 @@ public class CreateMissingResultReminderCommandHandler
   private static String title(ResultReminderReason reason, String label, String drawDate) {
     if (reason == ResultReminderReason.AUTOMATIC_FETCH_OVERDUE) {
       return "Résultat provider non reçu après 1 heure — %s du %s.".formatted(label, drawDate);
+    }
+    if (reason == ResultReminderReason.PROVISIONAL_RESULT_STUCK) {
+      return "Résultat provisoire à confirmer — %s du %s.".formatted(label, drawDate);
     }
     return "Résultat manuel requis — %s du %s.".formatted(label, drawDate);
   }
@@ -128,9 +135,11 @@ public class CreateMissingResultReminderCommandHandler
       String requestId) {
     var elapsed = Duration.between(occurredAt, now).toMinutes();
     var reasonText =
-        reason == ResultReminderReason.AUTOMATIC_FETCH_OVERDUE
-            ? "provider automatique en retard"
-            : "saisie manuelle requise";
+        switch (reason) {
+          case MANUAL_ENTRY_REQUIRED -> "saisie manuelle requise";
+          case AUTOMATIC_FETCH_OVERDUE -> "provider automatique en retard";
+          case PROVISIONAL_RESULT_STUCK -> "résultat provisoire à confirmer";
+        };
     return "Provider=%s, slot=%s, heure attendue=%s, retard=%d min, raison=%s, requestId=%s"
         .formatted(provider, label, occurredAt, Math.max(0, elapsed), reasonText, requestId);
   }
@@ -145,6 +154,7 @@ public class CreateMissingResultReminderCommandHandler
       String requestId) {
     var elapsed = Math.max(0, Duration.between(occurredAt, now).toMinutes());
     var automatic = reason == ResultReminderReason.AUTOMATIC_FETCH_OVERDUE;
+    var provisional = reason == ResultReminderReason.PROVISIONAL_RESULT_STUCK;
     return Map.of(
         "fr",
             new NotificationTranslationInput(
@@ -154,6 +164,9 @@ public class CreateMissingResultReminderCommandHandler
             new NotificationTranslationInput(
                 automatic
                     ? "Provider result overdue after 1 hour — %s for %s.".formatted(label, drawDate)
+                    : provisional
+                        ? "Provisional result needs confirmation — %s for %s."
+                            .formatted(label, drawDate)
                     : "Manual result required — %s for %s.".formatted(label, drawDate),
                 "Provider=%s, slot=%s, expectedAt=%s, overdue=%d min, reason=%s, requestId=%s"
                     .formatted(
@@ -161,13 +174,17 @@ public class CreateMissingResultReminderCommandHandler
                         label,
                         occurredAt,
                         elapsed,
-                        automatic ? "automatic provider overdue" : "manual entry required",
+                        automatic
+                            ? "automatic provider overdue"
+                            : provisional ? "provisional result needs confirmation" : "manual entry required",
                         requestId)),
         "ht",
             new NotificationTranslationInput(
                 automatic
                     ? "Rezilta provider an an reta apre 1 èdtan — %s pou %s."
                         .formatted(label, drawDate)
+                    : provisional
+                        ? "Rezilta pwovizwa pou konfime — %s pou %s.".formatted(label, drawDate)
                     : "Rezilta manyèl obligatwa — %s pou %s.".formatted(label, drawDate),
                 "Provider=%s, lè=%s, lè espere=%s, reta=%d min, rezon=%s, requestId=%s"
                     .formatted(
@@ -175,8 +192,18 @@ public class CreateMissingResultReminderCommandHandler
                         label,
                         occurredAt,
                         elapsed,
-                        automatic ? "provider otomatik an reta" : "antre manyèl obligatwa",
+                        automatic
+                            ? "provider otomatik an reta"
+                            : provisional ? "rezilta pwovizwa pou konfime" : "antre manyèl obligatwa",
                         requestId)));
+  }
+
+  private static boolean isReminderStillRequired(
+      ResultReminderReason reason, boolean resultExists, DrawResultView result) {
+    if (reason == ResultReminderReason.PROVISIONAL_RESULT_STUCK) {
+      return result != null && result.status() == DrawResultStatus.PROVISIONAL;
+    }
+    return !resultExists;
   }
 
   private static Map<String, Object> payload(

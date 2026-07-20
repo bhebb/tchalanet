@@ -101,9 +101,6 @@ def main() -> int:
     # ---- 2. generate + open draws for the tenant ---------------------------
     step("SUPER_ADMIN generates + opens today's draws for the tenant")
     today = dt.date.today()
-    now_utc = dt.datetime.now(dt.timezone.utc)
-    sales_floor = dt.datetime.combine(today, dt.time(11, 30), tzinfo=dt.timezone.utc)
-    open_now = max(now_utc, sales_floor).isoformat().replace("+00:00", "Z")
     gen = sa.post(
         "/platform/ops/draws/generate",
         json={"tenantId": tenant_id, "from": today.isoformat(), "to": today.isoformat(),
@@ -113,7 +110,7 @@ def main() -> int:
     show(gen)
     opened = sa.post(
         "/platform/ops/draws/open-today",
-        json={"now": open_now, "drawDate": today.isoformat(), "limit": 500, "dryRun": False},
+        json={"limit": 500, "lookaheadHours": 24, "lagHours": 1, "dryRun": False},
         headers=rid(),
     )
     show(opened)

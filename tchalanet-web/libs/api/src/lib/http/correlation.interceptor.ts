@@ -14,7 +14,7 @@ export const correlationRequestInterceptor: HttpInterceptorFn = (request, next) 
   );
 };
 
-function createRequestId(): string {
+export function createRequestId(): string {
   if (globalThis.crypto?.randomUUID) {
     return `tch_req_${globalThis.crypto.randomUUID()}`;
   }

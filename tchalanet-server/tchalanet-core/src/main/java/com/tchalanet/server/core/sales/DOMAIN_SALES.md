@@ -142,7 +142,7 @@ Le statut de paiement doit être dérivé du résultat persistant (`resultStatus
 | `CancelSaleCommand`              | `CancelSaleCommandHandler`                           | `@Secured CASHIER/ADMIN/SUPER_ADMIN` ✅                                        | Évalue limites (`OperationType.CANCEL`) + autonomy ; `voidTicket` ; publie `TicketCancelledEvent`                                                 |
 | `CancelTicketCommand`            | (mappé en `CancelSaleCommand` par `TicketWebMapper`) | idem                                                                           | Doublon de modèle                                                                                                                                 |
 | `OverrideTicketResultCommand`    | `OverrideTicketResultCommandHandler`                 | `@Secured ADMIN/SUPER_ADMIN` + `@RequiresPermission("ticket.result.override")` | `forceResult(payout, resultStatus, when)` ; publie `TicketResultOverriddenEvent`                                                                  |
-| `RecordDrawTicketsResultCommand` | `RecordDrawTicketsResultCommandHandler`              | (interne — déclenché par `DrawResultedEventListener`)                          | Cursor batch 250 ; calcule le gain via `TicketWinningCalculator` ; ignore les tickets déjà résultés pour éviter double event/double payout          |
+| `RecordDrawTicketsResultCommand` | `RecordDrawTicketsResultCommandHandler`              | (interne — déclenché par `DrawResultAppliedEvent`)                             | Batch borné (250) des tickets `NOT_RESULTED` ; calcule le gain via `TicketWinningCalculator` ; les tickets terminaux n'émettent jamais un second event/payout |
 | `ArchiveTicketsCommand`          | `ArchiveTicketsCommandHandler`                       | (interne — pas de scheduler câblé)                                             | Soft-delete via `archiveOldTickets(cutoff)`                                                                                                       |
 
 Code mort/orphelin : `ExpireTicketsCommand` (sans handler), `ApprovePendingTicketSaleCommand` / `RejectPendingTicketSaleCommand` (sans handler localisé).
@@ -232,7 +232,7 @@ Toutes les réponses utilisent `ApiResponse<T>` sauf les endpoints de print bina
 
 ### Listeners (consume)
 
-- `core.sales.application.event.DrawResultedEventListener` (`@TransactionalEventListener AFTER_COMMIT`) consomme `core.draw.domain.event.DrawResultAppliedEvent` → émet `RecordDrawTicketsResultCommand`. **Pas d'idempotence (`ProcessedEventPort` non utilisé).**
+- `core.sales.infra.event.DrawResultAppliedSalesEventListener` (`@TransactionalEventListener AFTER_COMMIT`) consomme `DrawResultAppliedEvent` → émet `RecordDrawTicketsResultCommand` par lots. L'événement n'est marqué traité qu'une fois les tickets terminaux; le cycle draw rejoue les tickets `NOT_RESULTED` restants.
 - `core.sales.infra.event.SalesLedgerListener` (`@EventListener` synchrone — anomalie : devrait être `AFTER_COMMIT`) consomme `TicketPlacedEvent` → appelle `RecordLedgerFromSalesPort.recordTicketSale(...)` (port-in `core.ledger`).
 
 ---
@@ -323,7 +323,7 @@ Toutes les réponses utilisent `ApiResponse<T>` sauf les endpoints de print bina
 **P0 / Données**
 
 - `Ticket.forceResult` réaffecte systématiquement `settlementStatus = UNSETTLED` — un ticket déjà SETTLED redevient UNSETTLED → risque de double payout.
-- `RecordDrawTicketsResultCommandHandler` ne consigne rien dans `ticket_settlement` → idempotence rompue.
+- `RecordDrawTicketsResultCommandHandler` relit uniquement les tickets `NOT_RESULTED`; une reprise ne republie donc pas un payout pour un ticket déjà terminal.
 
 **P0 / Public verify**
 

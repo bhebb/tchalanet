@@ -2,6 +2,7 @@ package com.tchalanet.server.platform.archive.internal.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -12,13 +13,18 @@ import org.springframework.stereotype.Component;
  * ArchiveRestoreService#cleanupExpired()} is idempotent.
  */
 @Component
+@ConditionalOnProperty(
+    prefix = "tch.archive.restore-cleanup",
+    name = "enabled",
+    havingValue = "true",
+    matchIfMissing = true)
 @RequiredArgsConstructor
 @Slf4j
 public class ArchiveRestoreCleanupScheduler {
 
   private final ArchiveRestoreService restoreService;
 
-  @Scheduled(cron = "0 30 3 * * *", zone = "UTC")
+  @Scheduled(cron = "${tch.archive.restore-cleanup.cron:0 30 3 * * *}", zone = "UTC")
   public void cleanupExpiredRestoreRuns() {
     log.info("archive restore cleanup: scheduled run starting");
     try {

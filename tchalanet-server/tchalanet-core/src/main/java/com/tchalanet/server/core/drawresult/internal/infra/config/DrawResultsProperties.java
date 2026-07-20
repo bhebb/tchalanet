@@ -9,23 +9,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "tch.draw.results")
 public class DrawResultsProperties {
 
-  private boolean active = true;
-  private Scheduler scheduler = new Scheduler();
   private Limits limits = new Limits();
   private Defaults defaults = new Defaults();
   private Notifications notifications = new Notifications();
-  private Settlement settlement = new Settlement();
-
-  @Getter
-  @Setter
-  public static class Scheduler {
-    private boolean active = true;
-    private String cron = "0 */5 * * * *";
-
-    private int minMinutesAfterDraw = 3;
-    private int maxMinutesAfterDraw = 120;
-    private int cooldownMinutes = 10;
-  }
 
   @Getter
   @Setter
@@ -53,14 +39,5 @@ public class DrawResultsProperties {
     private boolean enabled = false;
     private String channel = "batch-draws";
     private String priority = "LOW";
-  }
-
-  @Getter
-  @Setter
-  public static class Settlement {
-    private boolean active = true;
-    private String cron = "0 */5 * * * *";
-    private int daysBack = 1;
-    private int maxDrawsPerTenant = 500;
   }
 }

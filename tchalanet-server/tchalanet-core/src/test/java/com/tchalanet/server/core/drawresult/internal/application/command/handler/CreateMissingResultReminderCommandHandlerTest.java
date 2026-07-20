@@ -9,11 +9,15 @@ import static org.mockito.Mockito.when;
 
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotView;
+import com.tchalanet.server.catalog.drawchannel.api.model.DrawSource;
 import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.common.types.id.DrawResultId;
 import com.tchalanet.server.common.types.id.ResultSlotId;
 import com.tchalanet.server.core.drawresult.api.command.CreateMissingResultReminderCommand;
 import com.tchalanet.server.core.drawresult.api.model.ResultReminderReason;
+import com.tchalanet.server.core.drawresult.api.model.DrawResultStatus;
+import com.tchalanet.server.core.drawresult.api.model.ResultQuality;
+import com.tchalanet.server.core.drawresult.api.query.view.DrawResultView;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultReaderPort;
 import com.tchalanet.server.core.drawresult.internal.application.service.ResultReminderExpirationPolicy;
 import com.tchalanet.server.platform.notification.api.NotificationApi;
@@ -95,6 +99,41 @@ class CreateMissingResultReminderCommandHandlerTest {
     verify(fixture.notificationApi, never()).createNotification(any());
   }
 
+  @Test
+  void createsReminderWhenExistingResultRemainsProvisional() {
+    var resultId = DrawResultId.of(UUID.randomUUID());
+    var fixture = fixture(Optional.of(resultId));
+    when(fixture.reader.findViewById(resultId))
+        .thenReturn(
+            Optional.of(
+                new DrawResultView(
+                    resultId,
+                    "MN_EVE",
+                    DRAW_DATE,
+                    OCCURRED_AT,
+                    DrawResultStatus.PROVISIONAL,
+                    DrawSource.EXTERNAL,
+                    ResultQuality.COMPLETE,
+                    null,
+                    NOW,
+                    null,
+                    null,
+                    null,
+                    null)));
+
+    var result =
+        fixture.handler.handle(
+            command(ResultReminderReason.PROVISIONAL_RESULT_STUCK, fixture.resultSlotId));
+
+    var captor = ArgumentCaptor.forClass(CreateNotificationRequest.class);
+    verify(fixture.notificationApi).createNotification(captor.capture());
+    assertThat(result.created()).isTrue();
+    assertThat(captor.getValue().dedupeKey())
+        .isEqualTo(
+            "drawresult.action-required:provisional-stuck:%s:%s"
+                .formatted(fixture.resultSlotId.value(), DRAW_DATE));
+  }
+
   private static Fixture fixture(Optional<DrawResultId> existingResult) {
     var resultSlotId = ResultSlotId.of(UUID.randomUUID());
     var reader = mock(DrawResultReaderPort.class);
@@ -114,6 +153,7 @@ class CreateMissingResultReminderCommandHandlerTest {
 
     return new Fixture(
         resultSlotId,
+        reader,
         notificationApi,
         new CreateMissingResultReminderCommandHandler(
             reader,
@@ -146,6 +186,7 @@ class CreateMissingResultReminderCommandHandlerTest {
 
   private record Fixture(
       ResultSlotId resultSlotId,
+      DrawResultReaderPort reader,
       NotificationApi notificationApi,
       CreateMissingResultReminderCommandHandler handler) {}
 }

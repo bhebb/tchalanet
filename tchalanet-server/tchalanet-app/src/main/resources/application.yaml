@@ -91,8 +91,8 @@ tch:
         - /api/v1/swagger-ui/**
         - /v3/api-docs/**
         - /api/v1/openapi/**
-        # Browser EventSource cannot send X-Request-Id. Keep this exception
-        # limited to authenticated, read-only notification streams.
+        # Native browser EventSource cannot send X-Request-Id. The current web client uses fetch
+        # and does send it; keep this exception limited to authenticated, read-only streams.
         - /api/v1/platform/notifications/stream
         - /api/v1/admin/notifications/stream
         - /openapi/**
@@ -111,6 +111,8 @@ tch:
         - GetSaleReceiptQuery
 
   communication:
+    dispatcher:
+      fixed-delay: ${TCH_COMMUNICATION_DISPATCHER_FIXED_DELAY:PT30S}
     edge:
       enabled: ${TCH_COMMUNICATION_EDGE_ENABLED:true}
       # Infra standardizes on TCH_EDGE_BASE_URL (envs/common/api.env); fall back to the older
@@ -131,15 +133,25 @@ tch:
       key: news
       cacheName: news
     refresh:
-#      cron: "0 0 * * * *"
-      cron: "0 */5 * * * *"
+      cron: "${TCH_NEWS_REFRESH_CRON:0 0 */6 * * *}"
     provider:
       url: ${TCH_NEWS_PROVIDER_URL:https://lotterydaily.com/feed/}
 
   sales:
+    preparation:
+      retention-enabled: ${TCH_SALES_PREPARATION_RETENTION_ENABLED:true}
+      retention-cron: "${TCH_SALES_PREPARATION_RETENTION_CRON:0 */5 * * * *}"
     tickets:
       visibility:
         public-visibility-days: 90
+
+  analytics:
+    purge-cron: "${TCH_ANALYTICS_PURGE_CRON:0 15 3 * * *}"
+
+  archive:
+    restore-cleanup:
+      enabled: ${TCH_ARCHIVE_RESTORE_CLEANUP_ENABLED:true}
+      cron: "${TCH_ARCHIVE_RESTORE_CLEANUP_CRON:0 30 3 * * *}"
 
   tickets:
     public:
@@ -167,6 +179,10 @@ tch:
       core-pool-size: 4
       max-pool-size: 8
       thread-name-prefix: batch-
+    history:
+      purge-enabled: ${TCH_BATCH_HISTORY_PURGE_ENABLED:true}
+      purge-cron: "${TCH_BATCH_HISTORY_PURGE_CRON:0 0 4 * * SUN}"
+      retention-days: ${TCH_BATCH_HISTORY_RETENTION_DAYS:7}
 
   keymanagement:
     server-signing:

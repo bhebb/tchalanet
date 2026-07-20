@@ -142,12 +142,6 @@ class GenerateDrawsForRangeCommandHandlerTest {
     }
 
     @Override
-    public List<OpenableDrawRow> findOpenableForSalesOpenTime(
-        Instant now, LocalDate drawDate, LocalTime defaultSalesOpenTime, int limit) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
     public int bulkOpen(List<DrawId> drawIds, Instant now) {
       throw new UnsupportedOperationException();
     }

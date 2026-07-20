@@ -6,7 +6,7 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.draw.api.command.ApplyExternalResultsWindowCommand;
 import com.tchalanet.server.core.draw.api.command.CloseDueDrawsCommand;
 import com.tchalanet.server.core.draw.api.command.GenerateDrawsForRangeCommand;
-import com.tchalanet.server.core.draw.api.command.OpenTodayDrawsCommand;
+import com.tchalanet.server.core.draw.api.command.OpenDueDrawsCommand;
 import com.tchalanet.server.core.drawresult.api.command.FetchExternalResultsWindowCommand;
 import java.time.Clock;
 import java.time.Instant;
@@ -130,15 +130,17 @@ public class DrawOpsBatchJobConfig {
   @Bean
   @org.springframework.batch.core.configuration.annotation.StepScope
   public Tasklet openDrawsTasklet(
-      @Value("#{jobParameters['date']}") String date,
       @Value("#{jobParameters['max_items']}") String maxItems,
+      @Value("#{jobParameters['lookahead_hours']}") String lookaheadHours,
+      @Value("#{jobParameters['lag_hours']}") String lagHours,
       @Value("#{jobParameters['dry_run']}") String dryRun) {
     return (contribution, chunkContext) -> {
       commandBus.execute(
-          new OpenTodayDrawsCommand(
+          new OpenDueDrawsCommand(
               Instant.now(clock),
-              parseDateOrNull(date),
               parseInt(maxItems, 100),
+              parseInt(lookaheadHours, 24),
+              parseInt(lagHours, 1),
               parseBoolean(dryRun)));
       return RepeatStatus.FINISHED;
     };

@@ -17,7 +17,6 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -50,23 +49,6 @@ public class DrawLifecycleJpaAdapter implements DrawLifecyclePort {
     return repo.findOpenable(tenantUuid, now, limit, windowStart, windowEnd).stream()
         .map(this::mapOpenableRow)
         .toList();
-  }
-
-  @Override
-  public List<OpenableDrawRow> findOpenableForSalesOpenTime(
-      Instant now, LocalDate drawDate, LocalTime defaultSalesOpenTime, int limit) {
-    Objects.requireNonNull(now, "now is required");
-    Objects.requireNonNull(defaultSalesOpenTime, "defaultSalesOpenTime is required");
-
-    var tenantUuid = currentTenantUuid();
-
-    var rows =
-        drawDate == null
-            ? repo.findOpenableForEffectiveToday(tenantUuid, now, defaultSalesOpenTime, limit)
-            : repo.findOpenableForSalesOpenTime(
-                tenantUuid, now, drawDate, defaultSalesOpenTime, limit);
-
-    return rows.stream().map(this::mapOpenableRow).toList();
   }
 
   @Override

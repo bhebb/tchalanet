@@ -95,12 +95,6 @@ class CorrectAppliedDrawResultCommandHandlerTest {
           }
 
           @Override
-          public List<OpenableDrawRow> findOpenableForSalesOpenTime(
-              Instant now, LocalDate drawDate, LocalTime defaultSalesOpenTime, int limit) {
-            return List.of();
-          }
-
-          @Override
           public int bulkOpen(List<DrawId> drawIds, Instant now) {
             return 0;
           }

@@ -8,4 +8,7 @@ import java.util.UUID;
 public interface TicketChargeJpaRepository extends TchJpaRepository<TicketChargeJpaEntity, UUID> {
 
   List<TicketChargeJpaEntity> findByTicket_IdOrderByChargeType(UUID ticketId);
+
+  List<TicketChargeJpaEntity> findByTicket_IdInOrderByTicket_IdAscChargeTypeAsc(
+      List<UUID> ticketIds);
 }

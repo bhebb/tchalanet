@@ -71,17 +71,22 @@
 
 ### 6.0 Règle d'ouverture / fermeture commerciale
 
-- ✅ `draw_channel.sales_open_time` définit l'heure locale commerciale où un draw peut passer `OPEN`.
-- ✅ Si `draw_channel.sales_open_time` est absent, le scheduler utilise le fallback `tch.draw.scheduler.open-today.default-sales-open-time`.
+- ✅ Le scheduler V0 ouvre quotidiennement les draws `SCHEDULED` éligibles dans son horizon configuré.
+- ✅ L'ouverture automatique ne dépend pas de `draw_channel.sales_open_time`; le provider timezone reste la source de vérité pour `scheduledAt`, `cutoffAt` et `drawDate`.
 - ✅ `draw.openedAt` est le timestamp réel de transition, pas la configuration d'ouverture.
 - ✅ `draw.cutoffAt` est un snapshot généré; close ferme les draws `OPEN` où `cutoff_at <= now`.
 - ✅ La vente exige `draw.status = OPEN` et `now < draw.cutoffAt`.
 
-### 6.1 Règle PROVISIONAL / FINAL (apply vs settle)
+### 6.1 Règle PROVISIONAL / résultat actionnable (apply vs settle)
 
-- ✅ **Apply** (`CLOSED → RESULTED`) autorisé dès `draw_result.status IN (PROVISIONAL, FINAL)`.
-- ✅ **Settle** (`RESULTED → SETTLED`) autorisé **uniquement si** `draw_result.status = FINAL`.
-- ✅ **Watchdog** : Si `draw_result` reste `PROVISIONAL` plus de **30 minutes** après l'apply, alerte ops via `DrawProvisionalWatchdogScheduler`.
+- ✅ `PROVISIONAL` reste un résultat global visible par les opérations, mais ne modifie jamais un draw tenant.
+- ✅ **Apply** (`CLOSED → RESULTED`) est autorisé uniquement si
+  `draw_result.status IN (CONFIRMED, OVERRIDDEN)`.
+- ✅ Les gains, `TicketPayoutPaidEvent` et les projections analytics ne sont émis qu'après cet apply.
+- ✅ **Settle** (`RESULTED → SETTLED`) exige un résultat `CONFIRMED` ou `OVERRIDDEN` et aucun
+  ticket éligible encore en attente.
+- ✅ Un résultat provisoire non confirmé déclenche un rappel ops idempotent via le pipeline
+  notification/Slack existant; il n'existe pas de watchdog draw tenant séparé.
 
 ### 6.2 Règle Override après SETTLED
 
@@ -184,7 +189,7 @@
 ### P3 — Observabilité
 
 - [ ] Job ops `unlock-stale-draws` (cf. règle 6.4).
-- [x] Watchdog `PROVISIONAL > 30 min` (cf. règle 6.1).
+- [x] Rappel global idempotent pour `PROVISIONAL > 30 min` (cf. règle 6.1), via notification et Slack.
 - [ ] Activer Envers pour audit complet.
 - [ ] Sort de `ARCHIVED` (cron archivage ? ops only ? purge ?).
 
@@ -195,8 +200,10 @@ Le pipeline runtime supporté est `generate -> open -> close -> fetch -> apply -
 - `generate/open/close` : schedulers tenant-scoped de `core.draw`, gates `DRAW_GENERATE`, `DRAW_OPEN`, `DRAW_CLOSE`.
 - `fetch` : scheduler global de `core.drawresult`, gate `RESULTS_EXTERNAL_FETCH`, lit les `result_slot` actifs.
 - `apply` : scheduler tenant-scoped de `core.draw`, gate `RESULTS_EXTERNAL_APPLY`, lie les draws fermés au `draw_result`.
-- `settle` : scheduler tenant-scoped de `core.draw`, gate `DRAW_SETTLE`, providers issus de `tch.draw.settle.providers`.
-- `watchdog` : `DrawProvisionalWatchdogScheduler`, gate `DRAW_WATCHDOG_PROVISIONAL`, alerte les draws `RESULTED` avec résultat `PROVISIONAL` trop ancien.
+- `settle` : étape tenant-scoped du processing tick, gate `DRAW_SETTLE`; elle traite les tickets
+  `NOT_RESULTED` par lots puis settle uniquement les draws devenus terminaux.
+- `result-reminder` : étape globale du processing tick; elle crée les rappels missing/overdue et
+  provisional-stuck via la même notification action-required et le bridge Slack.
 
 ---
 
@@ -219,17 +226,17 @@ Le pipeline runtime supporté est `generate -> open -> close -> fetch -> apply -
 
 ✅ **Apply Draw Result Flow**:
 
-- Attach global DrawResult to tenant Draw
+- Attach only a `CONFIRMED` or `OVERRIDDEN` global DrawResult to tenant Draw
 - Transition: CLOSED → RESULTED
 - Publish DrawResultAppliedEvent after commit
-- Listeners: ticket settlement job, draw stats
+- Listeners: bounded ticket result processing, draw stats
 
 ✅ **Settle Draw Flow**:
 
-- Prerequisite: DrawResult.status == CONFIRMED
+- Prerequisite: DrawResult.status IN (CONFIRMED, OVERRIDDEN) and no pending ticket processing
 - Transition: RESULTED → SETTLED
 - Publish DrawSettledEvent after commit
-- Side-effect: Payout finalization
+- Side-effect: terminal draw lifecycle only; V0 ticket payout is emitted by ticket result processing
 
 ### Architecture Compliance
 

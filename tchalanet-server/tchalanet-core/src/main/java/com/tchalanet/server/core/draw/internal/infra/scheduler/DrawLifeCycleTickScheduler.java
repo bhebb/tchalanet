@@ -35,6 +35,8 @@ public class DrawLifeCycleTickScheduler {
   private static final String TO = "to";
   private static final String DAYS_AHEAD = "days_ahead";
   private static final String MAX_ITEMS = "max_items";
+  private static final String LOOKAHEAD_HOURS = "lookahead_hours";
+  private static final String LAG_HOURS = "lag_hours";
 
   private final TenantPreContextLookupApi tenantRegistry;
   private final BatchJobStarter batchJobStarter;
@@ -44,7 +46,9 @@ public class DrawLifeCycleTickScheduler {
   private final AtomicBoolean configLogged = new AtomicBoolean(false);
 
   @TchJob("draw:lifecycle:generate")
-  @Scheduled(cron = "${tch.draw.scheduler.generate.cron:0 0 5 * * *}", zone = "UTC")
+  @Scheduled(
+      cron = "${tch.draw.scheduler.generate.cron:0 5 0 * * *}",
+      zone = "${tch.draw.scheduler.timezone:America/Port-au-Prince}")
   @SchedulerLock(
       name = "draw_generate_next_7_days",
       lockAtMostFor = "PT30M",
@@ -55,7 +59,7 @@ public class DrawLifeCycleTickScheduler {
 
     validateGenerateCanRun();
 
-    var schedulerZone = drawProps.getScheduler().getProcessing().getTimezone();
+    var schedulerZone = drawProps.getScheduler().getTimezone();
     var from = timeProvider.today(schedulerZone);
 
     int generationDays = Math.max(1, drawProps.getScheduler().getGenerate().getDaysAhead());
@@ -114,17 +118,20 @@ public class DrawLifeCycleTickScheduler {
     }
   }
 
-  @TchJob("draw:lifecycle:open_today")
-  @Scheduled(cron = "${tch.draw.scheduler.open-today.cron:0 */5 4-10 * * *}", zone = "UTC")
-  @SchedulerLock(name = "draw_open_today", lockAtMostFor = "PT10M", lockAtLeastFor = "PT1M")
-  public void openToday() {
-    log.info("draw.open_today.tick fired");
+  @TchJob("draw:lifecycle:open")
+  @Scheduled(
+      cron = "${tch.draw.scheduler.open.cron:0 15 0 * * *}",
+      zone = "${tch.draw.scheduler.timezone:America/Port-au-Prince}")
+  @SchedulerLock(name = "draw_open_daily", lockAtMostFor = "PT10M", lockAtLeastFor = "PT1M")
+  public void openDaily() {
+    log.info("draw.open_daily.tick fired");
     logEffectiveConfigOnce();
     var now = timeProvider.now();
 
-    validateOpenTodayCanRun();
+    validateOpenCanRun();
 
-    var maxItems = Math.max(1, drawProps.getScheduler().getOpenToday().getMaxItemsPerRun());
+    var openConfig = drawProps.getScheduler().getOpen();
+    var maxItems = Math.max(1, openConfig.getMaxItemsPerRun());
     var activeTenants = tenantRegistry.listActiveTenantIds();
     if (activeTenants.isEmpty()) {
       throw new JobSkippedException("no_active_tenants", "No active tenants");
@@ -133,34 +140,43 @@ public class DrawLifeCycleTickScheduler {
 
     for (TenantId tenantId : activeTenants) {
       try {
-        var execution = batchJobStarter.start(DRAW_OPEN, openParamsFor(tenantId, maxItems));
+        var execution =
+            batchJobStarter.start(
+                DRAW_OPEN,
+                openParamsFor(
+                    tenantId,
+                    maxItems,
+                    Math.max(1, openConfig.getLookaheadHours()),
+                    Math.max(0, openConfig.getLagHours())));
         log.info(
-            "draw.open_today job started tenantId={} executionId={} now={} maxItems={}",
+            "draw.open_daily job started tenantId={} executionId={} now={} maxItems={} lookaheadHours={} lagHours={}",
             tenantId,
             execution.jobExecutionId(),
             now,
-            maxItems);
+            maxItems,
+            openConfig.getLookaheadHours(),
+            openConfig.getLagHours());
 
       } catch (Exception ex) {
         failures.add(new TenantFailure(tenantId, ex));
 
-        log.warn("draw.open_today tenant failed tenantId={} err={}", tenantId, ex.getMessage(), ex);
+        log.warn("draw.open_daily tenant failed tenantId={} err={}", tenantId, ex.getMessage(), ex);
       }
     }
 
     if (!failures.isEmpty()) {
       throw new JobPartialFailureException(
-          "draw_open_today_partial_failure",
-          "Draw open today failed for " + failures.size() + " failures");
+          "draw_open_daily_partial_failure",
+          "Draw daily opening failed for " + failures.size() + " failures");
     }
   }
 
-  private void validateOpenTodayCanRun() {
+  private void validateOpenCanRun() {
     if (!drawProps.getScheduler().isActive()) {
       throw new JobSkippedException("scheduler_disabled", "Draw scheduler disabled");
     }
-    if (!drawProps.getScheduler().getOpenToday().isActive()) {
-      throw new JobSkippedException("open_today_disabled", "Draw open-today scheduler disabled");
+    if (!drawProps.getScheduler().getOpen().isActive()) {
+      throw new JobSkippedException("open_disabled", "Draw opening scheduler disabled");
     }
     if (!batchGate.enabled(DRAW_OPEN, null)) {
       throw new JobSkippedException("gate_disabled", "Draw open gate disabled");
@@ -173,17 +189,18 @@ public class DrawLifeCycleTickScheduler {
     }
     var scheduler = drawProps.getScheduler();
     log.info(
-        "draw.scheduler.config active={} generate.active={} generate.cron={} generate.daysAhead={} openToday.active={} openToday.cron={} openToday.defaultSalesOpenTime={} processing.active={} processing.cron={} processing.timezone={}",
+        "draw.scheduler.config active={} timezone={} generate.active={} generate.cron={} generate.daysAhead={} open.active={} open.cron={} open.lookaheadHours={} open.lagHours={} processing.active={} processing.cron={}",
         scheduler.isActive(),
+        scheduler.getTimezone(),
         scheduler.getGenerate().isActive(),
         scheduler.getGenerate().getCron(),
         scheduler.getGenerate().getDaysAhead(),
-        scheduler.getOpenToday().isActive(),
-        scheduler.getOpenToday().getCron(),
-        scheduler.getOpenToday().getDefaultSalesOpenTime(),
+        scheduler.getOpen().isActive(),
+        scheduler.getOpen().getCron(),
+        scheduler.getOpen().getLookaheadHours(),
+        scheduler.getOpen().getLagHours(),
         scheduler.getProcessing().isActive(),
-        scheduler.getProcessing().getCron(),
-        scheduler.getProcessing().getTimezone());
+        scheduler.getProcessing().getCron());
   }
 
   private Map<String, String> generateParamsFor(
@@ -197,9 +214,12 @@ public class DrawLifeCycleTickScheduler {
     return params;
   }
 
-  private Map<String, String> openParamsFor(TenantId tenantId, int maxItems) {
+  private Map<String, String> openParamsFor(
+      TenantId tenantId, int maxItems, int lookaheadHours, int lagHours) {
     var params = baseParams(tenantId, "draw-open");
     params.put(MAX_ITEMS, Integer.toString(maxItems));
+    params.put(LOOKAHEAD_HOURS, Integer.toString(lookaheadHours));
+    params.put(LAG_HOURS, Integer.toString(lagHours));
     params.put(JobParamKeys.DRY_RUN, Boolean.toString(DEFAULT_DRY_RUN));
     return params;
   }

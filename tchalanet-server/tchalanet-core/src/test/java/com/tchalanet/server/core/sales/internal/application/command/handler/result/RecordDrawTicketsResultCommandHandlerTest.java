@@ -93,7 +93,8 @@ class RecordDrawTicketsResultCommandHandlerTest {
                 drawResultId,
                 LocalDate.of(2026, 1, 2),
                 ResultSlotId.of(UUID.randomUUID()),
-                DrawChannelId.of(UUID.randomUUID())));
+                DrawChannelId.of(UUID.randomUUID()),
+                250));
 
     assertThat(result.processedTickets()).isZero();
     assertThat(result.updatedTickets()).isZero();
@@ -174,6 +175,39 @@ class RecordDrawTicketsResultCommandHandlerTest {
   }
 
   @Test
+  void failedTicketRemainsEligibleForLaterSuccessfulReplay() {
+    var store = new CapturingTicketStore(ticket("45"));
+    var firstPublisher = new CapturingEventPublisher();
+    var failingHandler =
+        new RecordDrawTicketsResultCommandHandler(
+            store,
+            store,
+            new ProjectionQueryBus(DRAW_RESULT_ID),
+            new ThrowingTicketWinningCalculator(),
+            firstPublisher,
+            new SalesTicketCacheEvictor(new NoOpCacheManager()),
+            () -> UUID.fromString("01000000-0000-0000-0000-000000000001"),
+            CLOCK);
+
+    var first = failingHandler.handle(command());
+
+    assertThat(first.complete()).isFalse();
+    assertThat(first.remainingTickets()).isEqualTo(1);
+    assertThat(first.failedTickets()).isEqualTo(1);
+    assertThat(firstPublisher.events()).isEmpty();
+
+    var replayPublisher = new CapturingEventPublisher();
+    var replay = handler(store, replayPublisher).handle(command());
+
+    assertThat(replay.complete()).isTrue();
+    assertThat(replay.updatedTickets()).isEqualTo(1);
+    assertThat(replayPublisher.events()).filteredOn(TicketResultedEvent.class::isInstance).hasSize(1);
+    assertThat(replayPublisher.events())
+        .filteredOn(TicketPayoutPaidEvent.class::isInstance)
+        .hasSize(1);
+  }
+
+  @Test
   void replaySkipsAlreadyResultedTicketWithoutSavingOrPublishingAgain() {
     var store = new CapturingTicketStore(resultedWinningTicket());
     var publisher = new CapturingEventPublisher();
@@ -208,7 +242,8 @@ class RecordDrawTicketsResultCommandHandlerTest {
         DRAW_RESULT_ID,
         LocalDate.of(2026, 1, 2),
         ResultSlotId.of(UUID.fromString("60000000-0000-0000-0000-000000000001")),
-        DRAW_CHANNEL_ID);
+        DRAW_CHANNEL_ID,
+        250);
   }
 
   private static Ticket ticket(String selection) {
@@ -272,7 +307,7 @@ class RecordDrawTicketsResultCommandHandlerTest {
   }
 
   private static final class CapturingTicketStore implements TicketReaderPort, TicketWriterPort {
-    private final Ticket ticket;
+    private Ticket ticket;
     private final List<Ticket> savedTickets = new ArrayList<>();
 
     private CapturingTicketStore(Ticket ticket) {
@@ -310,7 +345,20 @@ class RecordDrawTicketsResultCommandHandlerTest {
     }
 
     @Override
+    public List<Ticket> findPendingResultByDrawId(DrawId drawId, int limit) {
+      return ticket.lifecycle().result().status() == TicketResultStatus.NOT_RESULTED
+          ? List.of(ticket)
+          : List.of();
+    }
+
+    @Override
+    public long countPendingResultByDrawId(DrawId drawId) {
+      return ticket.lifecycle().result().status() == TicketResultStatus.NOT_RESULTED ? 1 : 0;
+    }
+
+    @Override
     public Ticket save(Ticket ticket) {
+      this.ticket = ticket;
       savedTickets.add(ticket);
       return ticket;
     }
@@ -370,6 +418,16 @@ class RecordDrawTicketsResultCommandHandlerTest {
     @Override
     public List<Ticket> findByDrawId(DrawId drawId) {
       return List.of();
+    }
+
+    @Override
+    public List<Ticket> findPendingResultByDrawId(DrawId drawId, int limit) {
+      return List.of();
+    }
+
+    @Override
+    public long countPendingResultByDrawId(DrawId drawId) {
+      return 0;
     }
   }
 

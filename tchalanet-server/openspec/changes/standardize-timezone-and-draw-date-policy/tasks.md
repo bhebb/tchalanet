@@ -18,8 +18,8 @@
 
 ## 3. Open/close scheduler
 
-- [ ] Update open-today logic to compute `channelToday` from `channel.timezone`.
-- [ ] Update open-today logic to compute `channelNowTime` from `channel.timezone`.
+- [ ] Ensure daily opening uses the configured scheduler operating timezone and resolved draw instants.
+- [ ] Ensure provider/channel timezone does not delay a draw's daily opening.
 - [ ] Keep close logic based on persisted `cutoffAt <= now`.
 - [ ] Add structured logs containing `now`, `channelZone`, `channelDate`, and counts.
 
@@ -67,7 +67,7 @@
 - [ ] Update `docs/conventions/timezone.md` with draw-date policy.
 - [ ] Add `docs/testing/timezone-critical-cases.md`.
 - [ ] Add comments/Javadoc on `draw.drawDate` and `ResultOccurredAtResolver`.
-- [ ] Update scheduler docs to state channel-local open-today behavior.
+- [ ] Update scheduler docs to state the daily opening policy.
 
 ## 10. Verification
 

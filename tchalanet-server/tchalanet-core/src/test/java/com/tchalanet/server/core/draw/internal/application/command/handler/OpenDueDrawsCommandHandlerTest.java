@@ -15,7 +15,6 @@ import com.tchalanet.server.core.draw.internal.application.query.projection.DueT
 import com.tchalanet.server.core.draw.internal.domain.model.Draw;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -49,13 +48,15 @@ class OpenDueDrawsCommandHandlerTest {
     var calendar = new FakeResultSlotCalendarReaderPort(closedSlotId, drawDate);
     var handler = new OpenDueDrawsCommandHandler(port, calendar);
 
-    var result = handler.handle(new OpenDueDrawsCommand(now, 100, 24, 0, false));
+    var result = handler.handle(new OpenDueDrawsCommand(now, 100, 24, 1, false));
 
     assertThat(result.opened()).isEqualTo(1);
     assertThat(result.canceledProviderClosed()).isEqualTo(1);
     assertThat(port.opened).containsExactly(openDrawId);
     assertThat(port.canceled).containsExactly(canceledDrawId);
     assertThat(port.reasonCode).isEqualTo("PROVIDER_CLOSED");
+    assertThat(port.lookaheadHours).isEqualTo(24);
+    assertThat(port.lagHours).isEqualTo(1);
   }
 
   private static final class FakeResultSlotCalendarReaderPort
@@ -82,6 +83,8 @@ class OpenDueDrawsCommandHandlerTest {
     private final List<DrawId> opened = new ArrayList<>();
     private final List<DrawId> canceled = new ArrayList<>();
     private String reasonCode;
+    private int lookaheadHours;
+    private int lagHours;
 
     private FakeDrawLifecyclePort(List<OpenableDrawRow> rows) {
       this.rows = rows;
@@ -90,13 +93,9 @@ class OpenDueDrawsCommandHandlerTest {
     @Override
     public List<OpenableDrawRow> findOpenable(
         Instant now, int limit, int openHorizonHours, int openLagHours) {
+      lookaheadHours = openHorizonHours;
+      lagHours = openLagHours;
       return rows;
-    }
-
-    @Override
-    public List<OpenableDrawRow> findOpenableForSalesOpenTime(
-        Instant now, LocalDate drawDate, LocalTime defaultSalesOpenTime, int limit) {
-      throw new UnsupportedOperationException();
     }
 
     @Override

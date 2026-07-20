@@ -297,6 +297,16 @@ class TicketCommandMutationCoverageTest {
     public List<Ticket> findByDrawId(DrawId drawId) {
       return List.of();
     }
+
+    @Override
+    public List<Ticket> findPendingResultByDrawId(DrawId drawId, int limit) {
+      return List.of();
+    }
+
+    @Override
+    public long countPendingResultByDrawId(DrawId drawId) {
+      return 0;
+    }
   }
 
   private static class CapturingWriter implements TicketWriterPort {
@@ -347,6 +357,16 @@ class TicketCommandMutationCoverageTest {
     @Override
     public List<Ticket> findByDrawId(DrawId drawId) {
       return List.of();
+    }
+
+    @Override
+    public List<Ticket> findPendingResultByDrawId(DrawId drawId, int limit) {
+      return List.of();
+    }
+
+    @Override
+    public long countPendingResultByDrawId(DrawId drawId) {
+      return 0;
     }
 
     @Override
