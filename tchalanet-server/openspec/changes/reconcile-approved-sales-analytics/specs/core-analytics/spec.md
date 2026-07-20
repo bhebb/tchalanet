@@ -87,3 +87,34 @@ watermark.
   tickets in the selected scope
 - **AND** SHALL retain an auditable repair record
 - **AND** SHALL mark the scope ready only after the post-repair reconciliation succeeds.
+
+### Requirement: Reconciliation distinguishes validation from repair
+
+The analytics domain SHALL support a read-only `VALIDATE` mode and an explicit
+`REBUILD_AND_VALIDATE` mode. A projection row existing for a requested date SHALL NOT by itself
+produce a trustworthy state.
+
+#### Scenario: Deleted analytics row is repaired
+
+- **GIVEN** an official tenant ticket exists but its matching analytics projection row was deleted
+- **WHEN** an operator executes `VALIDATE` for the tenant scope
+- **THEN** the result SHALL report `MISMATCH`
+- **AND** the affected reporting scope SHALL be unavailable.
+- **WHEN** the operator executes `REBUILD_AND_VALIDATE` for the same scope
+- **THEN** the system SHALL rebuild only that selected tenant scope from immutable source snapshots
+- **AND** a second comparison SHALL be executed
+- **AND** the operation SHALL report `SUCCESS` only when expected and observed metrics match
+  exactly.
+
+### Requirement: Reconciliation uses immutable financial truth
+
+Expected metrics SHALL be derived from ticket, line, charge, result, settlement and seller
+commission snapshots. It SHALL NOT calculate historical totals from current pricing, commission,
+promotion or settlement configuration.
+
+#### Scenario: Seller override remains historically correct
+
+- **GIVEN** a ticket was sold with a seller-terminal commission or price override
+- **WHEN** reconciliation calculates expected seller commission and stake
+- **THEN** it SHALL use the ticket snapshots persisted at sale time
+- **AND** changing the current seller configuration SHALL NOT change the reconciliation result.

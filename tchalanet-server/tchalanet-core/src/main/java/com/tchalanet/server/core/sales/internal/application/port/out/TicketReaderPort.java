@@ -19,4 +19,8 @@ public interface TicketReaderPort {
   Optional<Ticket> findByVerificationCode(String verificationCode);
 
   List<Ticket> findByDrawId(DrawId drawId);
+
+  List<Ticket> findPendingResultByDrawId(DrawId drawId, int limit);
+
+  long countPendingResultByDrawId(DrawId drawId);
 }

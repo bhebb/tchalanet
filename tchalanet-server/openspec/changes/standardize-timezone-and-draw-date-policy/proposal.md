@@ -127,7 +127,7 @@ In scope:
 - draw channel schedule calculation;
 - generated draw snapshot fields;
 - result occurred-at resolution;
-- draw lifecycle scheduler open/close windows;
+- draw lifecycle scheduler daily opening and cutoff closure;
 - draw result fetch/apply windows;
 - sales cutoff validation;
 - offline sync acceptance gates;

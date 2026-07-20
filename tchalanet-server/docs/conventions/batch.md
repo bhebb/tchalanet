@@ -19,17 +19,19 @@ tch:
   draw:
     scheduler:
       active: true
+      timezone: America/Port-au-Prince
 
       generate:
         active: true
-        cron: '0 0 5 * * *'
+        cron: '0 5 0 * * *'
         days-ahead: 7
         max-tenants-per-run: 1000
 
-      open-today:
+      open:
         active: true
-        cron: '0 */5 4-10 * * *'
-        default-sales-open-time: '05:30'
+        cron: '0 15 0 * * *'
+        lookahead-hours: 24
+        lag-hours: 1
         max-items-per-run: 10000
 
       processing:
@@ -68,11 +70,11 @@ tch:
 `DrawLifeCycleTickScheduler` owns only:
 
 - generate next draws;
-- open today's scheduled draws.
+- open the day's eligible upcoming draws.
 
 ### Generate
 
-Default: daily at `05:00`.
+Default: daily at `00:05` in `tch.draw.scheduler.timezone`.
 
 The scheduler loops over active tenants and launches the `draw:lifecycle:generate` Spring Batch job.
 Generation is idempotent and preserves the unique key `(tenant_id, draw_channel_id, draw_date)`.
@@ -83,9 +85,9 @@ Generated draw snapshots:
 - `cutoff_at` comes from `scheduled_at - draw_channel.cutoff_sec`;
 - `status` starts as `SCHEDULED`, except forced past backfills may be closed.
 
-### Open Today
+### Open Daily
 
-Default: every 5 minutes from `04:00` to `10:00` UTC.
+Default: daily at `00:15` in `tch.draw.scheduler.timezone`.
 
 The scheduler loops over active tenants and launches the `draw:lifecycle:open` Spring Batch job.
 
@@ -93,26 +95,28 @@ Open eligibility:
 
 ```text
 draw.status = SCHEDULED
-draw.draw_date = channel-local date(now)
-channel-local time(now) >= coalesce(draw_channel.sales_open_time, defaultSalesOpenTime)
+draw.scheduled_at is within [now - lagHours, now + lookaheadHours]
 draw.cutoff_at > now
 draw.locked = false
 ```
 
-`draw_channel.sales_open_time` is tenant/channel commercial configuration. If it is absent,
-`tch.draw.scheduler.open-today.default-sales-open-time` is used. `draw.opened_at` is the actual
-transition timestamp, not the configured opening time.
+`draw.opened_at` is the actual transition timestamp. The provider calendar check still cancels a
+scheduled draw with no provider occurrence instead of opening it.
 
 ## Draw Processing Scheduler
 
 `DrawProcessingTickScheduler` runs the repeated processing pipeline:
 
 ```text
-close -> fetch -> apply -> settle
+close -> fetch -> result-reminder -> apply -> settle
 ```
 
 Each step has its own active flag and batch gate. A step failure is logged and counted; later safe
 steps may still run.
+
+`result-reminder` is part of this same tick. It creates a platform operational notification for a
+manual slot missing its result after five minutes, or an automatic provider still missing its result
+after one hour. It does not fetch, apply, or settle a result itself.
 
 ### Close
 
@@ -193,3 +197,43 @@ Forced operations require:
 
 Force can bypass scheduler timing windows and retry intervals. It must not bypass core invariants,
 RLS, authentication, valid state transitions, or idempotency protections.
+
+## Canonical Scheduler Inventory
+
+Do not add a scheduler merely because a task is periodic. Existing work is grouped by operational
+ownership and each entry has one configuration root:
+
+| Owner | Runtime entry point | Cadence | Configuration root | Purpose |
+|---|---|---|---|---|
+| Draw lifecycle | `DrawLifeCycleTickScheduler` | generate 00:05; open 00:15 | `tch.draw.scheduler` | Generates and opens tenant draws. |
+| Draw processing | `DrawProcessingTickScheduler` | every 5 min | `tch.draw.scheduler.processing` | `close -> fetch -> result-reminder -> apply -> settle`. |
+| Draw watchdog | `DrawProvisionalWatchdogScheduler` | every 15 min | `tch.draw.watchdog` | Detects provisional results stuck after application. |
+| Sale preparation retention | `SalePreparationRetentionScheduler` | every 5 min | `tch.sales.preparation` | Expires and purges temporary preparation records. |
+| Communication delivery | `OutboundMessageRetryScheduler` | every 30 sec | `tch.communication.dispatcher` | Retries durable outbound messages; it does not create notifications. |
+| Analytics maintenance | `AnalyticsMaintenanceScheduler` | daily | `tch.analytics` | Retention only today; reconciliation is added here when its durable run model exists. |
+| Public content | `PublicContentRefreshScheduler` | every 6 h | `tch.news.refresh` | Refreshes external RSS content. |
+| Archive restore cleanup | `ArchiveRestoreCleanupScheduler` | daily | `tch.archive.restore-cleanup` | Cleans expired temporary restore runs. |
+| Batch history | `BatchJobHistoryPurgeScheduler` | weekly | `tch.batch.history` | Purges Spring Batch execution history. |
+
+The obsolete roots `tch.draw.lifecycle`, `tch.draw.settlement`, and
+`tch.draw.results.scheduler` are intentionally unsupported. Draw scheduling is configured only
+under `tch.draw.scheduler`; result fetch limits and notification policy remain under
+`tch.draw.results`.
+
+## In-App Notification Push
+
+Private notifications use an authenticated server-sent-events refresh signal, not a polling loop:
+
+```text
+NotificationPublishedEvent after commit
+  -> NotificationRealtimeStreamService
+  -> SSE notification-change
+  -> private notification store reloads latest items + unread count through REST
+```
+
+The REST endpoints remain the source of notification content. SSE carries no notification body, so
+it does not leak another audience's notification and a reconnect cannot create duplicate UI items.
+The web client uses `fetch` rather than native `EventSource` because authorization and support
+tenant-override headers are required, and sends a fresh `X-Request-Id` for each connection. It
+reconnects after transient failure with a bounded `5 s → 15 s → 30 s → 60 s` backoff; it must not
+add a periodic unread-count poll while the stream is healthy.

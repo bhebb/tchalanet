@@ -11,7 +11,11 @@ public final class ResultReminderCorrelationKeys {
   public static String actionRequired(
       ResultReminderReason reason, ResultSlotId resultSlotId, LocalDate drawDate) {
     var reasonPart =
-        reason == ResultReminderReason.AUTOMATIC_FETCH_OVERDUE ? "automatic-overdue" : "manual";
+        switch (reason) {
+          case MANUAL_ENTRY_REQUIRED -> "manual";
+          case AUTOMATIC_FETCH_OVERDUE -> "automatic-overdue";
+          case PROVISIONAL_RESULT_STUCK -> "provisional-stuck";
+        };
     return "drawresult.action-required:%s:%s:%s"
         .formatted(reasonPart, resultSlotId.value(), drawDate);
   }
@@ -22,5 +26,9 @@ public final class ResultReminderCorrelationKeys {
 
   public static String automaticOverdue(ResultSlotId resultSlotId, LocalDate drawDate) {
     return actionRequired(ResultReminderReason.AUTOMATIC_FETCH_OVERDUE, resultSlotId, drawDate);
+  }
+
+  public static String provisionalStuck(ResultSlotId resultSlotId, LocalDate drawDate) {
+    return actionRequired(ResultReminderReason.PROVISIONAL_RESULT_STUCK, resultSlotId, drawDate);
   }
 }

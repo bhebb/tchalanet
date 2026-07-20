@@ -17,8 +17,11 @@ import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.core.draw.api.command.ApplyExternalResultsWindowCommand;
 import com.tchalanet.server.core.draw.api.event.DrawResultAppliedEvent;
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawApplyPort;
+import com.tchalanet.server.core.drawresult.api.model.DrawResultStatus;
+import com.tchalanet.server.core.drawresult.api.model.ResultQuality;
 import com.tchalanet.server.core.drawresult.api.query.view.DrawResultProjection;
 import com.tchalanet.server.core.drawresult.api.query.view.DrawResultView;
+import com.tchalanet.server.catalog.drawchannel.api.model.DrawSource;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultReaderPort;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultsCriteria;
 import com.tchalanet.server.core.drawresult.internal.domain.model.DrawResult;
@@ -84,6 +87,61 @@ class ApplyExternalResultsWindowCommandHandlerTest {
             });
   }
 
+  @Test
+  void leavesTenantDrawUnchangedWhenGlobalResultIsProvisional() {
+    var publisher = new CapturingPublisher();
+    var applyPort = new UpdatedDrawApplyPort();
+    var handler =
+        new ApplyExternalResultsWindowCommandHandler(
+            new SingleSlotCatalog(),
+            new SingleDrawResultReader(DrawResultStatus.PROVISIONAL),
+            applyPort,
+            new DrawResultsProperties(),
+            Clock.fixed(NOW, ZoneOffset.UTC),
+            publisher,
+            () -> UUID.fromString("01000000-0000-0000-0000-000000000001"),
+            new JsonUtils(JsonMapper.builder().build()));
+
+    var result =
+        handler.handle(
+            new ApplyExternalResultsWindowCommand(
+                TENANT_ID, LocalDate.of(2026, 1, 2), 0, List.of("MIDDAY"), false, false, 10, null));
+
+    assertThat(result.inserted()).isZero();
+    assertThat(result.skipped()).isEqualTo(1);
+    assertThat(applyPort.calls()).isZero();
+    assertThat(publisher.events()).isEmpty();
+  }
+
+  @Test
+  void appliesResultAfterTheSameProvisionalResultIsConfirmed() {
+    var publisher = new CapturingPublisher();
+    var reader = new SingleDrawResultReader(DrawResultStatus.PROVISIONAL);
+    var applyPort = new UpdatedDrawApplyPort();
+    var handler =
+        new ApplyExternalResultsWindowCommandHandler(
+            new SingleSlotCatalog(),
+            reader,
+            applyPort,
+            new DrawResultsProperties(),
+            Clock.fixed(NOW, ZoneOffset.UTC),
+            publisher,
+            () -> UUID.fromString("01000000-0000-0000-0000-000000000001"),
+            new JsonUtils(JsonMapper.builder().build()));
+
+    var command =
+        new ApplyExternalResultsWindowCommand(
+            TENANT_ID, LocalDate.of(2026, 1, 2), 0, List.of("MIDDAY"), false, false, 10, null);
+
+    handler.handle(command);
+    reader.confirm();
+    var confirmed = handler.handle(command);
+
+    assertThat(confirmed.inserted()).isEqualTo(1);
+    assertThat(applyPort.calls()).isEqualTo(1);
+    assertThat(publisher.events()).hasSize(1);
+  }
+
   private static final class SingleSlotCatalog implements ResultSlotCatalog {
     @Override
     public List<ResultSlotView> listActive() {
@@ -131,6 +189,20 @@ class ApplyExternalResultsWindowCommandHandlerTest {
   }
 
   private static final class SingleDrawResultReader implements DrawResultReaderPort {
+    private DrawResultStatus status;
+
+    private SingleDrawResultReader() {
+      this(DrawResultStatus.CONFIRMED);
+    }
+
+    private SingleDrawResultReader(DrawResultStatus status) {
+      this.status = status;
+    }
+
+    private void confirm() {
+      status = DrawResultStatus.CONFIRMED;
+    }
+
     @Override
     public DrawResult getById(DrawResultId id) {
       throw new UnsupportedOperationException();
@@ -138,7 +210,21 @@ class ApplyExternalResultsWindowCommandHandlerTest {
 
     @Override
     public Optional<DrawResultView> findViewById(DrawResultId id) {
-      return Optional.empty();
+      return Optional.of(
+          new DrawResultView(
+              DRAW_RESULT_ID,
+              "MIDDAY",
+              LocalDate.of(2026, 1, 2),
+              NOW,
+              status,
+              DrawSource.MANUAL,
+              ResultQuality.COMPLETE,
+              null,
+              NOW,
+              null,
+              null,
+              null,
+              null));
     }
 
     @Override
@@ -187,6 +273,8 @@ class ApplyExternalResultsWindowCommandHandlerTest {
   }
 
   private static final class UpdatedDrawApplyPort implements DrawApplyPort {
+    private int calls;
+
     @Override
     public ApplyResult attachResultBySlot(
         TenantId tenantId,
@@ -194,7 +282,12 @@ class ApplyExternalResultsWindowCommandHandlerTest {
         ResultSlotId resultSlotId,
         DrawResultId drawResultId,
         Instant now) {
+      calls++;
       return ApplyResult.updated(List.of(new AppliedDraw(DRAW_ID, DRAW_CHANNEL_ID)));
+    }
+
+    private int calls() {
+      return calls;
     }
   }
 

@@ -1,12 +1,14 @@
 import { isPlatformBrowser } from '@angular/common';
 import { Injectable, PLATFORM_ID, inject } from '@angular/core';
 
-import { TchBackendClient } from '@tch/api';
+import { TchBackendClient, createRequestId } from '@tch/api';
 import { AUTH_CLIENT, SupportAccessStore } from '@tch/core/auth';
 
 import { PrivateNotificationScope } from './private-notifications-api.service';
 
 type NotificationChangeHandler = () => void;
+
+const RETRY_DELAYS_MS = [5_000, 15_000, 30_000, 60_000] as const;
 
 @Injectable({ providedIn: 'root' })
 export class PrivateNotificationsRealtimeService {
@@ -20,7 +22,13 @@ export class PrivateNotificationsRealtimeService {
     this.disconnect();
     if (!isPlatformBrowser(this.platformId)) return;
 
-    const stream: ActiveStream = { scope, onChange, controller: new AbortController(), retryTimer: null };
+    const stream: ActiveStream = {
+      scope,
+      onChange,
+      controller: new AbortController(),
+      retryTimer: null,
+      retryAttempt: 0,
+    };
     this.active = stream;
     void this.open(stream);
   }
@@ -49,13 +57,20 @@ export class PrivateNotificationsRealtimeService {
       // The stream is opportunistic: REST remains available and reconnect handles transient faults.
     } finally {
       if (this.active === stream && !stream.controller.signal.aborted) {
-        stream.retryTimer = globalThis.setTimeout(() => void this.open(stream), 2_000);
+        stream.retryTimer = globalThis.setTimeout(
+          () => void this.open(stream),
+          retryDelayMs(stream.retryAttempt++),
+        );
       }
     }
   }
 
   private headers(token: string, scope: PrivateNotificationScope): Headers {
-    const headers = new Headers({ Authorization: `Bearer ${token}`, Accept: 'text/event-stream' });
+    const headers = new Headers({
+      Authorization: `Bearer ${token}`,
+      Accept: 'text/event-stream',
+      'X-Request-Id': createRequestId(),
+    });
     const support = scope === 'admin' ? this.supportAccess.session() : null;
     if (support) {
       headers.set('X-Tch-Tenant-Override', support.tenantId);
@@ -78,6 +93,7 @@ export class PrivateNotificationsRealtimeService {
         buffer = frames.pop() ?? '';
         for (const frame of frames) {
           if (frame.split(/\r?\n/).some(line => line === 'event: notification-change')) {
+            stream.retryAttempt = 0;
             stream.onChange();
           }
         }
@@ -97,4 +113,9 @@ interface ActiveStream {
   readonly onChange: NotificationChangeHandler;
   readonly controller: AbortController;
   retryTimer: ReturnType<typeof globalThis.setTimeout> | null;
+  retryAttempt: number;
+}
+
+function retryDelayMs(attempt: number): number {
+  return RETRY_DELAYS_MS[Math.min(Math.max(attempt, 0), RETRY_DELAYS_MS.length - 1)];
 }

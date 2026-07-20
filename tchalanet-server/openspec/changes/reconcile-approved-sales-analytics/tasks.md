@@ -6,8 +6,9 @@
 - [x] Replace direct `sales_ticket` KPI reads in POS, tenant-admin dashboard, and seller-terminal
       summary with canonical `core.analytics` queries. Seller-terminal queries must be keyed by
       `SellerTerminalId`, never user ID.
-- [ ] Define canonical metric semantics and API names: approved ticket count, stake total, total
-      paid, seller commission, calculated winnings, and paid winnings.
+- [x] Define canonical metric semantics and API names: approved ticket count, stake total, total
+      paid, seller commission, calculated winnings, and paid winnings. Declare separately the
+      sales business date, draw business date, and settlement business date for every report.
 - [x] Add an `AnalyticsTrustState` read model/API with `READY`, `RECONCILIATION_REQUIRED`, and
       `UNAVAILABLE` states; scope it by platform, tenant, seller terminal, draw, and business day.
 - [x] Make POS and reporting BFFs return an explicit unavailable KPI section plus a stable notice
@@ -16,13 +17,24 @@
       until the requested scope is trustworthy.
 - [ ] Add a platform-ops audited action to disable or re-enable metric visibility by scope and
       reason. Client code must not control the flag.
-- [ ] Add a read-only reconciler that compares transactional `APPROVED` tickets to daily, draw,
-      and seller-terminal projections and persists a discrepancy report with a watermark. The
-      reconciler must set the tenant RLS context explicitly for every tenant-scoped read.
-- [ ] Add an explicit, auditable recompute operation that rebuilds a selected scope from the
-      transactional source; do not use the current destructive projection cleanup as a repair.
+- [ ] Define the source snapshot contract for paid-basis and cancellation reconciliation before
+      implementing the reconciler: effective paid amount, adjustment/reversal history, cancellation
+      timestamp, and reversal amounts. This prevents incorrect reconciliation after corrections.
+- [x] Add the tenant-scoped sales snapshot read boundary and batch-load ticket charges, so a
+      reconciliation window does not execute one charge query per ticket.
+- [~] Add a read-only `VALIDATE` reconciler that compares immutable transactional ticket, line,
+      charge, result and settlement snapshots to daily, draw, seller-terminal and
+      seller-terminal/draw projections. Persist expected/observed values, exact deltas, missing
+      identifiers and a source watermark. The reconciler must set tenant context explicitly for
+      every tenant-scoped read. The tenant-only command and batch snapshot boundary are in place;
+      the oracle, source aggregation, and persistent run history remain.
+- [~] Add explicit `REBUILD_AND_VALIDATE` repair for a selected tenant scope. It must rebuild from
+      source snapshots, re-run validation, and return `SUCCESS` only on an exact post-rebuild
+      match. Never use the existing destructive cleanup stub as a repair. The legacy destructive
+      command is disabled pending this implementation.
 - [ ] Make projection processing atomic with its idempotency marker, and make cancellation reverse
-      all affected financial projections using immutable ticket snapshots.
+      all affected daily, draw and seller-terminal financial projections using immutable ticket
+      snapshots.
 - [ ] Add alerts for projection failure or reconciliation mismatch and automatically mark the
       affected scope unavailable.
 - [ ] Remove remaining approval-only lifecycle APIs and persistence states after the V0 data reset.

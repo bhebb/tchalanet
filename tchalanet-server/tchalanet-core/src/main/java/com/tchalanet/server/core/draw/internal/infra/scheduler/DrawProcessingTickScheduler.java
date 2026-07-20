@@ -14,9 +14,12 @@ import com.tchalanet.server.common.time.OccurredAtResolver;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawProcessingCandidateReaderPort;
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawProcessingCandidateReaderPort.DrawProcessingSlotDate;
+import com.tchalanet.server.core.draw.internal.application.port.out.FindSettleableDrawIdsPort;
+import com.tchalanet.server.core.draw.internal.application.service.ResultedDrawProcessor;
 import com.tchalanet.server.core.draw.internal.infra.config.DrawProperties;
 import com.tchalanet.server.core.drawresult.api.command.CreateMissingResultReminderCommand;
 import com.tchalanet.server.core.drawresult.api.model.DrawResultStatus;
+import com.tchalanet.server.core.drawresult.api.query.view.DrawResultView;
 import com.tchalanet.server.core.drawresult.api.model.ResultReminderReason;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultReaderPort;
 import com.tchalanet.server.core.drawresult.internal.application.service.ResultSlotSourceClassification;
@@ -55,7 +58,6 @@ public class DrawProcessingTickScheduler {
   private static final JobKey DRAWRESULT_REMINDER = JobKey.of("drawresult:reminder:run");
   private static final String DATE = "date";
   private static final String DAYS_BACK = "days_back";
-  private static final String MAX_DRAWS = "max_draws";
   private static final String MAX_ITEMS = "max_items";
   private static final String MAX_SLOTS = "max_slots";
   private static final String SLOT_KEYS = "slot_keys";
@@ -74,6 +76,8 @@ public class DrawProcessingTickScheduler {
   private final AtomicBoolean configLogged = new AtomicBoolean(false);
   private final DrawProcessingCandidateReaderPort candidateReader;
   private final ResultSlotSourceClassifier resultSlotSourceClassifier;
+  private final FindSettleableDrawIdsPort settleableDrawIds;
+  private final ResultedDrawProcessor resultedDrawProcessor;
 
   @TchJob("draw:processing")
   @Scheduled(cron = "${tch.draw.scheduler.processing.cron:0 */5 * * * *}", zone = "UTC")
@@ -157,7 +161,7 @@ public class DrawProcessingTickScheduler {
 
     var due =
         dueSlotDates("fetch", now, cfg).stream()
-            .filter(candidate -> !hasConfirmedResult(candidate))
+            .filter(candidate -> !hasActionableResult(candidate))
             .limit(Math.max(1, cfg.getMaxSlotsPerTick()))
             .toList();
 
@@ -435,15 +439,19 @@ public class DrawProcessingTickScheduler {
           continue;
         }
 
-        var exec = batchJobStarter.start(DRAW_SETTLE, settleParamsFor(tenantId, now));
-
-        log.info(
-            "draw.processing.settle started tenantId={} executionId={} dueCandidates={}",
-            tenantId,
-            exec.jobExecutionId(),
-            processingCandidates.size());
-
-        processed++;
+        var drawIds =
+            settleableDrawIds.findSettleableDrawIds(
+                new FindSettleableDrawIdsPort.SettleableDrawCriteria(
+                    tenantId,
+                    now.minus(java.time.Duration.ofDays(1)),
+                    now,
+                    Math.max(1, cfg.getMaxItemsPerTick()),
+                    false));
+        for (var drawId : drawIds) {
+          if (resultedDrawProcessor.process(drawId)) {
+            processed++;
+          }
+        }
 
       } catch (Exception ex) {
         errors++;
@@ -512,9 +520,11 @@ public class DrawProcessingTickScheduler {
       for (LocalDate drawDate : List.of(today, today.minusDays(1))) {
         var slotDate = new SlotDate(slot, drawDate);
         var occurredAt = occurredAt(slotDate);
-        var reason = reminderReason(classification, occurredAt, now, config);
+        var result =
+            drawResultReader.findViewBySlotKeyAndOccurredAt(slot.slotKey(), occurredAt);
+        var reason = reminderReason(classification, result.orElse(null), occurredAt, now, config);
 
-        if (reason == null || hasAnyResult(slotDate)) {
+        if (reason == null) {
           continue;
         }
 
@@ -526,9 +536,19 @@ public class DrawProcessingTickScheduler {
 
   private ResultReminderReason reminderReason(
       ResultSlotSourceClassification classification,
+      DrawResultView result,
       Instant occurredAt,
       Instant now,
       DrawProperties.ResultReminder config) {
+    if (result != null) {
+      return result.status() == DrawResultStatus.PROVISIONAL
+              && !now.isBefore(
+                  occurredAt.plus(
+                      java.time.Duration.ofMinutes(config.getProvisionalStuckMinutesAfterDraw())))
+          ? ResultReminderReason.PROVISIONAL_RESULT_STUCK
+          : null;
+    }
+
     if (classification == ResultSlotSourceClassification.MANUAL
         && !now.isBefore(
             occurredAt.plus(
@@ -562,11 +582,14 @@ public class DrawProcessingTickScheduler {
     }
   }
 
-  private boolean hasConfirmedResult(SlotDate candidate) {
+  private boolean hasActionableResult(SlotDate candidate) {
     var occurredAt = occurredAt(candidate);
     return drawResultReader
         .findViewBySlotKeyAndOccurredAt(candidate.slot().slotKey(), occurredAt)
-        .map(view -> DrawResultStatus.CONFIRMED == view.status())
+        .map(
+            view ->
+                DrawResultStatus.CONFIRMED == view.status()
+                    || DrawResultStatus.OVERRIDDEN == view.status())
         .orElse(false);
   }
 
@@ -579,23 +602,6 @@ public class DrawProcessingTickScheduler {
   private static Instant occurredAt(SlotDate candidate) {
     return OccurredAtResolver.resolveOrThrow(
         null, candidate.drawDate(), candidate.slot().drawTime(), candidate.slot().timezone());
-  }
-
-  private Map<String, String> settleParamsFor(TenantId tenantId, Instant now) {
-    var params = new HashMap<String, String>();
-    params.put(JobParamKeys.TENANT_ID, tenantId.value().toString());
-    params.put(JobParamKeys.REQUEST_ID, requestId("draw-settle", now));
-    params.put(JobParamKeys.ACTOR, "scheduler");
-    params.put(DAYS_BACK, "1");
-    params.put(
-        MAX_DRAWS,
-        Integer.toString(
-            Math.max(
-                1,
-                drawProperties.getScheduler().getProcessing().getSettle().getMaxItemsPerTick())));
-    params.put(JobParamKeys.DRY_RUN, Boolean.toString(DEFAULT_DRY_RUN));
-    params.put(JobParamKeys.FORCE, Boolean.toString(DEFAULT_FORCE));
-    return params;
   }
 
   private Map<String, String> closeParamsFor(TenantId tenantId, int maxItems, Instant now) {
@@ -660,7 +666,7 @@ public class DrawProcessingTickScheduler {
         "draw.processing.config active={} cron={} timezone={} close.max={} fetch.start={} fetch.retry={} fetch.stop={} fetch.max={} reminder.manualStart={} reminder.autoOverdue={} reminder.max={} apply.start={} apply.retry={} apply.stop={} apply.max={} settle.start={} settle.retry={} settle.stop={} settle.max={}",
         processing.isActive(),
         processing.getCron(),
-        processing.getTimezone(),
+        drawProperties.getScheduler().getTimezone(),
         processing.getClose().getMaxItemsPerTick(),
         processing.getFetch().getStartMinutesAfterDraw(),
         processing.getFetch().getRetryEveryMinutes(),

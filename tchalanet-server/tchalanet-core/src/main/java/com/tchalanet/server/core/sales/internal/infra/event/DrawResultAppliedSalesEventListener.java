@@ -40,14 +40,26 @@ public class DrawResultAppliedSalesEventListener {
         event.drawId(),
         event.drawResultId());
 
-    commandBus.execute(
+    var outcome =
+        commandBus.execute(
         new com.tchalanet.server.core.sales.api.command.result.RecordDrawTicketsResultCommand(
             event.tenantId(),
             event.drawId(),
             event.drawResultId(),
             event.drawDate(),
             event.resultSlotId(),
-            event.drawChannelId()));
+            event.drawChannelId(),
+            250));
+
+    if (!outcome.complete()) {
+      log.warn(
+          "DrawResultAppliedEvent ticket processing incomplete eventId={} drawId={} remaining={} failures={}",
+          event.eventId(),
+          event.drawId(),
+          outcome.remainingTickets(),
+          outcome.failedTickets());
+      return;
+    }
 
     processedEventPort.markProcessed(APPLIED_HANDLER_KEY, event.eventId().value());
   }

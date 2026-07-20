@@ -6,6 +6,7 @@ import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.DrawResultId;
 import com.tchalanet.server.common.types.id.ResultSlotId;
 import com.tchalanet.server.common.types.id.TenantId;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 
@@ -15,5 +16,6 @@ public record RecordDrawTicketsResultCommand(
     @NotNull DrawResultId drawResultId,
     @NotNull LocalDate drawDate,
     @NotNull ResultSlotId resultSlotId,
-    @NotNull DrawChannelId drawChannelId)
+    @NotNull DrawChannelId drawChannelId,
+    @Min(1) int maxTickets)
     implements Command<RecordDrawTicketsResultResult> {}

@@ -23,3 +23,7 @@
 - [x] Make all result-arrived, action-required, and Slack bridge messages idempotent with stable correlation keys.
 - [x] Add focused tests for seed/client classification, manual reminders, automatic overdue, expiration, resolution, and Slack bridge behavior.
 - [x] Run targeted backend tests and OpenSpec validation.
+- [ ] Define and test the provider confirmation policy per result slot: providers trusted as final
+      may publish `DRAW_RESULT_AVAILABLE` on first confirmed fetch; provisional provider results
+      remain platform-ops-visible and create no tenant availability notification until the explicit
+      confirmation action completes.

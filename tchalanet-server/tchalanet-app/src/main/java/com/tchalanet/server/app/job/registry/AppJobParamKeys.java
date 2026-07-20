@@ -15,6 +15,8 @@ public final class AppJobParamKeys {
 
   public static final String DAYS_AHEAD = "days_ahead";
   public static final String DAYS_BACK = "days_back";
+  public static final String LOOKAHEAD_HOURS = "lookahead_hours";
+  public static final String LAG_HOURS = "lag_hours";
 
   public static final String SLOT_KEY = "slot_key";
   public static final String SLOT_KEYS = "slot_keys";

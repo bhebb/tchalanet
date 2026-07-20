@@ -85,7 +85,7 @@ public class DrawCalendarOpsController {
                     "reason", req.reason())));
   }
 
-  @Operation(summary = "Open today's scheduled draws (ops)")
+  @Operation(summary = "Open scheduled draws in the configured upcoming horizon (ops)")
   @PostMapping("/open-today")
   @AuditLog(
       entity = AuditEntityType.DRAW,
@@ -99,8 +99,10 @@ public class DrawCalendarOpsController {
             req.tenantCodes(),
             tenantId ->
                 params(
-                    "date", req.drawDate() == null ? null : req.drawDate().toString(),
                     "max_items", req.limit() == null ? null : req.limit().toString(),
+                    "lookahead_hours",
+                    req.lookaheadHours() == null ? null : req.lookaheadHours().toString(),
+                    "lag_hours", req.lagHours() == null ? null : req.lagHours().toString(),
                     "dry_run", Boolean.toString(req.dryRun()))));
   }
 

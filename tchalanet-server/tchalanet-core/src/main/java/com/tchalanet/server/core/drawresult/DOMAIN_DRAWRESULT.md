@@ -100,13 +100,15 @@ Clé d'upsert : `(result_slot_id, occurred_at)`
 ## 7. Pipeline runtime
 
 ```
-fetch → uslottery → projection Haïti → upsert DrawResult
-apply → core.draw attache le DrawResult → DrawResultAppliedEvent
-settle → core.draw (requiert status=CONFIRMED) → DrawSettledEvent
+fetch / saisie manuelle → projection Haïti → upsert DrawResult
+apply → core.draw attache seulement un résultat CONFIRMED ou OVERRIDDEN → DrawResultAppliedEvent
+ticket processing → core.sales calcule et règle les tickets par lots rejouables
+settle → core.draw (résultat CONFIRMED ou OVERRIDDEN, aucun ticket en attente) → DrawSettledEvent
 ```
 
 Application fonctionnelle:
 
+- Un résultat `PROVISIONAL` ne calcule pas les gains et ne s'attache à aucun draw tenant.
 - `DrawResult` ne calcule pas les gains des tickets.
 - `core.draw` lie le résultat au draw fermé.
 - `core.sales` consomme l'événement d'application et calcule les gains réalisés depuis les

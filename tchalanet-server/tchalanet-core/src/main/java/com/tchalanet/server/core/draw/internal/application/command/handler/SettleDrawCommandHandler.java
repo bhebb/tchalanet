@@ -60,7 +60,8 @@ public class SettleDrawCommandHandler implements VoidCommandHandler<SettleDrawCo
       throw new DrawResultNotFinalException(drawSummary.drawId(), null);
     }
 
-    if (DrawResultStatus.CONFIRMED != result.status()) {
+    if (DrawResultStatus.CONFIRMED != result.status()
+        && DrawResultStatus.OVERRIDDEN != result.status()) {
       throw new DrawResultNotFinalException(drawSummary.drawId(), result.id());
     }
 

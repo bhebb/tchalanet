@@ -55,10 +55,11 @@ public class RecordDrawTicketsResultCommandHandler
     Objects.requireNonNull(command.drawResultId(), "drawResultId is required");
     var projection = queryBus.ask(new GetDrawResultProjectionByDrawIdQuery(command.drawId()));
 
-    var tickets = ticketReader.findByDrawId(command.drawId());
+    var tickets = ticketReader.findPendingResultByDrawId(command.drawId(), command.maxTickets());
 
     if (tickets.isEmpty()) {
-      return new RecordDrawTicketsResultResult(0, 0, 0);
+      return new RecordDrawTicketsResultResult(
+          0, 0, 0, ticketReader.countPendingResultByDrawId(command.drawId()), 0);
     }
 
     var now = clock.instant();
@@ -68,6 +69,7 @@ public class RecordDrawTicketsResultCommandHandler
     var affectedTicketIds =
         new java.util.ArrayList<com.tchalanet.server.common.types.id.TicketId>();
     int skipped = 0;
+    int failures = 0;
 
     for (var ticket : tickets) {
       try {
@@ -128,6 +130,7 @@ public class RecordDrawTicketsResultCommandHandler
         }
       } catch (Exception ex) {
         skipped++;
+        failures++;
         log.warn(
             "sales.record-result.skip ticketId={} drawId={} cause={}",
             ticket.identity().id(),
@@ -138,6 +141,8 @@ public class RecordDrawTicketsResultCommandHandler
 
     ticketWriter.flushPending();
 
+    var remaining = ticketReader.countPendingResultByDrawId(command.drawId());
+
     AfterCommit.run(
         () -> {
           resultedEvents.forEach(eventPublisher::publish);
@@ -146,6 +151,7 @@ public class RecordDrawTicketsResultCommandHandler
           affectedTicketIds.forEach(salesTicketCacheEvictor::evictByTicket);
         });
 
-    return new RecordDrawTicketsResultResult(tickets.size(), resultedEvents.size(), skipped);
+    return new RecordDrawTicketsResultResult(
+        tickets.size(), resultedEvents.size(), skipped, remaining, failures);
   }
 }

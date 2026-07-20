@@ -1,6 +1,5 @@
 package com.tchalanet.server.core.draw.internal.infra.persistence.adapter;
 
-import com.tchalanet.server.catalog.drawchannel.api.model.DrawSource;
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawProcessingCandidateReaderPort;
 import com.tchalanet.server.core.drawresult.api.model.DrawResultStatus;
 import com.tchalanet.server.core.drawresult.api.model.ResultQuality;
@@ -54,18 +53,15 @@ public class DrawProcessingCandidateJdbcAdapter implements DrawProcessingCandida
                 and d.draw_result_id is null
                 and d.status = ?
                 and coalesce(d.locked, false) = false
-                and dr.source = ?
                 and dr.quality = ?
-                and dr.status in (?, ?, ?)
+                and dr.status in (?, ?)
               limit 1
             )
             """
             .formatted(valuesSql);
 
     params.add(DRAW_STATUS_CLOSED);
-    params.add(DrawSource.EXTERNAL.name());
     params.add(ResultQuality.COMPLETE.name());
-    params.add(DrawResultStatus.PROVISIONAL.name());
     params.add(DrawResultStatus.CONFIRMED.name());
     params.add(DrawResultStatus.OVERRIDDEN.name());
 

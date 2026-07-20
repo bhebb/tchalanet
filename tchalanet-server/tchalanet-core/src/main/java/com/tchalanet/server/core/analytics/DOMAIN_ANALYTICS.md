@@ -53,7 +53,7 @@ Elles ne touchent pas aux tables analytics directement.
 
 | Commande | Rôle |
 |---|---|
-| `RecomputeAnalyticsDailyCommand` | Recompute les agrégats journaliers depuis les sources |
+| `ReconcileAnalyticsCommand` | Valide les projections tenantées; `REBUILD_AND_VALIDATE` reconstruit puis exige une égalité exacte |
 | `PurgeAnalyticsCommand` | Purge les projections selon politique de rétention |
 
 ---

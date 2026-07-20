@@ -14,6 +14,7 @@ import com.tchalanet.server.core.draw.api.event.DrawResultAppliedEvent;
 import com.tchalanet.server.core.draw.api.event.DrawResultCorrectedEvent;
 import com.tchalanet.server.core.sales.api.command.result.ReconcileTicketsForCorrectedDrawResultCommand;
 import com.tchalanet.server.core.sales.api.command.result.RecordDrawTicketsResultCommand;
+import com.tchalanet.server.core.sales.api.command.result.RecordDrawTicketsResultResult;
 import com.tchalanet.server.platform.idempotence.api.ProcessedEventPort;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -52,9 +53,10 @@ class DrawResultAppliedSalesEventListenerTest {
     CommandBus commandBus =
         new CommandBus() {
           @Override
+          @SuppressWarnings("unchecked")
           public <R> R execute(Command<R> command) {
             dispatched.add(command);
-            return null;
+            return (R) new RecordDrawTicketsResultResult(0, 0, 0, 0, 0);
           }
         };
 
@@ -75,6 +77,48 @@ class DrawResultAppliedSalesEventListenerTest {
 
     assertThat(dispatched).hasSize(1);
     assertThat(dispatched.getFirst()).isInstanceOf(RecordDrawTicketsResultCommand.class);
+  }
+
+  @Test
+  @DisplayName("does not mark an applied event complete while ticket processing remains unresolved")
+  void appliedRemainsReplayableWhenTicketProcessingIsIncomplete() {
+    var processed = new HashSet<String>();
+    ProcessedEventPort processedEventPort =
+        new ProcessedEventPort() {
+          @Override
+          public boolean alreadyProcessed(String handlerKey, UUID eventId) {
+            return processed.contains(handlerKey + ":" + eventId);
+          }
+
+          @Override
+          public void markProcessed(String handlerKey, UUID eventId) {
+            processed.add(handlerKey + ":" + eventId);
+          }
+
+          @Override
+          public boolean markProcessedIfAbsent(String handlerKey, UUID eventId) {
+            return processed.add(handlerKey + ":" + eventId);
+          }
+        };
+
+    var dispatched = new ArrayList<Command<?>>();
+    CommandBus commandBus =
+        new CommandBus() {
+          @Override
+          @SuppressWarnings("unchecked")
+          public <R> R execute(Command<R> command) {
+            dispatched.add(command);
+            return (R) new RecordDrawTicketsResultResult(1, 0, 1, 1, 1);
+          }
+        };
+
+    var event = appliedEvent();
+    var listener = new DrawResultAppliedSalesEventListener(commandBus, processedEventPort);
+
+    listener.onDrawResultApplied(event);
+    listener.onDrawResultApplied(event);
+
+    assertThat(dispatched).hasSize(2);
   }
 
   @Test
@@ -103,25 +147,16 @@ class DrawResultAppliedSalesEventListenerTest {
     CommandBus commandBus =
         new CommandBus() {
           @Override
+          @SuppressWarnings("unchecked")
           public <R> R execute(Command<R> command) {
             dispatched.add(command);
-            return null;
+            return (R) new RecordDrawTicketsResultResult(0, 0, 0, 0, 0);
           }
         };
 
     var listener = new DrawResultAppliedSalesEventListener(commandBus, processedEventPort);
     var event =
-        new DrawResultCorrectedEvent(
-            EventId.of(UUID.randomUUID()),
-            Instant.now(),
-            TenantId.of(UUID.randomUUID()),
-            DrawId.of(UUID.randomUUID()),
-            LocalDate.now(),
-            ResultSlotId.of(UUID.randomUUID()),
-            DrawResultId.of(UUID.randomUUID()),
-            DrawResultId.of(UUID.randomUUID()),
-            DrawChannelId.of(UUID.randomUUID()),
-            "valid reason");
+        correctedEvent();
 
     listener.onDrawResultCorrected(event);
     listener.onDrawResultCorrected(event);
@@ -129,5 +164,31 @@ class DrawResultAppliedSalesEventListenerTest {
     assertThat(dispatched).hasSize(1);
     assertThat(dispatched.getFirst())
         .isInstanceOf(ReconcileTicketsForCorrectedDrawResultCommand.class);
+  }
+
+  private static DrawResultAppliedEvent appliedEvent() {
+    return new DrawResultAppliedEvent(
+        EventId.of(UUID.randomUUID()),
+        Instant.now(),
+        TenantId.of(UUID.randomUUID()),
+        DrawId.of(UUID.randomUUID()),
+        LocalDate.now(),
+        ResultSlotId.of(UUID.randomUUID()),
+        DrawResultId.of(UUID.randomUUID()),
+        DrawChannelId.of(UUID.randomUUID()));
+  }
+
+  private static DrawResultCorrectedEvent correctedEvent() {
+    return new DrawResultCorrectedEvent(
+        EventId.of(UUID.randomUUID()),
+        Instant.now(),
+        TenantId.of(UUID.randomUUID()),
+        DrawId.of(UUID.randomUUID()),
+        LocalDate.now(),
+        ResultSlotId.of(UUID.randomUUID()),
+        DrawResultId.of(UUID.randomUUID()),
+        DrawResultId.of(UUID.randomUUID()),
+        DrawChannelId.of(UUID.randomUUID()),
+        "valid reason");
   }
 }

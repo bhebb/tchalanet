@@ -49,19 +49,6 @@ tch:
           enabled: true
           channel: batch-draws   # → SLACK_WEBHOOK_BATCH_DRAWS sur l'edge
           priority: LOW
-      scheduler:
-        due:
-          min_minutes_after_draw: 0
-          max_minutes_after_draw: 1440
-          lookback_minutes: 1440
-        min-minutes-after-draw: 0
-        max-minutes-after-draw: 1440
-        cooldown-minutes: 10
-      open-today:
-        active: true
-        cron: "0 */5 * * * *"
-        default-sales-open-time: "00:00"
-        max-items-per-run: 10000
   # Disable Spring Batch jobs in local IDE profile while debugging UI/docs
   batch:
     job:

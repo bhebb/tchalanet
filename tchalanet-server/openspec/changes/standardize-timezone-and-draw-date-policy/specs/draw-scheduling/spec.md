@@ -32,18 +32,19 @@ Generated draws SHALL store `scheduledAt` and `cutoffAt` as `Instant`.
 - **THEN** `scheduledAt = ZonedDateTime.of(drawDate, drawTime, channelZone).toInstant()`
 - **AND** `cutoffAt = scheduledAt.minus(PT5M)`.
 
-### Requirement: Open-today uses channel-local date and time
+### Requirement: Daily opening uses the operating timezone and resolved draw instants
 
-The open-today scheduler SHALL decide eligibility using the draw channel timezone.
+The daily opening scheduler SHALL run in the configured operating timezone. It SHALL select
+eligible draws using their resolved `scheduledAt` and `cutoffAt`, not `salesOpenTime`.
 
 #### Scenario: Tenant Haiti date differs from channel New York date
 
 - **GIVEN** tenant timezone is `America/Port-au-Prince`
 - **AND** channel timezone is `America/New_York`
 - **AND** the current instant maps to different local dates in those zones
-- **WHEN** open-today evaluates a draw
-- **THEN** it uses the channel-local date for `drawDate`
-- **AND** it uses the channel-local time for `salesOpenTime` comparison.
+- **WHEN** the daily opening scheduler evaluates a draw
+- **THEN** it uses the configured operating timezone for schedule execution
+- **AND** it uses resolved draw instants for the eligibility window.
 
 ### Requirement: Close uses cutoff instant
 

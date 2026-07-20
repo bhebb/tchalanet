@@ -20,17 +20,16 @@ The system MUST generate missing draws for active tenants on a daily determinist
 
 ### Requirement: Sales-open-time based open today
 
-The system MUST open scheduled draws when the tenant/channel sales opening time is due.
+The system MUST run daily draw opening at `00:15` in the configured scheduler operating timezone.
 
-The system MUST use `draw_channel.sales_open_time` when present.
-
-If `draw_channel.sales_open_time` is null, the system MUST use the configured default sales opening time.
+The system MUST select only scheduled draws in the configured upcoming horizon, excluding draws
+whose persisted `cutoffAt` has elapsed. It MUST NOT use `draw_channel.sales_open_time` as an
+opening gate.
 
 #### Scenario: Open today's draws
 
-- **WHEN** the open-today scheduler runs at its configured cron
-- **THEN** it MUST open only SCHEDULED draws for the current channel-local draw date
-- **AND** it MUST open only draws whose effective sales opening time is due
+- **WHEN** the daily opening scheduler runs at its configured cron
+- **THEN** it MUST open only SCHEDULED draws in its configured upcoming horizon
 - **AND** it MUST NOT open draws where `now >= cutoffAt`
 - **AND** it MUST skip draws already OPEN, CLOSED, RESULTED, SETTLED, CANCELED, or ARCHIVED
 

@@ -541,7 +541,7 @@ generate_missing_draws_for_seven_days() {
     "$BASE_URL/platform/ops/draws/open-today" \
     "$SUPER_ADMIN_TOKEN" \
     "$open_file" \
-    "{\"drawDate\":\"$from_date\",\"limit\":10000,\"dryRun\":false}")"
+    '{"limit":10000,"lookaheadHours":24,"lagHours":1,"dryRun":false}')"
   if [[ "$open_status" != "200" ]]; then
     fail_with_response 'Impossible d’ouvrir les draws du jour après régénération' "$open_status" "$open_file"
   fi

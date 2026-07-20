@@ -2,11 +2,13 @@ package com.tchalanet.server.core.sales.internal.infra.persistence.repository;
 
 import com.tchalanet.server.common.persistence.repository.TchJpaRepository;
 import com.tchalanet.server.core.sales.api.model.status.TicketSettlementStatus;
+import com.tchalanet.server.core.sales.api.model.status.TicketResultStatus;
 import com.tchalanet.server.core.sales.internal.infra.persistence.entity.TicketJpaEntity;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -26,6 +28,23 @@ public interface TicketJpaRepository extends TchJpaRepository<TicketJpaEntity, U
 
   @EntityGraph(attributePaths = "lines")
   List<TicketJpaEntity> findWithLinesByDrawId(UUID drawId);
+
+  @EntityGraph(attributePaths = "lines")
+  List<TicketJpaEntity> findByDrawIdAndResultStatus(
+      UUID drawId, TicketResultStatus resultStatus, Pageable pageable);
+
+  long countByDrawIdAndResultStatus(UUID drawId, TicketResultStatus resultStatus);
+
+  @EntityGraph(attributePaths = "lines")
+  @Query(
+      """
+      SELECT t FROM TicketJpaEntity t
+       WHERE t.tenantId = :tenantId
+         AND t.soldAt >= :from
+         AND t.soldAt < :to
+      """)
+  List<TicketJpaEntity> findForAnalyticsByTenantAndSoldAtRange(
+      @Param("tenantId") UUID tenantId, @Param("from") Instant from, @Param("to") Instant to);
 
   @EntityGraph(attributePaths = "charges")
   Optional<TicketJpaEntity> findWithChargesById(UUID id);

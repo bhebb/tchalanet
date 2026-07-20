@@ -9,7 +9,6 @@ import com.tchalanet.server.core.draw.internal.application.query.projection.DueT
 import com.tchalanet.server.core.draw.internal.domain.model.Draw;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.Set;
 
@@ -17,9 +16,6 @@ public interface DrawLifecyclePort {
 
   List<OpenableDrawRow> findOpenable(
       Instant now, int limit, int openHorizonHours, int openLagHours);
-
-  List<OpenableDrawRow> findOpenableForSalesOpenTime(
-      Instant now, LocalDate drawDate, LocalTime defaultSalesOpenTime, int limit);
 
   int bulkOpen(List<DrawId> drawIds, Instant now);
 

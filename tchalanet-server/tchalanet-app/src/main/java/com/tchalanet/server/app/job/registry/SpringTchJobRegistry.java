@@ -73,14 +73,15 @@ public class SpringTchJobRegistry implements TchJobRegistry {
         map,
         job(
             AppBatchJobKeys.DRAW_OPEN,
-            "Open draws in time window",
+            "Open upcoming draws",
             RegisteredJob.JobScope.TENANT,
             Set.of(JobParamKeys.TENANT_ID),
             Set.of(
                 JobParamKeys.REQUEST_ID,
                 JobParamKeys.ACTOR,
-                AppJobParamKeys.DATE,
                 JobParamKeys.MAX_ITEMS,
+                AppJobParamKeys.LOOKAHEAD_HOURS,
+                AppJobParamKeys.LAG_HOURS,
                 JobParamKeys.DRY_RUN),
             "openDrawsJob"));
 
@@ -97,24 +98,6 @@ public class SpringTchJobRegistry implements TchJobRegistry {
                 JobParamKeys.MAX_ITEMS,
                 JobParamKeys.DRY_RUN),
             "closeDrawsJob"));
-
-    register(
-        map,
-        job(
-            AppBatchJobKeys.DRAW_SETTLE,
-            "Settle draws with results",
-            RegisteredJob.JobScope.TENANT,
-            Set.of(JobParamKeys.TENANT_ID),
-            Set.of(
-                JobParamKeys.REQUEST_ID,
-                JobParamKeys.ACTOR,
-                AppJobParamKeys.DATE,
-                JobParamKeys.MAX_ITEMS,
-                AppJobParamKeys.DAYS_BACK,
-                AppJobParamKeys.MAX_DRAWS,
-                JobParamKeys.DRY_RUN,
-                JobParamKeys.FORCE),
-            "settleDrawsJob"));
 
     register(
         map,
@@ -158,20 +141,6 @@ public class SpringTchJobRegistry implements TchJobRegistry {
                 JobParamKeys.FORCE,
                 AppJobParamKeys.REASON),
             "applyResultsJob"));
-
-    register(
-        map,
-        job(
-            AppBatchJobKeys.CATALOG_SEARCH_REINDEX,
-            "Reindex catalog for search",
-            RegisteredJob.JobScope.GLOBAL,
-            Set.of(),
-            Set.of(
-                JobParamKeys.REQUEST_ID,
-                JobParamKeys.ACTOR,
-                AppJobParamKeys.FULL_REBUILD,
-                JobParamKeys.MAX_ITEMS),
-            "reindexCatalogJob"));
 
     return Map.copyOf(map);
   }

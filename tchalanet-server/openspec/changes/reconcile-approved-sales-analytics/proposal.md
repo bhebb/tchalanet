@@ -27,6 +27,19 @@ administrator surfaces, rather than rendered as zero or as a plausible amount.
 - Make POS, tenant-admin dashboard, seller-terminal summary, and reports use `core.analytics`
   projections for KPI/reportable metrics. POS seller-terminal queries must use the same terminal
   dimension as reports and must not separately aggregate `sales_ticket`.
+- Make reconciliation an explicit two-mode operation: `VALIDATE` detects and persists a mismatch
+  without changing projections; `REBUILD_AND_VALIDATE` is an operator-authorized repair which
+  rebuilds the selected tenant scope and succeeds only after a second exact comparison.
+- Compare the four tenant-owned projections (`analytics_daily`, `analytics_draw`,
+  `analytics_seller_terminal_draw`, and selection aggregates when consumed by a surface) against
+  immutable ticket/line/charge snapshots. Presence of a projection row is coverage, not proof of
+  correctness.
+- Define the source snapshot contract for paid-basis and cancellation reconciliation before the
+  handler is implemented: effective paid amount, adjustment/reversal history, cancellation
+  timestamp, and reversal amounts. `winningAmount` plus `paidAt` cannot prove `payoutsPaid` after
+  a paid-amount adjustment.
+- Keep sales-date, draw-date, and settlement-date semantics distinct. A net metric MUST NOT mix
+  sales from one date with payouts from another date without declaring the accounting basis.
 
 ## Non-Goals
 
@@ -37,6 +50,8 @@ administrator surfaces, rather than rendered as zero or as a plausible amount.
 - Do not add a Flyway migration.
 - Do not silently delete or rewrite projections as a first response to a mismatch. A repair must
   be explicit, auditable, and reproducible from transactional records.
+- Do not mark a projection event processed before its projection write commits. A failed write must
+  remain replayable and must make its reporting scope unavailable.
 
 ## Safety
 

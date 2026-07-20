@@ -3,7 +3,7 @@ package com.tchalanet.server.features.ops.draw;
 import java.util.List;
 
 /**
- * Generic result of a per-tenant ops sweep (draw generate / open-today / close-due).
+ * Generic result of a per-tenant ops sweep (draw generate / open / close-due).
  *
  * <p>The op runs once per target tenant, each in that tenant's RLS context; a single tenant's
  * failure is captured per-tenant ({@code ok=false} + {@code error}) without aborting the rest —

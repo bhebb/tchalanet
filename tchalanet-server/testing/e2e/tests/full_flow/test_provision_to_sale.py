@@ -90,14 +90,11 @@ def test_provision_configure_and_sell(
 
     # 2. SUPER_ADMIN generates + opens today's draws --------------------------------------
     today = dt.date.today()
-    now_utc = dt.datetime.now(dt.timezone.utc)
-    floor = dt.datetime.combine(today, dt.time(11, 30), tzinfo=dt.timezone.utc)
-    open_now = max(now_utc, floor).isoformat().replace("+00:00", "Z")
     assert_ok(sa.post("/platform/ops/draws/generate", json={
         "tenantId": tenant_id, "from": today.isoformat(), "to": today.isoformat(),
         "dryRun": False, "force": False, "reason": "full_flow e2e"}, headers=_rid()))
     assert_ok(sa.post("/platform/ops/draws/open-today", json={
-        "now": open_now, "drawDate": today.isoformat(), "limit": 500, "dryRun": False},
+        "limit": 500, "lookaheadHours": 24, "lagHours": 1, "dryRun": False},
         headers=_rid()))
 
     # 3. Admin logs in (minted token) and completes first login ---------------------------

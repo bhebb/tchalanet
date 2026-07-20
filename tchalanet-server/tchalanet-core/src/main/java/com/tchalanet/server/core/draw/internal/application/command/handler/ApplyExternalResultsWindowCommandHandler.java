@@ -17,6 +17,7 @@ import com.tchalanet.server.core.draw.api.command.ApplyExternalResultsWindowResu
 import com.tchalanet.server.core.draw.api.event.DrawResultAppliedEvent;
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawApplyPort;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultReaderPort;
+import com.tchalanet.server.core.drawresult.api.model.DrawResultStatus;
 import com.tchalanet.server.core.drawresult.internal.infra.config.DrawResultsProperties;
 import java.time.Clock;
 import java.time.Instant;
@@ -120,6 +121,20 @@ public class ApplyExternalResultsWindowCommandHandler
           }
 
           var drawResultId = drawResultOpt.get();
+
+          var resultStatus =
+              drawResultReader.findViewById(drawResultId).map(view -> view.status()).orElse(null);
+          if (!isActionable(resultStatus)) {
+            skippedPending++;
+            log.info(
+                "draw.results.apply.skip non_actionable_result tenant={} slot={} date={} resultId={} status={}",
+                cmd.tenantId(),
+                slotKey,
+                date,
+                drawResultId,
+                resultStatus);
+            continue;
+          }
 
           if (cmd.dryRun()) {
             skippedDryRun++;
@@ -238,6 +253,10 @@ public class ApplyExternalResultsWindowCommandHandler
   private int clampDaysBack(int requestedDays) {
     int nonNegative = Math.max(0, requestedDays);
     return Math.min(nonNegative, props.getLimits().getHardDaysBack());
+  }
+
+  private static boolean isActionable(DrawResultStatus status) {
+    return status == DrawResultStatus.CONFIRMED || status == DrawResultStatus.OVERRIDDEN;
   }
 
   private static void validate(ApplyExternalResultsWindowCommand cmd) {
