@@ -10,6 +10,8 @@ import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.common.web.paging.TchPaging;
+import com.tchalanet.server.core.analytics.api.model.TenantKpisView;
+import com.tchalanet.server.core.analytics.api.query.GetTenantKpisQuery;
 import com.tchalanet.server.core.sellerterminal.api.command.BlockSellerTerminalCommand;
 import com.tchalanet.server.core.sellerterminal.api.command.CreateSellerTerminalCommand;
 import com.tchalanet.server.core.sellerterminal.api.command.DisableSellerTerminalCommand;
@@ -23,7 +25,6 @@ import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalCodeSugg
 import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalStatus;
 import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalSummaryRow;
 import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalView;
-import com.tchalanet.server.core.sales.api.query.GetTenantDailySalesStatsQuery;
 import com.tchalanet.server.core.sellerterminal.api.query.GetSellerTerminalQuery;
 import com.tchalanet.server.core.sellerterminal.api.query.ListSellerTerminalsQuery;
 import com.tchalanet.server.core.sellerterminal.api.query.SellerTerminalSearchCriteria;
@@ -82,7 +83,7 @@ public class SellerTerminalAdminController {
     var page =
         queryBus.ask(
             new ListSellerTerminalsQuery(
-                ctx.tenantIdRequired(),
+                ctx.effectiveTenantIdRequired(),
                 SellerTerminalSearchCriteria.empty(),
                 new TchPageRequest(PageRequest.of(0, SUMMARY_MAX_TERMINALS))));
 
@@ -111,20 +112,18 @@ public class SellerTerminalAdminController {
     ZoneId tenantZone = ctx.tenantZoneId() != null ? ctx.tenantZoneId() : ZoneOffset.UTC;
     LocalDate today = LocalDate.now(tenantZone);
     var salesToday =
-        queryBus.ask(
-            new GetTenantDailySalesStatsQuery(
-                ctx.tenantIdRequired(),
-                today.atStartOfDay(tenantZone).toInstant(),
-                today.plusDays(1).atStartOfDay(tenantZone).toInstant(),
-                ctx.tenantCurrency() == null ? "HTG" : ctx.tenantCurrency().getCurrencyCode()));
+        queryBus.ask(new GetTenantKpisQuery(ctx.effectiveTenantIdRequired(), today, today));
+    if (salesToday == null) {
+      salesToday = TenantKpisView.empty();
+    }
 
     return ApiResponse.success(
         new SellerTerminalsSummaryResponse(
             activeCount,
             blockedCount,
-            BigDecimal.valueOf(salesToday.salesTotalCents()).movePointLeft(2),
+            salesToday.totalSales(),
             averageCommissionRate,
-            salesToday.currency()));
+            ctx.tenantCurrency() == null ? "HTG" : ctx.tenantCurrency().getCurrencyCode()));
   }
 
   @GetMapping

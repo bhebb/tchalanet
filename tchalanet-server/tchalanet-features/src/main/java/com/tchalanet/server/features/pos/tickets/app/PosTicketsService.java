@@ -6,15 +6,21 @@ import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TicketId;
+import com.tchalanet.server.common.web.advice.ApiResponseNotices;
+import com.tchalanet.server.common.web.api.NoticeSeverity;
+import com.tchalanet.server.common.web.api.NoticeSource;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.common.web.error.ProblemRestException;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageMapper;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
+import com.tchalanet.server.core.analytics.api.model.AnalyticsTrustScope;
+import com.tchalanet.server.core.analytics.api.model.AnalyticsTrustState;
+import com.tchalanet.server.core.analytics.api.query.GetAnalyticsTrustStateQuery;
+import com.tchalanet.server.core.analytics.api.query.GetCashierDashboardStatsQuery;
 import com.tchalanet.server.core.sales.api.command.cancel.CancelTicketCommand;
 import com.tchalanet.server.core.sales.api.model.verification.CustomerTicketStatus;
 import com.tchalanet.server.core.sales.api.model.verification.TicketCashierVerificationView;
-import com.tchalanet.server.core.sales.api.query.GetSellerTerminalDailyStatsQuery;
 import com.tchalanet.server.core.sales.api.query.GetTicketForCashierVerificationQuery;
 import com.tchalanet.server.core.sales.api.query.GetTicketPrintViewQuery;
 import com.tchalanet.server.core.sales.api.query.ListTicketsQuery;
@@ -78,30 +84,53 @@ public class PosTicketsService {
   public SellerTerminalDailyStatsResponse sellerTerminalStats(TchRequestContext ctx, String date) {
     var zone = ctx.tenantZoneId() != null ? ctx.tenantZoneId() : ZoneId.of("UTC");
     var targetDate = date != null ? LocalDate.parse(date) : LocalDate.now(zone);
-    var from = targetDate.atStartOfDay(zone).toInstant();
-    var to = targetDate.plusDays(1).atStartOfDay(zone).toInstant();
     var currency = ctx.tenantCurrency() != null ? ctx.tenantCurrency().getCurrencyCode() : "HTG";
+    var trust =
+        queryBus.ask(
+            new GetAnalyticsTrustStateQuery(
+                AnalyticsTrustScope.sellerTerminal(
+                    ctx.effectiveTenantIdRequired(),
+                    ctx.sellerTerminalIdRequired(),
+                    targetDate,
+                    targetDate)));
+    if (trust == null || trust.state() != AnalyticsTrustState.READY) {
+      ApiResponseNotices.degradation(
+          PosErrorCodes.DASHBOARD_ANALYTICS_UNAVAILABLE.code(),
+          "features.pos",
+          NoticeSeverity.WARN,
+          NoticeSource.of("sellerTerminalStats").operation("verifyAnalyticsTrust"),
+          null,
+          Map.of("reasonCode", trust == null ? "analytics.trust.unknown" : trust.reasonCode()),
+          "seller_terminal.stats");
+      return SellerTerminalDailyStatsResponse.unavailable(currency, trust);
+    }
     var stats =
         queryBus.ask(
-            new GetSellerTerminalDailyStatsQuery(
-                ctx.effectiveTenantIdRequired(),
-                ctx.sellerTerminalIdRequired(),
-                from,
-                to,
-                currency));
+            new GetCashierDashboardStatsQuery(
+                ctx.effectiveTenantIdRequired(), ctx.sellerTerminalIdRequired(), targetDate));
     var breakdown =
-        stats.breakdown().stream()
+        stats.drawBreakdown().stream()
             .map(
                 b ->
                     new DrawStatLineItem(
-                        b.drawId(), b.channelLabel(), b.ticketCount(), b.totalCents()))
+                        b.drawId().toString(),
+                        b.drawChannelCode(),
+                        b.ticketsSold(),
+                        toCents(b.grossSales())))
             .toList();
     return new SellerTerminalDailyStatsResponse(
-        stats.ticketCount(),
-        stats.salesTotalCents(),
-        stats.sellerCommissionTotalCents(),
-        stats.currency(),
+        true,
+        trust.state().name(),
+        trust.reasonCode(),
+        stats.today().ticketsSold(),
+        toCents(stats.today().grossSales()),
+        toCents(stats.today().sellerCommission()),
+        currency,
         breakdown);
+  }
+
+  private static long toCents(java.math.BigDecimal amount) {
+    return amount == null ? 0L : amount.movePointRight(2).longValueExact();
   }
 
   public PosTicketDetailsResponse getDetails(TicketId ticketId) {

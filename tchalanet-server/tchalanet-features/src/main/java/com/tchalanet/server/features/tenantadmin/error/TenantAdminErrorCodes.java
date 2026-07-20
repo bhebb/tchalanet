@@ -28,8 +28,6 @@ public class TenantAdminErrorCodes {
       unavailable("tenantadmin.dashboard.kpis_unavailable");
   public static final ErrorDescriptor DASHBOARD_ANALYTICS_UNAVAILABLE =
       unavailable("tenantadmin.dashboard.analytics_unavailable");
-  public static final ErrorDescriptor DASHBOARD_LIVE_SALES_UNAVAILABLE =
-      unavailable("tenantadmin.dashboard.live_sales_unavailable");
   public static final ErrorDescriptor DASHBOARD_OPEN_DRAWS_UNAVAILABLE =
       unavailable("tenantadmin.dashboard.open_draws_unavailable");
   public static final ErrorDescriptor DASHBOARD_CLOSED_DRAWS_UNAVAILABLE =
@@ -50,7 +48,6 @@ public class TenantAdminErrorCodes {
         DASHBOARD_COMMERCIAL_UNAVAILABLE,
         DASHBOARD_KPIS_UNAVAILABLE,
         DASHBOARD_ANALYTICS_UNAVAILABLE,
-        DASHBOARD_LIVE_SALES_UNAVAILABLE,
         DASHBOARD_OPEN_DRAWS_UNAVAILABLE,
         DASHBOARD_CLOSED_DRAWS_UNAVAILABLE,
         DASHBOARD_NOTIFICATIONS_UNAVAILABLE,

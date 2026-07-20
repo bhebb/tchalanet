@@ -2,14 +2,22 @@ package com.tchalanet.server.features.reporting.adminreports;
 
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.web.advice.ApiResponseNotices;
+import com.tchalanet.server.common.web.api.NoticeSeverity;
+import com.tchalanet.server.common.web.api.NoticeSource;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
+import com.tchalanet.server.core.analytics.api.model.AnalyticsTrustScope;
+import com.tchalanet.server.core.analytics.api.model.AnalyticsTrustState;
+import com.tchalanet.server.core.analytics.api.model.AnalyticsTrustStateView;
 import com.tchalanet.server.core.analytics.api.model.TenantFinancialBreakdownView;
+import com.tchalanet.server.core.analytics.api.query.GetAnalyticsTrustStateQuery;
 import com.tchalanet.server.core.analytics.api.query.GetTenantFinancialBreakdownQuery;
 import com.tchalanet.server.core.sales.api.query.ListTenantTopSelectionsByPeriodQuery;
 import com.tchalanet.server.core.sales.api.query.TenantTopSelectionsByPeriodView;
 import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalSummaryRow;
 import com.tchalanet.server.core.sellerterminal.api.query.ListSellerTerminalsQuery;
 import com.tchalanet.server.core.sellerterminal.api.query.SellerTerminalSearchCriteria;
+import com.tchalanet.server.features.reporting.error.ReportingErrorCodes;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
@@ -28,10 +36,23 @@ public class AdminReportsService {
 
   public AdminReportResponses.Overview overview(
       TenantId tenantId, AdminReportPeriodRequest request) {
+    var availability = analyticsAvailability(tenantId, request, "overview");
+    if (!availability.available()) {
+      return new AdminReportResponses.Overview(
+          availability,
+          request.from(),
+          request.to(),
+          null,
+          List.of(),
+          List.of(),
+          List.of(),
+          List.of());
+    }
     var breakdown = breakdown(tenantId, request);
     var sellerDirectory = sellerDirectory(tenantId);
     var topSelections = topSelections(tenantId, request);
     return new AdminReportResponses.Overview(
+        availability,
         breakdown.from(),
         breakdown.to(),
         summary(breakdown.summary()),
@@ -44,14 +65,24 @@ public class AdminReportsService {
   }
 
   public AdminReportResponses.Draws draws(TenantId tenantId, AdminReportPeriodRequest request) {
+    var availability = analyticsAvailability(tenantId, request, "draws");
+    if (!availability.available()) {
+      return new AdminReportResponses.Draws(
+          availability, request.from(), request.to(), null, List.of());
+    }
     var breakdown = breakdown(tenantId, request);
     var rows = breakdown.drawRows().stream().map(this::drawRow).toList();
     return new AdminReportResponses.Draws(
-        breakdown.from(), breakdown.to(), summaryDrawRows(rows), rows);
+        availability, breakdown.from(), breakdown.to(), summaryDrawRows(rows), rows);
   }
 
   public AdminReportResponses.SellerTerminals sellerTerminals(
       TenantId tenantId, AdminReportPeriodRequest request) {
+    var availability = analyticsAvailability(tenantId, request, "sellerTerminals");
+    if (!availability.available()) {
+      return new AdminReportResponses.SellerTerminals(
+          availability, request.from(), request.to(), null, List.of());
+    }
     var breakdown = breakdown(tenantId, request);
     var drawRowsBySeller =
         breakdown.sellerTerminalDrawRows().stream()
@@ -64,7 +95,36 @@ public class AdminReportsService {
             .map(row -> sellerTerminalRow(row, drawRowsBySeller, sellerDirectory))
             .toList();
     return new AdminReportResponses.SellerTerminals(
-        breakdown.from(), breakdown.to(), summarySellerTerminalRows(rows), rows);
+        availability, breakdown.from(), breakdown.to(), summarySellerTerminalRows(rows), rows);
+  }
+
+  private AdminReportResponses.AnalyticsAvailability analyticsAvailability(
+      TenantId tenantId, AdminReportPeriodRequest request, String operation) {
+    AnalyticsTrustStateView trust =
+        queryBus.ask(
+            new GetAnalyticsTrustStateQuery(
+                AnalyticsTrustScope.tenant(tenantId, request.from(), request.to())));
+    if (trust != null && trust.state() == AnalyticsTrustState.READY) {
+      return new AdminReportResponses.AnalyticsAvailability(
+          true, trust.state().name(), trust.reasonCode(), List.of());
+    }
+
+    String reasonCode =
+        trust == null || trust.reasonCode() == null ? "analytics.trust.unknown" : trust.reasonCode();
+
+    ApiResponseNotices.degradation(
+        ReportingErrorCodes.ANALYTICS_UNAVAILABLE.code(),
+        "features.reporting",
+        NoticeSeverity.WARN,
+        NoticeSource.of("adminReports").operation(operation),
+        null,
+        Map.of("reasonCode", reasonCode),
+        "tenant_admin_reports.analytics");
+    return new AdminReportResponses.AnalyticsAvailability(
+        false,
+        trust == null || trust.state() == null ? "UNAVAILABLE" : trust.state().name(),
+        reasonCode,
+        trust == null ? List.of() : trust.missingBusinessDates());
   }
 
   private TenantFinancialBreakdownView breakdown(

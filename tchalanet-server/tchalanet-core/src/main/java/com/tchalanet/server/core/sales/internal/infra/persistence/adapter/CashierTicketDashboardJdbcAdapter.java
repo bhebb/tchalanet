@@ -3,7 +3,6 @@ package com.tchalanet.server.core.sales.internal.infra.persistence.adapter;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.core.sales.api.query.CashierDashboardOverviewView;
 import com.tchalanet.server.core.sales.api.query.CashierPendingApprovalView;
 import com.tchalanet.server.core.sales.api.query.CashierRecentTicketView;
 import com.tchalanet.server.core.sales.api.query.CashierTopSelectionsView;
@@ -45,33 +44,6 @@ public class CashierTicketDashboardJdbcAdapter implements CashierTicketDashboard
                  t.stake_amount, dc.name
         ORDER BY t.sold_at DESC
         LIMIT :limit
-        """;
-
-  private static final String OVERVIEW_SQL =
-      """
-        SELECT COUNT(*)                                                AS ticket_count,
-               COALESCE(SUM(t.total_amount), 0)                      AS sales_total,
-               COUNT(*) FILTER (WHERE t.sale_status = 'CANCELLED')   AS cancelled_count,
-               COUNT(*) FILTER (WHERE t.sale_status = 'PENDING_APPROVAL') AS pending_count
-        FROM sales_ticket t
-        WHERE t.seller_user_id = :cashierId
-          AND t.deleted_at IS NULL
-          AND t.sold_at::date = :businessDate
-        """;
-
-  private static final String BY_DRAW_SQL =
-      """
-        SELECT dc.code AS channel_code,
-               dc.name AS channel_label,
-               COUNT(*) AS ticket_count,
-               COALESCE(SUM(t.total_amount), 0) AS sales_total
-        FROM sales_ticket t
-        LEFT JOIN draw_channel dc ON dc.id = t.draw_channel_id
-        WHERE t.seller_user_id = :cashierId
-          AND t.deleted_at IS NULL
-          AND t.sold_at::date = :businessDate
-        GROUP BY dc.id, dc.code, dc.name
-        ORDER BY SUM(t.total_amount) DESC
         """;
 
   private static final String TOP_SELECTIONS_SQL =
@@ -151,41 +123,6 @@ public class CashierTicketDashboardJdbcAdapter implements CashierTicketDashboard
             .addValue("cashierId", cashierId.value())
             .addValue("limit", limit);
     return jdbc.query(RECENT_SQL, params, (rs, i) -> mapRecentRow(rs));
-  }
-
-  @Override
-  public CashierDashboardOverviewView getOverview(
-      TenantId tenantId, UserId cashierId, LocalDate businessDate) {
-    var params =
-        new MapSqlParameterSource()
-            .addValue("cashierId", cashierId.value())
-            .addValue("businessDate", businessDate);
-
-    var totals =
-        jdbc.queryForObject(
-            OVERVIEW_SQL,
-            params,
-            (rs, i) -> {
-              long ticketCount = rs.getLong("ticket_count");
-              BigDecimal salesTotal = rs.getBigDecimal("sales_total");
-              long cancelledCount = rs.getLong("cancelled_count");
-              long pendingCount = rs.getLong("pending_count");
-              return new long[] {ticketCount, toCents(salesTotal), cancelledCount, pendingCount};
-            });
-
-    List<CashierDashboardOverviewView.DrawBreakdown> byDraw =
-        jdbc.query(
-            BY_DRAW_SQL,
-            params,
-            (rs, i) ->
-                new CashierDashboardOverviewView.DrawBreakdown(
-                    rs.getString("channel_code"),
-                    rs.getString("channel_label"),
-                    rs.getLong("ticket_count"),
-                    toCents(rs.getBigDecimal("sales_total"))));
-
-    return new CashierDashboardOverviewView(
-        businessDate, totals[0], totals[1], totals[2], totals[3], byDraw);
   }
 
   @Override

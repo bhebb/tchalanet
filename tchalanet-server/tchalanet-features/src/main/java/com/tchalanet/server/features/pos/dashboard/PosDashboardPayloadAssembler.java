@@ -2,20 +2,27 @@ package com.tchalanet.server.features.pos.dashboard;
 
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.common.web.advice.ApiResponseNotices;
+import com.tchalanet.server.common.web.api.NoticeSeverity;
+import com.tchalanet.server.common.web.api.NoticeSource;
+import com.tchalanet.server.core.analytics.api.model.AnalyticsTrustScope;
+import com.tchalanet.server.core.analytics.api.model.AnalyticsTrustState;
+import com.tchalanet.server.core.analytics.api.model.AnalyticsTrustStateView;
 import com.tchalanet.server.features.shared.bff.BffSlicePolicy;
 import com.tchalanet.server.features.shared.bff.BffSlices;
-import com.tchalanet.server.common.web.api.NoticeSource;
 import com.tchalanet.server.core.analytics.api.model.CashierDashboardStatsView;
+import com.tchalanet.server.core.analytics.api.query.GetAnalyticsTrustStateQuery;
 import com.tchalanet.server.core.analytics.api.query.GetCashierDashboardStatsQuery;
 import com.tchalanet.server.core.draw.api.query.ListCashierNextDrawsQuery;
-import com.tchalanet.server.core.sales.api.query.GetCashierDashboardOverviewQuery;
 import com.tchalanet.server.core.sales.api.query.ListCashierRecentTicketsQuery;
 import com.tchalanet.server.features.pos.error.PosErrorCodes;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -23,9 +30,9 @@ import org.springframework.stereotype.Component;
  * Loads the grouped payload for source {@code cashier_dashboard}. One assembly per request —
  * memoized via {@code PageModelResolutionContext}.
  *
- * <p>Grouped reads (target ≤ 4 per dashboard-overview-runtime-v1 §12) : 1. overview — {@link
- * GetCashierDashboardOverviewQuery} 2. nextDraws — {@link ListCashierNextDrawsQuery} 3.
- * recentTickets — {@link ListCashierRecentTicketsQuery}
+ * <p>Grouped reads (target ≤ 4 per dashboard-overview-runtime-v1 §12) : 1. analytics seller
+ * terminal stats 2. nextDraws — {@link ListCashierNextDrawsQuery} 3. recentTickets — {@link
+ * ListCashierRecentTicketsQuery}
  *
  * <p>Readiness and alerts are derived from the seller-terminal context already carried by the HTTP
  * request — no extra read.
@@ -47,12 +54,12 @@ public class PosDashboardPayloadAssembler {
 
     CashierIdentityPayload identity = loadIdentity(ctx);
     CashierSessionPayload session = CashierSessionPayload.v0();
-    CashierOverviewPayload overview = loadOverview(ctx);
+    CashierStatsPayload stats = loadAnalyticsStats(ctx);
+    CashierOverviewPayload overview = overviewFrom(stats);
     List<?> nextDraws = loadNextDraws();
     List<?> recentTickets = loadRecentTickets(ctx);
     CashierReadinessPayload readiness = buildReadiness(ctx);
     CashierAlertsPayload alerts = buildAlerts(ctx);
-    CashierStatsPayload stats = loadAnalyticsStats(ctx);
     CashierOfflineSyncPayload offline = buildOfflineSyncPlaceholder();
 
     return new Payload(
@@ -67,23 +74,20 @@ public class PosDashboardPayloadAssembler {
         ctx.effectiveTenantCode() != null ? ctx.effectiveTenantCode() : "");
   }
 
-  private CashierOverviewPayload loadOverview(TchRequestContext ctx) {
-    LocalDate businessDate = LocalDate.now(ZoneOffset.UTC);
-
-    var view =
-        queryBus.ask(
-            new GetCashierDashboardOverviewQuery(ctx.tenantId(), ctx.userId(), businessDate));
-
+  private CashierOverviewPayload overviewFrom(CashierStatsPayload stats) {
     return new CashierOverviewPayload(
         true,
         "",
         "",
-        businessDate.toString(),
-        view != null ? view.ticketCount() : 0L,
-        view != null ? view.salesTotalCents() : 0L,
-        view != null ? view.cancelledCount() : 0L,
-        view != null ? view.pendingApprovalCount() : 0L,
-        view != null && view.byDraw() != null ? view.byDraw() : List.of());
+        stats.refDate(),
+        stats.available(),
+        stats.trustState(),
+        stats.trustReasonCode(),
+        stats.available() ? stats.ticketsSold() : null,
+        stats.available() ? cents(stats.grossSales()) : null,
+        0L,
+        0L,
+        stats.drawBreakdown());
   }
 
   private List<?> loadNextDraws() {
@@ -116,9 +120,21 @@ public class PosDashboardPayloadAssembler {
   }
 
   private CashierStatsPayload loadAnalyticsStatsRequired(TchRequestContext ctx) {
-    LocalDate today = LocalDate.now(ZoneOffset.UTC);
+    ZoneId tenantZone = ctx.tenantZoneId() != null ? ctx.tenantZoneId() : ZoneOffset.UTC;
+    LocalDate today = LocalDate.now(tenantZone);
+    AnalyticsTrustStateView trust =
+        queryBus.ask(
+            new GetAnalyticsTrustStateQuery(
+                AnalyticsTrustScope.sellerTerminal(
+                    ctx.effectiveTenantIdRequired(), ctx.sellerTerminalIdRequired(), today, today)));
+    if (trust == null || trust.state() != AnalyticsTrustState.READY) {
+      addUntrustedAnalyticsNotice(trust);
+      return CashierStatsPayload.unavailable(today, trust);
+    }
     CashierDashboardStatsView view =
-        queryBus.ask(new GetCashierDashboardStatsQuery(ctx.tenantId(), ctx.userId(), today));
+        queryBus.ask(
+            new GetCashierDashboardStatsQuery(
+                ctx.effectiveTenantIdRequired(), ctx.sellerTerminalIdRequired(), today));
     if (view == null || view.today() == null) {
       throw new IllegalStateException("Cashier analytics projection is unavailable");
     }
@@ -135,14 +151,44 @@ public class PosDashboardPayloadAssembler {
                           g.grossSales() != null ? g.grossSales() : BigDecimal.ZERO))
               .toList();
     }
+    List<DrawBreakdownItem> drawBreakdown =
+        view.drawBreakdown() == null
+            ? List.of()
+            : view.drawBreakdown().stream()
+                .map(
+                    draw ->
+                        new DrawBreakdownItem(
+                            draw.drawId() != null ? draw.drawId().toString() : "",
+                            draw.drawChannelCode() != null ? draw.drawChannelCode() : "",
+                            draw.ticketsSold(),
+                            draw.grossSales() != null ? draw.grossSales() : BigDecimal.ZERO))
+                .toList();
     return new CashierStatsPayload(
         true,
         view.refDate() != null ? view.refDate().toString() : today.toString(),
+        trust.state().name(),
+        trust.reasonCode(),
         card.ticketsSold(),
         card.grossSales() != null ? card.grossSales() : BigDecimal.ZERO,
         card.winningsCalculated() != null ? card.winningsCalculated() : BigDecimal.ZERO,
         card.netRevenueEstimated() != null ? card.netRevenueEstimated() : BigDecimal.ZERO,
-        breakdown);
+        breakdown,
+        drawBreakdown);
+  }
+
+  private static void addUntrustedAnalyticsNotice(AnalyticsTrustStateView trust) {
+    ApiResponseNotices.degradation(
+        PosErrorCodes.DASHBOARD_ANALYTICS_UNAVAILABLE.code(),
+        "features.pos",
+        NoticeSeverity.WARN,
+        NoticeSource.of("cashierDashboardStats").operation("verifyAnalyticsTrust"),
+        null,
+        Map.of("reasonCode", trust == null ? "analytics.trust.unknown" : trust.reasonCode()),
+        "cashier_dashboard.analytics");
+  }
+
+  private static long cents(BigDecimal amount) {
+    return amount == null ? 0L : amount.movePointRight(2).longValueExact();
   }
 
   /** V1 placeholder — offline/sync status is not tracked in V0. */
@@ -232,14 +278,29 @@ public class PosDashboardPayloadAssembler {
       String sessionRef,
       String openedAt,
       String businessDate,
-      long ticketCount,
-      long salesTotalCents,
+      boolean analyticsAvailable,
+      String analyticsTrustState,
+      String analyticsTrustReasonCode,
+      Long ticketCount,
+      Long salesTotalCents,
       long cancelledCount,
       long pendingApprovalCount,
       List<?> byDraw) {
 
     public static CashierOverviewPayload noSession() {
-      return new CashierOverviewPayload(false, "", "", "", 0L, 0L, 0L, 0L, List.of());
+      return new CashierOverviewPayload(
+          false,
+          "",
+          "",
+          "",
+          false,
+          "UNAVAILABLE",
+          "analytics.trust.unknown",
+          null,
+          null,
+          0L,
+          0L,
+          List.of());
     }
   }
 
@@ -256,19 +317,42 @@ public class PosDashboardPayloadAssembler {
   /** Per-game breakdown inside analytics stats. */
   public record GameBreakdownItem(String gameCode, long ticketsSold, BigDecimal grossSales) {}
 
+  /** Per-draw breakdown from the same seller-terminal analytics projection. */
+  public record DrawBreakdownItem(
+      String drawId, String drawChannelCode, long ticketsSold, BigDecimal grossSales) {}
+
   /** Analytics stats for today (seller scope). */
   public record CashierStatsPayload(
       boolean available,
       String refDate,
+      String trustState,
+      String trustReasonCode,
       long ticketsSold,
       BigDecimal grossSales,
       BigDecimal winningsCalculated,
       BigDecimal netRevenue,
-      List<GameBreakdownItem> gameBreakdown) {
+      List<GameBreakdownItem> gameBreakdown,
+      List<DrawBreakdownItem> drawBreakdown) {
 
     public static CashierStatsPayload unavailable() {
+      return unavailable(null, null);
+    }
+
+    public static CashierStatsPayload unavailable(
+        LocalDate refDate, AnalyticsTrustStateView trust) {
       return new CashierStatsPayload(
-          false, "", 0L, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, List.of());
+          false,
+          refDate == null ? "" : refDate.toString(),
+          trust == null || trust.state() == null ? "UNAVAILABLE" : trust.state().name(),
+          trust == null || trust.reasonCode() == null
+              ? "analytics.trust.unknown"
+              : trust.reasonCode(),
+          0L,
+          BigDecimal.ZERO,
+          BigDecimal.ZERO,
+          BigDecimal.ZERO,
+          List.of(),
+          List.of());
     }
   }
 

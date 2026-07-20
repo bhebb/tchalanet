@@ -33,11 +33,13 @@ class PublicDrawResultHistoryQuery {
   const PublicDrawResultHistoryQuery({
     required this.from,
     required this.to,
+    this.provider,
     this.slotKey,
   });
 
   final DateTime from;
   final DateTime to;
+  final String? provider;
   final String? slotKey;
 
   @override
@@ -45,10 +47,11 @@ class PublicDrawResultHistoryQuery {
       other is PublicDrawResultHistoryQuery &&
       other.from == from &&
       other.to == to &&
+      other.provider == provider &&
       other.slotKey == slotKey;
 
   @override
-  int get hashCode => Object.hash(from, to, slotKey);
+  int get hashCode => Object.hash(from, to, provider, slotKey);
 }
 
 final publicDrawResultSlotsProvider =
@@ -60,5 +63,10 @@ final publicDrawResultHistoryProvider = FutureProvider.autoDispose
     .family<PublicDrawResultHistory, PublicDrawResultHistoryQuery>(
       (ref, query) => ref
           .watch(drawResultServiceProvider)
-          .fetchHistory(from: query.from, to: query.to, slotKey: query.slotKey),
+          .fetchHistory(
+            from: query.from,
+            to: query.to,
+            provider: query.provider,
+            slotKey: query.slotKey,
+          ),
     );

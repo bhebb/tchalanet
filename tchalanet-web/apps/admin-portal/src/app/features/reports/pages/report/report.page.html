@@ -22,22 +22,29 @@
           </button>
         </header>
 
+        @if (!vm.analytics.available) {
+          <tch-admin-empty-state
+            icon="query_stats"
+            [title]="'common.errors.categories.service_unavailable.title' | translate"
+            [message]="'common.errors.categories.service_unavailable.message' | translate"
+          />
+        } @else if (vm.summary; as summary) {
         <section class="admin-report__kpis" [attr.aria-label]="'admin.reports.overview.kpis.aria' | translate">
           <tch-report-metric-card
             [label]="'admin.reports.overview.kpis.ticketsSold' | translate"
-            [value]="(vm.summary.ticketsSold | number) ?? '0'"
+            [value]="(summary.ticketsSold | number) ?? '0'"
           />
           <tch-report-metric-card
             [label]="'admin.reports.overview.kpis.grossSales' | translate"
-            [value]="amountDisplay(vm.summary.grossSales) + ' ' + currency"
+            [value]="amountDisplay(summary.grossSales) + ' ' + currency"
           />
           <tch-report-metric-card
             [label]="'admin.reports.overview.kpis.payoutsPaid' | translate"
-            [value]="amountDisplay(vm.summary.payoutsPaid) + ' ' + currency"
+            [value]="amountDisplay(summary.payoutsPaid) + ' ' + currency"
           />
           <tch-report-metric-card
             [label]="'admin.reports.overview.kpis.netRevenue' | translate"
-            [value]="amountDisplay(vm.summary.netRevenueEstimated) + ' ' + currency"
+            [value]="amountDisplay(summary.netRevenueEstimated) + ' ' + currency"
             [hint]="(netMarginPercent(vm) | number:'1.0-1') + '%'"
           />
         </section>
@@ -169,6 +176,7 @@
             }
           </tch-admin-section-card>
         </div>
+        }
       }
     </ng-template>
   </tch-async-view>

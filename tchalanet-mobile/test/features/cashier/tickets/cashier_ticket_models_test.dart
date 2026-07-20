@@ -231,6 +231,20 @@ void main() {
     expect(stats.ticketCount, 3);
     expect(stats.salesTotalCents, 12500);
     expect(stats.sellerCommissionTotalCents, 1625);
+    expect(stats.available, isTrue);
+  });
+
+  test('daily terminal stats preserve an unavailable analytics state', () {
+    final stats = TerminalDailyStats.fromJson({
+      'available': false,
+      'trustState': 'UNAVAILABLE',
+      'trustReasonCode': 'analytics.trust.projection_missing',
+      'currency': 'HTG',
+    });
+
+    expect(stats.available, isFalse);
+    expect(stats.trustState, 'UNAVAILABLE');
+    expect(stats.trustReasonCode, 'analytics.trust.projection_missing');
   });
 
   test(

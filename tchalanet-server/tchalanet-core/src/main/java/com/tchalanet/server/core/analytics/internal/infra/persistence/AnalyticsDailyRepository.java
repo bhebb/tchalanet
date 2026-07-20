@@ -98,6 +98,22 @@ public interface AnalyticsDailyRepository
   List<AnalyticsDailyEntity> findSellerTerminalRows(
       @Param("tenantId") UUID tenantId, @Param("from") LocalDate from, @Param("to") LocalDate to);
 
+  /** SELLER_TERMINAL rows for one terminal across a business-date range. */
+  @Query(
+      """
+      SELECT a FROM AnalyticsDailyEntity a
+       WHERE a.dimensionType = 'SELLER_TERMINAL'
+         AND a.tenantId = :tenantId
+         AND a.dimensionId = :sellerTerminalId
+         AND a.refDate BETWEEN :from AND :to
+       ORDER BY a.refDate
+      """)
+  List<AnalyticsDailyEntity> findSellerTerminalRows(
+      @Param("tenantId") UUID tenantId,
+      @Param("sellerTerminalId") UUID sellerTerminalId,
+      @Param("from") LocalDate from,
+      @Param("to") LocalDate to);
+
   /** Delete rows older than retention cutoff for purge. */
   @Transactional
   @org.springframework.data.jpa.repository.Modifying

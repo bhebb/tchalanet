@@ -1,0 +1,89 @@
+## ADDED Requirements
+
+### Requirement: V0 sales have no approval workflow
+
+The V0 sale path SHALL either create a directly `APPROVED` ticket or reject the request. A limit
+policy result of `REQUIRE_APPROVAL` SHALL reject the request without creating a ticket.
+
+#### Scenario: Limit policy requires approval
+
+- **GIVEN** a sale reaches a limit policy configured with `REQUIRE_APPROVAL`
+- **WHEN** the cashier prepares or confirms the sale
+- **THEN** the API SHALL return the stable limit-blocked business error
+- **AND** no `PENDING_APPROVAL` ticket SHALL be persisted.
+
+### Requirement: Seller live statistics count official tickets only
+
+Seller-terminal daily statistics SHALL count only tickets whose sale status is `APPROVED`.
+
+#### Scenario: Pending ticket has not yet been approved
+
+- **GIVEN** a seller has a `PENDING_APPROVAL` ticket within the current business day
+- **WHEN** the POS home loads seller daily statistics
+- **THEN** that ticket SHALL not be included in sales, ticket count, commission, or per-draw totals.
+
+### Requirement: Seller-terminal KPI consumers share analytics truth
+
+POS, tenant-admin dashboards, seller-terminal summaries, and reporting surfaces SHALL obtain
+KPI/reportable metrics from `core.analytics` projections. The seller-terminal identity used to
+look up a seller projection SHALL be `SellerTerminalId`; a user identity SHALL NOT be substituted
+for that dimension.
+
+#### Scenario: POS and report read the same seller-terminal day
+
+- **GIVEN** an `analytics_daily` seller-terminal row and its matching
+  `analytics_seller_terminal_draw` rows exist for a tenant business day
+- **WHEN** the POS daily statistics and tenant seller report request that terminal and date
+- **THEN** both consumers SHALL expose the same ticket count, gross sales, and seller commission
+- **AND** the POS reader SHALL NOT aggregate `sales_ticket` directly for those KPIs.
+
+### Requirement: Unverifiable financial metrics are unavailable
+
+The analytics domain SHALL expose a trust state for each requested reporting scope. A consumer
+MUST NOT render financial KPI values as zero when the relevant scope is unavailable or awaiting
+reconciliation.
+
+#### Scenario: Reconciliation detects orphaned projections
+
+- **GIVEN** a reporting scope has analytics projection rows that cannot be reconciled with the
+  transactional `APPROVED` ticket source
+- **WHEN** a POS or reporting BFF requests that scope
+- **THEN** the response SHALL identify the metric section as unavailable
+- **AND** SHALL include a stable degradation notice
+- **AND** SHALL NOT present the projected monetary values as trustworthy KPI data.
+
+#### Scenario: Reporting suppresses exports for an unavailable scope
+
+- **GIVEN** a tenant-admin reporting response identifies its requested scope as unavailable
+- **WHEN** the web client renders that response
+- **THEN** it SHALL render the localized unavailable state instead of KPI values or report rows
+- **AND** SHALL disable CSV and PDF exports until a refresh returns a trustworthy scope.
+
+#### Scenario: Projection coverage is missing before reconciliation exists
+
+- **GIVEN** a requested tenant, seller-terminal, draw, or platform business-date scope has no
+  analytics projection row for one of its requested dates
+- **WHEN** the trust-state query evaluates that scope
+- **THEN** it SHALL return `UNAVAILABLE` with the missing business dates
+- **AND** it SHALL NOT treat the missing rows as zero-valued metrics.
+
+#### Scenario: Draw scope is a single business occurrence
+
+- **GIVEN** an analytics trust query targets a draw or seller-terminal/draw scope
+- **WHEN** the query is constructed
+- **THEN** it SHALL require exactly one business date for that draw occurrence.
+
+### Requirement: Analytics repair is explicit and auditable
+
+An operator-authorized repair SHALL rebuild projections only from the transactional source and
+shall record the selected scope, reason, initiator, before/after reconciliation result, and
+watermark.
+
+#### Scenario: Operator repairs a mismatched business day
+
+- **GIVEN** a platform operator has identified a mismatched tenant business day
+- **WHEN** the operator launches a recompute for that tenant and date
+- **THEN** the system SHALL rebuild daily, draw, and seller-terminal projections from official
+  tickets in the selected scope
+- **AND** SHALL retain an auditable repair record
+- **AND** SHALL mark the scope ready only after the post-repair reconciliation succeeds.

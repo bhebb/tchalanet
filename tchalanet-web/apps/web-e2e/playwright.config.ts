@@ -1,6 +1,9 @@
 import { defineConfig, devices } from '@playwright/test';
 import { nxE2EPreset } from '@nx/playwright/preset';
 import { workspaceRoot } from '@nx/devkit';
+import { fileURLToPath } from 'node:url';
+
+const configFile = fileURLToPath(import.meta.url);
 
 const publicBaseURL = process.env['PUBLIC_BASE_URL'] || 'http://localhost:4301';
 const adminBaseURL = process.env['ADMIN_BASE_URL'] || 'http://localhost:4302';
@@ -31,7 +34,7 @@ const reuseExistingServer = !emulatorTargets && !apiTargets;
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
-  ...nxE2EPreset(__filename, { testDir: './src' }),
+  ...nxE2EPreset(configFile, { testDir: './src' }),
   fullyParallel: true,
   // Emulator run only: ensure the auth emulator is up and seed users (no-op
   // unless WEB_E2E_EMULATOR=1).

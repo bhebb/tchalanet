@@ -188,6 +188,8 @@ class _SellerTerminalHome extends ConsumerStatefulWidget {
 class _SellerTerminalHomeState extends ConsumerState<_SellerTerminalHome> {
   Timer? _countdownTimer;
   DateTime _now = DateTime.now();
+  bool _providerFilterExpanded = false;
+  String? _selectedProvider;
 
   @override
   void initState() {
@@ -272,10 +274,16 @@ class _SellerTerminalHomeState extends ConsumerState<_SellerTerminalHome> {
                 ),
                 data: (draws) => draws.isEmpty
                     ? _NoDraws(translations: translations)
-                    : _AvailableDrawList(
+                    : _FilteredAvailableDraws(
                         draws: draws,
+                        selectedProvider: _selectedProvider,
+                        providerFilterExpanded: _providerFilterExpanded,
                         now: _now,
                         translations: translations,
+                        onFilterExpandedChanged: (expanded) =>
+                            setState(() => _providerFilterExpanded = expanded),
+                        onProviderChanged: (provider) =>
+                            setState(() => _selectedProvider = provider),
                         onDrawTap: _showDrawDetail,
                       ),
               ),
@@ -287,8 +295,9 @@ class _SellerTerminalHomeState extends ConsumerState<_SellerTerminalHome> {
               statsAsync.when(
                 loading: () => _DailySummary.placeholder(translations),
                 error: (_, _) => _DailySummary.placeholder(translations),
-                data: (stats) =>
-                    stats.ticketCount == 0 && stats.salesTotalCents == 0
+                data: (stats) => !stats.available
+                    ? _AnalyticsUnavailable(translations: translations)
+                    : stats.ticketCount == 0 && stats.salesTotalCents == 0
                     ? _NoSalesYet(translations: translations)
                     : _DailySummary(stats: stats, translations: translations),
               ),
@@ -392,6 +401,34 @@ class _DailySummary extends StatelessWidget {
   String _money(int minorUnits) => (minorUnits / 100).toStringAsFixed(2);
 }
 
+class _AnalyticsUnavailable extends StatelessWidget {
+  const _AnalyticsUnavailable({required this.translations});
+
+  final I18nBundle translations;
+
+  @override
+  Widget build(BuildContext context) => SurfaceCard(
+    child: Padding(
+      padding: const EdgeInsets.all(TchSpacing.s16),
+      child: Row(
+        children: [
+          Icon(
+            Icons.info_outline,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+          const SizedBox(width: TchSpacing.s12),
+          Expanded(
+            child: Text(
+              translations.translate('pos.reports.analytics_unavailable'),
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
 class _DailyMetric extends StatelessWidget {
   const _DailyMetric({
     required this.icon,
@@ -480,6 +517,125 @@ class _NoSalesYet extends StatelessWidget {
       ],
     ),
   );
+}
+
+class _FilteredAvailableDraws extends StatelessWidget {
+  const _FilteredAvailableDraws({
+    required this.draws,
+    required this.selectedProvider,
+    required this.providerFilterExpanded,
+    required this.now,
+    required this.translations,
+    required this.onFilterExpandedChanged,
+    required this.onProviderChanged,
+    required this.onDrawTap,
+  });
+
+  final List<CashierAvailableDrawView> draws;
+  final String? selectedProvider;
+  final bool providerFilterExpanded;
+  final DateTime now;
+  final I18nBundle translations;
+  final ValueChanged<bool> onFilterExpandedChanged;
+  final ValueChanged<String?> onProviderChanged;
+  final ValueChanged<CashierAvailableDrawView> onDrawTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final providers = draws.map((draw) => draw.providerCode).toSet().toList()
+      ..sort();
+    final filteredDraws = selectedProvider == null
+        ? draws
+        : draws
+              .where((draw) => draw.providerCode == selectedProvider)
+              .toList(growable: false);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (providers.length > 1) ...[
+          _AvailableDrawProviderFilter(
+            providers: providers,
+            selectedProvider: selectedProvider,
+            expanded: providerFilterExpanded,
+            translations: translations,
+            onExpandedChanged: onFilterExpandedChanged,
+            onProviderChanged: onProviderChanged,
+          ),
+          const SizedBox(height: TchSpacing.s12),
+        ],
+        _AvailableDrawList(
+          draws: filteredDraws,
+          now: now,
+          translations: translations,
+          onDrawTap: onDrawTap,
+        ),
+      ],
+    );
+  }
+}
+
+class _AvailableDrawProviderFilter extends StatelessWidget {
+  const _AvailableDrawProviderFilter({
+    required this.providers,
+    required this.selectedProvider,
+    required this.expanded,
+    required this.translations,
+    required this.onExpandedChanged,
+    required this.onProviderChanged,
+  });
+
+  final List<String> providers;
+  final String? selectedProvider;
+  final bool expanded;
+  final I18nBundle translations;
+  final ValueChanged<bool> onExpandedChanged;
+  final ValueChanged<String?> onProviderChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        TextButton.icon(
+          onPressed: () => onExpandedChanged(!expanded),
+          icon: const Icon(Icons.tune_rounded),
+          label: Text(translations.translate('pos.dashboard.filter_draws')),
+          style: TextButton.styleFrom(
+            alignment: Alignment.centerLeft,
+            foregroundColor: scheme.onSurfaceVariant,
+          ),
+        ),
+        if (expanded) ...[
+          const SizedBox(height: TchSpacing.s8),
+          Wrap(
+            spacing: TchSpacing.s8,
+            runSpacing: TchSpacing.s8,
+            children: [
+              FilterChip(
+                label: Text(
+                  translations.translate('pos.dashboard.all_providers'),
+                ),
+                selected: selectedProvider == null,
+                onSelected: (_) => onProviderChanged(null),
+              ),
+              for (final provider in providers)
+                FilterChip(
+                  label: Text(
+                    '$provider · ${localizedCashierProviderLabel(provider, translations)}',
+                  ),
+                  selected: selectedProvider == provider,
+                  onSelected: (_) => onProviderChanged(
+                    selectedProvider == provider ? null : provider,
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ],
+    );
+  }
 }
 
 class _AvailableDrawList extends StatelessWidget {

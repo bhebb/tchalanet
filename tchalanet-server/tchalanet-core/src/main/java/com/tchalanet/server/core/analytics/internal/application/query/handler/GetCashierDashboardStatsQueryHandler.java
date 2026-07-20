@@ -3,10 +3,12 @@ package com.tchalanet.server.core.analytics.internal.application.query.handler;
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.analytics.api.model.CashierDashboardStatsView;
+import com.tchalanet.server.core.analytics.api.model.CashierDashboardStatsView.CashierDrawBreakdown;
 import com.tchalanet.server.core.analytics.api.model.CashierDashboardStatsView.CashierSummaryCard;
 import com.tchalanet.server.core.analytics.api.query.GetCashierDashboardStatsQuery;
 import com.tchalanet.server.core.analytics.internal.infra.persistence.AnalyticsDailyEntity;
 import com.tchalanet.server.core.analytics.internal.infra.persistence.AnalyticsDailyRepository;
+import com.tchalanet.server.core.analytics.internal.infra.persistence.AnalyticsSellerTerminalDrawRepository;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
@@ -16,8 +18,8 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * Handles {@link GetCashierDashboardStatsQuery}.
  *
- * <p>Reads the SELLER-dimension row for today to provide KPIs to the cashier dashboard. Returns
- * zeroes if no projection row exists yet (first sale not yet processed).
+ * <p>Reads the SELLER-dimension row for today to provide KPIs to the cashier dashboard. Callers
+ * MUST evaluate the analytics trust state before rendering this view as a financial metric.
  */
 @UseCase
 @RequiredArgsConstructor
@@ -26,12 +28,13 @@ public class GetCashierDashboardStatsQueryHandler
     implements QueryHandler<GetCashierDashboardStatsQuery, CashierDashboardStatsView> {
 
   private final AnalyticsDailyRepository repo;
+  private final AnalyticsSellerTerminalDrawRepository sellerTerminalDrawRepository;
 
   @Override
   public CashierDashboardStatsView handle(GetCashierDashboardStatsQuery query) {
     Optional<AnalyticsDailyEntity> row =
         repo.findSellerTerminalRow(
-            query.tenantId().value(), query.sellerId().value(), query.refDate());
+            query.tenantId().value(), query.sellerTerminalId().value(), query.refDate());
 
     CashierSummaryCard today =
         row.map(
@@ -40,10 +43,29 @@ public class GetCashierDashboardStatsQueryHandler
                         r.getTicketsSoldCount(),
                         fromCents(r.getGrossSalesCents()),
                         fromCents(r.getWinningsCalculatedCents()),
-                        fromCents(r.getGrossSalesCents() - r.getWinningsCalculatedCents())))
-            .orElse(new CashierSummaryCard(0L, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO));
+                        fromCents(r.getSellerCommissionCents()),
+                        fromCents(r.getNetRevenueEstimatedCents())))
+            .orElse(
+                new CashierSummaryCard(
+                    0L, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO));
 
-    return new CashierDashboardStatsView(query.refDate(), today, List.of());
+    List<CashierDrawBreakdown> drawBreakdown =
+        sellerTerminalDrawRepository
+            .findByTenantIdAndSellerTerminalIdAndRefDateOrderByScheduledAtAsc(
+                query.tenantId().value(), query.sellerTerminalId().value(), query.refDate())
+            .stream()
+            .map(
+                sellerTerminalRow ->
+                    new CashierDrawBreakdown(
+                        sellerTerminalRow.getDrawId(),
+                        sellerTerminalRow.getDrawChannelCode() != null
+                            ? sellerTerminalRow.getDrawChannelCode()
+                            : "",
+                        sellerTerminalRow.getTicketsSoldCount(),
+                        fromCents(sellerTerminalRow.getGrossSalesCents())))
+            .toList();
+
+    return new CashierDashboardStatsView(query.refDate(), today, List.of(), drawBreakdown);
   }
 
   private static BigDecimal fromCents(long cents) {

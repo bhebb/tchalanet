@@ -64,7 +64,7 @@ export class AdminReportPage {
   }
 
   netMarginPercent(vm: AdminReportOverview): number {
-    if (vm.summary.grossSales === 0) return 0;
+    if (vm.summary == null || vm.summary.grossSales === 0) return 0;
     return (vm.summary.netRevenueEstimated / vm.summary.grossSales) * 100;
   }
 

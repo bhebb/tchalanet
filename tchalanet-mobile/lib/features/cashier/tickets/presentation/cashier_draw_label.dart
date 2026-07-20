@@ -8,10 +8,12 @@ String localizedCashierDrawLabel(
   CashierAvailableDrawView draw,
   I18nBundle translations,
 ) {
-  final providerKey = 'pos.draw.providers.${draw.providerCode.toLowerCase()}';
-  final provider = translations.translate(providerKey);
+  final provider = localizedCashierProviderLabel(
+    draw.providerCode,
+    translations,
+  );
   final slotKey = _slotKey(draw.displayChannelLabel);
-  if (provider == providerKey || slotKey == null) {
+  if (provider == draw.providerCode || slotKey == null) {
     return draw.displayChannelLabel;
   }
 
@@ -19,6 +21,15 @@ String localizedCashierDrawLabel(
   final slot = translations.translate(slotTranslationKey);
   if (slot == slotTranslationKey) return draw.displayChannelLabel;
   return '$provider · $slot';
+}
+
+String localizedCashierProviderLabel(
+  String providerCode,
+  I18nBundle translations,
+) {
+  final providerKey = 'pos.draw.providers.${providerCode.toLowerCase()}';
+  final provider = translations.translate(providerKey);
+  return provider == providerKey ? providerCode : provider;
 }
 
 String? _slotKey(String label) {

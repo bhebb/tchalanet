@@ -12,8 +12,12 @@ import com.tchalanet.server.features.shared.bff.BffSlices;
 import com.tchalanet.server.common.web.api.NoticeSource;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
+import com.tchalanet.server.core.analytics.api.model.AnalyticsTrustScope;
+import com.tchalanet.server.core.analytics.api.model.AnalyticsTrustState;
+import com.tchalanet.server.core.analytics.api.model.AnalyticsTrustStateView;
 import com.tchalanet.server.core.analytics.api.model.TenantDashboardStatsView;
 import com.tchalanet.server.core.analytics.api.model.TenantKpisView;
+import com.tchalanet.server.core.analytics.api.query.GetAnalyticsTrustStateQuery;
 import com.tchalanet.server.core.analytics.api.query.GetTenantDashboardStatsQuery;
 import com.tchalanet.server.core.analytics.api.query.GetTenantKpisQuery;
 import com.tchalanet.server.core.draw.api.model.DrawStatus;
@@ -23,8 +27,6 @@ import com.tchalanet.server.core.draw.api.query.ListDrawsQuery;
 import com.tchalanet.server.core.limitpolicy.api.query.LimitScopeQueryRef;
 import com.tchalanet.server.core.limitpolicy.api.query.ListLimitAssignmentsByScopeQuery;
 import com.tchalanet.server.core.limitpolicy.api.query.ListLimitAssignmentsView;
-import com.tchalanet.server.core.sales.api.model.view.TenantDailySalesStatsView;
-import com.tchalanet.server.core.sales.api.query.GetTenantDailySalesStatsQuery;
 import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalCommissionStatsView;
 import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalStatus;
 import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalSummaryRow;
@@ -93,7 +95,7 @@ public class TenantAdminDashboardPayloadAssembler {
       return Payload.empty();
     }
 
-    TenantId tenantId = ctx.tenantIdRequired();
+    TenantId tenantId = ctx.effectiveTenantIdRequired();
 
     // Use tenant timezone for business-date "today"
     ZoneId tz = ctx.tenantZoneId() != null ? ctx.tenantZoneId() : ZoneOffset.UTC;
@@ -128,34 +130,37 @@ public class TenantAdminDashboardPayloadAssembler {
                     "tenant_admin_dashboard.commercial",
                     () -> loadCommercialBundle(tenantId),
                     CommercialBundle::empty));
-    DashboardSlice<TenantKpisView> kpisView =
+    DashboardSlice<AnalyticsTrustStateView> analyticsTrust =
         timing.record(
-            "activeSellerTerminals",
-            () ->
-                optionalSlice(
-                    TenantAdminErrorCodes.DASHBOARD_KPIS_UNAVAILABLE,
-                    "tenant_admin_dashboard.kpis",
-                    () -> loadActiveSellerTerminals(tenantId, tz),
-                    TenantKpisView::empty));
-    DashboardSlice<TenantDashboardStatsView> analytics =
-        timing.record(
-            "analytics",
+            "analyticsTrust",
             () ->
                 optionalSlice(
                     TenantAdminErrorCodes.DASHBOARD_ANALYTICS_UNAVAILABLE,
                     "tenant_admin_dashboard.analytics",
-                    () -> loadDashboardStats(tenantId, tz),
+                    () -> loadRequiredAnalyticsTrust(tenantId, tz),
                     () -> null));
-    String currency = ctx.tenantCurrency() != null ? ctx.tenantCurrency().getCurrencyCode() : "";
-    DashboardSlice<TenantDailySalesStatsView> liveTodaySales =
+    DashboardSlice<TenantKpisView> kpisView =
         timing.record(
-            "liveSales",
+            "kpis",
             () ->
-                optionalSlice(
-                    TenantAdminErrorCodes.DASHBOARD_LIVE_SALES_UNAVAILABLE,
-                    "tenant_admin_dashboard.live_sales",
-                    () -> loadLiveTodaySales(tenantId, tz, currency),
-                    () -> TenantDailySalesStatsView.empty(currency)));
+                analyticsTrust.availability() == DashboardSectionAvailability.AVAILABLE
+                    ? optionalSlice(
+                        TenantAdminErrorCodes.DASHBOARD_KPIS_UNAVAILABLE,
+                        "tenant_admin_dashboard.kpis",
+                        () -> loadActiveSellerTerminals(tenantId, tz),
+                        TenantKpisView::empty)
+                    : DashboardSlice.unavailable(TenantKpisView.empty()));
+    DashboardSlice<TenantDashboardStatsView> analytics =
+        timing.record(
+            "analytics",
+            () ->
+                analyticsTrust.availability() == DashboardSectionAvailability.AVAILABLE
+                    ? optionalSlice(
+                        TenantAdminErrorCodes.DASHBOARD_ANALYTICS_UNAVAILABLE,
+                        "tenant_admin_dashboard.analytics",
+                        () -> loadDashboardStats(tenantId, tz),
+                        () -> null)
+                    : DashboardSlice.unavailable(null));
     DashboardSlice<Long> openDraws =
         timing.record(
             "openDraws",
@@ -205,18 +210,13 @@ public class TenantAdminDashboardPayloadAssembler {
                 buildKpis(
                     analytics.value(),
                     kpisView.value(),
-                    liveTodaySales.value(),
                     openDraws.value(),
                     notifCount.value(),
                     tz));
     TenantSalesTrendPayload salesTrend =
-        timing.record(
-            "buildSalesTrend",
-            () -> buildSalesTrend(analytics.value(), liveTodaySales.value(), tz));
+        timing.record("buildSalesTrend", () -> buildSalesTrend(analytics.value()));
     TenantGameBreakdownPayload gameBreakdown =
-        timing.record(
-            "buildGameBreakdown",
-            () -> buildGameBreakdown(analytics.value(), liveTodaySales.value()));
+        timing.record("buildGameBreakdown", () -> buildGameBreakdown(analytics.value()));
     TenantReadinessSummaryPayload readiness =
         timing.record(
             "buildReadiness",
@@ -269,7 +269,6 @@ public class TenantAdminDashboardPayloadAssembler {
                 commercial,
                 kpisView,
                 analytics,
-                liveTodaySales,
                 openDraws,
                 closedDraws,
                 notifCount,
@@ -321,20 +320,22 @@ public class TenantAdminDashboardPayloadAssembler {
     return view != null ? view : TenantKpisView.empty();
   }
 
+  private AnalyticsTrustStateView loadRequiredAnalyticsTrust(TenantId tenantId, ZoneId tz) {
+    LocalDate today = LocalDate.now(tz);
+    AnalyticsTrustStateView trust =
+        queryBus.ask(
+            new GetAnalyticsTrustStateQuery(
+                AnalyticsTrustScope.tenant(tenantId, today.minusDays(6), today)));
+    if (trust == null || trust.state() != AnalyticsTrustState.READY) {
+      throw new AnalyticsTrustUnavailableException();
+    }
+    return trust;
+  }
+
   private TenantDashboardStatsView loadDashboardStats(TenantId tenantId, ZoneId tz) {
     LocalDate today = LocalDate.now(tz);
     LocalDate from = today.minusDays(6);
     return queryBus.ask(new GetTenantDashboardStatsQuery(tenantId, from, today, 5));
-  }
-
-  private TenantDailySalesStatsView loadLiveTodaySales(
-      TenantId tenantId, ZoneId tz, String currency) {
-    LocalDate today = LocalDate.now(tz);
-    var from = today.atStartOfDay(tz).toInstant();
-    var to = today.plusDays(1).atStartOfDay(tz).toInstant();
-    TenantDailySalesStatsView view =
-        queryBus.ask(new GetTenantDailySalesStatsQuery(tenantId, from, to, currency));
-    return view != null ? view : TenantDailySalesStatsView.empty(currency);
   }
 
   private long loadOpenDrawCount() {
@@ -378,7 +379,6 @@ public class TenantAdminDashboardPayloadAssembler {
       DashboardSlice<?> commercial,
       DashboardSlice<?> kpis,
       DashboardSlice<?> analytics,
-      DashboardSlice<?> liveSales,
       DashboardSlice<?> openDraws,
       DashboardSlice<?> closedDraws,
       DashboardSlice<?> notifications,
@@ -391,7 +391,6 @@ public class TenantAdminDashboardPayloadAssembler {
             DashboardSectionState.of("commercial", commercial),
             DashboardSectionState.of("kpis", kpis),
             DashboardSectionState.of("analytics", analytics),
-            DashboardSectionState.of("liveSales", liveSales),
             DashboardSectionState.of("openDraws", openDraws),
             DashboardSectionState.of("closedDraws", closedDraws),
             DashboardSectionState.of("notifications", notifications),
@@ -417,7 +416,6 @@ public class TenantAdminDashboardPayloadAssembler {
   private TenantKpiGridPayload buildKpis(
       TenantDashboardStatsView view,
       TenantKpisView kpisView,
-      TenantDailySalesStatsView liveTodaySales,
       long openDraws,
       long notifCount,
       ZoneId tz) {
@@ -448,16 +446,8 @@ public class TenantAdminDashboardPayloadAssembler {
       }
     }
 
-    if (liveTodaySales != null && liveTodaySales.ticketCount() > 0L) {
-      salesToday = fromCents(liveTodaySales.salesTotalCents());
-      ticketsToday = liveTodaySales.ticketCount();
-    }
-
     long activeSellerTerminals =
         kpisView.activeCashiers(); // proxy V0: SELLER dim = seller_terminal
-    if (liveTodaySales != null && liveTodaySales.activeSellerTerminals() > 0L) {
-      activeSellerTerminals = liveTodaySales.activeSellerTerminals();
-    }
     return new TenantKpiGridPayload(
         salesToday,
         salesYesterday,
@@ -472,8 +462,7 @@ public class TenantAdminDashboardPayloadAssembler {
         0L);
   }
 
-  private TenantSalesTrendPayload buildSalesTrend(
-      TenantDashboardStatsView view, TenantDailySalesStatsView liveTodaySales, ZoneId tz) {
+  private TenantSalesTrendPayload buildSalesTrend(TenantDashboardStatsView view) {
     List<TenantTrendItem> points = new ArrayList<>();
     if (view != null && view.dailyBreakdown() != null) {
       points.addAll(
@@ -491,47 +480,10 @@ public class TenantAdminDashboardPayloadAssembler {
               .toList());
     }
 
-    if (liveTodaySales != null && liveTodaySales.ticketCount() > 0L) {
-      String today = LocalDate.now(tz).toString();
-      TenantTrendItem livePoint =
-          new TenantTrendItem(
-              today,
-              today,
-              fromCents(liveTodaySales.salesTotalCents()),
-              BigDecimal.ZERO,
-              liveTodaySales.ticketCount());
-      boolean replaced = false;
-      for (int i = 0; i < points.size(); i++) {
-        if (today.equals(points.get(i).id())) {
-          points.set(i, livePoint);
-          replaced = true;
-          break;
-        }
-      }
-      if (!replaced) {
-        points.add(livePoint);
-      }
-    }
     return new TenantSalesTrendPayload(points);
   }
 
-  private TenantGameBreakdownPayload buildGameBreakdown(
-      TenantDashboardStatsView view, TenantDailySalesStatsView liveTodaySales) {
-    if (liveTodaySales != null
-        && liveTodaySales.gameBreakdown() != null
-        && !liveTodaySales.gameBreakdown().isEmpty()) {
-      return new TenantGameBreakdownPayload(
-          liveTodaySales.gameBreakdown().stream()
-              .map(
-                  g ->
-                      new TenantGameBreakdownItem(
-                          g.gameCode() != null ? g.gameCode() : "",
-                          g.gameCode() != null ? g.gameCode() : "",
-                          g.ticketCount(),
-                          fromCents(g.totalCents()),
-                          BigDecimal.ZERO))
-              .toList());
-    }
+  private TenantGameBreakdownPayload buildGameBreakdown(TenantDashboardStatsView view) {
     if (view == null || view.gameBreakdown() == null) {
       return new TenantGameBreakdownPayload(List.of());
     }
@@ -549,10 +501,6 @@ public class TenantAdminDashboardPayloadAssembler {
                             : BigDecimal.ZERO))
             .toList();
     return new TenantGameBreakdownPayload(items);
-  }
-
-  private static BigDecimal fromCents(long cents) {
-    return BigDecimal.valueOf(cents).movePointLeft(2);
   }
 
   /**
@@ -974,4 +922,7 @@ public class TenantAdminDashboardPayloadAssembler {
       return (System.nanoTime() - startedAt) / 1_000_000L;
     }
   }
+
+  /** Internal control flow only; BffSlices translates it to a stable degradation notice. */
+  private static final class AnalyticsTrustUnavailableException extends RuntimeException {}
 }

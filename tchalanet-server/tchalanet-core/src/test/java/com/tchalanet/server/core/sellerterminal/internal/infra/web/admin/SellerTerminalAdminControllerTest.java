@@ -11,8 +11,8 @@ import com.tchalanet.server.common.context.scope.ApiScope;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.web.paging.TchPage;
-import com.tchalanet.server.core.sales.api.model.view.TenantDailySalesStatsView;
-import com.tchalanet.server.core.sales.api.query.GetTenantDailySalesStatsQuery;
+import com.tchalanet.server.core.analytics.api.model.TenantKpisView;
+import com.tchalanet.server.core.analytics.api.query.GetTenantKpisQuery;
 import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalStatus;
 import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalSummaryRow;
 import com.tchalanet.server.core.sellerterminal.api.query.ListSellerTerminalsQuery;
@@ -30,7 +30,7 @@ class SellerTerminalAdminControllerTest {
   private static final TenantId TENANT_ID = TenantId.of(UUID.fromString("10000000-0000-0000-0000-000000000001"));
 
   @Test
-  void summary_uses_tenant_sales_aggregate_for_today() {
+  void summary_uses_tenant_analytics_for_today() {
     var controller = new SellerTerminalAdminController(new NoopCommandBus(), new SummaryQueryBus());
 
     var response = controller.summary(context());
@@ -109,8 +109,10 @@ class SellerTerminalAdminControllerTest {
                 null);
         return (R) TchPage.of(List.of(active, blocked), 0, 500, 2, 1, true, false, false);
       }
-      if (query instanceof GetTenantDailySalesStatsQuery) {
-        return (R) new TenantDailySalesStatsView(1, 1500L, 1, "HTG", List.of());
+      if (query instanceof GetTenantKpisQuery) {
+        return (R)
+            new TenantKpisView(
+                1L, new BigDecimal("15.00"), BigDecimal.ZERO, BigDecimal.ZERO, 0L, 1L);
       }
       throw new AssertionError("Unexpected query: " + query.getClass().getSimpleName());
     }

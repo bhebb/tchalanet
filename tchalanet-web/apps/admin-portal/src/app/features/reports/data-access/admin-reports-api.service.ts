@@ -114,10 +114,18 @@ export interface AdminReportTopSelectionRow {
   readonly totalStake: number;
 }
 
+export interface AdminReportAnalyticsAvailability {
+  readonly available: boolean;
+  readonly trustState: 'READY' | 'RECONCILIATION_REQUIRED' | 'UNAVAILABLE';
+  readonly trustReasonCode: string;
+  readonly missingBusinessDates: readonly string[];
+}
+
 export interface AdminReportOverview {
+  readonly analytics: AdminReportAnalyticsAvailability;
   readonly from: string;
   readonly to: string;
-  readonly summary: AdminReportSummary;
+  readonly summary: AdminReportSummary | null;
   readonly dailyRows: readonly AdminReportDailyRow[];
   readonly drawRows: readonly AdminReportDrawRow[];
   readonly sellerTerminalRows: readonly AdminReportSellerTerminalRow[];
@@ -125,16 +133,18 @@ export interface AdminReportOverview {
 }
 
 export interface AdminReportDraws {
+  readonly analytics: AdminReportAnalyticsAvailability;
   readonly from: string;
   readonly to: string;
-  readonly summary: AdminReportSummary;
+  readonly summary: AdminReportSummary | null;
   readonly rows: readonly AdminReportDrawRow[];
 }
 
 export interface AdminReportSellerTerminals {
+  readonly analytics: AdminReportAnalyticsAvailability;
   readonly from: string;
   readonly to: string;
-  readonly summary: AdminReportSummary;
+  readonly summary: AdminReportSummary | null;
   readonly rows: readonly AdminReportSellerTerminalRow[];
 }
 

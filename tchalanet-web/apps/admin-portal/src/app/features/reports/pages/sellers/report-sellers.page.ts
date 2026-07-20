@@ -151,7 +151,7 @@ export class AdminReportSellersPage {
   }
 
   commissionRatePercent(vm: AdminReportSellerTerminals): number {
-    if (vm.summary.grossSales === 0) return 0;
+    if (vm.summary == null || vm.summary.grossSales === 0) return 0;
     return (vm.summary.sellerCommission / vm.summary.grossSales) * 100;
   }
 
@@ -199,6 +199,16 @@ export class AdminReportSellersPage {
   }
 
   sellerTotals(vm: AdminReportSellerTerminals): SellerReportTotalsView {
+    if (vm.summary == null) {
+      return {
+        ticketsSold: 0,
+        grossSales: 0,
+        sellerCommission: 0,
+        commissionRate: 0,
+        netRevenueEstimated: 0,
+        averageTicket: 0,
+      };
+    }
     return {
       ticketsSold: vm.summary.ticketsSold,
       grossSales: vm.summary.grossSales,

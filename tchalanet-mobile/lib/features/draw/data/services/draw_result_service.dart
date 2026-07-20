@@ -46,6 +46,7 @@ class DrawResultService {
   Future<PublicDrawResultHistory> fetchHistory({
     required DateTime from,
     required DateTime to,
+    String? provider,
     String? slotKey,
     int page = 0,
     int size = 50,
@@ -54,6 +55,7 @@ class DrawResultService {
       final response = await _dio.get<Map<String, dynamic>>(
         '/public/draw-results/history',
         queryParameters: {
+          if (provider != null && provider.isNotEmpty) 'provider': provider,
           if (slotKey != null && slotKey.isNotEmpty) 'slotKeys': [slotKey],
           'from': _isoDate(from),
           'to': _isoDate(to),
