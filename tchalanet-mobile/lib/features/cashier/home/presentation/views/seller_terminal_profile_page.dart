@@ -10,7 +10,6 @@ import '../../../../../design_system/tokens/tch_radius.dart';
 import '../../../../../design_system/tokens/tch_spacing.dart';
 import '../../../../auth/presentation/view_models/auth_controller.dart';
 import '../view_models/cashier_home_providers.dart';
-import 'seller_terminal_nav_bar.dart';
 
 class SellerTerminalProfilePage extends ConsumerWidget {
   const SellerTerminalProfilePage({super.key});
@@ -23,7 +22,6 @@ class SellerTerminalProfilePage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(title: Text(translations.translate('pos.profile.title'))),
-      bottomNavigationBar: const SellerTerminalNavBar(currentIndex: 3),
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () async {

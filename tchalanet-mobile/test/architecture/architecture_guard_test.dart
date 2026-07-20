@@ -29,6 +29,7 @@ const _knownCrossFeatureImports = {
   'lib/features/cashier/home/presentation/views/cashier_home_page.dart|../../../../notifications/presentation/view_models/notification_summary_controller.dart',
   'lib/features/cashier/home/presentation/views/seller_terminal_profile_page.dart|../../../../auth/presentation/view_models/auth_controller.dart',
   'lib/features/cashier/tickets/presentation/views/cashier_sell_success_page.dart|../../../../auth/presentation/view_models/auth_controller.dart',
+  'lib/features/draw/presentation/views/seller_terminal_results_page.dart|../../../cashier/home/presentation/views/seller_terminal_nav_bar.dart',
 };
 
 const _knownProvidersDeclaredInViews = {
@@ -59,6 +60,7 @@ const _routedScreens = {
   '/change-pin': 'ChangePinPage',
   '/pos': 'CashierHomePage',
   '/pos/history': 'CashierHistoryPage',
+  '/pos/results': 'SellerTerminalResultsPage',
   '/pos/reports': 'SellerTerminalStatsPage',
   '/pos/scan': 'CashierScanPage',
   '/pos/profile': 'SellerTerminalProfilePage',

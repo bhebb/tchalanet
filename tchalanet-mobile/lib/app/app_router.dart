@@ -16,6 +16,7 @@ import '../features/cashier/tickets/presentation/views/cashier_scan_page.dart';
 import '../features/cashier/tickets/presentation/views/cashier_sell_page.dart';
 import '../features/cashier/tickets/presentation/views/cashier_sell_success_page.dart';
 import '../features/cashier/tickets/presentation/views/cashier_ticket_detail_page.dart';
+import '../features/draw/presentation/views/seller_terminal_results_page.dart';
 import '../features/notifications/presentation/views/notification_center_page.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -50,7 +51,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, _) => const ChangePinPage(),
       ),
       GoRoute(path: '/pos', builder: (context, _) => const CashierHomePage()),
-      // Bottom nav: Home | Tickets | Reports | Profile. Scanner is a ticket action.
+      // Bottom nav: Home | Tickets | Results | Reports. Profile belongs to the avatar.
       GoRoute(
         path: '/pos/history',
         builder: (context, _) => const CashierHistoryPage(),
@@ -70,6 +71,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/pos/reports',
         builder: (context, _) => const SellerTerminalStatsPage(),
+      ),
+      GoRoute(
+        path: '/pos/results',
+        builder: (context, _) => const SellerTerminalResultsPage(),
       ),
       // Sell flow — /sell matches server-side HomeAction.route
       // Optional extra: {'drawId': String} to pre-select a specific draw.

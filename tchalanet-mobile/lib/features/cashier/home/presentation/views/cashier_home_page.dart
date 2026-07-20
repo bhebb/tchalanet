@@ -990,6 +990,7 @@ class _PosAppBar extends ConsumerWidget implements PreferredSizeWidget {
           child: _UserAvatar(
             initials: _initials(session.displayName ?? session.username),
             tooltip: translations.translate('pos.profile.open'),
+            label: translations.translate('pos.dashboard.profile'),
           ),
         ),
       ],
@@ -1056,25 +1057,54 @@ class _NotificationCenterAction extends ConsumerWidget {
 }
 
 class _UserAvatar extends StatelessWidget {
-  const _UserAvatar({required this.initials, required this.tooltip});
+  const _UserAvatar({
+    required this.initials,
+    required this.tooltip,
+    required this.label,
+  });
 
   final String initials;
   final String tooltip;
+  final String label;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return IconButton(
-      tooltip: tooltip,
-      onPressed: () => context.go('/pos/profile'),
-      icon: CircleAvatar(
-        radius: 18,
-        backgroundColor: scheme.primary,
-        child: Text(
-          initials,
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            color: scheme.onPrimary,
-            fontWeight: FontWeight.w800,
+    return Semantics(
+      button: true,
+      label: tooltip,
+      child: Tooltip(
+        message: tooltip,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(TchRadius.pill),
+          onTap: () => context.go('/pos/profile'),
+          child: SizedBox(
+            width: 52,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircleAvatar(
+                  radius: 16,
+                  backgroundColor: scheme.primary,
+                  child: Text(
+                    initials,
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: scheme.onPrimary,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: TchSpacing.s4),
+                Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w700),
+                ),
+              ],
+            ),
           ),
         ),
       ),

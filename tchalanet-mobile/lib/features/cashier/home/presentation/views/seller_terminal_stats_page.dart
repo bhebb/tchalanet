@@ -50,7 +50,7 @@ class _SellerTerminalStatsPageState
 
     return Scaffold(
       appBar: AppBar(title: Text(translations.translate('pos.reports.title'))),
-      bottomNavigationBar: const SellerTerminalNavBar(currentIndex: 2),
+      bottomNavigationBar: const SellerTerminalNavBar(currentIndex: 3),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,

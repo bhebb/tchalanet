@@ -42,6 +42,7 @@
       "title": "Tchalanet POS",
       "home": "Akèy",
       "history": "Istorik",
+      "results": "Rezilta",
       "reports": "Rapò",
       "profile": "Pwofil",
       "notifications": "Notifikasyon",
@@ -61,6 +62,20 @@
       "closes_soon": "Prèske fèmen",
       "closed": "Fèmen",
       "sell": "Vann"
+    },
+    "results": {
+      "title": "Rezilta tiraj",
+      "loading": "N ap chaje rezilta yo",
+      "last_7_days": "7 dènye jou",
+      "last_30_days": "30 dènye jou",
+      "draw_filter": "Filtre pa tiraj",
+      "all_draws": "Tout tiraj",
+      "empty": "Pa gen rezilta pou filtè sa yo.",
+      "load_error": "Nou pa kapab chaje rezilta yo.",
+      "status_confirmed": "Konfime",
+      "status_provisional": "Pwovizwa",
+      "status_corrected": "Korije",
+      "status_available": "Disponib"
     },
     "reports": {
       "title": "Rapò vandè",

@@ -15,15 +15,50 @@ final homeDrawSlotsProvider = FutureProvider<List<DrawSlotView>>((ref) async {
 
 /// First upcoming slot (smallest positive countdown).
 final nextDrawProvider = Provider<DrawSlotView?>((ref) {
-  final slots = ref.watch(homeDrawSlotsProvider).when(
-    data: (d) => d,
-    loading: () => <DrawSlotView>[],
-    error: (_, _) => <DrawSlotView>[],
-  );
-  final upcoming = slots
-      .where((s) => s.next != null && s.next!.isUpcoming)
-      .toList()
-    ..sort((a, b) =>
-        a.next!.countdownSeconds.compareTo(b.next!.countdownSeconds));
+  final slots = ref
+      .watch(homeDrawSlotsProvider)
+      .when(
+        data: (d) => d,
+        loading: () => <DrawSlotView>[],
+        error: (_, _) => <DrawSlotView>[],
+      );
+  final upcoming =
+      slots.where((s) => s.next != null && s.next!.isUpcoming).toList()..sort(
+        (a, b) => a.next!.countdownSeconds.compareTo(b.next!.countdownSeconds),
+      );
   return upcoming.isEmpty ? null : upcoming.first;
 });
+
+class PublicDrawResultHistoryQuery {
+  const PublicDrawResultHistoryQuery({
+    required this.from,
+    required this.to,
+    this.slotKey,
+  });
+
+  final DateTime from;
+  final DateTime to;
+  final String? slotKey;
+
+  @override
+  bool operator ==(Object other) =>
+      other is PublicDrawResultHistoryQuery &&
+      other.from == from &&
+      other.to == to &&
+      other.slotKey == slotKey;
+
+  @override
+  int get hashCode => Object.hash(from, to, slotKey);
+}
+
+final publicDrawResultSlotsProvider =
+    FutureProvider.autoDispose<List<PublicDrawResultSlot>>(
+      (ref) => ref.watch(drawResultServiceProvider).fetchResultSlots(),
+    );
+
+final publicDrawResultHistoryProvider = FutureProvider.autoDispose
+    .family<PublicDrawResultHistory, PublicDrawResultHistoryQuery>(
+      (ref, query) => ref
+          .watch(drawResultServiceProvider)
+          .fetchHistory(from: query.from, to: query.to, slotKey: query.slotKey),
+    );

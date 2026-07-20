@@ -100,3 +100,97 @@ class DrawSlotView {
         : null,
   );
 }
+
+/// A selectable public result slot returned by `/public/draw-results/slots`.
+class PublicDrawResultSlot {
+  const PublicDrawResultSlot({
+    required this.slotKey,
+    required this.provider,
+    required this.label,
+  });
+
+  final String slotKey;
+  final String provider;
+  final String label;
+
+  factory PublicDrawResultSlot.fromJson(Map<String, dynamic> json) =>
+      PublicDrawResultSlot(
+        slotKey: json['slotKey'] as String? ?? '',
+        provider: json['provider'] as String? ?? '',
+        label: json['label'] as String? ?? '',
+      );
+}
+
+/// One completed result. Server labels are retained as an accessibility fallback;
+/// seller-facing screens resolve provider and slot codes through local i18n first.
+class PublicDrawResultRow {
+  const PublicDrawResultRow({
+    required this.drawResultId,
+    required this.slotKey,
+    required this.provider,
+    required this.drawChannelLabel,
+    required this.resultDate,
+    required this.drawTime,
+    required this.status,
+    required this.numbers,
+  });
+
+  final String drawResultId;
+  final String slotKey;
+  final String provider;
+  final String drawChannelLabel;
+  final String resultDate;
+  final String drawTime;
+  final String status;
+  final List<String> numbers;
+
+  String get displayDrawTime =>
+      drawTime.length >= 5 ? drawTime.substring(0, 5) : drawTime;
+
+  factory PublicDrawResultRow.fromJson(Map<String, dynamic> json) =>
+      PublicDrawResultRow(
+        drawResultId: json['drawResultId'] as String? ?? '',
+        slotKey: json['slotKey'] as String? ?? '',
+        provider: json['provider'] as String? ?? '',
+        drawChannelLabel: json['drawChannelLabel'] as String? ?? '',
+        resultDate: json['resultDate'] as String? ?? '',
+        drawTime: json['drawTime'] as String? ?? '',
+        status: json['status'] as String? ?? 'UNKNOWN',
+        numbers:
+            (json['numbers'] as List<dynamic>?)
+                ?.whereType<String>()
+                .where((number) => number.isNotEmpty)
+                .toList(growable: false) ??
+            const [],
+      );
+}
+
+class PublicDrawResultHistory {
+  const PublicDrawResultHistory({
+    required this.items,
+    required this.page,
+    required this.totalItems,
+    required this.totalPages,
+  });
+
+  final List<PublicDrawResultRow> items;
+  final int page;
+  final int totalItems;
+  final int totalPages;
+
+  factory PublicDrawResultHistory.fromJson(Map<String, dynamic> json) =>
+      PublicDrawResultHistory(
+        items:
+            (json['items'] as List<dynamic>?)
+                ?.map(
+                  (item) => PublicDrawResultRow.fromJson(
+                    item as Map<String, dynamic>,
+                  ),
+                )
+                .toList(growable: false) ??
+            const [],
+        page: (json['page'] as num?)?.toInt() ?? 0,
+        totalItems: (json['totalItems'] as num?)?.toInt() ?? 0,
+        totalPages: (json['totalPages'] as num?)?.toInt() ?? 0,
+      );
+}
