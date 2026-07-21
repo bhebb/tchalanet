@@ -131,11 +131,12 @@ Objectif: prouver que le provisioning ne démarre pas tous les providers.
 1. Choisir un draw fermé ou générer un draw test puis le faire passer `OPEN → CLOSED`.
 2. Lancer ou attendre `results:external:fetch`.
 3. Vérifier qu'un `draw_result` existe pour le `result_slot`.
-4. Si le status est `PROVISIONAL`, confirmer par Ops et conserver l'audit de confirmation.
-5. Attendre ou lancer `results:external:apply`.
-6. Vérifier que le draw tenant passe `CLOSED → RESULTED` avec le bon `drawResultId`.
-7. Attendre ou lancer `draw:lifecycle:settle`.
-8. Vérifier que le draw passe `RESULTED → SETTLED` et que les tickets sont `WON` ou `LOST`.
+4. Vérifier la qualité et les lots Haïti. Si le provider donne seulement Pick 4, `lot1`/`lot4` restent vides; si le provider donne seulement Pick 3, `lot2`/`lot3` restent vides. Ces cas sont `SUSPECT` et doivent rester `PROVISIONAL`.
+5. Si le status est `PROVISIONAL`, confirmer par Ops ou compléter par override manuel, puis conserver l'audit de confirmation/correction.
+6. Attendre ou lancer `results:external:apply`.
+7. Vérifier que le draw tenant passe `CLOSED → RESULTED` avec le bon `drawResultId`.
+8. Attendre ou lancer `draw:lifecycle:settle`.
+9. Vérifier que le draw passe `RESULTED → SETTLED` et que les tickets sont `WON` ou `LOST`.
 
 ## Validation C — provider opt-in
 

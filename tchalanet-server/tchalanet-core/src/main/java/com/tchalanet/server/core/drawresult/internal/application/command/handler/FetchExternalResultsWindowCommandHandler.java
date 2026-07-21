@@ -16,6 +16,7 @@ import com.tchalanet.server.core.drawresult.api.command.FetchExternalResultsWind
 import com.tchalanet.server.core.drawresult.api.command.FetchExternalResultsWindowResult;
 import com.tchalanet.server.core.drawresult.api.event.GlobalDrawResultAvailableEvent;
 import com.tchalanet.server.core.drawresult.api.model.DrawResultStatus;
+import com.tchalanet.server.core.drawresult.api.model.ResultQuality;
 import com.tchalanet.server.core.drawresult.api.model.ResultSource;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultReaderPort;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultWriterPort;
@@ -28,6 +29,7 @@ import com.tchalanet.server.core.drawresult.internal.application.service.HaitiPr
 import com.tchalanet.server.core.drawresult.internal.application.service.ResolvedExternalResults;
 import com.tchalanet.server.core.drawresult.internal.application.service.ResultSlotSourceClassification;
 import com.tchalanet.server.core.drawresult.internal.application.service.ResultSlotSourceClassifier;
+import com.tchalanet.server.core.drawresult.internal.application.service.ResultSlotSourceConfig;
 import com.tchalanet.server.core.drawresult.internal.application.service.ResultSlotSourceConfigResolver;
 import com.tchalanet.server.core.drawresult.internal.infra.config.DrawResultsProperties;
 import java.time.Clock;
@@ -174,10 +176,7 @@ public class FetchExternalResultsWindowCommandHandler
           drawResultPersistenceAssembler.assemble(
               slot, date, expectedOccurredAt, external, sourceCfg, projection, cmd.includeRaw());
 
-      var status =
-          sourceCfg.requiresPlatformReview()
-              ? DrawResultStatus.PROVISIONAL
-              : DrawResultStatus.CONFIRMED;
+      var status = resolvePersistStatus(sourceCfg, payload.quality());
 
       var upsert =
           writer.upsert(
@@ -370,5 +369,26 @@ public class FetchExternalResultsWindowCommandHandler
 
   private static String normalizeKey(String key) {
     return key == null ? "" : key.trim().toUpperCase(java.util.Locale.ROOT);
+  }
+
+  static DrawResultStatus resolvePersistStatus(ResultSlotSourceConfig sourceCfg, String quality) {
+    var resultQuality = parseQuality(quality);
+    if (!resultQuality.canAutoApply()) {
+      return DrawResultStatus.PROVISIONAL;
+    }
+
+    var cfg = sourceCfg == null ? ResultSlotSourceConfig.empty() : sourceCfg;
+    return cfg.requiresPlatformReview() ? DrawResultStatus.PROVISIONAL : DrawResultStatus.CONFIRMED;
+  }
+
+  private static ResultQuality parseQuality(String quality) {
+    if (quality == null || quality.isBlank()) {
+      return ResultQuality.SUSPECT;
+    }
+    try {
+      return ResultQuality.valueOf(quality.trim().toUpperCase(java.util.Locale.ROOT));
+    } catch (IllegalArgumentException ignored) {
+      return ResultQuality.SUSPECT;
+    }
   }
 }
