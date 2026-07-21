@@ -174,6 +174,11 @@ public class FetchExternalResultsWindowCommandHandler
           drawResultPersistenceAssembler.assemble(
               slot, date, expectedOccurredAt, external, sourceCfg, projection, cmd.includeRaw());
 
+      var status =
+          sourceCfg.requiresPlatformReview()
+              ? DrawResultStatus.PROVISIONAL
+              : DrawResultStatus.CONFIRMED;
+
       var upsert =
           writer.upsert(
               slot.id(),
@@ -182,7 +187,7 @@ public class FetchExternalResultsWindowCommandHandler
               payload.sourceResult(),
               payload.haitiResult(),
               payload.rawPayload(),
-              DrawResultStatus.CONFIRMED.name(),
+              status.name(),
               DrawSource.EXTERNAL.name(),
               payload.flags(),
               payload.quality(),
@@ -194,7 +199,7 @@ public class FetchExternalResultsWindowCommandHandler
 
       if (changed) {
         fetchedNotifications.add(
-            buildDrawResultNotification(slot, date, expectedOccurredAt, external, payload));
+            buildDrawResultNotification(slot, date, expectedOccurredAt, external, payload, status));
       }
 
       if (upsert.created()) {
@@ -275,7 +280,8 @@ public class FetchExternalResultsWindowCommandHandler
       LocalDate date,
       Instant occurredAt,
       ResolvedExternalResults external,
-      DrawResultPersistPayload payload) {
+      DrawResultPersistPayload payload,
+      DrawResultStatus status) {
 
     var gameCodes = new ArrayList<String>(2);
 
@@ -304,7 +310,7 @@ public class FetchExternalResultsWindowCommandHandler
         slot.slotKey(),
         date,
         occurredAt,
-        DrawResultStatus.CONFIRMED.name(),
+        status.name(),
         payload.quality(),
         gameCodes.size(),
         List.copyOf(gameCodes),
