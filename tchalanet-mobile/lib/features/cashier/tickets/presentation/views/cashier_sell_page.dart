@@ -32,6 +32,7 @@ class CashierSellPage extends ConsumerStatefulWidget {
 
 class _CashierSellPageState extends ConsumerState<CashierSellPage> {
   final _stakeController = TextEditingController();
+  final _stakeFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -52,6 +53,7 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
 
   @override
   void dispose() {
+    _stakeFocusNode.dispose();
     _stakeController.dispose();
     super.dispose();
   }
@@ -62,6 +64,7 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
     final translations = ref.watch(i18nBundleProvider);
     final homeAsync = ref.watch(cashierHomeProvider);
     final lastDiagnostic = ref.watch(diagnosticRepositoryProvider).last;
+    final keyboardInset = MediaQuery.viewInsetsOf(context).bottom;
     final opCtx = homeAsync.when(
       data: (h) => h.operationalContext,
       loading: () => null,
@@ -70,6 +73,10 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
 
     ref.listen<SellState>(sellControllerProvider, (_, next) {
       if (next is SellSuccess) {
+        ref.invalidate(cashierHomeProvider);
+        ref.invalidate(terminalDailyStatsProvider);
+        ref.invalidate(terminalStatsByDateProvider);
+        ref.invalidate(latestTicketProvider);
         final ticketId = next.response.ticketId;
         if (ticketId == null) return;
         if (next.response.ticketCode.isEmpty) {
@@ -123,12 +130,14 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
                   previewResult: previewResult,
                   isPreviewing: false,
                   isConfirming: false,
+                  keyboardInset: keyboardInset,
                   error: errorKeys.isEmpty
                       ? null
                       : _translateError(translations, errorKeys),
                   diagnostic: errorKeys.isNotEmpty ? lastDiagnostic : null,
                   opCtx: opCtx,
                   stakeController: _stakeController,
+                  stakeFocusNode: _stakeFocusNode,
                   onSelectDraw: (id) =>
                       ref.read(sellControllerProvider.notifier).selectDraw(id),
                   onSelectGame: (g) =>
@@ -144,6 +153,13 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
                   onAddLine: () {
                     ref.read(sellControllerProvider.notifier).addLine();
                     _stakeController.clear();
+                  },
+                  onCancelEntry: () {
+                    FocusManager.instance.primaryFocus?.unfocus();
+                    _stakeController.clear();
+                    ref
+                        .read(sellControllerProvider.notifier)
+                        .cancelCurrentEntry();
                   },
                   onEditPreparedTicket: () => ref
                       .read(sellControllerProvider.notifier)
@@ -164,15 +180,18 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
                 previewResult: null,
                 isPreviewing: true,
                 isConfirming: false,
+                keyboardInset: keyboardInset,
                 error: null,
                 opCtx: opCtx,
                 stakeController: _stakeController,
+                stakeFocusNode: _stakeFocusNode,
                 onSelectDraw: (_) {},
                 onSelectGame: (_) {},
                 onSelectBetOption: (_) {},
                 onSelectionChanged: (_) {},
                 onStakeChanged: (_) {},
                 onAddLine: () {},
+                onCancelEntry: () {},
                 onEditPreparedTicket: () {},
                 onRemoveLine: (_) {},
                 onPreview: () {},
@@ -183,15 +202,18 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
                 previewResult: null,
                 isPreviewing: false,
                 isConfirming: true,
+                keyboardInset: keyboardInset,
                 error: null,
                 opCtx: opCtx,
                 stakeController: _stakeController,
+                stakeFocusNode: _stakeFocusNode,
                 onSelectDraw: (_) {},
                 onSelectGame: (_) {},
                 onSelectBetOption: (_) {},
                 onSelectionChanged: (_) {},
                 onStakeChanged: (_) {},
                 onAddLine: () {},
+                onCancelEntry: () {},
                 onEditPreparedTicket: () {},
                 onRemoveLine: (_) {},
                 onPreview: () {},
@@ -215,12 +237,14 @@ String _translateError(I18nBundle bundle, List<String> keys) {
 
 // ─── Sell body ────────────────────────────────────────────────────────────────
 
-class _SellBody extends ConsumerWidget {
+class _SellBody extends ConsumerStatefulWidget {
   const _SellBody({
     required this.form,
     required this.isPreviewing,
     required this.isConfirming,
+    required this.keyboardInset,
     required this.stakeController,
+    required this.stakeFocusNode,
     required this.onSelectDraw,
     required this.onSelectGame,
     required this.onSelectBetOption,
@@ -229,6 +253,7 @@ class _SellBody extends ConsumerWidget {
     required this.onPreview,
     required this.onConfirm,
     required this.onAddLine,
+    required this.onCancelEntry,
     required this.onEditPreparedTicket,
     required this.onRemoveLine,
     this.previewResult,
@@ -241,10 +266,12 @@ class _SellBody extends ConsumerWidget {
   final CashierTicketPreviewResponse? previewResult;
   final bool isPreviewing;
   final bool isConfirming;
+  final double keyboardInset;
   final String? error;
   final DiagnosticInfo? diagnostic;
   final CashierHomeOpCtx? opCtx;
   final TextEditingController stakeController;
+  final FocusNode stakeFocusNode;
   final ValueChanged<String> onSelectDraw;
   final ValueChanged<CashierGameOptionResponse> onSelectGame;
   final ValueChanged<int> onSelectBetOption;
@@ -253,18 +280,83 @@ class _SellBody extends ConsumerWidget {
   final VoidCallback onPreview;
   final VoidCallback onConfirm;
   final VoidCallback onAddLine;
+  final VoidCallback onCancelEntry;
   final VoidCallback onEditPreparedTicket;
   final ValueChanged<int> onRemoveLine;
 
-  bool get _isLoading => isPreviewing || isConfirming;
-  bool get _isTicketLocked => previewResult != null;
+  @override
+  ConsumerState<_SellBody> createState() => _SellBodyState();
+}
+
+class _SellBodyState extends ConsumerState<_SellBody> {
+  final _scrollController = ScrollController();
+  final _selectionFieldKey = GlobalKey();
+  final _stakeFieldKey = GlobalKey();
+
+  bool get _isLoading => widget.isPreviewing || widget.isConfirming;
+  bool get _isTicketLocked => widget.previewResult != null;
+  bool get _hasEntryInProgress =>
+      widget.form.selection.trim().isNotEmpty || widget.form.stake > 0;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  void initState() {
+    super.initState();
+    widget.stakeFocusNode.addListener(_handleStakeFocus);
+  }
+
+  @override
+  void didUpdateWidget(covariant _SellBody oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.stakeFocusNode != widget.stakeFocusNode) {
+      oldWidget.stakeFocusNode.removeListener(_handleStakeFocus);
+      widget.stakeFocusNode.addListener(_handleStakeFocus);
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.stakeFocusNode.removeListener(_handleStakeFocus);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _handleStakeFocus() {
+    if (widget.stakeFocusNode.hasFocus) {
+      _scrollFocusedFieldIntoView(_stakeFieldKey);
+    }
+  }
+
+  void _scrollFocusedFieldIntoView(GlobalKey key) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final context = key.currentContext;
+      if (context == null || !mounted) return;
+      Scrollable.ensureVisible(
+        context,
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOutCubic,
+        alignment: 0.68,
+        alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
+      );
+    });
+  }
+
+  void _addLine() {
+    widget.onAddLine();
+    FocusManager.instance.primaryFocus?.unfocus();
+  }
+
+  void _cancelEntry() {
+    widget.onCancelEntry();
+    FocusManager.instance.primaryFocus?.unfocus();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final translations = ref.watch(i18nBundleProvider);
-    final committedTotal = form.committedLines.fold<double>(
+    final isCompactEntry = widget.keyboardInset > 0 && !_isTicketLocked;
+    final committedTotal = widget.form.committedLines.fold<double>(
       0,
       (total, line) => total + line.stake,
     );
@@ -273,16 +365,18 @@ class _SellBody extends ConsumerWidget {
       children: [
         Expanded(
           child: ListView(
-            padding: const EdgeInsets.fromLTRB(
+            controller: _scrollController,
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            padding: EdgeInsets.fromLTRB(
               TchSpacing.s16,
               TchSpacing.s16,
               TchSpacing.s16,
-              164,
+              isCompactEntry ? TchSpacing.s16 : 164,
             ),
             children: [
               _Section(
                 label: translations.translate('pos.sale.draw_label'),
-                child: form.draws.isEmpty
+                child: widget.form.draws.isEmpty
                     ? Text(
                         translations.translate('pos.sale.no_draws'),
                         style: textTheme.bodySmall?.copyWith(
@@ -290,14 +384,15 @@ class _SellBody extends ConsumerWidget {
                         ),
                       )
                     : _SelectedDraw(
-                        draws: form.draws,
-                        selected: form.selectedDrawId,
+                        draws: widget.form.draws,
+                        selected: widget.form.selectedDrawId,
                         enabled: !_isLoading && !_isTicketLocked,
-                        onSelect: onSelectDraw,
+                        compact: isCompactEntry,
+                        onSelect: widget.onSelectDraw,
                       ),
               ),
 
-              if (form.games.isNotEmpty)
+              if (widget.form.games.isNotEmpty)
                 _Section(
                   label: translations.translate('pos.sale.game_label'),
                   child: Wrap(
@@ -309,62 +404,68 @@ class _SellBody extends ConsumerWidget {
                     // need to pre-select a lot.
                     children: () {
                       final seen = <String>{};
-                      return form.games.where((g) => seen.add(g.gameLabel)).map(
-                        (g) {
-                          final selected =
-                              form.selectedGameCode == g.gameCode &&
-                              form.selectedBetType == g.betType;
-                          return _Chip(
-                            label: g.gameLabel,
-                            selected: selected,
-                            enabled: !_isLoading && !_isTicketLocked,
-                            onTap: () => onSelectGame(g),
-                          );
-                        },
-                      ).toList();
+                      return widget.form.games
+                          .where((g) => seen.add(g.gameLabel))
+                          .map((g) {
+                            final selected =
+                                widget.form.selectedGameCode == g.gameCode &&
+                                widget.form.selectedBetType == g.betType;
+                            return _Chip(
+                              label: g.gameLabel,
+                              selected: selected,
+                              enabled: !_isLoading && !_isTicketLocked,
+                              onTap: () => widget.onSelectGame(g),
+                            );
+                          })
+                          .toList();
                     }(),
                   ),
                 ),
 
-              if (form.selectedGame?.requiresOption == true &&
-                  form.selectedGame!.options.isNotEmpty)
+              if (widget.form.selectedGame?.requiresOption == true &&
+                  widget.form.selectedGame!.options.isNotEmpty)
                 _Section(
-                  label: form.selectedGame!.betTypeLabel.toUpperCase(),
+                  label: widget.form.selectedGame!.betTypeLabel.toUpperCase(),
                   child: Wrap(
                     spacing: TchSpacing.s8,
                     runSpacing: TchSpacing.s8,
-                    children: form.selectedGame!.options.map((o) {
-                      final selected = form.selectedBetOption == o.code;
+                    children: widget.form.selectedGame!.options.map((o) {
+                      final selected = widget.form.selectedBetOption == o.code;
                       return _Chip(
                         label: o.label,
                         selected: selected,
                         enabled: !_isLoading && !_isTicketLocked,
-                        onTap: () => onSelectBetOption(o.code),
+                        onTap: () => widget.onSelectBetOption(o.code),
                       );
                     }).toList(),
                   ),
                 ),
 
-              if (form.selectedGameCode != null)
+              if (widget.form.selectedGameCode != null)
                 _Section(
+                  key: _selectionFieldKey,
                   label: translations.translate('pos.sale.selection_label'),
                   child: _SelectionInput(
                     key: ValueKey(
-                      '${form.selectedGameCode}:${form.selectedBetType}:${form.selectedBetOption}',
+                      '${widget.form.selectedGameCode}:${widget.form.selectedBetType}:${widget.form.selectedBetOption}',
                     ),
-                    game: form.selectedGame!,
-                    betOption: form.selectedBetOption,
-                    value: form.selection,
+                    game: widget.form.selectedGame!,
+                    betOption: widget.form.selectedBetOption,
+                    value: widget.form.selection,
                     enabled: !_isLoading && !_isTicketLocked,
-                    onChanged: onSelectionChanged,
+                    onFocus: () =>
+                        _scrollFocusedFieldIntoView(_selectionFieldKey),
+                    onChanged: widget.onSelectionChanged,
                   ),
                 ),
 
-              if (form.selectedGameCode != null)
+              if (widget.form.selectedGameCode != null)
                 _Section(
+                  key: _stakeFieldKey,
                   label: translations.translate('pos.sale.stake_label'),
                   child: TextField(
-                    controller: stakeController,
+                    controller: widget.stakeController,
+                    focusNode: widget.stakeFocusNode,
                     enabled: !_isLoading && !_isTicketLocked,
                     keyboardType: const TextInputType.numberWithOptions(
                       decimal: true,
@@ -372,12 +473,12 @@ class _SellBody extends ConsumerWidget {
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(RegExp(r'[\d.,]')),
                     ],
-                    onChanged: (v) => onStakeChanged(
+                    onChanged: (v) => widget.onStakeChanged(
                       double.tryParse(v.replaceAll(',', '.')) ?? 0,
                     ),
                     decoration: InputDecoration(
                       hintText: '0.00',
-                      suffixText: form.currency,
+                      suffixText: widget.form.currency,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(TchRadius.md),
                       ),
@@ -389,23 +490,30 @@ class _SellBody extends ConsumerWidget {
                   ),
                 ),
 
-              if (form.committedLines.isNotEmpty) ...[
+              if (isCompactEntry && widget.form.committedLines.isNotEmpty)
+                _Section(
+                  label: translations.translate('pos.sale.ticket_label'),
+                  child: _LastTicketLine(
+                    line: widget.form.committedLines.last,
+                    currency: widget.form.currency,
+                  ),
+                )
+              else if (!isCompactEntry && widget.form.committedLines.isNotEmpty)
                 _Section(
                   label: translations.translate('pos.sale.ticket_label'),
                   child: _TicketReceipt(
-                    lines: form.committedLines,
-                    currency: form.currency,
+                    lines: widget.form.committedLines,
+                    currency: widget.form.currency,
                     enabled: !_isLoading,
-                    onRemoveLine: onRemoveLine,
+                    onRemoveLine: widget.onRemoveLine,
                   ),
                 ),
+
+              if (!isCompactEntry && widget.previewResult != null) ...[
+                _PreviewCard(result: widget.previewResult!),
               ],
 
-              if (previewResult != null) ...[
-                _PreviewCard(result: previewResult!),
-              ],
-
-              if (error != null) ...[
+              if (widget.error != null) ...[
                 const SizedBox(height: TchSpacing.s8),
                 Container(
                   padding: const EdgeInsets.all(TchSpacing.s12),
@@ -427,7 +535,7 @@ class _SellBody extends ConsumerWidget {
                           const SizedBox(width: TchSpacing.s8),
                           Expanded(
                             child: Text(
-                              error!,
+                              widget.error!,
                               style: textTheme.bodySmall?.copyWith(
                                 color: scheme.onSurface,
                               ),
@@ -435,9 +543,10 @@ class _SellBody extends ConsumerWidget {
                           ),
                         ],
                       ),
-                      if (diagnostic != null && diagnostic!.hasAny) ...[
+                      if (widget.diagnostic != null &&
+                          widget.diagnostic!.hasAny) ...[
                         const SizedBox(height: TchSpacing.s8),
-                        _CopyDiagnosticButton(diagnostic: diagnostic!),
+                        _CopyDiagnosticButton(diagnostic: widget.diagnostic!),
                       ],
                     ],
                   ),
@@ -448,17 +557,20 @@ class _SellBody extends ConsumerWidget {
         ),
 
         _BottomActions(
-          form: form,
-          previewResult: previewResult,
-          isPreviewing: isPreviewing,
-          isConfirming: isConfirming,
-          total: previewResult?.totalAmount ?? committedTotal,
+          form: widget.form,
+          previewResult: widget.previewResult,
+          isPreviewing: widget.isPreviewing,
+          isConfirming: widget.isConfirming,
+          total: widget.previewResult?.totalAmount ?? committedTotal,
           translations: translations,
-          canAddLine: form.canAddLine,
-          onAddLine: onAddLine,
-          onEditPreparedTicket: onEditPreparedTicket,
-          onPreview: onPreview,
-          onConfirm: onConfirm,
+          canAddLine: widget.form.canAddLine,
+          compactEntryMode: isCompactEntry,
+          hasEntryInProgress: _hasEntryInProgress,
+          onAddLine: _addLine,
+          onCancelEntry: _cancelEntry,
+          onEditPreparedTicket: widget.onEditPreparedTicket,
+          onPreview: widget.onPreview,
+          onConfirm: widget.onConfirm,
         ),
       ],
     );
@@ -557,6 +669,51 @@ class _TicketReceipt extends ConsumerWidget {
                 ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
               ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LastTicketLine extends StatelessWidget {
+  const _LastTicketLine({required this.line, required this.currency});
+
+  final SellLine line;
+  final String currency;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Container(
+      constraints: const BoxConstraints(minHeight: 56),
+      padding: const EdgeInsets.all(TchSpacing.s12),
+      decoration: BoxDecoration(
+        color: scheme.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(TchRadius.md),
+        border: Border.all(color: scheme.outlineVariant),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.receipt_long_outlined, size: 20),
+          const SizedBox(width: TchSpacing.s8),
+          Expanded(
+            child: Text(
+              line.displayLabel,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
+            ),
+          ),
+          const SizedBox(width: TchSpacing.s8),
+          Text(
+            currency,
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+              color: scheme.onSurfaceVariant,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ],
       ),
@@ -697,7 +854,10 @@ class _BottomActions extends StatelessWidget {
     required this.canAddLine,
     required this.isPreviewing,
     required this.isConfirming,
+    required this.compactEntryMode,
+    required this.hasEntryInProgress,
     required this.onAddLine,
+    required this.onCancelEntry,
     required this.onEditPreparedTicket,
     required this.onPreview,
     required this.onConfirm,
@@ -711,7 +871,10 @@ class _BottomActions extends StatelessWidget {
   final CashierTicketPreviewResponse? previewResult;
   final bool isPreviewing;
   final bool isConfirming;
+  final bool compactEntryMode;
+  final bool hasEntryInProgress;
   final VoidCallback onAddLine;
+  final VoidCallback onCancelEntry;
   final VoidCallback onEditPreparedTicket;
   final VoidCallback onPreview;
   final VoidCallback onConfirm;
@@ -719,16 +882,20 @@ class _BottomActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final canPrepare =
-        form.committedLines.isNotEmpty && !isPreviewing && !isConfirming;
+        form.committedLines.isNotEmpty &&
+        !hasEntryInProgress &&
+        !isPreviewing &&
+        !isConfirming;
     final canConfirm = previewResult?.isAccepted == true && !isConfirming;
     final showConfirm = previewResult?.isAccepted == true;
+    final verticalPadding = compactEntryMode ? TchSpacing.s8 : TchSpacing.s16;
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(
+      padding: EdgeInsets.fromLTRB(
         TchSpacing.s16,
         TchSpacing.s8,
         TchSpacing.s16,
-        TchSpacing.s16,
+        verticalPadding,
       ),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
@@ -739,26 +906,64 @@ class _BottomActions extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                translations.translate(CashierPreparationCopy.totalKey),
-                style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  fontWeight: FontWeight.w700,
+          if (!compactEntryMode) ...[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  translations.translate(CashierPreparationCopy.totalKey),
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
-              ),
-              Text(
-                '${total.toStringAsFixed(2)} ${form.currency}',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
-              ),
-            ],
-          ),
-          const SizedBox(height: TchSpacing.s8),
-          if (showConfirm)
+                Text(
+                  '${total.toStringAsFixed(2)} ${form.currency}',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+                ),
+              ],
+            ),
+            const SizedBox(height: TchSpacing.s8),
+          ] else if (form.committedLines.isNotEmpty) ...[
+            _LastTicketLine(
+              line: form.committedLines.last,
+              currency: form.currency,
+            ),
+            const SizedBox(height: TchSpacing.s8),
+          ],
+          if (compactEntryMode)
+            Row(
+              children: [
+                Expanded(
+                  child: SizedBox(
+                    height: 52,
+                    child: FilledButton.tonalIcon(
+                      onPressed: canAddLine && !isPreviewing && !isConfirming
+                          ? onAddLine
+                          : null,
+                      icon: const Icon(Icons.add_rounded),
+                      label: Text(translations.translate('pos.sale.add_line')),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: TchSpacing.s8),
+                Expanded(
+                  child: SizedBox(
+                    height: 52,
+                    child: OutlinedButton.icon(
+                      onPressed: isPreviewing || isConfirming
+                          ? null
+                          : onCancelEntry,
+                      icon: const Icon(Icons.close_rounded),
+                      label: Text(translations.translate('pos.sale.cancel')),
+                    ),
+                  ),
+                ),
+              ],
+            )
+          else if (showConfirm)
             Row(
               children: [
                 Expanded(
@@ -851,7 +1056,7 @@ class _BottomActions extends StatelessWidget {
 // ─── Section ──────────────────────────────────────────────────────────────────
 
 class _Section extends StatelessWidget {
-  const _Section({required this.label, required this.child});
+  const _Section({super.key, required this.label, required this.child});
 
   final String label;
   final Widget child;
@@ -891,12 +1096,14 @@ class _SelectedDraw extends ConsumerWidget {
     required this.draws,
     required this.selected,
     required this.enabled,
+    required this.compact,
     required this.onSelect,
   });
 
   final List<CashierAvailableDrawView> draws;
   final String? selected;
   final bool enabled;
+  final bool compact;
   final ValueChanged<String> onSelect;
 
   @override
@@ -929,13 +1136,15 @@ class _SelectedDraw extends ConsumerWidget {
                     context,
                   ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
                 ),
-                const SizedBox(height: TchSpacing.s4),
-                Text(
-                  _cutoffLabel(draw, translations),
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: scheme.onSurfaceVariant,
+                if (!compact) ...[
+                  const SizedBox(height: TchSpacing.s4),
+                  Text(
+                    _cutoffLabel(draw, translations),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: scheme.onSurfaceVariant,
+                    ),
                   ),
-                ),
+                ],
               ],
             ),
           ),
@@ -1020,6 +1229,7 @@ class _SelectionInput extends StatelessWidget {
     required this.betOption,
     required this.value,
     required this.enabled,
+    required this.onFocus,
     required this.onChanged,
   });
 
@@ -1027,6 +1237,7 @@ class _SelectionInput extends StatelessWidget {
   final int? betOption;
   final String value;
   final bool enabled;
+  final VoidCallback onFocus;
   final ValueChanged<String> onChanged;
 
   @override
@@ -1036,6 +1247,7 @@ class _SelectionInput extends StatelessWidget {
       shape: shape,
       value: value,
       enabled: enabled,
+      onFocus: onFocus,
       onChanged: onChanged,
     );
   }
@@ -1046,12 +1258,14 @@ class _GroupedSelectionInput extends StatefulWidget {
     required this.shape,
     required this.value,
     required this.enabled,
+    required this.onFocus,
     required this.onChanged,
   });
 
   final CashierSelectionShape shape;
   final String value;
   final bool enabled;
+  final VoidCallback onFocus;
   final ValueChanged<String> onChanged;
 
   @override
@@ -1087,6 +1301,9 @@ class _GroupedSelectionInputState extends State<_GroupedSelectionInput> {
   void _resetControllers() {
     _controllers = List.generate(_fieldCount, (_) => TextEditingController());
     _focusNodes = List.generate(_fieldCount, (_) => FocusNode());
+    for (final node in _focusNodes) {
+      node.addListener(_handleFocus);
+    }
     _applyValue(widget.value);
   }
 
@@ -1115,6 +1332,12 @@ class _GroupedSelectionInputState extends State<_GroupedSelectionInput> {
     widget.onChanged(_value());
   }
 
+  void _handleFocus() {
+    if (_focusNodes.any((node) => node.hasFocus)) {
+      widget.onFocus();
+    }
+  }
+
   @override
   void dispose() {
     _disposeControllers();
@@ -1126,6 +1349,7 @@ class _GroupedSelectionInputState extends State<_GroupedSelectionInput> {
       controller.dispose();
     }
     for (final node in _focusNodes) {
+      node.removeListener(_handleFocus);
       node.dispose();
     }
   }

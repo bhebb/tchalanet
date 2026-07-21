@@ -271,6 +271,15 @@ class SellController extends Notifier<SellState> {
     state = SellReady(current.form.copyWith(stake: value), previewResult: null);
   }
 
+  void cancelCurrentEntry() {
+    final current = state;
+    if (current is! SellReady) return;
+    state = SellReady(
+      current.form.copyWith(selection: '', stake: 0.0),
+      previewResult: null,
+    );
+  }
+
   /// Commits the current entry (selection + stake) to the lines list and
   /// resets the entry fields so the user can add another line.
   /// The draw and game selection are kept so the user can quickly add

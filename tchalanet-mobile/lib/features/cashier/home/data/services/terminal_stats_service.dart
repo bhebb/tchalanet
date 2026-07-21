@@ -61,8 +61,7 @@ class TerminalDailyStats {
             json['trustReasonCode'] as String? ?? 'analytics.trust.ready',
         ticketCount: (json['ticketCount'] as num?)?.toInt() ?? 0,
         salesTotalCents: (json['salesTotalCents'] as num?)?.toInt() ?? 0,
-        sellerCommissionTotalCents:
-            (json['sellerCommissionTotalCents'] as num?)?.toInt() ?? 0,
+        sellerCommissionTotalCents: _sellerCommissionTotalCents(json),
         currency: json['currency'] as String? ?? 'HTG',
         breakdown:
             (json['breakdown'] as List<dynamic>?)
@@ -105,3 +104,23 @@ class TerminalStatsService {
 final terminalStatsServiceProvider = Provider<TerminalStatsService>(
   (ref) => TerminalStatsService(ref.watch(apiClientProvider)),
 );
+
+int _sellerCommissionTotalCents(Map<String, dynamic> json) {
+  for (final key in const [
+    'sellerCommissionTotalCents',
+    'sellerCommissionCents',
+    'commissionTotalCents',
+  ]) {
+    final value = json[key];
+    if (value is num) return value.toInt();
+  }
+
+  final amount = json['sellerCommission'];
+  if (amount is num) return (amount * 100).round();
+  if (amount is String) {
+    final parsed = double.tryParse(amount);
+    if (parsed != null) return (parsed * 100).round();
+  }
+
+  return 0;
+}

@@ -317,7 +317,7 @@ class _SellerTerminalHomeState extends ConsumerState<_SellerTerminalHome> {
                             ticket: ticket,
                             translations: translations,
                             onReprint: () =>
-                                printTicket(context, ref, ticket.id),
+                                requestTicketReprint(context, ref, ticket.id),
                             onOpen: () =>
                                 context.push('/pos/tickets/${ticket.id}'),
                           ),

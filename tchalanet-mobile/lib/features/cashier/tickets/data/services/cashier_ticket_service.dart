@@ -71,13 +71,15 @@ class CashierTicketService {
     bool recordPrint = true,
     String? reprintReason,
   }) async {
+    final normalizedReason = reprintReason?.trim();
     try {
       final response = await _dio.post<List<int>>(
         '/tenant/cashier/tickets/$ticketId/print',
         // sellerTerminalId is derived server-side from the auth token.
         data: {
           'recordPrint': recordPrint,
-          if (reprintReason case final String reason) 'reprintReason': reason,
+          if (normalizedReason != null && normalizedReason.isNotEmpty)
+            'reprintReason': normalizedReason,
           'deliveryOptions': ['RETURN_FILE'],
         },
         options: Options(responseType: ResponseType.bytes),

@@ -199,7 +199,7 @@ class _ResultsFilters extends StatelessWidget {
           ),
           const SizedBox(height: TchSpacing.s12),
           DropdownButtonFormField<String?>(
-            key: ValueKey(provider),
+            key: ValueKey('results-provider-filter:${provider ?? 'all'}'),
             initialValue: provider,
             decoration: InputDecoration(
               labelText: translations.translate('pos.results.provider_filter'),
@@ -225,7 +225,7 @@ class _ResultsFilters extends StatelessWidget {
           ),
           const SizedBox(height: TchSpacing.s12),
           DropdownButtonFormField<String?>(
-            key: ValueKey(slotKey),
+            key: ValueKey('results-slot-filter:${slotKey ?? 'all'}'),
             initialValue: slotKey,
             decoration: InputDecoration(
               labelText: translations.translate('pos.results.draw_filter'),

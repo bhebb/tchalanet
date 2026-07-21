@@ -61,6 +61,9 @@ class _CashierSellSuccessPageState
           tooltip: translations.translate('pos.sale_completion.back_home'),
           onPressed: () {
             ref.invalidate(cashierHomeProvider);
+            ref.invalidate(terminalDailyStatsProvider);
+            ref.invalidate(terminalStatsByDateProvider);
+            ref.invalidate(latestTicketProvider);
             context.go('/pos');
           },
         ),
@@ -223,6 +226,9 @@ class _CashierSellSuccessPageState
                 child: FilledButton.icon(
                   onPressed: () {
                     ref.invalidate(cashierHomeProvider);
+                    ref.invalidate(terminalDailyStatsProvider);
+                    ref.invalidate(terminalStatsByDateProvider);
+                    ref.invalidate(latestTicketProvider);
                     context.go('/pos');
                   },
                   icon: const Icon(Icons.add_rounded),
