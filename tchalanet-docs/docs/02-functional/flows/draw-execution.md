@@ -100,7 +100,7 @@ Scheduler → job Spring Batch `draw:lifecycle:close`
 Scheduler → job Spring Batch `results:external:fetch`
   → step interne : FetchExternalResultsWindowCommand
   → core.drawresult : lit result_slot.source_cfg pour chaque slot actif
-  → Appel provider externe (core.uslottery : NY/FL/GA/TX/TN)
+  → Appel provider externe (core.uslottery)
   → Projection Haïti via core.haiti (lot1..lot4 depuis pick3+pick4)
   → draw_result créé : status PROVISIONAL ou CONFIRMED
   → DrawResultIngestedEvent publié → accélère apply
@@ -113,7 +113,7 @@ Scheduler → job Spring Batch `results:external:fetch`
 ```
 Scheduler → job Spring Batch `results:external:apply`
   → step interne : ApplyExternalResultsWindowCommand
-  → Draws CLOSED + draw_result disponible (PROVISIONAL ou CONFIRMED)
+  → Draws CLOSED + draw_result disponible (CONFIRMED ou OVERRIDDEN)
   → draw.drawResultId = drawResultId
   → CLOSED → RESULTED
   → DrawResultAppliedEvent publié (AfterCommit)
@@ -122,9 +122,10 @@ Scheduler → job Spring Batch `results:external:apply`
      → features.stats, cache
 ```
 
-> ⚠ Apply autorisé dès PROVISIONAL. Settle nécessite CONFIRMED.
+> ⚠ Apply n'est pas autorisé pour un résultat `PROVISIONAL`. Ops doit confirmer le
+> résultat avant apply; settle nécessite aussi un résultat `CONFIRMED` ou `OVERRIDDEN`.
 
-**Watchdog PROVISIONAL :** Si draw reste RESULTED avec résultat PROVISIONAL > 30 min → alerte ops (`DrawProvisionalWatchdogScheduler`, gate: `DRAW_WATCHDOG_PROVISIONAL`).
+**Watchdog PROVISIONAL :** Si un résultat reste `PROVISIONAL` > 30 min → alerte ops (`DrawProvisionalWatchdogScheduler`, gate: `DRAW_WATCHDOG_PROVISIONAL`).
 
 ### Phase Settle — traitement des tickets (gate: DRAW_SETTLE)
 

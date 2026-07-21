@@ -234,32 +234,32 @@ WITH src AS (
                   '{"provider_slot_code":"EVENING","pick3":{"game_code":"PICK3","active":true},"pick4":{"game_code":"PICK4","active":true}}'::jsonb,
                   '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot2":"PICK4_FIRST2","lot3":"PICK4_LAST2","lot4":"PICK3_FIRST2"}}'::jsonb),
 
-                 ('TN_MID','TN','America/Chicago','12:29','MON-SAT', false, 40,
-                  '{"provider_slot_code":"MIDDAY","pick3":{"game_code":"CASH3","active":true},"pick4":{"game_code":"CASH4","active":true}}'::jsonb,
+                 ('TN_MID','TN','America/Chicago','12:29','MON-SAT', true, 40,
+                  '{"source_mode":"MANUAL","manual_reason":"NO_AUTOMATIC_PROVIDER_CLIENT","provider_slot_code":"MIDDAY","pick3":{"game_code":"CASH3","active":true},"pick4":{"game_code":"CASH4","active":true}}'::jsonb,
                   '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot2":"PICK4_FIRST2","lot3":"PICK4_LAST2","lot4":"PICK3_FIRST2"}}'::jsonb),
 
-                 ('TN_EVE','TN','America/Chicago','22:00','MON-SAT', false, 41,
-                  '{"provider_slot_code":"EVENING","pick3":{"game_code":"CASH3","active":true},"pick4":{"game_code":"CASH4","active":true}}'::jsonb,
+                 ('TN_EVE','TN','America/Chicago','22:00','MON-SAT', true, 41,
+                  '{"source_mode":"MANUAL","manual_reason":"NO_AUTOMATIC_PROVIDER_CLIENT","provider_slot_code":"EVENING","pick3":{"game_code":"CASH3","active":true},"pick4":{"game_code":"CASH4","active":true}}'::jsonb,
                   '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot2":"PICK4_FIRST2","lot3":"PICK4_LAST2","lot4":"PICK3_FIRST2"}}'::jsonb),
 
-                 ('IL_MID','IL','America/Chicago','12:40','MON-SUN', false, 110,
-                  '{"provider_slot_code":"MIDDAY","pick3":{"game_code":"PICK3","active":true},"pick4":{"game_code":"PICK4","active":true}}'::jsonb,
+                 ('IL_MID','IL','America/Chicago','12:40','MON-SUN', true, 110,
+                  '{"source_mode":"MANUAL","manual_reason":"NO_AUTOMATIC_PROVIDER_CLIENT","provider_slot_code":"MIDDAY","pick3":{"game_code":"PICK3","active":true},"pick4":{"game_code":"PICK4","active":true}}'::jsonb,
                   '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot2":"PICK4_FIRST2","lot3":"PICK4_LAST2","lot4":"PICK3_FIRST2"}}'::jsonb),
 
-                 ('IL_EVE','IL','America/Chicago','21:22','MON-SUN', false, 111,
-                  '{"provider_slot_code":"EVENING","pick3":{"game_code":"PICK3","active":true},"pick4":{"game_code":"PICK4","active":true}}'::jsonb,
+                 ('IL_EVE','IL','America/Chicago','21:22','MON-SUN', true, 111,
+                  '{"source_mode":"MANUAL","manual_reason":"NO_AUTOMATIC_PROVIDER_CLIENT","provider_slot_code":"EVENING","pick3":{"game_code":"PICK3","active":true},"pick4":{"game_code":"PICK4","active":true}}'::jsonb,
                   '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot2":"PICK4_FIRST2","lot3":"PICK4_LAST2","lot4":"PICK3_FIRST2"}}'::jsonb),
 
-                 ('MO_MID','MO','America/Chicago','12:45','MON-SUN', false, 120,
-                  '{"provider_slot_code":"MIDDAY","pick3":{"game_code":"PICK3","active":true},"pick4":{"game_code":"PICK4","active":true}}'::jsonb,
+                 ('MO_MID','MO','America/Chicago','12:45','MON-SUN', true, 120,
+                  '{"source_mode":"MANUAL","manual_reason":"NO_AUTOMATIC_PROVIDER_CLIENT","provider_slot_code":"MIDDAY","pick3":{"game_code":"PICK3","active":true},"pick4":{"game_code":"PICK4","active":true}}'::jsonb,
                   '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot2":"PICK4_FIRST2","lot3":"PICK4_LAST2","lot4":"PICK3_FIRST2"}}'::jsonb),
 
-                 ('MO_EVE','MO','America/Chicago','21:00','MON-SUN', false, 121,
-                  '{"provider_slot_code":"EVENING","pick3":{"game_code":"PICK3","active":true},"pick4":{"game_code":"PICK4","active":true}}'::jsonb,
+                 ('MO_EVE','MO','America/Chicago','21:00','MON-SUN', true, 121,
+                  '{"source_mode":"MANUAL","manual_reason":"NO_AUTOMATIC_PROVIDER_CLIENT","provider_slot_code":"EVENING","pick3":{"game_code":"PICK3","active":true},"pick4":{"game_code":"PICK4","active":true}}'::jsonb,
                   '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot2":"PICK4_FIRST2","lot3":"PICK4_LAST2","lot4":"PICK3_FIRST2"}}'::jsonb),
 
                  ('MN_EVE','MN','America/Chicago','18:17','MON-SUN', true, 130,
-                  '{"provider_slot_code":"EVENING","pick3":{"game_code":"PICK3","active":true}}'::jsonb,
+                  '{"source_mode":"MANUAL","manual_reason":"CLIENT_DECLARED_MANUAL_MODE","provider_slot_code":"EVENING","pick3":{"game_code":"PICK3","active":true}}'::jsonb,
                   '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot4":"PICK3_FIRST2"}}'::jsonb)
 
          ) AS v(slot_key, provider, timezone, draw_time, days_of_week, active, sort_order, source_cfg, projection_cfg)
