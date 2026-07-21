@@ -100,7 +100,8 @@ public class TicketJpaAdapter implements TicketReaderPort, TicketWriterPort {
         ticketRepository.findByDrawIdAndResultStatus(
             drawId.value(), TicketResultStatus.NOT_RESULTED, PageRequest.of(0, Math.max(1, limit)));
     if (!entities.isEmpty()) {
-      ticketRepository.findWithChargesByIdIn(entities.stream().map(TicketJpaEntity::getId).toList());
+      ticketRepository.findWithChargesByIdIn(
+          entities.stream().map(TicketJpaEntity::getId).toList());
     }
     return entities.stream().map(mapper::toDomain).toList();
   }

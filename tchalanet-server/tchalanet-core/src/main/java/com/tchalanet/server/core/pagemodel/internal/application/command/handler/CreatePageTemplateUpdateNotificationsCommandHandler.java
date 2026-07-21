@@ -2,7 +2,6 @@ package com.tchalanet.server.core.pagemodel.internal.application.command.handler
 
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.CommandHandler;
-import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.pagemodel.api.command.CreatePageTemplateUpdateNotificationsCommand;
@@ -18,27 +17,13 @@ public class CreatePageTemplateUpdateNotificationsCommandHandler
 
   private final PageModelReadPort pageModels;
   private final CommandBus commandBus;
-  private final JsonUtils json;
 
   @Override
   @TchTx
   public Integer handle(CreatePageTemplateUpdateNotificationsCommand command) {
     var affected = pageModels.findAllByTemplateId(command.templateId());
-    var created = 0;
-    for (var pageModel : affected) {
-      // todo add notification using classify(pageModel.schemaVersion(), command.newSchemaVersion())
-      created++;
-    }
-    return created;
-  }
-
-  private static String classify(int currentVersion, int newVersion) {
-    if (newVersion <= currentVersion) {
-      return "PATCH";
-    }
-    if (newVersion == currentVersion + 1) {
-      return "MINOR";
-    }
-    return "MAJOR";
+    // TODO create one notification per page model, classified PATCH/MINOR/MAJOR by
+    // comparing pageModel.schemaVersion() with command.newSchemaVersion().
+    return affected.size();
   }
 }

@@ -98,6 +98,7 @@ public class PageModelTemplateCatalogImpl implements PageModelTemplateCatalog {
   }
 
   @Cacheable(value = PageModelTemplateCacheNames.VISIBLE_LIST, key = "'default-global'")
+  @Override
   public List<PageModelTemplateView> findDefaultGlobalTemplates() {
     return mapper.toViews(
         repository.findByIsDefaultAndLevelAndDeletedAtIsNullOrderByLogicalId(

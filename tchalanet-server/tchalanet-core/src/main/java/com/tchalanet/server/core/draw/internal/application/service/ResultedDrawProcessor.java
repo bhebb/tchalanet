@@ -34,7 +34,8 @@ public class ResultedDrawProcessor {
       return false;
     }
     if (draw.drawResultId() == null) {
-      log.warn("draw.resulted-process.skip draw={} tenant={} reason=no_result", drawId, draw.tenantId());
+      log.warn(
+          "draw.resulted-process.skip draw={} tenant={} reason=no_result", drawId, draw.tenantId());
       return false;
     }
 
@@ -69,7 +70,11 @@ public class ResultedDrawProcessor {
 
     if (queryBus.ask(new ExistsPendingTicketsByDrawIdQuery(draw.id()))) {
       long pending = queryBus.ask(new CountPendingTicketsByDrawIdQuery(draw.id()));
-      log.info("draw.resulted-process.defer draw={} tenant={} pendingTickets={}", drawId, draw.tenantId(), pending);
+      log.info(
+          "draw.resulted-process.defer draw={} tenant={} pendingTickets={}",
+          drawId,
+          draw.tenantId(),
+          pending);
       return false;
     }
 

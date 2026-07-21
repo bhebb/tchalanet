@@ -1,8 +1,8 @@
 package com.tchalanet.server.core.sales.internal.application.service.sell;
 
 import com.tchalanet.server.common.web.api.ApiNotice;
-import com.tchalanet.server.common.web.api.NoticeSource;
 import com.tchalanet.server.common.web.api.NoticeSeverity;
+import com.tchalanet.server.common.web.api.NoticeSource;
 import com.tchalanet.server.core.limitpolicy.BreachOutcome;
 import com.tchalanet.server.core.limitpolicy.api.query.LimitEvaluationView;
 import com.tchalanet.server.core.promotion.api.model.PromotionDecision;

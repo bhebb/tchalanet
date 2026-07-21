@@ -209,8 +209,8 @@ public class GlobalErrorHandler {
   }
 
   /**
-   * Keeps the log useful for contract debugging without logging a rejected value,
-   * request body, or Jackson diagnostic prose.
+   * Keeps the log useful for contract debugging without logging a rejected value, request body, or
+   * Jackson diagnostic prose.
    */
   private static String safeMappingTarget(Throwable cause) {
     if (!isJsonMappingException(cause)) {

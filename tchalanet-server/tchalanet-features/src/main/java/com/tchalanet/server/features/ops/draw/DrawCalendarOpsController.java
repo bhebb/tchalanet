@@ -99,11 +99,14 @@ public class DrawCalendarOpsController {
             req.tenantCodes(),
             tenantId ->
                 params(
-                    "max_items", req.limit() == null ? null : req.limit().toString(),
+                    "max_items",
+                    req.limit() == null ? null : req.limit().toString(),
                     "lookahead_hours",
                     req.lookaheadHours() == null ? null : req.lookaheadHours().toString(),
-                    "lag_hours", req.lagHours() == null ? null : req.lagHours().toString(),
-                    "dry_run", Boolean.toString(req.dryRun()))));
+                    "lag_hours",
+                    req.lagHours() == null ? null : req.lagHours().toString(),
+                    "dry_run",
+                    Boolean.toString(req.dryRun()))));
   }
 
   @Operation(summary = "Close due draws (ops)")

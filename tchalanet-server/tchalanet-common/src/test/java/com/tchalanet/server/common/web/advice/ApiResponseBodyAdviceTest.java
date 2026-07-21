@@ -126,7 +126,8 @@ class ApiResponseBodyAdviceTest {
 
   @Test
   void preservesExplicitPartialWhenNoDegradationNoticeIsPresent() {
-    var result = (ApiResponse<?>) invokeAdvice(ApiResponse.partial("payload", List.of(), List.of()));
+    var result =
+        (ApiResponse<?>) invokeAdvice(ApiResponse.partial("payload", List.of(), List.of()));
 
     assertThat(result.status()).isEqualTo(ApiStatus.PARTIAL);
   }

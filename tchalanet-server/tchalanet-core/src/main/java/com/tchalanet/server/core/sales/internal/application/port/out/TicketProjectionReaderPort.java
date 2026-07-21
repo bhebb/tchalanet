@@ -1,7 +1,6 @@
 package com.tchalanet.server.core.sales.internal.application.port.out;
 
 import com.tchalanet.server.common.types.id.DrawId;
-import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintView;
@@ -25,5 +24,4 @@ public interface TicketProjectionReaderPort {
   TchPage<TicketRow> list(ListTicketsQuery query);
 
   Optional<TicketPrintView> findPrintView(TicketId ticketId);
-
 }

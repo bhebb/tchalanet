@@ -55,41 +55,33 @@ public class NewYorkDrawResultsMapper {
 
     for (var entry : entries) {
       var drawDate = parseDate(entry.drawDate());
-      if (drawDate == null || !query.drawDate().equals(drawDate)) {
-        continue;
+      if (drawDate != null && query.drawDate().equals(drawDate)) {
+        addResult(
+            results,
+            "NUMBERS",
+            slot.pick3(entry),
+            3,
+            wantedCodes,
+            sourceHash,
+            query,
+            entry,
+            drawDate,
+            slot);
+        addResult(
+            results,
+            "WIN4",
+            slot.pick4(entry),
+            4,
+            wantedCodes,
+            sourceHash,
+            query,
+            entry,
+            drawDate,
+            slot);
+
+        // NY endpoint is ordered DESC; once target date is found, no need to inspect older rows.
+        break;
       }
-
-      addResult(
-          results,
-          "NUMBERS",
-          slot.pick3(entry),
-          3,
-          wantedCodes,
-          sourceHash,
-          query,
-          entry,
-          drawDate,
-          slot);
-      addResult(
-          results,
-          "WIN4",
-          slot.pick4(entry),
-          4,
-          wantedCodes,
-          sourceHash,
-          query,
-          entry,
-          drawDate,
-          slot);
-
-      // NY endpoint is ordered DESC; once target date is found, no need to inspect older rows.
-      return new UsLotteryProviderResponse(
-          PROVIDER,
-          query.drawDate(),
-          query.drawTime(),
-          query.timezone(),
-          List.copyOf(results),
-          query.includeRaw() ? body : null);
     }
 
     return new UsLotteryProviderResponse(

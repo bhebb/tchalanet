@@ -183,6 +183,7 @@ public class I18nOverridesAdminService implements I18nOverridesAdminCatalog {
         I18nOverridesCacheNames.BY_ID
       },
       allEntries = true)
+  @Override
   public void delete(I18nOverrideId id) {
     log.info("Deleting i18n override ID: {}", id);
 

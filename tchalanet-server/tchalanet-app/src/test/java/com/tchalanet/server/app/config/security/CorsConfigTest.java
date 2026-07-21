@@ -75,20 +75,24 @@ class CorsConfigTest {
                         List.of("Location"),
                         true)));
 
-    var config = source.getCorsConfiguration(preflightWithHeaders(
-        "http://localhost:4302",
-        "authorization,content-type,idempotency-key,x-tch-act-as-terminal,x-tch-client-type,"
-            + "x-tch-sales-session-id,x-deleted-visibility"));
+    var config =
+        source.getCorsConfiguration(
+            preflightWithHeaders(
+                "http://localhost:4302",
+                "authorization,content-type,idempotency-key,x-tch-act-as-terminal,x-tch-client-type,"
+                    + "x-tch-sales-session-id,x-deleted-visibility"));
 
     assertThat(config).isNotNull();
-    assertThat(config.checkHeaders(List.of(
-            "authorization",
-            "content-type",
-            "idempotency-key",
-            "x-tch-act-as-terminal",
-            "x-tch-client-type",
-            "x-tch-sales-session-id",
-            "x-deleted-visibility")))
+    assertThat(
+            config.checkHeaders(
+                List.of(
+                    "authorization",
+                    "content-type",
+                    "idempotency-key",
+                    "x-tch-act-as-terminal",
+                    "x-tch-client-type",
+                    "x-tch-sales-session-id",
+                    "x-deleted-visibility")))
         .containsExactly(
             "authorization",
             "content-type",

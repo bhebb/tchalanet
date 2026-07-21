@@ -16,8 +16,8 @@ import com.tchalanet.server.core.draw.api.command.ApplyExternalResultsWindowComm
 import com.tchalanet.server.core.draw.api.command.ApplyExternalResultsWindowResult;
 import com.tchalanet.server.core.draw.api.event.DrawResultAppliedEvent;
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawApplyPort;
-import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultReaderPort;
 import com.tchalanet.server.core.drawresult.api.model.DrawResultStatus;
+import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultReaderPort;
 import com.tchalanet.server.core.drawresult.internal.infra.config.DrawResultsProperties;
 import java.time.Clock;
 import java.time.Instant;

@@ -39,7 +39,9 @@ class ApiResponseNoticesTest {
     assertThat(notice.severity()).isEqualTo(NoticeSeverity.WARN);
     assertThat(notice.source())
         .isEqualTo(
-            NoticeSource.of("identityActivation").service("keycloak").operation("completeFirstLogin"));
+            NoticeSource.of("identityActivation")
+                .service("keycloak")
+                .operation("completeFirstLogin"));
     assertThat(notice.target()).isNull();
     assertThat(notice.params()).isEmpty();
     assertThat(notice.trace())

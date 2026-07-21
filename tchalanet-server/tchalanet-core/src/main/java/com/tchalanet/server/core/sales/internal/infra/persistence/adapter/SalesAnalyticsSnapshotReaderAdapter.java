@@ -46,7 +46,8 @@ class SalesAnalyticsSnapshotReaderAdapter implements SalesAnalyticsSnapshotReade
             .collect(Collectors.groupingBy(charge -> charge.getTicket().getId()));
 
     return tickets.stream()
-        .map(ticket -> toSnapshot(ticket, chargesByTicketId.getOrDefault(ticket.getId(), List.of())))
+        .map(
+            ticket -> toSnapshot(ticket, chargesByTicketId.getOrDefault(ticket.getId(), List.of())))
         .toList();
   }
 

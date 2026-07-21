@@ -30,7 +30,8 @@ public record TenantProvisioningRequest(
     @NotBlank
         @Pattern(
             regexp = "^[A-Za-z0-9._-]{3,64}$",
-            message = "initialAdminUsername must be 3-64 letters, digits, dots, underscores, or hyphens")
+            message =
+                "initialAdminUsername must be 3-64 letters, digits, dots, underscores, or hyphens")
         String initialAdminUsername,
     @NotBlank @Email String initialAdminEmail,
     String planCode) {}

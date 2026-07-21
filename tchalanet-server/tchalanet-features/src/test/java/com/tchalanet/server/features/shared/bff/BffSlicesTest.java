@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.tchalanet.server.common.web.advice.ApiResponseContext;
 import com.tchalanet.server.common.web.api.NoticeKind;
-import com.tchalanet.server.common.web.api.NoticeSeverity;
 import com.tchalanet.server.common.web.api.NoticeSource;
 import com.tchalanet.server.common.web.api.ServiceHealth;
 import org.junit.jupiter.api.AfterEach;
@@ -22,7 +21,13 @@ class BffSlicesTest {
   void requiredSlicePreservesBlockingExceptionFlow() {
     var failure = new IllegalStateException("stable-code-owner-exception");
 
-    assertThatThrownBy(() -> BffSlices.required(() -> { throw failure; })).isSameAs(failure);
+    assertThatThrownBy(
+            () ->
+                BffSlices.required(
+                    () -> {
+                      throw failure;
+                    }))
+        .isSameAs(failure);
 
     assertThat(ApiResponseContext.get().getNotices()).isEmpty();
   }

@@ -50,9 +50,7 @@ public class PosGamesService {
         betTypeLabel(betType),
         betType.requiresOption(),
         config.selectionPolicy(),
-        posOptions(config).stream()
-            .map(option -> toPosOption(betType, option))
-            .toList(),
+        posOptions(config).stream().map(option -> toPosOption(betType, option)).toList(),
         selectionHint(betType, config.selectionPolicy()),
         selectionShape.digits(),
         selectionShape.segments());
@@ -150,8 +148,7 @@ public class PosGamesService {
       case LOTTO4_FRONT_PAIR, LOTTO4_BACK_PAIR -> new SelectionShape(2, 1);
       case LOTTO3_STRAIGHT, LOTTO3_BOX, LOTTO3_EXACT_PLUS_BOX -> new SelectionShape(3, 1);
       case LOTTO4_STRAIGHT, LOTTO4_BOX, LOTTO4_EXACT_PLUS_BOX -> new SelectionShape(4, 1);
-      case LOTTO5_LOT1_LOT2, LOTTO5_LOT1_LOT3, LOTTO5_MIXED_1_2_3 ->
-          new SelectionShape(5, 1);
+      case LOTTO5_LOT1_LOT2, LOTTO5_LOT1_LOT3, LOTTO5_MIXED_1_2_3 -> new SelectionShape(5, 1);
     };
   }
 

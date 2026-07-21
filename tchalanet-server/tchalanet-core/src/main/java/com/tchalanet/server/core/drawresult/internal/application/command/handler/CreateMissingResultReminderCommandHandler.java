@@ -55,7 +55,8 @@ public class CreateMissingResultReminderCommandHandler
             command.reason(), command.resultSlotId(), command.drawDate());
 
     var resultId =
-        drawResultReader.findByResultSlotIdAndOccurredAt(command.resultSlotId(), command.occurredAt());
+        drawResultReader.findByResultSlotIdAndOccurredAt(
+            command.resultSlotId(), command.occurredAt());
     var result = resultId.flatMap(drawResultReader::findViewById).orElse(null);
     if (!isReminderStillRequired(command.reason(), resultId.isPresent(), result)) {
       return new CreateMissingResultReminderResult(dedupeKey, false, true);
@@ -167,7 +168,7 @@ public class CreateMissingResultReminderCommandHandler
                     : provisional
                         ? "Provisional result needs confirmation — %s for %s."
                             .formatted(label, drawDate)
-                    : "Manual result required — %s for %s.".formatted(label, drawDate),
+                        : "Manual result required — %s for %s.".formatted(label, drawDate),
                 "Provider=%s, slot=%s, expectedAt=%s, overdue=%d min, reason=%s, requestId=%s"
                     .formatted(
                         provider,
@@ -176,7 +177,9 @@ public class CreateMissingResultReminderCommandHandler
                         elapsed,
                         automatic
                             ? "automatic provider overdue"
-                            : provisional ? "provisional result needs confirmation" : "manual entry required",
+                            : provisional
+                                ? "provisional result needs confirmation"
+                                : "manual entry required",
                         requestId)),
         "ht",
             new NotificationTranslationInput(
@@ -185,7 +188,7 @@ public class CreateMissingResultReminderCommandHandler
                         .formatted(label, drawDate)
                     : provisional
                         ? "Rezilta pwovizwa pou konfime — %s pou %s.".formatted(label, drawDate)
-                    : "Rezilta manyèl obligatwa — %s pou %s.".formatted(label, drawDate),
+                        : "Rezilta manyèl obligatwa — %s pou %s.".formatted(label, drawDate),
                 "Provider=%s, lè=%s, lè espere=%s, reta=%d min, rezon=%s, requestId=%s"
                     .formatted(
                         provider,
@@ -194,7 +197,9 @@ public class CreateMissingResultReminderCommandHandler
                         elapsed,
                         automatic
                             ? "provider otomatik an reta"
-                            : provisional ? "rezilta pwovizwa pou konfime" : "antre manyèl obligatwa",
+                            : provisional
+                                ? "rezilta pwovizwa pou konfime"
+                                : "antre manyèl obligatwa",
                         requestId)));
   }
 

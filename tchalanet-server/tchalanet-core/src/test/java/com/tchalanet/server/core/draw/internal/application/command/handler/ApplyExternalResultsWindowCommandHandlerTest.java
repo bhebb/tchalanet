@@ -2,6 +2,7 @@ package com.tchalanet.server.core.draw.internal.application.command.handler;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.tchalanet.server.catalog.drawchannel.api.model.DrawSource;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotStatsView;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotView;
@@ -21,7 +22,6 @@ import com.tchalanet.server.core.drawresult.api.model.DrawResultStatus;
 import com.tchalanet.server.core.drawresult.api.model.ResultQuality;
 import com.tchalanet.server.core.drawresult.api.query.view.DrawResultProjection;
 import com.tchalanet.server.core.drawresult.api.query.view.DrawResultView;
-import com.tchalanet.server.catalog.drawchannel.api.model.DrawSource;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultReaderPort;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultsCriteria;
 import com.tchalanet.server.core.drawresult.internal.domain.model.DrawResult;

@@ -58,9 +58,7 @@ public class SubscriptionController {
         new CancelSubscriptionCommand(
             ctx.tenantIdRequired(), req != null ? req.reason() : null, null);
     var result = commandBus.execute(cmd);
-    ApiResponseContext.get()
-        .addNotice(
-            subscriptionNotice("subscription.cancelled", "cancel"));
+    ApiResponseContext.get().addNotice(subscriptionNotice("subscription.cancelled", "cancel"));
     return ApiResponse.success(result);
   }
 
@@ -75,9 +73,7 @@ public class SubscriptionController {
       @CurrentContext TchRequestContext ctx, @Valid @RequestBody RenewRequest req) {
     var cmd = new RenewSubscriptionCommand(ctx.tenantIdRequired(), req.newEndsAt(), null);
     var result = commandBus.execute(cmd);
-    ApiResponseContext.get()
-        .addNotice(
-            subscriptionNotice("subscription.renewed", "renew"));
+    ApiResponseContext.get().addNotice(subscriptionNotice("subscription.renewed", "renew"));
     return ApiResponse.success(result);
   }
 
@@ -90,9 +86,7 @@ public class SubscriptionController {
   public ApiResponse<ResumeSubscriptionResult> resume(@CurrentContext TchRequestContext ctx) {
     var cmd = new ResumeSubscriptionCommand(ctx.tenantIdRequired(), null);
     var result = commandBus.execute(cmd);
-    ApiResponseContext.get()
-        .addNotice(
-            subscriptionNotice("subscription.resumed", "resume"));
+    ApiResponseContext.get().addNotice(subscriptionNotice("subscription.resumed", "resume"));
     return ApiResponse.success(result);
   }
 
@@ -105,9 +99,7 @@ public class SubscriptionController {
   public ApiResponse<SuspendSubscriptionResult> suspend(@CurrentContext TchRequestContext ctx) {
     var cmd = new SuspendSubscriptionCommand(ctx.tenantIdRequired(), null);
     var result = commandBus.execute(cmd);
-    ApiResponseContext.get()
-        .addNotice(
-            subscriptionNotice("subscription.suspended", "suspend"));
+    ApiResponseContext.get().addNotice(subscriptionNotice("subscription.suspended", "suspend"));
     return ApiResponse.success(result);
   }
 

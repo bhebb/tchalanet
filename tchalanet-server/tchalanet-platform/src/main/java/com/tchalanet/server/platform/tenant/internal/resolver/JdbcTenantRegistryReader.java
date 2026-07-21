@@ -73,6 +73,7 @@ class JdbcTenantRegistryReader implements TenantRegistryReader {
     }
   }
 
+  @Override
   public List<TenantBootstrapRow> listAll(int limit, int offset, String orderBy) {
     try {
       return jdbc.query(
@@ -87,6 +88,7 @@ class JdbcTenantRegistryReader implements TenantRegistryReader {
     }
   }
 
+  @Override
   public long countAll() {
     try {
       Long v =
@@ -97,6 +99,7 @@ class JdbcTenantRegistryReader implements TenantRegistryReader {
     }
   }
 
+  @Override
   public long countByStatus(String status) {
     if (status == null || status.isBlank()) return 0L;
     try {

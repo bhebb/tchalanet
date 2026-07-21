@@ -129,5 +129,4 @@ public class DrawProperties {
       setStopMinutesAfterDraw(1440);
     }
   }
-
 }

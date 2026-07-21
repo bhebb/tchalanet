@@ -33,7 +33,8 @@ class PrivateShellNavigationResolver {
         switch (space) {
           case ADMIN -> "private_shell_tenantadmin";
           case PLATFORM -> "private_shell_superadmin";
-          case CASHIER -> throw new IllegalStateException("Cashier navigation is resolved directly");
+          case CASHIER ->
+              throw new IllegalStateException("Cashier navigation is resolved directly");
         };
     String resourcePath = fragmentRegistry.resolve(fileKey);
     ClassLoader classLoader = Thread.currentThread().getContextClassLoader();

@@ -29,6 +29,7 @@ import com.tchalanet.server.core.haiti.internal.domain.lottery.exception.Invalid
 import com.tchalanet.server.core.haiti.internal.domain.lottery.model.ExternalPick;
 import java.time.Instant;
 import java.util.Locale;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import tools.jackson.databind.node.ObjectNode;
@@ -151,7 +152,7 @@ public class RecordManualDrawResultCommandHandler
       }
       return projection;
     } catch (InvalidExternalPickException e) {
-      throw ProblemRest.of(DrawResultErrorCodes.INVALID_EXTERNAL_PICK);
+      throw ProblemRest.of(DrawResultErrorCodes.INVALID_EXTERNAL_PICK, Map.of(), e);
     }
   }
 

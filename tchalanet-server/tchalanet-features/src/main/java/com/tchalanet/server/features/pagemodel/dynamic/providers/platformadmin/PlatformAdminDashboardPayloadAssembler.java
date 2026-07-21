@@ -2,8 +2,6 @@ package com.tchalanet.server.features.pagemodel.dynamic.providers.platformadmin;
 
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.features.shared.bff.BffSlicePolicy;
-import com.tchalanet.server.features.shared.bff.BffSlices;
 import com.tchalanet.server.common.web.api.NoticeSource;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.core.analytics.api.model.PlatformDashboardStatsView;
@@ -15,6 +13,8 @@ import com.tchalanet.server.features.pagemodel.contract.NewsItem;
 import com.tchalanet.server.features.pagemodel.contract.PublicContentPayload;
 import com.tchalanet.server.features.pagemodel.contract.QuickActionsPayload;
 import com.tchalanet.server.features.platformadmin.error.PlatformAdminErrorCodes;
+import com.tchalanet.server.features.shared.bff.BffSlicePolicy;
+import com.tchalanet.server.features.shared.bff.BffSlices;
 import com.tchalanet.server.platform.publiccontent.api.PublicContentApi;
 import com.tchalanet.server.platform.publiccontent.api.model.PublicContentItemView;
 import com.tchalanet.server.platform.tenant.api.TenantPreContextLookupApi;

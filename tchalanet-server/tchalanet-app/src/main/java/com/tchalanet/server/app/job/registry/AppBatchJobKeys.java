@@ -14,5 +14,4 @@ public final class AppBatchJobKeys {
 
   public static final JobKey RESULTS_EXTERNAL_FETCH = JobKey.of("results:external:fetch");
   public static final JobKey RESULTS_EXTERNAL_APPLY = JobKey.of("results:external:apply");
-
 }

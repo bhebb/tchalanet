@@ -23,7 +23,6 @@ public interface AnalyticsSellerTerminalDrawRepository
       findByTenantIdAndSellerTerminalIdAndRefDateOrderByScheduledAtAsc(
           UUID tenantId, UUID sellerTerminalId, LocalDate refDate);
 
-  List<AnalyticsSellerTerminalDrawEntity>
-      findByTenantIdAndSellerTerminalIdAndDrawIdAndRefDate(
-          UUID tenantId, UUID sellerTerminalId, UUID drawId, LocalDate refDate);
+  List<AnalyticsSellerTerminalDrawEntity> findByTenantIdAndSellerTerminalIdAndDrawIdAndRefDate(
+      UUID tenantId, UUID sellerTerminalId, UUID drawId, LocalDate refDate);
 }

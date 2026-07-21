@@ -121,7 +121,9 @@ public class ApiResponseBodyAdvice implements ResponseBodyAdvice<Object> {
     return new ApiResponse<>(status, body, notices, services);
   }
 
-  /** Resolves response meaning without interpreting business codes as transport status sentinels. */
+  /**
+   * Resolves response meaning without interpreting business codes as transport status sentinels.
+   */
   private static ApiStatus resolveStatus(
       List<ApiNotice> notices, List<ServiceStatus> services, ApiStatus cleanStatus) {
     if (cleanStatus == ApiStatus.PENDING) {

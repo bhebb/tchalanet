@@ -110,7 +110,9 @@ public class ApiResponseNotices {
     if (meta != null) {
       noticeMeta.putAll(meta);
     }
-    noticeMeta.entrySet().removeIf(entry -> isSensitiveKey(entry.getKey()) || !isBridgeValue(entry.getValue()));
+    noticeMeta
+        .entrySet()
+        .removeIf(entry -> isSensitiveKey(entry.getKey()) || !isBridgeValue(entry.getValue()));
     String target = explicitTarget == null ? targetFrom(noticeMeta) : requireTarget(explicitTarget);
     var params = publicParams(noticeMeta);
     var trace =
@@ -150,7 +152,8 @@ public class ApiResponseNotices {
 
   @Nullable
   private static String targetFrom(Map<String, Object> meta) {
-    if (!(meta.get("target") instanceof String target) || !FUNCTIONAL_TARGET.matcher(target).matches()) {
+    if (!(meta.get("target") instanceof String target)
+        || !FUNCTIONAL_TARGET.matcher(target).matches()) {
       return null;
     }
     return target;
@@ -200,7 +203,9 @@ public class ApiResponseNotices {
   }
 
   private static boolean isBridgeValue(Object value) {
-    return isPublicValue(value) || value instanceof Map<?, ?> || value instanceof java.util.Collection<?>;
+    return isPublicValue(value)
+        || value instanceof Map<?, ?>
+        || value instanceof java.util.Collection<?>;
   }
 
   private static void addIfPresent(Map<String, Object> meta, String key, @Nullable String value) {

@@ -21,9 +21,9 @@ import lombok.RequiredArgsConstructor;
 /**
  * Reads projection coverage for a requested business scope.
  *
- * <p>This first trust evaluator is intentionally conservative: no row for a requested business
- * date is {@code UNAVAILABLE}, not a financial zero. The reconciler adds
- * {@code RECONCILIATION_REQUIRED} once it can compare projection and transaction watermarks.
+ * <p>This first trust evaluator is intentionally conservative: no row for a requested business date
+ * is {@code UNAVAILABLE}, not a financial zero. The reconciler adds {@code RECONCILIATION_REQUIRED}
+ * once it can compare projection and transaction watermarks.
  */
 @UseCase
 @RequiredArgsConstructor
@@ -40,7 +40,9 @@ public class GetAnalyticsTrustStateQueryHandler
     AnalyticsTrustScope scope = query.scope();
     Set<LocalDate> availableDates = availableDates(scope);
     List<LocalDate> missingDates =
-        scope.from().datesUntil(scope.to().plusDays(1))
+        scope
+            .from()
+            .datesUntil(scope.to().plusDays(1))
             .filter(date -> !availableDates.contains(date))
             .toList();
     Instant checkedAt = clock.instant();
@@ -54,8 +56,7 @@ public class GetAnalyticsTrustStateQueryHandler
       case PLATFORM -> dailyDates(dailyRepository.findPlatformRows(scope.from(), scope.to()));
       case TENANT ->
           dailyDates(
-              dailyRepository.findTenantRows(
-                  scope.tenantId().value(), scope.from(), scope.to()));
+              dailyRepository.findTenantRows(scope.tenantId().value(), scope.from(), scope.to()));
       case SELLER_TERMINAL ->
           dailyDates(
               dailyRepository.findSellerTerminalRows(
@@ -69,12 +70,11 @@ public class GetAnalyticsTrustStateQueryHandler
                   scope.tenantId().value(), scope.drawId().value(), scope.from(), scope.to()));
       case SELLER_TERMINAL_DRAW ->
           sellerTerminalDrawDates(
-              sellerTerminalDrawRepository
-                  .findByTenantIdAndSellerTerminalIdAndDrawIdAndRefDate(
-                      scope.tenantId().value(),
-                      scope.sellerTerminalId().value(),
-                      scope.drawId().value(),
-                      scope.from()));
+              sellerTerminalDrawRepository.findByTenantIdAndSellerTerminalIdAndDrawIdAndRefDate(
+                  scope.tenantId().value(),
+                  scope.sellerTerminalId().value(),
+                  scope.drawId().value(),
+                  scope.from()));
     };
   }
 
