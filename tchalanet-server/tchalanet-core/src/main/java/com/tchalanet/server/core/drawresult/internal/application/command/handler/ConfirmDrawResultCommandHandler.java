@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.drawresult.internal.application.command.handler;
 
 import com.tchalanet.server.common.bus.CommandHandler;
+import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.drawresult.api.command.ConfirmDrawResultCommand;
 import com.tchalanet.server.core.drawresult.api.command.ConfirmDrawResultResult;
@@ -20,6 +21,7 @@ public class ConfirmDrawResultCommandHandler
   private final Clock clock;
 
   @Override
+  @TchTx
   public ConfirmDrawResultResult handle(ConfirmDrawResultCommand command) {
     var confirmedAt = Instant.now(clock);
     writer.confirmProvisional(command.drawResultId(), confirmedAt);

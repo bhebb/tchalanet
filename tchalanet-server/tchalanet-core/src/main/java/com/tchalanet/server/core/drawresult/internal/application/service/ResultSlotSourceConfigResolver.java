@@ -16,6 +16,7 @@ public class ResultSlotSourceConfigResolver {
     return new ResultSlotSourceConfig(
         ResultSlotSourceConfig.providerSlotCodeFrom(sourceCfg),
         ResultSlotSourceConfig.SourceGame.from(sourceCfg.get("pick3")),
-        ResultSlotSourceConfig.SourceGame.from(sourceCfg.get("pick4")));
+        ResultSlotSourceConfig.SourceGame.from(sourceCfg.get("pick4")),
+        ResultSlotSourceConfig.TrustPolicy.from(sourceCfg));
   }
 }

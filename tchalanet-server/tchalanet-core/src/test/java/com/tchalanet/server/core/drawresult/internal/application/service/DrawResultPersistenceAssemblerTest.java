@@ -88,7 +88,8 @@ class DrawResultPersistenceAssemblerTest {
     return new ResultSlotSourceConfig(
         "NYEVE",
         new ResultSlotSourceConfig.SourceGame("PICK3", pick3Active),
-        new ResultSlotSourceConfig.SourceGame("PICK4", pick4Active));
+        new ResultSlotSourceConfig.SourceGame("PICK4", pick4Active),
+        ResultSlotSourceConfig.TrustPolicy.TRUST_PROVIDER);
   }
 
   private HaitiProjectionResult projection(boolean ok) {

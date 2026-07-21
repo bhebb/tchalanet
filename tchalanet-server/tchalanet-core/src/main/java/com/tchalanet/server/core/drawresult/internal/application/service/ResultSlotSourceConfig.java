@@ -7,10 +7,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import tools.jackson.databind.JsonNode;
 
-public record ResultSlotSourceConfig(String providerSlotCode, SourceGame pick3, SourceGame pick4) {
+public record ResultSlotSourceConfig(
+    String providerSlotCode, SourceGame pick3, SourceGame pick4, TrustPolicy trustPolicy) {
 
   public static ResultSlotSourceConfig empty() {
-    return new ResultSlotSourceConfig("", null, null);
+    return new ResultSlotSourceConfig("", null, null, TrustPolicy.TRUST_PROVIDER);
   }
 
   public boolean hasProviderSlotCode() {
@@ -34,6 +35,10 @@ public record ResultSlotSourceConfig(String providerSlotCode, SourceGame pick3, 
         .filter(ResultSlotSourceConfig::isActive)
         .map(SourceGame::gameCode)
         .collect(Collectors.toUnmodifiableSet());
+  }
+
+  public boolean requiresPlatformReview() {
+    return trustPolicy == TrustPolicy.REQUIRE_PLATFORM_REVIEW;
   }
 
   public static boolean isActive(SourceGame game) {
@@ -78,6 +83,28 @@ public record ResultSlotSourceConfig(String providerSlotCode, SourceGame pick3, 
 
     private static String normalizeGameCode(String value) {
       return value == null ? "" : value.trim().toUpperCase(Locale.ROOT).replaceAll("\\s+", "");
+    }
+  }
+
+  public enum TrustPolicy {
+    TRUST_PROVIDER,
+    REQUIRE_PLATFORM_REVIEW;
+
+    public static TrustPolicy from(JsonNode sourceCfg) {
+      if (sourceCfg == null || sourceCfg.isNull() || !sourceCfg.isObject()) {
+        return TRUST_PROVIDER;
+      }
+
+      var node = sourceCfg.get("trust_policy");
+      if (node == null || node.isNull()) {
+        return TRUST_PROVIDER;
+      }
+
+      try {
+        return TrustPolicy.valueOf(node.asText("").trim().toUpperCase(Locale.ROOT));
+      } catch (IllegalArgumentException ex) {
+        return TRUST_PROVIDER;
+      }
     }
   }
 }
