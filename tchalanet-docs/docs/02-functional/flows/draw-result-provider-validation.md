@@ -62,6 +62,21 @@ Ces valeurs viennent de l'observation BD locale du `2026-07-20`. Avant de publie
 
 Ces délais ne sont pas des SLA providers. Ils décrivent quand Tchalanet commence à chercher, appliquer et régler, et les temps d'arrivée observés servent à informer le client du délai normal après tirage.
 
+## Qualité et statut du résultat
+
+La qualité (`quality`) décrit si les données provider/projection sont complètes. Le statut (`status`) décrit si le résultat peut être utilisé par le pipeline draw. Un résultat incomplet doit rester visible pour Ops, mais ne doit pas être appliqué automatiquement.
+
+| Situation | Quality | Status attendu | Apply auto | Action Ops |
+|---|---|---|---:|---|
+| Pick 3 et Pick 4 présents, projection Haïti complète, provider trusted | `COMPLETE` | `CONFIRMED` | Oui | Surveiller seulement. |
+| Pick 3 et Pick 4 présents, projection complète, trust policy `REQUIRE_PLATFORM_REVIEW` | `COMPLETE` | `PROVISIONAL` | Non | Confirmer après revue. |
+| Pick 4 seul reçu: `lot2`/`lot3` remplis, `lot1`/`lot4` vides | `SUSPECT` | `PROVISIONAL` | Non | Attendre correction provider ou override manuel complet. |
+| Pick 3 seul reçu: `lot1`/`lot4` remplis, `lot2`/`lot3` vides | `SUSPECT` | `PROVISIONAL` | Non | Attendre correction provider ou override manuel complet. |
+| Pick attendu absent, longueur invalide, projection KO ou qualité provider douteuse | `SUSPECT` ou `INVALID` | `PROVISIONAL` | Non | Corriger/override; ne pas confirmer sans vérification. |
+| Override Ops complet | `COMPLETE` | `OVERRIDDEN` | Oui | Audit obligatoire avec raison. |
+
+Règle forte: seul `COMPLETE + CONFIRMED` ou `COMPLETE + OVERRIDDEN` peut être appliqué au draw. `SUSPECT`, `INVALID` et `PROVISIONAL` bloquent l'apply et le settle.
+
 ## Contrôle BD des arrivées réelles
 
 La table globale `draw_result` n'est pas RLS tenant. Pour vérifier les arrivées réelles d'une journée:
@@ -76,6 +91,12 @@ select
   round(extract(epoch from (dr.fetched_at - dr.occurred_at)) / 60.0, 1) as minutes_after_draw,
   dr.status,
   dr.source,
+  dr.quality,
+  dr.haiti_result->>'lot1' as lot1,
+  dr.haiti_result->>'lot2' as lot2,
+  dr.haiti_result->>'lot3' as lot3,
+  dr.haiti_result->>'lot4' as lot4,
+  dr.flags->'haiti'->>'projectionReason' as projection_reason,
   to_char(dr.created_at at time zone rs.timezone, 'YYYY-MM-DD HH24:MI') as created_local
 from draw_result dr
 join result_slot rs on rs.id = dr.result_slot_id
