@@ -175,8 +175,9 @@ public class PosTicketsService {
   }
 
   private boolean isTicketNotFound(ProblemRestException ex) {
-    var code = ex.getProblem().getProperties().get("code");
-    return "ticket.not_found".equals(code);
+    // Legacy problems may carry no properties at all — never NPE on them.
+    var properties = ex.getProblem().getProperties();
+    return properties != null && "ticket.not_found".equals(properties.get("code"));
   }
 
   private PosTicketVerificationResponse verificationResponse(TicketCashierVerificationView ticket) {

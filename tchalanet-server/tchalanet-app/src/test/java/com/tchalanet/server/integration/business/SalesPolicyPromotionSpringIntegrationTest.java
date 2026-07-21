@@ -131,7 +131,10 @@ class SalesPolicyPromotionSpringIntegrationTest extends BusinessRuntimeIntegrati
     assertThat(result.issues())
         .isNotEmpty()
         .anySatisfy(
-            issue -> assertThat(issue.code()).isEqualTo("sales.selection_exposure_limit_exceeded"));
+            // Since #355 the limits domain owns this rejection code (limits.blocked);
+            // the legacy sales.selection_exposure_limit_exceeded alias only covers
+            // legacy notice tokens.
+            issue -> assertThat(issue.code()).isEqualTo("limits.blocked"));
     assertThat(countTickets()).isEqualTo(before);
   }
 
