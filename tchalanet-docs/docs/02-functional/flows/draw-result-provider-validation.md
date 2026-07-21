@@ -32,7 +32,24 @@ Ce guide sert de checklist opérationnelle pour valider le pipeline résultat:
 
 ## Délais automatiques attendus
 
-Le job de processing tourne toutes les 5 minutes. Les délais ci-dessous sont donc les fenêtres système, avec un décalage possible jusqu'au prochain tick.
+Le job de processing tourne toutes les 5 minutes. Les délais ci-dessous sont donc exprimés en minutes après l'heure officielle du tirage, avec un décalage possible jusqu'au prochain tick.
+
+À communiquer aux clients: un provider automatique ne publie pas un résultat exactement à l'heure du tirage. Le résultat arrive généralement quelques minutes après; Tchalanet commence à le chercher à partir de +5 minutes.
+
+| Provider | Slots auto | Arrivée résultat après l'heure du tirage | Statut côté client |
+|---|---|---:|---|
+| NY | `NY_MID`, `NY_EVE` | observé autour de +20 à +30 min | Auto actif par défaut pour nouveau tenant. Peut rester `PROVISIONAL` si revue Ops requise. |
+| FL | `FL_MID`, `FL_EVE` | observé autour de +5 à +20 min | Auto actif par défaut pour nouveau tenant. Peut rester `PROVISIONAL` si revue Ops requise. |
+| GA | `GA_MID`, `GA_EVE`, `GA_LATE` | observé autour de +6 à +21 min | Auto disponible après activation tenant. |
+| TX | `TX_1000`, `TX_1227`, `TX_1800`, `TX_2212` | observé autour de +8 à +23 min | Auto disponible après activation tenant. |
+| PA | `PA_MID`, `PA_EVE` | observé autour de +5 à +25 min | Auto disponible après activation tenant. |
+| NJ | `NJ_MID`, `NJ_EVE` | observé autour de +6 à +18 min | Auto disponible après activation tenant. |
+| CA | `CA_MID`, `CA_EVE` | observé autour de +5 à +20 min | Auto disponible après activation tenant. |
+| MI | `MI_MID`, `MI_EVE` | observé autour de +16 à +21 min | Auto disponible après activation tenant. |
+| OH | `OH_MID`, `OH_EVE` | à confirmer, aucune arrivée observée localement le 2026-07-20 | Ne pas promettre au client avant validation auth/feed. |
+| MN/TN/IL/MO | slots manuels | N/A | Pas de résultat automatique aujourd'hui; saisie Ops/manuelle requise. |
+
+Ces valeurs viennent de l'observation BD locale du `2026-07-20`. Avant de publier un délai contractuel, valider le provider sur plusieurs jours et noter le délai médian par slot.
 
 | Étape | Début | Retry | Stop | Attendu en pratique |
 |---|---:|---:|---:|---|
@@ -43,7 +60,7 @@ Le job de processing tourne toutes les 5 minutes. Les délais ci-dessous sont do
 | Apply résultat | +10 min | 5 min | +720 min | Applique seulement `CONFIRMED` ou `OVERRIDDEN`. |
 | Settle draw | +10 min | 5 min | +1440 min | Requiert draw `RESULTED`, résultat confirmé et tickets prêts. |
 
-Ces délais ne sont pas des SLA providers. Ils décrivent quand Tchalanet commence à chercher, appliquer et régler.
+Ces délais ne sont pas des SLA providers. Ils décrivent quand Tchalanet commence à chercher, appliquer et régler, et les temps d'arrivée observés servent à informer le client du délai normal après tirage.
 
 ## Contrôle BD des arrivées réelles
 
