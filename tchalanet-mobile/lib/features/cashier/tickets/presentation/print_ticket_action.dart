@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:printing/printing.dart';
@@ -13,6 +15,7 @@ const _reprintReasonPresets = [
   'PRINT_ILLEGIBLE',
   'CUSTOMER_REQUEST',
 ];
+const _reprintReasonRequiredCode = 'ticket.reprint.reason_required';
 
 /// Opens the native PDF print preview for an already rendered ticket receipt.
 /// The initial print is reason-free. Seller-initiated reprints include the
@@ -26,9 +29,20 @@ Future<void> printTicket(
   final messenger = ScaffoldMessenger.of(context);
   final translations = ref.read(i18nBundleProvider);
   try {
-    final bytes = await ref
-        .read(cashierTicketServiceProvider)
-        .print(ticketId, reprintReason: reprintReason);
+    final service = ref.read(cashierTicketServiceProvider);
+    Uint8List bytes;
+    try {
+      bytes = await service.print(ticketId, reprintReason: reprintReason);
+    } on ApiException catch (error) {
+      if (error.code != _reprintReasonRequiredCode ||
+          reprintReason?.trim().isNotEmpty == true) {
+        rethrow;
+      }
+      bytes = await service.print(
+        ticketId,
+        reprintReason: _sellerRequestedReprintReason,
+      );
+    }
 
     if (bytes.isEmpty) {
       messenger.showSnackBar(

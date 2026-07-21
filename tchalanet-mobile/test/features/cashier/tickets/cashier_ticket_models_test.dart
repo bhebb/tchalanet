@@ -234,6 +234,28 @@ void main() {
     expect(stats.available, isTrue);
   });
 
+  test('daily terminal stats accept legacy commission cents field', () {
+    final stats = TerminalDailyStats.fromJson({
+      'ticketCount': 1,
+      'salesTotalCents': 11200,
+      'sellerCommissionCents': 1456,
+      'currency': 'HTG',
+    });
+
+    expect(stats.sellerCommissionTotalCents, 1456);
+  });
+
+  test('daily terminal stats accept decimal commission amount field', () {
+    final stats = TerminalDailyStats.fromJson({
+      'ticketCount': 1,
+      'salesTotalCents': 11200,
+      'sellerCommission': '14.56',
+      'currency': 'HTG',
+    });
+
+    expect(stats.sellerCommissionTotalCents, 1456);
+  });
+
   test('daily terminal stats preserve an unavailable analytics state', () {
     final stats = TerminalDailyStats.fromJson({
       'available': false,

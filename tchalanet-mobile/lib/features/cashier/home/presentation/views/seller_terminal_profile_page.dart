@@ -61,20 +61,6 @@ class SellerTerminalProfilePage extends ConsumerWidget {
                               'pos.profile.needs_verification',
                             ),
                     ),
-                    _InfoRow(
-                      icon: Icons.confirmation_number_rounded,
-                      label: translations.translate(
-                        'pos.profile.tickets_today',
-                      ),
-                      value: '${home.session?.ticketCount ?? 0}',
-                    ),
-                    _InfoRow(
-                      icon: Icons.payments_rounded,
-                      label: translations.translate('pos.profile.sales_today'),
-                      value:
-                          home.session?.salesTotal ??
-                          '0 ${home.currency ?? 'HTG'}',
-                    ),
                   ],
                 ),
                 const SizedBox(height: TchSpacing.s16),
