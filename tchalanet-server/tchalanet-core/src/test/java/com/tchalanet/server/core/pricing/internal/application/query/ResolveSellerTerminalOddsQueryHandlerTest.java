@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.web.error.ProblemRestException;
 import com.tchalanet.server.core.pricing.api.model.OddsSource;
 import com.tchalanet.server.core.pricing.api.model.PricingVariantCode;
 import com.tchalanet.server.core.pricing.api.query.ResolveSellerTerminalOddsQuery;
@@ -87,10 +88,9 @@ class ResolveSellerTerminalOddsQueryHandlerTest {
                         PricingVariantCode.LOTTO4_BOX_4_WAY,
                         "LOTTO4_PATTERN",
                         (short) 2)))
-        .isInstanceOf(IllegalStateException.class)
-        .hasMessageContaining("tenant default pricing odds missing")
-        .hasMessageContaining("HT_LOTO4")
-        .hasMessageContaining("LOTTO4_BOX_4_WAY");
+        .isInstanceOf(ProblemRestException.class)
+        .extracting(ex -> ((ProblemRestException) ex).getProblem().getProperties().get("code"))
+        .isEqualTo("pricing.tenant_default_not_configured");
   }
 
   private static final class CapturingTenantOddsReader implements TenantPricingOddsReaderPort {

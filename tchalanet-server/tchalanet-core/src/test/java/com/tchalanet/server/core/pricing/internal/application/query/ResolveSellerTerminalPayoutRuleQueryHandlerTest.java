@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.SellerTerminalOddsOverrideId;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.web.error.ProblemRestException;
 import com.tchalanet.server.core.pricing.api.model.OddsSource;
 import com.tchalanet.server.core.pricing.api.model.PayoutRuleType;
 import com.tchalanet.server.core.pricing.api.model.PricingVariantCode;
@@ -51,8 +52,9 @@ class ResolveSellerTerminalPayoutRuleQueryHandlerTest {
             new FixedTenantPricingReader(new BigDecimal("500.0000")));
 
     assertThatThrownBy(() -> handler.handle(query()))
-        .isInstanceOf(IllegalStateException.class)
-        .hasMessageContaining("cannot change payout rule type");
+        .isInstanceOf(ProblemRestException.class)
+        .extracting(ex -> ((ProblemRestException) ex).getProblem().getProperties().get("code"))
+        .isEqualTo("pricing.override_payout_rule_type_mismatch");
   }
 
   @Test

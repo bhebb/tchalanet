@@ -201,7 +201,9 @@ class RecordDrawTicketsResultCommandHandlerTest {
 
     assertThat(replay.complete()).isTrue();
     assertThat(replay.updatedTickets()).isEqualTo(1);
-    assertThat(replayPublisher.events()).filteredOn(TicketResultedEvent.class::isInstance).hasSize(1);
+    assertThat(replayPublisher.events())
+        .filteredOn(TicketResultedEvent.class::isInstance)
+        .hasSize(1);
     assertThat(replayPublisher.events())
         .filteredOn(TicketPayoutPaidEvent.class::isInstance)
         .hasSize(1);
@@ -215,9 +217,11 @@ class RecordDrawTicketsResultCommandHandlerTest {
 
     var result = handler.handle(command());
 
-    assertThat(result.processedTickets()).isEqualTo(1);
+    // Already-resulted tickets are filtered out by the pending-only reader, so a
+    // replay selects nothing at all — nothing processed, saved or published.
+    assertThat(result.processedTickets()).isZero();
     assertThat(result.updatedTickets()).isZero();
-    assertThat(result.skippedTickets()).isEqualTo(1);
+    assertThat(result.skippedTickets()).isZero();
     assertThat(store.savedTickets()).isEmpty();
     assertThat(publisher.events()).isEmpty();
   }

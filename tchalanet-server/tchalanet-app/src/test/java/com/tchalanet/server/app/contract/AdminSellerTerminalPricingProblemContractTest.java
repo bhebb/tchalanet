@@ -55,10 +55,10 @@ class AdminSellerTerminalPricingProblemContractTest {
                         """
                         {
                           "gameCode":"HT_BORLETTE",
-                          "pricingVariantCode":"BORLETTE_STRAIGHT",
+                          "pricingVariantCode":"MATCH_1_2D",
                           "betType":"STRAIGHT",
                           "odds":100.0000,
-                          "payoutRuleType":"ODDS"
+                          "payoutRuleType":"STAKE_MULTIPLIER"
                         }
                         """))
             .andExpect(status().isUnprocessableEntity())
@@ -112,10 +112,16 @@ class AdminSellerTerminalPricingProblemContractTest {
   }
 
   private static MockMvc sellerTerminalMvc(CommandBus commandBus) {
+    // Standalone MockMvc has no Spring context: register the typed-id converter
+    // the real app provides as a bean, or path-variable binding fails with 500.
+    var conversionService = new org.springframework.format.support.FormattingConversionService();
+    conversionService.addConverter(
+        new com.tchalanet.server.common.web.converter.StringToSellerTerminalIdConverter());
     return MockMvcBuilders.standaloneSetup(
             new SellerTerminalAdminController(commandBus, mock(QueryBus.class)))
         .setControllerAdvice(new GlobalErrorHandler())
         .setCustomArgumentResolvers(new CurrentContextArgumentResolver())
+        .setConversionService(conversionService)
         .build();
   }
 

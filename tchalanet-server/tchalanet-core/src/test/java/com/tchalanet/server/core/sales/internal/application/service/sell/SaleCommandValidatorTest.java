@@ -56,7 +56,8 @@ class SaleCommandValidatorTest {
 
     assertThatThrownBy(() -> validator.validateCommand(command))
         .isInstanceOf(ProblemRestException.class)
-        .hasMessageContaining("sales.bet_option_out_of_range");
+        .extracting(ex -> ((ProblemRestException) ex).getProblem().getProperties().get("code"))
+        .isEqualTo("sales.bet_option_out_of_range");
   }
 
   @Test
@@ -70,7 +71,8 @@ class SaleCommandValidatorTest {
     validator.validateCommand(command);
     assertThatThrownBy(() -> validator.validateTenantConfiguration(command, TENANT_ID))
         .isInstanceOf(ProblemRestException.class)
-        .hasMessageContaining("sales.bet_option_required");
+        .extracting(ex -> ((ProblemRestException) ex).getProblem().getProperties().get("code"))
+        .isEqualTo("sales.bet_option_required");
   }
 
   @Test
@@ -80,7 +82,8 @@ class SaleCommandValidatorTest {
 
     assertThatThrownBy(() -> validator.validateCommand(command))
         .isInstanceOf(ProblemRestException.class)
-        .hasMessageContaining("sales.bet_option_not_allowed");
+        .extracting(ex -> ((ProblemRestException) ex).getProblem().getProperties().get("code"))
+        .isEqualTo("sales.bet_option_not_allowed");
   }
 
   @Test
@@ -107,7 +110,8 @@ class SaleCommandValidatorTest {
     validator.validateCommand(command);
     assertThatThrownBy(() -> validator.validateTenantConfiguration(command, TENANT_ID))
         .isInstanceOf(ProblemRestException.class)
-        .hasMessageContaining("sales.tenant_bet_option_not_visible_in_pos");
+        .extracting(ex -> ((ProblemRestException) ex).getProblem().getProperties().get("code"))
+        .isEqualTo("sales.tenant_bet_option_not_visible_in_pos");
   }
 
   @Test
@@ -131,7 +135,8 @@ class SaleCommandValidatorTest {
     validator.validateCommand(command);
     assertThatThrownBy(() -> validator.validateTenantConfiguration(command, TENANT_ID))
         .isInstanceOf(ProblemRestException.class)
-        .hasMessageContaining("sales.selection_invalid");
+        .extracting(ex -> ((ProblemRestException) ex).getProblem().getProperties().get("code"))
+        .isEqualTo("sales.selection_invalid");
   }
 
   @Test
@@ -144,7 +149,8 @@ class SaleCommandValidatorTest {
     validator.validateCommand(command);
     assertThatThrownBy(() -> validator.validateTenantConfiguration(command, TENANT_ID))
         .isInstanceOf(ProblemRestException.class)
-        .hasMessageContaining("sales.bet_option_not_allowed");
+        .extracting(ex -> ((ProblemRestException) ex).getProblem().getProperties().get("code"))
+        .isEqualTo("sales.bet_option_not_allowed");
   }
 
   private static SellTicketCommand command(SellTicketLineInput line) {

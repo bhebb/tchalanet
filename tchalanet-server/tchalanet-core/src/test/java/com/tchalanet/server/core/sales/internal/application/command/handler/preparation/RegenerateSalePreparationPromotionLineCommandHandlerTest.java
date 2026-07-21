@@ -100,7 +100,8 @@ class RegenerateSalePreparationPromotionLineCommandHandlerTest {
                 handler()
                     .handle(new RegenerateSalePreparationPromotionLineCommand(PREP_ID, "ref-1")))
         .isInstanceOf(ProblemRestException.class)
-        .hasMessageContaining("max_regenerations_reached");
+        .extracting(ex -> ((ProblemRestException) ex).getProblem().getProperties().get("code"))
+        .isEqualTo("sales.preparation.max_regenerations_reached");
   }
 
   @Test
@@ -113,7 +114,8 @@ class RegenerateSalePreparationPromotionLineCommandHandlerTest {
                 handler()
                     .handle(new RegenerateSalePreparationPromotionLineCommand(PREP_ID, "ref-1")))
         .isInstanceOf(ProblemRestException.class)
-        .hasMessageContaining("line_not_regenerable");
+        .extracting(ex -> ((ProblemRestException) ex).getProblem().getProperties().get("code"))
+        .isEqualTo("sales.preparation.line_not_regenerable");
   }
 
   @Test
@@ -126,7 +128,8 @@ class RegenerateSalePreparationPromotionLineCommandHandlerTest {
                 handler()
                     .handle(new RegenerateSalePreparationPromotionLineCommand(PREP_ID, "ref-1")))
         .isInstanceOf(ProblemRestException.class)
-        .hasMessageContaining("already_confirmed");
+        .extracting(ex -> ((ProblemRestException) ex).getProblem().getProperties().get("code"))
+        .isEqualTo("sales.preparation.already_confirmed");
   }
 
   @Test
@@ -139,7 +142,8 @@ class RegenerateSalePreparationPromotionLineCommandHandlerTest {
                 handler()
                     .handle(new RegenerateSalePreparationPromotionLineCommand(PREP_ID, "ref-1")))
         .isInstanceOf(ProblemRestException.class)
-        .hasMessageContaining("expired");
+        .extracting(ex -> ((ProblemRestException) ex).getProblem().getProperties().get("code"))
+        .isEqualTo("sales.preparation.expired");
     assertThat(store.byId.get(PREP_ID).status()).isEqualTo(SalePreparationStatus.EXPIRED);
   }
 }

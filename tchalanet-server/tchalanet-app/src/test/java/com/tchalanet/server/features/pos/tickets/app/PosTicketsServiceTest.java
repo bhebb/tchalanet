@@ -149,7 +149,7 @@ class PosTicketsServiceTest {
     @DisplayName("ticket not found → NOT_FOUND")
     void ticket_not_found_returns_not_found() {
       when(queryBus.ask(any(GetTicketForCashierVerificationQuery.class)))
-          .thenThrow(ProblemRestException.notFound("ticket.not_found"));
+          .thenThrow(ProblemRest.of(SalesErrorCodes.TICKET_NOT_FOUND));
 
       var response = service.verify(trustedContext(), request());
 

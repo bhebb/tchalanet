@@ -299,7 +299,8 @@ class ConfirmPreparedSaleCommandHandlerTest {
 
     assertThatThrownBy(() -> handler().handle(new ConfirmPreparedSaleCommand(PREP_ID, "idem-2")))
         .isInstanceOf(ProblemRestException.class)
-        .hasMessageContaining("already_confirmed");
+        .extracting(ex -> ((ProblemRestException) ex).getProblem().getProperties().get("code"))
+        .isEqualTo("sales.preparation.already_confirmed");
   }
 
   @Test
@@ -309,7 +310,8 @@ class ConfirmPreparedSaleCommandHandlerTest {
 
     assertThatThrownBy(() -> handler().handle(new ConfirmPreparedSaleCommand(PREP_ID, "idem-1")))
         .isInstanceOf(ProblemRestException.class)
-        .hasMessageContaining("expired");
+        .extracting(ex -> ((ProblemRestException) ex).getProblem().getProperties().get("code"))
+        .isEqualTo("sales.preparation.expired");
     assertThat(store.byId.get(PREP_ID).status()).isEqualTo(SalePreparationStatus.EXPIRED);
   }
 
