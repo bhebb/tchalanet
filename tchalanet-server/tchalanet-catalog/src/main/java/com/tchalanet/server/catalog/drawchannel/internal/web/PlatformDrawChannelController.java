@@ -127,11 +127,10 @@ public class PlatformDrawChannelController {
       @PathVariable DrawChannelId id,
       @RequestParam(required = false) TenantId tenantId,
       @CurrentContext TchRequestContext ctx) {
-    if (tenantId == null) {
-      tenantId = ctx.effectiveTenantIdRequired();
-    }
+    var effectiveTenantId = tenantId == null ? ctx.effectiveTenantIdRequired() : tenantId;
     TchContextScope.runWithContext(
-        ctx.withEffectiveTenantUuid(tenantId.value()), () -> adminService.disableChannel(id));
+        ctx.withEffectiveTenantUuid(effectiveTenantId.value()),
+        () -> adminService.disableChannel(id));
     return ApiResponse.success(null);
   }
 }

@@ -8,14 +8,14 @@ import com.tchalanet.server.common.web.api.NoticeSource;
 import com.tchalanet.server.core.analytics.api.model.AnalyticsTrustScope;
 import com.tchalanet.server.core.analytics.api.model.AnalyticsTrustState;
 import com.tchalanet.server.core.analytics.api.model.AnalyticsTrustStateView;
-import com.tchalanet.server.features.shared.bff.BffSlicePolicy;
-import com.tchalanet.server.features.shared.bff.BffSlices;
 import com.tchalanet.server.core.analytics.api.model.CashierDashboardStatsView;
 import com.tchalanet.server.core.analytics.api.query.GetAnalyticsTrustStateQuery;
 import com.tchalanet.server.core.analytics.api.query.GetCashierDashboardStatsQuery;
 import com.tchalanet.server.core.draw.api.query.ListCashierNextDrawsQuery;
 import com.tchalanet.server.core.sales.api.query.ListCashierRecentTicketsQuery;
 import com.tchalanet.server.features.pos.error.PosErrorCodes;
+import com.tchalanet.server.features.shared.bff.BffSlicePolicy;
+import com.tchalanet.server.features.shared.bff.BffSlices;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -126,7 +126,10 @@ public class PosDashboardPayloadAssembler {
         queryBus.ask(
             new GetAnalyticsTrustStateQuery(
                 AnalyticsTrustScope.sellerTerminal(
-                    ctx.effectiveTenantIdRequired(), ctx.sellerTerminalIdRequired(), today, today)));
+                    ctx.effectiveTenantIdRequired(),
+                    ctx.sellerTerminalIdRequired(),
+                    today,
+                    today)));
     if (trust == null || trust.state() != AnalyticsTrustState.READY) {
       addUntrustedAnalyticsNotice(trust);
       return CashierStatsPayload.unavailable(today, trust);

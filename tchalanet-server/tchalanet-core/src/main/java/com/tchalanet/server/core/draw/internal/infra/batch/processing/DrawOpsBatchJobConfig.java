@@ -248,11 +248,6 @@ public class DrawOpsBatchJobConfig {
     return normalized != null ? LocalDate.parse(normalized) : fallback;
   }
 
-  private static LocalDate parseDateOrNull(String value) {
-    String normalized = trimToNull(value);
-    return normalized != null ? LocalDate.parse(normalized) : null;
-  }
-
   private static int parseInt(String value, int fallback) {
     String normalized = trimToNull(value);
     return normalized != null ? Integer.parseInt(normalized) : fallback;

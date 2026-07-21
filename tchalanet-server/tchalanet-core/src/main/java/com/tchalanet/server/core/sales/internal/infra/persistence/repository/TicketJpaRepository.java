@@ -1,8 +1,8 @@
 package com.tchalanet.server.core.sales.internal.infra.persistence.repository;
 
 import com.tchalanet.server.common.persistence.repository.TchJpaRepository;
-import com.tchalanet.server.core.sales.api.model.status.TicketSettlementStatus;
 import com.tchalanet.server.core.sales.api.model.status.TicketResultStatus;
+import com.tchalanet.server.core.sales.api.model.status.TicketSettlementStatus;
 import com.tchalanet.server.core.sales.internal.infra.persistence.entity.TicketJpaEntity;
 import java.time.Instant;
 import java.util.List;

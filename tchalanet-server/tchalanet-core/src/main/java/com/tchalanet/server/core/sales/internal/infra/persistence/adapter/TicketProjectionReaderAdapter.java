@@ -22,6 +22,7 @@ import jakarta.persistence.criteria.Predicate;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -183,7 +184,7 @@ public class TicketProjectionReaderAdapter implements TicketProjectionReaderPort
     try {
       return TicketSaleStatus.valueOf(rawStatus.trim().toUpperCase(Locale.ROOT));
     } catch (IllegalArgumentException ex) {
-      throw ProblemRest.of(SalesErrorCodes.TICKET_FILTER_INVALID_STATUS);
+      throw ProblemRest.of(SalesErrorCodes.TICKET_FILTER_INVALID_STATUS, Map.of(), ex);
     }
   }
 

@@ -10,6 +10,7 @@ import com.tchalanet.server.platform.accesscontrol.internal.persistence.reposito
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -165,7 +166,7 @@ public class EffectiveTenantResolver {
     try {
       return TenantId.of(UUID.fromString(raw));
     } catch (IllegalArgumentException ex) {
-      throw ProblemRest.of(AccessControlErrorCodes.TENANT_OVERRIDE_INVALID);
+      throw ProblemRest.of(AccessControlErrorCodes.TENANT_OVERRIDE_INVALID, Map.of(), ex);
     }
   }
 

@@ -8,9 +8,9 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.core.sales.api.query.GetSalesAnalyticsTicketSnapshotsQuery;
 import com.tchalanet.server.core.sales.api.model.status.TicketSaleStatus;
 import com.tchalanet.server.core.sales.api.model.status.TicketSettlementStatus;
+import com.tchalanet.server.core.sales.api.query.GetSalesAnalyticsTicketSnapshotsQuery;
 import com.tchalanet.server.core.sales.internal.infra.persistence.entity.TicketJpaEntity;
 import com.tchalanet.server.core.sales.internal.infra.persistence.repository.TicketChargeJpaRepository;
 import com.tchalanet.server.core.sales.internal.infra.persistence.repository.TicketJpaRepository;

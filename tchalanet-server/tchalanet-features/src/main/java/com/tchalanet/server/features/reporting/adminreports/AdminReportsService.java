@@ -110,7 +110,9 @@ public class AdminReportsService {
     }
 
     String reasonCode =
-        trust == null || trust.reasonCode() == null ? "analytics.trust.unknown" : trust.reasonCode();
+        trust == null || trust.reasonCode() == null
+            ? "analytics.trust.unknown"
+            : trust.reasonCode();
 
     ApiResponseNotices.degradation(
         ReportingErrorCodes.ANALYTICS_UNAVAILABLE.code(),

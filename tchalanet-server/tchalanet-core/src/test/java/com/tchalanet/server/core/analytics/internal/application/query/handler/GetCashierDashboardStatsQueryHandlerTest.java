@@ -39,9 +39,8 @@ class GetCashierDashboardStatsQueryHandlerTest {
                     .sellerCommissionCents(70603L)
                     .netRevenueEstimatedCents(472497L)
                     .build()));
-    when(
-            drawRepository.findByTenantIdAndSellerTerminalIdAndRefDateOrderByScheduledAtAsc(
-                tenantId.value(), sellerTerminalId.value(), refDate))
+    when(drawRepository.findByTenantIdAndSellerTerminalIdAndRefDateOrderByScheduledAtAsc(
+            tenantId.value(), sellerTerminalId.value(), refDate))
         .thenReturn(
             List.of(
                 AnalyticsSellerTerminalDrawEntity.builder()

@@ -2,8 +2,8 @@ package com.tchalanet.server.platform.contactrequest.internal.web;
 
 import com.tchalanet.server.common.web.api.ApiNotice;
 import com.tchalanet.server.common.web.api.ApiResponse;
-import com.tchalanet.server.common.web.api.NoticeSource;
 import com.tchalanet.server.common.web.api.NoticeSeverity;
+import com.tchalanet.server.common.web.api.NoticeSource;
 import com.tchalanet.server.platform.contactrequest.api.model.ContactRequestSubmittedView;
 import com.tchalanet.server.platform.contactrequest.api.model.SubmitContactRequestCommand;
 import com.tchalanet.server.platform.contactrequest.internal.service.ContactRequestSubmissionService;

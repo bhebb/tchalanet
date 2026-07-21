@@ -27,7 +27,8 @@ import org.junit.jupiter.api.Test;
 
 class SellerTerminalAdminControllerTest {
 
-  private static final TenantId TENANT_ID = TenantId.of(UUID.fromString("10000000-0000-0000-0000-000000000001"));
+  private static final TenantId TENANT_ID =
+      TenantId.of(UUID.fromString("10000000-0000-0000-0000-000000000001"));
 
   @Test
   void summary_uses_tenant_analytics_for_today() {

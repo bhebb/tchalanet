@@ -169,21 +169,16 @@ public class ArchiveRunExecutor {
     OutputStream out = storage.openWrite(uri);
     JsonlGzWriter writer = new JsonlGzWriter(out, jsonUtils);
     ArchiveExportResult providerResult;
-    boolean exportSucceeded = false;
 
-    try {
+    // try-with-resources on pre-declared refs: a close failure after a failed
+    // export rides along as a suppressed exception instead of masking it.
+    try (out;
+        writer) {
       ArchiveExportRequest exportReq =
           new ArchiveExportRequest(runId, provider.key(), period, tenantId, 0, writer::write);
       providerResult = provider.export(exportReq);
-      exportSucceeded = true;
-    } finally {
-      try {
-        writer.close();
-      } catch (IOException e) {
-        if (exportSucceeded) {
-          throw new UncheckedIOException("Failed to close archive writer for " + uri, e);
-        }
-      }
+    } catch (IOException e) {
+      throw new UncheckedIOException("Failed to close archive writer for " + uri, e);
     }
 
     return new StoredArchiveObject(

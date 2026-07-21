@@ -29,7 +29,17 @@ public record ApiNotice(
       NoticeSeverity severity,
       NoticeKind kind,
       Map<String, Object> meta) {
-    this(code, message, domain, severity, kind, null, targetFrom(meta), Map.of(), traceFrom(meta), meta);
+    this(
+        code,
+        message,
+        domain,
+        severity,
+        kind,
+        null,
+        targetFrom(meta),
+        Map.of(),
+        traceFrom(meta),
+        meta);
   }
 
   /** Compatibility constructor for message-first producers not yet migrated. */
@@ -62,11 +72,7 @@ public record ApiNotice(
    * {@code message} remains {@code null} for new producers.
    */
   public static ApiNotice information(
-      String code,
-      String domain,
-      NoticeSource source,
-      String target,
-      Map<String, Object> params) {
+      String code, String domain, NoticeSource source, String target, Map<String, Object> params) {
     var safeParams = params == null ? Map.<String, Object>of() : Map.copyOf(params);
     return new ApiNotice(
         code,

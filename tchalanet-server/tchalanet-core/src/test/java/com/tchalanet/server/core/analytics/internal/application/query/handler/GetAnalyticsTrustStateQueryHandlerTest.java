@@ -87,9 +87,8 @@ class GetAnalyticsTrustStateQueryHandlerTest {
     var tenantId = TenantId.of(UUID.randomUUID());
     var sellerTerminalId = SellerTerminalId.of(UUID.randomUUID());
     var refDate = LocalDate.of(2026, 7, 17);
-    when(
-            dailyRepository.findSellerTerminalRows(
-                tenantId.value(), sellerTerminalId.value(), refDate, refDate))
+    when(dailyRepository.findSellerTerminalRows(
+            tenantId.value(), sellerTerminalId.value(), refDate, refDate))
         .thenReturn(List.of(daily(refDate)));
 
     var result =
@@ -106,16 +105,15 @@ class GetAnalyticsTrustStateQueryHandlerTest {
     var sellerTerminalId = SellerTerminalId.of(UUID.randomUUID());
     var drawId = DrawId.of(UUID.randomUUID());
     var refDate = LocalDate.of(2026, 7, 17);
-    when(
-            sellerTerminalDrawRepository
-                .findByTenantIdAndSellerTerminalIdAndDrawIdAndRefDate(
-                    tenantId.value(), sellerTerminalId.value(), drawId.value(), refDate))
+    when(sellerTerminalDrawRepository.findByTenantIdAndSellerTerminalIdAndDrawIdAndRefDate(
+            tenantId.value(), sellerTerminalId.value(), drawId.value(), refDate))
         .thenReturn(List.of(sellerTerminalDraw(refDate)));
 
     var result =
         handler.handle(
             new GetAnalyticsTrustStateQuery(
-                AnalyticsTrustScope.sellerTerminalDraw(tenantId, sellerTerminalId, drawId, refDate)));
+                AnalyticsTrustScope.sellerTerminalDraw(
+                    tenantId, sellerTerminalId, drawId, refDate)));
 
     assertThat(result.state()).isEqualTo(AnalyticsTrustState.READY);
   }
@@ -125,9 +123,8 @@ class GetAnalyticsTrustStateQueryHandlerTest {
     var tenantId = TenantId.of(UUID.randomUUID());
     var drawId = DrawId.of(UUID.randomUUID());
     var refDate = LocalDate.of(2026, 7, 17);
-    when(
-            drawRepository.findByTenantIdAndDrawIdAndRefDateBetweenOrderByRefDate(
-                tenantId.value(), drawId.value(), refDate, refDate))
+    when(drawRepository.findByTenantIdAndDrawIdAndRefDateBetweenOrderByRefDate(
+            tenantId.value(), drawId.value(), refDate, refDate))
         .thenReturn(List.of());
 
     var result =

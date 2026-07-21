@@ -155,8 +155,7 @@ class DrawResultAppliedSalesEventListenerTest {
         };
 
     var listener = new DrawResultAppliedSalesEventListener(commandBus, processedEventPort);
-    var event =
-        correctedEvent();
+    var event = correctedEvent();
 
     listener.onDrawResultCorrected(event);
     listener.onDrawResultCorrected(event);

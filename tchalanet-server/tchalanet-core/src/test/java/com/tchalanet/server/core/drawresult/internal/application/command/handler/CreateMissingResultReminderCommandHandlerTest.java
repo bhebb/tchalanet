@@ -7,16 +7,16 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.tchalanet.server.catalog.drawchannel.api.model.DrawSource;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotView;
-import com.tchalanet.server.catalog.drawchannel.api.model.DrawSource;
 import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.common.types.id.DrawResultId;
 import com.tchalanet.server.common.types.id.ResultSlotId;
 import com.tchalanet.server.core.drawresult.api.command.CreateMissingResultReminderCommand;
-import com.tchalanet.server.core.drawresult.api.model.ResultReminderReason;
 import com.tchalanet.server.core.drawresult.api.model.DrawResultStatus;
 import com.tchalanet.server.core.drawresult.api.model.ResultQuality;
+import com.tchalanet.server.core.drawresult.api.model.ResultReminderReason;
 import com.tchalanet.server.core.drawresult.api.query.view.DrawResultView;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultReaderPort;
 import com.tchalanet.server.core.drawresult.internal.application.service.ResultReminderExpirationPolicy;

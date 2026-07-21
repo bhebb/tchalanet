@@ -233,6 +233,7 @@ public class SettingsAdminService implements SettingsAdminCatalog {
    */
   @Transactional
   @CacheEvict(cacheNames = SettingsCacheNames.RESOLVED_SETTINGS, allEntries = true)
+  @Override
   public void delete(SettingId id) {
     log.info("Deleting setting ID: {}", id);
 

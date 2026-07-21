@@ -22,8 +22,6 @@ import com.tchalanet.server.features.pos.home.model.PosNotification;
 import com.tchalanet.server.features.pos.home.model.PosReadinessBlocker;
 import com.tchalanet.server.features.pos.home.model.PosReadinessResponse;
 import com.tchalanet.server.platform.identity.api.model.surface.ClientSurface;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -167,10 +165,5 @@ public class PosHomeService {
     }
     long minutes = Duration.between(Instant.now(), cutoffAt).toMinutes();
     return minutes > 0 ? "Clôture dans " + minutes + " min" : "Clôture imminente";
-  }
-
-  private String money(long cents, TchRequestContext ctx) {
-    String currency = ctx.tenantCurrency() != null ? ctx.tenantCurrency().getCurrencyCode() : "HTG";
-    return BigDecimal.valueOf(cents, 2).setScale(2, RoundingMode.HALF_UP) + " " + currency;
   }
 }

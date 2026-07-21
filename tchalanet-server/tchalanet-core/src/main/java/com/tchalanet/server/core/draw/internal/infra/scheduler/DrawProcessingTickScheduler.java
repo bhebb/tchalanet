@@ -19,8 +19,8 @@ import com.tchalanet.server.core.draw.internal.application.service.ResultedDrawP
 import com.tchalanet.server.core.draw.internal.infra.config.DrawProperties;
 import com.tchalanet.server.core.drawresult.api.command.CreateMissingResultReminderCommand;
 import com.tchalanet.server.core.drawresult.api.model.DrawResultStatus;
-import com.tchalanet.server.core.drawresult.api.query.view.DrawResultView;
 import com.tchalanet.server.core.drawresult.api.model.ResultReminderReason;
+import com.tchalanet.server.core.drawresult.api.query.view.DrawResultView;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultReaderPort;
 import com.tchalanet.server.core.drawresult.internal.application.service.ResultSlotSourceClassification;
 import com.tchalanet.server.core.drawresult.internal.application.service.ResultSlotSourceClassifier;
@@ -520,8 +520,7 @@ public class DrawProcessingTickScheduler {
       for (LocalDate drawDate : List.of(today, today.minusDays(1))) {
         var slotDate = new SlotDate(slot, drawDate);
         var occurredAt = occurredAt(slotDate);
-        var result =
-            drawResultReader.findViewBySlotKeyAndOccurredAt(slot.slotKey(), occurredAt);
+        var result = drawResultReader.findViewBySlotKeyAndOccurredAt(slot.slotKey(), occurredAt);
         var reason = reminderReason(classification, result.orElse(null), occurredAt, now, config);
 
         if (reason == null) {

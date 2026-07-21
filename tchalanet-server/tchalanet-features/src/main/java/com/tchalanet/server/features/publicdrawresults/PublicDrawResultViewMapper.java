@@ -142,15 +142,16 @@ public class PublicDrawResultViewMapper {
   }
 
   /**
-   * Preserves the named Haiti lot positions for clients that need to distinguish an absent lot
-   * from a compact result list. All four expected positions are present; incomplete provider
-   * results therefore retain explicit {@code null} values.
+   * Preserves the named Haiti lot positions for clients that need to distinguish an absent lot from
+   * a compact result list. All four expected positions are present; incomplete provider results
+   * therefore retain explicit {@code null} values.
    */
   private Map<String, String> extractLots(JsonNode haiti) {
     var lots = new java.util.LinkedHashMap<String, String>(4);
     for (var lot : List.of("LOT1", "LOT2", "LOT3", "LOT4")) {
       var node = haiti == null || haiti.isNull() ? null : haiti.get(lot.toLowerCase());
-      lots.put(lot, node == null || node.isNull() || node.asText().isBlank() ? null : node.asText());
+      lots.put(
+          lot, node == null || node.isNull() || node.asText().isBlank() ? null : node.asText());
     }
     return Collections.unmodifiableMap(lots);
   }

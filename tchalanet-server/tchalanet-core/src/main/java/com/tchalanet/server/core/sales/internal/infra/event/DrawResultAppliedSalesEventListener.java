@@ -42,14 +42,14 @@ public class DrawResultAppliedSalesEventListener {
 
     var outcome =
         commandBus.execute(
-        new com.tchalanet.server.core.sales.api.command.result.RecordDrawTicketsResultCommand(
-            event.tenantId(),
-            event.drawId(),
-            event.drawResultId(),
-            event.drawDate(),
-            event.resultSlotId(),
-            event.drawChannelId(),
-            250));
+            new com.tchalanet.server.core.sales.api.command.result.RecordDrawTicketsResultCommand(
+                event.tenantId(),
+                event.drawId(),
+                event.drawResultId(),
+                event.drawDate(),
+                event.resultSlotId(),
+                event.drawChannelId(),
+                250));
 
     if (!outcome.complete()) {
       log.warn(

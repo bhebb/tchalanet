@@ -48,17 +48,22 @@ class OpsSalesSimulationServiceTest {
   void rejectsAnEmptyTicketMixWithTheDeclaredStableCode() {
     var exception =
         org.assertj.core.api.Assertions.catchThrowableOfType(
-            () -> service.simulate(request(new OpsSalesSimulationRequest.TicketMix(0, 0, 0, 0, 0), true, 1, null)),
+            () ->
+                service.simulate(
+                    request(new OpsSalesSimulationRequest.TicketMix(0, 0, 0, 0, 0), true, 1, null)),
             ProblemRestException.class);
 
-    assertThat(exception.getProblem().getProperties()).containsEntry("code", "ops.sales_simulation.empty_mix");
+    assertThat(exception.getProblem().getProperties())
+        .containsEntry("code", "ops.sales_simulation.empty_mix");
   }
 
   @Test
   void rejectsExcessiveVolumeWithOnlyDeclaredPublicParameters() {
     var exception =
         org.assertj.core.api.Assertions.catchThrowableOfType(
-            () -> service.simulate(request(new OpsSalesSimulationRequest.TicketMix(2, 0, 0, 0, 0), true, 1, null)),
+            () ->
+                service.simulate(
+                    request(new OpsSalesSimulationRequest.TicketMix(2, 0, 0, 0, 0), true, 1, null)),
             ProblemRestException.class);
 
     assertThat(exception.getProblem().getProperties())
@@ -70,7 +75,10 @@ class OpsSalesSimulationServiceTest {
   void requiresAnAuditReasonBeforeExecutingSales() {
     var exception =
         org.assertj.core.api.Assertions.catchThrowableOfType(
-            () -> service.simulate(request(new OpsSalesSimulationRequest.TicketMix(1, 0, 0, 0, 0), false, 2, "  ")),
+            () ->
+                service.simulate(
+                    request(
+                        new OpsSalesSimulationRequest.TicketMix(1, 0, 0, 0, 0), false, 2, "  ")),
             ProblemRestException.class);
 
     assertThat(exception.getProblem().getProperties())

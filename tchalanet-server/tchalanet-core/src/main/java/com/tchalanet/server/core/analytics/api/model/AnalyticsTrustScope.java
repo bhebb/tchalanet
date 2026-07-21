@@ -54,13 +54,11 @@ public record AnalyticsTrustScope(
   }
 
   public static AnalyticsTrustScope platform(LocalDate from, LocalDate to) {
-    return new AnalyticsTrustScope(
-        AnalyticsTrustScopeType.PLATFORM, null, null, null, from, to);
+    return new AnalyticsTrustScope(AnalyticsTrustScopeType.PLATFORM, null, null, null, from, to);
   }
 
   public static AnalyticsTrustScope tenant(TenantId tenantId, LocalDate from, LocalDate to) {
-    return new AnalyticsTrustScope(
-        AnalyticsTrustScopeType.TENANT, tenantId, null, null, from, to);
+    return new AnalyticsTrustScope(AnalyticsTrustScopeType.TENANT, tenantId, null, null, from, to);
   }
 
   public static AnalyticsTrustScope sellerTerminal(

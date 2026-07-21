@@ -67,6 +67,7 @@ public record BffSlicePolicy<T>(
     if (target == null || target.isBlank()) {
       throw new IllegalArgumentException("target is required");
     }
-    return new BffSlicePolicy<>(code, domain, source, severity, serviceStatus, target, safeParams, fallback);
+    return new BffSlicePolicy<>(
+        code, domain, source, severity, serviceStatus, target, safeParams, fallback);
   }
 }

@@ -102,8 +102,7 @@ public class BatchLifecycleCommunicationListener {
         new StringBuilder()
             .append("*Job:* ")
             .append(event.jobKey())
-            .append('\n')
-            .append("*Status:* ")
+            .append("\n*Status:* ")
             .append(event.status())
             .append('\n');
 

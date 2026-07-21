@@ -41,15 +41,14 @@ class AdminReportsServiceTest {
             100,
             List.of(),
             List.of());
-    AnalyticsTrustScope scope =
-        AnalyticsTrustScope.tenant(tenantId, request.from(), request.to());
+    AnalyticsTrustScope scope = AnalyticsTrustScope.tenant(tenantId, request.from(), request.to());
     QueryBus queryBus = mock(QueryBus.class);
     when(queryBus.ask(any(GetAnalyticsTrustStateQuery.class)))
         .thenReturn(
-            AnalyticsTrustStateView.unavailable(
-                scope, List.of(request.from()), Instant.now()));
+            AnalyticsTrustStateView.unavailable(scope, List.of(request.from()), Instant.now()));
 
-    AdminReportResponses.Overview response = new AdminReportsService(queryBus).overview(tenantId, request);
+    AdminReportResponses.Overview response =
+        new AdminReportsService(queryBus).overview(tenantId, request);
 
     assertThat(response.analytics().available()).isFalse();
     assertThat(response.analytics().trustState()).isEqualTo("UNAVAILABLE");
