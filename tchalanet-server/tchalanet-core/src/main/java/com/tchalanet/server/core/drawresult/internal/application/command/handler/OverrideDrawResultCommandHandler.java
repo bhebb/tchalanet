@@ -6,13 +6,14 @@ import com.tchalanet.server.catalog.resultslot.api.ResultSlotView;
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.event.DomainEventPublisher;
 import com.tchalanet.server.common.json.utils.JsonUtils;
+import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.time.OccurredAtResolver;
 import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.web.error.ProblemRest;
-import com.tchalanet.server.core.draw.api.event.DrawResultAppliedEvent;
+import com.tchalanet.server.core.draw.api.event.DrawResultCorrectedEvent;
 import com.tchalanet.server.core.draw.api.model.DrawStatus;
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawLifecyclePort;
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawLookupPort;
@@ -60,6 +61,7 @@ public class OverrideDrawResultCommandHandler
   private final HaitiLotteryPort haitiPort;
 
   @Override
+  @TchTx
   public OverrideDrawResultResult handle(OverrideDrawResultCommand command) {
     String slotKey = normalizeSlotKey(command.slotKey());
 
@@ -167,6 +169,7 @@ public class OverrideDrawResultCommandHandler
 
       var now = clock.instant();
       var draw = drawLookup.findById(summary.drawId()).orElseThrow();
+      var previousDrawResultId = draw.drawResultId();
 
       // Draws linked to an existing result are already RESULTED. Replacing their
       // result is overrideResult (RESULTED→RESULTED in place); applyResult is
@@ -175,15 +178,17 @@ public class OverrideDrawResultCommandHandler
       drawWriter.save(draw);
 
       var event =
-          new DrawResultAppliedEvent(
+          new DrawResultCorrectedEvent(
               EventId.of(idGenerator.newUuid()),
               now,
               draw.tenantId(),
               draw.id(),
               draw.drawDate(),
               slot.id(),
+              previousDrawResultId,
               res.id(),
-              draw.drawChannelId());
+              draw.drawChannelId(),
+              reason);
 
       AfterCommit.run(() -> publisher.publish(event));
     }

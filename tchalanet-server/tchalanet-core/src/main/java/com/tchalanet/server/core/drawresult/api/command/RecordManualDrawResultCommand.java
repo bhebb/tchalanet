@@ -15,7 +15,7 @@ public record RecordManualDrawResultCommand(
     String pick4,
     boolean force, // allows overwriting CONFIRMED/OVERRIDDEN
     String reason, // required when force=true
-    boolean observeTrustPolicy // when true, status is driven by source_cfg.trust_policy
+    boolean observeTrustPolicy // when true, tenant proposal stays PROVISIONAL until platform review
     ) implements Command<RecordManualDrawResultResult> {
 
   @AssertTrue(message = "reason is required when force is true")

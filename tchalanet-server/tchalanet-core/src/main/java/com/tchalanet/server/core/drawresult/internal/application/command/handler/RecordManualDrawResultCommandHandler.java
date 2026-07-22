@@ -22,7 +22,6 @@ import com.tchalanet.server.core.drawresult.api.model.ResultQuality;
 import com.tchalanet.server.core.drawresult.api.model.ResultSource;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultWriterPort;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.external.ExternalSourceFlags;
-import com.tchalanet.server.core.drawresult.internal.application.service.ResultSlotSourceConfig;
 import com.tchalanet.server.core.haiti.api.HaitiProjectionOutput;
 import com.tchalanet.server.core.haiti.internal.application.port.out.HaitiLotteryPort;
 import com.tchalanet.server.core.haiti.internal.application.port.out.HaitiProjectionConfigPort;
@@ -58,7 +57,7 @@ public class RecordManualDrawResultCommandHandler
     var flags = buildFlags(command);
     var haitiResult = projectHaiti(command, slot);
 
-    var status = command.observeTrustPolicy() ? resolveStatus(slot) : DrawResultStatus.CONFIRMED;
+    var status = command.observeTrustPolicy() ? DrawResultStatus.PROVISIONAL : DrawResultStatus.CONFIRMED;
 
     var res =
         writer.upsert(
@@ -171,10 +170,4 @@ public class RecordManualDrawResultCommandHandler
     return value == null ? "" : value.trim();
   }
 
-  private static DrawResultStatus resolveStatus(ResultSlotView slot) {
-    return ResultSlotSourceConfig.TrustPolicy.from(slot.sourceCfg())
-            == ResultSlotSourceConfig.TrustPolicy.REQUIRE_PLATFORM_REVIEW
-        ? DrawResultStatus.PROVISIONAL
-        : DrawResultStatus.CONFIRMED;
-  }
 }

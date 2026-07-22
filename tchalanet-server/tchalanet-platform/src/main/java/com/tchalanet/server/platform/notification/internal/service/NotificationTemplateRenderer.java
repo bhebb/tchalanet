@@ -65,8 +65,17 @@ public class NotificationTemplateRenderer {
       return variables;
     }
 
-    payload.properties().forEach(entry -> variables.put(entry.getKey(), entry.getValue().asText()));
+    payload
+        .properties()
+        .forEach(entry -> variables.put(entry.getKey(), variableValue(entry.getValue())));
     return variables;
+  }
+
+  private static String variableValue(JsonNode value) {
+    if (value == null || value.isNull()) {
+      return "";
+    }
+    return value.isObject() || value.isArray() ? value.toString() : value.asText();
   }
 
   private String translationFromOverrides(

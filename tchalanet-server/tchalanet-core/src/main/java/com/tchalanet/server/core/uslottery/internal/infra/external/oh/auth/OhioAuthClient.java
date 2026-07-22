@@ -66,7 +66,27 @@ public class OhioAuthClient {
   }
 
   @JsonIgnoreProperties(ignoreUnknown = true)
-  private record OhioLoginResponse(
+  record OhioLoginResponse(
+      @JsonProperty("token") String token,
+      @JsonProperty("accessToken") String accessToken,
+      @JsonProperty("bearerToken") String bearerToken,
+      @JsonProperty("data") OhioLoginData data) {
+    public String token() {
+      if (StringUtils.isNotBlank(token)) {
+        return token;
+      }
+      if (StringUtils.isNotBlank(accessToken)) {
+        return accessToken;
+      }
+      if (StringUtils.isNotBlank(bearerToken)) {
+        return bearerToken;
+      }
+      return data == null ? null : data.token();
+    }
+  }
+
+  @JsonIgnoreProperties(ignoreUnknown = true)
+  record OhioLoginData(
       @JsonProperty("token") String token,
       @JsonProperty("accessToken") String accessToken,
       @JsonProperty("bearerToken") String bearerToken) {

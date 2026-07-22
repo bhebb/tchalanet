@@ -106,6 +106,7 @@ public class DrawResultWriterJpaAdapter implements DrawResultWriterPort {
   }
 
   @Override
+  @TchTx
   public void confirmProvisional(DrawResultId drawResultId, Instant confirmedAt) {
     var entity =
         drawResultJpaRepository.findByIdAndDeletedAtIsNull(drawResultId.value()).orElse(null);
@@ -122,6 +123,7 @@ public class DrawResultWriterJpaAdapter implements DrawResultWriterPort {
   }
 
   @Override
+  @TchTx
   public void markAsOverridden(DrawResultId drawResultId, String reason, Instant overriddenAt) {
     var entity =
         drawResultJpaRepository.findByIdAndDeletedAtIsNull(drawResultId.value()).orElse(null);

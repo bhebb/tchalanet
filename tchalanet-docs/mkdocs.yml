@@ -65,6 +65,7 @@ nav:
       - Verify ticket: 02-functional/flows/verify-ticket.md
       - Settlement: 02-functional/flows/settlement.md
       - Draw execution: 02-functional/flows/draw-execution.md
+      - Validation résultats providers: 02-functional/flows/draw-result-provider-validation.md
       - Session opening: 02-functional/flows/session-opening.md
       - Seller onboarding: 02-functional/flows/seller-onboarding.md
       - Tenant onboarding: 02-functional/flows/tenant-onboarding.md

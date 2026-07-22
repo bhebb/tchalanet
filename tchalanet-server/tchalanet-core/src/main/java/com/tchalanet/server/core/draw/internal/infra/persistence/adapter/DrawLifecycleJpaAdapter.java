@@ -185,7 +185,7 @@ public class DrawLifecycleJpaAdapter implements DrawLifecyclePort {
     var entity = existing.get();
     assertImmutableFields(entity, draw);
     mapper.applyToEntity(draw, entity);
-    return mapper.toDomain(entity);
+    return mapper.toDomain(repo.saveAndFlush(entity));
   }
 
   @Override
