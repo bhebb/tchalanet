@@ -46,6 +46,7 @@ class PosProfileSellerInfo {
     this.displayName,
     this.email,
     this.phoneNumber,
+    this.addressId,
   });
 
   final String? firstName;
@@ -53,6 +54,7 @@ class PosProfileSellerInfo {
   final String? displayName;
   final String? email;
   final String? phoneNumber;
+  final String? addressId;
 
   factory PosProfileSellerInfo.fromJson(Map<String, dynamic> json) =>
       PosProfileSellerInfo(
@@ -61,6 +63,7 @@ class PosProfileSellerInfo {
         displayName: json['displayName'] as String?,
         email: json['email'] as String?,
         phoneNumber: json['phoneNumber'] as String?,
+        addressId: idValue(json['addressId']),
       );
 }
 

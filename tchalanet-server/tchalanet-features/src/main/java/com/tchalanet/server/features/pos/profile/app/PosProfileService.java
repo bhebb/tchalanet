@@ -1,7 +1,11 @@
 package com.tchalanet.server.features.pos.profile.app;
 
+import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.core.sellerterminal.api.command.UpdateSellerTerminalCommercialCommand;
+import com.tchalanet.server.core.sellerterminal.api.command.UpdateSellerTerminalContactCommand;
+import com.tchalanet.server.core.sellerterminal.api.command.UpdateSellerTerminalLabelCommand;
 import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalStatus;
 import com.tchalanet.server.core.sellerterminal.api.query.GetSellerTerminalQuery;
 import com.tchalanet.server.features.pos.profile.model.PosProfileCommercialInfo;
@@ -9,6 +13,9 @@ import com.tchalanet.server.features.pos.profile.model.PosProfileResponse;
 import com.tchalanet.server.features.pos.profile.model.PosProfileSellerInfo;
 import com.tchalanet.server.features.pos.profile.model.PosProfileSettingsInfo;
 import com.tchalanet.server.features.pos.profile.model.PosProfileTerminalInfo;
+import com.tchalanet.server.features.pos.profile.model.UpdatePosProfileCommercialRequest;
+import com.tchalanet.server.features.pos.profile.model.UpdatePosProfileSellerRequest;
+import com.tchalanet.server.features.pos.profile.model.UpdatePosProfileTerminalRequest;
 import java.util.Currency;
 import java.util.List;
 import java.util.Locale;
@@ -22,6 +29,7 @@ public class PosProfileService {
   private static final String VERSION = "profile.v1";
   private static final List<String> SUPPORTED_LOCALES = List.of("ht", "fr", "en");
 
+  private final CommandBus commandBus;
   private final QueryBus queryBus;
 
   public PosProfileResponse profile(TchRequestContext ctx) {
@@ -55,7 +63,8 @@ public class PosProfileService {
             terminal.lastName(),
             sellerDisplayName(terminal.firstName(), terminal.lastName(), displayName),
             terminal.email(),
-            terminal.phoneNumber()),
+            terminal.phoneNumber(),
+            terminal.addressId() == null ? null : terminal.addressId().value().toString()),
         new PosProfileCommercialInfo(
             tenantId.value().toString(),
             ctx.effectiveTenantCode(),
@@ -66,6 +75,43 @@ public class PosProfileService {
             zone == null ? null : zone.getId(),
             currencyCode(currency),
             SUPPORTED_LOCALES));
+  }
+
+  public PosProfileResponse updateTerminal(
+      TchRequestContext ctx, UpdatePosProfileTerminalRequest request) {
+    commandBus.execute(
+        new UpdateSellerTerminalLabelCommand(
+            ctx.tenantIdRequired(),
+            ctx.sellerTerminalIdRequired(),
+            request.displayName(),
+            ctx.userId()));
+    return profile(ctx);
+  }
+
+  public PosProfileResponse updateSeller(
+      TchRequestContext ctx, UpdatePosProfileSellerRequest request) {
+    commandBus.execute(
+        new UpdateSellerTerminalContactCommand(
+            ctx.tenantIdRequired(),
+            ctx.sellerTerminalIdRequired(),
+            request.firstName(),
+            request.lastName(),
+            request.email(),
+            request.phoneNumber(),
+            request.addressId(),
+            ctx.userId()));
+    return profile(ctx);
+  }
+
+  public PosProfileResponse updateCommercial(
+      TchRequestContext ctx, UpdatePosProfileCommercialRequest request) {
+    commandBus.execute(
+        new UpdateSellerTerminalCommercialCommand(
+            ctx.tenantIdRequired(),
+            ctx.sellerTerminalIdRequired(),
+            request.commissionRate(),
+            ctx.userId()));
+    return profile(ctx);
   }
 
   private static String sellerDisplayName(String firstName, String lastName, String fallback) {

@@ -24,6 +24,54 @@ class PosProfileService {
       throw mapDioException(e);
     }
   }
+
+  Future<PosProfileResponse> updateTerminal({
+    required String displayName,
+  }) async {
+    return _patchProfile('/tenant/cashier/profile/terminal', {
+      'displayName': displayName,
+    });
+  }
+
+  Future<PosProfileResponse> updateSeller({
+    String? firstName,
+    String? lastName,
+    String? email,
+    String? phoneNumber,
+    String? addressId,
+  }) async {
+    return _patchProfile('/tenant/cashier/profile/seller', {
+      'firstName': firstName,
+      'lastName': lastName,
+      'email': email,
+      'phoneNumber': phoneNumber,
+      'addressId': addressId,
+    });
+  }
+
+  Future<PosProfileResponse> updateCommercial({
+    required num commissionRate,
+  }) async {
+    return _patchProfile('/tenant/cashier/profile/commercial', {
+      'commissionRate': commissionRate,
+    });
+  }
+
+  Future<PosProfileResponse> _patchProfile(
+    String path,
+    Map<String, dynamic> body,
+  ) async {
+    try {
+      final response = await _dio.patch<Map<String, dynamic>>(path, data: body);
+      final data = response.data?['data'] as Map<String, dynamic>?;
+      if (data == null) {
+        throw const FormatException('empty POS profile payload');
+      }
+      return PosProfileResponse.fromJson(data);
+    } on DioException catch (e) {
+      throw mapDioException(e);
+    }
+  }
 }
 
 final posProfileServiceProvider = Provider<PosProfileService>(

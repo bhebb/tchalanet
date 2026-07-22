@@ -271,6 +271,53 @@ public record SellerTerminal(
         pinResetAt);
   }
 
+  public SellerTerminal updateTerminalLabel(String displayName) {
+    return new SellerTerminal(
+        id,
+        tenantId,
+        terminalCode,
+        firstName,
+        lastName,
+        displayName,
+        email,
+        phoneNumber,
+        addressId,
+        status,
+        commissionRate,
+        lastSeenAt,
+        activatedAt,
+        blockedAt,
+        blockedBy,
+        blockedReason,
+        disabledAt,
+        mustChangePin,
+        pinResetAt);
+  }
+
+  public SellerTerminal updateContact(
+      String firstName, String lastName, String email, String phoneNumber, AddressId addressId) {
+    return new SellerTerminal(
+        id,
+        tenantId,
+        terminalCode,
+        firstName,
+        lastName,
+        displayName,
+        email,
+        phoneNumber,
+        addressId,
+        status,
+        commissionRate,
+        lastSeenAt,
+        activatedAt,
+        blockedAt,
+        blockedBy,
+        blockedReason,
+        disabledAt,
+        mustChangePin,
+        pinResetAt);
+  }
+
   public SellerTerminal updateCommissionRate(BigDecimal rate) {
     validateCommissionRate(rate);
     return new SellerTerminal(
