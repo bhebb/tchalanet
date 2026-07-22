@@ -102,6 +102,26 @@ class OhioDrawResultsMapperTest {
   }
 
   @Test
+  @DisplayName("does not derive PICK3 from a PICK4-shaped payload")
+  void pick4PayloadDoesNotBecomePick3() {
+    var body =
+        """
+            {"statusCode":200,"data":{"draws":[
+              {"id":68969,"drawDate":"2026-07-21T00:00:00","modifier":2,"approved":true,
+               "numbers":[
+                 {"value":3,"position":1},{"value":4,"position":2},
+                 {"value":3,"position":3},{"value":0,"position":4}
+               ]}
+            ]}}""";
+
+    var res =
+        mapper.map(
+            body, OhGame.PICK3, "hash", "http://oh", query("EVENING", LocalDate.of(2026, 7, 21)));
+
+    assertThat(res.results()).isEmpty();
+  }
+
+  @Test
   @DisplayName("wrong slot: only MIDDAY draw present, EVENING query returns empty")
   void wrongSlot() {
     var midOnly =

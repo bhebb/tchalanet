@@ -113,8 +113,17 @@ public class OhioDrawResultsMapper {
       return null;
     }
 
-    var quality =
-        main.size() == game.expectedSize() ? ResultQuality.COMPLETE : ResultQuality.SUSPECT;
+    if (main.size() != game.expectedSize()) {
+      log.warn(
+          "oh-client skipped draw with unexpected number count game={} expected={} actual={} drawDate={}",
+          game.outputCode(),
+          game.expectedSize(),
+          main.size(),
+          query.drawDate());
+      return null;
+    }
+
+    var quality = ResultQuality.COMPLETE;
 
     var metadata = new LinkedHashMap<String, String>();
     metadata.put("provider", PROVIDER.name());
@@ -224,9 +233,7 @@ public class OhioDrawResultsMapper {
       }
       var nums = extractNumbersSorted(node);
       if (!nums.isEmpty()) {
-        return nums.size() > expectedSize && expectedSize > 0
-            ? nums.subList(0, expectedSize)
-            : nums;
+        return nums;
       }
     }
     return List.of();
