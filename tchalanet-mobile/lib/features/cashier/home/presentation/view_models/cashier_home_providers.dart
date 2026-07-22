@@ -29,6 +29,33 @@ final posProfileProvider = FutureProvider<PosProfileResponse>((ref) async {
   return ref.watch(posProfileServiceProvider).fetchProfile();
 });
 
+final posProfileSettingsUpdaterProvider = Provider<PosProfileSettingsUpdater>(
+  PosProfileSettingsUpdater.new,
+);
+
+class PosProfileSettingsUpdater {
+  const PosProfileSettingsUpdater(this._ref);
+
+  final Ref _ref;
+
+  Future<void> update({
+    bool? receiptAutoPrint,
+    int? receiptCopyCount,
+    bool? notificationsEnabled,
+    bool? notificationsCriticalOnly,
+  }) async {
+    await _ref
+        .read(posProfileServiceProvider)
+        .updateSettings(
+          receiptAutoPrint: receiptAutoPrint,
+          receiptCopyCount: receiptCopyCount,
+          notificationsEnabled: notificationsEnabled,
+          notificationsCriticalOnly: notificationsCriticalOnly,
+        );
+    _ref.invalidate(posProfileProvider);
+  }
+}
+
 /// Today's ticket count + sales total for the authenticated SELLER_TERMINAL.
 final terminalDailyStatsProvider = FutureProvider<TerminalDailyStats>((
   ref,

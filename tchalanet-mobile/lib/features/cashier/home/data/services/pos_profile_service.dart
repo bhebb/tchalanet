@@ -57,6 +57,20 @@ class PosProfileService {
     });
   }
 
+  Future<PosProfileResponse> updateSettings({
+    bool? receiptAutoPrint,
+    int? receiptCopyCount,
+    bool? notificationsEnabled,
+    bool? notificationsCriticalOnly,
+  }) async {
+    return _patchProfile('/tenant/cashier/profile/settings', {
+      'receiptAutoPrint': receiptAutoPrint,
+      'receiptCopyCount': receiptCopyCount,
+      'notificationsEnabled': notificationsEnabled,
+      'notificationsCriticalOnly': notificationsCriticalOnly,
+    });
+  }
+
   Future<PosProfileResponse> _patchProfile(
     String path,
     Map<String, dynamic> body,

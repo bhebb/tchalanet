@@ -92,6 +92,8 @@ class PosProfileCommercialInfo {
 class PosProfileSettingsInfo {
   const PosProfileSettingsInfo({
     required this.supportedLocales,
+    required this.receipt,
+    required this.notifications,
     this.locale,
     this.timezone,
     this.currency,
@@ -101,6 +103,8 @@ class PosProfileSettingsInfo {
   final String? timezone;
   final String? currency;
   final List<String> supportedLocales;
+  final PosProfileReceiptSettings receipt;
+  final PosProfileNotificationSettings notifications;
 
   factory PosProfileSettingsInfo.fromJson(Map<String, dynamic> json) =>
       PosProfileSettingsInfo(
@@ -112,6 +116,44 @@ class PosProfileSettingsInfo {
                 ?.map((e) => e.toString())
                 .toList() ??
             const ['ht', 'fr', 'en'],
+        receipt: PosProfileReceiptSettings.fromJson(
+          (json['receipt'] as Map<String, dynamic>?) ?? const {},
+        ),
+        notifications: PosProfileNotificationSettings.fromJson(
+          (json['notifications'] as Map<String, dynamic>?) ?? const {},
+        ),
+      );
+}
+
+class PosProfileReceiptSettings {
+  const PosProfileReceiptSettings({
+    required this.autoPrint,
+    required this.copyCount,
+  });
+
+  final bool autoPrint;
+  final int copyCount;
+
+  factory PosProfileReceiptSettings.fromJson(Map<String, dynamic> json) =>
+      PosProfileReceiptSettings(
+        autoPrint: json['autoPrint'] as bool? ?? true,
+        copyCount: (json['copyCount'] as num?)?.toInt() ?? 1,
+      );
+}
+
+class PosProfileNotificationSettings {
+  const PosProfileNotificationSettings({
+    required this.enabled,
+    required this.criticalOnly,
+  });
+
+  final bool enabled;
+  final bool criticalOnly;
+
+  factory PosProfileNotificationSettings.fromJson(Map<String, dynamic> json) =>
+      PosProfileNotificationSettings(
+        enabled: json['enabled'] as bool? ?? true,
+        criticalOnly: json['criticalOnly'] as bool? ?? false,
       );
 }
 

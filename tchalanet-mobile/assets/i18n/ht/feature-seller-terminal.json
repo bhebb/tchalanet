@@ -225,7 +225,15 @@
       "language": "Lang",
       "timezone": "Zòn lè",
       "version": "Vèsyon kontra",
-      "security": "Sekirite"
+      "security": "Sekirite",
+      "receipt": "Resi",
+      "auto_print": "Enprime otomatikman",
+      "copy_count": "Kantite kopi",
+      "notifications": "Notifikasyon",
+      "notifications_enabled": "Notifikasyon aktive",
+      "critical_only": "Sèlman kritik",
+      "manual_print": "Enpresyon manyèl",
+      "auto_printing": "Enpresyon otomatik"
     },
     "session": {
       "card_title": "Sesyon",

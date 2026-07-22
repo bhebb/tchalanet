@@ -2,6 +2,7 @@ package com.tchalanet.server.features.pos.profile.app;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -33,12 +34,16 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 
 class PosProfileServiceTest {
 
   private final CommandBus commandBus = mock(CommandBus.class);
   private final QueryBus queryBus = mock(QueryBus.class);
-  private final PosProfileService service = new PosProfileService(commandBus, queryBus);
+  private final JdbcTemplate jdbc = mock(JdbcTemplate.class);
+  private final PosProfileService service = new PosProfileService(commandBus, queryBus, jdbc);
 
   private final TenantId tenantId = TenantId.of(UUID.randomUUID());
   private final UserId userId = UserId.of(UUID.randomUUID());
@@ -47,6 +52,8 @@ class PosProfileServiceTest {
   @BeforeEach
   void setUp() {
     when(queryBus.ask(any(GetSellerTerminalQuery.class))).thenReturn(sellerTerminal());
+    when(jdbc.queryForObject(anyString(), any(RowMapper.class), any(), any()))
+        .thenThrow(new EmptyResultDataAccessException(1));
   }
 
   @Test
@@ -65,6 +72,9 @@ class PosProfileServiceTest {
     assertThat(response.settings().locale()).isEqualTo("fr-FR");
     assertThat(response.settings().timezone()).isEqualTo("America/Port-au-Prince");
     assertThat(response.settings().supportedLocales()).containsExactly("ht", "fr", "en");
+    assertThat(response.settings().receipt().autoPrint()).isTrue();
+    assertThat(response.settings().receipt().copyCount()).isEqualTo(1);
+    assertThat(response.settings().notifications().enabled()).isTrue();
   }
 
   @Test

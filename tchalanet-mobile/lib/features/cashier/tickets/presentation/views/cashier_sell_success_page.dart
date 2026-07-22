@@ -34,24 +34,32 @@ class CashierSellSuccessPage extends ConsumerStatefulWidget {
 
 class _CashierSellSuccessPageState
     extends ConsumerState<CashierSellSuccessPage> {
+  bool _autoPrintStarted = false;
+
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && widget.autoPrint) {
-        printTicket(context, ref, widget.ticketId);
-      }
-    });
-  }
+  void initState() => super.initState();
 
   @override
   Widget build(BuildContext context) {
     final session = ref.watch(userSessionProvider);
+    final profile = ref.watch(posProfileProvider).asData?.value;
     final translations = ref.watch(i18nBundleProvider);
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
     final displayCode = widget.publicCode ?? widget.ticketCode;
+    final receipt = profile?.settings.receipt;
+    final autoPrint = widget.autoPrint && (receipt?.autoPrint ?? true);
+    final copyCount = receipt?.copyCount ?? 1;
+    if (autoPrint && !_autoPrintStarted) {
+      _autoPrintStarted = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (!mounted) return;
+        for (var i = 0; i < copyCount; i++) {
+          await printTicket(context, ref, widget.ticketId);
+        }
+      });
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -124,7 +132,11 @@ class _CashierSellSuccessPageState
                     ),
                     const SizedBox(height: TchSpacing.s4),
                     Text(
-                      translations.translate('pos.sale_completion.printing'),
+                      translations.translate(
+                        autoPrint
+                            ? 'pos.settings.auto_printing'
+                            : 'pos.settings.manual_print',
+                      ),
                       style: textTheme.bodySmall?.copyWith(
                         color: scheme.onSurfaceVariant,
                       ),
@@ -202,8 +214,11 @@ class _CashierSellSuccessPageState
                           label: translations.translate(
                             'pos.sale_completion.print',
                           ),
-                          onTap: () =>
-                              printTicket(context, ref, widget.ticketId),
+                          onTap: () async {
+                            for (var i = 0; i < copyCount; i++) {
+                              await printTicket(context, ref, widget.ticketId);
+                            }
+                          },
                         ),
                       ],
                     ),

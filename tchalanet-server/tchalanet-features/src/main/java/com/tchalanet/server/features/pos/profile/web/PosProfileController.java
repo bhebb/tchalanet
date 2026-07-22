@@ -7,6 +7,7 @@ import com.tchalanet.server.features.pos.profile.app.PosProfileService;
 import com.tchalanet.server.features.pos.profile.model.PosProfileResponse;
 import com.tchalanet.server.features.pos.profile.model.UpdatePosProfileCommercialRequest;
 import com.tchalanet.server.features.pos.profile.model.UpdatePosProfileSellerRequest;
+import com.tchalanet.server.features.pos.profile.model.UpdatePosProfileSettingsRequest;
 import com.tchalanet.server.features.pos.profile.model.UpdatePosProfileTerminalRequest;
 import com.tchalanet.server.platform.accesscontrol.api.RequiresPermission;
 import com.tchalanet.server.platform.audit.api.AuditLog;
@@ -78,5 +79,18 @@ public class PosProfileController {
       @CurrentContext TchRequestContext ctx,
       @Valid @RequestBody UpdatePosProfileCommercialRequest request) {
     return ApiResponse.success(service.updateCommercial(ctx, request));
+  }
+
+  @PatchMapping("/profile/settings")
+  @Operation(summary = "Update the current POS terminal settings")
+  @AuditLog(
+      entity = AuditEntityType.SELLER_TERMINAL,
+      action = AuditAction.SELLER_TERMINAL_UPDATE,
+      idExpression = "#ctx.sellerTerminalId().value().toString()",
+      detailsExpression = "#request")
+  public ApiResponse<PosProfileResponse> updateSettings(
+      @CurrentContext TchRequestContext ctx,
+      @Valid @RequestBody UpdatePosProfileSettingsRequest request) {
+    return ApiResponse.success(service.updateSettings(ctx, request));
   }
 }

@@ -233,6 +233,67 @@ class _SettingsBody extends ConsumerWidget {
           ],
         ),
         const SizedBox(height: TchSpacing.s24),
+        if (profile != null) ...[
+          _Section(
+            title: translations.translate('pos.settings.receipt'),
+            children: [
+              SwitchListTile(
+                secondary: const Icon(Icons.print_rounded),
+                title: Text(translations.translate('pos.settings.auto_print')),
+                value: settings?.receipt.autoPrint ?? true,
+                onChanged: (value) =>
+                    _updateSettings(ref, receiptAutoPrint: value),
+              ),
+              ListTile(
+                leading: const Icon(Icons.copy_rounded),
+                title: Text(translations.translate('pos.settings.copy_count')),
+                subtitle: Text((settings?.receipt.copyCount ?? 1).toString()),
+                trailing: SegmentedButton<int>(
+                  showSelectedIcon: false,
+                  segments: [
+                    for (final value in const [1, 2, 3])
+                      ButtonSegment(
+                        value: value,
+                        label: Text(value.toString()),
+                      ),
+                  ],
+                  selected: {settings?.receipt.copyCount ?? 1},
+                  onSelectionChanged: (selection) =>
+                      _updateSettings(ref, receiptCopyCount: selection.single),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: TchSpacing.s24),
+          _Section(
+            title: translations.translate('pos.settings.notifications'),
+            children: [
+              SwitchListTile(
+                secondary: const Icon(Icons.notifications_active_rounded),
+                title: Text(
+                  translations.translate('pos.settings.notifications_enabled'),
+                ),
+                value: settings?.notifications.enabled ?? true,
+                onChanged: (value) =>
+                    _updateSettings(ref, notificationsEnabled: value),
+              ),
+              SwitchListTile(
+                secondary: const Icon(Icons.priority_high_rounded),
+                title: Text(
+                  translations.translate('pos.settings.critical_only'),
+                ),
+                value: settings?.notifications.criticalOnly ?? false,
+                onChanged: settings?.notifications.enabled == false
+                    ? null
+                    : (value) => _updateSettings(
+                        ref,
+                        notificationsCriticalOnly: value,
+                      ),
+              ),
+            ],
+          ),
+          const SizedBox(height: TchSpacing.s24),
+        ],
         _Section(
           title: translations.translate('pos.settings.security'),
           children: [
@@ -266,6 +327,23 @@ class _SettingsBody extends ConsumerWidget {
       ],
     );
   }
+}
+
+Future<void> _updateSettings(
+  WidgetRef ref, {
+  bool? receiptAutoPrint,
+  int? receiptCopyCount,
+  bool? notificationsEnabled,
+  bool? notificationsCriticalOnly,
+}) async {
+  await ref
+      .read(posProfileSettingsUpdaterProvider)
+      .update(
+        receiptAutoPrint: receiptAutoPrint,
+        receiptCopyCount: receiptCopyCount,
+        notificationsEnabled: notificationsEnabled,
+        notificationsCriticalOnly: notificationsCriticalOnly,
+      );
 }
 
 Future<void> _confirmLogout(

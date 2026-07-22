@@ -222,7 +222,15 @@
       "language": "Langue",
       "timezone": "Fuseau horaire",
       "version": "Version du contrat",
-      "security": "Sécurité"
+      "security": "Sécurité",
+      "receipt": "Reçu",
+      "auto_print": "Imprimer automatiquement",
+      "copy_count": "Nombre de copies",
+      "notifications": "Notifications",
+      "notifications_enabled": "Notifications activées",
+      "critical_only": "Critiques seulement",
+      "manual_print": "Impression manuelle",
+      "auto_printing": "Impression automatique"
     },
     "session": {
       "card_title": "Session",
