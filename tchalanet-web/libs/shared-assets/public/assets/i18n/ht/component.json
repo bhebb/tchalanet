@@ -54,7 +54,7 @@
       "field": {
         "firstName": "Prenon (opsyonèl)",
         "lastName": "Non (opsyonèl)",
-        "email": "Email (opsyonèl)",
+        "email": "Imèl (opsyonèl)",
         "phoneNumber": "Telefòn (opsyonèl)",
         "displayName": "Non pou afiche",
         "assignedAt": "Atribye le"
@@ -151,12 +151,12 @@
       "manage_limits": "Jere limit",
       "manage_odds": "Jere odds",
       "maryaj_gratis": "Maryaj gratis",
-      "add_seller_terminal": "Ajoute seller-terminal",
-      "active_seller_terminals": "Seller-terminals aktif"
+      "add_seller_terminal": "Ajoute tèminal vandè",
+      "active_seller_terminals": "Tèminal vandè aktif"
     },
     "platform": {
       "create_tenant": "Kreye santral",
-      "onboarding": "Onboarding",
+      "onboarding": "Enskripsyon",
       "subscriptions": "Abònman",
       "platform_health": "Sante platfòm",
       "draw_results": "Rezilta & tiraj"

@@ -48,11 +48,11 @@
   },
   "sellerTerminal": {
     "activation": {
-      "title": "Aktivasyon seller-terminal",
-      "description": "Seller-terminal la dwe chanje PIN tanporè li anvan li ka vann.",
+      "title": "Aktivasyon tèminal vandè",
+      "description": "Tèminal vandè a dwe chanje PIN tanporè li anvan li ka vann.",
       "pin": {
         "title": "PIN temporaire",
-        "pendingBackend": "Chanjman PIN lan ap aktive ak endpoint seller-terminal V0 la."
+        "pendingBackend": "Chanjman PIN lan ap aktive ak pwen API tèminal vandè V0 la."
       }
     }
   }

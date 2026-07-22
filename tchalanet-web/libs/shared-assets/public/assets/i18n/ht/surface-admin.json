@@ -141,7 +141,7 @@
         "approved": "Apwouve",
         "rejected": "Rejte",
         "cancelled": "Anile",
-        "voided": "Invalid",
+        "voided": "Anile",
         "unknown": "Estati enkoni"
       },
       "list": {
@@ -205,7 +205,7 @@
         "topTerminals": {
           "title": "Pi bon terminal vandè jodi a",
           "emptyTitle": "Pa gen terminal aktif",
-          "emptyMessage": "Terminal yo ap parèt isit la apre analytics."
+          "emptyMessage": "Tèminal yo ap parèt isit la apre analiz yo."
         }
       }
     }

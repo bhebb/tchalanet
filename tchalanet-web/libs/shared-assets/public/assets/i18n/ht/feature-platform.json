@@ -5,8 +5,8 @@
       "description": "Fonksyonalite sa a ap disponib nan yon pwochen iterasyon.",
       "message": "Fonksyonalite sa a ap disponib nan yon pwochen iterasyon.",
       "descriptions": {
-        "entitlements": "Jere dwa fonksyonèl ki disponib pou chak tenant.",
-        "providers": "Siveye providers ak konektè tiraj yo.",
+        "entitlements": "Jere dwa fonksyonèl ki disponib pou chak santral.",
+        "providers": "Siveye founisè ak konektè tiraj yo.",
         "opsResources": "Detay resous sèvis kritik ak degrade yo.",
         "archives": "Konsilte ak kontwole achiv platfòm yo.",
         "games": "Referans global jwèt ki disponib sou platfòm nan.",
@@ -14,28 +14,28 @@
         "permissions": "Jere pèmisyon platfòm yo.",
         "roles": "Jere wòl platfòm yo.",
         "overrides": "Jere overrides super admin yo.",
-        "supportTenant": "Sélectionnez un tenant pour accéder à son interface d'administration en mode support.",
-        "communicationTests": "Testez les canaux de communication (email, Slack, notifications).",
-        "identitySync": "Synchronisez les identités Firebase avec la plateforme.",
-        "contactConfig": "Configurez les canaux et messages de contact globaux.",
-        "tchalaSuggestions": "Gérez les suggestions de rêves en attente d'approbation.",
-        "tchalaImport": "Importez des entrées Tchala depuis un fichier.",
-        "tchalaCleanup": "Fusionnez ou supprimez des entrées Tchala en double.",
-        "users": "Gérez les utilisateurs de la plateforme.",
-        "backendKeys": "Clés de signature backend — lecture seule.",
-        "drawChannelGames": "Associez des jeux aux canaux de tirage.",
-        "resultSlotCalendars": "Gérez les calendriers des slots de résultats.",
-        "platformReports": "Rapports agrégés de la plateforme."
+        "supportTenant": "Chwazi yon santral pou antre nan koòdone administrasyon li an mòd sipò.",
+        "communicationTests": "Teste kanal kominikasyon yo (imèl, Slack, notifikasyon).",
+        "identitySync": "Senkronize idantite Firebase yo ak platfòm nan.",
+        "contactConfig": "Konfigire kanal ak mesaj kontak global yo.",
+        "tchalaSuggestions": "Jere sijesyon rèv ki ap tann apwobasyon.",
+        "tchalaImport": "Enpòte antre Tchala depi yon fichye.",
+        "tchalaCleanup": "Fizyone oswa efase antre Tchala ki double.",
+        "users": "Jere itilizatè platfòm yo.",
+        "backendKeys": "Kle siyati sèvè — lekti sèlman.",
+        "drawChannelGames": "Asosye jwèt ak règ tiraj yo.",
+        "resultSlotCalendars": "Jere kalandriye espas rezilta yo.",
+        "platformReports": "Rapò agregasyon platfòm nan."
       }
     },
     "dashboard": {
       "title": "Platfòm",
       "description": "Rezime enfrastrikti Tchalanet",
       "kpi": {
-        "activeTenants": "Tenant aktif",
+        "activeTenants": "Santral aktif",
         "receivedContacts": "Demann kontak",
         "pendingNotifications": "Notifikasyon an atant",
-        "degradedServices": "Sèvis degraded"
+        "degradedServices": "Sèvis degrade"
       },
       "provisioning": {
         "title": "Pwovizyon resan"
@@ -48,7 +48,7 @@
       }
     },
     "superAdmins": {
-      "title": "Super admins",
+      "title": "Super admin",
       "description": "Jere kont ki gen aksè ak espas platfòm nan.",
       "create": {
         "title": "Ajoute yon super admin",
@@ -60,7 +60,7 @@
       },
       "column": {
         "admin": "Admin",
-        "email": "Email",
+        "email": "Imèl",
         "name": "Non",
         "assignedAt": "Atribye le"
       },
@@ -69,26 +69,26 @@
       }
     },
     "tenants": {
-      "title": "Tenant",
-      "description": "Lis, filtre, epi swiv tenant Tchalanet yo.",
-      "loading": "Chajman tenants...",
+      "title": "Santral",
+      "description": "Lis, filtre, epi swiv santral Tchalanet yo.",
+      "loading": "Chajman santral yo...",
       "pagination": "Paj {{page}} / {{total}}",
       "error": {
-        "load": "Pa ka chaje tenants yo.",
-        "suspend": "Erè pandan sispansyon tenant lan.",
-        "reactivate": "Erè pandan reaktivasyon tenant lan.",
-        "archive": "Erè pandan achivaj tenant lan.",
-        "activate": "Erè pandan aktivasyon tenant an."
+        "load": "Pa ka chaje santral yo.",
+        "suspend": "Erè pandan sispansyon santral la.",
+        "reactivate": "Erè pandan reaktivasyon santral la.",
+        "archive": "Erè pandan achivaj santral la.",
+        "activate": "Erè pandan aktivasyon santral la."
       },
       "feedback": {
         "updated": "{{name}} mete ajou."
       },
       "action": {
-        "create": "Kreye tenant",
+        "create": "Kreye santral",
         "applyFilters": "Filtre",
         "resetFilters": "Reyinisyalize",
-        "openMenu": "Ouvri aksyon tenant lan",
-        "viewDetails": "Wè tenant an",
+        "openMenu": "Louvri aksyon santral la",
+        "viewDetails": "Gade santral la",
         "suspend": "Sispann",
         "reactivate": "Reaktive",
         "archive": "Achive",
@@ -103,29 +103,29 @@
         "allProfiles": "Tout pwofil"
       },
       "column": {
-        "tenant": "Tenant",
+        "tenant": "Santral",
         "code": "Kòd",
         "status": "Estati",
         "profile": "Pwofil",
         "primaryAdmin": "Admin prensipal",
-        "readiness": "Readiness",
+        "readiness": "Eta preparasyon",
         "createdAt": "Kreye",
         "updatedAt": "Dènyè modifikasyon",
         "type": "Tip",
-        "currency": "Monè",
-        "name": "Nom",
-        "email": "Email"
+        "currency": "Lajan",
+        "name": "Non",
+        "email": "Imèl"
       },
       "empty": {
-        "title": "Pa gen tenant",
-        "message": "Kreye premye tenant lan pou kòmanse.",
+        "title": "Pa gen santral",
+        "message": "Kreye premye santral la pou kòmanse.",
         "filtered": {
           "title": "Pa gen rezilta",
-          "message": "Pa gen okenn tenant ki koresponn ak filtre yo chwazi."
+          "message": "Pa gen okenn santral ki koresponn ak filtè yo chwazi."
         }
       },
       "status": {
-        "onboarding": "Onboarding",
+        "onboarding": "Enskripsyon",
         "active": "Aktif",
         "suspended": "Sispann",
         "disabled": "Dezaktive",
@@ -145,17 +145,17 @@
         "ambulant": "Mobil"
       },
       "profile": {
-        "minimal": "Minimal",
+        "minimal": "Minimòm",
         "defaultHaitiLottery": "Loteri Ayiti pa defo",
         "demo": "Demo"
       },
       "profileDescription": {
         "minimal": "Baz minimal, apre sa konfigirasyon manyèl.",
-        "defaultHaitiLottery": "Pwofil rekòmande pou yon tenant reyèl: jwèt, pri, ak kanal tiraj Ayiti.",
+        "defaultHaitiLottery": "Pwofil rekòmande pou yon santral reyèl: jwèt, tarif, ak règ tiraj Ayiti.",
         "demo": "Pwofil demonstrasyon pou anviwònman ki pa pwodiksyon."
       },
       "field": {
-        "code": "Kòd tenant",
+        "code": "Kòd santral",
         "name": "Non",
         "type": "Tip",
         "timezone": "Fizo orè",
@@ -166,45 +166,45 @@
       "validation": {
         "code": "Fòma obligatwa: ti lèt, chif, tirè (3-30 karaktè).",
         "required": "Chan obligatwa.",
-        "email": "Adrès imèl pa valid."
+        "email": "Adrès imèl la pa valab."
       },
       "create": {
-        "title": "Kreye tenant",
-        "description": "Pwovizyone yon tenant ki ka opere ak done inisyal li yo.",
-        "adminHint": "Si li vid, tenant lan ap kreye san administratè inisyal.",
-        "success": "Tenant lan pwovizyone avèk siksè.",
-        "error": "Pwovizyonman tenant lan echwe.",
+        "title": "Kreye santral",
+        "description": "Pwovizyone yon santral ki ka opere ak done inisyal li yo.",
+        "adminHint": "Si li vid, santral la ap kreye san administratè inisyal.",
+        "success": "Santral la pwovizyone avèk siksè.",
+        "error": "Pwovizyonman santral la echwe.",
         "previewError": "Pa ka kalkile pwofil la.",
         "previewLoading": "Kalkil pwofil la...",
         "section": {
-          "identity": "Idantite tenant",
+          "identity": "Idantite santral",
           "admin": "Admin inisyal",
-          "profile": "Pwofil provisioning",
-          "preview": "Apèsi provisioning"
+          "profile": "Pwofil pwovizyonman",
+          "preview": "Apèsi pwovizyonman"
         },
         "action": {
-          "preview": "Preview",
-          "provision": "Kreye tenant"
+          "preview": "Apèsi",
+          "provision": "Kreye santral"
         },
         "preview": {
           "profile": "Pwofil chwazi",
           "includedDomains": "Sa ki pral inisyalize",
           "notCopiedData": "Sa ki pap kopye",
-          "expectedReadiness": "Readiness espere",
-          "empty": "Ranpli fòm lan, apre sa lanse preview la."
+          "expectedReadiness": "Eta preparasyon espere",
+          "empty": "Ranpli fòm lan, apre sa lanse apèsi a."
         }
       },
       "detail": {
-        "title": "Detay tenant",
-        "description": "Idantite, rejyon, komès ak pwofil tenant an.",
-        "loading": "Chajman tenant...",
-        "error": "Pa ka chaje tenant lan.",
-        "createdTitle": "Tenant kreye",
+        "title": "Detay santral",
+        "description": "Idantite, rejyon, komès ak pwofil santral la.",
+        "loading": "Chajman santral...",
+        "error": "Pa ka chaje santral la.",
+        "createdTitle": "Santral kreye",
         "domainStatuses": "Domèn pwovizyone",
         "nextSteps": "Pwochen etap",
         "empty": {
-          "title": "Tenant pa jwenn",
-          "message": "Detay tenant sa a poko disponib."
+          "title": "Santral pa jwenn",
+          "message": "Detay santral sa a poko disponib."
         },
         "section": {
           "identity": "Idantite",
@@ -222,29 +222,29 @@
           "theme": "Thème actif"
         },
         "identityCard": {
-          "eyebrow": "Tenant"
+          "eyebrow": "Santral"
         },
         "action": {
           "viewAdmins": "Wè administratè yo",
           "updateSuccess": "Enfòmasyon yo mete ajou avèk siksè.",
           "updateError": "Enposib pou sove chanjman yo.",
-          "activate": "Activer",
-          "activateError": "Erreur lors de l'activation.",
-          "suspend": "Suspendre",
-          "suspendError": "Erreur lors de la suspension.",
+          "activate": "Aktive",
+          "activateError": "Erè pandan aktivasyon an.",
+          "suspend": "Sispann",
+          "suspendError": "Erè pandan sispansyon an.",
           "archive": "Achive",
-          "archiveError": "Enposib pou achive tenant la.",
+          "archiveError": "Enposib pou achive santral la.",
           "supportAccess": "Antre kòm admin",
-          "addAdmin": "Ajouter un administrateur"
+          "addAdmin": "Ajoute yon administratè"
         },
         "tab": {
-          "overview": "Aperçu",
-          "admins": "Administrateurs",
-          "configuration": "Configuration",
-          "subscription": "Abonnement",
-          "entitlements": "Droits d'usage",
-          "sellerTerminals": "Seller-terminals",
-          "audit": "Audit"
+          "overview": "Apèsi",
+          "admins": "Administratè",
+          "configuration": "Konfigirasyon",
+          "subscription": "Abònman",
+          "entitlements": "Dwa itilizasyon",
+          "sellerTerminals": "Tèminal vandè",
+          "audit": "Odit"
         },
         "address": {
           "empty": "Adresse non renseignée."
@@ -253,7 +253,7 @@
           "title": "Abònman",
           "loading": "Ap chaje abònman an…",
           "error": "Pa kapab chaje abònman an.",
-          "empty": "Pa gen plan aplike sou tenant sa a.",
+          "empty": "Pa gen plan aplike sou santral sa a.",
           "applyError": "Pa kapab aplike plan an.",
           "field": {
             "plan": "Plan",
@@ -271,7 +271,7 @@
           "title": "Dwa itilizasyon",
           "loading": "Ap chaje dwa itilizasyon yo…",
           "error": "Pa kapab chaje dwa itilizasyon yo.",
-          "empty": "Pa gen dwa itilizasyon rezoud pou tenant sa a.",
+          "empty": "Pa gen dwa itilizasyon rezoud pou santral sa a.",
           "field": {
             "plan": "Plan",
             "activeSubscription": "Abònman aktif",
@@ -295,11 +295,11 @@
           }
         },
         "sellerTerminals": {
-          "loading": "Ap chaje seller-terminal yo…",
-          "error": "Enposib pou chaje seller-terminal yo.",
+          "loading": "Ap chaje tèminal vandè yo…",
+          "error": "Enposib pou chaje tèminal vandè yo.",
           "empty": {
-            "title": "Pa gen seller-terminal",
-            "message": "Tenant sa a poko gen okenn seller-terminal."
+            "title": "Pa gen tèminal vandè",
+            "message": "Santral sa a poko gen okenn tèminal vandè."
           },
           "status": {
             "active": "Aktif",
@@ -313,7 +313,7 @@
           "error": "Enposib pou chaje jounal odit la.",
           "empty": {
             "title": "Pa gen evènman",
-            "message": "Pa gen evènman odit pou tenant sa a."
+            "message": "Pa gen evènman odit pou santral sa a."
           }
         },
         "admins": {
@@ -321,59 +321,59 @@
           "error": "Enposib pou chaje administratè yo.",
           "empty": {
             "title": "Pa gen administratè",
-            "message": "Tenant sa a poko gen administratè."
+            "message": "Santral sa a poko gen administratè."
           }
         },
         "config": {
           "empty": {
-            "title": "Configuration non renseignée",
-            "message": "La configuration interne de ce tenant n'a pas encore été définie."
+            "title": "Konfigirasyon poko ranpli",
+            "message": "Konfigirasyon entèn santral sa a poko defini."
           },
           "section": {
-            "locale": "Langue & région",
-            "calendar": "Calendrier commercial",
-            "communication": "Communication ticket",
-            "receipt": "Reçu / documents"
+            "locale": "Lang & rejyon",
+            "calendar": "Kalandriye komèsyal",
+            "communication": "Kominikasyon tikè",
+            "receipt": "Resi / dokiman"
           },
           "field": {
-            "defaultLanguage": "Langue par défaut",
-            "defaultLocale": "Locale par défaut",
-            "supportedLanguages": "Langues supportées",
-            "fallbackLanguage": "Langue de secours",
-            "defaultOpen": "Ouvert par défaut",
-            "closedWeekdays": "Jours fermés",
-            "holidays": "Jours fériés",
-            "open": "Ouvert",
-            "closed": "Fermé",
-            "receiptEnabled": "Reçu activé",
-            "defaultTemplateKey": "Template",
-            "headerMessage": "Message d'en-tête",
-            "footerMessage": "Message de pied",
-            "paperSize": "Format papier",
-            "showQrCode": "Afficher QR code"
+            "defaultLanguage": "Lang pa defo",
+            "defaultLocale": "Lokal pa defo",
+            "supportedLanguages": "Lang ki sipòte",
+            "fallbackLanguage": "Lang sekou",
+            "defaultOpen": "Ouvè pa defo",
+            "closedWeekdays": "Jou fèmen",
+            "holidays": "Jou ferye",
+            "open": "Ouvè",
+            "closed": "Fèmen",
+            "receiptEnabled": "Resi aktive",
+            "defaultTemplateKey": "Modèl",
+            "headerMessage": "Mesaj antèt",
+            "footerMessage": "Mesaj pye paj",
+            "paperSize": "Fòma papye",
+            "showQrCode": "Afiche kòd QR"
           },
           "paidBy": {
-            "buyer": "Payé par l'acheteur",
-            "tenant": "Payé par le tenant",
-            "platform": "Payé par la plateforme",
-            "seller": "Payé par le seller-terminal"
+            "buyer": "Achtè a peye",
+            "tenant": "Santral la peye",
+            "platform": "Platfòm nan peye",
+            "seller": "Tèminal vandè a peye"
           }
         }
       },
       "provisioning": {
         "domains": {
-          "tenant_identity": "Idantite tenant",
+          "tenant_identity": "Idantite santral",
           "pagemodels": "Paj inisyal",
           "theme": "Tèm",
           "settings": "Paramèt",
           "i18n": "Tradiksyon",
           "games": "Jwèt",
           "pricing": "Tarif",
-          "draw_channels": "Kanal tiraj",
+          "draw_channels": "Règ tiraj",
           "promotions_templates": "Modèl pwomosyon",
           "limits_templates": "Modèl limit",
           "demo_users": "Itilizatè demo",
-          "demo_seller_terminals": "Seller-terminals demo"
+          "demo_seller_terminals": "Tèminal vandè demo"
         },
         "data": {
           "tickets": "Tikè",
@@ -385,20 +385,20 @@
           "ledger": "Gran liv"
         },
         "readiness": {
-          "identity": "Idantite tenant",
-          "users": "Admin tenant",
-          "draw_channels": "Kanal tiraj",
-          "seller_rules": "Règ seller-terminal",
+          "identity": "Idantite santral",
+          "users": "Admin santral",
+          "draw_channels": "Règ tiraj",
+          "seller_rules": "Règ tèminal vandè",
           "limits": "Limit",
           "odds": "Barèm",
-          "seller_terminals": "Seller-terminals"
+          "seller_terminals": "Tèminal vandè"
         },
         "nextSteps": {
           "CREATE_INITIAL_ADMIN": "Kreye admin inisyal la",
           "CONFIGURE_GAMES": "Konfigire jwèt yo",
-          "CONFIGURE_DRAW_CHANNELS": "Konfigire kanal tiraj yo",
-          "CONFIGURE_SELLER_RULES": "Konfigire règ seller-terminal",
-          "CREATE_SELLER_TERMINAL": "Kreye yon seller-terminal",
+          "CONFIGURE_DRAW_CHANNELS": "Konfigire règ tiraj yo",
+          "CONFIGURE_SELLER_RULES": "Konfigire règ tèminal vandè",
+          "CREATE_SELLER_TERMINAL": "Kreye yon tèminal vandè",
           "CONFIGURE_LIMITS": "Konfigire limit yo",
           "CONFIGURE_ODDS": "Konfigire barèm yo",
           "VERIFY_DEMO_SETUP": "Verifye done demo yo"
@@ -424,11 +424,11 @@
         "activate": "Ou vle aktive {{name}} ?"
       },
       "success": {
-        "suspended": "Tenant sispann.",
-        "reactivated": "Tenant reaktive.",
-        "archived": "Tenant achive."
+        "suspended": "Santral sispann.",
+        "reactivated": "Santral reaktive.",
+        "archived": "Santral achive."
       },
-      "paginationTotal": "{{count}} tenant(s)",
+      "paginationTotal": "{{count}} santral",
       "admin": {
         "pageTitle": "Ajoute yon admin",
         "pageTitleWithTenant": "Ajoute admin — {{name}}",
@@ -450,23 +450,23 @@
         "success": "Administratè kreye avèk siksè."
       },
       "adminStatus": {
-        "active": "Actif",
-        "pending": "En attente",
-        "disabled": "Désactivé",
-        "invited": "Invité"
+        "active": "Aktif",
+        "pending": "An atant",
+        "disabled": "Dezaktive",
+        "invited": "Envite"
       }
     },
     "tenantProvisioning": {
-      "title": "Pwovizyone yon tenant",
-      "description": "Kreye yon tenant, aplike yon pwofil inisyal, epi prepare konfigirasyon li.",
-      "backToTenants": "Retounen nan tenants",
+      "title": "Pwovizyone yon santral",
+      "description": "Kreye yon santral, aplike yon pwofil inisyal, epi prepare konfigirasyon li.",
+      "backToTenants": "Retounen nan santral yo",
       "section": {
         "identity": "Idantite & klasifikasyon",
         "regional": "Paramèt rejyonal",
         "commercial": "Paramèt komèsyal",
-        "profile": "Pwofil provisioning",
+        "profile": "Pwofil pwovizyonman",
         "initialAdmin": "Admin inisyal",
-        "plan": "Plan tenant la"
+        "plan": "Plan santral la"
       },
       "plan": {
         "loading": "Chajman plan yo...",
@@ -474,7 +474,7 @@
         "default": "Pa defo"
       },
       "field": {
-        "code": "Kòd tenant",
+        "code": "Kòd santral",
         "name": "Non afichaj",
         "type": "Tip",
         "timezone": "Fizo orè",
@@ -486,8 +486,8 @@
         "initialAdminEmail": "Imèl admin inisyal"
       },
       "hint": {
-        "defaultCommissionRate": "Komisyon yo aplike pa defo sou seller-terminal ki pa gen yon to espesifik.",
-        "maryajGratisEnabled": "Montre paj Maryaj gratis nan tenant lan epi ajoute kat konfigirasyon li.",
+        "defaultCommissionRate": "Komisyon yo aplike pa defo sou tèminal vandè ki pa gen yon to espesifik.",
+        "maryajGratisEnabled": "Montre paj Maryaj gratis nan santral la epi ajoute kat konfigirasyon li.",
         "initialAdminUsername": "3 a 64 karaktè: lèt, chif, pwen, souliyé oswa tirè.",
         "initialAdminEmail": "Obligatwa pou kreye admin inisyal la."
       },
@@ -500,34 +500,34 @@
         "submitTitle": "Pwovizyonman enposib"
       },
       "loading": {
-        "title": "Pwovizyonman tenant an ap fèt…",
-        "message": "Kreyasyon tenant an, aplikasyon pwofil inisyal la ak preparasyon konfigirasyon an."
+        "title": "Pwovizyonman santral la ap fèt…",
+        "message": "Kreyasyon santral la, aplikasyon pwofil inisyal la ak preparasyon konfigirasyon an."
       },
       "action": {
         "cancel": "Anile",
-        "submit": "Pwovizyone tenant lan",
+        "submit": "Pwovizyone santral la",
         "submitting": "Pwovizyonman…",
         "backToList": "Retounen nan lis la",
         "completeRequired": "Ranpli chan obligatwa yo pou kontinye",
-        "viewTenant": "Gade tenant lan",
+        "viewTenant": "Gade santral la",
         "addAdmin": "Ajoute yon administratè",
-        "createAnother": "Kreye yon lòt tenant"
+        "createAnother": "Kreye yon lòt santral"
       },
       "warning": {
-        "existingUserAttached": "Yon itilizatè ki egziste deja vin administratè tenant lan.",
-        "temporaryCredentialNotReturned": "Idantifyan tanporè yo pa t ka afiche. Reinisyalize modpas la depi paj detay tenant lan.",
+        "existingUserAttached": "Yon itilizatè ki egziste deja vin administratè santral la.",
+        "temporaryCredentialNotReturned": "Idantifyan tanporè yo pa t ka afiche. Reinisyalize modpas la depi paj detay santral la.",
         "temporaryPasswordIssued": "Yon modpas tanporè kreye pou administratè inisyal la.",
-        "noPlanSelected": "Pa gen plan chwazi. Tenant lan ap kreye san abònman aktif — aplike yon plan avan ou kreye seller-terminal.",
+        "noPlanSelected": "Pa gen plan chwazi. Santral la ap kreye san abònman aktif — aplike yon plan avan ou kreye tèminal vandè.",
         "fallback": "Yon pwen konfigirasyon mande verifikasyon."
       },
       "identityCard": {
-        "eyebrow": "Idantite tenant lan",
-        "fallbackTitle": "Nouvo tenant",
+        "eyebrow": "Idantite santral la",
+        "fallbackTitle": "Nouvo santral",
         "unassignedCode": "pa asiyen"
       },
       "health": {
         "title": "Sante konfigirasyon",
-        "eyebrow": "Readiness",
+        "eyebrow": "Eta preparasyon",
         "loading": "Kalkil pwofil la...",
         "fallback": "Pou valide"
       },
@@ -544,18 +544,18 @@
         "adminNextInstruction": "Mande admin nan konekte. Li dwe chanje modpas li epi ranpli pwofil li avan li antre nan /app/admin."
       },
       "domain": {
-        "tenantIdentity": "Idantite tenant",
+        "tenantIdentity": "Idantite santral",
         "pagemodels": "Paj inisyal",
         "theme": "Tèm",
         "settings": "Paramèt",
         "i18n": "Tradiksyon",
         "games": "Jwèt",
         "pricing": "Tarif",
-        "drawChannels": "Kanal tiraj",
+        "drawChannels": "Règ tiraj",
         "promotionsTemplates": "Modèl pwomosyon",
         "limitsTemplates": "Modèl limit",
         "demoUsers": "Itilizatè demo",
-        "demoSellerTerminals": "Seller-terminals demo",
+        "demoSellerTerminals": "Tèminal vandè demo",
         "subscription": "Abònman"
       },
       "status": {
@@ -575,16 +575,16 @@
       "step": {
         "createInitialAdmin": "Kreye admin inisyal la",
         "configureGames": "Konfigire jwèt yo",
-        "configureDrawChannels": "Konfigire kanal tiraj yo",
-        "createSellerTerminal": "Kreye yon seller-terminal",
-        "configureSellerRules": "Konfigire règ seller-terminal yo",
+        "configureDrawChannels": "Konfigire règ tiraj yo",
+        "createSellerTerminal": "Kreye yon tèminal vandè",
+        "configureSellerRules": "Konfigire règ tèminal vandè yo",
         "configureLimits": "Konfigire limit yo",
         "configureOdds": "Konfigire barèm yo",
         "verifyDemoSetup": "Verifye done demo yo"
       },
       "success": {
-        "title": "Tenant pwovizyone avèk siksè",
-        "message": "Tenant {{code}} te kreye epi li prèt pou konfigirasyon."
+        "title": "Santral pwovizyone avèk siksè",
+        "message": "Santral {{code}} te kreye epi li prèt pou konfigirasyon."
       },
       "typeDescription": {
         "borlette": "Banque borlette ou opérateur gérant plusieurs vendeurs.",
@@ -655,7 +655,7 @@
           "betType": "Tip pari",
           "betOption": "Opsyon pari",
           "odds": "Kòt",
-          "tenant": "Tenant",
+          "tenant": "Santral",
           "tenantPlaceholder": "Kite vid pou global",
           "active": "Aktif"
         },
@@ -688,7 +688,7 @@
             "title": "Pa gen rezilta",
             "message": "Pa gen kòt ki koresponn ak filtè yo."
           },
-          "tenants": "Pa gen tenant jwenn"
+          "tenants": "Pa gen santral jwenn"
         },
         "footer": {
           "count": "{{count}} kòt",
@@ -713,20 +713,20 @@
       "description": "Eta sèvis ak monitè"
     },
     "onboarding": {
-      "adminCreated": "Admin tenant kreye",
-      "code": "Kòd tenant",
+      "adminCreated": "Admin santral kreye",
+      "code": "Kòd santral",
       "currency": "Lajan",
       "domains": "Domèn ki enkli",
       "error": "Operasyon an echwe.",
       "initialAdminEmail": "Imèl premye admin",
-      "name": "Non tenant",
+      "name": "Non santral",
       "preview": "Apèsi",
       "previewResult": "Apèsi",
       "profile": "Pwofil",
       "provision": "Pwovizyone",
-      "success": "Tenant pwovizyone",
+      "success": "Santral pwovizyone",
       "timezone": "Fizo orè",
-      "title": "Pwovizyònman tenant",
+      "title": "Pwovizyonman santral",
       "type": "Tip"
     },
     "action": {
@@ -734,31 +734,31 @@
       "onboarding": "Onbòding",
       "settings": "Paramèt",
       "subscriptions": "Abònman",
-      "tenants": "Tenant"
+      "tenants": "Santral"
     },
     "kpi": {
       "activeSubscriptions": {
         "label": "Abònman aktif"
       },
       "activeTenants": {
-        "label": "Tenant aktif"
+        "label": "Santral aktif"
       },
       "pendingOnboarding": {
         "label": "Onbòding annatant"
       },
       "suspendedTenants": {
-        "label": "Tenant sispann"
+        "label": "Santral sispann"
       },
       "tenantsWithIssues": {
-        "label": "Tenant ak pwoblèm"
+        "label": "Santral ak pwoblèm"
       },
       "totalTenants": {
-        "label": "Total tenant"
+        "label": "Total santral"
       }
     },
     "tenantAdmins": {
-      "title": "Administratè tenant",
-      "description": "Gade epi jere administratè pou chak tenant.",
+      "title": "Administratè santral",
+      "description": "Gade epi jere administratè pou chak santral.",
       "loading": "Ap chaje administratè yo...",
       "filter": {
         "search": "Chèche",
@@ -766,7 +766,7 @@
       },
       "column": {
         "admin": "Administratè",
-        "tenant": "Tenant",
+        "tenant": "Santral",
         "assignedAt": "Atribye le"
       },
       "status": {
@@ -777,7 +777,7 @@
         "archived": "Achive"
       },
       "action": {
-        "assignTenant": "Asiyen ak yon tenant",
+        "assignTenant": "Asiyen ak yon santral",
         "manageAdmins": "Jere admin yo",
         "addAdmin": "Ajoute admin"
       },
@@ -807,17 +807,17 @@
       },
       "detail": {
         "title": "Detay administratè",
-        "description": "Enfòmasyon ak aksyon pou administratè tenant sa a.",
+      "description": "Enfòmasyon ak aksyon pou administratè santral sa a.",
         "error": {
           "load": "Enposib pou chaje administratè sa a."
         },
         "field": {
-          "tenant": "Tenant",
-          "email": "Email",
+          "tenant": "Santral",
+          "email": "Imèl",
           "assignedAt": "Atribye le"
         },
         "actions": {
-          "manageInTenant": "Jere nan tenant lan"
+          "manageInTenant": "Jere nan santral la"
         }
       },
       "pagination": "Paj {{page}} / {{total}}",
@@ -831,7 +831,7 @@
         "envers": "Sous: Hibernate Envers"
       },
       "entityType": {
-        "sellerTerminal": "Seller terminal",
+        "sellerTerminal": "Tèminal vandè",
         "drawResult": "Rezilta tiraj",
         "limitAssignment": "Assignasyon limit"
       },
@@ -853,7 +853,7 @@
         "operation": "Operasyon",
         "entity": "Antite",
         "changedFields": "Chan ki chanje",
-        "tenant": "Tenant",
+        "tenant": "Santral",
         "changedBy": "ID aktè"
       },
       "action": {
@@ -941,7 +941,7 @@
         "published": "PageModel pibliye.",
         "duplicated": "PageModel duplike.",
         "reset": "PageModel reyinisyalize.",
-        "archiveUnavailable": "API pou achiv PageModel pa ekspoze nan backend lan."
+        "archiveUnavailable": "API pou achiv PageModel pa ekspoze nan sèvè a."
       },
       "error": {
         "invalidJson": "JSON pa valid.",
@@ -1008,7 +1008,7 @@
         "keyLabel": "Kle (i18nKey)",
         "keyPlaceholder": "egz: common.welcomeTitle",
         "valueLabel": "Valè (i18nValue)",
-        "tenantIdLabel": "Tenant ID (obligatwa pou nivo TENANT)",
+        "tenantIdLabel": "ID santral (obligatwa pou nivo santral)",
         "required": "Obligatwa."
       },
       "feedback": {

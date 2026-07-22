@@ -71,7 +71,7 @@
       "archives": "Achiv",
       "archiveRuns": "Runs",
       "archiveIssues": "Echèk & objè invalid",
-      "legalHolds": "Legal holds",
+      "legalHolds": "Kenbe legal",
       "partitions": "Partitions",
       "purges": "Purge",
       "audit": "Odit",
@@ -100,9 +100,9 @@
       "communicationOutbox": "File d’envoi",
       "communicationSupport": "Communication & support",
       "identitySync": "Synchronisation identité",
-      "supportAndContent": "Support & contenu",
+      "supportAndContent": "Sipò & kontni",
       "contactRequests": "Messages de contact",
-      "contactConfig": "Configuration contact",
+      "contactConfig": "Konfigirasyon kontak",
       "tchala": "Tchala",
       "tchalaSuggestions": "Suggestions",
       "tchalaImport": "Import",
@@ -110,7 +110,7 @@
       "accessSecurity": "Kontwòl aksè",
       "accessUsers": "Aksè itilizatè",
       "users": "Kont admin",
-      "backendKeys": "Clés publiques backend"
+      "backendKeys": "Kle piblik sèvè"
     },
     "kpi": {
       "totalTenants": {
@@ -302,7 +302,7 @@
         "title": "Sante sistèm"
       },
       "onboarding": {
-        "title": "Onboarding"
+        "title": "Enskripsyon"
       },
       "alerts": {
         "title": "Alèt platfòm",
