@@ -22,7 +22,7 @@
         "betOption": "Opsyon",
         "odds": "Kòt",
         "payoutRule": "Règ genyen",
-        "tenant": "Santral",
+        "tenant": "Lis santral",
         "status": "Estati"
       }
     },
@@ -118,7 +118,7 @@
     "private_dashboard_superadmin": {
       "kpis": "Endikatè",
       "quick_actions": "Aksyon rapid",
-      "tenants_alerts": "Santral & alèt"
+      "tenants_alerts": "Lis santral & alèt"
     }
   },
   "dashboard": {
@@ -155,7 +155,7 @@
       "active_seller_terminals": "Tèminal POS aktif"
     },
     "platform": {
-      "create_tenant": "Kreye santral",
+      "create_tenant": "Kreye lis santral",
       "onboarding": "Enskripsyon",
       "subscriptions": "Abònman",
       "platform_health": "Sante platfòm",

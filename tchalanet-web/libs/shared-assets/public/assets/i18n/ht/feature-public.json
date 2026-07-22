@@ -113,7 +113,7 @@
       "login": "Konekte",
       "logout": "Dekonekte",
       "nav": {
-        "admin": "Admin santral",
+        "admin": "Admin lis santral",
         "cashier": "Kesye",
         "platform": "Platfòm"
       },
@@ -560,7 +560,7 @@
         "gain_for_100": "Gany pou 100 HTG",
         "mariage_different_note": "Pou Maryaj, chwazi de nimewo diferan selon règ ki parèt yo.",
         "multiplier_custom_badge": "pèsonalize",
-        "multiplier_note": "Miltiplikatè a se yon endikasyon epi li ka chanje selon règ santral la.",
+        "multiplier_note": "Miltiplikatè a se yon endikasyon epi li ka chanje selon règ lis santral la.",
         "borlette_gain_line": "Gany Borlette",
         "maryaj_gratis_gain_line": "Bonis Maryaj gratis"
       },

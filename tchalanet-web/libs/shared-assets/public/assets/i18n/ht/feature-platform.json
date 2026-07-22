@@ -5,7 +5,7 @@
       "description": "Fonksyonalite sa a ap disponib nan yon pwochen iterasyon.",
       "message": "Fonksyonalite sa a ap disponib nan yon pwochen iterasyon.",
       "descriptions": {
-        "entitlements": "Jere dwa fonksyonèl ki disponib pou chak santral.",
+        "entitlements": "Jere dwa fonksyonèl ki disponib pou chak lis santral.",
         "providers": "Siveye founisè ak konektè tiraj yo.",
         "opsResources": "Detay resous sèvis kritik ak degrade yo.",
         "archives": "Konsilte ak kontwole achiv platfòm yo.",
@@ -14,7 +14,7 @@
         "permissions": "Jere pèmisyon platfòm yo.",
         "roles": "Jere wòl platfòm yo.",
         "overrides": "Jere overrides super admin yo.",
-        "supportTenant": "Chwazi yon santral pou antre nan koòdone administrasyon li an mòd sipò.",
+        "supportTenant": "Chwazi yon lis santral pou antre nan koòdone administrasyon li an mòd sipò.",
         "communicationTests": "Teste kanal kominikasyon yo (imèl, Slack, notifikasyon).",
         "identitySync": "Senkronize idantite Firebase yo ak platfòm nan.",
         "contactConfig": "Konfigire kanal ak mesaj kontak global yo.",
@@ -32,7 +32,7 @@
       "title": "Platfòm",
       "description": "Rezime enfrastrikti Tchalanet",
       "kpi": {
-        "activeTenants": "Santral aktif",
+        "activeTenants": "Lis santral aktif",
         "receivedContacts": "Demann kontak",
         "pendingNotifications": "Notifikasyon an atant",
         "degradedServices": "Sèvis degrade"
@@ -69,26 +69,26 @@
       }
     },
     "tenants": {
-      "title": "Santral",
-      "description": "Lis, filtre, epi swiv santral Tchalanet yo.",
-      "loading": "Chajman santral yo...",
+      "title": "Lis santral",
+      "description": "Lis, filtre, epi swiv lis santral Tchalanet yo.",
+      "loading": "Chajman lis santral yo...",
       "pagination": "Paj {{page}} / {{total}}",
       "error": {
-        "load": "Pa ka chaje santral yo.",
-        "suspend": "Erè pandan sispansyon santral la.",
-        "reactivate": "Erè pandan reaktivasyon santral la.",
-        "archive": "Erè pandan achivaj santral la.",
-        "activate": "Erè pandan aktivasyon santral la."
+        "load": "Pa ka chaje lis santral yo.",
+        "suspend": "Erè pandan sispansyon lis santral la.",
+        "reactivate": "Erè pandan reaktivasyon lis santral la.",
+        "archive": "Erè pandan achivaj lis santral la.",
+        "activate": "Erè pandan aktivasyon lis santral la."
       },
       "feedback": {
         "updated": "{{name}} mete ajou."
       },
       "action": {
-        "create": "Kreye santral",
+        "create": "Kreye lis santral",
         "applyFilters": "Filtre",
         "resetFilters": "Reyinisyalize",
-        "openMenu": "Louvri aksyon santral la",
-        "viewDetails": "Gade santral la",
+        "openMenu": "Louvri aksyon lis santral la",
+        "viewDetails": "Gade lis santral la",
         "suspend": "Sispann",
         "reactivate": "Reaktive",
         "archive": "Achive",
@@ -103,7 +103,7 @@
         "allProfiles": "Tout pwofil"
       },
       "column": {
-        "tenant": "Santral",
+        "tenant": "Lis santral",
         "code": "Kòd",
         "status": "Estati",
         "profile": "Pwofil",
@@ -117,11 +117,11 @@
         "email": "Imèl"
       },
       "empty": {
-        "title": "Pa gen santral",
-        "message": "Kreye premye santral la pou kòmanse.",
+        "title": "Pa gen lis santral",
+        "message": "Kreye premye lis santral la pou kòmanse.",
         "filtered": {
           "title": "Pa gen rezilta",
-          "message": "Pa gen okenn santral ki koresponn ak filtè yo chwazi."
+          "message": "Pa gen okenn lis santral ki koresponn ak filtè yo chwazi."
         }
       },
       "status": {
@@ -151,11 +151,11 @@
       },
       "profileDescription": {
         "minimal": "Baz minimal, apre sa konfigirasyon manyèl.",
-        "defaultHaitiLottery": "Pwofil rekòmande pou yon santral reyèl: jwèt, tarif, ak règ tiraj Ayiti.",
+        "defaultHaitiLottery": "Pwofil rekòmande pou yon lis santral reyèl: jwèt, tarif, ak règ tiraj Ayiti.",
         "demo": "Pwofil demonstrasyon pou anviwònman ki pa pwodiksyon."
       },
       "field": {
-        "code": "Kòd santral",
+        "code": "Kòd lis santral",
         "name": "Non",
         "type": "Tip",
         "timezone": "Fizo orè",
@@ -169,22 +169,22 @@
         "email": "Adrès imèl la pa valab."
       },
       "create": {
-        "title": "Kreye santral",
-        "description": "Pwovizyone yon santral ki ka opere ak done inisyal li yo.",
-        "adminHint": "Si li vid, santral la ap kreye san administratè inisyal.",
-        "success": "Santral la pwovizyone avèk siksè.",
-        "error": "Pwovizyonman santral la echwe.",
+        "title": "Kreye lis santral",
+        "description": "Pwovizyone yon lis santral ki ka opere ak done inisyal li yo.",
+        "adminHint": "Si li vid, lis santral la ap kreye san administratè inisyal.",
+        "success": "Lis santral la pwovizyone avèk siksè.",
+        "error": "Pwovizyonman lis santral la echwe.",
         "previewError": "Pa ka kalkile pwofil la.",
         "previewLoading": "Kalkil pwofil la...",
         "section": {
-          "identity": "Idantite santral",
+          "identity": "Idantite lis santral",
           "admin": "Admin inisyal",
           "profile": "Pwofil pwovizyonman",
           "preview": "Apèsi pwovizyonman"
         },
         "action": {
           "preview": "Apèsi",
-          "provision": "Kreye santral"
+          "provision": "Kreye lis santral"
         },
         "preview": {
           "profile": "Pwofil chwazi",
@@ -195,16 +195,16 @@
         }
       },
       "detail": {
-        "title": "Detay santral",
-        "description": "Idantite, rejyon, komès ak pwofil santral la.",
-        "loading": "Chajman santral...",
-        "error": "Pa ka chaje santral la.",
-        "createdTitle": "Santral kreye",
+        "title": "Detay lis santral",
+        "description": "Idantite, rejyon, komès ak pwofil lis santral la.",
+        "loading": "Chajman lis santral...",
+        "error": "Pa ka chaje lis santral la.",
+        "createdTitle": "Lis santral kreye",
         "domainStatuses": "Domèn pwovizyone",
         "nextSteps": "Pwochen etap",
         "empty": {
-          "title": "Santral pa jwenn",
-          "message": "Detay santral sa a poko disponib."
+          "title": "Lis santral pa jwenn",
+          "message": "Detay lis santral sa a poko disponib."
         },
         "section": {
           "identity": "Idantite",
@@ -222,7 +222,7 @@
           "theme": "Thème actif"
         },
         "identityCard": {
-          "eyebrow": "Santral"
+          "eyebrow": "Lis santral"
         },
         "action": {
           "viewAdmins": "Wè administratè yo",
@@ -233,7 +233,7 @@
           "suspend": "Sispann",
           "suspendError": "Erè pandan sispansyon an.",
           "archive": "Achive",
-          "archiveError": "Enposib pou achive santral la.",
+          "archiveError": "Enposib pou achive lis santral la.",
           "supportAccess": "Antre kòm admin",
           "addAdmin": "Ajoute yon administratè"
         },
@@ -253,7 +253,7 @@
           "title": "Abònman",
           "loading": "Ap chaje abònman an…",
           "error": "Pa kapab chaje abònman an.",
-          "empty": "Pa gen plan aplike sou santral sa a.",
+          "empty": "Pa gen plan aplike sou lis santral sa a.",
           "applyError": "Pa kapab aplike plan an.",
           "field": {
             "plan": "Plan",
@@ -271,7 +271,7 @@
           "title": "Dwa itilizasyon",
           "loading": "Ap chaje dwa itilizasyon yo…",
           "error": "Pa kapab chaje dwa itilizasyon yo.",
-          "empty": "Pa gen dwa itilizasyon rezoud pou santral sa a.",
+          "empty": "Pa gen dwa itilizasyon rezoud pou lis santral sa a.",
           "field": {
             "plan": "Plan",
             "activeSubscription": "Abònman aktif",
@@ -299,7 +299,7 @@
           "error": "Enposib pou chaje tèminal POS yo.",
           "empty": {
             "title": "Pa gen tèminal POS",
-            "message": "Santral sa a poko gen okenn tèminal POS."
+            "message": "Lis santral sa a poko gen okenn tèminal POS."
           },
           "status": {
             "active": "Aktif",
@@ -313,7 +313,7 @@
           "error": "Enposib pou chaje jounal odit la.",
           "empty": {
             "title": "Pa gen evènman",
-            "message": "Pa gen evènman odit pou santral sa a."
+            "message": "Pa gen evènman odit pou lis santral sa a."
           }
         },
         "admins": {
@@ -321,13 +321,13 @@
           "error": "Enposib pou chaje administratè yo.",
           "empty": {
             "title": "Pa gen administratè",
-            "message": "Santral sa a poko gen administratè."
+            "message": "Lis santral sa a poko gen administratè."
           }
         },
         "config": {
           "empty": {
             "title": "Konfigirasyon poko ranpli",
-            "message": "Konfigirasyon entèn santral sa a poko defini."
+            "message": "Konfigirasyon entèn lis santral sa a poko defini."
           },
           "section": {
             "locale": "Lang & rejyon",
@@ -354,7 +354,7 @@
           },
           "paidBy": {
             "buyer": "Achtè a peye",
-            "tenant": "Santral la peye",
+            "tenant": "Lis santral la peye",
             "platform": "Platfòm nan peye",
             "seller": "Tèminal POS la peye"
           }
@@ -362,7 +362,7 @@
       },
       "provisioning": {
         "domains": {
-          "tenant_identity": "Idantite santral",
+          "tenant_identity": "Idantite lis santral",
           "pagemodels": "Paj inisyal",
           "theme": "Tèm",
           "settings": "Paramèt",
@@ -385,8 +385,8 @@
           "ledger": "Gran liv"
         },
         "readiness": {
-          "identity": "Idantite santral",
-          "users": "Admin santral",
+          "identity": "Idantite lis santral",
+          "users": "Admin lis santral",
           "draw_channels": "Règ tiraj",
           "seller_rules": "Règ tèminal POS",
           "limits": "Limit",
@@ -424,11 +424,11 @@
         "activate": "Ou vle aktive {{name}} ?"
       },
       "success": {
-        "suspended": "Santral sispann.",
-        "reactivated": "Santral reaktive.",
-        "archived": "Santral achive."
+        "suspended": "Lis santral sispann.",
+        "reactivated": "Lis santral reaktive.",
+        "archived": "Lis santral achive."
       },
-      "paginationTotal": "{{count}} santral",
+      "paginationTotal": "{{count}} lis santral",
       "admin": {
         "pageTitle": "Ajoute yon admin",
         "pageTitleWithTenant": "Ajoute admin — {{name}}",
@@ -457,16 +457,16 @@
       }
     },
     "tenantProvisioning": {
-      "title": "Pwovizyone yon santral",
-      "description": "Kreye yon santral, aplike yon pwofil inisyal, epi prepare konfigirasyon li.",
-      "backToTenants": "Retounen nan santral yo",
+      "title": "Pwovizyone yon lis santral",
+      "description": "Kreye yon lis santral, aplike yon pwofil inisyal, epi prepare konfigirasyon li.",
+      "backToTenants": "Retounen nan lis santral yo",
       "section": {
         "identity": "Idantite & klasifikasyon",
         "regional": "Paramèt rejyonal",
         "commercial": "Paramèt komèsyal",
         "profile": "Pwofil pwovizyonman",
         "initialAdmin": "Admin inisyal",
-        "plan": "Plan santral la"
+        "plan": "Plan lis santral la"
       },
       "plan": {
         "loading": "Chajman plan yo...",
@@ -474,7 +474,7 @@
         "default": "Pa defo"
       },
       "field": {
-        "code": "Kòd santral",
+        "code": "Kòd lis santral",
         "name": "Non afichaj",
         "type": "Tip",
         "timezone": "Fizo orè",
@@ -487,7 +487,7 @@
       },
       "hint": {
         "defaultCommissionRate": "Komisyon yo aplike pa defo sou tèminal POS ki pa gen yon to espesifik.",
-        "maryajGratisEnabled": "Montre paj Maryaj gratis nan santral la epi ajoute kat konfigirasyon li.",
+        "maryajGratisEnabled": "Montre paj Maryaj gratis nan lis santral la epi ajoute kat konfigirasyon li.",
         "initialAdminUsername": "3 a 64 karaktè: lèt, chif, pwen, souliyé oswa tirè.",
         "initialAdminEmail": "Obligatwa pou kreye admin inisyal la."
       },
@@ -500,29 +500,29 @@
         "submitTitle": "Pwovizyonman enposib"
       },
       "loading": {
-        "title": "Pwovizyonman santral la ap fèt…",
-        "message": "Kreyasyon santral la, aplikasyon pwofil inisyal la ak preparasyon konfigirasyon an."
+        "title": "Pwovizyonman lis santral la ap fèt…",
+        "message": "Kreyasyon lis santral la, aplikasyon pwofil inisyal la ak preparasyon konfigirasyon an."
       },
       "action": {
         "cancel": "Anile",
-        "submit": "Pwovizyone santral la",
+        "submit": "Pwovizyone lis santral la",
         "submitting": "Pwovizyonman…",
         "backToList": "Retounen nan lis la",
         "completeRequired": "Ranpli chan obligatwa yo pou kontinye",
-        "viewTenant": "Gade santral la",
+        "viewTenant": "Gade lis santral la",
         "addAdmin": "Ajoute yon administratè",
-        "createAnother": "Kreye yon lòt santral"
+        "createAnother": "Kreye yon lòt lis santral"
       },
       "warning": {
-        "existingUserAttached": "Yon itilizatè ki egziste deja vin administratè santral la.",
-        "temporaryCredentialNotReturned": "Idantifyan tanporè yo pa t ka afiche. Reinisyalize modpas la depi paj detay santral la.",
+        "existingUserAttached": "Yon itilizatè ki egziste deja vin administratè lis santral la.",
+        "temporaryCredentialNotReturned": "Idantifyan tanporè yo pa t ka afiche. Reinisyalize modpas la depi paj detay lis santral la.",
         "temporaryPasswordIssued": "Yon modpas tanporè kreye pou administratè inisyal la.",
-        "noPlanSelected": "Pa gen plan chwazi. Santral la ap kreye san abònman aktif — aplike yon plan avan ou kreye tèminal POS.",
+        "noPlanSelected": "Pa gen plan chwazi. Lis santral la ap kreye san abònman aktif — aplike yon plan avan ou kreye tèminal POS.",
         "fallback": "Yon pwen konfigirasyon mande verifikasyon."
       },
       "identityCard": {
-        "eyebrow": "Idantite santral la",
-        "fallbackTitle": "Nouvo santral",
+        "eyebrow": "Idantite lis santral la",
+        "fallbackTitle": "Nouvo lis santral",
         "unassignedCode": "pa asiyen"
       },
       "health": {
@@ -544,7 +544,7 @@
         "adminNextInstruction": "Mande admin nan konekte. Li dwe chanje modpas li epi ranpli pwofil li avan li antre nan /app/admin."
       },
       "domain": {
-        "tenantIdentity": "Idantite santral",
+        "tenantIdentity": "Idantite lis santral",
         "pagemodels": "Paj inisyal",
         "theme": "Tèm",
         "settings": "Paramèt",
@@ -583,8 +583,8 @@
         "verifyDemoSetup": "Verifye done demo yo"
       },
       "success": {
-        "title": "Santral pwovizyone avèk siksè",
-        "message": "Santral {{code}} te kreye epi li prèt pou konfigirasyon."
+        "title": "Lis santral pwovizyone avèk siksè",
+        "message": "Lis santral {{code}} te kreye epi li prèt pou konfigirasyon."
       },
       "typeDescription": {
         "borlette": "Banque borlette ou opérateur gérant plusieurs vendeurs.",
@@ -655,7 +655,7 @@
           "betType": "Tip pari",
           "betOption": "Opsyon pari",
           "odds": "Kòt",
-          "tenant": "Santral",
+          "tenant": "Lis santral",
           "tenantPlaceholder": "Kite vid pou global",
           "active": "Aktif"
         },
@@ -688,7 +688,7 @@
             "title": "Pa gen rezilta",
             "message": "Pa gen kòt ki koresponn ak filtè yo."
           },
-          "tenants": "Pa gen santral jwenn"
+          "tenants": "Pa gen lis santral jwenn"
         },
         "footer": {
           "count": "{{count}} kòt",
@@ -713,20 +713,20 @@
       "description": "Eta sèvis ak monitè"
     },
     "onboarding": {
-      "adminCreated": "Admin santral kreye",
-      "code": "Kòd santral",
+      "adminCreated": "Admin lis santral kreye",
+      "code": "Kòd lis santral",
       "currency": "Lajan",
       "domains": "Domèn ki enkli",
       "error": "Operasyon an echwe.",
       "initialAdminEmail": "Imèl premye admin",
-      "name": "Non santral",
+      "name": "Non lis santral",
       "preview": "Apèsi",
       "previewResult": "Apèsi",
       "profile": "Pwofil",
       "provision": "Pwovizyone",
-      "success": "Santral pwovizyone",
+      "success": "Lis santral pwovizyone",
       "timezone": "Fizo orè",
-      "title": "Pwovizyonman santral",
+      "title": "Pwovizyonman lis santral",
       "type": "Tip"
     },
     "action": {
@@ -734,31 +734,31 @@
       "onboarding": "Onbòding",
       "settings": "Paramèt",
       "subscriptions": "Abònman",
-      "tenants": "Santral"
+      "tenants": "Lis santral"
     },
     "kpi": {
       "activeSubscriptions": {
         "label": "Abònman aktif"
       },
       "activeTenants": {
-        "label": "Santral aktif"
+        "label": "Lis santral aktif"
       },
       "pendingOnboarding": {
         "label": "Onbòding annatant"
       },
       "suspendedTenants": {
-        "label": "Santral sispann"
+        "label": "Lis santral sispann"
       },
       "tenantsWithIssues": {
-        "label": "Santral ak pwoblèm"
+        "label": "Lis santral ak pwoblèm"
       },
       "totalTenants": {
-        "label": "Total santral"
+        "label": "Total lis santral"
       }
     },
     "tenantAdmins": {
-      "title": "Administratè santral",
-      "description": "Gade epi jere administratè pou chak santral.",
+      "title": "Administratè lis santral",
+      "description": "Gade epi jere administratè pou chak lis santral.",
       "loading": "Ap chaje administratè yo...",
       "filter": {
         "search": "Chèche",
@@ -766,7 +766,7 @@
       },
       "column": {
         "admin": "Administratè",
-        "tenant": "Santral",
+        "tenant": "Lis santral",
         "assignedAt": "Atribye le"
       },
       "status": {
@@ -777,7 +777,7 @@
         "archived": "Achive"
       },
       "action": {
-        "assignTenant": "Asiyen ak yon santral",
+        "assignTenant": "Asiyen ak yon lis santral",
         "manageAdmins": "Jere admin yo",
         "addAdmin": "Ajoute admin"
       },
@@ -807,17 +807,17 @@
       },
       "detail": {
         "title": "Detay administratè",
-      "description": "Enfòmasyon ak aksyon pou administratè santral sa a.",
+      "description": "Enfòmasyon ak aksyon pou administratè lis santral sa a.",
         "error": {
           "load": "Enposib pou chaje administratè sa a."
         },
         "field": {
-          "tenant": "Santral",
+          "tenant": "Lis santral",
           "email": "Imèl",
           "assignedAt": "Atribye le"
         },
         "actions": {
-          "manageInTenant": "Jere nan santral la"
+          "manageInTenant": "Jere nan lis santral la"
         }
       },
       "pagination": "Paj {{page}} / {{total}}",
@@ -853,7 +853,7 @@
         "operation": "Operasyon",
         "entity": "Antite",
         "changedFields": "Chan ki chanje",
-        "tenant": "Santral",
+        "tenant": "Lis santral",
         "changedBy": "ID aktè"
       },
       "action": {
@@ -1008,7 +1008,7 @@
         "keyLabel": "Kle (i18nKey)",
         "keyPlaceholder": "egz: common.welcomeTitle",
         "valueLabel": "Valè (i18nValue)",
-        "tenantIdLabel": "ID santral (obligatwa pou nivo santral)",
+        "tenantIdLabel": "ID lis santral (obligatwa pou nivo lis santral)",
         "required": "Obligatwa."
       },
       "feedback": {
