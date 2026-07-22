@@ -4,9 +4,9 @@
       "section": {
         "platform": "Platfòm"
       },
-      "dashboard": "Tablo debò",
-      "tenants": "Tenant",
-      "tenantProvisioning": "Pwovizyon tenant",
+      "dashboard": "Tablo bò",
+      "tenants": "Santral",
+      "tenantProvisioning": "Pwovizyon santral",
       "contactRequests": "Demann kontak",
       "news": "Nouvèl",
       "notifications": "Notifikasyon",
@@ -18,8 +18,8 @@
       "operations": "Operasyon",
       "global_configuration": "Konfigirasyon global"
     },
-    "tenants": "Tenant",
-    "tenant_onboarding": "Onbòding tenant",
+    "tenants": "Santral",
+    "tenant_onboarding": "Onbòding santral",
     "subscriptions": "Abònman",
     "platform_overview": "Apèsi platfòm",
     "platform_health": "Sante platfòm",
@@ -43,10 +43,10 @@
       "commercialDashboard": "Tablo komèsyal",
       "health": "Sante platfòm",
       "opsDashboard": "Ops platfòm",
-      "tenantsGroup": "Tenants",
-      "tenants": "Tout tenants",
-      "createTenant": "Kreye tenant",
-      "tenantOnboarding": "Onboarding",
+      "tenantsGroup": "Santral",
+      "tenants": "Tout santral",
+      "createTenant": "Kreye santral",
+      "tenantOnboarding": "Onbòding",
       "tenantAdmins": "Administratè",
       "subscriptions": "Abònman",
       "entitlements": "Dwa itilizasyon",
@@ -88,10 +88,10 @@
       "reports": "Rapò",
       "platformReports": "Rapò platfòm",
       "superAdmins": "Super admins",
-      "supportTenant": "Support tenant",
-      "draws": "Tirages",
-      "scheduledTasks": "Tâches planifiées",
-      "drawChannelGames": "Jeux par canal",
+      "supportTenant": "Sipò santral",
+      "draws": "Tiraj",
+      "scheduledTasks": "Travay planifye",
+      "drawChannelGames": "Jwèt pa règ tiraj",
       "resultSlotCalendars": "Calendriers des slots",
       "plans": "Plans",
       "pricing": "Tarifs",
@@ -114,7 +114,7 @@
     },
     "kpi": {
       "totalTenants": {
-        "label": "Tenants"
+        "label": "Santral"
       },
       "activeTenants": {
         "label": "Aktif"
@@ -182,10 +182,10 @@
     "ops": {
       "salesSimulation": {
         "title": "Similasyon vant",
-        "description": "Kreye volim tikè QA pa tenant, tiraj ak tèminal vandè atravè vrè flux prepare/confirm lan.",
+        "description": "Kreye volim tikè QA pa santral, tiraj ak tèminal vandè atravè vrè flux prepare/confirm lan.",
         "errorTitle": "Aksyon pa disponib",
         "noticeTitle": "Similasyon",
-        "noTenant": "Pa gen tenant chwazi",
+        "noTenant": "Pa gen santral chwazi",
         "drawsSelected": "{{selected}} / {{total}} tiraj chwazi",
         "requestedTickets": "Tikè mande",
         "simulationId": "Similasyon {{id}}",
@@ -206,7 +206,7 @@
           "failures": "Echèk"
         },
         "field": {
-          "tenant": "Tenant",
+          "tenant": "Santral",
           "sellerTerminals": "Tèminal vandè",
           "status": "Estati",
           "slot": "Slot",
@@ -220,14 +220,14 @@
           "reason": "Rezon"
         },
         "placeholder": {
-          "tenant": "Chèche tenant",
+          "tenant": "Chèche santral",
           "sellerTerminals": "Chèche vandè"
         },
         "empty": {
-          "tenant": "Pa gen tenant jwenn",
+          "tenant": "Pa gen santral jwenn",
           "sellerTerminal": "Pa gen tèminal vandè aktif",
           "drawsTitle": "Pa gen tiraj chaje",
-          "drawsMessage": "Chwazi yon tenant, apre sa chaje tiraj yo."
+          "drawsMessage": "Chwazi yon santral, apre sa chaje tiraj yo."
         },
         "status": {
           "all": "Tout",
@@ -256,9 +256,9 @@
           "executed": "Similasyon egzekite."
         },
         "error": {
-          "selectTenantBeforeDraws": "Chwazi yon tenant anvan ou chaje tiraj yo.",
+          "selectTenantBeforeDraws": "Chwazi yon santral anvan ou chaje tiraj yo.",
           "loadDraws": "Pa kapab chaje tiraj yo.",
-          "missingRunInputs": "Chwazi yon tenant, omwen yon tiraj, omwen yon tèminal vandè ak yon melanj ki pa vid.",
+          "missingRunInputs": "Chwazi yon santral, omwen yon tiraj, omwen yon tèminal vandè ak yon melanj ki pa vid.",
           "run": "Similasyon an echwe."
         },
         "metric": {
@@ -290,7 +290,7 @@
   "dashboard": {
     "superadmin": {
       "tenants": {
-        "title": "Tenants"
+        "title": "Santral"
       },
       "sales": {
         "title": "Aktivite jodi a"
@@ -321,8 +321,8 @@
         "empty": "Pa gen lavant pa jwèt disponib."
       },
       "top_tenants": {
-        "title": "Pi bon tenants",
-        "empty": "Pa gen aktivite tenant pou peryòd sa a."
+        "title": "Pi bon santral",
+        "empty": "Pa gen aktivite santral pou peryòd sa a."
       },
       "quick_actions": {
         "title": "Aksyon rapid"
@@ -379,7 +379,7 @@
   },
   "quickaction": {
     "platform": {
-      "create_tenant": "Kreye tenant",
+      "create_tenant": "Kreye santral",
       "onboarding": "Gade onboarding",
       "subscriptions": "Jere abònman",
       "platform_health": "Louvri sante platfòm",
