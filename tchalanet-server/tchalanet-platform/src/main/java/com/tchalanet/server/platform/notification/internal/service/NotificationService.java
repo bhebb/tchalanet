@@ -50,6 +50,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 
 /** Application service for the notification capability. */
 @Service
@@ -667,7 +668,7 @@ public class NotificationService {
     return notificationWriter.expire(now);
   }
 
-  @TchTx
+  @TchTx(propagation = Propagation.REQUIRES_NEW)
   public Integer expireByDedupeKeys(ExpireNotificationsByDedupeKeysRequest request) {
     if (request == null || request.dedupeKeys() == null || request.dedupeKeys().isEmpty()) {
       return 0;

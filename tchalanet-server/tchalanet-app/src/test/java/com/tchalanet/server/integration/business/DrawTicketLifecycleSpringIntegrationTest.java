@@ -11,6 +11,7 @@ import com.tchalanet.server.core.draw.api.command.CloseDrawCommand;
 import com.tchalanet.server.core.draw.api.command.GenerateDrawsForRangeCommand;
 import com.tchalanet.server.core.draw.api.command.OpenDrawCommand;
 import com.tchalanet.server.core.draw.internal.application.service.ResultedDrawProcessor;
+import com.tchalanet.server.core.drawresult.api.command.OverrideDrawResultCommand;
 import com.tchalanet.server.core.drawresult.api.command.RecordManualDrawResultCommand;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketCommand;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketLineInput;
@@ -35,8 +36,8 @@ class DrawTicketLifecycleSpringIntegrationTest extends BusinessRuntimeIntegratio
   @Autowired private ResultedDrawProcessor resultedDrawProcessor;
 
   @Test
-  @DisplayName("sell ticket lines, apply draw result, calculate results, then settle draw")
-  void sellApplyResultTicketLinesAndSettleDraw() {
+  @DisplayName("sell ticket lines, apply bad result, override it, then settle draw")
+  void sellApplyBadResultOverrideTicketLinesAndSettleDraw() {
     withContext(
         tenantAdminContext,
         () ->
@@ -124,13 +125,33 @@ class DrawTicketLifecycleSpringIntegrationTest extends BusinessRuntimeIntegratio
 
     assertThat(drawStatus(drawUuid)).isEqualTo("RESULTED");
     assertThat(drawResultId(drawUuid)).isNotNull();
+    assertTicketAfterResult(ticketId);
+    assertTicketLinesAfterResult(ticketId);
+
+    withContext(
+        tenantAdminContext,
+        () ->
+            commandBus.execute(
+                new OverrideDrawResultCommand(
+                    tenantId,
+                    SLOT_KEY,
+                    DRAW_DATE,
+                    "111",
+                    "2222",
+                    "superadmin correction after tenant entered wrong result",
+                    true)));
+
+    assertThat(drawStatus(drawUuid)).isEqualTo("RESULTED");
+    assertThat(drawResultSource(drawUuid)).isEqualTo("ADMIN_OVERRIDE");
+    assertTicketAfterOverrideLoses(ticketId);
+    assertTicketLinesAfterOverrideLoses(ticketId);
 
     var processed = withContext(tenantAdminContext, () -> resultedDrawProcessor.process(drawId));
 
     assertThat(processed).isTrue();
     assertThat(drawStatus(drawUuid)).isEqualTo("SETTLED");
-    assertTicketAfterResult(ticketId);
-    assertTicketLinesAfterResult(ticketId);
+    assertTicketAfterOverrideLoses(ticketId);
+    assertTicketLinesAfterOverrideLoses(ticketId);
   }
 
   private Map<String, Object> scheduledBoletDraw(String slotKey, LocalDate drawDate) {
@@ -221,6 +242,44 @@ class DrawTicketLifecycleSpringIntegrationTest extends BusinessRuntimeIntegratio
     assertThat((BigDecimal) lines.get(1).get("payout_amount")).isEqualByComparingTo("0");
   }
 
+  private void assertTicketAfterOverrideLoses(UUID ticketId) {
+    var ticket =
+        jdbc.queryForMap(
+            """
+                select result_status, settlement_status, winning_amount, result_override_reason
+                  from sales_ticket
+                 where id = ?
+                """,
+            ticketId);
+
+    assertThat(ticket.get("result_status")).isEqualTo("OVERRIDDEN");
+    assertThat(ticket.get("settlement_status")).isEqualTo("NO_PAYOUT");
+    assertThat((BigDecimal) ticket.get("winning_amount")).isEqualByComparingTo("0");
+    assertThat(ticket.get("result_override_reason"))
+        .isEqualTo("superadmin correction after tenant entered wrong result");
+  }
+
+  private void assertTicketLinesAfterOverrideLoses(UUID ticketId) {
+    var lines =
+        jdbc.queryForList(
+            """
+                select line_number, selection_key, result_status, payout_amount
+                  from sales_ticket_line
+                 where ticket_id = ?
+                 order by line_number
+                """,
+            ticketId);
+
+    assertThat(lines).hasSize(2);
+    assertThat(lines.get(0).get("selection_key")).isEqualTo("23");
+    assertThat(lines.get(0).get("result_status")).isEqualTo("LOST");
+    assertThat((BigDecimal) lines.get(0).get("payout_amount")).isEqualByComparingTo("0");
+
+    assertThat(lines.get(1).get("selection_key")).isEqualTo("99");
+    assertThat(lines.get(1).get("result_status")).isEqualTo("LOST");
+    assertThat((BigDecimal) lines.get(1).get("payout_amount")).isEqualByComparingTo("0");
+  }
+
   private String drawStatus(UUID drawUuid) {
     return jdbc.queryForObject("select status from draw where id = ?", String.class, drawUuid);
   }
@@ -228,5 +287,10 @@ class DrawTicketLifecycleSpringIntegrationTest extends BusinessRuntimeIntegratio
   private UUID drawResultId(UUID drawUuid) {
     return jdbc.queryForObject(
         "select draw_result_id from draw where id = ?", UUID.class, drawUuid);
+  }
+
+  private String drawResultSource(UUID drawUuid) {
+    return jdbc.queryForObject(
+        "select result_source from draw where id = ?", String.class, drawUuid);
   }
 }
