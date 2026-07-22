@@ -243,7 +243,7 @@
           "configuration": "Konfigirasyon",
           "subscription": "Abònman",
           "entitlements": "Dwa itilizasyon",
-          "sellerTerminals": "Machann",
+          "sellerTerminals": "Tèminal POS",
           "audit": "Odit"
         },
         "address": {
@@ -295,11 +295,11 @@
           }
         },
         "sellerTerminals": {
-          "loading": "Ap chaje machann yo…",
-          "error": "Enposib pou chaje machann yo.",
+          "loading": "Ap chaje tèminal POS yo…",
+          "error": "Enposib pou chaje tèminal POS yo.",
           "empty": {
-            "title": "Pa gen machann",
-            "message": "Santral sa a poko gen okenn machann."
+            "title": "Pa gen tèminal POS",
+            "message": "Santral sa a poko gen okenn tèminal POS."
           },
           "status": {
             "active": "Aktif",
@@ -356,7 +356,7 @@
             "buyer": "Achtè a peye",
             "tenant": "Santral la peye",
             "platform": "Platfòm nan peye",
-            "seller": "Machann lan peye"
+            "seller": "Tèminal POS la peye"
           }
         }
       },
@@ -373,7 +373,7 @@
           "promotions_templates": "Modèl pwomosyon",
           "limits_templates": "Modèl limit",
           "demo_users": "Itilizatè demo",
-          "demo_seller_terminals": "Machann demo"
+          "demo_seller_terminals": "Tèminal POS demo"
         },
         "data": {
           "tickets": "Tikè",
@@ -388,17 +388,17 @@
           "identity": "Idantite santral",
           "users": "Admin santral",
           "draw_channels": "Règ tiraj",
-          "seller_rules": "Règ machann",
+          "seller_rules": "Règ tèminal POS",
           "limits": "Limit",
           "odds": "Barèm",
-          "seller_terminals": "Machann"
+          "seller_terminals": "Tèminal POS"
         },
         "nextSteps": {
           "CREATE_INITIAL_ADMIN": "Kreye admin inisyal la",
           "CONFIGURE_GAMES": "Konfigire jwèt yo",
           "CONFIGURE_DRAW_CHANNELS": "Konfigire règ tiraj yo",
-          "CONFIGURE_SELLER_RULES": "Konfigire règ machann",
-          "CREATE_SELLER_TERMINAL": "Kreye yon machann",
+          "CONFIGURE_SELLER_RULES": "Konfigire règ tèminal POS",
+          "CREATE_SELLER_TERMINAL": "Kreye yon tèminal POS",
           "CONFIGURE_LIMITS": "Konfigire limit yo",
           "CONFIGURE_ODDS": "Konfigire barèm yo",
           "VERIFY_DEMO_SETUP": "Verifye done demo yo"
@@ -417,7 +417,7 @@
         }
       },
       "confirm": {
-        "suspend": "Ou vle sispann {{name}} ? Machann yo p ap ka konekte ankò.",
+        "suspend": "Ou vle sispann {{name}} ? Tèminal POS yo p ap ka konekte ankò.",
         "reactivate": "Ou vle reaktive {{name}} ?",
         "archive": "Ou vle achive {{name}} ? Aksyon sa a difisil pou defèt.",
         "reasonLabel": "Rezon",
@@ -486,7 +486,7 @@
         "initialAdminEmail": "Imèl admin inisyal"
       },
       "hint": {
-        "defaultCommissionRate": "Komisyon yo aplike pa defo sou machann ki pa gen yon to espesifik.",
+        "defaultCommissionRate": "Komisyon yo aplike pa defo sou tèminal POS ki pa gen yon to espesifik.",
         "maryajGratisEnabled": "Montre paj Maryaj gratis nan santral la epi ajoute kat konfigirasyon li.",
         "initialAdminUsername": "3 a 64 karaktè: lèt, chif, pwen, souliyé oswa tirè.",
         "initialAdminEmail": "Obligatwa pou kreye admin inisyal la."
@@ -517,7 +517,7 @@
         "existingUserAttached": "Yon itilizatè ki egziste deja vin administratè santral la.",
         "temporaryCredentialNotReturned": "Idantifyan tanporè yo pa t ka afiche. Reinisyalize modpas la depi paj detay santral la.",
         "temporaryPasswordIssued": "Yon modpas tanporè kreye pou administratè inisyal la.",
-        "noPlanSelected": "Pa gen plan chwazi. Santral la ap kreye san abònman aktif — aplike yon plan avan ou kreye machann.",
+        "noPlanSelected": "Pa gen plan chwazi. Santral la ap kreye san abònman aktif — aplike yon plan avan ou kreye tèminal POS.",
         "fallback": "Yon pwen konfigirasyon mande verifikasyon."
       },
       "identityCard": {
@@ -555,7 +555,7 @@
         "promotionsTemplates": "Modèl pwomosyon",
         "limitsTemplates": "Modèl limit",
         "demoUsers": "Itilizatè demo",
-        "demoSellerTerminals": "Machann demo",
+        "demoSellerTerminals": "Tèminal POS demo",
         "subscription": "Abònman"
       },
       "status": {
@@ -576,8 +576,8 @@
         "createInitialAdmin": "Kreye admin inisyal la",
         "configureGames": "Konfigire jwèt yo",
         "configureDrawChannels": "Konfigire règ tiraj yo",
-        "createSellerTerminal": "Kreye yon machann",
-        "configureSellerRules": "Konfigire règ machann yo",
+        "createSellerTerminal": "Kreye yon tèminal POS",
+        "configureSellerRules": "Konfigire règ tèminal POS yo",
         "configureLimits": "Konfigire limit yo",
         "configureOdds": "Konfigire barèm yo",
         "verifyDemoSetup": "Verifye done demo yo"
@@ -831,14 +831,14 @@
         "envers": "Sous: Hibernate Envers"
       },
       "entityType": {
-        "sellerTerminal": "Machann",
+        "sellerTerminal": "Tèminal POS",
         "drawResult": "Rezilta tiraj",
         "limitAssignment": "Assignasyon limit"
       },
       "filter": {
         "entityType": "Tip antite",
         "entityId": "ID oswa kle biznis",
-        "entityIdPlaceholder": "UUID, kòd machann, NY_EVE 2026-06-26, oswa règ",
+        "entityIdPlaceholder": "UUID, kòd tèminal POS, NY_EVE 2026-06-26, oswa règ",
         "allEntityTypes": "Tout antite"
       },
       "state": {

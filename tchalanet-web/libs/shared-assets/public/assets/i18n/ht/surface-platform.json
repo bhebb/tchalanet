@@ -182,7 +182,7 @@
     "ops": {
       "salesSimulation": {
         "title": "Similasyon vant",
-        "description": "Kreye volim tikè QA pa santral, tiraj ak machann atravè vrè sik prepare/confirm lan.",
+        "description": "Kreye volim tikè QA pa santral, tiraj ak tèminal POS atravè vrè sik prepare/confirm lan.",
         "errorTitle": "Aksyon pa disponib",
         "noticeTitle": "Similasyon",
         "noTenant": "Pa gen santral chwazi",
@@ -207,7 +207,7 @@
         },
         "field": {
           "tenant": "Santral",
-          "sellerTerminals": "Machann",
+          "sellerTerminals": "Tèminal POS",
           "status": "Estati",
           "slot": "Slot",
           "from": "Soti",
@@ -221,11 +221,11 @@
         },
         "placeholder": {
           "tenant": "Chèche santral",
-          "sellerTerminals": "Chèche machann"
+          "sellerTerminals": "Chèche tèminal POS"
         },
         "empty": {
           "tenant": "Pa gen santral jwenn",
-          "sellerTerminal": "Pa gen machann aktif",
+          "sellerTerminal": "Pa gen tèminal POS aktif",
           "drawsTitle": "Pa gen tiraj chaje",
           "drawsMessage": "Chwazi yon santral, apre sa chaje tiraj yo."
         },
@@ -258,7 +258,7 @@
         "error": {
           "selectTenantBeforeDraws": "Chwazi yon santral anvan ou chaje tiraj yo.",
           "loadDraws": "Pa kapab chaje tiraj yo.",
-          "missingRunInputs": "Chwazi yon santral, omwen yon tiraj, omwen yon machann ak yon melanj ki pa vid.",
+          "missingRunInputs": "Chwazi yon santral, omwen yon tiraj, omwen yon tèminal POS ak yon melanj ki pa vid.",
           "run": "Similasyon an echwe."
         },
         "metric": {
