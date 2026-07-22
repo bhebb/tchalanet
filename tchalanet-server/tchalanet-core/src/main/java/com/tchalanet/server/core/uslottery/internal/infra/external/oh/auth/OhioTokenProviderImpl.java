@@ -44,7 +44,7 @@ public class OhioTokenProviderImpl implements OhioTokenProvider {
         .login()
         .map(
             token -> {
-              log.info("Received new token from Ohio auth service: {}", token);
+              log.info("Received new token from Ohio auth service");
               cached = CachedToken.fromJwt(jsonUtils, token, timeProvider.now());
               return token;
             });
