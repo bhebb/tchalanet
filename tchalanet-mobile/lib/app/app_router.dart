@@ -65,6 +65,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, _) => const SellerTerminalProfilePage(),
       ),
       GoRoute(
+        path: '/pos/settings',
+        builder: (context, _) => const SellerTerminalSettingsPage(),
+      ),
+      GoRoute(
         path: '/pos/notifications',
         builder: (context, _) => const NotificationCenterPage(),
       ),

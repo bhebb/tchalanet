@@ -5,7 +5,9 @@ import '../../../tickets/data/models/cashier_ticket_models.dart';
 import '../../../tickets/data/services/cashier_sell_catalog_service.dart';
 import '../../../tickets/data/services/cashier_ticket_service.dart';
 import '../../data/models/cashier_home_models.dart';
+import '../../data/models/pos_profile_models.dart';
 import '../../data/services/cashier_home_service.dart';
+import '../../data/services/pos_profile_service.dart';
 import '../../data/services/terminal_stats_service.dart';
 
 /// Full cashier home payload. Refreshable — call ref.invalidate(cashierHomeProvider)
@@ -20,6 +22,11 @@ final cashierReadinessProvider = FutureProvider<CashierReadinessResponse>((
   ref,
 ) async {
   return ref.watch(cashierHomeServiceProvider).fetchReadiness();
+});
+
+/// One compact account payload for POS profile and settings.
+final posProfileProvider = FutureProvider<PosProfileResponse>((ref) async {
+  return ref.watch(posProfileServiceProvider).fetchProfile();
 });
 
 /// Today's ticket count + sales total for the authenticated SELLER_TERMINAL.

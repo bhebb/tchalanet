@@ -1326,7 +1326,7 @@ Future<void> _showAccountMenu(
     case _AccountMenuAction.profile:
       context.go('/pos/profile');
     case _AccountMenuAction.settings:
-      context.go('/pos/profile');
+      context.go('/pos/settings');
     case _AccountMenuAction.logout:
       await _confirmAccountLogout(context, ref, translations);
   }

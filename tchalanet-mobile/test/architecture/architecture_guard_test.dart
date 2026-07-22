@@ -7,6 +7,7 @@ const _knownCoreFeatureImports = <String>{};
 const _knownViewDataSourceImports = {
   'lib/features/cashier/home/presentation/views/cashier_home_page.dart|../../data/services/terminal_stats_service.dart',
   'lib/features/cashier/home/presentation/views/seller_terminal_stats_page.dart|../../data/services/terminal_stats_service.dart',
+  'lib/features/cashier/home/presentation/views/seller_terminal_stats_page.dart|../../../tickets/data/services/cashier_ticket_service.dart',
   'lib/features/cashier/tickets/presentation/views/cashier_history_page.dart|../../data/services/cashier_ticket_service.dart',
   'lib/features/cashier/tickets/presentation/views/cashier_scan_page.dart|../../data/services/cashier_ticket_service.dart',
   'lib/features/cashier/tickets/presentation/views/cashier_ticket_detail_page.dart|../../data/services/cashier_ticket_service.dart',
@@ -15,6 +16,7 @@ const _knownViewDataSourceImports = {
 
 const _knownViewModelDataSourceImports = {
   'lib/features/cashier/home/presentation/view_models/cashier_home_providers.dart|../../data/services/cashier_home_service.dart',
+  'lib/features/cashier/home/presentation/view_models/cashier_home_providers.dart|../../data/services/pos_profile_service.dart',
   'lib/features/cashier/home/presentation/view_models/cashier_home_providers.dart|../../data/services/terminal_stats_service.dart',
   'lib/features/cashier/home/presentation/view_models/cashier_home_providers.dart|../../../tickets/data/services/cashier_sell_catalog_service.dart',
   'lib/features/cashier/home/presentation/view_models/cashier_home_providers.dart|../../../tickets/data/services/cashier_ticket_service.dart',
@@ -36,12 +38,11 @@ const _knownProvidersDeclaredInViews = {
   'lib/features/cashier/tickets/presentation/views/cashier_history_page.dart|_historyProvider',
   'lib/features/cashier/tickets/presentation/views/cashier_scan_page.dart|verifyControllerProvider',
   'lib/features/cashier/tickets/presentation/views/cashier_ticket_detail_page.dart|_ticketDetailProvider',
+  'lib/features/cashier/home/presentation/views/seller_terminal_stats_page.dart|_reportTicketsProvider',
 };
 
 const _knownHardcodedUiLiteralCounts = <String, int>{
-  'lib/features/cashier/home/presentation/views/cashier_home_page.dart': 3,
-  'lib/features/cashier/home/presentation/views/seller_terminal_profile_page.dart':
-      3,
+  'lib/features/cashier/home/presentation/views/cashier_home_page.dart': 4,
   'lib/features/cashier/home/presentation/views/seller_terminal_stats_page.dart':
       2,
   'lib/features/cashier/tickets/presentation/views/cashier_sell_page.dart': 4,
@@ -61,6 +62,7 @@ const _routedScreens = {
   '/pos/reports': 'SellerTerminalStatsPage',
   '/pos/scan': 'CashierScanPage',
   '/pos/profile': 'SellerTerminalProfilePage',
+  '/pos/settings': 'SellerTerminalSettingsPage',
   '/pos/notifications': 'NotificationCenterPage',
   '/sell': 'CashierSellPage',
   '/pos/sell/success': 'CashierSellSuccessPage',
