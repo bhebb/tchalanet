@@ -604,7 +604,7 @@
       },
       "advancedSettings": {
         "title": "Paramèt avanse",
-        "description": "Lang, resi, kominikasyon ak règ biznis ka ajiste nan paramèt santral la.",
+        "description": "Lang, resi, kominikasyon ak règ biznis ka ajiste nan paramèt lis santral la.",
         "action": "Louvri paramèt yo"
       },
       "title": "Konfigirasyon jeneral",
@@ -640,8 +640,8 @@
         "theme": "Aparans",
         "themeDesc": "Pèsonalizasyon aparans lan.",
         "themeCta": "Konfigire aparans lan",
-        "settings": "Paramèt santral la",
-        "settingsDesc": "Pèsonalize lang ak resi a (non afichaj, mesaj) pou santral ou.",
+        "settings": "Paramèt lis santral la",
+        "settingsDesc": "Pèsonalize lang ak resi a (non afichaj, mesaj) pou lis santral ou.",
         "settingsCta": "Konfigire paramèt yo",
         "subscription": "Abònman",
         "subscriptionDesc": "Plan ak estati abònman ou.",
@@ -654,20 +654,20 @@
         "sellerTerminalCta": "Konfigire tèminal POS yo",
         "sellerTerminalReady": "Tèminal POS yo pare"
       },
-      "description": "Swiv etap yo pou konfigire santral la epi rann li operasyonèl.",
+      "description": "Swiv etap yo pou konfigire lis santral la epi rann li operasyonèl.",
       "status": {
         "notStarted": "Poko kòmanse",
         "inProgress": "An kou",
         "completed": "Fini"
       },
       "advancedSettings.title": "Paramèt avanse",
-      "advancedSettings.description": "Konfigire paramèt avanse santral la.",
+      "advancedSettings.description": "Konfigire paramèt avanse lis santral la.",
       "advancedSettings.action": "Konfigire paramèt avanse yo",
       "blockingStep": {
         "identity_address": "Idantite ak adrès",
         "identity": "Idantite",
         "address": "Adrès",
-        "settings": "Paramèt santral la",
+        "settings": "Paramèt lis santral la",
         "games_pricing": "Jwèt",
         "draws": "Kanal tiraj",
         "generated_draws": "Tiraj jenere"
