@@ -25,9 +25,10 @@ import tools.jackson.databind.JsonNode;
 /**
  * Maps the OH DrawGames JSON feed. Shape validated against real API response 2026-06-16.
  *
- * <p>Root: {@code {"statusCode":200,"data":[...]}}. Each draw: {@code drawDate} (ISO local time),
- * {@code numbers[{value,position}]}, {@code approved}. No slot label — infer MIDDAY (hour<15) vs
- * EVENING (hour≥15) from the local draw time.
+ * <p>Root: {@code {"statusCode":200,"data":{"draws":[...]}}}. Legacy captures also returned
+ * {@code data:[...]}. Each draw: {@code drawDate}, {@code modifier}, {@code numbers[{value,position}]},
+ * {@code approved}. Slot is inferred from {@code modifier} when present (1=MIDDAY, 2=EVENING), with
+ * local drawDate hour as a fallback for older shapes.
  */
 @Component
 @Slf4j
@@ -37,9 +38,11 @@ public class OhioDrawResultsMapper {
   private static final UsLotteryProvider PROVIDER = UsLotteryProvider.OH;
   private static final String ORIGIN = "OH_API";
 
-  // Real root field is "data"; keep legacy candidates for forward-compat.
+  // Real root field is "data.draws"; keep legacy candidates for forward-compat.
   private static final List<String> DRAW_LIST_FIELDS =
       List.of("data", "DrawGames", "Draws", "draws", "Results", "results");
+  private static final List<String> NESTED_DRAW_LIST_FIELDS =
+      List.of("draws", "Draws", "DrawGames", "Results", "results");
   private static final List<String> DATE_FIELDS = List.of("drawDate", "DrawDate", "Date", "date");
   private static final List<String> NUMBERS_FIELDS =
       List.of("numbers", "Numbers", "WinningNumbers", "winningNumbers");
@@ -110,8 +113,17 @@ public class OhioDrawResultsMapper {
       return null;
     }
 
-    var quality =
-        main.size() == game.expectedSize() ? ResultQuality.COMPLETE : ResultQuality.SUSPECT;
+    if (main.size() != game.expectedSize()) {
+      log.warn(
+          "oh-client skipped draw with unexpected number count game={} expected={} actual={} drawDate={}",
+          game.outputCode(),
+          game.expectedSize(),
+          main.size(),
+          query.drawDate());
+      return null;
+    }
+
+    var quality = ResultQuality.COMPLETE;
 
     var metadata = new LinkedHashMap<String, String>();
     metadata.put("provider", PROVIDER.name());
@@ -150,6 +162,15 @@ public class OhioDrawResultsMapper {
           node.forEach(nodes::add);
           return nodes;
         }
+        if (node != null && node.isObject()) {
+          for (var nestedField : NESTED_DRAW_LIST_FIELDS) {
+            var nested = node.get(nestedField);
+            if (nested != null && nested.isArray()) {
+              nested.forEach(nodes::add);
+              return nodes;
+            }
+          }
+        }
       }
     } catch (Exception ex) {
       log.warn("oh-client parse failed: {}", ex.getMessage(), ex);
@@ -171,8 +192,22 @@ public class OhioDrawResultsMapper {
     return null;
   }
 
-  /** Infers MIDDAY/EVENING from the local hour in the ISO drawDate string (no timezone). */
+  /**
+   * Infers MIDDAY/EVENING from Ohio's modifier when present (1=MIDDAY, 2=EVENING), then falls back
+   * to the local hour in older ISO drawDate strings.
+   */
   private static String inferSlot(JsonNode draw) {
+    var modifier = draw.get("modifier");
+    if (modifier != null && !modifier.isNull()) {
+      var value = modifier.asString().trim();
+      if ("1".equals(value)) {
+        return "MIDDAY";
+      }
+      if ("2".equals(value)) {
+        return "EVENING";
+      }
+    }
+
     for (var field : DATE_FIELDS) {
       var node = draw.get(field);
       if (node == null || node.isNull()) {
@@ -198,9 +233,7 @@ public class OhioDrawResultsMapper {
       }
       var nums = extractNumbersSorted(node);
       if (!nums.isEmpty()) {
-        return nums.size() > expectedSize && expectedSize > 0
-            ? nums.subList(0, expectedSize)
-            : nums;
+        return nums;
       }
     }
     return List.of();

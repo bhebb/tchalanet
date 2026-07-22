@@ -29,4 +29,9 @@
     background: var(--tch-color-error-container, #ffdad6);
     color: var(--tch-color-on-error-container, #93000a);
   }
+
+  &--disabled {
+    background: color-mix(in oklab, var(--tch-color-on-surface, #1a1c1e) 6%, transparent);
+    color: var(--tch-color-on-surface-variant, #5f6368);
+  }
 }

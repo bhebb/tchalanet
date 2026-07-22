@@ -14,6 +14,7 @@ export class DrawChannelSourceBadgeComponent {
   readonly icon = computed<string>(() => {
     const a = this.acquisition();
     if (a.sourceStatus === 'ERROR') return 'sync_problem';
+    if (a.sourceStatus === 'DISABLED') return 'block';
     switch (a.mode) {
       case 'AUTO':         return 'sync';
       case 'MANUAL':       return 'edit_note';
@@ -24,6 +25,7 @@ export class DrawChannelSourceBadgeComponent {
   readonly label = computed<string>(() => {
     const a = this.acquisition();
     if (a.sourceStatus === 'ERROR') return 'Source en erreur';
+    if (a.sourceStatus === 'DISABLED') return 'Non disponible';
     switch (a.mode) {
       case 'AUTO':         return 'Acquisition auto';
       case 'MANUAL':       return 'Saisie manuelle';
@@ -31,9 +33,10 @@ export class DrawChannelSourceBadgeComponent {
     }
   });
 
-  readonly variant = computed<'ok' | 'manual' | 'warning' | 'error'>(() => {
+  readonly variant = computed<'ok' | 'manual' | 'warning' | 'error' | 'disabled'>(() => {
     const a = this.acquisition();
     if (a.sourceStatus === 'ERROR') return 'error';
+    if (a.sourceStatus === 'DISABLED') return 'disabled';
     switch (a.mode) {
       case 'AUTO':         return 'ok';
       case 'MANUAL':       return 'manual';
