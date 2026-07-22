@@ -3,9 +3,14 @@ import { AccessRequirement } from '@tch/core/auth';
 export type ConsoleDrawResultCapability = 'manual' | 'confirm' | 'override' | 'fetch';
 
 const CAPABILITY_PERMISSIONS: Record<ConsoleDrawResultCapability, readonly string[]> = {
-  manual: ['draw-results.manual', 'admin.draw-results.manual', 'platform.ops.draw-results.manual'],
-  confirm: ['draw-results.confirm', 'platform.ops.draw-results.confirm'],
-  override: ['draw-results.override', 'platform.ops.draw-results.override'],
+  manual: [
+    'draw_result.record_manual',
+    'draw-results.manual',
+    'admin.draw-results.manual',
+    'platform.ops.draw-results.manual',
+  ],
+  confirm: ['draw_result.confirm', 'draw-results.confirm', 'platform.ops.draw-results.confirm'],
+  override: ['draw_result.override', 'draw-results.override', 'platform.ops.draw-results.override'],
   fetch: ['draw-results.fetch', 'platform.ops.draw-results.fetch'],
 };
 
