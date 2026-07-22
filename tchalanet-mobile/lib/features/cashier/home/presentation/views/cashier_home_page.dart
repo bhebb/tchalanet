@@ -1147,6 +1147,7 @@ class _PosAppBar extends ConsumerWidget implements PreferredSizeWidget {
             initials: _initials(session.displayName ?? session.username),
             tooltip: translations.translate('pos.profile.open'),
             label: translations.translate('pos.dashboard.profile'),
+            onTap: () => _showAccountMenu(context, ref, translations),
           ),
         ),
       ],
@@ -1217,11 +1218,13 @@ class _UserAvatar extends StatelessWidget {
     required this.initials,
     required this.tooltip,
     required this.label,
+    required this.onTap,
   });
 
   final String initials;
   final String tooltip;
   final String label;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -1233,7 +1236,7 @@ class _UserAvatar extends StatelessWidget {
         message: tooltip,
         child: InkWell(
           borderRadius: BorderRadius.circular(TchRadius.pill),
-          onTap: () => context.go('/pos/profile'),
+          onTap: onTap,
           child: SizedBox(
             width: 52,
             child: Column(
@@ -1267,6 +1270,97 @@ class _UserAvatar extends StatelessWidget {
     );
   }
 }
+
+Future<void> _showAccountMenu(
+  BuildContext context,
+  WidgetRef ref,
+  I18nBundle translations,
+) async {
+  final action = await showModalBottomSheet<_AccountMenuAction>(
+    context: context,
+    useSafeArea: true,
+    showDragHandle: true,
+    builder: (sheetContext) => SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+          TchSpacing.s16,
+          0,
+          TchSpacing.s16,
+          TchSpacing.s16,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.person_rounded),
+              title: Text(translations.translate('pos.profile.title')),
+              onTap: () =>
+                  Navigator.of(sheetContext).pop(_AccountMenuAction.profile),
+            ),
+            ListTile(
+              leading: const Icon(Icons.settings_rounded),
+              title: Text(translations.translate('pos.profile.settings')),
+              onTap: () =>
+                  Navigator.of(sheetContext).pop(_AccountMenuAction.settings),
+            ),
+            const Divider(height: TchSpacing.s16),
+            ListTile(
+              leading: Icon(
+                Icons.logout_rounded,
+                color: Theme.of(sheetContext).colorScheme.error,
+              ),
+              title: Text(translations.translate('pos.profile.sign_out')),
+              textColor: Theme.of(sheetContext).colorScheme.error,
+              iconColor: Theme.of(sheetContext).colorScheme.error,
+              onTap: () =>
+                  Navigator.of(sheetContext).pop(_AccountMenuAction.logout),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+
+  if (!context.mounted || action == null) return;
+  switch (action) {
+    case _AccountMenuAction.profile:
+      context.go('/pos/profile');
+    case _AccountMenuAction.settings:
+      context.go('/pos/profile');
+    case _AccountMenuAction.logout:
+      await _confirmAccountLogout(context, ref, translations);
+  }
+}
+
+Future<void> _confirmAccountLogout(
+  BuildContext context,
+  WidgetRef ref,
+  I18nBundle translations,
+) async {
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      title: Text(translations.translate('pos.profile.sign_out_title')),
+      content: Text(translations.translate('pos.profile.sign_out_message')),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(dialogContext).pop(false),
+          child: Text(translations.translate('common.cancel')),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.of(dialogContext).pop(true),
+          child: Text(translations.translate('pos.profile.sign_out')),
+        ),
+      ],
+    ),
+  );
+  if (confirmed != true) return;
+
+  await ref.read(authControllerProvider.notifier).logout();
+  if (context.mounted) context.go('/login');
+}
+
+enum _AccountMenuAction { profile, settings, logout }
 
 String _initials(String? name) {
   if (name == null || name.trim().isEmpty) return '?';

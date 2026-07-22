@@ -183,6 +183,7 @@
     "profile": {
       "title": "Profil",
       "open": "Ouvrir le profil",
+      "settings": "Paramètres",
       "terminal": "Terminal",
       "account": "Compte",
       "name": "Nom",

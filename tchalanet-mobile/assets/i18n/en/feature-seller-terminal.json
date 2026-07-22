@@ -183,6 +183,7 @@
     "profile": {
       "title": "Profile",
       "open": "Open profile",
+      "settings": "Settings",
       "terminal": "Terminal",
       "account": "Account",
       "name": "Name",
