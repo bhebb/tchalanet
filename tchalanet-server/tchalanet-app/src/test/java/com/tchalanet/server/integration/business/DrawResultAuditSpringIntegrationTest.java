@@ -92,7 +92,6 @@ class DrawResultAuditSpringIntegrationTest extends BusinessRuntimeIntegrationTes
     assertThat(manual.get("created_at")).isNotNull();
     assertThat(manual.get("updated_at")).isNotNull();
 
-    requirePlatformReview("NY_EVE");
     withContext(
         tenantAdminContext,
         () ->
@@ -172,21 +171,6 @@ class DrawResultAuditSpringIntegrationTest extends BusinessRuntimeIntegrationTes
     assertThat(overridden.get("override_reason")).isEqualTo("audit override");
     assertThat((Timestamp) overridden.get("updated_at")).isNotEqualTo(beforeOverrideUpdatedAt);
     assertThat(auditUpdateCount(overrideId)).isGreaterThanOrEqualTo(1);
-  }
-
-  private void requirePlatformReview(String slotKey) {
-    jdbc.update(
-        """
-            update result_slot
-               set source_cfg = jsonb_set(
-                   coalesce(source_cfg, '{}'::jsonb),
-                   '{trust_policy}',
-                   '"REQUIRE_PLATFORM_REVIEW"'::jsonb,
-                   true
-                 )
-             where slot_key = ?
-            """,
-        slotKey);
   }
 
   private Map<String, Object> drawResult(String slotKey, LocalDate resultDate) {

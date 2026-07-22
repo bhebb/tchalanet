@@ -30,7 +30,7 @@ public class TenantAdminDrawResultController {
 
   private final CommandBus commandBus;
 
-  @Operation(summary = "Propose a manual draw result — status determined by slot trust policy")
+  @Operation(summary = "Propose a manual draw result — always provisional until platform review")
   @PostMapping("/manual")
   @AuditLog(
       entity = AuditEntityType.DRAW_RESULT,
@@ -52,7 +52,7 @@ public class TenantAdminDrawResultController {
                 req.pick4(),
                 false, // tenant admin cannot force-overwrite
                 null,
-                true // observe trust_policy: REQUIRE_PLATFORM_REVIEW → PROVISIONAL
+                true // tenant admin proposals always require platform review
                 ));
 
     return ApiResponse.success(res);
