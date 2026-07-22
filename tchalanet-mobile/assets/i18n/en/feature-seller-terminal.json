@@ -228,6 +228,8 @@
       "copy_count": "Copy count",
       "notifications": "Notifications",
       "notifications_enabled": "Notifications enabled",
+      "notifications_disabled": "Notifications disabled",
+      "notifications_disabled_message": "Enable notifications in terminal settings.",
       "critical_only": "Critical only",
       "manual_print": "Manual print",
       "auto_printing": "Automatic printing"

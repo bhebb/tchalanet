@@ -12,20 +12,30 @@ import '../../data/models/notification_models.dart';
 import '../view_models/notification_center_view_model.dart';
 
 class NotificationCenterPage extends ConsumerWidget {
-  const NotificationCenterPage({super.key});
+  const NotificationCenterPage({
+    super.key,
+    this.notificationsEnabled = true,
+    this.criticalOnly = false,
+  });
+
+  final bool notificationsEnabled;
+  final bool criticalOnly;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(notificationCenterProvider);
     final viewModel = ref.read(notificationCenterProvider.notifier);
     final translations = ref.watch(i18nBundleProvider);
+    final visibleState = criticalOnly ? _criticalState(state) : state;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(translations.translate('notifications.center.title')),
         actions: [
-          if (state.status == NotificationStatus.unread &&
-              state.items.isNotEmpty)
+          if (notificationsEnabled &&
+              !criticalOnly &&
+              visibleState.status == NotificationStatus.unread &&
+              visibleState.items.isNotEmpty)
             TextButton.icon(
               onPressed: state.loading ? null : viewModel.markAllRead,
               icon: const Icon(Icons.done_all_rounded, size: 18),
@@ -38,18 +48,21 @@ class NotificationCenterPage extends ConsumerWidget {
             ),
           IconButton(
             tooltip: translations.translate('notifications.center.refresh'),
-            onPressed: state.loading ? null : viewModel.refresh,
+            onPressed: state.loading || !notificationsEnabled
+                ? null
+                : viewModel.refresh,
             icon: const Icon(Icons.refresh_rounded),
           ),
         ],
       ),
       body: Column(
         children: [
-          _StatusFilter(
-            selected: state.status,
-            translations: translations,
-            onSelected: viewModel.selectStatus,
-          ),
+          if (notificationsEnabled)
+            _StatusFilter(
+              selected: state.status,
+              translations: translations,
+              onSelected: viewModel.selectStatus,
+            ),
           if (state.errorKey != null && state.items.isNotEmpty)
             MaterialBanner(
               content: Text(translations.translate(state.errorKey!)),
@@ -62,8 +75,9 @@ class NotificationCenterPage extends ConsumerWidget {
             ),
           Expanded(
             child: _NotificationContent(
-              state: state,
+              state: visibleState,
               translations: translations,
+              notificationsEnabled: notificationsEnabled,
               onRetry: viewModel.refresh,
               onLoadMore: viewModel.loadMore,
               onRead: viewModel.markRead,
@@ -73,6 +87,14 @@ class NotificationCenterPage extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  NotificationCenterState _criticalState(NotificationCenterState state) {
+    final criticalItems = [
+      for (final item in state.items)
+        if (item.severity == NotificationSeverity.critical) item,
+    ];
+    return state.copyWith(items: List.unmodifiable(criticalItems));
   }
 }
 
@@ -126,6 +148,7 @@ class _NotificationContent extends StatelessWidget {
   const _NotificationContent({
     required this.state,
     required this.translations,
+    required this.notificationsEnabled,
     required this.onRetry,
     required this.onLoadMore,
     required this.onRead,
@@ -134,6 +157,7 @@ class _NotificationContent extends StatelessWidget {
 
   final NotificationCenterState state;
   final I18nBundle translations;
+  final bool notificationsEnabled;
   final VoidCallback onRetry;
   final VoidCallback onLoadMore;
   final ValueChanged<String> onRead;
@@ -141,6 +165,15 @@ class _NotificationContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (!notificationsEnabled) {
+      return FeedbackState(
+        kind: FeedbackStateKind.empty,
+        title: translations.translate('pos.settings.notifications_disabled'),
+        message: translations.translate(
+          'pos.settings.notifications_disabled_message',
+        ),
+      );
+    }
     if (state.loading && state.items.isEmpty) {
       return FeedbackState(
         kind: FeedbackStateKind.loading,

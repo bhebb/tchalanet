@@ -231,6 +231,8 @@
       "copy_count": "Kantite kopi",
       "notifications": "Notifikasyon",
       "notifications_enabled": "Notifikasyon aktive",
+      "notifications_disabled": "Notifikasyon dezaktive",
+      "notifications_disabled_message": "Aktive notifikasyon yo nan paramèt tèminal la.",
       "critical_only": "Sèlman kritik",
       "manual_print": "Enpresyon manyèl",
       "auto_printing": "Enpresyon otomatik"

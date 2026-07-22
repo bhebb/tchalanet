@@ -1192,21 +1192,38 @@ class _NotificationCenterAction extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final summary = ref.watch(notificationSummaryProvider).summary;
+    final notificationSettings = ref
+        .watch(posProfileProvider)
+        .asData
+        ?.value
+        .settings
+        .notifications;
+    final notificationsEnabled = notificationSettings?.enabled != false;
+    final criticalOnly = notificationSettings?.criticalOnly == true;
+    final unreadCount = !notificationsEnabled
+        ? 0
+        : criticalOnly
+        ? summary.criticalCount
+        : summary.unreadCount;
+    final criticalCount = notificationsEnabled ? summary.criticalCount : 0;
+    final actionRequiredCount = notificationsEnabled && !criticalOnly
+        ? summary.actionRequiredCount
+        : 0;
     final scheme = Theme.of(context).colorScheme;
-    final badgeColor = summary.criticalCount > 0
+    final badgeColor = criticalCount > 0
         ? scheme.error
-        : summary.actionRequiredCount > 0
+        : actionRequiredCount > 0
         ? TchColors.warning
         : scheme.primary;
     return IconButton(
       tooltip: tooltip,
-      onPressed: () => context.push('/pos/notifications'),
+      onPressed: notificationsEnabled
+          ? () => context.push('/pos/notifications')
+          : null,
       icon: Badge(
-        isLabelVisible: summary.unreadCount > 0,
+        isLabelVisible: unreadCount > 0,
         backgroundColor: badgeColor,
-        label: Text(
-          summary.unreadCount > 99 ? '99+' : '${summary.unreadCount}',
-        ),
+        label: Text(unreadCount > 99 ? '99+' : '$unreadCount'),
         child: const Icon(Icons.notifications_outlined),
       ),
     );

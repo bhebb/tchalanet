@@ -92,7 +92,9 @@ class NotificationCenterViewModel extends Notifier<NotificationCenterState> {
   }
 
   Future<void> loadMore() async {
-    if (!state.hasNext || state.loading || state.loadingMore) return;
+    if (!state.hasNext || state.loading || state.loadingMore) {
+      return;
+    }
     final revision = _revision;
     state = state.copyWith(loadingMore: true, clearError: true);
     try {
