@@ -72,6 +72,36 @@ class OhioDrawResultsMapperTest {
   }
 
   @Test
+  @DisplayName("real wrapped data.draws response: modifier selects midday/evening")
+  void wrappedDrawsModifierSlot() {
+    var body =
+        """
+            {"statusCode":200,"data":{"draws":[
+              {"id":68969,"drawDate":"2026-07-21T00:00:00","modifier":2,"approved":true,
+               "numbers":[
+                 {"value":3,"position":1},{"value":4,"position":2},
+                 {"value":3,"position":3},{"value":0,"position":4}
+               ]},
+              {"id":68966,"drawDate":"2026-07-21T00:00:00","modifier":1,"approved":true,
+               "numbers":[
+                 {"value":2,"position":1},{"value":8,"position":2},
+                 {"value":8,"position":3},{"value":6,"position":4}
+               ]}
+            ]}}""";
+
+    var midday = mapper.map(body, OhGame.PICK4, "hash", "http://oh", query("MIDDAY", LocalDate.of(2026, 7, 21)));
+    var evening = mapper.map(body, OhGame.PICK4, "hash", "http://oh", query("EVENING", LocalDate.of(2026, 7, 21)));
+
+    assertThat(midday.results()).hasSize(1);
+    assertThat(midday.results().getFirst().main()).containsExactly("2", "8", "8", "6");
+    assertThat(midday.results().getFirst().quality()).isEqualTo(ResultQuality.COMPLETE);
+
+    assertThat(evening.results()).hasSize(1);
+    assertThat(evening.results().getFirst().main()).containsExactly("3", "4", "3", "0");
+    assertThat(evening.results().getFirst().quality()).isEqualTo(ResultQuality.COMPLETE);
+  }
+
+  @Test
   @DisplayName("wrong slot: only MIDDAY draw present, EVENING query returns empty")
   void wrongSlot() {
     var midOnly =
