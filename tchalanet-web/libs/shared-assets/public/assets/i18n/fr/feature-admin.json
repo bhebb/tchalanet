@@ -808,7 +808,7 @@
       "blockedBy": "Bloqué par :",
       "backToSetup": "Retour à la configuration",
       "progress": {
-        "title": "Configuration du tenant",
+        "title": "{{completed}} / {{total}} étapes obligatoires terminées",
         "subtitle": "Suivi de l'état de préparation"
       },
       "section": {
@@ -846,7 +846,7 @@
         "subscriptionCta": "Voir l'abonnement",
         "sellerTerminal": "Vendeurs",
         "sellerTerminalDesc": "Vendeurs disponibles",
-        "sellerTerminalLocked": "Le terminal est verrouillé. Veuillez contacter l'administrateur.",
+        "sellerTerminalLocked": "La création des vendeurs est bloquée tant que les étapes obligatoires ne sont pas terminées.",
         "identityDesc": "Informations principales de votre entreprise.",
         "sellerTerminalCta": "Configurer les terminaux vendeurs",
         "sellerTerminalReady": "Terminaux vendeurs prêts"
@@ -861,8 +861,10 @@
       "advancedSettings.description": "Configurez les paramètres avancés pour votre tenant.",
       "advancedSettings.action": "Configurer les paramètres avancés",
       "blockingStep": {
+        "identity_address": "Identité et adresse",
         "identity": "Identité",
         "address": "Adresse",
+        "settings": "Paramètres du tenant",
         "games_pricing": "Jeux",
         "draws": "Canaux de tirage",
         "generated_draws": "Tirages générés"

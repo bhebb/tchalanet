@@ -592,46 +592,46 @@
     "setup": {
       "progress": {
         "title": "{{completed}} / {{total}} required steps completed",
-        "subtitle": "Suivi de l'état de préparation"
+        "subtitle": "Setup readiness"
       },
       "advancedSettings": {
         "title": "Advanced settings",
         "description": "Language, receipt, communication and business rules can be adjusted in tenant settings.",
         "action": "Open settings"
       },
-      "title": "Configuration du tenant",
-      "optional": "Optionnel",
-      "operational": "Opérationnel",
-      "required": "Requis",
+      "title": "General setup",
+      "optional": "Optional",
+      "operational": "Operational",
+      "required": "Required",
       "blocking": "Blocking",
       "blockedBy": "Blocked by:",
       "backToSetup": "Back to setup",
       "section": {
-        "identity": "Identité",
-        "address": "Adresse",
-        "addressHint": "Adresse requise pour ouvrir l'exploitation et créer des vendeurs.",
-        "addressCta": "Configurer l'adresse",
+        "identity": "Identity",
+        "address": "Address",
+        "addressHint": "Address required to open operations and create sellers.",
+        "addressCta": "Configure address",
         "identityAddress": "Identity & address",
         "identityAddressCta": "Manage profile",
-        "games": "Jeux",
-        "gamesDesc": "Jeux disponibles",
-        "gamesCta": "Configurer les jeux",
+        "games": "Games",
+        "gamesDesc": "Available games.",
+        "gamesCta": "Configure games",
         "maryajGratis": "Maryaj gratis",
         "maryajGratisDesc": "Tiers, free quantity, and number generation.",
         "maryajGratisCta": "Configure Maryaj gratis",
-        "drawChannels": "Canaux de tirage",
+        "drawChannels": "Draw channels",
         "drawChannelsDesc": "Configured sales channels.",
-        "drawChannelsCta": "Configurer les canaux",
-        "generatedDraws": "Tirages générés",
-        "generatedDrawsDesc": "Tirages produits à partir des canaux et prêts à être suivis.",
-        "generatedDrawsCta": "Voir les tirages générés",
+        "drawChannelsCta": "Configure channels",
+        "generatedDraws": "Generated draws",
+        "generatedDrawsDesc": "Draws generated from channels and ready to be monitored.",
+        "generatedDrawsCta": "View generated draws",
         "promotions": "Promotions",
-        "promotionsDesc": "Promotions disponibles",
-        "promotionsCta": "Configurer les promotions",
-        "users": "Utilisateurs",
-        "theme": "Apparence",
-        "themeDesc": "Personnalisation de l'apparence",
-        "themeCta": "Configurer l'apparence",
+        "promotionsDesc": "Available promotions.",
+        "promotionsCta": "Configure promotions",
+        "users": "Users",
+        "theme": "Appearance",
+        "themeDesc": "Appearance customization.",
+        "themeCta": "Configure appearance",
         "settings": "Tenant settings",
         "settingsDesc": "Customize the language and receipt (display name, messages) for your tenant.",
         "settingsCta": "Configure settings",
@@ -639,42 +639,44 @@
         "subscriptionDesc": "Your subscription plan and status.",
         "subscriptionNoPlan": "No active plan — contact Tchalanet.",
         "subscriptionCta": "View subscription",
-        "sellerTerminal": "Vendeurs",
-        "sellerTerminalDesc": "Vendeurs disponibles",
-        "sellerTerminalLocked": "Le terminal est verrouillé. Veuillez contacter l'administrateur.",
-        "identityDesc": "Informations principales de votre entreprise.",
-        "sellerTerminalCta": "Configurer les vendeurs",
-        "sellerTerminalReady": "Vendeurs prêts"
+        "sellerTerminal": "Sellers",
+        "sellerTerminalDesc": "Available sellers.",
+        "sellerTerminalLocked": "Seller creation is locked until the required setup steps are complete.",
+        "identityDesc": "Your business's main information.",
+        "sellerTerminalCta": "Configure sellers",
+        "sellerTerminalReady": "Sellers ready"
       },
-      "description": "Suivez les étapes pour configurer votre tenant et le rendre opérationnel.",
+      "description": "Follow the steps to configure your tenant and make it operational.",
       "status": {
-        "notStarted": "Non commencé",
-        "inProgress": "En cours",
-        "completed": "Terminé"
+        "notStarted": "Not started",
+        "inProgress": "In progress",
+        "completed": "Completed"
       },
-      "advancedSettings.title": "Paramètres avancés",
-      "advancedSettings.description": "Configurez les paramètres avancés pour votre tenant.",
-      "advancedSettings.action": "Configurer les paramètres avancés",
+      "advancedSettings.title": "Advanced settings",
+      "advancedSettings.description": "Configure advanced settings for your tenant.",
+      "advancedSettings.action": "Configure advanced settings",
       "blockingStep": {
+        "identity_address": "Identity & address",
         "identity": "Identity",
         "address": "Address",
+        "settings": "Tenant settings",
         "games_pricing": "Games",
         "draws": "Draw channels",
         "generated_draws": "Generated draws"
       },
       "address": {
-        "city": "Ville",
-        "country": "Pays",
+        "city": "City",
+        "country": "Country",
         "error": {
-          "save": "Impossible d’enregistrer l’adresse."
+          "save": "Could not save the address."
         },
-        "line1": "Adresse ligne 1",
-        "line2": "Adresse ligne 2"
+        "line1": "Address line 1",
+        "line2": "Address line 2"
       },
       "error": {
-        "load": "Impossible de charger la configuration."
+        "load": "Could not load setup."
       },
-      "loading": "Chargement de la configuration..."
+      "loading": "Loading setup..."
     },
     "businessProfile": {
       "title": "My Business",

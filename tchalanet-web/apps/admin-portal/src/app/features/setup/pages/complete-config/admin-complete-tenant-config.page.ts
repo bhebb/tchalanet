@@ -118,6 +118,17 @@ export class AdminCompleteTenantConfigPage implements OnInit {
 
   readonly canCreateSellerTerminal = computed(() => this.setup()?.canCreateSellerTerminal ?? false);
 
+  readonly terminalBlockingSteps = computed<readonly string[]>(() => {
+    if (this.canCreateSellerTerminal()) return [];
+
+    const requiredMissing = this.setupCards()
+      .filter(card => card.badgeKind !== 'optional' && card.status !== 'READY')
+      .map(card => card.id);
+    const backendBlocking = (this.setup()?.blockingSteps ?? []).map(step => step.toLowerCase());
+
+    return [...new Set([...requiredMissing, ...backendBlocking])];
+  });
+
   readonly setupCards = computed<readonly SetupChecklistCardViewModel[]>(() => {
     const h = this.header();
     const identityStatus = this.sectionStatus('identity');
@@ -143,6 +154,7 @@ export class AdminCompleteTenantConfigPage implements OnInit {
     const generatedDrawsStatus: SetupChecklistStatus = this.sectionStatus('generated_draws');
     const settingsStatus: SetupChecklistStatus = this.sectionStatus('settings');
     const settingsTarget = this.settingsTarget();
+    const subscription = this.subscription();
 
     const cards: SetupChecklistCardViewModel[] = [
       {
@@ -252,16 +264,16 @@ export class AdminCompleteTenantConfigPage implements OnInit {
         titleKey: 'admin.setup.section.subscription',
         // No readiness section for subscription (not a config-completeness domain) — status
         // reflects whether a plan is actually applied, from GET /tenant/subscription.
-        status: this.subscription()?.status === 'ACTIVE' || this.subscription()?.status === 'TRIAL'
+        status: subscription?.status === 'ACTIVE' || subscription?.status === 'TRIAL'
           ? 'READY'
-          : this.subscription()
+          : subscription
             ? 'UNKNOWN'
             : 'MISSING',
         badgeKind: 'optional',
-        body: this.subscription()
-          ? `${this.subscription()!.planCode} · ${this.subscription()!.status}`
+        body: subscription
+          ? `${subscription.planCode} · ${subscription.status}`
           : this.translate.instant('admin.setup.section.subscriptionNoPlan'),
-        bodyVariant: this.subscription() ? 'default' : 'hint',
+        bodyVariant: subscription ? 'default' : 'hint',
         ctaKey: 'admin.setup.section.subscriptionCta',
         route: '/app/admin/subscription',
         emphasizeMissing: false,

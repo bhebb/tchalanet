@@ -600,46 +600,46 @@
     "setup": {
       "progress": {
         "title": "{{completed}} / {{total}} etap obligatwa konplète",
-        "subtitle": "Suivi de l'état de préparation"
+        "subtitle": "Swivi eta preparasyon an"
       },
       "advancedSettings": {
         "title": "Paramèt avanse",
         "description": "Lang, resi, kominikasyon ak règ biznis ka ajiste nan paramèt tenant lan.",
-        "action": "Ouvri paramèt"
+        "action": "Louvri paramèt yo"
       },
-      "title": "Configuration du tenant",
-      "optional": "Optionnel",
-      "operational": "Opérationnel",
-      "required": "Requis",
+      "title": "Konfigirasyon jeneral",
+      "optional": "Opsyonèl",
+      "operational": "Operasyonèl",
+      "required": "Obligatwa",
       "blocking": "Bloke",
       "blockedBy": "Bloke pa :",
       "backToSetup": "Retounen nan konfigirasyon",
       "section": {
-        "identity": "Identité",
-        "address": "Adresse",
-        "addressHint": "Adresse requise pour ouvrir l'exploitation et créer des vendeurs.",
-        "addressCta": "Configurer l'adresse",
+        "identity": "Idantite",
+        "address": "Adrès",
+        "addressHint": "Adrès obligatwa pou ouvri operasyon an epi kreye vandè.",
+        "addressCta": "Konfigire adrès la",
         "identityAddress": "Idantite ak adrès",
         "identityAddressCta": "Jere pwofil la",
-        "games": "Jeux",
-        "gamesDesc": "Jeux disponibles",
-        "gamesCta": "Configurer les jeux",
+        "games": "Jwèt",
+        "gamesDesc": "Jwèt ki disponib yo.",
+        "gamesCta": "Konfigire jwèt yo",
         "maryajGratis": "Maryaj gratis",
         "maryajGratisDesc": "Palyè, kantite gratis, ak jenerasyon nimewo yo.",
         "maryajGratisCta": "Konfigire Maryaj gratis",
-        "drawChannels": "Canaux de tirage",
-        "drawChannelsDesc": "Kanal vant konfigire.",
-        "drawChannelsCta": "Configurer les canaux",
-        "generatedDraws": "Tirages générés",
-        "generatedDrawsDesc": "Tirages produits à partir des canaux et prêts à être suivis.",
-        "generatedDrawsCta": "Voir les tirages générés",
-        "promotions": "Promotions",
-        "promotionsDesc": "Promotions disponibles",
-        "promotionsCta": "Configurer les promotions",
-        "users": "Utilisateurs",
-        "theme": "Apparence",
-        "themeDesc": "Personnalisation de l'apparence",
-        "themeCta": "Configurer l'apparence",
+        "drawChannels": "Kanal tiraj",
+        "drawChannelsDesc": "Kanal vant yo konfigire.",
+        "drawChannelsCta": "Konfigire kanal yo",
+        "generatedDraws": "Tiraj jenere",
+        "generatedDrawsDesc": "Tiraj ki sòti nan kanal yo epi ki pare pou swiv.",
+        "generatedDrawsCta": "Gade tiraj jenere yo",
+        "promotions": "Pwomosyon",
+        "promotionsDesc": "Pwomosyon ki disponib yo.",
+        "promotionsCta": "Konfigire pwomosyon yo",
+        "users": "Itilizatè",
+        "theme": "Aparans",
+        "themeDesc": "Pèsonalizasyon aparans lan.",
+        "themeCta": "Konfigire aparans lan",
         "settings": "Paramèt tenant la",
         "settingsDesc": "Pèsonalize lang ak resi a (non afichaj, mesaj) pou tenant ou.",
         "settingsCta": "Konfigire paramèt yo",
@@ -647,42 +647,44 @@
         "subscriptionDesc": "Plan ak estati abònman ou.",
         "subscriptionNoPlan": "Pa gen plan aktif — kontakte Tchalanet.",
         "subscriptionCta": "Gade abònman an",
-        "sellerTerminal": "Vendeurs",
-        "sellerTerminalDesc": "Vendeurs disponibles",
-        "sellerTerminalLocked": "Le terminal est verrouillé. Veuillez contacter l'administrateur.",
-        "identityDesc": "Informations principales de votre entreprise.",
-        "sellerTerminalCta": "Configurer les vendeurs",
-        "sellerTerminalReady": "Vendeurs prêts"
+        "sellerTerminal": "Vandè",
+        "sellerTerminalDesc": "Vandè ki disponib yo.",
+        "sellerTerminalLocked": "Kreyasyon vandè yo bloke jiskaske etap obligatwa yo fini.",
+        "identityDesc": "Enfòmasyon prensipal antrepriz ou.",
+        "sellerTerminalCta": "Konfigire vandè yo",
+        "sellerTerminalReady": "Vandè yo pare"
       },
-      "description": "Suivez les étapes pour configurer votre tenant et le rendre opérationnel.",
+      "description": "Swiv etap yo pou konfigire tenant la epi rann li operasyonèl.",
       "status": {
-        "notStarted": "Non commencé",
-        "inProgress": "En cours",
-        "completed": "Terminé"
+        "notStarted": "Poko kòmanse",
+        "inProgress": "An kou",
+        "completed": "Fini"
       },
-      "advancedSettings.title": "Paramètres avancés",
-      "advancedSettings.description": "Configurez les paramètres avancés pour votre tenant.",
-      "advancedSettings.action": "Configurer les paramètres avancés",
+      "advancedSettings.title": "Paramèt avanse",
+      "advancedSettings.description": "Konfigire paramèt avanse tenant la.",
+      "advancedSettings.action": "Konfigire paramèt avanse yo",
       "blockingStep": {
+        "identity_address": "Idantite ak adrès",
         "identity": "Idantite",
         "address": "Adrès",
+        "settings": "Paramèt tenant la",
         "games_pricing": "Jwèt",
         "draws": "Kanal tiraj",
         "generated_draws": "Tiraj jenere"
       },
       "address": {
-        "city": "Ville",
-        "country": "Pays",
+        "city": "Vil",
+        "country": "Peyi",
         "error": {
-          "save": "Impossible d’enregistrer l’adresse."
+          "save": "Enposib pou anrejistre adrès la."
         },
-        "line1": "Adresse ligne 1",
-        "line2": "Adresse ligne 2"
+        "line1": "Adrès liy 1",
+        "line2": "Adrès liy 2"
       },
       "error": {
-        "load": "Impossible de charger la configuration."
+        "load": "Enposib pou chaje konfigirasyon an."
       },
-      "loading": "Chargement de la configuration..."
+      "loading": "Chajman konfigirasyon an..."
     },
     "businessProfile": {
       "title": "Espas antrepriz mwen",

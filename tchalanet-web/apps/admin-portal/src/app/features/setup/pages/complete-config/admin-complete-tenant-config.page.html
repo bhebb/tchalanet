@@ -43,7 +43,7 @@
 
     <tch-setup-seller-terminal-card
       [unlocked]="canCreateSellerTerminal()"
-      [blockingSteps]="setup()?.blockingSteps ?? []"
+      [blockingSteps]="terminalBlockingSteps()"
       [sectionError]="sectionError('admin.setup.sellerTerminal')"
     />
   }
