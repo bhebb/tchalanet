@@ -1,0 +1,148 @@
+name: Mobile Distribute (staging)
+
+# Builds a release-signed Android APK pointed at the STAGING backend and real
+# Firebase (project tchalanet-39115 — the same project the admin/web use), then
+# ships it to Firebase App Distribution. Manual trigger only.
+#
+# Server prerequisite: the staging API must run with
+# RUNTIME_IDENTITY_PROVIDER=firebase (not firebase-emulator) so it validates the
+# real tokens these builds produce, and staging terminals must exist as real
+# Firebase users in tchalanet-39115.
+#
+# Required secrets:
+#   FIREBASE_ADMIN_JSON_BASE64      - base64 service-account JSON with the
+#                                     "Firebase App Distribution Admin" role
+#                                     (reuses the server's Firebase SA secret).
+#   TCH_ANDROID_KEYSTORE_BASE64     - base64 of the release keystore (.jks).
+#   TCH_ANDROID_KEYSTORE_PASSWORD   - keystore (store) password.
+#   TCH_ANDROID_KEY_ALIAS           - signing key alias.
+#   TCH_ANDROID_KEY_PASSWORD        - signing key password.
+# Optional repo variable:
+#   FIREBASE_ANDROID_APP_ID         - overrides the default Android app id.
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_notes:
+        description: 'Release notes shown to testers'
+        required: false
+        default: 'Staging build'
+        type: string
+      tester_groups:
+        description: 'Firebase App Distribution tester groups (comma-separated aliases)'
+        required: false
+        default: 'staging'
+        type: string
+      terminal_email_domain:
+        description: 'TERMINAL_EMAIL_DOMAIN for staging terminal logins (must match backend seeding)'
+        required: false
+        default: 'terminal.tchalanet.local'
+        type: string
+
+concurrency:
+  group: mobile-distribute-staging
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  API_BASE_URL: https://api.stg.tchalanet.com/api/v1
+  FIREBASE_ANDROID_APP_ID: ${{ vars.FIREBASE_ANDROID_APP_ID || '1:768000918177:android:5fc04b59928349269aa6e0' }}
+
+jobs:
+  distribute:
+    name: Build and distribute staging APK
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: tchalanet-mobile
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Validate required secrets
+        env:
+          SA_JSON: ${{ secrets.FIREBASE_ADMIN_JSON_BASE64 }}
+          KS_B64: ${{ secrets.TCH_ANDROID_KEYSTORE_BASE64 }}
+          KS_PASS: ${{ secrets.TCH_ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.TCH_ANDROID_KEY_ALIAS }}
+          KEY_PASS: ${{ secrets.TCH_ANDROID_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          [ -n "$SA_JSON" ] || { echo "Missing FIREBASE_ADMIN_JSON_BASE64" >&2; exit 1; }
+          [ -n "$KS_B64" ] || { echo "Missing TCH_ANDROID_KEYSTORE_BASE64" >&2; exit 1; }
+          [ -n "$KS_PASS" ] || { echo "Missing TCH_ANDROID_KEYSTORE_PASSWORD" >&2; exit 1; }
+          [ -n "$KEY_ALIAS" ] || { echo "Missing TCH_ANDROID_KEY_ALIAS" >&2; exit 1; }
+          [ -n "$KEY_PASS" ] || { echo "Missing TCH_ANDROID_KEY_PASSWORD" >&2; exit 1; }
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
+        with:
+          flutter-version: '3.44.0'
+          channel: stable
+          cache: true
+
+      - name: Materialize release keystore
+        env:
+          KS_B64: ${{ secrets.TCH_ANDROID_KEYSTORE_BASE64 }}
+          KS_PASS: ${{ secrets.TCH_ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.TCH_ANDROID_KEY_ALIAS }}
+          KEY_PASS: ${{ secrets.TCH_ANDROID_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          printf '%s' "$KS_B64" | base64 --decode > android/app/upload-keystore.jks
+          # key.properties is read by android/app/build.gradle.kts (git-ignored).
+          {
+            printf 'storeFile=upload-keystore.jks\n'
+            printf 'storePassword=%s\n' "$KS_PASS"
+            printf 'keyAlias=%s\n' "$KEY_ALIAS"
+            printf 'keyPassword=%s\n' "$KEY_PASS"
+          } > android/key.properties
+
+      - name: Install deps
+        run: flutter pub get
+
+      - name: Build release APK (staging → real Firebase)
+        env:
+          TERMINAL_EMAIL_DOMAIN: ${{ inputs.terminal_email_domain }}
+        run: |
+          set -euo pipefail
+          flutter build apk --release \
+            --build-name="1.0.0-stg" \
+            --build-number="${{ github.run_number }}" \
+            --dart-define=API_BASE_URL="$API_BASE_URL" \
+            --dart-define=FIREBASE_AUTH_EMULATOR=false \
+            --dart-define=TERMINAL_EMAIL_DOMAIN="$TERMINAL_EMAIL_DOMAIN" \
+            --dart-define=POS_DEVICE_BINDING=
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: Distribute to Firebase App Distribution
+        env:
+          SA_JSON_B64: ${{ secrets.FIREBASE_ADMIN_JSON_BASE64 }}
+          RELEASE_NOTES: ${{ inputs.release_notes }}
+          TESTER_GROUPS: ${{ inputs.tester_groups }}
+        run: |
+          set -euo pipefail
+          printf '%s' "$SA_JSON_B64" | base64 --decode > "$RUNNER_TEMP/firebase-sa.json"
+          export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/firebase-sa.json"
+          npx --yes firebase-tools@15 appdistribution:distribute \
+            build/app/outputs/flutter-apk/app-release.apk \
+            --app "$FIREBASE_ANDROID_APP_ID" \
+            --groups "$TESTER_GROUPS" \
+            --release-notes "$RELEASE_NOTES"
+
+      - name: Clean up secrets on disk
+        if: always()
+        run: |
+          rm -f android/app/upload-keystore.jks android/key.properties "$RUNNER_TEMP/firebase-sa.json" || true
