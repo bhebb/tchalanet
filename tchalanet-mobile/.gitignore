@@ -3,6 +3,7 @@
 .env.*
 !.env.example
 *.pem
+!android/app/src/main/res/raw/mkcert_ca.pem
 *.key
 *.keystore
 *.jks
