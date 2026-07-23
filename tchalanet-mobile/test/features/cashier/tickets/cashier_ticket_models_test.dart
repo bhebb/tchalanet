@@ -286,7 +286,18 @@ void main() {
 
       expect(ticket.resultProvider, 'NY');
       expect(ticket.resultSlotKey, 'NY_MID');
-      expect(ticket.drawLabel, 'New York · Midday — 19/07/2026 14:30');
+      // drawLabel formats the scheduled time in the runner's local zone
+      // (a POS terminal is physically in Haiti). Derive the expected time the
+      // same way so the assertion is deterministic across CI/dev time zones.
+      final local = DateTime.parse('2026-07-19T18:30:00Z').toLocal();
+      final dd = local.day.toString().padLeft(2, '0');
+      final mo = local.month.toString().padLeft(2, '0');
+      final hh = local.hour.toString().padLeft(2, '0');
+      final mm = local.minute.toString().padLeft(2, '0');
+      expect(
+        ticket.drawLabel,
+        'New York · Midday — $dd/$mo/${local.year} $hh:$mm',
+      );
     },
   );
 }

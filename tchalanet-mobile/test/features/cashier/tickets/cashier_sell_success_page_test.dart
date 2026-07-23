@@ -33,8 +33,11 @@ void main() {
               translations: {
                 'pos.sale_completion.back_home': 'Retounen sou akèy',
                 'pos.sale_completion.accepted': 'Vant la aksepte',
-                'pos.sale_completion.printing':
+                // The page shows the auto/manual printing hint from
+                // pos.settings.*; autoPrint:false below renders manual_print.
+                'pos.settings.manual_print':
                     'N ap voye tikè a nan enprimant lan.',
+                'pos.settings.auto_printing': 'Enprime otomatik',
                 'pos.sale_completion.give_code': 'Bay kliyan an kòd sa a.',
                 'pos.sale_completion.code_copied': 'Kòd la kopye',
                 'pos.sale_completion.print': 'Enprime',
