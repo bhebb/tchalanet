@@ -25,37 +25,39 @@ jobs:
         working-directory: tchalanet-server
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up JDK 25
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '25'
           cache: maven
 
+      # Blocking gates. These are deterministic and the codebase is clean on
+      # them; a violation should fail the PR rather than accrue silently.
       - name: Spotless check
-        continue-on-error: true
         run: ./mvnw -B spotless:check
 
       - name: Maven verify
         run: ./mvnw -B -DskipITs=true verify
 
       - name: Checkstyle
-        continue-on-error: true
         run: ./mvnw -B checkstyle:check
 
+      # PMD gates on correctness (priority 1-4); complexity advisories are
+      # priority 5 and only reported (see tchalanet-server/pmd/ruleset.xml).
       - name: PMD
-        continue-on-error: true
         run: ./mvnw -B pmd:check
 
+      # SpotBugs stays advisory until its findings are triaged to zero.
       - name: SpotBugs
         continue-on-error: true
         run: ./mvnw -B spotbugs:check
 
       - name: Jacoco coverage comment
         if: github.event_name == 'pull_request'
-        uses: madrapps/jacoco-report@v1.7.2
+        uses: madrapps/jacoco-report@50d3aff4548aa991e6753342d9ba291084e63848 # v1.7.2
         with:
           paths: |
             tchalanet-server/tchalanet-common/target/site/jacoco/jacoco.xml,
@@ -87,10 +89,10 @@ jobs:
         working-directory: tchalanet-server
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up JDK 25
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '25'

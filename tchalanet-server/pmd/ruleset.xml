@@ -13,7 +13,13 @@
     <!-- ── Best practices ──────────────────────────────────────── -->
     <rule ref="category/java/bestpractices.xml/UnusedLocalVariable"/>
     <rule ref="category/java/bestpractices.xml/UnusedPrivateField"/>
-    <rule ref="category/java/bestpractices.xml/UnusedPrivateMethod"/>
+    <!-- ADVISORY (priority 5): PMD 7.26 cannot resolve private overloads that
+         differ only by argument type and reports 100% false positives on the
+         receipt/error formatters. IDEs and javac already flag real dead methods,
+         so keep this reported but non-blocking. -->
+    <rule ref="category/java/bestpractices.xml/UnusedPrivateMethod">
+        <priority>5</priority>
+    </rule>
     <rule ref="category/java/bestpractices.xml/AvoidReassigningParameters"/>
     <rule ref="category/java/bestpractices.xml/ForLoopCanBeForeach"/>
     <rule ref="category/java/bestpractices.xml/UseTryWithResources"/>
@@ -35,18 +41,25 @@
     <rule ref="category/java/errorprone.xml/UnconditionalIfStatement"/>
     <rule ref="category/java/errorprone.xml/UseEqualsToCompareStrings"/>
 
-    <!-- ── Design / complexity ─────────────────────────────────── -->
+    <!-- ── Design / complexity (ADVISORY) ──────────────────────────
+         These three are structural-debt signals, not correctness bugs.
+         Pinned to priority 5 so they are reported but never fail the build
+         (pom sets failurePriority=4). Reduce them opportunistically; do not
+         let them block PRs. Everything else in this file is a blocking gate. -->
     <rule ref="category/java/design.xml/CyclomaticComplexity">
+        <priority>5</priority>
         <properties>
             <property name="methodReportLevel" value="15"/>
         </properties>
     </rule>
     <rule ref="category/java/design.xml/NPathComplexity">
+        <priority>5</priority>
         <properties>
             <property name="reportLevel" value="200"/>
         </properties>
     </rule>
     <rule ref="category/java/design.xml/ExcessiveParameterList">
+        <priority>5</priority>
         <properties>
             <property name="minimum" value="10"/>
         </properties>

@@ -372,7 +372,11 @@
           <rulesets>
             <ruleset>pmd/ruleset.xml</ruleset>
           </rulesets>
-          <failOnViolation>false</failOnViolation>
+          <!-- Correctness rules (priority 1-4) block the build; complexity
+               advisories are pinned to priority 5 in the ruleset and only
+               reported. Keep the codebase clean on 1-4 so `pmd:check` gates PRs. -->
+          <failOnViolation>true</failOnViolation>
+          <failurePriority>4</failurePriority>
           <printFailingErrors>true</printFailingErrors>
           <targetJdk>21</targetJdk>
           <excludeRoots>
@@ -397,7 +401,10 @@
         <version>${owasp.plugin.version}</version>
         <configuration>
           <nvdApiKey>${env.NVD_API_KEY}</nvdApiKey>
-          <failBuildOnCVSS>11</failBuildOnCVSS>
+          <!-- Fail on High/Critical (CVSS >= 7) so the score is meaningful.
+               The CI OWASP job stays continue-on-error; this gates direct runs
+               (`mvn dependency-check:aggregate`) and surfaces real exposure. -->
+          <failBuildOnCVSS>7</failBuildOnCVSS>
           <suppressionFiles>
             <suppressionFile>dependency-check-suppressions.xml</suppressionFile>
           </suppressionFiles>

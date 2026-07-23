@@ -25,8 +25,8 @@ import tools.jackson.databind.JsonNode;
 /**
  * Maps the OH DrawGames JSON feed. Shape validated against real API response 2026-06-16.
  *
- * <p>Root: {@code {"statusCode":200,"data":{"draws":[...]}}}. Legacy captures also returned
- * {@code data:[...]}. Each draw: {@code drawDate}, {@code modifier}, {@code numbers[{value,position}]},
+ * <p>Root: {@code {"statusCode":200,"data":{"draws":[...]}}}. Legacy captures also returned {@code
+ * data:[...]}. Each draw: {@code drawDate}, {@code modifier}, {@code numbers[{value,position}]},
  * {@code approved}. Slot is inferred from {@code modifier} when present (1=MIDDAY, 2=EVENING), with
  * local drawDate hour as a fallback for older shapes.
  */

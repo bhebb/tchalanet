@@ -57,7 +57,8 @@ public class RecordManualDrawResultCommandHandler
     var flags = buildFlags(command);
     var haitiResult = projectHaiti(command, slot);
 
-    var status = command.observeTrustPolicy() ? DrawResultStatus.PROVISIONAL : DrawResultStatus.CONFIRMED;
+    var status =
+        command.observeTrustPolicy() ? DrawResultStatus.PROVISIONAL : DrawResultStatus.CONFIRMED;
 
     var res =
         writer.upsert(
@@ -169,5 +170,4 @@ public class RecordManualDrawResultCommandHandler
   private static String emptyIfNull(String value) {
     return value == null ? "" : value.trim();
   }
-
 }
