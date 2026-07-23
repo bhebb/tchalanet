@@ -63,6 +63,7 @@ interface SetupChecklistCardViewModel {
   readonly bodyVariant: SetupChecklistBodyVariant;
   readonly ctaKey: string;
   readonly route: string;
+  readonly queryParams?: Record<string, string>;
   readonly fragment?: string;
   readonly emphasizeMissing: boolean;
   readonly sectionErrorTargets: readonly string[];
@@ -182,6 +183,7 @@ export class AdminCompleteTenantConfigPage implements OnInit {
         bodyVariant: 'default',
         ctaKey: 'admin.setup.section.settingsCta',
         route: settingsTarget.route,
+        queryParams: { from: 'setup' },
         fragment: settingsTarget.fragment,
         emphasizeMissing: true,
         sectionErrorTargets: ['admin.setup.settings'],

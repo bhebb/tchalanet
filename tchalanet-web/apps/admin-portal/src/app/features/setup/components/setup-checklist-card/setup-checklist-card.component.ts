@@ -29,6 +29,7 @@ export class SetupChecklistCardComponent {
   readonly ctaKey = input.required<string>();
   readonly route = input.required<string>();
   readonly fragment = input<string | undefined>(undefined);
+  readonly queryParams = input<Record<string, string> | undefined>(undefined);
   readonly sectionErrors = input<readonly AdminSectionTargetError[]>([]);
 
   /** Some cards (identity, generated-draws, theme, promotions) never highlight a missing state. */

@@ -43,7 +43,6 @@ export class PrivateShellLayoutComponent {
 
   readonly themeToggled = output<void>();
   readonly profileRequested = output<void>();
-  readonly settingsRequested = output<void>();
   readonly logoutRequested = output<void>();
 
   readonly themeIcon = computed(() => (this.darkMode() ? 'light_mode' : 'dark_mode'));
