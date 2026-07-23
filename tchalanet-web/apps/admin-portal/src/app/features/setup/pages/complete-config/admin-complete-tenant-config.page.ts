@@ -127,7 +127,7 @@ export class AdminCompleteTenantConfigPage implements OnInit {
       .map(card => card.id);
     const backendBlocking = (this.setup()?.blockingSteps ?? []).map(step => step.toLowerCase());
 
-    return [...new Set([...requiredMissing, ...backendBlocking])];
+    return this.normalizeBlockingSteps([...requiredMissing, ...backendBlocking]);
   });
 
   readonly setupCards = computed<readonly SetupChecklistCardViewModel[]>(() => {
@@ -203,22 +203,6 @@ export class AdminCompleteTenantConfigPage implements OnInit {
       },
     ];
 
-    if (this.maryajGratisEnabled()) {
-      cards.push({
-        id: 'maryaj_gratis',
-        icon: 'redeem',
-        titleKey: 'admin.setup.section.maryajGratis',
-        status: gamesStatus === 'READY' ? 'READY' : 'MISSING',
-        badgeKind: 'optional',
-        body: this.translate.instant('admin.setup.section.maryajGratisDesc'),
-        bodyVariant: 'default',
-        ctaKey: 'admin.setup.section.maryajGratisCta',
-        route: '/app/admin/maryaj-gratis',
-        emphasizeMissing: false,
-        sectionErrorTargets: ['admin.setup.maryaj_gratis'],
-      });
-    }
-
     cards.push(
       {
         id: 'draws',
@@ -247,6 +231,25 @@ export class AdminCompleteTenantConfigPage implements OnInit {
         emphasizeMissing: true,
         sectionErrorTargets: ['admin.setup.generatedDraws'],
       },
+    );
+
+    if (this.maryajGratisEnabled()) {
+      cards.push({
+        id: 'maryaj_gratis',
+        icon: 'redeem',
+        titleKey: 'admin.setup.section.maryajGratis',
+        status: gamesStatus === 'READY' ? 'READY' : 'MISSING',
+        badgeKind: 'optional',
+        body: this.translate.instant('admin.setup.section.maryajGratisDesc'),
+        bodyVariant: 'default',
+        ctaKey: 'admin.setup.section.maryajGratisCta',
+        route: '/app/admin/maryaj-gratis',
+        emphasizeMissing: false,
+        sectionErrorTargets: ['admin.setup.maryaj_gratis'],
+      });
+    }
+
+    cards.push(
       {
         id: 'theme',
         icon: 'palette',
@@ -370,6 +373,21 @@ export class AdminCompleteTenantConfigPage implements OnInit {
       [addr.city, addr.region].filter(Boolean).join(', '),
       [addr.postalCode, addr.country].filter(Boolean).join(' '),
     ].filter(Boolean).join(' · ');
+  }
+
+  private normalizeBlockingSteps(steps: readonly string[]): readonly string[] {
+    const normalized = steps.map(step => step.toLowerCase());
+    const blocksIdentityAddress =
+      normalized.includes('identity_address') ||
+      normalized.includes('identity') ||
+      normalized.includes('address');
+    const unique = normalized.filter(step => step !== 'identity' && step !== 'address');
+
+    if (blocksIdentityAddress) {
+      unique.unshift('identity_address');
+    }
+
+    return [...new Set(unique)];
   }
 
   private sectionErrorsFromResponse(
