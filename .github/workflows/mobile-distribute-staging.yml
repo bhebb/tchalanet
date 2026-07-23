@@ -31,7 +31,7 @@ on:
       terminal_email_domain:
         description: 'TERMINAL_EMAIL_DOMAIN for terminal logins (must match backend seeding)'
         required: false
-        default: 'terminal.tchalanet.local'
+        default: 'terminal.stg.tchalanet.com'
         type: string
       pos_device_binding:
         description: 'POS_DEVICE_BINDING. Leave empty unless a device credential is required.'

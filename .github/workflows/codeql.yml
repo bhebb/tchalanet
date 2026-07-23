@@ -1,15 +1,9 @@
 name: CodeQL
 
 on:
-  pull_request:
-    branches: [main]
-    paths:
-      - 'tchalanet-server/**'
-      - 'tchalanet-web/**'
-      - 'tchalanet-edge-service/**'
-      - '.github/workflows/codeql.yml'
   schedule:
-    - cron: '30 4 * * 1'
+    # Saturday 00:00 America/Toronto during daylight saving time.
+    - cron: '0 4 * * 6'
   workflow_dispatch:
 
 concurrency:

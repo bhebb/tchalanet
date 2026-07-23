@@ -68,10 +68,10 @@ firebase appdistribution:distribute \
   build/app/outputs/flutter-apk/app-release.apk \
   --app 1:768000918177:android:5fc04b59928349269aa6e0 \
   --release-notes "Staging — $(git rev-parse --short HEAD) — $(date +%Y-%m-%d)" \
-  --groups "internal-testers"
+  --groups "staging"
 ```
 
-Le groupe `internal-testers` doit exister dans Firebase Console → App Distribution → Testers & Groups.
+Le groupe `staging` doit exister dans Firebase Console → App Distribution → Testers & Groups.
 
 **Vérification :** les testeurs reçoivent un email Firebase avec un lien de téléchargement.
 
@@ -79,65 +79,52 @@ Le groupe `internal-testers` doit exister dans Firebase Console → App Distribu
 
 ## Étape 3 — Via GitHub Actions (manuel)
 
-Le workflow `mobile-distribute.yml` n'existe pas encore. Structure recommandée quand il sera créé :
+Le workflow réel est `.github/workflows/mobile-distribute-staging.yml`
+(`Mobile Distribute (staging)`). Il est manuel uniquement et construit un APK
+release signé, puis le pousse vers Firebase App Distribution.
 
-```yaml
-name: Mobile — Distribute Staging
-
-on:
-  workflow_dispatch:
-    inputs:
-      env:
-        description: 'Environnement cible'
-        required: true
-        default: 'staging'
-        type: choice
-        options: [staging, prod]
-      release_notes:
-        description: 'Notes de release'
-        required: false
-        default: ''
-
-jobs:
-  build-android:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.x'
-          channel: stable
-
-      - name: Build APK
-        working-directory: tchalanet-mobile
-        run: |
-          flutter build apk --release \
-            --dart-define=API_BASE_URL=${{ vars.TCH_API_BASE_URL_STG }}/api/v1 \
-            --dart-define=TERMINAL_EMAIL_DOMAIN=${{ vars.TCH_TERMINAL_EMAIL_DOMAIN_STG }} \
-            --dart-define=POS_DEVICE_BINDING=
-
-      - name: Upload to Firebase App Distribution
-        uses: wzieba/Firebase-Distribution-Github-Action@v1
-        with:
-          appId: ${{ secrets.FIREBASE_ANDROID_APP_ID }}
-          serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-          groups: internal-testers
-          file: tchalanet-mobile/build/app/outputs/flutter-apk/app-release.apk
-          releaseNotes: ${{ inputs.release_notes || github.sha }}
+```bash
+gh workflow run mobile-distribute-staging.yml \
+  -f api_base_url="https://api.stg.tchalanet.com/api/v1" \
+  -f terminal_email_domain="terminal.stg.tchalanet.com" \
+  -f pos_device_binding="" \
+  -f build_name="1.0.0-stg" \
+  -f tester_groups="staging" \
+  -f release_notes="Staging $(git rev-parse --short HEAD)"
 ```
 
 **GitHub Secrets requis :**
 | Secret | Valeur |
 |---|---|
-| `FIREBASE_ANDROID_APP_ID` | `1:768000918177:android:5fc04b59928349269aa6e0` |
-| `FIREBASE_SERVICE_ACCOUNT` | JSON du compte de service Firebase (rôle Firebase App Distribution Admin) |
+| `FIREBASE_ADMIN_JSON_BASE64` | JSON base64 du compte de service Firebase avec rôle Firebase App Distribution Admin |
+| `TCH_ANDROID_KEYSTORE_BASE64` | Keystore Android release encodé base64 |
+| `TCH_ANDROID_KEYSTORE_PASSWORD` | Mot de passe du keystore |
+| `TCH_ANDROID_KEY_ALIAS` | Alias de la clé release |
+| `TCH_ANDROID_KEY_PASSWORD` | Mot de passe de la clé release |
 
 **GitHub Variables (non sensibles) :**
 | Variable | Valeur |
 |---|---|
-| `TCH_API_BASE_URL_STG` | `https://api.stg.tchalanet.com` |
-| `TCH_TERMINAL_EMAIL_DOMAIN_STG` | `terminal.stg.tchalanet.com` |
+| `FIREBASE_ANDROID_APP_ID` | `1:768000918177:android:5fc04b59928349269aa6e0` si différent du défaut workflow |
+
+Le backend ciblé doit être en `RUNTIME_IDENTITY_PROVIDER=firebase` et utiliser le
+même domaine terminal que le build (`terminal.stg.tchalanet.com`).
+
+---
+
+## Préparer Google Play plus tard
+
+Firebase App Distribution est conservé pour les builds QA/staging. Pour une
+livraison client plus tard :
+
+1. Créer le compte Google Play Console de l'organisation.
+2. Garder le package Android `com.tchalanet.mobile`.
+3. Activer Play App Signing et conserver une upload key dédiée.
+4. Ajouter un workflow manuel séparé qui produit un AAB :
+   `flutter build appbundle --release`.
+5. Ajouter un secret futur `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64` pour le
+   service account Play Console.
+6. Publier d'abord sur track `internal`, puis `closed`, puis `production`.
 
 ---
 

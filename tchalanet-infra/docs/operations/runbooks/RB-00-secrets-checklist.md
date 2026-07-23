@@ -100,14 +100,24 @@ Catégories attendues :
 
 ## Mobile — Secrets GitHub Actions
 
-Requis quand le workflow `mobile-distribute.yml` sera créé (RB-03) :
+Requis pour le workflow manuel `.github/workflows/mobile-distribute-staging.yml`
+(RB-03) :
 
 | Secret | Description |
 |---|---|
-| `FIREBASE_ANDROID_APP_ID` | `1:768000918177:android:5fc04b59928349269aa6e0` (non sensible, peut être une variable) |
-| `FIREBASE_SERVICE_ACCOUNT` | JSON du compte de service Firebase (rôle App Distribution Admin) |
+| `FIREBASE_ADMIN_JSON_BASE64` | JSON base64 du compte de service Firebase avec rôle App Distribution Admin |
+| `TCH_ANDROID_KEYSTORE_BASE64` | Keystore Android release encodé base64 |
+| `TCH_ANDROID_KEYSTORE_PASSWORD` | Mot de passe du keystore |
+| `TCH_ANDROID_KEY_ALIAS` | Alias de la clé release |
+| `TCH_ANDROID_KEY_PASSWORD` | Mot de passe de la clé release |
 
-**À créer dans Firebase Console :** IAM → Service Accounts → Create → rôle `Firebase App Distribution Admin` → Download JSON key.
+| Variable | Description |
+|---|---|
+| `FIREBASE_ANDROID_APP_ID` | App ID Android Firebase (`1:768000918177:android:5fc04b59928349269aa6e0` si différent du défaut workflow) |
+
+**À créer dans Firebase Console :** service account avec rôle `Firebase App Distribution Admin` → Download JSON key → encoder en base64 pour `FIREBASE_ADMIN_JSON_BASE64`.
+
+**Futur Google Play :** prévoir un secret séparé `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64` quand le workflow Play Console sera créé.
 
 ---
 
