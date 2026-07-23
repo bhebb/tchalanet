@@ -152,6 +152,9 @@ require_file "compose/docker-compose-project.yml"
 require_file "compose/docker-compose-redis.yml"
 require_file "compose/docker-compose-api.yml"
 require_file "compose/docker-compose-edge-service.yml"
+if [ "$ENV" = "staging" ]; then
+  require_file "compose/docker-compose-postgres.yml"
+fi
 require_file "scripts/remote/prepare-firebase-admin-credentials.sh"
 require_file "scripts/remote/prepare-server-signing-keys.sh"
 if [ "$ENABLE_FIREBASE_EMULATOR" = "1" ]; then
@@ -250,6 +253,9 @@ compose_cmd=(
   -f compose/docker-compose-api.yml
   -f compose/docker-compose-edge-service.yml
 )
+if [ "$ENV" = "staging" ]; then
+  compose_cmd+=(-f compose/docker-compose-postgres.yml)
+fi
 if [ "$ENABLE_FIREBASE_EMULATOR" = "1" ]; then
   compose_cmd+=(-f compose/docker-compose-firebase-emulator.yml)
 fi
@@ -316,6 +322,24 @@ fi
 up_args=(up -d --no-deps)
 if [ "$FORCE_RECREATE" = "1" ]; then
   up_args+=(--force-recreate)
+fi
+
+if [ "$ENV" = "staging" ] && [ "$DEPLOY_API" = "1" ]; then
+  log "Starting staging Postgres container"
+  IMAGE_TAG="$COMPOSE_API_TAG" TCH_EDGE_IMAGE="$COMPOSE_EDGE_IMAGE" TCH_EDGE_TAG="$COMPOSE_EDGE_TAG" \
+    "${compose_cmd[@]}" up -d postgres
+  for attempt in $(seq 1 24); do
+    health_status="$(inspect_health "tchl-postgres-$ENV")"
+    if [ "$health_status" = "healthy" ]; then
+      printf 'OK: Postgres container healthy\n'
+      break
+    fi
+    if [ "$attempt" = "24" ]; then
+      $DOCKER_BIN logs --tail 120 "tchl-postgres-$ENV" >&2 || true
+      fail "Postgres container did not become healthy, last status=$health_status"
+    fi
+    sleep 5
+  done
 fi
 
 log "Starting runtime services"
