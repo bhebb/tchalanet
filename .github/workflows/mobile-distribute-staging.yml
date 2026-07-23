@@ -70,6 +70,7 @@ jobs:
   distribute:
     name: Build and distribute staging APK
     runs-on: ubuntu-latest
+    environment: staging
     defaults:
       run:
         working-directory: tchalanet-mobile
