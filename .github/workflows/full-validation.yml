@@ -57,7 +57,10 @@ on:
         default: false
         type: boolean
   schedule:
-    - cron: '20 7 * * *'
+    # Weekly (Mondays 07:20 UTC). This run builds images, deploys a disposable
+    # runtime and drives E2E — the heaviest consumer of Actions minutes — so it
+    # runs weekly rather than nightly. Trigger manually for on-demand validation.
+    - cron: '20 7 * * 1'
 
 concurrency:
   group: full-validation-${{ github.ref }}
