@@ -133,10 +133,10 @@ un hébergement statique sans secret applicatif dans l'artefact.
 - **AND** elle ne contient pas `mkdocs.internal.yml`
 - **AND** elle ne contient pas de sources techniques internes.
 
-#### Scenario: Cloudflare Pages alias is configured
+#### Scenario: Cloudflare Workers alias is configured
 
-- **WHEN** `docs.tchalanet.com` est activé dans Cloudflare Pages
-- **THEN** il route vers le projet docs public
+- **WHEN** `docs.tchalanet.com` est activé dans Cloudflare
+- **THEN** il route vers le Worker docs public
 - **AND** TLS est actif
 - **AND** la racine affiche le portail testeurs.
 
