@@ -1,0 +1,13 @@
+/admin /administrateurs/ 301
+/admin/ /administrateurs/ 301
+/owner /proprietaires/ 301
+/owner/ /proprietaires/ 301
+/super-admin /super-administrateurs/ 301
+/super-admin/ /super-administrateurs/ 301
+/administrateurs /administrateurs/ 301
+/proprietaires /proprietaires/ 301
+/super-administrateurs /super-administrateurs/ 301
+/pos /pos/ 301
+/validation /validation/scenarios-de-test/ 302
+/glossaire/jobs-tirages /tirages-resultats/jobs-tirages/ 301
+/glossaire/jobs-tirages/ /tirages-resultats/jobs-tirages/ 301

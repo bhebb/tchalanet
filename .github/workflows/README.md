@@ -29,7 +29,7 @@ se déclenchent, et comment les lancer. Section détaillée en fin de doc pour l
 | `mobile-pr.yml` | PR `tchalanet-mobile/**` | `flutter analyze` + `flutter test` | ✅ |
 | `edge-pr.yml` | PR `tchalanet-edge-service/**` | lint, test, build | ✅ |
 | `infra-check.yml` | PR `tchalanet-infra/**` | env vars + `docker compose config` | ✅ |
-| `docs.yml` | push/PR `tchalanet-docs/**` | `mkdocs build --strict` + deploy Pages | ✅ |
+| `docs.yml` | push/PR docs + manuel | build docs public + déploiement public manuel Cloudflare Pages | ✅ |
 | `codeql.yml` | samedi 00:00 ET + manuel | SAST Java + TS/JS | advisory |
 | `full-validation.yml` | samedi deps 02:00 ET, dimanche E2E 02:00 ET + manuel | samedi OWASP ; dimanche IT, build images (+Trivy), deploy jetable, E2E, perf | 🌙 |
 | `deploy-infra-runtime.yml` | manuel | plan→build→deploy API/edge (staging/prod) | 🚀 |

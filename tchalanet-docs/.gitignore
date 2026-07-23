@@ -1,5 +1,7 @@
 # MkDocs build output
 site/
+site-public/
+site-internal/
 
 # Python virtualenv
 venv/
