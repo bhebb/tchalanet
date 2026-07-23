@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "768000918177",
-    "project_id": "tchalanet-39115",
-    "storage_bucket": "tchalanet-39115.firebasestorage.app"
+    "project_number": "1050094456835",
+    "project_id": "tchalanet",
+    "storage_bucket": "tchalanet.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:768000918177:android:5fc04b59928349269aa6e0",
+        "mobilesdk_app_id": "1:1050094456835:android:afb4836a45c441769a3e36",
         "android_client_info": {
           "package_name": "com.tchalanet.mobile"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCOhI376DzXRb4dWpNYVQZ1O2_Q4jE5oA0"
+          "current_key": "AIzaSyB_UZYBTs1KS2yWf8KTF18fquUL7OGp0aQ"
         }
       ],
       "services": {
