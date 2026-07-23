@@ -89,8 +89,7 @@ class DrawTicketLifecycleSpringIntegrationTest extends BusinessRuntimeIntegratio
     withContext(
         tenantAdminContext,
         () ->
-            commandBus.execute(
-                new CloseDrawCommand(List.of(drawId), "it ticket lifecycle close")));
+            commandBus.execute(new CloseDrawCommand(List.of(drawId), "it ticket lifecycle close")));
     assertThat(drawStatus(drawUuid)).isEqualTo("CLOSED");
 
     withContext(
@@ -155,8 +154,7 @@ class DrawTicketLifecycleSpringIntegrationTest extends BusinessRuntimeIntegratio
   }
 
   private Map<String, Object> scheduledBoletDraw(String slotKey, LocalDate drawDate) {
-    return jdbc
-        .queryForList(
+    return jdbc.queryForList(
             """
                 select d.id as draw_id, d.draw_channel_id
                   from draw d

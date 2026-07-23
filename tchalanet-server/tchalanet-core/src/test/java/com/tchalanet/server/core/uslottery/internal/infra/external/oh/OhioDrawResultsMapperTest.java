@@ -89,8 +89,12 @@ class OhioDrawResultsMapperTest {
                ]}
             ]}}""";
 
-    var midday = mapper.map(body, OhGame.PICK4, "hash", "http://oh", query("MIDDAY", LocalDate.of(2026, 7, 21)));
-    var evening = mapper.map(body, OhGame.PICK4, "hash", "http://oh", query("EVENING", LocalDate.of(2026, 7, 21)));
+    var midday =
+        mapper.map(
+            body, OhGame.PICK4, "hash", "http://oh", query("MIDDAY", LocalDate.of(2026, 7, 21)));
+    var evening =
+        mapper.map(
+            body, OhGame.PICK4, "hash", "http://oh", query("EVENING", LocalDate.of(2026, 7, 21)));
 
     assertThat(midday.results()).hasSize(1);
     assertThat(midday.results().getFirst().main()).containsExactly("2", "8", "8", "6");

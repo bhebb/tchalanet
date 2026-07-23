@@ -54,7 +54,7 @@ jobs:
       - uses: actions/checkout@v7
 
       - name: Setup hcloud
-        uses: hetznercloud/setup-hcloud@v1
+        uses: hetznercloud/setup-hcloud@4ff9bbeda4053fb69dd7fa1fcbdfcce7e648bf33 # v1
         with:
           token: ${{ secrets.HCLOUD_TOKEN }}
 
@@ -110,7 +110,7 @@ jobs:
 
       - name: Deploy core infra services
         if: inputs.deploy_core == true
-        uses: appleboy/ssh-action@v1.2.5
+        uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1.2.5
         env:
           DOPPLER_TOKEN: ${{ env.DOPPLER_TOKEN_VALUE }}
         with:

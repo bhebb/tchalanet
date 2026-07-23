@@ -1,0 +1,63 @@
+name: CodeQL
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'tchalanet-server/**'
+      - 'tchalanet-web/**'
+      - 'tchalanet-edge-service/**'
+      - '.github/workflows/codeql.yml'
+  schedule:
+    - cron: '30 4 * * 1'
+  workflow_dispatch:
+
+concurrency:
+  group: codeql-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  analyze:
+    name: Analyze ${{ matrix.language }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: java-kotlin
+            build-mode: manual
+          - language: javascript-typescript
+            build-mode: none
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up JDK 25
+        if: matrix.language == 'java-kotlin'
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@4187e74d05793876e9989daffde9c3e66b4acd07 # v3
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+
+      # Manual build for Java: CodeQL cannot autobuild the JDK 25 multi-module
+      # reactor reliably. Compile only — no tests — to populate the CodeQL DB.
+      - name: Compile server
+        if: matrix.language == 'java-kotlin'
+        working-directory: tchalanet-server
+        run: ./mvnw -B -DskipTests -DskipITs=true clean compile
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@4187e74d05793876e9989daffde9c3e66b4acd07 # v3
+        with:
+          category: "/language:${{ matrix.language }}"
