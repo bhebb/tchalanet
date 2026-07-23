@@ -17,7 +17,7 @@ Create a Hetzner Cloud server for Tchalanet infrastructure.
 
 Options:
   -n, --name NAME        Server name (default: stg-app)
-  -t, --type TYPE        Server type (default: cpx21)
+  -t, --type TYPE        Server type (default: cx22)
   -i, --image IMAGE      OS image (default: ubuntu-24.04)
   -f, --firewall NAME    Firewall name (default: tch-fw)
   -k, --ssh-key NAME     SSH key name (default: tchalanet_stg)
@@ -58,7 +58,7 @@ fi
 
 # Valeurs par défaut
 NAME="stg-app"
-TYPE="cx23"
+TYPE="cx22"
 IMAGE="ubuntu-24.04"
 FIREWALL="tch-fw"
 SSH_KEY="tchalanet_stg"
