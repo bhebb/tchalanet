@@ -17,11 +17,11 @@ Create a Hetzner Cloud server for Tchalanet infrastructure.
 
 Options:
   -n, --name NAME        Server name (default: stg-app)
-  -t, --type TYPE        Server type (default: cpx21)
+  -t, --type TYPE        Server type (default: cx23)
   -i, --image IMAGE      OS image (default: ubuntu-24.04)
   -f, --firewall NAME    Firewall name (default: tch-fw)
   -k, --ssh-key NAME     SSH key name (default: tchalanet_stg)
-  -l, --location LOC     Location (default: nbg1)
+  -l, --location LOC     Location (default: fsn1)
       --network NET     Private network name (optional)
       --public-ip IP    Use reserved public IP (optional)
       --dry-run         Show what would be done without creating server
@@ -62,7 +62,7 @@ TYPE="cx23"
 IMAGE="ubuntu-24.04"
 FIREWALL="tch-fw"
 SSH_KEY="tchalanet_stg"
-LOCATION="nbg1"
+LOCATION="fsn1"
 NETWORK="" # Optionnel
 PUBLIC_IP="" # Optionnel
 DRY_RUN=0
