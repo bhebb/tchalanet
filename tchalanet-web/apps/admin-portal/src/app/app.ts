@@ -164,7 +164,7 @@ export class App {
   }
 
   protected goToSettings(): void {
-    void this.router.navigateByUrl('/app/admin/settings');
+    void this.router.navigate(['/profile'], { fragment: 'preferences' });
   }
 
   private clearStaleSupportAccessForCurrentUser(): void {

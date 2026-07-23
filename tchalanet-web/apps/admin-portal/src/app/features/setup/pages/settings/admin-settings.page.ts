@@ -27,13 +27,13 @@ export class AdminSettingsPage {
       icon: 'dns',
       label: 'Runtime',
       description: 'Informations d\'exécution du tenant',
-      route: '/app/admin/settings/runtime',
+      route: '/app/admin/company/settings/runtime',
     },
     {
       icon: 'tune',
       label: 'Configuration',
       description: 'Locale, communication, documents',
-      route: '/app/admin/settings/config',
+      route: '/app/admin/company/settings/config',
     },
   ];
 }

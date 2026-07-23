@@ -345,21 +345,21 @@ export class AdminCompleteTenantConfigPage implements OnInit {
     const issue = this.sectionMap().get('settings')?.issues?.find(item => item.messageKey?.startsWith('settings.'));
     const reason = issue?.messageKey ?? '';
     if (reason.startsWith('settings.print.')) {
-      return { route: '/app/admin/settings/config', fragment: 'print' };
+      return { route: '/app/admin/company/settings/config', fragment: 'print' };
     }
     if (reason.startsWith('settings.send.')) {
-      return { route: '/app/admin/settings/config', fragment: 'send' };
+      return { route: '/app/admin/company/settings/config', fragment: 'send' };
     }
     if (reason.startsWith('settings.calendar.')) {
-      return { route: '/app/admin/settings/config', fragment: 'calendar' };
+      return { route: '/app/admin/company/settings/config', fragment: 'calendar' };
     }
     if (reason.startsWith('settings.locale.')) {
-      return { route: '/app/admin/settings/config', fragment: 'languages' };
+      return { route: '/app/admin/company/settings/config', fragment: 'languages' };
     }
     if (reason.startsWith('settings.identity.') || reason.startsWith('settings.defaults.')) {
-      return { route: '/app/admin/settings/config' };
+      return { route: '/app/admin/company/settings/config' };
     }
-    return { route: '/app/admin/settings/config' };
+    return { route: '/app/admin/company/settings/config' };
   }
 
   private addressLabel(addr: NonNullable<TenantAdminOverviewView['header']['address']>): string {

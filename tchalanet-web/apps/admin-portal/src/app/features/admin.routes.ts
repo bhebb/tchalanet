@@ -176,8 +176,18 @@ export const adminRoutes: Route[] = [
   },
   {
     path: 'company/settings',
-    redirectTo: 'settings',
-    pathMatch: 'full',
+    loadComponent: () =>
+      import('./setup/pages/settings/admin-settings.page').then(m => m.AdminSettingsPage),
+  },
+  {
+    path: 'company/settings/runtime',
+    loadComponent: () =>
+      import('./setup/pages/settings/admin-runtime.page').then(m => m.AdminRuntimePage),
+  },
+  {
+    path: 'company/settings/config',
+    loadComponent: () =>
+      import('./setup/pages/settings/admin-config.page').then(m => m.AdminConfigPage),
   },
   {
     path: 'company/support',
@@ -232,18 +242,18 @@ export const adminRoutes: Route[] = [
   },
   {
     path: 'settings',
-    loadComponent: () =>
-      import('./setup/pages/settings/admin-settings.page').then(m => m.AdminSettingsPage),
+    redirectTo: 'company/settings',
+    pathMatch: 'full',
   },
   {
     path: 'settings/runtime',
-    loadComponent: () =>
-      import('./setup/pages/settings/admin-runtime.page').then(m => m.AdminRuntimePage),
+    redirectTo: 'company/settings/runtime',
+    pathMatch: 'full',
   },
   {
     path: 'settings/config',
-    loadComponent: () =>
-      import('./setup/pages/settings/admin-config.page').then(m => m.AdminConfigPage),
+    redirectTo: 'company/settings/config',
+    pathMatch: 'full',
   },
   { path: 'appearance', redirectTo: 'company/appearance', pathMatch: 'full' },
   { path: 'more', redirectTo: 'company/settings', pathMatch: 'full' },
