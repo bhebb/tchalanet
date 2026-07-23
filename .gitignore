@@ -53,6 +53,15 @@ venv/
 envs/**/.secrets
 **/*firebase-adminsdk*.json
 **/firebase-service-account*.json
+# Signing material and private-key stores — never commit.
+# (Public truststores like *-truststore.jks are intentionally tracked.)
+*.p12
+*.pfx
+*.keystore
+**/upload-keystore.jks
+**/release-keystore.jks
+**/key.properties
+**/*.env.local
 
 # Environnement
 .env
