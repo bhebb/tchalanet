@@ -57,10 +57,10 @@ on:
         default: false
         type: boolean
   schedule:
-    # Weekly (Mondays 07:20 UTC). This run builds images, deploys a disposable
-    # runtime and drives E2E — the heaviest consumer of Actions minutes — so it
-    # runs weekly rather than nightly. Trigger manually for on-demand validation.
-    - cron: '20 7 * * 1'
+    # Saturday 02:00 America/Toronto during daylight saving time: dependency analysis.
+    - cron: '0 6 * * 6'
+    # Sunday 02:00 America/Toronto during daylight saving time: E2E/full validation.
+    - cron: '0 6 * * 0'
 
 concurrency:
   group: full-validation-${{ github.ref }}
@@ -74,7 +74,7 @@ permissions:
 jobs:
   ensure-staging-infra:
     name: Ensure staging infra
-    if: github.event_name == 'schedule' || inputs.run_server_e2e == true
+    if: github.event.schedule == '0 6 * * 0' || inputs.run_server_e2e == true
     uses: ./.github/workflows/reusable-staging-core-infra.yml
     with:
       create_if_missing: true
@@ -88,6 +88,7 @@ jobs:
 
   server-it:
     name: Server IT
+    if: github.event_name != 'schedule' || github.event.schedule == '0 6 * * 0'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -108,6 +109,7 @@ jobs:
 
   dependency-check:
     name: OWASP Dependency-Check
+    if: github.event_name != 'schedule' || github.event.schedule == '0 6 * * 6'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -139,7 +141,7 @@ jobs:
 
   build-nightly-api:
     name: Build nightly API image
-    if: github.event_name == 'schedule' || inputs.deploy_runtime_for_e2e == true
+    if: github.event.schedule == '0 6 * * 0' || inputs.deploy_runtime_for_e2e == true
     runs-on: ubuntu-latest
     outputs:
       image_tag: ${{ steps.plan.outputs.image_tag }}
@@ -205,7 +207,7 @@ jobs:
 
   build-nightly-edge:
     name: Build nightly edge-service image
-    if: github.event_name == 'schedule' || inputs.deploy_runtime_for_e2e == true
+    if: github.event.schedule == '0 6 * * 0' || inputs.deploy_runtime_for_e2e == true
     runs-on: ubuntu-latest
     outputs:
       image_tag: ${{ steps.plan.outputs.image_tag }}
@@ -275,7 +277,7 @@ jobs:
 
   ensure-nightly-infra:
     name: Ensure nightly staging infra
-    if: github.event_name == 'schedule' || inputs.ensure_staging_infra == true
+    if: github.event.schedule == '0 6 * * 0' || inputs.ensure_staging_infra == true
     runs-on: ubuntu-latest
     environment: staging
     outputs:
@@ -365,7 +367,7 @@ jobs:
     needs: [build-nightly-api, build-nightly-edge, ensure-nightly-infra]
     if: |
       always() &&
-      (github.event_name == 'schedule' || inputs.deploy_runtime_for_e2e == true) &&
+      (github.event.schedule == '0 6 * * 0' || inputs.deploy_runtime_for_e2e == true) &&
       needs.build-nightly-api.result == 'success' &&
       needs.build-nightly-edge.result == 'success' &&
       (needs.ensure-nightly-infra.result == 'success' || needs.ensure-nightly-infra.result == 'skipped')
@@ -440,7 +442,7 @@ jobs:
     needs: [ensure-nightly-infra, deploy-nightly-runtime]
     if: |
       always() &&
-      (github.event_name == 'schedule' || inputs.run_server_e2e == true) &&
+      (github.event.schedule == '0 6 * * 0' || inputs.run_server_e2e == true) &&
       (needs.ensure-nightly-infra.result == 'success' || needs.ensure-nightly-infra.result == 'skipped') &&
       (
         needs.deploy-nightly-runtime.result == 'success' ||
@@ -621,7 +623,7 @@ jobs:
   web-e2e:
     name: Web E2E
     needs: [deploy-nightly-runtime]
-    if: always()
+    if: always() && (github.event_name != 'schedule' || github.event.schedule == '0 6 * * 0')
     runs-on: ubuntu-latest
     # Temporarily non-blocking while web-e2e hardens. Promote to a required gate
     # once the emulator/stub variant is consistently green.
@@ -699,6 +701,7 @@ jobs:
 
   mobile-full:
     name: Mobile full check
+    if: github.event_name != 'schedule' || github.event.schedule == '0 6 * * 0'
     runs-on: ubuntu-latest
     defaults:
       run:

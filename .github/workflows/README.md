@@ -11,9 +11,12 @@ se déclenchent, et comment les lancer. Section détaillée en fin de doc pour l
   jour (ex. `uses: appleboy/ssh-action@0ff4204…d301dee2 # v1.2.5`). Ne jamais
   repasser une action tierce à un tag mutable.
 - **Gate de merge.** Sur `server-pr.yml`, `spotless`, `checkstyle` et `PMD` sont
-  **bloquants** ; `SpotBugs` et OWASP restent advisory. PMD ne bloque que sur les
+  **bloquants** ; `SpotBugs` reste advisory. PMD ne bloque que sur les
   règles de correctness (priorité 1-4) ; complexité et `UnusedPrivateMethod` sont
   advisory (priorité 5, cf. `tchalanet-server/pmd/ruleset.xml`).
+- **Analyses coûteuses hors PR.** CodeQL, OWASP Dependency-Check et les E2E/full
+  validations tournent le week-end ou manuellement pour éviter de brûler les
+  minutes CI sur chaque PR. Trivy reste attaché au build des images de validation.
 - **Tags d'images immuables.** Les déploiements utilisent `sha-<short_sha>` ;
   `latest` est interdit en staging/prod.
 
@@ -21,14 +24,14 @@ se déclenchent, et comment les lancer. Section détaillée en fin de doc pour l
 
 | Workflow | Déclenchement | Rôle | Bloquant |
 |---|---|---|---|
-| `server-pr.yml` | PR `tchalanet-server/**` | build+test, spotless/checkstyle/PMD, OWASP | ✅ gate |
+| `server-pr.yml` | toutes PR, travail lourd si `tchalanet-server/**` | build+test, spotless/checkstyle/PMD, SpotBugs advisory | ✅ gate |
 | `web-pr.yml` | PR `tchalanet-web/**` | lint, test, tsc, build | ✅ |
 | `mobile-pr.yml` | PR `tchalanet-mobile/**` | `flutter analyze` + `flutter test` | ✅ |
 | `edge-pr.yml` | PR `tchalanet-edge-service/**` | lint, test, build | ✅ |
 | `infra-check.yml` | PR `tchalanet-infra/**` | env vars + `docker compose config` | ✅ |
 | `docs.yml` | push/PR `tchalanet-docs/**` | `mkdocs build --strict` + deploy Pages | ✅ |
-| `codeql.yml` | PR (server/web/edge) + hebdo | SAST Java + TS/JS | advisory |
-| `full-validation.yml` | nightly 07:20 + manuel | IT, build images (+Trivy), deploy jetable, E2E, perf | 🌙 |
+| `codeql.yml` | samedi 00:00 ET + manuel | SAST Java + TS/JS | advisory |
+| `full-validation.yml` | samedi deps 02:00 ET, dimanche E2E 02:00 ET + manuel | samedi OWASP ; dimanche IT, build images (+Trivy), deploy jetable, E2E, perf | 🌙 |
 | `deploy-infra-runtime.yml` | manuel | plan→build→deploy API/edge (staging/prod) | 🚀 |
 | `deploy-staging.yml` | manuel | create/destroy/recreate serveur Hetzner | 🚀 |
 | `reusable-staging-core-infra.yml` | `workflow_call` | Traefik/Redis core | 🔁 |
@@ -79,7 +82,7 @@ publie sur **Firebase App Distribution**. Déclenchement **manuel uniquement**.
 | Input | Défaut | Rôle |
 |---|---|---|
 | `api_base_url` | `https://api.stg.tchalanet.com/api/v1` | **Lien vers l'API** ciblée par le build (`--dart-define=API_BASE_URL`). Inclure `/api/v1`. |
-| `terminal_email_domain` | `terminal.tchalanet.local` | Domaine e-mail des logins terminal — **doit correspondre au seeding backend**. |
+| `terminal_email_domain` | `terminal.stg.tchalanet.com` | Domaine e-mail des logins terminal — **doit correspondre au seeding backend**. |
 | `pos_device_binding` | `` (vide) | `POS_DEVICE_BINDING`. Laisser vide sauf si un credential device est requis. |
 | `build_name` | `1.0.0-stg` | `versionName` lisible. Le `versionCode` est `github.run_number` (auto-incrément). |
 | `tester_groups` | `staging` | Groupes de testeurs App Distribution (alias séparés par virgule). |
@@ -95,7 +98,7 @@ publie sur **Firebase App Distribution**. Déclenchement **manuel uniquement**.
 ```bash
 gh workflow run mobile-distribute-staging.yml \
   -f api_base_url="https://api.stg.tchalanet.com/api/v1" \
-  -f terminal_email_domain="terminal.tchalanet.local" \
+  -f terminal_email_domain="terminal.stg.tchalanet.com" \
   -f pos_device_binding="" \
   -f build_name="1.0.0-stg" \
   -f tester_groups="staging" \
@@ -123,6 +126,33 @@ au minimum `api_base_url`, laisser le reste par défaut → *Run*.
    `tchalanet-39115`.
 5. **Groupe de testeurs** `staging` créé dans la console App Distribution.
 
+### Configuration Firebase App Distribution
+
+Dans Firebase Console → projet `tchalanet-39115` :
+
+1. Ajouter l'app Android `com.tchalanet.mobile` si elle n'existe pas déjà.
+2. Récupérer l'**App ID Android** (`1:...:android:...`) et le mettre dans la variable
+   repo `FIREBASE_ANDROID_APP_ID` si différent du défaut du workflow.
+3. Activer **App Distribution** et créer les groupes `staging` puis, si besoin,
+   `ops`, `qa`, `client-pilot`.
+4. Ajouter les testeurs par email dans les groupes.
+5. Créer ou réutiliser un service account avec le rôle
+   **Firebase App Distribution Admin**. Encoder son JSON en base64 et le stocker
+   dans `FIREBASE_ADMIN_JSON_BASE64`.
+6. Vérifier que `tchalanet-mobile/android/app/google-services.json` correspond
+   au même projet Firebase.
+
+Le build mobile utilise le vrai Firebase, donc le backend ciblé doit aussi être
+configuré sur le même projet et le même domaine terminal :
+
+| Élément | Staging attendu |
+|---|---|
+| Firebase project | `tchalanet-39115` |
+| Android package | `com.tchalanet.mobile` |
+| API | `https://api.stg.tchalanet.com/api/v1` |
+| Terminal email domain | `terminal.stg.tchalanet.com` |
+| Backend identity provider | `firebase` |
+
 ### Ce que fait le job
 
 `checkout` → JDK 17 + Flutter 3.44 → matérialise le keystore + `android/key.properties`
@@ -144,6 +174,25 @@ que ce backend valide les tokens du **vrai** Firebase `tchalanet-39115`.
 > builds expirant à 30 j). Pour une flotte de terminaux en production, évaluer
 > Managed Google Play / MDM (auto-update forcé + mode kiosque).
 
+### Préparer Google Play plus tard
+
+Firebase App Distribution est le bon canal pour staging/pilotes rapides. Pour
+Google Play, préparer sans l'activer tout de suite :
+
+1. Créer le compte Google Play Console de l'organisation et garder le même
+   package Android `com.tchalanet.mobile`.
+2. Choisir la stratégie de signature :
+   - recommandé : **Play App Signing** avec upload key dédiée ;
+   - garder le keystore CI actuel comme upload key ou planifier une rotation.
+3. Préparer un workflow séparé `mobile-publish-play.yml`, manuel uniquement,
+   qui build un **AAB** (`flutter build appbundle`) au lieu d'un APK.
+4. Créer un service account Google Play Console avec droits limités aux releases,
+   stocké plus tard dans un secret dédié, par exemple
+   `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64`.
+5. Utiliser des tracks progressifs : `internal` → `closed` → `production`.
+6. Garder Firebase App Distribution pour les builds QA rapides ; utiliser Google
+   Play pour les terminaux clients qui ont besoin d'auto-update et de gestion MDM.
+
 ---
 
 ## Récap secrets & variables
@@ -156,4 +205,5 @@ que ce backend valide les tokens du **vrai** Firebase `tchalanet-39115`.
 | `TCH_ANDROID_KEY_ALIAS` | secret | distribution mobile |
 | `TCH_ANDROID_KEY_PASSWORD` | secret | distribution mobile |
 | `FIREBASE_ANDROID_APP_ID` | variable | distribution mobile (optionnel) |
+| `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64` | secret futur | publication Google Play |
 | `HCLOUD_TOKEN`, `SSH_PRIVATE_KEY`, `DOPPLER_TOKEN_STG`, `NEON_API_KEY`, … | secret | infra / deploy (voir chaque workflow) |
