@@ -196,7 +196,7 @@
       "tickets_today": "Tikè jodi a",
       "sales_today": "Vant jodi a",
       "user": "Itilizatè",
-      "tenant": "Lis santral",
+      "tenant": "Santral",
       "readiness": "Estati pare",
       "code": "Kòd",
       "status": "Estati",
@@ -241,7 +241,7 @@
       "card_title": "Sesyon",
       "user": "Itilizatè",
       "name": "Non",
-      "tenant": "Lis santral",
+      "tenant": "Santral",
       "roles": "Wòl",
       "no_roles": "Pa gen wòl ki detekte",
       "token_expiry": "Ekspirasyon token"

@@ -469,7 +469,7 @@
           },
           "tenant_disabled": {
             "title": "Espas dezaktive",
-            "message": "Vant yo dezaktive pou lis santral sa a. Kontakte administratè platfòm nan."
+            "message": "Vant yo dezaktive pou santral sa a. Kontakte administratè platfòm nan."
           },
           "untrusted_operational_context": {
             "title": "Kontèks vant pa valid",
@@ -719,7 +719,7 @@
           },
           "tenant_default_not_configured": {
             "title": "Tarifikasyon manke",
-            "message": "Konfigire règ tarif lis santral la anvan."
+            "message": "Konfigire règ tarif santral la anvan."
           },
           "override_not_found": {
             "title": "Override pa jwenn",
@@ -727,7 +727,7 @@
           },
           "override_payout_rule_type_mismatch": {
             "title": "Override pa konpatib",
-            "message": "Yon tèminal pa ka chanje tip règ gany lis santral la defini a."
+            "message": "Yon tèminal pa ka chanje tip règ gany santral la defini a."
           }
         },
         "draw": {
@@ -1247,11 +1247,11 @@
             },
             "structural_update_in_use": {
               "title": "Modifikasyon enposib",
-              "message": "Jwèt sa a deja itilize nan yon konfigirasyon lis santral."
+              "message": "Jwèt sa a deja itilize nan yon konfigirasyon santral."
             },
             "delete_in_use": {
               "title": "Sipresyon enposib",
-              "message": "Jwèt sa a deja itilize nan yon konfigirasyon lis santral."
+              "message": "Jwèt sa a deja itilize nan yon konfigirasyon santral."
             },
             "deactivated": {
               "title": "Jwèt dezaktive",
@@ -1322,7 +1322,7 @@
             },
             "draw_not_in_tenant": {
               "title": "Tiraj pa valab",
-              "message": "Youn nan tiraj yo pa fè pati lis santral yo chwazi a."
+              "message": "Youn nan tiraj yo pa fè pati santral yo chwazi a."
             }
           }
         }

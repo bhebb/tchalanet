@@ -56,8 +56,8 @@
         "phoneNumber": "Telefòn opsyonèl"
       },
       "tenant": {
-        "title": "Aksè lis santral",
-        "name": "Lis santral",
+        "title": "Aksè santral",
+        "name": "Santral",
         "code": "Kòd",
         "role": "Wòl"
       },

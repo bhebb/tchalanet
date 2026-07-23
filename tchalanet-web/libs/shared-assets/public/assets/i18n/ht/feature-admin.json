@@ -16,15 +16,15 @@
       "loading": "Y ap chaje tèm nan…",
       "preset": {
         "title": "Tèm sistèm aktif",
-        "description": "Chwazi tèm ki pral vin aktif pou lis santral sa a.",
+        "description": "Chwazi tèm ki pral vin aktif pou santral sa a.",
         "default": "Pa defo",
         "applying": "Y ap aplike…",
         "empty": "Pa gen tèm aktif disponib.",
-        "activeTenant": "Tèm aktif lis santral la",
-        "applyTenant": "Aplike sou lis santral la"
+        "activeTenant": "Tèm aktif santral la",
+        "applyTenant": "Aplike sou santral la"
       },
       "current": {
-        "eyebrow": "Tèm aktif lis santral la",
+        "eyebrow": "Tèm aktif santral la",
         "default": "Tèm pa defo",
         "description": "Kòd sistèm: {{code}}"
       },
@@ -57,7 +57,7 @@
     },
     "dashboard": {
       "title": "Administrasyon",
-      "description": "Rezime administrasyon lis santral",
+      "description": "Rezime administrasyon santral",
       "kpi": {
         "sellers": "Tèminal POS",
         "outlets": "Tèminal POS",
@@ -78,7 +78,7 @@
     },
     "onboarding": {
       "title": "Enskripsyon",
-      "description": "Etap enskripsyon lis santral"
+      "description": "Etap enskripsyon santral"
     },
     "users": {
       "title": "Itilizatè",
@@ -86,7 +86,7 @@
     },
     "settings": {
       "title": "Paramèt",
-      "description": "Konfigirasyon lis santral"
+      "description": "Konfigirasyon santral"
     },
     "seller": {
       "email": "Imèl",
@@ -219,7 +219,7 @@
       },
       "overview": {
         "title": "Apèsi rapò yo",
-        "description": "Vant, peman ak revni estime pou lis santral aktyèl la.",
+        "description": "Vant, peman ak revni estime pou santral aktyèl la.",
         "loading": "Chajman rapò yo...",
         "period": {
           "label": "Peryòd rapò a"
@@ -421,7 +421,7 @@
     },
     "gamesPricing": {
       "title": "Jwèt disponib",
-      "description": "Chwazi jwèt lis santral la sipòte epi konplete paramèt vant yo.",
+      "description": "Chwazi jwèt santral la sipòte epi konplete paramèt vant yo.",
       "loading": "Chajman jwèt yo...",
       "action": {
         "backToSetup": "Konfigirasyon jeneral",
@@ -436,7 +436,7 @@
         "aria": "Rezime jwèt disponib yo",
         "systemGames": {
           "label": "Jwèt sistèm",
-          "help": "Jwèt ki disponib pou lis santral sa a."
+          "help": "Jwèt ki disponib pou santral sa a."
         },
         "activeGames": {
           "label": "Jwèt aktif",
@@ -454,7 +454,7 @@
       "issues": {
         "aria": "Jwèt pou konplete",
         "title": "Pou konplete",
-        "description": "Korije pwen sa yo avan ou aktive jwèt la pou lis santral sa a.",
+        "description": "Korije pwen sa yo avan ou aktive jwèt la pou santral sa a.",
         "missingStake": "Miz la pa konfigire pou jwèt sa a.",
         "missingPricing": "Barèm nan pa konfigire pou jwèt sa a.",
         "configure": "Konfigire"
@@ -568,7 +568,7 @@
           "notConfigured": "Pa konfigire",
           "visibleInPos": "Vizib POS",
           "hiddenInPos": "Kache POS",
-          "tenantGameSettings": "Paramèt jwèt lis santral la"
+          "tenantGameSettings": "Paramèt jwèt santral la"
         },
         "action": {
           "configureMaryaj": "Konfigire Maryaj gratis",
@@ -580,7 +580,7 @@
         }
       },
       "warning": {
-        "TENANT_GAME_DISABLED": "Jwèt dezaktive pou lis santral la",
+        "TENANT_GAME_DISABLED": "Jwèt dezaktive pou santral la",
         "NOT_VISIBLE_IN_POS": "Kache nan POS",
         "CHANNEL_NOT_CONFIGURED": "Kanal pa konfigire",
         "CHANNEL_INACTIVE": "Kanal inaktif",
@@ -604,7 +604,7 @@
       },
       "advancedSettings": {
         "title": "Paramèt avanse",
-        "description": "Lang, resi, kominikasyon ak règ biznis ka ajiste nan paramèt lis santral la.",
+        "description": "Lang, resi, kominikasyon ak règ biznis ka ajiste nan paramèt santral la.",
         "action": "Louvri paramèt yo"
       },
       "title": "Konfigirasyon jeneral",
@@ -640,8 +640,8 @@
         "theme": "Aparans",
         "themeDesc": "Pèsonalizasyon aparans lan.",
         "themeCta": "Konfigire aparans lan",
-        "settings": "Paramèt lis santral la",
-        "settingsDesc": "Pèsonalize lang ak resi a (non afichaj, mesaj) pou lis santral ou.",
+        "settings": "Paramèt santral la",
+        "settingsDesc": "Pèsonalize lang ak resi a (non afichaj, mesaj) pou santral ou.",
         "settingsCta": "Konfigire paramèt yo",
         "subscription": "Abònman",
         "subscriptionDesc": "Plan ak estati abònman ou.",
@@ -654,20 +654,20 @@
         "sellerTerminalCta": "Konfigire tèminal POS yo",
         "sellerTerminalReady": "Tèminal POS yo pare"
       },
-      "description": "Swiv etap yo pou konfigire lis santral la epi rann li operasyonèl.",
+      "description": "Swiv etap yo pou konfigire santral la epi rann li operasyonèl.",
       "status": {
         "notStarted": "Poko kòmanse",
         "inProgress": "An kou",
         "completed": "Fini"
       },
       "advancedSettings.title": "Paramèt avanse",
-      "advancedSettings.description": "Konfigire paramèt avanse lis santral la.",
+      "advancedSettings.description": "Konfigire paramèt avanse santral la.",
       "advancedSettings.action": "Konfigire paramèt avanse yo",
       "blockingStep": {
         "identity_address": "Idantite ak adrès",
         "identity": "Idantite",
         "address": "Adrès",
-        "settings": "Paramèt lis santral la",
+        "settings": "Paramèt santral la",
         "games_pricing": "Jwèt",
         "draws": "Kanal tiraj",
         "generated_draws": "Tiraj jenere"
@@ -984,7 +984,7 @@
           "disabledAt": "Dezaktive",
           "commissionRate": "Komisyon",
           "addressId": "Adrès",
-          "tenantId": "Lis santral"
+          "tenantId": "Santral"
         }
       },
       "status": {
@@ -1003,7 +1003,7 @@
     },
     "drawChannels": {
       "title": "Règ tiraj",
-      "description": "Konfigire founisè yo, sous rezilta yo, ak lè tiraj aktif pou lis santral la.",
+      "description": "Konfigire founisè yo, sous rezilta yo, ak lè tiraj aktif pou santral la.",
       "status": {
         "active": "Aktif",
         "needsConfig": "Pou konfigire",
@@ -1031,7 +1031,7 @@
       "empty": {
         "title": "Pa gen founisè",
         "filtered": "Chanje filtè a oswa rechèch la pou montre founisè yo.",
-        "none": "Pa gen founisè disponib pou lis santral sa a."
+        "none": "Pa gen founisè disponib pou santral sa a."
       },
       "notice": {
         "title": "Aksyon pa disponib",
@@ -1046,7 +1046,7 @@
           "slots": "Lè tiraj"
         },
         "field": {
-          "enabled": "Règ aktive pou lis santral sa a",
+          "enabled": "Règ aktive pou santral sa a",
           "resultMode": "Mòd rezilta",
           "defaultCutoff": "Fèmti vant pa defo (minit)",
           "slotEnabled": "Lè tiraj aktif",
@@ -1074,7 +1074,7 @@
       },
       "slots": {
         "title": "Lè tiraj",
-        "unavailable": "Pa gen lè tiraj disponib pou lis santral sa a",
+        "unavailable": "Pa gen lè tiraj disponib pou santral sa a",
         "status": {
           "active": "Aktif",
           "needsConfig": "Pou konfigire",
@@ -1098,7 +1098,7 @@
     },
     "games": {
       "title": "Jwèt",
-      "description": "Jere jwèt ki aktive pou lis santral sa a.",
+      "description": "Jere jwèt ki aktive pou santral sa a.",
       "tabs": {
         "enabled": "Jwèt aktive",
         "catalog": "Katalòg"
@@ -1121,11 +1121,11 @@
       },
       "settings": {
         "title": "Konfigire jwèt la - {{name}}",
-        "description": "Paramèt lis santral ki itilize pou vant POS.",
+        "description": "Paramèt santral ki itilize pou vant POS.",
         "intro": {
           "aria": "Paramèt vant jwèt la",
           "title": "Paramèt ki itilize nan vant",
-          "message": "Valè sa yo kontwole afichaj POS la ak miz lis santral la aksepte. Gany ak barèm global yo rete jere nan katalòg platfòm nan."
+          "message": "Valè sa yo kontwole afichaj POS la ak miz santral la aksepte. Gany ak barèm global yo rete jere nan katalòg platfòm nan."
         },
         "field": {
           "displayName": "Non ki parèt nan POS",
@@ -1139,7 +1139,7 @@
         },
         "options": {
           "title": "Barèm gain",
-          "description": "Rezime barèm lis santral la ki aplike nan vant lan.",
+          "description": "Rezime barèm santral la ki aplike nan vant lan.",
           "clearPricing": "Efase règ barèm nan"
         },
         "salesOptions": {
@@ -1174,7 +1174,7 @@
       },
       "dialog": {
         "edit": {
-          "title": "Modifye kòt lis santral la"
+          "title": "Modifye kòt santral la"
         }
       },
       "empty": {
@@ -1351,7 +1351,7 @@
   "readiness": {
     "noIssues": "Pa gen pwoblèm",
     "identity": {
-      "missing": "Idantite lis santral la bezwen konplete"
+      "missing": "Idantite santral la bezwen konplete"
     },
     "seller_terminals": {
       "empty": "Pa gen tèminal POS ki konfigire",
@@ -1367,7 +1367,7 @@
       "results_pending": "Tiraj fèmen ap tann rezilta"
     },
     "commission": {
-      "default_missing": "To komisyon lis santral la bezwen konfigire"
+      "default_missing": "To komisyon santral la bezwen konfigire"
     },
     "limits": {
       "empty": "Limit vant yo bezwen konfigire"
@@ -1381,13 +1381,13 @@
     "fields": {
       "roles": "Wòl",
       "settings": "Paramèt",
-      "tenant": "Lis santral",
+      "tenant": "Santral",
       "user": "Itilizatè"
     },
     "rolesEmpty": "Pa gen wòl detekte",
     "tenantMissing": "Pa detekte",
     "titles": {
-      "admin": "Tablo admin lis santral",
+      "admin": "Tablo admin santral",
       "cashier": "Tablo kesye",
       "platform": "Tablo platfòm"
     },
@@ -1418,7 +1418,7 @@
         "title": "Aksyon rapid"
       },
       "tenants": {
-        "title": "Lis santral"
+        "title": "Santral"
       }
     },
     "tenant_admin": {
@@ -1428,7 +1428,7 @@
       },
       "commission": {
         "title": "Komisyon",
-        "default_rate": "To pa defò lis santral la",
+        "default_rate": "To pa defò santral la",
         "default_not_set": "Pa konfigire",
         "at_default": "To pa defò",
         "custom": "To pèsonalize",
