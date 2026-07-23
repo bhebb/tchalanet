@@ -176,8 +176,8 @@ export const adminRoutes: Route[] = [
   },
   {
     path: 'company/settings',
-    component: PlaceholderPage,
-    data: { titleKey: 'nav.admin.company_settings', icon: 'tune' },
+    redirectTo: 'settings',
+    pathMatch: 'full',
   },
   {
     path: 'company/support',

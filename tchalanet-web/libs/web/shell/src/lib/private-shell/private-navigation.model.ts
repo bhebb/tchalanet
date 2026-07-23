@@ -622,12 +622,6 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
             destination: { kind: 'route', value: '/app/admin/company/appearance' },
           },
           {
-            id: 'company-settings',
-            labelKey: 'nav.admin.company_settings',
-            icon: 'settings',
-            destination: { kind: 'route', value: '/app/admin/settings' },
-          },
-          {
             id: 'company-business-days',
             labelKey: 'nav.admin.company_business_days',
             icon: 'calendar_month',
