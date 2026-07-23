@@ -327,7 +327,7 @@ fi
 if [ "$ENV" = "staging" ] && [ "$DEPLOY_API" = "1" ]; then
   log "Starting staging Postgres container"
   IMAGE_TAG="$COMPOSE_API_TAG" TCH_EDGE_IMAGE="$COMPOSE_EDGE_IMAGE" TCH_EDGE_TAG="$COMPOSE_EDGE_TAG" \
-    "${compose_cmd[@]}" up -d postgres
+    "${compose_cmd[@]}" up -d --force-recreate postgres
   for attempt in $(seq 1 24); do
     health_status="$(inspect_health "tchl-postgres-$ENV")"
     if [ "$health_status" = "healthy" ]; then
