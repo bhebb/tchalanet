@@ -1,0 +1,50 @@
+site_name: Tchalanet Documentation
+site_description: Documentation publique Tchalanet pour la validation, l'exploitation et l'utilisation.
+site_url: https://docs.tchalanet.com/
+docs_dir: docs-public
+site_dir: site-public
+
+extra_css:
+  - stylesheets/public.css
+
+theme:
+  name: material
+  language: fr
+  features:
+    - navigation.sections
+    - navigation.instant
+    - content.code.copy
+    - search.suggest
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - toc:
+      permalink: true
+
+nav:
+  - Accueil: index.md
+  - Avant de tester: avant-de-tester.md
+  - Guides:
+      - Administrateurs: administrateurs/index.md
+      - Propriétaires: proprietaires/index.md
+      - Super administrateurs: super-administrateurs/index.md
+      - Vendeur / POS: pos/index.md
+  - Parcours rapides:
+      - Vendre un ticket: parcours/vendre-un-ticket.md
+      - Préparer un santral: parcours/preparer-un-santral.md
+  - Tirages et résultats:
+      - Cycle des jobs: tirages-resultats/jobs-tirages.md
+      - Providers supportés: tirages-resultats/providers.md
+      - Vérifier ou confirmer: tirages-resultats/verifier-confirmer.md
+  - Glossaire:
+      - Concepts Tchalanet: glossaire/index.md
+  - Validation:
+      - Accès testeur: validation/acces-testeur.md
+      - Scénarios de test: validation/scenarios-de-test.md
+      - Formulaire résultat: validation/formulaire-resultat.md
+      - Signaler un problème: validation/signaler-un-probleme.md
+  - FAQ: faq.md

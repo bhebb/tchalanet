@@ -1,0 +1,61 @@
+.tch-flow {
+  display: grid;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.tch-step {
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-left: 0.35rem solid var(--md-primary-fg-color);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  background: var(--md-default-bg-color);
+  box-shadow: 0 0.25rem 0.9rem rgba(20, 20, 43, 0.06);
+  animation: tch-step-in 420ms ease both;
+}
+
+.tch-step:nth-child(2) { animation-delay: 80ms; }
+.tch-step:nth-child(3) { animation-delay: 160ms; }
+.tch-step:nth-child(4) { animation-delay: 240ms; }
+.tch-step:nth-child(5) { animation-delay: 320ms; }
+.tch-step:nth-child(6) { animation-delay: 400ms; }
+
+.tch-step__eyebrow {
+  color: var(--md-primary-fg-color);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.tch-step h3 {
+  margin: 0.25rem 0 0.45rem;
+}
+
+.tch-step p {
+  margin-bottom: 0;
+}
+
+.tch-check {
+  border-radius: 0.5rem;
+  padding: 0.8rem 1rem;
+  background: color-mix(in srgb, var(--md-primary-fg-color) 8%, transparent);
+}
+
+@keyframes tch-step-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.6rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tch-step {
+    animation: none;
+  }
+}
+
