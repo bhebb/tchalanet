@@ -84,26 +84,26 @@
   non déployée, réseau privé ou Cloudflare Access.
 - [ ] Ne pas exposer la surface interne pour le week-end sauf besoin confirmé.
 
-## T6 — Déploiement Cloudflare Pages
+## T6 — Déploiement Cloudflare Workers
 
 - [x] Préparer le workflow manuel de déploiement public.
 - [x] Builder uniquement avec `mkdocs.public.yml`.
 - [x] Publier uniquement le dossier `site-public/`.
-- [ ] Créer le projet Cloudflare Pages `tchalanet-docs-public`.
+- [x] Ajouter la configuration Wrangler du Worker static assets.
+- [ ] Créer ou identifier le Worker Cloudflare public.
 - [ ] Configurer le domaine `docs.tchalanet.com`.
 - [ ] Ajouter les secrets/variables GitHub Actions :
-  `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`,
-  `CLOUDFLARE_PAGES_PROJECT_DOCS_PUBLIC`.
+  `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`.
 - [ ] Lancer un premier déploiement manuel depuis `main`.
-- [ ] Vérifier l'URL de production et, si besoin, l'URL de preview.
+- [ ] Vérifier l'URL de production.
 
 ## T7 — Déploiement
 
-- [x] Ajouter le runbook Cloudflare Pages.
+- [x] Ajouter le runbook Cloudflare Workers.
 - [ ] Préparer le DNS Cloudflare pour `docs.tchalanet.com`.
 - [ ] Valider TLS et redirection HTTP vers HTTPS.
 - [ ] Documenter le rollback :
-  rollback Cloudflare Pages ou redéploiement d'un SHA stable.
+  rollback Worker ou redéploiement d'un SHA stable.
 - [ ] Ne placer aucun secret dans le contenu publié ou le repository docs.
 
 ## T8 — Validation CI/CD
@@ -141,4 +141,4 @@
 - [ ] Scénarios de validation.
 - [ ] Signalement de problème.
 - [ ] Build strict.
-- [ ] Déploiement manuel Cloudflare Pages.
+- [ ] Déploiement manuel Cloudflare Workers.

@@ -31,7 +31,7 @@ travail utile.
 Mettre en place une stratégie MkDocs à deux surfaces :
 
 1. **Docs public/testeurs** — site court, guidé, déployable manuellement sur
-   Cloudflare Pages et exposable sur `docs.tchalanet.com`.
+   Cloudflare Workers static assets et exposable sur `docs.tchalanet.com`.
 2. **Docs technique/interne** — documentation complète ou technique, non
    déployée publiquement par défaut, ou protégée par Cloudflare Access / réseau
    privé / authentification.
@@ -134,15 +134,15 @@ publiés comme guides testeurs.
 ### Publication
 
 Le site public/testeurs doit pouvoir être construit en statique par MkDocs puis
-publié manuellement sur Cloudflare Pages.
+publié manuellement sur Cloudflare Workers static assets.
 
 Exemple de cible :
 
-- projet Cloudflare Pages `tchalanet-docs-public` ;
+- Worker Cloudflare `tchalanet-docs-public` ;
 - domaine `docs.tchalanet.com` ;
 - build public depuis `mkdocs.public.yml` ;
 - output `tchalanet-docs/site-public` ;
-- déploiement manuel via GitHub Actions ;
+- déploiement manuel via GitHub Actions et Wrangler ;
 - pas de secrets dans le contenu publié.
 
 Pour la partie technique :
@@ -180,7 +180,7 @@ Pour la partie technique :
 - Les parcours par rôle sont des pages guides, pas des dumps d'architecture.
 - Priorité week-end : `docs-public/`, homepage, guide Admin, guide POS,
   scénarios de validation, signalement de problème, build strict et
-  déploiement manuel Cloudflare Pages.
+  déploiement manuel Cloudflare Workers.
 
 ---
 
@@ -192,6 +192,6 @@ Pour la partie technique :
 - `tchalanet-docs/docs/` :
   conservation de l'espace technique/interne.
 - `tchalanet-infra/` :
-  ajout d'un runbook Cloudflare Pages pour `docs.tchalanet.com`.
+  ajout d'un runbook Cloudflare Workers pour `docs.tchalanet.com`.
 - CI/CD :
   build MkDocs public, build image, déploiement manuel ou staging/prod docs.

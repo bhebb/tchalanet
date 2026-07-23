@@ -1,30 +1,30 @@
-# RB-05 — Déployer la documentation publique sur Cloudflare Pages
+# RB-05 — Déployer la documentation publique sur Cloudflare Workers
 
 ## Objectif
 
 Publier la documentation testeurs Tchalanet sur `docs.tchalanet.com` avec un
-déploiement manuel depuis GitHub Actions.
+déploiement manuel depuis GitHub Actions vers un Worker Cloudflare avec static
+assets.
 
 La surface publique doit rester séparée de la documentation technique. Le site
 publié est construit uniquement depuis `tchalanet-docs/docs-public/` avec
 `tchalanet-docs/mkdocs.public.yml`.
 
-Le modèle suit la même philosophie que le web Tchalanet : générer un dossier
-statique prêt pour Cloudflare Pages, inclure les fichiers Cloudflare dans
-l'artefact, puis publier ce dossier avec Wrangler.
+Le modèle suit la forme actuelle du projet Cloudflare créé pour la doc :
+générer un dossier statique, inclure les fichiers Cloudflare dans l'artefact,
+puis publier ce dossier avec `wrangler deploy`.
 
 ## TODO configuration initiale
 
-- [ ] Créer un projet Cloudflare Pages nommé `tchalanet-docs-public`.
+- [ ] Créer ou identifier le Worker Cloudflare `tchalanet-docs-public`.
 - [ ] Configurer le domaine personnalisé `docs.tchalanet.com` dans Cloudflare
-      Pages.
-- [ ] Vérifier que le DNS `docs.tchalanet.com` pointe vers Cloudflare Pages.
+      Workers & Pages.
+- [ ] Vérifier que le DNS `docs.tchalanet.com` pointe vers ce Worker.
 - [ ] Vérifier que le certificat TLS Cloudflare est actif.
-- [ ] Créer un token Cloudflare API limité au déploiement Pages.
+- [ ] Créer un token Cloudflare API limité au déploiement Workers.
 - [ ] Ajouter les valeurs GitHub Actions :
   - secret `CLOUDFLARE_API_TOKEN` ;
-  - secret ou variable `CLOUDFLARE_ACCOUNT_ID` ;
-  - variable `CLOUDFLARE_PAGES_PROJECT_DOCS_PUBLIC=tchalanet-docs-public`.
+  - secret ou variable `CLOUDFLARE_ACCOUNT_ID`.
 - [ ] Lancer le workflow manuel `Docs CI` avec :
   - `docs_surface=public` ;
   - `deploy_public=true`.
@@ -32,12 +32,12 @@ l'artefact, puis publier ce dossier avec Wrangler.
 
 ## Permissions Cloudflare minimales
 
-Le token API doit permettre de publier sur Cloudflare Pages pour le compte qui
-contient `tchalanet.com`.
+Le token API doit permettre de publier le Worker `tchalanet-docs-public` pour le
+compte qui contient `tchalanet.com`.
 
 Permissions recommandées :
 
-- Account / Cloudflare Pages / Edit.
+- Account / Workers Scripts / Edit.
 - Account / Account Settings / Read.
 
 Le DNS peut être configuré manuellement dans le dashboard Cloudflare. Si on veut
@@ -47,20 +47,24 @@ automatiser aussi la création du domaine ou des records DNS, ajouter seulement
 - Zone / DNS / Edit.
 - Zone / Zone / Read.
 
-## Configuration Cloudflare Pages
+## Configuration Cloudflare Workers
 
 Valeurs cibles :
 
 | Champ | Valeur |
 |---|---|
-| Project name | `tchalanet-docs-public` |
-| Production branch | `main` |
+| Worker name | `tchalanet-docs-public` |
 | Build command | géré par GitHub Actions |
 | Output directory | `tchalanet-docs/site-public` |
 | Custom domain | `docs.tchalanet.com` |
+| Wrangler config | `tchalanet-docs/wrangler.docs-public.toml` |
 
-Le projet Cloudflare Pages peut rester sans build automatique si GitHub Actions
-fait le déploiement via Wrangler.
+Le Worker peut rester en déploiement manuel : GitHub Actions construit le site
+public, contrôle les fuites, puis publie avec :
+
+```bash
+npx --yes wrangler@4 deploy --config wrangler.docs-public.toml
+```
 
 Le build public doit contenir :
 
@@ -80,9 +84,8 @@ Dans GitHub :
 6. Mettre `deploy_public=true`.
 7. Lancer le workflow.
 
-Pour publier le domaine principal `docs.tchalanet.com`, lancer le workflow depuis
-`main`. Depuis une branche de PR, Cloudflare Pages crée plutôt un déploiement de
-prévisualisation.
+Le workflow publie le Worker `tchalanet-docs-public`. Pour éviter une publication
+prématurée, le lancer seulement quand la doc publique a été relue.
 
 ## Validation après déploiement
 
@@ -106,7 +109,7 @@ prévisualisation.
 Option recommandée :
 
 1. Ouvrir Cloudflare Dashboard.
-2. Aller dans Pages.
+2. Aller dans Workers & Pages.
 3. Ouvrir `tchalanet-docs-public`.
 4. Aller dans Deployments.
 5. Sélectionner le dernier déploiement stable.
