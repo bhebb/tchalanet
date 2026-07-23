@@ -183,6 +183,15 @@ if [ "${SKIP_DOPPLER:-0}" != "1" ]; then
     chown "$(id -u):$(id -g)" "envs/$ENV/.secrets" 2>/dev/null || true
   fi
   chmod 600 "envs/$ENV/.secrets"
+  for k in POSTGRES_PASSWORD APP_DB_NAME APP_DB_USER APP_DB_PASSWORD; do
+    line="$(grep "^$k=" "envs/$ENV/.secrets" || true)"
+    if [ -z "$line" ]; then
+      log "DEBUG $k: MISSING from envs/$ENV/.secrets"
+    else
+      val="${line#*=}"
+      log "DEBUG $k: len=${#val} first=${val:0:1} last=${val: -1}"
+    fi
+  done
 elif [ ! -f "envs/$ENV/.secrets" ]; then
   fail "SKIP_DOPPLER=1 was set but envs/$ENV/.secrets does not exist"
 fi
