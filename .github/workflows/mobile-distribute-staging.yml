@@ -70,6 +70,7 @@ jobs:
   distribute:
     name: Build and distribute staging APK
     runs-on: ubuntu-latest
+    environment: staging
     defaults:
       run:
         working-directory: tchalanet-mobile
@@ -103,7 +104,7 @@ jobs:
         with:
           flutter-version: '3.44.0'
           channel: stable
-          cache: true
+          cache: false
 
       - name: Materialize release keystore
         env:
