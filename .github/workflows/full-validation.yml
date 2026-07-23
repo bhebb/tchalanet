@@ -258,7 +258,7 @@ jobs:
       - uses: actions/checkout@v7
 
       - name: Setup hcloud
-        uses: hetznercloud/setup-hcloud@4ff9bbeda4053fb69dd7fa1fcbdfcce7e648bf33 # v1
+        uses: hetznercloud/setup-hcloud@ac9e7d74fb41a3ca44a6a3da123bd5aa70731e3a # v2.0.0
 
       - name: Validate infra secrets
         run: |
