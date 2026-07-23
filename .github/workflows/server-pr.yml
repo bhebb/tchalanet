@@ -1,11 +1,12 @@
 name: Server PR Check
 
 on:
+  # No path filter: the workflow runs on every PR so the required "Server gate"
+  # check is always reported. The `changes` job decides whether the real work
+  # runs; when the server slice is untouched, heavy jobs are skipped and the
+  # gate passes. This is what lets a path-scoped check be a required check.
   pull_request:
     branches: [main]
-    paths:
-      - 'tchalanet-server/**'
-      - '.github/workflows/server-pr.yml'
   workflow_dispatch:
 
 concurrency:
@@ -17,8 +18,35 @@ permissions:
   pull-requests: write
 
 jobs:
+  changes:
+    name: Detect server changes
+    runs-on: ubuntu-latest
+    outputs:
+      run: ${{ steps.detect.outputs.run }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - id: detect
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" != "pull_request" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          if git diff --name-only "$BASE" "$HEAD" \
+             | grep -qE '^tchalanet-server/|^\.github/workflows/server-pr\.yml'; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
+
   server-verify:
     name: Server verify
+    needs: changes
+    if: needs.changes.outputs.run == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -83,6 +111,8 @@ jobs:
 
   dependency-check:
     name: OWASP Dependency-Check
+    needs: changes
+    if: needs.changes.outputs.run == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -169,3 +199,25 @@ jobs:
           name: dependency-check-report
           path: tchalanet-server/target/dependency-check-report.*
           if-no-files-found: warn
+
+  # Required check. Always runs; green unless server-verify actually failed.
+  # Mark "Server gate" as the required status check in the branch ruleset.
+  gate:
+    name: Server gate
+    needs: [changes, server-verify]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Evaluate gate
+        env:
+          CHANGES: ${{ needs.changes.result }}
+          VERIFY: ${{ needs.server-verify.result }}
+        run: |
+          echo "changes=$CHANGES server-verify=$VERIFY"
+          if [ "$CHANGES" != "success" ]; then
+            echo "change detection failed"; exit 1
+          fi
+          case "$VERIFY" in
+            success|skipped) echo "gate ok" ;;
+            *) echo "server-verify $VERIFY"; exit 1 ;;
+          esac
