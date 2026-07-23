@@ -163,10 +163,6 @@ export class App {
     void this.router.navigateByUrl('/profile');
   }
 
-  protected goToSettings(): void {
-    void this.router.navigateByUrl('/app/admin/settings');
-  }
-
   private clearStaleSupportAccessForCurrentUser(): void {
     if (this.auth.authenticated() && !this.auth.hasRole('SUPER_ADMIN') && this.supportAccess.session()) {
       this.supportAccess.clearSession();

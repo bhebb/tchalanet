@@ -140,6 +140,9 @@ export class AdminConfigPage {
   readonly holidayTemplates = this.api.holidayTemplatesResource();
   readonly configError = resourceErrorVm(this.config, 'admin.setup.config');
   readonly configIsEmpty = () => false;
+  readonly fromSetup = this.route.snapshot.queryParamMap.get('from') === 'setup';
+  readonly backRoute = this.fromSetup ? '/app/admin/setup' : '/app/admin/company/settings';
+  readonly backLabel = this.fromSetup ? 'Configuration générale' : 'Paramètres';
   readonly customHolidays = signal<TenantRecurringHoliday[]>([]);
   readonly selectedTabIndex = signal(0);
   private readonly requestedFragment = toSignal(this.route.fragment, { initialValue: null });

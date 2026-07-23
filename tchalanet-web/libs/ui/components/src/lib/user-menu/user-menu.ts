@@ -3,7 +3,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { TranslatePipe } from '@ngx-translate/core';
 
 /**
- * Account menu: an avatar button that opens a dropdown with Profil / Paramètres / Déconnexion.
+ * Account menu: an avatar button that opens a dropdown with Profil / Déconnexion.
  * Presentational — the host wires the emitted actions.
  */
 @Component({
@@ -32,10 +32,6 @@ import { TranslatePipe } from '@ngx-translate/core';
       <button mat-menu-item type="button" (click)="profile.emit()">
         <span class="material-symbols-outlined" aria-hidden="true">person</span>
         {{ 'nav.profile' | translate }}
-      </button>
-      <button mat-menu-item type="button" (click)="settings.emit()">
-        <span class="material-symbols-outlined" aria-hidden="true">settings</span>
-        {{ 'nav.settings' | translate }}
       </button>
       <button mat-menu-item type="button" data-testid="user-menu-logout" (click)="logout.emit()">
         <span class="material-symbols-outlined" aria-hidden="true">logout</span>
@@ -80,7 +76,6 @@ import { TranslatePipe } from '@ngx-translate/core';
 export class TchUserMenu {
   readonly name = input('');
   readonly profile = output<void>();
-  readonly settings = output<void>();
   readonly logout = output<void>();
 
   readonly initials = computed(() => {

@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateService } from '@ngx-translate/core';
@@ -45,7 +45,13 @@ const LANGUAGE_LABELS: Record<string, string> = {
 })
 export class AdminRuntimePage implements OnInit {
   private readonly api = inject(RuntimeApiService);
+  private readonly route = inject(ActivatedRoute);
   private readonly translate = inject(TranslateService);
+
+  readonly fromSetup = this.route.snapshot.queryParamMap.get('from') === 'setup';
+  readonly backRoute = this.fromSetup ? '/app/admin/setup' : '/app/admin/company/settings';
+  readonly backLabel = this.fromSetup ? 'Configuration générale' : 'Paramètres';
+  readonly linkQueryParams = this.fromSetup ? { from: 'setup' } : undefined;
 
   readonly loading = signal(false);
   readonly error = signal<ErrorViewModel | null>(null);

@@ -8,6 +8,7 @@ import '../features/auth/presentation/view_models/auth_controller.dart';
 import '../features/auth/presentation/views/change_pin_page.dart';
 import '../features/auth/presentation/views/forbidden_page.dart';
 import '../features/auth/presentation/views/login_page.dart';
+import '../features/cashier/home/presentation/view_models/cashier_home_providers.dart';
 import '../features/cashier/home/presentation/views/cashier_home_page.dart';
 import '../features/cashier/home/presentation/views/seller_terminal_profile_page.dart';
 import '../features/cashier/home/presentation/views/seller_terminal_stats_page.dart';
@@ -65,8 +66,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, _) => const SellerTerminalProfilePage(),
       ),
       GoRoute(
+        path: '/pos/settings',
+        builder: (context, _) => const SellerTerminalSettingsPage(),
+      ),
+      GoRoute(
         path: '/pos/notifications',
-        builder: (context, _) => const NotificationCenterPage(),
+        builder: (context, _) => const _NotificationCenterRoutePage(),
       ),
       GoRoute(
         path: '/pos/reports',
@@ -111,3 +116,21 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     ],
   );
 });
+
+class _NotificationCenterRoutePage extends ConsumerWidget {
+  const _NotificationCenterRoutePage();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref
+        .watch(posProfileProvider)
+        .asData
+        ?.value
+        .settings
+        .notifications;
+    return NotificationCenterPage(
+      notificationsEnabled: settings?.enabled ?? true,
+      criticalOnly: settings?.criticalOnly ?? false,
+    );
+  }
+}

@@ -25,7 +25,7 @@
     {{ body() }}
   </p>
 
-  <a mat-stroked-button class="setup__card-cta" [routerLink]="route()" [fragment]="fragment()">
+  <a mat-stroked-button class="setup__card-cta" [routerLink]="route()" [queryParams]="queryParams()" [fragment]="fragment()">
     {{ ctaKey() | translate }}
   </a>
 </div>

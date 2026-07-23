@@ -71,8 +71,8 @@
               "message": "Konekte ankò pou kontinye."
             },
             "seller_terminal_required": {
-              "title": "Vandè obligatwa",
-              "message": "Chwazi yon vandè aktif anvan ou kontinye."
+              "title": "Tèminal POS obligatwa",
+              "message": "Chwazi yon tèminal POS aktif anvan ou kontinye."
             },
             "operational_context_required": {
               "title": "Kontèks operasyon obligatwa",
@@ -92,7 +92,7 @@
           "terminal": {
             "tenant_selection_not_allowed": {
               "title": "Seleksyon pa otorize",
-              "message": "Yon tèminal vandè pa ka chwazi yon lòt espas."
+              "message": "Yon tèminal POS pa ka chwazi yon lòt espas."
             }
           },
           "tenant": {
@@ -171,11 +171,11 @@
             },
             "seller_terminal_not_linked": {
               "title": "Tèminal pa konekte",
-              "message": "Kont sa a pa lye ak yon tèminal vandè. Relouvri tèminal ki otorize a."
+              "message": "Kont sa a pa lye ak yon tèminal POS. Relouvri tèminal ki otorize a."
             },
             "seller_terminal_inactive": {
               "title": "Tèminal pa aktif",
-              "message": "Tèminal vandè sa a pa ka itilize kounye a. Kontakte administratè a."
+              "message": "Tèminal POS sa a pa ka itilize kounye a. Kontakte administratè a."
             }
           },
           "handoff": {
@@ -364,8 +364,8 @@
             "message": "Tikè a gen liy gratis ki aplike selon pwomosyon an."
           },
           "promotion_terminal_override_applied": {
-            "title": "Règ pwomosyon vandè aplike",
-            "message": "Tikè a sèvi ak règ pwomosyon ki espesifik pou vandè sa a."
+            "title": "Règ pwomosyon tèminal POS aplike",
+            "message": "Tikè a sèvi ak règ pwomosyon ki espesifik pou tèminal POS sa a."
           },
           "acceptable": {
             "title": "Vant lan pare",
@@ -373,7 +373,7 @@
           },
           "preview_accepted": {
             "title": "Verifikasyon fini",
-            "message": "Tikè a ka vann kounye a. Si yon lòt vandè vann menm nimewo a avan konfimasyon, limit la ka chanje."
+            "message": "Tikè a ka vann kounye a. Si yon lòt tèminal POS vann menm nimewo a avan konfimasyon, limit la ka chanje."
           },
           "basket_requires_changes": {
             "title": "Tikè pou korije",
@@ -381,7 +381,7 @@
           },
           "rejected_final": {
             "title": "Vant pa disponib",
-            "message": "Vant sa a pa ka kontinye nan eta aktyèl la. Retounen nan lis vandè yo oswa chwazi yon lòt kontèks."
+            "message": "Vant sa a pa ka kontinye nan eta aktyèl la. Retounen nan lis tèminal POS yo oswa chwazi yon lòt kontèks."
           },
           "approval_required": {
             "title": "Miz twò wo",
@@ -460,8 +460,8 @@
             "message": "Louvri yon sesyon kesye avan ou vann."
           },
           "terminal_blocked": {
-            "title": "Vandè bloke",
-            "message": "Vandè sa a pa ka vann kounye a. Itilize yon lòt vandè aktif oswa debloke li."
+            "title": "Tèminal POS bloke",
+            "message": "Tèminal POS sa a pa ka vann kounye a. Itilize yon lòt tèminal POS aktif oswa debloke li."
           },
           "outlet_suspended": {
             "title": "Pwen vant sispann",
@@ -469,11 +469,11 @@
           },
           "tenant_disabled": {
             "title": "Espas dezaktive",
-            "message": "Vant yo dezaktive pou tenant sa a. Kontakte administratè platfòm nan."
+            "message": "Vant yo dezaktive pou santral sa a. Kontakte administratè platfòm nan."
           },
           "untrusted_operational_context": {
             "title": "Kontèks vant pa valid",
-            "message": "Vant lan pa mare ak yon vandè fyab. Retounen nan lis vandè yo epi relouvri vant lan ak yon vandè aktif."
+            "message": "Vant lan pa mare ak yon tèminal POS fyab. Retounen nan lis tèminal POS yo epi relouvri vant lan ak yon tèminal POS aktif."
           },
           "stake_too_high": {
             "title": "Miz twò wo",
@@ -492,8 +492,8 @@
             "message": "Diminye miz yo oswa separe vant lan an plizyè tikè."
           },
           "seller_terminal_actor_required": {
-            "title": "Vandè obligatwa",
-            "message": "Vant sa a pa mare ak yon vandè. Retounen nan lis vandè yo epi ouvri vant lan ak yon vandè aktif."
+            "title": "Tèminal POS obligatwa",
+            "message": "Vant sa a pa mare ak yon tèminal POS. Retounen nan lis tèminal POS yo epi ouvri vant lan ak yon tèminal POS aktif."
           },
           "draw": {
             "not_open": { "title": "Tiraj fèmen", "message": "Chwazi yon lòt tiraj ki ouvè." },
@@ -520,12 +520,12 @@
           },
           "seller_terminal": {
             "required": {
-              "title": "Vandè obligatwa",
-              "message": "Ouvri vant lan ak yon vandè aktif."
+              "title": "Tèminal POS obligatwa",
+              "message": "Ouvri vant lan ak yon tèminal POS aktif."
             },
             "cannot_sell": {
               "title": "Vant pa disponib",
-              "message": "Tèminal vandè sa a pa ka vann kounye a. Itilize yon tèminal aktif oswa verifye aksè li."
+              "message": "Tèminal POS sa a pa ka vann kounye a. Itilize yon tèminal aktif oswa verifye aksè li."
             }
           },
           "tenant": {
@@ -665,7 +665,7 @@
         "sellerterminal": {
           "not_found": {
             "title": "Tèminal pa jwenn",
-            "message": "Tèminal vandè sa a pa disponib ankò."
+            "message": "Tèminal POS sa a pa disponib ankò."
           },
           "status_transition_invalid": {
             "title": "Aksyon an enposib",
@@ -719,7 +719,7 @@
           },
           "tenant_default_not_configured": {
             "title": "Tarifikasyon manke",
-            "message": "Konfigure règ tarifikasyon tenant lan anvan."
+            "message": "Konfigire règ tarif santral la anvan."
           },
           "override_not_found": {
             "title": "Override pa jwenn",
@@ -727,7 +727,7 @@
           },
           "override_payout_rule_type_mismatch": {
             "title": "Override pa konpatib",
-            "message": "Yon tèminal pa ka chanje tip règ gain tenant lan defini a."
+            "message": "Yon tèminal pa ka chanje tip règ gany santral la defini a."
           }
         },
         "draw": {
@@ -1000,20 +1000,20 @@
           },
           "home": {
             "seller_terminal_required": {
-              "title": "Tèminal vandè obligatwa",
-              "message": "Relouvri sesyon an nan yon tèminal vandè ki valid."
+              "title": "Tèminal POS obligatwa",
+              "message": "Relouvri sesyon an nan yon tèminal POS ki valid."
             }
           },
           "dashboard": {
             "analytics_unavailable": {
               "title": "Estatistik pa disponib",
-              "message": "Estatistik vandè yo pa disponib pou yon ti tan. Eseye ankò."
+              "message": "Estatistik tèminal POS yo pa disponib pou yon ti tan. Eseye ankò."
             }
           },
           "tickets": {
             "seller_terminal_mismatch": {
               "title": "Aksè refize",
-              "message": "Tèminal vandè sa a pa koresponn ak sesyon ou."
+              "message": "Tèminal POS sa a pa koresponn ak sesyon ou."
             }
           },
           "receipt": {
@@ -1034,8 +1034,8 @@
               "message": "Dokiman an twò gwo pou voye kòm fichye ansanm."
             },
             "seller_terminal_required": {
-              "title": "Tèminal vandè obligatwa",
-              "message": "Relouvri yon sesyon tèminal vandè ki valid pou kontinye."
+              "title": "Tèminal POS obligatwa",
+              "message": "Relouvri yon sesyon tèminal POS ki valid pou kontinye."
             }
           }
         },
@@ -1230,7 +1230,7 @@
               "message": "Nou pa ka chaje rezime abònman yo kounye a."
             },
             "onboarding_unavailable": {
-              "title": "Onboarding pa disponib",
+              "title": "Enskripsyon pa disponib",
               "message": "Nou pa ka chaje lis onboarding lan kounye a."
             },
             "public_content_unavailable": {
@@ -1247,11 +1247,11 @@
             },
             "structural_update_in_use": {
               "title": "Modifikasyon enposib",
-              "message": "Jwèt sa a deja itilize nan yon konfigirasyon tenant."
+              "message": "Jwèt sa a deja itilize nan yon konfigirasyon santral."
             },
             "delete_in_use": {
               "title": "Sipresyon enposib",
-              "message": "Jwèt sa a deja itilize nan yon konfigirasyon tenant."
+              "message": "Jwèt sa a deja itilize nan yon konfigirasyon santral."
             },
             "deactivated": {
               "title": "Jwèt dezaktive",
@@ -1322,7 +1322,7 @@
             },
             "draw_not_in_tenant": {
               "title": "Tiraj pa valab",
-              "message": "Youn nan tiraj yo pa fè pati tenant yo chwazi a."
+              "message": "Youn nan tiraj yo pa fè pati santral yo chwazi a."
             }
           }
         }

@@ -11,7 +11,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatNativeDateModule } from '@angular/material/core';
 
-import { AuthSessionService } from '@tch/core/auth';
+import { AccessService } from '@tch/core/auth';
 import { AdminListStatusOption, AdminListSurface, TchSectionError } from '@tch/ui/components';
 import { TchAsyncReadyDirective, TchAsyncViewComponent, resourceErrorVm, tchMutation } from '@tch/web/async';
 import { AdminPageShellComponent } from '@tch/ui/console';
@@ -34,6 +34,7 @@ import { GeneratedDrawsSummaryComponent } from '../../components/generated-draws
 import { GeneratedDrawsTableComponent } from '../../components/generated-draws-table/generated-draws-table.component';
 import { AdminDrawLifecycleDialog } from './dialogs/admin-draw-lifecycle.dialog';
 import {
+  CONSOLE_DRAW_RESULT_ACCESS,
   consoleDrawResultStatusLabel,
   consoleDrawStatusLabel,
 } from '@tch/web/console';
@@ -88,7 +89,7 @@ export class AdminGeneratedDrawsPage {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly dialog = inject(MatDialog);
-  private readonly auth = inject(AuthSessionService);
+  private readonly access = inject(AccessService);
 
   readonly today = TODAY;
 
@@ -157,6 +158,12 @@ export class AdminGeneratedDrawsPage {
   );
   readonly totalElements = computed(() => this.draws.value()?.totalElements ?? 0);
   readonly isEmpty = (): boolean => this.groupedDraws().length === 0;
+  readonly canEnterManualResults = computed(() => this.access.can(CONSOLE_DRAW_RESULT_ACCESS.manual));
+  readonly canConfirmResults = computed(() => this.access.can(CONSOLE_DRAW_RESULT_ACCESS.confirm));
+  readonly canOverrideResults = computed(() => this.access.can(CONSOLE_DRAW_RESULT_ACCESS.override));
+  readonly canManageDrawLifecycle = computed(() =>
+    this.access.can([{ role: 'SUPER_ADMIN' }, { permission: 'draw.lifecycle.manage' }]),
+  );
 
   readonly groupedDraws = computed<GeneratedDrawGroup[]>(() => {
     const map = new Map<string, GeneratedDrawView[]>();
@@ -293,22 +300,25 @@ export class AdminGeneratedDrawsPage {
   }
 
   canSaveProvisionalResult(draw: GeneratedDrawView): boolean {
-    return this.hasNoResult(draw) && this.isManualResultDue(draw);
+    return this.canEnterManualResults() && this.hasNoResult(draw) && this.isManualResultDue(draw);
   }
 
   canSaveConfirmedResult(draw: GeneratedDrawView): boolean {
-    return this.auth.hasRole('SUPER_ADMIN') && this.hasNoResult(draw) && this.isManualResultDue(draw);
+    return this.canConfirmResults() && this.hasNoResult(draw) && this.isManualResultDue(draw);
   }
 
   canOverrideResult(draw: GeneratedDrawView): boolean {
-    return this.auth.hasRole('SUPER_ADMIN') && this.hasResult(draw);
+    return this.canOverrideResults() && this.hasResult(draw);
   }
 
   resultUnavailableReason(draw: GeneratedDrawView): string | null {
     if (this.hasResult(draw)) {
-      return this.auth.hasRole('SUPER_ADMIN')
+      return this.canOverrideResults()
         ? null
         : 'Le résultat existe déjà. Seul un super admin peut le corriger.';
+    }
+    if (!this.canEnterManualResults()) {
+      return 'Vous n’avez pas l’autorisation de saisir un résultat manuel.';
     }
     if (!this.isManualResultDue(draw)) {
       return 'La saisie manuelle sera disponible 30 minutes après l’heure prévue du tirage.';

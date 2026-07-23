@@ -392,9 +392,6 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
         icon: 'checklist',
         destination: { kind: 'route', value: '/app/admin/setup' },
         activeRoutes: [
-          '/app/admin/settings',
-          '/app/admin/settings/runtime',
-          '/app/admin/settings/config',
           '/app/admin/subscription',
         ],
       },
@@ -625,7 +622,11 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
             id: 'company-settings',
             labelKey: 'nav.admin.company_settings',
             icon: 'settings',
-            destination: { kind: 'route', value: '/app/admin/settings' },
+            destination: { kind: 'route', value: '/app/admin/company/settings' },
+            activeRoutes: [
+              '/app/admin/company/settings/runtime',
+              '/app/admin/company/settings/config',
+            ],
           },
           {
             id: 'company-business-days',

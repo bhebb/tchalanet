@@ -34,6 +34,7 @@
           [bodyVariant]="card.bodyVariant"
           [ctaKey]="card.ctaKey"
           [route]="card.route"
+          [queryParams]="card.queryParams"
           [fragment]="card.fragment"
           [emphasizeMissing]="card.emphasizeMissing"
           [sectionErrors]="sectionErrorsFor(card.sectionErrorTargets)"
@@ -43,7 +44,7 @@
 
     <tch-setup-seller-terminal-card
       [unlocked]="canCreateSellerTerminal()"
-      [blockingSteps]="setup()?.blockingSteps ?? []"
+      [blockingSteps]="terminalBlockingSteps()"
       [sectionError]="sectionError('admin.setup.sellerTerminal')"
     />
   }

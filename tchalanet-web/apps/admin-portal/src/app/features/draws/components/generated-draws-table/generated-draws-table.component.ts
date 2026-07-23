@@ -49,6 +49,8 @@ export class GeneratedDrawsTableComponent {
   readonly pageSize      = input<number>(20);
   /** Draws avec une action de cycle de vie en cours (spinner + actions désactivées sur la ligne). */
   readonly pendingIds    = input<ReadonlySet<string>>(new Set());
+  readonly canEnterManualResults = input<boolean>(false);
+  readonly canManageLifecycle = input<boolean>(false);
 
   readonly enterResult   = output<GeneratedDrawView>();
   readonly viewResult    = output<GeneratedDrawView>();
@@ -178,10 +180,11 @@ export class GeneratedDrawsTableComponent {
   }
 
   canEnterManualResult(draw: GeneratedDrawView): boolean {
-    return this.hasNoResult(draw) && this.isManualResultDue(draw);
+    return this.canEnterManualResults() && this.hasNoResult(draw) && this.isManualResultDue(draw);
   }
 
   lifecycleActions(draw: GeneratedDrawView): DrawLifecycleAction[] {
+    if (!this.canManageLifecycle()) return [];
     switch (draw.lifecycleStatus) {
       case 'SCHEDULED': return ['open', 'lock', 'cancel'];
       case 'OPEN':      return ['close', 'lock', 'cancel'];

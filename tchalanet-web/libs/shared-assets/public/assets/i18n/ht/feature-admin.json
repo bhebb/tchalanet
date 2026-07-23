@@ -16,16 +16,16 @@
       "loading": "Y ap chaje tèm nan…",
       "preset": {
         "title": "Tèm sistèm aktif",
-        "description": "Chwazi tèm ki pral vin aktif pou tenant sa a.",
-        "default": "Default",
+        "description": "Chwazi tèm ki pral vin aktif pou santral sa a.",
+        "default": "Pa defo",
         "applying": "Y ap aplike…",
         "empty": "Pa gen tèm aktif disponib.",
-        "activeTenant": "Tèm aktif tenant la",
-        "applyTenant": "Aplike sou tenant la"
+        "activeTenant": "Tèm aktif santral la",
+        "applyTenant": "Aplike sou santral la"
       },
       "current": {
-        "eyebrow": "Tèm aktif tenant la",
-        "default": "Tèm default",
+        "eyebrow": "Tèm aktif santral la",
+        "default": "Tèm pa defo",
         "description": "Kòd sistèm: {{code}}"
       },
       "mode": {
@@ -41,7 +41,7 @@
       "feedback": {
         "presetSaved": "Tèm aplike.",
         "modeSaved": "Mòd afichaj anrejistre.",
-        "reset": "Tèm reyinisyalize ak tèm default la."
+        "reset": "Tèm nan reyinisyalize ak tèm pa defo a."
       },
       "locked": {
         "title": "Fonksyonalite pa enkli",
@@ -57,15 +57,15 @@
     },
     "dashboard": {
       "title": "Administrasyon",
-      "description": "Rezime administrasyon tenant",
+      "description": "Rezime administrasyon santral",
       "kpi": {
-        "sellers": "Seller-terminal",
-        "outlets": "Seller-terminals",
-        "terminals": "Seller-terminal",
-        "openSessions": "Seller-terminals aktif"
+        "sellers": "Tèminal POS",
+        "outlets": "Tèminal POS",
+        "terminals": "Tèminal POS",
+        "openSessions": "Tèminal POS aktif"
       },
       "onboarding": {
-        "title": "Onboarding"
+        "title": "Enskripsyon"
       },
       "attention": {
         "title": "Atansyon nesesè"
@@ -77,8 +77,8 @@
       }
     },
     "onboarding": {
-      "title": "Onboarding",
-      "description": "Etap onboarding tenant"
+      "title": "Enskripsyon",
+      "description": "Etap enskripsyon santral"
     },
     "users": {
       "title": "Itilizatè",
@@ -86,37 +86,37 @@
     },
     "settings": {
       "title": "Paramèt",
-      "description": "Konfigirasyon tenant"
+      "description": "Konfigirasyon santral"
     },
     "seller": {
       "email": "Imèl",
-      "error": "Onboarding seller-terminal a echwe.",
+      "error": "Enskripsyon tèminal POS la echwe.",
       "firstName": "Prenon",
       "lastName": "Non",
-      "outletId": "Seller-terminals",
+      "outletId": "Tèminal POS",
       "phone": "Telefòn",
-      "submit": "Kreye tèminal vandè",
-      "success": "Seller-terminal kreye:",
-      "terminalId": "Seller-terminal",
-      "title": "Onboarding seller-terminal"
+      "submit": "Kreye tèminal POS",
+      "success": "Tèminal POS kreye:",
+      "terminalId": "Tèminal POS",
+      "title": "Enskripsyon tèminal POS"
     },
     "action": {
       "settings": "Paramèt",
       "users": "Itilizatè",
-      "seller_terminals": "Seller-terminals"
+      "seller_terminals": "Tèminal POS"
     },
     "kpi": {
       "openSessions": {
-        "label": "Seller-terminals aktif"
+        "label": "Tèminal POS aktif"
       },
       "outlets": {
-        "label": "Seller-terminals"
+        "label": "Tèminal POS"
       },
       "sellers": {
-        "label": "Seller-terminal"
+        "label": "Tèminal POS"
       },
       "terminals": {
-        "label": "Seller-terminal"
+        "label": "Tèminal POS"
       },
       "sales_today": {
         "label": "Vant jodi a"
@@ -131,7 +131,7 @@
         "label": "Notifikasyon"
       },
       "active_seller_terminals": {
-        "label": "Vandè aktif"
+        "label": "Tèminal POS aktif"
       },
       "open_draws": {
         "label": "Tiraj ouvè"
@@ -213,13 +213,13 @@
         "period": "Peryòd rapò a",
         "netRevenue": "Revni nèt",
         "refresh": "Rafrechi",
-        "sellerCommission": "Komisyon vandè",
+        "sellerCommission": "Komisyon tèminal POS",
         "ticketsSold": "Tikè vann",
         "ticketSuffix": "tikè"
       },
       "overview": {
         "title": "Apèsi rapò yo",
-        "description": "Vant, peman ak revni estime pou tenant aktyèl la.",
+        "description": "Vant, peman ak revni estime pou santral aktyèl la.",
         "loading": "Chajman rapò yo...",
         "period": {
           "label": "Peryòd rapò a"
@@ -228,7 +228,7 @@
           "refresh": "Rafrechi",
           "viewDaily": "Rapò jounen",
           "viewDraws": "Rapò tiraj",
-          "viewSellers": "Rapò vandè"
+          "viewSellers": "Rapò tèminal POS"
         },
         "kpis": {
           "aria": "Rezime rapò yo",
@@ -256,9 +256,9 @@
           "emptyMessage": "Nimewo vann yo ap parèt isit la lè liy tikè vann."
         },
         "sellers": {
-          "title": "Pi gwo tèminal vandè yo",
-          "emptyTitle": "Pa gen aktivite vandè",
-          "emptyMessage": "Pèfòmans vandè ap parèt isit la lè tikè vann."
+          "title": "Pi gwo tèminal POS yo",
+          "emptyTitle": "Pa gen aktivite tèminal POS",
+          "emptyMessage": "Pèfòmans tèminal POS ap parèt isit la lè tikè vann."
         }
       },
       "today": {
@@ -349,13 +349,13 @@
         }
       },
       "sellers": {
-        "title": "Rapò vandè",
-        "description": "Vant, komisyon ak revni estime gwoupe pa tèminal vandè.",
-        "loading": "Chajman rapò vandè a...",
-        "kpisAria": "Rezime rapò vandè a",
-        "rowsTitle": "Liy pa tèminal vandè",
-        "emptyTitle": "Pa gen aktivite vandè",
-        "emptyMessage": "Pèfòmans vandè ap parèt isit la lè tikè vann.",
+        "title": "Rapò tèminal POS",
+        "description": "Vant, komisyon ak revni estime gwoupe pa tèminal POS.",
+        "loading": "Chajman rapò tèminal POS la...",
+        "kpisAria": "Rezime rapò tèminal POS la",
+        "rowsTitle": "Liy pa tèminal POS",
+        "emptyTitle": "Pa gen aktivite tèminal POS",
+        "emptyMessage": "Pèfòmans tèminal POS ap parèt isit la lè tikè vann.",
         "totalRow": "Total rapò a",
         "action": {
           "print": "Enprime",
@@ -369,12 +369,12 @@
           "disabled": "Dezaktive"
         },
         "filters": {
-          "aria": "Filtè rapò vandè a",
+          "aria": "Filtè rapò tèminal POS la",
           "from": "Soti",
           "to": "Rive",
-          "sellers": "Vandè yo",
-          "sellersPlaceholder": "Chèche non vandè oswa kòd tèminal",
-          "sellersHint": "Chwazi youn oswa plizyè vandè pou limite rapò a.",
+          "sellers": "Tèminal POS yo",
+          "sellersPlaceholder": "Chèche non tèminal POS oswa kòd tèminal POS",
+          "sellersHint": "Chwazi youn oswa plizyè tèminal POS pou limite rapò a.",
           "sort": "Triye"
         },
         "sort": {
@@ -392,7 +392,7 @@
           "averageTicketAsc": "Tikè mwayen ba pou wo"
         },
         "column": {
-          "seller": "Tèminal vandè",
+          "seller": "Tèminal POS",
           "status": "Estati",
           "tickets": "Tikè",
           "sales": "Vant",
@@ -421,7 +421,7 @@
     },
     "gamesPricing": {
       "title": "Jwèt disponib",
-      "description": "Chwazi jwèt tenant lan sipòte epi konplete paramèt vant yo.",
+      "description": "Chwazi jwèt santral la sipòte epi konplete paramèt vant yo.",
       "loading": "Chajman jwèt yo...",
       "action": {
         "backToSetup": "Konfigirasyon jeneral",
@@ -436,7 +436,7 @@
         "aria": "Rezime jwèt disponib yo",
         "systemGames": {
           "label": "Jwèt sistèm",
-          "help": "Jwèt ki disponib pou tenant sa a."
+          "help": "Jwèt ki disponib pou santral sa a."
         },
         "activeGames": {
           "label": "Jwèt aktif",
@@ -454,7 +454,7 @@
       "issues": {
         "aria": "Jwèt pou konplete",
         "title": "Pou konplete",
-        "description": "Korije pwen sa yo avan ou aktive jwèt la pou tenant sa a.",
+        "description": "Korije pwen sa yo avan ou aktive jwèt la pou santral sa a.",
         "missingStake": "Miz la pa konfigire pou jwèt sa a.",
         "missingPricing": "Barèm nan pa konfigire pou jwèt sa a.",
         "configure": "Konfigire"
@@ -494,18 +494,18 @@
       }
     },
     "drawSalesMatrix": {
-      "title": "Jwèt pa kanal",
-      "description": "Aktive oswa dezaktive jwèt yo pa kanal. Lè, cutoff ak rattachman kanal la modifye nan fich kanal tiraj la.",
+      "title": "Matriks jwèt pa règ tiraj",
+      "description": "Aktive oswa dezaktive jwèt yo pa règ tiraj. Lè, fèmti vant ak lyen règ la modifye nan fich règ tiraj la.",
       "loading": "Chajman matriks la...",
       "action": {
-        "configureChannels": "Konfigire kanal tiraj yo",
+        "configureChannels": "Konfigire règ tiraj yo",
         "refresh": "Rafrechi"
       },
       "summary": {
-        "aria": "Rezime matriks jwèt pa kanal",
+        "aria": "Rezime matriks jwèt pa règ tiraj",
         "saleReady": "Pare pou vann",
         "offeredGames": "Jwèt yo ofri",
-        "activeChannels": "Kanal aktif",
+        "activeChannels": "Règ aktif",
         "availableGames": "Jwèt disponib",
         "missingStake": "Miz pa konfigire",
         "missingLimits": "Plafon tiraj pou verifye"
@@ -522,23 +522,23 @@
           "notConfigured": "Pa konfigire"
         },
         "offeredCount": "{{active}} jwèt aktif sou {{offered}} jwèt yo ofri",
-        "channelMissing": "Kanal manke",
-        "channelInactive": "Kanal inaktif"
+        "channelMissing": "Règ manke",
+        "channelInactive": "Règ inaktif"
       },
       "channel": {
-        "label": "Kanal",
+        "label": "Règ tiraj",
         "salesOpen": "Ouvèti vant : {{value}}",
-        "cutoff": "Cutoff : {{seconds}}s avan tiraj la",
+        "cutoff": "Fèmti vant : {{seconds}}s avan tiraj la",
         "activeGames": "{{count}} jwèt aktif",
         "availableToAdd": "{{count}} jwèt disponib pou ajoute",
-        "dependsOnAnother": "Depann de yon lòt kanal",
-        "matrixHelp": "Matriks sa a jere òf jwèt la. Pou chanje lè, cutoff oswa rattachman, ouvri konfigirasyon kanal la.",
-        "missingHelp": "Lè tiraj sa a poko gen kanal vant konfigire.",
-        "configureChannels": "Konfigire kanal yo",
-        "editChannel": "Modifye kanal la"
+        "dependsOnAnother": "Depann de yon lòt règ",
+        "matrixHelp": "Matriks sa a jere òf jwèt la. Pou chanje lè, fèmti vant oswa lyen règ la, ouvri konfigirasyon règ tiraj la.",
+        "missingHelp": "Lè tiraj sa a poko gen règ vant konfigire.",
+        "configureChannels": "Konfigire règ yo",
+        "editChannel": "Modifye règ la"
       },
       "section": {
-        "offered": "Òf aktif sou kanal sa a",
+        "offered": "Òf aktif sou règ sa a",
         "available": "Jwèt disponib pou ajoute"
       },
       "game": {
@@ -568,7 +568,7 @@
           "notConfigured": "Pa konfigire",
           "visibleInPos": "Vizib POS",
           "hiddenInPos": "Kache POS",
-          "tenantGameSettings": "Paramèt jwèt tenant lan"
+          "tenantGameSettings": "Paramèt jwèt santral la"
         },
         "action": {
           "configureMaryaj": "Konfigire Maryaj gratis",
@@ -580,7 +580,7 @@
         }
       },
       "warning": {
-        "TENANT_GAME_DISABLED": "Jwèt dezaktive pou tenant lan",
+        "TENANT_GAME_DISABLED": "Jwèt dezaktive pou santral la",
         "NOT_VISIBLE_IN_POS": "Kache nan POS",
         "CHANNEL_NOT_CONFIGURED": "Kanal pa konfigire",
         "CHANNEL_INACTIVE": "Kanal inaktif",
@@ -600,89 +600,91 @@
     "setup": {
       "progress": {
         "title": "{{completed}} / {{total}} etap obligatwa konplète",
-        "subtitle": "Suivi de l'état de préparation"
+        "subtitle": "Swivi eta preparasyon an"
       },
       "advancedSettings": {
         "title": "Paramèt avanse",
-        "description": "Lang, resi, kominikasyon ak règ biznis ka ajiste nan paramèt tenant lan.",
-        "action": "Ouvri paramèt"
+        "description": "Lang, resi, kominikasyon ak règ biznis ka ajiste nan paramèt santral la.",
+        "action": "Louvri paramèt yo"
       },
-      "title": "Configuration du tenant",
-      "optional": "Optionnel",
-      "operational": "Opérationnel",
-      "required": "Requis",
+      "title": "Konfigirasyon jeneral",
+      "optional": "Opsyonèl",
+      "operational": "Operasyonèl",
+      "required": "Obligatwa",
       "blocking": "Bloke",
       "blockedBy": "Bloke pa :",
       "backToSetup": "Retounen nan konfigirasyon",
       "section": {
-        "identity": "Identité",
-        "address": "Adresse",
-        "addressHint": "Adresse requise pour ouvrir l'exploitation et créer des vendeurs.",
-        "addressCta": "Configurer l'adresse",
+        "identity": "Idantite",
+        "address": "Adrès",
+        "addressHint": "Adrès obligatwa pou ouvri operasyon an epi kreye tèminal POS.",
+        "addressCta": "Konfigire adrès la",
         "identityAddress": "Idantite ak adrès",
         "identityAddressCta": "Jere pwofil la",
-        "games": "Jeux",
-        "gamesDesc": "Jeux disponibles",
-        "gamesCta": "Configurer les jeux",
+        "games": "Jwèt",
+        "gamesDesc": "Jwèt ki disponib yo.",
+        "gamesCta": "Konfigire jwèt yo",
         "maryajGratis": "Maryaj gratis",
         "maryajGratisDesc": "Palyè, kantite gratis, ak jenerasyon nimewo yo.",
         "maryajGratisCta": "Konfigire Maryaj gratis",
-        "drawChannels": "Canaux de tirage",
-        "drawChannelsDesc": "Kanal vant konfigire.",
-        "drawChannelsCta": "Configurer les canaux",
-        "generatedDraws": "Tirages générés",
-        "generatedDrawsDesc": "Tirages produits à partir des canaux et prêts à être suivis.",
-        "generatedDrawsCta": "Voir les tirages générés",
-        "promotions": "Promotions",
-        "promotionsDesc": "Promotions disponibles",
-        "promotionsCta": "Configurer les promotions",
-        "users": "Utilisateurs",
-        "theme": "Apparence",
-        "themeDesc": "Personnalisation de l'apparence",
-        "themeCta": "Configurer l'apparence",
-        "settings": "Paramèt tenant la",
-        "settingsDesc": "Pèsonalize lang ak resi a (non afichaj, mesaj) pou tenant ou.",
+        "drawChannels": "Kanal tiraj",
+        "drawChannelsDesc": "Kanal vant yo konfigire.",
+        "drawChannelsCta": "Konfigire kanal yo",
+        "generatedDraws": "Tiraj jenere",
+        "generatedDrawsDesc": "Tiraj ki sòti nan kanal yo epi ki pare pou swiv.",
+        "generatedDrawsCta": "Gade tiraj jenere yo",
+        "promotions": "Pwomosyon",
+        "promotionsDesc": "Pwomosyon ki disponib yo.",
+        "promotionsCta": "Konfigire pwomosyon yo",
+        "users": "Itilizatè",
+        "theme": "Aparans",
+        "themeDesc": "Pèsonalizasyon aparans lan.",
+        "themeCta": "Konfigire aparans lan",
+        "settings": "Paramèt santral la",
+        "settingsDesc": "Pèsonalize lang ak resi a (non afichaj, mesaj) pou santral ou.",
         "settingsCta": "Konfigire paramèt yo",
         "subscription": "Abònman",
         "subscriptionDesc": "Plan ak estati abònman ou.",
         "subscriptionNoPlan": "Pa gen plan aktif — kontakte Tchalanet.",
         "subscriptionCta": "Gade abònman an",
-        "sellerTerminal": "Vendeurs",
-        "sellerTerminalDesc": "Vendeurs disponibles",
-        "sellerTerminalLocked": "Le terminal est verrouillé. Veuillez contacter l'administrateur.",
-        "identityDesc": "Informations principales de votre entreprise.",
-        "sellerTerminalCta": "Configurer les vendeurs",
-        "sellerTerminalReady": "Vendeurs prêts"
+        "sellerTerminal": "Tèminal POS",
+        "sellerTerminalDesc": "Tèminal POS ki disponib yo.",
+        "sellerTerminalLocked": "Kreyasyon tèminal POS yo bloke jiskaske etap obligatwa yo fini.",
+        "identityDesc": "Enfòmasyon prensipal antrepriz ou.",
+        "sellerTerminalCta": "Konfigire tèminal POS yo",
+        "sellerTerminalReady": "Tèminal POS yo pare"
       },
-      "description": "Suivez les étapes pour configurer votre tenant et le rendre opérationnel.",
+      "description": "Swiv etap yo pou konfigire santral la epi rann li operasyonèl.",
       "status": {
-        "notStarted": "Non commencé",
-        "inProgress": "En cours",
-        "completed": "Terminé"
+        "notStarted": "Poko kòmanse",
+        "inProgress": "An kou",
+        "completed": "Fini"
       },
-      "advancedSettings.title": "Paramètres avancés",
-      "advancedSettings.description": "Configurez les paramètres avancés pour votre tenant.",
-      "advancedSettings.action": "Configurer les paramètres avancés",
+      "advancedSettings.title": "Paramèt avanse",
+      "advancedSettings.description": "Konfigire paramèt avanse santral la.",
+      "advancedSettings.action": "Konfigire paramèt avanse yo",
       "blockingStep": {
+        "identity_address": "Idantite ak adrès",
         "identity": "Idantite",
         "address": "Adrès",
+        "settings": "Paramèt santral la",
         "games_pricing": "Jwèt",
         "draws": "Kanal tiraj",
         "generated_draws": "Tiraj jenere"
       },
       "address": {
-        "city": "Ville",
-        "country": "Pays",
+        "city": "Vil",
+        "country": "Peyi",
         "error": {
-          "save": "Impossible d’enregistrer l’adresse."
+          "save": "Enposib pou anrejistre adrès la."
         },
-        "line1": "Adresse ligne 1",
-        "line2": "Adresse ligne 2"
+        "line1": "Adrès liy 1",
+        "line2": "Adrès liy 2"
       },
       "error": {
-        "load": "Impossible de charger la configuration."
+        "load": "Enposib pou chaje konfigirasyon an."
       },
-      "loading": "Chargement de la configuration..."
+      "loading": "Chajman konfigirasyon an..."
     },
     "businessProfile": {
       "title": "Espas antrepriz mwen",
@@ -699,7 +701,7 @@
         "address": "Adrès"
       },
       "commercial": {
-        "description": "Itilize pou seller-terminals ki pa gen to spesifik."
+        "description": "Itilize pou tèminal POS ki pa gen to espesifik."
       },
       "field": {
         "name": "Non",
@@ -745,15 +747,15 @@
       }
     },
     "sellerTerminals": {
-      "title": "Seller-terminals",
-      "description": "Jere seller-terminals",
-      "search_placeholder": "Chèche seller-terminal…",
+      "title": "Tèminal POS",
+      "description": "Jere tèminal POS yo",
+      "search_placeholder": "Chèche tèminal POS…",
       "list": {
-        "title": "Lis vandè",
-        "description": "Jere aksè lavant, komisyon ak terminal ki gen dwa vann tikè.",
-        "loading": "Ap chaje vandè yo...",
+        "title": "Lis tèminal POS",
+        "description": "Jere aksè lavant, komisyon ak tèminal ki gen dwa vann tikè.",
+        "loading": "Ap chaje tèminal POS yo...",
         "action": {
-          "new": "Nouvo vandè",
+          "new": "Nouvo tèminal POS",
           "detail": "Gade detay",
           "openPos": "Louvri POS",
           "resetPin": "Re-inisyalize PIN",
@@ -771,19 +773,19 @@
         },
         "filter": {
           "search": "Rechèch",
-          "searchPlaceholder": "Chèche yon vandè...",
+          "searchPlaceholder": "Chèche yon tèminal POS...",
           "status": "Eta",
           "allStatuses": "Tout eta",
           "reset": "Re-inisyalize"
         },
         "empty": {
-          "title": "Pa gen vandè",
-          "message": "Kreye yon premye vandè pou kòmanse vann tikè."
+          "title": "Pa gen tèminal POS",
+          "message": "Kreye yon premye tèminal POS pou kòmanse vann tikè."
         },
         "column": {
-          "terminalCode": "Kòd terminal",
-          "seller": "Vandè",
-          "email": "Email",
+          "terminalCode": "Kòd tèminal POS",
+          "seller": "Tèminal POS",
+          "email": "Imèl",
           "phone": "Telefòn",
           "status": "Eta",
           "commission": "Komisyon",
@@ -797,23 +799,23 @@
           "activeNeverSeen": "Aktif · poko konekte"
         },
         "notice": {
-          "created": "Vandè a kreye avèk siksè.",
-          "blocked": "Vandè a bloke."
+          "created": "Tèminal POS la kreye avèk siksè.",
+          "blocked": "Tèminal POS la bloke."
         },
         "dialog": {
           "block": {
-            "title": "Bloke vandè",
+            "title": "Bloke tèminal POS",
             "description": "Bloke {{name}} ({{code}}) ap anpeche tout lavant jouk yo debloke li.",
             "reason": "Rezon blokaj la",
-            "reasonPlaceholder": "Egzanp: terminal la pa retounen, sispèk fwod..."
+            "reasonPlaceholder": "Egzanp: tèminal la pa retounen, sispèk fwod..."
           },
           "resetPin": {
             "title": "Re-inisyalize PIN",
-            "description": "Y ap kreye yon nouvo PIN tanporè pou {{code}} — {{name}}. Ansyen PIN lan p ap mache ankò epi vandè a dwe chanje li nan pwochen koneksyon li.",
+            "description": "Y ap kreye yon nouvo PIN tanporè pou {{code}} — {{name}}. Ansyen PIN lan p ap mache ankò epi tèminal POS la dwe chanje li nan pwochen koneksyon li.",
             "reason": {
               "label": "Rezon",
               "pinLost": "PIN pèdi",
-              "sellerChanged": "Chanjman vandè",
+              "sellerChanged": "Chanjman tèminal POS",
               "suspectedCompromise": "Yo sispèk PIN lan konpwomèt",
               "adminCorrection": "Koreksyon administratif",
               "other": "Lòt",
@@ -825,43 +827,43 @@
               "digits": "{{count}} chif",
               "copy": "Kopye PIN lan",
               "copied": "PIN lan kopye",
-              "warning": "Kopye PIN sa a kounye a. Li p ap parèt ankò apre ou fèmen fenèt la. Vandè a dwe chanje li nan pwochen koneksyon li."
+              "warning": "Kopye PIN sa a kounye a. Li p ap parèt ankò apre ou fèmen fenèt la. Tèminal POS la dwe chanje li nan pwochen koneksyon li."
             }
           },
           "disable": {
-            "title": "Dezaktive vandè",
+            "title": "Dezaktive tèminal POS",
             "description": "Dezaktive {{name}} ({{code}}) ?",
             "warning": "Li difisil pou anile aksyon sa a."
           },
           "unblock": {
-            "title": "Debloke vandè",
+            "title": "Debloke tèminal POS",
             "description": "Debloke {{name}} ({{code}}) pou li ka vann tikè ankò?"
           }
         }
       },
       "new": {
-        "title": "Nouvo vandè",
-        "description": "Anrejistre yon nouvo pwen lavant sou rezo a.",
+        "title": "Nouvo tèminal POS",
+        "description": "Anrejistre yon nouvo tèminal POS sou rezo a.",
         "section": {
-          "terminal": "Terminal",
-          "terminalDesc": "Kòd ak libellé ki parèt pou pwen lavant sa a.",
+          "terminal": "Tèminal",
+          "terminalDesc": "Kòd ak non ki parèt pou tèminal POS sa a.",
           "identity": "Idantite",
-          "identityDesc": "Enfòmasyon pou idantifye vandè a.",
+          "identityDesc": "Enfòmasyon pou idantifye tèminal POS la.",
           "address": "Adrès",
-          "addressDesc": "Adrès fizik pwen lavant lan, si li disponib.",
+          "addressDesc": "Adrès fizik tèminal POS la, si li disponib.",
           "access": "Aksè",
-          "accessDesc": "PIN inisyal pou vandè a konekte.",
+          "accessDesc": "PIN inisyal pou tèminal POS la konekte.",
           "commission": "Komisyon",
-          "commissionDesc": "Pousantaj komisyon pou vandè sa a.",
+          "commissionDesc": "Pousantaj komisyon pou tèminal POS sa a.",
           "status": "Eta",
-          "statusDesc": "Vandè a ap disponib touswit si li aktive."
+          "statusDesc": "Tèminal POS la ap disponib touswit si li aktive."
         },
         "field": {
-          "terminalCode": "Kòd terminal",
+          "terminalCode": "Kòd tèminal POS",
           "displayName": "Non afichaj",
           "firstName": "Prenon (opsyonèl)",
           "lastName": "Non (opsyonèl)",
-          "email": "Email (opsyonèl)",
+          "email": "Imèl (opsyonèl)",
           "phoneNumber": "Telefòn (opsyonèl)",
           "addressLine1": "Ri / Liy 1",
           "addressLine2": "Apatman / Liy 2 (opsyonèl)",
@@ -872,12 +874,12 @@
           "initialPin": "PIN inisyal",
           "confirmPin": "Konfime PIN",
           "commissionRate": "Pousantaj komisyon (%)",
-          "active": "Aktive vandè a lè li kreye"
+          "active": "Aktive tèminal POS la lè li kreye"
         },
         "placeholder": {
           "terminalCode": "TCH-XXXXXX",
-          "displayName": "Egz: Pwen lavant sant vil",
-          "email": "vande@example.com",
+          "displayName": "Egz: Tèminal POS sant vil",
+          "email": "pos@example.com",
           "phoneNumber": "+509 XXXX XXXX",
           "addressLine1": "Egz: 12 Rue Pavee",
           "addressLine2": "Egz: Apt 3B",
@@ -892,12 +894,12 @@
           "confirmPin": "Repete 6 chif yo."
         },
         "validation": {
-          "terminalCodeRequired": "Kòd terminal la obligatwa.",
+          "terminalCodeRequired": "Kòd tèminal POS la obligatwa.",
           "terminalCodeMax": "Maksimòm 64 karaktè.",
           "displayNameRequired": "Non afichaj la obligatwa.",
           "displayNameMin": "Minimòm 2 karaktè.",
           "displayNameMax": "Maksimòm 64 karaktè.",
-          "email": "Email pa valid.",
+          "email": "Imèl la pa valab.",
           "emailMax": "Maksimòm 254 karaktè.",
           "max200": "Maksimòm 200 karaktè.",
           "max100": "Maksimòm 100 karaktè.",
@@ -916,38 +918,38 @@
           "regenerateCode": "Jenere yon nouvo kòd",
           "showPin": "Montre PIN",
           "hidePin": "Kache PIN",
-          "create": "Kreye vandè",
+          "create": "Kreye tèminal POS",
           "creating": "Ap kreye…",
           "openPos": "Louvri Web POS",
           "copy": "Kopye",
           "copied": "Kopye!",
-          "copyTerminalCode": "Kopye kòd terminal la",
-          "createAnother": "Kreye yon lòt vandè"
+          "copyTerminalCode": "Kopye kòd tèminal POS la",
+          "createAnother": "Kreye yon lòt tèminal POS"
         },
         "preview": {
-          "title": "Aperçu vandè",
+          "title": "Apèsi tèminal POS",
           "codeFallback": "TCH-??????",
-          "nameFallback": "Non vandè",
+          "nameFallback": "Non tèminal POS",
           "commission": "Komisyon : {{rate}}%",
-          "hint": "Kòd terminal la ak PIN inisyal la ap parèt apre kreyasyon an."
+          "hint": "Kòd tèminal POS la ak PIN inisyal la ap parèt apre kreyasyon an."
         },
         "success": {
-          "title": "Vandè a kreye avèk siksè!",
-          "description": "Nouvo pwen lavant lan aktif sou rezo a kounye a.",
-          "noticePrefix": "Bay vandè a idantifyan sa yo. PIN inisyal la dwe chanje nan premye koneksyon an.",
+          "title": "Tèminal POS la kreye avèk siksè!",
+          "description": "Nouvo tèminal POS la aktif sou rezo a kounye a.",
+          "noticePrefix": "Bay tèminal POS la idantifyan sa yo. PIN inisyal la dwe chanje nan premye koneksyon an.",
           "noticeStrong": "Li p ap parèt ankò apre ekran sa a fèmen."
         }
       },
       "detail": {
-        "title": "Detay vandè",
-        "description": "Gade idantite, eta ak aktivite vandè a.",
-        "loading": "Ap chaje vandè a...",
+        "title": "Detay tèminal POS",
+        "description": "Gade idantite, eta ak aktivite tèminal POS la.",
+        "loading": "Ap chaje tèminal POS la...",
         "action": {
           "openPos": "Louvri POS",
           "tickets": "Tikè"
         },
         "summary": {
-          "eyebrow": "Vandè"
+          "eyebrow": "Tèminal POS"
         },
         "today": {
           "eyebrow": "Jodi a",
@@ -959,11 +961,11 @@
         },
         "section": {
           "identity": "Idantite",
-          "identityDesc": "Enfòmasyon pou idantifye vandè sa a.",
+          "identityDesc": "Enfòmasyon pou idantifye tèminal POS sa a.",
           "states": "Eta",
-          "statesDesc": "Eta operasyonèl ki detèmine sa vandè a ka fè.",
+          "statesDesc": "Eta operasyonèl ki detèmine sa tèminal POS la ka fè.",
           "activity": "Aktivite",
-          "activityDesc": "Dènye dat yo konnen pou vandè sa a.",
+          "activityDesc": "Dènye dat yo konnen pou tèminal POS sa a.",
           "security": "Sekirite",
           "securityDesc": "Eta PIN ak enfòmasyon blokaj.",
           "control": "Kontwòl"
@@ -982,7 +984,7 @@
           "disabledAt": "Dezaktive",
           "commissionRate": "Komisyon",
           "addressId": "Adrès",
-          "tenantId": "Tenant"
+          "tenantId": "Santral"
         }
       },
       "status": {
@@ -992,16 +994,16 @@
         "DISABLED": "Dezaktive"
       },
       "field": {
-        "seller_terminal_code": "Kòd terminal",
+        "seller_terminal_code": "Kòd tèminal POS",
         "first_name": "Prenon",
         "last_name": "Non",
-        "email": "Email",
+        "email": "Imèl",
         "phone": "Telefòn"
       }
     },
     "drawChannels": {
-      "title": "Kanal tiraj",
-      "description": "Konfigire provider yo, sous rezilta yo, ak lè tiraj aktif pou tenant lan.",
+      "title": "Règ tiraj",
+      "description": "Konfigire founisè yo, sous rezilta yo, ak lè tiraj aktif pou santral la.",
       "status": {
         "active": "Aktif",
         "needsConfig": "Pou konfigire",
@@ -1009,8 +1011,8 @@
         "unavailable": "Pa disponib"
       },
       "summary": {
-        "availableStates": "Provider",
-        "activeStates": "Provider aktif",
+        "availableStates": "Founisè",
+        "activeStates": "Founisè aktif",
         "activeChannels": "Lè aktif",
         "todo": "Pou konfigire"
       },
@@ -1022,29 +1024,29 @@
         "sourceError": "Erè sous"
       },
       "search": {
-        "placeholder": "Chèche provider..."
+        "placeholder": "Chèche founisè..."
       },
-      "loading": "Chajman kanal tiraj yo...",
-      "resultsCount": "{{count}} provider afiche",
+      "loading": "Chajman règ tiraj yo...",
+      "resultsCount": "{{count}} founisè afiche",
       "empty": {
-        "title": "Pa gen provider",
-        "filtered": "Chanje filtè a oswa rechèch la pou montre provider yo.",
-        "none": "Pa gen provider disponib pou tenant sa a."
+        "title": "Pa gen founisè",
+        "filtered": "Chanje filtè a oswa rechèch la pou montre founisè yo.",
+        "none": "Pa gen founisè disponib pou santral sa a."
       },
       "notice": {
         "title": "Aksyon pa disponib",
-        "configureUnavailable": "Konfigirasyon dirèk pou {{provider}} ap aktive ak endpoint backend la.",
+        "configureUnavailable": "Konfigirasyon dirèk pou {{provider}} ap aktive ak pwen API sèvè a.",
         "saved": "Konfigirasyon {{provider}} anrejistre."
       },
       "config": {
         "title": "Konfigire {{provider}}",
         "description": "Ajiste mòd rezilta, lè vant, ak lè tiraj aktif yo.",
         "section": {
-          "provider": "Provider",
+          "provider": "Founisè",
           "slots": "Lè tiraj"
         },
         "field": {
-          "enabled": "Kanal aktive pou tenant sa a",
+          "enabled": "Règ aktive pou santral sa a",
           "resultMode": "Mòd rezilta",
           "defaultCutoff": "Fèmti vant pa defo (minit)",
           "slotEnabled": "Lè tiraj aktif",
@@ -1059,7 +1061,7 @@
       },
       "sourceError": {
         "title": "Sous rezilta pa disponib",
-        "message": "Vant yo ka rete disponib, men rezilta otomatik provider sa a bezwen verifye."
+        "message": "Vant yo ka rete disponib, men rezilta otomatik founisè sa a bezwen verifye."
       },
       "acquisition": {
         "auto": "Akizisyon otomatik",
@@ -1072,7 +1074,7 @@
       },
       "slots": {
         "title": "Lè tiraj",
-        "unavailable": "Pa gen lè tiraj disponib pou tenant sa a",
+        "unavailable": "Pa gen lè tiraj disponib pou santral sa a",
         "status": {
           "active": "Aktif",
           "needsConfig": "Pou konfigire",
@@ -1096,7 +1098,7 @@
     },
     "games": {
       "title": "Jwèt",
-      "description": "Jere jwèt ki aktive pou tenant sa a.",
+      "description": "Jere jwèt ki aktive pou santral sa a.",
       "tabs": {
         "enabled": "Jwèt aktive",
         "catalog": "Katalòg"
@@ -1119,11 +1121,11 @@
       },
       "settings": {
         "title": "Konfigire jwèt la - {{name}}",
-        "description": "Paramèt tenant ki itilize pou vant POS.",
+        "description": "Paramèt santral ki itilize pou vant POS.",
         "intro": {
           "aria": "Paramèt vant jwèt la",
           "title": "Paramèt ki itilize nan vant",
-          "message": "Valè sa yo kontwole afichaj POS la ak miz tenant lan aksepte. Gain ak barèm global yo rete jere nan katalòg platform lan."
+          "message": "Valè sa yo kontwole afichaj POS la ak miz santral la aksepte. Gany ak barèm global yo rete jere nan katalòg platfòm nan."
         },
         "field": {
           "displayName": "Non ki parèt nan POS",
@@ -1137,7 +1139,7 @@
         },
         "options": {
           "title": "Barèm gain",
-          "description": "Rezime barèm tenant lan ki aplike nan vant lan.",
+          "description": "Rezime barèm santral la ki aplike nan vant lan.",
           "clearPricing": "Efase règ barèm nan"
         },
         "salesOptions": {
@@ -1172,7 +1174,7 @@
       },
       "dialog": {
         "edit": {
-          "title": "Modifye kòt tenant lan"
+          "title": "Modifye kòt santral la"
         }
       },
       "empty": {
@@ -1181,52 +1183,52 @@
       }
     },
     "generatedDraws": {
-      "title": "Tirages générés",
-      "description": "Suivez les tirages générés, leur état de vente et les résultats attendus.",
+      "title": "Tiraj jenere",
+      "description": "Swiv tiraj ki jenere yo, eta vant yo ak rezilta ki espere yo.",
       "summary": {
-        "today": "Aujourd'hui",
-        "salesOpen": "Vente ouverte",
-        "resultsExpected": "Résultats attendus",
-        "confirmed": "Confirmés"
+        "today": "Jodi a",
+        "salesOpen": "Vant ouvè",
+        "resultsExpected": "Rezilta espere",
+        "confirmed": "Konfime"
       },
       "datePresets": {
-        "today": "Aujourd'hui",
-        "tomorrow": "Demain",
-        "thisWeek": "Cette semaine"
+        "today": "Jodi a",
+        "tomorrow": "Demen",
+        "thisWeek": "Semèn sa a"
       },
       "statusFilters": {
-        "all": "Tous les statuts",
-        "open": "Ouverts à la vente",
-        "expected": "Résultats attendus",
-        "missing": "Résultats manquants",
-        "confirmed": "Confirmés",
-        "sourceError": "Erreur source"
+        "all": "Tout estati",
+        "open": "Ouvè pou vant",
+        "expected": "Rezilta espere",
+        "missing": "Rezilta manke",
+        "confirmed": "Konfime",
+        "sourceError": "Erè sous"
       },
       "salesStatus": {
-        "UPCOMING": "À venir",
-        "OPEN": "Vente ouverte",
-        "CLOSED": "Vente fermée",
-        "CANCELLED": "Annulé"
+        "UPCOMING": "Ap vini",
+        "OPEN": "Vant ouvè",
+        "CLOSED": "Vant fèmen",
+        "CANCELLED": "Anile"
       },
       "resultStatus": {
-        "NOT_DUE": "Pas attendu",
-        "EXPECTED": "Attendu",
-        "MISSING": "Manquant",
-        "PROVISIONAL": "Provisoire",
-        "CONFIRMED": "Confirmé",
-        "SOURCE_ERROR": "Erreur source"
+        "NOT_DUE": "Poko espere",
+        "EXPECTED": "Espere",
+        "MISSING": "Manke",
+        "PROVISIONAL": "Pwovizwa",
+        "CONFIRMED": "Konfime",
+        "SOURCE_ERROR": "Erè sous"
       },
       "publicationStatus": {
-        "PUBLISHED": "Publié"
+        "PUBLISHED": "Pibliye"
       },
       "actions": {
-        "refresh": "Actualiser",
-        "planNextDraws": "Planifier les prochains tirages",
-        "configureDrawChannels": "Configurer les canaux de tirage",
-        "enterResult": "Saisir résultat",
-        "viewResult": "Voir résultat",
-        "verify": "Vérifier",
-        "viewDetails": "Voir détails"
+        "refresh": "Rafrechi",
+        "planNextDraws": "Planifye pwochen tiraj yo",
+        "configureDrawChannels": "Konfigire règ tiraj yo",
+        "enterResult": "Antre rezilta",
+        "viewResult": "Gade rezilta",
+        "verify": "Verifye",
+        "viewDetails": "Gade detay"
       }
     },
     "pos": {
@@ -1310,16 +1312,16 @@
         }
       },
       "activity": {
-        "title": "Activité du terminal",
-        "salesToday": "Ventes du jour",
-        "ticketsToday": "Tickets émis"
+        "title": "Aktivite tèminal la",
+        "salesToday": "Vant jodi a",
+        "ticketsToday": "Tikè emèt"
       },
       "error": {
-        "noOpenDraw": "Aucun tirage ouvert à la vente.",
-        "drawClosed": "Ce tirage est maintenant fermé à la vente. Choisissez un autre tirage ouvert.",
-        "terminalBlocked": "Ce seller-terminal est bloqué. Il ne peut pas vendre de tickets.",
-        "invalidStake": "La mise doit être supérieure à 0 HTG.",
-        "noLines": "Ajoutez au moins une ligne pour confirmer la vente."
+        "noOpenDraw": "Pa gen tiraj ouvè pou vant.",
+        "drawClosed": "Tiraj sa a fèmen pou vant kounye a. Chwazi yon lòt tiraj ouvè.",
+        "terminalBlocked": "Tèminal POS sa a bloke. Li pa ka vann tikè.",
+        "invalidStake": "Miz la dwe pi gran pase 0 HTG.",
+        "noLines": "Ajoute omwen yon liy pou konfime vant lan."
       }
     },
     "drawResults": {
@@ -1349,11 +1351,11 @@
   "readiness": {
     "noIssues": "Pa gen pwoblèm",
     "identity": {
-      "missing": "Idantite tenant lan bezwen konplete"
+      "missing": "Idantite santral la bezwen konplete"
     },
     "seller_terminals": {
-      "empty": "Pa gen vandè ki konfigire",
-      "blocked": "Vandè bloke pou verifye"
+      "empty": "Pa gen tèminal POS ki konfigire",
+      "blocked": "Tèminal POS bloke pou verifye"
     },
     "games": {
       "empty": "Jwèt ak pri yo bezwen konfigire"
@@ -1365,7 +1367,7 @@
       "results_pending": "Tiraj fèmen ap tann rezilta"
     },
     "commission": {
-      "default_missing": "Taux komisyon tenant lan bezwen konfigire"
+      "default_missing": "To komisyon santral la bezwen konfigire"
     },
     "limits": {
       "empty": "Limit vant yo bezwen konfigire"
@@ -1379,20 +1381,20 @@
     "fields": {
       "roles": "Wòl",
       "settings": "Paramèt",
-      "tenant": "Tenant",
+      "tenant": "Santral",
       "user": "Itilizatè"
     },
     "rolesEmpty": "Pa gen wòl detekte",
     "tenantMissing": "Pa detekte",
     "titles": {
-      "admin": "Tablo admin tenant",
+      "admin": "Tablo admin santral",
       "cashier": "Tablo kesye",
       "platform": "Tablo platfòm"
     },
     "cashier": {
       "alerts": {
         "empty": "Pa gen alèt",
-        "blocked_seller_terminals": "Gen vandè ki bloke",
+        "blocked_seller_terminals": "Gen tèminal POS ki bloke",
         "closed_draws_pending_results": "Gen tiraj fèmen k ap tann rezilta",
         "unread_notifications": "Notifikasyon ki poko li",
         "title": "Alèt"
@@ -1416,7 +1418,7 @@
         "title": "Aksyon rapid"
       },
       "tenants": {
-        "title": "Tenant"
+        "title": "Santral"
       }
     },
     "tenant_admin": {
@@ -1426,12 +1428,12 @@
       },
       "commission": {
         "title": "Komisyon",
-        "default_rate": "To pa defò tenant lan",
+        "default_rate": "To pa defò santral la",
         "default_not_set": "Pa konfigire",
         "at_default": "To pa defò",
         "custom": "To pèsonalize",
         "rate_range": "Fotchèt",
-        "seller_terminals": "Seller-terminals"
+        "seller_terminals": "Tèminal POS"
       },
       "kpis": {
         "title": "Endikatè"

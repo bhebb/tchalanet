@@ -8,7 +8,6 @@
     [darkMode]="darkMode()"
     (themeToggled)="toggleTheme()"
     (profileRequested)="goToProfile()"
-    (settingsRequested)="goToSettings()"
     (logoutRequested)="logout()"
   >
     @if (supportSession(); as session) {

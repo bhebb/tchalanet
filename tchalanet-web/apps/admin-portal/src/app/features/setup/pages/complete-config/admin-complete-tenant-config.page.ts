@@ -63,6 +63,7 @@ interface SetupChecklistCardViewModel {
   readonly bodyVariant: SetupChecklistBodyVariant;
   readonly ctaKey: string;
   readonly route: string;
+  readonly queryParams?: Record<string, string>;
   readonly fragment?: string;
   readonly emphasizeMissing: boolean;
   readonly sectionErrorTargets: readonly string[];
@@ -118,6 +119,17 @@ export class AdminCompleteTenantConfigPage implements OnInit {
 
   readonly canCreateSellerTerminal = computed(() => this.setup()?.canCreateSellerTerminal ?? false);
 
+  readonly terminalBlockingSteps = computed<readonly string[]>(() => {
+    if (this.canCreateSellerTerminal()) return [];
+
+    const requiredMissing = this.setupCards()
+      .filter(card => card.badgeKind !== 'optional' && card.status !== 'READY')
+      .map(card => card.id);
+    const backendBlocking = (this.setup()?.blockingSteps ?? []).map(step => step.toLowerCase());
+
+    return [...new Set([...requiredMissing, ...backendBlocking])];
+  });
+
   readonly setupCards = computed<readonly SetupChecklistCardViewModel[]>(() => {
     const h = this.header();
     const identityStatus = this.sectionStatus('identity');
@@ -143,6 +155,7 @@ export class AdminCompleteTenantConfigPage implements OnInit {
     const generatedDrawsStatus: SetupChecklistStatus = this.sectionStatus('generated_draws');
     const settingsStatus: SetupChecklistStatus = this.sectionStatus('settings');
     const settingsTarget = this.settingsTarget();
+    const subscription = this.subscription();
 
     const cards: SetupChecklistCardViewModel[] = [
       {
@@ -170,6 +183,7 @@ export class AdminCompleteTenantConfigPage implements OnInit {
         bodyVariant: 'default',
         ctaKey: 'admin.setup.section.settingsCta',
         route: settingsTarget.route,
+        queryParams: { from: 'setup' },
         fragment: settingsTarget.fragment,
         emphasizeMissing: true,
         sectionErrorTargets: ['admin.setup.settings'],
@@ -252,16 +266,16 @@ export class AdminCompleteTenantConfigPage implements OnInit {
         titleKey: 'admin.setup.section.subscription',
         // No readiness section for subscription (not a config-completeness domain) — status
         // reflects whether a plan is actually applied, from GET /tenant/subscription.
-        status: this.subscription()?.status === 'ACTIVE' || this.subscription()?.status === 'TRIAL'
+        status: subscription?.status === 'ACTIVE' || subscription?.status === 'TRIAL'
           ? 'READY'
-          : this.subscription()
+          : subscription
             ? 'UNKNOWN'
             : 'MISSING',
         badgeKind: 'optional',
-        body: this.subscription()
-          ? `${this.subscription()!.planCode} · ${this.subscription()!.status}`
+        body: subscription
+          ? `${subscription.planCode} · ${subscription.status}`
           : this.translate.instant('admin.setup.section.subscriptionNoPlan'),
-        bodyVariant: this.subscription() ? 'default' : 'hint',
+        bodyVariant: subscription ? 'default' : 'hint',
         ctaKey: 'admin.setup.section.subscriptionCta',
         route: '/app/admin/subscription',
         emphasizeMissing: false,
@@ -333,21 +347,21 @@ export class AdminCompleteTenantConfigPage implements OnInit {
     const issue = this.sectionMap().get('settings')?.issues?.find(item => item.messageKey?.startsWith('settings.'));
     const reason = issue?.messageKey ?? '';
     if (reason.startsWith('settings.print.')) {
-      return { route: '/app/admin/settings/config', fragment: 'print' };
+      return { route: '/app/admin/company/settings/config', fragment: 'print' };
     }
     if (reason.startsWith('settings.send.')) {
-      return { route: '/app/admin/settings/config', fragment: 'send' };
+      return { route: '/app/admin/company/settings/config', fragment: 'send' };
     }
     if (reason.startsWith('settings.calendar.')) {
-      return { route: '/app/admin/settings/config', fragment: 'calendar' };
+      return { route: '/app/admin/company/settings/config', fragment: 'calendar' };
     }
     if (reason.startsWith('settings.locale.')) {
-      return { route: '/app/admin/settings/config', fragment: 'languages' };
+      return { route: '/app/admin/company/settings/config', fragment: 'languages' };
     }
     if (reason.startsWith('settings.identity.') || reason.startsWith('settings.defaults.')) {
-      return { route: '/app/admin/settings/config' };
+      return { route: '/app/admin/company/settings/config' };
     }
-    return { route: '/app/admin/settings/config' };
+    return { route: '/app/admin/company/settings/config' };
   }
 
   private addressLabel(addr: NonNullable<TenantAdminOverviewView['header']['address']>): string {

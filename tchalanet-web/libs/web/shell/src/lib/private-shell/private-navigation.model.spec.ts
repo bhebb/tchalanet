@@ -195,6 +195,16 @@ describe('PLATFORM_NAVIGATION', () => {
       .toBe('/app/admin/business-days');
   });
 
+  it('keeps tenant settings under my company instead of using the signed-in admin account menu', () => {
+    const setup = TENANT_ADMIN_NAVIGATION[0].items.find(group => group.id === 'setup');
+    const company = TENANT_ADMIN_NAVIGATION[0].items.find(group => group.id === 'company');
+    const companySettings = company?.children?.find(child => child.id === 'company-settings');
+
+    expect(setup?.activeRoutes).not.toContain('/app/admin/settings');
+    expect(companySettings?.destination?.value).toBe('/app/admin/company/settings');
+    expect(companySettings?.activeRoutes).toContain('/app/admin/company/settings/config');
+  });
+
   it('keeps games overview active for pricing details', () => {
     const games = TENANT_ADMIN_NAVIGATION[0].items.find(group => group.id === 'games');
     const overview = games?.children?.find(child => child.id === 'games-overview');

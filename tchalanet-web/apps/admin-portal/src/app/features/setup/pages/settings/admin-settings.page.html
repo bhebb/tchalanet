@@ -1,15 +1,15 @@
 <tch-admin-page-shell title="Paramètres" description="Configuration du tenant.">
   <div actions>
-    <a mat-stroked-button routerLink="/app/admin/setup">
+    <a mat-stroked-button [routerLink]="backRoute">
       <span class="material-symbols-outlined">arrow_back</span>
-      Configuration générale
+      {{ backLabel }}
     </a>
   </div>
 
   <tch-admin-section-card title="Accès rapide">
     <div class="settings-page__grid">
       @for (link of links; track link.route) {
-        <a class="settings-page__card" [routerLink]="link.route">
+        <a class="settings-page__card" [routerLink]="link.route" [queryParams]="linkQueryParams">
           <span class="material-symbols-outlined settings-page__card-icon">{{ link.icon }}</span>
           <div class="settings-page__card-body">
             <span class="settings-page__card-label">{{ link.label }}</span>
