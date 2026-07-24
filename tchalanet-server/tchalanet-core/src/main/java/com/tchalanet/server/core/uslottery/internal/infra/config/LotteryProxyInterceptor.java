@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpRequestExecution;
@@ -17,6 +18,7 @@ import org.springframework.http.client.support.HttpRequestWrapper;
  * called directly from the staging host. Original headers are forwarded under an {@code X-Fwd-}
  * prefix, per the Worker's contract.
  */
+@Slf4j
 final class LotteryProxyInterceptor implements ClientHttpRequestInterceptor {
 
   private final String proxyUrl;
@@ -49,6 +51,12 @@ final class LotteryProxyInterceptor implements ClientHttpRequestInterceptor {
         (name, values) ->
             values.forEach(value -> wrapped.getHeaders().add("X-Fwd-" + name, value)));
     wrapped.getHeaders().add("X-Proxy-Secret", proxySecret);
+
+    log.info(
+        "lottery-proxy rewrite original={} proxied={} headerCount={}",
+        request.getURI(),
+        proxiedUri,
+        wrapped.getHeaders().size());
 
     return execution.execute(wrapped, body);
   }
