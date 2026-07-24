@@ -13,9 +13,9 @@ import org.springframework.http.client.support.HttpRequestWrapper;
 
 /**
  * Rewrites requests to go through the Cloudflare Worker relay
- * (tchalanet-infra/cloudflare-worker-proxy) for providers blocked at the datacenter/ASN level
- * when called directly from the staging host. Original headers are forwarded under an
- * {@code X-Fwd-} prefix, per the Worker's contract.
+ * (tchalanet-infra/cloudflare-worker-proxy) for providers blocked at the datacenter/ASN level when
+ * called directly from the staging host. Original headers are forwarded under an {@code X-Fwd-}
+ * prefix, per the Worker's contract.
  */
 final class LotteryProxyInterceptor implements ClientHttpRequestInterceptor {
 
@@ -46,7 +46,8 @@ final class LotteryProxyInterceptor implements ClientHttpRequestInterceptor {
 
     wrapped.getHeaders().clear();
     originalHeaders.forEach(
-        (name, values) -> values.forEach(value -> wrapped.getHeaders().add("X-Fwd-" + name, value)));
+        (name, values) ->
+            values.forEach(value -> wrapped.getHeaders().add("X-Fwd-" + name, value)));
     wrapped.getHeaders().add("X-Proxy-Secret", proxySecret);
 
     return execution.execute(wrapped, body);
