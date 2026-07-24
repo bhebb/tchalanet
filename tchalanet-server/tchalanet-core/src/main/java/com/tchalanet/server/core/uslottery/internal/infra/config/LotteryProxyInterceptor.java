@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpRequest;
@@ -20,6 +21,11 @@ import org.springframework.http.client.support.HttpRequestWrapper;
  */
 @Slf4j
 final class LotteryProxyInterceptor implements ClientHttpRequestInterceptor {
+
+  // Content-Length: 0 on a bodyless GET is not something a real browser/curl ever sends and
+  // some WAFs (e.g. Georgia, New Jersey) reject it with 406. Host is meaningless once forwarded
+  // and would otherwise override the Worker's own outbound Host header.
+  private static final Set<String> SKIPPED_HEADERS = Set.of("content-length", "host");
 
   private final String proxyUrl;
   private final String proxySecret;
@@ -48,18 +54,15 @@ final class LotteryProxyInterceptor implements ClientHttpRequestInterceptor {
 
     wrapped.getHeaders().clear();
     originalHeaders.forEach(
-        (name, values) ->
-            values.forEach(value -> wrapped.getHeaders().add("X-Fwd-" + name, value)));
+        (name, values) -> {
+          if (!SKIPPED_HEADERS.contains(name.toLowerCase(java.util.Locale.ROOT))) {
+            values.forEach(value -> wrapped.getHeaders().add("X-Fwd-" + name, value));
+          }
+        });
     wrapped.getHeaders().add("X-Proxy-Secret", proxySecret);
 
-    log.warn(
-        "lottery-proxy rewrite original={} proxied={} headers={}",
-        request.getURI(),
-        proxiedUri,
-        originalHeaders);
+    log.debug("lottery-proxy rewrite original={} proxied={}", request.getURI(), proxiedUri);
 
-    var response = execution.execute(wrapped, body);
-    log.warn("lottery-proxy response status={}", response.getStatusCode());
-    return response;
+    return execution.execute(wrapped, body);
   }
 }

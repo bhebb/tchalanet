@@ -201,7 +201,7 @@ public class UsLotteryConfig {
               + " configured - calling the provider directly instead.");
       return builder;
     }
-    log.warn("Wiring LotteryProxyInterceptor with proxyUrl={}", props.getProxyUrl());
+    log.info("Wiring LotteryProxyInterceptor with proxyUrl={}", props.getProxyUrl());
     return builder.requestInterceptor(
         new LotteryProxyInterceptor(props.getProxyUrl(), props.getProxySecret()));
   }
