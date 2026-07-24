@@ -58,6 +58,8 @@ final class LotteryProxyInterceptor implements ClientHttpRequestInterceptor {
         proxiedUri,
         wrapped.getHeaders().size());
 
-    return execution.execute(wrapped, body);
+    var response = execution.execute(wrapped, body);
+    log.warn("lottery-proxy response status={}", response.getStatusCode());
+    return response;
   }
 }
