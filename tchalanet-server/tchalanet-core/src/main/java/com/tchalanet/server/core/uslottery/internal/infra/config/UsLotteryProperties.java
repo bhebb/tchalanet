@@ -18,6 +18,17 @@ public class UsLotteryProperties {
   private Map<String, ProviderProperties> providers;
   private CommonProperties common;
 
+  /**
+   * Optional Cloudflare Worker relay for providers whose base URL is blocked at the
+   * datacenter/ASN level when called directly (see tchalanet-infra/cloudflare-worker-proxy).
+   * Requests for a provider with {@code proxied: true} are rewritten to
+   * {@code GET <proxyUrl>?url=<encoded original url>} with original headers forwarded under an
+   * {@code X-Fwd-} prefix and {@code X-Proxy-Secret: <proxySecret>} added.
+   */
+  private String proxyUrl;
+
+  private String proxySecret;
+
   @Getter
   @Setter
   public static class CommonProperties {
@@ -45,5 +56,6 @@ public class UsLotteryProperties {
     private String alertPath;
     private Map<String, String> headers;
     private List<String> holidays;
+    private boolean proxied = false;
   }
 }
