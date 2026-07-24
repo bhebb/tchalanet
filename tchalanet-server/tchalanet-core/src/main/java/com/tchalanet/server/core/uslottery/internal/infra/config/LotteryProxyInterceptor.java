@@ -52,7 +52,7 @@ final class LotteryProxyInterceptor implements ClientHttpRequestInterceptor {
             values.forEach(value -> wrapped.getHeaders().add("X-Fwd-" + name, value)));
     wrapped.getHeaders().add("X-Proxy-Secret", proxySecret);
 
-    log.info(
+    log.warn(
         "lottery-proxy rewrite original={} proxied={} headerCount={}",
         request.getURI(),
         proxiedUri,
