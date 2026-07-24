@@ -155,17 +155,21 @@ public class UsLotteryConfig {
     var baseUrl = p != null ? p.getAuthBaseUrl() : null;
 
     log.info("Configuring Ohio auth RestClient with base URL configured={}", hasText(baseUrl));
-    return factory
-        .builder()
-        .baseUrl(baseUrl)
-        .defaultHeader("Accept", "application/json, text/plain, */*")
-        .defaultHeader("Origin", "https://www.ohiolottery.com")
-        .defaultHeader("Referer", "https://www.ohiolottery.com/")
-        .defaultHeader(
-            "User-Agent",
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)"
-                + " Chrome/120.0.0.0 Safari/537.36")
-        .build();
+    var b =
+        factory
+            .builder()
+            .baseUrl(baseUrl)
+            .defaultHeader("Accept", "application/json, text/plain, */*")
+            .defaultHeader("Origin", "https://www.ohiolottery.com")
+            .defaultHeader("Referer", "https://www.ohiolottery.com/")
+            .defaultHeader(
+                "User-Agent",
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)"
+                    + " Chrome/120.0.0.0 Safari/537.36");
+    if (p != null && p.isProxied()) {
+      b = applyProxy(b, props);
+    }
+    return b.build();
   }
 
   private RestClient getRestClient(
@@ -183,7 +187,22 @@ public class UsLotteryConfig {
       b = b.defaultHeader(e.getKey(), e.getValue());
     }
 
+    if (p != null && p.isProxied()) {
+      b = applyProxy(b, props);
+    }
+
     return b.build();
+  }
+
+  private RestClient.Builder applyProxy(RestClient.Builder builder, UsLotteryProperties props) {
+    if (!hasText(props.getProxyUrl()) || !hasText(props.getProxySecret())) {
+      log.warn(
+          "Provider marked proxied=true but tch.us-lottery.proxy-url/proxy-secret is not"
+              + " configured - calling the provider directly instead.");
+      return builder;
+    }
+    return builder.requestInterceptor(
+        new LotteryProxyInterceptor(props.getProxyUrl(), props.getProxySecret()));
   }
 
   private boolean hasText(String value) {
