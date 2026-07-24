@@ -61,8 +61,19 @@ final class LotteryProxyInterceptor implements ClientHttpRequestInterceptor {
         });
     wrapped.getHeaders().add("X-Proxy-Secret", proxySecret);
 
-    log.debug("lottery-proxy rewrite original={} proxied={}", request.getURI(), proxiedUri);
+    log.warn(
+        "lottery-proxy rewrite original={} proxied={} sentHeaders={}",
+        request.getURI(),
+        proxiedUri,
+        wrapped.getHeaders());
 
-    return execution.execute(wrapped, body);
+    var response = execution.execute(wrapped, body);
+    log.warn(
+        "lottery-proxy response status={} server={} cfRay={} allHeaders={}",
+        response.getStatusCode(),
+        response.getHeaders().getFirst("Server"),
+        response.getHeaders().getFirst("cf-ray"),
+        response.getHeaders());
+    return response;
   }
 }
