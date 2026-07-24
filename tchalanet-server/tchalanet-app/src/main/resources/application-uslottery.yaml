@@ -34,8 +34,9 @@ tch:
         base-url: ${TCH_US_GA_LOTTERY_BASEURL:https://www.galottery.com}
         latest-path: ${TCH_US_GA_LATEST_PATH:/api/v2/draw-games/draws?previous-draws=10&game-names=CASH+3,CASH+4}
         headers:
-          Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+          Accept: application/json
           Accept-Language: en-US,en;q=0.9
+          User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36
 
       tx:
         enabled: ${TCH_US_TX_LOTTERY_ENABLED:true}
@@ -69,6 +70,7 @@ tch:
         headers:
           Accept: application/json, text/javascript, */*; q=0.01
           X-Requested-With: XMLHttpRequest
+          User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36
 
       # Internal JSON: per-game past draw results.
       ca:
@@ -78,6 +80,7 @@ tch:
         latest-path: ${TCH_US_CA_LATEST_PATH:/api/DrawGameApi/DrawGamePastDrawResults}
         headers:
           Accept: application/json
+          User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36
 
       # Enum-only — no client registered. Results via manual proposal (V0).
       mo:
