@@ -67,8 +67,12 @@ jobs:
       - name: Spotless check
         run: ./mvnw -B spotless:check
 
+      # `install` (not just `verify`) so downstream standalone goals like
+      # `pmd:check` can resolve inter-module dependencies (e.g. tchalanet-catalog
+      # depending on tchalanet-common) from the local repo instead of failing
+      # with "Could not find artifact ... tchalanet-common".
       - name: Maven verify
-        run: ./mvnw -B -DskipITs=true verify
+        run: ./mvnw -B -DskipITs=true install
 
       - name: Checkstyle
         run: ./mvnw -B checkstyle:check
