@@ -108,6 +108,13 @@ export class TenantParametersApiService {
     }));
   }
 
+  readinessResource(): ResourceRef<TenantSettingsReadiness | undefined> {
+    return this.backend.getResource<TenantSettingsReadiness>(() => ({
+      path: '/admin/tenant-config/readiness',
+      options: { suppressShellFeedback: true },
+    }));
+  }
+
   updateInternalSettings(req: TenantInternalConfig, options?: TchRequestOptions): Observable<void> {
     return this.backend.put<void>('/admin/tenant-config/internal-settings', req, options);
   }

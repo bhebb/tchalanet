@@ -65,7 +65,18 @@
       },
       "config": {
         "title": "Paramètres opérationnels",
-        "description": "Locale, communication, documents et calendrier."
+        "description": "Locale, communication, documents et calendrier.",
+        "tabs": {
+          "receipt": "Reçus et impression",
+          "communication": "Livraison des tickets",
+          "calendar": "Calendrier de vente",
+          "locale": "Langues du tenant"
+        },
+        "readiness": {
+          "ready": "Prêt",
+          "actionRequired": "Action requise",
+          "issues": "{{count}} point(s) à corriger"
+        }
       }
     },
     "drawChannels": {

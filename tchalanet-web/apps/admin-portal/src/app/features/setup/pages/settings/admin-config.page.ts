@@ -37,6 +37,7 @@ import { AdminPageShellComponent, AdminSectionCardComponent } from '@tch/ui/cons
 import {
   TenantParametersApiService,
   TenantInternalConfig,
+  TenantSettingsReadinessSection,
   TenantRecurringHoliday,
 } from '../../data-access/tenant-parameters-api.service';
 
@@ -147,6 +148,7 @@ export class AdminConfigPage {
 
   readonly config = this.api.tenantConfigResource();
   readonly holidayTemplates = this.api.holidayTemplatesResource();
+  readonly readiness = this.api.readinessResource();
   readonly configError = resourceErrorVm(this.config, 'admin.setup.config');
   readonly configIsEmpty = () => false;
   readonly fromSetup = this.route.snapshot.queryParamMap.get('from') === 'setup';
@@ -271,12 +273,17 @@ export class AdminConfigPage {
     effect(() => {
       if (!this.config.hasValue()) return;
       const cfg = this.config.value() ?? {};
+      const holidayTemplateSnapshot = this.holidayTemplates.hasValue()
+        ? this.holidayTemplates.value() ?? []
+        : null;
       untracked(() => {
         this.rememberConfig(cfg);
         if (!this.localeForm.dirty) this.patchLocale(cfg);
         if (!this.receiptForm.dirty) this.patchReceipt(cfg);
         if (!this.communicationForm.dirty) this.patchCommunication(cfg);
-        if (!this.calendarForm.dirty) this.patchCalendar(cfg);
+        if (!this.calendarForm.dirty && holidayTemplateSnapshot) {
+          this.patchCalendar(cfg, holidayTemplateSnapshot);
+        }
       });
     });
 
@@ -286,6 +293,10 @@ export class AdminConfigPage {
         this.selectedTabIndex.set(index);
       }
     });
+  }
+
+  sectionReadiness(section: string): TenantSettingsReadinessSection | null {
+    return this.readiness.value()?.sections.find(item => item.section === section) ?? null;
   }
 
   submitLocale(): void {
@@ -435,19 +446,19 @@ export class AdminConfigPage {
     });
   }
 
-  private patchCalendar(cfg: TenantInternalConfig): void {
+  private patchCalendar(cfg: TenantInternalConfig, templates: readonly { key: string }[]): void {
     const c = cfg.rules?.businessCalendar;
     if (!c) return;
     this.calendarForm.patchValue({
       defaultOpen: c.defaultOpen ?? true,
       closedWeekdays: c.closedWeekdays ?? [],
       holidayTemplateKeys: (c.holidays ?? [])
-        .filter(holiday => this.templateKeySet().has(holiday.key ?? ''))
+        .filter(holiday => this.templateKeySet(templates).has(holiday.key ?? ''))
         .map(holiday => holiday.key)
         .filter((key): key is string => !!key),
     });
     this.customHolidays.set(
-      (c.holidays ?? []).filter(holiday => !this.templateKeySet().has(holiday.key ?? '')),
+      (c.holidays ?? []).filter(holiday => !this.templateKeySet(templates).has(holiday.key ?? '')),
     );
   }
 
@@ -489,8 +500,8 @@ export class AdminConfigPage {
     return [...selectedTemplates, ...this.customHolidays()];
   }
 
-  private templateKeySet(): ReadonlySet<string> {
-    return new Set((this.holidayTemplates.value() ?? []).map(template => template.key));
+  private templateKeySet(templates: readonly { key: string }[]): ReadonlySet<string> {
+    return new Set(templates.map(template => template.key));
   }
 
   /** Applique les erreurs serveur par champ ; `true` = tout est géré, pas de feedback générique. */

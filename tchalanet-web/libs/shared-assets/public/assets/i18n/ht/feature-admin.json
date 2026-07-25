@@ -607,7 +607,18 @@
       },
       "config": {
         "title": "Paramèt operasyon yo",
-        "description": "Lang, kominikasyon, dokiman ak kalandriye."
+        "description": "Lang, kominikasyon, dokiman ak kalandriye.",
+        "tabs": {
+          "receipt": "Resi ak enpresyon",
+          "communication": "Livrezon tikè",
+          "calendar": "Kalandriye vant",
+          "locale": "Lang tenant la"
+        },
+        "readiness": {
+          "ready": "Pare",
+          "actionRequired": "Aksyon nesesè",
+          "issues": "{{count}} pwoblèm"
+        }
       }
     },
     "setup": {

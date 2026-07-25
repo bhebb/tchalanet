@@ -20,13 +20,20 @@
     [loadingLabel]="'common.loading' | translate"
     (retry)="config.reload()"
   >
-    <ng-template tchAsyncReady>
+        <ng-template tchAsyncReady>
       <mat-tab-group
         [selectedIndex]="selectedTabIndex()"
         (selectedIndexChange)="selectedTabIndex.set($event)"
       >
-        <mat-tab label="Reçu">
+        <mat-tab [label]="'admin.settings.config.tabs.receipt' | translate">
           <div class="config-page__tab-content">
+            @if (sectionReadiness('print'); as status) {
+            <div class="config-page__readiness" [class.config-page__readiness--ready]="status.status === 'READY'">
+              <span class="material-symbols-outlined" aria-hidden="true">{{ status.status === 'READY' ? 'check_circle' : 'warning' }}</span>
+              <span>{{ status.status === 'READY' ? ('admin.settings.config.readiness.ready' | translate) : ('admin.settings.config.readiness.actionRequired' | translate) }}</span>
+              @if (status.blockingReasons.length) { <span>· {{ 'admin.settings.config.readiness.issues' | translate:{ count: status.blockingReasons.length } }}</span> }
+            </div>
+            }
             <tch-admin-section-card
               title="Configuration du reçu"
               description="Personnalisez l'apparence des reçus imprimés par vos seller terminals."
@@ -101,8 +108,15 @@
           </div>
         </mat-tab>
 
-        <mat-tab label="Envoi">
+        <mat-tab [label]="'admin.settings.config.tabs.communication' | translate">
           <div class="config-page__tab-content">
+            @if (sectionReadiness('send'); as status) {
+            <div class="config-page__readiness" [class.config-page__readiness--ready]="status.status === 'READY'">
+              <span class="material-symbols-outlined" aria-hidden="true">{{ status.status === 'READY' ? 'check_circle' : 'warning' }}</span>
+              <span>{{ status.status === 'READY' ? ('admin.settings.config.readiness.ready' | translate) : ('admin.settings.config.readiness.actionRequired' | translate) }}</span>
+              @if (status.blockingReasons.length) { <span>· {{ 'admin.settings.config.readiness.issues' | translate:{ count: status.blockingReasons.length } }}</span> }
+            </div>
+            }
             <tch-admin-section-card
               title="Options d'envoi"
               description="Configurez les frais de livraison des billets par canal."
@@ -114,11 +128,11 @@
                   <div class="config-page__channel-fields">
                     <mat-form-field appearance="outline">
                       <mat-label>Montant</mat-label>
-                      <input matInput type="number" min="0" formControlName="smsAmount" />
+                      <input matInput type="number" min="0" formControlName="smsAmount" [disabled]="!communicationForm.controls.smsEnabled.value" />
                     </mat-form-field>
                     <mat-form-field appearance="outline">
                       <mat-label>Devise</mat-label>
-                      <mat-select formControlName="smsCurrency">
+                      <mat-select formControlName="smsCurrency" [disabled]="!communicationForm.controls.smsEnabled.value">
                         @for (currency of currencies(); track currency.code) {
                         <mat-option [value]="currency.code">{{ currency.label }}</mat-option>
                         }
@@ -126,7 +140,7 @@
                     </mat-form-field>
                     <mat-form-field appearance="outline">
                       <mat-label>Payé par</mat-label>
-                      <mat-select formControlName="smsPaidBy">
+                      <mat-select formControlName="smsPaidBy" [disabled]="!communicationForm.controls.smsEnabled.value">
                         @for (option of paidByOptions; track option.code) {
                         <mat-option [value]="option.code">{{ option.label }}</mat-option>
                         }
@@ -141,11 +155,11 @@
                   <div class="config-page__channel-fields">
                     <mat-form-field appearance="outline">
                       <mat-label>Montant</mat-label>
-                      <input matInput type="number" min="0" formControlName="whatsappAmount" />
+                      <input matInput type="number" min="0" formControlName="whatsappAmount" [disabled]="!communicationForm.controls.whatsappEnabled.value" />
                     </mat-form-field>
                     <mat-form-field appearance="outline">
                       <mat-label>Devise</mat-label>
-                      <mat-select formControlName="whatsappCurrency">
+                      <mat-select formControlName="whatsappCurrency" [disabled]="!communicationForm.controls.whatsappEnabled.value">
                         @for (currency of currencies(); track currency.code) {
                         <mat-option [value]="currency.code">{{ currency.label }}</mat-option>
                         }
@@ -153,7 +167,7 @@
                     </mat-form-field>
                     <mat-form-field appearance="outline">
                       <mat-label>Payé par</mat-label>
-                      <mat-select formControlName="whatsappPaidBy">
+                      <mat-select formControlName="whatsappPaidBy" [disabled]="!communicationForm.controls.whatsappEnabled.value">
                         @for (option of paidByOptions; track option.code) {
                         <mat-option [value]="option.code">{{ option.label }}</mat-option>
                         }
@@ -168,11 +182,11 @@
                   <div class="config-page__channel-fields">
                     <mat-form-field appearance="outline">
                       <mat-label>Montant</mat-label>
-                      <input matInput type="number" min="0" formControlName="emailAmount" />
+                      <input matInput type="number" min="0" formControlName="emailAmount" [disabled]="!communicationForm.controls.emailEnabled.value" />
                     </mat-form-field>
                     <mat-form-field appearance="outline">
                       <mat-label>Devise</mat-label>
-                      <mat-select formControlName="emailCurrency">
+                      <mat-select formControlName="emailCurrency" [disabled]="!communicationForm.controls.emailEnabled.value">
                         @for (currency of currencies(); track currency.code) {
                         <mat-option [value]="currency.code">{{ currency.label }}</mat-option>
                         }
@@ -180,7 +194,7 @@
                     </mat-form-field>
                     <mat-form-field appearance="outline">
                       <mat-label>Payé par</mat-label>
-                      <mat-select formControlName="emailPaidBy">
+                      <mat-select formControlName="emailPaidBy" [disabled]="!communicationForm.controls.emailEnabled.value">
                         @for (option of paidByOptions; track option.code) {
                         <mat-option [value]="option.code">{{ option.label }}</mat-option>
                         }
@@ -217,8 +231,15 @@
           </div>
         </mat-tab>
 
-        <mat-tab label="Calendrier">
+        <mat-tab [label]="'admin.settings.config.tabs.calendar' | translate">
           <div class="config-page__tab-content">
+            @if (sectionReadiness('calendar'); as status) {
+            <div class="config-page__readiness" [class.config-page__readiness--ready]="status.status === 'READY'">
+              <span class="material-symbols-outlined" aria-hidden="true">{{ status.status === 'READY' ? 'check_circle' : 'warning' }}</span>
+              <span>{{ status.status === 'READY' ? ('admin.settings.config.readiness.ready' | translate) : ('admin.settings.config.readiness.actionRequired' | translate) }}</span>
+              @if (status.blockingReasons.length) { <span>· {{ 'admin.settings.config.readiness.issues' | translate:{ count: status.blockingReasons.length } }}</span> }
+            </div>
+            }
             <tch-admin-section-card
               title="Calendrier commercial"
               description="Définissez les jours récurrents où le tenant ne vend pas."
@@ -339,8 +360,15 @@
           </div>
         </mat-tab>
 
-        <mat-tab label="Langues">
+        <mat-tab [label]="'admin.settings.config.tabs.locale' | translate">
           <div class="config-page__tab-content">
+            @if (sectionReadiness('locale'); as status) {
+            <div class="config-page__readiness" [class.config-page__readiness--ready]="status.status === 'READY'">
+              <span class="material-symbols-outlined" aria-hidden="true">{{ status.status === 'READY' ? 'check_circle' : 'warning' }}</span>
+              <span>{{ status.status === 'READY' ? ('admin.settings.config.readiness.ready' | translate) : ('admin.settings.config.readiness.actionRequired' | translate) }}</span>
+              @if (status.blockingReasons.length) { <span>· {{ 'admin.settings.config.readiness.issues' | translate:{ count: status.blockingReasons.length } }}</span> }
+            </div>
+            }
             <tch-admin-section-card
               title="Langues supportées"
               description="Détermine les langues autorisées pour les choix tenant, admin et seller-terminal."

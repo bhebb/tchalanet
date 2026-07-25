@@ -65,7 +65,18 @@
       },
       "config": {
         "title": "Operational parameters",
-        "description": "Locale, communication, documents, and calendar."
+        "description": "Locale, communication, documents, and calendar.",
+        "tabs": {
+          "receipt": "Receipts and printing",
+          "communication": "Ticket delivery",
+          "calendar": "Sales calendar",
+          "locale": "Tenant languages"
+        },
+        "readiness": {
+          "ready": "Ready",
+          "actionRequired": "Action required",
+          "issues": "{{count}} issue(s)"
+        }
       }
     },
     "dashboard": {
