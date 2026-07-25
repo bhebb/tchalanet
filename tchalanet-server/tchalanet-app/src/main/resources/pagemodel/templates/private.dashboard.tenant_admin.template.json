@@ -10,7 +10,7 @@
   "isDefault": true,
   "level": "GLOBAL",
   "tenantId": null,
-  "description": "Tenant admin dashboard V1: KPIs, readiness, alerts and quick actions (dynamic binding, seller_terminal model).",
+  "description": "Tenant admin dashboard V1: KPIs, sales insights and quick actions (dynamic binding, seller_terminal model).",
   "model": {
     "meta": {
       "id": "private.dashboard.tenant_admin",
@@ -47,20 +47,6 @@
               {
                 "span": 12,
                 "widgets": ["dashboard.tenantAdmin.kpis"]
-              }
-            ]
-          },
-          {
-            "id": "readinessAlerts",
-            "labelKey": "layout.dashboard.tenant_admin.readiness_alerts",
-            "columns": [
-              {
-                "span": 6,
-                "widgets": ["dashboard.tenantAdmin.readiness"]
-              },
-              {
-                "span": 6,
-                "widgets": ["dashboard.tenantAdmin.alerts"]
               }
             ]
           },
@@ -143,36 +129,6 @@
                 "tone": "primary",
                 "route": "/app/admin/draws?status=OPEN"
               }
-            ]
-          }
-        },
-        "dashboard.tenantAdmin.readiness": {
-          "type": "ReadinessSummaryWidget",
-          "binding": {
-            "mode": "dynamic",
-            "source": "tenant_admin_dashboard"
-          },
-          "props": {
-            "titleKey": "dashboard.tenant_admin.readiness.title",
-            "feedbackTargets": [
-              "tenant_admin_dashboard.registry",
-              "tenant_admin_dashboard.operations",
-              "tenant_admin_dashboard.commercial"
-            ]
-          }
-        },
-        "dashboard.tenantAdmin.alerts": {
-          "type": "AlertsWidget",
-          "binding": {
-            "mode": "dynamic",
-            "source": "tenant_admin_dashboard"
-          },
-          "props": {
-            "titleKey": "dashboard.tenant_admin.alerts.title",
-            "emptyKey": "dashboard.tenant_admin.alerts.empty",
-            "feedbackTargets": [
-              "tenant_admin_dashboard.closed_draws",
-              "tenant_admin_dashboard.notifications"
             ]
           }
         },

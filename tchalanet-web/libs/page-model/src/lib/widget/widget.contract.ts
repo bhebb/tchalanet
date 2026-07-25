@@ -41,6 +41,7 @@ export interface WidgetAction {
   readonly disabled?: boolean;
   readonly reasonKey?: string | null;
   readonly style?: 'primary' | 'secondary' | 'tertiary' | string;
+  readonly badge?: string | number;
 }
 
 /**
@@ -200,6 +201,9 @@ function mapBackendAction(value: unknown): WidgetAction | undefined {
     disabled: typeof value['disabled'] === 'boolean' ? value['disabled'] : false,
     reasonKey: stringValue(value['reasonKey']) ?? null,
     style: stringValue(value['style']),
+    badge: typeof value['badge'] === 'string' || typeof value['badge'] === 'number'
+      ? value['badge']
+      : undefined,
   };
 }
 

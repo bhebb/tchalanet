@@ -17,9 +17,9 @@ import org.springframework.stereotype.Component;
  *
  * <p>Supported widget ids: - dashboard.tenantAdmin.header - dashboard.tenantAdmin.kpis -
  * dashboard.tenantAdmin.salesTrend - dashboard.tenantAdmin.gameBreakdown -
- * dashboard.tenantAdmin.readiness - dashboard.tenantAdmin.alerts - dashboard.tenantAdmin.operations
- * - dashboard.tenantAdmin.commercial - dashboard.tenantAdmin.commission -
- * dashboard.tenantAdmin.publicContent - dashboard.tenantAdmin.quickActions
+ * dashboard.tenantAdmin.operations - dashboard.tenantAdmin.commercial -
+ * dashboard.tenantAdmin.commission - dashboard.tenantAdmin.publicContent -
+ * dashboard.tenantAdmin.quickActions
  */
 @Component
 @RequiredArgsConstructor
@@ -53,8 +53,6 @@ public class TenantAdminDashboardProvider implements PageModelDynamicProvider {
       case "dashboard.tenantAdmin.kpis" -> payload.kpis();
       case "dashboard.tenantAdmin.salesTrend" -> payload.salesTrend();
       case "dashboard.tenantAdmin.gameBreakdown" -> payload.gameBreakdown();
-      case "dashboard.tenantAdmin.readiness" -> payload.readiness();
-      case "dashboard.tenantAdmin.alerts" -> payload.alerts();
       case "dashboard.tenantAdmin.operations" -> payload.operations();
       case "dashboard.tenantAdmin.commercial" -> payload.commercial();
       case "dashboard.tenantAdmin.commission" -> payload.commission();

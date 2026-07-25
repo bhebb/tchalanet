@@ -5,8 +5,13 @@
       @if (routerPath(action); as path) {
         <a class="qa-card" [routerLink]="path">
           @if (action.icon) {
-            <span class="qa-card__icon material-symbols-outlined" aria-hidden="true">
-              {{ action.icon }}
+            <span class="qa-card__icon-wrap">
+              <span class="qa-card__icon material-symbols-outlined" aria-hidden="true">
+                {{ action.icon }}
+              </span>
+              @if (action.badge != null) {
+                <span class="qa-card__badge">{{ action.badge }}</span>
+              }
             </span>
           }
           <span class="qa-card__label">{{ action.labelKey | tchLabel }}</span>
@@ -14,8 +19,13 @@
       } @else {
         <a class="qa-card" [attr.href]="destinationHref(action.destination)">
           @if (action.icon) {
-            <span class="qa-card__icon material-symbols-outlined" aria-hidden="true">
-              {{ action.icon }}
+            <span class="qa-card__icon-wrap">
+              <span class="qa-card__icon material-symbols-outlined" aria-hidden="true">
+                {{ action.icon }}
+              </span>
+              @if (action.badge != null) {
+                <span class="qa-card__badge">{{ action.badge }}</span>
+              }
             </span>
           }
           <span class="qa-card__label">{{ action.labelKey | tchLabel }}</span>

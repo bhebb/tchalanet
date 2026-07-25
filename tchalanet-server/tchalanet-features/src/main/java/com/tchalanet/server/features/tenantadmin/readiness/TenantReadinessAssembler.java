@@ -5,6 +5,9 @@ import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.core.draw.api.query.DrawSearchCriteria;
 import com.tchalanet.server.core.draw.api.query.ListDrawsQuery;
+import com.tchalanet.server.core.limitpolicy.api.query.LimitScopeQueryRef;
+import com.tchalanet.server.core.limitpolicy.api.query.ListLimitAssignmentsByScopeQuery;
+import com.tchalanet.server.core.limitpolicy.api.query.ListLimitAssignmentsView;
 import com.tchalanet.server.core.promotion.api.query.ListPromotionCampaignsQuery;
 import com.tchalanet.server.core.sellerterminal.api.query.ListSellerTerminalsQuery;
 import com.tchalanet.server.core.sellerterminal.api.query.SellerTerminalSearchCriteria;
@@ -52,9 +55,12 @@ import org.springframework.stereotype.Component;
  * promotions → ListPromotionCampaignsQuery (page size 1) 9. settings → TenantConfigApi settings
  * readiness service 10. subscription → ResolveTenantSubscriptionQuery — READY if ACTIVE/TRIAL,
  * PARTIAL if any other known status, MISSING if none applied. Visible section, not (yet) blocking.
+ * 11. commission → TenantPreContextLookupApi default commission rate. Informational, not blocking.
+ * 12. limits → ListLimitAssignmentsByScopeQuery, READY if at least one assignment is enabled.
+ * Informational, not blocking.
  *
- * <p>Remaining sections (limits, i18n, pageModels) return UNKNOWN until their respective structural
- * check queries are exposed.
+ * <p>Remaining sections (i18n, pageModels) return UNKNOWN until their respective structural check
+ * queries are exposed.
  *
  * <p>Invariants enforced here: - readiness uses the current context/RLS, never a client-supplied
  * tenant id - summary has no KPI fields (salesToday, ticketCountToday, activeSessions, openDraws,
@@ -69,7 +75,8 @@ public class TenantReadinessAssembler {
   private static final Set<String> BLOCKING_SECTIONS =
       Set.of("identity", "address", "games_pricing", "draws", "generated_draws");
 
-  private static final Set<String> NON_ROLLUP_SECTIONS = Set.of("subscription");
+  private static final Set<String> NON_ROLLUP_SECTIONS =
+      Set.of("subscription", "commission", "limits");
 
   /**
    * Required setup steps, grouped to match the admin setup checklist cards
@@ -112,6 +119,8 @@ public class TenantReadinessAssembler {
               "generated_draws", "readiness.section.generated_draws", "/app/admin/draws"),
           new SectionDescriptor("limits", "readiness.section.limits", "/app/admin/limits"),
           new SectionDescriptor(
+              "commission", "readiness.section.commission", "/app/admin/controls/commissions"),
+          new SectionDescriptor(
               "promotions", "readiness.section.promotions", "/app/admin/promotions"),
           new SectionDescriptor("settings", "readiness.section.settings", "/app/admin/settings"),
           new SectionDescriptor(
@@ -140,6 +149,8 @@ public class TenantReadinessAssembler {
     var promotionsStatus = checkPromotions(ctx);
     var settingsReadiness = checkSettings(ctx);
     var subscriptionStatus = checkSubscription(ctx);
+    var commissionStatus = checkCommission(ctx);
+    var limitsStatus = checkLimits(ctx);
 
     List<TenantReadinessSection> sections = new ArrayList<>(SECTIONS.size());
     for (SectionDescriptor d : SECTIONS) {
@@ -230,6 +241,20 @@ public class TenantReadinessAssembler {
             issues.add(
                 new TenantReadinessIssue(
                     "subscription", "readiness.subscription.missing", d.route()));
+          }
+        }
+        case "commission" -> {
+          status = commissionStatus;
+          if (status == TenantReadinessStatus.MISSING) {
+            issues.add(
+                new TenantReadinessIssue(
+                    "commission", "readiness.commission.default_missing", d.route()));
+          }
+        }
+        case "limits" -> {
+          status = limitsStatus;
+          if (status == TenantReadinessStatus.MISSING) {
+            issues.add(new TenantReadinessIssue("limits", "readiness.limits.empty", d.route()));
           }
         }
         default ->
@@ -430,6 +455,38 @@ public class TenantReadinessAssembler {
       return TenantReadinessStatus.PARTIAL;
     } catch (RuntimeException e) {
       log.warn("Failed to check tenant subscription for readiness: {}", e.getMessage(), e);
+    }
+    return TenantReadinessStatus.UNKNOWN;
+  }
+
+  /** Whether the tenant has a default commission rate configured. */
+  private TenantReadinessStatus checkCommission(TchRequestContext ctx) {
+    try {
+      boolean configured =
+          tenantPreContextLookupApi
+              .findById(ctx.tenantIdRequired())
+              .flatMap(v -> v.defaultCommissionRate())
+              .isPresent();
+      return configured ? TenantReadinessStatus.READY : TenantReadinessStatus.MISSING;
+    } catch (RuntimeException e) {
+      log.warn("Failed to check tenant commission for readiness: {}", e.getMessage(), e);
+    }
+    return TenantReadinessStatus.UNKNOWN;
+  }
+
+  /** Whether the tenant has at least one enabled sales limit configured. */
+  private TenantReadinessStatus checkLimits(TchRequestContext ctx) {
+    try {
+      ListLimitAssignmentsView assignments =
+          queryBus.ask(
+              new ListLimitAssignmentsByScopeQuery(
+                  LimitScopeQueryRef.tenant(ctx.tenantIdRequired())));
+      boolean hasEnabled =
+          assignments != null
+              && assignments.items().stream().anyMatch(ListLimitAssignmentsView.Item::enabled);
+      return hasEnabled ? TenantReadinessStatus.READY : TenantReadinessStatus.MISSING;
+    } catch (RuntimeException e) {
+      log.warn("Failed to check tenant limits for readiness: {}", e.getMessage(), e);
     }
     return TenantReadinessStatus.UNKNOWN;
   }

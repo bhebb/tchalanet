@@ -32,16 +32,12 @@ import com.tchalanet.server.core.sellerterminal.api.query.GetSellerTerminalCommi
 import com.tchalanet.server.core.sellerterminal.api.query.ListSellerTerminalsQuery;
 import com.tchalanet.server.core.sellerterminal.api.query.SellerTerminalSearchCriteria;
 import com.tchalanet.server.features.pagemodel.contract.ActionItem;
-import com.tchalanet.server.features.pagemodel.contract.AlertItem;
 import com.tchalanet.server.features.pagemodel.contract.NewsItem;
 import com.tchalanet.server.features.pagemodel.contract.PublicContentPayload;
 import com.tchalanet.server.features.pagemodel.contract.QuickActionsPayload;
 import com.tchalanet.server.features.shared.bff.BffSlicePolicy;
 import com.tchalanet.server.features.shared.bff.BffSlices;
 import com.tchalanet.server.features.tenantadmin.error.TenantAdminErrorCodes;
-import com.tchalanet.server.features.tenantadmin.readiness.model.TenantReadinessIssue;
-import com.tchalanet.server.features.tenantadmin.readiness.model.TenantReadinessStatus;
-import com.tchalanet.server.features.tenantadmin.readiness.model.TenantReadinessSummary;
 import com.tchalanet.server.platform.notification.api.NotificationApi;
 import com.tchalanet.server.platform.notification.api.model.request.GetNotificationSummaryRequest;
 import com.tchalanet.server.platform.notification.api.model.view.NotificationSummaryView;
@@ -217,24 +213,6 @@ public class TenantAdminDashboardPayloadAssembler {
         timing.record("buildSalesTrend", () -> buildSalesTrend(analytics.value()));
     TenantGameBreakdownPayload gameBreakdown =
         timing.record("buildGameBreakdown", () -> buildGameBreakdown(analytics.value()));
-    TenantReadinessSummaryPayload readiness =
-        timing.record(
-            "buildReadiness",
-            () ->
-                buildReadinessSummary(
-                    registry.value(),
-                    ops.value(),
-                    commercial.value(),
-                    commission.value(),
-                    closedDraws.value()));
-    TenantAlertsPayload alerts =
-        timing.record(
-            "buildAlerts",
-            () ->
-                buildAlerts(
-                    notifCount.value(),
-                    ops.value().blockedSellerTerminalCount(),
-                    closedDraws.value()));
     TenantOperationsSummaryPayload operations =
         timing.record("buildOperations", () -> buildOperationsSummary(ops.value()));
     TenantCommercialSummaryPayload commercialSummary =
@@ -248,7 +226,12 @@ public class TenantAdminDashboardPayloadAssembler {
                     "tenant_admin_dashboard.public_content",
                     this::buildPublicContent,
                     PublicContentPayload::empty));
-    QuickActionsPayload quickActions = timing.record("quickActions", this::buildQuickActions);
+    QuickActionsPayload quickActions =
+        timing.record(
+            "quickActions",
+            () ->
+                buildQuickActions(
+                    closedDraws.value(), ops.value().blockedSellerTerminalCount()));
 
     Payload payload =
         new Payload(
@@ -256,8 +239,6 @@ public class TenantAdminDashboardPayloadAssembler {
             kpis,
             salesTrend,
             gameBreakdown,
-            readiness,
-            alerts,
             operations,
             commercialSummary,
             commission.value(),
@@ -503,127 +484,6 @@ public class TenantAdminDashboardPayloadAssembler {
     return new TenantGameBreakdownPayload(items);
   }
 
-  /**
-   * Operational readiness — derived from the loaded bundles. READY when identity present + outlets
-   * + terminals + sellers + (games OR channels) configured. PARTIAL if at least one configured.
-   * MISSING if none. UNKNOWN if no tenant.
-   */
-  private TenantReadinessSummaryPayload buildReadinessSummary(
-      TenantContextLookupView registry,
-      OperationsBundle ops,
-      CommercialBundle commercial,
-      TenantCommissionSummaryPayload commission,
-      long closedDraws) {
-    List<TenantReadinessIssue> issues = new ArrayList<>();
-    int missing = 0;
-
-    if (registry == null) {
-      issues.add(new TenantReadinessIssue("identity", "readiness.identity.missing", "/app/admin"));
-      missing++;
-    }
-    if (ops.sellerTerminalCount() == 0L) {
-      issues.add(
-          new TenantReadinessIssue(
-              "seller_terminals",
-              "readiness.seller_terminals.empty",
-              "/app/admin/seller-terminals"));
-      missing++;
-    }
-    if (commercial.games().isEmpty()) {
-      issues.add(
-          new TenantReadinessIssue(
-              "games_pricing", "readiness.games.empty", "/app/admin/games-pricing"));
-      missing++;
-    }
-    if (commercial.channels().isEmpty()) {
-      issues.add(new TenantReadinessIssue("draws", "readiness.channels.empty", "/app/admin/draws"));
-      missing++;
-    }
-    if (ops.blockedSellerTerminalCount() > 0L) {
-      issues.add(
-          new TenantReadinessIssue(
-              "seller_terminals_blocked",
-              "readiness.seller_terminals.blocked",
-              "/app/admin/seller-terminals?status=BLOCKED"));
-    }
-    if (closedDraws > 0L) {
-      issues.add(
-          new TenantReadinessIssue(
-              "draws_pending_results",
-              "readiness.draws.results_pending",
-              "/app/admin/draws?status=CLOSED"));
-    }
-    if (commission.tenantDefaultRate() == null) {
-      issues.add(
-          new TenantReadinessIssue(
-              "commission",
-              "readiness.commission.default_missing",
-              "/app/admin/controls/commissions"));
-      missing++;
-    }
-    if (commercial.enabledLimitCount() == 0L) {
-      issues.add(new TenantReadinessIssue("limits", "readiness.limits.empty", "/app/admin/limits"));
-      missing++;
-    }
-
-    TenantReadinessStatus status;
-    if (missing == 0) {
-      status = TenantReadinessStatus.READY;
-    } else if (registry == null
-        && ops.sellerTerminalCount() == 0L
-        && commercial.games().isEmpty()
-        && commercial.channels().isEmpty()
-        && commission.tenantDefaultRate() == null
-        && commercial.enabledLimitCount() == 0L) {
-      status = TenantReadinessStatus.MISSING;
-    } else {
-      status = TenantReadinessStatus.PARTIAL;
-    }
-
-    TenantReadinessSummary summary =
-        new TenantReadinessSummary(status, missing, issues.stream().limit(4).toList());
-    List<ReadinessCheckItem> checks =
-        summary.topIssues().stream()
-            .map(
-                issue ->
-                    new ReadinessCheckItem(
-                        issue.section(), issue.messageKey(), "WARNING", null, issue.route()))
-            .toList();
-
-    return new TenantReadinessSummaryPayload(
-        summary.status().name(), summary.missingCount(), checks);
-  }
-
-  private TenantAlertsPayload buildAlerts(
-      long notifCount, long blockedSellerTerminalCount, long closedDraws) {
-    List<AlertItem> items = new ArrayList<>();
-    if (blockedSellerTerminalCount > 0L) {
-      items.add(
-          new AlertItem(
-              "blocked-seller-terminals",
-              "dashboard.tenant_admin.alerts.blocked_seller_terminals",
-              "WARN",
-              "/app/admin/seller-terminals?status=BLOCKED"));
-    }
-    if (closedDraws > 0L) {
-      items.add(
-          new AlertItem(
-              "closed-draws-pending-results",
-              "dashboard.tenant_admin.alerts.closed_draws_pending_results",
-              "WARN",
-              "/app/admin/draws?status=CLOSED"));
-    }
-    if (notifCount > 0) {
-      items.add(
-          new AlertItem(
-              "unread-notifications",
-              "dashboard.tenant_admin.alerts.unread_notifications",
-              "INFO",
-              "/app/admin/company/support"));
-    }
-    return new TenantAlertsPayload((int) Math.min(notifCount, Integer.MAX_VALUE), items);
-  }
-
   private TenantOperationsSummaryPayload buildOperationsSummary(OperationsBundle ops) {
     return new TenantOperationsSummaryPayload(
         new SectionStatus(ops.sellerTerminalCount() == 0L ? "MISSING" : "READY", 0L),
@@ -675,39 +535,56 @@ public class TenantAdminDashboardPayloadAssembler {
         stats.maxRate());
   }
 
-  private QuickActionsPayload buildQuickActions() {
-    return new QuickActionsPayload(
-        List.of(
-            new ActionItem(
-                "ADD_SELLER_TERMINAL",
-                "quickaction.admin.add_seller_terminal",
-                "person_add",
-                "/app/admin/seller-terminals/new"),
-            new ActionItem(
-                "ACTIVE_SELLER_TERMINALS",
-                "quickaction.admin.active_seller_terminals",
-                "point_of_sale",
-                "/app/admin/seller-terminals?status=active"),
-            new ActionItem(
-                "DAILY_REPORT",
-                "quickaction.admin.daily_report",
-                "today",
-                "/app/admin/reports/today"),
-            new ActionItem(
-                "MANAGE_LIMITS",
-                "quickaction.admin.manage_limits",
-                "shield",
-                "/app/admin/controls/limits"),
-            new ActionItem(
-                "MANAGE_PRICING_RULES",
-                "quickaction.admin.manage_odds",
-                "percent",
-                "/app/admin/controls/pricing-rules"),
-            new ActionItem(
-                "MARYAJ_GRATIS",
-                "quickaction.admin.maryaj_gratis",
-                "redeem",
-                "/app/admin/maryaj-gratis#offer")));
+  private QuickActionsPayload buildQuickActions(
+      long closedDraws, long blockedSellerTerminalCount) {
+    List<ActionItem> actions = new ArrayList<>();
+    actions.add(
+        new ActionItem(
+            "ADD_SELLER_TERMINAL",
+            "quickaction.admin.add_seller_terminal",
+            "person_add",
+            "/app/admin/seller-terminals/new"));
+    actions.add(
+        new ActionItem(
+            "ACTIVE_SELLER_TERMINALS",
+            "quickaction.admin.active_seller_terminals",
+            "point_of_sale",
+            "/app/admin/seller-terminals?status=active",
+            blockedSellerTerminalCount > 0L ? blockedSellerTerminalCount : null));
+    if (closedDraws > 0L) {
+      actions.add(
+          new ActionItem(
+              "DRAWS_PENDING_RESULTS",
+              "quickaction.admin.draws_pending_results",
+              "hourglass_top",
+              "/app/admin/draws?status=CLOSED",
+              closedDraws));
+    }
+    actions.add(
+        new ActionItem(
+            "DAILY_REPORT",
+            "quickaction.admin.daily_report",
+            "today",
+            "/app/admin/reports/today"));
+    actions.add(
+        new ActionItem(
+            "MANAGE_LIMITS",
+            "quickaction.admin.manage_limits",
+            "shield",
+            "/app/admin/controls/limits"));
+    actions.add(
+        new ActionItem(
+            "MANAGE_PRICING_RULES",
+            "quickaction.admin.manage_odds",
+            "percent",
+            "/app/admin/controls/pricing-rules"));
+    actions.add(
+        new ActionItem(
+            "MARYAJ_GRATIS",
+            "quickaction.admin.maryaj_gratis",
+            "redeem",
+            "/app/admin/maryaj-gratis#offer"));
+    return new QuickActionsPayload(List.copyOf(actions));
   }
 
   public record Payload(
@@ -715,8 +592,6 @@ public class TenantAdminDashboardPayloadAssembler {
       TenantKpiGridPayload kpis,
       TenantSalesTrendPayload salesTrend,
       TenantGameBreakdownPayload gameBreakdown,
-      TenantReadinessSummaryPayload readiness,
-      TenantAlertsPayload alerts,
       TenantOperationsSummaryPayload operations,
       TenantCommercialSummaryPayload commercial,
       TenantCommissionSummaryPayload commission,
@@ -741,8 +616,6 @@ public class TenantAdminDashboardPayloadAssembler {
               0L),
           new TenantSalesTrendPayload(List.of()),
           new TenantGameBreakdownPayload(List.of()),
-          new TenantReadinessSummaryPayload("UNKNOWN", 0, List.of()),
-          new TenantAlertsPayload(0, List.of()),
           new TenantOperationsSummaryPayload(
               new SectionStatus("UNKNOWN", 0),
               new SectionStatus("UNKNOWN", 0),
@@ -798,14 +671,6 @@ public class TenantAdminDashboardPayloadAssembler {
       long ticketsSold,
       BigDecimal grossSales,
       BigDecimal netRevenue) {}
-
-  public record TenantReadinessSummaryPayload(
-      String status, int missingCount, List<ReadinessCheckItem> checks) {}
-
-  public record ReadinessCheckItem(
-      String code, String labelKey, String status, String message, String path) {}
-
-  public record TenantAlertsPayload(int unreadCount, List<AlertItem> items) {}
 
   /** Explicit state for every independently loaded dashboard section. */
   public record TenantDashboardSectionStatesPayload(List<DashboardSectionState> items) {

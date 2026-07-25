@@ -183,21 +183,6 @@ class TenantAdminDashboardPayloadAssemblerTest {
   }
 
   @Test
-  @DisplayName("readiness is MISSING when every bundle is empty")
-  void readinessMissing() {
-    when(tenantCatalog.findById(tenantId)).thenReturn(Optional.empty());
-    when(queryBus.ask(any(ListSellerTerminalsQuery.class))).thenReturn(emptyPage());
-    when(gameCatalog.listActive()).thenReturn(List.of());
-    when(drawChannelCatalog.listAll(any(), any())).thenReturn(List.of());
-    when(publicContentApi.listTenantAdminDashboardNews(any(int.class))).thenReturn(List.of());
-
-    var payload = assembler.assemble(context(tenantId));
-
-    assertThat(payload.readiness().status()).isEqualTo("MISSING");
-    assertThat(payload.readiness().missingCount()).isEqualTo(6);
-  }
-
-  @Test
   @DisplayName("operations + commercial counts derived from grouped bundles")
   void operationsAndCommercial() {
     when(tenantCatalog.findById(tenantId)).thenReturn(Optional.of(registry()));
