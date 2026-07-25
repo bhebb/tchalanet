@@ -1,6 +1,8 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, input, output, signal } from '@angular/core';
 import { TchCard } from '@tch/ui/components';
 import { GeneratedDrawView, isGeneratedDrawSellableNow } from '../../data-access/admin-generated-draws.models';
+
+export type GeneratedDrawsSummaryKpi = 'today' | 'salesOpen' | 'expected' | 'confirmed';
 
 @Component({
   selector: 'tch-generated-draws-summary',
@@ -16,6 +18,7 @@ export class GeneratedDrawsSummaryComponent {
   readonly draws    = input.required<GeneratedDrawView[]>();
   readonly today    = input<string>('');
   readonly nowMs    = signal(Date.now());
+  readonly kpiSelected = output<GeneratedDrawsSummaryKpi>();
 
   constructor() {
     const timer = globalThis.setInterval(() => this.nowMs.set(Date.now()), 1000);

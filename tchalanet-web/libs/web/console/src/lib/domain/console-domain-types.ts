@@ -144,6 +144,7 @@ export type ConsoleDrawPublicationStatus = typeof CONSOLE_DRAW_PUBLICATION_STATU
 export type ConsoleDrawStatusFilter =
   | 'all'
   | 'PAST'
+  | 'EXPECTED_OR_MISSING'
   | ConsoleDrawStatus
   | ConsoleDrawResultStatus;
 

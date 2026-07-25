@@ -161,6 +161,8 @@ function applyStatusFilter(draws: GeneratedDrawView[], status: string | null | u
         || d.resultStatus === 'EXPECTED'
         || d.resultStatus === 'MISSING'
         || d.resultStatus === 'CONFIRMED';
+      case 'EXPECTED_OR_MISSING':
+        return d.resultStatus === 'EXPECTED' || d.resultStatus === 'MISSING';
       case 'EXPECTED':     return d.resultStatus === 'EXPECTED';
       case 'MISSING':      return d.resultStatus === 'MISSING';
       case 'PROVISIONAL':  return d.resultStatus === 'PROVISIONAL';
@@ -230,14 +232,16 @@ export class AdminGeneratedDrawsApiService {
   }
 
   saveDrawResult(request: SaveDrawResultRequest, options?: TchRequestOptions): Observable<GeneratedDrawView> {
-    const pick3 = request.numbers.join('-');
+    const [n1, n2, n3] = request.numbers;
+    const pick3 = n1;
+    const pick4 = `${n2}${n3}`;
     const observeTrustPolicy = request.mode !== 'confirmed';
     return this.backend
       .post<DrawView>(`/admin/draws/${request.drawId}/manual-result`, {
         recordedBy: null,
         notes: request.note || null,
         pick3,
-        pick4: null,
+        pick4,
         force: request.force ?? false,
         reason: request.force
           ? 'Override manuel super admin'

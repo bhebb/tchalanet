@@ -30,7 +30,10 @@ import {
   DrawStatusFilter,
   SaveDrawResultRequest,
 } from '../../data-access/admin-generated-draws.models';
-import { GeneratedDrawsSummaryComponent } from '../../components/generated-draws-summary/generated-draws-summary.component';
+import {
+  GeneratedDrawsSummaryComponent,
+  GeneratedDrawsSummaryKpi,
+} from '../../components/generated-draws-summary/generated-draws-summary.component';
 import { GeneratedDrawsTableComponent } from '../../components/generated-draws-table/generated-draws-table.component';
 import { AdminDrawLifecycleDialog } from './dialogs/admin-draw-lifecycle.dialog';
 import {
@@ -262,6 +265,32 @@ export class AdminGeneratedDrawsPage {
     this.onStatusFilter(statusFilterFromQuery(status));
   }
 
+  // ── Cartes KPI → filtres ─────────────────────────────────────────────────────
+  onKpiToday(): void {
+    this.onDatePreset('TODAY');
+  }
+
+  onKpiSalesOpen(): void {
+    this.onStatusFilter('OPEN');
+  }
+
+  onKpiExpected(): void {
+    this.onStatusFilter('EXPECTED_OR_MISSING');
+  }
+
+  onKpiConfirmed(): void {
+    this.onStatusFilter('CONFIRMED');
+  }
+
+  onKpiSelected(kpi: GeneratedDrawsSummaryKpi): void {
+    switch (kpi) {
+      case 'today':     this.onKpiToday();     break;
+      case 'salesOpen': this.onKpiSalesOpen(); break;
+      case 'expected':  this.onKpiExpected();  break;
+      case 'confirmed': this.onKpiConfirmed(); break;
+    }
+  }
+
   onSearch(query: string): void {
     this.navigate({ q: query || null, page: null });
   }
@@ -415,6 +444,7 @@ function statusFilterFromQuery(value: string | null): DrawStatusFilter {
     case 'CANCELLED': return 'CANCELLED';
     case 'ARCHIVED': return 'ARCHIVED';
     case 'PAST': return 'PAST';
+    case 'EXPECTED_OR_MISSING': return 'EXPECTED_OR_MISSING';
     case 'NOT_DUE': return 'NOT_DUE';
     case 'EXPECTED': return 'EXPECTED';
     case 'MISSING': return 'MISSING';
