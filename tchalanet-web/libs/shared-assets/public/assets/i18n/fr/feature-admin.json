@@ -134,6 +134,14 @@
           "scopeNotice": "Les jours fériés récurrents appartiennent au tenant et sont sans année. Les exceptions datées se gèrent séparément. Les calendriers provider restent gérés par la plateforme.",
           "saved": "Calendrier de vente enregistré.",
           "exceptions": "Exceptions datées"
+        },
+        "locale": {
+          "title": "Langues du tenant",
+          "description": "Choisissez les langues disponibles pour les administrateurs et seller terminals.",
+          "supported": "Langues supportées",
+          "fallback": "Langue de repli",
+          "notice": "La langue de repli doit faire partie des langues supportées.",
+          "saved": "Paramètres de langue enregistrés."
         }
       }
     },

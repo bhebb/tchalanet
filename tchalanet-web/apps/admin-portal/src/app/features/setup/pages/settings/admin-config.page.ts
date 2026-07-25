@@ -313,10 +313,16 @@ export class AdminConfigPage {
       return;
     }
     const v = this.localeForm.getRawValue();
+    const supportedLanguages = [...new Set(v.supportedLanguages)];
+    const fallbackLanguage = supportedLanguages.includes(v.fallbackLanguage)
+      ? v.fallbackLanguage
+      : supportedLanguages[0] ?? '';
+    this.localeForm.controls.supportedLanguages.setValue(supportedLanguages);
+    this.localeForm.controls.fallbackLanguage.setValue(fallbackLanguage);
     this.saveLocale.execute({
       ...this.lastConfig.locale,
-      supportedLanguages: v.supportedLanguages,
-      fallbackLanguage: v.fallbackLanguage || null,
+      supportedLanguages,
+      fallbackLanguage: fallbackLanguage || null,
     });
   }
 

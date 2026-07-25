@@ -411,12 +411,12 @@
             </div>
             }
             <tch-admin-section-card
-              title="Langues supportées"
-              description="Détermine les langues autorisées pour les choix tenant, admin et seller-terminal."
+              [title]="'admin.settings.config.locale.title' | translate"
+              [description]="'admin.settings.config.locale.description' | translate"
             >
               <form [formGroup]="localeForm" class="config-page__form">
                 <mat-form-field appearance="outline">
-                  <mat-label>Langues supportées</mat-label>
+                  <mat-label>{{ 'admin.settings.config.locale.supported' | translate }}</mat-label>
                   <mat-select formControlName="supportedLanguages" multiple>
                     @for (lang of languages(); track lang.code) {
                     <mat-option [value]="lang.code">{{ lang.label }}</mat-option>
@@ -426,19 +426,27 @@
                 <tch-field-error [control]="localeForm.controls.supportedLanguages" />
 
                 <mat-form-field appearance="outline">
-                  <mat-label>Langue de repli</mat-label>
+                  <mat-label>{{ 'admin.settings.config.locale.fallback' | translate }}</mat-label>
                   <mat-select formControlName="fallbackLanguage">
                     @for (lang of languages(); track lang.code) {
+                    @if (localeForm.controls.supportedLanguages.value.includes(lang.code)) {
                     <mat-option [value]="lang.code">{{ lang.label }}</mat-option>
+                    }
                     }
                   </mat-select>
                 </mat-form-field>
                 <tch-field-error [control]="localeForm.controls.fallbackLanguage" />
 
+                <tch-notice type="info">
+                  {{ 'admin.settings.config.locale.notice' | translate }}
+                </tch-notice>
+
                 @if (saveLocale.feedback(); as feedback) { @if (feedback.kind === 'error') {
                 <tch-notice type="error">{{ feedback.vm?.message }}</tch-notice>
                 } @else {
-                <tch-notice type="success">Paramètres de langue enregistrés.</tch-notice>
+                <tch-notice type="success">
+                  {{ 'admin.settings.config.locale.saved' | translate }}
+                </tch-notice>
                 } }
 
                 <div class="config-page__form-actions">
@@ -455,7 +463,7 @@
                     >
                     } @else {
                     <span class="material-symbols-outlined">save</span>
-                    } Enregistrer
+                    } {{ 'common.save' | translate }}
                   </button>
                 </div>
               </form>

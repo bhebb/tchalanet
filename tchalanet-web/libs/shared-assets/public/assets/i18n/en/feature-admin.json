@@ -134,6 +134,14 @@
           "scopeNotice": "Recurring holidays belong to the tenant and have no year. Dated exceptions are managed separately. Provider calendars remain managed by the platform.",
           "saved": "Sales calendar saved.",
           "exceptions": "Dated exceptions"
+        },
+        "locale": {
+          "title": "Tenant languages",
+          "description": "Choose the languages available to tenant administrators and seller terminals.",
+          "supported": "Supported languages",
+          "fallback": "Fallback language",
+          "notice": "The fallback language must be one of the supported languages.",
+          "saved": "Language settings saved."
         }
       }
     },

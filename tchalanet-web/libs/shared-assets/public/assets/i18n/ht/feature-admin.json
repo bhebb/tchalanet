@@ -676,6 +676,14 @@
           "scopeNotice": "Jou ferye regilye yo se pou tenant la epi yo pa gen ane. Eksepsyon ki gen dat jere apa. Platfòm nan toujou jere kalandriye provider yo.",
           "saved": "Kalandriye vant lan anrejistre.",
           "exceptions": "Eksepsyon ki gen dat"
+        },
+        "locale": {
+          "title": "Lang tenant la",
+          "description": "Chwazi lang administratè tenant yo ak tèminal POS yo kapab itilize.",
+          "supported": "Lang ki disponib",
+          "fallback": "Lang dechanj",
+          "notice": "Lang dechanj la dwe nan lis lang ki disponib yo.",
+          "saved": "Paramèt lang yo anrejistre."
         }
       }
     },
