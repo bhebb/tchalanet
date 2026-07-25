@@ -53,12 +53,14 @@ venv/
 envs/**/.secrets
 **/*firebase-adminsdk*.json
 **/firebase-service-account*.json
-# GCP console downloads service-account keys as <project>-<hash>.json at
-# wherever they're saved, with no "firebase-adminsdk"/"service-account"
-# substring to match on - block anything landing at repo root by location
-# instead (2026-07-23 incident: tchalanet-2805cdfeb410.json).
+# GCP console downloads service-account keys as <project>-<hash>.json, with no
+# "firebase-adminsdk"/"service-account" substring to match on. Block by the
+# project-id-prefixed naming convention anywhere in the tree, not just at repo
+# root (2026-07-23 incident: tchalanet-2805cdfeb410.json landed one directory
+# deeper the second time, in tchalanet-server/, and wasn't caught).
 /*.json
 !/.mcp.json
+**/tchalanet-[0-9a-f][0-9a-f]*.json
 # Signing material and private-key stores — never commit.
 # (Public truststores like *-truststore.jks are intentionally tracked.)
 *.p12
