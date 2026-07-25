@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, ResourceRef, inject } from '@angular/core';
 import { TchBackendClient, TchRequestOptions } from '@tch/api';
 import { Observable } from 'rxjs';
 
@@ -19,6 +19,13 @@ export class RuntimeApiService {
 
   getTenantRuntime(options?: TchRequestOptions): Observable<TenantRuntimeView> {
     return this.backend.get<TenantRuntimeView>('/tenant/runtime', options);
+  }
+
+  tenantRuntimeResource(): ResourceRef<TenantRuntimeView | undefined> {
+    return this.backend.getResource<TenantRuntimeView>(() => ({
+      path: '/tenant/runtime',
+      options: { suppressShellFeedback: true },
+    }));
   }
 
   getPublicTenantRuntime(options?: TchRequestOptions): Observable<TenantRuntimeView> {

@@ -61,7 +61,23 @@
       "quickAccess": "Quick access",
       "runtime": {
         "title": "Runtime",
-        "description": "Tenant execution information."
+        "description": "Read-only reference values used by the tenant runtime.",
+        "identityTitle": "Tenant identity",
+        "regionalTitle": "Regional defaults",
+        "localesTitle": "Supported locales",
+        "actionsTitle": "Related settings",
+        "code": "Code",
+        "name": "Name",
+        "status": "Status",
+        "defaultLanguage": "Default language",
+        "defaultLocale": "Default locale",
+        "timezone": "Timezone",
+        "currency": "Currency",
+        "noLocales": "No supported locale is configured.",
+        "businessDays": "Business days",
+        "games": "Games",
+        "configuration": "Operational parameters",
+        "languages": { "fr": "French", "en": "English", "ht": "Haitian Creole" }
       },
       "config": {
         "title": "Operational parameters",

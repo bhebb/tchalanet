@@ -61,7 +61,23 @@
       "quickAccess": "Accès rapide",
       "runtime": {
         "title": "Runtime",
-        "description": "Informations d’exécution du tenant."
+        "description": "Valeurs de référence en lecture seule utilisées par le runtime du tenant.",
+        "identityTitle": "Identité du tenant",
+        "regionalTitle": "Defaults régionaux",
+        "localesTitle": "Locales supportées",
+        "actionsTitle": "Paramètres associés",
+        "code": "Code",
+        "name": "Nom",
+        "status": "Statut",
+        "defaultLanguage": "Langue par défaut",
+        "defaultLocale": "Locale par défaut",
+        "timezone": "Fuseau horaire",
+        "currency": "Devise",
+        "noLocales": "Aucune locale supportée n’est configurée.",
+        "businessDays": "Jours ouvrables",
+        "games": "Jeux",
+        "configuration": "Paramètres opérationnels",
+        "languages": { "fr": "Français", "en": "Anglais", "ht": "Créole haïtien" }
       },
       "config": {
         "title": "Paramètres opérationnels",

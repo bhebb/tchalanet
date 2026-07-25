@@ -603,7 +603,23 @@
       "quickAccess": "Aksè rapid",
       "runtime": {
         "title": "Runtime",
-        "description": "Enfòmasyon sou ekzekisyon santral la."
+        "description": "Valè referans sèlman yo itilize nan runtime tenant la.",
+        "identityTitle": "Idantite tenant la",
+        "regionalTitle": "Default rejyonal yo",
+        "localesTitle": "Lang ak lokal ki disponib",
+        "actionsTitle": "Paramèt ki gen rapò",
+        "code": "Kòd",
+        "name": "Non",
+        "status": "Estati",
+        "defaultLanguage": "Lang pa default",
+        "defaultLocale": "Lokal pa default",
+        "timezone": "Zòn lè",
+        "currency": "Lajan",
+        "noLocales": "Pa gen lokal ki disponib ki konfigire.",
+        "businessDays": "Jou travay",
+        "games": "Jwèt",
+        "configuration": "Paramèt operasyon yo",
+        "languages": { "fr": "Franse", "en": "Anglè", "ht": "Kreyòl ayisyen" }
       },
       "config": {
         "title": "Paramèt operasyon yo",
