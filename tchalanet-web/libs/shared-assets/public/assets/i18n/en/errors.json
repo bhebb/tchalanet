@@ -48,6 +48,24 @@
         }
       },
       "codes": {
+        "idempotency": {
+          "missing": {
+            "title": "Idempotency key required",
+            "message": "Provide a unique Idempotency-Key and try again."
+          },
+          "payload_mismatch": {
+            "title": "Request key already used",
+            "message": "This idempotency key was used with different data. Start again with a new key."
+          },
+          "in_progress": {
+            "title": "Request in progress",
+            "message": "This action is already being processed. Wait a moment before trying again."
+          },
+          "completed_no_response": {
+            "title": "Response unavailable",
+            "message": "The request was completed, but its response is unavailable. Start again with a new key."
+          }
+        },
         "access": {
           "authentication_required": {
             "title": "Session required",

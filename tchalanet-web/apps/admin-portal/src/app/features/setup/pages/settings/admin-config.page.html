@@ -97,7 +97,11 @@
                   <span class="material-symbols-outlined" aria-hidden="true">description</span>
                   <span>
                     <strong>{{ 'admin.settings.config.receipt.template' | translate }}</strong>
-                    {{ receiptTemplateKey() ?? ('admin.settings.config.receipt.templateDefault' | translate) }}
+                    @if (receiptTemplateLabelKey(); as templateLabelKey) {
+                      {{ templateLabelKey | translate }}
+                    } @else {
+                      {{ 'admin.settings.config.receipt.templateDefault' | translate }}
+                    }
                   </span>
                 </div>
 

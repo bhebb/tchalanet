@@ -651,6 +651,9 @@
           "qrCode": "Montre kòd QR la",
           "template": "Modèl aktif :",
           "templateDefault": "Modèl platfòm pa default",
+          "templateNames": {
+            "ticketReceiptV1": "Resi tikè"
+          },
           "saved": "Konfigirasyon resi a anrejistre."
         },
         "communication": {

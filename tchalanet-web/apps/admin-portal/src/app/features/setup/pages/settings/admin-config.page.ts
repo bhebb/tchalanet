@@ -152,6 +152,14 @@ export class AdminConfigPage {
   readonly receiptTemplateKey = computed(
     () => this.config.value()?.document?.receipt?.defaultTemplateKey ?? null,
   );
+  readonly receiptTemplateLabelKey = computed(() => {
+    switch (this.receiptTemplateKey()) {
+      case 'sales.ticket.receipt.v1':
+        return 'admin.settings.config.receipt.templateNames.ticketReceiptV1';
+      default:
+        return this.receiptTemplateKey();
+    }
+  });
   readonly configError = resourceErrorVm(this.config, 'admin.setup.config');
   readonly configIsEmpty = () => false;
   readonly fromSetup = this.route.snapshot.queryParamMap.get('from') === 'setup';

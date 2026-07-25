@@ -109,6 +109,9 @@
           "qrCode": "Show QR code",
           "template": "Effective template:",
           "templateDefault": "Platform default",
+          "templateNames": {
+            "ticketReceiptV1": "Ticket receipt"
+          },
           "saved": "Receipt configuration saved."
         },
         "communication": {

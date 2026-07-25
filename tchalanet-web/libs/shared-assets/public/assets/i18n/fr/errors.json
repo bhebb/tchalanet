@@ -48,6 +48,24 @@
         }
       },
       "codes": {
+        "idempotency": {
+          "missing": {
+            "title": "Clé d’idempotence requise",
+            "message": "Fournissez une clé Idempotency-Key unique puis réessayez."
+          },
+          "payload_mismatch": {
+            "title": "Clé de requête déjà utilisée",
+            "message": "Cette clé d’idempotence a été utilisée avec des données différentes. Recommencez avec une nouvelle clé."
+          },
+          "in_progress": {
+            "title": "Requête en cours",
+            "message": "Cette action est déjà en cours de traitement. Patientez un moment puis réessayez."
+          },
+          "completed_no_response": {
+            "title": "Réponse indisponible",
+            "message": "La requête est terminée, mais sa réponse est indisponible. Recommencez avec une nouvelle clé."
+          }
+        },
         "access": {
           "authentication_required": {
             "title": "Session requise",
