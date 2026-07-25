@@ -636,6 +636,23 @@
           "template": "Modèl aktif :",
           "templateDefault": "Modèl platfòm pa default",
           "saved": "Konfigirasyon resi a anrejistre."
+        },
+        "communication": {
+          "title": "Livrezon tikè",
+          "description": "Chwazi chanèl ki disponib yo ak moun ki peye frè livrezon an.",
+          "enable": "Aktive chanèl sa a",
+          "amount": "Montan frè a",
+          "currency": "Lajan",
+          "paidBy": {
+            "label": "Moun ki peye",
+            "buyer": "Kliyan",
+            "tenant": "Tenant",
+            "seller": "Tèminal POS"
+          },
+          "sms": { "title": "SMS" },
+          "whatsapp": { "title": "WhatsApp" },
+          "email": { "title": "Imèl" },
+          "saved": "Paramèt livrezon yo anrejistre."
         }
       }
     },

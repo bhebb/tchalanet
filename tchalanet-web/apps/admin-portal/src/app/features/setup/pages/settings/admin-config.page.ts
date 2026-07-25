@@ -55,9 +55,9 @@ const WEEKDAYS = [
 ] as const;
 
 const PAID_BY = [
-  { code: 'BUYER', label: 'Client' },
-  { code: 'TENANT', label: 'Tenant' },
-  { code: 'SELLER', label: 'Seller-terminal' },
+  { code: 'BUYER', labelKey: 'admin.settings.config.communication.paidBy.buyer' },
+  { code: 'TENANT', labelKey: 'admin.settings.config.communication.paidBy.tenant' },
+  { code: 'SELLER', labelKey: 'admin.settings.config.communication.paidBy.seller' },
 ] as const;
 
 const LOCALE_FIELD_TARGETS: Record<string, string> = {

@@ -94,6 +94,23 @@
           "template": "Template effectif :",
           "templateDefault": "Template plateforme par défaut",
           "saved": "Configuration des reçus enregistrée."
+        },
+        "communication": {
+          "title": "Livraison des tickets",
+          "description": "Choisissez les canaux disponibles et le payeur des frais de livraison.",
+          "enable": "Activer ce canal",
+          "amount": "Montant des frais",
+          "currency": "Devise",
+          "paidBy": {
+            "label": "Payé par",
+            "buyer": "Client",
+            "tenant": "Tenant",
+            "seller": "Seller-terminal"
+          },
+          "sms": { "title": "SMS" },
+          "whatsapp": { "title": "WhatsApp" },
+          "email": { "title": "Email" },
+          "saved": "Paramètres de livraison enregistrés."
         }
       }
     },

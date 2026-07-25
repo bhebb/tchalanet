@@ -94,6 +94,23 @@
           "template": "Effective template:",
           "templateDefault": "Platform default",
           "saved": "Receipt configuration saved."
+        },
+        "communication": {
+          "title": "Ticket delivery",
+          "description": "Choose which delivery channels are available and who pays the delivery fee.",
+          "enable": "Enable this channel",
+          "amount": "Fee amount",
+          "currency": "Currency",
+          "paidBy": {
+            "label": "Paid by",
+            "buyer": "Buyer",
+            "tenant": "Tenant",
+            "seller": "Seller terminal"
+          },
+          "sms": { "title": "SMS" },
+          "whatsapp": { "title": "WhatsApp" },
+          "email": { "title": "Email" },
+          "saved": "Ticket delivery settings saved."
         }
       }
     },

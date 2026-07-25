@@ -141,20 +141,22 @@
             </div>
             }
             <tch-admin-section-card
-              title="Options d'envoi"
-              description="Configurez les frais de livraison des billets par canal."
+              [title]="'admin.settings.config.communication.title' | translate"
+              [description]="'admin.settings.config.communication.description' | translate"
             >
               <form [formGroup]="communicationForm" class="config-page__form">
                 <section class="config-page__channel">
-                  <h3>SMS</h3>
-                  <mat-checkbox formControlName="smsEnabled">Activer SMS</mat-checkbox>
+                  <h3>{{ 'admin.settings.config.communication.sms.title' | translate }}</h3>
+                  <mat-checkbox formControlName="smsEnabled">
+                    {{ 'admin.settings.config.communication.enable' | translate }}
+                  </mat-checkbox>
                   <div class="config-page__channel-fields">
                     <mat-form-field appearance="outline">
-                      <mat-label>Montant</mat-label>
+                      <mat-label>{{ 'admin.settings.config.communication.amount' | translate }}</mat-label>
                       <input matInput type="number" min="0" formControlName="smsAmount" [disabled]="!communicationForm.controls.smsEnabled.value" />
                     </mat-form-field>
                     <mat-form-field appearance="outline">
-                      <mat-label>Devise</mat-label>
+                      <mat-label>{{ 'admin.settings.config.communication.currency' | translate }}</mat-label>
                       <mat-select formControlName="smsCurrency" [disabled]="!communicationForm.controls.smsEnabled.value">
                         @for (currency of currencies(); track currency.code) {
                         <mat-option [value]="currency.code">{{ currency.label }}</mat-option>
@@ -162,10 +164,10 @@
                       </mat-select>
                     </mat-form-field>
                     <mat-form-field appearance="outline">
-                      <mat-label>Payé par</mat-label>
+                      <mat-label>{{ 'admin.settings.config.communication.paidBy.label' | translate }}</mat-label>
                       <mat-select formControlName="smsPaidBy" [disabled]="!communicationForm.controls.smsEnabled.value">
                         @for (option of paidByOptions; track option.code) {
-                        <mat-option [value]="option.code">{{ option.label }}</mat-option>
+                        <mat-option [value]="option.code">{{ option.labelKey | translate }}</mat-option>
                         }
                       </mat-select>
                     </mat-form-field>
@@ -173,15 +175,17 @@
                 </section>
 
                 <section class="config-page__channel">
-                  <h3>WhatsApp</h3>
-                  <mat-checkbox formControlName="whatsappEnabled">Activer WhatsApp</mat-checkbox>
+                  <h3>{{ 'admin.settings.config.communication.whatsapp.title' | translate }}</h3>
+                  <mat-checkbox formControlName="whatsappEnabled">
+                    {{ 'admin.settings.config.communication.enable' | translate }}
+                  </mat-checkbox>
                   <div class="config-page__channel-fields">
                     <mat-form-field appearance="outline">
-                      <mat-label>Montant</mat-label>
+                      <mat-label>{{ 'admin.settings.config.communication.amount' | translate }}</mat-label>
                       <input matInput type="number" min="0" formControlName="whatsappAmount" [disabled]="!communicationForm.controls.whatsappEnabled.value" />
                     </mat-form-field>
                     <mat-form-field appearance="outline">
-                      <mat-label>Devise</mat-label>
+                      <mat-label>{{ 'admin.settings.config.communication.currency' | translate }}</mat-label>
                       <mat-select formControlName="whatsappCurrency" [disabled]="!communicationForm.controls.whatsappEnabled.value">
                         @for (currency of currencies(); track currency.code) {
                         <mat-option [value]="currency.code">{{ currency.label }}</mat-option>
@@ -189,10 +193,10 @@
                       </mat-select>
                     </mat-form-field>
                     <mat-form-field appearance="outline">
-                      <mat-label>Payé par</mat-label>
+                      <mat-label>{{ 'admin.settings.config.communication.paidBy.label' | translate }}</mat-label>
                       <mat-select formControlName="whatsappPaidBy" [disabled]="!communicationForm.controls.whatsappEnabled.value">
                         @for (option of paidByOptions; track option.code) {
-                        <mat-option [value]="option.code">{{ option.label }}</mat-option>
+                        <mat-option [value]="option.code">{{ option.labelKey | translate }}</mat-option>
                         }
                       </mat-select>
                     </mat-form-field>
@@ -200,15 +204,17 @@
                 </section>
 
                 <section class="config-page__channel">
-                  <h3>Email</h3>
-                  <mat-checkbox formControlName="emailEnabled">Activer email</mat-checkbox>
+                  <h3>{{ 'admin.settings.config.communication.email.title' | translate }}</h3>
+                  <mat-checkbox formControlName="emailEnabled">
+                    {{ 'admin.settings.config.communication.enable' | translate }}
+                  </mat-checkbox>
                   <div class="config-page__channel-fields">
                     <mat-form-field appearance="outline">
-                      <mat-label>Montant</mat-label>
+                      <mat-label>{{ 'admin.settings.config.communication.amount' | translate }}</mat-label>
                       <input matInput type="number" min="0" formControlName="emailAmount" [disabled]="!communicationForm.controls.emailEnabled.value" />
                     </mat-form-field>
                     <mat-form-field appearance="outline">
-                      <mat-label>Devise</mat-label>
+                      <mat-label>{{ 'admin.settings.config.communication.currency' | translate }}</mat-label>
                       <mat-select formControlName="emailCurrency" [disabled]="!communicationForm.controls.emailEnabled.value">
                         @for (currency of currencies(); track currency.code) {
                         <mat-option [value]="currency.code">{{ currency.label }}</mat-option>
@@ -216,10 +222,10 @@
                       </mat-select>
                     </mat-form-field>
                     <mat-form-field appearance="outline">
-                      <mat-label>Payé par</mat-label>
+                      <mat-label>{{ 'admin.settings.config.communication.paidBy.label' | translate }}</mat-label>
                       <mat-select formControlName="emailPaidBy" [disabled]="!communicationForm.controls.emailEnabled.value">
                         @for (option of paidByOptions; track option.code) {
-                        <mat-option [value]="option.code">{{ option.label }}</mat-option>
+                        <mat-option [value]="option.code">{{ option.labelKey | translate }}</mat-option>
                         }
                       </mat-select>
                     </mat-form-field>
@@ -229,7 +235,9 @@
                 @if (saveCommunication.feedback(); as feedback) { @if (feedback.kind === 'error') {
                 <tch-notice type="error">{{ feedback.vm?.message }}</tch-notice>
                 } @else {
-                <tch-notice type="success">Options d'envoi enregistrées.</tch-notice>
+                <tch-notice type="success">
+                  {{ 'admin.settings.config.communication.saved' | translate }}
+                </tch-notice>
                 } }
 
                 <div class="config-page__form-actions">
@@ -246,7 +254,7 @@
                     >
                     } @else {
                     <span class="material-symbols-outlined">save</span>
-                    } Enregistrer
+                    } {{ 'common.save' | translate }}
                   </button>
                 </div>
               </form>
