@@ -42,6 +42,7 @@ import {
 } from '../../data-access/tenant-parameters-api.service';
 
 const PAPER_SIZES = ['RECEIPT_58MM', 'RECEIPT_80MM', 'A4'] as const;
+const DEFAULT_TENANT_CURRENCY = 'HTG';
 
 const WEEKDAYS = [
   { code: 'MONDAY', label: 'Lundi' },
@@ -141,7 +142,6 @@ export class AdminConfigPage {
 
   readonly languages = this.runtimeSettings.tenantLanguageOptions;
   readonly currencies = this.runtimeSettings.tenantCurrencyOptions;
-  readonly defaultCurrency = computed(() => this.runtimeSettings.tenantCurrency());
   readonly paperSizes = PAPER_SIZES;
   readonly weekdays = WEEKDAYS;
   readonly paidByOptions = PAID_BY;
@@ -175,7 +175,10 @@ export class AdminConfigPage {
   readonly receiptForm = this.fb.group({
     enabled: new FormControl<boolean>(true, { nonNullable: true }),
     headerMessage: new FormControl<string>('', { nonNullable: true }),
-    footerMessage: new FormControl<string>('', { nonNullable: true }),
+    footerMessage: new FormControl<string>(
+      this.translate.instant('admin.settings.config.receipt.footerDefault'),
+      { nonNullable: true },
+    ),
     defaultPaperSize: new FormControl<string>('RECEIPT_80MM', { nonNullable: true }),
     showQrCode: new FormControl<boolean>(true, { nonNullable: true }),
   });
@@ -183,15 +186,15 @@ export class AdminConfigPage {
   readonly communicationForm = this.fb.group({
     smsEnabled: new FormControl<boolean>(false, { nonNullable: true }),
     smsAmount: new FormControl<number | null>(5, { validators: [Validators.min(0)] }),
-    smsCurrency: new FormControl<string>(this.defaultCurrency(), { nonNullable: true }),
+    smsCurrency: new FormControl<string>(DEFAULT_TENANT_CURRENCY, { nonNullable: true }),
     smsPaidBy: new FormControl<string>('BUYER', { nonNullable: true }),
     whatsappEnabled: new FormControl<boolean>(false, { nonNullable: true }),
     whatsappAmount: new FormControl<number | null>(5, { validators: [Validators.min(0)] }),
-    whatsappCurrency: new FormControl<string>(this.defaultCurrency(), { nonNullable: true }),
+    whatsappCurrency: new FormControl<string>(DEFAULT_TENANT_CURRENCY, { nonNullable: true }),
     whatsappPaidBy: new FormControl<string>('BUYER', { nonNullable: true }),
     emailEnabled: new FormControl<boolean>(false, { nonNullable: true }),
     emailAmount: new FormControl<number | null>(0, { validators: [Validators.min(0)] }),
-    emailCurrency: new FormControl<string>(this.defaultCurrency(), { nonNullable: true }),
+    emailCurrency: new FormControl<string>(DEFAULT_TENANT_CURRENCY, { nonNullable: true }),
     emailPaidBy: new FormControl<string>('TENANT', { nonNullable: true }),
   });
 
@@ -424,7 +427,8 @@ export class AdminConfigPage {
     this.receiptForm.patchValue({
       enabled: r.enabled ?? true,
       headerMessage: r.headerMessage ?? '',
-      footerMessage: r.footerMessage ?? '',
+      footerMessage:
+        r.footerMessage ?? this.translate.instant('admin.settings.config.receipt.footerDefault'),
       defaultPaperSize: r.defaultPaperSize ?? 'RECEIPT_80MM',
       showQrCode: r.showQrCode ?? true,
     });
@@ -436,15 +440,15 @@ export class AdminConfigPage {
     this.communicationForm.patchValue({
       smsEnabled: delivery.sms?.enabled ?? false,
       smsAmount: delivery.sms?.amount ?? null,
-      smsCurrency: delivery.sms?.currency ?? this.defaultCurrency(),
+      smsCurrency: delivery.sms?.currency ?? DEFAULT_TENANT_CURRENCY,
       smsPaidBy: delivery.sms?.paidBy ?? 'BUYER',
       whatsappEnabled: delivery.whatsapp?.enabled ?? false,
       whatsappAmount: delivery.whatsapp?.amount ?? null,
-      whatsappCurrency: delivery.whatsapp?.currency ?? this.defaultCurrency(),
+      whatsappCurrency: delivery.whatsapp?.currency ?? DEFAULT_TENANT_CURRENCY,
       whatsappPaidBy: delivery.whatsapp?.paidBy ?? 'BUYER',
       emailEnabled: delivery.email?.enabled ?? false,
       emailAmount: delivery.email?.amount ?? null,
-      emailCurrency: delivery.email?.currency ?? this.defaultCurrency(),
+      emailCurrency: delivery.email?.currency ?? DEFAULT_TENANT_CURRENCY,
       emailPaidBy: delivery.email?.paidBy ?? 'TENANT',
     });
   }
@@ -470,7 +474,7 @@ export class AdminConfigPage {
       ? {
           enabled,
           amount: amount ?? 0,
-          currency: currency || this.defaultCurrency(),
+          currency: currency || DEFAULT_TENANT_CURRENCY,
           paidBy: paidBy || 'BUYER',
         }
       : { enabled };

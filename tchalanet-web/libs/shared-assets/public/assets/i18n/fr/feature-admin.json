@@ -86,6 +86,7 @@
           "headerHint": "Message facultatif imprimé au-dessus des détails du ticket.",
           "footer": "Message de pied de page",
           "footerPlaceholder": "Bonne chance !",
+          "footerDefault": "Bonne chance !",
           "footerHint": "Message facultatif imprimé sous les détails du ticket.",
           "paperSize": "Format de papier",
           "paperSizeHint": "Format utilisé par défaut pour les reçus imprimés.",

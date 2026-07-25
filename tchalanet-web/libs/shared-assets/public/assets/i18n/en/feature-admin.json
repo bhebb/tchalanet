@@ -86,6 +86,7 @@
           "headerHint": "Optional message printed above the ticket details.",
           "footer": "Footer message",
           "footerPlaceholder": "Good luck!",
+          "footerDefault": "Good luck!",
           "footerHint": "Optional message printed below the ticket details.",
           "paperSize": "Paper size",
           "paperSizeHint": "The default paper format for printed receipts.",
