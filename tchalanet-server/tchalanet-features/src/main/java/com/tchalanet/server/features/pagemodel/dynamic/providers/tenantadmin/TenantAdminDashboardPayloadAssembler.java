@@ -544,7 +544,7 @@ public class TenantAdminDashboardPayloadAssembler {
           new TenantReadinessIssue(
               "seller_terminals_blocked",
               "readiness.seller_terminals.blocked",
-              "/app/admin/sellers?status=BLOCKED"));
+              "/app/admin/seller-terminals?status=BLOCKED"));
     }
     if (closedDraws > 0L) {
       issues.add(
@@ -603,7 +603,7 @@ public class TenantAdminDashboardPayloadAssembler {
               "blocked-seller-terminals",
               "dashboard.tenant_admin.alerts.blocked_seller_terminals",
               "WARN",
-              "/app/admin/sellers?status=BLOCKED"));
+              "/app/admin/seller-terminals?status=BLOCKED"));
     }
     if (closedDraws > 0L) {
       items.add(
@@ -682,12 +682,12 @@ public class TenantAdminDashboardPayloadAssembler {
                 "ADD_SELLER_TERMINAL",
                 "quickaction.admin.add_seller_terminal",
                 "person_add",
-                "/app/admin/sellers/new"),
+                "/app/admin/seller-terminals/new"),
             new ActionItem(
                 "ACTIVE_SELLER_TERMINALS",
                 "quickaction.admin.active_seller_terminals",
                 "point_of_sale",
-                "/app/admin/sellers?status=active"),
+                "/app/admin/seller-terminals?status=active"),
             new ActionItem(
                 "DAILY_REPORT",
                 "quickaction.admin.daily_report",

@@ -156,7 +156,7 @@
               {
                 "id": "sellers-list",
                 "label_key": "nav.admin.sellers_list",
-                "path": "/app/admin/sellers",
+                "path": "/app/admin/seller-terminals",
                 "kind": "internal",
                 "icon": "list",
                 "active_match": "exact"
@@ -164,14 +164,14 @@
               {
                 "id": "sellers-new",
                 "label_key": "nav.admin.sellers_new",
-                "path": "/app/admin/sellers/new",
+                "path": "/app/admin/seller-terminals/new",
                 "kind": "internal",
                 "icon": "add_circle"
               },
               {
                 "id": "sellers-commissions",
                 "label_key": "nav.admin.controls_commissions",
-                "path": "/app/admin/sellers/commissions",
+                "path": "/app/admin/seller-terminals/commissions",
                 "kind": "internal",
                 "icon": "percent"
               }
@@ -435,7 +435,7 @@
             "id": "help",
             "label_key": "nav.admin.help",
             "icon": "help_outline",
-            "path": "http://localhost:8000/02-functional/guides/operator-admin-guide/",
+            "path": "https://docs.tchalanet.com/administrateurs/",
             "kind": "url"
           }
         ]
