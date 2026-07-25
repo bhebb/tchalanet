@@ -7,6 +7,8 @@ import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.api.ApiStatus;
 import com.tchalanet.server.common.web.api.NoticeKind;
 import com.tchalanet.server.common.web.api.NoticeSeverity;
+import com.tchalanet.server.common.web.api.ServiceHealth;
+import com.tchalanet.server.common.web.api.ServiceStatus;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -130,6 +132,24 @@ class ApiResponseBodyAdviceTest {
         (ApiResponse<?>) invokeAdvice(ApiResponse.partial("payload", List.of(), List.of()));
 
     assertThat(result.status()).isEqualTo(ApiStatus.PARTIAL);
+  }
+
+  @Test
+  void degradedServiceWithCompleteDataIsWarningNotPartial() {
+    ApiResponseContext.get()
+        .addServiceStatus(new ServiceStatus("printing", ServiceHealth.DEGRADED, null));
+
+    var result = (ApiResponse<?>) invokeAdvice("payload");
+
+    assertThat(result.status()).isEqualTo(ApiStatus.SUCCESS_WITH_WARNINGS);
+    assertThat(result.data()).isEqualTo("payload");
+    assertThat(result.services())
+        .singleElement()
+        .satisfies(
+            service -> {
+              assertThat(service.service()).isEqualTo("printing");
+              assertThat(service.status()).isEqualTo(ServiceHealth.DEGRADED);
+            });
   }
 
   @Test

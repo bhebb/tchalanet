@@ -1,5 +1,8 @@
 # Tasks
 
+> Archived: superseded by `openspec/changes/error-contract-bff-web-v1`.
+> Do not use this checklist for new implementation work.
+
 - [ ] Implement/complete `ApiResponseContext`.
 - [ ] Add cleanup filter that clears ThreadLocal in finally.
 - [ ] Implement `ApiStatusResolver`.

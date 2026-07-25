@@ -7,6 +7,7 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.features.ops.batch.model.OpsJobLaunchItem;
 import com.tchalanet.server.features.ops.batch.model.OpsLaunchResponse;
+import com.tchalanet.server.features.ops.error.OpsErrorCodes;
 import com.tchalanet.server.platform.tenant.api.TenantPreContextLookupApi;
 import com.tchalanet.server.platform.tenant.api.model.TenantContextLookupView;
 import java.util.ArrayList;
@@ -47,11 +48,11 @@ public class OpsBatchLaunchFacade {
       Function<TenantId, Map<String, String>> paramsFactory) {
     var tenants = resolveTargetTenants(tenantCodes);
     if (tenants.size() > maxTenantsPerInteractiveLaunch) {
-      throw ProblemRest.badRequest(
-          "too many tenants for interactive launch: "
-              + tenants.size()
-              + " > "
-              + maxTenantsPerInteractiveLaunch);
+      throw ProblemRest.of(
+          OpsErrorCodes.BATCH_TOO_MANY_TENANTS,
+          Map.of(
+              "requestedTenants", tenants.size(),
+              "maxTenants", maxTenantsPerInteractiveLaunch));
     }
 
     var launches = new ArrayList<OpsJobLaunchItem>(tenants.size());
@@ -86,7 +87,7 @@ public class OpsBatchLaunchFacade {
                 tenantPreContextLookupApi
                     .findByCode(code.trim().toLowerCase())
                     .map(TenantContextLookupView::tenantId)
-                    .orElseThrow(() -> ProblemRest.badRequest("Unknown tenant code: " + code)))
+                    .orElseThrow(() -> ProblemRest.of(OpsErrorCodes.BATCH_UNKNOWN_TENANT_CODE)))
         .toList();
   }
 

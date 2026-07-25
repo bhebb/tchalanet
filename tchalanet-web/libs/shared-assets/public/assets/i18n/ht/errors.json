@@ -18,6 +18,10 @@
           "title": "Enfomasyon pou korije",
           "message": "Verifye chan yo epi eseye anko."
         },
+        "business_rule": {
+          "title": "Aksyon pa disponib",
+          "message": "Verifye demann nan epi eseye ankò."
+        },
         "not_found": {
           "title": "Eleman pa jwenn",
           "message": "Resous ou mande a pa disponib anko."

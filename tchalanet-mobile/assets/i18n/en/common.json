@@ -15,6 +15,25 @@
       "auth_required": "Sign in again to continue.",
       "unknown": "An unexpected error occurred"
     },
+    "errors": {
+      "categories": {
+        "access_denied": { "message": "Your account cannot perform this action." },
+        "validation": { "message": "Check the information and try again." },
+        "business_rule": { "message": "Review the request and try again." },
+        "service_unavailable": { "message": "Part of the service is temporarily unavailable." }
+      },
+      "codes": {
+        "access": {
+          "denied": { "message": "Your account cannot perform this action." }
+        },
+        "validation": {
+          "failed": { "message": "Check the information and try again." }
+        },
+        "sales": {
+          "draw_closed": { "message": "Sales are closed for this draw. Choose another open draw." }
+        }
+      }
+    },
     "preparation": {
       "total": "Total due",
       "maryaj_free": "Free Maryaj",

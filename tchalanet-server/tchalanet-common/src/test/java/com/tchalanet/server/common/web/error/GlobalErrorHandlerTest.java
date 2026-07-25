@@ -33,7 +33,12 @@ class GlobalErrorHandlerTest {
 
     var problem = response.getBody();
     assertThat(problem).isNotNull();
-    assertThat(problem.getDetail()).isEqualTo("Validation failed");
+    assertThat(problem.getDetail()).isEqualTo("Request could not be completed");
+    assertThat(problem.getProperties())
+        .containsEntry("code", CommonErrorCodes.VALIDATION_FAILED)
+        .containsEntry("category", "validation")
+        .containsEntry("retryPolicy", "AFTER_USER_ACTION")
+        .containsEntry("retryable", true);
     assertThat(problem.getProperties()).doesNotContainKey("errors");
     assertThat(problem.getProperties().toString()).doesNotContain("email must include");
 
@@ -56,7 +61,12 @@ class GlobalErrorHandlerTest {
 
     var problem = response.getBody();
     assertThat(problem).isNotNull();
-    assertThat(problem.getDetail()).isEqualTo("Malformed request body");
+    assertThat(problem.getDetail()).isEqualTo("Request could not be completed");
+    assertThat(problem.getProperties())
+        .containsEntry("code", CommonErrorCodes.REQUEST_NOT_READABLE)
+        .containsEntry("category", "validation")
+        .containsEntry("retryPolicy", "AFTER_USER_ACTION")
+        .containsEntry("retryable", true);
     assertThat(problem.getProperties().toString()).doesNotContain("secret");
     assertThat(problem.getProperties()).doesNotContainKey("cause");
   }
@@ -72,6 +82,11 @@ class GlobalErrorHandlerTest {
     assertThat(problem).isNotNull();
     assertThat(response.getStatusCode())
         .isEqualTo(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR);
+    assertThat(problem.getProperties())
+        .containsEntry("code", CommonErrorCodes.INTERNAL_UNEXPECTED)
+        .containsEntry("category", "unexpected")
+        .containsEntry("retryPolicy", "AFTER_DELAY")
+        .containsEntry("retryable", true);
     assertThat(problem.getDetail()).doesNotContain("123456");
     assertThat(problem.getProperties().toString()).doesNotContain("IllegalStateException");
     assertThat(problem.getProperties()).doesNotContainKey("cause");
@@ -137,6 +152,10 @@ class GlobalErrorHandlerTest {
     var problem = response.getBody();
     assertThat(problem).isNotNull();
     assertThat(problem.getProperties()).containsEntry("code", CommonErrorCodes.ACCESS_DENIED);
+    assertThat(problem.getProperties())
+        .containsEntry("category", "access_denied")
+        .containsEntry("retryPolicy", "NEVER")
+        .containsEntry("retryable", false);
     assertThat(problem.toString())
         .doesNotContain("private-tenant")
         .doesNotContain("results.override");
@@ -152,6 +171,10 @@ class GlobalErrorHandlerTest {
     var problem = response.getBody();
     assertThat(problem).isNotNull();
     assertThat(problem.getProperties()).containsEntry("code", CommonErrorCodes.RESOURCE_NOT_FOUND);
+    assertThat(problem.getProperties())
+        .containsEntry("category", "not_found")
+        .containsEntry("retryPolicy", "NEVER")
+        .containsEntry("retryable", false);
     assertThat(problem.toString()).doesNotContain("private-tenant").doesNotContain("secret_pin");
   }
 
@@ -163,7 +186,12 @@ class GlobalErrorHandlerTest {
 
     var problem = response.getBody();
     assertThat(problem).isNotNull();
-    assertThat(problem.getDetail()).isEqualTo("Missing request parameter");
+    assertThat(problem.getDetail()).isEqualTo("Request could not be completed");
+    assertThat(problem.getProperties())
+        .containsEntry("code", CommonErrorCodes.REQUEST_MISSING_PARAMETER)
+        .containsEntry("category", "validation")
+        .containsEntry("retryPolicy", "AFTER_USER_ACTION")
+        .containsEntry("retryable", true);
     assertThat(violations(problem.getProperties().get("violations")))
         .containsExactly(
             Map.of(

@@ -6,8 +6,8 @@ import java.util.List;
  * Setup progression and CTA gate returned inside {@code GET /admin/overview}.
  *
  * <p>{@code canCreateSellerTerminal} is the authoritative backend gate: identity + address +
- * games_pricing + draws must all be non-MISSING. UNKNOWN sections (checks not yet wired) do not
- * block.
+ * games_pricing + draws + generated_draws must all be non-MISSING. UNKNOWN sections (checks not
+ * yet wired) do not block.
  */
 public record TenantSetupView(
     int totalSteps,

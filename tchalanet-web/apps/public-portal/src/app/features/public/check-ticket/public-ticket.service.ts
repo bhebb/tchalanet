@@ -61,8 +61,8 @@ export interface VerifyTicketDraw {
   readonly resultSlotKey?: string | null;
   readonly provider?: string | null;
   readonly timezone?: string | null;
-  readonly drawDate: string;        // "2026-06-04"
-  readonly scheduledAt: string;     // ISO
+  readonly drawDate: string; // "2026-06-04"
+  readonly scheduledAt: string; // ISO
 }
 
 export interface VerifyTicketOutlet {
@@ -105,16 +105,29 @@ export interface PublicTicketVerificationResponse {
 export function mapBackendStatus(raw: string | undefined): VerificationStatus {
   if (!raw) return 'SERVICE_UNAVAILABLE';
   switch (raw) {
-    case 'AWAITING_RESULT': return 'PENDING_RESULT';
-    case 'WINNING_PAYABLE': return 'WINNING_PAYABLE';
-    case 'WINNING_PAID':    return 'WINNING_PAID';
-    case 'LOST':            return 'LOST';
-    case 'CANCELLED':       return 'CANCELLED';
-    case 'EXPIRED':         return 'EXPIRED';
-    case 'BLOCKED':         return 'BLOCKED';
-    case 'NOT_FOUND':       return 'NOT_FOUND';
-    default:                return 'SERVICE_UNAVAILABLE';
+    case 'AWAITING_RESULT':
+      return 'PENDING_RESULT';
+    case 'WINNING_PAYABLE':
+      return 'WINNING_PAYABLE';
+    case 'WINNING_PAID':
+      return 'WINNING_PAID';
+    case 'LOST':
+      return 'LOST';
+    case 'CANCELLED':
+      return 'CANCELLED';
+    case 'EXPIRED':
+      return 'EXPIRED';
+    case 'BLOCKED':
+      return 'BLOCKED';
+    case 'NOT_FOUND':
+      return 'NOT_FOUND';
+    default:
+      return 'SERVICE_UNAVAILABLE';
   }
+}
+
+export function mapPublicTicketProblemStatus(problem: Partial<ProblemDetail>): VerificationStatus {
+  return problem.status === 404 || problem.status === 400 ? 'NOT_FOUND' : 'SERVICE_UNAVAILABLE';
 }
 
 // ── Service ───────────────────────────────────────────────────────────────────
@@ -144,9 +157,7 @@ export class PublicTicketVerificationApi {
         })),
         catchError((err: unknown) => {
           const problem = err as Partial<ProblemDetail>;
-          const status: VerificationStatus =
-            problem.status === 404 || problem.status === 400 ? 'NOT_FOUND' : 'SERVICE_UNAVAILABLE';
-          return of({ status, data: null });
+          return of({ status: mapPublicTicketProblemStatus(problem), data: null });
         }),
       );
   }

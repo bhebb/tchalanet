@@ -1,6 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpHeaders } from '@angular/common/http';
 import {
+  ApiNotice,
+  ApiResponse,
   TchBackendClient,
   TchPage,
   TchRequestOptions,
@@ -320,11 +322,10 @@ export class PosSaleApiService {
             currency: r.currency,
             freeLineCount,
             notices: response.notices.map(notice =>
-              webAppErrorFromNotice(
+              webAppErrorFromPosNotice(
                 notice,
                 response.trace,
                 'admin.sellerTerminal.pos.preparation',
-                'section',
               ),
             ),
             canSell: r.status === 'DRAFT',
@@ -368,11 +369,10 @@ export class PosSaleApiService {
             actionAvailability: actionAvailability(sale?.actionAvailability, true),
             warnings: [
               ...response.notices.map(notice =>
-                webAppErrorFromNotice(
+                webAppErrorFromPosNotice(
                   notice,
                   response.trace,
                   'admin.sellerTerminal.pos.confirmPreparation',
-                  'section',
                 ),
               ),
               ...(sale?.issues ?? []).map(issue =>
@@ -487,6 +487,14 @@ export class PosSaleApiService {
         }),
       );
   }
+}
+
+export function webAppErrorFromPosNotice(
+  notice: ApiNotice,
+  trace: ApiResponse<unknown>['trace'],
+  source: string,
+): WebAppError {
+  return webAppErrorFromNotice(notice, trace, source, 'section');
 }
 
 function posContextHeaders(sellerTerminalId: string): Record<string, string> {

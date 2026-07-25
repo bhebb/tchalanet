@@ -55,6 +55,112 @@
     "setup": {
       "backToSetup": "Configuration générale"
     },
+    "settings": {
+      "title": "Paramètres du tenant",
+      "description": "Paramètres internes utilisés par l’exploitation du tenant.",
+      "quickAccess": "Accès rapide",
+      "runtime": {
+        "title": "Runtime",
+        "description": "Valeurs de référence en lecture seule utilisées par le runtime du tenant.",
+        "identityTitle": "Identité du tenant",
+        "regionalTitle": "Defaults régionaux",
+        "localesTitle": "Locales supportées",
+        "actionsTitle": "Paramètres associés",
+        "code": "Code",
+        "name": "Nom",
+        "status": "Statut",
+        "defaultLanguage": "Langue par défaut",
+        "defaultLocale": "Locale par défaut",
+        "timezone": "Fuseau horaire",
+        "currency": "Devise",
+        "noLocales": "Aucune locale supportée n’est configurée.",
+        "businessDays": "Jours ouvrables",
+        "games": "Jeux",
+        "configuration": "Paramètres opérationnels",
+        "languages": { "fr": "Français", "en": "Anglais", "ht": "Créole haïtien" }
+      },
+      "config": {
+        "title": "Paramètres opérationnels",
+        "description": "Locale, communication, documents et calendrier.",
+        "tabs": {
+          "receipt": "Reçus et impression",
+          "communication": "Livraison des tickets",
+          "calendar": "Calendrier de vente",
+          "locale": "Langues du tenant"
+        },
+        "readiness": {
+          "ready": "Prêt",
+          "actionRequired": "Action requise",
+          "issues": "{{count}} point(s) à corriger"
+        },
+        "receipt": {
+          "title": "Reçus et impression",
+          "description": "Personnalisez le contenu et les options d’impression utilisés par les seller terminals.",
+          "enabled": "Utiliser les préférences de reçu du tenant",
+          "header": "Message d’en-tête",
+          "headerPlaceholder": "Merci de jouer avec nous !",
+          "headerHint": "Message facultatif imprimé au-dessus des détails du ticket.",
+          "footer": "Message de pied de page",
+          "footerPlaceholder": "Bonne chance !",
+          "footerDefault": "Bonne chance !",
+          "footerHint": "Message facultatif imprimé sous les détails du ticket.",
+          "paperSize": "Format de papier",
+          "paperSizeHint": "Format utilisé par défaut pour les reçus imprimés.",
+          "qrCode": "Afficher le QR code",
+          "template": "Template effectif :",
+          "templateDefault": "Template plateforme par défaut",
+          "saved": "Configuration des reçus enregistrée."
+        },
+        "communication": {
+          "title": "Livraison des tickets",
+          "description": "Choisissez les canaux disponibles et le payeur des frais de livraison.",
+          "enable": "Activer ce canal",
+          "amount": "Montant des frais",
+          "currency": "Devise",
+          "paidBy": {
+            "label": "Payé par",
+            "buyer": "Client",
+            "tenant": "Tenant",
+            "seller": "Seller-terminal"
+          },
+          "sms": { "title": "SMS" },
+          "whatsapp": { "title": "WhatsApp" },
+          "email": { "title": "Email" },
+          "saved": "Paramètres de livraison enregistrés."
+        },
+        "calendar": {
+          "title": "Calendrier de vente",
+          "description": "Définissez les jours récurrents où ce tenant ne vend pas.",
+          "defaultOpen": "Ouvert par défaut",
+          "closedWeekdays": "Jours fermés chaque semaine",
+          "recurringHolidays": "Jours fériés récurrents",
+          "days": {
+            "monday": "Lundi", "tuesday": "Mardi", "wednesday": "Mercredi",
+            "thursday": "Jeudi", "friday": "Vendredi", "saturday": "Samedi", "sunday": "Dimanche"
+          },
+          "customHoliday": {
+            "title": "Jour férié personnalisé",
+            "date": "Date annuelle",
+            "datePlaceholder": "MM-dd",
+            "label": "Libellé",
+            "labelPlaceholder": "Fête locale",
+            "open": "Ouvert ce jour-là",
+            "closed": "Fermé"
+          },
+          "scopeNotice": "Les jours fériés récurrents appartiennent au tenant et sont sans année. Les exceptions datées se gèrent séparément. Les calendriers provider restent gérés par la plateforme.",
+          "saved": "Calendrier de vente enregistré.",
+          "exceptions": "Exceptions datées"
+        },
+        "locale": {
+          "title": "Langues du tenant",
+          "description": "Choisissez les langues disponibles pour les administrateurs et seller terminals.",
+          "supported": "Langues supportées",
+          "fallback": "Langue de repli",
+          "notice": "La langue de repli doit faire partie des langues supportées.",
+          "saved": "Paramètres de langue enregistrés."
+        }
+      }
+    },
     "drawChannels": {
       "title": "Canaux de tirage",
       "description": "Configurez les providers, sources de résultats et créneaux de vente actifs pour votre espace.",

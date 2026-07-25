@@ -13,6 +13,7 @@ import com.tchalanet.server.common.exception.TchValidationException;
 import com.tchalanet.server.common.job.gate.BatchDisabledException;
 import com.tchalanet.server.common.observability.TchTraceIds;
 import com.tchalanet.server.common.web.api.CommonErrorCodes;
+import com.tchalanet.server.common.web.api.CommonErrorDescriptors;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
@@ -145,10 +146,7 @@ public class GlobalErrorHandler {
   @ExceptionHandler(EntityNotFoundException.class)
   public ResponseEntity<ProblemDetail> handleJpaNotFound(
       EntityNotFoundException ex, HttpServletRequest req) {
-    var pd =
-        ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, "Requested resource is unavailable");
-    pd.setTitle("Resource not found");
-    pd.setProperty("code", CommonErrorCodes.RESOURCE_NOT_FOUND);
+    var pd = problem(CommonErrorDescriptors.RESOURCE_NOT_FOUND);
     decorate(pd, req, ex, false);
 
     log.warn(
@@ -163,9 +161,7 @@ public class GlobalErrorHandler {
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<ProblemDetail> handleMethodArgumentNotValid(
       MethodArgumentNotValidException ex, HttpServletRequest req) {
-    var pd = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Validation failed");
-    pd.setTitle("Validation failed");
-    pd.setProperty("code", CommonErrorCodes.VALIDATION_FAILED);
+    var pd = problem(CommonErrorDescriptors.VALIDATION_FAILED);
     pd.setProperty("violations", fieldViolations(ex));
 
     decorate(pd, req, ex, true);
@@ -192,9 +188,7 @@ public class GlobalErrorHandler {
   @ExceptionHandler(HttpMessageNotReadableException.class)
   public ResponseEntity<ProblemDetail> handleNotReadable(
       HttpMessageNotReadableException ex, HttpServletRequest req) {
-    var pd = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Malformed request body");
-    pd.setTitle("Malformed request body");
-    pd.setProperty("code", CommonErrorCodes.REQUEST_NOT_READABLE);
+    var pd = problem(CommonErrorDescriptors.REQUEST_NOT_READABLE);
 
     decorate(pd, req, ex, true);
 
@@ -252,9 +246,7 @@ public class GlobalErrorHandler {
   @ExceptionHandler(MissingServletRequestParameterException.class)
   public ResponseEntity<ProblemDetail> handleMissingParam(
       MissingServletRequestParameterException ex, HttpServletRequest req) {
-    var pd = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Missing request parameter");
-    pd.setTitle("Missing request parameter");
-    pd.setProperty("code", CommonErrorCodes.REQUEST_MISSING_PARAMETER);
+    var pd = problem(CommonErrorDescriptors.REQUEST_MISSING_PARAMETER);
     pd.setProperty(
         "violations",
         List.of(
@@ -277,9 +269,7 @@ public class GlobalErrorHandler {
   @ExceptionHandler(MethodArgumentTypeMismatchException.class)
   public ResponseEntity<ProblemDetail> handleTypeMismatch(
       MethodArgumentTypeMismatchException ex, HttpServletRequest req) {
-    var pd = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Invalid request parameter");
-    pd.setTitle("Type mismatch");
-    pd.setProperty("code", CommonErrorCodes.REQUEST_TYPE_MISMATCH);
+    var pd = problem(CommonErrorDescriptors.REQUEST_TYPE_MISMATCH);
     pd.setProperty(
         "violations",
         List.of(
@@ -302,9 +292,7 @@ public class GlobalErrorHandler {
   @ExceptionHandler(ConstraintViolationException.class)
   public ResponseEntity<ProblemDetail> handleConstraintViolation(
       ConstraintViolationException ex, HttpServletRequest req) {
-    var pd = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Validation failed");
-    pd.setTitle("Constraint violation");
-    pd.setProperty("code", CommonErrorCodes.VALIDATION_CONSTRAINT_VIOLATION);
+    var pd = problem(CommonErrorDescriptors.VALIDATION_CONSTRAINT_VIOLATION);
     pd.setProperty("violations", constraintViolations(ex));
 
     decorate(pd, req, ex, true);
@@ -326,11 +314,7 @@ public class GlobalErrorHandler {
   @ExceptionHandler(IllegalStateException.class)
   public ResponseEntity<ProblemDetail> handleLegacyIllegalState(
       IllegalStateException ex, HttpServletRequest req) {
-    var pd =
-        ProblemDetail.forStatusAndDetail(
-            HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred");
-    pd.setTitle("Unexpected error");
-    pd.setProperty("code", CommonErrorCodes.INTERNAL_UNEXPECTED);
+    var pd = problem(CommonErrorDescriptors.INTERNAL_UNEXPECTED);
 
     decorate(pd, req, ex, false);
 
@@ -348,9 +332,7 @@ public class GlobalErrorHandler {
   @ExceptionHandler(AccessDeniedException.class)
   public ResponseEntity<ProblemDetail> handleAccessDenied(
       AccessDeniedException ex, HttpServletRequest req) {
-    var pd = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, "Access denied");
-    pd.setTitle("Forbidden");
-    pd.setProperty("code", CommonErrorCodes.ACCESS_DENIED);
+    var pd = problem(CommonErrorDescriptors.ACCESS_DENIED);
 
     decorate(pd, req, ex, true);
 
@@ -361,11 +343,7 @@ public class GlobalErrorHandler {
 
   @ExceptionHandler(Exception.class)
   public ResponseEntity<ProblemDetail> handleAny(Exception ex, HttpServletRequest req) {
-    var pd =
-        ProblemDetail.forStatusAndDetail(
-            HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred");
-    pd.setTitle("Unexpected error");
-    pd.setProperty("code", CommonErrorCodes.INTERNAL_UNEXPECTED);
+    var pd = problem(CommonErrorDescriptors.INTERNAL_UNEXPECTED);
 
     decorate(pd, req, ex, false);
 
@@ -381,6 +359,16 @@ public class GlobalErrorHandler {
     pd.setProperty("category", categoryFor(status));
     pd.setProperty("retryPolicy", ErrorRetryPolicy.NEVER.name());
     pd.setProperty("retryable", false);
+    return pd;
+  }
+
+  private static ProblemDetail problem(ErrorDescriptor descriptor) {
+    var pd = ProblemDetail.forStatus(descriptor.expectedStatus());
+    pd.setDetail("Request could not be completed");
+    pd.setProperty("code", descriptor.code());
+    pd.setProperty("category", descriptor.category().wireValue());
+    pd.setProperty("retryPolicy", descriptor.retryPolicy().name());
+    pd.setProperty("retryable", descriptor.retryPolicy().retryable());
     return pd;
   }
 

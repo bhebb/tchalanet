@@ -61,14 +61,6 @@ public class ApiResponseContext {
     return new ArrayList<>(services);
   }
 
-  public boolean hasWarnings() {
-    return notices.stream().anyMatch(n -> n.severity() == NoticeSeverity.WARN);
-  }
-
-  public boolean hasDegradedServices() {
-    return services.stream().anyMatch(s -> s.status() != ServiceHealth.UP);
-  }
-
   private static boolean sameNotice(ApiNotice left, ApiNotice right) {
     return java.util.Objects.equals(left.code(), right.code())
         && java.util.Objects.equals(left.domain(), right.domain())

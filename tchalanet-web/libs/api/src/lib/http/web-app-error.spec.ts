@@ -1,12 +1,19 @@
 import { describe, expect, it } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 
-import { ApiNotice, ProblemDetail } from '../contracts/api.types';
+import { ApiNotice, ApiResponse, ProblemDetail } from '../contracts/api.types';
 import {
   webAppErrorsFromProblemDetailFields,
   webAppErrorFromNotice,
   webAppErrorFromProblemDetail,
   webAppErrorFromServiceStatus,
 } from './web-app-error';
+
+const CONTRACT_FIXTURES_ROOT = resolve(
+  __dirname,
+  '../../../../../../tchalanet-server/testing/contracts/error-contract/v1',
+);
 
 describe('web app error normalization', () => {
   it('normalizes coded ProblemDetail with trace fields', () => {
@@ -181,4 +188,104 @@ describe('web app error normalization', () => {
     expect(error.message).not.toBe('Latest results unavailable');
     expect(error).not.toHaveProperty('diagnostics');
   });
+
+  it('consumes shared ProblemDetail fixtures for public page and admin page surfaces', () => {
+    const publicProblem = contractFixture<ProblemDetail>('problem-details/access-denied.json');
+    const publicError = webAppErrorFromProblemDetail(publicProblem, 'public.ticket.verify', 'page');
+
+    expect(publicError).toMatchObject({
+      code: 'access.denied',
+      category: 'access_denied',
+      surface: 'page',
+      placement: 'top',
+      source: 'public.ticket.verify',
+      retryPolicy: 'NEVER',
+      retryable: false,
+    });
+    expect(publicError.message).not.toBe(publicProblem.detail);
+    expect(publicError.title).not.toBe(publicProblem.title);
+    expect(publicError.requestId).toBe('req_contract_denied');
+    expect(publicError.errorId).toBe('err_contract_denied');
+
+    const adminProblem = contractFixture<ProblemDetail>('problem-details/validation-failed.json');
+    const adminPageError = webAppErrorFromProblemDetail(
+      adminProblem,
+      'admin.sellerterminal.form',
+      'form',
+    );
+    const fieldErrors = webAppErrorsFromProblemDetailFields(
+      adminProblem,
+      'admin.sellerterminal.form',
+    );
+
+    expect(adminPageError).toMatchObject({
+      code: 'validation.failed',
+      category: 'validation',
+      surface: 'form',
+      placement: 'summary',
+      retryPolicy: 'AFTER_USER_ACTION',
+      retryable: true,
+    });
+    expect(fieldErrors.map(error => [error.code, error.field, error.target])).toEqual([
+      ['validation.required', 'sellerName', 'sellerName'],
+      ['validation.invalid_format', 'email', 'email'],
+    ]);
+    expect(fieldErrors.every(error => error.surface === 'field')).toBe(true);
+    expect(JSON.stringify(fieldErrors)).not.toContain('Request could not be completed');
+  });
+
+  it('consumes shared ApiResponse fixtures without turning targeted notices into shell feedback', () => {
+    const warning = contractFixture<ApiResponse<{ tenantCode: string; ready: boolean }>>(
+      'api-responses/success-with-warning.json',
+    );
+    const warningError = webAppErrorFromNotice(
+      warning.notices[0],
+      undefined,
+      'admin.setup',
+      'page',
+    );
+
+    expect(warning.status).toBe('SUCCESS_WITH_WARNINGS');
+    expect(warningError).toMatchObject({
+      code: 'tenant.setup.optional_step_missing',
+      category: 'business_rule',
+      severity: 'warn',
+      surface: 'page',
+      target: 'setup.optional',
+      source: 'tenantSetup',
+      requestId: 'req_contract_warning',
+      errorId: 'err_contract_warning',
+    });
+    expect(warningError.params).toEqual({ completedSteps: 3, totalSteps: 5 });
+    expect(warningError.message).not.toBe(warning.notices[0].message);
+
+    const partial = contractFixture<ApiResponse<{ dashboard: Record<string, boolean> }>>(
+      'api-responses/partial-section-degradation.json',
+    );
+    const partialError = webAppErrorFromNotice(
+      partial.notices[0],
+      undefined,
+      'admin.dashboard',
+      'section',
+    );
+
+    expect(partial.status).toBe('PARTIAL');
+    expect(partialError).toMatchObject({
+      code: 'admin.dashboard.provider_results_unavailable',
+      category: 'service_unavailable',
+      severity: 'warn',
+      surface: 'section',
+      placement: 'top',
+      target: 'admin_dashboard.provider_results',
+      source: 'providerResults',
+      requestId: 'req_contract_partial',
+      errorId: 'err_contract_partial',
+    });
+    expect(JSON.stringify(partialError)).not.toContain('uslottery');
+    expect(partial.services?.[0]).toMatchObject({ service: 'uslottery', status: 'DEGRADED' });
+  });
 });
+
+function contractFixture<T>(relativePath: string): T {
+  return JSON.parse(readFileSync(resolve(CONTRACT_FIXTURES_ROOT, relativePath), 'utf8')) as T;
+}

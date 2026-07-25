@@ -5,6 +5,7 @@ import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.platform.idempotence.api.IdempotencyStore;
 import com.tchalanet.server.platform.idempotence.api.RequireIdempotency;
+import com.tchalanet.server.platform.idempotence.api.error.IdempotencyErrorCodes;
 import com.tchalanet.server.platform.idempotence.internal.service.RequestHasher;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Optional;
@@ -39,7 +40,7 @@ public class RequireIdempotencyAspect {
     HttpServletRequest req = currentRequest();
     String key = req != null ? req.getHeader(TchHeaders.IDEMPOTENCY_KEY) : null;
     if (StringUtils.isBlank(key)) {
-      throw ProblemRest.badRequest("idempotency.missing");
+      throw ProblemRest.of(IdempotencyErrorCodes.MISSING);
     }
     key = key.trim();
 
@@ -49,14 +50,14 @@ public class RequireIdempotencyAspect {
     var begin = store.begin(ann.scope(), key, hash, ann.ttlSeconds());
 
     return switch (begin.decision()) {
-      case PAYLOAD_MISMATCH -> throw ProblemRest.conflict("idempotency.payload_mismatch");
-      case IN_PROGRESS -> throw ProblemRest.conflict("idempotency.in_progress");
+      case PAYLOAD_MISMATCH -> throw ProblemRest.of(IdempotencyErrorCodes.PAYLOAD_MISMATCH);
+      case IN_PROGRESS -> throw ProblemRest.of(IdempotencyErrorCodes.IN_PROGRESS);
       case ALREADY_COMPLETED -> {
         var c = begin.completed().orElseThrow();
         if (c.responseJson() != null) {
           yield jsonUtils.readValue(c.responseJson(), Object.class);
         }
-        throw ProblemRest.conflict("idempotency.completed_no_response");
+        throw ProblemRest.of(IdempotencyErrorCodes.COMPLETED_NO_RESPONSE);
       }
       case STARTED -> proceedAndRecord(pjp, ann, key, hash);
     };

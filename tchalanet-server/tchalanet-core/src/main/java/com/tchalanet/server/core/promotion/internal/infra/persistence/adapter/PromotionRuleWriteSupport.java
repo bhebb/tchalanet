@@ -6,6 +6,7 @@ import com.tchalanet.server.core.promotion.api.command.rule.DeletePromotionRuleC
 import com.tchalanet.server.core.promotion.api.command.rule.UpdatePromotionRuleCommand;
 import com.tchalanet.server.core.promotion.api.command.rule.UpdatePromotionRuleEffectsCommand;
 import com.tchalanet.server.core.promotion.api.command.rule.UpdatePromotionRuleEligibilityCommand;
+import com.tchalanet.server.core.promotion.api.error.PromotionErrorCodes;
 import com.tchalanet.server.core.promotion.api.model.PromotionChoiceMode;
 import com.tchalanet.server.core.promotion.api.model.lifecycle.PromotionCampaignStatus;
 import com.tchalanet.server.core.promotion.api.model.lifecycle.PromotionCampaignView;
@@ -53,7 +54,7 @@ class PromotionRuleWriteSupport {
 
   void addRules(PromotionCampaignJpaEntity campaign, List<PromotionRuleConfigInput> rules) {
     if (rules == null || rules.isEmpty()) {
-      throw ProblemRest.badRequest("promotion.campaign.rules_required");
+      throw promotionValidation("promotion.campaign.rules_required");
     }
     requireDraft(campaign);
     rules.forEach(rule -> addRule(campaign, rule));
@@ -123,12 +124,12 @@ class PromotionRuleWriteSupport {
   private PromotionRuleJpaEntity getRuleRequired(UUID campaignId, UUID ruleId) {
     return ruleRepository
         .findByIdAndCampaignId(ruleId, campaignId)
-        .orElseThrow(() -> ProblemRest.notFound("promotion.rule.not_found"));
+        .orElseThrow(() -> ProblemRest.of(PromotionErrorCodes.RULE_NOT_FOUND));
   }
 
   private void requireDraft(PromotionCampaignJpaEntity campaign) {
     if (campaign.getStatus() != PromotionCampaignStatus.DRAFT) {
-      throw ProblemRest.badRequest("promotion.campaign.rules_edit_requires_draft");
+      throw promotionValidation("promotion.campaign.rules_edit_requires_draft");
     }
   }
 
@@ -141,10 +142,10 @@ class PromotionRuleWriteSupport {
 
   private void ensureRuleKeyAvailable(UUID campaignId, String ruleKey) {
     if (ruleKey == null || ruleKey.isBlank()) {
-      throw ProblemRest.badRequest("promotion.rule.rule_key_required");
+      throw promotionValidation("promotion.rule.rule_key_required");
     }
     if (ruleRepository.existsByCampaignIdAndRuleKey(campaignId, ruleKey)) {
-      throw ProblemRest.conflict("promotion.rule.rule_key_already_exists");
+      throw ProblemRest.of(PromotionErrorCodes.RULE_KEY_ALREADY_EXISTS);
     }
   }
 
@@ -155,12 +156,12 @@ class PromotionRuleWriteSupport {
     eligibilityLineRepository.deleteByRuleId(rule.getId());
 
     if (items == null || items.isEmpty()) {
-      throw ProblemRest.badRequest("promotion.rule.eligibility_required");
+      throw promotionValidation("promotion.rule.eligibility_required");
     }
 
     for (var item : items) {
       if (item.type() == null) {
-        throw ProblemRest.badRequest("promotion.rule.eligibility_type_required");
+        throw promotionValidation("promotion.rule.eligibility_type_required");
       }
       switch (item.type()) {
         case MIN_PAID_TOTAL ->
@@ -186,14 +187,14 @@ class PromotionRuleWriteSupport {
     effectRepository.deleteByRuleId(ruleId);
     effectRepository.flush();
     if (items == null || items.isEmpty()) {
-      throw ProblemRest.badRequest("promotion.rule.effects_required");
+      throw promotionValidation("promotion.rule.effects_required");
     }
     items.stream().map(item -> effect(ruleId, item)).forEach(effectRepository::save);
   }
 
   private PromotionRuleEffectJpaEntity effect(UUID ruleId, PromotionEffectConfigInput item) {
     if (item.type() == null) {
-      throw ProblemRest.badRequest("promotion.rule.effect_type_required");
+      throw promotionValidation("promotion.rule.effect_type_required");
     }
     var effect = new PromotionRuleEffectJpaEntity();
     effect.setRuleId(ruleId);
@@ -214,7 +215,7 @@ class PromotionRuleWriteSupport {
         // PromotionOddsBoostApplier does setScale(4, UNNECESSARY), which would
         // otherwise crash the sale on a mis-configured boost. Fail fast here.
         if (oddsOverride.stripTrailingZeros().scale() > 4) {
-          throw ProblemRest.badRequest("promotion.rule.boost_odds_scale");
+          throw promotionValidation("promotion.rule.boost_odds_scale");
         }
         effect.setOddsOverride(oddsOverride);
       }
@@ -268,13 +269,13 @@ class PromotionRuleWriteSupport {
   private List<Map<String, Object>> quantityTiers(Map<String, Object> params) {
     var raw = params.get("quantityTiers");
     if (!(raw instanceof List<?> list) || list.isEmpty()) {
-      throw ProblemRest.badRequest("promotion.rule.quantity_tiers_required");
+      throw promotionValidation("promotion.rule.quantity_tiers_required");
     }
     return list.stream()
         .map(
             item -> {
               if (!(item instanceof Map<?, ?> map)) {
-                throw ProblemRest.badRequest("promotion.rule.quantity_tiers_invalid");
+                throw promotionValidation("promotion.rule.quantity_tiers_invalid");
               }
               var tier = (Map<String, Object>) map;
               var min = positiveDecimal(tier, "minPaidAmount");
@@ -283,7 +284,7 @@ class PromotionRuleWriteSupport {
                       ? positiveDecimal(tier, "maxPaidAmount")
                       : null;
               if (max != null && max.compareTo(min) < 0) {
-                throw ProblemRest.badRequest("promotion.rule.quantity_tier_range_invalid");
+                throw promotionValidation("promotion.rule.quantity_tier_range_invalid");
               }
               var quantity = positiveInt(tier, "quantity");
               Map<String, Object> out = new java.util.LinkedHashMap<>();
@@ -310,13 +311,13 @@ class PromotionRuleWriteSupport {
             "promotion.rule.generation_strategy_invalid");
 
     if (strategy == SelectionGenerationStrategy.LOW_EXPOSURE_RANDOM) {
-      throw ProblemRest.badRequest("promotion.rule.generation_strategy_unsupported");
+      throw promotionValidation("promotion.rule.generation_strategy_unsupported");
     }
     if (choiceMode == PromotionChoiceMode.AUTO_GENERATE && strategy == null) {
       strategy = SelectionGenerationStrategy.RANDOM;
     }
     if (strategy != null && choiceMode != PromotionChoiceMode.AUTO_GENERATE) {
-      throw ProblemRest.badRequest("promotion.rule.generation_strategy_requires_auto_generate");
+      throw promotionValidation("promotion.rule.generation_strategy_requires_auto_generate");
     }
 
     effect.setChoiceMode(choiceMode);
@@ -339,7 +340,7 @@ class PromotionRuleWriteSupport {
     try {
       return Enum.valueOf(type, String.valueOf(raw));
     } catch (IllegalArgumentException ex) {
-      var problem = ProblemRest.badRequest(errorCode);
+      var problem = promotionValidation(errorCode);
       problem.initCause(ex);
       throw problem;
     }
@@ -347,7 +348,7 @@ class PromotionRuleWriteSupport {
 
   private int nonNegativePriority(Integer priority) {
     if (priority == null || priority < 0) {
-      throw ProblemRest.badRequest("promotion.rule.priority_must_be_non_negative");
+      throw promotionValidation("promotion.rule.priority_must_be_non_negative");
     }
     return priority;
   }
@@ -355,7 +356,7 @@ class PromotionRuleWriteSupport {
   private BigDecimal positiveDecimal(Map<String, Object> params, String... keys) {
     var value = new BigDecimal(requiredString(params, keys));
     if (value.signum() <= 0) {
-      throw ProblemRest.badRequest("promotion.rule.value_must_be_positive");
+      throw promotionValidation("promotion.rule.value_must_be_positive");
     }
     return value;
   }
@@ -363,7 +364,7 @@ class PromotionRuleWriteSupport {
   private int positiveInt(Map<String, Object> params, String... keys) {
     var value = Integer.parseInt(requiredString(params, keys));
     if (value <= 0) {
-      throw ProblemRest.badRequest("promotion.rule.value_must_be_positive");
+      throw promotionValidation("promotion.rule.value_must_be_positive");
     }
     return value;
   }
@@ -371,7 +372,7 @@ class PromotionRuleWriteSupport {
   private int nonNegativeInt(Map<String, Object> params, String... keys) {
     var value = Integer.parseInt(requiredString(params, keys));
     if (value < 0) {
-      throw ProblemRest.badRequest("promotion.rule.value_must_be_non_negative");
+      throw promotionValidation("promotion.rule.value_must_be_non_negative");
     }
     return value;
   }
@@ -382,7 +383,7 @@ class PromotionRuleWriteSupport {
 
   private String requiredText(String value, String errorCode) {
     if (value == null || value.isBlank()) {
-      throw ProblemRest.badRequest(errorCode);
+      throw promotionValidation(errorCode);
     }
     return value;
   }
@@ -394,6 +395,10 @@ class PromotionRuleWriteSupport {
         return String.valueOf(value);
       }
     }
-    throw ProblemRest.badRequest("promotion.rule.required_field_missing");
+    throw promotionValidation("promotion.rule.required_field_missing");
+  }
+
+  private RuntimeException promotionValidation(String code) {
+    return ProblemRest.of(PromotionErrorCodes.validation(code));
   }
 }

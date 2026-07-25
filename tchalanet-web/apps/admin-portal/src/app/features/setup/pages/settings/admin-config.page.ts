@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+  untracked,
+} from '@angular/core';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -9,9 +17,9 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTabsModule } from '@angular/material/tabs';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
-import { ProblemDetail, webAppErrorsFromProblemDetailFields } from '@tch/api';
+import { mapHttpErrorToProblemDetail, webAppErrorsFromProblemDetailFields } from '@tch/api';
 import { RuntimeSettingsStore } from '@tch/shared-config';
 import { TchFieldError, TchNotice } from '@tch/ui/components';
 import {
@@ -27,27 +35,29 @@ import {
 } from '@tch/web/async';
 import { AdminPageShellComponent, AdminSectionCardComponent } from '@tch/ui/console';
 import {
-  TenantConfigApiService,
+  TenantParametersApiService,
   TenantInternalConfig,
+  TenantSettingsReadinessSection,
   TenantRecurringHoliday,
-} from '../../data-access/tenant-config-api.service';
+} from '../../data-access/tenant-parameters-api.service';
 
 const PAPER_SIZES = ['RECEIPT_58MM', 'RECEIPT_80MM', 'A4'] as const;
+const DEFAULT_TENANT_CURRENCY = 'HTG';
 
 const WEEKDAYS = [
-  { code: 'MONDAY', label: 'Lundi' },
-  { code: 'TUESDAY', label: 'Mardi' },
-  { code: 'WEDNESDAY', label: 'Mercredi' },
-  { code: 'THURSDAY', label: 'Jeudi' },
-  { code: 'FRIDAY', label: 'Vendredi' },
-  { code: 'SATURDAY', label: 'Samedi' },
-  { code: 'SUNDAY', label: 'Dimanche' },
+  { code: 'MONDAY', labelKey: 'admin.settings.config.calendar.days.monday' },
+  { code: 'TUESDAY', labelKey: 'admin.settings.config.calendar.days.tuesday' },
+  { code: 'WEDNESDAY', labelKey: 'admin.settings.config.calendar.days.wednesday' },
+  { code: 'THURSDAY', labelKey: 'admin.settings.config.calendar.days.thursday' },
+  { code: 'FRIDAY', labelKey: 'admin.settings.config.calendar.days.friday' },
+  { code: 'SATURDAY', labelKey: 'admin.settings.config.calendar.days.saturday' },
+  { code: 'SUNDAY', labelKey: 'admin.settings.config.calendar.days.sunday' },
 ] as const;
 
 const PAID_BY = [
-  { code: 'BUYER', label: 'Client' },
-  { code: 'TENANT', label: 'Tenant' },
-  { code: 'SELLER', label: 'Seller-terminal' },
+  { code: 'BUYER', labelKey: 'admin.settings.config.communication.paidBy.buyer' },
+  { code: 'TENANT', labelKey: 'admin.settings.config.communication.paidBy.tenant' },
+  { code: 'SELLER', labelKey: 'admin.settings.config.communication.paidBy.seller' },
 ] as const;
 
 const LOCALE_FIELD_TARGETS: Record<string, string> = {
@@ -110,6 +120,7 @@ const CALENDAR_FIELD_TARGETS: Record<string, string> = {
     TchAsyncReadyDirective,
     TchFieldError,
     TchNotice,
+    TranslatePipe,
     RouterLink,
     MatButtonModule,
     MatCheckboxModule,
@@ -123,7 +134,7 @@ const CALENDAR_FIELD_TARGETS: Record<string, string> = {
   styleUrls: ['./admin-config.page.scss'],
 })
 export class AdminConfigPage {
-  private readonly api = inject(TenantConfigApiService);
+  private readonly api = inject(TenantParametersApiService);
   private readonly fb = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
   private readonly runtimeSettings = inject(RuntimeSettingsStore);
@@ -131,47 +142,59 @@ export class AdminConfigPage {
 
   readonly languages = this.runtimeSettings.tenantLanguageOptions;
   readonly currencies = this.runtimeSettings.tenantCurrencyOptions;
-  readonly defaultCurrency = computed(() => this.runtimeSettings.tenantCurrency());
   readonly paperSizes = PAPER_SIZES;
   readonly weekdays = WEEKDAYS;
   readonly paidByOptions = PAID_BY;
 
   readonly config = this.api.tenantConfigResource();
   readonly holidayTemplates = this.api.holidayTemplatesResource();
+  readonly readiness = this.api.readinessResource();
+  readonly receiptTemplateKey = computed(
+    () => this.config.value()?.document?.receipt?.defaultTemplateKey ?? null,
+  );
   readonly configError = resourceErrorVm(this.config, 'admin.setup.config');
   readonly configIsEmpty = () => false;
   readonly fromSetup = this.route.snapshot.queryParamMap.get('from') === 'setup';
   readonly backRoute = this.fromSetup ? '/app/admin/setup' : '/app/admin/company/settings';
-  readonly backLabel = this.fromSetup ? 'Configuration générale' : 'Paramètres';
+  readonly backLabel = this.fromSetup ? 'admin.setup.backToSetup' : 'admin.settings.title';
   readonly customHolidays = signal<TenantRecurringHoliday[]>([]);
   readonly selectedTabIndex = signal(0);
   private readonly requestedFragment = toSignal(this.route.fragment, { initialValue: null });
 
   readonly localeForm = this.fb.group({
-    supportedLanguages: new FormControl<string[]>([...this.runtimeSettings.tenantSupportedLanguages()], { nonNullable: true, validators: [Validators.required] }),
-    fallbackLanguage: new FormControl<string>(this.runtimeSettings.tenantSupportedLanguages()[0] ?? 'ht', { nonNullable: true }),
+    supportedLanguages: new FormControl<string[]>(
+      [...this.runtimeSettings.tenantSupportedLanguages()],
+      { nonNullable: true, validators: [Validators.required] },
+    ),
+    fallbackLanguage: new FormControl<string>(
+      this.runtimeSettings.tenantSupportedLanguages()[0] ?? 'ht',
+      { nonNullable: true },
+    ),
   });
 
   readonly receiptForm = this.fb.group({
     enabled: new FormControl<boolean>(true, { nonNullable: true }),
     headerMessage: new FormControl<string>('', { nonNullable: true }),
-    footerMessage: new FormControl<string>('', { nonNullable: true }),
+    footerMessage: new FormControl<string>(
+      this.translate.instant('admin.settings.config.receipt.footerDefault'),
+      { nonNullable: true },
+    ),
     defaultPaperSize: new FormControl<string>('RECEIPT_80MM', { nonNullable: true }),
     showQrCode: new FormControl<boolean>(true, { nonNullable: true }),
   });
 
   readonly communicationForm = this.fb.group({
-    smsEnabled: new FormControl<boolean>(true, { nonNullable: true }),
+    smsEnabled: new FormControl<boolean>(false, { nonNullable: true }),
     smsAmount: new FormControl<number | null>(5, { validators: [Validators.min(0)] }),
-    smsCurrency: new FormControl<string>(this.defaultCurrency(), { nonNullable: true }),
+    smsCurrency: new FormControl<string>(DEFAULT_TENANT_CURRENCY, { nonNullable: true }),
     smsPaidBy: new FormControl<string>('BUYER', { nonNullable: true }),
-    whatsappEnabled: new FormControl<boolean>(true, { nonNullable: true }),
+    whatsappEnabled: new FormControl<boolean>(false, { nonNullable: true }),
     whatsappAmount: new FormControl<number | null>(5, { validators: [Validators.min(0)] }),
-    whatsappCurrency: new FormControl<string>(this.defaultCurrency(), { nonNullable: true }),
+    whatsappCurrency: new FormControl<string>(DEFAULT_TENANT_CURRENCY, { nonNullable: true }),
     whatsappPaidBy: new FormControl<string>('BUYER', { nonNullable: true }),
-    emailEnabled: new FormControl<boolean>(true, { nonNullable: true }),
+    emailEnabled: new FormControl<boolean>(false, { nonNullable: true }),
     emailAmount: new FormControl<number | null>(0, { validators: [Validators.min(0)] }),
-    emailCurrency: new FormControl<string>(this.defaultCurrency(), { nonNullable: true }),
+    emailCurrency: new FormControl<string>(DEFAULT_TENANT_CURRENCY, { nonNullable: true }),
     emailPaidBy: new FormControl<string>('TENANT', { nonNullable: true }),
   });
 
@@ -179,42 +202,61 @@ export class AdminConfigPage {
     defaultOpen: new FormControl<boolean>(true, { nonNullable: true }),
     closedWeekdays: new FormControl<string[]>([], { nonNullable: true }),
     holidayTemplateKeys: new FormControl<string[]>([], { nonNullable: true }),
-    customHolidayMonthDay: new FormControl<string>('', { nonNullable: true, validators: [Validators.pattern(/^(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/)] }),
+    customHolidayMonthDay: new FormControl<string>('', {
+      nonNullable: true,
+      validators: [Validators.pattern(/^(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/)],
+    }),
     customHolidayLabel: new FormControl<string>('', { nonNullable: true }),
     customHolidayOpen: new FormControl<boolean>(false, { nonNullable: true }),
   });
 
   readonly saveLocale = tchMutation<NonNullable<TenantInternalConfig['locale']>, void>({
-    run: locale => this.api.updateSettingsSection('locale', locale, { suppressShellFeedback: true }),
+    run: locale =>
+      this.api.updateSettingsSection('locale', locale, { suppressShellFeedback: true }),
     source: 'admin.setup.locale',
     onSuccess: (_result, input) => {
       this.rememberConfig({ ...this.lastConfig, locale: input });
       this.localeForm.markAsPristine();
       this.config.reload();
     },
-    onError: err => this.applyFieldErrors(err, this.localeForm, 'admin.setup.locale', LOCALE_FIELD_TARGETS),
+    onError: err =>
+      this.applyFieldErrors(err, this.localeForm, 'admin.setup.locale', LOCALE_FIELD_TARGETS),
   });
 
   readonly saveReceipt = tchMutation<NonNullable<TenantInternalConfig['document']>, void>({
-    run: document => this.api.updateSettingsSection('document', document, { suppressShellFeedback: true }),
+    run: document =>
+      this.api.updateSettingsSection('document', document, { suppressShellFeedback: true }),
     source: 'admin.setup.receipt',
     onSuccess: (_result, input) => {
       this.rememberConfig({ ...this.lastConfig, document: input });
       this.receiptForm.markAsPristine();
       this.config.reload();
     },
-    onError: err => this.applyFieldErrors(err, this.receiptForm, 'admin.setup.receipt', RECEIPT_FIELD_TARGETS),
+    onError: err =>
+      this.applyFieldErrors(err, this.receiptForm, 'admin.setup.receipt', RECEIPT_FIELD_TARGETS),
   });
 
-  readonly saveCommunication = tchMutation<NonNullable<TenantInternalConfig['communication']>, void>({
-    run: communication => this.api.updateSettingsSection('communication', communication, { suppressShellFeedback: true }),
+  readonly saveCommunication = tchMutation<
+    NonNullable<TenantInternalConfig['communication']>,
+    void
+  >({
+    run: communication =>
+      this.api.updateSettingsSection('communication', communication, {
+        suppressShellFeedback: true,
+      }),
     source: 'admin.setup.communication',
     onSuccess: (_result, input) => {
       this.rememberConfig({ ...this.lastConfig, communication: input });
       this.communicationForm.markAsPristine();
       this.config.reload();
     },
-    onError: err => this.applyFieldErrors(err, this.communicationForm, 'admin.setup.communication', COMMUNICATION_FIELD_TARGETS),
+    onError: err =>
+      this.applyFieldErrors(
+        err,
+        this.communicationForm,
+        'admin.setup.communication',
+        COMMUNICATION_FIELD_TARGETS,
+      ),
   });
 
   readonly saveCalendar = tchMutation<NonNullable<TenantInternalConfig['rules']>, void>({
@@ -225,7 +267,8 @@ export class AdminConfigPage {
       this.calendarForm.markAsPristine();
       this.config.reload();
     },
-    onError: err => this.applyFieldErrors(err, this.calendarForm, 'admin.setup.calendar', CALENDAR_FIELD_TARGETS),
+    onError: err =>
+      this.applyFieldErrors(err, this.calendarForm, 'admin.setup.calendar', CALENDAR_FIELD_TARGETS),
   });
 
   /** Dernière config connue — base des merges de sauvegarde (value() lance en état error). */
@@ -236,12 +279,17 @@ export class AdminConfigPage {
     effect(() => {
       if (!this.config.hasValue()) return;
       const cfg = this.config.value() ?? {};
+      const holidayTemplateSnapshot = this.holidayTemplates.hasValue()
+        ? this.holidayTemplates.value() ?? []
+        : null;
       untracked(() => {
         this.rememberConfig(cfg);
         if (!this.localeForm.dirty) this.patchLocale(cfg);
         if (!this.receiptForm.dirty) this.patchReceipt(cfg);
         if (!this.communicationForm.dirty) this.patchCommunication(cfg);
-        if (!this.calendarForm.dirty) this.patchCalendar(cfg);
+        if (!this.calendarForm.dirty && holidayTemplateSnapshot) {
+          this.patchCalendar(cfg, holidayTemplateSnapshot);
+        }
       });
     });
 
@@ -253,6 +301,10 @@ export class AdminConfigPage {
     });
   }
 
+  sectionReadiness(section: string): TenantSettingsReadinessSection | null {
+    return this.readiness.value()?.sections.find(item => item.section === section) ?? null;
+  }
+
   submitLocale(): void {
     clearServerFieldErrors(this.localeForm);
     this.saveLocale.clearFeedback();
@@ -261,10 +313,16 @@ export class AdminConfigPage {
       return;
     }
     const v = this.localeForm.getRawValue();
+    const supportedLanguages = [...new Set(v.supportedLanguages)];
+    const fallbackLanguage = supportedLanguages.includes(v.fallbackLanguage)
+      ? v.fallbackLanguage
+      : supportedLanguages[0] ?? '';
+    this.localeForm.controls.supportedLanguages.setValue(supportedLanguages);
+    this.localeForm.controls.fallbackLanguage.setValue(fallbackLanguage);
     this.saveLocale.execute({
       ...this.lastConfig.locale,
-      supportedLanguages: v.supportedLanguages,
-      fallbackLanguage: v.fallbackLanguage || null,
+      supportedLanguages,
+      fallbackLanguage: fallbackLanguage || null,
     });
   }
 
@@ -298,7 +356,12 @@ export class AdminConfigPage {
       buyerTicketDelivery: {
         ...this.lastConfig.communication?.buyerTicketDelivery,
         sms: this.channel(v.smsEnabled, v.smsAmount, v.smsCurrency, v.smsPaidBy),
-        whatsapp: this.channel(v.whatsappEnabled, v.whatsappAmount, v.whatsappCurrency, v.whatsappPaidBy),
+        whatsapp: this.channel(
+          v.whatsappEnabled,
+          v.whatsappAmount,
+          v.whatsappCurrency,
+          v.whatsappPaidBy,
+        ),
         email: this.channel(v.emailEnabled, v.emailAmount, v.emailCurrency, v.emailPaidBy),
       },
     });
@@ -356,8 +419,11 @@ export class AdminConfigPage {
     const loc = cfg.locale;
     if (!loc) return;
     this.localeForm.patchValue({
-      supportedLanguages: loc.supportedLanguages ?? [...this.runtimeSettings.tenantSupportedLanguages()],
-      fallbackLanguage: loc.fallbackLanguage ?? this.runtimeSettings.tenantSupportedLanguages()[0] ?? 'ht',
+      supportedLanguages: loc.supportedLanguages ?? [
+        ...this.runtimeSettings.tenantSupportedLanguages(),
+      ],
+      fallbackLanguage:
+        loc.fallbackLanguage ?? this.runtimeSettings.tenantSupportedLanguages()[0] ?? 'ht',
     });
   }
 
@@ -367,7 +433,8 @@ export class AdminConfigPage {
     this.receiptForm.patchValue({
       enabled: r.enabled ?? true,
       headerMessage: r.headerMessage ?? '',
-      footerMessage: r.footerMessage ?? '',
+      footerMessage:
+        r.footerMessage ?? this.translate.instant('admin.settings.config.receipt.footerDefault'),
       defaultPaperSize: r.defaultPaperSize ?? 'RECEIPT_80MM',
       showQrCode: r.showQrCode ?? true,
     });
@@ -377,38 +444,45 @@ export class AdminConfigPage {
     const delivery = cfg.communication?.buyerTicketDelivery;
     if (!delivery) return;
     this.communicationForm.patchValue({
-      smsEnabled: delivery.sms?.enabled ?? true,
+      smsEnabled: delivery.sms?.enabled ?? false,
       smsAmount: delivery.sms?.amount ?? null,
-      smsCurrency: delivery.sms?.currency ?? this.defaultCurrency(),
+      smsCurrency: delivery.sms?.currency ?? DEFAULT_TENANT_CURRENCY,
       smsPaidBy: delivery.sms?.paidBy ?? 'BUYER',
-      whatsappEnabled: delivery.whatsapp?.enabled ?? true,
+      whatsappEnabled: delivery.whatsapp?.enabled ?? false,
       whatsappAmount: delivery.whatsapp?.amount ?? null,
-      whatsappCurrency: delivery.whatsapp?.currency ?? this.defaultCurrency(),
+      whatsappCurrency: delivery.whatsapp?.currency ?? DEFAULT_TENANT_CURRENCY,
       whatsappPaidBy: delivery.whatsapp?.paidBy ?? 'BUYER',
-      emailEnabled: delivery.email?.enabled ?? true,
+      emailEnabled: delivery.email?.enabled ?? false,
       emailAmount: delivery.email?.amount ?? null,
-      emailCurrency: delivery.email?.currency ?? this.defaultCurrency(),
+      emailCurrency: delivery.email?.currency ?? DEFAULT_TENANT_CURRENCY,
       emailPaidBy: delivery.email?.paidBy ?? 'TENANT',
     });
   }
 
-  private patchCalendar(cfg: TenantInternalConfig): void {
+  private patchCalendar(cfg: TenantInternalConfig, templates: readonly { key: string }[]): void {
     const c = cfg.rules?.businessCalendar;
     if (!c) return;
     this.calendarForm.patchValue({
       defaultOpen: c.defaultOpen ?? true,
       closedWeekdays: c.closedWeekdays ?? [],
       holidayTemplateKeys: (c.holidays ?? [])
-        .filter(holiday => this.templateKeySet().has(holiday.key ?? ''))
+        .filter(holiday => this.templateKeySet(templates).has(holiday.key ?? ''))
         .map(holiday => holiday.key)
         .filter((key): key is string => !!key),
     });
-    this.customHolidays.set((c.holidays ?? []).filter(holiday => !this.templateKeySet().has(holiday.key ?? '')));
+    this.customHolidays.set(
+      (c.holidays ?? []).filter(holiday => !this.templateKeySet(templates).has(holiday.key ?? '')),
+    );
   }
 
   private channel(enabled: boolean, amount: number | null, currency: string, paidBy: string) {
     return enabled
-      ? { enabled, amount: amount ?? 0, currency: currency || this.defaultCurrency(), paidBy: paidBy || 'BUYER' }
+      ? {
+          enabled,
+          amount: amount ?? 0,
+          currency: currency || DEFAULT_TENANT_CURRENCY,
+          paidBy: paidBy || 'BUYER',
+        }
       : { enabled };
   }
 
@@ -422,9 +496,12 @@ export class AdminConfigPage {
   }
 
   private calendarHolidaysFromForm(): TenantRecurringHoliday[] {
-    const templateByKey = new Map((this.holidayTemplates.value() ?? []).map(template => [template.key, template]));
-    const selectedTemplates = this.calendarForm.getRawValue().holidayTemplateKeys
-      .map(key => templateByKey.get(key))
+    const templateByKey = new Map(
+      (this.holidayTemplates.value() ?? []).map(template => [template.key, template]),
+    );
+    const selectedTemplates = this.calendarForm
+      .getRawValue()
+      .holidayTemplateKeys.map(key => templateByKey.get(key))
       .filter((template): template is NonNullable<typeof template> => !!template)
       .map(template => ({
         key: template.key,
@@ -436,19 +513,22 @@ export class AdminConfigPage {
     return [...selectedTemplates, ...this.customHolidays()];
   }
 
-  private templateKeySet(): ReadonlySet<string> {
-    return new Set((this.holidayTemplates.value() ?? []).map(template => template.key));
+  private templateKeySet(templates: readonly { key: string }[]): ReadonlySet<string> {
+    return new Set(templates.map(template => template.key));
   }
 
   /** Applique les erreurs serveur par champ ; `true` = tout est géré, pas de feedback générique. */
   private applyFieldErrors(
     err: unknown,
-    form: typeof this.localeForm | typeof this.receiptForm | typeof this.communicationForm | typeof this.calendarForm,
+    form:
+      | typeof this.localeForm
+      | typeof this.receiptForm
+      | typeof this.communicationForm
+      | typeof this.calendarForm,
     source: string,
     targets: Record<string, string>,
   ): boolean {
-    const problem = (err as { error?: ProblemDetail })?.error;
-    if (!problem) return false;
+    const problem = mapHttpErrorToProblemDetail(err);
 
     const fieldErrors = withResolvedErrorCopies(
       webAppErrorsFromProblemDetailFields(problem, source),
@@ -457,18 +537,18 @@ export class AdminConfigPage {
     const remaining = applyServerFieldErrors(form, fieldErrors, targets);
     return fieldErrors.length > 0 && remaining.length === 0;
   }
-
 }
 
 function slug(value: string): string {
-  return value
-    .trim()
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, '_')
-    .replace(/^_+|_+$/g, '')
-    || 'holiday';
+  return (
+    value
+      .trim()
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '_')
+      .replace(/^_+|_+$/g, '') || 'holiday'
+  );
 }
 
 function tabIndexFromFragment(fragment: string | null): number | null {

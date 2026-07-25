@@ -37,7 +37,25 @@ public class PromotionErrorCodes {
           "promotion.maryaj_gratis.generation_strategy_requires_auto_generate",
           "promotion.maryaj_gratis.regeneration_requires_auto_generate",
           "promotion.maryaj_gratis.step_paid_amount_required",
-          "promotion.maryaj_gratis.quantity_tiers_required");
+          "promotion.maryaj_gratis.quantity_tiers_required",
+          "promotion.rule.rule_key_required",
+          "promotion.rule.eligibility_required",
+          "promotion.rule.eligibility_type_required",
+          "promotion.rule.effects_required",
+          "promotion.rule.effect_type_required",
+          "promotion.rule.boost_odds_scale",
+          "promotion.rule.quantity_mode_invalid",
+          "promotion.rule.quantity_tiers_required",
+          "promotion.rule.quantity_tiers_invalid",
+          "promotion.rule.quantity_tier_range_invalid",
+          "promotion.rule.choice_mode_invalid",
+          "promotion.rule.generation_strategy_invalid",
+          "promotion.rule.generation_strategy_unsupported",
+          "promotion.rule.generation_strategy_requires_auto_generate",
+          "promotion.rule.priority_must_be_non_negative",
+          "promotion.rule.value_must_be_positive",
+          "promotion.rule.value_must_be_non_negative",
+          "promotion.rule.required_field_missing");
 
   public static ErrorDescriptor validation(String code) {
     if (!VALIDATION_CODES.contains(code)) {

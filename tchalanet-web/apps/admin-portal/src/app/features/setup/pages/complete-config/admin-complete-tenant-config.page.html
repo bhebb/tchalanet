@@ -11,8 +11,14 @@
 
   @if (loading()) {
     <tch-loading [label]="'admin.setup.loading' | translate" />
-  } @else if (error()) {
-    <tch-error-panel [title]="error()!" [showRetry]="true" [retryLabel]="'common.retry' | translate" (retry)="load()" />
+  } @else if (error(); as pageError) {
+    <tch-error-panel
+      [title]="pageError.title"
+      [message]="pageError.message"
+      [showRetry]="true"
+      [retryLabel]="'common.retry' | translate"
+      (retry)="load()"
+    />
   } @else {
 
     <tch-setup-progress-header

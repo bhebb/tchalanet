@@ -2,8 +2,8 @@
   "document": {
     "receipt": {
       "enabled": true,
-      "headerMessage": "Lotto officiel - Bonne chance",
-      "footerMessage": "Merci de votre confiance",
+      "headerMessage": "",
+      "footerMessage": "Bonne chance !",
       "defaultPaperSize": "RECEIPT_80MM",
       "showQrCode": true,
       "defaultTemplateKey": "sales.ticket.receipt.v1"

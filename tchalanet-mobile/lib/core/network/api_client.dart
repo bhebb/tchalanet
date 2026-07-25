@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -91,19 +94,7 @@ ApiException mapDioException(DioException e) {
       category: 'network',
       retryable: true,
     ),
-    DioExceptionType.badResponse => ApiException(
-      message: _extractErrorMessage(e.response?.data),
-      statusCode: e.response?.statusCode,
-      requestId: _extractRequestId(e),
-      traceId: _extractTraceId(e.response),
-      spanId: _extractSpanId(e.response),
-      errorId: _extractString(e.response?.data, 'errorId'),
-      code: _extractString(e.response?.data, 'code'),
-      category: _extractString(e.response?.data, 'category'),
-      retryPolicy: _extractString(e.response?.data, 'retryPolicy'),
-      retryable: _extractBool(e.response?.data, 'retryable'),
-      params: _extractParams(e.response?.data),
-    ),
+    DioExceptionType.badResponse => _apiExceptionFromBadResponse(e),
     DioExceptionType.connectionError => ApiException(
       message: 'Impossible de se connecter au serveur',
       code: 'client.network.unavailable',
@@ -121,17 +112,36 @@ ApiException mapDioException(DioException e) {
   };
 }
 
-String? _extractRequestId(DioException e) {
+ApiException _apiExceptionFromBadResponse(DioException e) {
+  final data = _normalizeProblemData(e.response?.data);
+  return ApiException(
+    message: _extractErrorMessage(data),
+    statusCode: e.response?.statusCode,
+    requestId: _extractRequestId(e, data),
+    traceId: _extractTraceId(e.response, data),
+    spanId: _extractSpanId(e.response),
+    errorId: _extractString(data, 'errorId'),
+    code: _extractString(data, 'code'),
+    category: _extractString(data, 'category'),
+    retryPolicy: _extractString(data, 'retryPolicy'),
+    retryable: _extractBool(data, 'retryable'),
+    params: _extractParams(data),
+  );
+}
+
+String? _extractRequestId(DioException e, dynamic data) {
   // Prefer the outgoing request header (set by RequestIdInterceptor) over the
-  // response echo, which may be absent on network errors.
+  // response echo, then the ProblemDetail body. Some proxy/security failures
+  // may not echo headers but still carry requestId in the JSON contract.
   final sent = e.requestOptions.headers['X-Request-Id']?.toString();
   if (sent != null && sent.isNotEmpty) return sent;
   final echo = e.response?.headers.value('X-Request-Id');
-  return echo == null || echo.isEmpty ? null : echo;
+  if (echo != null && echo.isNotEmpty) return echo;
+  return _extractString(data, 'requestId');
 }
 
-String? _extractTraceId(Response<dynamic>? response) {
-  final bodyTraceId = _extractString(response?.data, 'traceId');
+String? _extractTraceId(Response<dynamic>? response, dynamic data) {
+  final bodyTraceId = _extractString(data, 'traceId');
   if (bodyTraceId != null) return bodyTraceId;
   final headerTraceId = response?.headers.value('X-Trace-Id');
   return headerTraceId == null || headerTraceId.isEmpty ? null : headerTraceId;
@@ -156,6 +166,26 @@ bool _extractBool(dynamic data, String key) {
 Map<String, Object?> _extractParams(dynamic data) {
   if (data is! Map || data['params'] is! Map) return const {};
   return Map<String, Object?>.from(data['params'] as Map);
+}
+
+dynamic _normalizeProblemData(dynamic data) {
+  if (data is Uint8List) {
+    return _decodeJsonBytes(data);
+  }
+  if (data is List<int>) {
+    return _decodeJsonBytes(data);
+  }
+  return data;
+}
+
+dynamic _decodeJsonBytes(List<int> data) {
+  if (data.isEmpty) return data;
+  try {
+    final decoded = jsonDecode(utf8.decode(data));
+    return decoded is Map<String, dynamic> ? decoded : data;
+  } catch (_) {
+    return data;
+  }
 }
 
 String _extractErrorMessage(dynamic data) {
