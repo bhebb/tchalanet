@@ -111,6 +111,29 @@
           "whatsapp": { "title": "WhatsApp" },
           "email": { "title": "Email" },
           "saved": "Paramètres de livraison enregistrés."
+        },
+        "calendar": {
+          "title": "Calendrier de vente",
+          "description": "Définissez les jours récurrents où ce tenant ne vend pas.",
+          "defaultOpen": "Ouvert par défaut",
+          "closedWeekdays": "Jours fermés chaque semaine",
+          "recurringHolidays": "Jours fériés récurrents",
+          "days": {
+            "monday": "Lundi", "tuesday": "Mardi", "wednesday": "Mercredi",
+            "thursday": "Jeudi", "friday": "Vendredi", "saturday": "Samedi", "sunday": "Dimanche"
+          },
+          "customHoliday": {
+            "title": "Jour férié personnalisé",
+            "date": "Date annuelle",
+            "datePlaceholder": "MM-dd",
+            "label": "Libellé",
+            "labelPlaceholder": "Fête locale",
+            "open": "Ouvert ce jour-là",
+            "closed": "Fermé"
+          },
+          "scopeNotice": "Les jours fériés récurrents appartiennent au tenant et sont sans année. Les exceptions datées se gèrent séparément. Les calendriers provider restent gérés par la plateforme.",
+          "saved": "Calendrier de vente enregistré.",
+          "exceptions": "Exceptions datées"
         }
       }
     },

@@ -111,6 +111,29 @@
           "whatsapp": { "title": "WhatsApp" },
           "email": { "title": "Email" },
           "saved": "Ticket delivery settings saved."
+        },
+        "calendar": {
+          "title": "Sales calendar",
+          "description": "Define recurring days when this tenant does not sell.",
+          "defaultOpen": "Open by default",
+          "closedWeekdays": "Weekly closed days",
+          "recurringHolidays": "Recurring holidays",
+          "days": {
+            "monday": "Monday", "tuesday": "Tuesday", "wednesday": "Wednesday",
+            "thursday": "Thursday", "friday": "Friday", "saturday": "Saturday", "sunday": "Sunday"
+          },
+          "customHoliday": {
+            "title": "Custom recurring holiday",
+            "date": "Annual date",
+            "datePlaceholder": "MM-dd",
+            "label": "Label",
+            "labelPlaceholder": "Local holiday",
+            "open": "Open on this day",
+            "closed": "Closed"
+          },
+          "scopeNotice": "Recurring holidays belong to the tenant and have no year. Dated exceptions are managed separately. Provider calendars remain managed by the platform.",
+          "saved": "Sales calendar saved.",
+          "exceptions": "Dated exceptions"
         }
       }
     },

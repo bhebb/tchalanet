@@ -653,6 +653,29 @@
           "whatsapp": { "title": "WhatsApp" },
           "email": { "title": "Imèl" },
           "saved": "Paramèt livrezon yo anrejistre."
+        },
+        "calendar": {
+          "title": "Kalandriye vant",
+          "description": "Defini jou regilye kote tenant sa a pa vann.",
+          "defaultOpen": "Louvri pa default",
+          "closedWeekdays": "Jou ki fèmen chak semèn",
+          "recurringHolidays": "Jou ferye regilye",
+          "days": {
+            "monday": "Lendi", "tuesday": "Madi", "wednesday": "Mèkredi",
+            "thursday": "Jedi", "friday": "Vandredi", "saturday": "Samdi", "sunday": "Dimanch"
+          },
+          "customHoliday": {
+            "title": "Jou ferye pèsonalize",
+            "date": "Dat chak ane",
+            "datePlaceholder": "MM-dd",
+            "label": "Non",
+            "labelPlaceholder": "Fèt lokal",
+            "open": "Louvri jou sa a",
+            "closed": "Fèmen"
+          },
+          "scopeNotice": "Jou ferye regilye yo se pou tenant la epi yo pa gen ane. Eksepsyon ki gen dat jere apa. Platfòm nan toujou jere kalandriye provider yo.",
+          "saved": "Kalandriye vant lan anrejistre.",
+          "exceptions": "Eksepsyon ki gen dat"
         }
       }
     },

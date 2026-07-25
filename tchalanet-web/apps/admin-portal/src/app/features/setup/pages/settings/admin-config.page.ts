@@ -45,13 +45,13 @@ const PAPER_SIZES = ['RECEIPT_58MM', 'RECEIPT_80MM', 'A4'] as const;
 const DEFAULT_TENANT_CURRENCY = 'HTG';
 
 const WEEKDAYS = [
-  { code: 'MONDAY', label: 'Lundi' },
-  { code: 'TUESDAY', label: 'Mardi' },
-  { code: 'WEDNESDAY', label: 'Mercredi' },
-  { code: 'THURSDAY', label: 'Jeudi' },
-  { code: 'FRIDAY', label: 'Vendredi' },
-  { code: 'SATURDAY', label: 'Samedi' },
-  { code: 'SUNDAY', label: 'Dimanche' },
+  { code: 'MONDAY', labelKey: 'admin.settings.config.calendar.days.monday' },
+  { code: 'TUESDAY', labelKey: 'admin.settings.config.calendar.days.tuesday' },
+  { code: 'WEDNESDAY', labelKey: 'admin.settings.config.calendar.days.wednesday' },
+  { code: 'THURSDAY', labelKey: 'admin.settings.config.calendar.days.thursday' },
+  { code: 'FRIDAY', labelKey: 'admin.settings.config.calendar.days.friday' },
+  { code: 'SATURDAY', labelKey: 'admin.settings.config.calendar.days.saturday' },
+  { code: 'SUNDAY', labelKey: 'admin.settings.config.calendar.days.sunday' },
 ] as const;
 
 const PAID_BY = [
