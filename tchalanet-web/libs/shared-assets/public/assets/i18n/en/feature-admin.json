@@ -76,6 +76,23 @@
           "ready": "Ready",
           "actionRequired": "Action required",
           "issues": "{{count}} issue(s)"
+        },
+        "receipt": {
+          "title": "Receipt and printing",
+          "description": "Customize the receipt content and print options used by seller terminals.",
+          "enabled": "Use tenant receipt preferences",
+          "header": "Header message",
+          "headerPlaceholder": "Thank you for playing with us!",
+          "headerHint": "Optional message printed above the ticket details.",
+          "footer": "Footer message",
+          "footerPlaceholder": "Good luck!",
+          "footerHint": "Optional message printed below the ticket details.",
+          "paperSize": "Paper size",
+          "paperSizeHint": "The default paper format for printed receipts.",
+          "qrCode": "Show QR code",
+          "template": "Effective template:",
+          "templateDefault": "Platform default",
+          "saved": "Receipt configuration saved."
         }
       }
     },

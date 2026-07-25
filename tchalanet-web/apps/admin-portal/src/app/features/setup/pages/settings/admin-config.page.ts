@@ -149,6 +149,9 @@ export class AdminConfigPage {
   readonly config = this.api.tenantConfigResource();
   readonly holidayTemplates = this.api.holidayTemplatesResource();
   readonly readiness = this.api.readinessResource();
+  readonly receiptTemplateKey = computed(
+    () => this.config.value()?.document?.receipt?.defaultTemplateKey ?? null,
+  );
   readonly configError = resourceErrorVm(this.config, 'admin.setup.config');
   readonly configIsEmpty = () => false;
   readonly fromSetup = this.route.snapshot.queryParamMap.get('from') === 'setup';

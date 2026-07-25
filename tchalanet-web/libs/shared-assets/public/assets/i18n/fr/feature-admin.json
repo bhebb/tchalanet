@@ -76,6 +76,23 @@
           "ready": "Prêt",
           "actionRequired": "Action requise",
           "issues": "{{count}} point(s) à corriger"
+        },
+        "receipt": {
+          "title": "Reçus et impression",
+          "description": "Personnalisez le contenu et les options d’impression utilisés par les seller terminals.",
+          "enabled": "Utiliser les préférences de reçu du tenant",
+          "header": "Message d’en-tête",
+          "headerPlaceholder": "Merci de jouer avec nous !",
+          "headerHint": "Message facultatif imprimé au-dessus des détails du ticket.",
+          "footer": "Message de pied de page",
+          "footerPlaceholder": "Bonne chance !",
+          "footerHint": "Message facultatif imprimé sous les détails du ticket.",
+          "paperSize": "Format de papier",
+          "paperSizeHint": "Format utilisé par défaut pour les reçus imprimés.",
+          "qrCode": "Afficher le QR code",
+          "template": "Template effectif :",
+          "templateDefault": "Template plateforme par défaut",
+          "saved": "Configuration des reçus enregistrée."
         }
       }
     },

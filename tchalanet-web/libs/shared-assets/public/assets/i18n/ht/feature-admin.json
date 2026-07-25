@@ -618,6 +618,23 @@
           "ready": "Pare",
           "actionRequired": "Aksyon nesesè",
           "issues": "{{count}} pwoblèm"
+        },
+        "receipt": {
+          "title": "Resi ak enpresyon",
+          "description": "Personnalize kontni ak opsyon enpresyon tèminal POS yo itilize.",
+          "enabled": "Sèvi ak preferans resi tenant la",
+          "header": "Mesaj anlè",
+          "headerPlaceholder": "Mèsi paske ou jwe avèk nou!",
+          "headerHint": "Mesaj opsyonèl ki enprime anlè detay tikè a.",
+          "footer": "Mesaj anba",
+          "footerPlaceholder": "Bòn chans!",
+          "footerHint": "Mesaj opsyonèl ki enprime anba detay tikè a.",
+          "paperSize": "Gwosè papye",
+          "paperSizeHint": "Fòma yo itilize pou resi enprime yo.",
+          "qrCode": "Montre kòd QR la",
+          "template": "Modèl aktif :",
+          "templateDefault": "Modèl platfòm pa default",
+          "saved": "Konfigirasyon resi a anrejistre."
         }
       }
     },

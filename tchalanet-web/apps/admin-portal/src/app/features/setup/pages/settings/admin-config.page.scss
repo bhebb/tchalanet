@@ -53,6 +53,20 @@
     &--ready { color: var(--tch-color-success); }
   }
 
+  &__effective-value {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    max-width: 720px;
+    padding: 0.75rem;
+    border: 1px solid var(--tch-color-outline-variant);
+    border-radius: var(--tch-radius-sm);
+    color: var(--tch-color-on-surface-variant);
+    font-size: 0.875rem;
+
+    .material-symbols-outlined { color: var(--tch-color-primary); }
+  }
+
   &__form {
     display: flex;
     flex-direction: column;
