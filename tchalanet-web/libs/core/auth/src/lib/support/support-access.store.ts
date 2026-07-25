@@ -4,6 +4,8 @@ import { DestroyRef, Injectable, PLATFORM_ID, computed, inject, signal } from '@
 import { TchBackendClient } from '@tch/api';
 import { firstValueFrom } from 'rxjs';
 
+import { AuthSessionService } from '../auth-session.service';
+
 export interface TenantAdminAccessSession {
   sessionId: string;
   tenantId: string;
@@ -24,6 +26,7 @@ export class SupportAccessStore {
   private readonly destroyRef = inject(DestroyRef);
   private readonly document = inject(DOCUMENT);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly auth = inject(AuthSessionService);
   private readonly _session = signal<TenantAdminAccessSession | null>(this.readStoredSession());
 
   readonly session = this._session.asReadonly();
@@ -54,12 +57,22 @@ export class SupportAccessStore {
     }
   }
 
+  // Only SUPER_ADMIN can hold a support-access session (see EffectiveTenantResolver
+  // server-side) — a plain TENANT_ADMIN calling this endpoint always 403s, so skip the
+  // network call entirely for them instead of firing it on every window focus.
+  private canHydrate(): boolean {
+    return this.auth.hasRole('SUPER_ADMIN');
+  }
+
   startSession(session: TenantAdminAccessSession): void {
     this._session.set(session);
     this.storage()?.setItem(SupportAccessStore.STORAGE_KEY, JSON.stringify(session));
   }
 
   async hydrateCurrent(): Promise<void> {
+    if (!this.canHydrate()) {
+      return;
+    }
     try {
       const session = await firstValueFrom(
         this.backend.get<TenantAdminAccessSession | null>('/platform/tenants/admin-access/current', {
