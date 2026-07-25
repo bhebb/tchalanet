@@ -109,6 +109,9 @@
           "qrCode": "Afficher le QR code",
           "template": "Template effectif :",
           "templateDefault": "Template plateforme par défaut",
+          "templateNames": {
+            "ticketReceiptV1": "Reçu de ticket"
+          },
           "saved": "Configuration des reçus enregistrée."
         },
         "communication": {
