@@ -206,14 +206,14 @@ export class AdminReportsApi {
 
   searchSellerTerminals(
     query: string,
-    options?: TchRequestOptions,
+    options?: TchRequestOptions & { readonly size?: number },
   ): Observable<readonly ReportSellerTerminalSearchOption[]> {
     return this.backend.getPage<ReportSellerTerminalLookupDto>('/admin/seller-terminals', {
       ...options,
       params: {
         q: query,
         page: '0',
-        size: '10',
+        size: String(options?.size ?? 10),
       },
     }).pipe(
       map(page => page.items.map(row => ({

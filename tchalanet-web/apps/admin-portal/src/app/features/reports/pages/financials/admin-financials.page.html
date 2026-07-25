@@ -166,7 +166,7 @@
                   @for (row of vm.data.sellerTerminalDrawRows; track row.sellerTerminalId + row.drawId) {
                     <tr>
                       <td>
-                        <span class="financials-table__primary">{{ shortId(row.sellerTerminalId) }}</span>
+                        <span class="financials-table__primary">{{ terminalLabel(row.sellerTerminalId) }}</span>
                       </td>
                       <td>
                         <span class="financials-table__primary">{{ drawLabel(row) }}</span>
