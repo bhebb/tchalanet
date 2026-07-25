@@ -1,6 +1,6 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { DestroyRef, Injectable, PLATFORM_ID, computed, inject, signal } from '@angular/core';
+import { DestroyRef, Injectable, Injector, PLATFORM_ID, computed, inject, signal } from '@angular/core';
 import { TchBackendClient } from '@tch/api';
 import { firstValueFrom } from 'rxjs';
 
@@ -26,7 +26,7 @@ export class SupportAccessStore {
   private readonly destroyRef = inject(DestroyRef);
   private readonly document = inject(DOCUMENT);
   private readonly platformId = inject(PLATFORM_ID);
-  private readonly auth = inject(AuthSessionService);
+  private readonly injector = inject(Injector);
   private readonly _session = signal<TenantAdminAccessSession | null>(this.readStoredSession());
 
   readonly session = this._session.asReadonly();
@@ -61,7 +61,7 @@ export class SupportAccessStore {
   // server-side) — a plain TENANT_ADMIN calling this endpoint always 403s, so skip the
   // network call entirely for them instead of firing it on every window focus.
   private canHydrate(): boolean {
-    return this.auth.hasRole('SUPER_ADMIN');
+    return this.injector.get(AuthSessionService).hasRole('SUPER_ADMIN');
   }
 
   startSession(session: TenantAdminAccessSession): void {
