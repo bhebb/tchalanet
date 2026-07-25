@@ -29,7 +29,11 @@
   >
     <ng-template tchAsyncReady>
       <!-- KPI summary -->
-      <tch-generated-draws-summary [draws]="allDraws()" [today]="today" />
+      <tch-generated-draws-summary
+        [draws]="allDraws()"
+        [today]="today"
+        (kpiSelected)="onKpiSelected($event)"
+      />
 
       <!-- Toolbar -->
       <tch-admin-list-surface

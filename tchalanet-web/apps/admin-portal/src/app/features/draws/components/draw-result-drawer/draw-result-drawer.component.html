@@ -136,7 +136,7 @@
         <!-- Number inputs -->
         <div class="drd-form__section">
           <h3 class="drd-form__section-title">Numéros gagnants</h3>
-          <p class="drd-form__section-hint">3 numéros · 2 chiffres chacun (00–99)</p>
+          <p class="drd-form__section-hint">1er numéro : 3 chiffres (000–999) · 2 numéros suivants : 2 chiffres chacun (00–99)</p>
 
           <div class="drd-balls-input">
             <div class="drd-ball-field">
@@ -145,11 +145,11 @@
                 class="drd-ball-input"
                 type="tel"
                 inputmode="numeric"
-                maxlength="2"
-                placeholder="--"
+                maxlength="3"
+                placeholder="---"
                 formControlName="n1"
                 autocomplete="off"
-                (input)="onNumberInput($event, n2Ref())"
+                (input)="onNumberInput($event, 3, n2Ref())"
               />
               @if (fieldError('n1'); as err) {
                 <span class="drd-ball-error" role="alert">{{ err }}</span>
@@ -166,7 +166,7 @@
                 placeholder="--"
                 formControlName="n2"
                 autocomplete="off"
-                (input)="onNumberInput($event, n3Ref())"
+                (input)="onNumberInput($event, 2, n3Ref())"
                 #n2Input
               />
               @if (fieldError('n2'); as err) {

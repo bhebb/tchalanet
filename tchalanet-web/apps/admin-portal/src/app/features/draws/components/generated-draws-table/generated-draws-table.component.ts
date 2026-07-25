@@ -364,7 +364,12 @@ export class GeneratedDrawsTableComponent {
 
   private primaryAction(draw: GeneratedDrawView): ConsoleRowAction {
     switch (draw.resultStatus) {
+      // 'EXPECTED' n'a pas de seuil de temps côté back (mapResultStatus reste sur
+      // EXPECTED tant qu'aucun DrawResult n'existe, même très en retard) — on se fie
+      // donc à canEnterManualResult() (qui vérifie déjà le délai de 30 min) plutôt
+      // qu'au statut MISSING pour proposer la saisie manuelle.
       case 'MISSING':
+      case 'EXPECTED':
         return this.canEnterManualResult(draw)
           ? { id: 'enterResult', label: 'Saisir résultat', icon: 'edit_note', tone: 'primary' }
           : { id: 'viewDetails', label: 'Voir détails', icon: 'visibility' };

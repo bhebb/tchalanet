@@ -9,39 +9,27 @@
         <article class="console-draws-table__card">
           <header class="console-draws-table__card-header">
             <tch-console-draw-slot-identity [identity]="row.identity" />
-            @if (selectable()) {
-              <mat-checkbox
-                [checked]="isSelected(row)"
-                [attr.aria-label]="'Sélectionner ' + row.title"
-                (change)="emitSelection(row, $event.checked)"
-              />
-            }
+            <div class="console-draws-table__card-header-end">
+              <tch-admin-status-pill [label]="row.statusLabel" [tone]="row.statusTone" />
+              @if (row.countdownLabel) {
+                <span
+                  class="console-draws-table__countdown"
+                  [class.console-draws-table__countdown--warning]="row.countdownTone === 'warning'"
+                >
+                  {{ row.countdownLabel }}
+                </span>
+              }
+              @if (selectable()) {
+                <mat-checkbox
+                  [checked]="isSelected(row)"
+                  [attr.aria-label]="'Sélectionner ' + row.title"
+                  (change)="emitSelection(row, $event.checked)"
+                />
+              }
+            </div>
           </header>
 
           <dl class="console-draws-table__card-facts">
-            <div class="console-draws-table__card-fact">
-              <dt>Date</dt>
-              <dd>
-                <span class="console-draws-table__date">{{ row.scheduledDateLabel || '—' }}</span>
-                <span class="console-draws-table__time">{{ row.scheduledTimeLabel || '—' }}</span>
-                @if (row.countdownLabel) {
-                  <span
-                    class="console-draws-table__countdown"
-                    [class.console-draws-table__countdown--warning]="row.countdownTone === 'warning'"
-                  >
-                    {{ row.countdownLabel }}
-                  </span>
-                }
-              </dd>
-            </div>
-
-            <div class="console-draws-table__card-fact">
-              <dt>Statut</dt>
-              <dd>
-                <tch-admin-status-pill [label]="row.statusLabel" [tone]="row.statusTone" />
-              </dd>
-            </div>
-
             <div class="console-draws-table__card-fact">
               <dt>Résultat</dt>
               <dd>
@@ -66,27 +54,6 @@
                     <span class="console-draws-table__dash">—</span>
                   }
                 </div>
-              </dd>
-            </div>
-
-            <div class="console-draws-table__card-fact">
-              <dt>Mode</dt>
-              <dd>
-                <span class="console-draws-table__chip">{{ row.modeLabel || '—' }}</span>
-              </dd>
-            </div>
-
-            <div class="console-draws-table__card-fact">
-              <dt>Publication</dt>
-              <dd>
-                @if (row.publicationLabel) {
-                  <tch-admin-status-pill
-                    [label]="row.publicationLabel"
-                    [tone]="row.publicationTone || 'neutral'"
-                  />
-                } @else {
-                  <span class="console-draws-table__dash">—</span>
-                }
               </dd>
             </div>
           </dl>

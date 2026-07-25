@@ -67,3 +67,25 @@
     }
   }
 }
+
+@media (max-width: 600px) {
+  .gd-page {
+    &__filters-body {
+      gap: 0.625rem;
+    }
+
+    &__date-chips {
+      gap: 0.375rem;
+    }
+
+    &__chip {
+      padding: 0.25rem 0.625rem;
+      font-size: 0.625rem;
+    }
+
+    &__date-range {
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+    }
+  }
+}

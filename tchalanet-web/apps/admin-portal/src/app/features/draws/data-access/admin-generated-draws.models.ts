@@ -87,6 +87,7 @@ export type DrawStatusFilter = Extract<
   ConsoleDrawStatusFilter,
   | 'all'
   | 'PAST'
+  | 'EXPECTED_OR_MISSING'
   | ConsoleDrawStatus
   | 'EXPECTED'
   | 'MISSING'

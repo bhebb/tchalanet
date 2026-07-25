@@ -64,7 +64,7 @@ export class DrawResultDrawerComponent implements OnInit {
   readonly n3Ref = viewChild<ElementRef<HTMLInputElement>>('n3Input');
 
   readonly form = new FormGroup({
-    n1: new FormControl('', [Validators.required, Validators.pattern(/^\d{2}$/)]),
+    n1: new FormControl('', [Validators.required, Validators.pattern(/^\d{3}$/)]),
     n2: new FormControl('', [Validators.required, Validators.pattern(/^\d{2}$/)]),
     n3: new FormControl('', [Validators.required, Validators.pattern(/^\d{2}$/)]),
     note: new FormControl(''),
@@ -165,11 +165,11 @@ export class DrawResultDrawerComponent implements OnInit {
 
   onClose(): void { this.closed.emit(); }
 
-  onNumberInput(event: Event, next: ElementRef<HTMLInputElement> | undefined): void {
+  onNumberInput(event: Event, maxLen: number, next: ElementRef<HTMLInputElement> | undefined): void {
     const el = event.target as HTMLInputElement;
-    const clean = el.value.replace(/\D/g, '').slice(0, 2);
+    const clean = el.value.replace(/\D/g, '').slice(0, maxLen);
     if (el.value !== clean) el.value = clean;
-    if (clean.length >= 2 && next) {
+    if (clean.length >= maxLen && next) {
       next.nativeElement.focus();
       next.nativeElement.select();
     }
@@ -183,7 +183,11 @@ export class DrawResultDrawerComponent implements OnInit {
         ? 'Une raison est requise pour modifier un résultat confirmé.'
         : 'Le numéro est requis.';
     }
-    if (ctrl.errors['pattern']) return 'Format invalide — 2 chiffres, ex : 05 ou 23.';
+    if (ctrl.errors['pattern']) {
+      return name === 'n1'
+        ? 'Format invalide — 3 chiffres, ex : 105.'
+        : 'Format invalide — 2 chiffres, ex : 05 ou 23.';
+    }
     return null;
   }
 }
