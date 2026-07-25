@@ -48,6 +48,24 @@
         }
       },
       "codes": {
+        "idempotency": {
+          "missing": {
+            "title": "Kle idempotans obligatwa",
+            "message": "Bay yon kle Idempotency-Key ki inik epi eseye ankò."
+          },
+          "payload_mismatch": {
+            "title": "Kle demann nan deja itilize",
+            "message": "Kle idempotans sa a te itilize ak lòt done. Rekòmanse ak yon nouvo kle."
+          },
+          "in_progress": {
+            "title": "Demann nan ap trete",
+            "message": "Aksyon sa a deja ap trete. Tann yon ti moman epi eseye ankò."
+          },
+          "completed_no_response": {
+            "title": "Repons lan pa disponib",
+            "message": "Demann nan fini, men repons li pa disponib. Rekòmanse ak yon nouvo kle."
+          }
+        },
         "access": {
           "authentication_required": {
             "title": "Sesyon obligatwa",

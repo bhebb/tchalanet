@@ -1,11 +1,11 @@
 package com.tchalanet.server.platform.idempotence.internal.web;
 
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-
 import com.tchalanet.server.common.context.TchContext;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.http.TchHeaders;
+import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.platform.idempotence.api.RequireIdempotency;
+import com.tchalanet.server.platform.idempotence.api.error.IdempotencyErrorCodes;
 import com.tchalanet.server.platform.idempotence.api.model.IdempotencyScope;
 import jakarta.annotation.Nonnull;
 import jakarta.servlet.http.HttpServletRequest;
@@ -43,8 +43,7 @@ public class RequireIdempotencyInterceptor implements HandlerInterceptor {
 
     var key = request.getHeader(TchHeaders.IDEMPOTENCY_KEY);
     if (StringUtils.isBlank(key)) {
-      response.sendError(BAD_REQUEST.value(), "Missing Idempotency-Key");
-      return false;
+      throw ProblemRest.of(IdempotencyErrorCodes.MISSING);
     }
 
     key = key.trim();
