@@ -305,7 +305,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Ensure image pair passed staging
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         env:
           API_IMAGE_TAG: ${{ needs.plan.outputs.api_image_tag }}
           EDGE_IMAGE_TAG: ${{ needs.plan.outputs.edge_image_tag }}
@@ -477,7 +477,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Mark staging deployment
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         env:
           API_IMAGE_TAG: ${{ needs.plan.outputs.api_image_tag }}
           EDGE_IMAGE_TAG: ${{ needs.plan.outputs.edge_image_tag }}
