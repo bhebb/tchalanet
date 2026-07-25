@@ -65,6 +65,13 @@ portals, Flutter mobile, client-originated failures, i18n, accessibility, recove
 
 - [x] Establish an additive code-first descriptor baseline in `common.web.error` and a tested
       `ProblemRest` factory, without changing legacy message-first call sites.
+- [x] Migrate the idempotency HTTP boundary: missing key, payload mismatch, in-progress replay, and
+      completed-without-response now use owner descriptors instead of message-first `ProblemRest`
+      strings. Tests assert `ProblemDetail.code` rather than exception messages.
+- [x] Migrate the platform Ops draw-result future-date guard to an owner descriptor
+      (`ops.draw_result.future_date`) so manual/override validation never exposes ad hoc prose.
+- [x] Migrate platform Ops batch launch validation for unknown tenant codes and excessive tenant
+      fan-out to owner descriptors with declared safe public parameters.
 - [x] Migrate the first critical POS producer: receipt print-profile validation now emits
       `pos.receipt.print_options_invalid` without exposing the underlying exception prose.
 - [x] Migrate the seller-terminal and pricing command/query boundaries: terminal lifecycle/PIN
@@ -72,10 +79,17 @@ portals, Flutter mobile, client-originated failures, i18n, accessibility, recove
       causes only for server diagnostics, and ship exact HT/FR/EN copies. Their admin HTTP adapters
       are covered through `MockMvc`: status, `application/problem+json`, exact code/category/retry
       metadata, and neutral details are asserted for seller-terminal transitions and pricing input.
+- [x] Migrate the first promotion rule write boundary: campaign/rule validation, rule-not-found,
+      and duplicate rule-key failures now use `PromotionErrorCodes` descriptors instead of
+      message-first `ProblemRest.badRequest/notFound/conflict` calls.
+- [x] Lock the priority `core.sales` POS contract: draw cutoff, terminal cannot sell, preparation
+      expiry, and reprint validation are registered descriptors with stable categories/statuses and
+      client-owned retry policy. The remaining sales domain invariants stay diagnostic-only unless
+      they cross an HTTP boundary.
 - [x] Normalize framework validation failures to stable field violations without serializing Bean
       Validation or request-deserialization prose; retain only code, field, and target.
-- [ ] Reconcile the related `complete-apiresponse-notices` OpenSpec with production code and archive
-      it only after its tasks/tests match reality.
+- [x] Reconcile the related `complete-apiresponse-notices` OpenSpec with the root error contract and
+      archive it as superseded so only one active source of truth remains.
 - [x] Define common technical contract types as needed: `ErrorCode`, `ErrorCategory`,
       `ErrorDescriptor`, `ErrorSeverity`, `ErrorRetryPolicy`, and typed `ErrorParamSpec`; keep concrete business codes in
       their owning package (`core`, `platform`, or `features`).
@@ -95,8 +109,9 @@ portals, Flutter mobile, client-originated failures, i18n, accessibility, recove
 - [~] Add an owner-distributed descriptor registry/collector validated at startup or test time and an
       ArchUnit/static guard against raw externally visible codes in controllers/services. Block new
       message-first producers with a baseline allowlist that only shrinks. The Spring registry now
-      validates the initial common/context/POS contributors at startup; the raw-producer guard and
-      shrinking migration allowlist remain.
+      validates the initial common/context/POS contributors at startup; the `tchalanet-app`
+      architecture suite now blocks new message-first `ProblemRest` producers in `features` and
+      `platform`. Broader raw-code/UI gates and the shrinking migration allowlist remain.
 - [ ] Ensure every `ProblemDetail` has code, status, title, detail, instance, request/trace/span IDs
       when available, and generated error ID when applicable. These prose fields are diagnostic-only.
 - [~] Prevent serialization of stacks, nested exception/provider prose, credentials, or enumeration
@@ -104,6 +119,9 @@ portals, Flutter mobile, client-originated failures, i18n, accessibility, recove
       regression tests are in place; owner migrations and authentication enumeration tests remain.
 - [ ] Add locale fixtures and CI parity for every first migrated product-visible code in `ht`, `fr`,
       and `en`. A new registered code cannot rely only on a category fallback.
+      The first visible web/mobile contract test now requires HT/FR/EN copy for public/admin/POS P0
+      categories and codes: `access.denied`, `validation.failed`, `sales.draw_closed`,
+      `access_denied`, `validation`, `business_rule`, and `service_unavailable`.
 - [ ] Extend the stable validation shape with approved safe parameters where a specific form needs
       them; Bean-validation text is never the client translation contract.
 - [ ] Provide approved generic and domain field codes; remove detail-text inference once producers
@@ -196,15 +214,34 @@ portals, Flutter mobile, client-originated failures, i18n, accessibility, recove
 
 ## Phase 4 — Shared fixtures, observability, and privacy hardening
 
-- [~] Publish the first versioned blocking-error fixtures. Broaden fixture consumption in the
-      server, web, and mobile transport tests to validation, warning, partial, malformed envelope,
-      and void cases before treating fixture coverage as complete.
+- [~] Publish the first versioned blocking-error fixtures. `testing/contracts/error-contract/v1`
+      now contains shared `ProblemDetail` examples for validation, malformed request body,
+      access-denied, and unexpected failures plus `ApiResponse` examples for warning success and
+      partial section degradation. Java validates their stable/redacted contract shape; Angular
+      consumes them through the shared API normalizer used by public/admin/platform, and Flutter
+      consumes them through the mobile network mapper/notice interceptor. The same fixtures now
+      cover the first priority flows closer to product behavior: public ticket-check status mapping,
+      admin POS preparation/confirm notices, and mobile POS prepare/confirm/print error mapping,
+      and Angular Blob downloads now decode `application/problem+json` failures before POS receipt
+      print errors reach the page renderer.
+      The tenant-admin setup page now also consumes the shared fixtures through exported
+      presentation helpers: page errors and section notices resolve client-owned copy and never use
+      `ProblemDetail.detail` or notice `message` as display text.
+      including JSON `ProblemDetail` failures on binary print calls. Admin POS page presentation now
+      resolves those notices into local title/message/scope view models, and the Flutter sell
+      controller/print action now preserve user-safe translation keys through prepare, confirm/sell,
+      and print UI feedback. Broaden malformed envelope and void/binary success cases before treating
+      fixture coverage as complete.
 
-- [ ] Publish versioned JSON fixtures for blocking errors, validation failures, successful warnings,
+- [~] Publish versioned JSON fixtures for blocking errors, validation failures, successful warnings,
       partial BFF results, malformed envelopes, and void responses; share fixtures, not runtime code,
-      between Java, TypeScript, and Dart.
-- [ ] Standardize requestId/traceId/spanId/errorId names and body/header precedence. Remove ambiguous
-      aliases and the mobile bug that assigns request ID to trace ID.
+      between Java, TypeScript, and Dart. The first v1 fixture set covers blocking validation,
+      malformed-body, access-denied, unexpected-error, warning success, and partial degradation; it
+      is now consumed by Java, Angular, and Flutter contract tests.
+- [~] Standardize requestId/traceId/spanId/errorId names and body/header precedence. Remove ambiguous
+      aliases and the mobile bug that assigns request ID to trace ID. Mobile now maps `X-Request-Id`
+      to `requestId`, maps `traceId` from body/`X-Trace-Id`, retains notice trace fields, and covers
+      the precedence with focused network tests; web/server naming parity remains.
 - [ ] Define support-reference copy format and structured diagnostics: stable code, route/screen,
       owner, trace IDs, retry count, and permitted tenant/slice context only.
 - [ ] Define client diagnostics as redacted structured context only. Raw server `title`, `detail`,
@@ -336,7 +373,52 @@ portals, Flutter mobile, client-originated failures, i18n, accessibility, recove
 - [ ] Review Flutter framework/zone error boundaries, diagnostics/telemetry redaction, and duplicate
       reporting. Add narrow-screen and text-scale widget tests.
 
-## Phase 11 — End-to-end migration and enforcement
+## Phase 11 — Validation pass and legacy cleanup
+
+- [ ] Validate the canonical product contract against production code: every application JSON
+      blocking failure is `ProblemDetail`; every successful/degraded response is `ApiResponse<T>`;
+      binary/stream/empty responses are explicitly exempted.
+- [~] Validate `GlobalErrorHandler`, security entry points, validation handlers, and direct
+      `ProblemDetail` producers against the stable descriptor contract: code, category, retry
+      policy, safe params, correlation fields, and no raw prose. `GlobalErrorHandler` now uses
+      common descriptors for JPA not-found, Bean Validation, malformed bodies, missing/type-mismatch
+      parameters, constraint violations, access denials, and unexpected failures while preserving
+      safe field violations only. Security filter entry points were already descriptor-first; direct
+      producers and broader endpoint coverage remain.
+- [~] Validate `ApiResponseBodyAdvice`, `ApiResponseContext`, `ApiResponseNotices`, and
+      `ServiceStatus` status resolution against the root contract: `PARTIAL` only when expected
+      data is unavailable, `SUCCESS_WITH_WARNINGS` for complete data with business/capability
+      warning, and `PENDING` only when explicitly requested by the handler. First implementation
+      pass now prevents degraded service health alone from forcing `PARTIAL`; degradation notices
+      and explicit `ApiResponse.partial(...)` still represent missing expected data.
+- [ ] Validate every BFF migration candidate with a slice matrix: required, optional, background,
+      empty optional result, single optional failure, multiple optional failures, duplicate failure,
+      and unknown technical failure.
+- [~] Validate web admin/platform/public transport boundaries: retained envelopes, exact-code
+      translation, owner routing, dedupe, local retry, form/field mapping, focus recovery, and no
+      raw `ProblemDetail.title/detail` or `ApiNotice.message` display. The shared Angular API
+      normalizer now consumes the v1 fixtures for public page and admin form/page cases plus warning
+      and partial notices; portal-specific routing and copy coverage remain.
+- [~] Validate mobile/POS transport boundaries: retained envelopes where feedback matters,
+      structured `ApiException`, local POS ownership for prepare/confirm/sell/print/reprint, retry
+      policy, and no blanket global rendering of every 2xx notice. The mobile network mapper and
+      notice interceptor now consume the v1 fixtures, retain structured `requestId` from the
+      `ProblemDetail` body, and keep notice source/target/params/trace available; POS screen-level
+      ownership remains.
+- [ ] Validate `ht`, `fr`, and `en` shipped catalogs for every product-visible migrated code,
+      including descriptor parameter interpolation and missing/orphan/duplicate key failures.
+- [ ] Validate shared contract fixtures across Java, TypeScript, and Dart: blocking error,
+      validation error, warning success, partial response, capability warning, explicit pending,
+      malformed envelope, void response, binary response, and network/client-origin failure.
+- [x] Remove or archive superseded active OpenSpec changes once their rules are fully represented by
+      this root contract. `tchalanet-server/openspec/changes/complete-apiresponse-notices` is
+      superseded by this change and should not remain an active source of truth.
+- [ ] Remove legacy bridges only after the validation inventory reaches zero: message-first
+      `ProblemRest`, raw detail/code inference, `ApiResponse.notFound` false-success semantics,
+      pending sentinels inferred by advice, raw translated fallback prose, data-only BFF unwraps,
+      and blanket mobile notice interception.
+
+## Phase 12 — End-to-end migration and enforcement
 
 - [ ] Migrate critical mobile/POS: login, PIN, prepare, confirm, sell, print/reprint.
 - [ ] Replace raw labels/messages in the mobile `PosHomeResponse` contract with i18n keys and safe
@@ -349,13 +431,15 @@ portals, Flutter mobile, client-originated failures, i18n, accessibility, recove
       CRUD remain.
 - [ ] Maintain an inventory for each endpoint/screen: envelope retained, stable code, translations,
       owner, recovery, and test coverage.
-- [ ] Add static/CI gates against raw prose in UI, inline external codes, data-only BFF unwrap,
-      global notice interception, incomplete locales, and missing BFF slice matrix.
+- [~] Add static/CI gates against raw prose in UI, inline external codes, data-only BFF unwrap,
+      global notice interception, incomplete locales, and missing BFF slice matrix. The first server
+      guard blocks new message-first `ProblemRest` producers in `features` and `platform`; client
+      gates and BFF matrix enforcement remain.
 - [ ] Remove migration bridges only when the inventory reaches zero: legacy service health, detail
       inference, raw French fallbacks, `ApiException.message` rendering, blanket mobile notices, and
       obsolete suppression option.
 
-## Phase 12 — Documentation and Definition of Done
+## Phase 13 — Documentation and Definition of Done
 
 - [ ] Update server API-response conventions, BFF feature rules, web HTTP/state/error conventions,
       mobile API/error conventions, and the PR checklist with blocking/partial/warning/validation/

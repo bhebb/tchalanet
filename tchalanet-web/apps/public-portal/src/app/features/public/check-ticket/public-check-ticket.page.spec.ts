@@ -1,3 +1,11 @@
+/// <reference types="node" />
+
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+
+import { ProblemDetail } from '@tch/api';
+
+import { mapPublicTicketProblemStatus } from './public-ticket.service';
 import { formatPublicCode, verificationCopy } from './public-check-ticket.utils';
 
 describe('PublicCheckTicketPage helpers', () => {
@@ -19,4 +27,27 @@ describe('PublicCheckTicketPage helpers', () => {
     );
     expect(verificationCopy('NOT_FOUND').tone).toBe('danger');
   });
+
+  it('maps shared ProblemDetail fixtures to cautious public ticket-check statuses', () => {
+    const validation = contractProblemFixture('problem-details/validation-failed.json');
+    const denied = contractProblemFixture('problem-details/access-denied.json');
+    const unexpected = contractProblemFixture('problem-details/unexpected-error.json');
+
+    expect(mapPublicTicketProblemStatus(validation)).toBe('NOT_FOUND');
+    expect(mapPublicTicketProblemStatus(denied)).toBe('SERVICE_UNAVAILABLE');
+    expect(mapPublicTicketProblemStatus(unexpected)).toBe('SERVICE_UNAVAILABLE');
+  });
 });
+
+function contractProblemFixture(relativePath: string): ProblemDetail {
+  return JSON.parse(
+    readFileSync(
+      resolve(
+        process.cwd(),
+        '../tchalanet-server/testing/contracts/error-contract/v1',
+        relativePath,
+      ),
+      'utf8',
+    ),
+  ) as ProblemDetail;
+}

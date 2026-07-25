@@ -1,8 +1,8 @@
 import '@angular/compiler';
-import { HttpClient, HttpContext } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { createEnvironmentInjector, EnvironmentInjector, runInInjectionContext } from '@angular/core';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { of } from 'rxjs';
+import { firstValueFrom, of, throwError } from 'rxjs';
 
 import { TCH_API_BASE, TCH_API_BASE_RESOLVER } from '../http/api-base';
 import { SUPPRESS_SHELL_FEEDBACK, TCH_FEEDBACK_CONTEXT } from '../http/api-feedback-context';
@@ -25,6 +25,10 @@ describe('TchBackendClient', () => {
           get: (url: string, options: unknown) => {
             requests.push({ url, options });
             return of(response);
+          },
+          post: (url: string, body: unknown, options: unknown) => {
+            requests.push({ url, options: { ...(options as object), body } });
+            return response instanceof HttpErrorResponse ? throwError(() => response) : of(response);
           },
         },
       },
@@ -167,5 +171,28 @@ describe('TchBackendClient', () => {
     const context = (requests[0]?.options as { context?: HttpContext }).context;
     expect(context?.get(TCH_FEEDBACK_CONTEXT)).toEqual({ mode: 'local' });
     expect(context?.get(SUPPRESS_SHELL_FEEDBACK)).toBe(true);
+  });
+
+  it('decodes ProblemDetail JSON returned from a blob request failure', async () => {
+    const problem = {
+      title: 'Ticket print rejected',
+      status: 400,
+      code: 'ticket.reprint.reason_required',
+      category: 'VALIDATION',
+      detail: 'Diagnostic-only prose',
+    };
+    response = new HttpErrorResponse({
+      status: 400,
+      statusText: 'Bad Request',
+      url: '/api/v1/tenant/cashier/tickets/ticket-1/print',
+      headers: new HttpHeaders({ 'X-Request-Id': 'tch_req_print_1' }),
+      error: new Blob([JSON.stringify(problem)], { type: 'application/problem+json' }),
+    });
+
+    await expect(firstValueFrom(client.postBlob('/tenant/cashier/tickets/ticket-1/print', {})))
+      .rejects.toMatchObject({
+        error: problem,
+        status: 400,
+      });
   });
 });

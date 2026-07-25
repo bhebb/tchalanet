@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tchalanet_mobile/core/network/api_client.dart';
@@ -85,4 +88,66 @@ void main() {
       contains('common.error.network'),
     );
   });
+
+  test(
+    'shared public/admin ProblemDetail fixtures map to mobile-safe ApiException',
+    () {
+      final publicProblem = _contractFixture(
+        'problem-details/access-denied.json',
+      );
+
+      final publicException = mapDioException(
+        DioException.badResponse(
+          statusCode: 403,
+          requestOptions: RequestOptions(path: '/public/tickets/verify'),
+          response: Response<Map<String, dynamic>>(
+            requestOptions: RequestOptions(path: '/public/tickets/verify'),
+            statusCode: 403,
+            data: publicProblem,
+          ),
+        ),
+      );
+
+      expect(publicException.code, 'access.denied');
+      expect(publicException.category, 'access_denied');
+      expect(publicException.retryPolicy, 'NEVER');
+      expect(publicException.retryable, isFalse);
+      expect(publicException.requestId, 'req_contract_denied');
+      expect(publicException.errorId, 'err_contract_denied');
+      expect(publicException.message, 'Erreur serveur');
+      expect(publicException.message, isNot(publicProblem['detail']));
+
+      final adminProblem = _contractFixture(
+        'problem-details/validation-failed.json',
+      );
+      final adminException = mapDioException(
+        DioException.badResponse(
+          statusCode: 400,
+          requestOptions: RequestOptions(path: '/admin/seller-terminals'),
+          response: Response<Map<String, dynamic>>(
+            requestOptions: RequestOptions(path: '/admin/seller-terminals'),
+            statusCode: 400,
+            data: adminProblem,
+          ),
+        ),
+      );
+
+      expect(adminException.code, 'validation.failed');
+      expect(adminException.category, 'validation');
+      expect(adminException.retryPolicy, 'AFTER_USER_ACTION');
+      expect(adminException.retryable, isTrue);
+      expect(userErrorTranslationKeys(adminException), [
+        'common.errors.codes.validation.failed.message',
+        'common.errors.categories.validation.message',
+        'common.error.unknown',
+      ]);
+    },
+  );
+}
+
+Map<String, dynamic> _contractFixture(String relativePath) {
+  final file = File(
+    '../tchalanet-server/testing/contracts/error-contract/v1/$relativePath',
+  );
+  return jsonDecode(file.readAsStringSync()) as Map<String, dynamic>;
 }

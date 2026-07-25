@@ -15,6 +15,25 @@
       "auth_required": "Konekte ankò pou kontinye.",
       "unknown": "Gen yon erè nou pa t atann"
     },
+    "errors": {
+      "categories": {
+        "access_denied": { "message": "Kont ou pa ka fè aksyon sa a." },
+        "validation": { "message": "Verifye enfòmasyon yo epi eseye ankò." },
+        "business_rule": { "message": "Verifye demann nan epi eseye ankò." },
+        "service_unavailable": { "message": "Yon pati nan sèvis la pa disponib pou yon ti tan." }
+      },
+      "codes": {
+        "access": {
+          "denied": { "message": "Kont ou pa ka fè aksyon sa a." }
+        },
+        "validation": {
+          "failed": { "message": "Verifye enfòmasyon tikè a epi eseye ankò." }
+        },
+        "sales": {
+          "draw_closed": { "message": "Vant la fèmen pou tiraj sa a. Chwazi yon lòt tiraj ki ouvè." }
+        }
+      }
+    },
     "preparation": {
       "total": "Total pou peye",
       "maryaj_free": "Maryaj gratis",

@@ -16,6 +16,7 @@ import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.common.web.error.ProblemRestException;
 import com.tchalanet.server.platform.idempotence.api.IdempotencyStore;
 import com.tchalanet.server.platform.idempotence.api.RequireIdempotency;
+import com.tchalanet.server.platform.idempotence.api.error.IdempotencyErrorCodes;
 import com.tchalanet.server.platform.idempotence.api.model.IdempotencyScope;
 import com.tchalanet.server.platform.idempotence.internal.service.RequestHasher;
 import java.lang.reflect.Method;
@@ -49,7 +50,7 @@ class RequireIdempotencyAspectTest {
 
     assertThatThrownBy(() -> aspect.around(pjp))
         .isInstanceOf(ProblemRestException.class)
-        .hasMessage("idempotency.missing");
+        .satisfies(error -> assertProblemCode(error, IdempotencyErrorCodes.MISSING.code()));
     verify(pjp, never()).proceed();
     verify(store, never()).begin(any(), any(), any(), anyLong());
   }
@@ -68,7 +69,7 @@ class RequireIdempotencyAspectTest {
 
     assertThatThrownBy(() -> aspect.around(pjp))
         .isInstanceOf(ProblemRestException.class)
-        .hasMessage("idempotency.payload_mismatch");
+        .satisfies(error -> assertProblemCode(error, IdempotencyErrorCodes.PAYLOAD_MISMATCH.code()));
     verify(pjp, never()).proceed();
   }
 
@@ -86,7 +87,27 @@ class RequireIdempotencyAspectTest {
 
     assertThatThrownBy(() -> aspect.around(pjp))
         .isInstanceOf(ProblemRestException.class)
-        .hasMessage("idempotency.in_progress");
+        .satisfies(error -> assertProblemCode(error, IdempotencyErrorCodes.IN_PROGRESS.code()));
+    verify(pjp, never()).proceed();
+  }
+
+  @Test
+  void completedReplayWithoutResponseIsRejectedWithStableCode() throws Throwable {
+    var store = mock(IdempotencyStore.class);
+    when(store.begin(eq(IdempotencyScope.SALES_SELL_TICKET), eq("key-1"), any(), eq(300L)))
+        .thenReturn(
+            new IdempotencyStore.BeginResult(
+                IdempotencyStore.Decision.ALREADY_COMPLETED,
+                Optional.of(new IdempotencyStore.CompletedRecord(null, null))));
+    var pjp = joinPoint(Map.of("amount", 10));
+    bindRequest("key-1");
+
+    var aspect = new RequireIdempotencyAspect(store, jsonUtils);
+
+    assertThatThrownBy(() -> aspect.around(pjp))
+        .isInstanceOf(ProblemRestException.class)
+        .satisfies(
+            error -> assertProblemCode(error, IdempotencyErrorCodes.COMPLETED_NO_RESPONSE.code()));
     verify(pjp, never()).proceed();
   }
 
@@ -168,6 +189,11 @@ class RequireIdempotencyAspectTest {
       request.addHeader(TchHeaders.IDEMPOTENCY_KEY, idempotencyKey);
     }
     RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+  }
+
+  private static void assertProblemCode(Throwable error, String expectedCode) {
+    var problem = ((ProblemRestException) error).getProblem();
+    assertThat(problem.getProperties()).containsEntry("code", expectedCode);
   }
 
   private static final class DummyController {

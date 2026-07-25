@@ -1,0 +1,17 @@
+{
+  "type": "about:blank",
+  "title": "Bad Request",
+  "status": 400,
+  "detail": "Request could not be completed",
+  "code": "request.not_readable",
+  "category": "validation",
+  "retryPolicy": "AFTER_USER_ACTION",
+  "retryable": true,
+  "timestamp": "2026-07-24T12:00:00Z",
+  "method": "POST",
+  "path": "/api/v1/admin/draw-results/manual",
+  "requestId": "req_contract_malformed",
+  "traceId": "trace-contract-malformed",
+  "spanId": "span-malformed",
+  "errorId": "err_contract_malformed"
+}

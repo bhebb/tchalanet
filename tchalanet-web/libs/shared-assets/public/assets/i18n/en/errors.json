@@ -18,6 +18,10 @@
           "title": "Information to correct",
           "message": "Check the fields and try again."
         },
+        "business_rule": {
+          "title": "Action unavailable",
+          "message": "Review the request and try again."
+        },
         "not_found": {
           "title": "Item not found",
           "message": "The requested resource is no longer available."
@@ -359,10 +363,22 @@
           }
         },
         "subscription": {
-          "cancelled": { "title": "Subscription cancelled", "message": "The subscription has been cancelled." },
-          "renewed": { "title": "Subscription renewed", "message": "The subscription has been renewed." },
-          "resumed": { "title": "Subscription resumed", "message": "The subscription has been resumed." },
-          "suspended": { "title": "Subscription suspended", "message": "The subscription has been suspended." }
+          "cancelled": {
+            "title": "Subscription cancelled",
+            "message": "The subscription has been cancelled."
+          },
+          "renewed": {
+            "title": "Subscription renewed",
+            "message": "The subscription has been renewed."
+          },
+          "resumed": {
+            "title": "Subscription resumed",
+            "message": "The subscription has been resumed."
+          },
+          "suspended": {
+            "title": "Subscription suspended",
+            "message": "The subscription has been suspended."
+          }
         },
         "sales": {
           "promotion_applied": {

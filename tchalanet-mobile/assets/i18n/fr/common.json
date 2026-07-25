@@ -15,6 +15,25 @@
       "auth_required": "Reconnectez-vous pour continuer.",
       "unknown": "Une erreur inattendue s'est produite"
     },
+    "errors": {
+      "categories": {
+        "access_denied": { "message": "Votre compte ne permet pas cette action." },
+        "validation": { "message": "Vérifiez les informations puis réessayez." },
+        "business_rule": { "message": "Vérifiez la demande puis réessayez." },
+        "service_unavailable": { "message": "Une partie du service est temporairement indisponible." }
+      },
+      "codes": {
+        "access": {
+          "denied": { "message": "Votre compte ne permet pas cette action." }
+        },
+        "validation": {
+          "failed": { "message": "Vérifiez les informations du ticket puis réessayez." }
+        },
+        "sales": {
+          "draw_closed": { "message": "La vente est fermée pour ce tirage. Choisissez un autre tirage ouvert." }
+        }
+      }
+    },
     "preparation": {
       "total": "Total à payer",
       "maryaj_free": "Maryaj gratis",

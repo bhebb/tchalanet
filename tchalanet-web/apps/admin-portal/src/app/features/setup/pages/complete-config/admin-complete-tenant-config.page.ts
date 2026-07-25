@@ -69,6 +69,12 @@ interface SetupChecklistCardViewModel {
   readonly sectionErrorTargets: readonly string[];
 }
 
+interface SetupPageErrorViewModel {
+  readonly severity: 'error' | 'warn' | 'info';
+  readonly title: string;
+  readonly message: string;
+}
+
 @Component({
   selector: 'tch-admin-complete-tenant-config-page',
   standalone: true,
@@ -94,7 +100,7 @@ export class AdminCompleteTenantConfigPage implements OnInit {
   private readonly translate = inject(TranslateService);
 
   readonly pageState = signal<PageState>('loading');
-  readonly pageError = signal<string | null>(null);
+  readonly pageError = signal<SetupPageErrorViewModel | null>(null);
   readonly overview = signal<TenantAdminOverviewView | null>(null);
   readonly sectionErrors = signal<readonly AdminSectionTargetError[]>([]);
   readonly subscription = signal<SubscriptionView | null>(null);
@@ -308,7 +314,7 @@ export class AdminCompleteTenantConfigPage implements OnInit {
       },
       error: (err: unknown) => {
         const problem = (err as { error?: ProblemDetail })?.error;
-        this.pageError.set(this.pageErrorTitle(problem));
+        this.pageError.set(adminSetupPageError(problem, key => this.translate.instant(key)));
         this.pageState.set('error');
       },
     });
@@ -397,20 +403,42 @@ export class AdminCompleteTenantConfigPage implements OnInit {
       .map(notice => webAppErrorFromNotice(notice, response.trace, 'admin.setup.overview', 'section'))
       .filter(error => error.surface === 'section' && !!error.target)
       .map(error => {
-        const copy = resolveErrorFeedbackCopy(error, key => this.translate.instant(key));
-        return {
-          target: error.target,
-          severity: error.severity,
-          title: copy.title,
-          message: copy.message,
-        } satisfies AdminSectionTargetError;
+        const view = adminSetupSectionError(error, key => this.translate.instant(key));
+        return view satisfies AdminSectionTargetError;
       });
   }
+}
 
-  private pageErrorTitle(problem: ProblemDetail | undefined): string {
-    if (!problem) return this.translate.instant('admin.setup.error.load');
-
-    const normalized = webAppErrorFromProblemDetail(problem, 'admin.setup.overview', 'page');
-    return resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key)).title;
+export function adminSetupPageError(
+  problem: ProblemDetail | undefined,
+  translate: (key: string) => string,
+): SetupPageErrorViewModel {
+  if (!problem) {
+    return {
+      severity: 'error',
+      title: translate('admin.setup.error.load'),
+      message: translate('common.errors.fallback.message'),
+    };
   }
+
+  const normalized = webAppErrorFromProblemDetail(problem, 'admin.setup.overview', 'page');
+  const copy = resolveErrorFeedbackCopy(normalized, translate);
+  return {
+    severity: normalized.severity,
+    title: copy.title,
+    message: copy.message,
+  };
+}
+
+export function adminSetupSectionError(
+  error: ReturnType<typeof webAppErrorFromNotice>,
+  translate: (key: string) => string,
+): AdminSectionTargetError {
+  const copy = resolveErrorFeedbackCopy(error, translate);
+  return {
+    target: error.target,
+    severity: error.severity,
+    title: copy.title,
+    message: copy.message,
+  };
 }

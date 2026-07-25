@@ -29,6 +29,7 @@ import com.tchalanet.server.features.ops.drawresult.model.DrawResultOpsResponse;
 import com.tchalanet.server.features.ops.drawresult.model.FetchExternalResultsRequest;
 import com.tchalanet.server.features.ops.drawresult.model.OverrideDrawResultRequest;
 import com.tchalanet.server.features.ops.drawresult.model.RecordManualDrawResultRequest;
+import com.tchalanet.server.features.ops.error.OpsErrorCodes;
 import com.tchalanet.server.platform.audit.api.AuditLog;
 import com.tchalanet.server.platform.audit.api.model.AuditAction;
 import com.tchalanet.server.platform.audit.api.model.AuditEntityType;
@@ -241,7 +242,7 @@ public class DrawResultsOpsController {
 
   private static void rejectFutureDate(LocalDate drawDate) {
     if (drawDate != null && drawDate.isAfter(LocalDate.now())) {
-      throw ProblemRest.badRequest("draw result date cannot be in the future");
+      throw ProblemRest.of(OpsErrorCodes.DRAW_RESULT_FUTURE_DATE);
     }
   }
 

@@ -12,11 +12,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateService } from '@ngx-translate/core';
-import {
-  mapHttpErrorToProblemDetail,
-  WebAppError,
-  webAppErrorFromProblemDetail,
-} from '@tch/api';
+import { mapHttpErrorToProblemDetail, WebAppError, webAppErrorFromProblemDetail } from '@tch/api';
 import { throwError } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 
@@ -25,10 +21,7 @@ import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { AdminPageShellComponent } from '@tch/ui/console';
 import { AdminSectionCardComponent } from '@tch/ui/console';
-import {
-  AdminSectionErrorTargetDirective,
-  AdminSectionTargetError,
-} from '@tch/ui/console';
+import { AdminSectionErrorTargetDirective, AdminSectionTargetError } from '@tch/ui/console';
 import {
   ConsoleActorIdentity,
   ConsoleActorRowComponent,
@@ -65,6 +58,13 @@ type ConfirmedPreparedTicketView = ConfirmedTicketView & {
   freeLineCount?: number;
   preparedTotalAmount?: number;
 };
+
+export interface PosSaleNoticeView {
+  readonly type: 'info' | 'warning' | 'error';
+  readonly title: string;
+  readonly message: string;
+  readonly scope: string | null;
+}
 
 @Component({
   selector: 'tch-pos-terminal-sale-page',
@@ -125,13 +125,9 @@ export class PosTerminalSalePage implements OnInit {
     return terminal ? consoleSellerTerminalActorIdentity(terminal) : null;
   });
 
-  readonly isTerminalBlocked = computed(
-    () => this.sellerTerminal()?.status !== 'ACTIVE',
-  );
+  readonly isTerminalBlocked = computed(() => this.sellerTerminal()?.status !== 'ACTIVE');
 
-  readonly totalAmount = computed(() =>
-    this.lines().reduce((sum, l) => sum + l.stakeAmount, 0),
-  );
+  readonly totalAmount = computed(() => this.lines().reduce((sum, l) => sum + l.stakeAmount, 0));
 
   readonly confirmedFreeLineCount = computed(() => {
     const ticket = this.confirmedTicket() as ConfirmedPreparedTicketView | null;
@@ -224,7 +220,9 @@ export class PosTerminalSalePage implements OnInit {
       next: games => {
         this.games.set(games);
         const borlette = games.find(g => g.gameCode === 'BORLETTE' && g.enabled);
-        this.selectedGameCode.set(borlette?.gameCode ?? games.find(g => g.enabled)?.gameCode ?? null);
+        this.selectedGameCode.set(
+          borlette?.gameCode ?? games.find(g => g.enabled)?.gameCode ?? null,
+        );
       },
       error: err => {
         this.games.set([]);
@@ -277,23 +275,23 @@ export class PosTerminalSalePage implements OnInit {
     }
 
     this.lines.update(lines => {
-      const existingIndex = lines.findIndex(line =>
-        line.gameCode === input.gameCode &&
-        line.selection === input.selection &&
-        line.betType === input.betType &&
-        (line.betOption ?? null) === (input.betOption ?? null),
+      const existingIndex = lines.findIndex(
+        line =>
+          line.gameCode === input.gameCode &&
+          line.selection === input.selection &&
+          line.betType === input.betType &&
+          (line.betOption ?? null) === (input.betOption ?? null),
       );
 
       if (existingIndex < 0) {
-        return [
-          ...lines,
-          { ...input, localId: `line-${++lineIdCounter}` },
-        ];
+        return [...lines, { ...input, localId: `line-${++lineIdCounter}` }];
       }
 
-      return lines.map((line, index) => index === existingIndex
-        ? { ...line, stakeAmount: line.stakeAmount + input.stakeAmount }
-        : line);
+      return lines.map((line, index) =>
+        index === existingIndex
+          ? { ...line, stakeAmount: line.stakeAmount + input.stakeAmount }
+          : line,
+      );
     });
     this.confirmedTicket.set(null);
     this.saleError.set(null);
@@ -301,9 +299,11 @@ export class PosTerminalSalePage implements OnInit {
   }
 
   updateLineStake(update: { localId: string; stakeAmount: number }): void {
-    this.lines.update(lines => lines.map(line => line.localId === update.localId
-      ? { ...line, stakeAmount: update.stakeAmount }
-      : line));
+    this.lines.update(lines =>
+      lines.map(line =>
+        line.localId === update.localId ? { ...line, stakeAmount: update.stakeAmount } : line,
+      ),
+    );
     this.confirmedTicket.set(null);
     this.saleError.set(null);
     this.saleNotices.set([]);
@@ -348,18 +348,21 @@ export class PosTerminalSalePage implements OnInit {
             return throwError(() => this.preparationRejectedError(preparation));
           }
 
-          return this.api.confirmPreparedTicketSale(
-              preparation.preparationId,
-              idempotencyKey,
-              terminalId,
-              { suppressShellFeedback: true },
-            )
-            .pipe(map(ticket => ({
-              ...ticket,
-              freeLineCount: preparation.freeLineCount,
-              preparedTotalAmount: preparation.totalAmount,
-              warnings: [...preparation.notices, ...ticket.warnings],
-            } satisfies ConfirmedPreparedTicketView)));
+          return this.api
+            .confirmPreparedTicketSale(preparation.preparationId, idempotencyKey, terminalId, {
+              suppressShellFeedback: true,
+            })
+            .pipe(
+              map(
+                ticket =>
+                  ({
+                    ...ticket,
+                    freeLineCount: preparation.freeLineCount,
+                    preparedTotalAmount: preparation.totalAmount,
+                    warnings: [...preparation.notices, ...ticket.warnings],
+                  }) satisfies ConfirmedPreparedTicketView,
+              ),
+            );
         }),
       )
       .subscribe({
@@ -373,18 +376,15 @@ export class PosTerminalSalePage implements OnInit {
         },
         error: (err: unknown) => {
           const vm = this.errorViewModel(err, 'admin.sellerTerminal.pos.sale');
-          this.saleError.set(isPreparationRejectedViewModel(vm) && this.saleNotices().length > 0
-            ? null
-            : vm);
+          this.saleError.set(
+            isPreparationRejectedViewModel(vm) && this.saleNotices().length > 0 ? null : vm,
+          );
           this.saving.set(false);
         },
       });
   }
 
-  private ticketSaleRequest(
-    terminalId: string,
-    draw: PosOpenDrawView,
-  ): ConfirmTicketSaleRequest {
+  private ticketSaleRequest(terminalId: string, draw: PosOpenDrawView): ConfirmTicketSaleRequest {
     return {
       sellerTerminalId: terminalId,
       drawId: draw.drawId,
@@ -406,7 +406,9 @@ export class PosTerminalSalePage implements OnInit {
       ? resolveErrorFeedbackCopy(firstNotice, key => this.translate.instant(key))
       : {
           title: this.translate.instant('common.errors.codes.sales.basket_requires_changes.title'),
-          message: this.translate.instant('common.errors.codes.sales.basket_requires_changes.message'),
+          message: this.translate.instant(
+            'common.errors.codes.sales.basket_requires_changes.message',
+          ),
         };
 
     return {
@@ -428,23 +430,19 @@ export class PosTerminalSalePage implements OnInit {
   }
 
   noticeType(error: WebAppError): 'info' | 'warning' | 'error' {
-    if (error.severity === 'error') return 'error';
-    if (error.severity === 'warn') return 'warning';
-    return 'info';
+    return posSaleNoticeView(error, key => this.translate.instant(key)).type;
   }
 
   noticeTitle(error: WebAppError): string {
-    return resolveErrorFeedbackCopy(error, key => this.translate.instant(key)).title;
+    return posSaleNoticeView(error, key => this.translate.instant(key)).title;
   }
 
   noticeMessage(error: WebAppError): string {
-    return resolveErrorFeedbackCopy(error, key => this.translate.instant(key)).message;
+    return posSaleNoticeView(error, key => this.translate.instant(key)).message;
   }
 
   noticeScope(error: WebAppError): string | null {
-    const match = /^lines\.(\d+)$/.exec(error.field ?? '');
-    if (!match) return null;
-    return `Ligne ${Number(match[1]) + 1}`;
+    return posSaleNoticeView(error, key => this.translate.instant(key)).scope;
   }
 
   private bumpActivityAfterSale(ticket: ConfirmedTicketView): void {
@@ -506,8 +504,10 @@ export class PosTerminalSalePage implements OnInit {
   }
 
   private saleTotalAmount(ticket: ConfirmedTicketView): number {
-    return (ticket as ConfirmedTicketView & { preparedTotalAmount?: number }).preparedTotalAmount ??
-      this.totalAmount();
+    return (
+      (ticket as ConfirmedTicketView & { preparedTotalAmount?: number }).preparedTotalAmount ??
+      this.totalAmount()
+    );
   }
 
   goBack(): void {
@@ -531,20 +531,45 @@ export class PosTerminalSalePage implements OnInit {
       return err;
     }
 
-    const normalized = webAppErrorFromProblemDetail(mapHttpErrorToProblemDetail(err), source, 'page');
+    const normalized = webAppErrorFromProblemDetail(
+      mapHttpErrorToProblemDetail(err),
+      source,
+      'page',
+    );
     const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
     return toErrorViewModel(normalized, copy);
   }
 }
 
 function isErrorViewModel(value: unknown): value is ErrorViewModel {
-  return typeof value === 'object' &&
+  return (
+    typeof value === 'object' &&
     value !== null &&
     'title' in value &&
     'message' in value &&
-    'severity' in value;
+    'severity' in value
+  );
 }
 
 function isPreparationRejectedViewModel(value: ErrorViewModel): boolean {
   return value.source === 'admin.sellerTerminal.pos.preparation';
+}
+
+export function posSaleNoticeView(
+  error: WebAppError,
+  translate: (key: string) => string,
+): PosSaleNoticeView {
+  const copy = resolveErrorFeedbackCopy(error, translate);
+  return {
+    type: error.severity === 'error' ? 'error' : error.severity === 'warn' ? 'warning' : 'info',
+    title: copy.title,
+    message: copy.message,
+    scope: posSaleNoticeScope(error),
+  };
+}
+
+function posSaleNoticeScope(error: WebAppError): string | null {
+  const match = /^lines\.(\d+)$/.exec(error.field ?? '');
+  if (!match) return null;
+  return `Ligne ${Number(match[1]) + 1}`;
 }

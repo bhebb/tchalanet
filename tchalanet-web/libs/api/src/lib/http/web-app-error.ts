@@ -96,10 +96,10 @@ export function webAppErrorFromNotice(
   const status = numberMeta(meta, 'status');
   const category =
     categoryFromWireValue(stringMeta(meta, 'category')) ??
+    categoryFromNoticeKind(notice.kind) ??
     categoryFromCodeStatus(notice.code, status);
   const severity = severityFromNotice(notice.severity);
-  const requestId =
-    notice.trace?.requestId ?? stringMeta(meta, 'requestId') ?? trace?.requestId;
+  const requestId = notice.trace?.requestId ?? stringMeta(meta, 'requestId') ?? trace?.requestId;
   const traceId = notice.trace?.traceId ?? stringMeta(meta, 'traceId') ?? trace?.traceId;
   const spanId = notice.trace?.spanId ?? stringMeta(meta, 'spanId') ?? trace?.spanId;
   const errorId = notice.trace?.errorId ?? stringMeta(meta, 'errorId');
@@ -301,6 +301,17 @@ function categoryFromWireValue(value: string | undefined): WebErrorCategory | un
     case 'service_unavailable':
     case 'unexpected':
       return value;
+    default:
+      return undefined;
+  }
+}
+
+function categoryFromNoticeKind(kind: ApiNotice['kind']): WebErrorCategory | undefined {
+  switch (kind) {
+    case 'BUSINESS':
+      return 'business_rule';
+    case 'DEGRADATION':
+      return 'service_unavailable';
     default:
       return undefined;
   }

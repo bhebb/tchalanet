@@ -1,0 +1,17 @@
+{
+  "type": "about:blank",
+  "title": "Internal Server Error",
+  "status": 500,
+  "detail": "Request could not be completed",
+  "code": "internal.unexpected",
+  "category": "unexpected",
+  "retryPolicy": "AFTER_DELAY",
+  "retryable": true,
+  "timestamp": "2026-07-24T12:00:00Z",
+  "method": "GET",
+  "path": "/api/v1/admin/dashboard",
+  "requestId": "req_contract_unexpected",
+  "traceId": "trace-contract-unexpected",
+  "spanId": "span-unexpected",
+  "errorId": "err_contract_unexpected"
+}

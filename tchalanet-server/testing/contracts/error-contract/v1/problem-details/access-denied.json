@@ -1,0 +1,17 @@
+{
+  "type": "about:blank",
+  "title": "Forbidden",
+  "status": 403,
+  "detail": "Request could not be completed",
+  "code": "access.denied",
+  "category": "access_denied",
+  "retryPolicy": "NEVER",
+  "retryable": false,
+  "timestamp": "2026-07-24T12:00:00Z",
+  "method": "POST",
+  "path": "/api/v1/platform/ops/draw-results/override",
+  "requestId": "req_contract_denied",
+  "traceId": "trace-contract-denied",
+  "spanId": "span-denied",
+  "errorId": "err_contract_denied"
+}

@@ -76,6 +76,42 @@ void main() {
     expect(bundles['ht'], bundles['en']);
   });
 
+  test('visible API error contract keys exist in every locale', () async {
+    const keys = [
+      'common.errors.categories.access_denied.message',
+      'common.errors.categories.validation.message',
+      'common.errors.categories.business_rule.message',
+      'common.errors.categories.service_unavailable.message',
+      'common.errors.codes.access.denied.message',
+      'common.errors.codes.validation.failed.message',
+      'common.errors.codes.sales.draw_closed.message',
+    ];
+
+    for (final locale in supportedLocaleCodes) {
+      final merged = <String, dynamic>{};
+      for (final bundle in localI18nBundles) {
+        final raw = await rootBundle.loadString(
+          'assets/i18n/$locale/$bundle.json',
+        );
+        deepMergeTranslationTree(
+          merged,
+          jsonDecode(raw) as Map<String, dynamic>,
+        );
+      }
+      final translations = flattenTranslationTree(merged);
+
+      for (final key in keys) {
+        expect(
+          translations[key],
+          isNotNull,
+          reason: '$locale is missing visible API error key $key',
+        );
+        expect(translations[key], isNotEmpty);
+        expect(translations[key], isNot('common.error.unknown'));
+      }
+    }
+  });
+
   test('local bundles do not declare duplicate keys across files', () async {
     for (final locale in supportedLocaleCodes) {
       final seen = <String, String>{};

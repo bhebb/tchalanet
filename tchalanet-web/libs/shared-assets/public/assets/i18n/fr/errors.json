@@ -18,6 +18,10 @@
           "title": "Information a corriger",
           "message": "Verifiez les champs et reessayez."
         },
+        "business_rule": {
+          "title": "Action indisponible",
+          "message": "Vérifiez la demande puis réessayez."
+        },
         "not_found": {
           "title": "Element introuvable",
           "message": "La ressource demandee n est plus disponible."
@@ -360,7 +364,10 @@
         },
         "subscription": {
           "cancelled": { "title": "Abonnement annulé", "message": "L'abonnement a été annulé." },
-          "renewed": { "title": "Abonnement renouvelé", "message": "L'abonnement a été renouvelé." },
+          "renewed": {
+            "title": "Abonnement renouvelé",
+            "message": "L'abonnement a été renouvelé."
+          },
           "resumed": { "title": "Abonnement réactivé", "message": "L'abonnement a été réactivé." },
           "suspended": { "title": "Abonnement suspendu", "message": "L'abonnement a été suspendu." }
         },

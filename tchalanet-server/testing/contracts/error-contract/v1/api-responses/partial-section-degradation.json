@@ -1,0 +1,44 @@
+{
+  "status": "PARTIAL",
+  "data": {
+    "dashboard": {
+      "summaryAvailable": true,
+      "providerResultsAvailable": false
+    }
+  },
+  "notices": [
+    {
+      "code": "admin.dashboard.provider_results_unavailable",
+      "message": null,
+      "domain": "admin.dashboard",
+      "severity": "WARN",
+      "kind": "DEGRADATION",
+      "source": {
+        "source": "providerResults",
+        "service": "uslottery",
+        "operation": "latestResults"
+      },
+      "target": "admin_dashboard.provider_results",
+      "params": {},
+      "trace": {
+        "requestId": "req_contract_partial",
+        "traceId": "trace-contract-partial",
+        "spanId": "span-partial",
+        "errorId": "err_contract_partial"
+      },
+      "meta": {
+        "source": "providerResults",
+        "service": "uslottery",
+        "operation": "latestResults",
+        "target": "admin_dashboard.provider_results"
+      }
+    }
+  ],
+  "services": [
+    {
+      "service": "uslottery",
+      "status": "DEGRADED",
+      "message": null
+    }
+  ]
+}

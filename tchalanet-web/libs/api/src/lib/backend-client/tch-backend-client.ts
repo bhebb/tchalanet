@@ -1,14 +1,15 @@
 import {
   HttpClient,
   HttpContext,
+  HttpErrorResponse,
   HttpHeaders,
   HttpParams,
   HttpResponse,
 } from '@angular/common/http';
 import { Injectable, Injector, ResourceRef, inject } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, from, throwError } from 'rxjs';
+import { catchError, map, mergeMap } from 'rxjs/operators';
 
 import { ApiResponse, TchBackendPage, TchPage } from '../contracts/api.types';
 import { TCH_API_BASE, TCH_API_BASE_RESOLVER } from '../http/api-base';
@@ -307,18 +308,22 @@ export class TchBackendClient {
 
   getBlob(path: string, options?: TchRequestOptions): Observable<Blob> {
     const { params, headers, context } = this.resolve(options);
-    return this.http.get(this.url(path), { params, headers, context, responseType: 'blob' });
+    return this.http
+      .get(this.url(path), { params, headers, context, responseType: 'blob' })
+      .pipe(catchError(decodeBlobProblemError));
   }
 
   getBlobResponse(path: string, options?: TchRequestOptions): Observable<HttpResponse<Blob>> {
     const { params, headers, context } = this.resolve(options);
-    return this.http.get(this.url(path), {
-      params,
-      headers,
-      context,
-      responseType: 'blob',
-      observe: 'response',
-    });
+    return this.http
+      .get(this.url(path), {
+        params,
+        headers,
+        context,
+        responseType: 'blob',
+        observe: 'response',
+      })
+      .pipe(catchError(decodeBlobProblemError));
   }
 
   postBlob<TBody = unknown>(
@@ -327,12 +332,14 @@ export class TchBackendClient {
     options?: TchRequestOptions,
   ): Observable<Blob> {
     const { params, headers, context } = this.resolve(options);
-    return this.http.post(this.url(path), body, {
-      params,
-      headers,
-      context,
-      responseType: 'blob',
-    });
+    return this.http
+      .post(this.url(path), body, {
+        params,
+        headers,
+        context,
+        responseType: 'blob',
+      })
+      .pipe(catchError(decodeBlobProblemError));
   }
 
   getArrayBuffer(path: string, options?: TchRequestOptions): Observable<ArrayBuffer> {
@@ -387,12 +394,14 @@ export class TchBackendClient {
     options?: TchRequestOptions,
   ): Observable<Blob> {
     const { params, headers, context } = this.resolve(options);
-    return this.http.post(this.url(path), formData, {
-      params,
-      headers,
-      context,
-      responseType: 'blob',
-    });
+    return this.http
+      .post(this.url(path), formData, {
+        params,
+        headers,
+        context,
+        responseType: 'blob',
+      })
+      .pipe(catchError(decodeBlobProblemError));
   }
 
   private toPage<T>(page: TchBackendPage<T>, fallbackPage = 0, fallbackSize = 20): TchPage<T> {
@@ -438,4 +447,34 @@ export class TchBackendClient {
     const parsed = Number(value);
     return Number.isFinite(parsed) ? parsed : undefined;
   }
+}
+
+function decodeBlobProblemError(error: unknown): Observable<never> {
+  if (!(error instanceof HttpErrorResponse) || !(error.error instanceof Blob)) {
+    return throwError(() => error);
+  }
+
+  const contentType = error.error.type.toLowerCase();
+  if (!contentType.includes('json')) {
+    return throwError(() => error);
+  }
+
+  return from(error.error.text()).pipe(
+    mergeMap(text => {
+      try {
+        return throwError(
+          () =>
+            new HttpErrorResponse({
+              error: JSON.parse(text),
+              headers: error.headers,
+              status: error.status,
+              statusText: error.statusText,
+              url: error.url ?? undefined,
+            }),
+        );
+      } catch {
+        return throwError(() => error);
+      }
+    }),
+  );
 }

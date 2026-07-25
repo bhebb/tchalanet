@@ -1,5 +1,9 @@
 # apiresponse-notices Spec
 
+> Archived: superseded by `openspec/changes/error-contract-bff-web-v1/specs/api-error-contract/spec.md`.
+> This old spec remains for history only and must not be treated as active. In particular, its
+> status-resolution rules are replaced by the root contract.
+
 ## ADDED Requirements
 
 ### Requirement: Api notices are immediate response feedback

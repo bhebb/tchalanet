@@ -375,3 +375,32 @@ background slices -> return data and expose async status/pending notice
 ```
 
 The policy belongs to the BFF/application service, not the controller.
+
+## Validation pass
+
+The migration is not complete when the first vertical works. It is complete only after a validation
+pass proves that the active code, active OpenSpec changes, and client behavior agree on one error
+contract.
+
+Validation order:
+
+1. server HTTP boundary: `ProblemDetail` for blocking failures, `ApiResponse<T>` for successful or
+   degraded responses, and explicit adapters for files, streams, SSE/WebSocket, empty/HEAD, proxy,
+   and CORS failures;
+2. descriptor execution: stable code, closed category, retry policy, safe params, descriptor
+   uniqueness, and no new message-first producers; the first executable guard covers
+   `features`/`platform` `ProblemRest` producers before the broader client/static gates are added;
+3. BFF slice matrix: required, optional, background, empty, unavailable, duplicate degradation,
+   technical failure, and retry ownership;
+4. client contract retention: web and mobile keep envelope status, notices, services, violations,
+   and correlation until an explicit owner consumes them;
+5. product copy: every product-visible migrated code ships exact `ht`, `fr`, and `en` copy before
+   generic fallback is accepted;
+6. shared fixtures: Java, Angular, and Flutter consume the same versioned examples for blocking
+   errors, validation, warning success, partial response, pending, malformed envelope, void/binary,
+   and client/network failures.
+
+Superseded active OpenSpec changes must be removed from the active queue once this root contract
+covers their rule. The old `complete-apiresponse-notices` change is superseded because its status
+resolution treats any degraded service as `PARTIAL` and infers `PENDING` from response shape. The
+root contract keeps those concepts but makes their meaning product-owned and explicit.

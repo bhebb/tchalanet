@@ -1,0 +1,29 @@
+{
+  "type": "about:blank",
+  "title": "Bad Request",
+  "status": 400,
+  "detail": "Request could not be completed",
+  "code": "validation.failed",
+  "category": "validation",
+  "retryPolicy": "AFTER_USER_ACTION",
+  "retryable": true,
+  "timestamp": "2026-07-24T12:00:00Z",
+  "method": "POST",
+  "path": "/api/v1/admin/seller-terminals",
+  "requestId": "req_contract_validation",
+  "traceId": "trace-contract-validation",
+  "spanId": "span-validation",
+  "errorId": "err_contract_validation",
+  "violations": [
+    {
+      "code": "validation.required",
+      "field": "sellerName",
+      "target": "sellerName"
+    },
+    {
+      "code": "validation.invalid_format",
+      "field": "email",
+      "target": "email"
+    }
+  ]
+}

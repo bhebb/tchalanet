@@ -37,8 +37,9 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
  * <ol>
  *   <li>An explicitly returned {@code PENDING} response remains pending. Pending is operation
  *       intent, never a convention inferred from a business notice.
- *   <li>Any degradation notice or degraded service → {@code PARTIAL}.
+ *   <li>Any degradation notice → {@code PARTIAL}.
  *   <li>Any WARN notice → {@code SUCCESS_WITH_WARNINGS}.
+ *   <li>Any degraded service with complete response data → {@code SUCCESS_WITH_WARNINGS}.
  *   <li>Otherwise → {@code SUCCESS}.
  * </ol>
  */
@@ -135,10 +136,10 @@ public class ApiResponseBodyAdvice implements ResponseBodyAdvice<Object> {
     if (notices.stream().anyMatch(n -> n.kind() == NoticeKind.DEGRADATION)) {
       return ApiStatus.PARTIAL;
     }
-    if (services.stream().anyMatch(s -> s.status() != ServiceHealth.UP)) {
-      return ApiStatus.PARTIAL;
-    }
     if (notices.stream().anyMatch(n -> n.severity() == NoticeSeverity.WARN)) {
+      return ApiStatus.SUCCESS_WITH_WARNINGS;
+    }
+    if (services.stream().anyMatch(s -> s.status() != ServiceHealth.UP)) {
       return ApiStatus.SUCCESS_WITH_WARNINGS;
     }
     return cleanStatus;

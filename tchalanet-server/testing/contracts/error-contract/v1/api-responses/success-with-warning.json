@@ -1,0 +1,39 @@
+{
+  "status": "SUCCESS_WITH_WARNINGS",
+  "data": {
+    "tenantCode": "demo",
+    "ready": true
+  },
+  "notices": [
+    {
+      "code": "tenant.setup.optional_step_missing",
+      "message": null,
+      "domain": "tenant.setup",
+      "severity": "WARN",
+      "kind": "BUSINESS",
+      "source": {
+        "source": "tenantSetup",
+        "operation": "loadStatus"
+      },
+      "target": "setup.optional",
+      "params": {
+        "completedSteps": 3,
+        "totalSteps": 5
+      },
+      "trace": {
+        "requestId": "req_contract_warning",
+        "traceId": "trace-contract-warning",
+        "spanId": "span-warning",
+        "errorId": "err_contract_warning"
+      },
+      "meta": {
+        "source": "tenantSetup",
+        "operation": "loadStatus",
+        "target": "setup.optional",
+        "completedSteps": 3,
+        "totalSteps": 5
+      }
+    }
+  ],
+  "services": []
+}
