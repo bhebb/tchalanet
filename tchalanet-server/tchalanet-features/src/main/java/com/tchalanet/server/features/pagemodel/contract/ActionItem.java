@@ -25,6 +25,11 @@ public record ActionItem(
 
   /** Backward-compatible constructor for existing dashboard quick-action assemblers. */
   public ActionItem(String id, String labelKey, String icon, String path) {
+    this(id, labelKey, icon, path, null);
+  }
+
+  /** Backward-compatible constructor for quick-action tiles carrying a small count badge. */
+  public ActionItem(String id, String labelKey, String icon, String path, Object badge) {
     this(
         id,
         "link",
@@ -36,7 +41,7 @@ public record ActionItem(
         null,
         false,
         null,
-        null,
+        badge,
         List.of());
   }
 }

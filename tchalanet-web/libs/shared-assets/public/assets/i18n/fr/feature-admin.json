@@ -946,6 +946,12 @@
         "theme": "Apparence",
         "themeDesc": "Personnalisation de l'apparence",
         "themeCta": "Configurer l'apparence",
+        "commission": "Commission",
+        "commissionDesc": "Taux de commission par défaut appliqué aux terminaux vendeurs.",
+        "commissionCta": "Configurer la commission",
+        "limits": "Limites de vente",
+        "limitsDesc": "Limites de vente appliquées à votre tenant.",
+        "limitsCta": "Configurer les limites",
         "settings": "Paramètres du tenant",
         "settingsDesc": "Personnalisez la langue et le reçu (nom affiché, messages) pour votre tenant.",
         "settingsCta": "Configurer les paramètres",
@@ -1425,10 +1431,6 @@
       }
     },
     "tenant_admin": {
-      "alerts": {
-        "empty": "Aucune alerte",
-        "title": "Alertes"
-      },
       "commission": {
         "title": "Commission",
         "default_rate": "Taux par défaut du tenant",
@@ -1451,9 +1453,6 @@
       },
       "quick_actions": {
         "title": "Actions rapides"
-      },
-      "readiness": {
-        "title": "État opérationnel"
       }
     }
   }

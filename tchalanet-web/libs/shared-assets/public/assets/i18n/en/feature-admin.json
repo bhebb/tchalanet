@@ -741,6 +741,12 @@
         "theme": "Appearance",
         "themeDesc": "Appearance customization.",
         "themeCta": "Configure appearance",
+        "commission": "Commission",
+        "commissionDesc": "Default commission rate applied to seller-terminals.",
+        "commissionCta": "Configure commission",
+        "limits": "Sales limits",
+        "limitsDesc": "Sales limits applied to your tenant.",
+        "limitsCta": "Configure limits",
         "settings": "Tenant settings",
         "settingsDesc": "Customize the language and receipt (display name, messages) for your tenant.",
         "settingsCta": "Configure settings",
@@ -1543,10 +1549,6 @@
       }
     },
     "tenant_admin": {
-      "alerts": {
-        "empty": "No alerts",
-        "title": "Alerts"
-      },
       "commission": {
         "title": "Commission",
         "default_rate": "Tenant default rate",
@@ -1569,9 +1571,6 @@
       },
       "quick_actions": {
         "title": "Quick actions"
-      },
-      "readiness": {
-        "title": "Readiness"
       }
     }
   }

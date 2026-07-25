@@ -156,6 +156,7 @@
   "quickaction": {
     "admin": {
       "daily_report": "Rapport du jour",
+      "draws_pending_results": "Tirages en attente de résultat",
       "manage_limits": "Gérer limites",
       "manage_odds": "Gérer odds",
       "maryaj_gratis": "Maryaj gratis",

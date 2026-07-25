@@ -749,6 +749,12 @@
         "theme": "Aparans",
         "themeDesc": "Pèsonalizasyon aparans lan.",
         "themeCta": "Konfigire aparans lan",
+        "commission": "Komisyon",
+        "commissionDesc": "To komisyon pa defo ki aplike sou tèminal vandè yo.",
+        "commissionCta": "Konfigire komisyon an",
+        "limits": "Limit vant",
+        "limitsDesc": "Limit vant ki aplike sou tenant ou an.",
+        "limitsCta": "Konfigire limit yo",
         "settings": "Paramèt santral la",
         "settingsDesc": "Pèsonalize lang ak resi a (non afichaj, mesaj) pou santral ou.",
         "settingsCta": "Konfigire paramèt yo",
@@ -1531,10 +1537,6 @@
       }
     },
     "tenant_admin": {
-      "alerts": {
-        "empty": "Pa gen alèt",
-        "title": "Alèt"
-      },
       "commission": {
         "title": "Komisyon",
         "default_rate": "To pa defò santral la",
@@ -1557,9 +1559,6 @@
       },
       "quick_actions": {
         "title": "Aksyon rapid"
-      },
-      "readiness": {
-        "title": "Eta operasyonèl"
       }
     }
   }
