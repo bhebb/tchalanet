@@ -1,5 +1,6 @@
 package com.tchalanet.server.platform.idempotence.internal.persistence;
 
+import com.tchalanet.server.common.constant.CommonConstants;
 import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.platform.idempotence.api.ProcessedEventPort;
 import java.util.UUID;
@@ -38,7 +39,11 @@ public class ProcessedEventJdbcAdapter implements ProcessedEventPort {
   @Override
   public boolean markProcessedIfAbsent(String handlerKey, UUID eventId) {
     var ctx = ctxResolver.currentOrThrow();
-    var tenantId = ctx.tenantId().value();
+    // Global (platform-wide) events, e.g. draw results resolved by the background scheduler,
+    // carry no tenant in context. Attribute idempotency tracking to the platform's own tenant
+    // instead of failing, since processed_event requires a non-null tenant_id.
+    var tenantId =
+        ctx.tenantId() != null ? ctx.tenantId().value() : CommonConstants.DEFAULT_TENANT_UUID;
     UUID createdBy = null;
     if (ctx.userUuid() != null) createdBy = ctx.userUuid();
 
