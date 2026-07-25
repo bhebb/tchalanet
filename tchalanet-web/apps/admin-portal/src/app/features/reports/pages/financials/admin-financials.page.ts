@@ -15,13 +15,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatTabsModule } from '@angular/material/tabs';
-import { catchError, of, startWith, switchMap } from 'rxjs';
+import { catchError, map, of, startWith, switchMap } from 'rxjs';
 import {
   AdminEmptyState,
   AdminPageHeader,
   TchErrorPanel,
   TchLoading,
 } from '@tch/ui/components';
+import { consoleGameName } from '@tch/web/console';
 
 import {
   AdminFinancialsApi,
@@ -29,6 +30,7 @@ import {
   type SellerTerminalDrawFinancialRow,
   type TenantFinancialBreakdownView,
 } from '../../data-access/admin-financials-api.service';
+import { AdminReportsApi } from '../../data-access/admin-reports-api.service';
 
 type PageState =
   | { readonly status: 'loading' }
@@ -76,10 +78,19 @@ function addDays(date: Date, days: number): Date {
 })
 export class AdminFinancialsPage {
   private readonly api = inject(AdminFinancialsApi);
+  private readonly reportsApi = inject(AdminReportsApi);
 
   readonly maxDate = today();
   readonly fromDate = signal<Date>(addDays(today(), -6));
   readonly toDate = signal<Date>(today());
+
+  private readonly sellerTerminalLabels = toSignal(
+    this.reportsApi.searchSellerTerminals('', { size: 200, suppressShellFeedback: true }).pipe(
+      map(options => new Map(options.map(option => [option.id, option.subtitle ?? option.title]))),
+      catchError(() => of(new Map<string, string | undefined>())),
+    ),
+    { initialValue: new Map<string, string | undefined>() },
+  );
 
   private readonly params = computed(() => ({
     from: toIsoDate(this.fromDate()),
@@ -143,8 +154,12 @@ export class AdminFinancialsPage {
     return value.length > 8 ? value.slice(0, 8) : value;
   }
 
+  terminalLabel(sellerTerminalId: string): string {
+    return this.sellerTerminalLabels().get(sellerTerminalId) ?? this.shortId(sellerTerminalId);
+  }
+
   drawLabel(row: DrawFinancialRow | SellerTerminalDrawFinancialRow): string {
     const channel = row.drawChannelCode ? `${row.drawChannelCode} · ` : '';
-    return `${channel}${row.gameCode}`;
+    return `${channel}${consoleGameName(row.gameCode)}`;
   }
 }
