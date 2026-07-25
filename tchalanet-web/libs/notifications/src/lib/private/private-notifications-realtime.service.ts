@@ -75,7 +75,7 @@ export class PrivateNotificationsRealtimeService {
     if (support) {
       headers.set('X-Tch-Tenant-Override', support.tenantId);
       headers.set('X-Tch-Act-As', 'TENANT_ADMIN');
-      headers.set('X-Tch-Override-Reason', `SUPER_ADMIN support session ${support.sessionId}`);
+      headers.set('X-Tch-Override-Reason', `SUPER_ADMIN support session (${support.mode})`);
     }
     return headers;
   }

@@ -15,7 +15,7 @@ export const supportAccessInterceptor: HttpInterceptorFn = (req, next) => {
     setHeaders: {
       'X-Tch-Tenant-Override': session.tenantId,
       'X-Tch-Act-As': 'TENANT_ADMIN',
-      'X-Tch-Override-Reason': `SUPER_ADMIN support session ${session.sessionId}`,
+      'X-Tch-Override-Reason': `SUPER_ADMIN support session (${session.mode})`,
     },
   }));
 };
