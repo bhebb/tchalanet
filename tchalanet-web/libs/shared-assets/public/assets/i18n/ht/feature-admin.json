@@ -597,6 +597,19 @@
         "removed": "{{game}} retire nan kanal la."
       }
     },
+    "settings": {
+      "title": "Paramèt santral la",
+      "description": "Paramèt entèn operasyon santral la itilize.",
+      "quickAccess": "Aksè rapid",
+      "runtime": {
+        "title": "Runtime",
+        "description": "Enfòmasyon sou ekzekisyon santral la."
+      },
+      "config": {
+        "title": "Paramèt operasyon yo",
+        "description": "Lang, kominikasyon, dokiman ak kalandriye."
+      }
+    },
     "setup": {
       "progress": {
         "title": "{{completed}} / {{total}} etap obligatwa konplète",

@@ -46,8 +46,9 @@ import org.springframework.stereotype.Component;
  * odds/pricing configured (MISSING if none priced, PARTIAL if some active games still lack
  * pricing). Per-game limits are informational only, not part of this check. 5. draws →
  * TenantDrawSalesMatrixService (channel config + games×channel matrix) 6. generated_draws →
- * ListDrawsQuery (page size 1) — an actual Draw instance exists, not just configuration.
- * Operational signal, not a setup blocker. 7. theme → TenantThemeApi active tenant theme 8.
+ * ListDrawsQuery (page size 1) — an actual Draw instance exists, not just configuration. This is
+ * a setup blocker because the tenant must be able to generate a draw in its own context before it
+ * is considered operational. 7. theme → TenantThemeApi active tenant theme 8.
  * promotions → ListPromotionCampaignsQuery (page size 1) 9. settings → TenantConfigApi settings
  * readiness service 10. subscription → ResolveTenantSubscriptionQuery — READY if ACTIVE/TRIAL,
  * PARTIAL if any other known status, MISSING if none applied. Visible section, not (yet) blocking.
@@ -57,8 +58,8 @@ import org.springframework.stereotype.Component;
  *
  * <p>Invariants enforced here: - readiness uses the current context/RLS, never a client-supplied
  * tenant id - summary has no KPI fields (salesToday, ticketCountToday, activeSessions, openDraws,
- * unread) - canCreateSellerTerminal requires identity + address, games_pricing, and draws all
- * non-MISSING
+ * unread) - canCreateSellerTerminal requires identity + address, games_pricing, draws, and an
+ * actual generated draw to be non-MISSING
  */
 @Component
 @RequiredArgsConstructor

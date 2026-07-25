@@ -17,19 +17,19 @@ import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { AdminPageShellComponent } from '@tch/ui/console';
 import type { AdminSectionTargetError } from '@tch/ui/console';
 import {
-  AdminOverviewApiService,
+  TenantAdminOverviewApiService,
   TenantAdminOverviewView,
   ReadinessSection,
   TenantSetupView,
-} from '../../../business-profile/data-access/admin-overview-api.service';
+} from '../../../business-profile/data-access/tenant-admin-overview-api.service';
 import {
   AdminSubscriptionApi,
   SubscriptionView,
 } from '../../../subscription/data-access/admin-subscription-api.service';
 import {
-  TenantConfigApiService,
+  TenantParametersApiService,
   tenantMaryajGratisEnabled,
-} from '../../data-access/tenant-config-api.service';
+} from '../../data-access/tenant-parameters-api.service';
 import {
   SetupChecklistBadgeKind,
   SetupChecklistBodyVariant,
@@ -38,18 +38,6 @@ import {
 } from '../../components/setup-checklist-card/setup-checklist-card.component';
 import { SetupProgressHeaderComponent } from '../../components/setup-progress-header/setup-progress-header.component';
 import { SetupSellerTerminalCardComponent } from '../../components/setup-seller-terminal-card/setup-seller-terminal-card.component';
-
-// Mirrors TenantReadinessAssembler.REQUIRED_STEP_GROUPS (tchalanet-server) — identity+address
-// count as one group since they're a single merged card here. generated_draws is required too:
-// configured channels/games alone aren't enough to sell without an actual generated Draw.
-// settings counts toward the percentage (its card is badged "required") without being blocking.
-const REQUIRED_STEP_GROUPS: readonly (readonly string[])[] = [
-  ['identity', 'address'],
-  ['settings'],
-  ['games_pricing'],
-  ['draws'],
-  ['generated_draws'],
-];
 
 type PageState = 'loading' | 'ready' | 'error';
 
@@ -94,9 +82,9 @@ interface SetupPageErrorViewModel {
   styleUrls: ['./admin-complete-tenant-config.page.scss'],
 })
 export class AdminCompleteTenantConfigPage implements OnInit {
-  private readonly api = inject(AdminOverviewApiService);
+  private readonly api = inject(TenantAdminOverviewApiService);
   private readonly subscriptionApi = inject(AdminSubscriptionApi);
-  private readonly tenantConfigApi = inject(TenantConfigApiService);
+  private readonly tenantParametersApi = inject(TenantParametersApiService);
   private readonly translate = inject(TranslateService);
 
   readonly pageState = signal<PageState>('loading');
@@ -109,13 +97,12 @@ export class AdminCompleteTenantConfigPage implements OnInit {
   readonly setup = computed<TenantSetupView | null>(() => this.overview()?.setup ?? null);
   readonly header = computed(() => this.overview()?.header ?? null);
 
-  readonly requiredTotalCount = computed(() => this.setup()?.totalSteps || REQUIRED_STEP_GROUPS.length);
-  readonly requiredCompletedCount = computed(() =>
-    this.setup()?.completedSteps ??
-    REQUIRED_STEP_GROUPS.filter(group => group.every(id => this.sectionMap().get(id)?.status === 'READY')).length,
-  );
+  readonly requiredTotalCount = computed(() => this.setup()?.totalSteps ?? 0);
+  readonly requiredCompletedCount = computed(() => this.setup()?.completedSteps ?? 0);
   readonly progressPct = computed(() =>
-    Math.round((this.requiredCompletedCount() / this.requiredTotalCount()) * 100),
+    this.requiredTotalCount() > 0
+      ? Math.min(100, Math.round((this.requiredCompletedCount() / this.requiredTotalCount()) * 100))
+      : 0,
   );
 
   readonly sectionMap = computed<Map<string, ReadinessSection>>(() => {
@@ -129,7 +116,7 @@ export class AdminCompleteTenantConfigPage implements OnInit {
     if (this.canCreateSellerTerminal()) return [];
 
     const requiredMissing = this.setupCards()
-      .filter(card => card.badgeKind !== 'optional' && card.status !== 'READY')
+      .filter(card => card.badgeKind !== 'optional' && card.status === 'MISSING')
       .map(card => card.id);
     const backendBlocking = (this.setup()?.blockingSteps ?? []).map(step => step.toLowerCase());
 
@@ -275,11 +262,12 @@ export class AdminCompleteTenantConfigPage implements OnInit {
         titleKey: 'admin.setup.section.subscription',
         // No readiness section for subscription (not a config-completeness domain) — status
         // reflects whether a plan is actually applied, from GET /tenant/subscription.
-        status: subscription?.status === 'ACTIVE' || subscription?.status === 'TRIAL'
-          ? 'READY'
-          : subscription
-            ? 'UNKNOWN'
-            : 'MISSING',
+        status:
+          subscription?.status === 'ACTIVE' || subscription?.status === 'TRIAL'
+            ? 'READY'
+            : subscription
+              ? 'UNKNOWN'
+              : 'MISSING',
         badgeKind: 'optional',
         body: subscription
           ? `${subscription.planCode} · ${subscription.status}`
@@ -296,7 +284,7 @@ export class AdminCompleteTenantConfigPage implements OnInit {
   });
 
   readonly loading = computed(() => this.pageState() === 'loading');
-  readonly error = computed(() => this.pageState() === 'error' ? this.pageError() : null);
+  readonly error = computed(() => (this.pageState() === 'error' ? this.pageError() : null));
 
   ngOnInit(): void {
     this.load();
@@ -325,7 +313,7 @@ export class AdminCompleteTenantConfigPage implements OnInit {
       error: () => this.subscription.set(null),
     });
 
-    this.tenantConfigApi.getTenantConfig({ suppressShellFeedback: true }).subscribe({
+    this.tenantParametersApi.getTenantConfig({ suppressShellFeedback: true }).subscribe({
       next: config => this.maryajGratisEnabled.set(tenantMaryajGratisEnabled(config)),
       error: () => this.maryajGratisEnabled.set(true),
     });
@@ -349,11 +337,15 @@ export class AdminCompleteTenantConfigPage implements OnInit {
   }
 
   sectionErrorsFor(targets: readonly string[]): readonly AdminSectionTargetError[] {
-    return this.sectionErrors().filter(error => error.target != null && targets.includes(error.target));
+    return this.sectionErrors().filter(
+      error => error.target != null && targets.includes(error.target),
+    );
   }
 
   private settingsTarget(): { route: string; fragment?: string } {
-    const issue = this.sectionMap().get('settings')?.issues?.find(item => item.messageKey?.startsWith('settings.'));
+    const issue = this.sectionMap()
+      .get('settings')
+      ?.issues?.find(item => item.messageKey?.startsWith('settings.'));
     const reason = issue?.messageKey ?? '';
     if (reason.startsWith('settings.print.')) {
       return { route: '/app/admin/company/settings/config', fragment: 'print' };
@@ -378,7 +370,9 @@ export class AdminCompleteTenantConfigPage implements OnInit {
       [addr.line1, addr.line2].filter(Boolean).join(' · '),
       [addr.city, addr.region].filter(Boolean).join(', '),
       [addr.postalCode, addr.country].filter(Boolean).join(' '),
-    ].filter(Boolean).join(' · ');
+    ]
+      .filter(Boolean)
+      .join(' · ');
   }
 
   private normalizeBlockingSteps(steps: readonly string[]): readonly string[] {
@@ -400,7 +394,9 @@ export class AdminCompleteTenantConfigPage implements OnInit {
     response: ApiResponse<TenantAdminOverviewView>,
   ): readonly AdminSectionTargetError[] {
     return response.notices
-      .map(notice => webAppErrorFromNotice(notice, response.trace, 'admin.setup.overview', 'section'))
+      .map(notice =>
+        webAppErrorFromNotice(notice, response.trace, 'admin.setup.overview', 'section'),
+      )
       .filter(error => error.surface === 'section' && !!error.target)
       .map(error => {
         const view = adminSetupSectionError(error, key => this.translate.instant(key));

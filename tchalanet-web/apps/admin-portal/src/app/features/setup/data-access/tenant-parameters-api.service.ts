@@ -86,12 +86,14 @@ export interface TenantSettingsReadiness {
   sections: TenantSettingsReadinessSection[];
 }
 
-export function tenantMaryajGratisEnabled(config: TenantInternalConfig | null | undefined): boolean {
+export function tenantMaryajGratisEnabled(
+  config: TenantInternalConfig | null | undefined,
+): boolean {
   return config?.rules?.promotions?.maryajGratisEnabled ?? true;
 }
 
 @Injectable({ providedIn: 'root' })
-export class TenantConfigApiService {
+export class TenantParametersApiService {
   private readonly backend = inject(TchBackendClient);
 
   getTenantConfig(options?: TchRequestOptions): Observable<TenantInternalConfig | null> {
@@ -122,7 +124,10 @@ export class TenantConfigApiService {
     section: T,
     options?: TchRequestOptions,
   ): Observable<NonNullable<TenantInternalConfig[T]>> {
-    return this.backend.get<NonNullable<TenantInternalConfig[T]>>(`/admin/tenant-config/sections/${section}`, options);
+    return this.backend.get<NonNullable<TenantInternalConfig[T]>>(
+      `/admin/tenant-config/sections/${section}`,
+      options,
+    );
   }
 
   getReadiness(options?: TchRequestOptions): Observable<TenantSettingsReadiness> {
@@ -137,7 +142,10 @@ export class TenantConfigApiService {
   }
 
   getCommunicationConfig(options?: TchRequestOptions): Observable<TenantCommunicationConfig> {
-    return this.backend.get<TenantCommunicationConfig>('/admin/tenant-config/communication', options);
+    return this.backend.get<TenantCommunicationConfig>(
+      '/admin/tenant-config/communication',
+      options,
+    );
   }
 
   getDocumentConfig(options?: TchRequestOptions): Observable<TenantDocumentConfig> {

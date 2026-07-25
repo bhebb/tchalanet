@@ -55,6 +55,19 @@
     "setup": {
       "backToSetup": "General setup"
     },
+    "settings": {
+      "title": "Tenant settings",
+      "description": "Internal settings used by the tenant operation.",
+      "quickAccess": "Quick access",
+      "runtime": {
+        "title": "Runtime",
+        "description": "Tenant execution information."
+      },
+      "config": {
+        "title": "Operational parameters",
+        "description": "Locale, communication, documents, and calendar."
+      }
+    },
     "dashboard": {
       "title": "Administration",
       "description": "Tenant administration overview",

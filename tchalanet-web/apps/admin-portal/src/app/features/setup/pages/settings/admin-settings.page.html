@@ -1,22 +1,25 @@
-<tch-admin-page-shell title="Paramètres" description="Configuration du tenant.">
+<tch-admin-page-shell
+  [title]="'admin.settings.title' | translate"
+  [description]="'admin.settings.description' | translate"
+>
   <div actions>
     <a mat-stroked-button [routerLink]="backRoute">
       <span class="material-symbols-outlined">arrow_back</span>
-      {{ backLabel }}
+      {{ backLabel | translate }}
     </a>
   </div>
 
-  <tch-admin-section-card title="Accès rapide">
+  <tch-admin-section-card [title]="'admin.settings.quickAccess' | translate">
     <div class="settings-page__grid">
       @for (link of links; track link.route) {
-        <a class="settings-page__card" [routerLink]="link.route" [queryParams]="linkQueryParams">
-          <span class="material-symbols-outlined settings-page__card-icon">{{ link.icon }}</span>
-          <div class="settings-page__card-body">
-            <span class="settings-page__card-label">{{ link.label }}</span>
-            <span class="settings-page__card-desc">{{ link.description }}</span>
-          </div>
-          <span class="material-symbols-outlined settings-page__card-arrow">chevron_right</span>
-        </a>
+      <a class="settings-page__card" [routerLink]="link.route" [queryParams]="linkQueryParams">
+        <span class="material-symbols-outlined settings-page__card-icon">{{ link.icon }}</span>
+        <div class="settings-page__card-body">
+          <span class="settings-page__card-label">{{ link.labelKey | translate }}</span>
+          <span class="settings-page__card-desc">{{ link.descriptionKey | translate }}</span>
+        </div>
+        <span class="material-symbols-outlined settings-page__card-arrow">chevron_right</span>
+      </a>
       }
     </div>
   </tch-admin-section-card>

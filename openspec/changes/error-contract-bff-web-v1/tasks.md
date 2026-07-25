@@ -262,7 +262,10 @@ portals, Flutter mobile, client-originated failures, i18n, accessibility, recove
       platform dashboards are migrated as verticals. The admin POS preparation/confirmation path
       retains notices and translates `SaleIssue` from stable codes only; ticket verification maps
       only `ticket.not_found` to its business result and preserves every other failure. POS
-      dashboard, platform Ops, and remaining flows are pending.
+      dashboard, platform Ops, and remaining flows are pending. The tenant-admin setup and settings
+      surfaces now separate read-only overview/readiness, general tenant configuration, commercial
+      configuration, and internal tenant parameters; setup progress and blocking state are read
+      from the backend `TenantSetupView` instead of being re-derived in Angular.
 - [ ] Treat `PARTIAL` as successful degraded state; superseded resource cancellation as silent;
       malformed 2xx envelope as stable client invalid-response failure.
 - [~] Evolve `WebAppError` to retain code/category/origin/status/retryability/owner/dedupe key and

@@ -55,6 +55,19 @@
     "setup": {
       "backToSetup": "Configuration générale"
     },
+    "settings": {
+      "title": "Paramètres du tenant",
+      "description": "Paramètres internes utilisés par l’exploitation du tenant.",
+      "quickAccess": "Accès rapide",
+      "runtime": {
+        "title": "Runtime",
+        "description": "Informations d’exécution du tenant."
+      },
+      "config": {
+        "title": "Paramètres opérationnels",
+        "description": "Locale, communication, documents et calendrier."
+      }
+    },
     "drawChannels": {
       "title": "Canaux de tirage",
       "description": "Configurez les providers, sources de résultats et créneaux de vente actifs pour votre espace.",

@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { ActionItem } from '@tch/api';
@@ -11,13 +18,17 @@ import {
 import { TchRuntimeConfigStore } from '@tch/shared-config';
 import { ThemeStore } from '@tch/ui/theme';
 import { ThemeSandboxComponent } from '@tch/web/sandbox';
-import { filterTenantAdminNavigation, PrivateShellLayoutComponent, TENANT_ADMIN_NAVIGATION } from '@tch/web/shell';
+import {
+  filterTenantAdminNavigation,
+  PrivateShellLayoutComponent,
+  TENANT_ADMIN_NAVIGATION,
+} from '@tch/web/shell';
 import { TranslatePipe } from '@ngx-translate/core';
 import { filter, map, startWith } from 'rxjs';
 import {
-  TenantConfigApiService,
+  TenantParametersApiService,
   tenantMaryajGratisEnabled,
-} from './features/setup/data-access/tenant-config-api.service';
+} from './features/setup/data-access/tenant-parameters-api.service';
 
 const ADMIN_BRAND: ActionItem = {
   id: 'admin-brand',
@@ -39,7 +50,7 @@ export class App {
   private readonly bootstrap = inject(PrivateBootstrapStore);
   private readonly runtimeConfig = inject(TchRuntimeConfigStore);
   private readonly supportAccess = inject(SupportAccessStore);
-  private readonly tenantConfig = inject(TenantConfigApiService);
+  private readonly tenantParameters = inject(TenantParametersApiService);
   private readonly theme = inject(ThemeStore);
   private readonly maryajGratisEnabled = signal(true);
   private tenantConfigLoaded = false;
@@ -110,7 +121,7 @@ export class App {
         return;
       }
       this.tenantConfigLoaded = true;
-      this.tenantConfig.getTenantConfig({ suppressShellFeedback: true }).subscribe({
+      this.tenantParameters.getTenantConfig({ suppressShellFeedback: true }).subscribe({
         next: config => this.maryajGratisEnabled.set(tenantMaryajGratisEnabled(config)),
         error: () => this.maryajGratisEnabled.set(true),
       });
@@ -136,7 +147,9 @@ export class App {
       try {
         await this.auth.logout();
       } finally {
-        globalThis.location.assign(`${platformBaseUrl}/logout?returnTo=${encodeURIComponent(adminLoginUrl)}`);
+        globalThis.location.assign(
+          `${platformBaseUrl}/logout?returnTo=${encodeURIComponent(adminLoginUrl)}`,
+        );
       }
       return;
     }
@@ -164,7 +177,11 @@ export class App {
   }
 
   private clearStaleSupportAccessForCurrentUser(): void {
-    if (this.auth.authenticated() && !this.auth.hasRole('SUPER_ADMIN') && this.supportAccess.session()) {
+    if (
+      this.auth.authenticated() &&
+      !this.auth.hasRole('SUPER_ADMIN') &&
+      this.supportAccess.session()
+    ) {
       this.supportAccess.clearSession();
     }
   }
