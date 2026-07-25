@@ -2,8 +2,7 @@ import { NavigationSection } from '@tch/api';
 
 export type PrivateSpace = 'platform' | 'admin' | 'cashier';
 
-export const TENANT_ADMIN_USER_GUIDE_URL =
-  'https://tchalanet-docs-public.frinaytech.workers.dev/administrateurs/';
+export const TENANT_ADMIN_USER_GUIDE_URL = 'https://docs.tchalanet.com/administrateurs/';
 
 export interface TenantAdminNavigationOptions {
   readonly maryajGratisEnabled?: boolean;
