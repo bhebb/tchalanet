@@ -181,15 +181,15 @@ export class AdminConfigPage {
   });
 
   readonly communicationForm = this.fb.group({
-    smsEnabled: new FormControl<boolean>(true, { nonNullable: true }),
+    smsEnabled: new FormControl<boolean>(false, { nonNullable: true }),
     smsAmount: new FormControl<number | null>(5, { validators: [Validators.min(0)] }),
     smsCurrency: new FormControl<string>(this.defaultCurrency(), { nonNullable: true }),
     smsPaidBy: new FormControl<string>('BUYER', { nonNullable: true }),
-    whatsappEnabled: new FormControl<boolean>(true, { nonNullable: true }),
+    whatsappEnabled: new FormControl<boolean>(false, { nonNullable: true }),
     whatsappAmount: new FormControl<number | null>(5, { validators: [Validators.min(0)] }),
     whatsappCurrency: new FormControl<string>(this.defaultCurrency(), { nonNullable: true }),
     whatsappPaidBy: new FormControl<string>('BUYER', { nonNullable: true }),
-    emailEnabled: new FormControl<boolean>(true, { nonNullable: true }),
+    emailEnabled: new FormControl<boolean>(false, { nonNullable: true }),
     emailAmount: new FormControl<number | null>(0, { validators: [Validators.min(0)] }),
     emailCurrency: new FormControl<string>(this.defaultCurrency(), { nonNullable: true }),
     emailPaidBy: new FormControl<string>('TENANT', { nonNullable: true }),
@@ -434,15 +434,15 @@ export class AdminConfigPage {
     const delivery = cfg.communication?.buyerTicketDelivery;
     if (!delivery) return;
     this.communicationForm.patchValue({
-      smsEnabled: delivery.sms?.enabled ?? true,
+      smsEnabled: delivery.sms?.enabled ?? false,
       smsAmount: delivery.sms?.amount ?? null,
       smsCurrency: delivery.sms?.currency ?? this.defaultCurrency(),
       smsPaidBy: delivery.sms?.paidBy ?? 'BUYER',
-      whatsappEnabled: delivery.whatsapp?.enabled ?? true,
+      whatsappEnabled: delivery.whatsapp?.enabled ?? false,
       whatsappAmount: delivery.whatsapp?.amount ?? null,
       whatsappCurrency: delivery.whatsapp?.currency ?? this.defaultCurrency(),
       whatsappPaidBy: delivery.whatsapp?.paidBy ?? 'BUYER',
-      emailEnabled: delivery.email?.enabled ?? true,
+      emailEnabled: delivery.email?.enabled ?? false,
       emailAmount: delivery.email?.amount ?? null,
       emailCurrency: delivery.email?.currency ?? this.defaultCurrency(),
       emailPaidBy: delivery.email?.paidBy ?? 'TENANT',
