@@ -123,7 +123,7 @@ import {
   `,
   styles: [
     `
-      @use 'index' as ui;
+      @use 'breakpoints' as ui;
 
       .platform-access-roles__grid {
         display: grid;

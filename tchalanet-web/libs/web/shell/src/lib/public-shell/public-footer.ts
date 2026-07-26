@@ -86,7 +86,7 @@ interface FooterText {
   `,
   styles: [
     `
-      @use 'index' as ui;
+      @use 'breakpoints' as ui;
 
       .public-footer {
         --comp-footer-bg: var(--tch-color-primary);

@@ -41,7 +41,7 @@ import { RouterLink } from '@angular/router';
     </main>
   `,
   styles: [`
-    @use 'index' as ui;
+    @use 'breakpoints' as ui;
 
     :host {
       --comp-page-error-fg: var(--tch-color-on-surface);

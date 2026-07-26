@@ -97,7 +97,7 @@ import { PrivateNotificationsStore } from './private-notifications.store';
   `,
   styles: [
     `
-      @use 'index' as ui;
+      @use 'breakpoints' as ui;
 
       .notification-bell {
         position: relative;

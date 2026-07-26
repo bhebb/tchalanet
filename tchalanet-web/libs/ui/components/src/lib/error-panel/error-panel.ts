@@ -45,7 +45,7 @@ import {
     </section>
   `,
   styles: [`
-    @use 'index' as ui;
+    @use 'breakpoints' as ui;
 
     :host {
       --comp-error-panel-bg: var(--tch-color-error-container);

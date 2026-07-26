@@ -238,7 +238,7 @@ const HIDDEN_ASSIGNABLE_ROLES = new Set(['CASHIER', 'SELLER_TERMINAL']);
   `,
   styles: [
     `
-      @use 'index' as ui;
+      @use 'breakpoints' as ui;
 
       .platform-access-users__table-wrap {
         overflow-x: auto;

@@ -11,7 +11,7 @@ import { TchPubCardDensity } from './pub-card';
   },
   styles: [
     `
-      @use 'index' as ui;
+      @use 'breakpoints' as ui;
 
       :host {
         display: grid;

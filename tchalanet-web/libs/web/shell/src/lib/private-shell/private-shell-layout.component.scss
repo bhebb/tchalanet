@@ -1,4 +1,4 @@
-@use 'index' as ui;
+@use 'breakpoints' as ui;
 
 .private-shell {
   --comp-private-border: var(--tch-color-outline-variant);

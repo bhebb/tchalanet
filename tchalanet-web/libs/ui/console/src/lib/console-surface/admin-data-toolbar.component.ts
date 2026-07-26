@@ -27,7 +27,7 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
   `,
   styles: [
     `
-      @use 'index' as ui;
+      @use 'breakpoints' as ui;
 
       .data-toolbar {
         display: grid;

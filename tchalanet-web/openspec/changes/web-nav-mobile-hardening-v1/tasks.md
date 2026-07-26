@@ -155,6 +155,16 @@ Le non-goal initial (« pas de sweep sur les 122 fichiers ») est levé : le res
       compilation Sass.
 - [x] `SCOPE` du garde-fou élargi à **tout `libs/` et `apps/`** : 1007 fichiers, 0 violation.
       Le contrat ne peut plus régresser nulle part dans le workspace.
+- [x] **Importer `breakpoints`, pas `index`.** Le build **production** a cassé sur un budget de style
+      (`public-rules.page.scss`, +3,07 ko) là où le build development passait : chaque feuille de
+      style de composant est une unité de compilation séparée, donc `@use 'index'` y recopie tout le
+      CSS émis par les partials forwardés (`@font-face` et classes d'`_icons.scss`, utilitaires de
+      `_typography.scss`, règles d'`_overlay.scss`) — multiplié par les ~120 fichiers concernés.
+      `_breakpoints.scss` n'émet rien. Seuls 2 fichiers utilisent d'autres familles de helpers
+      (`ui.rounded`, `ui.surface`, `ui.focus-visible`…) et gardent `index`.
+      Convention consignée dans `style.md` §10.
+- [x] Vérification en configuration **production** ajoutée au réflexe : le build development ne
+      contrôle pas les budgets, c'est ce qui avait laissé passer la régression jusqu'à la CI.
 
 ## 5. Documentation
 

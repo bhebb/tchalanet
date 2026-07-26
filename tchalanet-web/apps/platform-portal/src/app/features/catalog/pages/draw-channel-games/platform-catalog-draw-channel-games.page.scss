@@ -1,4 +1,4 @@
-@use 'index' as ui;
+@use 'breakpoints' as ui;
 
 .draw-channel-games-config {
   margin-block-start: calc(var(--tch-space-base) * 5);

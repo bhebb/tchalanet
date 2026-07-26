@@ -19,7 +19,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
   `,
   styles: [
     `
-      @use 'index' as ui;
+      @use 'breakpoints' as ui;
 
       .crud-shell {
         display: flex;

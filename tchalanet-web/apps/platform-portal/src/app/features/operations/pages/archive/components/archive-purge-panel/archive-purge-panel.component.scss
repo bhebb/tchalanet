@@ -1,4 +1,4 @@
-@use 'index' as ui;
+@use 'breakpoints' as ui;
 
 .archive-purge-panel {
   --archive-purge-error: var(--tch-color-error);

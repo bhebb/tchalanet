@@ -28,7 +28,7 @@ import { MatDialogModule } from '@angular/material/dialog';
   `,
   styles: [
     `
-      @use 'index' as ui;
+      @use 'breakpoints' as ui;
 
       .tch-admin-dialog-shell {
         --comp-admin-dialog-gap: 0.875rem;

@@ -36,7 +36,7 @@ import { WidgetHostComponent } from './widget-host.component';
   `,
   styles: [
     `
-      @use 'index' as ui;
+      @use 'breakpoints' as ui;
 
       .page-model {
         display: grid;

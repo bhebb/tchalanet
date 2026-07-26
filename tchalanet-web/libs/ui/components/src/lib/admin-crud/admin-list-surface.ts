@@ -124,7 +124,7 @@ export interface AdminListStatusOption {
   `,
   styles: [
     `
-      @use 'index' as ui;
+      @use 'breakpoints' as ui;
 
       :host {
         display: block;

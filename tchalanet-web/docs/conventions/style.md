@@ -469,15 +469,24 @@ extra-large  ≥ 1600px
 ```
 
 ```scss
-@use 'index' as ui;   // `libs/ui/styles/src/lib` est dans includePaths des 3 apps
+@use 'breakpoints' as ui;   // `libs/ui/styles/src/lib` est dans includePaths des 3 apps
 
 @include ui.up(medium)   { ... }   // ≥ 600px
 @include ui.up(expanded) { ... }   // ≥ 840px
 ```
 
+**N'importer que le partial dont on a besoin, jamais `index`.** Chaque feuille de style de composant
+est une unité de compilation séparée : `@use 'index'` y **recopie tout le CSS émis** par les partials
+forwardés — le `@font-face` et les classes de `_icons.scss`, les utilitaires de `_typography.scss`,
+les règles de `_overlay.scss`. Plus de 3 ko par composant, dupliqués autant de fois qu'il y a de
+composants. `_breakpoints.scss` n'émet rien : que la map, la fonction et les mixins.
+
+Réserver `@use 'index' as ui;` aux rares fichiers qui ont réellement besoin de plusieurs familles de
+helpers (`ui.rounded`, `ui.surface`, `ui.focus-visible`…).
+
 Les styles inline (`styles: [...]` dans le décorateur `@Component`) sont compilés en SCSS
-(`inlineStyleLanguage: "scss"`), donc `@use 'index' as ui;` y fonctionne aussi — le placer en tête
-du template littéral. Pas besoin d'externaliser un `.scss` compagnon juste pour un breakpoint.
+(`inlineStyleLanguage: "scss"`), donc `@use` y fonctionne aussi — le placer en tête du template
+littéral. Pas besoin d'externaliser un `.scss` compagnon juste pour un breakpoint.
 
 Do not redefine breakpoint pixel values anywhere else — use `bp()` or the mixins.
 
