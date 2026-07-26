@@ -1,6 +1,15 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { DestroyRef, Injectable, Injector, PLATFORM_ID, computed, inject, signal } from '@angular/core';
+import {
+  DestroyRef,
+  Injectable,
+  Injector,
+  PLATFORM_ID,
+  afterNextRender,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { TchBackendClient } from '@tch/api';
 import { firstValueFrom } from 'rxjs';
 
@@ -53,7 +62,10 @@ export class SupportAccessStore {
       window.document.removeEventListener('visibilitychange', hydrate);
     });
     if (this._session()) {
-      void this.hydrateCurrent();
+      // The store is part of the HTTP interceptor graph. Defer the first
+      // session hydration until Angular has completed its initial render so
+      // resolving AuthSessionService cannot recreate the bootstrap cycle.
+      afterNextRender(() => void this.hydrateCurrent());
     }
   }
 
