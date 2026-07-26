@@ -238,6 +238,8 @@ const HIDDEN_ASSIGNABLE_ROLES = new Set(['CASHIER', 'SELLER_TERMINAL']);
   `,
   styles: [
     `
+      @use 'index' as ui;
+
       .platform-access-users__table-wrap {
         overflow-x: auto;
       }
@@ -310,7 +312,7 @@ const HIDDEN_ASSIGNABLE_ROLES = new Set(['CASHIER', 'SELLER_TERMINAL']);
         margin-top: 1rem;
       }
 
-      @media (max-width: 960px) {
+      @include ui.down(expanded) {
         .platform-access-users__actions-grid,
         .platform-access-users__effective-grid {
           grid-template-columns: 1fr;

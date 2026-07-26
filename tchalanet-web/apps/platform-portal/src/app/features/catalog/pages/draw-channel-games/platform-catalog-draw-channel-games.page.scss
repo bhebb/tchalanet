@@ -1,3 +1,5 @@
+@use 'index' as ui;
+
 .draw-channel-games-config {
   margin-block-start: calc(var(--tch-space-base) * 5);
   overflow: hidden;
@@ -114,7 +116,7 @@
   }
 }
 
-@media (min-width: 960px) {
+@include ui.up(expanded) {
   .draw-channel-games-config__form,
   .draw-channel-games-config__fields,
   .draw-channel-games-config__meta-list {

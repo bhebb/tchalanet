@@ -1,3 +1,5 @@
+@use 'index' as ui;
+
 .support-tenant-page {
   &__filters {
     display: flex;
@@ -53,7 +55,7 @@
     }
   }
 
-  @media (max-width: 760px) {
+  @include ui.down(expanded) {
     &__filters {
       align-items: stretch;
       flex-direction: column;

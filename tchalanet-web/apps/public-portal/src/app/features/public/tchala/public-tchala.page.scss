@@ -1,3 +1,5 @@
+@use 'index' as ui;
+
       .tchala-page {
         display: grid;
         gap: clamp(1.5rem, 4vw, 2.5rem);
@@ -352,7 +354,7 @@
         margin-top: 0.25rem;
       }
 
-      @media (min-width: 600px) {
+      @include ui.up(medium) {
         .tchala-page__suggest-bar-sub {
           display: inline;
         }
@@ -362,7 +364,7 @@
         }
       }
 
-      @media (min-width: 760px) {
+      @include ui.up(expanded) {
         .tchala-page h1 {
           font-size: var(--tch-font-size-display-lg, 2.5rem);
           line-height: var(--tch-line-height-display-lg, 3rem);

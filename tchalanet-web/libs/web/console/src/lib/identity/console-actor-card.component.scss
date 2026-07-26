@@ -1,10 +1,12 @@
+@use 'index' as ui;
+
 .console-actor-card__layout {
   display: grid;
   grid-template-columns: 1fr 280px;
   gap: 1.5rem;
   align-items: start;
 
-  @media (max-width: 768px) {
+  @include ui.down(expanded) {
     grid-template-columns: 1fr;
   }
 }

@@ -1,3 +1,5 @@
+@use 'index' as ui;
+
 .draw-detail-activity__head {
   display: grid;
   grid-template-columns: 1fr;
@@ -174,7 +176,7 @@
   color: var(--tch-color-on-surface-variant);
 }
 
-@media (min-width: 720px) {
+@include ui.up(expanded) {
   .draw-detail-activity__head {
     grid-template-columns: 1fr auto;
     align-items: start;

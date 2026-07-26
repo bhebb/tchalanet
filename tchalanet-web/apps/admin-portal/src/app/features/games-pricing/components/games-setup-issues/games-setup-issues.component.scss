@@ -1,3 +1,5 @@
+@use 'index' as ui;
+
 .games-issues {
   display: grid;
   gap: 0.875rem;
@@ -89,7 +91,7 @@
     }
   }
 
-  @media (min-width: 760px) {
+  @include ui.up(expanded) {
     &__header {
       grid-template-columns: 1fr auto;
       align-items: center;

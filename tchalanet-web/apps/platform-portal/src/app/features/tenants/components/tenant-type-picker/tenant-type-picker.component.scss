@@ -1,3 +1,5 @@
+@use 'index' as ui;
+
 .tenant-type-picker {
   display: flex;
   flex-direction: column;
@@ -84,7 +86,7 @@
   font-size: 0.75rem;
 }
 
-@media (max-width: 44rem) {
+@include ui.down(medium) {
   .tenant-type-picker__tiles {
     grid-template-columns: 1fr;
   }

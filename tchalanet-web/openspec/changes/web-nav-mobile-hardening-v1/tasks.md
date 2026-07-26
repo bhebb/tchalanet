@@ -136,6 +136,26 @@ puis tests. Cocher en temps réel (règle `openspec-workflow`).
 - [x] Navigateur, platform-portal à 390×844 : `min-height` résolue à 844px
       (`100dvh` = `innerHeight`), scroll horizontal = 0.
 
+## 4c. Sweep complet du workspace
+
+Le non-goal initial (« pas de sweep sur les 122 fichiers ») est levé : le reste a été migré.
+
+- [x] 137 media queries littérales migrées dans **103 fichiers** (`apps/admin-portal` 51,
+      `apps/platform-portal` 28, `libs/web/console` 10, `apps/public-portal` 8, `libs/widgets` 4,
+      `libs/page-model` 1, `libs/notifications` 1).
+- [x] Règle appliquée : **arrondi au palier M3 le plus proche, égalité → `expanded`**. Pour un
+      `max-width: X` la comparaison porte sur `X+1` (« sous X »), sans quoi `max-width: 719px` et
+      `max-width: 720px` — deux écritures de la même intention — tombaient sur deux paliers à
+      240px d'écart.
+- [x] 62 remaps déplacent la borne de ≥100px. Les plus fréquents : `max-width: 720px` →
+      `down(expanded)` (+120px, ×19), `min-width: 960px` → `up(expanded)` (−120px, ×13),
+      `max-width: 480px` → `down(medium)` (+120px, ×6). C'est le coût assumé de l'unification.
+- [x] 9 fichiers normalisés de `@use '../../../../../../libs/ui/styles/src/lib/index' as ui;` vers
+      `@use 'index' as ui;` — ils déclaraient déjà le namespace, la double déclaration cassait la
+      compilation Sass.
+- [x] `SCOPE` du garde-fou élargi à **tout `libs/` et `apps/`** : 1007 fichiers, 0 violation.
+      Le contrat ne peut plus régresser nulle part dans le workspace.
+
 ## 5. Documentation
 
 - [x] `docs/conventions/style.md` §10.1 et §10.2 : frontière unique 840px pour la

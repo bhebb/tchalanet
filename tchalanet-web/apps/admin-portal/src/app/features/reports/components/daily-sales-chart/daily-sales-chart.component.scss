@@ -1,3 +1,5 @@
+@use 'index' as ui;
+
 .daily-sales-chart {
   display: grid;
   gap: 0.75rem;
@@ -36,7 +38,7 @@
   font-size: 0.875rem;
 }
 
-@media (max-width: 700px) {
+@include ui.down(medium) {
   .daily-sales-chart__row {
     grid-template-columns: 1fr;
     gap: 0.375rem;

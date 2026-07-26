@@ -1,9 +1,11 @@
+@use 'index' as ui;
+
 .gp-summary {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
 
-  @media (max-width: 640px) { grid-template-columns: 1fr; }
+  @include ui.down(medium) { grid-template-columns: 1fr; }
 
   &__kpi {
     display: flex;

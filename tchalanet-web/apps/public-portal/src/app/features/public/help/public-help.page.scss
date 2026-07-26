@@ -1,3 +1,5 @@
+@use 'index' as ui;
+
 .help-page {
   display: grid;
   gap: clamp(1.5rem, 4vw, 2.5rem);
@@ -186,7 +188,7 @@
   font-size: 1rem;
 }
 
-@media (min-width: 760px) {
+@include ui.up(expanded) {
   .help-page h1 {
     font-size: var(--tch-font-size-display-lg, 2.5rem);
     line-height: var(--tch-line-height-display-lg, 3rem);

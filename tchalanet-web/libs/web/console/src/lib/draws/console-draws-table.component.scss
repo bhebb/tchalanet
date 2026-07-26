@@ -258,7 +258,7 @@
   }
 }
 
-@media (max-width: 760px) {
+@include ui.down(expanded) {
   .console-draws-table {
     &__scroller {
       display: none;

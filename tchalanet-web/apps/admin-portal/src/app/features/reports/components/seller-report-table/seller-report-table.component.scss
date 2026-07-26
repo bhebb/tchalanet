@@ -1,3 +1,5 @@
+@use 'index' as ui;
+
 .seller-report-table {
   overflow: hidden;
   border: 1px solid var(--tch-color-outline-variant);
@@ -154,7 +156,7 @@
   }
 }
 
-@media (max-width: 760px) {
+@include ui.down(expanded) {
   .seller-report-table {
     &__desktop {
       display: none;

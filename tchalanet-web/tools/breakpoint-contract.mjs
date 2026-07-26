@@ -9,22 +9,14 @@
  *
  * Voir `docs/conventions/style.md` §6 et §10, et
  * `openspec/changes/web-nav-mobile-hardening-v1/specs/web-responsive-baseline/spec.md`.
- *
- * Élargir SCOPE au fur et à mesure que le reste du workspace est migré.
  */
 import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 
 const root = process.cwd();
 
-/** Répertoires sous contrat. */
-const SCOPE = [
-  'libs/web/shell',
-  'libs/ui/components',
-  'libs/ui/console',
-  'libs/ui/styles',
-  'libs/core/auth',
-];
+/** Répertoires sous contrat — tout le code source du workspace. */
+const SCOPE = ['libs', 'apps'];
 
 /**
  * Exemptions, chacune justifiée :

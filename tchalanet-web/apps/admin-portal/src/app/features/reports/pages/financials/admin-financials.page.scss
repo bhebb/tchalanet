@@ -1,3 +1,5 @@
+@use 'index' as ui;
+
 :host {
   display: flex;
   flex-direction: column;
@@ -130,7 +132,7 @@
   }
 }
 
-@media (max-width: 720px) {
+@include ui.down(expanded) {
   .financials-controls {
     align-items: stretch;
 

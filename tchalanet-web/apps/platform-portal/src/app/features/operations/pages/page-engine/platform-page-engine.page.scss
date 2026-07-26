@@ -1,3 +1,5 @@
+@use 'index' as ui;
+
 .page-engine {
   display: grid;
   grid-template-columns: minmax(420px, 0.95fr) minmax(520px, 1.05fr);
@@ -38,7 +40,7 @@
   line-height: 1.45;
 }
 
-@media (max-width: 1180px) {
+@include ui.down(large) {
   .page-engine {
     grid-template-columns: 1fr;
   }

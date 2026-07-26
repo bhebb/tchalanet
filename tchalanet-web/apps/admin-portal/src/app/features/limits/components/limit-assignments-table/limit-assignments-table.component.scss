@@ -1,3 +1,5 @@
+@use 'index' as ui;
+
 .lat__category-title {
   font-weight: var(--tch-weight-semibold, 600);
 }
@@ -101,7 +103,7 @@
   gap: 0.5rem;
 }
 
-@media (min-width: 760px) {
+@include ui.up(expanded) {
   .lat__card {
     grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.6fr);
     align-items: start;

@@ -97,6 +97,8 @@ import { PrivateNotificationsStore } from './private-notifications.store';
   `,
   styles: [
     `
+      @use 'index' as ui;
+
       .notification-bell {
         position: relative;
       }
@@ -275,7 +277,7 @@ import { PrivateNotificationsStore } from './private-notifications.store';
         opacity: 0.55;
       }
 
-      @media (max-width: 720px) {
+      @include ui.down(expanded) {
         .notification-menu {
           position: fixed;
           top: 5.75rem;

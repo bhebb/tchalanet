@@ -1,3 +1,5 @@
+@use 'index' as ui;
+
 .draw-channel-table {
   width: 100%;
 }
@@ -159,7 +161,7 @@
   }
 }
 
-@media (max-width: 760px) {
+@include ui.down(expanded) {
   .draw-channel-table {
     display: none;
   }
@@ -170,7 +172,7 @@
   }
 }
 
-@media (min-width: 960px) {
+@include ui.up(expanded) {
   .draw-channel-config__form {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }

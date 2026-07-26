@@ -1,3 +1,5 @@
+@use 'index' as ui;
+
 .catalog-config {
   margin-block-start: calc(var(--tch-space-base) * 5);
   overflow: hidden;
@@ -116,7 +118,7 @@
   }
 }
 
-@media (min-width: 960px) {
+@include ui.up(expanded) {
   .catalog-config__form {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }

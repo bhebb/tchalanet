@@ -1,3 +1,5 @@
+@use 'index' as ui;
+
 .report-draws {
   &__toolbar,
   &__actions {
@@ -106,7 +108,7 @@
   }
 }
 
-@media (max-width: 840px) {
+@include ui.down(expanded) {
   .report-draws {
     &__toolbar,
     &__actions {

@@ -1,3 +1,5 @@
+@use 'index' as ui;
+
 .console-pricing-table {
   overflow-x: auto;
 
@@ -36,7 +38,7 @@
   }
 }
 
-@media (max-width: 720px) {
+@include ui.down(expanded) {
   .console-pricing-table {
     overflow: visible;
 

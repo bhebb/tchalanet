@@ -1,3 +1,5 @@
+@use 'index' as ui;
+
 .catalog-games-page__config {
   margin-block-start: calc(var(--tch-space-base) * 5);
   overflow: hidden;
@@ -86,7 +88,7 @@
   }
 }
 
-@media (min-width: 960px) {
+@include ui.up(expanded) {
   .catalog-games-page__config-form,
   .catalog-games-page__config-fields {
     grid-template-columns: repeat(2, minmax(0, 1fr));

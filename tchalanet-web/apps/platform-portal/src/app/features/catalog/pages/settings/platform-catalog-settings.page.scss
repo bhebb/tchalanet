@@ -1,4 +1,4 @@
-@use '../../../../../../../../libs/ui/styles/src/lib/index' as ui;
+@use 'index' as ui;
 
 .catalog-settings-page {
   &__kpi-row {
@@ -196,7 +196,7 @@
   font-size: 0.75rem;
 }
 
-@media (min-width: 960px) {
+@include ui.up(expanded) {
   .catalog-settings-page {
     &__config-form {
       grid-template-columns: repeat(2, minmax(0, 1fr));

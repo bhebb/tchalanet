@@ -1,3 +1,5 @@
+@use 'index' as ui;
+
 .console-games-table {
   overflow-x: auto;
 
@@ -77,7 +79,7 @@
   }
 }
 
-@media (max-width: 720px) {
+@include ui.down(expanded) {
   .console-games-table {
     overflow: visible;
 

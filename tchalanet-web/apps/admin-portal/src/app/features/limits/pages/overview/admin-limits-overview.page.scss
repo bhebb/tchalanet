@@ -1,3 +1,5 @@
+@use 'index' as ui;
+
 .admin-limits-overview {
   display: block;
 }
@@ -220,7 +222,7 @@
   text-transform: uppercase;
 }
 
-@media (min-width: 760px) {
+@include ui.up(expanded) {
   .admin-limits-overview__rule-item {
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;

@@ -1,3 +1,5 @@
+@use 'index' as ui;
+
 .ple {
   display: flex;
   flex-direction: column;
@@ -13,7 +15,7 @@
     align-items: center;
   }
 
-  @media (max-width: 720px) {
+  @include ui.down(expanded) {
     &__header {
       display: none;
     }
@@ -366,7 +368,7 @@
     color: var(--tch-color-on-surface-variant, #46464f);
   }
 
-  @media (max-width: 720px) {
+  @include ui.down(expanded) {
     &__option-row {
       grid-template-columns: 1fr;
       gap: 0.375rem;

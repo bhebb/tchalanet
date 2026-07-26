@@ -1,3 +1,5 @@
+@use 'index' as ui;
+
 @use 'mixins' as tch;
 
 :host {
@@ -103,13 +105,13 @@
   overflow-wrap: anywhere;
 }
 
-@media (min-width: 640px) {
+@include ui.up(medium) {
   .quick-actions__grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
-@media (min-width: 1120px) {
+@include ui.up(large) {
   .quick-actions__grid {
     grid-template-columns: repeat(6, minmax(0, 1fr));
   }

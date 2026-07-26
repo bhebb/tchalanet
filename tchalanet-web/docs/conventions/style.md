@@ -507,14 +507,24 @@ figée pendant que le layout change. Voir `libs/web/shell/README.md`.
 
 ### 10.2 Garde-fou
 
-`pnpm breakpoints:contract` (inclus dans `contracts:check`, exécuté par la CI web) refuse, sur les
-surfaces sous contrat :
+`pnpm breakpoints:contract` (inclus dans `contracts:check`, exécuté par la CI web) refuse, sur
+**tout `libs/` et `apps/`** (1000+ fichiers) :
 
 * toute valeur littérale dans un `@media (min-width:` / `(max-width:` ;
 * toute occurrence de `100vh` (voir §6).
 
-Le périmètre sous contrat est déclaré dans `tools/breakpoint-contract.mjs` (`SCOPE`) et s'élargit au
-fur et à mesure des migrations. Ajouter un répertoire à `SCOPE` est la façon de figer un acquis.
+Seules exemptions, déclarées dans `tools/breakpoint-contract.mjs` : `_breakpoints.scss`, qui définit
+les bornes, et le kit `admin-crud/` déprécié (chantier C4), qu'on supprime plutôt qu'on ne migre.
+
+### 10.3 Choisir un palier
+
+Un nouveau breakpoint ne s'invente pas : il se choisit parmi les quatre paliers. En cas d'hésitation,
+prendre le **plus proche**, et `expanded` en cas d'égalité — c'est la borne structurante.
+
+C'est la règle qui a servi à migrer les 137 media queries historiques du workspace (30+ valeurs
+distinctes entre 359px et 1200px). Elle déplace parfois la borne de 100 à 240px : c'est le prix de
+l'unification, et c'est voulu — trois valeurs à 60px d'écart ne décrivaient pas trois intentions
+différentes, elles décrivaient trois moments où quelqu'un a mesuré un écran.
 
 ---
 

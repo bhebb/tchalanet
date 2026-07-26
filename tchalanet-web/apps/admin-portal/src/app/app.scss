@@ -1,3 +1,5 @@
+@use 'index' as ui;
+
 :host {
   display: block;
   min-height: 100dvh;
@@ -68,7 +70,7 @@
   font-size: 1.25rem;
 }
 
-@media (max-width: 720px) {
+@include ui.down(expanded) {
   .admin-portal__support-return {
     width: 100%;
     margin-inline-start: 0;

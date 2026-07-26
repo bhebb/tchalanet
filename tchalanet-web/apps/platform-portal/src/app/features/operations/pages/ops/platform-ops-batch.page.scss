@@ -1,4 +1,4 @@
-@use '../../../../../../../../libs/ui/styles/src/lib/index' as ui;
+@use 'index' as ui;
 
 .batch-page {
   &__section {
@@ -112,7 +112,7 @@
     white-space: nowrap;
   }
 
-  @media (max-width: 820px) {
+  @include ui.down(expanded) {
     &__section-header {
       flex-direction: column;
     }

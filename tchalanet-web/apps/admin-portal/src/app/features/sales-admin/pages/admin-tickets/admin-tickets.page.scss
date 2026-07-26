@@ -1,4 +1,4 @@
-@use '../../../../../../../../libs/ui/styles/src/lib/index' as ui;
+@use 'index' as ui;
 
 .tickets-page {
   &__filters {
@@ -66,7 +66,7 @@
   }
 }
 
-@media (max-width: 720px) {
+@include ui.down(expanded) {
   .tickets-page {
     &__filters,
     &__code-filter,
