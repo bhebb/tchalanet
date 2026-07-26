@@ -27,7 +27,7 @@ import {
 } from '@tch/shared-config';
 import { themeStoreProvider } from '@tch/ui/theme';
 import { provideWidgets } from '@tch/widgets';
-import { shellFeedbackInterceptor } from '@tch/web/shell';
+import { provideTchTitleStrategy, shellFeedbackInterceptor } from '@tch/web/shell';
 import { provideEffects } from '@ngrx/effects';
 import { provideState, provideStore } from '@ngrx/store';
 
@@ -49,6 +49,7 @@ export const appConfig: ApplicationConfig = {
       deps: [TchRuntimeConfigStore],
     },
     provideRouter(appRoutes),
+    ...provideTchTitleStrategy(),
     provideHttpClient(
       withFetch(),
       withInterceptors([

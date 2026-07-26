@@ -32,7 +32,11 @@ import {
 } from '@tch/shared-config';
 import { themeStoreProvider } from '@tch/ui/theme';
 import { provideWidgets } from '@tch/widgets';
-import { shellFeedbackInterceptor } from '@tch/web/shell';
+import {
+  PLATFORM_NAVIGATION,
+  provideTchTitleStrategy,
+  shellFeedbackInterceptor,
+} from '@tch/web/shell';
 
 import { appRoutes } from './app.routes';
 import { environment } from '../environments/environment';
@@ -51,6 +55,7 @@ export const appConfig: ApplicationConfig = {
       deps: [TchRuntimeConfigStore],
     },
     provideRouter(appRoutes),
+    ...provideTchTitleStrategy(PLATFORM_NAVIGATION),
     provideHttpClient(
       withFetch(),
       withInterceptors([
