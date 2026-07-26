@@ -102,14 +102,22 @@ puis tests. Cocher en temps réel (règle `openspec-workflow`).
       `Escape` + restitution du focus, fermeture après navigation, bascule 839→840,
       fermeture de l'overlay au franchissement de la borne.
       `data-testid` ajoutés sur le burger et les navs inline.
-- [ ] **Bloqué — non exécuté.** `playwright.config.ts` ne se charge pas :
-      `ReferenceError: exports is not defined in ES module scope`. Vérifié
-      identique sur l'arbre vierge (`git stash`), donc **antérieur à ce change** et
-      cohérent avec l'absence de cible `web-e2e` en CI. Cause : le fichier est
-      chargé par deux loaders aux attentes opposées — Playwright le transpile en
-      CJS (`import.meta.url` déclenche la détection ESM et casse), tandis que le
-      graphe Nx le charge en ESM par type-stripping (`__dirname` indisponible).
-      Corriger l'un casse l'autre : à traiter dans un change dédié à l'outillage e2e.
+- [x] **Débloqué.** `playwright.config.ts` ne se chargeait pas
+      (`ReferenceError: exports is not defined in ES module scope`), ce qui rendait
+      **toute la suite e2e** inexécutable — vérifié identique sur l'arbre vierge,
+      donc antérieur à ce change et cohérent avec l'absence de cible `web-e2e` en CI.
+      Le fichier était lu par deux outils aux attentes opposées : Playwright le
+      transpile en CommonJS, le graphe Nx le charge par type-stripping ESM ;
+      `import.meta.url` cassait le premier, `__dirname` cassait le second.
+      Renommé en **`playwright.config.cts`** avec `__filename` — la forme que
+      documente `nxE2EPreset` pour un workspace CommonJS, non ambiguë pour les deux.
+- [x] Corrigé le `testMatch` du projet mobile : comparé au chemin **absolu**, le
+      motif nu `/mobile\/…/` attrapait les specs des trois autres projets dès que
+      le dépôt vivait dans un répertoire contenant « mobile » (c'était le cas de la
+      worktree). Ancré sur `src/`.
+- [x] `pnpm exec nx e2e web-e2e -- --project=public-portal-mobile` — **6 tests verts**.
+      Suite complète : 15 passés, 18 skippés (ceux qui exigent l'émulateur et des
+      identifiants, par conception).
 
 ## 4b. Vérification exécutée
 
