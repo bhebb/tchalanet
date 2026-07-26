@@ -53,14 +53,16 @@ writeFileSync(
 writeFileSync(
   join(outDir, '_headers'),
   [
+    '/*',
+    '  Cache-Control: public, max-age=0, must-revalidate, no-transform',
     '/assets/i18n/*',
-    '  Cache-Control: public, max-age=86400',
+    '  Cache-Control: public, max-age=86400, no-transform',
     '/assets/fallback/*',
-    '  Cache-Control: public, max-age=86400, stale-while-revalidate=604800',
+    '  Cache-Control: public, max-age=86400, stale-while-revalidate=604800, no-transform',
     '/*.js',
-    '  Cache-Control: public, max-age=31536000, immutable',
+    '  Cache-Control: public, max-age=31536000, immutable, no-transform',
     '/*.css',
-    '  Cache-Control: public, max-age=31536000, immutable',
+    '  Cache-Control: public, max-age=31536000, immutable, no-transform',
     '',
   ].join('\n'),
 );
