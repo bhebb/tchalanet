@@ -11,6 +11,8 @@ import { TchPubCardDensity } from './pub-card';
   },
   styles: [
     `
+      @use 'index' as ui;
+
       :host {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(var(--pub-card-grid-min, 240px), 1fr));
@@ -21,7 +23,7 @@ import { TchPubCardDensity } from './pub-card';
         gap: 0.75rem;
       }
 
-      @media (max-width: 479px) {
+      @include ui.down(medium) {
         :host {
           grid-template-columns: 1fr;
         }

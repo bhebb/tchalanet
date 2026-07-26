@@ -30,12 +30,13 @@ import {
   selector: 'tch-sidebar-nav',
   imports: [NgTemplateOutlet, RouterLink, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { '[attr.data-density]': 'density()' },
   template: `
     <nav class="sidebar" [attr.aria-label]="ariaLabel()">
       <ng-container *ngTemplateOutlet="itemsTemplate; context: { $implicit: primary() }" />
       @for (section of sections(); track section.id) {
-        <section class="sidebar__section">
-          <h2>{{ section.titleKey | translate }}</h2>
+        <section class="sidebar__section" [attr.aria-labelledby]="'sidebar-section-' + section.id">
+          <h2 [id]="'sidebar-section-' + section.id">{{ section.titleKey | translate }}</h2>
           <ng-container *ngTemplateOutlet="itemsTemplate; context: { $implicit: section.items }" />
         </section>
       }
@@ -72,6 +73,7 @@ import {
                     class="sidebar__child"
                     [class.is-disabled]="child.disabled"
                     [class.is-active]="isActionActive(child, item.children)"
+                    [attr.aria-current]="isActionActive(child, item.children) ? 'page' : null"
                     [routerLink]="actionRoute(child)"
                     [queryParams]="actionQueryParams(child)"
                     [attr.aria-disabled]="child.disabled ? 'true' : null"
@@ -96,6 +98,7 @@ import {
           <a [routerLink]="actionRoute(item)" [queryParams]="actionQueryParams(item)"
              [class.is-disabled]="item.disabled"
              [class.is-active]="isActionActive(item)"
+             [attr.aria-current]="isActionActive(item) ? 'page' : null"
              [attr.aria-disabled]="item.disabled ? 'true' : null"
              [attr.tabindex]="item.disabled ? -1 : null"
              (click)="onItemClick($event, item)">
@@ -152,6 +155,15 @@ import {
     .sidebar__badge[data-severity="danger"] { background: var(--tch-color-error-container); color: var(--tch-color-on-error-container); }
     a.is-disabled { opacity: .48; cursor: default; pointer-events: auto; }
     .sidebar__secondary { display: grid; gap: .25rem; margin-top: auto; }
+
+    /* Densité 'comfortable' : parcours au doigt (drawer superposé). La densité 'compact' par
+       défaut vise le parcours à la souris d'une sidebar permanente, où le menu platform
+       compte 9 groupes. Cf. docs/conventions/style.md §14. */
+    :host([data-density='comfortable']) a,
+    :host([data-density='comfortable']) .sidebar__group-toggle,
+    :host([data-density='comfortable']) .sidebar__child {
+      min-height: var(--tch-touch-target, 48px);
+    }
   `],
 })
 export class TchSidebarNav {
@@ -161,6 +173,8 @@ export class TchSidebarNav {
   readonly sections = input<readonly NavigationSection[]>([]);
   readonly secondary = input<readonly ActionItem[]>([]);
   readonly ariaLabel = input('Navigation principale');
+  /** `comfortable` élargit les cibles tactiles ; `compact` garde la densité souris. */
+  readonly density = input<'comfortable' | 'compact'>('compact');
   readonly itemActivated = output<ActionItem>();
   readonly actionRoute = actionRoute;
   readonly actionHref = actionHref;

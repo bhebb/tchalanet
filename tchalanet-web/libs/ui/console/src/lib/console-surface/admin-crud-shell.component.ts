@@ -19,6 +19,8 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
   `,
   styles: [
     `
+      @use 'index' as ui;
+
       .crud-shell {
         display: flex;
         flex-direction: column;
@@ -53,7 +55,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
         display: none;
       }
 
-      @media (min-width: 760px) {
+      @include ui.up(medium) {
         .crud-shell__footer {
           align-items: center;
         }

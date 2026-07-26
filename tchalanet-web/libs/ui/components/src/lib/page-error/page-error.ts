@@ -41,6 +41,8 @@ import { RouterLink } from '@angular/router';
     </main>
   `,
   styles: [`
+    @use 'index' as ui;
+
     :host {
       --comp-page-error-fg: var(--tch-color-on-surface);
       --comp-page-error-code-fg: var(--tch-color-error);
@@ -55,7 +57,7 @@ import { RouterLink } from '@angular/router';
     .tch-page-error__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: .5rem; }
     a, button { min-height: 2.75rem; padding: .625rem 1rem; border: 1px solid var(--tch-color-outline); border-radius: var(--tch-radius-md); background: var(--tch-color-surface); color: var(--tch-color-primary); font: inherit; text-decoration: none; cursor: pointer; }
     button:disabled { cursor: wait; opacity: .65; }
-    @media (max-width: 37.5rem) {
+    @include ui.down(medium) {
       .tch-page-error { min-height: 100dvh; place-content: center; text-align: left; }
       .tch-page-error__actions { width: 100%; }
       .tch-page-error__actions > * { flex: 1 1 100%; text-align: center; }

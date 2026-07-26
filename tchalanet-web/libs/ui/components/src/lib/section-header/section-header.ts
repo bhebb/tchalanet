@@ -17,6 +17,8 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
   `,
   styles: [
     `
+      @use 'index' as ui;
+
       .section-header {
         --comp-section-title: var(--tch-color-primary);
         --comp-section-subtitle: var(--tch-color-on-surface-variant);
@@ -38,7 +40,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
         color: var(--comp-section-subtitle);
         font-size: var(--tch-font-size-body-md, 1rem);
       }
-      @media (max-width: 839.98px) {
+      @include ui.down(expanded) {
         .section-header {
           display: grid;
         }

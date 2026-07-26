@@ -1,14 +1,65 @@
-import { TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { Signal, signal } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it } from 'vitest';
 
+import { AUTH_CLIENT, AuthClient } from '@tch/core/auth';
+import { TchBreakpointService } from '@tch/ui/components';
+import { themeStoreProvider } from '@tch/ui/theme';
+
 import { PrivateShellLayoutComponent } from './private-shell-layout.component';
 
-describe('PrivateShellLayoutComponent', () => {
-  beforeEach(() => {
-    TestBed.configureTestingModule({ providers: [provideRouter([]), provideTranslateService()] });
+const authClient: AuthClient = {
+  isAuthenticated: async () => false,
+  login: async () => undefined,
+  logout: async () => undefined,
+  getAccessToken: async () => null,
+  getTokenExpiresAt: async () => undefined,
+};
+
+/** Seul `isWide()` est consommé par le shell — le reste du service n'a pas à être simulé. */
+function breakpointStub(isWide: Signal<boolean>): TchBreakpointService {
+  return { isWide } as unknown as TchBreakpointService;
+}
+
+function configure(isWide = signal(false)) {
+  TestBed.configureTestingModule({
+    providers: [
+      provideRouter([]),
+      provideTranslateService(),
+      provideHttpClient(),
+      themeStoreProvider,
+      { provide: AUTH_CLIENT, useValue: authClient },
+      { provide: TchBreakpointService, useValue: breakpointStub(isWide) },
+    ],
   });
+}
+
+function render(): ComponentFixture<PrivateShellLayoutComponent> {
+  const fixture = TestBed.createComponent(PrivateShellLayoutComponent);
+  fixture.componentRef.setInput('brand', {
+    id: 'brand',
+    label: 'Tchalanet',
+    destination: { kind: 'route', value: '/' },
+  });
+  fixture.componentRef.setInput('primary', [
+    { id: 'dashboard', label: 'Dashboard', destination: { kind: 'url', value: '#dashboard' } },
+  ]);
+  fixture.detectChanges();
+  return fixture;
+}
+
+const drawerOf = (fixture: ComponentFixture<unknown>) =>
+  fixture.nativeElement.querySelector('.drawer') as HTMLElement;
+const contentOf = (fixture: ComponentFixture<unknown>) =>
+  fixture.nativeElement.querySelector('.content') as HTMLElement;
+const burgerOf = (fixture: ComponentFixture<unknown>) =>
+  fixture.nativeElement.querySelector('.burger') as HTMLButtonElement;
+
+describe('PrivateShellLayoutComponent', () => {
+  beforeEach(() => configure());
 
   it('keeps the drawer closed by default and toggles it explicitly', () => {
     const component = TestBed.createComponent(PrivateShellLayoutComponent).componentInstance;
@@ -37,24 +88,86 @@ describe('PrivateShellLayoutComponent', () => {
   });
 
   it('closes the drawer when a sidebar item is activated', () => {
-    const fixture = TestBed.createComponent(PrivateShellLayoutComponent);
-    fixture.componentRef.setInput('brand', {
-      id: 'brand',
-      label: 'Tchalanet',
-      destination: { kind: 'route', value: '/' },
-    });
-    fixture.componentRef.setInput('primary', [
-      {
-        id: 'dashboard',
-        label: 'Dashboard',
-        destination: { kind: 'url', value: '#dashboard' },
-      },
-    ]);
+    const fixture = render();
     fixture.componentInstance.drawerOpen.set(true);
     fixture.detectChanges();
 
     fixture.nativeElement.querySelector('tch-sidebar-nav a').click();
 
     expect(fixture.componentInstance.drawerOpen()).toBe(false);
+  });
+});
+
+describe('PrivateShellLayoutComponent — drawer replié (< 840px)', () => {
+  beforeEach(() => configure(signal(false)));
+
+  it('exposes the open drawer as a modal dialog and neutralises the content behind it', () => {
+    const fixture = render();
+
+    fixture.componentInstance.drawerOpen.set(true);
+    fixture.detectChanges();
+
+    const drawer = drawerOf(fixture);
+    expect(drawer.getAttribute('role')).toBe('dialog');
+    expect(drawer.getAttribute('aria-modal')).toBe('true');
+    expect(drawer.hasAttribute('inert')).toBe(false);
+    expect(contentOf(fixture).hasAttribute('inert')).toBe(true);
+    expect(document.body.classList.contains('tch-overlay-open')).toBe(true);
+  });
+
+  it('keeps the collapsed drawer out of the keyboard path', () => {
+    const fixture = render();
+
+    const drawer = drawerOf(fixture);
+    expect(drawer.hasAttribute('inert')).toBe(true);
+    expect(drawer.getAttribute('role')).toBeNull();
+    expect(contentOf(fixture).hasAttribute('inert')).toBe(false);
+  });
+
+  it('closes on Escape and restores focus to the burger', () => {
+    const fixture = render();
+    const burger = burgerOf(fixture);
+    burger.focus();
+
+    fixture.componentInstance.toggleDrawer();
+    fixture.detectChanges();
+    expect(fixture.componentInstance.drawerModal()).toBe(true);
+
+    fixture.componentInstance.onEscape();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.drawerOpen()).toBe(false);
+    expect(document.activeElement).toBe(burger);
+    expect(contentOf(fixture).hasAttribute('inert')).toBe(false);
+    expect(document.body.classList.contains('tch-overlay-open')).toBe(false);
+  });
+});
+
+describe('PrivateShellLayoutComponent — sidebar permanente (≥ 840px)', () => {
+  beforeEach(() => configure(signal(true)));
+
+  it('is a plain navigation panel, never a dialog', () => {
+    const fixture = render();
+
+    fixture.componentInstance.drawerOpen.set(true);
+    fixture.detectChanges();
+
+    const drawer = drawerOf(fixture);
+    expect(fixture.componentInstance.drawerModal()).toBe(false);
+    expect(drawer.getAttribute('role')).toBeNull();
+    expect(drawer.getAttribute('aria-modal')).toBeNull();
+    expect(drawer.hasAttribute('inert')).toBe(false);
+    expect(contentOf(fixture).hasAttribute('inert')).toBe(false);
+    expect(document.body.classList.contains('tch-overlay-open')).toBe(false);
+  });
+
+  it('ignores Escape when the drawer is permanent', () => {
+    const fixture = render();
+    fixture.componentInstance.drawerOpen.set(true);
+    fixture.detectChanges();
+
+    fixture.componentInstance.onEscape();
+
+    expect(fixture.componentInstance.drawerOpen()).toBe(true);
   });
 });

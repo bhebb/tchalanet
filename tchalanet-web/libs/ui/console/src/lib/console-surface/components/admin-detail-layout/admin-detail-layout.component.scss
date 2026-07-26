@@ -1,3 +1,5 @@
+@use 'index' as ui;
+
 :host {
   --comp-detail-gap: 1.5rem;
   --comp-detail-aside-width: var(--tch-admin-aside-width, 340px);
@@ -44,7 +46,7 @@
   border-top: 1px solid var(--comp-detail-footer-border);
 }
 
-@media (min-width: 840px) {
+@include ui.up(expanded) {
   .admin-detail-layout {
     grid-template-columns: minmax(0, 1fr) minmax(16rem, var(--comp-detail-aside-width));
   }
@@ -70,7 +72,7 @@
 }
 
 /* Mobile/tablet: rail drops under the form, actions stack full-width. */
-@media (max-width: 839px) {
+@include ui.down(expanded) {
   .admin-detail-layout__aside {
     order: -1;
     position: static;

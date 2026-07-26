@@ -124,6 +124,8 @@ export interface AdminListStatusOption {
   `,
   styles: [
     `
+      @use 'index' as ui;
+
       :host {
         display: block;
       }
@@ -155,7 +157,7 @@ export interface AdminListStatusOption {
       }
 
       .tch-admin-list-surface__filter-toggle {
-        min-height: var(--tch-size-touch-target, 48px);
+        min-height: var(--tch-touch-target, 48px);
         border-color: var(--tch-color-outline-variant, #c7c5d0);
         color: var(--tch-color-on-surface-variant, #46464f);
         background: var(--tch-color-surface-container-lowest, #fff);
@@ -182,7 +184,7 @@ export interface AdminListStatusOption {
       }
 
       .tch-admin-list-surface__search-submit {
-        min-height: var(--tch-size-touch-target, 48px);
+        min-height: var(--tch-touch-target, 48px);
         border-radius: var(--tch-radius-pill, 999px);
         white-space: nowrap;
       }
@@ -215,7 +217,7 @@ export interface AdminListStatusOption {
       }
 
       .tch-admin-list-surface__reset {
-        min-height: var(--tch-size-touch-target, 48px);
+        min-height: var(--tch-touch-target, 48px);
       }
 
       .tch-admin-list-surface__status-panel {
@@ -248,7 +250,7 @@ export interface AdminListStatusOption {
       }
 
       .tch-admin-list-surface__status-panel .mat-mdc-option {
-        min-height: var(--tch-size-touch-target, 48px);
+        min-height: var(--tch-touch-target, 48px);
         color: var(--tch-color-on-surface, #1a1c1e);
         font-weight: 500;
       }
@@ -345,7 +347,7 @@ export interface AdminListStatusOption {
         display: none;
       }
 
-      @media (min-width: 600px) {
+      @include ui.up(medium) {
         .tch-admin-list-surface__toolbar {
           align-items: center;
           flex-wrap: wrap;

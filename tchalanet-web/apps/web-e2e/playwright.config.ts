@@ -87,5 +87,18 @@ export default defineConfig({
       testMatch: /platform-portal\/.*\.spec\.ts/,
       use: { ...devices['Desktop Chrome'], baseURL: platformBaseURL },
     },
+    // Navigation repliée : la seule chose que les projets desktop ne peuvent pas prouver.
+    // Même viewport que `admin-portal/notification-mobile.spec.ts`.
+    {
+      name: 'public-portal-mobile',
+      testMatch: /mobile\/.*\.spec\.ts/,
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: publicBaseURL,
+        viewport: { width: 390, height: 844 },
+        isMobile: true,
+        hasTouch: true,
+      },
+    },
   ],
 });

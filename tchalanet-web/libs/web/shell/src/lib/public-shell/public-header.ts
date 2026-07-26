@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 
@@ -9,6 +18,7 @@ import {
   LanguageOption,
   TchActionButton,
   TchBrand,
+  TchBreakpointService,
   TchLangSwitcher,
   TchNav,
   TchOverlayNav,
@@ -36,6 +46,8 @@ const COMPACT_LABEL_MAP: Record<string, string> = {
   styleUrls: ['./public-header.scss'],
 })
 export class PublicHeader {
+  private readonly breakpoints = inject(TchBreakpointService);
+
   readonly shell = input<PublicShellRuntime | undefined>();
   readonly languages = input<readonly LanguageOption[]>([]);
   readonly currentLanguage = input('');
@@ -47,6 +59,16 @@ export class PublicHeader {
   readonly nav = computed(() => publicHeaderNav(this.shell()));
   readonly navCompact = computed(() => toCompactNav(this.nav()));
   readonly loginAction = computed(() => publicLoginAction(this.shell()));
+
+  constructor() {
+    // À partir de `expanded` la nav est inline et le burger disparaît : laisser l'overlay ouvert
+    // le rendrait inatteignable au pointeur après un redimensionnement.
+    effect(() => {
+      if (this.breakpoints.isWide()) {
+        this.closeMobileMenu();
+      }
+    });
+  }
 
   login(): void {
     this.loginRequested.emit(this.loginAction());

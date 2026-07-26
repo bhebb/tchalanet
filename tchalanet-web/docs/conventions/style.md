@@ -469,13 +469,52 @@ extra-large  ≥ 1600px
 ```
 
 ```scss
-@use '@tch/ui/styles' as ui;
+@use 'index' as ui;   // `libs/ui/styles/src/lib` est dans includePaths des 3 apps
 
 @include ui.up(medium)   { ... }   // ≥ 600px
 @include ui.up(expanded) { ... }   // ≥ 840px
 ```
 
+Les styles inline (`styles: [...]` dans le décorateur `@Component`) sont compilés en SCSS
+(`inlineStyleLanguage: "scss"`), donc `@use 'index' as ui;` y fonctionne aussi — le placer en tête
+du template littéral. Pas besoin d'externaliser un `.scss` compagnon juste pour un breakpoint.
+
 Do not redefine breakpoint pixel values anywhere else — use `bp()` or the mixins.
+
+### 10.1 Frontière de navigation : 840px, et elle seule
+
+**Une seule borne fait basculer un moyen de navigation : `expanded` (840px).**
+
+```text
+compact    < 600px    →  drawer / overlay        nav masquée dans le header
+medium     600–839px  →  drawer / overlay        nav masquée dans le header
+expanded   ≥ 840px    →  sidebar persistante     nav inline dans le header
+```
+
+| Couche | Expression |
+|---|---|
+| SCSS | `@include ui.up(expanded)` / `@include ui.down(expanded)` |
+| TypeScript | `TchBreakpointService.isWide()` (`@tch/ui/components`) |
+
+Les paliers `medium`, `large` et `extra-large` servent à la **densité** (padding, typographie,
+nombre de colonnes). Ils ne doivent jamais faire apparaître ou disparaître un moyen de navigation :
+deux frontières concurrentes créent des fenêtres où l'utilisateur n'a plus de menu, ou en a deux.
+
+Corollaire de sémantique : un panneau de navigation replié est un **dialogue modal** (focus trap,
+`aria-modal`, `inert`, `Escape`) ; déployé, c'est un complément permanent de page. La bascule se
+pilote donc depuis le TS (`isWide()`), pas depuis une media query seule — sinon la sémantique reste
+figée pendant que le layout change. Voir `libs/web/shell/README.md`.
+
+### 10.2 Garde-fou
+
+`pnpm breakpoints:contract` (inclus dans `contracts:check`, exécuté par la CI web) refuse, sur les
+surfaces sous contrat :
+
+* toute valeur littérale dans un `@media (min-width:` / `(max-width:` ;
+* toute occurrence de `100vh` (voir §6).
+
+Le périmètre sous contrat est déclaré dans `tools/breakpoint-contract.mjs` (`SCOPE`) et s'élargit au
+fur et à mesure des migrations. Ajouter un répertoire à `SCOPE` est la façon de figer un acquis.
 
 ---
 

@@ -28,6 +28,8 @@ import { MatDialogModule } from '@angular/material/dialog';
   `,
   styles: [
     `
+      @use 'index' as ui;
+
       .tch-admin-dialog-shell {
         --comp-admin-dialog-gap: 0.875rem;
         --comp-admin-dialog-max-field: 32rem;
@@ -102,7 +104,7 @@ import { MatDialogModule } from '@angular/material/dialog';
         }
       }
 
-      @media (max-width: 560px) {
+      @include ui.down(medium) {
         .tch-admin-dialog-shell__content {
           min-width: 0;
         }

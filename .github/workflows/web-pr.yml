@@ -70,6 +70,9 @@ jobs:
       - name: Lint web apps
         run: pnpm run lint
 
+      - name: Check responsive breakpoint contract
+        run: pnpm run breakpoints:contract
+
       - name: Test web apps
         run: pnpm run test
 
