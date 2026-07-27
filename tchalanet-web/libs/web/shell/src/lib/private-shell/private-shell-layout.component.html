@@ -3,6 +3,7 @@
     <button
       type="button"
       class="burger"
+      data-testid="private-nav-toggle"
       (click)="toggleDrawer()"
       [attr.aria-label]="'nav.toggle_menu' | translate"
       [attr.aria-expanded]="drawerOpen()"

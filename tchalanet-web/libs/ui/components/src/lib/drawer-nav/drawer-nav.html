@@ -1,4 +1,9 @@
-<nav class="drawer-nav" [attr.aria-label]="ariaLabel()">
+<!-- `inert` pendant qu'un panneau est ouvert : sinon la racine reste tabulable derrière lui. -->
+<nav
+  class="drawer-nav"
+  [attr.aria-label]="ariaLabel()"
+  [attr.inert]="openCategory() ? '' : null"
+>
   @if (searchLabel()) {
     <div class="drawer-nav__search">
       <span class="material-symbols-outlined" aria-hidden="true">search</span>
@@ -44,6 +49,7 @@
             <button
               type="button"
               class="drawer-nav__card"
+              data-testid="drawer-category"
               [class.is-active]="isCategoryActive(category)"
               (click)="openCategoryPanel(category, $event)"
             >
@@ -61,12 +67,13 @@
 </nav>
 
 @if (openCategory(); as category) {
-  <div #panel class="drawer-nav__panel">
+  <div #panel class="drawer-nav__panel" data-testid="drawer-panel">
     <div class="drawer-nav__panel-head">
       <button
         type="button"
         class="drawer-nav__back"
         data-drawer-back
+        data-testid="drawer-back"
         [attr.aria-label]="backLabel()"
         (click)="closeCategoryPanel()"
       >
@@ -111,6 +118,7 @@
   @if (isRouteAction(item)) {
     <a
       class="drawer-nav__row"
+      data-testid="drawer-row"
       [class.is-active]="isActionActive(item, siblings)"
       [class.is-disabled]="item.disabled"
       [attr.aria-current]="isActionActive(item, siblings) ? 'page' : null"

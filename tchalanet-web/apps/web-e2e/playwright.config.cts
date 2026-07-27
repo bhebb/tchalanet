@@ -99,10 +99,21 @@ export default defineConfig({
     // dans un répertoire contenant « mobile ».
     {
       name: 'public-portal-mobile',
-      testMatch: /src[\\/]mobile[\\/].*\.spec\.ts$/,
+      testMatch: /src[\\/]mobile[\\/]public-.*\.spec\.ts$/,
       use: {
         ...devices['Desktop Chrome'],
         baseURL: publicBaseURL,
+        viewport: { width: 390, height: 844 },
+        isMobile: true,
+        hasTouch: true,
+      },
+    },
+    {
+      name: 'admin-portal-mobile',
+      testMatch: /src[\\/]mobile[\\/]admin-.*\.spec\.ts$/,
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: adminBaseURL,
         viewport: { width: 390, height: 844 },
         isMobile: true,
         hasTouch: true,

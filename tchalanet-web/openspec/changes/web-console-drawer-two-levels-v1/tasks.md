@@ -57,13 +57,16 @@
 - [x] Build **production** des 3 portails — vert.
 - [x] `nx e2e web-e2e` — 18 tests verts.
 - [x] `node tools/breakpoint-contract.mjs` — 0 violation sur 1014 fichiers.
-- [ ] **Non vérifié en navigateur.** Le drawer ne s'affiche que dans une console authentifiée ; les
-      specs e2e correspondantes sont `skip` sans émulateur Firebase ni identifiants. La couverture
-      repose donc sur les tests unitaires de rendu, pas sur une observation directe.
+- [x] **Vérifié en navigateur.** Projet Playwright `admin-portal-mobile` (390×844) + émulateur
+      Firebase : 6 tests verts sur une session réelle, et captures des trois états (racine, panneau
+      `Limit`, sidebar à 1280px).
+- [x] Les assertions attendent la fin des glissements (200ms). Sans ça, une mesure prise en cours
+      d'animation lit une position intermédiaire — c'est ce qui m'a d'abord fait conclure à tort à
+      un défaut d'empilement du panneau.
+- [x] `inert` sur le niveau racine pendant qu'un panneau est ouvert : ses liens restaient tabulables
+      derrière lui. Trouvé en enquêtant sur la fausse piste ci-dessus.
 
 ## 7. Suites
 
-- [ ] Étendre le projet e2e mobile aux consoles une fois l'émulateur disponible en local, pour
-      observer le drawer dans un vrai navigateur.
 - [ ] Décider côté contrat backend si `archives` et `audit` doivent déclarer une `destination` de
       groupe, pour que leur « Apèsi » soit absorbé comme celui d'`operations`.
