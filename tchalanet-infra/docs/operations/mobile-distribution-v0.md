@@ -11,7 +11,7 @@ https://edge.stg.tchalanet.com   -> Edge service
 
 ## Auth
 
-Le mobile utilise Firebase Auth côté client (projet `tchalanet-39115`). L'API Tchalanet reste responsable
+Le mobile utilise Firebase Auth côté client (projet `tchalanet`). L'API Tchalanet reste responsable
 des rôles, permissions, contexte opérationnel et règles métier.
 
 ## Configuration build

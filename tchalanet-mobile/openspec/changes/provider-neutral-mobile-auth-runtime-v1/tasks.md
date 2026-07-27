@@ -9,7 +9,7 @@
 - [x] Attach bearer credentials to `/runtime/private`.
 - [x] Remove OIDC/Keycloak SDK dependencies from the core network interceptor.
 - [x] Integrate the official Firebase Auth Flutter adapter.
-- [x] Use the generated FlutterFire Android configuration for `tchalanet-39115`.
+- [x] Use the generated FlutterFire Android configuration for `tchalanet`.
 - [x] Implement a Material 3 operator login page adaptive for mobile and POS.
 - [x] Align the mobile auth convention.
 

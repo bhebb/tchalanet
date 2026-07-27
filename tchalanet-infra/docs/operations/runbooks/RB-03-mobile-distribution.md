@@ -20,7 +20,7 @@ L'app Flutter reçoit sa configuration via `--dart-define` au moment du build �
 | `TERMINAL_EMAIL_DOMAIN` | `terminal.stg.tchalanet.com` | `terminal.tchalanet.com` |
 | `POS_DEVICE_BINDING` | `e2e-cred-dev` (tests) ou vide | vide (activation T12) |
 
-Firebase Auth est le même projet (`tchalanet-39115`) pour tous les envs — les rôles sont différenciés côté API.
+Firebase Auth est le même projet (`tchalanet`) pour tous les envs — les rôles sont différenciés côté API.
 
 ---
 
@@ -38,7 +38,7 @@ firebase --version  # 13+ recommandé
 
 # Connexion au projet Firebase
 firebase login
-firebase use tchalanet-39115
+firebase use tchalanet
 ```
 
 ---
@@ -66,7 +66,7 @@ Le fichier de sortie : `build/app/outputs/flutter-apk/app-release.apk`
 ```bash
 firebase appdistribution:distribute \
   build/app/outputs/flutter-apk/app-release.apk \
-  --app 1:768000918177:android:5fc04b59928349269aa6e0 \
+  --app 1:1050094456835:android:afb4836a45c441769a3e36 \
   --release-notes "Staging — $(git rev-parse --short HEAD) — $(date +%Y-%m-%d)" \
   --groups "staging"
 ```
@@ -105,10 +105,11 @@ gh workflow run mobile-distribute-staging.yml \
 **GitHub Variables (non sensibles) :**
 | Variable | Valeur |
 |---|---|
-| `FIREBASE_ANDROID_APP_ID` | `1:768000918177:android:5fc04b59928349269aa6e0` si différent du défaut workflow |
+| `FIREBASE_ANDROID_APP_ID` | `1:1050094456835:android:afb4836a45c441769a3e36` si différent du défaut workflow |
 
-Le backend ciblé doit être en `RUNTIME_IDENTITY_PROVIDER=firebase` et utiliser le
-même domaine terminal que le build (`terminal.stg.tchalanet.com`).
+Le backend ciblé doit être en `RUNTIME_IDENTITY_PROVIDER=firebase`, utiliser le
+projet Firebase `tchalanet` et le même domaine terminal que le build
+(`terminal.stg.tchalanet.com`).
 
 ---
 
@@ -132,7 +133,7 @@ livraison client plus tard :
 
 ```bash
 firebase appdistribution:testers:add \
-  --app 1:768000918177:android:5fc04b59928349269aa6e0 \
+  --app 1:1050094456835:android:afb4836a45c441769a3e36 \
   testeur@email.com
 ```
 

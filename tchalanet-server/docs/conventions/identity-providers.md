@@ -76,6 +76,14 @@ Le reste du pipeline (résolution tenant, RLS, `TchRequestContext`) est **provid
 
 ```bash
 export SPRING_PROFILES_ACTIVE=local-ide
+export TCH_IDENTITY_PROVIDER=firebase
+export FIREBASE_PROJECT_ID=tchalanet
+export FIREBASE_CREDENTIALS_PATH=/path/to/tchalanet/firebase-admin.json
+```
+
+The Docker `dev`/E2E runtime is the separate emulator mode:
+
+```bash
 export TCH_IDENTITY_PROVIDER=firebase-emulator
 export FIREBASE_PROJECT_ID=demo-tchalanet-local
 export FIREBASE_AUTH_EMULATOR_HOST=localhost:9099

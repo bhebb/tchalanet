@@ -3,7 +3,7 @@ INFRA_DIR := tchalanet-infra
 ENV ?= dev
 
 .PHONY: help up up-all down down-all up-api print-env doppler-seed
-.PHONY: local-ide-up local-ide-up-redis local-ide-down
+.PHONY: local-ide-up local-ide-up-emulator local-ide-up-redis local-ide-down
 .PHONY: local-api-up local-api-down local-product-up local-product-down
 .PHONY: p0-up p0-down p0-plus-up p0-plus-down compose-build
 
@@ -14,7 +14,8 @@ help:
 	@echo "  up, up-all, down, down-all"
 	@echo ""
 	@echo "Local Development Modes:"
-	@echo "  local-ide-up         - API dans IDE, infra P0 + Firebase Auth Emulator dans Docker"
+	@echo "  local-ide-up         - API dans IDE, infra P0 + Firebase réel"
+	@echo "  local-ide-up-emulator - API dans IDE, infra P0 + émulateur Firebase explicite"
 	@echo "  local-ide-up-redis   - API dans IDE, infra P0+Redis + Firebase Auth Emulator"
 	@echo "  local-ide-down       - Arrêter infra P0"
 	@echo "  local-api-up         - API dans Docker, infra P0+Redis"
@@ -46,6 +47,7 @@ p0-plus-down: ; @$(MAKE) -C $(INFRA_DIR) p0-plus-down ENV=$(ENV)
 
 # Local development modes
 local-ide-up:       ; @$(MAKE) -C $(INFRA_DIR) local-ide-up ENV=$(ENV)
+local-ide-up-emulator: ; @$(MAKE) -C $(INFRA_DIR) local-ide-up-emulator ENV=$(ENV)
 local-ide-up-redis: ; @$(MAKE) -C $(INFRA_DIR) local-ide-up-redis ENV=$(ENV)
 local-ide-down:     ; @$(MAKE) -C $(INFRA_DIR) local-ide-down ENV=$(ENV)
 

@@ -71,7 +71,7 @@ class ExternalIdentityAppUserResolverTest {
     var mapping = new AppUserExternalIdentityJpaEntity();
     mapping.setAppUserId(appUserId);
     mapping.setProvider(IdentityProviderType.FIREBASE);
-    mapping.setIssuer("https://securetoken.google.com/tchalanet-39115");
+    mapping.setIssuer("https://securetoken.google.com/legacy-tchalanet");
     mapping.setExternalSubject(externalUser.subject());
     when(externalIdentities.findByProviderAndIssuerAndExternalSubject(
             externalUser.provider(), externalUser.issuer(), externalUser.subject()))
