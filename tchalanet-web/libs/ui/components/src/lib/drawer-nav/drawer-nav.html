@@ -1,0 +1,148 @@
+<nav class="drawer-nav" [attr.aria-label]="ariaLabel()">
+  @if (searchLabel()) {
+    <div class="drawer-nav__search">
+      <span class="material-symbols-outlined" aria-hidden="true">search</span>
+      <input
+        type="search"
+        class="drawer-nav__search-input"
+        [attr.aria-label]="searchLabel()"
+        [attr.placeholder]="searchPlaceholder() || searchLabel()"
+        [value]="query()"
+        (input)="onSearchInput($event)"
+      />
+    </div>
+  }
+
+  @if (searching()) {
+    <ul class="drawer-nav__list" role="list">
+      @for (item of searchResults(); track item.id) {
+        <li>
+          <ng-container
+            *ngTemplateOutlet="rowTemplate; context: { $implicit: item, siblings: searchResults() }"
+          />
+        </li>
+      } @empty {
+        <li class="drawer-nav__empty">{{ noResultLabel() }}</li>
+      }
+    </ul>
+  } @else {
+    <ul class="drawer-nav__list" role="list">
+      @for (item of flatItems(); track item.id) {
+        <li>
+          <ng-container
+            *ngTemplateOutlet="rowTemplate; context: { $implicit: item, siblings: flatItems() }"
+          />
+        </li>
+      }
+    </ul>
+
+    @if (categories().length) {
+      <h2 class="drawer-nav__heading" id="drawer-nav-categories">{{ categoriesLabel() }}</h2>
+      <ul class="drawer-nav__grid" role="list" aria-labelledby="drawer-nav-categories">
+        @for (category of categories(); track category.id) {
+          <li>
+            <button
+              type="button"
+              class="drawer-nav__card"
+              [class.is-active]="isCategoryActive(category)"
+              (click)="openCategoryPanel(category, $event)"
+            >
+              <span class="drawer-nav__card-icon material-symbols-outlined" aria-hidden="true">
+                {{ category.icon || 'category' }}
+              </span>
+              <span class="drawer-nav__card-label">{{ actionText(category) | translate }}</span>
+              <span class="drawer-nav__card-count">{{ pagesCount(category) }}</span>
+            </button>
+          </li>
+        }
+      </ul>
+    }
+  }
+</nav>
+
+@if (openCategory(); as category) {
+  <div #panel class="drawer-nav__panel">
+    <div class="drawer-nav__panel-head">
+      <button
+        type="button"
+        class="drawer-nav__back"
+        data-drawer-back
+        [attr.aria-label]="backLabel()"
+        (click)="closeCategoryPanel()"
+      >
+        <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+      </button>
+      <div class="drawer-nav__panel-title">
+        @if (categoryRoute(category)) {
+          <!-- L'en-tête est la page d'atterrissage de la catégorie : l'enfant qui menait à la
+               même route n'est donc plus listé en dessous. -->
+          <a
+            class="drawer-nav__panel-link"
+            [routerLink]="categoryRoute(category)"
+            [queryParams]="actionQueryParams(category)"
+            [attr.aria-current]="isActionActive(category, category.children ?? []) ? 'page' : null"
+            (click)="onItemClick($event, category)"
+          >
+            <h2>{{ actionText(category) | translate }}</h2>
+          </a>
+        } @else {
+          <h2>{{ actionText(category) | translate }}</h2>
+        }
+        <p class="drawer-nav__panel-count">{{ pagesCount(category) }}</p>
+      </div>
+    </div>
+
+    <ul class="drawer-nav__list" role="list">
+      @for (item of openCategoryItems(); track item.id) {
+        <li>
+          <ng-container
+            *ngTemplateOutlet="
+              rowTemplate;
+              context: { $implicit: item, siblings: openCategoryItems() }
+            "
+          />
+        </li>
+      }
+    </ul>
+  </div>
+}
+
+<ng-template #rowTemplate let-item let-siblings="siblings">
+  @if (isRouteAction(item)) {
+    <a
+      class="drawer-nav__row"
+      [class.is-active]="isActionActive(item, siblings)"
+      [class.is-disabled]="item.disabled"
+      [attr.aria-current]="isActionActive(item, siblings) ? 'page' : null"
+      [attr.aria-disabled]="item.disabled ? 'true' : null"
+      [attr.tabindex]="item.disabled ? -1 : null"
+      [routerLink]="actionRoute(item)"
+      [queryParams]="actionQueryParams(item)"
+      (click)="onItemClick($event, item)"
+    >
+      <span class="drawer-nav__row-icon material-symbols-outlined" aria-hidden="true">
+        {{ item.icon || 'chevron_right' }}
+      </span>
+      <span class="drawer-nav__row-label">{{ actionText(item) | translate }}</span>
+      @if (item.badge?.value !== undefined && item.badge?.value !== null) {
+        <span class="drawer-nav__badge" [attr.data-severity]="item.badge?.severity ?? 'info'">
+          {{ item.badge?.value }}
+        </span>
+      }
+    </a>
+  } @else if (isExternalAction(item)) {
+    <a
+      class="drawer-nav__row"
+      [class.is-disabled]="item.disabled"
+      [attr.aria-disabled]="item.disabled ? 'true' : null"
+      [attr.tabindex]="item.disabled ? -1 : null"
+      [href]="actionHref(item)"
+      (click)="onItemClick($event, item)"
+    >
+      <span class="drawer-nav__row-icon material-symbols-outlined" aria-hidden="true">
+        {{ item.icon || 'open_in_new' }}
+      </span>
+      <span class="drawer-nav__row-label">{{ actionText(item) | translate }}</span>
+    </a>
+  }
+</ng-template>

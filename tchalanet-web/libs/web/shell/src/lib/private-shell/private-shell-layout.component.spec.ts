@@ -87,12 +87,12 @@ describe('PrivateShellLayoutComponent', () => {
     expect(component.themeIcon()).toBe('dark_mode');
   });
 
-  it('closes the drawer when a sidebar item is activated', () => {
+  it('closes the drawer when a navigation item is activated', () => {
     const fixture = render();
     fixture.componentInstance.drawerOpen.set(true);
     fixture.detectChanges();
 
-    fixture.nativeElement.querySelector('tch-sidebar-nav a').click();
+    fixture.nativeElement.querySelector('tch-drawer-nav a').click();
 
     expect(fixture.componentInstance.drawerOpen()).toBe(false);
   });

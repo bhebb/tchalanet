@@ -5,10 +5,16 @@ import { TranslateService } from '@ngx-translate/core';
 
 import { ActionItem, NavigationSection, actionRoute } from '@tch/api';
 
-/** Modèle de navigation consulté quand une route ne déclare pas son propre `titleKey`. */
-export const TCH_TITLE_NAVIGATION = new InjectionToken<readonly NavigationSection[]>(
-  'TCH_TITLE_NAVIGATION',
-);
+/**
+ * Modèle de navigation consulté quand une route ne déclare pas son propre `titleKey`.
+ *
+ * Accepte une fonction plutôt qu'un tableau figé : le menu des consoles vient du **backend**
+ * (`navigationDrawer()`), le modèle statique n'en étant que le repli. Sans indirection, le titre
+ * d'onglet viendrait du repli pendant que le menu affiche autre chose.
+ */
+export type TitleNavigation = readonly NavigationSection[] | (() => readonly NavigationSection[]);
+
+export const TCH_TITLE_NAVIGATION = new InjectionToken<TitleNavigation>('TCH_TITLE_NAVIGATION');
 
 /** Séparateur entre le titre de page et le nom du portail. */
 const SEPARATOR = ' · ';
@@ -36,7 +42,7 @@ const SEPARATOR = ' · ';
 export class TchTitleStrategy extends TitleStrategy {
   private readonly title = inject(Title);
   private readonly translate = inject(TranslateService);
-  private readonly navigation = inject(TCH_TITLE_NAVIGATION, { optional: true }) ?? [];
+  private readonly navigationSource = inject(TCH_TITLE_NAVIGATION, { optional: true }) ?? [];
 
   private readonly appTitle = this.title.getTitle();
   private currentTitleKey: string | null = null;
@@ -98,7 +104,9 @@ export class TchTitleStrategy extends TitleStrategy {
   }
 
   private flatItems(): readonly ActionItem[] {
-    return this.navigation.flatMap(section =>
+    const sections =
+      typeof this.navigationSource === 'function' ? this.navigationSource() : this.navigationSource;
+    return sections.flatMap(section =>
       section.items.flatMap(item => [item, ...(item.children ?? [])]),
     );
   }
@@ -112,12 +120,12 @@ export class TchTitleStrategy extends TitleStrategy {
 
 /**
  * @param navigation modèle de navigation du portail, consulté à défaut de `data.titleKey`.
+ *   Omettre l'argument laisse l'application fournir `TCH_TITLE_NAVIGATION` elle-même — utile pour
+ *   brancher une source runtime via `useFactory`.
  */
-export function provideTchTitleStrategy(
-  navigation: readonly NavigationSection[] = [],
-): Provider[] {
+export function provideTchTitleStrategy(navigation?: TitleNavigation): Provider[] {
   return [
-    { provide: TCH_TITLE_NAVIGATION, useValue: navigation },
+    ...(navigation ? [{ provide: TCH_TITLE_NAVIGATION, useValue: navigation }] : []),
     { provide: TitleStrategy, useClass: TchTitleStrategy },
   ];
 }

@@ -13,7 +13,10 @@
   "nav": {
     "pagemodels": "Modèl paj",
     "private": {
-      "ariaLabel": "Navigasyon prive"
+      "ariaLabel": "Navigasyon prive",
+      "categories": "Kategori",
+      "pages": "{{count}} paj",
+      "search": "Chèche nan meni a"
     },
     "theme_toggle": "Chanje tèm",
     "toggle_menu": "Louvri/fèmen meni",

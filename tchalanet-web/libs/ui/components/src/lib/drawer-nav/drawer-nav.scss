@@ -1,0 +1,289 @@
+:host {
+  --comp-drawer-bg: var(--tch-color-surface-container-low);
+  --comp-drawer-fg: var(--tch-color-on-surface);
+  --comp-drawer-muted: var(--tch-color-on-surface-variant);
+  --comp-drawer-line: var(--tch-color-outline-variant);
+
+  display: block;
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  background: var(--comp-drawer-bg);
+  color: var(--comp-drawer-fg);
+}
+
+.drawer-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  height: 100%;
+  overflow-y: auto;
+  padding: 0.75rem 0 1rem;
+}
+
+/* ── Recherche ─────────────────────────────────────────────────────────── */
+
+.drawer-nav__search {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-inline: 0.75rem;
+  padding-inline: 0.75rem;
+  border-radius: var(--tch-radius-md);
+  background: var(--tch-color-surface-container-high);
+  color: var(--comp-drawer-muted);
+}
+
+.drawer-nav__search-input {
+  flex: 1;
+  min-width: 0;
+  min-height: var(--tch-touch-target, 48px);
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+
+.drawer-nav__search-input:focus {
+  outline: none;
+}
+
+.drawer-nav__search:focus-within {
+  outline: max(var(--tch-focus-ring-width, 2px), 0.15em) solid currentColor;
+  outline-offset: var(--tch-focus-ring-offset, 2px);
+}
+
+/* ── Lignes ────────────────────────────────────────────────────────────── */
+
+.drawer-nav__list {
+  display: grid;
+  gap: 0.125rem;
+  margin: 0;
+  padding: 0 0.75rem;
+  list-style: none;
+}
+
+.drawer-nav__row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: var(--tch-touch-target, 48px);
+  padding-inline: 0.75rem;
+  border-radius: var(--tch-radius-md);
+  color: inherit;
+  text-decoration: none;
+}
+
+.drawer-nav__row:hover {
+  background: var(--tch-color-surface-container-high);
+  color: var(--tch-color-primary);
+}
+
+.drawer-nav__row.is-active,
+.drawer-nav__row.is-active:hover {
+  background: var(--tch-color-accent);
+  color: var(--tch-color-on-accent);
+  font-weight: 600;
+}
+
+.drawer-nav__row.is-disabled {
+  opacity: 0.48;
+  cursor: default;
+}
+
+.drawer-nav__row-icon {
+  flex: none;
+  font-size: 1.375rem;
+}
+
+.drawer-nav__row-label {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.drawer-nav__badge {
+  flex: none;
+  min-width: 1.25rem;
+  padding: 0.125rem 0.375rem;
+  border-radius: var(--tch-radius-pill, 9999px);
+  background: var(--tch-color-secondary-container);
+  color: var(--tch-color-on-secondary-container);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 1rem;
+  text-align: center;
+}
+
+.drawer-nav__badge[data-severity='success'] {
+  background: var(--tch-color-tertiary-container);
+  color: var(--tch-color-on-tertiary-container);
+}
+
+.drawer-nav__badge[data-severity='warning'] {
+  background: var(--tch-color-warning-container, #ffddb7);
+  color: var(--tch-color-on-warning-container, #2b1700);
+}
+
+.drawer-nav__badge[data-severity='danger'] {
+  background: var(--tch-color-error-container);
+  color: var(--tch-color-on-error-container);
+}
+
+.drawer-nav__empty {
+  padding: 0.75rem;
+  color: var(--comp-drawer-muted);
+}
+
+/* ── Grille de catégories ──────────────────────────────────────────────── */
+
+.drawer-nav__heading {
+  margin: 0.75rem 1.5rem 0;
+  color: var(--comp-drawer-muted);
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.drawer-nav__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0 0.75rem;
+  list-style: none;
+}
+
+.drawer-nav__card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  width: 100%;
+  min-height: var(--tch-touch-target, 48px);
+  padding: 0.75rem;
+  border: 1px solid var(--comp-drawer-line);
+  border-radius: var(--tch-radius-lg);
+  background: var(--tch-color-surface-container-lowest);
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.drawer-nav__card:hover {
+  background: var(--tch-color-surface-container-high);
+}
+
+.drawer-nav__card.is-active {
+  border-color: var(--tch-color-primary);
+  background: color-mix(in oklab, var(--tch-color-primary) 10%, transparent);
+}
+
+.drawer-nav__card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--tch-radius-md);
+  background: var(--tch-color-primary);
+  color: var(--tch-color-on-primary);
+  font-size: 1.125rem;
+}
+
+.drawer-nav__card.is-active .drawer-nav__card-icon {
+  background: var(--tch-color-accent);
+  color: var(--tch-color-on-accent);
+}
+
+.drawer-nav__card-label {
+  font-size: 0.875rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.drawer-nav__card-count {
+  color: var(--comp-drawer-muted);
+  font-size: 0.6875rem;
+}
+
+/* ── Panneau de catégorie ──────────────────────────────────────────────── */
+
+.drawer-nav__panel {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  overflow-y: auto;
+  padding: 0.75rem 0 1rem;
+  background: var(--comp-drawer-bg);
+  animation: drawer-nav-slide-in 0.2s ease;
+}
+
+@keyframes drawer-nav-slide-in {
+  from {
+    transform: translateX(12%);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drawer-nav__panel {
+    animation: none;
+  }
+}
+
+.drawer-nav__panel-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 0.75rem 0.5rem;
+  border-bottom: 1px solid var(--comp-drawer-line);
+}
+
+.drawer-nav__back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: var(--tch-touch-target, 48px);
+  height: var(--tch-touch-target, 48px);
+  border: 0;
+  border-radius: var(--tch-radius-md);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.drawer-nav__back:hover {
+  background: var(--tch-color-surface-container-high);
+}
+
+.drawer-nav__panel-title {
+  min-width: 0;
+}
+
+.drawer-nav__panel-title h2 {
+  margin: 0;
+  font-size: 1.0625rem;
+  overflow-wrap: anywhere;
+}
+
+.drawer-nav__panel-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.drawer-nav__panel-link:hover h2 {
+  color: var(--tch-color-primary);
+  text-decoration: underline;
+}
+
+.drawer-nav__panel-count {
+  margin: 0.125rem 0 0;
+  color: var(--comp-drawer-muted);
+  font-size: 0.6875rem;
+}

@@ -41,10 +41,33 @@ La sémantique suit le layout, elle n'est jamais figée :
 | Scroll du document | verrouillé (`tch-overlay-open`) | libre |
 | `Escape` | ferme | sans objet |
 | Focus à la fermeture | rendu au déclencheur | sans objet |
-| Densité `tch-sidebar-nav` | `comfortable` (cibles 48px) | `compact` |
+| Rendu de la navigation | `tch-drawer-nav` (deux niveaux) | `tch-sidebar-nav` (accordéon) |
 
 C'est pourquoi la bascule est pilotée depuis le TS : un `role="dialog"` posé en dur resterait
 annoncé aux lecteurs d'écran en desktop, où la sidebar n'est qu'un complément de page.
+
+### Deux rendus, un seul modèle
+
+Replié, le menu se parcourt en **deux niveaux** (`tch-drawer-nav`) : lignes pour les entrées sans
+enfants, **grille de catégories** pour les groupes, puis un panneau glissant par catégorie dont le
+retour ne referme que ce niveau. Déplier un groupe de dix enfants dans un accordéon pousse tout le
+reste hors d'un écran de téléphone — d'où le niveau supplémentaire, échangé contre le déroulé.
+
+Déployé, l'accordéon (`tch-sidebar-nav`) reste le bon rendu : la verticale est disponible, et un
+niveau de moins vaut mieux qu'un niveau de plus.
+
+Les deux consomment le **même** `NavigationSection[]` — du backend (`navigationDrawer()`) ou du
+repli statique — et partagent la règle d'activité de route
+(`@tch/ui/components` → `navigation/route-activity`). Un item avec enfants est une catégorie, un
+item sans enfants est une ligne : rien à déclarer en plus.
+
+**L'en-tête de catégorie absorbe son entrée d'atterrissage** — l'enfant qui mène à la route du
+groupe *et* porte `activeMatch: 'exact'` n'est plus listé. La condition sur `exact` n'est pas
+cosmétique : beaucoup de groupes déclarent une `destination` qui n'est qu'un raccourci vers leur
+premier enfant (« Référentiels » pointe sur « Jeux », un item parmi dix), et cet enfant doit rester
+visible.
+
+`Escape` referme un niveau à la fois : le panneau de catégorie, puis le drawer.
 
 Côté public, la navigation mobile passe **uniquement** par le burger et `tch-overlay-nav` — il n'y a
 pas de barre de navigation basse.

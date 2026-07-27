@@ -17,7 +17,13 @@ import { TranslatePipe } from '@ngx-translate/core';
 
 import { ActionItem, NavigationSection } from '@tch/api';
 import { PrivateNotificationBellComponent } from '@tch/notifications';
-import { TchBrand, TchBreakpointService, TchSidebarNav, TchUserMenu } from '@tch/ui/components';
+import {
+  TchBrand,
+  TchBreakpointService,
+  TchDrawerNav,
+  TchSidebarNav,
+  TchUserMenu,
+} from '@tch/ui/components';
 
 import { ShellFeedbackOutletComponent } from '../feedback/shell-feedback-outlet.component';
 import { ShellFeedbackVerbosity } from '../feedback/shell-feedback.model';
@@ -35,6 +41,7 @@ import { ShellFeedbackVerbosity } from '../feedback/shell-feedback.model';
     ShellFeedbackOutletComponent,
     PrivateNotificationBellComponent,
     TchBrand,
+    TchDrawerNav,
     TchSidebarNav,
     TchUserMenu,
     TranslatePipe,
@@ -74,6 +81,7 @@ export class PrivateShellLayoutComponent {
 
   private readonly drawerRef = viewChild<ElementRef<HTMLElement>>('drawer');
   private readonly contentRef = viewChild<ElementRef<HTMLElement>>('content');
+  private readonly drawerNav = viewChild(TchDrawerNav);
   private focusTrap: FocusTrap | null = null;
   private trigger: HTMLElement | null = null;
 
@@ -114,11 +122,21 @@ export class PrivateShellLayoutComponent {
 
   closeDrawer(): void {
     this.drawerOpen.set(false);
+    // Rouvrir le menu doit repartir de la racine, pas de la catégorie consultée la fois d'avant.
+    // On remet l'état à plat sans passer par `closeCategoryPanel()`, qui rendrait le focus à une
+    // carte sur le point d'être masquée.
+    this.drawerNav()?.openCategoryId.set(null);
   }
 
+  /** Escape referme un niveau à la fois : d'abord le panneau de catégorie, puis le drawer. */
   onEscape(): void {
-    if (this.drawerModal()) {
-      this.closeDrawer();
+    if (!this.drawerModal()) return;
+
+    const nav = this.drawerNav();
+    if (nav?.openCategoryId()) {
+      nav.closeCategoryPanel();
+      return;
     }
+    this.closeDrawer();
   }
 }

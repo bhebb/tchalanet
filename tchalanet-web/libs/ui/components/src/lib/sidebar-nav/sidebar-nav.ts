@@ -26,11 +26,17 @@ import {
   isRouteAction,
 } from '@tch/api';
 
+import {
+  RouteActivity,
+  comparableUrl,
+  isActionActive as isItemActive,
+  routeQueryParams,
+} from '../navigation/route-activity';
+
 @Component({
   selector: 'tch-sidebar-nav',
   imports: [NgTemplateOutlet, RouterLink, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { '[attr.data-density]': 'density()' },
   template: `
     <nav class="sidebar" [attr.aria-label]="ariaLabel()">
       <ng-container *ngTemplateOutlet="itemsTemplate; context: { $implicit: primary() }" />
@@ -155,15 +161,6 @@ import {
     .sidebar__badge[data-severity="danger"] { background: var(--tch-color-error-container); color: var(--tch-color-on-error-container); }
     a.is-disabled { opacity: .48; cursor: default; pointer-events: auto; }
     .sidebar__secondary { display: grid; gap: .25rem; margin-top: auto; }
-
-    /* Densité 'comfortable' : parcours au doigt (drawer superposé). La densité 'compact' par
-       défaut vise le parcours à la souris d'une sidebar permanente, où le menu platform
-       compte 9 groupes. Cf. docs/conventions/style.md §14. */
-    :host([data-density='comfortable']) a,
-    :host([data-density='comfortable']) .sidebar__group-toggle,
-    :host([data-density='comfortable']) .sidebar__child {
-      min-height: var(--tch-touch-target, 48px);
-    }
   `],
 })
 export class TchSidebarNav {
@@ -173,8 +170,6 @@ export class TchSidebarNav {
   readonly sections = input<readonly NavigationSection[]>([]);
   readonly secondary = input<readonly ActionItem[]>([]);
   readonly ariaLabel = input('Navigation principale');
-  /** `comfortable` élargit les cibles tactiles ; `compact` garde la densité souris. */
-  readonly density = input<'comfortable' | 'compact'>('compact');
   readonly itemActivated = output<ActionItem>();
   readonly actionRoute = actionRoute;
   readonly actionHref = actionHref;
@@ -218,7 +213,7 @@ export class TchSidebarNav {
     let best: { id: string; length: number } | null = null;
     for (const group of groups) {
       const groupRoute = actionRoute(group);
-      if (groupRoute && this.isRouteActive(group, groupRoute, group.children ?? [])) {
+      if (groupRoute && isItemActive(this.activity(), group, group.children ?? [])) {
         const length = groupRoute.length;
         if (!best || length > best.length) {
           best = { id: group.id, length };
@@ -226,7 +221,7 @@ export class TchSidebarNav {
       }
       for (const child of group.children ?? []) {
         const route = actionRoute(child);
-        if (!route || !this.isRouteActive(child, route, group.children ?? [])) continue;
+        if (!route || !isItemActive(this.activity(), child, group.children ?? [])) continue;
         if (!best || route.length > best.length) {
           best = { id: group.id, length: route.length };
         }
@@ -247,13 +242,7 @@ export class TchSidebarNav {
   }
 
   isActionActive(item: ActionItem, siblings: readonly ActionItem[] = []): boolean {
-    const route = actionRoute(item);
-    return !!route && this.isRouteActive(item, route, siblings);
-  }
-
-  isExactActiveMatch(item: ActionItem, siblings: readonly ActionItem[] = []): boolean {
-    const route = actionRoute(item);
-    return item.activeMatch === 'exact' || (!!route && this.hasLongerSiblingRoute(route, siblings));
+    return isItemActive(this.activity(), item, siblings);
   }
 
   toggle(item: ActionItem): void {
@@ -271,48 +260,8 @@ export class TchSidebarNav {
     this.itemActivated.emit(item);
   }
 
-  private isRouteActive(item: ActionItem, route: string, siblings: readonly ActionItem[] = []): boolean {
-    const url = this.activeComparableUrl();
-    const routeMatches = this.isActiveRouteAlias(item, url)
-      || (this.isExactActiveMatch(item, siblings) ? url === route : url.startsWith(route));
-    if (!routeMatches) return false;
-    return this.queryParamsMatch(item);
-  }
-
-  private isActiveRouteAlias(item: ActionItem, url: string): boolean {
-    return (item.activeRoutes ?? [])
-      .map(route => route.split('?')[0].split('#')[0].replace(/\/$/, '') || '/')
-      .some(route => url === route || url.startsWith(`${route}/`));
-  }
-
-  private hasLongerSiblingRoute(route: string, siblings: readonly ActionItem[]): boolean {
-    return siblings.some(sibling => {
-      const siblingRoute = actionRoute(sibling).replace(/\/$/, '');
-      return siblingRoute.length > route.length && siblingRoute.startsWith(`${route}/`);
-    });
-  }
-
-  private activeComparableUrl(): string {
-    return this.currentUrl().split('?')[0].split('#')[0].replace(/\/$/, '') || '/';
-  }
-
-  private queryParamsMatch(item: ActionItem): boolean {
-    const expected = actionQueryParams(item);
-    if (!expected) {
-      return Object.keys(this.activeQueryParams()).length === 0;
-    }
-    const current = this.activeQueryParams();
-    return Object.entries(expected).every(([key, value]) => current[key] === value)
-      && Object.keys(current).every(key => expected[key] !== undefined);
-  }
-
-  private activeQueryParams(): Record<string, string> {
-    const tree = this.router.parseUrl(this.currentUrl());
-    const params: Record<string, string> = {};
-    for (const [key, value] of Object.entries(tree.queryParams)) {
-      if (value == null) continue;
-      params[key] = String(value);
-    }
-    return params;
-  }
+  private readonly activity = computed<RouteActivity>(() => ({
+    url: comparableUrl(this.currentUrl()),
+    queryParams: routeQueryParams(this.router, this.currentUrl()),
+  }));
 }
