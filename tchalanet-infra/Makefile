@@ -23,7 +23,8 @@ help:
 	@echo "Usage: make <target> [ENV=dev|staging|prod]"
 	@echo ""
 	@echo "Local dev modes:"
-	@echo "  local-ide-up          P0 (Traefik+Postgres+Firebase Auth Emulator) — API runs in IDE"
+	@echo "  local-ide-up          P0 (Traefik+Postgres) — API runs in IDE with real Firebase"
+	@echo "  local-ide-up-emulator P0 + Firebase Auth Emulator — explicit local test mode"
 	@echo "  up-firebase-emulator  Start Firebase Auth Emulator (:9099)"
 	@echo "  down-firebase-emulator Stop Firebase Auth Emulator"
 	@echo "  local-ide-up-redis    P0+ (adds Redis, OTel, Edge) — API runs in IDE"
@@ -309,8 +310,12 @@ p0-plus-down:
 # Modes locaux
 # ============================================================================
 
-# local-ide : API dans l'IDE, infra P0 et Firebase Auth Emulator dans Docker
-local-ide-up: p0-up up-firebase-emulator
+# local-ide : API dans l'IDE, infra P0, real Firebase credentials from Doppler
+local-ide-up: p0-up
+
+# Explicit emulator mode for local identity tests. The normal local-ide mode
+# must exercise the same Firebase project as staging.
+local-ide-up-emulator: p0-up up-firebase-emulator
 
 # local-ide avec Redis, observabilité et Edge. Firebase Emulator reste séparé.
 local-ide-up-redis: p0-plus-up up-otel up-edge
@@ -383,7 +388,7 @@ smoke-staging:
 .PHONY: ssh-staging ssh-prod push-staging push-prod deploy-staging deploy-prod
 .PHONY: doppler-download doppler-download-staging doppler-download-prod
 .PHONY: p0-up p0-smoke p0-down p0-plus-up p0-plus-down
-.PHONY: local-ide-up local-ide-up-redis local-ide-down
+.PHONY: local-ide-up local-ide-up-emulator local-ide-up-redis local-ide-down
 .PHONY: local-api-up local-api-down local-api-logs local-api-smoke
 .PHONY: local-product-up local-product-down
 .PHONY: staging-create staging-backup staging-destroy staging-restore-latest smoke-staging

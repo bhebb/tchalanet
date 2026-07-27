@@ -113,7 +113,7 @@ Requis pour le workflow manuel `.github/workflows/mobile-distribute-staging.yml`
 
 | Variable | Description |
 |---|---|
-| `FIREBASE_ANDROID_APP_ID` | App ID Android Firebase (`1:768000918177:android:5fc04b59928349269aa6e0` si différent du défaut workflow) |
+| `FIREBASE_ANDROID_APP_ID` | App ID Android Firebase (`1:1050094456835:android:afb4836a45c441769a3e36` si différent du défaut workflow) |
 
 **À créer dans Firebase Console :** service account avec rôle `Firebase App Distribution Admin` → Download JSON key → encoder en base64 pour `FIREBASE_ADMIN_JSON_BASE64`.
 

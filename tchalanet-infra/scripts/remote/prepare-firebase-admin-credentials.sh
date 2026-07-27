@@ -38,10 +38,25 @@ fi
 target="${FIREBASE_CREDENTIALS_HOST_PATH:-}"
 [ -n "$target" ] || fail "FIREBASE_CREDENTIALS_HOST_PATH is required for Firebase runtime deploy"
 
+expected_project="${FIREBASE_PROJECT_ID:-tchalanet}"
+validate_credentials() {
+  [ -f "$target" ] || return 1
+  grep -q '"private_key"' "$target" || return 1
+  grep -q '"client_email"' "$target" || return 1
+  command -v jq >/dev/null 2>&1 || fail "jq is required to validate Firebase credentials project"
+  credential_project="$(jq -r '.project_id // empty' "$target" 2>/dev/null || true)"
+  [ -n "$credential_project" ] || return 1
+  [ "$credential_project" = "$expected_project" ]
+}
+
 if [ -f "$target" ]; then
-  chmod 600 "$target" || true
-  log "Firebase Admin credentials already exist at $target"
-  exit 0
+  if validate_credentials; then
+    chmod 600 "$target" || true
+    log "Firebase Admin credentials already exist at $target (project=$expected_project)"
+    exit 0
+  fi
+  log "Discarding Firebase credentials that do not belong to project=$expected_project"
+  rm -f "$target"
 fi
 
 if [ -d "$target" ]; then
@@ -68,13 +83,12 @@ if [ -n "$json" ]; then
 elif [ -n "$json_base64" ]; then
   printf '%s' "$json_base64" | base64 -d > "$target"
 else
-  fail "Missing Firebase Admin credentials file at $target. Ensure push-infra-bkup.sh copied tchalanet-server/tchalanet-39115-firebase-adminsdk-fbsvc-62e904a236.json, or set one of FIREBASE_ADMIN_JSON, FIREBASE_CREDENTIALS_JSON, FIREBASE_SERVICE_ACCOUNT_JSON, FIREBASE_SERVICE_ACCOUNT, FIREBASE_ADMIN_JSON_BASE64, or FIREBASE_SERVICE_ACCOUNT_BASE64 in Doppler config for $DEPLOY_ENV."
+  fail "Missing Firebase Admin credentials file at $target. Set one of FIREBASE_ADMIN_JSON, FIREBASE_CREDENTIALS_JSON, FIREBASE_SERVICE_ACCOUNT_JSON, FIREBASE_SERVICE_ACCOUNT, FIREBASE_ADMIN_JSON_BASE64, or FIREBASE_SERVICE_ACCOUNT_BASE64 in Doppler config for $DEPLOY_ENV."
 fi
 
-if ! grep -q '"private_key"' "$target" || ! grep -q '"client_email"' "$target"; then
+validate_credentials || {
   rm -f "$target"
-  fail "Firebase Admin credentials secret did not look like a service account JSON"
-fi
-
+  fail "Firebase Admin credentials do not belong to project=$expected_project or are invalid"
+}
 chmod 600 "$target"
 log "Firebase Admin credentials written to $target"

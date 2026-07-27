@@ -42,6 +42,47 @@ set -a
 source "$SECRETS_FILE"
 set +a
 
+# local-ide is the real-Firebase IDE runtime. Docker dev/E2E keeps its own
+# emulator configuration in envs/dev/compose.env and does not use this file.
+IDENTITY_PROVIDER="${TCH_IDENTITY_PROVIDER:-firebase}"
+FIREBASE_PROJECT="${FIREBASE_PROJECT_ID:-tchalanet}"
+LOCAL_FIREBASE_DIR="$API_ROOT/.firebase"
+LOCAL_FIREBASE_CREDENTIALS="$LOCAL_FIREBASE_DIR/firebase-admin.json"
+
+if [ "$IDENTITY_PROVIDER" = "firebase" ]; then
+  mkdir -p "$LOCAL_FIREBASE_DIR"
+  umask 077
+
+  if [ -n "${FIREBASE_ADMIN_JSON:-}" ]; then
+    printf '%s' "$FIREBASE_ADMIN_JSON" > "$LOCAL_FIREBASE_CREDENTIALS"
+  elif [ -n "${FIREBASE_ADMIN_JSON_BASE64:-}" ]; then
+    printf '%s' "$FIREBASE_ADMIN_JSON_BASE64" | base64 -d > "$LOCAL_FIREBASE_CREDENTIALS"
+  elif [ -n "${FIREBASE_CREDENTIALS_PATH:-}" ] && [ -f "$FIREBASE_CREDENTIALS_PATH" ]; then
+    cp "$FIREBASE_CREDENTIALS_PATH" "$LOCAL_FIREBASE_CREDENTIALS"
+  fi
+
+  if [ -f "$LOCAL_FIREBASE_CREDENTIALS" ]; then
+    if ! grep -q '"private_key"' "$LOCAL_FIREBASE_CREDENTIALS" \
+      || ! grep -q '"client_email"' "$LOCAL_FIREBASE_CREDENTIALS"; then
+      rm -f "$LOCAL_FIREBASE_CREDENTIALS"
+      echo "Credential Firebase invalide dans $LOCAL_FIREBASE_CREDENTIALS" >&2
+      exit 1
+    fi
+    credential_project="$(jq -r '.project_id // empty' "$LOCAL_FIREBASE_CREDENTIALS" 2>/dev/null || true)"
+    if [ "$credential_project" != "$FIREBASE_PROJECT" ]; then
+      rm -f "$LOCAL_FIREBASE_CREDENTIALS"
+      echo "Credential Firebase project=$credential_project, attendu=$FIREBASE_PROJECT" >&2
+      exit 1
+    fi
+    FIREBASE_CREDENTIALS="${LOCAL_FIREBASE_CREDENTIALS}"
+  else
+    FIREBASE_CREDENTIALS="${FIREBASE_CREDENTIALS_PATH:-}"
+    warn "Credential Firebase local absent; configure FIREBASE_ADMIN_JSON_BASE64 dans Doppler dev"
+  fi
+else
+  FIREBASE_CREDENTIALS=""
+fi
+
 # Créer le fichier .env pour l'API
 API_ENV_FILE="$API_ROOT/.env"
 
@@ -71,9 +112,18 @@ SPRING_REDIS_PASSWORD=${REDIS_PASSWORD:-devredis}
 # ========================================
 # 🔐 Authentication
 # ========================================
-TCH_IDENTITY_PROVIDER=${TCH_IDENTITY_PROVIDER:-firebase-emulator}
-FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID:-demo-tchalanet-local}
+TCH_IDENTITY_PROVIDER=${IDENTITY_PROVIDER}
+FIREBASE_PROJECT_ID=${FIREBASE_PROJECT}
+FIREBASE_CREDENTIALS_PATH=${FIREBASE_CREDENTIALS}
+EOF
+
+if [ "$IDENTITY_PROVIDER" = "firebase-emulator" ]; then
+  cat >> "$API_ENV_FILE" <<EOF
 FIREBASE_AUTH_EMULATOR_HOST=${FIREBASE_AUTH_EMULATOR_HOST:-localhost:9099}
+EOF
+fi
+
+cat >> "$API_ENV_FILE" <<EOF
 
 # ========================================
 # 📡 Edge Service

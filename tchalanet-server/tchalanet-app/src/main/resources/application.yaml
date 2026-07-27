@@ -20,7 +20,7 @@ tch:
       issuer: ${TCH_LOCAL_JWT_ISSUER:tchalanet-local}
       secret: ${TCH_LOCAL_JWT_SECRET:}
     firebase:
-      project-id: ${FIREBASE_PROJECT_ID:tchalanet-39115}
+      project-id: ${FIREBASE_PROJECT_ID:tchalanet}
       jwks-uri: ${FIREBASE_JWKS_URI:https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com}
       credentials-path: ${FIREBASE_CREDENTIALS_PATH:}
       revocation-check-mode: ${FIREBASE_REVOCATION_CHECK_MODE:sensitive-only}

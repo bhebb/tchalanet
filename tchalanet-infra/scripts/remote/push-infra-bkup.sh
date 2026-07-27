@@ -10,7 +10,6 @@ fi
 REMOTE_DIR="/opt/tchalanet-infra"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 INFRA_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
-REPO_ROOT="$(cd "$INFRA_DIR/.." && pwd)"
 
 # Déterminer la clé SSH à utiliser selon l'environnement
 case "$ENV" in
@@ -51,14 +50,8 @@ echo "→ Connecting to tch@$SERVER_HOST with key $SSH_KEY (ENV=$ENV)"
 
 ssh $SSH_OPTS tch@"$SERVER_HOST" "sudo mkdir -p $REMOTE_DIR && sudo chown -R tch:tch $REMOTE_DIR"
 
-FIREBASE_ADMIN_SRC="$REPO_ROOT/tchalanet-server/tchalanet-39115-firebase-adminsdk-fbsvc-62e904a236.json"
 FIREBASE_ADMIN_DST="$INFRA_DIR/server/secrets/firebase-admin.json"
-if [ -f "$FIREBASE_ADMIN_SRC" ]; then
-  mkdir -p "$(dirname "$FIREBASE_ADMIN_DST")"
-  cp "$FIREBASE_ADMIN_SRC" "$FIREBASE_ADMIN_DST"
-  chmod 600 "$FIREBASE_ADMIN_DST"
-  echo "→ Firebase Admin credentials staged for server sync: server/secrets/firebase-admin.json"
-elif [ -n "${FIREBASE_ADMIN_JSON_BASE64:-}" ]; then
+if [ -n "${FIREBASE_ADMIN_JSON_BASE64:-}" ]; then
   mkdir -p "$(dirname "$FIREBASE_ADMIN_DST")"
   printf '%s' "$FIREBASE_ADMIN_JSON_BASE64" | base64 -d > "$FIREBASE_ADMIN_DST"
   if ! grep -q '"private_key"' "$FIREBASE_ADMIN_DST" || ! grep -q '"client_email"' "$FIREBASE_ADMIN_DST"; then
@@ -69,8 +62,8 @@ elif [ -n "${FIREBASE_ADMIN_JSON_BASE64:-}" ]; then
   chmod 600 "$FIREBASE_ADMIN_DST"
   echo "→ Firebase Admin credentials staged from FIREBASE_ADMIN_JSON_BASE64: server/secrets/firebase-admin.json"
 else
-  echo "⚠️  Firebase Admin credentials source not found: $FIREBASE_ADMIN_SRC" >&2
-  echo "   Set FIREBASE_ADMIN_JSON_BASE64 env var or add credentials to Doppler config." >&2
+  echo "⚠️  Firebase Admin credentials not staged locally." >&2
+  echo "   The remote deploy will use FIREBASE_ADMIN_JSON(_BASE64) from Doppler." >&2
 fi
 
 rsync -az --delete "${RSYNC_EXCLUDES[@]}" \

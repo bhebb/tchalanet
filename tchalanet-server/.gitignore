@@ -5,6 +5,7 @@ target/
 .env
 .env.*
 !.env.example
+.firebase/
 *.pem
 *.key
 
