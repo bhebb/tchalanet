@@ -74,7 +74,7 @@ Prod = promotion d'un tag déjà validé en staging (`build_*` interdits en prod
 ## Distribution mobile staging (`mobile-distribute-staging.yml`)
 
 Construit un **APK Android release signé**, pointé sur le backend choisi et le
-**vrai Firebase `tchalanet-39115`** (le même projet que admin/web), puis le
+**vrai Firebase `tchalanet`** (le même projet que admin/web), puis le
 publie sur **Firebase App Distribution**. Déclenchement **manuel uniquement**.
 
 ### Inputs (valeurs passées au lancement)
@@ -117,18 +117,18 @@ au minimum `api_base_url`, laisser le reste par défaut → *Run*.
    - `TCH_ANDROID_KEYSTORE_BASE64` — `base64 -i release.jks | pbcopy`
    - `TCH_ANDROID_KEYSTORE_PASSWORD`, `TCH_ANDROID_KEY_ALIAS`, `TCH_ANDROID_KEY_PASSWORD`
    - `FIREBASE_ADMIN_JSON_BASE64` (existe déjà) — le service account doit avoir le
-     rôle **Firebase App Distribution Admin** dans `tchalanet-39115`.
+     rôle **Firebase App Distribution Admin** dans `tchalanet`.
 2. **Variable repo optionnelle** : `FIREBASE_ANDROID_APP_ID` si l'App ID Android
    change (défaut : celui de `google-services.json`).
 3. **Serveur staging** en `RUNTIME_IDENTITY_PROVIDER=firebase` (pas `firebase-emulator`),
    sinon il rejette les vrais tokens produits par le build.
 4. **Terminaux staging** provisionnés comme vrais utilisateurs Firebase dans
-   `tchalanet-39115`.
+   `tchalanet`.
 5. **Groupe de testeurs** `staging` créé dans la console App Distribution.
 
 ### Configuration Firebase App Distribution
 
-Dans Firebase Console → projet `tchalanet-39115` :
+Dans Firebase Console → projet `tchalanet` :
 
 1. Ajouter l'app Android `com.tchalanet.mobile` si elle n'existe pas déjà.
 2. Récupérer l'**App ID Android** (`1:...:android:...`) et le mettre dans la variable
@@ -147,7 +147,7 @@ configuré sur le même projet et le même domaine terminal :
 
 | Élément | Staging attendu |
 |---|---|
-| Firebase project | `tchalanet-39115` |
+| Firebase project | `tchalanet` |
 | Android package | `com.tchalanet.mobile` |
 | API | `https://api.stg.tchalanet.com/api/v1` |
 | Terminal email domain | `terminal.stg.tchalanet.com` |
@@ -168,7 +168,7 @@ est absent, pour que `flutter run --release` fonctionne en local sans keystore.
 
 Le workflow n'est pas limité au staging : passer un autre `api_base_url` (et le
 `terminal_email_domain` correspondant) distribue un build pointé ailleurs, tant
-que ce backend valide les tokens du **vrai** Firebase `tchalanet-39115`.
+que ce backend valide les tokens du **vrai** Firebase `tchalanet`.
 
 > Note flotte prod : App Distribution reste un canal **beta** (invitations,
 > builds expirant à 30 j). Pour une flotte de terminaux en production, évaluer

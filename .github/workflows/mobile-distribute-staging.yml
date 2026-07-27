@@ -1,13 +1,13 @@
 name: Mobile Distribute (staging)
 
 # Builds a release-signed Android APK pointed at the STAGING backend and real
-# Firebase (project tchalanet-39115 — the same project the admin/web use), then
+# Firebase (project tchalanet — the same project the admin/web use), then
 # ships it to Firebase App Distribution. Manual trigger only.
 #
 # Server prerequisite: the staging API must run with
 # RUNTIME_IDENTITY_PROVIDER=firebase (not firebase-emulator) so it validates the
 # real tokens these builds produce, and staging terminals must exist as real
-# Firebase users in tchalanet-39115.
+# Firebase users in tchalanet.
 #
 # Required secrets:
 #   FIREBASE_ADMIN_JSON_BASE64      - base64 service-account JSON with the
@@ -64,7 +64,7 @@ permissions:
 env:
   # Overridable at dispatch time via inputs.api_base_url.
   API_BASE_URL: ${{ inputs.api_base_url }}
-  FIREBASE_ANDROID_APP_ID: ${{ vars.FIREBASE_ANDROID_APP_ID || '1:768000918177:android:5fc04b59928349269aa6e0' }}
+  FIREBASE_ANDROID_APP_ID: ${{ vars.FIREBASE_ANDROID_APP_ID || '1:1050094456835:android:afb4836a45c441769a3e36' }}
 
 jobs:
   distribute:
