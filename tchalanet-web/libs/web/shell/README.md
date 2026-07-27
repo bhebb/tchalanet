@@ -48,3 +48,27 @@ annoncé aux lecteurs d'écran en desktop, où la sidebar n'est qu'un complémen
 
 Côté public, la navigation mobile passe **uniquement** par le burger et `tch-overlay-nav` — il n'y a
 pas de barre de navigation basse.
+
+## Titre du document
+
+`TchTitleStrategy` (`provideTchTitleStrategy(navigation?)`) dérive `document.title` de la route
+active. Deux sources, dans cet ordre :
+
+1. **`data.titleKey`** de la route la plus profonde — une route enfant peut préciser le titre de son
+   parent :
+
+   ```ts
+   { path: 'results', loadComponent: …, data: { titleKey: 'public.nav.results' } }
+   ```
+
+2. **Le modèle de navigation**, à défaut. Il associe déjà chaque destination à un `labelKey` : une
+   entrée de menu donne donc son titre à la page, sans configuration supplémentaire. C'est pourquoi
+   les consoles passent leur modèle à `provideTchTitleStrategy(TENANT_ADMIN_NAVIGATION)`.
+
+Le suffixe est le `<title>` d'`index.html` (« Tchalanet », « Tchalanet Admin », « Tchalanet
+Platform ») : c'est une marque, pas une chaîne à traduire. Le résultat est `Page · Marque`, ou la
+marque seule quand rien ne décrit la page.
+
+Le titre est réappliqué au changement de langue. Il l'est aussi quand les traductions finissent de
+charger : à la toute première peinture l'onglet ne porte que la marque, le temps que le bundle
+arrive.
