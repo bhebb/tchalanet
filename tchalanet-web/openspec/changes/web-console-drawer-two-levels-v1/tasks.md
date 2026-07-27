@@ -66,7 +66,26 @@
 - [x] `inert` sur le niveau racine pendant qu'un panneau est ouvert : ses liens restaient tabulables
       derrière lui. Trouvé en enquêtant sur la fausse piste ci-dessus.
 
-## 7. Suites
+## 7. Bas de menu (retour d'usage)
+
+- [x] **Le contrat runtime avait déjà un footer.** `RuntimeNavigationDrawer` déclare
+      `topDestinations`, `sections`, `footerDestinations` et `actions` depuis l'origine ; seul
+      `sections` était consommé, d'où l'entreprise et l'aide rangées parmi les activités métier.
+      Ajout de `footerFromRuntimeNavigation()`.
+- [x] `company` et `help` sortent de `TENANT_ADMIN_NAVIGATION` vers `TENANT_ADMIN_FOOTER`, miroir
+      statique du contrat. Les deux consoles alimentent le slot `secondary` du shell, jusque-là
+      inutilisé.
+- [x] Zone footer du drawer, poussée en bas et séparée d'un filet. Une entrée à enfants y reste une
+      entrée à enfants : « Antrepriz mwen » ouvre le même panneau à 7 entrées, elle quitte seulement
+      la grille des catégories métier.
+- [x] Le footer entre aussi dans la source des titres d'onglet — sinon les pages de l'entreprise
+      perdaient le leur.
+- [x] **`box-sizing` manquant sur `.drawer-nav`** : `height: 100%` plus 28px de padding débordait de
+      la fenêtre, et la dernière entrée du bas de menu passait sous le bord (mesurée à 856px pour un
+      viewport de 844). Trouvé par la capture, corrigé, et verrouillé par une assertion e2e sur la
+      position de la dernière ligne.
+
+## 8. Suites
 
 - [ ] Décider côté contrat backend si `archives` et `audit` doivent déclarer une `destination` de
       groupe, pour que leur « Apèsi » soit absorbé comme celui d'`operations`.

@@ -129,6 +129,20 @@ test.describe('admin console drawer on a narrow viewport', () => {
     await expect(page.locator(`${toggle}[aria-expanded="false"]`)).toBeVisible();
   });
 
+  test('keeps the whole footer within the viewport', async ({ page }) => {
+    await page.locator(toggle).click();
+    await settled(page, 'tch-drawer-nav');
+
+    const rows = page.locator('.drawer-nav__footer li');
+    const last = rows.last();
+    await expect(last).toBeVisible();
+
+    const box = (await last.boundingBox())!;
+    const viewport = page.viewportSize()!;
+    // Une entrée de bas de menu tronquée par le bord est inatteignable au doigt.
+    expect(box.y + box.height).toBeLessThanOrEqual(viewport.height);
+  });
+
   test('never scrolls sideways', async ({ page }) => {
     await page.locator(toggle).click();
 

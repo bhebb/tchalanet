@@ -14,6 +14,7 @@ import {
 import {
   PrivateBootstrapStore,
   authBearerInterceptor,
+  footerFromRuntimeNavigation,
   provideFirebaseAuthClient,
   sectionsFromRuntimeNavigation,
   supportAccessInterceptor,
@@ -35,6 +36,7 @@ import {
 import { themeStoreProvider } from '@tch/ui/theme';
 import { provideWidgets } from '@tch/widgets';
 import {
+  PLATFORM_FOOTER,
   PLATFORM_NAVIGATION,
   TCH_TITLE_NAVIGATION,
   provideTchTitleStrategy,
@@ -64,8 +66,16 @@ export const appConfig: ApplicationConfig = {
       provide: TCH_TITLE_NAVIGATION,
       useFactory: () => {
         const bootstrap = inject(PrivateBootstrapStore);
-        return () =>
-          sectionsFromRuntimeNavigation(bootstrap.navigationDrawer()) ?? PLATFORM_NAVIGATION;
+        return () => {
+          const drawer = bootstrap.navigationDrawer();
+          const sections = sectionsFromRuntimeNavigation(drawer) ?? PLATFORM_NAVIGATION;
+          const footer = footerFromRuntimeNavigation(drawer) ?? PLATFORM_FOOTER;
+          // Le bas de menu porte aussi des destinations : sans lui, ces pages n'auraient pas
+          // de titre d'onglet.
+          return footer.length
+            ? [...sections, { id: 'footer', titleKey: '', items: footer }]
+            : sections;
+        };
       },
     },
     ...provideTchTitleStrategy(),

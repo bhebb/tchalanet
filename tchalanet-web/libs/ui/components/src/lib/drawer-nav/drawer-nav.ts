@@ -103,18 +103,23 @@ export class TchDrawerNav {
     queryParams: routeQueryParams(this.router, this.currentUrl()),
   }));
 
-  /** Toutes les entrées de premier niveau, dans l'ordre du modèle. */
+  /** Entrées métier de premier niveau, dans l'ordre du modèle. */
   private readonly rootItems = computed(() => [
     ...this.primary(),
     ...this.sections().flatMap(section => section.items),
-    ...this.secondary(),
   ]);
+
+  /** Bas de menu : ce qui n'est pas une activité métier (l'entreprise, l'aide). */
+  readonly footerItems = computed(() => this.secondary());
+
+  /** Tout ce qui peut ouvrir un panneau ou remonter dans une recherche, footer compris. */
+  private readonly allItems = computed(() => [...this.rootItems(), ...this.footerItems()]);
 
   readonly flatItems = computed(() => this.rootItems().filter(item => !item.children?.length));
   readonly categories = computed(() => this.rootItems().filter(item => !!item.children?.length));
 
   readonly openCategory = computed(
-    () => this.categories().find(item => item.id === this.openCategoryId()) ?? null,
+    () => this.allItems().find(item => item.id === this.openCategoryId()) ?? null,
   );
 
   /** Enfants du panneau, moins celui que l'en-tête absorbe. */
@@ -129,7 +134,7 @@ export class TchDrawerNav {
   readonly searchResults = computed(() => {
     const needle = this.query().trim().toLowerCase();
     if (!needle) return [];
-    return this.rootItems()
+    return this.allItems()
       .flatMap(item => (item.children?.length ? item.children : [item]))
       .filter(item => this.label(item).toLowerCase().includes(needle));
   });
@@ -145,6 +150,10 @@ export class TchDrawerNav {
         panel.querySelector<HTMLElement>('[data-drawer-back]')?.focus();
       }
     });
+  }
+
+  hasChildren(item: ActionItem): boolean {
+    return !!item.children?.length;
   }
 
   childCount(item: ActionItem): number {

@@ -17,6 +17,20 @@ export function sectionsFromRuntimeNavigation(
   return mapped.length ? mapped : null;
 }
 
+/**
+ * Bas de menu du contrat runtime. Le drawer déclare `topDestinations`, `sections`,
+ * `footerDestinations` et `actions` depuis l'origine ; seul `sections` était consommé, ce qui
+ * obligeait à ranger l'entreprise et l'aide parmi les activités métier.
+ */
+export function footerFromRuntimeNavigation(
+  drawer: RuntimeNavigationDrawer | null,
+): readonly ActionItem[] | null {
+  const items = (drawer?.footerDestinations ?? [])
+    .map(actionFromRuntime)
+    .filter((item): item is ActionItem => item !== null);
+  return items.length ? items : null;
+}
+
 function sectionFromRuntime(section: RuntimeNavigationSection): NavigationSection | null {
   const items = (section.items ?? [])
     .map(actionFromRuntime)

@@ -63,6 +63,41 @@
         }
       </ul>
     }
+
+    @if (footerItems().length) {
+      <ul class="drawer-nav__list drawer-nav__footer" role="list">
+        @for (item of footerItems(); track item.id) {
+          <li>
+            @if (hasChildren(item)) {
+              <!-- Une entrée de bas de menu peut avoir des sous-pages : elle ouvre le même
+                   panneau qu'une carte, sans occuper la grille des activités métier. -->
+              <button
+                type="button"
+                class="drawer-nav__row drawer-nav__row--button"
+                data-testid="drawer-footer-category"
+                [class.is-active]="isCategoryActive(item)"
+                (click)="openCategoryPanel(item, $event)"
+              >
+                <span class="drawer-nav__row-icon material-symbols-outlined" aria-hidden="true">
+                  {{ item.icon || 'category' }}
+                </span>
+                <span class="drawer-nav__row-label">{{ actionText(item) | translate }}</span>
+                <span class="material-symbols-outlined drawer-nav__chevron" aria-hidden="true">
+                  chevron_right
+                </span>
+              </button>
+            } @else {
+              <ng-container
+                *ngTemplateOutlet="
+                  rowTemplate;
+                  context: { $implicit: item, siblings: footerItems() }
+                "
+              />
+            }
+          </li>
+        }
+      </ul>
+    }
   }
 </nav>
 

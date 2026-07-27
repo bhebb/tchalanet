@@ -1,8 +1,15 @@
 import {
   PLATFORM_NAVIGATION,
+  TENANT_ADMIN_FOOTER,
   TENANT_ADMIN_NAVIGATION,
   TENANT_ADMIN_USER_GUIDE_URL,
 } from './private-navigation.model';
+
+/**
+ * L'entreprise et l'aide vivent dans le bas de menu, pas parmi les activités métier — ces
+ * assertions portent sur ce qu'elles contiennent, pas sur la collection qui les héberge.
+ */
+const footerItem = (id: string) => TENANT_ADMIN_FOOTER.find(item => item.id === id);
 
 describe('PLATFORM_NAVIGATION', () => {
   it('groups the Super Admin platform navigation by operational responsibility', () => {
@@ -137,7 +144,7 @@ describe('PLATFORM_NAVIGATION', () => {
   });
 
   it('exposes the tenant admin notification center under my company', () => {
-    const company = TENANT_ADMIN_NAVIGATION[0].items.find(group => group.id === 'company');
+    const company = footerItem('company');
 
     expect(company?.children?.map(child => child.labelKey)).toContain(
       'nav.admin.company_notifications',
@@ -148,7 +155,7 @@ describe('PLATFORM_NAVIGATION', () => {
 
   it('points company identity to the business profile and does not expose address separately', () => {
     const setup = TENANT_ADMIN_NAVIGATION[0].items.find(group => group.id === 'setup');
-    const company = TENANT_ADMIN_NAVIGATION[0].items.find(group => group.id === 'company');
+    const company = footerItem('company');
 
     expect(setup?.activeRoutes).not.toContain('/app/admin/business-profile');
     expect(company?.destination?.value).toBe('/app/admin/business-profile');
@@ -165,7 +172,7 @@ describe('PLATFORM_NAVIGATION', () => {
   });
 
   it('points tenant admin help to the published user guide', () => {
-    const help = TENANT_ADMIN_NAVIGATION[0].items.find(item => item.id === 'help');
+    const help = footerItem('help');
 
     expect(help?.destination).toEqual({
       kind: 'url',
@@ -174,7 +181,7 @@ describe('PLATFORM_NAVIGATION', () => {
   });
 
   it('exposes tenant page models under my company', () => {
-    const company = TENANT_ADMIN_NAVIGATION[0].items.find(group => group.id === 'company');
+    const company = footerItem('company');
 
     expect(company?.children?.map(child => child.labelKey)).toContain(
       'nav.admin.company_page_models',
@@ -185,7 +192,7 @@ describe('PLATFORM_NAVIGATION', () => {
 
   it('exposes business days under my company', () => {
     const setup = TENANT_ADMIN_NAVIGATION[0].items.find(group => group.id === 'setup');
-    const company = TENANT_ADMIN_NAVIGATION[0].items.find(group => group.id === 'company');
+    const company = footerItem('company');
 
     expect(setup?.activeRoutes).not.toContain('/app/admin/business-days');
     expect(company?.children?.map(child => child.labelKey)).toContain(
@@ -197,7 +204,7 @@ describe('PLATFORM_NAVIGATION', () => {
 
   it('keeps tenant settings under my company instead of using the signed-in admin account menu', () => {
     const setup = TENANT_ADMIN_NAVIGATION[0].items.find(group => group.id === 'setup');
-    const company = TENANT_ADMIN_NAVIGATION[0].items.find(group => group.id === 'company');
+    const company = footerItem('company');
     const companySettings = company?.children?.find(child => child.id === 'company-settings');
 
     expect(setup?.activeRoutes).not.toContain('/app/admin/settings');

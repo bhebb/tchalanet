@@ -19,9 +19,12 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  /* `height: 100%` + padding sans `border-box` débordait de 28px : la dernière entrée du bas de
+     menu passait sous le bord de l'écran. */
+  box-sizing: border-box;
   height: 100%;
   overflow-y: auto;
-  padding: 0.75rem 0 1rem;
+  padding: 0.75rem 0 calc(1rem + env(safe-area-inset-bottom, 0px));
 }
 
 /* ── Recherche ─────────────────────────────────────────────────────────── */
@@ -138,6 +141,28 @@
   color: var(--comp-drawer-muted);
 }
 
+/* Bas de menu : poussé en bas, séparé des activités métier. */
+.drawer-nav__footer {
+  margin-top: auto;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--comp-drawer-line);
+}
+
+.drawer-nav__row--button {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.drawer-nav__chevron {
+  flex: none;
+  font-size: 1.25rem;
+  color: var(--comp-drawer-muted);
+}
+
 /* ── Grille de catégories ──────────────────────────────────────────────── */
 
 .drawer-nav__heading {
@@ -220,8 +245,9 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  box-sizing: border-box;
   overflow-y: auto;
-  padding: 0.75rem 0 1rem;
+  padding: 0.75rem 0 calc(1rem + env(safe-area-inset-bottom, 0px));
   /* Fond explicitement opaque : le panneau recouvre la racine, il ne se mélange pas avec. */
   background: var(--comp-drawer-bg, var(--tch-color-surface, #fff));
   animation: drawer-nav-slide-in 0.2s ease;

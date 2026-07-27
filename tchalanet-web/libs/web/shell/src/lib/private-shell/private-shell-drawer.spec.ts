@@ -10,7 +10,11 @@ import { AUTH_CLIENT, AuthClient } from '@tch/core/auth';
 import { TchBreakpointService } from '@tch/ui/components';
 import { themeStoreProvider } from '@tch/ui/theme';
 
-import { PLATFORM_NAVIGATION, TENANT_ADMIN_NAVIGATION } from './private-navigation.model';
+import {
+  PLATFORM_NAVIGATION,
+  TENANT_ADMIN_FOOTER,
+  TENANT_ADMIN_NAVIGATION,
+} from './private-navigation.model';
 import { PrivateShellLayoutComponent } from './private-shell-layout.component';
 
 const authClient: AuthClient = {
@@ -58,6 +62,28 @@ const SECTIONS: readonly NavigationSection[] = [
   },
 ];
 
+const FOOTER: readonly ActionItem[] = [
+  {
+    id: 'company',
+    labelKey: 'nav.company',
+    icon: 'business',
+    destination: { kind: 'route', value: '/app/admin/company' },
+    children: [
+      {
+        id: 'company-identity',
+        labelKey: 'nav.company_identity',
+        destination: { kind: 'route', value: '/app/admin/company/identity' },
+      },
+    ],
+  },
+  {
+    id: 'help',
+    labelKey: 'nav.help',
+    icon: 'help_outline',
+    destination: { kind: 'url', value: 'https://docs.example.test/' },
+  },
+];
+
 function configure(isWide: Signal<boolean>) {
   TestBed.configureTestingModule({
     providers: [
@@ -65,6 +91,8 @@ function configure(isWide: Signal<boolean>) {
         { path: 'app/admin', component: Blank },
         { path: 'app/admin/limits', component: Blank },
         { path: 'app/admin/limits/global', component: Blank },
+        { path: 'app/admin/company', component: Blank },
+        { path: 'app/admin/company/identity', component: Blank },
       ]),
       provideTranslateService(),
       provideHttpClient(),
@@ -84,6 +112,7 @@ async function render(url = '/app/admin'): Promise<ComponentFixture<PrivateShell
     destination: { kind: 'route', value: '/' },
   });
   fixture.componentRef.setInput('sections', SECTIONS);
+  fixture.componentRef.setInput('secondary', FOOTER);
   fixture.detectChanges();
   return fixture;
 }
@@ -167,6 +196,28 @@ describe('private shell drawer — replié (< 840px)', () => {
     fixture.detectChanges();
 
     expect(el(fixture, '.drawer-nav__panel')).toBeNull();
+  });
+
+  it('keeps the footer out of the business category grid', async () => {
+    const fixture = await render();
+
+    const cards = all(fixture, '[data-testid="drawer-category"]').map(n => n.textContent ?? '');
+    expect(cards.some(text => text.includes('nav.company'))).toBe(false);
+
+    const footer = all(fixture, '.drawer-nav__footer li').map(n => n.textContent ?? '');
+    expect(footer.some(text => text.includes('nav.company'))).toBe(true);
+    expect(footer.some(text => text.includes('nav.help'))).toBe(true);
+  });
+
+  it('still opens the panel of a footer entry that has children', async () => {
+    const fixture = await render();
+
+    el(fixture, '[data-testid="drawer-footer-category"]')!.click();
+    fixture.detectChanges();
+
+    const panel = el(fixture, '.drawer-nav__panel');
+    expect(panel).not.toBeNull();
+    expect(panel!.textContent).toContain('nav.company_identity');
   });
 
   it('marks the category holding the active route', async () => {

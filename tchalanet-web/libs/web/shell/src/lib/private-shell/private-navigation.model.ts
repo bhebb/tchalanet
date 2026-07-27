@@ -1,4 +1,4 @@
-import { NavigationSection } from '@tch/api';
+import { ActionItem, NavigationSection } from '@tch/api';
 
 export type PrivateSpace = 'platform' | 'admin' | 'cashier';
 
@@ -599,69 +599,79 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
           },
         ],
       },
-      {
-        id: 'company',
-        labelKey: 'nav.admin.company',
-        icon: 'business',
-        destination: { kind: 'route', value: '/app/admin/business-profile' },
-        children: [
-          {
-            id: 'company-identity',
-            labelKey: 'nav.admin.company_identity',
-            icon: 'domain',
-            destination: { kind: 'route', value: '/app/admin/business-profile' },
-          },
-          {
-            id: 'company-appearance',
-            labelKey: 'nav.admin.company_appearance',
-            icon: 'palette',
-            destination: { kind: 'route', value: '/app/admin/company/appearance' },
-          },
-          {
-            id: 'company-settings',
-            labelKey: 'nav.admin.company_settings',
-            icon: 'settings',
-            destination: { kind: 'route', value: '/app/admin/company/settings' },
-            activeRoutes: [
-              '/app/admin/company/settings/runtime',
-              '/app/admin/company/settings/config',
-            ],
-          },
-          {
-            id: 'company-business-days',
-            labelKey: 'nav.admin.company_business_days',
-            icon: 'calendar_month',
-            destination: { kind: 'route', value: '/app/admin/business-days' },
-          },
-          {
-            id: 'company-notifications',
-            labelKey: 'nav.admin.company_notifications',
-            icon: 'notifications',
-            destination: { kind: 'route', value: '/app/admin/notifications' },
-          },
-          {
-            id: 'company-page-models',
-            labelKey: 'nav.admin.company_page_models',
-            icon: 'dashboard_customize',
-            destination: { kind: 'route', value: '/app/admin/pagemodels' },
-          },
-          {
-            id: 'company-support',
-            labelKey: 'nav.admin.company_support',
-            icon: 'headset_mic',
-            destination: { kind: 'route', value: '/app/admin/company/support' },
-          },
-        ],
-      },
-      {
-        id: 'help',
-        labelKey: 'nav.admin.help',
-        icon: 'help_outline',
-        destination: { kind: 'url', value: TENANT_ADMIN_USER_GUIDE_URL },
-      },
     ],
   },
 ];
+
+/**
+ * Bas de menu : ce qui n'est pas une activité métier — l'entreprise elle-même et l'aide.
+ * Miroir statique de `footerDestinations` du contrat runtime.
+ */
+export const TENANT_ADMIN_FOOTER: readonly ActionItem[] = [
+  {
+    id: 'company',
+    labelKey: 'nav.admin.company',
+    icon: 'business',
+    destination: { kind: 'route', value: '/app/admin/business-profile' },
+    children: [
+      {
+        id: 'company-identity',
+        labelKey: 'nav.admin.company_identity',
+        icon: 'domain',
+        destination: { kind: 'route', value: '/app/admin/business-profile' },
+      },
+      {
+        id: 'company-appearance',
+        labelKey: 'nav.admin.company_appearance',
+        icon: 'palette',
+        destination: { kind: 'route', value: '/app/admin/company/appearance' },
+      },
+      {
+        id: 'company-settings',
+        labelKey: 'nav.admin.company_settings',
+        icon: 'settings',
+        destination: { kind: 'route', value: '/app/admin/company/settings' },
+        activeRoutes: [
+          '/app/admin/company/settings/runtime',
+          '/app/admin/company/settings/config',
+        ],
+      },
+      {
+        id: 'company-business-days',
+        labelKey: 'nav.admin.company_business_days',
+        icon: 'calendar_month',
+        destination: { kind: 'route', value: '/app/admin/business-days' },
+      },
+      {
+        id: 'company-notifications',
+        labelKey: 'nav.admin.company_notifications',
+        icon: 'notifications',
+        destination: { kind: 'route', value: '/app/admin/notifications' },
+      },
+      {
+        id: 'company-page-models',
+        labelKey: 'nav.admin.company_page_models',
+        icon: 'dashboard_customize',
+        destination: { kind: 'route', value: '/app/admin/pagemodels' },
+      },
+      {
+        id: 'company-support',
+        labelKey: 'nav.admin.company_support',
+        icon: 'headset_mic',
+        destination: { kind: 'route', value: '/app/admin/company/support' },
+      },
+    ],
+  },
+  {
+    id: 'help',
+    labelKey: 'nav.admin.help',
+    icon: 'help_outline',
+    destination: { kind: 'url', value: TENANT_ADMIN_USER_GUIDE_URL },
+  },
+];
+
+/** La console plateforme n'a pas encore de bas de menu. */
+export const PLATFORM_FOOTER: readonly ActionItem[] = [];
 
 export const CASHIER_NAVIGATION: readonly NavigationSection[] = [
   {
