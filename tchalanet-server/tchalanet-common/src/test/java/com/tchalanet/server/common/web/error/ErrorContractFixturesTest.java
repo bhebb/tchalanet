@@ -91,7 +91,10 @@ class ErrorContractFixturesTest {
 
   private static List<Path> jsonFiles(Path root) throws IOException {
     try (var paths = Files.walk(root)) {
-      return paths.filter(Files::isRegularFile).filter(path -> path.toString().endsWith(".json")).toList();
+      return paths
+          .filter(Files::isRegularFile)
+          .filter(path -> path.toString().endsWith(".json"))
+          .toList();
     }
   }
 

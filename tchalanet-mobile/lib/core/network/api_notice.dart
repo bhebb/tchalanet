@@ -65,8 +65,9 @@ class ApiNotice {
 }
 
 String? _sourceValue(Object? value) {
-  if (value is Map && value['source'] != null)
+  if (value is Map && value['source'] != null) {
     return value['source'].toString();
+  }
   return null;
 }
 

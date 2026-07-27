@@ -1,7 +1,7 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:dio/dio.dart';
 import 'package:tchalanet_mobile/core/i18n/i18n_models.dart';
 import 'package:tchalanet_mobile/core/i18n/i18n_repository.dart';
 import 'package:tchalanet_mobile/core/network/api_exception.dart';

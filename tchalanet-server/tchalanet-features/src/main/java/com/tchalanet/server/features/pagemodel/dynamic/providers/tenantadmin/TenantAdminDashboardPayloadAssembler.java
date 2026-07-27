@@ -229,9 +229,7 @@ public class TenantAdminDashboardPayloadAssembler {
     QuickActionsPayload quickActions =
         timing.record(
             "quickActions",
-            () ->
-                buildQuickActions(
-                    closedDraws.value(), ops.value().blockedSellerTerminalCount()));
+            () -> buildQuickActions(closedDraws.value(), ops.value().blockedSellerTerminalCount()));
 
     Payload payload =
         new Payload(
@@ -535,8 +533,7 @@ public class TenantAdminDashboardPayloadAssembler {
         stats.maxRate());
   }
 
-  private QuickActionsPayload buildQuickActions(
-      long closedDraws, long blockedSellerTerminalCount) {
+  private QuickActionsPayload buildQuickActions(long closedDraws, long blockedSellerTerminalCount) {
     List<ActionItem> actions = new ArrayList<>();
     actions.add(
         new ActionItem(
@@ -562,10 +559,7 @@ public class TenantAdminDashboardPayloadAssembler {
     }
     actions.add(
         new ActionItem(
-            "DAILY_REPORT",
-            "quickaction.admin.daily_report",
-            "today",
-            "/app/admin/reports/today"));
+            "DAILY_REPORT", "quickaction.admin.daily_report", "today", "/app/admin/reports/today"));
     actions.add(
         new ActionItem(
             "MANAGE_LIMITS",

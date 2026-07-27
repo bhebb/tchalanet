@@ -25,11 +25,12 @@ class RequireIdempotencyInterceptorTest {
     assertThatThrownBy(
             () -> new RequireIdempotencyInterceptor().preHandle(request, response, handler))
         .isInstanceOf(ProblemRestException.class)
-        .satisfies(error -> {
-          var problem = ((ProblemRestException) error).getProblem();
-          assertThat(problem.getProperties())
-              .containsEntry("code", IdempotencyErrorCodes.MISSING.code());
-        });
+        .satisfies(
+            error -> {
+              var problem = ((ProblemRestException) error).getProblem();
+              assertThat(problem.getProperties())
+                  .containsEntry("code", IdempotencyErrorCodes.MISSING.code());
+            });
 
     assertThat(response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
   }
