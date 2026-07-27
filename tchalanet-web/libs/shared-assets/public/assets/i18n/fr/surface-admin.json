@@ -22,7 +22,8 @@
     "toggle_menu": "Ouvrir/fermer le menu",
     "admin": {
       "section": {
-        "admin": "Administration"
+        "admin": "Administration",
+        "config": "Configuration"
       },
       "dashboard": "Tableau de bord",
       "onboarding": "Onboarding",

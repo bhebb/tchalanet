@@ -85,7 +85,33 @@
       viewport de 844). Trouvé par la capture, corrigé, et verrouillé par une assertion e2e sur la
       position de la dernière ligne.
 
-## 8. Suites
+## 8. Rang par section, pas par nombre d'enfants (retour d'usage)
+
+Constat : « Konfigirasyon jeneral » et « Maryaj gratis » occupaient le haut du menu — la zone la
+plus visible — alors que ce sont des réglages rarement rouverts. Ce n'était pas un choix : la règle
+« entrée sans enfants → ligne en tête » faisait du **nombre d'enfants** le critère de rang.
+
+- [x] `TENANT_ADMIN_NAVIGATION` passe d'**une** section à **deux** : `admin` (Tablo bò, Tèminal POS,
+      Tiraj, Rapò, Tikè) et `config` (Konfigirasyon jeneral, Maryaj gratis, Jwèt, Limit, Antrepriz
+      mwen). `NavigationSection` supportait déjà plusieurs sections titrées ; le menu n'en déclarait
+      qu'une.
+- [x] Le drawer rend **un bloc de grille par section**, avec son titre. Les entrées sans enfants
+      restent des lignes, mais **dans leur bloc** — plus en tête de menu.
+- [x] `company` remonte du bas de menu vers la section `config` : c'est un réglage, pas du service.
+      Le bas de menu ne garde que `Èd`.
+- [x] Clé i18n `nav.admin.section.config` en fr/en/ht.
+- [x] Les assertions du spec de modèle cherchent une entrée **dans toutes les sections + le footer**,
+      au lieu de coder en dur `NAVIGATION[0].items` — elles portent sur le contenu des entrées, pas
+      sur la zone qui les héberge.
+
+## 9. Suites
 
 - [ ] Décider côté contrat backend si `archives` et `audit` doivent déclarer une `destination` de
       groupe, pour que leur « Apèsi » soit absorbé comme celui d'`operations`.
+- [ ] **Répercuter le découpage côté backend.** `sections` et `footerDestinations` sont résolus
+      indépendamment (`runtime ?? repli`). Si le backend continue d'envoyer `company` ou `help` dans
+      `sections` en laissant `footerDestinations` vide, ces entrées apparaîtront **deux fois**. Le
+      contrat porte aussi `topDestinations`, toujours non consommé : c'est la zone des raccourcis si
+      on veut un jour distinguer le quotidien du reste sans passer par les sections.
+- [ ] Appliquer le même découpage à `PLATFORM_NAVIGATION`, qui reste une section unique de neuf
+      groupes.

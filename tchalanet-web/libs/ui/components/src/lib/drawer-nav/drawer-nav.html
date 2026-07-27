@@ -31,37 +31,60 @@
       }
     </ul>
   } @else {
-    <ul class="drawer-nav__list" role="list">
-      @for (item of flatItems(); track item.id) {
-        <li>
-          <ng-container
-            *ngTemplateOutlet="rowTemplate; context: { $implicit: item, siblings: flatItems() }"
-          />
-        </li>
-      }
-    </ul>
-
-    @if (categories().length) {
-      <h2 class="drawer-nav__heading" id="drawer-nav-categories">{{ categoriesLabel() }}</h2>
-      <ul class="drawer-nav__grid" role="list" aria-labelledby="drawer-nav-categories">
-        @for (category of categories(); track category.id) {
+    @if (shortcuts().length) {
+      <ul class="drawer-nav__list" role="list">
+        @for (item of shortcuts(); track item.id) {
           <li>
-            <button
-              type="button"
-              class="drawer-nav__card"
-              data-testid="drawer-category"
-              [class.is-active]="isCategoryActive(category)"
-              (click)="openCategoryPanel(category, $event)"
-            >
-              <span class="drawer-nav__card-icon material-symbols-outlined" aria-hidden="true">
-                {{ category.icon || 'category' }}
-              </span>
-              <span class="drawer-nav__card-label">{{ actionText(category) | translate }}</span>
-              <span class="drawer-nav__card-count">{{ pagesCount(category) }}</span>
-            </button>
+            <ng-container
+              *ngTemplateOutlet="rowTemplate; context: { $implicit: item, siblings: shortcuts() }"
+            />
           </li>
         }
       </ul>
+    }
+
+    @for (group of groups(); track group.id) {
+      <!-- Une section du modèle = un bloc de la grille. Ses entrées sans enfants restent des
+           lignes, celles qui en ont deviennent des cartes — au sein du bloc, pas en tête de menu. -->
+      @if (group.titleKey || categoriesLabel()) {
+        <h2 class="drawer-nav__heading" [id]="'drawer-nav-' + group.id">
+          {{ group.titleKey ? (group.titleKey | translate) : categoriesLabel() }}
+        </h2>
+      }
+
+      @if (group.rows.length) {
+        <ul class="drawer-nav__list" role="list">
+          @for (item of group.rows; track item.id) {
+            <li>
+              <ng-container
+                *ngTemplateOutlet="rowTemplate; context: { $implicit: item, siblings: group.rows }"
+              />
+            </li>
+          }
+        </ul>
+      }
+
+      @if (group.cards.length) {
+        <ul class="drawer-nav__grid" role="list" [attr.aria-labelledby]="'drawer-nav-' + group.id">
+          @for (card of group.cards; track card.id) {
+            <li>
+              <button
+                type="button"
+                class="drawer-nav__card"
+                data-testid="drawer-category"
+                [class.is-active]="isCategoryActive(card)"
+                (click)="openCategoryPanel(card, $event)"
+              >
+                <span class="drawer-nav__card-icon material-symbols-outlined" aria-hidden="true">
+                  {{ card.icon || 'category' }}
+                </span>
+                <span class="drawer-nav__card-label">{{ actionText(card) | translate }}</span>
+                <span class="drawer-nav__card-count">{{ pagesCount(card) }}</span>
+              </button>
+            </li>
+          }
+        </ul>
+      }
     }
 
     @if (footerItems().length) {

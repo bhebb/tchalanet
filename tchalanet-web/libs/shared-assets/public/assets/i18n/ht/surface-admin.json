@@ -22,7 +22,8 @@
     "toggle_menu": "Louvri/fèmen meni",
     "admin": {
       "section": {
-        "admin": "Administrasyon"
+        "admin": "Administrasyon",
+        "config": "Konfigirasyon"
       },
       "dashboard": "Tablo bò",
       "onboarding": "Enskripsyon",

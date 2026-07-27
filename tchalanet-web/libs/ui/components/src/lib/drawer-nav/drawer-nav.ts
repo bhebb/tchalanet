@@ -103,7 +103,7 @@ export class TchDrawerNav {
     queryParams: routeQueryParams(this.router, this.currentUrl()),
   }));
 
-  /** Entrées métier de premier niveau, dans l'ordre du modèle. */
+  /** Entrées de premier niveau, dans l'ordre du modèle. */
   private readonly rootItems = computed(() => [
     ...this.primary(),
     ...this.sections().flatMap(section => section.items),
@@ -115,11 +115,31 @@ export class TchDrawerNav {
   /** Tout ce qui peut ouvrir un panneau ou remonter dans une recherche, footer compris. */
   private readonly allItems = computed(() => [...this.rootItems(), ...this.footerItems()]);
 
-  readonly flatItems = computed(() => this.rootItems().filter(item => !item.children?.length));
-  readonly categories = computed(() => this.rootItems().filter(item => !!item.children?.length));
+  /** Une catégorie peut vivre dans n'importe quelle section, ou dans le bas de menu. */
+  private readonly allCategories = computed(() =>
+    this.allItems().filter(item => !!item.children?.length),
+  );
+
+  /** Raccourcis de tête : les entrées hors section, avant tout regroupement. */
+  readonly shortcuts = computed(() => this.primary());
+
+  /**
+   * Un groupe de grille par **section** du modèle. Les sections portent déjà un titre et sont la
+   * façon dont le modèle sépare les domaines — les activités quotidiennes d'un côté, la
+   * configuration de l'autre. S'en servir évite de déduire le rang d'une entrée de son nombre
+   * d'enfants, ce qui plaçait des réglages rarement ouverts en tête de menu.
+   */
+  readonly groups = computed(() =>
+    this.sections().map(section => ({
+      id: section.id,
+      titleKey: section.titleKey,
+      rows: section.items.filter(item => !item.children?.length),
+      cards: section.items.filter(item => !!item.children?.length),
+    })),
+  );
 
   readonly openCategory = computed(
-    () => this.allItems().find(item => item.id === this.openCategoryId()) ?? null,
+    () => this.allCategories().find(item => item.id === this.openCategoryId()) ?? null,
   );
 
   /** Enfants du panneau, moins celui que l'en-tête absorbe. */

@@ -386,15 +386,6 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
         activeMatch: 'exact',
       },
       {
-        id: 'setup',
-        labelKey: 'nav.admin.general_configuration',
-        icon: 'checklist',
-        destination: { kind: 'route', value: '/app/admin/setup' },
-        activeRoutes: [
-          '/app/admin/subscription',
-        ],
-      },
-      {
         id: 'sellers',
         labelKey: 'nav.admin.sellers',
         icon: 'point_of_sale',
@@ -464,76 +455,6 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
         ],
       },
       {
-        id: 'games',
-        labelKey: 'nav.admin.games_available',
-        icon: 'casino',
-        destination: { kind: 'route', value: '/app/admin/games' },
-        children: [
-          {
-            id: 'games-overview',
-            labelKey: 'nav.admin.games_overview',
-            icon: 'dashboard',
-            destination: { kind: 'route', value: '/app/admin/games' },
-            activeMatch: 'exact',
-            activeRoutes: [
-              '/app/admin/pricing',
-            ],
-          },
-          {
-            id: 'games-channel-matrix',
-            labelKey: 'nav.admin.games_channel_matrix',
-            icon: 'grid_view',
-            destination: { kind: 'route', value: '/app/admin/games/channel-matrix' },
-          },
-        ],
-      },
-      {
-        id: 'limits',
-        labelKey: 'nav.admin.limits_section',
-        icon: 'shield',
-        destination: { kind: 'route', value: '/app/admin/limits' },
-        children: [
-          {
-            id: 'limits-overview',
-            labelKey: 'nav.admin.limits_overview',
-            icon: 'dashboard',
-            destination: { kind: 'route', value: '/app/admin/limits' },
-            activeMatch: 'exact',
-          },
-          {
-            id: 'limits-global',
-            labelKey: 'nav.admin.limits_global',
-            icon: 'tune',
-            destination: { kind: 'route', value: '/app/admin/limits/global' },
-          },
-          {
-            id: 'limits-seller',
-            labelKey: 'nav.admin.limits_seller',
-            icon: 'person',
-            destination: { kind: 'route', value: '/app/admin/limits/seller-terminal' },
-          },
-          {
-            id: 'limits-number',
-            labelKey: 'nav.admin.limits_number',
-            icon: 'pin',
-            destination: { kind: 'route', value: '/app/admin/limits/number' },
-          },
-          {
-            id: 'limits-draw',
-            labelKey: 'nav.admin.limits_draw',
-            icon: 'event',
-            destination: { kind: 'route', value: '/app/admin/limits/draw' },
-          },
-        ],
-      },
-      {
-        id: 'maryaj-gratis',
-        labelKey: 'nav.admin.maryaj_free',
-        icon: 'redeem',
-        destination: { kind: 'route', value: '/app/admin/maryaj-gratis' },
-        activeMatch: 'exact',
-      },
-      {
         id: 'reports',
         labelKey: 'nav.reports',
         icon: 'analytics',
@@ -601,6 +522,145 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
       },
     ],
   },
+  {
+    id: 'config',
+    titleKey: 'nav.admin.section.config',
+    items: [
+      {
+        id: 'setup',
+        labelKey: 'nav.admin.general_configuration',
+        icon: 'checklist',
+        destination: { kind: 'route', value: '/app/admin/setup' },
+        activeRoutes: [
+          '/app/admin/subscription',
+        ],
+      },
+      {
+        id: 'maryaj-gratis',
+        labelKey: 'nav.admin.maryaj_free',
+        icon: 'redeem',
+        destination: { kind: 'route', value: '/app/admin/maryaj-gratis' },
+        activeMatch: 'exact',
+      },
+      {
+        id: 'games',
+        labelKey: 'nav.admin.games_available',
+        icon: 'casino',
+        destination: { kind: 'route', value: '/app/admin/games' },
+        children: [
+          {
+            id: 'games-overview',
+            labelKey: 'nav.admin.games_overview',
+            icon: 'dashboard',
+            destination: { kind: 'route', value: '/app/admin/games' },
+            activeMatch: 'exact',
+            activeRoutes: [
+              '/app/admin/pricing',
+            ],
+          },
+          {
+            id: 'games-channel-matrix',
+            labelKey: 'nav.admin.games_channel_matrix',
+            icon: 'grid_view',
+            destination: { kind: 'route', value: '/app/admin/games/channel-matrix' },
+          },
+        ],
+      },
+      {
+        id: 'limits',
+        labelKey: 'nav.admin.limits_section',
+        icon: 'shield',
+        destination: { kind: 'route', value: '/app/admin/limits' },
+        children: [
+          {
+            id: 'limits-overview',
+            labelKey: 'nav.admin.limits_overview',
+            icon: 'dashboard',
+            destination: { kind: 'route', value: '/app/admin/limits' },
+            activeMatch: 'exact',
+          },
+          {
+            id: 'limits-global',
+            labelKey: 'nav.admin.limits_global',
+            icon: 'tune',
+            destination: { kind: 'route', value: '/app/admin/limits/global' },
+          },
+          {
+            id: 'limits-seller',
+            labelKey: 'nav.admin.limits_seller',
+            icon: 'person',
+            destination: { kind: 'route', value: '/app/admin/limits/seller-terminal' },
+          },
+          {
+            id: 'limits-number',
+            labelKey: 'nav.admin.limits_number',
+            icon: 'pin',
+            destination: { kind: 'route', value: '/app/admin/limits/number' },
+          },
+          {
+            id: 'limits-draw',
+            labelKey: 'nav.admin.limits_draw',
+            icon: 'event',
+            destination: { kind: 'route', value: '/app/admin/limits/draw' },
+          },
+        ],
+      },
+      {
+        id: 'company',
+        labelKey: 'nav.admin.company',
+        icon: 'business',
+        destination: { kind: 'route', value: '/app/admin/business-profile' },
+        children: [
+          {
+            id: 'company-identity',
+            labelKey: 'nav.admin.company_identity',
+            icon: 'domain',
+            destination: { kind: 'route', value: '/app/admin/business-profile' },
+          },
+          {
+            id: 'company-appearance',
+            labelKey: 'nav.admin.company_appearance',
+            icon: 'palette',
+            destination: { kind: 'route', value: '/app/admin/company/appearance' },
+          },
+          {
+            id: 'company-settings',
+            labelKey: 'nav.admin.company_settings',
+            icon: 'settings',
+            destination: { kind: 'route', value: '/app/admin/company/settings' },
+            activeRoutes: [
+              '/app/admin/company/settings/runtime',
+              '/app/admin/company/settings/config',
+            ],
+          },
+          {
+            id: 'company-business-days',
+            labelKey: 'nav.admin.company_business_days',
+            icon: 'calendar_month',
+            destination: { kind: 'route', value: '/app/admin/business-days' },
+          },
+          {
+            id: 'company-notifications',
+            labelKey: 'nav.admin.company_notifications',
+            icon: 'notifications',
+            destination: { kind: 'route', value: '/app/admin/notifications' },
+          },
+          {
+            id: 'company-page-models',
+            labelKey: 'nav.admin.company_page_models',
+            icon: 'dashboard_customize',
+            destination: { kind: 'route', value: '/app/admin/pagemodels' },
+          },
+          {
+            id: 'company-support',
+            labelKey: 'nav.admin.company_support',
+            icon: 'headset_mic',
+            destination: { kind: 'route', value: '/app/admin/company/support' },
+          },
+        ],
+      },
+    ],
+  },
 ];
 
 /**
@@ -608,60 +668,6 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
  * Miroir statique de `footerDestinations` du contrat runtime.
  */
 export const TENANT_ADMIN_FOOTER: readonly ActionItem[] = [
-  {
-    id: 'company',
-    labelKey: 'nav.admin.company',
-    icon: 'business',
-    destination: { kind: 'route', value: '/app/admin/business-profile' },
-    children: [
-      {
-        id: 'company-identity',
-        labelKey: 'nav.admin.company_identity',
-        icon: 'domain',
-        destination: { kind: 'route', value: '/app/admin/business-profile' },
-      },
-      {
-        id: 'company-appearance',
-        labelKey: 'nav.admin.company_appearance',
-        icon: 'palette',
-        destination: { kind: 'route', value: '/app/admin/company/appearance' },
-      },
-      {
-        id: 'company-settings',
-        labelKey: 'nav.admin.company_settings',
-        icon: 'settings',
-        destination: { kind: 'route', value: '/app/admin/company/settings' },
-        activeRoutes: [
-          '/app/admin/company/settings/runtime',
-          '/app/admin/company/settings/config',
-        ],
-      },
-      {
-        id: 'company-business-days',
-        labelKey: 'nav.admin.company_business_days',
-        icon: 'calendar_month',
-        destination: { kind: 'route', value: '/app/admin/business-days' },
-      },
-      {
-        id: 'company-notifications',
-        labelKey: 'nav.admin.company_notifications',
-        icon: 'notifications',
-        destination: { kind: 'route', value: '/app/admin/notifications' },
-      },
-      {
-        id: 'company-page-models',
-        labelKey: 'nav.admin.company_page_models',
-        icon: 'dashboard_customize',
-        destination: { kind: 'route', value: '/app/admin/pagemodels' },
-      },
-      {
-        id: 'company-support',
-        labelKey: 'nav.admin.company_support',
-        icon: 'headset_mic',
-        destination: { kind: 'route', value: '/app/admin/company/support' },
-      },
-    ],
-  },
   {
     id: 'help',
     labelKey: 'nav.admin.help',
