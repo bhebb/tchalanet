@@ -30,7 +30,9 @@ class TenantReadinessAssemblerTest {
 
   @Test
   void generated_draw_is_a_blocking_setup_step() {
-    var setup = assembler.computeSetup(viewWith(TenantReadinessStatus.MISSING, TenantReadinessStatus.READY));
+    var setup =
+        assembler.computeSetup(
+            viewWith(TenantReadinessStatus.MISSING, TenantReadinessStatus.READY));
 
     assertThat(setup.totalSteps()).isEqualTo(5);
     assertThat(setup.completedSteps()).isEqualTo(4);
@@ -41,7 +43,9 @@ class TenantReadinessAssemblerTest {
 
   @Test
   void unknown_theme_does_not_block_an_operationally_ready_tenant() {
-    var setup = assembler.computeSetup(viewWith(TenantReadinessStatus.READY, TenantReadinessStatus.UNKNOWN));
+    var setup =
+        assembler.computeSetup(
+            viewWith(TenantReadinessStatus.READY, TenantReadinessStatus.UNKNOWN));
 
     assertThat(setup.completedSteps()).isEqualTo(5);
     assertThat(setup.status()).isEqualTo("COMPLETE");

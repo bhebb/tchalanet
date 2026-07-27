@@ -49,15 +49,15 @@ import org.springframework.stereotype.Component;
  * odds/pricing configured (MISSING if none priced, PARTIAL if some active games still lack
  * pricing). Per-game limits are informational only, not part of this check. 5. draws →
  * TenantDrawSalesMatrixService (channel config + games×channel matrix) 6. generated_draws →
- * ListDrawsQuery (page size 1) — an actual Draw instance exists, not just configuration. This is
- * a setup blocker because the tenant must be able to generate a draw in its own context before it
- * is considered operational. 7. theme → TenantThemeApi active tenant theme 8.
- * promotions → ListPromotionCampaignsQuery (page size 1) 9. settings → TenantConfigApi settings
- * readiness service 10. subscription → ResolveTenantSubscriptionQuery — READY if ACTIVE/TRIAL,
- * PARTIAL if any other known status, MISSING if none applied. Visible section, not (yet) blocking.
- * 11. commission → TenantPreContextLookupApi default commission rate. Informational, not blocking.
- * 12. limits → ListLimitAssignmentsByScopeQuery, READY if at least one assignment is enabled.
- * Informational, not blocking.
+ * ListDrawsQuery (page size 1) — an actual Draw instance exists, not just configuration. This is a
+ * setup blocker because the tenant must be able to generate a draw in its own context before it is
+ * considered operational. 7. theme → TenantThemeApi active tenant theme 8. promotions →
+ * ListPromotionCampaignsQuery (page size 1) 9. settings → TenantConfigApi settings readiness
+ * service 10. subscription → ResolveTenantSubscriptionQuery — READY if ACTIVE/TRIAL, PARTIAL if any
+ * other known status, MISSING if none applied. Visible section, not (yet) blocking. 11. commission
+ * → TenantPreContextLookupApi default commission rate. Informational, not blocking. 12. limits →
+ * ListLimitAssignmentsByScopeQuery, READY if at least one assignment is enabled. Informational, not
+ * blocking.
  *
  * <p>Remaining sections (i18n, pageModels) return UNKNOWN until their respective structural check
  * queries are exposed.

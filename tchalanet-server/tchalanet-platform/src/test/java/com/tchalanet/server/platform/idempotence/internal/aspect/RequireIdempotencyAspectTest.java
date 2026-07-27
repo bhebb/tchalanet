@@ -69,7 +69,8 @@ class RequireIdempotencyAspectTest {
 
     assertThatThrownBy(() -> aspect.around(pjp))
         .isInstanceOf(ProblemRestException.class)
-        .satisfies(error -> assertProblemCode(error, IdempotencyErrorCodes.PAYLOAD_MISMATCH.code()));
+        .satisfies(
+            error -> assertProblemCode(error, IdempotencyErrorCodes.PAYLOAD_MISMATCH.code()));
     verify(pjp, never()).proceed();
   }
 

@@ -50,9 +50,7 @@ public class OpsBatchLaunchFacade {
     if (tenants.size() > maxTenantsPerInteractiveLaunch) {
       throw ProblemRest.of(
           OpsErrorCodes.BATCH_TOO_MANY_TENANTS,
-          Map.of(
-              "requestedTenants", tenants.size(),
-              "maxTenants", maxTenantsPerInteractiveLaunch));
+          Map.of("requestedTenants", tenants.size(), "maxTenants", maxTenantsPerInteractiveLaunch));
     }
 
     var launches = new ArrayList<OpsJobLaunchItem>(tenants.size());
