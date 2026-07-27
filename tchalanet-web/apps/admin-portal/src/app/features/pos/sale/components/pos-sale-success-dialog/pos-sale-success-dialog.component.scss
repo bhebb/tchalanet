@@ -1,3 +1,5 @@
+@use 'breakpoints' as ui;
+
 .sale-success__title {
   display: flex;
   align-items: center;
@@ -98,7 +100,7 @@
   gap: 0.5rem;
 }
 
-@media (max-width: 640px) {
+@include ui.down(medium) {
   .sale-success {
     min-width: 0;
 

@@ -1,3 +1,5 @@
+@use 'breakpoints' as ui;
+
 :host {
   display: block;
 }
@@ -153,7 +155,7 @@
   }
 }
 
-@media (min-width: 640px) {
+@include ui.up(medium) {
   .pcard {
     &__header,
     &__footer,

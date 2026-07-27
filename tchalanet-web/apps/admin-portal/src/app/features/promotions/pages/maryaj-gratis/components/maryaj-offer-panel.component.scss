@@ -1,3 +1,5 @@
+@use 'breakpoints' as ui;
+
 .maryaj-offer {
   display: block;
   scroll-margin-top: 5rem;
@@ -299,7 +301,7 @@
   font: var(--tch-typescale-label-large);
 }
 
-@media (min-width: 961px) {
+@include ui.up(expanded) {
   .maryaj-offer__campaign {
     align-items: center;
     flex-direction: row;

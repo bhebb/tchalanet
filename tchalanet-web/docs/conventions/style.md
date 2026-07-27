@@ -469,13 +469,71 @@ extra-large  ≥ 1600px
 ```
 
 ```scss
-@use '@tch/ui/styles' as ui;
+@use 'breakpoints' as ui;   // `libs/ui/styles/src/lib` est dans includePaths des 3 apps
 
 @include ui.up(medium)   { ... }   // ≥ 600px
 @include ui.up(expanded) { ... }   // ≥ 840px
 ```
 
+**N'importer que le partial dont on a besoin, jamais `index`.** Chaque feuille de style de composant
+est une unité de compilation séparée : `@use 'index'` y **recopie tout le CSS émis** par les partials
+forwardés — le `@font-face` et les classes de `_icons.scss`, les utilitaires de `_typography.scss`,
+les règles de `_overlay.scss`. Plus de 3 ko par composant, dupliqués autant de fois qu'il y a de
+composants. `_breakpoints.scss` n'émet rien : que la map, la fonction et les mixins.
+
+Réserver `@use 'index' as ui;` aux rares fichiers qui ont réellement besoin de plusieurs familles de
+helpers (`ui.rounded`, `ui.surface`, `ui.focus-visible`…).
+
+Les styles inline (`styles: [...]` dans le décorateur `@Component`) sont compilés en SCSS
+(`inlineStyleLanguage: "scss"`), donc `@use` y fonctionne aussi — le placer en tête du template
+littéral. Pas besoin d'externaliser un `.scss` compagnon juste pour un breakpoint.
+
 Do not redefine breakpoint pixel values anywhere else — use `bp()` or the mixins.
+
+### 10.1 Frontière de navigation : 840px, et elle seule
+
+**Une seule borne fait basculer un moyen de navigation : `expanded` (840px).**
+
+```text
+compact    < 600px    →  drawer / overlay        nav masquée dans le header
+medium     600–839px  →  drawer / overlay        nav masquée dans le header
+expanded   ≥ 840px    →  sidebar persistante     nav inline dans le header
+```
+
+| Couche | Expression |
+|---|---|
+| SCSS | `@include ui.up(expanded)` / `@include ui.down(expanded)` |
+| TypeScript | `TchBreakpointService.isWide()` (`@tch/ui/components`) |
+
+Les paliers `medium`, `large` et `extra-large` servent à la **densité** (padding, typographie,
+nombre de colonnes). Ils ne doivent jamais faire apparaître ou disparaître un moyen de navigation :
+deux frontières concurrentes créent des fenêtres où l'utilisateur n'a plus de menu, ou en a deux.
+
+Corollaire de sémantique : un panneau de navigation replié est un **dialogue modal** (focus trap,
+`aria-modal`, `inert`, `Escape`) ; déployé, c'est un complément permanent de page. La bascule se
+pilote donc depuis le TS (`isWide()`), pas depuis une media query seule — sinon la sémantique reste
+figée pendant que le layout change. Voir `libs/web/shell/README.md`.
+
+### 10.2 Garde-fou
+
+`pnpm breakpoints:contract` (inclus dans `contracts:check`, exécuté par la CI web) refuse, sur
+**tout `libs/` et `apps/`** (1000+ fichiers) :
+
+* toute valeur littérale dans un `@media (min-width:` / `(max-width:` ;
+* toute occurrence de `100vh` (voir §6).
+
+Seules exemptions, déclarées dans `tools/breakpoint-contract.mjs` : `_breakpoints.scss`, qui définit
+les bornes, et le kit `admin-crud/` déprécié (chantier C4), qu'on supprime plutôt qu'on ne migre.
+
+### 10.3 Choisir un palier
+
+Un nouveau breakpoint ne s'invente pas : il se choisit parmi les quatre paliers. En cas d'hésitation,
+prendre le **plus proche**, et `expanded` en cas d'égalité — c'est la borne structurante.
+
+C'est la règle qui a servi à migrer les 137 media queries historiques du workspace (30+ valeurs
+distinctes entre 359px et 1200px). Elle déplace parfois la borne de 100 à 240px : c'est le prix de
+l'unification, et c'est voulu — trois valeurs à 60px d'écart ne décrivaient pas trois intentions
+différentes, elles décrivaient trois moments où quelqu'un a mesuré un écran.
 
 ---
 

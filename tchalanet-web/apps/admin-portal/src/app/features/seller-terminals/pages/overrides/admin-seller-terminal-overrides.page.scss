@@ -1,3 +1,5 @@
+@use 'breakpoints' as ui;
+
 :host {
   display: block;
 }
@@ -85,7 +87,7 @@
   gap: 0.5rem;
 }
 
-@media (max-width: 920px) {
+@include ui.down(expanded) {
   .seller-overrides__row {
     grid-template-columns: 1fr;
   }

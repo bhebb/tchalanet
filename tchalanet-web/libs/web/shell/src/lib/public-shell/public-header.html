@@ -4,6 +4,7 @@
       type="button"
       mat-icon-button
       class="public-header__menu-button"
+      data-testid="public-nav-toggle"
       [attr.aria-expanded]="mobileMenuOpen()"
       [attr.aria-label]="
         (mobileMenuOpen() ? 'public.nav.menu_close' : 'public.nav.menu_open') | tchLabel
@@ -16,16 +17,18 @@
 
     <tch-brand class="public-header__brand" [brand]="brand()" [showName]="false" />
 
-    <!-- Tablet nav: compact labels, hidden on mobile and desktop -->
+    <!-- Nav inline à partir de expanded (840px) : libellés courts jusqu'à large… -->
     <tch-nav
       class="public-header__nav public-header__nav--short"
+      data-testid="public-nav-inline"
       [items]="navCompact()"
       [ariaLabel]="'public.nav.main' | tchLabel"
     />
 
-    <!-- Desktop nav: full labels, hidden on mobile and tablet -->
+    <!-- …puis libellés complets à partir de large (1200px). -->
     <tch-nav
       class="public-header__nav public-header__nav--long"
+      data-testid="public-nav-inline"
       [items]="nav()"
       [ariaLabel]="'public.nav.main' | tchLabel"
     />
@@ -52,6 +55,7 @@
     [open]="mobileMenuOpen()"
     [items]="nav()"
     [ariaLabel]="'public.nav.main' | tchLabel"
+    [closeLabel]="'public.nav.menu_close' | tchLabel"
     (requestClose)="closeMobileMenu()"
   />
 </header>

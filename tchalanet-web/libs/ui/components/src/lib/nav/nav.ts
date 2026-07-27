@@ -13,6 +13,7 @@ import { ActionItem, actionRoute, actionText, isRouteAction } from '@tch/api';
       @for (item of items(); track item.id) {
         @if (isRouteAction(item)) {
           <a class="nav__link" [routerLink]="actionRoute(item)" routerLinkActive="is-active"
+             ariaCurrentWhenActive="page"
              [routerLinkActiveOptions]="{ exact: item.activeMatch === 'exact' }"
              [attr.aria-disabled]="item.disabled || null">{{ actionText(item) | translate }}</a>
         }

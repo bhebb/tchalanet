@@ -1,3 +1,5 @@
+@use 'breakpoints' as ui;
+
 .draws-page {
   &__header-action {
     margin-left: 0.5rem;
@@ -119,7 +121,7 @@
     gap: 0.25rem;
   }
 
-  @media (max-width: 860px) {
+  @include ui.down(expanded) {
     &__tenant-filter {
       grid-template-columns: 1fr;
     }

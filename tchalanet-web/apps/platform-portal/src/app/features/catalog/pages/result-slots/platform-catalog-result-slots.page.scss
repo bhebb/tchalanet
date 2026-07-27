@@ -1,3 +1,5 @@
+@use 'breakpoints' as ui;
+
 :host {
   display: block;
 }
@@ -121,7 +123,7 @@
   }
 }
 
-@media (min-width: 960px) {
+@include ui.up(expanded) {
   .result-slots-config__grid {
     grid-template-columns: minmax(280px, 0.7fr) minmax(0, 1fr) minmax(0, 1fr);
   }

@@ -1,3 +1,5 @@
+@use 'breakpoints' as ui;
+
 :host {
   display: block;
 }
@@ -141,7 +143,7 @@
   font-family: 'Material Symbols Outlined';
 }
 
-@media (max-width: 800px) {
+@include ui.down(expanded) {
   .summary-row,
   .editor-form__row {
     grid-template-columns: 1fr;

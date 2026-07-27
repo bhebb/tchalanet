@@ -12,7 +12,6 @@ export * from './lib/feedback/shell-feedback.model';
 export * from './lib/feedback/shell-feedback.store';
 export * from './lib/private-shell/private-shell-layout.component';
 export * from './lib/private-shell/private-navigation.model';
-export * from './lib/public-shell/public-bottom-nav';
 export * from './lib/public-shell/public-footer';
 export * from './lib/public-shell/public-header';
 export * from './lib/public-shell/public-shell-layout.component';

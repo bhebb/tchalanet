@@ -123,6 +123,8 @@ import {
   `,
   styles: [
     `
+      @use 'breakpoints' as ui;
+
       .platform-access-roles__grid {
         display: grid;
         grid-template-columns: minmax(0, 1.15fr) minmax(18rem, 0.85fr);
@@ -143,7 +145,7 @@ import {
         gap: 0.375rem;
       }
 
-      @media (max-width: 960px) {
+      @include ui.down(expanded) {
         .platform-access-roles__grid {
           grid-template-columns: 1fr;
         }

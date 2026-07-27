@@ -1,3 +1,5 @@
+@use 'breakpoints' as ui;
+
 .archive-purge-panel {
   --archive-purge-error: var(--tch-color-error);
   --archive-purge-warning: var(--tch-color-warning);
@@ -51,7 +53,7 @@
   color: var(--archive-purge-success);
 }
 
-@media (max-width: 900px) {
+@include ui.down(expanded) {
   .archive-purge-panel__form {
     grid-template-columns: 1fr;
   }

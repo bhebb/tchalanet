@@ -1,3 +1,5 @@
+@use 'breakpoints' as ui;
+
 :host {
   display: block;
 }
@@ -194,7 +196,7 @@
   margin-block-start: 1rem;
 }
 
-@media (max-width: 720px) {
+@include ui.down(expanded) {
   .notifications-summary {
     align-items: stretch;
     flex-direction: column;

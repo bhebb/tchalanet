@@ -1,3 +1,5 @@
+@use 'breakpoints' as ui;
+
 .account-activation {
   display: block;
 }
@@ -38,7 +40,7 @@ button mat-spinner {
   vertical-align: middle;
 }
 
-@media (max-width: 720px) {
+@include ui.down(expanded) {
   .account-activation__grid--two {
     grid-template-columns: 1fr;
   }

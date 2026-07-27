@@ -1,3 +1,5 @@
+@use 'breakpoints' as ui;
+
 .console-game-card {
   padding: 0;
   overflow: hidden;
@@ -198,7 +200,7 @@
   }
 }
 
-@media (max-width: 760px) {
+@include ui.down(expanded) {
   .console-game-card__actions {
     grid-template-columns: 1fr;
   }
@@ -212,7 +214,7 @@
   }
 }
 
-@media (max-width: 520px) {
+@include ui.down(medium) {
   .console-game-card__header {
     grid-template-columns: auto minmax(0, 1fr);
 

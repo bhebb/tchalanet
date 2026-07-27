@@ -1,3 +1,5 @@
+@use 'breakpoints' as ui;
+
       @use 'breakpoints' as bp;
 
       /* ─── Page wrapper ─── */
@@ -143,7 +145,7 @@
 
       /* ── Very small screens (<360px): stack scan button below input ── */
 
-      @media (max-width: 359px) {
+      @include ui.down(medium) {
         .check-page__input-wrap {
           position: static;
           display: grid;
@@ -591,7 +593,7 @@
         tch-card.check-page__help-card { grid-column: 2; }
       }
 
-      @media (min-width: 960px) {
+      @include ui.up(expanded) {
         .check-result__grid {
           grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
           grid-template-rows: auto auto;

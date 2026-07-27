@@ -12,16 +12,32 @@ Python E2E). See `openspec/changes/web-e2e-critical-flows-v1`.
 | `public-portal` | 4301 | anonymous |
 | `admin-portal` | 4302 | TENANT_ADMIN |
 | `platform-portal` | 4303 | SUPER_ADMIN |
+| `public-portal-mobile` | 4301 | anonymous, 390×844 |
 
 Base URLs are env-driven (`PUBLIC_BASE_URL` / `ADMIN_BASE_URL` /
-`PLATFORM_BASE_URL`); `playwright.config.ts` serves the three portals via
+`PLATFORM_BASE_URL`); `playwright.config.cts` serves the three portals via
 `nx serve` with `reuseExistingServer`.
+
+`public-portal-mobile` rejoue le portail public dans un viewport étroit
+(`isMobile`, `hasTouch`) : c'est le seul projet qui voit la navigation repliée,
+les trois autres étant en Desktop Chrome. Ses specs vivent dans `src/mobile/`.
+
+> **Config en `.cts`, pas en `.ts`.** Le fichier est chargé par deux outils aux
+> attentes opposées : Playwright le transpile en CommonJS, le graphe Nx le charge
+> via le type-stripping natif de Node. En `.ts` avec `import.meta.url`, Node le
+> détectait comme ESM et le bundle CJS échouait au chargement
+> (`exports is not defined in ES module scope`), rendant **toute la suite**
+> inexécutable. `.cts` + `__filename` lève l'ambiguïté pour les deux, et c'est la
+> forme que documente `nxE2EPreset` pour un workspace CommonJS.
 
 ## Pattern
 
 **One Nx e2e project (`web-e2e`) covers all three apps** — not one project per
-app. Each app is a Playwright *project* in `playwright.config.ts` (own base URL,
-`testMatch` by `src/<portal>/` folder). Shared code lives in `src/support/`:
+app. Each app is a Playwright *project* in `playwright.config.cts` (own base URL,
+`testMatch` by `src/<portal>/` folder). Les motifs `testMatch` sont comparés au
+chemin **absolu** : les ancrer sur `src/` pour qu'un répertoire parent au nom
+malheureux n'attrape pas les specs des autres projets. Shared code lives in
+`src/support/`:
 
 - `support/pages/` — **Page Objects** (`LoginPage`, …): selectors + actions for a
   screen, reused across the three portals (the login screen is the same

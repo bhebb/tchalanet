@@ -1,3 +1,5 @@
+@use 'breakpoints' as ui;
+
       .visually-hidden {
         position: absolute;
         width: 1px;
@@ -469,7 +471,7 @@
 
       /* ── Responsive ── */
 
-      @media (max-width: 679px) {
+      @include ui.down(medium) {
         .results-page__table-wrap {
           display: none;
         }
@@ -479,7 +481,7 @@
         }
       }
 
-      @media (min-width: 760px) {
+      @include ui.up(expanded) {
         .results-page {
           gap: 1.5rem;
           padding: 2rem 0;

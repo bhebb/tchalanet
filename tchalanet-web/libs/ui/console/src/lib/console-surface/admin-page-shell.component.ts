@@ -28,6 +28,8 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
   `,
   styles: [
     `
+      @use 'breakpoints' as ui;
+
       :host {
         display: block;
         min-height: 100%;
@@ -75,7 +77,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
         display: none;
       }
 
-      @media (min-width: 760px) {
+      @include ui.up(expanded) {
         :host {
           padding: 2rem;
         }

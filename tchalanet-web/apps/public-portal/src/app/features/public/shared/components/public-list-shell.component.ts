@@ -20,6 +20,8 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
   `,
   styles: [
     `
+      @use 'breakpoints' as ui;
+
       .pub-list-shell {
         display: grid;
         gap: 1rem;
@@ -43,7 +45,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
         color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
       }
 
-      @media (min-width: 760px) {
+      @include ui.up(expanded) {
         .pub-list-shell {
           gap: 1.5rem;
         }

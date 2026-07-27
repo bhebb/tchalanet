@@ -1,3 +1,5 @@
+@use 'breakpoints' as ui;
+
 .console-draw-result-combinations__intro {
   margin: 0 0 1rem;
   color: var(--tch-color-on-surface-variant);
@@ -125,7 +127,7 @@
   color: var(--tch-color-on-secondary-container);
 }
 
-@media (max-width: 720px) {
+@include ui.down(expanded) {
   .console-draw-result-combinations__section-header {
     display: grid;
   }

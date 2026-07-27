@@ -1,11 +1,11 @@
 :host {
   display: block;
-  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 .tch-login-page {
   display: grid;
-  min-height: 100vh;
+  min-height: 100dvh;
   place-items: center;
   padding: var(--tch-page-gutter, 24px);
   background: var(--tch-color-background, #f9f9fc);

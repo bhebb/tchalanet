@@ -1,3 +1,5 @@
+@use 'breakpoints' as ui;
+
 .admin-report {
   &__toolbar {
     display: flex;
@@ -79,7 +81,7 @@
   }
 }
 
-@media (max-width: 760px) {
+@include ui.down(expanded) {
   .admin-report {
     &__toolbar {
       align-items: stretch;

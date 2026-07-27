@@ -1,3 +1,5 @@
+@use 'breakpoints' as ui;
+
 .sales-simulation {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(18rem, 24rem);
@@ -143,7 +145,7 @@
     background: color-mix(in srgb, var(--tch-color-error-container) 45%, transparent);
   }
 
-  @media (max-width: 1100px) {
+  @include ui.down(large) {
     grid-template-columns: 1fr;
 
     &__aside {
@@ -151,7 +153,7 @@
     }
   }
 
-  @media (max-width: 760px) {
+  @include ui.down(expanded) {
     &__target-grid,
     &__filters,
     &__mix-grid {

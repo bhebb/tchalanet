@@ -45,6 +45,8 @@ import {
     </section>
   `,
   styles: [`
+    @use 'breakpoints' as ui;
+
     :host {
       --comp-error-panel-bg: var(--tch-color-error-container);
       --comp-error-panel-fg: var(--tch-color-on-error-container);
@@ -81,7 +83,7 @@ import {
     }
     button:disabled { cursor: wait; opacity: .65; }
     .tch-error-panel__secondary, .tch-error-panel__copy { background: var(--tch-color-surface); }
-    @media (max-width: 37.5rem) {
+    @include ui.down(medium) {
       .tch-error-panel__actions > button { flex: 1 1 100%; }
       .tch-error-panel__copy { width: 100%; }
     }

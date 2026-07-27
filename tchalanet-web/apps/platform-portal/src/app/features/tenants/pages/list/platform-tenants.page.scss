@@ -1,4 +1,4 @@
-@use '../../../../../../../../libs/ui/styles/src/lib/index' as ui;
+@use 'breakpoints' as ui;
 
 .tenants-page {
   &__filters {
@@ -129,7 +129,7 @@
   }
 }
 
-@media (max-width: 760px) {
+@include ui.down(expanded) {
   .tenants-page {
     &__table {
       overflow-x: visible;

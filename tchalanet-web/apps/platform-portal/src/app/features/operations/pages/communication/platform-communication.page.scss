@@ -1,3 +1,5 @@
+@use 'breakpoints' as ui;
+
 .platform-communication-page {
   &__refresh {
     margin-left: 0.5rem;
@@ -218,7 +220,7 @@
   gap: 0.75rem;
 }
 
-@media (max-width: 900px) {
+@include ui.down(expanded) {
   .message-fields,
   .provider-row {
     grid-template-columns: 1fr;

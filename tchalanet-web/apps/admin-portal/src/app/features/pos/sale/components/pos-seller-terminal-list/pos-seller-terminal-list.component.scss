@@ -1,3 +1,5 @@
+@use 'breakpoints' as ui;
+
 :host {
   display: block;
 }
@@ -26,7 +28,7 @@
     white-space: nowrap;
   }
 
-  @media (max-width: 719px) {
+  @include ui.down(expanded) {
     overflow: visible;
 
     table,

@@ -1,3 +1,5 @@
+@use 'breakpoints' as ui;
+
 .source-result-dialog {
   display: grid;
   gap: 1rem;
@@ -97,7 +99,7 @@
   }
 }
 
-@media (max-width: 640px) {
+@include ui.down(medium) {
   .source-result-dialog {
     min-width: 0;
 

@@ -1,3 +1,5 @@
+@use 'breakpoints' as ui;
+
 .news-page {
   display: grid;
   gap: 1.5rem;
@@ -198,7 +200,7 @@
   background: var(--tch-color-surface-container-low, var(--mat-sys-surface-container-low));
 }
 
-@media (min-width: 760px) {
+@include ui.up(expanded) {
   .news-page__title-row h1 {
     font-size: var(--tch-font-size-display-lg, 2.5rem);
     line-height: var(--tch-line-height-display-lg, 3rem);

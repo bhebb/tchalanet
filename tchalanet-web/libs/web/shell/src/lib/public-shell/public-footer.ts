@@ -86,6 +86,8 @@ interface FooterText {
   `,
   styles: [
     `
+      @use 'breakpoints' as ui;
+
       .public-footer {
         --comp-footer-bg: var(--tch-color-primary);
         --comp-footer-fg: var(--tch-color-on-primary);
@@ -234,11 +236,11 @@ interface FooterText {
         color: var(--comp-footer-link);
       }
 
-      /* ── Tablet ≥ 768px: 2-column grid ── */
-      @media (min-width: 768px) {
+      /* ── medium ≥ 600px: 2-column grid ── */
+      @include ui.up(medium) {
         .public-footer__inner,
         .public-footer__bottom {
-          width: min(100% - 2 * var(--tch-page-margin-desktop, 32px), 1120px);
+          width: min(100% - 2 * var(--tch-page-margin-desktop, 32px), var(--tch-page-max, 1120px));
         }
 
         .public-footer__inner {
@@ -257,8 +259,8 @@ interface FooterText {
         }
       }
 
-      /* ── Desktop ≥ 1024px: 4-column grid ── */
-      @media (min-width: 1024px) {
+      /* ── large ≥ 1200px: 4-column grid ── */
+      @include ui.up(large) {
         .public-footer__inner {
           grid-template-columns: minmax(260px, 1.5fr) repeat(3, minmax(140px, 1fr));
           gap: 3rem;

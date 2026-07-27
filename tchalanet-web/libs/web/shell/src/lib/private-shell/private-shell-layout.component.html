@@ -37,18 +37,30 @@
   </header>
 
   <div class="workspace" [class.is-drawer-open]="drawerOpen()">
-    <aside id="private-drawer" class="drawer">
+    <!-- Replié = dialogue modal ; déployé = panneau permanent. Fermé et hors écran, le drawer est
+         `inert` pour ne pas rester dans le parcours clavier derrière le contenu. -->
+    <aside
+      #drawer
+      id="private-drawer"
+      class="drawer"
+      [attr.role]="drawerModal() ? 'dialog' : null"
+      [attr.aria-modal]="drawerModal() ? 'true' : null"
+      [attr.aria-label]="drawerModal() ? ('nav.private.ariaLabel' | translate) : null"
+      [attr.inert]="drawerHidden() ? '' : null"
+    >
       <tch-sidebar-nav
         [primary]="primary()"
         [sections]="sections()"
         [secondary]="secondary()"
+        [ariaLabel]="'nav.private.ariaLabel' | translate"
+        [density]="overlayMode() ? 'comfortable' : 'compact'"
         (itemActivated)="closeDrawer()"
       />
     </aside>
 
     <div class="backdrop" (click)="closeDrawer()" aria-hidden="true"></div>
 
-    <main class="content">
+    <main #content class="content">
       <ng-content select="[private-shell-before-content]" />
       <tch-shell-feedback-outlet [verbosity]="feedbackVerbosity()" />
       <ng-content />

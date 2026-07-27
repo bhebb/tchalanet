@@ -1,9 +1,14 @@
 import { defineConfig, devices } from '@playwright/test';
 import { nxE2EPreset } from '@nx/playwright/preset';
 import { workspaceRoot } from '@nx/devkit';
-import { fileURLToPath } from 'node:url';
 
-const configFile = fileURLToPath(import.meta.url);
+// Config CJS (`.cts`) et non `.ts` : le workspace n'est pas `type: "module"`, et le fichier est
+// chargé par deux outils aux attentes opposées — Playwright le transpile en CommonJS, le graphe
+// Nx le charge via le type-stripping natif de Node. En `.ts` avec `import.meta.url`, Node le
+// détectait comme ESM et le bundle CJS échouait ("exports is not defined in ES module scope"),
+// rendant toute la suite e2e inexécutable. `.cts` + `__filename` lève l'ambiguïté pour les deux,
+// et c'est la forme que documente `nxE2EPreset` pour un workspace CommonJS.
+const configFile = __filename;
 
 const publicBaseURL = process.env['PUBLIC_BASE_URL'] || 'http://localhost:4301';
 const adminBaseURL = process.env['ADMIN_BASE_URL'] || 'http://localhost:4302';
@@ -86,6 +91,22 @@ export default defineConfig({
       name: 'platform-portal',
       testMatch: /platform-portal\/.*\.spec\.ts/,
       use: { ...devices['Desktop Chrome'], baseURL: platformBaseURL },
+    },
+    // Navigation repliée : la seule chose que les projets desktop ne peuvent pas prouver.
+    // Même viewport que `admin-portal/notification-mobile.spec.ts`.
+    // Motif ancré sur `src/` : Playwright compare la regex au chemin **absolu**, donc un motif
+    // nu (`/mobile\/…/`) attrape aussi les specs des autres projets dès que le dépôt est cloné
+    // dans un répertoire contenant « mobile ».
+    {
+      name: 'public-portal-mobile',
+      testMatch: /src[\\/]mobile[\\/].*\.spec\.ts$/,
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: publicBaseURL,
+        viewport: { width: 390, height: 844 },
+        isMobile: true,
+        hasTouch: true,
+      },
     },
   ],
 });

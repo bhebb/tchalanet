@@ -1,4 +1,4 @@
-@use '../../../../../../libs/ui/styles/src/lib/index' as ui;
+@use 'breakpoints' as ui;
 
 .draw-results-page {
   &__filters {
@@ -270,7 +270,7 @@
   }
 }
 
-@media (min-width: 760px) {
+@include ui.up(expanded) {
   .draw-results-page {
     &__filters {
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -287,7 +287,7 @@
   }
 }
 
-@media (min-width: 1040px) {
+@include ui.up(large) {
   .draw-results-page {
     &__filters {
       display: flex;

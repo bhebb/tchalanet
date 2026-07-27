@@ -1,3 +1,5 @@
+@use 'breakpoints' as ui;
+
 .slot-row {
   display: flex;
   align-items: stretch;
@@ -72,7 +74,7 @@
 
 }
 
-@media (min-width: 640px) {
+@include ui.up(medium) {
   .slot-row {
     align-items: center;
     flex-direction: row;

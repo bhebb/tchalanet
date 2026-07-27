@@ -1,3 +1,5 @@
+@use 'breakpoints' as ui;
+
 .dc-page {
   &__back-btn {
     align-items: center;
@@ -124,7 +126,7 @@
   }
 }
 
-@media (min-width: 720px) {
+@include ui.up(expanded) {
   .dc-page {
     &__filters {
       align-items: center;
@@ -143,7 +145,7 @@
   }
 }
 
-@media (min-width: 1180px) {
+@include ui.up(large) {
   .dc-page {
     &__grid,
     &__skeleton-grid {

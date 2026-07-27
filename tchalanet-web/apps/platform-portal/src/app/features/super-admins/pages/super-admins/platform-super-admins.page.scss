@@ -1,3 +1,5 @@
+@use 'breakpoints' as ui;
+
 .platform-super-admins {
   &__form {
     max-width: 980px;
@@ -32,7 +34,7 @@
   vertical-align: middle;
 }
 
-@media (max-width: 760px) {
+@include ui.down(expanded) {
   .platform-super-admins {
     &__fields {
       grid-template-columns: 1fr;

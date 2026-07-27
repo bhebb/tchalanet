@@ -1,3 +1,5 @@
+@use 'breakpoints' as ui;
+
 .matrix-provider {
   margin-block-end: 1.25rem;
 
@@ -40,7 +42,7 @@
   }
 }
 
-@media (min-width: 720px) {
+@include ui.up(expanded) {
   .matrix-provider {
     &__header {
       align-items: center;

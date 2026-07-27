@@ -1,10 +1,12 @@
+@use 'breakpoints' as ui;
+
 .profile__grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1.5rem;
   align-items: start;
 
-  @media (max-width: 860px) {
+  @include ui.down(expanded) {
     grid-template-columns: 1fr;
   }
 }

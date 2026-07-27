@@ -27,6 +27,8 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
   `,
   styles: [
     `
+      @use 'breakpoints' as ui;
+
       .data-toolbar {
         display: grid;
         gap: 0.75rem;
@@ -74,14 +76,14 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
         min-width: 0;
       }
 
-      @media (min-width: 760px) {
+      @include ui.up(medium) {
         .data-toolbar__actions {
           grid-template-columns: repeat(2, minmax(0, 1fr));
           align-items: start;
         }
       }
 
-      @media (min-width: 1040px) {
+      @include ui.up(expanded) {
         .data-toolbar {
           display: flex;
           align-items: center;

@@ -36,6 +36,8 @@ import { WidgetHostComponent } from './widget-host.component';
   `,
   styles: [
     `
+      @use 'breakpoints' as ui;
+
       .page-model {
         display: grid;
         gap: 1.25rem;
@@ -55,18 +57,18 @@ import { WidgetHostComponent } from './widget-host.component';
         gap: 1.25rem;
         min-width: 0;
       }
-      @media (max-width: 767.98px) {
+      @include ui.down(expanded) {
         .page-model__col {
           grid-column: span 12;
         }
       }
-      @media (min-width: 768px) {
+      @include ui.up(expanded) {
         .page-model {
           max-width: min(var(--tch-page-max, 1280px), calc(100vw - 2rem));
           padding: 1.5rem;
         }
       }
-      @media (min-width: 1200px) {
+      @include ui.up(large) {
         .page-model {
           padding: 2rem;
         }

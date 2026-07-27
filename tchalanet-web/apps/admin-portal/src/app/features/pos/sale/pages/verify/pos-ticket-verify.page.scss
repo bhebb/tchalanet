@@ -1,3 +1,5 @@
+@use 'breakpoints' as ui;
+
 :host {
   display: block;
 }
@@ -179,7 +181,7 @@
   font-family: 'Material Symbols Outlined';
 }
 
-@media (min-width: 960px) {
+@include ui.up(expanded) {
   .ticket-verify {
     grid-template-columns: minmax(0, 1fr) minmax(18rem, 24rem);
     align-items: start;

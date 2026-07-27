@@ -1,3 +1,5 @@
+@use 'breakpoints' as ui;
+
 .draw-report-filter-bar {
   display: grid;
   gap: 0.75rem;
@@ -9,7 +11,7 @@
   min-width: 0;
 }
 
-@media (max-width: 840px) {
+@include ui.down(expanded) {
   .draw-report-filter-bar {
     grid-template-columns: 1fr;
   }
