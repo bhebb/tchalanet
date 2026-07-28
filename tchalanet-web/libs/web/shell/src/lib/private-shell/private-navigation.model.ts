@@ -168,6 +168,7 @@ export const PLATFORM_NAVIGATION: readonly NavigationSection[] = [
         id: 'audit',
         labelKey: 'platform.nav.audit',
         icon: 'assignment_turned_in',
+        destination: { kind: 'route', value: '/app/platform/audit' },
         children: [
           {
             id: 'audit-functional',
@@ -255,6 +256,7 @@ export const PLATFORM_NAVIGATION: readonly NavigationSection[] = [
         id: 'archives',
         labelKey: 'platform.nav.archives',
         icon: 'inventory_2',
+        destination: { kind: 'route', value: '/app/platform/archives' },
         children: [
           {
             id: 'archive-overview',
@@ -458,12 +460,19 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
         id: 'reports',
         labelKey: 'nav.reports',
         icon: 'analytics',
-        destination: { kind: 'route', value: '/app/admin/reports/sales' },
+        destination: { kind: 'route', value: '/app/admin/reports/daily' },
         children: [
+          {
+            id: 'reports-daily',
+            labelKey: 'nav.admin.reports_daily',
+            icon: 'today',
+            destination: { kind: 'route', value: '/app/admin/reports/daily' },
+            activeMatch: 'exact',
+          },
           {
             id: 'reports-sales',
             labelKey: 'nav.admin.reports_sales',
-            icon: 'today',
+            icon: 'receipt_long',
             destination: { kind: 'route', value: '/app/admin/reports/sales' },
           },
           {
@@ -498,13 +507,6 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
         icon: 'confirmation_number',
         destination: { kind: 'route', value: '/app/admin/tickets' },
         children: [
-          {
-            id: 'tickets-overview',
-            labelKey: 'nav.admin.tickets_overview',
-            icon: 'dashboard',
-            destination: { kind: 'route', value: '/app/admin/tickets/overview' },
-            activeMatch: 'exact',
-          },
           {
             id: 'tickets-list',
             labelKey: 'nav.admin.tickets_list',
@@ -616,6 +618,7 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
             labelKey: 'nav.admin.company_identity',
             icon: 'domain',
             destination: { kind: 'route', value: '/app/admin/business-profile' },
+            activeMatch: 'exact',
           },
           {
             id: 'company-appearance',
