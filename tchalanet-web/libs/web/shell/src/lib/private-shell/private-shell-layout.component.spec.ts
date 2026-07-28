@@ -170,4 +170,36 @@ describe('PrivateShellLayoutComponent — sidebar permanente (≥ 840px)', () =>
 
     expect(fixture.componentInstance.drawerOpen()).toBe(true);
   });
+
+  it('keeps the workspace grid to exactly drawer, backdrop and content', () => {
+    // Le focus trap CDK insère deux sentinelles comme enfants directs de `.workspace`. Non
+    // détruites hors overlay, elles deviennent deux items de plus dans la grille à 2 colonnes et
+    // poussent le drawer et le contenu sur deux lignes empilées au lieu d'être côte à côte —
+    // constaté à 1280px avant correction. `.workspace` doit rester à exactement 3 enfants.
+    const fixture = render();
+    fixture.detectChanges();
+
+    const workspace = fixture.nativeElement.querySelector('.workspace') as HTMLElement;
+    expect(workspace.children).toHaveLength(3);
+    expect(workspace.querySelector('.cdk-focus-trap-anchor')).toBeNull();
+  });
+});
+
+describe('PrivateShellLayoutComponent — franchissement de la borne', () => {
+  it('destroys the focus trap sentinels when the sidebar becomes permanent', () => {
+    const isWide = signal(false);
+    configure(isWide);
+    const fixture = render();
+    fixture.componentInstance.drawerOpen.set(true);
+    fixture.detectChanges();
+
+    const workspace = fixture.nativeElement.querySelector('.workspace') as HTMLElement;
+    expect(workspace.querySelector('.cdk-focus-trap-anchor')).not.toBeNull();
+
+    isWide.set(true);
+    fixture.detectChanges();
+
+    expect(workspace.children).toHaveLength(3);
+    expect(workspace.querySelector('.cdk-focus-trap-anchor')).toBeNull();
+  });
 });

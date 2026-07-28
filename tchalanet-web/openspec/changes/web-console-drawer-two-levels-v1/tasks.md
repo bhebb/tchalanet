@@ -104,7 +104,22 @@ plus visible — alors que ce sont des réglages rarement rouverts. Ce n'était 
       au lieu de coder en dur `NAVIGATION[0].items` — elles portent sur le contenu des entrées, pas
       sur la zone qui les héberge.
 
-## 9. Suites
+## 9. Bug d'empilement desktop (retour d'usage — capture #8)
+
+- [x] **Bug réel, introduit par ce chantier.** `ConfigurableFocusTrapFactory.create(drawer)` insère
+      deux sentinelles invisibles comme enfants directs de `.workspace`, jamais détruites hors mode
+      overlay (`enabled = false` désactivait le piège mais laissait les sentinelles dans le DOM).
+      Sur une grille à 2 colonnes, l'auto-placement CSS Grid les compte comme des items : drawer et
+      contenu se retrouvaient poussés sur deux lignes empilées au lieu d'être côte à côte —
+      confirmé par mesure DOM à 1280px (`.workspace` avait 5 enfants, `content.y` = `drawer.bottom`).
+- [x] Corrigé : le piège est détruit — pas seulement désactivé — dès que
+      `TchBreakpointService.isWide()` devient vrai.
+- [x] Deux tests Vitest de régression : `.workspace` reste à exactement 3 enfants en sidebar
+      permanente, et les sentinelles disparaissent bien au franchissement de 840px.
+- [x] Revérifié en session réelle : capture avant/après, `.workspace` mesuré à 3 enfants,
+      drawer (256px) et contenu (1024px) à la même hauteur.
+
+## 10. Suites
 
 - [ ] Décider côté contrat backend si `archives` et `audit` doivent déclarer une `destination` de
       groupe, pour que leur « Apèsi » soit absorbé comme celui d'`operations`.
