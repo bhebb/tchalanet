@@ -37,15 +37,23 @@ import {
 /**
  * Navigation repliée des consoles : deux niveaux.
  *
- * Racine — les entrées sans enfants sont des lignes, celles qui en ont deviennent des cartes de
- * catégorie dans une grille. Ouvrir une catégorie fait glisser un second panneau par-dessus, dont
- * le retour ne referme que ce niveau.
+ * Racine — une **liste plate** : chaque entrée est une ligne icône + libellé + chevron, qu'elle
+ * mène directement à une route ou qu'elle ouvre un panneau. Une grille de cartes façon dashboard a
+ * été essayée puis écartée : le menu ne doit pas ressembler à un second tableau de bord, et le
+ * chevron communique déjà « ceci ouvre autre chose » sans avoir besoin d'un habillage différent
+ * pour les entrées à enfants.
+ *
+ * Le tap sur une ligne à enfants ouvre un second panneau par-dessus, dont le retour ne referme que
+ * ce niveau. Les entrées sont regroupées par **section du modèle** (les activités quotidiennes
+ * séparées de la configuration) plutôt que par leur nombre d'enfants : sans ça, une page de
+ * réglages sans sous-page atterrit mécaniquement en tête de menu, devant les activités que la
+ * console admin ouvre tous les jours.
  *
  * L'accordéon de `tch-sidebar-nav` reste le rendu de la sidebar permanente (≥ 840px), où la place
  * verticale ne manque pas. Les deux composants rendent **le même modèle** et partagent la logique
  * d'activité de route (`../navigation/route-activity`).
  *
- * **L'en-tête de catégorie absorbe l'enfant qui pointe vers la même route que le groupe.** Sans ça
+ * **L'en-tête de panneau absorbe l'enfant qui pointe vers la même route que le groupe.** Sans ça
  * la liste répète l'entrée d'atterrissage (« Apèsi », « Lis tèminal »…) alors que le titre du
  * panneau y mène déjà.
  */
@@ -67,7 +75,6 @@ export class TchDrawerNav {
   readonly searchLabel = input('');
   readonly searchPlaceholder = input('');
   readonly backLabel = input('Retour');
-  readonly categoriesLabel = input('');
   /**
    * Clé i18n du compteur de pages — une **clé** et non un libellé résolu, contrairement aux autres
    * entrées : elle a besoin du paramètre `count`, que seul ce composant connaît.
@@ -124,7 +131,7 @@ export class TchDrawerNav {
   readonly shortcuts = computed(() => this.primary());
 
   /**
-   * Un groupe de grille par **section** du modèle. Les sections portent déjà un titre et sont la
+   * Un bloc de liste par **section** du modèle. Les sections portent déjà un titre et sont la
    * façon dont le modèle sépare les domaines — les activités quotidiennes d'un côté, la
    * configuration de l'autre. S'en servir évite de déduire le rang d'une entrée de son nombre
    * d'enfants, ce qui plaçait des réglages rarement ouverts en tête de menu.
@@ -133,8 +140,7 @@ export class TchDrawerNav {
     this.sections().map(section => ({
       id: section.id,
       titleKey: section.titleKey,
-      rows: section.items.filter(item => !item.children?.length),
-      cards: section.items.filter(item => !!item.children?.length),
+      items: section.items,
     })),
   );
 

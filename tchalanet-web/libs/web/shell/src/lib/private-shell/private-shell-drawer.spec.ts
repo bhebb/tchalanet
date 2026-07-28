@@ -132,23 +132,30 @@ describe('private shell drawer — replié (< 840px)', () => {
     expect(el(fixture, 'tch-sidebar-nav')).toBeNull();
   });
 
-  it('lists childless entries as rows and groups as category cards', async () => {
+  it('renders every entry as a flat row, with or without children', async () => {
+    // La grille de cartes a été écartée au profit d'une liste plate unique : une entrée à enfants
+    // se distingue par son `data-testid`, pas par un habillage visuel différent (pas de carte).
     const fixture = await render();
 
     const rows = all(fixture, '.drawer-nav__row').map(node => node.textContent?.trim());
-    const cards = all(fixture, '.drawer-nav__card').map(node => node.textContent?.trim());
+    // Le footer a aussi une entrée à enfants (« Antrepriz mwen » côté modèle réel) : ne compter
+    // que les catégories de la section métier.
+    const categories = all(
+      fixture,
+      '.drawer-nav__list:not(.drawer-nav__footer) [data-testid="drawer-category"]',
+    ).map(node => node.textContent?.trim());
 
     expect(rows.some(text => text?.includes('nav.dashboard'))).toBe(true);
-    expect(cards).toHaveLength(1);
-    expect(cards[0]).toContain('nav.limits');
-    // Le compteur retombe sur le nombre brut quand la clé n'est pas traduite.
-    expect(cards[0]).toContain('2');
+    expect(categories).toHaveLength(1);
+    expect(categories[0]).toContain('nav.limits');
+    // Aucune carte : pas de compteur de pages au niveau racine, contrairement au panneau.
+    expect(categories[0]).not.toMatch(/\d/);
   });
 
   it('opens a category panel and drops the entry the header already leads to', async () => {
     const fixture = await render();
 
-    el(fixture, '.drawer-nav__card')!.click();
+    el(fixture, '[data-testid="drawer-category"]')!.click();
     fixture.detectChanges();
 
     const panel = el(fixture, '.drawer-nav__panel');
@@ -167,7 +174,7 @@ describe('private shell drawer — replié (< 840px)', () => {
     fixture.componentInstance.drawerOpen.set(true);
     fixture.detectChanges();
 
-    el(fixture, '.drawer-nav__card')!.click();
+    el(fixture, '[data-testid="drawer-category"]')!.click();
     fixture.detectChanges();
     expect(el(fixture, '.drawer-nav__panel')).not.toBeNull();
 
@@ -188,7 +195,7 @@ describe('private shell drawer — replié (< 840px)', () => {
     fixture.componentInstance.drawerOpen.set(true);
     fixture.detectChanges();
 
-    el(fixture, '.drawer-nav__card')!.click();
+    el(fixture, '[data-testid="drawer-category"]')!.click();
     fixture.detectChanges();
     expect(el(fixture, '.drawer-nav__panel')).not.toBeNull();
 
@@ -198,11 +205,13 @@ describe('private shell drawer — replié (< 840px)', () => {
     expect(el(fixture, '.drawer-nav__panel')).toBeNull();
   });
 
-  it('keeps the footer out of the business category grid', async () => {
+  it('keeps the footer visually separate from the business rows', async () => {
     const fixture = await render();
 
-    const cards = all(fixture, '[data-testid="drawer-category"]').map(n => n.textContent ?? '');
-    expect(cards.some(text => text.includes('nav.company'))).toBe(false);
+    const businessRows = all(fixture, '.drawer-nav__list:not(.drawer-nav__footer) li').map(
+      n => n.textContent ?? '',
+    );
+    expect(businessRows.some(text => text.includes('nav.company'))).toBe(false);
 
     const footer = all(fixture, '.drawer-nav__footer li').map(n => n.textContent ?? '');
     expect(footer.some(text => text.includes('nav.company'))).toBe(true);
@@ -212,7 +221,8 @@ describe('private shell drawer — replié (< 840px)', () => {
   it('still opens the panel of a footer entry that has children', async () => {
     const fixture = await render();
 
-    el(fixture, '[data-testid="drawer-footer-category"]')!.click();
+    const footerCategory = all(fixture, '.drawer-nav__footer [data-testid="drawer-category"]')[0];
+    footerCategory.click();
     fixture.detectChanges();
 
     const panel = el(fixture, '.drawer-nav__panel');
@@ -223,7 +233,9 @@ describe('private shell drawer — replié (< 840px)', () => {
   it('marks the category holding the active route', async () => {
     const fixture = await render('/app/admin/limits/global');
 
-    expect(el(fixture, '.drawer-nav__card')?.classList.contains('is-active')).toBe(true);
+    expect(el(fixture, '[data-testid="drawer-category"]')?.classList.contains('is-active')).toBe(
+      true,
+    );
   });
 });
 

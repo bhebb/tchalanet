@@ -119,7 +119,45 @@ plus visible — alors que ce sont des réglages rarement rouverts. Ce n'était 
 - [x] Revérifié en session réelle : capture avant/après, `.workspace` mesuré à 3 enfants,
       drawer (256px) et contenu (1024px) à la même hauteur.
 
-## 10. Suites
+## 10. Grille de cartes remplacée par une liste plate (retour d'usage v2)
+
+Trois itérations du drawer replié : accordéon inline → grille de cartes 2 colonnes (livrée dans ce
+chantier) → **liste plate avec chevron**, retenue. La grille faisait ressembler le menu à un second
+tableau de bord ; le chevron `>` communique déjà « ceci mène ailleurs » sans avoir besoin d'un
+habillage différent pour les entrées à enfants.
+
+- [x] `TchDrawerNav` : un seul rendu de ligne (`rowTemplate`) pour toute la navigation — racine,
+      panneau, recherche, bas de menu. Une entrée à enfants devient un `<button>` qui ouvre le
+      panneau ; sans enfants, un `<a>` qui navigue. Les deux portent icône en tuile + libellé +
+      chevron `chevron_right` : le chevron est **universel**, il annonce une destination, pas un
+      dépliage — ce qui permet à une ligne de tête comme « Tablo bò » de le porter aussi.
+- [x] `groups` simplifié : un bloc de liste par section (`{id, titleKey, items}`), sans plus séparer
+      les entrées sans enfants (lignes) de celles avec enfants (cartes) — l'unification du rendu de
+      ligne rend la distinction inutile en amont.
+- [x] Bas de menu et racine partagent désormais le même `rowTemplate` — le rendu spécifique
+      `drawer-nav__row--button` du footer (introduit à la tâche précédente) a disparu, absorbé par
+      la généralisation.
+- [x] SCSS : suppression de `.drawer-nav__grid` / `.drawer-nav__card*` (~70 lignes). L'icône gagne
+      une tuile arrondie (`--tch-color-surface-container-high`) commune à toutes les lignes ; le
+      chevron passe en `currentColor` + opacité pour rester lisible sur une ligne active
+      (fond `--tch-color-accent`) sans redéfinir sa couleur par état.
+- [x] Retrait de l'input `categoriesLabel`, devenu mort : les titres viennent uniquement du
+      `titleKey` de section, plus d'un intitulé de secours pour un groupe de grille sans titre.
+- [x] `pagesCount` / `pagesLabelKey` conservés **uniquement** pour l'en-tête du panneau (« Limit —
+      5 paj ») : la liste plate n'affiche pas de compteur par ligne, contrairement à l'ancienne
+      carte.
+- [x] Sept tests du spec de drawer réécrits sur `[data-testid="drawer-category"]` (le rendu bouton),
+      scopés pour exclure le footer quand une section pouvait en contenir un aussi
+      (`Antrepriz mwen` sur le modèle réel).
+- [x] Revérifié en session réelle : capture de la liste plate, du panneau, et du desktop — le
+      correctif de la tâche précédente (bug d'empilement) tient sous le nouveau rendu.
+
+**Scope tenu** : seule la conversion grille → liste est appliquée. Le renommage des sections
+(« Operasyon »/« Sistèm »), l'ajout de « Kanal tiraj » comme entrée distincte, et l'ajout de
+« Profil »/« Tèm » à la navigation n'ont pas été faits — non confirmés, et la proposition v2
+elle-même classe le bouton « Tèm » hors périmètre (nettoyage pré-prod, pas une story de nav).
+
+## 11. Suites
 
 - [ ] Décider côté contrat backend si `archives` et `audit` doivent déclarer une `destination` de
       groupe, pour que leur « Apèsi » soit absorbé comme celui d'`operations`.
