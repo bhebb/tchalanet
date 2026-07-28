@@ -1,0 +1,201 @@
+<!-- `inert` pendant qu'un panneau est ouvert : sinon la racine reste tabulable derrière lui. -->
+<nav
+  class="drawer-nav"
+  [attr.aria-label]="ariaLabel()"
+  [attr.inert]="openCategory() ? '' : null"
+>
+  @if (searchLabel()) {
+    <div class="drawer-nav__search">
+      <span class="material-symbols-outlined" aria-hidden="true">search</span>
+      <input
+        type="search"
+        class="drawer-nav__search-input"
+        [attr.aria-label]="searchLabel()"
+        [attr.placeholder]="searchPlaceholder() || searchLabel()"
+        [value]="query()"
+        (input)="onSearchInput($event)"
+      />
+    </div>
+  }
+
+  @if (searching()) {
+    <ul class="drawer-nav__list" role="list">
+      @for (item of searchResults(); track item.id) {
+        <li>
+          <ng-container
+            *ngTemplateOutlet="rowTemplate; context: { $implicit: item, siblings: searchResults() }"
+          />
+        </li>
+      } @empty {
+        <li class="drawer-nav__empty">{{ noResultLabel() }}</li>
+      }
+    </ul>
+  } @else {
+    @if (shortcuts().length) {
+      <ul class="drawer-nav__list" role="list">
+        @for (item of shortcuts(); track item.id) {
+          <li>
+            <ng-container
+              *ngTemplateOutlet="rowTemplate; context: { $implicit: item, siblings: shortcuts() }"
+            />
+          </li>
+        }
+      </ul>
+    }
+
+    @for (group of groups(); track group.id) {
+      <!-- Une section du modèle = un bloc de liste. Regrouper par section plutôt que par nombre
+           d'enfants garde les activités quotidiennes en tête, les réglages en dessous. -->
+      @if (group.titleKey) {
+        <h2 class="drawer-nav__heading" [id]="'drawer-nav-' + group.id">
+          {{ group.titleKey | translate }}
+        </h2>
+      }
+
+      <ul class="drawer-nav__list" role="list" [attr.aria-labelledby]="'drawer-nav-' + group.id">
+        @for (item of group.items; track item.id) {
+          <li>
+            <ng-container
+              *ngTemplateOutlet="rowTemplate; context: { $implicit: item, siblings: group.items }"
+            />
+          </li>
+        }
+      </ul>
+    }
+
+    @if (footerItems().length) {
+      <ul class="drawer-nav__list drawer-nav__footer" role="list">
+        @for (item of footerItems(); track item.id) {
+          <li>
+            <ng-container
+              *ngTemplateOutlet="rowTemplate; context: { $implicit: item, siblings: footerItems() }"
+            />
+          </li>
+        }
+      </ul>
+    }
+  }
+</nav>
+
+@if (openCategory(); as category) {
+  <div #panel class="drawer-nav__panel" data-testid="drawer-panel">
+    <div class="drawer-nav__panel-head">
+      <button
+        type="button"
+        class="drawer-nav__back"
+        data-drawer-back
+        data-testid="drawer-back"
+        [attr.aria-label]="backLabel()"
+        (click)="closeCategoryPanel()"
+      >
+        <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+      </button>
+      <div class="drawer-nav__panel-title">
+        @if (categoryRoute(category)) {
+          <!-- L'en-tête est la page d'atterrissage de la catégorie : l'enfant qui menait à la
+               même route n'est donc plus listé en dessous. -->
+          <a
+            class="drawer-nav__panel-link"
+            [routerLink]="categoryRoute(category)"
+            [queryParams]="actionQueryParams(category)"
+            [attr.aria-current]="isActionActive(category, category.children ?? []) ? 'page' : null"
+            (click)="onItemClick($event, category)"
+          >
+            <h2>{{ actionText(category) | translate }}</h2>
+          </a>
+        } @else {
+          <h2>{{ actionText(category) | translate }}</h2>
+        }
+        <p class="drawer-nav__panel-count">{{ pagesCount(category) }}</p>
+      </div>
+    </div>
+
+    <ul class="drawer-nav__list" role="list">
+      @for (item of openCategoryItems(); track item.id) {
+        <li>
+          <ng-container
+            *ngTemplateOutlet="
+              rowTemplate;
+              context: { $implicit: item, siblings: openCategoryItems() }
+            "
+          />
+        </li>
+      }
+    </ul>
+  </div>
+}
+
+<!--
+  Un seul rendu de ligne pour toute la navigation : icône en tuile + libellé + chevron. Le chevron
+  est universel — il annonce « ceci mène ailleurs », que ce soit un panneau (entrée à enfants) ou
+  une destination directe (route ou lien externe), pas « ceci se déplie » — ce qui permet à une
+  ligne de tête comme « Tablo bò » de le porter aussi sans rien laisser deviner d'incohérent.
+-->
+<ng-template #rowTemplate let-item let-siblings="siblings">
+  @if (hasChildren(item)) {
+    <button
+      type="button"
+      class="drawer-nav__row drawer-nav__row--button"
+      data-testid="drawer-category"
+      [class.is-active]="isCategoryActive(item)"
+      (click)="openCategoryPanel(item, $event)"
+    >
+      <span class="drawer-nav__row-icon material-symbols-outlined" aria-hidden="true">
+        {{ item.icon || 'category' }}
+      </span>
+      <span class="drawer-nav__row-label">{{ actionText(item) | translate }}</span>
+      @if (item.badge?.value !== undefined && item.badge?.value !== null) {
+        <span class="drawer-nav__badge" [attr.data-severity]="item.badge?.severity ?? 'info'">
+          {{ item.badge?.value }}
+        </span>
+      }
+      <span class="material-symbols-outlined drawer-nav__chevron" aria-hidden="true">
+        chevron_right
+      </span>
+    </button>
+  } @else if (isRouteAction(item)) {
+    <a
+      class="drawer-nav__row"
+      data-testid="drawer-row"
+      [class.is-active]="isActionActive(item, siblings)"
+      [class.is-disabled]="item.disabled"
+      [attr.aria-current]="isActionActive(item, siblings) ? 'page' : null"
+      [attr.aria-disabled]="item.disabled ? 'true' : null"
+      [attr.tabindex]="item.disabled ? -1 : null"
+      [routerLink]="actionRoute(item)"
+      [queryParams]="actionQueryParams(item)"
+      (click)="onItemClick($event, item)"
+    >
+      <span class="drawer-nav__row-icon material-symbols-outlined" aria-hidden="true">
+        {{ item.icon || 'radio_button_unchecked' }}
+      </span>
+      <span class="drawer-nav__row-label">{{ actionText(item) | translate }}</span>
+      @if (item.badge?.value !== undefined && item.badge?.value !== null) {
+        <span class="drawer-nav__badge" [attr.data-severity]="item.badge?.severity ?? 'info'">
+          {{ item.badge?.value }}
+        </span>
+      }
+      <span class="material-symbols-outlined drawer-nav__chevron" aria-hidden="true">
+        chevron_right
+      </span>
+    </a>
+  } @else if (isExternalAction(item)) {
+    <a
+      class="drawer-nav__row"
+      data-testid="drawer-row"
+      [class.is-disabled]="item.disabled"
+      [attr.aria-disabled]="item.disabled ? 'true' : null"
+      [attr.tabindex]="item.disabled ? -1 : null"
+      [href]="actionHref(item)"
+      (click)="onItemClick($event, item)"
+    >
+      <span class="drawer-nav__row-icon material-symbols-outlined" aria-hidden="true">
+        {{ item.icon || 'open_in_new' }}
+      </span>
+      <span class="drawer-nav__row-label">{{ actionText(item) | translate }}</span>
+      <span class="material-symbols-outlined drawer-nav__chevron" aria-hidden="true">
+        chevron_right
+      </span>
+    </a>
+  }
+</ng-template>

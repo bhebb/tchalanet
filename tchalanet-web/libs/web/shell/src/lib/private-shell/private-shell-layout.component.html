@@ -3,6 +3,7 @@
     <button
       type="button"
       class="burger"
+      data-testid="private-nav-toggle"
       (click)="toggleDrawer()"
       [attr.aria-label]="'nav.toggle_menu' | translate"
       [attr.aria-expanded]="drawerOpen()"
@@ -48,14 +49,29 @@
       [attr.aria-label]="drawerModal() ? ('nav.private.ariaLabel' | translate) : null"
       [attr.inert]="drawerHidden() ? '' : null"
     >
-      <tch-sidebar-nav
-        [primary]="primary()"
-        [sections]="sections()"
-        [secondary]="secondary()"
-        [ariaLabel]="'nav.private.ariaLabel' | translate"
-        [density]="overlayMode() ? 'comfortable' : 'compact'"
-        (itemActivated)="closeDrawer()"
-      />
+      @if (overlayMode()) {
+        <!-- Replié : deux niveaux, grille de catégories puis panneau. La verticale manque, on
+             échange le déroulé complet contre un niveau de plus. -->
+        <tch-drawer-nav
+          [primary]="primary()"
+          [sections]="sections()"
+          [secondary]="secondary()"
+          [ariaLabel]="'nav.private.ariaLabel' | translate"
+          [searchLabel]="'nav.private.search' | translate"
+          [backLabel]="'common.back' | translate"
+          [noResultLabel]="'common.searchEmpty' | translate"
+          pagesLabelKey="nav.private.pages"
+          (itemActivated)="closeDrawer()"
+        />
+      } @else {
+        <!-- Déployé : accordéon, tout le modèle reste atteignable sans niveau supplémentaire. -->
+        <tch-sidebar-nav
+          [primary]="primary()"
+          [sections]="sections()"
+          [secondary]="secondary()"
+          [ariaLabel]="'nav.private.ariaLabel' | translate"
+        />
+      }
     </aside>
 
     <div class="backdrop" (click)="closeDrawer()" aria-hidden="true"></div>

@@ -34,6 +34,8 @@ export * from './lib/page-error/page-error';
 export * from './lib/search-select/search-select';
 export * from './lib/section-header/section-header';
 export * from './lib/section-error/section-error';
+export * from './lib/drawer-nav/drawer-nav';
+export * from './lib/navigation/route-activity';
 export * from './lib/sidebar-nav/sidebar-nav';
 export * from './lib/status-badge/status-badge';
 export * from './lib/submit-button/submit-button';

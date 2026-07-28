@@ -1,5 +1,5 @@
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
-import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { ApplicationConfig, inject, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { MAT_ICON_DEFAULT_OPTIONS } from '@angular/material/icon';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideRouter } from '@angular/router';
@@ -12,8 +12,11 @@ import {
   problemDetailInterceptor,
 } from '@tch/api';
 import {
+  PrivateBootstrapStore,
   authBearerInterceptor,
+  footerFromRuntimeNavigation,
   provideFirebaseAuthClient,
+  sectionsFromRuntimeNavigation,
   supportAccessInterceptor,
 } from '@tch/core/auth';
 import {
@@ -33,7 +36,9 @@ import {
 import { themeStoreProvider } from '@tch/ui/theme';
 import { provideWidgets } from '@tch/widgets';
 import {
+  TENANT_ADMIN_FOOTER,
   TENANT_ADMIN_NAVIGATION,
+  TCH_TITLE_NAVIGATION,
   provideTchTitleStrategy,
   shellFeedbackInterceptor,
 } from '@tch/web/shell';
@@ -55,7 +60,25 @@ export const appConfig: ApplicationConfig = {
       deps: [TchRuntimeConfigStore],
     },
     provideRouter(appRoutes),
-    ...provideTchTitleStrategy(TENANT_ADMIN_NAVIGATION),
+    // Le titre d'onglet doit venir de la **même** source que le menu affiché : la navigation
+    // runtime du backend, avec le modèle statique en repli.
+    {
+      provide: TCH_TITLE_NAVIGATION,
+      useFactory: () => {
+        const bootstrap = inject(PrivateBootstrapStore);
+        return () => {
+          const drawer = bootstrap.navigationDrawer();
+          const sections = sectionsFromRuntimeNavigation(drawer) ?? TENANT_ADMIN_NAVIGATION;
+          const footer = footerFromRuntimeNavigation(drawer) ?? TENANT_ADMIN_FOOTER;
+          // Le bas de menu porte aussi des destinations : sans lui, ces pages n'auraient pas
+          // de titre d'onglet.
+          return footer.length
+            ? [...sections, { id: 'footer', titleKey: '', items: footer }]
+            : sections;
+        };
+      },
+    },
+    ...provideTchTitleStrategy(),
     provideHttpClient(
       withFetch(),
       withInterceptors([

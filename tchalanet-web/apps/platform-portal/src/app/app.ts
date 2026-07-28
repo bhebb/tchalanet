@@ -2,10 +2,15 @@ import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/c
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { ActionItem } from '@tch/api';
-import { AuthSessionService, PrivateBootstrapStore, sectionsFromRuntimeNavigation } from '@tch/core/auth';
+import {
+  AuthSessionService,
+  PrivateBootstrapStore,
+  footerFromRuntimeNavigation,
+  sectionsFromRuntimeNavigation,
+} from '@tch/core/auth';
 import { ThemeStore } from '@tch/ui/theme';
 import { ThemeSandboxComponent } from '@tch/web/sandbox';
-import { PLATFORM_NAVIGATION, PrivateShellLayoutComponent } from '@tch/web/shell';
+import { PLATFORM_FOOTER, PLATFORM_NAVIGATION, PrivateShellLayoutComponent } from '@tch/web/shell';
 import { filter, map, startWith } from 'rxjs';
 
 const PLATFORM_BRAND: ActionItem = {
@@ -31,6 +36,9 @@ export class App {
   protected readonly brand = PLATFORM_BRAND;
   protected readonly sections = computed(() =>
     sectionsFromRuntimeNavigation(this.bootstrap.navigationDrawer()) ?? PLATFORM_NAVIGATION,
+  );
+  protected readonly footer = computed(
+    () => footerFromRuntimeNavigation(this.bootstrap.navigationDrawer()) ?? PLATFORM_FOOTER,
   );
   protected readonly titleKey = 'surface.platform_admin';
   protected readonly currentUrl = toSignal(

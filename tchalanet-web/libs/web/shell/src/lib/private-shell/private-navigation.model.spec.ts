@@ -1,8 +1,19 @@
 import {
   PLATFORM_NAVIGATION,
+  TENANT_ADMIN_FOOTER,
   TENANT_ADMIN_NAVIGATION,
   TENANT_ADMIN_USER_GUIDE_URL,
 } from './private-navigation.model';
+
+/**
+ * Le menu admin est réparti entre plusieurs sections et un bas de menu. Ces assertions portent sur
+ * ce que contiennent les entrées, pas sur la collection qui les héberge — les chercher partout
+ * évite de les réécrire à chaque fois qu'une entrée change de zone.
+ */
+const adminItem = (id: string) =>
+  [...TENANT_ADMIN_NAVIGATION.flatMap(section => section.items), ...TENANT_ADMIN_FOOTER].find(
+    item => item.id === id,
+  );
 
 describe('PLATFORM_NAVIGATION', () => {
   it('groups the Super Admin platform navigation by operational responsibility', () => {
@@ -137,7 +148,7 @@ describe('PLATFORM_NAVIGATION', () => {
   });
 
   it('exposes the tenant admin notification center under my company', () => {
-    const company = TENANT_ADMIN_NAVIGATION[0].items.find(group => group.id === 'company');
+    const company = adminItem('company');
 
     expect(company?.children?.map(child => child.labelKey)).toContain(
       'nav.admin.company_notifications',
@@ -147,8 +158,8 @@ describe('PLATFORM_NAVIGATION', () => {
   });
 
   it('points company identity to the business profile and does not expose address separately', () => {
-    const setup = TENANT_ADMIN_NAVIGATION[0].items.find(group => group.id === 'setup');
-    const company = TENANT_ADMIN_NAVIGATION[0].items.find(group => group.id === 'company');
+    const setup = adminItem('setup');
+    const company = adminItem('company');
 
     expect(setup?.activeRoutes).not.toContain('/app/admin/business-profile');
     expect(company?.destination?.value).toBe('/app/admin/business-profile');
@@ -158,14 +169,14 @@ describe('PLATFORM_NAVIGATION', () => {
   });
 
   it('keeps generic promotions hidden from the V0 tenant admin sidenav', () => {
-    const items = TENANT_ADMIN_NAVIGATION[0].items;
+    const items = TENANT_ADMIN_NAVIGATION.flatMap(section => section.items);
 
     expect(items.map(item => item.id)).toContain('maryaj-gratis');
     expect(items.map(item => item.id)).not.toContain('promotions');
   });
 
   it('points tenant admin help to the published user guide', () => {
-    const help = TENANT_ADMIN_NAVIGATION[0].items.find(item => item.id === 'help');
+    const help = adminItem('help');
 
     expect(help?.destination).toEqual({
       kind: 'url',
@@ -174,7 +185,7 @@ describe('PLATFORM_NAVIGATION', () => {
   });
 
   it('exposes tenant page models under my company', () => {
-    const company = TENANT_ADMIN_NAVIGATION[0].items.find(group => group.id === 'company');
+    const company = adminItem('company');
 
     expect(company?.children?.map(child => child.labelKey)).toContain(
       'nav.admin.company_page_models',
@@ -184,8 +195,8 @@ describe('PLATFORM_NAVIGATION', () => {
   });
 
   it('exposes business days under my company', () => {
-    const setup = TENANT_ADMIN_NAVIGATION[0].items.find(group => group.id === 'setup');
-    const company = TENANT_ADMIN_NAVIGATION[0].items.find(group => group.id === 'company');
+    const setup = adminItem('setup');
+    const company = adminItem('company');
 
     expect(setup?.activeRoutes).not.toContain('/app/admin/business-days');
     expect(company?.children?.map(child => child.labelKey)).toContain(
@@ -196,8 +207,8 @@ describe('PLATFORM_NAVIGATION', () => {
   });
 
   it('keeps tenant settings under my company instead of using the signed-in admin account menu', () => {
-    const setup = TENANT_ADMIN_NAVIGATION[0].items.find(group => group.id === 'setup');
-    const company = TENANT_ADMIN_NAVIGATION[0].items.find(group => group.id === 'company');
+    const setup = adminItem('setup');
+    const company = adminItem('company');
     const companySettings = company?.children?.find(child => child.id === 'company-settings');
 
     expect(setup?.activeRoutes).not.toContain('/app/admin/settings');
@@ -206,7 +217,7 @@ describe('PLATFORM_NAVIGATION', () => {
   });
 
   it('keeps games overview active for pricing details', () => {
-    const games = TENANT_ADMIN_NAVIGATION[0].items.find(group => group.id === 'games');
+    const games = adminItem('games');
     const overview = games?.children?.find(child => child.id === 'games-overview');
 
     expect(overview?.activeMatch).toBe('exact');

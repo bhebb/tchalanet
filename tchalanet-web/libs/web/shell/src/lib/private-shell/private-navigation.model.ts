@@ -1,4 +1,4 @@
-import { NavigationSection } from '@tch/api';
+import { ActionItem, NavigationSection } from '@tch/api';
 
 export type PrivateSpace = 'platform' | 'admin' | 'cashier';
 
@@ -386,15 +386,6 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
         activeMatch: 'exact',
       },
       {
-        id: 'setup',
-        labelKey: 'nav.admin.general_configuration',
-        icon: 'checklist',
-        destination: { kind: 'route', value: '/app/admin/setup' },
-        activeRoutes: [
-          '/app/admin/subscription',
-        ],
-      },
-      {
         id: 'sellers',
         labelKey: 'nav.admin.sellers',
         icon: 'point_of_sale',
@@ -464,76 +455,6 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
         ],
       },
       {
-        id: 'games',
-        labelKey: 'nav.admin.games_available',
-        icon: 'casino',
-        destination: { kind: 'route', value: '/app/admin/games' },
-        children: [
-          {
-            id: 'games-overview',
-            labelKey: 'nav.admin.games_overview',
-            icon: 'dashboard',
-            destination: { kind: 'route', value: '/app/admin/games' },
-            activeMatch: 'exact',
-            activeRoutes: [
-              '/app/admin/pricing',
-            ],
-          },
-          {
-            id: 'games-channel-matrix',
-            labelKey: 'nav.admin.games_channel_matrix',
-            icon: 'grid_view',
-            destination: { kind: 'route', value: '/app/admin/games/channel-matrix' },
-          },
-        ],
-      },
-      {
-        id: 'limits',
-        labelKey: 'nav.admin.limits_section',
-        icon: 'shield',
-        destination: { kind: 'route', value: '/app/admin/limits' },
-        children: [
-          {
-            id: 'limits-overview',
-            labelKey: 'nav.admin.limits_overview',
-            icon: 'dashboard',
-            destination: { kind: 'route', value: '/app/admin/limits' },
-            activeMatch: 'exact',
-          },
-          {
-            id: 'limits-global',
-            labelKey: 'nav.admin.limits_global',
-            icon: 'tune',
-            destination: { kind: 'route', value: '/app/admin/limits/global' },
-          },
-          {
-            id: 'limits-seller',
-            labelKey: 'nav.admin.limits_seller',
-            icon: 'person',
-            destination: { kind: 'route', value: '/app/admin/limits/seller-terminal' },
-          },
-          {
-            id: 'limits-number',
-            labelKey: 'nav.admin.limits_number',
-            icon: 'pin',
-            destination: { kind: 'route', value: '/app/admin/limits/number' },
-          },
-          {
-            id: 'limits-draw',
-            labelKey: 'nav.admin.limits_draw',
-            icon: 'event',
-            destination: { kind: 'route', value: '/app/admin/limits/draw' },
-          },
-        ],
-      },
-      {
-        id: 'maryaj-gratis',
-        labelKey: 'nav.admin.maryaj_free',
-        icon: 'redeem',
-        destination: { kind: 'route', value: '/app/admin/maryaj-gratis' },
-        activeMatch: 'exact',
-      },
-      {
         id: 'reports',
         labelKey: 'nav.reports',
         icon: 'analytics',
@@ -599,6 +520,91 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
           },
         ],
       },
+    ],
+  },
+  {
+    id: 'config',
+    titleKey: 'nav.admin.section.config',
+    items: [
+      {
+        id: 'setup',
+        labelKey: 'nav.admin.general_configuration',
+        icon: 'checklist',
+        destination: { kind: 'route', value: '/app/admin/setup' },
+        activeRoutes: [
+          '/app/admin/subscription',
+        ],
+      },
+      {
+        id: 'maryaj-gratis',
+        labelKey: 'nav.admin.maryaj_free',
+        icon: 'redeem',
+        destination: { kind: 'route', value: '/app/admin/maryaj-gratis' },
+        activeMatch: 'exact',
+      },
+      {
+        id: 'games',
+        labelKey: 'nav.admin.games_available',
+        icon: 'casino',
+        destination: { kind: 'route', value: '/app/admin/games' },
+        children: [
+          {
+            id: 'games-overview',
+            labelKey: 'nav.admin.games_overview',
+            icon: 'dashboard',
+            destination: { kind: 'route', value: '/app/admin/games' },
+            activeMatch: 'exact',
+            activeRoutes: [
+              '/app/admin/pricing',
+            ],
+          },
+          {
+            id: 'games-channel-matrix',
+            labelKey: 'nav.admin.games_channel_matrix',
+            icon: 'grid_view',
+            destination: { kind: 'route', value: '/app/admin/games/channel-matrix' },
+          },
+        ],
+      },
+      {
+        id: 'limits',
+        labelKey: 'nav.admin.limits_section',
+        icon: 'shield',
+        destination: { kind: 'route', value: '/app/admin/limits' },
+        children: [
+          {
+            id: 'limits-overview',
+            labelKey: 'nav.admin.limits_overview',
+            icon: 'dashboard',
+            destination: { kind: 'route', value: '/app/admin/limits' },
+            activeMatch: 'exact',
+          },
+          {
+            id: 'limits-global',
+            labelKey: 'nav.admin.limits_global',
+            icon: 'tune',
+            destination: { kind: 'route', value: '/app/admin/limits/global' },
+          },
+          {
+            id: 'limits-seller',
+            labelKey: 'nav.admin.limits_seller',
+            icon: 'person',
+            destination: { kind: 'route', value: '/app/admin/limits/seller-terminal' },
+          },
+          {
+            id: 'limits-number',
+            labelKey: 'nav.admin.limits_number',
+            icon: 'pin',
+            destination: { kind: 'route', value: '/app/admin/limits/number' },
+          },
+          {
+            id: 'limits-draw',
+            labelKey: 'nav.admin.limits_draw',
+            icon: 'event',
+            destination: { kind: 'route', value: '/app/admin/limits/draw' },
+          },
+        ],
+      },
       {
         id: 'company',
         labelKey: 'nav.admin.company',
@@ -653,15 +659,25 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
           },
         ],
       },
-      {
-        id: 'help',
-        labelKey: 'nav.admin.help',
-        icon: 'help_outline',
-        destination: { kind: 'url', value: TENANT_ADMIN_USER_GUIDE_URL },
-      },
     ],
   },
 ];
+
+/**
+ * Bas de menu : ce qui n'est pas une activité métier — l'entreprise elle-même et l'aide.
+ * Miroir statique du `secondary` du contrat runtime (`runtime-navigation.mapper.ts`).
+ */
+export const TENANT_ADMIN_FOOTER: readonly ActionItem[] = [
+  {
+    id: 'help',
+    labelKey: 'nav.admin.help',
+    icon: 'help_outline',
+    destination: { kind: 'url', value: TENANT_ADMIN_USER_GUIDE_URL },
+  },
+];
+
+/** La console plateforme n'a pas encore de bas de menu. */
+export const PLATFORM_FOOTER: readonly ActionItem[] = [];
 
 export const CASHIER_NAVIGATION: readonly NavigationSection[] = [
   {

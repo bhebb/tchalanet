@@ -13,13 +13,17 @@
   "nav": {
     "pagemodels": "Modèles de pages",
     "private": {
-      "ariaLabel": "Private navigation"
+      "ariaLabel": "Private navigation",
+      "categories": "Categories",
+      "pages": "{{count}} pages",
+      "search": "Search the menu"
     },
     "theme_toggle": "Toggle theme",
     "toggle_menu": "Toggle menu",
     "admin": {
       "section": {
-        "admin": "Administration"
+        "admin": "Administration",
+        "config": "Configuration"
       },
       "dashboard": "Dashboard",
       "onboarding": "Onboarding",

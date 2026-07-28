@@ -142,13 +142,6 @@
             "active_match": "exact"
           },
           {
-            "id": "setup",
-            "label_key": "nav.admin.general_configuration",
-            "icon": "checklist",
-            "path": "/app/admin/setup",
-            "kind": "internal"
-          },
-          {
             "id": "sellers",
             "label_key": "nav.admin.sellers",
             "icon": "point_of_sale",
@@ -219,89 +212,6 @@
                 "icon": "settings"
               }
             ]
-          },
-          {
-            "id": "games",
-            "label_key": "nav.admin.games_available",
-            "path": "/app/admin/games",
-            "kind": "internal",
-            "icon": "casino",
-            "children": [
-              {
-                "id": "games-overview",
-                "label_key": "nav.admin.games_overview",
-                "path": "/app/admin/games",
-                "kind": "internal",
-                "icon": "dashboard",
-                "active_match": "exact"
-              },
-              {
-                "id": "games-channel-matrix",
-                "label_key": "nav.admin.games_channel_matrix",
-                "path": "/app/admin/games/channel-matrix",
-                "kind": "internal",
-                "icon": "grid_view"
-              }
-            ]
-          },
-          {
-            "id": "limits",
-            "label_key": "nav.admin.limits_section",
-            "path": "/app/admin/limits",
-            "kind": "internal",
-            "icon": "shield",
-            "children": [
-              {
-                "id": "limits-overview",
-                "label_key": "nav.admin.limits_overview",
-                "path": "/app/admin/limits",
-                "kind": "internal",
-                "icon": "dashboard"
-              },
-              {
-                "id": "limits-system",
-                "label_key": "nav.admin.limits_system",
-                "path": "/app/admin/limits/system",
-                "kind": "internal",
-                "icon": "info"
-              },
-              {
-                "id": "limits-global",
-                "label_key": "nav.admin.limits_global",
-                "path": "/app/admin/limits/global",
-                "kind": "internal",
-                "icon": "tune"
-              },
-              {
-                "id": "limits-seller",
-                "label_key": "nav.admin.limits_seller",
-                "path": "/app/admin/limits/seller-terminal",
-                "kind": "internal",
-                "icon": "person"
-              },
-              {
-                "id": "limits-draw",
-                "label_key": "nav.admin.limits_draw",
-                "path": "/app/admin/limits/draw",
-                "kind": "internal",
-                "icon": "event"
-              },
-              {
-                "id": "limits-number",
-                "label_key": "nav.admin.limits_number",
-                "path": "/app/admin/limits/number",
-                "kind": "internal",
-                "icon": "pin"
-              }
-            ]
-          },
-          {
-            "id": "maryaj-gratis",
-            "label_key": "nav.admin.maryaj_free",
-            "path": "/app/admin/maryaj-gratis",
-            "kind": "internal",
-            "icon": "redeem",
-            "active_match": "exact"
           },
           {
             "id": "reports",
@@ -381,6 +291,103 @@
                 "icon": "point_of_sale"
               }
             ]
+          }
+        ]
+      },
+      {
+        "id": "config",
+        "label_key": "nav.admin.section.config",
+        "label": null,
+        "items": [
+          {
+            "id": "setup",
+            "label_key": "nav.admin.general_configuration",
+            "icon": "checklist",
+            "path": "/app/admin/setup",
+            "kind": "internal"
+          },
+          {
+            "id": "maryaj-gratis",
+            "label_key": "nav.admin.maryaj_free",
+            "path": "/app/admin/maryaj-gratis",
+            "kind": "internal",
+            "icon": "redeem",
+            "active_match": "exact"
+          },
+          {
+            "id": "games",
+            "label_key": "nav.admin.games_available",
+            "path": "/app/admin/games",
+            "kind": "internal",
+            "icon": "casino",
+            "children": [
+              {
+                "id": "games-overview",
+                "label_key": "nav.admin.games_overview",
+                "path": "/app/admin/games",
+                "kind": "internal",
+                "icon": "dashboard",
+                "active_match": "exact"
+              },
+              {
+                "id": "games-channel-matrix",
+                "label_key": "nav.admin.games_channel_matrix",
+                "path": "/app/admin/games/channel-matrix",
+                "kind": "internal",
+                "icon": "grid_view"
+              }
+            ]
+          },
+          {
+            "id": "limits",
+            "label_key": "nav.admin.limits_section",
+            "path": "/app/admin/limits",
+            "kind": "internal",
+            "icon": "shield",
+            "children": [
+              {
+                "id": "limits-overview",
+                "label_key": "nav.admin.limits_overview",
+                "path": "/app/admin/limits",
+                "kind": "internal",
+                "icon": "dashboard"
+              },
+              {
+                "id": "limits-system",
+                "label_key": "nav.admin.limits_system",
+                "path": "/app/admin/limits/system",
+                "kind": "internal",
+                "icon": "info"
+              },
+              {
+                "id": "limits-global",
+                "label_key": "nav.admin.limits_global",
+                "path": "/app/admin/limits/global",
+                "kind": "internal",
+                "icon": "tune"
+              },
+              {
+                "id": "limits-seller",
+                "label_key": "nav.admin.limits_seller",
+                "path": "/app/admin/limits/seller-terminal",
+                "kind": "internal",
+                "icon": "person"
+              },
+              {
+                "id": "limits-draw",
+                "label_key": "nav.admin.limits_draw",
+                "path": "/app/admin/limits/draw",
+                "kind": "internal",
+                "icon": "event"
+              },
+              {
+                "id": "limits-number",
+                "label_key": "nav.admin.limits_number",
+                "path": "/app/admin/limits/number",
+                "kind": "internal",
+                "icon": "pin"
+              }
+            ]
           },
           {
             "id": "company",
@@ -430,18 +437,19 @@
                 "icon": "headset_mic"
               }
             ]
-          },
-          {
-            "id": "help",
-            "label_key": "nav.admin.help",
-            "icon": "help_outline",
-            "path": "https://docs.tchalanet.com/administrateurs/",
-            "kind": "url"
           }
         ]
       }
     ],
-    "secondary": [],
+    "secondary": [
+      {
+        "id": "help",
+        "label_key": "nav.admin.help",
+        "icon": "help_outline",
+        "path": "https://docs.tchalanet.com/administrateurs/",
+        "kind": "url"
+      }
+    ],
     "actions": []
   },
   "footer": null

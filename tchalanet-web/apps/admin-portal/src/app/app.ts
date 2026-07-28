@@ -13,6 +13,7 @@ import {
   AuthSessionService,
   PrivateBootstrapStore,
   SupportAccessStore,
+  footerFromRuntimeNavigation,
   sectionsFromRuntimeNavigation,
 } from '@tch/core/auth';
 import { TchRuntimeConfigStore } from '@tch/shared-config';
@@ -21,6 +22,7 @@ import { ThemeSandboxComponent } from '@tch/web/sandbox';
 import {
   filterTenantAdminNavigation,
   PrivateShellLayoutComponent,
+  TENANT_ADMIN_FOOTER,
   TENANT_ADMIN_NAVIGATION,
 } from '@tch/web/shell';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -98,6 +100,10 @@ export class App {
       options,
     );
   });
+  /** Bas de menu : runtime s'il est fourni, repli statique sinon. */
+  protected readonly footer = computed(
+    () => footerFromRuntimeNavigation(this.bootstrap.navigationDrawer()) ?? TENANT_ADMIN_FOOTER,
+  );
   protected readonly titleKey = 'surface.tenant_admin';
   protected readonly currentUrl = toSignal(
     this.router.events.pipe(

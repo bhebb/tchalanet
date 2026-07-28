@@ -13,7 +13,10 @@ import { themeStoreProvider } from '@tch/ui/theme';
 import { PrivateShellLayoutComponent } from './private-shell-layout.component';
 
 /**
- * Couverture de `tch-sidebar-nav` **au travers du shell** : c'est là que la densité et l'état actif
+ * Couverture de l'état actif **au travers du shell** — il vaut pour les deux rendus, `tch-drawer-nav`
+ * sous 840px et `tch-sidebar-nav` au-dessus, qui partagent `route-activity`.
+ *
+ * Couverture : c'est là que la densité et l'état actif
  * sont réellement câblés, et `ui-components:test` tourne sur Vitest brut, sans le compilateur
  * Angular — il ne sait pas instancier un composant à `input()` signal.
  */
@@ -100,6 +103,11 @@ describe('private shell navigation', () => {
       expect(linkFor(fixture, '/app/admin/draws').getAttribute('aria-current')).toBeNull();
     });
 
+  });
+
+  describe('sidebar permanente (≥ 840px)', () => {
+    beforeEach(() => configure(signal(true)));
+
     it('names each navigation section from its own heading', async () => {
       const fixture = await renderAt('/app/admin');
 
@@ -107,24 +115,6 @@ describe('private shell navigation', () => {
       const heading = section.querySelector('h2') as HTMLElement;
       expect(heading.id).toBeTruthy();
       expect(section.getAttribute('aria-labelledby')).toBe(heading.id);
-    });
-
-    it('asks for comfortable touch targets while the drawer overlays the content', async () => {
-      const fixture = await renderAt('/app/admin');
-
-      const nav = fixture.nativeElement.querySelector('tch-sidebar-nav') as HTMLElement;
-      expect(nav.getAttribute('data-density')).toBe('comfortable');
-    });
-  });
-
-  describe('sidebar permanente (≥ 840px)', () => {
-    beforeEach(() => configure(signal(true)));
-
-    it('keeps the mouse density on the persistent sidebar', async () => {
-      const fixture = await renderAt('/app/admin');
-
-      const nav = fixture.nativeElement.querySelector('tch-sidebar-nav') as HTMLElement;
-      expect(nav.getAttribute('data-density')).toBe('compact');
     });
   });
 });

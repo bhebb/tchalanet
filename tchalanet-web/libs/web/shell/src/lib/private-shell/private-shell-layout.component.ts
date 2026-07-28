@@ -17,7 +17,13 @@ import { TranslatePipe } from '@ngx-translate/core';
 
 import { ActionItem, NavigationSection } from '@tch/api';
 import { PrivateNotificationBellComponent } from '@tch/notifications';
-import { TchBrand, TchBreakpointService, TchSidebarNav, TchUserMenu } from '@tch/ui/components';
+import {
+  TchBrand,
+  TchBreakpointService,
+  TchDrawerNav,
+  TchSidebarNav,
+  TchUserMenu,
+} from '@tch/ui/components';
 
 import { ShellFeedbackOutletComponent } from '../feedback/shell-feedback-outlet.component';
 import { ShellFeedbackVerbosity } from '../feedback/shell-feedback.model';
@@ -35,6 +41,7 @@ import { ShellFeedbackVerbosity } from '../feedback/shell-feedback.model';
     ShellFeedbackOutletComponent,
     PrivateNotificationBellComponent,
     TchBrand,
+    TchDrawerNav,
     TchSidebarNav,
     TchUserMenu,
     TranslatePipe,
@@ -74,25 +81,40 @@ export class PrivateShellLayoutComponent {
 
   private readonly drawerRef = viewChild<ElementRef<HTMLElement>>('drawer');
   private readonly contentRef = viewChild<ElementRef<HTMLElement>>('content');
+  private readonly drawerNav = viewChild(TchDrawerNav);
   private focusTrap: FocusTrap | null = null;
   private trigger: HTMLElement | null = null;
 
   constructor() {
     effect(() => {
       const modal = this.drawerModal();
+      const wide = this.breakpoints.isWide();
       const drawer = this.drawerRef()?.nativeElement;
       if (!drawer) return;
 
-      this.focusTrap ??= this.focusTrapFactory.create(drawer);
-      this.focusTrap.enabled = modal;
+      // `ConfigurableFocusTrapFactory.create()` insère deux sentinelles invisibles comme enfants
+      // directs de `.workspace`, juste avant et après `.drawer`. En sidebar permanente ce sont
+      // deux items de plus dans une grille à 2 colonnes : l'auto-placement pousse le drawer réel
+      // en colonne 2 et le contenu à la ligne suivante, empilés au lieu d'être côte à côte. Le
+      // piège ne sert qu'en overlay, donc il est détruit — pas seulement désactivé — dès qu'on
+      // repasse en sidebar permanente.
+      if (wide) {
+        this.focusTrap?.destroy();
+        this.focusTrap = null;
+      } else {
+        this.focusTrap ??= this.focusTrapFactory.create(drawer);
+        this.focusTrap.enabled = modal;
+      }
 
       this.document.documentElement.classList.toggle('tch-overlay-open', modal);
       this.document.body.classList.toggle('tch-overlay-open', modal);
       this.contentRef()?.nativeElement.toggleAttribute('inert', modal);
 
       if (modal && !this.trigger) {
+        // `modal` implique `!wide` (`drawerModal` = `overlayMode() && drawerOpen()`, et
+        // `overlayMode()` = `!isWide()`) : le piège existe forcément ici, TS ne le sait pas.
         this.trigger = this.document.activeElement as HTMLElement | null;
-        void this.focusTrap.focusInitialElementWhenReady();
+        void this.focusTrap!.focusInitialElementWhenReady();
       } else if (!modal && this.trigger) {
         const trigger = this.trigger;
         this.trigger = null;
@@ -114,11 +136,21 @@ export class PrivateShellLayoutComponent {
 
   closeDrawer(): void {
     this.drawerOpen.set(false);
+    // Rouvrir le menu doit repartir de la racine, pas de la catégorie consultée la fois d'avant.
+    // On remet l'état à plat sans passer par `closeCategoryPanel()`, qui rendrait le focus à une
+    // carte sur le point d'être masquée.
+    this.drawerNav()?.openCategoryId.set(null);
   }
 
+  /** Escape referme un niveau à la fois : d'abord le panneau de catégorie, puis le drawer. */
   onEscape(): void {
-    if (this.drawerModal()) {
-      this.closeDrawer();
+    if (!this.drawerModal()) return;
+
+    const nav = this.drawerNav();
+    if (nav?.openCategoryId()) {
+      nav.closeCategoryPanel();
+      return;
     }
+    this.closeDrawer();
   }
 }
