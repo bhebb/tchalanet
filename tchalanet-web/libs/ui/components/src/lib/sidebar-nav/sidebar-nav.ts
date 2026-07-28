@@ -53,8 +53,42 @@ import {
 
     <ng-template #itemsTemplate let-items>
       @for (item of items; track item.id) {
-        @if (item.children?.length) {
-          <!-- Accordion group: the parent toggles (never navigates). -->
+        @if (item.children?.length && actionRoute(item)) {
+          <!-- Group with its own destination: the label navigates directly, the chevron only
+               toggles the children — two separate controls, never one action for the other. -->
+          <div class="sidebar__group" [class.is-active-group]="isActiveGroup(item)">
+            <a
+              class="sidebar__group-link"
+              [class.is-active]="isActionActive(item, item.children)"
+              [routerLink]="actionRoute(item)"
+              [queryParams]="actionQueryParams(item)"
+              [attr.aria-current]="isActionActive(item, item.children) ? 'page' : null"
+              (click)="onItemClick($event, item)"
+            >
+              @if (item.icon) {
+                <span class="material-symbols-outlined" aria-hidden="true">{{ item.icon }}</span>
+              }
+              <span class="sidebar__group-label">{{ actionText(item) | translate }}</span>
+            </a>
+            <button
+              type="button"
+              class="sidebar__group-expand"
+              [class.is-open]="isOpen(item)"
+              [attr.aria-expanded]="isOpen(item)"
+              [attr.aria-label]="(isOpen(item) ? collapseLabel() : expandLabel()) + ' ' + (actionText(item) | translate)"
+              (click)="toggle(item)"
+            >
+              <span class="material-symbols-outlined sidebar__chevron" aria-hidden="true">
+                expand_more
+              </span>
+            </button>
+          </div>
+          @if (isOpen(item)) {
+            <ng-container *ngTemplateOutlet="childrenTemplate; context: { $implicit: item }" />
+          }
+        } @else if (item.children?.length) {
+          <!-- Group with no destination of its own (e.g. platform's archives/audit): the whole
+               row still toggles, there is nowhere else to send a click. -->
           <button
             type="button"
             class="sidebar__group-toggle"
@@ -72,33 +106,7 @@ import {
             </span>
           </button>
           @if (isOpen(item)) {
-            <div class="sidebar__children">
-              @for (child of item.children; track child.id) {
-                @if (isRouteAction(child)) {
-                  <a
-                    class="sidebar__child"
-                    [class.is-disabled]="child.disabled"
-                    [class.is-active]="isActionActive(child, item.children)"
-                    [attr.aria-current]="isActionActive(child, item.children) ? 'page' : null"
-                    [routerLink]="actionRoute(child)"
-                    [queryParams]="actionQueryParams(child)"
-                    [attr.aria-disabled]="child.disabled ? 'true' : null"
-                    [attr.tabindex]="child.disabled ? -1 : null"
-                    (click)="onItemClick($event, child)"
-                  >
-                    @if (child.icon) {
-                      <span class="material-symbols-outlined" aria-hidden="true">{{ child.icon }}</span>
-                    }
-                    <span class="sidebar__label">{{ actionText(child) | translate }}</span>
-                    @if ($safeNavigationMigration(child.badge?.value) !== undefined && $safeNavigationMigration(child.badge?.value) !== null) {
-                      <span class="sidebar__badge" [attr.data-severity]="child.badge?.severity ?? 'info'">
-                        {{ child.badge?.value }}
-                      </span>
-                    }
-                  </a>
-                }
-              }
-            </div>
+            <ng-container *ngTemplateOutlet="childrenTemplate; context: { $implicit: item }" />
           }
         } @else if (isRouteAction(item)) {
           <a [routerLink]="actionRoute(item)" [queryParams]="actionQueryParams(item)"
@@ -137,6 +145,36 @@ import {
         }
       }
     </ng-template>
+
+    <ng-template #childrenTemplate let-item>
+      <div class="sidebar__children">
+        @for (child of item.children; track child.id) {
+          @if (isRouteAction(child)) {
+            <a
+              class="sidebar__child"
+              [class.is-disabled]="child.disabled"
+              [class.is-active]="isActionActive(child, item.children)"
+              [attr.aria-current]="isActionActive(child, item.children) ? 'page' : null"
+              [routerLink]="actionRoute(child)"
+              [queryParams]="actionQueryParams(child)"
+              [attr.aria-disabled]="child.disabled ? 'true' : null"
+              [attr.tabindex]="child.disabled ? -1 : null"
+              (click)="onItemClick($event, child)"
+            >
+              @if (child.icon) {
+                <span class="material-symbols-outlined" aria-hidden="true">{{ child.icon }}</span>
+              }
+              <span class="sidebar__label">{{ actionText(child) | translate }}</span>
+              @if ($safeNavigationMigration(child.badge?.value) !== undefined && $safeNavigationMigration(child.badge?.value) !== null) {
+                <span class="sidebar__badge" [attr.data-severity]="child.badge?.severity ?? 'info'">
+                  {{ child.badge?.value }}
+                </span>
+              }
+            </a>
+          }
+        }
+      </div>
+    </ng-template>
   `,
   styles: [`
     :host { --comp-sidebar-bg: var(--tch-color-surface-container-low); --comp-sidebar-fg: var(--tch-color-on-surface); display: block; height: 100%; }
@@ -148,6 +186,14 @@ import {
     a:hover, .sidebar__group-toggle:hover { background: var(--tch-color-surface-container-high); color: var(--tch-color-primary); }
     a.is-active, a.is-active:hover { background: var(--tch-color-accent); color: var(--tch-color-on-accent); font-weight: 600; }
     .sidebar__group-toggle.is-active-group { background: color-mix(in oklab, var(--tch-color-primary) 10%, transparent); color: var(--tch-color-primary); font-weight: 700; }
+    .sidebar__group { display: flex; align-items: center; border-radius: var(--tch-radius-md); }
+    .sidebar__group:hover { background: var(--tch-color-surface-container-high); }
+    .sidebar__group.is-active-group { background: color-mix(in oklab, var(--tch-color-primary) 10%, transparent); color: var(--tch-color-primary); font-weight: 700; }
+    .sidebar__group-link { flex: 1; min-width: 0; }
+    .sidebar__group-link:hover { background: transparent; color: inherit; }
+    .sidebar__group-link.is-active, .sidebar__group-link.is-active:hover { background: var(--tch-color-accent); color: var(--tch-color-on-accent); font-weight: 600; border-radius: var(--tch-radius-md); }
+    .sidebar__group-expand { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 2.75rem; height: 2.75rem; border: 0; background: transparent; color: inherit; cursor: pointer; }
+    .sidebar__group-expand:hover { color: var(--tch-color-primary); }
     .material-symbols-outlined { font-size: 1.375rem; flex: none; }
     .sidebar__group-label, .sidebar__label { flex: 1; min-width: 0; overflow-wrap: anywhere; }
     .sidebar__chevron { font-size: 1.25rem; transition: transform .15s ease; }
@@ -170,6 +216,8 @@ export class TchSidebarNav {
   readonly sections = input<readonly NavigationSection[]>([]);
   readonly secondary = input<readonly ActionItem[]>([]);
   readonly ariaLabel = input('Navigation principale');
+  readonly expandLabel = input('Développer');
+  readonly collapseLabel = input('Réduire');
   readonly itemActivated = output<ActionItem>();
   readonly actionRoute = actionRoute;
   readonly actionHref = actionHref;

@@ -16,7 +16,9 @@
       "ariaLabel": "Private navigation",
       "categories": "Categories",
       "pages": "{{count}} pages",
-      "search": "Search the menu"
+      "search": "Search the menu",
+      "expand": "Expand",
+      "collapse": "Collapse"
     },
     "theme_toggle": "Toggle theme",
     "toggle_menu": "Toggle menu",
@@ -82,7 +84,7 @@
       "controls_commissions": "Commissions",
       "reports_overview": "Overview",
       "reports_daily": "Daily",
-      "reports_sales": "Tickets",
+      "reports_sales": "Sales",
       "reports_sellers": "Sellers",
       "reports_draws": "Draws",
       "reports_financials": "Financials",

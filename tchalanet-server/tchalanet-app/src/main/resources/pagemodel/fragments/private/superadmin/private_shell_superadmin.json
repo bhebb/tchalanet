@@ -160,6 +160,8 @@
             "id": "tenants",
             "label_key": "platform.nav.tenantsGroup",
             "icon": "business",
+            "path": "/app/platform/tenants",
+            "kind": "internal",
             "children": [
               {
                 "id": "tenant-list",
@@ -189,6 +191,8 @@
             "id": "operations",
             "label_key": "platform.nav.operations",
             "icon": "manufacturing",
+            "path": "/app/platform/ops",
+            "kind": "internal",
             "children": [
               {
                 "id": "ops-overview",
@@ -295,6 +299,8 @@
             "id": "audit",
             "label_key": "platform.nav.audit",
             "icon": "assignment_turned_in",
+            "path": "/app/platform/audit",
+            "kind": "internal",
             "children": [
               {
                 "id": "audit-functional",
@@ -394,6 +400,8 @@
             "id": "archives",
             "label_key": "platform.nav.archives",
             "icon": "inventory_2",
+            "path": "/app/platform/archives",
+            "kind": "internal",
             "children": [
               {
                 "id": "archive-overview",

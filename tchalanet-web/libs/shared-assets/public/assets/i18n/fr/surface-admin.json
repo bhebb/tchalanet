@@ -16,7 +16,9 @@
       "ariaLabel": "Navigation privée",
       "categories": "Catégories",
       "pages": "{{count}} pages",
-      "search": "Rechercher dans le menu"
+      "search": "Rechercher dans le menu",
+      "expand": "Développer",
+      "collapse": "Réduire"
     },
     "theme_toggle": "Thème clair/sombre",
     "toggle_menu": "Ouvrir/fermer le menu",
@@ -83,7 +85,7 @@
       "controls_commissions": "Commissions",
       "reports_overview": "Vue d'ensemble",
       "reports_daily": "Journée",
-      "reports_sales": "Tickets",
+      "reports_sales": "Ventes",
       "reports_sellers": "Vendeurs",
       "reports_draws": "Tirages",
       "reports_financials": "Financials",

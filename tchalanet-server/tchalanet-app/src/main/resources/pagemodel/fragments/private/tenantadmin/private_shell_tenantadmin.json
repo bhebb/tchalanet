@@ -145,6 +145,8 @@
             "id": "sellers",
             "label_key": "nav.admin.sellers",
             "icon": "point_of_sale",
+            "path": "/app/admin/seller-terminals",
+            "kind": "internal",
             "children": [
               {
                 "id": "sellers-list",
@@ -174,6 +176,8 @@
             "id": "draws",
             "label_key": "nav.draws",
             "icon": "event",
+            "path": "/app/admin/draws",
+            "kind": "internal",
             "children": [
               {
                 "id": "draws-all",
@@ -217,20 +221,16 @@
             "id": "reports",
             "label_key": "nav.reports",
             "icon": "analytics",
+            "path": "/app/admin/reports/daily",
+            "kind": "internal",
             "children": [
-              {
-                "id": "reports-overview",
-                "label_key": "nav.admin.reports_overview",
-                "path": "/app/admin/reports/overview",
-                "kind": "internal",
-                "icon": "query_stats"
-              },
               {
                 "id": "reports-daily",
                 "label_key": "nav.admin.reports_daily",
                 "path": "/app/admin/reports/daily",
                 "kind": "internal",
-                "icon": "today"
+                "icon": "today",
+                "active_match": "exact"
               },
               {
                 "id": "reports-sales",
@@ -266,15 +266,9 @@
             "id": "tickets",
             "label_key": "nav.admin.tickets_section",
             "icon": "confirmation_number",
+            "path": "/app/admin/tickets",
+            "kind": "internal",
             "children": [
-              {
-                "id": "tickets-overview",
-                "label_key": "nav.admin.tickets_overview",
-                "path": "/app/admin/tickets/overview",
-                "kind": "internal",
-                "icon": "dashboard",
-                "active_match": "exact"
-              },
               {
                 "id": "tickets-list",
                 "label_key": "nav.admin.tickets_list",
@@ -393,13 +387,16 @@
             "id": "company",
             "label_key": "nav.admin.company",
             "icon": "business",
+            "path": "/app/admin/business-profile",
+            "kind": "internal",
             "children": [
               {
                 "id": "company-identity",
                 "label_key": "nav.admin.company_identity",
                 "path": "/app/admin/business-profile",
                 "kind": "internal",
-                "icon": "domain"
+                "icon": "domain",
+                "active_match": "exact"
               },
               {
                 "id": "company-appearance",

@@ -155,7 +155,9 @@ describe('private shell drawer — replié (< 840px)', () => {
   it('opens a category panel and drops the entry the header already leads to', async () => {
     const fixture = await render();
 
-    el(fixture, '[data-testid="drawer-category"]')!.click();
+    // The row's label navigates directly (it has its own destination) — the panel opens from
+    // the chevron, a separate control.
+    el(fixture, '[data-testid="drawer-category-expand"]')!.click();
     fixture.detectChanges();
 
     const panel = el(fixture, '.drawer-nav__panel');
@@ -174,7 +176,7 @@ describe('private shell drawer — replié (< 840px)', () => {
     fixture.componentInstance.drawerOpen.set(true);
     fixture.detectChanges();
 
-    el(fixture, '[data-testid="drawer-category"]')!.click();
+    el(fixture, '[data-testid="drawer-category-expand"]')!.click();
     fixture.detectChanges();
     expect(el(fixture, '.drawer-nav__panel')).not.toBeNull();
 
@@ -195,7 +197,7 @@ describe('private shell drawer — replié (< 840px)', () => {
     fixture.componentInstance.drawerOpen.set(true);
     fixture.detectChanges();
 
-    el(fixture, '[data-testid="drawer-category"]')!.click();
+    el(fixture, '[data-testid="drawer-category-expand"]')!.click();
     fixture.detectChanges();
     expect(el(fixture, '.drawer-nav__panel')).not.toBeNull();
 
@@ -221,8 +223,11 @@ describe('private shell drawer — replié (< 840px)', () => {
   it('still opens the panel of a footer entry that has children', async () => {
     const fixture = await render();
 
-    const footerCategory = all(fixture, '.drawer-nav__footer [data-testid="drawer-category"]')[0];
-    footerCategory.click();
+    const footerExpand = all(
+      fixture,
+      '.drawer-nav__footer [data-testid="drawer-category-expand"]',
+    )[0];
+    footerExpand.click();
     fixture.detectChanges();
 
     const panel = el(fixture, '.drawer-nav__panel');
@@ -236,6 +241,33 @@ describe('private shell drawer — replié (< 840px)', () => {
     expect(el(fixture, '[data-testid="drawer-category"]')?.classList.contains('is-active')).toBe(
       true,
     );
+  });
+
+  it('navigates on the row label without opening the panel', async () => {
+    const fixture = await render();
+
+    expect(el(fixture, '[data-testid="drawer-category"] .drawer-nav__row-link')).not.toBeNull();
+    el(fixture, '[data-testid="drawer-category"] .drawer-nav__row-link')!.click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(el(fixture, '.drawer-nav__panel')).toBeNull();
+    expect(TestBed.inject(Router).url).toBe('/app/admin/limits');
+  });
+
+  it('toggles the panel from the chevron without navigating', async () => {
+    const fixture = await render();
+    const urlBefore = TestBed.inject(Router).url;
+
+    const expandButton = el(fixture, '[data-testid="drawer-category-expand"]')!;
+    expect(expandButton.getAttribute('aria-expanded')).toBe('false');
+
+    expandButton.click();
+    fixture.detectChanges();
+
+    expect(TestBed.inject(Router).url).toBe(urlBefore);
+    expect(el(fixture, '.drawer-nav__panel')).not.toBeNull();
+    expect(expandButton.getAttribute('aria-expanded')).toBe('true');
   });
 });
 
@@ -278,17 +310,23 @@ describe('absorption de l’entrée d’atterrissage sur les modèles réels', (
       games: 'games-overview',
       limits: 'limits-overview',
       tickets: 'tickets-list',
+      reports: 'reports-daily',
+      company: 'company-identity',
       tenants: 'tenant-list',
       operations: 'ops-overview',
+      archives: 'archive-overview',
+      audit: 'audit-functional',
     });
   });
 
   it('cannot absorb anything from a group that declares no destination', () => {
-    // `archives` et `audit` ont bien un « Apèsi » / « Odit fonctionnel », mais leur groupe n'a pas
-    // de `destination` : l'en-tête n'a nulle part où mener, la ligne reste donc nécessaire.
-    // Le modèle venant du backend avec ce fichier en simple fallback, l'uniformiser se décide
-    // côté contrat, pas ici.
-    for (const id of ['archives', 'audit']) {
+    // `dashboard` a deux enfants exact-match sur des routes différentes (santé technique vs
+    // commercial) : aucun n'est "la" page par défaut du groupe, contrairement à `archives`/`audit`
+    // qui ont chacun une seule vue d'ensemble. `access`, `references`, `support-and-content` et
+    // `tchala` n'ont, eux, aucun enfant candidat évident non plus — même statut que `reports`/
+    // `company` avant qu'on leur choisisse une destination côté admin (web-console-sidenav-
+    // simplification-v1) : une décision produit, pas un oubli.
+    for (const id of ['dashboard', 'access', 'references', 'support-and-content', 'tchala']) {
       const group = groupsOf(PLATFORM_NAVIGATION).find(item => item.id === id);
       expect([id, actionRoute(group!)]).toEqual([id, '']);
     }
@@ -296,7 +334,9 @@ describe('absorption de l’entrée d’atterrissage sur les modèles réels', (
 
   it('leaves shortcut destinations alone', () => {
     // « Référentiels » pointe sur « Jeux », un item parmi dix : ce n'est pas une vue d'ensemble.
-    const shortcuts = ['references', 'access', 'support-and-content', 'tchala', 'reports', 'company'];
+    // `reports` et `company` ont depuis reçu une vraie destination de vue d'ensemble (voir le test
+    // d'absorption ci-dessus) — ils ne sont plus de simples raccourcis.
+    const shortcuts = ['references', 'access', 'support-and-content', 'tchala'];
     for (const id of shortcuts) {
       const group = [...groupsOf(TENANT_ADMIN_NAVIGATION), ...groupsOf(PLATFORM_NAVIGATION)].find(
         item => item.id === id,
