@@ -191,11 +191,17 @@ import {
     .sidebar__group.is-active-group { background: color-mix(in oklab, var(--tch-color-primary) 10%, transparent); color: var(--tch-color-primary); font-weight: 700; }
     .sidebar__group-link { flex: 1; min-width: 0; }
     .sidebar__group-link:hover { background: transparent; color: inherit; }
-    /* No solid fill here on purpose: when the group's own destination matches its active child
-       (the common case since this change), a solid .is-active on both would stack two identical
-       blocks. The group only ever gets the subtle .is-active-group tint (inherited from
-       .sidebar__group); full solid stays reserved for the one child that is actually the current
+    /* Cancels the generic a.is-active solid fill (same specificity, would otherwise still win
+       as a direct match regardless of the ancestor .is-active-group tint): when the group's own
+       destination matches its active child (the common case since this change), a solid fill on
+       both would stack two identical blocks. Transparent here lets .sidebar__group's tint show
+       through instead; full solid stays reserved for the one child that is actually the current
        page. */
+    .sidebar__group-link.is-active, .sidebar__group-link.is-active:hover {
+      background: transparent;
+      color: inherit;
+      font-weight: inherit;
+    }
     .sidebar__group-expand { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 2.75rem; height: 2.75rem; border: 0; background: transparent; color: inherit; cursor: pointer; }
     .sidebar__group-expand:hover { color: var(--tch-color-primary); }
     .material-symbols-outlined { font-size: 1.375rem; flex: none; }
