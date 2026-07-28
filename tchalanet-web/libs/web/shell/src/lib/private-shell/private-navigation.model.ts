@@ -665,7 +665,7 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
 
 /**
  * Bas de menu : ce qui n'est pas une activité métier — l'entreprise elle-même et l'aide.
- * Miroir statique de `footerDestinations` du contrat runtime.
+ * Miroir statique du `secondary` du contrat runtime (`runtime-navigation.mapper.ts`).
  */
 export const TENANT_ADMIN_FOOTER: readonly ActionItem[] = [
   {

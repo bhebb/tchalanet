@@ -157,14 +157,71 @@ habillage différent pour les entrées à enfants.
 « Profil »/« Tèm » à la navigation n'ont pas été faits — non confirmés, et la proposition v2
 elle-même classe le bouton « Tèm » hors périmètre (nettoyage pré-prod, pas une story de nav).
 
-## 11. Suites
+## 11. Découpage répercuté côté backend, et un bug réel trouvé en le faisant
+
+Retour : « il faut voir le backend pour avoir la séparation entre opérations et configuration — on
+n'a pas besoin de Sistèm ». Confirme qu'aucune troisième section n'est voulue ; demande que le
+découpage devienne réel, pas seulement un repli front qui ne s'active que quand le backend échoue.
+
+- [x] **Le backend servait déjà un `navigationDrawer` non vide**, à chaque requête —
+      `tchalanet-server/.../pagemodel/fragments/private/tenantadmin/private_shell_tenantadmin.json`,
+      chargé par `PrivateShellNavigationResolver`. Une seule section `admin` contenant tout,
+      `secondary` vide. `company`/`help` incluses.
+- [x] Fragment reformé : section `admin` (dashboard, sellers, draws, reports, tickets) + section
+      `config` (setup, maryaj-gratis, games, limits, company), `help` déplacé dans `secondary`.
+      Diff vérifié : seul le regroupement change, aucun item/enfant ajouté ou retiré.
+- [x] Nouveau test backend (`PrivateShellNavigationResolverTest`) qui charge ce fragment **réel**
+      via le vrai registre + un vrai `JsonMapper`, sans mock — le seul autre test de ce resolver
+      mockait les deux collaborateurs, donc rien ne l'exerçait de bout en bout. Fige les deux
+      sections et le contenu de `secondary`.
+- [x] Backend vérifié : `PrivateShellNavigationResolverTest` (2/2), `PageRuntimeAssemblerTest` (3/3),
+      checkstyle propre, spotless appliqué.
+- [x] **Bug trouvé en vérifiant** : `RuntimeNavigationDrawer` (front) déclarait `topDestinations` /
+      `footerDestinations` — les noms du record Java `NavigationDrawer`. Ce record n'est construit
+      nulle part (`grep` : aucun `.of(`/`new NavigationDrawer(` dans tout le backend) ; le resolver
+      qui sert réellement ce payload repasse le fragment JSON tel quel, qui nomme ces champs
+      `primary`/`secondary`. Conséquence : `footerFromRuntimeNavigation()` lisait un champ toujours
+      `undefined` face au vrai backend — le bas de menu retombait **silencieusement** sur le repli
+      statique sur **toute** requête réelle, y compris le `secondary` non vide déjà servi par
+      `private_shell_superadmin.json` (`releaseNotes`). Aucune des captures précédentes ne pouvait
+      le révéler : le bootstrap stubbé de e2e force `navigationDrawer: null`, donc chaque capture
+      n'a jamais exercé que le repli, jamais le mapping réel.
+- [x] Corrigé : `footerFromRuntimeNavigation()` lit `secondary` en premier, `footerDestinations` en
+      repli — même idiome que le reste du fichier (`labelKey`/`label_key`,
+      `activeMatch`/`active_match`) déjà utilisé pour composer avec les divergences de nommage.
+      `sectionsFromRuntimeNavigation()` n'avait pas ce problème : `sections` est identique des deux
+      côtés.
+- [x] Nouveau `runtime-navigation.mapper.spec.ts` — aucun test n'existait pour ce mapper. Fige
+      `secondary` comme source réelle, `footerDestinations` comme repli, et l'ordre de préférence
+      entre les deux.
+- [x] `PLATFORM_NAVIGATION` **non touché** : resterait une section unique de neuf groupes, non
+      demandé ici ; son fragment backend a déjà un `secondary` réel (`releaseNotes`), qui
+      n'atteignait pas non plus le front avant la correction du mapper.
+
+## 12. Suites
 
 - [ ] Décider côté contrat backend si `archives` et `audit` doivent déclarer une `destination` de
       groupe, pour que leur « Apèsi » soit absorbé comme celui d'`operations`.
-- [ ] **Répercuter le découpage côté backend.** `sections` et `footerDestinations` sont résolus
-      indépendamment (`runtime ?? repli`). Si le backend continue d'envoyer `company` ou `help` dans
-      `sections` en laissant `footerDestinations` vide, ces entrées apparaîtront **deux fois**. Le
-      contrat porte aussi `topDestinations`, toujours non consommé : c'est la zone des raccourcis si
-      on veut un jour distinguer le quotidien du reste sans passer par les sections.
-- [ ] Appliquer le même découpage à `PLATFORM_NAVIGATION`, qui reste une section unique de neuf
-      groupes.
+- [ ] `topDestinations`/`primary` du contrat reste non consommé par le shell (le `primary()` de
+      chaque app est un concept local sans rapport, ex. bandeau support-access) : zone de raccourcis
+      disponible si on veut un jour distinguer le quotidien sans passer par les sections.
+- [ ] Le bootstrap stubbé des specs e2e (`tenantAdminPrivateBootstrap`/`superAdminPrivateBootstrap`
+      dans `apps/web-e2e/src/support/api-stub.ts`) force `navigationDrawer: null` : aucun test e2e
+      n'exerce le vrai mapping runtime. Élargir le stub avec un `navigationDrawer` réaliste
+      toucherait les assertions de nombreux specs existants (auth-phase1/3, business-admin-v1) —
+      à faire dans un change dédié, pas ici.
+- [ ] Appliquer le même découpage « quotidien / configuration » à `PLATFORM_NAVIGATION` si voulu —
+      hors périmètre de ce retour, qui ne portait que sur la console admin.
+
+## 13. Robustesse du harnais e2e (trouvé en vérifiant ce qui précède)
+
+- [x] `apps/web-e2e/playwright.config.cts` : les trois `webServer` n'avaient pas de `timeout`
+      explicite (défaut Playwright 60s). En mode `emulator`, les trois serveurs démarrent en
+      parallèle et **aucun n'est réutilisé** (`reuseExistingServer` désactivé en mode émulateur —
+      voir le commentaire existant sur `emulatorTargets`), donc chaque run recompile à froid les
+      trois apps en même temps. Mesuré directement (serveur lancé seul, hors Playwright) : **~80s**
+      pour `admin-portal` en mode émulateur — au-delà du défaut, ce qui faisait échouer la suite
+      entière avec `Timed out waiting 60000ms from config.webServer`, sans qu'aucun serveur n'ait
+      réellement un problème.
+- [x] `timeout: 180_000` sur les trois entrées. Vérifié : `admin-portal-mobile` — 7/7 verts en une
+      seule tentative, la précédente ayant échoué trois fois de suite sur ce seul timeout.

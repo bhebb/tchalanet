@@ -23,10 +23,20 @@ export interface RuntimePortalConfigView {
   readonly portalBaseUrls?: Readonly<Partial<Record<'admin-portal' | 'platform-portal', string>>> | null;
 }
 
+/**
+ * The resolver that actually serves this payload (`PrivateShellNavigationResolver`, backend)
+ * passes the JSON fragment through untyped — it does not go through the `NavigationDrawer` Java
+ * record that names these fields `topDestinations`/`footerDestinations`. The fragment files on
+ * disk use `primary`/`secondary` instead. Both names are declared here and read defensively by
+ * `runtime-navigation.mapper.ts`, so this keeps working whether or not the backend is ever wired
+ * to the record's naming.
+ */
 export interface RuntimeNavigationDrawer {
   readonly brand?: unknown;
+  readonly primary?: readonly RuntimeNavigationEntry[];
   readonly topDestinations?: readonly RuntimeNavigationEntry[];
   readonly sections?: readonly RuntimeNavigationSection[];
+  readonly secondary?: readonly RuntimeNavigationEntry[];
   readonly footerDestinations?: readonly RuntimeNavigationEntry[];
   readonly actions?: readonly RuntimeNavigationEntry[];
 }

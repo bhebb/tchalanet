@@ -62,18 +62,25 @@ export default defineConfig({
           url: publicBaseURL,
           reuseExistingServer,
           cwd: workspaceRoot,
+          // Playwright's 60s default assumes one server compiling alone. The three run in
+          // parallel here, and `emulator` mode never reuses a stale server (see the comment
+          // above `emulatorTargets`) — a cold triple compile measured at ~80s, which timed the
+          // suite out entirely with no server ever actually failing.
+          timeout: 180_000,
         },
         {
           command: `pnpm exec nx run admin-portal:${serveTarget} --port=4302`,
           url: adminBaseURL,
           reuseExistingServer,
           cwd: workspaceRoot,
+          timeout: 180_000,
         },
         {
           command: `pnpm exec nx run platform-portal:${serveTarget} --port=4303`,
           url: platformBaseURL,
           reuseExistingServer,
           cwd: workspaceRoot,
+          timeout: 180_000,
         },
       ],
   projects: [

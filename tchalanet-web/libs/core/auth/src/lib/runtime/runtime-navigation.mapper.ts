@@ -18,14 +18,20 @@ export function sectionsFromRuntimeNavigation(
 }
 
 /**
- * Bas de menu du contrat runtime. Le drawer déclare `topDestinations`, `sections`,
- * `footerDestinations` et `actions` depuis l'origine ; seul `sections` était consommé, ce qui
- * obligeait à ranger l'entreprise et l'aide parmi les activités métier.
+ * Bas de menu du contrat runtime.
+ *
+ * Le record Java `NavigationDrawer` (aspirational — rien ne le construit) nomme ce champ
+ * `footerDestinations`. Le resolver qui sert vraiment ce payload
+ * (`PrivateShellNavigationResolver`) contourne ce record : il repasse le fragment JSON tel quel,
+ * et ce fragment nomme le même champ `secondary`. Lire uniquement `footerDestinations` — ce que
+ * faisait cette fonction jusqu'ici — le laissait `undefined` sur toute vraie requête, donc ce bas
+ * de menu retombait silencieusement sur le repli statique en permanence. Les deux noms sont donc
+ * lus, `secondary` (le vrai) en premier.
  */
 export function footerFromRuntimeNavigation(
   drawer: RuntimeNavigationDrawer | null,
 ): readonly ActionItem[] | null {
-  const items = (drawer?.footerDestinations ?? [])
+  const items = (drawer?.secondary ?? drawer?.footerDestinations ?? [])
     .map(actionFromRuntime)
     .filter((item): item is ActionItem => item !== null);
   return items.length ? items : null;
