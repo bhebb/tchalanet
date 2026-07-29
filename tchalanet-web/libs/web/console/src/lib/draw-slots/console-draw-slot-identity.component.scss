@@ -44,7 +44,7 @@
     font-size: 0.625rem;
     font-weight: 800;
     line-height: 1.1;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
     text-align: center;
   }
 
@@ -71,7 +71,7 @@
   font-size: var(--tch-font-size-body-md);
   font-weight: var(--tch-font-weight-bold, 700);
   line-height: 1.25;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
 .console-draw-slot__subtitle,
@@ -80,7 +80,7 @@
   color: var(--tch-color-on-surface-variant);
   font-size: var(--tch-font-size-label-sm);
   line-height: 1.25;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
 .console-draw-slot__subtitle {
