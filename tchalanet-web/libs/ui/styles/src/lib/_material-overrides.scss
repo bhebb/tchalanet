@@ -90,6 +90,20 @@ optgroup {
   }
 }
 
+.console-draws-table__menu-panel {
+  .mat-mdc-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    min-height: 44px;
+  }
+
+  .material-symbols-outlined {
+    flex: none;
+    font-size: 1.25rem;
+  }
+}
+
 .mat-mdc-select-panel {
   max-height: 20rem !important;
 }

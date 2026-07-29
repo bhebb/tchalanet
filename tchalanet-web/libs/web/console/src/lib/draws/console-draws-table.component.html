@@ -270,7 +270,7 @@
   }
 </div>
 
-<mat-menu #cardMenu="matMenu">
+<mat-menu #cardMenu="matMenu" class="console-draws-table__menu-panel">
   <ng-template matMenuContent let-row="row">
     @for (action of secondaryActions(row); track action.id) {
       <button
