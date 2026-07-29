@@ -13,6 +13,7 @@ import com.tchalanet.server.common.job.launch.BatchJobStarter;
 import com.tchalanet.server.common.job.registry.RegisteredJob;
 import com.tchalanet.server.common.job.registry.TchJobRegistry;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.features.ops.batch.model.ExecutionResponse;
 import com.tchalanet.server.features.ops.batch.model.GateStatusResponse;
 import com.tchalanet.server.features.ops.batch.model.GateUpdateRequest;
@@ -21,12 +22,12 @@ import com.tchalanet.server.features.ops.batch.model.PurgeExecutionsRequest;
 import com.tchalanet.server.features.ops.batch.model.PurgeExecutionsResponse;
 import com.tchalanet.server.features.ops.batch.model.StartJobRequest;
 import com.tchalanet.server.features.ops.batch.model.StartJobResponse;
+import com.tchalanet.server.features.ops.error.OpsErrorCodes;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
@@ -66,16 +67,16 @@ public class OpsBatchService {
   }
 
   public JobInfoResponse getJob(String jobKeyStr) {
-    JobKey jobKey = JobKey.of(jobKeyStr);
+    JobKey jobKey = parseJobKey(jobKeyStr);
     RegisteredJob registered =
         tchBatchJobRegistry
             .find(jobKey)
-            .orElseThrow(() -> new IllegalArgumentException("Job not found: " + jobKey));
+            .orElseThrow(() -> ProblemRest.of(OpsErrorCodes.BATCH_JOB_NOT_FOUND));
     return toJobInfoResponse(registered);
   }
 
   public StartJobResponse startJob(String jobKeyStr, StartJobRequest request) {
-    JobKey jobKey = JobKey.of(jobKeyStr);
+    JobKey jobKey = parseJobKey(jobKeyStr);
 
     log.info("ops.batch.start.request jobKey={} paramsCount={}", jobKey, request.params().size());
 
@@ -89,11 +90,11 @@ public class OpsBatchService {
   }
 
   public GateStatusResponse getGateStatus(String jobKeyStr, String tenantIdStr) {
-    JobKey jobKey = JobKey.of(jobKeyStr);
+    JobKey jobKey = parseJobKey(jobKeyStr);
 
     TenantId tenantId = null;
     if (tenantIdStr != null && !tenantIdStr.isBlank()) {
-      tenantId = TenantId.parse(tenantIdStr);
+      tenantId = parseTenantId(tenantIdStr);
     }
 
     var enabled = gate.enabled(jobKey, tenantId);
@@ -108,13 +109,13 @@ public class OpsBatchService {
   public Map<String, Boolean> getGateStatusBulk(List<String> jobKeys, String tenantIdStr) {
     TenantId tenantId = null;
     if (tenantIdStr != null && !tenantIdStr.isBlank()) {
-      tenantId = TenantId.parse(tenantIdStr);
+      tenantId = parseTenantId(tenantIdStr);
     }
 
     Map<String, Boolean> result = new LinkedHashMap<>();
     for (String raw : jobKeys) {
       try {
-        JobKey jk = JobKey.of(raw);
+        JobKey jk = parseJobKey(raw);
         if (tchBatchJobRegistry.find(jk).isEmpty()) {
           result.put(raw, false);
           continue;
@@ -130,11 +131,11 @@ public class OpsBatchService {
 
   @Transactional
   public void updateGate(String jobKeyStr, GateUpdateRequest request) {
-    JobKey jobKey = JobKey.of(jobKeyStr);
+    JobKey jobKey = parseJobKey(jobKeyStr);
 
     tchBatchJobRegistry
         .find(jobKey)
-        .orElseThrow(() -> new IllegalArgumentException("Job not in allowlist: " + jobKey));
+        .orElseThrow(() -> ProblemRest.of(OpsErrorCodes.BATCH_JOB_NOT_FOUND));
 
     log.info(
         "ops.batch.gate.update jobKey={} scope={} enabled={} reason={}",
@@ -149,16 +150,16 @@ public class OpsBatchService {
     if ("TENANT".equalsIgnoreCase(request.scope())) {
       level = SettingLevel.TENANT;
       if (request.tenant_id() == null || request.tenant_id().isBlank()) {
-        throw new IllegalArgumentException("tenant_id required for TENANT scope");
+        throw ProblemRest.of(OpsErrorCodes.BATCH_TENANT_REQUIRED);
       }
-      tenantId = TenantId.parse(request.tenant_id());
+      tenantId = parseTenantId(request.tenant_id());
     } else if ("GLOBAL".equalsIgnoreCase(request.scope())) {
       level = SettingLevel.GLOBAL;
       if (request.tenant_id() != null && !request.tenant_id().isBlank()) {
-        throw new IllegalArgumentException("tenant_id not allowed for GLOBAL scope");
+        throw ProblemRest.of(OpsErrorCodes.BATCH_TENANT_NOT_ALLOWED);
       }
     } else {
-      throw new IllegalArgumentException("Invalid scope: " + request.scope() + " (TENANT|GLOBAL)");
+      throw ProblemRest.of(OpsErrorCodes.BATCH_SCOPE_INVALID);
     }
 
     String settingKey = "jobs." + jobKey.value() + ".enabled";
@@ -201,13 +202,13 @@ public class OpsBatchService {
                     view.context(),
                     view.exitCode(),
                     view.exitMessage()))
-        .orElseThrow(() -> new NoSuchElementException("Batch execution not found: " + executionId));
+        .orElseThrow(() -> ProblemRest.of(OpsErrorCodes.BATCH_EXECUTION_NOT_FOUND));
   }
 
   public StartJobResponse restartExecution(long executionId) {
     batchJobHistoryService
         .getExecution(executionId)
-        .orElseThrow(() -> new NoSuchElementException("Batch execution not found: " + executionId));
+        .orElseThrow(() -> ProblemRest.of(OpsErrorCodes.BATCH_EXECUTION_NOT_FOUND));
 
     var execution = jobExecutionOperator.restart(executionId);
 
@@ -217,16 +218,16 @@ public class OpsBatchService {
 
   public List<ExecutionResponse> listExecutions(String jobKeyStr, int limit) {
     if (jobKeyStr == null || jobKeyStr.isBlank()) {
-      throw new IllegalArgumentException("job_key is required");
+      throw ProblemRest.of(OpsErrorCodes.BATCH_JOB_KEY_REQUIRED);
     }
     if (limit < 1 || limit > 200) {
-      throw new IllegalArgumentException("limit must be between 1 and 200");
+      throw ProblemRest.of(OpsErrorCodes.BATCH_LIMIT_INVALID);
     }
 
-    JobKey jobKey = JobKey.of(jobKeyStr);
+    JobKey jobKey = parseJobKey(jobKeyStr);
     tchBatchJobRegistry
         .find(jobKey)
-        .orElseThrow(() -> new IllegalArgumentException("Job not in allowlist: " + jobKey));
+        .orElseThrow(() -> ProblemRest.of(OpsErrorCodes.BATCH_JOB_NOT_FOUND));
 
     return batchJobHistoryService.listExecutions(jobKey, limit).stream()
         .map(
@@ -244,7 +245,12 @@ public class OpsBatchService {
   }
 
   public PurgeExecutionsResponse purgeExecutions(PurgeExecutionsRequest request) {
-    int retentionDays = request != null ? request.resolvedRetentionDays() : 7;
+    int retentionDays;
+    try {
+      retentionDays = request != null ? request.resolvedRetentionDays() : 7;
+    } catch (IllegalArgumentException exception) {
+      throw ProblemRest.of(OpsErrorCodes.BATCH_RETENTION_INVALID, Map.of(), exception);
+    }
     Instant cutoff = Instant.now().minus(Duration.ofDays(retentionDays));
     BatchJobHistoryPurgeResult result = batchJobHistoryService.purgeBefore(cutoff);
     return new PurgeExecutionsResponse(
@@ -271,5 +277,21 @@ public class OpsBatchService {
       return 0L;
     }
     return Long.parseLong(executionId);
+  }
+
+  private static JobKey parseJobKey(String raw) {
+    try {
+      return JobKey.of(raw);
+    } catch (IllegalArgumentException exception) {
+      throw ProblemRest.of(OpsErrorCodes.BATCH_JOB_KEY_INVALID, Map.of(), exception);
+    }
+  }
+
+  private static TenantId parseTenantId(String raw) {
+    try {
+      return TenantId.parse(raw);
+    } catch (IllegalArgumentException exception) {
+      throw ProblemRest.of(OpsErrorCodes.BATCH_TENANT_ID_INVALID, Map.of(), exception);
+    }
   }
 }
