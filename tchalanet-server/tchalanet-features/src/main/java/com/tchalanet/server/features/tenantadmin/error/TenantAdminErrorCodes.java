@@ -40,6 +40,12 @@ public class TenantAdminErrorCodes {
       unavailable("tenantadmin.dashboard.public_content_unavailable");
   public static final ErrorDescriptor TICKET_SETTLEMENT_VARIANT_UNAVAILABLE =
       unavailable("tenantadmin.ticket.settlement_variant.unavailable");
+  public static final ErrorDescriptor GAMES_CATALOG_UNAVAILABLE =
+      unavailable("tenantadmin.games.catalog_unavailable");
+  public static final ErrorDescriptor GAMES_LIMITS_UNAVAILABLE =
+      unavailable("tenantadmin.games.limits_unavailable");
+  public static final ErrorDescriptor GAMES_PRICING_UNAVAILABLE =
+      unavailable("tenantadmin.games.pricing_unavailable");
 
   public static Set<ErrorDescriptor> all() {
     return Set.of(
@@ -55,7 +61,10 @@ public class TenantAdminErrorCodes {
         DASHBOARD_NOTIFICATIONS_UNAVAILABLE,
         DASHBOARD_COMMISSION_UNAVAILABLE,
         DASHBOARD_PUBLIC_CONTENT_UNAVAILABLE,
-        TICKET_SETTLEMENT_VARIANT_UNAVAILABLE);
+        TICKET_SETTLEMENT_VARIANT_UNAVAILABLE,
+        GAMES_CATALOG_UNAVAILABLE,
+        GAMES_LIMITS_UNAVAILABLE,
+        GAMES_PRICING_UNAVAILABLE);
   }
 
   private static ErrorDescriptor unavailable(String code) {

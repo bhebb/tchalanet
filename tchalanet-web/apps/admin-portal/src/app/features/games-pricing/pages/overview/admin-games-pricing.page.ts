@@ -4,12 +4,19 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
-import { webAppErrorFromProblemDetail } from '@tch/api';
-import type { ProblemDetail } from '@tch/api';
+import { webAppErrorFromNotice, webAppErrorFromProblemDetail } from '@tch/api';
+import type { ApiNotice, ApiResponse, ProblemDetail } from '@tch/api';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { AdminPageShellComponent } from '@tch/ui/console';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
-import { resourceErrorVm, tchMutation, TchAsyncReadyDirective, TchAsyncViewComponent } from '@tch/web/async';
+import { TchSectionError } from '@tch/ui/components';
+import {
+  resourceErrorVm,
+  tchMutation,
+  TchAsyncReadyDirective,
+  TchAsyncSource,
+  TchAsyncViewComponent,
+} from '@tch/web/async';
 import { AdminGamesPricingApiService } from '../../data-access/admin-games-pricing-api.service';
 import { TenantGamePricingView } from '../../data-access/admin-games-pricing.models';
 import {
@@ -43,6 +50,7 @@ const MARYAJ_GRATIS_GAME_CODES = new Set(['HT_MARYAJ_GRATIS', 'HT_MARYAJ_GRATUIT
     TranslatePipe,
     AdminPageShellComponent,
     AdminEmptyStateComponent,
+    TchSectionError,
     TchAsyncReadyDirective,
     TchAsyncViewComponent,
     GamesSetupIssuesComponent,
@@ -58,9 +66,21 @@ export class AdminGamesPricingPage {
   private readonly router = inject(Router);
   private readonly translate = inject(TranslateService);
 
-  readonly gamesResource = this.api.getGamesPricingResource({ suppressShellFeedback: true });
+  readonly gamesResponseResource = this.api.getGamesPricingResponseResource({
+    suppressShellFeedback: true,
+  });
+  readonly gamesResource: TchAsyncSource<readonly TenantGamePricingView[]> = {
+    status: () => this.gamesResponseResource.status(),
+    value: () => this.gamesResponseResource.value()?.data,
+    error: () => this.gamesResponseResource.error(),
+  };
   readonly gamesError = resourceErrorVm(this.gamesResource, 'admin.setup.games_pricing');
   readonly games = computed(() => this.gamesResource.value() ?? []);
+  readonly degradationErrors = computed(() => {
+    const response = this.gamesResponseResource.value();
+    if (!response?.notices?.length) return [];
+    return response.notices.map(notice => this.noticeError(notice, response));
+  });
   readonly matrixSummary = computed(() => this.buildOverviewSummary(this.games()));
   readonly issues = computed(() => this.buildOverviewIssues(this.games()));
   readonly actionErrors = signal<Readonly<Record<string, TenantGameCardError>>>({});
@@ -112,7 +132,7 @@ export class AdminGamesPricingPage {
 
   load(): void {
     this.actionErrors.set({});
-    this.gamesResource.reload();
+    this.gamesResponseResource.reload();
   }
 
   onActivate(gameCode: string): void {
@@ -160,7 +180,9 @@ export class AdminGamesPricingPage {
       maxWidth: 'calc(100vw - 1rem)',
       maxHeight: 'calc(100dvh - 1rem)',
     });
-    ref.afterClosed().subscribe(ok => { if (ok) this.load(); });
+    ref.afterClosed().subscribe(ok => {
+      if (ok) this.load();
+    });
   }
 
   onIssueAction(issue: GamesSetupIssue): void {
@@ -187,9 +209,9 @@ export class AdminGamesPricingPage {
 
   private buildOverviewSummary(games: readonly TenantGamePricingView[]): GamesOverviewSummary {
     return {
-      catalogGameCount:  games.filter(game => game.catalogStatus === 'AVAILABLE').length,
-      activeGameCount:   games.filter(game => game.tenantStatus === 'ACTIVE').length,
-      needsConfigCount:  games.filter(game => game.tenantStatus === 'NEEDS_CONFIG').length,
+      catalogGameCount: games.filter(game => game.catalogStatus === 'AVAILABLE').length,
+      activeGameCount: games.filter(game => game.tenantStatus === 'ACTIVE').length,
+      needsConfigCount: games.filter(game => game.tenantStatus === 'NEEDS_CONFIG').length,
       inactiveGameCount: games.filter(game => game.tenantStatus === 'INACTIVE').length,
     };
   }
@@ -200,16 +222,20 @@ export class AdminGamesPricingPage {
     for (const game of games) {
       if (game.catalogStatus !== 'AVAILABLE' || game.tenantStatus === 'UNAVAILABLE') continue;
 
-      if (game.tenantStatus === 'NEEDS_CONFIG' || !this.hasGameStakeConfig(game) || !this.hasGamePricingConfig(game)) {
+      if (
+        game.tenantStatus === 'NEEDS_CONFIG' ||
+        !this.hasGameStakeConfig(game) ||
+        !this.hasGamePricingConfig(game)
+      ) {
         issues.push({
-          gameCode:    game.gameCode,
-          gameName:    game.gameName,
-          messageKey:  this.hasGameStakeConfig(game)
+          gameCode: game.gameCode,
+          gameName: game.gameName,
+          messageKey: this.hasGameStakeConfig(game)
             ? 'admin.gamesPricing.issues.missingPricing'
             : 'admin.gamesPricing.issues.missingStake',
           actionLabelKey: 'admin.gamesPricing.issues.configure',
-          action:      'configure-game',
-          tone:        'danger',
+          action: 'configure-game',
+          tone: 'danger',
         });
         continue;
       }
@@ -223,7 +249,9 @@ export class AdminGamesPricingPage {
   }
 
   private hasGamePricingConfig(game: TenantGamePricingView): boolean {
-    return game.odds.length > 0 && game.odds.every(odd => odd.odds !== null && odd.odds !== undefined);
+    return (
+      game.odds.length > 0 && game.odds.every(odd => odd.odds !== null && odd.odds !== undefined)
+    );
   }
 
   private errorCopy(
@@ -246,5 +274,20 @@ export class AdminGamesPricingPage {
       title: copy.title,
       message: copy.message,
     };
+  }
+
+  private noticeError(notice: ApiNotice, response: ApiResponse<readonly TenantGamePricingView[]>) {
+    const normalized = webAppErrorFromNotice(
+      notice,
+      response.trace,
+      'admin.setup.games_pricing',
+      'section',
+    );
+    const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+    return {
+      severity: normalized.severity,
+      title: copy.title,
+      message: copy.message,
+    } satisfies TenantGameCardError;
   }
 }

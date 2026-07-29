@@ -86,6 +86,13 @@ export class AdminGamesPricingApiService {
     );
   }
 
+  getGamesPricingResponseResource(options?: TchRequestOptions) {
+    return this.backend.getApiResponseResource<TenantGamePricingView[], BffResponse>(
+      () => ({ path: '/admin/setup/games-pricing', options }),
+      res => res.games.map(row => this.toView(row)),
+    );
+  }
+
   enableGame(gameCode: string, options?: TchRequestOptions): Observable<void> {
     return this.gamesApi.enableGame(gameCode, options);
   }
@@ -94,18 +101,29 @@ export class AdminGamesPricingApiService {
     return this.gamesApi.disableGame(gameCode, options);
   }
 
-  updateSettings(gameCode: string, req: UpdateGameSettingsRequest, options?: TchRequestOptions): Observable<void> {
+  updateSettings(
+    gameCode: string,
+    req: UpdateGameSettingsRequest,
+    options?: TchRequestOptions,
+  ): Observable<void> {
     return this.gamesApi.updateGameSettings(gameCode, req, options);
   }
 
-  upsertTenantOdds(req: UpsertTenantOddsRequest, options?: TchRequestOptions): Observable<TenantGameOddView> {
+  upsertTenantOdds(
+    req: UpsertTenantOddsRequest,
+    options?: TchRequestOptions,
+  ): Observable<TenantGameOddView> {
     return this.backend
       .put<BffPricingEntry>('/admin/controls/pricing-rules', req, options)
       .pipe(map(entry => this.toOdd(entry)));
   }
 
   deleteTenantOdds(req: DeleteTenantOddsRequest, options?: TchRequestOptions): Observable<void> {
-    return this.backend.deleteWithBody<void, DeleteTenantOddsRequest>('/admin/controls/pricing-rules', req, options);
+    return this.backend.deleteWithBody<void, DeleteTenantOddsRequest>(
+      '/admin/controls/pricing-rules',
+      req,
+      options,
+    );
   }
 
   private toView(row: BffGameRow): TenantGamePricingView {
@@ -115,10 +133,10 @@ export class AdminGamesPricingApiService {
     const limits = this.toLimits(row);
 
     return {
-      gameCode:          row.gameCode,
-      tenantGameId:      row.tenantGameId?.value ?? null,
-      gameName:          consoleGameName(row.gameCode, row.displayName || row.catalogName),
-      catalogStatus:     'AVAILABLE',
+      gameCode: row.gameCode,
+      tenantGameId: row.tenantGameId?.value ?? null,
+      gameName: consoleGameName(row.gameCode, row.displayName || row.catalogName),
+      catalogStatus: 'AVAILABLE',
       tenantStatus,
       pricingProfileLabel: row.pricing.configured ? 'Barème standard' : null,
       odds,
@@ -135,8 +153,12 @@ export class AdminGamesPricingApiService {
   }
 
   private hasStakeSettings(row: BffGameRow): boolean {
-    return row.minStake !== null && row.minStake !== undefined &&
-      row.maxStake !== null && row.maxStake !== undefined;
+    return (
+      row.minStake !== null &&
+      row.minStake !== undefined &&
+      row.maxStake !== null &&
+      row.maxStake !== undefined
+    );
   }
 
   private toOdds(entries: BffPricingEntry[]): TenantGameOddView[] {
@@ -215,10 +237,14 @@ export class AdminGamesPricingApiService {
 
   private toReadiness(status: TenantGameStatus): TenantGamePricingView['readiness'] {
     switch (status) {
-      case 'ACTIVE':       return { status: 'READY',   label: 'Prêt',           reason: null };
-      case 'NEEDS_CONFIG': return { status: 'TODO',    label: 'À configurer',   reason: 'Limites ou barème manquant' };
-      case 'INACTIVE':     return { status: 'TODO',    label: 'Inactif',        reason: null };
-      case 'UNAVAILABLE':  return { status: 'BLOCKED', label: 'Non disponible', reason: null };
+      case 'ACTIVE':
+        return { status: 'READY', label: 'Prêt', reason: null };
+      case 'NEEDS_CONFIG':
+        return { status: 'TODO', label: 'À configurer', reason: 'Limites ou barème manquant' };
+      case 'INACTIVE':
+        return { status: 'TODO', label: 'Inactif', reason: null };
+      case 'UNAVAILABLE':
+        return { status: 'BLOCKED', label: 'Non disponible', reason: null };
     }
   }
 }
