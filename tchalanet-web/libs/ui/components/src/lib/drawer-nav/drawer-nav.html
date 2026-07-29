@@ -91,21 +91,9 @@
         <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
       </button>
       <div class="drawer-nav__panel-title">
-        @if (categoryRoute(category)) {
-          <!-- L'en-tête est la page d'atterrissage de la catégorie : l'enfant qui menait à la
-               même route n'est donc plus listé en dessous. -->
-          <a
-            class="drawer-nav__panel-link"
-            [routerLink]="categoryRoute(category)"
-            [queryParams]="actionQueryParams(category)"
-            [attr.aria-current]="isActionActive(category, category.children ?? []) ? 'page' : null"
-            (click)="onItemClick($event, category)"
-          >
-            <h2>{{ actionText(category) | translate }}</h2>
-          </a>
-        } @else {
-          <h2>{{ actionText(category) | translate }}</h2>
-        }
+        <!-- Titre simple, jamais un lien : la page d'atterrissage a sa propre ligne cliquable
+             dans la liste ci-dessous, comme n'importe quel autre enfant. -->
+        <h2>{{ actionText(category) | translate }}</h2>
         <p class="drawer-nav__panel-count">{{ pagesCount(category) }}</p>
       </div>
     </div>

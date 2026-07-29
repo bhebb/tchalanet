@@ -53,9 +53,10 @@ import {
  * verticale ne manque pas. Les deux composants rendent **le même modèle** et partagent la logique
  * d'activité de route (`../navigation/route-activity`).
  *
- * **L'en-tête de panneau absorbe l'enfant qui pointe vers la même route que le groupe.** Sans ça
- * la liste répète l'entrée d'atterrissage (« Apèsi », « Lis tèminal »…) alors que le titre du
- * panneau y mène déjà.
+ * Le panneau liste tous les enfants sans filtrage, y compris celui qui mène à la même route que le
+ * groupe (« Lis tikè », « Apèsi »…) — masquer cette entrée forçait à taper le titre du panneau pour
+ * l'atteindre, un texte qui ne ressemble à rien de cliquable. La sidebar desktop ne l'a jamais
+ * masquée non plus ; les deux rendus s'accordent maintenant.
  */
 @Component({
   selector: 'tch-drawer-nav',
@@ -148,13 +149,8 @@ export class TchDrawerNav {
     () => this.allCategories().find(item => item.id === this.openCategoryId()) ?? null,
   );
 
-  /** Enfants du panneau, moins celui que l'en-tête absorbe. */
-  readonly openCategoryItems = computed(() => {
-    const category = this.openCategory();
-    if (!category) return [];
-    const absorbed = this.absorbedChild(category);
-    return (category.children ?? []).filter(child => child.id !== absorbed?.id);
-  });
+  /** Enfants du panneau, sans filtrage — voir la note de classe sur l'entrée d'atterrissage. */
+  readonly openCategoryItems = computed(() => this.openCategory()?.children ?? []);
 
   /** Résultats de recherche : entrées de tout niveau dont le libellé traduit correspond. */
   readonly searchResults = computed(() => {
@@ -235,23 +231,6 @@ export class TchDrawerNav {
       return;
     }
     this.itemActivated.emit(item);
-  }
-
-  /**
-   * L'enfant qui mène exactement là où mène le groupe : le titre du panneau le remplace.
-   *
-   * `activeMatch: 'exact'` est exigé, et ce n'est pas un détail. Beaucoup de groupes déclarent une
-   * `destination` qui n'est qu'un raccourci vers leur premier enfant (« Référentiels » pointe sur
-   * « Jeux », un item parmi dix) : sans cette condition, cet enfant disparaîtrait de la liste alors
-   * qu'il n'est pas la page d'atterrissage de la catégorie. Une vraie vue d'ensemble, elle, est
-   * toujours marquée `exact` — sinon son préfixe avalerait ses frères.
-   */
-  private absorbedChild(item: ActionItem): ActionItem | undefined {
-    const route = actionRoute(item);
-    if (!route) return undefined;
-    return (item.children ?? []).find(
-      child => child.activeMatch === 'exact' && actionRoute(child) === route,
-    );
   }
 
   private label(item: ActionItem): string {
