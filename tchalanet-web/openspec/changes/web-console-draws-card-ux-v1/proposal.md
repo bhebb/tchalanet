@@ -50,12 +50,21 @@ plainte formulée.
 - **Hiérarchie de carte à quatre blocs, ordre fixe** : identité (code fonctionnel + libellé humain) →
   état de vente → résultat (si disponible) → action principale. Les actions secondaires quittent la
   ligne d'actions pour un menu `⋮`.
-- **Provider masqué, heure locale conservée.** Le nom du provider et l'heure provider ne sont
-  jamais affichés sur la carte — ils restent nécessaires (diagnostic d'un décalage horaire,
-  vérification manuelle) mais vont dans `admin-generated-draws.page` → page de détail du tirage
-  (`admin-draw-result-detail.page`). L'**heure locale (tenant)**, elle, reste visible sur la carte
-  sous le badge d'état — un administrateur doit pouvoir situer un tirage fermé (« Fermé · 19h00 »)
-  sans ouvrir le détail. Elle ne s'affiche jamais à côté d'une heure provider.
+- **Provider masqué, heure locale conservée — toujours visible.** Le nom du provider et l'heure
+  provider ne sont jamais affichés sur la carte — ils restent nécessaires (diagnostic d'un décalage
+  horaire, vérification manuelle) mais vont dans `admin-generated-draws.page` → page de détail du
+  tirage (`admin-draw-result-detail.page`). L'**heure locale (tenant)**, elle, reste visible sur la
+  carte sous le badge d'état — un administrateur doit pouvoir situer un tirage sans ouvrir le
+  détail. *Révisé après capture réelle* : la première version masquait l'heure locale dès qu'un
+  compte à rebours était affiché (tirage ouvert) — retour explicite après vérification sur staging
+  (toutes les cartes visibles étaient des tirages ouverts, donc aucune n'affichait d'heure) : elle
+  reste visible **en permanence**, à côté du compte à rebours quand il y en a un. Elle ne s'affiche
+  jamais à côté d'une heure provider.
+- **Case de sélection à gauche, menu `⋮` seul à droite.** *Révisé après capture réelle* : la
+  case de sélection multiple et le bouton `⋮` partageaient initialement le même coin (droite), ce
+  qui mélangeait deux gestes différents (sélectionner la ligne vs agir dessus). La case passe en
+  tête de carte à gauche (convention standard des listes à sélection multiple), le coin droit ne
+  garde que le `⋮`.
 - **Toute action du menu `⋮` porte une icône ET un libellé texte, jamais l'icône seule.** Même
   règle pour toute action ajoutée plus tard à ce menu — une icône seule suppose une culture visuelle
   qu'on ne peut pas garantir chez tous les administrateurs.
@@ -87,7 +96,10 @@ plainte formulée.
 - Menu Material (`mat-menu`) pour les actions de cycle de vie sur la carte, chaque item avec icône +
   libellé texte ; le tableau desktop garde son rendu actuel en icon-buttons (avec `title`, pas assez
   de bruit visuel à cette densité pour justifier un menu — et la souris permet le survol, absent au
-  tactile).
+  tactile). **Un seul `<mat-menu>` partagé** hors de la boucle `@for`, contexte de ligne passé via
+  `matMenuTriggerData` + `matMenuContent`/`let-row` (même pattern que
+  `seller-terminal-table.component.html`) — un `<mat-menu>` par carte, essayé dans une première
+  passe, ouvrait par moments le menu d'une autre carte que celle cliquée.
 - **Correction du sélecteur CSS trop large** : `console-draws-table.component.scss`, bloc
   `@include ui.down(expanded)` — `.mat-mdc-button-base { width: 100%; }` sous `&__card-actions`
   scope désormais uniquement le bouton principal (ex. via une classe dédiée), pas tous les

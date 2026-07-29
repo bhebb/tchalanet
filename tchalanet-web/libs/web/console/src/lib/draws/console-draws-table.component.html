@@ -8,38 +8,26 @@
       @for (row of group.rows; track row.id) {
         <article class="console-draws-table__card">
           <header class="console-draws-table__card-header">
+            @if (selectable()) {
+              <mat-checkbox
+                class="console-draws-table__card-select"
+                [checked]="isSelected(row)"
+                [attr.aria-label]="'Sélectionner ' + row.title"
+                (change)="emitSelection(row, $event.checked)"
+              />
+            }
             <tch-console-draw-slot-identity [identity]="row.identity" [showTechnicalMeta]="false" />
             <div class="console-draws-table__card-header-end">
-              @if (selectable()) {
-                <mat-checkbox
-                  [checked]="isSelected(row)"
-                  [attr.aria-label]="'Sélectionner ' + row.title"
-                  (change)="emitSelection(row, $event.checked)"
-                />
-              }
               @if (!row.pending && (row.actions?.length ?? 0) > 1) {
                 <button
                   mat-icon-button
                   type="button"
                   [attr.aria-label]="'Autres actions pour ' + row.title"
                   [matMenuTriggerFor]="cardMenu"
+                  [matMenuTriggerData]="{ row: row }"
                 >
                   <span class="material-symbols-outlined">more_vert</span>
                 </button>
-                <mat-menu #cardMenu="matMenu">
-                  @for (action of secondaryActions(row); track action.id) {
-                    <button
-                      mat-menu-item
-                      type="button"
-                      [disabled]="action.disabled"
-                      [class.console-draws-table__action--danger]="action.tone === 'danger'"
-                      (click)="emitAction(row, action)"
-                    >
-                      <span class="material-symbols-outlined">{{ action.icon || 'more_horiz' }}</span>
-                      {{ action.label }}
-                    </button>
-                  }
-                </mat-menu>
               }
             </div>
           </header>
@@ -53,7 +41,8 @@
               >
                 {{ row.countdownLabel }}
               </span>
-            } @else if (localLabel(row); as local) {
+            }
+            @if (localLabel(row); as local) {
               <span class="console-draws-table__local-time">{{ local }}</span>
             }
           </div>
@@ -280,3 +269,20 @@
     </div>
   }
 </div>
+
+<mat-menu #cardMenu="matMenu">
+  <ng-template matMenuContent let-row="row">
+    @for (action of secondaryActions(row); track action.id) {
+      <button
+        mat-menu-item
+        type="button"
+        [disabled]="action.disabled"
+        [class.console-draws-table__action--danger]="action.tone === 'danger'"
+        (click)="emitAction(row, action)"
+      >
+        <span class="material-symbols-outlined">{{ action.icon || 'more_horiz' }}</span>
+        {{ action.label }}
+      </button>
+    }
+  </ng-template>
+</mat-menu>

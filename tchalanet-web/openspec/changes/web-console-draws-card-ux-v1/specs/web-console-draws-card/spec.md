@@ -19,10 +19,15 @@ provider, fuseau horaire) — ces informations restent disponibles sur la page d
 - **THEN** le code fonctionnel du tirage est le texte le plus proéminent de l'en-tête, et aucune
   ligne « Provider: » n'apparaît sur la carte.
 
-### Requirement: L'heure locale reste visible, jamais l'heure provider
+### Requirement: L'heure locale reste toujours visible, jamais l'heure provider
 
-La carte SHALL afficher l'heure locale (tenant) du tirage sous le badge d'état, y compris quand la
-vente est fermée. La carte SHALL NOT afficher l'heure provider, quel que soit l'état du tirage.
+La carte SHALL afficher l'heure locale (tenant) du tirage sous le badge d'état, quel que soit
+l'état de vente — y compris à côté d'un compte à rebours sur un tirage ouvert. La carte SHALL NOT
+afficher l'heure provider, quel que soit l'état du tirage.
+
+> Révisé après retour utilisateur : la première version de cette règle réservait l'heure locale
+> aux tirages fermés (masquée dès qu'un compte à rebours était affiché). Retour explicite : elle
+> doit rester visible en permanence, le compte à rebours ne la remplace pas.
 
 #### Scenario: Un tirage fermé reste situable dans le temps sans ouvrir le détail
 
@@ -30,24 +35,19 @@ vente est fermée. La carte SHALL NOT afficher l'heure provider, quel que soit l
 - **THEN** la carte affiche l'heure locale du tirage sous le badge « Fermé », sans heure provider
   à proximité.
 
-#### Scenario: Un tirage ouvert affiche le compte à rebours, pas l'heure locale en plus
+#### Scenario: Un tirage ouvert affiche le compte à rebours ET l'heure locale
 
 - **WHEN** un tirage a les ventes ouvertes et un compte à rebours calculé
-- **THEN** la carte affiche le badge « Ouvert » et le compte à rebours ; l'heure locale n'est pas
-  répétée à côté (le compte à rebours est l'information pertinente pour un tirage ouvert).
+- **THEN** la carte affiche le badge « Ouvert », le compte à rebours, et l'heure locale — les deux
+  informations coexistent, aucune ne remplace l'autre.
 
 ### Requirement: L'état de vente n'affiche que ce qui est actionnable
 
-Un tirage aux ventes ouvertes SHALL afficher le badge d'état et, s'il existe, le temps restant avant
-fermeture — pas l'heure locale en plus (couverte par la règle dédiée à l'heure locale ci-dessus).
+Un tirage aux ventes ouvertes SHALL afficher le badge d'état, le temps restant avant fermeture s'il
+existe, et l'heure locale (couverte par la règle dédiée à l'heure locale ci-dessus).
 
 Un tirage aux ventes fermées SHALL afficher le badge d'état et l'heure locale, sans bloc résultat
 vide ni tiret de remplissage lorsqu'aucun résultat n'est encore disponible.
-
-#### Scenario: Un tirage ouvert affiche le compte à rebours, pas plus
-
-- **WHEN** un tirage a `salesStatus: 'OPEN'` et un compte à rebours calculé
-- **THEN** la carte affiche le badge « Ouvert » et le temps restant, sans autre ligne d'état.
 
 #### Scenario: Un tirage fermé sans résultat n'affiche pas de tiret
 
