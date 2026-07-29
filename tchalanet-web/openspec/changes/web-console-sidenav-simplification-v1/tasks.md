@@ -144,10 +144,40 @@ texte traduit (la locale e2e n'est pas figée) :
 
 - [x] `openspec validate web-console-sidenav-simplification-v1 --strict` — vert.
 - [x] `admin-portal:build:development` — vert, aucune erreur de compilation.
-- [ ] Vérification visuelle desktop + mobile sur staging après déploiement backend, comme pour
-      PR #435 — **pas fait ici** : nécessite une session admin authentifiée, et je ne peux pas
-      saisir de mot de passe moi-même. À faire quand quelqu'un peut se connecter, ou via une
-      extension de la fixture e2e (`apiStub`) qui exerce le vrai mapping runtime plutôt que le
-      repli statique (déjà noté comme non couvert dans `web-console-drawer-two-levels-v1`).
+- [x] Vérification visuelle desktop sur `test.tchalanet.com/admin` après déploiement backend
+      (PR #437) — label navigue, chevron replie/déplie, `reports-sales` affiche « Vant ». Refait
+      après PR #438 — surbrillance correcte, un seul aplat plein à la fois.
+- [x] Vérification visuelle mobile — faite par l'utilisateur sur un vrai iPhone (capture fournie
+      dans la conversation) après le retrait du filtrage du panneau : « Rapò » ouvre son panneau
+      avec ses 4 pages listées, atterrissage compris. Je n'ai pas pu la refaire moi-même
+      (redimensionnement de fenêtre indisponible dans cette session).
 - [x] `reports-sales` n'affiche plus « Tikè » ; les deux « Règ tiraj » ne sont plus identiques —
       vérifié par lecture directe des 3 fichiers de traduction après édition.
+
+## 7. Corrections post-merge (retour utilisateur réel, 2026-07-28/29)
+
+PR #438, mergée après #437. Voir `specs/web-console-sidenav/spec.md` pour le détail normatif.
+
+- [x] Sidebar desktop : un groupe actif et son enfant actif ne partagent plus le même aplat de
+      couleur plein — le groupe garde la teinte discrète `.is-active-group`, l'aplat plein reste
+      réservé à l'enfant qui est effectivement la page courante.
+- [x] Bug de premier correctif trouvé en vérifiant en direct : retirer la règle
+      `.sidebar__group-link.is-active` sans la remplacer laissait le sélecteur générique
+      `a.is-active` (même spécificité, correspondance directe) continuer à s'appliquer — corrigé en
+      neutralisant explicitement `background`/`color`/`font-weight` sur cette règle plutôt qu'en la
+      supprimant.
+- [x] Drawer mobile : retrait de la scission libellé/chevron — la ligne entière rouvre le panneau,
+      comme avant PR #437. Décision utilisateur explicite après démonstration que le drawer mobile
+      n'a pas d'accordéon persistant pour révéler les pages sœurs après navigation, contrairement à
+      la sidebar desktop.
+- [x] Panneau mobile : retrait du filtrage de l'entrée d'atterrissage (`absorbedChild()` supprimé,
+      `openCategoryItems` ne filtre plus). Le titre de panneau redevient un texte simple. Décidé
+      après capture d'écran utilisateur montrant que la sidebar desktop n'a jamais filtré cette
+      entrée (« Lis tikè » y est une ligne normale) — les deux rendus s'accordent maintenant.
+- [x] Tests : suite `absorption de l'entrée d'atterrissage` retirée (documentait un comportement qui
+      n'existe plus nulle part) ; remplacée par une suite plus modeste sur « quels groupes ont une
+      destination propre ». Nouveau test drawer confirmant que le panneau liste tous les enfants,
+      atterrissage compris.
+- [ ] Reste ouvert, non redemandé depuis : badge/sous-titre « X paj » sur les lignes racine pour
+      rendre plus visible qu'un groupe ouvre une liste plutôt qu'il ne navigue — proposé, pas
+      tranché.
