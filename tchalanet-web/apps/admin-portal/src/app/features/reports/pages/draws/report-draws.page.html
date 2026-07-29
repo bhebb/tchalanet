@@ -52,8 +52,8 @@
           @if (!vm.analytics.available) {
             <tch-admin-empty-state
               icon="query_stats"
-              [title]="'common.errors.categories.service_unavailable.title' | translate"
-              [message]="'common.errors.categories.service_unavailable.message' | translate"
+              [title]="'admin.reports.common.analyticsPending.title' | translate"
+              [message]="'admin.reports.common.analyticsPending.message' | translate"
             />
           } @else if (vm.summary; as summary) {
           <section class="report-draws__kpis" [attr.aria-label]="'admin.reports.draws.kpisAria' | translate">

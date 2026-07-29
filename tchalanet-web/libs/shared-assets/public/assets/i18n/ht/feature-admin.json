@@ -215,7 +215,11 @@
         "refresh": "Rafrechi",
         "sellerCommission": "Komisyon tèminal POS",
         "ticketsSold": "Tikè vann",
-        "ticketSuffix": "tikè"
+        "ticketSuffix": "tikè",
+        "analyticsPending": {
+          "title": "Done yo poko pare",
+          "message": "Chif peryòd sa a poko konsolide — sa ka rive nan kòmansman jounen an oswa pou yon jounen ki poko gen vant. Eseye ankò nan kèk minit."
+        }
       },
       "overview": {
         "title": "Apèsi rapò yo",
