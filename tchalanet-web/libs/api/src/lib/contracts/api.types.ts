@@ -98,6 +98,19 @@ export interface TchPage<T> {
   readonly hasPrevious?: boolean;
 }
 
+/**
+ * Shared fallback for a paginated request's `size` param, and for a table/list component's own
+ * `pageSize` input when no page has loaded yet. Every list across admin-portal and
+ * platform-portal had independently invented this same number (or drifted from it, e.g. one
+ * request defaulting to 100 while its table defaulted to 20) — one exported constant so a change
+ * has one source, and a new page or the request/table pair can't drift apart from each other.
+ *
+ * Always prefer the value the backend actually echoed back (`TchPage.size`) once a response has
+ * loaded — this constant is only the fallback before that, or for requests with no reason to
+ * differ from the default.
+ */
+export const TCH_DEFAULT_PAGE_SIZE = 20;
+
 export interface TchBackendPage<T> {
   readonly items?: readonly T[];
   readonly content?: readonly T[];

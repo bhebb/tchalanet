@@ -11,6 +11,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatNativeDateModule } from '@angular/material/core';
 
+import { TCH_DEFAULT_PAGE_SIZE } from '@tch/api';
 import { AccessService } from '@tch/core/auth';
 import { AdminListStatusOption, AdminListSurface, TchSectionError } from '@tch/ui/components';
 import { TchAsyncReadyDirective, TchAsyncViewComponent, resourceErrorVm, tchMutation } from '@tch/web/async';
@@ -162,10 +163,9 @@ export class AdminGeneratedDrawsPage {
   readonly totalElements = computed(() => this.draws.value()?.totalElements ?? 0);
   /**
    * The table's `hasNext`/`hasPrev` math needs the real page size the backend used, not a
-   * guessed default — the request sends `size=20` by default (`AdminGeneratedDrawsApiService`),
-   * but nothing enforces the table's own default stays in sync with that.
+   * guessed default — fall back to the shared default only before a page has loaded.
    */
-  readonly pageSize = computed(() => this.draws.value()?.size ?? 20);
+  readonly pageSize = computed(() => this.draws.value()?.size ?? TCH_DEFAULT_PAGE_SIZE);
   readonly isEmpty = (): boolean => this.groupedDraws().length === 0;
   readonly canEnterManualResults = computed(() => this.access.can(CONSOLE_DRAW_RESULT_ACCESS.manual));
   readonly canConfirmResults = computed(() => this.access.can(CONSOLE_DRAW_RESULT_ACCESS.confirm));

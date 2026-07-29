@@ -10,7 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { TranslatePipe } from '@ngx-translate/core';
-import { TchPage } from '@tch/api';
+import { TCH_DEFAULT_PAGE_SIZE, TchPage } from '@tch/api';
 import { TchDrawLabel, TchNotice } from '@tch/ui/components';
 import { consoleTicketDrawIdentity } from '@tch/web/console';
 
@@ -37,7 +37,6 @@ import {
 } from '../../../../shared/ticket/admin-ticket-status.util';
 import { PosSaleSuccessDialogComponent } from '../../../pos/sale/components/pos-sale-success-dialog/pos-sale-success-dialog.component';
 
-const DEFAULT_PAGE_SIZE = 20;
 const SORT_VALUES = [
   'createdAt,DESC',
   'createdAt,ASC',
@@ -105,7 +104,7 @@ export class AdminTicketsPage {
   });
 
   readonly page = computed(() => numberParam(this.queryParamMap().get('page'), 0));
-  readonly size = computed(() => numberParam(this.queryParamMap().get('size'), DEFAULT_PAGE_SIZE));
+  readonly size = computed(() => numberParam(this.queryParamMap().get('size'), TCH_DEFAULT_PAGE_SIZE));
   readonly codeFilter = computed(() => this.queryParamMap().get('q')?.trim() ?? '');
   readonly fromFilter = computed(() => dateParam(this.queryParamMap().get('from')));
   readonly toFilter = computed(() => dateParam(this.queryParamMap().get('to')));
@@ -178,7 +177,7 @@ export class AdminTicketsPage {
   }
 
   onSizeChange(size: number): void {
-    this.navigateList({ size: size !== DEFAULT_PAGE_SIZE ? size : null, page: null });
+    this.navigateList({ size: size !== TCH_DEFAULT_PAGE_SIZE ? size : null, page: null });
   }
 
   statusTone(status: TicketStatus): AdminStatusTone {

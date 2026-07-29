@@ -16,7 +16,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateService } from '@ngx-translate/core';
 
-import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
+import { ProblemDetail, TCH_DEFAULT_PAGE_SIZE, webAppErrorFromProblemDetail } from '@tch/api';
 import { TchErrorPanel, TchLoading, TchSearchOption, TchSearchSelect, TchSectionError } from '@tch/ui/components';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
@@ -159,6 +159,7 @@ export class PlatformOpsDrawsPage implements OnInit {
   readonly toFilter = signal(todayIsoDate());
   readonly deletedVisibility = signal<'active' | 'deleted' | 'all'>('active');
   readonly page = signal(0);
+  readonly pageSize = signal(TCH_DEFAULT_PAGE_SIZE);
   readonly totalElements = signal(0);
   readonly totalPages = signal(1);
   readonly hasNext = signal(false);
@@ -208,7 +209,7 @@ export class PlatformOpsDrawsPage implements OnInit {
       to: this.toFilter() || undefined,
       deletedVisibility: this.deletedVisibility(),
       page: this.page(),
-      size: 25,
+      size: this.pageSize(),
       suppressShellFeedback: true,
     }, tenantId).subscribe({
       next: p => {
@@ -216,6 +217,7 @@ export class PlatformOpsDrawsPage implements OnInit {
         this.selectedIds.set(new Set());
         this.totalElements.set(p.totalElements);
         this.page.set(p.page);
+        this.pageSize.set(p.size ?? TCH_DEFAULT_PAGE_SIZE);
         this.totalPages.set(p.totalPages || 1);
         this.hasNext.set(p.hasNext ?? false);
         this.hasPrevious.set(p.hasPrevious ?? false);

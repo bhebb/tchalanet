@@ -9,7 +9,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { TranslateService } from '@ngx-translate/core';
 
-import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
+import { ProblemDetail, TCH_DEFAULT_PAGE_SIZE, webAppErrorFromProblemDetail } from '@tch/api';
 import { TchErrorPanel, TchLoading } from '@tch/ui/components';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
@@ -23,7 +23,6 @@ import {
 } from '../tenants/data-access/platform-tenants-api.service';
 import { TenantStatus } from '../tenants/data-access/platform-tenant-contracts';
 
-const PAGE_SIZE = 20;
 const STATUS_OPTIONS = ['', 'ACTIVE', 'SUSPENDED', 'DRAFT', 'ARCHIVED'] as const;
 
 @Component({
@@ -81,7 +80,7 @@ export class PlatformSupportTenantPage implements OnInit {
       q: value.q,
       status: value.status,
       page: this.page(),
-      size: PAGE_SIZE,
+      size: TCH_DEFAULT_PAGE_SIZE,
       sort: 'updatedAt,desc',
     }, { suppressShellFeedback: true }).subscribe({
       next: result => {
