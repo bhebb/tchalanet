@@ -9,13 +9,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { TCH_DEFAULT_PAGE_SIZE, TchPage } from '@tch/api';
-import { TchDrawLabel, TchNotice } from '@tch/ui/components';
+import { AdminListStatusOption, AdminListSurface, TchDrawLabel, TchNotice } from '@tch/ui/components';
 import { consoleTicketDrawIdentity } from '@tch/web/console';
 
 import { AdminCrudShellComponent } from '@tch/ui/console';
-import { AdminDataToolbarComponent } from '@tch/ui/console';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
 import { AdminPageShellComponent } from '@tch/ui/console';
 import { TchPaginationComponent } from '@tch/ui/console';
@@ -56,7 +55,7 @@ type TicketSort = typeof SORT_VALUES[number];
     RouterLink,
     AdminPageShellComponent,
     AdminCrudShellComponent,
-    AdminDataToolbarComponent,
+    AdminListSurface,
     AdminEmptyStateComponent,
     AdminStatusPillComponent,
     TchPaginationComponent,
@@ -80,11 +79,15 @@ export class AdminTicketsPage {
   private readonly dialog = inject(MatDialog);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly translate = inject(TranslateService);
 
   readonly columns = ['ticketCode', 'status', 'drawChannelName', 'drawScheduledAt', 'totalAmountCents', 'placedAt', 'actions'];
   readonly reprintingTicketId = signal<string | null>(null);
   readonly reprintError = signal<string | null>(null);
-  readonly statusOptions = TICKET_STATUS_VALUES;
+  readonly statusOptions: readonly AdminListStatusOption[] = TICKET_STATUS_VALUES.map(status => ({
+    value: status,
+    label: this.translate.instant(ticketStatusLabelKey(status)),
+  }));
   readonly sortOptions: readonly { value: TicketSort; labelKey: string }[] = [
     { value: 'createdAt,DESC', labelKey: 'admin.tickets.list.sort.createdDesc' },
     { value: 'createdAt,ASC', labelKey: 'admin.tickets.list.sort.createdAsc' },
@@ -112,6 +115,10 @@ export class AdminTicketsPage {
     const sort = this.queryParamMap().get('sort');
     return isTicketSort(sort) ? sort : 'createdAt,DESC';
   });
+  /** Filter panel starts open only when a non-default filter is already active from the URL. */
+  readonly hasActiveFilters = computed(() =>
+    !!this.statusFilter() || !!this.fromFilter() || !!this.toFilter() || this.sortFilter() !== 'createdAt,DESC',
+  );
 
   readonly tickets = this.api.listResource(
     () => ({
@@ -170,6 +177,10 @@ export class AdminTicketsPage {
 
   onSortFilter(sort: TicketSort): void {
     this.navigateList({ sort: sort === 'createdAt,DESC' ? null : sort, page: null });
+  }
+
+  resetFilters(): void {
+    this.navigateList({ q: null, status: null, from: null, to: null, sort: null, page: null });
   }
 
   onPageChange(page: number): void {

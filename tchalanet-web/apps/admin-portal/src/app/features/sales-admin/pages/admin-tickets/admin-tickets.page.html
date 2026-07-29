@@ -2,58 +2,14 @@
   [title]="'admin.tickets.list.title' | translate"
   [description]="'admin.tickets.list.description' | translate"
 >
+  <div actions>
+    <a mat-flat-button routerLink="/app/admin/tickets/sell" color="primary">
+      <mat-icon>add</mat-icon>
+      {{ 'admin.tickets.list.actions.sell' | translate }}
+    </a>
+  </div>
 
-    <tch-admin-crud-shell>
-
-    <tch-admin-data-toolbar toolbar>
-      <div class="tickets-page__filters">
-        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="tickets-page__code-filter">
-          <mat-label>{{ 'admin.tickets.list.filters.code' | translate }}</mat-label>
-          <mat-icon matPrefix>search</mat-icon>
-          <input
-            matInput
-            type="search"
-            [value]="codeFilter()"
-            (change)="onCodeFilter($any($event.target).value)"
-            (keyup.enter)="onCodeFilter($any($event.target).value)"
-          />
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="tickets-page__status-filter">
-          <mat-label>{{ 'admin.tickets.list.filters.status' | translate }}</mat-label>
-          <mat-select [value]="statusFilter()" (valueChange)="onStatusFilter($event)">
-            <mat-option value="">{{ 'admin.tickets.list.filters.allStatuses' | translate }}</mat-option>
-            @for (status of statusOptions; track status) {
-              <mat-option [value]="status">{{ statusLabelKey(status) | translate }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="tickets-page__date-filter">
-          <mat-label>{{ 'admin.tickets.list.filters.from' | translate }}</mat-label>
-          <input matInput type="date" [value]="fromFilter()" (change)="onFromFilter($any($event.target).value)" />
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="tickets-page__date-filter">
-          <mat-label>{{ 'admin.tickets.list.filters.to' | translate }}</mat-label>
-          <input matInput type="date" [value]="toFilter()" (change)="onToFilter($any($event.target).value)" />
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="tickets-page__sort-filter">
-          <mat-label>{{ 'admin.tickets.list.filters.sort' | translate }}</mat-label>
-          <mat-select [value]="sortFilter()" (valueChange)="onSortFilter($event)">
-            @for (option of sortOptions; track option.value) {
-              <mat-option [value]="option.value">{{ option.labelKey | translate }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-      </div>
-
-      <a mat-flat-button routerLink="/app/admin/tickets/sell" color="primary">
-        <mat-icon>add</mat-icon>
-        {{ 'admin.tickets.list.actions.sell' | translate }}
-      </a>
-    </tch-admin-data-toolbar>
+  <tch-admin-crud-shell>
 
     @if (reprintError(); as message) {
       <tch-notice type="warning" content>
@@ -76,101 +32,139 @@
         [message]="'admin.tickets.list.emptyMessage' | translate"
       />
       <ng-template tchAsyncReady>
-        <div class="tickets-page__table">
-          <table mat-table [dataSource]="ticketRows()">
+        <tch-admin-list-surface
+          [searchLabel]="'admin.tickets.list.filters.code' | translate"
+          [searchPlaceholder]="'admin.tickets.list.filters.code' | translate"
+          [searchValue]="codeFilter()"
+          [statusLabel]="'admin.tickets.list.filters.status' | translate"
+          [statusValue]="statusFilter()"
+          [statusOptions]="statusOptions"
+          [allStatusesLabel]="'admin.tickets.list.filters.allStatuses' | translate"
+          [resetLabel]="'common.resetFilters' | translate"
+          [filtersExpanded]="hasActiveFilters()"
+          (searchChange)="onCodeFilter($event)"
+          (statusChange)="onStatusFilter($any($event))"
+          (resetFilters)="resetFilters()"
+        >
+          <ng-container list-filters>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="tickets-page__date-filter">
+              <mat-label>{{ 'admin.tickets.list.filters.from' | translate }}</mat-label>
+              <input matInput type="date" [value]="fromFilter()" (change)="onFromFilter($any($event.target).value)" />
+            </mat-form-field>
 
-            <ng-container matColumnDef="ticketCode">
-              <th mat-header-cell *matHeaderCellDef>{{ 'admin.tickets.list.columns.code' | translate }}</th>
-              <td mat-cell *matCellDef="let row">
-                <span class="tickets-page__code">{{ row.ticketCode }}</span>
-              </td>
-            </ng-container>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="tickets-page__date-filter">
+              <mat-label>{{ 'admin.tickets.list.filters.to' | translate }}</mat-label>
+              <input matInput type="date" [value]="toFilter()" (change)="onToFilter($any($event.target).value)" />
+            </mat-form-field>
 
-            <ng-container matColumnDef="status">
-              <th mat-header-cell *matHeaderCellDef>{{ 'admin.tickets.list.columns.status' | translate }}</th>
-              <td mat-cell *matCellDef="let row">
-                <tch-admin-status-pill [label]="statusLabelKey(row.status) | translate" [tone]="statusTone(row.status)" />
-              </td>
-            </ng-container>
-
-            <ng-container matColumnDef="drawChannelName">
-              <th mat-header-cell *matHeaderCellDef>{{ 'admin.tickets.list.columns.channel' | translate }}</th>
-              <td mat-cell *matCellDef="let row">
-                @if (ticketDrawIdentity(row); as identity) {
-                  <tch-draw-label
-                    density="compact"
-                    [primary]="identity.receiptLabel"
-                    [logoUrl]="identity.identity.providerLogoUrl"
-                  />
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="tickets-page__sort-filter">
+              <mat-label>{{ 'admin.tickets.list.filters.sort' | translate }}</mat-label>
+              <mat-select [value]="sortFilter()" (valueChange)="onSortFilter($event)">
+                @for (option of sortOptions; track option.value) {
+                  <mat-option [value]="option.value">{{ option.labelKey | translate }}</mat-option>
                 }
-              </td>
-            </ng-container>
+              </mat-select>
+            </mat-form-field>
+          </ng-container>
 
-            <ng-container matColumnDef="drawScheduledAt">
-              <th mat-header-cell *matHeaderCellDef>{{ 'admin.tickets.list.columns.draw' | translate }}</th>
-              <td mat-cell *matCellDef="let row">
-                {{ row.drawScheduledAt | date:'dd/MM/yyyy HH:mm' }}
-              </td>
-            </ng-container>
+          <ng-container list-content>
+            <div class="tickets-page__table">
+              <table mat-table [dataSource]="ticketRows()">
 
-            <ng-container matColumnDef="totalAmountCents">
-              <th mat-header-cell *matHeaderCellDef>{{ 'admin.tickets.list.columns.amount' | translate }}</th>
-              <td mat-cell *matCellDef="let row">
-                <span class="tickets-page__amount">{{ amountDisplay(row.totalAmountCents) }} {{ row.currency }}</span>
-              </td>
-            </ng-container>
+                <ng-container matColumnDef="ticketCode">
+                  <th mat-header-cell *matHeaderCellDef>{{ 'admin.tickets.list.columns.code' | translate }}</th>
+                  <td mat-cell *matCellDef="let row">
+                    <span class="tickets-page__code">{{ row.ticketCode }}</span>
+                  </td>
+                </ng-container>
 
-            <ng-container matColumnDef="placedAt">
-              <th mat-header-cell *matHeaderCellDef>{{ 'admin.tickets.list.columns.placedAt' | translate }}</th>
-              <td mat-cell *matCellDef="let row">
-                {{ row.placedAt | date:'dd/MM/yyyy HH:mm' }}
-              </td>
-            </ng-container>
+                <ng-container matColumnDef="status">
+                  <th mat-header-cell *matHeaderCellDef>{{ 'admin.tickets.list.columns.status' | translate }}</th>
+                  <td mat-cell *matCellDef="let row">
+                    <tch-admin-status-pill [label]="statusLabelKey(row.status) | translate" [tone]="statusTone(row.status)" />
+                  </td>
+                </ng-container>
 
-            <ng-container matColumnDef="actions">
-              <th mat-header-cell *matHeaderCellDef>{{ 'admin.tickets.list.columns.actions' | translate }}</th>
-              <td mat-cell *matCellDef="let row">
-                <button
-                  mat-stroked-button
-                  type="button"
-                  class="tickets-page__reprint"
-                  [disabled]="!canReprint(row)"
-                  (click)="reprint(row, $event)"
-                >
-                  @if (reprintingTicketId() === row.id) {
-                    <span class="material-symbols-outlined tickets-page__spin" aria-hidden="true">progress_activity</span>
-                  } @else {
-                    <span class="material-symbols-outlined" aria-hidden="true">print</span>
-                  }
-                  {{ 'admin.tickets.list.actions.reprint' | translate }}
-                </button>
-              </td>
-            </ng-container>
+                <ng-container matColumnDef="drawChannelName">
+                  <th mat-header-cell *matHeaderCellDef>{{ 'admin.tickets.list.columns.channel' | translate }}</th>
+                  <td mat-cell *matCellDef="let row">
+                    @if (ticketDrawIdentity(row); as identity) {
+                      <tch-draw-label
+                        density="compact"
+                        [primary]="identity.receiptLabel"
+                        [logoUrl]="identity.identity.providerLogoUrl"
+                      />
+                    }
+                  </td>
+                </ng-container>
 
-            <tr mat-header-row *matHeaderRowDef="columns; sticky: true"></tr>
-            <tr
-              mat-row
-              class="tickets-page__row"
-              *matRowDef="let row; columns: columns;"
-              [routerLink]="['/app/admin/tickets', row.id]"
-            ></tr>
-          </table>
-        </div>
+                <ng-container matColumnDef="drawScheduledAt">
+                  <th mat-header-cell *matHeaderCellDef>{{ 'admin.tickets.list.columns.draw' | translate }}</th>
+                  <td mat-cell *matCellDef="let row">
+                    {{ row.drawScheduledAt | date:'dd/MM/yyyy HH:mm' }}
+                  </td>
+                </ng-container>
 
+                <ng-container matColumnDef="totalAmountCents">
+                  <th mat-header-cell *matHeaderCellDef>{{ 'admin.tickets.list.columns.amount' | translate }}</th>
+                  <td mat-cell *matCellDef="let row">
+                    <span class="tickets-page__amount">{{ amountDisplay(row.totalAmountCents) }} {{ row.currency }}</span>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="placedAt">
+                  <th mat-header-cell *matHeaderCellDef>{{ 'admin.tickets.list.columns.placedAt' | translate }}</th>
+                  <td mat-cell *matCellDef="let row">
+                    {{ row.placedAt | date:'dd/MM/yyyy HH:mm' }}
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="actions">
+                  <th mat-header-cell *matHeaderCellDef>{{ 'admin.tickets.list.columns.actions' | translate }}</th>
+                  <td mat-cell *matCellDef="let row">
+                    <button
+                      mat-stroked-button
+                      type="button"
+                      class="tickets-page__reprint"
+                      [disabled]="!canReprint(row)"
+                      (click)="reprint(row, $event)"
+                    >
+                      @if (reprintingTicketId() === row.id) {
+                        <span class="material-symbols-outlined tickets-page__spin" aria-hidden="true">progress_activity</span>
+                      } @else {
+                        <span class="material-symbols-outlined" aria-hidden="true">print</span>
+                      }
+                      {{ 'admin.tickets.list.actions.reprint' | translate }}
+                    </button>
+                  </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="columns; sticky: true"></tr>
+                <tr
+                  mat-row
+                  class="tickets-page__row"
+                  *matRowDef="let row; columns: columns;"
+                  [routerLink]="['/app/admin/tickets', row.id]"
+                ></tr>
+              </table>
+            </div>
+          </ng-container>
+
+          <ng-container list-footer>
+            @if (hasTickets()) {
+              <tch-pagination
+                class="tickets-page__pagination"
+                [page]="ticketPageIndex()"
+                [size]="ticketPageSize()"
+                [totalElements]="ticketTotalElements()"
+                (pageChange)="onPageChange($event)"
+                (sizeChange)="onSizeChange($event)"
+              />
+            }
+          </ng-container>
+        </tch-admin-list-surface>
       </ng-template>
     </tch-async-view>
-
-    @if (hasTickets()) {
-      <tch-pagination
-        footer
-        class="tickets-page__pagination"
-        [page]="ticketPageIndex()"
-        [size]="ticketPageSize()"
-        [totalElements]="ticketTotalElements()"
-        (pageChange)="onPageChange($event)"
-        (sizeChange)="onSizeChange($event)"
-      />
-    }
 
   </tch-admin-crud-shell>
 
