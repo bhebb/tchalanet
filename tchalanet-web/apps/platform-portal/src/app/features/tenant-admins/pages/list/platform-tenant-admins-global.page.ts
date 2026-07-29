@@ -30,15 +30,13 @@ import {
 
 import { AdminEmptyStateComponent } from '@tch/ui/console';
 import { AdminPageShellComponent } from '@tch/ui/console';
-import { ProblemDetail, TchBackendClient, webAppErrorFromProblemDetail } from '@tch/api';
+import { ProblemDetail, TCH_DEFAULT_PAGE_SIZE, TchBackendClient, webAppErrorFromProblemDetail } from '@tch/api';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { ConsoleActorIdentity, ConsoleActorRowComponent } from '@tch/web/console';
 import type { TenantAdminGlobalRow, TenantAdminGlobalPage } from '../../data-access/platform-tenant-admins.models';
 import { IdentityUserCrudApi } from '../../../shared/data-access/identity-user-crud-api.service';
 import { platformTenantAdminActorIdentity } from '../../../shared/console-actor-adapters';
-
-const PAGE_SIZE = 20;
 
 @Component({
   selector: 'tch-platform-tenant-admins-global-page',
@@ -87,7 +85,7 @@ export class PlatformTenantAdminsGlobalPage implements OnInit {
   readonly items = signal<TenantAdminGlobalRow[]>([]);
   readonly total = signal(0);
   readonly page = signal(0);
-  readonly size = signal(PAGE_SIZE);
+  readonly size = signal(TCH_DEFAULT_PAGE_SIZE);
   readonly totalPages = signal(1);
   readonly hasNext = signal(false);
   readonly hasPrevious = signal(false);
@@ -281,7 +279,7 @@ export class PlatformTenantAdminsGlobalPage implements OnInit {
   }
 
   private search(q: string, sort: string, page: number): Observable<TenantAdminGlobalPage> {
-    const params: Record<string, string> = { page: String(page), size: String(PAGE_SIZE) };
+    const params: Record<string, string> = { page: String(page), size: String(TCH_DEFAULT_PAGE_SIZE) };
     if (q) params['q'] = q;
     if (sort) params['sort'] = sort;
     const qs = new URLSearchParams(params).toString();

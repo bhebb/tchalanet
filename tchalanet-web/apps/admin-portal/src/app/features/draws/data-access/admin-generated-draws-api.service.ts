@@ -1,6 +1,6 @@
 import { Injectable, ResourceRef, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
-import { TchBackendClient, TchPage, TchRequestOptions } from '@tch/api';
+import { TCH_DEFAULT_PAGE_SIZE, TchBackendClient, TchPage, TchRequestOptions } from '@tch/api';
 import { ConsoleDrawLifecycleApi, consoleDrawIdentity } from '@tch/web/console';
 import {
   DatePreset,
@@ -203,10 +203,10 @@ export class AdminGeneratedDrawsApiService {
             params: {
               from,
               to,
-              // 20 rows per page by default: the 2-day window regularly holds 50-60+ draws,
-              // and dumping them all onto one unpaginated page defeats the "next page" control
-              // entirely (there was never a second page to go to).
-              size: String(q.size ?? 20),
+              // The 2-day window regularly holds 50-60+ draws — dumping them all onto one
+              // unpaginated page defeats the "next page" control entirely (there was never a
+              // second page to go to).
+              size: String(q.size ?? TCH_DEFAULT_PAGE_SIZE),
               page: String(q.page ?? 0),
               ...(q.q ? { q: q.q } : {}),
             },
