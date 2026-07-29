@@ -1,10 +1,12 @@
 import {
   consoleDrawChannelIdentity,
   consoleDrawIdentity,
+  consoleDrawSlotLocalLabel,
   consoleLotteryProviderCodeFromSlot,
   consoleLotterySlotLogoUrl,
   consoleResultSlotIdentity,
 } from './console-draw-identities';
+import { ConsoleDrawSlotIdentity } from './console-draw-slot-identity.models';
 
 describe('consoleResultSlotIdentity', () => {
   it('derives provider and slot labels from a slot key', () => {
@@ -145,5 +147,39 @@ describe('lottery asset helpers', () => {
   it('keeps compatibility helper behavior for provider and slot assets', () => {
     expect(consoleLotteryProviderCodeFromSlot('ny-middaynumbers')).toBe('NY');
     expect(consoleLotterySlotLogoUrl('ny-middaynumbers')).toContain('/assets/images/lottery/ny_pick3.svg');
+  });
+});
+
+describe('consoleDrawSlotLocalLabel', () => {
+  const baseIdentity: ConsoleDrawSlotIdentity = {
+    localDateLabel: '2026-07-29',
+    localTimeLabel: '19:00',
+    localTimezoneLabel: 'America/Port-au-Prince',
+    providerDateLabel: '2026-07-29',
+    providerTimeLabel: '19:00',
+    providerTimezoneLabel: 'America/New_York',
+  };
+
+  it('never includes the provider time or timezone', () => {
+    const label = consoleDrawSlotLocalLabel(baseIdentity);
+    expect(label).not.toContain('America/New_York');
+    expect(label).toBe('19:00 · America/Port-au-Prince');
+  });
+
+  it('omits the local date when it matches the provider date', () => {
+    const label = consoleDrawSlotLocalLabel(baseIdentity);
+    expect(label).not.toContain('2026-07-29');
+  });
+
+  it('includes the local date only when it differs from the provider date', () => {
+    const label = consoleDrawSlotLocalLabel({
+      ...baseIdentity,
+      localDateLabel: '2026-07-30',
+    });
+    expect(label).toBe('2026-07-30 19:00 · America/Port-au-Prince');
+  });
+
+  it('returns null when there is no local time to show', () => {
+    expect(consoleDrawSlotLocalLabel({})).toBeNull();
   });
 });

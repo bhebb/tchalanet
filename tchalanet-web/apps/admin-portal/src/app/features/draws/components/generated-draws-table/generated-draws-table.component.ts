@@ -330,6 +330,7 @@ export class GeneratedDrawsTableComponent {
       resultTone: consoleDrawResultStatusTone(draw.resultStatus),
       resultNumbers: draw.numbers?.map(n => String(n)) ?? [],
       resultHint: this.resultHint(draw),
+      resultActionHint: this.resultActionHint(draw),
       modeLabel: draw.resultMode,
       publicationLabel: draw.publicationStatus && draw.publicationStatus !== 'NOT_PUBLISHED'
         ? consoleDrawPublicationStatusLabel(draw.publicationStatus)
@@ -389,6 +390,16 @@ export class GeneratedDrawsTableComponent {
     if (draw.sourceError) return this.sourceErrorAtLabel(draw);
     if (draw.fetchedAt) return `Récupéré ${this.fetchedAtLabel(draw)}`;
     return undefined;
+  }
+
+  /**
+   * Reformule EXPECTED/MISSING en message orienté action pour la carte mobile — le tableau
+   * desktop et la page de détail continuent d'afficher `consoleDrawResultStatusLabel` (« Attendu »
+   * / « Manquant ») sans changement, via `row.resultLabel`.
+   */
+  private resultActionHint(draw: GeneratedDrawView): string | undefined {
+    if (draw.resultStatus !== 'EXPECTED' && draw.resultStatus !== 'MISSING') return undefined;
+    return this.canEnterManualResult(draw) ? 'Résultat à saisir' : 'Résultat manquant';
   }
 
 }

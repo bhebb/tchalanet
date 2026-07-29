@@ -22,6 +22,13 @@ export interface ConsoleDrawRow {
   readonly resultTone?: AdminStatusTone;
   readonly resultNumbers?: readonly string[];
   readonly resultHint?: string;
+  /**
+   * Message orienté action pour un résultat pas encore disponible (ex. « Résultat à saisir »),
+   * affiché sur la carte mobile à la place du badge de statut brut. Laisser vide pour garder le
+   * rendu badge existant — ce champ est propre au rendu carte, il n'affecte ni le tableau desktop
+   * ni la page de détail, qui continuent de lire `resultLabel`.
+   */
+  readonly resultActionHint?: string;
   readonly modeLabel?: string;
   readonly publicationLabel?: string;
   readonly publicationTone?: AdminStatusTone;

@@ -8,17 +8,8 @@
       @for (row of group.rows; track row.id) {
         <article class="console-draws-table__card">
           <header class="console-draws-table__card-header">
-            <tch-console-draw-slot-identity [identity]="row.identity" />
+            <tch-console-draw-slot-identity [identity]="row.identity" [showTechnicalMeta]="false" />
             <div class="console-draws-table__card-header-end">
-              <tch-admin-status-pill [label]="row.statusLabel" [tone]="row.statusTone" />
-              @if (row.countdownLabel) {
-                <span
-                  class="console-draws-table__countdown"
-                  [class.console-draws-table__countdown--warning]="row.countdownTone === 'warning'"
-                >
-                  {{ row.countdownLabel }}
-                </span>
-              }
               @if (selectable()) {
                 <mat-checkbox
                   [checked]="isSelected(row)"
@@ -26,79 +17,91 @@
                   (change)="emitSelection(row, $event.checked)"
                 />
               }
-            </div>
-          </header>
-
-          <dl class="console-draws-table__card-facts">
-            <div class="console-draws-table__card-fact">
-              <dt>Résultat</dt>
-              <dd>
-                <div class="console-draws-table__result">
-                  @if (row.resultLabel) {
-                    <tch-admin-status-pill
-                      [label]="row.resultLabel"
-                      [tone]="row.resultTone || 'neutral'"
-                    />
-                  }
-                  @if ((row.resultNumbers?.length ?? 0) > 0) {
-                    <div class="console-draws-table__numbers">
-                      @for (n of row.resultNumbers; track n) {
-                        <span class="console-draws-table__number">{{ n }}</span>
-                      }
-                    </div>
-                  }
-                  @if (row.resultHint) {
-                    <p class="console-draws-table__hint">{{ row.resultHint }}</p>
-                  }
-                  @if (!row.resultLabel && (row.resultNumbers?.length ?? 0) === 0 && !row.resultHint) {
-                    <span class="console-draws-table__dash">—</span>
-                  }
-                </div>
-              </dd>
-            </div>
-          </dl>
-
-          @if (row.pending || (row.actions?.length ?? 0) > 0) {
-            <div class="console-draws-table__card-actions">
-              @if (row.pending) {
-                <span
-                  class="material-symbols-outlined console-draws-table__spinner"
-                  aria-label="Action en cours"
-                  >progress_activity</span
+              @if (!row.pending && (row.actions?.length ?? 0) > 1) {
+                <button
+                  mat-icon-button
+                  type="button"
+                  [attr.aria-label]="'Autres actions pour ' + row.title"
+                  [matMenuTriggerFor]="cardMenu"
                 >
-              } @else {
-                @for (action of row.actions ?? []; track action.id) {
-                  @if (action.variant === 'icon') {
+                  <span class="material-symbols-outlined">more_vert</span>
+                </button>
+                <mat-menu #cardMenu="matMenu">
+                  @for (action of secondaryActions(row); track action.id) {
                     <button
-                      mat-icon-button
+                      mat-menu-item
                       type="button"
-                      [title]="action.label"
                       [disabled]="action.disabled"
                       [class.console-draws-table__action--danger]="action.tone === 'danger'"
                       (click)="emitAction(row, action)"
                     >
-                      <span class="material-symbols-outlined">{{
-                        action.icon || 'more_horiz'
-                      }}</span>
-                    </button>
-                  } @else {
-                    <button
-                      mat-stroked-button
-                      type="button"
-                      [disabled]="action.disabled"
-                      [class.console-draws-table__action--danger]="action.tone === 'danger'"
-                      [class.console-draws-table__action--primary]="action.tone === 'primary'"
-                      (click)="emitAction(row, action)"
-                    >
-                      @if (action.icon) {
-                        <span class="material-symbols-outlined">{{ action.icon }}</span>
-                      }
+                      <span class="material-symbols-outlined">{{ action.icon || 'more_horiz' }}</span>
                       {{ action.label }}
                     </button>
                   }
-                }
+                </mat-menu>
               }
             </div>
+          </header>
+
+          <div class="console-draws-table__card-state">
+            <tch-admin-status-pill [label]="row.statusLabel" [tone]="row.statusTone" />
+            @if (row.countdownLabel) {
+              <span
+                class="console-draws-table__countdown"
+                [class.console-draws-table__countdown--warning]="row.countdownTone === 'warning'"
+              >
+                {{ row.countdownLabel }}
+              </span>
+            } @else if (localLabel(row); as local) {
+              <span class="console-draws-table__local-time">{{ local }}</span>
+            }
+          </div>
+
+          @if (row.resultActionHint) {
+            <p class="console-draws-table__hint">{{ row.resultActionHint }}</p>
+          } @else if (row.resultLabel || (row.resultNumbers?.length ?? 0) > 0 || row.resultHint) {
+            <div class="console-draws-table__result">
+              @if (row.resultLabel) {
+                <tch-admin-status-pill
+                  [label]="row.resultLabel"
+                  [tone]="row.resultTone || 'neutral'"
+                />
+              }
+              @if ((row.resultNumbers?.length ?? 0) > 0) {
+                <div class="console-draws-table__numbers">
+                  @for (n of row.resultNumbers; track n) {
+                    <span class="console-draws-table__number">{{ n }}</span>
+                  }
+                </div>
+              }
+              @if (row.resultHint) {
+                <p class="console-draws-table__hint">{{ row.resultHint }}</p>
+              }
+            </div>
+          }
+
+          @if (row.pending) {
+            <span
+              class="material-symbols-outlined console-draws-table__spinner"
+              aria-label="Action en cours"
+              >progress_activity</span
+            >
+          } @else if (primaryAction(row); as primary) {
+            <button
+              mat-stroked-button
+              type="button"
+              class="console-draws-table__primary-action"
+              [disabled]="primary.disabled"
+              [class.console-draws-table__action--danger]="primary.tone === 'danger'"
+              [class.console-draws-table__action--primary]="primary.tone === 'primary'"
+              (click)="emitAction(row, primary)"
+            >
+              @if (primary.icon) {
+                <span class="material-symbols-outlined">{{ primary.icon }}</span>
+              }
+              {{ primary.label }}
+            </button>
           }
         </article>
       }
