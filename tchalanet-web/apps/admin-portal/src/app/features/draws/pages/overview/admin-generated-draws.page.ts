@@ -162,10 +162,10 @@ export class AdminGeneratedDrawsPage {
   readonly totalElements = computed(() => this.draws.value()?.totalElements ?? 0);
   /**
    * The table's `hasNext`/`hasPrev` math needs the real page size the backend used, not a
-   * guessed default — the request always sends `size=100` (`AdminGeneratedDrawsApiService`), but
-   * nothing enforces the table's own default stays in sync with that.
+   * guessed default — the request sends `size=20` by default (`AdminGeneratedDrawsApiService`),
+   * but nothing enforces the table's own default stays in sync with that.
    */
-  readonly pageSize = computed(() => this.draws.value()?.size ?? 100);
+  readonly pageSize = computed(() => this.draws.value()?.size ?? 20);
   readonly isEmpty = (): boolean => this.groupedDraws().length === 0;
   readonly canEnterManualResults = computed(() => this.access.can(CONSOLE_DRAW_RESULT_ACCESS.manual));
   readonly canConfirmResults = computed(() => this.access.can(CONSOLE_DRAW_RESULT_ACCESS.confirm));

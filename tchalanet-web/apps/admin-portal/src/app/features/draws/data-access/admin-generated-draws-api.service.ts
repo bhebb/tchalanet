@@ -203,7 +203,10 @@ export class AdminGeneratedDrawsApiService {
             params: {
               from,
               to,
-              size: String(q.size ?? 100),
+              // 20 rows per page by default: the 2-day window regularly holds 50-60+ draws,
+              // and dumping them all onto one unpaginated page defeats the "next page" control
+              // entirely (there was never a second page to go to).
+              size: String(q.size ?? 20),
               page: String(q.page ?? 0),
               ...(q.q ? { q: q.q } : {}),
             },
