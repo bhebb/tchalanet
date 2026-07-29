@@ -538,7 +538,11 @@
         "refresh": "Rafraîchir",
         "sellerCommission": "Commission vendeur",
         "ticketsSold": "Tickets vendus",
-        "ticketSuffix": "tickets"
+        "ticketSuffix": "tickets",
+        "analyticsPending": {
+          "title": "Données pas encore prêtes",
+          "message": "Les chiffres de cette période ne sont pas encore consolidés — cela peut arriver en début de journée ou pour une journée sans encore de ventes. Réessayez dans quelques minutes."
+        }
       },
       "overview": {
         "title": "Vue d'ensemble des rapports",

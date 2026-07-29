@@ -316,7 +316,11 @@
         "refresh": "Refresh",
         "sellerCommission": "Seller commission",
         "ticketsSold": "Tickets sold",
-        "ticketSuffix": "tickets"
+        "ticketSuffix": "tickets",
+        "analyticsPending": {
+          "title": "Data not ready yet",
+          "message": "Numbers for this period aren't consolidated yet — this can happen early in the day or on a day without sales so far. Try again in a few minutes."
+        }
       },
       "overview": {
         "title": "Reports overview",
