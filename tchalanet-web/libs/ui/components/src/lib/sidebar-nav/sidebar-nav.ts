@@ -56,9 +56,14 @@ import {
         @if (item.children?.length && actionRoute(item)) {
           <!-- Group with its own destination: the label navigates directly, the chevron only
                toggles the children — two separate controls, never one action for the other. -->
-          <div class="sidebar__group" [class.is-active-group]="isActiveGroup(item)">
+          <div
+            class="sidebar__group"
+            data-testid="sidebar-group"
+            [class.is-active-group]="isActiveGroup(item)"
+          >
             <a
               class="sidebar__group-link"
+              data-testid="sidebar-group-link"
               [class.is-active]="isActionActive(item, item.children)"
               [routerLink]="actionRoute(item)"
               [queryParams]="actionQueryParams(item)"
@@ -73,6 +78,7 @@ import {
             <button
               type="button"
               class="sidebar__group-expand"
+              data-testid="sidebar-group-expand"
               [class.is-open]="isOpen(item)"
               [attr.aria-expanded]="isOpen(item)"
               [attr.aria-label]="(isOpen(item) ? collapseLabel() : expandLabel()) + ' ' + (actionText(item) | translate)"
@@ -92,6 +98,7 @@ import {
           <button
             type="button"
             class="sidebar__group-toggle"
+            data-testid="sidebar-group-toggle"
             [class.is-open]="isOpen(item)"
             [class.is-active-group]="isActiveGroup(item)"
             [attr.aria-expanded]="isOpen(item)"
@@ -152,6 +159,7 @@ import {
           @if (isRouteAction(child)) {
             <a
               class="sidebar__child"
+              data-testid="sidebar-child"
               [class.is-disabled]="child.disabled"
               [class.is-active]="isActionActive(child, item.children)"
               [attr.aria-current]="isActionActive(child, item.children) ? 'page' : null"

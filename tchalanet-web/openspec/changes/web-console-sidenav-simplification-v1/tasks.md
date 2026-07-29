@@ -64,6 +64,11 @@ Ce point ne concerne qu'un seul jeu de composants (`tch-drawer-nav`/`tch-sidebar
 les deux consoles : aucun travail supplémentaire n'était nécessaire pour que le point 1b en profite
 aussi.
 
+> **Partiellement retiré depuis, voir section 7.** Ce qui suit décrit la scission ligne/chevron
+> telle qu'implémentée d'abord — appliquée aux deux rendus. Le retrait côté mobile (retour
+> utilisateur réel) et ses raisons sont documentés en section 7 et dans `specs/web-console-sidenav/
+> spec.md` ; gardé ici tel quel pour la trace de ce qui a été essayé et pourquoi.
+
 Actuellement, taper/cliquer la ligne d'un groupe (mobile ou desktop) ouvre toujours le
 panneau/accordéon — même quand le groupe a une destination propre. Sur mobile, atteindre cette
 destination demande alors de taper le **titre** du panneau ouvert, sans indice visuel que ce titre
@@ -111,14 +116,29 @@ est un lien. Ce comportement change :
 
 ## 5. Tests E2E (Playwright)
 
-- [ ] Desktop : cliquer « Tèminal POS » ouvre directement `/app/admin/seller-terminals` (pas de
-      panneau/accordéon intermédiaire).
-- [ ] Desktop : cliquer le chevron de « Tèminal POS » déplie les enfants sans navigation.
-- [ ] Mobile : un tap sur une ligne absorbée navigue et ferme le drawer.
-- [ ] Mobile : les 5 entrées du groupe Operasyon restent visibles dans un ordre stable.
-- [ ] Rechargement direct sur `/app/admin/tickets/sell` : `Tikè` actif, bon sous-lien actif.
-- [ ] Rechargement direct sur `/app/admin/limits/number` : `Limit` actif, bon sous-lien actif.
-- [ ] Largeurs 390, 600, 839, 840, 1280px ; light et dark.
+Réécrit pour coller au comportement réel post-#438 (la scission ligne/chevron n'existe que sur
+desktop ; mobile garde le comportement pré-#437, sans filtrage du panneau). Nouveau fichier
+`apps/web-e2e/src/admin-portal/sidenav-desktop.spec.ts`, sélecteurs sur `href` plutôt que sur le
+texte traduit (la locale e2e n'est pas figée) :
+
+- [x] Desktop : cliquer le libellé « Tèminal POS » ouvre directement `/app/admin/seller-terminals`
+      (pas d'accordéon intermédiaire).
+- [x] Desktop : cliquer le chevron de « Tèminal POS » déplie les enfants sans navigation.
+- [x] Desktop : un second clic sur le chevron replie à nouveau, toujours sans naviguer.
+- [x] Desktop : un groupe et son enfant actif ne partagent jamais le même aplat plein
+      (`/app/admin/reports/daily`, cas exact du bug post-merge de la section 7).
+- [x] Rechargement direct sur `/app/admin/limits/number` : bon sous-lien actif dans le bon groupe.
+- [x] Rechargement direct sur `/app/admin/tickets/sell` : bon sous-lien actif dans le bon groupe.
+- [x] Mobile (`apps/web-e2e/src/mobile/admin-drawer.spec.ts`, réécrit) : le panneau liste tous les
+      enfants d'une catégorie, atterrissage compris, et le titre du panneau n'est jamais un lien.
+- [ ] Non fait — nécessite des identifiants admin que je n'ai pas et ne fabrique pas moi-même
+      (même position que sur la vérification visuelle live, section 6) : exécution réelle de ces
+      specs. Écrites, `web-e2e:lint` vert (0 erreur), découverte confirmée via
+      `playwright test --list` (24 tests dans 7 fichiers, les nouveaux y figurent). Pas de preuve
+      d'exécution au-delà de ça.
+- [ ] Largeurs intermédiaires (600, 839px) et dark mode : pas couvertes, hors du scope de ce retour
+      (`sidenav-desktop.spec.ts` utilise le viewport desktop par défaut du projet
+      `admin-portal` ; `admin-drawer.spec.ts` le viewport mobile fixe de `admin-portal-mobile`).
 
 ## 6. Vérification
 
