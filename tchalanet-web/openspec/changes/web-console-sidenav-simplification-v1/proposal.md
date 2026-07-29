@@ -2,10 +2,25 @@
 
 ## Status
 
-Décisions verrouillées — 2026-07-28, à partir des conseils utilisateur du même jour, vérifiés
-contre le fragment backend réel, les traductions HT réelles (`surface-admin.json`), et le
-comportement live sur `test.tchalanet.com/admin`. `tasks.md` est maintenant détaillé — rien
-d'implémenté.
+**Livré et déployé** — 2026-07-29. [PR #437](https://github.com/bhebb/tchalanet/pull/437) (split
+backend + interaction ligne/chevron initiale) et [PR #438](https://github.com/bhebb/tchalanet/pull/438)
+(deux corrections trouvées en usage réel après #437, voir ci-dessous) mergées dans `main`, vérifiées
+en direct sur `test.tchalanet.com`.
+
+Deux ajustements post-merge, décidés sur retour utilisateur réel plutôt qu'anticipés à la
+conception — documentés en détail dans `specs/web-console-sidenav/spec.md` :
+
+1. **La scission libellé/chevron ne s'applique qu'au desktop.** Portée sur mobile dans un premier
+   temps (cohérence avec desktop), puis retirée le jour même : le drawer mobile se referme
+   entièrement après navigation, contrairement à l'accordéon desktop qui reste ouvert et se
+   rouvre sur le groupe actif — sans lui, le petit chevron devenait la seule façon de jamais
+   découvrir les pages sœurs, ce que personne ne trouvait en usage réel.
+2. **Le panneau mobile ne filtre plus l'entrée d'atterrissage.** Le titre de panneau cliquable
+   (introduit pour compenser le filtrage) ressemblait à du texte, pas à un lien — invisible comme
+   affordance. Chaque enfant, atterrissage compris, est maintenant une ligne ordinaire, comme la
+   sidebar desktop l'a toujours fait.
+3. **Surbrillance desktop corrigée** : un groupe et son enfant actif ne partagent plus le même
+   aplat de couleur plein (voir spec pour le détail du bug de spécificité CSS rencontré).
 
 ## Why
 
