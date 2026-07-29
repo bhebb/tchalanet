@@ -75,8 +75,6 @@ export class TchDrawerNav {
   readonly searchLabel = input('');
   readonly searchPlaceholder = input('');
   readonly backLabel = input('Retour');
-  readonly expandLabel = input('Développer');
-  readonly collapseLabel = input('Réduire');
   /**
    * Clé i18n du compteur de pages — une **clé** et non un libellé résolu, contrairement aux autres
    * entrées : elle a besoin du paramètre `count`, que seul ce composant connaît.
@@ -224,31 +222,6 @@ export class TchDrawerNav {
     const trigger = this.trigger;
     this.trigger = null;
     trigger?.focus();
-  }
-
-  isCategoryOpen(item: ActionItem): boolean {
-    return this.openCategoryId() === item.id;
-  }
-
-  /**
-   * Le chevron d'une catégorie qui a aussi sa propre destination : il ne fait que
-   * replier/déplier le panneau, jamais naviguer — la navigation passe par le lien du libellé, un
-   * élément séparé. Bascule plutôt qu'ouvre : contrairement au bouton pleine ligne (catégorie sans
-   * destination), le chevron reste un contrôle à part entière avec `aria-expanded`.
-   */
-  toggleCategoryPanel(item: ActionItem, event: Event): void {
-    event.stopPropagation();
-    if (this.isCategoryOpen(item)) {
-      this.closeCategoryPanel();
-      return;
-    }
-    this.trigger = event.currentTarget as HTMLElement | null;
-    this.openCategoryId.set(item.id);
-  }
-
-  toggleButtonLabel(item: ActionItem): string {
-    const verb = this.isCategoryOpen(item) ? this.collapseLabel() : this.expandLabel();
-    return `${verb} ${this.label(item)}`;
   }
 
   onSearchInput(event: Event): void {

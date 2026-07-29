@@ -155,9 +155,7 @@ describe('private shell drawer — replié (< 840px)', () => {
   it('opens a category panel and drops the entry the header already leads to', async () => {
     const fixture = await render();
 
-    // The row's label navigates directly (it has its own destination) — the panel opens from
-    // the chevron, a separate control.
-    el(fixture, '[data-testid="drawer-category-expand"]')!.click();
+    el(fixture, '[data-testid="drawer-category"]')!.click();
     fixture.detectChanges();
 
     const panel = el(fixture, '.drawer-nav__panel');
@@ -176,7 +174,7 @@ describe('private shell drawer — replié (< 840px)', () => {
     fixture.componentInstance.drawerOpen.set(true);
     fixture.detectChanges();
 
-    el(fixture, '[data-testid="drawer-category-expand"]')!.click();
+    el(fixture, '[data-testid="drawer-category"]')!.click();
     fixture.detectChanges();
     expect(el(fixture, '.drawer-nav__panel')).not.toBeNull();
 
@@ -197,7 +195,7 @@ describe('private shell drawer — replié (< 840px)', () => {
     fixture.componentInstance.drawerOpen.set(true);
     fixture.detectChanges();
 
-    el(fixture, '[data-testid="drawer-category-expand"]')!.click();
+    el(fixture, '[data-testid="drawer-category"]')!.click();
     fixture.detectChanges();
     expect(el(fixture, '.drawer-nav__panel')).not.toBeNull();
 
@@ -223,11 +221,8 @@ describe('private shell drawer — replié (< 840px)', () => {
   it('still opens the panel of a footer entry that has children', async () => {
     const fixture = await render();
 
-    const footerExpand = all(
-      fixture,
-      '.drawer-nav__footer [data-testid="drawer-category-expand"]',
-    )[0];
-    footerExpand.click();
+    const footerCategory = all(fixture, '.drawer-nav__footer [data-testid="drawer-category"]')[0];
+    footerCategory.click();
     fixture.detectChanges();
 
     const panel = el(fixture, '.drawer-nav__panel');
@@ -241,33 +236,6 @@ describe('private shell drawer — replié (< 840px)', () => {
     expect(el(fixture, '[data-testid="drawer-category"]')?.classList.contains('is-active')).toBe(
       true,
     );
-  });
-
-  it('navigates on the row label without opening the panel', async () => {
-    const fixture = await render();
-
-    expect(el(fixture, '[data-testid="drawer-category"] .drawer-nav__row-link')).not.toBeNull();
-    el(fixture, '[data-testid="drawer-category"] .drawer-nav__row-link')!.click();
-    fixture.detectChanges();
-    await fixture.whenStable();
-
-    expect(el(fixture, '.drawer-nav__panel')).toBeNull();
-    expect(TestBed.inject(Router).url).toBe('/app/admin/limits');
-  });
-
-  it('toggles the panel from the chevron without navigating', async () => {
-    const fixture = await render();
-    const urlBefore = TestBed.inject(Router).url;
-
-    const expandButton = el(fixture, '[data-testid="drawer-category-expand"]')!;
-    expect(expandButton.getAttribute('aria-expanded')).toBe('false');
-
-    expandButton.click();
-    fixture.detectChanges();
-
-    expect(TestBed.inject(Router).url).toBe(urlBefore);
-    expect(el(fixture, '.drawer-nav__panel')).not.toBeNull();
-    expect(expandButton.getAttribute('aria-expanded')).toBe('true');
   });
 });
 

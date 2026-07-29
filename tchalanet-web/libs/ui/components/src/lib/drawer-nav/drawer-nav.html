@@ -132,45 +132,11 @@
   ligne de tête comme « Tablo bò » de le porter aussi sans rien laisser deviner d'incohérent.
 -->
 <ng-template #rowTemplate let-item let-siblings="siblings">
-  @if (hasChildren(item) && categoryRoute(item)) {
-    <!-- Catégorie avec sa propre destination : le libellé navigue directement, le chevron ne fait
-         que replier/déplier ses sous-pages — deux contrôles distincts, jamais la même action. -->
-    <div
-      class="drawer-nav__row drawer-nav__row--split"
-      data-testid="drawer-category"
-      [class.is-active]="isCategoryActive(item)"
-    >
-      <a
-        class="drawer-nav__row-link"
-        [routerLink]="categoryRoute(item)"
-        [queryParams]="actionQueryParams(item)"
-        [attr.aria-current]="isActionActive(item, item.children ?? []) ? 'page' : null"
-        (click)="onItemClick($event, item)"
-      >
-        <span class="drawer-nav__row-icon material-symbols-outlined" aria-hidden="true">
-          {{ item.icon || 'category' }}
-        </span>
-        <span class="drawer-nav__row-label">{{ actionText(item) | translate }}</span>
-        @if (item.badge?.value !== undefined && item.badge?.value !== null) {
-          <span class="drawer-nav__badge" [attr.data-severity]="item.badge?.severity ?? 'info'">
-            {{ item.badge?.value }}
-          </span>
-        }
-      </a>
-      <button
-        type="button"
-        class="drawer-nav__row-expand"
-        data-testid="drawer-category-expand"
-        [attr.aria-expanded]="isCategoryOpen(item)"
-        [attr.aria-label]="toggleButtonLabel(item)"
-        (click)="toggleCategoryPanel(item, $event)"
-      >
-        <span class="material-symbols-outlined drawer-nav__chevron" aria-hidden="true">
-          chevron_right
-        </span>
-      </button>
-    </div>
-  } @else if (hasChildren(item)) {
+  @if (hasChildren(item)) {
+    <!-- Le drawer replié n'a pas d'accordéon persistant derrière lui comme la sidebar desktop :
+         une fois qu'on a navigué, tout se referme. Donc pas de scission libellé/chevron ici — la
+         ligne entière ouvre le panneau, seule façon fiable de découvrir les pages sœurs sur
+         mobile. Le titre du panneau reste un lien vers la destination absorbée. -->
     <button
       type="button"
       class="drawer-nav__row drawer-nav__row--button"
