@@ -1,25 +1,33 @@
 <div class="seller-terminal-kpi-strip">
-  <div class="seller-terminal-kpi-strip__card">
-    <span class="material-symbols-outlined seller-terminal-kpi-strip__icon seller-terminal-kpi-strip__icon--success">check_circle</span>
-    <span class="seller-terminal-kpi-strip__value">{{ summary().activeCount }}</span>
-    <span class="seller-terminal-kpi-strip__label">{{ 'admin.sellerTerminals.list.kpi.active' | translate }}</span>
+  <div class="seller-terminal-kpi-strip__card seller-terminal-kpi-strip__card--success">
+    <span class="material-symbols-outlined seller-terminal-kpi-strip__icon">check_circle</span>
+    <div class="seller-terminal-kpi-strip__content">
+      <span class="seller-terminal-kpi-strip__label">{{ 'admin.sellerTerminals.list.kpi.active' | translate }}</span>
+      <span class="seller-terminal-kpi-strip__value">{{ summary().activeCount }}</span>
+    </div>
   </div>
 
-  <div class="seller-terminal-kpi-strip__card">
-    <span class="material-symbols-outlined seller-terminal-kpi-strip__icon seller-terminal-kpi-strip__icon--danger">block</span>
-    <span class="seller-terminal-kpi-strip__value">{{ summary().blockedCount }}</span>
-    <span class="seller-terminal-kpi-strip__label">{{ 'admin.sellerTerminals.list.kpi.blocked' | translate }}</span>
+  <div class="seller-terminal-kpi-strip__card seller-terminal-kpi-strip__card--danger">
+    <span class="material-symbols-outlined seller-terminal-kpi-strip__icon">block</span>
+    <div class="seller-terminal-kpi-strip__content">
+      <span class="seller-terminal-kpi-strip__label">{{ 'admin.sellerTerminals.list.kpi.blocked' | translate }}</span>
+      <span class="seller-terminal-kpi-strip__value">{{ summary().blockedCount }}</span>
+    </div>
   </div>
 
-  <div class="seller-terminal-kpi-strip__card">
-    <span class="material-symbols-outlined seller-terminal-kpi-strip__icon seller-terminal-kpi-strip__icon--gold">payments</span>
-    <span class="seller-terminal-kpi-strip__value">{{ summary().salesTodayAmount | number:'1.0-0' }} HTG</span>
-    <span class="seller-terminal-kpi-strip__label">{{ 'admin.sellerTerminals.list.kpi.salesToday' | translate }}</span>
+  <div class="seller-terminal-kpi-strip__card seller-terminal-kpi-strip__card--gold">
+    <span class="material-symbols-outlined seller-terminal-kpi-strip__icon">payments</span>
+    <div class="seller-terminal-kpi-strip__content">
+      <span class="seller-terminal-kpi-strip__label">{{ 'admin.sellerTerminals.list.kpi.salesToday' | translate }}</span>
+      <span class="seller-terminal-kpi-strip__value">{{ summary().salesTodayAmount | number:'1.0-0' }} HTG</span>
+    </div>
   </div>
 
-  <div class="seller-terminal-kpi-strip__card">
-    <span class="material-symbols-outlined seller-terminal-kpi-strip__icon seller-terminal-kpi-strip__icon--neutral">percent</span>
-    <span class="seller-terminal-kpi-strip__value">{{ summary().averageCommissionRate | number:'1.1-1' }}%</span>
-    <span class="seller-terminal-kpi-strip__label">{{ 'admin.sellerTerminals.list.kpi.averageCommission' | translate }}</span>
+  <div class="seller-terminal-kpi-strip__card seller-terminal-kpi-strip__card--neutral">
+    <span class="material-symbols-outlined seller-terminal-kpi-strip__icon">percent</span>
+    <div class="seller-terminal-kpi-strip__content">
+      <span class="seller-terminal-kpi-strip__label">{{ 'admin.sellerTerminals.list.kpi.averageCommission' | translate }}</span>
+      <span class="seller-terminal-kpi-strip__value">{{ summary().averageCommissionRate | number:'1.1-1' }}%</span>
+    </div>
   </div>
 </div>
