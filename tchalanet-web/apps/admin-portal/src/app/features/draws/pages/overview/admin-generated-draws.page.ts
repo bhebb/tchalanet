@@ -149,17 +149,20 @@ export class AdminGeneratedDrawsPage {
   readonly page = computed(() => numberParam(this.qp().get('page'), 0));
 
   // ── Lecture (resource créée par le client, statut filtré côté client) ───────
+  // `q` is intentionally NOT part of this query: the backend has no text-search field for
+  // /admin/draws (see AdminGeneratedDrawsApiService.filterDrawsByQuery), so including it here
+  // would only trigger a wasted refetch on every keystroke for a param the server ignores.
   readonly draws = this.api.generatedDrawsResource(() => ({
     datePreset: this.datePreset(),
     from: this.hasCustomDateRange() ? this.fromDate() : null,
     to: this.hasCustomDateRange() ? this.toDate() : null,
-    q: this.searchQuery() || null,
     page: this.page(),
   }));
   readonly drawsError = resourceErrorVm(this.draws, 'admin.generatedDraws.list');
-  readonly allDraws = computed(() =>
-    this.api.filterDrawsByStatus(this.draws.value()?.items ?? [], this.statusFilter()),
-  );
+  readonly allDraws = computed(() => {
+    const statusFiltered = this.api.filterDrawsByStatus(this.draws.value()?.items ?? [], this.statusFilter());
+    return this.api.filterDrawsByQuery(statusFiltered, this.searchQuery());
+  });
   readonly totalElements = computed(() => this.draws.value()?.totalElements ?? 0);
   /**
    * The table's `hasNext`/`hasPrev` math needs the real page size the backend used, not a
