@@ -33,6 +33,7 @@ export interface ConsoleDrawRowViewModelInput {
   readonly resultTone?: AdminStatusTone;
   readonly resultNumbers?: readonly string[];
   readonly resultHint?: string | null;
+  readonly resultActionHint?: string | null;
   readonly modeLabel?: string | null;
   readonly publicationLabel?: string | null;
   readonly publicationTone?: AdminStatusTone;
@@ -80,6 +81,7 @@ export function consoleDrawRowViewModel(input: ConsoleDrawRowViewModelInput): Co
     resultTone: input.resultTone,
     resultNumbers: input.resultNumbers ?? [],
     resultHint: input.resultHint ?? undefined,
+    resultActionHint: input.resultActionHint ?? undefined,
     modeLabel: input.modeLabel ?? undefined,
     publicationLabel: input.publicationLabel ?? undefined,
     publicationTone: input.publicationTone,

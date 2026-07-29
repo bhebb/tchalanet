@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 
 import { ConsoleDrawSlotIdentity } from './console-draw-slot-identity.models';
+import { consoleDrawSlotLocalLabel } from './console-draw-identities';
 
 @Component({
   selector: 'tch-console-draw-slot-identity',
@@ -12,6 +13,13 @@ import { ConsoleDrawSlotIdentity } from './console-draw-slot-identity.models';
 export class ConsoleDrawSlotIdentityComponent {
   readonly identity = input.required<ConsoleDrawSlotIdentity>();
   readonly density = input<'comfortable' | 'compact'>('comfortable');
+  /**
+   * Provider et heure locale/provider dans le corps de l'identité. La carte mobile de
+   * `ConsoleDrawsTableComponent` désactive cet input : ces informations techniques vont sur la
+   * page de détail, et l'heure locale se rend ailleurs sur la carte (sous le badge d'état) via
+   * `consoleDrawSlotLocalLabel`.
+   */
+  readonly showTechnicalMeta = input<boolean>(true);
 
   readonly title = computed(() => {
     const view = this.identity();
@@ -34,19 +42,17 @@ export class ConsoleDrawSlotIdentityComponent {
   });
 
   readonly localLabel = computed(() => {
-    const view = this.identity();
-    const showLocalDate = hasDifferentDate(view.localDateLabel, view.providerDateLabel);
-    const dateTime = [showLocalDate ? view.localDateLabel : null, view.localTimeLabel].filter(Boolean).join(' ');
-    if (!dateTime) return null;
-    return view.localTimezoneLabel ? `${dateTime} · ${view.localTimezoneLabel}` : dateTime;
+    if (!this.showTechnicalMeta()) return null;
+    return consoleDrawSlotLocalLabel(this.identity());
   });
 
   readonly providerNameLabel = computed(() => {
-    if (this.density() === 'compact') return null;
+    if (!this.showTechnicalMeta() || this.density() === 'compact') return null;
     return null;
   });
 
   readonly providerLabel = computed(() => {
+    if (!this.showTechnicalMeta()) return null;
     const view = this.identity();
     const dateTime = [view.providerDateLabel, view.providerTimeLabel].filter(Boolean).join(' ');
     if (!dateTime) return null;
@@ -77,15 +83,6 @@ function displayLabels(currentTitle: string, ...values: readonly (string | null 
 
 function isTechnicalCode(value: string): boolean {
   return /^[A-Z]{2,}(?:_[A-Z0-9]+)+$/.test(value) || /^HT_[A-Z0-9_]+$/.test(value);
-}
-
-function hasDifferentDate(
-  localDateLabel: string | null | undefined,
-  providerDateLabel: string | null | undefined,
-): boolean {
-  const local = localDateLabel?.trim();
-  const provider = providerDateLabel?.trim();
-  return Boolean(local && provider && local !== provider);
 }
 
 function periodLabel(...values: readonly (string | null | undefined)[]): string | null {

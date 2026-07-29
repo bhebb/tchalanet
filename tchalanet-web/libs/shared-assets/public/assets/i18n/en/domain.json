@@ -164,7 +164,8 @@
       },
       "field": {
         "provider": "Province / state",
-        "slotType": "Draw type"
+        "slotType": "Draw type",
+        "localTime": "Local time"
       }
     },
     "tchala": {

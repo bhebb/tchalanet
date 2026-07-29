@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, input, output, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { TranslatePipe } from '@ngx-translate/core';
 import {
   ConsoleDrawActionEvent,
   ConsoleDrawRow,
@@ -34,7 +35,7 @@ import { RuntimeSettingsStore } from '@tch/shared-config';
   selector: 'tch-generated-draws-table',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ConsoleDrawsTableComponent, MatButtonModule, MatIconModule],
+  imports: [ConsoleDrawsTableComponent, MatButtonModule, MatIconModule, TranslatePipe],
   templateUrl: './generated-draws-table.component.html',
   styleUrls: ['./generated-draws-table.component.scss'],
 })
@@ -330,6 +331,7 @@ export class GeneratedDrawsTableComponent {
       resultTone: consoleDrawResultStatusTone(draw.resultStatus),
       resultNumbers: draw.numbers?.map(n => String(n)) ?? [],
       resultHint: this.resultHint(draw),
+      resultActionHint: this.resultActionHint(draw),
       modeLabel: draw.resultMode,
       publicationLabel: draw.publicationStatus && draw.publicationStatus !== 'NOT_PUBLISHED'
         ? consoleDrawPublicationStatusLabel(draw.publicationStatus)
@@ -389,6 +391,16 @@ export class GeneratedDrawsTableComponent {
     if (draw.sourceError) return this.sourceErrorAtLabel(draw);
     if (draw.fetchedAt) return `Récupéré ${this.fetchedAtLabel(draw)}`;
     return undefined;
+  }
+
+  /**
+   * Reformule EXPECTED/MISSING en message orienté action pour la carte mobile — le tableau
+   * desktop et la page de détail continuent d'afficher `consoleDrawResultStatusLabel` (« Attendu »
+   * / « Manquant ») sans changement, via `row.resultLabel`.
+   */
+  private resultActionHint(draw: GeneratedDrawView): string | undefined {
+    if (draw.resultStatus !== 'EXPECTED' && draw.resultStatus !== 'MISSING') return undefined;
+    return this.canEnterManualResult(draw) ? 'Résultat à saisir' : 'Résultat manquant';
   }
 
 }

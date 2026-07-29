@@ -162,7 +162,9 @@ export function consoleDrawLifecycleActionLabel(action: ConsoleDrawLifecycleDisp
 export function consoleDrawLifecycleActionIcon(action: ConsoleDrawLifecycleDisplayAction): string {
   switch (action) {
     case 'open': return 'play_arrow';
-    case 'close': return 'stop';
+    // 'stop' rendered as a small square in the menu — visually indistinguishable from the
+    // adjacent selection checkbox. 'pause_circle' is unambiguous and already in the icon subset.
+    case 'close': return 'pause_circle';
     case 'lock': return 'lock';
     case 'unlock': return 'lock_open';
     case 'cancel': return 'cancel';
