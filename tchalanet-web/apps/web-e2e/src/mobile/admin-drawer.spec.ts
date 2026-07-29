@@ -71,24 +71,27 @@ test.describe('admin console drawer on a narrow viewport', () => {
     expect((await page.locator(category).first().textContent())?.trim()).toBe(label);
   });
 
-  test('never repeats the landing entry the panel title already leads to', async ({ page }) => {
+  test('lists every child in the panel, landing entry included, title stays plain text', async ({
+    page,
+  }) => {
+    // A prior version hid whichever child's route matched the group's own destination, making the
+    // panel title a link to it instead — but the title read as plain text, not as a link, so that
+    // page became effectively unreachable for anyone who didn't know to tap a heading. Every
+    // child, including the landing one, is now an ordinary row; the title is never interactive.
+    //
+    // The static fallback model's first section is admin/[dashboard, sellers, draws, reports,
+    // tickets] — dashboard has no children so it's a plain row, making "sellers" the first
+    // category, same assumption every other test in this file already relies on via `.first()`.
     await page.locator(toggle).click();
     await page.locator(category).first().click();
 
     const title = page.locator(`${panel} h2`);
     await expect(title).toBeVisible();
-    const heading = (await title.textContent())?.trim();
+    // No panel-title link exists anymore: the title is never wrapped in an <a>.
+    await expect(page.locator(`${panel} h2 >> xpath=parent::a`)).toHaveCount(0);
 
-    const rows = await page.locator(`${panel} ${row}`).allTextContents();
-    const link = page.locator(`${panel} a[href]`).first();
-
-    // Quand le titre est un lien, il mène à une route qu'aucune ligne ne redouble.
-    if ((await link.count()) > 0) {
-      const target = await link.getAttribute('href');
-      const duplicates = await page.locator(`${panel} ${row}[href="${target}"]`).count();
-      expect(duplicates).toBe(0);
-    }
-    expect(rows.map(text => text.trim())).not.toContain(heading);
+    const landingRow = page.locator(`${panel} ${row}[href="/app/admin/seller-terminals"]`);
+    await expect(landingRow).toBeVisible();
   });
 
   test('covers the root level instead of blending with it', async ({ page }) => {
