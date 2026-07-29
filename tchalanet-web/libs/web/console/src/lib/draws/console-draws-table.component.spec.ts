@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { ConsoleDrawsTableComponent } from './console-draws-table.component';
@@ -6,6 +7,7 @@ import { ConsoleDrawRow } from './console-draws-table.models';
 import { ConsoleRowAction } from '../draw-results/console-draw-results-table.models';
 
 function createComponent(): ConsoleDrawsTableComponent {
+  TestBed.configureTestingModule({ providers: [provideTranslateService()] });
   const fixture = TestBed.createComponent(ConsoleDrawsTableComponent);
   fixture.componentRef.setInput('rows', []);
   return fixture.componentInstance;

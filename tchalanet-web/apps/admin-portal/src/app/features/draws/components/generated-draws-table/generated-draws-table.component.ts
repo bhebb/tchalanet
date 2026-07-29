@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, input, output, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { TranslatePipe } from '@ngx-translate/core';
 import {
   ConsoleDrawActionEvent,
   ConsoleDrawRow,
@@ -34,7 +35,7 @@ import { RuntimeSettingsStore } from '@tch/shared-config';
   selector: 'tch-generated-draws-table',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ConsoleDrawsTableComponent, MatButtonModule, MatIconModule],
+  imports: [ConsoleDrawsTableComponent, MatButtonModule, MatIconModule, TranslatePipe],
   templateUrl: './generated-draws-table.component.html',
   styleUrls: ['./generated-draws-table.component.scss'],
 })

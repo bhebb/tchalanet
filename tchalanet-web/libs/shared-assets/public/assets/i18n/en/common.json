@@ -39,6 +39,7 @@
     "manage": "Manage",
     "back": "Back",
     "cancel": "Cancel",
+    "clearSelection": "Clear selection",
     "next": "Next",
     "previous": "Previous",
     "retry": "Retry",

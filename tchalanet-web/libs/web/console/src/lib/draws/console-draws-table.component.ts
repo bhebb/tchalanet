@@ -3,6 +3,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTableModule } from '@angular/material/table';
+import { TranslatePipe } from '@ngx-translate/core';
 import { AdminStatusPillComponent } from '@tch/ui/console';
 
 import { ConsoleDrawSlotIdentityComponent } from '../draw-slots/console-draw-slot-identity.component';
@@ -25,6 +26,7 @@ import { ConsoleRowAction } from '../draw-results/console-draw-results-table.mod
     MatCheckboxModule,
     MatMenuModule,
     MatTableModule,
+    TranslatePipe,
   ],
   templateUrl: './console-draws-table.component.html',
   styleUrls: ['./console-draws-table.component.scss'],
