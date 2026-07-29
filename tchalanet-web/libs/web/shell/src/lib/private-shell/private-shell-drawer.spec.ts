@@ -152,23 +152,23 @@ describe('private shell drawer — replié (< 840px)', () => {
     expect(categories[0]).not.toMatch(/\d/);
   });
 
-  it('opens a category panel and drops the entry the header already leads to', async () => {
+  it('opens a category panel listing every child, landing entry included', async () => {
+    // The panel used to hide the child whose route matched the group's own destination, on the
+    // theory that the panel title linked to it instead — but that title looked like plain text,
+    // not a link. Every child is now a normal, obviously-clickable row, landing page included,
+    // matching how the desktop accordion has always rendered it.
     const fixture = await render();
 
-    // The row's label navigates directly (it has its own destination) — the panel opens from
-    // the chevron, a separate control.
-    el(fixture, '[data-testid="drawer-category-expand"]')!.click();
+    el(fixture, '[data-testid="drawer-category"]')!.click();
     fixture.detectChanges();
 
     const panel = el(fixture, '.drawer-nav__panel');
     expect(panel).not.toBeNull();
-    expect(panel!.querySelector('.drawer-nav__panel-link')?.getAttribute('href')).toBe(
-      '/app/admin/limits',
-    );
+    expect(panel!.querySelector('h2')?.textContent).toContain('nav.limits');
 
     const items = all(fixture, '.drawer-nav__panel .drawer-nav__row').map(n => n.textContent);
     expect(items.some(text => text?.includes('nav.limits_global'))).toBe(true);
-    expect(items.some(text => text?.includes('nav.limits_overview'))).toBe(false);
+    expect(items.some(text => text?.includes('nav.limits_overview'))).toBe(true);
   });
 
   it('closes the category panel before the drawer on Escape', async () => {
@@ -176,7 +176,7 @@ describe('private shell drawer — replié (< 840px)', () => {
     fixture.componentInstance.drawerOpen.set(true);
     fixture.detectChanges();
 
-    el(fixture, '[data-testid="drawer-category-expand"]')!.click();
+    el(fixture, '[data-testid="drawer-category"]')!.click();
     fixture.detectChanges();
     expect(el(fixture, '.drawer-nav__panel')).not.toBeNull();
 
@@ -197,7 +197,7 @@ describe('private shell drawer — replié (< 840px)', () => {
     fixture.componentInstance.drawerOpen.set(true);
     fixture.detectChanges();
 
-    el(fixture, '[data-testid="drawer-category-expand"]')!.click();
+    el(fixture, '[data-testid="drawer-category"]')!.click();
     fixture.detectChanges();
     expect(el(fixture, '.drawer-nav__panel')).not.toBeNull();
 
@@ -223,11 +223,8 @@ describe('private shell drawer — replié (< 840px)', () => {
   it('still opens the panel of a footer entry that has children', async () => {
     const fixture = await render();
 
-    const footerExpand = all(
-      fixture,
-      '.drawer-nav__footer [data-testid="drawer-category-expand"]',
-    )[0];
-    footerExpand.click();
+    const footerCategory = all(fixture, '.drawer-nav__footer [data-testid="drawer-category"]')[0];
+    footerCategory.click();
     fixture.detectChanges();
 
     const panel = el(fixture, '.drawer-nav__panel');
@@ -241,33 +238,6 @@ describe('private shell drawer — replié (< 840px)', () => {
     expect(el(fixture, '[data-testid="drawer-category"]')?.classList.contains('is-active')).toBe(
       true,
     );
-  });
-
-  it('navigates on the row label without opening the panel', async () => {
-    const fixture = await render();
-
-    expect(el(fixture, '[data-testid="drawer-category"] .drawer-nav__row-link')).not.toBeNull();
-    el(fixture, '[data-testid="drawer-category"] .drawer-nav__row-link')!.click();
-    fixture.detectChanges();
-    await fixture.whenStable();
-
-    expect(el(fixture, '.drawer-nav__panel')).toBeNull();
-    expect(TestBed.inject(Router).url).toBe('/app/admin/limits');
-  });
-
-  it('toggles the panel from the chevron without navigating', async () => {
-    const fixture = await render();
-    const urlBefore = TestBed.inject(Router).url;
-
-    const expandButton = el(fixture, '[data-testid="drawer-category-expand"]')!;
-    expect(expandButton.getAttribute('aria-expanded')).toBe('false');
-
-    expandButton.click();
-    fixture.detectChanges();
-
-    expect(TestBed.inject(Router).url).toBe(urlBefore);
-    expect(el(fixture, '.drawer-nav__panel')).not.toBeNull();
-    expect(expandButton.getAttribute('aria-expanded')).toBe('true');
   });
 });
 
@@ -283,66 +253,29 @@ describe('private shell drawer — déployé (≥ 840px)', () => {
 });
 
 /**
- * Garde sur les modèles réels. La règle d'absorption est structurelle, donc silencieuse : si un
- * groupe gagne une `destination` raccourci vers son premier enfant, cet enfant disparaîtrait du
- * panneau sans que rien ne le signale.
+ * Garde sur les modèles réels : quels groupes ont leur propre destination (donc une ligne
+ * cliquable directement, sur desktop comme mobile désormais) plutôt qu'être une pure catégorie.
  */
-describe('absorption de l’entrée d’atterrissage sur les modèles réels', () => {
-  const absorbed = (group: ActionItem): ActionItem | undefined => {
-    const route = actionRoute(group);
-    if (!route) return undefined;
-    return (group.children ?? []).find(
-      child => child.activeMatch === 'exact' && actionRoute(child) === route,
-    );
-  };
-
+describe('destinations de groupe sur les modèles réels', () => {
   const groupsOf = (sections: readonly NavigationSection[]) =>
     sections.flatMap(section => section.items).filter(item => item.children?.length);
 
-  it('absorbs exactly the landing entries, and nothing else', () => {
-    const outcome = [...groupsOf(TENANT_ADMIN_NAVIGATION), ...groupsOf(PLATFORM_NAVIGATION)]
-      .map(group => [group.id, absorbed(group)?.id] as const)
-      .filter(([, childId]) => childId !== undefined);
+  it('a une destination pour tous les groupes tenant-admin sauf ceux sans page par défaut évidente', () => {
+    const withDestination = groupsOf(TENANT_ADMIN_NAVIGATION)
+      .filter(group => !!actionRoute(group))
+      .map(group => group.id);
 
-    expect(Object.fromEntries(outcome)).toEqual({
-      sellers: 'sellers-list',
-      draws: 'draws-all',
-      games: 'games-overview',
-      limits: 'limits-overview',
-      tickets: 'tickets-list',
-      reports: 'reports-daily',
-      company: 'company-identity',
-      tenants: 'tenant-list',
-      operations: 'ops-overview',
-      archives: 'archive-overview',
-      audit: 'audit-functional',
-    });
+    expect(withDestination.sort()).toEqual(
+      ['sellers', 'draws', 'games', 'limits', 'tickets', 'reports', 'company'].sort(),
+    );
   });
 
-  it('cannot absorb anything from a group that declares no destination', () => {
-    // `dashboard` a deux enfants exact-match sur des routes différentes (santé technique vs
-    // commercial) : aucun n'est "la" page par défaut du groupe, contrairement à `archives`/`audit`
-    // qui ont chacun une seule vue d'ensemble. `access`, `references`, `support-and-content` et
-    // `tchala` n'ont, eux, aucun enfant candidat évident non plus — même statut que `reports`/
-    // `company` avant qu'on leur choisisse une destination côté admin (web-console-sidenav-
-    // simplification-v1) : une décision produit, pas un oubli.
+  it('laisse dashboard/access/references/support-and-content/tchala sans destination côté platform', () => {
+    // `dashboard` a deux enfants à égalité (santé technique vs commercial) ; les autres n'ont
+    // aucun enfant candidat évident — une décision produit, pas un oubli.
     for (const id of ['dashboard', 'access', 'references', 'support-and-content', 'tchala']) {
       const group = groupsOf(PLATFORM_NAVIGATION).find(item => item.id === id);
       expect([id, actionRoute(group!)]).toEqual([id, '']);
-    }
-  });
-
-  it('leaves shortcut destinations alone', () => {
-    // « Référentiels » pointe sur « Jeux », un item parmi dix : ce n'est pas une vue d'ensemble.
-    // `reports` et `company` ont depuis reçu une vraie destination de vue d'ensemble (voir le test
-    // d'absorption ci-dessus) — ils ne sont plus de simples raccourcis.
-    const shortcuts = ['references', 'access', 'support-and-content', 'tchala'];
-    for (const id of shortcuts) {
-      const group = [...groupsOf(TENANT_ADMIN_NAVIGATION), ...groupsOf(PLATFORM_NAVIGATION)].find(
-        item => item.id === id,
-      );
-      if (!group) continue;
-      expect([id, absorbed(group)?.id]).toEqual([id, undefined]);
     }
   });
 });
