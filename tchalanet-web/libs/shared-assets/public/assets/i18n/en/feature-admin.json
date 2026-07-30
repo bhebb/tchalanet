@@ -607,7 +607,137 @@
       "title": "Free Maryaj",
       "description": "Configure the Maryaj game and its automatic free-line offer.",
       "action": { "refresh": "Refresh" },
-      "loading": "Loading promotions..."
+      "loading": "Loading promotions...",
+      "game": {
+        "eyebrow": "Game settings",
+        "title": "Free Maryaj",
+        "subtitle": "The same Maryaj logic applies; only the free pricing and generation change.",
+        "configure": "Edit game",
+        "pricingOptions": "Payout options",
+        "pricingHint": "Exact and Reverse are supported by default.",
+        "standard": "Standard",
+        "minimumStake": "Minimum stake",
+        "maximumStake": "Maximum stake",
+        "maxPerDraw": "Payout cap per draw",
+        "maxPerDrawHint": "Total amount payable for this game in one draw.",
+        "exact": "Exact",
+        "reverse": "Reverse",
+        "notDefined": "Not defined",
+        "notConfigured": "Not configured",
+        "missing": "Free Maryaj is missing from the tenant game configuration.",
+        "readiness": { "READY": "Ready", "TODO": "To configure", "BLOCKED": "Unavailable" }
+      },
+      "summary": {
+        "eyebrow": "Summary",
+        "status": { "configure": "To configure", "active": "Active", "activate": "To activate" },
+        "meta": {
+          "game": "Game",
+          "attribution": "Allocation",
+          "offered": "Free Maryaj",
+          "selection": "Selection",
+          "regeneration": "Regeneration"
+        },
+        "game": { "ready": "Ready for sale", "configure": "To configure" },
+        "quantity": {
+          "tiers": "{{count}} tier(s) configured",
+          "perAmount": "{{step}}, maximum {{max}} line(s)",
+          "fixed": "{{count}} free Maryaj"
+        },
+        "selection": { "auto": "Generated automatically", "manual": "Chosen by seller" },
+        "regeneration": {
+          "count": "{{label}} · {{count}} attempt(s)",
+          "attempts": "{{count}} attempt(s)"
+        }
+      },
+      "offer": {
+        "activeEyebrow": "Active offer",
+        "campaignCode": "Tenant campaign · {{count}} rule(s)",
+        "pause": "Pause",
+        "permanent": "No planned end",
+        "technicalDate": "Technical date:",
+        "attributionMode": "Allocation mode",
+        "mode": {
+          "tiered": "By sales tiers",
+          "perAmount": "By sales tranche",
+          "fixed": "Fixed quantity per ticket",
+          "tieredShort": "By tiers",
+          "perAmountShort": "By tranche",
+          "fixedShort": "Fixed"
+        },
+        "status": {
+          "active": "Active",
+          "paused": "Paused",
+          "draft": "Draft",
+          "inactive": "Inactive",
+          "archived": "Archived"
+        },
+        "selection": {
+          "title": "Free Maryaj numbers",
+          "auto": "Generated automatically by Tchalanet",
+          "manual": "Chosen by seller",
+          "description": "The seller chooses nothing unless manual selection is enabled.",
+          "enableManual": "Let the seller choose the numbers",
+          "manualNote": "Numbers will be entered by the seller; automatic regeneration is disabled."
+        },
+        "facts": {
+          "priority": "Priority",
+          "start": "Start",
+          "end": "End",
+          "selection": "Selection",
+          "attribution": "Allocation",
+          "offered": "Free Maryaj",
+          "regeneration": "Regeneration"
+        },
+        "offered": {
+          "tiers": "Configured tiers",
+          "max": "max. {{count}}",
+          "perAmount": "{{quantity}} per {{amount}} HTG · max. {{max}}"
+        },
+        "setup": {
+          "edit": "Edit the Free Maryaj offer",
+          "activate": "Free Maryaj offer to activate",
+          "copy": "Tiers, free quantity, and number generation."
+        },
+        "preview": {
+          "perAmount": {
+            "prefix": "The ticket receives",
+            "unit": "free Maryaj per",
+            "middle": "of sales, up to",
+            "suffix": "line(s)."
+          },
+          "tiered": "The ticket receives free Maryaj based on the amount paid by the customer.",
+          "fixed": { "prefix": "The ticket can receive", "suffix": "free Maryaj." }
+        },
+        "schedule": {
+          "endHint": "Required date. Use a distant date for a permanent offer.",
+          "priorityHint": "Higher values take priority when multiple promotions apply."
+        },
+        "tiers": {
+          "title": "Sales tiers",
+          "description": "Amount paid by the customer → number of free Maryaj generated.",
+          "add": "Add tier",
+          "tier": "Tier {{index}}",
+          "from": "From",
+          "to": "To",
+          "openEnded": "Empty = and above",
+          "quantity": "Free Maryaj",
+          "delete": "Delete tier"
+        },
+        "perAmount": {
+          "step": "Sales tranche",
+          "stepHint": "Paid amount that triggers a tranche.",
+          "quantity": "Free Maryaj per tranche",
+          "max": "Free-line cap",
+          "maxHint": "Maximum generated for one ticket."
+        },
+        "fixed": { "quantity": "Free Maryaj per ticket" },
+        "regeneration": {
+          "enable": "The seller can regenerate numbers before confirmation",
+          "allowed": "Allowed regenerations",
+          "hint": "Number of times numbers can be recreated before ticket confirmation."
+        },
+        "activate": "Activate Free Maryaj"
+      }
     },
     "drawSalesMatrix": {
       "title": "Games by channel",

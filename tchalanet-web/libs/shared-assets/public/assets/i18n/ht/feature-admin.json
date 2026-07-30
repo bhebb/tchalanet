@@ -501,7 +501,137 @@
       "title": "Maryaj gratis",
       "description": "Konfigire jwèt Maryaj la ak òf liy gratis otomatik la.",
       "action": { "refresh": "Rechaje" },
-      "loading": "Y ap chaje pwomosyon yo..."
+      "loading": "Y ap chaje pwomosyon yo...",
+      "game": {
+        "eyebrow": "Paramèt jwèt la",
+        "title": "Maryaj gratis",
+        "subtitle": "Menm lojik ak Maryaj; se pri gratis ak jenerasyon an sèlman ki chanje.",
+        "configure": "Modifye jwèt la",
+        "pricingOptions": "Opsyon gany yo",
+        "pricingHint": "Exact ak Reverse sipòte pa default.",
+        "standard": "Standard",
+        "minimumStake": "Miz minimòm",
+        "maximumStake": "Miz maksimòm",
+        "maxPerDraw": "Limit peman pa tiraj",
+        "maxPerDrawHint": "Kantite total ki ka peye pou jwèt sa a nan yon tiraj.",
+        "exact": "Exact",
+        "reverse": "Reverse",
+        "notDefined": "Pa defini",
+        "notConfigured": "Pa konfigire",
+        "missing": "Jwèt Maryaj gratis la pa nan konfigirasyon jwèt tenant la.",
+        "readiness": { "READY": "Pare", "TODO": "Pou konfigire", "BLOCKED": "Pa disponib" }
+      },
+      "summary": {
+        "eyebrow": "Rezime",
+        "status": { "configure": "Pou konfigire", "active": "Aktif", "activate": "Pou aktive" },
+        "meta": {
+          "game": "Jwèt",
+          "attribution": "Atribisyon",
+          "offered": "Maryaj yo ofri",
+          "selection": "Seleksyon",
+          "regeneration": "Rejenerasyon"
+        },
+        "game": { "ready": "Pare pou vann", "configure": "Pou konfigire" },
+        "quantity": {
+          "tiers": "{{count}} palye konfigire",
+          "perAmount": "{{step}}, maksimòm {{max}} liy",
+          "fixed": "{{count}} Maryaj gratis"
+        },
+        "selection": { "auto": "Jenerasyon otomatik", "manual": "Vandè a chwazi" },
+        "regeneration": {
+          "count": "{{label}} · {{count}} tantativ",
+          "attempts": "{{count}} tantativ"
+        }
+      },
+      "offer": {
+        "activeEyebrow": "Òf aktif",
+        "campaignCode": "Kanpay tenant · {{count}} règ",
+        "pause": "Mete an poz",
+        "permanent": "Pa gen fen ki prevwa",
+        "technicalDate": "Dat teknik:",
+        "attributionMode": "Mòd atribisyon",
+        "mode": {
+          "tiered": "Pa palye lavant",
+          "perAmount": "Pa tranch lavant",
+          "fixed": "Kantite fiks pa tikè",
+          "tieredShort": "Pa palye",
+          "perAmountShort": "Pa tranch",
+          "fixedShort": "Fiks"
+        },
+        "status": {
+          "active": "Aktif",
+          "paused": "An poz",
+          "draft": "Bouyon",
+          "inactive": "Inaktif",
+          "archived": "Achive"
+        },
+        "selection": {
+          "title": "Nimewo Maryaj gratis",
+          "auto": "Tchalanet jenere yo otomatikman",
+          "manual": "Vandè a chwazi yo",
+          "description": "Vandè a pa chwazi anyen sof si seleksyon manyèl la aktive.",
+          "enableManual": "Kite vandè a chwazi nimewo yo",
+          "manualNote": "Vandè a ap antre nimewo yo; rejenerasyon otomatik dezaktive."
+        },
+        "facts": {
+          "priority": "Priyorite",
+          "start": "Kòmansman",
+          "end": "Fen",
+          "selection": "Seleksyon",
+          "attribution": "Atribisyon",
+          "offered": "Maryaj yo ofri",
+          "regeneration": "Rejenerasyon"
+        },
+        "offered": {
+          "tiers": "Palye konfigire",
+          "max": "maks. {{count}}",
+          "perAmount": "{{quantity}} pou {{amount}} HTG · maks. {{max}}"
+        },
+        "setup": {
+          "edit": "Modifye òf Maryaj gratis la",
+          "activate": "Òf Maryaj gratis la pou aktive",
+          "copy": "Palye, kantite gratis ak jenerasyon nimewo yo."
+        },
+        "preview": {
+          "perAmount": {
+            "prefix": "Tikè a ap resevwa",
+            "unit": "Maryaj gratis pou chak",
+            "middle": "nan lavant, jiska",
+            "suffix": "liy."
+          },
+          "tiered": "Tikè a ap resevwa Maryaj gratis selon kantite kliyan an peye.",
+          "fixed": { "prefix": "Tikè a ka resevwa", "suffix": "Maryaj gratis." }
+        },
+        "schedule": {
+          "endHint": "Dat obligatwa. Pou yon òf pèmanan, itilize yon dat ki lwen.",
+          "priorityHint": "Yon pi gwo valè bay priyorite si gen plizyè pwomosyon."
+        },
+        "tiers": {
+          "title": "Palye lavant",
+          "description": "Kantite kliyan an peye → kantite Maryaj gratis ki jenere.",
+          "add": "Ajoute yon palye",
+          "tier": "Palye {{index}}",
+          "from": "Soti",
+          "to": "Jiska",
+          "openEnded": "Vid = ak plis",
+          "quantity": "Maryaj gratis",
+          "delete": "Efase palye a"
+        },
+        "perAmount": {
+          "step": "Tranch lavant",
+          "stepHint": "Kantite peye ki deklanche yon tranch.",
+          "quantity": "Maryaj gratis pou chak tranch",
+          "max": "Limit liy gratis",
+          "maxHint": "Maksimòm ki jenere pou yon tikè."
+        },
+        "fixed": { "quantity": "Kantite Maryaj gratis pa tikè" },
+        "regeneration": {
+          "enable": "Vandè a ka rejenerasyon nimewo yo anvan konfimasyon",
+          "allowed": "Rejenerasyon otorize",
+          "hint": "Konbyen fwa nimewo yo ka kreye ankò anvan tikè a konfime."
+        },
+        "activate": "Aktive Maryaj gratis"
+      }
     },
     "drawSalesMatrix": {
       "title": "Matriks jwèt pa règ tiraj",

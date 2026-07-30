@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
 import { FormArray, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -9,6 +9,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import {
   PromotionCampaignStatus,
@@ -21,6 +22,7 @@ import {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    TranslatePipe,
     DatePipe,
     ReactiveFormsModule,
     MatButtonModule,
@@ -36,6 +38,8 @@ import {
   styleUrls: ['./maryaj-offer-panel.component.scss'],
 })
 export class MaryajOfferPanelComponent {
+  private readonly translate = inject(TranslateService);
+
   readonly campaign = input<PromotionCampaignView | null>(null);
   readonly effect = input<PromotionConfigItem | null>(null);
   readonly form = input.required<FormGroup>();
@@ -56,21 +60,23 @@ export class MaryajOfferPanelComponent {
   statusLabel(status: PromotionCampaignStatus): string {
     switch (status) {
       case 'ACTIVE':
-        return 'Actif';
+        return this.translate.instant('admin.maryajGratis.offer.status.active');
       case 'PAUSED':
-        return 'En pause';
+        return this.translate.instant('admin.maryajGratis.offer.status.paused');
       case 'DRAFT':
-        return 'Brouillon';
+        return this.translate.instant('admin.maryajGratis.offer.status.draft');
       case 'INACTIVE':
-        return 'Inactif';
+        return this.translate.instant('admin.maryajGratis.offer.status.inactive');
       case 'ARCHIVED':
-        return 'Archivé';
+        return this.translate.instant('admin.maryajGratis.offer.status.archived');
     }
   }
 
   effectParam(name: string): string {
     const value = this.effect()?.params?.[name];
-    return value == null || value === '' ? '—' : String(value);
+    return value == null || value === ''
+      ? this.translate.instant('common.not_available')
+      : String(value);
   }
 
   showCampaignEndDate(campaign: PromotionCampaignView): boolean {
@@ -79,8 +85,8 @@ export class MaryajOfferPanelComponent {
 
   selectionLabel(): string {
     return this.effectParam('choiceMode') === 'AUTO_GENERATE'
-      ? 'Générée automatiquement'
-      : 'Choisie par le vendeur';
+      ? this.translate.instant('admin.maryajGratis.offer.selection.auto')
+      : this.translate.instant('admin.maryajGratis.offer.selection.manual');
   }
 
   manualSelectionEnabled(): boolean {
@@ -96,7 +102,7 @@ export class MaryajOfferPanelComponent {
   }
 
   tierLabel(index: number): string {
-    return `Palier ${index + 1}`;
+    return this.translate.instant('admin.maryajGratis.offer.tiers.tier', { index: index + 1 });
   }
 
   private isLongRunningMaryajCampaign(campaign: PromotionCampaignView): boolean {

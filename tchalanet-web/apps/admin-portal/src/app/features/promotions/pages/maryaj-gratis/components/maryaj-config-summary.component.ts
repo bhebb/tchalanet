@@ -1,11 +1,8 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { FormGroup } from '@angular/forms';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
-import {
-  AdminStatusTone,
-  TchIdentityCardComponent,
-  TchIdentityCardMeta,
-} from '@tch/ui/console';
+import { AdminStatusTone, TchIdentityCardComponent, TchIdentityCardMeta } from '@tch/ui/console';
 import {
   PromotionCampaignView,
   PromotionConfigItem,
@@ -15,11 +12,13 @@ import {
   selector: 'tch-maryaj-config-summary',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [TchIdentityCardComponent],
+  imports: [TranslatePipe, TchIdentityCardComponent],
   templateUrl: './maryaj-config-summary.component.html',
   styleUrls: ['./maryaj-config-summary.component.scss'],
 })
 export class MaryajConfigSummaryComponent {
+  private readonly translate = inject(TranslateService);
+
   readonly gameReady = input.required<boolean>();
   readonly campaign = input<PromotionCampaignView | null>(null);
   readonly effect = input<PromotionConfigItem | null>(null);
@@ -29,8 +28,10 @@ export class MaryajConfigSummaryComponent {
   readonly regenerableLabel = input.required<string>();
 
   readonly statusLabel = computed(() => {
-    if (!this.gameReady()) return 'À configurer';
-    return this.campaign()?.status === 'ACTIVE' ? 'Actif' : 'À activer';
+    if (!this.gameReady()) return this.t('admin.maryajGratis.summary.status.configure');
+    return this.campaign()?.status === 'ACTIVE'
+      ? this.t('admin.maryajGratis.summary.status.active')
+      : this.t('admin.maryajGratis.summary.status.activate');
   });
 
   readonly statusTone = computed<AdminStatusTone>(() => {
@@ -39,11 +40,22 @@ export class MaryajConfigSummaryComponent {
   });
 
   readonly meta = computed<readonly TchIdentityCardMeta[]>(() => [
-    { label: 'Jeu', value: this.gameReady() ? 'Prêt pour la vente' : 'À configurer' },
-    { label: 'Attribution', value: this.quantityModeSummary() },
-    { label: 'Maryaj offerts', value: this.ticketSummary() },
-    { label: 'Sélection', value: this.selectionSummary() },
-    { label: 'Régénération', value: this.regenerationSummary() },
+    {
+      label: this.t('admin.maryajGratis.summary.meta.game'),
+      value: this.gameReady()
+        ? this.t('admin.maryajGratis.summary.game.ready')
+        : this.t('admin.maryajGratis.summary.game.configure'),
+    },
+    {
+      label: this.t('admin.maryajGratis.summary.meta.attribution'),
+      value: this.quantityModeSummary(),
+    },
+    { label: this.t('admin.maryajGratis.summary.meta.offered'), value: this.ticketSummary() },
+    { label: this.t('admin.maryajGratis.summary.meta.selection'), value: this.selectionSummary() },
+    {
+      label: this.t('admin.maryajGratis.summary.meta.regeneration'),
+      value: this.regenerationSummary(),
+    },
   ]);
 
   effectParam(name: string): string | null {
@@ -53,37 +65,47 @@ export class MaryajConfigSummaryComponent {
 
   formValue(name: string): string {
     const value = this.form().get(name)?.value;
-    return value == null || value === '' ? '—' : String(value);
+    return value == null || value === '' ? this.t('common.not_available') : String(value);
   }
 
   private ticketSummary(): string {
     const mode = this.quantityMode();
-    if (mode === '—') return '—';
+    if (mode === this.t('common.not_available')) return this.t('common.not_available');
     if (mode === 'TIERED_PAID_AMOUNT') {
       const count = this.effectQuantityTierCount();
-      return `${count} palier(s) configuré(s)`;
+      return this.t('admin.maryajGratis.summary.quantity.tiers', { count });
     }
 
     if (mode === 'PER_PAID_AMOUNT') {
-      return `${this.stepSummary()}, max ${this.valueFromEffectOrForm('maxQuantity')} ligne(s)`;
+      return this.t('admin.maryajGratis.summary.quantity.perAmount', {
+        step: this.stepSummary(),
+        max: this.valueFromEffectOrForm('maxQuantity'),
+      });
     }
 
     if (mode === 'FIXED' && this.campaign()) {
-      return `${this.effectParam('quantity') ?? '—'} Maryaj gratuit(s)`;
+      return this.t('admin.maryajGratis.summary.quantity.fixed', {
+        count: this.effectParam('quantity') ?? this.t('common.not_available'),
+      });
     }
-    return `${this.formValue('quantity')} Maryaj gratuit(s)`;
+    return this.t('admin.maryajGratis.summary.quantity.fixed', {
+      count: this.formValue('quantity'),
+    });
   }
 
   private quantityModeSummary(): string {
     const mode = this.quantityMode();
-    if (mode === 'TIERED_PAID_AMOUNT') return 'Par paliers de vente';
-    if (mode === 'PER_PAID_AMOUNT') return 'Par tranche de vente';
-    if (mode === 'FIXED') return 'Quantité fixe par ticket';
-    return '—';
+    if (mode === 'TIERED_PAID_AMOUNT') return this.t('admin.maryajGratis.offer.mode.tiered');
+    if (mode === 'PER_PAID_AMOUNT') return this.t('admin.maryajGratis.offer.mode.perAmount');
+    if (mode === 'FIXED') return this.t('admin.maryajGratis.offer.mode.fixed');
+    return this.t('common.not_available');
   }
 
   private stepSummary(): string {
-    return `${this.valueFromEffectOrForm('quantityPerStep')} par ${this.valueFromEffectOrForm('stepPaidAmount')} HTG`;
+    return this.t('admin.maryajGratis.summary.quantity.step', {
+      quantity: this.valueFromEffectOrForm('quantityPerStep'),
+      amount: this.valueFromEffectOrForm('stepPaidAmount'),
+    });
   }
 
   private quantityMode(): string {
@@ -92,7 +114,7 @@ export class MaryajConfigSummaryComponent {
 
   private valueFromEffectOrForm(name: string): string {
     if (this.editing()) return this.formValue(name);
-    if (this.campaign() && !this.effect()) return '—';
+    if (this.campaign() && !this.effect()) return this.t('common.not_available');
     return this.effectParam(name) ?? this.formValue(name);
   }
 
@@ -110,18 +132,32 @@ export class MaryajConfigSummaryComponent {
 
   private selectionSummary(): string {
     const choiceMode = this.valueFromEffectOrForm('choiceMode');
-    if (choiceMode === '—') return '—';
+    if (choiceMode === this.t('common.not_available')) return this.t('common.not_available');
     return choiceMode === 'AUTO_GENERATE'
-      ? 'Générée automatiquement'
-      : 'Choisie par le vendeur';
+      ? this.t('admin.maryajGratis.summary.selection.auto')
+      : this.t('admin.maryajGratis.summary.selection.manual');
   }
 
   private regenerationSummary(): string {
     if (this.editing()) {
-      return `${this.regenerableLabel()} · ${this.formValue('maxRegenerationsBeforeConfirm')} tentative(s)`;
+      return this.t('admin.maryajGratis.summary.regeneration.count', {
+        label: this.regenerableLabel(),
+        count: this.formValue('maxRegenerationsBeforeConfirm'),
+      });
     }
-    if (this.campaign() && !this.effect()) return '—';
-    if (this.campaign()) return `${this.effectParam('maxRegenerationsBeforeConfirm') ?? '—'} tentative(s)`;
-    return `${this.regenerableLabel()} · ${this.formValue('maxRegenerationsBeforeConfirm')} tentative(s)`;
+    if (this.campaign() && !this.effect()) return this.t('common.not_available');
+    if (this.campaign()) {
+      return this.t('admin.maryajGratis.summary.regeneration.attempts', {
+        count: this.effectParam('maxRegenerationsBeforeConfirm') ?? this.t('common.not_available'),
+      });
+    }
+    return this.t('admin.maryajGratis.summary.regeneration.count', {
+      label: this.regenerableLabel(),
+      count: this.formValue('maxRegenerationsBeforeConfirm'),
+    });
+  }
+
+  private t(key: string, params?: Record<string, unknown>): string {
+    return this.translate.instant(key, params);
   }
 }

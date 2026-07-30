@@ -817,7 +817,137 @@
       "title": "Maryaj gratis",
       "description": "Configurez le jeu Maryaj et son offre automatique de lignes gratuites.",
       "action": { "refresh": "Rafraîchir" },
-      "loading": "Chargement des promotions..."
+      "loading": "Chargement des promotions...",
+      "game": {
+        "eyebrow": "Paramètres du jeu",
+        "title": "Maryaj gratuit",
+        "subtitle": "Même logique que Maryaj; seuls le barème gratuit et la génération changent.",
+        "configure": "Modifier le jeu",
+        "pricingOptions": "Options de gain",
+        "pricingHint": "Exact et Reverse sont supportés par défaut.",
+        "standard": "Standard",
+        "minimumStake": "Mise minimum",
+        "maximumStake": "Mise maximum",
+        "maxPerDraw": "Plafond de paiement par tirage",
+        "maxPerDrawHint": "Montant total payable sur ce jeu pour un même tirage.",
+        "exact": "Exact",
+        "reverse": "Reverse",
+        "notDefined": "Non défini",
+        "notConfigured": "Non configuré",
+        "missing": "Le jeu Maryaj gratuit est absent de la configuration tenant.",
+        "readiness": { "READY": "Prêt", "TODO": "À configurer", "BLOCKED": "Non disponible" }
+      },
+      "summary": {
+        "eyebrow": "Résumé",
+        "status": { "configure": "À configurer", "active": "Actif", "activate": "À activer" },
+        "meta": {
+          "game": "Jeu",
+          "attribution": "Attribution",
+          "offered": "Maryaj offerts",
+          "selection": "Sélection",
+          "regeneration": "Régénération"
+        },
+        "game": { "ready": "Prêt pour la vente", "configure": "À configurer" },
+        "quantity": {
+          "tiers": "{{count}} palier(s) configuré(s)",
+          "perAmount": "{{step}}, maximum {{max}} ligne(s)",
+          "fixed": "{{count}} Maryaj gratuit(s)"
+        },
+        "selection": { "auto": "Générée automatiquement", "manual": "Choisie par le vendeur" },
+        "regeneration": {
+          "count": "{{label}} · {{count}} tentative(s)",
+          "attempts": "{{count}} tentative(s)"
+        }
+      },
+      "offer": {
+        "activeEyebrow": "Offre active",
+        "campaignCode": "Campagne tenant · {{count}} règle(s)",
+        "pause": "Mettre en pause",
+        "permanent": "Sans fin prévue",
+        "technicalDate": "Date technique :",
+        "attributionMode": "Mode d’attribution",
+        "mode": {
+          "tiered": "Par paliers de vente",
+          "perAmount": "Par tranche de vente",
+          "fixed": "Quantité fixe par ticket",
+          "tieredShort": "Par paliers",
+          "perAmountShort": "Par tranche",
+          "fixedShort": "Fixe"
+        },
+        "status": {
+          "active": "Actif",
+          "paused": "En pause",
+          "draft": "Brouillon",
+          "inactive": "Inactif",
+          "archived": "Archivé"
+        },
+        "selection": {
+          "title": "Numéros Maryaj gratuits",
+          "auto": "Générés automatiquement par Tchalanet",
+          "manual": "Choisis par le vendeur",
+          "description": "Le vendeur ne choisit rien sauf si l’option manuelle est activée.",
+          "enableManual": "Laisser le vendeur choisir les numéros",
+          "manualNote": "Les numéros seront saisis par le vendeur; la régénération automatique est désactivée."
+        },
+        "facts": {
+          "priority": "Priorité d’arbitrage",
+          "start": "Début",
+          "end": "Fin",
+          "selection": "Sélection",
+          "attribution": "Attribution",
+          "offered": "Maryaj offerts",
+          "regeneration": "Régénérations"
+        },
+        "offered": {
+          "tiers": "Paliers configurés",
+          "max": "max {{count}}",
+          "perAmount": "{{quantity}} par {{amount}} HTG · max {{max}}"
+        },
+        "setup": {
+          "edit": "Modifier l’offre Maryaj gratis",
+          "activate": "Offre Maryaj gratis à activer",
+          "copy": "Paliers, quantité offerte et génération des numéros."
+        },
+        "preview": {
+          "perAmount": {
+            "prefix": "Le ticket recevra",
+            "unit": "Maryaj gratuit(s) par",
+            "middle": "de vente, jusqu’à",
+            "suffix": "ligne(s)."
+          },
+          "tiered": "Le ticket recevra des Maryaj gratuits selon le montant payé par le client.",
+          "fixed": { "prefix": "Le ticket pourra recevoir", "suffix": "Maryaj gratuit(s)." }
+        },
+        "schedule": {
+          "endHint": "Date obligatoire. Pour une offre permanente, utilisez une date lointaine.",
+          "priorityHint": "Plus haut = prioritaire si plusieurs promotions sont applicables."
+        },
+        "tiers": {
+          "title": "Paliers de vente",
+          "description": "Montant payé par le client → nombre de Maryaj gratuits générés.",
+          "add": "Ajouter un palier",
+          "tier": "Palier {{index}}",
+          "from": "De",
+          "to": "À",
+          "openEnded": "Vide = et plus",
+          "quantity": "Maryaj gratuits",
+          "delete": "Supprimer le palier"
+        },
+        "perAmount": {
+          "step": "Tranche de vente",
+          "stepHint": "Montant payé qui déclenche une tranche.",
+          "quantity": "Maryaj gratuits par tranche",
+          "max": "Plafond de lignes gratuites",
+          "maxHint": "Maximum généré pour un ticket."
+        },
+        "fixed": { "quantity": "Nombre de Maryaj gratuits par ticket" },
+        "regeneration": {
+          "enable": "Le vendeur peut régénérer les numéros avant validation",
+          "allowed": "Régénérations autorisées",
+          "hint": "Nombre de fois où les numéros peuvent être recréés avant validation du ticket."
+        },
+        "activate": "Activer Maryaj gratis"
+      }
     },
     "drawSalesMatrix": {
       "title": "Jeux par canal",
