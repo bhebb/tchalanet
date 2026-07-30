@@ -43,6 +43,55 @@
         "message": "No seller-terminal is registered."
       }
     },
+    "subscription": {
+      "title": "Subscription",
+      "description": "View and manage the tenant subscription.",
+      "empty": {
+        "title": "No subscription",
+        "message": "No active subscription exists for this tenant."
+      },
+      "section": {
+        "details": "Subscription details",
+        "actions": "Actions"
+      },
+      "field": {
+        "plan": "Plan",
+        "status": "Status",
+        "startedAt": "Started",
+        "endsAt": "Ends",
+        "updatedAt": "Updated",
+        "version": "Version"
+      },
+      "status": {
+        "ACTIVE": "Active",
+        "TRIAL": "Trial",
+        "SUSPENDED": "Suspended",
+        "CANCELED": "Canceled",
+        "EXPIRED": "Expired"
+      },
+      "action": {
+        "renew": "Renew",
+        "suspend": "Suspend",
+        "resume": "Resume",
+        "cancel": "Cancel subscription"
+      },
+      "dialog": {
+        "cancel": {
+          "title": "Cancel subscription",
+          "warning": "This cancels the tenant subscription and may be difficult to reverse.",
+          "reason": "Reason (optional)",
+          "reasonPlaceholder": "Cancellation reason...",
+          "confirm": "Confirm cancellation"
+        },
+        "renew": {
+          "title": "Renew subscription",
+          "endsAt": "New end date (YYYY-MM-DD)",
+          "endsAtPlaceholder": "2027-01-01",
+          "endsAtError": "Date is required in YYYY-MM-DD format.",
+          "confirm": "Renew"
+        }
+      }
+    },
     "appearance": {
       "title": "Appearance",
       "description": "Customize the theme and look of your workspace.",

@@ -4,12 +4,20 @@ import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'tch-renew-subscription-dialog',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, MatButtonModule, MatDialogModule, MatFormFieldModule, MatInputModule],
+  imports: [
+    ReactiveFormsModule,
+    MatButtonModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    TranslatePipe,
+  ],
   templateUrl: './renew-subscription.dialog.html',
   styleUrls: ['./renew-subscription.dialog.scss'],
 })

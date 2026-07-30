@@ -43,6 +43,55 @@
         "message": "Aucun vendeur enregistré."
       }
     },
+    "subscription": {
+      "title": "Abonnement",
+      "description": "Consultez et gérez l’abonnement du tenant.",
+      "empty": {
+        "title": "Aucun abonnement",
+        "message": "Aucun abonnement actif pour ce tenant."
+      },
+      "section": {
+        "details": "Détails de l’abonnement",
+        "actions": "Actions"
+      },
+      "field": {
+        "plan": "Plan",
+        "status": "Statut",
+        "startedAt": "Début",
+        "endsAt": "Fin",
+        "updatedAt": "Mis à jour",
+        "version": "Version"
+      },
+      "status": {
+        "ACTIVE": "Actif",
+        "TRIAL": "Essai",
+        "SUSPENDED": "Suspendu",
+        "CANCELED": "Annulé",
+        "EXPIRED": "Expiré"
+      },
+      "action": {
+        "renew": "Renouveler",
+        "suspend": "Suspendre",
+        "resume": "Reprendre",
+        "cancel": "Annuler l’abonnement"
+      },
+      "dialog": {
+        "cancel": {
+          "title": "Annuler l’abonnement",
+          "warning": "Cette action annule l’abonnement du tenant et peut être difficile à inverser.",
+          "reason": "Raison (optionnel)",
+          "reasonPlaceholder": "Motif d’annulation…",
+          "confirm": "Confirmer l’annulation"
+        },
+        "renew": {
+          "title": "Renouveler l’abonnement",
+          "endsAt": "Nouvelle date de fin (AAAA-MM-JJ)",
+          "endsAtPlaceholder": "2027-01-01",
+          "endsAtError": "La date est obligatoire au format AAAA-MM-JJ.",
+          "confirm": "Renouveler"
+        }
+      }
+    },
     "appearance": {
       "title": "Apparence",
       "description": "Personnalisez le thème et l’apparence de votre espace.",

@@ -43,6 +43,55 @@
         "message": "Pa gen tèminal vandè ki anrejistre."
       }
     },
+    "subscription": {
+      "title": "Abònman",
+      "description": "Gade epi jere abònman santral la.",
+      "empty": {
+        "title": "Pa gen abònman",
+        "message": "Pa gen abònman aktif pou santral sa a."
+      },
+      "section": {
+        "details": "Detay abònman an",
+        "actions": "Aksyon"
+      },
+      "field": {
+        "plan": "Plan",
+        "status": "Estati",
+        "startedAt": "Kòmanse",
+        "endsAt": "Fini",
+        "updatedAt": "Mizajou",
+        "version": "Vèsyon"
+      },
+      "status": {
+        "ACTIVE": "Aktif",
+        "TRIAL": "Peryòd esè",
+        "SUSPENDED": "Sispann",
+        "CANCELED": "Anile",
+        "EXPIRED": "Ekspire"
+      },
+      "action": {
+        "renew": "Renouvle",
+        "suspend": "Sispann",
+        "resume": "Reprann",
+        "cancel": "Anile abònman an"
+      },
+      "dialog": {
+        "cancel": {
+          "title": "Anile abònman an",
+          "warning": "Aksyon sa a anile abònman santral la epi li ka difisil pou ranvèse.",
+          "reason": "Rezon (opsyonèl)",
+          "reasonPlaceholder": "Rezon anilasyon an…",
+          "confirm": "Konfime anilasyon an"
+        },
+        "renew": {
+          "title": "Renouvle abònman an",
+          "endsAt": "Nouvo dat fen (AAAA-MM-JJ)",
+          "endsAtPlaceholder": "2027-01-01",
+          "endsAtError": "Dat la obligatwa nan fòma AAAA-MM-JJ.",
+          "confirm": "Renouvle"
+        }
+      }
+    },
     "appearance": {
       "title": "Aparans",
       "description": "Pèsonalize tèm ak aparans espas ou.",

@@ -4,10 +4,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import {
   ApiResponse,
-  ProblemDetail,
+  mapHttpErrorToProblemDetail,
   webAppErrorFromNotice,
   webAppErrorFromProblemDetail,
 } from '@tch/api';
@@ -17,15 +17,9 @@ import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { AdminPageShellComponent } from '@tch/ui/console';
 import { AdminSectionCardComponent } from '@tch/ui/console';
-import {
-  AdminSectionErrorTargetDirective,
-  AdminSectionTargetError,
-} from '@tch/ui/console';
+import { AdminSectionErrorTargetDirective, AdminSectionTargetError } from '@tch/ui/console';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
-import {
-  AdminStatusPillComponent,
-  AdminStatusTone,
-} from '@tch/ui/console';
+import { AdminStatusPillComponent, AdminStatusTone } from '@tch/ui/console';
 import {
   AdminSubscriptionApi,
   SubscriptionView,
@@ -33,6 +27,18 @@ import {
 } from './data-access/admin-subscription-api.service';
 import { RenewSubscriptionDialog } from './dialogs/renew-subscription.dialog';
 import { CancelSubscriptionDialog } from './dialogs/cancel-subscription.dialog';
+
+export function adminSubscriptionErrorView(
+  err: unknown,
+  source: string,
+  translate: (key: string) => string,
+  surface: 'page' | 'section',
+): ErrorViewModel {
+  const problem = mapHttpErrorToProblemDetail(err);
+  const normalized = webAppErrorFromProblemDetail(problem, source, surface);
+  const copy = resolveErrorFeedbackCopy(normalized, translate);
+  return toErrorViewModel(normalized, copy);
+}
 
 @Component({
   selector: 'tch-admin-subscription-page',
@@ -49,6 +55,7 @@ import { CancelSubscriptionDialog } from './dialogs/cancel-subscription.dialog';
     TchLoading,
     TchErrorPanel,
     TchNotice,
+    TranslatePipe,
     MatButtonModule,
     MatIconModule,
   ],
@@ -76,7 +83,10 @@ export class AdminSubscriptionPage implements OnInit {
     this.error.set(null);
     this.sectionErrors.set([]);
     this.api.get({ suppressShellFeedback: true }).subscribe({
-      next: v => { this.subscription.set(v); this.loading.set(false); },
+      next: v => {
+        this.subscription.set(v);
+        this.loading.set(false);
+      },
       error: (err: unknown) => {
         this.error.set(this.errorViewModel(err, 'admin.subscription.load'));
         this.loading.set(false);
@@ -91,8 +101,15 @@ export class AdminSubscriptionPage implements OnInit {
       this.acting.set(true);
       this.clearActionFeedback();
       this.api.renew(newEndsAt, { suppressShellFeedback: true }).subscribe({
-        next: response => { this.setActionNotice(response); this.load(); this.acting.set(false); },
-        error: err => { this.setSectionError('admin.subscription.actions', err); this.acting.set(false); },
+        next: response => {
+          this.setActionNotice(response);
+          this.load();
+          this.acting.set(false);
+        },
+        error: err => {
+          this.setSectionError('admin.subscription.actions', err);
+          this.acting.set(false);
+        },
       });
     });
   }
@@ -104,8 +121,15 @@ export class AdminSubscriptionPage implements OnInit {
       this.acting.set(true);
       this.clearActionFeedback();
       this.api.cancel(reason || undefined, { suppressShellFeedback: true }).subscribe({
-        next: response => { this.setActionNotice(response); this.load(); this.acting.set(false); },
-        error: err => { this.setSectionError('admin.subscription.actions', err); this.acting.set(false); },
+        next: response => {
+          this.setActionNotice(response);
+          this.load();
+          this.acting.set(false);
+        },
+        error: err => {
+          this.setSectionError('admin.subscription.actions', err);
+          this.acting.set(false);
+        },
       });
     });
   }
@@ -114,8 +138,15 @@ export class AdminSubscriptionPage implements OnInit {
     this.acting.set(true);
     this.clearActionFeedback();
     this.api.suspend({ suppressShellFeedback: true }).subscribe({
-      next: response => { this.setActionNotice(response); this.load(); this.acting.set(false); },
-      error: err => { this.setSectionError('admin.subscription.actions', err); this.acting.set(false); },
+      next: response => {
+        this.setActionNotice(response);
+        this.load();
+        this.acting.set(false);
+      },
+      error: err => {
+        this.setSectionError('admin.subscription.actions', err);
+        this.acting.set(false);
+      },
     });
   }
 
@@ -123,23 +154,35 @@ export class AdminSubscriptionPage implements OnInit {
     this.acting.set(true);
     this.clearActionFeedback();
     this.api.resume({ suppressShellFeedback: true }).subscribe({
-      next: response => { this.setActionNotice(response); this.load(); this.acting.set(false); },
-      error: err => { this.setSectionError('admin.subscription.actions', err); this.acting.set(false); },
+      next: response => {
+        this.setActionNotice(response);
+        this.load();
+        this.acting.set(false);
+      },
+      error: err => {
+        this.setSectionError('admin.subscription.actions', err);
+        this.acting.set(false);
+      },
     });
   }
 
   statusTone(status: SubscriptionStatus): AdminStatusTone {
     switch (status) {
-      case 'ACTIVE': return 'success';
-      case 'TRIAL': return 'success';
-      case 'SUSPENDED': return 'warning';
-      case 'CANCELED': return 'danger';
-      case 'EXPIRED': return 'danger';
+      case 'ACTIVE':
+        return 'success';
+      case 'TRIAL':
+        return 'success';
+      case 'SUSPENDED':
+        return 'warning';
+      case 'CANCELED':
+        return 'danger';
+      case 'EXPIRED':
+        return 'danger';
     }
   }
 
   private setSectionError(target: string, err: unknown): void {
-    const vm = this.errorViewModel(err, target);
+    const vm = this.errorViewModel(err, target, 'section');
     this.sectionErrors.update(errors => [
       ...errors.filter(error => error.target !== target),
       { ...vm, target },
@@ -172,18 +215,11 @@ export class AdminSubscriptionPage implements OnInit {
     );
   }
 
-  private errorViewModel(err: unknown, source: string): ErrorViewModel {
-    const problem = (err as { error?: ProblemDetail })?.error;
-    if (problem) {
-      const normalized = webAppErrorFromProblemDetail(problem, source, 'page');
-      const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
-      return toErrorViewModel(normalized, copy);
-    }
-
-    return {
-      title: this.translate.instant('common.errors.fallback.title'),
-      message: this.translate.instant('common.errors.fallback.message'),
-      severity: 'error',
-    };
+  private errorViewModel(
+    err: unknown,
+    source: string,
+    surface: 'page' | 'section' = 'page',
+  ): ErrorViewModel {
+    return adminSubscriptionErrorView(err, source, key => this.translate.instant(key), surface);
   }
 }
