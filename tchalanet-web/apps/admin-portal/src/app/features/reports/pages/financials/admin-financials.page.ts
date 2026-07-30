@@ -1,10 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
@@ -15,14 +9,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatTabsModule } from '@angular/material/tabs';
+import { TranslateService } from '@ngx-translate/core';
 import { catchError, map, of, startWith, switchMap } from 'rxjs';
-import {
-  AdminEmptyState,
-  AdminPageHeader,
-  TchErrorPanel,
-  TchLoading,
-} from '@tch/ui/components';
+import { mapHttpErrorToProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
+import { AdminEmptyState, AdminPageHeader, TchErrorPanel, TchLoading } from '@tch/ui/components';
 import { consoleGameName } from '@tch/web/console';
+import { ErrorViewModel, resolveErrorFeedbackCopy, toErrorViewModel } from '@tch/web/errors';
 
 import {
   AdminFinancialsApi,
@@ -34,7 +26,7 @@ import { AdminReportsApi } from '../../data-access/admin-reports-api.service';
 
 type PageState =
   | { readonly status: 'loading' }
-  | { readonly status: 'error' }
+  | { readonly status: 'error'; readonly error: ErrorViewModel }
   | { readonly status: 'ready'; readonly data: TenantFinancialBreakdownView };
 
 function today(): Date {
@@ -79,6 +71,7 @@ function addDays(date: Date, days: number): Date {
 export class AdminFinancialsPage {
   private readonly api = inject(AdminFinancialsApi);
   private readonly reportsApi = inject(AdminReportsApi);
+  private readonly translate = inject(TranslateService, { optional: true });
 
   readonly maxDate = today();
   readonly fromDate = signal<Date>(addDays(today(), -6));
@@ -102,9 +95,14 @@ export class AdminFinancialsPage {
   readonly state = toSignal(
     toObservable(this.params).pipe(
       switchMap(params =>
-        this.api.getBreakdown(params).pipe(
+        this.api.getBreakdown(params, { suppressShellFeedback: true }).pipe(
           switchMap(data => of({ status: 'ready', data } as PageState)),
-          catchError(() => of({ status: 'error' } as PageState)),
+          catchError(err =>
+            of({
+              status: 'error',
+              error: this.errorViewModel(err),
+            } as PageState),
+          ),
           startWith({ status: 'loading' } as PageState),
         ),
       ),
@@ -161,5 +159,15 @@ export class AdminFinancialsPage {
   drawLabel(row: DrawFinancialRow | SellerTerminalDrawFinancialRow): string {
     const channel = row.drawChannelCode ? `${row.drawChannelCode} · ` : '';
     return `${channel}${consoleGameName(row.gameCode)}`;
+  }
+
+  private errorViewModel(err: unknown): ErrorViewModel {
+    const normalized = webAppErrorFromProblemDetail(
+      mapHttpErrorToProblemDetail(err),
+      'admin.reports.financials',
+      'page',
+    );
+    const copy = resolveErrorFeedbackCopy(normalized, key => this.translate?.instant(key) ?? key);
+    return toErrorViewModel(normalized, copy);
   }
 }

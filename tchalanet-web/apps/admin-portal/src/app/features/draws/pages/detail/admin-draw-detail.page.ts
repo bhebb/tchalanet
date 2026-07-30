@@ -10,6 +10,8 @@ import {
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
+import { mapHttpErrorToProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 import { AccessService } from '@tch/core/auth';
 import {
   CONSOLE_DRAW_RESULT_ACCESS,
@@ -21,9 +23,8 @@ import {
   consoleDrawResultStatusLabel,
   consoleDrawSalesStatusLabel,
 } from '@tch/web/console';
-import {
-  AdminSectionCardComponent,
-} from '@tch/ui/console';
+import { AdminSectionCardComponent } from '@tch/ui/console';
+import { ErrorViewModel, resolveErrorFeedbackCopy, toErrorViewModel } from '@tch/web/errors';
 
 import {
   GeneratedDrawResultStatus,
@@ -74,6 +75,7 @@ export class AdminDrawDetailPage implements OnInit, OnDestroy {
   private readonly api = inject(AdminGeneratedDrawsApiService);
   private readonly financials = inject(AdminFinancialsApi);
   private readonly access = inject(AccessService);
+  private readonly translate = inject(TranslateService);
   private timerId: ReturnType<typeof setInterval> | null = null;
 
   readonly pageState = signal<PageState>('loading');
@@ -85,12 +87,18 @@ export class AdminDrawDetailPage implements OnInit, OnDestroy {
   readonly topSelections = signal<readonly DrawTopSelectionItem[]>([]);
   readonly errorTitle = signal<string | null>(null);
   readonly errorMessage = signal<string | null>(null);
+  readonly activityError = signal<ErrorViewModel | null>(null);
+  readonly topSelectionsError = signal<ErrorViewModel | null>(null);
   readonly selectedDraw = signal<GeneratedDrawView | null>(null);
   readonly resultSaveState = signal<DrawResultDrawerState>('ready');
   readonly resultSaveMessage = signal<string | null>(null);
 
-  readonly canEnterManualResults = computed(() => this.access.can(CONSOLE_DRAW_RESULT_ACCESS.manual));
-  readonly canOverrideResults = computed(() => this.access.can(CONSOLE_DRAW_RESULT_ACCESS.override));
+  readonly canEnterManualResults = computed(() =>
+    this.access.can(CONSOLE_DRAW_RESULT_ACCESS.manual),
+  );
+  readonly canOverrideResults = computed(() =>
+    this.access.can(CONSOLE_DRAW_RESULT_ACCESS.override),
+  );
   readonly detailMeta = computed(() => {
     const draw = this.draw();
     if (!draw) return [];
@@ -103,9 +111,7 @@ export class AdminDrawDetailPage implements OnInit, OnDestroy {
       ? { title: this.errorTitle() ?? 'Problème détecté', message: this.errorMessage() ?? '' }
       : null,
   );
-  readonly detailActions = computed(() => [
-    { id: 'back', label: 'Retour', icon: 'arrow_back' },
-  ]);
+  readonly detailActions = computed(() => [{ id: 'back', label: 'Retour', icon: 'arrow_back' }]);
   readonly drawDetailView = computed<ConsoleDrawDetailView | null>(() => {
     const draw = this.draw();
     if (!draw) return null;
@@ -179,10 +185,12 @@ export class AdminDrawDetailPage implements OnInit, OnDestroy {
       salesOpen: draw.salesStatus === 'OPEN',
       activityState: this.activityState(),
       activityReport: report,
+      activityErrorMessage: this.activityError()?.message ?? null,
       noSalesHint: this.noSalesHint(report),
       sellersReportQueryParams: this.sellersReportQueryParams(draw),
       topSelectionsState: this.topSelectionsState(),
       topSelections: this.topSelections(),
+      topSelectionsErrorMessage: this.topSelectionsError()?.message ?? null,
     };
   });
 
@@ -216,6 +224,8 @@ export class AdminDrawDetailPage implements OnInit, OnDestroy {
     this.pageState.set('loading');
     this.errorTitle.set(null);
     this.errorMessage.set(null);
+    this.activityError.set(null);
+    this.topSelectionsError.set(null);
 
     this.api.getDrawById(drawId, { suppressShellFeedback: true }).subscribe({
       next: draw => {
@@ -224,10 +234,11 @@ export class AdminDrawDetailPage implements OnInit, OnDestroy {
         this.loadActivity(draw);
         this.loadTopSelections(draw);
       },
-      error: () => {
+      error: err => {
+        const error = this.errorViewModel(err, 'admin.generatedDraws.detail');
         this.pageState.set('error');
-        this.errorTitle.set('Impossible de charger le tirage');
-        this.errorMessage.set('Réessayez ou revenez à la liste des tirages.');
+        this.errorTitle.set(error.title);
+        this.errorMessage.set(error.message);
       },
     });
   }
@@ -291,7 +302,9 @@ export class AdminDrawDetailPage implements OnInit, OnDestroy {
   }
 
   scheduledTime(draw: GeneratedDrawView): string {
-    const parts = this.hasExplicitOffset(draw.scheduledAt) ? null : this.localDateTimeParts(draw.scheduledAt);
+    const parts = this.hasExplicitOffset(draw.scheduledAt)
+      ? null
+      : this.localDateTimeParts(draw.scheduledAt);
     if (parts) return `${parts.hour}:${parts.minute}`;
     const date = new Date(draw.scheduledAt);
     if (Number.isNaN(date.getTime())) return 'Non disponible';
@@ -344,10 +357,12 @@ export class AdminDrawDetailPage implements OnInit, OnDestroy {
   }
 
   canEnterManualResult(draw: GeneratedDrawView): boolean {
-    return this.canEnterManualResults()
-      && this.isDrawPastSales(draw)
-      && this.hasNoResult(draw)
-      && this.isManualResultDue(draw);
+    return (
+      this.canEnterManualResults() &&
+      this.isDrawPastSales(draw) &&
+      this.hasNoResult(draw) &&
+      this.isManualResultDue(draw)
+    );
   }
 
   resultActionLabel(draw: GeneratedDrawView): string {
@@ -404,13 +419,17 @@ export class AdminDrawDetailPage implements OnInit, OnDestroy {
   }
 
   fetchedAtLabel(draw: GeneratedDrawView): string {
-    return draw.fetchedAt ? this.formatLocalDateTime(draw.fetchedAt, draw.timezone) ?? 'Non disponible' : 'Non disponible';
+    return draw.fetchedAt
+      ? (this.formatLocalDateTime(draw.fetchedAt, draw.timezone) ?? 'Non disponible')
+      : 'Non disponible';
   }
 
   resultEmptyLabel(draw: GeneratedDrawView): string {
     if (draw.salesStatus === 'CLOSED' || draw.salesStatus === 'CANCELLED') {
-      return this.resultUnavailableReason(draw)
-        ?? 'Aucun résultat n’est encore disponible pour ce tirage.';
+      return (
+        this.resultUnavailableReason(draw) ??
+        'Aucun résultat n’est encore disponible pour ce tirage.'
+      );
     }
     return 'Le tirage est encore ouvert. Le résultat pourra être saisi ou récupéré après la fermeture.';
   }
@@ -441,17 +460,35 @@ export class AdminDrawDetailPage implements OnInit, OnDestroy {
             : 'Résultat enregistré en provisoire.',
         );
       },
-      error: () => {
+      error: err => {
         this.resultSaveState.set('error');
-        this.resultSaveMessage.set('Impossible d’enregistrer le résultat.');
+        this.resultSaveMessage.set(
+          this.errorViewModel(err, 'admin.generatedDraws.detail.saveResult', 'form').message,
+        );
       },
     });
   }
 
+  private errorViewModel(
+    err: unknown,
+    source: string,
+    surface: 'page' | 'section' | 'form' = 'page',
+  ): ErrorViewModel {
+    const normalized = webAppErrorFromProblemDetail(
+      mapHttpErrorToProblemDetail(err),
+      source,
+      surface,
+    );
+    const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+    return toErrorViewModel(normalized, copy);
+  }
+
   private hasResult(draw: GeneratedDrawView): boolean {
-    return draw.resultStatus === 'PROVISIONAL'
-      || draw.resultStatus === 'CONFIRMED'
-      || (draw.numbers?.length ?? 0) > 0;
+    return (
+      draw.resultStatus === 'PROVISIONAL' ||
+      draw.resultStatus === 'CONFIRMED' ||
+      (draw.numbers?.length ?? 0) > 0
+    );
   }
 
   private hasNoResult(draw: GeneratedDrawView): boolean {
@@ -607,36 +644,51 @@ export class AdminDrawDetailPage implements OnInit, OnDestroy {
   private loadActivity(draw: GeneratedDrawView): void {
     this.activityState.set('loading');
     this.activityReport.set(null);
-    this.financials.getBreakdown({
-      from: draw.businessDate,
-      to: draw.businessDate,
-      drawLimit: 250,
-      sellerTerminalLimit: 500,
-    }, { suppressShellFeedback: true }).subscribe({
-      next: breakdown => {
-        const drawRows = breakdown.drawRows.filter(row => row.drawId === draw.drawId);
-        const sellerRows = breakdown.sellerTerminalDrawRows.filter(row => row.drawId === draw.drawId);
-        this.activityReport.set(this.aggregateActivity(drawRows, sellerRows));
-        this.activityState.set('ready');
-      },
-      error: () => {
-        this.activityState.set('error');
-      },
-    });
+    this.financials
+      .getBreakdown(
+        {
+          from: draw.businessDate,
+          to: draw.businessDate,
+          drawLimit: 250,
+          sellerTerminalLimit: 500,
+        },
+        { suppressShellFeedback: true },
+      )
+      .subscribe({
+        next: breakdown => {
+          const drawRows = breakdown.drawRows.filter(row => row.drawId === draw.drawId);
+          const sellerRows = breakdown.sellerTerminalDrawRows.filter(
+            row => row.drawId === draw.drawId,
+          );
+          this.activityReport.set(this.aggregateActivity(drawRows, sellerRows));
+          this.activityState.set('ready');
+        },
+        error: err => {
+          this.activityError.set(
+            this.errorViewModel(err, 'admin.generatedDraws.detail.activity', 'section'),
+          );
+          this.activityState.set('error');
+        },
+      });
   }
 
   private loadTopSelections(draw: GeneratedDrawView): void {
     this.topSelectionsState.set('loading');
     this.topSelections.set([]);
-    this.financials.getDrawTopSelections(draw.drawId, { limit: 5 }, { suppressShellFeedback: true }).subscribe({
-      next: view => {
-        this.topSelections.set(view.topSelections);
-        this.topSelectionsState.set('ready');
-      },
-      error: () => {
-        this.topSelectionsState.set('error');
-      },
-    });
+    this.financials
+      .getDrawTopSelections(draw.drawId, { limit: 5 }, { suppressShellFeedback: true })
+      .subscribe({
+        next: view => {
+          this.topSelections.set(view.topSelections);
+          this.topSelectionsState.set('ready');
+        },
+        error: err => {
+          this.topSelectionsError.set(
+            this.errorViewModel(err, 'admin.generatedDraws.detail.topSelections', 'section'),
+          );
+          this.topSelectionsState.set('error');
+        },
+      });
   }
 
   private aggregateActivity(

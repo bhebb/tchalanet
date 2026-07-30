@@ -23,10 +23,12 @@ export interface DrawDetailActivityView {
   readonly salesOpen: boolean;
   readonly activityState: DrawActivityState;
   readonly activityReport: DrawActivityReport | null;
+  readonly activityErrorMessage: string | null;
   readonly noSalesHint: string | null;
   readonly sellersReportQueryParams: Record<string, string>;
   readonly topSelectionsState: DrawTopSelectionsState;
   readonly topSelections: readonly DrawTopSelectionItem[];
+  readonly topSelectionsErrorMessage: string | null;
 }
 
 @Component({
