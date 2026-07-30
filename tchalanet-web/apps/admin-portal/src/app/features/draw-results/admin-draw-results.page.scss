@@ -41,6 +41,28 @@
     }
   }
 
+  &__filter-toggle {
+    width: 100%;
+    min-height: 3rem;
+
+    @include ui.up(expanded) {
+      display: none;
+    }
+  }
+
+  &__filter-fields {
+    display: none;
+    gap: inherit;
+
+    &--open {
+      display: contents;
+    }
+
+    @include ui.up(expanded) {
+      display: contents;
+    }
+  }
+
   &__reset-filter {
     width: 100%;
     min-height: 3rem;
