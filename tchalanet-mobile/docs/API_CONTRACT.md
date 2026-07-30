@@ -75,6 +75,11 @@ Widgets never call `ApiClient`, Dio, or raw HTTP.
 
 ## 5. Error handling
 
+The complete mobile implementation convention is documented in
+[`docs/conventions/error-management.md`](conventions/error-management.md). This section remains
+the short API contract; the convention covers transport mapping, session recovery, notices,
+localization, support references, and test responsibilities.
+
 - `ProblemDetail` must be mapped to user-friendly UI errors at ViewModel/application boundary.
 - Technical details must not be exposed directly to users.
 - Mobile must retain `ProblemDetail.traceId` or the `X-Request-Id` response header in

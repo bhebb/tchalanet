@@ -1,7 +1,57 @@
 # Error Management Convention
 
-> Status: ACTIVE v1  
-> Scope: backend error contract consumption, web normalization, shell/page/section/field ownership
+> Status: ACTIVE v2
+> Scope: shared backend contract consumption, web normalization, shell/page/section/field ownership
+
+This is the web-side functional guide for the cross-project error contract. The producer rules live
+in the [backend error-management convention](../../../tchalanet-server/docs/conventions/error-management.md)
+and the mobile consumer rules live in the
+[mobile error-management convention](../../../tchalanet-mobile/docs/conventions/error-management.md).
+The shared contract is tracked in the
+[API error-contract specification](../../../openspec/changes/error-contract-bff-web-v1/specs/api-error-contract/spec.md).
+
+## Cross-project contract
+
+```text
+Backend core / BFF
+  -> ProblemDetail for blocking failures
+  -> ApiResponse<T>.notices/services for optional degradation
+  -> requestId / traceId / spanId / errorId correlation
+Web core
+  -> ProblemDetail or notice normalization into WebAppError
+  -> code/category fallback copy through i18n
+  -> one owner: shell, page, section, form, or field
+Mobile core
+  -> Dio transport mapping into ApiException / ApiNotice
+  -> code/category fallback copy through the active locale
+  -> centralized session invalidation and support reference
+```
+
+The backend owns stable codes, categories, retry policy, safe parameters, and correlation. Web and
+mobile own user copy, visual placement, and retry affordances. No client renders backend exception,
+provider, SQL, transport, or stack-trace prose.
+
+The functional distinction is mandatory:
+
+- a **blocking error** means the owner cannot render meaningful content or complete the requested
+  operation; it remains a `ProblemDetail` and is shown once by the owning surface;
+- a **non-blocking degradation** means one optional slice is unavailable while the page remains
+  useful; it remains a notice with a functional target and is rendered locally;
+- a **validation error** is a structured field violation first, with unconsumed violations kept in
+  the form summary;
+- an **auth/session error** is handled by the centralized session boundary before a feature decides
+  what page can continue.
+
+The core web implementation is split intentionally:
+
+- `@tch/api` parses `ApiResponse`, `ApiNotice`, and `ProblemDetail` at the HTTP boundary;
+- `@tch/web/errors` creates `WebAppError`, resolves localized copy, maps field violations, and
+  prepares view models;
+- `@tch/web/async` owns resource/mutation lifecycle helpers such as `resourceErrorVm` and
+  `tchMutation`;
+- `@tch/ui/components` and `@tch/ui/console` render normalized inputs only;
+- feature pages/stores decide whether a call is page-blocking or section-optional and set
+  `suppressShellFeedback` for locally owned requests.
 
 ## Rule
 
