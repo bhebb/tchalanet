@@ -164,7 +164,8 @@
       },
       "field": {
         "provider": "Province / état",
-        "slotType": "Type de tirage"
+        "slotType": "Type de tirage",
+        "localTime": "Heure locale"
       }
     },
     "tchala": {

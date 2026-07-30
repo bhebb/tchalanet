@@ -59,7 +59,6 @@ export interface GeneratedDrawsQuery {
   readonly to?: string | null;
   readonly status?: string | null;
   readonly provider?: string | null;
-  readonly q?: string | null;
   readonly page?: number;
   readonly size?: number;
 }

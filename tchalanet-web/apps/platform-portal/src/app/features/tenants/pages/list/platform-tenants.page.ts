@@ -31,7 +31,7 @@ import {
   tchMutation,
 } from '@tch/web/async';
 import { TchErrorViewModel } from '@tch/web/errors';
-import { TchPage } from '@tch/api';
+import { TCH_DEFAULT_PAGE_SIZE, TchPage } from '@tch/api';
 
 import {
   PlatformTenantsApi,
@@ -40,7 +40,6 @@ import {
 import { TenantStatus } from '../../data-access/platform-tenant-contracts';
 import { StartTenantAdminAccessDialog } from '../../../shared/start-tenant-admin-access/start-tenant-admin-access-dialog';
 
-const PAGE_SIZE = 20;
 const DEFAULT_SORT = 'updatedAt,desc';
 const STATUS_OPTIONS = ['DRAFT', 'ACTIVE', 'SUSPENDED', 'ARCHIVED'] as const;
 
@@ -93,7 +92,7 @@ export class PlatformTenantsPage {
   readonly statusFilter = computed(() => this.queryParamMap().get('status') ?? '');
   readonly sort = computed(() => this.queryParamMap().get('sort') ?? DEFAULT_SORT);
   readonly page = computed(() => numberParam(this.queryParamMap().get('page'), 0));
-  readonly size = computed(() => numberParam(this.queryParamMap().get('size'), PAGE_SIZE));
+  readonly size = computed(() => numberParam(this.queryParamMap().get('size'), TCH_DEFAULT_PAGE_SIZE));
   readonly hasActiveFilters = computed(() => !!(this.search() || this.statusFilter()));
 
   readonly actionSuccess = signal<TchErrorViewModel | null>(null);
@@ -169,7 +168,7 @@ export class PlatformTenantsPage {
   }
 
   onSizeChange(size: number): void {
-    this.navigateWithFilters({ size: size !== PAGE_SIZE ? size : null, page: null });
+    this.navigateWithFilters({ size: size !== TCH_DEFAULT_PAGE_SIZE ? size : null, page: null });
   }
 
   tenantId(tenant: TenantSummaryView): string {

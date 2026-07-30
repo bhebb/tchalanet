@@ -5,7 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { mapHttpErrorToProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
+import { TCH_DEFAULT_PAGE_SIZE, mapHttpErrorToProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 
 import {
   AdminListStatusOption,
@@ -68,7 +68,7 @@ export class AdminSellerTerminalsPage {
   });
 
   readonly page = computed(() => numberParam(this.queryParamMap().get('page'), 0));
-  readonly size = computed(() => numberParam(this.queryParamMap().get('size'), DEFAULT_PAGE_SIZE));
+  readonly size = computed(() => numberParam(this.queryParamMap().get('size'), TCH_DEFAULT_PAGE_SIZE));
   readonly searchQuery = computed(() => this.queryParamMap().get('q')?.trim() ?? '');
   readonly statusFilter = computed<SellerTerminalStatus | ''>(() => {
     const status = this.queryParamMap().get('status');
@@ -197,7 +197,6 @@ export class AdminSellerTerminalsPage {
   }
 }
 
-const DEFAULT_PAGE_SIZE = 20;
 const SELLER_TERMINAL_STATUSES = ['PENDING', 'ACTIVE', 'BLOCKED', 'DISABLED'] as const;
 
 function isSellerTerminalStatus(value: string | null): value is SellerTerminalStatus {

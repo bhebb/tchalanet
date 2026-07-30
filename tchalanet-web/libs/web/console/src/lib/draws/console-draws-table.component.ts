@@ -3,9 +3,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTableModule } from '@angular/material/table';
+import { TranslatePipe } from '@ngx-translate/core';
 import { AdminStatusPillComponent } from '@tch/ui/console';
 
 import { ConsoleDrawSlotIdentityComponent } from '../draw-slots/console-draw-slot-identity.component';
+import { consoleDrawSlotLocalLabel } from '../draw-slots/console-draw-identities';
 import {
   ConsoleDrawActionEvent,
   ConsoleDrawRow,
@@ -24,6 +26,7 @@ import { ConsoleRowAction } from '../draw-results/console-draw-results-table.mod
     MatCheckboxModule,
     MatMenuModule,
     MatTableModule,
+    TranslatePipe,
   ],
   templateUrl: './console-draws-table.component.html',
   styleUrls: ['./console-draws-table.component.scss'],
@@ -93,5 +96,23 @@ export class ConsoleDrawsTableComponent {
 
   emitAction(row: ConsoleDrawRow, action: ConsoleRowAction): void {
     this.rowAction.emit({ row, action });
+  }
+
+  /** Heure locale (tenant) du tirage — jamais l'heure provider, cf. `ConsoleDrawSlotIdentity`. */
+  localLabel(row: ConsoleDrawRow): string | null {
+    return consoleDrawSlotLocalLabel(row.identity);
+  }
+
+  /**
+   * L'action principale de la carte est toujours le premier élément de `row.actions` — c'est la
+   * convention déjà suivie par chaque consommateur (`primaryAction()`/`viewDetails` poussé en
+   * premier, avant les actions de cycle de vie). Tout le reste va dans le menu `⋮`.
+   */
+  primaryAction(row: ConsoleDrawRow): ConsoleRowAction | null {
+    return row.actions?.[0] ?? null;
+  }
+
+  secondaryActions(row: ConsoleDrawRow): readonly ConsoleRowAction[] {
+    return (row.actions ?? []).slice(1);
   }
 }

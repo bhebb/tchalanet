@@ -1,6 +1,6 @@
 import { Injectable, ResourceRef, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
-import { TchBackendClient, TchPage, TchRequestOptions } from '@tch/api';
+import { TCH_DEFAULT_PAGE_SIZE, TchBackendClient, TchPage, TchRequestOptions } from '@tch/api';
 import { ConsoleDrawLifecycleApi, consoleDrawIdentity } from '@tch/web/console';
 import {
   DatePreset,
@@ -143,6 +143,36 @@ function mapDrawView(d: DrawView): GeneratedDrawView {
   };
 }
 
+/**
+ * `/admin/draws` (`DrawQueryAdminController.listDraws`, backed by `DrawSearchRequest`) only
+ * accepts `resultSlotId`/`status`/`from`/`to` — it has no text-search field, so a `q` query
+ * param is silently dropped server-side. Filter client-side instead, over whatever page is
+ * already loaded — same tradeoff the status filter already accepts (see
+ * {@link applyStatusFilter}): a match on another page won't surface without changing the date
+ * range, but that's the existing, understood limitation of the client-side filters here.
+ */
+/**
+ * Strips separators/case so "GA-", "ga_late" and "GA Late" all match a channel code stored as
+ * "GA_LATE" — the admin types what the card *displays* (e.g. the identity title "GA-Late"), not
+ * necessarily the raw backend code, which mixes `_`/`-` inconsistently across providers.
+ */
+function normalizeForSearch(value: string): string {
+  return value.toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+export function applyQueryFilter(draws: GeneratedDrawView[], query: string | null | undefined): GeneratedDrawView[] {
+  const needle = query?.trim() ? normalizeForSearch(query) : '';
+  if (!needle) return draws;
+  return draws.filter(d => [
+    d.label,
+    d.drawChannelCode,
+    d.slotKey,
+    d.slotLabel,
+    d.providerCode,
+    d.providerLabel,
+  ].some(field => field && normalizeForSearch(field).includes(needle)));
+}
+
 function applyStatusFilter(draws: GeneratedDrawView[], status: string | null | undefined): GeneratedDrawView[] {
   if (!status || status === 'all') return draws;
   return draws.filter(d => {
@@ -203,9 +233,11 @@ export class AdminGeneratedDrawsApiService {
             params: {
               from,
               to,
-              size: String(q.size ?? 100),
+              // The 2-day window regularly holds 50-60+ draws — dumping them all onto one
+              // unpaginated page defeats the "next page" control entirely (there was never a
+              // second page to go to).
+              size: String(q.size ?? TCH_DEFAULT_PAGE_SIZE),
               page: String(q.page ?? 0),
-              ...(q.q ? { q: q.q } : {}),
             },
           },
         };
@@ -223,6 +255,14 @@ export class AdminGeneratedDrawsApiService {
     status?: DrawStatusFilter | null,
   ): GeneratedDrawView[] {
     return applyStatusFilter([...draws], status && status !== 'all' ? status : null);
+  }
+
+  /**
+   * Filtre de recherche texte client (le backend n'a pas de champ `q`, voir
+   * {@link applyQueryFilter}) — matché sur le libellé, le code de canal, le slot et le provider.
+   */
+  filterDrawsByQuery(draws: readonly GeneratedDrawView[], query?: string | null): GeneratedDrawView[] {
+    return applyQueryFilter([...draws], query);
   }
 
   getDrawById(drawId: string, options?: TchRequestOptions): Observable<GeneratedDrawView> {

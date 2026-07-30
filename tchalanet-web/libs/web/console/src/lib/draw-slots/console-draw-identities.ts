@@ -239,6 +239,23 @@ export function consoleResultSlotIdentity(input: ConsoleResultSlotIdentityInput)
   };
 }
 
+/**
+ * Heure locale (tenant) d'un tirage, formatée pour affichage — jamais l'heure provider.
+ * Le tirage n'affiche sa date locale que si elle diffère de la date provider (même logique que
+ * l'ancien `localLabel()` de `ConsoleDrawSlotIdentityComponent`, extraite ici pour être réutilisée
+ * hors du composant d'identité — ex. sous le badge d'état d'une carte).
+ */
+export function consoleDrawSlotLocalLabel(identity: ConsoleDrawSlotIdentity): string | null {
+  const showLocalDate = Boolean(
+    identity.localDateLabel && identity.providerDateLabel && identity.localDateLabel !== identity.providerDateLabel,
+  );
+  const dateTime = [showLocalDate ? identity.localDateLabel : null, identity.localTimeLabel]
+    .filter(Boolean)
+    .join(' ');
+  if (!dateTime) return null;
+  return identity.localTimezoneLabel ? `${dateTime} · ${identity.localTimezoneLabel}` : dateTime;
+}
+
 export function consoleLotteryProviderLogoUrl(providerCode?: string | null): string | null {
   return providerLogoUrl(providerCode);
 }

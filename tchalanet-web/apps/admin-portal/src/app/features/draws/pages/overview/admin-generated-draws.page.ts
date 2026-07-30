@@ -11,6 +11,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatNativeDateModule } from '@angular/material/core';
 
+import { TCH_DEFAULT_PAGE_SIZE } from '@tch/api';
 import { AccessService } from '@tch/core/auth';
 import { AdminListStatusOption, AdminListSurface, TchSectionError } from '@tch/ui/components';
 import { TchAsyncReadyDirective, TchAsyncViewComponent, resourceErrorVm, tchMutation } from '@tch/web/async';
@@ -148,24 +149,26 @@ export class AdminGeneratedDrawsPage {
   readonly page = computed(() => numberParam(this.qp().get('page'), 0));
 
   // ── Lecture (resource créée par le client, statut filtré côté client) ───────
+  // `q` is intentionally NOT part of this query: the backend has no text-search field for
+  // /admin/draws (see AdminGeneratedDrawsApiService.filterDrawsByQuery), so including it here
+  // would only trigger a wasted refetch on every keystroke for a param the server ignores.
   readonly draws = this.api.generatedDrawsResource(() => ({
     datePreset: this.datePreset(),
     from: this.hasCustomDateRange() ? this.fromDate() : null,
     to: this.hasCustomDateRange() ? this.toDate() : null,
-    q: this.searchQuery() || null,
     page: this.page(),
   }));
   readonly drawsError = resourceErrorVm(this.draws, 'admin.generatedDraws.list');
-  readonly allDraws = computed(() =>
-    this.api.filterDrawsByStatus(this.draws.value()?.items ?? [], this.statusFilter()),
-  );
+  readonly allDraws = computed(() => {
+    const statusFiltered = this.api.filterDrawsByStatus(this.draws.value()?.items ?? [], this.statusFilter());
+    return this.api.filterDrawsByQuery(statusFiltered, this.searchQuery());
+  });
   readonly totalElements = computed(() => this.draws.value()?.totalElements ?? 0);
   /**
    * The table's `hasNext`/`hasPrev` math needs the real page size the backend used, not a
-   * guessed default — the request always sends `size=100` (`AdminGeneratedDrawsApiService`), but
-   * nothing enforces the table's own default stays in sync with that.
+   * guessed default — fall back to the shared default only before a page has loaded.
    */
-  readonly pageSize = computed(() => this.draws.value()?.size ?? 100);
+  readonly pageSize = computed(() => this.draws.value()?.size ?? TCH_DEFAULT_PAGE_SIZE);
   readonly isEmpty = (): boolean => this.groupedDraws().length === 0;
   readonly canEnterManualResults = computed(() => this.access.can(CONSOLE_DRAW_RESULT_ACCESS.manual));
   readonly canConfirmResults = computed(() => this.access.can(CONSOLE_DRAW_RESULT_ACCESS.confirm));
