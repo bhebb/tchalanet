@@ -7,8 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AdminDialogShellComponent } from '@tch/ui/console';
-import { webAppErrorFromProblemDetail } from '@tch/api';
-import type { ProblemDetail } from '@tch/api';
+import { mapHttpErrorToProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 import { resolveErrorFeedbackCopy, toErrorViewModel, ErrorViewModel } from '@tch/web/errors';
 import { AdminDrawChannelsApiService } from '../../data-access/admin-draw-channels-api.service';
 import {
@@ -21,6 +20,16 @@ import {
 export interface DrawChannelConfigDialogData {
   readonly provider: DrawChannelProviderView;
   readonly slot?: DrawChannelSlotConfigView | null;
+}
+
+export function drawChannelConfigErrorView(
+  err: unknown,
+  translate: (key: string) => string,
+): ErrorViewModel {
+  const problem = mapHttpErrorToProblemDetail(err);
+  const normalized = webAppErrorFromProblemDetail(problem, 'admin.draw_channels.config', 'section');
+  const copy = resolveErrorFeedbackCopy(normalized, translate);
+  return toErrorViewModel(normalized, copy);
 }
 
 interface SlotDraft {
@@ -61,11 +70,17 @@ export class DrawChannelConfigDialog {
   private readonly api = inject(AdminDrawChannelsApiService);
   private readonly translate = inject(TranslateService);
 
-  protected readonly acquisitionModes: readonly DrawResultAcquisitionMode[] = ['AUTO', 'MANUAL', 'UNCONFIGURED'];
+  protected readonly acquisitionModes: readonly DrawResultAcquisitionMode[] = [
+    'AUTO',
+    'MANUAL',
+    'UNCONFIGURED',
+  ];
   protected readonly saving = signal(false);
   protected readonly error = signal<ErrorViewModel | null>(null);
   protected readonly draft = signal<ChannelDraft>({
-    enabled: this.data.provider.tenantStatus === 'ACTIVE' || this.data.provider.tenantStatus === 'NEEDS_CONFIG',
+    enabled:
+      this.data.provider.tenantStatus === 'ACTIVE' ||
+      this.data.provider.tenantStatus === 'NEEDS_CONFIG',
     resultAcquisitionMode: this.data.provider.resultAcquisition.mode,
     defaultSalesCutoffMinutes: this.toInput(this.data.provider.defaultSalesCutoffMinutes),
     slots: this.data.provider.slots.map(slot => ({
@@ -93,7 +108,7 @@ export class DrawChannelConfigDialog {
   updateSlot(slotKey: string, patch: Partial<SlotDraft>): void {
     this.draft.update(current => ({
       ...current,
-      slots: current.slots.map(slot => slot.slotKey === slotKey ? { ...slot, ...patch } : slot),
+      slots: current.slots.map(slot => (slot.slotKey === slotKey ? { ...slot, ...patch } : slot)),
     }));
   }
 
@@ -101,18 +116,24 @@ export class DrawChannelConfigDialog {
     if (this.saving()) return;
     this.saving.set(true);
     this.error.set(null);
-    this.api.updateDrawChannelProviderConfig(this.data.provider.providerCode, this.toRequest(this.draft()), {
-      suppressShellFeedback: true,
-    }).subscribe({
-      next: updated => {
-        this.saving.set(false);
-        this.dialogRef.close(updated);
-      },
-      error: err => {
-        this.saving.set(false);
-        this.error.set(this.errorViewModel(err));
-      },
-    });
+    this.api
+      .updateDrawChannelProviderConfig(
+        this.data.provider.providerCode,
+        this.toRequest(this.draft()),
+        {
+          suppressShellFeedback: true,
+        },
+      )
+      .subscribe({
+        next: updated => {
+          this.saving.set(false);
+          this.dialogRef.close(updated);
+        },
+        error: err => {
+          this.saving.set(false);
+          this.error.set(this.errorViewModel(err));
+        },
+      });
   }
 
   private patch(patch: Partial<ChannelDraft>): void {
@@ -127,7 +148,7 @@ export class DrawChannelConfigDialog {
       slots: value.slots.map(slot => ({
         slotKey: slot.slotKey,
         enabled: slot.enabled,
-        drawTime: slot.enabled ? (slot.drawTime || null) : null,
+        drawTime: slot.enabled ? slot.drawTime || null : null,
         salesCutoffMinutes: this.toNumber(slot.salesCutoffMinutes),
       })),
     };
@@ -145,16 +166,6 @@ export class DrawChannelConfigDialog {
   }
 
   private errorViewModel(err: unknown): ErrorViewModel {
-    const problem = (err as { error?: ProblemDetail })?.error;
-    if (!problem) {
-      return {
-        title: this.translate.instant('common.errors.fallback.title'),
-        message: this.translate.instant('common.errors.fallback.message'),
-        severity: 'error',
-      };
-    }
-    const normalized = webAppErrorFromProblemDetail(problem, 'admin.draw_channels.config', 'section');
-    const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
-    return toErrorViewModel(normalized, copy);
+    return drawChannelConfigErrorView(err, key => this.translate.instant(key));
   }
 }

@@ -1,12 +1,20 @@
 import { ViewportScroller } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, effect, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  OnInit,
+  effect,
+  inject,
+} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { TranslatePipe } from '@ngx-translate/core';
 
-import { TchErrorPanel, TchLoading } from '@tch/ui/components';
+import { TchErrorPanel, TchLoading, TchSectionError } from '@tch/ui/components';
 import { AdminDetailLayoutComponent, AdminPageShellComponent } from '@tch/ui/console';
 import { TenantGameView } from '../../../games-pricing/data-access/games-admin-api.service';
 import { TenantGamePricingView } from '../../../games-pricing/data-access/admin-games-pricing.models';
@@ -30,6 +38,8 @@ import { MaryajOfferPanelComponent } from './components/maryaj-offer-panel.compo
     MaryajOfferPanelComponent,
     TchErrorPanel,
     TchLoading,
+    TchSectionError,
+    TranslatePipe,
   ],
   templateUrl: './admin-maryaj-gratis.page.html',
   styleUrls: ['./admin-maryaj-gratis.page.scss'],

@@ -1,87 +1,93 @@
-<tch-admin-page-shell title="Abonnement" description="Statut et gestion de l'abonnement du tenant.">
+<tch-admin-page-shell
+  [title]="'admin.subscription.title' | translate"
+  [description]="'admin.subscription.description' | translate"
+>
   <div actions>
     <a mat-stroked-button routerLink="/app/admin/setup">
       <span class="material-symbols-outlined">arrow_back</span>
-      Configuration générale
+      {{ 'admin.setup.backToSetup' | translate }}
     </a>
     <button mat-stroked-button [disabled]="loading()" (click)="load()">
       <span class="material-symbols-outlined">refresh</span>
-      Rafraîchir
+      {{ 'common.refresh' | translate }}
     </button>
   </div>
 
   @if (loading()) {
-    <tch-loading label="Chargement..." />
+  <tch-loading [label]="'common.loading' | translate" />
   } @else if (error(); as pageError) {
-    <tch-error-panel
-      [title]="pageError.title"
-      [message]="pageError.message"
-      [showRetry]="true"
-      retryLabel="Réessayer"
-      (retry)="load()"
-    />
+  <tch-error-panel
+    [title]="pageError.title"
+    [message]="pageError.message"
+    [showRetry]="true"
+    [retryLabel]="'common.retry' | translate"
+    (retry)="load()"
+  />
   } @else if (!subscription()) {
-    <tch-admin-empty-state icon="subscriptions" title="Aucun abonnement" message="Aucun abonnement actif pour ce tenant." />
+  <tch-admin-empty-state
+    icon="subscriptions"
+    [title]="'admin.subscription.empty.title' | translate"
+    [message]="'admin.subscription.empty.message' | translate"
+  />
   } @else if (subscription(); as subscriptionVm) {
-    <div class="subscription-page__sections">
-      <tch-admin-section-card title="Détails de l'abonnement">
-        <dl class="subscription-page__info">
-          <dt>Plan</dt>
-          <dd>{{ subscriptionVm.planCode }}</dd>
-          <dt>Statut</dt>
-          <dd>
-            <tch-admin-status-pill
-              [label]="subscriptionVm.status"
-              [tone]="statusTone(subscriptionVm.status)"
-            />
-          </dd>
-          <dt>Début</dt>
-          <dd>{{ subscriptionVm.startedAt | date:'dd/MM/yyyy' }}</dd>
-          <dt>Fin</dt>
-          <dd>{{ subscriptionVm.endsAt ? (subscriptionVm.endsAt | date:'dd/MM/yyyy') : '—' }}</dd>
-          <dt>Mis à jour</dt>
-          <dd>{{ subscriptionVm.updatedAt | date:'dd/MM/yyyy HH:mm' }}</dd>
-          <dt>Version</dt>
-          <dd>{{ subscriptionVm.version }}</dd>
-        </dl>
-      </tch-admin-section-card>
+  <div class="subscription-page__sections">
+    <tch-admin-section-card [title]="'admin.subscription.section.details' | translate">
+      <dl class="subscription-page__info">
+        <dt>{{ 'admin.subscription.field.plan' | translate }}</dt>
+        <dd>{{ subscriptionVm.planCode }}</dd>
+        <dt>{{ 'admin.subscription.field.status' | translate }}</dt>
+        <dd>
+          <tch-admin-status-pill
+            [label]="'admin.subscription.status.' + subscriptionVm.status | translate"
+            [tone]="statusTone(subscriptionVm.status)"
+          />
+        </dd>
+        <dt>{{ 'admin.subscription.field.startedAt' | translate }}</dt>
+        <dd>{{ subscriptionVm.startedAt | date:'dd/MM/yyyy' }}</dd>
+        <dt>{{ 'admin.subscription.field.endsAt' | translate }}</dt>
+        <dd>
+          {{ subscriptionVm.endsAt ? (subscriptionVm.endsAt | date: 'dd/MM/yyyy') :
+          ('common.not_available' | translate) }}
+        </dd>
+        <dt>{{ 'admin.subscription.field.updatedAt' | translate }}</dt>
+        <dd>{{ subscriptionVm.updatedAt | date:'dd/MM/yyyy HH:mm' }}</dd>
+        <dt>{{ 'admin.subscription.field.version' | translate }}</dt>
+        <dd>{{ subscriptionVm.version }}</dd>
+      </dl>
+    </tch-admin-section-card>
 
-      <tch-admin-section-card
-        title="Actions"
-        tchSectionErrorTarget="admin.subscription.actions"
-        [tchSectionErrors]="sectionErrors()"
-      >
-        @if (actionNotice(); as actionNotice) {
-          <tch-notice type="success">{{ actionNotice }}</tch-notice>
+    <tch-admin-section-card
+      [title]="'admin.subscription.section.actions' | translate"
+      tchSectionErrorTarget="admin.subscription.actions"
+      [tchSectionErrors]="sectionErrors()"
+    >
+      @if (actionNotice(); as actionNotice) {
+      <tch-notice type="success">{{ actionNotice }}</tch-notice>
+      }
+      <div class="subscription-page__actions">
+        <button mat-stroked-button [disabled]="acting()" (click)="openRenew()">
+          <span class="material-symbols-outlined">autorenew</span>
+          {{ 'admin.subscription.action.renew' | translate }}
+        </button>
+
+        @if (subscriptionVm.status === 'ACTIVE' || subscriptionVm.status === 'TRIAL') {
+        <button mat-stroked-button [disabled]="acting()" (click)="suspend()">
+          <span class="material-symbols-outlined">pause_circle</span>
+          {{ 'admin.subscription.action.suspend' | translate }}
+        </button>
+        } @if (subscriptionVm.status === 'SUSPENDED') {
+        <button mat-flat-button color="primary" [disabled]="acting()" (click)="resume()">
+          <span class="material-symbols-outlined">play_circle</span>
+          {{ 'admin.subscription.action.resume' | translate }}
+        </button>
+        } @if (subscriptionVm.status !== 'CANCELED' && subscriptionVm.status !== 'EXPIRED') {
+        <button mat-stroked-button color="warn" [disabled]="acting()" (click)="openCancel()">
+          <span class="material-symbols-outlined">cancel</span>
+          {{ 'admin.subscription.action.cancel' | translate }}
+        </button>
         }
-        <div class="subscription-page__actions">
-          <button mat-stroked-button [disabled]="acting()" (click)="openRenew()">
-            <span class="material-symbols-outlined">autorenew</span>
-            Renouveler
-          </button>
-
-          @if (subscriptionVm.status === 'ACTIVE' || subscriptionVm.status === 'TRIAL') {
-            <button mat-stroked-button [disabled]="acting()" (click)="suspend()">
-              <span class="material-symbols-outlined">pause_circle</span>
-              Suspendre
-            </button>
-          }
-
-          @if (subscriptionVm.status === 'SUSPENDED') {
-            <button mat-flat-button color="primary" [disabled]="acting()" (click)="resume()">
-              <span class="material-symbols-outlined">play_circle</span>
-              Reprendre
-            </button>
-          }
-
-          @if (subscriptionVm.status !== 'CANCELED' && subscriptionVm.status !== 'EXPIRED') {
-            <button mat-stroked-button color="warn" [disabled]="acting()" (click)="openCancel()">
-              <span class="material-symbols-outlined">cancel</span>
-              Annuler l'abonnement
-            </button>
-          }
-        </div>
-      </tch-admin-section-card>
-    </div>
+      </div>
+    </tch-admin-section-card>
+  </div>
   }
 </tch-admin-page-shell>

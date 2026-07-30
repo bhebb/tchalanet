@@ -9,11 +9,10 @@ import {
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { RouterLink } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { forkJoin } from 'rxjs';
 
-import { webAppErrorFromProblemDetail } from '@tch/api';
-import type { ProblemDetail } from '@tch/api';
+import { mapHttpErrorToProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 import { TchErrorPanel, TchLoading, TchSectionError } from '@tch/ui/components';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
@@ -29,6 +28,7 @@ import { UpsertLimitDialogComponent } from '../../components/upsert-limit-dialog
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    TranslatePipe,
     MatButtonModule,
     RouterLink,
     TchErrorPanel,
@@ -51,7 +51,11 @@ export class AdminLimitsGlobalPage implements OnInit {
   readonly actionNotice = signal<string | null>(null);
   readonly allRows = signal<RuleRow[]>([]);
   readonly activeRows = computed(() => this.allRows().filter(r => r.assignment !== null));
-  readonly unassignedRules = computed<LimitRuleSpec[]>(() => this.allRows().filter(r => !r.assignment).map(r => r.spec));
+  readonly unassignedRules = computed<LimitRuleSpec[]>(() =>
+    this.allRows()
+      .filter(r => !r.assignment)
+      .map(r => r.spec),
+  );
 
   ngOnInit(): void {
     this.load();
@@ -68,7 +72,9 @@ export class AdminLimitsGlobalPage implements OnInit {
     ]).subscribe({
       next: ([rules, view]) => {
         const assignMap = new Map(view.items.map(a => [a.ruleKey, a]));
-        this.allRows.set(rules.map(spec => ({ spec, assignment: assignMap.get(spec.ruleKey) ?? null })));
+        this.allRows.set(
+          rules.map(spec => ({ spec, assignment: assignMap.get(spec.ruleKey) ?? null })),
+        );
         this.loading.set(false);
       },
       error: (err: unknown) => {
@@ -83,7 +89,7 @@ export class AdminLimitsGlobalPage implements OnInit {
     ref.componentInstance.initAdd(this.unassignedRules(), 'TENANT', null);
     ref.afterClosed().subscribe((result: unknown) => {
       if (result) {
-        this.actionNotice.set('Règle ajoutée.');
+        this.actionNotice.set('admin.limits.child.noticeAdded');
         this.reloadAssignments();
       }
     });
@@ -94,7 +100,7 @@ export class AdminLimitsGlobalPage implements OnInit {
     ref.componentInstance.init(row.spec, 'TENANT', null, row.assignment);
     ref.afterClosed().subscribe((result: unknown) => {
       if (result) {
-        this.actionNotice.set('Règle enregistrée.');
+        this.actionNotice.set('admin.limits.child.noticeSaved');
         this.reloadAssignments();
       }
     });
@@ -107,7 +113,7 @@ export class AdminLimitsGlobalPage implements OnInit {
     this.actionNotice.set(null);
     this.api.deleteAssignment(row.assignment.id.value, { suppressShellFeedback: true }).subscribe({
       next: () => {
-        this.actionNotice.set('Règle supprimée.');
+        this.actionNotice.set('admin.limits.child.noticeDeleted');
         this.reloadAssignments();
       },
       error: (err: unknown) => {
@@ -131,14 +137,7 @@ export class AdminLimitsGlobalPage implements OnInit {
   }
 
   private resolveError(err: unknown, source: string, surface: 'page' | 'section'): ErrorViewModel {
-    const problem = (err as { error?: ProblemDetail })?.error;
-    if (!problem) {
-      return {
-        severity: 'error',
-        title: this.translate.instant('common.errors.fallback.title'),
-        message: this.translate.instant('common.errors.fallback.message'),
-      };
-    }
+    const problem = mapHttpErrorToProblemDetail(err);
     const normalized = webAppErrorFromProblemDetail(problem, source, surface);
     const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
     return toErrorViewModel(normalized, copy);

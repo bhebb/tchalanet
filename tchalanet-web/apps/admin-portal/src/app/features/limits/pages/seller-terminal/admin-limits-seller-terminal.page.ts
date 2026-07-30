@@ -1,18 +1,11 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { RouterLink } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Observable, forkJoin, map } from 'rxjs';
 
-import { webAppErrorFromProblemDetail } from '@tch/api';
-import type { ProblemDetail } from '@tch/api';
+import { mapHttpErrorToProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 import { TchErrorPanel, TchLoading, TchSectionError, TchSearchSelect } from '@tch/ui/components';
 import type { TchSearchOption } from '@tch/ui/components';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
@@ -30,6 +23,7 @@ import { UpsertLimitDialogComponent } from '../../components/upsert-limit-dialog
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    TranslatePipe,
     MatButtonModule,
     RouterLink,
     TchErrorPanel,
@@ -54,16 +48,22 @@ export class AdminLimitsSellerTerminalPage {
   readonly actionNotice = signal<string | null>(null);
   readonly allRows = signal<RuleRow[]>([]);
   readonly activeRows = computed(() => this.allRows().filter(r => r.assignment !== null));
-  readonly unassignedRules = computed<LimitRuleSpec[]>(() => this.allRows().filter(r => !r.assignment).map(r => r.spec));
+  readonly unassignedRules = computed<LimitRuleSpec[]>(() =>
+    this.allRows()
+      .filter(r => !r.assignment)
+      .map(r => r.spec),
+  );
   readonly loadedTerminalId = signal<string | null>(null);
 
   readonly searchTerminals = (query: string): Observable<readonly TchSearchOption[]> =>
     this.sellerTerminalApi.list({ q: query, size: 10 }).pipe(
-      map(page => page.items.map(row => ({
-        id: row.id.value,
-        title: row.displayName,
-        subtitle: row.terminalCode,
-      }))),
+      map(page =>
+        page.items.map(row => ({
+          id: row.id.value,
+          title: row.displayName,
+          subtitle: row.terminalCode,
+        })),
+      ),
     );
 
   onTerminalSelected(option: TchSearchOption | null): void {
@@ -83,7 +83,7 @@ export class AdminLimitsSellerTerminalPage {
     ref.componentInstance.initAdd(this.unassignedRules(), 'SELLER_TERMINAL', id);
     ref.afterClosed().subscribe((result: unknown) => {
       if (result) {
-        this.actionNotice.set('Règle ajoutée.');
+        this.actionNotice.set('admin.limits.child.noticeAdded');
         this.reloadAssignments(id);
       }
     });
@@ -96,7 +96,7 @@ export class AdminLimitsSellerTerminalPage {
     ref.componentInstance.init(row.spec, 'SELLER_TERMINAL', id, row.assignment);
     ref.afterClosed().subscribe((result: unknown) => {
       if (result) {
-        this.actionNotice.set('Règle enregistrée.');
+        this.actionNotice.set('admin.limits.child.noticeSaved');
         this.reloadAssignments(id);
       }
     });
@@ -111,11 +111,13 @@ export class AdminLimitsSellerTerminalPage {
     this.actionNotice.set(null);
     this.api.deleteAssignment(row.assignment.id.value, { suppressShellFeedback: true }).subscribe({
       next: () => {
-        this.actionNotice.set('Règle supprimée.');
+        this.actionNotice.set('admin.limits.child.noticeDeleted');
         this.reloadAssignments(id);
       },
       error: (err: unknown) => {
-        this.actionError.set(this.resolveError(err, 'admin.limits.seller-terminal.delete', 'section'));
+        this.actionError.set(
+          this.resolveError(err, 'admin.limits.seller-terminal.delete', 'section'),
+        );
       },
     });
   }
@@ -129,7 +131,9 @@ export class AdminLimitsSellerTerminalPage {
     ]).subscribe({
       next: ([rules, view]) => {
         const assignMap = new Map(view.items.map(a => [a.ruleKey, a]));
-        this.allRows.set(rules.map(spec => ({ spec, assignment: assignMap.get(spec.ruleKey) ?? null })));
+        this.allRows.set(
+          rules.map(spec => ({ spec, assignment: assignMap.get(spec.ruleKey) ?? null })),
+        );
         this.loading.set(false);
       },
       error: (err: unknown) => {
@@ -148,20 +152,15 @@ export class AdminLimitsSellerTerminalPage {
         );
       },
       error: (err: unknown) => {
-        this.actionError.set(this.resolveError(err, 'admin.limits.seller-terminal.reload', 'section'));
+        this.actionError.set(
+          this.resolveError(err, 'admin.limits.seller-terminal.reload', 'section'),
+        );
       },
     });
   }
 
   private resolveError(err: unknown, source: string, surface: 'page' | 'section'): ErrorViewModel {
-    const problem = (err as { error?: ProblemDetail })?.error;
-    if (!problem) {
-      return {
-        severity: 'error',
-        title: this.translate.instant('common.errors.fallback.title'),
-        message: this.translate.instant('common.errors.fallback.message'),
-      };
-    }
+    const problem = mapHttpErrorToProblemDetail(err);
     const normalized = webAppErrorFromProblemDetail(problem, source, surface);
     const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
     return toErrorViewModel(normalized, copy);

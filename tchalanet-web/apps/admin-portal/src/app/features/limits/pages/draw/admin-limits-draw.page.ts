@@ -14,11 +14,10 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { RouterLink } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { forkJoin } from 'rxjs';
 
-import { webAppErrorFromProblemDetail } from '@tch/api';
-import type { ProblemDetail } from '@tch/api';
+import { mapHttpErrorToProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 import { TchErrorPanel, TchLoading, TchSectionError } from '@tch/ui/components';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
@@ -36,6 +35,7 @@ import { UpsertLimitDialogComponent } from '../../components/upsert-limit-dialog
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    TranslatePipe,
     ReactiveFormsModule,
     MatButtonModule,
     MatFormFieldModule,
@@ -68,21 +68,23 @@ export class AdminLimitsDrawPage implements OnInit {
   readonly actionNotice = signal<string | null>(null);
   readonly allRows = signal<RuleRow[]>([]);
   readonly activeRows = computed(() => this.allRows().filter(r => r.assignment !== null));
-  readonly unassignedRules = computed<LimitRuleSpec[]>(() => this.allRows().filter(r => !r.assignment).map(r => r.spec));
+  readonly unassignedRules = computed<LimitRuleSpec[]>(() =>
+    this.allRows()
+      .filter(r => !r.assignment)
+      .map(r => r.spec),
+  );
   readonly selectedChannelId = signal<string | null>(null);
 
   ngOnInit(): void {
     this.loadChannels();
-    this.channelCtrl.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(id => {
-        this.selectedChannelId.set(id);
-        this.allRows.set([]);
-        this.pageError.set(null);
-        this.actionError.set(null);
-        this.actionNotice.set(null);
-        if (id) this.loadForChannel(id);
-      });
+    this.channelCtrl.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(id => {
+      this.selectedChannelId.set(id);
+      this.allRows.set([]);
+      this.pageError.set(null);
+      this.actionError.set(null);
+      this.actionNotice.set(null);
+      if (id) this.loadForChannel(id);
+    });
   }
 
   private loadChannels(): void {
@@ -122,7 +124,9 @@ export class AdminLimitsDrawPage implements OnInit {
     ]).subscribe({
       next: ([rules, view]) => {
         const assignMap = new Map(view.items.map(a => [a.ruleKey, a]));
-        this.allRows.set(rules.map(spec => ({ spec, assignment: assignMap.get(spec.ruleKey) ?? null })));
+        this.allRows.set(
+          rules.map(spec => ({ spec, assignment: assignMap.get(spec.ruleKey) ?? null })),
+        );
         this.loading.set(false);
       },
       error: (err: unknown) => {
@@ -139,7 +143,7 @@ export class AdminLimitsDrawPage implements OnInit {
     ref.componentInstance.initAdd(this.unassignedRules(), 'DRAW_CHANNEL', channelId);
     ref.afterClosed().subscribe((result: unknown) => {
       if (result) {
-        this.actionNotice.set('Règle ajoutée.');
+        this.actionNotice.set('admin.limits.child.noticeAdded');
         this.reloadAssignments(channelId);
       }
     });
@@ -152,7 +156,7 @@ export class AdminLimitsDrawPage implements OnInit {
     ref.componentInstance.init(row.spec, 'DRAW_CHANNEL', channelId, row.assignment);
     ref.afterClosed().subscribe((result: unknown) => {
       if (result) {
-        this.actionNotice.set('Règle enregistrée.');
+        this.actionNotice.set('admin.limits.child.noticeSaved');
         this.reloadAssignments(channelId);
       }
     });
@@ -167,7 +171,7 @@ export class AdminLimitsDrawPage implements OnInit {
     this.actionNotice.set(null);
     this.api.deleteAssignment(row.assignment.id.value, { suppressShellFeedback: true }).subscribe({
       next: () => {
-        this.actionNotice.set('Règle supprimée.');
+        this.actionNotice.set('admin.limits.child.noticeDeleted');
         this.reloadAssignments(channelId);
       },
       error: (err: unknown) => {
@@ -191,14 +195,7 @@ export class AdminLimitsDrawPage implements OnInit {
   }
 
   private resolveError(err: unknown, source: string, surface: 'page' | 'section'): ErrorViewModel {
-    const problem = (err as { error?: ProblemDetail })?.error;
-    if (!problem) {
-      return {
-        severity: 'error',
-        title: this.translate.instant('common.errors.fallback.title'),
-        message: this.translate.instant('common.errors.fallback.message'),
-      };
-    }
+    const problem = mapHttpErrorToProblemDetail(err);
     const normalized = webAppErrorFromProblemDetail(problem, source, surface);
     const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
     return toErrorViewModel(normalized, copy);

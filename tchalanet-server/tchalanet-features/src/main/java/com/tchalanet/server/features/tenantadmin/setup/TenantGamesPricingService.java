@@ -4,6 +4,7 @@ import com.tchalanet.server.catalog.game.api.GameCatalog;
 import com.tchalanet.server.catalog.game.api.model.GameView;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.web.api.NoticeSource;
 import com.tchalanet.server.core.limitpolicy.api.query.LimitScopeQueryRef;
 import com.tchalanet.server.core.limitpolicy.api.query.ListLimitAssignmentsByScopeQuery;
 import com.tchalanet.server.core.limitpolicy.api.query.ListLimitAssignmentsView;
@@ -16,6 +17,9 @@ import com.tchalanet.server.features.tenantadmin.setup.model.TenantGamesPricingV
 import com.tchalanet.server.features.tenantadmin.setup.model.TenantGamesPricingView.LimitsView;
 import com.tchalanet.server.features.tenantadmin.setup.model.TenantGamesPricingView.PricingEntryRow;
 import com.tchalanet.server.features.tenantadmin.setup.model.TenantGamesPricingView.PricingView;
+import com.tchalanet.server.features.shared.bff.BffSlicePolicy;
+import com.tchalanet.server.features.shared.bff.BffSlices;
+import com.tchalanet.server.features.tenantadmin.error.TenantAdminErrorCodes;
 import com.tchalanet.server.platform.tenantgame.api.TenantGameApi;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -66,9 +70,37 @@ public class TenantGamesPricingService {
 
   public TenantGamesPricingView get(TenantId tenantId) {
     var tenantGames = tenantGameApi.listGames(tenantId);
+    var catalogByCode =
+        BffSlices.optional(
+            BffSlicePolicy.warn(
+                    TenantAdminErrorCodes.GAMES_CATALOG_UNAVAILABLE.code(),
+                    "features.tenantadmin",
+                    NoticeSource.of("tenantGamesPricing").operation("loadCatalog"),
+                    Map.<String, GameView>of())
+                .target("tenantadmin.games.catalog"),
+            () ->
+                tenantGames.stream()
+                    .map(tg -> gameCatalog.findByCode(tg.gameCode()).orElse(null))
+                    .filter(java.util.Objects::nonNull)
+                    .collect(Collectors.toMap(GameView::code, game -> game, (first, ignored) -> first)));
     var limitAssignments =
-        queryBus.ask(new ListLimitAssignmentsByScopeQuery(LimitScopeQueryRef.tenant(tenantId)));
-    var pricingRules = queryBus.ask(new ListTenantPricingRulesQuery(tenantId, null));
+        BffSlices.optional(
+            BffSlicePolicy.warn(
+                    TenantAdminErrorCodes.GAMES_LIMITS_UNAVAILABLE.code(),
+                    "features.tenantadmin",
+                    NoticeSource.of("tenantGamesPricing").operation("loadLimits"),
+                    () -> new ListLimitAssignmentsView(LimitScopeQueryRef.tenant(tenantId), List.of()))
+                .target("tenantadmin.games.limits"),
+            () -> queryBus.ask(new ListLimitAssignmentsByScopeQuery(LimitScopeQueryRef.tenant(tenantId))));
+    var pricingRules =
+        BffSlices.optional(
+            BffSlicePolicy.warn(
+                    TenantAdminErrorCodes.GAMES_PRICING_UNAVAILABLE.code(),
+                    "features.tenantadmin",
+                    NoticeSource.of("tenantGamesPricing").operation("loadPricing"),
+                    List.<TenantPricingRuleView>of())
+                .target("tenantadmin.games.pricing"),
+            () -> queryBus.ask(new ListTenantPricingRulesQuery(tenantId, null)));
 
     // Group limits by ruleKey for easy lookup (all are tenant-level)
     var tenantLimitItems = limitAssignments.items();
@@ -85,9 +117,9 @@ public class TenantGamesPricingService {
                         ::displayOrder))
             .map(
                 tg -> {
-                  var catalogGame = gameCatalog.findByCode(tg.gameCode());
-                  var catalogName = catalogGame.map(GameView::name).orElse(tg.gameCode());
-                  var category = catalogGame.map(GameView::category).orElse(null);
+                  var catalogGame = catalogByCode.get(tg.gameCode());
+                  var catalogName = catalogGame != null ? catalogGame.name() : tg.gameCode();
+                  var category = catalogGame != null ? catalogGame.category() : null;
 
                   var limitRows =
                       tenantLimitItems.stream()

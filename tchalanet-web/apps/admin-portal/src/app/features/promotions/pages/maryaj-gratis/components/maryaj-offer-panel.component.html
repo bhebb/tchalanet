@@ -1,98 +1,137 @@
 <section id="offer" class="maryaj-offer" data-testid="maryaj-gratis-offer-panel">
   @if (campaign() && !editing()) {
     @if (campaign(); as campaign) {
-    <div class="maryaj-offer__campaign">
-      <div class="maryaj-offer__heading">
-        <span class="maryaj-offer__icon">
-          <mat-icon>redeem</mat-icon>
-        </span>
-        <div>
-          <p class="maryaj-offer__eyebrow">Offre active</p>
-          <h3 class="maryaj-offer__name">Maryaj gratis</h3>
-          <p class="maryaj-offer__code">Campagne tenant · {{ campaign.rules.length }} règle(s)</p>
+      <div class="maryaj-offer__campaign">
+        <div class="maryaj-offer__heading">
+          <span class="maryaj-offer__icon">
+            <mat-icon>redeem</mat-icon>
+          </span>
+          <div>
+            <p class="maryaj-offer__eyebrow">
+              {{ 'admin.maryajGratis.offer.activeEyebrow' | translate }}
+            </p>
+            <h3 class="maryaj-offer__name">{{ 'admin.maryajGratis.title' | translate }}</h3>
+            <p class="maryaj-offer__code">
+              {{
+                'admin.maryajGratis.offer.campaignCode'
+                  | translate: { count: campaign.rules.length }
+              }}
+            </p>
+          </div>
+        </div>
+        <div class="maryaj-offer__toolbar">
+          <span
+            class="maryaj-offer__status"
+            [class.maryaj-offer__status--active]="campaign.status === 'ACTIVE'"
+          >
+            {{ statusLabel(campaign.status) }}
+          </span>
+          @if (campaign.status !== 'ACTIVE') {
+            <button
+              mat-flat-button
+              color="primary"
+              [disabled]="saving() || !gameReady()"
+              (click)="activateCampaign.emit(campaign)"
+            >
+              <mat-icon>play_arrow</mat-icon>
+              {{ 'common.activate' | translate }}
+            </button>
+          } @else {
+            <button mat-stroked-button [disabled]="saving()" (click)="pauseCampaign.emit(campaign)">
+              <mat-icon>pause</mat-icon>
+              {{ 'admin.maryajGratis.offer.pause' | translate }}
+            </button>
+          }
+          <button
+            mat-stroked-button
+            data-testid="maryaj-gratis-edit-offer"
+            [disabled]="saving()"
+            (click)="editOffer.emit()"
+          >
+            <mat-icon>edit</mat-icon>
+            {{ 'common.edit' | translate }}
+          </button>
         </div>
       </div>
-      <div class="maryaj-offer__toolbar">
-        <span class="maryaj-offer__status" [class.maryaj-offer__status--active]="campaign.status === 'ACTIVE'">
-          {{ statusLabel(campaign.status) }}
-        </span>
-        @if (campaign.status !== 'ACTIVE') {
-          <button
-            mat-flat-button
-            color="primary"
-            [disabled]="saving() || !gameReady()"
-            (click)="activateCampaign.emit(campaign)"
-          >
-            <mat-icon>play_arrow</mat-icon>
-            Activer
-          </button>
-        } @else {
-          <button mat-stroked-button [disabled]="saving()" (click)="pauseCampaign.emit(campaign)">
-            <mat-icon>pause</mat-icon>
-            Mettre en pause
-          </button>
-        }
-        <button mat-stroked-button data-testid="maryaj-gratis-edit-offer" [disabled]="saving()" (click)="editOffer.emit()">
-          <mat-icon>edit</mat-icon>
-          Modifier l'offre
-        </button>
-      </div>
-    </div>
 
-    <dl class="maryaj-offer__facts">
-      <div>
-        <dt>Priorité d’arbitrage</dt>
-        <dd>{{ campaign.priority }}</dd>
-      </div>
-      <div>
-        <dt>Début</dt>
-        <dd>{{ campaign.startsAt ? (campaign.startsAt | date:'dd/MM/yyyy HH:mm') : '—' }}</dd>
-      </div>
-      <div>
-        <dt>Fin</dt>
-        <dd>
-          @if (showCampaignEndDate(campaign)) {
-            Sans fin prévue
-            <small>Date technique : {{ campaign.endsAt | date:'dd/MM/yyyy HH:mm' }}</small>
-          } @else {
-            {{ campaign.endsAt ? (campaign.endsAt | date:'dd/MM/yyyy HH:mm') : '—' }}
-          }
-        </dd>
-      </div>
-      <div>
-        <dt>Sélection</dt>
-        <dd>{{ selectionLabel() }}</dd>
-      </div>
-      <div>
-        <dt>Attribution</dt>
-        <dd>
-          @if (effectParam('quantityMode') === 'TIERED_PAID_AMOUNT') {
-            Par paliers
-          } @else if (effectParam('quantityMode') === 'PER_PAID_AMOUNT') {
-            Par tranche
-          } @else {
-            Fixe
-          }
-        </dd>
-      </div>
-      <div>
-        <dt>Maryaj offerts</dt>
-        <dd>
-          @if (effectParam('quantityMode') === 'TIERED_PAID_AMOUNT') {
-            Paliers configurés · max {{ effectParam('maxQuantity') }}
-          } @else if (effectParam('quantityMode') === 'PER_PAID_AMOUNT') {
-            {{ effectParam('quantityPerStep') }} par {{ effectParam('stepPaidAmount') }} HTG
-            · max {{ effectParam('maxQuantity') }}
-          } @else {
-            {{ effectParam('quantity') }}
-          }
-        </dd>
-      </div>
-      <div>
-        <dt>Régénérations</dt>
-        <dd>{{ effectParam('maxRegenerationsBeforeConfirm') }}</dd>
-      </div>
-    </dl>
+      <dl class="maryaj-offer__facts">
+        <div>
+          <dt>{{ 'admin.maryajGratis.offer.facts.priority' | translate }}</dt>
+          <dd>{{ campaign.priority }}</dd>
+        </div>
+        <div>
+          <dt>{{ 'admin.maryajGratis.offer.facts.start' | translate }}</dt>
+          <dd>
+            {{
+              campaign.startsAt
+                ? (campaign.startsAt | date: 'dd/MM/yyyy HH:mm')
+                : ('common.not_available' | translate)
+            }}
+          </dd>
+        </div>
+        <div>
+          <dt>{{ 'admin.maryajGratis.offer.facts.end' | translate }}</dt>
+          <dd>
+            @if (showCampaignEndDate(campaign)) {
+              {{ 'admin.maryajGratis.offer.permanent' | translate }}
+              <small>
+                {{ 'admin.maryajGratis.offer.technicalDate' | translate }}
+                {{ campaign.endsAt | date: 'dd/MM/yyyy HH:mm' }}
+              </small>
+            } @else {
+              {{
+                campaign.endsAt
+                  ? (campaign.endsAt | date: 'dd/MM/yyyy HH:mm')
+                  : ('common.not_available' | translate)
+              }}
+            }
+          </dd>
+        </div>
+        <div>
+          <dt>{{ 'admin.maryajGratis.offer.facts.selection' | translate }}</dt>
+          <dd>{{ selectionLabel() }}</dd>
+        </div>
+        <div>
+          <dt>{{ 'admin.maryajGratis.offer.facts.attribution' | translate }}</dt>
+          <dd>
+            @if (effectParam('quantityMode') === 'TIERED_PAID_AMOUNT') {
+              {{ 'admin.maryajGratis.offer.mode.tieredShort' | translate }}
+            } @else if (effectParam('quantityMode') === 'PER_PAID_AMOUNT') {
+              {{ 'admin.maryajGratis.offer.mode.perAmountShort' | translate }}
+            } @else {
+              {{ 'admin.maryajGratis.offer.mode.fixedShort' | translate }}
+            }
+          </dd>
+        </div>
+        <div>
+          <dt>{{ 'admin.maryajGratis.offer.facts.offered' | translate }}</dt>
+          <dd>
+            @if (effectParam('quantityMode') === 'TIERED_PAID_AMOUNT') {
+              {{ 'admin.maryajGratis.offer.offered.tiers' | translate }} ·
+              {{
+                'admin.maryajGratis.offer.offered.max'
+                  | translate: { count: effectParam('maxQuantity') }
+              }}
+            } @else if (effectParam('quantityMode') === 'PER_PAID_AMOUNT') {
+              {{
+                'admin.maryajGratis.offer.offered.perAmount'
+                  | translate
+                    : {
+                        quantity: effectParam('quantityPerStep'),
+                        amount: effectParam('stepPaidAmount'),
+                        max: effectParam('maxQuantity'),
+                      }
+              }}
+            } @else {
+              {{ effectParam('quantity') }}
+            }
+          </dd>
+        </div>
+        <div>
+          <dt>{{ 'admin.maryajGratis.offer.facts.regeneration' | translate }}</dt>
+          <dd>{{ effectParam('maxRegenerationsBeforeConfirm') }}</dd>
+        </div>
+      </dl>
     }
   } @else {
     <div class="maryaj-offer__setup">
@@ -101,9 +140,15 @@
       </div>
       <div>
         <p class="maryaj-offer__setup-title">
-          {{ campaign() ? 'Modifier l’offre Maryaj gratis' : 'Offre Maryaj gratis à activer' }}
+          {{
+            campaign()
+              ? ('admin.maryajGratis.offer.setup.edit' | translate)
+              : ('admin.maryajGratis.offer.setup.activate' | translate)
+          }}
         </p>
-        <p class="maryaj-offer__setup-copy">Paliers, quantité offerte et génération des numéros.</p>
+        <p class="maryaj-offer__setup-copy">
+          {{ 'admin.maryajGratis.offer.setup.copy' | translate }}
+        </p>
       </div>
     </div>
 
@@ -111,32 +156,32 @@
       <mat-icon>receipt_long</mat-icon>
       <span>
         @if (form().controls['quantityMode'].value === 'PER_PAID_AMOUNT') {
-          Le ticket recevra
+          {{ 'admin.maryajGratis.offer.preview.perAmount.prefix' | translate }}
           <strong>{{ form().controls['quantityPerStep'].value }}</strong>
-          Maryaj gratuit(s) par
+          {{ 'admin.maryajGratis.offer.preview.perAmount.unit' | translate }}
           <strong>{{ form().controls['stepPaidAmount'].value }} HTG</strong>
-          de vente, jusqu'à
+          {{ 'admin.maryajGratis.offer.preview.perAmount.middle' | translate }}
           <strong>{{ form().controls['maxQuantity'].value }}</strong>
-          ligne(s).
+          {{ 'admin.maryajGratis.offer.preview.perAmount.suffix' | translate }}
         } @else if (form().controls['quantityMode'].value === 'TIERED_PAID_AMOUNT') {
-          Le ticket recevra des Maryaj gratuits selon le montant payé par le client.
+          {{ 'admin.maryajGratis.offer.preview.tiered' | translate }}
         } @else {
-          Le ticket pourra recevoir
+          {{ 'admin.maryajGratis.offer.preview.fixed.prefix' | translate }}
           <strong>{{ form().controls['quantity'].value }}</strong>
-          Maryaj gratuit(s).
+          {{ 'admin.maryajGratis.offer.preview.fixed.suffix' | translate }}
         }
       </span>
     </div>
 
     <div class="maryaj-offer__mode">
-      <span>Mode d’attribution</span>
+      <span>{{ 'admin.maryajGratis.offer.attributionMode' | translate }}</span>
       <strong>
         {{
           form().controls['quantityMode'].value === 'PER_PAID_AMOUNT'
-            ? 'Par tranche de vente'
+            ? ('admin.maryajGratis.offer.mode.perAmount' | translate)
             : form().controls['quantityMode'].value === 'TIERED_PAID_AMOUNT'
-              ? 'Par paliers de vente'
-              : 'Quantité fixe par ticket'
+              ? ('admin.maryajGratis.offer.mode.tiered' | translate)
+              : ('admin.maryajGratis.offer.mode.fixed' | translate)
         }}
       </strong>
     </div>
@@ -144,33 +189,43 @@
     <form class="maryaj-offer__form" [formGroup]="form()">
       <section class="maryaj-offer__schedule maryaj-offer__field--wide">
         <mat-form-field appearance="outline">
-          <mat-label>Début</mat-label>
+          <mat-label>{{ 'admin.maryajGratis.offer.facts.start' | translate }}</mat-label>
           <input matInput [matDatepicker]="startsAtPicker" formControlName="startsAt" />
           <mat-datepicker-toggle matIconSuffix [for]="startsAtPicker" />
           <mat-datepicker #startsAtPicker />
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>Fin</mat-label>
+          <mat-label>{{ 'admin.maryajGratis.offer.facts.end' | translate }}</mat-label>
           <input matInput [matDatepicker]="endsAtPicker" formControlName="endsAt" />
           <mat-datepicker-toggle matIconSuffix [for]="endsAtPicker" />
           <mat-datepicker #endsAtPicker />
-          <mat-hint>Date obligatoire. Pour une offre permanente, utilisez une date lointaine.</mat-hint>
+          <mat-hint>{{ 'admin.maryajGratis.offer.schedule.endHint' | translate }}</mat-hint>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>Priorité d’arbitrage</mat-label>
+          <mat-label>{{ 'admin.maryajGratis.offer.facts.priority' | translate }}</mat-label>
           <input matInput type="number" min="0" max="100000" step="1" formControlName="priority" />
-          <mat-hint>Plus haut = prioritaire si plusieurs promotions sont applicables.</mat-hint>
+          <mat-hint>{{ 'admin.maryajGratis.offer.schedule.priorityHint' | translate }}</mat-hint>
         </mat-form-field>
       </section>
 
-      <mat-form-field appearance="outline" class="maryaj-offer__field--wide" data-testid="maryaj-gratis-quantity-mode">
-        <mat-label>Mode d'attribution</mat-label>
+      <mat-form-field
+        appearance="outline"
+        class="maryaj-offer__field--wide"
+        data-testid="maryaj-gratis-quantity-mode"
+      >
+        <mat-label>{{ 'admin.maryajGratis.offer.attributionMode' | translate }}</mat-label>
         <mat-select formControlName="quantityMode">
-          <mat-option value="TIERED_PAID_AMOUNT">Par paliers de vente</mat-option>
-          <mat-option value="FIXED">Quantité fixe par ticket</mat-option>
-          <mat-option value="PER_PAID_AMOUNT">Par tranche de vente</mat-option>
+          <mat-option value="TIERED_PAID_AMOUNT">{{
+            'admin.maryajGratis.offer.mode.tiered' | translate
+          }}</mat-option>
+          <mat-option value="FIXED">{{
+            'admin.maryajGratis.offer.mode.fixed' | translate
+          }}</mat-option>
+          <mat-option value="PER_PAID_AMOUNT">{{
+            'admin.maryajGratis.offer.mode.perAmount' | translate
+          }}</mat-option>
         </mat-select>
       </mat-form-field>
 
@@ -178,12 +233,12 @@
         <div class="maryaj-offer__tiers maryaj-offer__field--wide" formArrayName="quantityTiers">
           <div class="maryaj-offer__tiers-head">
             <div>
-              <p>Paliers de vente</p>
-              <span>Montant payé par le client → nombre de Maryaj gratuits générés.</span>
+              <p>{{ 'admin.maryajGratis.offer.tiers.title' | translate }}</p>
+              <span>{{ 'admin.maryajGratis.offer.tiers.description' | translate }}</span>
             </div>
             <button mat-stroked-button type="button" (click)="addQuantityTier.emit()">
               <mat-icon>add</mat-icon>
-              Ajouter un palier
+              {{ 'admin.maryajGratis.offer.tiers.add' | translate }}
             </button>
           </div>
 
@@ -191,24 +246,31 @@
             <div class="maryaj-offer__tier-row" [formGroupName]="$index">
               <span class="maryaj-offer__tier-label">{{ tierLabel($index) }}</span>
               <mat-form-field appearance="outline">
-                <mat-label>De</mat-label>
+                <mat-label>{{ 'admin.maryajGratis.offer.tiers.from' | translate }}</mat-label>
                 <input matInput type="number" min="1" step="1" formControlName="minPaidAmount" />
                 <span matTextSuffix>HTG</span>
               </mat-form-field>
               <mat-form-field appearance="outline">
-                <mat-label>À</mat-label>
+                <mat-label>{{ 'admin.maryajGratis.offer.tiers.to' | translate }}</mat-label>
                 <input matInput type="number" min="1" step="1" formControlName="maxPaidAmount" />
                 <span matTextSuffix>HTG</span>
-                <mat-hint>Vide = et plus</mat-hint>
+                <mat-hint>{{ 'admin.maryajGratis.offer.tiers.openEnded' | translate }}</mat-hint>
               </mat-form-field>
               <mat-form-field appearance="outline">
-                <mat-label>Maryaj gratuits</mat-label>
-                <input matInput type="number" min="1" max="50" step="1" formControlName="quantity" />
+                <mat-label>{{ 'admin.maryajGratis.offer.tiers.quantity' | translate }}</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  min="1"
+                  max="50"
+                  step="1"
+                  formControlName="quantity"
+                />
               </mat-form-field>
               <button
                 mat-icon-button
                 type="button"
-                aria-label="Supprimer le palier"
+                [attr.aria-label]="'admin.maryajGratis.offer.tiers.delete' | translate"
                 [disabled]="quantityTiers().length <= 1"
                 (click)="removeQuantityTier.emit($index)"
               >
@@ -219,58 +281,72 @@
         </div>
       } @else if (form().controls['quantityMode'].value === 'PER_PAID_AMOUNT') {
         <mat-form-field appearance="outline">
-          <mat-label>Tranche de vente</mat-label>
+          <mat-label>{{ 'admin.maryajGratis.offer.perAmount.step' | translate }}</mat-label>
           <input matInput type="number" min="1" step="1" formControlName="stepPaidAmount" />
           <span matTextSuffix>HTG</span>
-          <mat-hint>Montant payé qui déclenche une tranche.</mat-hint>
+          <mat-hint>{{ 'admin.maryajGratis.offer.perAmount.stepHint' | translate }}</mat-hint>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>Maryaj gratuits par tranche</mat-label>
-          <input matInput type="number" min="1" max="10" step="1" formControlName="quantityPerStep" />
+          <mat-label>{{ 'admin.maryajGratis.offer.perAmount.quantity' | translate }}</mat-label>
+          <input
+            matInput
+            type="number"
+            min="1"
+            max="10"
+            step="1"
+            formControlName="quantityPerStep"
+          />
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>Plafond de lignes gratuites</mat-label>
+          <mat-label>{{ 'admin.maryajGratis.offer.perAmount.max' | translate }}</mat-label>
           <input matInput type="number" min="1" max="50" step="1" formControlName="maxQuantity" />
-          <mat-hint>Maximum généré pour un ticket.</mat-hint>
+          <mat-hint>{{ 'admin.maryajGratis.offer.perAmount.maxHint' | translate }}</mat-hint>
         </mat-form-field>
       } @else {
         <mat-form-field appearance="outline">
-          <mat-label>Nombre de Maryaj gratuits par ticket</mat-label>
+          <mat-label>{{ 'admin.maryajGratis.offer.fixed.quantity' | translate }}</mat-label>
           <input matInput type="number" min="1" max="10" step="1" formControlName="quantity" />
         </mat-form-field>
       }
 
       <section class="maryaj-offer__selection maryaj-offer__field--wide">
         <div>
-          <span>Numéros Maryaj gratuits</span>
-          <strong>Générés automatiquement par Tchalanet</strong>
-          <p>Le vendeur ne choisit rien sauf si l’option manuelle est activée.</p>
+          <span>{{ 'admin.maryajGratis.offer.selection.title' | translate }}</span>
+          <strong>{{ 'admin.maryajGratis.offer.selection.auto' | translate }}</strong>
+          <p>{{ 'admin.maryajGratis.offer.selection.description' | translate }}</p>
         </div>
         <mat-checkbox
           data-testid="maryaj-gratis-seller-selects-toggle"
           [checked]="manualSelectionEnabled()"
           (change)="manualSelectionChange.emit($event.checked)"
         >
-          Laisser le vendeur choisir les numéros
+          {{ 'admin.maryajGratis.offer.selection.enableManual' | translate }}
         </mat-checkbox>
       </section>
 
       @if (autoGenerationEnabled()) {
         <mat-checkbox formControlName="regenerableBeforeConfirm">
-          Le vendeur peut régénérer les numéros avant validation
+          {{ 'admin.maryajGratis.offer.regeneration.enable' | translate }}
         </mat-checkbox>
 
         <mat-form-field appearance="outline">
-          <mat-label>Régénérations autorisées</mat-label>
-          <input matInput type="number" min="0" max="20" step="1" formControlName="maxRegenerationsBeforeConfirm" />
-          <mat-hint>Nombre de fois où les numéros peuvent être recréés avant validation du ticket.</mat-hint>
+          <mat-label>{{ 'admin.maryajGratis.offer.regeneration.allowed' | translate }}</mat-label>
+          <input
+            matInput
+            type="number"
+            min="0"
+            max="20"
+            step="1"
+            formControlName="maxRegenerationsBeforeConfirm"
+          />
+          <mat-hint>{{ 'admin.maryajGratis.offer.regeneration.hint' | translate }}</mat-hint>
         </mat-form-field>
       } @else {
         <div class="maryaj-offer__manual-note maryaj-offer__field--wide">
           <mat-icon>person_edit</mat-icon>
-          <span>Les numéros seront saisis par le vendeur; la régénération automatique est désactivée.</span>
+          <span>{{ 'admin.maryajGratis.offer.selection.manualNote' | translate }}</span>
         </div>
       }
     </form>
@@ -278,7 +354,7 @@
     <div class="maryaj-offer__actions maryaj-offer__actions--center">
       @if (campaign()) {
         <button mat-stroked-button type="button" [disabled]="saving()" (click)="cancelEdit.emit()">
-          Annuler
+          {{ 'common.cancel' | translate }}
         </button>
       }
       <button
@@ -289,7 +365,11 @@
         (click)="campaign() ? saveOffer.emit() : instantiateOffer.emit()"
       >
         <mat-icon>{{ campaign() ? 'save' : 'add_circle' }}</mat-icon>
-        {{ campaign() ? 'Enregistrer' : 'Activer Maryaj gratis' }}
+        {{
+          campaign()
+            ? ('common.save' | translate)
+            : ('admin.maryajGratis.offer.activate' | translate)
+        }}
       </button>
     </div>
   }

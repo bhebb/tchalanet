@@ -141,7 +141,9 @@ class PromotionRuleWriteSupportTest {
 
     assertThatThrownBy(() -> support.updateRuleEffects(command))
         .isInstanceOf(ProblemRestException.class)
-        .hasMessageContaining("promotion.rule.boost_odds_scale");
+        .extracting(
+            error -> ((ProblemRestException) error).getProblem().getProperties().get("code"))
+        .isEqualTo("promotion.rule.boost_odds_scale");
   }
 
   @Test

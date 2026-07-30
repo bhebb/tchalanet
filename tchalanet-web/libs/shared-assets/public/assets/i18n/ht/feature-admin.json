@@ -8,6 +8,88 @@
         "defaultRate": {
           "title": "Chanje to komisyon pa defo"
         }
+      },
+      "title": "Komisyon",
+      "description": "To komisyon pa defo ak pou chak vandè.",
+      "action": {
+        "editDefaultRate": "Modifye to pa defo",
+        "editRate": "Modifye to a",
+        "resetRate": "Remete to pa defo"
+      },
+      "section": {
+        "overview": "Rezime",
+        "sellers": "Vandè"
+      },
+      "field": {
+        "defaultRate": "To pa defo",
+        "totalSellers": "Total vandè",
+        "atDefaultRate": "Nan to pa defo",
+        "customRate": "To pèsonalize",
+        "range": "Min / Max"
+      },
+      "column": {
+        "code": "Kòd",
+        "name": "Non",
+        "status": "Estati",
+        "rate": "To",
+        "source": "Sous"
+      },
+      "source": {
+        "custom": "Pèsonalize",
+        "default": "Pa defo"
+      },
+      "empty": {
+        "title": "Pa gen vandè",
+        "message": "Pa gen tèminal vandè ki anrejistre."
+      }
+    },
+    "subscription": {
+      "title": "Abònman",
+      "description": "Gade epi jere abònman santral la.",
+      "empty": {
+        "title": "Pa gen abònman",
+        "message": "Pa gen abònman aktif pou santral sa a."
+      },
+      "section": {
+        "details": "Detay abònman an",
+        "actions": "Aksyon"
+      },
+      "field": {
+        "plan": "Plan",
+        "status": "Estati",
+        "startedAt": "Kòmanse",
+        "endsAt": "Fini",
+        "updatedAt": "Mizajou",
+        "version": "Vèsyon"
+      },
+      "status": {
+        "ACTIVE": "Aktif",
+        "TRIAL": "Peryòd esè",
+        "SUSPENDED": "Sispann",
+        "CANCELED": "Anile",
+        "EXPIRED": "Ekspire"
+      },
+      "action": {
+        "renew": "Renouvle",
+        "suspend": "Sispann",
+        "resume": "Reprann",
+        "cancel": "Anile abònman an"
+      },
+      "dialog": {
+        "cancel": {
+          "title": "Anile abònman an",
+          "warning": "Aksyon sa a anile abònman santral la epi li ka difisil pou ranvèse.",
+          "reason": "Rezon (opsyonèl)",
+          "reasonPlaceholder": "Rezon anilasyon an…",
+          "confirm": "Konfime anilasyon an"
+        },
+        "renew": {
+          "title": "Renouvle abònman an",
+          "endsAt": "Nouvo dat fen (AAAA-MM-JJ)",
+          "endsAtPlaceholder": "2027-01-01",
+          "endsAtError": "Dat la obligatwa nan fòma AAAA-MM-JJ.",
+          "confirm": "Renouvle"
+        }
       }
     },
     "appearance": {
@@ -498,6 +580,298 @@
         }
       }
     },
+    "maryajGratis": {
+      "title": "Maryaj gratis",
+      "description": "Konfigire jwèt Maryaj la ak òf liy gratis otomatik la.",
+      "action": { "refresh": "Rechaje" },
+      "loading": "Y ap chaje pwomosyon yo...",
+      "game": {
+        "eyebrow": "Paramèt jwèt la",
+        "title": "Maryaj gratis",
+        "subtitle": "Menm lojik ak Maryaj; se pri gratis ak jenerasyon an sèlman ki chanje.",
+        "configure": "Modifye jwèt la",
+        "pricingOptions": "Opsyon gany yo",
+        "pricingHint": "Exact ak Reverse sipòte pa default.",
+        "standard": "Standard",
+        "minimumStake": "Miz minimòm",
+        "maximumStake": "Miz maksimòm",
+        "maxPerDraw": "Limit peman pa tiraj",
+        "maxPerDrawHint": "Kantite total ki ka peye pou jwèt sa a nan yon tiraj.",
+        "exact": "Exact",
+        "reverse": "Reverse",
+        "notDefined": "Pa defini",
+        "notConfigured": "Pa konfigire",
+        "missing": "Jwèt Maryaj gratis la pa nan konfigirasyon jwèt tenant la.",
+        "readiness": { "READY": "Pare", "TODO": "Pou konfigire", "BLOCKED": "Pa disponib" }
+      },
+      "summary": {
+        "eyebrow": "Rezime",
+        "status": { "configure": "Pou konfigire", "active": "Aktif", "activate": "Pou aktive" },
+        "meta": {
+          "game": "Jwèt",
+          "attribution": "Atribisyon",
+          "offered": "Maryaj yo ofri",
+          "selection": "Seleksyon",
+          "regeneration": "Rejenerasyon"
+        },
+        "game": { "ready": "Pare pou vann", "configure": "Pou konfigire" },
+        "quantity": {
+          "tiers": "{{count}} palye konfigire",
+          "perAmount": "{{step}}, maksimòm {{max}} liy",
+          "fixed": "{{count}} Maryaj gratis"
+        },
+        "selection": { "auto": "Jenerasyon otomatik", "manual": "Vandè a chwazi" },
+        "regeneration": {
+          "count": "{{label}} · {{count}} tantativ",
+          "attempts": "{{count}} tantativ"
+        }
+      },
+      "offer": {
+        "activeEyebrow": "Òf aktif",
+        "campaignCode": "Kanpay tenant · {{count}} règ",
+        "pause": "Mete an poz",
+        "permanent": "Pa gen fen ki prevwa",
+        "technicalDate": "Dat teknik:",
+        "attributionMode": "Mòd atribisyon",
+        "mode": {
+          "tiered": "Pa palye lavant",
+          "perAmount": "Pa tranch lavant",
+          "fixed": "Kantite fiks pa tikè",
+          "tieredShort": "Pa palye",
+          "perAmountShort": "Pa tranch",
+          "fixedShort": "Fiks"
+        },
+        "status": {
+          "active": "Aktif",
+          "paused": "An poz",
+          "draft": "Bouyon",
+          "inactive": "Inaktif",
+          "archived": "Achive"
+        },
+        "selection": {
+          "title": "Nimewo Maryaj gratis",
+          "auto": "Tchalanet jenere yo otomatikman",
+          "manual": "Vandè a chwazi yo",
+          "description": "Vandè a pa chwazi anyen sof si seleksyon manyèl la aktive.",
+          "enableManual": "Kite vandè a chwazi nimewo yo",
+          "manualNote": "Vandè a ap antre nimewo yo; rejenerasyon otomatik dezaktive."
+        },
+        "facts": {
+          "priority": "Priyorite",
+          "start": "Kòmansman",
+          "end": "Fen",
+          "selection": "Seleksyon",
+          "attribution": "Atribisyon",
+          "offered": "Maryaj yo ofri",
+          "regeneration": "Rejenerasyon"
+        },
+        "offered": {
+          "tiers": "Palye konfigire",
+          "max": "maks. {{count}}",
+          "perAmount": "{{quantity}} pou {{amount}} HTG · maks. {{max}}"
+        },
+        "setup": {
+          "edit": "Modifye òf Maryaj gratis la",
+          "activate": "Òf Maryaj gratis la pou aktive",
+          "copy": "Palye, kantite gratis ak jenerasyon nimewo yo."
+        },
+        "preview": {
+          "perAmount": {
+            "prefix": "Tikè a ap resevwa",
+            "unit": "Maryaj gratis pou chak",
+            "middle": "nan lavant, jiska",
+            "suffix": "liy."
+          },
+          "tiered": "Tikè a ap resevwa Maryaj gratis selon kantite kliyan an peye.",
+          "fixed": { "prefix": "Tikè a ka resevwa", "suffix": "Maryaj gratis." }
+        },
+        "schedule": {
+          "endHint": "Dat obligatwa. Pou yon òf pèmanan, itilize yon dat ki lwen.",
+          "priorityHint": "Yon pi gwo valè bay priyorite si gen plizyè pwomosyon."
+        },
+        "tiers": {
+          "title": "Palye lavant",
+          "description": "Kantite kliyan an peye → kantite Maryaj gratis ki jenere.",
+          "add": "Ajoute yon palye",
+          "tier": "Palye {{index}}",
+          "from": "Soti",
+          "to": "Jiska",
+          "openEnded": "Vid = ak plis",
+          "quantity": "Maryaj gratis",
+          "delete": "Efase palye a"
+        },
+        "perAmount": {
+          "step": "Tranch lavant",
+          "stepHint": "Kantite peye ki deklanche yon tranch.",
+          "quantity": "Maryaj gratis pou chak tranch",
+          "max": "Limit liy gratis",
+          "maxHint": "Maksimòm ki jenere pou yon tikè."
+        },
+        "fixed": { "quantity": "Kantite Maryaj gratis pa tikè" },
+        "regeneration": {
+          "enable": "Vandè a ka rejenerasyon nimewo yo anvan konfimasyon",
+          "allowed": "Rejenerasyon otorize",
+          "hint": "Konbyen fwa nimewo yo ka kreye ankò anvan tikè a konfime."
+        },
+        "activate": "Aktive Maryaj gratis"
+      }
+    },
+    "limits": {
+      "shell": {
+        "title": "Limit lavant",
+        "description": "Siveye règ ki pwoteje lavant, vandè, nimewo ak kanal yo."
+      },
+      "common": {
+        "loading": "Y ap chaje limit yo…",
+        "actionDone": "Aksyon an fini",
+        "supportedRules": "Règ ki sipòte yo",
+        "add": "Ajoute",
+        "refresh": "Rafrechi",
+        "notice": { "saved": "Règ la anrejistre.", "deleted": "Règ la efase." }
+      },
+      "global": { "scopeNote": "Limit yo aplike globalman pou tout tèminal tenant la." },
+      "number": {
+        "actionsAria": "Aksyon rapid pou nimewo yo",
+        "copy": "Pou gany reyèl yo, itilize rezilta ak rapò; isit la nou sitou bloke nimewo ak miz ki vann.",
+        "actions": {
+          "block": {
+            "title": "Bloke yon nimewo",
+            "description": "Anpeche vann youn oswa plizyè nimewo.",
+            "cta": "Bloke"
+          },
+          "exposure": {
+            "title": "Limite miz yo",
+            "description": "Bloke lè miz ki vann sou yon nimewo rive nan yon montan.",
+            "cta": "Defini"
+          }
+        }
+      },
+      "draw": { "channelLabel": "Kanal tiraj", "loadingChannels": "Y ap chaje kanal yo…" },
+      "sellerTerminal": {
+        "searchLabel": "Vandè / tèminal",
+        "searchHint": "Tape non oswa kòd tèminal la."
+      },
+      "system": {
+        "scopeNote": "Katalòg tout règ limit yo sipòte. Konfigire yo nan onglet global, kanal, vandè ak nimewo yo.",
+        "definitions": "Definisyon",
+        "loadingCatalog": "Y ap chaje katalòg la…",
+        "catalogEmptyTitle": "Katalòg la vid",
+        "catalogEmptyMessage": "Backend la pa pibliye okenn règ limit.",
+        "rule": "Règ",
+        "description": "Deskripsyon",
+        "defaultAction": "Aksyon pa default",
+        "type": "Kalite",
+        "stateless": "San eta",
+        "withParams": "Ak paramèt",
+        "simulation": "Similasyon",
+        "simulationTitle": "Apèsi efikas pa nivo",
+        "simulationHint": "Chwazi yon nivo pou wè règ aktif yo. Priyorite a se tèminal vandè / ajan (60) > kanal tiraj (30) > global (10).",
+        "scopeLabel": "Nivo",
+        "scope": { "global": "Global", "draw": "Pa kanal", "seller": "Pa vandè" },
+        "targetId": "Idantifyan",
+        "targetPlaceholder": "UUID kanal oswa vandè",
+        "targetHint": "Itilize idantifyan teknik nivo sib la.",
+        "show": "Montre",
+        "loadingActive": "Y ap chaje règ aktif yo…",
+        "noActiveTitle": "Pa gen règ aktif",
+        "noActiveMessage": "Pa gen règ ki konfigire pou nivo sa a.",
+        "parameters": "Paramèt"
+      },
+      "overview": {
+        "title": "Apèsi",
+        "description": "Chwazi zòn ou vle kontwole a anvan ou ajoute oswa modifye yon règ.",
+        "sectionsAria": "Seksyon limit yo",
+        "activeTitle": "Pwoteksyon aktif",
+        "activeDescription": "Règ sa yo pwoteje lavant yo anvan eksepsyon pou vandè, nimewo oswa kanal.",
+        "noActive": "Pa gen pwoteksyon global aktif. Kòmanse defini limit pou tikè ak liy yo.",
+        "addGlobal": "Ajoute yon règ global",
+        "quickTitle": "Aksyon rapid",
+        "quickDescription": "Ale dirèkteman nan operasyon kontwòl lavant ki pi souvan yo.",
+        "quickAria": "Aksyon rapid pou limit yo",
+        "summaryEyebrow": "Rezime limit yo",
+        "globalActive": "Règ global aktif",
+        "toCheck": "Pou verifye",
+        "monitoredNumbers": "Nimewo yo siveye",
+        "warningMessage": "Gen {{count}} règ global ki dezaktive. Verifye si yo dwe pwoteje lavant yo.",
+        "noWarning": "Pa gen alèt imedya sou règ global yo."
+      },
+      "child": {
+        "rulesLink": "Règ ki sipòte yo",
+        "refresh": "Rafrechi",
+        "add": "Ajoute",
+        "retry": "Eseye ankò",
+        "actionDone": "Aksyon an fini",
+        "noRulesTitle": "Pa gen règ ki disponib",
+        "noRulesMessage": "Katalòg règ la vid.",
+        "noConfiguredTitle": "Pa gen limit ki konfigire",
+        "noConfiguredGlobal": "Klike sou Ajoute pou konfigire premye limit global la.",
+        "noConfiguredNumber": "Klike sou Ajoute pou konfigire limit ekspozisyon oswa bloke nimewo.",
+        "noConfiguredDraw": "Klike sou Ajoute pou konfigire premye limit pou kanal sa a.",
+        "noConfiguredSeller": "Klike sou Ajoute pou konfigire premye limit pou vandè sa a.",
+        "catalogEmptyTitle": "Pa gen règ pou nimewo yo",
+        "catalogEmptyMessage": "Backend la pa pibliye règ pou nimewo yo.",
+        "drawChannelsUnavailable": "Kanal yo pa disponib",
+        "drawChannelsUnavailableMessage": "Kounye a li pa posib chaje kanal tiraj yo.",
+        "drawSelectChannel": "Chwazi yon kanal pou wè ak konfigire limit espesyal li yo.",
+        "sellerSelect": "Chèche yon vandè pou wè ak konfigire limit li yo.",
+        "noticeSaved": "Règ la anrejistre.",
+        "noticeAdded": "Règ la ajoute.",
+        "noticeDeleted": "Règ la efase."
+      },
+      "dialog": {
+        "addTitle": "Ajoute yon règ",
+        "editTitle": "Modifye règ la",
+        "configureTitle": "Konfigire règ la",
+        "ruleType": "Kalite limit",
+        "action": "Aksyon",
+        "block": "Bloke",
+        "warn": "Avèti",
+        "positiveAmount": "Montan an dwe pozitif.",
+        "minimumOne": "Valè a dwe omwen 1.",
+        "minimumOneMinute": "Dire a dwe omwen 1 minit.",
+        "maxExposure": "Miz total ekspoze maksimòm (HTG)",
+        "maxAmount": "Montan maksimòm (HTG)",
+        "maxLines": "Kantite liy maksimòm",
+        "maxTickets": "Kantite tikè maksimòm",
+        "maxSales": "Kantite vant maksimòm",
+        "maxCount": "Kantite maksimòm",
+        "windowMinutes": "Fenèt tan (minit)",
+        "betTypeCode": "Kòd kalite paryaj",
+        "betTypePlaceholder": "egzanp: BORLETTE, MARYAJ",
+        "required": "Chan obligatwa.",
+        "blockedNumbers": "Nimewo bloke",
+        "removeNumber": "Retire {{number}}",
+        "numberPlaceholder": "Egzanp: 13, peze Antre",
+        "numberHint": "Antre yon nimewo epi peze Antre oswa vigil.",
+        "numberRequired": "Ajoute omwen yon nimewo.",
+        "enabled": "Règ aktif",
+        "duration": "Dire aplikasyon",
+        "permanent": "Pèmanan",
+        "today": "Jodi a",
+        "custom": "Pèsonalize",
+        "endDate": "Dat fen",
+        "endDateHint": "Fen jounen an selon zòn lè {{timezone}}.",
+        "preview": "Sa k ap aplike",
+        "cancel": "Anile",
+        "save": "Anrejistre",
+        "saving": "Y ap anrejistre…"
+      },
+      "table": {
+        "rules": "règ",
+        "status": "Estati",
+        "breach": "Lè limit depase",
+        "value": "Valè",
+        "configured": "Konfigire",
+        "notConfigured": "Pa konfigire",
+        "active": "Aktif",
+        "disabled": "Dezaktive",
+        "approvalRequired": "Validasyon obligatwa",
+        "allow": "Otorize",
+        "undefined": "Pa defini",
+        "edit": "Modifye",
+        "delete": "Efase"
+      }
+    },
     "drawSalesMatrix": {
       "title": "Matriks jwèt pa règ tiraj",
       "description": "Aktive oswa dezaktive jwèt yo pa règ tiraj. Lè, fèmti vant ak lyen règ la modifye nan fich règ tiraj la.",
@@ -685,8 +1059,13 @@
           "closedWeekdays": "Jou ki fèmen chak semèn",
           "recurringHolidays": "Jou ferye regilye",
           "days": {
-            "monday": "Lendi", "tuesday": "Madi", "wednesday": "Mèkredi",
-            "thursday": "Jedi", "friday": "Vandredi", "saturday": "Samdi", "sunday": "Dimanch"
+            "monday": "Lendi",
+            "tuesday": "Madi",
+            "wednesday": "Mèkredi",
+            "thursday": "Jedi",
+            "friday": "Vandredi",
+            "saturday": "Samdi",
+            "sunday": "Dimanch"
           },
           "customHoliday": {
             "title": "Jou ferye pèsonalize",

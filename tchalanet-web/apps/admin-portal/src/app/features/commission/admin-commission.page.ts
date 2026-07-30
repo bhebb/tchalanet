@@ -5,10 +5,11 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTableModule } from '@angular/material/table';
-import { TranslateService } from '@ngx-translate/core';
-import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { mapHttpErrorToProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
+import { finalize } from 'rxjs';
 
-import { TchLoading, TchErrorPanel } from '@tch/ui/components';
+import { TchLoading } from '@tch/ui/components';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { AdminPageShellComponent } from '@tch/ui/console';
@@ -23,6 +24,17 @@ import {
 import { SetDefaultRateDialog } from './dialogs/set-default-rate.dialog';
 import { SetSellerRateDialog } from './dialogs/set-seller-rate.dialog';
 
+export function adminCommissionErrorView(
+  err: unknown,
+  source: string,
+  translate: (key: string) => string,
+): ErrorViewModel {
+  const problem = mapHttpErrorToProblemDetail(err);
+  const normalized = webAppErrorFromProblemDetail(problem, source, 'section');
+  const copy = resolveErrorFeedbackCopy(normalized, translate);
+  return toErrorViewModel(normalized, copy);
+}
+
 @Component({
   selector: 'tch-admin-commission-page',
   standalone: true,
@@ -34,7 +46,7 @@ import { SetSellerRateDialog } from './dialogs/set-seller-rate.dialog';
     AdminSectionErrorTargetDirective,
     AdminEmptyStateComponent,
     TchLoading,
-    TchErrorPanel,
+    TranslatePipe,
     MatButtonModule,
     MatIconModule,
     MatMenuModule,
@@ -58,7 +70,6 @@ export class AdminCommissionPage implements OnInit {
   ];
 
   readonly loading = signal(false);
-  readonly error = signal<ErrorViewModel | null>(null);
   readonly sectionErrors = signal<readonly AdminSectionTargetError[]>([]);
   readonly overview = signal<CommissionOverviewView | null>(null);
   readonly sellers = signal<SellerTerminalCommissionRow[]>([]);
@@ -69,24 +80,31 @@ export class AdminCommissionPage implements OnInit {
 
   load(): void {
     this.loading.set(true);
-    this.error.set(null);
     this.sectionErrors.set([]);
+    this.overview.set(null);
+    this.sellers.set([]);
 
-    this.api.getOverview({ suppressShellFeedback: true }).subscribe({
-      next: v => {
-        this.overview.set(v);
-        this.loading.set(false);
-      },
-      error: (err: unknown) => {
-        this.error.set(this.errorViewModel(err, 'admin.commission.overview'));
-        this.loading.set(false);
-      },
-    });
+    let pending = 2;
+    const settle = (): void => {
+      pending -= 1;
+      if (pending === 0) this.loading.set(false);
+    };
 
-    this.api.listSellers(0, 50, { suppressShellFeedback: true }).subscribe({
-      next: v => this.sellers.set(v),
-      error: err => this.setSectionError('admin.commission.sellers', err),
-    });
+    this.api
+      .getOverview({ suppressShellFeedback: true })
+      .pipe(finalize(settle))
+      .subscribe({
+        next: v => this.overview.set(v),
+        error: (err: unknown) => this.setSectionError('admin.commission.defaultRate', err),
+      });
+
+    this.api
+      .listSellers(0, 50, { suppressShellFeedback: true })
+      .pipe(finalize(settle))
+      .subscribe({
+        next: v => this.sellers.set(v),
+        error: err => this.setSectionError('admin.commission.sellers', err),
+      });
   }
 
   openSetDefaultRate(): void {
@@ -127,17 +145,6 @@ export class AdminCommissionPage implements OnInit {
   }
 
   private errorViewModel(err: unknown, source: string): ErrorViewModel {
-    const problem = (err as { error?: ProblemDetail })?.error;
-    if (problem) {
-      const normalized = webAppErrorFromProblemDetail(problem, source, 'page');
-      const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
-      return toErrorViewModel(normalized, copy);
-    }
-
-    return {
-      title: this.translate.instant('common.errors.fallback.title'),
-      message: this.translate.instant('common.errors.fallback.message'),
-      severity: 'error',
-    };
+    return adminCommissionErrorView(err, source, key => this.translate.instant(key));
   }
 }

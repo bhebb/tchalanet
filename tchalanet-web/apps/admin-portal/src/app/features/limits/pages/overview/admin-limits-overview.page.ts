@@ -1,10 +1,17 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { RouterLink } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
-import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
+import { mapHttpErrorToProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 import { TchCard, TchErrorPanel, TchLoading, TchSectionError } from '@tch/ui/components';
 import { AdminDetailLayoutComponent, AdminSectionCardComponent } from '@tch/ui/console';
 import { ErrorViewModel, resolveErrorFeedbackCopy, toErrorViewModel } from '@tch/web/errors';
@@ -24,6 +31,7 @@ import { UpsertLimitDialogComponent } from '../../components/upsert-limit-dialog
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    TranslatePipe,
     MatButtonModule,
     RouterLink,
     AdminDetailLayoutComponent,
@@ -47,16 +55,17 @@ export class AdminLimitsOverviewPage implements OnInit {
   readonly actionNotice = signal<string | null>(null);
   readonly overview = signal<TenantAdminPoliciesOverviewView | null>(null);
 
-  readonly globalRows = computed<RuleRow[]>(() =>
-    this.overview()?.globalRules.map(row => ({
-      spec: row.spec,
-      assignment: row.assignment,
-    })) ?? [],
+  readonly globalRows = computed<RuleRow[]>(
+    () =>
+      this.overview()?.globalRules.map(row => ({
+        spec: row.spec,
+        assignment: row.assignment,
+      })) ?? [],
   );
-  readonly activeGlobalRows = computed(() => this.globalRows().filter(row => row.assignment?.enabled));
-  readonly warningCount = computed(() =>
-    this.overview()?.summary.warnings ?? 0,
+  readonly activeGlobalRows = computed(() =>
+    this.globalRows().filter(row => row.assignment?.enabled),
   );
+  readonly warningCount = computed(() => this.overview()?.summary.warnings ?? 0);
   readonly activeProtections = computed(() => this.activeGlobalRows());
   readonly cards = computed<readonly LimitOverviewCard[]>(() => this.overview()?.scopeCards ?? []);
   readonly actionLinks = computed<readonly LimitOverviewActionLink[]>(
@@ -93,7 +102,7 @@ export class AdminLimitsOverviewPage implements OnInit {
     ref.componentInstance.init(row.spec, 'TENANT', null, row.assignment);
     ref.afterClosed().subscribe((result: unknown) => {
       if (result) {
-        this.actionNotice.set('Protection enregistrée.');
+        this.actionNotice.set('admin.limits.common.notice.saved');
         this.reloadOverview();
       }
     });
@@ -106,7 +115,7 @@ export class AdminLimitsOverviewPage implements OnInit {
     this.actionNotice.set(null);
     this.api.deleteAssignment(row.assignment.id.value, { suppressShellFeedback: true }).subscribe({
       next: () => {
-        this.actionNotice.set('Protection supprimée.');
+        this.actionNotice.set('admin.limits.common.notice.deleted');
         this.reloadOverview();
       },
       error: (err: unknown) => {
@@ -129,14 +138,7 @@ export class AdminLimitsOverviewPage implements OnInit {
   }
 
   private resolveError(err: unknown, surface: 'page' | 'section' = 'page'): ErrorViewModel {
-    const problem = (err as { error?: ProblemDetail })?.error;
-    if (!problem) {
-      return {
-        severity: 'error',
-        title: this.translate.instant('common.errors.fallback.title'),
-        message: this.translate.instant('common.errors.fallback.message'),
-      };
-    }
+    const problem = mapHttpErrorToProblemDetail(err);
     const normalized = webAppErrorFromProblemDetail(problem, 'admin.limits.overview', surface);
     const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
     return toErrorViewModel(normalized, copy);

@@ -2,79 +2,76 @@
   <div class="limits-child-page__toolbar limits-seller-terminal-page__toolbar">
     <tch-search-select
       class="limits-seller-terminal-page__search"
-      label="Vendeur / Terminal"
-      hint="Tapez le nom ou le code du terminal."
+      [label]="'admin.limits.sellerTerminal.searchLabel' | translate"
+      [hint]="'admin.limits.sellerTerminal.searchHint' | translate"
       icon="person_search"
       [searchFn]="searchTerminals"
       (valueChange)="onTerminalSelected($event)"
     />
     <a mat-stroked-button routerLink="../system" class="limits-child-page__rules-link">
       <span class="material-symbols-outlined">info</span>
-      Règles supportées
+      {{ 'admin.limits.common.supportedRules' | translate }}
     </a>
     @if (!loading() && loadedTerminalId() && allRows().length > 0) {
-      <button
-        mat-flat-button
-        color="primary"
-        (click)="openAdd()"
-        [disabled]="unassignedRules().length === 0">
-        <span class="material-symbols-outlined">add</span>
-        Ajouter
-      </button>
+    <button
+      mat-flat-button
+      color="primary"
+      (click)="openAdd()"
+      [disabled]="unassignedRules().length === 0"
+    >
+      <span class="material-symbols-outlined">add</span>
+      Ajouter
+    </button>
     }
   </div>
 
   @if (!loadedTerminalId()) {
-    <div class="limits-child-page__no-target">
-      <span class="material-symbols-outlined">info</span>
-      Recherchez un vendeur pour voir et configurer ses limites.
-    </div>
+  <div class="limits-child-page__no-target">
+    <span class="material-symbols-outlined">info</span>
+    {{ 'admin.limits.child.sellerSelect' | translate }}
+  </div>
   } @else if (loading()) {
-    <tch-loading label="Chargement des limites…" />
+  <tch-loading [label]="'admin.limits.common.loading' | translate" />
   } @else if (pageError(); as err) {
-    <tch-error-panel
-      [title]="err.title"
-      [message]="err.message"
-      [showRetry]="true"
-      retryLabel="Réessayer"
-      (retry)="onTerminalSelected(null)"
-    />
+  <tch-error-panel
+    [title]="err.title"
+    [message]="err.message"
+    [showRetry]="true"
+    [retryLabel]="'common.retry' | translate"
+    (retry)="onTerminalSelected(null)"
+  />
   } @else if (allRows().length === 0) {
-    <tch-admin-empty-state
-      icon="policy"
-      title="Aucune règle disponible"
-      message="Le catalogue de règles est vide."
-    />
+  <tch-admin-empty-state
+    icon="policy"
+    [title]="'admin.limits.child.noRulesTitle' | translate"
+    [message]="'admin.limits.child.noRulesMessage' | translate"
+  />
+  } @else { @if (actionError(); as err) {
+  <tch-section-error
+    class="limits-child-page__action-feedback"
+    [title]="err.title"
+    [message]="err.message"
+    [severity]="err.severity"
+  />
+  } @else if (actionNotice()) {
+  <tch-section-error
+    class="limits-child-page__action-feedback"
+    [title]="'admin.limits.common.actionDone' | translate"
+    [message]="actionNotice()! | translate"
+    severity="info"
+  />
+  } @if (activeRows().length === 0) {
+  <tch-admin-empty-state
+    icon="policy"
+    [title]="'admin.limits.child.noConfiguredTitle' | translate"
+    [message]="'admin.limits.child.noConfiguredSeller' | translate"
+  />
   } @else {
-    @if (actionError(); as err) {
-      <tch-section-error
-        class="limits-child-page__action-feedback"
-        [title]="err.title"
-        [message]="err.message"
-        [severity]="err.severity"
-      />
-    } @else if (actionNotice()) {
-      <tch-section-error
-        class="limits-child-page__action-feedback"
-        title="Action effectuée"
-        [message]="actionNotice()!"
-        severity="info"
-      />
-    }
-
-    @if (activeRows().length === 0) {
-      <tch-admin-empty-state
-        icon="policy"
-        title="Aucune limite configurée"
-        message="Cliquez sur Ajouter pour configurer une première limite pour ce vendeur."
-      />
-    } @else {
-      <tch-limit-assignments-table
-        [rows]="activeRows()"
-        [canEdit]="true"
-        (upsert)="openUpsert($event)"
-        (delete)="confirmDelete($event)"
-      />
-    }
-  }
+  <tch-limit-assignments-table
+    [rows]="activeRows()"
+    [canEdit]="true"
+    (upsert)="openUpsert($event)"
+    (delete)="confirmDelete($event)"
+  />
+  } }
 </div>

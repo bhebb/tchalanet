@@ -6,7 +6,8 @@
           <span class="lat__category-title">{{ categoryLabel(cat) }}</span>
         </mat-panel-title>
         <mat-panel-description>
-          {{ (rowsByCategory().get(cat) ?? []).length }} règle(s)
+          {{ (rowsByCategory().get(cat) ?? []).length }}
+          {{ 'admin.limits.table.rules' | translate }}
         </mat-panel-description>
       </mat-expansion-panel-header>
 
@@ -14,7 +15,8 @@
         @for (row of rowsByCategory().get(cat) ?? []; track row.spec.ruleKey) {
           <article
             class="lat__card"
-            [class.lat__card--disabled]="row.assignment && !row.assignment.enabled">
+            [class.lat__card--disabled]="row.assignment && !row.assignment.enabled"
+          >
             <div class="lat__card-main">
               <div class="lat__card-heading">
                 <span class="material-symbols-outlined">shield</span>
@@ -30,11 +32,14 @@
 
             <div class="lat__card-meta">
               <div class="lat__meta-item">
-                <span>Statut</span>
-                <tch-admin-status-pill [tone]="assignmentTone(row)" [label]="assignmentLabel(row)" />
+                <span>{{ 'admin.limits.table.status' | translate }}</span>
+                <tch-admin-status-pill
+                  [tone]="assignmentTone(row)"
+                  [label]="assignmentLabel(row)"
+                />
               </div>
               <div class="lat__meta-item">
-                <span>Dépassement</span>
+                <span>{{ 'admin.limits.table.breach' | translate }}</span>
                 <tch-admin-status-pill
                   [tone]="breachTone(row.assignment?.onBreach)"
                   [label]="breachLabel(row.assignment?.onBreach)"
@@ -42,7 +47,7 @@
               </div>
               @if (row.assignment && paramsPreview(row)) {
                 <div class="lat__meta-item lat__meta-item--wide">
-                  <span>Valeur</span>
+                  <span>{{ 'admin.limits.table.value' | translate }}</span>
                   <strong>{{ paramsPreview(row) }}</strong>
                 </div>
               }
@@ -52,9 +57,14 @@
               <div class="lat__actions">
                 <button mat-stroked-button type="button" (click)="upsert.emit(row)">
                   <span class="material-symbols-outlined">edit</span>
-                  Modifier
+                  {{ 'admin.limits.table.edit' | translate }}
                 </button>
-                <button mat-icon-button color="warn" title="Supprimer" (click)="delete.emit(row)">
+                <button
+                  mat-icon-button
+                  color="warn"
+                  [attr.title]="'admin.limits.table.delete' | translate"
+                  (click)="delete.emit(row)"
+                >
                   <span class="material-symbols-outlined">delete</span>
                 </button>
               </div>

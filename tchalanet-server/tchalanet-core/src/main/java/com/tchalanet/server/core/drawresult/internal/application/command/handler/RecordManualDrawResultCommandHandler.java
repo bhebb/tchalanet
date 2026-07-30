@@ -109,7 +109,7 @@ public class RecordManualDrawResultCommandHandler
 
     return slotReader
         .findByKey(slotKey)
-        .orElseThrow(() -> new IllegalArgumentException("result_slot not found: " + slotKey));
+        .orElseThrow(() -> ProblemRest.of(DrawResultErrorCodes.RESULT_SLOT_NOT_FOUND));
   }
 
   private Instant resolveOccurredAt(RecordManualDrawResultCommand command, ResultSlotView slot) {

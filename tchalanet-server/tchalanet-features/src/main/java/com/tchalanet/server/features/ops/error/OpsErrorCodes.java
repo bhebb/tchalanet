@@ -46,6 +46,24 @@ public class OpsErrorCodes {
           Set.of(
               new ErrorParamSpec("requestedTenants", ErrorParamType.INTEGER),
               new ErrorParamSpec("maxTenants", ErrorParamType.INTEGER)));
+  public static final ErrorDescriptor BATCH_JOB_KEY_INVALID =
+      validation("ops.batch.job_key.invalid");
+  public static final ErrorDescriptor BATCH_JOB_KEY_REQUIRED =
+      validation("ops.batch.job_key.required");
+  public static final ErrorDescriptor BATCH_JOB_NOT_FOUND = notFound("ops.batch.job.not_found");
+  public static final ErrorDescriptor BATCH_EXECUTION_NOT_FOUND =
+      notFound("ops.batch.execution.not_found");
+  public static final ErrorDescriptor BATCH_SCOPE_INVALID =
+      validation("ops.batch.scope.invalid");
+  public static final ErrorDescriptor BATCH_TENANT_REQUIRED =
+      validation("ops.batch.tenant.required");
+  public static final ErrorDescriptor BATCH_TENANT_NOT_ALLOWED =
+      validation("ops.batch.tenant.not_allowed");
+  public static final ErrorDescriptor BATCH_TENANT_ID_INVALID =
+      validation("ops.batch.tenant_id.invalid");
+  public static final ErrorDescriptor BATCH_LIMIT_INVALID = validation("ops.batch.limit.invalid");
+  public static final ErrorDescriptor BATCH_RETENTION_INVALID =
+      validation("ops.batch.retention.invalid");
 
   public static Set<ErrorDescriptor> all() {
     return Set.of(
@@ -55,7 +73,17 @@ public class OpsErrorCodes {
         SALES_SIMULATION_DRAW_NOT_IN_TENANT,
         DRAW_RESULT_FUTURE_DATE,
         BATCH_UNKNOWN_TENANT_CODE,
-        BATCH_TOO_MANY_TENANTS);
+        BATCH_TOO_MANY_TENANTS,
+        BATCH_JOB_KEY_INVALID,
+        BATCH_JOB_KEY_REQUIRED,
+        BATCH_JOB_NOT_FOUND,
+        BATCH_EXECUTION_NOT_FOUND,
+        BATCH_SCOPE_INVALID,
+        BATCH_TENANT_REQUIRED,
+        BATCH_TENANT_NOT_ALLOWED,
+        BATCH_TENANT_ID_INVALID,
+        BATCH_LIMIT_INVALID,
+        BATCH_RETENTION_INVALID);
   }
 
   private static ErrorDescriptor validation(String code) {
@@ -64,6 +92,16 @@ public class OpsErrorCodes {
         ErrorCategory.VALIDATION,
         HttpStatus.BAD_REQUEST,
         ErrorRetryPolicy.AFTER_USER_ACTION,
+        AUDIENCES,
+        Set.of());
+  }
+
+  private static ErrorDescriptor notFound(String code) {
+    return new ErrorDescriptor(
+        code,
+        ErrorCategory.NOT_FOUND,
+        HttpStatus.NOT_FOUND,
+        ErrorRetryPolicy.NEVER,
         AUDIENCES,
         Set.of());
   }

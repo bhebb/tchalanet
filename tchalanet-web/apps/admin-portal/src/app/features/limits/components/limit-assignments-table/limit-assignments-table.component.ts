@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { AdminStatusPillComponent } from '@tch/ui/console';
 import type { AdminStatusTone } from '@tch/ui/console';
@@ -18,6 +19,7 @@ import {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    TranslatePipe,
     MatButtonModule,
     MatExpansionModule,
     MatIconModule,
@@ -27,6 +29,8 @@ import {
   styleUrl: './limit-assignments-table.component.scss',
 })
 export class LimitAssignmentsTableComponent {
+  private readonly translate = inject(TranslateService);
+
   readonly rows = input.required<RuleRow[]>();
   readonly canEdit = input<boolean>(false);
   readonly upsert = output<RuleRow>();
@@ -64,8 +68,10 @@ export class LimitAssignmentsTableComponent {
   }
 
   assignmentLabel(row: RuleRow): string {
-    if (!row.assignment) return 'Non configurée';
-    return row.assignment.enabled ? 'Active' : 'Désactivée';
+    if (!row.assignment) return this.translate.instant('admin.limits.table.configured');
+    return row.assignment.enabled
+      ? this.translate.instant('admin.limits.table.active')
+      : this.translate.instant('admin.limits.table.disabled');
   }
 
   breachTone(outcome: BreachOutcome | undefined): AdminStatusTone {
@@ -85,10 +91,11 @@ export class LimitAssignmentsTableComponent {
   }
 
   breachLabel(outcome: BreachOutcome | undefined): string {
-    if (outcome === 'BLOCK') return 'Bloquer';
-    if (outcome === 'WARN') return 'Avertir';
-    if (outcome === 'REQUIRE_APPROVAL') return 'Validation requise';
-    if (outcome === 'ALLOW') return 'Autoriser';
-    return 'Non défini';
+    if (outcome === 'BLOCK') return this.translate.instant('admin.limits.dialog.block');
+    if (outcome === 'WARN') return this.translate.instant('admin.limits.dialog.warn');
+    if (outcome === 'REQUIRE_APPROVAL')
+      return this.translate.instant('admin.limits.table.approvalRequired');
+    if (outcome === 'ALLOW') return this.translate.instant('admin.limits.table.allow');
+    return this.translate.instant('admin.limits.table.undefined');
   }
 }

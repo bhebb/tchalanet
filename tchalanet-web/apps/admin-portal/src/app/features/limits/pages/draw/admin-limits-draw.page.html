@@ -1,105 +1,101 @@
 <div class="limits-child-page">
   <div class="limits-child-page__toolbar">
     @if (channelsError(); as err) {
-      <div class="limits-draw-page__channel-error">
-        <tch-section-error [title]="err.title" [message]="err.message" [severity]="err.severity" />
-        <button mat-stroked-button type="button" (click)="retryChannels()">
-          <span class="material-symbols-outlined">refresh</span>
-          Réessayer
-        </button>
-      </div>
+    <div class="limits-draw-page__channel-error">
+      <tch-section-error [title]="err.title" [message]="err.message" [severity]="err.severity" />
+      <button mat-stroked-button type="button" (click)="retryChannels()">
+        <span class="material-symbols-outlined">refresh</span>
+        {{ 'common.retry' | translate }}
+      </button>
+    </div>
     } @else {
-      <mat-form-field appearance="outline" class="limits-draw-page__channel-select">
-        <mat-label>Canal de tirage</mat-label>
-        <mat-select [formControl]="channelCtrl">
-          @if (channelsLoading()) {
-            <mat-option disabled>Chargement…</mat-option>
-          }
-          @for (ch of channels(); track ch.id) {
-            <mat-option [value]="ch.id">{{ ch.channelName }} · {{ ch.channelCode }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
+    <mat-form-field appearance="outline" class="limits-draw-page__channel-select">
+      <mat-label>{{ 'admin.limits.draw.channelLabel' | translate }}</mat-label>
+      <mat-select [formControl]="channelCtrl">
+        @if (channelsLoading()) {
+        <mat-option disabled>{{ 'admin.limits.draw.loadingChannels' | translate }}</mat-option>
+        } @for (ch of channels(); track ch.id) {
+        <mat-option [value]="ch.id">{{ ch.channelName }} · {{ ch.channelCode }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
     }
 
     <a mat-stroked-button routerLink="../system" class="limits-child-page__rules-link">
       <span class="material-symbols-outlined">info</span>
-      Règles supportées
+      {{ 'admin.limits.common.supportedRules' | translate }}
     </a>
     <button mat-stroked-button (click)="reload()" [disabled]="loading() || !selectedChannelId()">
       <span class="material-symbols-outlined">refresh</span>
     </button>
     @if (!loading() && selectedChannelId() && allRows().length > 0) {
-      <button
-        mat-flat-button
-        color="primary"
-        (click)="openAdd()"
-        [disabled]="unassignedRules().length === 0">
-        <span class="material-symbols-outlined">add</span>
-        Ajouter
-      </button>
+    <button
+      mat-flat-button
+      color="primary"
+      (click)="openAdd()"
+      [disabled]="unassignedRules().length === 0"
+    >
+      <span class="material-symbols-outlined">add</span>
+      {{ 'admin.limits.common.add' | translate }}
+    </button>
     }
   </div>
 
   @if (channelsLoading()) {
-    <tch-loading label="Chargement des canaux…" />
+  <tch-loading [label]="'admin.limits.draw.loadingChannels' | translate" />
   } @else if (channelsError()) {
-    <tch-admin-empty-state
-      icon="event_busy"
-      title="Canaux indisponibles"
-      message="Impossible de charger les canaux de tirage pour le moment."
-    />
+  <tch-admin-empty-state
+    icon="event_busy"
+    [title]="'admin.limits.child.drawChannelsUnavailable' | translate"
+    [message]="'admin.limits.child.drawChannelsUnavailableMessage' | translate"
+  />
   } @else if (!selectedChannelId()) {
-    <div class="limits-child-page__no-target">
-      <span class="material-symbols-outlined">info</span>
-      Sélectionnez un canal pour voir et configurer ses limites spécifiques.
-    </div>
+  <div class="limits-child-page__no-target">
+    <span class="material-symbols-outlined">info</span>
+    {{ 'admin.limits.child.drawSelectChannel' | translate }}
+  </div>
   } @else if (loading()) {
-    <tch-loading label="Chargement des limites…" />
+  <tch-loading [label]="'admin.limits.common.loading' | translate" />
   } @else if (pageError(); as err) {
-    <tch-error-panel
-      [title]="err.title"
-      [message]="err.message"
-      [showRetry]="true"
-      retryLabel="Réessayer"
-      (retry)="reload()"
-    />
+  <tch-error-panel
+    [title]="err.title"
+    [message]="err.message"
+    [showRetry]="true"
+    [retryLabel]="'common.retry' | translate"
+    (retry)="reload()"
+  />
   } @else if (allRows().length === 0) {
-    <tch-admin-empty-state
-      icon="policy"
-      title="Aucune règle disponible"
-      message="Le catalogue de règles est vide."
-    />
+  <tch-admin-empty-state
+    icon="policy"
+    [title]="'admin.limits.child.noRulesTitle' | translate"
+    [message]="'admin.limits.child.noRulesMessage' | translate"
+  />
+  } @else { @if (actionError(); as err) {
+  <tch-section-error
+    class="limits-child-page__action-feedback"
+    [title]="err.title"
+    [message]="err.message"
+    [severity]="err.severity"
+  />
+  } @else if (actionNotice()) {
+  <tch-section-error
+    class="limits-child-page__action-feedback"
+    [title]="'admin.limits.common.actionDone' | translate"
+    [message]="actionNotice()! | translate"
+    severity="info"
+  />
+  } @if (activeRows().length === 0) {
+  <tch-admin-empty-state
+    icon="policy"
+    [title]="'admin.limits.child.noConfiguredTitle' | translate"
+    [message]="'admin.limits.child.noConfiguredDraw' | translate"
+  />
   } @else {
-    @if (actionError(); as err) {
-      <tch-section-error
-        class="limits-child-page__action-feedback"
-        [title]="err.title"
-        [message]="err.message"
-        [severity]="err.severity"
-      />
-    } @else if (actionNotice()) {
-      <tch-section-error
-        class="limits-child-page__action-feedback"
-        title="Action effectuée"
-        [message]="actionNotice()!"
-        severity="info"
-      />
-    }
-
-    @if (activeRows().length === 0) {
-      <tch-admin-empty-state
-        icon="policy"
-        title="Aucune limite configurée"
-        message="Cliquez sur Ajouter pour configurer une première limite pour ce canal."
-      />
-    } @else {
-      <tch-limit-assignments-table
-        [rows]="activeRows()"
-        [canEdit]="true"
-        (upsert)="openUpsert($event)"
-        (delete)="confirmDelete($event)"
-      />
-    }
-  }
+  <tch-limit-assignments-table
+    [rows]="activeRows()"
+    [canEdit]="true"
+    (upsert)="openUpsert($event)"
+    (delete)="confirmDelete($event)"
+  />
+  } }
 </div>

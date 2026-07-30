@@ -1,20 +1,24 @@
-<h2 mat-dialog-title>Renouveler l'abonnement</h2>
+<h2 mat-dialog-title>{{ 'admin.subscription.dialog.renew.title' | translate }}</h2>
 
 <mat-dialog-content>
   <form [formGroup]="form" class="renew-subscription-dialog__form">
     <mat-form-field appearance="outline" class="renew-subscription-dialog__field">
-      <mat-label>Nouvelle date de fin (YYYY-MM-DD)</mat-label>
-      <input matInput formControlName="endsAt" placeholder="2027-01-01" />
+      <mat-label>{{ 'admin.subscription.dialog.renew.endsAt' | translate }}</mat-label>
+      <input
+        matInput
+        formControlName="endsAt"
+        [placeholder]="'admin.subscription.dialog.renew.endsAtPlaceholder' | translate"
+      />
       @if (form.controls.endsAt.invalid && form.controls.endsAt.touched) {
-        <mat-error>Date requise (format YYYY-MM-DD).</mat-error>
+      <mat-error>{{ 'admin.subscription.dialog.renew.endsAtError' | translate }}</mat-error>
       }
     </mat-form-field>
   </form>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-  <button mat-button mat-dialog-close>Annuler</button>
+  <button mat-button mat-dialog-close>{{ 'common.cancel' | translate }}</button>
   <button mat-flat-button color="primary" [disabled]="form.invalid" (click)="submit()">
-    Renouveler
+    {{ 'admin.subscription.dialog.renew.confirm' | translate }}
   </button>
 </mat-dialog-actions>

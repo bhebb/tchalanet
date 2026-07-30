@@ -8,6 +8,88 @@
         "defaultRate": {
           "title": "Modifier le taux de commission par défaut"
         }
+      },
+      "title": "Commissions",
+      "description": "Taux de commission par défaut et par vendeur.",
+      "action": {
+        "editDefaultRate": "Modifier le taux par défaut",
+        "editRate": "Modifier le taux",
+        "resetRate": "Remettre au défaut"
+      },
+      "section": {
+        "overview": "Vue d’ensemble",
+        "sellers": "Vendeurs"
+      },
+      "field": {
+        "defaultRate": "Taux par défaut",
+        "totalSellers": "Total vendeurs",
+        "atDefaultRate": "Au taux par défaut",
+        "customRate": "Taux personnalisé",
+        "range": "Min / Max"
+      },
+      "column": {
+        "code": "Code",
+        "name": "Nom",
+        "status": "Statut",
+        "rate": "Taux",
+        "source": "Source"
+      },
+      "source": {
+        "custom": "Personnalisé",
+        "default": "Défaut"
+      },
+      "empty": {
+        "title": "Aucun vendeur",
+        "message": "Aucun vendeur enregistré."
+      }
+    },
+    "subscription": {
+      "title": "Abonnement",
+      "description": "Consultez et gérez l’abonnement du tenant.",
+      "empty": {
+        "title": "Aucun abonnement",
+        "message": "Aucun abonnement actif pour ce tenant."
+      },
+      "section": {
+        "details": "Détails de l’abonnement",
+        "actions": "Actions"
+      },
+      "field": {
+        "plan": "Plan",
+        "status": "Statut",
+        "startedAt": "Début",
+        "endsAt": "Fin",
+        "updatedAt": "Mis à jour",
+        "version": "Version"
+      },
+      "status": {
+        "ACTIVE": "Actif",
+        "TRIAL": "Essai",
+        "SUSPENDED": "Suspendu",
+        "CANCELED": "Annulé",
+        "EXPIRED": "Expiré"
+      },
+      "action": {
+        "renew": "Renouveler",
+        "suspend": "Suspendre",
+        "resume": "Reprendre",
+        "cancel": "Annuler l’abonnement"
+      },
+      "dialog": {
+        "cancel": {
+          "title": "Annuler l’abonnement",
+          "warning": "Cette action annule l’abonnement du tenant et peut être difficile à inverser.",
+          "reason": "Raison (optionnel)",
+          "reasonPlaceholder": "Motif d’annulation…",
+          "confirm": "Confirmer l’annulation"
+        },
+        "renew": {
+          "title": "Renouveler l’abonnement",
+          "endsAt": "Nouvelle date de fin (AAAA-MM-JJ)",
+          "endsAtPlaceholder": "2027-01-01",
+          "endsAtError": "La date est obligatoire au format AAAA-MM-JJ.",
+          "confirm": "Renouveler"
+        }
       }
     },
     "appearance": {
@@ -138,8 +220,13 @@
           "closedWeekdays": "Jours fermés chaque semaine",
           "recurringHolidays": "Jours fériés récurrents",
           "days": {
-            "monday": "Lundi", "tuesday": "Mardi", "wednesday": "Mercredi",
-            "thursday": "Jeudi", "friday": "Vendredi", "saturday": "Samedi", "sunday": "Dimanche"
+            "monday": "Lundi",
+            "tuesday": "Mardi",
+            "wednesday": "Mercredi",
+            "thursday": "Jeudi",
+            "friday": "Vendredi",
+            "saturday": "Samedi",
+            "sunday": "Dimanche"
           },
           "customHoliday": {
             "title": "Jour férié personnalisé",
@@ -807,6 +894,298 @@
           "unavailable": "Non disponible",
           "maryaj": "Configurer Maryaj gratis"
         }
+      }
+    },
+    "maryajGratis": {
+      "title": "Maryaj gratis",
+      "description": "Configurez le jeu Maryaj et son offre automatique de lignes gratuites.",
+      "action": { "refresh": "Rafraîchir" },
+      "loading": "Chargement des promotions...",
+      "game": {
+        "eyebrow": "Paramètres du jeu",
+        "title": "Maryaj gratuit",
+        "subtitle": "Même logique que Maryaj; seuls le barème gratuit et la génération changent.",
+        "configure": "Modifier le jeu",
+        "pricingOptions": "Options de gain",
+        "pricingHint": "Exact et Reverse sont supportés par défaut.",
+        "standard": "Standard",
+        "minimumStake": "Mise minimum",
+        "maximumStake": "Mise maximum",
+        "maxPerDraw": "Plafond de paiement par tirage",
+        "maxPerDrawHint": "Montant total payable sur ce jeu pour un même tirage.",
+        "exact": "Exact",
+        "reverse": "Reverse",
+        "notDefined": "Non défini",
+        "notConfigured": "Non configuré",
+        "missing": "Le jeu Maryaj gratuit est absent de la configuration tenant.",
+        "readiness": { "READY": "Prêt", "TODO": "À configurer", "BLOCKED": "Non disponible" }
+      },
+      "summary": {
+        "eyebrow": "Résumé",
+        "status": { "configure": "À configurer", "active": "Actif", "activate": "À activer" },
+        "meta": {
+          "game": "Jeu",
+          "attribution": "Attribution",
+          "offered": "Maryaj offerts",
+          "selection": "Sélection",
+          "regeneration": "Régénération"
+        },
+        "game": { "ready": "Prêt pour la vente", "configure": "À configurer" },
+        "quantity": {
+          "tiers": "{{count}} palier(s) configuré(s)",
+          "perAmount": "{{step}}, maximum {{max}} ligne(s)",
+          "fixed": "{{count}} Maryaj gratuit(s)"
+        },
+        "selection": { "auto": "Générée automatiquement", "manual": "Choisie par le vendeur" },
+        "regeneration": {
+          "count": "{{label}} · {{count}} tentative(s)",
+          "attempts": "{{count}} tentative(s)"
+        }
+      },
+      "offer": {
+        "activeEyebrow": "Offre active",
+        "campaignCode": "Campagne tenant · {{count}} règle(s)",
+        "pause": "Mettre en pause",
+        "permanent": "Sans fin prévue",
+        "technicalDate": "Date technique :",
+        "attributionMode": "Mode d’attribution",
+        "mode": {
+          "tiered": "Par paliers de vente",
+          "perAmount": "Par tranche de vente",
+          "fixed": "Quantité fixe par ticket",
+          "tieredShort": "Par paliers",
+          "perAmountShort": "Par tranche",
+          "fixedShort": "Fixe"
+        },
+        "status": {
+          "active": "Actif",
+          "paused": "En pause",
+          "draft": "Brouillon",
+          "inactive": "Inactif",
+          "archived": "Archivé"
+        },
+        "selection": {
+          "title": "Numéros Maryaj gratuits",
+          "auto": "Générés automatiquement par Tchalanet",
+          "manual": "Choisis par le vendeur",
+          "description": "Le vendeur ne choisit rien sauf si l’option manuelle est activée.",
+          "enableManual": "Laisser le vendeur choisir les numéros",
+          "manualNote": "Les numéros seront saisis par le vendeur; la régénération automatique est désactivée."
+        },
+        "facts": {
+          "priority": "Priorité d’arbitrage",
+          "start": "Début",
+          "end": "Fin",
+          "selection": "Sélection",
+          "attribution": "Attribution",
+          "offered": "Maryaj offerts",
+          "regeneration": "Régénérations"
+        },
+        "offered": {
+          "tiers": "Paliers configurés",
+          "max": "max {{count}}",
+          "perAmount": "{{quantity}} par {{amount}} HTG · max {{max}}"
+        },
+        "setup": {
+          "edit": "Modifier l’offre Maryaj gratis",
+          "activate": "Offre Maryaj gratis à activer",
+          "copy": "Paliers, quantité offerte et génération des numéros."
+        },
+        "preview": {
+          "perAmount": {
+            "prefix": "Le ticket recevra",
+            "unit": "Maryaj gratuit(s) par",
+            "middle": "de vente, jusqu’à",
+            "suffix": "ligne(s)."
+          },
+          "tiered": "Le ticket recevra des Maryaj gratuits selon le montant payé par le client.",
+          "fixed": { "prefix": "Le ticket pourra recevoir", "suffix": "Maryaj gratuit(s)." }
+        },
+        "schedule": {
+          "endHint": "Date obligatoire. Pour une offre permanente, utilisez une date lointaine.",
+          "priorityHint": "Plus haut = prioritaire si plusieurs promotions sont applicables."
+        },
+        "tiers": {
+          "title": "Paliers de vente",
+          "description": "Montant payé par le client → nombre de Maryaj gratuits générés.",
+          "add": "Ajouter un palier",
+          "tier": "Palier {{index}}",
+          "from": "De",
+          "to": "À",
+          "openEnded": "Vide = et plus",
+          "quantity": "Maryaj gratuits",
+          "delete": "Supprimer le palier"
+        },
+        "perAmount": {
+          "step": "Tranche de vente",
+          "stepHint": "Montant payé qui déclenche une tranche.",
+          "quantity": "Maryaj gratuits par tranche",
+          "max": "Plafond de lignes gratuites",
+          "maxHint": "Maximum généré pour un ticket."
+        },
+        "fixed": { "quantity": "Nombre de Maryaj gratuits par ticket" },
+        "regeneration": {
+          "enable": "Le vendeur peut régénérer les numéros avant validation",
+          "allowed": "Régénérations autorisées",
+          "hint": "Nombre de fois où les numéros peuvent être recréés avant validation du ticket."
+        },
+        "activate": "Activer Maryaj gratis"
+      }
+    },
+    "limits": {
+      "shell": {
+        "title": "Limites de vente",
+        "description": "Surveillez les règles qui protègent les ventes, les vendeurs, les numéros et les canaux."
+      },
+      "common": {
+        "loading": "Chargement des limites…",
+        "actionDone": "Action effectuée",
+        "supportedRules": "Règles supportées",
+        "add": "Ajouter",
+        "refresh": "Actualiser",
+        "notice": { "saved": "Règle enregistrée.", "deleted": "Règle supprimée." }
+      },
+      "global": { "scopeNote": "Limites appliquées globalement à tous les terminaux du tenant." },
+      "number": {
+        "actionsAria": "Actions rapides par numéro",
+        "copy": "Pour les gains réels, utilisez les résultats et rapports; ici on bloque surtout les numéros et les mises vendues.",
+        "actions": {
+          "block": {
+            "title": "Bloquer un numéro",
+            "description": "Empêcher la vente d’un ou plusieurs numéros.",
+            "cta": "Bloquer"
+          },
+          "exposure": {
+            "title": "Limiter les mises",
+            "description": "Bloquer quand les mises vendues sur un numéro atteignent un montant.",
+            "cta": "Définir"
+          }
+        }
+      },
+      "draw": { "channelLabel": "Canal de tirage", "loadingChannels": "Chargement des canaux…" },
+      "sellerTerminal": {
+        "searchLabel": "Vendeur / terminal",
+        "searchHint": "Tapez le nom ou le code du terminal."
+      },
+      "system": {
+        "scopeNote": "Catalogue de toutes les règles de limite supportées. Ces règles sont configurables dans les onglets Générales, Par canal, Par vendeur et Par numéro.",
+        "definitions": "Définitions",
+        "loadingCatalog": "Chargement du catalogue…",
+        "catalogEmptyTitle": "Catalogue vide",
+        "catalogEmptyMessage": "Le backend ne publie aucune règle de limite.",
+        "rule": "Règle",
+        "description": "Description",
+        "defaultAction": "Action par défaut",
+        "type": "Type",
+        "stateless": "Sans état",
+        "withParams": "Avec paramètres",
+        "simulation": "Simulation",
+        "simulationTitle": "Vue effective par portée",
+        "simulationHint": "Sélectionnez une portée pour voir les règles actuellement actives à ce niveau. La priorité effective suit : terminal vendeur / agent (60) > canal de tirage (30) > global (10).",
+        "scopeLabel": "Portée",
+        "scope": { "global": "Global", "draw": "Par canal", "seller": "Par vendeur" },
+        "targetId": "Identifiant",
+        "targetPlaceholder": "UUID canal ou vendeur",
+        "targetHint": "Utilisez l’identifiant technique de la portée cible.",
+        "show": "Afficher",
+        "loadingActive": "Chargement des règles actives…",
+        "noActiveTitle": "Aucune règle active",
+        "noActiveMessage": "Aucune règle n’est configurée pour cette portée.",
+        "parameters": "Paramètres"
+      },
+      "overview": {
+        "title": "Vue d’ensemble",
+        "description": "Choisissez la zone à contrôler avant d’ajouter ou modifier une règle.",
+        "sectionsAria": "Sections de limites",
+        "activeTitle": "Protections actives",
+        "activeDescription": "Ces règles protègent les ventes par défaut avant les exceptions par vendeur, numéro ou canal.",
+        "noActive": "Aucune protection globale active. Commencez par définir les plafonds de ticket et de ligne.",
+        "addGlobal": "Ajouter une règle globale",
+        "quickTitle": "Actions rapides",
+        "quickDescription": "Accédez directement aux opérations fréquentes de contrôle des ventes.",
+        "quickAria": "Actions rapides limites",
+        "summaryEyebrow": "Résumé des limites",
+        "globalActive": "Règles globales actives",
+        "toCheck": "À vérifier",
+        "monitoredNumbers": "Numéros surveillés",
+        "warningMessage": "{{count}} règle(s) globale(s) sont désactivées. Vérifiez si elles doivent protéger les ventes.",
+        "noWarning": "Aucune alerte immédiate sur les règles globales."
+      },
+      "child": {
+        "rulesLink": "Règles supportées",
+        "refresh": "Actualiser",
+        "add": "Ajouter",
+        "retry": "Réessayer",
+        "actionDone": "Action effectuée",
+        "noRulesTitle": "Aucune règle disponible",
+        "noRulesMessage": "Le catalogue de règles est vide.",
+        "noConfiguredTitle": "Aucune limite configurée",
+        "noConfiguredGlobal": "Cliquez sur Ajouter pour configurer une première limite globale.",
+        "noConfiguredNumber": "Cliquez sur Ajouter pour configurer une limite d’exposition ou un blocage de numéro.",
+        "noConfiguredDraw": "Cliquez sur Ajouter pour configurer une première limite pour ce canal.",
+        "noConfiguredSeller": "Cliquez sur Ajouter pour configurer une première limite pour ce vendeur.",
+        "catalogEmptyTitle": "Aucune règle par numéro",
+        "catalogEmptyMessage": "Le backend ne publie pas de règles par numéro.",
+        "drawChannelsUnavailable": "Canaux indisponibles",
+        "drawChannelsUnavailableMessage": "Impossible de charger les canaux de tirage pour le moment.",
+        "drawSelectChannel": "Sélectionnez un canal pour voir et configurer ses limites spécifiques.",
+        "sellerSelect": "Recherchez un vendeur pour voir et configurer ses limites.",
+        "noticeSaved": "Règle enregistrée.",
+        "noticeAdded": "Règle ajoutée.",
+        "noticeDeleted": "Règle supprimée."
+      },
+      "dialog": {
+        "addTitle": "Ajouter une règle",
+        "editTitle": "Modifier la règle",
+        "configureTitle": "Configurer la règle",
+        "ruleType": "Type de limite",
+        "action": "Action",
+        "block": "Bloquer",
+        "warn": "Avertir",
+        "positiveAmount": "Le montant doit être positif.",
+        "minimumOne": "La valeur doit être au moins 1.",
+        "minimumOneMinute": "La durée doit être au moins 1 minute.",
+        "maxExposure": "Mise totale exposée maximum (HTG)",
+        "maxAmount": "Montant maximum (HTG)",
+        "maxLines": "Nombre maximum de lignes",
+        "maxTickets": "Nombre maximum de tickets",
+        "maxSales": "Nombre maximum de ventes",
+        "maxCount": "Nombre maximum",
+        "windowMinutes": "Fenêtre de temps (minutes)",
+        "betTypeCode": "Code type de pari",
+        "betTypePlaceholder": "ex : BORLETTE, MARYAJ",
+        "required": "Champ obligatoire.",
+        "blockedNumbers": "Numéros bloqués",
+        "removeNumber": "Retirer {{number}}",
+        "numberPlaceholder": "Ex : 13, appuyez Entrée",
+        "numberHint": "Entrez un numéro puis appuyez sur Entrée ou virgule.",
+        "numberRequired": "Ajoutez au moins un numéro.",
+        "enabled": "Règle active",
+        "duration": "Durée d’application",
+        "permanent": "Permanent",
+        "today": "Aujourd’hui",
+        "custom": "Personnalisé",
+        "endDate": "Date de fin",
+        "endDateHint": "Fin de journée selon le fuseau {{timezone}}.",
+        "preview": "Ce qui sera appliqué",
+        "cancel": "Annuler",
+        "save": "Enregistrer",
+        "saving": "Enregistrement…"
+      },
+      "table": {
+        "rules": "règle(s)",
+        "status": "Statut",
+        "breach": "Dépassement",
+        "value": "Valeur",
+        "configured": "Configurée",
+        "notConfigured": "Non configurée",
+        "active": "Active",
+        "disabled": "Désactivée",
+        "approvalRequired": "Validation requise",
+        "allow": "Autoriser",
+        "undefined": "Non défini",
+        "edit": "Modifier",
+        "delete": "Supprimer"
       }
     },
     "drawSalesMatrix": {

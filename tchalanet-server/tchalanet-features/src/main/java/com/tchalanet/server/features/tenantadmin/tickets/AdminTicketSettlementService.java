@@ -5,6 +5,7 @@ import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintLine;
 import com.tchalanet.server.core.sales.api.query.GetTicketPrintViewQuery;
 import com.tchalanet.server.core.sales.api.settlement.SettlementExplanationApi;
+import com.tchalanet.server.features.tenantadmin.error.TenantAdminErrorCodes;
 import com.tchalanet.server.features.tenantadmin.tickets.model.AdminTicketSettlementResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -63,7 +64,7 @@ public class AdminTicketSettlementService {
           null,
           null,
           false,
-          ex.getMessage());
+          TenantAdminErrorCodes.TICKET_SETTLEMENT_VARIANT_UNAVAILABLE.code());
     }
   }
 }

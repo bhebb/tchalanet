@@ -11,6 +11,7 @@ import com.tchalanet.server.core.sales.api.model.promotion.TicketLineOrigin;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSource;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource;
 import com.tchalanet.server.core.sales.internal.application.service.result.SettlementExplanationService;
+import com.tchalanet.server.features.tenantadmin.error.TenantAdminErrorCodes;
 import com.tchalanet.server.platform.tenantgame.api.model.SelectionPolicy;
 import java.math.BigDecimal;
 import org.junit.jupiter.api.DisplayName;
@@ -57,7 +58,8 @@ class AdminTicketSettlementServiceTest {
     assertThat(view.resolved()).isFalse();
     assertThat(view.variant()).isNull();
     assertThat(view.adminLabel()).isNull();
-    assertThat(view.error()).isNotBlank();
+    assertThat(view.error())
+        .isEqualTo(TenantAdminErrorCodes.TICKET_SETTLEMENT_VARIANT_UNAVAILABLE.code());
     assertThat(view.betOption()).isEqualTo((short) 99);
   }
 
