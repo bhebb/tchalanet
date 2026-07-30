@@ -8,6 +8,39 @@
         "defaultRate": {
           "title": "Chanje to komisyon pa defo"
         }
+      },
+      "title": "Komisyon",
+      "description": "To komisyon pa defo ak pou chak vandè.",
+      "action": {
+        "editDefaultRate": "Modifye to pa defo",
+        "editRate": "Modifye to a",
+        "resetRate": "Remete to pa defo"
+      },
+      "section": {
+        "overview": "Rezime",
+        "sellers": "Vandè"
+      },
+      "field": {
+        "defaultRate": "To pa defo",
+        "totalSellers": "Total vandè",
+        "atDefaultRate": "Nan to pa defo",
+        "customRate": "To pèsonalize",
+        "range": "Min / Max"
+      },
+      "column": {
+        "code": "Kòd",
+        "name": "Non",
+        "status": "Estati",
+        "rate": "To",
+        "source": "Sous"
+      },
+      "source": {
+        "custom": "Pèsonalize",
+        "default": "Pa defo"
+      },
+      "empty": {
+        "title": "Pa gen vandè",
+        "message": "Pa gen tèminal vandè ki anrejistre."
       }
     },
     "appearance": {

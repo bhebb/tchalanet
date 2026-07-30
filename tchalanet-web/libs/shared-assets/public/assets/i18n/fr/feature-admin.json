@@ -8,6 +8,39 @@
         "defaultRate": {
           "title": "Modifier le taux de commission par défaut"
         }
+      },
+      "title": "Commissions",
+      "description": "Taux de commission par défaut et par vendeur.",
+      "action": {
+        "editDefaultRate": "Modifier le taux par défaut",
+        "editRate": "Modifier le taux",
+        "resetRate": "Remettre au défaut"
+      },
+      "section": {
+        "overview": "Vue d’ensemble",
+        "sellers": "Vendeurs"
+      },
+      "field": {
+        "defaultRate": "Taux par défaut",
+        "totalSellers": "Total vendeurs",
+        "atDefaultRate": "Au taux par défaut",
+        "customRate": "Taux personnalisé",
+        "range": "Min / Max"
+      },
+      "column": {
+        "code": "Code",
+        "name": "Nom",
+        "status": "Statut",
+        "rate": "Taux",
+        "source": "Source"
+      },
+      "source": {
+        "custom": "Personnalisé",
+        "default": "Défaut"
+      },
+      "empty": {
+        "title": "Aucun vendeur",
+        "message": "Aucun vendeur enregistré."
       }
     },
     "appearance": {

@@ -8,6 +8,39 @@
         "defaultRate": {
           "title": "Edit default commission rate"
         }
+      },
+      "title": "Commissions",
+      "description": "Default and seller-specific commission rates.",
+      "action": {
+        "editDefaultRate": "Edit default rate",
+        "editRate": "Edit rate",
+        "resetRate": "Reset to default"
+      },
+      "section": {
+        "overview": "Overview",
+        "sellers": "Seller-terminals"
+      },
+      "field": {
+        "defaultRate": "Default rate",
+        "totalSellers": "Total sellers",
+        "atDefaultRate": "At default rate",
+        "customRate": "Custom rate",
+        "range": "Min / Max"
+      },
+      "column": {
+        "code": "Code",
+        "name": "Name",
+        "status": "Status",
+        "rate": "Rate",
+        "source": "Source"
+      },
+      "source": {
+        "custom": "Custom",
+        "default": "Default"
+      },
+      "empty": {
+        "title": "No sellers",
+        "message": "No seller-terminal is registered."
       }
     },
     "appearance": {
