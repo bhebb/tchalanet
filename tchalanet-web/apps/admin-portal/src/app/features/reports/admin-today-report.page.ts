@@ -21,6 +21,7 @@ import {
   AdminPageHeader,
   AdminEmptyState,
 } from '@tch/ui/components';
+import { AdminMetricCardComponent } from '@tch/ui/console';
 import { consoleGameName } from '@tch/web/console';
 import { TranslatePipe } from '@ngx-translate/core';
 
@@ -64,6 +65,7 @@ type PageState =
   selector: 'tch-admin-today-report-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    AdminMetricCardComponent,
     DecimalPipe,
     FormsModule,
     MatButtonModule,

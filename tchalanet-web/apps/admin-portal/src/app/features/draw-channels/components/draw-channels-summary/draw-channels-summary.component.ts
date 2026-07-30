@@ -1,15 +1,14 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
-import { TchCard } from '@tch/ui/components';
+import { AdminMetricCardComponent } from '@tch/ui/console';
 import { DrawChannelProviderView } from '../../data-access/admin-draw-channels.models';
 
 @Component({
   selector: 'tch-draw-channels-summary',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [TchCard, TranslatePipe],
+  imports: [AdminMetricCardComponent, TranslatePipe],
   templateUrl: './draw-channels-summary.component.html',
-  styleUrls: ['./draw-channels-summary.component.scss'],
 })
 export class DrawChannelsSummaryComponent {
   readonly providers = input.required<DrawChannelProviderView[]>();

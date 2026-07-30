@@ -36,28 +36,93 @@ tch-admin-metric-card {
   --tch-metric-border: var(--tch-color-outline-variant);
   --tch-metric-label: var(--tch-color-on-surface-variant);
   --tch-metric-value: var(--tch-color-on-surface);
+  --tch-metric-icon-fg: var(--tch-color-on-surface-variant);
+  --tch-metric-icon-bg: var(--tch-color-surface-container-high);
 
-  display: grid;
-  gap: 0.375rem;
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  width: 100%;
   min-width: 0;
   height: 100%;
   padding: 1rem;
+  text-align: start;
   background: var(--tch-metric-bg);
 
   @include m.outline(var(--tch-metric-border));
   @include m.rounded(var(--tch-radius-lg, 0.75rem));
 
-  // The headline figure of a row — exactly one tile per group should carry it.
+  // --- Tones -------------------------------------------------------------
+  // `accent` fills the whole tile — it marks the headline figure of a row, so at most one
+  // tile per group should carry it. The others only tint the icon or the value.
+
   &--accent {
     --tch-metric-bg: var(--tch-color-primary-container);
     --tch-metric-border: transparent;
     --tch-metric-label: var(--tch-color-on-primary-container);
     --tch-metric-value: var(--tch-color-on-primary-container);
+    --tch-metric-icon-fg: var(--tch-color-on-primary-container);
+    --tch-metric-icon-bg: color-mix(in oklab, var(--tch-color-on-primary-container) 16%, transparent);
   }
 
-  // A figure that reads as a cost (payouts, charges): tint the value only, not the tile.
+  &--info {
+    --tch-metric-icon-fg: var(--tch-color-on-primary-container);
+    --tch-metric-icon-bg: var(--tch-color-primary-container);
+  }
+
+  &--positive {
+    --tch-metric-icon-fg: var(--tch-color-status-ready);
+    --tch-metric-icon-bg: color-mix(in oklab, var(--tch-color-status-ready) 14%, transparent);
+  }
+
+  &--warning {
+    --tch-metric-icon-fg: var(--tch-color-status-warning);
+    --tch-metric-icon-bg: color-mix(in oklab, var(--tch-color-status-warning) 14%, transparent);
+  }
+
+  // A figure that reads as a cost (payouts, charges): tint the value, not the tile.
   &--negative {
     --tch-metric-value: var(--tch-color-error);
+    --tch-metric-icon-fg: var(--tch-color-error);
+    --tch-metric-icon-bg: color-mix(in oklab, var(--tch-color-error) 12%, transparent);
+  }
+
+  // --- Interactive ---------------------------------------------------------
+  // Rendered as a real <button> by the component, so keyboard and focus come for free.
+
+  &--interactive {
+    cursor: pointer;
+    transition:
+      border-color 150ms ease,
+      box-shadow 150ms ease;
+
+    @include m.focus-visible(var(--tch-color-primary));
+
+    &:hover {
+      border-color: var(--tch-color-primary);
+      @include m.elevate(1);
+    }
+  }
+
+  // --- Parts ---------------------------------------------------------------
+
+  &__icon {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: var(--tch-radius-lg, 0.75rem);
+    background: var(--tch-metric-icon-bg);
+    color: var(--tch-metric-icon-fg);
+    font-size: 1.5rem;
+  }
+
+  &__body {
+    display: grid;
+    gap: 0.25rem;
+    min-width: 0;
   }
 
   &__label,

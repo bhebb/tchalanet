@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { AdminMetricCardComponent } from '@tch/ui/console';
 
 import { LabelPipe, WidgetConfig, isRecord, stringProp } from '@tch/page-model';
 
@@ -15,7 +16,7 @@ function numVal(v: unknown): number | null {
 @Component({
   selector: 'tch-commission-summary-widget',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [LabelPipe, RouterLink],
+  imports: [AdminMetricCardComponent, LabelPipe, RouterLink],
   templateUrl: './commission-summary.widget.html',
   styleUrl: './commission-summary.widget.scss',
 })

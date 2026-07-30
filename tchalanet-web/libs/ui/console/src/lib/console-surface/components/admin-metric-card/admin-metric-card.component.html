@@ -1,11 +1,28 @@
-<article
-  class="tch-metric"
-  [class.tch-metric--accent]="tone() === 'accent'"
-  [class.tch-metric--negative]="tone() === 'negative'"
->
-  <span class="tch-metric__label">{{ label() }}</span>
-  <strong class="tch-metric__value">{{ value() }}</strong>
-  @if (hint(); as hintText) {
-    <span class="tch-metric__hint">{{ hintText }}</span>
+@if (interactive()) {
+  <button
+    type="button"
+    class="tch-metric tch-metric--interactive"
+    [ngClass]="'tch-metric--' + tone()"
+    [attr.aria-label]="actionLabel() ?? label()"
+    (click)="action.emit()"
+  >
+    <ng-container [ngTemplateOutlet]="body" />
+  </button>
+} @else {
+  <article class="tch-metric" [ngClass]="'tch-metric--' + tone()">
+    <ng-container [ngTemplateOutlet]="body" />
+  </article>
+}
+
+<ng-template #body>
+  @if (icon(); as iconName) {
+    <span class="material-symbols-outlined tch-metric__icon" aria-hidden="true">{{ iconName }}</span>
   }
-</article>
+  <span class="tch-metric__body">
+    <span class="tch-metric__label">{{ label() }}</span>
+    <span class="tch-metric__value">{{ value() }}</span>
+    @if (hint(); as hintText) {
+      <span class="tch-metric__hint">{{ hintText }}</span>
+    }
+  </span>
+</ng-template>

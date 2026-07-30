@@ -62,19 +62,19 @@
             />
           } @else if (vm.summary; as summary) {
           <section class="report-daily__kpis" [attr.aria-label]="'admin.reports.daily.kpisAria' | translate">
-          <tch-report-metric-card
+          <tch-admin-metric-card
             [label]="'admin.reports.common.ticketsSold' | translate"
             [value]="(summary.ticketsSold | number) ?? '0'"
           />
-          <tch-report-metric-card
+          <tch-admin-metric-card
             [label]="'admin.reports.common.grossSales' | translate"
             [value]="amountDisplay(summary.grossSales) + ' ' + currency"
           />
-          <tch-report-metric-card
+          <tch-admin-metric-card
             [label]="'admin.reports.common.payoutsPaid' | translate"
             [value]="amountDisplay(summary.payoutsPaid) + ' ' + currency"
           />
-          <tch-report-metric-card
+          <tch-admin-metric-card
             [label]="'admin.reports.common.sellerCommission' | translate"
             [value]="amountDisplay(summary.sellerCommission) + ' ' + currency"
           />

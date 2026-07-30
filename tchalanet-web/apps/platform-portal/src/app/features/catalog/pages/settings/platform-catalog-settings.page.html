@@ -7,19 +7,24 @@
   </div>
 
   @if (stats()) {
-    <div class="catalog-settings-page__kpi-row">
-      <div class="catalog-settings-page__kpi-chip">
-        <span class="catalog-settings-page__kpi-value">{{ stats()!.totalGlobalSettings }}</span>
-        <span class="catalog-settings-page__kpi-label">Global</span>
-      </div>
-      <div class="catalog-settings-page__kpi-chip">
-        <span class="catalog-settings-page__kpi-value">{{ stats()!.totalTenantSettings }}</span>
-        <span class="catalog-settings-page__kpi-label">Tenant</span>
-      </div>
-      <div class="catalog-settings-page__kpi-chip">
-        <span class="catalog-settings-page__kpi-value">{{ stats()!.totalActiveSettings }}</span>
-        <span class="catalog-settings-page__kpi-label">Actifs</span>
-      </div>
+    <div class="tch-metric-grid catalog-settings-page__kpi-row">
+      <tch-admin-metric-card
+        icon="public"
+        tone="info"
+        label="Global"
+        [value]="stats()!.totalGlobalSettings.toString()"
+      />
+      <tch-admin-metric-card
+        icon="apartment"
+        label="Tenant"
+        [value]="stats()!.totalTenantSettings.toString()"
+      />
+      <tch-admin-metric-card
+        icon="check_circle"
+        tone="positive"
+        label="Actifs"
+        [value]="stats()!.totalActiveSettings.toString()"
+      />
     </div>
   }
 
