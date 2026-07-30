@@ -180,7 +180,7 @@ export class AdminGeneratedDrawsPage {
    * guessed default — fall back to the shared default only before a page has loaded.
    */
   readonly pageSize = computed(() => this.draws.value()?.size ?? TCH_DEFAULT_PAGE_SIZE);
-  readonly isEmpty = (): boolean => this.groupedDraws().length === 0;
+  readonly isEmpty = (): boolean => (this.draws.value()?.items?.length ?? 0) === 0;
   readonly canEnterManualResults = computed(() =>
     this.access.can(CONSOLE_DRAW_RESULT_ACCESS.manual),
   );

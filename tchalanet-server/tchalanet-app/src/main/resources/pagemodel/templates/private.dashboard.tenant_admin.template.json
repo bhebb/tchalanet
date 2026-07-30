@@ -191,7 +191,7 @@
                 "id": "addSellerTerminal",
                 "labelKey": "quickaction.admin.add_seller_terminal",
                 "icon": "person_add",
-                "destination": { "kind": "route", "value": "/app/admin/sellers/new" }
+                "destination": { "kind": "route", "value": "/app/admin/seller-terminals/new" }
               },
               {
                 "id": "activeSellerTerminals",

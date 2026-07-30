@@ -30,7 +30,7 @@
     <ng-template tchAsyncReady>
       <!-- KPI summary -->
       <tch-generated-draws-summary
-        [draws]="allDraws()"
+        [draws]="draws.value()?.items ?? []"
         [today]="today"
         (kpiSelected)="onKpiSelected($event)"
       />
