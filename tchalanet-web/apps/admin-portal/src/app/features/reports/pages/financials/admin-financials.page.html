@@ -4,6 +4,21 @@
 />
 
 <section class="financials-controls" aria-label="Filtres financials">
+  <button
+    class="financials-controls__toggle"
+    mat-stroked-button
+    type="button"
+    [attr.aria-expanded]="filtersExpanded()"
+    (click)="filtersExpanded.set(!filtersExpanded())"
+  >
+    <mat-icon>tune</mat-icon>
+    Filtres
+  </button>
+
+  <div
+    class="financials-controls__fields"
+    [class.financials-controls__fields--open]="filtersExpanded()"
+  >
   <mat-form-field appearance="outline" class="financials-controls__field">
     <mat-label>Du</mat-label>
     <input
@@ -39,6 +54,7 @@
     <mat-icon>date_range</mat-icon>
     7 jours
   </button>
+  </div>
 </section>
 
 @let vm = state(); @switch (vm.status) { @case ('loading') {
@@ -52,34 +68,30 @@
   message="Ce tenant n'a pas encore de ventes projetées sur cette période. Les données apparaîtront après les premières ventes et projections analytics."
 />
 } @else {
-<section class="financials-summary" aria-label="Résumé financials">
-  <div class="financials-stat financials-stat--net">
-    <span class="financials-stat__label">Net estimé</span>
-    <span class="financials-stat__value">
-      {{ vm.data.summary.netRevenueEstimated | number:'1.2-2' }}
-    </span>
-  </div>
-  <div class="financials-stat">
-    <span class="financials-stat__label">Ventes</span>
-    <span class="financials-stat__value">{{ vm.data.summary.grossSales | number:'1.2-2' }}</span>
-  </div>
-  <div class="financials-stat">
-    <span class="financials-stat__label">Commissions</span>
-    <span class="financials-stat__value">
-      {{ vm.data.summary.sellerCommission | number:'1.2-2' }}
-    </span>
-  </div>
-  <div class="financials-stat">
-    <span class="financials-stat__label">Frais tenant</span>
-    <span class="financials-stat__value">{{ vm.data.summary.tenantCharges | number:'1.2-2' }}</span>
-  </div>
-  <div class="financials-stat">
-    <span class="financials-stat__label">Promotions</span>
-    <span class="financials-stat__value">
-      {{ vm.data.summary.promotionPayoutBase | number:'1.2-2' }}
-    </span>
-  </div>
-</section>
+<tch-admin-metric-grid aria-label="Résumé financials">
+  <tch-admin-metric-card
+    label="Net estimé"
+    tone="accent"
+    [value]="(vm.data.summary.netRevenueEstimated | number:'1.2-2') ?? '0,00'"
+  />
+  <tch-admin-metric-card
+    label="Ventes"
+    [value]="(vm.data.summary.grossSales | number:'1.2-2') ?? '0,00'"
+  />
+  <tch-admin-metric-card
+    label="Commissions"
+    [value]="(vm.data.summary.sellerCommission | number:'1.2-2') ?? '0,00'"
+  />
+  <tch-admin-metric-card
+    label="Frais tenant"
+    tone="negative"
+    [value]="(vm.data.summary.tenantCharges | number:'1.2-2') ?? '0,00'"
+  />
+  <tch-admin-metric-card
+    label="Promotions"
+    [value]="(vm.data.summary.promotionPayoutBase | number:'1.2-2') ?? '0,00'"
+  />
+</tch-admin-metric-grid>
 
 <mat-tab-group class="financials-tabs" animationDuration="120ms">
   <mat-tab label="Par tirage">

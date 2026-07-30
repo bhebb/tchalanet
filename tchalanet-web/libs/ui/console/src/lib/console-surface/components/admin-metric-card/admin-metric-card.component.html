@@ -1,0 +1,7 @@
+<article class="admin-metric">
+  <span class="admin-metric__label">{{ label() }}</span>
+  <strong class="admin-metric__value">{{ value() }}</strong>
+  @if (hint(); as hintText) {
+    <span class="admin-metric__hint">{{ hintText }}</span>
+  }
+</article>
