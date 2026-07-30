@@ -1,7 +1,11 @@
-<article class="admin-metric">
-  <span class="admin-metric__label">{{ label() }}</span>
-  <strong class="admin-metric__value">{{ value() }}</strong>
+<article
+  class="tch-metric"
+  [class.tch-metric--accent]="tone() === 'accent'"
+  [class.tch-metric--negative]="tone() === 'negative'"
+>
+  <span class="tch-metric__label">{{ label() }}</span>
+  <strong class="tch-metric__value">{{ value() }}</strong>
   @if (hint(); as hintText) {
-    <span class="admin-metric__hint">{{ hintText }}</span>
+    <span class="tch-metric__hint">{{ hintText }}</span>
   }
 </article>

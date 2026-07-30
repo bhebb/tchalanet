@@ -68,7 +68,7 @@
   message="Ce tenant n'a pas encore de ventes projetées sur cette période. Les données apparaîtront après les premières ventes et projections analytics."
 />
 } @else {
-<tch-admin-metric-grid aria-label="Résumé financials">
+<section class="tch-metric-grid" aria-label="Résumé financials">
   <tch-admin-metric-card
     label="Net estimé"
     tone="accent"
@@ -91,7 +91,7 @@
     label="Promotions"
     [value]="(vm.data.summary.promotionPayoutBase | number:'1.2-2') ?? '0,00'"
   />
-</tch-admin-metric-grid>
+</section>
 
 <mat-tab-group class="financials-tabs" animationDuration="120ms">
   <mat-tab label="Par tirage">

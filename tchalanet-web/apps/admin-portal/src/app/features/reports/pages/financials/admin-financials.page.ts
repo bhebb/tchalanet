@@ -13,7 +13,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { catchError, map, of, startWith, switchMap } from 'rxjs';
 import { mapHttpErrorToProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 import { AdminEmptyState, AdminPageHeader, TchErrorPanel, TchLoading } from '@tch/ui/components';
-import { AdminMetricCardComponent, AdminMetricGridComponent } from '@tch/ui/console';
+import { AdminMetricCardComponent } from '@tch/ui/console';
 import { consoleGameName } from '@tch/web/console';
 import { ErrorViewModel, resolveErrorFeedbackCopy, toErrorViewModel } from '@tch/web/errors';
 
@@ -64,7 +64,6 @@ function addDays(date: Date, days: number): Date {
     AdminEmptyState,
     AdminPageHeader,
     AdminMetricCardComponent,
-    AdminMetricGridComponent,
     TchErrorPanel,
     TchLoading,
   ],
