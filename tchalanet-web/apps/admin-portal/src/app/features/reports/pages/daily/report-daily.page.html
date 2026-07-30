@@ -22,18 +22,24 @@
                 <mat-icon aria-hidden="true">arrow_back</mat-icon>
                 {{ 'admin.reports.common.overview' | translate }}
               </a>
-              <button type="button" mat-button [disabled]="!vm.analytics.available" (click)="exportPdf()">
-                <mat-icon aria-hidden="true">print</mat-icon>
-                {{ 'admin.reports.daily.action.exportPdf' | translate }}
-              </button>
-              <button type="button" mat-button [disabled]="!vm.analytics.available" (click)="exportCsv(vm)">
-                <mat-icon aria-hidden="true">download</mat-icon>
-                {{ 'admin.reports.daily.action.exportCsv' | translate }}
-              </button>
               <button type="button" mat-stroked-button (click)="reload()">
                 <mat-icon aria-hidden="true">refresh</mat-icon>
                 {{ 'admin.reports.common.refresh' | translate }}
               </button>
+              <button type="button" mat-button [matMenuTriggerFor]="exportMenu">
+                <mat-icon aria-hidden="true">download</mat-icon>
+                {{ 'admin.reports.common.exportMenu' | translate }}
+              </button>
+              <mat-menu #exportMenu="matMenu">
+                <button type="button" mat-menu-item [disabled]="!vm.analytics.available" (click)="exportPdf()">
+                  <mat-icon aria-hidden="true">print</mat-icon>
+                  {{ 'admin.reports.daily.action.exportPdf' | translate }}
+                </button>
+                <button type="button" mat-menu-item [disabled]="!vm.analytics.available" (click)="exportCsv(vm)">
+                  <mat-icon aria-hidden="true">download</mat-icon>
+                  {{ 'admin.reports.daily.action.exportCsv' | translate }}
+                </button>
+              </mat-menu>
             </div>
           </header>
 

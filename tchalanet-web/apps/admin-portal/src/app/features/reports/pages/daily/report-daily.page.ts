@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatInputModule } from '@angular/material/input';
 import { MatTableModule } from '@angular/material/table';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -39,6 +40,7 @@ const DEFAULT_CURRENCY = 'HTG';
     MatButtonModule,
     MatFormFieldModule,
     MatIconModule,
+    MatMenuModule,
     MatInputModule,
     MatTableModule,
   ],

@@ -536,6 +536,7 @@
         "period": "Période du rapport",
         "netRevenue": "Revenu net",
         "refresh": "Rafraîchir",
+        "exportMenu": "Exporter",
         "sellerCommission": "Commission vendeur",
         "ticketsSold": "Tickets vendus",
         "ticketSuffix": "tickets",

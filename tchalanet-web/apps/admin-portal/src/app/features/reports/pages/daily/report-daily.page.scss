@@ -106,14 +106,20 @@
 
 @include ui.down(expanded) {
   .report-daily {
-    &__toolbar,
+    // Kept as a flex row (with wrap) rather than a full column stack — the toolbar now only
+    // has 3 items (Apèsi, Rafrechi, Ekspòte) since PDF/CSV moved into the export menu, so a
+    // wrapped row stays compact instead of forcing every action onto its own full-width line.
+    &__toolbar {
+      flex-wrap: wrap;
+      align-items: flex-start;
+    }
+
     &__actions {
-      align-items: stretch;
-      flex-direction: column;
+      flex-wrap: wrap;
     }
 
     &__filters {
-      grid-template-columns: 1fr;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 }
