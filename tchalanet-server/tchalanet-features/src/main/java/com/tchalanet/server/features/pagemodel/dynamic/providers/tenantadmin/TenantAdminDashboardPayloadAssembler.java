@@ -323,7 +323,7 @@ public class TenantAdminDashboardPayloadAssembler {
 
   private long loadDrawCount(DrawStatus status) {
     DrawSearchCriteria criteria =
-        new DrawSearchCriteria(null, status, null, null, null, null, null);
+        new DrawSearchCriteria(null, status, null, null, null, null, null, null, null);
     TchPage<DrawSummary> page = queryBus.ask(new ListDrawsQuery(criteria, PageRequest.of(0, 1)));
     return page != null ? page.totalElements() : 0L;
   }

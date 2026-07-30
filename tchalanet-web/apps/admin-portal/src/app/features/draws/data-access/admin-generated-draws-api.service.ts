@@ -194,16 +194,21 @@ export function serverStatusParam(status: string | null | undefined): string | n
   return SERVER_STATUS_PARAM[status] ?? null;
 }
 
+/**
+ * True when the backend fully answers this filter, so no client-side narrowing is needed.
+ * PAST is served by `scheduledBefore=<now>` rather than by `status`.
+ */
+function isServerFiltered(status: string | null | undefined): boolean {
+  return status === 'PAST' || serverStatusParam(status) !== null;
+}
+
 function applyStatusFilter(draws: GeneratedDrawView[], status: string | null | undefined): GeneratedDrawView[] {
-  // Lifecycle statuses (OPEN, CLOSED, …) are already narrowed by the backend — re-filtering
-  // here would only desync the rows from the server's totalElements/pagination.
-  if (serverStatusParam(status)) return draws;
+  // Lifecycle statuses (OPEN, CLOSED, …) and PAST are already narrowed by the backend —
+  // re-filtering here would only desync the rows from the server's totalElements/pagination.
+  if (isServerFiltered(status)) return draws;
   if (!status || status === 'all') return draws;
-  const now = Date.now();
   return draws.filter(d => {
     switch (status) {
-      // "Passés" = the draw time itself is behind us, regardless of lifecycle/result state.
-      case 'PAST':         return Date.parse(d.scheduledAt) < now;
       case 'LOCKED':       return d.lifecycleStatus === status;
       case 'EXPECTED_OR_MISSING':
         return d.resultStatus === 'EXPECTED' || d.resultStatus === 'MISSING';
@@ -248,9 +253,13 @@ export class AdminGeneratedDrawsApiService {
             params: {
               from,
               to,
-              // Lifecycle statuses are filtered server-side so pagination and totalElements
-              // stay accurate; result-derived filters (PAST, EXPECTED…) remain client-side.
+              // Lifecycle statuses and PAST are filtered server-side so pagination and
+              // totalElements stay accurate; result-derived filters (EXPECTED, CONFIRMED…)
+              // have no backend equivalent and remain client-side.
               ...(status ? { status } : {}),
+              // "Passés" is a time-of-day question, not a business-date one: a draw at 12:29
+              // today is past at 14:00 while still sitting inside today's from/to window.
+              ...(q.status === 'PAST' ? { scheduledBefore: new Date().toISOString() } : {}),
               // The 2-day window regularly holds 50-60+ draws — dumping them all onto one
               // unpaginated page defeats the "next page" control entirely (there was never a
               // second page to go to).
