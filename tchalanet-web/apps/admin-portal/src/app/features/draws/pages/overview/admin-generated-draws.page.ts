@@ -14,7 +14,12 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { TCH_DEFAULT_PAGE_SIZE } from '@tch/api';
 import { AccessService } from '@tch/core/auth';
 import { AdminListStatusOption, AdminListSurface, TchSectionError } from '@tch/ui/components';
-import { TchAsyncReadyDirective, TchAsyncViewComponent, resourceErrorVm, tchMutation } from '@tch/web/async';
+import {
+  TchAsyncReadyDirective,
+  TchAsyncViewComponent,
+  resourceErrorVm,
+  tchMutation,
+} from '@tch/web/async';
 import { AdminPageShellComponent } from '@tch/ui/console';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
 
@@ -98,28 +103,28 @@ export class AdminGeneratedDrawsPage {
   readonly today = TODAY;
 
   readonly statusFilters: { key: DrawStatusFilter; label: string }[] = [
-    { key: 'all',          label: 'Tous les statuts' },
-    { key: 'SCHEDULED',    label: consoleDrawStatusLabel('SCHEDULED') },
-    { key: 'OPEN',         label: consoleDrawStatusLabel('OPEN') },
-    { key: 'LOCKED',       label: consoleDrawStatusLabel('LOCKED') },
-    { key: 'CLOSED',       label: consoleDrawStatusLabel('CLOSED') },
-    { key: 'RESULTED',     label: consoleDrawStatusLabel('RESULTED') },
-    { key: 'SETTLED',      label: consoleDrawStatusLabel('SETTLED') },
-    { key: 'CANCELLED',    label: consoleDrawStatusLabel('CANCELLED') },
-    { key: 'ARCHIVED',     label: consoleDrawStatusLabel('ARCHIVED') },
-    { key: 'PAST',         label: 'Terminés / à traiter' },
-    { key: 'NOT_DUE',      label: consoleDrawResultStatusLabel('NOT_DUE') },
-    { key: 'EXPECTED',     label: consoleDrawResultStatusLabel('EXPECTED') },
-    { key: 'MISSING',      label: consoleDrawResultStatusLabel('MISSING') },
-    { key: 'PROVISIONAL',  label: consoleDrawResultStatusLabel('PROVISIONAL') },
-    { key: 'CONFIRMED',    label: consoleDrawResultStatusLabel('CONFIRMED') },
+    { key: 'all', label: 'Tous les statuts' },
+    { key: 'SCHEDULED', label: consoleDrawStatusLabel('SCHEDULED') },
+    { key: 'OPEN', label: consoleDrawStatusLabel('OPEN') },
+    { key: 'LOCKED', label: consoleDrawStatusLabel('LOCKED') },
+    { key: 'CLOSED', label: consoleDrawStatusLabel('CLOSED') },
+    { key: 'RESULTED', label: consoleDrawStatusLabel('RESULTED') },
+    { key: 'SETTLED', label: consoleDrawStatusLabel('SETTLED') },
+    { key: 'CANCELLED', label: consoleDrawStatusLabel('CANCELLED') },
+    { key: 'ARCHIVED', label: consoleDrawStatusLabel('ARCHIVED') },
+    { key: 'PAST', label: 'Terminés / à traiter' },
+    { key: 'NOT_DUE', label: consoleDrawResultStatusLabel('NOT_DUE') },
+    { key: 'EXPECTED', label: consoleDrawResultStatusLabel('EXPECTED') },
+    { key: 'MISSING', label: consoleDrawResultStatusLabel('MISSING') },
+    { key: 'PROVISIONAL', label: consoleDrawResultStatusLabel('PROVISIONAL') },
+    { key: 'CONFIRMED', label: consoleDrawResultStatusLabel('CONFIRMED') },
     { key: 'SOURCE_ERROR', label: consoleDrawResultStatusLabel('SOURCE_ERROR') },
   ];
 
   readonly datePresets: { key: DatePreset; label: string }[] = [
-    { key: 'LAST_48H',  label: '48 dernières heures' },
-    { key: 'TODAY',     label: "Aujourd'hui" },
-    { key: 'TOMORROW',  label: 'Demain' },
+    { key: 'LAST_48H', label: '48 dernières heures' },
+    { key: 'TODAY', label: "Aujourd'hui" },
+    { key: 'TOMORROW', label: 'Demain' },
     { key: 'THIS_WEEK', label: 'Cette semaine' },
   ];
 
@@ -133,13 +138,16 @@ export class AdminGeneratedDrawsPage {
   readonly fromDateValue = computed(() => isoDateToLocalDate(this.fromDate()));
   readonly toDateValue = computed(() => isoDateToLocalDate(this.toDate()));
   readonly hasCustomDateRange = computed(() => this.qp().has('from') || this.qp().has('to'));
-  readonly statusFilter = computed<DrawStatusFilter>(() => statusFilterFromQuery(this.qp().get('status')));
+  readonly statusFilter = computed<DrawStatusFilter>(() =>
+    statusFilterFromQuery(this.qp().get('status')),
+  );
   readonly searchQuery = computed(() => this.qp().get('q')?.trim() ?? '');
-  readonly hasActiveFilters = computed(() =>
-    this.hasCustomDateRange()
-    || this.datePreset() !== 'LAST_48H'
-    || this.statusFilter() !== 'all'
-    || !!this.searchQuery(),
+  readonly hasActiveFilters = computed(
+    () =>
+      this.hasCustomDateRange() ||
+      this.datePreset() !== 'LAST_48H' ||
+      this.statusFilter() !== 'all' ||
+      !!this.searchQuery(),
   );
   readonly statusFilterOptions = computed<readonly AdminListStatusOption[]>(() =>
     this.statusFilters
@@ -160,7 +168,10 @@ export class AdminGeneratedDrawsPage {
   }));
   readonly drawsError = resourceErrorVm(this.draws, 'admin.generatedDraws.list');
   readonly allDraws = computed(() => {
-    const statusFiltered = this.api.filterDrawsByStatus(this.draws.value()?.items ?? [], this.statusFilter());
+    const statusFiltered = this.api.filterDrawsByStatus(
+      this.draws.value()?.items ?? [],
+      this.statusFilter(),
+    );
     return this.api.filterDrawsByQuery(statusFiltered, this.searchQuery());
   });
   readonly totalElements = computed(() => this.draws.value()?.totalElements ?? 0);
@@ -170,9 +181,13 @@ export class AdminGeneratedDrawsPage {
    */
   readonly pageSize = computed(() => this.draws.value()?.size ?? TCH_DEFAULT_PAGE_SIZE);
   readonly isEmpty = (): boolean => this.groupedDraws().length === 0;
-  readonly canEnterManualResults = computed(() => this.access.can(CONSOLE_DRAW_RESULT_ACCESS.manual));
+  readonly canEnterManualResults = computed(() =>
+    this.access.can(CONSOLE_DRAW_RESULT_ACCESS.manual),
+  );
   readonly canConfirmResults = computed(() => this.access.can(CONSOLE_DRAW_RESULT_ACCESS.confirm));
-  readonly canOverrideResults = computed(() => this.access.can(CONSOLE_DRAW_RESULT_ACCESS.override));
+  readonly canOverrideResults = computed(() =>
+    this.access.can(CONSOLE_DRAW_RESULT_ACCESS.override),
+  );
   readonly canManageDrawLifecycle = computed(() =>
     this.access.can([{ role: 'SUPER_ADMIN' }, { permission: 'draw.lifecycle.manage' }]),
   );
@@ -207,8 +222,8 @@ export class AdminGeneratedDrawsPage {
       this.draws.reload();
     },
     onError: () => {
-      this.resultMessage.set("Impossible d'enregistrer le résultat.");
-      return true;
+      // Keep the normalized mutation feedback; the drawer owns its presentation.
+      this.resultMessage.set(null);
     },
   });
 
@@ -217,7 +232,9 @@ export class AdminGeneratedDrawsPage {
     const fb = this.saveResult.feedback();
     return fb?.kind === 'success' ? 'success' : fb?.kind === 'error' ? 'error' : 'ready';
   });
-  readonly resultSaveMessage = computed(() => this.resultMessage());
+  readonly resultSaveMessage = computed(
+    () => this.resultMessage() ?? this.saveResult.feedback()?.vm?.message ?? null,
+  );
 
   // ── Actions de cycle de vie (mutation + pending par ligne) ──────────────────
   readonly pendingDrawIds = signal<ReadonlySet<string>>(new Set());
@@ -225,7 +242,9 @@ export class AdminGeneratedDrawsPage {
 
   readonly lifecycle = tchMutation<LifecycleInput, GeneratedDrawView[]>({
     run: input =>
-      this.api.lifecycleDraws(input.action, input.drawIds, input.reason, { suppressShellFeedback: true }),
+      this.api.lifecycleDraws(input.action, input.drawIds, input.reason, {
+        suppressShellFeedback: true,
+      }),
     source: 'admin.generatedDraws.lifecycle',
     onSuccess: (_result, input) => {
       this.pendingDrawIds.set(new Set());
@@ -294,10 +313,18 @@ export class AdminGeneratedDrawsPage {
 
   onKpiSelected(kpi: GeneratedDrawsSummaryKpi): void {
     switch (kpi) {
-      case 'today':     this.onKpiToday();     break;
-      case 'salesOpen': this.onKpiSalesOpen(); break;
-      case 'expected':  this.onKpiExpected();  break;
-      case 'confirmed': this.onKpiConfirmed(); break;
+      case 'today':
+        this.onKpiToday();
+        break;
+      case 'salesOpen':
+        this.onKpiSalesOpen();
+        break;
+      case 'expected':
+        this.onKpiExpected();
+        break;
+      case 'confirmed':
+        this.onKpiConfirmed();
+        break;
     }
   }
 
@@ -319,9 +346,15 @@ export class AdminGeneratedDrawsPage {
   }
 
   // ── Drawer ──────────────────────────────────────────────────────────────────
-  onEnterResult(draw: GeneratedDrawView): void { this.openResultDrawer(draw); }
-  onViewResult(draw: GeneratedDrawView): void { this.openResultDrawer(draw); }
-  onVerifySource(draw: GeneratedDrawView): void { this.openResultDrawer(draw); }
+  onEnterResult(draw: GeneratedDrawView): void {
+    this.openResultDrawer(draw);
+  }
+  onViewResult(draw: GeneratedDrawView): void {
+    this.openResultDrawer(draw);
+  }
+  onVerifySource(draw: GeneratedDrawView): void {
+    this.openResultDrawer(draw);
+  }
 
   onViewDetails(draw: GeneratedDrawView): void {
     this.router.navigate(['/app/admin/draws', draw.drawId]);
@@ -370,13 +403,28 @@ export class AdminGeneratedDrawsPage {
   }
 
   // ── Actions de cycle de vie ─────────────────────────────────────────────────
-  onOpenDraw(draw: GeneratedDrawView): void { this.openLifecycleDialog(draw, 'open'); }
-  onCloseDraw(draw: GeneratedDrawView): void { this.openLifecycleDialog(draw, 'close'); }
-  onLockDraw(draw: GeneratedDrawView): void { this.openLifecycleDialog(draw, 'lock'); }
-  onUnlockDraw(draw: GeneratedDrawView): void { this.openLifecycleDialog(draw, 'unlock'); }
-  onCancelDraw(draw: GeneratedDrawView): void { this.openLifecycleDialog(draw, 'cancel'); }
-  onArchiveDraw(draw: GeneratedDrawView): void { this.openLifecycleDialog(draw, 'archive'); }
-  onBulkLifecycle(event: { action: DrawLifecycleAction; draws: readonly GeneratedDrawView[] }): void {
+  onOpenDraw(draw: GeneratedDrawView): void {
+    this.openLifecycleDialog(draw, 'open');
+  }
+  onCloseDraw(draw: GeneratedDrawView): void {
+    this.openLifecycleDialog(draw, 'close');
+  }
+  onLockDraw(draw: GeneratedDrawView): void {
+    this.openLifecycleDialog(draw, 'lock');
+  }
+  onUnlockDraw(draw: GeneratedDrawView): void {
+    this.openLifecycleDialog(draw, 'unlock');
+  }
+  onCancelDraw(draw: GeneratedDrawView): void {
+    this.openLifecycleDialog(draw, 'cancel');
+  }
+  onArchiveDraw(draw: GeneratedDrawView): void {
+    this.openLifecycleDialog(draw, 'archive');
+  }
+  onBulkLifecycle(event: {
+    action: DrawLifecycleAction;
+    draws: readonly GeneratedDrawView[];
+  }): void {
     this.openLifecycleDialog(event.draws, event.action);
   }
 
@@ -412,9 +460,11 @@ export class AdminGeneratedDrawsPage {
   }
 
   private hasResult(draw: GeneratedDrawView): boolean {
-    return draw.resultStatus === 'PROVISIONAL'
-      || draw.resultStatus === 'CONFIRMED'
-      || (draw.numbers?.length ?? 0) > 0;
+    return (
+      draw.resultStatus === 'PROVISIONAL' ||
+      draw.resultStatus === 'CONFIRMED' ||
+      (draw.numbers?.length ?? 0) > 0
+    );
   }
 
   private hasNoResult(draw: GeneratedDrawView): boolean {
@@ -436,32 +486,53 @@ export class AdminGeneratedDrawsPage {
 
 function datePresetFromQuery(value: string | null): DatePreset {
   switch (value?.trim().toUpperCase()) {
-    case 'TODAY': return 'TODAY';
-    case 'TOMORROW': return 'TOMORROW';
-    case 'THIS_WEEK': return 'THIS_WEEK';
-    default: return 'LAST_48H';
+    case 'TODAY':
+      return 'TODAY';
+    case 'TOMORROW':
+      return 'TOMORROW';
+    case 'THIS_WEEK':
+      return 'THIS_WEEK';
+    default:
+      return 'LAST_48H';
   }
 }
 
 function statusFilterFromQuery(value: string | null): DrawStatusFilter {
   switch (value?.trim().toUpperCase()) {
-    case 'SCHEDULED': return 'SCHEDULED';
-    case 'OPEN': return 'OPEN';
-    case 'LOCKED': return 'LOCKED';
-    case 'CLOSED': return 'CLOSED';
-    case 'RESULTED': return 'RESULTED';
-    case 'SETTLED': return 'SETTLED';
-    case 'CANCELLED': return 'CANCELLED';
-    case 'ARCHIVED': return 'ARCHIVED';
-    case 'PAST': return 'PAST';
-    case 'EXPECTED_OR_MISSING': return 'EXPECTED_OR_MISSING';
-    case 'NOT_DUE': return 'NOT_DUE';
-    case 'EXPECTED': return 'EXPECTED';
-    case 'MISSING': return 'MISSING';
-    case 'PROVISIONAL': return 'PROVISIONAL';
-    case 'CONFIRMED': return 'CONFIRMED';
-    case 'SOURCE_ERROR': return 'SOURCE_ERROR';
-    default: return 'all';
+    case 'SCHEDULED':
+      return 'SCHEDULED';
+    case 'OPEN':
+      return 'OPEN';
+    case 'LOCKED':
+      return 'LOCKED';
+    case 'CLOSED':
+      return 'CLOSED';
+    case 'RESULTED':
+      return 'RESULTED';
+    case 'SETTLED':
+      return 'SETTLED';
+    case 'CANCELLED':
+      return 'CANCELLED';
+    case 'ARCHIVED':
+      return 'ARCHIVED';
+    case 'PAST':
+      return 'PAST';
+    case 'EXPECTED_OR_MISSING':
+      return 'EXPECTED_OR_MISSING';
+    case 'NOT_DUE':
+      return 'NOT_DUE';
+    case 'EXPECTED':
+      return 'EXPECTED';
+    case 'MISSING':
+      return 'MISSING';
+    case 'PROVISIONAL':
+      return 'PROVISIONAL';
+    case 'CONFIRMED':
+      return 'CONFIRMED';
+    case 'SOURCE_ERROR':
+      return 'SOURCE_ERROR';
+    default:
+      return 'all';
   }
 }
 
