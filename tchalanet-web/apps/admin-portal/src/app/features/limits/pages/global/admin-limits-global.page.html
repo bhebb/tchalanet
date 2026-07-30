@@ -1,75 +1,70 @@
 <div class="limits-child-page">
   <div class="limits-child-page__toolbar">
-    <p class="limits-child-page__scope-note">
-      Limites appliquées globalement à tous les terminaux du tenant.
-    </p>
+    <p class="limits-child-page__scope-note">{{ 'admin.limits.global.scopeNote' | translate }}</p>
     <a mat-stroked-button routerLink="../system" class="limits-child-page__rules-link">
       <span class="material-symbols-outlined">info</span>
-      Règles supportées
+      {{ 'admin.limits.common.supportedRules' | translate }}
     </a>
     <button mat-stroked-button (click)="load()" [disabled]="loading()">
       <span class="material-symbols-outlined">refresh</span>
     </button>
     @if (!loading() && allRows().length > 0) {
-      <button
-        mat-flat-button
-        color="primary"
-        data-testid="admin-limits-add"
-        (click)="openAdd()"
-        [disabled]="unassignedRules().length === 0">
-        <span class="material-symbols-outlined">add</span>
-        Ajouter
-      </button>
+    <button
+      mat-flat-button
+      color="primary"
+      data-testid="admin-limits-add"
+      (click)="openAdd()"
+      [disabled]="unassignedRules().length === 0"
+    >
+      <span class="material-symbols-outlined">add</span>
+      {{ 'admin.limits.common.add' | translate }}
+    </button>
     }
   </div>
 
   @if (loading()) {
-    <tch-loading label="Chargement des limites…" />
+  <tch-loading [label]="'admin.limits.common.loading' | translate" />
   } @else if (pageError(); as err) {
-    <tch-error-panel
-      [title]="err.title"
-      [message]="err.message"
-      [showRetry]="true"
-      retryLabel="Réessayer"
-      (retry)="load()"
-    />
+  <tch-error-panel
+    [title]="err.title"
+    [message]="err.message"
+    [showRetry]="true"
+    [retryLabel]="'common.retry' | translate"
+    (retry)="load()"
+  />
   } @else if (allRows().length === 0) {
-    <tch-admin-empty-state
-      icon="policy"
-      title="Aucune règle disponible"
-      message="Le catalogue de règles est vide."
-    />
+  <tch-admin-empty-state
+    icon="policy"
+    [title]="'admin.limits.child.noRulesTitle' | translate"
+    [message]="'admin.limits.child.noRulesMessage' | translate"
+  />
+  } @else { @if (actionError(); as err) {
+  <tch-section-error
+    class="limits-child-page__action-feedback"
+    [title]="err.title"
+    [message]="err.message"
+    [severity]="err.severity"
+  />
+  } @else if (actionNotice()) {
+  <tch-section-error
+    class="limits-child-page__action-feedback"
+    [title]="'admin.limits.common.actionDone' | translate"
+    [message]="actionNotice()! | translate"
+    severity="info"
+  />
+  } @if (activeRows().length === 0) {
+  <tch-admin-empty-state
+    icon="policy"
+    [title]="'admin.limits.child.noConfiguredTitle' | translate"
+    [message]="'admin.limits.child.noConfiguredGlobal' | translate"
+  />
   } @else {
-    @if (actionError(); as err) {
-      <tch-section-error
-        class="limits-child-page__action-feedback"
-        [title]="err.title"
-        [message]="err.message"
-        [severity]="err.severity"
-      />
-    } @else if (actionNotice()) {
-      <tch-section-error
-        class="limits-child-page__action-feedback"
-        title="Action effectuée"
-        [message]="actionNotice()!"
-        severity="info"
-      />
-    }
-
-    @if (activeRows().length === 0) {
-      <tch-admin-empty-state
-        icon="policy"
-        title="Aucune limite configurée"
-        message="Cliquez sur Ajouter pour configurer une première limite."
-      />
-    } @else {
-      <tch-limit-assignments-table
-        data-testid="admin-limits-active-table"
-        [rows]="activeRows()"
-        [canEdit]="true"
-        (upsert)="openUpsert($event)"
-        (delete)="confirmDelete($event)"
-      />
-    }
-  }
+  <tch-limit-assignments-table
+    data-testid="admin-limits-active-table"
+    [rows]="activeRows()"
+    [canEdit]="true"
+    (upsert)="openUpsert($event)"
+    (delete)="confirmDelete($event)"
+  />
+  } }
 </div>

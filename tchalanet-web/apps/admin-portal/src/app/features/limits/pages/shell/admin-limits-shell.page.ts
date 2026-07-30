@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
 
 import { AdminPageShellComponent } from '@tch/ui/console';
 
@@ -7,10 +8,7 @@ import { AdminPageShellComponent } from '@tch/ui/console';
   selector: 'tch-admin-limits-shell-page',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    RouterOutlet,
-    AdminPageShellComponent,
-  ],
+  imports: [RouterOutlet, TranslatePipe, AdminPageShellComponent],
   templateUrl: './admin-limits-shell.page.html',
   styleUrl: './admin-limits-shell.page.scss',
 })

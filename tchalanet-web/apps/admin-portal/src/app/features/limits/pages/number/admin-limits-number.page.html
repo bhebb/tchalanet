@@ -1,33 +1,36 @@
 <div class="limits-child-page">
-  <div class="limits-number__actions" aria-label="Actions rapides par numéro">
+  <div
+    class="limits-number__actions"
+    [attr.aria-label]="'admin.limits.number.actionsAria' | translate"
+  >
     @for (action of quickActions; track action.ruleKey) {
-      <article
-        class="limits-number__action-card"
-        [class.limits-number__action-card--configured]="actionStateLabel(action.ruleKey) === 'Configurée'">
-        <span class="material-symbols-outlined limits-number__action-icon">{{ action.icon }}</span>
-        <span class="limits-number__action-body">
-          <strong>{{ action.title }}</strong>
-          <small>{{ action.description }}</small>
-        </span>
-        <span class="limits-number__action-state">{{ actionStateLabel(action.ruleKey) }}</span>
-        <button
-          mat-stroked-button
-          type="button"
-          [disabled]="!isActionAvailable(action.ruleKey)"
-          (click)="openNumberAction(action.ruleKey)">
-          {{ action.cta }}
-        </button>
-      </article>
+    <article
+      class="limits-number__action-card"
+      [class.limits-number__action-card--configured]="isActionConfigured(action.ruleKey)"
+    >
+      <span class="material-symbols-outlined limits-number__action-icon">{{ action.icon }}</span>
+      <span class="limits-number__action-body">
+        <strong>{{ action.titleKey | translate }}</strong>
+        <small>{{ action.descriptionKey | translate }}</small>
+      </span>
+      <span class="limits-number__action-state">{{ actionStateLabel(action.ruleKey) }}</span>
+      <button
+        mat-stroked-button
+        type="button"
+        [disabled]="!isActionAvailable(action.ruleKey)"
+        (click)="openNumberAction(action.ruleKey)"
+      >
+        {{ action.ctaKey | translate }}
+      </button>
+    </article>
     }
   </div>
 
   <div class="limits-child-page__toolbar">
-    <p class="limits-number__action-copy">
-      Pour les gains réels, utilisez les résultats et rapports; ici on bloque surtout les numéros et les mises vendues.
-    </p>
+    <p class="limits-number__action-copy">{{ 'admin.limits.number.copy' | translate }}</p>
     <a mat-stroked-button routerLink="../system" class="limits-child-page__rules-link">
       <span class="material-symbols-outlined">info</span>
-      Définitions et simulation
+      {{ 'admin.limits.common.supportedRules' | translate }}
     </a>
     <button mat-stroked-button (click)="load()" [disabled]="loading()">
       <span class="material-symbols-outlined">refresh</span>
@@ -35,51 +38,47 @@
   </div>
 
   @if (loading()) {
-    <tch-loading label="Chargement…" />
+  <tch-loading [label]="'admin.limits.common.loading' | translate" />
   } @else if (pageError(); as err) {
-    <tch-error-panel
-      [title]="err.title"
-      [message]="err.message"
-      [showRetry]="true"
-      retryLabel="Réessayer"
-      (retry)="load()"
-    />
+  <tch-error-panel
+    [title]="err.title"
+    [message]="err.message"
+    [showRetry]="true"
+    [retryLabel]="'common.retry' | translate"
+    (retry)="load()"
+  />
   } @else if (allRows().length === 0) {
-    <tch-admin-empty-state
-      icon="numbers"
-      title="Aucune règle par numéro"
-      message="Le backend ne publie pas de règles par numéro."
-    />
+  <tch-admin-empty-state
+    icon="numbers"
+    [title]="'admin.limits.child.catalogEmptyTitle' | translate"
+    [message]="'admin.limits.child.catalogEmptyMessage' | translate"
+  />
+  } @else { @if (actionError(); as err) {
+  <tch-section-error
+    class="limits-child-page__action-feedback"
+    [title]="err.title"
+    [message]="err.message"
+    [severity]="err.severity"
+  />
+  } @else if (actionNotice()) {
+  <tch-section-error
+    class="limits-child-page__action-feedback"
+    [title]="'admin.limits.common.actionDone' | translate"
+    [message]="actionNotice()! | translate"
+    severity="info"
+  />
+  } @if (activeRows().length === 0) {
+  <tch-admin-empty-state
+    icon="numbers"
+    [title]="'admin.limits.child.noConfiguredTitle' | translate"
+    [message]="'admin.limits.child.noConfiguredNumber' | translate"
+  />
   } @else {
-    @if (actionError(); as err) {
-      <tch-section-error
-        class="limits-child-page__action-feedback"
-        [title]="err.title"
-        [message]="err.message"
-        [severity]="err.severity"
-      />
-    } @else if (actionNotice()) {
-      <tch-section-error
-        class="limits-child-page__action-feedback"
-        title="Action effectuée"
-        [message]="actionNotice()!"
-        severity="info"
-      />
-    }
-
-    @if (activeRows().length === 0) {
-      <tch-admin-empty-state
-        icon="numbers"
-        title="Aucune règle par numéro active"
-        message="Cliquez sur Ajouter pour configurer une limite d'exposition ou un blocage de numéro."
-      />
-    } @else {
-      <tch-limit-assignments-table
-        [rows]="activeRows()"
-        [canEdit]="true"
-        (upsert)="openUpsert($event)"
-        (delete)="confirmDelete($event)"
-      />
-    }
-  }
+  <tch-limit-assignments-table
+    [rows]="activeRows()"
+    [canEdit]="true"
+    (upsert)="openUpsert($event)"
+    (delete)="confirmDelete($event)"
+  />
+  } }
 </div>

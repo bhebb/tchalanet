@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -8,10 +15,9 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTableModule } from '@angular/material/table';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
-import { webAppErrorFromProblemDetail } from '@tch/api';
-import type { ProblemDetail } from '@tch/api';
+import { mapHttpErrorToProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 import { TchErrorPanel, TchLoading } from '@tch/ui/components';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
@@ -19,13 +25,18 @@ import { AdminEmptyStateComponent, AdminStatusPillComponent } from '@tch/ui/cons
 import type { AdminStatusTone } from '@tch/ui/console';
 
 import { AdminLimitsApi } from '../../data-access/admin-limits-api.service';
-import type { BreachOutcome, LimitAssignmentItem, LimitRuleSpec, TargetType } from '../../data-access/admin-limits.models';
+import type {
+  BreachOutcome,
+  LimitAssignmentItem,
+  LimitRuleSpec,
+  TargetType,
+} from '../../data-access/admin-limits.models';
 import { formatLimitCategory, formatLimitParams } from '../../data-access/admin-limits.models';
 
-const SIM_SCOPE_OPTIONS: { value: TargetType; label: string; requiresId: boolean }[] = [
-  { value: 'TENANT',          label: 'Global',              requiresId: false },
-  { value: 'DRAW_CHANNEL',    label: 'Par canal',           requiresId: true  },
-  { value: 'SELLER_TERMINAL', label: 'Par vendeur',         requiresId: true  },
+const SIM_SCOPE_OPTIONS: { value: TargetType; labelKey: string; requiresId: boolean }[] = [
+  { value: 'TENANT', labelKey: 'admin.limits.system.scope.global', requiresId: false },
+  { value: 'DRAW_CHANNEL', labelKey: 'admin.limits.system.scope.draw', requiresId: true },
+  { value: 'SELLER_TERMINAL', labelKey: 'admin.limits.system.scope.seller', requiresId: true },
 ];
 
 @Component({
@@ -33,6 +44,7 @@ const SIM_SCOPE_OPTIONS: { value: TargetType; label: string; requiresId: boolean
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    TranslatePipe,
     FormsModule,
     MatButtonModule,
     MatExpansionModule,
@@ -65,7 +77,10 @@ export class AdminLimitsSystemPage implements OnInit {
     const seen = new Set<string>();
     const result: string[] = [];
     for (const r of this.rules()) {
-      if (!seen.has(r.category)) { seen.add(r.category); result.push(r.category); }
+      if (!seen.has(r.category)) {
+        seen.add(r.category);
+        result.push(r.category);
+      }
     }
     return result;
   });
@@ -96,12 +111,12 @@ export class AdminLimitsSystemPage implements OnInit {
   readonly simAssignments = signal<LimitAssignmentItem[]>([]);
   readonly simLoaded = signal(false);
 
-  readonly simRequiresId = computed(() =>
-    SIM_SCOPE_OPTIONS.find(o => o.value === this.simScopeType())?.requiresId ?? false,
+  readonly simRequiresId = computed(
+    () => SIM_SCOPE_OPTIONS.find(o => o.value === this.simScopeType())?.requiresId ?? false,
   );
 
-  readonly simCanLoad = computed(() =>
-    !this.simLoading() && (!this.simRequiresId() || this.simTargetId().trim().length > 0),
+  readonly simCanLoad = computed(
+    () => !this.simLoading() && (!this.simRequiresId() || this.simTargetId().trim().length > 0),
   );
 
   ngOnInit(): void {
@@ -116,7 +131,10 @@ export class AdminLimitsSystemPage implements OnInit {
     this.loading.set(true);
     this.pageError.set(null);
     this.api.listRules({ suppressShellFeedback: true }).subscribe({
-      next: rules => { this.rules.set(rules); this.loading.set(false); },
+      next: rules => {
+        this.rules.set(rules);
+        this.loading.set(false);
+      },
       error: (err: unknown) => {
         this.pageError.set(this.toPageError(err, 'admin.limits.system'));
         this.loading.set(false);
@@ -130,17 +148,19 @@ export class AdminLimitsSystemPage implements OnInit {
     this.simLoading.set(true);
     this.simError.set(null);
     this.simLoaded.set(false);
-    this.api.listAssignments(this.simScopeType(), targetId, { suppressShellFeedback: true }).subscribe({
-      next: view => {
-        this.simAssignments.set(view.items.filter(i => i.enabled));
-        this.simLoading.set(false);
-        this.simLoaded.set(true);
-      },
-      error: (err: unknown) => {
-        this.simError.set(this.toPageError(err, 'admin.limits.simulate'));
-        this.simLoading.set(false);
-      },
-    });
+    this.api
+      .listAssignments(this.simScopeType(), targetId, { suppressShellFeedback: true })
+      .subscribe({
+        next: view => {
+          this.simAssignments.set(view.items.filter(i => i.enabled));
+          this.simLoading.set(false);
+          this.simLoaded.set(true);
+        },
+        error: (err: unknown) => {
+          this.simError.set(this.toPageError(err, 'admin.limits.simulate'));
+          this.simLoading.set(false);
+        },
+      });
   }
 
   onSimScopeChange(): void {
@@ -162,10 +182,11 @@ export class AdminLimitsSystemPage implements OnInit {
   }
 
   defaultLabel(outcome: BreachOutcome): string {
-    if (outcome === 'BLOCK') return 'Bloquer';
-    if (outcome === 'WARN') return 'Avertir';
-    if (outcome === 'REQUIRE_APPROVAL') return 'Approbation';
-    if (outcome === 'ALLOW') return 'Autoriser';
+    if (outcome === 'BLOCK') return this.translate.instant('admin.limits.dialog.block');
+    if (outcome === 'WARN') return this.translate.instant('admin.limits.dialog.warn');
+    if (outcome === 'REQUIRE_APPROVAL')
+      return this.translate.instant('admin.limits.table.approvalRequired');
+    if (outcome === 'ALLOW') return this.translate.instant('admin.limits.table.allow');
     return outcome;
   }
 
@@ -177,21 +198,15 @@ export class AdminLimitsSystemPage implements OnInit {
     const spec = this.rulesIndex().get(item.ruleKey);
     if (spec) return formatLimitParams(spec, item.params);
     const params = item.params;
-    if (!params || (typeof params === 'object' && Object.keys(params as object).length === 0)) return '—';
+    if (!params || (typeof params === 'object' && Object.keys(params as object).length === 0))
+      return '—';
     return 'Paramètres configurés';
   }
 
   private toPageError(err: unknown, source: string): ErrorViewModel {
-    const problem = (err as { error?: ProblemDetail })?.error;
-    if (problem) {
-      const normalized = webAppErrorFromProblemDetail(problem, source, 'page');
-      const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
-      return toErrorViewModel(normalized, copy);
-    }
-    return {
-      severity: 'error',
-      title: this.translate.instant('common.errors.fallback.title'),
-      message: this.translate.instant('common.errors.fallback.message'),
-    };
+    const problem = mapHttpErrorToProblemDetail(err);
+    const normalized = webAppErrorFromProblemDetail(problem, source, 'page');
+    const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+    return toErrorViewModel(normalized, copy);
   }
 }

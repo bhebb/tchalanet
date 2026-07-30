@@ -1,13 +1,17 @@
 <h2 mat-dialog-title>
-  @if (mode() === 'add') { Ajouter une règle }
-  @else if (assignment()) { Modifier la règle }
-  @else { Configurer la règle }
+  @if (mode() === 'add') {
+    {{ 'admin.limits.dialog.addTitle' | translate }}
+  } @else if (assignment()) {
+    {{ 'admin.limits.dialog.editTitle' | translate }}
+  } @else {
+    {{ 'admin.limits.dialog.configureTitle' | translate }}
+  }
 </h2>
 
 <mat-dialog-content class="upsert-limit-dialog__content">
   @if (mode() === 'add') {
     <mat-form-field appearance="outline" class="upsert-limit-dialog__rule-picker">
-      <mat-label>Type de limite</mat-label>
+      <mat-label>{{ 'admin.limits.dialog.ruleType' | translate }}</mat-label>
       <mat-select data-testid="limit-rule-select" (selectionChange)="onRuleSelected($event.value)">
         @for (rule of availableRules(); track rule.ruleKey) {
           <mat-option [value]="rule.ruleKey">{{ rule.label || rule.ruleKey }}</mat-option>
@@ -34,10 +38,14 @@
   @if (showParamForm()) {
     <form [formGroup]="form" class="upsert-limit-dialog__form">
       <mat-form-field appearance="outline">
-        <mat-label>Action</mat-label>
+        <mat-label>{{ 'admin.limits.dialog.action' | translate }}</mat-label>
         <mat-select formControlName="onBreach">
           @for (o of breachOutcomes; track o) {
-            <mat-option [value]="o">{{ o === 'BLOCK' ? 'Bloquer' : 'Avertir' }}</mat-option>
+            <mat-option [value]="o">{{
+              o === 'BLOCK'
+                ? ('admin.limits.dialog.block' | translate)
+                : ('admin.limits.dialog.warn' | translate)
+            }}</mat-option>
           }
         </mat-select>
       </mat-form-field>
@@ -45,9 +53,9 @@
       @if (showValueCents()) {
         <mat-form-field appearance="outline">
           <mat-label>{{ amountFieldLabel() }}</mat-label>
-          <input matInput type="number" formControlName="valueCentsHtg" min="0.01" step="0.01">
+          <input matInput type="number" formControlName="valueCentsHtg" min="0.01" step="0.01" />
           @if (form.controls.valueCentsHtg.errors?.['min']) {
-            <mat-error>Le montant doit être positif.</mat-error>
+            <mat-error>{{ 'admin.limits.dialog.positiveAmount' | translate }}</mat-error>
           }
         </mat-form-field>
       }
@@ -55,83 +63,109 @@
       @if (showMaxCount()) {
         <mat-form-field appearance="outline">
           <mat-label>{{ countFieldLabel() }}</mat-label>
-          <input matInput type="number" formControlName="maxCount" min="1" step="1">
+          <input matInput type="number" formControlName="maxCount" min="1" step="1" />
           @if (form.controls.maxCount.errors?.['min']) {
-            <mat-error>La valeur doit être au moins 1.</mat-error>
+            <mat-error>{{ 'admin.limits.dialog.minimumOne' | translate }}</mat-error>
           }
         </mat-form-field>
       }
 
       @if (showWindowMinutes()) {
         <mat-form-field appearance="outline">
-          <mat-label>Fenêtre de temps (minutes)</mat-label>
-          <input matInput type="number" formControlName="windowMinutes" min="1" step="1">
+          <mat-label>{{ 'admin.limits.dialog.windowMinutes' | translate }}</mat-label>
+          <input matInput type="number" formControlName="windowMinutes" min="1" step="1" />
           @if (form.controls.windowMinutes.errors?.['min']) {
-            <mat-error>La durée doit être au moins 1 minute.</mat-error>
+            <mat-error>{{ 'admin.limits.dialog.minimumOneMinute' | translate }}</mat-error>
           }
         </mat-form-field>
       }
 
       @if (showBetTypeCode()) {
         <mat-form-field appearance="outline">
-          <mat-label>Code type de pari</mat-label>
-          <input matInput formControlName="betTypeCode" placeholder="ex: BORLETTE, MARIAJ">
+          <mat-label>{{ 'admin.limits.dialog.betTypeCode' | translate }}</mat-label>
+          <input
+            matInput
+            formControlName="betTypeCode"
+            [placeholder]="'admin.limits.dialog.betTypePlaceholder' | translate"
+          />
           @if (form.controls.betTypeCode.errors?.['required']) {
-            <mat-error>Champ obligatoire.</mat-error>
+            <mat-error>{{ 'admin.limits.dialog.required' | translate }}</mat-error>
           }
         </mat-form-field>
       }
 
       @if (showSelectionChips()) {
         <mat-form-field appearance="outline">
-          <mat-label>Numéros bloqués</mat-label>
-          <mat-chip-grid #chipGrid aria-label="Numéros bloqués">
+          <mat-label>{{ 'admin.limits.dialog.blockedNumbers' | translate }}</mat-label>
+          <mat-chip-grid
+            #chipGrid
+            [attr.aria-label]="'admin.limits.dialog.blockedNumbers' | translate"
+          >
             @for (sel of selections(); track sel) {
               <mat-chip (removed)="removeSelection(sel)">
                 {{ sel }}
-                <button matChipRemove aria-label="Retirer {{ sel }}">
+                <button
+                  matChipRemove
+                  [attr.aria-label]="
+                    'admin.limits.dialog.removeNumber' | translate: { number: sel }
+                  "
+                >
                   <span class="material-symbols-outlined">cancel</span>
                 </button>
               </mat-chip>
             }
             <input
               data-testid="limit-selection-input"
-              placeholder="Ex : 13, appuyez Entrée"
+              [placeholder]="'admin.limits.dialog.numberPlaceholder' | translate"
               [matChipInputFor]="chipGrid"
               [matChipInputSeparatorKeyCodes]="separatorKeyCodes"
               (matChipInputTokenEnd)="addSelection($event)"
             />
           </mat-chip-grid>
-          <mat-hint>Entrez un numéro puis appuyez sur Entrée ou virgule.</mat-hint>
+          <mat-hint>{{ 'admin.limits.dialog.numberHint' | translate }}</mat-hint>
         </mat-form-field>
         @if (selections().length === 0) {
           <p class="upsert-limit-dialog__field-error" data-testid="limit-selection-required">
-            Ajoutez au moins un numéro.
+            {{ 'admin.limits.dialog.numberRequired' | translate }}
           </p>
         }
       }
 
-      <mat-checkbox formControlName="enabled">Règle active</mat-checkbox>
+      <mat-checkbox formControlName="enabled">{{
+        'admin.limits.dialog.enabled' | translate
+      }}</mat-checkbox>
 
       <div class="upsert-limit-dialog__duration">
-        <p class="upsert-limit-dialog__duration-label">Durée d'application</p>
+        <p class="upsert-limit-dialog__duration-label">
+          {{ 'admin.limits.dialog.duration' | translate }}
+        </p>
         <mat-button-toggle-group
           [value]="durationMode()"
           (change)="durationMode.set($event.value)"
-          class="upsert-limit-dialog__duration-toggle">
-          <mat-button-toggle value="permanent">Permanent</mat-button-toggle>
-          <mat-button-toggle value="today">Aujourd'hui</mat-button-toggle>
-          <mat-button-toggle value="custom">Personnalisé</mat-button-toggle>
+          class="upsert-limit-dialog__duration-toggle"
+        >
+          <mat-button-toggle value="permanent">{{
+            'admin.limits.dialog.permanent' | translate
+          }}</mat-button-toggle>
+          <mat-button-toggle value="today">{{
+            'admin.limits.dialog.today' | translate
+          }}</mat-button-toggle>
+          <mat-button-toggle value="custom">{{
+            'admin.limits.dialog.custom' | translate
+          }}</mat-button-toggle>
         </mat-button-toggle-group>
         @if (showCustomEndDate()) {
           <mat-form-field appearance="outline">
-            <mat-label>Date de fin</mat-label>
+            <mat-label>{{ 'admin.limits.dialog.endDate' | translate }}</mat-label>
             <input
               matInput
               type="date"
               [value]="customEndsAt()"
-              (change)="onCustomEndsAtChange($event)">
-            <mat-hint>Fin de journée selon le fuseau {{ timezone() }}.</mat-hint>
+              (change)="onCustomEndsAtChange($event)"
+            />
+            <mat-hint>{{
+              'admin.limits.dialog.endDateHint' | translate: { timezone: timezone() }
+            }}</mat-hint>
           </mat-form-field>
         }
       </div>
@@ -139,7 +173,7 @@
       <div class="upsert-limit-dialog__preview" aria-live="polite">
         <span class="material-symbols-outlined">rule</span>
         <span>
-          <strong>Ce qui sera appliqué</strong>
+          <strong>{{ 'admin.limits.dialog.preview' | translate }}</strong>
           <small>{{ previewSentence() }}</small>
         </span>
       </div>
@@ -148,13 +182,20 @@
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-  <button mat-stroked-button mat-dialog-close>Annuler</button>
+  <button mat-stroked-button mat-dialog-close>
+    {{ 'admin.limits.dialog.cancel' | translate }}
+  </button>
   <button
     mat-flat-button
     color="primary"
     data-testid="limit-save"
     [disabled]="!canSave()"
-    (click)="save()">
-    {{ saving() ? 'Enregistrement…' : 'Enregistrer' }}
+    (click)="save()"
+  >
+    {{
+      saving()
+        ? ('admin.limits.dialog.saving' | translate)
+        : ('admin.limits.dialog.save' | translate)
+    }}
   </button>
 </mat-dialog-actions>

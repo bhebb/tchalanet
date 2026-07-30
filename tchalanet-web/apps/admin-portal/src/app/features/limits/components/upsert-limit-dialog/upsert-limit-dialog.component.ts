@@ -18,17 +18,22 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import type { MatChipInputEvent } from '@angular/material/chips';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
-import { webAppErrorFromProblemDetail } from '@tch/api';
-import type { ProblemDetail } from '@tch/api';
+import { mapHttpErrorToProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 import { RuntimeSettingsStore } from '@tch/shared-config';
 import { TchSectionError } from '@tch/ui/components';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 
 import { AdminLimitsApi } from '../../data-access/admin-limits-api.service';
-import type { BreachOutcome, LimitAssignmentItem, LimitRuleSpec, RuleKey, TargetType } from '../../data-access/admin-limits.models';
+import type {
+  BreachOutcome,
+  LimitAssignmentItem,
+  LimitRuleSpec,
+  RuleKey,
+  TargetType,
+} from '../../data-access/admin-limits.models';
 import {
   ParamSchema,
   buildParams,
@@ -44,6 +49,7 @@ const V0_BREACH_OUTCOMES: BreachOutcome[] = ['BLOCK', 'WARN'];
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    TranslatePipe,
     ReactiveFormsModule,
     MatButtonModule,
     MatButtonToggleModule,
@@ -86,29 +92,32 @@ export class UpsertLimitDialogComponent {
   readonly formRevision = signal(0);
 
   readonly showParamForm = computed(() => this.spec() !== null);
-  readonly showValueCents = computed(() =>
-    this.paramSchema() === 'CENTS' || this.paramSchema() === 'CENTS_BET_TYPE',
+  readonly showValueCents = computed(
+    () => this.paramSchema() === 'CENTS' || this.paramSchema() === 'CENTS_BET_TYPE',
   );
-  readonly showMaxCount = computed(() =>
-    this.paramSchema() === 'COUNT' || this.paramSchema() === 'WINDOW_COUNT',
+  readonly showMaxCount = computed(
+    () => this.paramSchema() === 'COUNT' || this.paramSchema() === 'WINDOW_COUNT',
   );
   readonly showWindowMinutes = computed(() => this.paramSchema() === 'WINDOW_COUNT');
-  readonly showBetTypeCode = computed(() =>
-    this.paramSchema() === 'BET_TYPE' || this.paramSchema() === 'CENTS_BET_TYPE',
+  readonly showBetTypeCode = computed(
+    () => this.paramSchema() === 'BET_TYPE' || this.paramSchema() === 'CENTS_BET_TYPE',
   );
   readonly showSelectionChips = computed(() => this.paramSchema() === 'SELECTION');
   readonly showCustomEndDate = computed(() => this.durationMode() === 'custom');
   readonly amountFieldLabel = computed(() => {
     const ruleKey = this.spec()?.ruleKey ?? '';
-    if (ruleKey.includes('EXPOSURE')) return 'Mise totale exposée maximum (HTG)';
-    return 'Montant maximum (HTG)';
+    if (ruleKey.includes('EXPOSURE'))
+      return this.translate.instant('admin.limits.dialog.maxExposure');
+    return this.translate.instant('admin.limits.dialog.maxAmount');
   });
   readonly countFieldLabel = computed(() => {
     const ruleKey = this.spec()?.ruleKey ?? '';
-    if (ruleKey.includes('LINES')) return 'Nombre maximum de lignes';
-    if (ruleKey.includes('TICKET_COUNT')) return 'Nombre maximum de tickets';
-    if (ruleKey.includes('SALES_COUNT')) return 'Nombre maximum de ventes';
-    return 'Nombre maximum';
+    if (ruleKey.includes('LINES')) return this.translate.instant('admin.limits.dialog.maxLines');
+    if (ruleKey.includes('TICKET_COUNT'))
+      return this.translate.instant('admin.limits.dialog.maxTickets');
+    if (ruleKey.includes('SALES_COUNT'))
+      return this.translate.instant('admin.limits.dialog.maxSales');
+    return this.translate.instant('admin.limits.dialog.maxCount');
   });
   readonly previewSentence = computed(() => {
     const spec = this.spec();
@@ -139,12 +148,13 @@ export class UpsertLimitDialogComponent {
     const value = this.runtimeSettings.settings().values['app.timezone'];
     return typeof value === 'string' && value.trim() ? value : 'America/Port-au-Prince';
   });
-  readonly canSave = computed(() =>
-    !this.saving() &&
-    this.spec() !== null &&
-    this.form.valid &&
-    (this.paramSchema() !== 'SELECTION' || this.selections().length > 0) &&
-    (this.durationMode() !== 'custom' || this.customEndsAt().length > 0),
+  readonly canSave = computed(
+    () =>
+      !this.saving() &&
+      this.spec() !== null &&
+      this.form.valid &&
+      (this.paramSchema() !== 'SELECTION' || this.selections().length > 0) &&
+      (this.durationMode() !== 'custom' || this.customEndsAt().length > 0),
   );
 
   readonly form = this.fb.nonNullable.group({
@@ -182,11 +192,7 @@ export class UpsertLimitDialogComponent {
    * Add new assignment: user must first pick the rule from `unassignedRules`.
    * Call this when no row.assignment exists yet and user clicks "Ajouter".
    */
-  initAdd(
-    unassignedRules: LimitRuleSpec[],
-    targetType: TargetType,
-    targetId: string | null,
-  ): void {
+  initAdd(unassignedRules: LimitRuleSpec[], targetType: TargetType, targetId: string | null): void {
     this.mode.set('add');
     this.availableRules.set(unassignedRules);
     this.targetType.set(targetType);
@@ -337,14 +343,7 @@ export class UpsertLimitDialogComponent {
   }
 
   private resolveError(err: unknown, source: string): ErrorViewModel {
-    const problem = (err as { error?: ProblemDetail })?.error;
-    if (!problem) {
-      return {
-        severity: 'error',
-        title: this.translate.instant('common.errors.fallback.title'),
-        message: this.translate.instant('common.errors.fallback.message'),
-      };
-    }
+    const problem = mapHttpErrorToProblemDetail(err);
     const normalized = webAppErrorFromProblemDetail(problem, source, 'section');
     const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
     return toErrorViewModel(normalized, copy);
