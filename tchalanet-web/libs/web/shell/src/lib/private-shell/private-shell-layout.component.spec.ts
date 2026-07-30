@@ -202,4 +202,25 @@ describe('PrivateShellLayoutComponent — franchissement de la borne', () => {
     expect(workspace.children).toHaveLength(3);
     expect(workspace.querySelector('.cdk-focus-trap-anchor')).toBeNull();
   });
+
+  it('destroys the focus trap sentinels when the overlay drawer closes, without becoming wide', () => {
+    // Live regression on staging at 768px (overlay mode throughout, sidebar never becomes
+    // permanent): the sentinels used to be created as soon as the layout left "wide" mode and
+    // stayed until the layout became wide again — closing the drawer didn't destroy them. Each
+    // sentinel rendered with real height in `.workspace`'s single-column grid, pushing `<main>`
+    // ~240px down. The trap must not outlive the moment the drawer is actually open (modal).
+    configure(signal(false));
+    const fixture = render();
+    fixture.componentInstance.drawerOpen.set(true);
+    fixture.detectChanges();
+
+    const workspace = fixture.nativeElement.querySelector('.workspace') as HTMLElement;
+    expect(workspace.querySelector('.cdk-focus-trap-anchor')).not.toBeNull();
+
+    fixture.componentInstance.drawerOpen.set(false);
+    fixture.detectChanges();
+
+    expect(workspace.children).toHaveLength(3);
+    expect(workspace.querySelector('.cdk-focus-trap-anchor')).toBeNull();
+  });
 });

@@ -4,6 +4,7 @@ export class AdminSellerReportPage {
   readonly root: Locator;
   readonly reportRoot: Locator;
   readonly reportTable: Locator;
+  readonly exportMenuTrigger: Locator;
   readonly exportCsv: Locator;
   readonly exportPdf: Locator;
 
@@ -11,6 +12,8 @@ export class AdminSellerReportPage {
     this.root = page.getByTestId('seller-report-table');
     this.reportRoot = page.locator('[data-report-export-root]');
     this.reportTable = this.reportRoot.locator('table');
+    // The PDF/CSV export actions live inside a "⋮" overflow menu — open it before targeting them.
+    this.exportMenuTrigger = page.getByTestId('seller-report-export-trigger');
     this.exportCsv = page.getByTestId('seller-report-export-csv');
     this.exportPdf = page.getByTestId('seller-report-export-pdf');
   }
@@ -33,6 +36,7 @@ export class AdminSellerReportPage {
 
   async exportCsvAndFilename(): Promise<string> {
     const download = this.page.waitForEvent('download');
+    await this.exportMenuTrigger.click();
     await this.exportCsv.click();
     return (await download).suggestedFilename();
   }
@@ -58,6 +62,7 @@ export class AdminSellerReportPage {
   }
 
   async expectPdfActionPrints(): Promise<void> {
+    await this.exportMenuTrigger.click();
     await this.exportPdf.click();
     await expect.poll(() => this.page.evaluate(() => (window as Window & { __tchPrintCalled?: boolean }).__tchPrintCalled))
       .toBe(true);

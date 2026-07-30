@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatTableModule } from '@angular/material/table';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AdminEmptyStateComponent, AdminPageShellComponent, AdminSectionCardComponent } from '@tch/ui/console';
@@ -51,6 +52,7 @@ function isDrawReportSort(value: string): value is DrawReportSort {
     TchAsyncViewComponent,
     MatButtonModule,
     MatIconModule,
+    MatMenuModule,
     MatTableModule,
   ],
   templateUrl: './report-draws.page.html',

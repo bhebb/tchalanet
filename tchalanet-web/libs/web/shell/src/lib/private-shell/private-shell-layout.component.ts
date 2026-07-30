@@ -88,22 +88,27 @@ export class PrivateShellLayoutComponent {
   constructor() {
     effect(() => {
       const modal = this.drawerModal();
-      const wide = this.breakpoints.isWide();
       const drawer = this.drawerRef()?.nativeElement;
       if (!drawer) return;
 
-      // `ConfigurableFocusTrapFactory.create()` insère deux sentinelles invisibles comme enfants
-      // directs de `.workspace`, juste avant et après `.drawer`. En sidebar permanente ce sont
-      // deux items de plus dans une grille à 2 colonnes : l'auto-placement pousse le drawer réel
-      // en colonne 2 et le contenu à la ligne suivante, empilés au lieu d'être côte à côte. Le
-      // piège ne sert qu'en overlay, donc il est détruit — pas seulement désactivé — dès qu'on
-      // repasse en sidebar permanente.
-      if (wide) {
+      // `ConfigurableFocusTrapFactory.create()` insère deux sentinelles comme enfants directs de
+      // `.workspace`, juste avant et après `.drawer`. En sidebar permanente (2 colonnes), ce sont
+      // deux items de plus dans la grille : l'auto-placement pousse le drawer réel en colonne 2 et
+      // le contenu à la ligne suivante, empilés au lieu d'être côte à côte — corrigé en détruisant
+      // le piège dès qu'on repasse en sidebar permanente.
+      //
+      // Le même défaut réapparaît en overlay (1 colonne) tant que le drawer est FERMÉ : ces
+      // sentinelles sont censées être invisibles (`cdk-visually-hidden`), mais dans cette grille
+      // elles rendent avec une vraie hauteur (mesuré ~120px chacune sur staging à 768px) — deux
+      // lignes vides de ~240px au total avant `<main>`. Le piège ne sert que pendant que le drawer
+      // est réellement ouvert (`modal`) ; il n'y a donc aucune raison de le garder vivant le reste
+      // du temps, que ce soit en sidebar permanente ou en overlay fermé.
+      if (modal) {
+        this.focusTrap ??= this.focusTrapFactory.create(drawer);
+        this.focusTrap.enabled = true;
+      } else {
         this.focusTrap?.destroy();
         this.focusTrap = null;
-      } else {
-        this.focusTrap ??= this.focusTrapFactory.create(drawer);
-        this.focusTrap.enabled = modal;
       }
 
       this.document.documentElement.classList.toggle('tch-overlay-open', modal);
@@ -111,8 +116,8 @@ export class PrivateShellLayoutComponent {
       this.contentRef()?.nativeElement.toggleAttribute('inert', modal);
 
       if (modal && !this.trigger) {
-        // `modal` implique `!wide` (`drawerModal` = `overlayMode() && drawerOpen()`, et
-        // `overlayMode()` = `!isWide()`) : le piège existe forcément ici, TS ne le sait pas.
+        // Le bloc précédent vient de créer `this.focusTrap` dès que `modal` est vrai : il existe
+        // forcément ici, TS ne le sait pas.
         this.trigger = this.document.activeElement as HTMLElement | null;
         void this.focusTrap!.focusInitialElementWhenReady();
       } else if (!modal && this.trigger) {

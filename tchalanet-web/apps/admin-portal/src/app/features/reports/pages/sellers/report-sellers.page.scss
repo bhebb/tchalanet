@@ -39,12 +39,16 @@
 
 @include ui.down(expanded) {
   .report-sellers {
-    &__toolbar,
-    &__actions {
-      align-items: stretch;
-      flex-direction: column;
+    // Kept as a flex row (with wrap) rather than a full column stack — the toolbar now only
+    // has 3 items (Apèsi, Rafrechi, Ekspòte) since PDF/CSV moved into the export menu.
+    &__toolbar {
+      flex-wrap: wrap;
+      align-items: flex-start;
     }
 
+    &__actions {
+      flex-wrap: wrap;
+    }
   }
 }
 

@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
 import { PageEvent } from '@angular/material/paginator';
 import { Sort } from '@angular/material/sort';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -65,6 +66,7 @@ function isSellerReportSort(value: string): value is SellerReportSort {
     TchAsyncViewComponent,
     MatButtonModule,
     MatIconModule,
+    MatMenuModule,
   ],
   templateUrl: './report-sellers.page.html',
   styleUrls: ['./report-sellers.page.scss'],
