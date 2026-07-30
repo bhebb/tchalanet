@@ -102,36 +102,36 @@
       message="Aucune projection par tirage sur cette période."
     />
     } @else {
-    <div class="financials-table-wrap">
-      <table class="financials-table">
+    <div class="tch-data-table-wrap">
+      <table class="tch-data-table">
         <thead>
           <tr>
             <th>Tirage</th>
             <th>Date</th>
-            <th class="financials-table__num">Tickets</th>
-            <th class="financials-table__num">Ventes</th>
-            <th class="financials-table__num">Commissions</th>
-            <th class="financials-table__num">Frais tenant</th>
-            <th class="financials-table__num">Promo base</th>
-            <th class="financials-table__num">Net estimé</th>
+            <th class="tch-data-table__num">Tickets</th>
+            <th class="tch-data-table__num">Ventes</th>
+            <th class="tch-data-table__num">Commissions</th>
+            <th class="tch-data-table__num">Frais tenant</th>
+            <th class="tch-data-table__num">Promo base</th>
+            <th class="tch-data-table__num">Net estimé</th>
           </tr>
         </thead>
         <tbody>
           @for (row of vm.data.drawRows; track row.drawId) {
           <tr>
             <td>
-              <span class="financials-table__primary">{{ drawLabel(row) }}</span>
-              <span class="financials-table__secondary">{{ shortId(row.drawId) }}</span>
+              <span class="tch-data-table__primary">{{ drawLabel(row) }}</span>
+              <span class="tch-data-table__secondary">{{ row.scheduledAt | date:'HH:mm' }}</span>
             </td>
-            <td>{{ row.refDate | date:'yyyy-MM-dd' }}</td>
-            <td class="financials-table__num">{{ row.ticketsSold | number }}</td>
-            <td class="financials-table__num">{{ row.grossSales | number:'1.2-2' }}</td>
-            <td class="financials-table__num">{{ row.sellerCommission | number:'1.2-2' }}</td>
-            <td class="financials-table__num">{{ row.tenantCharges | number:'1.2-2' }}</td>
-            <td class="financials-table__num">{{ row.promotionPayoutBase | number:'1.2-2' }}</td>
-            <td
-              class="financials-table__num financials-table__net"
-              [class.financials-table__net--negative]="row.netRevenueEstimated < 0"
+            <td data-label="Date">{{ row.refDate | date:'yyyy-MM-dd' }}</td>
+            <td data-label="Tickets" class="tch-data-table__num">{{ row.ticketsSold | number }}</td>
+            <td data-label="Ventes" class="tch-data-table__num">{{ row.grossSales | number:'1.2-2' }}</td>
+            <td data-label="Commissions" class="tch-data-table__num">{{ row.sellerCommission | number:'1.2-2' }}</td>
+            <td data-label="Frais tenant" class="tch-data-table__num">{{ row.tenantCharges | number:'1.2-2' }}</td>
+            <td data-label="Promo base" class="tch-data-table__num">{{ row.promotionPayoutBase | number:'1.2-2' }}</td>
+            <td data-label="Net estimé"
+              class="tch-data-table__num financials-net"
+              [class.financials-net--negative]="row.netRevenueEstimated < 0"
             >
               {{ row.netRevenueEstimated | number:'1.2-2' }}
             </td>
@@ -151,42 +151,42 @@
       message="Aucune projection par terminal vendeur et par tirage sur cette période."
     />
     } @else {
-    <div class="financials-table-wrap">
-      <table class="financials-table">
+    <div class="tch-data-table-wrap">
+      <table class="tch-data-table">
         <thead>
           <tr>
             <th>Terminal</th>
             <th>Tirage</th>
-            <th class="financials-table__num">Tickets</th>
-            <th class="financials-table__num">Ventes</th>
-            <th class="financials-table__num">Commissions</th>
-            <th class="financials-table__num">Frais seller</th>
-            <th class="financials-table__num">Frais tenant</th>
-            <th class="financials-table__num">Promo potentiel</th>
-            <th class="financials-table__num">Net estimé</th>
+            <th class="tch-data-table__num">Tickets</th>
+            <th class="tch-data-table__num">Ventes</th>
+            <th class="tch-data-table__num">Commissions</th>
+            <th class="tch-data-table__num">Frais seller</th>
+            <th class="tch-data-table__num">Frais tenant</th>
+            <th class="tch-data-table__num">Promo potentiel</th>
+            <th class="tch-data-table__num">Net estimé</th>
           </tr>
         </thead>
         <tbody>
           @for (row of vm.data.sellerTerminalDrawRows; track row.sellerTerminalId + row.drawId) {
           <tr>
             <td>
-              <span class="financials-table__primary"
+              <span class="tch-data-table__primary"
                 >{{ terminalLabel(row.sellerTerminalId) }}</span
               >
             </td>
-            <td>
-              <span class="financials-table__primary">{{ drawLabel(row) }}</span>
-              <span class="financials-table__secondary">{{ row.refDate | date:'yyyy-MM-dd' }}</span>
+            <td data-label="Tirage">
+              <span class="tch-data-table__primary">{{ drawLabel(row) }}</span>
+              <span class="tch-data-table__secondary">{{ row.refDate | date:'yyyy-MM-dd' }}</span>
             </td>
-            <td class="financials-table__num">{{ row.ticketsSold | number }}</td>
-            <td class="financials-table__num">{{ row.grossSales | number:'1.2-2' }}</td>
-            <td class="financials-table__num">{{ row.sellerCommission | number:'1.2-2' }}</td>
-            <td class="financials-table__num">{{ row.sellerCharges | number:'1.2-2' }}</td>
-            <td class="financials-table__num">{{ row.tenantCharges | number:'1.2-2' }}</td>
-            <td class="financials-table__num">{{ row.promotionPayoutBase | number:'1.2-2' }}</td>
-            <td
-              class="financials-table__num financials-table__net"
-              [class.financials-table__net--negative]="row.netRevenueEstimated < 0"
+            <td data-label="Tickets" class="tch-data-table__num">{{ row.ticketsSold | number }}</td>
+            <td data-label="Ventes" class="tch-data-table__num">{{ row.grossSales | number:'1.2-2' }}</td>
+            <td data-label="Commissions" class="tch-data-table__num">{{ row.sellerCommission | number:'1.2-2' }}</td>
+            <td data-label="Frais seller" class="tch-data-table__num">{{ row.sellerCharges | number:'1.2-2' }}</td>
+            <td data-label="Frais tenant" class="tch-data-table__num">{{ row.tenantCharges | number:'1.2-2' }}</td>
+            <td data-label="Promo potentiel" class="tch-data-table__num">{{ row.promotionPayoutBase | number:'1.2-2' }}</td>
+            <td data-label="Net estimé"
+              class="tch-data-table__num financials-net"
+              [class.financials-net--negative]="row.netRevenueEstimated < 0"
             >
               {{ row.netRevenueEstimated | number:'1.2-2' }}
             </td>

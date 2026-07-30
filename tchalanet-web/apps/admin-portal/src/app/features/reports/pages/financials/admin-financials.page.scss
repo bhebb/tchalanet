@@ -40,78 +40,27 @@
   }
 }
 
+// Only the net column keeps page-local colouring; the table itself is the shared pattern.
+.financials-net {
+  color: var(--tch-color-primary);
+  font-weight: 700;
+
+  &--negative {
+    color: var(--tch-color-error);
+  }
+}
+
+// A flex child defaults to min-width:auto, so a wide table would push the whole page
+// wider than the viewport instead of scrolling inside its own wrapper.
 .financials-tabs {
+  min-width: 0;
+
   border: 1px solid var(--tch-color-outline-variant);
   border-radius: var(--tch-radius-lg, 0.75rem);
   background: var(--tch-color-surface-container-lowest);
   overflow: hidden;
 }
 
-.financials-table-wrap {
-  overflow-x: auto;
-}
-
-.financials-table {
-  width: 100%;
-  min-width: 62rem;
-  border-collapse: collapse;
-
-  th {
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid var(--tch-color-outline-variant);
-    background: var(--tch-color-surface-container-low);
-    color: var(--tch-color-on-surface-variant);
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-align: left;
-    text-transform: uppercase;
-    white-space: nowrap;
-  }
-
-  td {
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid var(--tch-color-outline-variant);
-    color: var(--tch-color-on-surface);
-    font-size: 0.875rem;
-    vertical-align: top;
-  }
-
-  tbody tr:hover td {
-    background: var(--tch-color-surface-container-low);
-  }
-
-  &__num {
-    text-align: right;
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
-  }
-
-  &__primary,
-  &__secondary {
-    display: block;
-    max-width: 16rem;
-    overflow-wrap: anywhere;
-  }
-
-  &__primary {
-    font-weight: 700;
-  }
-
-  &__secondary {
-    margin-top: 0.125rem;
-    color: var(--tch-color-on-surface-variant);
-    font-size: 0.75rem;
-  }
-
-  &__net {
-    color: var(--tch-color-primary);
-    font-weight: 700;
-
-    &--negative {
-      color: var(--tch-color-error);
-    }
-  }
-}
 
 @include ui.down(expanded) {
   .financials-controls {
