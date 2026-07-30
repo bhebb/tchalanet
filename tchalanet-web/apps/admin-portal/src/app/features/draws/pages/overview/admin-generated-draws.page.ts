@@ -164,10 +164,11 @@ export class AdminGeneratedDrawsPage {
     datePreset: this.datePreset(),
     from: this.hasCustomDateRange() ? this.fromDate() : null,
     to: this.hasCustomDateRange() ? this.toDate() : null,
+    status: this.statusFilter(),
     page: this.page(),
   }));
-  // Separate resource for KPI summary: always fetches page 0 with a large size so the
-  // summary cards reflect the full period, not just the currently visible page.
+  // KPI summary resource: same period, but never status-filtered — the cards are period totals
+  // and double as navigation shortcuts, so they must stay stable while a filter is applied.
   private readonly drawsKpi = this.api.generatedDrawsResource(() => ({
     datePreset: this.datePreset(),
     from: this.hasCustomDateRange() ? this.fromDate() : null,

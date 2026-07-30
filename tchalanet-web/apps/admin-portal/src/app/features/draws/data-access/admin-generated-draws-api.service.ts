@@ -173,7 +173,32 @@ export function applyQueryFilter(draws: GeneratedDrawView[], query: string | nul
   ].some(field => field && normalizeForSearch(field).includes(needle)));
 }
 
+/**
+ * Lifecycle statuses the backend can filter on (`GET /admin/draws?status=`). Anything not listed
+ * here is derived from the result state and stays a client-side filter.
+ *
+ * Note the spelling: the backend enum is `CANCELED` (single L), the UI filter key is `CANCELLED`.
+ */
+const SERVER_STATUS_PARAM: Readonly<Record<string, string>> = {
+  SCHEDULED: 'SCHEDULED',
+  OPEN: 'OPEN',
+  CLOSED: 'CLOSED',
+  RESULTED: 'RESULTED',
+  SETTLED: 'SETTLED',
+  CANCELLED: 'CANCELED',
+  ARCHIVED: 'ARCHIVED',
+};
+
+/** Backend `status` param for a UI filter key, or null when the filter is client-side only. */
+export function serverStatusParam(status: string | null | undefined): string | null {
+  if (!status || status === 'all') return null;
+  return SERVER_STATUS_PARAM[status] ?? null;
+}
+
 function applyStatusFilter(draws: GeneratedDrawView[], status: string | null | undefined): GeneratedDrawView[] {
+  // Lifecycle statuses are already narrowed by the backend — re-filtering here would only
+  // desync the rows from the server's totalElements/pagination.
+  if (serverStatusParam(status)) return draws;
   if (!status || status === 'all') return draws;
   return draws.filter(d => {
     switch (status) {
@@ -226,6 +251,7 @@ export class AdminGeneratedDrawsApiService {
         const presetRange = datePresetToRange(q.datePreset ?? 'LAST_48H');
         const from = q.from || presetRange.from;
         const to = q.to || presetRange.to;
+        const status = serverStatusParam(q.status);
         return {
           path: '/admin/draws',
           options: {
@@ -233,6 +259,9 @@ export class AdminGeneratedDrawsApiService {
             params: {
               from,
               to,
+              // Lifecycle statuses are filtered server-side so pagination and totalElements
+              // stay accurate; result-derived filters (PAST, EXPECTED…) remain client-side.
+              ...(status ? { status } : {}),
               // The 2-day window regularly holds 50-60+ draws — dumping them all onto one
               // unpaginated page defeats the "next page" control entirely (there was never a
               // second page to go to).
