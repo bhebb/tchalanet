@@ -9,6 +9,7 @@ export type GeneratedDrawsSummaryKpi = 'today' | 'salesOpen' | 'expected' | 'con
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [AdminMetricCardComponent],
+  styles: [':host { display: block; margin-block-end: 1.5rem; }'],
   templateUrl: './generated-draws-summary.component.html',
 })
 export class GeneratedDrawsSummaryComponent {

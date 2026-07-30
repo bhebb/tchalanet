@@ -21,6 +21,7 @@ const TONES: Readonly<Record<string, AdminMetricCardTone>> = {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [AdminMetricCardComponent, TranslatePipe],
+  styles: [':host { display: block; margin-block: 1rem 1.25rem; }'],
   templateUrl: './games-setup-summary.component.html',
 })
 export class GamesSetupSummaryComponent {

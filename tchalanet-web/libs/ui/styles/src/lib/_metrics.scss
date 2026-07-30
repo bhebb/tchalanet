@@ -24,8 +24,12 @@
 }
 
 // The component host is a custom element, so it needs an explicit box to fill its grid cell.
+// It is a flex container rather than a block so the tile below can grow to the host's full
+// height with `flex: 1`. Sizing the tile with `height: 100%` instead made it resolve against a
+// track that had already been sized without it, so tall tiles overflowed their own row and
+// painted over whatever followed the grid.
 tch-admin-metric-card {
-  display: block;
+  display: flex;
   min-width: 0;
 }
 
@@ -40,11 +44,11 @@ tch-admin-metric-card {
   --tch-metric-icon-bg: var(--tch-color-surface-container-high);
 
   display: flex;
+  flex: 1;
   align-items: center;
   gap: 0.875rem;
   width: 100%;
   min-width: 0;
-  height: 100%;
   padding: 1rem;
   text-align: start;
   background: var(--tch-metric-bg);

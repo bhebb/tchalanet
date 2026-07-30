@@ -8,6 +8,7 @@ import { DrawChannelProviderView } from '../../data-access/admin-draw-channels.m
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [AdminMetricCardComponent, TranslatePipe],
+  styles: [':host { display: block; margin-block-end: 1.5rem; }'],
   templateUrl: './draw-channels-summary.component.html',
 })
 export class DrawChannelsSummaryComponent {
