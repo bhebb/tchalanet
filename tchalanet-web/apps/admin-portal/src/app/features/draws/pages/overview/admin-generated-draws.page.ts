@@ -35,6 +35,8 @@ import {
   DatePreset,
   DrawStatusFilter,
   SaveDrawResultRequest,
+  shiftIsoDate,
+  tenantTodayIsoDate,
 } from '../../data-access/admin-generated-draws.models';
 import {
   GeneratedDrawsSummaryComponent,
@@ -48,8 +50,6 @@ import {
   consoleDrawStatusLabel,
 } from '@tch/web/console';
 
-const TODAY = new Date().toISOString().slice(0, 10);
-const YESTERDAY = relativeIsoDate(-1);
 
 const LIFECYCLE_LABELS: Record<DrawLifecycleAction, string> = {
   open: 'Ouvert',
@@ -100,7 +100,12 @@ export class AdminGeneratedDrawsPage {
   private readonly dialog = inject(MatDialog);
   private readonly access = inject(AccessService);
 
-  readonly today = TODAY;
+  /**
+   * Today on the tenant's calendar — `businessDate` and the from/to filters are channel-local,
+   * so the browser's own date would be a day ahead every evening in Haiti.
+   */
+  readonly today = computed(() => tenantTodayIsoDate(this.api.tenantTimezone()));
+  private readonly yesterday = computed(() => shiftIsoDate(this.today(), -1));
 
   readonly statusFilters: { key: DrawStatusFilter; label: string }[] = [
     { key: 'all', label: 'Tous les statuts' },
@@ -133,8 +138,8 @@ export class AdminGeneratedDrawsPage {
     initialValue: this.route.snapshot.queryParamMap,
   });
   readonly datePreset = computed<DatePreset>(() => datePresetFromQuery(this.qp().get('date')));
-  readonly fromDate = computed(() => dateParam(this.qp().get('from'), YESTERDAY));
-  readonly toDate = computed(() => dateParam(this.qp().get('to'), TODAY));
+  readonly fromDate = computed(() => dateParam(this.qp().get('from'), this.yesterday()));
+  readonly toDate = computed(() => dateParam(this.qp().get('to'), this.today()));
   readonly fromDateValue = computed(() => isoDateToLocalDate(this.fromDate()));
   readonly toDateValue = computed(() => isoDateToLocalDate(this.toDate()));
   readonly hasCustomDateRange = computed(() => this.qp().has('from') || this.qp().has('to'));
@@ -292,11 +297,11 @@ export class AdminGeneratedDrawsPage {
   }
 
   onFromDate(value: string): void {
-    this.navigate({ from: dateParam(value, YESTERDAY), date: null, page: null });
+    this.navigate({ from: dateParam(value, this.yesterday()), date: null, page: null });
   }
 
   onToDate(value: string): void {
-    this.navigate({ to: dateParam(value, TODAY), date: null, page: null });
+    this.navigate({ to: dateParam(value, this.today()), date: null, page: null });
   }
 
   onFromDatePicker(value: Date | null): void {
@@ -555,12 +560,6 @@ function statusFilterFromQuery(value: string | null): DrawStatusFilter {
     default:
       return 'all';
   }
-}
-
-function relativeIsoDate(offsetDays: number): string {
-  const date = new Date();
-  date.setDate(date.getDate() + offsetDays);
-  return date.toISOString().slice(0, 10);
 }
 
 function dateParam(value: string | null, fallback: string): string {

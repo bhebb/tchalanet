@@ -1,6 +1,7 @@
 import { Injectable, ResourceRef, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { TCH_DEFAULT_PAGE_SIZE, TchBackendClient, TchPage, TchRequestOptions } from '@tch/api';
+import { RuntimeSettingsStore } from '@tch/shared-config';
 import { ConsoleDrawLifecycleApi, consoleDrawIdentity } from '@tch/web/console';
 import {
   DatePreset,
@@ -11,6 +12,9 @@ import {
   DrawLifecycleAction,
   GeneratedDrawsQuery,
   SaveDrawResultRequest,
+  TENANT_TIMEZONE_FALLBACK,
+  shiftIsoDate,
+  tenantTodayIsoDate,
 } from './admin-generated-draws.models';
 
 export interface DrawView {
@@ -43,27 +47,24 @@ export interface DrawView {
 
 // ── Mapping helpers ──────────────────────────────────────────────────────────
 
-function datePresetToRange(preset: DatePreset): { from: string; to: string } {
-  const today = new Date();
-  const fmt = (d: Date) => d.toISOString().slice(0, 10);
+/**
+ * Presets resolve against the tenant's calendar, not the browser's: `from`/`to` bound the
+ * channel-local `drawDate`, so a UTC-derived "today" would query the wrong day every evening
+ * in Haiti (see {@link tenantTodayIsoDate}).
+ */
+function datePresetToRange(preset: DatePreset, timezone: string): { from: string; to: string } {
+  const today = tenantTodayIsoDate(timezone);
   switch (preset) {
-    case 'LAST_48H': {
-      const d = new Date(today);
-      d.setDate(d.getDate() - 1);
-      return { from: fmt(d), to: fmt(today) };
-    }
+    case 'LAST_48H':
+      return { from: shiftIsoDate(today, -1), to: today };
     case 'TODAY':
-      return { from: fmt(today), to: fmt(today) };
+      return { from: today, to: today };
     case 'TOMORROW': {
-      const d = new Date(today);
-      d.setDate(d.getDate() + 1);
-      return { from: fmt(d), to: fmt(d) };
+      const tomorrow = shiftIsoDate(today, 1);
+      return { from: tomorrow, to: tomorrow };
     }
-    case 'THIS_WEEK': {
-      const d = new Date(today);
-      d.setDate(d.getDate() + 6);
-      return { from: fmt(today), to: fmt(d) };
-    }
+    case 'THIS_WEEK':
+      return { from: today, to: shiftIsoDate(today, 6) };
   }
 }
 
@@ -229,6 +230,13 @@ function applyStatusFilter(draws: GeneratedDrawView[], status: string | null | u
 export class AdminGeneratedDrawsApiService {
   private readonly backend = inject(TchBackendClient);
   private readonly lifecycle = inject(ConsoleDrawLifecycleApi);
+  private readonly runtimeSettings = inject(RuntimeSettingsStore);
+
+  /** Tenant calendar timezone — the one `drawDate` is expressed in. */
+  tenantTimezone(): string {
+    const value = this.runtimeSettings.settings().values['app.timezone'];
+    return typeof value === 'string' && value.trim() ? value : TENANT_TIMEZONE_FALLBACK;
+  }
 
   /**
    * Resource de lecture des tirages générés (créée par TchBackendClient).
@@ -242,7 +250,7 @@ export class AdminGeneratedDrawsApiService {
     return this.backend.getPageResource<GeneratedDrawView, DrawView>(
       () => {
         const q = query();
-        const presetRange = datePresetToRange(q.datePreset ?? 'LAST_48H');
+        const presetRange = datePresetToRange(q.datePreset ?? 'LAST_48H', this.tenantTimezone());
         const from = q.from || presetRange.from;
         const to = q.to || presetRange.to;
         const status = serverStatusParam(q.status);

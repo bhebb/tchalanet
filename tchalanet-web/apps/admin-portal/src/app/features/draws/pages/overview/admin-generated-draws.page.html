@@ -31,7 +31,7 @@
       <!-- KPI summary -->
       <tch-generated-draws-summary
         [draws]="kpiDraws()"
-        [today]="today"
+        [today]="today()"
         (kpiSelected)="onKpiSelected($event)"
       />
 
@@ -128,7 +128,7 @@
           } @else {
             <tch-generated-draws-table
               [groups]="groupedDraws()"
-              [todayDate]="today"
+              [todayDate]="today()"
               [totalElements]="totalElements()"
               [pageSize]="pageSize()"
               [page]="page()"
