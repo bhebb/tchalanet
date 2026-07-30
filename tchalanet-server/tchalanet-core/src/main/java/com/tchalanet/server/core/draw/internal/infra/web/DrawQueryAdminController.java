@@ -55,7 +55,12 @@ public class DrawQueryAdminController {
 
     var criteria =
         DrawSearchCriteria.of(
-            request.resultSlotId(), request.status(), request.from(), request.to());
+            request.resultSlotId(),
+            request.status(),
+            request.from(),
+            request.to(),
+            request.scheduledBefore(),
+            request.scheduledAfter());
 
     TchPage<DrawSummary> page = queryBus.ask(new ListDrawsQuery(criteria, pageReq.pageable()));
 

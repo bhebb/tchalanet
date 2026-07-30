@@ -1,6 +1,7 @@
 import { Injectable, ResourceRef, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { TCH_DEFAULT_PAGE_SIZE, TchBackendClient, TchPage, TchRequestOptions } from '@tch/api';
+import { RuntimeSettingsStore } from '@tch/shared-config';
 import { ConsoleDrawLifecycleApi, consoleDrawIdentity } from '@tch/web/console';
 import {
   DatePreset,
@@ -11,7 +12,9 @@ import {
   DrawLifecycleAction,
   GeneratedDrawsQuery,
   SaveDrawResultRequest,
-  isGeneratedDrawSellableNow,
+  TENANT_TIMEZONE_FALLBACK,
+  shiftIsoDate,
+  tenantTodayIsoDate,
 } from './admin-generated-draws.models';
 
 export interface DrawView {
@@ -44,27 +47,24 @@ export interface DrawView {
 
 // ── Mapping helpers ──────────────────────────────────────────────────────────
 
-function datePresetToRange(preset: DatePreset): { from: string; to: string } {
-  const today = new Date();
-  const fmt = (d: Date) => d.toISOString().slice(0, 10);
+/**
+ * Presets resolve against the tenant's calendar, not the browser's: `from`/`to` bound the
+ * channel-local `drawDate`, so a UTC-derived "today" would query the wrong day every evening
+ * in Haiti (see {@link tenantTodayIsoDate}).
+ */
+function datePresetToRange(preset: DatePreset, timezone: string): { from: string; to: string } {
+  const today = tenantTodayIsoDate(timezone);
   switch (preset) {
-    case 'LAST_48H': {
-      const d = new Date(today);
-      d.setDate(d.getDate() - 1);
-      return { from: fmt(d), to: fmt(today) };
-    }
+    case 'LAST_48H':
+      return { from: shiftIsoDate(today, -1), to: today };
     case 'TODAY':
-      return { from: fmt(today), to: fmt(today) };
+      return { from: today, to: today };
     case 'TOMORROW': {
-      const d = new Date(today);
-      d.setDate(d.getDate() + 1);
-      return { from: fmt(d), to: fmt(d) };
+      const tomorrow = shiftIsoDate(today, 1);
+      return { from: tomorrow, to: tomorrow };
     }
-    case 'THIS_WEEK': {
-      const d = new Date(today);
-      d.setDate(d.getDate() + 6);
-      return { from: fmt(today), to: fmt(d) };
-    }
+    case 'THIS_WEEK':
+      return { from: today, to: shiftIsoDate(today, 6) };
   }
 }
 
@@ -173,24 +173,44 @@ export function applyQueryFilter(draws: GeneratedDrawView[], query: string | nul
   ].some(field => field && normalizeForSearch(field).includes(needle)));
 }
 
+/**
+ * Lifecycle statuses the backend can filter on (`GET /admin/draws?status=`). Anything not listed
+ * here is derived from the result state and stays a client-side filter.
+ *
+ * Note the spelling: the backend enum is `CANCELED` (single L), the UI filter key is `CANCELLED`.
+ */
+const SERVER_STATUS_PARAM: Readonly<Record<string, string>> = {
+  SCHEDULED: 'SCHEDULED',
+  OPEN: 'OPEN',
+  CLOSED: 'CLOSED',
+  RESULTED: 'RESULTED',
+  SETTLED: 'SETTLED',
+  CANCELLED: 'CANCELED',
+  ARCHIVED: 'ARCHIVED',
+};
+
+/** Backend `status` param for a UI filter key, or null when the filter is client-side only. */
+export function serverStatusParam(status: string | null | undefined): string | null {
+  if (!status || status === 'all') return null;
+  return SERVER_STATUS_PARAM[status] ?? null;
+}
+
+/**
+ * True when the backend fully answers this filter, so no client-side narrowing is needed.
+ * PAST is served by `scheduledBefore=<now>` rather than by `status`.
+ */
+function isServerFiltered(status: string | null | undefined): boolean {
+  return status === 'PAST' || serverStatusParam(status) !== null;
+}
+
 function applyStatusFilter(draws: GeneratedDrawView[], status: string | null | undefined): GeneratedDrawView[] {
+  // Lifecycle statuses (OPEN, CLOSED, …) and PAST are already narrowed by the backend —
+  // re-filtering here would only desync the rows from the server's totalElements/pagination.
+  if (isServerFiltered(status)) return draws;
   if (!status || status === 'all') return draws;
   return draws.filter(d => {
     switch (status) {
-      case 'OPEN':         return isGeneratedDrawSellableNow(d);
-      case 'SCHEDULED':
-      case 'LOCKED':
-      case 'CLOSED':
-      case 'RESULTED':
-      case 'SETTLED':
-      case 'CANCELLED':
-      case 'ARCHIVED':     return d.lifecycleStatus === status;
-      case 'PAST':         return (d.salesStatus === 'OPEN' && !isGeneratedDrawSellableNow(d))
-        || d.salesStatus === 'CLOSED'
-        || d.salesStatus === 'CANCELLED'
-        || d.resultStatus === 'EXPECTED'
-        || d.resultStatus === 'MISSING'
-        || d.resultStatus === 'CONFIRMED';
+      case 'LOCKED':       return d.lifecycleStatus === status;
       case 'EXPECTED_OR_MISSING':
         return d.resultStatus === 'EXPECTED' || d.resultStatus === 'MISSING';
       case 'EXPECTED':     return d.resultStatus === 'EXPECTED';
@@ -210,6 +230,13 @@ function applyStatusFilter(draws: GeneratedDrawView[], status: string | null | u
 export class AdminGeneratedDrawsApiService {
   private readonly backend = inject(TchBackendClient);
   private readonly lifecycle = inject(ConsoleDrawLifecycleApi);
+  private readonly runtimeSettings = inject(RuntimeSettingsStore);
+
+  /** Tenant calendar timezone — the one `drawDate` is expressed in. */
+  tenantTimezone(): string {
+    const value = this.runtimeSettings.settings().values['app.timezone'];
+    return typeof value === 'string' && value.trim() ? value : TENANT_TIMEZONE_FALLBACK;
+  }
 
   /**
    * Resource de lecture des tirages générés (créée par TchBackendClient).
@@ -223,9 +250,10 @@ export class AdminGeneratedDrawsApiService {
     return this.backend.getPageResource<GeneratedDrawView, DrawView>(
       () => {
         const q = query();
-        const presetRange = datePresetToRange(q.datePreset ?? 'LAST_48H');
+        const presetRange = datePresetToRange(q.datePreset ?? 'LAST_48H', this.tenantTimezone());
         const from = q.from || presetRange.from;
         const to = q.to || presetRange.to;
+        const status = serverStatusParam(q.status);
         return {
           path: '/admin/draws',
           options: {
@@ -233,6 +261,13 @@ export class AdminGeneratedDrawsApiService {
             params: {
               from,
               to,
+              // Lifecycle statuses and PAST are filtered server-side so pagination and
+              // totalElements stay accurate; result-derived filters (EXPECTED, CONFIRMED…)
+              // have no backend equivalent and remain client-side.
+              ...(status ? { status } : {}),
+              // "Passés" is a time-of-day question, not a business-date one: a draw at 12:29
+              // today is past at 14:00 while still sitting inside today's from/to window.
+              ...(q.status === 'PAST' ? { scheduledBefore: new Date().toISOString() } : {}),
               // The 2-day window regularly holds 50-60+ draws — dumping them all onto one
               // unpaginated page defeats the "next page" control entirely (there was never a
               // second page to go to).

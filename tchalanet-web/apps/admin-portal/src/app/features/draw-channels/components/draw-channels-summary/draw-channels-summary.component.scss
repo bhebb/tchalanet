@@ -2,12 +2,11 @@
 
 .dc-summary {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
-  margin-bottom: 1.5rem;
+  margin-block-end: 1.5rem;
 
-  @include ui.down(expanded) { grid-template-columns: repeat(2, 1fr); }
-  @include ui.down(medium) { grid-template-columns: 1fr; }
+  @include ui.up(expanded) { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 
   &__card {
     display: flex;

@@ -93,6 +93,7 @@ export class AdminDrawResultsPage implements OnInit {
 
   readonly loading = signal(false);
   readonly error = signal<ErrorViewModel | null>(null);
+  readonly filtersExpanded = signal(false);
   readonly page = signal<{
     items: DrawResultView[];
     totalElements: number;

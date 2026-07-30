@@ -24,52 +24,67 @@
         [searchValue]="slotKeyFilter()"
         (searchChange)="onSlotSearch($event)"
       >
-        <mat-form-field appearance="outline">
-          <mat-label>Statut</mat-label>
-          <mat-select [value]="statusFilter()" (selectionChange)="onStatusFilter($event.value)">
-            @for (opt of statusOptions; track opt.value) {
-              <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Qualité</mat-label>
-          <mat-select [value]="qualityFilter()" (selectionChange)="onQualityFilter($event.value)">
-            @for (opt of qualityOptions; track opt.value) {
-              <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Du</mat-label>
-          <input
-            matInput
-            [matDatepicker]="fromPicker"
-            [ngModel]="fromDateValue()"
-            (ngModelChange)="onFromDatePicker($event)"
-          />
-          <mat-datepicker-toggle matIconSuffix [for]="fromPicker" />
-          <mat-datepicker #fromPicker />
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Au</mat-label>
-          <input
-            matInput
-            [matDatepicker]="toPicker"
-            [ngModel]="toDateValue()"
-            [min]="fromDateValue()"
-            (ngModelChange)="onToDatePicker($event)"
-          />
-          <mat-datepicker-toggle matIconSuffix [for]="toPicker" />
-          <mat-datepicker #toPicker />
-        </mat-form-field>
-
-        <button class="draw-results-page__reset-filter" mat-stroked-button type="button" (click)="resetFilters()">
-          <span class="material-symbols-outlined">filter_alt_off</span>
+        <button
+          class="draw-results-page__filter-toggle"
+          mat-stroked-button
+          type="button"
+          (click)="filtersExpanded.set(!filtersExpanded())"
+        >
+          <span class="material-symbols-outlined">tune</span>
+          Filtres
         </button>
+
+        <div
+          class="draw-results-page__filter-fields"
+          [class.draw-results-page__filter-fields--open]="filtersExpanded()"
+        >
+          <mat-form-field appearance="outline">
+            <mat-label>Statut</mat-label>
+            <mat-select [value]="statusFilter()" (selectionChange)="onStatusFilter($event.value)">
+              @for (opt of statusOptions; track opt.value) {
+                <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Qualité</mat-label>
+            <mat-select [value]="qualityFilter()" (selectionChange)="onQualityFilter($event.value)">
+              @for (opt of qualityOptions; track opt.value) {
+                <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Du</mat-label>
+            <input
+              matInput
+              [matDatepicker]="fromPicker"
+              [ngModel]="fromDateValue()"
+              (ngModelChange)="onFromDatePicker($event)"
+            />
+            <mat-datepicker-toggle matIconSuffix [for]="fromPicker" />
+            <mat-datepicker #fromPicker />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Au</mat-label>
+            <input
+              matInput
+              [matDatepicker]="toPicker"
+              [ngModel]="toDateValue()"
+              [min]="fromDateValue()"
+              (ngModelChange)="onToDatePicker($event)"
+            />
+            <mat-datepicker-toggle matIconSuffix [for]="toPicker" />
+            <mat-datepicker #toPicker />
+          </mat-form-field>
+
+          <button class="draw-results-page__reset-filter" mat-stroked-button type="button" (click)="resetFilters()">
+            <span class="material-symbols-outlined">filter_alt_off</span>
+          </button>
+        </div>
       </tch-admin-data-toolbar>
     </div>
 

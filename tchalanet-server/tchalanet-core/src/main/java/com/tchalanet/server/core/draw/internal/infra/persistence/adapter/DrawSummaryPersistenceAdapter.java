@@ -88,6 +88,20 @@ public class DrawSummaryPersistenceAdapter
           spec.and((root, query, cb) -> cb.lessThanOrEqualTo(root.get("drawDate"), criteria.to()));
     }
 
+    if (criteria.scheduledBefore() != null) {
+      spec =
+          spec.and(
+              (root, query, cb) ->
+                  cb.lessThan(root.get("scheduledAt"), criteria.scheduledBefore()));
+    }
+
+    if (criteria.scheduledAfter() != null) {
+      spec =
+          spec.and(
+              (root, query, cb) ->
+                  cb.greaterThanOrEqualTo(root.get("scheduledAt"), criteria.scheduledAfter()));
+    }
+
     var page = repo.findAll(spec, pageable);
 
     return TchPageMapper.map(page, mapper::toProjection);

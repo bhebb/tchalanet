@@ -1,5 +1,10 @@
 @use 'breakpoints' as ui;
 
+:host {
+  display: block;
+  min-width: 0;
+}
+
 .console-draw-results-table {
   overflow-x: auto;
 
@@ -218,6 +223,24 @@
 }
 
 @include ui.down(expanded) {
+  /**
+   * `<thead>`/`<tbody>`/`<tfoot>` live in CdkTable's own template, so they never carry this
+   * component's encapsulation attribute and the scoped `tbody { display: block }` below can
+   * never match them. Left as `table-row-group` under a `display: block` <table>, the browser
+   * wraps them in an anonymous table box that shrink-to-fits — which squeezed every card to its
+   * content width instead of the container's. Piercing is the only way to reach them.
+   */
+  :host ::ng-deep .console-draw-results-table {
+    tbody,
+    tfoot {
+      display: block;
+    }
+
+    thead {
+      display: none;
+    }
+  }
+
   .console-draw-results-table {
     overflow: visible;
 

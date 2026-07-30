@@ -129,6 +129,32 @@ const TIMEZONE_LABELS: Readonly<Record<string, string>> = {
   'America/Port-au-Prince': 'HT',
 };
 
+export const TENANT_TIMEZONE_FALLBACK = 'America/Port-au-Prince';
+
+/**
+ * Today's date in the tenant's timezone, as `YYYY-MM-DD`.
+ *
+ * The backend's `drawDate` (and the `from`/`to` filters that bound it) is the channel-local
+ * commercial date, so `new Date().toISOString()` is wrong: in Haiti (UTC-4/-5) it rolls over to
+ * tomorrow around 20:00 local, and "Aujourd'hui" would query the wrong day for the whole evening.
+ */
+export function tenantTodayIsoDate(timezone: string, now = new Date()): string {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: timezone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(now);
+}
+
+/** Shifts a plain `YYYY-MM-DD` by whole days. UTC math keeps it immune to DST. */
+export function shiftIsoDate(isoDate: string, days: number): string {
+  const [year, month, day] = isoDate.split('-').map(Number);
+  const shifted = new Date(Date.UTC(year, month - 1, day));
+  shifted.setUTCDate(shifted.getUTCDate() + days);
+  return shifted.toISOString().slice(0, 10);
+}
+
 export function generatedDrawCloseTimestamp(
   draw: Pick<GeneratedDrawView, 'cutoffAt' | 'scheduledAt' | 'timezone'>,
 ): number | null {

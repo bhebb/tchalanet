@@ -39,6 +39,7 @@ type HostState =
   selector: 'tch-widget-host',
   imports: [TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { '[style.display]': "hidden() ? 'none' : null" },
   template: `
     <ng-container #outlet />
     @switch (state().kind) {
@@ -144,6 +145,9 @@ export class WidgetHostComponent {
 
   readonly renderFailed = signal(false);
   readonly errorSeverity = computed(() => this.localError()?.severity ?? 'error');
+  readonly hidden = computed(
+    () => this.state().kind === 'error' && !!this.config()?.props?.['hideOnError'],
+  );
   private ref: ComponentRef<unknown> | null = null;
 
   constructor() {

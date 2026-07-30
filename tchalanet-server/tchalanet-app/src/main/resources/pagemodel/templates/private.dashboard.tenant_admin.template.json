@@ -141,6 +141,7 @@
           "props": {
             "titleKey": "dashboard.tenant_admin.sales_trend.title",
             "emptyKey": "dashboard.tenant_admin.sales_trend.empty",
+            "hideOnError": true,
             "feedbackTargets": ["tenant_admin_dashboard.analytics"],
             "points": { "source": "dynamic", "path": "points" },
             "labelPath": "label",
@@ -157,6 +158,7 @@
           "props": {
             "titleKey": "dashboard.tenant_admin.game_breakdown.title",
             "emptyKey": "dashboard.tenant_admin.game_breakdown.empty",
+            "hideOnError": true,
             "items": { "source": "dynamic", "path": "items" },
             "labelPath": "label",
             "valuePath": "grossSales",
@@ -184,13 +186,12 @@
           },
           "props": {
             "titleKey": "dashboard.tenant_admin.quick_actions.title",
-            "feedbackTargets": ["tenant_admin_dashboard.public_content"],
             "actions": [
               {
                 "id": "addSellerTerminal",
                 "labelKey": "quickaction.admin.add_seller_terminal",
                 "icon": "person_add",
-                "destination": { "kind": "route", "value": "/app/admin/sellers/new" }
+                "destination": { "kind": "route", "value": "/app/admin/seller-terminals/new" }
               },
               {
                 "id": "activeSellerTerminals",

@@ -75,6 +75,7 @@ export const adminRoutes: Route[] = [
   // Legacy control paths → new canonical paths
   { path: 'controls/baremes', redirectTo: 'controls/gains', pathMatch: 'full' },
   { path: 'controls/odds', redirectTo: 'controls/gains', pathMatch: 'full' },
+  { path: 'controls/pricing-rules', redirectTo: 'controls/gains', pathMatch: 'full' },
   { path: 'controls/commission', redirectTo: 'controls/commissions', pathMatch: 'full' },
   { path: 'controls/bonuses', redirectTo: 'controls/commissions', pathMatch: 'full' },
   { path: 'commission', redirectTo: 'controls/commissions', pathMatch: 'full' },
