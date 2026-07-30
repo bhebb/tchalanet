@@ -11,7 +11,6 @@ import {
   DrawLifecycleAction,
   GeneratedDrawsQuery,
   SaveDrawResultRequest,
-  isGeneratedDrawSellableNow,
 } from './admin-generated-draws.models';
 
 export interface DrawView {
@@ -196,26 +195,16 @@ export function serverStatusParam(status: string | null | undefined): string | n
 }
 
 function applyStatusFilter(draws: GeneratedDrawView[], status: string | null | undefined): GeneratedDrawView[] {
-  // Lifecycle statuses are already narrowed by the backend — re-filtering here would only
-  // desync the rows from the server's totalElements/pagination.
+  // Lifecycle statuses (OPEN, CLOSED, …) are already narrowed by the backend — re-filtering
+  // here would only desync the rows from the server's totalElements/pagination.
   if (serverStatusParam(status)) return draws;
   if (!status || status === 'all') return draws;
+  const now = Date.now();
   return draws.filter(d => {
     switch (status) {
-      case 'OPEN':         return isGeneratedDrawSellableNow(d);
-      case 'SCHEDULED':
-      case 'LOCKED':
-      case 'CLOSED':
-      case 'RESULTED':
-      case 'SETTLED':
-      case 'CANCELLED':
-      case 'ARCHIVED':     return d.lifecycleStatus === status;
-      case 'PAST':         return (d.salesStatus === 'OPEN' && !isGeneratedDrawSellableNow(d))
-        || d.salesStatus === 'CLOSED'
-        || d.salesStatus === 'CANCELLED'
-        || d.resultStatus === 'EXPECTED'
-        || d.resultStatus === 'MISSING'
-        || d.resultStatus === 'CONFIRMED';
+      // "Passés" = the draw time itself is behind us, regardless of lifecycle/result state.
+      case 'PAST':         return Date.parse(d.scheduledAt) < now;
+      case 'LOCKED':       return d.lifecycleStatus === status;
       case 'EXPECTED_OR_MISSING':
         return d.resultStatus === 'EXPECTED' || d.resultStatus === 'MISSING';
       case 'EXPECTED':     return d.resultStatus === 'EXPECTED';
