@@ -16,34 +16,38 @@
   @if (loading()) {
   <tch-loading [label]="'common.loading' | translate" />
   } @else {
-  <tch-admin-section-card
-    [title]="'admin.commission.section.overview' | translate"
-    tchSectionErrorTarget="admin.commission.defaultRate"
-    [tchSectionErrors]="sectionErrors()"
-  >
-    @if (overview(); as overviewVm) {
-    <dl class="commission-page__overview">
-      <dt>{{ 'admin.commission.field.defaultRate' | translate }}</dt>
-      <dd>{{ overviewVm.tenantDefaultRate }}%</dd>
-      <dt>{{ 'admin.commission.field.totalSellers' | translate }}</dt>
-      <dd>{{ overviewVm.totalSellerTerminals }}</dd>
-      <dt>{{ 'admin.commission.field.atDefaultRate' | translate }}</dt>
-      <dd>{{ overviewVm.countAtDefaultRate }}</dd>
-      <dt>{{ 'admin.commission.field.customRate' | translate }}</dt>
-      <dd>{{ overviewVm.countWithCustomRate }}</dd>
-      <dt>{{ 'admin.commission.field.range' | translate }}</dt>
-      <dd>{{ overviewVm.minRate }}% / {{ overviewVm.maxRate }}%</dd>
-    </dl>
-    } @else {
-    <p class="commission-page__unavailable">{{ 'common.not_available' | translate }}</p>
-    }
-  </tch-admin-section-card>
+  <tch-admin-detail-layout>
+    <aside aside class="commission-page__aside">
+      <tch-admin-section-card
+        [title]="'admin.commission.section.overview' | translate"
+        tchSectionErrorTarget="admin.commission.defaultRate"
+        [tchSectionErrors]="sectionErrors()"
+      >
+        @if (overview(); as overviewVm) {
+        <dl class="commission-page__overview">
+          <dt>{{ 'admin.commission.field.defaultRate' | translate }}</dt>
+          <dd>{{ overviewVm.tenantDefaultRate }}%</dd>
+          <dt>{{ 'admin.commission.field.totalSellers' | translate }}</dt>
+          <dd>{{ overviewVm.totalSellerTerminals }}</dd>
+          <dt>{{ 'admin.commission.field.atDefaultRate' | translate }}</dt>
+          <dd>{{ overviewVm.countAtDefaultRate }}</dd>
+          <dt>{{ 'admin.commission.field.customRate' | translate }}</dt>
+          <dd>{{ overviewVm.countWithCustomRate }}</dd>
+          <dt>{{ 'admin.commission.field.range' | translate }}</dt>
+          <dd>{{ overviewVm.minRate }}% / {{ overviewVm.maxRate }}%</dd>
+        </dl>
+        } @else {
+        <p class="commission-page__unavailable">{{ 'common.not_available' | translate }}</p>
+        }
+      </tch-admin-section-card>
+    </aside>
 
-  <tch-admin-section-card
-    [title]="'admin.commission.section.sellers' | translate"
-    tchSectionErrorTarget="admin.commission.sellers"
-    [tchSectionErrors]="sectionErrors()"
-  >
+    <div main class="commission-page__main">
+      <tch-admin-section-card
+        [title]="'admin.commission.section.sellers' | translate"
+        tchSectionErrorTarget="admin.commission.sellers"
+        [tchSectionErrors]="sectionErrors()"
+      >
     @if (sellers().length === 0) {
     <tch-admin-empty-state
       icon="point_of_sale"
@@ -124,6 +128,8 @@
       </ng-template>
     </mat-menu>
     }
-  </tch-admin-section-card>
+      </tch-admin-section-card>
+    </div>
+  </tch-admin-detail-layout>
   }
 </tch-admin-page-shell>

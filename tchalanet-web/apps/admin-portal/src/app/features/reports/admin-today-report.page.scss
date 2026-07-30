@@ -4,6 +4,17 @@
   gap: 1.5rem;
 }
 
+/**
+ * The export root is a single child of :host, so the host's column gap sits between the
+ * controls and this wrapper — never between the sections inside it. Without its own rhythm the
+ * KPI grid and the table render flush against each other.
+ */
+.report-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
 .report-controls {
   display: flex;
   align-items: center;

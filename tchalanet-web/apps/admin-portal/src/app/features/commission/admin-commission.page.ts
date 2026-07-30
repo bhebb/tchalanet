@@ -13,6 +13,7 @@ import { TchLoading } from '@tch/ui/components';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { AdminPageShellComponent } from '@tch/ui/console';
+import { AdminDetailLayoutComponent } from '@tch/ui/console';
 import { AdminSectionCardComponent } from '@tch/ui/console';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
 import { AdminSectionErrorTargetDirective, AdminSectionTargetError } from '@tch/ui/console';
@@ -42,6 +43,7 @@ export function adminCommissionErrorView(
   imports: [
     LowerCasePipe,
     AdminPageShellComponent,
+    AdminDetailLayoutComponent,
     AdminSectionCardComponent,
     AdminSectionErrorTargetDirective,
     AdminEmptyStateComponent,
