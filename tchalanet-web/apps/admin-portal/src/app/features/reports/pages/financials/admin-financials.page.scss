@@ -1,6 +1,8 @@
 @use 'breakpoints' as ui;
 
-:host {
+// The page shell owns the outer gutter; this keeps the page's own vertical rhythm, which
+// used to live on :host and no longer reaches the content now that it is projected.
+.financials-page {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;

@@ -1,9 +1,9 @@
-<tch-admin-page-header
+<tch-admin-page-shell
   [title]="'admin.reports.today.title' | translate"
   [description]="'admin.reports.today.description' | translate"
-/>
-
-<div class="report-controls">
+>
+<div class="report-page">
+  <div class="report-controls">
   <mat-form-field appearance="outline" class="date-picker">
     <mat-label>{{ 'admin.reports.today.filters.date' | translate }}</mat-label>
     <input
@@ -105,3 +105,5 @@
     }
   }
 }
+</div>
+</tch-admin-page-shell>
