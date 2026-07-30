@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { TchBackendClient, TchPage } from '@tch/api';
+import type { TchRequestOptions } from '@tch/api';
 import { Observable } from 'rxjs';
 
 export type PromotionCampaignStatus = 'DRAFT' | 'ACTIVE' | 'PAUSED' | 'INACTIVE' | 'ARCHIVED';
@@ -88,13 +89,11 @@ export interface UpdatePromotionRuleEffectsRequest {
 export class AdminPromotionsApiService {
   private readonly backend = inject(TchBackendClient);
 
-  listCampaigns(): Observable<TchPage<PromotionCampaignView>> {
-    return this.backend.getPage<PromotionCampaignView>(
-      '/admin/promotions/campaigns',
-      {
-        params: { page: '0', size: '20', sort: 'createdAt,desc' },
-      },
-    );
+  listCampaigns(options?: TchRequestOptions): Observable<TchPage<PromotionCampaignView>> {
+    return this.backend.getPage<PromotionCampaignView>('/admin/promotions/campaigns', {
+      params: { page: '0', size: '20', sort: 'createdAt,desc' },
+      ...options,
+    });
   }
 
   getCampaign(campaignId: string): Observable<PromotionCampaignView> {

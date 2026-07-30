@@ -138,8 +138,13 @@
           "closedWeekdays": "Jours fermés chaque semaine",
           "recurringHolidays": "Jours fériés récurrents",
           "days": {
-            "monday": "Lundi", "tuesday": "Mardi", "wednesday": "Mercredi",
-            "thursday": "Jeudi", "friday": "Vendredi", "saturday": "Samedi", "sunday": "Dimanche"
+            "monday": "Lundi",
+            "tuesday": "Mardi",
+            "wednesday": "Mercredi",
+            "thursday": "Jeudi",
+            "friday": "Vendredi",
+            "saturday": "Samedi",
+            "sunday": "Dimanche"
           },
           "customHoliday": {
             "title": "Jour férié personnalisé",
@@ -807,6 +812,12 @@
           "maryaj": "Configurer Maryaj gratis"
         }
       }
+    },
+    "maryajGratis": {
+      "title": "Maryaj gratis",
+      "description": "Configurez le jeu Maryaj et son offre automatique de lignes gratuites.",
+      "action": { "refresh": "Rafraîchir" },
+      "loading": "Chargement des promotions..."
     },
     "drawSalesMatrix": {
       "title": "Jeux par canal",

@@ -497,6 +497,12 @@
         }
       }
     },
+    "maryajGratis": {
+      "title": "Maryaj gratis",
+      "description": "Konfigire jwèt Maryaj la ak òf liy gratis otomatik la.",
+      "action": { "refresh": "Rechaje" },
+      "loading": "Y ap chaje pwomosyon yo..."
+    },
     "drawSalesMatrix": {
       "title": "Matriks jwèt pa règ tiraj",
       "description": "Aktive oswa dezaktive jwèt yo pa règ tiraj. Lè, fèmti vant ak lyen règ la modifye nan fich règ tiraj la.",
@@ -684,8 +690,13 @@
           "closedWeekdays": "Jou ki fèmen chak semèn",
           "recurringHolidays": "Jou ferye regilye",
           "days": {
-            "monday": "Lendi", "tuesday": "Madi", "wednesday": "Mèkredi",
-            "thursday": "Jedi", "friday": "Vandredi", "saturday": "Samdi", "sunday": "Dimanch"
+            "monday": "Lendi",
+            "tuesday": "Madi",
+            "wednesday": "Mèkredi",
+            "thursday": "Jedi",
+            "friday": "Vandredi",
+            "saturday": "Samdi",
+            "sunday": "Dimanch"
           },
           "customHoliday": {
             "title": "Jou ferye pèsonalize",

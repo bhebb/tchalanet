@@ -1,7 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { FormBuilder } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { of } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
+import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 
 import {
@@ -49,6 +50,7 @@ describe(AdminMaryajGratisStore.name, () => {
         { provide: AdminPromotionsApiService, useValue: promotionsApi },
         { provide: AdminGamesPricingApiService, useValue: gamesPricingApi },
         { provide: MatSnackBar, useValue: { open: vi.fn() } },
+        { provide: TranslateService, useValue: { instant: (key: string) => key } },
       ],
     });
 
@@ -75,9 +77,9 @@ describe(AdminMaryajGratisStore.name, () => {
     promotionsApi.getCampaign.mockReturnValue(of(campaignWithTiers()));
     gamesPricingApi.getGamesPricing.mockReturnValue(of([maryajGame()]));
     promotionsApi.updateCampaign.mockReturnValue(of(campaignWithTiers()));
-    promotionsApi.updateRuleEffects.mockReturnValue(of(campaignWithTiers([
-      { minPaidAmount: 700, maxPaidAmount: null, quantity: 5 },
-    ])));
+    promotionsApi.updateRuleEffects.mockReturnValue(
+      of(campaignWithTiers([{ minPaidAmount: 700, maxPaidAmount: null, quantity: 5 }])),
+    );
 
     store.load();
     store.startEditingOffer();
@@ -91,14 +93,34 @@ describe(AdminMaryajGratisStore.name, () => {
 
     const calls = promotionsApi.updateRuleEffects.mock.calls;
     const request = calls[calls.length - 1][2] as UpdatePromotionRuleEffectsRequest;
-    expect(promotionsApi.updateCampaign).toHaveBeenCalledWith('campaign-1', expect.objectContaining({
-      priority: 10,
-    }));
-    expect(promotionsApi.updateRuleEffects).toHaveBeenCalledWith('campaign-1', 'rule-1', expect.any(Object));
+    expect(promotionsApi.updateCampaign).toHaveBeenCalledWith(
+      'campaign-1',
+      expect.objectContaining({
+        priority: 10,
+      }),
+    );
+    expect(promotionsApi.updateRuleEffects).toHaveBeenCalledWith(
+      'campaign-1',
+      'rule-1',
+      expect.any(Object),
+    );
     expect(request.items[0].params['quantityTiers']).toEqual([
       { minPaidAmount: 700, maxPaidAmount: null, quantity: 5 },
     ]);
     expect(request.items[0].params['maxQuantity']).toBe(5);
+  });
+
+  it('keeps the page ready when tenant game configuration cannot be loaded', () => {
+    promotionsApi.listCampaigns.mockReturnValue(of({ items: [], total: 0 }));
+    gamesPricingApi.getGamesPricing.mockReturnValue(
+      throwError(() => ({ status: 503, error: { title: 'Games unavailable' } })),
+    );
+
+    store.load();
+
+    expect(store.state()).toBe('ready');
+    expect(store.maryajGame()).toBeNull();
+    expect(store.gamesError()).not.toBeNull();
   });
 });
 

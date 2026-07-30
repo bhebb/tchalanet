@@ -2,7 +2,12 @@ import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormArray, FormBuilder, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { TranslateService } from '@ngx-translate/core';
 import { catchError, forkJoin, map, of, switchMap } from 'rxjs';
+
+import { mapHttpErrorToProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
+import type { ProblemDetail } from '@tch/api';
+import { ErrorViewModel, resolveErrorFeedbackCopy, toErrorViewModel } from '@tch/web/errors';
 
 import {
   AdminPromotionsApiService,
@@ -27,10 +32,14 @@ export class AdminMaryajGratisStore {
   private readonly gamesPricingApi = inject(AdminGamesPricingApiService);
   private readonly fb = inject(FormBuilder);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly state = signal<AdminMaryajGratisPageState>('loading');
-  readonly error = signal<string | null>(null);
+  readonly pageError = signal<ErrorViewModel | null>(null);
+  readonly gamesError = signal<ErrorViewModel | null>(null);
+  readonly campaignDetailError = signal<ErrorViewModel | null>(null);
+  readonly actionError = signal<ErrorViewModel | null>(null);
   readonly saving = signal(false);
   readonly editingOffer = signal(false);
   readonly campaigns = signal<readonly PromotionCampaignView[]>([]);
@@ -44,14 +53,15 @@ export class AdminMaryajGratisStore {
   readonly maryajGameMissingReason = computed(() => {
     const game = this.maryajGame();
     if (!game) return 'Le jeu Maryaj gratis est absent de la configuration tenant.';
-    if (game.tenantStatus === 'INACTIVE') return 'Le jeu Maryaj gratuit est désactivé pour ce tenant.';
-    if (game.tenantStatus === 'NEEDS_CONFIG') return 'Le jeu Maryaj gratuit doit avoir ses limites et son barème configurés.';
-    if (game.tenantStatus === 'UNAVAILABLE') return 'Le jeu Maryaj gratuit n’est pas disponible pour ce tenant.';
+    if (game.tenantStatus === 'INACTIVE')
+      return 'Le jeu Maryaj gratuit est désactivé pour ce tenant.';
+    if (game.tenantStatus === 'NEEDS_CONFIG')
+      return 'Le jeu Maryaj gratuit doit avoir ses limites et son barème configurés.';
+    if (game.tenantStatus === 'UNAVAILABLE')
+      return 'Le jeu Maryaj gratuit n’est pas disponible pour ce tenant.';
     return null;
   });
-  readonly maryajEffect = computed(() =>
-    this.findMaryajEffect(this.maryajCampaign() ?? null),
-  );
+  readonly maryajEffect = computed(() => this.findMaryajEffect(this.maryajCampaign() ?? null));
   readonly maryajRule = computed(() => this.findMaryajRule(this.maryajCampaign() ?? null));
 
   readonly form = this.fb.nonNullable.group({
@@ -59,7 +69,10 @@ export class AdminMaryajGratisStore {
     endsAt: [this.addYears(new Date(), 10), Validators.required],
     priority: [100, [Validators.required, Validators.min(0), Validators.max(100000)]],
     payoutBaseAmount: [50, [Validators.required, Validators.min(1)]],
-    quantityMode: ['TIERED_PAID_AMOUNT' as 'FIXED' | 'PER_PAID_AMOUNT' | 'TIERED_PAID_AMOUNT', Validators.required],
+    quantityMode: [
+      'TIERED_PAID_AMOUNT' as 'FIXED' | 'PER_PAID_AMOUNT' | 'TIERED_PAID_AMOUNT',
+      Validators.required,
+    ],
     quantity: [5, [Validators.required, Validators.min(1), Validators.max(10)]],
     stepPaidAmount: [1000, [Validators.required, Validators.min(1)]],
     quantityPerStep: [2, [Validators.required, Validators.min(1), Validators.max(10)]],
@@ -71,7 +84,10 @@ export class AdminMaryajGratisStore {
     ]),
     choiceMode: ['AUTO_GENERATE' as MaryajChoiceMode, Validators.required],
     regenerableBeforeConfirm: [true],
-    maxRegenerationsBeforeConfirm: [3, [Validators.required, Validators.min(0), Validators.max(20)]],
+    maxRegenerationsBeforeConfirm: [
+      3,
+      [Validators.required, Validators.min(0), Validators.max(20)],
+    ],
   });
 
   constructor() {
@@ -87,56 +103,66 @@ export class AdminMaryajGratisStore {
 
   load(): void {
     this.state.set('loading');
-    this.error.set(null);
+    this.pageError.set(null);
+    this.gamesError.set(null);
+    this.campaignDetailError.set(null);
+    this.actionError.set(null);
     forkJoin({
-      campaigns: this.api.listCampaigns(),
-      games: this.gamesPricingApi.getGamesPricing(),
-    }).pipe(
-      switchMap(({ campaigns, games }) => {
-        const maryajCampaign = this.findMaryajCampaign(campaigns.items);
-        const campaignId = promotionIdValue(maryajCampaign?.id);
-        if (!campaignId) {
-          return of({
-            campaigns: campaigns.items,
-            games,
-            maryajCampaign,
-          });
-        }
-        return this.api.getCampaign(campaignId).pipe(
-          map(detailedCampaign => ({
-            campaigns: [
-              detailedCampaign,
-              ...campaigns.items.filter(item => promotionIdValue(item.id) !== campaignId),
-            ],
-            games,
-            maryajCampaign: detailedCampaign,
-          })),
-          catchError(() => of({
-            campaigns: campaigns.items,
-            games,
-            maryajCampaign,
-          })),
-        );
-      }),
-    ).subscribe({
-      next: ({ campaigns, games, maryajCampaign }) => {
-        this.campaigns.set(campaigns);
-        this.maryajGame.set(games.find(g => MARYAJ_GRATIS_GAME_CODES.has(g.gameCode)) ?? null);
-        const effect = this.findMaryajEffect(maryajCampaign);
-        if (maryajCampaign) {
-          this.patchFormFromCampaign(maryajCampaign);
-        }
-        if (effect) {
-          this.patchFormFromEffect(effect);
-        }
-        this.state.set('ready');
-      },
-      error: (err: unknown) => {
-        const pd = (err as { error?: { title?: string; detail?: string } })?.error;
-        this.error.set(pd?.title ?? pd?.detail ?? 'Impossible de charger les promotions.');
-        this.state.set('error');
-      },
-    });
+      campaigns: this.api.listCampaigns({ suppressShellFeedback: true }),
+      games: this.gamesPricingApi.getGamesPricing({ suppressShellFeedback: true }).pipe(
+        catchError(err => {
+          this.gamesError.set(this.errorViewModel(err, 'admin.maryajGratis.game', 'section'));
+          return of([] as readonly TenantGamePricingView[]);
+        }),
+      ),
+    })
+      .pipe(
+        switchMap(({ campaigns, games }) => {
+          const maryajCampaign = this.findMaryajCampaign(campaigns.items);
+          const campaignId = promotionIdValue(maryajCampaign?.id);
+          if (!campaignId) {
+            return of({
+              campaigns: campaigns.items,
+              games,
+              maryajCampaign,
+            });
+          }
+          return this.api.getCampaign(campaignId).pipe(
+            map(detailedCampaign => ({
+              campaigns: [
+                detailedCampaign,
+                ...campaigns.items.filter(item => promotionIdValue(item.id) !== campaignId),
+              ],
+              games,
+              maryajCampaign: detailedCampaign,
+            })),
+            catchError(err => {
+              this.campaignDetailError.set(
+                this.errorViewModel(err, 'admin.maryajGratis.campaignDetail', 'section'),
+              );
+              return of({ campaigns: campaigns.items, games, maryajCampaign });
+            }),
+          );
+        }),
+      )
+      .subscribe({
+        next: ({ campaigns, games, maryajCampaign }) => {
+          this.campaigns.set(campaigns);
+          this.maryajGame.set(games.find(g => MARYAJ_GRATIS_GAME_CODES.has(g.gameCode)) ?? null);
+          const effect = this.findMaryajEffect(maryajCampaign);
+          if (maryajCampaign) {
+            this.patchFormFromCampaign(maryajCampaign);
+          }
+          if (effect) {
+            this.patchFormFromEffect(effect);
+          }
+          this.state.set('ready');
+        },
+        error: (err: unknown) => {
+          this.pageError.set(this.errorViewModel(err, 'admin.maryajGratis.page', 'page'));
+          this.state.set('error');
+        },
+      });
   }
 
   instantiate(): void {
@@ -164,51 +190,56 @@ export class AdminMaryajGratisStore {
       return;
     }
 
+    this.actionError.set(null);
     this.saving.set(true);
     const value = this.form.getRawValue();
     const quantityTiers = this.quantityTiersPayload();
-    this.api.instantiateDefaultMaryajGratis({
-      payoutBaseAmount: value.payoutBaseAmount,
-      quantityMode: value.quantityMode,
-      quantity: value.quantity,
-      stepPaidAmount: value.quantityMode === 'PER_PAID_AMOUNT' ? value.stepPaidAmount : null,
-      quantityPerStep: value.quantityMode === 'PER_PAID_AMOUNT' ? value.quantityPerStep : null,
-      maxQuantity: value.quantityMode === 'PER_PAID_AMOUNT'
-        ? value.maxQuantity
-        : value.quantityMode === 'TIERED_PAID_AMOUNT'
-          ? Math.max(...quantityTiers.map(tier => tier.quantity))
-          : value.quantity,
-      quantityTiers: value.quantityMode === 'TIERED_PAID_AMOUNT' ? quantityTiers : null,
-      choiceMode: value.choiceMode,
-      generationStrategy: value.choiceMode === 'AUTO_GENERATE' ? 'RANDOM' : null,
-      regenerableBeforeConfirm: value.regenerableBeforeConfirm,
-      maxRegenerationsBeforeConfirm: value.maxRegenerationsBeforeConfirm,
-    }).pipe(
-      switchMap(campaign => {
-        const campaignId = promotionIdValue(campaign.id);
-        return campaignId
-          ? this.api.updateCampaign(campaignId, this.campaignMetadataPayload(campaign))
-          : of(campaign);
-      }),
-    ).subscribe({
-      next: campaign => {
-        const campaignId = promotionIdValue(campaign.id);
-        this.campaigns.update(items => [campaign, ...items.filter(i => promotionIdValue(i.id) !== campaignId)]);
-        const effect = this.findMaryajEffect(campaign);
-        if (effect) {
-          this.patchFormFromEffect(effect);
-        }
-        this.saving.set(false);
-        this.snackBar.open('Maryaj gratis activé.', 'OK', { duration: 3000 });
-      },
-      error: (err: unknown) => {
-        const pd = (err as { error?: { title?: string; detail?: string } })?.error;
-        this.saving.set(false);
-        this.snackBar.open(pd?.title ?? pd?.detail ?? 'Erreur lors de l’activation.', 'OK', {
-          duration: 5000,
-        });
-      },
-    });
+    this.api
+      .instantiateDefaultMaryajGratis({
+        payoutBaseAmount: value.payoutBaseAmount,
+        quantityMode: value.quantityMode,
+        quantity: value.quantity,
+        stepPaidAmount: value.quantityMode === 'PER_PAID_AMOUNT' ? value.stepPaidAmount : null,
+        quantityPerStep: value.quantityMode === 'PER_PAID_AMOUNT' ? value.quantityPerStep : null,
+        maxQuantity:
+          value.quantityMode === 'PER_PAID_AMOUNT'
+            ? value.maxQuantity
+            : value.quantityMode === 'TIERED_PAID_AMOUNT'
+              ? Math.max(...quantityTiers.map(tier => tier.quantity))
+              : value.quantity,
+        quantityTiers: value.quantityMode === 'TIERED_PAID_AMOUNT' ? quantityTiers : null,
+        choiceMode: value.choiceMode,
+        generationStrategy: value.choiceMode === 'AUTO_GENERATE' ? 'RANDOM' : null,
+        regenerableBeforeConfirm: value.regenerableBeforeConfirm,
+        maxRegenerationsBeforeConfirm: value.maxRegenerationsBeforeConfirm,
+      })
+      .pipe(
+        switchMap(campaign => {
+          const campaignId = promotionIdValue(campaign.id);
+          return campaignId
+            ? this.api.updateCampaign(campaignId, this.campaignMetadataPayload(campaign))
+            : of(campaign);
+        }),
+      )
+      .subscribe({
+        next: campaign => {
+          const campaignId = promotionIdValue(campaign.id);
+          this.campaigns.update(items => [
+            campaign,
+            ...items.filter(i => promotionIdValue(i.id) !== campaignId),
+          ]);
+          const effect = this.findMaryajEffect(campaign);
+          if (effect) {
+            this.patchFormFromEffect(effect);
+          }
+          this.saving.set(false);
+          this.snackBar.open('Maryaj gratis activé.', 'OK', { duration: 3000 });
+        },
+        error: (err: unknown) => {
+          this.saving.set(false);
+          this.actionError.set(this.errorViewModel(err, 'admin.maryajGratis.activate', 'section'));
+        },
+      });
   }
 
   startEditingOffer(): void {
@@ -266,31 +297,34 @@ export class AdminMaryajGratisStore {
       return;
     }
 
+    this.actionError.set(null);
     this.saving.set(true);
-    this.api.updateCampaign(campaignId, this.campaignMetadataPayload(campaign)).pipe(
-      switchMap(() => this.api.updateRuleEffects(campaignId, ruleId, {
-        items: [this.freeGameLineEffectItem()],
-      })),
-    ).subscribe({
-      next: updated => {
-        this.replaceCampaign(updated);
-        this.patchFormFromCampaign(updated);
-        const effect = this.findMaryajEffect(updated);
-        if (effect) {
-          this.patchFormFromEffect(effect);
-        }
-        this.editingOffer.set(false);
-        this.saving.set(false);
-        this.snackBar.open('Configuration Maryaj gratis mise à jour.', 'OK', { duration: 3000 });
-      },
-      error: (err: unknown) => {
-        const pd = (err as { error?: { title?: string; detail?: string } })?.error;
-        this.saving.set(false);
-        this.snackBar.open(pd?.title ?? pd?.detail ?? 'Erreur lors de la mise à jour.', 'OK', {
-          duration: 5000,
-        });
-      },
-    });
+    this.api
+      .updateCampaign(campaignId, this.campaignMetadataPayload(campaign))
+      .pipe(
+        switchMap(() =>
+          this.api.updateRuleEffects(campaignId, ruleId, {
+            items: [this.freeGameLineEffectItem()],
+          }),
+        ),
+      )
+      .subscribe({
+        next: updated => {
+          this.replaceCampaign(updated);
+          this.patchFormFromCampaign(updated);
+          const effect = this.findMaryajEffect(updated);
+          if (effect) {
+            this.patchFormFromEffect(effect);
+          }
+          this.editingOffer.set(false);
+          this.saving.set(false);
+          this.snackBar.open('Configuration Maryaj gratis mise à jour.', 'OK', { duration: 3000 });
+        },
+        error: (err: unknown) => {
+          this.saving.set(false);
+          this.actionError.set(this.errorViewModel(err, 'admin.maryajGratis.save', 'section'));
+        },
+      });
   }
 
   quantityTiers(): FormArray {
@@ -299,7 +333,9 @@ export class AdminMaryajGratisStore {
 
   addQuantityTier(): void {
     const tiers = this.quantityTiers();
-    const last = tiers.at(tiers.length - 1)?.getRawValue() as Partial<MaryajQuantityTier> | undefined;
+    const last = tiers.at(tiers.length - 1)?.getRawValue() as
+      | Partial<MaryajQuantityTier>
+      | undefined;
     const nextMin = typeof last?.maxPaidAmount === 'number' ? last.maxPaidAmount + 1 : 1000;
     tiers.push(this.quantityTierGroup(nextMin, null, 1));
   }
@@ -324,6 +360,7 @@ export class AdminMaryajGratisStore {
 
   private transition(campaign: PromotionCampaignView, action: 'activate' | 'pause'): void {
     if (this.saving()) return;
+    this.actionError.set(null);
     this.saving.set(true);
     const campaignId = promotionIdValue(campaign.id);
     if (!campaignId) {
@@ -344,11 +381,8 @@ export class AdminMaryajGratisStore {
         this.saving.set(false);
       },
       error: (err: unknown) => {
-        const pd = (err as { error?: { title?: string; detail?: string } })?.error;
         this.saving.set(false);
-        this.snackBar.open(pd?.title ?? pd?.detail ?? 'Erreur lors de la mise à jour.', 'OK', {
-          duration: 5000,
-        });
+        this.actionError.set(this.errorViewModel(err, `admin.maryajGratis.${action}`, 'section'));
       },
     });
   }
@@ -362,12 +396,10 @@ export class AdminMaryajGratisStore {
       quantityMode: value.quantityMode,
       quantity: value.quantity,
       choiceMode: value.choiceMode,
-      regenerableBeforeConfirm: value.choiceMode === 'AUTO_GENERATE'
-        ? value.regenerableBeforeConfirm
-        : false,
-      maxRegenerationsBeforeConfirm: value.choiceMode === 'AUTO_GENERATE'
-        ? value.maxRegenerationsBeforeConfirm
-        : 0,
+      regenerableBeforeConfirm:
+        value.choiceMode === 'AUTO_GENERATE' ? value.regenerableBeforeConfirm : false,
+      maxRegenerationsBeforeConfirm:
+        value.choiceMode === 'AUTO_GENERATE' ? value.maxRegenerationsBeforeConfirm : 0,
     };
 
     if (value.quantityMode === 'PER_PAID_AMOUNT') {
@@ -401,22 +433,22 @@ export class AdminMaryajGratisStore {
       name: campaign.name || 'Maryaj gratis',
       description: null,
       startsAt: this.instantFromDate(value.startsAt, 'start') ?? new Date().toISOString(),
-      endsAt: this.instantFromDate(value.endsAt, 'end') ?? this.addYears(new Date(), 10).toISOString(),
+      endsAt:
+        this.instantFromDate(value.endsAt, 'end') ?? this.addYears(new Date(), 10).toISOString(),
       priority: Number(value.priority),
     };
   }
 
   private patchFormFromCampaign(campaign: PromotionCampaignView): void {
     const now = new Date();
-    this.form.patchValue({
-      startsAt: campaign.startsAt
-        ? this.dateFromInstant(campaign.startsAt)
-        : now,
-      endsAt: campaign.endsAt
-        ? this.dateFromInstant(campaign.endsAt)
-        : this.addYears(now, 10),
-      priority: campaign.priority,
-    }, { emitEvent: false });
+    this.form.patchValue(
+      {
+        startsAt: campaign.startsAt ? this.dateFromInstant(campaign.startsAt) : now,
+        endsAt: campaign.endsAt ? this.dateFromInstant(campaign.endsAt) : this.addYears(now, 10),
+        priority: campaign.priority,
+      },
+      { emitEvent: false },
+    );
   }
 
   private patchFormFromEffect(effect: PromotionConfigItem): void {
@@ -425,24 +457,31 @@ export class AdminMaryajGratisStore {
       | 'FIXED'
       | 'PER_PAID_AMOUNT'
       | 'TIERED_PAID_AMOUNT';
-    this.form.patchValue({
-      payoutBaseAmount: this.numberParam(params, 'payoutBaseAmount', 50),
-      quantityMode,
-      quantity: this.numberParam(params, 'quantity', 1),
-      stepPaidAmount: this.numberParam(params, 'stepPaidAmount', 1000),
-      quantityPerStep: this.numberParam(params, 'quantityPerStep', 1),
-      maxQuantity: this.numberParam(params, 'maxQuantity', 3),
-      choiceMode: this.stringParam(params, 'choiceMode', 'AUTO_GENERATE') as MaryajChoiceMode,
-      regenerableBeforeConfirm: this.booleanParam(params, 'regenerableBeforeConfirm', true),
-      maxRegenerationsBeforeConfirm: this.numberParam(params, 'maxRegenerationsBeforeConfirm', 3),
-    }, { emitEvent: false });
+    this.form.patchValue(
+      {
+        payoutBaseAmount: this.numberParam(params, 'payoutBaseAmount', 50),
+        quantityMode,
+        quantity: this.numberParam(params, 'quantity', 1),
+        stepPaidAmount: this.numberParam(params, 'stepPaidAmount', 1000),
+        quantityPerStep: this.numberParam(params, 'quantityPerStep', 1),
+        maxQuantity: this.numberParam(params, 'maxQuantity', 3),
+        choiceMode: this.stringParam(params, 'choiceMode', 'AUTO_GENERATE') as MaryajChoiceMode,
+        regenerableBeforeConfirm: this.booleanParam(params, 'regenerableBeforeConfirm', true),
+        maxRegenerationsBeforeConfirm: this.numberParam(params, 'maxRegenerationsBeforeConfirm', 3),
+      },
+      { emitEvent: false },
+    );
     this.replaceQuantityTiers(this.quantityTiersParam(params));
     this.syncQuantityModeControls(quantityMode);
     this.syncChoiceModeControls(this.form.controls.choiceMode.value);
   }
 
-  private findMaryajCampaign(campaigns: readonly PromotionCampaignView[]): PromotionCampaignView | null {
-    return campaigns.find(c => c.code === 'DEFAULT_MARYAJ_GRATIS' || c.code.includes('MARYAJ')) ?? null;
+  private findMaryajCampaign(
+    campaigns: readonly PromotionCampaignView[],
+  ): PromotionCampaignView | null {
+    return (
+      campaigns.find(c => c.code === 'DEFAULT_MARYAJ_GRATIS' || c.code.includes('MARYAJ')) ?? null
+    );
   }
 
   private replaceQuantityTiers(tiers: readonly MaryajQuantityTier[]): void {
@@ -450,32 +489,50 @@ export class AdminMaryajGratisStore {
     while (formArray.length > 0) {
       formArray.removeAt(0);
     }
-    for (const tier of tiers.length ? tiers : [
-      { minPaidAmount: 100, maxPaidAmount: 199, quantity: 1 },
-      { minPaidAmount: 200, maxPaidAmount: 499, quantity: 2 },
-      { minPaidAmount: 500, maxPaidAmount: null, quantity: 3 },
-    ]) {
+    for (const tier of tiers.length
+      ? tiers
+      : [
+          { minPaidAmount: 100, maxPaidAmount: 199, quantity: 1 },
+          { minPaidAmount: 200, maxPaidAmount: 499, quantity: 2 },
+          { minPaidAmount: 500, maxPaidAmount: null, quantity: 3 },
+        ]) {
       formArray.push(this.quantityTierGroup(tier.minPaidAmount, tier.maxPaidAmount, tier.quantity));
     }
   }
 
   private findMaryajRule(campaign: PromotionCampaignView | null): PromotionRuleView | null {
-    return campaign?.rules.find(rule =>
-      rule.ruleKey === 'maryaj-gratis-default'
-      || rule.effects.some(effect => this.isMaryajFreeGameEffect(effect))
-    ) ?? null;
+    return (
+      campaign?.rules.find(
+        rule =>
+          rule.ruleKey === 'maryaj-gratis-default' ||
+          rule.effects.some(effect => this.isMaryajFreeGameEffect(effect)),
+      ) ?? null
+    );
   }
 
   private findMaryajEffect(campaign: PromotionCampaignView | null): PromotionConfigItem | null {
     const effects = campaign?.rules.flatMap(rule => rule.effects) ?? [];
-    return [...effects].reverse().find(effect => this.isMaryajFreeGameEffect(effect))
-      ?? [...effects].reverse().find(effect => effect.type === 'FREE_GAME_LINE')
-      ?? null;
+    return (
+      [...effects].reverse().find(effect => this.isMaryajFreeGameEffect(effect)) ??
+      [...effects].reverse().find(effect => effect.type === 'FREE_GAME_LINE') ??
+      null
+    );
   }
 
   private isMaryajFreeGameEffect(effect: PromotionConfigItem): boolean {
     const gameCode = String(effect.params?.['gameCode'] ?? '');
     return effect.type === 'FREE_GAME_LINE' && MARYAJ_GRATIS_GAME_CODES.has(gameCode);
+  }
+
+  private errorViewModel(
+    err: unknown,
+    source: string,
+    surface: 'page' | 'section',
+  ): ErrorViewModel {
+    const problem: ProblemDetail = mapHttpErrorToProblemDetail(err);
+    const normalized = webAppErrorFromProblemDetail(problem, source, surface);
+    const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+    return toErrorViewModel(normalized, copy);
   }
 
   private replaceCampaign(updated: PromotionCampaignView): void {
@@ -551,13 +608,16 @@ export class AdminMaryajGratisStore {
   }
 
   private quantityTiersPayload(): readonly MaryajQuantityTier[] {
-    return this.quantityTiers().getRawValue().map(value => ({
-      minPaidAmount: Number(value.minPaidAmount),
-      maxPaidAmount: value.maxPaidAmount == null || value.maxPaidAmount === ''
-        ? null
-        : Number(value.maxPaidAmount),
-      quantity: Number(value.quantity),
-    }));
+    return this.quantityTiers()
+      .getRawValue()
+      .map(value => ({
+        minPaidAmount: Number(value.minPaidAmount),
+        maxPaidAmount:
+          value.maxPaidAmount == null || value.maxPaidAmount === ''
+            ? null
+            : Number(value.maxPaidAmount),
+        quantity: Number(value.quantity),
+      }));
   }
 
   private quantityTiersValidationError(): string | null {
@@ -612,7 +672,8 @@ export class AdminMaryajGratisStore {
       const tier = item as Record<string, unknown>;
       return {
         minPaidAmount: this.numberParam(tier, 'minPaidAmount', 100),
-        maxPaidAmount: tier['maxPaidAmount'] == null ? null : this.numberParam(tier, 'maxPaidAmount', 0),
+        maxPaidAmount:
+          tier['maxPaidAmount'] == null ? null : this.numberParam(tier, 'maxPaidAmount', 0),
         quantity: this.numberParam(tier, 'quantity', 1),
       };
     });
@@ -642,7 +703,10 @@ export class AdminMaryajGratisStore {
     return Number.isFinite(date.getTime()) ? date : new Date();
   }
 
-  private instantFromDate(value: Date | string | null | undefined, boundary: 'start' | 'end'): string | null {
+  private instantFromDate(
+    value: Date | string | null | undefined,
+    boundary: 'start' | 'end',
+  ): string | null {
     if (!value) return null;
     const date = new Date(value instanceof Date ? value.getTime() : new Date(value).getTime());
     if (boundary === 'start') {
