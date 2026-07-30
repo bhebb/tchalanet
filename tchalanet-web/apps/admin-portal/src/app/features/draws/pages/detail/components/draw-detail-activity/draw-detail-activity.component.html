@@ -14,7 +14,7 @@
   <tch-loading label="Chargement de l’activité..." />
 } @else if (view().activityState === 'error') {
   <div class="draw-detail-activity__error">
-    Impossible de charger les indicateurs de vente du tirage.
+    {{ view().activityErrorMessage || 'Impossible de charger les indicateurs de vente du tirage.' }}
   </div>
 } @else if (view().activityReport; as report) {
   @if (view().noSalesHint; as hint) {
@@ -65,15 +65,22 @@
 
     @if (view().topSelectionsState === 'error') {
       <p class="draw-detail-activity__empty-hint">
-        Impossible de charger les sélections les plus jouées.
+        {{
+          view().topSelectionsErrorMessage ||
+            'Impossible de charger les sélections les plus jouées.'
+        }}
       </p>
     } @else if (view().topSelections.length) {
       <ol class="draw-detail-activity__hot-list">
         @for (selection of view().topSelections; track selection.rank) {
           <li>
             <span class="draw-detail-activity__hot-rank">{{ selection.rank }}</span>
-            <span class="draw-detail-activity__hot-selection">{{ selection.displaySelection }}</span>
-            <span class="draw-detail-activity__hot-game">{{ selection.gameCode }} · {{ selection.betType }}</span>
+            <span class="draw-detail-activity__hot-selection">{{
+              selection.displaySelection
+            }}</span>
+            <span class="draw-detail-activity__hot-game"
+              >{{ selection.gameCode }} · {{ selection.betType }}</span
+            >
             <strong>{{ topSelectionStake(selection) | number: '1.0-2' }} HTG</strong>
           </li>
         }
