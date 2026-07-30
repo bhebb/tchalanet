@@ -166,6 +166,16 @@ export class AdminGeneratedDrawsPage {
     to: this.hasCustomDateRange() ? this.toDate() : null,
     page: this.page(),
   }));
+  // Separate resource for KPI summary: always fetches page 0 with a large size so the
+  // summary cards reflect the full period, not just the currently visible page.
+  private readonly drawsKpi = this.api.generatedDrawsResource(() => ({
+    datePreset: this.datePreset(),
+    from: this.hasCustomDateRange() ? this.fromDate() : null,
+    to: this.hasCustomDateRange() ? this.toDate() : null,
+    page: 0,
+    size: 500,
+  }));
+  readonly kpiDraws = computed(() => this.drawsKpi.value()?.items ?? []);
   readonly drawsError = resourceErrorVm(this.draws, 'admin.generatedDraws.list');
   readonly allDraws = computed(() => {
     const statusFiltered = this.api.filterDrawsByStatus(
@@ -181,6 +191,16 @@ export class AdminGeneratedDrawsPage {
    */
   readonly pageSize = computed(() => this.draws.value()?.size ?? TCH_DEFAULT_PAGE_SIZE);
   readonly isEmpty = (): boolean => (this.draws.value()?.items?.length ?? 0) === 0;
+  readonly pageTitle = computed(() => {
+    switch (this.statusFilter()) {
+      case 'OPEN': return 'Tirages ouverts';
+      case 'PAST': return 'Tirages passés';
+      case 'CLOSED': return 'Tirages fermés';
+      case 'CONFIRMED': return 'Tirages confirmés';
+      case 'EXPECTED_OR_MISSING': return 'Résultats attendus';
+      default: return 'Tirages générés';
+    }
+  });
   readonly canEnterManualResults = computed(() =>
     this.access.can(CONSOLE_DRAW_RESULT_ACCESS.manual),
   );

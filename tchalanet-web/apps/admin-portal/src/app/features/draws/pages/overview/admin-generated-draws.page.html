@@ -1,5 +1,5 @@
 <tch-admin-page-shell
-  title="Tirages générés"
+  [title]="pageTitle()"
   description="Suivez les tirages générés, leur état de vente et les résultats attendus."
 >
   <div actions>
@@ -30,7 +30,7 @@
     <ng-template tchAsyncReady>
       <!-- KPI summary -->
       <tch-generated-draws-summary
-        [draws]="draws.value()?.items ?? []"
+        [draws]="kpiDraws()"
         [today]="today"
         (kpiSelected)="onKpiSelected($event)"
       />
