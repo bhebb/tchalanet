@@ -237,7 +237,8 @@ Voir : `api_response.md`
 - Lever `ProblemRest.*(...)`
 - Interdit : erreurs wrappées
 
-Voir : `api_response.md` + `audit.md` (erreurs auditables)
+Voir : [`error-management.md`](./error-management.md), `api_response.md` + `audit.md` (erreurs
+auditables)
 
 ---
 

@@ -20,4 +20,9 @@ Ces conventions couvrent les apps séparées `public-portal`, `admin-portal` et 
 | HTTP API / errors / headers                        | [`http-api.md`](./http-api.md)                 |
 | Error management (shell/page/section/field)        | [`error-management.md`](./error-management.md) |
 
+Cross-project consumers:
+
+- Backend producer contract: [`../../../tchalanet-server/docs/conventions/error-management.md`](../../../tchalanet-server/docs/conventions/error-management.md)
+- Mobile consumer contract: [`../../../tchalanet-mobile/docs/conventions/error-management.md`](../../../tchalanet-mobile/docs/conventions/error-management.md)
+
 > Règle : conventions mises à jour **en même commit** que le code qui change la règle.

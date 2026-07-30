@@ -81,6 +81,7 @@ Si un sujet est défini ici, il ne doit **pas** être redéfini ailleurs.
 
 - `web_api.md` — règles controllers, scopes, erreurs
 - `api_response.md` — `ApiResponse<T>` (2xx)
+- `error-management.md` — contrat `ProblemDetail`, notices, descripteurs, redaction et tests
 - `pagination.md` — pagination standard
 - `routing_and_path.md` — paths, scopes, `/api/v1`
 
@@ -124,7 +125,7 @@ Si un sujet est défini ici, il ne doit **pas** être redéfini ailleurs.
 | Comment écrire un controller ? | `conventions/web_api.md`                |
 | Format des réponses HTTP       | `conventions/api_response.md`           |
 | Pagination                     | `conventions/pagination.md`             |
-| Erreurs / ProblemDetail        | `conventions/web_api.md`                |
+| Erreurs / ProblemDetail        | `conventions/error-management.md` + `conventions/web_api.md` |
 | CQRS / handlers                | `conventions/command_query_handlers.md` |
 | Conventions de nommage         | `NAMING.md`                             |
 | Cache                          | `conventions/cache.md`                  |

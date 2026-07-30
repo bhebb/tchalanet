@@ -10,6 +10,7 @@ Conventions techniques Flutter/Dart. Les docs détaillés vivent à la racine de
 | Offline sync | [`../OFFLINE.md`](../OFFLINE.md) |
 | Testing | [`../TESTING.md`](../TESTING.md) |
 | API contract | [`../API_CONTRACT.md`](../API_CONTRACT.md) |
+| Error management | [`error-management.md`](error-management.md) |
 | Playbook (delivery) | [`../PLAYBOOK.md`](../PLAYBOOK.md) |
 | i18n runtime | [`i18n.md`](i18n.md) |
 | Riverpod state management | [`state_management.md`](state_management.md) |
