@@ -29,6 +29,7 @@ import com.tchalanet.server.core.draw.api.query.ListDrawsQuery;
 import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalSummaryRow;
 import com.tchalanet.server.core.sellerterminal.api.query.ListSellerTerminalsQuery;
 import com.tchalanet.server.features.pagemodel.contract.ActionItem;
+import com.tchalanet.server.features.pagemodel.dashboard.DashboardPeriod;
 import com.tchalanet.server.platform.notification.api.NotificationApi;
 import com.tchalanet.server.platform.publiccontent.api.PublicContentApi;
 import com.tchalanet.server.platform.tenant.api.TenantPreContextLookupApi;
@@ -210,6 +211,41 @@ class TenantAdminDashboardPayloadAssemblerTest {
   }
 
   @Test
+  @DisplayName("operational KPIs use the selected tenant-local period and comparison window")
+  void operationalKpisUseSelectedPeriod() {
+    var today = LocalDate.now(java.time.ZoneId.of("America/Port-au-Prince"));
+    var weekStart = today.with(java.time.DayOfWeek.MONDAY);
+    when(queryBus.ask(any(GetTenantDashboardStatsQuery.class)))
+        .thenAnswer(
+            invocation -> {
+              var query = invocation.getArgument(0, GetTenantDashboardStatsQuery.class);
+              boolean current = query.from().equals(weekStart);
+              return stats(
+                  query.from(),
+                  query.to(),
+                  current ? new BigDecimal("100.00") : new BigDecimal("80.00"),
+                  current ? new BigDecimal("10.00") : new BigDecimal("8.00"),
+                  current ? new BigDecimal("60.00") : new BigDecimal("50.00"));
+            });
+    when(tenantCatalog.findById(tenantId)).thenReturn(Optional.empty());
+    when(queryBus.ask(any(ListSellerTerminalsQuery.class))).thenReturn(emptyPage());
+    when(gameCatalog.listActive()).thenReturn(List.of());
+    when(drawChannelCatalog.listAll(any(), any())).thenReturn(List.of());
+    when(publicContentApi.listTenantAdminDashboardNews(any(int.class))).thenReturn(List.of());
+
+    var payload = assembler.assemble(context(tenantId), DashboardPeriod.THIS_WEEK, 0);
+
+    assertThat(payload.operationalKpis().period()).isEqualTo("THIS_WEEK");
+    assertThat(payload.operationalKpis().comparisonPeriod()).isEqualTo("PREVIOUS_WEEK");
+    assertThat(payload.operationalKpis().grossSales().value())
+        .isEqualByComparingTo(new BigDecimal("100.00"));
+    assertThat(payload.operationalKpis().grossSales().delta())
+        .isEqualByComparingTo(new BigDecimal("20.00"));
+    assertThat(payload.operationalKpis().grossSales().deltaPercent())
+        .isEqualByComparingTo(new BigDecimal("25.0000"));
+  }
+
+  @Test
   @DisplayName("quick actions match the tenant admin dashboard model")
   void quickActionsMatchDashboardModel() {
     when(tenantCatalog.findById(tenantId)).thenReturn(Optional.empty());
@@ -329,5 +365,28 @@ class TenantAdminDashboardPayloadAssemblerTest {
 
   private TchPage<DrawSummary> drawPageWithTotal(long total) {
     return new TchPage<>(List.of(), 0, 1, total, 1, true, false, false);
+  }
+
+  private TenantDashboardStatsView stats(
+      LocalDate from, LocalDate to, BigDecimal grossSales, BigDecimal commission, BigDecimal net) {
+    return new TenantDashboardStatsView(
+        from,
+        to,
+        new TenantDashboardStatsView.TenantSummaryCard(
+            1L,
+            grossSales,
+            BigDecimal.ZERO,
+            BigDecimal.ZERO,
+            commission,
+            BigDecimal.ZERO,
+            BigDecimal.ZERO,
+            BigDecimal.ZERO,
+            BigDecimal.ZERO,
+            0L,
+            0L,
+            net,
+            0L),
+        List.of(),
+        List.of());
   }
 }

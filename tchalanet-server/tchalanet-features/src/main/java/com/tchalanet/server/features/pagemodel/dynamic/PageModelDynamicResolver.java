@@ -27,9 +27,14 @@ public class PageModelDynamicResolver {
   private final List<PageModelDynamicProvider> providers;
 
   public PageDynamicPayload resolve(PageModelDoc doc, String lang, TchRequestContext ctx) {
+    return resolve(doc, lang, ctx, Map.of());
+  }
+
+  public PageDynamicPayload resolve(
+      PageModelDoc doc, String lang, TchRequestContext ctx, Map<String, ?> requestAttributes) {
     Map<String, Object> widgets = new LinkedHashMap<>();
     List<WidgetDynamicError> errors = new ArrayList<>();
-    var resolutionContext = new PageModelResolutionContext();
+    var resolutionContext = new PageModelResolutionContext(requestAttributes);
 
     if (doc == null) {
       return new PageDynamicPayload(widgets, errors);

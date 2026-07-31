@@ -306,6 +306,10 @@
       "openConnections": {
         "label": "Active seller-terminals"
       },
+      "gross_sales": { "label": "Gross sales" },
+      "seller_commission_payable": { "label": "Seller commission payable" },
+      "estimated_net_revenue": { "label": "Estimated net revenue" },
+      "available_pos": { "label": "Available POS" },
       "sales_today": {
         "label": "Today's sales"
       },
@@ -1934,6 +1938,9 @@
       }
     },
     "tenant_admin": {
+      "period": {
+        "title": "Dashboard period"
+      },
       "commission": {
         "title": "Commission",
         "default_rate": "Tenant default rate",
@@ -1949,6 +1956,15 @@
       "sales_trend": {
         "title": "Sales trend",
         "empty": "No sales for this period."
+      },
+      "terminal_performance": {
+        "title": "Seller performance",
+        "empty": "No seller sales for this period.",
+        "terminal": "Seller",
+        "sales": "Gross sales",
+        "commission": "Commission",
+        "net": "Estimated net revenue",
+        "pagination": "Pagination"
       },
       "game_breakdown": {
         "title": "Sales by game",

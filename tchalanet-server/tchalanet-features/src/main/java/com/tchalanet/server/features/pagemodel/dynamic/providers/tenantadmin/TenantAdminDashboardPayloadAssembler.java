@@ -14,9 +14,11 @@ import com.tchalanet.server.core.analytics.api.model.AnalyticsTrustScope;
 import com.tchalanet.server.core.analytics.api.model.AnalyticsTrustState;
 import com.tchalanet.server.core.analytics.api.model.AnalyticsTrustStateView;
 import com.tchalanet.server.core.analytics.api.model.TenantDashboardStatsView;
+import com.tchalanet.server.core.analytics.api.model.TenantFinancialBreakdownView;
 import com.tchalanet.server.core.analytics.api.model.TenantKpisView;
 import com.tchalanet.server.core.analytics.api.query.GetAnalyticsTrustStateQuery;
 import com.tchalanet.server.core.analytics.api.query.GetTenantDashboardStatsQuery;
+import com.tchalanet.server.core.analytics.api.query.GetTenantFinancialBreakdownQuery;
 import com.tchalanet.server.core.analytics.api.query.GetTenantKpisQuery;
 import com.tchalanet.server.core.draw.api.model.DrawStatus;
 import com.tchalanet.server.core.draw.api.query.DrawSearchCriteria;
@@ -35,6 +37,7 @@ import com.tchalanet.server.features.pagemodel.contract.ActionItem;
 import com.tchalanet.server.features.pagemodel.contract.NewsItem;
 import com.tchalanet.server.features.pagemodel.contract.PublicContentPayload;
 import com.tchalanet.server.features.pagemodel.contract.QuickActionsPayload;
+import com.tchalanet.server.features.pagemodel.dashboard.DashboardPeriod;
 import com.tchalanet.server.features.shared.bff.BffSlicePolicy;
 import com.tchalanet.server.features.shared.bff.BffSlices;
 import com.tchalanet.server.features.tenantadmin.error.TenantAdminErrorCodes;
@@ -50,9 +53,12 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -87,6 +93,10 @@ public class TenantAdminDashboardPayloadAssembler {
   private final NotificationApi notificationApi;
 
   public Payload assemble(TchRequestContext ctx) {
+    return assemble(ctx, DashboardPeriod.TODAY, 0);
+  }
+
+  public Payload assemble(TchRequestContext ctx, DashboardPeriod period, int performancePage) {
     if (ctx == null || ctx.effectiveTenantIdOrNull() == null) {
       return Payload.empty();
     }
@@ -95,6 +105,8 @@ public class TenantAdminDashboardPayloadAssembler {
 
     // Use tenant timezone for business-date "today"
     ZoneId tz = ctx.tenantZoneId() != null ? ctx.tenantZoneId() : ZoneOffset.UTC;
+    DashboardPeriod selectedPeriod = period != null ? period : DashboardPeriod.TODAY;
+    DashboardPeriod.Windows windows = selectedPeriod.windows(LocalDate.now(tz));
     DashboardTiming timing = DashboardTiming.start();
 
     // Grouped reads — loaded once, shared across builders. A failed read becomes an explicit
@@ -133,7 +145,7 @@ public class TenantAdminDashboardPayloadAssembler {
                 optionalSlice(
                     TenantAdminErrorCodes.DASHBOARD_ANALYTICS_UNAVAILABLE,
                     "tenant_admin_dashboard.analytics",
-                    () -> loadRequiredAnalyticsTrust(tenantId, tz),
+                    () -> loadRequiredAnalyticsTrust(tenantId, windows),
                     () -> null));
     DashboardSlice<TenantKpisView> kpisView =
         timing.record(
@@ -154,7 +166,20 @@ public class TenantAdminDashboardPayloadAssembler {
                     ? optionalSlice(
                         TenantAdminErrorCodes.DASHBOARD_ANALYTICS_UNAVAILABLE,
                         "tenant_admin_dashboard.analytics",
-                        () -> loadDashboardStats(tenantId, tz),
+                        () -> loadDashboardStats(tenantId, windows.from(), windows.to()),
+                        () -> null)
+                    : DashboardSlice.unavailable(null));
+    DashboardSlice<TenantDashboardStatsView> comparisonAnalytics =
+        timing.record(
+            "comparisonAnalytics",
+            () ->
+                analyticsTrust.availability() == DashboardSectionAvailability.AVAILABLE
+                    ? optionalSlice(
+                        TenantAdminErrorCodes.DASHBOARD_ANALYTICS_UNAVAILABLE,
+                        "tenant_admin_dashboard.analytics.comparison",
+                        () ->
+                            loadDashboardStats(
+                                tenantId, windows.comparisonFrom(), windows.comparisonTo()),
                         () -> null)
                     : DashboardSlice.unavailable(null));
     DashboardSlice<Long> openDraws =
@@ -209,8 +234,25 @@ public class TenantAdminDashboardPayloadAssembler {
                     openDraws.value(),
                     notifCount.value(),
                     tz));
+    TenantOperationalKpiPayload operationalKpis =
+        timing.record(
+            "buildOperationalKpis",
+            () ->
+                buildOperationalKpis(
+                    analytics.value(), comparisonAnalytics.value(), ops.value(), selectedPeriod));
     TenantSalesTrendPayload salesTrend =
         timing.record("buildSalesTrend", () -> buildSalesTrend(analytics.value()));
+    DashboardSlice<TenantTerminalPerformancePayload> terminalPerformance =
+        timing.record(
+            "terminalPerformance",
+            () ->
+                optionalSlice(
+                    TenantAdminErrorCodes.DASHBOARD_ANALYTICS_UNAVAILABLE,
+                    "tenant_admin_dashboard.performance",
+                    () ->
+                        buildTerminalPerformance(
+                            tenantId, windows.from(), windows.to(), performancePage, ops.value()),
+                    TenantTerminalPerformancePayload::empty));
     TenantGameBreakdownPayload gameBreakdown =
         timing.record("buildGameBreakdown", () -> buildGameBreakdown(analytics.value()));
     TenantOperationsSummaryPayload operations =
@@ -232,6 +274,8 @@ public class TenantAdminDashboardPayloadAssembler {
         new Payload(
             header,
             kpis,
+            operationalKpis,
+            terminalPerformance.value(),
             salesTrend,
             gameBreakdown,
             operations,
@@ -262,16 +306,24 @@ public class TenantAdminDashboardPayloadAssembler {
             new ListSellerTerminalsQuery(
                 tenantId,
                 SellerTerminalSearchCriteria.empty(),
-                new TchPageRequest(PageRequest.of(0, 1))));
-    var blockedCriteria = new SellerTerminalSearchCriteria(null, SellerTerminalStatus.BLOCKED);
-    TchPage<SellerTerminalSummaryRow> blockedSellerTerminals =
+                new TchPageRequest(PageRequest.of(0, 500))));
+    TchPage<SellerTerminalSummaryRow> activeSellerTerminals =
         queryBus.ask(
             new ListSellerTerminalsQuery(
-                tenantId, blockedCriteria, new TchPageRequest(PageRequest.of(0, 1))));
-
+                tenantId,
+                new SellerTerminalSearchCriteria(null, SellerTerminalStatus.ACTIVE),
+                new TchPageRequest(PageRequest.of(0, 1))));
     return new OperationsBundle(
         sellerTerminals != null ? sellerTerminals.totalElements() : 0L,
-        blockedSellerTerminals != null ? blockedSellerTerminals.totalElements() : 0L);
+        sellerTerminals != null && sellerTerminals.items() != null
+            ? sellerTerminals.items().stream()
+                .filter(terminal -> SellerTerminalStatus.BLOCKED == terminal.status())
+                .count()
+            : 0L,
+        activeSellerTerminals != null ? activeSellerTerminals.totalElements() : 0L,
+        sellerTerminals != null && sellerTerminals.items() != null
+            ? sellerTerminals.items()
+            : List.of());
   }
 
   private CommercialBundle loadCommercialBundle(TenantId tenantId) {
@@ -296,22 +348,21 @@ public class TenantAdminDashboardPayloadAssembler {
     return view != null ? view : TenantKpisView.empty();
   }
 
-  private AnalyticsTrustStateView loadRequiredAnalyticsTrust(TenantId tenantId, ZoneId tz) {
-    LocalDate today = LocalDate.now(tz);
+  private AnalyticsTrustStateView loadRequiredAnalyticsTrust(
+      TenantId tenantId, DashboardPeriod.Windows windows) {
     AnalyticsTrustStateView trust =
         queryBus.ask(
             new GetAnalyticsTrustStateQuery(
-                AnalyticsTrustScope.tenant(tenantId, today.minusDays(6), today)));
+                AnalyticsTrustScope.tenant(tenantId, windows.from(), windows.to())));
     if (trust == null || trust.state() != AnalyticsTrustState.READY) {
       throw new AnalyticsTrustUnavailableException();
     }
     return trust;
   }
 
-  private TenantDashboardStatsView loadDashboardStats(TenantId tenantId, ZoneId tz) {
-    LocalDate today = LocalDate.now(tz);
-    LocalDate from = today.minusDays(6);
-    return queryBus.ask(new GetTenantDashboardStatsQuery(tenantId, from, today, 5));
+  private TenantDashboardStatsView loadDashboardStats(
+      TenantId tenantId, LocalDate from, LocalDate to) {
+    return queryBus.ask(new GetTenantDashboardStatsQuery(tenantId, from, to, 5));
   }
 
   private long loadOpenDrawCount() {
@@ -438,6 +489,125 @@ public class TenantAdminDashboardPayloadAssembler {
         0L);
   }
 
+  private TenantOperationalKpiPayload buildOperationalKpis(
+      TenantDashboardStatsView current,
+      TenantDashboardStatsView comparison,
+      OperationsBundle operations,
+      DashboardPeriod period) {
+    var currentSummary = current != null ? current.summary() : null;
+    var comparisonSummary = comparison != null ? comparison.summary() : null;
+    BigDecimal currentSales = money(currentSummary != null ? currentSummary.grossSales() : null);
+    BigDecimal previousSales =
+        money(comparisonSummary != null ? comparisonSummary.grossSales() : null);
+    BigDecimal currentCommission =
+        money(currentSummary != null ? currentSummary.sellerCommission() : null);
+    BigDecimal previousCommission =
+        money(comparisonSummary != null ? comparisonSummary.sellerCommission() : null);
+    BigDecimal currentNet =
+        money(currentSummary != null ? currentSummary.netRevenueEstimated() : null);
+    BigDecimal previousNet =
+        money(comparisonSummary != null ? comparisonSummary.netRevenueEstimated() : null);
+    BigDecimal activePos =
+        BigDecimal.valueOf(operations != null ? operations.activeSellerTerminalCount() : 0L);
+
+    return new TenantOperationalKpiPayload(
+        period.name(),
+        periodComparisonName(period),
+        "dashboard.period." + period.name().toLowerCase(),
+        "dashboard.period." + periodComparisonName(period).toLowerCase(),
+        metric(currentSales, previousSales),
+        metric(currentCommission, previousCommission),
+        metric(currentNet, previousNet),
+        new DashboardMetric(activePos, BigDecimal.ZERO, BigDecimal.ZERO));
+  }
+
+  private TenantTerminalPerformancePayload buildTerminalPerformance(
+      TenantId tenantId,
+      LocalDate from,
+      LocalDate to,
+      int requestedPage,
+      OperationsBundle operations) {
+    TenantFinancialBreakdownView breakdown =
+        queryBus.ask(
+            new GetTenantFinancialBreakdownQuery(tenantId, from, to, 1, 500, List.of(), List.of()));
+    Map<UUID, TerminalPerformanceAccumulator> aggregates = new HashMap<>();
+    if (breakdown != null && breakdown.sellerTerminalDailyRows() != null) {
+      for (var row : breakdown.sellerTerminalDailyRows()) {
+        var accumulator =
+            aggregates.computeIfAbsent(
+                row.sellerTerminalId(), ignored -> new TerminalPerformanceAccumulator());
+        accumulator.ticketsSold += row.ticketsSold();
+        accumulator.grossSales = accumulator.grossSales.add(money(row.grossSales()));
+        accumulator.sellerCommission =
+            accumulator.sellerCommission.add(money(row.sellerCommission()));
+        accumulator.netRevenue = accumulator.netRevenue.add(money(row.netRevenueEstimated()));
+      }
+    }
+
+    Map<UUID, String> terminalNames = new HashMap<>();
+    if (operations != null && operations.terminals() != null) {
+      for (var terminal : operations.terminals()) {
+        if (terminal.id() != null && terminal.id().value() != null) {
+          terminalNames.put(
+              terminal.id().value(),
+              terminal.displayName() != null && !terminal.displayName().isBlank()
+                  ? terminal.displayName()
+                  : terminal.terminalCode());
+        }
+      }
+    }
+
+    List<TenantTerminalPerformanceRow> rows =
+        aggregates.entrySet().stream()
+            .map(
+                entry -> {
+                  UUID id = entry.getKey();
+                  var value = entry.getValue();
+                  return new TenantTerminalPerformanceRow(
+                      id.toString(),
+                      terminalNames.getOrDefault(id, id.toString()),
+                      value.ticketsSold,
+                      value.grossSales,
+                      value.sellerCommission,
+                      value.netRevenue);
+                })
+            .sorted(
+                Comparator.comparing(TenantTerminalPerformanceRow::grossSales)
+                    .reversed()
+                    .thenComparing(TenantTerminalPerformanceRow::label))
+            .toList();
+    int pageSize = 15;
+    int page = Math.max(0, requestedPage);
+    int fromIndex = Math.min(page * pageSize, rows.size());
+    int toIndex = Math.min(fromIndex + pageSize, rows.size());
+    return new TenantTerminalPerformancePayload(
+        page, pageSize, rows.size(), rows.subList(fromIndex, toIndex));
+  }
+
+  private static DashboardMetric metric(BigDecimal value, BigDecimal comparison) {
+    BigDecimal current = money(value);
+    BigDecimal previous = money(comparison);
+    BigDecimal delta = current.subtract(previous);
+    BigDecimal deltaPercent =
+        previous.signum() == 0
+            ? (current.signum() == 0 ? BigDecimal.ZERO : null)
+            : delta.divide(previous, 4, java.math.RoundingMode.HALF_UP).movePointRight(2);
+    return new DashboardMetric(current, delta, deltaPercent);
+  }
+
+  private static BigDecimal money(BigDecimal value) {
+    return value != null ? value : BigDecimal.ZERO;
+  }
+
+  private static String periodComparisonName(DashboardPeriod period) {
+    return switch (period) {
+      case TODAY -> "YESTERDAY";
+      case YESTERDAY -> "PREVIOUS_DAY";
+      case THIS_WEEK -> "PREVIOUS_WEEK";
+      case LAST_WEEK -> "PREVIOUS_WEEK";
+    };
+  }
+
   private TenantSalesTrendPayload buildSalesTrend(TenantDashboardStatsView view) {
     List<TenantTrendItem> points = new ArrayList<>();
     if (view != null && view.dailyBreakdown() != null) {
@@ -521,6 +691,9 @@ public class TenantAdminDashboardPayloadAssembler {
       TenantId tenantId, BigDecimal tenantDefaultRate) {
     SellerTerminalCommissionStatsView stats =
         queryBus.ask(new GetSellerTerminalCommissionStatsQuery(tenantId, tenantDefaultRate));
+    if (stats == null) {
+      return TenantCommissionSummaryPayload.empty();
+    }
     return new TenantCommissionSummaryPayload(
         tenantDefaultRate,
         stats.totalCount(),
@@ -558,6 +731,8 @@ public class TenantAdminDashboardPayloadAssembler {
   public record Payload(
       TenantDashboardHeaderPayload header,
       TenantKpiGridPayload kpis,
+      TenantOperationalKpiPayload operationalKpis,
+      TenantTerminalPerformancePayload terminalPerformance,
       TenantSalesTrendPayload salesTrend,
       TenantGameBreakdownPayload gameBreakdown,
       TenantOperationsSummaryPayload operations,
@@ -582,6 +757,8 @@ public class TenantAdminDashboardPayloadAssembler {
               0L,
               0L,
               0L),
+          TenantOperationalKpiPayload.empty(),
+          TenantTerminalPerformancePayload.empty(),
           new TenantSalesTrendPayload(List.of()),
           new TenantGameBreakdownPayload(List.of()),
           new TenantOperationsSummaryPayload(
@@ -625,6 +802,48 @@ public class TenantAdminDashboardPayloadAssembler {
       long openDraws,
       long notificationCount,
       long pendingApprovals) {}
+
+  public record TenantOperationalKpiPayload(
+      String period,
+      String comparisonPeriod,
+      String periodLabelKey,
+      String comparisonLabelKey,
+      DashboardMetric grossSales,
+      DashboardMetric sellerCommissionPayable,
+      DashboardMetric estimatedNetRevenue,
+      DashboardMetric availablePos) {
+
+    public static TenantOperationalKpiPayload empty() {
+      var empty = new DashboardMetric(BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO);
+      return new TenantOperationalKpiPayload(
+          DashboardPeriod.TODAY.name(),
+          "YESTERDAY",
+          "dashboard.period.today",
+          "dashboard.period.yesterday",
+          empty,
+          empty,
+          empty,
+          empty);
+    }
+  }
+
+  public record DashboardMetric(BigDecimal value, BigDecimal delta, BigDecimal deltaPercent) {}
+
+  public record TenantTerminalPerformancePayload(
+      int page, int pageSize, long totalElements, List<TenantTerminalPerformanceRow> rows) {
+
+    public static TenantTerminalPerformancePayload empty() {
+      return new TenantTerminalPerformancePayload(0, 15, 0L, List.of());
+    }
+  }
+
+  public record TenantTerminalPerformanceRow(
+      String id,
+      String label,
+      long ticketsSold,
+      BigDecimal grossSales,
+      BigDecimal sellerCommission,
+      BigDecimal netRevenueEstimated) {}
 
   public record TenantSalesTrendPayload(List<TenantTrendItem> points) {}
 
@@ -688,11 +907,22 @@ public class TenantAdminDashboardPayloadAssembler {
   }
 
   /** Grouped operational data — loaded once, shared by readiness + kpis + operations builders. */
-  record OperationsBundle(long sellerTerminalCount, long blockedSellerTerminalCount) {
+  record OperationsBundle(
+      long sellerTerminalCount,
+      long blockedSellerTerminalCount,
+      long activeSellerTerminalCount,
+      List<SellerTerminalSummaryRow> terminals) {
 
     static OperationsBundle empty() {
-      return new OperationsBundle(0L, 0L);
+      return new OperationsBundle(0L, 0L, 0L, List.of());
     }
+  }
+
+  private static final class TerminalPerformanceAccumulator {
+    private long ticketsSold;
+    private BigDecimal grossSales = BigDecimal.ZERO;
+    private BigDecimal sellerCommission = BigDecimal.ZERO;
+    private BigDecimal netRevenue = BigDecimal.ZERO;
   }
 
   /** Grouped commercial data — loaded once, shared by readiness + commercial builders. */

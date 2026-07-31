@@ -108,7 +108,10 @@
         "commission": "Konfigirasyon komisyon",
         "quick_actions": "Aksyon rapid",
         "readiness_alerts": "Eta & alèt",
-        "sales_insights": "Lavant & jwèt"
+        "sales_insights": "Lavant & jwèt",
+        "period": "Peryòd",
+        "performance": "Pèfòmans tèminal yo",
+        "sales_trend": "Tandans lavant yo"
       }
     },
     "private_dashboard_cashier": {
@@ -122,6 +125,15 @@
     }
   },
   "dashboard": {
+    "period": {
+      "title": "Peryòd konparezon",
+      "today": "Jodi a",
+      "yesterday": "Yè",
+      "this_week": "Semèn sa a",
+      "last_week": "Semèn pase",
+      "previous_day": "Jou anvan an",
+      "previous_week": "Semèn anvan an"
+    },
     "fallback": {
       "title": "Tablo debò",
       "notice": {

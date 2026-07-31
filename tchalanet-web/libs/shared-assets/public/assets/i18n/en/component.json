@@ -108,7 +108,10 @@
         "commission": "Commission settings",
         "quick_actions": "Quick actions",
         "readiness_alerts": "Readiness & alerts",
-        "sales_insights": "Sales & games"
+        "sales_insights": "Sales & games",
+        "period": "Period",
+        "performance": "Seller performance",
+        "sales_trend": "Sales trend"
       }
     },
     "private_dashboard_cashier": {
@@ -122,6 +125,15 @@
     }
   },
   "dashboard": {
+    "period": {
+      "title": "Comparison period",
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "this_week": "This week",
+      "last_week": "Last week",
+      "previous_day": "Previous day",
+      "previous_week": "Previous week"
+    },
     "fallback": {
       "title": "Dashboard",
       "notice": {

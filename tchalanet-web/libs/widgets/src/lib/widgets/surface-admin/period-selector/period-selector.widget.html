@@ -1,0 +1,15 @@
+<section class="period-selector" [attr.aria-label]="titleKey() | tchLabel">
+  <span class="period-selector__title">{{ titleKey() | tchLabel }}</span>
+  <div class="period-selector__options" role="group">
+    @for (period of options(); track period) {
+      <a
+        class="period-selector__option"
+        [routerLink]="[]"
+        [queryParams]="{ period: period }"
+        queryParamsHandling="merge"
+      >
+        {{ periodLabelKey(period) | tchLabel }}
+      </a>
+    }
+  </div>
+</section>

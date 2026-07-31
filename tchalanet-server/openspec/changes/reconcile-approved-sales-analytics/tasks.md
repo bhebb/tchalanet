@@ -37,6 +37,15 @@
       source snapshots, re-run validation, and return `SUCCESS` only on an exact post-rebuild
       match. Never use the existing destructive cleanup stub as a repair. The legacy destructive
       command is disabled pending this implementation.
+- [x] Define the source-based replay design: source snapshot contract, metric-date semantics,
+      tenant/platform scope, repair lock, atomic replacement, audit, cache invalidation, and the
+      STG runbook. See `design.md`; implementation remains pending.
+- [x] Define the operational tenant-dashboard contract: profitability KPIs, paginated terminal
+      performance, channel drilldown, and explicit empty/partial/unavailable/error states. See
+      `design.md`; implementation remains pending.
+- [x] Define the dashboard period comparison and PageModel migration: `TODAY`, `YESTERDAY`,
+      `THIS_WEEK`, `LAST_WEEK`, provider slices, source queries, JSON schema versioning, and
+      fallback rules. See `design.md`; implementation remains pending.
 - [ ] Make projection processing atomic with its idempotency marker, and make cancellation reverse
       all affected daily, draw and seller-terminal financial projections using immutable ticket
       snapshots.

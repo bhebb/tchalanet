@@ -1,4 +1,4 @@
-import { NgTemplateOutlet } from '@angular/common';
+import { CurrencyPipe, DecimalPipe, NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
@@ -17,14 +17,17 @@ interface KpiItem {
   readonly icon?: string;
   readonly tone?: string;
   readonly route?: string;
+  readonly currencyCode?: string;
   /** Raw config value: a literal, or a `{ source:'dynamic', path }` binding into the payload. */
   readonly value?: unknown;
+  readonly delta?: unknown;
+  readonly deltaPercent?: unknown;
 }
 
 @Component({
   selector: 'tch-kpi-grid-widget',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [LabelPipe, NgTemplateOutlet, RouterLink],
+  imports: [CurrencyPipe, DecimalPipe, LabelPipe, NgTemplateOutlet, RouterLink],
   templateUrl: './kpi-grid.widget.html',
   styleUrl: './kpi-grid.widget.scss',
 })
@@ -45,7 +48,10 @@ export class KpiGridWidget {
       icon: stringValue(item['icon']),
       tone: stringValue(item['tone']),
       route: stringValue(item['route']),
+      currencyCode: stringValue(item['currencyCode']),
       value: item['value'],
+      delta: item['delta'],
+      deltaPercent: item['deltaPercent'],
     }));
   });
 
@@ -59,6 +65,14 @@ export class KpiGridWidget {
       return bound;
     }
     return this.dynamicValue(item.id);
+  }
+
+  resolvedDelta(item: KpiItem): number | undefined {
+    return this.numberValue(resolveBinding(item.delta, this.dynamic()));
+  }
+
+  resolvedDeltaPercent(item: KpiItem): number | undefined {
+    return this.numberValue(resolveBinding(item.deltaPercent, this.dynamic()));
   }
 
   visualTone(item: KpiItem, index: number): string {
@@ -75,6 +89,15 @@ export class KpiGridWidget {
     if (!isRecord(dyn)) return undefined;
     const val = dyn[id];
     return typeof val === 'string' || typeof val === 'number' ? val : undefined;
+  }
+
+  private numberValue(value: unknown): number | undefined {
+    if (typeof value === 'number' && Number.isFinite(value)) return value;
+    if (typeof value === 'string') {
+      const parsed = Number(value);
+      return Number.isFinite(parsed) ? parsed : undefined;
+    }
+    return undefined;
   }
 }
 

@@ -1,0 +1,45 @@
+<section class="terminal-performance">
+  <div class="terminal-performance__header">
+    <h2 class="terminal-performance__title">{{ titleKey() | tchLabel }}</h2>
+    <span class="terminal-performance__count">{{ totalElements() | number }}</span>
+  </div>
+
+  @if (rows().length > 0) {
+    <div class="terminal-performance__table" role="table">
+      <div class="terminal-performance__row terminal-performance__row--header" role="row">
+        <span role="columnheader">{{ 'dashboard.tenant_admin.terminal_performance.terminal' | tchLabel }}</span>
+        <span role="columnheader">{{ 'dashboard.tenant_admin.terminal_performance.sales' | tchLabel }}</span>
+        <span role="columnheader">{{ 'dashboard.tenant_admin.terminal_performance.commission' | tchLabel }}</span>
+        <span role="columnheader">{{ 'dashboard.tenant_admin.terminal_performance.net' | tchLabel }}</span>
+      </div>
+      @for (row of rows(); track row.id) {
+        <div class="terminal-performance__row" role="row">
+          <a [routerLink]="'/app/admin/seller-terminals/' + row.id" role="cell">{{ row.label }}</a>
+          <span role="cell">{{ row.grossSales | currency:'HTG':'symbol':'1.0-2' }}</span>
+          <span role="cell">{{ row.sellerCommission | currency:'HTG':'symbol':'1.0-2' }}</span>
+          <span role="cell">{{ row.netRevenueEstimated | currency:'HTG':'symbol':'1.0-2' }}</span>
+        </div>
+      }
+    </div>
+    @if (pageCount() > 1) {
+      <nav
+        class="terminal-performance__pagination"
+        [attr.aria-label]="'dashboard.tenant_admin.terminal_performance.pagination' | tchLabel"
+      >
+        @if (page() > 0) {
+          <a [routerLink]="[]" [queryParams]="{ performancePage: page() - 1 }" queryParamsHandling="merge">
+            {{ 'common.previous' | tchLabel }}
+          </a>
+        }
+        <span>{{ page() + 1 }} / {{ pageCount() }}</span>
+        @if (page() + 1 < pageCount()) {
+          <a [routerLink]="[]" [queryParams]="{ performancePage: page() + 1 }" queryParamsHandling="merge">
+            {{ 'common.next' | tchLabel }}
+          </a>
+        }
+      </nav>
+    }
+  } @else {
+    <p class="terminal-performance__empty">{{ emptyKey() | tchLabel }}</p>
+  }
+</section>

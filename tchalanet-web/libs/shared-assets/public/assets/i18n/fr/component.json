@@ -108,7 +108,10 @@
         "commission": "Configuration des commissions",
         "quick_actions": "Actions rapides",
         "readiness_alerts": "État & alertes",
-        "sales_insights": "Ventes & jeux"
+        "sales_insights": "Ventes & jeux",
+        "period": "Période",
+        "performance": "Performance des vendeurs",
+        "sales_trend": "Tendance des ventes"
       }
     },
     "private_dashboard_cashier": {
@@ -127,6 +130,15 @@
     "unsupported": "Type de widget non pris en charge."
   },
   "dashboard": {
+    "period": {
+      "title": "Période de comparaison",
+      "today": "Aujourd’hui",
+      "yesterday": "Hier",
+      "this_week": "Cette semaine",
+      "last_week": "Semaine dernière",
+      "previous_day": "Jour précédent",
+      "previous_week": "Semaine précédente"
+    },
     "fallback": {
       "title": "Tableau de bord",
       "notice": {

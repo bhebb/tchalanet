@@ -46,7 +46,7 @@ public interface NotificationJpaRepository extends JpaRepository<NotificationJpa
          and (
               n.audienceType = com.tchalanet.server.platform.notification.api.model.NotificationAudienceType.ALL_APP_USERS
            or n.audienceType = com.tchalanet.server.platform.notification.api.model.NotificationAudienceType.TENANT_APP_USERS
-           or (n.audienceType = com.tchalanet.server.platform.notification.api.model.NotificationAudienceType.TENANT_ADMINS and :roleCode = 'TENANT_ADMIN')
+           or (n.audienceType = com.tchalanet.server.platform.notification.api.model.NotificationAudienceType.TENANT_ADMINS and :roleCode in ('TENANT_ADMIN', 'TENANT_OWNER'))
            or (n.audienceType = com.tchalanet.server.platform.notification.api.model.NotificationAudienceType.PLATFORM_ADMINS and :roleCode = 'SUPER_ADMIN')
            or exists (
               select 1 from NotificationRecipientJpaEntity r
@@ -124,7 +124,7 @@ public interface NotificationJpaRepository extends JpaRepository<NotificationJpa
          and (
               n.audienceType = com.tchalanet.server.platform.notification.api.model.NotificationAudienceType.ALL_APP_USERS
            or n.audienceType = com.tchalanet.server.platform.notification.api.model.NotificationAudienceType.TENANT_APP_USERS
-           or (n.audienceType = com.tchalanet.server.platform.notification.api.model.NotificationAudienceType.TENANT_ADMINS and :roleCode = 'TENANT_ADMIN')
+           or (n.audienceType = com.tchalanet.server.platform.notification.api.model.NotificationAudienceType.TENANT_ADMINS and :roleCode in ('TENANT_ADMIN', 'TENANT_OWNER'))
            or (n.audienceType = com.tchalanet.server.platform.notification.api.model.NotificationAudienceType.PLATFORM_ADMINS and :roleCode = 'SUPER_ADMIN')
            or exists (
               select 1 from NotificationRecipientJpaEntity r

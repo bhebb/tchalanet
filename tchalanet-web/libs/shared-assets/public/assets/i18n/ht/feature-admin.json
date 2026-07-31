@@ -188,6 +188,10 @@
       "seller_terminals": "Tèminal POS"
     },
     "kpi": {
+      "gross_sales": { "label": "Vant brit" },
+      "seller_commission_payable": { "label": "Komisyon pou peye" },
+      "estimated_net_revenue": { "label": "Revni nèt estime" },
+      "available_pos": { "label": "POS disponib" },
       "openSessions": {
         "label": "Tèminal POS aktif"
       },
@@ -1922,6 +1926,9 @@
       }
     },
     "tenant_admin": {
+      "period": {
+        "title": "Peryòd tablo debò a"
+      },
       "commission": {
         "title": "Komisyon",
         "default_rate": "To pa defò santral la",
@@ -1937,6 +1944,15 @@
       "sales_trend": {
         "title": "Tandans lavant",
         "empty": "Pa gen lavant pou peryòd sa a."
+      },
+      "terminal_performance": {
+        "title": "Pèfòmans tèminal yo",
+        "empty": "Pa gen vant tèminal nan peryòd sa a.",
+        "terminal": "Tèminal",
+        "sales": "Vant brit",
+        "commission": "Komisyon",
+        "net": "Revni nèt estime",
+        "pagination": "Navigasyon paj"
       },
       "game_breakdown": {
         "title": "Lavant pa jwèt",
