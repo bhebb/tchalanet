@@ -10,7 +10,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -134,10 +133,10 @@ interface AnalyticsDailyUpsertRepository {
   /**
    * Atomic upsert via {@code public.upsert_analytics_daily(...)}.
    *
-   * <p>Uses {@link Propagation#REQUIRES_NEW} to ensure the upsert runs in its own transaction,
-   * avoiding lock contention with the outer event listener transaction that already committed.
+   * <p>The upsert joins the event listener transaction so the projection write and its processed
+   * event marker commit or roll back together.
    */
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  @Transactional
   void upsertAndIncrement(
       String dimensionType,
       UUID dimensionId,
@@ -169,7 +168,7 @@ class AnalyticsDailyUpsertRepositoryImpl implements AnalyticsDailyUpsertReposito
   @PersistenceContext private EntityManager em;
 
   @Override
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  @Transactional
   public void upsertAndIncrement(
       String dimensionType,
       UUID dimensionId,

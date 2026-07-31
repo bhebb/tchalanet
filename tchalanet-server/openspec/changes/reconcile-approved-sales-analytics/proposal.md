@@ -25,6 +25,9 @@ administrator surfaces, rather than rendered as zero or as a plausible amount.
 - For tenant and seller-terminal coverage, compare missing projection dates with source ticket
   lifecycle activity so an empty business date is treated as a trustworthy zero-activity date;
   keep draw-specific coverage strict because a draw projection is expected only for that draw.
+- Execute analytics event idempotency markers and all projection deltas in the same new transaction;
+  the same transaction boundary applies to draw-result notification and sales-result listeners that
+  persist idempotency markers after commit.
 - Define deterministic metric semantics so `stake`, `total paid`, and `seller commission` are not
   presented under the same ambiguous "sales" label.
 - Make POS, tenant-admin dashboard, seller-terminal summary, and reports use `core.analytics`

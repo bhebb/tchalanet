@@ -6,7 +6,6 @@ import java.time.LocalDate;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
@@ -15,7 +14,7 @@ public interface AnalyticsSelectionRepository
 
 interface AnalyticsSelectionUpsertRepository {
 
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  @Transactional
   void upsertAndIncrement(
       UUID tenantId,
       LocalDate refDate,
@@ -35,7 +34,7 @@ class AnalyticsSelectionUpsertRepositoryImpl implements AnalyticsSelectionUpsert
   @PersistenceContext private EntityManager em;
 
   @Override
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  @Transactional
   public void upsertAndIncrement(
       UUID tenantId,
       LocalDate refDate,

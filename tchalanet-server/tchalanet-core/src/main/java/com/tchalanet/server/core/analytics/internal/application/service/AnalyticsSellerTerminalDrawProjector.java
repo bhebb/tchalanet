@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /** Projects exact financial rows by seller terminal and draw. */
@@ -28,7 +27,7 @@ public class AnalyticsSellerTerminalDrawProjector {
   private final AnalyticsSellerTerminalDrawRepository repository;
   private final Clock clock;
 
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  @Transactional
   public void applyTicketPlaced(TicketPlacedEvent event, LocalDate refDate) {
     if (event.saleStatus() != TicketSaleStatus.APPROVED) {
       log.debug("analytics-seller-terminal-draw: skip PENDING ticket {}", event.ticketId().value());
@@ -83,7 +82,7 @@ public class AnalyticsSellerTerminalDrawProjector {
     repository.save(entity);
   }
 
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  @Transactional
   public void applyTicketSettledAndPaid(TicketPayoutPaidEvent event, LocalDate refDate) {
     if (event.sellerTerminalId() == null) {
       return;
@@ -104,7 +103,7 @@ public class AnalyticsSellerTerminalDrawProjector {
         event.amountCents());
   }
 
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  @Transactional
   public void applyTicketSettlementAndPayoutReversed(
       TicketPayoutReversedEvent event, LocalDate refDate) {
     if (event.sellerTerminalId() == null) {
@@ -126,7 +125,7 @@ public class AnalyticsSellerTerminalDrawProjector {
         -event.amountCents());
   }
 
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  @Transactional
   public void applyTicketPayoutPaid(TicketPayoutPaidEvent event, LocalDate refDate) {
     if (event.sellerTerminalId() == null) {
       return;
@@ -140,7 +139,7 @@ public class AnalyticsSellerTerminalDrawProjector {
         event.amountCents());
   }
 
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  @Transactional
   public void applyTicketPayoutPaidAmountAdjusted(
       TicketPayoutPaidAmountAdjustedEvent event, LocalDate refDate) {
     if (event.sellerTerminalId() == null) {
@@ -155,7 +154,7 @@ public class AnalyticsSellerTerminalDrawProjector {
         event.deltaAmountCents());
   }
 
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  @Transactional
   public void applyTicketPayoutReversed(TicketPayoutReversedEvent event, LocalDate refDate) {
     if (event.sellerTerminalId() == null) {
       return;

@@ -14,6 +14,8 @@
 - [x] Compare tenant and seller-terminal projection coverage with source ticket lifecycle activity;
       treat dates with no source activity as trustworthy zero-activity dates while keeping
       draw-specific coverage strict.
+- [x] Run analytics event markers and projection deltas in one new transaction, and give
+      draw-result/cache/sales-result after-commit listeners an explicit transaction boundary.
 - [x] Make POS and reporting BFFs return an explicit unavailable KPI section plus a stable notice
       when their requested scope is not trustworthy; no UI consumer may render unavailable values
       as zero. POS, tenant dashboard and admin reports suppress KPI/report rows and disable exports

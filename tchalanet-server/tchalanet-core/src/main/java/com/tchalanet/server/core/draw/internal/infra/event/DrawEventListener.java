@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.draw.internal.infra.event;
 
+import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.core.draw.api.event.DrawCancelledEvent;
 import com.tchalanet.server.core.draw.api.event.DrawResultAppliedEvent;
 import com.tchalanet.server.core.draw.api.event.DrawResultCorrectedEvent;
@@ -9,6 +10,7 @@ import com.tchalanet.server.platform.idempotence.api.ProcessedEventPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
@@ -28,6 +30,7 @@ public class DrawEventListener {
   private final DrawCacheEvictor drawCacheEvictor;
 
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onDrawResultApplied(DrawResultAppliedEvent event) {
     if (!processedEventPort.markProcessedIfAbsent(
         KEY_DRAW_RESULT_APPLIED_CACHE_EVICT, event.eventId().value())) {
@@ -44,6 +47,7 @@ public class DrawEventListener {
   }
 
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onDrawResultCorrected(DrawResultCorrectedEvent event) {
     if (!processedEventPort.markProcessedIfAbsent(
         KEY_DRAW_RESULT_CORRECTED_CACHE_EVICT, event.eventId().value())) {
@@ -60,6 +64,7 @@ public class DrawEventListener {
   }
 
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onDrawSettled(DrawSettledEvent event) {
     if (!processedEventPort.markProcessedIfAbsent(
         KEY_DRAW_SETTLED_CACHE_EVICT, event.eventId().value())) {
@@ -76,6 +81,7 @@ public class DrawEventListener {
   }
 
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onDrawCancelled(DrawCancelledEvent event) {
     if (!processedEventPort.markProcessedIfAbsent(
         KEY_DRAW_CANCELLED_CACHE_EVICT, event.eventId().value())) {
