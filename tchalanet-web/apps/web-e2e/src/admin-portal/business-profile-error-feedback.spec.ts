@@ -103,6 +103,7 @@ test.describe('Admin setup — business notices', () => {
     await expect(
       page.locator('tch-section-error .tch-section-error[data-severity="warn"]'),
     ).toBeVisible();
+    await expect(page.getByTestId('admin-setup-checklist')).toBeVisible();
     await expect(
       page.locator('tch-section-error').filter({ hasText: backendDiagnostic }),
     ).toHaveCount(0);
