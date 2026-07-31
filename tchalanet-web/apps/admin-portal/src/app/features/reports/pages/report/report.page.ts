@@ -8,7 +8,7 @@ import { AdminEmptyStateComponent, AdminPageShellComponent, AdminSectionCardComp
 import { ConsoleGameNamePipe } from '@tch/web/console';
 import { TchAsyncReadyDirective, TchAsyncViewComponent, resourceErrorVm } from '@tch/web/async';
 
-import { ReportMetricCardComponent } from '../../components/report-metric-card/report-metric-card.component';
+import { AdminMetricCardComponent } from '@tch/ui/console';
 import {
   AdminReportDrawRow,
   AdminReportOverview,
@@ -32,7 +32,7 @@ const DEFAULT_CURRENCY = 'HTG';
     AdminPageShellComponent,
     AdminSectionCardComponent,
     ConsoleGameNamePipe,
-    ReportMetricCardComponent,
+    AdminMetricCardComponent,
     TchAsyncReadyDirective,
     TchAsyncViewComponent,
     MatButtonModule,

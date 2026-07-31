@@ -1,9 +1,9 @@
-<tch-admin-page-header
+<tch-admin-page-shell
   [title]="'admin.reports.today.title' | translate"
   [description]="'admin.reports.today.description' | translate"
-/>
-
-<div class="report-controls">
+>
+<div class="report-page">
+  <div class="report-controls">
   <mat-form-field appearance="outline" class="date-picker">
     <mat-label>{{ 'admin.reports.today.filters.date' | translate }}</mat-label>
     <input
@@ -39,23 +39,29 @@
       />
     } @else {
       <div class="report-sections" data-report-export-root>
-        <div class="summary-grid">
-          <div class="stat-card">
-            <span class="stat-card__label">{{ 'admin.reports.common.ticketsSold' | translate }}</span>
-            <span class="stat-card__value">{{ vm.totals.ticketsSold | number }}</span>
-          </div>
-          <div class="stat-card">
-            <span class="stat-card__label">{{ 'admin.reports.today.totalSales' | translate }}</span>
-            <span class="stat-card__value">{{ vm.totals.totalSales | number:'1.2-2' }}</span>
-          </div>
-          <div class="stat-card">
-            <span class="stat-card__label">{{ 'admin.reports.today.totalPayout' | translate }}</span>
-            <span class="stat-card__value stat-card__value--payout">{{ vm.totals.totalPayout | number:'1.2-2' }}</span>
-          </div>
-          <div class="stat-card stat-card--revenue">
-            <span class="stat-card__label">{{ 'admin.reports.today.netRevenue' | translate }}</span>
-            <span class="stat-card__value">{{ vm.totals.netRevenue | number:'1.2-2' }}</span>
-          </div>
+        <div class="tch-metric-grid">
+          <tch-admin-metric-card
+            icon="confirmation_number"
+            [label]="'admin.reports.common.ticketsSold' | translate"
+            [value]="(vm.totals.ticketsSold | number) ?? '0'"
+          />
+          <tch-admin-metric-card
+            icon="payments"
+            [label]="'admin.reports.today.totalSales' | translate"
+            [value]="(vm.totals.totalSales | number:'1.2-2') ?? '0,00'"
+          />
+          <tch-admin-metric-card
+            icon="call_made"
+            tone="negative"
+            [label]="'admin.reports.today.totalPayout' | translate"
+            [value]="(vm.totals.totalPayout | number:'1.2-2') ?? '0,00'"
+          />
+          <tch-admin-metric-card
+            icon="savings"
+            tone="accent"
+            [label]="'admin.reports.today.netRevenue' | translate"
+            [value]="(vm.totals.netRevenue | number:'1.2-2') ?? '0,00'"
+          />
         </div>
 
         <div class="table-card">
@@ -99,3 +105,5 @@
     }
   }
 }
+</div>
+</tch-admin-page-shell>

@@ -1,0 +1,132 @@
+@use 'breakpoints' as bp;
+@use 'mixins' as m;
+
+// Plain data tables that become cards on small screens.
+//
+// Wide financial/report tables cannot shrink to a phone: forcing a min-width just hands the
+// user a horizontal scrollbar and clipped columns. Below `expanded` each row becomes a card and
+// every cell is labelled from its `data-label`, which is the same treatment the draw tables use.
+//
+// Usage: `.tch-data-table-wrap > table.tch-data-table`, with `data-label` on each <td>.
+// Note both <thead> and <tbody> are re-displayed here: leaving <tbody> as `table-row-group`
+// under a `display: block` <table> makes the browser wrap it in an anonymous table box that
+// shrink-to-fits, which silently squeezes every card to its content width.
+
+.tch-data-table-wrap {
+  min-width: 0;
+  overflow-x: auto;
+}
+
+.tch-data-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--tch-color-outline-variant);
+    background: var(--tch-color-surface-container-low);
+    color: var(--tch-color-on-surface-variant);
+    font-size: var(--tch-font-size-label-sm, 0.75rem);
+    font-weight: 700;
+    text-align: start;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--tch-color-outline-variant);
+    color: var(--tch-color-on-surface);
+    font-size: var(--tch-font-size-body-sm, 0.875rem);
+    vertical-align: top;
+  }
+
+  tbody tr:hover td {
+    background: var(--tch-color-surface-container-low);
+  }
+
+  &__num {
+    text-align: end;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  &__primary {
+    display: block;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+  }
+
+  &__secondary {
+    display: block;
+    margin-block-start: 0.125rem;
+    color: var(--tch-color-on-surface-variant);
+    font-size: var(--tch-font-size-label-sm, 0.75rem);
+    overflow-wrap: anywhere;
+  }
+}
+
+@include bp.down(expanded) {
+  .tch-data-table-wrap {
+    overflow-x: visible;
+  }
+
+  .tch-data-table {
+    display: block;
+
+    thead {
+      display: none;
+    }
+
+    tbody,
+    tfoot {
+      display: block;
+    }
+
+    tr {
+      display: grid;
+      gap: 0.5rem;
+      padding: 0.875rem;
+      margin-block-end: 0.75rem;
+      background: var(--tch-color-surface-container-lowest);
+      @include m.outline(var(--tch-color-outline-variant));
+      @include m.rounded(var(--tch-radius-lg, 0.75rem));
+    }
+
+    tbody tr:hover td {
+      background: transparent;
+    }
+
+    td {
+      display: grid;
+      grid-template-columns: minmax(6rem, auto) minmax(0, 1fr);
+      align-items: baseline;
+      gap: 0.75rem;
+      padding: 0;
+      border: 0;
+    }
+
+    td[data-label]::before {
+      content: attr(data-label);
+      color: var(--tch-color-on-surface-variant);
+      font-size: var(--tch-font-size-label-sm, 0.6875rem);
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    // The identifying cell leads the card, so it keeps the full width and needs no label.
+    td:first-child {
+      display: block;
+      padding-block-end: 0.5rem;
+      border-bottom: 1px solid var(--tch-color-outline-variant);
+
+      &::before {
+        content: none;
+      }
+    }
+
+    &__num {
+      text-align: start;
+    }
+  }
+}

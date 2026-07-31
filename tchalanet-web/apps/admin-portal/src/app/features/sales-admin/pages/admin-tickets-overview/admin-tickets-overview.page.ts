@@ -8,6 +8,7 @@ import { TchDrawLabel } from '@tch/ui/components';
 import { consoleTicketDrawIdentity } from '@tch/web/console';
 
 import { AdminEmptyStateComponent } from '@tch/ui/console';
+import { AdminMetricCardComponent } from '@tch/ui/console';
 import { AdminPageShellComponent } from '@tch/ui/console';
 import { AdminSectionCardComponent } from '@tch/ui/console';
 import {
@@ -40,6 +41,7 @@ const DEFAULT_CURRENCY = 'HTG';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    AdminMetricCardComponent,
     DatePipe,
     DecimalPipe,
     RouterLink,

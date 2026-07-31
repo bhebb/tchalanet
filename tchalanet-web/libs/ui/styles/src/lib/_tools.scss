@@ -1,0 +1,12 @@
+// Sass-only entry point: breakpoints, functions and mixins, and nothing that emits CSS.
+//
+// Component stylesheets must use this rather than `index`. `index` also forwards the global
+// class partials (list, metrics, data-table, forms…), and because component styles are bundled
+// per component, pulling it in copies every one of those rules into that component's CSS —
+// which is both dead weight and how a component blew past its style budget.
+//
+// `index` stays the entry point for the apps' global `styles.scss`.
+
+@forward 'breakpoints';
+@forward 'functions';
+@forward 'mixins';

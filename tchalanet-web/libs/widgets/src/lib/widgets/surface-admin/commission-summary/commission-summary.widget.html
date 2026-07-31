@@ -20,24 +20,24 @@
       }
     </div>
 
-    <div class="cs-stats">
-      <div class="cs-stat">
-        <span class="cs-stat__value">{{ totalSellerTerminals() }}</span>
-        <span class="cs-stat__label">{{ 'dashboard.tenant_admin.commission.seller_terminals' | tchLabel }}</span>
-      </div>
-      <div class="cs-stat">
-        <span class="cs-stat__value">{{ countAtDefaultRate() }}</span>
-        <span class="cs-stat__label">{{ 'dashboard.tenant_admin.commission.at_default' | tchLabel }}</span>
-      </div>
-      <div class="cs-stat">
-        <span class="cs-stat__value">{{ countWithCustomRate() }}</span>
-        <span class="cs-stat__label">{{ 'dashboard.tenant_admin.commission.custom' | tchLabel }}</span>
-      </div>
-      @if (rateRange()) {
-        <div class="cs-stat">
-          <span class="cs-stat__value">{{ rateRange() }}</span>
-          <span class="cs-stat__label">{{ 'dashboard.tenant_admin.commission.rate_range' | tchLabel }}</span>
-        </div>
+    <div class="tch-metric-grid">
+      <tch-admin-metric-card
+        [label]="'dashboard.tenant_admin.commission.seller_terminals' | tchLabel"
+        [value]="totalSellerTerminals().toString()"
+      />
+      <tch-admin-metric-card
+        [label]="'dashboard.tenant_admin.commission.at_default' | tchLabel"
+        [value]="countAtDefaultRate().toString()"
+      />
+      <tch-admin-metric-card
+        [label]="'dashboard.tenant_admin.commission.custom' | tchLabel"
+        [value]="countWithCustomRate().toString()"
+      />
+      @if (rateRange(); as range) {
+        <tch-admin-metric-card
+          [label]="'dashboard.tenant_admin.commission.rate_range' | tchLabel"
+          [value]="range"
+        />
       }
     </div>
   </div>

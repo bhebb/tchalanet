@@ -15,7 +15,7 @@ import {
   DailySalesChartComponent,
   DailySalesChartPoint,
 } from '../../components/daily-sales-chart/daily-sales-chart.component';
-import { ReportMetricCardComponent } from '../../components/report-metric-card/report-metric-card.component';
+import { AdminMetricCardComponent } from '@tch/ui/console';
 import { AdminReportDailyRow, AdminReportOverview, AdminReportsApi } from '../../data-access/admin-reports-api.service';
 import { exportReportCsv, exportReportPdf } from '../../utils/report-export.util';
 
@@ -34,7 +34,7 @@ const DEFAULT_CURRENCY = 'HTG';
     AdminPageShellComponent,
     AdminSectionCardComponent,
     DailySalesChartComponent,
-    ReportMetricCardComponent,
+    AdminMetricCardComponent,
     TchAsyncReadyDirective,
     TchAsyncViewComponent,
     MatButtonModule,

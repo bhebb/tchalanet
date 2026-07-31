@@ -1,0 +1,157 @@
+@use 'breakpoints' as bp;
+@use 'mixins' as m;
+
+// KPI metrics — the label + figure tiles used across admin surfaces.
+// Works alongside the tch-admin-metric-card Angular component.
+//
+// These live here rather than inside the component so every surface shares one definition.
+// The hand-rolled copies this replaces had drifted apart, and one of them rendered with no
+// border or background at all because its token names were missing the `color-` segment:
+// an unresolved var() invalidates the whole declaration, so `border` fell back to none.
+
+// --- Row of metric tiles ---
+
+.tch-metric-grid {
+  display: grid;
+  // Two per row on phones, matching the dashboard — the reference for KPI density.
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  align-items: stretch;
+
+  @include bp.up(medium) {
+    grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  }
+}
+
+// The component host is a custom element, so it needs an explicit box to fill its grid cell.
+// It is a flex container rather than a block so the tile below can grow to the host's full
+// height with `flex: 1`. Sizing the tile with `height: 100%` instead made it resolve against a
+// track that had already been sized without it, so tall tiles overflowed their own row and
+// painted over whatever followed the grid.
+tch-admin-metric-card {
+  display: flex;
+  min-width: 0;
+}
+
+// --- A single metric tile ---
+
+.tch-metric {
+  --tch-metric-bg: var(--tch-color-surface-container-lowest);
+  --tch-metric-border: var(--tch-color-outline-variant);
+  --tch-metric-label: var(--tch-color-on-surface-variant);
+  --tch-metric-value: var(--tch-color-on-surface);
+  --tch-metric-icon-fg: var(--tch-color-on-surface-variant);
+  --tch-metric-icon-bg: var(--tch-color-surface-container-high);
+
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 0.875rem;
+  width: 100%;
+  min-width: 0;
+  padding: 1rem;
+  text-align: start;
+  background: var(--tch-metric-bg);
+
+  @include m.outline(var(--tch-metric-border));
+  @include m.rounded(var(--tch-radius-lg, 0.75rem));
+
+  // --- Tones -------------------------------------------------------------
+  // `accent` fills the whole tile — it marks the headline figure of a row, so at most one
+  // tile per group should carry it. The others only tint the icon or the value.
+
+  &--accent {
+    --tch-metric-bg: var(--tch-color-primary-container);
+    --tch-metric-border: transparent;
+    --tch-metric-label: var(--tch-color-on-primary-container);
+    --tch-metric-value: var(--tch-color-on-primary-container);
+    --tch-metric-icon-fg: var(--tch-color-on-primary-container);
+    --tch-metric-icon-bg: color-mix(in oklab, var(--tch-color-on-primary-container) 16%, transparent);
+  }
+
+  &--info {
+    --tch-metric-icon-fg: var(--tch-color-on-primary-container);
+    --tch-metric-icon-bg: var(--tch-color-primary-container);
+  }
+
+  &--positive {
+    --tch-metric-icon-fg: var(--tch-color-status-ready);
+    --tch-metric-icon-bg: color-mix(in oklab, var(--tch-color-status-ready) 14%, transparent);
+  }
+
+  &--warning {
+    --tch-metric-icon-fg: var(--tch-color-status-warning);
+    --tch-metric-icon-bg: color-mix(in oklab, var(--tch-color-status-warning) 14%, transparent);
+  }
+
+  // A figure that reads as a cost (payouts, charges): tint the value, not the tile.
+  &--negative {
+    --tch-metric-value: var(--tch-color-error);
+    --tch-metric-icon-fg: var(--tch-color-error);
+    --tch-metric-icon-bg: color-mix(in oklab, var(--tch-color-error) 12%, transparent);
+  }
+
+  // --- Interactive ---------------------------------------------------------
+  // Rendered as a real <button> by the component, so keyboard and focus come for free.
+
+  &--interactive {
+    cursor: pointer;
+    transition:
+      border-color 150ms ease,
+      box-shadow 150ms ease;
+
+    @include m.focus-visible(var(--tch-color-primary));
+
+    &:hover {
+      border-color: var(--tch-color-primary);
+      @include m.elevate(1);
+    }
+  }
+
+  // --- Parts ---------------------------------------------------------------
+
+  &__icon {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: var(--tch-radius-lg, 0.75rem);
+    background: var(--tch-metric-icon-bg);
+    color: var(--tch-metric-icon-fg);
+    font-size: 1.5rem;
+  }
+
+  &__body {
+    display: grid;
+    gap: 0.25rem;
+    min-width: 0;
+  }
+
+  &__label,
+  &__hint {
+    color: var(--tch-metric-label);
+    font-size: var(--tch-font-size-label-sm, 0.75rem);
+    font-weight: 600;
+    line-height: 1.3;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    overflow-wrap: anywhere;
+  }
+
+  &__hint {
+    font-weight: 500;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  &__value {
+    color: var(--tch-metric-value);
+    font-size: 1.375rem;
+    font-weight: 700;
+    line-height: 1.2;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+  }
+}

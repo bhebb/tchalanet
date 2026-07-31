@@ -8,9 +8,9 @@ import { catchError, map, of, startWith } from 'rxjs';
 import {
   TchLoading,
   TchErrorPanel,
-  AdminPageHeader,
   AdminEmptyState,
 } from '@tch/ui/components';
+import { AdminPageShellComponent } from '@tch/ui/console';
 import {
   consoleBetOptionLabel,
   consoleBetTypeLabel,
@@ -57,7 +57,7 @@ function groupByGame(entries: PricingOddsEntry[]): GameGroup[] {
   imports: [
     TchLoading,
     TchErrorPanel,
-    AdminPageHeader,
+    AdminPageShellComponent,
     AdminEmptyState,
   ],
   templateUrl: './admin-baremes.page.html',

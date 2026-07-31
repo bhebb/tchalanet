@@ -13,7 +13,7 @@ import { TchAsyncReadyDirective, TchAsyncViewComponent, resourceErrorVm } from '
 import { Observable } from 'rxjs';
 
 import { DrawReportFilterBarComponent } from '../../components/draw-report-filter-bar/draw-report-filter-bar.component';
-import { ReportMetricCardComponent } from '../../components/report-metric-card/report-metric-card.component';
+import { AdminMetricCardComponent } from '@tch/ui/console';
 import { AdminReportDrawRow, AdminReportDraws, AdminReportsApi } from '../../data-access/admin-reports-api.service';
 import { exportReportCsv, exportReportPdf } from '../../utils/report-export.util';
 
@@ -47,7 +47,7 @@ function isDrawReportSort(value: string): value is DrawReportSort {
     AdminSectionCardComponent,
     ConsoleGameNamePipe,
     DrawReportFilterBarComponent,
-    ReportMetricCardComponent,
+    AdminMetricCardComponent,
     TchAsyncReadyDirective,
     TchAsyncViewComponent,
     MatButtonModule,

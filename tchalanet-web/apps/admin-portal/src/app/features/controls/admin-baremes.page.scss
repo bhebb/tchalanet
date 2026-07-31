@@ -7,8 +7,8 @@
 
 .game-card {
   border-radius: 12px;
-  border: 1px solid var(--tch-outline-variant);
-  background: var(--tch-surface);
+  border: 1px solid var(--tch-color-outline-variant);
+  background: var(--tch-color-surface);
   overflow: hidden;
 
   &__header {
@@ -16,8 +16,8 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.875rem 1rem;
-    background: var(--tch-surface-container-low);
-    border-bottom: 1px solid var(--tch-outline-variant);
+    background: var(--tch-color-surface-container-low);
+    border-bottom: 1px solid var(--tch-color-outline-variant);
   }
 
   &__logo {
@@ -28,8 +28,8 @@
     height: 2rem;
     overflow: hidden;
     border-radius: 6px;
-    background: var(--tch-surface);
-    color: var(--tch-primary);
+    background: var(--tch-color-surface);
+    color: var(--tch-color-primary);
     font-size: 0.75rem;
     font-weight: 800;
 
@@ -44,7 +44,7 @@
   &__title {
     font-weight: 600;
     font-size: 0.9375rem;
-    color: var(--tch-on-surface);
+    color: var(--tch-color-on-surface);
     flex: 1;
   }
 
@@ -52,8 +52,8 @@
     font-size: 0.75rem;
     padding: 0.125rem 0.375rem;
     border-radius: 4px;
-    background: var(--tch-surface-container);
-    color: var(--tch-on-surface-variant);
+    background: var(--tch-color-surface-container);
+    color: var(--tch-color-on-surface-variant);
   }
 }
 
@@ -66,11 +66,11 @@
     text-align: left;
     font-size: 0.75rem;
     font-weight: 600;
-    color: var(--tch-on-surface-variant);
+    color: var(--tch-color-on-surface-variant);
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    border-bottom: 1px solid var(--tch-outline-variant);
-    background: var(--tch-surface-container-lowest);
+    border-bottom: 1px solid var(--tch-color-outline-variant);
+    background: var(--tch-color-surface-container-lowest);
   }
 
   &__col--odds {
@@ -80,11 +80,11 @@
 
 .odds-row {
   &:not(:last-child) td {
-    border-bottom: 1px solid var(--tch-outline-variant);
+    border-bottom: 1px solid var(--tch-color-outline-variant);
   }
 
   &:hover {
-    background: var(--tch-surface-container-lowest);
+    background: var(--tch-color-surface-container-lowest);
   }
 
   td {
@@ -94,13 +94,13 @@
 
   &__type {
     font-size: 0.875rem;
-    color: var(--tch-on-surface);
+    color: var(--tch-color-on-surface);
     font-weight: 500;
   }
 
   &__option {
     font-size: 0.8125rem;
-    color: var(--tch-on-surface-variant);
+    color: var(--tch-color-on-surface-variant);
   }
 
   &__odds {
@@ -119,12 +119,12 @@
 }
 
 .option-none {
-  color: var(--tch-outline);
+  color: var(--tch-color-outline);
 }
 
 .multiplier {
   font-weight: 700;
   font-size: 0.9375rem;
-  color: var(--tch-primary);
+  color: var(--tch-color-primary);
   font-variant-numeric: tabular-nums;
 }

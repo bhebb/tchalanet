@@ -12,6 +12,7 @@ import { MatTableModule } from '@angular/material/table';
 
 import { TchErrorPanel, TchLoading } from '@tch/ui/components';
 import { AdminCrudShellComponent } from '@tch/ui/console';
+import { AdminMetricCardComponent } from '@tch/ui/console';
 import { AdminDataToolbarComponent } from '@tch/ui/console';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
 import { AdminPageShellComponent } from '@tch/ui/console';
@@ -32,6 +33,7 @@ import { DeleteSettingDialog } from '../../components/dialogs/delete-setting.dia
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    AdminMetricCardComponent,
     AdminCrudShellComponent,
     AdminDataToolbarComponent,
     AdminEmptyStateComponent,

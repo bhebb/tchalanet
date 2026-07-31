@@ -11,23 +11,29 @@
   >
     <ng-template tchAsyncReady>
       @if (overview.value(); as vm) {
-      <section class="tickets-overview__kpis" [attr.aria-label]="'admin.tickets.overview.kpisAria' | translate">
-        <article class="tickets-overview__kpi">
-          <span class="tickets-overview__kpi-label">{{ 'admin.tickets.overview.kpis.soldTickets' | translate }}</span>
-          <strong>{{ vm.financials.summary.ticketsSold | number }}</strong>
-        </article>
-        <article class="tickets-overview__kpi">
-          <span class="tickets-overview__kpi-label">{{ 'admin.tickets.overview.kpis.grossSales' | translate }}</span>
-          <strong>{{ amountDisplay(vm.financials.summary.grossSales) }} {{ currency(vm) }}</strong>
-        </article>
-        <article class="tickets-overview__kpi">
-          <span class="tickets-overview__kpi-label">{{ 'admin.tickets.overview.kpis.averageTicket' | translate }}</span>
-          <strong>{{ amountDisplay(ticketAverage(vm)) }} {{ currency(vm) }}</strong>
-        </article>
-        <article class="tickets-overview__kpi">
-          <span class="tickets-overview__kpi-label">{{ 'admin.tickets.overview.kpis.cancelled' | translate }}</span>
-          <strong>{{ vm.cancelledCount | number }}</strong>
-        </article>
+      <section class="tch-metric-grid" [attr.aria-label]="'admin.tickets.overview.kpisAria' | translate">
+        <tch-admin-metric-card
+          icon="confirmation_number"
+          [label]="'admin.tickets.overview.kpis.soldTickets' | translate"
+          [value]="(vm.financials.summary.ticketsSold | number) ?? '0'"
+        />
+        <tch-admin-metric-card
+          icon="payments"
+          tone="accent"
+          [label]="'admin.tickets.overview.kpis.grossSales' | translate"
+          [value]="amountDisplay(vm.financials.summary.grossSales) + ' ' + currency(vm)"
+        />
+        <tch-admin-metric-card
+          icon="receipt_long"
+          [label]="'admin.tickets.overview.kpis.averageTicket' | translate"
+          [value]="amountDisplay(ticketAverage(vm)) + ' ' + currency(vm)"
+        />
+        <tch-admin-metric-card
+          icon="cancel"
+          tone="negative"
+          [label]="'admin.tickets.overview.kpis.cancelled' | translate"
+          [value]="(vm.cancelledCount | number) ?? '0'"
+        />
       </section>
 
       <div class="tickets-overview__main">

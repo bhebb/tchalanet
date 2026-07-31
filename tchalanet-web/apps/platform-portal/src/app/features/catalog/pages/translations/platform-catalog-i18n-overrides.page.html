@@ -10,19 +10,24 @@
   </div>
 
   @if (overview()) {
-    <div class="catalog-i18n-page__kpi-row">
-      <div class="catalog-i18n-page__kpi-chip">
-        <span class="catalog-i18n-page__kpi-value">{{ overview()!.summary.totalKeys }}</span>
-        <span class="catalog-i18n-page__kpi-label">{{ 'platform.i18nOverrides.kpi.keys' | translate }}</span>
-      </div>
-      <div class="catalog-i18n-page__kpi-chip">
-        <span class="catalog-i18n-page__kpi-value">{{ overview()!.summary.totalLocales }}</span>
-        <span class="catalog-i18n-page__kpi-label">{{ 'platform.i18nOverrides.kpi.locales' | translate }}</span>
-      </div>
-      <div class="catalog-i18n-page__kpi-chip">
-        <span class="catalog-i18n-page__kpi-value">{{ overview()!.summary.totalOverrides }}</span>
-        <span class="catalog-i18n-page__kpi-label">{{ 'platform.i18nOverrides.kpi.overrides' | translate }}</span>
-      </div>
+    <div class="tch-metric-grid catalog-i18n-page__kpi-row">
+      <tch-admin-metric-card
+        icon="key"
+        tone="info"
+        [label]="'platform.i18nOverrides.kpi.keys' | translate"
+        [value]="overview()!.summary.totalKeys.toString()"
+      />
+      <tch-admin-metric-card
+        icon="translate"
+        [label]="'platform.i18nOverrides.kpi.locales' | translate"
+        [value]="overview()!.summary.totalLocales.toString()"
+      />
+      <tch-admin-metric-card
+        icon="edit_note"
+        tone="warning"
+        [label]="'platform.i18nOverrides.kpi.overrides' | translate"
+        [value]="overview()!.summary.totalOverrides.toString()"
+      />
     </div>
   }
 

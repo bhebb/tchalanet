@@ -1,67 +1,41 @@
-<div class="gd-summary">
+<div class="tch-metric-grid">
+  <tch-admin-metric-card
+    icon="calendar_today"
+    tone="info"
+    label="Tirages aujourd'hui"
+    actionLabel="Filtrer sur les tirages d'aujourd'hui"
+    [value]="todayCount().toString()"
+    [interactive]="true"
+    (action)="kpiSelected.emit('today')"
+  />
 
-  <tch-card
-    class="gd-summary__kpi gd-summary__kpi--total"
-    role="button"
-    tabindex="0"
-    aria-label="Filtrer sur les tirages d'aujourd'hui"
-    (click)="kpiSelected.emit('today')"
-    (keydown.enter)="kpiSelected.emit('today')"
-    (keydown.space)="kpiSelected.emit('today'); $event.preventDefault()"
-  >
-    <span class="material-symbols-outlined gd-summary__icon">calendar_today</span>
-    <div class="gd-summary__content">
-      <span class="gd-summary__label">Tirages aujourd'hui</span>
-      <span class="gd-summary__value">{{ todayCount() }}</span>
-    </div>
-  </tch-card>
+  <tch-admin-metric-card
+    icon="shopping_cart"
+    tone="positive"
+    label="Ouverts à la vente"
+    actionLabel="Filtrer sur les tirages ouverts à la vente"
+    [value]="salesOpenCount().toString()"
+    [interactive]="true"
+    (action)="kpiSelected.emit('salesOpen')"
+  />
 
-  <tch-card
-    class="gd-summary__kpi gd-summary__kpi--open"
-    role="button"
-    tabindex="0"
-    aria-label="Filtrer sur les tirages ouverts à la vente"
-    (click)="kpiSelected.emit('salesOpen')"
-    (keydown.enter)="kpiSelected.emit('salesOpen')"
-    (keydown.space)="kpiSelected.emit('salesOpen'); $event.preventDefault()"
-  >
-    <span class="material-symbols-outlined gd-summary__icon">shopping_cart</span>
-    <div class="gd-summary__content">
-      <span class="gd-summary__label">Ouverts à la vente</span>
-      <span class="gd-summary__value">{{ salesOpenCount() }}</span>
-    </div>
-  </tch-card>
+  <tch-admin-metric-card
+    icon="hourglass_empty"
+    tone="warning"
+    label="Résultats attendus"
+    actionLabel="Filtrer sur les résultats attendus"
+    [value]="expectedCount().toString()"
+    [interactive]="true"
+    (action)="kpiSelected.emit('expected')"
+  />
 
-  <tch-card
-    class="gd-summary__kpi gd-summary__kpi--expected"
-    role="button"
-    tabindex="0"
-    aria-label="Filtrer sur les résultats attendus"
-    (click)="kpiSelected.emit('expected')"
-    (keydown.enter)="kpiSelected.emit('expected')"
-    (keydown.space)="kpiSelected.emit('expected'); $event.preventDefault()"
-  >
-    <span class="material-symbols-outlined gd-summary__icon">hourglass_empty</span>
-    <div class="gd-summary__content">
-      <span class="gd-summary__label">Résultats attendus</span>
-      <span class="gd-summary__value">{{ expectedCount() }}</span>
-    </div>
-  </tch-card>
-
-  <tch-card
-    class="gd-summary__kpi gd-summary__kpi--confirmed"
-    role="button"
-    tabindex="0"
-    aria-label="Filtrer sur les résultats confirmés"
-    (click)="kpiSelected.emit('confirmed')"
-    (keydown.enter)="kpiSelected.emit('confirmed')"
-    (keydown.space)="kpiSelected.emit('confirmed'); $event.preventDefault()"
-  >
-    <span class="material-symbols-outlined gd-summary__icon">verified</span>
-    <div class="gd-summary__content">
-      <span class="gd-summary__label">Résultats confirmés</span>
-      <span class="gd-summary__value">{{ confirmedCount() }}</span>
-    </div>
-  </tch-card>
-
+  <tch-admin-metric-card
+    icon="verified"
+    tone="positive"
+    label="Résultats confirmés"
+    actionLabel="Filtrer sur les résultats confirmés"
+    [value]="confirmedCount().toString()"
+    [interactive]="true"
+    (action)="kpiSelected.emit('confirmed')"
+  />
 </div>

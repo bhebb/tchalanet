@@ -1,14 +1,13 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { TchCard } from '@tch/ui/components';
+import { AdminMetricCardComponent } from '@tch/ui/console';
 import { TenantGamePricingView } from '../../data-access/admin-games-pricing.models';
 
 @Component({
   selector: 'tch-games-pricing-summary',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [TchCard],
+  imports: [AdminMetricCardComponent],
   templateUrl: './games-pricing-summary.component.html',
-  styleUrls: ['./games-pricing-summary.component.scss'],
 })
 export class GamesPricingSummaryComponent {
   readonly games = input.required<TenantGamePricingView[]>();

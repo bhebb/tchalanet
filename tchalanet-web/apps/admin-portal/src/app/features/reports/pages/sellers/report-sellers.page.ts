@@ -13,7 +13,7 @@ import type { TchSearchOption } from '@tch/ui/components';
 import { TchAsyncReadyDirective, TchAsyncViewComponent, resourceErrorVm } from '@tch/web/async';
 import { Observable } from 'rxjs';
 
-import { ReportMetricCardComponent } from '../../components/report-metric-card/report-metric-card.component';
+import { AdminMetricCardComponent } from '@tch/ui/console';
 import { SellerReportFilterBarComponent } from '../../components/seller-report-filter-bar/seller-report-filter-bar.component';
 import {
   SellerReportRowView,
@@ -59,7 +59,7 @@ function isSellerReportSort(value: string): value is SellerReportSort {
     AdminEmptyStateComponent,
     AdminPageShellComponent,
     AdminSectionCardComponent,
-    ReportMetricCardComponent,
+    AdminMetricCardComponent,
     SellerReportFilterBarComponent,
     SellerReportTableComponent,
     TchAsyncReadyDirective,

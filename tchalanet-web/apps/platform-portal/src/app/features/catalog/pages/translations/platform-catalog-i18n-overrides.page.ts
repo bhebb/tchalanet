@@ -14,6 +14,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { TchErrorPanel, TchLoading } from '@tch/ui/components';
 import { AdminCrudShellComponent } from '@tch/ui/console';
+import { AdminMetricCardComponent } from '@tch/ui/console';
 import { AdminDataToolbarComponent } from '@tch/ui/console';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
 import { AdminPageShellComponent } from '@tch/ui/console';
@@ -33,6 +34,7 @@ import { CreateI18nOverrideDialog, COMMON_LOCALES, LEVELS, SURFACES } from '../.
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    AdminMetricCardComponent,
     AdminCrudShellComponent,
     AdminDataToolbarComponent,
     AdminEmptyStateComponent,

@@ -18,9 +18,9 @@ import { catchError, of, startWith, switchMap } from 'rxjs';
 import {
   TchLoading,
   TchErrorPanel,
-  AdminPageHeader,
   AdminEmptyState,
 } from '@tch/ui/components';
+import { AdminMetricCardComponent, AdminPageShellComponent } from '@tch/ui/console';
 import { consoleGameName } from '@tch/web/console';
 import { TranslatePipe } from '@ngx-translate/core';
 
@@ -64,6 +64,8 @@ type PageState =
   selector: 'tch-admin-today-report-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    AdminMetricCardComponent,
+    AdminPageShellComponent,
     DecimalPipe,
     FormsModule,
     MatButtonModule,
@@ -75,8 +77,7 @@ type PageState =
     TranslatePipe,
     TchLoading,
     TchErrorPanel,
-    AdminPageHeader,
-    AdminEmptyState,
+      AdminEmptyState,
   ],
   templateUrl: './admin-today-report.page.html',
   styleUrl: './admin-today-report.page.scss',

@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, input, output, signal } from '@angular/core';
-import { TchCard } from '@tch/ui/components';
+import { AdminMetricCardComponent } from '@tch/ui/console';
 import { GeneratedDrawView, isGeneratedDrawSellableNow } from '../../data-access/admin-generated-draws.models';
 
 export type GeneratedDrawsSummaryKpi = 'today' | 'salesOpen' | 'expected' | 'confirmed';
@@ -8,9 +8,9 @@ export type GeneratedDrawsSummaryKpi = 'today' | 'salesOpen' | 'expected' | 'con
   selector: 'tch-generated-draws-summary',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [TchCard],
+  imports: [AdminMetricCardComponent],
+  styles: [':host { display: block; margin-block-end: 1.5rem; }'],
   templateUrl: './generated-draws-summary.component.html',
-  styleUrls: ['./generated-draws-summary.component.scss'],
 })
 export class GeneratedDrawsSummaryComponent {
   private readonly destroyRef = inject(DestroyRef);
