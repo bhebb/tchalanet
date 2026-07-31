@@ -17,6 +17,9 @@ test.describe('admin POS sale on a narrow viewport', () => {
     await page.goto('/app/admin/pos/sale/stub-terminal-1');
 
     await expect(page.locator('tch-pos-ticket-line-editor')).toBeVisible();
+    await expect(page.getByText('Sélection', { exact: true })).toBeVisible();
+    await expect(page.getByText('Type de pari', { exact: true })).toBeVisible();
+    await expect(page.getByText('Mise (HTG)', { exact: true })).toBeVisible();
     const horizontalOverflow = await page.evaluate(
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
     );
