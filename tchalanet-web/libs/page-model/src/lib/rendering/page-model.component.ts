@@ -15,7 +15,7 @@ import { WidgetHostComponent } from './widget-host.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="page-model">
-      @for (row of rows(); track row.id ?? $index) {
+      @for (row of visibleRows(); track row.id ?? $index) {
         <section class="page-model__row" [attr.aria-label]="row.labelKey | tchLabel">
           @for (column of row.columns; track $index) {
             <div class="page-model__col" [style.--col-span]="column.span">
@@ -93,6 +93,32 @@ export class PageModelComponent {
   readonly hideWidgetErrors = input(false);
 
   readonly errors = computed(() => this.dynamic().errors);
+
+  /**
+   * Rows and columns that still have something to show.
+   *
+   * <p>A hidden widget stops painting but its column keeps its grid span, so suppressing one half
+   * of a two-column row left the other half stranded beside a wide gap. Dropping the emptied
+   * columns lets the survivors take the width back, and a row with nothing left disappears with
+   * its heading rather than leaving a labelled void.
+   */
+  readonly visibleRows = computed(() =>
+    this.rows()
+      .map(row => ({
+        ...row,
+        columns: row.columns.filter(column => column.widgets.some(id => !this.isHidden(id))),
+      }))
+      .filter(row => row.columns.length > 0),
+  );
+
+  /** Mirrors WidgetHostComponent.hidden — a widget in error that the surface chose not to show. */
+  private isHidden(id: string): boolean {
+    const errored = this.errors().some(e => e.widgetId === id);
+    if (!errored) {
+      return false;
+    }
+    return this.hideWidgetErrors() || !!this.widgetConfig(id)?.props?.['hideOnError'];
+  }
 
   widgetConfig(id: string): WidgetConfig | undefined {
     return this.content().widgets[id];
