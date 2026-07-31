@@ -23,6 +23,7 @@ import { AdminEmptyStateComponent } from '@tch/ui/console';
 import { AdminPageShellComponent } from '@tch/ui/console';
 import { AdminStatusPillComponent, AdminStatusTone } from '@tch/ui/console';
 import { TchAsyncReadyDirective, TchAsyncViewComponent, resourceErrorVm } from '@tch/web/async';
+import { presentApiError } from '@tch/web/errors';
 import {
   PageModelStatus,
   PageModelSummaryView,
@@ -280,9 +281,15 @@ export class PlatformPageEnginePage {
 
   private handleActionError(err: unknown, fallbackKey: string): void {
     this.busy.set(false);
-    this.snack(
-      (err as { error?: { title?: string } })?.error?.title ?? this.translate.instant(fallbackKey),
-    );
+    const presented = presentApiError(err, key => this.translate.instant(key), {
+      source: 'platform.pageEngine.action',
+      surface: 'page',
+    });
+    const message =
+      presented.error.status === 0
+        ? this.translate.instant(fallbackKey)
+        : presented.viewModel.message || presented.viewModel.title;
+    this.snack(message || this.translate.instant(fallbackKey));
   }
 
   private snack(message: string): void {
