@@ -14,10 +14,22 @@
   background: var(--tch-color-surface-container-lowest, var(--mat-sys-surface-container-lowest));
 }
 
+.period-selector__heading {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
 .period-selector__title {
   flex: 0 0 auto;
   color: var(--tch-color-on-surface, var(--mat-sys-on-surface));
   font-weight: 700;
+}
+
+.period-selector__selection {
+  color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+  font-size: 0.8125rem;
+  font-weight: 500;
 }
 
 .period-selector__options {
@@ -46,10 +58,27 @@
   background: var(--tch-color-primary-container, var(--mat-sys-primary-container));
 }
 
+.period-selector__option--selected {
+  border-color: var(--tch-color-primary, var(--mat-sys-primary));
+  background: var(--tch-color-primary, var(--mat-sys-primary));
+  color: var(--tch-color-on-primary, var(--mat-sys-on-primary));
+  font-weight: 700;
+}
+
+.period-selector__option--selected:hover,
+.period-selector__option--selected:focus-visible {
+  background: var(--tch-color-primary, var(--mat-sys-primary));
+  color: var(--tch-color-on-primary, var(--mat-sys-on-primary));
+}
+
 @media (max-width: 42rem) {
   .period-selector {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .period-selector__heading {
+    width: 100%;
   }
 
   .period-selector__options {

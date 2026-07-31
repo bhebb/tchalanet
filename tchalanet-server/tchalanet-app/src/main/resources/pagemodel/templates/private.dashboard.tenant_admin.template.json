@@ -70,6 +70,7 @@
       "widgets": {
         "dashboard.tenantAdmin.periodSelector": {
           "type": "PeriodSelectorWidget",
+          "binding": { "mode": "dynamic", "source": "tenant_admin_dashboard" },
           "props": {
             "titleKey": "dashboard.tenant_admin.period.title",
             "options": ["TODAY", "YESTERDAY", "THIS_WEEK", "LAST_WEEK"]
