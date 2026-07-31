@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -41,7 +40,7 @@ public class AnalyticsDrawProjector {
   private final AnalyticsDrawRepository repo;
   private final Clock clock;
 
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  @Transactional
   public void applyTicketPlaced(TicketPlacedEvent event, LocalDate refDate) {
     if (event.saleStatus() != TicketSaleStatus.APPROVED) {
       log.debug("analytics-draw: skip PENDING ticket {}", event.ticketId().value());
@@ -114,7 +113,7 @@ public class AnalyticsDrawProjector {
     repo.save(entity);
   }
 
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  @Transactional
   public void applyTicketSettledAndPaid(TicketPayoutPaidEvent event, LocalDate refDate) {
     applyWinningsCalculatedDelta(
         event.drawId().value(),
@@ -130,7 +129,7 @@ public class AnalyticsDrawProjector {
         event.amountCents());
   }
 
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  @Transactional
   public void applyTicketSettlementAndPayoutReversed(
       TicketPayoutReversedEvent event, LocalDate refDate) {
     applyWinningsCalculatedDelta(
@@ -147,7 +146,7 @@ public class AnalyticsDrawProjector {
         -event.amountCents());
   }
 
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  @Transactional
   public void applyTicketPayoutPaid(TicketPayoutPaidEvent event, LocalDate refDate) {
     applyPayoutPaidDelta(
         event.drawId().value(),
@@ -157,7 +156,7 @@ public class AnalyticsDrawProjector {
         event.amountCents());
   }
 
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  @Transactional
   public void applyTicketPayoutPaidAmountAdjusted(
       TicketPayoutPaidAmountAdjustedEvent event, LocalDate refDate) {
     applyPayoutPaidDelta(
@@ -168,7 +167,7 @@ public class AnalyticsDrawProjector {
         event.deltaAmountCents());
   }
 
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  @Transactional
   public void applyTicketPayoutReversed(TicketPayoutReversedEvent event, LocalDate refDate) {
     applyPayoutPaidDelta(
         event.drawId().value(),
@@ -187,7 +186,7 @@ public class AnalyticsDrawProjector {
    * by the sale itself ({@link #applyTicketPlaced}); if there is none, there were no sales, and
    * there is nothing to enrich.
    */
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  @Transactional
   public void ensureDrawRow(DrawResultAppliedEvent event) {
     UUID drawId = event.drawId().value();
     var existing = repo.findByDrawId(drawId);

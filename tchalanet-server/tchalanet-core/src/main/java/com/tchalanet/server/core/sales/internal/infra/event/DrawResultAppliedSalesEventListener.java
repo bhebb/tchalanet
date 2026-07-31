@@ -1,12 +1,14 @@
 package com.tchalanet.server.core.sales.internal.infra.event;
 
 import com.tchalanet.server.common.bus.CommandBus;
+import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.core.draw.api.event.DrawResultAppliedEvent;
 import com.tchalanet.server.core.draw.api.event.DrawResultCorrectedEvent;
 import com.tchalanet.server.platform.idempotence.api.ProcessedEventPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
@@ -22,6 +24,7 @@ public class DrawResultAppliedSalesEventListener {
   private final ProcessedEventPort processedEventPort;
 
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onDrawResultApplied(DrawResultAppliedEvent event) {
     if (processedEventPort.alreadyProcessed(APPLIED_HANDLER_KEY, event.eventId().value())) {
       log.info(
@@ -65,6 +68,7 @@ public class DrawResultAppliedSalesEventListener {
   }
 
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onDrawResultCorrected(DrawResultCorrectedEvent event) {
     if (processedEventPort.alreadyProcessed(CORRECTED_HANDLER_KEY, event.eventId().value())) {
       log.info(

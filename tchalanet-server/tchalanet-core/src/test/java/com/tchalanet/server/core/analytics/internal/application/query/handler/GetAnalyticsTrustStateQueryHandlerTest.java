@@ -1,8 +1,10 @@
 package com.tchalanet.server.core.analytics.internal.application.query.handler;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TenantId;
@@ -14,11 +16,14 @@ import com.tchalanet.server.core.analytics.internal.infra.persistence.AnalyticsD
 import com.tchalanet.server.core.analytics.internal.infra.persistence.AnalyticsDrawRepository;
 import com.tchalanet.server.core.analytics.internal.infra.persistence.AnalyticsSellerTerminalDrawEntity;
 import com.tchalanet.server.core.analytics.internal.infra.persistence.AnalyticsSellerTerminalDrawRepository;
+import com.tchalanet.server.core.sales.api.query.GetSalesAnalyticsActivityDatesQuery;
+import com.tchalanet.server.platform.tenant.api.TenantZoneApi;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -31,10 +36,21 @@ class GetAnalyticsTrustStateQueryHandlerTest {
       Mockito.mock(AnalyticsDrawRepository.class);
   private final AnalyticsSellerTerminalDrawRepository sellerTerminalDrawRepository =
       Mockito.mock(AnalyticsSellerTerminalDrawRepository.class);
+  private final QueryBus queryBus = Mockito.mock(QueryBus.class);
+  private final TenantZoneApi tenantZoneApi = Mockito.mock(TenantZoneApi.class);
   private final Clock clock = Clock.fixed(Instant.parse("2026-07-20T12:00:00Z"), ZoneOffset.UTC);
   private final GetAnalyticsTrustStateQueryHandler handler =
       new GetAnalyticsTrustStateQueryHandler(
-          dailyRepository, drawRepository, sellerTerminalDrawRepository, clock);
+          dailyRepository,
+          drawRepository,
+          sellerTerminalDrawRepository,
+          queryBus,
+          tenantZoneApi,
+          clock);
+
+  {
+    when(tenantZoneApi.resolveTenantZone(any())).thenReturn(ZoneOffset.UTC);
+  }
 
   @Test
   void tenantScopeIsReadyWhenEveryBusinessDateHasAProjection() {
@@ -60,6 +76,7 @@ class GetAnalyticsTrustStateQueryHandlerTest {
     var to = LocalDate.of(2026, 7, 18);
     when(dailyRepository.findTenantRows(tenantId.value(), from, to))
         .thenReturn(List.of(daily(from)));
+    when(queryBus.ask(any(GetSalesAnalyticsActivityDatesQuery.class))).thenReturn(Set.of(to));
 
     var result =
         handler.handle(
@@ -68,6 +85,23 @@ class GetAnalyticsTrustStateQueryHandlerTest {
     assertThat(result.state()).isEqualTo(AnalyticsTrustState.UNAVAILABLE);
     assertThat(result.reasonCode()).isEqualTo("analytics.trust.projection_missing");
     assertThat(result.missingBusinessDates()).containsExactly(to);
+  }
+
+  @Test
+  void missingProjectionDateWithNoSourceActivityIsReady() {
+    var tenantId = TenantId.of(UUID.randomUUID());
+    var from = LocalDate.of(2026, 7, 17);
+    var to = LocalDate.of(2026, 7, 18);
+    when(dailyRepository.findTenantRows(tenantId.value(), from, to))
+        .thenReturn(List.of(daily(from)));
+    when(queryBus.ask(any(GetSalesAnalyticsActivityDatesQuery.class))).thenReturn(Set.of());
+
+    var result =
+        handler.handle(
+            new GetAnalyticsTrustStateQuery(AnalyticsTrustScope.tenant(tenantId, from, to)));
+
+    assertThat(result.state()).isEqualTo(AnalyticsTrustState.READY);
+    assertThat(result.missingBusinessDates()).isEmpty();
   }
 
   @Test

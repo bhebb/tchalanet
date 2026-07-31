@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.analytics.internal.infra.event;
 
 import com.tchalanet.server.common.event.DomainEvent;
+import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.core.analytics.internal.application.service.AnalyticsDailyProjector;
 import com.tchalanet.server.core.analytics.internal.application.service.AnalyticsDrawProjector;
 import com.tchalanet.server.core.analytics.internal.application.service.AnalyticsSelectionProjector;
@@ -20,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 
 /**
  * Analytics event projector — subscribes to public domain events after commit.
@@ -55,6 +57,7 @@ public class AnalyticsEventListener {
   // ── ticket placed ─────────────────────────────────────────────────────────
 
   @EventListener
+  @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onTicketPlaced(TicketPlacedEvent event) {
     if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_DAILY, event.eventId().value())) {
       log.debug("analytics: duplicate TicketPlacedEvent {}", event.eventId().value());
@@ -67,6 +70,7 @@ public class AnalyticsEventListener {
   // ── ticket cancelled ──────────────────────────────────────────────────────
 
   @EventListener
+  @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onTicketCancelled(TicketCancelledEvent event) {
     if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_DAILY, event.eventId().value())) {
       log.debug("analytics: duplicate TicketCancelledEvent {}", event.eventId().value());
@@ -79,6 +83,7 @@ public class AnalyticsEventListener {
   // ── ticket settled and paid / reversed ────────────────────────────────────
 
   @EventListener
+  @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onTicketPayoutPaid(TicketPayoutPaidEvent event) {
     if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_DAILY, event.eventId().value())) {
       log.debug("analytics: duplicate TicketPayoutPaidEvent {}", event.eventId().value());
@@ -89,6 +94,7 @@ public class AnalyticsEventListener {
   }
 
   @EventListener
+  @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onTicketPayoutReversed(TicketPayoutReversedEvent event) {
     if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_DAILY, event.eventId().value())) {
       log.debug("analytics: duplicate TicketPayoutReversedEvent {}", event.eventId().value());
@@ -99,6 +105,7 @@ public class AnalyticsEventListener {
   }
 
   @EventListener
+  @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onTicketPayoutPaidForDraw(TicketPayoutPaidEvent event) {
     if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_DRAW, event.eventId().value())) {
       log.debug("analytics: duplicate TicketPayoutPaidEvent (draw) {}", event.eventId().value());
@@ -109,6 +116,7 @@ public class AnalyticsEventListener {
   }
 
   @EventListener
+  @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onTicketPayoutPaidForSellerTerminalDraw(TicketPayoutPaidEvent event) {
     if (!processedEvent.markProcessedIfAbsent(
         HANDLER_KEY_SELLER_TERMINAL_DRAW, event.eventId().value())) {
@@ -122,6 +130,7 @@ public class AnalyticsEventListener {
   }
 
   @EventListener
+  @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onTicketPayoutPaidAmountAdjusted(TicketPayoutPaidAmountAdjustedEvent event) {
     if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_DAILY, event.eventId().value())) {
       log.debug(
@@ -133,6 +142,7 @@ public class AnalyticsEventListener {
   }
 
   @EventListener
+  @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onTicketPayoutPaidAmountAdjustedForDraw(TicketPayoutPaidAmountAdjustedEvent event) {
     if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_DRAW, event.eventId().value())) {
       log.debug(
@@ -145,6 +155,7 @@ public class AnalyticsEventListener {
   }
 
   @EventListener
+  @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onTicketPayoutPaidAmountAdjustedForSellerTerminalDraw(
       TicketPayoutPaidAmountAdjustedEvent event) {
     if (!processedEvent.markProcessedIfAbsent(
@@ -159,6 +170,7 @@ public class AnalyticsEventListener {
   }
 
   @EventListener
+  @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onTicketPayoutReversedForDraw(TicketPayoutReversedEvent event) {
     if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_DRAW, event.eventId().value())) {
       log.debug(
@@ -170,6 +182,7 @@ public class AnalyticsEventListener {
   }
 
   @EventListener
+  @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onTicketPayoutReversedForSellerTerminalDraw(TicketPayoutReversedEvent event) {
     if (!processedEvent.markProcessedIfAbsent(
         HANDLER_KEY_SELLER_TERMINAL_DRAW, event.eventId().value())) {
@@ -185,6 +198,7 @@ public class AnalyticsEventListener {
   // ── selection projector ───────────────────────────────────────────────────
 
   @EventListener
+  @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onTicketPlacedForSelection(TicketPlacedEvent event) {
     if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_SELECTION, event.eventId().value())) {
       log.debug("analytics: duplicate TicketPlacedEvent (selection) {}", event.eventId().value());
@@ -195,6 +209,7 @@ public class AnalyticsEventListener {
   }
 
   @EventListener
+  @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onTicketPlacedForDraw(TicketPlacedEvent event) {
     if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_DRAW, event.eventId().value())) {
       log.debug("analytics: duplicate TicketPlacedEvent (draw) {}", event.eventId().value());
@@ -205,6 +220,7 @@ public class AnalyticsEventListener {
   }
 
   @EventListener
+  @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onTicketPlacedForSellerTerminalDraw(TicketPlacedEvent event) {
     if (!processedEvent.markProcessedIfAbsent(
         HANDLER_KEY_SELLER_TERMINAL_DRAW, event.eventId().value())) {
@@ -220,6 +236,7 @@ public class AnalyticsEventListener {
   // ── draw resulted ─────────────────────────────────────────────────────────
 
   @EventListener
+  @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onDrawResultApplied(DrawResultAppliedEvent event) {
     if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_DRAW, event.eventId().value())) {
       log.debug("analytics: duplicate DrawResultAppliedEvent {}", event.eventId().value());

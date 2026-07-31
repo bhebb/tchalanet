@@ -2,6 +2,7 @@ package com.tchalanet.server.platform.idempotence.internal.persistence;
 
 import com.tchalanet.server.common.constant.CommonConstants;
 import com.tchalanet.server.common.context.TchContextResolver;
+import com.tchalanet.server.common.context.TchContextScope;
 import com.tchalanet.server.platform.idempotence.api.ProcessedEventPort;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -44,9 +45,19 @@ public class ProcessedEventJdbcAdapter implements ProcessedEventPort {
     // instead of failing, since processed_event requires a non-null tenant_id.
     var tenantId =
         ctx.tenantId() != null ? ctx.tenantId().value() : CommonConstants.DEFAULT_TENANT_UUID;
-    UUID createdBy = null;
-    if (ctx.userUuid() != null) createdBy = ctx.userUuid();
+    UUID createdBy = ctx.userUuid();
 
+    if (ctx.tenantId() == null) {
+      return TchContextScope.runWithTemporaryTenantResult(
+          tenantId,
+          ctx.requestId(),
+          () -> insertIfAbsent(tenantId, handlerKey, eventId, createdBy));
+    }
+
+    return insertIfAbsent(tenantId, handlerKey, eventId, createdBy);
+  }
+
+  private boolean insertIfAbsent(UUID tenantId, String handlerKey, UUID eventId, UUID createdBy) {
     int inserted =
         jdbc.update(
             """

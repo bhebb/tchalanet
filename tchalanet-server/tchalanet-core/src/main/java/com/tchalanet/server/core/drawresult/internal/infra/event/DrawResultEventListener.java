@@ -2,6 +2,7 @@ package com.tchalanet.server.core.drawresult.internal.infra.event;
 
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.json.utils.JsonUtils;
+import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.draw.api.DrawResultAffectedTenantApi;
 import com.tchalanet.server.core.draw.api.event.DrawResultCorrectedEvent;
@@ -28,6 +29,7 @@ import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
@@ -60,6 +62,7 @@ public class DrawResultEventListener {
    * <p>Étape 9 du flow de correction de résultat.
    */
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onDrawResultCorrected(DrawResultCorrectedEvent event) {
     // Idempotency check
     if (!processedEventPort.markProcessedIfAbsent(KEY_MARK_OVERRIDDEN, event.eventId().value())) {
@@ -74,6 +77,7 @@ public class DrawResultEventListener {
   }
 
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onGlobalDrawResultAvailable(GlobalDrawResultAvailableEvent event) {
     if (!processedEventPort.markProcessedIfAbsent(
         KEY_RESOLVE_AVAILABLE_REMINDERS, event.eventId().value())) {
@@ -84,6 +88,7 @@ public class DrawResultEventListener {
   }
 
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onGlobalDrawResultCorrected(GlobalDrawResultCorrectedEvent event) {
     if (!processedEventPort.markProcessedIfAbsent(
         KEY_RESOLVE_CORRECTED_REMINDERS, event.eventId().value())) {
