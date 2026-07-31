@@ -48,6 +48,17 @@ const unexpectedApiCall = (route: Route): Promise<void> => {
 // stubbed REST body must be wrapped the same way.
 const envelope = (data: unknown) => ({ status: 'SUCCESS', data, notices: [] });
 
+const problemDetail = (code: string, requestId: string) => ({
+  type: `https://errors.tchalanet.test/${code}`,
+  title: 'Service unavailable',
+  status: 503,
+  detail: 'backend failure: diagnostic text must not reach the UI',
+  code,
+  retryable: true,
+  requestId,
+  traceId: `trace-${requestId}`,
+});
+
 /** A `TchPage<T>` envelope as consumed by the console pages. */
 export function page<T>(items: T[], overrides: Partial<TchPageLike<T>> = {}): TchPageLike<T> {
   return {
@@ -676,6 +687,42 @@ export class ApiStub {
     );
     await this.page.route(/\/tenant\/cashier\/tickets\/stats(?:\?|$)/, r =>
       json(r, envelope({ ticketCount: 0, salesTotalCents: 0, currency: 'HTG' })),
+    );
+  }
+
+  /** Inject blocking ProblemDetails for the admin error-management E2E flows. */
+  async adminDashboardError(): Promise<void> {
+    if (!this.enabled) return;
+
+    await this.page.route(/\/tenant\/dashboard(?:\?|$)/, r =>
+      json(r, problemDetail('admin.dashboard.unavailable', 'req-dashboard-503'), 503),
+    );
+    await this.page.route(/\/assets\/config\/page-private-fallback\.json(?:\?|$)/, r =>
+      json(r, problemDetail('admin.dashboard.fallback_unavailable', 'req-dashboard-fallback-503'), 503),
+    );
+  }
+
+  async adminSetupError(): Promise<void> {
+    if (!this.enabled) return;
+
+    await this.page.route(/\/admin\/overview(?:\?|$)/, r =>
+      json(r, problemDetail('admin.setup.unavailable', 'req-setup-503'), 503),
+    );
+  }
+
+  async adminReportError(): Promise<void> {
+    if (!this.enabled) return;
+
+    await this.page.route(/\/api\/v1\/admin\/reports\/overview(?:\?|$)/, r =>
+      json(r, problemDetail('admin.reports.overview.unavailable', 'req-report-503'), 503),
+    );
+  }
+
+  async adminDrawsError(): Promise<void> {
+    if (!this.enabled) return;
+
+    await this.page.route(/\/api\/v1\/admin\/draws(?:\?|$)/, r =>
+      json(r, problemDetail('admin.generatedDraws.unavailable', 'req-draws-503'), 503),
     );
   }
 }
