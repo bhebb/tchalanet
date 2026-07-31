@@ -9,8 +9,14 @@
     </button>
   </div>
 
+  @if (actionError(); as error) {
+    <tch-notice type="error" [focusOnRender]="true" class="page-engine__action-error">
+      {{ error }}
+    </tch-notice>
+  }
+
   <div class="page-engine">
-    <tch-admin-crud-shell>
+    <tch-admin-crud-shell class="page-engine__list">
       <div toolbar>
         <tch-admin-data-toolbar
           [searchPlaceholder]="'platform.pageEngine.filter.search' | translate"
@@ -39,7 +45,8 @@
         />
 
         <ng-container *tchAsyncReady>
-          <table mat-table [dataSource]="rows()">
+          <div class="page-engine__table-wrap">
+            <table mat-table [dataSource]="rows()">
             <ng-container matColumnDef="tenantId">
               <th mat-header-cell *matHeaderCellDef>
                 {{ 'platform.pageEngine.column.tenantId' | translate }}
@@ -95,7 +102,8 @@
               [class.page-engine__row--selected]="selectedId() === rowId(row)"
               (click)="select(row)"
             ></tr>
-          </table>
+            </table>
+          </div>
         </ng-container>
       </tch-async-view>
 
@@ -107,7 +115,7 @@
       </div>
     </tch-admin-crud-shell>
 
-    <tch-admin-crud-shell>
+    <tch-admin-crud-shell class="page-engine__detail">
       <div toolbar>
         <div class="page-engine__detail-toolbar">
           <strong

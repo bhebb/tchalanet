@@ -2,9 +2,33 @@
 
 .page-engine {
   display: grid;
-  grid-template-columns: minmax(420px, 0.95fr) minmax(520px, 1.05fr);
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
   gap: 16px;
   align-items: start;
+}
+
+.page-engine__action-error {
+  display: block;
+  margin-bottom: 16px;
+}
+
+.page-engine > tch-admin-crud-shell {
+  min-width: 0;
+}
+
+.page-engine__list,
+.page-engine__detail {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.page-engine__table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.page-engine__table-wrap table {
+  min-width: 720px;
 }
 
 .page-engine__row {
@@ -25,9 +49,19 @@
 .page-engine__meta {
   display: flex;
   flex-wrap: wrap;
+  min-width: 0;
   gap: 12px;
   margin-bottom: 12px;
   color: var(--tch-color-on-surface-variant);
+}
+
+.page-engine__meta span {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.page-engine__meta code {
+  overflow-wrap: anywhere;
 }
 
 .page-engine__json-field {
@@ -35,9 +69,13 @@
 }
 
 .page-engine__json-field textarea {
+  box-sizing: border-box;
+  max-width: 100%;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
   font-size: 0.82rem;
   line-height: 1.45;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
 }
 
 @include ui.down(large) {
