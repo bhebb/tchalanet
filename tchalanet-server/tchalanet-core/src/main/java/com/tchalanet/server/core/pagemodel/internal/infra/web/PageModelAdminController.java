@@ -72,7 +72,8 @@ public class PageModelAdminController {
   public ApiResponse<?> publish(
       @PathVariable("id") String id, @CurrentContext TchRequestContext ctx) {
     PageModelId pid = PageModelId.parse(id);
-    Command<Void> cmd = new PublishPageModelCommand(pid, ctx.tenantIdSafe(), ctx.userId());
+    Command<Void> cmd =
+        new PublishPageModelCommand(pid, ctx.tenantIdSafe(), ctx.currentUserIdRequired());
     commandBus.execute(cmd);
     return ApiResponse.success(true);
   }
