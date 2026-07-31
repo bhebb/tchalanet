@@ -36,6 +36,9 @@ administrator surfaces, rather than rendered as zero or as a plausible amount.
 - Make reconciliation an explicit two-mode operation: `VALIDATE` detects and persists a mismatch
   without changing projections; `REBUILD_AND_VALIDATE` is an operator-authorized repair which
   rebuilds the selected tenant scope and succeeds only after a second exact comparison.
+- Define "replay" as a source-based projection rebuild, never as republishing old domain events or
+  deleting `processed_event` markers. The detailed transaction, source snapshot, locking, audit,
+  and STG runbook are in `design.md`.
 - Compare the four tenant-owned projections (`analytics_daily`, `analytics_draw`,
   `analytics_seller_terminal_draw`, and selection aggregates when consumed by a surface) against
   immutable ticket/line/charge snapshots. Presence of a projection row is coverage, not proof of
@@ -46,6 +49,9 @@ administrator surfaces, rather than rendered as zero or as a plausible amount.
   a paid-amount adjustment.
 - Keep sales-date, draw-date, and settlement-date semantics distinct. A net metric MUST NOT mix
   sales from one date with payouts from another date without declaring the accounting basis.
+- Make the tenant-admin dashboard operational: prioritize gross sales, seller commission payable,
+  estimated net revenue, and available POS; expose terminal/channel performance progressively with
+  pagination and explicit loading, empty, partial, unavailable, and error states.
 
 ## Non-Goals
 
