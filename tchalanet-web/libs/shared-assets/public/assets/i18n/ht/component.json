@@ -148,6 +148,9 @@
   "quickaction": {
     "admin": {
       "daily_report": "Rapò jodi a",
+      "todays_draws": "Tiraj jodi a",
+      "sales_by_terminal": "Vant pa tèminal",
+      "block_number": "Bloke yon nimewo",
       "draws_pending_results": "Tiraj k ap tann rezilta",
       "manage_limits": "Jere limit",
       "manage_odds": "Jere odds",
