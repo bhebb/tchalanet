@@ -19,9 +19,9 @@ export class PrivateShellPage {
     this.supportReturn = page.getByTestId('support-access-return');
   }
 
-  async logoutFromShell(): Promise<void> {
+  async logoutFromShell(timeout = 5_000): Promise<void> {
     await this.userMenuTrigger.click();
     await this.logout.click();
-    await expect(this.page).toHaveURL(/\/login\b/);
+    await expect(this.page).toHaveURL(/\/login\b/, { timeout });
   }
 }

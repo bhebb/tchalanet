@@ -64,10 +64,10 @@ import {
             <a
               class="sidebar__group-link"
               data-testid="sidebar-group-link"
-              [class.is-active]="isActionActive(item, item.children)"
+              [class.is-active]="isActionActive(item, item.children) && !hasActiveChild(item)"
               [routerLink]="actionRoute(item)"
               [queryParams]="actionQueryParams(item)"
-              [attr.aria-current]="isActionActive(item, item.children) ? 'page' : null"
+              [attr.aria-current]="isActionActive(item, item.children) && !hasActiveChild(item) ? 'page' : null"
               (click)="onItemClick($event, item)"
             >
               @if (item.icon) {
@@ -309,6 +309,10 @@ export class TchSidebarNav {
 
   isActionActive(item: ActionItem, siblings: readonly ActionItem[] = []): boolean {
     return isItemActive(this.activity(), item, siblings);
+  }
+
+  hasActiveChild(item: ActionItem): boolean {
+    return item.children?.some(child => this.isActionActive(child, item.children ?? [])) ?? false;
   }
 
   toggle(item: ActionItem): void {

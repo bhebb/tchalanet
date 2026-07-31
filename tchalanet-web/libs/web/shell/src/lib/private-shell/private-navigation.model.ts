@@ -506,6 +506,7 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
         labelKey: 'nav.admin.tickets_section',
         icon: 'confirmation_number',
         destination: { kind: 'route', value: '/app/admin/tickets' },
+        activeRoutes: ['/app/admin/pos/sale'],
         children: [
           {
             id: 'tickets-list',
@@ -519,6 +520,7 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
             labelKey: 'nav.admin.tickets_sell',
             icon: 'point_of_sale',
             destination: { kind: 'route', value: '/app/admin/tickets/sell' },
+            activeRoutes: ['/app/admin/pos/sale'],
           },
         ],
       },
