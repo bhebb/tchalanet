@@ -53,7 +53,12 @@ public class ResetPageModelCommandHandler
 
     // Charge le modèle par défaut depuis le template lié (si templateId présent)
     // ou remet à {} si pas de template (conforme UpsertPageModelHandler — fallback vide)
-    var template = instance.templateId().flatMap(templateCatalog::findById).orElse(null);
+    var template =
+        instance
+            .templateId()
+            .flatMap(templateCatalog::findById)
+            .or(() -> templateCatalog.findByLogicalId(instance.logicalId()))
+            .orElse(null);
     var defaultModel = template != null ? template.model() : JsonUtils.emptyObject();
     var schemaVersion =
         template != null && template.schemaVersion() != null

@@ -105,4 +105,69 @@ class ResetPageModelCommandHandlerTest {
     assertThat(instance.schemaVersion()).isEqualTo(3);
     assertThat(instance.modelJson()).isEqualTo(model);
   }
+
+  @Test
+  void resetFindsTheTemplateByLogicalIdForLegacyInstancesWithoutTemplateId() {
+    var reader = mock(PageModelReaderPort.class);
+    var writer = mock(PageModelWriterPort.class);
+    var templateCatalog = mock(PageModelTemplateCatalog.class);
+    var mapper = mock(PageModelAdminMapper.class);
+    var instance =
+        PageModelInstance.rehydrate(
+            PAGE_MODEL_ID.value(),
+            TENANT_ID.value(),
+            "private.dashboard.tenant_admin",
+            "private",
+            "dashboard",
+            com.tchalanet.server.core.pagemodel.internal.domain.model.PageModelStatus.PUBLISHED,
+            2,
+            JsonUtils.emptyObject(),
+            null,
+            Instant.parse("2026-07-31T10:00:00Z"),
+            Instant.parse("2026-07-31T10:00:00Z"),
+            ACTOR_ID.value(),
+            ACTOR_ID.value(),
+            Instant.parse("2026-07-31T10:00:00Z"),
+            null,
+            null);
+    var model = JsonMapper.builder().build().createObjectNode().put("version", 3);
+    var template =
+        new PageModelTemplateView(
+            TEMPLATE_ID,
+            "private.dashboard.tenant_admin.template",
+            "private.dashboard.tenant_admin",
+            "private",
+            "dashboard",
+            "Tenant admin dashboard",
+            "Tenant admin dashboard",
+            "Dashboard template",
+            JsonUtils.emptyObject(),
+            model,
+            3,
+            true,
+            PageModelTemplateLevel.GLOBAL,
+            null,
+            null,
+            null);
+
+    when(reader.findById(PAGE_MODEL_ID)).thenReturn(Optional.of(instance));
+    when(templateCatalog.findByLogicalId(instance.logicalId())).thenReturn(Optional.of(template));
+    when(writer.save(instance)).thenReturn(instance);
+
+    var handler =
+        new ResetPageModelCommandHandler(
+            reader,
+            writer,
+            templateCatalog,
+            mapper,
+            mock(DomainEventPublisher.class),
+            mock(IdGenerator.class),
+            mock(JsonUtils.class),
+            Clock.fixed(Instant.parse("2026-07-31T12:00:00Z"), ZoneOffset.UTC));
+
+    handler.handle(new ResetPageModelCommand(PAGE_MODEL_ID, ACTOR_ID));
+
+    assertThat(instance.schemaVersion()).isEqualTo(3);
+    assertThat(instance.modelJson()).isEqualTo(model);
+  }
 }
