@@ -20,14 +20,17 @@
         [tchSectionErrors]="sectionErrors()"
       >
         <div class="ops-overview__metrics">
-          <div>
-            <strong>{{ valueOrDash(overview()!.provisionalResults) }}</strong>
-            <span>provisoire(s)</span>
-          </div>
-          <div>
-            <strong>{{ valueOrDash(overview()!.lowQualityResults) }}</strong>
-            <span>qualité basse</span>
-          </div>
+          <tch-admin-metric-card
+            variant="plain"
+            label="Provisoires"
+            [value]="valueOrDash(overview()!.provisionalResults)"
+          />
+          <tch-admin-metric-card
+            variant="plain"
+            tone="warning"
+            label="Qualité basse"
+            [value]="valueOrDash(overview()!.lowQualityResults)"
+          />
         </div>
         <a mat-stroked-button routerLink="/app/platform/ops/draw-results">
           <mat-icon>arrow_forward</mat-icon>
@@ -42,10 +45,12 @@
         [tchSectionErrors]="sectionErrors()"
       >
         <div class="ops-overview__metrics">
-          <div>
-            <strong>{{ valueOrDash(overview()!.openDraws) }}</strong>
-            <span>ouvert(s)</span>
-          </div>
+          <tch-admin-metric-card
+            variant="plain"
+            tone="positive"
+            label="Ouverts"
+            [value]="valueOrDash(overview()!.openDraws)"
+          />
         </div>
         <a mat-stroked-button routerLink="/app/platform/ops/draws">
           <mat-icon>arrow_forward</mat-icon>
@@ -57,12 +62,9 @@
         title="Simulation de ventes"
         icon="point_of_sale"
       >
-        <div class="ops-overview__metrics">
-          <div>
-            <strong>QA</strong>
-            <span>tickets par tenant, tirage et vendeur</span>
-          </div>
-        </div>
+        <p class="ops-overview__note">
+          Outil QA : génère des tickets par tenant, tirage et vendeur.
+        </p>
         <a mat-stroked-button routerLink="/app/platform/ops/sales-simulations">
           <mat-icon>arrow_forward</mat-icon>
           Ouvrir simulation
@@ -76,14 +78,17 @@
         [tchSectionErrors]="sectionErrors()"
       >
         <div class="ops-overview__metrics">
-          <div>
-            <strong>{{ valueOrDash(overview()!.jobs) }}</strong>
-            <span>job(s)</span>
-          </div>
-          <div>
-            <strong>{{ valueOrDash(overview()!.disabledGates) }}</strong>
-            <span>gate(s) désactivée(s)</span>
-          </div>
+          <tch-admin-metric-card
+            variant="plain"
+            label="Jobs"
+            [value]="valueOrDash(overview()!.jobs)"
+          />
+          <tch-admin-metric-card
+            variant="plain"
+            tone="warning"
+            label="Gates désactivées"
+            [value]="valueOrDash(overview()!.disabledGates)"
+          />
         </div>
         <a mat-stroked-button routerLink="/app/platform/ops/jobs">
           <mat-icon>arrow_forward</mat-icon>
@@ -98,14 +103,17 @@
         [tchSectionErrors]="sectionErrors()"
       >
         <div class="ops-overview__metrics">
-          <div>
-            <strong>{{ valueOrDash(overview()!.cacheRegions) }}</strong>
-            <span>région(s)</span>
-          </div>
-          <div>
-            <strong>{{ valueOrDash(overview()!.criticalCaches) }}</strong>
-            <span>critique(s)</span>
-          </div>
+          <tch-admin-metric-card
+            variant="plain"
+            label="Régions"
+            [value]="valueOrDash(overview()!.cacheRegions)"
+          />
+          <tch-admin-metric-card
+            variant="plain"
+            tone="negative"
+            label="Critiques"
+            [value]="valueOrDash(overview()!.criticalCaches)"
+          />
         </div>
         <a mat-stroked-button routerLink="/app/platform/ops/cache">
           <mat-icon>arrow_forward</mat-icon>

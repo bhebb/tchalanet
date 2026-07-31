@@ -10,6 +10,7 @@ import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 import { TchErrorPanel, TchLoading } from '@tch/ui/components';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { AdminPageShellComponent } from '@tch/ui/console';
+import { AdminMetricCardComponent } from '@tch/ui/console';
 import { AdminSectionCardComponent } from '@tch/ui/console';
 import {
   AdminSectionErrorTargetDirective,
@@ -41,6 +42,7 @@ const LOCAL_ERROR_OPTIONS = { suppressShellFeedback: true } as const;
   imports: [
     RouterLink,
     AdminPageShellComponent,
+    AdminMetricCardComponent,
     AdminSectionCardComponent,
     AdminSectionErrorTargetDirective,
     TchErrorPanel,
