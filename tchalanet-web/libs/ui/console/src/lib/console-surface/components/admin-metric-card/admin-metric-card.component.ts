@@ -9,6 +9,14 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
  * - `info` / `positive` / `warning` — tint the icon only (totals, ready/confirmed, pending).
  * - `negative` — a figure that reads as a cost (payouts, charges); tints the value.
  */
+/**
+ * Chrome of a metric card.
+ * - `card` — bordered tile on its own surface; the default, for a page-level KPI row.
+ * - `plain` — figure and label only, for metrics that already sit inside a section card and
+ *   would otherwise read as a card nested in a card.
+ */
+export type AdminMetricCardVariant = 'card' | 'plain';
+
 export type AdminMetricCardTone =
   | 'default'
   | 'accent'
@@ -44,6 +52,7 @@ export class AdminMetricCardComponent {
   /** Material symbol name; omit for a text-only tile. */
   readonly icon = input<string | null>(null);
   readonly tone = input<AdminMetricCardTone>('default');
+  readonly variant = input<AdminMetricCardVariant>('card');
   /** Renders the tile as a button and enables {@link action}. */
   readonly interactive = input(false);
   /** Accessible name for the button; falls back to the label. */

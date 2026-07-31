@@ -2,14 +2,14 @@
   <button
     type="button"
     class="tch-metric tch-metric--interactive"
-    [ngClass]="'tch-metric--' + tone()"
+    [ngClass]="['tch-metric--' + tone(), 'tch-metric--' + variant()]"
     [attr.aria-label]="actionLabel() ?? label()"
     (click)="action.emit()"
   >
     <ng-container [ngTemplateOutlet]="body" />
   </button>
 } @else {
-  <article class="tch-metric" [ngClass]="'tch-metric--' + tone()">
+  <article class="tch-metric" [ngClass]="['tch-metric--' + tone(), 'tch-metric--' + variant()]">
     <ng-container [ngTemplateOutlet]="body" />
   </article>
 }

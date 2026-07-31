@@ -91,6 +91,33 @@ tch-admin-metric-card {
     --tch-metric-icon-bg: color-mix(in oklab, var(--tch-color-error) 12%, transparent);
   }
 
+  // Metrics that already sit inside a section card: keep the type and the rhythm, drop the
+  // chrome so the reader does not get a card framed inside another card.
+  &--plain {
+    padding: 0;
+    border: 0;
+    background: none;
+
+    .tch-metric__icon {
+      width: 2rem;
+      height: 2rem;
+      font-size: 1.125rem;
+    }
+  }
+
+  // A semantic tone normally lives in the icon chip. With no icon there is nothing for it to
+  // colour, so it falls back to the value — otherwise `warning` on a bare figure renders
+  // identically to `default` and quietly says nothing.
+  &:not(:has(&__icon)) {
+    &.tch-metric--positive {
+      --tch-metric-value: var(--tch-color-status-ready);
+    }
+
+    &.tch-metric--warning {
+      --tch-metric-value: var(--tch-color-status-warning);
+    }
+  }
+
   // --- Interactive ---------------------------------------------------------
   // Rendered as a real <button> by the component, so keyboard and focus come for free.
 
