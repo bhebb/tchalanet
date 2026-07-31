@@ -621,4 +621,61 @@ export class ApiStub {
       ]))),
     );
   }
+
+  /** Deterministic POS data used by the mobile sale-flow browser test. */
+  async posSale(): Promise<void> {
+    if (!this.enabled) return;
+
+    await this.page.route(/\/admin\/seller-terminals\/stub-terminal-1(?:\?|$)/, r =>
+      json(
+        r,
+        envelope({
+          id: { value: 'stub-terminal-1' },
+          terminalCode: 'POS-001',
+          displayName: 'Terminal mobile E2E',
+          status: 'ACTIVE',
+          commissionRate: 10,
+        }),
+      ),
+    );
+    await this.page.route(/\/tenant\/cashier\/draws\/available(?:\?|$)/, r =>
+      json(
+        r,
+        envelope([
+          {
+            drawId: 'draw-mobile-1',
+            drawChannelId: 'channel-mobile-1',
+            drawDate: '2099-01-01',
+            resultSlotKey: 'MORNING',
+            channelCode: 'GA-LA',
+            channelLabel: 'GA - La',
+            gameCodes: ['HT_BOLET'],
+            status: 'OPEN',
+            scheduledAt: '2099-01-01T12:00:00Z',
+            cutoffAt: '2099-01-01T11:30:00Z',
+          },
+        ]),
+      ),
+    );
+    await this.page.route(/\/tenant\/cashier\/games\/available(?:\?|$)/, r =>
+      json(
+        r,
+        envelope([
+          {
+            gameCode: 'HT_BOLET',
+            gameLabel: 'Borlette',
+            betType: 'MATCH_1_2D',
+            betTypeLabel: 'Boul',
+            requiresOption: false,
+            selectionPolicy: 'IMPLICIT_BEST_MATCH',
+            options: [],
+            selectionHint: '2 chiffres',
+          },
+        ]),
+      ),
+    );
+    await this.page.route(/\/tenant\/cashier\/tickets\/stats(?:\?|$)/, r =>
+      json(r, envelope({ ticketCount: 0, salesTotalCents: 0, currency: 'HTG' })),
+    );
+  }
 }
