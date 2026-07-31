@@ -20,8 +20,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
 
 /**
  * Analytics event projector — subscribes to public domain events after commit.
@@ -32,8 +30,9 @@ import org.springframework.transaction.event.TransactionalEventListener;
  *   <li>Only imports from {@code core.*.api.*} — never {@code core.*.internal.*}.
  *   <li>Idempotence via {@link ProcessedEventPort} with stable handler key prefix {@code
  *       analytics.*}.
- *   <li>{@link TransactionPhase#AFTER_COMMIT} — analytics projections are derived read truth, never
- *       the financial source of truth.
+ *   <li>Events are consumed with {@link EventListener} because their producers already publish them
+ *       through {@code AfterCommit.run()}. Registering another {@code AFTER_COMMIT} listener from
+ *       that callback can miss the event entirely.
  * </ul>
  */
 @Component
@@ -55,7 +54,7 @@ public class AnalyticsEventListener {
 
   // ── ticket placed ─────────────────────────────────────────────────────────
 
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
+  @EventListener
   public void onTicketPlaced(TicketPlacedEvent event) {
     if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_DAILY, event.eventId().value())) {
       log.debug("analytics: duplicate TicketPlacedEvent {}", event.eventId().value());
@@ -67,7 +66,7 @@ public class AnalyticsEventListener {
 
   // ── ticket cancelled ──────────────────────────────────────────────────────
 
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
+  @EventListener
   public void onTicketCancelled(TicketCancelledEvent event) {
     if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_DAILY, event.eventId().value())) {
       log.debug("analytics: duplicate TicketCancelledEvent {}", event.eventId().value());
@@ -185,7 +184,7 @@ public class AnalyticsEventListener {
 
   // ── selection projector ───────────────────────────────────────────────────
 
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
+  @EventListener
   public void onTicketPlacedForSelection(TicketPlacedEvent event) {
     if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_SELECTION, event.eventId().value())) {
       log.debug("analytics: duplicate TicketPlacedEvent (selection) {}", event.eventId().value());
@@ -195,7 +194,7 @@ public class AnalyticsEventListener {
     selectionProjector.applyTicketPlaced(event, refDate);
   }
 
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
+  @EventListener
   public void onTicketPlacedForDraw(TicketPlacedEvent event) {
     if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_DRAW, event.eventId().value())) {
       log.debug("analytics: duplicate TicketPlacedEvent (draw) {}", event.eventId().value());
@@ -205,7 +204,7 @@ public class AnalyticsEventListener {
     drawProjector.applyTicketPlaced(event, refDate);
   }
 
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
+  @EventListener
   public void onTicketPlacedForSellerTerminalDraw(TicketPlacedEvent event) {
     if (!processedEvent.markProcessedIfAbsent(
         HANDLER_KEY_SELLER_TERMINAL_DRAW, event.eventId().value())) {
@@ -220,7 +219,7 @@ public class AnalyticsEventListener {
 
   // ── draw resulted ─────────────────────────────────────────────────────────
 
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
+  @EventListener
   public void onDrawResultApplied(DrawResultAppliedEvent event) {
     if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_DRAW, event.eventId().value())) {
       log.debug("analytics: duplicate DrawResultAppliedEvent {}", event.eventId().value());
