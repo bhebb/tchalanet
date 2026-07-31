@@ -2,6 +2,7 @@ package com.tchalanet.server.platform.accesscontrol.internal.web;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.tchalanet.server.common.context.BootstrappedActor;
@@ -61,15 +62,13 @@ class AccessResolutionStepPlatformTest {
   @Test
   void platformSuperAdminWithoutOverrideRemainsPlatformScoped() {
     var request = new MockHttpServletRequest("GET", "/api/v1/platform/pagemodels");
-    when(effectiveTenantResolver.resolveForAppUser(request, USER, true, PLATFORM_PERMISSIONS))
-        .thenReturn(new EffectiveTenantResolver.EffectiveTenant(null, false, false));
 
     var resolved = step.resolveAppUser(request, appUserActor());
 
     assertThat(resolved.effectiveTenantId()).isNull();
     assertThat(resolved.tenantOverride()).isFalse();
     assertThat(resolved.superAdmin()).isTrue();
-    verify(effectiveTenantResolver).resolveForAppUser(request, USER, true, PLATFORM_PERMISSIONS);
+    verifyNoInteractions(effectiveTenantResolver);
   }
 
   private static BootstrappedActor appUserActor() {

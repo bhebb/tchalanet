@@ -110,6 +110,7 @@ public class AccessResolutionStepImpl implements AccessResolutionStep {
       var platform = snapshotResolver.resolvePlatform(userId);
       var effectiveTenant =
           platform.superAdmin()
+                  && StringUtils.isNotBlank(request.getHeader(TchHeaders.X_TCH_TENANT_OVERRIDE))
               ? effectiveTenantResolver.resolveForAppUser(
                   request, userId, true, platform.permissionKeys())
               : EffectiveTenantResolver.EffectiveTenant.none();
