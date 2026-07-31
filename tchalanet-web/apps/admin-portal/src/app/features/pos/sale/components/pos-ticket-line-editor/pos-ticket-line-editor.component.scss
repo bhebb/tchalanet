@@ -217,6 +217,7 @@
   }
 
   &__num-input {
+    box-sizing: border-box;
     width: 100%;
     min-width: 0;
     border: none;
@@ -311,6 +312,7 @@
   }
 
   &__type-select {
+    box-sizing: border-box;
     width: 100%;
     border: none;
     background: transparent;
@@ -352,6 +354,7 @@
   }
 
   &__option-select {
+    box-sizing: border-box;
     width: 100%;
     min-height: 2.5rem;
     border: 1px solid var(--tch-color-outline-variant, #c7c5d0);
@@ -380,6 +383,7 @@
   }
 
   &__stake-input {
+    box-sizing: border-box;
     width: 100%;
     border: 1px solid var(--tch-color-outline-variant, #c7c5d0);
     border-radius: 0.5rem;
@@ -453,5 +457,19 @@
     font-size: 0.8125rem;
     color: var(--tch-color-on-surface-variant, #46464f);
     text-align: center;
+  }
+
+  @include ui.down(expanded) {
+    &__num-input,
+    &__stake-input,
+    &__type-select,
+    &__add-btn {
+      min-height: 3rem;
+    }
+
+    &__num-input,
+    &__stake-input {
+      font-size: 1rem;
+    }
   }
 }
