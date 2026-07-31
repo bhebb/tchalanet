@@ -102,16 +102,24 @@ public class AccessResolutionStepImpl implements AccessResolutionStep {
           permissionKeys);
     }
 
-    // PLATFORM: platform roles only, no tenant context.
+    // PLATFORM: platform roles only by default. A SUPER_ADMIN may explicitly enter a tenant
+    // context for a platform operation through the audited tenant-override headers. This is
+    // required for platform controllers that manage tenant-owned rows while remaining
+    // SUPER_ADMIN-authorized (for example PageModel administration).
     if (scope == ApiScope.PLATFORM) {
       var platform = snapshotResolver.resolvePlatform(userId);
+      var effectiveTenant =
+          platform.superAdmin()
+              ? effectiveTenantResolver.resolveForAppUser(
+                  request, userId, true, platform.permissionKeys())
+              : EffectiveTenantResolver.EffectiveTenant.none();
       return new ResolvedAccessContext(
           TchActorType.APP_USER,
           userId,
           null,
-          null,
+          effectiveTenant.tenantId(),
           platform.superAdmin(),
-          false,
+          effectiveTenant.tenantOverride(),
           platform.roleCodes(),
           platform.permissionKeys());
     }
