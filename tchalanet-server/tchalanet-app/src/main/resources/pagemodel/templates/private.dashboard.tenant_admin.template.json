@@ -188,40 +188,28 @@
             "titleKey": "dashboard.tenant_admin.quick_actions.title",
             "actions": [
               {
-                "id": "addSellerTerminal",
-                "labelKey": "quickaction.admin.add_seller_terminal",
-                "icon": "person_add",
-                "destination": { "kind": "route", "value": "/app/admin/seller-terminals/new" }
+                "id": "todaysDraws",
+                "labelKey": "quickaction.admin.todays_draws",
+                "icon": "event_available",
+                "destination": { "kind": "route", "value": "/app/admin/draws?date=TODAY" }
               },
               {
-                "id": "activeSellerTerminals",
-                "labelKey": "quickaction.admin.active_seller_terminals",
+                "id": "salesByTerminal",
+                "labelKey": "quickaction.admin.sales_by_terminal",
                 "icon": "point_of_sale",
-                "destination": { "kind": "route", "value": "/app/admin/seller-terminals?status=ACTIVE" }
+                "destination": { "kind": "route", "value": "/app/admin/reports/sellers" }
               },
               {
                 "id": "dailyReport",
                 "labelKey": "quickaction.admin.daily_report",
                 "icon": "today",
-                "destination": { "kind": "route", "value": "/app/admin/reports/today" }
+                "destination": { "kind": "route", "value": "/app/admin/reports/daily" }
               },
               {
-                "id": "manageLimits",
-                "labelKey": "quickaction.admin.manage_limits",
-                "icon": "shield",
-                "destination": { "kind": "route", "value": "/app/admin/limits" }
-              },
-              {
-                "id": "managePricingRules",
-                "labelKey": "quickaction.admin.manage_odds",
-                "icon": "percent",
-                "destination": { "kind": "route", "value": "/app/admin/controls/pricing-rules" }
-              },
-              {
-                "id": "maryajGratis",
-                "labelKey": "quickaction.admin.maryaj_gratis",
-                "icon": "redeem",
-                "destination": { "kind": "route", "value": "/app/admin/maryaj-gratis#offer" }
+                "id": "blockNumber",
+                "labelKey": "quickaction.admin.block_number",
+                "icon": "block",
+                "destination": { "kind": "route", "value": "/app/admin/limits/number" }
               }
             ]
           }

@@ -148,6 +148,9 @@
   "quickaction": {
     "admin": {
       "daily_report": "Today's report",
+      "todays_draws": "Today's draws",
+      "sales_by_terminal": "Sales by terminal",
+      "block_number": "Block a number",
       "draws_pending_results": "Draws pending results",
       "manage_limits": "Manage limits",
       "manage_odds": "Manage odds",
