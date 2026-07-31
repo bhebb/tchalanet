@@ -2,6 +2,7 @@ package com.tchalanet.server.core.sales.internal.infra.persistence.repository;
 
 import com.tchalanet.server.common.persistence.repository.TchJpaRepository;
 import com.tchalanet.server.core.sales.api.model.status.TicketResultStatus;
+import com.tchalanet.server.core.sales.api.model.status.TicketSaleStatus;
 import com.tchalanet.server.core.sales.api.model.status.TicketSettlementStatus;
 import com.tchalanet.server.core.sales.internal.infra.persistence.entity.TicketJpaEntity;
 import java.time.Instant;
@@ -45,6 +46,35 @@ public interface TicketJpaRepository extends TchJpaRepository<TicketJpaEntity, U
       """)
   List<TicketJpaEntity> findForAnalyticsByTenantAndSoldAtRange(
       @Param("tenantId") UUID tenantId, @Param("from") Instant from, @Param("to") Instant to);
+
+  @Query(
+      """
+      SELECT t FROM TicketJpaEntity t
+       WHERE t.tenantId = :tenantId
+         AND (:sellerTerminalId IS NULL OR t.sellerTerminalId = :sellerTerminalId)
+         AND (
+              (t.saleStatus = :approvedStatus)
+              OR t.cancelledAt IS NOT NULL
+              OR t.voidedAt IS NOT NULL
+              OR t.resultedAt IS NOT NULL
+              OR t.settledAt IS NOT NULL
+              OR t.paidAt IS NOT NULL
+         )
+         AND (
+              (t.soldAt >= :from AND t.soldAt < :to)
+              OR (t.cancelledAt >= :from AND t.cancelledAt < :to)
+              OR (t.voidedAt >= :from AND t.voidedAt < :to)
+              OR (t.resultedAt >= :from AND t.resultedAt < :to)
+              OR (t.settledAt >= :from AND t.settledAt < :to)
+              OR (t.paidAt >= :from AND t.paidAt < :to)
+         )
+      """)
+  List<TicketJpaEntity> findForAnalyticsActivityByTenantAndPeriod(
+      @Param("tenantId") UUID tenantId,
+      @Param("sellerTerminalId") UUID sellerTerminalId,
+      @Param("approvedStatus") TicketSaleStatus approvedStatus,
+      @Param("from") Instant from,
+      @Param("to") Instant to);
 
   @EntityGraph(attributePaths = "charges")
   Optional<TicketJpaEntity> findWithChargesById(UUID id);

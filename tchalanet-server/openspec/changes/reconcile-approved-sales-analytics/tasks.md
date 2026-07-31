@@ -11,6 +11,9 @@
       sales business date, draw business date, and settlement business date for every report.
 - [x] Add an `AnalyticsTrustState` read model/API with `READY`, `RECONCILIATION_REQUIRED`, and
       `UNAVAILABLE` states; scope it by platform, tenant, seller terminal, draw, and business day.
+- [x] Compare tenant and seller-terminal projection coverage with source ticket lifecycle activity;
+      treat dates with no source activity as trustworthy zero-activity dates while keeping
+      draw-specific coverage strict.
 - [x] Make POS and reporting BFFs return an explicit unavailable KPI section plus a stable notice
       when their requested scope is not trustworthy; no UI consumer may render unavailable values
       as zero. POS, tenant dashboard and admin reports suppress KPI/report rows and disable exports

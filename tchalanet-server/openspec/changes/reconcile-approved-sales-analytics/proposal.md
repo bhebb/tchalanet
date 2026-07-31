@@ -22,6 +22,9 @@ administrator surfaces, rather than rendered as zero or as a plausible amount.
 - Add reconciliation coverage for direct and approval-path tickets.
 - Introduce a read-side analytics trust state so financial KPI consumers can distinguish usable
   data from data awaiting reconciliation.
+- For tenant and seller-terminal coverage, compare missing projection dates with source ticket
+  lifecycle activity so an empty business date is treated as a trustworthy zero-activity date;
+  keep draw-specific coverage strict because a draw projection is expected only for that draw.
 - Define deterministic metric semantics so `stake`, `total paid`, and `seller commission` are not
   presented under the same ambiguous "sales" label.
 - Make POS, tenant-admin dashboard, seller-terminal summary, and reports use `core.analytics`
