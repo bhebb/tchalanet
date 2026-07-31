@@ -282,6 +282,12 @@ const limitAssignmentsStub = [
 ];
 
 const sellerReportStub = {
+  analytics: {
+    available: true,
+    trustState: 'READY',
+    trustReasonCode: 'READY',
+    missingBusinessDates: [],
+  },
   from: '2026-07-09',
   to: '2026-07-17',
   summary: {
@@ -402,6 +408,21 @@ export const tenantAdminPrivateBootstrap = {
   notices: [],
 } as const;
 
+/** `/runtime/private` bootstrap after a super-admin handoff into tenant support mode. */
+export const supportTenantAdminPrivateBootstrap = {
+  ...tenantAdminPrivateBootstrap,
+  user: {
+    ...tenantAdminPrivateBootstrap.user,
+    userId: 'stub-super-admin',
+    username: 'super_admin',
+    displayName: 'Stub Super Admin',
+    email: 'super_admin@e2e.local',
+    roles: ['SUPER_ADMIN'],
+    defaultSpace: 'ADMIN',
+  },
+  entitlements: { roles: ['SUPER_ADMIN'], permissions: [] },
+} as const;
+
 function firebaseEmulatorCustomToken(uid: string): string {
   const encode = (value: unknown): string =>
     btoa(JSON.stringify(value)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
@@ -516,11 +537,19 @@ export class ApiStub {
   async portalHandoff(targetPortal: 'ADMIN' | 'PLATFORM', targetUrl: string, entryRoute: string): Promise<void> {
     if (!this.enabled) return;
 
+    // Handoff tests run in parallel against the same Firebase emulator. Keep
+    // both the one-time handoff id and the emulator identity isolated per page
+    // so one test cannot consume or replace another test's session.
+    const handoffId = `handoff-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const customToken = firebaseEmulatorCustomToken(
+      `web-e2e-${targetPortal.toLowerCase()}-${handoffId}`,
+    );
+
     await this.page.route(/\/platform\/auth\/portal-handoffs$/, (r) =>
       json(
         r,
         envelope({
-          handoffId: 'handoff-1',
+          handoffId,
           code: 'secret',
           targetPortal,
           targetUrl,
@@ -529,16 +558,19 @@ export class ApiStub {
         }),
       ),
     );
-    await this.page.route(/\/platform\/auth\/portal-handoffs\/handoff-1\/consume/, (r) =>
-      json(
-        r,
-        envelope({
-          customToken: firebaseEmulatorCustomToken(`web-e2e-${targetPortal.toLowerCase()}-handoff`),
-          targetPortal,
-          entryRoute,
-          supportAccessSessionId: targetPortal === 'ADMIN' ? defaultSupportAccessSession.sessionId : null,
-        }),
-      ),
+    await this.page.route(
+      new RegExp(`/platform/auth/portal-handoffs/${handoffId}/consume`),
+      (r) =>
+        json(
+          r,
+          envelope({
+            customToken,
+            targetPortal,
+            entryRoute,
+            supportAccessSessionId:
+              targetPortal === 'ADMIN' ? defaultSupportAccessSession.sessionId : null,
+          }),
+        ),
     );
   }
 

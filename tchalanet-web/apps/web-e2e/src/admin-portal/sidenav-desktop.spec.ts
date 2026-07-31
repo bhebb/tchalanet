@@ -1,6 +1,7 @@
 import { expect, test } from '../support/fixtures';
 import { tenantAdminPrivateBootstrap } from '../support/api-stub';
 import { credsFor } from '../support/env';
+import type { Locator } from '@playwright/test';
 
 /**
  * Split label/chevron on the desktop sidebar (`tch-sidebar-nav`, ≥840px): a group with its own
@@ -14,6 +15,10 @@ import { credsFor } from '../support/env';
  */
 
 const creds = credsFor('admin');
+
+function childrenOf(group: Locator): Locator {
+  return group.locator('xpath=following-sibling::div[contains(@class, "sidebar__children")][1]');
+}
 
 test.describe('Admin console sidenav — desktop (≥840px)', () => {
   test.skip(!creds, 'requires TCH_E2E_ADMIN_EMAIL / TCH_E2E_ADMIN_PASSWORD');
@@ -51,7 +56,7 @@ test.describe('Admin console sidenav — desktop (≥840px)', () => {
     // Still on the dashboard — the chevron never navigates.
     await expect(page).toHaveURL(/\/app\/admin$/);
     await expect(expand).toHaveAttribute('aria-expanded', 'true');
-    await expect(group.getByTestId('sidebar-child').first()).toBeVisible();
+    await expect(childrenOf(group).getByTestId('sidebar-child').first()).toBeVisible();
   });
 
   test('collapses again on a second chevron click, still without navigating', async ({ page }) => {
@@ -68,7 +73,7 @@ test.describe('Admin console sidenav — desktop (≥840px)', () => {
     await expand.click();
 
     await expect(expand).toHaveAttribute('aria-expanded', 'false');
-    await expect(group.getByTestId('sidebar-child')).toHaveCount(0);
+    await expect(childrenOf(group).getByTestId('sidebar-child')).toHaveCount(0);
     await expect(page).toHaveURL(/\/app\/admin$/);
   });
 
@@ -85,7 +90,7 @@ test.describe('Admin console sidenav — desktop (≥840px)', () => {
     await expect(group.getByTestId('sidebar-group-link')).not.toHaveClass(/(^|\s)is-active(\s|$)/);
 
     // Exactly one child carries the solid highlight, and it's the one whose route is active.
-    const activeChildren = group.locator('[data-testid="sidebar-child"].is-active');
+    const activeChildren = childrenOf(group).locator('[data-testid="sidebar-child"].is-active');
     await expect(activeChildren).toHaveCount(1);
     await expect(activeChildren).toHaveAttribute('href', '/app/admin/reports/daily');
   });
@@ -99,7 +104,7 @@ test.describe('Admin console sidenav — desktop (≥840px)', () => {
       has: page.locator('[data-testid="sidebar-group-link"][href="/app/admin/limits"]'),
     });
     await expect(
-      group.locator('[data-testid="sidebar-child"][href="/app/admin/limits/number"]'),
+      childrenOf(group).locator('[data-testid="sidebar-child"][href="/app/admin/limits/number"]'),
     ).toHaveClass(/is-active/);
   });
 
@@ -112,7 +117,7 @@ test.describe('Admin console sidenav — desktop (≥840px)', () => {
       has: page.locator('[data-testid="sidebar-group-link"][href="/app/admin/tickets"]'),
     });
     await expect(
-      group.locator('[data-testid="sidebar-child"][href="/app/admin/tickets/sell"]'),
+      childrenOf(group).locator('[data-testid="sidebar-child"][href="/app/admin/tickets/sell"]'),
     ).toHaveClass(/is-active/);
   });
 });

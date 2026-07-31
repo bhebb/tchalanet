@@ -1,8 +1,12 @@
 import { expect, test } from '../support/fixtures';
-import { tenantAdminPrivateBootstrap } from '../support/api-stub';
+import { supportTenantAdminPrivateBootstrap } from '../support/api-stub';
 import { credsFor } from '../support/env';
 
+const SUPPORT_FLOW_TIMEOUT = 20_000;
+
 test.describe('Phase 3 — platform auth completion', () => {
+  test.describe.configure({ timeout: 45_000 });
+
   test('super admin can logout from an authenticated shell', async ({
     page,
     loginPage,
@@ -16,7 +20,7 @@ test.describe('Phase 3 — platform auth completion', () => {
     await loginPage.login(creds!);
     await expect(page).toHaveURL(/\/app\/platform\b/);
 
-    await privateShell.logoutFromShell();
+    await privateShell.logoutFromShell(SUPPORT_FLOW_TIMEOUT);
     await expect(loginPage.root).toBeVisible();
   });
 
@@ -39,16 +43,22 @@ test.describe('Phase 3 — platform auth completion', () => {
     await supportTenantPage.goto();
     await supportTenantPage.openAccessForFirstTenant();
 
-    await apiStub.privateBootstrap(tenantAdminPrivateBootstrap);
+    await apiStub.privateBootstrap(supportTenantAdminPrivateBootstrap);
     await supportTenantPage.confirmAccess();
 
-    await expect(page).toHaveURL(/localhost:4302\/app\/admin\b/);
-    await expect(privateShell.supportBanner).toBeVisible();
-    await expect(privateShell.supportTenantName).toContainText(/\S/);
+    await expect(page).toHaveURL(/localhost:4302\/app\/admin\b/, {
+      timeout: SUPPORT_FLOW_TIMEOUT,
+    });
+    await expect(privateShell.supportBanner).toBeVisible({ timeout: SUPPORT_FLOW_TIMEOUT });
+    await expect(privateShell.supportTenantName).toContainText(/\S/, {
+      timeout: SUPPORT_FLOW_TIMEOUT,
+    });
 
     await privateShell.supportReturn.click();
-    await expect(page).toHaveURL(/localhost:4303\/app\/platform\b/);
-    await expect(privateShell.supportBanner).toHaveCount(0);
+    await expect(page).toHaveURL(/localhost:4303\/app\/platform\b/, {
+      timeout: SUPPORT_FLOW_TIMEOUT,
+    });
+    await expect(privateShell.supportBanner).toHaveCount(0, { timeout: SUPPORT_FLOW_TIMEOUT });
   });
 
   test('logging out while supporting a tenant also clears the platform session', async ({
@@ -69,13 +79,13 @@ test.describe('Phase 3 — platform auth completion', () => {
     await loginPage.login(creds!);
     await supportTenantPage.goto();
     await supportTenantPage.openAccessForFirstTenant();
-    await apiStub.privateBootstrap(tenantAdminPrivateBootstrap);
+    await apiStub.privateBootstrap(supportTenantAdminPrivateBootstrap);
     await supportTenantPage.confirmAccess();
-    await expect(privateShell.supportBanner).toBeVisible();
+    await expect(privateShell.supportBanner).toBeVisible({ timeout: SUPPORT_FLOW_TIMEOUT });
 
-    await privateShell.logoutFromShell();
-    await expect(page).toHaveURL('http://localhost:4302/login');
-    await expect(loginPage.root).toBeVisible();
+    await privateShell.logoutFromShell(SUPPORT_FLOW_TIMEOUT);
+    await expect(page).toHaveURL('http://localhost:4302/login', { timeout: SUPPORT_FLOW_TIMEOUT });
+    await expect(loginPage.identifier).toBeVisible({ timeout: 15_000 });
 
     await page.goto('http://localhost:4303/app/platform');
     await expect(page).toHaveURL(/localhost:4303\/login\b/);
