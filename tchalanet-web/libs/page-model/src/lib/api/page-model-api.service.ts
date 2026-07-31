@@ -34,9 +34,13 @@ export class PageModelApi {
     }).pipe(map(withSectionNotices));
   }
 
-  getTenantPage(lang?: string): Observable<PageRuntimeResponse> {
+  getTenantPage(
+    lang?: string,
+    period?: string,
+    performancePage?: number,
+  ): Observable<PageRuntimeResponse> {
     return this.backend.getApiResponse<PageRuntimeResponse>('/tenant/dashboard', {
-      params: langParams(lang),
+      params: tenantDashboardParams(lang, period, performancePage),
     }).pipe(map(withSectionNotices));
   }
 
@@ -150,6 +154,18 @@ function noticeSeverity(severity: ApiNotice['severity']): WidgetDynamicError['se
 
 function langParams(lang?: string): HttpParams | undefined {
   return lang ? new HttpParams().set('lang', lang) : undefined;
+}
+
+function tenantDashboardParams(
+  lang?: string,
+  period?: string,
+  performancePage?: number,
+): HttpParams | undefined {
+  let params = new HttpParams();
+  if (lang) params = params.set('lang', lang);
+  if (period) params = params.set('period', period);
+  if (performancePage !== undefined) params = params.set('performancePage', performancePage);
+  return params.keys().length ? params : undefined;
 }
 
 function logicalIdParams(logicalId: string, lang?: string): HttpParams {
