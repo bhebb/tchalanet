@@ -16,6 +16,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { TchRequestOptions } from '@tch/api';
+import { TchNotice } from '@tch/ui/components';
 
 import { AdminCrudShellComponent } from '@tch/ui/console';
 import { AdminDataToolbarComponent } from '@tch/ui/console';
@@ -44,6 +45,7 @@ import {
     AdminEmptyStateComponent,
     AdminPageShellComponent,
     AdminStatusPillComponent,
+    TchNotice,
     TchAsyncReadyDirective,
     TchAsyncViewComponent,
     MatButtonModule,
@@ -75,6 +77,7 @@ export class PlatformPageEnginePage {
   readonly jsonText = signal('');
   readonly jsonError = signal<string | null>(null);
   readonly busy = signal(false);
+  readonly actionError = signal<string | null>(null);
 
   readonly pageModels = this.api.listResource(() => ({ q: this.q(), page: 0, size: 50 }), {
     suppressShellFeedback: true,
@@ -135,12 +138,13 @@ export class PlatformPageEnginePage {
       'dashboard';
     const model = minimalModel(logicalId, scope, slug);
 
-    this.busy.set(true);
+    this.startAction();
     this.api
       .create({ logicalId, scope, slug, schemaVersion: 2, model }, this.tenantOptions(tenantId))
       .subscribe({
         next: created => {
           this.busy.set(false);
+          this.actionError.set(null);
           this.selectedId.set(created.id);
           this.selectedTenantId.set(created.tenantId ?? tenantId);
           this.snack(this.translate.instant('platform.pageEngine.feedback.created'));
@@ -157,7 +161,7 @@ export class PlatformPageEnginePage {
     const model = this.parseJson();
     if (model == null) return;
 
-    this.busy.set(true);
+    this.startAction();
     this.api
       .update(
         detail.id,
@@ -173,6 +177,7 @@ export class PlatformPageEnginePage {
       .subscribe({
         next: () => {
           this.busy.set(false);
+          this.actionError.set(null);
           this.snack(this.translate.instant('platform.pageEngine.feedback.saved'));
           this.pageModels.reload();
           this.detail.reload();
@@ -184,10 +189,11 @@ export class PlatformPageEnginePage {
   publish(): void {
     const detail = this.selectedDetail();
     if (!detail) return;
-    this.busy.set(true);
+    this.startAction();
     this.api.publish(detail.id, this.tenantOptions()).subscribe({
       next: () => {
         this.busy.set(false);
+        this.actionError.set(null);
         this.snack(this.translate.instant('platform.pageEngine.feedback.published'));
         this.pageModels.reload();
         this.detail.reload();
@@ -208,10 +214,11 @@ export class PlatformPageEnginePage {
       window.prompt(this.translate.instant('platform.pageEngine.prompt.slug'), detail.slug) ??
       detail.slug;
 
-    this.busy.set(true);
+    this.startAction();
     this.api.duplicate(detail.id, logicalId, slug, this.tenantOptions()).subscribe({
       next: created => {
         this.busy.set(false);
+        this.actionError.set(null);
         this.selectedId.set(created.id);
         this.selectedTenantId.set(created.tenantId ?? this.selectedTenantId());
         this.snack(this.translate.instant('platform.pageEngine.feedback.duplicated'));
@@ -226,10 +233,11 @@ export class PlatformPageEnginePage {
     const detail = this.selectedDetail();
     if (!detail || !confirm(this.translate.instant('platform.pageEngine.confirm.reset'))) return;
 
-    this.busy.set(true);
+    this.startAction();
     this.api.reset(detail.id, this.tenantOptions()).subscribe({
       next: () => {
         this.busy.set(false);
+        this.actionError.set(null);
         this.snack(this.translate.instant('platform.pageEngine.feedback.reset'));
         this.pageModels.reload();
         this.detail.reload();
@@ -289,7 +297,12 @@ export class PlatformPageEnginePage {
       presented.error.status === 0
         ? this.translate.instant(fallbackKey)
         : presented.viewModel.message || presented.viewModel.title;
-    this.snack(message || this.translate.instant(fallbackKey));
+    this.actionError.set(message || this.translate.instant(fallbackKey));
+  }
+
+  private startAction(): void {
+    this.actionError.set(null);
+    this.busy.set(true);
   }
 
   private snack(message: string): void {

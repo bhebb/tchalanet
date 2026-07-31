@@ -90,17 +90,26 @@ public class PageModelPersistenceAdapter implements PageModelReaderPort, PageMod
 
   @Override
   public PageModelInstance save(PageModelInstance instance) {
-    var entity = PageModelMapper.toEntity(instance, null);
+    var entity = toManagedEntity(instance);
     var saved = repo.save(entity);
     return PageModelMapper.toDomain(saved);
   }
 
   @Override
   public List<PageModelInstance> saveAll(List<PageModelInstance> instances) {
-    List<PageModelJpaEntity> entities =
-        instances.stream().map(d -> PageModelMapper.toEntity(d, null)).toList();
+    List<PageModelJpaEntity> entities = instances.stream().map(this::toManagedEntity).toList();
     var saved = repo.saveAll(entities);
     return saved.stream().map(PageModelMapper::toDomain).toList();
+  }
+
+  /**
+   * Reuses the managed row for updates so Hibernate keeps the persisted {@code @Version} value.
+   * Rebuilding an entity from the domain aggregate loses that value and makes {@code merge()}
+   * report a false optimistic-lock conflict.
+   */
+  private PageModelJpaEntity toManagedEntity(PageModelInstance instance) {
+    var existing = repo.findById(instance.id().value()).orElse(null);
+    return PageModelMapper.toEntity(instance, existing);
   }
 
   @Override
