@@ -27,7 +27,8 @@ export interface DrawFinancialRow extends FinancialSummary {
   readonly drawId: string;
   readonly refDate: string;
   readonly scheduledAt: string;
-  readonly gameCode: string;
+  /** Null for a draw resulted without a sale — a draw carries no game of its own. */
+  readonly gameCode: string | null;
   readonly drawChannelCode: string | null;
 }
 
@@ -53,7 +54,8 @@ export interface SellerTerminalDrawFinancialRow extends FinancialSummary {
   readonly drawId: string;
   readonly refDate: string;
   readonly scheduledAt: string;
-  readonly gameCode: string;
+  /** Null for a draw resulted without a sale — a draw carries no game of its own. */
+  readonly gameCode: string | null;
   readonly drawChannelCode: string | null;
 }
 

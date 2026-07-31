@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class TenantAdminFinancialsController {
 
   private final QueryBus queryBus;
+  private final FinancialDrawIdentityEnricher drawIdentityEnricher;
 
   @GetMapping("/breakdown")
   @Operation(summary = "Tenant financial breakdown by day, draw and seller terminal")
@@ -43,7 +44,7 @@ public class TenantAdminFinancialsController {
     LocalDate effectiveTo = to != null ? to : LocalDate.now(zoneId);
     LocalDate effectiveFrom = from != null ? from : effectiveTo;
 
-    return ApiResponse.success(
+    TenantFinancialBreakdownView breakdown =
         queryBus.ask(
             new GetTenantFinancialBreakdownQuery(
                 ctx.tenantIdRequired(),
@@ -52,7 +53,9 @@ public class TenantAdminFinancialsController {
                 drawLimit,
                 sellerTerminalLimit,
                 java.util.List.of(),
-                java.util.List.of())));
+                java.util.List.of()));
+
+    return ApiResponse.success(drawIdentityEnricher.enrich(breakdown, effectiveFrom, effectiveTo));
   }
 
   @GetMapping("/draws/{drawId}/top-selections")

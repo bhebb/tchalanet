@@ -24,11 +24,14 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Ensures an {@code analytics_draw} row exists for every resulted draw.
+ * Maintains the {@code analytics_draw} row that backs the per-draw financial breakdown.
  *
- * <p>The row is created with zero counters; downstream payout-paid events update both winnings and
- * payouts because result application auto-settles winning tickets. The draw row exists primarily to
- * serve per-draw breakdown queries.
+ * <p>The row is created by the first sale on a draw, and only by a sale. Result application then
+ * enriches it — it no longer seeds a row of its own, because a draw resulted without any sale has
+ * no financial story to tell and those empty rows were the bulk of what the reports displayed.
+ *
+ * <p>Downstream payout-paid events update both winnings and payouts, because result application
+ * auto-settles winning tickets.
  */
 @Component
 @RequiredArgsConstructor
@@ -175,47 +178,34 @@ public class AnalyticsDrawProjector {
         -event.amountCents());
   }
 
-  /** Ensure a draw row exists and enrich metadata known when the result is applied. */
+  /**
+   * Enrich the financial row of a resulted draw with the metadata known at result time.
+   *
+   * <p>Deliberately does <em>not</em> create the row. A draw that was resulted without a single
+   * sale has nothing financial to report, and seeding one row per resulted draw filled the reports
+   * with zero-valued lines — they were all the daily sales report ever showed. The row is created
+   * by the sale itself ({@link #applyTicketPlaced}); if there is none, there were no sales, and
+   * there is nothing to enrich.
+   */
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void ensureDrawRow(DrawResultAppliedEvent event) {
     UUID drawId = event.drawId().value();
-    Instant now = Instant.now(clock);
-    AnalyticsDrawEntity entity =
-        repo.findByDrawId(drawId)
-            .orElseGet(
-                () ->
-                    AnalyticsDrawEntity.builder()
-                        .drawId(drawId)
-                        .ticketsSoldCount(0L)
-                        .ticketsCancelledCount(0L)
-                        .grossSalesCents(0L)
-                        .stakeTotalCents(0L)
-                        .winningsCalculatedCents(0L)
-                        .payoutsPaidCents(0L)
-                        .sellerCommissionCents(0L)
-                        .buyerChargeCents(0L)
-                        .sellerChargeCents(0L)
-                        .tenantChargeCents(0L)
-                        .waivedChargeCents(0L)
-                        .promotionLineCount(0L)
-                        .promotionPricedLineCount(0L)
-                        .netRevenueEstimatedCents(0L)
-                        .netRevenuePaidBasisCents(0L)
-                        .createdAt(now)
-                        .build());
-
-    entity.setTenantId(event.tenantId().value());
-    if (entity.getGameCode() == null) {
-      entity.setGameCode("UNKNOWN"); // enriched by recompute or TicketPlaced aggregation
+    var existing = repo.findByDrawId(drawId);
+    if (existing.isEmpty()) {
+      log.debug("analytics_draw no sales for draw {} — nothing to enrich", drawId);
+      return;
     }
+
+    AnalyticsDrawEntity entity = existing.get();
+    entity.setTenantId(event.tenantId().value());
     entity.setDrawChannelCode(
         event.drawChannelId() != null ? event.drawChannelId().value().toString() : null);
     entity.setScheduledAt(event.occurredAt());
     entity.setRefDate(event.drawDate());
-    entity.setUpdatedAt(now);
+    entity.setUpdatedAt(Instant.now(clock));
 
     repo.save(entity);
-    log.debug("analytics_draw row ensured for draw {}", drawId);
+    log.debug("analytics_draw row enriched for draw {}", drawId);
   }
 
   private void applyWinningsCalculatedDelta(

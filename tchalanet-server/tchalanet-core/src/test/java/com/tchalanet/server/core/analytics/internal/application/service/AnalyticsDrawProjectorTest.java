@@ -10,7 +10,9 @@ import com.tchalanet.server.catalog.game.api.model.GameCode;
 import com.tchalanet.server.common.types.id.CorrelationId;
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.DrawId;
+import com.tchalanet.server.common.types.id.DrawResultId;
 import com.tchalanet.server.common.types.id.EventId;
+import com.tchalanet.server.common.types.id.ResultSlotId;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TicketId;
@@ -19,6 +21,7 @@ import com.tchalanet.server.common.types.money.CurrencyCode;
 import com.tchalanet.server.common.types.money.Money;
 import com.tchalanet.server.core.analytics.internal.infra.persistence.AnalyticsDrawEntity;
 import com.tchalanet.server.core.analytics.internal.infra.persistence.AnalyticsDrawRepository;
+import com.tchalanet.server.core.draw.api.event.DrawResultAppliedEvent;
 import com.tchalanet.server.core.sales.api.event.TicketLinePlacedItem;
 import com.tchalanet.server.core.sales.api.event.TicketPayoutPaidAmountAdjustedEvent;
 import com.tchalanet.server.core.sales.api.event.TicketPayoutPaidEvent;
@@ -166,5 +169,57 @@ class AnalyticsDrawProjectorTest {
 
   private static Money money(String amount) {
     return new Money(new BigDecimal(amount), HTG);
+  }
+
+  @Test
+  void aResultedDrawWithNoSaleIsNotPersisted() {
+    // Seeding one row per resulted draw filled the reports with zero-valued lines carrying a raw
+    // channel id and an "UNKNOWN" game — on the daily sales report they were the only row shown.
+    var repo = mock(AnalyticsDrawRepository.class);
+    when(repo.findByDrawId(any())).thenReturn(Optional.empty());
+    var projector = new AnalyticsDrawProjector(repo, fixedClock());
+
+    projector.ensureDrawRow(drawResultApplied());
+
+    org.mockito.Mockito.verify(repo, org.mockito.Mockito.never())
+        .save(any(AnalyticsDrawEntity.class));
+  }
+
+  @Test
+  void aResultedDrawWithSalesIsStillEnriched() {
+    var repo = mock(AnalyticsDrawRepository.class);
+    var existing =
+        AnalyticsDrawEntity.builder()
+            .drawId(DRAW_ID.value())
+            .tenantId(TENANT_ID.value())
+            .gameCode("HT_BORLETTE")
+            .ticketsSoldCount(3L)
+            .build();
+    when(repo.findByDrawId(any())).thenReturn(Optional.of(existing));
+    when(repo.save(any(AnalyticsDrawEntity.class))).thenAnswer(inv -> inv.getArgument(0));
+    var projector = new AnalyticsDrawProjector(repo, fixedClock());
+
+    projector.ensureDrawRow(drawResultApplied());
+
+    var saved = ArgumentCaptor.forClass(AnalyticsDrawEntity.class);
+    org.mockito.Mockito.verify(repo).save(saved.capture());
+    assertThat(saved.getValue().getRefDate()).isEqualTo(REF_DATE);
+    assertThat(saved.getValue().getGameCode()).isEqualTo("HT_BORLETTE");
+  }
+
+  private static Clock fixedClock() {
+    return Clock.fixed(NOW, ZoneOffset.UTC);
+  }
+
+  private static DrawResultAppliedEvent drawResultApplied() {
+    return new DrawResultAppliedEvent(
+        EventId.of(UUID.randomUUID()),
+        NOW,
+        TENANT_ID,
+        DRAW_ID,
+        REF_DATE,
+        ResultSlotId.of(UUID.randomUUID()),
+        DrawResultId.of(UUID.randomUUID()),
+        DRAW_CHANNEL_ID);
   }
 }
