@@ -16,19 +16,19 @@ public class PageModelAdminMapper {
   public PageModelAdminDetailDto toAdminDetailDto(PageModelInstance inst) {
     if (inst == null) return null;
     return new PageModelAdminDetailDto(
-        inst.id().toString(),
-        inst.tenantId().toString(),
+        inst.id().value().toString(),
+        inst.tenantId().value().toString(),
         inst.logicalId(),
         inst.scope(),
         inst.slug(),
         inst.status(),
         inst.schemaVersion(),
         inst.modelJson(),
-        inst.templateId().toString(),
+        inst.templateId().map(templateId -> templateId.value().toString()).orElse(null),
         inst.createdAt(),
         inst.updatedAt(),
-        inst.createdBy() != null ? inst.createdBy().toString() : null,
-        inst.updatedBy() != null ? inst.updatedBy().toString() : null,
+        inst.createdBy() != null ? inst.createdBy().value().toString() : null,
+        inst.updatedBy() != null ? inst.updatedBy().value().toString() : null,
         inst.publishedAt().orElse(null));
   }
 }
