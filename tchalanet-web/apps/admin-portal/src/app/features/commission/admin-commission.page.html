@@ -18,28 +18,25 @@
   } @else {
   <tch-admin-detail-layout>
     <aside aside class="commission-page__aside">
-      <tch-admin-section-card
-        [title]="'admin.commission.section.overview' | translate"
-        tchSectionErrorTarget="admin.commission.defaultRate"
-        [tchSectionErrors]="sectionErrors()"
-      >
-        @if (overview(); as overviewVm) {
-        <dl class="commission-page__overview">
-          <dt>{{ 'admin.commission.field.defaultRate' | translate }}</dt>
-          <dd>{{ overviewVm.tenantDefaultRate }}%</dd>
-          <dt>{{ 'admin.commission.field.totalSellers' | translate }}</dt>
-          <dd>{{ overviewVm.totalSellerTerminals }}</dd>
-          <dt>{{ 'admin.commission.field.atDefaultRate' | translate }}</dt>
-          <dd>{{ overviewVm.countAtDefaultRate }}</dd>
-          <dt>{{ 'admin.commission.field.customRate' | translate }}</dt>
-          <dd>{{ overviewVm.countWithCustomRate }}</dd>
-          <dt>{{ 'admin.commission.field.range' | translate }}</dt>
-          <dd>{{ overviewVm.minRate }}% / {{ overviewVm.maxRate }}%</dd>
-        </dl>
-        } @else {
-        <p class="commission-page__unavailable">{{ 'common.not_available' | translate }}</p>
-        }
-      </tch-admin-section-card>
+      @if (overview(); as overviewVm) {
+        <tch-identity-card
+          [eyebrow]="'admin.commission.section.overview' | translate"
+          [title]="overviewVm.tenantDefaultRate + '%'"
+          [status]="'admin.commission.field.defaultRate' | translate"
+          statusTone="info"
+          [meta]="overviewMeta(overviewVm)"
+          icon="percent"
+          variant="compact"
+        />
+      } @else {
+        <tch-admin-section-card
+          [title]="'admin.commission.section.overview' | translate"
+          tchSectionErrorTarget="admin.commission.defaultRate"
+          [tchSectionErrors]="sectionErrors()"
+        >
+          <p class="commission-page__unavailable">{{ 'common.not_available' | translate }}</p>
+        </tch-admin-section-card>
+      }
     </aside>
 
     <div main class="commission-page__main">

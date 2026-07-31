@@ -15,9 +15,12 @@
       />
     }
     @case ('ready') {
+      <!-- A tenant admin is not the audience for a degraded-widget diagnostic: a widget that
+           cannot load is left out rather than announced. Ops consoles keep theirs. -->
       <tch-page-model
         [content]="vm.response.content"
         [dynamic]="vm.response.dynamic"
+        [hideWidgetErrors]="true"
         (widgetRetry)="reload()"
       />
     }

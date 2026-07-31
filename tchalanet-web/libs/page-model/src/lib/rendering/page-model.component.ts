@@ -25,6 +25,7 @@ import { WidgetHostComponent } from './widget-host.component';
                   [config]="widgetConfig(widgetId)"
                   [dynamic]="widgetDynamic(widgetId)"
                   [errors]="errors()"
+                  [hideErrors]="hideWidgetErrors()"
                   (retry)="widgetRetry.emit($event)"
                 />
               }
@@ -82,6 +83,15 @@ export class PageModelComponent {
   readonly widgetRetry = output<string>();
 
   readonly rows = computed(() => this.content().layout.rows);
+  /**
+   * Suppress every widget error panel on this page.
+   *
+   * <p>Whether a degraded widget should announce itself is a property of the audience, not of the
+   * widget: an ops console wants the diagnostic, a tenant dashboard wants a page that still looks
+   * finished. Set it on the surface rather than tagging each widget in the page-model template.
+   */
+  readonly hideWidgetErrors = input(false);
+
   readonly errors = computed(() => this.dynamic().errors);
 
   widgetConfig(id: string): WidgetConfig | undefined {
