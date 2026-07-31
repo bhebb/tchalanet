@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, ParamMap } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { PageModelApi, PageModelComponent, PageRuntimeResponse } from '@tch/page-model';
 import {
@@ -8,7 +9,12 @@ import {
   TenantDashboardSettingsInput,
 } from '@tch/shared-config';
 import { TchErrorPanel, TchLoading } from '@tch/ui/components';
-import { Subject, catchError, map, of, startWith, switchMap, tap } from 'rxjs';
+import { Subject, catchError, combineLatest, map, of, startWith, switchMap, tap } from 'rxjs';
+
+interface DashboardQuery {
+  readonly period?: string;
+  readonly performancePage?: number;
+}
 
 type DashboardState =
   | { readonly status: 'loading' }
@@ -25,13 +31,17 @@ type DashboardState =
 export class AdminDashboardPage {
   private readonly pageModelApi = inject(PageModelApi);
   private readonly runtimeSettings = inject(RuntimeSettingsStore);
+  private readonly route = inject(ActivatedRoute);
   private readonly reloads = new Subject<void>();
 
   protected readonly state = toSignal(
-    this.reloads.pipe(
-      startWith(undefined),
-      switchMap(() =>
-        this.pageModelApi.getTenantPage().pipe(
+    combineLatest([
+      this.route.queryParamMap.pipe(map(readDashboardQuery)),
+      this.reloads.pipe(startWith(undefined)),
+    ]).pipe(
+      map(([query]) => query),
+      switchMap(query =>
+        this.pageModelApi.getTenantPage(undefined, query.period, query.performancePage).pipe(
           tap(response => {
             this.runtimeSettings.applyTenantDashboardSettings(tenantSettingsFrom(response));
           }),
@@ -64,4 +74,14 @@ function tenantSettingsFrom(response: PageRuntimeResponse): TenantDashboardSetti
 
 function isTenantDashboardSettings(value: unknown): value is TenantDashboardSettingsInput {
   return typeof value === 'object' && value !== null;
+}
+
+function readDashboardQuery(params: ParamMap): DashboardQuery {
+  const performancePage = Number.parseInt(params.get('performancePage') ?? '', 10);
+  return {
+    period: params.get('period') ?? undefined,
+    performancePage: Number.isFinite(performancePage) && performancePage >= 0
+      ? performancePage
+      : undefined,
+  };
 }

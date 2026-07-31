@@ -52,6 +52,14 @@ describe('PageModelApi', () => {
       .flush(response());
   });
 
+  it('passes tenant dashboard period and performance page to the backend', () => {
+    api.getTenantPage(undefined, 'YESTERDAY', 2).subscribe();
+
+    http
+      .expectOne('/api/v1/tenant/dashboard?period=YESTERDAY&performancePage=2')
+      .flush(response());
+  });
+
   it('loads the private dashboard fallback from bundled assets', () => {
     let result: unknown;
     api.getPrivateFallbackPage().subscribe(page => {
