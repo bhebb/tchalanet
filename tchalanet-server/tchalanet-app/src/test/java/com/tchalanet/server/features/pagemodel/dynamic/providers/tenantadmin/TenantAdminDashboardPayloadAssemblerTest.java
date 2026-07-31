@@ -28,6 +28,7 @@ import com.tchalanet.server.core.draw.api.query.DrawSummary;
 import com.tchalanet.server.core.draw.api.query.ListDrawsQuery;
 import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalSummaryRow;
 import com.tchalanet.server.core.sellerterminal.api.query.ListSellerTerminalsQuery;
+import com.tchalanet.server.features.pagemodel.contract.ActionItem;
 import com.tchalanet.server.platform.notification.api.NotificationApi;
 import com.tchalanet.server.platform.publiccontent.api.PublicContentApi;
 import com.tchalanet.server.platform.tenant.api.TenantPreContextLookupApi;
@@ -206,6 +207,29 @@ class TenantAdminDashboardPayloadAssemblerTest {
     verify(queryBus, times(2)).ask(any(ListSellerTerminalsQuery.class));
     verify(gameCatalog, times(1)).listActive();
     verify(drawChannelCatalog, times(1)).listAll(any(), any());
+  }
+
+  @Test
+  @DisplayName("quick actions match the tenant admin dashboard model")
+  void quickActionsMatchDashboardModel() {
+    when(tenantCatalog.findById(tenantId)).thenReturn(Optional.empty());
+    when(queryBus.ask(any(ListSellerTerminalsQuery.class))).thenReturn(emptyPage());
+    when(gameCatalog.listActive()).thenReturn(List.of());
+    when(drawChannelCatalog.listAll(any(), any())).thenReturn(List.of());
+    when(publicContentApi.listTenantAdminDashboardNews(any(int.class))).thenReturn(List.of());
+
+    var actions = assembler.assemble(context(tenantId)).quickActions().actions();
+
+    assertThat(actions)
+        .extracting(ActionItem::id)
+        .containsExactly("TODAYS_DRAWS", "SALES_BY_TERMINAL", "DAILY_REPORT", "BLOCK_NUMBER");
+    assertThat(actions)
+        .extracting(action -> action.destination().value())
+        .containsExactly(
+            "/app/admin/draws?date=TODAY",
+            "/app/admin/reports/sellers",
+            "/app/admin/reports/daily",
+            "/app/admin/limits/number");
   }
 
   @Test

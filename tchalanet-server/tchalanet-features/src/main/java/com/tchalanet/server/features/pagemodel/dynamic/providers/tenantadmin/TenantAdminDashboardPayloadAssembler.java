@@ -226,10 +226,7 @@ public class TenantAdminDashboardPayloadAssembler {
                     "tenant_admin_dashboard.public_content",
                     this::buildPublicContent,
                     PublicContentPayload::empty));
-    QuickActionsPayload quickActions =
-        timing.record(
-            "quickActions",
-            () -> buildQuickActions(closedDraws.value(), ops.value().blockedSellerTerminalCount()));
+    QuickActionsPayload quickActions = timing.record("quickActions", this::buildQuickActions);
 
     Payload payload =
         new Payload(
@@ -533,52 +530,29 @@ public class TenantAdminDashboardPayloadAssembler {
         stats.maxRate());
   }
 
-  private QuickActionsPayload buildQuickActions(long closedDraws, long blockedSellerTerminalCount) {
-    List<ActionItem> actions = new ArrayList<>();
-    actions.add(
-        new ActionItem(
-            "ADD_SELLER_TERMINAL",
-            "quickaction.admin.add_seller_terminal",
-            "person_add",
-            "/app/admin/seller-terminals/new"));
-    actions.add(
-        new ActionItem(
-            "ACTIVE_SELLER_TERMINALS",
-            "quickaction.admin.active_seller_terminals",
-            "point_of_sale",
-            "/app/admin/seller-terminals?status=active",
-            blockedSellerTerminalCount > 0L ? blockedSellerTerminalCount : null));
-    if (closedDraws > 0L) {
-      actions.add(
-          new ActionItem(
-              "DRAWS_PENDING_RESULTS",
-              "quickaction.admin.draws_pending_results",
-              "hourglass_top",
-              "/app/admin/draws?status=CLOSED",
-              closedDraws));
-    }
-    actions.add(
-        new ActionItem(
-            "DAILY_REPORT", "quickaction.admin.daily_report", "today", "/app/admin/reports/today"));
-    actions.add(
-        new ActionItem(
-            "MANAGE_LIMITS",
-            "quickaction.admin.manage_limits",
-            "shield",
-            "/app/admin/controls/limits"));
-    actions.add(
-        new ActionItem(
-            "MANAGE_PRICING_RULES",
-            "quickaction.admin.manage_odds",
-            "percent",
-            "/app/admin/controls/pricing-rules"));
-    actions.add(
-        new ActionItem(
-            "MARYAJ_GRATIS",
-            "quickaction.admin.maryaj_gratis",
-            "redeem",
-            "/app/admin/maryaj-gratis#offer"));
-    return new QuickActionsPayload(List.copyOf(actions));
+  private QuickActionsPayload buildQuickActions() {
+    return new QuickActionsPayload(
+        List.of(
+            new ActionItem(
+                "TODAYS_DRAWS",
+                "quickaction.admin.todays_draws",
+                "event_available",
+                "/app/admin/draws?date=TODAY"),
+            new ActionItem(
+                "SALES_BY_TERMINAL",
+                "quickaction.admin.sales_by_terminal",
+                "point_of_sale",
+                "/app/admin/reports/sellers"),
+            new ActionItem(
+                "DAILY_REPORT",
+                "quickaction.admin.daily_report",
+                "today",
+                "/app/admin/reports/daily"),
+            new ActionItem(
+                "BLOCK_NUMBER",
+                "quickaction.admin.block_number",
+                "block",
+                "/app/admin/limits/number")));
   }
 
   public record Payload(

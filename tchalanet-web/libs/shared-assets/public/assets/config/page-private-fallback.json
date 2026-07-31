@@ -81,30 +81,39 @@
           "titleKey": "dashboard.fallback.actions.title",
           "actions": [
             {
-              "id": "admin.setup",
-              "labelKey": "dashboard.fallback.actions.setup",
-              "icon": "checklist",
+              "id": "todaysDraws",
+              "labelKey": "quickaction.admin.todays_draws",
+              "icon": "event_available",
               "destination": {
                 "kind": "route",
-                "value": "/app/admin/setup"
+                "value": "/app/admin/draws?date=TODAY"
               }
             },
             {
-              "id": "admin.reports.overview",
-              "labelKey": "nav.admin.reports_overview",
-              "icon": "query_stats",
+              "id": "salesByTerminal",
+              "labelKey": "quickaction.admin.sales_by_terminal",
+              "icon": "point_of_sale",
               "destination": {
                 "kind": "route",
-                "value": "/app/admin/reports/overview"
+                "value": "/app/admin/reports/sellers"
               }
             },
             {
-              "id": "admin.support",
-              "labelKey": "dashboard.fallback.actions.support",
-              "icon": "support_agent",
+              "id": "dailyReport",
+              "labelKey": "quickaction.admin.daily_report",
+              "icon": "today",
               "destination": {
                 "kind": "route",
-                "value": "/app/admin/company/support"
+                "value": "/app/admin/reports/daily"
+              }
+            },
+            {
+              "id": "blockNumber",
+              "labelKey": "quickaction.admin.block_number",
+              "icon": "block",
+              "destination": {
+                "kind": "route",
+                "value": "/app/admin/limits/number"
               }
             }
           ]
