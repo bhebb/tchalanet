@@ -789,6 +789,20 @@ export class ApiStub {
     );
   }
 
+  /** Fail the first setup read, then return the normal overview on retry. */
+  async adminSetupErrorOnce(): Promise<void> {
+    if (!this.enabled) return;
+
+    let failed = false;
+    await this.page.route(/\/admin\/overview(?:\?|$)/, r => {
+      if (!failed) {
+        failed = true;
+        return json(r, problemDetail('admin.setup.unavailable', 'req-setup-503'), 503);
+      }
+      return json(r, envelope(adminOverviewStub));
+    });
+  }
+
   async adminReportError(): Promise<void> {
     if (!this.enabled) return;
 

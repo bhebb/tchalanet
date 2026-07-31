@@ -52,6 +52,21 @@ test.describe('Admin error management — blocking page failures', () => {
     await expectBlockingError(page);
   });
 
+  test('configuration générale recovers after the transient failure is removed', async ({
+    page,
+    apiStub,
+  }) => {
+    await apiStub.adminSetupErrorOnce();
+
+    await page.goto('/app/admin/setup');
+
+    const alert = page.getByRole('alert');
+    await expect(alert).toBeVisible();
+    await alert.getByRole('button').click();
+    await expect(page.getByTestId('admin-setup-checklist')).toBeVisible();
+    await expect(alert).toHaveCount(0);
+  });
+
   test('rapport owns the overview resource failure and exposes retry', async ({
     page,
     apiStub,
