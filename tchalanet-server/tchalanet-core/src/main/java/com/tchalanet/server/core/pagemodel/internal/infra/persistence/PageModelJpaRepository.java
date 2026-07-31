@@ -7,10 +7,12 @@ import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface PageModelJpaRepository extends JpaRepository<PageModelJpaEntity, UUID> {
+public interface PageModelJpaRepository
+    extends JpaRepository<PageModelJpaEntity, UUID>, JpaSpecificationExecutor<PageModelJpaEntity> {
   Optional<PageModelJpaEntity> findFirstByTenantIdAndLogicalIdAndStatusAndDeletedAtIsNull(
       UUID tenantId, String logicalId, PageModelStatus status);
 

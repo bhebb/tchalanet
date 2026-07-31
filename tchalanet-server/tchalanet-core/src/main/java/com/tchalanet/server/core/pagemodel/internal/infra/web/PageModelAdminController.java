@@ -43,7 +43,7 @@ import tools.jackson.databind.JsonNode;
 // [Phase 3C] PageModelId.of(String) → PageModelId.parse(String)
 // [Phase 5] preview/duplicate/reset — handlers retournent PageModelAdminDetailDto via mapper
 @RestController
-@RequestMapping("/admin/pagemodels")
+@RequestMapping({"/admin/pagemodels", "/platform/pagemodels"})
 @RequiredArgsConstructor
 @Tag(name = "Admin • PageModel")
 @PreAuthorize("hasRole('SUPER_ADMIN')")

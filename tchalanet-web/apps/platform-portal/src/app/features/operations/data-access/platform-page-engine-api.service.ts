@@ -8,6 +8,7 @@ export type PageModelId = string | { value: string };
 
 export interface PageModelSummaryView {
   readonly id: PageModelId;
+  readonly tenantId: string | null;
   readonly logicalId: string;
   readonly scope: string;
   readonly slug: string;
@@ -58,7 +59,7 @@ export class PlatformPageEngineApi {
     options?: TchRequestOptions,
   ): ResourceRef<TchPage<PageModelSummaryView> | undefined> {
     return this.backend.getPageResource<PageModelSummaryView>(() => ({
-      path: '/admin/pagemodels',
+      path: '/platform/pagemodels',
       options: {
         ...options,
         params: pageModelQueryParams(params()),
@@ -68,44 +69,61 @@ export class PlatformPageEngineApi {
 
   previewResource(
     id: () => string | undefined,
-    options?: TchRequestOptions,
+    options?: TchRequestOptions | (() => TchRequestOptions | undefined),
   ): ResourceRef<PageModelAdminDetailView | undefined> {
     return this.backend.getResource<PageModelAdminDetailView>(() => {
       const pageModelId = id();
       return pageModelId
         ? {
-            path: `/admin/pagemodels/${pageModelId}/preview`,
-            options,
+            path: `/platform/pagemodels/${pageModelId}/preview`,
+            options: typeof options === 'function' ? options() : options,
           }
         : undefined;
     });
   }
 
-  create(req: PageModelUpsertRequest): Observable<PageModelAdminDetailView> {
-    return this.backend.post<PageModelAdminDetailView>('/admin/pagemodels', req);
+  create(
+    req: PageModelUpsertRequest,
+    options?: TchRequestOptions,
+  ): Observable<PageModelAdminDetailView> {
+    return this.backend.post<PageModelAdminDetailView>('/platform/pagemodels', req, options);
   }
 
-  update(id: string, req: PageModelUpsertRequest): Observable<PageModelAdminDetailView> {
-    return this.backend.put<PageModelAdminDetailView>(`/admin/pagemodels/${id}`, req);
+  update(
+    id: string,
+    req: PageModelUpsertRequest,
+    options?: TchRequestOptions,
+  ): Observable<PageModelAdminDetailView> {
+    return this.backend.put<PageModelAdminDetailView>(`/platform/pagemodels/${id}`, req, options);
   }
 
-  publish(id: string): Observable<boolean> {
-    return this.backend.post<boolean>(`/admin/pagemodels/${id}/publish`, {});
+  publish(id: string, options?: TchRequestOptions): Observable<boolean> {
+    return this.backend.post<boolean>(`/platform/pagemodels/${id}/publish`, {}, options);
   }
 
-  duplicate(id: string, logicalId?: string, slug?: string): Observable<PageModelAdminDetailView> {
+  duplicate(
+    id: string,
+    logicalId?: string,
+    slug?: string,
+    options?: TchRequestOptions,
+  ): Observable<PageModelAdminDetailView> {
     const params = new URLSearchParams();
     if (logicalId) params.set('logicalId', logicalId);
     if (slug) params.set('slug', slug);
     const query = params.toString();
     return this.backend.post<PageModelAdminDetailView>(
-      `/admin/pagemodels/${id}/duplicate${query ? '?' + query : ''}`,
+      `/platform/pagemodels/${id}/duplicate${query ? '?' + query : ''}`,
       {},
+      options,
     );
   }
 
-  reset(id: string): Observable<PageModelAdminDetailView> {
-    return this.backend.post<PageModelAdminDetailView>(`/admin/pagemodels/${id}/reset`, {});
+  reset(id: string, options?: TchRequestOptions): Observable<PageModelAdminDetailView> {
+    return this.backend.post<PageModelAdminDetailView>(
+      `/platform/pagemodels/${id}/reset`,
+      {},
+      options,
+    );
   }
 }
 

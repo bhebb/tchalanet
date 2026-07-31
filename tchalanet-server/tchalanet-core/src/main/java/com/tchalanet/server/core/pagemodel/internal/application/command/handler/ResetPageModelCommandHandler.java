@@ -1,7 +1,6 @@
 package com.tchalanet.server.core.pagemodel.internal.application.command.handler;
 
 import com.tchalanet.server.catalog.pagemodeltemplate.api.PageModelTemplateCatalog;
-import com.tchalanet.server.catalog.pagemodeltemplate.api.model.PageModelTemplateView;
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.event.DomainEventPublisher;
 import com.tchalanet.server.common.json.utils.JsonUtils;
@@ -54,15 +53,14 @@ public class ResetPageModelCommandHandler
 
     // Charge le modèle par défaut depuis le template lié (si templateId présent)
     // ou remet à {} si pas de template (conforme UpsertPageModelHandler — fallback vide)
-    var defaultModel =
-        instance
-            .templateId()
-            .flatMap(templateCatalog::findById)
-            .map(PageModelTemplateView::model)
-            .orElseGet(JsonUtils::emptyObject);
+    var template = instance.templateId().flatMap(templateCatalog::findById).orElse(null);
+    var defaultModel = template != null ? template.model() : JsonUtils.emptyObject();
+    var schemaVersion =
+        template != null && template.schemaVersion() != null
+            ? template.schemaVersion()
+            : instance.schemaVersion();
     var now = Instant.now(clock);
-    var reset =
-        instance.resetToTemplate(defaultModel, instance.schemaVersion(), now, cmd.actorId());
+    var reset = instance.resetToTemplate(defaultModel, schemaVersion, now, cmd.actorId());
     var saved = writer.save(reset);
 
     // Publish after-commit pour invalidation de cache (conform event_model.md §4 + §3.1)
