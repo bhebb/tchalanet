@@ -94,6 +94,7 @@
     <div class="ple__new-label">Nouvelle sélection</div>
     <div class="ple__add-row" [class.ple__add-row--first]="lines().length === 0">
       <div class="ple__col ple__col--num">
+        <span class="ple__field-label">Sélection</span>
         <div
           class="ple__input-ball-wrap"
           [class.ple__input-ball-wrap--valid]="draftSelectionState() === 'valid'"
@@ -155,6 +156,7 @@
       </div>
 
       <div class="ple__col ple__col--type">
+        <span class="ple__field-label">Type de pari</span>
         @if (betTypes().length > 1) {
           <select
             class="ple__type-select"
@@ -174,6 +176,7 @@
       </div>
 
       <div class="ple__col ple__col--stake">
+        <span class="ple__field-label">Mise (HTG)</span>
         <input
           class="ple__stake-input"
           type="number"

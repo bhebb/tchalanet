@@ -58,6 +58,17 @@ describe(TchErrorPanel.name, () => {
 
     expect(fixture.nativeElement.querySelector('button')?.disabled).toBe(true);
   });
+
+  it('focuses the blocking panel after it is rendered', async () => {
+    TestBed.configureTestingModule({ imports: [ErrorPanelHost] });
+    const fixture = TestBed.createComponent(ErrorPanelHost);
+    fixture.componentInstance.title.set('Erreur de chargement');
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const panel = fixture.nativeElement.querySelector('.tch-error-panel') as HTMLElement;
+    expect(document.activeElement).toBe(panel);
+  });
 });
 
 @Component({

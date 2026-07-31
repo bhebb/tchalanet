@@ -1,6 +1,16 @@
 import { AbstractControl } from '@angular/forms';
-import { ChangeDetectionStrategy, Component, computed, Input, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  computed,
+  inject,
+  Input,
+  OnDestroy,
+  signal,
+} from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'tch-field-error',
@@ -20,14 +30,33 @@ import { TranslatePipe } from '@ngx-translate/core';
     .tch-field-error { margin: .25rem 0 0; color: var(--comp-field-error-fg); font-size: var(--comp-field-error-font-size); }
   `],
 })
-export class TchFieldError {
+export class TchFieldError implements OnDestroy {
+  private readonly changeDetector = inject(ChangeDetectorRef);
   private readonly messageValue = signal('');
   private readonly controlValue = signal<AbstractControl | null>(null);
+  private readonly controlStatusVersion = signal(0);
+  private controlStatusSubscription = new Subscription();
 
-  @Input() set message(value: string) { this.messageValue.set(value); }
-  @Input() set control(value: AbstractControl | null) { this.controlValue.set(value); }
+  @Input() set message(value: string) {
+    this.messageValue.set(value);
+  }
+  @Input() set control(value: AbstractControl | null) {
+    this.controlStatusSubscription.unsubscribe();
+    this.controlStatusSubscription = value
+      ? value.statusChanges.subscribe(() => {
+          this.controlStatusVersion.update(version => version + 1);
+          this.changeDetector.markForCheck();
+        })
+      : new Subscription();
+    this.controlValue.set(value);
+  }
+
+  ngOnDestroy(): void {
+    this.controlStatusSubscription.unsubscribe();
+  }
 
   readonly displayMessages = computed(() => {
+    this.controlStatusVersion();
     if (this.messageValue()) return [this.messageValue()];
     return controlErrorMessages(this.controlValue());
   });

@@ -21,6 +21,7 @@ export * from './lib/card/card';
 export * from './lib/empty-state/empty-state';
 export * from './lib/error-panel/error-panel';
 export * from './lib/field-error/field-error';
+export * from './lib/feedback-focus/feedback-focus.directive';
 export * from './lib/form-error-summary/form-error-summary';
 export * from './lib/game-selection-chip/game-selection-chip';
 export * from './lib/lang-switcher/lang-switcher';

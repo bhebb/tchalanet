@@ -1200,7 +1200,8 @@
         "address": "Adrès"
       },
       "commercial": {
-        "description": "Itilize pou tèminal POS ki pa gen to espesifik."
+        "description": "Itilize pou tèminal POS ki pa gen to espesifik.",
+        "saved": "Paramèt komèsyal yo anrejistre avèk siksè."
       },
       "field": {
         "name": "Non",

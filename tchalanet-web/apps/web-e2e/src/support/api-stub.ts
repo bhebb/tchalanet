@@ -48,6 +48,17 @@ const unexpectedApiCall = (route: Route): Promise<void> => {
 // stubbed REST body must be wrapped the same way.
 const envelope = (data: unknown) => ({ status: 'SUCCESS', data, notices: [] });
 
+const problemDetail = (code: string, requestId: string) => ({
+  type: `https://errors.tchalanet.test/${code}`,
+  title: 'Service unavailable',
+  status: 503,
+  detail: 'backend failure: diagnostic text must not reach the UI',
+  code,
+  retryable: true,
+  requestId,
+  traceId: `trace-${requestId}`,
+});
+
 /** A `TchPage<T>` envelope as consumed by the console pages. */
 export function page<T>(items: T[], overrides: Partial<TchPageLike<T>> = {}): TchPageLike<T> {
   return {
@@ -620,6 +631,85 @@ export class ApiStub {
         },
       ]))),
     );
+
+    await this.adminBusinessProfile();
+  }
+
+  /** Deterministic business-profile data and successful mutations. */
+  async adminBusinessProfile(): Promise<void> {
+    if (!this.enabled) return;
+
+    await this.page.route(/\/admin\/commission\/overview(?:\?|$)/, r =>
+      json(r, envelope({ tenantDefaultRate: 10 })),
+    );
+    await this.page.route(/\/admin\/commission\/default-rate(?:\?|$)/, r =>
+      r.request().method() === 'PUT' ? json(r, envelope(null)) : unexpectedApiCall(r),
+    );
+    await this.page.route(/\/admin\/tenant\/address(?:\?|$)/, r =>
+      r.request().method() === 'PUT' ? json(r, envelope(null)) : unexpectedApiCall(r),
+    );
+  }
+
+  /** Inject a targeted commission validation violation for the profile form. */
+  async adminBusinessProfileCommissionFieldError(): Promise<void> {
+    if (!this.enabled) return;
+
+    await this.page.route(/\/admin\/commission\/default-rate(?:\?|$)/, r =>
+      json(
+        r,
+        {
+          ...problemDetail('validation.failed', 'req-commission-422'),
+          status: 422,
+          violations: [
+            {
+              code: 'validation.out_of_range',
+              field: 'rate',
+              target: 'commission.rate',
+              message: 'backend commission diagnostic must not reach the UI',
+            },
+          ],
+        },
+        422,
+      ),
+    );
+  }
+
+  /** Inject a blocking section/form error for the tenant address mutation. */
+  async adminBusinessProfileAddressError(): Promise<void> {
+    if (!this.enabled) return;
+
+    await this.page.route(/\/admin\/tenant\/address(?:\?|$)/, r =>
+      json(r, problemDetail('tenantadmin.overview.address_unavailable', 'req-address-503'), 503),
+    );
+  }
+
+  /** Return targeted business notices without blocking the setup checklist. */
+  async adminSetupBusinessNotices(): Promise<void> {
+    if (!this.enabled) return;
+
+    await this.page.route(/\/admin\/overview(?:\?|$)/, r =>
+      json(r, {
+        ...envelope(adminOverviewStub),
+        status: 'SUCCESS_WITH_WARNINGS',
+        notices: [
+          {
+            code: 'admin.setup.theme.info',
+            message: 'backend informational diagnostic must not reach the UI',
+            severity: 'INFO',
+            kind: 'INFORMATION',
+            target: 'admin.setup.theme',
+            meta: { category: 'business_rule', surface: 'section' },
+          },
+          {
+            code: 'admin.setup.commission.warning',
+            message: 'backend warning diagnostic must not reach the UI',
+            severity: 'WARN',
+            kind: 'BUSINESS',
+            target: 'admin.setup.commission',
+          },
+        ],
+      }),
+    );
   }
 
   /** Deterministic POS data used by the mobile sale-flow browser test. */
@@ -676,6 +766,42 @@ export class ApiStub {
     );
     await this.page.route(/\/tenant\/cashier\/tickets\/stats(?:\?|$)/, r =>
       json(r, envelope({ ticketCount: 0, salesTotalCents: 0, currency: 'HTG' })),
+    );
+  }
+
+  /** Inject blocking ProblemDetails for the admin error-management E2E flows. */
+  async adminDashboardError(): Promise<void> {
+    if (!this.enabled) return;
+
+    await this.page.route(/\/tenant\/dashboard(?:\?|$)/, r =>
+      json(r, problemDetail('admin.dashboard.unavailable', 'req-dashboard-503'), 503),
+    );
+    await this.page.route(/\/assets\/config\/page-private-fallback\.json(?:\?|$)/, r =>
+      json(r, problemDetail('admin.dashboard.fallback_unavailable', 'req-dashboard-fallback-503'), 503),
+    );
+  }
+
+  async adminSetupError(): Promise<void> {
+    if (!this.enabled) return;
+
+    await this.page.route(/\/admin\/overview(?:\?|$)/, r =>
+      json(r, problemDetail('admin.setup.unavailable', 'req-setup-503'), 503),
+    );
+  }
+
+  async adminReportError(): Promise<void> {
+    if (!this.enabled) return;
+
+    await this.page.route(/\/api\/v1\/admin\/reports\/overview(?:\?|$)/, r =>
+      json(r, problemDetail('admin.reports.overview.unavailable', 'req-report-503'), 503),
+    );
+  }
+
+  async adminDrawsError(): Promise<void> {
+    if (!this.enabled) return;
+
+    await this.page.route(/\/api\/v1\/admin\/draws(?:\?|$)/, r =>
+      json(r, problemDetail('admin.generatedDraws.unavailable', 'req-draws-503'), 503),
     );
   }
 }

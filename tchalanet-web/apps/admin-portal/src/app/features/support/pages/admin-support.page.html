@@ -9,7 +9,7 @@
   >
     @switch (state()) {
       @case ('success') {
-        <tch-notice type="success" class="support-page__notice">
+        <tch-notice type="success" class="support-page__notice" [focusOnRender]="true">
           <div class="support-page__notice-copy">
             <strong>{{ 'admin.support.success.title' | translate }}</strong>
             <span>{{ 'admin.support.success.message' | translate }}</span>
@@ -20,7 +20,7 @@
         </tch-notice>
       }
       @case ('error') {
-        <tch-notice type="error" class="support-page__notice">
+        <tch-notice type="error" class="support-page__notice" [focusOnRender]="true">
           <div class="support-page__notice-copy">
             <strong>{{ 'admin.support.error.title' | translate }}</strong>
             <span>{{ 'admin.support.error.message' | translate }}</span>

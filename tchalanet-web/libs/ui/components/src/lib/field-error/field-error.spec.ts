@@ -48,6 +48,20 @@ describe(TchFieldError.name, () => {
 
     expect(fixture.nativeElement.querySelectorAll('.tch-field-error')).toHaveLength(2);
   });
+
+  it('refreshes when server errors change on the same control instance', () => {
+    TestBed.configureTestingModule({ imports: [FieldErrorHost, TranslateModule.forRoot()] });
+    const fixture = TestBed.createComponent(FieldErrorHost);
+    fixture.detectChanges();
+
+    fixture.componentInstance.control.setErrors({
+      server: [{ message: 'errors.codes.validation.required.message' }],
+    });
+    fixture.componentInstance.control.markAsTouched();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelectorAll('.tch-field-error')).toHaveLength(1);
+  });
 });
 
 @Component({

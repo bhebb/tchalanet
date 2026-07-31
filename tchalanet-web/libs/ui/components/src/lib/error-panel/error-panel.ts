@@ -7,12 +7,20 @@ import {
   signal,
 } from '@angular/core';
 
+import { TchFeedbackFocusDirective } from '../feedback-focus/feedback-focus.directive';
+
 @Component({
   selector: 'tch-error-panel',
   standalone: true,
+  imports: [TchFeedbackFocusDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <section class="tch-error-panel" role="alert">
+    <section
+      class="tch-error-panel"
+      role="alert"
+      [tchFeedbackFocus]="focusOnRender"
+      [tchFeedbackFocusKey]="titleValue() + messageValue()"
+    >
       @if (titleValue()) { <h2 tabindex="-1">{{ titleValue() }}</h2> }
       @if (messageValue()) { <p>{{ messageValue() }}</p> }
       @if (supportReferenceValue()) {
@@ -100,6 +108,9 @@ export class TchErrorPanel {
   protected readonly supportReferenceValue = signal('');
   protected readonly supportReferenceLabelValue = signal('');
   protected readonly copySupportLabelValue = signal('');
+
+  /** Blocking page/operation errors own focus unless an embedding surface opts out. */
+  @Input() focusOnRender = true;
 
   @Input() set title(value: string) { this.titleValue.set(value); }
   @Input() set message(value: string) { this.messageValue.set(value); }

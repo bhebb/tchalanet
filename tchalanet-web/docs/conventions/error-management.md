@@ -53,6 +53,27 @@ The core web implementation is split intentionally:
 - feature pages/stores decide whether a call is page-blocking or section-optional and set
   `suppressShellFeedback` for locally owned requests.
 
+### Shared feedback focus
+
+Feedback focus and scrolling are standardized by `TchFeedbackFocusDirective` from
+`@tch/ui/components`. It waits for the Angular render cycle, keeps the host in the viewport, and
+focuses it with `tabindex="-1"`. `TchNotice` exposes this behavior through `[focusOnRender]`; page
+errors and form summaries use the same primitive internally.
+
+Feature pages must not duplicate `viewChild`/`requestAnimationFrame` focus helpers. They opt in only
+for a local action success or a blocking owner surface:
+
+```html
+@if (saveState() === 'success') {
+  <tch-notice type="success" [focusOnRender]="true">
+    {{ 'feature.saved' | translate }}
+  </tch-notice>
+}
+```
+
+Field validation keeps focus on the field. Non-blocking section `info`/`warn` notices remain local
+and do not auto-scroll or steal focus unless the owning workflow explicitly requires it.
+
 ## Rule
 
 Every user-facing failure must have exactly one UI owner:

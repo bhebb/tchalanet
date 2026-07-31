@@ -14,10 +14,14 @@
   </div>
 
   @if (successKey(); as key) {
-    <tch-notice feedback type="success" class="appearance__notice">{{ key | translate }}</tch-notice>
+    <tch-notice feedback type="success" class="appearance__notice" [focusOnRender]="true">
+      {{ key | translate }}
+    </tch-notice>
   }
   @if (errorKey(); as key) {
-    <tch-notice feedback type="error" class="appearance__notice">{{ key | translate }}</tch-notice>
+    <tch-notice feedback type="error" class="appearance__notice" [focusOnRender]="true">
+      {{ key | translate }}
+    </tch-notice>
   }
   @if (featureLocked()) {
     <tch-notice feedback type="warning" class="appearance__notice">

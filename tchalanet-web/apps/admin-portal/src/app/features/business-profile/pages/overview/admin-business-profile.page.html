@@ -2,8 +2,6 @@
   [title]="'admin.businessProfile.title' | translate"
   [description]="'admin.businessProfile.description' | translate"
 >
-  <div #pageTop class="biz-profile__focus-anchor" tabindex="-1"></div>
-
   <div actions>
     <a mat-stroked-button routerLink="/app/admin/setup">
       <mat-icon>arrow_back</mat-icon>
@@ -36,7 +34,11 @@
           icon="badge"
         >
           @if (identityFormState() === 'success') {
-            <tch-notice type="success" class="biz-profile__notice">
+            <tch-notice
+              class="biz-profile__notice"
+              type="success"
+              [focusOnRender]="true"
+            >
               {{ 'admin.businessProfile.identity.saved' | translate }}
             </tch-notice>
           }
@@ -96,7 +98,11 @@
           icon="public"
         >
           @if (regionFormState() === 'success') {
-            <tch-notice type="success" class="biz-profile__notice">
+            <tch-notice
+              class="biz-profile__notice"
+              type="success"
+              [focusOnRender]="true"
+            >
               {{ 'admin.businessProfile.identity.saved' | translate }}
             </tch-notice>
           }
@@ -150,8 +156,12 @@
           [tchSectionErrors]="sectionErrors()"
         >
           @if (commissionFormState() === 'success') {
-            <tch-notice type="success" class="biz-profile__notice">
-              {{ 'admin.businessProfile.identity.saved' | translate }}
+            <tch-notice
+              class="biz-profile__notice"
+              type="success"
+              [focusOnRender]="true"
+            >
+              {{ 'admin.businessProfile.commercial.saved' | translate }}
             </tch-notice>
           }
           <p class="biz-profile__section-desc">{{ 'admin.businessProfile.commercial.description' | translate }}</p>
@@ -197,7 +207,11 @@
           [tchSectionErrors]="sectionErrors()"
         >
           @if (addressFormState() === 'success') {
-            <tch-notice type="success" class="biz-profile__notice">
+            <tch-notice
+              class="biz-profile__notice"
+              type="success"
+              [focusOnRender]="true"
+            >
               {{ 'admin.businessProfile.address.saved' | translate }}
             </tch-notice>
           }
