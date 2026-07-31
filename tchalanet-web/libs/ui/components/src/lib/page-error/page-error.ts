@@ -1,23 +1,29 @@
 import {
-  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   EventEmitter,
-  ElementRef,
   Input,
   Output,
   signal,
-  ViewChild,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
+
+import { TchFeedbackFocusDirective } from '../feedback-focus/feedback-focus.directive';
 
 @Component({
   selector: 'tch-page-error',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, TchFeedbackFocusDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <main #surface class="tch-page-error" role="alert" tabindex="-1" aria-labelledby="tch-page-error-title">
+    <main
+      class="tch-page-error"
+      role="alert"
+      tabindex="-1"
+      aria-labelledby="tch-page-error-title"
+      tchFeedbackFocus
+      [tchFeedbackFocusKey]="titleValue()"
+    >
       @if (codeValue()) { <p class="tch-page-error__code">{{ codeValue() }}</p> }
       <h1 id="tch-page-error-title">{{ titleValue() }}</h1>
       @if (messageValue()) { <p>{{ messageValue() }}</p> }
@@ -64,7 +70,7 @@ import { RouterLink } from '@angular/router';
     }
   `],
 })
-export class TchPageError implements AfterViewInit {
+export class TchPageError {
   protected readonly codeValue = signal('');
   protected readonly titleValue = signal('');
   protected readonly messageValue = signal('');
@@ -92,9 +98,4 @@ export class TchPageError implements AfterViewInit {
   @Output() readonly retry = new EventEmitter<void>();
   @Output() readonly copySupport = new EventEmitter<void>();
 
-  @ViewChild('surface', { static: true }) private readonly surface?: ElementRef<HTMLElement>;
-
-  ngAfterViewInit(): void {
-    queueMicrotask(() => this.surface?.nativeElement.focus());
-  }
 }

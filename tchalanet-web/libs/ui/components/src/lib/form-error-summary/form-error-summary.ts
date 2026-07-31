@@ -1,13 +1,7 @@
-import {
-  AfterViewInit,
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  Input,
-  signal,
-  ViewChild,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, signal } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
+
+import { TchFeedbackFocusDirective } from '../feedback-focus/feedback-focus.directive';
 
 /**
  * Form-owned summary for safe, already-localized violations that could not be attached to a field.
@@ -16,10 +10,16 @@ import { TranslatePipe } from '@ngx-translate/core';
   selector: 'tch-form-error-summary',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [TranslatePipe],
+  imports: [TranslatePipe, TchFeedbackFocusDirective],
   template: `
     @if (messagesValue().length) {
-      <section #summary class="tch-form-error-summary" role="alert" tabindex="-1">
+      <section
+        class="tch-form-error-summary"
+        role="alert"
+        tabindex="-1"
+        tchFeedbackFocus
+        [tchFeedbackFocusKey]="messagesValue()"
+      >
         <h2>{{ titleValue() | translate }}</h2>
         <ul>
           @for (message of messagesValue(); track message) {
@@ -51,23 +51,12 @@ import { TranslatePipe } from '@ngx-translate/core';
     ul { padding-inline-start: 1.25rem; }
   `],
 })
-export class TchFormErrorSummary implements AfterViewInit {
+export class TchFormErrorSummary {
   protected readonly titleValue = signal('common.errors.categories.validation.title');
   protected readonly messagesValue = signal<readonly string[]>([]);
 
   @Input() set title(value: string) { this.titleValue.set(value); }
   @Input() set messages(value: readonly string[] | null | undefined) {
     this.messagesValue.set(value ?? []);
-    if (value?.length) {
-      queueMicrotask(() => this.summary?.nativeElement.focus());
-    }
-  }
-
-  @ViewChild('summary') private readonly summary?: ElementRef<HTMLElement>;
-
-  ngAfterViewInit(): void {
-    if (this.messagesValue().length) {
-      queueMicrotask(() => this.summary?.nativeElement.focus());
-    }
   }
 }

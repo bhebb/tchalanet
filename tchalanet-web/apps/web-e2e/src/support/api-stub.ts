@@ -631,6 +631,85 @@ export class ApiStub {
         },
       ]))),
     );
+
+    await this.adminBusinessProfile();
+  }
+
+  /** Deterministic business-profile data and successful mutations. */
+  async adminBusinessProfile(): Promise<void> {
+    if (!this.enabled) return;
+
+    await this.page.route(/\/admin\/commission\/overview(?:\?|$)/, r =>
+      json(r, envelope({ tenantDefaultRate: 10 })),
+    );
+    await this.page.route(/\/admin\/commission\/default-rate(?:\?|$)/, r =>
+      r.request().method() === 'PUT' ? json(r, envelope(null)) : unexpectedApiCall(r),
+    );
+    await this.page.route(/\/admin\/tenant\/address(?:\?|$)/, r =>
+      r.request().method() === 'PUT' ? json(r, envelope(null)) : unexpectedApiCall(r),
+    );
+  }
+
+  /** Inject a targeted commission validation violation for the profile form. */
+  async adminBusinessProfileCommissionFieldError(): Promise<void> {
+    if (!this.enabled) return;
+
+    await this.page.route(/\/admin\/commission\/default-rate(?:\?|$)/, r =>
+      json(
+        r,
+        {
+          ...problemDetail('validation.failed', 'req-commission-422'),
+          status: 422,
+          violations: [
+            {
+              code: 'validation.out_of_range',
+              field: 'rate',
+              target: 'commission.rate',
+              message: 'backend commission diagnostic must not reach the UI',
+            },
+          ],
+        },
+        422,
+      ),
+    );
+  }
+
+  /** Inject a blocking section/form error for the tenant address mutation. */
+  async adminBusinessProfileAddressError(): Promise<void> {
+    if (!this.enabled) return;
+
+    await this.page.route(/\/admin\/tenant\/address(?:\?|$)/, r =>
+      json(r, problemDetail('tenantadmin.overview.address_unavailable', 'req-address-503'), 503),
+    );
+  }
+
+  /** Return targeted business notices without blocking the setup checklist. */
+  async adminSetupBusinessNotices(): Promise<void> {
+    if (!this.enabled) return;
+
+    await this.page.route(/\/admin\/overview(?:\?|$)/, r =>
+      json(r, {
+        ...envelope(adminOverviewStub),
+        status: 'SUCCESS_WITH_WARNINGS',
+        notices: [
+          {
+            code: 'admin.setup.theme.info',
+            message: 'backend informational diagnostic must not reach the UI',
+            severity: 'INFO',
+            kind: 'INFORMATION',
+            target: 'admin.setup.theme',
+            meta: { category: 'business_rule', surface: 'section' },
+          },
+          {
+            code: 'admin.setup.commission.warning',
+            message: 'backend warning diagnostic must not reach the UI',
+            severity: 'WARN',
+            kind: 'BUSINESS',
+            target: 'admin.setup.commission',
+          },
+        ],
+      }),
+    );
   }
 
   /** Deterministic POS data used by the mobile sale-flow browser test. */

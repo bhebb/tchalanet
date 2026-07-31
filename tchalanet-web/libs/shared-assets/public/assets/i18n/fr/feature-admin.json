@@ -1398,7 +1398,8 @@
         "eyebrow": "Identité"
       },
       "commercial": {
-        "description": "Paramètres commerciaux utilisés pour les ventes et commissions."
+        "description": "Paramètres commerciaux utilisés pour les ventes et commissions.",
+        "saved": "Paramètres commerciaux enregistrés."
       },
       "error": {
         "load": "Impossible de charger le profil entreprise.",

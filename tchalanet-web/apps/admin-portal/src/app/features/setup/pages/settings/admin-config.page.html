@@ -106,9 +106,9 @@
                 </div>
 
                 @if (saveReceipt.feedback(); as feedback) { @if (feedback.kind === 'error') {
-                <tch-notice type="error">{{ feedback.vm?.message }}</tch-notice>
+                <tch-notice type="error" [focusOnRender]="true">{{ feedback.vm?.message }}</tch-notice>
                 } @else {
-                <tch-notice type="success">
+                <tch-notice type="success" [focusOnRender]="true">
                   {{ 'admin.settings.config.receipt.saved' | translate }}
                 </tch-notice>
                 } }
@@ -237,9 +237,9 @@
                 </section>
 
                 @if (saveCommunication.feedback(); as feedback) { @if (feedback.kind === 'error') {
-                <tch-notice type="error">{{ feedback.vm?.message }}</tch-notice>
+                <tch-notice type="error" [focusOnRender]="true">{{ feedback.vm?.message }}</tch-notice>
                 } @else {
-                <tch-notice type="success">
+                <tch-notice type="success" [focusOnRender]="true">
                   {{ 'admin.settings.config.communication.saved' | translate }}
                 </tch-notice>
                 } }
@@ -371,9 +371,9 @@
                 </tch-notice>
 
                 @if (saveCalendar.feedback(); as feedback) { @if (feedback.kind === 'error') {
-                <tch-notice type="error">{{ feedback.vm?.message }}</tch-notice>
+                <tch-notice type="error" [focusOnRender]="true">{{ feedback.vm?.message }}</tch-notice>
                 } @else {
-                <tch-notice type="success">
+                <tch-notice type="success" [focusOnRender]="true">
                   {{ 'admin.settings.config.calendar.saved' | translate }}
                 </tch-notice>
                 } }
@@ -446,9 +446,9 @@
                 </tch-notice>
 
                 @if (saveLocale.feedback(); as feedback) { @if (feedback.kind === 'error') {
-                <tch-notice type="error">{{ feedback.vm?.message }}</tch-notice>
+                <tch-notice type="error" [focusOnRender]="true">{{ feedback.vm?.message }}</tch-notice>
                 } @else {
-                <tch-notice type="success">
+                <tch-notice type="success" [focusOnRender]="true">
                   {{ 'admin.settings.config.locale.saved' | translate }}
                 </tch-notice>
                 } }

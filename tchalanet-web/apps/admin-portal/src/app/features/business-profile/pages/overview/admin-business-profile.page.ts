@@ -2,12 +2,10 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
-  ElementRef,
   OnInit,
   computed,
   inject,
   signal,
-  viewChild,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { form, maxLength, required, submit } from '@angular/forms/signals';
@@ -112,7 +110,6 @@ export class AdminBusinessProfilePage implements OnInit {
   private readonly commercialConfigApi = inject(TenantCommercialConfigApiService);
   private readonly fb = inject(FormBuilder);
   private readonly translate = inject(TranslateService);
-  private readonly pageTop = viewChild<ElementRef<HTMLElement>>('pageTop');
   private readonly destroyRef = inject(DestroyRef);
 
   readonly pageState = signal<PageState>('loading');
@@ -223,7 +220,11 @@ export class AdminBusinessProfilePage implements OnInit {
     this.load();
   }
 
-  load(options: { readonly focusTop?: boolean; readonly resetFormFeedback?: boolean } = {}): void {
+  load(
+    options: {
+      readonly resetFormFeedback?: boolean;
+    } = {},
+  ): void {
     this.pageState.set('loading');
     this.pageError.set(null);
     this.sectionErrors.set([]);
@@ -242,9 +243,6 @@ export class AdminBusinessProfilePage implements OnInit {
         this.overview.set(data);
         this.pageState.set('ready');
         this.prefillForms(data.header);
-        if (options.focusTop) {
-          this.focusPageTop();
-        }
       },
       error: (err: unknown) => {
         this.pageError.set(this.errorViewModel(err, 'admin.businessProfile.overview', 'page'));
@@ -310,7 +308,7 @@ export class AdminBusinessProfilePage implements OnInit {
         next: () => {
           this.identityFormState.set('success');
           this.showIdentityForm.set(false);
-          this.load({ focusTop: true, resetFormFeedback: false });
+          this.load({ resetFormFeedback: false });
         },
         error: (err: unknown) => {
           this.handleIdentitySubmitError(err);
@@ -369,7 +367,7 @@ export class AdminBusinessProfilePage implements OnInit {
         next: () => {
           this.regionFormState.set('success');
           this.showRegionForm.set(false);
-          this.load({ focusTop: true, resetFormFeedback: false });
+          this.load({ resetFormFeedback: false });
         },
         error: (err: unknown) => {
           this.handleRegionSubmitError(err);
@@ -418,7 +416,6 @@ export class AdminBusinessProfilePage implements OnInit {
           this.commissionFormState.set('success');
           this.showCommissionForm.set(false);
           this.commissionRate.set(rate);
-          this.focusPageTop();
         },
         error: (err: unknown) => {
           this.handleCommissionSubmitError(err);
@@ -469,7 +466,7 @@ export class AdminBusinessProfilePage implements OnInit {
           next: () => {
             this.addressFormState.set('success');
             this.showAddressForm.set(false);
-            this.load({ focusTop: true, resetFormFeedback: false });
+            this.load({ resetFormFeedback: false });
           },
           error: (err: unknown) => {
             this.handleAddressSubmitError(err);
@@ -674,18 +671,4 @@ export class AdminBusinessProfilePage implements OnInit {
     this.sectionErrors.update(errors => errors.filter(item => item.target !== target));
   }
 
-  private focusPageTop(): void {
-    const schedule =
-      globalThis.requestAnimationFrame ??
-      ((callback: FrameRequestCallback) => {
-        globalThis.setTimeout(callback, 0);
-        return 0;
-      });
-
-    schedule(() => {
-      const top = this.pageTop()?.nativeElement;
-      top?.scrollIntoView({ block: 'start', behavior: 'smooth' });
-      top?.focus({ preventScroll: true });
-    });
-  }
 }

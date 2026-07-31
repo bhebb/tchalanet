@@ -1,13 +1,23 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
+import { TchFeedbackFocusDirective } from '../feedback-focus/feedback-focus.directive';
+
 export type NoticeType = 'info' | 'success' | 'warning' | 'error';
 
 @Component({
   selector: 'tch-notice',
   standalone: true,
+  imports: [TchFeedbackFocusDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="notice" [attr.data-type]="type()">
+    <div
+      class="notice"
+      [attr.data-type]="type()"
+      [attr.role]="type() === 'error' ? 'alert' : 'status'"
+      [attr.aria-live]="type() === 'error' ? 'assertive' : 'polite'"
+      [tchFeedbackFocus]="focusOnRender()"
+      [tchFeedbackFocusKey]="focusOnRender()"
+    >
       <ng-content />
     </div>
   `,
@@ -46,4 +56,5 @@ export type NoticeType = 'info' | 'success' | 'warning' | 'error';
 })
 export class TchNotice {
   readonly type = input<NoticeType>('info');
+  readonly focusOnRender = input(false);
 }

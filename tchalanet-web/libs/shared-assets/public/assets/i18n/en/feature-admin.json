@@ -1192,7 +1192,8 @@
         "address": "Address"
       },
       "commercial": {
-        "description": "Applied to seller-terminals that don't have a specific rate."
+        "description": "Applied to seller-terminals that don't have a specific rate.",
+        "saved": "Commercial settings saved successfully."
       },
       "field": {
         "name": "Name",
