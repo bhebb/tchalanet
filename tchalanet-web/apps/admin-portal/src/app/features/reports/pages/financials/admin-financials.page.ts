@@ -156,9 +156,14 @@ export class AdminFinancialsPage {
     return this.sellerTerminalLabels().get(sellerTerminalId) ?? this.shortId(sellerTerminalId);
   }
 
+  /**
+   * A draw resulted without a sale has no game, so the backend now sends null rather than the
+   * literal "UNKNOWN". Show the channel alone instead of inventing a game name for it.
+   */
   drawLabel(row: DrawFinancialRow | SellerTerminalDrawFinancialRow): string {
-    const channel = row.drawChannelCode ? `${row.drawChannelCode} · ` : '';
-    return `${channel}${consoleGameName(row.gameCode)}`;
+    const channel = row.drawChannelCode?.trim();
+    const game = row.gameCode ? consoleGameName(row.gameCode) : null;
+    return [channel, game].filter(Boolean).join(' · ') || '—';
   }
 
   private errorViewModel(err: unknown): ErrorViewModel {

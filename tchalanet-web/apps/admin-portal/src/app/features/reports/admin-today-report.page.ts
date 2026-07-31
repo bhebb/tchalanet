@@ -134,6 +134,9 @@ export class AdminTodayReportPage {
   private linesByGame(rows: readonly DrawFinancialRow[]): readonly SalesReportLine[] {
     const byGame = new Map<string, SalesReportLine>();
     for (const row of rows) {
+      // A draw resulted without a sale carries no game and only zeroes; it used to land in an
+      // "UNKNOWN" bucket that was the only row this report ever showed.
+      if (!row.gameCode) continue;
       const current = byGame.get(row.gameCode) ?? {
         gameCode: row.gameCode,
         ticketsSold: 0,

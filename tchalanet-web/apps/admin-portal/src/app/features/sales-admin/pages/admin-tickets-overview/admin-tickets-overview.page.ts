@@ -131,8 +131,9 @@ export class AdminTicketsOverviewPage {
     return ticketStatusLabelKey(status);
   }
 
-  private drawLabel(channel: string | null, game: string): string {
-    return [channel, game].filter(Boolean).join(' · ') || game || 'Tirage';
+  /** `game` is null for a draw resulted without a sale — show the channel alone. */
+  private drawLabel(channel: string | null, game: string | null): string {
+    return [channel, game].filter(Boolean).join(' · ') || 'Tirage';
   }
 
   private shortId(id: string): string {
