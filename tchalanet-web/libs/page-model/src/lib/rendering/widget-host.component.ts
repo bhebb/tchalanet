@@ -119,6 +119,8 @@ export class WidgetHostComponent {
   readonly config = input<WidgetConfig>();
   readonly dynamic = input<unknown>();
   readonly errors = input<readonly WidgetDynamicError[]>([]);
+  /** Page-level opt-out: render nothing instead of an error block. See PageModelComponent. */
+  readonly hideErrors = input(false);
   readonly retry = output<string>();
 
   private readonly outlet = viewChild('outlet', { read: ViewContainerRef });
@@ -146,7 +148,9 @@ export class WidgetHostComponent {
   readonly renderFailed = signal(false);
   readonly errorSeverity = computed(() => this.localError()?.severity ?? 'error');
   readonly hidden = computed(
-    () => this.state().kind === 'error' && !!this.config()?.props?.['hideOnError'],
+    () =>
+      this.state().kind === 'error' &&
+      (this.hideErrors() || !!this.config()?.props?.['hideOnError']),
   );
   private ref: ComponentRef<unknown> | null = null;
 

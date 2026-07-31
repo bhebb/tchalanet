@@ -21,11 +21,13 @@ describe('WidgetHostComponent', () => {
     widgetId: string;
     config?: WidgetConfig;
     errors?: readonly WidgetDynamicError[];
+    hideErrors?: boolean;
   }) {
     const fixture = TestBed.createComponent(WidgetHostComponent);
     fixture.componentRef.setInput('widgetId', inputs.widgetId);
     fixture.componentRef.setInput('config', inputs.config);
     fixture.componentRef.setInput('errors', inputs.errors ?? []);
+    fixture.componentRef.setInput('hideErrors', inputs.hideErrors ?? false);
     return fixture.componentInstance;
   }
 
@@ -51,6 +53,39 @@ describe('WidgetHostComponent', () => {
       errors: [{ widgetId: 'home.news', code: 'BOOM' }],
     });
     expect(cmp.state().kind).toBe('error');
+  });
+
+  it('shows the error block by default so ops surfaces keep their diagnostic', () => {
+    const cmp = host({
+      widgetId: 'home.news',
+      config: { type: 'NewsTickerWidget' },
+      errors: [{ widgetId: 'home.news', code: 'BOOM' }],
+    });
+    expect(cmp.hidden()).toBe(false);
+  });
+
+  it('hides the error block when the page opts out', () => {
+    const cmp = host({
+      widgetId: 'home.news',
+      config: { type: 'NewsTickerWidget' },
+      errors: [{ widgetId: 'home.news', code: 'BOOM' }],
+      hideErrors: true,
+    });
+    expect(cmp.hidden()).toBe(true);
+  });
+
+  it('hides the error block when the widget itself opts out', () => {
+    const cmp = host({
+      widgetId: 'home.news',
+      config: { type: 'NewsTickerWidget', props: { hideOnError: true } },
+      errors: [{ widgetId: 'home.news', code: 'BOOM' }],
+    });
+    expect(cmp.hidden()).toBe(true);
+  });
+
+  it('never hides a healthy widget', () => {
+    const cmp = host({ widgetId: 'home.hero', config: { type: 'HeroWidget' }, hideErrors: true });
+    expect(cmp.hidden()).toBe(false);
   });
 
   it('emits the owning widget id when a local retry is requested', () => {

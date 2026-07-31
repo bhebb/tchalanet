@@ -14,6 +14,7 @@ import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { AdminPageShellComponent } from '@tch/ui/console';
 import { AdminDetailLayoutComponent } from '@tch/ui/console';
+import { TchIdentityCardComponent, TchIdentityCardMeta } from '@tch/ui/console';
 import { AdminSectionCardComponent } from '@tch/ui/console';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
 import { AdminSectionErrorTargetDirective, AdminSectionTargetError } from '@tch/ui/console';
@@ -44,6 +45,7 @@ export function adminCommissionErrorView(
     LowerCasePipe,
     AdminPageShellComponent,
     AdminDetailLayoutComponent,
+    TchIdentityCardComponent,
     AdminSectionCardComponent,
     AdminSectionErrorTargetDirective,
     AdminEmptyStateComponent,
@@ -78,6 +80,28 @@ export class AdminCommissionPage implements OnInit {
 
   ngOnInit(): void {
     this.load();
+  }
+
+  /** The headline is the default rate itself; the rest reads as supporting facts. */
+  overviewMeta(overview: CommissionOverviewView): readonly TchIdentityCardMeta[] {
+    return [
+      {
+        label: this.translate.instant('admin.commission.field.totalSellers'),
+        value: String(overview.totalSellerTerminals),
+      },
+      {
+        label: this.translate.instant('admin.commission.field.atDefaultRate'),
+        value: String(overview.countAtDefaultRate),
+      },
+      {
+        label: this.translate.instant('admin.commission.field.customRate'),
+        value: String(overview.countWithCustomRate),
+      },
+      {
+        label: this.translate.instant('admin.commission.field.range'),
+        value: `${overview.minRate}% / ${overview.maxRate}%`,
+      },
+    ];
   }
 
   load(): void {
