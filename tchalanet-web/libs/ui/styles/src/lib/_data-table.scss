@@ -45,12 +45,6 @@
     background: var(--tch-color-surface-container-low);
   }
 
-  &__num {
-    text-align: end;
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
-  }
-
   &__primary {
     display: block;
     font-weight: 700;
@@ -64,6 +58,16 @@
     font-size: var(--tch-font-size-label-sm, 0.75rem);
     overflow-wrap: anywhere;
   }
+}
+
+// `.tch-data-table th` is (0,1,1) and would otherwise beat a bare `.tch-data-table__num` (0,1,0),
+// leaving numeric headers aligned left above right-aligned values. Qualifying by element puts
+// these at (0,2,0), which wins for both cells.
+th.tch-data-table__num,
+td.tch-data-table__num {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 @include bp.down(expanded) {
@@ -114,6 +118,12 @@
       text-transform: uppercase;
     }
 
+    // In card mode the value sits beside its label, so right-alignment would strand it.
+    th.tch-data-table__num,
+    td.tch-data-table__num {
+      text-align: start;
+    }
+
     // The identifying cell leads the card, so it keeps the full width and needs no label.
     td:first-child {
       display: block;
@@ -123,10 +133,6 @@
       &::before {
         content: none;
       }
-    }
-
-    &__num {
-      text-align: start;
     }
   }
 }

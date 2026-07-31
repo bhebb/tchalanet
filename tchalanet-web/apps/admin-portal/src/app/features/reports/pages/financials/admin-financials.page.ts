@@ -14,7 +14,7 @@ import { catchError, map, of, startWith, switchMap } from 'rxjs';
 import { mapHttpErrorToProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 import { AdminEmptyState, TchErrorPanel, TchLoading } from '@tch/ui/components';
 import { AdminMetricCardComponent, AdminPageShellComponent } from '@tch/ui/console';
-import { consoleGameName } from '@tch/web/console';
+import { consoleDrawChannelIdentity, consoleGameName } from '@tch/web/console';
 import { ErrorViewModel, resolveErrorFeedbackCopy, toErrorViewModel } from '@tch/web/errors';
 
 import {
@@ -163,8 +163,15 @@ export class AdminFinancialsPage {
    * A draw resulted without a sale has no game, so the backend now sends null rather than the
    * literal "UNKNOWN". Show the channel alone instead of inventing a game name for it.
    */
+  /**
+   * The backend sends the technical channel code (HT_OH_EVE). Run it through the same identity
+   * helper the rest of the console uses so the report reads "Ohio · OH-Soir" rather than a slug.
+   *
+   * A draw resulted without a sale has no game, so the game half is simply omitted.
+   */
   drawLabel(row: DrawFinancialRow | SellerTerminalDrawFinancialRow): string {
-    const channel = row.drawChannelCode?.trim();
+    const code = row.drawChannelCode?.trim();
+    const channel = code ? consoleDrawChannelIdentity({ code }).longLabel : null;
     const game = row.gameCode ? consoleGameName(row.gameCode) : null;
     return [channel, game].filter(Boolean).join(' · ') || '—';
   }
