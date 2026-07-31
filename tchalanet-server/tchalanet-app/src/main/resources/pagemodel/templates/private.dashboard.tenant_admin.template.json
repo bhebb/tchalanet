@@ -51,6 +51,16 @@
             ]
           },
           {
+            "id": "quickActions",
+            "labelKey": "layout.dashboard.tenant_admin.quick_actions",
+            "columns": [
+              {
+                "span": 12,
+                "widgets": ["dashboard.tenantAdmin.quickActions"]
+              }
+            ]
+          },
+          {
             "id": "salesInsights",
             "labelKey": "layout.dashboard.tenant_admin.sales_insights",
             "columns": [
@@ -71,16 +81,6 @@
               {
                 "span": 12,
                 "widgets": ["dashboard.tenantAdmin.commission"]
-              }
-            ]
-          },
-          {
-            "id": "quickActions",
-            "labelKey": "layout.dashboard.tenant_admin.quick_actions",
-            "columns": [
-              {
-                "span": 12,
-                "widgets": ["dashboard.tenantAdmin.quickActions"]
               }
             ]
           }
@@ -120,7 +120,7 @@
                 "labelKey": "admin.kpi.active_seller_terminals.label",
                 "icon": "point_of_sale",
                 "tone": "success",
-                "route": "/app/admin/sellers?status=active"
+                "route": "/app/admin/seller-terminals?status=ACTIVE"
               },
               {
                 "id": "openDraws",
@@ -197,7 +197,7 @@
                 "id": "activeSellerTerminals",
                 "labelKey": "quickaction.admin.active_seller_terminals",
                 "icon": "point_of_sale",
-                "destination": { "kind": "route", "value": "/app/admin/sellers?status=active" }
+                "destination": { "kind": "route", "value": "/app/admin/seller-terminals?status=ACTIVE" }
               },
               {
                 "id": "dailyReport",
