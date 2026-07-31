@@ -40,30 +40,51 @@
 
         <ng-container *tchAsyncReady>
           <table mat-table [dataSource]="rows()">
+            <ng-container matColumnDef="tenantId">
+              <th mat-header-cell *matHeaderCellDef>
+                {{ 'platform.pageEngine.column.tenantId' | translate }}
+              </th>
+              <td mat-cell *matCellDef="let row"><code>{{ row.tenantId }}</code></td>
+            </ng-container>
             <ng-container matColumnDef="logicalId">
-              <th mat-header-cell *matHeaderCellDef>{{ 'platform.pageEngine.column.logicalId' | translate }}</th>
+              <th mat-header-cell *matHeaderCellDef>
+                {{ 'platform.pageEngine.column.logicalId' | translate }}
+              </th>
               <td mat-cell *matCellDef="let row"><code>{{ row.logicalId }}</code></td>
             </ng-container>
             <ng-container matColumnDef="scope">
-              <th mat-header-cell *matHeaderCellDef>{{ 'platform.pageEngine.column.scope' | translate }}</th>
+              <th mat-header-cell *matHeaderCellDef>
+                {{ 'platform.pageEngine.column.scope' | translate }}
+              </th>
               <td mat-cell *matCellDef="let row">{{ row.scope }}</td>
             </ng-container>
             <ng-container matColumnDef="slug">
-              <th mat-header-cell *matHeaderCellDef>{{ 'platform.pageEngine.column.slug' | translate }}</th>
+              <th mat-header-cell *matHeaderCellDef>
+                {{ 'platform.pageEngine.column.slug' | translate }}
+              </th>
               <td mat-cell *matCellDef="let row">{{ row.slug }}</td>
             </ng-container>
             <ng-container matColumnDef="status">
-              <th mat-header-cell *matHeaderCellDef>{{ 'platform.pageEngine.column.status' | translate }}</th>
+              <th mat-header-cell *matHeaderCellDef>
+                {{ 'platform.pageEngine.column.status' | translate }}
+              </th>
               <td mat-cell *matCellDef="let row">
-                <tch-admin-status-pill [tone]="statusTone(row.status)" [label]="statusLabel(row.status)" />
+                <tch-admin-status-pill
+                  [tone]="statusTone(row.status)"
+                  [label]="statusLabel(row.status)"
+                />
               </td>
             </ng-container>
             <ng-container matColumnDef="schemaVersion">
-              <th mat-header-cell *matHeaderCellDef>{{ 'platform.pageEngine.column.schemaVersion' | translate }}</th>
+              <th mat-header-cell *matHeaderCellDef>
+                {{ 'platform.pageEngine.column.schemaVersion' | translate }}
+              </th>
               <td mat-cell *matCellDef="let row">{{ row.schemaVersion }}</td>
             </ng-container>
             <ng-container matColumnDef="updatedAt">
-              <th mat-header-cell *matHeaderCellDef>{{ 'platform.pageEngine.column.updatedAt' | translate }}</th>
+              <th mat-header-cell *matHeaderCellDef>
+                {{ 'platform.pageEngine.column.updatedAt' | translate }}
+              </th>
               <td mat-cell *matCellDef="let row">{{ row.updatedAt | date:'short' }}</td>
             </ng-container>
             <tr mat-header-row *matHeaderRowDef="columns"></tr>
@@ -79,16 +100,25 @@
       </tch-async-view>
 
       <div footer>
-        <span>{{ page()?.totalElements ?? rows().length }} {{ 'platform.pageEngine.footer.count' | translate }}</span>
+        <span
+          >{{ page()?.totalElements ?? rows().length }} {{ 'platform.pageEngine.footer.count' |
+          translate }}</span
+        >
       </div>
     </tch-admin-crud-shell>
 
     <tch-admin-crud-shell>
       <div toolbar>
         <div class="page-engine__detail-toolbar">
-          <strong>{{ selectedDetail()?.logicalId ?? ('platform.pageEngine.detail.emptyTitle' | translate) }}</strong>
+          <strong
+            >{{ selectedDetail()?.logicalId ?? ('platform.pageEngine.detail.emptyTitle' | translate)
+            }}</strong
+          >
           @if (selectedDetail(); as detail) {
-            <tch-admin-status-pill [tone]="statusTone(detail.status)" [label]="statusLabel(detail.status)" />
+          <tch-admin-status-pill
+            [tone]="statusTone(detail.status)"
+            [label]="statusLabel(detail.status)"
+          />
           }
         </div>
       </div>
@@ -110,31 +140,49 @@
 
         <ng-container *tchAsyncReady>
           @if (selectedDetail(); as detail) {
-            <div class="page-engine__meta">
-              <span>{{ 'platform.pageEngine.column.scope' | translate }}: <code>{{ detail.scope }}</code></span>
-              <span>{{ 'platform.pageEngine.column.slug' | translate }}: <code>{{ detail.slug }}</code></span>
-              <span>{{ 'platform.pageEngine.column.schemaVersion' | translate }}: {{ detail.schemaVersion }}</span>
-            </div>
+          <div class="page-engine__meta">
+            <span
+              >{{ 'platform.pageEngine.column.scope' | translate }}:
+              <code>{{ detail.scope }}</code></span
+            >
+            <span
+              >{{ 'platform.pageEngine.column.slug' | translate }}:
+              <code>{{ detail.slug }}</code></span
+            >
+            <span
+              >{{ 'platform.pageEngine.column.tenantId' | translate }}:
+              <code>{{ detail.tenantId }}</code></span
+            >
+            <span
+              >{{ 'platform.pageEngine.column.schemaVersion' | translate }}: {{ detail.schemaVersion
+              }}</span
+            >
+          </div>
 
-            <mat-form-field appearance="outline" class="page-engine__json-field">
-              <mat-label>{{ 'platform.pageEngine.field.json' | translate }}</mat-label>
-              <textarea
-                matInput
-                rows="24"
-                [ngModel]="jsonText()"
-                (ngModelChange)="jsonText.set($event)"
-                spellcheck="false"
-              ></textarea>
-              @if (jsonError(); as message) {
-                <mat-error>{{ message }}</mat-error>
-              }
-            </mat-form-field>
+          <mat-form-field appearance="outline" class="page-engine__json-field">
+            <mat-label>{{ 'platform.pageEngine.field.json' | translate }}</mat-label>
+            <textarea
+              matInput
+              rows="24"
+              [ngModel]="jsonText()"
+              (ngModelChange)="jsonText.set($event)"
+              spellcheck="false"
+            ></textarea>
+            @if (jsonError(); as message) {
+            <mat-error>{{ message }}</mat-error>
+            }
+          </mat-form-field>
           }
         </ng-container>
       </tch-async-view>
 
       <div footer>
-        <button mat-flat-button color="primary" [disabled]="busy() || !selectedDetail()" (click)="saveJson()">
+        <button
+          mat-flat-button
+          color="primary"
+          [disabled]="busy() || !selectedDetail()"
+          (click)="saveJson()"
+        >
           <span class="material-symbols-outlined">save</span>
           {{ 'platform.pageEngine.action.save' | translate }}
         </button>

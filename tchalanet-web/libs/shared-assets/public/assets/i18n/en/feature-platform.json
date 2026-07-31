@@ -908,6 +908,7 @@
         "emptyMessage": "Select a row to view and edit its JSON."
       },
       "column": {
+        "tenantId": "Tenant ID",
         "logicalId": "Logical ID",
         "scope": "Scope",
         "slug": "Slug",
@@ -927,6 +928,7 @@
         "ARCHIVED": "Archived"
       },
       "prompt": {
+        "tenantId": "Tenant ID",
         "logicalId": "Logical ID",
         "scope": "Scope",
         "slug": "Slug",

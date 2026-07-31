@@ -908,6 +908,7 @@
         "emptyMessage": "Chwazi yon liy pou wè ak modifye JSON li."
       },
       "column": {
+        "tenantId": "ID tenant la",
         "logicalId": "Logical ID",
         "scope": "Scope",
         "slug": "Slug",
@@ -927,6 +928,7 @@
         "ARCHIVED": "Achive"
       },
       "prompt": {
+        "tenantId": "ID tenant la",
         "logicalId": "Logical ID",
         "scope": "Scope",
         "slug": "Slug",

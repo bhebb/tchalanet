@@ -27,6 +27,7 @@ public class ListPageModelsQueryHandler
         inst ->
             new PageModelSummaryView(
                 inst.id(),
+                inst.tenantId().value(),
                 inst.logicalId(),
                 inst.scope(),
                 inst.slug(),

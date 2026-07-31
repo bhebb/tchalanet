@@ -15,6 +15,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.JsonNode;
 
@@ -64,7 +65,27 @@ public class PageModelPersistenceAdapter implements PageModelReaderPort, PageMod
       Optional<String> scope,
       Optional<String> logicalId,
       Pageable pageable) {
-    return repo.findAllByDeletedAtIsNull(pageable).map(PageModelMapper::toDomain);
+    Specification<PageModelJpaEntity> specification =
+        (root, query, criteriaBuilder) -> criteriaBuilder.isNull(root.get("deletedAt"));
+    if (tenantId.isPresent()) {
+      specification =
+          specification.and(
+              (root, query, criteriaBuilder) ->
+                  criteriaBuilder.equal(root.get("tenantId"), tenantId.get().value()));
+    }
+    if (scope.isPresent()) {
+      specification =
+          specification.and(
+              (root, query, criteriaBuilder) ->
+                  criteriaBuilder.equal(root.get("scope"), scope.get()));
+    }
+    if (logicalId.isPresent()) {
+      specification =
+          specification.and(
+              (root, query, criteriaBuilder) ->
+                  criteriaBuilder.equal(root.get("logicalId"), logicalId.get()));
+    }
+    return repo.findAll(specification, pageable).map(PageModelMapper::toDomain);
   }
 
   @Override
