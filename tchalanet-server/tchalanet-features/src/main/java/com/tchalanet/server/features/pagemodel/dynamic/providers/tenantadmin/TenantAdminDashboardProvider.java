@@ -6,6 +6,7 @@ import com.tchalanet.server.core.pagemodel.api.dynamic.PageModelDynamicProvider;
 import com.tchalanet.server.core.pagemodel.api.dynamic.PageModelDynamicProviderException;
 import com.tchalanet.server.core.pagemodel.api.dynamic.PageModelResolutionContext;
 import com.tchalanet.server.core.pagemodel.api.model.PageModelDoc;
+import com.tchalanet.server.features.pagemodel.dashboard.DashboardPeriod;
 import com.tchalanet.server.features.pagemodel.security.PageModelAllowedRoles;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -15,11 +16,8 @@ import org.springframework.stereotype.Component;
  * the bundled payload once per request via {@link PageModelResolutionContext} and dispatches the
  * relevant slice by widgetId.
  *
- * <p>Supported widget ids: - dashboard.tenantAdmin.header - dashboard.tenantAdmin.kpis -
- * dashboard.tenantAdmin.salesTrend - dashboard.tenantAdmin.gameBreakdown -
- * dashboard.tenantAdmin.operations - dashboard.tenantAdmin.commercial -
- * dashboard.tenantAdmin.commission - dashboard.tenantAdmin.publicContent -
- * dashboard.tenantAdmin.quickActions
+ * <p>Supported widget ids include the dashboard slices and the legacy operational fragments used by
+ * older persisted PageModels.
  */
 @Component
 @RequiredArgsConstructor
@@ -46,11 +44,19 @@ public class TenantAdminDashboardProvider implements PageModelDynamicProvider {
       PageModelResolutionContext resolutionContext) {
 
     TenantAdminDashboardPayloadAssembler.Payload payload =
-        resolutionContext.getOrLoad(MEMO_KEY, () -> assembler.assemble(ctx));
+        resolutionContext.getOrLoad(
+            MEMO_KEY,
+            () ->
+                assembler.assemble(
+                    ctx,
+                    DashboardPeriod.parse(
+                        resolutionContext.attribute("dashboard.period", String.class)),
+                    integerAttribute(resolutionContext, "dashboard.performancePage")));
 
     return switch (widgetId == null ? "" : widgetId) {
       case "dashboard.tenantAdmin.header" -> payload.header();
-      case "dashboard.tenantAdmin.kpis" -> payload.kpis();
+      case "dashboard.tenantAdmin.kpis" -> payload.operationalKpis();
+      case "dashboard.tenantAdmin.terminalPerformance" -> payload.terminalPerformance();
       case "dashboard.tenantAdmin.salesTrend" -> payload.salesTrend();
       case "dashboard.tenantAdmin.gameBreakdown" -> payload.gameBreakdown();
       case "dashboard.tenantAdmin.operations" -> payload.operations();
@@ -68,5 +74,10 @@ public class TenantAdminDashboardProvider implements PageModelDynamicProvider {
   @Override
   public String providerKey() {
     return SOURCE;
+  }
+
+  private static int integerAttribute(PageModelResolutionContext context, String key) {
+    Integer value = context.attribute(key, Integer.class);
+    return value != null ? Math.max(0, value) : 0;
   }
 }

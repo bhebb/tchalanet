@@ -46,9 +46,28 @@
     <span class="kpi-card__label">{{ item.labelKey | tchLabel }}</span>
     @let val = resolvedValue(item);
     @if (val !== undefined) {
-      <span class="kpi-card__value">{{ val }}</span>
+      <span class="kpi-card__value">
+        @if (item.currencyCode) {
+          {{ val | currency: item.currencyCode : 'symbol' : '1.0-2' }}
+        } @else {
+          {{ val | number:'1.0-2' }}
+        }
+      </span>
     } @else {
       <span class="kpi-card__value kpi-card__value--placeholder">—</span>
+    }
+    @if (resolvedDelta(item); as delta) {
+      <span class="kpi-card__delta" [class.kpi-card__delta--negative]="delta < 0">
+        {{ delta > 0 ? '+' : '' }}
+        @if (item.currencyCode) {
+          {{ delta | currency: item.currencyCode : 'symbol' : '1.0-2' }}
+        } @else {
+          {{ delta | number:'1.0-2' }}
+        }
+      </span>
+    }
+    @if (resolvedDeltaPercent(item); as deltaPercent) {
+      <span class="kpi-card__delta-percent">{{ deltaPercent > 0 ? '+' : '' }}{{ deltaPercent | number:'1.0-1' }}%</span>
     }
   </div>
 </ng-template>

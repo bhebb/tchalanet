@@ -3,7 +3,7 @@
     "logicalId": "private.dashboard.fallback",
     "scope": "private",
     "slug": "dashboard",
-    "schemaVersion": 2,
+    "schemaVersion": 3,
     "currentLang": "ht",
     "supportedLangs": [
       {

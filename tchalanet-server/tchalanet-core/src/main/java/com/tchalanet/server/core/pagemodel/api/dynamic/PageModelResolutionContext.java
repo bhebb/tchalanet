@@ -12,6 +12,23 @@ import java.util.function.Supplier;
 public final class PageModelResolutionContext {
 
   private final Map<String, Object> memo = new ConcurrentHashMap<>();
+  private final Map<String, Object> requestAttributes;
+
+  public PageModelResolutionContext() {
+    this(Map.of());
+  }
+
+  public PageModelResolutionContext(Map<String, ?> requestAttributes) {
+    this.requestAttributes = new ConcurrentHashMap<>();
+    if (requestAttributes != null) {
+      this.requestAttributes.putAll(requestAttributes);
+    }
+  }
+
+  public <T> T attribute(String key, Class<T> type) {
+    Object value = requestAttributes.get(key);
+    return type.isInstance(value) ? type.cast(value) : null;
+  }
 
   @SuppressWarnings("unchecked")
   public <T> T getOrLoad(String key, Supplier<T> loader) {

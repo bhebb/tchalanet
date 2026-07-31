@@ -5,19 +5,19 @@
   "slug": "dashboard",
   "name": "Tenant admin dashboard",
   "label": "Tenant admin dashboard",
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "schema": {},
   "isDefault": true,
   "level": "GLOBAL",
   "tenantId": null,
-  "description": "Tenant admin dashboard V1: KPIs, sales insights and quick actions (dynamic binding, seller_terminal model).",
+  "description": "Tenant admin operational dashboard: profitability KPIs, POS performance, sales trend and quick actions.",
   "model": {
     "meta": {
       "id": "private.dashboard.tenant_admin",
       "scope": "private",
       "slug": "dashboard",
       "context": "private_dashboard_tenant_admin",
-      "schemaVersion": 2,
+      "schemaVersion": 3,
       "langs": ["fr", "en", "ht"],
       "defaultLang": "ht"
     },
@@ -41,107 +41,107 @@
         "component": "GridLayout",
         "rows": [
           {
+            "id": "period",
+            "labelKey": "layout.dashboard.tenant_admin.period",
+            "columns": [{ "span": 12, "widgets": ["dashboard.tenantAdmin.periodSelector"] }]
+          },
+          {
             "id": "kpis",
             "labelKey": "layout.dashboard.tenant_admin.kpis",
-            "columns": [
-              {
-                "span": 12,
-                "widgets": ["dashboard.tenantAdmin.kpis"]
-              }
-            ]
+            "columns": [{ "span": 12, "widgets": ["dashboard.tenantAdmin.kpis"] }]
+          },
+          {
+            "id": "performance",
+            "labelKey": "layout.dashboard.tenant_admin.performance",
+            "columns": [{ "span": 12, "widgets": ["dashboard.tenantAdmin.terminalPerformance"] }]
+          },
+          {
+            "id": "salesTrend",
+            "labelKey": "layout.dashboard.tenant_admin.sales_trend",
+            "columns": [{ "span": 12, "widgets": ["dashboard.tenantAdmin.salesTrend"] }]
           },
           {
             "id": "quickActions",
             "labelKey": "layout.dashboard.tenant_admin.quick_actions",
-            "columns": [
-              {
-                "span": 12,
-                "widgets": ["dashboard.tenantAdmin.quickActions"]
-              }
-            ]
-          },
-          {
-            "id": "salesInsights",
-            "labelKey": "layout.dashboard.tenant_admin.sales_insights",
-            "columns": [
-              {
-                "span": 7,
-                "widgets": ["dashboard.tenantAdmin.salesTrend"]
-              },
-              {
-                "span": 5,
-                "widgets": ["dashboard.tenantAdmin.gameBreakdown"]
-              }
-            ]
-          },
-          {
-            "id": "commission",
-            "labelKey": "layout.dashboard.tenant_admin.commission",
-            "columns": [
-              {
-                "span": 12,
-                "widgets": ["dashboard.tenantAdmin.commission"]
-              }
-            ]
+            "columns": [{ "span": 12, "widgets": ["dashboard.tenantAdmin.quickActions"] }]
           }
         ]
       },
       "widgets": {
+        "dashboard.tenantAdmin.periodSelector": {
+          "type": "PeriodSelectorWidget",
+          "props": {
+            "titleKey": "dashboard.tenant_admin.period.title",
+            "options": ["TODAY", "YESTERDAY", "THIS_WEEK", "LAST_WEEK"]
+          }
+        },
         "dashboard.tenantAdmin.kpis": {
           "type": "KpiGridWidget",
-          "binding": {
-            "mode": "dynamic",
-            "source": "tenant_admin_dashboard"
-          },
+          "binding": { "mode": "dynamic", "source": "tenant_admin_dashboard" },
           "props": {
             "titleKey": "dashboard.tenant_admin.kpis.title",
-            "feedbackTargets": [
-              "tenant_admin_dashboard.kpis",
-              "tenant_admin_dashboard.live_sales",
-              "tenant_admin_dashboard.open_draws"
-            ],
+            "feedbackTargets": ["tenant_admin_dashboard.kpis"],
             "items": [
               {
-                "id": "salesToday",
-                "labelKey": "admin.kpi.sales_today.label",
+                "id": "grossSales",
+                "labelKey": "admin.kpi.gross_sales.label",
                 "icon": "payments",
                 "tone": "accent",
-                "route": "/app/admin/reports/sales"
+                "route": "/app/admin/reports/sales",
+                "value": { "source": "dynamic", "path": "grossSales.value" },
+                "delta": { "source": "dynamic", "path": "grossSales.delta" },
+                "deltaPercent": { "source": "dynamic", "path": "grossSales.deltaPercent" },
+                "currencyCode": "HTG"
               },
               {
-                "id": "ticketCountToday",
-                "labelKey": "admin.kpi.tickets_sold.label",
-                "icon": "confirmation_number",
-                "tone": "neutral",
-                "route": "/app/admin/tickets"
+                "id": "sellerCommissionPayable",
+                "labelKey": "admin.kpi.seller_commission_payable.label",
+                "icon": "payments",
+                "tone": "warning",
+                "value": { "source": "dynamic", "path": "sellerCommissionPayable.value" },
+                "delta": { "source": "dynamic", "path": "sellerCommissionPayable.delta" },
+                "deltaPercent": { "source": "dynamic", "path": "sellerCommissionPayable.deltaPercent" },
+                "currencyCode": "HTG"
               },
               {
-                "id": "activeSellerTerminals",
-                "labelKey": "admin.kpi.active_seller_terminals.label",
+                "id": "estimatedNetRevenue",
+                "labelKey": "admin.kpi.estimated_net_revenue.label",
+                "icon": "account_balance",
+                "tone": "primary",
+                "value": { "source": "dynamic", "path": "estimatedNetRevenue.value" },
+                "delta": { "source": "dynamic", "path": "estimatedNetRevenue.delta" },
+                "deltaPercent": { "source": "dynamic", "path": "estimatedNetRevenue.deltaPercent" },
+                "currencyCode": "HTG"
+              },
+              {
+                "id": "availablePos",
+                "labelKey": "admin.kpi.available_pos.label",
                 "icon": "point_of_sale",
                 "tone": "success",
-                "route": "/app/admin/seller-terminals?status=ACTIVE"
-              },
-              {
-                "id": "openDraws",
-                "labelKey": "admin.kpi.open_draws.label",
-                "icon": "event_available",
-                "tone": "primary",
-                "route": "/app/admin/draws?status=OPEN"
+                "route": "/app/admin/seller-terminals?status=ACTIVE",
+                "value": { "source": "dynamic", "path": "availablePos.value" },
+                "delta": { "source": "dynamic", "path": "availablePos.delta" },
+                "deltaPercent": { "source": "dynamic", "path": "availablePos.deltaPercent" }
               }
             ]
           }
         },
+        "dashboard.tenantAdmin.terminalPerformance": {
+          "type": "TerminalPerformanceWidget",
+          "binding": { "mode": "dynamic", "source": "tenant_admin_dashboard" },
+          "props": {
+            "titleKey": "dashboard.tenant_admin.terminal_performance.title",
+            "emptyKey": "dashboard.tenant_admin.terminal_performance.empty",
+            "feedbackTargets": ["tenant_admin_dashboard.performance"]
+          }
+        },
         "dashboard.tenantAdmin.salesTrend": {
           "type": "TrendChartWidget",
-          "binding": {
-            "mode": "dynamic",
-            "source": "tenant_admin_dashboard"
-          },
+          "binding": { "mode": "dynamic", "source": "tenant_admin_dashboard" },
           "props": {
             "titleKey": "dashboard.tenant_admin.sales_trend.title",
             "emptyKey": "dashboard.tenant_admin.sales_trend.empty",
-            "hideOnError": true,
+            "hideOnError": false,
             "feedbackTargets": ["tenant_admin_dashboard.analytics"],
             "points": { "source": "dynamic", "path": "points" },
             "labelPath": "label",
@@ -149,41 +149,8 @@
             "valuePath": "grossSales"
           }
         },
-        "dashboard.tenantAdmin.gameBreakdown": {
-          "type": "BreakdownListWidget",
-          "binding": {
-            "mode": "dynamic",
-            "source": "tenant_admin_dashboard"
-          },
-          "props": {
-            "titleKey": "dashboard.tenant_admin.game_breakdown.title",
-            "emptyKey": "dashboard.tenant_admin.game_breakdown.empty",
-            "hideOnError": true,
-            "items": { "source": "dynamic", "path": "items" },
-            "labelPath": "label",
-            "valuePath": "grossSales",
-            "valueFormat": "currency",
-            "currencyCode": "HTG"
-          }
-        },
-        "dashboard.tenantAdmin.commission": {
-          "type": "CommissionSummaryWidget",
-          "binding": {
-            "mode": "dynamic",
-            "source": "tenant_admin_dashboard"
-          },
-          "props": {
-            "titleKey": "dashboard.tenant_admin.commission.title",
-            "feedbackTargets": ["tenant_admin_dashboard.commission"],
-            "manageLink": "/app/admin/controls/commission"
-          }
-        },
         "dashboard.tenantAdmin.quickActions": {
           "type": "QuickActionsWidget",
-          "binding": {
-            "mode": "dynamic",
-            "source": "tenant_admin_dashboard"
-          },
           "props": {
             "titleKey": "dashboard.tenant_admin.quick_actions.title",
             "actions": [

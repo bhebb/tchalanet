@@ -32,11 +32,19 @@ public class TenantPageModelController {
   @Operation(summary = "Resolve tenant page model by role (server-side resolution)")
   @GetMapping
   public ApiResponse<PageRuntimeResponse> tenantPageModel(
-      @RequestParam(name = "lang", required = false) String lang) {
+      @RequestParam(name = "lang", required = false) String lang,
+      @RequestParam(name = "period", required = false) String period,
+      @RequestParam(name = "performancePage", required = false, defaultValue = "0")
+          int performancePage) {
     var ctxHolder = contextResolver.currentOrThrow();
     var role = ctxHolder.currentRole();
     var type = typeResolver.forDashboard(role);
     return ApiResponse.success(
-        service.resolve(type.logicalId(), Optional.empty(), Optional.ofNullable(lang)));
+        service.resolve(
+            type.logicalId(),
+            Optional.empty(),
+            Optional.ofNullable(lang),
+            Optional.ofNullable(period),
+            performancePage));
   }
 }

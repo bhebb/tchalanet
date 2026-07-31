@@ -46,6 +46,15 @@ public class DashboardPageModelService {
 
   public PageRuntimeResponse resolve(
       String logicalId, Optional<TenantId> tenantIdOverride, Optional<String> langFromUrl) {
+    return resolve(logicalId, tenantIdOverride, langFromUrl, Optional.empty(), 0);
+  }
+
+  public PageRuntimeResponse resolve(
+      String logicalId,
+      Optional<TenantId> tenantIdOverride,
+      Optional<String> langFromUrl,
+      Optional<String> period,
+      int performancePage) {
     var ctxHolder = contextResolver.currentOrNull();
 
     if (ctxHolder == null) {
@@ -74,7 +83,14 @@ public class DashboardPageModelService {
     accessPolicy.assertCanAccess(logicalId, doc, ctxHolder);
 
     var currentLang = resolveLang(doc, langFromUrl);
-    var dynamic = dynamicResolver.resolve(doc, currentLang, ctxHolder);
+    var dynamic =
+        dynamicResolver.resolve(
+            doc,
+            currentLang,
+            ctxHolder,
+            Map.of(
+                "dashboard.period", period.orElse("TODAY"),
+                "dashboard.performancePage", Math.max(0, performancePage)));
 
     return withTenantSettings(logicalId, ctxHolder, runtimeAssembler.assemble(doc, dynamic));
   }

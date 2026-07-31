@@ -167,6 +167,18 @@ a.kpi-card {
   color: var(--tch-color-outline, var(--mat-sys-outline));
 }
 
+.kpi-card__delta,
+.kpi-card__delta-percent {
+  color: var(--tch-color-status-ready, var(--mat-sys-primary));
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.kpi-card__delta--negative {
+  color: var(--tch-color-status-blocked, var(--mat-sys-error));
+}
+
 @container (max-width: 25.999rem) {
   .kpi-card {
     min-height: 0;

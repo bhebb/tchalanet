@@ -1701,6 +1701,10 @@
       }
     },
     "kpi": {
+      "gross_sales": { "label": "Ventes brutes" },
+      "seller_commission_payable": { "label": "Commission à payer" },
+      "estimated_net_revenue": { "label": "Revenu net estimé" },
+      "available_pos": { "label": "POS disponibles" },
       "sales_today": {
         "label": "Ventes du jour"
       },
@@ -1816,6 +1820,9 @@
       }
     },
     "tenant_admin": {
+      "period": {
+        "title": "Période du dashboard"
+      },
       "commission": {
         "title": "Commission",
         "default_rate": "Taux par défaut du tenant",
@@ -1831,6 +1838,15 @@
       "sales_trend": {
         "title": "Tendance des ventes",
         "empty": "Aucune vente sur cette période."
+      },
+      "terminal_performance": {
+        "title": "Performance des vendeurs",
+        "empty": "Aucune vente de vendeur sur cette période.",
+        "terminal": "Vendeur",
+        "sales": "Ventes brutes",
+        "commission": "Commission",
+        "net": "Revenu net estimé",
+        "pagination": "Pagination"
       },
       "game_breakdown": {
         "title": "Ventes par jeu",
