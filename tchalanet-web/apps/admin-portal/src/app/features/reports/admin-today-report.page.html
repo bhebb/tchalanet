@@ -31,13 +31,6 @@
     />
   }
   @case ('ready') {
-    @if (vm.lines.length === 0) {
-      <tch-admin-empty-state
-        icon="bar_chart"
-        [title]="'admin.reports.today.emptyTitle' | translate"
-        [message]="'admin.reports.today.emptyMessage' | translate"
-      />
-    } @else {
       <div class="report-sections" data-report-export-root>
         <div class="summary-grid">
           <div class="stat-card">
@@ -58,44 +51,51 @@
           </div>
         </div>
 
-        <div class="table-card">
-          <table class="report-table">
-            <thead>
-              <tr>
-                <th>{{ 'admin.reports.today.column.game' | translate }}</th>
-                <th class="col-num">{{ 'admin.reports.today.column.tickets' | translate }}</th>
-                <th class="col-num">{{ 'admin.reports.today.column.sales' | translate }}</th>
-                <th class="col-num">{{ 'admin.reports.today.column.payouts' | translate }}</th>
-                <th class="col-num">{{ 'admin.reports.today.column.net' | translate }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (line of vm.lines; track line.gameCode) {
-                <tr class="report-row" [class.report-row--negative]="line.netRevenue < 0">
-                  <td class="report-row__game">{{ gameLabel(line.gameCode) }}</td>
-                  <td class="col-num">{{ line.ticketsSold | number }}</td>
-                  <td class="col-num">{{ line.totalSales | number:'1.2-2' }}</td>
-                  <td class="col-num">{{ line.totalPayout | number:'1.2-2' }}</td>
-                  <td class="col-num col-num--revenue" [class.negative]="line.netRevenue < 0">
-                    {{ line.netRevenue | number:'1.2-2' }}
+        @if (vm.lines.length === 0) {
+          <tch-admin-empty-state
+            icon="bar_chart"
+            [title]="'admin.reports.today.emptyTitle' | translate"
+            [message]="'admin.reports.today.emptyMessage' | translate"
+          />
+        } @else {
+          <div class="table-card">
+            <table class="report-table">
+              <thead>
+                <tr>
+                  <th>{{ 'admin.reports.today.column.game' | translate }}</th>
+                  <th class="col-num">{{ 'admin.reports.today.column.tickets' | translate }}</th>
+                  <th class="col-num">{{ 'admin.reports.today.column.sales' | translate }}</th>
+                  <th class="col-num">{{ 'admin.reports.today.column.payouts' | translate }}</th>
+                  <th class="col-num">{{ 'admin.reports.today.column.net' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (line of vm.lines; track line.gameCode) {
+                  <tr class="report-row" [class.report-row--negative]="line.netRevenue < 0">
+                    <td class="report-row__game">{{ gameLabel(line.gameCode) }}</td>
+                    <td class="col-num">{{ line.ticketsSold | number }}</td>
+                    <td class="col-num">{{ line.totalSales | number:'1.2-2' }}</td>
+                    <td class="col-num">{{ line.totalPayout | number:'1.2-2' }}</td>
+                    <td class="col-num col-num--revenue" [class.negative]="line.netRevenue < 0">
+                      {{ line.netRevenue | number:'1.2-2' }}
+                    </td>
+                  </tr>
+                }
+              </tbody>
+              <tfoot>
+                <tr class="report-total">
+                  <td>{{ 'admin.reports.sellers.totalRow' | translate }}</td>
+                  <td class="col-num">{{ vm.totals.ticketsSold | number }}</td>
+                  <td class="col-num">{{ vm.totals.totalSales | number:'1.2-2' }}</td>
+                  <td class="col-num">{{ vm.totals.totalPayout | number:'1.2-2' }}</td>
+                  <td class="col-num col-num--revenue" [class.negative]="vm.totals.netRevenue < 0">
+                    {{ vm.totals.netRevenue | number:'1.2-2' }}
                   </td>
                 </tr>
-              }
-            </tbody>
-            <tfoot>
-              <tr class="report-total">
-                <td>{{ 'admin.reports.sellers.totalRow' | translate }}</td>
-                <td class="col-num">{{ vm.totals.ticketsSold | number }}</td>
-                <td class="col-num">{{ vm.totals.totalSales | number:'1.2-2' }}</td>
-                <td class="col-num">{{ vm.totals.totalPayout | number:'1.2-2' }}</td>
-                <td class="col-num col-num--revenue" [class.negative]="vm.totals.netRevenue < 0">
-                  {{ vm.totals.netRevenue | number:'1.2-2' }}
-                </td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
+              </tfoot>
+            </table>
+          </div>
+        }
       </div>
-    }
   }
 }
