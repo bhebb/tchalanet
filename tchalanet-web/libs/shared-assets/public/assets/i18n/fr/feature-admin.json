@@ -485,6 +485,34 @@
       "title": "Vente ticket",
       "changeDraw": "Changer de tirage",
       "live": "Live",
+      "detail": {
+        "title": "Détail du ticket",
+        "description": "Consultez les informations de vente, de tirage et de lignes du ticket.",
+        "loading": "Chargement du ticket...",
+        "summary": { "aria": "Résumé du ticket", "eyebrow": "Résumé" },
+        "action": { "tickets": "Tickets", "verify": "Vérifier", "reprint": "Réimprimer" },
+        "section": { "sale": "Vente", "draw": "Tirage", "lines": "Lignes jouées", "charges": "Frais" },
+        "field": {
+          "issuedAt": "Émis le",
+          "status": "Statut",
+          "outlet": "Point de vente",
+          "cancelledAt": "Annulé le",
+          "channel": "Canal",
+          "dateTime": "Date et heure",
+          "waivedCharge": "Frais offert"
+        },
+        "meta": { "totalPaid": "Total payé", "freeLines": "Maryaj gratis", "seller": "Vendeur", "terminal": "Terminal" },
+        "error": {
+          "notFoundTitle": "Ticket introuvable",
+          "notFoundMessage": "Aucun identifiant de ticket n’a été fourni.",
+          "terminalNotFound": "Réimpression indisponible : le terminal vendeur {{terminalCode}} est introuvable.",
+          "reprintFailed": "Réimpression impossible pour ce ticket. Vérifiez le terminal vendeur ou réessayez."
+        },
+        "notice": {
+          "reprinting": "Réimpression en cours.",
+          "missingTerminal": "Réimpression indisponible : terminal vendeur non identifié."
+        }
+      },
       "draw": {
         "closesIn": "S'arrête dans {{time}}"
       },

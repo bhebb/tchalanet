@@ -2,11 +2,11 @@
   <div actions>
     <a mat-stroked-button routerLink="/app/admin/tickets">
       <mat-icon>arrow_back</mat-icon>
-      Tickets
+      {{ 'admin.pos.detail.action.tickets' | translate }}
     </a>
     <a mat-stroked-button routerLink="/app/admin/tickets/verify">
       <mat-icon>verified</mat-icon>
-      Vérifier
+      {{ 'admin.pos.detail.action.verify' | translate }}
     </a>
     @if (ticket(); as t) {
       <button
@@ -21,19 +21,19 @@
         } @else {
           <mat-icon>print</mat-icon>
         }
-        Réimprimer
+        {{ 'admin.pos.detail.action.reprint' | translate }}
       </button>
     }
   </div>
 
   @if (loading()) {
-    <tch-loading label="Chargement du ticket..." />
+    <tch-loading [label]="'admin.pos.detail.loading' | translate" />
   } @else if (error(); as pageError) {
     <tch-error-panel
       [title]="pageError.title"
       [message]="pageError.message"
       [showRetry]="true"
-      retryLabel="Réessayer"
+      [retryLabel]="'common.retry' | translate"
       (retry)="load()"
     />
   } @else if (ticket(); as t) {
@@ -50,75 +50,57 @@
     }
 
     <tch-admin-detail-layout>
-      <aside aside class="ticket-detail__summary" aria-label="Résumé du ticket">
-        <p class="ticket-detail__eyebrow">Résumé</p>
-        <h2 class="ticket-detail__summary-title">{{ t.ticketCode }}</h2>
-        <p class="ticket-detail__public-code">Code public {{ t.publicCode }}</p>
-        <tch-admin-status-pill
-          [label]="statusLabel(t.status)"
-          [tone]="statusTone(t.status)"
+      <aside aside [attr.aria-label]="'admin.pos.detail.summary.aria' | translate">
+        <tch-identity-card
+          [eyebrow]="'admin.pos.detail.summary.eyebrow' | translate"
+          [title]="t.ticketCode"
+          [code]="t.publicCode"
+          [status]="statusLabel(t.status)"
+          [statusTone]="statusTone(t.status)"
+          [meta]="summaryMeta()"
+          icon="confirmation_number"
+          variant="compact"
         />
-
-        <dl class="ticket-detail__summary-list">
-          <div>
-            <dt>Total payé</dt>
-            <dd>{{ amountDisplay(t.totalAmountCents) }} {{ t.currency }}</dd>
-          </div>
-          @if (freeLineCount(t) > 0) {
-            <div>
-              <dt>Maryaj gratis</dt>
-              <dd>{{ freeLineCount(t) }}</dd>
-            </div>
-          }
-          <div>
-            <dt>Vendeur</dt>
-            <dd>{{ t.sellerDisplayName || '—' }}</dd>
-          </div>
-          <div>
-            <dt>Terminal</dt>
-            <dd>{{ t.terminalCode || '—' }}</dd>
-          </div>
-        </dl>
       </aside>
 
       <div main class="ticket-detail__main">
-        <tch-admin-section-card title="Vente" icon="confirmation_number">
+        <tch-admin-section-card [title]="'admin.pos.detail.section.sale' | translate" icon="confirmation_number">
           <dl class="ticket-detail__facts">
             <div>
-              <dt>Émis le</dt>
+              <dt>{{ 'admin.pos.detail.field.issuedAt' | translate }}</dt>
               <dd>{{ t.placedAt | date:'dd/MM/yyyy HH:mm:ss' }}</dd>
             </div>
             <div>
-              <dt>Statut</dt>
+              <dt>{{ 'admin.pos.detail.field.status' | translate }}</dt>
               <dd>{{ statusLabel(t.status) }}</dd>
             </div>
             <div>
-              <dt>Point de vente</dt>
+              <dt>{{ 'admin.pos.detail.field.outlet' | translate }}</dt>
               <dd>{{ t.outletName || '—' }}</dd>
             </div>
             @if (t.cancelledAt) {
               <div>
-                <dt>Annulé le</dt>
+                <dt>{{ 'admin.pos.detail.field.cancelledAt' | translate }}</dt>
                 <dd>{{ t.cancelledAt | date:'dd/MM/yyyy HH:mm:ss' }}</dd>
               </div>
             }
           </dl>
         </tch-admin-section-card>
 
-        <tch-admin-section-card title="Tirage" icon="event">
+        <tch-admin-section-card [title]="'admin.pos.detail.section.draw' | translate" icon="event">
           <dl class="ticket-detail__facts">
             <div>
-              <dt>Canal</dt>
+              <dt>{{ 'admin.pos.detail.field.channel' | translate }}</dt>
               <dd>{{ drawLabel(t) }}</dd>
             </div>
             <div>
-              <dt>Date et heure</dt>
+              <dt>{{ 'admin.pos.detail.field.dateTime' | translate }}</dt>
               <dd>{{ t.drawScheduledAt | date:'dd/MM/yyyy HH:mm' }}</dd>
             </div>
           </dl>
         </tch-admin-section-card>
 
-        <tch-admin-section-card title="Lignes jouées" icon="casino">
+        <tch-admin-section-card [title]="'admin.pos.detail.section.lines' | translate" icon="casino">
           <div class="ticket-detail__lines">
             @for (line of t.lines; track line.lineNumber) {
               <article class="ticket-detail__line">
@@ -145,14 +127,14 @@
         </tch-admin-section-card>
 
         @if (t.charges.length) {
-          <tch-admin-section-card title="Frais" icon="receipt_long">
+          <tch-admin-section-card [title]="'admin.pos.detail.section.charges' | translate" icon="receipt_long">
             <div class="ticket-detail__charges">
               @for (charge of t.charges; track charge.type) {
                 <div class="ticket-detail__charge">
                   <span>{{ charge.label }}</span>
                   <strong>{{ amountDisplay(charge.amountCents) }} {{ t.currency }}</strong>
                   @if (charge.waived) {
-                    <small>{{ charge.waivedLabel || 'Frais offert' }}</small>
+                    <small>{{ charge.waivedLabel || ('admin.pos.detail.field.waivedCharge' | translate) }}</small>
                   }
                 </div>
               }

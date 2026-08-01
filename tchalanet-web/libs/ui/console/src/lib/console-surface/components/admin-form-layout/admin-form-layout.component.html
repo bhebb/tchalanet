@@ -1,0 +1,11 @@
+<div class="admin-form-layout" data-testid="admin-form-layout">
+  <div class="admin-form-layout__main" data-testid="admin-form-main">
+    <ng-content select="[main]" />
+    <footer class="admin-form-layout__footer" data-testid="admin-form-footer">
+      <ng-content select="[footer]" />
+    </footer>
+  </div>
+  <aside class="admin-form-layout__aside" data-testid="admin-form-aside">
+    <ng-content select="[aside]" />
+  </aside>
+</div>

@@ -2,7 +2,13 @@ import { ChangeDetectionStrategy, Component, computed, input, output } from '@an
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 
-import { AdminSectionCardComponent, AdminStatusPillComponent } from '@tch/ui/console';
+import {
+  AdminSectionCardComponent,
+  AdminStatusPillComponent,
+  TchIdentityCardComponent,
+  type TchIdentityCardMeta,
+} from '@tch/ui/console';
+import { TchNotice } from '@tch/ui/components';
 
 import { ConsoleDrawSlotIdentityComponent } from '../draw-slots/console-draw-slot-identity.component';
 import { ConsoleEntityDetailComponent } from '../entity-detail/console-entity-detail.component';
@@ -30,6 +36,8 @@ export interface ConsoleDrawDetailSectionActionEvent {
   imports: [
     AdminSectionCardComponent,
     AdminStatusPillComponent,
+    TchIdentityCardComponent,
+    TchNotice,
     ConsoleDrawSlotIdentityComponent,
     ConsoleEntityDetailComponent,
     ConsoleFactsComponent,
@@ -56,5 +64,12 @@ export class ConsoleDrawDetailComponent {
 
   emitSectionAction(section: ConsoleDrawDetailSection, action: ConsoleRowAction): void {
     this.sectionAction.emit({ section, action });
+  }
+
+  asideMeta(view: ConsoleDrawDetailView): readonly TchIdentityCardMeta[] {
+    return (view.aside?.items ?? []).map(item => ({
+      label: item.label,
+      value: item.hint ? `${item.value ?? '—'} · ${item.hint}` : item.value ?? '—',
+    }));
   }
 }

@@ -4,15 +4,16 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { mapHttpErrorToProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 import { TchErrorPanel, TchGameSelectionChip, TchLoading, TchNotice } from '@tch/ui/components';
 import {
   AdminDetailLayoutComponent,
   AdminPageShellComponent,
   AdminSectionCardComponent,
-  AdminStatusPillComponent,
   AdminStatusTone,
+  TchIdentityCardComponent,
+  type TchIdentityCardMeta,
 } from '@tch/ui/console';
 import { consoleTicketDrawIdentity } from '@tch/web/console';
 import { ErrorViewModel, resolveErrorFeedbackCopy, toErrorViewModel } from '@tch/web/errors';
@@ -39,11 +40,12 @@ import {
     AdminDetailLayoutComponent,
     AdminPageShellComponent,
     AdminSectionCardComponent,
-    AdminStatusPillComponent,
+    TchIdentityCardComponent,
     TchErrorPanel,
     TchGameSelectionChip,
     TchLoading,
     TchNotice,
+    TranslatePipe,
   ],
   templateUrl: './pos-ticket-detail.page.html',
   styleUrls: ['./pos-ticket-detail.page.scss'],
@@ -59,6 +61,35 @@ export class PosTicketDetailPage implements OnInit {
   readonly ticket = signal<PosTicketDetailsView | null>(null);
   readonly reprinting = signal(false);
   readonly reprintError = signal<string | null>(null);
+
+  readonly summaryMeta = computed<readonly TchIdentityCardMeta[]>(() => {
+    const ticket = this.ticket();
+    if (!ticket) return [];
+
+    const items: TchIdentityCardMeta[] = [
+      {
+        label: this.translate.instant('admin.pos.detail.meta.totalPaid'),
+        value: `${this.amountDisplay(ticket.totalAmountCents)} ${ticket.currency}`,
+      },
+      {
+        label: this.translate.instant('admin.pos.detail.meta.seller'),
+        value: ticket.sellerDisplayName || '—',
+      },
+      {
+        label: this.translate.instant('admin.pos.detail.meta.terminal'),
+        value: ticket.terminalCode || '—',
+      },
+    ];
+
+    if (this.freeLineCount(ticket) > 0) {
+      items.splice(1, 0, {
+        label: this.translate.instant('admin.pos.detail.meta.freeLines'),
+        value: this.freeLineCount(ticket),
+      });
+    }
+
+    return items;
+  });
 
   readonly title = computed(() => {
     const ticket = this.ticket();
@@ -90,8 +121,8 @@ export class PosTicketDetailPage implements OnInit {
     const ticketId = this.route.snapshot.paramMap.get('ticketId');
     if (!ticketId) {
       this.error.set({
-        title: 'Ticket introuvable',
-        message: 'Aucun identifiant de ticket n’a été fourni.',
+        title: this.translate.instant('admin.pos.detail.error.notFoundTitle'),
+        message: this.translate.instant('admin.pos.detail.error.notFoundMessage'),
         severity: 'error',
       });
       return;
@@ -198,9 +229,9 @@ export class PosTicketDetailPage implements OnInit {
   }
 
   reprintDisabledReason(ticket: PosTicketDetailsView): string | null {
-    if (this.reprinting()) return 'Réimpression en cours.';
+    if (this.reprinting()) return this.translate.instant('admin.pos.detail.notice.reprinting');
     if (!this.sellerTerminalId(ticket) && !ticket.terminalCode) {
-      return 'Réimpression indisponible : terminal vendeur non identifié.';
+      return this.translate.instant('admin.pos.detail.notice.missingTerminal');
     }
     return null;
   }
@@ -242,11 +273,11 @@ export class PosTicketDetailPage implements OnInit {
     if (err instanceof Error && err.message === 'seller-terminal-id-missing') {
       const terminalCode = this.ticket()?.terminalCode?.trim();
       return terminalCode
-        ? `Réimpression indisponible : le terminal vendeur ${terminalCode} est introuvable.`
-        : 'Réimpression indisponible : terminal vendeur non identifié.';
+        ? this.translate.instant('admin.pos.detail.error.terminalNotFound', { terminalCode })
+        : this.translate.instant('admin.pos.detail.notice.missingTerminal');
     }
 
-    return 'Réimpression impossible pour ce ticket. Vérifiez le terminal vendeur ou réessayez.';
+    return this.translate.instant('admin.pos.detail.error.reprintFailed');
   }
 }
 

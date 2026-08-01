@@ -1751,6 +1751,34 @@
       "title": "Vente ticket",
       "changeDraw": "Changer de tirage",
       "live": "Live",
+      "detail": {
+        "title": "Ticket details",
+        "description": "Review the ticket sale, draw and played lines.",
+        "loading": "Loading ticket...",
+        "summary": { "aria": "Ticket summary", "eyebrow": "Summary" },
+        "action": { "tickets": "Tickets", "verify": "Verify", "reprint": "Reprint" },
+        "section": { "sale": "Sale", "draw": "Draw", "lines": "Played lines", "charges": "Charges" },
+        "field": {
+          "issuedAt": "Issued at",
+          "status": "Status",
+          "outlet": "Point of sale",
+          "cancelledAt": "Cancelled at",
+          "channel": "Channel",
+          "dateTime": "Date and time",
+          "waivedCharge": "Waived charge"
+        },
+        "meta": { "totalPaid": "Total paid", "freeLines": "Free Maryaj", "seller": "Seller", "terminal": "Terminal" },
+        "error": {
+          "notFoundTitle": "Ticket not found",
+          "notFoundMessage": "No ticket identifier was provided.",
+          "terminalNotFound": "Reprint unavailable: seller terminal {{terminalCode}} was not found.",
+          "reprintFailed": "Unable to reprint this ticket. Check the seller terminal or try again."
+        },
+        "notice": {
+          "reprinting": "Reprint in progress.",
+          "missingTerminal": "Reprint unavailable: seller terminal was not identified."
+        }
+      },
       "draw": {
         "closesIn": "S'arrête dans {{time}}"
       },

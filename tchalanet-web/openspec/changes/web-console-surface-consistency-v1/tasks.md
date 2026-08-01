@@ -6,6 +6,7 @@
 - [x] Définir les contrats des primitives partagées : inputs, états, actions, responsive et tokens.
 - [x] Ajouter ou compléter le panneau partagé de résumé pour les pages de détail.
 - [x] Vérifier les tokens `--tch-*` et `--comp-*` avec les conventions de thème et de style.
+- [x] Ajouter `AdminFormLayout` pour standardiser les formulaires avec aperçu ou résumé latéral.
 
 ## Migrations
 

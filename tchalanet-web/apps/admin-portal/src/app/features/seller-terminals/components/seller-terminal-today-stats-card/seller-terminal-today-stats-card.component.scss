@@ -1,30 +1,3 @@
-.seller-terminal-today-stats-card {
-  display: grid;
-  gap: 1rem;
-  padding: 1.25rem;
-  border: 1px solid color-mix(in oklab, var(--tch-color-primary) 28%, var(--tch-color-outline-variant));
-  border-radius: var(--tch-radius-md, 0.5rem);
-  background: color-mix(in oklab, var(--tch-color-primary-container) 36%, var(--tch-color-surface));
-}
-
-.seller-terminal-today-stats-card__head {
-  display: grid;
-  gap: 0.25rem;
-}
-
-.seller-terminal-today-stats-card__head strong {
-  color: var(--tch-color-on-surface);
-  font-size: 1rem;
-}
-
-.seller-terminal-today-stats-card__eyebrow {
-  color: var(--tch-color-on-surface-variant);
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0;
-  text-transform: uppercase;
-}
-
 .seller-terminal-today-stats-card__grid {
   display: grid;
   gap: 0.625rem;

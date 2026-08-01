@@ -1,11 +1,7 @@
-<section class="seller-terminal-today-stats-card">
-  <div class="seller-terminal-today-stats-card__head">
-    <span class="seller-terminal-today-stats-card__eyebrow">
-      {{ 'admin.sellerTerminals.detail.today.eyebrow' | translate }}
-    </span>
-    <strong>{{ 'admin.sellerTerminals.detail.today.title' | translate }}</strong>
-  </div>
-
+<tch-admin-section-card
+  [title]="'admin.sellerTerminals.detail.today.title' | translate"
+  icon="today"
+>
   @if (error(); as statsError) {
     <tch-error-panel
       [title]="statsError.title"
@@ -34,4 +30,4 @@
       </div>
     </div>
   }
-</section>
+</tch-admin-section-card>

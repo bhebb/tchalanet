@@ -72,6 +72,7 @@ Règles :
 Les primitives candidates sont :
 
 - `AdminDetailLayout` pour la grille main/aside ;
+- `AdminFormLayout` pour la grille champs/aperçu et le footer d'actions des formulaires routés ;
 - un panneau partagé de résumé de détail pour identité, statut, métriques et liens ;
 - `AdminSectionCard` et `AdminMetricCard` pour les surfaces ;
 - `AdminListSurface`, `tch-pagination` et les tables Material pour les listes ;
@@ -90,6 +91,10 @@ admin-page-shell
 admin-page-header
 admin-page-actions
 admin-page-body
+admin-form-layout
+admin-form-main
+admin-form-aside
+admin-form-footer
 admin-refresh-button
 admin-list-surface
 admin-list-toolbar

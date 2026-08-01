@@ -7,6 +7,9 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import {
   AdminDetailLayoutComponent,
   AdminPageShellComponent,
+  AdminStatusTone,
+  TchIdentityCardComponent,
+  type TchIdentityCardMeta,
 } from '@tch/ui/console';
 import { resourceErrorVm, TchAsyncReadyDirective, TchAsyncViewComponent } from '@tch/web/async';
 
@@ -21,7 +24,6 @@ import {
   SellerTerminalDetailFact,
   SellerTerminalDetailFactsCardComponent,
 } from '../../components/seller-terminal-detail-facts-card/seller-terminal-detail-facts-card.component';
-import { SellerTerminalDetailSummaryCardComponent } from '../../components/seller-terminal-detail-summary-card/seller-terminal-detail-summary-card.component';
 import { SellerTerminalTodayStatsCardComponent } from '../../components/seller-terminal-today-stats-card/seller-terminal-today-stats-card.component';
 import { SellerTerminalIdentityCardComponent } from '../../components/seller-terminal-identity-card/seller-terminal-identity-card.component';
 
@@ -33,9 +35,9 @@ import { SellerTerminalIdentityCardComponent } from '../../components/seller-ter
     RouterLink,
     AdminDetailLayoutComponent,
     AdminPageShellComponent,
+    TchIdentityCardComponent,
     SellerTerminalDetailFactsCardComponent,
     SellerTerminalIdentityCardComponent,
-    SellerTerminalDetailSummaryCardComponent,
     SellerTerminalTodayStatsCardComponent,
     TchAsyncReadyDirective,
     TchAsyncViewComponent,
@@ -84,6 +86,35 @@ export class AdminSellerTerminalDetailPage {
     const terminal = this.terminal();
     return terminal?.displayName || terminal?.terminalCode || this.translate.instant('admin.sellerTerminals.detail.title');
   });
+
+  readonly identityMeta = computed<readonly TchIdentityCardMeta[]>(() => {
+    const terminal = this.terminal();
+    if (!terminal) return [];
+
+    return [
+      {
+        label: this.translate.instant('admin.sellerTerminals.field.email'),
+        value: terminal.email,
+      },
+      {
+        label: this.translate.instant('admin.sellerTerminals.field.phone'),
+        value: terminal.phoneNumber,
+      },
+    ];
+  });
+
+  statusTone(status: string): AdminStatusTone {
+    switch (status) {
+      case 'ACTIVE':
+        return 'success';
+      case 'PENDING':
+        return 'warning';
+      case 'BLOCKED':
+        return 'danger';
+      default:
+        return 'neutral';
+    }
+  }
 
   readonly controlFacts = computed<readonly SellerTerminalDetailFact[]>(() => {
     const terminal = this.terminal();
