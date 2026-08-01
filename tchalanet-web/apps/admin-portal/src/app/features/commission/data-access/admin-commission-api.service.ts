@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, ResourceRef, inject } from '@angular/core';
 import { TchBackendClient, TchRequestOptions } from '@tch/api';
 import { Observable } from 'rxjs';
 
@@ -23,7 +23,7 @@ export interface SellerTerminalCommissionRow {
   terminalCode: string;
   displayName: string;
   status: string;
-  commissionRate: number;
+  commissionRate: number | null;
   rateSource: CommissionRateSource;
 }
 
@@ -41,6 +41,13 @@ export class AdminCommissionApi {
     return this.backend.get<CommissionOverviewView>('/admin/commission/overview', options);
   }
 
+  getOverviewResource(options?: TchRequestOptions): ResourceRef<CommissionOverviewView | undefined> {
+    return this.backend.getResource<CommissionOverviewView>(() => ({
+      path: '/admin/commission/overview',
+      options,
+    }));
+  }
+
   setDefaultRate(rate: number, options?: TchRequestOptions): Observable<void> {
     return this.backend.put<void>('/admin/commission/default-rate', { rate }, options);
   }
@@ -54,6 +61,18 @@ export class AdminCommissionApi {
       `/admin/commission/sellers?page=${page}&size=${size}`,
       options,
     );
+  }
+
+  /**
+   * A tenant's terminal collection is intentionally bounded for this surface.
+   * The backend currently returns a list (not a TchPage), so the page filters this
+   * bounded result locally instead of presenting incomplete pagination controls.
+   */
+  listSellersResource(options?: TchRequestOptions): ResourceRef<SellerTerminalCommissionRow[] | undefined> {
+    return this.backend.getResource<SellerTerminalCommissionRow[]>(() => ({
+      path: '/admin/commission/sellers?page=0&size=500',
+      options,
+    }));
   }
 
   setSellerRate(

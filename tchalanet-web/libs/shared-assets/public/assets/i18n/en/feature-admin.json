@@ -14,7 +14,33 @@
       "action": {
         "editDefaultRate": "Edit tenant rate",
         "editRate": "Edit rate",
-        "resetRate": "Use tenant rate"
+        "resetRate": "Use default rate",
+        "viewTerminal": "View terminal",
+        "menu": "Commission actions"
+      },
+      "notice": {
+        "defaultUpdated": "The tenant default rate was updated.",
+        "sellerUpdated": "The terminal rate was updated.",
+        "rateReset": "The terminal now uses the default rate."
+      },
+      "loading": "Loading commissions…",
+      "filter": {
+        "search": "Search",
+        "searchPlaceholder": "Terminal name or code",
+        "toggle": "Filters",
+        "status": "Status",
+        "allStatuses": "All statuses",
+        "reset": "Reset"
+      },
+      "list": {
+        "count": "terminal(s)"
+      },
+      "kpi": {
+        "defaultRate": "Default rate",
+        "defaultRateHint": "Tenant rate",
+        "totalTerminals": "Seller-terminals",
+        "atDefaultRate": "At default rate",
+        "customRate": "Custom rate"
       },
       "section": {
         "overview": "Overview",
@@ -28,6 +54,7 @@
         "range": "Min / Max"
       },
       "column": {
+        "seller": "Seller",
         "code": "Code",
         "name": "Name",
         "status": "Status",
@@ -40,7 +67,9 @@
       },
       "empty": {
         "title": "No sellers",
-        "message": "No seller-terminal is registered."
+        "message": "No seller-terminal is registered.",
+        "filteredTitle": "No results",
+        "filteredMessage": "Change the search or reset the filters."
       }
     },
     "subscription": {

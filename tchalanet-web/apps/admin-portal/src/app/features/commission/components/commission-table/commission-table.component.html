@@ -1,0 +1,115 @@
+<div class="commission-table">
+  <table mat-table [dataSource]="rows()">
+    <ng-container matColumnDef="seller">
+      <th mat-header-cell *matHeaderCellDef>{{ 'admin.commission.column.seller' | translate }}</th>
+      <td mat-cell *matCellDef="let row">
+        <a class="commission-table__identity" [routerLink]="['/app/admin/seller-terminals', rowId(row)]">
+          <strong>{{ row.displayName }}</strong>
+          <span>{{ row.terminalCode }}</span>
+        </a>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="status">
+      <th mat-header-cell *matHeaderCellDef>{{ 'admin.commission.column.status' | translate }}</th>
+      <td mat-cell *matCellDef="let row">
+        <tch-admin-status-pill
+          [label]="statusLabel(row.status) | translate"
+          [tone]="statusTone(row.status)"
+        />
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="rate">
+      <th mat-header-cell *matHeaderCellDef>{{ 'admin.commission.column.rate' | translate }}</th>
+      <td mat-cell *matCellDef="let row">{{ rateDisplay(row.commissionRate) }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="source">
+      <th mat-header-cell *matHeaderCellDef>{{ 'admin.commission.column.source' | translate }}</th>
+      <td mat-cell *matCellDef="let row">
+        <span class="commission-table__source">{{ sourceLabel(row.rateSource) | translate }}</span>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let row" class="commission-table__actions">
+        <button
+          mat-icon-button
+          type="button"
+          [matMenuTriggerFor]="rowMenu"
+          [matMenuTriggerData]="{ row }"
+          [attr.aria-label]="'admin.commission.action.menu' | translate"
+        >
+          <span class="material-symbols-outlined" aria-hidden="true">more_vert</span>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
+</div>
+
+<div class="commission-table__mobile-list" [attr.aria-label]="'admin.commission.section.sellers' | translate">
+  @for (row of rows(); track rowId(row)) {
+    <article class="commission-table__mobile-card">
+      <div class="commission-table__mobile-header">
+        <a class="commission-table__identity" [routerLink]="['/app/admin/seller-terminals', rowId(row)]">
+          <strong>{{ row.displayName }}</strong>
+          <span>{{ row.terminalCode }}</span>
+        </a>
+        <button
+          mat-icon-button
+          type="button"
+          [matMenuTriggerFor]="rowMenu"
+          [matMenuTriggerData]="{ row }"
+          [attr.aria-label]="'admin.commission.action.menu' | translate"
+        >
+          <span class="material-symbols-outlined" aria-hidden="true">more_vert</span>
+        </button>
+      </div>
+
+      <tch-admin-status-pill
+        [label]="statusLabel(row.status) | translate"
+        [tone]="statusTone(row.status)"
+      />
+
+      <dl class="commission-table__facts">
+        <div>
+          <dt>{{ 'admin.commission.column.rate' | translate }}</dt>
+          <dd>{{ rateDisplay(row.commissionRate) }}</dd>
+        </div>
+        <div>
+          <dt>{{ 'admin.commission.column.source' | translate }}</dt>
+          <dd>{{ sourceLabel(row.rateSource) | translate }}</dd>
+        </div>
+      </dl>
+
+      <div class="commission-table__mobile-actions">
+        <a mat-stroked-button [routerLink]="['/app/admin/seller-terminals', rowId(row)]">
+          <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
+          {{ 'admin.commission.action.viewTerminal' | translate }}
+        </a>
+        <button mat-stroked-button type="button" (click)="editRate.emit(row)">
+          <span class="material-symbols-outlined" aria-hidden="true">edit</span>
+          {{ 'admin.commission.action.editRate' | translate }}
+        </button>
+      </div>
+    </article>
+  }
+</div>
+
+<mat-menu #rowMenu="matMenu">
+  <ng-template matMenuContent let-row="row">
+    <button mat-menu-item type="button" (click)="editRate.emit(row)">
+      <span class="material-symbols-outlined" aria-hidden="true">edit</span>
+      {{ 'admin.commission.action.editRate' | translate }}
+    </button>
+    <button mat-menu-item type="button" (click)="resetRate.emit(row)" [disabled]="isResetting(row)">
+      <span class="material-symbols-outlined" aria-hidden="true">restart_alt</span>
+      {{ 'admin.commission.action.resetRate' | translate }}
+    </button>
+  </ng-template>
+</mat-menu>
