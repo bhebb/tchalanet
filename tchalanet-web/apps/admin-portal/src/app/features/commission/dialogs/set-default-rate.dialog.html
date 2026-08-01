@@ -1,7 +1,7 @@
 <h2 mat-dialog-title>{{ 'admin.commission.dialog.defaultRate.title' | translate }}</h2>
 
-<mat-dialog-content>
-  <form [formGroup]="form" class="set-default-rate-dialog__form">
+<form [formGroup]="form" class="set-default-rate-dialog__form" (ngSubmit)="submit()">
+  <mat-dialog-content>
     @if (error(); as formError) {
     <tch-error-panel [title]="formError.title" [message]="formError.message" />
     }
@@ -17,14 +17,13 @@
       }
     </mat-form-field>
     <tch-field-error [control]="form.controls.rate" />
-  </form>
-</mat-dialog-content>
+  </mat-dialog-content>
 
-<mat-dialog-actions align="end">
-  <button mat-button mat-dialog-close [disabled]="saving()">
-    {{ 'common.cancel' | translate }}
-  </button>
-  <button mat-flat-button color="primary" [disabled]="form.invalid || saving()" (click)="submit()">
-    {{ 'common.save' | translate }}
-  </button>
-</mat-dialog-actions>
+  <tch-admin-form-actions
+    [submitLabel]="'common.save' | translate"
+    [cancelLabel]="'common.cancel' | translate"
+    [submitDisabled]="form.invalid"
+    [submitPending]="saving()"
+    (cancelClick)="cancel()"
+  />
+</form>

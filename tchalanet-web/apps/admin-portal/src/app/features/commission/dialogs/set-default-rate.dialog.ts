@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -10,7 +9,12 @@ import {
   webAppErrorFromProblemDetail,
   webAppErrorsFromProblemDetailFields,
 } from '@tch/api';
-import { TchErrorPanel, TchFieldError, TchFormErrorSummary } from '@tch/ui/components';
+import {
+  AdminFormActions,
+  TchErrorPanel,
+  TchFieldError,
+  TchFormErrorSummary,
+} from '@tch/ui/components';
 import {
   applyServerFieldErrors,
   clearServerFieldErrors,
@@ -34,10 +38,10 @@ const DEFAULT_RATE_FIELD_TARGETS = {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ReactiveFormsModule,
-    MatButtonModule,
     MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
+    AdminFormActions,
     TranslatePipe,
     TchErrorPanel,
     TchFieldError,
@@ -85,6 +89,10 @@ export class SetDefaultRateDialog {
         this.saving.set(false);
       },
     });
+  }
+
+  cancel(): void {
+    if (!this.saving()) this.dialogRef.close(false);
   }
 
   private handleSubmitError(err: unknown): void {

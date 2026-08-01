@@ -8,7 +8,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatButtonModule, MatProgressSpinnerModule],
   template: `
-    <div class="form-actions">
+    <div class="form-actions" data-testid="admin-form-actions">
       <ng-content select="[start]" />
       <div class="form-actions__main">
         @if (cancelLabel()) {

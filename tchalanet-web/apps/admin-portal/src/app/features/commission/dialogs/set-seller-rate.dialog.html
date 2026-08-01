@@ -2,8 +2,8 @@
   {{ 'admin.commission.dialog.sellerRate.title' | translate: { name: data.row.displayName } }}
 </h2>
 
-<mat-dialog-content>
-  <form [formGroup]="form" class="set-seller-rate-dialog__form">
+<form [formGroup]="form" class="set-seller-rate-dialog__form" (ngSubmit)="submit()">
+  <mat-dialog-content>
     @if (error(); as pageError) {
     <tch-error-panel [title]="pageError.title" [message]="pageError.message" />
     }
@@ -19,14 +19,13 @@
       }
     </mat-form-field>
     <tch-field-error [control]="form.controls.rate" />
-  </form>
-</mat-dialog-content>
+  </mat-dialog-content>
 
-<mat-dialog-actions align="end">
-  <button mat-button mat-dialog-close [disabled]="saving()">
-    {{ 'common.cancel' | translate }}
-  </button>
-  <button mat-flat-button color="primary" [disabled]="form.invalid || saving()" (click)="submit()">
-    {{ 'common.save' | translate }}
-  </button>
-</mat-dialog-actions>
+  <tch-admin-form-actions
+    [submitLabel]="'common.save' | translate"
+    [cancelLabel]="'common.cancel' | translate"
+    [submitDisabled]="form.invalid"
+    [submitPending]="saving()"
+    (cancelClick)="cancel()"
+  />
+</form>
