@@ -90,8 +90,6 @@
                 "tone": "accent",
                 "route": "/app/admin/reports/sales",
                 "value": { "source": "dynamic", "path": "grossSales.value" },
-                "delta": { "source": "dynamic", "path": "grossSales.delta" },
-                "deltaPercent": { "source": "dynamic", "path": "grossSales.deltaPercent" },
                 "currencyCode": "HTG"
               },
               {
@@ -100,8 +98,6 @@
                 "icon": "payments",
                 "tone": "warning",
                 "value": { "source": "dynamic", "path": "sellerCommissionPayable.value" },
-                "delta": { "source": "dynamic", "path": "sellerCommissionPayable.delta" },
-                "deltaPercent": { "source": "dynamic", "path": "sellerCommissionPayable.deltaPercent" },
                 "currencyCode": "HTG"
               },
               {
@@ -110,8 +106,6 @@
                 "icon": "account_balance",
                 "tone": "primary",
                 "value": { "source": "dynamic", "path": "estimatedNetRevenue.value" },
-                "delta": { "source": "dynamic", "path": "estimatedNetRevenue.delta" },
-                "deltaPercent": { "source": "dynamic", "path": "estimatedNetRevenue.deltaPercent" },
                 "currencyCode": "HTG"
               },
               {
@@ -120,9 +114,7 @@
                 "icon": "point_of_sale",
                 "tone": "success",
                 "route": "/app/admin/seller-terminals?status=ACTIVE",
-                "value": { "source": "dynamic", "path": "availablePos.value" },
-                "delta": { "source": "dynamic", "path": "availablePos.delta" },
-                "deltaPercent": { "source": "dynamic", "path": "availablePos.deltaPercent" }
+                "value": { "source": "dynamic", "path": "availablePos.value" }
               }
             ]
           }
@@ -143,6 +135,7 @@
             "titleKey": "dashboard.tenant_admin.sales_trend.title",
             "emptyKey": "dashboard.tenant_admin.sales_trend.empty",
             "singlePointKey": "dashboard.tenant_admin.sales_trend.single",
+            "chartType": "bar",
             "valueFormat": "currency",
             "currencyCode": "HTG",
             "hideOnError": false,

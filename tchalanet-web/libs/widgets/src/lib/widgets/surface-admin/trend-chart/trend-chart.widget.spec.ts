@@ -75,4 +75,24 @@ describe('TrendChartWidget', () => {
     expect(cmp.hasTrend()).toBe(false);
     expect(cmp.areaPoints()).toBe('');
   });
+
+  it('supports a bar chart for a single selected-period day', () => {
+    const cmp = component(
+      {
+        type: 'TrendChartWidget',
+        props: {
+          chartType: 'bar',
+          points: { source: 'dynamic', path: 'points' },
+          labelPath: 'label',
+          labelFormat: 'date-short',
+          valuePath: 'grossSales',
+        },
+      },
+      { points: [{ id: '2026-07-16', label: '2026-07-16', grossSales: 250 }] },
+    );
+
+    expect(cmp.chartType()).toBe('bar');
+    expect(cmp.hasChart()).toBe(true);
+    expect(cmp.barHeight(cmp.points()[0])).toBe(100);
+  });
 });

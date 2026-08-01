@@ -18,6 +18,7 @@ interface TrendPoint {
 }
 
 type LabelFormat = 'raw' | 'date-short';
+type ChartType = 'line' | 'bar';
 
 @Component({
   selector: 'tch-trend-chart-widget',
@@ -38,6 +39,9 @@ export class TrendChartWidget {
   );
   readonly valueFormat = computed(() => stringProp(this.config(), 'valueFormat') ?? 'number');
   readonly currencyCode = computed(() => stringProp(this.config(), 'currencyCode') ?? 'HTG');
+  readonly chartType = computed<ChartType>(() =>
+    stringProp(this.config(), 'chartType') === 'bar' ? 'bar' : 'line',
+  );
   readonly pointsSource = computed(() => this.config()?.props?.['points'] ?? { source: 'dynamic', path: 'points' });
   readonly labelPath = computed(() => stringProp(this.config(), 'labelPath') ?? 'label');
   readonly valuePath = computed(() => stringProp(this.config(), 'valuePath') ?? 'value');
@@ -61,6 +65,7 @@ export class TrendChartWidget {
   });
 
   readonly hasTrend = computed(() => this.points().length >= 2);
+  readonly hasChart = computed(() => this.chartType() === 'bar' ? this.points().length > 0 : this.hasTrend());
 
   readonly linePoints = computed(() => {
     const points = this.points();
@@ -83,6 +88,12 @@ export class TrendChartWidget {
     const line = this.linePoints();
     return line ? `0,96 ${line} 100,96` : '';
   });
+
+  barHeight(point: TrendPoint): number {
+    const max = Math.max(...this.points().map(item => item.value), 1);
+    if (point.value <= 0) return 2;
+    return Math.max((point.value / max) * 100, 4);
+  }
 
   private stringAt(item: Record<string, unknown>, path: string): string {
     const value = resolvePath(item, path);

@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterLink } from '@angular/router';
 
 import { LabelPipe, WidgetConfig, isRecord, stringProp, stringValue } from '@tch/page-model';
 
@@ -8,7 +8,7 @@ type DashboardPeriod = 'TODAY' | 'YESTERDAY' | 'THIS_WEEK' | 'LAST_WEEK';
 @Component({
   selector: 'tch-period-selector-widget',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [LabelPipe, RouterLink, RouterLinkActive],
+  imports: [LabelPipe, RouterLink],
   templateUrl: './period-selector.widget.html',
   styleUrl: './period-selector.widget.scss',
 })

@@ -3,19 +3,43 @@
     <h2 class="trend-chart__title">{{ titleKey() | tchLabel }}</h2>
   </div>
 
-  @if (hasTrend()) {
-    <div class="trend-chart__plot" aria-hidden="true">
-      <div class="trend-chart__grid" aria-hidden="true"></div>
-      <svg class="trend-chart__svg" viewBox="0 0 100 100" preserveAspectRatio="none">
-        <polygon class="trend-chart__area" [attr.points]="areaPoints()" />
-        <polyline class="trend-chart__line" [attr.points]="linePoints()" />
-      </svg>
-    </div>
-    <div class="trend-chart__labels">
-      @for (point of points(); track point.id) {
-        <span class="trend-chart__label">{{ point.label }}</span>
-      }
-    </div>
+  @if (hasChart()) {
+    @if (chartType() === 'bar') {
+      <div class="trend-chart__bars" role="img" [attr.aria-label]="titleKey() | tchLabel">
+        @for (point of points(); track point.id) {
+          <div class="trend-chart__bar-group">
+            <div class="trend-chart__bar-value">
+              @if (valueFormat() === 'currency') {
+                {{ point.value | currency: currencyCode() : 'symbol' : '1.0-2' }}
+              } @else {
+                {{ point.value | number:'1.0-2' }}
+              }
+            </div>
+            <div class="trend-chart__bar-track">
+              <div
+                class="trend-chart__bar"
+                [style.height.%]="barHeight(point)"
+                [attr.title]="point.label"
+              ></div>
+            </div>
+            <span class="trend-chart__bar-label">{{ point.label }}</span>
+          </div>
+        }
+      </div>
+    } @else {
+      <div class="trend-chart__plot" aria-hidden="true">
+        <div class="trend-chart__grid" aria-hidden="true"></div>
+        <svg class="trend-chart__svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+          <polygon class="trend-chart__area" [attr.points]="areaPoints()" />
+          <polyline class="trend-chart__line" [attr.points]="linePoints()" />
+        </svg>
+      </div>
+      <div class="trend-chart__labels">
+        @for (point of points(); track point.id) {
+          <span class="trend-chart__label">{{ point.label }}</span>
+        }
+      </div>
+    }
   } @else if (points().length === 1) {
     <div class="trend-chart__single" role="status">
       <span class="trend-chart__single-label">{{ points()[0].label }}</span>

@@ -1867,7 +1867,7 @@
         "title": "Indicateurs"
       },
       "sales_trend": {
-        "title": "Tendance des ventes",
+        "title": "Ventes par jour",
         "empty": "Aucune vente sur cette période.",
         "single": "Une seule journée ne permet pas encore d'afficher une tendance."
       },
