@@ -34,6 +34,10 @@
   overflow: visible;
 }
 
+.admin-detail-layout--single-column {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 /* Form actions live at the bottom of the MAIN column (never under the aside). */
 .admin-detail-layout__footer {
   display: flex;
@@ -49,6 +53,10 @@
 @include ui.up(expanded) {
   .admin-detail-layout {
     grid-template-columns: minmax(0, 1fr) minmax(16rem, var(--comp-detail-aside-width));
+  }
+
+  .admin-detail-layout.admin-detail-layout--single-column {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .admin-detail-layout__aside {

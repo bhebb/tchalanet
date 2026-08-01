@@ -1,5 +1,6 @@
 <form class="seller-terminal-create-form" (submit)="$event.preventDefault(); create.emit()" novalidate>
-  <div class="seller-terminal-create-form__form-col">
+  <tch-admin-form-layout>
+    <div main class="seller-terminal-create-form__form-col">
     @if (error(); as pageError) {
       <tch-error-panel [title]="pageError.title" [message]="pageError.message" />
     }
@@ -177,7 +178,9 @@
       </div>
     </tch-admin-section-card>
 
-    <div class="seller-terminal-create-form__footer">
+    </div>
+
+    <div footer class="seller-terminal-create-form__footer">
       <a mat-stroked-button routerLink="/app/admin/seller-terminals">
         {{ 'common.cancel' | translate }}
       </a>
@@ -197,17 +200,17 @@
         }
       </button>
     </div>
-  </div>
 
-  <div class="seller-terminal-create-form__preview-col">
-    <tch-seller-terminal-preview-card
-      [terminalCode]="model().terminalCode"
-      [displayName]="model().displayName"
-      [firstName]="model().firstName"
-      [lastName]="model().lastName"
-      [phoneNumber]="model().phoneNumber"
-      [active]="model().active"
-      [commissionRate]="model().commissionRate"
-    />
-  </div>
+    <div aside class="seller-terminal-create-form__preview-col">
+      <tch-seller-terminal-preview-card
+        [terminalCode]="model().terminalCode"
+        [displayName]="model().displayName"
+        [firstName]="model().firstName"
+        [lastName]="model().lastName"
+        [phoneNumber]="model().phoneNumber"
+        [active]="model().active"
+        [commissionRate]="model().commissionRate"
+      />
+    </div>
+  </tch-admin-form-layout>
 </form>

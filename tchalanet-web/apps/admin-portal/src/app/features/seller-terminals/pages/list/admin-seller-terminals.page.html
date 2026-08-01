@@ -68,17 +68,20 @@
       </ng-container>
 
       <ng-container list-footer>
-        <div class="seller-terminals-page__pagination">
-          <button mat-button [disabled]="!hasPrevious()" (click)="prevPage()">
-            <span class="material-symbols-outlined">chevron_left</span>
-            {{ 'common.previous' | translate }}
-          </button>
-          <span>{{ 'admin.sellerTerminals.list.pagination.page' | translate: { page: page() + 1, total: totalPages() } }}</span>
-          <button mat-button [disabled]="!hasNext()" (click)="nextPage()">
-            {{ 'common.next' | translate }}
-            <span class="material-symbols-outlined">chevron_right</span>
-          </button>
-        </div>
+        @if (totalElements() > 0) {
+          <tch-pagination
+            [page]="page()"
+            [size]="size()"
+            [totalElements]="totalElements()"
+            [ofLabel]="'common.pagination.of' | translate"
+            [prevLabel]="'common.previous' | translate"
+            [nextLabel]="'common.next' | translate"
+            [sizeLabel]="'common.pagination.itemsPerPage' | translate"
+            [ariaLabel]="'common.pagination.ariaLabel' | translate"
+            (pageChange)="onPageChange($event)"
+            (sizeChange)="onSizeChange($event)"
+          />
+        }
       </ng-container>
     </tch-admin-list-surface>
     </ng-template>

@@ -5,14 +5,14 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="crud-shell">
-      <div class="crud-shell__toolbar">
+    <div class="crud-shell" data-testid="admin-crud-shell">
+      <div class="crud-shell__toolbar" data-testid="admin-crud-toolbar">
         <ng-content select="[toolbar]" />
       </div>
-      <div class="crud-shell__content">
+      <div class="crud-shell__content" data-testid="admin-crud-content">
         <ng-content select="[content]" />
       </div>
-      <div class="crud-shell__footer">
+      <div class="crud-shell__footer" data-testid="admin-crud-footer">
         <ng-content select="[footer]" />
       </div>
     </div>

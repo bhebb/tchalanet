@@ -10,7 +10,7 @@ import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 
 import { TchErrorPanel } from '@tch/ui/components';
-import { AdminSectionCardComponent } from '@tch/ui/console';
+import { AdminFormLayoutComponent, AdminSectionCardComponent } from '@tch/ui/console';
 import {
   ConsoleAddressFormSectionComponent,
   ConsolePersonIdentityFormSectionComponent,
@@ -27,6 +27,7 @@ import { SellerTerminalPreviewCardComponent } from '../seller-terminal-preview-c
   imports: [
     RouterLink,
     FormField,
+    AdminFormLayoutComponent,
     AdminSectionCardComponent,
     ConsoleAddressFormSectionComponent,
     ConsolePersonIdentityFormSectionComponent,

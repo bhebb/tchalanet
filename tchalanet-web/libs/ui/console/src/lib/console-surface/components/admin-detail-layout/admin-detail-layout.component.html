@@ -1,4 +1,8 @@
-<div class="admin-detail-layout" data-testid="admin-detail-layout">
+<div
+  class="admin-detail-layout"
+  [class.admin-detail-layout--single-column]="singleColumn()"
+  data-testid="admin-detail-layout"
+>
   <div class="admin-detail-layout__main" data-testid="admin-detail-main">
     <ng-content select="[main]" />
     <footer class="admin-detail-layout__footer" data-testid="admin-detail-footer">

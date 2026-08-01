@@ -635,6 +635,104 @@ export class ApiStub {
     await this.adminBusinessProfile();
   }
 
+  /** Deterministic terminal detail data used by the admin detail-page contract. */
+  async adminSellerTerminalDetail(): Promise<void> {
+    if (!this.enabled) return;
+
+    await this.page.route(/\/admin\/seller-terminals\/stub-terminal-1(?:\?|$)/, r =>
+      json(
+        r,
+        envelope({
+          id: { value: 'stub-terminal-1' },
+          tenantId: { value: 'stub-tenant' },
+          terminalCode: 'POS-001',
+          displayName: 'Bhebbb',
+          firstName: 'Stevens',
+          lastName: 'Nelson',
+          email: 'stevens@example.test',
+          phoneNumber: '+509 3700 0000',
+          status: 'ACTIVE',
+          commissionRate: 13,
+          addressId: { value: 'stub-address' },
+          activatedAt: '2026-07-23T19:20:00Z',
+          lastSeenAt: '2026-07-31T13:08:00Z',
+          blockedAt: null,
+          blockedReason: null,
+          disabledAt: null,
+          mustChangePin: false,
+          pinResetAt: null,
+        }),
+      ),
+    );
+    await this.page.route(/\/admin\/financials\/breakdown(?:\?|$)/, r =>
+      json(
+        r,
+        envelope({
+          from: '2026-07-31',
+          to: '2026-07-31',
+          summary: {
+            ticketsSold: 4,
+            grossSales: 1894,
+            winningsCalculated: 0,
+            payoutsPaid: 0,
+            sellerCommission: 246.22,
+            buyerCharges: 0,
+            sellerCharges: 0,
+            tenantCharges: 0,
+            waivedCharges: 0,
+            promotionLines: 0,
+            promotionPricedLines: 0,
+            promotionPayoutBase: 0,
+            netRevenueEstimated: 1647.78,
+            netRevenuePaidBasis: 1647.78,
+          },
+          dailyRows: [],
+          drawRows: [],
+          sellerTerminalDrawRows: [],
+          sellerTerminalDailyRows: [
+            {
+              sellerTerminalId: 'stub-terminal-1',
+              refDate: '2026-07-31',
+              ticketsSold: 4,
+              grossSales: 1894,
+              sellerCommission: 246.22,
+              buyerCharges: 0,
+              sellerCharges: 0,
+              tenantCharges: 0,
+              waivedCharges: 0,
+              promotionLines: 0,
+              promotionPricedLines: 0,
+              promotionPayoutBase: 0,
+              netRevenueEstimated: 1647.78,
+              netRevenuePaidBasis: 1647.78,
+            },
+          ],
+        }),
+      ),
+    );
+  }
+
+  /** Inject a blocking failure for the terminal detail resource. */
+  async adminSellerTerminalDetailError(): Promise<void> {
+    if (!this.enabled) return;
+
+    await this.page.route(/\/admin\/seller-terminals\/stub-terminal-1(?:\?|$)/, r =>
+      json(r, problemDetail('admin.sellerTerminal.unavailable', 'req-terminal-detail-503'), 503),
+    );
+  }
+
+  /** Deterministic setup data used by the routed seller-terminal form contract. */
+  async adminSellerTerminalNew(): Promise<void> {
+    if (!this.enabled) return;
+
+    await this.page.route(/\/admin\/seller-terminals\/suggested-code(?:\?|$)/, r =>
+      json(r, envelope({ terminalCode: 'POS-E2E-001' })),
+    );
+    await this.page.route(/\/admin\/commission\/overview(?:\?|$)/, r =>
+      json(r, envelope({ tenantDefaultRate: 10 })),
+    );
+  }
+
   /** Deterministic business-profile data and successful mutations. */
   async adminBusinessProfile(): Promise<void> {
     if (!this.enabled) return;

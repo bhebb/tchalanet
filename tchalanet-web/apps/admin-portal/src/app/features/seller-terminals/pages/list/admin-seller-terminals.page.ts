@@ -18,6 +18,7 @@ import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
 import { AdminPageShellComponent } from '@tch/ui/console';
 import { AdminRefreshButtonComponent } from '@tch/ui/console';
+import { TchPaginationComponent } from '@tch/ui/console';
 import { TchAsyncReadyDirective, TchAsyncViewComponent, resourceErrorVm } from '@tch/web/async';
 import {
   SellerTerminalApi,
@@ -43,6 +44,7 @@ import { SellerTerminalDialogResult } from './dialogs/seller-terminal-dialog-res
     AdminRefreshButtonComponent,
     AdminListSurface,
     AdminEmptyStateComponent,
+    TchPaginationComponent,
     TchErrorPanel,
     TchNotice,
     TchAsyncReadyDirective,
@@ -88,9 +90,7 @@ export class AdminSellerTerminalsPage {
   readonly sellersError = resourceErrorVm(this.sellers, 'admin.sellerTerminal.list');
   readonly sellerPage = computed(() => this.sellers.value() ?? null);
   readonly items = computed(() => this.sellerPage()?.items ?? []);
-  readonly totalPages = computed(() => this.sellerPage()?.totalPages || 1);
-  readonly hasNext = computed(() => this.sellerPage()?.hasNext ?? false);
-  readonly hasPrevious = computed(() => this.sellerPage()?.hasPrevious ?? false);
+  readonly totalElements = computed(() => this.sellerPage()?.totalElements ?? 0);
   readonly summaryResource = this.api.getSummaryResource({ suppressShellFeedback: true });
   readonly summary = computed(() => this.summaryResource.value() ?? null);
 
@@ -119,16 +119,12 @@ export class AdminSellerTerminalsPage {
     this.navigateList({ status: isSellerTerminalStatus(status) ? status : null, page: null });
   }
 
-  prevPage(): void {
-    if (this.hasPrevious()) {
-      this.navigateList({ page: Math.max(0, this.page() - 1) });
-    }
+  onPageChange(page: number): void {
+    this.navigateList({ page: page > 0 ? page : null });
   }
 
-  nextPage(): void {
-    if (this.hasNext()) {
-      this.navigateList({ page: this.page() + 1 });
-    }
+  onSizeChange(size: number): void {
+    this.navigateList({ size: size !== TCH_DEFAULT_PAGE_SIZE ? size : null, page: null });
   }
 
   openPOS(row: SellerTerminalSummaryRow): void {

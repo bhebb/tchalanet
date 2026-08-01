@@ -66,15 +66,13 @@
   color: var(--tch-color-danger, #9f1d1d);
 }
 
-.console-draw-detail__metrics,
-.console-draw-detail__aside-grid {
+.console-draw-detail__metrics {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 10px;
 }
 
-.console-draw-detail__metric,
-.console-draw-detail__aside-row {
+.console-draw-detail__metric {
   display: grid;
   gap: 4px;
   padding: 12px;
@@ -83,21 +81,18 @@
   background: var(--tch-color-surface);
 }
 
-.console-draw-detail__metric span,
-.console-draw-detail__aside-row span {
+.console-draw-detail__metric span {
   color: var(--tch-color-text-muted);
   font-size: 0.78rem;
   font-weight: 700;
 }
 
-.console-draw-detail__metric strong,
-.console-draw-detail__aside-row strong {
+.console-draw-detail__metric strong {
   color: var(--tch-color-text);
   font-size: 1rem;
 }
 
-.console-draw-detail__metric em,
-.console-draw-detail__aside-row em {
+.console-draw-detail__metric em {
   color: var(--tch-color-text-muted);
   font-size: 0.82rem;
   font-style: normal;
@@ -117,52 +112,6 @@
 .console-draw-detail__action--primary {
   border-color: var(--tch-color-primary, #20205a);
   color: var(--tch-color-primary, #20205a);
-}
-
-.console-draw-detail__aside {
-  display: grid;
-  gap: 16px;
-  padding: 20px;
-  border-radius: 8px;
-  background: var(--tch-color-primary, #20205a);
-  color: var(--tch-color-on-primary, #fff);
-}
-
-.console-draw-detail__aside-head,
-.console-draw-detail__aside-context {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.console-draw-detail__aside-head p,
-.console-draw-detail__aside-context,
-.console-draw-detail__aside-advice {
-  color: color-mix(in srgb, var(--tch-color-on-primary, #fff) 78%, transparent);
-}
-
-.console-draw-detail__aside-context code {
-  color: var(--tch-color-on-primary, #fff);
-}
-
-.console-draw-detail__aside-grid {
-  grid-template-columns: 1fr;
-}
-
-.console-draw-detail__aside-row {
-  border-color: color-mix(in srgb, var(--tch-color-on-primary, #fff) 18%, transparent);
-  background: color-mix(in srgb, var(--tch-color-on-primary, #fff) 8%, transparent);
-}
-
-.console-draw-detail__aside-row span,
-.console-draw-detail__aside-row em {
-  color: color-mix(in srgb, var(--tch-color-on-primary, #fff) 70%, transparent);
-}
-
-.console-draw-detail__aside-row strong,
-.console-draw-detail__aside h2 {
-  color: var(--tch-color-on-primary, #fff);
 }
 
 .console-draw-detail__aside-advice {

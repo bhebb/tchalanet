@@ -60,6 +60,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -107,6 +108,7 @@ public class TenantAdminDashboardPayloadAssembler {
     ZoneId tz = ctx.tenantZoneId() != null ? ctx.tenantZoneId() : ZoneOffset.UTC;
     DashboardPeriod selectedPeriod = period != null ? period : DashboardPeriod.TODAY;
     DashboardPeriod.Windows windows = selectedPeriod.windows(LocalDate.now(tz));
+    DashboardPeriod.Windows trendWindows = salesTrendWindows(windows);
     DashboardTiming timing = DashboardTiming.start();
 
     // Grouped reads — loaded once, shared across builders. A failed read becomes an explicit
@@ -167,6 +169,26 @@ public class TenantAdminDashboardPayloadAssembler {
                         TenantAdminErrorCodes.DASHBOARD_ANALYTICS_UNAVAILABLE,
                         "tenant_admin_dashboard.analytics",
                         () -> loadDashboardStats(tenantId, windows.from(), windows.to()),
+                        () -> null)
+                    : DashboardSlice.unavailable(null));
+    DashboardSlice<AnalyticsTrustStateView> trendAnalyticsTrust =
+        timing.record(
+            "trendAnalyticsTrust",
+            () ->
+                optionalSlice(
+                    TenantAdminErrorCodes.DASHBOARD_ANALYTICS_UNAVAILABLE,
+                    "tenant_admin_dashboard.analytics.trend",
+                    () -> loadRequiredAnalyticsTrust(tenantId, trendWindows),
+                    () -> null));
+    DashboardSlice<TenantDashboardStatsView> trendAnalytics =
+        timing.record(
+            "trendAnalytics",
+            () ->
+                trendAnalyticsTrust.availability() == DashboardSectionAvailability.AVAILABLE
+                    ? optionalSlice(
+                        TenantAdminErrorCodes.DASHBOARD_ANALYTICS_UNAVAILABLE,
+                        "tenant_admin_dashboard.analytics.trend",
+                        () -> loadDashboardStats(tenantId, trendWindows.from(), trendWindows.to()),
                         () -> null)
                     : DashboardSlice.unavailable(null));
     DashboardSlice<TenantDashboardStatsView> comparisonAnalytics =
@@ -245,7 +267,8 @@ public class TenantAdminDashboardPayloadAssembler {
                     selectedPeriod,
                     windows));
     TenantSalesTrendPayload salesTrend =
-        timing.record("buildSalesTrend", () -> buildSalesTrend(analytics.value()));
+        timing.record(
+            "buildSalesTrend", () -> buildSalesTrend(trendAnalytics.value(), trendWindows));
     DashboardSlice<TenantTerminalPerformancePayload> terminalPerformance =
         timing.record(
             "terminalPerformance",
@@ -293,6 +316,7 @@ public class TenantAdminDashboardPayloadAssembler {
                 commercial,
                 kpisView,
                 analytics,
+                trendAnalytics,
                 openDraws,
                 closedDraws,
                 notifCount,
@@ -410,6 +434,7 @@ public class TenantAdminDashboardPayloadAssembler {
       DashboardSlice<?> commercial,
       DashboardSlice<?> kpis,
       DashboardSlice<?> analytics,
+      DashboardSlice<?> trendAnalytics,
       DashboardSlice<?> openDraws,
       DashboardSlice<?> closedDraws,
       DashboardSlice<?> notifications,
@@ -422,6 +447,7 @@ public class TenantAdminDashboardPayloadAssembler {
             DashboardSectionState.of("commercial", commercial),
             DashboardSectionState.of("kpis", kpis),
             DashboardSectionState.of("analytics", analytics),
+            DashboardSectionState.of("analyticsTrend", trendAnalytics),
             DashboardSectionState.of("openDraws", openDraws),
             DashboardSectionState.of("closedDraws", closedDraws),
             DashboardSectionState.of("notifications", notifications),
@@ -615,25 +641,43 @@ public class TenantAdminDashboardPayloadAssembler {
     };
   }
 
-  private TenantSalesTrendPayload buildSalesTrend(TenantDashboardStatsView view) {
+  private TenantSalesTrendPayload buildSalesTrend(
+      TenantDashboardStatsView view, DashboardPeriod.Windows windows) {
+    if (view == null || view.dailyBreakdown() == null || view.dailyBreakdown().isEmpty()) {
+      return new TenantSalesTrendPayload(List.of());
+    }
+
+    Map<LocalDate, TenantDashboardStatsView.TenantDailyPoint> byDate =
+        view.dailyBreakdown().stream()
+            .filter(point -> point.refDate() != null)
+            .collect(Collectors.toMap(
+                TenantDashboardStatsView.TenantDailyPoint::refDate,
+                point -> point,
+                (first, ignored) -> first,
+                LinkedHashMap::new));
+
     List<TenantTrendItem> points = new ArrayList<>();
-    if (view != null && view.dailyBreakdown() != null) {
-      points.addAll(
-          view.dailyBreakdown().stream()
-              .map(
-                  p ->
-                      new TenantTrendItem(
-                          p.refDate() != null ? p.refDate().toString() : "",
-                          p.refDate() != null ? p.refDate().toString() : "",
-                          p.grossSales() != null ? p.grossSales() : BigDecimal.ZERO,
-                          p.netRevenueEstimated() != null
-                              ? p.netRevenueEstimated()
-                              : BigDecimal.ZERO,
-                          p.ticketsSold()))
-              .toList());
+    for (LocalDate date = windows.from(); !date.isAfter(windows.to()); date = date.plusDays(1)) {
+      var point = byDate.get(date);
+      points.add(
+          new TenantTrendItem(
+              date.toString(),
+              date.toString(),
+              point != null && point.grossSales() != null ? point.grossSales() : BigDecimal.ZERO,
+              point != null && point.netRevenueEstimated() != null
+                  ? point.netRevenueEstimated()
+                  : BigDecimal.ZERO,
+              point != null ? point.ticketsSold() : 0L));
     }
 
     return new TenantSalesTrendPayload(points);
+  }
+
+  /** The chart is a seven-day view anchored to the selected period's upper bound. */
+  private static DashboardPeriod.Windows salesTrendWindows(DashboardPeriod.Windows selected) {
+    LocalDate to = selected.to();
+    LocalDate from = to.minusDays(6);
+    return new DashboardPeriod.Windows(from, to, from.minusDays(7), to.minusDays(7));
   }
 
   private TenantGameBreakdownPayload buildGameBreakdown(TenantDashboardStatsView view) {

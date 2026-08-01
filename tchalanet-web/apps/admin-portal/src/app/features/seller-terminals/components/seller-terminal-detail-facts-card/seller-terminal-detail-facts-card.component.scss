@@ -1,3 +1,9 @@
+.seller-terminal-detail-facts__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
 .seller-terminal-detail-facts {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));

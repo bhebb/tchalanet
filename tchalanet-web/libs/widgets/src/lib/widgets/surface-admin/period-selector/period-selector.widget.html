@@ -3,6 +3,7 @@
     <span class="period-selector__title">{{ titleKey() | tchLabel }}</span>
     @if (dateRange(); as range) {
       <span class="period-selector__selection">
+        <span class="material-symbols-outlined" aria-hidden="true">calendar_today</span>
         {{ periodLabelKey(selectedPeriod()) | tchLabel }} · {{ range }}
       </span>
     }
@@ -18,10 +19,8 @@
         [routerLink]="[]"
         [queryParams]="period === 'TODAY' ? { period: null } : { period: period }"
         queryParamsHandling="merge"
-        routerLinkActive="period-selector__option--selected"
-        [routerLinkActiveOptions]="{ queryParams: 'subset' }"
-        #activeLink="routerLinkActive"
-        [attr.aria-current]="activeLink.isActive ? 'page' : null"
+        [class.period-selector__option--selected]="selectedPeriod() === period"
+        [attr.aria-current]="selectedPeriod() === period ? 'page' : null"
       >
         {{ periodLabelKey(period) | tchLabel }}
       </a>
