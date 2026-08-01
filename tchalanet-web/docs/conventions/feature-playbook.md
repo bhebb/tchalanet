@@ -64,6 +64,30 @@ tch-admin-page-shell
 - Une action de collection ou de ligne utilise les composants de feedback communs et recharge la
   resource sans blanchir la liste.
 
+### Choisir une liste courte ou une table longue
+
+Avant de choisir le composant, qualifier la collection sur trois axes :
+
+1. **Volume attendu** : la collection est-elle bornée et courte pour un tenant, ou peut-elle
+   contenir des centaines/milliers de lignes ?
+2. **Importance opérationnelle** : l'utilisateur doit-il scanner quelques éléments et agir vite,
+   ou comparer/rechercher un historique complet ?
+3. **Écrans cibles** : quelle présentation est lisible sur mobile, tablette et desktop ?
+
+| Situation | Desktop | Tablette | Mobile | Données |
+| --- | --- | --- | --- | --- |
+| Collection courte et bornée, par exemple terminaux d'un tenant ou tirages du jour | liste/cartes ou tableau compact | cartes ou grille compacte | cartes autonomes | chargement borné, pagination seulement si nécessaire |
+| Collection longue ou historique, par exemple tickets | table paginée | table compacte ou cartes structurées selon la largeur | cartes compactes avec les champs essentiels | pagination, tri, filtres et recherche côté serveur |
+
+Une table longue ne doit pas être remplacée par une carte par ligne sur desktop : la densité, la
+comparaison entre lignes et la pagination sont prioritaires. Inversement, une table large ne doit
+pas être simplement laissée en débordement horizontal sur mobile : la même ligne doit avoir une
+version carte avec identité, statut, faits essentiels et actions accessibles.
+
+La décision et la matrice responsive doivent être écrites dans le cadrage du feature avant son
+implémentation. Les KPI de collection restent au-dessus de la recherche uniquement s'ils répondent
+à une question opérationnelle claire.
+
 ### Détail
 
 ```text

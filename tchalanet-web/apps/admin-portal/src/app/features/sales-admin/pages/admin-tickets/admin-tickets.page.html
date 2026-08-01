@@ -126,8 +126,16 @@
                 </ng-container>
 
                 <ng-container matColumnDef="actions">
-                  <th mat-header-cell *matHeaderCellDef>{{ 'admin.tickets.list.columns.actions' | translate }}</th>
-                  <td mat-cell *matCellDef="let row">
+                    <th mat-header-cell *matHeaderCellDef>{{ 'admin.tickets.list.columns.actions' | translate }}</th>
+                    <td mat-cell *matCellDef="let row">
+                    <a
+                      mat-stroked-button
+                      class="tickets-page__details"
+                      [routerLink]="['/app/admin/tickets', row.id]"
+                    >
+                      <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
+                      {{ 'admin.tickets.list.actions.viewDetails' | translate }}
+                    </a>
                     <button
                       mat-stroked-button
                       type="button"
@@ -153,6 +161,73 @@
                   [routerLink]="['/app/admin/tickets', row.id]"
                 ></tr>
               </table>
+            </div>
+
+            <div
+              class="tickets-page__mobile-list"
+              [attr.aria-label]="'admin.tickets.list.title' | translate"
+            >
+              @for (row of ticketRows(); track row.id) {
+                <article class="tickets-page__mobile-card">
+                  <div class="tickets-page__mobile-header">
+                    <a class="tickets-page__mobile-code" [routerLink]="['/app/admin/tickets', row.id]">
+                      <span class="tickets-page__code">{{ row.ticketCode }}</span>
+                    </a>
+                    <tch-admin-status-pill
+                      [label]="statusLabelKey(row.status) | translate"
+                      [tone]="statusTone(row.status)"
+                    />
+                  </div>
+
+                  <dl class="tickets-page__mobile-facts">
+                    <div>
+                      <dt>{{ 'admin.tickets.list.columns.channel' | translate }}</dt>
+                      <dd>
+                        @if (ticketDrawIdentity(row); as identity) {
+                          <tch-draw-label
+                            density="compact"
+                            [primary]="identity.receiptLabel"
+                            [logoUrl]="identity.identity.providerLogoUrl"
+                          />
+                        }
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>{{ 'admin.tickets.list.columns.draw' | translate }}</dt>
+                      <dd>{{ row.drawScheduledAt | date:'dd/MM/yyyy HH:mm' }}</dd>
+                    </div>
+                    <div>
+                      <dt>{{ 'admin.tickets.list.columns.amount' | translate }}</dt>
+                      <dd class="tickets-page__amount">{{ amountDisplay(row.totalAmountCents) }} {{ row.currency }}</dd>
+                    </div>
+                    <div>
+                      <dt>{{ 'admin.tickets.list.columns.placedAt' | translate }}</dt>
+                      <dd>{{ row.placedAt | date:'dd/MM/yyyy HH:mm' }}</dd>
+                    </div>
+                  </dl>
+
+                  <div class="tickets-page__mobile-actions">
+                    <a mat-stroked-button [routerLink]="['/app/admin/tickets', row.id]">
+                      <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
+                      {{ 'admin.tickets.list.actions.viewDetails' | translate }}
+                    </a>
+                    <button
+                      mat-stroked-button
+                      type="button"
+                      class="tickets-page__reprint"
+                      [disabled]="!canReprint(row)"
+                      (click)="reprint(row, $event)"
+                    >
+                      @if (reprintingTicketId() === row.id) {
+                        <span class="material-symbols-outlined tickets-page__spin" aria-hidden="true">progress_activity</span>
+                      } @else {
+                        <span class="material-symbols-outlined" aria-hidden="true">print</span>
+                      }
+                      {{ 'admin.tickets.list.actions.reprint' | translate }}
+                    </button>
+                  </div>
+                </article>
+              }
             </div>
           </ng-container>
 

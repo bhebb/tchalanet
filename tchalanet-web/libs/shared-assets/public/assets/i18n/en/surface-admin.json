@@ -175,6 +175,7 @@
         },
         "actions": {
           "sell": "Sell ticket",
+          "viewDetails": "View details",
           "reprint": "Reprint"
         },
         "columns": {
