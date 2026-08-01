@@ -9,11 +9,12 @@
           "title": "Chanje to komisyon pa defo"
         }
       },
-      "title": "Komisyon",
-      "description": "To komisyon pa defo ak pou chak vandè.",
+      "title": "Konfigirasyon vandè",
+      "description": "Jere to komisyon ak barèm pou chak vandè.",
       "action": {
         "editDefaultRate": "Modifye to tenant lan",
         "editRate": "Modifye to a",
+        "editPricing": "Modifye barèm yo",
         "resetRate": "Retounen sou to pa defo a",
         "viewTerminal": "Gade tèminal la",
         "menu": "Aksyon komisyon"

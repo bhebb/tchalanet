@@ -9,11 +9,12 @@
           "title": "Modifier le taux de commission par défaut"
         }
       },
-      "title": "Commissions",
-      "description": "Taux de commission par défaut et par vendeur.",
+      "title": "Configuration vendeurs",
+      "description": "Gérez les taux de commission et les barèmes de chaque vendeur.",
       "action": {
         "editDefaultRate": "Modifier le taux du tenant",
         "editRate": "Modifier le taux",
+        "editPricing": "Modifier les barèmes",
         "resetRate": "Revenir au taux par défaut",
         "viewTerminal": "Voir le terminal",
         "menu": "Actions de commission"

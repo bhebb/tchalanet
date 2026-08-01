@@ -408,7 +408,7 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
           },
           {
             id: 'sellers-commissions',
-            labelKey: 'nav.admin.controls_commissions',
+            labelKey: 'nav.admin.seller_configuration',
             icon: 'percent',
             destination: { kind: 'route', value: '/app/admin/seller-terminals/commissions' },
           },

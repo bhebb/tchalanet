@@ -9,11 +9,12 @@
           "title": "Edit default commission rate"
         }
       },
-      "title": "Commissions",
-      "description": "Default and seller-specific commission rates.",
+      "title": "Seller configuration",
+      "description": "Manage commission rates and pricing scales for each seller.",
       "action": {
         "editDefaultRate": "Edit tenant rate",
         "editRate": "Edit rate",
+        "editPricing": "Edit pricing scales",
         "resetRate": "Use default rate",
         "viewTerminal": "View terminal",
         "menu": "Commission actions"
