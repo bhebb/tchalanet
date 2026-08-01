@@ -72,19 +72,110 @@ permissions:
   security-events: write
 
 jobs:
-  ensure-staging-infra:
-    name: Ensure staging infra
-    if: github.event.schedule == '0 6 * * 0' || inputs.run_server_e2e == true
-    uses: ./.github/workflows/reusable-staging-core-infra.yml
-    with:
-      create_if_missing: true
-      deploy_core: true
-    secrets:
+  # ---------------------------------------------------------------------------
+  # Provision a fresh, disposable staging environment.
+  # Runs on Sunday schedule and when E2E / runtime deploy is requested.
+  # Destroys any existing stg-app first so every run starts from a clean slate.
+  # DB is ephemeral (local containers); SKIP_BACKUP=1 everywhere.
+  # ---------------------------------------------------------------------------
+  env-setup:
+    name: Provision fresh staging env
+    if: >
+      github.event.schedule == '0 6 * * 0' ||
+      inputs.run_server_e2e == true ||
+      inputs.deploy_runtime_for_e2e == true
+    runs-on: ubuntu-latest
+    environment: staging
+    outputs:
+      server_host: ${{ steps.resolve-host.outputs.server_host }}
+    env:
       HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}
-      SERVER_HOST: ${{ secrets.SERVER_HOST }}
-      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-      DOPPLER_TOKEN_STG: ${{ secrets.DOPPLER_TOKEN_STG }}
-      FIREBASE_ADMIN_JSON_BASE64: ${{ secrets.FIREBASE_ADMIN_JSON_BASE64 }}
+      SSH_PRIVATE_KEY_VALUE: ${{ secrets.SSH_PRIVATE_KEY }}
+      DOPPLER_TOKEN_VALUE: ${{ secrets.DOPPLER_TOKEN_STG }}
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup hcloud
+        uses: hetznercloud/setup-hcloud@ac9e7d74fb41a3ca44a6a3da123bd5aa70731e3a # v2.0.0
+        with:
+          token: ${{ secrets.HCLOUD_TOKEN }}
+
+      - name: Validate infra secrets
+        run: |
+          set -euo pipefail
+          [ -n "$HCLOUD_TOKEN" ] || { echo "Missing HCLOUD_TOKEN" >&2; exit 1; }
+          [ -n "$SSH_PRIVATE_KEY_VALUE" ] || { echo "Missing SSH_PRIVATE_KEY" >&2; exit 1; }
+          [ -n "$DOPPLER_TOKEN_VALUE" ] || { echo "Missing DOPPLER_TOKEN_STG" >&2; exit 1; }
+
+      - name: Prepare SSH key
+        uses: ./.github/actions/prepare-ssh-key
+        with:
+          private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          key_file: tchalanet_stg
+          derive_public_key: 'true'
+
+      - name: Destroy existing staging server
+        working-directory: tchalanet-infra
+        env:
+          SKIP_BACKUP: '1'
+        run: |
+          set -euo pipefail
+          if hcloud server describe stg-app >/dev/null 2>&1; then
+            echo "→ Destroying existing stg-app for a clean E2E run..."
+            printf 'destroy staging\n' | make staging-destroy
+          else
+            echo "→ No existing stg-app to destroy"
+          fi
+
+      - name: Create fresh staging server
+        working-directory: tchalanet-infra
+        run: make staging-create
+
+      - name: Resolve staging host
+        id: resolve-host
+        run: |
+          set -euo pipefail
+          ip="$(hcloud server describe stg-app -o json | jq -r '.public_net.ipv4.ip')"
+          [ -n "$ip" ] && [ "$ip" != "null" ] || { echo "Unable to resolve stg-app IP" >&2; exit 1; }
+          echo "server_host=$ip" >> "$GITHUB_OUTPUT"
+          ssh-keyscan -H "$ip" >> ~/.ssh/known_hosts
+          echo "Staging host: $ip"
+
+      - name: Push infra files to server
+        uses: ./.github/actions/push-infra-files
+        with:
+          server_host: ${{ steps.resolve-host.outputs.server_host }}
+          deploy_env: staging
+          ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          key_file: tchalanet_stg
+          firebase_admin_json_base64: ${{ secrets.FIREBASE_ADMIN_JSON_BASE64 }}
+          derive_public_key: 'true'
+
+      - name: Deploy core infra services
+        uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1.2.5
+        env:
+          DOPPLER_TOKEN: ${{ env.DOPPLER_TOKEN_VALUE }}
+        with:
+          host: ${{ steps.resolve-host.outputs.server_host }}
+          username: tch
+          key: ${{ env.SSH_PRIVATE_KEY_VALUE }}
+          script_stop: true
+          envs: DOPPLER_TOKEN
+          script: |
+            set -euo pipefail
+            cd /opt/tchalanet-infra
+            if ! command -v make >/dev/null 2>&1; then
+              sudo apt-get update
+              sudo apt-get install -y make
+            fi
+            chmod +x scripts/remote/*.sh scripts/utils/*.sh || true
+            ./scripts/remote/01-bootstrap.sh staging
+            DOCKER_BIN="docker"
+            if ! docker ps >/dev/null 2>&1; then
+              DOCKER_BIN="sudo docker"
+            fi
+            DOCKER_BIN="$DOCKER_BIN" ENV=staging DOPPLER_TOKEN="$DOPPLER_TOKEN" scripts/remote/deploy-core-services.sh
 
   server-it:
     name: Server IT
@@ -275,102 +366,15 @@ jobs:
           sarif_file: trivy-edge.sarif
           category: trivy-edge
 
-  ensure-nightly-infra:
-    name: Ensure nightly staging infra
-    if: github.event.schedule == '0 6 * * 0' || inputs.ensure_staging_infra == true
-    runs-on: ubuntu-latest
-    environment: staging
-    outputs:
-      server_host: ${{ steps.resolve-host.outputs.server_host }}
-    env:
-      HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}
-      SERVER_HOST_SECRET: ${{ secrets.SERVER_HOST }}
-      SSH_PRIVATE_KEY_VALUE: ${{ secrets.SSH_PRIVATE_KEY }}
-      DOPPLER_TOKEN_VALUE: ${{ secrets.DOPPLER_TOKEN_STG }}
-    steps:
-      - uses: actions/checkout@v7
-
-      - name: Setup hcloud
-        uses: hetznercloud/setup-hcloud@ac9e7d74fb41a3ca44a6a3da123bd5aa70731e3a # v2.0.0
-
-      - name: Validate infra secrets
-        run: |
-          set -euo pipefail
-          [ -n "$HCLOUD_TOKEN" ] || { echo "Missing HCLOUD_TOKEN" >&2; exit 1; }
-          [ -n "$SSH_PRIVATE_KEY_VALUE" ] || { echo "Missing SSH_PRIVATE_KEY" >&2; exit 1; }
-          [ -n "$DOPPLER_TOKEN_VALUE" ] || { echo "Missing DOPPLER_TOKEN_STG" >&2; exit 1; }
-
-      - name: Prepare SSH key
-        run: |
-          set -euo pipefail
-          mkdir -p ~/.ssh
-          printf '%s\n' "$SSH_PRIVATE_KEY_VALUE" > ~/.ssh/tchalanet_stg
-          chmod 600 ~/.ssh/tchalanet_stg
-          ssh-keygen -y -f ~/.ssh/tchalanet_stg > ~/.ssh/tchalanet_stg.pub
-
-      - name: Create staging server when absent
-        working-directory: tchalanet-infra
-        run: |
-          set -euo pipefail
-          if hcloud server describe stg-app >/dev/null 2>&1; then
-            echo "stg-app already exists"
-          else
-            make staging-create
-          fi
-
-      - name: Resolve staging host
-        id: resolve-host
-        run: |
-          set -euo pipefail
-          ip="$(hcloud server describe stg-app -o json | jq -r '.public_net.ipv4.ip')"
-          if [ -z "$ip" ] || [ "$ip" = "null" ]; then
-            ip="$SERVER_HOST_SECRET"
-          fi
-          [ -n "$ip" ] || { echo "Unable to resolve staging server host" >&2; exit 1; }
-          echo "server_host=$ip" >> "$GITHUB_OUTPUT"
-          ssh-keyscan -H "$ip" >> ~/.ssh/known_hosts
-          echo "Nightly staging host: $ip"
-
-      - name: Push infra files to server
-        working-directory: tchalanet-infra
-        run: |
-          set -euo pipefail
-          chmod +x scripts/remote/*.sh || true
-          ./scripts/remote/push-infra-bkup.sh "${{ steps.resolve-host.outputs.server_host }}" staging
-
-      - name: Deploy core infra services
-        uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1.2.5
-        env:
-          DOPPLER_TOKEN: ${{ env.DOPPLER_TOKEN_VALUE }}
-        with:
-          host: ${{ steps.resolve-host.outputs.server_host }}
-          username: tch
-          key: ${{ env.SSH_PRIVATE_KEY_VALUE }}
-          envs: DOPPLER_TOKEN
-          script: |
-            set -euo pipefail
-            cd /opt/tchalanet-infra
-            if ! command -v make >/dev/null 2>&1; then
-              sudo apt-get update
-              sudo apt-get install -y make
-            fi
-            chmod +x scripts/remote/*.sh scripts/utils/*.sh || true
-            ./scripts/remote/01-bootstrap.sh staging
-            DOCKER_BIN="docker"
-            if ! docker ps >/dev/null 2>&1; then
-              DOCKER_BIN="sudo docker"
-            fi
-            DOCKER_BIN="$DOCKER_BIN" ENV=staging DOPPLER_TOKEN="$DOPPLER_TOKEN" scripts/remote/deploy-core-services.sh
-
   deploy-nightly-runtime:
     name: Deploy nightly runtime
-    needs: [build-nightly-api, build-nightly-edge, ensure-nightly-infra]
+    needs: [build-nightly-api, build-nightly-edge, env-setup]
     if: |
       always() &&
       (github.event.schedule == '0 6 * * 0' || inputs.deploy_runtime_for_e2e == true) &&
       needs.build-nightly-api.result == 'success' &&
       needs.build-nightly-edge.result == 'success' &&
-      (needs.ensure-nightly-infra.result == 'success' || needs.ensure-nightly-infra.result == 'skipped')
+      needs.env-setup.result == 'success'
     runs-on: ubuntu-latest
     environment: staging
     outputs:
@@ -378,7 +382,7 @@ jobs:
       firebase_emulator_host: ${{ steps.runtime-coordinates.outputs.firebase_emulator_host }}
       firebase_auth_emulator_url: ${{ steps.runtime-coordinates.outputs.firebase_auth_emulator_url }}
     env:
-      SERVER_HOST: ${{ needs.ensure-nightly-infra.outputs.server_host || secrets.SERVER_HOST }}
+      SERVER_HOST: ${{ needs.env-setup.outputs.server_host }}
       SSH_PRIVATE_KEY_VALUE: ${{ secrets.SSH_PRIVATE_KEY }}
       DOPPLER_TOKEN_VALUE: ${{ secrets.DOPPLER_TOKEN_STG }}
       API_IMAGE_TAG: ${{ needs.build-nightly-api.outputs.image_tag }}
@@ -439,25 +443,18 @@ jobs:
 
   server-e2e:
     name: Server E2E
-    needs: [ensure-nightly-infra, deploy-nightly-runtime]
+    needs: [env-setup, deploy-nightly-runtime]
     if: |
       always() &&
       (github.event.schedule == '0 6 * * 0' || inputs.run_server_e2e == true) &&
-      (needs.ensure-nightly-infra.result == 'success' || needs.ensure-nightly-infra.result == 'skipped') &&
-      (
-        needs.deploy-nightly-runtime.result == 'success' ||
-        (
-          github.event_name == 'workflow_dispatch' &&
-          inputs.deploy_runtime_for_e2e != true &&
-          needs.deploy-nightly-runtime.result == 'skipped'
-        )
-      )
+      needs.env-setup.result == 'success' &&
+      needs.deploy-nightly-runtime.result == 'success'
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: tchalanet-server/testing/e2e
     env:
-      NIGHTLY_SERVER_HOST: ${{ needs.ensure-nightly-infra.outputs.server_host || secrets.SERVER_HOST }}
+      NIGHTLY_SERVER_HOST: ${{ needs.env-setup.outputs.server_host }}
       TCH_BASE_URL: ${{ needs.deploy-nightly-runtime.outputs.api_base_url || secrets.TCH_E2E_BASE_URL || vars.TCH_E2E_BASE_URL || 'https://api.stg.tchalanet.com/api/v1' }}
       TCH_E2E_VERIFY_SSL: ${{ vars.TCH_E2E_VERIFY_SSL || 'true' }}
       TCH_E2E_HTTP_TIMEOUT: ${{ vars.TCH_E2E_HTTP_TIMEOUT || '120' }}
@@ -547,7 +544,7 @@ jobs:
 
   server-perf:
     name: Server Locust smoke
-    needs: [server-e2e, ensure-nightly-infra]
+    needs: [server-e2e, env-setup]
     if: |
       always() &&
       (github.event_name == 'workflow_dispatch' && inputs.run_perf == true) &&
@@ -557,7 +554,7 @@ jobs:
       run:
         working-directory: tchalanet-server/testing/e2e
     env:
-      NIGHTLY_SERVER_HOST: ${{ needs.ensure-nightly-infra.outputs.server_host || secrets.SERVER_HOST }}
+      NIGHTLY_SERVER_HOST: ${{ needs.env-setup.outputs.server_host }}
       TCH_BASE_URL: ${{ secrets.TCH_E2E_BASE_URL || vars.TCH_E2E_BASE_URL || 'https://api.stg.tchalanet.com/api/v1' }}
       TCH_E2E_VERIFY_SSL: ${{ vars.TCH_E2E_VERIFY_SSL || 'true' }}
       TCH_E2E_HTTP_TIMEOUT: ${{ vars.TCH_E2E_HTTP_TIMEOUT || '120' }}
@@ -735,3 +732,90 @@ jobs:
           flutter clean
           flutter pub get
           flutter build apk --debug
+
+  # ---------------------------------------------------------------------------
+  # Report: always runs after all test jobs. Writes a GitHub step summary and
+  # posts to Slack when the SLACK_WEBHOOK_URL secret is configured.
+  # Exits 1 on failure so the overall workflow status reflects the E2E result.
+  # ---------------------------------------------------------------------------
+  report:
+    name: Nightly E2E report
+    if: always() && needs.env-setup.result != 'skipped'
+    needs: [env-setup, server-it, server-e2e, web-e2e, mobile-full]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build summary and notify
+        env:
+          ENV_SETUP: ${{ needs.env-setup.result }}
+          SERVER_IT: ${{ needs.server-it.result }}
+          SERVER_E2E: ${{ needs.server-e2e.result }}
+          WEB_E2E: ${{ needs.web-e2e.result }}
+          MOBILE: ${{ needs.mobile-full.result }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          overall="success"
+          for r in "$ENV_SETUP" "$SERVER_IT" "$SERVER_E2E"; do
+            [ "$r" = "success" ] || [ "$r" = "skipped" ] || overall="failure"
+          done
+          icon=$( [ "$overall" = "success" ] && echo "✅" || echo "❌" )
+          date_str="$(date -u '+%Y-%m-%d %H:%M UTC')"
+
+          cat >> "$GITHUB_STEP_SUMMARY" <<SUMMARY
+          ## ${icon} Nightly E2E — ${date_str}
+
+          | Job | Result |
+          |-----|--------|
+          | Staging env | ${ENV_SETUP} |
+          | Server IT | ${SERVER_IT} |
+          | Server E2E | ${SERVER_E2E} |
+          | Web E2E (advisory) | ${WEB_E2E} |
+          | Mobile | ${MOBILE} |
+
+          [View run](${RUN_URL})
+          SUMMARY
+
+          if [ -n "${SLACK_WEBHOOK_URL:-}" ]; then
+            msg="${icon} *Nightly E2E* — ${date_str}\nEnv: ${ENV_SETUP} | Server E2E: ${SERVER_E2E} | Web E2E: ${WEB_E2E} | Mobile: ${MOBILE}\n${RUN_URL}"
+            curl -sf -X POST "$SLACK_WEBHOOK_URL" \
+              -H 'Content-Type: application/json' \
+              -d "{\"text\":\"${msg}\"}" \
+              || echo "Slack notification failed (non-blocking)"
+          fi
+
+          [ "$overall" = "success" ] || exit 1
+
+  # ---------------------------------------------------------------------------
+  # Teardown: always destroys the staging VM after tests and report complete.
+  # SKIP_BACKUP=1 — the DB is ephemeral (local containers, disposable env).
+  # Skipped when env-setup was skipped (Saturday dependency-check schedule).
+  # ---------------------------------------------------------------------------
+  env-teardown:
+    name: Destroy staging env
+    if: always() && needs.env-setup.result != 'skipped'
+    needs: [env-setup, report]
+    runs-on: ubuntu-latest
+    environment: staging
+    env:
+      HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup hcloud
+        uses: hetznercloud/setup-hcloud@ac9e7d74fb41a3ca44a6a3da123bd5aa70731e3a # v2.0.0
+        with:
+          token: ${{ secrets.HCLOUD_TOKEN }}
+
+      - name: Destroy staging server
+        working-directory: tchalanet-infra
+        env:
+          SKIP_BACKUP: '1'
+        run: |
+          set -euo pipefail
+          if hcloud server describe stg-app >/dev/null 2>&1; then
+            printf 'destroy staging\n' | make staging-destroy
+          else
+            echo "stg-app already absent"
+          fi
