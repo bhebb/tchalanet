@@ -35,7 +35,21 @@ export class QuickActionsWidget {
   });
 
   routerPath(action: WidgetAction): string | null {
-    return action.destination?.kind === 'route' ? action.destination.value : null;
+    if (action.destination?.kind !== 'route') return null;
+    const queryIndex = action.destination.value.indexOf('?');
+    return queryIndex >= 0 ? action.destination.value.slice(0, queryIndex) : action.destination.value;
+  }
+
+  routerQueryParams(action: WidgetAction): Record<string, string> | null {
+    if (action.destination?.kind !== 'route') return null;
+    const queryIndex = action.destination.value.indexOf('?');
+    if (queryIndex < 0) return null;
+
+    const params: Record<string, string> = {};
+    new URLSearchParams(action.destination.value.slice(queryIndex + 1)).forEach((value, key) => {
+      params[key] = value;
+    });
+    return Object.keys(params).length > 0 ? params : null;
   }
 
   destinationHref = destinationHref;

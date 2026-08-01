@@ -13,13 +13,24 @@ export interface CommissionOverviewView {
 
 export type CommissionRateSource = 'DEFAULT' | 'CUSTOM';
 
+export type SerializedSellerTerminalId = { value: string } | string;
+
 export interface SellerTerminalCommissionRow {
-  id: { value: string };
+  /** The API names the typed-id field sellerTerminalId and serializes it as a UUID string. */
+  sellerTerminalId?: SerializedSellerTerminalId;
+  /** Compatibility with the previous frontend DTO shape. */
+  id?: SerializedSellerTerminalId;
   terminalCode: string;
   displayName: string;
   status: string;
   commissionRate: number;
   rateSource: CommissionRateSource;
+}
+
+export function sellerTerminalCommissionId(row: SellerTerminalCommissionRow): string {
+  const rawId = row.sellerTerminalId ?? row.id;
+  if (!rawId) throw new Error('Seller terminal commission row has no seller terminal id');
+  return typeof rawId === 'string' ? rawId : rawId.value;
 }
 
 @Injectable({ providedIn: 'root' })

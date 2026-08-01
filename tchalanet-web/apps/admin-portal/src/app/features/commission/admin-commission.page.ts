@@ -23,6 +23,7 @@ import {
   AdminCommissionApi,
   CommissionOverviewView,
   SellerTerminalCommissionRow,
+  sellerTerminalCommissionId,
 } from './data-access/admin-commission-api.service';
 import { SetDefaultRateDialog } from './dialogs/set-default-rate.dialog';
 import { SetSellerRateDialog } from './dialogs/set-seller-rate.dialog';
@@ -156,7 +157,7 @@ export class AdminCommissionPage implements OnInit {
 
   resetSellerRate(row: SellerTerminalCommissionRow): void {
     this.clearSectionError('admin.commission.sellers');
-    this.api.resetSellerRate(row.id.value, { suppressShellFeedback: true }).subscribe({
+    this.api.resetSellerRate(sellerTerminalCommissionId(row), { suppressShellFeedback: true }).subscribe({
       next: () => {
         this.load();
       },
