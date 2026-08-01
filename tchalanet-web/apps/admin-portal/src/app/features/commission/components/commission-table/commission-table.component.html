@@ -107,9 +107,11 @@
       <span class="material-symbols-outlined" aria-hidden="true">edit</span>
       {{ 'admin.commission.action.editRate' | translate }}
     </button>
-    <button mat-menu-item type="button" (click)="resetRate.emit(row)" [disabled]="isResetting(row)">
-      <span class="material-symbols-outlined" aria-hidden="true">restart_alt</span>
-      {{ 'admin.commission.action.resetRate' | translate }}
-    </button>
+    @if (row.rateSource === 'CUSTOM') {
+      <button mat-menu-item type="button" (click)="resetRate.emit(row)" [disabled]="isResetting(row)">
+        <span class="material-symbols-outlined" aria-hidden="true">restart_alt</span>
+        {{ 'admin.commission.action.resetRate' | translate }}
+      </button>
+    }
   </ng-template>
 </mat-menu>
