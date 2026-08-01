@@ -1,3 +1,5 @@
+@use 'breakpoints' as ui;
+
 :host {
   display: block;
 }
@@ -71,7 +73,7 @@
   color: var(--tch-color-on-primary, var(--mat-sys-on-primary));
 }
 
-@media (max-width: 42rem) {
+@include ui.down(medium) {
   .period-selector {
     align-items: flex-start;
     flex-direction: column;
