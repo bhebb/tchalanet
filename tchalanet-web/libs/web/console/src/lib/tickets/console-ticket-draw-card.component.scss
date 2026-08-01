@@ -1,0 +1,9 @@
+.console-ticket-draw-card__identity {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--tch-color-outline-variant, #d8d5df);
+  border-radius: var(--tch-radius-lg, 1rem);
+  background: var(--tch-color-surface-container-lowest, #fff);
+}

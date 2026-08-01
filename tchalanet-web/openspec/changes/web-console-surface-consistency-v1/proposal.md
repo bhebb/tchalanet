@@ -18,8 +18,10 @@ Définir et appliquer une charte commune pour les trois archétypes de la consol
 - **liste/tableau** : filtres, table, identité lisible, actions de ligne, pagination et états vides ;
 - **formulaire** : structure, validation, erreurs de champ, résumé d’erreur, mutation et succès.
 
-Les composants partagés vivent dans `@tch/ui/console`. Les pages restent propriétaires de leurs
-données, de leurs routes et de leurs règles métier.
+Les primitives de structure et de design vivent dans `@tch/ui/console`. Les composants de domaine
+présentant des données communes aux consoles vivent dans `@tch/web/console` et consomment ces
+primitives. Les pages restent propriétaires de leurs données, de leurs routes et de leurs règles
+métier.
 
 La première migration cible les détails des seller terminals, tickets et tirages, la page de
 commission et les rapports qui présentent actuellement des identifiants techniques ou des panneaux

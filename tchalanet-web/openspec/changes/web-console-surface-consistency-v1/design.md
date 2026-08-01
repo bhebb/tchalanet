@@ -92,6 +92,13 @@ Les primitives candidates sont :
 - `TchStatusBadge`, `TchFieldError`, `TchFormErrorSummary`, `TchNotice` et `tchMutation` pour le
   feedback.
 
+Pour les documents métier qui existent dans plusieurs consoles, les cartes de domaine vivent dans
+`@tch/web/console` et consomment les primitives de `@tch/ui/console`. Le détail d'un ticket utilise
+ainsi `ConsoleTicketDrawCard` pour le tirage et `ConsoleTicketSelectionsCard` pour les lignes de
+jeux/nombres. Les applications fournissent uniquement les données et les libellés traduits ; elles
+ne recréent ni le markup ni le SCSS. La même règle s'applique à une future fiche ticket du portail
+platform.
+
 Une nouvelle primitive n’est créée que si elle supprime une duplication réelle entre au moins deux
 features. Les pages ne doivent pas importer les styles d’une autre feature pour simuler une primitive.
 

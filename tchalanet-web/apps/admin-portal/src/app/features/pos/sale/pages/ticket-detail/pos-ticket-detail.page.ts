@@ -6,7 +6,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { mapHttpErrorToProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
-import { TchErrorPanel, TchGameSelectionChip, TchLoading, TchNotice } from '@tch/ui/components';
+import { TchErrorPanel, TchLoading, TchNotice } from '@tch/ui/components';
 import {
   AdminDetailLayoutComponent,
   AdminPageShellComponent,
@@ -15,7 +15,12 @@ import {
   TchIdentityCardComponent,
   type TchIdentityCardMeta,
 } from '@tch/ui/console';
-import { consoleTicketDrawIdentity } from '@tch/web/console';
+import {
+  ConsoleTicketDrawCardComponent,
+  ConsoleTicketSelectionsCardComponent,
+  consoleTicketDrawIdentity,
+} from '@tch/web/console';
+import type { ConsoleFact, ConsoleTicketSelectionView } from '@tch/web/console';
 import { ErrorViewModel, resolveErrorFeedbackCopy, toErrorViewModel } from '@tch/web/errors';
 import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -42,7 +47,8 @@ import {
     AdminSectionCardComponent,
     TchIdentityCardComponent,
     TchErrorPanel,
-    TchGameSelectionChip,
+    ConsoleTicketDrawCardComponent,
+    ConsoleTicketSelectionsCardComponent,
     TchLoading,
     TchNotice,
     TranslatePipe,
@@ -91,6 +97,53 @@ export class PosTicketDetailPage implements OnInit {
     return items;
   });
 
+  readonly drawCard = computed(() => {
+    const ticket = this.ticket();
+    if (!ticket) return null;
+
+    return consoleTicketDrawIdentity({
+      channelCode: ticket.drawChannelCode,
+      channelLabel: ticket.drawChannelName,
+      resultSlotKey: ticket.resultSlotKey,
+      drawDateLabel: this.formatDate(ticket.drawScheduledAt, 'dd/MM/yyyy'),
+      scheduledAt: ticket.drawScheduledAt,
+      fallbackLabel: ticket.drawChannelName,
+    });
+  });
+
+  readonly drawFacts = computed<readonly ConsoleFact[]>(() => {
+    const ticket = this.ticket();
+    const draw = this.drawCard();
+    if (!ticket || !draw) return [];
+
+    return [
+      {
+        label: this.translate.instant('admin.pos.detail.field.channel'),
+        value: draw.receiptLabel,
+      },
+      {
+        label: this.translate.instant('admin.pos.detail.field.dateTime'),
+        value: this.formatDate(ticket.drawScheduledAt, 'dd/MM/yyyy HH:mm'),
+      },
+    ];
+  });
+
+  readonly selectionLines = computed<readonly ConsoleTicketSelectionView[]>(() => {
+    const ticket = this.ticket();
+    if (!ticket) return [];
+
+    return ticket.lines.map(line => ({
+      lineNumber: line.lineNumber,
+      gameCode: line.gameCode,
+      gameLabel: this.gameLabel(line.gameCode, line.gameLabel),
+      selection: line.selection,
+      betTypeLabel: line.betTypeLabel,
+      amountLabel: `${this.amountDisplay(line.stakeAmountCents)} ${ticket.currency}`,
+      promotional: line.promotional,
+      promotionLabel: line.promotional ? this.promotionLabel(line.promotionLabel) : null,
+    }));
+  });
+
   readonly title = computed(() => {
     const ticket = this.ticket();
     return ticket ? `Ticket ${ticket.ticketCode}` : 'Détail du ticket';
@@ -111,6 +164,16 @@ export class PosTicketDetailPage implements OnInit {
       scheduledAt: ticket.drawScheduledAt,
       fallbackLabel: ticket.drawChannelName,
     }).receiptLabel;
+  }
+
+  private formatDate(value: string, format: 'dd/MM/yyyy' | 'dd/MM/yyyy HH:mm'): string {
+    const date = new Date(value);
+    if (!Number.isFinite(date.getTime())) return value;
+
+    const pad = (part: number): string => String(part).padStart(2, '0');
+    const dateLabel = `${pad(date.getDate())}/${pad(date.getMonth() + 1)}/${date.getFullYear()}`;
+    if (format === 'dd/MM/yyyy') return dateLabel;
+    return `${dateLabel} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
   }
 
   ngOnInit(): void {

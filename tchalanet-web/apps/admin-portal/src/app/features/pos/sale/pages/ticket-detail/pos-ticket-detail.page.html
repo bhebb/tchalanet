@@ -87,44 +87,18 @@
           </dl>
         </tch-admin-section-card>
 
-        <tch-admin-section-card [title]="'admin.pos.detail.section.draw' | translate" icon="event">
-          <dl class="ticket-detail__facts">
-            <div>
-              <dt>{{ 'admin.pos.detail.field.channel' | translate }}</dt>
-              <dd>{{ drawLabel(t) }}</dd>
-            </div>
-            <div>
-              <dt>{{ 'admin.pos.detail.field.dateTime' | translate }}</dt>
-              <dd>{{ t.drawScheduledAt | date:'dd/MM/yyyy HH:mm' }}</dd>
-            </div>
-          </dl>
-        </tch-admin-section-card>
+        @if (drawCard(); as draw) {
+          <tch-console-ticket-draw-card
+            [title]="'admin.pos.detail.section.draw' | translate"
+            [identity]="draw.identity"
+            [facts]="drawFacts()"
+          />
+        }
 
-        <tch-admin-section-card [title]="'admin.pos.detail.section.lines' | translate" icon="casino">
-          <div class="ticket-detail__lines">
-            @for (line of t.lines; track line.lineNumber) {
-              <article class="ticket-detail__line">
-                <tch-game-selection-chip
-                  class="ticket-detail__line-number"
-                  [gameCode]="line.gameCode"
-                  [selection]="line.selection"
-                />
-                <div class="ticket-detail__line-body">
-                  <h3>{{ gameLabel(line.gameCode, line.gameLabel) }}</h3>
-                  <p>{{ line.betTypeLabel }}</p>
-                  @if (line.promotional) {
-                    <span class="ticket-detail__promo">
-                      {{ promotionLabel(line.promotionLabel) }}
-                    </span>
-                  }
-                </div>
-                <div class="ticket-detail__line-money">
-                  <span>{{ amountDisplay(line.stakeAmountCents) }} {{ t.currency }}</span>
-                </div>
-              </article>
-            }
-          </div>
-        </tch-admin-section-card>
+        <tch-console-ticket-selections-card
+          [title]="'admin.pos.detail.section.lines' | translate"
+          [lines]="selectionLines()"
+        />
 
         @if (t.charges.length) {
           <tch-admin-section-card [title]="'admin.pos.detail.section.charges' | translate" icon="receipt_long">

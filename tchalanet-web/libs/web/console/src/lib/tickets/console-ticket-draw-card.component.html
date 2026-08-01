@@ -1,0 +1,9 @@
+<tch-admin-section-card [title]="title()" [description]="description()" [icon]="icon()">
+  <div class="console-ticket-draw-card__identity">
+    <tch-console-draw-slot-identity [identity]="identity()" [showTechnicalMeta]="false" />
+  </div>
+
+  @if (facts().length) {
+    <tch-console-facts [facts]="facts()" />
+  }
+</tch-admin-section-card>
