@@ -3,7 +3,7 @@
   <div class="quick-actions__grid">
     @for (action of actions(); track action.id ?? action.labelKey) {
       @if (routerPath(action); as path) {
-        <a class="qa-card" [routerLink]="path">
+        <a class="qa-card" [routerLink]="path" [queryParams]="routerQueryParams(action)">
           @if (action.icon) {
             <span class="qa-card__icon-wrap">
               <span class="qa-card__icon material-symbols-outlined" aria-hidden="true">
