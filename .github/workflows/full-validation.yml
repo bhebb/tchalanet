@@ -115,32 +115,38 @@ jobs:
           key_file: tchalanet_stg
           derive_public_key: 'true'
 
-      - name: Destroy existing staging server
+      - name: Destroy existing E2E server
         working-directory: tchalanet-infra
         env:
           SKIP_BACKUP: '1'
+          HCLOUD_SERVER_NAME: e2e-app
         run: |
           set -euo pipefail
-          if hcloud server describe stg-app >/dev/null 2>&1; then
-            echo "→ Destroying existing stg-app for a clean E2E run..."
+          if hcloud server describe e2e-app >/dev/null 2>&1; then
+            echo "→ Destroying existing e2e-app for a clean run..."
             printf 'destroy staging\n' | make staging-destroy
           else
-            echo "→ No existing stg-app to destroy"
+            echo "→ No existing e2e-app to destroy"
           fi
 
-      - name: Create fresh staging server
+      - name: Create fresh E2E server
         working-directory: tchalanet-infra
-        run: make staging-create
+        run: |
+          set -euo pipefail
+          # Reuse the existing tch-net network and tch-fw firewall from permanent staging.
+          bash scripts/hcloud/03-create-server.sh \
+            --name e2e-app \
+            --network "${HCLOUD_NETWORK_NAME:-tch-net}"
 
-      - name: Resolve staging host
+      - name: Resolve E2E server host
         id: resolve-host
         run: |
           set -euo pipefail
-          ip="$(hcloud server describe stg-app -o json | jq -r '.public_net.ipv4.ip')"
-          [ -n "$ip" ] && [ "$ip" != "null" ] || { echo "Unable to resolve stg-app IP" >&2; exit 1; }
+          ip="$(hcloud server describe e2e-app -o json | jq -r '.public_net.ipv4.ip')"
+          [ -n "$ip" ] && [ "$ip" != "null" ] || { echo "Unable to resolve e2e-app IP" >&2; exit 1; }
           echo "server_host=$ip" >> "$GITHUB_OUTPUT"
           ssh-keyscan -H "$ip" >> ~/.ssh/known_hosts
-          echo "Staging host: $ip"
+          echo "E2E server host: $ip"
 
       - name: Push infra files to server
         uses: ./.github/actions/push-infra-files
@@ -808,14 +814,15 @@ jobs:
         with:
           token: ${{ secrets.HCLOUD_TOKEN }}
 
-      - name: Destroy staging server
+      - name: Destroy E2E server
         working-directory: tchalanet-infra
         env:
           SKIP_BACKUP: '1'
+          HCLOUD_SERVER_NAME: e2e-app
         run: |
           set -euo pipefail
-          if hcloud server describe stg-app >/dev/null 2>&1; then
+          if hcloud server describe e2e-app >/dev/null 2>&1; then
             printf 'destroy staging\n' | make staging-destroy
           else
-            echo "stg-app already absent"
+            echo "e2e-app already absent"
           fi
