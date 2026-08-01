@@ -110,3 +110,33 @@
   background: var(--tch-color-surface-container-low, var(--mat-sys-surface-container-low));
   color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
 }
+
+.trend-chart__single {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 0.5rem;
+  min-height: 14rem;
+  padding: 2rem;
+  border: 1px dashed var(--tch-color-outline-variant, var(--mat-sys-outline-variant));
+  border-radius: var(--tch-radius-lg, 0.5rem);
+  background: var(--tch-color-surface-container-low, var(--mat-sys-surface-container-low));
+  text-align: center;
+}
+
+.trend-chart__single-label {
+  color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+  font-size: var(--tch-font-size-label-md, 0.875rem);
+  font-weight: 700;
+}
+
+.trend-chart__single-value {
+  color: var(--tch-color-on-surface, var(--mat-sys-on-surface));
+  font-size: var(--tch-font-size-headline-sm, 1.5rem);
+}
+
+.trend-chart__single p {
+  max-width: 28rem;
+  margin: 0;
+  color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+}

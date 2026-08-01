@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AdminEmptyStateComponent, AdminPageShellComponent, AdminSectionCardComponent } from '@tch/ui/console';
+import { AdminRefreshButtonComponent } from '@tch/ui/console';
 import { ConsoleGameNamePipe } from '@tch/web/console';
 import { TchAsyncReadyDirective, TchAsyncViewComponent, resourceErrorVm } from '@tch/web/async';
 
@@ -30,6 +31,7 @@ const DEFAULT_CURRENCY = 'HTG';
     TranslatePipe,
     AdminEmptyStateComponent,
     AdminPageShellComponent,
+    AdminRefreshButtonComponent,
     AdminSectionCardComponent,
     ConsoleGameNamePipe,
     AdminMetricCardComponent,

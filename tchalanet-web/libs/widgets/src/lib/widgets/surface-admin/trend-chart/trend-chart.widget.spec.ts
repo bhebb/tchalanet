@@ -72,6 +72,7 @@ describe('TrendChartWidget', () => {
 
     expect(cmp.points()).toEqual([{ id: '2026-07-16', label: '07/16', value: 250 }]);
     expect(cmp.linePoints()).toBe('0.00,12.00');
-    expect(cmp.areaPoints()).toBe('0,96 0.00,12.00 100,96');
+    expect(cmp.hasTrend()).toBe(false);
+    expect(cmp.areaPoints()).toBe('');
   });
 });

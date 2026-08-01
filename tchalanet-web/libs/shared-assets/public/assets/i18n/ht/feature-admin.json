@@ -12,16 +12,16 @@
       "title": "Komisyon",
       "description": "To komisyon pa defo ak pou chak vandè.",
       "action": {
-        "editDefaultRate": "Modifye to pa defo",
+        "editDefaultRate": "Modifye to tenant lan",
         "editRate": "Modifye to a",
-        "resetRate": "Remete to pa defo"
+        "resetRate": "Retounen sou to tenant lan"
       },
       "section": {
         "overview": "Rezime",
         "sellers": "Vandè"
       },
       "field": {
-        "defaultRate": "To pa defo",
+        "defaultRate": "To tenant lan",
         "totalSellers": "Total vandè",
         "atDefaultRate": "Nan to pa defo",
         "customRate": "To pèsonalize",
@@ -32,11 +32,11 @@
         "name": "Non",
         "status": "Estati",
         "rate": "To",
-        "source": "Sous"
+        "source": "Aplikasyon to a"
       },
       "source": {
-        "custom": "Pèsonalize",
-        "default": "Pa defo"
+        "custom": "To pèsonalize",
+        "default": "To tenant lan"
       },
       "empty": {
         "title": "Pa gen vandè",
@@ -1943,7 +1943,8 @@
       },
       "sales_trend": {
         "title": "Tandans lavant",
-        "empty": "Pa gen lavant pou peryòd sa a."
+        "empty": "Pa gen lavant pou peryòd sa a.",
+        "single": "Yon sèl jou pa pèmèt nou montre yon tandans ankò."
       },
       "terminal_performance": {
         "title": "Pèfòmans tèminal yo",

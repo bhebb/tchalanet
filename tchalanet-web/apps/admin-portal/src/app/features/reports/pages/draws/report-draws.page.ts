@@ -7,6 +7,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatTableModule } from '@angular/material/table';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AdminEmptyStateComponent, AdminPageShellComponent, AdminSectionCardComponent } from '@tch/ui/console';
+import { AdminRefreshButtonComponent } from '@tch/ui/console';
 import type { TchSearchOption } from '@tch/ui/components';
 import { ConsoleGameNamePipe } from '@tch/web/console';
 import { TchAsyncReadyDirective, TchAsyncViewComponent, resourceErrorVm } from '@tch/web/async';
@@ -44,6 +45,7 @@ function isDrawReportSort(value: string): value is DrawReportSort {
     TranslatePipe,
     AdminEmptyStateComponent,
     AdminPageShellComponent,
+    AdminRefreshButtonComponent,
     AdminSectionCardComponent,
     ConsoleGameNamePipe,
     DrawReportFilterBarComponent,

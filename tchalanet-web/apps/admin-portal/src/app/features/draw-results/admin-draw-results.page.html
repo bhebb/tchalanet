@@ -3,10 +3,12 @@
   description="Consultez les résultats, recherchez par slot et vérifiez l'historique appliqué au tenant."
 >
   <div actions>
-    <button mat-stroked-button [disabled]="loading()" (click)="load()">
-      <span class="material-symbols-outlined">refresh</span>
-      Rafraîchir
-    </button>
+    <tch-admin-refresh-button
+      label="Rafraîchir"
+      [disabled]="loading()"
+      [busy]="loading()"
+      (refreshRequested)="load()"
+    />
   </div>
 
   <tch-admin-crud-shell>

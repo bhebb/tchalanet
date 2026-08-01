@@ -9,6 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTableModule } from '@angular/material/table';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AdminEmptyStateComponent, AdminPageShellComponent, AdminSectionCardComponent } from '@tch/ui/console';
+import { AdminRefreshButtonComponent } from '@tch/ui/console';
 import { TchAsyncReadyDirective, TchAsyncViewComponent, resourceErrorVm } from '@tch/web/async';
 
 import {
@@ -32,6 +33,7 @@ const DEFAULT_CURRENCY = 'HTG';
     TranslatePipe,
     AdminEmptyStateComponent,
     AdminPageShellComponent,
+    AdminRefreshButtonComponent,
     AdminSectionCardComponent,
     DailySalesChartComponent,
     AdminMetricCardComponent,

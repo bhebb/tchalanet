@@ -22,10 +22,12 @@
                 <mat-icon aria-hidden="true">arrow_back</mat-icon>
                 {{ 'admin.reports.common.overview' | translate }}
               </a>
-              <button type="button" mat-stroked-button (click)="reload()">
-                <mat-icon aria-hidden="true">refresh</mat-icon>
-                {{ 'admin.reports.common.refresh' | translate }}
-              </button>
+              <tch-admin-refresh-button
+                [label]="'admin.reports.common.refresh' | translate"
+                [disabled]="draws.isLoading()"
+                [busy]="draws.isLoading()"
+                (refreshRequested)="reload()"
+              />
               <button type="button" mat-button [matMenuTriggerFor]="exportMenu">
                 <mat-icon aria-hidden="true">download</mat-icon>
                 {{ 'admin.reports.common.exportMenu' | translate }}

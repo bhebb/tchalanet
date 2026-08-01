@@ -17,6 +17,7 @@ import { RuntimeSettingsStore } from '@tch/shared-config';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { AdminPageShellComponent } from '@tch/ui/console';
+import { AdminRefreshButtonComponent } from '@tch/ui/console';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
 import { AdminCrudShellComponent } from '@tch/ui/console';
 import { AdminDataToolbarComponent } from '@tch/ui/console';
@@ -66,6 +67,7 @@ const RESULT_QUALITY_OPTIONS: Array<{ value: DrawResultQuality | ''; label: stri
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     AdminPageShellComponent,
+    AdminRefreshButtonComponent,
     AdminEmptyStateComponent,
     AdminCrudShellComponent,
     AdminDataToolbarComponent,

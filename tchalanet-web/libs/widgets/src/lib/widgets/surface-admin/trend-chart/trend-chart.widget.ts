@@ -1,3 +1,4 @@
+import { CurrencyPipe, DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 
 import {
@@ -21,7 +22,7 @@ type LabelFormat = 'raw' | 'date-short';
 @Component({
   selector: 'tch-trend-chart-widget',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [LabelPipe],
+  imports: [CurrencyPipe, DecimalPipe, LabelPipe],
   templateUrl: './trend-chart.widget.html',
   styleUrl: './trend-chart.widget.scss',
 })
@@ -32,6 +33,11 @@ export class TrendChartWidget {
 
   readonly titleKey = computed(() => stringProp(this.config(), 'titleKey') ?? '');
   readonly emptyKey = computed(() => stringProp(this.config(), 'emptyKey') ?? 'common.state.empty');
+  readonly singlePointKey = computed(
+    () => stringProp(this.config(), 'singlePointKey') ?? 'common.state.single_point',
+  );
+  readonly valueFormat = computed(() => stringProp(this.config(), 'valueFormat') ?? 'number');
+  readonly currencyCode = computed(() => stringProp(this.config(), 'currencyCode') ?? 'HTG');
   readonly pointsSource = computed(() => this.config()?.props?.['points'] ?? { source: 'dynamic', path: 'points' });
   readonly labelPath = computed(() => stringProp(this.config(), 'labelPath') ?? 'label');
   readonly valuePath = computed(() => stringProp(this.config(), 'valuePath') ?? 'value');
@@ -54,6 +60,8 @@ export class TrendChartWidget {
     });
   });
 
+  readonly hasTrend = computed(() => this.points().length >= 2);
+
   readonly linePoints = computed(() => {
     const points = this.points();
     if (points.length === 0) return '';
@@ -71,6 +79,7 @@ export class TrendChartWidget {
   });
 
   readonly areaPoints = computed(() => {
+    if (!this.hasTrend()) return '';
     const line = this.linePoints();
     return line ? `0,96 ${line} 100,96` : '';
   });

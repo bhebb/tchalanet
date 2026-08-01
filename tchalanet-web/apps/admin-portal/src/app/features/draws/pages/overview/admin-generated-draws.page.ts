@@ -21,6 +21,7 @@ import {
   tchMutation,
 } from '@tch/web/async';
 import { AdminPageShellComponent } from '@tch/ui/console';
+import { AdminRefreshButtonComponent } from '@tch/ui/console';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
 
 import {
@@ -81,6 +82,7 @@ interface LifecycleInput {
     MatMenuModule,
     MatNativeDateModule,
     AdminPageShellComponent,
+    AdminRefreshButtonComponent,
     AdminEmptyStateComponent,
     AdminListSurface,
     TchAsyncViewComponent,

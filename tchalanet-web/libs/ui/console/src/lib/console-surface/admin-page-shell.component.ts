@@ -5,8 +5,8 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="page-shell">
-      <header class="page-shell__header">
+    <div class="page-shell" data-testid="admin-page-shell">
+      <header class="page-shell__header" data-testid="admin-page-header">
         <div class="page-shell__title-group">
           <h1 class="page-shell__title">{{ title() }}</h1>
           @if (description()) {
@@ -14,14 +14,14 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
           }
           <ng-content select="[meta]" />
         </div>
-        <div class="page-shell__actions">
+        <div class="page-shell__actions" data-testid="admin-page-actions">
           <ng-content select="[actions]" />
         </div>
       </header>
       <div class="page-shell__feedback">
         <ng-content select="[feedback]" />
       </div>
-      <div class="page-shell__body">
+      <div class="page-shell__body" data-testid="admin-page-body">
         <ng-content />
       </div>
     </div>

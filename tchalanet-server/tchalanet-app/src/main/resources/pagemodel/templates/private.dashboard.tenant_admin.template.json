@@ -142,6 +142,9 @@
           "props": {
             "titleKey": "dashboard.tenant_admin.sales_trend.title",
             "emptyKey": "dashboard.tenant_admin.sales_trend.empty",
+            "singlePointKey": "dashboard.tenant_admin.sales_trend.single",
+            "valueFormat": "currency",
+            "currencyCode": "HTG",
             "hideOnError": false,
             "feedbackTargets": ["tenant_admin_dashboard.analytics"],
             "points": { "source": "dynamic", "path": "points" },

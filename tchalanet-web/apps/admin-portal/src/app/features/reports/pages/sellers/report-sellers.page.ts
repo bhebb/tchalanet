@@ -8,6 +8,7 @@ import { PageEvent } from '@angular/material/paginator';
 import { Sort } from '@angular/material/sort';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AdminEmptyStateComponent, AdminPageShellComponent, AdminSectionCardComponent } from '@tch/ui/console';
+import { AdminRefreshButtonComponent } from '@tch/ui/console';
 import { BadgeStatus } from '@tch/ui/components';
 import type { TchSearchOption } from '@tch/ui/components';
 import { TchAsyncReadyDirective, TchAsyncViewComponent, resourceErrorVm } from '@tch/web/async';
@@ -58,6 +59,7 @@ function isSellerReportSort(value: string): value is SellerReportSort {
     TranslatePipe,
     AdminEmptyStateComponent,
     AdminPageShellComponent,
+    AdminRefreshButtonComponent,
     AdminSectionCardComponent,
     AdminMetricCardComponent,
     SellerReportFilterBarComponent,

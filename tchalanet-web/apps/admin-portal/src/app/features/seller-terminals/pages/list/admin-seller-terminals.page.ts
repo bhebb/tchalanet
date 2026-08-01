@@ -17,6 +17,7 @@ import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
 import { AdminPageShellComponent } from '@tch/ui/console';
+import { AdminRefreshButtonComponent } from '@tch/ui/console';
 import { TchAsyncReadyDirective, TchAsyncViewComponent, resourceErrorVm } from '@tch/web/async';
 import {
   SellerTerminalApi,
@@ -39,6 +40,7 @@ import { SellerTerminalDialogResult } from './dialogs/seller-terminal-dialog-res
   imports: [
     RouterLink,
     AdminPageShellComponent,
+    AdminRefreshButtonComponent,
     AdminListSurface,
     AdminEmptyStateComponent,
     TchErrorPanel,

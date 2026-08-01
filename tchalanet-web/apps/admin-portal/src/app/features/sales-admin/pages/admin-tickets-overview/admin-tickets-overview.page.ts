@@ -10,6 +10,7 @@ import { consoleTicketDrawIdentity } from '@tch/web/console';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
 import { AdminMetricCardComponent } from '@tch/ui/console';
 import { AdminPageShellComponent } from '@tch/ui/console';
+import { AdminRefreshButtonComponent } from '@tch/ui/console';
 import { AdminSectionCardComponent } from '@tch/ui/console';
 import {
   TchAsyncReadyDirective,
@@ -48,6 +49,7 @@ const DEFAULT_CURRENCY = 'HTG';
     TranslatePipe,
     AdminEmptyStateComponent,
     AdminPageShellComponent,
+    AdminRefreshButtonComponent,
     AdminSectionCardComponent,
     TchAsyncReadyDirective,
     TchAsyncViewComponent,

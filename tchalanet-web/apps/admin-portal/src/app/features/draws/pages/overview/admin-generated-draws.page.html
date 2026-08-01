@@ -3,10 +3,12 @@
   description="Suivez les tirages générés, leur état de vente et les résultats attendus."
 >
   <div actions>
-    <button mat-stroked-button [disabled]="draws.isLoading()" (click)="draws.reload()">
-      <span class="material-symbols-outlined">refresh</span>
-      Actualiser
-    </button>
+    <tch-admin-refresh-button
+      label="Actualiser"
+      [disabled]="draws.isLoading()"
+      [busy]="draws.isLoading()"
+      (refreshRequested)="draws.reload()"
+    />
 
     <button mat-stroked-button [matMenuTriggerFor]="actionsMenu">
       <span class="material-symbols-outlined">more_vert</span>

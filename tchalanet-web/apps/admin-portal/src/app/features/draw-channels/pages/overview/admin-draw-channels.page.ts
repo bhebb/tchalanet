@@ -16,6 +16,7 @@ import { TchErrorPanel, TchSectionError } from '@tch/ui/components';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { AdminPageShellComponent } from '@tch/ui/console';
+import { AdminRefreshButtonComponent } from '@tch/ui/console';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
 
 import { AdminDrawChannelsApiService } from '../../data-access/admin-draw-channels-api.service';
@@ -50,6 +51,7 @@ type PageState = 'loading' | 'ready' | 'error';
     MatDialogModule,
     TranslatePipe,
     AdminPageShellComponent,
+    AdminRefreshButtonComponent,
     AdminEmptyStateComponent,
     TchErrorPanel,
     TchSectionError,

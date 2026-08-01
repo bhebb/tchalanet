@@ -12,16 +12,16 @@
       "title": "Commissions",
       "description": "Default and seller-specific commission rates.",
       "action": {
-        "editDefaultRate": "Edit default rate",
+        "editDefaultRate": "Edit tenant rate",
         "editRate": "Edit rate",
-        "resetRate": "Reset to default"
+        "resetRate": "Use tenant rate"
       },
       "section": {
         "overview": "Overview",
         "sellers": "Seller-terminals"
       },
       "field": {
-        "defaultRate": "Default rate",
+        "defaultRate": "Tenant rate",
         "totalSellers": "Total sellers",
         "atDefaultRate": "At default rate",
         "customRate": "Custom rate",
@@ -32,11 +32,11 @@
         "name": "Name",
         "status": "Status",
         "rate": "Rate",
-        "source": "Source"
+        "source": "Rate application"
       },
       "source": {
-        "custom": "Custom",
-        "default": "Default"
+        "custom": "Custom rate",
+        "default": "Tenant rate"
       },
       "empty": {
         "title": "No sellers",
@@ -1955,7 +1955,8 @@
       },
       "sales_trend": {
         "title": "Sales trend",
-        "empty": "No sales for this period."
+        "empty": "No sales for this period.",
+        "single": "A single day is not enough to show a trend yet."
       },
       "terminal_performance": {
         "title": "Seller performance",

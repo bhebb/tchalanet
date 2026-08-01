@@ -1,11 +1,11 @@
-<div class="admin-detail-layout">
-  <div class="admin-detail-layout__main">
+<div class="admin-detail-layout" data-testid="admin-detail-layout">
+  <div class="admin-detail-layout__main" data-testid="admin-detail-main">
     <ng-content select="[main]" />
-    <footer class="admin-detail-layout__footer">
+    <footer class="admin-detail-layout__footer" data-testid="admin-detail-footer">
       <ng-content select="[footer]" />
     </footer>
   </div>
-  <aside class="admin-detail-layout__aside">
+  <aside class="admin-detail-layout__aside" data-testid="admin-detail-aside">
     <ng-content select="[aside]" />
   </aside>
 </div>

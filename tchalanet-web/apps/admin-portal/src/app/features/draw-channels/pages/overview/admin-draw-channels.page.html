@@ -7,10 +7,12 @@
       <span class="material-symbols-outlined">arrow_back</span>
       {{ 'admin.drawChannels.actions.backToSetup' | translate }}
     </a>
-    <button mat-stroked-button [disabled]="pageState() === 'loading'" (click)="load()">
-      <span class="material-symbols-outlined">refresh</span>
-      {{ 'admin.drawChannels.actions.refresh' | translate }}
-    </button>
+    <tch-admin-refresh-button
+      [label]="'admin.drawChannels.actions.refresh' | translate"
+      [disabled]="pageState() === 'loading'"
+      [busy]="pageState() === 'loading'"
+      (refreshRequested)="load()"
+    />
   </div>
 
   @if (actionNotice(); as notice) {
