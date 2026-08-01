@@ -17,6 +17,16 @@ export interface PosOpenDrawView {
   label: string;
 }
 
+/** A draw can be selected for sale only while its server-provided cutoff is in the future. */
+export function isPosDrawAvailableNow(
+  draw: Pick<PosOpenDrawView, 'status' | 'cutoffAt'>,
+  nowMs = Date.now(),
+): boolean {
+  if (draw.status !== 'OPEN' && draw.status !== 'CLOSING_SOON') return false;
+  const cutoffMs = Date.parse(draw.cutoffAt);
+  return Number.isFinite(cutoffMs) && cutoffMs > nowMs;
+}
+
 // ── Game ───────────────────────────────────────────────────────────────────
 
 export interface PosBetOptionView {

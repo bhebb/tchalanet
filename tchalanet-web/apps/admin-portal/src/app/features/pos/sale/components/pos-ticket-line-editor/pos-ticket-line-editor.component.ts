@@ -243,7 +243,7 @@ export class PosTicketLineEditorComponent {
     if (betType === 'MARRIAGE_2D2D') {
       const match = /^(\d{2})-(\d{2})$/.exec(selection.trim());
       if (!match) return null;
-      return match[1] === match[2] ? null : `${match[1]}-${match[2]}`;
+      return `${match[1]}-${match[2]}`;
     }
 
     const digits = selection.replace(/\D/g, '');
@@ -273,7 +273,7 @@ export class PosTicketLineEditorComponent {
 
   private selectionErrorMessage(betType: string): string {
     if (betType === 'MARRIAGE_2D2D') {
-      return 'Entrez deux numéros différents de 2 chiffres.';
+      return 'Entrez deux numéros de 2 chiffres.';
     }
     const width = this.selectionWidth(betType);
     if (!width) return 'La sélection est invalide.';

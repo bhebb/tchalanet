@@ -56,6 +56,20 @@ describe(PosTicketLineEditorComponent.name, () => {
     });
   });
 
+  it('accepts a Maryaj pair with identical two-digit numbers', () => {
+    const emitted: unknown[] = [];
+    setGames([gameWithPolicy('IMPLICIT_BEST_MATCH')]);
+    component.lineAdded.subscribe(value => emitted.push(value));
+    component.draftMarriageFirst.set('12');
+    component.draftMarriageSecond.set('12');
+    component.draftStake.set(25);
+
+    component.addLine();
+
+    expect(emitted).toHaveLength(1);
+    expect(emitted[0]).toMatchObject({ selection: '12-12' });
+  });
+
   function setGames(games: PosGameView[]): void {
     fixture.componentRef.setInput('selectedGameCode', games[0]?.gameCode ?? null);
     fixture.componentRef.setInput('games', games);

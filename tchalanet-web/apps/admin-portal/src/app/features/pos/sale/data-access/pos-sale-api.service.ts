@@ -19,6 +19,7 @@ import {
   PosGameBetTypeView,
   PosGameView,
   PosOpenDrawView,
+  isPosDrawAvailableNow,
   PosSaleActionAvailabilityView,
   PosSellerTerminalListParams,
   PosSellerTerminalPickerView,
@@ -273,19 +274,21 @@ export class PosSaleApiService {
       })
       .pipe(
         map(draws =>
-          draws.map(d => ({
-            drawId: d.drawId,
-            drawChannelId: d.drawChannelId,
-            drawDate: d.drawDate,
-            resultSlotKey: d.resultSlotKey,
-            channelCode: d.channelCode,
-            channelLabel: d.channelLabel,
-            gameCodes: d.gameCodes ?? [],
-            status: d.status,
-            scheduledAt: d.scheduledAt,
-            cutoffAt: d.cutoffAt,
-            label: d.channelLabel,
-          })),
+          draws
+            .map(d => ({
+              drawId: d.drawId,
+              drawChannelId: d.drawChannelId,
+              drawDate: d.drawDate,
+              resultSlotKey: d.resultSlotKey,
+              channelCode: d.channelCode,
+              channelLabel: d.channelLabel,
+              gameCodes: d.gameCodes ?? [],
+              status: d.status,
+              scheduledAt: d.scheduledAt,
+              cutoffAt: d.cutoffAt,
+              label: d.channelLabel,
+            }))
+            .filter(draw => isPosDrawAvailableNow(draw)),
         ),
       );
   }
