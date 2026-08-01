@@ -1254,6 +1254,7 @@
         "action": {
           "new": "New seller",
           "detail": "View details",
+          "sellTickets": "Sell tickets",
           "openPos": "Open POS",
           "resetPin": "Reset PIN",
           "block": "Block",
@@ -1446,6 +1447,8 @@
         "description": "Review seller identity, states and activity.",
         "loading": "Loading seller-terminal...",
         "action": {
+          "sellTickets": "Sell tickets",
+          "overrides": "Edit settings",
           "openPos": "Open POS",
           "tickets": "Tickets"
         },

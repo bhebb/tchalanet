@@ -25,7 +25,6 @@ import {
   SellerTerminalDetailFactsCardComponent,
 } from '../../components/seller-terminal-detail-facts-card/seller-terminal-detail-facts-card.component';
 import { SellerTerminalTodayStatsCardComponent } from '../../components/seller-terminal-today-stats-card/seller-terminal-today-stats-card.component';
-import { SellerTerminalIdentityCardComponent } from '../../components/seller-terminal-identity-card/seller-terminal-identity-card.component';
 
 @Component({
   selector: 'tch-admin-seller-terminal-detail-page',
@@ -37,7 +36,6 @@ import { SellerTerminalIdentityCardComponent } from '../../components/seller-ter
     AdminPageShellComponent,
     TchIdentityCardComponent,
     SellerTerminalDetailFactsCardComponent,
-    SellerTerminalIdentityCardComponent,
     SellerTerminalTodayStatsCardComponent,
     TchAsyncReadyDirective,
     TchAsyncViewComponent,

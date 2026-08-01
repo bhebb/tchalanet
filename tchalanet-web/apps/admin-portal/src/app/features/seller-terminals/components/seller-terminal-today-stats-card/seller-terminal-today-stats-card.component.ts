@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
 import { TranslatePipe } from '@ngx-translate/core';
 
 import { TchErrorPanel } from '@tch/ui/components';
-import { AdminMetricCardComponent, AdminSectionCardComponent } from '@tch/ui/console';
+import { AdminMetricCardComponent } from '@tch/ui/console';
 import { ErrorViewModel } from '@tch/web/errors';
 
 import { SellerTerminalDailyFinancialRow } from '../../../reports/data-access/admin-financials-api.service';
@@ -12,7 +12,7 @@ import { SellerTerminalDailyFinancialRow } from '../../../reports/data-access/ad
   selector: 'tch-seller-terminal-today-stats-card',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AdminMetricCardComponent, AdminSectionCardComponent, DecimalPipe, TchErrorPanel, TranslatePipe],
+  imports: [AdminMetricCardComponent, DecimalPipe, TchErrorPanel, TranslatePipe],
   templateUrl: './seller-terminal-today-stats-card.component.html',
   styleUrls: ['./seller-terminal-today-stats-card.component.scss'],
 })

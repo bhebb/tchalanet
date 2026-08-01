@@ -1,3 +1,18 @@
-.seller-terminal-today-stats-card__grid {
+.seller-terminal-today-stats-card {
+  display: grid;
+  gap: 1rem;
+}
+
+.seller-terminal-today-stats-card__title {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
   margin: 0;
+  color: var(--tch-color-on-surface);
+  font-size: var(--tch-font-size-title-lg, 1.25rem);
+  font-weight: 700;
+}
+
+.seller-terminal-today-stats-card__title .material-symbols-outlined {
+  color: var(--tch-color-primary);
 }

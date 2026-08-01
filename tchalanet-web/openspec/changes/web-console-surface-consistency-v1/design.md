@@ -19,10 +19,27 @@ tch-admin-page-shell
     aside: résumé, métriques et raccourcis contextuels
 ```
 
+Pour un détail opérationnel dont le résumé doit suivre le contenu sur mobile et desktop, la même
+primitive peut fonctionner en mode une colonne. L'ordre de lecture est alors explicite :
+
+```text
+actions métier
+KPI de l'entité (si pertinents)
+identité / résumé bleu
+blocs de faits et de contrôles
+```
+
+Les KPI utilisent toujours `AdminMetricCard`, avec le même rendu que les KPI de la liste. Une
+entité documentaire comme un ticket peut utiliser le résumé et les cartes métier sans ajouter de
+KPI artificiels. Les cartes de tirage et de sélections restent des primitives de domaine partagées;
+la carte de tirage porte son canal et son heure, sans répéter ces informations dans les faits.
+
 Règles :
 
 - Le panneau de droite utilise une primitive partagée de résumé et les mêmes tokens que le contenu
   principal. Une feature ne crée pas une carte sombre ou une grille de métriques ad hoc.
+- Quand le résumé est dans le flux principal, `AdminDetailLayout` passe en mode une colonne au lieu
+  de recréer une grille locale.
 - L’identité principale, le statut et les actions prioritaires sont visibles sans chercher dans
   une section secondaire.
 - Les faits sont rendus avec une structure `dt/dd` ou une primitive équivalente, avec des libellés

@@ -32,6 +32,14 @@
         class="seller-terminal-table__actions-cell"
         (click)="$event.stopPropagation()"
       >
+        <a
+          mat-stroked-button
+          class="seller-terminal-table__detail-btn"
+          [routerLink]="['/app/admin/seller-terminals', row.id.value]"
+        >
+          <span class="material-symbols-outlined">visibility</span>
+          {{ 'admin.sellerTerminals.list.action.detail' | translate }}
+        </a>
         @if (row.status === 'BLOCKED') {
           <button mat-stroked-button (click)="unblock.emit(row)" class="seller-terminal-table__unblock-btn">
             <span class="material-symbols-outlined">lock_open</span>
@@ -40,7 +48,7 @@
         } @else if (canOpenPos(row.status)) {
           <button mat-stroked-button color="primary" (click)="openPos.emit(row)" class="seller-terminal-table__pos-btn">
             <span class="material-symbols-outlined">point_of_sale</span>
-            {{ 'admin.sellerTerminals.list.action.openPos' | translate }}
+            {{ 'admin.sellerTerminals.list.action.sellTickets' | translate }}
           </button>
         }
 
@@ -98,27 +106,26 @@
         </div>
       </dl>
 
-      @if (canOpenPos(row.status)) {
-        <button
+      <div class="seller-terminal-table__mobile-actions">
+        <a
           mat-stroked-button
-          type="button"
-          class="seller-terminal-table__mobile-pos"
-          (click)="openPos.emit(row)"
+          [routerLink]="['/app/admin/seller-terminals', row.id.value]"
         >
-          <span class="material-symbols-outlined" aria-hidden="true">point_of_sale</span>
-          {{ 'admin.sellerTerminals.list.action.openPos' | translate }}
-        </button>
-      } @else if (row.status === 'BLOCKED') {
-        <button
-          mat-stroked-button
-          type="button"
-          class="seller-terminal-table__mobile-pos"
-          (click)="unblock.emit(row)"
-        >
-          <span class="material-symbols-outlined" aria-hidden="true">lock_open</span>
-          {{ 'admin.sellerTerminals.list.action.unblock' | translate }}
-        </button>
-      }
+          <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
+          {{ 'admin.sellerTerminals.list.action.detail' | translate }}
+        </a>
+        @if (canOpenPos(row.status)) {
+          <button mat-stroked-button type="button" (click)="openPos.emit(row)">
+            <span class="material-symbols-outlined" aria-hidden="true">point_of_sale</span>
+            {{ 'admin.sellerTerminals.list.action.sellTickets' | translate }}
+          </button>
+        } @else if (row.status === 'BLOCKED') {
+          <button mat-stroked-button type="button" (click)="unblock.emit(row)">
+            <span class="material-symbols-outlined" aria-hidden="true">lock_open</span>
+            {{ 'admin.sellerTerminals.list.action.unblock' | translate }}
+          </button>
+        }
+      </div>
     </article>
   }
 </div>

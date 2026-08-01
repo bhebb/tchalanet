@@ -1484,6 +1484,7 @@
         "action": {
           "new": "Nouveau vendeur",
           "detail": "Voir le détail",
+          "sellTickets": "Vendre des tickets",
           "openPos": "Ouvrir POS",
           "resetPin": "Réinitialiser PIN",
           "block": "Bloquer",
@@ -1672,6 +1673,8 @@
         "description": "Consultez l'identité, les états et l'activité du vendeur.",
         "loading": "Chargement du vendeur...",
         "action": {
+          "sellTickets": "Vendre des tickets",
+          "overrides": "Modifier les paramètres",
           "openPos": "Ouvrir POS",
           "tickets": "Tickets"
         },

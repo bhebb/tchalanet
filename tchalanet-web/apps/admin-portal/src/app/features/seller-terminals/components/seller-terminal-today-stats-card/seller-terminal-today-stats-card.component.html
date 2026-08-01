@@ -1,7 +1,8 @@
-<tch-admin-section-card
-  [title]="'admin.sellerTerminals.detail.today.title' | translate"
-  icon="today"
->
+<section class="seller-terminal-today-stats-card" [attr.aria-label]="'admin.sellerTerminals.detail.today.title' | translate">
+  <h2 class="seller-terminal-today-stats-card__title">
+    <span class="material-symbols-outlined" aria-hidden="true">today</span>
+    {{ 'admin.sellerTerminals.detail.today.title' | translate }}
+  </h2>
   @if (error(); as statsError) {
     <tch-error-panel
       [title]="statsError.title"
@@ -13,28 +14,24 @@
   } @else {
     <div class="seller-terminal-today-stats-card__grid tch-metric-grid">
       <tch-admin-metric-card
-        variant="plain"
         icon="confirmation_number"
         tone="info"
         [label]="'admin.sellerTerminals.detail.today.ticketsSold' | translate"
         [value]="(stats().ticketsSold | number: '1.0-0') ?? '0'"
       />
       <tch-admin-metric-card
-        variant="plain"
         icon="payments"
         tone="positive"
         [label]="'admin.sellerTerminals.detail.today.grossSales' | translate"
         [value]="((stats().grossSales | number: '1.0-2') ?? '0') + ' HTG'"
       />
       <tch-admin-metric-card
-        variant="plain"
         icon="percent"
         tone="warning"
         [label]="'admin.sellerTerminals.detail.today.commission' | translate"
         [value]="((stats().sellerCommission | number: '1.0-2') ?? '0') + ' HTG'"
       />
       <tch-admin-metric-card
-        variant="plain"
         icon="account_balance"
         tone="positive"
         [label]="'admin.sellerTerminals.detail.today.netRevenue' | translate"
@@ -42,4 +39,4 @@
       />
     </div>
   }
-</tch-admin-section-card>
+</section>

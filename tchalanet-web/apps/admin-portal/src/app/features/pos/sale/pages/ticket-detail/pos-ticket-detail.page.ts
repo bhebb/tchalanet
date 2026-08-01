@@ -118,12 +118,8 @@ export class PosTicketDetailPage implements OnInit {
 
     return [
       {
-        label: this.translate.instant('admin.pos.detail.field.channel'),
-        value: draw.receiptLabel,
-      },
-      {
         label: this.translate.instant('admin.pos.detail.field.dateTime'),
-        value: this.formatDate(ticket.drawScheduledAt, 'dd/MM/yyyy HH:mm'),
+        value: draw.receiptDateTimeLabel,
       },
     ];
   });
