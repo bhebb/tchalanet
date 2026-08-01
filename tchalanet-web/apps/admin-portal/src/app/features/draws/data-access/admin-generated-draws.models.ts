@@ -48,6 +48,13 @@ export interface GeneratedDrawView {
   readonly lifecycleStatus?: string;
 }
 
+export interface GeneratedDrawsSummary {
+  readonly todayCount: number;
+  readonly salesOpenCount: number;
+  readonly expectedCount: number;
+  readonly confirmedCount: number;
+}
+
 export interface GeneratedDrawGroup {
   readonly date: string;
   readonly draws: readonly GeneratedDrawView[];

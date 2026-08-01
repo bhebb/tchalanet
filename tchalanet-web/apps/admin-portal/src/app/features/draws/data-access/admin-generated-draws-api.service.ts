@@ -7,6 +7,7 @@ import {
   DatePreset,
   DrawStatusFilter,
   GeneratedDrawView,
+  GeneratedDrawsSummary,
   GeneratedDrawSalesStatus,
   GeneratedDrawResultStatus,
   DrawLifecycleAction,
@@ -43,6 +44,13 @@ export interface DrawView {
     readonly lot3: string | null;
     readonly lot4: string | null;
   } | null;
+}
+
+export interface GeneratedDrawsSummaryQuery {
+  readonly datePreset?: DatePreset;
+  readonly from?: string | null;
+  readonly to?: string | null;
+  readonly today: string;
 }
 
 // ── Mapping helpers ──────────────────────────────────────────────────────────
@@ -279,6 +287,26 @@ export class AdminGeneratedDrawsApiService {
       },
       mapDrawView,
     );
+  }
+
+  generatedDrawsSummaryResource(
+    query: () => GeneratedDrawsSummaryQuery,
+  ): ResourceRef<GeneratedDrawsSummary | undefined> {
+    return this.backend.getResource<GeneratedDrawsSummary>(() => {
+      const q = query();
+      const presetRange = datePresetToRange(q.datePreset ?? 'LAST_48H', this.tenantTimezone());
+      return {
+        path: '/admin/draws/summary',
+        options: {
+          suppressShellFeedback: true,
+          params: {
+            from: q.from || presetRange.from,
+            to: q.to || presetRange.to,
+            today: q.today,
+          },
+        },
+      };
+    });
   }
 
   /**

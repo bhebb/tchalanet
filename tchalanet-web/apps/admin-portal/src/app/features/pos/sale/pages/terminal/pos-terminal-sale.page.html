@@ -54,14 +54,14 @@
           [tchSectionErrors]="sectionErrors()"
         >
           <tch-pos-open-draw-card
-            [draw]="selectedDraw()"
-            [draws]="openDraws()"
+            [draw]="availableSelectedDraw()"
+            [draws]="availableDraws()"
             (drawSelected)="selectDraw($event)"
           />
         </tch-admin-section-card>
 
         <!-- Game -->
-        @if (selectedDraw() || hasSectionError('admin.sellerTerminal.pos.games')) {
+        @if (availableSelectedDraw() || hasSectionError('admin.sellerTerminal.pos.games')) {
           <tch-admin-section-card
             title="Jeu"
             icon="casino"
@@ -171,7 +171,7 @@
         <!-- Receipt preview -->
         <tch-pos-ticket-preview
           [sellerTerminal]="sellerTerminal()"
-          [draw]="selectedDraw()"
+          [draw]="availableSelectedDraw()"
           [lines]="lines()"
           [confirmedTicket]="confirmedTicket()"
           [freeLineCount]="confirmedFreeLineCount()"

@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   OnInit,
   computed,
   inject,
@@ -40,6 +41,7 @@ import {
   PosTerminalActivityView,
   PosTicketDraftLine,
   PosTicketLineInput,
+  isPosDrawAvailableNow,
 } from '../../data-access/pos-sale.models';
 
 import { PosOpenDrawCardComponent } from '../../components/pos-open-draw-card/pos-open-draw-card.component';
@@ -92,6 +94,7 @@ export interface PosSaleNoticeView {
   styleUrls: ['./pos-terminal-sale.page.scss'],
 })
 export class PosTerminalSalePage implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   private readonly api = inject(PosSaleApiService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -110,10 +113,32 @@ export class PosTerminalSalePage implements OnInit {
   readonly openDraws = signal<PosOpenDrawView[]>([]);
   readonly games = signal<PosGameView[]>([]);
   readonly selectedDraw = signal<PosOpenDrawView | null>(null);
+  readonly saleNowMs = signal(Date.now());
   readonly selectedGameCode = signal<string | null>(null);
   readonly lines = signal<PosTicketDraftLine[]>([]);
   readonly confirmedTicket = signal<ConfirmedTicketView | null>(null);
   readonly activity = signal<PosTerminalActivityView | null>(null);
+
+  readonly availableDraws = computed(() =>
+    this.openDraws().filter(draw => isPosDrawAvailableNow(draw, this.saleNowMs())),
+  );
+
+  /**
+   * An expired draw is never used to prepare or confirm a sale. When no line has been entered,
+   * move to the next available draw automatically; with existing lines, force the seller to
+   * review the draw instead of silently moving the ticket to another draw.
+   */
+  readonly availableSelectedDraw = computed(() => {
+    const selected = this.selectedDraw();
+    if (selected && isPosDrawAvailableNow(selected, this.saleNowMs())) return selected;
+    if (this.lines().length > 0) return null;
+    return this.availableDraws()[0] ?? null;
+  });
+
+  constructor() {
+    const timer = globalThis.setInterval(() => this.saleNowMs.set(Date.now()), 1000);
+    this.destroyRef.onDestroy(() => globalThis.clearInterval(timer));
+  }
 
   readonly pageDescription = computed(() => {
     const actor = this.sellerTerminalActor();
@@ -138,7 +163,7 @@ export class PosTerminalSalePage implements OnInit {
     () =>
       !!this.sellerTerminal() &&
       !this.isTerminalBlocked() &&
-      !!this.selectedDraw() &&
+      !!this.availableSelectedDraw() &&
       this.lines().length > 0 &&
       this.lines().every(l => l.selection.trim().length > 0 && l.stakeAmount > 0) &&
       !this.confirmedTicket() &&
@@ -150,7 +175,7 @@ export class PosTerminalSalePage implements OnInit {
     if (this.saving()) return 'Vente en cours de confirmation.';
     if (!this.sellerTerminal()) return 'Terminal vendeur non chargé.';
     if (this.isTerminalBlocked()) return 'Ce terminal vendeur ne peut pas vendre.';
-    if (!this.selectedDraw()) return 'Sélectionnez un tirage ouvert.';
+    if (!this.availableSelectedDraw()) return 'Sélectionnez un tirage disponible à la vente.';
     if (this.lines().length === 0) return 'Ajoutez au moins un numéro au ticket.';
     if (!this.lines().every(l => l.selection.trim().length > 0 && l.stakeAmount > 0)) {
       return 'Complétez les lignes du ticket avant de confirmer.';
@@ -158,14 +183,14 @@ export class PosTerminalSalePage implements OnInit {
     return null;
   });
 
-  readonly lineEditorReadonly = computed(() => !!this.confirmedTicket() || !this.selectedDraw());
+  readonly lineEditorReadonly = computed(() => !!this.confirmedTicket() || !this.availableSelectedDraw());
 
   readonly lineEditorReadonlyReason = computed(() => {
     if (this.confirmedTicket()) {
       return "Ticket vendu. Créez un nouveau ticket pour ajouter d'autres numéros.";
     }
-    if (!this.selectedDraw()) {
-      return 'Aucun tirage ouvert. Générez ou sélectionnez un tirage avant d’ajouter des numéros.';
+    if (!this.availableSelectedDraw()) {
+      return 'Aucun tirage disponible. Générez ou sélectionnez un tirage avant d’ajouter des numéros.';
     }
     return null;
   });
@@ -249,7 +274,7 @@ export class PosTerminalSalePage implements OnInit {
   }
 
   selectDraw(draw: PosOpenDrawView): void {
-    this.selectedDraw.set(draw);
+    if (isPosDrawAvailableNow(draw, this.saleNowMs())) this.selectedDraw.set(draw);
   }
 
   selectGame(gameCode: string): void {
@@ -261,10 +286,10 @@ export class PosTerminalSalePage implements OnInit {
   }
 
   addLine(input: PosTicketLineInput): void {
-    if (!this.selectedDraw()) {
+    if (!this.availableSelectedDraw()) {
       this.saleError.set({
-        title: 'Aucun tirage ouvert',
-        message: 'Générez ou sélectionnez un tirage ouvert avant d’ajouter des numéros.',
+        title: 'Aucun tirage disponible',
+        message: 'Générez ou sélectionnez un tirage disponible avant d’ajouter des numéros.',
         severity: 'warn',
         source: 'admin.sellerTerminal.pos.draws',
         target: 'admin.sellerTerminal.pos.sale',
@@ -326,7 +351,7 @@ export class PosTerminalSalePage implements OnInit {
   confirmSale(): void {
     if (!this.canConfirm()) return;
     const terminal = this.sellerTerminal();
-    const draw = this.selectedDraw();
+    const draw = this.availableSelectedDraw();
     if (!terminal || !draw) return;
 
     this.saving.set(true);
