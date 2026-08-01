@@ -29,6 +29,7 @@ import {
 import {
   AdminCommissionApi,
   SellerTerminalCommissionRow,
+  sellerTerminalCommissionId,
 } from '../data-access/admin-commission-api.service';
 import { commissionFieldForCode, COMMISSION_FIELD_TARGETS } from '../commission-error-targets';
 
@@ -86,7 +87,7 @@ export class SetSellerRateDialog {
 
     this.saving.set(true);
     this.api
-      .setSellerRate(this.data.row.id.value, rate, { suppressShellFeedback: true })
+      .setSellerRate(sellerTerminalCommissionId(this.data.row), rate, { suppressShellFeedback: true })
       .subscribe({
         next: () => this.dialogRef.close(true),
         error: (err: unknown) => {

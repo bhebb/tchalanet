@@ -14,12 +14,17 @@ export interface CommissionOverviewView {
 export type CommissionRateSource = 'DEFAULT' | 'CUSTOM';
 
 export interface SellerTerminalCommissionRow {
-  id: { value: string };
+  /** Typed IDs are serialized as UUID strings by the API; accept the legacy object shape too. */
+  id: { value: string } | string;
   terminalCode: string;
   displayName: string;
   status: string;
   commissionRate: number;
   rateSource: CommissionRateSource;
+}
+
+export function sellerTerminalCommissionId(row: SellerTerminalCommissionRow): string {
+  return typeof row.id === 'string' ? row.id : row.id.value;
 }
 
 @Injectable({ providedIn: 'root' })
