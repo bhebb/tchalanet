@@ -4,6 +4,7 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { finalize } from 'rxjs';
 import {
   mapHttpErrorToProblemDetail,
   webAppErrorFromProblemDetail,
@@ -85,15 +86,14 @@ export class SetSellerRateDialog {
     const rate = this.form.controls.rate.value;
     if (rate == null) return;
 
+    const sellerTerminalId = sellerTerminalCommissionId(this.data.row);
     this.saving.set(true);
     this.api
-      .setSellerRate(sellerTerminalCommissionId(this.data.row), rate, { suppressShellFeedback: true })
+      .setSellerRate(sellerTerminalId, rate, { suppressShellFeedback: true })
+      .pipe(finalize(() => this.saving.set(false)))
       .subscribe({
         next: () => this.dialogRef.close(true),
-        error: (err: unknown) => {
-          this.handleSubmitError(err);
-          this.saving.set(false);
-        },
+        error: (err: unknown) => this.handleSubmitError(err),
       });
   }
 

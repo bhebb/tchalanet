@@ -14,13 +14,22 @@ const baseRow = {
 } as const;
 
 describe('sellerTerminalCommissionId', () => {
-  it('uses the API string id shape', () => {
-    const row = { ...baseRow, id: 'terminal-uuid' } satisfies SellerTerminalCommissionRow;
+  it('uses the API sellerTerminalId string shape', () => {
+    const row = { ...baseRow, sellerTerminalId: 'terminal-uuid' } satisfies SellerTerminalCommissionRow;
 
     expect(sellerTerminalCommissionId(row)).toBe('terminal-uuid');
   });
 
-  it('keeps compatibility with the legacy typed-id object shape', () => {
+  it('keeps compatibility with the legacy sellerTerminalId object shape', () => {
+    const row = {
+      ...baseRow,
+      sellerTerminalId: { value: 'terminal-uuid' },
+    } satisfies SellerTerminalCommissionRow;
+
+    expect(sellerTerminalCommissionId(row)).toBe('terminal-uuid');
+  });
+
+  it('keeps compatibility with the previous frontend id field', () => {
     const row = { ...baseRow, id: { value: 'terminal-uuid' } } satisfies SellerTerminalCommissionRow;
 
     expect(sellerTerminalCommissionId(row)).toBe('terminal-uuid');

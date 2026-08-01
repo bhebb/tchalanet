@@ -4,6 +4,7 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { finalize } from 'rxjs';
 import {
   mapHttpErrorToProblemDetail,
   webAppErrorFromProblemDetail,
@@ -82,13 +83,13 @@ export class SetDefaultRateDialog {
     if (rate == null) return;
 
     this.saving.set(true);
-    this.api.setDefaultRate(rate, { suppressShellFeedback: true }).subscribe({
-      next: () => this.dialogRef.close(true),
-      error: (err: unknown) => {
-        this.handleSubmitError(err);
-        this.saving.set(false);
-      },
-    });
+    this.api
+      .setDefaultRate(rate, { suppressShellFeedback: true })
+      .pipe(finalize(() => this.saving.set(false)))
+      .subscribe({
+        next: () => this.dialogRef.close(true),
+        error: (err: unknown) => this.handleSubmitError(err),
+      });
   }
 
   cancel(): void {
