@@ -28,23 +28,12 @@
   >
     <ng-template tchAsyncReady>
       @if (terminal(); as t) {
-        <tch-admin-detail-layout [singleColumn]="true">
+        <tch-admin-detail-layout>
           <div main class="seller-terminal-detail__main">
             <tch-seller-terminal-today-stats-card
               [stats]="todayStats()"
               [error]="todayFinancialsError()"
               (retry)="reloadTodayStats()"
-            />
-
-            <tch-identity-card
-              [eyebrow]="'admin.sellerTerminals.detail.summary.eyebrow' | translate"
-              [title]="t.displayName || t.terminalCode"
-              [code]="t.terminalCode"
-              [status]="'admin.sellerTerminals.status.' + t.status | translate"
-              [statusTone]="statusTone(t.status)"
-              [meta]="identityMeta()"
-              icon="point_of_sale"
-              variant="default"
             />
 
             <tch-seller-terminal-detail-facts-card
@@ -79,6 +68,19 @@
                 {{ 'admin.sellerTerminals.detail.action.overrides' | translate }}
               </a>
             </tch-seller-terminal-detail-facts-card>
+          </div>
+
+          <div aside class="seller-terminal-detail__aside">
+            <tch-identity-card
+              [eyebrow]="'admin.sellerTerminals.detail.summary.eyebrow' | translate"
+              [title]="t.displayName || t.terminalCode"
+              [code]="t.terminalCode"
+              [status]="'admin.sellerTerminals.status.' + t.status | translate"
+              [statusTone]="statusTone(t.status)"
+              [meta]="identityMeta()"
+              icon="point_of_sale"
+              variant="compact"
+            />
           </div>
         </tch-admin-detail-layout>
       }
