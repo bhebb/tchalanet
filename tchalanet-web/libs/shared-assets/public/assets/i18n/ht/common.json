@@ -42,6 +42,11 @@
     "clearSelection": "Wete seleksyon",
     "next": "Pwochen",
     "previous": "Anvan",
+    "pagination": {
+      "of": "sou",
+      "itemsPerPage": "Liy pa paj",
+      "ariaLabel": "Paginasyon"
+    },
     "retry": "Eseye ankò",
     "traceId": "Trace ID",
     "not_available": "Pa disponib",

@@ -42,6 +42,11 @@
     "clearSelection": "Clear selection",
     "next": "Next",
     "previous": "Previous",
+    "pagination": {
+      "of": "of",
+      "itemsPerPage": "Rows per page",
+      "ariaLabel": "Pagination"
+    },
     "retry": "Retry",
     "traceId": "Trace ID",
     "not_available": "Not available",
