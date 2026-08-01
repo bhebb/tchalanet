@@ -334,10 +334,15 @@ private.dashboard.tenant_admin (schemaVersion 3)
 
 The sales trend remains before quick actions because it is an operational insight, not merely a
 navigation aid. It answers whether the tenant's activity is accelerating, slowing down, or
-concentrated on a particular day within the selected period. It must use the same period and
-comparison context as the KPI row, expose an explicit empty state for a trusted zero-activity
-period, and expose a partial/unavailable state when analytics coverage is incomplete. Quick actions
-remain last because they are secondary commands and do not describe the tenant's current health.
+concentrated on a particular day. The KPI period selector and the chart window are related but not
+identical: the KPI row uses the selected comparison period, while the chart displays a seven-day
+daily series ending at that period's upper bound. Therefore `TODAY` ends today, `YESTERDAY` ends
+yesterday, `THIS_WEEK` ends today, and `LAST_WEEK` ends the last day of the previous week. The
+current V0 chart is a bar chart with dates on the horizontal axis and gross sales in HTG on the
+vertical axis. Month and year aggregation are future chart-window options, not additional KPI
+periods. The chart exposes an explicit empty state for a trusted zero-activity window and a
+partial/unavailable state when analytics coverage is incomplete. Quick actions remain last because
+they are secondary commands and do not describe the tenant's current health.
 
 The `gameBreakdown` and commission-configuration widgets are removed from this dashboard JSON.
 Their Angular components may remain registered because other PageModels can still use them. The
@@ -353,7 +358,7 @@ There remains **one grouped provider**, not one provider per widget:
 | `periodSelector` | `TenantAdminDashboardProvider` | URL `period` + tenant timezone | new slice; no financial read |
 | `kpis` | `TenantAdminDashboardProvider` | new `core.analytics` operational KPI query + seller-terminal status query | replace current ticket/open-draw KPI payload |
 | `terminalPerformance` | `TenantAdminDashboardProvider` | new `core.analytics` grouped terminal query over `analytics_seller_terminal_draw` | new paginated slice |
-| `salesTrend` | `TenantAdminDashboardProvider` | `core.analytics` daily projection query | keep, align with selected period and trust state |
+| `salesTrend` | `TenantAdminDashboardProvider` | `core.analytics` daily projection query over the seven-day chart window | keep, anchor the window to the selected period upper bound and expose bar-chart data |
 | `quickActions` | static PageModel JSON | no provider read | remove dynamic binding and provider payload entry |
 
 The Java class `TenantAdminDashboardProvider` is therefore refactored, not deleted. The existing

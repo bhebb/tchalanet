@@ -6,7 +6,7 @@ import { WidgetConfig } from '@tch/page-model';
 import { TrendChartWidget } from './trend-chart.widget';
 
 describe('TrendChartWidget', () => {
-  function component(config: WidgetConfig, dynamic: unknown) {
+  function component(config: WidgetConfig, dynamic: unknown, widgetId = '') {
     TestBed.configureTestingModule({
       imports: [TrendChartWidget],
       providers: [provideTranslateService()],
@@ -14,6 +14,7 @@ describe('TrendChartWidget', () => {
     const fixture = TestBed.createComponent(TrendChartWidget);
     fixture.componentRef.setInput('config', config);
     fixture.componentRef.setInput('dynamic', dynamic);
+    fixture.componentRef.setInput('widgetId', widgetId);
     return fixture.componentInstance;
   }
 
@@ -95,5 +96,15 @@ describe('TrendChartWidget', () => {
     expect(cmp.hasChart()).toBe(true);
     expect(cmp.yAxisTicks()).toEqual([250, 187.5, 125, 62.5, 0]);
     expect(cmp.barHeight(cmp.points()[0])).toBe(100);
+  });
+
+  it('keeps the tenant admin sales trend as bars for an older persisted model', () => {
+    const cmp = component(
+      { type: 'TrendChartWidget', props: { points: { source: 'dynamic', path: 'points' } } },
+      { points: [{ label: '2026-07-31', grossSales: 250 }] },
+      'dashboard.tenantAdmin.salesTrend',
+    );
+
+    expect(cmp.chartType()).toBe('bar');
   });
 });

@@ -39,9 +39,12 @@ export class TrendChartWidget {
   );
   readonly valueFormat = computed(() => stringProp(this.config(), 'valueFormat') ?? 'number');
   readonly currencyCode = computed(() => stringProp(this.config(), 'currencyCode') ?? 'HTG');
-  readonly chartType = computed<ChartType>(() =>
-    stringProp(this.config(), 'chartType') === 'bar' ? 'bar' : 'line',
-  );
+  readonly chartType = computed<ChartType>(() => {
+    // Keep the tenant-admin sales trend on the new chart contract even when an older
+    // persisted PageModel has not yet been reset and does not carry chartType.
+    if (this.widgetId() === 'dashboard.tenantAdmin.salesTrend') return 'bar';
+    return stringProp(this.config(), 'chartType') === 'bar' ? 'bar' : 'line';
+  });
   readonly pointsSource = computed(() => this.config()?.props?.['points'] ?? { source: 'dynamic', path: 'points' });
   readonly labelPath = computed(() => stringProp(this.config(), 'labelPath') ?? 'label');
   readonly valuePath = computed(() => stringProp(this.config(), 'valuePath') ?? 'value');
