@@ -70,7 +70,9 @@ export const adminRoutes: Route[] = [
   {
     path: 'controls/commissions',
     loadComponent: () =>
-      import('./commission/admin-commission.page').then(m => m.AdminCommissionPage),
+      import('./seller-configuration/admin-seller-configuration.page').then(
+        m => m.AdminSellerConfigurationPage,
+      ),
   },
   // Legacy control paths → new canonical paths
   { path: 'controls/baremes', redirectTo: 'controls/gains', pathMatch: 'full' },

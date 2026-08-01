@@ -8,9 +8,9 @@ import { resolve } from 'node:path';
 import { ProblemDetail } from '@tch/api';
 import { describe, expect, it } from 'vitest';
 
-import { adminCommissionErrorView } from './admin-commission.page';
+import { adminCommissionErrorView } from './admin-seller-configuration.page';
 
-describe('AdminCommissionPage error presentation', () => {
+describe('AdminSellerConfigurationPage error presentation', () => {
   it('normalizes a section failure and uses client-owned copy', () => {
     const fixture = contractFixture<ProblemDetail>('problem-details/validation-failed.json');
 
