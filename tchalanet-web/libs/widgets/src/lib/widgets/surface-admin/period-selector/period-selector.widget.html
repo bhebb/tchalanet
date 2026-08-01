@@ -1,12 +1,27 @@
 <section class="period-selector" [attr.aria-label]="titleKey() | tchLabel">
-  <span class="period-selector__title">{{ titleKey() | tchLabel }}</span>
-  <div class="period-selector__options" role="group">
+  <div class="period-selector__heading">
+    <span class="period-selector__title">{{ titleKey() | tchLabel }}</span>
+    @if (dateRange(); as range) {
+      <span class="period-selector__selection">
+        {{ periodLabelKey(selectedPeriod()) | tchLabel }} · {{ range }}
+      </span>
+    }
+  </div>
+  <div
+    class="period-selector__options"
+    role="group"
+    [attr.aria-label]="titleKey() | tchLabel"
+  >
     @for (period of options(); track period) {
       <a
         class="period-selector__option"
         [routerLink]="[]"
-        [queryParams]="{ period: period }"
+        [queryParams]="period === 'TODAY' ? { period: null } : { period: period }"
         queryParamsHandling="merge"
+        routerLinkActive="period-selector__option--selected"
+        [routerLinkActiveOptions]="{ queryParams: 'subset' }"
+        #activeLink="routerLinkActive"
+        [attr.aria-current]="activeLink.isActive ? 'page' : null"
       >
         {{ periodLabelKey(period) | tchLabel }}
       </a>

@@ -239,7 +239,11 @@ public class TenantAdminDashboardPayloadAssembler {
             "buildOperationalKpis",
             () ->
                 buildOperationalKpis(
-                    analytics.value(), comparisonAnalytics.value(), ops.value(), selectedPeriod));
+                    analytics.value(),
+                    comparisonAnalytics.value(),
+                    ops.value(),
+                    selectedPeriod,
+                    windows));
     TenantSalesTrendPayload salesTrend =
         timing.record("buildSalesTrend", () -> buildSalesTrend(analytics.value()));
     DashboardSlice<TenantTerminalPerformancePayload> terminalPerformance =
@@ -493,7 +497,8 @@ public class TenantAdminDashboardPayloadAssembler {
       TenantDashboardStatsView current,
       TenantDashboardStatsView comparison,
       OperationsBundle operations,
-      DashboardPeriod period) {
+      DashboardPeriod period,
+      DashboardPeriod.Windows windows) {
     var currentSummary = current != null ? current.summary() : null;
     var comparisonSummary = comparison != null ? comparison.summary() : null;
     BigDecimal currentSales = money(currentSummary != null ? currentSummary.grossSales() : null);
@@ -515,6 +520,8 @@ public class TenantAdminDashboardPayloadAssembler {
         periodComparisonName(period),
         "dashboard.period." + period.name().toLowerCase(),
         "dashboard.period." + periodComparisonName(period).toLowerCase(),
+        windows.from().toString(),
+        windows.to().toString(),
         metric(currentSales, previousSales),
         metric(currentCommission, previousCommission),
         metric(currentNet, previousNet),
@@ -808,6 +815,8 @@ public class TenantAdminDashboardPayloadAssembler {
       String comparisonPeriod,
       String periodLabelKey,
       String comparisonLabelKey,
+      String fromDate,
+      String toDate,
       DashboardMetric grossSales,
       DashboardMetric sellerCommissionPayable,
       DashboardMetric estimatedNetRevenue,
@@ -820,6 +829,8 @@ public class TenantAdminDashboardPayloadAssembler {
           "YESTERDAY",
           "dashboard.period.today",
           "dashboard.period.yesterday",
+          "",
+          "",
           empty,
           empty,
           empty,

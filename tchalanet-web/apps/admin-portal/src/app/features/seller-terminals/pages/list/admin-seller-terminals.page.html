@@ -3,6 +3,12 @@
   [description]="'admin.sellerTerminals.list.description' | translate"
 >
   <div actions>
+    <tch-admin-refresh-button
+      [label]="'common.refresh' | translate"
+      [disabled]="sellers.isLoading()"
+      [busy]="sellers.isLoading()"
+      (refreshRequested)="reload()"
+    />
     <a mat-flat-button color="primary" routerLink="/app/admin/seller-terminals/new">
       <span class="material-symbols-outlined">add</span>
       {{ 'admin.sellerTerminals.list.action.new' | translate }}

@@ -3,6 +3,12 @@
   [description]="'admin.tickets.list.description' | translate"
 >
   <div actions>
+    <tch-admin-refresh-button
+      [label]="'common.refresh' | translate"
+      [disabled]="tickets.isLoading()"
+      [busy]="tickets.isLoading()"
+      (refreshRequested)="tickets.reload()"
+    />
     <a mat-flat-button routerLink="/app/admin/tickets/sell" color="primary">
       <mat-icon>add</mat-icon>
       {{ 'admin.tickets.list.actions.sell' | translate }}

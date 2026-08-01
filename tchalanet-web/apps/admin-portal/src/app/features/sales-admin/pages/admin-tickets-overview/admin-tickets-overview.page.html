@@ -2,6 +2,14 @@
   [title]="'admin.tickets.overview.title' | translate"
   [description]="'admin.tickets.overview.description' | translate"
 >
+  <div actions>
+    <tch-admin-refresh-button
+      [label]="'common.refresh' | translate"
+      [disabled]="overview.isLoading()"
+      [busy]="overview.isLoading()"
+      (refreshRequested)="overview.reload()"
+    />
+  </div>
   <tch-async-view
     [resource]="overview"
     [error]="overviewError()"

@@ -3,12 +3,12 @@ import { TchBackendClient, TchRequestOptions } from '@tch/api';
 import { Observable } from 'rxjs';
 
 export interface CommissionOverviewView {
-  tenantDefaultRate: number;
+  tenantDefaultRate: number | null;
   totalSellerTerminals: number;
   countAtDefaultRate: number;
   countWithCustomRate: number;
-  minRate: number;
-  maxRate: number;
+  minRate: number | null;
+  maxRate: number | null;
 }
 
 export type CommissionRateSource = 'DEFAULT' | 'CUSTOM';
@@ -19,7 +19,7 @@ export interface SellerTerminalCommissionRow {
   displayName: string;
   status: string;
   commissionRate: number;
-  source: CommissionRateSource;
+  rateSource: CommissionRateSource;
 }
 
 @Injectable({ providedIn: 'root' })

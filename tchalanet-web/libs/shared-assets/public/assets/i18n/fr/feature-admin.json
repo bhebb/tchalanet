@@ -12,16 +12,16 @@
       "title": "Commissions",
       "description": "Taux de commission par défaut et par vendeur.",
       "action": {
-        "editDefaultRate": "Modifier le taux par défaut",
+        "editDefaultRate": "Modifier le taux du tenant",
         "editRate": "Modifier le taux",
-        "resetRate": "Remettre au défaut"
+        "resetRate": "Revenir au taux du tenant"
       },
       "section": {
         "overview": "Vue d’ensemble",
         "sellers": "Vendeurs"
       },
       "field": {
-        "defaultRate": "Taux par défaut",
+        "defaultRate": "Taux du tenant",
         "totalSellers": "Total vendeurs",
         "atDefaultRate": "Au taux par défaut",
         "customRate": "Taux personnalisé",
@@ -32,11 +32,11 @@
         "name": "Nom",
         "status": "Statut",
         "rate": "Taux",
-        "source": "Source"
+        "source": "Application du taux"
       },
       "source": {
-        "custom": "Personnalisé",
-        "default": "Défaut"
+        "custom": "Taux personnalisé",
+        "default": "Taux du tenant"
       },
       "empty": {
         "title": "Aucun vendeur",
@@ -1837,7 +1837,8 @@
       },
       "sales_trend": {
         "title": "Tendance des ventes",
-        "empty": "Aucune vente sur cette période."
+        "empty": "Aucune vente sur cette période.",
+        "single": "Une seule journée ne permet pas encore d'afficher une tendance."
       },
       "terminal_performance": {
         "title": "Performance des vendeurs",

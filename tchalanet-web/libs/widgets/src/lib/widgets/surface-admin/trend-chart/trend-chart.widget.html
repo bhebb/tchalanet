@@ -3,7 +3,7 @@
     <h2 class="trend-chart__title">{{ titleKey() | tchLabel }}</h2>
   </div>
 
-  @if (points().length > 0) {
+  @if (hasTrend()) {
     <div class="trend-chart__plot" aria-hidden="true">
       <div class="trend-chart__grid" aria-hidden="true"></div>
       <svg class="trend-chart__svg" viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -15,6 +15,18 @@
       @for (point of points(); track point.id) {
         <span class="trend-chart__label">{{ point.label }}</span>
       }
+    </div>
+  } @else if (points().length === 1) {
+    <div class="trend-chart__single" role="status">
+      <span class="trend-chart__single-label">{{ points()[0].label }}</span>
+      <strong class="trend-chart__single-value">
+        @if (valueFormat() === 'currency') {
+          {{ points()[0].value | currency: currencyCode() : 'symbol' : '1.0-2' }}
+        } @else {
+          {{ points()[0].value | number: '1.0-2' }}
+        }
+      </strong>
+      <p>{{ singlePointKey() | tchLabel }}</p>
     </div>
   } @else {
     <p class="trend-chart__empty">{{ emptyKey() | tchLabel }}</p>

@@ -7,7 +7,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { TranslateService } from '@ngx-translate/core';
 import { mapHttpErrorToProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 import { TchErrorPanel, TchGameSelectionChip, TchLoading, TchNotice } from '@tch/ui/components';
-import { AdminPageShellComponent, AdminSectionCardComponent, AdminStatusPillComponent, AdminStatusTone } from '@tch/ui/console';
+import {
+  AdminDetailLayoutComponent,
+  AdminPageShellComponent,
+  AdminSectionCardComponent,
+  AdminStatusPillComponent,
+  AdminStatusTone,
+} from '@tch/ui/console';
 import { consoleTicketDrawIdentity } from '@tch/web/console';
 import { ErrorViewModel, resolveErrorFeedbackCopy, toErrorViewModel } from '@tch/web/errors';
 import { Observable, of } from 'rxjs';
@@ -30,6 +36,7 @@ import {
     RouterLink,
     MatButtonModule,
     MatIconModule,
+    AdminDetailLayoutComponent,
     AdminPageShellComponent,
     AdminSectionCardComponent,
     AdminStatusPillComponent,

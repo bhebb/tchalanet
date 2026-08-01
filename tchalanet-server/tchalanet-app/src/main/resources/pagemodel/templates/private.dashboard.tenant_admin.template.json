@@ -70,6 +70,7 @@
       "widgets": {
         "dashboard.tenantAdmin.periodSelector": {
           "type": "PeriodSelectorWidget",
+          "binding": { "mode": "dynamic", "source": "tenant_admin_dashboard" },
           "props": {
             "titleKey": "dashboard.tenant_admin.period.title",
             "options": ["TODAY", "YESTERDAY", "THIS_WEEK", "LAST_WEEK"]
@@ -141,6 +142,9 @@
           "props": {
             "titleKey": "dashboard.tenant_admin.sales_trend.title",
             "emptyKey": "dashboard.tenant_admin.sales_trend.empty",
+            "singlePointKey": "dashboard.tenant_admin.sales_trend.single",
+            "valueFormat": "currency",
+            "currencyCode": "HTG",
             "hideOnError": false,
             "feedbackTargets": ["tenant_admin_dashboard.analytics"],
             "points": { "source": "dynamic", "path": "points" },

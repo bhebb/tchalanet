@@ -3,10 +3,12 @@
   [description]="'admin.commission.description' | translate"
 >
   <div actions>
-    <button mat-stroked-button [disabled]="loading()" (click)="load()">
-      <span class="material-symbols-outlined">refresh</span>
-      {{ 'common.refresh' | translate }}
-    </button>
+    <tch-admin-refresh-button
+      [label]="'common.refresh' | translate"
+      [disabled]="loading()"
+      [busy]="loading()"
+      (refreshRequested)="load()"
+    />
     <button mat-flat-button color="primary" [disabled]="loading()" (click)="openSetDefaultRate()">
       <span class="material-symbols-outlined">edit</span>
       {{ 'admin.commission.action.editDefaultRate' | translate }}
@@ -21,7 +23,7 @@
       @if (overview(); as overviewVm) {
         <tch-identity-card
           [eyebrow]="'admin.commission.section.overview' | translate"
-          [title]="overviewVm.tenantDefaultRate + '%'"
+          [title]="rateDisplay(overviewVm.tenantDefaultRate)"
           [status]="'admin.commission.field.defaultRate' | translate"
           statusTone="info"
           [meta]="overviewMeta(overviewVm)"
@@ -72,7 +74,9 @@
           <th mat-header-cell *matHeaderCellDef>
             {{ 'admin.commission.column.status' | translate }}
           </th>
-          <td mat-cell *matCellDef="let row">{{ row.status }}</td>
+          <td mat-cell *matCellDef="let row">
+            {{ ('admin.sellerTerminals.status.' + row.status) | translate }}
+          </td>
         </ng-container>
 
         <ng-container matColumnDef="commissionRate">
@@ -82,15 +86,15 @@
           <td mat-cell *matCellDef="let row">{{ row.commissionRate }}%</td>
         </ng-container>
 
-        <ng-container matColumnDef="source">
+        <ng-container matColumnDef="rateSource">
           <th mat-header-cell *matHeaderCellDef>
             {{ 'admin.commission.column.source' | translate }}
           </th>
           <td mat-cell *matCellDef="let row">
             <span
-              class="commission-page__source-badge commission-page__source-badge--{{ row.source | lowercase }}"
+              class="commission-page__source-badge commission-page__source-badge--{{ row.rateSource | lowercase }}"
             >
-              {{ (row.source === 'CUSTOM' ? 'admin.commission.source.custom' :
+              {{ (row.rateSource === 'CUSTOM' ? 'admin.commission.source.custom' :
               'admin.commission.source.default') | translate }}
             </span>
           </td>
@@ -116,7 +120,7 @@
           <span class="material-symbols-outlined">edit</span>
           {{ 'admin.commission.action.editRate' | translate }}
         </button>
-        @if (row.source === 'CUSTOM') {
+        @if (row.rateSource === 'CUSTOM') {
         <button mat-menu-item (click)="resetSellerRate(row)">
           <span class="material-symbols-outlined">restart_alt</span>
           {{ 'admin.commission.action.resetRate' | translate }}

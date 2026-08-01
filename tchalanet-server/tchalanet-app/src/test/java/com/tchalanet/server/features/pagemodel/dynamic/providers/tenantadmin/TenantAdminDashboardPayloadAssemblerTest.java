@@ -237,6 +237,8 @@ class TenantAdminDashboardPayloadAssemblerTest {
 
     assertThat(payload.operationalKpis().period()).isEqualTo("THIS_WEEK");
     assertThat(payload.operationalKpis().comparisonPeriod()).isEqualTo("PREVIOUS_WEEK");
+    assertThat(payload.operationalKpis().fromDate()).isNotBlank();
+    assertThat(payload.operationalKpis().toDate()).isNotBlank();
     assertThat(payload.operationalKpis().grossSales().value())
         .isEqualByComparingTo(new BigDecimal("100.00"));
     assertThat(payload.operationalKpis().grossSales().delta())

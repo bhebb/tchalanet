@@ -34,10 +34,11 @@ export interface AdminListStatusOption {
   template: `
     <section
       class="tch-admin-list-surface"
+      data-testid="admin-list-surface"
       [class.tch-admin-list-surface--inline]="filtersDisplay() === 'inline'"
       [class.tch-admin-list-surface--panel]="filtersDisplay() === 'panel'"
     >
-      <div class="tch-admin-list-surface__toolbar">
+      <div class="tch-admin-list-surface__toolbar" data-testid="admin-list-toolbar">
         <mat-form-field appearance="outline" class="tch-admin-list-surface__search" subscriptSizing="dynamic">
           <mat-icon matPrefix>search</mat-icon>
           <mat-label>{{ searchLabel() }}</mat-label>
@@ -113,11 +114,11 @@ export interface AdminListStatusOption {
         </div>
       </div>
 
-      <div class="tch-admin-list-surface__content">
+      <div class="tch-admin-list-surface__content" data-testid="admin-list-content">
         <ng-content select="[list-content]" />
       </div>
 
-      <div class="tch-admin-list-surface__footer">
+      <div class="tch-admin-list-surface__footer" data-testid="admin-list-footer">
         <ng-content select="[list-footer]" />
       </div>
     </section>

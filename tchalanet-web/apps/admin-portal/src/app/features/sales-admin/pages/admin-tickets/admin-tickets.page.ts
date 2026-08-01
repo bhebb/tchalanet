@@ -17,6 +17,7 @@ import { consoleTicketDrawIdentity } from '@tch/web/console';
 import { AdminCrudShellComponent } from '@tch/ui/console';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
 import { AdminPageShellComponent } from '@tch/ui/console';
+import { AdminRefreshButtonComponent } from '@tch/ui/console';
 import { TchPaginationComponent } from '@tch/ui/console';
 import {
   AdminStatusPillComponent,
@@ -54,6 +55,7 @@ type TicketSort = typeof SORT_VALUES[number];
     DatePipe,
     RouterLink,
     AdminPageShellComponent,
+    AdminRefreshButtonComponent,
     AdminCrudShellComponent,
     AdminListSurface,
     AdminEmptyStateComponent,

@@ -16,10 +16,12 @@
             <span>{{ 'admin.reports.overview.period.label' | translate }}</span>
             <strong>{{ vm.from | date:'mediumDate' }} - {{ vm.to | date:'mediumDate' }}</strong>
           </div>
-          <button type="button" mat-stroked-button (click)="reload()">
-            <mat-icon aria-hidden="true">refresh</mat-icon>
-            {{ 'admin.reports.overview.action.refresh' | translate }}
-          </button>
+          <tch-admin-refresh-button
+            [label]="'admin.reports.overview.action.refresh' | translate"
+            [disabled]="overview.isLoading()"
+            [busy]="overview.isLoading()"
+            (refreshRequested)="reload()"
+          />
         </header>
 
         @if (!vm.analytics.available) {

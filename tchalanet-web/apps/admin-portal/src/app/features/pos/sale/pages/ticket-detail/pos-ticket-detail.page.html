@@ -49,8 +49,8 @@
       </tch-notice>
     }
 
-    <div class="ticket-detail">
-      <aside class="ticket-detail__summary" aria-label="Résumé du ticket">
+    <tch-admin-detail-layout>
+      <aside aside class="ticket-detail__summary" aria-label="Résumé du ticket">
         <p class="ticket-detail__eyebrow">Résumé</p>
         <h2 class="ticket-detail__summary-title">{{ t.ticketCode }}</h2>
         <p class="ticket-detail__public-code">Code public {{ t.publicCode }}</p>
@@ -81,7 +81,7 @@
         </dl>
       </aside>
 
-      <div class="ticket-detail__main">
+      <div main class="ticket-detail__main">
         <tch-admin-section-card title="Vente" icon="confirmation_number">
           <dl class="ticket-detail__facts">
             <div>
@@ -160,6 +160,6 @@
           </tch-admin-section-card>
         }
       </div>
-    </div>
+    </tch-admin-detail-layout>
   }
 </tch-admin-page-shell>

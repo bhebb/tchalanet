@@ -14,7 +14,7 @@ export interface AdminSectionCardError {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [TchCard, TchSectionError],
   template: `
-    <tch-card class="section-card">
+    <tch-card class="section-card" data-testid="admin-detail-section">
       <div class="section-card__header">
         @if (icon()) {
           <span class="section-card__icon material-symbols-outlined" aria-hidden="true">

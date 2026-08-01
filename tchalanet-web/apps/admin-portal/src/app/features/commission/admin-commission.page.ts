@@ -13,6 +13,7 @@ import { TchLoading } from '@tch/ui/components';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { AdminPageShellComponent } from '@tch/ui/console';
+import { AdminRefreshButtonComponent } from '@tch/ui/console';
 import { AdminDetailLayoutComponent } from '@tch/ui/console';
 import { TchIdentityCardComponent, TchIdentityCardMeta } from '@tch/ui/console';
 import { AdminSectionCardComponent } from '@tch/ui/console';
@@ -44,6 +45,7 @@ export function adminCommissionErrorView(
   imports: [
     LowerCasePipe,
     AdminPageShellComponent,
+    AdminRefreshButtonComponent,
     AdminDetailLayoutComponent,
     TchIdentityCardComponent,
     AdminSectionCardComponent,
@@ -69,7 +71,7 @@ export class AdminCommissionPage implements OnInit {
     'displayName',
     'status',
     'commissionRate',
-    'source',
+    'rateSource',
     'actions',
   ];
 
@@ -99,7 +101,7 @@ export class AdminCommissionPage implements OnInit {
       },
       {
         label: this.translate.instant('admin.commission.field.range'),
-        value: `${overview.minRate}% / ${overview.maxRate}%`,
+        value: `${this.rateDisplay(overview.minRate)} / ${this.rateDisplay(overview.maxRate)}`,
       },
     ];
   }
@@ -139,6 +141,10 @@ export class AdminCommissionPage implements OnInit {
     ref.afterClosed().subscribe((saved?: boolean) => {
       if (saved) this.load();
     });
+  }
+
+  rateDisplay(rate: number | null): string {
+    return rate == null ? '—' : `${rate}%`;
   }
 
   openSetSellerRate(row: SellerTerminalCommissionRow): void {

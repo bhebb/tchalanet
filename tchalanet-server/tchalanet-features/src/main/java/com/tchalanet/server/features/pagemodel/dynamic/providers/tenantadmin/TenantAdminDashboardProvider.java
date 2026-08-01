@@ -55,6 +55,7 @@ public class TenantAdminDashboardProvider implements PageModelDynamicProvider {
 
     return switch (widgetId == null ? "" : widgetId) {
       case "dashboard.tenantAdmin.header" -> payload.header();
+      case "dashboard.tenantAdmin.periodSelector" -> payload.operationalKpis();
       case "dashboard.tenantAdmin.kpis" -> payload.operationalKpis();
       case "dashboard.tenantAdmin.terminalPerformance" -> payload.terminalPerformance();
       case "dashboard.tenantAdmin.salesTrend" -> payload.salesTrend();
