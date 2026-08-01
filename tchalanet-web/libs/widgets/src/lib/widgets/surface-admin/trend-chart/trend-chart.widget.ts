@@ -66,6 +66,11 @@ export class TrendChartWidget {
 
   readonly hasTrend = computed(() => this.points().length >= 2);
   readonly hasChart = computed(() => this.chartType() === 'bar' ? this.points().length > 0 : this.hasTrend());
+  readonly chartMax = computed(() => Math.max(...this.points().map(point => point.value), 1));
+  readonly yAxisTicks = computed(() => {
+    const max = this.chartMax();
+    return [max, max * 0.75, max * 0.5, max * 0.25, 0];
+  });
 
   readonly linePoints = computed(() => {
     const points = this.points();
@@ -90,7 +95,7 @@ export class TrendChartWidget {
   });
 
   barHeight(point: TrendPoint): number {
-    const max = Math.max(...this.points().map(item => item.value), 1);
+    const max = this.chartMax();
     if (point.value <= 0) return 2;
     return Math.max((point.value / max) * 100, 4);
   }

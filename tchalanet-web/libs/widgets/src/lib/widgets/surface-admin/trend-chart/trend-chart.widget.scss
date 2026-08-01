@@ -48,9 +48,42 @@
   border-bottom: 1px solid var(--tch-color-outline-variant, var(--mat-sys-outline-variant));
 }
 
+.trend-chart__axes {
+  display: grid;
+  grid-template-columns: minmax(4.25rem, auto) 1fr;
+  flex: 1;
+  min-height: 20rem;
+}
+
+.trend-chart__y-axis {
+  display: grid;
+  grid-template-rows: auto repeat(5, 1fr);
+  align-items: end;
+  padding: 0 0.75rem 1.75rem 0;
+  color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+  font-size: 0.6875rem;
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+}
+
+.trend-chart__axis-title {
+  color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.trend-chart__plot-area {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
 .trend-chart__bars {
   display: flex;
   align-items: stretch;
+  flex: 1;
   gap: clamp(0.35rem, 1.5vw, 0.9rem);
   min-height: 17rem;
   padding: 1rem 0.25rem 0;
@@ -106,6 +139,12 @@
   font-size: 0.6875rem;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
+}
+
+.trend-chart__axis-title--x {
+  display: block;
+  padding-top: 0.5rem;
+  text-align: center;
 }
 
 .trend-chart__grid {

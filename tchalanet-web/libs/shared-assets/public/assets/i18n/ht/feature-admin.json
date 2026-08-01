@@ -1973,7 +1973,9 @@
         "title": "Endikatè"
       },
       "sales_trend": {
-        "title": "Vant pa jou",
+        "title": "Tandans lavant",
+        "sales_axis": "Vant (HTG)",
+        "date_axis": "Dat",
         "empty": "Pa gen lavant pou peryòd sa a.",
         "single": "Yon sèl jou pa pèmèt nou montre yon tandans ankò."
       },

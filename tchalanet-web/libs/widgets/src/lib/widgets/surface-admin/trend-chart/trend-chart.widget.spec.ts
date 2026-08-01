@@ -93,6 +93,7 @@ describe('TrendChartWidget', () => {
 
     expect(cmp.chartType()).toBe('bar');
     expect(cmp.hasChart()).toBe(true);
+    expect(cmp.yAxisTicks()).toEqual([250, 187.5, 125, 62.5, 0]);
     expect(cmp.barHeight(cmp.points()[0])).toBe(100);
   });
 });
