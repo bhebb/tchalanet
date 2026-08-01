@@ -48,6 +48,12 @@ Règles :
 - les états « aucune donnée » et « aucun résultat pour ces filtres » restent distincts ;
 - un UUID brut ne doit pas remplacer un nom, un code de tirage, un canal ou une date lisible ;
 - le tableau reste utilisable au clavier et bascule vers une présentation lisible sur mobile.
+- sur mobile, une ligne devient une carte autonome : l'identité est un lien de détail, les faits
+  essentiels restent visibles et les actions ne doivent jamais être coupées par un débordement
+  horizontal ; le tableau reste la présentation desktop.
+- les KPI de collection apparaissent avant la recherche et les filtres. Ils décrivent le périmètre
+  de la collection et sa période ; ils ne sont interactifs que lorsqu'ils ont un filtre métier
+  explicite.
 
 ## Form surface
 
@@ -66,6 +72,13 @@ Règles :
   rechargées sans fermer silencieusement le contexte ;
 - annuler, fermer et enregistrer ont des positions, libellés et comportements constants ;
 - les champs conservent une largeur et une hiérarchie stables sur desktop et mobile.
+
+## Entity-specific detail metrics
+
+Les KPI de détail ne sont pas obligatoires pour toutes les entités. Un terminal vendeur expose un
+bloc de métriques de la journée (tickets, ventes brutes, commission et revenu net estimé), puis
+son résumé d'identité et ses sections métier. Un ticket reste un document unitaire : son résumé
+porte déjà les montants et le contexte vendeur/terminal, donc il ne reçoit pas de bloc KPI séparé.
 
 ## Shared component boundaries
 

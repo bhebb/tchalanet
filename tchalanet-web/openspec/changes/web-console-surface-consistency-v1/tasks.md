@@ -15,6 +15,8 @@
 - [x] Migrer le détail seller terminal.
 - [x] Migrer le détail ticket.
 - [x] Migrer le détail tirage et le détail résultat associé.
+- [x] Rendre la liste des terminaux mobile-first avec cartes, identité cliquable et actions visibles.
+- [x] Utiliser les métriques partagées pour les statistiques journalières du détail terminal.
 - [ ] Migrer la page de commission et ses dialogues d’édition.
 - [ ] Migrer les rapports concernés, notamment le rapport des tirages.
 - [ ] Remplacer les UUID visibles par des identités métier lisibles, avec fallback technique explicite.

@@ -60,6 +60,69 @@
   </table>
 </div>
 
+<div
+  class="seller-terminal-table__mobile-list"
+  [attr.aria-label]="'admin.sellerTerminals.list.title' | translate"
+>
+  @for (row of rows(); track row.id.value) {
+    <article class="seller-terminal-table__mobile-card">
+      <div class="seller-terminal-table__mobile-header">
+        <a
+          class="seller-terminal-table__mobile-identity"
+          [routerLink]="['/app/admin/seller-terminals', row.id.value]"
+        >
+          <tch-console-actor-row
+            [actor]="actorIdentity(row)"
+            [statusLabel]="statusLabelKey(row) | translate"
+          />
+        </a>
+        <button
+          mat-icon-button
+          type="button"
+          [matMenuTriggerFor]="rowMenu"
+          [matMenuTriggerData]="{ row }"
+          [attr.aria-label]="'admin.sellerTerminals.list.action.menu' | translate"
+        >
+          <span class="material-symbols-outlined" aria-hidden="true">more_vert</span>
+        </button>
+      </div>
+
+      <dl class="seller-terminal-table__mobile-facts">
+        <div>
+          <dt>{{ 'admin.sellerTerminals.list.column.commission' | translate }}</dt>
+          <dd>{{ row.commissionRate !== null && row.commissionRate !== undefined ? row.commissionRate + '%' : '—' }}</dd>
+        </div>
+        <div>
+          <dt>{{ 'admin.sellerTerminals.list.column.lastSeenAt' | translate }}</dt>
+          <dd>{{ row.lastSeenAt ? (row.lastSeenAt | date: 'dd/MM/yyyy HH:mm') : '—' }}</dd>
+        </div>
+      </dl>
+
+      @if (canOpenPos(row.status)) {
+        <button
+          mat-stroked-button
+          type="button"
+          class="seller-terminal-table__mobile-pos"
+          (click)="openPos.emit(row)"
+        >
+          <span class="material-symbols-outlined" aria-hidden="true">point_of_sale</span>
+          {{ 'admin.sellerTerminals.list.action.openPos' | translate }}
+        </button>
+      } @else if (row.status === 'BLOCKED') {
+        <button
+          mat-stroked-button
+          type="button"
+          class="seller-terminal-table__mobile-pos"
+          (click)="unblock.emit(row)"
+        >
+          <span class="material-symbols-outlined" aria-hidden="true">lock_open</span>
+          {{ 'admin.sellerTerminals.list.action.unblock' | translate }}
+        </button>
+      }
+    </article>
+  }
+</div>
+
 <mat-menu #rowMenu="matMenu">
   <ng-template matMenuContent let-row="row">
     <button mat-menu-item [routerLink]="['/app/admin/seller-terminals', row.id.value]">
