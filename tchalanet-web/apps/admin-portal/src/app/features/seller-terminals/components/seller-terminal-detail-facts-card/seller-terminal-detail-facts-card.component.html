@@ -3,6 +3,9 @@
   [description]="descriptionKey() ? (descriptionKey() | translate) : undefined"
   [icon]="icon()"
 >
+  <div actions class="seller-terminal-detail-facts__actions">
+    <ng-content select="[actions]" />
+  </div>
   <dl class="seller-terminal-detail-facts" [class.seller-terminal-detail-facts--compact]="compact()">
     @for (fact of facts(); track fact.labelKey) {
       <div class="seller-terminal-detail-facts__item">

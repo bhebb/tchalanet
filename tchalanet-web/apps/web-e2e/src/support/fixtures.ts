@@ -4,6 +4,8 @@ import { ApiStub } from './api-stub';
 import { AdminLimitsPage } from './pages/admin-limits.page';
 import { AdminMaryajGratisPage } from './pages/admin-maryaj-gratis.page';
 import { AdminSellerReportPage } from './pages/admin-seller-report.page';
+import { AdminSellerTerminalDetailPage } from './pages/admin-seller-terminal-detail.page';
+import { AdminSellerTerminalNewPage } from './pages/admin-seller-terminal-new.page';
 import { AdminSetupPage } from './pages/admin-setup.page';
 import { LoginPage } from './pages/login.page';
 import { PrivateShellPage } from './pages/private-shell.page';
@@ -28,6 +30,8 @@ interface Fixtures {
   readonly adminMaryajGratisPage: AdminMaryajGratisPage;
   readonly adminLimitsPage: AdminLimitsPage;
   readonly adminSellerReportPage: AdminSellerReportPage;
+  readonly adminSellerTerminalDetailPage: AdminSellerTerminalDetailPage;
+  readonly adminSellerTerminalNewPage: AdminSellerTerminalNewPage;
   readonly apiStub: ApiStub;
 }
 
@@ -52,6 +56,12 @@ export const test = base.extend<Fixtures>({
   },
   adminSellerReportPage: async ({ page }, use) => {
     await use(new AdminSellerReportPage(page));
+  },
+  adminSellerTerminalDetailPage: async ({ page }, use) => {
+    await use(new AdminSellerTerminalDetailPage(page));
+  },
+  adminSellerTerminalNewPage: async ({ page }, use) => {
+    await use(new AdminSellerTerminalNewPage(page));
   },
   apiStub: async ({ page }, use) => {
     const stub = new ApiStub(page);

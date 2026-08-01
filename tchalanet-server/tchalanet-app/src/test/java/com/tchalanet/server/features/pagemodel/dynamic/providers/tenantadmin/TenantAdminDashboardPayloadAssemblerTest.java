@@ -39,6 +39,7 @@ import com.tchalanet.server.platform.tenant.api.model.TenantType;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Currency;
 import java.util.List;
 import java.util.Locale;
@@ -177,8 +178,8 @@ class TenantAdminDashboardPayloadAssemblerTest {
     assertThat(payload.kpis().activeSellerTerminals()).isEqualTo(0L);
     assertThat(payload.kpis().openDraws()).isEqualTo(3L);
     assertThat(payload.kpis().pendingApprovals()).isEqualTo(0L);
-    assertThat(payload.salesTrend().points()).hasSize(1);
-    assertThat(payload.salesTrend().points().get(0).grossSales())
+    assertThat(payload.salesTrend().points()).hasSize(7);
+    assertThat(payload.salesTrend().points().get(6).grossSales())
         .isEqualByComparingTo(new BigDecimal("123.45"));
     assertThat(payload.gameBreakdown().items()).hasSize(1);
     assertThat(payload.gameBreakdown().items().get(0).gameCode()).isEqualTo("BORLETTE");
@@ -245,6 +246,35 @@ class TenantAdminDashboardPayloadAssemblerTest {
         .isEqualByComparingTo(new BigDecimal("20.00"));
     assertThat(payload.operationalKpis().grossSales().deltaPercent())
         .isEqualByComparingTo(new BigDecimal("25.0000"));
+  }
+
+  @Test
+  @DisplayName("sales trend uses a seven-day window ending at the selected period")
+  void salesTrendUsesSelectedPeriodUpperBound() {
+    var queries = new ArrayList<GetTenantDashboardStatsQuery>();
+    when(queryBus.ask(any(GetTenantDashboardStatsQuery.class)))
+        .thenAnswer(
+            invocation -> {
+              var query = invocation.getArgument(0, GetTenantDashboardStatsQuery.class);
+              queries.add(query);
+              return stats(
+                  query.from(), query.to(), BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO);
+            });
+    when(tenantCatalog.findById(tenantId)).thenReturn(Optional.empty());
+    when(queryBus.ask(any(ListSellerTerminalsQuery.class))).thenReturn(emptyPage());
+    when(gameCatalog.listActive()).thenReturn(List.of());
+    when(drawChannelCatalog.listAll(any(), any())).thenReturn(List.of());
+    when(publicContentApi.listTenantAdminDashboardNews(any(int.class))).thenReturn(List.of());
+
+    var selectedEnd = LocalDate.now(java.time.ZoneId.of("America/Port-au-Prince")).minusDays(1);
+    assembler.assemble(context(tenantId), DashboardPeriod.YESTERDAY, 0);
+
+    assertThat(queries)
+        .anySatisfy(
+            query -> {
+              assertThat(query.from()).isEqualTo(selectedEnd.minusDays(6));
+              assertThat(query.to()).isEqualTo(selectedEnd);
+            });
   }
 
   @Test

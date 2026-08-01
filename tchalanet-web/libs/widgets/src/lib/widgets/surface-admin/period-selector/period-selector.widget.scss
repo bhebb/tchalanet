@@ -29,9 +29,16 @@
 }
 
 .period-selector__selection {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
   font-size: 0.8125rem;
   font-weight: 500;
+}
+
+.period-selector__selection .material-symbols-outlined {
+  font-size: 1rem;
 }
 
 .period-selector__options {

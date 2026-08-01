@@ -1,10 +1,7 @@
 @use 'breakpoints' as ui;
 
 .seller-terminal-create-form {
-  display: grid;
-  grid-template-columns: 1fr minmax(18rem, 22.5rem);
-  gap: 2rem;
-  align-items: start;
+  display: block;
 }
 
 .seller-terminal-create-form__form-col,
@@ -12,11 +9,6 @@
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
-}
-
-.seller-terminal-create-form__preview-col {
-  position: sticky;
-  top: 1.5rem;
 }
 
 .seller-terminal-create-form__field-group {
@@ -98,16 +90,6 @@
   display: inline-flex;
   font-size: 1.125rem;
   animation: seller-terminal-create-spin 1s linear infinite;
-}
-
-@include ui.down(expanded) {
-  .seller-terminal-create-form {
-    grid-template-columns: 1fr;
-  }
-
-  .seller-terminal-create-form__preview-col {
-    position: static;
-  }
 }
 
 @include ui.down(medium) {

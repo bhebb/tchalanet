@@ -19,10 +19,27 @@ tch-admin-page-shell
     aside: résumé, métriques et raccourcis contextuels
 ```
 
+Pour un détail opérationnel dont le résumé doit suivre le contenu sur mobile et desktop, la même
+primitive peut fonctionner en mode une colonne. L'ordre de lecture est alors explicite :
+
+```text
+actions métier
+KPI de l'entité (si pertinents)
+identité / résumé bleu
+blocs de faits et de contrôles
+```
+
+Les KPI utilisent toujours `AdminMetricCard`, avec le même rendu que les KPI de la liste. Une
+entité documentaire comme un ticket peut utiliser le résumé et les cartes métier sans ajouter de
+KPI artificiels. Les cartes de tirage et de sélections restent des primitives de domaine partagées;
+la carte de tirage porte son canal et son heure, sans répéter ces informations dans les faits.
+
 Règles :
 
 - Le panneau de droite utilise une primitive partagée de résumé et les mêmes tokens que le contenu
   principal. Une feature ne crée pas une carte sombre ou une grille de métriques ad hoc.
+- Quand le résumé est dans le flux principal, `AdminDetailLayout` passe en mode une colonne au lieu
+  de recréer une grille locale.
 - L’identité principale, le statut et les actions prioritaires sont visibles sans chercher dans
   une section secondaire.
 - Les faits sont rendus avec une structure `dt/dd` ou une primitive équivalente, avec des libellés
@@ -48,6 +65,12 @@ Règles :
 - les états « aucune donnée » et « aucun résultat pour ces filtres » restent distincts ;
 - un UUID brut ne doit pas remplacer un nom, un code de tirage, un canal ou une date lisible ;
 - le tableau reste utilisable au clavier et bascule vers une présentation lisible sur mobile.
+- sur mobile, une ligne devient une carte autonome : l'identité est un lien de détail, les faits
+  essentiels restent visibles et les actions ne doivent jamais être coupées par un débordement
+  horizontal ; le tableau reste la présentation desktop.
+- les KPI de collection apparaissent avant la recherche et les filtres. Ils décrivent le périmètre
+  de la collection et sa période ; ils ne sont interactifs que lorsqu'ils ont un filtre métier
+  explicite.
 
 ## Form surface
 
@@ -67,16 +90,31 @@ Règles :
 - annuler, fermer et enregistrer ont des positions, libellés et comportements constants ;
 - les champs conservent une largeur et une hiérarchie stables sur desktop et mobile.
 
+## Entity-specific detail metrics
+
+Les KPI de détail ne sont pas obligatoires pour toutes les entités. Un terminal vendeur expose un
+bloc de métriques de la journée (tickets, ventes brutes, commission et revenu net estimé), puis
+son résumé d'identité et ses sections métier. Un ticket reste un document unitaire : son résumé
+porte déjà les montants et le contexte vendeur/terminal, donc il ne reçoit pas de bloc KPI séparé.
+
 ## Shared component boundaries
 
 Les primitives candidates sont :
 
 - `AdminDetailLayout` pour la grille main/aside ;
+- `AdminFormLayout` pour la grille champs/aperçu et le footer d'actions des formulaires routés ;
 - un panneau partagé de résumé de détail pour identité, statut, métriques et liens ;
 - `AdminSectionCard` et `AdminMetricCard` pour les surfaces ;
 - `AdminListSurface`, `tch-pagination` et les tables Material pour les listes ;
 - `TchStatusBadge`, `TchFieldError`, `TchFormErrorSummary`, `TchNotice` et `tchMutation` pour le
   feedback.
+
+Pour les documents métier qui existent dans plusieurs consoles, les cartes de domaine vivent dans
+`@tch/web/console` et consomment les primitives de `@tch/ui/console`. Le détail d'un ticket utilise
+ainsi `ConsoleTicketDrawCard` pour le tirage et `ConsoleTicketSelectionsCard` pour les lignes de
+jeux/nombres. Les applications fournissent uniquement les données et les libellés traduits ; elles
+ne recréent ni le markup ni le SCSS. La même règle s'applique à une future fiche ticket du portail
+platform.
 
 Une nouvelle primitive n’est créée que si elle supprime une duplication réelle entre au moins deux
 features. Les pages ne doivent pas importer les styles d’une autre feature pour simuler une primitive.
@@ -90,6 +128,10 @@ admin-page-shell
 admin-page-header
 admin-page-actions
 admin-page-body
+admin-form-layout
+admin-form-main
+admin-form-aside
+admin-form-footer
 admin-refresh-button
 admin-list-surface
 admin-list-toolbar

@@ -1,0 +1,29 @@
+<tch-admin-section-card [title]="title()" [icon]="icon()">
+  <div class="console-ticket-selections-card__lines">
+    @for (line of lines(); track line.lineNumber ?? $index) {
+      <article class="console-ticket-selections-card__line">
+        <tch-game-selection-chip
+          class="console-ticket-selections-card__selection"
+          [gameCode]="line.gameCode"
+          [selection]="line.selection"
+        />
+
+        <div class="console-ticket-selections-card__body">
+          <h3>{{ line.gameLabel }}</h3>
+          @if (line.betTypeLabel) {
+            <p>{{ line.betTypeLabel }}</p>
+          }
+          @if (line.promotional && line.promotionLabel) {
+            <span class="console-ticket-selections-card__promotion">{{ line.promotionLabel }}</span>
+          }
+        </div>
+
+        <strong class="console-ticket-selections-card__amount">{{ line.amountLabel }}</strong>
+      </article>
+    } @empty {
+      @if (emptyLabel(); as empty) {
+        <p class="console-ticket-selections-card__empty">{{ empty }}</p>
+      }
+    }
+  </div>
+</tch-admin-section-card>

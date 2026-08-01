@@ -1261,6 +1261,7 @@
         "action": {
           "new": "Nouvo tèminal POS",
           "detail": "Gade detay",
+          "sellTickets": "Vann tikè",
           "openPos": "Louvri POS",
           "resetPin": "Re-inisyalize PIN",
           "block": "Bloke",
@@ -1449,6 +1450,8 @@
         "description": "Gade idantite, eta ak aktivite tèminal POS la.",
         "loading": "Ap chaje tèminal POS la...",
         "action": {
+          "sellTickets": "Vann tikè",
+          "overrides": "Modifye paramèt",
           "openPos": "Louvri POS",
           "tickets": "Tikè"
         },
@@ -1739,6 +1742,34 @@
       "title": "Vente ticket",
       "changeDraw": "Changer de tirage",
       "live": "Live",
+      "detail": {
+        "title": "Detay tikè a",
+        "description": "Gade enfòmasyon sou vant, tiraj ak liy tikè a.",
+        "loading": "Y ap chaje tikè a...",
+        "summary": { "aria": "Rezime tikè a", "eyebrow": "Rezime" },
+        "action": { "tickets": "Tikè", "verify": "Verifye", "reprint": "Re-enprime" },
+        "section": { "sale": "Vant", "draw": "Tiraj", "lines": "Liy yo jwe", "charges": "Frè" },
+        "field": {
+          "issuedAt": "Emèt nan",
+          "status": "Estati",
+          "outlet": "Pwen vant",
+          "cancelledAt": "Anile nan",
+          "channel": "Kanal",
+          "dateTime": "Dat ak lè",
+          "waivedCharge": "Frè gratis"
+        },
+        "meta": { "totalPaid": "Total peye", "freeLines": "Maryaj gratis", "seller": "Vandè", "terminal": "Tèminal" },
+        "error": {
+          "notFoundTitle": "Tikè a pa jwenn",
+          "notFoundMessage": "Pa gen idantifyan tikè ki bay.",
+          "terminalNotFound": "Re-enprime pa disponib: tèminal {{terminalCode}} la pa jwenn.",
+          "reprintFailed": "Pa kapab re-enprime tikè sa a. Verifye tèminal la oswa eseye ankò."
+        },
+        "notice": {
+          "reprinting": "Y ap re-enprime tikè a.",
+          "missingTerminal": "Re-enprime pa disponib: yo pa idantifye tèminal vandè a."
+        }
+      },
       "draw": {
         "closesIn": "S'arrête dans {{time}}"
       },
@@ -1943,6 +1974,8 @@
       },
       "sales_trend": {
         "title": "Tandans lavant",
+        "sales_axis": "Vant (HTG)",
+        "date_axis": "Dat",
         "empty": "Pa gen lavant pou peryòd sa a.",
         "single": "Yon sèl jou pa pèmèt nou montre yon tandans ankò."
       },

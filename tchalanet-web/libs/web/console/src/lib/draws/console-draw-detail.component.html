@@ -123,40 +123,22 @@
   <ng-container aside>
     @if (view(); as draw) {
       @if (draw.aside; as aside) {
-        <section class="console-draw-detail__aside">
-          <div class="console-draw-detail__aside-head">
-            <p>{{ aside.eyebrow ?? 'SUIVI DU TIRAGE' }}</p>
-            <mat-icon aria-hidden="true">event</mat-icon>
-          </div>
+        <tch-identity-card
+          variant="compact"
+          [eyebrow]="aside.eyebrow ?? 'SUIVI DU TIRAGE'"
+          [title]="aside.title"
+          [code]="aside.code ?? ''"
+          [status]="draw.statusLabel ?? ''"
+          [statusTone]="draw.statusTone ?? 'neutral'"
+          icon="event"
+          [meta]="asideMeta(draw)"
+        />
 
-          <h2>{{ aside.title }}</h2>
-          @if (aside.subtitle || aside.code) {
-            <div class="console-draw-detail__aside-context">
-              @if (aside.subtitle) {
-                <span>{{ aside.subtitle }}</span>
-              }
-              @if (aside.code) {
-                <code>{{ aside.code }}</code>
-              }
-            </div>
-          }
-
-          <div class="console-draw-detail__aside-grid">
-            @for (item of aside.items; track item.label) {
-              <div class="console-draw-detail__aside-row">
-                <span>{{ item.label }}</span>
-                <strong>{{ item.value ?? '—' }}</strong>
-                @if (item.hint) {
-                  <em>{{ item.hint }}</em>
-                }
-              </div>
-            }
-          </div>
-
-          @if (aside.advice) {
-            <p class="console-draw-detail__aside-advice">{{ aside.advice }}</p>
-          }
-        </section>
+        @if (aside.advice) {
+          <tch-notice type="info" class="console-draw-detail__aside-advice">
+            {{ aside.advice }}
+          </tch-notice>
+        }
       }
 
       <ng-content select="[aside]" />

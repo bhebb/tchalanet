@@ -46,6 +46,9 @@
 - [x] Define the dashboard period comparison and PageModel migration: `TODAY`, `YESTERDAY`,
       `THIS_WEEK`, `LAST_WEEK`, provider slices, source queries, JSON schema versioning, and
       fallback rules. See `design.md`; implementation remains pending.
+- [x] Define the independent sales-trend window: seven daily points ending at the selected
+      period's upper bound, with a bar-chart contract using date and sales axes. Month/year
+      aggregation remains a future chart-window option.
 - [ ] Make projection processing atomic with its idempotency marker, and make cancellation reverse
       all affected daily, draw and seller-terminal financial projections using immutable ticket
       snapshots.

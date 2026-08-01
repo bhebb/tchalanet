@@ -9,6 +9,7 @@ export * from './lib/console-surface/admin-section-error-target.directive';
 export * from './lib/console-surface/admin-status-pill.component';
 export * from './lib/console-surface/tch-pagination.component';
 export * from './lib/console-surface/components/admin-detail-layout/admin-detail-layout.component';
+export * from './lib/console-surface/components/admin-form-layout/admin-form-layout.component';
 export * from './lib/console-surface/components/admin-metric-card/admin-metric-card.component';
 export * from './lib/console-surface/components/admin-next-steps-card/admin-next-steps-card.component';
 export * from './lib/console-surface/components/admin-provisioning-health-card/admin-provisioning-health-card.component';

@@ -171,6 +171,7 @@
         },
         "actions": {
           "sell": "Vendre un billet",
+          "viewDetails": "Voir le détail",
           "reprint": "Réimprimer"
         },
         "columns": {

@@ -1,6 +1,7 @@
 # Feature Playbook — écrans console (admin-portal / platform-portal)
 
 > **Statut** : ACTIF v1.0 — 2026-07-02
+> **Dernière mise à jour** : 2026-08-01
 > **Scope** : toute page des consoles privées. Le public-portal suit `pagemodel.md`, pas ce guide.
 > **But** : créer un écran sans réinventer. Choisis l'archétype, copie le squelette, utilise les
 > briques listées. Si tu dois styler autre chose que des briques, c'est une brique manquante —
@@ -8,7 +9,121 @@
 > **Pièges bas niveau** (content-projection SCSS, overlay de soumission, rail sticky) :
 > `.agents/skills/tchalanet-screen-realization/references/admin-page-patterns.md`.
 
+> **Source de vérité CRUD** : ce document définit la structure commune des listes, détails,
+> formulaires et actions des consoles `admin-portal` et `platform-portal`. Une correction de
+> structure ou de design doit être faite dans la brique partagée appropriée, puis vérifiée sur les
+> pages consommatrices. Une page ne doit pas créer une seconde version locale de la même surface.
+
 ---
+
+## 0.1 Frontière de responsabilité — où corriger une fois
+
+| Préoccupation | Source commune | Ce que la page conserve |
+| --- | --- | --- |
+| Shell, en-tête, actions et grille détail | `@tch/ui/console` (`tch-admin-page-shell`, `tch-admin-detail-layout`, `tch-admin-section-card`) | titre, routes, actions autorisées |
+| Liste, toolbar, refresh, pagination et empty state | `@tch/ui/console` + `@tch/ui/components` (`tch-admin-crud-shell`, `tch-admin-list-surface`, `tch-pagination`) | query params, mapping métier, colonnes et actions |
+| Formulaire en deux colonnes et footer | `@tch/ui/console` (`tch-admin-form-layout`) | schema, champs métier et mutation |
+| Identité et métriques de console | `@tch/ui/console` (`tch-identity-card`, `tch-admin-metric-card`) | données et libellés traduits |
+| Faits métier partagés | `@tch/web/console` (`tch-console-facts`) | données et libellés traduits |
+| Présentation métier réutilisée par admin/platform | `@tch/web/console` (ex. cartes tirage et sélections d’un ticket) | adaptation du DTO vers le contrat de vue |
+| Loading, erreur, retry, pending et feedback | `@tch/web/async`, `@tch/web/errors`, `@tch/ui/components` | portée fonctionnelle : page, section, champ ou action |
+| Couleurs, rayons, typographie, densité et responsive | tokens `--tch-*` dans `@tch/ui/theme` + règles de `style.md` | au maximum des variables locales `--comp-*` |
+
+### Règle de décision
+
+1. **Le même markup ou le même style apparaît dans deux features** : extraire ou réutiliser une
+   brique partagée avant d’ajouter une troisième copie.
+2. **Le problème concerne la couleur, le rayon, la typo, l’espacement ou un breakpoint** : corriger
+   le token ou la primitive de design, jamais chaque page.
+3. **Le problème concerne un libellé, une route, une permission ou une règle métier** : corriger la
+   page ou son service métier, sans modifier la primitive visuelle.
+4. **Le problème concerne une erreur** : corriger le mapping/owner dans `@tch/web/errors` ou la
+   primitive de feedback ; la page ne fait que déclarer si la donnée est bloquante ou optionnelle.
+
+Cette frontière permet de changer la charte globale sans réécrire les pages : on modifie les tokens
+ou les composants partagés, puis on vérifie les captures desktop/mobile et les états loading/empty/
+error/success.
+
+## 0.2 Composition CRUD standard
+
+### Liste
+
+```text
+tch-admin-page-shell
+  métriques de collection (si utiles)
+  tch-admin-list-surface ou tch-admin-crud-shell
+    recherche + filtres + refresh
+    table desktop / cartes mobile
+    pagination
+```
+
+- L’URL est la source de vérité pour recherche, filtres, tri et pagination.
+- L’identité métier et le statut précèdent les UUID et identifiants techniques.
+- Sur mobile, chaque ligne devient une carte autonome : identité cliquable, faits essentiels et
+  actions accessibles sans débordement horizontal.
+- Une action de collection ou de ligne utilise les composants de feedback communs et recharge la
+  resource sans blanchir la liste.
+
+### Choisir une liste courte ou une table longue
+
+Avant de choisir le composant, qualifier la collection sur trois axes :
+
+1. **Volume attendu** : la collection est-elle bornée et courte pour un tenant, ou peut-elle
+   contenir des centaines/milliers de lignes ?
+2. **Importance opérationnelle** : l'utilisateur doit-il scanner quelques éléments et agir vite,
+   ou comparer/rechercher un historique complet ?
+3. **Écrans cibles** : quelle présentation est lisible sur mobile, tablette et desktop ?
+
+| Situation | Desktop | Tablette | Mobile | Données |
+| --- | --- | --- | --- | --- |
+| Collection courte et bornée, par exemple terminaux d'un tenant ou tirages du jour | liste/cartes ou tableau compact | cartes ou grille compacte | cartes autonomes | chargement borné, pagination seulement si nécessaire |
+| Collection longue ou historique, par exemple tickets | table paginée | table compacte ou cartes structurées selon la largeur | cartes compactes avec les champs essentiels | pagination, tri, filtres et recherche côté serveur |
+
+Une table longue ne doit pas être remplacée par une carte par ligne sur desktop : la densité, la
+comparaison entre lignes et la pagination sont prioritaires. Inversement, une table large ne doit
+pas être simplement laissée en débordement horizontal sur mobile : la même ligne doit avoir une
+version carte avec identité, statut, faits essentiels et actions accessibles.
+
+La décision et la matrice responsive doivent être écrites dans le cadrage du feature avant son
+implémentation. Les KPI de collection restent au-dessus de la recherche uniquement s'ils répondent
+à une question opérationnelle claire.
+
+### Détail
+
+```text
+tch-admin-page-shell
+  identité + statut + actions
+  tch-admin-detail-layout
+    main : tch-admin-section-card par domaine métier
+    aside : résumé permanent, métriques ou raccourcis contextuels
+```
+
+- Le résumé à droite est stable et visuellement distinct, mais reste une brique partagée ; il ne
+  doit pas être recodé par domaine.
+- Les faits utilisent `dt/dd` ou `tch-console-facts`.
+- Les documents ou domaines communs à plusieurs consoles utilisent les composants de
+  `@tch/web/console` : par exemple un ticket rend le tirage et les lignes de jeux avec les cartes
+  partagées `tch-console-ticket-draw-card` et `tch-console-ticket-selections-card`.
+- Les KPI sont ajoutés seulement quand ils répondent à une question opérationnelle de l’entité ;
+  ils ne sont pas obligatoires sur un document unitaire comme un ticket.
+
+### Formulaire
+
+```text
+tch-admin-page-shell
+  tch-admin-form-layout (si main/aperçu ou main/résumé)
+    main : tch-admin-section-card par groupe de champs
+    aside : aperçu ou contexte non éditable
+    footer : annuler / enregistrer
+```
+
+- Création riche : page routée `new/`; édition courte : inline dans le détail.
+- Nouveau formulaire : Signal Forms ; les anciens formulaires Reactive Forms restent acceptés
+  pendant la migration.
+- Les erreurs client et serveur adressables restent près du champ ; les erreurs non adressables
+  restent dans le résumé du formulaire.
+- Le succès reste visible dans le contexte, le bouton affiche le pending et les données sont
+  rechargées explicitement.
 
 ## 0. Décision rapide
 
@@ -392,6 +507,7 @@ readiness/next-steps en `[aside]` si utile (`admin-next-steps-card`,
 | Layout détail avec aside droite | `tch-admin-detail-layout` | `@tch/ui/console` |
 | Toolbar/contenu/footer d'une liste | `tch-admin-crud-shell` | `@tch/ui/console` |
 | Recherche + filtre statut standard | `tch-admin-list-surface` | `@tch/ui/components` |
+| Layout formulaire main/aside/footer | `tch-admin-form-layout` | `@tch/ui/console` |
 | Recherche inline simple | `tch-admin-data-toolbar` | `@tch/ui/console` |
 | État vide | `tch-admin-empty-state` | `@tch/ui/console` |
 | Carte identité (aside) | `tch-identity-card` | `@tch/ui/console` |
@@ -411,6 +527,7 @@ readiness/next-steps en `[aside]` si utile (`admin-next-steps-card`,
 | **Erreur serveur de champ (helper)** | `serverFieldMessage` | `@tch/web/async` |
 | **Parsing query params (page/size/sort/date/enum)** | `numberParam`/`dateParam`/`textParam`/`enumParam` | `@tch/web/async` |
 | **Pagination (N–M sur Total + taille)** | `tch-pagination` | `@tch/ui/console` |
+| **Carte domaine partagée entre consoles** | composant `@tch/web/console` | `@tch/web/console` |
 
 ---
 
@@ -433,4 +550,7 @@ Footer de pagination recodé                                  → tch-pagination
 Dialog de création pour un formulaire riche                  → page routée new/
 Page edit/ dédiée pour 3 champs                              → édition inline (archétype D)
 Styler la page au lieu d'enrichir la brique console          → la brique va dans ui/console
+Dupliquer une carte métier admin/platform                    → composant de domaine dans web/console
+Changer une couleur/rayon directement dans une page          → token `--tch-*` ou variable `--comp-*`
+Afficher la même erreur dans le shell et la page              → un seul owner via error-management.md
 ```
