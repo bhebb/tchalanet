@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.draw.internal.infra.persistence.repo;
 
 import com.tchalanet.server.core.draw.api.model.DrawStatus;
+import com.tchalanet.server.core.draw.api.query.DrawsSummary;
 import com.tchalanet.server.core.draw.internal.infra.persistence.view.DrawSummaryViewEntity;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -41,6 +42,30 @@ public interface DrawSummaryViewRepository
       @Param("fromDate") LocalDate fromDate,
       @Param("toDate") LocalDate toDate,
       Pageable pageable);
+
+  @Query(
+      """
+        select new com.tchalanet.server.core.draw.api.query.DrawsSummary(
+          coalesce(sum(case when v.drawDate = :today then 1L else 0L end), 0L),
+          coalesce(sum(case when v.status = 'OPEN'
+                              and coalesce(v.cutoffAt, v.scheduledAt) > :now
+                            then 1L else 0L end), 0L),
+          coalesce(sum(case when (v.drawResultId is null and v.status = 'CLOSED')
+                              or (v.drawResultId is not null and v.drawResultStatus = 'ERROR')
+                            then 1L else 0L end), 0L),
+          coalesce(sum(case when v.drawResultStatus in ('CONFIRMED', 'OVERRIDDEN')
+                            then 1L else 0L end), 0L))
+        from DrawSummaryViewEntity v
+        where v.tenantId = :tenantId
+          and (cast(:fromDate as java.time.LocalDate) is null or v.drawDate >= :fromDate)
+          and (cast(:toDate as java.time.LocalDate) is null or v.drawDate <= :toDate)
+        """)
+  DrawsSummary summarize(
+      @Param("tenantId") UUID tenantId,
+      @Param("fromDate") LocalDate fromDate,
+      @Param("toDate") LocalDate toDate,
+      @Param("today") LocalDate today,
+      @Param("now") Instant now);
 
   @Query(
       """

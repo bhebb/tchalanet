@@ -1,6 +1,6 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { AdminMetricCardComponent } from '@tch/ui/console';
-import { GeneratedDrawView, isGeneratedDrawSellableNow } from '../../data-access/admin-generated-draws.models';
+import { GeneratedDrawsSummary } from '../../data-access/admin-generated-draws.models';
 
 export type GeneratedDrawsSummaryKpi = 'today' | 'salesOpen' | 'expected' | 'confirmed';
 
@@ -13,28 +13,15 @@ export type GeneratedDrawsSummaryKpi = 'today' | 'salesOpen' | 'expected' | 'con
   templateUrl: './generated-draws-summary.component.html',
 })
 export class GeneratedDrawsSummaryComponent {
-  private readonly destroyRef = inject(DestroyRef);
-
-  readonly draws    = input.required<GeneratedDrawView[]>();
-  readonly today    = input<string>('');
-  readonly nowMs    = signal(Date.now());
+  readonly summary = input<GeneratedDrawsSummary | undefined>();
   readonly kpiSelected = output<GeneratedDrawsSummaryKpi>();
 
-  constructor() {
-    const timer = globalThis.setInterval(() => this.nowMs.set(Date.now()), 1000);
-    this.destroyRef.onDestroy(() => globalThis.clearInterval(timer));
-  }
+  readonly todayValue = computed(() => this.value(this.summary()?.todayCount));
+  readonly salesOpenValue = computed(() => this.value(this.summary()?.salesOpenCount));
+  readonly expectedValue = computed(() => this.value(this.summary()?.expectedCount));
+  readonly confirmedValue = computed(() => this.value(this.summary()?.confirmedCount));
 
-  readonly todayCount      = computed(() =>
-    this.draws().filter(d => d.businessDate === this.today()).length,
-  );
-  readonly salesOpenCount  = computed(() =>
-    this.draws().filter(d => isGeneratedDrawSellableNow(d, this.nowMs())).length,
-  );
-  readonly expectedCount   = computed(() =>
-    this.draws().filter(d => d.resultStatus === 'EXPECTED' || d.resultStatus === 'MISSING').length,
-  );
-  readonly confirmedCount  = computed(() =>
-    this.draws().filter(d => d.resultStatus === 'CONFIRMED').length,
-  );
+  private value(value: number | undefined): string {
+    return value == null ? '—' : value.toString();
+  }
 }

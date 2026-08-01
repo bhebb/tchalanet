@@ -4,7 +4,7 @@
     tone="info"
     label="Tirages aujourd'hui"
     actionLabel="Filtrer sur les tirages d'aujourd'hui"
-    [value]="todayCount().toString()"
+    [value]="todayValue()"
     [interactive]="true"
     (action)="kpiSelected.emit('today')"
   />
@@ -14,7 +14,7 @@
     tone="positive"
     label="Ouverts à la vente"
     actionLabel="Filtrer sur les tirages ouverts à la vente"
-    [value]="salesOpenCount().toString()"
+    [value]="salesOpenValue()"
     [interactive]="true"
     (action)="kpiSelected.emit('salesOpen')"
   />
@@ -24,7 +24,7 @@
     tone="warning"
     label="Résultats attendus"
     actionLabel="Filtrer sur les résultats attendus"
-    [value]="expectedCount().toString()"
+    [value]="expectedValue()"
     [interactive]="true"
     (action)="kpiSelected.emit('expected')"
   />
@@ -34,7 +34,7 @@
     tone="positive"
     label="Résultats confirmés"
     actionLabel="Filtrer sur les résultats confirmés"
-    [value]="confirmedCount().toString()"
+    [value]="confirmedValue()"
     [interactive]="true"
     (action)="kpiSelected.emit('confirmed')"
   />

@@ -174,16 +174,14 @@ export class AdminGeneratedDrawsPage {
     status: this.statusFilter(),
     page: this.page(),
   }));
-  // KPI summary resource: same period, but never status-filtered — the cards are period totals
-  // and double as navigation shortcuts, so they must stay stable while a filter is applied.
-  private readonly drawsKpi = this.api.generatedDrawsResource(() => ({
+  // KPI summary resource: exact period totals from the backend, never status-filtered.
+  private readonly drawsKpi = this.api.generatedDrawsSummaryResource(() => ({
     datePreset: this.datePreset(),
     from: this.hasCustomDateRange() ? this.fromDate() : null,
     to: this.hasCustomDateRange() ? this.toDate() : null,
-    page: 0,
-    size: 500,
+    today: this.today(),
   }));
-  readonly kpiDraws = computed(() => this.drawsKpi.value()?.items ?? []);
+  readonly kpiSummary = computed(() => this.drawsKpi.value());
   readonly drawsError = resourceErrorVm(this.draws, 'admin.generatedDraws.list');
   readonly allDraws = computed(() => {
     const statusFiltered = this.api.filterDrawsByStatus(
@@ -247,7 +245,7 @@ export class AdminGeneratedDrawsPage {
           ? 'Résultat confirmé et publié.'
           : 'Résultat enregistré en provisoire.',
       );
-      this.draws.reload();
+      this.reload();
     },
     onError: () => {
       // Keep the normalized mutation feedback; the drawer owns its presentation.
@@ -281,7 +279,7 @@ export class AdminGeneratedDrawsPage {
           ? `${input.drawIds.length} tirages mis à jour avec succès.`
           : `Tirage ${LIFECYCLE_LABELS[input.action]} avec succès.`,
       );
-      this.draws.reload();
+      this.reload();
     },
     onError: () => {
       this.pendingDrawIds.set(new Set());
@@ -296,6 +294,11 @@ export class AdminGeneratedDrawsPage {
       to: null,
       page: null,
     });
+  }
+
+  reload(): void {
+    this.draws.reload();
+    this.drawsKpi.reload();
   }
 
   onFromDate(value: string): void {

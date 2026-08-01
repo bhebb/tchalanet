@@ -6,6 +6,8 @@ import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.core.draw.api.query.DrawResultAffectedTenant;
 import com.tchalanet.server.core.draw.api.query.DrawSearchCriteria;
 import com.tchalanet.server.core.draw.api.query.DrawSummary;
+import com.tchalanet.server.core.draw.api.query.DrawsSummary;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -22,6 +24,9 @@ public interface DrawSummaryReaderPort {
 
   /** Liste les draws selon les critères de recherche. */
   TchPage<DrawSummary> findByCriteria(DrawSearchCriteria criteria, Pageable pageable);
+
+  /** Returns exact KPI counts for the requested business-date range. */
+  DrawsSummary summarize(DrawSearchCriteria criteria, LocalDate today, Instant now);
 
   /** Liste les prochains draws (SCHEDULED, OPEN, sans résultat). */
   TchPage<DrawSummary> listNext(DrawSearchCriteria criteria, Pageable pageable);

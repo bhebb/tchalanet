@@ -7,7 +7,7 @@
       label="Actualiser"
       [disabled]="draws.isLoading()"
       [busy]="draws.isLoading()"
-      (refreshRequested)="draws.reload()"
+      (refreshRequested)="reload()"
     />
 
     <button mat-stroked-button [matMenuTriggerFor]="actionsMenu">
@@ -27,13 +27,12 @@
     [error]="drawsError()"
     [isEmpty]="isEmpty"
     loadingLabel="Chargement des tirages…"
-    (retry)="draws.reload()"
+    (retry)="reload()"
   >
     <ng-template tchAsyncReady>
       <!-- KPI summary -->
       <tch-generated-draws-summary
-        [draws]="kpiDraws()"
-        [today]="today()"
+        [summary]="kpiSummary()"
         (kpiSelected)="onKpiSelected($event)"
       />
 

@@ -12,7 +12,9 @@ import com.tchalanet.server.common.web.paging.TchPaging;
 import com.tchalanet.server.core.draw.api.error.DrawErrorCodes;
 import com.tchalanet.server.core.draw.api.query.DrawSearchCriteria;
 import com.tchalanet.server.core.draw.api.query.DrawSummary;
+import com.tchalanet.server.core.draw.api.query.DrawsSummary;
 import com.tchalanet.server.core.draw.api.query.GetDrawByIdQuery;
+import com.tchalanet.server.core.draw.api.query.GetDrawsSummaryQuery;
 import com.tchalanet.server.core.draw.api.query.ListDrawsQuery;
 import com.tchalanet.server.core.draw.api.query.ListLatestDrawsWithResultsQuery;
 import com.tchalanet.server.core.draw.api.query.ListNextDrawsQuery;
@@ -134,6 +136,24 @@ public class DrawQueryAdminController {
         queryBus.ask(new ListLatestDrawsWithResultsQuery(resultSlotKeys, pageReq.pageable()));
 
     return ApiResponse.success(TchPageMapper.map(page, mapper::toDrawSummaryResponse));
+  }
+
+  @Operation(summary = "Get generated draws KPI summary")
+  @GetMapping("/summary")
+  public ApiResponse<DrawsSummary> summary(
+      @Valid DrawSearchRequest request, @RequestParam LocalDate today) {
+
+    var criteria =
+        DrawSearchCriteria.of(
+            request.resultSlotId(),
+            null,
+            request.from(),
+            request.to(),
+            request.scheduledBefore(),
+            request.scheduledAfter());
+
+    return ApiResponse.success(
+        queryBus.ask(new GetDrawsSummaryQuery(criteria, today, clock.instant())));
   }
 
   @Operation(summary = "Get draw by id")

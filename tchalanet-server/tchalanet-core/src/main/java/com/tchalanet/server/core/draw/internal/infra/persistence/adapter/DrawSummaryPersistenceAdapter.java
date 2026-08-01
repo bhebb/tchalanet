@@ -12,6 +12,7 @@ import com.tchalanet.server.core.draw.api.model.DrawStatus;
 import com.tchalanet.server.core.draw.api.query.DrawResultAffectedTenant;
 import com.tchalanet.server.core.draw.api.query.DrawSearchCriteria;
 import com.tchalanet.server.core.draw.api.query.DrawSummary;
+import com.tchalanet.server.core.draw.api.query.DrawsSummary;
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawSummaryReaderPort;
 import com.tchalanet.server.core.draw.internal.infra.persistence.mapper.DrawSummaryViewMapper;
 import com.tchalanet.server.core.draw.internal.infra.persistence.repo.DrawSummaryViewRepository;
@@ -19,6 +20,7 @@ import com.tchalanet.server.core.draw.internal.infra.persistence.view.DrawSummar
 import jakarta.persistence.EntityNotFoundException;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -105,6 +107,15 @@ public class DrawSummaryPersistenceAdapter
     var page = repo.findAll(spec, pageable);
 
     return TchPageMapper.map(page, mapper::toProjection);
+  }
+
+  @Override
+  public DrawsSummary summarize(DrawSearchCriteria criteria, LocalDate today, Instant now) {
+    Objects.requireNonNull(criteria, "criteria is required");
+    Objects.requireNonNull(today, "today is required");
+    Objects.requireNonNull(now, "now is required");
+
+    return repo.summarize(currentTenantId().value(), criteria.from(), criteria.to(), today, now);
   }
 
   @Override

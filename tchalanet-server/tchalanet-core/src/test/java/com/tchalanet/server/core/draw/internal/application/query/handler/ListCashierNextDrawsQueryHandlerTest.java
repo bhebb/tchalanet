@@ -119,6 +119,12 @@ class ListCashierNextDrawsQueryHandlerTest {
     }
 
     @Override
+    public com.tchalanet.server.core.draw.api.query.DrawsSummary summarize(
+        DrawSearchCriteria criteria, java.time.LocalDate today, java.time.Instant now) {
+      return new com.tchalanet.server.core.draw.api.query.DrawsSummary(0, 0, 0, 0);
+    }
+
+    @Override
     public TchPage<DrawSummary> listNext(DrawSearchCriteria criteria, Pageable pageable) {
       this.criteria = criteria;
       return TchPage.of(List.of(draw), 0, 20, 1, 1, true, false, false);
