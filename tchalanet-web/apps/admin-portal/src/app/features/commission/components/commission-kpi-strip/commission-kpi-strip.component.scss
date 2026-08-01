@@ -1,0 +1,21 @@
+@use 'breakpoints' as ui;
+
+.commission-kpi-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+@include ui.down(expanded) {
+  .commission-kpi-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@include ui.down(medium) {
+  .commission-kpi-strip {
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+}

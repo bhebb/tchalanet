@@ -1,0 +1,27 @@
+<div class="commission-kpi-strip">
+  <tch-admin-metric-card
+    icon="percent"
+    tone="warning"
+    [label]="'admin.commission.kpi.defaultRate' | translate"
+    [value]="rate(overview().tenantDefaultRate)"
+    [hint]="'admin.commission.kpi.defaultRateHint' | translate"
+  />
+  <tch-admin-metric-card
+    icon="point_of_sale"
+    tone="info"
+    [label]="'admin.commission.kpi.totalTerminals' | translate"
+    [value]="(overview().totalSellerTerminals | number: '1.0-0') ?? '0'"
+  />
+  <tch-admin-metric-card
+    icon="check_circle"
+    tone="positive"
+    [label]="'admin.commission.kpi.atDefaultRate' | translate"
+    [value]="(overview().countAtDefaultRate | number: '1.0-0') ?? '0'"
+  />
+  <tch-admin-metric-card
+    icon="tune"
+    tone="default"
+    [label]="'admin.commission.kpi.customRate' | translate"
+    [value]="(overview().countWithCustomRate | number: '1.0-0') ?? '0'"
+  />
+</div>

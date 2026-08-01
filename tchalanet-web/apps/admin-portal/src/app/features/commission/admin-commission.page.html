@@ -5,132 +5,90 @@
   <div actions>
     <tch-admin-refresh-button
       [label]="'common.refresh' | translate"
-      [disabled]="loading()"
-      [busy]="loading()"
-      (refreshRequested)="load()"
+      [disabled]="overviewResource.isLoading() || sellersResource.isLoading()"
+      [busy]="overviewResource.isLoading() || sellersResource.isLoading()"
+      (refreshRequested)="reload()"
     />
-    <button mat-flat-button color="primary" [disabled]="loading()" (click)="openSetDefaultRate()">
-      <span class="material-symbols-outlined">edit</span>
+    <button mat-flat-button color="primary" type="button" (click)="openSetDefaultRate()">
+      <span class="material-symbols-outlined" aria-hidden="true">edit</span>
       {{ 'admin.commission.action.editDefaultRate' | translate }}
     </button>
   </div>
 
-  @if (loading()) {
-  <tch-loading [label]="'common.loading' | translate" />
-  } @else {
-  <tch-admin-detail-layout>
-    <aside aside class="commission-page__aside">
-      @if (overview(); as overviewVm) {
-        <tch-identity-card
-          [eyebrow]="'admin.commission.section.overview' | translate"
-          [title]="rateDisplay(overviewVm.tenantDefaultRate)"
-          [status]="'admin.commission.field.defaultRate' | translate"
-          statusTone="info"
-          [meta]="overviewMeta(overviewVm)"
-          icon="percent"
-          variant="compact"
-        />
-      } @else {
-        <tch-admin-section-card
-          [title]="'admin.commission.section.overview' | translate"
-          tchSectionErrorTarget="admin.commission.defaultRate"
-          [tchSectionErrors]="sectionErrors()"
-        >
-          <p class="commission-page__unavailable">{{ 'common.not_available' | translate }}</p>
-        </tch-admin-section-card>
-      }
-    </aside>
+  @if (actionError(); as actionErrorVm) {
+    <tch-error-panel feedback [title]="actionErrorVm.title" [message]="actionErrorVm.message" />
+  }
+  @if (actionSuccess(); as actionSuccessKey) {
+    <tch-notice type="success" [focusOnRender]="true">{{ actionSuccessKey | translate }}</tch-notice>
+  }
 
-    <div main class="commission-page__main">
-      <tch-admin-section-card
-        [title]="'admin.commission.section.sellers' | translate"
-        tchSectionErrorTarget="admin.commission.sellers"
-        [tchSectionErrors]="sectionErrors()"
-      >
-    @if (sellers().length === 0) {
+  <tch-async-view
+    [resource]="overviewResource"
+    [error]="overviewError()"
+    [loadingLabel]="'common.loading' | translate"
+    [retryLabel]="'common.retry' | translate"
+    (retry)="reload()"
+  >
+    <ng-template tchAsyncReady>
+      @if (overviewResource.value(); as overviewVm) {
+        <tch-commission-kpi-strip [overview]="overviewVm" />
+      }
+    </ng-template>
+  </tch-async-view>
+
+  <tch-async-view
+    [resource]="sellersResource"
+    [error]="sellersError()"
+    [loadingLabel]="'admin.commission.loading' | translate"
+    [retryLabel]="'common.retry' | translate"
+    (retry)="reload()"
+  >
     <tch-admin-empty-state
+      empty
       icon="point_of_sale"
       [title]="'admin.commission.empty.title' | translate"
       [message]="'admin.commission.empty.message' | translate"
     />
-    } @else {
-    <div class="commission-page__table">
-      <table mat-table [dataSource]="sellers()">
-        <ng-container matColumnDef="terminalCode">
-          <th mat-header-cell *matHeaderCellDef>
-            {{ 'admin.commission.column.code' | translate }}
-          </th>
-          <td mat-cell *matCellDef="let row">{{ row.terminalCode }}</td>
+
+    <ng-template tchAsyncReady>
+      <tch-admin-list-surface
+        [searchLabel]="'admin.commission.filter.search' | translate"
+        [searchPlaceholder]="'admin.commission.filter.searchPlaceholder' | translate"
+        [searchValue]="searchQuery()"
+        [filterToggleLabel]="'admin.commission.filter.toggle' | translate"
+        [statusLabel]="'admin.commission.filter.status' | translate"
+        [statusValue]="statusFilter()"
+        [statusOptions]="statusOptions"
+        [allStatusesLabel]="'admin.commission.filter.allStatuses' | translate"
+        [resetLabel]="'admin.commission.filter.reset' | translate"
+        [filtersExpanded]="!!statusFilter()"
+        (searchChange)="onSearch($event)"
+        (statusChange)="onStatusFilter($event)"
+        (resetFilters)="resetFilters()"
+      >
+        <ng-container list-content>
+          @if (filteredSellers().length === 0) {
+            <tch-admin-empty-state
+              icon="filter_alt_off"
+              [title]="'admin.commission.empty.filteredTitle' | translate"
+              [message]="'admin.commission.empty.filteredMessage' | translate"
+            />
+          } @else {
+            <tch-commission-table
+              [rows]="filteredSellers()"
+              [resettingId]="resettingId()"
+              (editRate)="openSetSellerRate($event)"
+              (resetRate)="resetSellerRate($event)"
+            />
+          }
         </ng-container>
 
-        <ng-container matColumnDef="displayName">
-          <th mat-header-cell *matHeaderCellDef>
-            {{ 'admin.commission.column.name' | translate }}
-          </th>
-          <td mat-cell *matCellDef="let row">{{ row.displayName }}</td>
+        <ng-container list-footer>
+          <span class="commission-page__count">
+            {{ filteredSellers().length }} {{ 'admin.commission.list.count' | translate }}
+          </span>
         </ng-container>
-
-        <ng-container matColumnDef="status">
-          <th mat-header-cell *matHeaderCellDef>
-            {{ 'admin.commission.column.status' | translate }}
-          </th>
-          <td mat-cell *matCellDef="let row">
-            {{ ('admin.sellerTerminals.status.' + row.status) | translate }}
-          </td>
-        </ng-container>
-
-        <ng-container matColumnDef="commissionRate">
-          <th mat-header-cell *matHeaderCellDef>
-            {{ 'admin.commission.column.rate' | translate }}
-          </th>
-          <td mat-cell *matCellDef="let row">{{ row.commissionRate }}%</td>
-        </ng-container>
-
-        <ng-container matColumnDef="rateSource">
-          <th mat-header-cell *matHeaderCellDef>
-            {{ 'admin.commission.column.source' | translate }}
-          </th>
-          <td mat-cell *matCellDef="let row">
-            <span
-              class="commission-page__source-badge commission-page__source-badge--{{ row.rateSource | lowercase }}"
-            >
-              {{ (row.rateSource === 'CUSTOM' ? 'admin.commission.source.custom' :
-              'admin.commission.source.default') | translate }}
-            </span>
-          </td>
-        </ng-container>
-
-        <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef></th>
-          <td mat-cell *matCellDef="let row">
-            <button mat-icon-button [matMenuTriggerFor]="rowMenu" [matMenuTriggerData]="{ row }">
-              <span class="material-symbols-outlined">more_vert</span>
-            </button>
-          </td>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="sellerColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: sellerColumns"></tr>
-      </table>
-    </div>
-
-    <mat-menu #rowMenu="matMenu">
-      <ng-template matMenuContent let-row="row">
-        <button mat-menu-item (click)="openSetSellerRate(row)">
-          <span class="material-symbols-outlined">edit</span>
-          {{ 'admin.commission.action.editRate' | translate }}
-        </button>
-        @if (row.rateSource === 'CUSTOM') {
-        <button mat-menu-item (click)="resetSellerRate(row)">
-          <span class="material-symbols-outlined">restart_alt</span>
-          {{ 'admin.commission.action.resetRate' | translate }}
-        </button>
-        }
-      </ng-template>
-    </mat-menu>
-    }
-      </tch-admin-section-card>
-    </div>
-  </tch-admin-detail-layout>
-  }
+      </tch-admin-list-surface>
+    </ng-template>
+  </tch-async-view>
 </tch-admin-page-shell>

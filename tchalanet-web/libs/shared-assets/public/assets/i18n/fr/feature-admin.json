@@ -14,7 +14,33 @@
       "action": {
         "editDefaultRate": "Modifier le taux du tenant",
         "editRate": "Modifier le taux",
-        "resetRate": "Revenir au taux du tenant"
+        "resetRate": "Revenir au taux par défaut",
+        "viewTerminal": "Voir le terminal",
+        "menu": "Actions de commission"
+      },
+      "notice": {
+        "defaultUpdated": "Le taux par défaut du tenant a été mis à jour.",
+        "sellerUpdated": "Le taux du terminal a été mis à jour.",
+        "rateReset": "Le terminal utilise maintenant le taux par défaut."
+      },
+      "loading": "Chargement des commissions…",
+      "filter": {
+        "search": "Rechercher",
+        "searchPlaceholder": "Nom ou code du terminal",
+        "toggle": "Filtres",
+        "status": "Statut",
+        "allStatuses": "Tous les statuts",
+        "reset": "Réinitialiser"
+      },
+      "list": {
+        "count": "terminal(s)"
+      },
+      "kpi": {
+        "defaultRate": "Taux par défaut",
+        "defaultRateHint": "Taux du tenant",
+        "totalTerminals": "Terminaux vendeurs",
+        "atDefaultRate": "Au taux par défaut",
+        "customRate": "Taux personnalisé"
       },
       "section": {
         "overview": "Vue d’ensemble",
@@ -28,6 +54,7 @@
         "range": "Min / Max"
       },
       "column": {
+        "seller": "Vendeur",
         "code": "Code",
         "name": "Nom",
         "status": "Statut",
@@ -40,7 +67,9 @@
       },
       "empty": {
         "title": "Aucun vendeur",
-        "message": "Aucun vendeur enregistré."
+        "message": "Aucun vendeur enregistré.",
+        "filteredTitle": "Aucun résultat",
+        "filteredMessage": "Modifiez la recherche ou réinitialisez les filtres."
       }
     },
     "subscription": {

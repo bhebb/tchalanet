@@ -14,7 +14,33 @@
       "action": {
         "editDefaultRate": "Modifye to tenant lan",
         "editRate": "Modifye to a",
-        "resetRate": "Retounen sou to tenant lan"
+        "resetRate": "Retounen sou to pa defo a",
+        "viewTerminal": "Gade tèminal la",
+        "menu": "Aksyon komisyon"
+      },
+      "notice": {
+        "defaultUpdated": "To pa defo tenant lan mete ajou.",
+        "sellerUpdated": "To tèminal la mete ajou.",
+        "rateReset": "Tèminal la ap itilize to pa defo a kounye a."
+      },
+      "loading": "Komisyon yo ap chaje…",
+      "filter": {
+        "search": "Rechèch",
+        "searchPlaceholder": "Non oswa kòd tèminal la",
+        "toggle": "Filtè",
+        "status": "Estati",
+        "allStatuses": "Tout estati",
+        "reset": "Reyinisyalize"
+      },
+      "list": {
+        "count": "tèminal"
+      },
+      "kpi": {
+        "defaultRate": "To pa defo",
+        "defaultRateHint": "To tenant lan",
+        "totalTerminals": "Tèminal vandè",
+        "atDefaultRate": "Nan to pa defo",
+        "customRate": "To pèsonalize"
       },
       "section": {
         "overview": "Rezime",
@@ -28,6 +54,7 @@
         "range": "Min / Max"
       },
       "column": {
+        "seller": "Vandè",
         "code": "Kòd",
         "name": "Non",
         "status": "Estati",
@@ -40,7 +67,9 @@
       },
       "empty": {
         "title": "Pa gen vandè",
-        "message": "Pa gen tèminal vandè ki anrejistre."
+        "message": "Pa gen tèminal vandè ki anrejistre.",
+        "filteredTitle": "Pa gen rezilta",
+        "filteredMessage": "Chanje rechèch la oswa reyinisyalize filtè yo."
       }
     },
     "subscription": {
