@@ -179,22 +179,47 @@ def auth_from_env() -> E2EAuth:
 def _local_identity(username: str) -> _LocalIdentity:
     normalized = username.strip().lower()
     defaults = {
-        os.environ.get("TCH_SUPER_ADMIN_USERNAME", "super_admin").lower(): (
+        "super_admin": (
             "SUPER_ADMIN",
             "00000000-0000-0000-0000-000000010001",
             "super_admin@localtest.me",
         ),
-        os.environ.get("TCH_TENANT_ADMIN_USERNAME", "admin").lower(): (
+        "superadmin": (
+            "SUPER_ADMIN",
+            "00000000-0000-0000-0000-000000010001",
+            "super_admin@localtest.me",
+        ),
+        "super_admin@localtest.me": (
+            "SUPER_ADMIN",
+            "00000000-0000-0000-0000-000000010001",
+            "super_admin@localtest.me",
+        ),
+        "admin": (
             "TENANT_ADMIN",
             "00000000-0000-0000-0000-000000010002",
             "admin@localtest.me",
         ),
-        os.environ.get("TCH_SELLER_USERNAME", "cashier").lower(): (
+        "admin@localtest.me": (
+            "TENANT_ADMIN",
+            "00000000-0000-0000-0000-000000010002",
+            "admin@localtest.me",
+        ),
+        "cashier": (
+            "CASHIER",
+            "00000000-0000-0000-0000-000000010003",
+            "cashier@localtest.me",
+        ),
+        "cashier@localtest.me": (
             "CASHIER",
             "00000000-0000-0000-0000-000000010003",
             "cashier@localtest.me",
         ),
     }
+    defaults[env_or_default("TCH_SUPER_ADMIN_USERNAME", "superadmin").lower()] = defaults[
+        "superadmin"
+    ]
+    defaults[env_or_default("TCH_TENANT_ADMIN_USERNAME", "admin").lower()] = defaults["admin"]
+    defaults[env_or_default("TCH_SELLER_USERNAME", "cashier").lower()] = defaults["cashier"]
     selected = defaults.get(normalized)
     if selected is None:
         raise RuntimeError(

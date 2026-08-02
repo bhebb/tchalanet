@@ -61,6 +61,9 @@ class ApiClient:
             timeout=self.timeout,
             verify=_resolve_verify(),
             headers=_base_headers(self.token, self.extra_headers),
+            # Validation targets reach the disposable runtime through an SSH tunnel.
+            # Runner-level proxy settings must not bypass the configured base URL.
+            trust_env=False,
         )
 
     def get(self, path: str, *, params: Mapping[str, Any] | None = None,

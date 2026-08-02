@@ -504,12 +504,14 @@ jobs:
       TCH_KEYCLOAK_TOKEN_URL: ${{ secrets.TCH_KEYCLOAK_TOKEN_URL }}
       TCH_KEYCLOAK_CLIENT_ID: ${{ secrets.TCH_KEYCLOAK_CLIENT_ID }}
       TCH_KEYCLOAK_CLIENT_SECRET: ${{ secrets.TCH_KEYCLOAK_CLIENT_SECRET }}
-      TCH_SUPER_ADMIN_USERNAME: ${{ secrets.TCH_SUPER_ADMIN_USERNAME }}
+      TCH_SUPER_ADMIN_USERNAME: ${{ secrets.TCH_SUPER_ADMIN_USERNAME || 'superadmin' }}
       TCH_SUPER_ADMIN_PASSWORD: ${{ secrets.TCH_SUPER_ADMIN_PASSWORD }}
-      TCH_TENANT_ADMIN_USERNAME: ${{ secrets.TCH_TENANT_ADMIN_USERNAME }}
+      TCH_TENANT_ADMIN_USERNAME: ${{ secrets.TCH_TENANT_ADMIN_USERNAME || 'admin' }}
       TCH_TENANT_ADMIN_PASSWORD: ${{ secrets.TCH_TENANT_ADMIN_PASSWORD }}
-      TCH_SELLER_USERNAME: ${{ secrets.TCH_SELLER_USERNAME }}
+      TCH_SELLER_USERNAME: ${{ secrets.TCH_SELLER_USERNAME || 'cashier' }}
       TCH_SELLER_PASSWORD: ${{ secrets.TCH_SELLER_PASSWORD }}
+      NO_PROXY: 127.0.0.1,localhost,api.stg.tchalanet.com
+      no_proxy: 127.0.0.1,localhost,api.stg.tchalanet.com
 
     steps:
       - uses: actions/checkout@v7
@@ -636,9 +638,29 @@ jobs:
       - name: Install E2E deps
         run: python -m pip install -e .
 
+      - name: Verify seeded Firebase E2E identity
+        if: ${{ env.TCH_E2E_AUTH_PROVIDER == 'firebase-emulator' }}
+        run: |
+          PYTHONPATH=. python - <<'PY'
+          import os
+
+          from tch_e2e.auth import FirebaseEmulatorAuth, env_or_default
+          from tch_e2e.client import ApiClient
+
+          username = env_or_default("TCH_SUPER_ADMIN_USERNAME", "superadmin")
+          token = FirebaseEmulatorAuth.from_env().password_grant(username=username, password="")
+          response = ApiClient(base_url=os.environ["TCH_BASE_URL"], token=token).get("/platform/page-models")
+          if response.status_code != 200:
+              raise SystemExit(
+                  "Seeded Firebase identity was rejected by the disposable runtime: "
+                  f"HTTP {response.status_code} {response.text}"
+              )
+          print("Seeded Firebase identity accepted by the disposable runtime.")
+          PY
+
       - name: Run server E2E
         run: |
-          python -m pytest -m "${{ inputs.server_e2e_marker || 'full_flow' }}"
+          PYTHONPATH=. python -m pytest -m "${{ inputs.server_e2e_marker || 'full_flow' }}"
 
       - name: Stop Firebase Auth emulator tunnel
         if: always()
