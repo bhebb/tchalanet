@@ -64,7 +64,9 @@ on:
 
 concurrency:
   group: full-validation-${{ github.ref }}
-  cancel-in-progress: false
+  # Every run owns the same disposable e2e-app server. A newer validation
+  # supersedes an older one instead of queuing behind stale browser tests.
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -726,13 +728,17 @@ jobs:
   web-e2e:
     name: Web E2E
     needs: [deploy-nightly-runtime]
-    if: always() && (github.event_name != 'schedule' || github.event.schedule == '0 6 * * 0')
+    if: >
+      always() &&
+      (github.event_name != 'schedule' || github.event.schedule == '0 6 * * 0') &&
+      (needs.deploy-nightly-runtime.result == 'success' ||
+        (github.event_name == 'workflow_dispatch' && inputs.deploy_runtime_for_e2e != true))
     runs-on: ubuntu-latest
     # Temporarily non-blocking while web-e2e hardens. Promote to a required gate
     # once the emulator/stub variant is consistently green.
     # When the disposable runtime deploy succeeds, the browser suite runs against
-    # that API and the remote Firebase emulator. Otherwise it falls back to the
-    # self-contained emulator+stub variant for fast web-only feedback.
+    # that API and the remote Firebase emulator. The self-contained stub variant
+    # remains available only when a runtime deploy was not requested.
     continue-on-error: true
     env:
       WEB_E2E_API: ${{ needs.deploy-nightly-runtime.result == 'success' && '1' || '0' }}
