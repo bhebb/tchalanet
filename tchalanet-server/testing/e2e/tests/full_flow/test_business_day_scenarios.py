@@ -1073,29 +1073,70 @@ def _close_draws(runtime: TenantRuntime, draws: list[dict[str, Any]], reason: st
 def _force_apply_results(
     sa: ApiClient,
     runtime: TenantRuntime,
-    start: dt.date,
     draws: list[dict[str, Any]],
     result: ManualResultPlan,
 ) -> float:
     started = time.monotonic()
-    slot_keys = sorted({_draw_slot_key(draw) for draw in draws if _draw_slot_key(draw)})
-    assert slot_keys, f"{runtime.code}: force apply requires result slot keys"
-    applied = sa.post(
-        "/platform/ops/draws/apply",
-        json={
-            "tenantCodes": [runtime.code],
-            "baseDate": dt.date.today().isoformat(),
-            "daysBack": max(0, (dt.date.today() - start).days),
-            "slotKeys": slot_keys,
-            "force": True,
-            "dryRun": False,
-            "maxSlots": 500,
-            "reason": f"business-day e2e applies manual result {result.lot1}-{result.lot2}-{result.lot3}",
-        },
-        headers=_rid(),
-    )
-    assert_ok(applied)
+    slots_by_date: dict[str, set[str]] = {}
+    for draw in draws:
+        draw_date = str(draw.get("drawDate") or "").strip()
+        slot_key = _draw_slot_key(draw)
+        if draw_date and slot_key:
+            slots_by_date.setdefault(draw_date, set()).add(slot_key)
+
+    assert slots_by_date, f"{runtime.code}: force apply requires dated result slots"
+    for draw_date, slot_keys in sorted(slots_by_date.items()):
+        applied = sa.post(
+            "/platform/ops/draws/apply",
+            json={
+                "tenantCodes": [runtime.code],
+                # The operations handler clamps broad replay windows. Apply the
+                # generated draw date directly so an older business day is covered.
+                "baseDate": draw_date,
+                "daysBack": 0,
+                "slotKeys": sorted(slot_keys),
+                "force": True,
+                "dryRun": False,
+                "maxSlots": len(slot_keys),
+                "reason": f"business-day e2e applies manual result {result.lot1}-{result.lot2}-{result.lot3}",
+            },
+            headers=_rid(),
+        )
+        assert_ok(applied)
+        _wait_for_batch_completion(sa, _data(applied) or {}, runtime.code, draw_date)
     return time.monotonic() - started
+
+
+def _wait_for_batch_completion(
+    sa: ApiClient,
+    launch: dict[str, Any],
+    tenant_code: str,
+    draw_date: str,
+    timeout_seconds: int = 30,
+) -> None:
+    launches = launch.get("launches") or []
+    assert launches, f"{tenant_code}: result-apply launch returned no executions: {launch}"
+    execution_id = launches[0].get("executionId") or launches[0].get("execution_id")
+    assert execution_id, f"{tenant_code}: result-apply launch has no execution id: {launch}"
+
+    deadline = time.monotonic() + timeout_seconds
+    last_execution: dict[str, Any] | None = None
+    while time.monotonic() < deadline:
+        response = sa.get(f"/platform/ops/batch/executions/{execution_id}", headers=_rid())
+        assert_ok(response)
+        last_execution = _data(response) or {}
+        status = str(last_execution.get("status") or "").upper()
+        if status == "COMPLETED":
+            return
+        if status in {"FAILED", "STOPPED", "ABANDONED"}:
+            raise AssertionError(
+                f"{tenant_code}: result-apply batch failed for {draw_date}: {last_execution}"
+            )
+        time.sleep(0.5)
+
+    raise AssertionError(
+        f"{tenant_code}: result-apply batch did not complete for {draw_date}: {last_execution}"
+    )
 
 
 def _wait_for_draws_resulted(runtime: TenantRuntime, draws: list[dict[str, Any]], timeout_seconds: int = 30) -> float:
@@ -1520,12 +1561,12 @@ def _apply_or_wait_for_scheduler(
                 return ResultFlowTiming(manual_seconds, mode, None, projection_seconds)
             except AssertionError:
                 pass
-        apply_seconds = _force_apply_results(sa, runtime, start, draws, result)
+        apply_seconds = _force_apply_results(sa, runtime, draws, result)
         _wait_for_draws_resulted(runtime, draws)
         projection_seconds = _assert_reports(runtime, start, draws, expected)
         return ResultFlowTiming(manual_seconds, mode, apply_seconds, projection_seconds)
 
-    apply_seconds = _force_apply_results(sa, runtime, start, draws, result)
+    apply_seconds = _force_apply_results(sa, runtime, draws, result)
     _wait_for_draws_resulted(runtime, draws)
     projection_seconds = _assert_reports(runtime, start, draws, expected)
     return ResultFlowTiming(manual_seconds, mode, apply_seconds, projection_seconds)
@@ -1603,7 +1644,7 @@ def test_seller_pricing_override_sale_result_and_payout(
     )
     _close_draws(runtime, [draw], "seller pricing override e2e closes draw before result apply")
     _record_manual_results(super_admin_client, [draw], result)
-    _force_apply_results(super_admin_client, runtime, dt.date.today(), [draw], result)
+    _force_apply_results(super_admin_client, runtime, [draw], result)
     _wait_for_draws_resulted(runtime, [draw])
 
     settled_support = _settlement_support(runtime.admin, ticket_id)

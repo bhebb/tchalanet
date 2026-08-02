@@ -757,20 +757,20 @@ jobs:
     runs-on: ubuntu-latest
     # Temporarily non-blocking while web-e2e hardens. Promote to a required gate
     # once the emulator/stub variant is consistently green.
-    # When the disposable runtime deploy succeeds, the browser suite runs against
-    # that API and the remote Firebase emulator. The self-contained stub variant
-    # remains available only when a runtime deploy was not requested.
+    # Browser scenarios are deterministic UI contracts: REST remains stubbed,
+    # while authentication uses the disposable runtime's Firebase emulator when
+    # it is available. Server E2E is the real API/runtime validation.
     continue-on-error: true
     env:
-      WEB_E2E_API: ${{ needs.deploy-nightly-runtime.result == 'success' && '1' || '0' }}
-      WEB_E2E_EMULATOR: ${{ needs.deploy-nightly-runtime.result == 'success' && '0' || '1' }}
-      WEB_E2E_API_BASE_URL: ${{ needs.deploy-nightly-runtime.outputs.api_base_url }}
+      WEB_E2E_API: '0'
+      WEB_E2E_EMULATOR: '1'
+      WEB_E2E_REMOTE_FIREBASE: ${{ needs.deploy-nightly-runtime.result == 'success' && '1' || '0' }}
       WEB_E2E_FIREBASE_AUTH_EMULATOR_URL: ${{ needs.deploy-nightly-runtime.outputs.firebase_auth_emulator_url }}
       TCH_FIREBASE_EMULATOR_HOST: ${{ needs.deploy-nightly-runtime.outputs.firebase_emulator_host || '127.0.0.1:9099' }}
       NIGHTLY_SERVER_HOST: ${{ needs.deploy-nightly-runtime.outputs.server_host }}
       TCH_FIREBASE_PROJECT_ID: demo-tchalanet-local
-      # Stub mode creates @e2e.local users locally. API mode uses the disposable
-      # backend bootstrap identities linked to app_user_external_identity.
+      # The remote emulator receives the runtime bootstrap identities. The local
+      # fallback uses isolated @e2e.local users created by global setup.
       TCH_E2E_SUPERADMIN_EMAIL: ${{ needs.deploy-nightly-runtime.result == 'success' && 'super_admin@localtest.me' || 'super_admin@e2e.local' }}
       TCH_E2E_SUPERADMIN_PASSWORD: ${{ needs.deploy-nightly-runtime.result == 'success' && 'Changeme1!' || 'e2e-password-123' }}
       TCH_E2E_ADMIN_EMAIL: ${{ needs.deploy-nightly-runtime.result == 'success' && 'admin@localtest.me' || 'admin@e2e.local' }}
@@ -785,43 +785,15 @@ jobs:
       - uses: actions/checkout@v7
 
       - name: Prepare SSH key for Firebase emulator tunnel
-        if: ${{ env.WEB_E2E_API == '1' }}
+        if: ${{ env.WEB_E2E_REMOTE_FIREBASE == '1' }}
         uses: ./.github/actions/prepare-ssh-key
         with:
           private_key: ${{ secrets.SSH_PRIVATE_KEY }}
           key_file: tchalanet_stg
           known_host: ${{ env.NIGHTLY_SERVER_HOST }}
 
-      - name: Tunnel deployed API through SSH
-        if: ${{ env.WEB_E2E_API == '1' }}
-        run: |
-          set -euo pipefail
-          sudo sed -i '/api\.stg\.tchalanet\.com/d' /etc/hosts
-          echo '127.0.0.1 api.stg.tchalanet.com' | sudo tee -a /etc/hosts >/dev/null
-          ssh -i ~/.ssh/tchalanet_stg \
-            -o ExitOnForwardFailure=yes \
-            -o ServerAliveInterval=30 \
-            -o ServerAliveCountMax=3 \
-            -N -L 18443:127.0.0.1:443 \
-            tch@"$NIGHTLY_SERVER_HOST" \
-            >"$RUNNER_TEMP/api-tunnel.log" 2>&1 &
-          tunnel_pid=$!
-          echo "API_TUNNEL_PID=$tunnel_pid" >> "$GITHUB_ENV"
-          for attempt in $(seq 1 20); do
-            if curl --insecure --fail --silent --show-error \
-              "https://api.stg.tchalanet.com:18443/api/v1/actuator/health" >/dev/null; then
-              echo "Deployed API tunnel ready"
-              break
-            fi
-            if [ "$attempt" = 20 ]; then
-              cat "$RUNNER_TEMP/api-tunnel.log" >&2 || true
-              exit 1
-            fi
-            sleep 2
-          done
-
       - name: Tunnel Firebase Auth emulator
-        if: ${{ env.WEB_E2E_API == '1' }}
+        if: ${{ env.WEB_E2E_REMOTE_FIREBASE == '1' }}
         run: |
           set -euo pipefail
           ssh -i ~/.ssh/tchalanet_stg \
@@ -865,12 +837,8 @@ jobs:
       - name: Install Playwright browsers
         run: pnpm exec playwright install --with-deps chromium
 
-      - name: Prepare runtime config for disposable API
-        if: ${{ env.WEB_E2E_API == '1' }}
-        run: node apps/web-e2e/scripts/write-runtime-config.mjs
-
       - name: Start firebase auth emulator
-        if: ${{ env.WEB_E2E_API != '1' }}
+        if: ${{ env.WEB_E2E_REMOTE_FIREBASE != '1' }}
         working-directory: tchalanet-infra
         run: make up-firebase-emulator
 
@@ -878,16 +846,13 @@ jobs:
         run: pnpm nx e2e web-e2e
 
       - name: Stop firebase auth emulator
-        if: ${{ always() && env.WEB_E2E_API != '1' }}
+        if: ${{ always() && env.WEB_E2E_REMOTE_FIREBASE != '1' }}
         working-directory: tchalanet-infra
         run: make down-firebase-emulator
 
       - name: Stop Firebase Auth emulator tunnel
         if: always()
         run: |
-          if [ -n "${API_TUNNEL_PID:-}" ]; then
-            kill "$API_TUNNEL_PID" 2>/dev/null || true
-          fi
           if [ -n "${FIREBASE_TUNNEL_PID:-}" ]; then
             kill "$FIREBASE_TUNNEL_PID" 2>/dev/null || true
           fi
