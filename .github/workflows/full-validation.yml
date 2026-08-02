@@ -453,19 +453,21 @@ jobs:
               --password-stdin
             DOCKER_BIN="$DOCKER_BIN" ENV=staging API_IMAGE_TAG="$API_IMAGE_TAG" EDGE_IMAGE_TAG="$EDGE_IMAGE_TAG" \
               DEPLOY_API=1 DEPLOY_EDGE=1 FORCE_RECREATE=1 \
-              WEB_ORIGINS="https://tchalanet-web-stg.pages.dev https://test.tchalanet.com" \
+              WEB_ORIGINS="https://tchalanet-web-stg.pages.dev https://test.tchalanet.com http://localhost:4301 http://localhost:4302 http://localhost:4303" \
               RUNTIME_IDENTITY_PROVIDER="$RUNTIME_IDENTITY_PROVIDER" ENABLE_FIREBASE_EMULATOR="$ENABLE_FIREBASE_EMULATOR" \
               scripts/remote/deploy-runtime-services.sh
 
       - name: Publish runtime coordinates
         id: runtime-coordinates
         env:
-          API_BASE_URL: ${{ secrets.TCH_E2E_BASE_URL || vars.TCH_E2E_BASE_URL || 'https://api.stg.tchalanet.com/api/v1' }}
+          API_TUNNEL_PORT: '18443'
         run: |
           set -euo pipefail
-          test -n "$API_BASE_URL" || { echo "Unable to resolve API base URL" >&2; exit 1; }
           test -n "$SERVER_HOST" || { echo "Unable to resolve Firebase emulator host" >&2; exit 1; }
-          echo "api_base_url=$API_BASE_URL" >> "$GITHUB_OUTPUT"
+          # The validation server is disposable and is not the host currently
+          # published by api.stg.tchalanet.com. Downstream jobs tunnel Traefik
+          # over SSH while preserving this hostname for routing and TLS.
+          echo "api_base_url=https://api.stg.tchalanet.com:${API_TUNNEL_PORT}/api/v1" >> "$GITHUB_OUTPUT"
           echo "server_host=$SERVER_HOST" >> "$GITHUB_OUTPUT"
           echo "firebase_emulator_host=$SERVER_HOST:9099" >> "$GITHUB_OUTPUT"
           echo "firebase_auth_emulator_url=http://$SERVER_HOST:9099" >> "$GITHUB_OUTPUT"
@@ -485,7 +487,10 @@ jobs:
     env:
       NIGHTLY_SERVER_HOST: ${{ needs.env-setup.outputs.server_host }}
       TCH_BASE_URL: ${{ needs.deploy-nightly-runtime.outputs.api_base_url || secrets.TCH_E2E_BASE_URL || vars.TCH_E2E_BASE_URL || 'https://api.stg.tchalanet.com/api/v1' }}
-      TCH_E2E_VERIFY_SSL: ${{ vars.TCH_E2E_VERIFY_SSL || 'true' }}
+      # The disposable runtime is reached through the SSH tunnel below. Its
+      # Traefik certificate is valid for the preserved hostname, but the GitHub
+      # runner does not necessarily have the issuing CA installed.
+      TCH_E2E_VERIFY_SSL: 'false'
       TCH_E2E_HTTP_TIMEOUT: ${{ vars.TCH_E2E_HTTP_TIMEOUT || '120' }}
       TCH_E2E_AUTH_PROVIDER: ${{ github.event_name == 'schedule' && 'firebase-emulator' || inputs.e2e_auth_provider || vars.TCH_E2E_AUTH_PROVIDER || 'firebase-emulator' }}
       TCH_FIREBASE_EMULATOR_HOST: ${{ secrets.TCH_FIREBASE_EMULATOR_HOST || vars.TCH_FIREBASE_EMULATOR_HOST }}
@@ -513,6 +518,33 @@ jobs:
           private_key: ${{ secrets.SSH_PRIVATE_KEY }}
           key_file: tchalanet_stg
           known_host: ${{ env.NIGHTLY_SERVER_HOST }}
+
+      - name: Tunnel deployed API through SSH
+        run: |
+          set -euo pipefail
+          sudo sed -i '/api\.stg\.tchalanet\.com/d' /etc/hosts
+          echo '127.0.0.1 api.stg.tchalanet.com' | sudo tee -a /etc/hosts >/dev/null
+          ssh -i ~/.ssh/tchalanet_stg \
+            -o ExitOnForwardFailure=yes \
+            -o ServerAliveInterval=30 \
+            -o ServerAliveCountMax=3 \
+            -N -L 18443:127.0.0.1:443 \
+            tch@"$NIGHTLY_SERVER_HOST" \
+            >"$RUNNER_TEMP/api-tunnel.log" 2>&1 &
+          tunnel_pid=$!
+          echo "API_TUNNEL_PID=$tunnel_pid" >> "$GITHUB_ENV"
+          for attempt in $(seq 1 20); do
+            if curl --fail --silent --show-error \
+              "https://api.stg.tchalanet.com:18443/api/v1/actuator/health" >/dev/null; then
+              echo "Deployed API tunnel ready"
+              break
+            fi
+            if [ "$attempt" = 20 ]; then
+              cat "$RUNNER_TEMP/api-tunnel.log" >&2 || true
+              exit 1
+            fi
+            sleep 2
+          done
 
       - name: Tunnel Firebase Auth emulator
         if: ${{ env.TCH_E2E_AUTH_PROVIDER == 'firebase-emulator' }}
@@ -608,6 +640,9 @@ jobs:
       - name: Stop Firebase Auth emulator tunnel
         if: always()
         run: |
+          if [ -n "${API_TUNNEL_PID:-}" ]; then
+            kill "$API_TUNNEL_PID" 2>/dev/null || true
+          fi
           if [ -n "${FIREBASE_TUNNEL_PID:-}" ]; then
             kill "$FIREBASE_TUNNEL_PID" 2>/dev/null || true
           fi
@@ -729,6 +764,34 @@ jobs:
           key_file: tchalanet_stg
           known_host: ${{ env.NIGHTLY_SERVER_HOST }}
 
+      - name: Tunnel deployed API through SSH
+        if: ${{ env.WEB_E2E_API == '1' }}
+        run: |
+          set -euo pipefail
+          sudo sed -i '/api\.stg\.tchalanet\.com/d' /etc/hosts
+          echo '127.0.0.1 api.stg.tchalanet.com' | sudo tee -a /etc/hosts >/dev/null
+          ssh -i ~/.ssh/tchalanet_stg \
+            -o ExitOnForwardFailure=yes \
+            -o ServerAliveInterval=30 \
+            -o ServerAliveCountMax=3 \
+            -N -L 18443:127.0.0.1:443 \
+            tch@"$NIGHTLY_SERVER_HOST" \
+            >"$RUNNER_TEMP/api-tunnel.log" 2>&1 &
+          tunnel_pid=$!
+          echo "API_TUNNEL_PID=$tunnel_pid" >> "$GITHUB_ENV"
+          for attempt in $(seq 1 20); do
+            if curl --fail --silent --show-error \
+              "https://api.stg.tchalanet.com:18443/api/v1/actuator/health" >/dev/null; then
+              echo "Deployed API tunnel ready"
+              break
+            fi
+            if [ "$attempt" = 20 ]; then
+              cat "$RUNNER_TEMP/api-tunnel.log" >&2 || true
+              exit 1
+            fi
+            sleep 2
+          done
+
       - name: Tunnel Firebase Auth emulator
         if: ${{ env.WEB_E2E_API == '1' }}
         run: |
@@ -794,6 +857,9 @@ jobs:
       - name: Stop Firebase Auth emulator tunnel
         if: always()
         run: |
+          if [ -n "${API_TUNNEL_PID:-}" ]; then
+            kill "$API_TUNNEL_PID" 2>/dev/null || true
+          fi
           if [ -n "${FIREBASE_TUNNEL_PID:-}" ]; then
             kill "$FIREBASE_TUNNEL_PID" 2>/dev/null || true
           fi
