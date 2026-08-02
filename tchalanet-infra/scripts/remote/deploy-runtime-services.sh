@@ -182,6 +182,7 @@ require_file "scripts/remote/prepare-firebase-admin-credentials.sh"
 require_file "scripts/remote/prepare-server-signing-keys.sh"
 if [ "$ENABLE_FIREBASE_EMULATOR" = "1" ]; then
   require_file "compose/docker-compose-firebase-emulator.yml"
+  require_file "compose/docker-compose-e2e.yml"
 fi
 
 log "Preparing Docker networks for $ENV"
@@ -304,6 +305,7 @@ if [ "$ENV" = "staging" ]; then
 fi
 if [ "$ENABLE_FIREBASE_EMULATOR" = "1" ]; then
   compose_cmd+=(-f compose/docker-compose-firebase-emulator.yml)
+  compose_cmd+=(-f compose/docker-compose-e2e.yml)
 fi
 
 if [ "$RESET_DATABASE" = "1" ]; then
