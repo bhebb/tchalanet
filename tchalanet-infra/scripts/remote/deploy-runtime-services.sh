@@ -54,6 +54,7 @@ verify_firebase_emulator_runtime() {
   runtime_env="$($DOCKER_BIN inspect --format='{{range .Config.Env}}{{println .}}{{end}}' "tchl-api-$ENV")"
   expected_runtime_env=(
     "SPRING_PROFILES_ACTIVE=staging,e2e,grafana-cloud"
+    "APP_CORS_ALLOWED_ORIGINS=$(printf '%s' "$WEB_ORIGINS" | tr ' ' ',')"
     "TCH_IDENTITY_PROVIDER=firebase-emulator"
     "FIREBASE_PROJECT_ID=$FIREBASE_EMULATOR_PROJECT_ID"
     "FIREBASE_AUTH_EMULATOR_HOST=firebase-emulator:9099"
@@ -210,6 +211,18 @@ if [ "${SKIP_DOPPLER:-0}" != "1" ]; then
   chmod 600 "envs/$ENV/.secrets"
 elif [ ! -f "envs/$ENV/.secrets" ]; then
   fail "SKIP_DOPPLER=1 was set but envs/$ENV/.secrets does not exist"
+fi
+
+if [ "${RUNTIME_IDENTITY_PROVIDER:-firebase}" = "firebase-emulator" ] && [ -n "$WEB_ORIGINS" ]; then
+  # The API service loads envs/$ENV/.secrets through Compose's env_file.
+  # Put the disposable E2E CORS origins in that source, rather than only in
+  # Compose interpolation, so the Spring process actually receives them.
+  cors_override_file="envs/$ENV/.secrets"
+  cors_override_tmp="$(mktemp /tmp/tchalanet-cors-override.XXXXXX)"
+  awk '!/^APP_CORS_ALLOWED_ORIGINS=/' "$cors_override_file" > "$cors_override_tmp"
+  printf 'APP_CORS_ALLOWED_ORIGINS=%s\n' "$(printf '%s' "$WEB_ORIGINS" | tr ' ' ',')" >> "$cors_override_tmp"
+  mv "$cors_override_tmp" "$cors_override_file"
+  chmod 600 "$cors_override_file"
 fi
 
 if [ -n "$RUNTIME_DATABASE_URL" ]; then
