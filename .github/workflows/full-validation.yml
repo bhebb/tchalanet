@@ -537,7 +537,7 @@ jobs:
           tunnel_pid=$!
           echo "API_TUNNEL_PID=$tunnel_pid" >> "$GITHUB_ENV"
           for attempt in $(seq 1 20); do
-            if curl --fail --silent --show-error \
+            if curl --insecure --fail --silent --show-error \
               "https://api.stg.tchalanet.com:18443/api/v1/actuator/health" >/dev/null; then
               echo "Deployed API tunnel ready"
               break
@@ -787,7 +787,7 @@ jobs:
           tunnel_pid=$!
           echo "API_TUNNEL_PID=$tunnel_pid" >> "$GITHUB_ENV"
           for attempt in $(seq 1 20); do
-            if curl --fail --silent --show-error \
+            if curl --insecure --fail --silent --show-error \
               "https://api.stg.tchalanet.com:18443/api/v1/actuator/health" >/dev/null; then
               echo "Deployed API tunnel ready"
               break
