@@ -1,5 +1,12 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -20,14 +27,18 @@ import {
   ConsoleTicketSelectionsCardComponent,
   consoleTicketDrawIdentity,
 } from '@tch/web/console';
-import type { ConsoleFact, ConsoleTicketSelectionView } from '@tch/web/console';
+import type {
+  ConsoleFact,
+  ConsoleTicketPricingLabel,
+  ConsoleTicketSelectionView,
+} from '@tch/web/console';
 import { ErrorViewModel, resolveErrorFeedbackCopy, toErrorViewModel } from '@tch/web/errors';
 import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { PosSaleSuccessDialogComponent } from '../../components/pos-sale-success-dialog/pos-sale-success-dialog.component';
 import { PosSaleApiService } from '../../data-access/pos-sale-api.service';
-import { PosTicketDetailsView } from '../../data-access/pos-sale.models';
+import { PosTicketDetailsView, PosTicketPricingTermView } from '../../data-access/pos-sale.models';
 import {
   ticketStatusLabelKey,
   ticketStatusTone,
@@ -133,10 +144,11 @@ export class PosTicketDetailPage implements OnInit {
       gameCode: line.gameCode,
       gameLabel: this.gameLabel(line.gameCode, line.gameLabel),
       selection: line.selection,
-      betTypeLabel: line.betTypeLabel,
+      betTypeLabel: line.betTypeLabel || line.pricingTerms?.[0]?.commercialLabel || null,
       amountLabel: `${this.amountDisplay(line.stakeAmountCents)} ${ticket.currency}`,
       promotional: line.promotional,
       promotionLabel: line.promotional ? this.promotionLabel(line.promotionLabel) : null,
+      pricingLabels: this.pricingLabels(line.pricingTerms ?? [], ticket.currency),
     }));
   });
 
@@ -237,6 +249,44 @@ export class PosTicketDetailPage implements OnInit {
     return translated !== key ? translated : clean;
   }
 
+  pricingLabels(
+    terms: readonly PosTicketPricingTermView[],
+    currency: string,
+  ): readonly ConsoleTicketPricingLabel[] {
+    return terms.map(term => ({
+      value: this.pricingValue(term, currency),
+      source: this.pricingSource(term.source),
+    }));
+  }
+
+  private pricingValue(term: PosTicketPricingTermView, currency: string): string {
+    const value =
+      term.payoutRuleType === 'FIXED_AMOUNT'
+        ? this.formatDecimal(term.fixedAmount)
+        : `x${this.formatDecimal(term.multiplier)}`;
+    const suffix = term.payoutRuleType === 'FIXED_AMOUNT' ? ` ${currency}` : '';
+    return `${this.translate.instant('admin.pos.detail.pricing.label')} ${value}${suffix}`;
+  }
+
+  private pricingSource(source: string): string {
+    if (source === 'SELLER_TERMINAL_OVERRIDE') {
+      return this.translate.instant('admin.pos.detail.pricing.sourceSeller');
+    }
+    if (source === 'TENANT_DEFAULT') {
+      return this.translate.instant('admin.pos.detail.pricing.sourceTenant');
+    }
+    return this.translate.instant('admin.pos.detail.pricing.sourceUnknown');
+  }
+
+  private formatDecimal(value?: number | string | null): string {
+    if (value === null || value === undefined || value === '') return '—';
+    const numeric = Number(value);
+    if (!Number.isFinite(numeric)) return String(value);
+    return new Intl.NumberFormat(this.translate.currentLang || 'fr', {
+      maximumFractionDigits: 2,
+    }).format(numeric);
+  }
+
   canReprint(ticket: PosTicketDetailsView): boolean {
     return (!!this.sellerTerminalId(ticket) || !!ticket.terminalCode) && !this.reprinting();
   }
@@ -250,7 +300,9 @@ export class PosTicketDetailPage implements OnInit {
     this.resolveSellerTerminalId(ticket).subscribe({
       next: sellerTerminalId => {
         if (!sellerTerminalId) {
-          this.reprintError.set(this.reprintFailureMessage(new Error('seller-terminal-id-missing')));
+          this.reprintError.set(
+            this.reprintFailureMessage(new Error('seller-terminal-id-missing')),
+          );
           this.reprinting.set(false);
           return;
         }
@@ -296,7 +348,11 @@ export class PosTicketDetailPage implements OnInit {
   }
 
   private errorViewModel(err: unknown, source: string): ErrorViewModel {
-    const normalized = webAppErrorFromProblemDetail(mapHttpErrorToProblemDetail(err), source, 'page');
+    const normalized = webAppErrorFromProblemDetail(
+      mapHttpErrorToProblemDetail(err),
+      source,
+      'page',
+    );
     const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
     return toErrorViewModel(normalized, copy);
   }
@@ -314,18 +370,21 @@ export class PosTicketDetailPage implements OnInit {
     const terminalCode = ticket.terminalCode?.trim();
     if (!terminalCode) return of(null);
 
-    return this.api.listSellerTerminalsForSale(
-      { q: terminalCode, page: 0, size: 20 },
-      { suppressShellFeedback: true },
-    ).pipe(
-      map(page => {
-        const normalizedTerminalCode = normalizeTerminalCode(terminalCode);
-        return (
-          page.items.find(item => normalizeTerminalCode(item.terminalCode) === normalizedTerminalCode)
-            ?.sellerTerminalId ?? null
-        );
-      }),
-    );
+    return this.api
+      .listSellerTerminalsForSale(
+        { q: terminalCode, page: 0, size: 20 },
+        { suppressShellFeedback: true },
+      )
+      .pipe(
+        map(page => {
+          const normalizedTerminalCode = normalizeTerminalCode(terminalCode);
+          return (
+            page.items.find(
+              item => normalizeTerminalCode(item.terminalCode) === normalizedTerminalCode,
+            )?.sellerTerminalId ?? null
+          );
+        }),
+      );
   }
 
   private reprintFailureMessage(err: unknown): string {

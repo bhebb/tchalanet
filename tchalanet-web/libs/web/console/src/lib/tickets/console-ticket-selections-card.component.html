@@ -1,25 +1,48 @@
 <tch-admin-section-card [title]="title()" [icon]="icon()">
   <div class="console-ticket-selections-card__lines">
-    @for (line of lines(); track line.lineNumber ?? $index) {
-      <article class="console-ticket-selections-card__line">
-        <tch-game-selection-chip
-          class="console-ticket-selections-card__selection"
-          [gameCode]="line.gameCode"
-          [selection]="line.selection"
-        />
+    @for (group of groups(); track group.gameCode) {
+      <section class="console-ticket-selections-card__group">
+        <h3 class="console-ticket-selections-card__group-title">{{ group.gameLabel }}</h3>
+        @for (line of group.lines; track line.lineNumber ?? $index) {
+          <article class="console-ticket-selections-card__line">
+            <tch-game-selection-chip
+              class="console-ticket-selections-card__selection"
+              [gameCode]="line.gameCode"
+              [selection]="line.selection"
+            />
 
-        <div class="console-ticket-selections-card__body">
-          <h3>{{ line.gameLabel }}</h3>
-          @if (line.betTypeLabel) {
-            <p>{{ line.betTypeLabel }}</p>
-          }
-          @if (line.promotional && line.promotionLabel) {
-            <span class="console-ticket-selections-card__promotion">{{ line.promotionLabel }}</span>
-          }
-        </div>
+            <div class="console-ticket-selections-card__body">
+              @if (line.betTypeLabel) {
+                <p>{{ line.betTypeLabel }}</p>
+              }
+              @if (line.pricingLabels?.length) {
+                <div class="console-ticket-selections-card__pricing">
+                  @for (
+                    pricing of line.pricingLabels;
+                    track pricing.value + (pricing.source ?? '')
+                  ) {
+                    <span class="console-ticket-selections-card__pricing-value">{{
+                      pricing.value
+                    }}</span>
+                    @if (pricing.source) {
+                      <span class="console-ticket-selections-card__pricing-source">{{
+                        pricing.source
+                      }}</span>
+                    }
+                  }
+                </div>
+              }
+              @if (line.promotional && line.promotionLabel) {
+                <span class="console-ticket-selections-card__promotion">{{
+                  line.promotionLabel
+                }}</span>
+              }
+            </div>
 
-        <strong class="console-ticket-selections-card__amount">{{ line.amountLabel }}</strong>
-      </article>
+            <strong class="console-ticket-selections-card__amount">{{ line.amountLabel }}</strong>
+          </article>
+        }
+      </section>
     } @empty {
       @if (emptyLabel(); as empty) {
         <p class="console-ticket-selections-card__empty">{{ empty }}</p>

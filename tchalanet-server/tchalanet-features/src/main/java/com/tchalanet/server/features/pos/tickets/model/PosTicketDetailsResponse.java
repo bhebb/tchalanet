@@ -3,7 +3,11 @@ package com.tchalanet.server.features.pos.tickets.model;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TicketId;
+import com.tchalanet.server.core.pricing.api.model.PayoutRuleType;
 import com.tchalanet.server.core.sales.api.model.status.TicketSaleStatus;
+import com.tchalanet.server.core.sales.api.model.settlement.SettlementRuleCode;
+import com.tchalanet.server.core.sales.api.model.settlement.SettlementTermSource;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
@@ -50,8 +54,18 @@ public record PosTicketDetailsResponse(
       String selection, // display_selection
       long stakeAmountCents,
       boolean promotional, // free game or odds-boosted by a promo
-      String promotionLabel // e.g. "Maryaj gratuit", null if no promo
-      ) {}
+      String promotionLabel, // e.g. "Maryaj gratuit", null if no promo
+      List<PricingTermDetailResponse> pricingTerms) {}
+
+  /** Immutable payout terms captured on the ticket line at sale time. */
+  public record PricingTermDetailResponse(
+      SettlementRuleCode ruleCode,
+      Short betOption,
+      String commercialLabel,
+      PayoutRuleType payoutRuleType,
+      BigDecimal multiplier,
+      BigDecimal fixedAmount,
+      SettlementTermSource source) {}
 
   /** A surcharge applied to the ticket (SMS fee, WhatsApp fee, etc.). */
   public record CashierTicketChargeResponse(

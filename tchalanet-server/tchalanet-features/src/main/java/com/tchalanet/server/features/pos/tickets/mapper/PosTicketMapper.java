@@ -4,6 +4,7 @@ import com.tchalanet.server.common.types.money.Money;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintCharge;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintLine;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintView;
+import com.tchalanet.server.core.sales.api.model.settlement.SettlementTermSnapshot;
 import com.tchalanet.server.core.sales.api.model.view.TicketRow;
 import com.tchalanet.server.features.pos.tickets.model.PosTicketDetailsResponse;
 import com.tchalanet.server.features.pos.tickets.model.PosTicketPageResponse;
@@ -84,8 +85,33 @@ public class PosTicketMapper {
                     l.selectionCanonical(),
                     toCents(l.stake()),
                     l.promotional(),
-                    l.promotionLabel()))
+                    l.promotionLabel(),
+                    toPricingTerms(l)))
         .toList();
+  }
+
+  private List<PosTicketDetailsResponse.PricingTermDetailResponse> toPricingTerms(
+      TicketPrintLine line) {
+    if (line.settlementTermsSnapshot() == null
+        || line.settlementTermsSnapshot().terms() == null) {
+      return List.of();
+    }
+    return line.settlementTermsSnapshot().terms().stream()
+        .map(this::toPricingTerm)
+        .toList();
+  }
+
+  private PosTicketDetailsResponse.PricingTermDetailResponse toPricingTerm(
+      SettlementTermSnapshot term) {
+    var rule = term.payoutRule();
+    return new PosTicketDetailsResponse.PricingTermDetailResponse(
+        term.ruleCode(),
+        term.sourceBetOption(),
+        term.commercialLabel(),
+        rule.type(),
+        rule.multiplier(),
+        rule.fixedAmount(),
+        term.source());
   }
 
   private List<PosTicketDetailsResponse.CashierTicketChargeResponse> toCharges(

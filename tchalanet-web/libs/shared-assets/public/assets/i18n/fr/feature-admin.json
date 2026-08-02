@@ -521,7 +521,12 @@
         "loading": "Chargement du ticket...",
         "summary": { "aria": "Résumé du ticket", "eyebrow": "Résumé" },
         "action": { "tickets": "Tickets", "verify": "Vérifier", "reprint": "Réimprimer" },
-        "section": { "sale": "Vente", "draw": "Tirage", "lines": "Lignes jouées", "charges": "Frais" },
+        "section": {
+          "sale": "Vente",
+          "draw": "Tirage",
+          "lines": "Lignes jouées",
+          "charges": "Frais"
+        },
         "field": {
           "issuedAt": "Émis le",
           "status": "Statut",
@@ -531,7 +536,18 @@
           "dateTime": "Date et heure",
           "waivedCharge": "Frais offert"
         },
-        "meta": { "totalPaid": "Total payé", "freeLines": "Maryaj gratis", "seller": "Vendeur", "terminal": "Terminal" },
+        "meta": {
+          "totalPaid": "Total payé",
+          "freeLines": "Maryaj gratis",
+          "seller": "Vendeur",
+          "terminal": "Terminal"
+        },
+        "pricing": {
+          "label": "Barème",
+          "sourceSeller": "Vendeur",
+          "sourceTenant": "Tenant",
+          "sourceUnknown": "Configuration"
+        },
         "error": {
           "notFoundTitle": "Ticket introuvable",
           "notFoundMessage": "Aucun identifiant de ticket n’a été fourni.",

@@ -20,7 +20,9 @@ describe('console ticket detail cards', () => {
     ]);
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('[data-testid="admin-detail-section"]')).not.toBeNull();
+    expect(
+      fixture.nativeElement.querySelector('[data-testid="admin-detail-section"]'),
+    ).not.toBeNull();
     expect(fixture.nativeElement.textContent).toContain('Georgia · Late');
     expect(fixture.nativeElement.textContent).toContain('31/07/2026 23:34');
   });
@@ -36,6 +38,7 @@ describe('console ticket detail cards', () => {
         selection: '14',
         betTypeLabel: 'Dirèk',
         amountLabel: '25 HTG',
+        pricingLabels: [{ value: 'Barèm x20', source: 'Vandè' }],
       },
       {
         lineNumber: 2,
@@ -57,9 +60,16 @@ describe('console ticket detail cards', () => {
     ]);
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelectorAll('.console-ticket-selections-card__line')).toHaveLength(3);
+    expect(
+      fixture.nativeElement.querySelectorAll('.console-ticket-selections-card__line'),
+    ).toHaveLength(3);
+    expect(
+      fixture.nativeElement.querySelectorAll('.console-ticket-selections-card__group'),
+    ).toHaveLength(3);
     expect(fixture.nativeElement.textContent).toContain('Bòlèt');
     expect(fixture.nativeElement.textContent).toContain('Maryaj gratis');
+    expect(fixture.nativeElement.textContent).toContain('Barèm x20');
+    expect(fixture.nativeElement.textContent).toContain('Vandè');
     expect(fixture.nativeElement.querySelectorAll('tch-game-selection-chip')).toHaveLength(3);
   });
 });

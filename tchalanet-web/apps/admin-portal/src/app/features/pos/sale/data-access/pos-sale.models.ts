@@ -219,6 +219,17 @@ export interface PosTicketDetailLineView {
   stakeAmountCents: number;
   promotional: boolean;
   promotionLabel?: string | null;
+  pricingTerms?: PosTicketPricingTermView[];
+}
+
+export interface PosTicketPricingTermView {
+  ruleCode: string;
+  betOption?: number | null;
+  commercialLabel?: string | null;
+  payoutRuleType: 'STAKE_MULTIPLIER' | 'FIXED_AMOUNT' | string;
+  multiplier?: number | string | null;
+  fixedAmount?: number | string | null;
+  source: 'SELLER_TERMINAL_OVERRIDE' | 'TENANT_DEFAULT' | string;
 }
 
 export interface PosTicketChargeView {

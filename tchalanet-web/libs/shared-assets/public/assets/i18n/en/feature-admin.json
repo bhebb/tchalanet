@@ -1790,7 +1790,12 @@
         "loading": "Loading ticket...",
         "summary": { "aria": "Ticket summary", "eyebrow": "Summary" },
         "action": { "tickets": "Tickets", "verify": "Verify", "reprint": "Reprint" },
-        "section": { "sale": "Sale", "draw": "Draw", "lines": "Played lines", "charges": "Charges" },
+        "section": {
+          "sale": "Sale",
+          "draw": "Draw",
+          "lines": "Played lines",
+          "charges": "Charges"
+        },
         "field": {
           "issuedAt": "Issued at",
           "status": "Status",
@@ -1800,7 +1805,18 @@
           "dateTime": "Date and time",
           "waivedCharge": "Waived charge"
         },
-        "meta": { "totalPaid": "Total paid", "freeLines": "Free Maryaj", "seller": "Seller", "terminal": "Terminal" },
+        "meta": {
+          "totalPaid": "Total paid",
+          "freeLines": "Free Maryaj",
+          "seller": "Seller",
+          "terminal": "Terminal"
+        },
+        "pricing": {
+          "label": "Payout scale",
+          "sourceSeller": "Seller",
+          "sourceTenant": "Tenant",
+          "sourceUnknown": "Configuration"
+        },
         "error": {
           "notFoundTitle": "Ticket not found",
           "notFoundMessage": "No ticket identifier was provided.",
