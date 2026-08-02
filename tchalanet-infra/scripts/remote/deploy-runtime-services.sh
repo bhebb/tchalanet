@@ -262,6 +262,7 @@ if [ -n "$RUNTIME_IDENTITY_PROVIDER" ]; then
     FIREBASE_BOOTSTRAP_AUTO_RUN_ON_STARTUP
     TCH_SECURITY_USER_BOOTSTRAP_MODE
     TCH_IDENTITY_FIREBASE_BOOTSTRAP_USERS
+    SPRING_PROFILES_ACTIVE
   )
   sanitized_compose_env="$(mktemp /tmp/tchalanet-compose-env-sanitized.XXXXXX)"
   awk -v keys="${runtime_override_keys[*]}" '
@@ -277,6 +278,9 @@ if [ -n "$RUNTIME_IDENTITY_PROVIDER" ]; then
   ' "$compose_env" > "$sanitized_compose_env"
   mv "$sanitized_compose_env" "$compose_env"
   {
+    if [ "$RUNTIME_IDENTITY_PROVIDER" = "firebase-emulator" ]; then
+      printf 'SPRING_PROFILES_ACTIVE=%s\n' "${E2E_SPRING_PROFILES_ACTIVE:-staging,e2e,grafana-cloud}"
+    fi
     printf 'TCH_IDENTITY_PROVIDER=%s\n' "$RUNTIME_IDENTITY_PROVIDER"
     if [ "$RUNTIME_IDENTITY_PROVIDER" = "firebase-emulator" ]; then
       printf 'FIREBASE_PROJECT_ID=%s\n' "$FIREBASE_EMULATOR_PROJECT_ID"
