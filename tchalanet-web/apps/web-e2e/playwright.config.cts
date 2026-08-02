@@ -48,6 +48,10 @@ export default defineConfig({
   use: {
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
+    // API-mode validation reaches the disposable Traefik instance through an
+    // SSH tunnel. The preserved staging hostname still selects the right
+    // router, while the runner may not trust that runtime certificate.
+    ignoreHTTPSErrors: apiTargets,
     ...(process.env['PW_CHROMIUM_PATH']
       ? { launchOptions: { executablePath: process.env['PW_CHROMIUM_PATH'] } }
       : {}),

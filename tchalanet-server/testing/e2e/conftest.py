@@ -8,7 +8,7 @@ import pytest
 
 from fixtures.pos_context import PosContext
 from tch_e2e.api_response import assert_ok
-from tch_e2e.auth import E2EAuth, auth_from_env
+from tch_e2e.auth import E2EAuth, auth_from_env, env_or_default
 from tch_e2e.client import ApiClient
 from tch_e2e.config import OpContext, SeedIds, load_env
 from tch_e2e.scenario_world import ScenarioWorld
@@ -38,7 +38,7 @@ def seed_ids() -> SeedIds:
 @pytest.fixture(scope="session")
 def super_admin_token(keycloak: E2EAuth) -> str:
     return keycloak.password_grant(
-        username=os.environ.get("TCH_SUPER_ADMIN_USERNAME", "super_admin"),
+        username=env_or_default("TCH_SUPER_ADMIN_USERNAME", "superadmin"),
         password=os.environ.get("TCH_SUPER_ADMIN_PASSWORD", ""),
     )
 

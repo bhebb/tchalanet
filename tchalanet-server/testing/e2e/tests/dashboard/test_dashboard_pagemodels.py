@@ -8,9 +8,9 @@ business truth.
 
 Role → dashboard (server-side resolution, client passes no logicalId):
 
-    CASHIER       → /tenant/page-models   → private.dashboard.cashier.web   (cashier_dashboard)
-    TENANT_ADMIN  → /tenant/page-models   → private.dashboard.tenant_admin  (tenant_admin_dashboard)
-    SUPER_ADMIN   → /platform/page-models → private.dashboard.superadmin     (platform_admin_dashboard)
+    CASHIER       → /tenant/dashboard   → private.dashboard.cashier.web   (cashier_dashboard)
+    TENANT_ADMIN  → /tenant/dashboard   → private.dashboard.tenant_admin  (tenant_admin_dashboard)
+    SUPER_ADMIN   → /platform/dashboard → private.dashboard.superadmin     (platform_admin_dashboard)
 
 The cashier surface here is the *web* dashboard (seller on a computer/tablet,
 page engine driven) — distinct from the POS/Android app covered by
@@ -82,7 +82,7 @@ SUPERADMIN = {
 
 
 def _skip_if_unrouted(resp) -> None:
-    if resp.status_code in (404, 405, 500):
+    if resp.status_code in (404, 405):
         pytest.skip(f"page-models endpoint not routed: {resp.request.url} -> {resp.status_code}")
 
 
@@ -132,8 +132,8 @@ def _assert_dashboard_contract(data: dict, expected: dict) -> None:
 @pytest.mark.L1
 @pytest.mark.dashboard
 def test_tenant_admin_resolves_tenant_admin_dashboard(tenant_admin_client: ApiClient) -> None:
-    """TENANT_ADMIN → GET /tenant/page-models → private.dashboard.tenantAdmin."""
-    resp = tenant_admin_client.get("/tenant/page-models")
+    """TENANT_ADMIN → GET /tenant/dashboard → private.dashboard.tenantAdmin."""
+    resp = tenant_admin_client.get("/tenant/dashboard")
     _skip_if_unrouted(resp)
     _assert_dashboard_contract(get_data(resp), TENANT_ADMIN)
 
@@ -141,12 +141,12 @@ def test_tenant_admin_resolves_tenant_admin_dashboard(tenant_admin_client: ApiCl
 @pytest.mark.L1
 @pytest.mark.dashboard
 def test_cashier_resolves_cashier_web_dashboard(cashier_client: ApiClient) -> None:
-    """CASHIER → GET /tenant/page-models → private.dashboard.cashier.web (NOT tenant_admin).
+    """CASHIER → GET /tenant/dashboard → private.dashboard.cashier.web (NOT tenant_admin).
 
     A cashier hitting the same endpoint must get its own web dashboard, never the
     tenant-admin surface — server-side role resolution, no client logicalId.
     """
-    resp = cashier_client.get("/tenant/page-models")
+    resp = cashier_client.get("/tenant/dashboard")
     _skip_if_unrouted(resp)
     data = get_data(resp)
     _assert_dashboard_contract(data, CASHIER_WEB)
@@ -159,8 +159,10 @@ def test_cashier_resolves_cashier_web_dashboard(cashier_client: ApiClient) -> No
 @pytest.mark.L1
 @pytest.mark.dashboard
 def test_super_admin_resolves_platform_dashboard(super_admin_client: ApiClient) -> None:
-    """SUPER_ADMIN → GET /platform/page-models → private.dashboard.superadmin."""
-    resp = super_admin_client.get("/platform/page-models")
+    """SUPER_ADMIN → GET /platform/dashboard → private.dashboard.superadmin."""
+    resp = super_admin_client.get(
+        "/platform/dashboard", params={"logicalId": SUPERADMIN["logical_id"]}
+    )
     _skip_if_unrouted(resp)
     _assert_dashboard_contract(get_data(resp), SUPERADMIN)
 
@@ -173,8 +175,10 @@ def test_super_admin_resolves_platform_dashboard(super_admin_client: ApiClient) 
 @pytest.mark.L1
 @pytest.mark.dashboard
 def test_tenant_admin_cannot_access_platform_page_models(tenant_admin_client: ApiClient) -> None:
-    """TENANT_ADMIN → GET /platform/page-models → 403 (super-admin only)."""
-    resp = tenant_admin_client.get("/platform/page-models")
+    """TENANT_ADMIN → GET /platform/dashboard → 403 (super-admin only)."""
+    resp = tenant_admin_client.get(
+        "/platform/dashboard", params={"logicalId": SUPERADMIN["logical_id"]}
+    )
     _skip_if_unrouted(resp)
     assert resp.status_code == 403, (
         f"tenant admin must not reach platform page-models, got {resp.status_code}: {resp.text}"
@@ -184,8 +188,10 @@ def test_tenant_admin_cannot_access_platform_page_models(tenant_admin_client: Ap
 @pytest.mark.L1
 @pytest.mark.dashboard
 def test_cashier_cannot_access_platform_page_models(cashier_client: ApiClient) -> None:
-    """CASHIER → GET /platform/page-models → 403."""
-    resp = cashier_client.get("/platform/page-models")
+    """CASHIER → GET /platform/dashboard → 403."""
+    resp = cashier_client.get(
+        "/platform/dashboard", params={"logicalId": SUPERADMIN["logical_id"]}
+    )
     _skip_if_unrouted(resp)
     assert resp.status_code == 403, (
         f"cashier must not reach platform page-models, got {resp.status_code}: {resp.text}"
@@ -202,7 +208,7 @@ def test_cashier_cannot_access_platform_page_models(cashier_client: ApiClient) -
 @pytest.mark.parametrize("lang", ["fr", "en", "ht"])
 def test_tenant_admin_dashboard_respects_lang(tenant_admin_client: ApiClient, lang: str) -> None:
     """?lang=<x> echoes back in currentLang for a supported locale."""
-    resp = tenant_admin_client.get("/tenant/page-models", params={"lang": lang})
+    resp = tenant_admin_client.get("/tenant/dashboard", params={"lang": lang})
     _skip_if_unrouted(resp)
     data = get_data(resp)
     assert data.get("currentLang") == lang, (
