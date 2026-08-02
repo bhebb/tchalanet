@@ -53,6 +53,7 @@ verify_firebase_emulator_runtime() {
   log "Verifying Firebase emulator runtime configuration"
   runtime_env="$($DOCKER_BIN inspect --format='{{range .Config.Env}}{{println .}}{{end}}' "tchl-api-$ENV")"
   expected_runtime_env=(
+    "SPRING_PROFILES_ACTIVE=staging,e2e,grafana-cloud"
     "TCH_IDENTITY_PROVIDER=firebase-emulator"
     "FIREBASE_PROJECT_ID=$FIREBASE_EMULATOR_PROJECT_ID"
     "FIREBASE_AUTH_EMULATOR_HOST=firebase-emulator:9099"
