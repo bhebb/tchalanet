@@ -95,13 +95,10 @@ public class PosTicketMapper {
 
   private List<PosTicketDetailsResponse.PricingTermDetailResponse> toPricingTerms(
       TicketPrintLine line) {
-    if (line.settlementTermsSnapshot() == null
-        || line.settlementTermsSnapshot().terms() == null) {
+    if (line.settlementTermsSnapshot() == null || line.settlementTermsSnapshot().terms() == null) {
       return List.of();
     }
-    return line.settlementTermsSnapshot().terms().stream()
-        .map(this::toPricingTerm)
-        .toList();
+    return line.settlementTermsSnapshot().terms().stream().map(this::toPricingTerm).toList();
   }
 
   private PosTicketDetailsResponse.PricingTermDetailResponse toPricingTerm(

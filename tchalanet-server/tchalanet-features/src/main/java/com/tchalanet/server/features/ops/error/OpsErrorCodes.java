@@ -53,8 +53,7 @@ public class OpsErrorCodes {
   public static final ErrorDescriptor BATCH_JOB_NOT_FOUND = notFound("ops.batch.job.not_found");
   public static final ErrorDescriptor BATCH_EXECUTION_NOT_FOUND =
       notFound("ops.batch.execution.not_found");
-  public static final ErrorDescriptor BATCH_SCOPE_INVALID =
-      validation("ops.batch.scope.invalid");
+  public static final ErrorDescriptor BATCH_SCOPE_INVALID = validation("ops.batch.scope.invalid");
   public static final ErrorDescriptor BATCH_TENANT_REQUIRED =
       validation("ops.batch.tenant.required");
   public static final ErrorDescriptor BATCH_TENANT_NOT_ALLOWED =

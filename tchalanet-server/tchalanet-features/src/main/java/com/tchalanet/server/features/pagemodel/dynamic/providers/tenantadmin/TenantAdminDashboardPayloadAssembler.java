@@ -650,11 +650,12 @@ public class TenantAdminDashboardPayloadAssembler {
     Map<LocalDate, TenantDashboardStatsView.TenantDailyPoint> byDate =
         view.dailyBreakdown().stream()
             .filter(point -> point.refDate() != null)
-            .collect(Collectors.toMap(
-                TenantDashboardStatsView.TenantDailyPoint::refDate,
-                point -> point,
-                (first, ignored) -> first,
-                LinkedHashMap::new));
+            .collect(
+                Collectors.toMap(
+                    TenantDashboardStatsView.TenantDailyPoint::refDate,
+                    point -> point,
+                    (first, ignored) -> first,
+                    LinkedHashMap::new));
 
     List<TenantTrendItem> points = new ArrayList<>();
     for (LocalDate date = windows.from(); !date.isAfter(windows.to()); date = date.plusDays(1)) {

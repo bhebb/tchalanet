@@ -11,15 +11,15 @@ import com.tchalanet.server.core.limitpolicy.api.query.ListLimitAssignmentsView;
 import com.tchalanet.server.core.pricing.api.model.PricingVariantCode;
 import com.tchalanet.server.core.pricing.api.model.TenantPricingRuleView;
 import com.tchalanet.server.core.pricing.api.query.ListTenantPricingRulesQuery;
+import com.tchalanet.server.features.shared.bff.BffSlicePolicy;
+import com.tchalanet.server.features.shared.bff.BffSlices;
+import com.tchalanet.server.features.tenantadmin.error.TenantAdminErrorCodes;
 import com.tchalanet.server.features.tenantadmin.setup.model.TenantGamesPricingView;
 import com.tchalanet.server.features.tenantadmin.setup.model.TenantGamesPricingView.GamePricingRow;
 import com.tchalanet.server.features.tenantadmin.setup.model.TenantGamesPricingView.LimitAssignmentRow;
 import com.tchalanet.server.features.tenantadmin.setup.model.TenantGamesPricingView.LimitsView;
 import com.tchalanet.server.features.tenantadmin.setup.model.TenantGamesPricingView.PricingEntryRow;
 import com.tchalanet.server.features.tenantadmin.setup.model.TenantGamesPricingView.PricingView;
-import com.tchalanet.server.features.shared.bff.BffSlicePolicy;
-import com.tchalanet.server.features.shared.bff.BffSlices;
-import com.tchalanet.server.features.tenantadmin.error.TenantAdminErrorCodes;
 import com.tchalanet.server.platform.tenantgame.api.TenantGameApi;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -82,16 +82,21 @@ public class TenantGamesPricingService {
                 tenantGames.stream()
                     .map(tg -> gameCatalog.findByCode(tg.gameCode()).orElse(null))
                     .filter(java.util.Objects::nonNull)
-                    .collect(Collectors.toMap(GameView::code, game -> game, (first, ignored) -> first)));
+                    .collect(
+                        Collectors.toMap(GameView::code, game -> game, (first, ignored) -> first)));
     var limitAssignments =
         BffSlices.optional(
             BffSlicePolicy.warn(
                     TenantAdminErrorCodes.GAMES_LIMITS_UNAVAILABLE.code(),
                     "features.tenantadmin",
                     NoticeSource.of("tenantGamesPricing").operation("loadLimits"),
-                    () -> new ListLimitAssignmentsView(LimitScopeQueryRef.tenant(tenantId), List.of()))
+                    () ->
+                        new ListLimitAssignmentsView(
+                            LimitScopeQueryRef.tenant(tenantId), List.of()))
                 .target("tenantadmin.games.limits"),
-            () -> queryBus.ask(new ListLimitAssignmentsByScopeQuery(LimitScopeQueryRef.tenant(tenantId))));
+            () ->
+                queryBus.ask(
+                    new ListLimitAssignmentsByScopeQuery(LimitScopeQueryRef.tenant(tenantId))));
     var pricingRules =
         BffSlices.optional(
             BffSlicePolicy.warn(
