@@ -129,7 +129,9 @@ public class TicketPrintViewMapper {
         line.selectionSource(),
         line.promotionDecisionId(),
         line.promotionLabel(),
-        line.promotionEffectType());
+        line.promotionEffectType(),
+        line.resultStatus(),
+        line.payoutAmount());
   }
 
   private TicketPrintCharge toPrintCharge(TicketCharge charge) {

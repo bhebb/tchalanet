@@ -219,6 +219,8 @@ export interface PosTicketDetailLineView {
   stakeAmountCents: number;
   promotional: boolean;
   promotionLabel?: string | null;
+  resultStatus?: 'PENDING' | 'WON' | 'LOST' | 'VOID' | 'OVERRIDDEN' | string | null;
+  payoutAmountCents?: number;
   pricingTerms?: PosTicketPricingTermView[];
 }
 

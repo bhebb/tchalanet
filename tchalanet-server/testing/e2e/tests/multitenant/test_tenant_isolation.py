@@ -75,6 +75,7 @@ def _provision_operational_tenant_b(super_admin_client: ApiClient) -> dict[str, 
             "profile": _PROFILE,
             "timezone": _TIMEZONE,
             "currency": "HTG",
+            "initialAdminUsername": f"admin-mt-{run}",
             "initialAdminEmail": f"admin-mt-{run}@e2e.local",
         },
     )

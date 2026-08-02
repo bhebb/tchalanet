@@ -17,7 +17,9 @@ services:
       # SPRING_DATASOURCE_URL → dev: envs/dev/.env (local postgres)
       #                         staging/prod: Doppler → .secrets (Neon connection string)
       TCH_EDGE_HMAC_SECRET: ${EDGE_HMAC_SECRET:?EDGE_HMAC_SECRET is required}
-      FIREBASE_CREDENTIALS_PATH: ${FIREBASE_CREDENTIALS_PATH:-/run/secrets/firebase-admin.json}
+      # Keep an explicitly empty path for Firebase Emulator; the application
+      # supplies temporary emulator credentials when no file is configured.
+      FIREBASE_CREDENTIALS_PATH: ${FIREBASE_CREDENTIALS_PATH-/run/secrets/firebase-admin.json}
       GRAFANA_OTLP_AUTH_HEADER: ${GRAFANA_OTLP_AUTH_HEADER:-}
       GRAFANA_OTLP_ENDPOINT: ${GRAFANA_OTLP_ENDPOINT:-https://otlp-gateway-prod-ca-east-0.grafana.net/otlp}
       GRAFANA_TRACE_SAMPLING: ${GRAFANA_TRACE_SAMPLING:-1.0}

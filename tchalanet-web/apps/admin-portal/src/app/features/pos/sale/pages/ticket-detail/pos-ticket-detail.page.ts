@@ -149,6 +149,11 @@ export class PosTicketDetailPage implements OnInit {
       promotional: line.promotional,
       promotionLabel: line.promotional ? this.promotionLabel(line.promotionLabel) : null,
       pricingLabels: this.pricingLabels(line.pricingTerms ?? [], ticket.currency),
+      pricingTooltip: this.pricingTooltip(line.pricingTerms ?? [], ticket.currency),
+      pricingAppliedLabel:
+        line.resultStatus === 'WON'
+          ? this.translate.instant('admin.pos.detail.pricing.applied')
+          : null,
     }));
   });
 
@@ -257,6 +262,50 @@ export class PosTicketDetailPage implements OnInit {
       value: this.pricingValue(term, currency),
       source: this.pricingSource(term.source),
     }));
+  }
+
+  pricingTooltip(
+    terms: readonly PosTicketPricingTermView[],
+    currency: string,
+  ): string {
+    return terms
+      .map(term => {
+        const label = this.pricingRuleLabel(term);
+        return `${label}: ${this.pricingValue(term, currency)} · ${this.pricingSource(term.source)}`;
+      })
+      .join('\n');
+  }
+
+  private pricingRuleLabel(term: PosTicketPricingTermView): string {
+    const commercialLabel = term.commercialLabel?.trim();
+    if (commercialLabel && commercialLabel !== term.ruleCode) return commercialLabel;
+
+    const ruleKeys: Record<string, string> = {
+      MATCH_1_2D: 'admin.pos.detail.pricing.rules.match1',
+      MATCH_2_2D: 'admin.pos.detail.pricing.rules.match2',
+      MATCH_3_2D: 'admin.pos.detail.pricing.rules.match3',
+      MARRIAGE_EXACT_ORDER: 'admin.pos.detail.pricing.rules.marriageExact',
+      MARRIAGE_REVERSE_ALLOWED: 'admin.pos.detail.pricing.rules.marriageReverse',
+      LOTTO3_STRAIGHT: 'admin.pos.detail.pricing.rules.lotto3Exact',
+      LOTTO3_BOX: 'admin.pos.detail.pricing.rules.lotto3Box',
+      LOTTO3_BOX_3_WAY: 'admin.pos.detail.pricing.rules.lotto3Box3Way',
+      LOTTO3_BOX_6_WAY: 'admin.pos.detail.pricing.rules.lotto3Box6Way',
+      LOTTO3_EXACT_PLUS_BOX: 'admin.pos.detail.pricing.rules.lotto3ExactPlusBox',
+      LOTTO4_STRAIGHT: 'admin.pos.detail.pricing.rules.lotto4Exact',
+      LOTTO4_BOX: 'admin.pos.detail.pricing.rules.lotto4Box',
+      LOTTO4_BOX_4_WAY: 'admin.pos.detail.pricing.rules.lotto4Box4Way',
+      LOTTO4_BOX_6_WAY: 'admin.pos.detail.pricing.rules.lotto4Box6Way',
+      LOTTO4_BOX_12_WAY: 'admin.pos.detail.pricing.rules.lotto4Box12Way',
+      LOTTO4_BOX_24_WAY: 'admin.pos.detail.pricing.rules.lotto4Box24Way',
+      LOTTO4_FRONT_PAIR: 'admin.pos.detail.pricing.rules.lotto4FrontPair',
+      LOTTO4_BACK_PAIR: 'admin.pos.detail.pricing.rules.lotto4BackPair',
+      LOTTO4_EXACT_PLUS_BOX: 'admin.pos.detail.pricing.rules.lotto4ExactPlusBox',
+      LOTTO5_LOT1_LOT2: 'admin.pos.detail.pricing.rules.lotto5Lot1Lot2',
+      LOTTO5_LOT1_LOT3: 'admin.pos.detail.pricing.rules.lotto5Lot1Lot3',
+      LOTTO5_MIXED_1_2_3: 'admin.pos.detail.pricing.rules.lotto5Mixed',
+    };
+    const key = ruleKeys[term.ruleCode];
+    return key ? this.translate.instant(key) : commercialLabel || this.translate.instant('admin.pos.detail.pricing.unknownRule');
   }
 
   private pricingValue(term: PosTicketPricingTermView, currency: string): string {

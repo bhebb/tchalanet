@@ -60,6 +60,7 @@ def test_provision_creates_tenant_and_initial_admin(
             "profile": _PROFILE,
             "timezone": _TIMEZONE,
             "currency": "HTG",
+            "initialAdminUsername": f"admin-{run}",
             "initialAdminEmail": admin_email,
         },
     )

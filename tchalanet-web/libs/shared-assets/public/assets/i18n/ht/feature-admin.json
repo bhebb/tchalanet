@@ -1796,9 +1796,35 @@
         },
         "pricing": {
           "label": "Barèm",
+          "applied": "Barèm ki aplike",
           "sourceSeller": "Vandè",
           "sourceTenant": "Tenant",
-          "sourceUnknown": "Konfigirasyon"
+          "sourceUnknown": "Konfigirasyon",
+          "unknownRule": "Barèm",
+          "rules": {
+            "match1": "1er lot",
+            "match2": "2e lot",
+            "match3": "3e lot",
+            "marriageExact": "Maryaj egzak",
+            "marriageReverse": "Maryaj ranvèse",
+            "lotto3Exact": "Loto 3 · egzak",
+            "lotto3Box": "Loto 3 · bwat",
+            "lotto3Box3Way": "Loto 3 · bwat 3 fason",
+            "lotto3Box6Way": "Loto 3 · bwat 6 fason",
+            "lotto3ExactPlusBox": "Loto 3 · egzak + bwat",
+            "lotto4Exact": "Loto 4 · egzak",
+            "lotto4Box": "Loto 4 · bwat",
+            "lotto4Box4Way": "Loto 4 · bwat 4 fason",
+            "lotto4Box6Way": "Loto 4 · bwat 6 fason",
+            "lotto4Box12Way": "Loto 4 · bwat 12 fason",
+            "lotto4Box24Way": "Loto 4 · bwat 24 fason",
+            "lotto4FrontPair": "Loto 4 · 2 premye chif yo",
+            "lotto4BackPair": "Loto 4 · 2 dènye chif yo",
+            "lotto4ExactPlusBox": "Loto 4 · egzak + bwat",
+            "lotto5Lot1Lot2": "Lot 1 + lot 2",
+            "lotto5Lot1Lot3": "Lot 1 + lot 3",
+            "lotto5Mixed": "Lot 1 + 2 + 3"
+          }
         },
         "error": {
           "notFoundTitle": "Tikè a pa jwenn",

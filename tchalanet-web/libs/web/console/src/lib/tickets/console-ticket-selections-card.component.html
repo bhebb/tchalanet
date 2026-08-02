@@ -17,19 +17,20 @@
               }
               @if (line.pricingLabels?.length) {
                 <div class="console-ticket-selections-card__pricing">
-                  @for (
-                    pricing of line.pricingLabels;
-                    track pricing.value + (pricing.source ?? '')
-                  ) {
-                    <span class="console-ticket-selections-card__pricing-value">{{
-                      pricing.value
+                  @if (line.pricingAppliedLabel) {
+                    <span class="console-ticket-selections-card__pricing-applied">{{
+                      line.pricingAppliedLabel
                     }}</span>
-                    @if (pricing.source) {
-                      <span class="console-ticket-selections-card__pricing-source">{{
-                        pricing.source
-                      }}</span>
-                    }
                   }
+                  <button
+                    mat-icon-button
+                    type="button"
+                    class="console-ticket-selections-card__pricing-info"
+                    [matTooltip]="line.pricingTooltip || ''"
+                    [attr.aria-label]="line.pricingTooltip || ''"
+                  >
+                    <mat-icon>info</mat-icon>
+                  </button>
                 </div>
               }
               @if (line.promotional && line.promotionLabel) {

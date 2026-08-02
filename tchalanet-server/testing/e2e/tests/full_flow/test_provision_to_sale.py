@@ -77,6 +77,7 @@ def test_provision_configure_and_sell(
             "defaultCommissionRate": "10.00",
             "profile": "DEFAULT_HAITI_LOTTERY",
             "maryajGratisEnabled": True,
+            "initialAdminUsername": f"admin-{suffix}",
             "initialAdminEmail": f"admin-{suffix}@flow.test",
         },
         headers=_rid(),

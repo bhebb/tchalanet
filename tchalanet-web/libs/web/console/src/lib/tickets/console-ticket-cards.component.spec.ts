@@ -39,6 +39,7 @@ describe('console ticket detail cards', () => {
         betTypeLabel: 'Dirèk',
         amountLabel: '25 HTG',
         pricingLabels: [{ value: 'Barèm x20', source: 'Vandè' }],
+        pricingTooltip: 'Boul: Barèm x20 · Vandè',
       },
       {
         lineNumber: 2,
@@ -68,8 +69,12 @@ describe('console ticket detail cards', () => {
     ).toHaveLength(3);
     expect(fixture.nativeElement.textContent).toContain('Bòlèt');
     expect(fixture.nativeElement.textContent).toContain('Maryaj gratis');
-    expect(fixture.nativeElement.textContent).toContain('Barèm x20');
-    expect(fixture.nativeElement.textContent).toContain('Vandè');
+    const pricingInfo = fixture.nativeElement.querySelector(
+      '.console-ticket-selections-card__pricing-info',
+    );
+    expect(pricingInfo).not.toBeNull();
+    expect(pricingInfo.getAttribute('aria-label')).toContain('Barèm x20');
+    expect(pricingInfo.getAttribute('aria-label')).toContain('Vandè');
     expect(fixture.nativeElement.querySelectorAll('tch-game-selection-chip')).toHaveLength(3);
   });
 });

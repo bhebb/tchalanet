@@ -208,14 +208,17 @@
 - [x] Ensure selections differ (defined in `ticket_matrix.py`).
 - [x] Ensure stakes differ (defined in `ticket_matrix.py`).
 - [x] Load enabled games/pricing where possible (`_draw_supporting` skips if game unavailable).
-- [ ] Assert line snapshots.
+- [x] Assert line snapshots.
 - [ ] Assert stake total.
 - [ ] Assert money breakdown.
-- [ ] Assert potential payout from snapshots.
+- [x] Assert potential payout from snapshots.
 - [x] Assert print payload for long ticket (PDF binary check via `flow.print_pdf`).
 
-> Current sell tests assert `ticketId` presence only. Deep snapshot assertions (lines, stakes, payout,
-> money breakdown) are the remaining gap in this section.
+> Most matrix sell tests still assert `ticketId` presence only. Deep stake and money-breakdown
+> assertions remain the gap in this section.
+> Focused `test_seller_pricing_override_sale_result_and_payout` now covers the financial invariant:
+> seller override `MATCH_1_2D=x65` → sale snapshot source `SELLER_TERMINAL_OVERRIDE` → manual
+> result `112` → cashier/public verification payout `65.00 HTG`.
 > HIGH_STAKE scenario requires Tenant B with explicit limit rule (threshold > 500 HTG) — assert rule active before scenario.
 > Business-day happy-path now asserts prepared/confirmed amount-to-pay, Maryaj gratis promotion-line
 > presence/absence, manual winning results for bolet/Maryaj/loto selections, report gross sales,
