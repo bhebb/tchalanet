@@ -457,6 +457,25 @@ export class ApiStub {
 
   constructor(private readonly page: Page) {}
 
+  /**
+   * API stubs must never capture the document navigation itself. A matcher such as
+   * `/admin/seller-terminals` also matches the browser URL `/app/admin/seller-terminals`;
+   * without this guard Playwright returns the JSON fixture as the page document and the
+   * Angular shell never boots.
+   */
+  private async apiRoute(
+    matcher: Parameters<Page['route']>[0],
+    handler: (route: Route) => void | Promise<void>,
+  ): Promise<void> {
+    await this.page.route(matcher, async route => {
+      if (route.request().resourceType() === 'document') {
+        await route.continue();
+        return;
+      }
+      await handler(route);
+    });
+  }
+
   /** Install default stubs (strict catch-all + empty tenants + super-admin bootstrap). */
   async install(): Promise<void> {
     if (!this.enabled) return;
@@ -464,19 +483,19 @@ export class ApiStub {
     // RegExp matchers (not globs) to avoid URL-glob ambiguity. Catch-all first
     // (lowest precedence): stray API calls fail loudly instead of being silently
     // treated as empty data. Later-registered routes win, so specifics override it.
-    await this.page.route(/\/api\/v1\//, unexpectedApiCall);
-    await this.page.route(/\/public\/runtime\/bootstrap/, (r) => json(r, envelope(null)));
-    await this.page.route(/\/public\/auth\/login-identifier\/resolve/, (r) =>
+    await this.apiRoute(/\/api\/v1\//, unexpectedApiCall);
+    await this.apiRoute(/\/public\/runtime\/bootstrap/, (r) => json(r, envelope(null)));
+    await this.apiRoute(/\/public\/auth\/login-identifier\/resolve/, (r) =>
       json(r, envelope({ resolvedIdentifier: 'admin@e2e.local' })),
     );
-    await this.page.route(/\/runtime\/private/, (r) => json(r, envelope(superAdminPrivateBootstrap)));
-    await this.page.route(/\/(?:admin|platform)\/notifications\/unread-count(?:\?|$)/, (r) =>
+    await this.apiRoute(/\/runtime\/private/, (r) => json(r, envelope(superAdminPrivateBootstrap)));
+    await this.apiRoute(/\/(?:admin|platform)\/notifications\/unread-count(?:\?|$)/, (r) =>
       json(r, envelope({ unreadCount: 0 })),
     );
-    await this.page.route(/\/(?:admin|platform)\/notifications(?:\?|$)/, (r) =>
+    await this.apiRoute(/\/(?:admin|platform)\/notifications(?:\?|$)/, (r) =>
       json(r, envelope(page([]))),
     );
-    await this.page.route(/\/platform\/auth\/portal-handoffs$/, (r) =>
+    await this.apiRoute(/\/platform\/auth\/portal-handoffs$/, (r) =>
       json(
         r,
         envelope({
@@ -489,7 +508,7 @@ export class ApiStub {
         }),
       ),
     );
-    await this.page.route(/\/platform\/auth\/portal-handoffs\/handoff-1\/consume/, (r) =>
+    await this.apiRoute(/\/platform\/auth\/portal-handoffs\/handoff-1\/consume/, (r) =>
       json(
         r,
         envelope({
@@ -508,21 +527,21 @@ export class ApiStub {
   async tenants(items: TenantSummaryStub[], overrides: Partial<TchPageLike<TenantSummaryStub>> = {}): Promise<void> {
     if (!this.enabled) return;
 
-    await this.page.route(/\/platform\/tenants(?:\?|$)/, (r) => json(r, envelope(page(items, overrides))));
+    await this.apiRoute(/\/platform\/tenants(?:\?|$)/, (r) => json(r, envelope(page(items, overrides))));
   }
 
   /** Override the `/runtime/private` bootstrap. */
   async privateBootstrap(bootstrap: unknown): Promise<void> {
     if (!this.enabled) return;
 
-    await this.page.route(/\/runtime\/private/, (r) => json(r, envelope(bootstrap)));
+    await this.apiRoute(/\/runtime\/private/, (r) => json(r, envelope(bootstrap)));
   }
 
   /** Override the username lookup used when login identifier has no "@". */
   async loginIdentifier(identifier: string, resolvedIdentifier: string): Promise<void> {
     if (!this.enabled) return;
 
-    await this.page.route(/\/public\/auth\/login-identifier\/resolve/, async (r) => {
+    await this.apiRoute(/\/public\/auth\/login-identifier\/resolve/, async (r) => {
       const body = JSON.parse(r.request().postData() ?? '{}') as { identifier?: string };
       if (body.identifier === identifier) {
         await json(r, envelope({ resolvedIdentifier }));
@@ -536,10 +555,10 @@ export class ApiStub {
   async supportAccess(session: SupportAccessSessionStub): Promise<void> {
     if (!this.enabled) return;
 
-    await this.page.route(/\/platform\/tenants\/[^/]+\/admin-access/, (r) =>
+    await this.apiRoute(/\/platform\/tenants\/[^/]+\/admin-access/, (r) =>
       json(r, envelope(session)),
     );
-    await this.page.route(/\/platform\/tenants\/admin-access\/current/, (r) =>
+    await this.apiRoute(/\/platform\/tenants\/admin-access\/current/, (r) =>
       json(r, envelope(session)),
     );
   }
@@ -556,7 +575,7 @@ export class ApiStub {
       `web-e2e-${targetPortal.toLowerCase()}-${handoffId}`,
     );
 
-    await this.page.route(/\/platform\/auth\/portal-handoffs$/, (r) =>
+    await this.apiRoute(/\/platform\/auth\/portal-handoffs$/, (r) =>
       json(
         r,
         envelope({
@@ -569,7 +588,7 @@ export class ApiStub {
         }),
       ),
     );
-    await this.page.route(
+    await this.apiRoute(
       new RegExp(`/platform/auth/portal-handoffs/${handoffId}/consume`),
       (r) =>
         json(
@@ -589,33 +608,33 @@ export class ApiStub {
   async adminBusiness(): Promise<void> {
     if (!this.enabled) return;
 
-    await this.page.route(/\/admin\/overview(?:\?|$)/, (r) => json(r, envelope(adminOverviewStub)));
-    await this.page.route(/\/tenant\/subscription(?:\?|$)/, (r) => json(r, envelope(subscriptionStub)));
-    await this.page.route(/\/admin\/tenant-config(?:\?|$)/, (r) => json(r, envelope(tenantConfigStub)));
-    await this.page.route(/\/admin\/setup\/games-pricing(?:\?|$)/, (r) => json(r, envelope(gamesPricingStub)));
-    await this.page.route(/\/admin\/promotions\/campaigns(?:\?|$)/, (r) =>
+    await this.apiRoute(/\/admin\/overview(?:\?|$)/, (r) => json(r, envelope(adminOverviewStub)));
+    await this.apiRoute(/\/tenant\/subscription(?:\?|$)/, (r) => json(r, envelope(subscriptionStub)));
+    await this.apiRoute(/\/admin\/tenant-config(?:\?|$)/, (r) => json(r, envelope(tenantConfigStub)));
+    await this.apiRoute(/\/admin\/setup\/games-pricing(?:\?|$)/, (r) => json(r, envelope(gamesPricingStub)));
+    await this.apiRoute(/\/admin\/promotions\/campaigns(?:\?|$)/, (r) =>
       json(r, envelope(page([maryajCampaignStub]))),
     );
-    await this.page.route(/\/admin\/promotions\/campaigns\/campaign-maryaj-gratis$/, (r) =>
+    await this.apiRoute(/\/admin\/promotions\/campaigns\/campaign-maryaj-gratis$/, (r) =>
       json(r, envelope(maryajCampaignStub)),
     );
-    await this.page.route(/\/admin\/promotions\/campaigns\/campaign-maryaj-gratis\/rules\/rule-maryaj-gratis\/effects$/, (r) =>
+    await this.apiRoute(/\/admin\/promotions\/campaigns\/campaign-maryaj-gratis\/rules\/rule-maryaj-gratis\/effects$/, (r) =>
       json(r, envelope(maryajCampaignStub)),
     );
-    await this.page.route(/\/admin\/promotions\/campaigns\/campaign-maryaj-gratis$/, (r) =>
+    await this.apiRoute(/\/admin\/promotions\/campaigns\/campaign-maryaj-gratis$/, (r) =>
       json(r, envelope(maryajCampaignStub)),
     );
-    await this.page.route(/\/admin\/policies\/limits\/rules(?:\?|$)/, (r) => json(r, envelope(limitRulesStub)));
-    await this.page.route(/\/admin\/policies\/limits\/assignments(?:\?|$)/, (r) => {
+    await this.apiRoute(/\/admin\/policies\/limits\/rules(?:\?|$)/, (r) => json(r, envelope(limitRulesStub)));
+    await this.apiRoute(/\/admin\/policies\/limits\/assignments(?:\?|$)/, (r) => {
       if (r.request().method() === 'PUT') {
         return json(r, envelope({ id: { value: 'limit-assignment-new' } }));
       }
       return json(r, envelope({ limitScopeRef: null, items: limitAssignmentsStub }));
     });
-    await this.page.route(/\/admin\/reports\/seller-terminals(?:\?|$)/, (r) =>
+    await this.apiRoute(/\/admin\/reports\/seller-terminals(?:\?|$)/, (r) =>
       json(r, envelope(sellerReportStub)),
     );
-    await this.page.route(/\/admin\/seller-terminals(?:\?|$)/, (r) =>
+    await this.apiRoute(/\/admin\/seller-terminals(?:\?|$)/, (r) =>
       json(r, envelope(page([
         {
           id: { value: 'seller-terminal-main' },
@@ -639,7 +658,7 @@ export class ApiStub {
   async adminSellerTerminalDetail(): Promise<void> {
     if (!this.enabled) return;
 
-    await this.page.route(/\/admin\/seller-terminals\/stub-terminal-1(?:\?|$)/, r =>
+    await this.apiRoute(/\/admin\/seller-terminals\/stub-terminal-1(?:\?|$)/, r =>
       json(
         r,
         envelope({
@@ -664,7 +683,7 @@ export class ApiStub {
         }),
       ),
     );
-    await this.page.route(/\/admin\/financials\/breakdown(?:\?|$)/, r =>
+    await this.apiRoute(/\/admin\/financials\/breakdown(?:\?|$)/, r =>
       json(
         r,
         envelope({
@@ -719,7 +738,7 @@ export class ApiStub {
     let overrideValue = 10;
     let overrideActive = true;
 
-    await this.page.route(/\/admin\/commission\/sellers(?:\?|$)/, r =>
+    await this.apiRoute(/\/admin\/commission\/sellers(?:\?|$)/, r =>
       json(
         r,
         envelope([
@@ -735,7 +754,7 @@ export class ApiStub {
       ),
     );
 
-    await this.page.route(/\/admin\/controls\/pricing-rules(?:\?|$)/, r =>
+    await this.apiRoute(/\/admin\/controls\/pricing-rules(?:\?|$)/, r =>
       json(
         r,
         envelope([
@@ -754,7 +773,7 @@ export class ApiStub {
       ),
     );
 
-    await this.page.route(
+    await this.apiRoute(
       /\/admin\/controls\/pricing-rules\/seller-terminals\/stub-terminal-1(?:\?|$)/,
       async r => {
         if (r.request().method() === 'PUT') {
@@ -791,7 +810,7 @@ export class ApiStub {
       },
     );
 
-    await this.page.route(
+    await this.apiRoute(
       /\/admin\/controls\/pricing-rules\/seller-terminals\/stub-terminal-1\/overrides\/override-bolet-straight(?:\?|$)/,
       async r => {
         if (r.request().method() !== 'DELETE') {
@@ -808,7 +827,7 @@ export class ApiStub {
   async adminSellerTerminalDetailError(): Promise<void> {
     if (!this.enabled) return;
 
-    await this.page.route(/\/admin\/seller-terminals\/stub-terminal-1(?:\?|$)/, r =>
+    await this.apiRoute(/\/admin\/seller-terminals\/stub-terminal-1(?:\?|$)/, r =>
       json(r, problemDetail('admin.sellerTerminal.unavailable', 'req-terminal-detail-503'), 503),
     );
   }
@@ -817,10 +836,10 @@ export class ApiStub {
   async adminSellerTerminalNew(): Promise<void> {
     if (!this.enabled) return;
 
-    await this.page.route(/\/admin\/seller-terminals\/suggested-code(?:\?|$)/, r =>
+    await this.apiRoute(/\/admin\/seller-terminals\/suggested-code(?:\?|$)/, r =>
       json(r, envelope({ terminalCode: 'POS-E2E-001' })),
     );
-    await this.page.route(/\/admin\/commission\/overview(?:\?|$)/, r =>
+    await this.apiRoute(/\/admin\/commission\/overview(?:\?|$)/, r =>
       json(r, envelope({ tenantDefaultRate: 10 })),
     );
   }
@@ -829,13 +848,13 @@ export class ApiStub {
   async adminBusinessProfile(): Promise<void> {
     if (!this.enabled) return;
 
-    await this.page.route(/\/admin\/commission\/overview(?:\?|$)/, r =>
+    await this.apiRoute(/\/admin\/commission\/overview(?:\?|$)/, r =>
       json(r, envelope({ tenantDefaultRate: 10 })),
     );
-    await this.page.route(/\/admin\/commission\/default-rate(?:\?|$)/, r =>
+    await this.apiRoute(/\/admin\/commission\/default-rate(?:\?|$)/, r =>
       r.request().method() === 'PUT' ? json(r, envelope(null)) : unexpectedApiCall(r),
     );
-    await this.page.route(/\/admin\/tenant\/address(?:\?|$)/, r =>
+    await this.apiRoute(/\/admin\/tenant\/address(?:\?|$)/, r =>
       r.request().method() === 'PUT' ? json(r, envelope(null)) : unexpectedApiCall(r),
     );
   }
@@ -844,7 +863,7 @@ export class ApiStub {
   async adminBusinessProfileCommissionFieldError(): Promise<void> {
     if (!this.enabled) return;
 
-    await this.page.route(/\/admin\/commission\/default-rate(?:\?|$)/, r =>
+    await this.apiRoute(/\/admin\/commission\/default-rate(?:\?|$)/, r =>
       json(
         r,
         {
@@ -868,7 +887,7 @@ export class ApiStub {
   async adminBusinessProfileAddressError(): Promise<void> {
     if (!this.enabled) return;
 
-    await this.page.route(/\/admin\/tenant\/address(?:\?|$)/, r =>
+    await this.apiRoute(/\/admin\/tenant\/address(?:\?|$)/, r =>
       json(r, problemDetail('tenantadmin.overview.address_unavailable', 'req-address-503'), 503),
     );
   }
@@ -877,7 +896,7 @@ export class ApiStub {
   async adminSetupBusinessNotices(): Promise<void> {
     if (!this.enabled) return;
 
-    await this.page.route(/\/admin\/overview(?:\?|$)/, r =>
+    await this.apiRoute(/\/admin\/overview(?:\?|$)/, r =>
       json(r, {
         ...envelope(adminOverviewStub),
         status: 'SUCCESS_WITH_WARNINGS',
@@ -906,7 +925,7 @@ export class ApiStub {
   async posSale(): Promise<void> {
     if (!this.enabled) return;
 
-    await this.page.route(/\/admin\/seller-terminals\/stub-terminal-1(?:\?|$)/, r =>
+    await this.apiRoute(/\/admin\/seller-terminals\/stub-terminal-1(?:\?|$)/, r =>
       json(
         r,
         envelope({
@@ -918,7 +937,7 @@ export class ApiStub {
         }),
       ),
     );
-    await this.page.route(/\/tenant\/cashier\/draws\/available(?:\?|$)/, r =>
+    await this.apiRoute(/\/tenant\/cashier\/draws\/available(?:\?|$)/, r =>
       json(
         r,
         envelope([
@@ -937,7 +956,7 @@ export class ApiStub {
         ]),
       ),
     );
-    await this.page.route(/\/tenant\/cashier\/games\/available(?:\?|$)/, r =>
+    await this.apiRoute(/\/tenant\/cashier\/games\/available(?:\?|$)/, r =>
       json(
         r,
         envelope([
@@ -954,7 +973,7 @@ export class ApiStub {
         ]),
       ),
     );
-    await this.page.route(/\/tenant\/cashier\/tickets\/stats(?:\?|$)/, r =>
+    await this.apiRoute(/\/tenant\/cashier\/tickets\/stats(?:\?|$)/, r =>
       json(r, envelope({ ticketCount: 0, salesTotalCents: 0, currency: 'HTG' })),
     );
   }
@@ -963,10 +982,10 @@ export class ApiStub {
   async adminDashboardError(): Promise<void> {
     if (!this.enabled) return;
 
-    await this.page.route(/\/tenant\/dashboard(?:\?|$)/, r =>
+    await this.apiRoute(/\/tenant\/dashboard(?:\?|$)/, r =>
       json(r, problemDetail('admin.dashboard.unavailable', 'req-dashboard-503'), 503),
     );
-    await this.page.route(/\/assets\/config\/page-private-fallback\.json(?:\?|$)/, r =>
+    await this.apiRoute(/\/assets\/config\/page-private-fallback\.json(?:\?|$)/, r =>
       json(r, problemDetail('admin.dashboard.fallback_unavailable', 'req-dashboard-fallback-503'), 503),
     );
   }
@@ -974,7 +993,7 @@ export class ApiStub {
   async adminSetupError(): Promise<void> {
     if (!this.enabled) return;
 
-    await this.page.route(/\/admin\/overview(?:\?|$)/, r =>
+    await this.apiRoute(/\/admin\/overview(?:\?|$)/, r =>
       json(r, problemDetail('admin.setup.unavailable', 'req-setup-503'), 503),
     );
   }
@@ -984,7 +1003,7 @@ export class ApiStub {
     if (!this.enabled) return;
 
     let failed = false;
-    await this.page.route(/\/admin\/overview(?:\?|$)/, r => {
+    await this.apiRoute(/\/admin\/overview(?:\?|$)/, r => {
       if (!failed) {
         failed = true;
         return json(r, problemDetail('admin.setup.unavailable', 'req-setup-503'), 503);
@@ -996,7 +1015,7 @@ export class ApiStub {
   async adminReportError(): Promise<void> {
     if (!this.enabled) return;
 
-    await this.page.route(/\/api\/v1\/admin\/reports\/overview(?:\?|$)/, r =>
+    await this.apiRoute(/\/api\/v1\/admin\/reports\/overview(?:\?|$)/, r =>
       json(r, problemDetail('admin.reports.overview.unavailable', 'req-report-503'), 503),
     );
   }
@@ -1004,7 +1023,7 @@ export class ApiStub {
   async adminDrawsError(): Promise<void> {
     if (!this.enabled) return;
 
-    await this.page.route(/\/api\/v1\/admin\/draws(?:\?|$)/, r =>
+    await this.apiRoute(/\/api\/v1\/admin\/draws(?:\?|$)/, r =>
       json(r, problemDetail('admin.generatedDraws.unavailable', 'req-draws-503'), 503),
     );
   }

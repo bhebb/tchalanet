@@ -262,10 +262,16 @@ export class TchSidebarNav {
    * the relevant group.
    */
   private readonly openOverride = signal<string | null | undefined>(undefined);
+  private lastNavigationUrl: string | null = null;
 
   constructor() {
     effect(() => {
-      this.activeGroupId(); // re-run when the route's active group changes
+      const url = this.currentUrl();
+      if (url === this.lastNavigationUrl) return;
+
+      // A route change should restore the automatic active-group behavior. Re-evaluating the
+      // navigation model without a route change must not erase a manual chevron click.
+      this.lastNavigationUrl = url;
       untracked(() => this.openOverride.set(undefined));
     });
   }

@@ -7,6 +7,13 @@ export function mapHttpErrorToProblemDetail(error: unknown): ProblemDetail {
     return mapHttpErrorResponse(error);
   }
 
+  if (error instanceof Error) {
+    const cause = (error as Error & { cause?: unknown }).cause;
+    if (cause !== undefined && cause !== null) {
+      return mapHttpErrorToProblemDetail(cause);
+    }
+  }
+
   if (isProblemDetail(error)) {
     return error;
   }

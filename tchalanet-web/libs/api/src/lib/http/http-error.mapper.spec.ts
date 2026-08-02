@@ -89,4 +89,15 @@ describe('mapHttpErrorToProblemDetail', () => {
     expect(pd.title).toBe('Forbidden');
     expect(pd.requestId).toBe('tch_req_x');
   });
+
+  it('unwraps a normalized Error carrying a ProblemDetail cause', () => {
+    const normalized = new Error('Service unavailable');
+    normalized.cause = { title: 'Unavailable', status: 503, code: 'service.down' };
+
+    const pd = mapHttpErrorToProblemDetail(normalized);
+
+    expect(pd.title).toBe('Unavailable');
+    expect(pd.status).toBe(503);
+    expect(pd.code).toBe('service.down');
+  });
 });
