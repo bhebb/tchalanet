@@ -46,6 +46,29 @@ print_runtime_diagnostics() {
 inspect_health() {
   $DOCKER_BIN inspect --format='{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "$1" 2>/dev/null || true
 }
+verify_firebase_emulator_runtime() {
+  [ "$DEPLOY_API" = "1" ] || return
+  [ "${RUNTIME_IDENTITY_PROVIDER:-firebase}" = "firebase-emulator" ] || return
+
+  log "Verifying Firebase emulator runtime configuration"
+  runtime_env="$($DOCKER_BIN inspect --format='{{range .Config.Env}}{{println .}}{{end}}' "tchl-api-$ENV")"
+  expected_runtime_env=(
+    "TCH_IDENTITY_PROVIDER=firebase-emulator"
+    "FIREBASE_PROJECT_ID=$FIREBASE_EMULATOR_PROJECT_ID"
+    "FIREBASE_AUTH_EMULATOR_HOST=firebase-emulator:9099"
+    "FIREBASE_BOOTSTRAP_ENABLED=true"
+    "FIREBASE_BOOTSTRAP_AUTO_RUN_ON_STARTUP=true"
+    "TCH_SECURITY_USER_BOOTSTRAP_MODE=ADMIN_PREPROVISIONED"
+    "TCH_IDENTITY_FIREBASE_BOOTSTRAP_USERS=superadmin,admin"
+  )
+  for expected in "${expected_runtime_env[@]}"; do
+    if ! printf '%s\n' "$runtime_env" | grep -Fqx "$expected"; then
+      print_runtime_diagnostics
+      fail "API container runtime configuration mismatch: expected $expected"
+    fi
+  done
+  printf 'OK: Firebase emulator runtime configuration verified\n'
+}
 ensure_validation_signing_keys() {
   keys_file="envs/$ENV/.runtime-signing.env"
   if [ -f "$keys_file" ] && grep -q '^TCH_SERVER_SIGNING_ED25519_PRIVATE_KEY_PKCS8_BASE64=' "$keys_file"; then
@@ -236,6 +259,7 @@ if [ -n "$RUNTIME_IDENTITY_PROVIDER" ]; then
     FIREBASE_BOOTSTRAP_ENABLED
     FIREBASE_BOOTSTRAP_AUTO_RUN_ON_STARTUP
     TCH_SECURITY_USER_BOOTSTRAP_MODE
+    TCH_IDENTITY_FIREBASE_BOOTSTRAP_USERS
   )
   sanitized_compose_env="$(mktemp /tmp/tchalanet-compose-env-sanitized.XXXXXX)"
   awk -v keys="${runtime_override_keys[*]}" '
@@ -261,6 +285,7 @@ if [ -n "$RUNTIME_IDENTITY_PROVIDER" ]; then
       printf 'FIREBASE_BOOTSTRAP_ENABLED=true\n'
       printf 'FIREBASE_BOOTSTRAP_AUTO_RUN_ON_STARTUP=true\n'
       printf 'TCH_SECURITY_USER_BOOTSTRAP_MODE=ADMIN_PREPROVISIONED\n'
+      printf 'TCH_IDENTITY_FIREBASE_BOOTSTRAP_USERS=superadmin,admin\n'
     fi
   } >> "$compose_env"
 fi
@@ -415,6 +440,8 @@ if [ "$DEPLOY_EDGE" = "1" ]; then
 fi
 
 if [ "$DEPLOY_API" = "1" ]; then
+  verify_firebase_emulator_runtime
+
   log "Checking CORS preflight"
   for origin in $WEB_ORIGINS; do
     headers="$(mktemp /tmp/tchalanet-cors-headers.XXXXXX)"
