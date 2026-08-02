@@ -511,7 +511,6 @@ jobs:
       TCH_SELLER_USERNAME: ${{ secrets.TCH_SELLER_USERNAME || 'cashier' }}
       TCH_SELLER_PASSWORD: ${{ secrets.TCH_SELLER_PASSWORD }}
       NO_PROXY: 127.0.0.1,localhost,api.stg.tchalanet.com
-      no_proxy: 127.0.0.1,localhost,api.stg.tchalanet.com
 
     steps:
       - uses: actions/checkout@v7
