@@ -648,7 +648,7 @@ jobs:
 
           username = env_or_default("TCH_SUPER_ADMIN_USERNAME", "superadmin")
           token = FirebaseEmulatorAuth.from_env().password_grant(username=username, password="")
-          response = ApiClient(base_url=os.environ["TCH_BASE_URL"], token=token).get("/platform/page-models")
+          response = ApiClient(base_url=os.environ["TCH_BASE_URL"], token=token).get("/tenant/me/profile")
           if response.status_code != 200:
               raise SystemExit(
                   "Seeded Firebase identity was rejected by the disposable runtime: "
