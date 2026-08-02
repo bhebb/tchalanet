@@ -40,6 +40,7 @@ from tch_e2e.business_day import (
     short_ticket,
     ticket_basket,
     ticket_scenario,
+    winning_lot1_only_ticket,
 )
 from tch_e2e.client import ApiClient, _resolve_verify
 
@@ -1533,6 +1534,57 @@ def _assert_cross_tenant_report_isolation(start: dt.date, runs: list[TenantRunRe
         own_overview = _report(run.runtime, "/admin/reports/overview", start)
         assert own_overview["summary"]["ticketsSold"] == run.expected.tickets
         assert _decimal(own_overview["summary"]["grossSales"]) == run.expected.gross_sales
+
+
+@pytest.mark.L2
+@pytest.mark.full_flow
+@pytest.mark.slow
+def test_seller_pricing_override_sale_result_and_payout(
+    super_admin_client: ApiClient,
+    base_url: str,
+    fb_auth: FirebaseEmulatorAuth,
+) -> None:
+    """A seller override is snapshotted at sale time and drives the settled payout."""
+
+    plan = TenantScenarioPlan(
+        key="pricing-override",
+        maryaj_mode="disabled",
+        maryaj_variant="disabled",
+        seller_terminals=(
+            SellerTerminalPlan("override", commission_rate="10.00", bolet_override_odds="65.0000"),
+            SellerTerminalPlan("fallback"),
+        ),
+    )
+    runtime = _provision_tenant(super_admin_client, base_url, fb_auth, plan)
+    seller = runtime.sellers[0]
+    draw = _generate_and_force_open_draws(super_admin_client, runtime, dt.date.today())[0]
+    result = ManualResultPlan()
+    scenario = winning_lot1_only_ticket(result, seller.plan)
+
+    ticket_id, total, _, expected_payout = _sell_ticket(runtime, seller, draw, scenario)
+    assert total == Decimal("1.00")
+    assert expected_payout == Decimal("65.00")
+
+    support = _settlement_support(runtime.admin, ticket_id)
+    line = _only_customer_line(support, "HT_BOLET", result.bolet_win)
+    terms = line["settlementTermsSnapshot"]["terms"]
+    assert len(terms) == 1
+    assert terms[0]["ruleCode"] == "MATCH_1_2D"
+    assert terms[0]["source"] == "SELLER_TERMINAL_OVERRIDE"
+    assert _decimal(terms[0]["payoutRule"]["multiplier"]) == Decimal("65.0000")
+
+    _assert_winning_ticket_before_apply(
+        runtime,
+        [WinningTicketProbe(ticket_id, expected_payout, scenario.key)],
+    )
+    _record_manual_results(super_admin_client, [draw], result)
+    _force_apply_results(super_admin_client, runtime, dt.date.today(), [draw], result)
+    _wait_for_draws_resulted(runtime, [draw])
+
+    _assert_winning_ticket_can_be_verified(
+        runtime,
+        [WinningTicketProbe(ticket_id, expected_payout, scenario.key)],
+    )
 
 
 def _placeholder_route_inventory() -> dict[str, list[str]]:
