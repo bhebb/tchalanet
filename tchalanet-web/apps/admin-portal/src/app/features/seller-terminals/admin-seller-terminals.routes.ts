@@ -18,7 +18,9 @@ export const adminSellerTerminalsRoutes: Route[] = [
   {
     path: 'commissions',
     loadComponent: () =>
-      import('../commission/admin-commission.page').then(m => m.AdminCommissionPage),
+      import('../seller-configuration/admin-seller-configuration.page').then(
+        m => m.AdminSellerConfigurationPage,
+      ),
   },
   {
     path: 'activation',

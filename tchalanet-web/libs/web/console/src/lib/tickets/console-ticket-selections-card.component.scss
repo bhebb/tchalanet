@@ -5,6 +5,18 @@
   gap: 0.75rem;
 }
 
+.console-ticket-selections-card__group {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.console-ticket-selections-card__group-title {
+  margin: 0;
+  color: var(--tch-color-on-surface, #1a1c1e);
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
 .console-ticket-selections-card__line {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
@@ -37,7 +49,30 @@
 
   p {
     color: var(--tch-color-on-surface-variant, #46464f);
+    margin-bottom: 0.25rem;
   }
+}
+
+.console-ticket-selections-card__pricing {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: baseline;
+  color: var(--tch-color-on-surface-variant, #46464f);
+  font-size: 0.8125rem;
+}
+
+.console-ticket-selections-card__pricing-value {
+  font-weight: 800;
+}
+
+.console-ticket-selections-card__pricing-source {
+  padding: 0.125rem 0.4rem;
+  border-radius: var(--tch-radius-pill, 999px);
+  background: var(--tch-color-secondary-container, #ede9f5);
+  color: var(--tch-color-on-secondary-container, #282544);
+  font-size: 0.6875rem;
+  font-weight: 700;
 }
 
 .console-ticket-selections-card__promotion {

@@ -43,7 +43,7 @@ export function adminCommissionErrorView(
 }
 
 @Component({
-  selector: 'tch-admin-commission-page',
+  selector: 'tch-admin-seller-configuration-page',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
@@ -60,10 +60,10 @@ export function adminCommissionErrorView(
     TranslatePipe,
     MatButtonModule,
   ],
-  templateUrl: './admin-commission.page.html',
-  styleUrls: ['./admin-commission.page.scss'],
+  templateUrl: './admin-seller-configuration.page.html',
+  styleUrls: ['./admin-seller-configuration.page.scss'],
 })
-export class AdminCommissionPage {
+export class AdminSellerConfigurationPage {
   private readonly api = inject(AdminCommissionApi);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);

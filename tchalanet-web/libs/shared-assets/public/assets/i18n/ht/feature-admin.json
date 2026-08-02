@@ -9,11 +9,12 @@
           "title": "Chanje to komisyon pa defo"
         }
       },
-      "title": "Komisyon",
-      "description": "To komisyon pa defo ak pou chak vandè.",
+      "title": "Konfigirasyon vandè",
+      "description": "Jere to komisyon ak barèm pou chak vandè.",
       "action": {
         "editDefaultRate": "Modifye to tenant lan",
         "editRate": "Modifye to a",
+        "editPricing": "Modifye barèm yo",
         "resetRate": "Retounen sou to pa defo a",
         "viewTerminal": "Gade tèminal la",
         "menu": "Aksyon komisyon"
@@ -1787,7 +1788,18 @@
           "dateTime": "Dat ak lè",
           "waivedCharge": "Frè gratis"
         },
-        "meta": { "totalPaid": "Total peye", "freeLines": "Maryaj gratis", "seller": "Vandè", "terminal": "Tèminal" },
+        "meta": {
+          "totalPaid": "Total peye",
+          "freeLines": "Maryaj gratis",
+          "seller": "Vandè",
+          "terminal": "Tèminal"
+        },
+        "pricing": {
+          "label": "Barèm",
+          "sourceSeller": "Vandè",
+          "sourceTenant": "Tenant",
+          "sourceUnknown": "Konfigirasyon"
+        },
         "error": {
           "notFoundTitle": "Tikè a pa jwenn",
           "notFoundMessage": "Pa gen idantifyan tikè ki bay.",

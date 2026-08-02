@@ -96,6 +96,10 @@
           <span class="material-symbols-outlined" aria-hidden="true">edit</span>
           {{ 'admin.commission.action.editRate' | translate }}
         </button>
+        <a mat-stroked-button [routerLink]="['/app/admin/seller-terminals', rowId(row), 'overrides']">
+          <span class="material-symbols-outlined" aria-hidden="true">tune</span>
+          {{ 'admin.commission.action.editPricing' | translate }}
+        </a>
       </div>
     </article>
   }
@@ -107,6 +111,10 @@
       <span class="material-symbols-outlined" aria-hidden="true">edit</span>
       {{ 'admin.commission.action.editRate' | translate }}
     </button>
+    <a mat-menu-item [routerLink]="['/app/admin/seller-terminals', rowId(row), 'overrides']">
+      <span class="material-symbols-outlined" aria-hidden="true">tune</span>
+      {{ 'admin.commission.action.editPricing' | translate }}
+    </a>
     @if (row.rateSource === 'CUSTOM') {
       <button mat-menu-item type="button" (click)="resetRate.emit(row)" [disabled]="isResetting(row)">
         <span class="material-symbols-outlined" aria-hidden="true">restart_alt</span>

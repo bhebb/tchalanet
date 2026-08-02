@@ -9,11 +9,12 @@
           "title": "Modifier le taux de commission par défaut"
         }
       },
-      "title": "Commissions",
-      "description": "Taux de commission par défaut et par vendeur.",
+      "title": "Configuration vendeurs",
+      "description": "Gérez les taux de commission et les barèmes de chaque vendeur.",
       "action": {
         "editDefaultRate": "Modifier le taux du tenant",
         "editRate": "Modifier le taux",
+        "editPricing": "Modifier les barèmes",
         "resetRate": "Revenir au taux par défaut",
         "viewTerminal": "Voir le terminal",
         "menu": "Actions de commission"
@@ -520,7 +521,12 @@
         "loading": "Chargement du ticket...",
         "summary": { "aria": "Résumé du ticket", "eyebrow": "Résumé" },
         "action": { "tickets": "Tickets", "verify": "Vérifier", "reprint": "Réimprimer" },
-        "section": { "sale": "Vente", "draw": "Tirage", "lines": "Lignes jouées", "charges": "Frais" },
+        "section": {
+          "sale": "Vente",
+          "draw": "Tirage",
+          "lines": "Lignes jouées",
+          "charges": "Frais"
+        },
         "field": {
           "issuedAt": "Émis le",
           "status": "Statut",
@@ -530,7 +536,18 @@
           "dateTime": "Date et heure",
           "waivedCharge": "Frais offert"
         },
-        "meta": { "totalPaid": "Total payé", "freeLines": "Maryaj gratis", "seller": "Vendeur", "terminal": "Terminal" },
+        "meta": {
+          "totalPaid": "Total payé",
+          "freeLines": "Maryaj gratis",
+          "seller": "Vendeur",
+          "terminal": "Terminal"
+        },
+        "pricing": {
+          "label": "Barème",
+          "sourceSeller": "Vendeur",
+          "sourceTenant": "Tenant",
+          "sourceUnknown": "Configuration"
+        },
         "error": {
           "notFoundTitle": "Ticket introuvable",
           "notFoundMessage": "Aucun identifiant de ticket n’a été fourni.",
