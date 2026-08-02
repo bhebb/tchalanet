@@ -11,10 +11,25 @@
 }
 
 .console-ticket-selections-card__group-title {
+  display: inline-flex;
+  gap: 0.35rem;
+  align-items: center;
+  justify-self: start;
   margin: 0;
   color: var(--tch-color-on-surface, #1a1c1e);
   font-size: 0.95rem;
   font-weight: 800;
+}
+
+.console-ticket-selections-card__group-title--interactive {
+  cursor: help;
+}
+
+.console-ticket-selections-card__group-info {
+  width: 1rem;
+  height: 1rem;
+  color: var(--tch-color-primary, #1a1b4b);
+  font-size: 1rem;
 }
 
 .console-ticket-selections-card__line {
@@ -71,6 +86,15 @@
   height: 2rem;
   padding: 0;
   color: var(--tch-color-primary, #1a1b4b);
+}
+
+.console-ticket-selections-card__pricing-menu {
+  max-width: min(22rem, calc(100vw - 2rem));
+  padding: 0.75rem 1rem;
+  color: var(--tch-color-on-surface, #1a1c1e);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  white-space: pre-line;
 }
 
 .console-ticket-selections-card__promotion {

@@ -69,12 +69,83 @@ describe('console ticket detail cards', () => {
     ).toHaveLength(3);
     expect(fixture.nativeElement.textContent).toContain('Bòlèt');
     expect(fixture.nativeElement.textContent).toContain('Maryaj gratis');
-    const pricingInfo = fixture.nativeElement.querySelector(
-      '.console-ticket-selections-card__pricing-info',
+    const boletTitle = fixture.nativeElement.querySelector(
+      '.console-ticket-selections-card__group-title',
     );
-    expect(pricingInfo).not.toBeNull();
-    expect(pricingInfo.getAttribute('aria-label')).toContain('Barèm x20');
-    expect(pricingInfo.getAttribute('aria-label')).toContain('Vandè');
+    expect(boletTitle.getAttribute('aria-label')).toContain('Barèm x20');
+    expect(boletTitle.getAttribute('aria-label')).toContain('Vandè');
+    expect(
+      fixture.nativeElement.querySelectorAll('.console-ticket-selections-card__pricing-info'),
+    ).toHaveLength(0);
     expect(fixture.nativeElement.querySelectorAll('tch-game-selection-chip')).toHaveLength(3);
+  });
+
+  it('moves shared pricing tooltip to the game title', () => {
+    const fixture = TestBed.createComponent(ConsoleTicketSelectionsCardComponent);
+    fixture.componentRef.setInput('title', 'Nimewo yo');
+    fixture.componentRef.setInput('lines', [
+      {
+        lineNumber: 1,
+        gameCode: 'HT_BOLET',
+        gameLabel: 'Bòlèt',
+        selection: '14',
+        amountLabel: '25 HTG',
+        pricingLabels: [{ value: 'Barèm x20', source: 'Vandè' }],
+        pricingTooltip: 'Boul: Barèm x20 · Vandè',
+      },
+      {
+        lineNumber: 2,
+        gameCode: 'HT_BOLET',
+        gameLabel: 'Bòlèt',
+        selection: '15',
+        amountLabel: '25 HTG',
+        pricingLabels: [{ value: 'Barèm x20', source: 'Vandè' }],
+        pricingTooltip: 'Boul: Barèm x20 · Vandè',
+      },
+    ]);
+    fixture.detectChanges();
+
+    const title = fixture.nativeElement.querySelector(
+      '.console-ticket-selections-card__group-title',
+    );
+    expect(title.getAttribute('aria-label')).toBe('Boul: Barèm x20 · Vandè');
+    expect(
+      fixture.nativeElement.querySelectorAll('.console-ticket-selections-card__pricing-info'),
+    ).toHaveLength(0);
+    expect(fixture.nativeElement.querySelectorAll('mat-menu')).toHaveLength(1);
+  });
+
+  it('keeps line pricing tooltip when values differ inside a game', () => {
+    const fixture = TestBed.createComponent(ConsoleTicketSelectionsCardComponent);
+    fixture.componentRef.setInput('title', 'Nimewo yo');
+    fixture.componentRef.setInput('lines', [
+      {
+        lineNumber: 1,
+        gameCode: 'HT_BOLET',
+        gameLabel: 'Bòlèt',
+        selection: '14',
+        amountLabel: '25 HTG',
+        pricingLabels: [{ value: 'Barèm x20', source: 'Vandè' }],
+        pricingTooltip: 'Boul: Barèm x20 · Vandè',
+      },
+      {
+        lineNumber: 2,
+        gameCode: 'HT_BOLET',
+        gameLabel: 'Bòlèt',
+        selection: '15',
+        amountLabel: '25 HTG',
+        pricingLabels: [{ value: 'Barèm x10', source: 'Tenant' }],
+        pricingTooltip: 'Boul: Barèm x10 · Tenant',
+      },
+    ]);
+    fixture.detectChanges();
+
+    const title = fixture.nativeElement.querySelector(
+      '.console-ticket-selections-card__group-title',
+    );
+    expect(title.getAttribute('aria-label')).toBeNull();
+    expect(
+      fixture.nativeElement.querySelectorAll('.console-ticket-selections-card__pricing-info'),
+    ).toHaveLength(2);
   });
 });

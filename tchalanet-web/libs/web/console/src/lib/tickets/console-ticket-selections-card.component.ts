@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TchGameSelectionChip } from '@tch/ui/components';
 import { AdminSectionCardComponent } from '@tch/ui/console';
@@ -26,6 +27,7 @@ export interface ConsoleTicketPricingLabel {
 export interface ConsoleTicketSelectionGroup {
   readonly gameCode: string;
   readonly gameLabel: string;
+  readonly pricingTooltip?: string | null;
   readonly lines: readonly ConsoleTicketSelectionView[];
 }
 
@@ -33,7 +35,13 @@ export interface ConsoleTicketSelectionGroup {
   selector: 'tch-console-ticket-selections-card',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AdminSectionCardComponent, TchGameSelectionChip, MatIconModule, MatTooltipModule],
+  imports: [
+    AdminSectionCardComponent,
+    TchGameSelectionChip,
+    MatIconModule,
+    MatMenuModule,
+    MatTooltipModule,
+  ],
   templateUrl: './console-ticket-selections-card.component.html',
   styleUrls: ['./console-ticket-selections-card.component.scss'],
 })
@@ -53,7 +61,16 @@ export class ConsoleTicketSelectionsCardComponent {
     return [...grouped.entries()].map(([gameCode, value]) => ({
       gameCode,
       gameLabel: value.gameLabel,
+      pricingTooltip: this.sharedPricingTooltip(value.lines),
       lines: value.lines,
     }));
   });
+
+  private sharedPricingTooltip(lines: readonly ConsoleTicketSelectionView[]): string | null {
+    if (lines.length === 0) return null;
+    if (lines.some(line => !!line.pricingAppliedLabel)) return null;
+    const first = lines[0]?.pricingTooltip?.trim();
+    if (!first) return null;
+    return lines.every(line => line.pricingTooltip?.trim() === first) ? first : null;
+  }
 }
