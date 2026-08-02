@@ -1,0 +1,22 @@
+# Disposable Firebase emulator configuration for full validation only.
+# This profile is never enabled by the normal dev, staging, or production
+# compose environments.
+spring:
+  config:
+    activate:
+      on-profile: e2e
+
+tch:
+  identity:
+    provider: firebase-emulator
+    firebase:
+      project-id: ${FIREBASE_PROJECT_ID:demo-tchalanet-local}
+      bootstrap:
+        enabled: ${FIREBASE_BOOTSTRAP_ENABLED:true}
+        auto-run-on-startup: ${FIREBASE_BOOTSTRAP_AUTO_RUN_ON_STARTUP:true}
+        users:
+          - superadmin
+          - admin
+  security:
+    user-bootstrap:
+      mode: ${TCH_SECURITY_USER_BOOTSTRAP_MODE:ADMIN_PREPROVISIONED}

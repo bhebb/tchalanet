@@ -53,6 +53,7 @@ verify_firebase_emulator_runtime() {
   log "Verifying Firebase emulator runtime configuration"
   runtime_env="$($DOCKER_BIN inspect --format='{{range .Config.Env}}{{println .}}{{end}}' "tchl-api-$ENV")"
   expected_runtime_env=(
+    "SPRING_PROFILES_ACTIVE=staging,e2e,grafana-cloud"
     "TCH_IDENTITY_PROVIDER=firebase-emulator"
     "FIREBASE_PROJECT_ID=$FIREBASE_EMULATOR_PROJECT_ID"
     "FIREBASE_AUTH_EMULATOR_HOST=firebase-emulator:9099"
@@ -182,6 +183,7 @@ require_file "scripts/remote/prepare-firebase-admin-credentials.sh"
 require_file "scripts/remote/prepare-server-signing-keys.sh"
 if [ "$ENABLE_FIREBASE_EMULATOR" = "1" ]; then
   require_file "compose/docker-compose-firebase-emulator.yml"
+  require_file "compose/docker-compose-e2e.yml"
 fi
 
 log "Preparing Docker networks for $ENV"
@@ -260,6 +262,7 @@ if [ -n "$RUNTIME_IDENTITY_PROVIDER" ]; then
     FIREBASE_BOOTSTRAP_AUTO_RUN_ON_STARTUP
     TCH_SECURITY_USER_BOOTSTRAP_MODE
     TCH_IDENTITY_FIREBASE_BOOTSTRAP_USERS
+    SPRING_PROFILES_ACTIVE
   )
   sanitized_compose_env="$(mktemp /tmp/tchalanet-compose-env-sanitized.XXXXXX)"
   awk -v keys="${runtime_override_keys[*]}" '
@@ -275,6 +278,9 @@ if [ -n "$RUNTIME_IDENTITY_PROVIDER" ]; then
   ' "$compose_env" > "$sanitized_compose_env"
   mv "$sanitized_compose_env" "$compose_env"
   {
+    if [ "$RUNTIME_IDENTITY_PROVIDER" = "firebase-emulator" ]; then
+      printf 'SPRING_PROFILES_ACTIVE=%s\n' "${E2E_SPRING_PROFILES_ACTIVE:-staging,e2e,grafana-cloud}"
+    fi
     printf 'TCH_IDENTITY_PROVIDER=%s\n' "$RUNTIME_IDENTITY_PROVIDER"
     if [ "$RUNTIME_IDENTITY_PROVIDER" = "firebase-emulator" ]; then
       printf 'FIREBASE_PROJECT_ID=%s\n' "$FIREBASE_EMULATOR_PROJECT_ID"
@@ -304,6 +310,7 @@ if [ "$ENV" = "staging" ]; then
 fi
 if [ "$ENABLE_FIREBASE_EMULATOR" = "1" ]; then
   compose_cmd+=(-f compose/docker-compose-firebase-emulator.yml)
+  compose_cmd+=(-f compose/docker-compose-e2e.yml)
 fi
 
 if [ "$RESET_DATABASE" = "1" ]; then
