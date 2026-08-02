@@ -8,6 +8,7 @@ import com.tchalanet.server.core.sales.api.model.promotion.TicketLineOrigin;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSource;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource;
 import com.tchalanet.server.core.sales.api.model.settlement.SettlementTermsSnapshot;
+import com.tchalanet.server.core.sales.api.model.status.TicketLineResultStatus;
 import com.tchalanet.server.platform.tenantgame.api.model.SelectionPolicy;
 
 public record TicketPrintLine(
@@ -27,7 +28,50 @@ public record TicketPrintLine(
     TicketLineSelectionSource selectionSource,
     PromotionDecisionId promotionDecisionId,
     String promotionLabel,
-    String promotionEffectType) {
+    String promotionEffectType,
+    TicketLineResultStatus resultStatus,
+    Money payoutAmount) {
+  /** Backward-compatible print projection constructor without result enrichment. */
+  public TicketPrintLine(
+      int lineNo,
+      GameCode gameCode,
+      BetType betType,
+      Short betOption,
+      String betOptionLabel,
+      String gameLabel,
+      String selectionRaw,
+      String selectionCanonical,
+      Money stake,
+      SelectionPolicy selectionPolicySnapshot,
+      SettlementTermsSnapshot settlementTermsSnapshot,
+      TicketLineOrigin origin,
+      TicketLinePricingSource pricingSource,
+      TicketLineSelectionSource selectionSource,
+      PromotionDecisionId promotionDecisionId,
+      String promotionLabel,
+      String promotionEffectType) {
+    this(
+        lineNo,
+        gameCode,
+        betType,
+        betOption,
+        betOptionLabel,
+        gameLabel,
+        selectionRaw,
+        selectionCanonical,
+        stake,
+        selectionPolicySnapshot,
+        settlementTermsSnapshot,
+        origin,
+        pricingSource,
+        selectionSource,
+        promotionDecisionId,
+        promotionLabel,
+        promotionEffectType,
+        null,
+        null);
+  }
+
   public TicketPrintLine(
       int lineNo,
       GameCode gameCode,
@@ -62,7 +106,9 @@ public record TicketPrintLine(
         selectionSource,
         promotionDecisionId,
         promotionLabel,
-        promotionEffectType);
+        promotionEffectType,
+        null,
+        null);
   }
 
   public TicketPrintLine(
@@ -98,7 +144,9 @@ public record TicketPrintLine(
         selectionSource,
         promotionDecisionId,
         promotionLabel,
-        promotionEffectType);
+        promotionEffectType,
+        null,
+        null);
   }
 
   /** True when this line was added by a promotion (FREE_GAME_LINE). */

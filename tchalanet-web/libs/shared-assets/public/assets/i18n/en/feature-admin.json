@@ -1813,9 +1813,35 @@
         },
         "pricing": {
           "label": "Payout scale",
+          "applied": "Applied payout scale",
           "sourceSeller": "Seller",
           "sourceTenant": "Tenant",
-          "sourceUnknown": "Configuration"
+          "sourceUnknown": "Configuration",
+          "unknownRule": "Payout scale",
+          "rules": {
+            "match1": "1st prize",
+            "match2": "2nd prize",
+            "match3": "3rd prize",
+            "marriageExact": "Marriage exact",
+            "marriageReverse": "Marriage reverse",
+            "lotto3Exact": "Lotto 3 · straight",
+            "lotto3Box": "Lotto 3 · box",
+            "lotto3Box3Way": "Lotto 3 · 3-way box",
+            "lotto3Box6Way": "Lotto 3 · 6-way box",
+            "lotto3ExactPlusBox": "Lotto 3 · straight + box",
+            "lotto4Exact": "Lotto 4 · straight",
+            "lotto4Box": "Lotto 4 · box",
+            "lotto4Box4Way": "Lotto 4 · 4-way box",
+            "lotto4Box6Way": "Lotto 4 · 6-way box",
+            "lotto4Box12Way": "Lotto 4 · 12-way box",
+            "lotto4Box24Way": "Lotto 4 · 24-way box",
+            "lotto4FrontPair": "Lotto 4 · first 2 digits",
+            "lotto4BackPair": "Lotto 4 · last 2 digits",
+            "lotto4ExactPlusBox": "Lotto 4 · straight + box",
+            "lotto5Lot1Lot2": "Prize 1 + prize 2",
+            "lotto5Lot1Lot3": "Prize 1 + prize 3",
+            "lotto5Mixed": "Prizes 1 + 2 + 3"
+          }
         },
         "error": {
           "notFoundTitle": "Ticket not found",

@@ -62,17 +62,15 @@
   font-size: 0.8125rem;
 }
 
-.console-ticket-selections-card__pricing-value {
+.console-ticket-selections-card__pricing-applied {
   font-weight: 800;
 }
 
-.console-ticket-selections-card__pricing-source {
-  padding: 0.125rem 0.4rem;
-  border-radius: var(--tch-radius-pill, 999px);
-  background: var(--tch-color-secondary-container, #ede9f5);
-  color: var(--tch-color-on-secondary-container, #282544);
-  font-size: 0.6875rem;
-  font-weight: 700;
+.console-ticket-selections-card__pricing-info {
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  color: var(--tch-color-primary, #1a1b4b);
 }
 
 .console-ticket-selections-card__promotion {

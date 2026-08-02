@@ -260,6 +260,7 @@ def _provision_runtime(sa: ApiClient, base_url: str, fb_auth: FirebaseEmulatorAu
             "defaultCommissionRate": "10.00",
             "profile": "DEFAULT_HAITI_LOTTERY",
             "maryajGratisEnabled": False,
+            "initialAdminUsername": f"admin-{tenant_code}",
             "initialAdminEmail": admin_email,
         },
         headers=_rid(),

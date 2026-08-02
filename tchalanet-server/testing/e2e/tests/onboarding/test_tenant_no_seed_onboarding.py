@@ -66,6 +66,7 @@ def _provision_fresh_tenant(client: ApiClient, run: str) -> dict[str, Any]:
             "profile": _PROFILE,
             "timezone": _TIMEZONE,
             "currency": "HTG",
+            "initialAdminUsername": f"admin-{run}",
             "initialAdminEmail": f"admin-{run}@e2e.local",
         },
     )

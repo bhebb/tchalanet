@@ -86,6 +86,8 @@ public class PosTicketMapper {
                     toCents(l.stake()),
                     l.promotional(),
                     l.promotionLabel(),
+                    l.resultStatus(),
+                    toCents(l.payoutAmount()),
                     toPricingTerms(l)))
         .toList();
   }

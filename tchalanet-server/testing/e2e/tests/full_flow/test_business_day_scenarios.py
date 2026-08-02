@@ -288,6 +288,7 @@ def _provision_tenant(
             "defaultCommissionRate": "10.00",
             "profile": "DEFAULT_HAITI_LOTTERY",
             "maryajGratisEnabled": plan.maryaj_gratis_expected,
+            "initialAdminUsername": f"admin-{tenant_code}",
             "initialAdminEmail": admin_email,
         },
         headers=_rid(),
@@ -720,6 +721,25 @@ def _ticket_details(client: ApiClient, ticket_id: str) -> dict[str, Any]:
     response = client.get(f"/tenant/cashier/tickets/{ticket_id}", headers=_rid())
     assert_ok(response)
     return _data(response) or {}
+
+
+def _settlement_support(admin: ApiClient, ticket_id: str) -> dict[str, Any]:
+    response = admin.get(f"/admin/tickets/{ticket_id}/settlement-variants", headers=_rid())
+    assert_ok(response)
+    return _data(response) or {}
+
+
+def _only_customer_line(support: dict[str, Any], game_code: str, selection: str) -> dict[str, Any]:
+    lines = [
+        line
+        for line in support.get("lines") or []
+        if line.get("gameCode") == game_code
+        and str(line.get("selection") or "") == selection.replace("-", "")
+    ]
+    if not lines:
+        lines = [line for line in support.get("lines") or [] if line.get("gameCode") == game_code]
+    assert len(lines) == 1, f"expected one support line for {game_code}/{selection}: {support}"
+    return lines[0]
 
 
 def _admin_ticket_details(client: ApiClient, ticket_id: str) -> dict[str, Any]:
@@ -1577,6 +1597,7 @@ def test_seller_pricing_override_sale_result_and_payout(
         runtime,
         [WinningTicketProbe(ticket_id, expected_payout, scenario.key)],
     )
+    _close_draws(runtime, [draw], "seller pricing override e2e closes draw before result apply")
     _record_manual_results(super_admin_client, [draw], result)
     _force_apply_results(super_admin_client, runtime, dt.date.today(), [draw], result)
     _wait_for_draws_resulted(runtime, [draw])

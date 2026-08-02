@@ -4,6 +4,7 @@ import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.core.pricing.api.model.PayoutRuleType;
+import com.tchalanet.server.core.sales.api.model.status.TicketLineResultStatus;
 import com.tchalanet.server.core.sales.api.model.status.TicketSaleStatus;
 import com.tchalanet.server.core.sales.api.model.settlement.SettlementRuleCode;
 import com.tchalanet.server.core.sales.api.model.settlement.SettlementTermSource;
@@ -55,6 +56,8 @@ public record PosTicketDetailsResponse(
       long stakeAmountCents,
       boolean promotional, // free game or odds-boosted by a promo
       String promotionLabel, // e.g. "Maryaj gratuit", null if no promo
+      TicketLineResultStatus resultStatus,
+      long payoutAmountCents,
       List<PricingTermDetailResponse> pricingTerms) {}
 
   /** Immutable payout terms captured on the ticket line at sale time. */

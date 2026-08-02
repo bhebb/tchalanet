@@ -544,9 +544,35 @@
         },
         "pricing": {
           "label": "Barème",
+          "applied": "Barème appliqué",
           "sourceSeller": "Vendeur",
           "sourceTenant": "Tenant",
-          "sourceUnknown": "Configuration"
+          "sourceUnknown": "Configuration",
+          "unknownRule": "Barème",
+          "rules": {
+            "match1": "1er lot",
+            "match2": "2e lot",
+            "match3": "3e lot",
+            "marriageExact": "Maryaj exact",
+            "marriageReverse": "Maryaj reverse",
+            "lotto3Exact": "Loto 3 · exact",
+            "lotto3Box": "Loto 3 · désordre",
+            "lotto3Box3Way": "Loto 3 · permuté 3 fois",
+            "lotto3Box6Way": "Loto 3 · permuté 6 fois",
+            "lotto3ExactPlusBox": "Loto 3 · exact + permuté",
+            "lotto4Exact": "Loto 4 · exact",
+            "lotto4Box": "Loto 4 · désordre",
+            "lotto4Box4Way": "Loto 4 · permuté 4 fois",
+            "lotto4Box6Way": "Loto 4 · permuté 6 fois",
+            "lotto4Box12Way": "Loto 4 · permuté 12 fois",
+            "lotto4Box24Way": "Loto 4 · permuté 24 fois",
+            "lotto4FrontPair": "Loto 4 · 2 premiers chiffres",
+            "lotto4BackPair": "Loto 4 · 2 derniers chiffres",
+            "lotto4ExactPlusBox": "Loto 4 · exact + permuté",
+            "lotto5Lot1Lot2": "Lot 1 + lot 2",
+            "lotto5Lot1Lot3": "Lot 1 + lot 3",
+            "lotto5Mixed": "Lots 1 + 2 + 3"
+          }
         },
         "error": {
           "notFoundTitle": "Ticket introuvable",

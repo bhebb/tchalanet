@@ -1,4 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { TchGameSelectionChip } from '@tch/ui/components';
 import { AdminSectionCardComponent } from '@tch/ui/console';
 
@@ -12,6 +14,8 @@ export interface ConsoleTicketSelectionView {
   readonly promotional?: boolean;
   readonly promotionLabel?: string | null;
   readonly pricingLabels?: readonly ConsoleTicketPricingLabel[];
+  readonly pricingTooltip?: string | null;
+  readonly pricingAppliedLabel?: string | null;
 }
 
 export interface ConsoleTicketPricingLabel {
@@ -29,7 +33,7 @@ export interface ConsoleTicketSelectionGroup {
   selector: 'tch-console-ticket-selections-card',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AdminSectionCardComponent, TchGameSelectionChip],
+  imports: [AdminSectionCardComponent, TchGameSelectionChip, MatIconModule, MatTooltipModule],
   templateUrl: './console-ticket-selections-card.component.html',
   styleUrls: ['./console-ticket-selections-card.component.scss'],
 })
