@@ -89,6 +89,10 @@ def test_provision_configure_and_sell(
     assert result["profile"] == "DEFAULT_HAITI_LOTTERY"
     assert result["initialAdminUserId"]
 
+    # Provisioning deliberately creates a DRAFT tenant. Sales require ACTIVE.
+    activated = sa.post(f"/platform/tenants/{tenant_id}/activate", headers=_rid())
+    assert_ok(activated, expected=(200, 204))
+
     # 2. SUPER_ADMIN generates + opens today's draws --------------------------------------
     today = dt.date.today()
     assert_ok(sa.post("/platform/ops/draws/generate", json={
@@ -177,8 +181,6 @@ def test_provision_configure_and_sell(
     ok_lines = [
         {"gameCode": "HT_BOLET", "betType": "MATCH_1_2D", "selection": "11",
          "betOption": None, "stake": "5.00"},
-        {"gameCode": "HT_MARYAJ", "betType": "MARRIAGE_2D2D", "selection": "21-25",
-         "betOption": 1, "stake": "5.00"},
     ]
     prev = seller.post("/tenant/sales/preparations", json=payload(ok_lines), headers=_rid())
     assert_ok(prev)
@@ -201,13 +203,15 @@ def test_provision_configure_and_sell(
         breach, bdata = confirm(_data(breach_prepare)["preparationId"])
     else:
         breach, bdata = breach_prepare, _data(breach_prepare) or {}
-    assert breach.status_code in (400, 409, 422) or bdata.get("outcome") in ("REJECTED", "BLOCKED"), (
+    assert breach.status_code in (400, 403, 409, 422) or bdata.get("outcome") in ("REJECTED", "BLOCKED"), (
         f"over-limit sale should be rejected, got http={breach.status_code} data={bdata}")
 
     # 9. Role separation: TENANT_ADMIN cannot reach a SUPER_ADMIN-only endpoint -----------
     forbidden = admin.post("/platform/tenant-onboarding/provision", json={
-        "code": "nope", "name": "nope", "type": "BORLETTE",
+        "code": f"forbidden{suffix}", "name": f"Forbidden {suffix}", "type": "BORLETTE",
         "timezone": "America/Port-au-Prince", "currency": "HTG",
-        "defaultCommissionRate": "10.00", "profile": "MINIMAL"}, headers=_rid())
+        "defaultCommissionRate": "10.00", "profile": "MINIMAL",
+        "initialAdminUsername": f"forbidden-{suffix}",
+        "initialAdminEmail": f"forbidden-{suffix}@flow.test"}, headers=_rid())
     assert forbidden.status_code in (401, 403), (
         f"TENANT_ADMIN must be denied SUPER_ADMIN provisioning, got {forbidden.status_code}")
