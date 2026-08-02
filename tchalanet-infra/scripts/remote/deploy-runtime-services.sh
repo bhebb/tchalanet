@@ -188,6 +188,12 @@ elif [ ! -f "envs/$ENV/.secrets" ]; then
 fi
 
 if [ -n "$WEB_ORIGINS" ]; then
+  cors_secrets_tmp="$(mktemp /tmp/tchalanet-cors-secrets.XXXXXX)"
+  # Docker env_file parsing is not a reliable place to resolve duplicate keys.
+  # Remove any Doppler-provided value before adding the deploy-specific origins.
+  awk '!/^APP_CORS_ALLOWED_ORIGINS=/' "envs/$ENV/.secrets" > "$cors_secrets_tmp"
+  mv "$cors_secrets_tmp" "envs/$ENV/.secrets"
+  chmod 600 "envs/$ENV/.secrets"
   {
     printf '\n'
     printf '# Runtime deploy override generated from WEB_ORIGINS\n'
