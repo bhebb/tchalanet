@@ -398,6 +398,8 @@ jobs:
       EDGE_IMAGE_TAG: ${{ needs.build-nightly-edge.outputs.image_tag }}
       AUTH_PROVIDER: ${{ github.event_name == 'schedule' && 'firebase-emulator' || inputs.e2e_auth_provider }}
     steps:
+      - uses: actions/checkout@v7
+
       - name: Validate runtime deploy inputs
         run: |
           set -euo pipefail
@@ -406,6 +408,22 @@ jobs:
           [ -n "$DOPPLER_TOKEN_VALUE" ] || { echo "Missing DOPPLER_TOKEN_STG" >&2; exit 1; }
           [ -n "$API_IMAGE_TAG" ] || { echo "Missing API image tag" >&2; exit 1; }
           [ -n "$EDGE_IMAGE_TAG" ] || { echo "Missing edge image tag" >&2; exit 1; }
+
+      - name: Prepare SSH key for runtime script sync
+        uses: ./.github/actions/prepare-ssh-key
+        with:
+          private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          key_file: tchalanet_stg
+          known_host: ${{ env.SERVER_HOST }}
+
+      - name: Sync runtime deploy script
+        run: |
+          set -euo pipefail
+          scp -i ~/.ssh/tchalanet_stg \
+            -o BatchMode=yes \
+            -o StrictHostKeyChecking=yes \
+            tchalanet-infra/scripts/remote/deploy-runtime-services.sh \
+            tch@"$SERVER_HOST":/opt/tchalanet-infra/scripts/remote/deploy-runtime-services.sh
 
       - name: Deploy runtime in validation mode
         uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1.2.5
@@ -425,6 +443,7 @@ jobs:
           script: |
             set -euo pipefail
             cd /opt/tchalanet-infra
+            chmod +x scripts/remote/deploy-runtime-services.sh
             DOCKER_BIN="docker"
             if ! docker ps >/dev/null 2>&1; then
               DOCKER_BIN="sudo docker"
