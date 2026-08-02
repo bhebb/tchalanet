@@ -453,6 +453,7 @@ jobs:
               --password-stdin
             DOCKER_BIN="$DOCKER_BIN" ENV=staging API_IMAGE_TAG="$API_IMAGE_TAG" EDGE_IMAGE_TAG="$EDGE_IMAGE_TAG" \
               DEPLOY_API=1 DEPLOY_EDGE=1 FORCE_RECREATE=1 \
+              VALIDATION_LOCAL_TRAEFIK=1 \
               WEB_ORIGINS="https://tchalanet-web-stg.pages.dev https://test.tchalanet.com https://stg.tchalanet.com https://api.stg.tchalanet.com https://app.stg.tchalanet.com http://localhost:4301 http://localhost:4302 http://localhost:4303" \
               RUNTIME_IDENTITY_PROVIDER="$RUNTIME_IDENTITY_PROVIDER" ENABLE_FIREBASE_EMULATOR="$ENABLE_FIREBASE_EMULATOR" \
               scripts/remote/deploy-runtime-services.sh

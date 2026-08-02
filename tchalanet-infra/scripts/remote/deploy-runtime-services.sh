@@ -15,6 +15,7 @@ API_BASE_URL="${API_BASE_URL:-}"
 WEB_ORIGINS="${WEB_ORIGINS:-}"
 RUNTIME_IDENTITY_PROVIDER="${RUNTIME_IDENTITY_PROVIDER:-}"
 ENABLE_FIREBASE_EMULATOR="${ENABLE_FIREBASE_EMULATOR:-0}"
+VALIDATION_LOCAL_TRAEFIK="${VALIDATION_LOCAL_TRAEFIK:-0}"
 FIREBASE_EMULATOR_PROJECT_ID="${FIREBASE_EMULATOR_PROJECT_ID:-demo-tchalanet-local}"
 DOPPLER_IMAGE="${DOPPLER_IMAGE:-dopplerhq/cli:3.75.1}"
 POSTGRES_IMAGE="${POSTGRES_IMAGE:-postgres:18.4}"
@@ -142,6 +143,11 @@ case "$ENABLE_FIREBASE_EMULATOR" in
   1|true|yes) ENABLE_FIREBASE_EMULATOR="1" ;;
   0|false|no) ENABLE_FIREBASE_EMULATOR="0" ;;
   *) fail "ENABLE_FIREBASE_EMULATOR must be 1/true or 0/false" ;;
+esac
+case "$VALIDATION_LOCAL_TRAEFIK" in
+  1|true|yes) VALIDATION_LOCAL_TRAEFIK="1" ;;
+  0|false|no) VALIDATION_LOCAL_TRAEFIK="0" ;;
+  *) fail "VALIDATION_LOCAL_TRAEFIK must be 1/true or 0/false" ;;
 esac
 [ "$DEPLOY_API" = "1" ] || [ "$DEPLOY_EDGE" = "1" ] || fail "At least one of DEPLOY_API or DEPLOY_EDGE must be enabled"
 
@@ -419,6 +425,18 @@ start_services=()
 IMAGE_TAG="$COMPOSE_API_TAG" TCH_EDGE_IMAGE="$COMPOSE_EDGE_IMAGE" TCH_EDGE_TAG="$COMPOSE_EDGE_TAG" "${compose_cmd[@]}" "${up_args[@]}" "${start_services[@]}"
 
 if [ "$DEPLOY_API" = "1" ]; then
+  api_curl_options=()
+  if [ "$VALIDATION_LOCAL_TRAEFIK" = "1" ]; then
+    validation_api_host="${API_BASE_URL#https://}"
+    validation_api_host="${validation_api_host%%/*}"
+    validation_api_host="${validation_api_host%%:*}"
+    [ -n "$validation_api_host" ] || fail "Unable to determine API host from API_BASE_URL=$API_BASE_URL"
+    # The disposable validation server must verify its own Traefik instance.
+    # DNS for api.stg.tchalanet.com continues to resolve to permanent staging.
+    api_curl_options=(--resolve "$validation_api_host:443:127.0.0.1" --insecure --noproxy "*")
+    log "Using local Traefik for runtime verification ($validation_api_host -> 127.0.0.1)"
+  fi
+
   log "Checking API container health"
   for attempt in $(seq 1 36); do
     health_status="$(inspect_health "tchl-api-$ENV")"
@@ -436,7 +454,7 @@ if [ "$DEPLOY_API" = "1" ]; then
   log "Waiting for API health"
   health_url="$API_BASE_URL/actuator/health"
   for attempt in $(seq 1 36); do
-    if curl -fsS --connect-timeout 5 --max-time 15 "$health_url" >/dev/null; then
+    if curl "${api_curl_options[@]}" -fsS --connect-timeout 5 --max-time 15 "$health_url" >/dev/null; then
       printf 'OK: API health OK (%s)\n' "$health_url"
       break
     fi
@@ -470,7 +488,7 @@ if [ "$DEPLOY_API" = "1" ]; then
   for origin in $WEB_ORIGINS; do
     headers="$(mktemp /tmp/tchalanet-cors-headers.XXXXXX)"
     status="$(
-      curl -sS --connect-timeout 5 --max-time 15 -o /dev/null -D "$headers" -w '%{http_code}' \
+      curl "${api_curl_options[@]}" -sS --connect-timeout 5 --max-time 15 -o /dev/null -D "$headers" -w '%{http_code}' \
         -X OPTIONS "$API_BASE_URL/runtime/private" \
         -H "Origin: $origin" \
         -H "Access-Control-Request-Method: GET" \
@@ -494,7 +512,7 @@ if [ "$DEPLOY_API" = "1" ]; then
   origin="${WEB_ORIGINS%% *}"
   headers="$(mktemp /tmp/tchalanet-private-headers.XXXXXX)"
   status="$(
-    curl -sS --connect-timeout 5 --max-time 15 -o /dev/null -D "$headers" -w '%{http_code}' \
+    curl "${api_curl_options[@]}" -sS --connect-timeout 5 --max-time 15 -o /dev/null -D "$headers" -w '%{http_code}' \
       "$API_BASE_URL/runtime/private" \
       -H "Origin: $origin" \
       -H "X-Request-Id: deploy_runtime_services_smoke"
