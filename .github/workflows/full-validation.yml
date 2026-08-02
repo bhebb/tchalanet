@@ -743,7 +743,8 @@ jobs:
 
   # ---------------------------------------------------------------------------
   # Report: always runs after all test jobs. Writes a GitHub step summary and
-  # posts to Slack when the SLACK_WEBHOOK_URL secret is configured.
+  # posts to Slack when SLACK_WEBHOOK_URL is configured, or when the staging
+  # Doppler config exposes the edge-service's SLACK_WEBHOOK_OPS_ALERTS value.
   # Exits 1 on failure so the overall workflow status reflects the E2E result.
   # ---------------------------------------------------------------------------
   report:
@@ -760,6 +761,7 @@ jobs:
           WEB_E2E: ${{ needs.web-e2e.result }}
           MOBILE: ${{ needs.mobile-full.result }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          DOPPLER_TOKEN_VALUE: ${{ secrets.DOPPLER_TOKEN_STG }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           set -euo pipefail
@@ -784,9 +786,23 @@ jobs:
           [View run](${RUN_URL})
           SUMMARY
 
-          if [ -n "${SLACK_WEBHOOK_URL:-}" ]; then
+          slack_webhook_url="${SLACK_WEBHOOK_URL:-}"
+          if [ -z "$slack_webhook_url" ] && [ -n "${DOPPLER_TOKEN_VALUE:-}" ]; then
+            slack_webhook_url="$(
+              docker run --rm \
+                --entrypoint sh \
+                -e DOPPLER_TOKEN="$DOPPLER_TOKEN_VALUE" \
+                dopplerhq/cli:3.75.1 \
+                -lc 'doppler secrets get SLACK_WEBHOOK_OPS_ALERTS --project tchalanet --config stg --plain'
+            )" || {
+              echo "Doppler Slack webhook lookup failed (non-blocking)"
+              slack_webhook_url=""
+            }
+          fi
+          if [ -n "$slack_webhook_url" ]; then
+            echo "::add-mask::$slack_webhook_url"
             msg="${icon} *Nightly E2E* — ${date_str}\nEnv: ${ENV_SETUP} | Server E2E: ${SERVER_E2E} | Web E2E: ${WEB_E2E} | Mobile: ${MOBILE}\n${RUN_URL}"
-            curl -sf -X POST "$SLACK_WEBHOOK_URL" \
+            curl -sf -X POST "$slack_webhook_url" \
               -H 'Content-Type: application/json' \
               -d "{\"text\":\"${msg}\"}" \
               || echo "Slack notification failed (non-blocking)"
