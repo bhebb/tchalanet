@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TchGameSelectionChip } from '@tch/ui/components';
 import { AdminSectionCardComponent } from '@tch/ui/console';
@@ -15,6 +16,8 @@ export interface ConsoleTicketSelectionView {
   readonly promotionLabel?: string | null;
   readonly pricingLabels?: readonly ConsoleTicketPricingLabel[];
   readonly pricingTooltip?: string | null;
+  /** Game-level snapshot summary shared by every line in the group. */
+  readonly pricingGroupTooltip?: string | null;
   readonly pricingAppliedLabel?: string | null;
 }
 
@@ -26,6 +29,7 @@ export interface ConsoleTicketPricingLabel {
 export interface ConsoleTicketSelectionGroup {
   readonly gameCode: string;
   readonly gameLabel: string;
+  readonly pricingTooltip?: string | null;
   readonly lines: readonly ConsoleTicketSelectionView[];
 }
 
@@ -33,7 +37,13 @@ export interface ConsoleTicketSelectionGroup {
   selector: 'tch-console-ticket-selections-card',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AdminSectionCardComponent, TchGameSelectionChip, MatIconModule, MatTooltipModule],
+  imports: [
+    AdminSectionCardComponent,
+    TchGameSelectionChip,
+    MatIconModule,
+    MatMenuModule,
+    MatTooltipModule,
+  ],
   templateUrl: './console-ticket-selections-card.component.html',
   styleUrls: ['./console-ticket-selections-card.component.scss'],
 })
@@ -53,7 +63,22 @@ export class ConsoleTicketSelectionsCardComponent {
     return [...grouped.entries()].map(([gameCode, value]) => ({
       gameCode,
       gameLabel: value.gameLabel,
+      pricingTooltip: this.sharedPricingTooltip(value.lines),
       lines: value.lines,
     }));
   });
+
+  private sharedPricingTooltip(lines: readonly ConsoleTicketSelectionView[]): string | null {
+    if (lines.length === 0) return null;
+    if (lines.some(line => !!line.pricingAppliedLabel)) return null;
+
+    const groupTooltip = lines[0]?.pricingGroupTooltip?.trim();
+    if (groupTooltip && lines.every(line => line.pricingGroupTooltip?.trim() === groupTooltip)) {
+      return groupTooltip;
+    }
+
+    const first = lines[0]?.pricingTooltip?.trim();
+    if (!first) return null;
+    return lines.every(line => line.pricingTooltip?.trim() === first) ? first : null;
+  }
 }

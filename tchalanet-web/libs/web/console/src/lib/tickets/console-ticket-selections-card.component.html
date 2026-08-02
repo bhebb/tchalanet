@@ -2,7 +2,24 @@
   <div class="console-ticket-selections-card__lines">
     @for (group of groups(); track group.gameCode) {
       <section class="console-ticket-selections-card__group">
-        <h3 class="console-ticket-selections-card__group-title">{{ group.gameLabel }}</h3>
+        <mat-menu #groupPricingMenu="matMenu">
+          <div class="console-ticket-selections-card__pricing-menu" role="note">
+            {{ group.pricingTooltip }}
+          </div>
+        </mat-menu>
+        <h3
+          class="console-ticket-selections-card__group-title"
+          [class.console-ticket-selections-card__group-title--interactive]="!!group.pricingTooltip"
+          [matTooltip]="group.pricingTooltip || ''"
+          [matMenuTriggerFor]="group.pricingTooltip ? groupPricingMenu : null"
+          [attr.aria-label]="group.pricingTooltip || null"
+          [attr.tabindex]="group.pricingTooltip ? 0 : null"
+        >
+          {{ group.gameLabel }}
+          @if (group.pricingTooltip) {
+            <mat-icon class="console-ticket-selections-card__group-info" aria-hidden="true">info</mat-icon>
+          }
+        </h3>
         @for (line of group.lines; track line.lineNumber ?? $index) {
           <article class="console-ticket-selections-card__line">
             <tch-game-selection-chip
@@ -22,15 +39,23 @@
                       line.pricingAppliedLabel
                     }}</span>
                   }
-                  <button
-                    mat-icon-button
-                    type="button"
-                    class="console-ticket-selections-card__pricing-info"
-                    [matTooltip]="line.pricingTooltip || ''"
-                    [attr.aria-label]="line.pricingTooltip || ''"
-                  >
-                    <mat-icon>info</mat-icon>
-                  </button>
+                  @if (!group.pricingTooltip) {
+                    <mat-menu #linePricingMenu="matMenu">
+                      <div class="console-ticket-selections-card__pricing-menu" role="note">
+                        {{ line.pricingTooltip }}
+                      </div>
+                    </mat-menu>
+                    <button
+                      mat-icon-button
+                      type="button"
+                      class="console-ticket-selections-card__pricing-info"
+                      [matTooltip]="line.pricingTooltip || ''"
+                      [matMenuTriggerFor]="linePricingMenu"
+                      [attr.aria-label]="line.pricingTooltip || ''"
+                    >
+                      <mat-icon>info</mat-icon>
+                    </button>
+                  }
                 </div>
               }
               @if (line.promotional && line.promotionLabel) {

@@ -1801,6 +1801,10 @@
           "sourceTenant": "Tenant",
           "sourceUnknown": "Konfigirasyon",
           "unknownRule": "Barèm",
+          "summaryRules": {
+            "marriageExact": "Egzak",
+            "marriageReverse": "Reverse"
+          },
           "rules": {
             "match1": "1er lot",
             "match2": "2e lot",

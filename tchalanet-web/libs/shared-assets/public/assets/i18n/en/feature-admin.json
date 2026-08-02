@@ -1818,6 +1818,10 @@
           "sourceTenant": "Tenant",
           "sourceUnknown": "Configuration",
           "unknownRule": "Payout scale",
+          "summaryRules": {
+            "marriageExact": "Exact",
+            "marriageReverse": "Reverse"
+          },
           "rules": {
             "match1": "1st prize",
             "match2": "2nd prize",

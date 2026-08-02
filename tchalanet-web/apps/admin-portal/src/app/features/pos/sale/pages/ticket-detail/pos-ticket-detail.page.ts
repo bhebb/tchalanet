@@ -149,7 +149,13 @@ export class PosTicketDetailPage implements OnInit {
       promotional: line.promotional,
       promotionLabel: line.promotional ? this.promotionLabel(line.promotionLabel) : null,
       pricingLabels: this.pricingLabels(line.pricingTerms ?? [], ticket.currency),
-      pricingTooltip: this.pricingTooltip(line.pricingTerms ?? [], ticket.currency),
+      pricingTooltip: this.pricingTooltip(
+        line.pricingTerms ?? [],
+        ticket.currency,
+        line.gameCode,
+        this.gameLabel(line.gameCode, line.gameLabel),
+      ),
+      pricingGroupTooltip: this.pricingGroupTooltip(ticket, line),
       pricingAppliedLabel:
         line.resultStatus === 'WON'
           ? this.translate.instant('admin.pos.detail.pricing.applied')
@@ -267,13 +273,108 @@ export class PosTicketDetailPage implements OnInit {
   pricingTooltip(
     terms: readonly PosTicketPricingTermView[],
     currency: string,
+    gameCode?: string,
+    gameLabel?: string,
   ): string {
-    return terms
-      .map(term => {
-        const label = this.pricingRuleLabel(term);
-        return `${label}: ${this.pricingValue(term, currency)} · ${this.pricingSource(term.source)}`;
+    return this.formatPricingSummary(terms, currency, gameCode, gameLabel);
+  }
+
+  private pricingGroupTooltip(
+    ticket: PosTicketDetailsView,
+    line: PosTicketDetailsView['lines'][number],
+  ): string | null {
+    const gameLines = ticket.lines.filter(
+      candidate => normalizeGameCode(candidate.gameCode) === normalizeGameCode(line.gameCode),
+    );
+    if (gameLines.some(candidate => candidate.resultStatus === 'WON')) return null;
+
+    const terms = gameLines.flatMap(candidate => candidate.pricingTerms ?? []);
+    return this.formatPricingSummary(
+      terms,
+      ticket.currency,
+      line.gameCode,
+      this.gameLabel(line.gameCode, line.gameLabel),
+    );
+  }
+
+  private formatPricingSummary(
+    terms: readonly PosTicketPricingTermView[],
+    currency: string,
+    gameCode?: string,
+    gameLabel?: string,
+  ): string {
+    const uniqueTerms = this.uniquePricingTerms(terms);
+    if (uniqueTerms.length === 0) return '';
+
+    const normalizedGameCode = gameCode ? normalizeGameCode(gameCode) : '';
+    const sourceGroups = new Map<string, PosTicketPricingTermView[]>();
+    for (const term of uniqueTerms) {
+      const group = sourceGroups.get(term.source) ?? [];
+      group.push(term);
+      sourceGroups.set(term.source, group);
+    }
+
+    return [...sourceGroups.entries()]
+      .map(([source, sourceTerms]) => {
+        const sourceLabel = this.pricingSource(source);
+        if (normalizedGameCode === 'HT_BOLET') {
+          const values = [...sourceTerms]
+            .sort(
+              (left, right) =>
+                this.boletRuleOrder(left.ruleCode) - this.boletRuleOrder(right.ruleCode),
+            )
+            .map(term => this.pricingAmount(term, currency))
+            .join('-');
+          return `${this.translate.instant('admin.pos.detail.pricing.label')} ${sourceLabel}: ${values}`;
+        }
+
+        const entries = sourceTerms
+          .map(
+            term =>
+              `${this.pricingSummaryRuleLabel(term, normalizedGameCode)}: ${this.pricingAmount(term, currency)}`,
+          )
+          .join(', ');
+        return `${gameLabel || this.translate.instant('admin.pos.detail.pricing.unknownRule')}: ${entries} · ${sourceLabel}`;
       })
       .join('\n');
+  }
+
+  private uniquePricingTerms(
+    terms: readonly PosTicketPricingTermView[],
+  ): PosTicketPricingTermView[] {
+    const seen = new Set<string>();
+    return terms.filter(term => {
+      const value = term.payoutRuleType === 'FIXED_AMOUNT' ? term.fixedAmount : term.multiplier;
+      const key = `${term.ruleCode}|${term.source}|${term.payoutRuleType}|${value ?? ''}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }
+
+  private pricingSummaryRuleLabel(term: PosTicketPricingTermView, gameCode: string): string {
+    if (gameCode === 'HT_MARYAJ') {
+      const key =
+        term.ruleCode === 'MARRIAGE_EXACT_ORDER'
+          ? 'admin.pos.detail.pricing.summaryRules.marriageExact'
+          : term.ruleCode === 'MARRIAGE_REVERSE_ALLOWED'
+            ? 'admin.pos.detail.pricing.summaryRules.marriageReverse'
+            : null;
+      if (key) return this.translate.instant(key);
+    }
+    return this.pricingRuleLabel(term);
+  }
+
+  private boletRuleOrder(ruleCode: string): number {
+    return (
+      ({ MATCH_1_2D: 1, MATCH_2_2D: 2, MATCH_3_2D: 3 } as Record<string, number>)[ruleCode] ?? 99
+    );
+  }
+
+  private pricingAmount(term: PosTicketPricingTermView, _currency: string): string {
+    return this.formatDecimal(
+      term.payoutRuleType === 'FIXED_AMOUNT' ? term.fixedAmount : term.multiplier,
+    );
   }
 
   private pricingRuleLabel(term: PosTicketPricingTermView): string {
@@ -305,7 +406,9 @@ export class PosTicketDetailPage implements OnInit {
       LOTTO5_MIXED_1_2_3: 'admin.pos.detail.pricing.rules.lotto5Mixed',
     };
     const key = ruleKeys[term.ruleCode];
-    return key ? this.translate.instant(key) : commercialLabel || this.translate.instant('admin.pos.detail.pricing.unknownRule');
+    return key
+      ? this.translate.instant(key)
+      : commercialLabel || this.translate.instant('admin.pos.detail.pricing.unknownRule');
   }
 
   private pricingValue(term: PosTicketPricingTermView, currency: string): string {
