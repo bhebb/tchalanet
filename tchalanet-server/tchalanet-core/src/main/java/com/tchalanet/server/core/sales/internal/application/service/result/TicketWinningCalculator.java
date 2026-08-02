@@ -66,13 +66,11 @@ public class TicketWinningCalculator {
       won = true;
       var realized = realizedPayout(line, term);
       var applied =
-          new AppliedSettlementTermSnapshot(
-              term.ruleCode(), term.source(), realized.amount());
+          new AppliedSettlementTermSnapshot(term.ruleCode(), term.source(), realized.amount());
       if (term.winMode() == SettlementWinMode.CUMULATIVE) {
         payout = payout.plus(realized);
         appliedTerms.add(applied);
-      } else if (appliedTerms.isEmpty()
-          || realized.amount().compareTo(payout.amount()) > 0) {
+      } else if (appliedTerms.isEmpty() || realized.amount().compareTo(payout.amount()) > 0) {
         payout = realized;
         appliedTerms.clear();
         appliedTerms.add(applied);
@@ -82,9 +80,7 @@ public class TicketWinningCalculator {
     return new WinningEvaluation(
         won,
         payout,
-        won && !appliedTerms.isEmpty()
-            ? AppliedSettlementSnapshot.current(appliedTerms)
-            : null);
+        won && !appliedTerms.isEmpty() ? AppliedSettlementSnapshot.current(appliedTerms) : null);
   }
 
   private boolean wins(String selection, TicketResultFacts facts, PricingVariantCode variant) {

@@ -75,6 +75,10 @@ export class KpiGridWidget {
     return this.numberValue(resolveBinding(item.deltaPercent, this.dynamic()));
   }
 
+  isNumericValue(value: string | number | undefined): value is number {
+    return typeof value === 'number' && Number.isFinite(value);
+  }
+
   visualTone(item: KpiItem, index: number): string {
     const tone = item.tone ?? (index === 0 ? 'primary' : '');
     const value = this.resolvedValue(item);

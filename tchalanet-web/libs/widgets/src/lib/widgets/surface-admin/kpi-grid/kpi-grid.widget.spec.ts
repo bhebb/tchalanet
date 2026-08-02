@@ -62,4 +62,19 @@ describe('KpiGridWidget', () => {
     expect(cmp.visualTone(cmp.items()[0], 0)).toBe('danger');
     expect(cmp.visualTone(cmp.items()[1], 1)).toBe('warning');
   });
+
+  it('keeps text KPI values as text for degraded fallback dashboards', () => {
+    const cmp = component(
+      {
+        type: 'KpiGridWidget',
+        props: {
+          items: [{ id: 'runtime', labelKey: 'runtime', value: 'Dégradé' }],
+        },
+      },
+      {},
+    );
+
+    expect(cmp.resolvedValue(cmp.items()[0])).toBe('Dégradé');
+    expect(cmp.isNumericValue(cmp.resolvedValue(cmp.items()[0]))).toBe(false);
+  });
 });

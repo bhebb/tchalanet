@@ -16,7 +16,6 @@ import com.tchalanet.server.platform.tenantgame.api.TenantGameApi;
 import com.tchalanet.server.platform.tenantgame.api.model.view.TenantGameRefView;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -54,19 +53,25 @@ class TenantGamesPricingServiceTest {
     when(gameCatalog.findByCode(gameCode)).thenThrow(new IllegalStateException("catalog down"));
     doThrow(new IllegalStateException("limits down"))
         .when(queryBus)
-        .ask(any(com.tchalanet.server.core.limitpolicy.api.query.ListLimitAssignmentsByScopeQuery.class));
+        .ask(
+            any(
+                com.tchalanet.server.core.limitpolicy.api.query.ListLimitAssignmentsByScopeQuery
+                    .class));
     doThrow(new IllegalStateException("pricing down"))
         .when(queryBus)
         .ask(any(com.tchalanet.server.core.pricing.api.query.ListTenantPricingRulesQuery.class));
 
     var view = service.get(tenantId);
 
-    assertThat(view.games()).singleElement().satisfies(game -> {
-      assertThat(game.catalogName()).isEqualTo(gameCode);
-      assertThat(game.limits().configured()).isFalse();
-      assertThat(game.pricing().configured()).isFalse();
-      assertThat(game.enabled()).isTrue();
-    });
+    assertThat(view.games())
+        .singleElement()
+        .satisfies(
+            game -> {
+              assertThat(game.catalogName()).isEqualTo(gameCode);
+              assertThat(game.limits().configured()).isFalse();
+              assertThat(game.pricing().configured()).isFalse();
+              assertThat(game.enabled()).isTrue();
+            });
     assertThat(ApiResponseContext.get().getNotices())
         .extracting(notice -> notice.code())
         .containsExactlyInAnyOrder(

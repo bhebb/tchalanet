@@ -61,7 +61,10 @@ export class AdminSellerTerminalDetailPage {
     this.sellerTerminal,
     'admin.sellerTerminals.detail',
   );
-  readonly terminal = computed(() => this.sellerTerminal.value() ?? null);
+  readonly terminal = computed(() => {
+    if (this.sellerTerminal.status() === 'error') return null;
+    return this.sellerTerminal.value() ?? null;
+  });
   readonly todayFinancials = this.financialsApi.getBreakdownResource(
     () => ({ drawLimit: 1, sellerTerminalLimit: 500 }),
     { suppressShellFeedback: true },

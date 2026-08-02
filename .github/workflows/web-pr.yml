@@ -68,7 +68,9 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Lint web apps
-        run: pnpm run lint
+        env:
+          NX_DAEMON: 'false'
+        run: pnpm exec nx run-many -t lint -p public-portal,admin-portal,platform-portal --parallel=1
 
       - name: Check responsive breakpoint contract
         run: pnpm run breakpoints:contract

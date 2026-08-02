@@ -37,8 +37,7 @@ class OpsBatchServiceErrorContractTest {
   @Test
   void rejectsMalformedJobKeyWithStableCode() {
     var exception =
-        catchThrowableOfType(
-            () -> service.getJob("not-a-job-key"), ProblemRestException.class);
+        catchThrowableOfType(() -> service.getJob("not-a-job-key"), ProblemRestException.class);
 
     assertThat(exception.getProblem().getProperties())
         .containsEntry("code", OpsErrorCodes.BATCH_JOB_KEY_INVALID.code());
@@ -76,8 +75,7 @@ class OpsBatchServiceErrorContractTest {
     when(history.getExecution(42L)).thenReturn(Optional.empty());
 
     var exception =
-        catchThrowableOfType(
-            () -> service.getExecution(42L), ProblemRestException.class);
+        catchThrowableOfType(() -> service.getExecution(42L), ProblemRestException.class);
 
     assertThat(exception.getProblem().getProperties())
         .containsEntry("code", OpsErrorCodes.BATCH_EXECUTION_NOT_FOUND.code());
@@ -87,7 +85,8 @@ class OpsBatchServiceErrorContractTest {
   void rejectsInvalidRetentionWithStableCode() {
     var exception =
         catchThrowableOfType(
-            () -> service.purgeExecutions(new PurgeExecutionsRequest(0)), ProblemRestException.class);
+            () -> service.purgeExecutions(new PurgeExecutionsRequest(0)),
+            ProblemRestException.class);
 
     assertThat(exception.getProblem().getProperties())
         .containsEntry("code", OpsErrorCodes.BATCH_RETENTION_INVALID.code());

@@ -15,6 +15,7 @@ import com.tchalanet.server.core.sales.api.model.origin.TicketSaleChannel;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintDraw;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintIdentity;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintLifecycle;
+import com.tchalanet.server.core.sales.api.model.print.TicketPrintLine;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintMetadata;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintMoney;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintState;
@@ -31,7 +32,6 @@ import com.tchalanet.server.core.sales.api.model.settlement.SettlementWinMode;
 import com.tchalanet.server.core.sales.api.model.status.TicketResultStatus;
 import com.tchalanet.server.core.sales.api.model.status.TicketSaleStatus;
 import com.tchalanet.server.core.sales.api.model.status.TicketSettlementStatus;
-import com.tchalanet.server.core.sales.api.model.print.TicketPrintLine;
 import com.tchalanet.server.platform.tenantgame.api.model.SelectionPolicy;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -119,7 +119,12 @@ class PosTicketMapperTest {
         new TicketPrintMoney(money("10.00"), List.of(), money("0.00"), money("10.00")),
         null,
         new TicketPrintMetadata(
-            now, Locale.FRENCH, ZoneId.of("America/Port-au-Prince"), TicketSaleChannel.POS_ONLINE, "HTG", Map.of()));
+            now,
+            Locale.FRENCH,
+            ZoneId.of("America/Port-au-Prince"),
+            TicketSaleChannel.POS_ONLINE,
+            "HTG",
+            Map.of()));
   }
 
   private static Money money(String amount) {
