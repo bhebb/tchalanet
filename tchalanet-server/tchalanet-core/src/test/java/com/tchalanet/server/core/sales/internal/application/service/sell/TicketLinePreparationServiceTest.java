@@ -66,21 +66,23 @@ class TicketLinePreparationServiceTest {
                     1, GameCode.HT_BOLET, BetType.MATCH_1_2D, "12", null, new BigDecimal("10.00"))),
             CurrencyCode.of("HTG"));
 
-    assertThat(queryBus.captured)
-        .isEqualTo(
-            new ResolveSellerTerminalPayoutRuleQuery(
-                TENANT_ID,
-                SELLER_TERMINAL_ID,
-                "HT_BOLET",
-                PricingVariantCode.MATCH_1_2D,
-                "MATCH_1_2D",
-                null));
+    assertThat(queryBus.capturedQueries)
+        .extracting(ResolveSellerTerminalPayoutRuleQuery::pricingVariantCode)
+        .containsExactly(
+            PricingVariantCode.MATCH_1_2D,
+            PricingVariantCode.MATCH_2_2D,
+            PricingVariantCode.MATCH_3_2D);
     assertThat(lines).hasSize(1);
-    assertThat(lines.getFirst().settlementTermsSnapshot().terms()).hasSize(1);
-    assertThat(lines.getFirst().settlementTermsSnapshot().terms().getFirst().ruleCode())
-        .isEqualTo(SettlementRuleCode.MATCH_1_2D);
-    assertThat(lines.getFirst().settlementTermsSnapshot().terms().getFirst().payoutBaseAmount())
-        .isEqualByComparingTo("10.00");
+    assertThat(lines.getFirst().settlementTermsSnapshot().terms()).hasSize(3);
+    assertThat(lines.getFirst().settlementTermsSnapshot().terms())
+        .extracting(term -> term.ruleCode())
+        .containsExactly(
+            SettlementRuleCode.MATCH_1_2D,
+            SettlementRuleCode.MATCH_2_2D,
+            SettlementRuleCode.MATCH_3_2D);
+    assertThat(lines.getFirst().settlementTermsSnapshot().terms())
+        .extracting(term -> term.payoutBaseAmount())
+        .allSatisfy(amount -> assertThat(amount).isEqualByComparingTo("10.00"));
     assertThat(lines.getFirst().selectionPolicySnapshot()).isEqualTo(SelectionPolicy.EXPLICIT_ONLY);
     assertThat(lines.getFirst().betOptionLabelSnapshot()).isNull();
     assertThat(lines.getFirst().settlementTermsSnapshot().terms().getFirst().source())

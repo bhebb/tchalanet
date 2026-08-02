@@ -124,6 +124,7 @@ public class TicketPrintViewMapper {
         line.stakeAmount(),
         line.selectionPolicySnapshot(),
         line.settlementTermsSnapshot(),
+        line.appliedSettlementSnapshot(),
         line.origin(),
         line.pricingSource(),
         line.selectionSource(),

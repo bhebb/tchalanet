@@ -1134,6 +1134,7 @@ CREATE TABLE sales_ticket_line (
   display_selection varchar(256) NOT NULL,
   stake_amount numeric(19,4) NOT NULL,
   settlement_terms_snapshot jsonb,
+  applied_settlement_snapshot jsonb,
   origin varchar(16) NOT NULL DEFAULT 'CUSTOMER',
   pricing_source varchar(16) NOT NULL DEFAULT 'STANDARD',
   selection_source varchar(32) NOT NULL DEFAULT 'CUSTOMER_SELECTED',

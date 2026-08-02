@@ -8,6 +8,7 @@ import com.tchalanet.server.common.types.money.Money;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineOrigin;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSource;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource;
+import com.tchalanet.server.core.sales.api.model.settlement.AppliedSettlementSnapshot;
 import com.tchalanet.server.core.sales.api.model.settlement.PayoutRuleSnapshot;
 import com.tchalanet.server.core.sales.api.model.settlement.SettlementRuleCode;
 import com.tchalanet.server.core.sales.api.model.settlement.SettlementTermSnapshot;
@@ -39,7 +40,8 @@ public record TicketLine(
     String promotionLabel,
     String promotionEffectType,
     TicketLineResultStatus resultStatus,
-    Money payoutAmount) {
+    Money payoutAmount,
+    AppliedSettlementSnapshot appliedSettlementSnapshot) {
 
   public TicketLine {
     if (id == null) {
@@ -75,6 +77,48 @@ public record TicketLine(
 
     promotionLabel = normalizePromotionText(promotionLabel);
     promotionEffectType = normalizePromotionText(promotionEffectType);
+  }
+
+  /** Compatibility constructor for lines created before applied settlement was added. */
+  public TicketLine(
+      TicketLineId id,
+      int lineNumber,
+      GameCode gameCode,
+      BetType betType,
+      Selection selection,
+      Money stakeAmount,
+      SettlementTermsSnapshot settlementTermsSnapshot,
+      Short betOption,
+      SelectionPolicy selectionPolicySnapshot,
+      String betOptionLabelSnapshot,
+      TicketLineOrigin origin,
+      TicketLinePricingSource pricingSource,
+      TicketLineSelectionSource selectionSource,
+      PromotionDecisionId promotionDecisionId,
+      String promotionLabel,
+      String promotionEffectType,
+      TicketLineResultStatus resultStatus,
+      Money payoutAmount) {
+    this(
+        id,
+        lineNumber,
+        gameCode,
+        betType,
+        selection,
+        stakeAmount,
+        settlementTermsSnapshot,
+        betOption,
+        selectionPolicySnapshot,
+        betOptionLabelSnapshot,
+        origin,
+        pricingSource,
+        selectionSource,
+        promotionDecisionId,
+        promotionLabel,
+        promotionEffectType,
+        resultStatus,
+        payoutAmount,
+        null);
   }
 
   public TicketLine(
@@ -250,7 +294,8 @@ public record TicketLine(
         promotionLabel,
         promotionEffectType,
         result.status(),
-        result.payoutAmount());
+        result.payoutAmount(),
+        result.appliedSettlementSnapshot());
   }
 
   public static TicketLine promotionLine(

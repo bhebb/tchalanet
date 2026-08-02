@@ -1,5 +1,6 @@
 package com.tchalanet.server.features.tenantadmin.tickets.model;
 
+import com.tchalanet.server.core.sales.api.model.settlement.AppliedSettlementSnapshot;
 import java.util.List;
 
 /**
@@ -20,6 +21,7 @@ public record AdminTicketSettlementResponse(String ticketId, List<LineSettlement
       String selectionPolicySnapshot,
       String betOptionLabelSnapshot,
       Object settlementTermsSnapshot,
+      AppliedSettlementSnapshot appliedSettlementSnapshot,
       String commercialLabel,
       String variant,
       String adminLabel,

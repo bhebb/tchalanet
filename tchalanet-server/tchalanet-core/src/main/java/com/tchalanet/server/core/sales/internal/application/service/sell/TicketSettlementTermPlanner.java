@@ -1,5 +1,7 @@
 package com.tchalanet.server.core.sales.internal.application.service.sell;
 
+import com.tchalanet.server.catalog.game.api.model.BetType;
+import com.tchalanet.server.catalog.game.api.model.GameCode;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.pricing.api.model.PricingVariantCode;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketLineInput;
@@ -22,6 +24,19 @@ class TicketSettlementTermPlanner {
   private final TenantGameApi tenantGameApi;
 
   TicketSettlementTermPlan plan(TenantId tenantId, SellTicketLineInput input) {
+    if (isCommercialBoletLine(input)) {
+      return new TicketSettlementTermPlan(
+          SettlementPayoutMode.RANGE_ALTERNATIVE,
+          StakeAllocationMode.FULL_STAKE_PER_ALTERNATIVE,
+          null,
+          SelectionPolicy.EXPLICIT_ONLY,
+          null,
+          List.of(
+              plannedBoletTerm(PricingVariantCode.MATCH_1_2D),
+              plannedBoletTerm(PricingVariantCode.MATCH_2_2D),
+              plannedBoletTerm(PricingVariantCode.MATCH_3_2D)));
+    }
+
     if (!input.betType().requiresOption()) {
       var resolution =
           SettlementVariantResolver.resolveCoverage(
@@ -105,6 +120,16 @@ class TicketSettlementTermPlanner {
         betTypeConfig.selectionPolicy(),
         null,
         planned);
+  }
+
+  private boolean isCommercialBoletLine(SellTicketLineInput input) {
+    return input.gameCode() == GameCode.HT_BOLET
+        && input.betType() == BetType.MATCH_1_2D
+        && input.betOption() == null;
+  }
+
+  private PlannedSettlementTerm plannedBoletTerm(PricingVariantCode variant) {
+    return new PlannedSettlementTerm(null, variant, WinMode.ALTERNATIVE);
   }
 
   private record TermKey(PricingVariantCode pricingVariantCode, WinMode winMode) {}

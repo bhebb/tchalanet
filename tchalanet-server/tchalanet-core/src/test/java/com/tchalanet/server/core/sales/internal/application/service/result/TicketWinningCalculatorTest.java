@@ -102,6 +102,63 @@ class TicketWinningCalculatorTest {
       assertThat(status(GameCode.HT_BOLET, BetType.MATCH_3_2D, null, "36", draw))
           .isEqualTo(TicketLineResultStatus.LOST);
     }
+
+    @Test
+    @DisplayName("one commercial Bòlèt line applies the matching lot barème")
+    void commercialCoverageAppliesMatchingLot() {
+      var line =
+          new TicketLine(
+              LINE_ID,
+              1,
+              GameCode.HT_BOLET,
+              BetType.MATCH_1_2D,
+              new Selection(SelectionKey.of("17"), "17"),
+              money("10"),
+              SettlementTermsSnapshot.current(
+                  SelectionPolicy.EXPLICIT_ONLY,
+                  List.of(
+                      settlementTerm(
+                          SettlementRuleCode.MATCH_1_2D,
+                          null,
+                          null,
+                          PayoutRuleSnapshot.stakeMultiplier(new BigDecimal("65")),
+                          new BigDecimal("10")),
+                      settlementTerm(
+                          SettlementRuleCode.MATCH_2_2D,
+                          null,
+                          null,
+                          PayoutRuleSnapshot.stakeMultiplier(new BigDecimal("35")),
+                          new BigDecimal("10")),
+                      settlementTerm(
+                          SettlementRuleCode.MATCH_3_2D,
+                          null,
+                          null,
+                          PayoutRuleSnapshot.stakeMultiplier(new BigDecimal("15")),
+                          new BigDecimal("10")))),
+              null,
+              SelectionPolicy.EXPLICIT_ONLY,
+              null,
+              TicketLineOrigin.CUSTOMER,
+              TicketLinePricingSource.STANDARD,
+              TicketLineSelectionSource.CUSTOMER_SELECTED,
+              null,
+              null,
+              null,
+              TicketLineResultStatus.PENDING,
+              money("0"));
+
+      var result = calculator.computeLineResults(ticket(line, money("10")), draw).get(LINE_ID);
+
+      assertThat(result.status()).isEqualTo(TicketLineResultStatus.WON);
+      assertThat(result.payoutAmount().amount()).isEqualByComparingTo("350");
+      assertThat(result.appliedSettlementSnapshot().terms())
+          .singleElement()
+          .satisfies(
+              applied -> {
+                assertThat(applied.ruleCode()).isEqualTo(SettlementRuleCode.MATCH_2_2D);
+                assertThat(applied.realizedAmount()).isEqualByComparingTo("350");
+              });
+    }
   }
 
   @Nested
@@ -177,6 +234,14 @@ class TicketWinningCalculatorTest {
 
       assertThat(result.get(LINE_ID).status()).isEqualTo(TicketLineResultStatus.WON);
       assertThat(result.get(LINE_ID).payoutAmount().amount()).isEqualByComparingTo("2000");
+      assertThat(result.get(LINE_ID).appliedSettlementSnapshot().terms())
+          .singleElement()
+          .satisfies(
+              applied -> {
+                assertThat(applied.ruleCode())
+                    .isEqualTo(SettlementRuleCode.MARRIAGE_REVERSE_ALLOWED);
+                assertThat(applied.realizedAmount()).isEqualByComparingTo("2000");
+              });
     }
   }
 

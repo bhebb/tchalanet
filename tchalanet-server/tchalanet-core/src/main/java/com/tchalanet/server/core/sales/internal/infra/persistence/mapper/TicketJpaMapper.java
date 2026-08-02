@@ -122,6 +122,7 @@ public interface TicketJpaMapper {
     entity.setDisplaySelection(line.selection().displayLabel());
     entity.setStakeAmount(line.stakeAmount().amount());
     entity.setSettlementTermsSnapshot(line.settlementTermsSnapshot());
+    entity.setAppliedSettlementSnapshot(line.appliedSettlementSnapshot());
     entity.setBetOption(line.betOption());
     entity.setSelectionPolicySnapshot(line.selectionPolicySnapshot());
     entity.setBetOptionLabelSnapshot(line.betOptionLabelSnapshot());
@@ -333,7 +334,8 @@ public interface TicketJpaMapper {
         entity.getPromotionLabel(),
         entity.getPromotionEffectType(),
         entity.getResultStatus(),
-        new Money(entity.getPayoutAmount(), currency));
+        new Money(entity.getPayoutAmount(), currency),
+        entity.getAppliedSettlementSnapshot());
   }
 
   // ---------------------------------------------------------------------------
