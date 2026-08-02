@@ -16,6 +16,8 @@ export interface ConsoleTicketSelectionView {
   readonly promotionLabel?: string | null;
   readonly pricingLabels?: readonly ConsoleTicketPricingLabel[];
   readonly pricingTooltip?: string | null;
+  /** Game-level snapshot summary shared by every line in the group. */
+  readonly pricingGroupTooltip?: string | null;
   readonly pricingAppliedLabel?: string | null;
 }
 
@@ -69,6 +71,12 @@ export class ConsoleTicketSelectionsCardComponent {
   private sharedPricingTooltip(lines: readonly ConsoleTicketSelectionView[]): string | null {
     if (lines.length === 0) return null;
     if (lines.some(line => !!line.pricingAppliedLabel)) return null;
+
+    const groupTooltip = lines[0]?.pricingGroupTooltip?.trim();
+    if (groupTooltip && lines.every(line => line.pricingGroupTooltip?.trim() === groupTooltip)) {
+      return groupTooltip;
+    }
+
     const first = lines[0]?.pricingTooltip?.trim();
     if (!first) return null;
     return lines.every(line => line.pricingTooltip?.trim() === first) ? first : null;

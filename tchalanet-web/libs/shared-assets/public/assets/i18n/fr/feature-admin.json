@@ -549,6 +549,10 @@
           "sourceTenant": "Tenant",
           "sourceUnknown": "Configuration",
           "unknownRule": "Barème",
+          "summaryRules": {
+            "marriageExact": "Exact",
+            "marriageReverse": "Reverse"
+          },
           "rules": {
             "match1": "1er lot",
             "match2": "2e lot",

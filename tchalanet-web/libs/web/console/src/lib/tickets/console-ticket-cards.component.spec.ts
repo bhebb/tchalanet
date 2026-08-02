@@ -148,4 +148,38 @@ describe('console ticket detail cards', () => {
       fixture.nativeElement.querySelectorAll('.console-ticket-selections-card__pricing-info'),
     ).toHaveLength(2);
   });
+
+  it('prefers the shared game pricing summary over line pricing details', () => {
+    const fixture = TestBed.createComponent(ConsoleTicketSelectionsCardComponent);
+    fixture.componentRef.setInput('title', 'Nimewo yo');
+    fixture.componentRef.setInput('lines', [
+      {
+        lineNumber: 1,
+        gameCode: 'HT_BOLET',
+        gameLabel: 'Bòlèt',
+        selection: '14',
+        amountLabel: '25 HTG',
+        pricingTooltip: '1er lot: 65',
+        pricingGroupTooltip: 'Barèm Vandè: 65-25-10',
+      },
+      {
+        lineNumber: 2,
+        gameCode: 'HT_BOLET',
+        gameLabel: 'Bòlèt',
+        selection: '15',
+        amountLabel: '25 HTG',
+        pricingTooltip: '2e lot: 25',
+        pricingGroupTooltip: 'Barèm Vandè: 65-25-10',
+      },
+    ]);
+    fixture.detectChanges();
+
+    const title = fixture.nativeElement.querySelector(
+      '.console-ticket-selections-card__group-title',
+    );
+    expect(title.getAttribute('aria-label')).toBe('Barèm Vandè: 65-25-10');
+    expect(
+      fixture.nativeElement.querySelectorAll('.console-ticket-selections-card__pricing-info'),
+    ).toHaveLength(0);
+  });
 });
