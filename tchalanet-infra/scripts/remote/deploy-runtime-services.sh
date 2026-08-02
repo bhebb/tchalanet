@@ -263,6 +263,7 @@ if [ -n "$RUNTIME_IDENTITY_PROVIDER" ]; then
     TCH_SECURITY_USER_BOOTSTRAP_MODE
     TCH_IDENTITY_FIREBASE_BOOTSTRAP_USERS
     SPRING_PROFILES_ACTIVE
+    APP_CORS_ALLOWED_ORIGINS
   )
   sanitized_compose_env="$(mktemp /tmp/tchalanet-compose-env-sanitized.XXXXXX)"
   awk -v keys="${runtime_override_keys[*]}" '
@@ -292,6 +293,9 @@ if [ -n "$RUNTIME_IDENTITY_PROVIDER" ]; then
       printf 'FIREBASE_BOOTSTRAP_AUTO_RUN_ON_STARTUP=true\n'
       printf 'TCH_SECURITY_USER_BOOTSTRAP_MODE=ADMIN_PREPROVISIONED\n'
       printf 'TCH_IDENTITY_FIREBASE_BOOTSTRAP_USERS=superadmin,admin\n'
+    fi
+    if [ -n "$WEB_ORIGINS" ]; then
+      printf 'APP_CORS_ALLOWED_ORIGINS=%s\n' "$(printf '%s' "$WEB_ORIGINS" | tr ' ' ',')"
     fi
   } >> "$compose_env"
 fi
