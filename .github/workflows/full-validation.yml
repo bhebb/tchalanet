@@ -387,6 +387,7 @@ jobs:
     environment: staging
     outputs:
       api_base_url: ${{ steps.runtime-coordinates.outputs.api_base_url }}
+      server_host: ${{ steps.runtime-coordinates.outputs.server_host }}
       firebase_emulator_host: ${{ steps.runtime-coordinates.outputs.firebase_emulator_host }}
       firebase_auth_emulator_url: ${{ steps.runtime-coordinates.outputs.firebase_auth_emulator_url }}
     env:
@@ -397,6 +398,8 @@ jobs:
       EDGE_IMAGE_TAG: ${{ needs.build-nightly-edge.outputs.image_tag }}
       AUTH_PROVIDER: ${{ github.event_name == 'schedule' && 'firebase-emulator' || inputs.e2e_auth_provider }}
     steps:
+      - uses: actions/checkout@v7
+
       - name: Validate runtime deploy inputs
         run: |
           set -euo pipefail
@@ -405,6 +408,22 @@ jobs:
           [ -n "$DOPPLER_TOKEN_VALUE" ] || { echo "Missing DOPPLER_TOKEN_STG" >&2; exit 1; }
           [ -n "$API_IMAGE_TAG" ] || { echo "Missing API image tag" >&2; exit 1; }
           [ -n "$EDGE_IMAGE_TAG" ] || { echo "Missing edge image tag" >&2; exit 1; }
+
+      - name: Prepare SSH key for runtime script sync
+        uses: ./.github/actions/prepare-ssh-key
+        with:
+          private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          key_file: tchalanet_stg
+          known_host: ${{ env.SERVER_HOST }}
+
+      - name: Sync runtime deploy script
+        run: |
+          set -euo pipefail
+          scp -i ~/.ssh/tchalanet_stg \
+            -o BatchMode=yes \
+            -o StrictHostKeyChecking=yes \
+            tchalanet-infra/scripts/remote/deploy-runtime-services.sh \
+            tch@"$SERVER_HOST":/opt/tchalanet-infra/scripts/remote/deploy-runtime-services.sh
 
       - name: Deploy runtime in validation mode
         uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1.2.5
@@ -424,6 +443,7 @@ jobs:
           script: |
             set -euo pipefail
             cd /opt/tchalanet-infra
+            chmod +x scripts/remote/deploy-runtime-services.sh
             DOCKER_BIN="docker"
             if ! docker ps >/dev/null 2>&1; then
               DOCKER_BIN="sudo docker"
@@ -433,7 +453,7 @@ jobs:
               --password-stdin
             DOCKER_BIN="$DOCKER_BIN" ENV=staging API_IMAGE_TAG="$API_IMAGE_TAG" EDGE_IMAGE_TAG="$EDGE_IMAGE_TAG" \
               DEPLOY_API=1 DEPLOY_EDGE=1 FORCE_RECREATE=1 \
-              WEB_ORIGINS="https://tchalanet-web-stg.pages.dev http://localhost:4301 http://localhost:4302 http://localhost:4303" \
+              WEB_ORIGINS="https://tchalanet-web-stg.pages.dev https://test.tchalanet.com" \
               RUNTIME_IDENTITY_PROVIDER="$RUNTIME_IDENTITY_PROVIDER" ENABLE_FIREBASE_EMULATOR="$ENABLE_FIREBASE_EMULATOR" \
               scripts/remote/deploy-runtime-services.sh
 
@@ -446,6 +466,7 @@ jobs:
           test -n "$API_BASE_URL" || { echo "Unable to resolve API base URL" >&2; exit 1; }
           test -n "$SERVER_HOST" || { echo "Unable to resolve Firebase emulator host" >&2; exit 1; }
           echo "api_base_url=$API_BASE_URL" >> "$GITHUB_OUTPUT"
+          echo "server_host=$SERVER_HOST" >> "$GITHUB_OUTPUT"
           echo "firebase_emulator_host=$SERVER_HOST:9099" >> "$GITHUB_OUTPUT"
           echo "firebase_auth_emulator_url=http://$SERVER_HOST:9099" >> "$GITHUB_OUTPUT"
 
@@ -484,6 +505,40 @@ jobs:
 
     steps:
       - uses: actions/checkout@v7
+
+      - name: Prepare SSH key for Firebase emulator tunnel
+        if: ${{ env.TCH_E2E_AUTH_PROVIDER == 'firebase-emulator' }}
+        uses: ./.github/actions/prepare-ssh-key
+        with:
+          private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          key_file: tchalanet_stg
+          known_host: ${{ env.NIGHTLY_SERVER_HOST }}
+
+      - name: Tunnel Firebase Auth emulator
+        if: ${{ env.TCH_E2E_AUTH_PROVIDER == 'firebase-emulator' }}
+        run: |
+          set -euo pipefail
+          ssh -i ~/.ssh/tchalanet_stg \
+            -o ExitOnForwardFailure=yes \
+            -o ServerAliveInterval=30 \
+            -o ServerAliveCountMax=3 \
+            -N -L 9099:127.0.0.1:9099 \
+            tch@"$NIGHTLY_SERVER_HOST" \
+            >"$RUNNER_TEMP/firebase-emulator-tunnel.log" 2>&1 &
+          tunnel_pid=$!
+          echo "FIREBASE_TUNNEL_PID=$tunnel_pid" >> "$GITHUB_ENV"
+          for attempt in $(seq 1 20); do
+            if curl --fail --silent --show-error http://127.0.0.1:9099/ >/dev/null; then
+              echo "Firebase Auth emulator tunnel ready"
+              echo "TCH_FIREBASE_EMULATOR_HOST=127.0.0.1:9099" >> "$GITHUB_ENV"
+              break
+            fi
+            if [ "$attempt" = 20 ]; then
+              cat "$RUNNER_TEMP/firebase-emulator-tunnel.log" >&2 || true
+              exit 1
+            fi
+            sleep 2
+          done
 
       - name: Set up Python
         uses: actions/setup-python@v7
@@ -549,6 +604,13 @@ jobs:
       - name: Run server E2E
         run: |
           python -m pytest -m "${{ inputs.server_e2e_marker || 'full_flow' }}"
+
+      - name: Stop Firebase Auth emulator tunnel
+        if: always()
+        run: |
+          if [ -n "${FIREBASE_TUNNEL_PID:-}" ]; then
+            kill "$FIREBASE_TUNNEL_PID" 2>/dev/null || true
+          fi
 
   server-perf:
     name: Server Locust smoke
@@ -642,6 +704,7 @@ jobs:
       WEB_E2E_API_BASE_URL: ${{ needs.deploy-nightly-runtime.outputs.api_base_url }}
       WEB_E2E_FIREBASE_AUTH_EMULATOR_URL: ${{ needs.deploy-nightly-runtime.outputs.firebase_auth_emulator_url }}
       TCH_FIREBASE_EMULATOR_HOST: ${{ needs.deploy-nightly-runtime.outputs.firebase_emulator_host || '127.0.0.1:9099' }}
+      NIGHTLY_SERVER_HOST: ${{ needs.deploy-nightly-runtime.outputs.server_host }}
       TCH_FIREBASE_PROJECT_ID: demo-tchalanet-local
       # Stub mode creates @e2e.local users locally. API mode uses the disposable
       # backend bootstrap identities linked to app_user_external_identity.
@@ -657,6 +720,41 @@ jobs:
 
     steps:
       - uses: actions/checkout@v7
+
+      - name: Prepare SSH key for Firebase emulator tunnel
+        if: ${{ env.WEB_E2E_API == '1' }}
+        uses: ./.github/actions/prepare-ssh-key
+        with:
+          private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          key_file: tchalanet_stg
+          known_host: ${{ env.NIGHTLY_SERVER_HOST }}
+
+      - name: Tunnel Firebase Auth emulator
+        if: ${{ env.WEB_E2E_API == '1' }}
+        run: |
+          set -euo pipefail
+          ssh -i ~/.ssh/tchalanet_stg \
+            -o ExitOnForwardFailure=yes \
+            -o ServerAliveInterval=30 \
+            -o ServerAliveCountMax=3 \
+            -N -L 9099:127.0.0.1:9099 \
+            tch@"$NIGHTLY_SERVER_HOST" \
+            >"$RUNNER_TEMP/firebase-emulator-tunnel.log" 2>&1 &
+          tunnel_pid=$!
+          echo "FIREBASE_TUNNEL_PID=$tunnel_pid" >> "$GITHUB_ENV"
+          for attempt in $(seq 1 20); do
+            if curl --fail --silent --show-error http://127.0.0.1:9099/ >/dev/null; then
+              echo "Firebase Auth emulator tunnel ready"
+              echo "TCH_FIREBASE_EMULATOR_HOST=127.0.0.1:9099" >> "$GITHUB_ENV"
+              echo "WEB_E2E_FIREBASE_AUTH_EMULATOR_URL=http://127.0.0.1:9099" >> "$GITHUB_ENV"
+              break
+            fi
+            if [ "$attempt" = 20 ]; then
+              cat "$RUNNER_TEMP/firebase-emulator-tunnel.log" >&2 || true
+              exit 1
+            fi
+            sleep 2
+          done
 
       - name: Setup pnpm
         uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
@@ -692,6 +790,13 @@ jobs:
         if: ${{ always() && env.WEB_E2E_API != '1' }}
         working-directory: tchalanet-infra
         run: make down-firebase-emulator
+
+      - name: Stop Firebase Auth emulator tunnel
+        if: always()
+        run: |
+          if [ -n "${FIREBASE_TUNNEL_PID:-}" ]; then
+            kill "$FIREBASE_TUNNEL_PID" 2>/dev/null || true
+          fi
 
       - name: Upload Playwright report
         if: ${{ !cancelled() }}

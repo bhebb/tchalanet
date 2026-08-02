@@ -187,14 +187,6 @@ elif [ ! -f "envs/$ENV/.secrets" ]; then
   fail "SKIP_DOPPLER=1 was set but envs/$ENV/.secrets does not exist"
 fi
 
-if [ -n "$WEB_ORIGINS" ]; then
-  {
-    printf '\n'
-    printf '# Runtime deploy override generated from WEB_ORIGINS\n'
-    printf 'APP_CORS_ALLOWED_ORIGINS=%s\n' "$(printf '%s' "$WEB_ORIGINS" | tr ' ' ',')"
-  } >> "envs/$ENV/.secrets"
-fi
-
 if [ -n "$RUNTIME_DATABASE_URL" ]; then
   log "Overriding runtime database URL for this deploy"
   case "$RUNTIME_DATABASE_URL" in
@@ -230,6 +222,34 @@ if [ "${RUNTIME_IDENTITY_PROVIDER:-firebase}" = "firebase-emulator" ]; then
   cat "envs/$ENV/.runtime-signing.env" >> "$compose_env"
 fi
 if [ -n "$RUNTIME_IDENTITY_PROVIDER" ]; then
+  # Compose uses this file for interpolation, while the same variables may
+  # already exist in the Doppler-generated env files. Remove the old values
+  # before appending runtime overrides; duplicate keys have different
+  # precedence across Compose versions.
+  runtime_override_keys=(
+    TCH_IDENTITY_PROVIDER
+    FIREBASE_PROJECT_ID
+    FIREBASE_EMULATOR_PROJECT_ID
+    FIREBASE_AUTH_EMULATOR_HOST
+    FIREBASE_CREDENTIALS_PATH
+    FIREBASE_CREDENTIALS_HOST_PATH
+    FIREBASE_BOOTSTRAP_ENABLED
+    FIREBASE_BOOTSTRAP_AUTO_RUN_ON_STARTUP
+    TCH_SECURITY_USER_BOOTSTRAP_MODE
+  )
+  sanitized_compose_env="$(mktemp /tmp/tchalanet-compose-env-sanitized.XXXXXX)"
+  awk -v keys="${runtime_override_keys[*]}" '
+    BEGIN {
+      count = split(keys, names, " ")
+      for (i = 1; i <= count; i++) excluded[names[i]] = 1
+    }
+    {
+      if ($0 !~ /^[A-Za-z_][A-Za-z0-9_]*=/) { print; next }
+      key = substr($0, 1, index($0, "=") - 1)
+      if (!(key in excluded)) print
+    }
+  ' "$compose_env" > "$sanitized_compose_env"
+  mv "$sanitized_compose_env" "$compose_env"
   {
     printf 'TCH_IDENTITY_PROVIDER=%s\n' "$RUNTIME_IDENTITY_PROVIDER"
     if [ "$RUNTIME_IDENTITY_PROVIDER" = "firebase-emulator" ]; then
