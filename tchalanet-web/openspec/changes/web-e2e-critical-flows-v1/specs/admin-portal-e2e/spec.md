@@ -78,6 +78,19 @@ test SHALL assert the UI reaction, not the rule that caused the rejection.
 - **WHEN** the API rejects a submitted sale
 - **THEN** the POS UI shows a rejection state and does not show a receipt.
 
+### Requirement: Seller pricing configuration supports override lifecycle
+
+`/app/admin/seller-terminals/commissions` SHALL expose the seller's pricing
+configuration entry point. The override screen SHALL allow an admin to save an
+override and return the seller to tenant inheritance by removing it.
+
+#### Scenario: Seller override is saved and removed
+
+- **WHEN** the admin opens a seller's barèmes, changes a numeric value, and saves
+- **THEN** the UI shows the override as active and sends the update request
+- **WHEN** the admin removes the override
+- **THEN** the UI shows that the seller inherits the tenant value.
+
 ### Requirement: Cross-origin portal handoff lands the authenticated shell
 
 Following `/login/handoff` after signing in SHALL land the target portal's

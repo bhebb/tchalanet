@@ -95,6 +95,7 @@ source — that is the only production-source edit this change allows.
 - [ ] POS sale happy path (UI): build ticket → visible success/receipt feedback →
       form resets.
 - [ ] POS rejected sale surfaces rejection toast/state in the POS UI.
+- [x] Seller pricing configuration saves a barème override and restores tenant inheritance.
 
 ## 4. Platform portal (`specs/platform-portal-e2e`)
 

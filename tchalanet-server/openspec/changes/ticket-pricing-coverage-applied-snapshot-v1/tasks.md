@@ -35,5 +35,5 @@
 ## Validation
 
 - [ ] Run focused pricing, sales and settlement tests.
-- [ ] Run the end-to-end sale -> result -> payout -> ticket detail flow.
+- [x] Run the end-to-end sale -> result -> payout -> ticket detail flow.
 - [ ] Validate the OpenSpec and review migration/event compatibility.

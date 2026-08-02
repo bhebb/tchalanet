@@ -717,6 +717,7 @@ export class ApiStub {
     if (!this.enabled) return;
 
     let overrideValue = 10;
+    let overrideActive = true;
 
     await this.page.route(/\/admin\/commission\/sellers(?:\?|$)/, r =>
       json(
@@ -759,29 +760,46 @@ export class ApiStub {
         if (r.request().method() === 'PUT') {
           const body = JSON.parse(r.request().postData() ?? '{}') as { odds?: number };
           overrideValue = body.odds ?? overrideValue;
+          overrideActive = true;
           await json(r, envelope({ id: 'override-bolet-straight' }));
           return;
         }
 
         await json(
           r,
-          envelope([
-            {
-              id: 'override-bolet-straight',
-              gameCode: 'BOLET',
-              pricingVariantCode: 'DEFAULT',
-              betType: 'STRAIGHT',
-              betOption: null,
-              odds: overrideValue,
-              payoutRuleType: 'STAKE_MULTIPLIER',
-              fixedAmount: null,
-              active: true,
-              effectiveFrom: '2026-08-01T00:00:00Z',
-              effectiveTo: null,
-              reason: 'web-e2e',
-            },
-          ]),
+          envelope(
+            overrideActive
+              ? [
+                  {
+                    id: 'override-bolet-straight',
+                    gameCode: 'BOLET',
+                    pricingVariantCode: 'DEFAULT',
+                    betType: 'STRAIGHT',
+                    betOption: null,
+                    odds: overrideValue,
+                    payoutRuleType: 'STAKE_MULTIPLIER',
+                    fixedAmount: null,
+                    active: true,
+                    effectiveFrom: '2026-08-01T00:00:00Z',
+                    effectiveTo: null,
+                    reason: 'web-e2e',
+                  },
+                ]
+              : [],
+          ),
         );
+      },
+    );
+
+    await this.page.route(
+      /\/admin\/controls\/pricing-rules\/seller-terminals\/stub-terminal-1\/overrides\/override-bolet-straight(?:\?|$)/,
+      async r => {
+        if (r.request().method() !== 'DELETE') {
+          await unexpectedApiCall(r);
+          return;
+        }
+        overrideActive = false;
+        await json(r, envelope(null));
       },
     );
   }
