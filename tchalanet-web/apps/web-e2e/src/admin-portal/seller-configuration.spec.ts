@@ -17,7 +17,9 @@ test.describe('Admin seller configuration — pricing overrides', () => {
     await loginPage.login(creds!);
   });
 
-  test('opens barèmes from a seller card and persists an override', async ({ page }) => {
+  test('opens barèmes from a seller card, persists an override, and restores tenant inheritance', async ({
+    page,
+  }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/app/admin/seller-terminals/commissions');
 
@@ -49,5 +51,17 @@ test.describe('Admin seller configuration — pricing overrides', () => {
       odds: 12,
     });
     await expect(input).toHaveValue('12');
+    await expect(row.getByText('Override actif')).toBeVisible();
+
+    const deleteResponse = page.waitForResponse(
+      response =>
+        response
+          .url()
+          .includes('/admin/controls/pricing-rules/seller-terminals/stub-terminal-1/overrides/') &&
+        response.request().method() === 'DELETE',
+    );
+    await row.getByRole('button', { name: 'Revenir tenant' }).click();
+    expect((await deleteResponse).status()).toBe(200);
+    await expect(row.getByText('Hérite du tenant')).toBeVisible();
   });
 });

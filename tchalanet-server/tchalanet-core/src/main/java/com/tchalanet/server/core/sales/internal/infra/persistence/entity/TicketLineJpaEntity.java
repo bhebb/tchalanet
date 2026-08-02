@@ -6,6 +6,7 @@ import com.tchalanet.server.common.persistence.BaseTenantEntity;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineOrigin;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSource;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource;
+import com.tchalanet.server.core.sales.api.model.settlement.AppliedSettlementSnapshot;
 import com.tchalanet.server.core.sales.api.model.settlement.SettlementTermsSnapshot;
 import com.tchalanet.server.core.sales.api.model.status.TicketLineResultStatus;
 import com.tchalanet.server.platform.tenantgame.api.model.SelectionPolicy;
@@ -99,6 +100,10 @@ public class TicketLineJpaEntity extends BaseTenantEntity {
   @JdbcTypeCode(SqlTypes.JSON)
   @Column(name = "settlement_terms_snapshot", columnDefinition = "jsonb", updatable = false)
   private SettlementTermsSnapshot settlementTermsSnapshot;
+
+  @JdbcTypeCode(SqlTypes.JSON)
+  @Column(name = "applied_settlement_snapshot", columnDefinition = "jsonb")
+  private AppliedSettlementSnapshot appliedSettlementSnapshot;
 
   @Enumerated(EnumType.STRING)
   @Column(name = "origin", nullable = false, length = 16)

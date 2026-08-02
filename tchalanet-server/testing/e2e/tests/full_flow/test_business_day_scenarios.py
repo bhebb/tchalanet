@@ -1588,10 +1588,14 @@ def test_seller_pricing_override_sale_result_and_payout(
     support = _settlement_support(runtime.admin, ticket_id)
     line = _only_customer_line(support, "HT_BOLET", result.bolet_win)
     terms = line["settlementTermsSnapshot"]["terms"]
-    assert len(terms) == 1
-    assert terms[0]["ruleCode"] == "MATCH_1_2D"
-    assert terms[0]["source"] == "SELLER_TERMINAL_OVERRIDE"
-    assert _decimal(terms[0]["payoutRule"]["multiplier"]) == Decimal("65.0000")
+    assert [term["ruleCode"] for term in terms] == [
+        "MATCH_1_2D",
+        "MATCH_2_2D",
+        "MATCH_3_2D",
+    ]
+    lot1_term = terms[0]
+    assert lot1_term["source"] == "SELLER_TERMINAL_OVERRIDE"
+    assert _decimal(lot1_term["payoutRule"]["multiplier"]) == Decimal("65.0000")
 
     _assert_winning_ticket_before_apply(
         runtime,
@@ -1601,6 +1605,19 @@ def test_seller_pricing_override_sale_result_and_payout(
     _record_manual_results(super_admin_client, [draw], result)
     _force_apply_results(super_admin_client, runtime, dt.date.today(), [draw], result)
     _wait_for_draws_resulted(runtime, [draw])
+
+    settled_support = _settlement_support(runtime.admin, ticket_id)
+    settled_line = _only_customer_line(settled_support, "HT_BOLET", result.bolet_win)
+    applied = settled_line["appliedSettlementSnapshot"]
+    assert applied["schemaVersion"] == 1
+    assert [term["ruleCode"] for term in applied["terms"]] == ["MATCH_1_2D"]
+    assert applied["terms"][0]["source"] == "SELLER_TERMINAL_OVERRIDE"
+    assert _decimal(applied["terms"][0]["realizedAmount"]) == Decimal("65.00")
+
+    cashier_details = _ticket_details(seller.client, ticket_id)
+    cashier_line = cashier_details["lines"][0]
+    assert cashier_line["appliedSettlement"]["terms"][0]["ruleCode"] == "MATCH_1_2D"
+    assert _decimal(cashier_line["payoutAmountCents"]) == Decimal("6500")
 
     _assert_winning_ticket_can_be_verified(
         runtime,

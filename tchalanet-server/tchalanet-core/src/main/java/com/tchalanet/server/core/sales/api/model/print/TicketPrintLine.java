@@ -7,6 +7,7 @@ import com.tchalanet.server.common.types.money.Money;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineOrigin;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSource;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource;
+import com.tchalanet.server.core.sales.api.model.settlement.AppliedSettlementSnapshot;
 import com.tchalanet.server.core.sales.api.model.settlement.SettlementTermsSnapshot;
 import com.tchalanet.server.core.sales.api.model.status.TicketLineResultStatus;
 import com.tchalanet.server.platform.tenantgame.api.model.SelectionPolicy;
@@ -23,6 +24,7 @@ public record TicketPrintLine(
     Money stake,
     SelectionPolicy selectionPolicySnapshot,
     SettlementTermsSnapshot settlementTermsSnapshot,
+    AppliedSettlementSnapshot appliedSettlementSnapshot,
     TicketLineOrigin origin,
     TicketLinePricingSource pricingSource,
     TicketLineSelectionSource selectionSource,
@@ -62,6 +64,7 @@ public record TicketPrintLine(
         stake,
         selectionPolicySnapshot,
         settlementTermsSnapshot,
+        null,
         origin,
         pricingSource,
         selectionSource,
@@ -101,6 +104,7 @@ public record TicketPrintLine(
         stake,
         selectionPolicySnapshot,
         null,
+        null,
         origin,
         pricingSource,
         selectionSource,
@@ -138,6 +142,7 @@ public record TicketPrintLine(
         selectionCanonical,
         stake,
         selectionPolicySnapshot,
+        null,
         null,
         origin,
         pricingSource,

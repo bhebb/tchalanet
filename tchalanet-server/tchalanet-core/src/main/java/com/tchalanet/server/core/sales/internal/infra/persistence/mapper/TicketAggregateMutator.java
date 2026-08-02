@@ -109,6 +109,7 @@ public class TicketAggregateMutator {
   private void applyMutableLineFields(TicketLineJpaEntity managed, TicketLine domain) {
     managed.setResultStatus(domain.resultStatus());
     managed.setPayoutAmount(domain.payoutAmount().amount());
+    managed.setAppliedSettlementSnapshot(domain.appliedSettlementSnapshot());
   }
 
   private void applyCharges(TicketJpaEntity managed, Ticket domain) {

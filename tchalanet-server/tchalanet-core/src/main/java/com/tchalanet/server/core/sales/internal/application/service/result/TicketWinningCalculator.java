@@ -6,6 +6,8 @@ import com.tchalanet.server.core.drawresult.api.query.view.DrawResultProjection;
 import com.tchalanet.server.core.pricing.api.model.PayoutRuleType;
 import com.tchalanet.server.core.pricing.api.model.PricingVariantCode;
 import com.tchalanet.server.core.sales.api.model.line.TicketLineResult;
+import com.tchalanet.server.core.sales.api.model.settlement.AppliedSettlementSnapshot;
+import com.tchalanet.server.core.sales.api.model.settlement.AppliedSettlementTermSnapshot;
 import com.tchalanet.server.core.sales.api.model.settlement.SettlementTermSnapshot;
 import com.tchalanet.server.core.sales.api.model.settlement.SettlementWinMode;
 import com.tchalanet.server.core.sales.api.model.status.TicketLineResultStatus;
@@ -38,7 +40,8 @@ public class TicketWinningCalculator {
           line.id(),
           new TicketLineResult(
               evaluation.won() ? TicketLineResultStatus.WON : TicketLineResultStatus.LOST,
-              evaluation.won() ? evaluation.payoutAmount() : zero));
+              evaluation.won() ? evaluation.payoutAmount() : zero,
+              evaluation.appliedSettlementSnapshot()));
     }
 
     return results;
@@ -48,6 +51,7 @@ public class TicketWinningCalculator {
     var selection = safe(line.selection().key().value());
     var payout = Money.zero(line.stakeAmount().currency());
     var won = false;
+    var appliedTerms = new ArrayList<AppliedSettlementTermSnapshot>();
 
     var snapshot = line.settlementTermsSnapshot();
     if (snapshot == null || snapshot.terms().isEmpty()) {
@@ -60,10 +64,27 @@ public class TicketWinningCalculator {
       }
 
       won = true;
-      payout = combinePayout(payout, realizedPayout(line, term), term);
+      var realized = realizedPayout(line, term);
+      var applied =
+          new AppliedSettlementTermSnapshot(
+              term.ruleCode(), term.source(), realized.amount());
+      if (term.winMode() == SettlementWinMode.CUMULATIVE) {
+        payout = payout.plus(realized);
+        appliedTerms.add(applied);
+      } else if (appliedTerms.isEmpty()
+          || realized.amount().compareTo(payout.amount()) > 0) {
+        payout = realized;
+        appliedTerms.clear();
+        appliedTerms.add(applied);
+      }
     }
 
-    return new WinningEvaluation(won, payout);
+    return new WinningEvaluation(
+        won,
+        payout,
+        won && !appliedTerms.isEmpty()
+            ? AppliedSettlementSnapshot.current(appliedTerms)
+            : null);
   }
 
   private boolean wins(String selection, TicketResultFacts facts, PricingVariantCode variant) {
@@ -103,17 +124,6 @@ public class TicketWinningCalculator {
             .multiply(rule.multiplier())
             .setScale(2, RoundingMode.HALF_UP),
         line.stakeAmount().currency());
-  }
-
-  private Money combinePayout(
-      Money current, Money winningPayout, SettlementTermSnapshot winningTerm) {
-    if (winningTerm.winMode() == SettlementWinMode.CUMULATIVE) {
-      return current.plus(winningPayout);
-    }
-    if (winningPayout.amount().compareTo(current.amount()) > 0) {
-      return winningPayout;
-    }
-    return current;
   }
 
   private boolean match2d(String selection, String drawn2d) {
@@ -298,7 +308,8 @@ public class TicketWinningCalculator {
     return value == null ? "" : value.trim();
   }
 
-  private record WinningEvaluation(boolean won, Money payoutAmount) {}
+  private record WinningEvaluation(
+      boolean won, Money payoutAmount, AppliedSettlementSnapshot appliedSettlementSnapshot) {}
 
   private record TicketResultFacts(
       List<String> orderedTwoDigits,
