@@ -712,6 +712,80 @@ export class ApiStub {
     );
   }
 
+  /** Deterministic seller configuration data used by the pricing override flow. */
+  async adminSellerConfiguration(): Promise<void> {
+    if (!this.enabled) return;
+
+    let overrideValue = 10;
+
+    await this.page.route(/\/admin\/commission\/sellers(?:\?|$)/, r =>
+      json(
+        r,
+        envelope([
+          {
+            sellerTerminalId: 'stub-terminal-1',
+            terminalCode: 'POS-001',
+            displayName: 'Bhebbb',
+            status: 'ACTIVE',
+            commissionRate: 13,
+            rateSource: 'CUSTOM',
+          },
+        ]),
+      ),
+    );
+
+    await this.page.route(/\/admin\/controls\/pricing-rules(?:\?|$)/, r =>
+      json(
+        r,
+        envelope([
+          {
+            id: 'pricing-bolet-straight',
+            gameCode: 'BOLET',
+            pricingVariantCode: 'DEFAULT',
+            betType: 'STRAIGHT',
+            betOption: null,
+            odds: 10,
+            payoutRuleType: 'STAKE_MULTIPLIER',
+            fixedAmount: null,
+            active: true,
+          },
+        ]),
+      ),
+    );
+
+    await this.page.route(
+      /\/admin\/controls\/pricing-rules\/seller-terminals\/stub-terminal-1(?:\?|$)/,
+      async r => {
+        if (r.request().method() === 'PUT') {
+          const body = JSON.parse(r.request().postData() ?? '{}') as { odds?: number };
+          overrideValue = body.odds ?? overrideValue;
+          await json(r, envelope({ id: 'override-bolet-straight' }));
+          return;
+        }
+
+        await json(
+          r,
+          envelope([
+            {
+              id: 'override-bolet-straight',
+              gameCode: 'BOLET',
+              pricingVariantCode: 'DEFAULT',
+              betType: 'STRAIGHT',
+              betOption: null,
+              odds: overrideValue,
+              payoutRuleType: 'STAKE_MULTIPLIER',
+              fixedAmount: null,
+              active: true,
+              effectiveFrom: '2026-08-01T00:00:00Z',
+              effectiveTo: null,
+              reason: 'web-e2e',
+            },
+          ]),
+        );
+      },
+    );
+  }
+
   /** Inject a blocking failure for the terminal detail resource. */
   async adminSellerTerminalDetailError(): Promise<void> {
     if (!this.enabled) return;
