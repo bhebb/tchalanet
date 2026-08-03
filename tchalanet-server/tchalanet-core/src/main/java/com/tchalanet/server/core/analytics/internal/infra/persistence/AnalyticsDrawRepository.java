@@ -25,6 +25,19 @@ public interface AnalyticsDrawRepository extends JpaRepository<AnalyticsDrawEnti
 
   @Transactional
   @Modifying
+  @Query(
+      """
+      DELETE FROM AnalyticsDrawEntity a
+       WHERE a.tenantId = :tenantId
+         AND a.refDate BETWEEN :from AND :to
+      """)
+  int deleteTenantRows(
+      @Param("tenantId") UUID tenantId,
+      @Param("from") LocalDate from,
+      @Param("to") LocalDate to);
+
+  @Transactional
+  @Modifying
   @Query("DELETE FROM AnalyticsDrawEntity a WHERE a.refDate < :cutoff")
   int deleteOlderThan(@Param("cutoff") LocalDate cutoff);
 

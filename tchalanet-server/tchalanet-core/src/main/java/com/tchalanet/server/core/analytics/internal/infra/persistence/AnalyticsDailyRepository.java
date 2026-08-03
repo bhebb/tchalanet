@@ -113,6 +113,20 @@ public interface AnalyticsDailyRepository
       @Param("from") LocalDate from,
       @Param("to") LocalDate to);
 
+  @Transactional
+  @org.springframework.data.jpa.repository.Modifying
+  @Query(
+      """
+      DELETE FROM AnalyticsDailyEntity a
+       WHERE a.tenantId = :tenantId
+         AND a.dimensionType IN ('TENANT', 'SELLER_TERMINAL')
+         AND a.refDate BETWEEN :from AND :to
+      """)
+  int deleteTenantProjectionRows(
+      @Param("tenantId") UUID tenantId,
+      @Param("from") LocalDate from,
+      @Param("to") LocalDate to);
+
   /** Delete rows older than retention cutoff for purge. */
   @Transactional
   @org.springframework.data.jpa.repository.Modifying

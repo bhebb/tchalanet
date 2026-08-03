@@ -30,7 +30,9 @@ class SalesAnalyticsActivityReaderAdapter implements SalesAnalyticsActivityReade
             query.sellerTerminalId() != null ? query.sellerTerminalId().value() : null,
             TicketSaleStatus.APPROVED,
             query.from(),
-            query.to())
+            query.to(),
+            query.from().atZone(query.businessZone()).toLocalDate(),
+            query.to().minusNanos(1).atZone(query.businessZone()).toLocalDate())
         .forEach(ticket -> addActivityDates(ticket, query, dates));
     return Set.copyOf(dates);
   }
@@ -43,6 +45,7 @@ class SalesAnalyticsActivityReaderAdapter implements SalesAnalyticsActivityReade
     addIfInRange(ticket.getResultedAt(), query, dates);
     addIfInRange(ticket.getSettledAt(), query, dates);
     addIfInRange(ticket.getPaidAt(), query, dates);
+    addIfInRange(ticket.getPaidAmountAdjustedAt(), query, dates);
   }
 
   private static void addIfInRange(

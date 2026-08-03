@@ -880,6 +880,35 @@
         "loadError": "Impossible de charger les révisions."
       }
     },
+    "analyticsReconciliation": {
+      "title": "Réconciliation analytics",
+      "description": "Compare les ventes approuvées aux projections analytics et reconstruit uniquement après confirmation d’un écart.",
+      "section": { "target": "Cible et période", "result": "Résultat du contrôle", "repair": "Reconstruire les projections" },
+      "field": {
+        "tenant": "Tenant", "from": "Du", "to": "Au", "period": "Période", "status": "Statut",
+        "mismatchCount": "Nombre d’écarts", "runId": "ID d’exécution", "reason": "Motif de reconstruction",
+        "drawId": "Tirage", "sellerTerminalId": "Terminal POS"
+      },
+      "placeholder": { "tenant": "Rechercher un tenant actif" },
+      "empty": { "tenant": "Aucun tenant actif ne correspond." },
+      "hint": { "window": "Période maximale : {{days}} jours." },
+      "action": { "validate": "Vérifier les analytics", "rebuild": "Reconstruire et vérifier" },
+      "status": { "SUCCESS": "Conforme", "MISMATCH": "Écart détecté", "REPAIR_FAILED": "Reconstruction échouée" },
+      "metric": {
+        "grossSales": "Ventes brutes", "payoutsPaid": "Montants payés", "commission": "Commission vendeur", "tickets": "Tickets vendus",
+        "expected": "Source", "observed": "Projection"
+      },
+      "success": { "noMismatch": "Les projections analytics correspondent aux ventes sources." },
+      "repair": { "description": "Cette action supprime et reconstruit les projections analytics sans modifier les tickets ni le journal des transactions." },
+      "rebuildDialog": {
+        "title": "Confirmer la reconstruction analytics", "warning": "La reconstruction remplace les projections analytics de cette période. Elle ne modifie pas les tickets."
+      },
+      "validation": {
+        "title": "Périmètre invalide", "scope": "Choisissez un tenant et une période valide ne dépassant pas 90 jours.",
+        "reason": "Indiquez un motif d’au moins 10 caractères."
+      },
+      "noTenant": "Aucun tenant sélectionné"
+    },
     "pageEngine": {
       "title": "Moteur de page",
       "description": "Modifiez les PageModels runtime, publiez les brouillons et inspectez le JSON effectif.",

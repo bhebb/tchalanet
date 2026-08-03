@@ -21,6 +21,7 @@ import com.tchalanet.server.core.analytics.internal.application.service.Analytic
 import com.tchalanet.server.core.analytics.internal.application.service.AnalyticsDrawProjector;
 import com.tchalanet.server.core.analytics.internal.application.service.AnalyticsSelectionProjector;
 import com.tchalanet.server.core.analytics.internal.application.service.AnalyticsSellerTerminalDrawProjector;
+import com.tchalanet.server.core.analytics.internal.infra.persistence.AnalyticsTenantProjectionLock;
 import com.tchalanet.server.core.sales.api.event.TicketLinePlacedItem;
 import com.tchalanet.server.core.sales.api.event.TicketPlacedEvent;
 import com.tchalanet.server.core.sales.api.event.payload.TicketContextPayload;
@@ -38,6 +39,7 @@ import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
+import org.mockito.InOrder;
 
 class AnalyticsEventListenerTest {
 
@@ -62,9 +64,10 @@ class AnalyticsEventListenerTest {
     var selection = org.mockito.Mockito.mock(AnalyticsSelectionProjector.class);
     var sellerTerminalDraw = org.mockito.Mockito.mock(AnalyticsSellerTerminalDrawProjector.class);
     var zones = org.mockito.Mockito.mock(TenantZoneApi.class);
+    var lock = org.mockito.Mockito.mock(AnalyticsTenantProjectionLock.class);
     when(zones.resolveTenantZone(TENANT_ID)).thenReturn(ZoneOffset.UTC);
     var listener =
-        new AnalyticsEventListener(processed, daily, draw, selection, sellerTerminalDraw, zones);
+        new AnalyticsEventListener(processed, daily, draw, selection, sellerTerminalDraw, zones, lock);
 
     listener.onTicketPlaced(ticketPlaced());
     listener.onTicketPlacedForSelection(ticketPlaced());
@@ -76,6 +79,7 @@ class AnalyticsEventListenerTest {
     verify(selection).applyTicketPlaced(any(), org.mockito.ArgumentMatchers.eq(refDate));
     verify(draw).applyTicketPlaced(any(), org.mockito.ArgumentMatchers.eq(refDate));
     verify(sellerTerminalDraw).applyTicketPlaced(any(), org.mockito.ArgumentMatchers.eq(refDate));
+    verify(lock, org.mockito.Mockito.times(4)).acquire(TENANT_ID);
   }
 
   @Test
@@ -87,13 +91,17 @@ class AnalyticsEventListenerTest {
     var selection = org.mockito.Mockito.mock(AnalyticsSelectionProjector.class);
     var sellerTerminalDraw = org.mockito.Mockito.mock(AnalyticsSellerTerminalDrawProjector.class);
     var zones = org.mockito.Mockito.mock(TenantZoneApi.class);
+    var lock = org.mockito.Mockito.mock(AnalyticsTenantProjectionLock.class);
     var listener =
-        new AnalyticsEventListener(processed, daily, draw, selection, sellerTerminalDraw, zones);
+        new AnalyticsEventListener(processed, daily, draw, selection, sellerTerminalDraw, zones, lock);
 
     listener.onTicketPlaced(ticketPlaced());
 
     verify(daily, never()).applyTicketPlaced(any(), any());
     verify(zones, never()).resolveTenantZone(any());
+    InOrder order = org.mockito.Mockito.inOrder(lock, processed);
+    order.verify(lock).acquire(TENANT_ID);
+    order.verify(processed).markProcessedIfAbsent(any(), any());
   }
 
   private static TicketPlacedEvent ticketPlaced() {

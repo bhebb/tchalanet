@@ -67,6 +67,7 @@
       "providers": "Providers",
       "schedulers": "Scheduled tasks",
       "cache": "Cache",
+      "analyticsReconciliation": "Analytics reconciliation",
       "pageEngine": "Page engine",
       "archives": "Archives",
       "archiveRuns": "Runs",

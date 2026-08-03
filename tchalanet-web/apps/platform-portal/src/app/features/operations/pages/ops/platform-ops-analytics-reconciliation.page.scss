@@ -1,0 +1,123 @@
+@use 'breakpoints' as ui;
+
+.analytics-reconciliation {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(16rem, 22rem);
+  gap: 1rem;
+  align-items: start;
+
+  &__main,
+  &__aside,
+  &__mismatches {
+    display: grid;
+    gap: 1rem;
+  }
+
+  &__aside {
+    position: sticky;
+    top: 1rem;
+  }
+
+  &__feedback {
+    display: block;
+    margin-bottom: 1rem;
+  }
+
+  &__target,
+  &__result-summary,
+  &__comparison {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  &__target {
+    grid-template-columns: minmax(14rem, 1fr) repeat(2, minmax(9rem, 12rem));
+    align-items: start;
+  }
+
+  &__hint,
+  &__aside p,
+  &__identifiers {
+    color: var(--tch-color-on-surface-variant);
+  }
+
+  &__result-summary {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin-bottom: 1rem;
+  }
+
+  &__result-summary div,
+  &__comparison div {
+    display: grid;
+    gap: 0.25rem;
+    padding: 0.75rem;
+    border: 1px solid var(--tch-color-outline-variant);
+    border-radius: var(--tch-radius-sm);
+    background: var(--tch-color-surface-container-low);
+  }
+
+  &__result-summary span,
+  &__comparison span,
+  &__comparison small {
+    color: var(--tch-color-on-surface-variant);
+    font-size: var(--tch-font-size-label-sm);
+  }
+
+  &__status--mismatch {
+    color: var(--tch-color-error);
+  }
+
+  &__run-id,
+  &__identifiers {
+    overflow-wrap: anywhere;
+  }
+
+  &__success {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    margin: 0;
+    color: var(--tch-color-success);
+  }
+
+  &__mismatch {
+    padding: 0.875rem;
+    border: 1px solid var(--tch-color-outline-variant);
+    border-radius: var(--tch-radius-md);
+    background: var(--tch-color-surface);
+  }
+
+  &__mismatch header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: space-between;
+  }
+
+  &__identifiers {
+    display: grid;
+    gap: 0.25rem;
+    margin: 0.5rem 0;
+    font-size: var(--tch-font-size-body-sm);
+  }
+
+  &__comparison {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  @include ui.down(large) {
+    grid-template-columns: 1fr;
+
+    &__aside {
+      position: static;
+    }
+  }
+
+  @include ui.down(expanded) {
+    &__target,
+    &__result-summary,
+    &__comparison {
+      grid-template-columns: 1fr;
+    }
+  }
+}

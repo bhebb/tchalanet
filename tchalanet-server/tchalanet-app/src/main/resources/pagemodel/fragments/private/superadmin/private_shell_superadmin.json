@@ -238,6 +238,13 @@
                 "icon": "cached"
               },
               {
+                "id": "ops-analytics-reconciliation",
+                "label_key": "platform.nav.analyticsReconciliation",
+                "path": "/app/platform/ops/analytics/reconciliation",
+                "kind": "internal",
+                "icon": "fact_check"
+              },
+              {
                 "id": "ops-page-engine",
                 "label_key": "platform.nav.pageEngine",
                 "path": "/app/platform/ops/page-engine",

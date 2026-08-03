@@ -530,6 +530,15 @@ export class ApiStub {
     await this.apiRoute(/\/platform\/tenants(?:\?|$)/, (r) => json(r, envelope(page(items, overrides))));
   }
 
+  /** Deterministic operator response for platform analytics reconciliation. */
+  async analyticsReconciliation(result: unknown): Promise<void> {
+    if (!this.enabled) return;
+
+    await this.apiRoute(/\/platform\/ops\/analytics\/reconciliation$/, (r) =>
+      json(r, envelope(result)),
+    );
+  }
+
   /** Override the `/runtime/private` bootstrap. */
   async privateBootstrap(bootstrap: unknown): Promise<void> {
     if (!this.enabled) return;

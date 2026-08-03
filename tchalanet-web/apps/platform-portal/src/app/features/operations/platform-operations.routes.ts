@@ -97,6 +97,13 @@ export const platformOperationsRoutes: Route[] = [
       import('./pages/ops/platform-ops-cache.page').then(m => m.PlatformOpsCachePage),
   },
   {
+    path: 'analytics/reconciliation',
+    loadComponent: () =>
+      import('./pages/ops/platform-ops-analytics-reconciliation.page').then(
+        m => m.PlatformOpsAnalyticsReconciliationPage,
+      ),
+  },
+  {
     path: 'page-engine',
     loadComponent: () =>
       import('./pages/page-engine/platform-page-engine.page').then(

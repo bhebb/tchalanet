@@ -36,7 +36,9 @@ class SalesAnalyticsSnapshotReaderAdapter implements SalesAnalyticsSnapshotReade
                 null,
                 TicketSaleStatus.APPROVED,
                 query.from(),
-                query.to())
+                query.to(),
+                query.fromDate(),
+                query.toDate())
             .stream()
             .toList();
     if (tickets.isEmpty()) {
@@ -66,6 +68,7 @@ class SalesAnalyticsSnapshotReaderAdapter implements SalesAnalyticsSnapshotReade
         ticket.getDrawChannelId(),
         ticket.getSoldAt(),
         ticket.getDrawScheduledAt(),
+        ticket.getDrawDate(),
         ticket.getSaleStatus().name(),
         ticket.getCancelledAt(),
         ticket.getVoidedAt(),
