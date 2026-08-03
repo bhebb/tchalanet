@@ -130,11 +130,16 @@ public class PlatformAdminOpsDashboardPayloadAssembler {
     try {
       var unreadCount =
           notificationApi.countUnread(
-              NotificationActorType.APP_USER, ctx.userId().value(), ctx.userId(), roleCode);
+              NotificationActorType.APP_USER,
+              ctx.userId().value(),
+              null,
+              ctx.userId(),
+              roleCode);
       TchPage<NotificationItemView> notificationPage =
           notificationApi.listMyNotifications(
               NotificationActorType.APP_USER,
               ctx.userId().value(),
+              null,
               ctx.userId(),
               roleCode,
               Optional.of(NotificationStatus.PUBLISHED),

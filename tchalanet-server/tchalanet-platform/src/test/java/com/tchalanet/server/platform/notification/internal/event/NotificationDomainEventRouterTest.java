@@ -14,6 +14,7 @@ import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.platform.idempotence.api.ProcessedEventPort;
 import com.tchalanet.server.platform.notification.api.model.NotificationAudienceType;
+import com.tchalanet.server.platform.notification.api.model.NotificationChannel;
 import com.tchalanet.server.platform.notification.api.model.NotificationKind;
 import com.tchalanet.server.platform.notification.api.model.NotificationSeverity;
 import com.tchalanet.server.platform.notification.api.model.request.CreateNotificationRequest;
@@ -115,6 +116,8 @@ class NotificationDomainEventRouterTest {
         .isEqualTo(NotificationKind.SYSTEM_ERROR);
     org.assertj.core.api.Assertions.assertThat(request.titleKey())
         .isEqualTo("notification.system.ops.job_failed");
+    org.assertj.core.api.Assertions.assertThat(request.channels())
+        .containsExactlyInAnyOrder(NotificationChannel.WEB, NotificationChannel.SLACK);
   }
 
   private static ObjectProvider<ProcessedEventPort> provider(boolean markProcessedResult) {

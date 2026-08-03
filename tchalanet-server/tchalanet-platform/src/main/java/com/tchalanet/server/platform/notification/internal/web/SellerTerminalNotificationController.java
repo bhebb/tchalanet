@@ -12,6 +12,7 @@ import com.tchalanet.server.platform.notification.api.model.NotificationCategory
 import com.tchalanet.server.platform.notification.api.model.NotificationKind;
 import com.tchalanet.server.platform.notification.api.model.NotificationSeverity;
 import com.tchalanet.server.platform.notification.api.model.NotificationStatus;
+import com.tchalanet.server.platform.notification.api.model.view.NotificationUnreadCountView;
 import com.tchalanet.server.platform.notification.internal.service.NotificationService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Optional;
@@ -36,7 +37,8 @@ public class SellerTerminalNotificationController {
   @GetMapping("/summary")
   public ApiResponse<?> summary(@CurrentContext TchRequestContext context) {
     return ApiResponse.success(
-        notificationService.getTerminalNotificationSummary(context.sellerTerminalIdRequired()));
+        notificationService.getTerminalNotificationSummary(
+            context.tenantIdRequired(), context.sellerTerminalIdRequired()));
   }
 
   @GetMapping
@@ -49,11 +51,9 @@ public class SellerTerminalNotificationController {
       @TchPaging TchPageRequest pageRequest,
       @CurrentContext TchRequestContext context) {
     return ApiResponse.success(
-        notificationService.listMyNotifications(
-            NotificationActorType.SELLER_TERMINAL,
-            context.sellerTerminalIdRequired().value(),
-            null,
-            null,
+        notificationService.listTerminalNotifications(
+            context.tenantIdRequired(),
+            context.sellerTerminalIdRequired(),
             Optional.ofNullable(status),
             Optional.ofNullable(category),
             Optional.ofNullable(kind),
@@ -65,11 +65,11 @@ public class SellerTerminalNotificationController {
   @GetMapping("/unread-count")
   public ApiResponse<?> unreadCount(@CurrentContext TchRequestContext context) {
     return ApiResponse.success(
-        notificationService.countUnread(
-            NotificationActorType.SELLER_TERMINAL,
-            context.sellerTerminalIdRequired().value(),
-            null,
-            null));
+        new NotificationUnreadCountView(
+            notificationService
+                .getTerminalNotificationSummary(
+                    context.tenantIdRequired(), context.sellerTerminalIdRequired())
+                .unreadCount()));
   }
 
   @PostMapping("/{id}/read")
@@ -100,6 +100,7 @@ public class SellerTerminalNotificationController {
     notificationService.markAllRead(
         NotificationActorType.SELLER_TERMINAL,
         context.sellerTerminalIdRequired().value(),
+        context.tenantIdRequired(),
         null,
         null);
     return ApiResponse.success(true);

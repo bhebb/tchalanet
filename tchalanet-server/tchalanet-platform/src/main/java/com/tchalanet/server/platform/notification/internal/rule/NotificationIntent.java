@@ -3,6 +3,7 @@ package com.tchalanet.server.platform.notification.internal.rule;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.platform.notification.api.model.NotificationAudienceType;
 import com.tchalanet.server.platform.notification.api.model.NotificationCategory;
+import com.tchalanet.server.platform.notification.api.model.NotificationChannel;
 import com.tchalanet.server.platform.notification.api.model.NotificationKind;
 import com.tchalanet.server.platform.notification.api.model.NotificationSeverity;
 import com.tchalanet.server.platform.notification.api.model.NotificationTarget;
@@ -21,6 +22,7 @@ public record NotificationIntent(
     NotificationCategory category,
     NotificationAudienceType audienceType,
     Set<NotificationTarget> targets,
+    Set<NotificationChannel> channels,
     Map<String, Object> variables,
     String title,
     String message,

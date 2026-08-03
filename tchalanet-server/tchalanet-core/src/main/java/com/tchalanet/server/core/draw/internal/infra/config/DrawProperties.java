@@ -122,6 +122,7 @@ public class DrawProperties {
   @Setter
   public static class Settle extends DueAfterDraw {
     private int maxItemsPerTick = 1000;
+    private int attentionAfterMinutes = 30;
 
     public Settle() {
       setStartMinutesAfterDraw(10);

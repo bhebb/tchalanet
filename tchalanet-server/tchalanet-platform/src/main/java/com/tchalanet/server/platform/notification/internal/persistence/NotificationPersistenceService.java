@@ -2,6 +2,7 @@ package com.tchalanet.server.platform.notification.internal.persistence;
 
 import com.tchalanet.server.common.types.id.NotificationId;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
+import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageMapper;
@@ -77,10 +78,11 @@ public class NotificationPersistenceService implements NotificationWriter, Notif
   }
 
   @Override
-  public NotificationSummaryView summary(UserId userId, String roleCode) {
+  public NotificationSummaryView summary(TenantId tenantId, UserId userId, String roleCode) {
     var now = clock.instant();
     var unread =
         notifications.countVisible(
+            tenantId == null ? null : tenantId.value(),
             userId == null ? null : userId.value(),
             roleCode,
             NotificationStatus.PUBLISHED,
@@ -89,6 +91,7 @@ public class NotificationPersistenceService implements NotificationWriter, Notif
             now);
     var critical =
         notifications.countVisible(
+            tenantId == null ? null : tenantId.value(),
             userId == null ? null : userId.value(),
             roleCode,
             NotificationStatus.PUBLISHED,
@@ -97,6 +100,7 @@ public class NotificationPersistenceService implements NotificationWriter, Notif
             now);
     var actionRequired =
         notifications.countVisible(
+            tenantId == null ? null : tenantId.value(),
             userId == null ? null : userId.value(),
             roleCode,
             NotificationStatus.PUBLISHED,
@@ -107,13 +111,16 @@ public class NotificationPersistenceService implements NotificationWriter, Notif
   }
 
   @Override
-  public NotificationSummaryView summaryForTerminal(SellerTerminalId sellerTerminalId) {
+  public NotificationSummaryView summaryForTerminal(
+      TenantId tenantId, SellerTerminalId sellerTerminalId) {
     var now = clock.instant();
     var unread =
         notifications.countVisibleToTerminal(
+            tenantId.value(),
             sellerTerminalId.value(), NotificationStatus.PUBLISHED, null, null, now);
     var critical =
         notifications.countVisibleToTerminal(
+            tenantId.value(),
             sellerTerminalId.value(),
             NotificationStatus.PUBLISHED,
             null,
@@ -121,6 +128,7 @@ public class NotificationPersistenceService implements NotificationWriter, Notif
             now);
     var actionRequired =
         notifications.countVisibleToTerminal(
+            tenantId.value(),
             sellerTerminalId.value(),
             NotificationStatus.PUBLISHED,
             NotificationKind.ACTION_REQUIRED,
@@ -131,6 +139,7 @@ public class NotificationPersistenceService implements NotificationWriter, Notif
 
   @Override
   public TchPage<NotificationItemView> list(
+      TenantId tenantId,
       UserId userId,
       String roleCode,
       Optional<NotificationStatus> status,
@@ -141,6 +150,7 @@ public class NotificationPersistenceService implements NotificationWriter, Notif
       TchPageRequest pageRequest) {
     var page =
         notifications.searchVisible(
+            tenantId == null ? null : tenantId.value(),
             userId == null ? null : userId.value(),
             roleCode,
             status.orElse(null),
@@ -155,6 +165,7 @@ public class NotificationPersistenceService implements NotificationWriter, Notif
 
   @Override
   public TchPage<NotificationItemView> listForTerminal(
+      TenantId tenantId,
       SellerTerminalId sellerTerminalId,
       Optional<NotificationStatus> status,
       Optional<NotificationCategory> category,
@@ -164,6 +175,7 @@ public class NotificationPersistenceService implements NotificationWriter, Notif
       TchPageRequest pageRequest) {
     var page =
         notifications.searchVisibleToTerminal(
+            tenantId.value(),
             sellerTerminalId.value(),
             status.orElse(null),
             category.orElse(null),
@@ -179,6 +191,7 @@ public class NotificationPersistenceService implements NotificationWriter, Notif
   public TchPage<NotificationItemView> listMyNotifications(
       NotificationActorType actorType,
       UUID actorId,
+      TenantId tenantId,
       UserId userId,
       String roleCode,
       Optional<NotificationStatus> status,
@@ -189,6 +202,7 @@ public class NotificationPersistenceService implements NotificationWriter, Notif
       TchPageRequest pageRequest) {
     var page =
         notifications.searchVisible(
+            tenantId == null ? null : tenantId.value(),
             userId == null ? null : userId.value(),
             roleCode,
             status.orElse(NotificationStatus.PUBLISHED),
@@ -212,9 +226,14 @@ public class NotificationPersistenceService implements NotificationWriter, Notif
 
   @Override
   public NotificationUnreadCountView countUnread(
-      NotificationActorType actorType, UUID actorId, UserId userId, String roleCode) {
+      NotificationActorType actorType,
+      UUID actorId,
+      TenantId tenantId,
+      UserId userId,
+      String roleCode) {
     var page =
         notifications.searchVisible(
+            tenantId == null ? null : tenantId.value(),
             userId == null ? null : userId.value(),
             roleCode,
             null,
@@ -246,9 +265,14 @@ public class NotificationPersistenceService implements NotificationWriter, Notif
 
   @Override
   public void markAllRead(
-      NotificationActorType actorType, UUID actorId, UserId userId, String roleCode) {
+      NotificationActorType actorType,
+      UUID actorId,
+      TenantId tenantId,
+      UserId userId,
+      String roleCode) {
     var page =
         notifications.searchVisible(
+            tenantId == null ? null : tenantId.value(),
             userId == null ? null : userId.value(),
             roleCode,
             null,

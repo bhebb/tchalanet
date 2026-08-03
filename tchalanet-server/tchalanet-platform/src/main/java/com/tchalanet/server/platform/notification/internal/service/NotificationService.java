@@ -687,15 +687,17 @@ public class NotificationService {
   }
 
   public NotificationSummaryView getNotificationSummary(GetNotificationSummaryRequest request) {
-    return reader.summary(request.userId(), request.roleCode());
+    return reader.summary(request.tenantId(), request.userId(), request.roleCode());
   }
 
-  public NotificationSummaryView getTerminalNotificationSummary(SellerTerminalId sellerTerminalId) {
-    return reader.summaryForTerminal(sellerTerminalId);
+  public NotificationSummaryView getTerminalNotificationSummary(
+      TenantId tenantId, SellerTerminalId sellerTerminalId) {
+    return reader.summaryForTerminal(tenantId, sellerTerminalId);
   }
 
   public TchPage<NotificationItemView> listNotifications(ListNotificationsRequest request) {
     return reader.list(
+        request.tenantId(),
         request.userId(),
         request.roleCode(),
         request.status(),
@@ -707,19 +709,29 @@ public class NotificationService {
   }
 
   public TchPage<NotificationItemView> listTerminalNotifications(
+      TenantId tenantId,
       SellerTerminalId sellerTerminalId,
       Optional<NotificationStatus> status,
       Optional<NotificationCategory> category,
       Optional<NotificationKind> kind,
       Optional<NotificationSeverity> severity,
+      TchSearchQuery search,
       TchPageRequest pageRequest) {
     return reader.listForTerminal(
-        sellerTerminalId, status, category, kind, severity, TchSearchQuery.empty(), pageRequest);
+        tenantId,
+        sellerTerminalId,
+        status,
+        category,
+        kind,
+        severity,
+        search,
+        pageRequest);
   }
 
   public TchPage<NotificationItemView> listMyNotifications(
       NotificationActorType actorType,
       UUID actorId,
+      TenantId tenantId,
       UserId userId,
       String roleCode,
       Optional<NotificationStatus> status,
@@ -731,6 +743,7 @@ public class NotificationService {
     return reader.listMyNotifications(
         actorType,
         actorId,
+        tenantId,
         userId,
         roleCode,
         status,
@@ -742,8 +755,12 @@ public class NotificationService {
   }
 
   public NotificationUnreadCountView countUnread(
-      NotificationActorType actorType, UUID actorId, UserId userId, String roleCode) {
-    return reader.countUnread(actorType, actorId, userId, roleCode);
+      NotificationActorType actorType,
+      UUID actorId,
+      TenantId tenantId,
+      UserId userId,
+      String roleCode) {
+    return reader.countUnread(actorType, actorId, tenantId, userId, roleCode);
   }
 
   @TchTx
@@ -760,8 +777,12 @@ public class NotificationService {
 
   @TchTx
   public void markAllRead(
-      NotificationActorType actorType, UUID actorId, UserId userId, String roleCode) {
-    reader.markAllRead(actorType, actorId, userId, roleCode);
+      NotificationActorType actorType,
+      UUID actorId,
+      TenantId tenantId,
+      UserId userId,
+      String roleCode) {
+    reader.markAllRead(actorType, actorId, tenantId, userId, roleCode);
   }
 
   private String firstNonBlank(String first, String second) {

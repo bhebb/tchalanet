@@ -409,7 +409,7 @@ public class TenantAdminDashboardPayloadAssembler {
     String roleCode = ctx.currentRole() != null ? ctx.currentRole().name() : null;
     NotificationSummaryView summary =
         notificationApi.getNotificationSummary(
-            new GetNotificationSummaryRequest(ctx.userId(), roleCode));
+            new GetNotificationSummaryRequest(ctx.tenantId(), ctx.userId(), roleCode));
     return summary != null ? summary.unreadCount() : 0L;
   }
 

@@ -34,7 +34,7 @@ class NotificationAdminGate {
 
   NotificationSummaryView summary(TchRequestContext context) {
     return notificationService.getNotificationSummary(
-        new GetNotificationSummaryRequest(context.userId(), roleCode(context)));
+        new GetNotificationSummaryRequest(context.tenantId(), context.userId(), roleCode(context)));
   }
 
   TchPage<NotificationItemView> list(
@@ -46,6 +46,7 @@ class NotificationAdminGate {
       TchRequestContext context) {
     return notificationService.listNotifications(
         new ListNotificationsRequest(
+            context.tenantId(),
             context.userId(),
             roleCode(context),
             Optional.ofNullable(status),
@@ -68,6 +69,7 @@ class NotificationAdminGate {
     return notificationService.listMyNotifications(
         NotificationActorType.APP_USER,
         userId.value(),
+        context.tenantId(),
         userId,
         roleCode(context),
         Optional.ofNullable(status),
@@ -81,7 +83,11 @@ class NotificationAdminGate {
   NotificationUnreadCountView unreadCount(TchRequestContext context) {
     var userId = context.currentUserIdRequired();
     return notificationService.countUnread(
-        NotificationActorType.APP_USER, userId.value(), userId, roleCode(context));
+        NotificationActorType.APP_USER,
+        userId.value(),
+        context.tenantId(),
+        userId,
+        roleCode(context));
   }
 
   void createForTenant(CreateNotificationBody request, TchRequestContext context) {
@@ -139,7 +145,11 @@ class NotificationAdminGate {
   void markAllRead(TchRequestContext context) {
     var userId = context.currentUserIdRequired();
     notificationService.markAllRead(
-        NotificationActorType.APP_USER, userId.value(), userId, roleCode(context));
+        NotificationActorType.APP_USER,
+        userId.value(),
+        context.tenantId(),
+        userId,
+        roleCode(context));
   }
 
   Object publish(NotificationId id, NotificationLifecycleBody request, TchRequestContext context) {

@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.types.id.NotificationId;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
+import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
@@ -77,6 +78,7 @@ class NotificationServiceTest {
   @Test
   void summaryReadsUnreadCountsFromReader() {
     var userId = UserId.of(UUID.randomUUID());
+    var tenantId = TenantId.of(UUID.randomUUID());
     var summary = new NotificationSummaryView(4, 1, 2, true);
     var reader = new RecordingNotificationReader(summary);
     var service =
@@ -84,9 +86,11 @@ class NotificationServiceTest {
             null, null, null, null, reader, null, null, null, null, null, null, null, null, null);
 
     var result =
-        service.getNotificationSummary(new GetNotificationSummaryRequest(userId, "TENANT_ADMIN"));
+        service.getNotificationSummary(
+            new GetNotificationSummaryRequest(tenantId, userId, "TENANT_ADMIN"));
 
     assertThat(result).isEqualTo(summary);
+    assertThat(reader.lastTenantId).isEqualTo(tenantId);
     assertThat(reader.lastUserId).isEqualTo(userId);
     assertThat(reader.lastRoleCode).isEqualTo("TENANT_ADMIN");
   }
@@ -226,6 +230,7 @@ class NotificationServiceTest {
   private static final class RecordingNotificationReader implements NotificationReader {
     private final NotificationSummaryView summary;
     private UserId lastUserId;
+    private TenantId lastTenantId;
     private String lastRoleCode;
     private NotificationId lastReadId;
     private NotificationId lastDismissedId;
@@ -237,19 +242,22 @@ class NotificationServiceTest {
     }
 
     @Override
-    public NotificationSummaryView summary(UserId userId, String roleCode) {
+    public NotificationSummaryView summary(TenantId tenantId, UserId userId, String roleCode) {
+      this.lastTenantId = tenantId;
       this.lastUserId = userId;
       this.lastRoleCode = roleCode;
       return summary;
     }
 
     @Override
-    public NotificationSummaryView summaryForTerminal(SellerTerminalId sellerTerminalId) {
+    public NotificationSummaryView summaryForTerminal(
+        TenantId tenantId, SellerTerminalId sellerTerminalId) {
       throw new UnsupportedOperationException("Not needed by this test");
     }
 
     @Override
     public TchPage<NotificationItemView> list(
+        TenantId tenantId,
         UserId userId,
         String roleCode,
         Optional<NotificationStatus> status,
@@ -263,6 +271,7 @@ class NotificationServiceTest {
 
     @Override
     public TchPage<NotificationItemView> listForTerminal(
+        TenantId tenantId,
         SellerTerminalId sellerTerminalId,
         Optional<NotificationStatus> status,
         Optional<NotificationCategory> category,
@@ -277,6 +286,7 @@ class NotificationServiceTest {
     public TchPage<NotificationItemView> listMyNotifications(
         NotificationActorType actorType,
         UUID actorId,
+        TenantId tenantId,
         UserId userId,
         String roleCode,
         Optional<NotificationStatus> status,
@@ -290,7 +300,11 @@ class NotificationServiceTest {
 
     @Override
     public NotificationUnreadCountView countUnread(
-        NotificationActorType actorType, UUID actorId, UserId userId, String roleCode) {
+        NotificationActorType actorType,
+        UUID actorId,
+        TenantId tenantId,
+        UserId userId,
+        String roleCode) {
       throw new UnsupportedOperationException("Not needed by this test");
     }
 
@@ -312,7 +326,11 @@ class NotificationServiceTest {
 
     @Override
     public void markAllRead(
-        NotificationActorType actorType, UUID actorId, UserId userId, String roleCode) {
+        NotificationActorType actorType,
+        UUID actorId,
+        TenantId tenantId,
+        UserId userId,
+        String roleCode) {
       throw new UnsupportedOperationException("Not needed by this test");
     }
   }

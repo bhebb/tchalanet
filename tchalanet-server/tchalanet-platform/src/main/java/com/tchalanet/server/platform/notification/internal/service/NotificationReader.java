@@ -2,6 +2,7 @@ package com.tchalanet.server.platform.notification.internal.service;
 
 import com.tchalanet.server.common.types.id.NotificationId;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
+import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
@@ -18,11 +19,12 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface NotificationReader {
-  NotificationSummaryView summary(UserId userId, String roleCode);
+  NotificationSummaryView summary(TenantId tenantId, UserId userId, String roleCode);
 
-  NotificationSummaryView summaryForTerminal(SellerTerminalId sellerTerminalId);
+  NotificationSummaryView summaryForTerminal(TenantId tenantId, SellerTerminalId sellerTerminalId);
 
   TchPage<NotificationItemView> list(
+      TenantId tenantId,
       UserId userId,
       String roleCode,
       Optional<NotificationStatus> status,
@@ -33,6 +35,7 @@ public interface NotificationReader {
       TchPageRequest pageRequest);
 
   TchPage<NotificationItemView> listForTerminal(
+      TenantId tenantId,
       SellerTerminalId sellerTerminalId,
       Optional<NotificationStatus> status,
       Optional<NotificationCategory> category,
@@ -44,6 +47,7 @@ public interface NotificationReader {
   TchPage<NotificationItemView> listMyNotifications(
       NotificationActorType actorType,
       UUID actorId,
+      TenantId tenantId,
       UserId userId,
       String roleCode,
       Optional<NotificationStatus> status,
@@ -54,11 +58,20 @@ public interface NotificationReader {
       TchPageRequest pageRequest);
 
   NotificationUnreadCountView countUnread(
-      NotificationActorType actorType, UUID actorId, UserId userId, String roleCode);
+      NotificationActorType actorType,
+      UUID actorId,
+      TenantId tenantId,
+      UserId userId,
+      String roleCode);
 
   void markRead(NotificationId notificationId, NotificationActorType actorType, UUID actorId);
 
   void dismiss(NotificationId notificationId, NotificationActorType actorType, UUID actorId);
 
-  void markAllRead(NotificationActorType actorType, UUID actorId, UserId userId, String roleCode);
+  void markAllRead(
+      NotificationActorType actorType,
+      UUID actorId,
+      TenantId tenantId,
+      UserId userId,
+      String roleCode);
 }
