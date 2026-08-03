@@ -151,7 +151,21 @@
       "reprint_illegible": "Illegible ticket",
       "reprint_customer_request": "Customer request",
       "reprint_confirm": "Reprint",
-      "receipt_empty": "No document is available to print."
+      "receipt_empty": "No document is available to print.",
+      "send_receipt": {
+        "title": "Send receipt",
+        "phone_label": "Phone number",
+        "whatsapp_label": "WhatsApp number",
+        "email_label": "Email address",
+        "phone_required": "Please enter a phone number.",
+        "whatsapp_required": "Please enter a WhatsApp number.",
+        "email_required": "Please enter an email address.",
+        "email_invalid": "Invalid email address.",
+        "phone_invalid": "Invalid phone number.",
+        "success": "Receipt sent successfully.",
+        "sending": "Sending…",
+        "send": "Send"
+      }
     },
     "ticket": {
       "verify": {
