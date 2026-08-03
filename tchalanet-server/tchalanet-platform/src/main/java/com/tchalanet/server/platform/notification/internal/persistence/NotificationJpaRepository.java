@@ -25,6 +25,19 @@ public interface NotificationJpaRepository extends JpaRepository<NotificationJpa
       """
       select n from NotificationJpaEntity n
        where n.deletedAt is null
+         and (
+              (:tenantId is null and n.tenantId is null)
+           or (
+                :tenantId is not null
+                and (
+                     n.tenantId = :tenantId
+                  or (
+                       n.tenantId is null
+                   and n.audienceType = com.tchalanet.server.platform.notification.api.model.NotificationAudienceType.ALL_APP_USERS
+                  )
+                )
+              )
+         )
          and (:status is null or n.status = :status)
          and (:category is null or n.category = :category)
          and (:kind is null or n.kind = :kind)
@@ -59,6 +72,7 @@ public interface NotificationJpaRepository extends JpaRepository<NotificationJpa
        order by n.createdAt desc
       """)
   Page<NotificationJpaEntity> searchVisible(
+      @Param("tenantId") UUID tenantId,
       @Param("userId") UUID userId,
       @Param("roleCode") String roleCode,
       @Param("status") NotificationStatus status,
@@ -73,6 +87,7 @@ public interface NotificationJpaRepository extends JpaRepository<NotificationJpa
       """
       select n from NotificationJpaEntity n
        where n.deletedAt is null
+         and n.tenantId = :tenantId
          and (:status is null or n.status = :status)
          and (:category is null or n.category = :category)
          and (:kind is null or n.kind = :kind)
@@ -104,6 +119,7 @@ public interface NotificationJpaRepository extends JpaRepository<NotificationJpa
        order by n.createdAt desc
       """)
   Page<NotificationJpaEntity> searchVisibleToTerminal(
+      @Param("tenantId") UUID tenantId,
       @Param("terminalId") UUID terminalId,
       @Param("status") NotificationStatus status,
       @Param("category") NotificationCategory category,
@@ -117,6 +133,19 @@ public interface NotificationJpaRepository extends JpaRepository<NotificationJpa
       """
       select count(n) from NotificationJpaEntity n
        where n.deletedAt is null
+         and (
+              (:tenantId is null and n.tenantId is null)
+           or (
+                :tenantId is not null
+                and (
+                     n.tenantId = :tenantId
+                  or (
+                       n.tenantId is null
+                   and n.audienceType = com.tchalanet.server.platform.notification.api.model.NotificationAudienceType.ALL_APP_USERS
+                  )
+                )
+              )
+         )
          and (:status is null or n.status = :status)
          and (:kind is null or n.kind = :kind)
          and (:severity is null or n.severity = :severity)
@@ -136,6 +165,7 @@ public interface NotificationJpaRepository extends JpaRepository<NotificationJpa
          )
       """)
   long countVisible(
+      @Param("tenantId") UUID tenantId,
       @Param("userId") UUID userId,
       @Param("roleCode") String roleCode,
       @Param("status") NotificationStatus status,
@@ -147,6 +177,7 @@ public interface NotificationJpaRepository extends JpaRepository<NotificationJpa
       """
       select count(n) from NotificationJpaEntity n
        where n.deletedAt is null
+         and n.tenantId = :tenantId
          and (:status is null or n.status = :status)
          and (:kind is null or n.kind = :kind)
          and (:severity is null or n.severity = :severity)
@@ -163,6 +194,7 @@ public interface NotificationJpaRepository extends JpaRepository<NotificationJpa
          )
       """)
   long countVisibleToTerminal(
+      @Param("tenantId") UUID tenantId,
       @Param("terminalId") UUID terminalId,
       @Param("status") NotificationStatus status,
       @Param("kind") NotificationKind kind,

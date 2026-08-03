@@ -442,7 +442,7 @@ public class RuntimeBootstrapService {
       String roleCode = ctx.currentRole() != null ? ctx.currentRole().name() : null;
       var summary =
           notificationApi.getNotificationSummary(
-              new GetNotificationSummaryRequest(ctx.userId(), roleCode));
+              new GetNotificationSummaryRequest(ctx.tenantId(), ctx.userId(), roleCode));
       return RuntimeNotificationSummary.from(summary);
     } catch (Exception e) {
       log.warn("runtime.bootstrap: notification summary failed for user {}", ctx.userId(), e);

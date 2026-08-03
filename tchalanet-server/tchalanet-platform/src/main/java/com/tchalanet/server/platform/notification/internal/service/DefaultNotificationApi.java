@@ -1,5 +1,6 @@
 package com.tchalanet.server.platform.notification.internal.service;
 
+import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
@@ -72,6 +73,7 @@ class DefaultNotificationApi implements NotificationApi {
   public TchPage<NotificationItemView> listMyNotifications(
       NotificationActorType actorType,
       UUID actorId,
+      TenantId tenantId,
       UserId userId,
       String roleCode,
       Optional<NotificationStatus> status,
@@ -83,6 +85,7 @@ class DefaultNotificationApi implements NotificationApi {
     return notificationService.listMyNotifications(
         actorType,
         actorId,
+        tenantId,
         userId,
         roleCode,
         status,
@@ -95,7 +98,11 @@ class DefaultNotificationApi implements NotificationApi {
 
   @Override
   public NotificationUnreadCountView countUnread(
-      NotificationActorType actorType, UUID actorId, UserId userId, String roleCode) {
-    return notificationService.countUnread(actorType, actorId, userId, roleCode);
+      NotificationActorType actorType,
+      UUID actorId,
+      TenantId tenantId,
+      UserId userId,
+      String roleCode) {
+    return notificationService.countUnread(actorType, actorId, tenantId, userId, roleCode);
   }
 }

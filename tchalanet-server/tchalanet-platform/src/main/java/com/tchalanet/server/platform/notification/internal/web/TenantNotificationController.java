@@ -44,7 +44,8 @@ public class TenantNotificationController {
   public ApiResponse<?> summary(@CurrentContext TchRequestContext context) {
     return ApiResponse.success(
         notificationService.getNotificationSummary(
-            new GetNotificationSummaryRequest(context.userId(), roleCode(context))));
+            new GetNotificationSummaryRequest(
+                context.tenantIdRequired(), context.userId(), roleCode(context))));
   }
 
   @GetMapping
@@ -59,6 +60,7 @@ public class TenantNotificationController {
     return ApiResponse.success(
         notificationService.listNotifications(
             new ListNotificationsRequest(
+                context.tenantIdRequired(),
                 context.userId(),
                 roleCode(context),
                 Optional.ofNullable(status),
