@@ -70,7 +70,9 @@ public class AnalyticsReconciliationService {
     projectionLock.acquire(command.tenantId());
     var expected = expected(command);
     replace(command, expected);
-    var result = result(command, expected, observed(command), AnalyticsReconciliationMode.REBUILD_AND_VALIDATE);
+    var result =
+        result(
+            command, expected, observed(command), AnalyticsReconciliationMode.REBUILD_AND_VALIDATE);
     if (result.status() != AnalyticsReconciliationStatus.SUCCESS) {
       throw new IllegalStateException("analytics.reconciliation.rebuild_not_exact");
     }
@@ -109,19 +111,31 @@ public class AnalyticsReconciliationService {
 
   private ProjectionSet observed(ReconcileAnalyticsCommand command) {
     var set = new ProjectionSet();
-    for (var row : dailyRepository.findTenantRows(command.tenantId().value(), command.from(), command.to())) {
+    for (var row :
+        dailyRepository.findTenantRows(command.tenantId().value(), command.from(), command.to())) {
       set.daily.put(new DailyKey("TENANT", null, row.getRefDate()), Totals.from(row));
     }
-    for (var row : dailyRepository.findSellerTerminalRows(command.tenantId().value(), command.from(), command.to())) {
-      set.daily.put(new DailyKey("SELLER_TERMINAL", row.getDimensionId(), row.getRefDate()), Totals.from(row));
+    for (var row :
+        dailyRepository.findSellerTerminalRows(
+            command.tenantId().value(), command.from(), command.to())) {
+      set.daily.put(
+          new DailyKey("SELLER_TERMINAL", row.getDimensionId(), row.getRefDate()),
+          Totals.from(row));
     }
-    for (var row : drawRepository.findByTenantIdAndRefDateBetweenOrderByRefDate(command.tenantId().value(), command.from(), command.to())) {
+    for (var row :
+        drawRepository.findByTenantIdAndRefDateBetweenOrderByRefDate(
+            command.tenantId().value(), command.from(), command.to())) {
       set.draws.put(new DrawKey(row.getDrawId()), Totals.from(row));
     }
-    for (var row : sellerTerminalDrawRepository.findByTenantIdAndRefDateBetweenOrderByRefDateDescUpdatedAtDesc(command.tenantId().value(), command.from(), command.to())) {
-      set.sellerTerminalDraws.put(new SellerTerminalDrawKey(row.getSellerTerminalId(), row.getDrawId()), Totals.from(row));
+    for (var row :
+        sellerTerminalDrawRepository.findByTenantIdAndRefDateBetweenOrderByRefDateDescUpdatedAtDesc(
+            command.tenantId().value(), command.from(), command.to())) {
+      set.sellerTerminalDraws.put(
+          new SellerTerminalDrawKey(row.getSellerTerminalId(), row.getDrawId()), Totals.from(row));
     }
-    for (var row : selectionRepository.findByTenantIdAndRefDateBetweenOrderByRefDate(command.tenantId().value(), command.from(), command.to())) {
+    for (var row :
+        selectionRepository.findByTenantIdAndRefDateBetweenOrderByRefDate(
+            command.tenantId().value(), command.from(), command.to())) {
       set.selections.put(SelectionKey.from(row), Totals.from(row));
     }
     return set;
@@ -145,11 +159,13 @@ public class AnalyticsReconciliationService {
     selectionRepository.flush();
   }
 
-  private List<AnalyticsReconciliationMismatch> compare(ProjectionSet expected, ProjectionSet observed) {
+  private List<AnalyticsReconciliationMismatch> compare(
+      ProjectionSet expected, ProjectionSet observed) {
     var mismatches = new ArrayList<AnalyticsReconciliationMismatch>();
     compareDaily(expected.daily, observed.daily, mismatches);
     compareDraws(expected.draws, observed.draws, mismatches);
-    compareSellerTerminalDraws(expected.sellerTerminalDraws, observed.sellerTerminalDraws, mismatches);
+    compareSellerTerminalDraws(
+        expected.sellerTerminalDraws, observed.sellerTerminalDraws, mismatches);
     compareSelections(expected.selections, observed.selections, mismatches);
     return List.copyOf(mismatches);
   }
@@ -164,7 +180,12 @@ public class AnalyticsReconciliationService {
       if (!left.equals(right)) {
         mismatches.add(
             new AnalyticsReconciliationMismatch(
-                "DAILY_" + key.dimensionType(), key.refDate(), null, key.sellerTerminalId(), left.snapshot(), right.snapshot()));
+                "DAILY_" + key.dimensionType(),
+                key.refDate(),
+                null,
+                key.sellerTerminalId(),
+                left.snapshot(),
+                right.snapshot()));
       }
     }
   }
@@ -177,7 +198,9 @@ public class AnalyticsReconciliationService {
       var left = expected.getOrDefault(key, Totals.ZERO);
       var right = observed.getOrDefault(key, Totals.ZERO);
       if (!left.equals(right)) {
-        mismatches.add(new AnalyticsReconciliationMismatch("DRAW", null, key.drawId(), null, left.snapshot(), right.snapshot()));
+        mismatches.add(
+            new AnalyticsReconciliationMismatch(
+                "DRAW", null, key.drawId(), null, left.snapshot(), right.snapshot()));
       }
     }
   }
@@ -190,7 +213,14 @@ public class AnalyticsReconciliationService {
       var left = expected.getOrDefault(key, Totals.ZERO);
       var right = observed.getOrDefault(key, Totals.ZERO);
       if (!left.equals(right)) {
-        mismatches.add(new AnalyticsReconciliationMismatch("SELLER_TERMINAL_DRAW", null, key.drawId(), key.sellerTerminalId(), left.snapshot(), right.snapshot()));
+        mismatches.add(
+            new AnalyticsReconciliationMismatch(
+                "SELLER_TERMINAL_DRAW",
+                null,
+                key.drawId(),
+                key.sellerTerminalId(),
+                left.snapshot(),
+                right.snapshot()));
       }
     }
   }
@@ -203,7 +233,14 @@ public class AnalyticsReconciliationService {
       var left = expected.getOrDefault(key, Totals.ZERO);
       var right = observed.getOrDefault(key, Totals.ZERO);
       if (!left.equals(right)) {
-        mismatches.add(new AnalyticsReconciliationMismatch("SELECTION:" + key.selectionKey(), key.refDate(), null, null, left.snapshot(), right.snapshot()));
+        mismatches.add(
+            new AnalyticsReconciliationMismatch(
+                "SELECTION:" + key.selectionKey(),
+                key.refDate(),
+                null,
+                null,
+                left.snapshot(),
+                right.snapshot()));
       }
     }
   }
@@ -234,7 +271,12 @@ public class AnalyticsReconciliationService {
       String selectionKey) {
     static SelectionKey from(AnalyticsSelectionEntity row) {
       return new SelectionKey(
-          row.getRefDate(), row.getDrawChannelId(), row.getGameCode(), row.getBetType(), row.getBetOption(), row.getSelectionKey());
+          row.getRefDate(),
+          row.getDrawChannelId(),
+          row.getGameCode(),
+          row.getBetType(),
+          row.getBetOption(),
+          row.getSelectionKey());
     }
   }
 
@@ -244,34 +286,58 @@ public class AnalyticsReconciliationService {
     private final Map<SellerTerminalDrawKey, Totals> sellerTerminalDraws = new HashMap<>();
     private final Map<SelectionKey, Totals> selections = new HashMap<>();
     private final Map<DrawKey, DrawMetadata> drawMetadata = new HashMap<>();
-    private final Map<SellerTerminalDrawKey, DrawMetadata> sellerTerminalDrawMetadata = new HashMap<>();
+    private final Map<SellerTerminalDrawKey, DrawMetadata> sellerTerminalDrawMetadata =
+        new HashMap<>();
 
     static ProjectionSet fromSnapshots(
-        Collection<SalesAnalyticsTicketSnapshot> snapshots, LocalDate from, LocalDate to, ZoneId zone) {
+        Collection<SalesAnalyticsTicketSnapshot> snapshots,
+        LocalDate from,
+        LocalDate to,
+        ZoneId zone) {
       var result = new ProjectionSet();
       for (var ticket : snapshots) {
         boolean officialSale = ticket.soldAt() != null;
         LocalDate soldDate = date(ticket.soldAt(), zone);
         if (officialSale && inScope(soldDate, from, to)) {
-          result.daily.computeIfAbsent(new DailyKey("TENANT", null, soldDate), ignored -> new Totals()).addSale(ticket);
+          result
+              .daily
+              .computeIfAbsent(new DailyKey("TENANT", null, soldDate), ignored -> new Totals())
+              .addSale(ticket);
           if (ticket.sellerTerminalId() != null) {
-            result.daily.computeIfAbsent(new DailyKey("SELLER_TERMINAL", ticket.sellerTerminalId(), soldDate), ignored -> new Totals()).addSale(ticket);
+            result
+                .daily
+                .computeIfAbsent(
+                    new DailyKey("SELLER_TERMINAL", ticket.sellerTerminalId(), soldDate),
+                    ignored -> new Totals())
+                .addSale(ticket);
           }
           result.addSelections(ticket, soldDate);
         }
 
         LocalDate cancellationDate = date(ticket.cancelledAt(), zone);
         if (inScope(cancellationDate, from, to)) {
-          result.daily.computeIfAbsent(new DailyKey("TENANT", null, cancellationDate), ignored -> new Totals()).addCancellation();
+          result
+              .daily
+              .computeIfAbsent(
+                  new DailyKey("TENANT", null, cancellationDate), ignored -> new Totals())
+              .addCancellation();
         }
 
-        LocalDate paymentDate = date(ticket.paidAt() != null ? ticket.paidAt() : ticket.settledAt(), zone);
+        LocalDate paymentDate =
+            date(ticket.paidAt() != null ? ticket.paidAt() : ticket.settledAt(), zone);
         if (inScope(paymentDate, from, to)) {
-          result.daily.computeIfAbsent(new DailyKey("TENANT", null, paymentDate), ignored -> new Totals()).addSettlement(ticket.winningAmount(), ticket.winningAmount());
+          result
+              .daily
+              .computeIfAbsent(new DailyKey("TENANT", null, paymentDate), ignored -> new Totals())
+              .addSettlement(ticket.winningAmount(), ticket.winningAmount());
         }
         LocalDate adjustmentDate = date(ticket.paidAmountAdjustedAt(), zone);
         if (inScope(adjustmentDate, from, to)) {
-          result.daily.computeIfAbsent(new DailyKey("TENANT", null, adjustmentDate), ignored -> new Totals()).addPaid(delta(ticket.paidAmount(), ticket.winningAmount()));
+          result
+              .daily
+              .computeIfAbsent(
+                  new DailyKey("TENANT", null, adjustmentDate), ignored -> new Totals())
+              .addPaid(delta(ticket.paidAmount(), ticket.winningAmount()));
         }
 
         LocalDate drawDate = ticket.drawDate();
@@ -280,8 +346,12 @@ public class AnalyticsReconciliationService {
           result.draws.computeIfAbsent(drawKey, ignored -> new Totals()).addFinalDraw(ticket);
           result.drawMetadata.putIfAbsent(drawKey, DrawMetadata.from(ticket, drawDate));
           if (ticket.sellerTerminalId() != null) {
-            var terminalDrawKey = new SellerTerminalDrawKey(ticket.sellerTerminalId(), ticket.drawId());
-            result.sellerTerminalDraws.computeIfAbsent(terminalDrawKey, ignored -> new Totals()).addFinalDraw(ticket);
+            var terminalDrawKey =
+                new SellerTerminalDrawKey(ticket.sellerTerminalId(), ticket.drawId());
+            result
+                .sellerTerminalDraws
+                .computeIfAbsent(terminalDrawKey, ignored -> new Totals())
+                .addFinalDraw(ticket);
             result.sellerTerminalDrawMetadata.putIfAbsent(
                 terminalDrawKey, DrawMetadata.from(ticket, drawDate));
           }
@@ -292,31 +362,64 @@ public class AnalyticsReconciliationService {
 
     private void addSelections(SalesAnalyticsTicketSnapshot ticket, LocalDate refDate) {
       for (var line : ticket.lines()) {
-        var key = new SelectionKey(refDate, ticket.drawChannelId(), line.gameCode(), line.betType(), line.betOption(), line.selectionKey());
+        var key =
+            new SelectionKey(
+                refDate,
+                ticket.drawChannelId(),
+                line.gameCode(),
+                line.betType(),
+                line.betOption(),
+                line.selectionKey());
         selections.computeIfAbsent(key, ignored -> new Totals()).addSelection(line);
       }
     }
 
     List<AnalyticsDailyEntity> dailyEntities(UUID tenantId, Instant now) {
-      return daily.entrySet().stream().map(entry -> entry.getValue().dailyEntity(entry.getKey(), tenantId, now)).toList();
+      return daily.entrySet().stream()
+          .map(entry -> entry.getValue().dailyEntity(entry.getKey(), tenantId, now))
+          .toList();
     }
 
     List<AnalyticsDrawEntity> drawEntities(UUID tenantId, Instant now) {
-      return draws.entrySet().stream().map(entry -> entry.getValue().drawEntity(entry.getKey(), drawMetadata.get(entry.getKey()), tenantId, now)).toList();
+      return draws.entrySet().stream()
+          .map(
+              entry ->
+                  entry
+                      .getValue()
+                      .drawEntity(entry.getKey(), drawMetadata.get(entry.getKey()), tenantId, now))
+          .toList();
     }
 
     List<AnalyticsSellerTerminalDrawEntity> sellerTerminalDrawEntities(UUID tenantId, Instant now) {
-      return sellerTerminalDraws.entrySet().stream().map(entry -> entry.getValue().sellerTerminalDrawEntity(entry.getKey(), sellerTerminalDrawMetadata.get(entry.getKey()), tenantId, now)).toList();
+      return sellerTerminalDraws.entrySet().stream()
+          .map(
+              entry ->
+                  entry
+                      .getValue()
+                      .sellerTerminalDrawEntity(
+                          entry.getKey(),
+                          sellerTerminalDrawMetadata.get(entry.getKey()),
+                          tenantId,
+                          now))
+          .toList();
     }
 
     List<AnalyticsSelectionEntity> selectionEntities(UUID tenantId, Instant now) {
-      return selections.entrySet().stream().map(entry -> entry.getValue().selectionEntity(entry.getKey(), tenantId, now)).toList();
+      return selections.entrySet().stream()
+          .map(entry -> entry.getValue().selectionEntity(entry.getKey(), tenantId, now))
+          .toList();
     }
   }
 
-  private record DrawMetadata(LocalDate refDate, Instant scheduledAt, String gameCode, String drawChannelCode) {
+  private record DrawMetadata(
+      LocalDate refDate, Instant scheduledAt, String gameCode, String drawChannelCode) {
     static DrawMetadata from(SalesAnalyticsTicketSnapshot ticket, LocalDate refDate) {
-      var gameCodes = ticket.lines().stream().map(SalesAnalyticsTicketLineSnapshot::gameCode).filter(value -> value != null && !value.isBlank()).distinct().toList();
+      var gameCodes =
+          ticket.lines().stream()
+              .map(SalesAnalyticsTicketLineSnapshot::gameCode)
+              .filter(value -> value != null && !value.isBlank())
+              .distinct()
+              .toList();
       return new DrawMetadata(
           refDate,
           ticket.drawScheduledAt(),
@@ -343,32 +446,266 @@ public class AnalyticsReconciliationService {
 
     static Totals from(AnalyticsDailyEntity row) {
       var result = new Totals();
-      result.ticketsSold = row.getTicketsSoldCount(); result.ticketsCancelled = row.getTicketsCancelledCount(); result.grossSales = row.getGrossSalesCents(); result.stake = row.getStakeTotalCents(); result.winnings = row.getWinningsCalculatedCents(); result.paid = row.getPayoutsPaidCents(); result.commission = row.getSellerCommissionCents(); result.buyerCharge = row.getBuyerChargeCents(); result.sellerCharge = row.getSellerChargeCents(); result.tenantCharge = row.getTenantChargeCents(); result.waivedCharge = row.getWaivedChargeCents(); result.promotionLines = row.getPromotionLineCount(); result.promotionPricedLines = row.getPromotionPricedLineCount();
+      result.ticketsSold = row.getTicketsSoldCount();
+      result.ticketsCancelled = row.getTicketsCancelledCount();
+      result.grossSales = row.getGrossSalesCents();
+      result.stake = row.getStakeTotalCents();
+      result.winnings = row.getWinningsCalculatedCents();
+      result.paid = row.getPayoutsPaidCents();
+      result.commission = row.getSellerCommissionCents();
+      result.buyerCharge = row.getBuyerChargeCents();
+      result.sellerCharge = row.getSellerChargeCents();
+      result.tenantCharge = row.getTenantChargeCents();
+      result.waivedCharge = row.getWaivedChargeCents();
+      result.promotionLines = row.getPromotionLineCount();
+      result.promotionPricedLines = row.getPromotionPricedLineCount();
       return result;
     }
-    static Totals from(AnalyticsDrawEntity row) { var result = new Totals(); result.ticketsSold = row.getTicketsSoldCount(); result.ticketsCancelled = row.getTicketsCancelledCount(); result.grossSales = row.getGrossSalesCents(); result.stake = row.getStakeTotalCents(); result.winnings = row.getWinningsCalculatedCents(); result.paid = row.getPayoutsPaidCents(); result.commission = row.getSellerCommissionCents(); result.buyerCharge = row.getBuyerChargeCents(); result.sellerCharge = row.getSellerChargeCents(); result.tenantCharge = row.getTenantChargeCents(); result.waivedCharge = row.getWaivedChargeCents(); result.promotionLines = row.getPromotionLineCount(); result.promotionPricedLines = row.getPromotionPricedLineCount(); return result; }
-    static Totals from(AnalyticsSellerTerminalDrawEntity row) { var result = new Totals(); result.ticketsSold = row.getTicketsSoldCount(); result.grossSales = row.getGrossSalesCents(); result.stake = row.getStakeTotalCents(); result.winnings = row.getWinningsCalculatedCents(); result.paid = row.getPayoutsPaidCents(); result.commission = row.getSellerCommissionCents(); result.buyerCharge = row.getBuyerChargeCents(); result.sellerCharge = row.getSellerChargeCents(); result.tenantCharge = row.getTenantChargeCents(); result.waivedCharge = row.getWaivedChargeCents(); result.promotionLines = row.getPromotionLineCount(); result.promotionPricedLines = row.getPromotionPricedLineCount(); return result; }
-    static Totals from(AnalyticsSelectionEntity row) { var result = new Totals(); result.ticketsSold = row.getTicketsCount(); result.stake = row.getStakeSumCents(); result.winnings = row.getWinningsCalculatedCents(); return result; }
 
-    void addSale(SalesAnalyticsTicketSnapshot ticket) { ticketsSold++; long amount = cents(ticket.stakeAmount()); grossSales += amount; stake += amount; commission += cents(ticket.sellerCommissionAmount()); addCharges(ticket.charges()); for (var line : ticket.lines()) { if ("PROMOTION".equals(line.origin())) promotionLines++; if ("PROMOTION".equals(line.pricingSource())) promotionPricedLines++; } }
-    void addCancellation() { ticketsSold--; ticketsCancelled++; }
-    void addSettlement(BigDecimal winningAmount, BigDecimal paidAmount) { winnings += cents(winningAmount); paid += cents(paidAmount); }
-    void addPaid(BigDecimal amount) { paid += cents(amount); }
-    void addFinalDraw(SalesAnalyticsTicketSnapshot ticket) { addSale(ticket); winnings += cents(ticket.winningAmount()); paid += cents(ticket.paidAmount()); }
-    void addSelection(SalesAnalyticsTicketLineSnapshot line) { ticketsSold++; stake += cents(line.stakeAmount()); }
-    private void addCharges(List<SalesAnalyticsTicketChargeSnapshot> charges) { for (var charge : charges) { long amount = cents(charge.amount()); if (charge.waived()) { waivedCharge += amount; continue; } switch (charge.paidBy()) { case "BUYER" -> buyerCharge += amount; case "SELLER" -> sellerCharge += amount; case "TENANT" -> tenantCharge += amount; default -> { } } } }
-    AnalyticsMetricSnapshot snapshot() { return new AnalyticsMetricSnapshot(ticketsSold, ticketsCancelled, grossSales, stake, winnings, paid, commission, buyerCharge, sellerCharge, tenantCharge, waivedCharge, promotionLines, promotionPricedLines); }
-    AnalyticsDailyEntity dailyEntity(DailyKey key, UUID tenantId, Instant now) { return AnalyticsDailyEntity.builder().dimensionType(key.dimensionType()).dimensionId(key.sellerTerminalId()).tenantId(tenantId).refDate(key.refDate()).ticketsSoldCount(ticketsSold).ticketsCancelledCount(ticketsCancelled).grossSalesCents(grossSales).stakeTotalCents(stake).winningsCalculatedCents(winnings).payoutsPaidCents(paid).sellerCommissionCents(commission).buyerChargeCents(buyerCharge).sellerChargeCents(sellerCharge).tenantChargeCents(tenantCharge).waivedChargeCents(waivedCharge).promotionLineCount(promotionLines).promotionPricedLineCount(promotionPricedLines).netRevenueEstimatedCents(grossSales - winnings - commission - tenantCharge).netRevenuePaidBasisCents(grossSales - paid - commission - tenantCharge).sessionsOpenedCount(0).sessionsClosedCount(0).createdAt(now).updatedAt(now).build(); }
-    AnalyticsDrawEntity drawEntity(DrawKey key, DrawMetadata metadata, UUID tenantId, Instant now) { return AnalyticsDrawEntity.builder().drawId(key.drawId()).tenantId(tenantId).gameCode(metadata.gameCode()).drawChannelCode(metadata.drawChannelCode()).scheduledAt(metadata.scheduledAt()).refDate(metadata.refDate()).ticketsSoldCount(ticketsSold).ticketsCancelledCount(ticketsCancelled).grossSalesCents(grossSales).stakeTotalCents(stake).winningsCalculatedCents(winnings).payoutsPaidCents(paid).sellerCommissionCents(commission).buyerChargeCents(buyerCharge).sellerChargeCents(sellerCharge).tenantChargeCents(tenantCharge).waivedChargeCents(waivedCharge).promotionLineCount(promotionLines).promotionPricedLineCount(promotionPricedLines).netRevenueEstimatedCents(grossSales - winnings - commission - tenantCharge).netRevenuePaidBasisCents(grossSales - paid - commission - tenantCharge).createdAt(now).updatedAt(now).build(); }
-    AnalyticsSellerTerminalDrawEntity sellerTerminalDrawEntity(SellerTerminalDrawKey key, DrawMetadata metadata, UUID tenantId, Instant now) { return AnalyticsSellerTerminalDrawEntity.builder().tenantId(tenantId).sellerTerminalId(key.sellerTerminalId()).drawId(key.drawId()).refDate(metadata.refDate()).scheduledAt(metadata.scheduledAt()).gameCode(metadata.gameCode()).drawChannelCode(metadata.drawChannelCode()).ticketsSoldCount(ticketsSold).grossSalesCents(grossSales).stakeTotalCents(stake).winningsCalculatedCents(winnings).payoutsPaidCents(paid).sellerCommissionCents(commission).buyerChargeCents(buyerCharge).sellerChargeCents(sellerCharge).tenantChargeCents(tenantCharge).waivedChargeCents(waivedCharge).promotionLineCount(promotionLines).promotionPricedLineCount(promotionPricedLines).netRevenueEstimatedCents(grossSales - winnings - commission - tenantCharge).netRevenuePaidBasisCents(grossSales - paid - commission - tenantCharge).createdAt(now).updatedAt(now).build(); }
-    AnalyticsSelectionEntity selectionEntity(SelectionKey key, UUID tenantId, Instant now) { return AnalyticsSelectionEntity.builder().tenantId(tenantId).refDate(key.refDate()).drawChannelId(key.drawChannelId()).gameCode(key.gameCode()).betType(key.betType()).betOption(key.betOption()).selectionKey(key.selectionKey()).ticketsCount(ticketsSold).stakeSumCents(stake).winningsCalculatedCents(winnings).createdAt(now).updatedAt(now).build(); }
-    @Override public boolean equals(Object other) { return other instanceof Totals totals && snapshot().equals(totals.snapshot()); }
-    @Override public int hashCode() { return snapshot().hashCode(); }
+    static Totals from(AnalyticsDrawEntity row) {
+      var result = new Totals();
+      result.ticketsSold = row.getTicketsSoldCount();
+      result.ticketsCancelled = row.getTicketsCancelledCount();
+      result.grossSales = row.getGrossSalesCents();
+      result.stake = row.getStakeTotalCents();
+      result.winnings = row.getWinningsCalculatedCents();
+      result.paid = row.getPayoutsPaidCents();
+      result.commission = row.getSellerCommissionCents();
+      result.buyerCharge = row.getBuyerChargeCents();
+      result.sellerCharge = row.getSellerChargeCents();
+      result.tenantCharge = row.getTenantChargeCents();
+      result.waivedCharge = row.getWaivedChargeCents();
+      result.promotionLines = row.getPromotionLineCount();
+      result.promotionPricedLines = row.getPromotionPricedLineCount();
+      return result;
+    }
+
+    static Totals from(AnalyticsSellerTerminalDrawEntity row) {
+      var result = new Totals();
+      result.ticketsSold = row.getTicketsSoldCount();
+      result.grossSales = row.getGrossSalesCents();
+      result.stake = row.getStakeTotalCents();
+      result.winnings = row.getWinningsCalculatedCents();
+      result.paid = row.getPayoutsPaidCents();
+      result.commission = row.getSellerCommissionCents();
+      result.buyerCharge = row.getBuyerChargeCents();
+      result.sellerCharge = row.getSellerChargeCents();
+      result.tenantCharge = row.getTenantChargeCents();
+      result.waivedCharge = row.getWaivedChargeCents();
+      result.promotionLines = row.getPromotionLineCount();
+      result.promotionPricedLines = row.getPromotionPricedLineCount();
+      return result;
+    }
+
+    static Totals from(AnalyticsSelectionEntity row) {
+      var result = new Totals();
+      result.ticketsSold = row.getTicketsCount();
+      result.stake = row.getStakeSumCents();
+      result.winnings = row.getWinningsCalculatedCents();
+      return result;
+    }
+
+    void addSale(SalesAnalyticsTicketSnapshot ticket) {
+      ticketsSold++;
+      long amount = cents(ticket.stakeAmount());
+      grossSales += amount;
+      stake += amount;
+      commission += cents(ticket.sellerCommissionAmount());
+      addCharges(ticket.charges());
+      for (var line : ticket.lines()) {
+        if ("PROMOTION".equals(line.origin())) promotionLines++;
+        if ("PROMOTION".equals(line.pricingSource())) promotionPricedLines++;
+      }
+    }
+
+    void addCancellation() {
+      ticketsSold--;
+      ticketsCancelled++;
+    }
+
+    void addSettlement(BigDecimal winningAmount, BigDecimal paidAmount) {
+      winnings += cents(winningAmount);
+      paid += cents(paidAmount);
+    }
+
+    void addPaid(BigDecimal amount) {
+      paid += cents(amount);
+    }
+
+    void addFinalDraw(SalesAnalyticsTicketSnapshot ticket) {
+      addSale(ticket);
+      winnings += cents(ticket.winningAmount());
+      paid += cents(ticket.paidAmount());
+    }
+
+    void addSelection(SalesAnalyticsTicketLineSnapshot line) {
+      ticketsSold++;
+      stake += cents(line.stakeAmount());
+    }
+
+    private void addCharges(List<SalesAnalyticsTicketChargeSnapshot> charges) {
+      for (var charge : charges) {
+        long amount = cents(charge.amount());
+        if (charge.waived()) {
+          waivedCharge += amount;
+          continue;
+        }
+        switch (charge.paidBy()) {
+          case "BUYER" -> buyerCharge += amount;
+          case "SELLER" -> sellerCharge += amount;
+          case "TENANT" -> tenantCharge += amount;
+          default -> {}
+        }
+      }
+    }
+
+    AnalyticsMetricSnapshot snapshot() {
+      return new AnalyticsMetricSnapshot(
+          ticketsSold,
+          ticketsCancelled,
+          grossSales,
+          stake,
+          winnings,
+          paid,
+          commission,
+          buyerCharge,
+          sellerCharge,
+          tenantCharge,
+          waivedCharge,
+          promotionLines,
+          promotionPricedLines);
+    }
+
+    AnalyticsDailyEntity dailyEntity(DailyKey key, UUID tenantId, Instant now) {
+      return AnalyticsDailyEntity.builder()
+          .dimensionType(key.dimensionType())
+          .dimensionId(key.sellerTerminalId())
+          .tenantId(tenantId)
+          .refDate(key.refDate())
+          .ticketsSoldCount(ticketsSold)
+          .ticketsCancelledCount(ticketsCancelled)
+          .grossSalesCents(grossSales)
+          .stakeTotalCents(stake)
+          .winningsCalculatedCents(winnings)
+          .payoutsPaidCents(paid)
+          .sellerCommissionCents(commission)
+          .buyerChargeCents(buyerCharge)
+          .sellerChargeCents(sellerCharge)
+          .tenantChargeCents(tenantCharge)
+          .waivedChargeCents(waivedCharge)
+          .promotionLineCount(promotionLines)
+          .promotionPricedLineCount(promotionPricedLines)
+          .netRevenueEstimatedCents(grossSales - winnings - commission - tenantCharge)
+          .netRevenuePaidBasisCents(grossSales - paid - commission - tenantCharge)
+          .sessionsOpenedCount(0)
+          .sessionsClosedCount(0)
+          .createdAt(now)
+          .updatedAt(now)
+          .build();
+    }
+
+    AnalyticsDrawEntity drawEntity(DrawKey key, DrawMetadata metadata, UUID tenantId, Instant now) {
+      return AnalyticsDrawEntity.builder()
+          .drawId(key.drawId())
+          .tenantId(tenantId)
+          .gameCode(metadata.gameCode())
+          .drawChannelCode(metadata.drawChannelCode())
+          .scheduledAt(metadata.scheduledAt())
+          .refDate(metadata.refDate())
+          .ticketsSoldCount(ticketsSold)
+          .ticketsCancelledCount(ticketsCancelled)
+          .grossSalesCents(grossSales)
+          .stakeTotalCents(stake)
+          .winningsCalculatedCents(winnings)
+          .payoutsPaidCents(paid)
+          .sellerCommissionCents(commission)
+          .buyerChargeCents(buyerCharge)
+          .sellerChargeCents(sellerCharge)
+          .tenantChargeCents(tenantCharge)
+          .waivedChargeCents(waivedCharge)
+          .promotionLineCount(promotionLines)
+          .promotionPricedLineCount(promotionPricedLines)
+          .netRevenueEstimatedCents(grossSales - winnings - commission - tenantCharge)
+          .netRevenuePaidBasisCents(grossSales - paid - commission - tenantCharge)
+          .createdAt(now)
+          .updatedAt(now)
+          .build();
+    }
+
+    AnalyticsSellerTerminalDrawEntity sellerTerminalDrawEntity(
+        SellerTerminalDrawKey key, DrawMetadata metadata, UUID tenantId, Instant now) {
+      return AnalyticsSellerTerminalDrawEntity.builder()
+          .tenantId(tenantId)
+          .sellerTerminalId(key.sellerTerminalId())
+          .drawId(key.drawId())
+          .refDate(metadata.refDate())
+          .scheduledAt(metadata.scheduledAt())
+          .gameCode(metadata.gameCode())
+          .drawChannelCode(metadata.drawChannelCode())
+          .ticketsSoldCount(ticketsSold)
+          .grossSalesCents(grossSales)
+          .stakeTotalCents(stake)
+          .winningsCalculatedCents(winnings)
+          .payoutsPaidCents(paid)
+          .sellerCommissionCents(commission)
+          .buyerChargeCents(buyerCharge)
+          .sellerChargeCents(sellerCharge)
+          .tenantChargeCents(tenantCharge)
+          .waivedChargeCents(waivedCharge)
+          .promotionLineCount(promotionLines)
+          .promotionPricedLineCount(promotionPricedLines)
+          .netRevenueEstimatedCents(grossSales - winnings - commission - tenantCharge)
+          .netRevenuePaidBasisCents(grossSales - paid - commission - tenantCharge)
+          .createdAt(now)
+          .updatedAt(now)
+          .build();
+    }
+
+    AnalyticsSelectionEntity selectionEntity(SelectionKey key, UUID tenantId, Instant now) {
+      return AnalyticsSelectionEntity.builder()
+          .tenantId(tenantId)
+          .refDate(key.refDate())
+          .drawChannelId(key.drawChannelId())
+          .gameCode(key.gameCode())
+          .betType(key.betType())
+          .betOption(key.betOption())
+          .selectionKey(key.selectionKey())
+          .ticketsCount(ticketsSold)
+          .stakeSumCents(stake)
+          .winningsCalculatedCents(winnings)
+          .createdAt(now)
+          .updatedAt(now)
+          .build();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+      return other instanceof Totals totals && snapshot().equals(totals.snapshot());
+    }
+
+    @Override
+    public int hashCode() {
+      return snapshot().hashCode();
+    }
   }
 
-  private static boolean inScope(LocalDate date, LocalDate from, LocalDate to) { return date != null && !date.isBefore(from) && !date.isAfter(to); }
-  private static LocalDate date(Instant instant, ZoneId zone) { return instant == null ? null : LocalDate.ofInstant(instant, zone); }
-  private static BigDecimal delta(BigDecimal paid, BigDecimal winning) { return value(paid).subtract(value(winning)); }
-  private static long cents(BigDecimal value) { return value == null ? 0L : value.movePointRight(2).longValue(); }
-  private static BigDecimal value(BigDecimal value) { return value == null ? BigDecimal.ZERO : value; }
+  private static boolean inScope(LocalDate date, LocalDate from, LocalDate to) {
+    return date != null && !date.isBefore(from) && !date.isAfter(to);
+  }
+
+  private static LocalDate date(Instant instant, ZoneId zone) {
+    return instant == null ? null : LocalDate.ofInstant(instant, zone);
+  }
+
+  private static BigDecimal delta(BigDecimal paid, BigDecimal winning) {
+    return value(paid).subtract(value(winning));
+  }
+
+  private static long cents(BigDecimal value) {
+    return value == null ? 0L : value.movePointRight(2).longValue();
+  }
+
+  private static BigDecimal value(BigDecimal value) {
+    return value == null ? BigDecimal.ZERO : value;
+  }
 }

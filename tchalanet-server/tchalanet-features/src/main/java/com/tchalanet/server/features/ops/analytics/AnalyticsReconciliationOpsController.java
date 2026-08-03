@@ -31,7 +31,9 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/** Restricted operational repair surface. Tenant admins and cashiers never receive this endpoint. */
+/**
+ * Restricted operational repair surface. Tenant admins and cashiers never receive this endpoint.
+ */
 @RestController
 @RequestMapping("/platform/ops/analytics/reconciliation")
 @RequiredArgsConstructor

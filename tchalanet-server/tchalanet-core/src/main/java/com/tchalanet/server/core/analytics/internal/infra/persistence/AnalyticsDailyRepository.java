@@ -123,9 +123,7 @@ public interface AnalyticsDailyRepository
          AND a.refDate BETWEEN :from AND :to
       """)
   int deleteTenantProjectionRows(
-      @Param("tenantId") UUID tenantId,
-      @Param("from") LocalDate from,
-      @Param("to") LocalDate to);
+      @Param("tenantId") UUID tenantId, @Param("from") LocalDate from, @Param("to") LocalDate to);
 
   /** Delete rows older than retention cutoff for purge. */
   @Transactional

@@ -19,6 +19,7 @@ public record GetSalesAnalyticsTicketSnapshotsQuery(
       throw new IllegalArgumentException("fromDate/toDate must not be null");
     }
     if (!from.isBefore(to)) throw new IllegalArgumentException("from must be before to");
-    if (fromDate.isAfter(toDate)) throw new IllegalArgumentException("fromDate must not be after toDate");
+    if (fromDate.isAfter(toDate))
+      throw new IllegalArgumentException("fromDate must not be after toDate");
   }
 }
