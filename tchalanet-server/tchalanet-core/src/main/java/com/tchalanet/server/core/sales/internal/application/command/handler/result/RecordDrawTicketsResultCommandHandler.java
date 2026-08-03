@@ -100,6 +100,7 @@ public class RecordDrawTicketsResultCommandHandler
 
         var resultStatus = saved.lifecycle().result().status();
         var winningAmount = saved.winningAmount().amount();
+        var paidAmount = saved.paidAmount().amount();
 
         resultedEvents.add(
             new TicketResultedEvent(
@@ -123,7 +124,7 @@ public class RecordDrawTicketsResultCommandHandler
                   saved.identity().tenantId(),
                   saved.identity().id(),
                   command.drawId(),
-                  winningAmount.movePointRight(2).longValueExact(),
+                  paidAmount.movePointRight(2).longValueExact(),
                   saved.money().currency().code(),
                   saved.context().sellerTerminalId(),
                   SYSTEM_ACTOR));

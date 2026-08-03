@@ -6,7 +6,7 @@ import com.tchalanet.server.core.sales.api.model.analytics.SalesAnalyticsTicketS
 import java.time.Instant;
 import java.util.List;
 
-/** Reads sale-time ticket snapshots for a tenant-local analytics date window. */
+/** Reads ticket snapshots with analytics lifecycle activity in a tenant-local date window. */
 public record GetSalesAnalyticsTicketSnapshotsQuery(TenantId tenantId, Instant from, Instant to)
     implements Query<List<SalesAnalyticsTicketSnapshot>> {
 

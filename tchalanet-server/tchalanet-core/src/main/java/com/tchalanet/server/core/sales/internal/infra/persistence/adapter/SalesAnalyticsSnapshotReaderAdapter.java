@@ -3,6 +3,7 @@ package com.tchalanet.server.core.sales.internal.infra.persistence.adapter;
 import com.tchalanet.server.core.sales.api.model.analytics.SalesAnalyticsTicketChargeSnapshot;
 import com.tchalanet.server.core.sales.api.model.analytics.SalesAnalyticsTicketLineSnapshot;
 import com.tchalanet.server.core.sales.api.model.analytics.SalesAnalyticsTicketSnapshot;
+import com.tchalanet.server.core.sales.api.model.status.TicketSaleStatus;
 import com.tchalanet.server.core.sales.api.query.GetSalesAnalyticsTicketSnapshotsQuery;
 import com.tchalanet.server.core.sales.internal.application.port.out.SalesAnalyticsSnapshotReaderPort;
 import com.tchalanet.server.core.sales.internal.infra.persistence.entity.TicketChargeJpaEntity;
@@ -30,8 +31,12 @@ class SalesAnalyticsSnapshotReaderAdapter implements SalesAnalyticsSnapshotReade
       GetSalesAnalyticsTicketSnapshotsQuery query) {
     var tickets =
         ticketRepository
-            .findForAnalyticsByTenantAndSoldAtRange(
-                query.tenantId().value(), query.from(), query.to())
+            .findForAnalyticsActivityByTenantAndPeriod(
+                query.tenantId().value(),
+                null,
+                TicketSaleStatus.APPROVED,
+                query.from(),
+                query.to())
             .stream()
             .toList();
     if (tickets.isEmpty()) {
@@ -62,8 +67,17 @@ class SalesAnalyticsSnapshotReaderAdapter implements SalesAnalyticsSnapshotReade
         ticket.getSoldAt(),
         ticket.getDrawScheduledAt(),
         ticket.getSaleStatus().name(),
+        ticket.getCancelledAt(),
+        ticket.getVoidedAt(),
+        ticket.getResultStatus().name(),
+        ticket.getResultedAt(),
         ticket.getSettlementStatus().name(),
+        ticket.getSettledAt(),
         ticket.getPaidAt(),
+        ticket.getPaidAmount(),
+        ticket.getPaidAmountAdjustedAt(),
+        ticket.getPaidAmountAdjustedBy(),
+        ticket.getPaidAmountAdjustmentReason(),
         ticket.getStakeAmount(),
         ticket.getWinningAmount(),
         ticket.getSellerCommissionAmountSnapshot(),

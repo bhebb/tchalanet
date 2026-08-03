@@ -117,6 +117,7 @@ class RecordDrawTicketsResultCommandHandlerTest {
     assertThat(saved.lifecycle().result().status()).isEqualTo(TicketResultStatus.WON);
     assertThat(saved.lifecycle().settlement().status()).isEqualTo(TicketSettlementStatus.PAID);
     assertThat(saved.winningAmount().amount()).isEqualByComparingTo("125.00");
+    assertThat(saved.paidAmount().amount()).isEqualByComparingTo("125.00");
     assertThat(saved.lines().getFirst().payoutAmount().amount()).isEqualByComparingTo("125.00");
 
     assertThat(publisher.events()).filteredOn(TicketResultedEvent.class::isInstance).hasSize(1);

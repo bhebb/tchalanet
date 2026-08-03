@@ -67,6 +67,7 @@ public interface TicketJpaRepository extends TchJpaRepository<TicketJpaEntity, U
               OR (t.resultedAt >= :from AND t.resultedAt < :to)
               OR (t.settledAt >= :from AND t.settledAt < :to)
               OR (t.paidAt >= :from AND t.paidAt < :to)
+              OR (t.paidAmountAdjustedAt >= :from AND t.paidAmountAdjustedAt < :to)
          )
       """)
   List<TicketJpaEntity> findForAnalyticsActivityByTenantAndPeriod(

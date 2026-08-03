@@ -235,7 +235,19 @@ public interface TicketJpaMapper {
   }
 
   default PaymentTrace toPaymentTrace(TicketJpaEntity entity) {
-    return null;
+    if (entity.getPaidAt() == null || entity.getPaidBy() == null) {
+      return null;
+    }
+    var currency = CurrencyCode.of(entity.getCurrency());
+    return new PaymentTrace(
+        entity.getPaidAt(),
+        UserId.of(entity.getPaidBy()),
+        new Money(
+            entity.getPaidAmount() == null ? java.math.BigDecimal.ZERO : entity.getPaidAmount(),
+            currency),
+        entity.getPaidAmountAdjustedAt(),
+        nullableUserId(entity.getPaidAmountAdjustedBy()),
+        entity.getPaidAmountAdjustmentReason());
   }
 
   default ApprovalTrace toApprovalTrace(TicketJpaEntity entity) {
@@ -437,11 +449,19 @@ public interface TicketJpaMapper {
     if (settlement.payment() == null) {
       entity.setPaidAt(null);
       entity.setPaidBy(null);
+      entity.setPaidAmount(java.math.BigDecimal.ZERO);
+      entity.setPaidAmountAdjustedAt(null);
+      entity.setPaidAmountAdjustedBy(null);
+      entity.setPaidAmountAdjustmentReason(null);
       return;
     }
 
     entity.setPaidAt(settlement.payment().paidAt());
     entity.setPaidBy(value(settlement.payment().paidBy()));
+    entity.setPaidAmount(settlement.payment().paidAmount().amount());
+    entity.setPaidAmountAdjustedAt(settlement.payment().adjustedAt());
+    entity.setPaidAmountAdjustedBy(value(settlement.payment().adjustedBy()));
+    entity.setPaidAmountAdjustmentReason(settlement.payment().adjustmentReason());
   }
 
   default void applyOrigin(TicketOrigin origin, @MappingTarget TicketJpaEntity entity) {

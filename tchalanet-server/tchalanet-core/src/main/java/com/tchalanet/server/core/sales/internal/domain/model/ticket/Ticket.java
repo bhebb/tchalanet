@@ -19,6 +19,7 @@ import com.tchalanet.server.core.sales.api.model.status.TicketLineResultStatus;
 import com.tchalanet.server.core.sales.api.model.status.TicketResultStatus;
 import com.tchalanet.server.core.sales.api.model.status.TicketSaleStatus;
 import com.tchalanet.server.core.sales.api.model.status.TicketSettlementStatus;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -64,6 +65,8 @@ public record Ticket(
             "Line " + line.id() + " currency does not match ticket currency");
       }
     }
+
+    verifyResultAndPaymentAmounts(lifecycle, lines);
 
     lines = List.copyOf(lines);
   }
@@ -294,7 +297,10 @@ public record Ticket(
     SettlementLifecycle newSettlement =
         lifecycle.result().winningAmount().isZero()
             ? lifecycle.settlement().settledWithoutPayout(settledBy, now)
-            : lifecycle.settlement().settledPendingPayout(settledBy, now).paid(settledBy, now);
+            : lifecycle
+                .settlement()
+                .settledPendingPayout(settledBy, now)
+                .paid(settledBy, now, lifecycle.result().winningAmount());
     return withSettlement(newSettlement).touchedBy(settledBy, now);
   }
 
@@ -303,7 +309,22 @@ public record Ticket(
       throw new IllegalStateException(
           "Ticket " + identity.id() + " is not in PAYOUT_PENDING state, cannot mark paid");
     }
-    return withSettlement(lifecycle.settlement().paid(paidBy, paidAt)).touchedBy(paidBy, paidAt);
+    return withSettlement(
+            lifecycle.settlement().paid(paidBy, paidAt, lifecycle.result().winningAmount()))
+        .touchedBy(paidBy, paidAt);
+  }
+
+  /**
+   * Corrects the effective amount retained for a settled ticket without changing calculated line
+   * outcomes or the aggregate winning amount.
+   */
+  public Ticket adjustPaidAmount(
+      Money amount, UserId adjustedBy, String reason, Instant adjustedAt) {
+    if (!money.currency().equals(amount.currency())) {
+      throw new IllegalArgumentException("Paid amount currency must match ticket currency");
+    }
+    return withSettlement(lifecycle.settlement().adjusted(amount, adjustedBy, adjustedAt, reason))
+        .touchedBy(adjustedBy, adjustedAt);
   }
 
   public Ticket markPayoutReversed(UserId reversedBy, Instant reversedAt) {
@@ -348,6 +369,15 @@ public record Ticket(
     return lifecycle.result().winningAmount();
   }
 
+  /**
+   * Effective paid amount. It differs from the calculated winning amount only after an audit-backed
+   * correction.
+   */
+  public Money paidAmount() {
+    var payment = lifecycle.settlement().payment();
+    return payment == null ? Money.zero(money.currency()) : payment.paidAmount();
+  }
+
   public Optional<ApprovalRequestId> approvalRequestId() {
     return Optional.ofNullable(lifecycle.sale().approval()).map(ApprovalTrace::requestId);
   }
@@ -365,6 +395,31 @@ public record Ticket(
               + expected
               + " but was "
               + lifecycle.sale().status());
+    }
+  }
+
+  private static void verifyResultAndPaymentAmounts(TicketLifecycle lifecycle, List<TicketLine> lines) {
+    if (lifecycle.result().status() == TicketResultStatus.NOT_RESULTED) {
+      return;
+    }
+
+    var calculatedFromLines =
+        lines.stream()
+            .map(line -> line.payoutAmount().amount())
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+    var winningAmount = lifecycle.result().winningAmount().amount();
+    if (calculatedFromLines.compareTo(winningAmount) != 0) {
+      throw new IllegalArgumentException(
+          "Ticket winning amount must equal the sum of calculated ticket-line payouts");
+    }
+
+    var payment = lifecycle.settlement().payment();
+    if (lifecycle.settlement().status() == TicketSettlementStatus.PAID
+        && payment != null
+        && payment.adjustedAt() == null
+        && payment.paidAmount().amount().compareTo(winningAmount) != 0) {
+      throw new IllegalArgumentException(
+          "Unadjusted paid amount must equal the calculated ticket winning amount");
     }
   }
 

@@ -7,10 +7,12 @@ import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.IdGenerator;
+import com.tchalanet.server.common.types.money.Money;
 import com.tchalanet.server.core.sales.api.command.payout.AdjustTicketPayoutPaidAmountCommand;
 import com.tchalanet.server.core.sales.api.command.payout.AdjustTicketPayoutPaidAmountResult;
 import com.tchalanet.server.core.sales.api.event.TicketPayoutPaidAmountAdjustedEvent;
 import com.tchalanet.server.core.sales.internal.application.port.out.TicketReaderPort;
+import com.tchalanet.server.core.sales.internal.application.port.out.TicketWriterPort;
 import java.math.BigDecimal;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,7 @@ public class AdjustTicketPayoutPaidAmountCommandHandler
         AdjustTicketPayoutPaidAmountCommand, AdjustTicketPayoutPaidAmountResult> {
 
   private final TicketReaderPort ticketReader;
+  private final TicketWriterPort ticketWriter;
   private final DomainEventPublisher eventPublisher;
   private final IdGenerator idGenerator;
 
@@ -29,7 +32,8 @@ public class AdjustTicketPayoutPaidAmountCommandHandler
   @TchTx
   public AdjustTicketPayoutPaidAmountResult handle(AdjustTicketPayoutPaidAmountCommand command) {
     Objects.requireNonNull(command, "command is required");
-    if (command.previousPaidAmount().signum() < 0 || command.adjustedPaidAmount().signum() < 0) {
+    Objects.requireNonNull(command.adjustedPaidAmount(), "adjusted paid amount is required");
+    if (command.adjustedPaidAmount().signum() < 0) {
       throw new IllegalArgumentException("payout.adjustment.amount_must_be_non_negative");
     }
 
@@ -37,18 +41,20 @@ public class AdjustTicketPayoutPaidAmountCommandHandler
     if (!ticket.identity().tenantId().equals(command.tenantId())) {
       throw new IllegalArgumentException("Ticket does not belong to tenant " + command.tenantId());
     }
-    if (command.previousPaidAmount().signum() <= 0) {
-      throw new IllegalArgumentException("payout.adjustment.previous_amount_must_be_positive");
-    }
-
-    long previousPaidAmountCents = toCents(command.previousPaidAmount());
+    long previousPaidAmountCents = toCents(ticket.paidAmount().amount());
     long adjustedPaidAmountCents = toCents(command.adjustedPaidAmount());
     long deltaAmountCents = adjustedPaidAmountCents - previousPaidAmountCents;
     var calculatedAmount = ticket.winningAmount().amount();
     long calculatedAmountCents =
-        calculatedAmount != null && calculatedAmount.signum() > 0
-            ? toCents(calculatedAmount)
-            : previousPaidAmountCents;
+        calculatedAmount != null ? toCents(calculatedAmount) : previousPaidAmountCents;
+
+    var adjusted =
+        ticket.adjustPaidAmount(
+            new Money(command.adjustedPaidAmount(), ticket.money().currency()),
+            command.adjustedBy(),
+            command.reason(),
+            command.adjustedAt());
+    ticketWriter.save(adjusted);
 
     var event =
         new TicketPayoutPaidAmountAdjustedEvent(

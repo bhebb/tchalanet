@@ -12,7 +12,6 @@ import java.time.Instant;
 public record AdjustTicketPayoutPaidAmountCommand(
     @NotNull TenantId tenantId,
     @NotNull TicketId ticketId,
-    @NotNull BigDecimal previousPaidAmount,
     @NotNull BigDecimal adjustedPaidAmount,
     @NotBlank String reason,
     @NotNull UserId adjustedBy,

@@ -171,10 +171,7 @@ public class TicketLifecycleController {
       action = AuditAction.UPDATE,
       entity = AuditEntityType.PAYOUT,
       idExpression = "#ticketId",
-      detailsExpression =
-          "{ 'previousPaidAmount': #request.previousPaidAmount(),"
-              + " 'paidAmount': #request.paidAmount(),"
-              + " 'reason': #request.reason() }")
+      detailsExpression = "{ 'paidAmount': #request.paidAmount(), 'reason': #request.reason() }")
   @ResponseStatus(HttpStatus.OK)
   public ApiResponse<AdjustTicketPayoutPaidAmountResponse> adjustPayoutPaidAmount(
       @CurrentContext TchRequestContext ctx,
@@ -185,7 +182,6 @@ public class TicketLifecycleController {
             new AdjustTicketPayoutPaidAmountCommand(
                 ctx.tenantId(),
                 ticketId,
-                request.previousPaidAmount(),
                 request.paidAmount(),
                 request.reason(),
                 ctx.userId(),

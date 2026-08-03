@@ -38,7 +38,7 @@ public class MarkTicketPayoutPaidCommandHandler
 
     var paid = ticket.markPaid(command.paidBy(), command.paidAt());
     var saved = ticketWriter.save(paid);
-    var amount = saved.winningAmount().amount();
+    var amount = saved.paidAmount().amount();
 
     var event =
         new TicketPayoutPaidEvent(
