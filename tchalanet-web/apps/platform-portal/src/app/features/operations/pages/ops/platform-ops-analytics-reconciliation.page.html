@@ -1,0 +1,156 @@
+<tch-admin-page-shell
+  [title]="'platform.analyticsReconciliation.title' | translate"
+  [description]="'platform.analyticsReconciliation.description' | translate"
+>
+  @if (result()) {
+    <button actions mat-stroked-button type="button" (click)="validate()" [disabled]="validateMutation.pending()">
+      <mat-icon>refresh</mat-icon>
+      {{ 'common.refresh' | translate }}
+    </button>
+  }
+
+  @if (actionFeedback(); as feedback) {
+    <tch-section-error
+      feedback
+      class="analytics-reconciliation__feedback"
+      [title]="feedback.title"
+      [message]="feedback.message"
+      [severity]="feedback.severity"
+    />
+  }
+
+  <div class="analytics-reconciliation">
+    <section class="analytics-reconciliation__main">
+      <tch-admin-section-card [title]="'platform.analyticsReconciliation.section.target' | translate" icon="tune">
+        <div class="analytics-reconciliation__target">
+          <tch-search-select
+            data-testid="analytics-reconciliation-tenant"
+            [label]="'platform.analyticsReconciliation.field.tenant' | translate"
+            [placeholder]="'platform.analyticsReconciliation.placeholder.tenant' | translate"
+            [emptyLabel]="'platform.analyticsReconciliation.empty.tenant' | translate"
+            icon="apartment"
+            [searchFn]="searchTenants"
+            (valueChange)="selectTenant($event)"
+          />
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'platform.analyticsReconciliation.field.from' | translate }}</mat-label>
+            <input matInput type="date" [formControl]="fromControl" (change)="onScopeChange()" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'platform.analyticsReconciliation.field.to' | translate }}</mat-label>
+            <input matInput type="date" [formControl]="toControl" (change)="onScopeChange()" />
+          </mat-form-field>
+        </div>
+        <p class="analytics-reconciliation__hint">
+          {{ 'platform.analyticsReconciliation.hint.window' | translate:{ days: 90 } }}
+        </p>
+        @if (scopeError(); as message) {
+          <tch-section-error [title]="'platform.analyticsReconciliation.validation.title' | translate" [message]="message" severity="warn" />
+        }
+        <button
+          mat-flat-button
+          color="primary"
+          type="button"
+          data-testid="analytics-reconciliation-validate"
+          (click)="validate()"
+          [disabled]="validateMutation.pending() || rebuildMutation.pending()"
+        >
+          <mat-icon>fact_check</mat-icon>
+          {{ 'platform.analyticsReconciliation.action.validate' | translate }}
+        </button>
+      </tch-admin-section-card>
+
+      @if (result(); as reconciliation) {
+        <tch-admin-section-card [title]="'platform.analyticsReconciliation.section.result' | translate" icon="analytics">
+          <div class="analytics-reconciliation__result-summary">
+            <div>
+              <span>{{ 'platform.analyticsReconciliation.field.status' | translate }}</span>
+              <strong [class.analytics-reconciliation__status--mismatch]="reconciliation.status === 'MISMATCH'">
+                {{ statusKey(reconciliation.status) | translate }}
+              </strong>
+            </div>
+            <div>
+              <span>{{ 'platform.analyticsReconciliation.field.period' | translate }}</span>
+              <strong>{{ reconciliation.from }} - {{ reconciliation.to }}</strong>
+            </div>
+            <div>
+              <span>{{ 'platform.analyticsReconciliation.field.mismatchCount' | translate }}</span>
+              <strong>{{ reconciliation.mismatches.length }}</strong>
+            </div>
+            <div>
+              <span>{{ 'platform.analyticsReconciliation.field.runId' | translate }}</span>
+              <strong class="analytics-reconciliation__run-id">{{ reconciliation.runId }}</strong>
+            </div>
+          </div>
+
+          @if (reconciliation.mismatches.length === 0) {
+            <p class="analytics-reconciliation__success" data-testid="analytics-reconciliation-success">
+              <mat-icon>check_circle</mat-icon>
+              {{ 'platform.analyticsReconciliation.success.noMismatch' | translate }}
+            </p>
+          } @else {
+            <div class="analytics-reconciliation__mismatches" data-testid="analytics-reconciliation-mismatches">
+              @for (mismatch of reconciliation.mismatches; track trackMismatch($index, mismatch)) {
+                <article class="analytics-reconciliation__mismatch">
+                  <header>
+                    <strong>{{ mismatch.projection }}</strong>
+                    <span>{{ mismatch.businessDate ?? '—' }}</span>
+                  </header>
+                  @if (mismatch.drawId || mismatch.sellerTerminalId) {
+                    <p class="analytics-reconciliation__identifiers">
+                      @if (mismatch.drawId) {
+                        <span>{{ 'platform.analyticsReconciliation.field.drawId' | translate }}: {{ mismatch.drawId }}</span>
+                      }
+                      @if (mismatch.sellerTerminalId) {
+                        <span>{{ 'platform.analyticsReconciliation.field.sellerTerminalId' | translate }}: {{ mismatch.sellerTerminalId }}</span>
+                      }
+                    </p>
+                  }
+                  <div class="analytics-reconciliation__comparison">
+                    <div>
+                      <span>{{ 'platform.analyticsReconciliation.metric.grossSales' | translate }}</span>
+                      <strong>{{ 'platform.analyticsReconciliation.metric.expected' | translate }}: {{ formatAmount(mismatch.expected.grossSalesMinor) }}</strong>
+                      <small>{{ 'platform.analyticsReconciliation.metric.observed' | translate }}: {{ formatAmount(mismatch.observed.grossSalesMinor) }}</small>
+                    </div>
+                    <div>
+                      <span>{{ 'platform.analyticsReconciliation.metric.payoutsPaid' | translate }}</span>
+                      <strong>{{ 'platform.analyticsReconciliation.metric.expected' | translate }}: {{ formatAmount(mismatch.expected.payoutsPaidMinor) }}</strong>
+                      <small>{{ 'platform.analyticsReconciliation.metric.observed' | translate }}: {{ formatAmount(mismatch.observed.payoutsPaidMinor) }}</small>
+                    </div>
+                    <div>
+                      <span>{{ 'platform.analyticsReconciliation.metric.commission' | translate }}</span>
+                      <strong>{{ 'platform.analyticsReconciliation.metric.expected' | translate }}: {{ formatAmount(mismatch.expected.sellerCommissionMinor) }}</strong>
+                      <small>{{ 'platform.analyticsReconciliation.metric.observed' | translate }}: {{ formatAmount(mismatch.observed.sellerCommissionMinor) }}</small>
+                    </div>
+                    <div>
+                      <span>{{ 'platform.analyticsReconciliation.metric.tickets' | translate }}</span>
+                      <strong>{{ 'platform.analyticsReconciliation.metric.expected' | translate }}: {{ mismatch.expected.ticketsSold }}</strong>
+                      <small>{{ 'platform.analyticsReconciliation.metric.observed' | translate }}: {{ mismatch.observed.ticketsSold }}</small>
+                    </div>
+                  </div>
+                </article>
+              }
+            </div>
+          }
+        </tch-admin-section-card>
+      }
+    </section>
+
+    <aside class="analytics-reconciliation__aside">
+      <tch-admin-section-card [title]="'platform.analyticsReconciliation.section.repair' | translate" icon="build">
+        <p>{{ 'platform.analyticsReconciliation.repair.description' | translate }}</p>
+        <button
+          mat-flat-button
+          color="warn"
+          type="button"
+          data-testid="analytics-reconciliation-rebuild"
+          (click)="openRebuild()"
+          [disabled]="!canRebuild()"
+        >
+          <mat-icon>settings_backup_restore</mat-icon>
+          {{ 'platform.analyticsReconciliation.action.rebuild' | translate }}
+        </button>
+      </tch-admin-section-card>
+    </aside>
+  </div>
+</tch-admin-page-shell>

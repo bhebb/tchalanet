@@ -45,7 +45,8 @@
 - [~] Add explicit `REBUILD_AND_VALIDATE` repair for a selected tenant scope. It must rebuild from
       source snapshots, re-run validation, and return `SUCCESS` only on an exact post-rebuild
       match. Never use the existing destructive cleanup stub as a repair. The legacy destructive
-      command is disabled pending this implementation.
+      command is disabled pending this implementation. The tenant-wide advisory repair lock is
+      shared with every live analytics projector before its event idempotency marker.
 - [x] Define the source-based replay design: source snapshot contract, metric-date semantics,
       tenant/platform scope, repair lock, atomic replacement, audit, cache invalidation, and the
       STG runbook. See `design.md`; implementation remains pending.
@@ -67,6 +68,8 @@
       must be resolved before settlement; after the attention threshold, send a deduplicated
       platform Web and Slack notification containing pending and failed ticket counts.
 - [ ] Remove remaining approval-only lifecycle APIs and persistence states after the V0 data reset.
-- [ ] Add end-to-end reconciliation coverage for directly approved sales, limit rejection,
-      cancellation, failed projection, recompute, and unavailable-KPI rendering.
+- [~] Add end-to-end reconciliation coverage for directly approved sales, limit rejection,
+      cancellation, failed projection, recompute, and unavailable-KPI rendering. The focused
+      ticket → result → paid-amount adjustment → validate/rebuild/idempotent retry flow is covered now;
+      rejection, cancellation, forced projection failure and unavailable-KPI scenarios remain.
 - [ ] Run focused core sales and analytics tests after the V0 approval removal.

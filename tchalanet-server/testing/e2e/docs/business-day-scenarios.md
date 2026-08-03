@@ -35,6 +35,7 @@ Named modes:
 | `agent` | Default agent check: L0 smoke, reduced business-day, BetOptions support check |
 | `smoke` | L0 only |
 | `business-day` | Reduced canonical business-day run: two tenants and one draw |
+| `reconciliation` | Focused business-day recovery companion: one approved ticket, a result, a paid-amount correction, validation, and an idempotent rebuild |
 | `full-business-day` | Canonical business-day with all configured tenants/draws |
 | `bet-options` | Support check for option snapshots/settlement used by business-day products |
 | `availability-gates` | Isolated support check for sale rejection gates; requires `TCH_E2E_ALLOW_CATALOG_MUTATION=true` |
@@ -185,6 +186,7 @@ can be reintroduced when duplicate winning free lines are supported explicitly.
 | Seller reports | Per-seller ticket count, gross sales, and commission match the seller-terminal plan; promotional/free lines do not add paid gross or commission |
 | Seller × draw reports | `sellerTerminalDrawRows` contains one exact row per configured seller terminal and selected draw; every selected draw must show participation from all seller terminals with exact ticket count, gross sales, and commission |
 | Stats/top selections | Winning selection `12` appears in top selections after sales and results |
+| Analytics reconciliation | A settled approved ticket is corrected through the paid-amount API; `VALIDATE` finds no drift, `REBUILD_AND_VALIDATE` preserves calculated winnings and corrected paid amount, and repeating the same idempotency key replays the same reconciliation run |
 | Isolation | Aggregated foreign-draw report queries return zero totals; draw reports do not expose foreign draw rows/metadata; unfiltered reports stay scoped to the current tenant |
 
 Expected totals are computed in the test harness from immutable scenario inputs:
@@ -275,6 +277,9 @@ bash scripts_agent_run.sh agent
 
 # Reduced canonical business-day only.
 bash scripts_agent_run.sh business-day
+
+# Focused recovery companion for ticket amount correction and analytics reconciliation.
+bash scripts_agent_run.sh reconciliation
 
 # Full canonical business-day with all configured tenants/draws.
 bash scripts_agent_run.sh full-business-day

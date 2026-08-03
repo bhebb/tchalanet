@@ -121,9 +121,11 @@ The handler follows these phases:
 2. **Preflight**: read source snapshots and current projections in read-only mode, set tenant
    context explicitly for every read, generate a run id, and write an audit event with `STARTED`
    status.
-3. **Acquire repair lock**: take a PostgreSQL advisory lock keyed by tenant and date window. The
-   analytics event listeners use the same lock for projection writes, so after-commit events wait
-   instead of racing with the replacement.
+3. **Acquire repair lock**: take a PostgreSQL advisory lock keyed by tenant. The lock deliberately
+   spans the tenant rather than only the selected date window: one live ticket event can update a
+   sale date, a settlement date, and a draw occurrence in different windows. The analytics event
+   listeners take the same lock before their idempotency marker and projection write, so
+   after-commit events wait instead of racing with the replacement.
 4. **Mark unavailable**: the trust state for the selected tenant scopes becomes unavailable for
    the duration of the repair. Readers must not expose old values as trustworthy while replacement
    is in progress.
@@ -186,9 +188,14 @@ supplied field. A `VALIDATE` request is read-only and may return `MISMATCH` with
   comparison leaves the replacement uncommitted.
 - A repair never clears `processed_event`, never reuses an old event id, and never emits a new
   business event.
-- A live after-commit projection waits on the repair lock. It is processed after the repair and
-  remains protected by its normal idempotency marker transaction.
-- A second repair with the same idempotency key returns the original run result.
+- A live after-commit projection waits on the tenant repair lock. It takes that lock before its
+  normal idempotency marker, then is processed after the repair without being accidentally marked
+  as handled while its projection is absent.
+- A second repair with the same idempotency key returns the original run result. The existing
+  tenant-scoped `idempotency_record` storage is used under the dedicated
+  `ANALYTICS_RECONCILIATION` scope; it stores the serialized terminal response for 24 hours. The
+  platform endpoint first switches into the requested tenant context, so this record and every
+  projection read/write remain compliant with RLS.
 - A repair for a date with no source activity creates explicit zero rows only where the projection
   contract requires coverage. Missing draw-specific activity remains missing, not an invented draw.
 - Cache eviction occurs only after a successful commit; a failed repair leaves the previous cache

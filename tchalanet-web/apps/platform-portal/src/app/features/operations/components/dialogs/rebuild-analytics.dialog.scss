@@ -1,0 +1,39 @@
+:host {
+  --comp-rebuild-warning-bg: var(--tch-color-error-container);
+  --comp-rebuild-warning-fg: var(--tch-color-on-error-container);
+}
+
+.rebuild-analytics-dialog {
+  &__warning {
+    margin: 0 0 1rem;
+    padding: 0.75rem;
+    border-radius: var(--tch-radius-sm);
+    background: var(--comp-rebuild-warning-bg);
+    color: var(--comp-rebuild-warning-fg);
+  }
+
+  &__scope {
+    display: grid;
+    gap: 0.5rem;
+    margin: 0 0 1rem;
+  }
+
+  &__scope div {
+    display: grid;
+    gap: 0.125rem;
+  }
+
+  &__scope dt {
+    color: var(--tch-color-on-surface-variant);
+    font-size: var(--tch-font-size-label-sm);
+  }
+
+  &__scope dd {
+    margin: 0;
+    font-weight: var(--tch-weight-semibold);
+  }
+
+  &__reason {
+    width: 100%;
+  }
+}

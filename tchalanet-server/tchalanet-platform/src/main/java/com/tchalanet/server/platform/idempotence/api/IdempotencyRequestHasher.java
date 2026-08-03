@@ -1,6 +1,7 @@
-package com.tchalanet.server.platform.idempotence.internal.service;
+package com.tchalanet.server.platform.idempotence.api;
 
 import com.tchalanet.server.common.json.utils.JsonUtils;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.HexFormat;
 import tools.jackson.databind.JsonNode;
@@ -9,23 +10,23 @@ import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.NullNode;
 import tools.jackson.databind.node.ObjectNode;
 
-public final class RequestHasher {
+/** Produces the stable request fingerprint stored with an idempotency key. */
+public final class IdempotencyRequestHasher {
 
   private static final HexFormat HEX = HexFormat.of();
 
-  private RequestHasher() {}
+  private IdempotencyRequestHasher() {}
 
   public static String sha256Normalized(JsonUtils jsonUtils, Object body) {
     try {
       JsonNode node = jsonUtils.toJsonNode(body);
       JsonNode sorted = sortRecursively(node);
-      byte[] json = jsonUtils.toJson(sorted).getBytes(java.nio.charset.StandardCharsets.UTF_8);
+      byte[] json = jsonUtils.toJson(sorted).getBytes(StandardCharsets.UTF_8);
 
       MessageDigest md = MessageDigest.getInstance("SHA-256");
-      byte[] digest = md.digest(json);
-      return HEX.formatHex(digest);
+      return HEX.formatHex(md.digest(json));
     } catch (Exception e) {
-      throw new IllegalStateException("Cannot hash request body", e);
+      throw new IllegalStateException("Cannot hash idempotency request", e);
     }
   }
 
@@ -34,10 +35,9 @@ public final class RequestHasher {
 
     if (node.isObject()) {
       ObjectNode out = JsonUtils.emptyObject();
-      java.util.List<String> names = new java.util.ArrayList<>();
+      var names = new java.util.ArrayList<String>();
       node.properties().forEach(entry -> names.add(entry.getKey()));
       java.util.Collections.sort(names);
-
       for (String name : names) {
         out.set(name, sortRecursively(node.get(name)));
       }
@@ -52,6 +52,6 @@ public final class RequestHasher {
       return out;
     }
 
-    return node; // value node
+    return node;
   }
 }

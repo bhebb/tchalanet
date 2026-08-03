@@ -121,6 +121,11 @@ public class TicketJpaEntity extends BaseTenantEntity {
   @Formula("(SELECT d.scheduled_at FROM draw d WHERE d.id = draw_id)")
   private java.time.Instant drawScheduledAt;
 
+  /** Business date of the draw — used by analytics projections after result application. */
+  @NotAudited
+  @Formula("(SELECT d.draw_date FROM draw d WHERE d.id = draw_id)")
+  private java.time.LocalDate drawDate;
+
   @Column(name = "seller_terminal_id", columnDefinition = "uuid")
   private UUID sellerTerminalId;
 

@@ -3,6 +3,7 @@ package com.tchalanet.server.platform.idempotence.internal.service;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.tchalanet.server.common.json.utils.JsonUtils;
+import com.tchalanet.server.platform.idempotence.api.IdempotencyRequestHasher;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
@@ -17,8 +18,8 @@ class RequestHasherTest {
     var first = Map.of("b", 2, "a", Map.of("y", 2, "x", 1));
     var second = Map.of("a", Map.of("x", 1, "y", 2), "b", 2);
 
-    assertThat(RequestHasher.sha256Normalized(jsonUtils, first))
-        .isEqualTo(RequestHasher.sha256Normalized(jsonUtils, second));
+    assertThat(IdempotencyRequestHasher.sha256Normalized(jsonUtils, first))
+        .isEqualTo(IdempotencyRequestHasher.sha256Normalized(jsonUtils, second));
   }
 
   @Test
@@ -26,7 +27,7 @@ class RequestHasherTest {
     var first = Map.of("lines", List.of(1, 2));
     var second = Map.of("lines", List.of(2, 1));
 
-    assertThat(RequestHasher.sha256Normalized(jsonUtils, first))
-        .isNotEqualTo(RequestHasher.sha256Normalized(jsonUtils, second));
+    assertThat(IdempotencyRequestHasher.sha256Normalized(jsonUtils, first))
+        .isNotEqualTo(IdempotencyRequestHasher.sha256Normalized(jsonUtils, second));
   }
 }

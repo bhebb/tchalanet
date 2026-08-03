@@ -31,6 +31,55 @@ export interface StartJobResponse {
   started_at: string;
 }
 
+// ── Analytics reconciliation ───────────────────────────────────────────────
+
+export type AnalyticsReconciliationMode = 'VALIDATE' | 'REBUILD_AND_VALIDATE';
+export type AnalyticsReconciliationStatus = 'SUCCESS' | 'MISMATCH' | 'REPAIR_FAILED';
+
+export interface AnalyticsMetricSnapshot {
+  ticketsSold: number;
+  ticketsCancelled: number;
+  grossSalesMinor: number;
+  stakeTotalMinor: number;
+  winningsCalculatedMinor: number;
+  payoutsPaidMinor: number;
+  sellerCommissionMinor: number;
+  buyerChargeMinor: number;
+  sellerChargeMinor: number;
+  tenantChargeMinor: number;
+  waivedChargeMinor: number;
+  promotionLineCount: number;
+  promotionPricedLineCount: number;
+}
+
+export interface AnalyticsReconciliationMismatch {
+  projection: string;
+  businessDate: string | null;
+  drawId: string | null;
+  sellerTerminalId: string | null;
+  expected: AnalyticsMetricSnapshot;
+  observed: AnalyticsMetricSnapshot;
+}
+
+export interface AnalyticsReconciliationRequest {
+  tenantId: string;
+  from: string;
+  to: string;
+  mode: AnalyticsReconciliationMode;
+  repairReason?: string;
+}
+
+export interface AnalyticsReconciliationResponse {
+  runId: string;
+  tenantId: string;
+  from: string;
+  to: string;
+  mode: AnalyticsReconciliationMode;
+  status: AnalyticsReconciliationStatus;
+  mismatches: AnalyticsReconciliationMismatch[];
+  completedAt: string;
+}
+
 // ── Batch Gates ─────────────────────────────────────────────────────────────
 
 /** PUT /platform/ops/batch/gates/{jobKey} */
@@ -632,6 +681,17 @@ export class PlatformOpsApi {
   ): Observable<OpsSalesSimulationResponse> {
     return this.backend.post<OpsSalesSimulationResponse>(
       '/platform/ops/sales-simulations',
+      req,
+      options,
+    );
+  }
+
+  reconcileAnalytics(
+    req: AnalyticsReconciliationRequest,
+    options?: TchRequestOptions,
+  ): Observable<AnalyticsReconciliationResponse> {
+    return this.backend.post<AnalyticsReconciliationResponse>(
+      '/platform/ops/analytics/reconciliation',
       req,
       options,
     );

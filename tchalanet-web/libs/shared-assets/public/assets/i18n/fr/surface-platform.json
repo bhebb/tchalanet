@@ -67,6 +67,7 @@
       "providers": "Providers",
       "schedulers": "Tâches planifiées",
       "cache": "Cache",
+      "analyticsReconciliation": "Réconciliation analytics",
       "pageEngine": "Moteur de page",
       "archives": "Archives",
       "archiveRuns": "Runs",

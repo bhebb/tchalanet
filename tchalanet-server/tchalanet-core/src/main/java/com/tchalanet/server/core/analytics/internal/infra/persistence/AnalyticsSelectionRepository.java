@@ -3,14 +3,34 @@ package com.tchalanet.server.core.analytics.internal.infra.persistence;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public interface AnalyticsSelectionRepository
-    extends JpaRepository<AnalyticsSelectionEntity, UUID>, AnalyticsSelectionUpsertRepository {}
+    extends JpaRepository<AnalyticsSelectionEntity, UUID>, AnalyticsSelectionUpsertRepository {
+
+  List<AnalyticsSelectionEntity> findByTenantIdAndRefDateBetweenOrderByRefDate(
+      UUID tenantId, LocalDate from, LocalDate to);
+
+  @Modifying
+  @Query(
+      """
+      DELETE FROM AnalyticsSelectionEntity a
+       WHERE a.tenantId = :tenantId
+         AND a.refDate BETWEEN :from AND :to
+      """)
+  int deleteTenantRows(
+      @Param("tenantId") UUID tenantId,
+      @Param("from") LocalDate from,
+      @Param("to") LocalDate to);
+}
 
 interface AnalyticsSelectionUpsertRepository {
 

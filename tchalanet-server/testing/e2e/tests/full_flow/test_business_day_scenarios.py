@@ -1427,6 +1427,69 @@ def _assert_paid_amount_adjustment_only_changes_paid_reports(
     )
 
 
+def _wait_for_overview_summary(
+    runtime: TenantRuntime,
+    business_date: dt.date,
+    draws: list[dict[str, Any]],
+    *,
+    tickets_sold: int,
+    gross_sales: Decimal,
+    winnings_calculated: Decimal,
+    payouts_paid: Decimal,
+) -> dict[str, Any]:
+    deadline = time.monotonic() + _env_int("TCH_E2E_BUSINESS_DAY_REPORT_TIMEOUT_SECONDS", 20)
+    last: dict[str, Any] | None = None
+    while time.monotonic() < deadline:
+        last = _report(
+            runtime,
+            "/admin/reports/overview",
+            business_date,
+            [draw_id(draw) for draw in draws],
+        )["summary"]
+        if (
+            last["ticketsSold"] == tickets_sold
+            and _decimal(last["grossSales"]) == gross_sales
+            and _decimal(last["winningsCalculated"]) == winnings_calculated
+            and _decimal(last.get("payoutsPaid")) == payouts_paid
+        ):
+            return last
+        time.sleep(0.5)
+
+    raise AssertionError(
+        f"{runtime.code}: overview did not reach expected reconciliation totals; "
+        f"expected=(tickets={tickets_sold}, gross={gross_sales}, winnings={winnings_calculated}, "
+        f"paid={payouts_paid}) last={last}"
+    )
+
+
+def _reconcile_analytics(
+    super_admin_client: ApiClient,
+    runtime: TenantRuntime,
+    business_date: dt.date,
+    *,
+    mode: str,
+    repair_reason: str | None = None,
+    idempotency_key: str | None = None,
+) -> dict[str, Any]:
+    response = super_admin_client.post(
+        "/platform/ops/analytics/reconciliation",
+        json={
+            "tenantId": runtime.tenant_id,
+            "from": business_date.isoformat(),
+            "to": business_date.isoformat(),
+            "mode": mode,
+            "repairReason": repair_reason,
+        },
+        idempotency_key=idempotency_key,
+        headers=_rid(),
+    )
+    assert_ok(response)
+    data = _data(response) or {}
+    assert data.get("status") == "SUCCESS", f"{runtime.code}: reconciliation failed: {data}"
+    assert data.get("mismatches") == [], f"{runtime.code}: reconciliation mismatches: {data}"
+    return data
+
+
 def _assert_winning_ticket_can_be_verified(runtime: TenantRuntime, probes: list[WinningTicketProbe]) -> None:
     if not probes:
         return
@@ -1664,6 +1727,112 @@ def test_seller_pricing_override_sale_result_and_payout(
         runtime,
         [WinningTicketProbe(ticket_id, expected_payout, scenario.key)],
     )
+
+
+@pytest.mark.L2
+@pytest.mark.full_flow
+@pytest.mark.slow
+def test_reconciliation_rebuild_preserves_ticket_paid_amount_correction(
+    super_admin_client: ApiClient,
+    base_url: str,
+    fb_auth: FirebaseEmulatorAuth,
+) -> None:
+    """Exercise sale, result, paid correction and idempotent analytics rebuild over real APIs."""
+
+    plan = TenantScenarioPlan(
+        key="reconciliation-paid-correction",
+        maryaj_mode="disabled",
+        maryaj_variant="disabled",
+        seller_terminals=(
+            SellerTerminalPlan("override", commission_rate="10.00", bolet_override_odds="65.0000"),
+            SellerTerminalPlan("fallback"),
+        ),
+    )
+    runtime = _provision_tenant(super_admin_client, base_url, fb_auth, plan)
+    seller = runtime.sellers[0]
+    business_date = dt.date.today()
+    draw = _generate_and_force_open_draws(super_admin_client, runtime, business_date)[0]
+    result = ManualResultPlan()
+    scenario = winning_lot1_only_ticket(result, seller.plan)
+
+    ticket_id, total, _, expected_payout = _sell_ticket(runtime, seller, draw, scenario)
+    assert total == Decimal("1.00")
+    assert expected_payout == Decimal("65.00")
+
+    _close_draws(runtime, [draw], "reconciliation E2E closes draw before applying the result")
+    _record_manual_results(super_admin_client, [draw], result)
+    _force_apply_results(super_admin_client, runtime, [draw], result)
+    _wait_for_draws_resulted(runtime, [draw])
+    _wait_for_overview_summary(
+        runtime,
+        business_date,
+        [draw],
+        tickets_sold=1,
+        gross_sales=total,
+        winnings_calculated=expected_payout,
+        payouts_paid=expected_payout,
+    )
+
+    adjusted_paid = expected_payout - Decimal("1.00")
+    adjustment_reason = f"reconciliation E2E paid correction {uuid.uuid4()}"
+    adjusted = runtime.admin.patch(
+        f"/tenant/tickets/{ticket_id}/payout-paid-amount",
+        json={"paidAmount": f"{adjusted_paid:.2f}", "reason": adjustment_reason},
+        headers=_rid(),
+    )
+    assert_ok(adjusted)
+    adjustment = _data(adjusted) or {}
+    assert adjustment["ticketId"] == ticket_id
+    assert adjustment["deltaAmountCents"] == -100
+    corrected_summary = _wait_for_overview_summary(
+        runtime,
+        business_date,
+        [draw],
+        tickets_sold=1,
+        gross_sales=total,
+        winnings_calculated=expected_payout,
+        payouts_paid=adjusted_paid,
+    )
+
+    validated = _reconcile_analytics(
+        super_admin_client,
+        runtime,
+        business_date,
+        mode="VALIDATE",
+    )
+    assert validated["mode"] == "VALIDATE"
+
+    repair_key = f"reconciliation-{uuid.uuid4()}"
+    repair_reason = "reconciliation E2E rebuild after paid amount correction"
+    rebuilt = _reconcile_analytics(
+        super_admin_client,
+        runtime,
+        business_date,
+        mode="REBUILD_AND_VALIDATE",
+        repair_reason=repair_reason,
+        idempotency_key=repair_key,
+    )
+    replayed = _reconcile_analytics(
+        super_admin_client,
+        runtime,
+        business_date,
+        mode="REBUILD_AND_VALIDATE",
+        repair_reason=repair_reason,
+        idempotency_key=repair_key,
+    )
+    assert rebuilt["mode"] == "REBUILD_AND_VALIDATE"
+    assert replayed["runId"] == rebuilt["runId"], "same idempotency key must replay the repair result"
+
+    rebuilt_summary = _wait_for_overview_summary(
+        runtime,
+        business_date,
+        [draw],
+        tickets_sold=1,
+        gross_sales=total,
+        winnings_calculated=expected_payout,
+        payouts_paid=adjusted_paid,
+    )
+    assert rebuilt_summary == corrected_summary
 
 
 def _placeholder_route_inventory() -> dict[str, list[str]]:

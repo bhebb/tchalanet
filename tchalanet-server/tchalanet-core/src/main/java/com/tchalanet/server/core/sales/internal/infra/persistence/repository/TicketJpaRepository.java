@@ -68,6 +68,7 @@ public interface TicketJpaRepository extends TchJpaRepository<TicketJpaEntity, U
               OR (t.settledAt >= :from AND t.settledAt < :to)
               OR (t.paidAt >= :from AND t.paidAt < :to)
               OR (t.paidAmountAdjustedAt >= :from AND t.paidAmountAdjustedAt < :to)
+              OR (t.drawDate >= :fromDate AND t.drawDate <= :toDate)
          )
       """)
   List<TicketJpaEntity> findForAnalyticsActivityByTenantAndPeriod(
@@ -75,7 +76,9 @@ public interface TicketJpaRepository extends TchJpaRepository<TicketJpaEntity, U
       @Param("sellerTerminalId") UUID sellerTerminalId,
       @Param("approvedStatus") TicketSaleStatus approvedStatus,
       @Param("from") Instant from,
-      @Param("to") Instant to);
+      @Param("to") Instant to,
+      @Param("fromDate") java.time.LocalDate fromDate,
+      @Param("toDate") java.time.LocalDate toDate);
 
   @EntityGraph(attributePaths = "charges")
   Optional<TicketJpaEntity> findWithChargesById(UUID id);

@@ -14,11 +14,11 @@ import static org.mockito.Mockito.when;
 import com.tchalanet.server.common.http.TchHeaders;
 import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.common.web.error.ProblemRestException;
+import com.tchalanet.server.platform.idempotence.api.IdempotencyRequestHasher;
 import com.tchalanet.server.platform.idempotence.api.IdempotencyStore;
 import com.tchalanet.server.platform.idempotence.api.RequireIdempotency;
 import com.tchalanet.server.platform.idempotence.api.error.IdempotencyErrorCodes;
 import com.tchalanet.server.platform.idempotence.api.model.IdempotencyScope;
-import com.tchalanet.server.platform.idempotence.internal.service.RequestHasher;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Optional;
@@ -135,7 +135,7 @@ class RequireIdempotencyAspectTest {
   void startedRequestCompletesRecordAfterProceeding() throws Throwable {
     var store = mock(IdempotencyStore.class);
     var body = Map.of("amount", 10);
-    var hash = RequestHasher.sha256Normalized(jsonUtils, body);
+    var hash = IdempotencyRequestHasher.sha256Normalized(jsonUtils, body);
     when(store.begin(IdempotencyScope.SALES_SELL_TICKET, "key-1", hash, 300L))
         .thenReturn(
             new IdempotencyStore.BeginResult(IdempotencyStore.Decision.STARTED, Optional.empty()));
@@ -156,7 +156,7 @@ class RequireIdempotencyAspectTest {
   void failedRequestMarksRecordFailed() throws Throwable {
     var store = mock(IdempotencyStore.class);
     var body = Map.of("amount", 10);
-    var hash = RequestHasher.sha256Normalized(jsonUtils, body);
+    var hash = IdempotencyRequestHasher.sha256Normalized(jsonUtils, body);
     when(store.begin(IdempotencyScope.SALES_SELL_TICKET, "key-1", hash, 300L))
         .thenReturn(
             new IdempotencyStore.BeginResult(IdempotencyStore.Decision.STARTED, Optional.empty()));
