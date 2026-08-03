@@ -1,0 +1,191 @@
+<tch-admin-page-shell
+  title="Accès utilisateurs"
+  description="Rechercher un admin tenant, inspecter ses permissions effectives, puis ajouter ou retirer un rôle ou un override."
+>
+  <button actions mat-stroked-button type="button" (click)="reload()">
+    <mat-icon>refresh</mat-icon>
+    Recharger
+  </button>
+
+  @if (error()) {
+    <tch-error-panel [message]="error() ?? 'Opération impossible.'" />
+  }
+
+  <tch-admin-section-card
+    title="Admins tenant"
+    description="Les seller terminals ne sont pas listés ici."
+    icon="manage_accounts"
+  >
+    <tch-admin-list-surface
+      searchLabel="Rechercher un admin tenant"
+      searchPlaceholder="Email, nom ou tenant"
+      [searchValue]="userQuery()"
+      [showSearchButton]="true"
+      searchButtonLabel="Rechercher"
+      [filtersDisplay]="'inline'"
+      (searchChange)="onUserSearchFilter($event)"
+    >
+      <ng-container list-content>
+        @if (loadingUsers()) {
+          <tch-loading label="Recherche des utilisateurs..." />
+        } @else if (!users().length) {
+          <tch-admin-empty-state
+            icon="person_search"
+            title="Aucun admin"
+            message="Lancez une recherche pour sélectionner un admin tenant."
+          />
+        } @else {
+          <div class="platform-access-users__table-wrap">
+            <table mat-table [dataSource]="users()" class="platform-access-users__table">
+              <ng-container matColumnDef="user">
+                <th mat-header-cell *matHeaderCellDef>Utilisateur</th>
+                <td mat-cell *matCellDef="let row">
+                  <strong>{{ row.displayName || row.email || row.username || row.id }}</strong>
+                  <span class="muted">{{ row.email || '—' }}</span>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="tenant">
+                <th mat-header-cell *matHeaderCellDef>Tenant</th>
+                <td mat-cell *matCellDef="let row">{{ row.tenantCode || row.tenantName || '—' }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="role">
+                <th mat-header-cell *matHeaderCellDef>Rôle</th>
+                <td mat-cell *matCellDef="let row">
+                  @if (row.role) {
+                    <tch-status-badge status="pending" [label]="row.role" />
+                  } @else {
+                    —
+                  }
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef>Statut</th>
+                <td mat-cell *matCellDef="let row">{{ row.status }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef>Actions</th>
+                <td mat-cell *matCellDef="let row">
+                  <button mat-button type="button" (click)="selectUser(row)">
+                    <mat-icon>admin_panel_settings</mat-icon>
+                    Gérer accès
+                  </button>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="userColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: userColumns"></tr>
+            </table>
+          </div>
+
+          <div class="platform-access-users__pagination">
+            <span>
+              {{ userTotalElements() }} admin(s) • page {{ userPage() + 1 }} / {{ userTotalPages() }}
+            </span>
+            <div class="platform-access-users__button-row">
+              <button mat-stroked-button type="button" [disabled]="userPage() === 0" (click)="previousUserPage()">
+                Précédent
+              </button>
+              <button
+                mat-stroked-button
+                type="button"
+                [disabled]="userPage() + 1 >= userTotalPages()"
+                (click)="nextUserPage()"
+              >
+                Suivant
+              </button>
+            </div>
+          </div>
+        }
+      </ng-container>
+    </tch-admin-list-surface>
+  </tch-admin-section-card>
+
+  @if (selectedUser()) {
+    <tch-admin-section-card title="Droits effectifs" icon="verified_user">
+      <header class="platform-access-users__panel-header">
+        <div>
+          <h3>{{ selectedUser()!.displayName || selectedUser()!.email || selectedUser()!.id }}</h3>
+          <p>{{ selectedUser()!.tenantCode || selectedUser()!.tenantName || 'Contexte courant' }}</p>
+        </div>
+        <button mat-stroked-button type="button" (click)="loadEffectivePermissions()">
+          <mat-icon>refresh</mat-icon>
+          Recharger
+        </button>
+      </header>
+
+      @if (loadingEffective()) {
+        <tch-loading label="Chargement des permissions effectives..." />
+      } @else if (effective()) {
+        <div class="platform-access-users__effective-grid">
+          <div>
+            <h4>Rôles actifs</h4>
+            <div class="platform-access-users__badge-list">
+              @for (roleId of effective()!.roleIds; track roleId) {
+                <tch-status-badge status="pending" [label]="roleLabel(roleId)" />
+              } @empty {
+                <span class="muted">Aucun rôle actif.</span>
+              }
+            </div>
+          </div>
+          <div>
+            <h4>Permissions effectives</h4>
+            <div class="platform-access-users__badge-list platform-access-users__badge-list--tall">
+              @for (permission of sortedEffectivePermissions(); track permission) {
+                <tch-status-badge status="missing" [label]="permission" />
+              } @empty {
+                <span class="muted">Aucune permission effective.</span>
+              }
+            </div>
+          </div>
+        </div>
+
+        <form class="platform-access-users__actions-grid" [formGroup]="actionForm">
+          <mat-form-field appearance="outline">
+            <mat-label>Rôle</mat-label>
+            <mat-select formControlName="roleCode">
+              @for (role of assignableRoles(); track role.id) {
+                <mat-option [value]="role.code">{{ role.code }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <div class="platform-access-users__button-row">
+            <button mat-flat-button color="primary" type="button" [disabled]="saving()" (click)="assignRole()">
+              Ajouter rôle
+            </button>
+            <button mat-stroked-button type="button" [disabled]="saving()" (click)="removeRole()">
+              Retirer rôle
+            </button>
+          </div>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Permission</mat-label>
+            <mat-select formControlName="permissionCode">
+              @for (permission of permissions(); track permission.code) {
+                <mat-option [value]="permission.code">{{ permission.code }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Raison</mat-label>
+            <input matInput formControlName="reason" placeholder="Justification audit" />
+          </mat-form-field>
+          <div class="platform-access-users__button-row">
+            <button mat-flat-button color="primary" type="button" [disabled]="saving()" (click)="grantPermission()">
+              Ajouter permission
+            </button>
+            <button mat-stroked-button type="button" [disabled]="saving()" (click)="denyPermission()">
+              Retirer permission
+            </button>
+            <button mat-stroked-button type="button" [disabled]="saving()" (click)="removeOverride()">
+              Retirer override
+            </button>
+          </div>
+        </form>
+      }
+    </tch-admin-section-card>
+  }
+</tch-admin-page-shell>

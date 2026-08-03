@@ -1,0 +1,80 @@
+@use 'breakpoints' as ui;
+
+.platform-access-users__table-wrap {
+  overflow-x: auto;
+}
+
+.platform-access-users__table {
+  width: 100%;
+}
+
+.muted {
+  display: block;
+  color: var(--tch-color-on-surface-variant, #46464f);
+  font-size: var(--tch-font-size-label-sm, 0.75rem);
+}
+
+.platform-access-users__pagination,
+.platform-access-users__panel-header,
+.platform-access-users__button-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.platform-access-users__button-row {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.platform-access-users__pagination {
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+  color: var(--tch-color-on-surface-variant, #46464f);
+  font-size: var(--tch-font-size-body-sm, 0.875rem);
+}
+
+.platform-access-users__panel-header h3,
+.platform-access-users__panel-header p,
+.platform-access-users__effective-grid h4 {
+  margin: 0;
+}
+
+.platform-access-users__effective-grid h4 {
+  margin-bottom: 0.5rem;
+}
+
+.platform-access-users__effective-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.platform-access-users__badge-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.platform-access-users__badge-list--tall {
+  max-height: 16rem;
+  overflow: auto;
+}
+
+.platform-access-users__actions-grid {
+  display: grid;
+  grid-template-columns: minmax(14rem, 1fr) minmax(14rem, 1fr) auto;
+  gap: 0.75rem;
+  align-items: flex-start;
+  margin-top: 1rem;
+}
+
+@include ui.down(expanded) {
+  .platform-access-users__actions-grid,
+  .platform-access-users__effective-grid {
+    grid-template-columns: 1fr;
+  }
+}
