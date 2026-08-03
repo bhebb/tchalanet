@@ -1,0 +1,10 @@
+<tch-console-draw-detail
+  [view]="detailView()"
+  [state]="state()"
+  loadingLabel="Chargement du tirage..."
+  [error]="error()"
+  [actions]="pageActions"
+  (retry)="load()"
+  (action)="onPageAction($event)"
+  (sectionAction)="onSectionAction($event)"
+/>
