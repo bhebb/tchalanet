@@ -43,12 +43,27 @@ Règle : aucune version (runtime/build/service) ne doit changer sans :
 | ArchUnit              | 1.4.2   |
 | PDFBox                | 3.0.7   |
 | ZXing                 | 3.5.4   |
-| Springdoc OpenAPI     | 3.0.3   |
-| Jackson 3 (tools.\*)  | 3.1.2   |
+| Springdoc OpenAPI     | 3.1.0   |
+| Jackson 3 (tools.\*)  | 3.2.1   |
 | json-schema-validator | 3.0.5   |
 | Hibernate             | 7.3.2.Final |
 | Spring Modulith       | 2.1.0   |
 | Mockito               | 5.23.0  |
+
+### Overrides sécurité (BOM Spring Boot 4.1.0)
+
+Ces propriétés forcent des versions au-delà du BOM pour corriger des CVEs.
+
+| Propriété Maven        | Version         | CVEs couverts |
+| ---------------------- | --------------- | ------------- |
+| `netty.version`      | 4.2.16.Final | CVE-2026-5682x/5585x/5674x |
+| `tomcat.version`     | 11.0.24      | CVE-2026-5343x/5527x/5908x |
+| `postgresql.version` | 42.7.13      | CVE-2026-54291 |
+| `log4j2.version`     | 2.26.0       | CVE-2026-49844 |
+
+Note: `com.fasterxml.jackson.core:jackson-databind` forcé à `2.22.1` via `<dependencyManagement>`
+(transitive de `firebase-admin → google-cloud-storage`, CVE-2026-54515).
+`tools.jackson.core:jackson-databind` mis à jour via `jackson.version=3.2.1`.
 
 ### Plugins Maven (versions dans `tchalanet-server/pom.xml` properties)
 

@@ -7,4 +7,81 @@
         <gav regex="true">org\.springframework\.security:spring.*</gav>
         <vulnerabilityName regex="true"></vulnerabilityName>
     </suppress>
+
+    <!-- ======================================================
+         httpcore5 5.4.2 — no stable 5.4.x patch (next is 5.5-beta1).
+         Revisit when Apache HttpComponents Core 5.4.3+ is released.
+         ====================================================== -->
+    <suppress until="2026-11-01Z">
+        <notes><![CDATA[CVE-2026-54399, CVE-2026-54428: httpcore5 5.4.x has no stable patch.
+        Next release is 5.5-beta1. Suppress until 5.4.3+ or 5.5.0 is released.]]></notes>
+        <gav regex="true">org\.apache\.httpcomponents\.core5:httpcore5.*</gav>
+        <cve>CVE-2026-54399</cve>
+    </suppress>
+    <suppress until="2026-11-01Z">
+        <notes><![CDATA[CVE-2026-54428: same upstream — no stable fix in 5.4.x.]]></notes>
+        <gav regex="true">org\.apache\.httpcomponents\.core5:httpcore5.*</gav>
+        <cve>CVE-2026-54428</cve>
+    </suppress>
+
+    <!-- ======================================================
+         kotlin-stdlib 2.4.0 — transitive from firebase-admin:9.10.0.
+         No stable kotlin 2.4.x patch available (next: 2.4.20-Beta2).
+         Revisit when firebase-admin ships with patched Kotlin or
+         when Kotlin 2.4.1+ stable is released.
+         ====================================================== -->
+    <suppress until="2026-11-01Z">
+        <notes><![CDATA[CVE-2026-53914 (CVSS 9.8): kotlin-stdlib 2.4.0 is a transitive
+        dependency of firebase-admin:9.10.0. No stable Kotlin 2.4.x fix available.
+        Suppress until firebase-admin or Kotlin 2.4.1+ stable ships the patch.]]></notes>
+        <gav regex="true">org\.jetbrains\.kotlin:kotlin-stdlib.*</gav>
+        <cve>CVE-2026-53914</cve>
+    </suppress>
+
+    <!-- ======================================================
+         OpenTelemetry packages — versions managed by Spring Boot 4.1.0 BOM.
+         Cannot be safely overridden without breaking Spring Boot compatibility.
+         Revisit when Spring Boot 4.1.1+ updates the OTel BOM.
+         ====================================================== -->
+    <suppress until="2026-11-01Z">
+        <notes><![CDATA[CVE-2026-39883 (CVSS 7.3): affects opentelemetry-extension-incubator,
+        opentelemetry-gcp-resources, opentelemetry-semconv. Versions are managed by the
+        Spring Boot 4.1.0 BOM and firebase-admin; cannot be safely pinned independently.]]></notes>
+        <gav regex="true">io\.opentelemetry.*:opentelemetry-.*</gav>
+        <cve>CVE-2026-39883</cve>
+    </suppress>
+    <suppress until="2026-11-01Z">
+        <notes><![CDATA[CVE-2026-24051 (CVSS 7.0): opentelemetry incubator / semconv.
+        Version managed by Spring Boot 4.1.0 BOM.]]></notes>
+        <gav regex="true">io\.opentelemetry.*:opentelemetry-.*</gav>
+        <cve>CVE-2026-24051</cve>
+    </suppress>
+    <suppress until="2026-11-01Z">
+        <notes><![CDATA[CVE-2026-29181 (CVSS 7.5): opentelemetry-gcp-resources 1.37.0-alpha
+        is a transitive of firebase-admin:9.10.0. Version managed upstream.]]></notes>
+        <gav regex="true">io\.opentelemetry\.contrib:opentelemetry-gcp-resources.*</gav>
+        <cve>CVE-2026-29181</cve>
+    </suppress>
+    <suppress until="2026-11-01Z">
+        <notes><![CDATA[CVE-2026-39882, CVE-2026-41178, CVE-2026-40894, CVE-2026-44967:
+        opentelemetry packages below CVSS 7.0 threshold but included for completeness.
+        All managed by Spring Boot 4.1.0 BOM or firebase-admin.]]></notes>
+        <gav regex="true">io\.opentelemetry.*:opentelemetry-.*</gav>
+        <cve>CVE-2026-39882</cve>
+    </suppress>
+    <suppress until="2026-11-01Z">
+        <notes><![CDATA[CVE-2026-41178: opentelemetry, managed by Spring Boot BOM.]]></notes>
+        <gav regex="true">io\.opentelemetry.*:opentelemetry-.*</gav>
+        <cve>CVE-2026-41178</cve>
+    </suppress>
+    <suppress until="2026-11-01Z">
+        <notes><![CDATA[CVE-2026-40894, CVE-2026-44967: opentelemetry-proto, managed by Spring Boot BOM.]]></notes>
+        <gav regex="true">io\.opentelemetry\.proto:opentelemetry-proto.*</gav>
+        <cve>CVE-2026-40894</cve>
+    </suppress>
+    <suppress until="2026-11-01Z">
+        <notes><![CDATA[CVE-2026-44967: opentelemetry-proto, managed by Spring Boot BOM.]]></notes>
+        <gav regex="true">io\.opentelemetry\.proto:opentelemetry-proto.*</gav>
+        <cve>CVE-2026-44967</cve>
+    </suppress>
 </suppressions>
