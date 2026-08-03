@@ -55,7 +55,9 @@ abstract final class TchColors {
   static const online = Color(0xFF22C55E); // live terminal indicator
   static const success = Color(0xFF006C49);
   static const successContainer = Color(0xFFDDFBEA);
-  static const warning = Color(0xFFB26A00);
+  // 0x8A5300 keeps the amber warning hue but clears WCAG AA (4.5:1) against
+  // warningContainer — the original 0xB26A00 measured ~3.82:1.
+  static const warning = Color(0xFF8A5300);
   static const warningContainer = Color(0xFFFFF2D6);
   static const missing = outlineStrong;
   static const blocked = error;

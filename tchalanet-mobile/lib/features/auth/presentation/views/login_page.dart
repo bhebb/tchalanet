@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/auth/auth_token_client.dart';
 import '../../../../core/config/app_config.dart';
+import '../../../../core/i18n/i18n_models.dart';
 import '../../../../core/i18n/i18n_repository.dart';
 import '../../../../design_system/components/components.dart';
 import '../../../../design_system/layout/screen_size.dart';
@@ -31,13 +32,15 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   void _submit() {
     if (!(_formKey.currentState?.validate() ?? false)) return;
-    ref.read(authControllerProvider.notifier).login(
-      AuthCredentials.terminal(
-        terminalCode: _terminalCodeController.text.trim(),
-        pin: _pinController.text,
-        domain: terminalEmailDomain,
-      ),
-    );
+    ref
+        .read(authControllerProvider.notifier)
+        .login(
+          AuthCredentials.terminal(
+            terminalCode: _terminalCodeController.text.trim(),
+            pin: _pinController.text,
+            domain: terminalEmailDomain,
+          ),
+        );
   }
 
   @override
@@ -45,16 +48,18 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     final authState = ref.watch(authControllerProvider);
     final translations = ref.watch(i18nBundleProvider);
     final isLoading = authState is AuthLoading;
-    final errorMessage =
-        authState is AuthUnauthenticated ? authState.errorKey : null;
+    final errorMessage = authState is AuthUnauthenticated
+        ? authState.errorKey
+        : null;
 
     final form = _TerminalLoginForm(
       formKey: _formKey,
       terminalCodeController: _terminalCodeController,
       pinController: _pinController,
       loading: isLoading,
-      errorMessage:
-          errorMessage == null ? null : translations.translate(errorMessage),
+      errorMessage: errorMessage == null
+          ? null
+          : translations.translate(errorMessage),
       terminalCodeLabel: translations.translate('auth.login.terminal_code'),
       terminalCodeHint: translations.translate('auth.login.terminal_code_hint'),
       pinLabel: translations.translate('auth.login.pin'),
@@ -62,6 +67,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       blockedLabel: translations.translate('auth.login.blocked'),
       requiredLabel: translations.translate('auth.login.required'),
       onSubmit: _submit,
+      onBlockedTap: () => _showBlockedAccessDialog(context, translations),
     );
 
     return Scaffold(
@@ -72,6 +78,25 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       ),
     );
   }
+}
+
+Future<void> _showBlockedAccessDialog(
+  BuildContext context,
+  I18nBundle translations,
+) {
+  return showDialog<void>(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      title: Text(translations.translate('auth.login.blocked_title')),
+      content: Text(translations.translate('auth.login.blocked_message')),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(dialogContext).pop(),
+          child: Text(translations.translate('common.close')),
+        ),
+      ],
+    ),
+  );
 }
 
 class _MobileLoginLayout extends ConsumerWidget {
@@ -189,8 +214,9 @@ class _BrandHeader extends StatelessWidget {
         ? scheme.onPrimaryContainer.withValues(alpha: 0.78)
         : scheme.onSurfaceVariant;
     return Column(
-      crossAxisAlignment:
-          inverse ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+      crossAxisAlignment: inverse
+          ? CrossAxisAlignment.start
+          : CrossAxisAlignment.center,
       children: [
         Container(
           width: 88,
@@ -240,6 +266,7 @@ class _TerminalLoginForm extends StatelessWidget {
     required this.blockedLabel,
     required this.requiredLabel,
     required this.onSubmit,
+    required this.onBlockedTap,
     this.errorMessage,
   });
 
@@ -255,6 +282,7 @@ class _TerminalLoginForm extends StatelessWidget {
   final String requiredLabel;
   final String? errorMessage;
   final VoidCallback onSubmit;
+  final VoidCallback onBlockedTap;
 
   @override
   Widget build(BuildContext context) {
@@ -312,7 +340,7 @@ class _TerminalLoginForm extends StatelessWidget {
           ),
           const SizedBox(height: TchSpacing.s8),
           TextButton(
-            onPressed: loading ? null : () {},
+            onPressed: loading ? null : onBlockedTap,
             child: Text(blockedLabel),
           ),
         ],

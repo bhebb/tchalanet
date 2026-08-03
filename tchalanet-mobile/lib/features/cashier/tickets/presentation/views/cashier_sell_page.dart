@@ -197,9 +197,9 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
                 onPreview: () {},
                 onConfirm: () {},
               ),
-              SellConfirming(:final form) => _SellBody(
+              SellConfirming(:final form, :final preview) => _SellBody(
                 form: form,
-                previewResult: null,
+                previewResult: preview,
                 isPreviewing: false,
                 isConfirming: true,
                 keyboardInset: keyboardInset,

@@ -83,6 +83,11 @@ class _CashierHistoryPageState extends ConsumerState<CashierHistoryPage> {
     setState(() => _search = normalized);
   }
 
+  Future<void> _refresh(_TicketHistoryQuery query) async {
+    ref.invalidate(_historyProvider(query));
+    await ref.read(_historyProvider(query).future);
+  }
+
   @override
   Widget build(BuildContext context) {
     final query = _query;
@@ -132,28 +137,42 @@ class _CashierHistoryPageState extends ConsumerState<CashierHistoryPage> {
                       : _filter == _DateFilter.today
                       ? 'pos.tickets.empty_today'
                       : 'pos.tickets.empty_yesterday';
-                  return Center(
-                    child: FeedbackState(
-                      kind: FeedbackStateKind.empty,
-                      title: translations.translate(emptyKey),
-                      compact: true,
+                  return RefreshIndicator(
+                    onRefresh: () => _refresh(query),
+                    child: ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      children: [
+                        SizedBox(
+                          height: MediaQuery.sizeOf(context).height * 0.6,
+                          child: Center(
+                            child: FeedbackState(
+                              kind: FeedbackStateKind.empty,
+                              title: translations.translate(emptyKey),
+                              compact: true,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   );
                 }
-                return ListView.separated(
-                  itemCount: tickets.length,
-                  separatorBuilder: (_, _) =>
-                      Divider(height: 1, color: scheme.outlineVariant),
-                  itemBuilder: (context, index) {
-                    final ticket = tickets[index];
-                    return _TicketRow(
-                      ticket: ticket,
-                      translations: translations,
-                      onTap: () => context.push('/pos/tickets/${ticket.id}'),
-                      onPrint: () =>
-                          requestTicketReprint(context, ref, ticket.id),
-                    );
-                  },
+                return RefreshIndicator(
+                  onRefresh: () => _refresh(query),
+                  child: ListView.separated(
+                    itemCount: tickets.length,
+                    separatorBuilder: (_, _) =>
+                        Divider(height: 1, color: scheme.outlineVariant),
+                    itemBuilder: (context, index) {
+                      final ticket = tickets[index];
+                      return _TicketRow(
+                        ticket: ticket,
+                        translations: translations,
+                        onTap: () => context.push('/pos/tickets/${ticket.id}'),
+                        onPrint: () =>
+                            requestTicketReprint(context, ref, ticket.id),
+                      );
+                    },
+                  ),
                 );
               },
             ),
