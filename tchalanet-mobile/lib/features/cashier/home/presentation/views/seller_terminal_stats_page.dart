@@ -55,6 +55,12 @@ class _SellerTerminalStatsPageState
     });
   }
 
+  Future<void> _refresh(String isoDate) async {
+    ref.invalidate(terminalStatsByDateProvider(isoDate));
+    ref.invalidate(_reportTicketsProvider(isoDate));
+    await ref.read(terminalStatsByDateProvider(isoDate).future);
+  }
+
   @override
   Widget build(BuildContext context) {
     final isoDate = _isoDate(_selectedDate);
@@ -88,13 +94,16 @@ class _SellerTerminalStatsPageState
                   onRetry: () =>
                       ref.invalidate(terminalStatsByDateProvider(isoDate)),
                 ),
-                data: (stats) => _StatsBody(
-                  stats: stats,
-                  reportTicketsAsync: reportTicketsAsync,
-                  availableDraws: availableDraws,
-                  translations: translations,
-                  drawFilter: _drawFilter,
-                  onDrawFilter: (id) => setState(() => _drawFilter = id),
+                data: (stats) => RefreshIndicator(
+                  onRefresh: () => _refresh(isoDate),
+                  child: _StatsBody(
+                    stats: stats,
+                    reportTicketsAsync: reportTicketsAsync,
+                    availableDraws: availableDraws,
+                    translations: translations,
+                    drawFilter: _drawFilter,
+                    onDrawFilter: (id) => setState(() => _drawFilter = id),
+                  ),
                 ),
               ),
             ),
@@ -176,17 +185,22 @@ class _StatsBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (!stats.available) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(TchSpacing.s24),
-          child: Text(
-            translations.translate('pos.reports.analytics_unavailable'),
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
+      // RefreshIndicator needs a scrollable descendant to detect the pull
+      // gesture even when there is nothing to scroll.
+      return ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(TchSpacing.s24),
+            child: Text(
+              translations.translate('pos.reports.analytics_unavailable'),
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
           ),
-        ),
+        ],
       );
     }
     final filtered = drawFilter == null
@@ -194,6 +208,7 @@ class _StatsBody extends StatelessWidget {
         : stats.breakdown.where((b) => b.drawId == drawFilter).toList();
 
     return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.all(TchSpacing.s16),
       children: [
         _SectionLabel(translations.translate('common.cashier_stats.total')),

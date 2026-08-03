@@ -43,9 +43,10 @@ class _SellerTerminalResultsPageState
     );
   }
 
-  void _refresh() {
+  Future<void> _refresh() async {
     ref.invalidate(publicDrawResultSlotsProvider);
     ref.invalidate(publicDrawResultHistoryProvider(_query));
+    await ref.read(publicDrawResultHistoryProvider(_query).future);
   }
 
   @override
@@ -113,8 +114,13 @@ class _SellerTerminalResultsPageState
                     compact: true,
                   ),
                 ),
-                data: (history) =>
-                    _ResultsList(history: history, translations: translations),
+                data: (history) => RefreshIndicator(
+                  onRefresh: _refresh,
+                  child: _ResultsList(
+                    history: history,
+                    translations: translations,
+                  ),
+                ),
               ),
             ),
           ],
@@ -335,16 +341,24 @@ class _ResultsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (history.items.isEmpty) {
-      return Center(
-        child: FeedbackState(
-          kind: FeedbackStateKind.empty,
-          title: translations.translate('pos.results.empty'),
-          compact: true,
-        ),
+      // RefreshIndicator needs a scrollable descendant to detect the pull
+      // gesture even when there is nothing to scroll.
+      return ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        children: [
+          Center(
+            child: FeedbackState(
+              kind: FeedbackStateKind.empty,
+              title: translations.translate('pos.results.empty'),
+              compact: true,
+            ),
+          ),
+        ],
       );
     }
 
     return ListView.separated(
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.all(TchSpacing.s16),
       itemCount: history.items.length,
       separatorBuilder: (_, _) => const SizedBox(height: TchSpacing.s12),

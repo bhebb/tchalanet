@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/i18n/i18n_repository.dart';
 import '../../../../design_system/tokens/tch_spacing.dart';
 import '../../../cashier/home/presentation/view_models/cashier_home_providers.dart';
+import '../view_models/auth_controller.dart';
 import '../view_models/change_pin_controller.dart';
 
 class ChangePinPage extends ConsumerStatefulWidget {
@@ -21,10 +22,26 @@ class _ChangePinPageState extends ConsumerState<ChangePinPage> {
   var _completionHandled = false;
 
   @override
+  void initState() {
+    super.initState();
+    // The confirmation field's validator compares against `_pin.text`, so it
+    // must re-validate whenever the PIN changes — not just when the
+    // confirmation field itself is edited — otherwise a stale mismatch can
+    // linger on screen after the user fixes the first field.
+    _pin.addListener(_revalidateIfConfirmationStarted);
+  }
+
+  @override
   void dispose() {
+    _pin.removeListener(_revalidateIfConfirmationStarted);
     _pin.dispose();
     _confirmation.dispose();
     super.dispose();
+  }
+
+  void _revalidateIfConfirmationStarted() {
+    if (_confirmation.text.isEmpty) return;
+    _formKey.currentState?.validate();
   }
 
   Future<void> _submit() async {
@@ -77,6 +94,31 @@ class _ChangePinPageState extends ConsumerState<ChangePinPage> {
     }
   }
 
+  Future<void> _confirmLogout() async {
+    final translations = ref.read(i18nBundleProvider);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(translations.translate('pos.profile.sign_out_title')),
+        content: Text(translations.translate('pos.profile.sign_out_message')),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(translations.translate('common.cancel')),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(translations.translate('pos.profile.sign_out')),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    await ref.read(authControllerProvider.notifier).logout();
+    if (mounted) context.go('/login');
+  }
+
   String _errorTranslationKey(List<String> errorKeys) {
     final translations = ref.read(i18nBundleProvider);
     for (final key in errorKeys) {
@@ -102,10 +144,20 @@ class _ChangePinPageState extends ConsumerState<ChangePinPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(translations.translate('auth.change_pin.title')),
+        // This screen can be reached with nothing left to pop back to (the
+        // forced-PIN-change redirect replaces the route) — always offer a
+        // way out via sign-out rather than trapping the seller here.
+        actions: [
+          TextButton(
+            onPressed: state.submitting ? null : () => _confirmLogout(),
+            child: Text(translations.translate('pos.profile.sign_out')),
+          ),
+        ],
       ),
       body: SafeArea(
         child: Form(
           key: _formKey,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
           child: ListView(
             padding: const EdgeInsets.all(TchSpacing.s20),
             children: [

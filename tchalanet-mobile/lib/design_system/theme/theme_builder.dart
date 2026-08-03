@@ -210,6 +210,12 @@ abstract final class ThemeBuilder {
           side: BorderSide(color: scheme.outlineVariant),
         ),
       ),
+      // Plain TextButtons default to a ~36dp Material touch target, below the
+      // 44-48dp minimum recommended for POS terminals used under time
+      // pressure (e.g. the "retry" button after a network error).
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+      ),
       // NavigationBar matches surfaceContainerLowest for bottom nav contrast.
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: scheme.surfaceContainerLowest,

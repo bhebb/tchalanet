@@ -65,11 +65,18 @@ Future<void> printTicket(
   }
 }
 
+// Guards against the reprint dialog stacking multiple times when the
+// triggering IconButton is tapped repeatedly before the first dialog opens —
+// there's no per-button loading state at the call sites, so this is a
+// per-ticket re-entrancy guard instead.
+final _reprintInFlight = <String>{};
+
 Future<void> requestTicketReprint(
   BuildContext context,
   WidgetRef ref,
   String ticketId,
 ) async {
+  if (!_reprintInFlight.add(ticketId)) return;
   final translations = ref.read(i18nBundleProvider);
   final controller = TextEditingController(text: _sellerRequestedReprintReason);
   try {
@@ -166,6 +173,7 @@ Future<void> requestTicketReprint(
     }
   } finally {
     controller.dispose();
+    _reprintInFlight.remove(ticketId);
   }
 }
 
