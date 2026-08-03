@@ -90,7 +90,7 @@
               </button>
             }
             @if (canCancel(row)) {
-              <button mat-icon-button (click)="cancel.emit(row)" matTooltip="Annuler">
+              <button mat-icon-button (click)="cancelNotification.emit(row)" matTooltip="Annuler">
                 <span class="material-symbols-outlined">cancel</span>
               </button>
             }
