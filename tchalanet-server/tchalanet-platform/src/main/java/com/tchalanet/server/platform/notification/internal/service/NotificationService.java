@@ -718,14 +718,7 @@ public class NotificationService {
       TchSearchQuery search,
       TchPageRequest pageRequest) {
     return reader.listForTerminal(
-        tenantId,
-        sellerTerminalId,
-        status,
-        category,
-        kind,
-        severity,
-        search,
-        pageRequest);
+        tenantId, sellerTerminalId, status, category, kind, severity, search, pageRequest);
   }
 
   public TchPage<NotificationItemView> listMyNotifications(

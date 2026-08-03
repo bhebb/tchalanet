@@ -44,7 +44,8 @@ public class DrawSettlementAttentionNotificationListener {
       return;
     }
 
-    var dedupeKey = dedupeKey(event.drawId().value().toString(), event.drawResultId().value().toString());
+    var dedupeKey =
+        dedupeKey(event.drawId().value().toString(), event.drawResultId().value().toString());
     var title = "Règlement de tirage à vérifier";
     var message =
         "%d ticket(s) restent à traiter pour le tirage du %s; échecs du dernier essai: %d."
@@ -68,10 +69,7 @@ public class DrawSettlementAttentionNotificationListener {
             translations(event),
             jsonUtils.toJsonNode(payload(event, dedupeKey)),
             "DRAW_SETTLEMENT_VIEW",
-            "/app/platform/ops/draws/"
-                + event.tenantId().value()
-                + "/"
-                + event.drawId().value(),
+            "/app/platform/ops/draws/" + event.tenantId().value() + "/" + event.drawId().value(),
             null,
             Set.of(NotificationChannel.WEB, NotificationChannel.SLACK)));
   }
@@ -125,7 +123,8 @@ public class DrawSettlementAttentionNotificationListener {
     payload.put("drawResultId", event.drawResultId().value().toString());
     payload.put("drawChannelId", event.drawChannelId().value().toString());
     payload.put(
-        "resultSlotId", event.resultSlotId() == null ? null : event.resultSlotId().value().toString());
+        "resultSlotId",
+        event.resultSlotId() == null ? null : event.resultSlotId().value().toString());
     payload.put("drawDate", event.drawDate().toString());
     payload.put("resultedAt", event.resultedAt().toString());
     payload.put("pendingTickets", event.pendingTickets());

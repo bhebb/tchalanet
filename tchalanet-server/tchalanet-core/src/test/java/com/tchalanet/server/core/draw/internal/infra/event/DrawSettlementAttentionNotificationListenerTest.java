@@ -67,10 +67,7 @@ class DrawSettlementAttentionNotificationListenerTest {
                 event.drawId().value().toString(), event.drawResultId().value().toString()));
     assertThat(request.actionUrl())
         .isEqualTo(
-            "/app/platform/ops/draws/"
-                + event.tenantId().value()
-                + "/"
-                + event.drawId().value());
+            "/app/platform/ops/draws/" + event.tenantId().value() + "/" + event.drawId().value());
     assertThat(request.payload().get("tenantId").asText())
         .isEqualTo(event.tenantId().value().toString());
     assertThat(request.payload().get("pendingTickets").asLong()).isEqualTo(7L);

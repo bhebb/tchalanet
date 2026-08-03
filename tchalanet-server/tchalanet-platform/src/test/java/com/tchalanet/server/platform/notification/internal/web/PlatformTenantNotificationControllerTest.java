@@ -27,8 +27,10 @@ class PlatformTenantNotificationControllerTest {
   void createsPlatformTenantAnnouncementInsideTheTargetTenantContext() {
     var targetTenantId = UUID.randomUUID();
     var context = platformContext();
-    var request = new CreateNotificationBody(null, null, null, null, null, null, null, null,
-        null, null, null, null, null, null, null, null, null, null);
+    var request =
+        new CreateNotificationBody(
+            null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+            null, null, null, null);
 
     doAnswer(
             ignored -> {

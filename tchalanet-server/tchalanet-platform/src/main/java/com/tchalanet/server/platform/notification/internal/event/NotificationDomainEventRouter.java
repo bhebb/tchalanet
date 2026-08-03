@@ -8,7 +8,6 @@ import com.tchalanet.server.platform.notification.internal.rule.NotificationRule
 import com.tchalanet.server.platform.notification.internal.service.NotificationService;
 import com.tchalanet.server.platform.notification.internal.service.NotificationTriggerService;
 import java.util.List;
-import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
