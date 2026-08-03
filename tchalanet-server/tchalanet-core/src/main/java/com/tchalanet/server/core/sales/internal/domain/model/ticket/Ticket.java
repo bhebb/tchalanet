@@ -398,7 +398,8 @@ public record Ticket(
     }
   }
 
-  private static void verifyResultAndPaymentAmounts(TicketLifecycle lifecycle, List<TicketLine> lines) {
+  private static void verifyResultAndPaymentAmounts(
+      TicketLifecycle lifecycle, List<TicketLine> lines) {
     if (lifecycle.result().status() == TicketResultStatus.NOT_RESULTED) {
       return;
     }

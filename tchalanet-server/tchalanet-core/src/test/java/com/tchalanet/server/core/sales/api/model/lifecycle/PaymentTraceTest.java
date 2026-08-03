@@ -42,10 +42,7 @@ class PaymentTraceTest {
         .isThrownBy(
             () ->
                 original.adjusted(
-                    money("120.00"),
-                    Instant.parse("2026-08-03T11:00:00Z"),
-                    ADJUSTED_BY,
-                    " "))
+                    money("120.00"), Instant.parse("2026-08-03T11:00:00Z"), ADJUSTED_BY, " "))
         .withMessage("Payment adjustment reason is required");
   }
 
