@@ -243,12 +243,19 @@ public record Ticket(
             ? lifecycle.result().overridden(newStatus, winning, actorUserId, overrideReason, now)
             : lifecycle.result().resulted(newStatus, winning, actorUserId, now);
 
+    // A corrected draw result replaces a system-calculated financial outcome. An operator-adjusted
+    // payment is an audit fact and must remain attached to the ticket.
+    SettlementLifecycle settlement =
+        override && !hasManuallyAdjustedPayment()
+            ? SettlementLifecycle.notSettled()
+            : lifecycle.settlement();
+
     return new Ticket(
         identity.bumpVersion(),
         context,
         codes,
         money,
-        new TicketLifecycle(lifecycle.sale(), newResult, lifecycle.settlement()),
+        new TicketLifecycle(lifecycle.sale(), newResult, settlement),
         origin,
         print,
         audit.updated(actorUserId, now),
@@ -293,6 +300,9 @@ public record Ticket(
     if (lifecycle.result().status() == TicketResultStatus.NOT_RESULTED) {
       throw new IllegalStateException(
           "Ticket " + identity.id() + " is not yet resulted, cannot auto-settle");
+    }
+    if (hasManuallyAdjustedPayment()) {
+      return this;
     }
     SettlementLifecycle newSettlement =
         lifecycle.result().winningAmount().isZero()
@@ -376,6 +386,12 @@ public record Ticket(
   public Money paidAmount() {
     var payment = lifecycle.settlement().payment();
     return payment == null ? Money.zero(money.currency()) : payment.paidAmount();
+  }
+
+  /** Returns whether the effective paid amount was explicitly corrected by an operator. */
+  public boolean hasManuallyAdjustedPayment() {
+    var payment = lifecycle.settlement().payment();
+    return payment != null && payment.adjustedAt() != null;
   }
 
   public Optional<ApprovalRequestId> approvalRequestId() {
