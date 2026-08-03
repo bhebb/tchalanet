@@ -244,7 +244,7 @@ class DrawTicketLifecycleSpringIntegrationTest extends BusinessRuntimeIntegratio
     var ticket =
         jdbc.queryForMap(
             """
-                select result_status, settlement_status, winning_amount, result_override_reason
+                select result_status, settlement_status, winning_amount, paid_amount, result_override_reason
                   from sales_ticket
                  where id = ?
                 """,
@@ -253,6 +253,7 @@ class DrawTicketLifecycleSpringIntegrationTest extends BusinessRuntimeIntegratio
     assertThat(ticket.get("result_status")).isEqualTo("OVERRIDDEN");
     assertThat(ticket.get("settlement_status")).isEqualTo("NO_PAYOUT");
     assertThat((BigDecimal) ticket.get("winning_amount")).isEqualByComparingTo("0");
+    assertThat((BigDecimal) ticket.get("paid_amount")).isEqualByComparingTo("0");
     assertThat(ticket.get("result_override_reason"))
         .isEqualTo("superadmin correction after tenant entered wrong result");
   }
