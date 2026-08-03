@@ -27,9 +27,7 @@ public interface AnalyticsSelectionRepository
          AND a.refDate BETWEEN :from AND :to
       """)
   int deleteTenantRows(
-      @Param("tenantId") UUID tenantId,
-      @Param("from") LocalDate from,
-      @Param("to") LocalDate to);
+      @Param("tenantId") UUID tenantId, @Param("from") LocalDate from, @Param("to") LocalDate to);
 }
 
 interface AnalyticsSelectionUpsertRepository {

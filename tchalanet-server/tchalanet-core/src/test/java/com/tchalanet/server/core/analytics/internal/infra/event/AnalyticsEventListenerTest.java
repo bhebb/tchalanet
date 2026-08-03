@@ -67,7 +67,8 @@ class AnalyticsEventListenerTest {
     var lock = org.mockito.Mockito.mock(AnalyticsTenantProjectionLock.class);
     when(zones.resolveTenantZone(TENANT_ID)).thenReturn(ZoneOffset.UTC);
     var listener =
-        new AnalyticsEventListener(processed, daily, draw, selection, sellerTerminalDraw, zones, lock);
+        new AnalyticsEventListener(
+            processed, daily, draw, selection, sellerTerminalDraw, zones, lock);
 
     listener.onTicketPlaced(ticketPlaced());
     listener.onTicketPlacedForSelection(ticketPlaced());
@@ -93,7 +94,8 @@ class AnalyticsEventListenerTest {
     var zones = org.mockito.Mockito.mock(TenantZoneApi.class);
     var lock = org.mockito.Mockito.mock(AnalyticsTenantProjectionLock.class);
     var listener =
-        new AnalyticsEventListener(processed, daily, draw, selection, sellerTerminalDraw, zones, lock);
+        new AnalyticsEventListener(
+            processed, daily, draw, selection, sellerTerminalDraw, zones, lock);
 
     listener.onTicketPlaced(ticketPlaced());
 

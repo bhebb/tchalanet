@@ -33,15 +33,14 @@ class SalesAnalyticsSnapshotReaderAdapterTest {
     var from = Instant.parse("2026-07-20T00:00:00Z");
     var to = from.plusSeconds(86_400);
     var tenantId = TenantId.of(UUID.randomUUID());
-    when(
-            ticketRepository.findForAnalyticsActivityByTenantAndPeriod(
-                tenantId.value(),
-                null,
-                TicketSaleStatus.APPROVED,
-                from,
-                to,
-                from.atZone(java.time.ZoneOffset.UTC).toLocalDate(),
-                to.minusNanos(1).atZone(java.time.ZoneOffset.UTC).toLocalDate()))
+    when(ticketRepository.findForAnalyticsActivityByTenantAndPeriod(
+            tenantId.value(),
+            null,
+            TicketSaleStatus.APPROVED,
+            from,
+            to,
+            from.atZone(java.time.ZoneOffset.UTC).toLocalDate(),
+            to.minusNanos(1).atZone(java.time.ZoneOffset.UTC).toLocalDate()))
         .thenReturn(List.of(first, second));
     when(chargeRepository.findByTicket_IdInOrderByTicket_IdAscChargeTypeAsc(anyList()))
         .thenReturn(List.of());

@@ -87,37 +87,58 @@ class AnalyticsReconciliationServiceTest {
     captureSavedRows(fixture.drawRepository(), drawRows);
     captureSavedRows(fixture.sellerTerminalDrawRepository(), sellerTerminalDrawRows);
     captureSavedRows(fixture.selectionRepository(), selectionRows);
-    when(fixture.dailyRepository().findTenantRows(eq(TENANT_ID.value()), eq(BUSINESS_DATE), eq(BUSINESS_DATE)))
+    when(fixture
+            .dailyRepository()
+            .findTenantRows(eq(TENANT_ID.value()), eq(BUSINESS_DATE), eq(BUSINESS_DATE)))
         .thenAnswer(
             ignored ->
                 dailyRows.get().stream()
                     .filter(row -> "TENANT".equals(row.getDimensionType()))
                     .toList());
-    when(fixture.dailyRepository().findSellerTerminalRows(eq(TENANT_ID.value()), eq(BUSINESS_DATE), eq(BUSINESS_DATE)))
+    when(fixture
+            .dailyRepository()
+            .findSellerTerminalRows(eq(TENANT_ID.value()), eq(BUSINESS_DATE), eq(BUSINESS_DATE)))
         .thenAnswer(
             ignored ->
                 dailyRows.get().stream()
                     .filter(row -> "SELLER_TERMINAL".equals(row.getDimensionType()))
                     .toList());
-    when(fixture.drawRepository().findByTenantIdAndRefDateBetweenOrderByRefDate(eq(TENANT_ID.value()), eq(BUSINESS_DATE), eq(BUSINESS_DATE)))
+    when(fixture
+            .drawRepository()
+            .findByTenantIdAndRefDateBetweenOrderByRefDate(
+                eq(TENANT_ID.value()), eq(BUSINESS_DATE), eq(BUSINESS_DATE)))
         .thenAnswer(ignored -> drawRows.get());
-    when(fixture.sellerTerminalDrawRepository().findByTenantIdAndRefDateBetweenOrderByRefDateDescUpdatedAtDesc(eq(TENANT_ID.value()), eq(BUSINESS_DATE), eq(BUSINESS_DATE)))
+    when(fixture
+            .sellerTerminalDrawRepository()
+            .findByTenantIdAndRefDateBetweenOrderByRefDateDescUpdatedAtDesc(
+                eq(TENANT_ID.value()), eq(BUSINESS_DATE), eq(BUSINESS_DATE)))
         .thenAnswer(ignored -> sellerTerminalDrawRows.get());
-    when(fixture.selectionRepository().findByTenantIdAndRefDateBetweenOrderByRefDate(eq(TENANT_ID.value()), eq(BUSINESS_DATE), eq(BUSINESS_DATE)))
+    when(fixture
+            .selectionRepository()
+            .findByTenantIdAndRefDateBetweenOrderByRefDate(
+                eq(TENANT_ID.value()), eq(BUSINESS_DATE), eq(BUSINESS_DATE)))
         .thenAnswer(ignored -> selectionRows.get());
 
-    var result = fixture.service().rebuildAndValidate(command(AnalyticsReconciliationMode.REBUILD_AND_VALIDATE));
+    var result =
+        fixture
+            .service()
+            .rebuildAndValidate(command(AnalyticsReconciliationMode.REBUILD_AND_VALIDATE));
 
     assertThat(result.status()).isEqualTo(AnalyticsReconciliationStatus.SUCCESS);
     assertThat(result.mismatches()).isEmpty();
     verify(fixture.projectionLock()).acquire(TENANT_ID);
     verify(fixture.dailyRepository())
         .deleteTenantProjectionRows(TENANT_ID.value(), BUSINESS_DATE, BUSINESS_DATE);
-    verify(fixture.drawRepository()).deleteTenantRows(TENANT_ID.value(), BUSINESS_DATE, BUSINESS_DATE);
+    verify(fixture.drawRepository())
+        .deleteTenantRows(TENANT_ID.value(), BUSINESS_DATE, BUSINESS_DATE);
     verify(fixture.sellerTerminalDrawRepository())
         .deleteTenantRows(TENANT_ID.value(), BUSINESS_DATE, BUSINESS_DATE);
-    verify(fixture.selectionRepository()).deleteTenantRows(TENANT_ID.value(), BUSINESS_DATE, BUSINESS_DATE);
-    assertThat(drawRows.get()).singleElement().extracting(AnalyticsDrawEntity::getRefDate).isEqualTo(DRAW_DATE);
+    verify(fixture.selectionRepository())
+        .deleteTenantRows(TENANT_ID.value(), BUSINESS_DATE, BUSINESS_DATE);
+    assertThat(drawRows.get())
+        .singleElement()
+        .extracting(AnalyticsDrawEntity::getRefDate)
+        .isEqualTo(DRAW_DATE);
     assertThat(sellerTerminalDrawRows.get())
         .singleElement()
         .extracting(AnalyticsSellerTerminalDrawEntity::getRefDate)
@@ -159,7 +180,9 @@ class AnalyticsReconciliationServiceTest {
         BUSINESS_DATE,
         BUSINESS_DATE,
         mode,
-        mode == AnalyticsReconciliationMode.REBUILD_AND_VALIDATE ? "Repair missing analytics rows" : null);
+        mode == AnalyticsReconciliationMode.REBUILD_AND_VALIDATE
+            ? "Repair missing analytics rows"
+            : null);
   }
 
   private static SalesAnalyticsTicketSnapshot approvedTicket() {

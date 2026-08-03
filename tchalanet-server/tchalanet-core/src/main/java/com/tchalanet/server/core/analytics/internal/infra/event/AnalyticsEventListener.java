@@ -206,7 +206,8 @@ public class AnalyticsEventListener {
     if (processedEvent.markProcessedIfAbsent(handlerKey, event.eventId().value())) {
       return true;
     }
-    log.debug("analytics: duplicate event handlerKey={} eventId={}", handlerKey, event.eventId().value());
+    log.debug(
+        "analytics: duplicate event handlerKey={} eventId={}", handlerKey, event.eventId().value());
     return false;
   }
 }
