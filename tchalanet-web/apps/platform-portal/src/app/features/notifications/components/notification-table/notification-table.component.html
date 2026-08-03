@@ -1,0 +1,110 @@
+@if (loading()) {
+  <tch-loading label="Chargement des notifications..." />
+} @else {
+  @if (error(); as errorVm) {
+    <tch-error-panel
+      [title]="errorVm.title"
+      [message]="errorVm.message"
+      [showRetry]="true"
+      retryLabel="Réessayer"
+      (retry)="retry.emit()"
+    />
+  } @else {
+    @if (notifications().length === 0) {
+      <tch-admin-empty-state
+        icon="notifications"
+        title="Aucune notification"
+        message="Aucune notification ne correspond aux filtres sélectionnés."
+      />
+    } @else {
+      <table mat-table [dataSource]="notifications()" class="notification-table">
+        <ng-container matColumnDef="createdAt">
+          <th mat-header-cell *matHeaderCellDef>Date</th>
+          <td mat-cell *matCellDef="let row" class="cell-date">
+            {{ row.createdAt | date:'dd/MM/yy HH:mm' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="severity">
+          <th mat-header-cell *matHeaderCellDef>Sévérité</th>
+          <td mat-cell *matCellDef="let row">
+            <tch-admin-status-pill [tone]="severityTone(row.severity)" [label]="row.severity" />
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="title">
+          <th mat-header-cell *matHeaderCellDef>Message</th>
+          <td mat-cell *matCellDef="let row">
+            <div class="notification-title-line">
+              <strong>{{ titleOf(row) }}</strong>
+              <span class="notification-chip" [class.notification-chip--system]="hasSystemKeys(row)">
+                {{ languageModeOf(row) }}
+              </span>
+            </div>
+            <div class="cell-sub">{{ messageOf(row) }}</div>
+            @if (hasSystemKeys(row)) {
+              <div class="system-keys" aria-label="Clés système">
+                @for (key of systemKeysOf(row); track key) {
+                  <code>{{ key }}</code>
+                }
+                <button mat-button type="button" (click)="openTranslations.emit(row)">
+                  <span class="material-symbols-outlined">translate</span>
+                  Traductions
+                </button>
+              </div>
+            }
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="category">
+          <th mat-header-cell *matHeaderCellDef>Catégorie</th>
+          <td mat-cell *matCellDef="let row">{{ row.category }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Statut</th>
+          <td mat-cell *matCellDef="let row">
+            <tch-admin-status-pill [tone]="statusTone(row.status)" [label]="statusLabel(row.status)" />
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let row" class="cell-actions">
+            @if (canPublish(row)) {
+              <button mat-icon-button (click)="publish.emit(row)" matTooltip="Publier">
+                <span class="material-symbols-outlined">publish</span>
+              </button>
+            }
+            @if (canRepublish(row)) {
+              <button mat-icon-button (click)="republish.emit(row)" matTooltip="Republier">
+                <span class="material-symbols-outlined">campaign</span>
+              </button>
+            }
+            <button mat-icon-button (click)="replayRecipients.emit(row)" matTooltip="Rejouer les destinataires">
+              <span class="material-symbols-outlined">group_add</span>
+            </button>
+            @if (!row.readAt) {
+              <button mat-icon-button (click)="markRead.emit(row)" matTooltip="Marquer comme lu">
+                <span class="material-symbols-outlined">done</span>
+              </button>
+            }
+            @if (canCancel(row)) {
+              <button mat-icon-button (click)="cancel.emit(row)" matTooltip="Annuler">
+                <span class="material-symbols-outlined">cancel</span>
+              </button>
+            }
+            @if (!row.archivedAt) {
+              <button mat-icon-button (click)="archive.emit(row)" matTooltip="Archiver">
+                <span class="material-symbols-outlined">archive</span>
+              </button>
+            }
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+    }
+  }
+}

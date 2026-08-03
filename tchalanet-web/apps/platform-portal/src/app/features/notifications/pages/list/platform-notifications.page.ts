@@ -1,14 +1,9 @@
-import { DatePipe } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatTabsModule } from '@angular/material/tabs';
-import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
@@ -21,25 +16,18 @@ import {
     TchConfirmDialog,
     TchConfirmDialogData,
     TchConfirmDialogResult,
-    TchErrorPanel,
-    TchLoading,
     TchSectionError,
 } from '@tch/ui/components';
+import { AdminPageShellComponent } from '@tch/ui/console';
 import { ErrorViewModel, resolveErrorFeedbackCopy, toErrorViewModel } from '@tch/web/errors';
+
 import {
-    AdminEmptyStateComponent,
-    AdminPageShellComponent,
-    AdminStatusPillComponent,
-    AdminStatusTone
-} from '@tch/ui/console';
+    NotificationComposerComponent,
+    NotificationDraftEvent,
+} from '../../components/notification-composer/notification-composer.component';
+import { NotificationTableComponent } from '../../components/notification-table/notification-table.component';
 import {
-    PlatformRecipientPickerComponent,
-    PlatformRecipientPickerSelection,
-} from '../../../shared/recipient-picker/platform-recipient-picker.component';
-import {
-    NotificationAudienceType,
     NotificationCategory,
-    NotificationChannel,
     NotificationItemView,
     NotificationsApi,
     NotificationSeverity,
@@ -47,53 +35,33 @@ import {
 } from '../../data-access/notifications-api.service';
 
 const STATUS_OPTIONS: NotificationStatus[] = ['PUBLISHED', 'EXPIRED', 'CANCELLED', 'PURGED'];
-const SEVERITY_OPTIONS: NotificationSeverity[] = ['INFO', 'WARNING', 'ERROR', 'CRITICAL'];
-const CATEGORY_OPTIONS: NotificationCategory[] = ['SYSTEM', 'SECURITY', 'BATCH', 'TENANT_CONFIG', 'DRAW', 'RESULT'];
-const AUDIENCE_OPTIONS: NotificationAudienceType[] = ['PLATFORM_ADMINS', 'ALL_APP_USERS'];
-const CHANNEL_OPTIONS: NotificationChannel[] = ['IN_APP', 'SLACK', 'EMAIL', 'SMS', 'WHATSAPP'];
-type TargetMode = 'BROADCAST' | 'SPECIFIC';
 
 @Component({
     selector: 'tch-platform-notifications-page',
     imports: [
-        DatePipe,
-        ReactiveFormsModule,
         AdminListSurface,
-        AdminEmptyStateComponent,
         AdminPageShellComponent,
-        AdminStatusPillComponent,
-        PlatformRecipientPickerComponent,
-        TchErrorPanel,
-        TchLoading,
+        NotificationComposerComponent,
+        NotificationTableComponent,
         TchSectionError,
         MatButtonModule,
         MatFormFieldModule,
         MatIconModule,
-        MatInputModule,
         MatSelectModule,
-        MatTabsModule,
-        MatTableModule,
         MatTooltipModule,
     ],
     templateUrl: './platform-notifications.page.html',
     styleUrl: './platform-notifications.page.scss',
 })
 export class PlatformNotificationsPage implements OnInit {
-    readonly statusOptions = STATUS_OPTIONS;
-    readonly severityOptions = SEVERITY_OPTIONS;
-    readonly categoryOptions = CATEGORY_OPTIONS;
-    readonly audienceOptions = AUDIENCE_OPTIONS;
-    readonly channelOptions = CHANNEL_OPTIONS;
-    readonly displayedColumns = ['createdAt', 'severity', 'title', 'category', 'status', 'actions'];
     readonly loading = signal(false);
     readonly saving = signal(false);
     readonly error = signal<ErrorViewModel | null>(null);
-    readonly composerError = signal<ErrorViewModel | null>(null);
+    readonly composerApiError = signal<ErrorViewModel | null>(null);
     readonly actionError = signal<ErrorViewModel | null>(null);
     readonly actionNotice = signal<{ title: string; message: string } | null>(null);
     readonly notifications = signal<NotificationItemView[]>([]);
     readonly showComposer = signal(false);
-    readonly recipientSelection = signal<PlatformRecipientPickerSelection | null>(null);
     readonly page = signal(0);
     readonly totalElements = signal(0);
     readonly totalPages = signal(1);
@@ -115,23 +83,8 @@ export class PlatformNotificationsPage implements OnInit {
             PURGED: 'Purgée',
         }[status],
     }));
+
     private readonly api = inject(NotificationsApi);
-    private readonly fb = inject(FormBuilder);
-    readonly composerForm = this.fb.nonNullable.group({
-        titleFr: ['', [Validators.required, Validators.maxLength(160)]],
-        bodyFr: ['', [Validators.required, Validators.maxLength(1000)]],
-        titleEn: ['', [Validators.required, Validators.maxLength(160)]],
-        bodyEn: ['', [Validators.required, Validators.maxLength(1000)]],
-        titleHt: ['', [Validators.required, Validators.maxLength(160)]],
-        bodyHt: ['', [Validators.required, Validators.maxLength(1000)]],
-        severity: ['WARNING' as NotificationSeverity],
-        category: ['SYSTEM' as NotificationCategory],
-        targetMode: ['BROADCAST' as TargetMode],
-        audienceType: ['PLATFORM_ADMINS' as NotificationAudienceType],
-        actionUrl: [''],
-        channels: [['IN_APP'] as NotificationChannel[]],
-        externalDestination: [''],
-    });
     private readonly dialog = inject(MatDialog);
     private readonly router = inject(Router);
     private readonly translate = inject(TranslateService);
@@ -152,7 +105,7 @@ export class PlatformNotificationsPage implements OnInit {
             category: this.categoryFilter() || undefined,
             page: this.page(),
             size: 20,
-        }, {suppressShellFeedback: true}).subscribe({
+        }, { suppressShellFeedback: true }).subscribe({
             next: page => {
                 this.notifications.set(page.items ?? []);
                 this.totalElements.set(page.totalElements ?? 0);
@@ -215,110 +168,37 @@ export class PlatformNotificationsPage implements OnInit {
         this.load();
     }
 
-    create(): void {
-        if (this.composerForm.invalid) {
-            this.composerForm.markAllAsTouched();
-            return;
-        }
-
-        const value = this.composerForm.getRawValue();
-        const externalDestination = value.externalDestination.trim();
-        const recipientSelection = this.recipientSelection();
-        const specificTargets = value.targetMode === 'SPECIFIC' ? recipientSelection?.targets ?? [] : [];
-        if (value.targetMode === 'SPECIFIC' && specificTargets.length === 0) {
-            this.composerError.set({
-                title: 'Destinataire requis',
-                message: 'Sélectionnez au moins un destinataire avant d’envoyer la notification.',
-                severity: 'error',
-            });
-            return;
-        }
-
-        const payload = {
-            sourceType: 'platform-admin',
-            sourceId: null,
-            dedupeKey: null,
-            audienceType: value.targetMode === 'SPECIFIC' ? 'SPECIFIC_ACTORS' as NotificationAudienceType : value.audienceType,
-            targets: value.targetMode === 'SPECIFIC' ? specificTargets : undefined,
-            severity: value.severity,
-            kind: value.severity === 'CRITICAL' || value.severity === 'ERROR' ? 'SYSTEM_ERROR' as const : 'WARNING' as const,
-            category: value.category,
-            titleText: value.titleFr.trim(),
-            messageText: value.bodyFr.trim(),
-            translations: {
-                fr: {title: value.titleFr.trim(), body: value.bodyFr.trim()},
-                en: {title: value.titleEn.trim(), body: value.bodyEn.trim()},
-                ht: {title: value.titleHt.trim(), body: value.bodyHt.trim()},
-            },
-            actionType: value.actionUrl.trim() ? 'LINK' : null,
-            actionUrl: value.actionUrl.trim() || null,
-            payload: externalDestination
-                ? {
-                    to: externalDestination,
-                    email: externalDestination,
-                    phone: externalDestination,
-                    whatsapp: externalDestination,
-                }
-                : null,
-            expiresAt: null,
-            channels: value.channels,
-        };
-
-        const request = value.targetMode === 'SPECIFIC' && recipientSelection?.tenantId
-            ? this.api.createTenantNotification(
-                recipientSelection.tenantId,
-                payload,
-                {suppressShellFeedback: true},
-            )
-            : this.api.createNotification(payload, {suppressShellFeedback: true});
+    onComposerSubmitted(draft: NotificationDraftEvent): void {
+        const request = draft.tenantId
+            ? this.api.createTenantNotification(draft.tenantId, draft.payload, { suppressShellFeedback: true })
+            : this.api.createNotification(draft.payload, { suppressShellFeedback: true });
 
         this.saving.set(true);
-        this.composerError.set(null);
+        this.composerApiError.set(null);
         this.actionError.set(null);
         this.actionNotice.set(null);
         request.subscribe({
             next: () => {
                 this.saving.set(false);
                 this.showComposer.set(false);
-                this.recipientSelection.set(null);
-                this.composerForm.reset({
-                    titleFr: '',
-                    bodyFr: '',
-                    titleEn: '',
-                    bodyEn: '',
-                    titleHt: '',
-                    bodyHt: '',
-                    severity: 'WARNING',
-                    category: 'SYSTEM',
-                    targetMode: 'BROADCAST',
-                    audienceType: 'PLATFORM_ADMINS',
-                    actionUrl: '',
-                    channels: ['IN_APP'],
-                    externalDestination: '',
-                });
                 this.load();
                 this.actionNotice.set({
                     title: 'Notification créée',
-                    message: value.titleFr.trim(),
+                    message: draft.payload.titleText,
                 });
             },
             error: err => {
                 this.saving.set(false);
-                this.composerError.set(this.errorViewModel(err, 'platform.notifications.create'));
+                this.composerApiError.set(this.errorViewModel(err, 'platform.notifications.create'));
             },
         });
-    }
-
-    updateRecipients(selection: PlatformRecipientPickerSelection): void {
-        this.recipientSelection.set(selection);
-        this.composerError.set(null);
     }
 
     markRead(item: NotificationItemView): void {
         this.saving.set(true);
         this.actionError.set(null);
         this.actionNotice.set(null);
-        this.api.markNotificationRead(this.idOf(item), {suppressShellFeedback: true}).subscribe({
+        this.api.markNotificationRead(this.idOf(item), { suppressShellFeedback: true }).subscribe({
             next: () => {
                 this.saving.set(false);
                 this.load();
@@ -334,7 +214,7 @@ export class PlatformNotificationsPage implements OnInit {
         this.saving.set(true);
         this.actionError.set(null);
         this.actionNotice.set(null);
-        this.api.archiveNotification(this.idOf(item), {suppressShellFeedback: true}).subscribe({
+        this.api.archiveNotification(this.idOf(item), { suppressShellFeedback: true }).subscribe({
             next: () => {
                 this.saving.set(false);
                 this.load();
@@ -354,11 +234,7 @@ export class PlatformNotificationsPage implements OnInit {
             icon: 'publish',
         }, result => {
             this.runLifecycle(
-                this.api.publishNotification(
-                    this.idOf(item),
-                    result.reason ?? 'Publication manuelle',
-                    {suppressShellFeedback: true},
-                ),
+                this.api.publishNotification(this.idOf(item), result.reason ?? 'Publication manuelle', { suppressShellFeedback: true }),
                 'Notification publiée.',
             );
         });
@@ -377,11 +253,7 @@ export class PlatformNotificationsPage implements OnInit {
             confirmCheckboxLabel: 'Je confirme que cette republication est nécessaire et sera tracée.',
         }, result => {
             this.runLifecycle(
-                this.api.republishNotification(
-                    this.idOf(item),
-                    result.reason ?? '',
-                    {suppressShellFeedback: true},
-                ),
+                this.api.republishNotification(this.idOf(item), result.reason ?? '', { suppressShellFeedback: true }),
                 'Notification republiée.',
             );
         });
@@ -395,7 +267,7 @@ export class PlatformNotificationsPage implements OnInit {
             icon: 'group_add',
         }, () => {
             this.runLifecycle(
-                this.api.replayNotificationRecipients(this.idOf(item), {suppressShellFeedback: true}),
+                this.api.replayNotificationRecipients(this.idOf(item), { suppressShellFeedback: true }),
                 'Destinataires rejoués.',
             );
         });
@@ -415,11 +287,7 @@ export class PlatformNotificationsPage implements OnInit {
             confirmCheckboxLabel: 'Je confirme que cette annulation est nécessaire et sera tracée.',
         }, result => {
             this.runLifecycle(
-                this.api.cancelNotification(
-                    this.idOf(item),
-                    result.reason ?? '',
-                    {suppressShellFeedback: true},
-                ),
+                this.api.cancelNotification(this.idOf(item), result.reason ?? '', { suppressShellFeedback: true }),
                 'Notification annulée.',
             );
         });
@@ -441,73 +309,24 @@ export class PlatformNotificationsPage implements OnInit {
             confirmCheckboxLabel: 'Je confirme que cette purge est nécessaire et sera tracée.',
         }, () => {
             this.runLifecycle(
-                this.api.purgeExpiredNotifications(dryRun, {suppressShellFeedback: true}),
+                this.api.purgeExpiredNotifications(dryRun, { suppressShellFeedback: true }),
                 dryRun ? 'Purge simulée.' : 'Notifications expirées purgées.',
             );
         });
     }
 
-    idOf(item: NotificationItemView): string {
-        return typeof item.id === 'string' ? item.id : item.id.value;
-    }
-
-    titleOf(item: NotificationItemView): string {
-        return item.titleText || item.titleKey || 'Notification';
-    }
-
-    messageOf(item: NotificationItemView): string {
-        return item.messageText || item.messageKey || '';
-    }
-
-    systemKeysOf(item: NotificationItemView): string[] {
-        return [item.titleKey, item.messageKey].filter((key): key is string => !!key);
-    }
-
-    hasSystemKeys(item: NotificationItemView): boolean {
-        return this.systemKeysOf(item).length > 0;
-    }
-
-    languageModeOf(item: NotificationItemView): string {
-        return this.hasSystemKeys(item) ? 'System keys' : 'FR / EN / HT';
-    }
-
     openTranslations(item: NotificationItemView): void {
         void this.router.navigate(['/app/platform/catalog/translations'], {
-            queryParams: {key: item.titleKey ?? item.messageKey ?? ''},
+            queryParams: { key: item.titleKey ?? item.messageKey ?? '' },
         });
     }
 
-    severityTone(severity: NotificationSeverity): AdminStatusTone {
-        if (severity === 'CRITICAL' || severity === 'ERROR') return 'danger';
-        if (severity === 'WARNING') return 'warning';
-        return 'info';
+    private idOf(item: NotificationItemView): string {
+        return typeof item.id === 'string' ? item.id : item.id.value;
     }
 
-    statusTone(status: NotificationStatus): AdminStatusTone {
-        if (status === 'PUBLISHED') return 'success';
-        if (status === 'EXPIRED') return 'warning';
-        return 'neutral';
-    }
-
-    statusLabel(status: NotificationStatus): string {
-        return {
-            PUBLISHED: 'Publiée',
-            EXPIRED: 'Expiré',
-            CANCELLED: 'Annulée',
-            PURGED: 'Purgée',
-        }[status];
-    }
-
-    canPublish(item: NotificationItemView): boolean {
-        return item.status === 'EXPIRED';
-    }
-
-    canRepublish(item: NotificationItemView): boolean {
-        return item.status === 'PUBLISHED' || item.status === 'EXPIRED';
-    }
-
-    canCancel(item: NotificationItemView): boolean {
-        return item.status === 'PUBLISHED' || item.status === 'EXPIRED';
+    private titleOf(item: NotificationItemView): string {
+        return item.titleText || item.titleKey || 'Notification';
     }
 
     private runLifecycle(request: Observable<unknown>, successMessage: string): void {
@@ -534,7 +353,7 @@ export class PlatformNotificationsPage implements OnInit {
         data: TchConfirmDialogData,
         confirmed: (result: TchConfirmDialogResult) => void,
     ): void {
-        this.dialog.open(TchConfirmDialog, {data})
+        this.dialog.open(TchConfirmDialog, { data })
             .afterClosed()
             .subscribe(result => {
                 if (!result?.confirmed) return;
@@ -549,7 +368,6 @@ export class PlatformNotificationsPage implements OnInit {
             const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
             return toErrorViewModel(normalized, copy);
         }
-
         return {
             title: this.translate.instant('common.errors.fallback.title'),
             message: this.translate.instant('common.errors.fallback.message'),

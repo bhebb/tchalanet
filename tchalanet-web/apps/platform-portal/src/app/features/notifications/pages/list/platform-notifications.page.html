@@ -1,0 +1,129 @@
+<tch-admin-page-shell
+  title="Notifications in-app"
+  description="Messages persistés affichés dans la cloche et le centre de notifications."
+>
+  <div actions>
+    <button mat-icon-button (click)="load()" matTooltip="Rafraîchir">
+      <span class="material-symbols-outlined">refresh</span>
+    </button>
+    <button mat-stroked-button type="button" (click)="purgeExpired(true)">
+      <span class="material-symbols-outlined">preview</span>
+      Simuler purge
+    </button>
+    <button mat-stroked-button type="button" (click)="purgeExpired(false)">
+      <span class="material-symbols-outlined">delete_sweep</span>
+      Purger expirées
+    </button>
+    <button mat-flat-button color="primary" (click)="showComposer.set(!showComposer())">
+      <span class="material-symbols-outlined">add_alert</span>
+      Nouvelle notification
+    </button>
+  </div>
+
+  @if (actionError(); as actionErrorVm) {
+    <tch-section-error
+      feedback
+      class="notification-page__feedback"
+      [title]="actionErrorVm.title"
+      [message]="actionErrorVm.message"
+      [severity]="actionErrorVm.severity"
+    />
+  }
+
+  @if (actionNotice(); as notice) {
+    <tch-section-error
+      feedback
+      class="notification-page__feedback"
+      [title]="notice.title"
+      [message]="notice.message"
+      severity="info"
+    />
+  }
+
+  <section class="summary-card" aria-label="Résumé notifications">
+    <span class="material-symbols-outlined" aria-hidden="true">notifications</span>
+    <div>
+      <p>Non lues dans cette vue</p>
+      <strong>{{ unreadCount() }}</strong>
+    </div>
+  </section>
+
+  @if (showComposer()) {
+    <tch-notification-composer
+      [saving]="saving()"
+      [apiError]="composerApiError()"
+      (submitted)="onComposerSubmitted($event)"
+      (cancelled)="showComposer.set(false)"
+    />
+  }
+
+  <tch-admin-list-surface
+    searchLabel="Recherche"
+    searchPlaceholder="Rechercher une notification..."
+    [searchValue]="searchQuery()"
+    statusLabel="Statut"
+    [statusValue]="statusFilter()"
+    [statusOptions]="statusFilterOptions"
+    allStatusesLabel="Tous les statuts"
+    resetLabel="Réinitialiser"
+    [filtersExpanded]="!!statusFilter() || !!severityFilter() || !!categoryFilter()"
+    (searchChange)="onSearch($event)"
+    (statusChange)="onStatusFilter($event)"
+    (resetFilters)="resetFilters()"
+  >
+    <ng-container list-filters>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Sévérité</mat-label>
+        <mat-select [value]="severityFilter()" (selectionChange)="onSeverityFilter($event.value)">
+          <mat-option value="">Toutes</mat-option>
+          <mat-option value="INFO">INFO</mat-option>
+          <mat-option value="WARNING">WARNING</mat-option>
+          <mat-option value="ERROR">ERROR</mat-option>
+          <mat-option value="CRITICAL">CRITICAL</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Catégorie</mat-label>
+        <mat-select [value]="categoryFilter()" (selectionChange)="onCategoryFilter($event.value)">
+          <mat-option value="">Toutes</mat-option>
+          <mat-option value="SYSTEM">SYSTEM</mat-option>
+          <mat-option value="SECURITY">SECURITY</mat-option>
+          <mat-option value="BATCH">BATCH</mat-option>
+          <mat-option value="TENANT_CONFIG">TENANT_CONFIG</mat-option>
+          <mat-option value="DRAW">DRAW</mat-option>
+          <mat-option value="RESULT">RESULT</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </ng-container>
+
+    <ng-container list-content>
+      <tch-notification-table
+        [notifications]="notifications()"
+        [loading]="loading()"
+        [error]="error()"
+        (publish)="publish($event)"
+        (republish)="republish($event)"
+        (replayRecipients)="replayRecipients($event)"
+        (markRead)="markRead($event)"
+        (cancel)="cancel($event)"
+        (archive)="archive($event)"
+        (openTranslations)="openTranslations($event)"
+        (retry)="load()"
+      />
+    </ng-container>
+
+    <ng-container list-footer>
+      <span>{{ totalElements() }} notification(s)</span>
+      <div class="pager">
+        <button mat-icon-button [disabled]="!hasPrevious()" (click)="prevPage()">
+          <span class="material-symbols-outlined">chevron_left</span>
+        </button>
+        <span>Page {{ page() + 1 }} / {{ totalPages() }}</span>
+        <button mat-icon-button [disabled]="!hasNext()" (click)="nextPage()">
+          <span class="material-symbols-outlined">chevron_right</span>
+        </button>
+      </div>
+    </ng-container>
+  </tch-admin-list-surface>
+</tch-admin-page-shell>

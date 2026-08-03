@@ -1,0 +1,174 @@
+<section class="composer-card" aria-label="Créer une notification">
+  <header>
+    <h2>Créer une notification système</h2>
+    <button mat-icon-button (click)="cancelled.emit()" matTooltip="Fermer">
+      <span class="material-symbols-outlined">close</span>
+    </button>
+  </header>
+
+  <form [formGroup]="form" class="composer-form" (ngSubmit)="submit()">
+    @if (displayError(); as err) {
+      <tch-section-error
+        [title]="err.title"
+        [message]="err.message"
+        [severity]="err.severity"
+      />
+    }
+
+    <div class="composer-form__row">
+      <mat-form-field appearance="outline">
+        <mat-label>Mode</mat-label>
+        <mat-select formControlName="targetMode">
+          <mat-option value="BROADCAST">Audience</mat-option>
+          <mat-option value="SPECIFIC">Destinataires précis</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      @if (form.controls.targetMode.value === 'BROADCAST') {
+        <mat-form-field appearance="outline">
+          <mat-label>Audience</mat-label>
+          <mat-select formControlName="audienceType">
+            <mat-option value="PLATFORM_ADMINS">Admins plateforme</mat-option>
+            <mat-option value="ALL_APP_USERS">Tous les utilisateurs web</mat-option>
+          </mat-select>
+        </mat-form-field>
+      }
+    </div>
+
+    @if (form.controls.targetMode.value === 'SPECIFIC') {
+      <tch-platform-recipient-picker (selectionChange)="onUpdateRecipients($event)" />
+    }
+
+    <mat-tab-group class="composer-form__locale-tabs" animationDuration="160ms">
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <span class="composer-form__tab-label">
+            Français
+            <span
+              class="material-symbols-outlined composer-form__tab-state"
+              [class.composer-form__tab-state--ready]="form.controls.titleFr.valid && form.controls.bodyFr.valid"
+              [class.composer-form__tab-state--todo]="form.controls.titleFr.invalid || form.controls.bodyFr.invalid"
+              aria-hidden="true"
+            >
+              {{ form.controls.titleFr.valid && form.controls.bodyFr.valid ? 'check_circle' : 'error' }}
+            </span>
+          </span>
+        </ng-template>
+
+        <section class="composer-form__locale" aria-label="Français">
+          <mat-form-field appearance="outline">
+            <mat-label>Titre</mat-label>
+            <input matInput formControlName="titleFr" maxlength="160" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Message</mat-label>
+            <textarea matInput rows="4" formControlName="bodyFr" maxlength="1000"></textarea>
+          </mat-form-field>
+        </section>
+      </mat-tab>
+
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <span class="composer-form__tab-label">
+            Anglais
+            <span
+              class="material-symbols-outlined composer-form__tab-state"
+              [class.composer-form__tab-state--ready]="form.controls.titleEn.valid && form.controls.bodyEn.valid"
+              [class.composer-form__tab-state--todo]="form.controls.titleEn.invalid || form.controls.bodyEn.invalid"
+              aria-hidden="true"
+            >
+              {{ form.controls.titleEn.valid && form.controls.bodyEn.valid ? 'check_circle' : 'error' }}
+            </span>
+          </span>
+        </ng-template>
+
+        <section class="composer-form__locale" aria-label="Anglais">
+          <mat-form-field appearance="outline">
+            <mat-label>Title</mat-label>
+            <input matInput formControlName="titleEn" maxlength="160" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Message</mat-label>
+            <textarea matInput rows="4" formControlName="bodyEn" maxlength="1000"></textarea>
+          </mat-form-field>
+        </section>
+      </mat-tab>
+
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <span class="composer-form__tab-label">
+            Créole
+            <span
+              class="material-symbols-outlined composer-form__tab-state"
+              [class.composer-form__tab-state--ready]="form.controls.titleHt.valid && form.controls.bodyHt.valid"
+              [class.composer-form__tab-state--todo]="form.controls.titleHt.invalid || form.controls.bodyHt.invalid"
+              aria-hidden="true"
+            >
+              {{ form.controls.titleHt.valid && form.controls.bodyHt.valid ? 'check_circle' : 'error' }}
+            </span>
+          </span>
+        </ng-template>
+
+        <section class="composer-form__locale" aria-label="Créole">
+          <mat-form-field appearance="outline">
+            <mat-label>Tit</mat-label>
+            <input matInput formControlName="titleHt" maxlength="160" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Mesaj</mat-label>
+            <textarea matInput rows="4" formControlName="bodyHt" maxlength="1000"></textarea>
+          </mat-form-field>
+        </section>
+      </mat-tab>
+    </mat-tab-group>
+
+    <div class="composer-form__row">
+      <mat-form-field appearance="outline">
+        <mat-label>Sévérité</mat-label>
+        <mat-select formControlName="severity">
+          @for (severity of severityOptions; track severity) {
+            <mat-option [value]="severity">{{ severity }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Catégorie</mat-label>
+        <mat-select formControlName="category">
+          @for (category of categoryOptions; track category) {
+            <mat-option [value]="category">{{ category }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Lien d'action</mat-label>
+      <input matInput formControlName="actionUrl" placeholder="/app/platform/ops/batch" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Canaux</mat-label>
+      <mat-select formControlName="channels" multiple>
+        @for (channel of channelOptions; track channel) {
+          <mat-option [value]="channel">{{ channel }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Destination externe</mat-label>
+      <input matInput formControlName="externalDestination" placeholder="email ou numéro pour test ciblé" />
+    </mat-form-field>
+
+    <div class="composer-actions">
+      <button mat-stroked-button type="button" (click)="cancelled.emit()">Annuler</button>
+      <button mat-flat-button color="primary" type="submit" [disabled]="saving() || form.invalid">
+        Envoyer
+      </button>
+    </div>
+  </form>
+</section>

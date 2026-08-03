@@ -206,21 +206,21 @@ export const platformRoutes: Route[] = [
   {
     path: 'notifications',
     loadComponent: () =>
-      import('./notifications/pages/notifications-crud/platform-notifications.page').then(
+      import('./notifications/pages/list/platform-notifications.page').then(
         m => m.PlatformNotificationsPage,
       ),
   },
   {
     path: 'communications',
     loadComponent: () =>
-      import('./notifications/pages/notifications-crud/platform-notifications.page').then(
+      import('./notifications/pages/list/platform-notifications.page').then(
         m => m.PlatformNotificationsPage,
       ),
   },
   {
     path: 'communication/notifications',
     loadComponent: () =>
-      import('./notifications/pages/notifications-crud/platform-notifications.page').then(
+      import('./notifications/pages/list/platform-notifications.page').then(
         m => m.PlatformNotificationsPage,
       ),
   },
