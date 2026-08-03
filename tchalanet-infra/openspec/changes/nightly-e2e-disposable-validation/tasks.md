@@ -8,3 +8,4 @@
 - [x] Keep browser REST fixtures deterministic while reusing the runtime Firebase emulator.
 - [x] Make Slack notification lookup optional and preserve the GitHub-only report fallback.
 - [x] Keep Locust perf as an explicit optional smoke with artifacts.
+- [x] Keep Firebase emulator credentials empty in the local Docker E2E profile.
