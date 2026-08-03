@@ -43,26 +43,52 @@ The maximum window remains 90 business days. A tenant repair changes only tenant
 separate all-tenant scope because a single tenant cannot prove the correctness of a global total.
 Until that scope exists, a tenant repair must not mark platform metrics ready.
 
-## Source snapshot contract
+## V1 settlement and source snapshot contract
 
-The current sale snapshot is a useful starting point but is not sufficient for a complete rebuild.
-Before implementing the handler, the sales public API must expose a reconciliation snapshot that
-contains immutable values captured by the source lifecycle:
+V1 has no independent payout workflow. Applying a confirmed draw result resolves every eligible
+ticket for that draw as winning or losing. A winning ticket is immediately considered paid. The
+result processor MUST NOT settle the draw while tickets remain pending or have failed processing;
+after the configured attention delay it emits the existing operational notification to platform
+operators.
+
+The current sale snapshot is a useful starting point but needs the persisted payment truth for a
+complete rebuild. The sales public API must expose a reconciliation snapshot containing immutable
+values captured by the source lifecycle:
 
 - ticket identity, tenant, seller terminal, draw, draw channel, and sale channel;
 - sale status and sale timestamp;
 - stake, total, seller commission amount, and all charge snapshots;
 - line identity and line snapshots: game, bet type, option, selection, stake, origin, and pricing
   source;
-- cancellation and void timestamps, including reversal amounts where applicable;
-- result and settlement timestamps and statuses;
-- effective payout amount;
-- payout adjustment and reversal history, with event timestamp, amount, and stable event identity;
+- cancellation and void timestamps;
+- result and settlement timestamps and statuses, including the resolved winning/losing outcome;
+- calculated winning amount and the effective paid amount;
+- paid-amount correction timestamp, actor and reason when a correction occurred;
 - a source watermark that identifies the consistent read boundary.
 
-`winningAmount` plus `paidAt` is not an adequate payout history. If the source cannot provide the
-adjustment or reversal history, the operation must return `SOURCE_UNAVAILABLE` and leave existing
-projections unchanged. It must never infer a historical paid amount from current configuration.
+The ticket has two deliberately different financial facts:
+
+- `winning_amount` is the calculated outcome. It MUST equal the sum of the winning outcomes on
+  `ticket_line` and is changed only by result application or result correction.
+- `paid_amount` is the effective amount retained for the ticket after a one-off authorized payment
+  correction. It is initialized to `winning_amount` during result application, but it may differ
+  afterwards only when correction metadata is present.
+
+The result-application transaction initializes `paid_amount = winning_amount` and
+`paid_at = result_applied_at` for winning tickets; a losing ticket has a zero paid amount. The
+authorized correction service updates `paid_amount` and its audit metadata in the same transaction
+as the analytics delta. It MUST derive the previous value from the ticket, never trust a
+client-provided previous amount. It MUST NOT rewrite `winning_amount` or any line outcome.
+
+Thus a correction is not an inconsistency: the UI and API expose both the calculated gain and the
+effective paid amount when they differ. Reconciliation validates the calculated amount against the
+line outcomes and separately aggregates the effective paid amount for paid-basis analytics.
+
+This requires a narrow migration on `sales_ticket` for `paid_amount`, `paid_amount_adjusted_at`,
+`paid_amount_adjusted_by`, and `paid_amount_adjustment_reason`. `ticket_line` is unchanged: it
+continues to hold the selection and calculated result facts. A separate append-only payout ledger
+is explicitly deferred until the product supports partial payments, cash-desk payments, manual
+reversals, or multiple accounting corrections.
 
 The analytics application consumes this contract through the sales public API and `QueryBus`. It
 does not access sales JPA entities or tables directly.
@@ -74,8 +100,8 @@ The rebuild must make the accounting date explicit instead of applying one date 
 | Projection/data | Business date | Source fact |
 | --- | --- | --- |
 | Daily sale count, stake, gross, charges, commission, selections | sales date | approved sale timestamp |
-| Daily cancellation/reversal deltas | lifecycle date | cancellation or reversal timestamp |
-| Daily winnings and paid amount | settlement date | payout/adjustment/reversal timestamp |
+| Daily cancellation deltas | lifecycle date | cancellation timestamp |
+| Daily calculated winnings and paid amount | settlement date | result application or paid-amount correction timestamp |
 | Draw aggregate | draw occurrence | draw scheduled business date; lifecycle values update the same draw |
 | Seller-terminal/draw aggregate | draw occurrence | same as draw aggregate, scoped by terminal |
 

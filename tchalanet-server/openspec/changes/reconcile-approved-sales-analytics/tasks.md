@@ -22,9 +22,17 @@
       until the requested scope is trustworthy.
 - [ ] Add a platform-ops audited action to disable or re-enable metric visibility by scope and
       reason. Client code must not control the flag.
-- [ ] Define the source snapshot contract for paid-basis and cancellation reconciliation before
-      implementing the reconciler: effective paid amount, adjustment/reversal history, cancellation
-      timestamp, and reversal amounts. This prevents incorrect reconciliation after corrections.
+- [ ] Add the V1 ticket paid-amount snapshot migration (`paid_amount` plus correction audit
+      metadata), initialize it when draw results are applied, and migrate existing V1 tickets.
+- [ ] Replace the transient paid-amount adjustment event contract with an authorized ticket update:
+      read the previous amount server-side, persist the effective paid amount and audit metadata,
+      then project the delta after commit. Preserve `winning_amount` and all ticket-line outcomes;
+      do not expose manual payout reversal in V1.
+- [ ] Extend the sales reconciliation snapshot with ticket result outcome, settlement timestamp,
+      effective paid amount and paid-amount correction metadata. Keep `ticket_line` unchanged.
+- [ ] Add invariants and tests: `ticket.winning_amount` equals the sum of calculated winning line
+      outcomes; `paid_amount` initially equals it and may differ only with persisted correction
+      metadata; reconciliation validates and reports these two accounting bases separately.
 - [x] Add the tenant-scoped sales snapshot read boundary and batch-load ticket charges, so a
       reconciliation window does not execute one charge query per ticket.
 - [~] Add a read-only `VALIDATE` reconciler that compares immutable transactional ticket, line,
@@ -54,6 +62,9 @@
       snapshots.
 - [ ] Add alerts for projection failure or reconciliation mismatch and automatically mark the
       affected scope unavailable.
+- [ ] Run the resulted-draw operational check after every result application: all eligible tickets
+      must be resolved before settlement; after the attention threshold, send a deduplicated
+      platform Web and Slack notification containing pending and failed ticket counts.
 - [ ] Remove remaining approval-only lifecycle APIs and persistence states after the V0 data reset.
 - [ ] Add end-to-end reconciliation coverage for directly approved sales, limit rejection,
       cancellation, failed projection, recompute, and unavailable-KPI rendering.
