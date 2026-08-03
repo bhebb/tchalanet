@@ -43,7 +43,7 @@ export class NotificationTableComponent {
     readonly republish = output<NotificationItemView>();
     readonly replayRecipients = output<NotificationItemView>();
     readonly markRead = output<NotificationItemView>();
-    readonly cancel = output<NotificationItemView>();
+    readonly cancelNotification = output<NotificationItemView>();
     readonly archive = output<NotificationItemView>();
     readonly openTranslations = output<NotificationItemView>();
     readonly retry = output<void>();

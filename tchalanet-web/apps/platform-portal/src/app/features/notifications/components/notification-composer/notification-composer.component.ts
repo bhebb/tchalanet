@@ -19,6 +19,7 @@ import {
     NotificationCategory,
     NotificationChannel,
     NotificationSeverity,
+    NotificationTarget,
 } from '../../data-access/notifications-api.service';
 
 type TargetMode = 'BROADCAST' | 'SPECIFIC';
@@ -29,7 +30,7 @@ export interface NotificationDraftEvent {
         sourceId: null;
         dedupeKey: null;
         audienceType: NotificationAudienceType;
-        targets: unknown[] | undefined;
+        targets: NotificationTarget[] | undefined;
         severity: NotificationSeverity;
         kind: 'SYSTEM_ERROR' | 'WARNING';
         category: NotificationCategory;
