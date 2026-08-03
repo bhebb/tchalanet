@@ -5,4 +5,6 @@
 - [x] Ensure staging core infra before E2E when requested.
 - [x] Deploy runtime with Firebase Auth Emulator support.
 - [x] Run `full_flow` by default for scheduled server E2E.
+- [x] Keep browser REST fixtures deterministic while reusing the runtime Firebase emulator.
+- [x] Make Slack notification lookup optional and preserve the GitHub-only report fallback.
 - [x] Keep Locust perf as an explicit optional smoke with artifacts.
