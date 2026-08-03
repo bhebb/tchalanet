@@ -33,7 +33,12 @@ test.describe('Admin operational surface structure', () => {
     },
     {
       path: '/app/admin/reports/sellers',
-      blockIds: ['admin-page-shell', 'admin-page-header', 'admin-page-actions', 'admin-refresh-button'],
+      blockIds: [
+        'admin-page-shell',
+        'admin-page-header',
+        'admin-page-actions',
+        'admin-refresh-button',
+      ],
     },
   ]) {
     test(`keeps stable block ids on ${screen.path}`, async ({ page }) => {
@@ -41,7 +46,11 @@ test.describe('Admin operational surface structure', () => {
 
       for (const blockId of screen.blockIds) {
         const block = page.getByTestId(blockId);
-        await expect(block, `${blockId} must stay unique on ${screen.path}`).toHaveCount(1);
+        await expect(block, `${blockId} must stay unique on ${screen.path}`).toHaveCount(1, {
+          // The list surface is rendered only once its resource settles. Give
+          // this explicit async boundary enough time on a cold CI runner.
+          timeout: blockId.startsWith('admin-list-') ? 15_000 : undefined,
+        });
       }
     });
   }

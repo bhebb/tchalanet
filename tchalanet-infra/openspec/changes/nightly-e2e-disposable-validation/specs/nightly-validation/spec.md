@@ -34,20 +34,37 @@ Load testing SHALL remain an explicit workflow choice and SHALL not run as part 
 - **THEN** it runs Locust after successful server E2E
 - **AND** it uploads Locust artifacts for inspection.
 
-### Requirement: Web E2E Receives Disposable Runtime Coordinates
+### Requirement: Web E2E Retains Deterministic REST Contracts
 
-The Full Validation workflow SHALL pass runtime coordinates from the deployment job to browser E2E instead of relying on static or pre-known base paths.
+The Full Validation workflow SHALL keep the browser suite's REST responses deterministic.
+It MAY reuse the Firebase Auth Emulator of the disposable runtime for real browser sign-in.
 
 #### Scenario: Disposable runtime is deployed before web E2E
 
 - **WHEN** the runtime deployment job completes successfully
-- **THEN** it exposes the API base URL and Firebase emulator coordinates as job outputs
-- **AND** it configures API CORS for the Playwright localhost portal origins
-- **AND** the web E2E job uses those outputs to generate the portal runtime JSON files before starting Playwright
-- **AND** the web E2E suite runs with REST stubs disabled.
+- **THEN** it exposes Firebase emulator coordinates as job outputs
+- **AND** the web E2E job tunnels that emulator for browser sign-in
+- **AND** the web E2E suite keeps its REST stubs enabled
+- **AND** the server E2E job remains responsible for assertions against the deployed API and database.
 
 #### Scenario: Runtime deployment is skipped for a web-only run
 
 - **WHEN** no disposable runtime coordinates are available
 - **THEN** web E2E falls back to the self-contained Firebase-emulator plus REST-stub harness
 - **AND** it does not assume staging or run-specific API URLs.
+
+### Requirement: Validation Report Supports Optional Slack Notifications
+
+The Full Validation workflow SHALL always write its GitHub step summary. Slack notification is optional.
+
+#### Scenario: No Slack webhook is configured
+
+- **WHEN** neither the GitHub webhook secret nor `SLACK_WEBHOOK_OPS_ALERTS` exists in Doppler
+- **THEN** the report job completes its summary without emitting a Doppler lookup error
+- **AND** it logs that the GitHub-only report fallback was used.
+
+#### Scenario: Slack webhook is configured
+
+- **WHEN** a webhook is available from GitHub secrets or Doppler
+- **THEN** the report job posts the compact validation summary to that webhook
+- **AND** a notification delivery failure remains non-blocking for the report job.

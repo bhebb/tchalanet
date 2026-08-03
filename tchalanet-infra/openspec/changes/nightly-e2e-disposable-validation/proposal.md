@@ -12,6 +12,10 @@ missing Firebase secrets, or application regression all failed in the same place
 - Ensure staging core infra exists before server E2E.
 - Deploy runtime services in a validation mode that can use Firebase Auth Emulator.
 - Run the Firebase-emulator `full_flow` by default for scheduled server E2E.
+- Keep browser E2E REST data deterministic while reusing the runtime Firebase
+  Auth Emulator when it is available.
+- Treat Slack notification webhooks as optional Doppler secrets so a missing
+  channel does not obscure the GitHub validation report.
 - Keep Locust as an explicit optional smoke, separate from functional E2E.
 
 ## Impact
