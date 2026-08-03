@@ -1,0 +1,96 @@
+@use 'breakpoints' as ui;
+
+:host {
+  display: block;
+}
+
+.composer-card {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--tch-color-outline-variant, #c7c5d0);
+  border-radius: 0.75rem;
+  background: var(--tch-color-surface-container-lowest, #fff);
+}
+
+.composer-card header,
+.composer-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  justify-content: space-between;
+}
+
+.composer-card h2 {
+  margin: 0;
+  font-size: 1.125rem;
+}
+
+.composer-form {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.composer-form__row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.composer-form__locale {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.75rem;
+}
+
+.composer-form__locale-tabs {
+  overflow: hidden;
+  border: 1px solid var(--tch-color-outline-variant, #c7c5d0);
+  border-radius: 0.75rem;
+  background: var(--tch-color-surface-container-lowest, #fff);
+}
+
+.composer-form__locale-tabs,
+.composer-form__locale-tabs mat-form-field {
+  min-width: 0;
+}
+
+:host ::ng-deep .composer-form__locale-tabs .mat-mdc-tab-header {
+  border-bottom: 1px solid var(--tch-color-outline-variant, #c7c5d0);
+}
+
+:host ::ng-deep .composer-form__locale-tabs .mdc-tab--active .mdc-tab__text-label {
+  color: var(--tch-color-primary-container, #141545);
+}
+
+:host ::ng-deep .composer-form__locale-tabs .mat-mdc-tab .mdc-tab-indicator__content--underline {
+  border-color: var(--tch-color-secondary-container, #fecb02);
+}
+
+.composer-form__tab-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-weight: 800;
+}
+
+.composer-form__tab-state {
+  font-size: 1rem;
+}
+
+.composer-form__tab-state--ready {
+  color: var(--tch-color-status-ready, #10b981);
+}
+
+.composer-form__tab-state--todo {
+  color: var(--tch-color-status-warning, #f59e0b);
+}
+
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+}
+
+@include ui.down(expanded) {
+  .composer-form__row {
+    grid-template-columns: 1fr;
+  }
+}
