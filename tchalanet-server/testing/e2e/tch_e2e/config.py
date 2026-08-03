@@ -26,8 +26,11 @@ def load_env() -> None:
         if candidate.exists():
             load_dotenv(candidate, override=False)
             return
+    if os.environ.get("TCH_BASE_URL"):
+        return
     raise RuntimeError(
-        f".env.local not found in any of: {[str(c) for c in candidates]}"
+        ".env.local not found and TCH_BASE_URL is not configured; "
+        f"checked: {[str(c) for c in candidates]}"
     )
 
 

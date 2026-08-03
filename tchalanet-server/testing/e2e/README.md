@@ -163,6 +163,10 @@ The harness loads env from the **first** of these that exists (via `tch_e2e/conf
 1. `tchalanet-server/scripts/.env.local`  ← canonical for local dev
 2. `tchalanet-server/testing/e2e/.env.local`  ← optional override
 
+When `TCH_BASE_URL` is already injected (CI or an isolated worktree), no local env file is
+required. The runner environment remains the source of configuration; never copy secrets into a
+worktree.
+
 Copy `.env.example` to one of those and fill in passwords. Key vars:
 
 | Var | Dev value | Purpose |
