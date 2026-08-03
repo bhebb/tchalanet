@@ -27,21 +27,42 @@ final _rootNavigatorKey = GlobalKey<NavigatorState>();
 /// recreating GoRouter on every state change caused a blank screen churn
 /// right after login (auth + runtime bootstrap fire several state updates
 /// in quick succession).
-class _RouterRefreshNotifier extends ChangeNotifier {
-  _RouterRefreshNotifier(Ref ref) {
-    ref.listen(authControllerProvider, (_, _) => notifyListeners());
-    ref.listen(runtimeControllerProvider, (_, _) => notifyListeners());
+///
+/// A hand-rolled [Listenable] rather than Flutter's usual observable-state
+/// base class: this isn't app state (the architecture guard reserves that
+/// for Riverpod's Notifier/AsyncNotifier) — it only exists to satisfy
+/// go_router's `refreshListenable` contract, which requires a [Listenable].
+class _RouterRefreshListenable implements Listenable {
+  _RouterRefreshListenable(Ref ref) {
+    ref.listen(authControllerProvider, (_, _) => _notify());
+    ref.listen(runtimeControllerProvider, (_, _) => _notify());
   }
+
+  final _listeners = <VoidCallback>{};
+
+  @override
+  void addListener(VoidCallback listener) => _listeners.add(listener);
+
+  @override
+  void removeListener(VoidCallback listener) => _listeners.remove(listener);
+
+  void _notify() {
+    for (final listener in List<VoidCallback>.of(_listeners)) {
+      listener();
+    }
+  }
+
+  void dispose() => _listeners.clear();
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
-  final refreshNotifier = _RouterRefreshNotifier(ref);
-  ref.onDispose(refreshNotifier.dispose);
+  final refreshListenable = _RouterRefreshListenable(ref);
+  ref.onDispose(refreshListenable.dispose);
 
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
     initialLocation: '/login',
-    refreshListenable: refreshNotifier,
+    refreshListenable: refreshListenable,
     redirect: (context, state) {
       final authState = ref.read(authControllerProvider);
       final runtimeState = ref.read(runtimeControllerProvider);
