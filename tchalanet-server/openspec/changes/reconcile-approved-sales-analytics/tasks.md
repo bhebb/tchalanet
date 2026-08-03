@@ -22,15 +22,16 @@
       until the requested scope is trustworthy.
 - [ ] Add a platform-ops audited action to disable or re-enable metric visibility by scope and
       reason. Client code must not control the flag.
-- [ ] Add the V1 ticket paid-amount snapshot migration (`paid_amount` plus correction audit
-      metadata), initialize it when draw results are applied, and migrate existing V1 tickets.
-- [ ] Replace the transient paid-amount adjustment event contract with an authorized ticket update:
+- [~] Add the V1 ticket paid-amount snapshot schema (`paid_amount` plus correction audit
+      metadata) and initialize it when draw results are applied. Existing environment data must be
+      backfilled as part of the pre-production database reset.
+- [x] Replace the transient paid-amount adjustment event contract with an authorized ticket update:
       read the previous amount server-side, persist the effective paid amount and audit metadata,
       then project the delta after commit. Preserve `winning_amount` and all ticket-line outcomes;
       do not expose manual payout reversal in V1.
-- [ ] Extend the sales reconciliation snapshot with ticket result outcome, settlement timestamp,
+- [x] Extend the sales reconciliation snapshot with ticket result outcome, settlement timestamp,
       effective paid amount and paid-amount correction metadata. Keep `ticket_line` unchanged.
-- [ ] Add invariants and tests: `ticket.winning_amount` equals the sum of calculated winning line
+- [x] Add invariants and tests: `ticket.winning_amount` equals the sum of calculated winning line
       outcomes; `paid_amount` initially equals it and may differ only with persisted correction
       metadata; reconciliation validates and reports these two accounting bases separately.
 - [x] Add the tenant-scoped sales snapshot read boundary and batch-load ticket charges, so a

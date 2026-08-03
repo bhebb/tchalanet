@@ -155,6 +155,9 @@ public class TicketJpaEntity extends BaseTenantEntity {
   @Column(name = "winning_amount", nullable = false, precision = 19, scale = 4)
   private BigDecimal winningAmount;
 
+  @Column(name = "paid_amount", nullable = false, precision = 19, scale = 4)
+  private BigDecimal paidAmount;
+
   // -------------------- Sale lifecycle --------------------
 
   @Enumerated(EnumType.STRING)
@@ -241,6 +244,15 @@ public class TicketJpaEntity extends BaseTenantEntity {
 
   @Column(name = "paid_by", columnDefinition = "uuid")
   private UUID paidBy;
+
+  @Column(name = "paid_amount_adjusted_at")
+  private Instant paidAmountAdjustedAt;
+
+  @Column(name = "paid_amount_adjusted_by", columnDefinition = "uuid")
+  private UUID paidAmountAdjustedBy;
+
+  @Column(name = "paid_amount_adjustment_reason", length = 500)
+  private String paidAmountAdjustmentReason;
 
   // -------------------- Origin --------------------
 
