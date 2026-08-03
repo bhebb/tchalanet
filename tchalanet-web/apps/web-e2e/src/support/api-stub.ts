@@ -634,6 +634,18 @@ export class ApiStub {
     await this.apiRoute(/\/admin\/reports\/seller-terminals(?:\?|$)/, (r) =>
       json(r, envelope(sellerReportStub)),
     );
+    await this.apiRoute(/\/admin\/seller-terminals\/summary(?:\?|$)/, (r) =>
+      json(
+        r,
+        envelope({
+          activeCount: 2,
+          blockedCount: 0,
+          salesTodayAmount: 0,
+          averageCommissionRate: 10,
+          currency: 'HTG',
+        }),
+      ),
+    );
     await this.apiRoute(/\/admin\/seller-terminals(?:\?|$)/, (r) =>
       json(r, envelope(page([
         {

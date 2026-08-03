@@ -53,3 +53,21 @@ EDGE_HMAC_SECRET
 
 Les credentials Firebase Admin sont injectés via secret manager ou montage
 secret et ne doivent jamais être versionnés.
+
+### Webhooks transverses
+
+Les webhooks sont des secrets optionnels, définis avec le même nom dans chaque
+configuration Doppler qui les utilise :
+
+```bash
+SLACK_WEBHOOK_OPS_ALERTS
+SLACK_WEBHOOK_BATCH_DRAWS
+SLACK_WEBHOOK_DELIVERY
+SLACK_WEBHOOK_SECURITY_AUDIT
+```
+
+Ne créer aucune valeur vide ou de démonstration. Tant qu'un canal Slack n'est
+pas disponible, l'absence du secret est un état valide : le workflow écrit son
+rapport GitHub sans tentative de notification. Quand l'URL réelle est prête,
+l'enregistrer dans chaque configuration Doppler concernée, jamais dans
+`envs/common/*.env` ni dans Git.

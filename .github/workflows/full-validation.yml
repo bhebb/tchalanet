@@ -957,11 +957,9 @@ jobs:
                 --entrypoint sh \
                 -e DOPPLER_TOKEN="$DOPPLER_TOKEN_VALUE" \
                 dopplerhq/cli:3.75.1 \
-                -lc 'doppler secrets get SLACK_WEBHOOK_OPS_ALERTS --project tchalanet --config stg --plain'
-            )" || {
-              echo "Doppler Slack webhook lookup failed (non-blocking)"
-              slack_webhook_url=""
-            }
+                -lc 'doppler secrets get SLACK_WEBHOOK_OPS_ALERTS --project tchalanet --config stg --plain' \
+                2>/dev/null || true
+            )"
           fi
           if [ -n "$slack_webhook_url" ]; then
             echo "::add-mask::$slack_webhook_url"
@@ -970,6 +968,8 @@ jobs:
               -H 'Content-Type: application/json' \
               -d "{\"text\":\"${msg}\"}" \
               || echo "Slack notification failed (non-blocking)"
+          else
+            echo "Slack webhook not configured; GitHub summary only"
           fi
 
           [ "$overall" = "success" ] || exit 1
