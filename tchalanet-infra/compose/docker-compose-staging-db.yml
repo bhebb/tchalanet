@@ -1,0 +1,18 @@
+# Staging datasource pin — local Postgres, not Neon.
+#
+# envs/staging/.env already declares the local Postgres container
+# (postgres:5432/tchalanet_db as app_user), but docker-compose-api.yml loads
+# env_file in the order .env.merged then .secrets, so any SPRING_DATASOURCE_*
+# carried by Doppler wins. Doppler's stg config currently holds stale Neon
+# values (dev and prd carry none), which points the API at a database that
+# rejects its credentials.
+#
+# The environment: section outranks env_file, so pinning the values here
+# restores the intended target. Remove this file once the Neon entries are
+# deleted from Doppler stg.
+services:
+  api:
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${APP_DB_NAME:-tchalanet_db}
+      SPRING_DATASOURCE_USERNAME: ${APP_DB_USER:-app_user}
+      SPRING_DATASOURCE_PASSWORD: ${APP_DB_PASSWORD:?APP_DB_PASSWORD is required}
