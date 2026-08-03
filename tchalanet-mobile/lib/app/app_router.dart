@@ -22,14 +22,29 @@ import '../features/notifications/presentation/views/notification_center_page.da
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
+/// Pings go_router to re-run [redirect] on auth/runtime changes without
+/// tearing down and rebuilding the GoRouter (and its Navigator) each time —
+/// recreating GoRouter on every state change caused a blank screen churn
+/// right after login (auth + runtime bootstrap fire several state updates
+/// in quick succession).
+class _RouterRefreshNotifier extends ChangeNotifier {
+  _RouterRefreshNotifier(Ref ref) {
+    ref.listen(authControllerProvider, (_, _) => notifyListeners());
+    ref.listen(runtimeControllerProvider, (_, _) => notifyListeners());
+  }
+}
+
 final appRouterProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(authControllerProvider);
-  final runtimeState = ref.watch(runtimeControllerProvider);
+  final refreshNotifier = _RouterRefreshNotifier(ref);
+  ref.onDispose(refreshNotifier.dispose);
 
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
     initialLocation: '/login',
+    refreshListenable: refreshNotifier,
     redirect: (context, state) {
+      final authState = ref.read(authControllerProvider);
+      final runtimeState = ref.read(runtimeControllerProvider);
       final isAuthenticated = authState is AuthAuthenticated;
       final isUnknown = authState is AuthUnknown;
       final isOnLogin = state.matchedLocation == '/login';
