@@ -117,7 +117,11 @@ public class NotificationPersistenceService implements NotificationWriter, Notif
     var unread =
         notifications.countVisibleToTerminal(
             tenantId.value(),
-            sellerTerminalId.value(), NotificationStatus.PUBLISHED, null, null, now);
+            sellerTerminalId.value(),
+            NotificationStatus.PUBLISHED,
+            null,
+            null,
+            now);
     var critical =
         notifications.countVisibleToTerminal(
             tenantId.value(),

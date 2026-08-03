@@ -12,7 +12,10 @@ class NotificationJpaRepositoryScopeQueryTest {
   void appUserVisibleNotificationQueriesRequireTheActiveTenantScope() {
     var queries =
         Arrays.stream(NotificationJpaRepository.class.getMethods())
-            .filter(method -> method.getName().equals("searchVisible") || method.getName().equals("countVisible"))
+            .filter(
+                method ->
+                    method.getName().equals("searchVisible")
+                        || method.getName().equals("countVisible"))
             .map(method -> method.getAnnotation(Query.class))
             .toList();
 
@@ -20,8 +23,6 @@ class NotificationJpaRepositoryScopeQueryTest {
     assertThat(queries)
         .allSatisfy(
             query ->
-                assertThat(query.value())
-                    .contains(":tenantId")
-                    .contains("n.tenantId = :tenantId"));
+                assertThat(query.value()).contains(":tenantId").contains("n.tenantId = :tenantId"));
   }
 }

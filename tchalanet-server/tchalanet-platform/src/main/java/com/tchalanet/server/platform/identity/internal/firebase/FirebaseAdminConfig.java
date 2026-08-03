@@ -55,7 +55,8 @@ class FirebaseAdminConfig {
   private static GoogleCredentials credentials(String provider, String credentialsPath) {
     try {
       if ("firebase-emulator".equals(provider)) {
-        // Emulator never validates credentials; use a synthetic token regardless of credentials path.
+        // Emulator never validates credentials; use a synthetic token regardless of credentials
+        // path.
         return GoogleCredentials.create(
             new AccessToken("firebase-emulator-owner", Date.from(Instant.now().plusSeconds(3600))));
       }
