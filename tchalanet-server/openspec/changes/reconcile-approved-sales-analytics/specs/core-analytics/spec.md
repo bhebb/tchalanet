@@ -118,3 +118,53 @@ promotion or settlement configuration.
 - **WHEN** reconciliation calculates expected seller commission and stake
 - **THEN** it SHALL use the ticket snapshots persisted at sale time
 - **AND** changing the current seller configuration SHALL NOT change the reconciliation result.
+
+### Requirement: V1 result application establishes the effective paid amount
+
+V1 SHALL treat a ticket resolved as winning by a confirmed draw result as immediately paid. The
+ticket SHALL persist both its calculated winning amount and its effective paid amount. The
+calculated winning amount SHALL equal the sum of winning `ticket_line` outcomes and SHALL change
+only when the draw result is applied or corrected. The initial effective paid amount SHALL equal
+the calculated winning amount. A losing ticket SHALL have an effective paid amount of zero.
+`ticket_line` SHALL remain the source of line selections and calculated game outcomes; it SHALL
+NOT store payment corrections.
+
+#### Scenario: Result application settles a winning ticket
+
+- **GIVEN** an approved ticket is eligible for a confirmed draw result
+- **WHEN** the result processor resolves the ticket as winning
+- **THEN** the ticket SHALL persist its calculated winning amount, effective paid amount and
+  settlement timestamp in the same result-application lifecycle
+- **AND** the effective paid amount SHALL equal the calculated winning amount.
+
+#### Scenario: Payment correction does not rewrite calculated line results
+
+- **GIVEN** a settled winning ticket whose calculated winning amount equals its line outcomes
+- **WHEN** an authorized operator corrects the effective paid amount
+- **THEN** the calculated winning amount and every ticket-line outcome SHALL remain unchanged
+- **AND** the ticket SHALL expose the calculated amount and the corrected effective paid amount as
+  separate values
+- **AND** the correction metadata SHALL explain why the values differ.
+
+#### Scenario: Authorized correction changes the effective paid amount
+
+- **GIVEN** a settled winning ticket has an effective paid amount
+- **WHEN** an authorized operator corrects that amount with a reason
+- **THEN** the service SHALL read the previous amount from the ticket
+- **AND** SHALL persist the replacement paid amount, correction timestamp, actor and reason
+- **AND** SHALL update analytics by the exact server-derived delta after commit
+- **AND** reconciliation SHALL derive the repaired paid metric from the persisted ticket amount.
+
+### Requirement: Result processing alerts before an unresolved draw is settled
+
+The draw result processor SHALL settle a draw only after all eligible tickets have a resolved
+winning or losing outcome. If pending or failed ticket processing remains after the configured
+attention delay, the system SHALL send one deduplicated Web and Slack notification to platform
+operators. This operational alert is distinct from analytics reconciliation.
+
+#### Scenario: Ticket result processing remains incomplete
+
+- **GIVEN** a confirmed draw result leaves eligible tickets pending or failed
+- **WHEN** the configured attention delay has elapsed
+- **THEN** the draw SHALL remain unsettled
+- **AND** the notification SHALL identify the draw, pending ticket count and failed ticket count.
