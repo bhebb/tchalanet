@@ -311,6 +311,19 @@ Toutes les réponses utilisent `ApiResponse<T>` sauf les endpoints de print bina
 - ✅ RLS: Tenant filtering at DB level (PostgreSQL policies)
 - ✅ Typed IDs: Never raw UUID outside persistence layer
 
+## Politique de notifications administrateur
+
+Les événements `TicketPlacedEvent`, `TicketApprovedEvent`, `TicketCancelledEvent`,
+`TicketResultedEvent` et `TicketPaidEvent` ne créent pas de notification administrateur dans le
+flux nominal. Ces événements sont fréquents; la confirmation de commande, le reçu, les listes, le
+détail du ticket et les rapports sont les sources d'information.
+
+Le signal tenant normal est le résultat disponible pour le tirage concerné, non un message par
+ticket. Si un échec de settlement ou de payout persiste après les tentatives prévues, le futur
+signal sera unique et agrégé par tirage : la supervision plateforme reçoit l'action requise et le
+tenant n'est averti que lorsqu'une action de sa part est nécessaire. Le contrat complet est dans
+`openspec/changes/notification-lifecycle-policy-v1/`.
+
 ---
 
 ## 9. État connu — Anomalies & TODO (cf. audit 2026-04-26)

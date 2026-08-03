@@ -205,6 +205,18 @@ Le pipeline runtime supporté est `generate -> open -> close -> fetch -> apply -
 - `result-reminder` : étape globale du processing tick; elle crée les rappels missing/overdue et
   provisional-stuck via la même notification action-required et le bridge Slack.
 
+### Notifications de cycle de vie
+
+Les transitions normales `generate`, `open`, `close`, `apply` et `settle` sont silencieuses : elles
+restent visibles dans les listes, le détail du tirage, le tableau de bord et les rapports. Une
+notification ne remplace jamais cet état opérationnel.
+
+Les exceptions de résultat sont notifiées après commit selon la politique
+`notification-lifecycle-policy-v1` : résultat absent/provisoire bloqué pour la supervision
+plateforme, résultat disponible ou corrigé pour les propriétaires et administrateurs du tenant
+affecté. Un `DrawSettledEvent` réussi ne génère pas de message; un futur blocage persistant de
+settlement sera agrégé par tirage, jamais par ticket.
+
 ---
 
 ## 17. Analysis V1 (2026-05-05) — Flow Validation
