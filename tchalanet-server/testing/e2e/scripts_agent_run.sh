@@ -9,7 +9,7 @@ MODE="${1:-agent}"
 usage() {
   cat <<'USAGE'
 Usage:
-  bash scripts_agent_run.sh [agent|smoke|business-day|bet-options|availability-gates|full-business-day]
+  bash scripts_agent_run.sh [agent|smoke|business-day|bet-options|notifications|availability-gates|full-business-day]
 
 Modes:
   agent              Default. Runs the current canonical agent check:
@@ -17,6 +17,7 @@ Modes:
   smoke              Runs L0 only.
   business-day       Runs the reduced canonical business-day scenario.
   bet-options        Runs the BetOptions companion check.
+  notifications      Runs the tenant/platform notification audience check.
   availability-gates Runs the isolated availability-gates check. Requires
                      TCH_E2E_ALLOW_CATALOG_MUTATION=true.
   full-business-day  Runs business-day with all configured tenants/draws.
@@ -96,6 +97,11 @@ run_bet_options() {
     tests/full_flow/test_game_bet_options_scenarios.py::test_tenant_game_bet_options_are_configured_sold_snapshotted_and_reprinted
 }
 
+run_notifications() {
+  run_pytest -q \
+    tests/notifications/test_notification_audiences.py::test_tenant_owner_and_admin_see_tenant_notice_but_superadmin_does_not
+}
+
 run_availability_gates() {
   if [[ "${TCH_E2E_ALLOW_CATALOG_MUTATION:-}" != "true" ]]; then
     echo "Refusing to run availability gates without TCH_E2E_ALLOW_CATALOG_MUTATION=true." >&2
@@ -121,6 +127,9 @@ case "$MODE" in
     ;;
   bet-options)
     run_bet_options
+    ;;
+  notifications)
+    run_notifications
     ;;
   availability-gates)
     run_availability_gates

@@ -1,5 +1,8 @@
 package com.tchalanet.server.platform.notification.internal.web;
 
+import com.tchalanet.server.common.context.TchContextScope;
+import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,8 +26,12 @@ public class PlatformTenantNotificationController {
 
   @PostMapping("/announcements")
   public ApiResponse<?> createAnnouncement(
-      @PathVariable UUID tenantId, @RequestBody CreateNotificationBody request) {
-    notificationAdminGate.createForTenantFromPlatform(request, TenantId.of(tenantId));
+      @PathVariable UUID tenantId,
+      @RequestBody CreateNotificationBody request,
+      @CurrentContext TchRequestContext context) {
+    TchContextScope.runWithContext(
+        context.withEffectiveTenantUuid(tenantId),
+        () -> notificationAdminGate.createForTenantFromPlatform(request, TenantId.of(tenantId)));
     return ApiResponse.created(true);
   }
 }
