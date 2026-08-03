@@ -9,6 +9,6 @@
 
 ## Follow-up implementation
 
-- [ ] Add an aggregated settlement/payout attention event and notification after the retry threshold is defined.
-- [ ] Add communication-channel mapping and integration tests for the settlement attention notice.
+- [x] Add an aggregated settlement/payout attention event and notification after the threshold is defined.
+- [x] Request WEB + Slack delivery for the settlement attention notice and cover creation/resolution in focused tests.
 - [ ] Add end-to-end tests proving tenant owner/admin receive identical tenant notices and superadmin does not receive tenant-scoped notices.

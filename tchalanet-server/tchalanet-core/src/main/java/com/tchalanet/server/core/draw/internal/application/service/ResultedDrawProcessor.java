@@ -2,16 +2,25 @@ package com.tchalanet.server.core.draw.internal.application.service;
 
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
+import com.tchalanet.server.common.event.DomainEventPublisher;
 import com.tchalanet.server.common.stereotype.UseCase;
+import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.id.DrawId;
+import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.core.draw.api.command.SettleDrawCommand;
+import com.tchalanet.server.core.draw.api.event.DrawSettlementAttentionEvent;
 import com.tchalanet.server.core.draw.api.model.DrawStatus;
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawLookupPort;
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawSummaryReaderPort;
+import com.tchalanet.server.core.draw.internal.infra.config.DrawProperties;
 import com.tchalanet.server.core.sales.api.command.result.RecordDrawTicketsResultCommand;
 import com.tchalanet.server.core.sales.internal.application.query.model.CountPendingTicketsByDrawIdQuery;
 import com.tchalanet.server.core.sales.internal.application.query.model.ExistsPendingTicketsByDrawIdQuery;
+import java.nio.charset.StandardCharsets;
+import java.time.Clock;
+import java.time.Duration;
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,6 +36,9 @@ public class ResultedDrawProcessor {
   private final DrawSummaryReaderPort drawSummaryReaderPort;
   private final CommandBus commandBus;
   private final QueryBus queryBus;
+  private final DrawProperties drawProperties;
+  private final DomainEventPublisher eventPublisher;
+  private final Clock clock;
 
   public boolean process(DrawId drawId) {
     var draw = drawLookupPort.findById(drawId).orElse(null);
@@ -59,6 +71,8 @@ public class ResultedDrawProcessor {
                 summary.drawChannelId(),
                 RESULT_TICKET_BATCH_SIZE));
     if (!ticketOutcome.complete()) {
+      publishSettlementAttentionIfDue(
+          draw, summary, ticketOutcome.remainingTickets(), ticketOutcome.failedTickets());
       log.info(
           "draw.resulted-process.defer draw={} tenant={} remainingTickets={} failedTickets={}",
           drawId,
@@ -70,6 +84,7 @@ public class ResultedDrawProcessor {
 
     if (queryBus.ask(new ExistsPendingTicketsByDrawIdQuery(draw.id()))) {
       long pending = queryBus.ask(new CountPendingTicketsByDrawIdQuery(draw.id()));
+      publishSettlementAttentionIfDue(draw, summary, pending, 0);
       log.info(
           "draw.resulted-process.defer draw={} tenant={} pendingTickets={}",
           drawId,
@@ -80,5 +95,52 @@ public class ResultedDrawProcessor {
 
     commandBus.execute(new SettleDrawCommand(List.of(drawId), null, false));
     return true;
+  }
+
+  private void publishSettlementAttentionIfDue(
+      com.tchalanet.server.core.draw.internal.domain.model.Draw draw,
+      com.tchalanet.server.core.draw.api.query.DrawSummary summary,
+      long pendingTickets,
+      int failedTickets) {
+    var resultedAt = draw.resultedAt();
+    var resultId = draw.drawResultId();
+    if (resultedAt == null || resultId == null) {
+      return;
+    }
+
+    var threshold =
+        resultedAt.plus(
+            Duration.ofMinutes(
+                Math.max(
+                    0,
+                    drawProperties
+                        .getScheduler()
+                        .getProcessing()
+                        .getSettle()
+                        .getAttentionAfterMinutes())));
+    var now = clock.instant();
+    if (now.isBefore(threshold)) {
+      return;
+    }
+
+    var stableEventId =
+        UUID.nameUUIDFromBytes(
+            ("draw:settlement-attention:" + draw.id().value() + ":" + resultId.value())
+                .getBytes(StandardCharsets.UTF_8));
+    var event =
+        new DrawSettlementAttentionEvent(
+            EventId.of(stableEventId),
+            now,
+            draw.tenantId(),
+            draw.id(),
+            draw.drawChannelId(),
+            summary.resultSlotId(),
+            resultId,
+            draw.drawDate(),
+            resultedAt,
+            Math.max(0, pendingTickets),
+            Math.max(0, failedTickets));
+
+    AfterCommit.run(() -> eventPublisher.publish(event));
   }
 }

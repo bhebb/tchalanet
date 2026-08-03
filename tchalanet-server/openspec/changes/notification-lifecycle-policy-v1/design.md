@@ -22,7 +22,7 @@ a tenant notice carries exactly one tenant id. Seller terminals and end customer
 | Ticket result calculated | None | None | High-volume technical event; outcomes remain on ticket/draw detail | Policy |
 | Draw settled successfully | None | None | Normal terminal state; visible in draw detail and reports | Policy |
 | Ticket sold, approved, cancelled, paid normally | None | None | Immediate command response, receipts, lists and reports are authoritative | Policy |
-| Settlement/payout processing blocked after retry threshold | Warning only when tenant action is needed | Action required | WEB + Slack for platform; tenant WEB must identify the affected draw, never individual foreign tickets | Planned |
+| Settlement/payout processing blocked after the attention threshold | Warning only when tenant action is needed | Action required | WEB + Slack for platform; tenant WEB must identify the affected draw, never individual foreign tickets | Implemented for platform |
 
 The normal path intentionally generates no per-ticket messages. A tenant with thousands of ticket
 sales must not receive thousands of notifications. The result-available notification is the single
@@ -53,10 +53,13 @@ The role-parity change ensures a tenant audience includes both owner and admin. 
 bridge determines whether the platform correction warning has a Slack mapping; the notification
 module itself does not send Slack.
 
-## Planned settlement exception
+## Settlement exception
 
-The future settlement listener will emit one aggregated `DRAW_SETTLEMENT_ATTENTION_REQUIRED`
-notice only after a bounded processing retry threshold. It must contain tenant draw id, result slot,
-draw date, count of unfinished tickets and a route to the draw/reconciliation surface. It must not
-include ticket numbers, selections, public codes, personal data, or payout amounts in a platform
-notice unless the operator navigates through an authorized detail flow.
+`ResultedDrawProcessor` emits one aggregated `DRAW_SETTLEMENT_ATTENTION_REQUIRED` event after
+the configurable attention threshold (30 minutes by default) from `draw.resultedAt`. The normal
+processing retry remains every five minutes; the threshold avoids alerting on a transient retry.
+
+The platform listener deduplicates by `drawId + drawResultId`, creates a platform WEB + Slack
+action-required notice, and expires it when the draw settles or when the result is corrected. The
+payload contains tenant draw id, result slot, draw date and aggregate counts only. It excludes
+ticket numbers, selections, public codes, personal data and payout amounts.

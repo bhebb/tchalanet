@@ -58,8 +58,11 @@ target tenant. Platform supervision SHALL include active `SUPER_ADMIN` users onl
 
 ### Requirement: Settlement attention is aggregated
 
-When settlement or payout processing remains blocked after the configured retry threshold, the
+When settlement or payout processing remains blocked after the configured attention threshold, the
 system SHALL create at most one actionable notification per tenant draw and failure episode.
+
+The attention threshold SHALL default to 30 minutes after the draw became `RESULTED`; it MAY be
+configured without changing the five-minute processing retry cadence.
 
 The tenant notice SHALL be created only when a tenant action is required. Platform supervision
 SHALL receive the actionable operational notice.

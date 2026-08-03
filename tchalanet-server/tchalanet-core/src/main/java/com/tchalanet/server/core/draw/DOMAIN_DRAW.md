@@ -215,7 +215,9 @@ Les exceptions de résultat sont notifiées après commit selon la politique
 `notification-lifecycle-policy-v1` : résultat absent/provisoire bloqué pour la supervision
 plateforme, résultat disponible ou corrigé pour les propriétaires et administrateurs du tenant
 affecté. Un `DrawSettledEvent` réussi ne génère pas de message; un futur blocage persistant de
-settlement sera agrégé par tirage, jamais par ticket.
+settlement est agrégé par tirage, jamais par ticket. Après 30 minutes par défaut depuis
+`resultedAt`, la supervision plateforme reçoit une action requise WEB + Slack, qui expire au
+settlement ou au remplacement du résultat.
 
 ---
 
