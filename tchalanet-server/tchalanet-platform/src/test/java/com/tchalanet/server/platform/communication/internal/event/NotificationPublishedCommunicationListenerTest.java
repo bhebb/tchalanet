@@ -55,9 +55,9 @@ class NotificationPublishedCommunicationListenerTest {
 
     var request = captor.getValue();
     assertThat(request.channel()).isEqualTo(CommunicationChannel.SLACK_INTERNAL);
-    assertThat(request.recipient().channelKey()).isEqualTo("notifications");
+    assertThat(request.recipient().channelKey()).isEqualTo("ops-alerts");
     assertThat(request.correlationKey())
-        .isEqualTo("notification:%s:SLACK_INTERNAL:notifications".formatted(publicationId.value()));
+        .isEqualTo("notification:%s:SLACK_INTERNAL:ops-alerts".formatted(publicationId.value()));
     assertThat(request.subject()).isEqualTo("Résultat manuel requis");
     assertThat(request.body()).contains("Provider=MN");
   }

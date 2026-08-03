@@ -4,6 +4,7 @@ import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.platform.notification.api.model.NotificationAudienceType;
 import com.tchalanet.server.platform.notification.api.model.NotificationCategory;
+import com.tchalanet.server.platform.notification.api.model.NotificationChannel;
 import com.tchalanet.server.platform.notification.api.model.NotificationKind;
 import com.tchalanet.server.platform.notification.api.model.NotificationSeverity;
 import java.lang.reflect.Method;
@@ -44,6 +45,7 @@ abstract class AbstractNotificationRule implements NotificationRule {
         category,
         NotificationAudienceType.TENANT_ADMINS,
         Set.of(),
+        Set.of(NotificationChannel.WEB),
         variables(event),
         title,
         message,
@@ -71,6 +73,7 @@ abstract class AbstractNotificationRule implements NotificationRule {
         category,
         NotificationAudienceType.PLATFORM_ADMINS,
         Set.of(),
+        Set.of(NotificationChannel.WEB, NotificationChannel.SLACK),
         variables(event),
         title,
         message,

@@ -2,7 +2,6 @@ package com.tchalanet.server.platform.notification.internal.event;
 
 import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.platform.idempotence.api.ProcessedEventPort;
-import com.tchalanet.server.platform.notification.api.model.NotificationChannel;
 import com.tchalanet.server.platform.notification.api.model.request.CreateNotificationRequest;
 import com.tchalanet.server.platform.notification.internal.rule.NotificationIntent;
 import com.tchalanet.server.platform.notification.internal.rule.NotificationRule;
@@ -63,7 +62,7 @@ public class NotificationDomainEventRouter {
             null,
             null,
             null,
-            Set.of(NotificationChannel.WEB)));
+            intent.channels()));
   }
 
   private boolean markTriggered(NotificationRule rule, NotificationIntent intent) {

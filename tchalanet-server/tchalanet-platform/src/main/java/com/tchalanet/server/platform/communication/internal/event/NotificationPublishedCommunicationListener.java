@@ -25,7 +25,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @Slf4j
 public class NotificationPublishedCommunicationListener {
 
-  private static final String DEFAULT_SLACK_CHANNEL_KEY = "notifications";
+  private static final String DEFAULT_SLACK_CHANNEL_KEY = "ops-alerts";
 
   private final CommunicationApi communicationApi;
   private final List<NotificationRecipientResolver> recipientResolvers;
