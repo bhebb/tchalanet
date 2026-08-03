@@ -261,15 +261,17 @@ echo ""
 success "SSH is available!"
 
 # --- Attente cloud-init & re-test utilisateur tch ---
-# Attendre que cloud-init soit terminé (avec timeout réduit)
+# La cle SSH Hetzner est injectee pour root au moment de la creation. Il faut
+# donc attendre cloud-init via root, et non via tch, qui est cree par cloud-init.
 log "Waiting for cloud-init to complete (this may take 2-3 minutes)..."
 CLOUD_INIT_TIMEOUT=300  # 5 minutes
 CLOUD_INIT_ELAPSED=0
 CLOUD_INIT_OK=false
 
 while [ $CLOUD_INIT_ELAPSED -lt $CLOUD_INIT_TIMEOUT ]; do
-  # Vérifier le statut de cloud-init via SSH (BatchMode pour éviter les prompts)
-  if ssh -i ~/.ssh/${SSH_KEY} -o StrictHostKeyChecking=accept-new -o ConnectTimeout=5 -o BatchMode=yes tch@${SERVER_IP} "cloud-init status --wait" &>/dev/null; then
+  # Limit every probe so the outer timeout remains effective while cloud-init
+  # is still running. Root is available independently of the tch bootstrap.
+  if timeout 30 ssh -i "$KEY_PATH" -o StrictHostKeyChecking=accept-new -o ConnectTimeout=5 -o BatchMode=yes root@"$SERVER_IP" "cloud-init status --wait" &>/dev/null; then
     CLOUD_INIT_OK=true
     break
   fi
@@ -286,23 +288,48 @@ else
   warn "Could not verify cloud-init completion (timeout after ${CLOUD_INIT_TIMEOUT}s)"
   warn "The server is accessible but cloud-init may still be running."
   warn "Check status manually with:"
-  warn "  ssh -i ~/.ssh/${SSH_KEY} tch@${SERVER_IP} 'cloud-init status --wait'"
+  warn "  ssh -i $KEY_PATH root@${SERVER_IP} 'cloud-init status --long'"
   warn ""
   warn "Continuing anyway - the server should be usable in a few minutes..."
 fi
 
 # Re-test après cloud-init
 if [[ $user_ok -eq 0 ]]; then
-  log "Re-testing SSH for user 'tch' after cloud-init cycle..."
-  if ssh -i "$KEY_PATH" -o StrictHostKeyChecking=accept-new -o BatchMode=yes -o ConnectTimeout=6 tch@"$SERVER_IP" 'echo tch-ready' &>/dev/null; then
-    user_ok=1; success "User 'tch' maintenant accessible via SSH"
-  else
+  log "Ensuring SSH access for user 'tch' after cloud-init cycle..."
+  # Recovery is intentionally root-only and idempotent. It is needed when
+  # cloud-init's runcmd has not yet created tch, while root is authenticated
+  # with the exact key registered with Hetzner for this ephemeral VM.
+  if ! ssh -i "$KEY_PATH" -o StrictHostKeyChecking=accept-new -o BatchMode=yes -o ConnectTimeout=6 root@"$SERVER_IP" '
+    set -euo pipefail
+    id tch >/dev/null 2>&1 || useradd -m -s /bin/bash -G sudo tch
+    install -d -o tch -g tch -m 700 /home/tch/.ssh
+    test -s /root/.ssh/authorized_keys
+    install -o tch -g tch -m 600 /root/.ssh/authorized_keys /home/tch/.ssh/authorized_keys
+    printf "%s\\n" "tch ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/90-tch-nopasswd
+    chmod 440 /etc/sudoers.d/90-tch-nopasswd
+    install -d -o tch -g tch /opt/tchalanet-infra
+  '; then
+    error "Could not configure SSH access for user 'tch' through root."
+    exit 1
+  fi
+
+  for attempt in $(seq 1 12); do
+    if ssh -i "$KEY_PATH" -o StrictHostKeyChecking=accept-new -o BatchMode=yes -o ConnectTimeout=6 tch@"$SERVER_IP" 'echo tch-ready' &>/dev/null; then
+      user_ok=1
+      success "User 'tch' maintenant accessible via SSH"
+      break
+    fi
+    sleep 5
+  done
+
+  if [[ $user_ok -eq 0 ]]; then
     error "User 'tch' toujours indisponible via SSH. Étapes de diagnostic proposées:";
+    ssh -i "$KEY_PATH" -o StrictHostKeyChecking=accept-new -o BatchMode=yes -o ConnectTimeout=6 tch@"$SERVER_IP" 'echo tch-ready' || true
     echo "  1) Connexion root: ssh -i $KEY_PATH root@$SERVER_IP";
     echo "  2) Vérifier cloud-init: sudo tail -200 /var/log/cloud-init.log";
     echo "  3) Vérifier présence /home/tch: ls -ld /home/tch";
-    echo "  4) Créer manuellement clé si absente: sudo mkdir -p /home/tch/.ssh; sudo cp /root/.ssh/authorized_keys /home/tch/.ssh/; sudo chown -R tch:tch /home/tch/.ssh";
-    echo "  5) Relancer cloud-init status: cloud-init status --wait";
+    echo "  4) Vérifier la clé: sudo ls -l /home/tch/.ssh/authorized_keys";
+    echo "  5) Relancer cloud-init status: sudo cloud-init status --long";
     exit 1;
   fi
 fi
