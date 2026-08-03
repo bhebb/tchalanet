@@ -24,6 +24,7 @@ tch:
       jwks-uri: ${FIREBASE_JWKS_URI:https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com}
       credentials-path: ${FIREBASE_CREDENTIALS_PATH:}
       revocation-check-mode: ${FIREBASE_REVOCATION_CHECK_MODE:sensitive-only}
+      terminal-email-domain: ${TCH_IDENTITY_FIREBASE_TERMINAL_EMAIL_DOMAIN:terminal.tchalanet.local}
       bootstrap:
         enabled: ${FIREBASE_BOOTSTRAP_ENABLED:false}
         auto-run-on-startup: ${FIREBASE_BOOTSTRAP_AUTO_RUN_ON_STARTUP:false}
