@@ -151,7 +151,21 @@
       "reprint_illegible": "Ticket illisible",
       "reprint_customer_request": "Demande client",
       "reprint_confirm": "Réimprimer",
-      "receipt_empty": "Aucun document à imprimer."
+      "receipt_empty": "Aucun document à imprimer.",
+      "send_receipt": {
+        "title": "Envoyer le reçu",
+        "phone_label": "Numéro de téléphone",
+        "whatsapp_label": "Numéro WhatsApp",
+        "email_label": "Adresse e-mail",
+        "phone_required": "Veuillez saisir un numéro de téléphone.",
+        "whatsapp_required": "Veuillez saisir un numéro WhatsApp.",
+        "email_required": "Veuillez saisir une adresse e-mail.",
+        "email_invalid": "Adresse e-mail invalide.",
+        "phone_invalid": "Numéro de téléphone invalide.",
+        "success": "Reçu envoyé avec succès.",
+        "sending": "Envoi…",
+        "send": "Envoyer"
+      }
     },
     "ticket": {
       "verify": {

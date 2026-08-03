@@ -61,9 +61,10 @@ class _OnlineBadgeState extends State<OnlineBadge>
     final textTheme = Theme.of(context).textTheme;
     final dotColor = widget.online ? TchColors.online : TchColors.missing;
     final label = widget.online ? widget.onlineLabel : widget.offlineLabel;
-    final labelColor = widget.online
-        ? Theme.of(context).colorScheme.onSurfaceVariant
-        : Theme.of(context).colorScheme.outline;
+    // `outline` reads as connectivity status, not a hairline — it measures
+    // under WCAG AA at this size, so both states use the higher-contrast
+    // onSurfaceVariant token instead.
+    final labelColor = Theme.of(context).colorScheme.onSurfaceVariant;
 
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -82,7 +83,6 @@ class _OnlineBadgeState extends State<OnlineBadge>
           style: textTheme.labelSmall?.copyWith(
             color: labelColor,
             fontWeight: FontWeight.w700,
-            fontSize: 10,
           ),
         ),
       ],

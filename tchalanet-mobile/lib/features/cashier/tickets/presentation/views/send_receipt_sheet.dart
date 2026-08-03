@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../../core/i18n/i18n_repository.dart';
 import '../../../../../core/network/api_exception.dart';
+import '../../../../../design_system/layout/screen_size.dart';
 import '../../../../../design_system/tokens/tch_colors.dart';
 import '../../../../../design_system/tokens/tch_radius.dart';
 import '../../../../../design_system/tokens/tch_spacing.dart';
@@ -19,10 +21,7 @@ class SendReceiptSheet extends ConsumerStatefulWidget {
 
   final String ticketId;
 
-  static Future<void> show(
-    BuildContext context, {
-    required String ticketId,
-  }) {
+  static Future<void> show(BuildContext context, {required String ticketId}) {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -56,10 +55,13 @@ class _SendReceiptSheetState extends ConsumerState<SendReceiptSheet> {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
+    final translations = ref.watch(i18nBundleProvider);
 
     return Padding(
       padding: EdgeInsets.fromLTRB(
-        TchSpacing.s24, TchSpacing.s16, TchSpacing.s24,
+        TchSpacing.s24,
+        TchSpacing.s16,
+        TchSpacing.s24,
         TchSpacing.s24 + bottomInset,
       ),
       child: Column(
@@ -80,7 +82,7 @@ class _SendReceiptSheetState extends ConsumerState<SendReceiptSheet> {
           ),
 
           Text(
-            'Envoyer le reçu',
+            translations.translate('pos.tickets.send_receipt.title'),
             style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: TchSpacing.s20),
@@ -90,15 +92,17 @@ class _SendReceiptSheetState extends ConsumerState<SendReceiptSheet> {
             children: [
               for (final mode in _DeliveryMode.values) ...[
                 if (mode.index > 0) const SizedBox(width: TchSpacing.s8),
-                Expanded(child: _ModeChip(
-                  mode: mode,
-                  selected: _mode == mode,
-                  onTap: () => setState(() {
-                    _mode = mode;
-                    _inputController.clear();
-                    _error = null;
-                  }),
-                )),
+                Expanded(
+                  child: _ModeChip(
+                    mode: mode,
+                    selected: _mode == mode,
+                    onTap: () => setState(() {
+                      _mode = mode;
+                      _inputController.clear();
+                      _error = null;
+                    }),
+                  ),
+                ),
               ],
             ],
           ),
@@ -132,8 +136,9 @@ class _SendReceiptSheetState extends ConsumerState<SendReceiptSheet> {
               ),
               child: Text(
                 _error!,
-                style: textTheme.bodySmall
-                    ?.copyWith(color: scheme.onErrorContainer),
+                style: textTheme.bodySmall?.copyWith(
+                  color: scheme.onErrorContainer,
+                ),
               ),
             ),
             const SizedBox(height: TchSpacing.s12),
@@ -149,13 +154,17 @@ class _SendReceiptSheetState extends ConsumerState<SendReceiptSheet> {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.check_circle_outline_rounded,
-                      color: TchColors.success, size: 18),
+                  const Icon(
+                    Icons.check_circle_outline_rounded,
+                    color: TchColors.success,
+                    size: 18,
+                  ),
                   const SizedBox(width: TchSpacing.s8),
                   Text(
-                    'Reçu envoyé avec succès.',
-                    style: textTheme.bodySmall
-                        ?.copyWith(color: TchColors.success),
+                    translations.translate('pos.tickets.send_receipt.success'),
+                    style: textTheme.bodySmall?.copyWith(
+                      color: TchColors.success,
+                    ),
                   ),
                 ],
               ),
@@ -165,7 +174,7 @@ class _SendReceiptSheetState extends ConsumerState<SendReceiptSheet> {
 
           // Send button
           SizedBox(
-            height: 52,
+            height: context.minTouchTarget,
             child: FilledButton.icon(
               onPressed: _sending || _sent ? null : _send,
               icon: _sending
@@ -173,13 +182,19 @@ class _SendReceiptSheetState extends ConsumerState<SendReceiptSheet> {
                       width: 18,
                       height: 18,
                       child: CircularProgressIndicator(
-                          strokeWidth: 2, color: TchColors.onPrimary),
+                        strokeWidth: 2,
+                        color: TchColors.onPrimary,
+                      ),
                     )
                   : Icon(_modeIcon),
               label: Text(
-                _sending ? 'ENVOI…' : 'ENVOYER',
+                _sending
+                    ? translations.translate('pos.tickets.send_receipt.sending')
+                    : translations.translate('pos.tickets.send_receipt.send'),
                 style: const TextStyle(
-                    fontWeight: FontWeight.w700, letterSpacing: 0.5),
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.5,
+                ),
               ),
               style: FilledButton.styleFrom(
                 shape: RoundedRectangleBorder(
@@ -194,13 +209,22 @@ class _SendReceiptSheetState extends ConsumerState<SendReceiptSheet> {
   }
 
   String? _validate(String value) {
-    if (value.isEmpty) return 'Veuillez saisir ${_inputLabel.toLowerCase()}.';
+    final translations = ref.read(i18nBundleProvider);
+    if (value.isEmpty) {
+      return translations.translate(switch (_mode) {
+        _DeliveryMode.sms => 'pos.tickets.send_receipt.phone_required',
+        _DeliveryMode.whatsapp => 'pos.tickets.send_receipt.whatsapp_required',
+        _DeliveryMode.email => 'pos.tickets.send_receipt.email_required',
+      });
+    }
     if (_mode == _DeliveryMode.email) {
       if (!value.contains('@') || !value.contains('.')) {
-        return 'Adresse e-mail invalide.';
+        return translations.translate('pos.tickets.send_receipt.email_invalid');
       }
     } else {
-      if (value.length < 8) return 'Numéro de téléphone invalide.';
+      if (value.length < 8) {
+        return translations.translate('pos.tickets.send_receipt.phone_invalid');
+      }
     }
     return null;
   }
@@ -219,11 +243,9 @@ class _SendReceiptSheetState extends ConsumerState<SendReceiptSheet> {
     });
 
     try {
-      await ref.read(cashierTicketServiceProvider).sendReceipt(
-            widget.ticketId,
-            channel: _mode.serverKey,
-            to: value,
-          );
+      await ref
+          .read(cashierTicketServiceProvider)
+          .sendReceipt(widget.ticketId, channel: _mode.serverKey, to: value);
       setState(() => _sent = true);
     } catch (e) {
       setState(() => _error = userMessage(e));
@@ -232,37 +254,46 @@ class _SendReceiptSheetState extends ConsumerState<SendReceiptSheet> {
     }
   }
 
-  String get _inputLabel => switch (_mode) {
-        _DeliveryMode.sms => 'Numéro de téléphone',
-        _DeliveryMode.whatsapp => 'Numéro WhatsApp',
-        _DeliveryMode.email => 'Adresse e-mail',
-      };
+  String get _inputLabel {
+    final translations = ref.read(i18nBundleProvider);
+    return switch (_mode) {
+      _DeliveryMode.sms => translations.translate(
+        'pos.tickets.send_receipt.phone_label',
+      ),
+      _DeliveryMode.whatsapp => translations.translate(
+        'pos.tickets.send_receipt.whatsapp_label',
+      ),
+      _DeliveryMode.email => translations.translate(
+        'pos.tickets.send_receipt.email_label',
+      ),
+    };
+  }
 
   String get _inputHint => switch (_mode) {
-        _DeliveryMode.sms => '+509 XXXX XXXX',
-        _DeliveryMode.whatsapp => '+509 XXXX XXXX',
-        _DeliveryMode.email => 'client@example.com',
-      };
+    _DeliveryMode.sms => '+509 XXXX XXXX',
+    _DeliveryMode.whatsapp => '+509 XXXX XXXX',
+    _DeliveryMode.email => 'client@example.com',
+  };
 
   IconData get _inputIcon => switch (_mode) {
-        _DeliveryMode.sms => Icons.sms_rounded,
-        _DeliveryMode.whatsapp => Icons.chat_rounded,
-        _DeliveryMode.email => Icons.email_outlined,
-      };
+    _DeliveryMode.sms => Icons.sms_rounded,
+    _DeliveryMode.whatsapp => Icons.chat_rounded,
+    _DeliveryMode.email => Icons.email_outlined,
+  };
 
   IconData get _modeIcon => switch (_mode) {
-        _DeliveryMode.sms => Icons.sms_rounded,
-        _DeliveryMode.whatsapp => Icons.chat_rounded,
-        _DeliveryMode.email => Icons.email_rounded,
-      };
+    _DeliveryMode.sms => Icons.sms_rounded,
+    _DeliveryMode.whatsapp => Icons.chat_rounded,
+    _DeliveryMode.email => Icons.email_rounded,
+  };
 }
 
 extension on _DeliveryMode {
   String get serverKey => switch (this) {
-        _DeliveryMode.sms => 'SMS',
-        _DeliveryMode.whatsapp => 'WHATSAPP',
-        _DeliveryMode.email => 'EMAIL',
-      };
+    _DeliveryMode.sms => 'SMS',
+    _DeliveryMode.whatsapp => 'WHATSAPP',
+    _DeliveryMode.email => 'EMAIL',
+  };
 }
 
 // ─── Mode chip ────────────────────────────────────────────────────────────────
@@ -296,7 +327,9 @@ class _ModeChip extends StatelessWidget {
           horizontal: TchSpacing.s4,
         ),
         decoration: BoxDecoration(
-          color: selected ? scheme.primaryContainer : scheme.surfaceContainerLow,
+          color: selected
+              ? scheme.primaryContainer
+              : scheme.surfaceContainerLow,
           borderRadius: BorderRadius.circular(TchRadius.md),
           border: Border.all(
             color: selected ? scheme.primary : scheme.outlineVariant,
@@ -304,17 +337,18 @@ class _ModeChip extends StatelessWidget {
         ),
         child: Column(
           children: [
-            Icon(icon,
-                size: 20,
-                color: selected ? scheme.primary : scheme.onSurfaceVariant),
+            Icon(
+              icon,
+              size: 20,
+              color: selected ? scheme.primary : scheme.onSurfaceVariant,
+            ),
             const SizedBox(height: 4),
             Text(
               label,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: selected ? scheme.primary : scheme.onSurfaceVariant,
-                    fontWeight:
-                        selected ? FontWeight.w700 : FontWeight.w400,
-                  ),
+                color: selected ? scheme.primary : scheme.onSurfaceVariant,
+                fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
+              ),
               textAlign: TextAlign.center,
             ),
           ],

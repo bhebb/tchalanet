@@ -151,7 +151,21 @@
       "reprint_illegible": "Tikè a pa lizib",
       "reprint_customer_request": "Demann kliyan",
       "reprint_confirm": "Reenprime",
-      "receipt_empty": "Pa gen dokiman pou enprime."
+      "receipt_empty": "Pa gen dokiman pou enprime.",
+      "send_receipt": {
+        "title": "Voye resi a",
+        "phone_label": "Nimewo telefòn",
+        "whatsapp_label": "Nimewo WhatsApp",
+        "email_label": "Adrès imèl",
+        "phone_required": "Tanpri antre yon nimewo telefòn.",
+        "whatsapp_required": "Tanpri antre yon nimewo WhatsApp.",
+        "email_required": "Tanpri antre yon adrès imèl.",
+        "email_invalid": "Adrès imèl envalid.",
+        "phone_invalid": "Nimewo telefòn envalid.",
+        "success": "Resi a voye avèk siksè.",
+        "sending": "Ap voye…",
+        "send": "Voye"
+      }
     },
     "ticket": {
       "verify": {

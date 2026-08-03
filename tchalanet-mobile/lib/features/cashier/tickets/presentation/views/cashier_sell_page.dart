@@ -9,6 +9,7 @@ import '../../../../../core/i18n/i18n_repository.dart';
 import '../../../../../core/observability/diagnostic_info.dart';
 import '../../../../../core/observability/diagnostic_repository.dart';
 import '../../../../../design_system/components/components.dart';
+import '../../../../../design_system/layout/screen_size.dart';
 import '../../../../../design_system/tokens/tch_colors.dart';
 import '../../../../../design_system/tokens/tch_radius.dart';
 import '../../../../../design_system/tokens/tch_spacing.dart';
@@ -938,7 +939,7 @@ class _BottomActions extends StatelessWidget {
               children: [
                 Expanded(
                   child: SizedBox(
-                    height: 52,
+                    height: context.minTouchTarget,
                     child: FilledButton.tonalIcon(
                       onPressed: canAddLine && !isPreviewing && !isConfirming
                           ? onAddLine
@@ -951,7 +952,7 @@ class _BottomActions extends StatelessWidget {
                 const SizedBox(width: TchSpacing.s8),
                 Expanded(
                   child: SizedBox(
-                    height: 52,
+                    height: context.minTouchTarget,
                     child: OutlinedButton.icon(
                       onPressed: isPreviewing || isConfirming
                           ? null
@@ -968,7 +969,7 @@ class _BottomActions extends StatelessWidget {
               children: [
                 Expanded(
                   child: SizedBox(
-                    height: 52,
+                    height: context.minTouchTarget,
                     child: OutlinedButton(
                       onPressed: isConfirming ? null : onEditPreparedTicket,
                       child: Text(
@@ -982,7 +983,7 @@ class _BottomActions extends StatelessWidget {
                 Expanded(
                   flex: 2,
                   child: SizedBox(
-                    height: 52,
+                    height: context.minTouchTarget,
                     child: FilledButton.icon(
                       onPressed: canConfirm ? onConfirm : null,
                       icon: isConfirming
@@ -1009,7 +1010,7 @@ class _BottomActions extends StatelessWidget {
               children: [
                 Expanded(
                   child: SizedBox(
-                    height: 52,
+                    height: context.minTouchTarget,
                     child: FilledButton.tonalIcon(
                       onPressed: canAddLine && !isPreviewing && !isConfirming
                           ? onAddLine
@@ -1023,7 +1024,7 @@ class _BottomActions extends StatelessWidget {
                 Expanded(
                   flex: 2,
                   child: SizedBox(
-                    height: 52,
+                    height: context.minTouchTarget,
                     child: FilledButton.icon(
                       onPressed: canPrepare ? onPreview : null,
                       icon: isPreviewing
