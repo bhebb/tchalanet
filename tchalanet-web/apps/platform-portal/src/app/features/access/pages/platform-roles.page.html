@@ -1,0 +1,91 @@
+<tch-admin-page-shell
+  title="Rôles"
+  description="Consultez les rôles système et la matrice rôle → permissions supportée par platform.accesscontrol."
+>
+  <button actions mat-stroked-button type="button" (click)="loadRoles()">
+    <mat-icon>refresh</mat-icon>
+    Actualiser
+  </button>
+
+  @if (error()) {
+    <tch-error-panel [message]="error() ?? 'Opération impossible.'" />
+  }
+
+  <div class="platform-access-roles__grid">
+    <tch-admin-list-surface
+      searchLabel="Rechercher un rôle"
+      searchPlaceholder="Code, nom ou description"
+      [searchValue]="roleQuery()"
+      [showSearchButton]="true"
+      searchButtonLabel="Filtrer"
+      [filtersDisplay]="'inline'"
+      (searchChange)="onRoleSearchFilter($event)"
+    >
+      <ng-container list-content>
+        @if (loadingRoles()) {
+          <tch-loading label="Chargement des rôles..." />
+        } @else if (!filteredRoles().length) {
+          <tch-admin-empty-state icon="group_off" title="Aucun rôle" />
+        } @else {
+          <div class="platform-access-roles__table-wrap">
+            <table mat-table [dataSource]="filteredRoles()" class="platform-access-roles__table">
+              <ng-container matColumnDef="code">
+                <th mat-header-cell *matHeaderCellDef>Code</th>
+                <td mat-cell *matCellDef="let row">
+                  <tch-status-badge status="ready" [label]="row.code" />
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef>Nom</th>
+                <td mat-cell *matCellDef="let row">{{ row.name || '—' }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="scope">
+                <th mat-header-cell *matHeaderCellDef>Scope</th>
+                <td mat-cell *matCellDef="let row">{{ row.tenantId ? 'Tenant' : 'Système' }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef>Actions</th>
+                <td mat-cell *matCellDef="let row">
+                  <button mat-button type="button" (click)="selectRole(row)">
+                    <mat-icon>visibility</mat-icon>
+                    Voir
+                  </button>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="roleColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: roleColumns"></tr>
+            </table>
+          </div>
+        }
+      </ng-container>
+    </tch-admin-list-surface>
+
+    <tch-admin-section-card
+      title="Matrice rôle → permissions"
+      [description]="selectedRole() ? selectedRole()!.code : 'Aucun rôle sélectionné.'"
+      icon="rule"
+    >
+      @if (loadingRolePermissions()) {
+        <tch-loading label="Chargement des permissions du rôle..." />
+      } @else if (!selectedRole()) {
+        <tch-admin-empty-state
+          icon="touch_app"
+          title="Sélectionnez un rôle"
+          message="Sélectionnez un rôle pour voir ses permissions."
+        />
+      } @else if (!selectedRolePermissionCodes().length) {
+        <tch-admin-empty-state icon="key_off" title="Aucune permission liée" />
+      } @else {
+        <div class="platform-access-roles__badge-list">
+          @for (permission of selectedRolePermissionCodes(); track permission) {
+            <tch-status-badge status="missing" [label]="permission" />
+          }
+        </div>
+      }
+    </tch-admin-section-card>
+  </div>
+</tch-admin-page-shell>

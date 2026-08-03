@@ -54,18 +54,7 @@ function actionsForDraw(draw: DrawView): DrawActionItem[] {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ConsoleDrawDetailComponent],
-  template: `
-    <tch-console-draw-detail
-      [view]="detailView()"
-      [state]="state()"
-      loadingLabel="Chargement du tirage..."
-      [error]="error()"
-      [actions]="pageActions"
-      (retry)="load()"
-      (action)="onPageAction($event)"
-      (sectionAction)="onSectionAction($event)"
-    />
-  `,
+  templateUrl: './platform-ops-draw-detail.page.html',
 })
 export class PlatformOpsDrawDetailPage {
   private readonly route = inject(ActivatedRoute);
