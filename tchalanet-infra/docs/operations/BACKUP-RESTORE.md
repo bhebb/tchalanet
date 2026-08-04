@@ -9,7 +9,7 @@ donc à notre charge. Ce document est le contrat.
 
 | Objectif | Valeur | Signification |
 | --- | --- | --- |
-| **RPO** | 24 h | Perte maximale acceptée en cas de sinistre : les écritures depuis le dernier backup quotidien. |
+| **RPO** | prod 24 h · staging 7 j | Perte maximale acceptée : les écritures depuis le dernier backup. Staging est hebdomadaire — ses données sont recréables et ne justifient pas le coût d'un backup quotidien. |
 | **RTO** | 1 h | Délai visé entre la décision de restaurer et le service rétabli. |
 | Rétention | 30 j quotidiens, mensuels conservés | Purge automatique des quotidiens ; `<env>/monthly/` n'est jamais purgé. |
 | Chiffrement | `age`, asymétrique | La VM ne détient que la clé publique. |
@@ -22,8 +22,20 @@ PITR — pas d'espérer mieux du dispositif actuel.
 
 ## Comment ça marche
 
-`.github/workflows/db-backup.yml` tourne tous les jours à 02:17 UTC et exécute
-`scripts/remote/pg-backup.sh` sur la VM par SSH. Le script :
+`.github/workflows/db-backup.yml` exécute `scripts/remote/pg-backup.sh` sur la
+VM par SSH, selon deux cadences :
+
+| Environnement | Cadence | Cron |
+| --- | --- | --- |
+| prod | quotidien | `17 2 * * *` |
+| staging | hebdomadaire, dimanche | `17 3 * * 0` |
+
+Un environnement sans hôte configuré (prod non provisionnée) est **ignoré avec
+une note**, pas en échec : un workflow rouge tous les jours pour un
+environnement qui n'existe pas encore apprend à ignorer les échecs, ce qui
+annule l'intérêt d'alerter. Ajouter `PROD_SERVER_HOST` suffit à l'activer.
+
+Le script :
 
 1. `pg_dumpall --globals-only` — rôles et privilèges. Sans eux, une base
    restaurée n'a ni `app_user` ni ses GRANT.
@@ -127,6 +139,10 @@ API porte les droits Workers et Pages.
   manuelle : le RTO d'1 h suppose une personne disponible.
 - **Rétention non immuable.** Un attaquant disposant des clés R2 peut supprimer
   les backups. Activer le verrouillage d'objets R2 corrigerait ce point.
+- **La répétition ne teste que la base**, pas la reconstruction du serveur. La
+  procédure complète est dans
+  [`runbooks/RB-06-disaster-recovery.md`](runbooks/RB-06-disaster-recovery.md),
+  à dérouler au moins une fois sur staging avant d'en avoir besoin en prod.
 
 ## Ce que ce dispositif remplace
 
