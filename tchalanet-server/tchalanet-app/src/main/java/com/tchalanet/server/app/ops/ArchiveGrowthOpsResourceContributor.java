@@ -155,18 +155,16 @@ public class ArchiveGrowthOpsResourceContributor implements OpsResourceContribut
 
   private record DatasetGuardrail(String key, String displayName, String schema, String predicate) {
     String measurementSql() {
-      return """
-          SELECT
-            COALESCE(SUM(s.n_live_tup), 0) AS row_count,
-            COALESCE(SUM(pg_total_relation_size(c.oid)), 0) AS size_bytes
-          FROM pg_class c
-          JOIN pg_namespace n ON n.oid = c.relnamespace
-          LEFT JOIN pg_stat_all_tables s ON s.relid = c.oid
-          WHERE n.nspname = '%s'
-            AND c.relkind IN ('r', 'p')
-            AND (%s)
-          """
-          .formatted(schema, predicate);
+      return "SELECT COALESCE(SUM(s.n_live_tup), 0) AS row_count, "
+          + "COALESCE(SUM(pg_total_relation_size(c.oid)), 0) AS size_bytes "
+          + "FROM pg_class c "
+          + "JOIN pg_namespace n ON n.oid = c.relnamespace "
+          + "LEFT JOIN pg_stat_all_tables s ON s.relid = c.oid "
+          + "WHERE n.nspname = '"
+          + schema
+          + "' AND c.relkind IN ('r', 'p') AND ("
+          + predicate
+          + ")";
     }
   }
 
