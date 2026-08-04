@@ -5,6 +5,7 @@ import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.platform.archive.api.ArchiveApi;
 import com.tchalanet.server.platform.archive.api.model.ArchivedEntityView;
+import com.tchalanet.server.platform.archive.api.model.ArchivedTicketView;
 import com.tchalanet.server.platform.audit.api.AuditLog;
 import com.tchalanet.server.platform.audit.api.model.AuditAction;
 import com.tchalanet.server.platform.audit.api.model.AuditEntityType;
@@ -50,7 +51,7 @@ public class AdminArchiveController {
       detailsExpression = "#reason",
       tenantIdExpression = "#ctx.tenantIdRequired().value()")
   @GetMapping("/tickets/{ticketId}")
-  public ApiResponse<ArchivedEntityView> getArchivedTicket(
+  public ApiResponse<ArchivedTicketView> getArchivedTicket(
       @PathVariable UUID ticketId,
       @RequestParam @NotBlank @Size(min = 10, max = 500) String reason,
       @CurrentContext TchRequestContext ctx) {
@@ -67,7 +68,7 @@ public class AdminArchiveController {
       detailsExpression = "#reason",
       tenantIdExpression = "#ctx.tenantIdRequired().value()")
   @GetMapping("/tickets/by-public-code/{publicCode}")
-  public ApiResponse<ArchivedEntityView> getArchivedTicketByCode(
+  public ApiResponse<ArchivedTicketView> getArchivedTicketByCode(
       @PathVariable String publicCode,
       @RequestParam @NotBlank @Size(min = 10, max = 500) String reason,
       @CurrentContext TchRequestContext ctx) {

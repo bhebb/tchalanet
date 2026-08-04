@@ -2,6 +2,7 @@ package com.tchalanet.server.platform.archive.api;
 
 import com.tchalanet.server.platform.archive.api.model.ArchiveRunView;
 import com.tchalanet.server.platform.archive.api.model.ArchivedEntityView;
+import com.tchalanet.server.platform.archive.api.model.ArchivedTicketView;
 import com.tchalanet.server.platform.archive.api.model.TriggerArchiveRunRequest;
 import java.util.List;
 import java.util.UUID;
@@ -16,9 +17,9 @@ public interface ArchiveApi {
 
   // ── Lookup (tenant/admin scope) ───────────────────────────────────────────
 
-  ArchivedEntityView findArchivedTicket(UUID tenantId, UUID ticketId);
+  ArchivedTicketView findArchivedTicket(UUID tenantId, UUID ticketId);
 
-  ArchivedEntityView findArchivedTicketByPublicCode(UUID tenantId, String publicCode);
+  ArchivedTicketView findArchivedTicketByPublicCode(UUID tenantId, String publicCode);
 
   ArchivedEntityView findArchivedPayout(UUID tenantId, UUID payoutId);
 
