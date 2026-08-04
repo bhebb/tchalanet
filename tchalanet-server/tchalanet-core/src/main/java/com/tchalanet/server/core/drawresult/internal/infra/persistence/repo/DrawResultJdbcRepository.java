@@ -246,7 +246,7 @@ public class DrawResultJdbcRepository {
             where dr.deleted_at is null
               and %s
             """
-        .formatted(where);
+        .replace("%s", where);
   }
 
   private String projectionSql(String where) {
@@ -262,7 +262,7 @@ public class DrawResultJdbcRepository {
             where dr.deleted_at is null
               and %s
             """
-        .formatted(where);
+        .replace("%s", where);
   }
 
   // ---------------------------------------------------------

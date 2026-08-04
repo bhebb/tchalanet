@@ -58,7 +58,7 @@ public class DrawProcessingCandidateJdbcAdapter implements DrawProcessingCandida
               limit 1
             )
             """
-            .formatted(valuesSql);
+            .replace("%s", valuesSql);
 
     params.add(DRAW_STATUS_CLOSED);
     params.add(ResultQuality.COMPLETE.name());
@@ -101,7 +101,7 @@ public class DrawProcessingCandidateJdbcAdapter implements DrawProcessingCandida
               limit 1
             )
             """
-            .formatted(valuesSql);
+            .replace("%s", valuesSql);
 
     params.add(DRAW_STATUS_RESULTED);
 

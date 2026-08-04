@@ -109,24 +109,25 @@ public class ContactRequestSubmissionService implements ContactRequestApi {
   }
 
   private String buildEmailBody(ContactRequestJpaEntity entity) {
-    return """
-            Une nouvelle demande de contact a été reçue.
-
-            Type        : %s
-            Nom         : %s
-            Téléphone   : %s
-            Email       : %s
-            Organisation: %s
-            Ville/Pays  : %s / %s
-            Points vente: %s
-            Moment préf : %s
-
-            Message :
-            %s
-
-            Référence   : %s
-            Source      : %s
-            """
+    return String.join(
+            "%n",
+            "Une nouvelle demande de contact a été reçue.",
+            "",
+            "Type        : %s",
+            "Nom         : %s",
+            "Téléphone   : %s",
+            "Email       : %s",
+            "Organisation: %s",
+            "Ville/Pays  : %s / %s",
+            "Points vente: %s",
+            "Moment préf : %s",
+            "",
+            "Message :",
+            "%s",
+            "",
+            "Référence   : %s",
+            "Source      : %s",
+            "")
         .formatted(
             intentLabel(entity),
             entity.getFullName(),

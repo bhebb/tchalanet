@@ -12,6 +12,7 @@ import com.tchalanet.server.platform.archive.api.model.ArchivePeriod;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +40,7 @@ public class EntityRevisionArchiveDatasetProvider implements ArchiveDatasetProvi
 
   @Override
   public ArchiveDatasetPlan plan(ArchivePeriod period, UUID tenantId) {
-    long count =
+    Long count =
         jdbc.queryForObject(
             """
         SELECT COUNT(*)
@@ -49,7 +50,8 @@ public class EntityRevisionArchiveDatasetProvider implements ArchiveDatasetProvi
         """,
             params(period),
             Long.class);
-    return new ArchiveDatasetPlan(KEY, period, tenantId, count, count > 0);
+    long safeCount = Objects.requireNonNullElse(count, 0L);
+    return new ArchiveDatasetPlan(KEY, period, tenantId, safeCount, safeCount > 0);
   }
 
   @Override

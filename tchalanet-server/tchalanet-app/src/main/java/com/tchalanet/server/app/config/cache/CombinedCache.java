@@ -3,8 +3,8 @@ package com.tchalanet.server.app.config.cache;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.cache.Cache;
-import org.springframework.lang.Nullable;
 
 @Slf4j
 public class CombinedCache implements Cache {
@@ -55,7 +55,7 @@ public class CombinedCache implements Cache {
   @Override
   @Nullable
   @SuppressWarnings("unchecked")
-  public <T> T get(Object key, @Nullable Class<T> type) {
+  public <T> T get(@Nullable Object key, @Nullable Class<T> type) {
     ValueWrapper v = get(key);
     if (v == null) return null;
     Object val = v.get();
@@ -89,7 +89,7 @@ public class CombinedCache implements Cache {
   }
 
   @Override
-  public void put(Object key, @Nullable Object value) {
+  public void put(@Nullable Object key, @Nullable Object value) {
     if (value == null) {
       evict(key);
       return;
@@ -100,7 +100,7 @@ public class CombinedCache implements Cache {
 
   @Override
   @Nullable
-  public ValueWrapper putIfAbsent(Object key, @Nullable Object value) {
+  public ValueWrapper putIfAbsent(@Nullable Object key, @Nullable Object value) {
     ValueWrapper existing = get(key);
     if (existing != null) return existing;
     put(key, value);
@@ -131,24 +131,36 @@ public class CombinedCache implements Cache {
   }
 
   private void remotePut(Object key, Object value) {
+    Cache remoteCache = remote;
+    if (remoteCache == null) {
+      return;
+    }
     try {
-      remote.put(key, value);
+      remoteCache.put(key, value);
     } catch (RuntimeException ex) {
       log.warn("Remote cache put failed cache={} key={} cause={}", name, key, ex.toString());
     }
   }
 
   private void remoteEvict(Object key) {
+    Cache remoteCache = remote;
+    if (remoteCache == null) {
+      return;
+    }
     try {
-      remote.evict(key);
+      remoteCache.evict(key);
     } catch (RuntimeException ex) {
       log.warn("Remote cache evict failed cache={} key={} cause={}", name, key, ex.toString());
     }
   }
 
   private void remoteClear() {
+    Cache remoteCache = remote;
+    if (remoteCache == null) {
+      return;
+    }
     try {
-      remote.clear();
+      remoteCache.clear();
     } catch (RuntimeException ex) {
       log.warn("Remote cache clear failed cache={} cause={}", name, ex.toString());
     }

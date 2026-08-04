@@ -114,11 +114,10 @@ public class EntityRevisionHistoryService {
          ORDER BY rev DESC
          LIMIT :limit OFFSET :offset
         """
-                .formatted(
-                    revisionValueProjection(exposed),
-                    exposed.tableName(),
-                    exposed.joinClause(),
-                    whereClause),
+                .replace("%s", revisionValueProjection(exposed))
+                .replace("%s", exposed.tableName())
+                .replace("%s", exposed.joinClause())
+                .replace("%s", whereClause),
             params,
             (rs, rowNum) -> toItem(exposed, rs));
 

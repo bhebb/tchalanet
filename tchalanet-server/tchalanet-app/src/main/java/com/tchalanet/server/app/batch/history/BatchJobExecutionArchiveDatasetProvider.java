@@ -14,6 +14,7 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
@@ -47,7 +48,7 @@ public class BatchJobExecutionArchiveDatasetProvider implements ArchiveDatasetPr
 
   @Override
   public ArchiveDatasetPlan plan(ArchivePeriod period, UUID tenantId) {
-    long count =
+    Long count =
         jdbc.queryForObject(
             """
         SELECT COUNT(*)
@@ -56,10 +57,11 @@ public class BatchJobExecutionArchiveDatasetProvider implements ArchiveDatasetPr
            AND e.CREATE_TIME < :to
            AND (e.STATUS IS NULL OR e.STATUS NOT IN (%s))
         """
-                .formatted(RUNNING_STATUSES),
+                .replace("%s", RUNNING_STATUSES),
             params(period),
             Long.class);
-    return new ArchiveDatasetPlan(KEY, period, tenantId, count, count > 0);
+    long safeCount = Objects.requireNonNullElse(count, 0L);
+    return new ArchiveDatasetPlan(KEY, period, tenantId, safeCount, safeCount > 0);
   }
 
   @Override
@@ -137,7 +139,7 @@ public class BatchJobExecutionArchiveDatasetProvider implements ArchiveDatasetPr
           AND (e.STATUS IS NULL OR e.STATUS NOT IN (%s))
         ORDER BY e.CREATE_TIME, e.JOB_EXECUTION_ID
         """
-            .formatted(RUNNING_STATUSES),
+            .replace("%s", RUNNING_STATUSES),
         params(request.period()),
         rs -> {
           request

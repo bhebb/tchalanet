@@ -540,8 +540,17 @@ public class ArchiveDomainPurgeService {
 
   private static MapSqlParameterSource copy(MapSqlParameterSource source) {
     MapSqlParameterSource copy = new MapSqlParameterSource();
-    for (String name : source.getParameterNames()) {
-      copy.addValue(name, source.getValue(name), source.getSqlType(name), source.getTypeName(name));
+    String[] names = source.getParameterNames();
+    if (names == null) {
+      return copy;
+    }
+    for (String name : names) {
+      String typeName = source.getTypeName(name);
+      if (typeName == null) {
+        copy.addValue(name, source.getValue(name), source.getSqlType(name));
+      } else {
+        copy.addValue(name, source.getValue(name), source.getSqlType(name), typeName);
+      }
     }
     return copy;
   }

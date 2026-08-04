@@ -45,34 +45,38 @@ public class NotificationPolicy {
   }
 
   private void validateSlackRecipient(NotificationRecipient recipient) {
-    if (recipient.channelKey() == null || recipient.channelKey().isBlank()) {
+    String channelKey = recipient.channelKey();
+    if (channelKey == null || channelKey.isBlank()) {
       throw ProblemRest.of(NotificationErrorCodes.SLACK_CHANNEL_KEY_REQUIRED);
     }
   }
 
   private void validateEmailRecipient(NotificationRecipient recipient) {
-    if (recipient.to() == null || recipient.to().isBlank()) {
+    String to = recipient.to();
+    if (to == null || to.isBlank()) {
       throw ProblemRest.of(NotificationErrorCodes.EMAIL_REQUIRED);
     }
-    if (!isValidEmail(recipient.to())) {
+    if (!isValidEmail(to)) {
       throw ProblemRest.of(NotificationErrorCodes.EMAIL_INVALID);
     }
   }
 
   private void validateSmsRecipient(NotificationRecipient recipient) {
-    if (recipient.to() == null || recipient.to().isBlank()) {
+    String to = recipient.to();
+    if (to == null || to.isBlank()) {
       throw ProblemRest.of(NotificationErrorCodes.PHONE_REQUIRED);
     }
-    if (!isValidPhone(recipient.to())) {
+    if (!isValidPhone(to)) {
       throw ProblemRest.of(NotificationErrorCodes.PHONE_INVALID);
     }
   }
 
   private void validateWhatsAppRecipient(NotificationRecipient recipient) {
-    if (recipient.to() == null || recipient.to().isBlank()) {
+    String to = recipient.to();
+    if (to == null || to.isBlank()) {
       throw ProblemRest.of(NotificationErrorCodes.PHONE_REQUIRED);
     }
-    if (!isValidPhone(recipient.to())) {
+    if (!isValidPhone(to)) {
       throw ProblemRest.of(NotificationErrorCodes.PHONE_INVALID);
     }
   }

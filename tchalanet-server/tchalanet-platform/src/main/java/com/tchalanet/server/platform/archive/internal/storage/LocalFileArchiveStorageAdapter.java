@@ -25,7 +25,10 @@ public class LocalFileArchiveStorageAdapter implements ArchiveStoragePort {
   public OutputStream openWrite(String uri) {
     try {
       Path path = toPath(uri);
-      Files.createDirectories(path.getParent());
+      Path parent = path.getParent();
+      if (parent != null) {
+        Files.createDirectories(parent);
+      }
       log.debug("archive storage: opening write -> {}", path);
       return Files.newOutputStream(path);
     } catch (IOException e) {

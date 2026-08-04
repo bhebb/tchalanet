@@ -159,7 +159,8 @@ public class OutboundMessageDispatcher {
 
   private String errorCode(RuntimeException ex) {
     if (ex instanceof ProblemRestException problemRestException) {
-      var code = problemRestException.getProblem().getProperties().get("code");
+      var properties = problemRestException.getProblem().getProperties();
+      var code = properties == null ? null : properties.get("code");
       if (code instanceof String stringCode && !stringCode.isBlank()) {
         return stringCode;
       }

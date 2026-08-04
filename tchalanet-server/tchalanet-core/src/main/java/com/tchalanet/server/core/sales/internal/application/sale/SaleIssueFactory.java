@@ -38,7 +38,8 @@ public class SaleIssueFactory {
    * declared code.
    */
   private String problemCode(ProblemRestException ex) {
-    var value = ex.getProblem().getProperties().get("code");
+    var properties = ex.getProblem().getProperties();
+    var value = properties == null ? null : properties.get("code");
     return value instanceof String code && !code.isBlank() ? code : ex.getProblem().getDetail();
   }
 
