@@ -1,6 +1,6 @@
 # Archive, Partitioning, Restore and Purge Runbook
 
-Status: operational guidance for `platform.archive`.
+Status: operational guidance for the implemented `platform.archive` V1 path.
 
 ## Scope
 
@@ -18,16 +18,30 @@ backend. Restore tables are exceptional and temporary.
 
 ## Dataset Policy
 
-| Dataset | Hot target | Archive lookup | Cleanup policy |
+| Dataset | Archive cadence | Hot retention | Cleanup policy |
 | --- | ---: | --- | --- |
-| `sales_ticket` | 6-12 months | ticket id, public code | cleanup only after verified archive and no legal hold |
-| `sales_ticket_line` | 6-12 months | parent ticket id/public code | same as ticket |
-| `sales_ticket_charge` | 6-12 months | parent ticket id/public code | same as ticket |
-| `draw` | 12 months | draw id/date | cleanup only after verified archive and no legal hold |
-| `draw_result` | 12 months | result id/date/source hash | cleanup only after verified archive and no legal hold |
-| `audit_log` | 12 months | actor/entity/action/date | partition cleanup supported |
-| Envers `_aud` | dataset-specific | revision/entity | purge only after legal review |
-| Spring Batch metadata | 30-90 days | job execution aggregate | may be purged aggressively in an incident |
+| `sales_ticket` | quarterly, closed periods | 12 months | guarded batched purge after verified archive and no legal hold |
+| `sales_ticket_line` | quarterly, with parent ticket | 12 months | child rows before ticket header |
+| `sales_ticket_charge` | quarterly, with parent ticket | 12 months | child rows before ticket header |
+| `draw` | quarterly, closed periods | 12 months | blocked while tickets reference the draw |
+| `draw_result` | quarterly, closed periods | 12 months | blocked while draws reference the result |
+| `analytics_daily`, `analytics_draw`, `analytics_selection`, `analytics_seller_terminal_draw` | no cold archive by default | rebuildable projection | daily retention/purge; rebuild from sales snapshots and reconcile first |
+| `audit_log` | monthly partitions/archive | 12 months | partition cleanup only after verified archive and legal-hold checks |
+| Envers `_aud` + `revinfo` | quarterly aggregate | dataset-specific | purge `_aud` rows before `revinfo`, after legal review |
+| `batch.BATCH_*` | quarterly archive | 365 days | weekly scheduler purges completed executions older than retention; running jobs excluded |
+| `processed_event` | no cold archive | 30 days | weekly Sunday cleanup by `processed_at`; technical replay evidence is not a business archive |
+| `notification_translation` | with parent notification | notification retention | do not delete weekly in isolation; translations are part of notification content |
+| `app_user`, external identities, memberships, roles | never | online | master/security data stays online |
+| session, handoff, sale-preparation and idempotency tables | never | TTL | dedicated TTL cleanup, not quarterly archive |
+
+The archive executor is manually triggered for a closed half-open period `[start, end)`. It is
+idempotent by run key, writes compressed `jsonl.gz` objects, verifies row count/bytes/checksum, and
+does not authorize hot-table cleanup until the object is `VERIFIED`. The Locust E2E scenario covers
+the real archive endpoints, backdated seed rows, archive execution, dry-run and purge verification.
+
+The current default for Spring Batch is one year (`TCH_BATCH_HISTORY_RETENTION_DAYS=365`). A staging
+incident may temporarily lower that value with an explicit operator decision; production must
+archive completed executions before reducing the hot retention.
 
 ## Archive Execution
 

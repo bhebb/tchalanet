@@ -1,5 +1,8 @@
 # Design — Analytics Reconciliation and Replay
 
+Status: implemented for the V1 tenant-scoped validation and repair path. Persistent run history,
+automatic mismatch alerts and the remaining broad scenario matrix are follow-ups.
+
 ## Decision
 
 The operational word "replay" means **rebuild projections from transactional source snapshots**.
@@ -203,7 +206,7 @@ supplied field. A `VALIDATE` request is read-only and may return `MISMATCH` with
 
 ## Operational runbook for the current STG mismatch
 
-The runbook will be executable only after the handler and platform-ops endpoint are implemented:
+The operational runbook is executable through the implemented platform-ops endpoint:
 
 1. Run `VALIDATE` for the affected tenant and sale business date.
 2. Confirm the mismatch identifies the missing tenant/draw/seller-terminal projection and record
@@ -215,8 +218,8 @@ The runbook will be executable only after the handler and platform-ops endpoint 
 6. If the result is `SOURCE_UNAVAILABLE` or `RECONCILIATION_REQUIRED`, do not manually edit the
    analytics tables; fix the source snapshot contract or projection failure and rerun validation.
 
-This runbook is deliberately not executable against the current branch because the rebuild handler
-and endpoint do not exist yet.
+The standalone operator procedure is maintained in
+`docs/ANALYTICS_RECONCILIATION_RUNBOOK.md`.
 
 ## Operational tenant dashboard
 

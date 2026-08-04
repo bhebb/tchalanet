@@ -35,14 +35,17 @@ public class PlatformHealthProbeActuatorAdapter implements PlatformHealthProbe {
         root != null && root.getStatus() != null ? root.getStatus().getCode() : "UNKNOWN";
     Map<String, Object> components = new LinkedHashMap<>();
     if (root instanceof SystemHealthDescriptor system) {
-      system
-          .getComponents()
-          .forEach(
-              (name, desc) ->
-                  components.put(
-                      name, desc.getStatus() != null ? desc.getStatus().getCode() : "UNKNOWN"));
+      var healthComponents = system.getComponents();
+      if (healthComponents != null) {
+        healthComponents.forEach(
+            (name, desc) -> {
+              var status = desc == null ? null : desc.getStatus();
+              components.put(name, status == null ? "UNKNOWN" : status.getCode());
+            });
+      }
     } else if (root instanceof IndicatedHealthDescriptor indicated) {
-      components.put("global", indicated.getStatus().getCode());
+      var status = indicated.getStatus();
+      components.put("global", status == null ? "UNKNOWN" : status.getCode());
     }
     return Map.of(
         "global", global,

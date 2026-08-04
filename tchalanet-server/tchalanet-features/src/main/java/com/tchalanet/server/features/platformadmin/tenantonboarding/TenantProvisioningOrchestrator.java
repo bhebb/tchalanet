@@ -217,7 +217,7 @@ public class TenantProvisioningOrchestrator {
               }
             }
             """
-                .formatted(maryajGratisEnabled));
+                .replace("%s", Boolean.toString(maryajGratisEnabled)));
     tenantConfigApi.updateTenantInternalSettingsSection(
         new UpdateTenantInternalSettingsSectionRequest(tenantId, Section.RULES, rules));
   }

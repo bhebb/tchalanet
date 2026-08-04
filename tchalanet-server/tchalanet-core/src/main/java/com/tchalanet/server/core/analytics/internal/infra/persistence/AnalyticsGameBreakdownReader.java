@@ -45,7 +45,7 @@ public class AnalyticsGameBreakdownReader {
         ORDER BY gross_sales_cents DESC, game_code ASC
         LIMIT :limit
         """
-            .formatted(tenantFilter);
+            .replace("%s", tenantFilter);
 
     var query =
         em.createNativeQuery(sql)

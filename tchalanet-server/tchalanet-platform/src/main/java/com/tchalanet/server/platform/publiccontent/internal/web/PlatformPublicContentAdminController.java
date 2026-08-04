@@ -102,12 +102,13 @@ public class PlatformPublicContentAdminController {
 
   private PublicContentAdminItemView toAdminView(PublicContentItem item) {
     UUID id = toUuid(item.id());
+    var sourceUrl = item.sourceUrl();
     return new PublicContentAdminItemView(
         id,
         item.title(),
         item.content(),
         item.imageUrl(),
-        item.sourceUrl() != null ? item.sourceUrl().toString() : null,
+        sourceUrl == null ? null : sourceUrl.toString(),
         item.sourceType() != null ? item.sourceType() : PublicContentSourceType.INTERNAL,
         item.status(),
         item.publishedAt(),

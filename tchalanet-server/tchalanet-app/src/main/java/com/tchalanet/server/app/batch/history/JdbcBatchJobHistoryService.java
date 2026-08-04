@@ -63,7 +63,7 @@ public class JdbcBatchJobHistoryService implements BatchJobHistoryService {
             WHERE e.JOB_EXECUTION_ID = :executionId
             GROUP BY e.JOB_EXECUTION_ID, i.JOB_NAME, e.STATUS, e.EXIT_CODE, e.EXIT_MESSAGE, e.START_TIME, e.END_TIME
             """
-            .formatted(CONTEXT_SQL);
+            .replace("%s", CONTEXT_SQL);
     List<BatchJobExecutionView> rows =
         jdbc.query(sql, Map.of("executionId", executionId), this::mapExecution);
     return rows.stream().findFirst();
@@ -97,7 +97,7 @@ public class JdbcBatchJobHistoryService implements BatchJobHistoryService {
             ORDER BY COALESCE(e.START_TIME, e.CREATE_TIME) DESC
             LIMIT :limit
             """
-            .formatted(CONTEXT_SQL);
+            .replace("%s", CONTEXT_SQL);
     return jdbc.query(
         sql,
         Map.of("jobName", jobName, "limit", Math.max(1, Math.min(limit, 200))),
@@ -120,7 +120,7 @@ public class JdbcBatchJobHistoryService implements BatchJobHistoryService {
             WHERE CREATE_TIME < :cutoff
               AND (STATUS IS NULL OR STATUS NOT IN (%s))
             """
-                .formatted(RUNNING_STATUSES),
+                .replace("%s", RUNNING_STATUSES),
             params,
             Long.class);
 

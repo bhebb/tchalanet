@@ -1,5 +1,12 @@
 # Reconcile Approved Sales With Analytics
 
+**Status: IMPLEMENTED (V1 operational path).** The tenant-scoped `VALIDATE` and
+`REBUILD_AND_VALIDATE` operations, exact source/projection comparison, atomic rebuild, audit
+annotation, tenant repair lock and 24-hour idempotency behavior are now present on `main`.
+
+Persistent reconciliation-run history and automated mismatch alerting remain follow-ups; the
+current operational record is the returned run id plus the existing audit/idempotency records.
+
 ## Why
 
 The POS home screen and reporting surface are allowed to read different models, but they must

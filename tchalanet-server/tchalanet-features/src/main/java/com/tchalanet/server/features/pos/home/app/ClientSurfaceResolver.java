@@ -2,10 +2,12 @@ package com.tchalanet.server.features.pos.home.app;
 
 import com.tchalanet.server.common.context.TchActorType;
 import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.features.pos.error.PosErrorCodes;
 import com.tchalanet.server.platform.identity.api.model.surface.ClientSurface;
 import com.tchalanet.server.platform.identity.api.model.surface.ClientSurfacePolicy;
+import java.util.Set;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -25,10 +27,11 @@ public class ClientSurfaceResolver {
       return surface;
     }
 
-    var available = ClientSurfacePolicy.availableSurfaces(ctx.systemRoles());
+    Set<TchRole> systemRoles = ctx == null ? Set.of() : ctx.systemRoles();
+    var available = ClientSurfacePolicy.availableSurfaces(systemRoles);
     var surface =
         requestedSurface == null || requestedSurface.isBlank()
-            ? ClientSurfacePolicy.preferredSurface(ctx.systemRoles())
+            ? ClientSurfacePolicy.preferredSurface(systemRoles)
             : parse(requestedSurface);
     if (!available.contains(surface)) {
       throw ProblemRest.of(PosErrorCodes.SURFACE_NOT_ALLOWED);

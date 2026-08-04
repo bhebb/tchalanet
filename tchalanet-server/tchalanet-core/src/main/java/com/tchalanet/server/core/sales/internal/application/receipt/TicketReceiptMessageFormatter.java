@@ -30,16 +30,7 @@ public class TicketReceiptMessageFormatter {
     var translations = i18nResolver.resolve(receipt.locale(), receipt.tenantId());
     var subject = "Ticket Tchalanet " + receipt.displayCode();
     var body =
-        """
-            %s
-            %s: %s
-            %s:
-            %s
-            %s: %s
-            %s: %s
-            %s: %s
-            %s: %s
-            """
+        String.join("%n", "%s", "%s: %s", "%s:", "%s", "%s: %s", "%s: %s", "%s: %s", "%s: %s", "")
             .formatted(
                 translations.text(TicketReceiptI18nKeys.MESSAGE_VALID_TICKET),
                 translations.text(TicketReceiptI18nKeys.MESSAGE_CODE),

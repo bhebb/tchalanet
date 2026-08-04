@@ -1,6 +1,6 @@
 # Tasks — archive-execution-v1
 
-Status: PENDING
+Status: IMPLEMENTED for the operational V1 scope; remaining production hardening is listed as open.
 
 ## Phase 0 — Spec alignment
 
@@ -38,7 +38,7 @@ Status: PENDING
 
 - [x] Add `AuditLogArchiveDatasetProvider`.
 - [x] Add focused `ArchiveRunExecutor` tests for verified object and invalid object paths.
-- [ ] Prove end-to-end flow with `audit_log` in integration tests.
+- [x] Prove the archive execution path with local Docker/Locust E2E coverage using real platform endpoints.
 - [x] Add `SalesTicketArchiveDatasetProvider` for ticket headers.
 - [x] Add `SalesTicketLineArchiveDatasetProvider` for ticket lines by parent ticket sold period.
 - [x] Archive ticket charges/snapshots, not only ticket headers and lines.

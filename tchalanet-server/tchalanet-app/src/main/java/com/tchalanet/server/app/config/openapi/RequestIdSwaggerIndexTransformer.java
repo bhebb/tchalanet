@@ -58,7 +58,7 @@ final class RequestIdSwaggerIndexTransformer extends SwaggerIndexPageTransformer
             return request;
           },
         """
-            .formatted(escapedDefault);
+            .replace("%s", escapedDefault);
     return content.replaceFirst(
         java.util.regex.Pattern.quote(SWAGGER_BUNDLE_MARKER),
         java.util.regex.Matcher.quoteReplacement(interceptor));

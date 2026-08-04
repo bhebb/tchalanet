@@ -30,15 +30,17 @@ public class PublicNewsController {
       @RequestParam(defaultValue = "PUBLIC_HOME") PublicContentSurface surface) {
     return queryService.listForSurface(surface, limit).stream()
         .map(
-            item ->
-                new PublicContentItemView(
-                    toUuid(item.id()),
-                    item.title(),
-                    item.content(),
-                    item.imageUrl(),
-                    item.sourceUrl() != null ? item.sourceUrl().toString() : null,
-                    item.sourceType(),
-                    item.publishedAt()))
+            item -> {
+              var sourceUrl = item.sourceUrl();
+              return new PublicContentItemView(
+                  toUuid(item.id()),
+                  item.title(),
+                  item.content(),
+                  item.imageUrl(),
+                  sourceUrl == null ? null : sourceUrl.toString(),
+                  item.sourceType(),
+                  item.publishedAt());
+            })
         .toList();
   }
 
