@@ -6,6 +6,7 @@ import com.tchalanet.server.core.sales.api.event.TicketPayoutPaidAmountAdjustedE
 import com.tchalanet.server.core.sales.api.event.TicketPayoutPaidEvent;
 import com.tchalanet.server.core.sales.api.event.TicketPayoutReversedEvent;
 import com.tchalanet.server.core.sales.api.event.TicketPlacedEvent;
+import com.tchalanet.server.core.sales.api.model.analytics.SalesAnalyticsTicketSnapshot;
 import com.tchalanet.server.core.sales.api.model.status.TicketSaleStatus;
 import java.math.BigDecimal;
 import java.time.Clock;
@@ -166,6 +167,53 @@ public class AnalyticsSellerTerminalDrawProjector {
         refDate,
         event.occurredAt(),
         -event.amountCents());
+  }
+
+  /** Reverses the approved sale contribution when the ticket is cancelled before result. */
+  @Transactional
+  public void applyTicketCancelled(SalesAnalyticsTicketSnapshot snapshot) {
+    if (snapshot.approvedAt() == null
+        || snapshot.sellerTerminalId() == null
+        || snapshot.drawId() == null) {
+      return;
+    }
+    var entity =
+        repository
+            .findByTenantIdAndSellerTerminalIdAndDrawId(
+                snapshot.tenantId(), snapshot.sellerTerminalId(), snapshot.drawId())
+            .orElse(null);
+    if (entity == null) {
+      return;
+    }
+
+    long stakeCents = toCents(snapshot.stakeAmount());
+    long commissionCents = toCents(snapshot.sellerCommissionAmount());
+    var charges = AnalyticsDrawProjector.ChargeTotals.from(snapshot);
+    var promotions = AnalyticsDrawProjector.PromotionTotals.from(snapshot);
+
+    entity.setTicketsSoldCount(entity.getTicketsSoldCount() - 1);
+    entity.setGrossSalesCents(entity.getGrossSalesCents() - stakeCents);
+    entity.setStakeTotalCents(entity.getStakeTotalCents() - stakeCents);
+    entity.setSellerCommissionCents(entity.getSellerCommissionCents() - commissionCents);
+    entity.setBuyerChargeCents(entity.getBuyerChargeCents() - charges.buyerCents());
+    entity.setSellerChargeCents(entity.getSellerChargeCents() - charges.sellerCents());
+    entity.setTenantChargeCents(entity.getTenantChargeCents() - charges.tenantCents());
+    entity.setWaivedChargeCents(entity.getWaivedChargeCents() - charges.waivedCents());
+    entity.setPromotionLineCount(entity.getPromotionLineCount() - promotions.lineCount());
+    entity.setPromotionPricedLineCount(
+        entity.getPromotionPricedLineCount() - promotions.pricedLineCount());
+    entity.setNetRevenueEstimatedCents(
+        entity.getNetRevenueEstimatedCents()
+            - stakeCents
+            + commissionCents
+            + charges.tenantCents());
+    entity.setNetRevenuePaidBasisCents(
+        entity.getNetRevenuePaidBasisCents()
+            - stakeCents
+            + commissionCents
+            + charges.tenantCents());
+    entity.setUpdatedAt(Instant.now(clock));
+    repository.save(entity);
   }
 
   private void applyWinningsDelta(

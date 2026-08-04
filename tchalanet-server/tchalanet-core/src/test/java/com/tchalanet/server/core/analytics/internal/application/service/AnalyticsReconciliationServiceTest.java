@@ -193,6 +193,7 @@ class AnalyticsReconciliationServiceTest {
         DRAW_ID,
         DRAW_CHANNEL_ID,
         SOLD_AT,
+        SOLD_AT,
         SOLD_AT.plusSeconds(86_400),
         DRAW_DATE,
         "APPROVED",

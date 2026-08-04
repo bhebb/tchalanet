@@ -4,6 +4,7 @@ import com.tchalanet.server.core.sales.api.model.analytics.SalesAnalyticsTicketC
 import com.tchalanet.server.core.sales.api.model.analytics.SalesAnalyticsTicketLineSnapshot;
 import com.tchalanet.server.core.sales.api.model.analytics.SalesAnalyticsTicketSnapshot;
 import com.tchalanet.server.core.sales.api.model.status.TicketSaleStatus;
+import com.tchalanet.server.core.sales.api.query.GetSalesAnalyticsTicketSnapshotQuery;
 import com.tchalanet.server.core.sales.api.query.GetSalesAnalyticsTicketSnapshotsQuery;
 import com.tchalanet.server.core.sales.internal.application.port.out.SalesAnalyticsSnapshotReaderPort;
 import com.tchalanet.server.core.sales.internal.infra.persistence.entity.TicketChargeJpaEntity;
@@ -12,6 +13,7 @@ import com.tchalanet.server.core.sales.internal.infra.persistence.entity.TicketL
 import com.tchalanet.server.core.sales.internal.infra.persistence.repository.TicketChargeJpaRepository;
 import com.tchalanet.server.core.sales.internal.infra.persistence.repository.TicketJpaRepository;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -58,6 +60,20 @@ class SalesAnalyticsSnapshotReaderAdapter implements SalesAnalyticsSnapshotReade
         .toList();
   }
 
+  @Override
+  @Transactional(readOnly = true)
+  public Optional<SalesAnalyticsTicketSnapshot> findTicketSnapshot(
+      GetSalesAnalyticsTicketSnapshotQuery query) {
+    var ticket = ticketRepository.findWithLinesById(query.ticketId().value());
+    if (ticket.isEmpty()) {
+      return Optional.empty();
+    }
+    var charges =
+        chargeRepository.findByTicket_IdInOrderByTicket_IdAscChargeTypeAsc(
+            List.of(ticket.get().getId()));
+    return Optional.of(toSnapshot(ticket.get(), charges));
+  }
+
   private SalesAnalyticsTicketSnapshot toSnapshot(
       TicketJpaEntity ticket, List<TicketChargeJpaEntity> charges) {
     return new SalesAnalyticsTicketSnapshot(
@@ -67,6 +83,7 @@ class SalesAnalyticsSnapshotReaderAdapter implements SalesAnalyticsSnapshotReade
         ticket.getDrawId(),
         ticket.getDrawChannelId(),
         ticket.getSoldAt(),
+        ticket.getApprovedAt(),
         ticket.getDrawScheduledAt(),
         ticket.getDrawDate(),
         ticket.getSaleStatus().name(),

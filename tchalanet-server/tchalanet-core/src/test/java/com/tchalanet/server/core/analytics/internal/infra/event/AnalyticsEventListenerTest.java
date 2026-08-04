@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import com.tchalanet.server.catalog.game.api.model.BetType;
 import com.tchalanet.server.catalog.game.api.model.GameCode;
+import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.types.id.CorrelationId;
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.DrawId;
@@ -22,10 +23,12 @@ import com.tchalanet.server.core.analytics.internal.application.service.Analytic
 import com.tchalanet.server.core.analytics.internal.application.service.AnalyticsSelectionProjector;
 import com.tchalanet.server.core.analytics.internal.application.service.AnalyticsSellerTerminalDrawProjector;
 import com.tchalanet.server.core.analytics.internal.infra.persistence.AnalyticsTenantProjectionLock;
+import com.tchalanet.server.core.sales.api.event.TicketCancelledEvent;
 import com.tchalanet.server.core.sales.api.event.TicketLinePlacedItem;
 import com.tchalanet.server.core.sales.api.event.TicketPlacedEvent;
 import com.tchalanet.server.core.sales.api.event.payload.TicketContextPayload;
 import com.tchalanet.server.core.sales.api.event.payload.TicketMoneyPayload;
+import com.tchalanet.server.core.sales.api.model.analytics.SalesAnalyticsTicketSnapshot;
 import com.tchalanet.server.core.sales.api.model.origin.TicketSaleChannel;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineOrigin;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSource;
@@ -37,6 +40,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
@@ -57,6 +61,7 @@ class AnalyticsEventListenerTest {
 
   @Test
   void publishesApprovedTicketToAllSaleProjectors() {
+    var queryBus = org.mockito.Mockito.mock(QueryBus.class);
     var processed = org.mockito.Mockito.mock(ProcessedEventPort.class);
     when(processed.markProcessedIfAbsent(any(), any())).thenReturn(true);
     var daily = org.mockito.Mockito.mock(AnalyticsDailyProjector.class);
@@ -68,7 +73,7 @@ class AnalyticsEventListenerTest {
     when(zones.resolveTenantZone(TENANT_ID)).thenReturn(ZoneOffset.UTC);
     var listener =
         new AnalyticsEventListener(
-            processed, daily, draw, selection, sellerTerminalDraw, zones, lock);
+            queryBus, processed, daily, draw, selection, sellerTerminalDraw, zones, lock);
 
     listener.onTicketPlaced(ticketPlaced());
     listener.onTicketPlacedForSelection(ticketPlaced());
@@ -85,6 +90,7 @@ class AnalyticsEventListenerTest {
 
   @Test
   void skipsAllProjectorsWhenTheEventWasAlreadyProcessed() {
+    var queryBus = org.mockito.Mockito.mock(QueryBus.class);
     var processed = org.mockito.Mockito.mock(ProcessedEventPort.class);
     when(processed.markProcessedIfAbsent(any(), any())).thenReturn(false);
     var daily = org.mockito.Mockito.mock(AnalyticsDailyProjector.class);
@@ -95,7 +101,7 @@ class AnalyticsEventListenerTest {
     var lock = org.mockito.Mockito.mock(AnalyticsTenantProjectionLock.class);
     var listener =
         new AnalyticsEventListener(
-            processed, daily, draw, selection, sellerTerminalDraw, zones, lock);
+            queryBus, processed, daily, draw, selection, sellerTerminalDraw, zones, lock);
 
     listener.onTicketPlaced(ticketPlaced());
 
@@ -104,6 +110,47 @@ class AnalyticsEventListenerTest {
     InOrder order = org.mockito.Mockito.inOrder(lock, processed);
     order.verify(lock).acquire(TENANT_ID);
     order.verify(processed).markProcessedIfAbsent(any(), any());
+  }
+
+  @Test
+  void cancellationLoadsImmutableSnapshotAndReversesEveryFinancialProjection() {
+    var queryBus = org.mockito.Mockito.mock(QueryBus.class);
+    var processed = org.mockito.Mockito.mock(ProcessedEventPort.class);
+    when(processed.markProcessedIfAbsent(any(), any())).thenReturn(true);
+    var daily = org.mockito.Mockito.mock(AnalyticsDailyProjector.class);
+    var draw = org.mockito.Mockito.mock(AnalyticsDrawProjector.class);
+    var selection = org.mockito.Mockito.mock(AnalyticsSelectionProjector.class);
+    var sellerTerminalDraw = org.mockito.Mockito.mock(AnalyticsSellerTerminalDrawProjector.class);
+    var zones = org.mockito.Mockito.mock(TenantZoneApi.class);
+    var lock = org.mockito.Mockito.mock(AnalyticsTenantProjectionLock.class);
+    when(zones.resolveTenantZone(TENANT_ID)).thenReturn(ZoneOffset.UTC);
+    var snapshot = snapshot();
+    org.mockito.Mockito.doReturn(Optional.of(snapshot)).when(queryBus).ask(any());
+    var listener =
+        new AnalyticsEventListener(
+            queryBus, processed, daily, draw, selection, sellerTerminalDraw, zones, lock);
+
+    var cancelled =
+        new TicketCancelledEvent(
+            EventId.of(UUID.fromString("60000000-0000-0000-0000-000000000002")),
+            NOW.plusSeconds(3600),
+            TENANT_ID,
+            TICKET_ID,
+            com.tchalanet.server.common.types.id.UserId.of(
+                UUID.fromString("90000000-0000-0000-0000-000000000001")),
+            "customer requested cancellation");
+
+    listener.onTicketCancelled(cancelled);
+    listener.onTicketCancelledForDraw(cancelled);
+    listener.onTicketCancelledForSellerTerminalDraw(cancelled);
+
+    verify(daily)
+        .applyTicketCancelled(
+            snapshot,
+            NOW.atZone(ZoneOffset.UTC).toLocalDate(),
+            NOW.plusSeconds(3600).atZone(ZoneOffset.UTC).toLocalDate());
+    verify(draw).applyTicketCancelled(snapshot);
+    verify(sellerTerminalDraw).applyTicketCancelled(snapshot);
   }
 
   private static TicketPlacedEvent ticketPlaced() {
@@ -140,6 +187,36 @@ class AnalyticsEventListenerTest {
                 null,
                 null)),
         null);
+  }
+
+  private static SalesAnalyticsTicketSnapshot snapshot() {
+    return new SalesAnalyticsTicketSnapshot(
+        TICKET_ID.value(),
+        TENANT_ID.value(),
+        SELLER_TERMINAL_ID.value(),
+        DRAW_ID.value(),
+        DRAW_CHANNEL_ID.value(),
+        NOW,
+        NOW,
+        NOW.plusSeconds(86_400),
+        NOW.atZone(ZoneOffset.UTC).toLocalDate(),
+        "CANCELLED",
+        NOW.plusSeconds(3600),
+        null,
+        "NOT_RESULTED",
+        null,
+        "NOT_SETTLED",
+        null,
+        null,
+        BigDecimal.ZERO,
+        null,
+        null,
+        null,
+        money("10.00").amount(),
+        BigDecimal.ZERO,
+        new BigDecimal("1.50"),
+        List.of(),
+        List.of());
   }
 
   private static Money money(String amount) {
