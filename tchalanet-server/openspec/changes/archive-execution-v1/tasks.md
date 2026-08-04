@@ -43,7 +43,7 @@ Status: IMPLEMENTED for the operational V1 scope; remaining production hardening
 - [x] Add `SalesTicketLineArchiveDatasetProvider` for ticket lines by parent ticket sold period.
 - [x] Archive ticket charges/snapshots, not only ticket headers and lines.
 - [x] Prove `sales_ticket_charge` archive flow with dev seed data and a local verified archive run.
-- [ ] Implement archived ticket DTO and lookup by ticket id/public code before deleting any hot ticket
+- [x] Implement archived ticket DTO and lookup by ticket id/public code before deleting any hot ticket
   partitions.
 - [x] Implement `draw`/`draw_result` archive provider after ticket lookup is proven.
 - [x] Implement Spring Batch archive provider using job execution as the bounded export aggregate.

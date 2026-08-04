@@ -6,6 +6,7 @@ import com.tchalanet.server.platform.archive.api.model.ArchiveObjectRowView;
 import com.tchalanet.server.platform.archive.api.model.ArchiveRunRowView;
 import com.tchalanet.server.platform.archive.api.model.ArchiveRunView;
 import com.tchalanet.server.platform.archive.api.model.ArchivedEntityView;
+import com.tchalanet.server.platform.archive.api.model.ArchivedTicketView;
 import com.tchalanet.server.platform.archive.api.model.TriggerArchiveRunRequest;
 import com.tchalanet.server.platform.archive.internal.io.JsonlGzReader;
 import com.tchalanet.server.platform.archive.internal.persistence.ArchiveLookupIndexJdbcRepository;
@@ -13,6 +14,7 @@ import com.tchalanet.server.platform.archive.internal.persistence.ArchiveObjectJ
 import com.tchalanet.server.platform.archive.internal.persistence.ArchiveRunJdbcRepository;
 import com.tchalanet.server.platform.archive.internal.storage.ArchiveStoragePort;
 import java.io.InputStream;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -45,33 +47,33 @@ public class ArchiveService implements ArchiveApi {
   // ── Lookup ─────────────────────────────────────────────────────────────────
 
   @Override
-  public ArchivedEntityView findArchivedTicket(UUID tenantId, UUID ticketId) {
+  public ArchivedTicketView findArchivedTicket(UUID tenantId, UUID ticketId) {
     log.debug("archive: findArchivedTicket tenant={} ticket={}", tenantId, ticketId);
     metrics.recordLookupFallback();
     return lookupTicketByEntity(tenantId, ticketId, null);
   }
 
   @Override
-  public ArchivedEntityView findArchivedTicketByPublicCode(UUID tenantId, String publicCode) {
+  public ArchivedTicketView findArchivedTicketByPublicCode(UUID tenantId, String publicCode) {
     log.debug("archive: findArchivedTicketByPublicCode tenant={} code={}", tenantId, publicCode);
     metrics.recordLookupFallback();
     return lookupTicketByPublicCode(tenantId, publicCode);
   }
 
-  private ArchivedEntityView lookupTicketByEntity(UUID tenantId, UUID ticketId, String publicCode) {
+  private ArchivedTicketView lookupTicketByEntity(UUID tenantId, UUID ticketId, String publicCode) {
     List<Map<String, Object>> entries = lookupRepo.findByEntity("sales_ticket", "TICKET", ticketId);
     return readFirstMatchingTicket(tenantId, ticketId, publicCode, entries);
   }
 
-  private ArchivedEntityView lookupTicketByPublicCode(UUID tenantId, String publicCode) {
+  private ArchivedTicketView lookupTicketByPublicCode(UUID tenantId, String publicCode) {
     List<Map<String, Object>> entries = lookupRepo.findByPublicCode("sales_ticket", publicCode);
     return readFirstMatchingTicket(tenantId, null, publicCode, entries);
   }
 
-  private ArchivedEntityView readFirstMatchingTicket(
+  private ArchivedTicketView readFirstMatchingTicket(
       UUID tenantId, UUID ticketId, String publicCode, List<Map<String, Object>> entries) {
 
-    if (entries.isEmpty()) return ArchivedEntityView.notFound(ticketId);
+    if (entries.isEmpty()) return ArchivedTicketView.notFound(ticketId);
 
     String tenantStr = tenantId != null ? tenantId.toString() : null;
     String ticketIdStr = ticketId != null ? ticketId.toString() : null;
@@ -82,8 +84,18 @@ public class ArchiveService implements ArchiveApi {
       Optional<ArchiveObjectRowView> objMeta = objectRepo.findById(objectId);
       if (objMeta.isEmpty()) continue;
 
-      String uri = objMeta.get().objectUri();
-      int schemaVersion = objMeta.get().schemaVersion();
+      ArchiveObjectRowView object = objMeta.get();
+      if (!"sales_ticket".equals(object.tableName()) || !"VERIFIED".equals(object.status())) {
+        log.warn(
+            "archive: refusing ticket lookup through non-verified object id={} table={} status={}",
+            objectId,
+            object.tableName(),
+            object.status());
+        continue;
+      }
+
+      String uri = object.objectUri();
+      int schemaVersion = object.schemaVersion();
       if (!storage.exists(uri)) continue;
 
       try (InputStream in = storage.openRead(uri)) {
@@ -103,16 +115,48 @@ public class ArchiveService implements ArchiveApi {
         if (!rows.isEmpty()) {
           Map<String, Object> header = rows.get(0);
           UUID foundId = toUuid(header.get("id"));
-          String foundCode = (String) header.get("public_code");
-          return new ArchivedEntityView(
-              true, foundId, foundCode, "sales_ticket", schemaVersion, null, rows);
+          return toArchivedTicket(header, foundId, object);
         }
       } catch (Exception ex) {
         log.error("archive: failed reading ticket object uri={}: {}", uri, ex.getMessage(), ex);
         metrics.recordObjectReadError("sales_ticket");
       }
     }
-    return ArchivedEntityView.notFound(ticketId);
+    return ArchivedTicketView.notFound(ticketId);
+  }
+
+  private static ArchivedTicketView toArchivedTicket(
+      Map<String, Object> header, UUID ticketId, ArchiveObjectRowView object) {
+    return new ArchivedTicketView(
+        true,
+        ticketId,
+        stringValue(header.get("public_code")),
+        toUuid(header.get("tenant_id")),
+        instantValue(header.get("sold_at")),
+        stringValue(header.get("sale_status")),
+        stringValue(header.get("result_status")),
+        stringValue(header.get("settlement_status")),
+        stringValue(header.get("currency")),
+        header,
+        List.of(),
+        List.of(),
+        new ArchivedTicketView.ArchiveObjectMeta(
+            object.id(), object.periodStart(), object.periodEnd(), object.schemaVersion()));
+  }
+
+  private static String stringValue(Object value) {
+    return value == null ? null : value.toString();
+  }
+
+  private static Instant instantValue(Object value) {
+    if (value == null) return null;
+    if (value instanceof Instant instant) return instant;
+    if (value instanceof java.util.Date date) return date.toInstant();
+    try {
+      return Instant.parse(value.toString());
+    } catch (java.time.format.DateTimeParseException ex) {
+      return null;
+    }
   }
 
   private static UUID toUuid(Object val) {
