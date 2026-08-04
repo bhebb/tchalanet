@@ -15,9 +15,13 @@ name: Database Backup
 
 on:
   schedule:
-    # 02:17 UTC quotidien. Minute décalée : les crons à l'heure pile saturent
-    # les runners GitHub et se font retarder ou sauter.
-    - cron: '17 2 * * *'
+    # Prod : quotidien. Staging : hebdomadaire le dimanche — les données y sont
+    # jetables et recréables, un backup par jour n'y vaut pas son coût de
+    # stockage tant que la prod n'existe pas.
+    # Minute décalée : les crons à l'heure pile saturent les runners GitHub et
+    # se font retarder ou sauter.
+    - cron: '17 2 * * *'   # prod, quotidien
+    - cron: '17 3 * * 0'   # staging, dimanche
   workflow_dispatch:
     inputs:
       target_environment:
@@ -35,7 +39,7 @@ on:
         type: boolean
 
 concurrency:
-  group: db-backup-${{ inputs.target_environment || 'staging' }}
+  group: db-backup-${{ ((github.event_name == 'schedule' && github.event.schedule == '17 2 * * *') || inputs.target_environment == 'production') && 'prod' || 'staging' }}
   cancel-in-progress: false
 
 permissions:
@@ -43,41 +47,76 @@ permissions:
 
 jobs:
   backup:
-    name: Backup ${{ inputs.target_environment || 'staging' }}
+    name: Backup ${{ ((github.event_name == 'schedule' && github.event.schedule == '17 2 * * *') || inputs.target_environment == 'production') && 'prod' || 'staging' }}
     runs-on: ubuntu-latest
     env:
-      DEPLOY_ENV: ${{ inputs.target_environment == 'production' && 'prod' || 'staging' }}
-      SERVER_HOST: ${{ inputs.target_environment == 'production' && secrets.PROD_SERVER_HOST || secrets.SERVER_HOST }}
-      SSH_PRIVATE_KEY_VALUE: ${{ inputs.target_environment == 'production' && secrets.SSH_PRIVATE_KEY_PROD || secrets.SSH_PRIVATE_KEY }}
+      # Le cron quotidien vise la prod, l'hebdomadaire le staging. Un
+      # déclenchement manuel suit toujours l'entrée choisie.
+      IS_PROD: ${{ (github.event_name == 'schedule' && github.event.schedule == '17 2 * * *') || inputs.target_environment == 'production' }}
+    outputs:
+      skipped: ${{ steps.guard.outputs.skipped }}
+      deploy_env: ${{ steps.guard.outputs.deploy_env }}
     steps:
       - uses: actions/checkout@v7
 
-      - name: Validate required secrets
+      - name: Resolve target and validate secrets
+        id: guard
         env:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
           R2_BUCKET: ${{ secrets.R2_BUCKET }}
           AGE_PUB: ${{ secrets.BACKUP_AGE_PUBLIC_KEY }}
+          PROD_HOST: ${{ secrets.PROD_SERVER_HOST }}
+          STG_HOST: ${{ secrets.SERVER_HOST }}
         run: |
           set -euo pipefail
+
+          if [ "$IS_PROD" = "true" ]; then
+            DEPLOY_ENV=prod; HOST="$PROD_HOST"
+          else
+            DEPLOY_ENV=staging; HOST="$STG_HOST"
+          fi
+
+          # Un environnement non provisionné n'a pas d'hôte. On saute au lieu
+          # d'échouer : un workflow rouge tous les jours pour une prod qui
+          # n'existe pas encore apprend à ignorer les échecs, ce qui annule
+          # l'intérêt d'alerter. Dès que le secret existe, le backup tourne et
+          # échoue bruyamment s'il est cassé.
+          if [ -z "$HOST" ]; then
+            echo "skipped=true" >> "$GITHUB_OUTPUT"
+            {
+              echo "### Backup ignoré — $DEPLOY_ENV non provisionné"
+              echo ""
+              echo "Aucun hôte configuré pour \`$DEPLOY_ENV\`. Ajouter le secret"
+              echo "\`$([ "$DEPLOY_ENV" = prod ] && echo PROD_SERVER_HOST || echo SERVER_HOST)\` active le backup."
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "::notice::Backup ignoré — $DEPLOY_ENV n'a pas d'hôte configuré"
+            exit 0
+          fi
+
           for v in CLOUDFLARE_ACCOUNT_ID R2_ACCESS_KEY_ID R2_SECRET_ACCESS_KEY R2_BUCKET AGE_PUB; do
             [ -n "${!v}" ] || { echo "Missing secret: $v" >&2; exit 1; }
           done
-          [ -n "$SERVER_HOST" ] || { echo "Missing SERVER_HOST" >&2; exit 1; }
+
+          echo "skipped=false" >> "$GITHUB_OUTPUT"
+          echo "deploy_env=$DEPLOY_ENV" >> "$GITHUB_OUTPUT"
+          echo "Target: $DEPLOY_ENV"
 
       - name: Run backup on the database host
+        if: steps.guard.outputs.skipped == 'false'
         uses: appleboy/ssh-action@v1
         with:
-          host: ${{ env.SERVER_HOST }}
+          host: ${{ env.IS_PROD == 'true' && secrets.PROD_SERVER_HOST || secrets.SERVER_HOST }}
           username: tch
-          key: ${{ env.SSH_PRIVATE_KEY_VALUE }}
+          key: ${{ env.IS_PROD == 'true' && secrets.SSH_PRIVATE_KEY_PROD || secrets.SSH_PRIVATE_KEY }}
           envs: DEPLOY_ENV,CLOUDFLARE_ACCOUNT_ID,R2_ACCESS_KEY_ID,R2_SECRET_ACCESS_KEY,R2_BUCKET,BACKUP_AGE_PUBLIC_KEY
           script: |
             set -euo pipefail
             cd /opt/tchalanet-infra
             ENV="$DEPLOY_ENV" ./scripts/remote/pg-backup.sh
         env:
+          DEPLOY_ENV: ${{ steps.guard.outputs.deploy_env }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
@@ -92,6 +131,7 @@ jobs:
     # que le dernier backup est réellement exploitable.
     if: |
       always() && needs.backup.result == 'success' &&
+      needs.backup.outputs.skipped == 'false' &&
       (inputs.rehearse_restore == true || github.event_name == 'schedule')
     runs-on: ubuntu-latest
     steps:
@@ -105,7 +145,7 @@ jobs:
 
       - name: Rehearse restore from the latest backup
         env:
-          ENV: ${{ inputs.target_environment == 'production' && 'prod' || 'staging' }}
+          ENV: ${{ needs.backup.outputs.deploy_env }}
           DRY_RUN: '1'
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
