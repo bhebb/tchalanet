@@ -63,7 +63,7 @@ public class ArchiveDomainPurgeService {
           periodEnd,
           "period not older than retention cutoff " + retentionCutoff());
     }
-    if (legalHoldRepo.hasActiveHoldForPeriod(tableName, periodStart, periodEnd)) {
+    if (legalHoldRepo.hasActiveHoldForPeriod(tableName, tenantId, periodStart, periodEnd)) {
       return notEligible(
           dataset,
           tenantId,

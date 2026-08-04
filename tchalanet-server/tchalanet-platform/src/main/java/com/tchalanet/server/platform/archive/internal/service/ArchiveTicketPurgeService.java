@@ -71,7 +71,7 @@ public class ArchiveTicketPurgeService {
     }
 
     for (String dataset : DATASETS) {
-      if (legalHoldRepo.hasActiveHoldForPeriod(dataset, periodStart, periodEnd)) {
+      if (legalHoldRepo.hasActiveHoldForPeriod(dataset, tenantId, periodStart, periodEnd)) {
         return notEligible(
             tenantId,
             periodStart,

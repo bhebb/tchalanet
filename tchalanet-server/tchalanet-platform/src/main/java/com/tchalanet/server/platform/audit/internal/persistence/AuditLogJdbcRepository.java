@@ -165,7 +165,7 @@ public class AuditLogJdbcRepository implements AuditEventReaderPort, AuditEventW
         SELECT tenant_id, entity_type, entity_id, MIN(occurred_at) AS occurred_at
           FROM audit_log
          WHERE occurred_at >= :from AND occurred_at < :to
-           AND entity_id ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
+           AND entity_id::text ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
         """
             + tenantClause
             + " GROUP BY tenant_id, entity_type, entity_id",

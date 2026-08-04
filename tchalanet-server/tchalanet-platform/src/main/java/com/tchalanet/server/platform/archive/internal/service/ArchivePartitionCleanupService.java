@@ -108,7 +108,7 @@ public class ArchivePartitionCleanupService {
         continue;
       }
 
-      if (legalHoldRepo.hasActiveHoldForPeriod(tableName, periodStart, periodEnd)) {
+      if (legalHoldRepo.hasActiveHoldForPeriod(tableName, null, periodStart, periodEnd)) {
         result.add(
             notEligible(
                 partitionName,

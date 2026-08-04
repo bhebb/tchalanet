@@ -36,7 +36,8 @@ class ArchiveTicketPurgeServiceTest {
   void refusesPurgeWhenLegalHoldOverlapsPeriod() {
     var jdbc = mockJdbcWithMatchingCounts();
     var legalHoldRepo = mock(ArchiveLegalHoldJdbcRepository.class);
-    when(legalHoldRepo.hasActiveHoldForPeriod("sales_ticket_line", START, END)).thenReturn(true);
+    when(legalHoldRepo.hasActiveHoldForPeriod("sales_ticket_line", null, START, END))
+        .thenReturn(true);
 
     var service = service(jdbc, legalHoldRepo, true);
 

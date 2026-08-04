@@ -17,7 +17,7 @@ public class ArchiveLegalHoldJdbcRepository {
   private final NamedParameterJdbcTemplate jdbc;
 
   public boolean hasActiveHoldForPeriod(
-      String datasetCode, LocalDate periodStart, LocalDate periodEnd) {
+      String datasetCode, UUID tenantId, LocalDate periodStart, LocalDate periodEnd) {
     Integer count =
         jdbc.queryForObject(
             """
@@ -25,6 +25,7 @@ public class ArchiveLegalHoldJdbcRepository {
           FROM archive_legal_hold
          WHERE status = 'ACTIVE'
            AND dataset_code = :dataset
+           AND (:allTenants OR tenant_id IS NULL OR tenant_id = :tenantId)
            AND (
                 (period_start IS NULL AND period_end IS NULL)
              OR (period_start IS NULL AND period_end > :periodStart)
@@ -34,10 +35,24 @@ public class ArchiveLegalHoldJdbcRepository {
         """,
             new MapSqlParameterSource()
                 .addValue("dataset", datasetCode)
+                .addValue("tenantId", tenantId)
+                .addValue("allTenants", tenantId == null)
                 .addValue("periodStart", periodStart)
                 .addValue("periodEnd", periodEnd),
             Integer.class);
     return count != null && count > 0;
+  }
+
+  /**
+   * Backwards-compatible global check for callers that operate on the whole dataset.
+   *
+   * <p>New purge code must pass the tenant explicitly so a hold for one tenant does not block an
+   * unrelated tenant while global cleanup still honors every active hold.
+   */
+  @Deprecated
+  public boolean hasActiveHoldForPeriod(
+      String datasetCode, LocalDate periodStart, LocalDate periodEnd) {
+    return hasActiveHoldForPeriod(datasetCode, null, periodStart, periodEnd);
   }
 
   public UUID create(
