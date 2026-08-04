@@ -69,9 +69,21 @@ if [ "$DRY_RUN" = "1" ]; then
     docker exec -e PGPASSWORD=verify "$VERIFY" pg_isready -U postgres -q && break
     sleep 1
   done
+  # Rôles d'abord, comme dans une vraie restauration : le dump porte des GRANT
+  # sur app_user, absent d'un conteneur neuf.
+  if [ -f "$WORK/globals.sql" ]; then
+    docker cp "$WORK/globals.sql" "$VERIFY:/tmp/globals.sql"
+    docker exec -e PGPASSWORD=verify "$VERIFY" \
+      psql -U postgres -d verify -q -f /tmp/globals.sql >/dev/null 2>&1 || true
+  fi
   docker cp "$DUMP" "$VERIFY:/tmp/r.dump"
-  docker exec -e PGPASSWORD=verify "$VERIFY" pg_restore -U postgres -d verify --no-owner /tmp/r.dump >/dev/null 2>&1 \
-    || { docker rm -f "$VERIFY" >/dev/null 2>&1 || true; fail "rehearsal failed: dump is not restorable"; }
+  if ! docker exec -e PGPASSWORD=verify "$VERIFY" \
+        pg_restore -U postgres -d verify --no-owner /tmp/r.dump >"$WORK/restore.log" 2>&1; then
+    echo "── pg_restore output ──" >&2
+    head -20 "$WORK/restore.log" >&2
+    docker rm -f "$VERIFY" >/dev/null 2>&1 || true
+    fail "rehearsal failed: dump is not restorable"
+  fi
   TABLES="$(docker exec -e PGPASSWORD=verify "$VERIFY" psql -U postgres -d verify -tAc \
             "select count(*) from information_schema.tables where table_schema='public'")"
   docker rm -f "$VERIFY" >/dev/null 2>&1 || true
