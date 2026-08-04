@@ -16,6 +16,7 @@ import com.tchalanet.server.core.analytics.internal.infra.persistence.AnalyticsD
 import com.tchalanet.server.core.analytics.internal.infra.persistence.AnalyticsDrawRepository;
 import com.tchalanet.server.core.analytics.internal.infra.persistence.AnalyticsSellerTerminalDrawEntity;
 import com.tchalanet.server.core.analytics.internal.infra.persistence.AnalyticsSellerTerminalDrawRepository;
+import com.tchalanet.server.core.analytics.internal.infra.persistence.AnalyticsVisibilityOverrideRepository;
 import com.tchalanet.server.core.sales.api.query.GetSalesAnalyticsActivityDatesQuery;
 import com.tchalanet.server.platform.tenant.api.TenantZoneApi;
 import java.time.Clock;
@@ -36,6 +37,8 @@ class GetAnalyticsTrustStateQueryHandlerTest {
       Mockito.mock(AnalyticsDrawRepository.class);
   private final AnalyticsSellerTerminalDrawRepository sellerTerminalDrawRepository =
       Mockito.mock(AnalyticsSellerTerminalDrawRepository.class);
+  private final AnalyticsVisibilityOverrideRepository visibilityOverrideRepository =
+      Mockito.mock(AnalyticsVisibilityOverrideRepository.class);
   private final QueryBus queryBus = Mockito.mock(QueryBus.class);
   private final TenantZoneApi tenantZoneApi = Mockito.mock(TenantZoneApi.class);
   private final Clock clock = Clock.fixed(Instant.parse("2026-07-20T12:00:00Z"), ZoneOffset.UTC);
@@ -44,6 +47,7 @@ class GetAnalyticsTrustStateQueryHandlerTest {
           dailyRepository,
           drawRepository,
           sellerTerminalDrawRepository,
+          visibilityOverrideRepository,
           queryBus,
           tenantZoneApi,
           clock);
@@ -67,6 +71,29 @@ class GetAnalyticsTrustStateQueryHandlerTest {
     assertThat(result.state()).isEqualTo(AnalyticsTrustState.READY);
     assertThat(result.missingBusinessDates()).isEmpty();
     assertThat(result.checkedAt()).isEqualTo(Instant.parse("2026-07-20T12:00:00Z"));
+  }
+
+  @Test
+  void disabledScopeIsUnavailableEvenWhenProjectionCoverageIsComplete() {
+    var tenantId = TenantId.of(UUID.randomUUID());
+    var from = LocalDate.of(2026, 7, 17);
+    var to = LocalDate.of(2026, 7, 18);
+    when(visibilityOverrideRepository.existsDisabledForScope(
+            com.tchalanet.server.core.analytics.api.model.AnalyticsTrustScopeType.TENANT,
+            tenantId.value(),
+            null,
+            null,
+            from,
+            to))
+        .thenReturn(true);
+
+    var result =
+        handler.handle(
+            new GetAnalyticsTrustStateQuery(AnalyticsTrustScope.tenant(tenantId, from, to)));
+
+    assertThat(result.state()).isEqualTo(AnalyticsTrustState.UNAVAILABLE);
+    assertThat(result.reasonCode()).isEqualTo("analytics.trust.disabled_by_ops");
+    assertThat(result.missingBusinessDates()).containsExactly(from, to);
   }
 
   @Test
