@@ -157,7 +157,7 @@ CI: `flyway migrate` + `ddl-auto=validate` doit échouer si `_AUD` n’est pas a
 
 - Envers revision listener: `platform.entityhistory.internal.listener.TchRevisionListener`
 - Spring Data auditor: common/platform request-context auditor configuration
-- Audit métier: `platform.audit` (`AuditApi`, `@AuditLog`, `audit_event`)
+- Audit métier: `platform.audit` (`AuditApi`, `@AuditLog`, `audit_log`)
 
 📌 Audit métier (actions business) = autre doc (`audit.md`).
 
@@ -251,7 +251,7 @@ Toute modification de table SQL doit être propagée à l'ensemble de la stack p
 
 **Principe :** la cohérence est validée par `ddl-auto=validate` au démarrage Spring + tests d'archi (`FlywayAuditAlignmentArchTest`).
 
-**Tolérance temporaire :** les ajustements entités/projections peuvent suivre dans une PR adjacente quand la refonte est volumineuse, **mais ils doivent absolument être faits** — jamais laissés en dette. Une désynchro `audit_event` / `_aud` / vue lue produit des bugs silencieux à l'exécution.
+**Tolérance temporaire :** les ajustements entités/projections peuvent suivre dans une PR adjacente quand la refonte est volumineuse, **mais ils doivent absolument être faits** — jamais laissés en dette. Une désynchro `audit_log` / `_aud` / vue lue produit des bugs silencieux à l'exécution.
 
 **Checklist obligatoire à chaque PR qui touche un `CREATE TABLE`** :
 

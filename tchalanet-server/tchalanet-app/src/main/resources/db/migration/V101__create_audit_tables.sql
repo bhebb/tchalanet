@@ -106,9 +106,9 @@ CREATE TABLE seller_terminal_aud
 );
 
 -- ============================================================
--- audit_log — business audit trail (data-lifecycle-archive-v1)
--- Partitioned by occurred_at (monthly RANGE). Progressively replaces audit_event.
--- actor_id is always app_user.id (UUID). Self-contained: partitions + indexes + RLS + grant.
+-- audit_log — canonical business audit trail (data-lifecycle-archive-v1)
+-- Partitioned by occurred_at (monthly RANGE). actor_id is app_user.id when present.
+-- Self-contained: partitions + indexes + RLS + grant.
 -- Future monthly partitions are added by the archive scheduler.
 -- ============================================================
 CREATE TABLE audit_log
@@ -118,15 +118,17 @@ CREATE TABLE audit_log
     occurred_at      timestamptz  NOT NULL,
     business_date    date         NULL,
     actor_id         uuid         NULL,
-    actor_type       varchar(32)  NULL,
+    actor_type       varchar(32)  NOT NULL,
     action           varchar(96)  NOT NULL,
     entity_type      varchar(64)  NOT NULL,
-    entity_id        uuid         NULL,
+    entity_id        varchar(255) NULL,
     severity         varchar(16)  NOT NULL DEFAULT 'INFO',
     source           varchar(32)  NOT NULL DEFAULT 'API',
     correlation_id   varchar(96)  NULL,
     request_id       varchar(96)  NULL,
     details          jsonb        NULL,
+    ip               inet         NULL,
+    user_agent       text         NULL,
     created_at       timestamptz  NOT NULL DEFAULT now(),
     CONSTRAINT pk_audit_log PRIMARY KEY (id, occurred_at),
     CONSTRAINT chk_audit_log__severity

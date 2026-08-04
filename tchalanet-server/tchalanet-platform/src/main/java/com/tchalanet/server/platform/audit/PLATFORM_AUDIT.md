@@ -23,7 +23,7 @@
 
 Source de vérité :
 
-- table `audit_event`
+- table `audit_log`
 - API Java `AuditApi`
 - annotation `@AuditLog`
 - endpoint superadmin `GET /platform/audit/logs`
@@ -52,7 +52,7 @@ Il répond aux questions :
 - à quelle révision ;
 - avec quel type de révision et quels champs persistés.
 
-Envers ne remplace pas `audit_event` pour les actions sensibles : il ne porte pas naturellement le
+Envers ne remplace pas `audit_log` pour les actions sensibles : il ne porte pas naturellement le
 sens fonctionnel, la raison opérateur, l'autorisation, le résultat ou le contexte d'override.
 
 Les listeners Envers, l'entité `revinfo` et les projections appartiennent à

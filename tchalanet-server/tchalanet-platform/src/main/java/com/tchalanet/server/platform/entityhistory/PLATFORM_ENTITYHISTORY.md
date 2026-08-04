@@ -6,7 +6,7 @@
 
 This capability is separate from `platform.audit`:
 
-- `platform.audit` records functional/operator actions in `audit_event`.
+- `platform.audit` records functional/operator actions in `audit_log`.
 - `platform.entityhistory` reads and annotates Hibernate Envers revisions in `revinfo` and
   allowlisted `*_aud` tables.
 
@@ -23,7 +23,7 @@ This module does not own:
 
 - functional audit writes;
 - `@AuditLog`;
-- `audit_event`;
+- `audit_log`;
 - raw `*_aud` exposure to browsers.
 
 ## HTTP Surface

@@ -167,15 +167,7 @@ CREATE INDEX ix_stats_draw__tenant_scheduled ON stats_draw (tenant_id, scheduled
 CREATE UNIQUE INDEX ux_stats_daily__dimension_date
   ON stats_daily (dimension_type, dimension_id, ref_date) NULLS NOT DISTINCT;
 
--- ─── Audit event (formerly V210) ────────────────────────────────────
-CREATE INDEX ix_audit_event__tenant_occurred
-  ON audit_event (tenant_id, occurred_at DESC);
-CREATE INDEX ix_audit_event__entity
-  ON audit_event (entity_type, entity_id);
-CREATE INDEX ix_audit_event__action_occurred
-  ON audit_event (action, occurred_at DESC);
-CREATE INDEX ix_audit_event__actor_occurred
-  ON audit_event (actor_id, occurred_at DESC);
+-- ─── Audit log indexes are defined with the partitioned table in V101 ────────
 
 -- ─── Revinfo (Envers) ───────────────────────────────────────────────
 CREATE INDEX ix_revinfo__tenant_id ON revinfo (tenant_id);
