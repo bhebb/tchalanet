@@ -2,6 +2,8 @@ package com.tchalanet.server.platform.archive.internal.service;
 
 import com.tchalanet.server.platform.archive.internal.config.ArchiveProperties;
 import com.tchalanet.server.platform.archive.internal.persistence.ArchiveLegalHoldJdbcRepository;
+import java.sql.Timestamp;
+import java.sql.Types;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -26,6 +28,7 @@ public class ArchiveTicketPurgeService {
 
   private static final List<String> DATASETS =
       List.of("sales_ticket_charge", "sales_ticket_line", "sales_ticket");
+  private static final UUID GLOBAL_TENANT_ID = new UUID(0L, 0L);
 
   private final ArchiveProperties props;
   private final NamedParameterJdbcTemplate jdbc;
@@ -139,26 +142,28 @@ public class ArchiveTicketPurgeService {
     }
 
     TicketPurgePlan currentPlan = plan(tenantId, periodStart, periodEnd);
-    if (!currentPlan.eligible()) {
-      throw new IllegalStateException("ticket purge refused: " + currentPlan.ineligibleReason());
-    }
     if (mode == TicketPurgeMode.DRY_RUN) {
       log.info(
-          "archive ticket purge dry-run: tenant={} period={}/{} tickets={} lines={} charges={} requestedBy={} reason={}",
+          "archive ticket purge dry-run: tenant={} period={}/{} eligible={} tickets={} lines={} charges={} reason={} requestedBy={}",
           tenantId,
           periodStart,
           periodEnd,
+          currentPlan.eligible(),
           currentPlan.hotTickets(),
           currentPlan.hotLines(),
           currentPlan.hotCharges(),
-          requestedBy,
-          reason);
+          currentPlan.ineligibleReason(),
+          requestedBy);
       return new TicketPurgeResult(mode, currentPlan, 0, 0, 0);
+    }
+    if (!currentPlan.eligible()) {
+      throw new IllegalStateException("ticket purge refused: " + currentPlan.ineligibleReason());
     }
     if (!props.cleanup().enabled()) {
       throw new IllegalStateException("ticket purge refused: tch.archive.cleanup.enabled is false");
     }
 
+    enableArchiveCleanupRls();
     long deletedCharges = deleteCharges(tenantId, periodStart, periodEnd, batchSize);
     long deletedLines = deleteLines(tenantId, periodStart, periodEnd, batchSize);
     long deletedTickets = deleteTickets(tenantId, periodStart, periodEnd, batchSize);
@@ -177,6 +182,11 @@ public class ArchiveTicketPurgeService {
     return new TicketPurgeResult(mode, currentPlan, deletedCharges, deletedLines, deletedTickets);
   }
 
+  private void enableArchiveCleanupRls() {
+    jdbc.getJdbcTemplate()
+        .execute("select set_config('app.archive_cleanup', 'true', true)");
+  }
+
   private Counts hotCounts(UUID tenantId, LocalDate periodStart, LocalDate periodEnd) {
     MapSqlParameterSource params = params(tenantId, periodStart, periodEnd);
     long tickets =
@@ -186,7 +196,7 @@ public class ArchiveTicketPurgeService {
           FROM sales_ticket t
          WHERE t.sold_at >= :startAt
            AND t.sold_at <  :endAt
-           AND (:tenantId IS NULL OR t.tenant_id = :tenantId)
+           AND (:allTenants OR t.tenant_id = CAST(:tenantId AS uuid))
         """,
             params);
     long lines =
@@ -197,7 +207,7 @@ public class ArchiveTicketPurgeService {
           JOIN sales_ticket t ON t.id = tl.ticket_id
          WHERE t.sold_at >= :startAt
            AND t.sold_at <  :endAt
-           AND (:tenantId IS NULL OR t.tenant_id = :tenantId)
+           AND (:allTenants OR t.tenant_id = CAST(:tenantId AS uuid))
         """,
             params);
     long charges =
@@ -208,7 +218,7 @@ public class ArchiveTicketPurgeService {
           JOIN sales_ticket t ON t.id = c.sales_ticket_id
          WHERE t.sold_at >= :startAt
            AND t.sold_at <  :endAt
-           AND (:tenantId IS NULL OR t.tenant_id = :tenantId)
+           AND (:allTenants OR t.tenant_id = CAST(:tenantId AS uuid))
         """,
             params);
     return new Counts(tickets, lines, charges);
@@ -232,13 +242,14 @@ public class ArchiveTicketPurgeService {
            AND period_start = :periodStart
            AND period_end = :periodEnd
            AND status = 'VERIFIED'
-           AND (:tenantId IS NULL OR tenant_id = :tenantId)
+           AND (:allTenants OR tenant_id = CAST(:tenantId AS uuid))
         """,
             new MapSqlParameterSource()
                 .addValue("table", tableName)
                 .addValue("periodStart", periodStart)
                 .addValue("periodEnd", periodEnd)
-                .addValue("tenantId", tenantId),
+                .addValue("tenantId", tenantValue(tenantId).toString())
+                .addValue("allTenants", tenantId == null, Types.BOOLEAN),
             Long.class);
     return count != null ? count : 0;
   }
@@ -254,13 +265,14 @@ public class ArchiveTicketPurgeService {
              AND period_start = :periodStart
              AND period_end = :periodEnd
              AND status = 'VERIFIED'
-             AND (:tenantId IS NULL OR tenant_id = :tenantId)
+             AND (:allTenants OR tenant_id = CAST(:tenantId AS uuid))
           """,
               new MapSqlParameterSource()
                   .addValue("table", dataset)
                   .addValue("periodStart", periodStart)
                   .addValue("periodEnd", periodEnd)
-                  .addValue("tenantId", tenantId));
+                  .addValue("tenantId", tenantValue(tenantId).toString())
+                  .addValue("allTenants", tenantId == null, Types.BOOLEAN));
       if (objectCount == 0) {
         return false;
       }
@@ -275,13 +287,14 @@ public class ArchiveTicketPurgeService {
            AND period_start = :periodStart
            AND period_end = :periodEnd
            AND status = 'INVALID'
-           AND (:tenantId IS NULL OR tenant_id = :tenantId)
+           AND (:allTenants OR tenant_id = CAST(:tenantId AS uuid))
         """,
             new MapSqlParameterSource()
                 .addValue("datasets", DATASETS)
                 .addValue("periodStart", periodStart)
                 .addValue("periodEnd", periodEnd)
-                .addValue("tenantId", tenantId));
+                .addValue("tenantId", tenantValue(tenantId).toString())
+                .addValue("allTenants", tenantId == null, Types.BOOLEAN));
     return invalidObjects == 0;
   }
 
@@ -295,7 +308,7 @@ public class ArchiveTicketPurgeService {
             JOIN sales_ticket t ON t.id = c.sales_ticket_id
            WHERE t.sold_at >= :startAt
              AND t.sold_at <  :endAt
-             AND (:tenantId IS NULL OR t.tenant_id = :tenantId)
+             AND (:allTenants OR t.tenant_id = CAST(:tenantId AS uuid))
            ORDER BY c.id
            LIMIT :batchSize
         )
@@ -319,7 +332,7 @@ public class ArchiveTicketPurgeService {
             JOIN sales_ticket t ON t.id = tl.ticket_id
            WHERE t.sold_at >= :startAt
              AND t.sold_at <  :endAt
-             AND (:tenantId IS NULL OR t.tenant_id = :tenantId)
+             AND (:allTenants OR t.tenant_id = CAST(:tenantId AS uuid))
            ORDER BY tl.id
            LIMIT :batchSize
         )
@@ -342,7 +355,7 @@ public class ArchiveTicketPurgeService {
             FROM sales_ticket t
            WHERE t.sold_at >= :startAt
              AND t.sold_at <  :endAt
-             AND (:tenantId IS NULL OR t.tenant_id = :tenantId)
+             AND (:allTenants OR t.tenant_id = CAST(:tenantId AS uuid))
            ORDER BY t.id
            LIMIT :batchSize
         )
@@ -394,13 +407,24 @@ public class ArchiveTicketPurgeService {
 
   private MapSqlParameterSource params(UUID tenantId, LocalDate periodStart, LocalDate periodEnd) {
     return new MapSqlParameterSource()
-        .addValue("tenantId", tenantId)
-        .addValue("startAt", periodStart.atStartOfDay().toInstant(ZoneOffset.UTC))
-        .addValue("endAt", periodEnd.atStartOfDay().toInstant(ZoneOffset.UTC));
+        .addValue("tenantId", tenantValue(tenantId).toString())
+        .addValue("allTenants", tenantId == null, Types.BOOLEAN)
+        .addValue(
+            "startAt",
+            Timestamp.from(periodStart.atStartOfDay().toInstant(ZoneOffset.UTC)),
+            Types.TIMESTAMP)
+        .addValue(
+            "endAt",
+            Timestamp.from(periodEnd.atStartOfDay().toInstant(ZoneOffset.UTC)),
+            Types.TIMESTAMP);
   }
 
   private LocalDate retentionCutoff() {
     return LocalDate.now(ZoneOffset.UTC).minusMonths(props.cleanup().retentionMonths());
+  }
+
+  private static UUID tenantValue(UUID tenantId) {
+    return tenantId != null ? tenantId : GLOBAL_TENANT_ID;
   }
 
   private static void validatePeriod(LocalDate periodStart, LocalDate periodEnd) {

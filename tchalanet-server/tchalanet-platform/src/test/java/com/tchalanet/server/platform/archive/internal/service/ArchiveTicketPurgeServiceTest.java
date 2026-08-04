@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 
 import com.tchalanet.server.platform.archive.internal.config.ArchiveProperties;
 import com.tchalanet.server.platform.archive.internal.persistence.ArchiveLegalHoldJdbcRepository;
+import java.sql.Types;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
@@ -20,6 +21,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatcher;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
@@ -76,6 +78,17 @@ class ArchiveTicketPurgeServiceTest {
     assertThat(result.plan().hotLines()).isEqualTo(6);
     assertThat(result.plan().hotCharges()).isEqualTo(3);
     assertThat(result.deletedTickets()).isZero();
+    verify(jdbc)
+        .queryForObject(
+            argThat(sqlContains("FROM sales_ticket t")),
+            argThat(
+                (ArgumentMatcher<MapSqlParameterSource>)
+                    params ->
+                        Boolean.TRUE.equals(params.getValue("allTenants"))
+                            && params.getSqlType("allTenants") == Types.BOOLEAN
+                            && params.getSqlType("startAt") == Types.TIMESTAMP
+                            && params.getSqlType("endAt") == Types.TIMESTAMP),
+            eq(Long.class));
     verify(jdbc, never()).update(any(String.class), any(MapSqlParameterSource.class));
   }
 
@@ -152,6 +165,7 @@ class ArchiveTicketPurgeServiceTest {
 
   private static NamedParameterJdbcTemplate mockJdbcWithMatchingCounts() {
     var jdbc = mock(NamedParameterJdbcTemplate.class);
+    when(jdbc.getJdbcTemplate()).thenReturn(mock(JdbcTemplate.class));
 
     when(jdbc.queryForObject(
             argThat(sqlContains("FROM sales_ticket t")),

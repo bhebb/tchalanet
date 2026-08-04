@@ -2,6 +2,8 @@ package com.tchalanet.server.platform.archive.internal.service;
 
 import com.tchalanet.server.platform.archive.internal.config.ArchiveProperties;
 import com.tchalanet.server.platform.archive.internal.persistence.ArchiveLegalHoldJdbcRepository;
+import java.sql.Timestamp;
+import java.sql.Types;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.UUID;
@@ -16,6 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Slf4j
 public class ArchiveDomainPurgeService {
+
+  private static final UUID GLOBAL_TENANT_ID = new UUID(0L, 0L);
 
   private final ArchiveProperties props;
   private final NamedParameterJdbcTemplate jdbc;
@@ -129,25 +133,27 @@ public class ArchiveDomainPurgeService {
     }
 
     DomainPurgePlan currentPlan = plan(dataset, tenantId, periodStart, periodEnd);
-    if (!currentPlan.eligible()) {
-      throw new IllegalStateException("domain purge refused: " + currentPlan.ineligibleReason());
-    }
     if (mode == DomainPurgeMode.DRY_RUN) {
       log.info(
-          "archive domain purge dry-run: dataset={} tenant={} period={}/{} rows={} requestedBy={} reason={}",
+          "archive domain purge dry-run: dataset={} tenant={} period={}/{} eligible={} rows={} reason={} requestedBy={}",
           dataset,
           tenantId,
           periodStart,
           periodEnd,
+          currentPlan.eligible(),
           currentPlan.hotRows(),
-          requestedBy,
-          reason);
+          currentPlan.ineligibleReason(),
+          requestedBy);
       return new DomainPurgeResult(mode, currentPlan, 0, 0);
+    }
+    if (!currentPlan.eligible()) {
+      throw new IllegalStateException("domain purge refused: " + currentPlan.ineligibleReason());
     }
     if (!props.cleanup().enabled()) {
       throw new IllegalStateException("domain purge refused: tch.archive.cleanup.enabled is false");
     }
 
+    enableArchiveCleanupRls();
     Deletion deletion =
         switch (dataset) {
           case DRAW -> deleteDraws(tenantId, periodStart, periodEnd, batchSize);
@@ -168,6 +174,11 @@ public class ArchiveDomainPurgeService {
     return new DomainPurgeResult(mode, currentPlan, deletion.childRows(), deletion.rows());
   }
 
+  private void enableArchiveCleanupRls() {
+    jdbc.getJdbcTemplate()
+        .execute("select set_config('app.archive_cleanup', 'true', true)");
+  }
+
   private long hotCount(
       DomainPurgeDataset dataset, UUID tenantId, LocalDate periodStart, LocalDate periodEnd) {
     return switch (dataset) {
@@ -179,7 +190,7 @@ public class ArchiveDomainPurgeService {
            WHERE scheduled_at >= :startAt
              AND scheduled_at <  :endAt
              AND deleted_at IS NULL
-             AND (:tenantId IS NULL OR tenant_id = :tenantId)
+             AND (:allTenants OR tenant_id = CAST(:tenantId AS uuid))
           """,
               params(tenantId, periodStart, periodEnd));
       case DRAW_RESULT ->
@@ -215,7 +226,7 @@ public class ArchiveDomainPurgeService {
             JOIN draw d ON d.id = t.draw_id
            WHERE d.scheduled_at >= :startAt
              AND d.scheduled_at <  :endAt
-             AND (:tenantId IS NULL OR d.tenant_id = :tenantId)
+             AND (:allTenants OR d.tenant_id = CAST(:tenantId AS uuid))
           """,
               params(tenantId, periodStart, periodEnd));
       case DRAW_RESULT ->
@@ -242,7 +253,7 @@ public class ArchiveDomainPurgeService {
             FROM draw d
            WHERE d.scheduled_at >= :startAt
              AND d.scheduled_at <  :endAt
-             AND (:tenantId IS NULL OR d.tenant_id = :tenantId)
+             AND (:allTenants OR d.tenant_id = CAST(:tenantId AS uuid))
            ORDER BY d.scheduled_at, d.id
            LIMIT :batchSize
         )
@@ -260,7 +271,7 @@ public class ArchiveDomainPurgeService {
             FROM draw d
            WHERE d.scheduled_at >= :startAt
              AND d.scheduled_at <  :endAt
-             AND (:tenantId IS NULL OR d.tenant_id = :tenantId)
+             AND (:allTenants OR d.tenant_id = CAST(:tenantId AS uuid))
            ORDER BY d.scheduled_at, d.id
            LIMIT :batchSize
         )
@@ -278,7 +289,7 @@ public class ArchiveDomainPurgeService {
             FROM draw d
            WHERE d.scheduled_at >= :startAt
              AND d.scheduled_at <  :endAt
-             AND (:tenantId IS NULL OR d.tenant_id = :tenantId)
+             AND (:allTenants OR d.tenant_id = CAST(:tenantId AS uuid))
            ORDER BY d.scheduled_at, d.id
            LIMIT :batchSize
         )
@@ -297,7 +308,7 @@ public class ArchiveDomainPurgeService {
            WHERE d.scheduled_at >= :startAt
              AND d.scheduled_at <  :endAt
              AND d.deleted_at IS NULL
-             AND (:tenantId IS NULL OR d.tenant_id = :tenantId)
+             AND (:allTenants OR d.tenant_id = CAST(:tenantId AS uuid))
            ORDER BY d.scheduled_at, d.id
            LIMIT :batchSize
         )
@@ -399,13 +410,14 @@ public class ArchiveDomainPurgeService {
            AND period_start = :periodStart
            AND period_end = :periodEnd
            AND status = 'VERIFIED'
-           AND (:tenantId IS NULL OR tenant_id = :tenantId)
+           AND (:allTenants OR tenant_id = CAST(:tenantId AS uuid))
         """,
             new MapSqlParameterSource()
                 .addValue("table", tableName)
                 .addValue("periodStart", periodStart)
                 .addValue("periodEnd", periodEnd)
-                .addValue("tenantId", tenantId),
+                .addValue("tenantId", tenantValue(tenantId).toString())
+                .addValue("allTenants", tenantId == null, Types.BOOLEAN),
             Long.class);
     return count != null ? count : 0;
   }
@@ -421,13 +433,14 @@ public class ArchiveDomainPurgeService {
            AND period_start = :periodStart
            AND period_end = :periodEnd
            AND status = 'VERIFIED'
-           AND (:tenantId IS NULL OR tenant_id = :tenantId)
+           AND (:allTenants OR tenant_id = CAST(:tenantId AS uuid))
         """,
             new MapSqlParameterSource()
                 .addValue("table", tableName)
                 .addValue("periodStart", periodStart)
                 .addValue("periodEnd", periodEnd)
-                .addValue("tenantId", tenantId));
+                .addValue("tenantId", tenantValue(tenantId).toString())
+                .addValue("allTenants", tenantId == null, Types.BOOLEAN));
     long invalid =
         count(
             """
@@ -437,13 +450,14 @@ public class ArchiveDomainPurgeService {
            AND period_start = :periodStart
            AND period_end = :periodEnd
            AND status = 'INVALID'
-           AND (:tenantId IS NULL OR tenant_id = :tenantId)
+           AND (:allTenants OR tenant_id = CAST(:tenantId AS uuid))
         """,
             new MapSqlParameterSource()
                 .addValue("table", tableName)
                 .addValue("periodStart", periodStart)
                 .addValue("periodEnd", periodEnd)
-                .addValue("tenantId", tenantId));
+                .addValue("tenantId", tenantValue(tenantId).toString())
+                .addValue("allTenants", tenantId == null, Types.BOOLEAN));
     return verified > 0 && invalid == 0;
   }
 
@@ -503,9 +517,16 @@ public class ArchiveDomainPurgeService {
   private static MapSqlParameterSource params(
       UUID tenantId, LocalDate periodStart, LocalDate periodEnd) {
     return new MapSqlParameterSource()
-        .addValue("tenantId", tenantId)
-        .addValue("startAt", periodStart.atStartOfDay().toInstant(ZoneOffset.UTC))
-        .addValue("endAt", periodEnd.atStartOfDay().toInstant(ZoneOffset.UTC));
+        .addValue("tenantId", tenantValue(tenantId).toString())
+        .addValue("allTenants", tenantId == null, Types.BOOLEAN)
+        .addValue(
+            "startAt",
+            Timestamp.from(periodStart.atStartOfDay().toInstant(ZoneOffset.UTC)),
+            Types.TIMESTAMP)
+        .addValue(
+            "endAt",
+            Timestamp.from(periodEnd.atStartOfDay().toInstant(ZoneOffset.UTC)),
+            Types.TIMESTAMP);
   }
 
   private static MapSqlParameterSource revParams(LocalDate periodStart, LocalDate periodEnd) {
@@ -514,10 +535,14 @@ public class ArchiveDomainPurgeService {
         .addValue("toMillis", periodEnd.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli());
   }
 
+  private static UUID tenantValue(UUID tenantId) {
+    return tenantId != null ? tenantId : GLOBAL_TENANT_ID;
+  }
+
   private static MapSqlParameterSource copy(MapSqlParameterSource source) {
     MapSqlParameterSource copy = new MapSqlParameterSource();
     for (String name : source.getParameterNames()) {
-      copy.addValue(name, source.getValue(name));
+      copy.addValue(name, source.getValue(name), source.getSqlType(name), source.getTypeName(name));
     }
     return copy;
   }

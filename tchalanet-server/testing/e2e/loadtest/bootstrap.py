@@ -201,3 +201,11 @@ def new_cashier_api() -> tuple[ApiClient, OpContext, int]:
     client = ApiClient(base_url=url, token=_cashier_token())
     ctx = OpContext(outlet_id=seed.outlet_id, terminal_id=seed.terminal_id)
     return client, ctx, seed.stake_cents
+
+
+def new_platform_admin_api() -> ApiClient:
+    """Authenticated SUPER_ADMIN client for platform ops load scenarios."""
+    _load_env_best_effort()
+    url = base_url()
+    assert_non_prod(url)
+    return ApiClient(base_url=url, token=_admin_token())
