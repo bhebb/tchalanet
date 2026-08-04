@@ -869,7 +869,7 @@ LimitPolicy BLOCK / REQUIRE_APPROVAL
         ↓
 ResolveAutonomyQuery
         ↓
-Sales/Payout décide reject / pending approval / auto override
+Sales/Payout décide reject ou bloque selon la politique applicable
 37. Mental model
 RuleKey
 = règle codée dans le backend

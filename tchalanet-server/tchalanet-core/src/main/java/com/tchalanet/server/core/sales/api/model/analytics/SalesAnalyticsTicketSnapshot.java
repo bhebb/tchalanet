@@ -19,7 +19,6 @@ public record SalesAnalyticsTicketSnapshot(
     UUID drawId,
     UUID drawChannelId,
     Instant soldAt,
-    Instant approvedAt,
     Instant drawScheduledAt,
     LocalDate drawDate,
     String saleStatus,

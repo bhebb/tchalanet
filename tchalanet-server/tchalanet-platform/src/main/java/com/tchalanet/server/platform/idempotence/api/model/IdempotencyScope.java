@@ -6,8 +6,6 @@ package com.tchalanet.server.platform.idempotence.api.model;
  */
 public enum IdempotencyScope {
   SALES_SELL_TICKET,
-  SALES_APPROVE_TICKET,
-  SALES_REJECT_TICKET,
   SALES_CANCEL_TICKET,
   SALES_OVERRIDE_TICKET_RESULT,
   ANALYTICS_RECONCILIATION,

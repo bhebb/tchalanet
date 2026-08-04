@@ -569,10 +569,9 @@ against one ownership rule.
 - `core.sales` evaluates by calling promotion, then materialises the returned
   decision into ticket lines, charges, odds snapshots, money totals, and the
   applied snapshot in the sale transaction.
-- Remove `TicketPlacedPromotionSnapshotListener` and
-  `TicketApprovedPromotionSnapshotListener` from `core.promotion`.
-- Pending-approval flows must still freeze the applied snapshot in the sales
-  transaction that turns the ticket into sold/approved state; not after commit.
+- Remove any approval-only promotion listener from `core.promotion`.
+- The applied snapshot is frozen in the sales transaction that creates the
+  directly approved ticket; not after commit.
 
 ### Step 5 — Close old rule-engine surfaces
 

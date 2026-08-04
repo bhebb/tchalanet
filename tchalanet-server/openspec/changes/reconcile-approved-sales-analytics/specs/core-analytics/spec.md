@@ -10,17 +10,17 @@ policy result of `REQUIRE_APPROVAL` SHALL reject the request without creating a 
 - **GIVEN** a sale reaches a limit policy configured with `REQUIRE_APPROVAL`
 - **WHEN** the cashier prepares or confirms the sale
 - **THEN** the API SHALL return the stable limit-blocked business error
-- **AND** no `PENDING_APPROVAL` ticket SHALL be persisted.
+- **AND** no ticket SHALL be persisted.
 
 ### Requirement: Seller live statistics count official tickets only
 
 Seller-terminal daily statistics SHALL count only tickets whose sale status is `APPROVED`.
 
-#### Scenario: Pending ticket has not yet been approved
+#### Scenario: A rejected sale has no official ticket
 
-- **GIVEN** a seller has a `PENDING_APPROVAL` ticket within the current business day
+- **GIVEN** a seller request is rejected by the sale policy within the current business day
 - **WHEN** the POS home loads seller daily statistics
-- **THEN** that ticket SHALL not be included in sales, ticket count, commission, or per-draw totals.
+- **THEN** no ticket SHALL be included in sales, ticket count, commission, or per-draw totals for that request.
 
 ### Requirement: Seller-terminal KPI consumers share analytics truth
 

@@ -117,9 +117,6 @@ public class SalePreparationOrchestrator {
         finalMoney,
         policyDecision.limits(),
         policyDecision.autonomy(),
-        policyDecision.requiresApproval(),
-        policyDecision.approvalLevel(),
-        null,
         promotionDecision,
         SalesNoticeAssembler.assemble(policyDecision, promoted.charges(), promotionDecision));
   }

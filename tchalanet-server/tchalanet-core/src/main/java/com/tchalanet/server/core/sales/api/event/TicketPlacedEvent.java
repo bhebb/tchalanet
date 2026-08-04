@@ -16,17 +16,8 @@ import java.util.List;
 /**
  * Domain event: a ticket has entered the system.
  *
- * <p>Covers both:
- *
- * <ul>
- *   <li>direct {@code APPROVED} placement (the common path),
- *   <li>{@code PENDING_APPROVAL} placement (limit triggered, autonomy != NONE).
- * </ul>
- *
- * <p>Listeners that aggregate <strong>official</strong> sales must filter on {@code saleStatus ==
- * APPROVED} and also subscribe to {@link TicketApprovedEvent} for the PENDING → APPROVED
- * transition. Both paths together cover the lifecycle to APPROVED, and listener implementations
- * must be idempotent (using {@code ticketId} as dedup key).
+ * <p>All ticket placements are immediately official sales. A limit decision that cannot be accepted
+ * is rejected before this event is emitted.
  *
  * <p>Payload is grouped by concern (context / money / lines / offline) using sibling payload
  * records under {@code .payload}. This keeps the event API stable as new concerns are added (extend
@@ -44,7 +35,7 @@ public record TicketPlacedEvent(
     TicketId ticketId,
 
     // Placement state
-    TicketSaleStatus saleStatus, // APPROVED or PENDING_APPROVAL
+    TicketSaleStatus saleStatus,
     TicketSaleChannel saleChannel,
 
     // Grouped payloads
@@ -56,10 +47,9 @@ public record TicketPlacedEvent(
   public static final int CURRENT_SCHEMA = 5;
 
   public TicketPlacedEvent {
-    if (saleStatus != TicketSaleStatus.APPROVED
-        && saleStatus != TicketSaleStatus.PENDING_APPROVAL) {
+    if (saleStatus != TicketSaleStatus.APPROVED) {
       throw new IllegalArgumentException(
-          "TicketPlacedEvent must carry APPROVED or PENDING_APPROVAL, got " + saleStatus);
+          "TicketPlacedEvent must carry APPROVED, got " + saleStatus);
     }
     if (lines == null || lines.isEmpty()) {
       throw new IllegalArgumentException("lines must not be empty");

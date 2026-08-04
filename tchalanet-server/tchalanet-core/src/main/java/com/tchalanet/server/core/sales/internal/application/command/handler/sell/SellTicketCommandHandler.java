@@ -77,7 +77,6 @@ public class SellTicketCommandHandler
       return new SellTicketResult(
           null,
           SellTicketOutcome.REJECTED,
-          null,
           List.of(),
           evaluation.issues(),
           null,
@@ -121,8 +120,6 @@ public class SellTicketCommandHandler
             prepared.moneyBreakdown(),
             prepared.ticketLines(),
             TicketSaleChannel.POS_ONLINE,
-            prepared.requiresApproval(),
-            prepared.approvalRequestId(),
             actorUserId,
             prepared.now());
 
@@ -153,15 +150,9 @@ public class SellTicketCommandHandler
         });
 
     // 5. Return result with notices propagated.
-    var outcome =
-        prepared.requiresApproval()
-            ? SellTicketOutcome.PENDING_APPROVAL
-            : SellTicketOutcome.ACCEPTED;
-
     return new SellTicketResult(
         toSoldTicketView(saved, backup.displayCode()),
-        outcome,
-        prepared.approvalRequestId(),
+        SellTicketOutcome.ACCEPTED,
         prepared.notices(),
         evaluation.issues(),
         backup,

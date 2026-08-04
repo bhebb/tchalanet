@@ -1,6 +1,5 @@
 package com.tchalanet.server.core.sales.internal.application.service.sell.model;
 
-import com.tchalanet.server.common.types.id.ApprovalRequestId;
 import com.tchalanet.server.common.web.api.ApiNotice;
 import com.tchalanet.server.core.draw.api.query.DrawSummary;
 import com.tchalanet.server.core.limitpolicy.api.query.LimitEvaluationView;
@@ -23,9 +22,6 @@ public record PreparedSale(
     TicketMoneyBreakdown moneyBreakdown,
     LimitEvaluationView limits,
     AutonomyLevel autonomyLevel,
-    boolean requiresApproval,
-    AutonomyLevel approvalLevel,
-    ApprovalRequestId approvalRequestId,
     PromotionDecision promotionDecision,
     List<ApiNotice> notices) {
   public PreparedSale {
@@ -36,10 +32,6 @@ public record PreparedSale(
     Objects.requireNonNull(charges);
     Objects.requireNonNull(moneyBreakdown);
     Objects.requireNonNull(notices);
-    if (requiresApproval != (approvalRequestId != null)) {
-      throw new IllegalArgumentException(
-          "requiresApproval and approvalRequestId must be consistent");
-    }
     charges = List.copyOf(charges);
     notices = List.copyOf(notices);
   }

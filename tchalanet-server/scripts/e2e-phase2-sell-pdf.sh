@@ -706,8 +706,8 @@ JSON
     outcome="$(json_try_get "$sell_response_file" 'data.outcome')"
     ticket_id="$(json_try_get "$sell_response_file" 'data.ticket.id')"
     ticket_code="$(json_try_get "$sell_response_file" 'data.ticket.ticketCode' "$channel_code-MULTI-$index")"
-    if [[ "$outcome" == "PENDING_APPROVAL" ]]; then
-      fail_with_response "Ticket multi-jeux en attente d’approbation pour $channel_code, PDF non généré" "$sell_status" "$sell_response_file"
+    if [[ "$outcome" != "ACCEPTED" ]]; then
+      fail_with_response "Vente multi-jeux refusée pour $channel_code, PDF non généré" "$sell_status" "$sell_response_file"
     fi
     if [[ -z "$ticket_id" ]]; then
       fail_with_response "ticket.id manquant pour ticket multi-jeux $channel_code" "$sell_status" "$sell_response_file"
@@ -782,8 +782,8 @@ JSON
       outcome="$(json_try_get "$sell_response_file" 'data.outcome')"
       ticket_id="$(json_try_get "$sell_response_file" 'data.ticket.id')"
       ticket_code="$(json_try_get "$sell_response_file" 'data.ticket.ticketCode' "$channel_code-$game_code-$index")"
-      if [[ "$outcome" == "PENDING_APPROVAL" ]]; then
-        fail_with_response "Ticket en attente d’approbation pour $channel_code ($game_code/$bet_type), PDF non généré" "$sell_status" "$sell_response_file"
+      if [[ "$outcome" != "ACCEPTED" ]]; then
+        fail_with_response "Vente refusée pour $channel_code ($game_code/$bet_type), PDF non généré" "$sell_status" "$sell_response_file"
       fi
       if [[ -z "$ticket_id" ]]; then
         fail_with_response "ticket.id manquant pour $channel_code ($game_code/$bet_type)" "$sell_status" "$sell_response_file"

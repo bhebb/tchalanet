@@ -1,10 +1,8 @@
 package com.tchalanet.server.core.sales.internal.domain.model.ticket;
 
-import com.tchalanet.server.common.types.id.ApprovalRequestId;
 import com.tchalanet.server.common.types.id.TicketLineId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.types.money.Money;
-import com.tchalanet.server.core.sales.api.model.lifecycle.ApprovalTrace;
 import com.tchalanet.server.core.sales.api.model.lifecycle.ResultLifecycle;
 import com.tchalanet.server.core.sales.api.model.lifecycle.SaleLifecycle;
 import com.tchalanet.server.core.sales.api.model.lifecycle.SettlementLifecycle;
@@ -23,14 +21,13 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * Ticket — Aggregate root of the sales domain.
  *
  * <p>An immutable record carrying the full state of a sales ticket across its three lifecycles:
- * sale (PENDING_APPROVAL → APPROVED/REJECTED/CANCELLED/VOIDED), result (NOT_RESULTED →
- * WON/LOST/VOID/OVERRIDDEN), settlement (NOT_SETTLED → PAYOUT_PENDING/PAID/NO_PAYOUT).
+ * sale (APPROVED → CANCELLED/VOIDED), result (NOT_RESULTED → WON/LOST/VOID/OVERRIDDEN), settlement
+ * (NOT_SETTLED → PAYOUT_PENDING/PAID/NO_PAYOUT).
  *
  * <p>Invariants enforced at construction:
  *
@@ -75,13 +72,7 @@ public record Ticket(
   // Factory
   // ===========================================================================
 
-  /**
-   * Place a new ticket in its initial state.
-   *
-   * @param requiresApproval decided upstream by LimitPolicy (e.g. buyer limit exceeded). Only
-   *     {@code POS_ONLINE} / {@code WEB} / {@code PARTNER_API} channels accept {@code true}; other
-   *     channels reject it because the sales decision has already been taken upstream.
-   */
+  /** Place a new ticket in its initial state. */
   public static Ticket place(
       TicketIdentity id,
       TicketContext context,
@@ -89,27 +80,13 @@ public record Ticket(
       TicketMoneyBreakdown breakdown,
       List<TicketLine> lines,
       TicketSaleChannel channel,
-      boolean requiresApproval,
-      ApprovalRequestId approvalRequestId,
       UserId actorUserId,
       Instant now) {
-    if (requiresApproval && !channel.allowsPendingApproval()) {
-      throw new IllegalArgumentException(
-          "Approval workflow not allowed for channel="
-              + channel
-              + ". Decision must be taken upstream.");
-    }
-
     var currency = breakdown.total().currency();
 
     var money = new TicketMoney(currency, breakdown);
 
-    var initialStatus =
-        requiresApproval ? TicketSaleStatus.PENDING_APPROVAL : TicketSaleStatus.APPROVED;
-    var sales = SaleLifecycle.initial(initialStatus, now);
-    if (requiresApproval) {
-      sales = sales.withApprovalRequest(approvalRequestId, actorUserId, now);
-    }
+    var sales = SaleLifecycle.initial(TicketSaleStatus.APPROVED, now);
     return new Ticket(
         id,
         context,
@@ -126,34 +103,6 @@ public record Ticket(
   // ===========================================================================
   // Sale lifecycle
   // ===========================================================================
-
-  public Ticket requestApproval(ApprovalRequestId requestId, UserId requestedBy, Instant now) {
-    requireSaleStatus(TicketSaleStatus.PENDING_APPROVAL);
-    return withSale(lifecycle.sale().withApprovalRequest(requestId, requestedBy, now))
-        .touchedBy(requestedBy, now);
-  }
-
-  /**
-   * Approve a ticket previously in {@code PENDING_APPROVAL} state.
-   *
-   * @param approvedBy the user approving the ticket
-   * @param reason optional reason for the approval (may be null)
-   * @param now the approval timestamp
-   * @return new Ticket instance in APPROVED state
-   * @throws IllegalStateException if the ticket is not in PENDING_APPROVAL state
-   */
-  public Ticket approve(UserId approvedBy, String reason, Instant now) {
-    requireSaleStatus(TicketSaleStatus.PENDING_APPROVAL);
-    requireApprovalTrace();
-    requireOptionalReason(reason);
-    return withSale(lifecycle.sale().approved(approvedBy, now)).touchedBy(approvedBy, now);
-  }
-
-  public Ticket reject(UserId rejectedBy, String reason, Instant now) {
-    requireSaleStatus(TicketSaleStatus.PENDING_APPROVAL);
-    requireReason(reason);
-    return withSale(lifecycle.sale().rejected(rejectedBy, reason, now)).touchedBy(rejectedBy, now);
-  }
 
   public Ticket cancel(UserId cancelledBy, String reason, Instant now) {
     if (!lifecycle.sale().status().isCancellable()) {
@@ -394,10 +343,6 @@ public record Ticket(
     return payment != null && payment.adjustedAt() != null;
   }
 
-  public Optional<ApprovalRequestId> approvalRequestId() {
-    return Optional.ofNullable(lifecycle.sale().approval()).map(ApprovalTrace::requestId);
-  }
-
   // ===========================================================================
   // Internal helpers
   // ===========================================================================
@@ -443,20 +388,6 @@ public record Ticket(
   private static void requireReason(String reason) {
     if (reason == null || reason.isBlank()) {
       throw new IllegalArgumentException("Reason is required");
-    }
-  }
-
-  private static void requireOptionalReason(String reason) {
-    if (reason != null && reason.isBlank()) {
-      throw new IllegalArgumentException("Reason must not be blank");
-    }
-  }
-
-  private void requireApprovalTrace() {
-    var approval = lifecycle.sale().approval();
-    if (approval == null || approval.requestId() == null) {
-      throw new IllegalStateException(
-          "Ticket " + identity.id() + " is pending approval without approval trace");
     }
   }
 

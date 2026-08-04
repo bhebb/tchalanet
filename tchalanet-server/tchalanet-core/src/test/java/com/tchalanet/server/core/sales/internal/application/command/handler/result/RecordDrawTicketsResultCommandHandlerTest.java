@@ -301,8 +301,6 @@ class RecordDrawTicketsResultCommandHandlerTest {
                 TicketLineResultStatus.PENDING,
                 money("0.00"))),
         TicketSaleChannel.POS_ONLINE,
-        false,
-        null,
         UserId.of(UUID.fromString("10000000-0000-0000-0000-000000000001")),
         NOW.minusSeconds(60));
   }

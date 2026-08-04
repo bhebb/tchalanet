@@ -21,8 +21,6 @@ import java.util.Map;
  * <ul>
  *   <li>{@code sales.limit.<rule>} for limit-related notices.
  *   <li>{@code sales.charge.<type>} for charge disclosures.
- *   <li>{@code sales.approval_required} for a business approval notice. The endpoint explicitly
- *       selects {@code ApiStatus.PENDING} when its result is pending.
  * </ul>
  */
 public final class SalesNoticeAssembler {
@@ -40,9 +38,6 @@ public final class SalesNoticeAssembler {
     notices.addAll(SalesNoticeAssembler.fromCharges(charges));
     if (promotionDecision != null) {
       notices.addAll(SalesNoticeAssembler.fromPromotionDecision(promotionDecision));
-    }
-    if (policyDecision.requiresApproval()) {
-      notices.add(SalesNoticeAssembler.approvalRequired(policyDecision.approvalLevel().name()));
     }
     return notices;
   }
@@ -131,19 +126,5 @@ public final class SalesNoticeAssembler {
                     "sales.preparation",
                     Map.of()))
         .toList();
-  }
-
-  // -------------------------------------------------------------------------
-  // Approval required
-  // -------------------------------------------------------------------------
-
-  public static ApiNotice approvalRequired(String approvalLevel) {
-    return ApiNotice.business(
-        "sales.approval_required",
-        DOMAIN,
-        NoticeSeverity.WARN,
-        NoticeSource.of("salesPreparation").operation("approval"),
-        "sales.preparation",
-        Map.of("approvalLevel", approvalLevel));
   }
 }

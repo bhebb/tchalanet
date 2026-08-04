@@ -3,7 +3,6 @@ package com.tchalanet.server.common.mapper;
 import com.tchalanet.server.common.time.DaysOfWeekFormatter;
 import com.tchalanet.server.common.types.id.AddressId;
 import com.tchalanet.server.common.types.id.AppliedPromotionId;
-import com.tchalanet.server.common.types.id.ApprovalRequestId;
 import com.tchalanet.server.common.types.id.DrawChannelGameId;
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.DrawId;
@@ -130,15 +129,6 @@ public class CommonIdMapper {
 
   public TicketId mapToTicketId(UUID id) {
     return TicketId.nullableOf(id);
-  }
-
-  // ApprovalRequestId
-  public UUID mapFromApprovalRequestId(ApprovalRequestId id) {
-    return id == null ? null : id.value();
-  }
-
-  public ApprovalRequestId mapToApprovalRequestId(UUID id) {
-    return ApprovalRequestId.nullableOf(id);
   }
 
   // PromotionAttemptId

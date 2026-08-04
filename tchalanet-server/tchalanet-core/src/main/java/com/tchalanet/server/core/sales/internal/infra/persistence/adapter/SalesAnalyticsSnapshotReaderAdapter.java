@@ -83,7 +83,6 @@ class SalesAnalyticsSnapshotReaderAdapter implements SalesAnalyticsSnapshotReade
         ticket.getDrawId(),
         ticket.getDrawChannelId(),
         ticket.getSoldAt(),
-        ticket.getApprovedAt(),
         ticket.getDrawScheduledAt(),
         ticket.getDrawDate(),
         ticket.getSaleStatus().name(),

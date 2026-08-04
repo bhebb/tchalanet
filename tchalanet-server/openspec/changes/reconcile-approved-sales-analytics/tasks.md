@@ -65,9 +65,9 @@ remain follow-ups.
 - [x] Run the resulted-draw operational check after every result application: all eligible tickets
       must be resolved before settlement; after the attention threshold, send a deduplicated
       platform Web and Slack notification containing pending and failed ticket counts.
-- [ ] Remove remaining approval-only lifecycle APIs and persistence states after the V0 data reset.
+- [x] Remove remaining approval-only lifecycle APIs and persistence states after the V0 data reset.
 - [~] Add end-to-end reconciliation coverage for directly approved sales, limit rejection,
       cancellation, failed projection, recompute, and unavailable-KPI rendering. The focused
       ticket → result → paid-amount adjustment → validate/rebuild/idempotent retry flow is covered now;
       rejection, cancellation, forced projection failure and unavailable-KPI scenarios remain.
-- [ ] Run focused core sales and analytics tests after the V0 approval removal.
+- [x] Run focused core sales and analytics tests after the V0 approval removal.

@@ -3,7 +3,6 @@ package com.tchalanet.server.core.sales.internal.infra.persistence.adapter;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.core.sales.api.query.CashierPendingApprovalView;
 import com.tchalanet.server.core.sales.api.query.CashierRecentTicketView;
 import com.tchalanet.server.core.sales.api.query.CashierTopSelectionsView;
 import com.tchalanet.server.core.sales.api.query.DrawTopSelectionsView;
@@ -101,21 +100,6 @@ public class CashierTicketDashboardJdbcAdapter implements CashierTicketDashboard
         ORDER BY rn
         """;
 
-  private static final String PENDING_APPROVALS_SQL =
-      """
-        SELECT t.public_code,
-               t.total_amount,
-               dc.name AS draw_channel_name,
-               t.approval_requested_at
-        FROM sales_ticket t
-        LEFT JOIN draw_channel dc ON dc.id = t.draw_channel_id
-        WHERE t.seller_user_id = :cashierId
-          AND t.sale_status = 'PENDING_APPROVAL'
-          AND t.deleted_at IS NULL
-        ORDER BY t.approval_requested_at DESC
-        LIMIT :limit
-        """;
-
   @Override
   public List<CashierRecentTicketView> findRecentByCashier(UserId cashierId, int limit) {
     var params =
@@ -193,25 +177,6 @@ public class CashierTicketDashboardJdbcAdapter implements CashierTicketDashboard
             });
 
     return new DrawTopSelectionsView(drawId, items);
-  }
-
-  @Override
-  public List<CashierPendingApprovalView> findPendingApprovals(UserId cashierId, int limit) {
-    var params =
-        new MapSqlParameterSource()
-            .addValue("cashierId", cashierId.value())
-            .addValue("limit", limit);
-    return jdbc.query(
-        PENDING_APPROVALS_SQL,
-        params,
-        (rs, i) -> {
-          var submittedAtTs = rs.getTimestamp("approval_requested_at");
-          return new CashierPendingApprovalView(
-              rs.getString("public_code"),
-              toCents(rs.getBigDecimal("total_amount")),
-              rs.getString("draw_channel_name"),
-              submittedAtTs != null ? submittedAtTs.toInstant() : null);
-        });
   }
 
   private CashierRecentTicketView mapRecentRow(ResultSet rs) throws SQLException {

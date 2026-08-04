@@ -269,7 +269,7 @@ Réponse refusée :
 ```
 
 **Règles critiques** :
-- Le cashier POS expose seulement `ACCEPTED` ou `REJECTED` — `PENDING_APPROVAL` est un workflow tenant_admin hors scope mobile.
+- Le cashier POS expose seulement `ACCEPTED` ou `REJECTED`; une vente refusée ne crée aucun ticket.
 - Sur `ACCEPTED` : **afficher `backup.displayCode` immédiatement**, avant tout appel print/send. C'est la garantie offline pour le client.
 - Sur `REJECTED` : aucun ticket créé — `ticketId` est null.
 

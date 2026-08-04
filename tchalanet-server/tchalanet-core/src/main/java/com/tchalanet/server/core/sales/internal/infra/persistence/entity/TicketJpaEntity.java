@@ -175,30 +175,6 @@ public class TicketJpaEntity extends BaseTenantEntity {
   @Column(name = "placed_at", nullable = false)
   private Instant placedAt;
 
-  @Column(name = "approval_request_id", columnDefinition = "uuid")
-  private UUID approvalRequestId;
-
-  @Column(name = "approval_requested_by", columnDefinition = "uuid")
-  private UUID approvalRequestedBy;
-
-  @Column(name = "approval_requested_at")
-  private Instant approvalRequestedAt;
-
-  @Column(name = "approved_at")
-  private Instant approvedAt;
-
-  @Column(name = "approved_by", columnDefinition = "uuid")
-  private UUID approvedBy;
-
-  @Column(name = "rejected_at")
-  private Instant rejectedAt;
-
-  @Column(name = "rejected_by", columnDefinition = "uuid")
-  private UUID rejectedBy;
-
-  @Column(name = "rejection_reason", length = 500)
-  private String rejectionReason;
-
   @Column(name = "cancelled_at")
   private Instant cancelledAt;
 

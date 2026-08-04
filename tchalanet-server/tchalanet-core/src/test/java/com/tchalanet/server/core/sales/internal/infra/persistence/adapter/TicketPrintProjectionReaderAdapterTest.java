@@ -145,8 +145,6 @@ class TicketPrintProjectionReaderAdapterTest {
         new TicketMoneyBreakdown(money("20"), List.of(), money("20")),
         List.of(multiTermLine()),
         TicketSaleChannel.POS_ONLINE,
-        false,
-        null,
         USER,
         NOW);
   }

@@ -12,7 +12,7 @@ public class CustomerTicketStatusResolver {
       TicketResultStatus resultStatus,
       TicketSettlementStatus settlementStatus) {
     if (saleStatus == TicketSaleStatus.CANCELLED) return CustomerTicketStatus.CANCELLED;
-    if (saleStatus == TicketSaleStatus.VOIDED || saleStatus == TicketSaleStatus.REJECTED) {
+    if (saleStatus == TicketSaleStatus.VOIDED) {
       return CustomerTicketStatus.VOIDED;
     }
 
