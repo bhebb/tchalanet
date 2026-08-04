@@ -30,7 +30,7 @@ the same issuer/secret.
 | Var | Meaning |
 |-----|---------|
 | `TCH_BASE_URL` | API base URL (**non-prod**; prod hosts are refused, see `safety.py`) |
-| `TCH_E2E_AUTH_PROVIDER` | `local-perf` or `local-jwt` for Locust |
+| `TCH_E2E_AUTH_PROVIDER` | `local-perf` or `local-jwt` for load |
 | `TCH_LOCAL_JWT_ISSUER` | Must match the API runtime issuer, usually `tchalanet-local` |
 | `TCH_LOCAL_JWT_SECRET` | Must match the API runtime secret; at least 32 characters |
 | `TCH_LOAD_SELLER_TERMINAL_ID` | Optional seller-terminal id. If omitted, Locust discovers the first active terminal through `/admin/seller-terminals`. |
@@ -195,7 +195,76 @@ Use tags from the command line to choose the scenario family exposed in the UI:
 ```bash
 locust -f loadtest/locustfile.py --class-picker --tags read --host "$TCH_BASE_URL"
 locust -f loadtest/locustfile.py --class-picker --tags sales --host "$TCH_BASE_URL"
+locust -f loadtest/locustfile.py --class-picker --tags archive --host "$TCH_BASE_URL"
 ```
+
+## Archive Ops Scenario
+
+`ArchiveOpsUser` is a SUPER_ADMIN E2E user. It calls the real archive HTTP
+endpoints through `tch_e2e.archive_ops.ArchiveOpsScenario`; Locust only controls
+concurrency, tags and timing.
+
+Read-only smoke:
+
+```bash
+TCH_BASE_URL='https://127.0.0.1/api/v1' \
+TCH_E2E_HOST_HEADER='api.localtest.me' \
+TCH_E2E_VERIFY_SSL=false \
+TCH_E2E_AUTH_PROVIDER=local-perf \
+TCH_LOCAL_JWT_ISSUER=tchalanet-local \
+TCH_LOCAL_JWT_SECRET=dev-only-change-me-at-least-32-characters \
+locust -f loadtest/locustfile.py ArchiveOpsUser --headless \
+  -u 1 -r 1 -t 20s --host 'https://127.0.0.1/api/v1' \
+  --tags archive --exclude-tags purge trigger \
+  --csv target/locust/archive-read --html target/locust/archive-read.html
+```
+
+Dry-run purge smoke:
+
+```bash
+locust -f loadtest/locustfile.py ArchiveOpsUser --headless \
+  -u 1 -r 1 -t 20s --host "$TCH_BASE_URL" \
+  --tags purge \
+  --archive-period-start 2025-01-01 --archive-period-end 2025-02-01 \
+  --csv target/locust/archive-purge-dry-run \
+  --html target/locust/archive-purge-dry-run.html
+```
+
+Triggering `/platform/archive/runs` is opt-in because it creates archive
+objects and can be slow on a populated environment:
+
+```bash
+locust -f loadtest/locustfile.py ArchiveOpsUser --headless \
+  -u 1 -r 1 -t 10s --host "$TCH_BASE_URL" \
+  --tags trigger --archive-trigger \
+  --archive-period-start 2025-01-01 --archive-period-end 2025-02-01 \
+  --archive-reason "Locust archive trigger smoke run" \
+  --csv target/locust/archive-trigger \
+  --html target/locust/archive-trigger.html
+```
+
+Full archive lifecycle smoke with deterministic backdated rows:
+
+```bash
+locust -f loadtest/locustfile.py ArchiveOpsUser --headless \
+  -u 1 -r 1 -t 30s --host "$TCH_BASE_URL" \
+  --tags lifecycle \
+  --archive-seed --archive-trigger \
+  --archive-period-start 2025-01-01 --archive-period-end 2025-02-01 \
+  --archive-seed-command 'docker exec -i -u postgres tchl-postgres-dev psql -d tchalanet_db' \
+  --archive-reason "Locust archive lifecycle smoke run" \
+  --csv target/locust/archive-lifecycle \
+  --html target/locust/archive-lifecycle.html \
+  --exit-code-on-error 1
+```
+
+Add `--archive-delete` only when the API is explicitly configured to allow
+cleanup deletes, for example with `TCH_ARCHIVE_CLEANUP_ENABLED=true`. Without
+that flag the lifecycle creates archive objects through the real endpoint, then
+executes ticket, draw, draw-result, and Envers purge checks in `DRY_RUN` mode.
+The seed is deterministic but mutates the local Docker database, so this lifecycle
+scenario must run with exactly one Locust user. The lifecycle task stops the runner
+after its single scenario execution.
 
 ## Run — headless (CI / scripted)
 

@@ -62,6 +62,12 @@ tch:
   context:
     public-default-tenant-code: ${TCH_PUBLIC_DEFAULT_TENANT_CODE:tchalanet}
 
+  idempotence:
+    processed-event-cleanup:
+      enabled: ${TCH_PROCESSED_EVENT_CLEANUP_ENABLED:true}
+      cron: "${TCH_PROCESSED_EVENT_CLEANUP_CRON:0 45 4 * * SUN}"
+      retention: ${TCH_PROCESSED_EVENT_RETENTION:P30D}
+
   system:
     user-id: ${TCH_SYSTEM_USER_ID:00000000-0000-0000-0000-000000000003}
     tenant-code: ${TCH_SYSTEM_TENANT_CODE:tchalanet}

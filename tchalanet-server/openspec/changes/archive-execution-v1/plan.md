@@ -26,6 +26,29 @@ Archive architecture scaffold: DONE
 Production-ready archive execution: NOT DONE
 ```
 
+## 1.1 Rebaseline — 2026-08-03 staging/data-growth audit
+
+Staging currently has two active tenants (`tchalanet`, `chezloulou`) and very little business
+volume. The only material row-count pressure is Spring Batch metadata:
+
+| Dataset/table family | Current status | Lifecycle decision |
+|---|---|---|
+| `batch.BATCH_*` | Largest staging tables by row count; completed execution aggregate provider exists. | Keep weekly cleanup in staging; for prod, archive completed executions then purge after the configured operational retention. |
+| `processed_event` | Technical idempotency/event replay rows; no archive provider. | Add weekly cleanup by `processed_at`; no archive required unless compliance asks for technical replay evidence. |
+| `sales_ticket`, `sales_ticket_line`, `sales_ticket_charge` | Archive providers and guarded purge endpoint exist. | Archive by closed periods; purge only after verified ticket/line/charge objects, no legal hold, and retention cutoff. |
+| `draw`, `draw_result` | Archive providers and guarded domain purge exist. | Archive by closed periods; purge only after ticket dependencies are gone (`draw`) and draw dependencies are gone (`draw_result`). |
+| `analytics_daily`, `analytics_draw`, `analytics_selection`, `analytics_seller_terminal_draw` | Derived/read-model tables. Current purge covers only part of analytics directly; draw purge deletes some dependent analytics rows. | Add explicit analytics retention plan. Prefer rebuildable cleanup; add archive provider only if long-term reporting cannot be rebuilt from archived tickets/draws. |
+| `audit_log` | Partitioned monthly but empty in staging; archive provider exists. | Keep monthly archive/partition cleanup semantics. Do not archive quarterly unless cleanup planning is changed to understand monthly partitions inside a quarterly object. |
+| `audit_event` | Legacy/current functional audit rows still populated. | Decide whether to migrate writes to `audit_log` or add `audit_event` provider/cleanup; do not leave both unplanned. |
+| Envers `revinfo` + `*_aud` | Current DB has `draw_result_aud`, `limit_assignment_aud`, `seller_terminal_aud`. Entity revision provider exports all three under `entity_revision`. | Keep Envers allowlisted only. Archive/purge as one `entity_revision` aggregate; delete `_aud` rows before `revinfo`. |
+| `app_user`, `app_user_external_identity`, tenant membership/roles | Master/security identity state. | Keep online; do not archive weekly/monthly. `last_login_at` is a point-in-time field, not a login history table. |
+| `portal_auth_handoff`, `sale_preparation`, `idempotency_record`, restore tables | TTL-bound technical/session state. | Cleanup by TTL; do not put in the quarterly archive path by default. |
+
+Planning consequence: the archive plan must distinguish **archive cadence** from **hot purge
+retention**. A quarterly archive cadence is reasonable for tickets/draws/draw results and batch
+history, but hot purge should remain gated by dataset retention and legal hold checks. `audit_log`
+should stay monthly because the physical partitions are monthly.
+
 This follow-up must deliver:
 
 - real object storage adapter;

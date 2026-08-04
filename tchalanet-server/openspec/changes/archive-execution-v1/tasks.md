@@ -50,12 +50,35 @@ Status: PENDING
 - [x] Implement Envers revision archive provider using `revinfo` as the bounded export aggregate.
 - [ ] Add purge policies for Spring Batch and Envers only after verified archive objects and legal-hold
   checks are proven.
+- [ ] Reconcile Spring Batch retention defaults: staging may purge weekly/short-window metadata, while
+  production should archive completed executions before long-retention purge.
+- [x] Add `processed_event` TTL cleanup policy/job by `processed_at`; do not route it through cold
+  archive unless compliance requires technical replay evidence.
+- [ ] Decide and implement `audit_event` lifecycle: migrate all writes to partitioned `audit_log` or
+  add a bounded provider/cleanup path for legacy `audit_event` rows.
+- [ ] Decide and implement the analytics lifecycle for `analytics_daily`, `analytics_draw`,
+  `analytics_selection` and `analytics_seller_terminal_draw`: derived projections should be rebuilt
+  or retained by policy; add archive providers only if long-term reporting cannot be rebuilt.
 - [x] Implement guarded ticket hot-table purge endpoint with dry-run, archive verification, legal-hold
   checks, bounded deletes, and child-before-parent order.
 - [x] Implement guarded draw, draw_result and entity_revision purge endpoint with dry-run,
   archive verification, legal-hold checks and dependency blockers.
 - [x] Document Spring Batch emergency purge order and ticket-line emergency cleanup guardrails.
 - [ ] Add integration tests for batch/audit provider rules with bounded lookup indexes.
+- [ ] Add integration tests for Envers/entity_revision archive and purge order (`*_aud` rows before
+  `revinfo`).
+
+## Phase 4B — Data growth and retention matrix
+
+- [x] Rebaseline staging table sizes and tenant distribution for archive planning.
+- [ ] Maintain a dataset matrix covering: owner module, table family, partition key, archive cadence,
+  hot retention, purge order, legal-hold behavior, and archive lookup requirement.
+- [ ] Mark master/security identity tables (`app_user`, external identity mappings, memberships,
+  roles) as online-only, not weekly/monthly archive targets.
+- [ ] Mark TTL tables (`portal_auth_handoff`, `sale_preparation`, `idempotency_record`,
+  `archive_restore_*`) as cleanup-job targets, not quarterly archive targets by default.
+- [ ] Add volume guardrails/alerts for `batch.BATCH_*`, `sales_ticket_line`, analytics tables,
+  `audit_log` partitions and Envers `*_aud` tables.
 
 ## Phase 5 — Web and ops readiness
 
@@ -66,6 +89,8 @@ Status: PENDING
 - [x] Extract archive page UI into route-owned standalone components under `pages/archive/components`.
 - [x] Add focused frontend tests for the archive page data/loading/error states.
 - [ ] Add backend integration tests for trigger run, list runs, lookup index isolation and cleanup planning.
+- [x] Add Locust E2E archive ops scenario that seeds backdated archive rows and calls the real
+  `/platform/archive/**` endpoints via the shared `tch_e2e` scenario layer.
 
 ## Phase 6 — Operator documentation
 
