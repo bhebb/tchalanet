@@ -23,7 +23,7 @@ remain follow-ups.
       when their requested scope is not trustworthy; no UI consumer may render unavailable values
       as zero. POS, tenant dashboard and admin reports suppress KPI/report rows and disable exports
       until the requested scope is trustworthy.
-- [ ] Add a platform-ops audited action to disable or re-enable metric visibility by scope and
+- [x] Add a platform-ops audited action to disable or re-enable metric visibility by scope and
       reason. Client code must not control the flag.
 - [x] Add the V1 ticket paid-amount snapshot schema (`paid_amount` plus correction audit
       metadata) and initialize it when draw results are applied. Existing environment data must be

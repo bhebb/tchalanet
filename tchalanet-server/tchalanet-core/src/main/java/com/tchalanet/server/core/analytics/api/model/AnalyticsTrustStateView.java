@@ -26,4 +26,13 @@ public record AnalyticsTrustStateView(
         "analytics.trust.projection_missing",
         checkedAt);
   }
+
+  public static AnalyticsTrustStateView disabled(AnalyticsTrustScope scope, Instant checkedAt) {
+    return new AnalyticsTrustStateView(
+        AnalyticsTrustState.UNAVAILABLE,
+        scope,
+        scope.from().datesUntil(scope.to().plusDays(1)).toList(),
+        "analytics.trust.disabled_by_ops",
+        checkedAt);
+  }
 }

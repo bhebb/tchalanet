@@ -14,6 +14,7 @@ import com.tchalanet.server.core.analytics.internal.infra.persistence.AnalyticsD
 import com.tchalanet.server.core.analytics.internal.infra.persistence.AnalyticsDrawRepository;
 import com.tchalanet.server.core.analytics.internal.infra.persistence.AnalyticsSellerTerminalDrawEntity;
 import com.tchalanet.server.core.analytics.internal.infra.persistence.AnalyticsSellerTerminalDrawRepository;
+import com.tchalanet.server.core.analytics.internal.infra.persistence.AnalyticsVisibilityOverrideRepository;
 import com.tchalanet.server.core.sales.api.query.GetSalesAnalyticsActivityDatesQuery;
 import com.tchalanet.server.platform.tenant.api.TenantZoneApi;
 import java.time.Clock;
@@ -43,6 +44,7 @@ public class GetAnalyticsTrustStateQueryHandler
   private final AnalyticsDailyRepository dailyRepository;
   private final AnalyticsDrawRepository drawRepository;
   private final AnalyticsSellerTerminalDrawRepository sellerTerminalDrawRepository;
+  private final AnalyticsVisibilityOverrideRepository visibilityOverrideRepository;
   private final QueryBus queryBus;
   private final TenantZoneApi tenantZoneApi;
   private final Clock clock;
@@ -50,6 +52,10 @@ public class GetAnalyticsTrustStateQueryHandler
   @Override
   public AnalyticsTrustStateView handle(GetAnalyticsTrustStateQuery query) {
     AnalyticsTrustScope scope = query.scope();
+    Instant checkedAt = clock.instant();
+    if (isDisabled(scope)) {
+      return AnalyticsTrustStateView.disabled(scope, checkedAt);
+    }
     Set<LocalDate> availableDates = availableDates(scope);
     Set<LocalDate> sourceActivityDates = sourceActivityDates(scope);
     List<LocalDate> missingDates =
@@ -61,10 +67,19 @@ public class GetAnalyticsTrustStateQueryHandler
                     !availableDates.contains(date)
                         && (!isSourceBackedScope(scope) || sourceActivityDates.contains(date)))
             .toList();
-    Instant checkedAt = clock.instant();
     return missingDates.isEmpty()
         ? AnalyticsTrustStateView.ready(scope, checkedAt)
         : AnalyticsTrustStateView.unavailable(scope, missingDates, checkedAt);
+  }
+
+  private boolean isDisabled(AnalyticsTrustScope scope) {
+    return visibilityOverrideRepository.existsDisabledForScope(
+        scope.type(),
+        scope.tenantId() == null ? null : scope.tenantId().value(),
+        scope.sellerTerminalId() == null ? null : scope.sellerTerminalId().value(),
+        scope.drawId() == null ? null : scope.drawId().value(),
+        scope.from(),
+        scope.to());
   }
 
   private Set<LocalDate> availableDates(AnalyticsTrustScope scope) {

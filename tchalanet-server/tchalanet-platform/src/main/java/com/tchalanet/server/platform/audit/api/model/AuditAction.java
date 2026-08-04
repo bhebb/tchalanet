@@ -137,6 +137,7 @@ public enum AuditAction {
   // ── Platform ops ─────────────────────────────────────────────────────
   CACHE_CLEAR,
   AUDIT_PURGE,
+  ANALYTICS_VISIBILITY_OVERRIDE,
 
   // ── Archive (canonical: ARCHIVE_RUN / ARCHIVE_RESTORE) ───────────────
   ARCHIVE_RUN,
