@@ -227,7 +227,7 @@ public class JdbcBatchJobHistoryService implements BatchJobHistoryService {
                     AND o.period_end > (e.CREATE_TIME AT TIME ZONE 'UTC')::date
                )
             """
-            .replace("%s", RUNNING_STATUSES),
+                .replace("%s", RUNNING_STATUSES),
             Map.of("cutoff", Timestamp.from(cutoff)),
             Integer.class);
     if (uncovered != null && uncovered > 0) {
