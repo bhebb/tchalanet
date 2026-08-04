@@ -175,8 +175,7 @@ public class ArchiveDomainPurgeService {
   }
 
   private void enableArchiveCleanupRls() {
-    jdbc.getJdbcTemplate()
-        .execute("select set_config('app.archive_cleanup', 'true', true)");
+    jdbc.getJdbcTemplate().execute("select set_config('app.archive_cleanup', 'true', true)");
   }
 
   private long hotCount(
