@@ -2,6 +2,7 @@ package com.tchalanet.server.core.draw.internal.application.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -68,7 +69,20 @@ class ResultedDrawProcessorTest {
     verify(fixture.events(), never()).publish(any(DomainEvent.class));
   }
 
+  @Test
+  void settlesOnlyAfterAllTicketsAreTerminal() {
+    var fixture = fixture(NOW.minusSeconds(31 * 60), commandBusWithCompleteOutcome());
+
+    assertThat(fixture.processor().process(fixture.drawId())).isTrue();
+
+    verify(fixture.events(), never()).publish(any(DomainEvent.class));
+  }
+
   private static Fixture fixture(Instant resultedAt) {
+    return fixture(resultedAt, commandBusWithIncompleteOutcome());
+  }
+
+  private static Fixture fixture(Instant resultedAt, CommandBus commandBus) {
     var drawId = DrawId.of(UUID.randomUUID());
     var tenantId = TenantId.of(UUID.randomUUID());
     var drawChannelId = DrawChannelId.of(UUID.randomUUID());
@@ -127,8 +141,9 @@ class ResultedDrawProcessorTest {
     when(lookup.findById(drawId)).thenReturn(Optional.of(draw));
     var summaries = mock(DrawSummaryReaderPort.class);
     when(summaries.getById(drawId)).thenReturn(summary);
-    var commandBus = commandBusWithIncompleteOutcome();
     var events = mock(DomainEventPublisher.class);
+    var queryBus = mock(QueryBus.class);
+    doReturn(false).when(queryBus).ask(any());
     var properties = new DrawProperties();
     properties.getScheduler().getProcessing().getSettle().setAttentionAfterMinutes(30);
     var processor =
@@ -136,7 +151,7 @@ class ResultedDrawProcessorTest {
             lookup,
             summaries,
             commandBus,
-            mock(QueryBus.class),
+            queryBus,
             properties,
             events,
             Clock.fixed(NOW, ZoneOffset.UTC));
@@ -149,6 +164,16 @@ class ResultedDrawProcessorTest {
       @SuppressWarnings("unchecked")
       public <R> R execute(Command<R> command) {
         return (R) new RecordDrawTicketsResultResult(3, 0, 3, 3, 1);
+      }
+    };
+  }
+
+  private static CommandBus commandBusWithCompleteOutcome() {
+    return new CommandBus() {
+      @Override
+      @SuppressWarnings("unchecked")
+      public <R> R execute(Command<R> command) {
+        return (R) new RecordDrawTicketsResultResult(3, 3, 0, 0, 0);
       }
     };
   }

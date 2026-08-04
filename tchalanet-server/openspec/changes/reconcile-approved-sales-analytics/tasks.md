@@ -62,7 +62,7 @@ remain follow-ups.
       snapshots.
 - [x] Add alerts for projection failure or reconciliation mismatch and automatically mark the
       affected scope unavailable.
-- [ ] Run the resulted-draw operational check after every result application: all eligible tickets
+- [x] Run the resulted-draw operational check after every result application: all eligible tickets
       must be resolved before settlement; after the attention threshold, send a deduplicated
       platform Web and Slack notification containing pending and failed ticket counts.
 - [ ] Remove remaining approval-only lifecycle APIs and persistence states after the V0 data reset.
