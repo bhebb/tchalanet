@@ -3,8 +3,8 @@ package com.tchalanet.server.platform.idempotence.internal.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.tchalanet.server.common.types.id.TenantId;
@@ -45,6 +45,7 @@ class ProcessedEventCleanupServiceTest {
     ArgumentCaptor<Object[]> args = ArgumentCaptor.forClass(Object[].class);
     verify(jdbc, times(2)).update(anyString(), args.capture());
     assertThat(args.getAllValues())
-        .allSatisfy(values -> assertThat(values).containsExactly(Instant.parse("2026-07-27T12:00:00Z")));
+        .allSatisfy(
+            values -> assertThat(values).containsExactly(Instant.parse("2026-07-27T12:00:00Z")));
   }
 }
