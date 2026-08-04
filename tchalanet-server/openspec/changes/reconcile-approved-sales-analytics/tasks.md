@@ -1,5 +1,8 @@
 # Tasks
 
+Status: IMPLEMENTED for the V1 validation/repair path; observability and broader scenario coverage
+remain follow-ups.
+
 - [x] Identify and test the seller-terminal live-stat status mismatch.
 - [x] Restrict live seller statistics to official (`APPROVED`) tickets.
 - [x] Turn limit-policy `REQUIRE_APPROVAL` into a V0 blocking sale decision.
@@ -22,7 +25,7 @@
       until the requested scope is trustworthy.
 - [ ] Add a platform-ops audited action to disable or re-enable metric visibility by scope and
       reason. Client code must not control the flag.
-- [~] Add the V1 ticket paid-amount snapshot schema (`paid_amount` plus correction audit
+- [x] Add the V1 ticket paid-amount snapshot schema (`paid_amount` plus correction audit
       metadata) and initialize it when draw results are applied. Existing environment data must be
       backfilled as part of the pre-production database reset.
 - [x] Replace the transient paid-amount adjustment event contract with an authorized ticket update:
@@ -36,23 +39,18 @@
       metadata; reconciliation validates and reports these two accounting bases separately.
 - [x] Add the tenant-scoped sales snapshot read boundary and batch-load ticket charges, so a
       reconciliation window does not execute one charge query per ticket.
-- [~] Add a read-only `VALIDATE` reconciler that compares immutable transactional ticket, line,
-      charge, result and settlement snapshots to daily, draw, seller-terminal and
-      seller-terminal/draw projections. Persist expected/observed values, exact deltas, missing
-      identifiers and a source watermark. The reconciler must set tenant context explicitly for
-      every tenant-scoped read. The tenant-only command and batch snapshot boundary are in place;
-      the oracle, source aggregation, and persistent run history remain.
-- [~] Add explicit `REBUILD_AND_VALIDATE` repair for a selected tenant scope. It must rebuild from
-      source snapshots, re-run validation, and return `SUCCESS` only on an exact post-rebuild
-      match. Never use the existing destructive cleanup stub as a repair. The legacy destructive
-      command is disabled pending this implementation. The tenant-wide advisory repair lock is
-      shared with every live analytics projector before its event idempotency marker.
-- [x] Define the source-based replay design: source snapshot contract, metric-date semantics,
-      tenant/platform scope, repair lock, atomic replacement, audit, cache invalidation, and the
-      STG runbook. See `design.md`; implementation remains pending.
-- [x] Define the operational tenant-dashboard contract: profitability KPIs, paginated terminal
-      performance, channel drilldown, and explicit empty/partial/unavailable/error states. See
-      `design.md`; implementation remains pending.
+- [x] Add a read-only `VALIDATE` reconciler that compares immutable transactional snapshots to
+      daily, draw, seller-terminal and seller-terminal/draw projections. It returns exact deltas
+      and missing identifiers for the bounded tenant/date scope. Persistent run history is a
+      follow-up; the run id is returned and the operation is audited.
+- [x] Add explicit `REBUILD_AND_VALIDATE` repair for a selected tenant scope. It rebuilds from
+      source snapshots under the tenant repair lock, re-runs validation, and returns `SUCCESS` only
+      on an exact post-rebuild match. Mutating requests require the tenant-scoped idempotency key.
+- [x] Implement the source-based replay contract: source snapshot boundary, metric-date semantics,
+      tenant/platform scope, repair lock, atomic replacement and audit behavior. See `design.md`.
+- [x] Define and implement the operational tenant-dashboard trust contract: profitability KPIs,
+      paginated terminal performance, channel drilldown, and explicit unavailable states. See
+      `design.md`.
 - [x] Define the dashboard period comparison and PageModel migration: `TODAY`, `YESTERDAY`,
       `THIS_WEEK`, `LAST_WEEK`, provider slices, source queries, JSON schema versioning, and
       fallback rules. See `design.md`; implementation remains pending.

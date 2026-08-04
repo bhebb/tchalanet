@@ -2,8 +2,8 @@ package com.tchalanet.server.app.config.cache;
 
 import com.tchalanet.server.common.cache.CacheToggle;
 import java.util.concurrent.Callable;
+import org.jspecify.annotations.Nullable;
 import org.springframework.cache.Cache;
-import org.springframework.lang.Nullable;
 
 /**
  * Wraps a cache with the runtime {@link CacheToggle}. When the cache is disabled it behaves as a
@@ -42,7 +42,7 @@ public class ToggleableCache implements Cache {
 
   @Override
   @Nullable
-  public <T> T get(Object key, @Nullable Class<T> type) {
+  public <T> T get(@Nullable Object key, @Nullable Class<T> type) {
     return enabled() ? delegate.get(key, type) : null;
   }
 
@@ -60,7 +60,7 @@ public class ToggleableCache implements Cache {
   }
 
   @Override
-  public void put(Object key, @Nullable Object value) {
+  public void put(@Nullable Object key, @Nullable Object value) {
     if (enabled()) {
       delegate.put(key, value);
     }
@@ -68,7 +68,7 @@ public class ToggleableCache implements Cache {
 
   @Override
   @Nullable
-  public ValueWrapper putIfAbsent(Object key, @Nullable Object value) {
+  public ValueWrapper putIfAbsent(@Nullable Object key, @Nullable Object value) {
     return enabled() ? delegate.putIfAbsent(key, value) : null;
   }
 

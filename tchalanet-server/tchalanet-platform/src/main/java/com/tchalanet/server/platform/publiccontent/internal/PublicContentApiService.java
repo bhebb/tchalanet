@@ -38,16 +38,18 @@ public class PublicContentApiService implements PublicContentApi {
   }
 
   private List<PublicContentItemView> toViews(List<PublicContentItem> items) {
-    return items.stream().map(this::toView).toList();
+    return (items == null ? List.<PublicContentItem>of() : items)
+        .stream().map(this::toView).toList();
   }
 
   private PublicContentItemView toView(PublicContentItem item) {
+    var sourceUrl = item.sourceUrl();
     return new PublicContentItemView(
         toUuid(item.id()),
         item.title(),
         item.content(),
         item.imageUrl(),
-        item.sourceUrl() != null ? item.sourceUrl().toString() : null,
+        sourceUrl == null ? null : sourceUrl.toString(),
         item.sourceType(),
         item.publishedAt());
   }

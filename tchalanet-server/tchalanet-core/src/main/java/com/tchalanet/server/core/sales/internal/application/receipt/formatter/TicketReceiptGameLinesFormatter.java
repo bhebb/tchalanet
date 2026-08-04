@@ -22,16 +22,16 @@ public class TicketReceiptGameLinesFormatter {
       List<TicketReceiptLineView> receiptLines,
       TicketReceiptTranslations translations,
       TicketReceiptLayoutProfile profile) {
+    var safeReceiptLines = receiptLines == null ? List.<TicketReceiptLineView>of() : receiptLines;
     var lines = new ArrayList<TicketReceiptTextLine>();
     var complimentaryMaryajOnly =
-        receiptLines != null
-            && !receiptLines.isEmpty()
-            && receiptLines.stream().allMatch(this::isComplimentaryMaryaj);
+        !safeReceiptLines.isEmpty()
+            && safeReceiptLines.stream().allMatch(this::isComplimentaryMaryaj);
     if (!complimentaryMaryajOnly) {
       add(lines, header(translations, profile), false);
     }
     var hasComplimentaryMaryaj = false;
-    for (var line : receiptLines) {
+    for (var line : safeReceiptLines) {
       add(lines, lineRow(line, translations, profile), false);
       if (line.promotional() && !isComplimentaryMaryaj(line)) {
         var promo =

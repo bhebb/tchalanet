@@ -36,4 +36,62 @@
     <Match>
         <Class name="~.*Config$"/>
     </Match>
+
+    <!--
+      These constructors intentionally fail fast on invalid wiring or duplicate registrations.
+      They do not expose partially initialized instances because construction aborts before the
+      object is published; keep the exception narrow to these known validation constructors.
+    -->
+    <Match>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+        <Class name="com.tchalanet.server.platform.accesscontrol.api.exception.PermissionsDeniedException"/>
+    </Match>
+    <Match>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+        <Class name="com.tchalanet.server.platform.accesscontrol.internal.exception.PermissionsDeniedException"/>
+    </Match>
+    <Match>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+        <Class name="com.tchalanet.server.platform.document.internal.service.DefaultDocumentApi"/>
+    </Match>
+    <Match>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+        <Class name="com.tchalanet.server.core.uslottery.internal.infra.external.ca.CaliforniaDrawResultsClient"/>
+    </Match>
+    <Match>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+        <Class name="com.tchalanet.server.core.uslottery.internal.infra.external.fl.FloridaDrawResultsClient"/>
+    </Match>
+    <Match>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+        <Class name="com.tchalanet.server.core.uslottery.internal.infra.external.ga.GeorgiaDrawResultsClient"/>
+    </Match>
+    <Match>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+        <Class name="com.tchalanet.server.core.uslottery.internal.infra.external.mi.MichiganDrawResultsClient"/>
+    </Match>
+    <Match>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+        <Class name="com.tchalanet.server.core.uslottery.internal.infra.external.nj.NewJerseyDrawResultsClient"/>
+    </Match>
+    <Match>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+        <Class name="com.tchalanet.server.core.uslottery.internal.infra.external.ny.NewYorkDrawResultsClient"/>
+    </Match>
+    <Match>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+        <Class name="com.tchalanet.server.core.uslottery.internal.infra.external.oh.OhioDrawResultsClient"/>
+    </Match>
+    <Match>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+        <Class name="com.tchalanet.server.core.uslottery.internal.infra.external.oh.auth.OhioAuthClient"/>
+    </Match>
+    <Match>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+        <Class name="com.tchalanet.server.app.config.cache.CombinedCache"/>
+    </Match>
+    <Match>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+        <Class name="com.tchalanet.server.app.job.registry.SpringTchJobRegistry"/>
+    </Match>
 </FindBugsFilter>

@@ -3,6 +3,7 @@ package com.tchalanet.server.app.config.cache;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -25,7 +26,8 @@ public class CombinedCacheManager implements CacheManager {
     return caches.computeIfAbsent(
         name,
         n -> {
-          var localCache = local.getCache(n);
+          var localCache =
+              Objects.requireNonNull(local.getCache(n), "local cache is not configured");
           var remoteCache = remote == null ? null : remote.getCache(n);
           return new CombinedCache(n, localCache, remoteCache);
         });

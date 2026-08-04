@@ -788,13 +788,18 @@ public class NotificationService {
   private void createInAppNotification(
       SendNotificationRequest request, NotificationRecipient recipient, String idempotencyKey) {
     var now = clock.instant();
+    var notificationType = request.type();
+    if (notificationType == null) {
+      throw new IllegalArgumentException("notification type required");
+    }
     var notificationId = NotificationId.of(idGenerator.newUuid());
     var tenantId = recipient.tenantId();
     var audienceType = audienceType(recipient);
+    var recipientUserId = recipient.userId();
     var targets =
-        recipient.userId() == null
+        recipientUserId == null
             ? java.util.Set.<NotificationTarget>of()
-            : java.util.Set.of(NotificationTarget.appUser(recipient.userId().value()));
+            : java.util.Set.of(NotificationTarget.appUser(recipientUserId.value()));
     var dedupeKey =
         idempotencyKey + ":" + recipient.channel() + ":" + audienceType + ":" + targets.hashCode();
 
@@ -807,15 +812,15 @@ public class NotificationService {
             notificationId,
             tenantId,
             "DOMAIN_EVENT",
-            request.type().name(),
+            notificationType.name(),
             dedupeKey,
             audienceType,
             targets,
             request.severity(),
             NotificationKind.INFO,
             NotificationCategory.SYSTEM,
-            request.type().name(),
-            request.type().name(),
+            notificationType.name(),
+            notificationType.name(),
             request.title(),
             request.message(),
             jsonUtils.toJsonNode(request.context()),

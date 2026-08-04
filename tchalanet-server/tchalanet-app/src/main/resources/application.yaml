@@ -189,7 +189,7 @@ tch:
     history:
       purge-enabled: ${TCH_BATCH_HISTORY_PURGE_ENABLED:true}
       purge-cron: "${TCH_BATCH_HISTORY_PURGE_CRON:0 0 4 * * SUN}"
-      retention-days: ${TCH_BATCH_HISTORY_RETENTION_DAYS:7}
+      retention-days: ${TCH_BATCH_HISTORY_RETENTION_DAYS:365}
 
   keymanagement:
     server-signing:

@@ -44,9 +44,6 @@ public class AuditService {
     var event =
         factory.build(
             request.entityType(), request.entityId(), request.action(), request.details());
-    if (event == null) {
-      return;
-    }
     try {
       writer.save(event);
     } catch (Exception e) {

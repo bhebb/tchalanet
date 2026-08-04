@@ -19,7 +19,7 @@ public class BatchJobHistoryPurgeScheduler {
   public BatchJobHistoryPurgeScheduler(
       BatchJobHistoryService historyService,
       @Value("${tch.batch.history.purge-enabled:true}") boolean enabled,
-      @Value("${tch.batch.history.retention-days:7}") int retentionDays) {
+      @Value("${tch.batch.history.retention-days:365}") int retentionDays) {
     this.historyService = historyService;
     this.enabled = enabled;
     this.retentionDays = Math.max(1, retentionDays);

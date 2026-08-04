@@ -45,13 +45,24 @@ public final class FirebaseIdentityProvider implements IdentityProviderApi {
     }
     try {
       var jwt = tokenVerifier.verify(bearerToken);
+      var issuer = jwt.getIssuer();
+      String subject = jwt.getSubject();
+      var claims = jwt.getClaims();
+      if (subject == null || subject.isBlank()) {
+        throw new IdentityProviderException(
+            "invalid_token", "Firebase token subject is required", null);
+      }
+      if (claims == null) {
+        throw new IdentityProviderException(
+            "invalid_token", "Firebase token claims are required", null);
+      }
       return mapVerifiedToken(
           new VerifiedExternalToken(
-              jwt.getIssuer() == null ? null : jwt.getIssuer().toString(),
-              jwt.getSubject(),
+              issuer == null ? null : issuer.toString(),
+              subject,
               jwt.getClaimAsString("email"),
               Boolean.TRUE.equals(jwt.getClaimAsBoolean("email_verified")),
-              jwt.getClaims()),
+              claims),
           policy);
     } catch (JwtException | IllegalArgumentException ex) {
       throw new IdentityProviderException(
@@ -81,7 +92,8 @@ public final class FirebaseIdentityProvider implements IdentityProviderApi {
     if (!properties.issuer().equals(token.issuer())) {
       throw new IdentityProviderException("invalid_issuer", "Invalid Firebase token issuer", null);
     }
-    if (token.subject().length() > 128) {
+    String subject = token.subject();
+    if (subject == null || subject.length() > 128) {
       throw new IdentityProviderException(
           "invalid_subject", "Invalid Firebase token subject", null);
     }

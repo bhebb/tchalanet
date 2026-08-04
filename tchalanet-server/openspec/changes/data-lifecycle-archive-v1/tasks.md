@@ -1,6 +1,8 @@
 # Tasks — data-lifecycle-archive-v1
 
-Status: PENDING (spec under review)
+Status: STRATEGY IMPLEMENTED; execution and guarded purge are delivered in
+`archive-execution-v1`. Remaining unchecked items are explicit production follow-ups, not a claim
+that the archive path is absent.
 
 ---
 

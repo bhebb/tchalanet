@@ -1,6 +1,6 @@
 # Follow-up Plan — archive-execution-v1
 
-> **Status**: PENDING — follow-up after `data-lifecycle-archive-v1` scaffold  
+> **Status**: IMPLEMENTED - operational V1 delivered; storage/provider and retention follow-ups remain
 > **Scope**: `tchalanet-server` — `platform.archive`, archive providers, object storage, restore, lookup, cleanup, observability  
 > **Goal**: turn the archive scaffold into a real, testable archive execution path.
 
@@ -23,7 +23,19 @@ Current status:
 
 ```text
 Archive architecture scaffold: DONE
-Production-ready archive execution: NOT DONE
+Archive execution, guarded purge, Batch/Envers providers and Locust E2E: DONE
+Production follow-ups: S3/MinIO adapter, archived ticket DTO, deeper integration coverage and
+analytics cold-archive decision remain explicitly tracked below.
+
+## 1.2 Delivered operational behavior
+
+- Archive runs are idempotent and export verified `jsonl.gz` objects through owning-module providers.
+- Ticket, draw, draw-result and entity-revision cleanup is dry-run first, bounded, legal-hold aware,
+  and refuses deletion when archive verification or dependency checks fail.
+- Spring Batch and Envers are archiveable aggregates; `processed_event` uses a weekly TTL cleanup
+  and is intentionally outside the cold archive.
+- The local Docker/Locust E2E scenario seeds backdated rows, calls the real platform archive
+  endpoints, runs archive verification, and exercises purge guards.
 ```
 
 ## 1.1 Rebaseline — 2026-08-03 staging/data-growth audit

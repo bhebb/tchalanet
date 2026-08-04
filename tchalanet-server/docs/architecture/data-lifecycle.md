@@ -71,8 +71,9 @@ Archive after retention period. No Envers. Use immutable snapshots + functional 
 | payout                       | P24M      | created_at    |                           |
 | payout_workflow_history      | P24M      | created_at    | when introduced           |
 | sales_session                | P12M      | opened_at     |                           |
-| audit_event                  | P12M      | occurred_at   | current functional audit table |
-| audit_log                    | P12M      | occurred_at   | future/archival partitioned target, if introduced |
+| audit_event                  | P12M      | occurred_at   | legacy functional audit table; lifecycle migration remains separate |
+| audit_log                    | P12M      | occurred_at   | implemented monthly partition/archive target |
+| batch.BATCH_*                | P12M      | CREATE_TIME   | archive completed executions; purge children before parents |
 | notification_delivery        | P6M       | created_at    |                           |
 | outbound_message             | P6M       | created_at    |                           |
 | provider_raw_payload         | P6M       | fetched_at    | when introduced           |
@@ -87,12 +88,14 @@ No Envers. Can be deleted and rebuilt. No legal source of truth.
 
 | Table             | Retention | Notes                               |
 |-------------------|-----------|-------------------------------------|
-| analytics_daily   | P24M      | rebuildable from tickets/payouts    |
-| analytics_draw    | P24M      | rebuildable from draws/tickets      |
+| analytics_daily   | rebuildable | rebuild from sales snapshots after reconciliation |
+| analytics_draw    | rebuildable | rebuild from sales/draw snapshots after reconciliation |
+| analytics_selection | rebuildable | rebuildable projection; no cold archive by default |
+| analytics_seller_terminal_draw | rebuildable | rebuildable projection; no cold archive by default |
 | stats_daily       | P24M      | legacy; superseded by analytics_daily |
 | stats_draw        | P24M      | legacy; superseded by analytics_draw  |
 | stats_event_log   | P12M      |                                     |
-| processed_event   | P6M-P12M  | idempotency; no replay beyond window|
+| processed_event   | P30D      | weekly cleanup by processed_at; no cold archive by default |
 | draw_exposure     | P12M      | rebuildable from ticket lines       |
 
 ---
@@ -109,11 +112,19 @@ tch:
       audit-log: P12M
       notification-delivery-log: P6M
       provider-raw-payload: P6M
+      spring-batch: P12M
+      processed-event: P30D
     rollover:
       max-rows-per-partition: 50000000
       max-bytes-per-partition: 100GB
       mode: MONITOR_ONLY
 ```
+
+Operational cadence is separate from retention: closed ticket/draw/result periods are archived
+quarterly, `audit_log` remains monthly because its physical partitions are monthly, and the
+processed-event and Spring Batch cleanup jobs run weekly. `notification_translation` follows its
+parent notification and must not be deleted weekly in isolation. Login identity tables and session/
+handoff state are online master data or TTL-cleanup targets, not quarterly archive datasets.
 
 ---
 
