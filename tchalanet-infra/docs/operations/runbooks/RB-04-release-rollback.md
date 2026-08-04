@@ -7,7 +7,8 @@ rollback applicatif, rollback base de données et clear cache.
 - [`../DEPLOYMENT.md`](../DEPLOYMENT.md) — mécanique de déploiement (Make targets).
 - [`../IMAGES-DEPLOYMENT.md`](../IMAGES-DEPLOYMENT.md) — publication d'images GHCR.
 - [`RB-01-staging-provision.md`](./RB-01-staging-provision.md) — provisioning serveur.
-- [`../OPERATIONS.md`](../OPERATIONS.md) — backups et opérations courantes.
+- [`../BACKUP-RESTORE.md`](../BACKUP-RESTORE.md) — backups, restauration, RPO/RTO.
+- [`../OPERATIONS.md`](../OPERATIONS.md) — opérations courantes.
 
 Tracking : issue #250.
 
@@ -48,16 +49,19 @@ Tracking : issue #250.
 
 ## 3. Backup base de données
 
-**Staging** (depuis le repo infra, poste opérateur) :
-```bash
-tchalanet-infra/scripts/remote/staging-backup.sh
-# → pg_dumpall gzippé dans backups/staging/staging-pg-<timestamp>.sql.gz
-```
+Déclencher un backup à la demande, staging ou prod, depuis GitHub Actions :
 
-**Prod** : même principe (`pg_dumpall`/`pg_dump -Fc` de `tchalanet_db`, voir
-`OPERATIONS.md`). ⚠️ Le script `staging-backup.sh` cible `stg-app` et la clé
-`~/.ssh/tchalanet_stg` ; pour prod, adapter le serveur (`prod-app`) et la clé
-(`~/.ssh/tchalanet_prod`) — **à paramétrer/valider avant le premier go-live prod**.
+**Actions → Database Backup → Run workflow**, en choisissant l'environnement.
+
+Le backup est vérifié par restauration réelle avant d'être accepté : si le dump
+n'est pas restaurable, le workflow échoue et il n'y a pas de faux sentiment de
+sécurité. Attendre qu'il soit vert avant de lancer la migration.
+
+> `scripts/remote/staging-backup.sh` est **déprécié** et ne produit plus rien.
+> Il appelait `pg_dumpall -U postgres` alors que le superuser est `admin`, sans
+> mot de passe, et déposait le résultat sur le poste de l'opérateur.
+
+Détails : [`../BACKUP-RESTORE.md`](../BACKUP-RESTORE.md).
 
 ---
 
