@@ -12,13 +12,24 @@ public record ArchiveProperties(
     @DefaultValue Restore restore,
     @DefaultValue Cleanup cleanup) {
 
+  /**
+   * Object storage settings.
+   *
+   * <p>{@code type=s3} targets any S3-compatible endpoint. In production this is Cloudflare R2 — no
+   * AWS account is involved, "S3" here names the protocol rather than the provider. Archives must
+   * not share the backup bucket: separate buckets keep retention and credentials independent, so an
+   * archive purge can never reach the database backups.
+   */
   public record Storage(
       @DefaultValue("local") String type,
       @DefaultValue("./archive-data") String localRoot,
       @DefaultValue("tchalanet-archive") String bucket,
       @DefaultValue("archive") String prefix,
-      @DefaultValue("536870912") long targetCompressedObjectBytes // 512 MB
-      ) {}
+      @DefaultValue("536870912") long targetCompressedObjectBytes, // 512 MB
+      String endpoint,
+      @DefaultValue("auto") String region,
+      String accessKeyId,
+      String secretAccessKey) {}
 
   public record Restore(
       @DefaultValue("P7D") Duration tempTtl,

@@ -14,6 +14,12 @@
   <description>Technical/Application Service Modules — transversal stateful capabilities</description>
 
   <dependencies>
+    <!-- Archive object storage over the S3 protocol (Cloudflare R2). -->
+    <dependency>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>s3</artifactId>
+    </dependency>
+
     <!-- Inter-module: platform may depend only on common/catalog. Other platform capabilities
          live in this same Maven module and communicate through their public api packages. -->
     <!-- Inter-module: platform may depend only on common/catalog. Other platform capabilities

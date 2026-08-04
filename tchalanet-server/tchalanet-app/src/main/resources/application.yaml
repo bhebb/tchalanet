@@ -156,6 +156,17 @@ tch:
     purge-cron: "${TCH_ANALYTICS_PURGE_CRON:0 15 3 * * *}"
 
   archive:
+    storage:
+      # local en dev/test ; s3 vise Cloudflare R2 en staging/prod. « S3 » désigne
+      # le protocole, pas le fournisseur — aucun compte AWS n'est impliqué.
+      # Bucket distinct de celui des backups : rétentions et droits séparés, une
+      # purge d'archives ne peut pas atteindre les sauvegardes de la base.
+      type: ${TCH_ARCHIVE_STORAGE_TYPE:local}
+      bucket: ${TCH_ARCHIVE_STORAGE_BUCKET:tchalanet-archive}
+      endpoint: ${TCH_ARCHIVE_STORAGE_ENDPOINT:}
+      region: ${TCH_ARCHIVE_STORAGE_REGION:auto}
+      access-key-id: ${TCH_ARCHIVE_STORAGE_ACCESS_KEY_ID:}
+      secret-access-key: ${TCH_ARCHIVE_STORAGE_SECRET_ACCESS_KEY:}
     restore-cleanup:
       enabled: ${TCH_ARCHIVE_RESTORE_CLEANUP_ENABLED:true}
       cron: "${TCH_ARCHIVE_RESTORE_CLEANUP_CRON:0 30 3 * * *}"

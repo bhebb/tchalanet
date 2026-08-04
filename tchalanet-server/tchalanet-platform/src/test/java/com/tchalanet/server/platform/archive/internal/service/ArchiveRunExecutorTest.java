@@ -128,7 +128,15 @@ class ArchiveRunExecutorTest {
           new ArchiveProperties(
               true,
               new ArchiveProperties.Storage(
-                  "local", archiveRoot.toString(), "tchalanet-archive", "archive", 536870912L),
+                  "local",
+                  archiveRoot.toString(),
+                  "tchalanet-archive",
+                  "archive",
+                  536870912L,
+                  null,
+                  "auto",
+                  null,
+                  null),
               new ArchiveProperties.Restore(java.time.Duration.ofDays(7), 1_000_000L, 5),
               new ArchiveProperties.Cleanup(false, "DRY_RUN", 12, List.of("audit_log")));
       var storage = new LocalFileArchiveStorageAdapter(props);

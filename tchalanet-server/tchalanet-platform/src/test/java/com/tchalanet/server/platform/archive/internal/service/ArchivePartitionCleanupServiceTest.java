@@ -86,7 +86,15 @@ class ArchivePartitionCleanupServiceTest {
         new ArchiveProperties(
             true,
             new ArchiveProperties.Storage(
-                "local", "./archive-data", "tchalanet-archive", "archive", 536870912L),
+                "local",
+                "./archive-data",
+                "tchalanet-archive",
+                "archive",
+                536870912L,
+                null,
+                "auto",
+                null,
+                null),
             new ArchiveProperties.Restore(Duration.ofDays(7), 1_000_000L, 5),
             new ArchiveProperties.Cleanup(true, "DETACH_ONLY", 12, List.of("audit_log")));
     return new ArchivePartitionCleanupService(props, jdbc, legalHoldRepo);
