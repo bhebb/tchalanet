@@ -20,6 +20,36 @@ Un secret que le CI transmet à un script par SSH reste un secret **GitHub** : i
 n'est jamais lu par un conteneur applicatif. C'est le cas des credentials de
 backup.
 
+### Cas d'école : backup et archive, deux coffres différents
+
+Les deux écrivent dans Cloudflare R2, et pourtant leurs secrets ne vivent pas au
+même endroit. Le critère n'est pas la destination, c'est le lecteur.
+
+| | Backup base de données | Archive de données |
+| --- | --- | --- |
+| **Qui exécute** | Workflow `db-backup.yml` (GitHub Actions, par SSH) | L'API elle-même, dans son conteneur |
+| **Coffre** | **GitHub Secrets** | **Doppler** |
+| **Secrets** | `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET`, `BACKUP_AGE_*` | `TCH_ARCHIVE_STORAGE_ENDPOINT`, `TCH_ARCHIVE_STORAGE_ACCESS_KEY_ID`, `TCH_ARCHIVE_STORAGE_SECRET_ACCESS_KEY` |
+| **Bucket** | bucket de backup | `tch-archive` |
+
+Le backup est orchestré depuis GitHub : le workflow ouvre une session SSH et
+passe les credentials en variables d'environnement au script. Aucun conteneur
+applicatif ne les lit jamais — donc GitHub.
+
+L'archive est déclenchée par l'API, qui lit sa configuration Spring au
+démarrage. Ces valeurs doivent donc arriver dans l'environnement du conteneur,
+c'est-à-dire par Doppler.
+
+Les deux jeux de clés R2 sont **distincts et restreints à leur propre bucket**.
+Ce n'est pas de la bureaucratie : une archive purgée est la seule copie
+restante des données qu'elle contient, et un token de backup compromis ne doit
+pas permettre de l'effacer. Réutiliser un seul token annulerait l'isolation que
+justifie le bucket séparé.
+
+Pour l'archive, `TYPE` et `BUCKET` restent committés dans `envs/<env>/api.env` :
+ce sont des identifiants, relisibles en revue. Seuls l'endpoint — qui porte
+l'identifiant de compte Cloudflare — et les clés vont dans Doppler.
+
 Le cas particulier : `DOPPLER_TOKEN_*` vit dans GitHub et sert précisément à
 récupérer le contenu de Doppler. GitHub est donc la racine de confiance ; il ne
 contient jamais de secret applicatif en double.
@@ -49,6 +79,9 @@ Configurer dans : GitHub → Settings → Secrets and variables → Actions → 
 | `R2_BUCKET` | ✅ requis | ✅ requis | Bucket de destination des backups |
 | `BACKUP_AGE_PUBLIC_KEY` | ✅ requis | ✅ requis | Clé publique `age` — chiffre les backups |
 | `BACKUP_AGE_PRIVATE_KEY` | ✅ requis | ✅ requis | Clé privée `age` — répétition de restauration |
+
+> Les secrets d'**archive** ne figurent pas dans ce tableau : ils vivent dans
+> Doppler, pas ici. Voir la section « Cas d'école » ci-dessus.
 
 **À obtenir :**
 - `SSH_PRIVATE_KEY` : `cat ~/.ssh/tchalanet_stg`
