@@ -130,7 +130,7 @@ class ArchiveRunExecutorTest {
               new ArchiveProperties.Storage(
                   "local",
                   archiveRoot.toString(),
-                  "tchalanet-archive",
+                  "tch-archive",
                   "archive",
                   536870912L,
                   null,

@@ -23,7 +23,7 @@ public record ArchiveProperties(
   public record Storage(
       @DefaultValue("local") String type,
       @DefaultValue("./archive-data") String localRoot,
-      @DefaultValue("tchalanet-archive") String bucket,
+      @DefaultValue("tch-archive") String bucket,
       @DefaultValue("archive") String prefix,
       @DefaultValue("536870912") long targetCompressedObjectBytes, // 512 MB
       String endpoint,

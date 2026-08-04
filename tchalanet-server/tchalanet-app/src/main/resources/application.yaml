@@ -162,7 +162,7 @@ tch:
       # Bucket distinct de celui des backups : rétentions et droits séparés, une
       # purge d'archives ne peut pas atteindre les sauvegardes de la base.
       type: ${TCH_ARCHIVE_STORAGE_TYPE:local}
-      bucket: ${TCH_ARCHIVE_STORAGE_BUCKET:tchalanet-archive}
+      bucket: ${TCH_ARCHIVE_STORAGE_BUCKET:tch-archive}
       endpoint: ${TCH_ARCHIVE_STORAGE_ENDPOINT:}
       region: ${TCH_ARCHIVE_STORAGE_REGION:auto}
       access-key-id: ${TCH_ARCHIVE_STORAGE_ACCESS_KEY_ID:}
