@@ -1,6 +1,6 @@
 # Follow-up Plan — archive-execution-v1
 
-> **Status**: IMPLEMENTED - operational V1 delivered; storage/provider and retention follow-ups remain
+> **Status**: IMPLEMENTED - operational V1 delivered; retention, lookup and production hardening follow-ups remain
 > **Scope**: `tchalanet-server` — `platform.archive`, archive providers, object storage, restore, lookup, cleanup, observability  
 > **Goal**: turn the archive scaffold into a real, testable archive execution path.
 
@@ -24,8 +24,10 @@ Current status:
 ```text
 Archive architecture scaffold: DONE
 Archive execution, guarded purge, Batch/Envers providers and Locust E2E: DONE
-Production follow-ups: S3/MinIO adapter, archived ticket DTO, deeper integration coverage and
-analytics cold-archive decision remain explicitly tracked below.
+Production follow-ups: archived ticket DTO, deeper integration coverage and analytics cold-archive
+decision remain explicitly tracked below. The S3-compatible Cloudflare R2 adapter is implemented;
+staging stays on local storage until its Doppler endpoint and credentials are provisioned.
+```
 
 ## 1.2 Delivered operational behavior
 
@@ -36,7 +38,6 @@ analytics cold-archive decision remain explicitly tracked below.
   and is intentionally outside the cold archive.
 - The local Docker/Locust E2E scenario seeds backdated rows, calls the real platform archive
   endpoints, runs archive verification, and exercises purge guards.
-```
 
 ## 1.1 Rebaseline — 2026-08-03 staging/data-growth audit
 
@@ -63,7 +64,7 @@ should stay monthly because the physical partitions are monthly.
 
 This follow-up must deliver:
 
-- real object storage adapter;
+- real object storage adapter (Cloudflare R2 through the S3 protocol, with local dev/test storage);
 - real `plan()` and `export()` flow for at least `audit_log`;
 - archive run execution;
 - checksum and row-count verification;
@@ -139,25 +140,24 @@ Implement the common execution engine inside `platform.archive`, without making 
 
 ## Tasks
 
-- [ ] Create `ArchiveStoragePort` in `platform.archive.internal.storage`:
-  - [ ] `putObject(...)`
-  - [ ] `getObject(...)`
-  - [ ] `deleteObject(...)`
-  - [ ] `exists(...)`
-  - [ ] `openStream(...)`
+- [x] Create `ArchiveStoragePort` in `platform.archive.internal.storage`:
+  - [x] `openWrite(...)`
+  - [x] `openRead(...)`
+  - [x] `delete(...)`
+  - [x] `exists(...)`
+  - [x] `size(...)`
 
-- [ ] Create storage implementations:
-  - [ ] `LocalFileArchiveStorageAdapter` for dev/test
-  - [ ] `S3ArchiveStorageAdapter` or MinIO-compatible adapter behind config
-  - [ ] config switch: `tch.archive.storage.type=local|s3`
+- [x] Create storage implementations:
+  - [x] `LocalFileArchiveStorageAdapter` for dev/test
+  - [x] `S3ArchiveStorageAdapter` for Cloudflare R2 and other S3-compatible endpoints
+  - [x] config switch: `tch.archive.storage.type=local|s3`
 
-- [ ] Add archive storage config:
-  - [ ] bucket/root path
-  - [ ] prefix
-  - [ ] target compressed object size
-  - [ ] timeout
-  - [ ] retry count
-  - [ ] max object size guard
+- [x] Add archive storage config:
+  - [x] bucket/root path
+  - [x] prefix
+  - [x] target compressed object size
+  - [x] S3 endpoint, region and credentials
+  - [x] separate archive bucket from database-backup bucket
 
 - [ ] Create `ArchiveRunExecutor`:
   - [ ] receives archive request
@@ -211,7 +211,8 @@ Implement the common execution engine inside `platform.archive`, without making 
 ## Acceptance criteria
 
 - [ ] `ArchiveRunExecutor` can execute a dry run and a real run.
-- [ ] Local storage works in integration tests.
+- [x] Local storage works in integration tests.
+- [x] S3-compatible storage fails fast when endpoint or credentials are missing.
 - [ ] Storage abstraction does not leak into providers.
 - [ ] `platform.archive` still does not import `core.*.internal` or core repositories.
 - [ ] Failed run does not delete hot data.

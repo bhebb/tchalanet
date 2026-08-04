@@ -351,7 +351,14 @@ Rules:
 
 ## 7. Archive storage
 
-V1 uses low-cost object storage: S3-compatible (MinIO for self-host/dev; AWS/GCS/Azure later).
+V1 uses low-cost object storage through the S3 protocol. Production/staging activation targets a
+dedicated Cloudflare R2 bucket (`tch-archive`); local filesystem storage remains the default for
+dev/test. R2 is S3-compatible, but no AWS account or AWS bucket is involved.
+
+Archive credentials are application runtime secrets, delivered through Doppler because the API
+reads them at startup. They are intentionally separate from the GitHub-held R2 credentials used by
+the database backup workflow. The archive and backup buckets must have separate credentials and
+independent retention policies so an archive purge cannot reach database backups.
 
 **Archive format:** `jsonl.gz` for V1; parquet optional in V2.
 
@@ -692,9 +699,13 @@ tch:
       mode: MONITOR_ONLY
     storage:
       type: s3
-      bucket: tchalanet-archive
+      bucket: tch-archive
       prefix: archive
       target-compressed-object-size: 512MB
+      endpoint: https://<account-id>.r2.cloudflarestorage.com
+      region: auto
+      access-key-id: ${TCH_ARCHIVE_STORAGE_ACCESS_KEY_ID}
+      secret-access-key: ${TCH_ARCHIVE_STORAGE_SECRET_ACCESS_KEY}
     restore:
       temp-ttl: P7D
       max-rows-per-run: 1000000

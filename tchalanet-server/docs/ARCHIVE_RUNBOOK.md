@@ -16,6 +16,31 @@ This runbook covers:
 Archive is platform-admin only. Normal access to old records should read archive objects through the
 backend. Restore tables are exceptional and temporary.
 
+## Object Storage
+
+Archive objects use the S3 protocol through `S3ArchiveStorageAdapter`. Production uses the dedicated
+Cloudflare R2 bucket `tch-archive`; R2 is S3-compatible and does not require an AWS account. The
+database-backup bucket is separate, with separate bucket-scoped credentials and retention policies.
+
+| Environment | Storage type | Configuration |
+| --- | --- | --- |
+| dev/test | `local` | local filesystem under `tch.archive.storage.local-root` |
+| staging | `local` until credentials exist, then `s3` | `TCH_ARCHIVE_STORAGE_TYPE`, bucket in `api.env`, endpoint/keys in Doppler |
+| production | `s3` | dedicated R2 bucket and Doppler runtime credentials |
+
+The API fails fast when `type=s3` is selected without an endpoint or credentials. Do not switch
+staging or production to `s3` until these Doppler values are present:
+
+```text
+TCH_ARCHIVE_STORAGE_ENDPOINT=https://<account-id>.r2.cloudflarestorage.com
+TCH_ARCHIVE_STORAGE_ACCESS_KEY_ID=...
+TCH_ARCHIVE_STORAGE_SECRET_ACCESS_KEY=...
+```
+
+`TCH_ARCHIVE_STORAGE_TYPE` and `TCH_ARCHIVE_STORAGE_BUCKET` are non-secret environment identifiers
+and may remain committed in `envs/<env>/api.env`. Archive credentials belong in Doppler because the
+API container reads them; backup credentials remain in GitHub because the backup workflow reads them.
+
 ## Dataset Policy
 
 | Dataset | Archive cadence | Hot retention | Cleanup policy |
