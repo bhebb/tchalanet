@@ -95,7 +95,6 @@ public class ArchiveService implements ArchiveApi {
       }
 
       String uri = object.objectUri();
-      int schemaVersion = object.schemaVersion();
       if (!storage.exists(uri)) continue;
 
       try (InputStream in = storage.openRead(uri)) {
