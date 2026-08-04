@@ -43,21 +43,45 @@ API container reads them; backup credentials remain in GitHub because the backup
 
 ## Dataset Policy
 
-| Dataset | Archive cadence | Hot retention | Cleanup policy |
-| --- | ---: | --- | --- |
-| `sales_ticket` | quarterly, closed periods | 12 months | guarded batched purge after verified archive and no legal hold |
-| `sales_ticket_line` | quarterly, with parent ticket | 12 months | child rows before ticket header |
-| `sales_ticket_charge` | quarterly, with parent ticket | 12 months | child rows before ticket header |
-| `draw` | quarterly, closed periods | 12 months | blocked while tickets reference the draw |
-| `draw_result` | quarterly, closed periods | 12 months | blocked while draws reference the result |
-| `analytics_daily`, `analytics_draw`, `analytics_selection`, `analytics_seller_terminal_draw` | no cold archive by default | rebuildable projection | daily retention/purge; rebuild from sales snapshots and reconcile first |
-| `audit_log` | monthly partitions/archive | 12 months | partition cleanup only after verified archive and legal-hold checks |
-| Envers `_aud` + `revinfo` | quarterly aggregate | dataset-specific | purge `_aud` rows before `revinfo`, after legal review |
-| `batch.BATCH_*` | quarterly archive | 365 days | weekly scheduler purges completed executions older than retention; running jobs excluded |
-| `processed_event` | no cold archive | 30 days | weekly Sunday cleanup by `processed_at`; technical replay evidence is not a business archive |
-| `notification_translation` | with parent notification | notification retention | do not delete weekly in isolation; translations are part of notification content |
-| `app_user`, external identities, memberships, roles | never | online | master/security data stays online |
-| session, handoff, sale-preparation and idempotency tables | never | TTL | dedicated TTL cleanup, not quarterly archive |
+The archive plan is deliberately separate from the purge retention. A quarterly export does not
+authorize a quarterly delete: deletion still requires the hot-retention cutoff, a verified object,
+matching row counts and a legal-hold check.
+
+| Dataset | Owner | Partition/business key | Archive cadence | Hot retention | Purge order / lookup |
+| --- | --- | --- | --- | --- | --- |
+| `sales_ticket` | `core.sales` | `sold_at` | quarterly, closed periods | 12 months | parent after lines/charges; ticket lookup by id/public code |
+| `sales_ticket_line` | `core.sales` | parent ticket `sold_at` | quarterly with ticket | 12 months | first; included in ticket bundle |
+| `sales_ticket_charge` | `core.sales` | parent ticket `sold_at` | quarterly with ticket | 12 months | before ticket header; included in ticket bundle |
+| `draw` | `core.draw` | scheduled/business date | quarterly, closed periods | 12 months | after ticket references are gone; archive lookup required |
+| `draw_result` | `core.drawresult` | draw/business date | quarterly, closed periods | 12 months | after draw references are gone; archive lookup required |
+| `analytics_daily`, `analytics_draw`, `analytics_selection`, `analytics_seller_terminal_draw` | `core.analytics` | `ref_date` | no cold archive by default | 24 months | derived projections only; reconcile/rebuild before daily purge |
+| `audit_log` | `platform.audit` | monthly `occurred_at` partition | monthly archive | 365 days | partition cleanup after verified object and legal-hold check |
+| Envers `_aud` + `revinfo` | owning audited module | revision timestamp | quarterly aggregate | dataset-specific | `_aud` rows before `revinfo`; archive lookup required |
+| `batch.BATCH_*` | `tchalanet-app` | `CREATE_TIME` | quarterly aggregate | 365 days | child contexts/params/steps before execution and instance; running jobs excluded |
+| `processed_event` | `platform.idempotence` | `processed_at` | no cold archive | 30 days | weekly TTL cleanup; not a business archive |
+| `notification_translation` | `platform.notification` | parent notification | with parent notification | notification retention | delete with parent only; never weekly in isolation |
+| `app_user`, external identities, memberships, roles | `platform.identity` | online identity state | never | online | master/security data stays online |
+| session, handoff, sale-preparation and idempotency tables | owning module | expiry/created timestamp | never | TTL | dedicated TTL jobs, not quarterly archive |
+
+There is no `audit_event` compatibility table or dual-write path. Sensitive actions are written to
+the canonical `audit_log`, which is the table shown in the audit UI and the archive provider.
+
+### Growth Guardrails
+
+The Ops dashboard exposes one resource per high-growth family: `batch.BATCH_*`,
+`sales_ticket_line`, all four analytics projections, `audit_log` partitions and Envers `_aud`.
+The default thresholds are warning at 1,000,000 rows or 1,024 MB and critical at 5,000,000 rows
+or 2,048 MB. Tune them per environment with:
+
+```text
+TCH_ARCHIVE_GROWTH_WARNING_ROWS
+TCH_ARCHIVE_GROWTH_CRITICAL_ROWS
+TCH_ARCHIVE_GROWTH_WARNING_MB
+TCH_ARCHIVE_GROWTH_CRITICAL_MB
+```
+
+An `UNKNOWN` resource is operationally actionable: it means the database measurement failed and
+must be investigated before a purge window is approved.
 
 The archive executor is manually triggered for a closed half-open period `[start, end)`. It is
 idempotent by run key, writes compressed `jsonl.gz` objects, verifies row count/bytes/checksum, and

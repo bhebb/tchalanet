@@ -11,6 +11,8 @@ import com.tchalanet.server.core.analytics.api.model.PurgeAnalyticsResult;
  * <ul>
  *   <li>{@code analytics_daily} — 24 months default.
  *   <li>{@code analytics_draw} — 24 months default.
+ *   <li>{@code analytics_selection} — 24 months default.
+ *   <li>{@code analytics_seller_terminal_draw} — 24 months default.
  * </ul>
  *
  * <p>Invoked by {@code AnalyticsMaintenanceScheduler}; may also be triggered manually by an ops

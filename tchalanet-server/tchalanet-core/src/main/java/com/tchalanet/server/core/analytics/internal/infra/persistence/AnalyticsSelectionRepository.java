@@ -28,6 +28,14 @@ public interface AnalyticsSelectionRepository
       """)
   int deleteTenantRows(
       @Param("tenantId") UUID tenantId, @Param("from") LocalDate from, @Param("to") LocalDate to);
+
+  @Transactional
+  @Modifying
+  @Query("DELETE FROM AnalyticsSelectionEntity a WHERE a.refDate < :cutoff")
+  int deleteOlderThan(@Param("cutoff") LocalDate cutoff);
+
+  @Query("SELECT COUNT(a) FROM AnalyticsSelectionEntity a WHERE a.refDate < :cutoff")
+  long countOlderThan(@Param("cutoff") LocalDate cutoff);
 }
 
 interface AnalyticsSelectionUpsertRepository {
