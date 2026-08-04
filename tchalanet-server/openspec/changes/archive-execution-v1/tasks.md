@@ -10,7 +10,7 @@ Status: IMPLEMENTED for the operational V1 scope; remaining production hardening
 ## Phase 1 — Execution foundation
 
 - [x] Implement archive storage port and local dev/test adapter.
-- [ ] Implement S3/MinIO-compatible storage adapter.
+- [x] Implement S3-compatible Cloudflare R2 storage adapter; keep local storage for dev/test.
 - [x] Implement `ArchiveRunExecutor` with run-level idempotency and checksum capture.
 - [x] Harden `ArchiveRunExecutor` with explicit row-count/byte-size verification before marking objects `VERIFIED`.
 - [x] Implement repositories for `archive_run`, `archive_object` and `archive_lookup_index`.

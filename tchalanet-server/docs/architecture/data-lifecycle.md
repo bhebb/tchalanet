@@ -228,6 +228,12 @@ No DB RLS. Rules enforced by the backend service:
 - Object URIs are never returned to tenant/admin users.
 - All access goes through `archive_lookup_index` → backend archive service → file.
 
+Storage is local filesystem in dev/test and Cloudflare R2 through the S3-compatible adapter in
+staging/production once runtime credentials are provisioned. The archive bucket (`tch-archive`) is
+separate from the database-backup bucket, and archive credentials are delivered through Doppler;
+backup credentials remain in GitHub Actions. `TCH_ARCHIVE_STORAGE_TYPE=s3` must not be enabled in an
+environment until its endpoint and bucket-scoped credentials are present.
+
 ### archive_restore_* tables
 
 - SUPER_ADMIN only. Outside RLS by design.
