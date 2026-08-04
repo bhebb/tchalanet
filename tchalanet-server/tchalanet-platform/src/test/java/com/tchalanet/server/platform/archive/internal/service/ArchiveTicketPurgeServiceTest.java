@@ -233,7 +233,7 @@ class ArchiveTicketPurgeServiceTest {
             new ArchiveProperties.Storage(
                 "local",
                 "./archive-data",
-                "tchalanet-archive",
+                "tch-archive",
                 "archive",
                 536870912L,
                 null,
