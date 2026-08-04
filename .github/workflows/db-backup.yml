@@ -15,13 +15,24 @@ name: Database Backup
 
 on:
   schedule:
-    # Prod : quotidien. Staging : hebdomadaire le dimanche — les données y sont
-    # jetables et recréables, un backup par jour n'y vaut pas son coût de
-    # stockage tant que la prod n'existe pas.
+    # Prod : quotidien à 08:07 UTC — soit 03:07 à Port-au-Prince en hiver et
+    # 04:07 en été. Le créneau est choisi après la clôture métier :
+    #   - les tirages du jour sont réglés (settle démarre 10 min après tirage) ;
+    #   - la génération du lendemain (00:05 local) et l'ouverture (00:15) sont
+    #     passées ;
+    #   - pas de collision avec la purge analytics (03:15 UTC) ni la purge
+    #     batch (04:00 UTC dimanche).
+    # GitHub cron ignore l'heure d'été : la marge d'une heure de part et
+    # d'autre est volontaire, elle absorbe le décalage saisonnier d'Haïti.
+    #
+    # Staging : hebdomadaire le dimanche. Ses données sont jetables et
+    # recréables — un backup quotidien y coûte du stockage sans rien garantir
+    # de plus.
+    #
     # Minute décalée : les crons à l'heure pile saturent les runners GitHub et
     # se font retarder ou sauter.
-    - cron: '17 2 * * *'   # prod, quotidien
-    - cron: '17 3 * * 0'   # staging, dimanche
+    - cron: '7 8 * * *'    # prod, quotidien
+    - cron: '7 9 * * 0'    # staging, dimanche
   workflow_dispatch:
     inputs:
       target_environment:
@@ -39,7 +50,7 @@ on:
         type: boolean
 
 concurrency:
-  group: db-backup-${{ ((github.event_name == 'schedule' && github.event.schedule == '17 2 * * *') || inputs.target_environment == 'production') && 'prod' || 'staging' }}
+  group: db-backup-${{ ((github.event_name == 'schedule' && github.event.schedule == '7 8 * * *') || inputs.target_environment == 'production') && 'prod' || 'staging' }}
   cancel-in-progress: false
 
 permissions:
@@ -47,12 +58,12 @@ permissions:
 
 jobs:
   backup:
-    name: Backup ${{ ((github.event_name == 'schedule' && github.event.schedule == '17 2 * * *') || inputs.target_environment == 'production') && 'prod' || 'staging' }}
+    name: Backup ${{ ((github.event_name == 'schedule' && github.event.schedule == '7 8 * * *') || inputs.target_environment == 'production') && 'prod' || 'staging' }}
     runs-on: ubuntu-latest
     env:
       # Le cron quotidien vise la prod, l'hebdomadaire le staging. Un
       # déclenchement manuel suit toujours l'entrée choisie.
-      IS_PROD: ${{ (github.event_name == 'schedule' && github.event.schedule == '17 2 * * *') || inputs.target_environment == 'production' }}
+      IS_PROD: ${{ (github.event_name == 'schedule' && github.event.schedule == '7 8 * * *') || inputs.target_environment == 'production' }}
     outputs:
       skipped: ${{ steps.guard.outputs.skipped }}
       deploy_env: ${{ steps.guard.outputs.deploy_env }}

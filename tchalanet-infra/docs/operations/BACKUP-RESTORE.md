@@ -11,7 +11,7 @@ donc à notre charge. Ce document est le contrat.
 | --- | --- | --- |
 | **RPO** | prod 24 h · staging 7 j | Perte maximale acceptée : les écritures depuis le dernier backup. Staging est hebdomadaire — ses données sont recréables et ne justifient pas le coût d'un backup quotidien. |
 | **RTO** | 1 h | Délai visé entre la décision de restaurer et le service rétabli. |
-| Rétention | 30 j quotidiens, mensuels conservés | Purge automatique des quotidiens ; `<env>/monthly/` n'est jamais purgé. |
+| Rétention | 14 quotidiens + 12 mensuels | ~26 objets en régime stable, par environnement. Les deux niveaux sont purgés. |
 | Chiffrement | `age`, asymétrique | La VM ne détient que la clé publique. |
 | Destination | Cloudflare R2 | Fournisseur distinct de Hetzner : une panne Hetzner ne touche pas les backups. |
 
@@ -27,8 +27,22 @@ VM par SSH, selon deux cadences :
 
 | Environnement | Cadence | Cron |
 | --- | --- | --- |
-| prod | quotidien | `17 2 * * *` |
-| staging | hebdomadaire, dimanche | `17 3 * * 0` |
+| prod | quotidien | `7 8 * * *` UTC |
+| staging | hebdomadaire, dimanche | `7 9 * * 0` UTC |
+
+### Pourquoi 08:07 UTC en prod
+
+Le créneau est calé **après la clôture métier**, pas au hasard :
+
+- les tirages du jour sont réglés — `settle` démarre 10 min après tirage ;
+- la génération du lendemain (00:05 local) et l'ouverture (00:15) sont passées ;
+- pas de collision avec la purge analytics (03:15 UTC) ni la purge batch
+  (04:00 UTC le dimanche).
+
+08:07 UTC vaut 03:07 à Port-au-Prince en hiver et 04:07 en été. GitHub cron
+ignore l'heure d'été : la marge d'une heure de part et d'autre est volontaire,
+elle absorbe le décalage saisonnier d'Haïti sans avoir à toucher au cron deux
+fois par an.
 
 Un environnement sans hôte configuré (prod non provisionnée) est **ignoré avec
 une note**, pas en échec : un workflow rouge tous les jours pour un
@@ -46,8 +60,21 @@ Le script :
    d'erreur pèse aussi quelques octets. Le backup échoue si la restauration
    échoue ou si zéro table en sort.
 4. Chiffre avec `age` puis pousse vers `r2:<bucket>/<env>/<AAAA>/<MM>/` avec
-   `rclone`, purge les quotidiens de plus de 30 jours, et le 1er du mois dépose
-   une copie sous `<env>/monthly/` que la purge ignore.
+   `rclone`. Le 1er du mois, promeut la copie du jour en archive mensuelle sous
+   `<env>/monthly/` — **avant** la purge, pour qu'une archive fraîche ne soit
+   jamais éligible à l'effacement. Puis purge les deux niveaux et journalise le
+   nombre d'objets restants.
+
+### Rétention
+
+| Niveau | Conservé | Variable |
+| --- | --- | --- |
+| Quotidien | 14 jours | `BACKUP_RETAIN_DAILY_DAYS` |
+| Mensuel | 12 mois | `BACKUP_RETAIN_MONTHLY_MONTHS` |
+
+Environ 26 objets par environnement en régime stable. Les mensuelles étaient
+auparavant conservées sans limite — le stockage croissait indéfiniment. Les deux
+niveaux sont maintenant bornés, et chaque run journalise le total restant.
 
 ### Outils
 
