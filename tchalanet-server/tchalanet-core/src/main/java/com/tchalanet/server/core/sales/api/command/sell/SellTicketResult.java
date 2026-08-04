@@ -1,6 +1,5 @@
 package com.tchalanet.server.core.sales.api.command.sell;
 
-import com.tchalanet.server.common.types.id.ApprovalRequestId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.web.api.ApiNotice;
 import com.tchalanet.server.core.sales.api.model.sale.SaleActionAvailability;
@@ -12,7 +11,6 @@ import java.util.List;
 public record SellTicketResult(
     SoldTicketView ticket,
     SellTicketOutcome outcome,
-    ApprovalRequestId approvalRequestId,
     List<ApiNotice> notices,
     List<SaleIssueView> issues,
     TicketBackupInfo backup,
@@ -27,10 +25,6 @@ public record SellTicketResult(
     }
     notices = List.copyOf(notices);
     issues = issues == null ? List.of() : List.copyOf(issues);
-    if (outcome == SellTicketOutcome.PENDING_APPROVAL && approvalRequestId == null) {
-      throw new IllegalArgumentException(
-          "approvalRequestId is required when outcome is PENDING_APPROVAL");
-    }
     if (outcome == SellTicketOutcome.REJECTED && backup != null) {
       throw new IllegalArgumentException("backup must be null when outcome is REJECTED");
     }
@@ -38,11 +32,8 @@ public record SellTicketResult(
   }
 
   public SellTicketResult(
-      SoldTicketView ticket,
-      SellTicketOutcome outcome,
-      ApprovalRequestId approvalRequestId,
-      List<ApiNotice> notices) {
-    this(ticket, outcome, approvalRequestId, notices, List.of(), null, null, null);
+      SoldTicketView ticket, SellTicketOutcome outcome, List<ApiNotice> notices) {
+    this(ticket, outcome, notices, List.of(), null, null, null);
   }
 
   private static SaleActionAvailability defaultActions(SellTicketOutcome outcome) {

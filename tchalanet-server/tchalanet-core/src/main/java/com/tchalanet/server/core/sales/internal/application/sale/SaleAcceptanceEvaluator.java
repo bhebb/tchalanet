@@ -2,6 +2,7 @@ package com.tchalanet.server.core.sales.internal.application.sale;
 
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.web.error.ProblemRestException;
+import com.tchalanet.server.core.limitpolicy.BreachOutcome;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketCommand;
 import com.tchalanet.server.core.sales.api.model.sale.SaleActionAvailability;
 import com.tchalanet.server.core.sales.api.model.sale.SaleDecision;
@@ -31,8 +32,11 @@ public class SaleAcceptanceEvaluator {
     try {
       var prepared = policyService.prepareSale(command, ctx, mode);
       var issues = issueFactory.fromNotices(prepared.notices());
+      var limitOutcome = prepared.limits().outcome();
       var decision =
-          prepared.requiresApproval() ? SaleDecision.REQUIRES_CHANGES : SaleDecision.ACCEPTABLE;
+          limitOutcome == BreachOutcome.BLOCK || limitOutcome == BreachOutcome.REQUIRE_APPROVAL
+              ? SaleDecision.REQUIRES_CHANGES
+              : SaleDecision.ACCEPTABLE;
       return new SaleEvaluationResult(
           mode,
           decision,

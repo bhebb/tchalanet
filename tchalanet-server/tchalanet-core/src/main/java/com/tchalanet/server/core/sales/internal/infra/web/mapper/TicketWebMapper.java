@@ -31,15 +31,13 @@ public class TicketWebMapper {
   public SellTicketResponse toSellResponse(SellTicketResult result) {
     return new SellTicketResponse(
         toWebOutcome(result.outcome()),
-        result.ticket() == null ? null : toTicketResponse(result.ticket()),
-        result.approvalRequestId());
+        result.ticket() == null ? null : toTicketResponse(result.ticket()));
   }
 
   private SellTicketResponseOutcome toWebOutcome(SellTicketOutcome outcome) {
     return switch (outcome) {
       case ACCEPTED -> SellTicketResponseOutcome.SOLD;
       case REJECTED -> SellTicketResponseOutcome.REJECTED;
-      case PENDING_APPROVAL -> SellTicketResponseOutcome.PENDING_APPROVAL;
     };
   }
 

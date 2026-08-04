@@ -38,17 +38,6 @@ class CustomerTicketStatusResolverTest {
                   TicketSettlementStatus.NOT_SETTLED))
           .isEqualTo(CustomerTicketStatus.VOIDED);
     }
-
-    @Test
-    @DisplayName("REJECTED sale → VOIDED")
-    void rejected() {
-      assertThat(
-              resolver.resolve(
-                  TicketSaleStatus.REJECTED,
-                  TicketResultStatus.NOT_RESULTED,
-                  TicketSettlementStatus.NOT_SETTLED))
-          .isEqualTo(CustomerTicketStatus.VOIDED);
-    }
   }
 
   @Nested
@@ -178,16 +167,5 @@ class CustomerTicketStatusResolverTest {
                   TicketSettlementStatus.NO_PAYOUT))
           .isEqualTo(CustomerTicketStatus.WON_CLAIMABLE);
     }
-  }
-
-  @Test
-  @DisplayName("PENDING_APPROVAL + WON resolves through the WON path")
-  void pendingApprovalWonResolvesNormally() {
-    assertThat(
-            resolver.resolve(
-                TicketSaleStatus.PENDING_APPROVAL,
-                TicketResultStatus.WON,
-                TicketSettlementStatus.PAID))
-        .isEqualTo(CustomerTicketStatus.WON_PAID);
   }
 }

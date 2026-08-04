@@ -269,7 +269,6 @@ class AnalyticsEventListenerTest {
         DRAW_ID.value(),
         DRAW_CHANNEL_ID.value(),
         NOW,
-        NOW,
         NOW.plusSeconds(86_400),
         NOW.atZone(ZoneOffset.UTC).toLocalDate(),
         "CANCELLED",

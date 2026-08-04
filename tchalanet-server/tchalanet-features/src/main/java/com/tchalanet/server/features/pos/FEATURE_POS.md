@@ -79,7 +79,7 @@ POST /tenant/cashier/tickets/{id}/send         ← email / SMS
 **Prepare** — utilise le flow `core.sales` prepare et retourne `preparationId` + statut.
 
 **Confirm** — confirme une préparation existante.
-Retourne `outcome` : `ACCEPTED` / `REJECTED` / `PENDING_APPROVAL`
+Retourne `outcome` : `ACCEPTED` / `REJECTED`
 → Sur `ACCEPTED` : afficher `backup.displayCode` immédiatement (garantie offline client)  
 → `Idempotency-Key` UNE FOIS par panier — re-poster la même clé si timeout
 

@@ -124,7 +124,7 @@ class ConfirmPreparedSaleCommandHandlerTest {
             null,
             NOW,
             NOW);
-    return new SellTicketResult(ticket, SellTicketOutcome.ACCEPTED, null, List.of());
+    return new SellTicketResult(ticket, SellTicketOutcome.ACCEPTED, List.of());
   }
 
   @Test
@@ -319,7 +319,7 @@ class ConfirmPreparedSaleCommandHandlerTest {
   @DisplayName("rejected sale leaves the preparation DRAFT")
   void rejectedSaleKeepsDraft() {
     store.create(draft(NOW.plusSeconds(60)));
-    bus.result = new SellTicketResult(null, SellTicketOutcome.REJECTED, null, List.of());
+    bus.result = new SellTicketResult(null, SellTicketOutcome.REJECTED, List.of());
 
     var out = handler().handle(new ConfirmPreparedSaleCommand(PREP_ID, "idem-1"));
 

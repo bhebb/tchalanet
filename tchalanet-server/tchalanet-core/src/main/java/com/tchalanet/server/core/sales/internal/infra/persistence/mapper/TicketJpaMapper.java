@@ -1,6 +1,5 @@
 package com.tchalanet.server.core.sales.internal.infra.persistence.mapper;
 
-import com.tchalanet.server.common.types.id.ApprovalRequestId;
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.PromotionDecisionId;
@@ -12,7 +11,6 @@ import com.tchalanet.server.common.types.id.TicketLineId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.types.money.CurrencyCode;
 import com.tchalanet.server.common.types.money.Money;
-import com.tchalanet.server.core.sales.api.model.lifecycle.ApprovalTrace;
 import com.tchalanet.server.core.sales.api.model.lifecycle.DecisionTrace;
 import com.tchalanet.server.core.sales.api.model.lifecycle.PaymentTrace;
 import com.tchalanet.server.core.sales.api.model.lifecycle.ResultLifecycle;
@@ -209,8 +207,6 @@ public interface TicketJpaMapper {
         entity.getSaleStatus(),
         entity.getSoldAt(),
         entity.getPlacedAt(),
-        toApprovalTrace(entity),
-        toRejectedTrace(entity),
         toCancelledTrace(entity),
         toVoidedTrace(entity));
   }
@@ -248,30 +244,6 @@ public interface TicketJpaMapper {
         entity.getPaidAmountAdjustedAt(),
         nullableUserId(entity.getPaidAmountAdjustedBy()),
         entity.getPaidAmountAdjustmentReason());
-  }
-
-  default ApprovalTrace toApprovalTrace(TicketJpaEntity entity) {
-    if (entity.getApprovalRequestId() == null) {
-      return null;
-    }
-
-    return new ApprovalTrace(
-        ApprovalRequestId.of(entity.getApprovalRequestId()),
-        nullableUserId(entity.getApprovalRequestedBy()),
-        entity.getApprovalRequestedAt(),
-        entity.getApprovedAt(),
-        nullableUserId(entity.getApprovedBy()));
-  }
-
-  default DecisionTrace toRejectedTrace(TicketJpaEntity entity) {
-    if (entity.getRejectedAt() == null && entity.getRejectedBy() == null) {
-      return null;
-    }
-
-    return new DecisionTrace(
-        entity.getRejectedAt(),
-        nullableUserId(entity.getRejectedBy()),
-        entity.getRejectionReason());
   }
 
   default DecisionTrace toCancelledTrace(TicketJpaEntity entity) {
@@ -391,33 +363,8 @@ public interface TicketJpaMapper {
     entity.setSoldAt(sale.soldAt());
     entity.setPlacedAt(sale.placedAt());
 
-    applyApprovalTrace(sale.approval(), entity);
-    applyRejectedTrace(sale.rejection(), entity);
     applyCancelledTrace(sale.cancellation(), entity);
     applyVoidedTrace(sale.voiding(), entity);
-  }
-
-  default void applyApprovalTrace(ApprovalTrace approval, @MappingTarget TicketJpaEntity entity) {
-    if (approval == null) {
-      entity.setApprovalRequestId(null);
-      entity.setApprovalRequestedBy(null);
-      entity.setApprovalRequestedAt(null);
-      entity.setApprovedAt(null);
-      entity.setApprovedBy(null);
-      return;
-    }
-
-    entity.setApprovalRequestId(approval.requestId().value());
-    entity.setApprovalRequestedBy(value(approval.requestedBy()));
-    entity.setApprovalRequestedAt(approval.requestedAt());
-    entity.setApprovedAt(approval.approvedAt());
-    entity.setApprovedBy(value(approval.approvedBy()));
-  }
-
-  default void applyRejectedTrace(DecisionTrace trace, @MappingTarget TicketJpaEntity entity) {
-    entity.setRejectedBy(trace == null ? null : value(trace.by()));
-    entity.setRejectedAt(trace == null ? null : trace.at());
-    entity.setRejectionReason(trace == null ? null : trace.reason());
   }
 
   default void applyCancelledTrace(DecisionTrace trace, @MappingTarget TicketJpaEntity entity) {

@@ -8,7 +8,6 @@ import com.tchalanet.server.common.context.TchContext;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.event.DomainEvent;
 import com.tchalanet.server.common.event.DomainEventPublisher;
-import com.tchalanet.server.common.types.id.ApprovalRequestId;
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.IdGenerator;
@@ -27,10 +26,8 @@ import com.tchalanet.server.core.sales.api.model.promotion.TicketLineOrigin;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSource;
 import com.tchalanet.server.core.sales.api.model.status.TicketLineResultStatus;
 import com.tchalanet.server.core.sales.api.model.status.TicketSaleStatus;
-import com.tchalanet.server.core.sales.internal.application.command.handler.lifecycle.ApproveTicketSaleCommandHandler;
 import com.tchalanet.server.core.sales.internal.application.command.handler.lifecycle.CancelTicketCommandHandler;
 import com.tchalanet.server.core.sales.internal.application.command.handler.print.RecordTicketPrintCommandHandler;
-import com.tchalanet.server.core.sales.internal.application.command.model.ApproveTicketSaleCommand;
 import com.tchalanet.server.core.sales.internal.application.command.model.CancelTicketCommand;
 import com.tchalanet.server.core.sales.internal.application.port.out.TicketReaderPort;
 import com.tchalanet.server.core.sales.internal.application.port.out.TicketWriterPort;
@@ -101,25 +98,6 @@ class TicketCommandMutationCoverageTest {
     assertThat(writer.saved.print().status()).isEqualTo(TicketPrintStateStatus.PRINTED);
     assertThat(writer.saved.print().printCount()).isEqualTo(1);
     assertThat(writer.saved.print().firstPrintedAt()).isEqualTo(NOW);
-  }
-
-  @Test
-  @DisplayName("ApproveTicketSaleCommand passes approval mutation and preserves immutable fields")
-  void approveMutation() {
-    setContext();
-    var original = pendingTicket();
-    var writer = new CapturingWriter();
-    var handler =
-        new ApproveTicketSaleCommandHandler(
-            new SingleTicketReader(original), writer, new CapturingPublisher(), CLOCK, fixedIds());
-
-    handler.handle(
-        new ApproveTicketSaleCommand(TENANT, original.identity().id(), USER, "approved"));
-
-    assertImmutableTicketFields(writer.saved, original);
-    assertThat(writer.saved.lifecycle().sale().status()).isEqualTo(TicketSaleStatus.APPROVED);
-    assertThat(writer.saved.lifecycle().sale().approval().approvedBy()).isEqualTo(USER);
-    assertThat(writer.saved.lifecycle().sale().approval().approvedAt()).isEqualTo(NOW);
   }
 
   @Test
@@ -194,20 +172,6 @@ class TicketCommandMutationCoverageTest {
     return () -> UUID.fromString("01000000-0000-0000-0000-000000000001");
   }
 
-  private static Ticket pendingTicket() {
-    return Ticket.place(
-        identity(),
-        context(),
-        TicketCodes.from("TCK-123456-123456-ABC123-4", "ABCD-1234", "WXYZ-5678"),
-        new TicketMoneyBreakdown(money("10"), List.of(), money("10")),
-        List.of(line()),
-        TicketSaleChannel.POS_ONLINE,
-        true,
-        ApprovalRequestId.of(UUID.fromString("30000000-0000-0000-0000-000000000001")),
-        USER,
-        NOW.minusSeconds(60));
-  }
-
   private static Ticket approvedTicket() {
     return Ticket.place(
         identity(),
@@ -216,8 +180,6 @@ class TicketCommandMutationCoverageTest {
         new TicketMoneyBreakdown(money("10"), List.of(), money("10")),
         List.of(line()),
         TicketSaleChannel.POS_ONLINE,
-        false,
-        null,
         USER,
         NOW.minusSeconds(60));
   }

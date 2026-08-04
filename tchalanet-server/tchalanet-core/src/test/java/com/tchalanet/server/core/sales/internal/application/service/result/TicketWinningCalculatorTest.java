@@ -540,8 +540,6 @@ class TicketWinningCalculatorTest {
         new TicketMoneyBreakdown(stake, List.of(), stake),
         List.of(line),
         TicketSaleChannel.POS_ONLINE,
-        false,
-        null,
         UserId.of(UUID.fromString("10000000-0000-0000-0000-000000000001")),
         NOW);
   }

@@ -330,7 +330,7 @@
                 <li>Prépare lignes + pricing snapshot.</li>
                 <li>Évalue limitpolicy/autonomy.</li>
                 <li>
-                  Crée Ticket uniquement si vente acceptée ou pending approval métier autorisé.
+                  Crée Ticket uniquement si vente acceptée; une limite `REQUIRE_APPROVAL` est refusée en V0.
                 </li>
                 <li>Publie events after-commit seulement quand approprié.</li>
               </ul>
@@ -528,10 +528,10 @@
                 font-weight="900"
                 fill="#9a3412"
               >
-                PENDING_APPROVAL
+                REJECTED
               </text>
               <text x="560" y="264" text-anchor="middle" font-size="12" fill="#9a3412">
-                no official stats until approve
+                no ticket and no official stats
               </text>
               <rect
                 x="740"
@@ -697,7 +697,7 @@ SyncOfflineSalesCommandHandler
                 <td>TENANT_ADMIN/SUPER_ADMIN</td>
                 <td>hasPermission AUTONOMY_*</td>
                 <td>
-                  Utilisé par Sales pour décider PENDING_APPROVAL ou auto-accept selon règles
+                  Utilisé par Sales pour autoriser, avertir ou bloquer selon les règles
                   tenant/seller/outlet.
                 </td>
                 <td>Sale evaluation</td>

@@ -172,7 +172,7 @@ public class AnalyticsSellerTerminalDrawProjector {
   /** Reverses the approved sale contribution when the ticket is cancelled before result. */
   @Transactional
   public void applyTicketCancelled(SalesAnalyticsTicketSnapshot snapshot) {
-    if (snapshot.approvedAt() == null
+    if (!"APPROVED".equals(snapshot.saleStatus())
         || snapshot.sellerTerminalId() == null
         || snapshot.drawId() == null) {
       return;

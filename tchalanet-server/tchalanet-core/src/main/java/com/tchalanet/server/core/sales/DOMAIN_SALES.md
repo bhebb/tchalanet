@@ -1,6 +1,6 @@
 # Domaine `core.sales` — Tickets & Ventes
 
-> Cycle de vie tickets : émission, approbation, annulation, settlement après tirage, override, vérification publique. Domaine critique argent (multi-tenant, RLS, Envers).
+> Cycle de vie tickets : émission directe, annulation, settlement après tirage, override, vérification publique. Domaine critique argent (multi-tenant, RLS, Envers).
 
 > Functional overview (MkDocs) : `tchalanet-docs/docs/02-functional/domains/sales.md`
 > Flows associés : `tchalanet-docs/docs/02-functional/flows/sell-ticket.md`, `verify-ticket.md`, `claim-payout.md`, `draw-execution.md`
@@ -10,7 +10,7 @@
 
 ## 1. Rôle du domaine
 
-- Émettre, approuver, rejeter, annuler des tickets.
+- Émettre directement des tickets approuvés, puis les annuler si nécessaire.
 - Calculer le gain (`winningAmount`) après tirage et persister `RESULTED_*` (handler `RecordDrawTicketsResultCommandHandler`).
 - Override admin du résultat (`OverrideTicketResultCommandHandler`, `@RequiresPermission`).
 - Exposer la vérification publique d'un ticket par `publicCode` (sans authentification).
@@ -38,11 +38,10 @@ Classe mutable, multi-tenant (`BaseTenantEntity` côté JPA).
 - Identité : `id (TicketId)`, `tenantId`, `terminalId`, `sessionId (nullable — backfills)`, `drawId`, `ticketCode` (per-tenant unique), `publicCode` (NOT NULL en DB, globalement unique)
 - Money : `currency`, `totalAmount`, `winningAmount (nullable)`
 - Statuts (split status pattern, 3 enums distincts) :
-  - `TicketSaleStatus` : `PENDING_APPROVAL`, `REJECTED`, `APPROVED`, `CANCELLED`, `VOIDED`
+  - `TicketSaleStatus` : `APPROVED`, `CANCELLED`, `VOIDED`
   - `TicketResultStatus` : `NOT_RESULTED`, `PENDING`, `WON`, `LOST`, `VOID`, `OVERRIDDEN`
   - `TicketSettlementStatus` : `NOT_SETTLED`, `PAYOUT_PENDING`, `SETTLED`, `NO_PAYOUT`, `PAID`, `REVERSED`
 - Audit : `createdAt`, `updatedAt`, `resultedAt (nullable)`
-- Approval : `approvalRequestId (ApprovalRequestId nullable)` — placeholder UUID aléatoire typé (`// TODO: integrate approval domain later`)
 - Lignes : `List<TicketLine>` (>= 1)
 
 **Invariants enforcés** (constructeur + state machine) :
@@ -136,9 +135,7 @@ Le statut de paiement doit être dérivé du résultat persistant (`resultStatus
 
 | Command                          | Handler                                              | Auth                                                                           | Notes                                                                                                                                             |
 | -------------------------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `SellTicketCommand`              | `SellTicketCommandHandler`                           | `@Secured CASHIER/ADMIN/SUPER_ADMIN` côté controller                           | Orchestration via `TicketSalePolicy` (session + cutoff + limits + autonomy + odds) ; outcome `SUCCESS / SUCCESS_WITH_WARNINGS / PENDING_APPROVAL` |
-| `ApproveTicketSaleCommand`       | `ApproveTicketSaleCommandHandler`                    | `@Secured ADMIN/SUPER_ADMIN`                                                   | Re-valide cutoff + session ; transition `PENDING_APPROVAL → SOLD` ; publie `TicketPlacedEvent`                                                    |
-| `RejectTicketSaleCommand`        | `RejectTicketSaleCommandHandler`                     | `@Secured ADMIN/SUPER_ADMIN`                                                   | `PENDING_APPROVAL → REJECTED` ; pas d'event                                                                                                       |
+| `SellTicketCommand`              | `SellTicketCommandHandler`                           | `@Secured CASHIER/ADMIN/SUPER_ADMIN` côté controller                           | Orchestration via `TicketSalePolicy` (session + cutoff + limits + autonomy + odds) ; crée directement un ticket `APPROVED` ou rejette |
 | `CancelSaleCommand`              | `CancelSaleCommandHandler`                           | `@Secured CASHIER/ADMIN/SUPER_ADMIN` ✅                                        | Évalue limites (`OperationType.CANCEL`) + autonomy ; `voidTicket` ; publie `TicketCancelledEvent`                                                 |
 | `CancelTicketCommand`            | (mappé en `CancelSaleCommand` par `TicketWebMapper`) | idem                                                                           | Doublon de modèle                                                                                                                                 |
 | `OverrideTicketResultCommand`    | `OverrideTicketResultCommandHandler`                 | `@Secured ADMIN/SUPER_ADMIN` + `@RequiresPermission("ticket.result.override")` | `forceResult(payout, resultStatus, when)` ; publie `TicketResultOverriddenEvent`                                                                  |
@@ -223,7 +220,7 @@ Toutes les réponses utilisent `ApiResponse<T>` sauf les endpoints de print bina
 
 | Event                         | Producer (sales)                                              | Champs clés                                                                                                                        |
 | ----------------------------- | ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `TicketPlacedEvent`           | `SellTicketCommandHandler`, `ApproveTicketSaleCommandHandler` | `tenantId, ticketId, drawId, drawChannelId, sellerTerminalId, sellerCommissionRate/Amount, money{stake,total,charges[]}, lines[]` |
+| `TicketPlacedEvent`           | `SellTicketCommandHandler`                                  | `tenantId, ticketId, drawId, drawChannelId, sellerTerminalId, sellerCommissionRate/Amount, money{stake,total,charges[]}, lines[]` |
 | `TicketCancelledEvent`        | `CancelSaleCommandHandler`                                    | `tenantId, ticketId, terminalId, sessionId, performedBy (UUID brut), reason, totalStakeCents, currency, drawId`                    |
 | `TicketResultedEvent`         | `RecordDrawTicketsResultCommandHandler`                       | `tenantId, ticketId, resultStatus, settlementStatus, totalPayout`                                                                  |
 | `TicketResultOverriddenEvent` | `OverrideTicketResultCommandHandler`                          | `tenantId, ticketId, drawId, winningAmount, resultStatus, reason, performedBy (UUID brut)`                                         |
@@ -313,7 +310,7 @@ Toutes les réponses utilisent `ApiResponse<T>` sauf les endpoints de print bina
 
 ## Politique de notifications administrateur
 
-Les événements `TicketPlacedEvent`, `TicketApprovedEvent`, `TicketCancelledEvent`,
+Les événements `TicketPlacedEvent`, `TicketCancelledEvent`,
 `TicketResultedEvent` et `TicketPaidEvent` ne créent pas de notification administrateur dans le
 flux nominal. Ces événements sont fréquents; la confirmation de commande, le reçu, les listes, le
 détail du ticket et les rapports sont les sources d'information.
@@ -366,7 +363,6 @@ tenant n'est averti que lorsqu'une action de sa part est nécessaire. Le contrat
 
 - `TicketWinningCalculator` : option-aware pour Maryaj exact/revers, Loto 3 exact/box, Loto 4 exact/box/front/back, Loto 5 options 1/2/3.
 - `SalesTicketAdminAdapter.refuseNewTickets/allowNewTickets` : no-op v1.
-- `ApprovalRequestId.of(UUID.randomUUID())` non lié à un domaine d'approbation (TODO).
 - `findTicketPrintView` : la locale est fournie par le contexte appelant, avec fallback `Locale.FRENCH`.
 - Aucun scheduler `core.sales` (archivage/expiration non automatisé).
 
@@ -396,7 +392,7 @@ OfflineSubmissionTechValidatedEvent (via outbox)
                                                        │     │     ├─ GetDrawByIdQuery(draft.drawId)
                                                        │     │     ├─ TicketCodes generation
                                                        │     │     ├─ TicketLine[] depuis LineSnapshots
-                                                       │     │     └─ Ticket.place(POS_OFFLINE_SYNCED, requiresApproval=false)
+                                                       │     │     └─ Ticket.place(POS_OFFLINE_SYNCED)
                                                        │     ├─ ticketWriter.save
                                                        │     └─ DataIntegrityViolationException → DUPLICATE
                                                        └─ publish OfflineSubmissionProcessedEvent
@@ -409,13 +405,13 @@ OfflineSubmissionTechValidatedEvent (via outbox)
   - **Compromis v1** : `oddsSnapshot = 1`, `TicketMoneyBreakdown stake==total` (pas de fees offline), `Selection.displayLabel = selectionKey` brut.
 - **`CreateTicketFromOfflineSubmissionCommandHandler`** (`internal/application/command/handler/offline/`) — `@TchTx`, catch `DataIntegrityViolationException` → DUPLICATE, catch `NoSuchElementException|EntityNotFoundException` → `BUSINESS_REJECTED("sales.offline.draw_not_resolved")`.
 - **`OfflineSubmissionPromotionEventListener`** (`internal/infra/event/offline/`) — `@TransactionalEventListener(AFTER_COMMIT)`, idempotence via `ProcessedEventPort`, publie `OfflineSubmissionProcessedEvent` via `AfterCommit.run` (TODO sales-side outbox).
-- **`TicketSaleChannel.POS_OFFLINE_SYNCED`** — channel forbidden de pending approval (décision prise en amont par offlinesync).
+  - **`TicketSaleChannel.POS_OFFLINE_SYNCED`** — les ventes offline promues sont créées directement `APPROVED` après validation technique.
 - **`OfflineSaleRef`** (`api/model/origin/`) — référence vers la submission offline + sync batch + device + code, attachée au ticket.
 - **DB** : `sales_ticket.offline_submission_id` (uuid, nullable) + unique partiel `(tenant_id, offline_submission_id) WHERE offline_submission_id IS NOT NULL`.
 
 ### Invariants supplémentaires (offline)
 
-- Un ticket dont `origin.channel == POS_OFFLINE_SYNCED` doit avoir `offlineSaleRef != null` et `requiresApproval == false`.
+- Un ticket dont `origin.channel == POS_OFFLINE_SYNCED` doit avoir `offlineSaleRef != null`.
 - Si `DataIntegrityViolationException` à la création : la submission a déjà été promue (idempotence DB) → outcome DUPLICATE, retourner le `ticketId` existant.
 - Si `GetDrawByIdQuery` 404 (draw archivé / id invalide) : BUSINESS_REJECTED `sales.offline.draw_not_resolved` — l'admin peut investigate via `/admin/offline/submissions/{id}`.
 

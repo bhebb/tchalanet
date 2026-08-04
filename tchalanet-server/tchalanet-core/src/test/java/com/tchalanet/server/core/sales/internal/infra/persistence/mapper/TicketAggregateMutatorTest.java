@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.tchalanet.server.catalog.game.api.model.BetType;
 import com.tchalanet.server.catalog.game.api.model.GameCode;
-import com.tchalanet.server.common.types.id.ApprovalRequestId;
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
@@ -29,7 +28,6 @@ import com.tchalanet.server.core.sales.api.model.settlement.SettlementTermsSnaps
 import com.tchalanet.server.core.sales.api.model.settlement.SettlementWinMode;
 import com.tchalanet.server.core.sales.api.model.status.TicketLineResultStatus;
 import com.tchalanet.server.core.sales.api.model.status.TicketResultStatus;
-import com.tchalanet.server.core.sales.api.model.status.TicketSaleStatus;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.Ticket;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketCodes;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketContext;
@@ -73,22 +71,6 @@ class TicketAggregateMutatorTest {
     assertThat(managed.getPrintCount()).isEqualTo(1);
     assertThat(managed.getFirstPrintedAt()).isEqualTo(NOW.plusSeconds(60));
     assertThat(managed.getLastPrintedAt()).isEqualTo(NOW.plusSeconds(60));
-  }
-
-  @Test
-  @DisplayName("copies approval transition and preserves immutable fields")
-  void approvalMutation() {
-    var original = pendingTicket();
-    var managed = MAPPER.toEntity(original);
-
-    var approved = original.approve(USER, "approved", NOW.plusSeconds(60));
-
-    mutator.applyTo(managed, approved);
-
-    assertImmutableTicketFields(managed, original);
-    assertThat(managed.getSaleStatus()).isEqualTo(TicketSaleStatus.APPROVED);
-    assertThat(managed.getApprovedBy()).isEqualTo(USER.value());
-    assertThat(managed.getApprovedAt()).isEqualTo(NOW.plusSeconds(60));
   }
 
   @Test
@@ -208,20 +190,6 @@ class TicketAggregateMutatorTest {
     assertThat(managed.getCurrency()).isEqualTo(original.money().currency().value());
   }
 
-  private static Ticket pendingTicket() {
-    return Ticket.place(
-        identity(),
-        context(),
-        TicketCodes.from("TCK-123456-123456-ABC123-4", "ABCD-1234", "WXYZ-5678"),
-        new TicketMoneyBreakdown(money("10"), List.of(), money("10")),
-        List.of(line()),
-        TicketSaleChannel.POS_ONLINE,
-        true,
-        ApprovalRequestId.of(UUID.fromString("30000000-0000-0000-0000-000000000001")),
-        USER,
-        NOW);
-  }
-
   private static Ticket approvedTicket() {
     return Ticket.place(
         identity(),
@@ -230,8 +198,6 @@ class TicketAggregateMutatorTest {
         new TicketMoneyBreakdown(money("10"), List.of(), money("10")),
         List.of(line()),
         TicketSaleChannel.POS_ONLINE,
-        false,
-        null,
         USER,
         NOW);
   }
@@ -244,8 +210,6 @@ class TicketAggregateMutatorTest {
         new TicketMoneyBreakdown(money("20"), List.of(), money("20")),
         List.of(multiTermLine()),
         TicketSaleChannel.POS_ONLINE,
-        false,
-        null,
         USER,
         NOW);
   }

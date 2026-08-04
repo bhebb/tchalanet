@@ -56,7 +56,6 @@ public class TicketVerificationJdbcAdapter implements TicketVerificationReaderPo
         LEFT JOIN seller_terminal st ON st.id = t.seller_terminal_id
         WHERE t.public_code = :publicCode
           AND t.deleted_at IS NULL
-          AND t.sale_status NOT IN ('PENDING_APPROVAL', 'REJECTED')
         """;
 
   private static final String LINES_SQL =

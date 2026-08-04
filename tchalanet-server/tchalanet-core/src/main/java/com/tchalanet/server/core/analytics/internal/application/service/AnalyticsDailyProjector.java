@@ -39,14 +39,11 @@ public class AnalyticsDailyProjector {
   /**
    * Apply delta for a placed ticket.
    *
-   * <p>Per the TicketPlacedEvent javadoc: only {@code APPROVED} tickets count as official sales.
-   * {@code PENDING_APPROVAL} tickets are counted when they transition to APPROVED via
-   * TicketApprovedEvent.
+   * <p>TicketPlacedEvent is emitted only for official ({@code APPROVED}) sales.
    */
   public void applyTicketPlaced(TicketPlacedEvent event, LocalDate refDate) {
     if (event.saleStatus() != TicketSaleStatus.APPROVED) {
-      // PENDING_APPROVAL: wait for TicketApprovedEvent — do not count yet
-      log.debug("analytics: skip PENDING ticket {}", event.ticketId().value());
+      log.debug("analytics: skip non-official ticket {}", event.ticketId().value());
       return;
     }
 
@@ -116,7 +113,7 @@ public class AnalyticsDailyProjector {
 
   public void applyTicketCancelled(
       SalesAnalyticsTicketSnapshot snapshot, LocalDate saleDate, LocalDate cancellationDate) {
-    if (snapshot.approvedAt() == null) {
+    if (!"APPROVED".equals(snapshot.saleStatus())) {
       return;
     }
 

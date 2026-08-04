@@ -34,7 +34,7 @@ that call the writer, not only unit tests of the mutator or persistence adapter.
 #### Scenario: Ticket command tests cover mutator field coverage
 
 - **GIVEN** command handlers that call `TicketWriterPort#save`
-- **WHEN** `RecordTicketPrintCommand`, `ApproveTicketSaleCommand`,
+- **WHEN** `RecordTicketPrintCommand`,
   `CancelTicketCommand`, an exposed void-ticket command, or offline promotion/sync
   creates or updates a ticket
 - **THEN** integration tests execute those real command handlers

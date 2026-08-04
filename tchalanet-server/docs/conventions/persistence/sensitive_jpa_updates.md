@@ -196,7 +196,7 @@ Chaque mutator d'agrégat sensible doit être couvert par :
 Pour `Ticket`, les tests par commande réelle doivent couvrir au minimum :
 
 - `RecordTicketPrintCommand` ;
-- `ApproveTicketSaleCommand` ;
+- les commandes de vente et d'annulation ;
 - `CancelTicketCommand` ;
 - `VoidTicketCommand` si le flow est exposé par un command handler ;
 - promotion/sync offline (`CreateTicketFromOfflineSubmissionCommand` et retour

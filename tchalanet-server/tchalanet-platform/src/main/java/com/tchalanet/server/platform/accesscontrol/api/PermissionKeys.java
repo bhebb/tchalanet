@@ -103,8 +103,6 @@ public final class PermissionKeys {
   public static final String TICKET_PRINT = "ticket.print";
   public static final String TICKET_RESEND = "ticket.resend";
   public static final String TICKET_VERIFY = "ticket.verify";
-  public static final String TICKET_APPROVE = "ticket.approve";
-  public static final String TICKET_REJECT = "ticket.reject";
   public static final String TICKET_CANCEL = "ticket.cancel";
   public static final String TICKET_CANCEL_OWN = "ticket.cancel-own";
   public static final String TICKET_PAYOUT_ADJUST = "ticket.payout.adjust";

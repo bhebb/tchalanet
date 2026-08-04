@@ -63,7 +63,7 @@ Given a sale that is under the seller limit before promotion
 And a promotion adds a free line or boosts odds
 And final exposure exceeds seller autonomy
 When the seller attempts to sell
-Then the sale is rejected or pending approval according to policy
+Then the sale is rejected when policy does not allow it
 And the decision is based on final promotion-adjusted risk.
 
 ### Requirement: Sell must publish complete ticket placement event
@@ -122,4 +122,3 @@ Given tickets sold with promotions
 When tenant admin later reviews promotion cost/usage
 Then sales snapshots are sufficient to explain what was applied and paid
 And no call to promotion rule evaluation is needed.
-

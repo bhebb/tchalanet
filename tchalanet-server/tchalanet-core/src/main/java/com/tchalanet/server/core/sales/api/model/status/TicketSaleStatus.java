@@ -1,8 +1,6 @@
 package com.tchalanet.server.core.sales.api.model.status;
 
 public enum TicketSaleStatus {
-  PENDING_APPROVAL,
-  REJECTED,
   APPROVED,
   CANCELLED,
   VOIDED;
@@ -16,10 +14,10 @@ public enum TicketSaleStatus {
   }
 
   public boolean isCancellable() {
-    return this == PENDING_APPROVAL || this == APPROVED;
+    return this == APPROVED;
   }
 
   public boolean isFinal() {
-    return this == REJECTED || this == CANCELLED || this == VOIDED;
+    return this == CANCELLED || this == VOIDED;
   }
 }
