@@ -3,10 +3,10 @@ package com.tchalanet.server.platform.idempotence.internal.aspect;
 import com.tchalanet.server.common.http.TchHeaders;
 import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.common.web.error.ProblemRest;
+import com.tchalanet.server.platform.idempotence.api.IdempotencyRequestHasher;
 import com.tchalanet.server.platform.idempotence.api.IdempotencyStore;
 import com.tchalanet.server.platform.idempotence.api.RequireIdempotency;
 import com.tchalanet.server.platform.idempotence.api.error.IdempotencyErrorCodes;
-import com.tchalanet.server.platform.idempotence.internal.service.RequestHasher;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -45,7 +45,7 @@ public class RequireIdempotencyAspect {
     key = key.trim();
 
     Object body = findRequestBodyArg(pjp.getArgs()).orElse(null);
-    String hash = RequestHasher.sha256Normalized(jsonUtils, body);
+    String hash = IdempotencyRequestHasher.sha256Normalized(jsonUtils, body);
 
     var begin = store.begin(ann.scope(), key, hash, ann.ttlSeconds());
 

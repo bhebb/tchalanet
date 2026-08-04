@@ -43,26 +43,52 @@ The maximum window remains 90 business days. A tenant repair changes only tenant
 separate all-tenant scope because a single tenant cannot prove the correctness of a global total.
 Until that scope exists, a tenant repair must not mark platform metrics ready.
 
-## Source snapshot contract
+## V1 settlement and source snapshot contract
 
-The current sale snapshot is a useful starting point but is not sufficient for a complete rebuild.
-Before implementing the handler, the sales public API must expose a reconciliation snapshot that
-contains immutable values captured by the source lifecycle:
+V1 has no independent payout workflow. Applying a confirmed draw result resolves every eligible
+ticket for that draw as winning or losing. A winning ticket is immediately considered paid. The
+result processor MUST NOT settle the draw while tickets remain pending or have failed processing;
+after the configured attention delay it emits the existing operational notification to platform
+operators.
+
+The current sale snapshot is a useful starting point but needs the persisted payment truth for a
+complete rebuild. The sales public API must expose a reconciliation snapshot containing immutable
+values captured by the source lifecycle:
 
 - ticket identity, tenant, seller terminal, draw, draw channel, and sale channel;
 - sale status and sale timestamp;
 - stake, total, seller commission amount, and all charge snapshots;
 - line identity and line snapshots: game, bet type, option, selection, stake, origin, and pricing
   source;
-- cancellation and void timestamps, including reversal amounts where applicable;
-- result and settlement timestamps and statuses;
-- effective payout amount;
-- payout adjustment and reversal history, with event timestamp, amount, and stable event identity;
+- cancellation and void timestamps;
+- result and settlement timestamps and statuses, including the resolved winning/losing outcome;
+- calculated winning amount and the effective paid amount;
+- paid-amount correction timestamp, actor and reason when a correction occurred;
 - a source watermark that identifies the consistent read boundary.
 
-`winningAmount` plus `paidAt` is not an adequate payout history. If the source cannot provide the
-adjustment or reversal history, the operation must return `SOURCE_UNAVAILABLE` and leave existing
-projections unchanged. It must never infer a historical paid amount from current configuration.
+The ticket has two deliberately different financial facts:
+
+- `winning_amount` is the calculated outcome. It MUST equal the sum of the winning outcomes on
+  `ticket_line` and is changed only by result application or result correction.
+- `paid_amount` is the effective amount retained for the ticket after a one-off authorized payment
+  correction. It is initialized to `winning_amount` during result application, but it may differ
+  afterwards only when correction metadata is present.
+
+The result-application transaction initializes `paid_amount = winning_amount` and
+`paid_at = result_applied_at` for winning tickets; a losing ticket has a zero paid amount. The
+authorized correction service updates `paid_amount` and its audit metadata in the same transaction
+as the analytics delta. It MUST derive the previous value from the ticket, never trust a
+client-provided previous amount. It MUST NOT rewrite `winning_amount` or any line outcome.
+
+Thus a correction is not an inconsistency: the UI and API expose both the calculated gain and the
+effective paid amount when they differ. Reconciliation validates the calculated amount against the
+line outcomes and separately aggregates the effective paid amount for paid-basis analytics.
+
+This requires a narrow migration on `sales_ticket` for `paid_amount`, `paid_amount_adjusted_at`,
+`paid_amount_adjusted_by`, and `paid_amount_adjustment_reason`. `ticket_line` is unchanged: it
+continues to hold the selection and calculated result facts. A separate append-only payout ledger
+is explicitly deferred until the product supports partial payments, cash-desk payments, manual
+reversals, or multiple accounting corrections.
 
 The analytics application consumes this contract through the sales public API and `QueryBus`. It
 does not access sales JPA entities or tables directly.
@@ -74,8 +100,8 @@ The rebuild must make the accounting date explicit instead of applying one date 
 | Projection/data | Business date | Source fact |
 | --- | --- | --- |
 | Daily sale count, stake, gross, charges, commission, selections | sales date | approved sale timestamp |
-| Daily cancellation/reversal deltas | lifecycle date | cancellation or reversal timestamp |
-| Daily winnings and paid amount | settlement date | payout/adjustment/reversal timestamp |
+| Daily cancellation deltas | lifecycle date | cancellation timestamp |
+| Daily calculated winnings and paid amount | settlement date | result application or paid-amount correction timestamp |
 | Draw aggregate | draw occurrence | draw scheduled business date; lifecycle values update the same draw |
 | Seller-terminal/draw aggregate | draw occurrence | same as draw aggregate, scoped by terminal |
 
@@ -95,9 +121,11 @@ The handler follows these phases:
 2. **Preflight**: read source snapshots and current projections in read-only mode, set tenant
    context explicitly for every read, generate a run id, and write an audit event with `STARTED`
    status.
-3. **Acquire repair lock**: take a PostgreSQL advisory lock keyed by tenant and date window. The
-   analytics event listeners use the same lock for projection writes, so after-commit events wait
-   instead of racing with the replacement.
+3. **Acquire repair lock**: take a PostgreSQL advisory lock keyed by tenant. The lock deliberately
+   spans the tenant rather than only the selected date window: one live ticket event can update a
+   sale date, a settlement date, and a draw occurrence in different windows. The analytics event
+   listeners take the same lock before their idempotency marker and projection write, so
+   after-commit events wait instead of racing with the replacement.
 4. **Mark unavailable**: the trust state for the selected tenant scopes becomes unavailable for
    the duration of the repair. Readers must not expose old values as trustworthy while replacement
    is in progress.
@@ -160,9 +188,14 @@ supplied field. A `VALIDATE` request is read-only and may return `MISMATCH` with
   comparison leaves the replacement uncommitted.
 - A repair never clears `processed_event`, never reuses an old event id, and never emits a new
   business event.
-- A live after-commit projection waits on the repair lock. It is processed after the repair and
-  remains protected by its normal idempotency marker transaction.
-- A second repair with the same idempotency key returns the original run result.
+- A live after-commit projection waits on the tenant repair lock. It takes that lock before its
+  normal idempotency marker, then is processed after the repair without being accidentally marked
+  as handled while its projection is absent.
+- A second repair with the same idempotency key returns the original run result. The existing
+  tenant-scoped `idempotency_record` storage is used under the dedicated
+  `ANALYTICS_RECONCILIATION` scope; it stores the serialized terminal response for 24 hours. The
+  platform endpoint first switches into the requested tenant context, so this record and every
+  projection read/write remain compliant with RLS.
 - A repair for a date with no source activity creates explicit zero rows only where the projection
   contract requires coverage. Missing draw-specific activity remains missing, not an invented draw.
 - Cache eviction occurs only after a successful commit; a failed repair leaves the previous cache

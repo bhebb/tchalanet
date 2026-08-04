@@ -30,7 +30,13 @@ class SalesAnalyticsActivityReaderAdapterTest {
     var outsideWindowTicket = mock(TicketJpaEntity.class);
 
     when(ticketRepository.findForAnalyticsActivityByTenantAndPeriod(
-            tenantId.value(), sellerTerminalId.value(), TicketSaleStatus.APPROVED, from, to))
+            tenantId.value(),
+            sellerTerminalId.value(),
+            TicketSaleStatus.APPROVED,
+            from,
+            to,
+            from.atZone(ZoneOffset.UTC).toLocalDate(),
+            to.minusNanos(1).atZone(ZoneOffset.UTC).toLocalDate()))
         .thenReturn(List.of(activeTicket, outsideWindowTicket));
     when(activeTicket.getSoldAt()).thenReturn(Instant.parse("2026-07-20T23:30:00Z"));
     when(activeTicket.getResultedAt()).thenReturn(Instant.parse("2026-07-21T01:00:00Z"));

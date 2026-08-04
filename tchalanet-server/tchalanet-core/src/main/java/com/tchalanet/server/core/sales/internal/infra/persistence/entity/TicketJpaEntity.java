@@ -121,6 +121,11 @@ public class TicketJpaEntity extends BaseTenantEntity {
   @Formula("(SELECT d.scheduled_at FROM draw d WHERE d.id = draw_id)")
   private java.time.Instant drawScheduledAt;
 
+  /** Business date of the draw — used by analytics projections after result application. */
+  @NotAudited
+  @Formula("(SELECT d.draw_date FROM draw d WHERE d.id = draw_id)")
+  private java.time.LocalDate drawDate;
+
   @Column(name = "seller_terminal_id", columnDefinition = "uuid")
   private UUID sellerTerminalId;
 
@@ -154,6 +159,9 @@ public class TicketJpaEntity extends BaseTenantEntity {
 
   @Column(name = "winning_amount", nullable = false, precision = 19, scale = 4)
   private BigDecimal winningAmount;
+
+  @Column(name = "paid_amount", nullable = false, precision = 19, scale = 4)
+  private BigDecimal paidAmount;
 
   // -------------------- Sale lifecycle --------------------
 
@@ -241,6 +249,15 @@ public class TicketJpaEntity extends BaseTenantEntity {
 
   @Column(name = "paid_by", columnDefinition = "uuid")
   private UUID paidBy;
+
+  @Column(name = "paid_amount_adjusted_at")
+  private Instant paidAmountAdjustedAt;
+
+  @Column(name = "paid_amount_adjusted_by", columnDefinition = "uuid")
+  private UUID paidAmountAdjustedBy;
+
+  @Column(name = "paid_amount_adjustment_reason", length = 500)
+  private String paidAmountAdjustmentReason;
 
   // -------------------- Origin --------------------
 

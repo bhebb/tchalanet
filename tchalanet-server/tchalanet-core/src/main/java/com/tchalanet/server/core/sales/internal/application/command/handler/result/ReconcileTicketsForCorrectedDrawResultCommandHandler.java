@@ -79,10 +79,12 @@ public class ReconcileTicketsForCorrectedDrawResultCommandHandler
     for (var ticket : tickets) {
       try {
         var lineResults = ticketWinningCalculator.computeLineResults(ticket, projection);
-        var previousWinningAmount = ticket.winningAmount().amount();
-        var previousWinning = previousWinningAmount != null && previousWinningAmount.signum() > 0;
+        var hasManuallyAdjustedPayment = ticket.hasManuallyAdjustedPayment();
+        var previousPaidAmount = ticket.paidAmount().amount();
+        var previousWinning = previousPaidAmount != null && previousPaidAmount.signum() > 0;
         var previousPaid =
-            ticket.lifecycle().settlement().status() == TicketSettlementStatus.PAID
+            !hasManuallyAdjustedPayment
+                && ticket.lifecycle().settlement().status() == TicketSettlementStatus.PAID
                 && previousWinning;
 
         Ticket updated;
@@ -91,10 +93,13 @@ public class ReconcileTicketsForCorrectedDrawResultCommandHandler
         } else {
           updated = ticket.overrideResult(lineResults, SYSTEM_ACTOR, command.reason(), now);
         }
-        updated = updated.autoSettleAfterResult(SYSTEM_ACTOR, now);
+        if (!hasManuallyAdjustedPayment) {
+          updated = updated.autoSettleAfterResult(SYSTEM_ACTOR, now);
+        }
 
         var saved = ticketWriter.save(updated);
         var correctedWinningAmount = saved.winningAmount().amount();
+        var correctedPaidAmount = saved.paidAmount().amount();
         var correctedWon = correctedWinningAmount != null && correctedWinningAmount.signum() > 0;
 
         if (previousPaid) {
@@ -105,12 +110,12 @@ public class ReconcileTicketsForCorrectedDrawResultCommandHandler
                   ticket.identity().tenantId(),
                   ticket.identity().id(),
                   command.drawId(),
-                  previousWinningAmount.movePointRight(2).longValueExact(),
+                  previousPaidAmount.movePointRight(2).longValueExact(),
                   ticket.money().currency().code(),
                   ticket.context().sellerTerminalId(),
                   SYSTEM_ACTOR));
         }
-        if (correctedWon) {
+        if (!hasManuallyAdjustedPayment && correctedWon) {
           payoutPaidEvents.add(
               new TicketPayoutPaidEvent(
                   EventId.of(idGenerator.newUuid()),
@@ -118,7 +123,7 @@ public class ReconcileTicketsForCorrectedDrawResultCommandHandler
                   saved.identity().tenantId(),
                   saved.identity().id(),
                   command.drawId(),
-                  correctedWinningAmount.movePointRight(2).longValueExact(),
+                  correctedPaidAmount.movePointRight(2).longValueExact(),
                   saved.money().currency().code(),
                   saved.context().sellerTerminalId(),
                   SYSTEM_ACTOR));

@@ -1,0 +1,35 @@
+<h2 mat-dialog-title>{{ 'platform.analyticsReconciliation.rebuildDialog.title' | translate }}</h2>
+
+<mat-dialog-content>
+  <p class="rebuild-analytics-dialog__warning">
+    {{ 'platform.analyticsReconciliation.rebuildDialog.warning' | translate }}
+  </p>
+  <dl class="rebuild-analytics-dialog__scope">
+    <div>
+      <dt>{{ 'platform.analyticsReconciliation.field.tenant' | translate }}</dt>
+      <dd>{{ data.tenantLabel }}</dd>
+    </div>
+    <div>
+      <dt>{{ 'platform.analyticsReconciliation.field.period' | translate }}</dt>
+      <dd>{{ data.from }} - {{ data.to }}</dd>
+    </div>
+  </dl>
+  <form [formGroup]="form">
+    <mat-form-field appearance="outline" class="rebuild-analytics-dialog__reason">
+      <mat-label>{{ 'platform.analyticsReconciliation.field.reason' | translate }}</mat-label>
+      <textarea matInput formControlName="reason" rows="4"></textarea>
+      @if (form.controls.reason.invalid && form.controls.reason.touched) {
+        <mat-error>{{ 'platform.analyticsReconciliation.validation.reason' | translate }}</mat-error>
+      }
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="cancel()">
+    {{ 'common.cancel' | translate }}
+  </button>
+  <button mat-flat-button color="warn" type="button" (click)="confirm()">
+    {{ 'platform.analyticsReconciliation.action.rebuild' | translate }}
+  </button>
+</mat-dialog-actions>

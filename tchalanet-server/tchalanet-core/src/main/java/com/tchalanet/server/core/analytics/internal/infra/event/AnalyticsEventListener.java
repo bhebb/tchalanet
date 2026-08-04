@@ -6,6 +6,7 @@ import com.tchalanet.server.core.analytics.internal.application.service.Analytic
 import com.tchalanet.server.core.analytics.internal.application.service.AnalyticsDrawProjector;
 import com.tchalanet.server.core.analytics.internal.application.service.AnalyticsSelectionProjector;
 import com.tchalanet.server.core.analytics.internal.application.service.AnalyticsSellerTerminalDrawProjector;
+import com.tchalanet.server.core.analytics.internal.infra.persistence.AnalyticsTenantProjectionLock;
 import com.tchalanet.server.core.draw.api.event.DrawResultAppliedEvent;
 import com.tchalanet.server.core.sales.api.event.TicketCancelledEvent;
 import com.tchalanet.server.core.sales.api.event.TicketPayoutPaidAmountAdjustedEvent;
@@ -53,16 +54,14 @@ public class AnalyticsEventListener {
   private final AnalyticsSelectionProjector selectionProjector;
   private final AnalyticsSellerTerminalDrawProjector sellerTerminalDrawProjector;
   private final TenantZoneApi tenantZoneApi;
+  private final AnalyticsTenantProjectionLock projectionLock;
 
   // ── ticket placed ─────────────────────────────────────────────────────────
 
   @EventListener
   @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onTicketPlaced(TicketPlacedEvent event) {
-    if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_DAILY, event.eventId().value())) {
-      log.debug("analytics: duplicate TicketPlacedEvent {}", event.eventId().value());
-      return;
-    }
+    if (!claim(HANDLER_KEY_DAILY, event)) return;
     LocalDate refDate = refDate(event);
     dailyProjector.applyTicketPlaced(event, refDate);
   }
@@ -72,10 +71,7 @@ public class AnalyticsEventListener {
   @EventListener
   @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onTicketCancelled(TicketCancelledEvent event) {
-    if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_DAILY, event.eventId().value())) {
-      log.debug("analytics: duplicate TicketCancelledEvent {}", event.eventId().value());
-      return;
-    }
+    if (!claim(HANDLER_KEY_DAILY, event)) return;
     LocalDate refDate = refDate(event);
     dailyProjector.applyTicketCancelled(event, refDate);
   }
@@ -85,10 +81,7 @@ public class AnalyticsEventListener {
   @EventListener
   @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onTicketPayoutPaid(TicketPayoutPaidEvent event) {
-    if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_DAILY, event.eventId().value())) {
-      log.debug("analytics: duplicate TicketPayoutPaidEvent {}", event.eventId().value());
-      return;
-    }
+    if (!claim(HANDLER_KEY_DAILY, event)) return;
     LocalDate refDate = refDate(event);
     dailyProjector.applyTicketSettledAndPaid(event, refDate);
   }
@@ -96,10 +89,7 @@ public class AnalyticsEventListener {
   @EventListener
   @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onTicketPayoutReversed(TicketPayoutReversedEvent event) {
-    if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_DAILY, event.eventId().value())) {
-      log.debug("analytics: duplicate TicketPayoutReversedEvent {}", event.eventId().value());
-      return;
-    }
+    if (!claim(HANDLER_KEY_DAILY, event)) return;
     LocalDate refDate = refDate(event);
     dailyProjector.applyTicketSettlementAndPayoutReversed(event, refDate);
   }
@@ -107,10 +97,7 @@ public class AnalyticsEventListener {
   @EventListener
   @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onTicketPayoutPaidForDraw(TicketPayoutPaidEvent event) {
-    if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_DRAW, event.eventId().value())) {
-      log.debug("analytics: duplicate TicketPayoutPaidEvent (draw) {}", event.eventId().value());
-      return;
-    }
+    if (!claim(HANDLER_KEY_DRAW, event)) return;
     LocalDate refDate = refDate(event);
     drawProjector.applyTicketSettledAndPaid(event, refDate);
   }
@@ -118,13 +105,7 @@ public class AnalyticsEventListener {
   @EventListener
   @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onTicketPayoutPaidForSellerTerminalDraw(TicketPayoutPaidEvent event) {
-    if (!processedEvent.markProcessedIfAbsent(
-        HANDLER_KEY_SELLER_TERMINAL_DRAW, event.eventId().value())) {
-      log.debug(
-          "analytics: duplicate TicketPayoutPaidEvent (seller-terminal-draw) {}",
-          event.eventId().value());
-      return;
-    }
+    if (!claim(HANDLER_KEY_SELLER_TERMINAL_DRAW, event)) return;
     LocalDate refDate = refDate(event);
     sellerTerminalDrawProjector.applyTicketSettledAndPaid(event, refDate);
   }
@@ -132,11 +113,7 @@ public class AnalyticsEventListener {
   @EventListener
   @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onTicketPayoutPaidAmountAdjusted(TicketPayoutPaidAmountAdjustedEvent event) {
-    if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_DAILY, event.eventId().value())) {
-      log.debug(
-          "analytics: duplicate TicketPayoutPaidAmountAdjustedEvent {}", event.eventId().value());
-      return;
-    }
+    if (!claim(HANDLER_KEY_DAILY, event)) return;
     LocalDate refDate = refDate(event);
     dailyProjector.applyTicketPayoutPaidAmountAdjusted(event, refDate);
   }
@@ -144,12 +121,7 @@ public class AnalyticsEventListener {
   @EventListener
   @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onTicketPayoutPaidAmountAdjustedForDraw(TicketPayoutPaidAmountAdjustedEvent event) {
-    if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_DRAW, event.eventId().value())) {
-      log.debug(
-          "analytics: duplicate TicketPayoutPaidAmountAdjustedEvent (draw) {}",
-          event.eventId().value());
-      return;
-    }
+    if (!claim(HANDLER_KEY_DRAW, event)) return;
     LocalDate refDate = refDate(event);
     drawProjector.applyTicketPayoutPaidAmountAdjusted(event, refDate);
   }
@@ -158,13 +130,7 @@ public class AnalyticsEventListener {
   @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onTicketPayoutPaidAmountAdjustedForSellerTerminalDraw(
       TicketPayoutPaidAmountAdjustedEvent event) {
-    if (!processedEvent.markProcessedIfAbsent(
-        HANDLER_KEY_SELLER_TERMINAL_DRAW, event.eventId().value())) {
-      log.debug(
-          "analytics: duplicate TicketPayoutPaidAmountAdjustedEvent (seller-terminal-draw) {}",
-          event.eventId().value());
-      return;
-    }
+    if (!claim(HANDLER_KEY_SELLER_TERMINAL_DRAW, event)) return;
     LocalDate refDate = refDate(event);
     sellerTerminalDrawProjector.applyTicketPayoutPaidAmountAdjusted(event, refDate);
   }
@@ -172,11 +138,7 @@ public class AnalyticsEventListener {
   @EventListener
   @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onTicketPayoutReversedForDraw(TicketPayoutReversedEvent event) {
-    if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_DRAW, event.eventId().value())) {
-      log.debug(
-          "analytics: duplicate TicketPayoutReversedEvent (draw) {}", event.eventId().value());
-      return;
-    }
+    if (!claim(HANDLER_KEY_DRAW, event)) return;
     LocalDate refDate = refDate(event);
     drawProjector.applyTicketSettlementAndPayoutReversed(event, refDate);
   }
@@ -184,13 +146,7 @@ public class AnalyticsEventListener {
   @EventListener
   @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onTicketPayoutReversedForSellerTerminalDraw(TicketPayoutReversedEvent event) {
-    if (!processedEvent.markProcessedIfAbsent(
-        HANDLER_KEY_SELLER_TERMINAL_DRAW, event.eventId().value())) {
-      log.debug(
-          "analytics: duplicate TicketPayoutReversedEvent (seller-terminal-draw) {}",
-          event.eventId().value());
-      return;
-    }
+    if (!claim(HANDLER_KEY_SELLER_TERMINAL_DRAW, event)) return;
     LocalDate refDate = refDate(event);
     sellerTerminalDrawProjector.applyTicketSettlementAndPayoutReversed(event, refDate);
   }
@@ -200,10 +156,7 @@ public class AnalyticsEventListener {
   @EventListener
   @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onTicketPlacedForSelection(TicketPlacedEvent event) {
-    if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_SELECTION, event.eventId().value())) {
-      log.debug("analytics: duplicate TicketPlacedEvent (selection) {}", event.eventId().value());
-      return;
-    }
+    if (!claim(HANDLER_KEY_SELECTION, event)) return;
     LocalDate refDate = refDate(event);
     selectionProjector.applyTicketPlaced(event, refDate);
   }
@@ -211,10 +164,7 @@ public class AnalyticsEventListener {
   @EventListener
   @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onTicketPlacedForDraw(TicketPlacedEvent event) {
-    if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_DRAW, event.eventId().value())) {
-      log.debug("analytics: duplicate TicketPlacedEvent (draw) {}", event.eventId().value());
-      return;
-    }
+    if (!claim(HANDLER_KEY_DRAW, event)) return;
     LocalDate refDate = refDate(event);
     drawProjector.applyTicketPlaced(event, refDate);
   }
@@ -222,13 +172,7 @@ public class AnalyticsEventListener {
   @EventListener
   @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onTicketPlacedForSellerTerminalDraw(TicketPlacedEvent event) {
-    if (!processedEvent.markProcessedIfAbsent(
-        HANDLER_KEY_SELLER_TERMINAL_DRAW, event.eventId().value())) {
-      log.debug(
-          "analytics: duplicate TicketPlacedEvent (seller-terminal-draw) {}",
-          event.eventId().value());
-      return;
-    }
+    if (!claim(HANDLER_KEY_SELLER_TERMINAL_DRAW, event)) return;
     LocalDate refDate = refDate(event);
     sellerTerminalDrawProjector.applyTicketPlaced(event, refDate);
   }
@@ -238,10 +182,7 @@ public class AnalyticsEventListener {
   @EventListener
   @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onDrawResultApplied(DrawResultAppliedEvent event) {
-    if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_DRAW, event.eventId().value())) {
-      log.debug("analytics: duplicate DrawResultAppliedEvent {}", event.eventId().value());
-      return;
-    }
+    if (!claim(HANDLER_KEY_DRAW, event)) return;
     drawProjector.ensureDrawRow(event);
   }
 
@@ -258,5 +199,15 @@ public class AnalyticsEventListener {
           "analytics: failed to resolve tenant timezone for {} — using UTC", event.tenantId(), e);
       return ZoneOffset.UTC;
     }
+  }
+
+  private boolean claim(String handlerKey, DomainEvent event) {
+    projectionLock.acquire(event.tenantId());
+    if (processedEvent.markProcessedIfAbsent(handlerKey, event.eventId().value())) {
+      return true;
+    }
+    log.debug(
+        "analytics: duplicate event handlerKey={} eventId={}", handlerKey, event.eventId().value());
+    return false;
   }
 }

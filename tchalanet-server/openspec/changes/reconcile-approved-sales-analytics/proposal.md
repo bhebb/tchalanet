@@ -43,10 +43,17 @@ administrator surfaces, rather than rendered as zero or as a plausible amount.
   `analytics_seller_terminal_draw`, and selection aggregates when consumed by a surface) against
   immutable ticket/line/charge snapshots. Presence of a projection row is coverage, not proof of
   correctness.
-- Define the source snapshot contract for paid-basis and cancellation reconciliation before the
-  handler is implemented: effective paid amount, adjustment/reversal history, cancellation
-  timestamp, and reversal amounts. `winningAmount` plus `paidAt` cannot prove `payoutsPaid` after
-  a paid-amount adjustment.
+- V1 treats application of a draw result as immediate settlement: each ticket for the draw is
+  resolved as winning or losing and a winning ticket is considered paid without a separate payout
+  workflow. A scheduler must detect any remaining or failed ticket-result processing and notify
+  platform operators after the configured attention delay.
+- Persist the effective paid amount on the ticket. It is initialized from the calculated winning
+  amount when the result is applied and can be corrected by an authorized service with an audit
+  reason, actor and timestamp. V1 has no manual payout reversal, partial payment, or cash-desk
+  workflow; those future capabilities require an append-only payment ledger.
+- Define the source snapshot contract for reconciliation from ticket, line, charge, result,
+  settlement, cancellation and persisted paid-amount fields. Historical metrics MUST NOT be
+  recalculated from current pricing or commission configuration.
 - Keep sales-date, draw-date, and settlement-date semantics distinct. A net metric MUST NOT mix
   sales from one date with payouts from another date without declaring the accounting basis.
 - Make the tenant-admin dashboard operational: prioritize gross sales, seller commission payable,
@@ -59,7 +66,9 @@ administrator surfaces, rather than rendered as zero or as a plausible amount.
   immediate while report projections remain after-commit.
 - Do not remove historical persistence enum values or lifecycle administration endpoints in this
   change; they are unreachable from the V0 sale path.
-- Do not add a Flyway migration.
+- Do not introduce a separate payout ledger, partial-payment workflow, or manual payout reversal
+  in V1. A narrow Flyway migration for the persisted ticket paid-amount correction fields is in
+  scope.
 - Do not silently delete or rewrite projections as a first response to a mismatch. A repair must
   be explicit, auditable, and reproducible from transactional records.
 - Do not mark a projection event processed before its projection write commits. A failed write must

@@ -9,13 +9,14 @@ MODE="${1:-agent}"
 usage() {
   cat <<'USAGE'
 Usage:
-  bash scripts_agent_run.sh [agent|smoke|business-day|bet-options|notifications|availability-gates|full-business-day]
+  bash scripts_agent_run.sh [agent|smoke|business-day|reconciliation|bet-options|notifications|availability-gates|full-business-day]
 
 Modes:
   agent              Default. Runs the current canonical agent check:
                      L0 + reduced business-day + BetOptions.
   smoke              Runs L0 only.
   business-day       Runs the reduced canonical business-day scenario.
+  reconciliation     Runs the focused business-day recovery companion check.
   bet-options        Runs the BetOptions companion check.
   notifications      Runs the tenant/platform notification audience check.
   availability-gates Runs the isolated availability-gates check. Requires
@@ -92,6 +93,12 @@ run_business_day_full() {
     tests/full_flow/test_business_day_scenarios.py::test_business_day_happy_path_supports_reports_results_and_future_locust
 }
 
+run_reconciliation() {
+  TCH_E2E_BUSINESS_DAY_DRAW_COUNT="1" \
+  run_pytest -q \
+    tests/full_flow/test_business_day_scenarios.py::test_reconciliation_rebuild_preserves_ticket_paid_amount_correction
+}
+
 run_bet_options() {
   run_pytest -q \
     tests/full_flow/test_game_bet_options_scenarios.py::test_tenant_game_bet_options_are_configured_sold_snapshotted_and_reprinted
@@ -117,6 +124,7 @@ case "$MODE" in
   agent)
     run_smoke
     run_business_day_reduced
+    run_reconciliation
     run_bet_options
     ;;
   smoke)
@@ -124,6 +132,9 @@ case "$MODE" in
     ;;
   business-day)
     run_business_day_reduced
+    ;;
+  reconciliation)
+    run_reconciliation
     ;;
   bet-options)
     run_bet_options

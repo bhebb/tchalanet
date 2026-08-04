@@ -117,6 +117,7 @@ class RecordDrawTicketsResultCommandHandlerTest {
     assertThat(saved.lifecycle().result().status()).isEqualTo(TicketResultStatus.WON);
     assertThat(saved.lifecycle().settlement().status()).isEqualTo(TicketSettlementStatus.PAID);
     assertThat(saved.winningAmount().amount()).isEqualByComparingTo("125.00");
+    assertThat(saved.paidAmount().amount()).isEqualByComparingTo("125.00");
     assertThat(saved.lines().getFirst().payoutAmount().amount()).isEqualByComparingTo("125.00");
 
     assertThat(publisher.events()).filteredOn(TicketResultedEvent.class::isInstance).hasSize(1);
@@ -224,6 +225,35 @@ class RecordDrawTicketsResultCommandHandlerTest {
     assertThat(result.skippedTickets()).isZero();
     assertThat(store.savedTickets()).isEmpty();
     assertThat(publisher.events()).isEmpty();
+  }
+
+  @Test
+  void correctedResultKeepsManuallyAdjustedPaidAmount() {
+    var actor = UserId.of(UUID.fromString("10000000-0000-0000-0000-000000000002"));
+    var lineId = TicketLineId.of(UUID.fromString("41000000-0000-0000-0000-000000000001"));
+    var manuallyAdjusted =
+        ticket("45")
+            .applyOfficialResult(
+                Map.of(lineId, new TicketLineResult(TicketLineResultStatus.WON, money("125.00"))),
+                actor,
+                NOW)
+            .autoSettleAfterResult(actor, NOW)
+            .adjustPaidAmount(money("100.00"), actor, "cash correction", NOW.plusSeconds(1));
+
+    var corrected =
+        manuallyAdjusted
+            .overrideResult(
+                Map.of(lineId, new TicketLineResult(TicketLineResultStatus.LOST, money("0.00"))),
+                actor,
+                "corrected result",
+                NOW.plusSeconds(2))
+            .autoSettleAfterResult(actor, NOW.plusSeconds(2));
+
+    assertThat(corrected.lifecycle().result().status()).isEqualTo(TicketResultStatus.OVERRIDDEN);
+    assertThat(corrected.lifecycle().settlement().status()).isEqualTo(TicketSettlementStatus.PAID);
+    assertThat(corrected.winningAmount().amount()).isEqualByComparingTo("0.00");
+    assertThat(corrected.paidAmount().amount()).isEqualByComparingTo("100.00");
+    assertThat(corrected.hasManuallyAdjustedPayment()).isTrue();
   }
 
   private static RecordDrawTicketsResultCommandHandler handler(

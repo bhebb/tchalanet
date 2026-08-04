@@ -50,7 +50,6 @@ const _knownHardcodedUiLiteralCounts = <String, int>{
       1,
   'lib/features/cashier/tickets/presentation/views/cashier_ticket_detail_page.dart':
       1,
-  'lib/features/cashier/tickets/presentation/views/send_receipt_sheet.dart': 2,
 };
 
 const _routedScreens = {

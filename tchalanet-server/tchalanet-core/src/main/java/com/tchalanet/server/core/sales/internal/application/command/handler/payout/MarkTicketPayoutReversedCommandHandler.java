@@ -33,9 +33,9 @@ public class MarkTicketPayoutReversedCommandHandler
       throw new IllegalArgumentException("Ticket does not belong to tenant " + command.tenantId());
     }
 
+    var paidAmount = ticket.paidAmount().amount();
     var reversed = ticket.markPayoutReversed(command.reversedBy(), command.reversedAt());
     var saved = ticketWriter.save(reversed);
-    var amount = saved.winningAmount().amount();
 
     var event =
         new TicketPayoutReversedEvent(
@@ -44,7 +44,7 @@ public class MarkTicketPayoutReversedCommandHandler
             saved.identity().tenantId(),
             saved.identity().id(),
             saved.context().drawId(),
-            toCents(amount),
+            toCents(paidAmount),
             saved.money().currency().code(),
             saved.context().sellerTerminalId(),
             command.reversedBy());
