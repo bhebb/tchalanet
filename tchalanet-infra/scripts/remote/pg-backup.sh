@@ -24,6 +24,10 @@
 # S3 exige un token R2 dédié, créé depuis R2 » Manage API tokens.
 #   BACKUP_AGE_PUBLIC_KEY  clé publique age — le chiffrement est obligatoire
 #
+# Variables optionnelles :
+#   BACKUP_RETAIN_DAILY_DAYS      défaut 14
+#   BACKUP_RETAIN_MONTHLY_MONTHS  défaut 12
+#
 # Dépendances sur la VM : docker, age, rclone.
 # rclone parle nativement à R2 (binaire unique, multipart et reprises gérés) ;
 # aucun compte ni outil AWS n'est impliqué — R2 expose simplement une API S3.
@@ -137,18 +141,31 @@ rclone copyto "${ARCHIVE}.age" "r2:${R2_BUCKET}/${OBJECT}" \
   --s3-no-check-bucket --retries 3 \
   || fail "upload to R2 failed"
 
-# 6) Rétention : 30 jours de quotidiens. Les archives mensuelles sont conservées
-#    séparément sous <env>/monthly/ et ne sont jamais purgées automatiquement.
-log "Pruning daily backups older than 30 days"
-rclone delete "r2:${R2_BUCKET}/${ENV}" --min-age 30d --exclude "monthly/**" --retries 3 \
-  || log "⚠️  retention pass failed (backup itself succeeded)"
+# 6) Rétention à deux niveaux, bornée des deux côtés.
+#    Les mensuelles étaient auparavant conservées sans limite : le stockage
+#    croissait indéfiniment. Les deux niveaux sont désormais purgés.
+RETAIN_DAILY_DAYS="${BACKUP_RETAIN_DAILY_DAYS:-14}"
+RETAIN_MONTHLY_MONTHS="${BACKUP_RETAIN_MONTHLY_MONTHS:-12}"
 
-# Le 1er du mois, conserver une copie mensuelle hors purge.
+# Le 1er du mois, promouvoir la copie du jour en archive mensuelle — avant la
+# purge, pour qu'une archive fraîche ne soit jamais éligible à l'effacement.
 if [ "$(date -u +%d)" = "01" ]; then
+  log "Promoting to monthly archive"
   rclone copyto "r2:${R2_BUCKET}/${OBJECT}" \
     "r2:${R2_BUCKET}/${ENV}/monthly/$(basename "${ARCHIVE}.age")" --retries 3 \
     || log "⚠️  monthly copy failed"
 fi
+
+log "Pruning dailies older than ${RETAIN_DAILY_DAYS}d, monthlies older than ${RETAIN_MONTHLY_MONTHS}mo"
+rclone delete "r2:${R2_BUCKET}/${ENV}" \
+  --min-age "${RETAIN_DAILY_DAYS}d" --exclude "monthly/**" --retries 3 \
+  || log "⚠️  daily retention pass failed (backup itself succeeded)"
+rclone delete "r2:${R2_BUCKET}/${ENV}/monthly" \
+  --min-age "$(( RETAIN_MONTHLY_MONTHS * 31 ))d" --retries 3 \
+  || log "⚠️  monthly retention pass failed (backup itself succeeded)"
+
+REMAINING="$(rclone lsf "r2:${R2_BUCKET}/${ENV}" --recursive --include '*.age' 2>/dev/null | wc -l | tr -d ' ')"
+log "Objects retained for ${ENV}: ${REMAINING}"
 
 SIZE="$(du -h "${ARCHIVE}.age" | cut -f1)"
 log "✅ Backup complete: ${OBJECT} (${SIZE}, ${TABLES} tables verified)"
