@@ -1,6 +1,6 @@
 # Follow-up Plan — archive-execution-v1
 
-> **Status**: IMPLEMENTED - operational V1 delivered; retention, lookup and production hardening follow-ups remain
+> **Status**: PRODUCTION READY for the current safe non-partitioned scope; deeper integration coverage and future hot-table partitioning remain separate follow-ups
 > **Scope**: `tchalanet-server` — `platform.archive`, archive providers, object storage, restore, lookup, cleanup, observability  
 > **Goal**: turn the archive scaffold into a real, testable archive execution path.
 
@@ -23,10 +23,11 @@ Current status:
 
 ```text
 Archive architecture scaffold: DONE
-Archive execution, guarded purge, Batch/Envers providers and Locust E2E: DONE
-Production follow-ups: archived ticket DTO, deeper integration coverage and analytics cold-archive
-decision remain explicitly tracked below. The S3-compatible Cloudflare R2 adapter is implemented;
-staging stays on local storage until its Doppler endpoint and credentials are provisioned.
+Archive execution, guarded purge, Batch/Envers providers, analytics projection purge and Locust E2E: DONE
+Production finalization: DONE for the current safe non-partitioned scope. Analytics projections are
+rebuildable and retained for 24 months, audit retention is one year, growth guardrails are visible
+in Ops, and the R2/local storage split remains explicit. Deeper integration coverage and hot-table
+partitioning are intentionally separate follow-ups that require migration and deployment testing.
 ```
 
 ## 1.2 Delivered operational behavior
@@ -50,7 +51,7 @@ volume. The only material row-count pressure is Spring Batch metadata:
 | `processed_event` | Technical idempotency/event replay rows; no archive provider. | Add weekly cleanup by `processed_at`; no archive required unless compliance asks for technical replay evidence. |
 | `sales_ticket`, `sales_ticket_line`, `sales_ticket_charge` | Archive providers and guarded purge endpoint exist. | Archive by closed periods; purge only after verified ticket/line/charge objects, no legal hold, and retention cutoff. |
 | `draw`, `draw_result` | Archive providers and guarded domain purge exist. | Archive by closed periods; purge only after ticket dependencies are gone (`draw`) and draw dependencies are gone (`draw_result`). |
-| `analytics_daily`, `analytics_draw`, `analytics_selection`, `analytics_seller_terminal_draw` | Derived/read-model tables. Current purge covers only part of analytics directly; draw purge deletes some dependent analytics rows. | Add explicit analytics retention plan. Prefer rebuildable cleanup; add archive provider only if long-term reporting cannot be rebuilt from archived tickets/draws. |
+| `analytics_daily`, `analytics_draw`, `analytics_selection`, `analytics_seller_terminal_draw` | Derived/read-model tables. All four projections now have explicit retention purge methods. | Keep 24 months by default, reconcile/rebuild from sales snapshots before purge, and do not add a cold archive provider unless long-term reporting cannot be rebuilt. |
 | `audit_log` | Partitioned monthly but empty in staging; archive provider exists. | Keep monthly archive/partition cleanup semantics. Do not archive quarterly unless cleanup planning is changed to understand monthly partitions inside a quarterly object. |
 | `audit_log` | Canonical functional audit trail, partitioned monthly and used by the audit API. | Keep monthly archive/partition cleanup semantics. No compatibility `audit_event` table is retained before production. |
 | Envers `revinfo` + `*_aud` | Current DB has `draw_result_aud`, `limit_assignment_aud`, `seller_terminal_aud`. Entity revision provider exports all three under `entity_revision`. | Keep Envers allowlisted only. Archive/purge as one `entity_revision` aggregate; delete `_aud` rows before `revinfo`. |

@@ -56,9 +56,10 @@ Status: IMPLEMENTED for the operational V1 scope; remaining production hardening
   archive unless compliance requires technical replay evidence.
 - [x] Replace the legacy `audit_event` persistence path with the canonical partitioned `audit_log`
   table; no compatibility table or dual-write path is required before production.
-- [ ] Decide and implement the analytics lifecycle for `analytics_daily`, `analytics_draw`,
-  `analytics_selection` and `analytics_seller_terminal_draw`: derived projections should be rebuilt
-  or retained by policy; add archive providers only if long-term reporting cannot be rebuilt.
+- [x] Decide and implement the analytics lifecycle for `analytics_daily`, `analytics_draw`,
+  `analytics_selection` and `analytics_seller_terminal_draw`: keep them as rebuildable derived
+  projections, retain 24 months by default, reconcile/rebuild before purge, and do not add cold
+  archive providers unless reporting requirements change.
 - [x] Implement guarded ticket hot-table purge endpoint with dry-run, archive verification, legal-hold
   checks, bounded deletes, and child-before-parent order.
 - [x] Implement guarded draw, draw_result and entity_revision purge endpoint with dry-run,
@@ -71,14 +72,14 @@ Status: IMPLEMENTED for the operational V1 scope; remaining production hardening
 ## Phase 4B — Data growth and retention matrix
 
 - [x] Rebaseline staging table sizes and tenant distribution for archive planning.
-- [ ] Maintain a dataset matrix covering: owner module, table family, partition key, archive cadence,
-  hot retention, purge order, legal-hold behavior, and archive lookup requirement.
-- [ ] Mark master/security identity tables (`app_user`, external identity mappings, memberships,
+- [x] Maintain a dataset matrix covering owner module, table family, partition/business key, archive
+  cadence, hot retention, purge order, legal-hold behavior, and archive lookup requirement.
+- [x] Mark master/security identity tables (`app_user`, external identity mappings, memberships,
   roles) as online-only, not weekly/monthly archive targets.
-- [ ] Mark TTL tables (`portal_auth_handoff`, `sale_preparation`, `idempotency_record`,
+- [x] Mark TTL tables (`portal_auth_handoff`, `sale_preparation`, `idempotency_record`,
   `archive_restore_*`) as cleanup-job targets, not quarterly archive targets by default.
-- [ ] Add volume guardrails/alerts for `batch.BATCH_*`, `sales_ticket_line`, analytics tables,
-  `audit_log` partitions and Envers `*_aud` tables.
+- [x] Add volume guardrails/alerts for `batch.BATCH_*`, `sales_ticket_line`, analytics tables,
+  `audit_log` partitions and Envers `*_aud` tables through the Ops dashboard.
 
 ## Phase 5 — Web and ops readiness
 
