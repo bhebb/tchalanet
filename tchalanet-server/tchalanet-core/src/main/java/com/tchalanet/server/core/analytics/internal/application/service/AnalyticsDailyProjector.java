@@ -2,11 +2,11 @@ package com.tchalanet.server.core.analytics.internal.application.service;
 
 import com.tchalanet.server.core.analytics.api.model.AnalyticsDimensionType;
 import com.tchalanet.server.core.analytics.internal.infra.persistence.AnalyticsDailyRepository;
-import com.tchalanet.server.core.sales.api.event.TicketCancelledEvent;
 import com.tchalanet.server.core.sales.api.event.TicketPayoutPaidAmountAdjustedEvent;
 import com.tchalanet.server.core.sales.api.event.TicketPayoutPaidEvent;
 import com.tchalanet.server.core.sales.api.event.TicketPayoutReversedEvent;
 import com.tchalanet.server.core.sales.api.event.TicketPlacedEvent;
+import com.tchalanet.server.core.sales.api.model.analytics.SalesAnalyticsTicketSnapshot;
 import com.tchalanet.server.core.sales.api.model.money.ChargePaidBy;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineOrigin;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSource;
@@ -114,35 +114,102 @@ public class AnalyticsDailyProjector {
 
   // ── ticket cancelled ──────────────────────────────────────────────────────
 
-  public void applyTicketCancelled(TicketCancelledEvent event, LocalDate refDate) {
-    // TicketCancelledEvent does not carry the original stake amount.
-    // We decrement the sold count and increment the cancelled count.
-    // Gross sales reversal requires a recompute from source-of-truth data
-    // (migrate-feature-stats-to-core-analytics TODO).
-    UUID tenantId = event.tenantId().value();
+  public void applyTicketCancelled(
+      SalesAnalyticsTicketSnapshot snapshot, LocalDate saleDate, LocalDate cancellationDate) {
+    if (snapshot.approvedAt() == null) {
+      return;
+    }
 
-    upsert(
+    UUID tenantId = snapshot.tenantId();
+    long stakeCents = toCents(snapshot.stakeAmount());
+    long commissionCents = toCents(snapshot.sellerCommissionAmount());
+    var charges = ChargeTotals.from(snapshot);
+    var promotions = PromotionTotals.from(snapshot);
+
+    applySaleDelta(
         AnalyticsDimensionType.PLATFORM,
         null,
         null,
-        refDate,
+        saleDate,
         -1,
-        1,
-        0,
-        0,
-        0,
-        0,
-        0,
-        ChargeTotals.ZERO,
-        PromotionTotals.ZERO,
-        0,
-        0);
-    upsert(
+        -stakeCents,
+        -stakeCents,
+        -commissionCents,
+        charges.negated(),
+        promotions.negated());
+    applySaleDelta(
         AnalyticsDimensionType.TENANT,
         null,
         tenantId,
-        refDate,
+        saleDate,
         -1,
+        -stakeCents,
+        -stakeCents,
+        -commissionCents,
+        charges.negated(),
+        promotions.negated());
+    if (snapshot.sellerTerminalId() != null) {
+      applySaleDelta(
+          AnalyticsDimensionType.SELLER_TERMINAL,
+          snapshot.sellerTerminalId(),
+          tenantId,
+          saleDate,
+          -1,
+          -stakeCents,
+          -stakeCents,
+          -commissionCents,
+          charges.negated(),
+          promotions.negated());
+    }
+
+    applyCancellationCount(AnalyticsDimensionType.PLATFORM, null, null, cancellationDate);
+    applyCancellationCount(AnalyticsDimensionType.TENANT, null, tenantId, cancellationDate);
+    if (snapshot.sellerTerminalId() != null) {
+      applyCancellationCount(
+          AnalyticsDimensionType.SELLER_TERMINAL,
+          snapshot.sellerTerminalId(),
+          tenantId,
+          cancellationDate);
+    }
+  }
+
+  private void applySaleDelta(
+      AnalyticsDimensionType dimensionType,
+      UUID dimensionId,
+      UUID tenantId,
+      LocalDate refDate,
+      long ticketsSoldDelta,
+      long grossSalesDelta,
+      long stakeTotalDelta,
+      long sellerCommissionDelta,
+      ChargeTotals charges,
+      PromotionTotals promotions) {
+    upsert(
+        dimensionType,
+        dimensionId,
+        tenantId,
+        refDate,
+        ticketsSoldDelta,
+        0,
+        grossSalesDelta,
+        stakeTotalDelta,
+        0,
+        0,
+        sellerCommissionDelta,
+        charges,
+        promotions,
+        0,
+        0);
+  }
+
+  private void applyCancellationCount(
+      AnalyticsDimensionType dimensionType, UUID dimensionId, UUID tenantId, LocalDate refDate) {
+    upsert(
+        dimensionType,
+        dimensionId,
+        tenantId,
+        refDate,
+        0,
         1,
         0,
         0,
@@ -327,6 +394,30 @@ public class AnalyticsDailyProjector {
 
       return new ChargeTotals(buyer, seller, tenant, waived);
     }
+
+    static ChargeTotals from(SalesAnalyticsTicketSnapshot snapshot) {
+      long buyer = 0L;
+      long seller = 0L;
+      long tenant = 0L;
+      long waived = 0L;
+      for (var charge : snapshot.charges()) {
+        long amount = toCents(charge.amount());
+        if (charge.waived()) {
+          waived += amount;
+        } else if ("BUYER".equals(charge.paidBy())) {
+          buyer += amount;
+        } else if ("SELLER".equals(charge.paidBy())) {
+          seller += amount;
+        } else if ("TENANT".equals(charge.paidBy())) {
+          tenant += amount;
+        }
+      }
+      return new ChargeTotals(buyer, seller, tenant, waived);
+    }
+
+    ChargeTotals negated() {
+      return new ChargeTotals(-buyerCents, -sellerCents, -tenantCents, -waivedCents);
+    }
   }
 
   private record PromotionTotals(long lineCount, long pricedLineCount) {
@@ -346,6 +437,20 @@ public class AnalyticsDailyProjector {
       }
 
       return new PromotionTotals(lineCount, pricedLineCount);
+    }
+
+    static PromotionTotals from(SalesAnalyticsTicketSnapshot snapshot) {
+      long lineCount =
+          snapshot.lines().stream().filter(line -> "PROMOTION".equals(line.origin())).count();
+      long pricedLineCount =
+          snapshot.lines().stream()
+              .filter(line -> "PROMOTION".equals(line.pricingSource()))
+              .count();
+      return new PromotionTotals(lineCount, pricedLineCount);
+    }
+
+    PromotionTotals negated() {
+      return new PromotionTotals(-lineCount, -pricedLineCount);
     }
   }
 }

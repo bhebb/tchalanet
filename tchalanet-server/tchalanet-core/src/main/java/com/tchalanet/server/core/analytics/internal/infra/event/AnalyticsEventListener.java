@@ -1,7 +1,9 @@
 package com.tchalanet.server.core.analytics.internal.infra.event;
 
+import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.event.DomainEvent;
 import com.tchalanet.server.common.stereotype.TchTx;
+import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.analytics.internal.application.service.AnalyticsDailyProjector;
 import com.tchalanet.server.core.analytics.internal.application.service.AnalyticsDrawProjector;
 import com.tchalanet.server.core.analytics.internal.application.service.AnalyticsSelectionProjector;
@@ -13,6 +15,8 @@ import com.tchalanet.server.core.sales.api.event.TicketPayoutPaidAmountAdjustedE
 import com.tchalanet.server.core.sales.api.event.TicketPayoutPaidEvent;
 import com.tchalanet.server.core.sales.api.event.TicketPayoutReversedEvent;
 import com.tchalanet.server.core.sales.api.event.TicketPlacedEvent;
+import com.tchalanet.server.core.sales.api.model.analytics.SalesAnalyticsTicketSnapshot;
+import com.tchalanet.server.core.sales.api.query.GetSalesAnalyticsTicketSnapshotQuery;
 import com.tchalanet.server.platform.idempotence.api.ProcessedEventPort;
 import com.tchalanet.server.platform.tenant.api.TenantZoneApi;
 import java.time.LocalDate;
@@ -47,7 +51,11 @@ public class AnalyticsEventListener {
   static final String HANDLER_KEY_DRAW = "analytics.draw";
   static final String HANDLER_KEY_SELECTION = "analytics.selection";
   static final String HANDLER_KEY_SELLER_TERMINAL_DRAW = "analytics.seller-terminal-draw";
+  static final String HANDLER_KEY_CANCELLED_DRAW = "analytics.cancelled-draw";
+  static final String HANDLER_KEY_CANCELLED_SELLER_TERMINAL_DRAW =
+      "analytics.cancelled-seller-terminal-draw";
 
+  private final QueryBus queryBus;
   private final ProcessedEventPort processedEvent;
   private final AnalyticsDailyProjector dailyProjector;
   private final AnalyticsDrawProjector drawProjector;
@@ -72,8 +80,22 @@ public class AnalyticsEventListener {
   @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onTicketCancelled(TicketCancelledEvent event) {
     if (!claim(HANDLER_KEY_DAILY, event)) return;
-    LocalDate refDate = refDate(event);
-    dailyProjector.applyTicketCancelled(event, refDate);
+    var snapshot = cancellationSnapshot(event);
+    dailyProjector.applyTicketCancelled(snapshot, refDate(snapshot), refDate(event));
+  }
+
+  @EventListener
+  @TchTx(propagation = Propagation.REQUIRES_NEW)
+  public void onTicketCancelledForDraw(TicketCancelledEvent event) {
+    if (!claim(HANDLER_KEY_CANCELLED_DRAW, event)) return;
+    drawProjector.applyTicketCancelled(cancellationSnapshot(event));
+  }
+
+  @EventListener
+  @TchTx(propagation = Propagation.REQUIRES_NEW)
+  public void onTicketCancelledForSellerTerminalDraw(TicketCancelledEvent event) {
+    if (!claim(HANDLER_KEY_CANCELLED_SELLER_TERMINAL_DRAW, event)) return;
+    sellerTerminalDrawProjector.applyTicketCancelled(cancellationSnapshot(event));
   }
 
   // ── ticket settled and paid / reversed ────────────────────────────────────
@@ -190,15 +212,35 @@ public class AnalyticsEventListener {
     return LocalDate.ofInstant(event.occurredAt(), tenantZone(event));
   }
 
+  private LocalDate refDate(SalesAnalyticsTicketSnapshot snapshot) {
+    if (snapshot.soldAt() == null) {
+      throw new IllegalStateException(
+          "analytics cancellation snapshot has no sale timestamp ticketId=" + snapshot.ticketId());
+    }
+    return LocalDate.ofInstant(snapshot.soldAt(), tenantZone(TenantId.of(snapshot.tenantId())));
+  }
+
   private ZoneId tenantZone(DomainEvent event) {
+    return tenantZone(event.tenantId());
+  }
+
+  private ZoneId tenantZone(TenantId tenantId) {
     try {
-      ZoneId zoneId = tenantZoneApi.resolveTenantZone(event.tenantId());
+      ZoneId zoneId = tenantZoneApi.resolveTenantZone(tenantId);
       return zoneId != null ? zoneId : ZoneOffset.UTC;
     } catch (RuntimeException e) {
-      log.warn(
-          "analytics: failed to resolve tenant timezone for {} — using UTC", event.tenantId(), e);
+      log.warn("analytics: failed to resolve tenant timezone for {} — using UTC", tenantId, e);
       return ZoneOffset.UTC;
     }
+  }
+
+  private SalesAnalyticsTicketSnapshot cancellationSnapshot(TicketCancelledEvent event) {
+    return queryBus
+        .ask(new GetSalesAnalyticsTicketSnapshotQuery(event.ticketId()))
+        .orElseThrow(
+            () ->
+                new IllegalStateException(
+                    "analytics cancellation snapshot missing ticketId=" + event.ticketId()));
   }
 
   private boolean claim(String handlerKey, DomainEvent event) {

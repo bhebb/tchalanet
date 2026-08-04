@@ -296,7 +296,8 @@ public class AnalyticsReconciliationService {
         ZoneId zone) {
       var result = new ProjectionSet();
       for (var ticket : snapshots) {
-        boolean officialSale = ticket.soldAt() != null;
+        boolean officialSale =
+            ticket.approvedAt() != null && "APPROVED".equals(ticket.saleStatus());
         LocalDate soldDate = date(ticket.soldAt(), zone);
         if (officialSale && inScope(soldDate, from, to)) {
           result
@@ -315,12 +316,25 @@ public class AnalyticsReconciliationService {
         }
 
         LocalDate cancellationDate = date(ticket.cancelledAt(), zone);
-        if (inScope(cancellationDate, from, to)) {
+        if (ticket.approvedAt() != null && inScope(cancellationDate, from, to)) {
           result
               .daily
               .computeIfAbsent(
                   new DailyKey("TENANT", null, cancellationDate), ignored -> new Totals())
               .addCancellation();
+          result
+              .daily
+              .computeIfAbsent(
+                  new DailyKey("PLATFORM", null, cancellationDate), ignored -> new Totals())
+              .addCancellation();
+          if (ticket.sellerTerminalId() != null) {
+            result
+                .daily
+                .computeIfAbsent(
+                    new DailyKey("SELLER_TERMINAL", ticket.sellerTerminalId(), cancellationDate),
+                    ignored -> new Totals())
+                .addCancellation();
+          }
         }
 
         LocalDate paymentDate =

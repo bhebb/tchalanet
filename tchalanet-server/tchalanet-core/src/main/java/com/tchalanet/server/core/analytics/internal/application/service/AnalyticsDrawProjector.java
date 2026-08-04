@@ -7,6 +7,7 @@ import com.tchalanet.server.core.sales.api.event.TicketPayoutPaidAmountAdjustedE
 import com.tchalanet.server.core.sales.api.event.TicketPayoutPaidEvent;
 import com.tchalanet.server.core.sales.api.event.TicketPayoutReversedEvent;
 import com.tchalanet.server.core.sales.api.event.TicketPlacedEvent;
+import com.tchalanet.server.core.sales.api.model.analytics.SalesAnalyticsTicketSnapshot;
 import com.tchalanet.server.core.sales.api.model.money.ChargePaidBy;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineOrigin;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSource;
@@ -177,6 +178,48 @@ public class AnalyticsDrawProjector {
         -event.amountCents());
   }
 
+  /** Reverses the approved sale contribution when the ticket is cancelled before result. */
+  @Transactional
+  public void applyTicketCancelled(SalesAnalyticsTicketSnapshot snapshot) {
+    if (snapshot.approvedAt() == null || snapshot.drawId() == null) {
+      return;
+    }
+    var entity = repo.findByDrawId(snapshot.drawId()).orElse(null);
+    if (entity == null) {
+      return;
+    }
+
+    long stakeCents = toCents(snapshot.stakeAmount());
+    long commissionCents = toCents(snapshot.sellerCommissionAmount());
+    var charges = ChargeTotals.from(snapshot);
+    var promotions = PromotionTotals.from(snapshot);
+
+    entity.setTicketsSoldCount(entity.getTicketsSoldCount() - 1);
+    entity.setTicketsCancelledCount(entity.getTicketsCancelledCount() + 1);
+    entity.setGrossSalesCents(entity.getGrossSalesCents() - stakeCents);
+    entity.setStakeTotalCents(entity.getStakeTotalCents() - stakeCents);
+    entity.setSellerCommissionCents(entity.getSellerCommissionCents() - commissionCents);
+    entity.setBuyerChargeCents(entity.getBuyerChargeCents() - charges.buyerCents());
+    entity.setSellerChargeCents(entity.getSellerChargeCents() - charges.sellerCents());
+    entity.setTenantChargeCents(entity.getTenantChargeCents() - charges.tenantCents());
+    entity.setWaivedChargeCents(entity.getWaivedChargeCents() - charges.waivedCents());
+    entity.setPromotionLineCount(entity.getPromotionLineCount() - promotions.lineCount());
+    entity.setPromotionPricedLineCount(
+        entity.getPromotionPricedLineCount() - promotions.pricedLineCount());
+    entity.setNetRevenueEstimatedCents(
+        entity.getNetRevenueEstimatedCents()
+            - stakeCents
+            + commissionCents
+            + charges.tenantCents());
+    entity.setNetRevenuePaidBasisCents(
+        entity.getNetRevenuePaidBasisCents()
+            - stakeCents
+            + commissionCents
+            + charges.tenantCents());
+    entity.setUpdatedAt(Instant.now(clock));
+    repo.save(entity);
+  }
+
   /**
    * Enrich the financial row of a resulted draw with the metadata known at result time.
    *
@@ -298,6 +341,26 @@ public class AnalyticsDrawProjector {
 
       return new ChargeTotals(buyer, seller, tenant, waived);
     }
+
+    static ChargeTotals from(SalesAnalyticsTicketSnapshot snapshot) {
+      long buyer = 0L;
+      long seller = 0L;
+      long tenant = 0L;
+      long waived = 0L;
+      for (var charge : snapshot.charges()) {
+        long amount = toCents(charge.amount());
+        if (charge.waived()) {
+          waived += amount;
+        } else if ("BUYER".equals(charge.paidBy())) {
+          buyer += amount;
+        } else if ("SELLER".equals(charge.paidBy())) {
+          seller += amount;
+        } else if ("TENANT".equals(charge.paidBy())) {
+          tenant += amount;
+        }
+      }
+      return new ChargeTotals(buyer, seller, tenant, waived);
+    }
   }
 
   record PromotionTotals(long lineCount, long pricedLineCount, long payoutBaseCents) {
@@ -314,6 +377,16 @@ public class AnalyticsDrawProjector {
         }
       }
 
+      return new PromotionTotals(lineCount, pricedLineCount, 0L);
+    }
+
+    static PromotionTotals from(SalesAnalyticsTicketSnapshot snapshot) {
+      long lineCount =
+          snapshot.lines().stream().filter(line -> "PROMOTION".equals(line.origin())).count();
+      long pricedLineCount =
+          snapshot.lines().stream()
+              .filter(line -> "PROMOTION".equals(line.pricingSource()))
+              .count();
       return new PromotionTotals(lineCount, pricedLineCount, 0L);
     }
   }
