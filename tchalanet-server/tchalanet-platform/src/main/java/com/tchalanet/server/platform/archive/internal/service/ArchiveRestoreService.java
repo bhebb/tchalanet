@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.core.JacksonException;
 
 /**
@@ -59,6 +61,7 @@ public class ArchiveRestoreService {
    * @param reason mandatory justification (min 10 chars, validated at controller)
    * @return restore run ID
    */
+  @Transactional
   public UUID restoreAuditLog(
       UUID tenantId,
       String entityType,
@@ -68,6 +71,7 @@ public class ArchiveRestoreService {
       UUID requestedBy,
       String reason) {
 
+    validateRestoreWindow(entityType, from, to);
     checkActiveRestoreLimit();
 
     Instant expiresAt = Instant.now().plus(props.restore().tempTtl());
@@ -82,6 +86,9 @@ public class ArchiveRestoreService {
     }
 
     String entityIdStr = entityId.toString();
+    String tenantIdStr = tenantId == null ? null : tenantId.toString();
+    Instant fromInstant = from.atStartOfDay(ZoneOffset.UTC).toInstant();
+    Instant toInstant = to.atStartOfDay(ZoneOffset.UTC).toInstant();
     JsonlGzReader reader = new JsonlGzReader(jsonUtils);
     long totalRestored = 0;
 
@@ -108,7 +115,10 @@ public class ArchiveRestoreService {
                 in,
                 row ->
                     entityType.equals(row.get("entity_type"))
-                        && entityIdStr.equals(String.valueOf(row.get("entity_id"))));
+                        && entityIdStr.equals(String.valueOf(row.get("entity_id")))
+                        && (tenantIdStr == null
+                            || tenantIdStr.equals(String.valueOf(row.get("tenant_id"))))
+                        && isWithinWindow(row.get("occurred_at"), fromInstant, toInstant));
 
         for (Map<String, Object> row : rows) {
           batch.add(
@@ -124,6 +134,10 @@ public class ArchiveRestoreService {
       }
 
       if (!batch.isEmpty()) {
+        if (batch.size() > props.restore().maxRowsPerRun() - totalRestored) {
+          throw new IllegalStateException(
+              "Archive restore exceeds max rows per run: " + props.restore().maxRowsPerRun());
+        }
         restoreAuditRepo.insertBatch(restoreRunId, objectId, batch);
         restoreRunRepo.incrementRowCount(restoreRunId, batch.size());
         totalRestored += batch.size();
@@ -146,6 +160,7 @@ public class ArchiveRestoreService {
    * Delete rows from expired restore runs and mark runs as CLEANED. Safe to call repeatedly —
    * idempotent on already-cleaned runs.
    */
+  @Transactional
   public int cleanupExpired() {
     List<Map<String, Object>> expired = restoreRunRepo.findExpiredActive();
     int cleaned = 0;
@@ -173,6 +188,15 @@ public class ArchiveRestoreService {
     }
   }
 
+  private static void validateRestoreWindow(String entityType, LocalDate from, LocalDate to) {
+    if (entityType == null || entityType.isBlank()) {
+      throw new IllegalArgumentException("entityType is required");
+    }
+    if (from == null || to == null || !from.isBefore(to)) {
+      throw new IllegalArgumentException("restore window must satisfy from < to");
+    }
+  }
+
   private String serialize(Map<String, Object> row) {
     try {
       return jsonUtils.toJson(row);
@@ -195,6 +219,19 @@ public class ArchiveRestoreService {
     if (val == null) return null;
     if (val instanceof Instant i) return i;
     if (val instanceof java.sql.Timestamp ts) return ts.toInstant();
+    if (val instanceof java.util.Date date) return date.toInstant();
+    if (val instanceof String value) {
+      try {
+        return Instant.parse(value);
+      } catch (java.time.format.DateTimeParseException ignored) {
+        return null;
+      }
+    }
     return null;
+  }
+
+  private static boolean isWithinWindow(Object occurredAt, Instant from, Instant to) {
+    Instant value = toInstant(occurredAt);
+    return value != null && !value.isBefore(from) && value.isBefore(to);
   }
 }

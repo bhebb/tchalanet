@@ -141,6 +141,11 @@ public enum AuditAction {
   // ── Archive (canonical: ARCHIVE_RUN / ARCHIVE_RESTORE) ───────────────
   ARCHIVE_RUN,
   ARCHIVE_RESTORE,
+  ARCHIVE_READ,
+  ARCHIVE_PURGE,
+  ARCHIVE_PARTITION_CLEANUP,
+  ARCHIVE_LEGAL_HOLD_CREATE,
+  ARCHIVE_LEGAL_HOLD_RELEASE,
   ARCHIVE, // legacy alias — prefer ARCHIVE_RUN or ARCHIVE_RESTORE
 
   // ── Misc ─────────────────────────────────────────────────────────────

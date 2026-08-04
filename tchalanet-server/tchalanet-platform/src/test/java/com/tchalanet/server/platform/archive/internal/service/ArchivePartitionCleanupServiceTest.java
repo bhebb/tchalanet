@@ -31,7 +31,7 @@ class ArchivePartitionCleanupServiceTest {
     var service = service(legalHoldRepo);
 
     when(legalHoldRepo.hasActiveHoldForPeriod(
-            "audit_log", LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1)))
+            "audit_log", null, LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1)))
         .thenReturn(true);
 
     var plan = service.plan("audit_log", LocalDate.of(2026, 1, 1));
@@ -53,7 +53,7 @@ class ArchivePartitionCleanupServiceTest {
     var service = service(legalHoldRepo);
 
     when(legalHoldRepo.hasActiveHoldForPeriod(
-            "audit_log", LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1)))
+            "audit_log", null, LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1)))
         .thenReturn(true);
 
     assertThatThrownBy(
@@ -64,7 +64,8 @@ class ArchivePartitionCleanupServiceTest {
         .hasMessageContaining("legal hold");
 
     verify(legalHoldRepo)
-        .hasActiveHoldForPeriod("audit_log", LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1));
+        .hasActiveHoldForPeriod(
+            "audit_log", null, LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1));
   }
 
   private static ArchivePartitionCleanupService service(

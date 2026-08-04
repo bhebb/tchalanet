@@ -22,6 +22,9 @@ import com.tchalanet.server.platform.archive.internal.service.ArchiveRestoreServ
 import com.tchalanet.server.platform.archive.internal.service.ArchiveTicketPurgeService;
 import com.tchalanet.server.platform.archive.internal.service.ArchiveTicketPurgeService.TicketPurgeMode;
 import com.tchalanet.server.platform.archive.internal.service.ArchiveTicketPurgeService.TicketPurgeResult;
+import com.tchalanet.server.platform.audit.api.AuditLog;
+import com.tchalanet.server.platform.audit.api.model.AuditAction;
+import com.tchalanet.server.platform.audit.api.model.AuditEntityType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -66,6 +69,11 @@ public class PlatformArchiveController {
   // ── Archive runs ────────────────────────────────────────────────────────────
 
   @Operation(summary = "Trigger an archive run")
+  @AuditLog(
+      entity = AuditEntityType.SYSTEM,
+      action = AuditAction.ARCHIVE_RUN,
+      idExpression = "#request.strategy()",
+      detailsExpression = "#request.reason()")
   @PostMapping("/runs")
   @ResponseStatus(HttpStatus.ACCEPTED)
   public ApiResponse<ArchiveRunView> triggerRun(
@@ -84,6 +92,11 @@ public class PlatformArchiveController {
   // ── Restore ─────────────────────────────────────────────────────────────────
 
   @Operation(summary = "Restore archived audit_log rows into temporary restore table")
+  @AuditLog(
+      entity = AuditEntityType.SYSTEM,
+      action = AuditAction.ARCHIVE_RESTORE,
+      idExpression = "#request.entityId()",
+      detailsExpression = "#request.reason()")
   @PostMapping("/restore/audit-log")
   @ResponseStatus(HttpStatus.ACCEPTED)
   public ApiResponse<UUID> restoreAuditLog(
@@ -114,6 +127,11 @@ public class PlatformArchiveController {
   }
 
   @Operation(summary = "Execute cleanup for a specific partition (DRY_RUN by default)")
+  @AuditLog(
+      entity = AuditEntityType.SYSTEM,
+      action = AuditAction.ARCHIVE_PARTITION_CLEANUP,
+      idExpression = "#partitionName",
+      detailsExpression = "#mode.name()")
   @PostMapping("/partition-cleanup/execute")
   public ApiResponse<Void> executePartitionCleanup(
       @RequestParam @NotBlank String partitionName,
@@ -124,6 +142,11 @@ public class PlatformArchiveController {
   }
 
   @Operation(summary = "Purge archived ticket rows from hot storage (DRY_RUN by default)")
+  @AuditLog(
+      entity = AuditEntityType.SYSTEM,
+      action = AuditAction.ARCHIVE_PURGE,
+      idExpression = "'ticket'",
+      detailsExpression = "#request.reason()")
   @PostMapping("/ticket-purge")
   public ApiResponse<TicketPurgeResult> purgeArchivedTickets(
       @Valid @RequestBody TicketPurgeRequest request, @CurrentContext TchRequestContext ctx) {
@@ -141,6 +164,11 @@ public class PlatformArchiveController {
 
   @Operation(
       summary = "Purge archived draw, draw_result or Envers revision rows (DRY_RUN by default)")
+  @AuditLog(
+      entity = AuditEntityType.SYSTEM,
+      action = AuditAction.ARCHIVE_PURGE,
+      idExpression = "#request.dataset().name()",
+      detailsExpression = "#request.reason()")
   @PostMapping("/domain-purge")
   public ApiResponse<DomainPurgeResult> purgeArchivedDomainRows(
       @Valid @RequestBody DomainPurgeRequest request, @CurrentContext TchRequestContext ctx) {
@@ -160,6 +188,11 @@ public class PlatformArchiveController {
   // ── Legal holds ────────────────────────────────────────────────────────────
 
   @Operation(summary = "Create archive legal hold")
+  @AuditLog(
+      entity = AuditEntityType.SYSTEM,
+      action = AuditAction.ARCHIVE_LEGAL_HOLD_CREATE,
+      idExpression = "#request.datasetCode()",
+      detailsExpression = "#request.reason()")
   @PostMapping("/legal-holds")
   @ResponseStatus(HttpStatus.CREATED)
   public ApiResponse<UUID> createLegalHold(
@@ -179,6 +212,11 @@ public class PlatformArchiveController {
   }
 
   @Operation(summary = "Release archive legal hold")
+  @AuditLog(
+      entity = AuditEntityType.SYSTEM,
+      action = AuditAction.ARCHIVE_LEGAL_HOLD_RELEASE,
+      idExpression = "#holdId",
+      detailsExpression = "#request.reason()")
   @PostMapping("/legal-holds/{holdId}/release")
   public ApiResponse<Void> releaseLegalHold(
       @org.springframework.web.bind.annotation.PathVariable UUID holdId,

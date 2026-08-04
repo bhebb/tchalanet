@@ -201,6 +201,8 @@ tch:
       purge-enabled: ${TCH_BATCH_HISTORY_PURGE_ENABLED:true}
       purge-cron: "${TCH_BATCH_HISTORY_PURGE_CRON:0 0 4 * * SUN}"
       retention-days: ${TCH_BATCH_HISTORY_RETENTION_DAYS:365}
+      # Production archives completed executions before purge; staging may set false for short TTL cleanup.
+      archive-required: ${TCH_BATCH_HISTORY_ARCHIVE_REQUIRED:true}
 
   keymanagement:
     server-signing:

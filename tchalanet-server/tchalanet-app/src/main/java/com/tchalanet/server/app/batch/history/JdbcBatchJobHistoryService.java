@@ -33,14 +33,19 @@ public class JdbcBatchJobHistoryService implements BatchJobHistoryService {
   private final SpringTchJobRegistry registry;
   private final ApplicationContext applicationContext;
   private final NamedParameterJdbcTemplate jdbc;
+  private final boolean archiveRequired;
 
   public JdbcBatchJobHistoryService(
       SpringTchJobRegistry registry,
       ApplicationContext applicationContext,
-      @Qualifier("batchDataSource") DataSource batchDataSource) {
+      @Qualifier("batchDataSource") DataSource batchDataSource,
+      @org.springframework.beans.factory.annotation.Value(
+              "${tch.batch.history.archive-required:true}")
+          boolean archiveRequired) {
     this.registry = registry;
     this.applicationContext = applicationContext;
     this.jdbc = new NamedParameterJdbcTemplate(batchDataSource);
+    this.archiveRequired = archiveRequired;
   }
 
   @Override
@@ -110,6 +115,8 @@ public class JdbcBatchJobHistoryService implements BatchJobHistoryService {
     if (cutoff == null) {
       throw new IllegalArgumentException("cutoff required");
     }
+
+    assertArchiveCoverage(cutoff);
 
     var params = new MapSqlParameterSource("cutoff", Timestamp.from(cutoff));
     List<Long> executionIds =
@@ -188,6 +195,46 @@ public class JdbcBatchJobHistoryService implements BatchJobHistoryService {
 
     return new BatchJobHistoryPurgeResult(
         cutoff, jobContextRows, stepContextRows, stepRows, paramRows, executionRows, instanceRows);
+  }
+
+  private void assertArchiveCoverage(Instant cutoff) {
+    if (!archiveRequired) {
+      return;
+    }
+
+    // Scheduled retention runs have no HTTP security context. Enable the same platform-only RLS
+    // view for this transaction so the guard can inspect archive metadata without changing the
+    // default connection state.
+    jdbc.getJdbcTemplate()
+        .execute(
+            "SELECT set_config('app.is_super_admin', 'true', true), "
+                + "set_config('app.api_scope', 'platform', true)");
+
+    Integer uncovered =
+        jdbc.queryForObject(
+            """
+            SELECT COUNT(*)
+              FROM batch.BATCH_JOB_EXECUTION e
+             WHERE e.CREATE_TIME < :cutoff
+               AND (e.STATUS IS NULL OR e.STATUS NOT IN (%s))
+               AND NOT EXISTS (
+                 SELECT 1
+                   FROM archive_object o
+                  WHERE o.table_name = 'batch_job_execution'
+                    AND o.status = 'VERIFIED'
+                    AND o.row_count > 0
+                    AND o.period_start <= (e.CREATE_TIME AT TIME ZONE 'UTC')::date
+                    AND o.period_end > (e.CREATE_TIME AT TIME ZONE 'UTC')::date
+               )
+            """
+            .replace("%s", RUNNING_STATUSES),
+            Map.of("cutoff", Timestamp.from(cutoff)),
+            Integer.class);
+    if (uncovered != null && uncovered > 0) {
+      throw new IllegalStateException(
+          "batch history purge refused: %d completed executions have no verified archive object"
+              .formatted(uncovered));
+    }
   }
 
   private BatchJobExecutionView mapExecution(ResultSet rs, int rowNum) throws SQLException {

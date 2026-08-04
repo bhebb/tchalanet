@@ -31,8 +31,8 @@ Status: IMPLEMENTED for the operational V1 scope; remaining production hardening
 - [x] Add legal-hold records keyed by tenant, dataset, entity id and/or period.
 - [x] Block archive purge and partition cleanup when matching legal hold exists.
 - [x] Add focused cleanup tests proving legal hold blocks partition cleanup.
-- [ ] Require reason and functional audit for archive read, restore and legal-hold changes.
-- [ ] Keep restore tables SUPER_ADMIN-only with TTL cleanup.
+- [x] Require reason and functional audit for archive read, restore and legal-hold changes.
+- [x] Keep restore tables SUPER_ADMIN-only with TTL cleanup.
 
 ## Phase 4 — First datasets
 
@@ -48,9 +48,9 @@ Status: IMPLEMENTED for the operational V1 scope; remaining production hardening
 - [x] Implement `draw`/`draw_result` archive provider after ticket lookup is proven.
 - [x] Implement Spring Batch archive provider using job execution as the bounded export aggregate.
 - [x] Implement Envers revision archive provider using `revinfo` as the bounded export aggregate.
-- [ ] Add purge policies for Spring Batch and Envers only after verified archive objects and legal-hold
+- [x] Add purge policies for Spring Batch and Envers only after verified archive objects and legal-hold
   checks are proven.
-- [ ] Reconcile Spring Batch retention defaults: staging may purge weekly/short-window metadata, while
+- [x] Reconcile Spring Batch retention defaults: staging may purge weekly/short-window metadata, while
   production should archive completed executions before long-retention purge.
 - [x] Add `processed_event` TTL cleanup policy/job by `processed_at`; do not route it through cold
   archive unless compliance requires technical replay evidence.
