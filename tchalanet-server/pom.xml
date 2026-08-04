@@ -32,6 +32,7 @@
 
     <!-- Library versions -->
     <archunit.version>1.4.2</archunit.version>
+    <aws-sdk.version>2.35.9</aws-sdk.version>
     <caffeine.version>3.2.4</caffeine.version>
     <firebase-admin.version>9.10.0</firebase-admin.version>
     <json-schema-validator.version>3.0.6</json-schema-validator.version>
@@ -84,6 +85,15 @@
 
   <dependencyManagement>
     <dependencies>
+      <!-- AWS SDK BOM — used only for the S3 protocol against Cloudflare R2.
+           No AWS account is involved; R2 exposes an S3-compatible API. -->
+      <dependency>
+        <groupId>software.amazon.awssdk</groupId>
+        <artifactId>bom</artifactId>
+        <version>${aws-sdk.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
       <!-- Spring Modulith -->
       <dependency>
         <groupId>org.springframework.modulith</groupId>
