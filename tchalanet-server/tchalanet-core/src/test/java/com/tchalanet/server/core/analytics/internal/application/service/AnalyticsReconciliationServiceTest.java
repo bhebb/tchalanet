@@ -72,6 +72,7 @@ class AnalyticsReconciliationServiceTest {
               assertThat(mismatch.expected().grossSalesMinor()).isEqualTo(1_000L);
               assertThat(mismatch.expected().sellerCommissionMinor()).isEqualTo(130L);
             });
+    verify(fixture.alertService()).onReconciliationMismatch(result);
   }
 
   @Test
@@ -127,6 +128,7 @@ class AnalyticsReconciliationServiceTest {
     assertThat(result.status()).isEqualTo(AnalyticsReconciliationStatus.SUCCESS);
     assertThat(result.mismatches()).isEmpty();
     verify(fixture.projectionLock()).acquire(TENANT_ID);
+    verify(fixture.alertService()).clearAutomaticUnavailable(result);
     verify(fixture.dailyRepository())
         .deleteTenantProjectionRows(TENANT_ID.value(), BUSINESS_DATE, BUSINESS_DATE);
     verify(fixture.drawRepository())
@@ -155,6 +157,7 @@ class AnalyticsReconciliationServiceTest {
     var sellerTerminalDrawRepository = mock(AnalyticsSellerTerminalDrawRepository.class);
     var selectionRepository = mock(AnalyticsSelectionRepository.class);
     var projectionLock = mock(AnalyticsTenantProjectionLock.class);
+    var alertService = mock(AnalyticsReconciliationAlertService.class);
     var service =
         new AnalyticsReconciliationService(
             queryBus,
@@ -164,6 +167,7 @@ class AnalyticsReconciliationServiceTest {
             sellerTerminalDrawRepository,
             selectionRepository,
             projectionLock,
+            alertService,
             Clock.fixed(Instant.parse("2026-08-03T18:00:00Z"), ZoneOffset.UTC));
     return new Fixture(
         service,
@@ -171,7 +175,8 @@ class AnalyticsReconciliationServiceTest {
         drawRepository,
         sellerTerminalDrawRepository,
         selectionRepository,
-        projectionLock);
+        projectionLock,
+        alertService);
   }
 
   private static ReconcileAnalyticsCommand command(AnalyticsReconciliationMode mode) {
@@ -244,5 +249,6 @@ class AnalyticsReconciliationServiceTest {
       AnalyticsDrawRepository drawRepository,
       AnalyticsSellerTerminalDrawRepository sellerTerminalDrawRepository,
       AnalyticsSelectionRepository selectionRepository,
-      AnalyticsTenantProjectionLock projectionLock) {}
+      AnalyticsTenantProjectionLock projectionLock,
+      AnalyticsReconciliationAlertService alertService) {}
 }

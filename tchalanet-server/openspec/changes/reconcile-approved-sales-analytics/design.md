@@ -1,7 +1,7 @@
 # Design — Analytics Reconciliation and Replay
 
-Status: implemented for the V1 tenant-scoped validation and repair path. Persistent run history,
-automatic mismatch alerts and the remaining broad scenario matrix are follow-ups.
+Status: implemented for the V1 tenant-scoped validation and repair path. Persistent run history and
+the remaining broad scenario matrix are follow-ups.
 
 ## Decision
 
@@ -158,6 +158,15 @@ No `analytics_recompute_run` table is introduced in this change. The current
 `DOMAIN_ANALYTICS.md` reference to that table is aspirational and must be corrected when the
 implementation is applied. A queryable reconciliation-run API is a separate follow-up; the
 platform-ops response and audit listing are the V1 operational read path.
+
+### Automatic degradation alerts
+
+Validation mismatches and live projection exceptions use the existing tenant/date visibility
+override as a durable degradation marker. The alert service runs in a separate `REQUIRES_NEW`
+transaction, so a projection rollback cannot erase the `UNAVAILABLE` state, audit event, or
+operator notification. The notification uses a stable dedupe key and requests both Web and Slack
+channels for platform operators. A successful `REBUILD_AND_VALIDATE` removes only the automatic
+override for the exact repaired scope; a manual platform-ops override is preserved.
 
 ## API and authorization
 

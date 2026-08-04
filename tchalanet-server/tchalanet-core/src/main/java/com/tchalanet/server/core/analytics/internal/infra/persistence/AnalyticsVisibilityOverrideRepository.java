@@ -52,4 +52,23 @@ public interface AnalyticsVisibilityOverrideRepository
       @Param("drawId") UUID drawId,
       @Param("fromDate") LocalDate fromDate,
       @Param("toDate") LocalDate toDate);
+
+  @Modifying
+  @Transactional
+  @Query(
+      """
+      DELETE FROM AnalyticsVisibilityOverrideEntity o
+       WHERE o.scopeType = com.tchalanet.server.core.analytics.api.model.AnalyticsTrustScopeType.TENANT
+         AND o.tenantId = :tenantId
+         AND o.sellerTerminalId IS NULL
+         AND o.drawId IS NULL
+         AND o.fromDate = :fromDate
+         AND o.toDate = :toDate
+         AND o.reason LIKE :reasonPattern
+      """)
+  int deleteAutomaticExactScope(
+      @Param("tenantId") UUID tenantId,
+      @Param("fromDate") LocalDate fromDate,
+      @Param("toDate") LocalDate toDate,
+      @Param("reasonPattern") String reasonPattern);
 }

@@ -1,6 +1,8 @@
 package com.tchalanet.server.core.analytics.internal.infra.event;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -18,8 +20,10 @@ import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.types.id.TicketLineId;
 import com.tchalanet.server.common.types.money.CurrencyCode;
 import com.tchalanet.server.common.types.money.Money;
+import com.tchalanet.server.core.analytics.api.model.AnalyticsTrustScope;
 import com.tchalanet.server.core.analytics.internal.application.service.AnalyticsDailyProjector;
 import com.tchalanet.server.core.analytics.internal.application.service.AnalyticsDrawProjector;
+import com.tchalanet.server.core.analytics.internal.application.service.AnalyticsReconciliationAlertService;
 import com.tchalanet.server.core.analytics.internal.application.service.AnalyticsSelectionProjector;
 import com.tchalanet.server.core.analytics.internal.application.service.AnalyticsSellerTerminalDrawProjector;
 import com.tchalanet.server.core.analytics.internal.infra.persistence.AnalyticsTenantProjectionLock;
@@ -70,10 +74,19 @@ class AnalyticsEventListenerTest {
     var sellerTerminalDraw = org.mockito.Mockito.mock(AnalyticsSellerTerminalDrawProjector.class);
     var zones = org.mockito.Mockito.mock(TenantZoneApi.class);
     var lock = org.mockito.Mockito.mock(AnalyticsTenantProjectionLock.class);
+    var alertService = org.mockito.Mockito.mock(AnalyticsReconciliationAlertService.class);
     when(zones.resolveTenantZone(TENANT_ID)).thenReturn(ZoneOffset.UTC);
     var listener =
         new AnalyticsEventListener(
-            queryBus, processed, daily, draw, selection, sellerTerminalDraw, zones, lock);
+            queryBus,
+            processed,
+            daily,
+            draw,
+            selection,
+            sellerTerminalDraw,
+            zones,
+            lock,
+            alertService);
 
     listener.onTicketPlaced(ticketPlaced());
     listener.onTicketPlacedForSelection(ticketPlaced());
@@ -99,9 +112,18 @@ class AnalyticsEventListenerTest {
     var sellerTerminalDraw = org.mockito.Mockito.mock(AnalyticsSellerTerminalDrawProjector.class);
     var zones = org.mockito.Mockito.mock(TenantZoneApi.class);
     var lock = org.mockito.Mockito.mock(AnalyticsTenantProjectionLock.class);
+    var alertService = org.mockito.Mockito.mock(AnalyticsReconciliationAlertService.class);
     var listener =
         new AnalyticsEventListener(
-            queryBus, processed, daily, draw, selection, sellerTerminalDraw, zones, lock);
+            queryBus,
+            processed,
+            daily,
+            draw,
+            selection,
+            sellerTerminalDraw,
+            zones,
+            lock,
+            alertService);
 
     listener.onTicketPlaced(ticketPlaced());
 
@@ -123,12 +145,21 @@ class AnalyticsEventListenerTest {
     var sellerTerminalDraw = org.mockito.Mockito.mock(AnalyticsSellerTerminalDrawProjector.class);
     var zones = org.mockito.Mockito.mock(TenantZoneApi.class);
     var lock = org.mockito.Mockito.mock(AnalyticsTenantProjectionLock.class);
+    var alertService = org.mockito.Mockito.mock(AnalyticsReconciliationAlertService.class);
     when(zones.resolveTenantZone(TENANT_ID)).thenReturn(ZoneOffset.UTC);
     var snapshot = snapshot();
     org.mockito.Mockito.doReturn(Optional.of(snapshot)).when(queryBus).ask(any());
     var listener =
         new AnalyticsEventListener(
-            queryBus, processed, daily, draw, selection, sellerTerminalDraw, zones, lock);
+            queryBus,
+            processed,
+            daily,
+            draw,
+            selection,
+            sellerTerminalDraw,
+            zones,
+            lock,
+            alertService);
 
     var cancelled =
         new TicketCancelledEvent(
@@ -151,6 +182,47 @@ class AnalyticsEventListenerTest {
             NOW.plusSeconds(3600).atZone(ZoneOffset.UTC).toLocalDate());
     verify(draw).applyTicketCancelled(snapshot);
     verify(sellerTerminalDraw).applyTicketCancelled(snapshot);
+  }
+
+  @Test
+  void projectionFailureAlertsTheTenantAndRethrowsTheFailure() {
+    var queryBus = org.mockito.Mockito.mock(QueryBus.class);
+    var processed = org.mockito.Mockito.mock(ProcessedEventPort.class);
+    when(processed.markProcessedIfAbsent(any(), any())).thenReturn(true);
+    var daily = org.mockito.Mockito.mock(AnalyticsDailyProjector.class);
+    var draw = org.mockito.Mockito.mock(AnalyticsDrawProjector.class);
+    var selection = org.mockito.Mockito.mock(AnalyticsSelectionProjector.class);
+    var sellerTerminalDraw = org.mockito.Mockito.mock(AnalyticsSellerTerminalDrawProjector.class);
+    var zones = org.mockito.Mockito.mock(TenantZoneApi.class);
+    var lock = org.mockito.Mockito.mock(AnalyticsTenantProjectionLock.class);
+    var alertService = org.mockito.Mockito.mock(AnalyticsReconciliationAlertService.class);
+    when(zones.resolveTenantZone(TENANT_ID)).thenReturn(ZoneOffset.UTC);
+    var failure = new IllegalStateException("projection database unavailable");
+    org.mockito.Mockito.doThrow(failure).when(daily).applyTicketPlaced(any(), any());
+    var listener =
+        new AnalyticsEventListener(
+            queryBus,
+            processed,
+            daily,
+            draw,
+            selection,
+            sellerTerminalDraw,
+            zones,
+            lock,
+            alertService);
+
+    assertThatThrownBy(() -> listener.onTicketPlaced(ticketPlaced())).isSameAs(failure);
+
+    verify(alertService)
+        .onProjectionFailure(
+            eq(
+                AnalyticsTrustScope.tenant(
+                    TENANT_ID,
+                    NOW.atZone(ZoneOffset.UTC).toLocalDate(),
+                    NOW.atZone(ZoneOffset.UTC).toLocalDate())),
+            eq("DAILY"),
+            eq("60000000-0000-0000-0000-000000000001"),
+            eq(failure));
   }
 
   private static TicketPlacedEvent ticketPlaced() {
