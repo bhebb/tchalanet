@@ -158,6 +158,34 @@ choix de conception. Créer ce token restreint au seul bucket de backup est de
 toute façon préférable : il ne donne accès qu'aux backups, alors que le token
 API porte les droits Workers et Pages.
 
+## Backup et archive : ne pas confondre
+
+Les deux écrivent dans R2, mais ils répondent à des questions différentes.
+
+| | Backup | Archive |
+| --- | --- | --- |
+| Question | « Le serveur est perdu, comment tout remonter ? » | « Comment garder l'historique sans faire enfler la base ? » |
+| Contenu | Photo complète de la base | Vieilles lignes **sorties** de la base |
+| Effet sur la base | Aucun, lecture seule | Elle rétrécit — archive puis purge |
+| Format | `pg_dump` chiffré `age` | `jsonl.gz` par table et période |
+| Bucket | bucket de backup | `tch-archive` |
+| Secrets | GitHub | Doppler |
+| Piloté par | `db-backup.yml` | l'API (`/platform/archive/**`) |
+
+Ils se complètent : archiver réduit la base, donc les backups deviennent plus
+petits et plus rapides.
+
+La différence qui compte : un backup est une **copie** — l'original reste en
+base. Une archive, une fois la purge passée, devient la **seule copie
+existante**. C'est pourquoi le pipeline d'archive vérifie checksum et nombre de
+lignes, respecte les *legal holds*, et garde la purge en dry-run désactivée par
+défaut. Et c'est pourquoi son stockage devait sortir de la VM avant toute
+planification : conserver l'unique copie sur la machine qu'on cherche à
+protéger n'a pas de sens.
+
+Détail complet du partage des secrets :
+[`runbooks/RB-00-secrets-checklist.md`](runbooks/RB-00-secrets-checklist.md).
+
 ## Limites assumées
 
 - **Pas de PITR.** On restaure au dernier snapshot, pas à l'instant précédant
