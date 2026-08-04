@@ -60,7 +60,7 @@ remain follow-ups.
 - [x] Make projection processing atomic with its idempotency marker, and make cancellation reverse
       all affected daily, draw and seller-terminal financial projections using immutable ticket
       snapshots.
-- [ ] Add alerts for projection failure or reconciliation mismatch and automatically mark the
+- [x] Add alerts for projection failure or reconciliation mismatch and automatically mark the
       affected scope unavailable.
 - [ ] Run the resulted-draw operational check after every result application: all eligible tickets
       must be resolved before settlement; after the attention threshold, send a deduplicated

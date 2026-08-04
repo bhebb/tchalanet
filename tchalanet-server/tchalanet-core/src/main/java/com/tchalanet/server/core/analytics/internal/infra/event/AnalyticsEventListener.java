@@ -4,8 +4,10 @@ import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.event.DomainEvent;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.core.analytics.api.model.AnalyticsTrustScope;
 import com.tchalanet.server.core.analytics.internal.application.service.AnalyticsDailyProjector;
 import com.tchalanet.server.core.analytics.internal.application.service.AnalyticsDrawProjector;
+import com.tchalanet.server.core.analytics.internal.application.service.AnalyticsReconciliationAlertService;
 import com.tchalanet.server.core.analytics.internal.application.service.AnalyticsSelectionProjector;
 import com.tchalanet.server.core.analytics.internal.application.service.AnalyticsSellerTerminalDrawProjector;
 import com.tchalanet.server.core.analytics.internal.infra.persistence.AnalyticsTenantProjectionLock;
@@ -63,15 +65,18 @@ public class AnalyticsEventListener {
   private final AnalyticsSellerTerminalDrawProjector sellerTerminalDrawProjector;
   private final TenantZoneApi tenantZoneApi;
   private final AnalyticsTenantProjectionLock projectionLock;
+  private final AnalyticsReconciliationAlertService alertService;
 
   // ── ticket placed ─────────────────────────────────────────────────────────
 
   @EventListener
   @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onTicketPlaced(TicketPlacedEvent event) {
-    if (!claim(HANDLER_KEY_DAILY, event)) return;
-    LocalDate refDate = refDate(event);
-    dailyProjector.applyTicketPlaced(event, refDate);
+    project(
+        HANDLER_KEY_DAILY,
+        event,
+        "DAILY",
+        () -> dailyProjector.applyTicketPlaced(event, refDate(event)));
   }
 
   // ── ticket cancelled ──────────────────────────────────────────────────────
@@ -79,23 +84,34 @@ public class AnalyticsEventListener {
   @EventListener
   @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onTicketCancelled(TicketCancelledEvent event) {
-    if (!claim(HANDLER_KEY_DAILY, event)) return;
-    var snapshot = cancellationSnapshot(event);
-    dailyProjector.applyTicketCancelled(snapshot, refDate(snapshot), refDate(event));
+    project(
+        HANDLER_KEY_DAILY,
+        event,
+        "DAILY",
+        () -> {
+          var snapshot = cancellationSnapshot(event);
+          dailyProjector.applyTicketCancelled(snapshot, refDate(snapshot), refDate(event));
+        });
   }
 
   @EventListener
   @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onTicketCancelledForDraw(TicketCancelledEvent event) {
-    if (!claim(HANDLER_KEY_CANCELLED_DRAW, event)) return;
-    drawProjector.applyTicketCancelled(cancellationSnapshot(event));
+    project(
+        HANDLER_KEY_CANCELLED_DRAW,
+        event,
+        "DRAW",
+        () -> drawProjector.applyTicketCancelled(cancellationSnapshot(event)));
   }
 
   @EventListener
   @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onTicketCancelledForSellerTerminalDraw(TicketCancelledEvent event) {
-    if (!claim(HANDLER_KEY_CANCELLED_SELLER_TERMINAL_DRAW, event)) return;
-    sellerTerminalDrawProjector.applyTicketCancelled(cancellationSnapshot(event));
+    project(
+        HANDLER_KEY_CANCELLED_SELLER_TERMINAL_DRAW,
+        event,
+        "SELLER_TERMINAL_DRAW",
+        () -> sellerTerminalDrawProjector.applyTicketCancelled(cancellationSnapshot(event)));
   }
 
   // ── ticket settled and paid / reversed ────────────────────────────────────
@@ -103,74 +119,95 @@ public class AnalyticsEventListener {
   @EventListener
   @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onTicketPayoutPaid(TicketPayoutPaidEvent event) {
-    if (!claim(HANDLER_KEY_DAILY, event)) return;
-    LocalDate refDate = refDate(event);
-    dailyProjector.applyTicketSettledAndPaid(event, refDate);
+    project(
+        HANDLER_KEY_DAILY,
+        event,
+        "DAILY",
+        () -> dailyProjector.applyTicketSettledAndPaid(event, refDate(event)));
   }
 
   @EventListener
   @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onTicketPayoutReversed(TicketPayoutReversedEvent event) {
-    if (!claim(HANDLER_KEY_DAILY, event)) return;
-    LocalDate refDate = refDate(event);
-    dailyProjector.applyTicketSettlementAndPayoutReversed(event, refDate);
+    project(
+        HANDLER_KEY_DAILY,
+        event,
+        "DAILY",
+        () -> dailyProjector.applyTicketSettlementAndPayoutReversed(event, refDate(event)));
   }
 
   @EventListener
   @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onTicketPayoutPaidForDraw(TicketPayoutPaidEvent event) {
-    if (!claim(HANDLER_KEY_DRAW, event)) return;
-    LocalDate refDate = refDate(event);
-    drawProjector.applyTicketSettledAndPaid(event, refDate);
+    project(
+        HANDLER_KEY_DRAW,
+        event,
+        "DRAW",
+        () -> drawProjector.applyTicketSettledAndPaid(event, refDate(event)));
   }
 
   @EventListener
   @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onTicketPayoutPaidForSellerTerminalDraw(TicketPayoutPaidEvent event) {
-    if (!claim(HANDLER_KEY_SELLER_TERMINAL_DRAW, event)) return;
-    LocalDate refDate = refDate(event);
-    sellerTerminalDrawProjector.applyTicketSettledAndPaid(event, refDate);
+    project(
+        HANDLER_KEY_SELLER_TERMINAL_DRAW,
+        event,
+        "SELLER_TERMINAL_DRAW",
+        () -> sellerTerminalDrawProjector.applyTicketSettledAndPaid(event, refDate(event)));
   }
 
   @EventListener
   @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onTicketPayoutPaidAmountAdjusted(TicketPayoutPaidAmountAdjustedEvent event) {
-    if (!claim(HANDLER_KEY_DAILY, event)) return;
-    LocalDate refDate = refDate(event);
-    dailyProjector.applyTicketPayoutPaidAmountAdjusted(event, refDate);
+    project(
+        HANDLER_KEY_DAILY,
+        event,
+        "DAILY",
+        () -> dailyProjector.applyTicketPayoutPaidAmountAdjusted(event, refDate(event)));
   }
 
   @EventListener
   @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onTicketPayoutPaidAmountAdjustedForDraw(TicketPayoutPaidAmountAdjustedEvent event) {
-    if (!claim(HANDLER_KEY_DRAW, event)) return;
-    LocalDate refDate = refDate(event);
-    drawProjector.applyTicketPayoutPaidAmountAdjusted(event, refDate);
+    project(
+        HANDLER_KEY_DRAW,
+        event,
+        "DRAW",
+        () -> drawProjector.applyTicketPayoutPaidAmountAdjusted(event, refDate(event)));
   }
 
   @EventListener
   @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onTicketPayoutPaidAmountAdjustedForSellerTerminalDraw(
       TicketPayoutPaidAmountAdjustedEvent event) {
-    if (!claim(HANDLER_KEY_SELLER_TERMINAL_DRAW, event)) return;
-    LocalDate refDate = refDate(event);
-    sellerTerminalDrawProjector.applyTicketPayoutPaidAmountAdjusted(event, refDate);
+    project(
+        HANDLER_KEY_SELLER_TERMINAL_DRAW,
+        event,
+        "SELLER_TERMINAL_DRAW",
+        () ->
+            sellerTerminalDrawProjector.applyTicketPayoutPaidAmountAdjusted(event, refDate(event)));
   }
 
   @EventListener
   @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onTicketPayoutReversedForDraw(TicketPayoutReversedEvent event) {
-    if (!claim(HANDLER_KEY_DRAW, event)) return;
-    LocalDate refDate = refDate(event);
-    drawProjector.applyTicketSettlementAndPayoutReversed(event, refDate);
+    project(
+        HANDLER_KEY_DRAW,
+        event,
+        "DRAW",
+        () -> drawProjector.applyTicketSettlementAndPayoutReversed(event, refDate(event)));
   }
 
   @EventListener
   @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onTicketPayoutReversedForSellerTerminalDraw(TicketPayoutReversedEvent event) {
-    if (!claim(HANDLER_KEY_SELLER_TERMINAL_DRAW, event)) return;
-    LocalDate refDate = refDate(event);
-    sellerTerminalDrawProjector.applyTicketSettlementAndPayoutReversed(event, refDate);
+    project(
+        HANDLER_KEY_SELLER_TERMINAL_DRAW,
+        event,
+        "SELLER_TERMINAL_DRAW",
+        () ->
+            sellerTerminalDrawProjector.applyTicketSettlementAndPayoutReversed(
+                event, refDate(event)));
   }
 
   // ── selection projector ───────────────────────────────────────────────────
@@ -178,25 +215,31 @@ public class AnalyticsEventListener {
   @EventListener
   @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onTicketPlacedForSelection(TicketPlacedEvent event) {
-    if (!claim(HANDLER_KEY_SELECTION, event)) return;
-    LocalDate refDate = refDate(event);
-    selectionProjector.applyTicketPlaced(event, refDate);
+    project(
+        HANDLER_KEY_SELECTION,
+        event,
+        "SELECTION",
+        () -> selectionProjector.applyTicketPlaced(event, refDate(event)));
   }
 
   @EventListener
   @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onTicketPlacedForDraw(TicketPlacedEvent event) {
-    if (!claim(HANDLER_KEY_DRAW, event)) return;
-    LocalDate refDate = refDate(event);
-    drawProjector.applyTicketPlaced(event, refDate);
+    project(
+        HANDLER_KEY_DRAW,
+        event,
+        "DRAW",
+        () -> drawProjector.applyTicketPlaced(event, refDate(event)));
   }
 
   @EventListener
   @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onTicketPlacedForSellerTerminalDraw(TicketPlacedEvent event) {
-    if (!claim(HANDLER_KEY_SELLER_TERMINAL_DRAW, event)) return;
-    LocalDate refDate = refDate(event);
-    sellerTerminalDrawProjector.applyTicketPlaced(event, refDate);
+    project(
+        HANDLER_KEY_SELLER_TERMINAL_DRAW,
+        event,
+        "SELLER_TERMINAL_DRAW",
+        () -> sellerTerminalDrawProjector.applyTicketPlaced(event, refDate(event)));
   }
 
   // ── draw resulted ─────────────────────────────────────────────────────────
@@ -204,8 +247,7 @@ public class AnalyticsEventListener {
   @EventListener
   @TchTx(propagation = Propagation.REQUIRES_NEW)
   public void onDrawResultApplied(DrawResultAppliedEvent event) {
-    if (!claim(HANDLER_KEY_DRAW, event)) return;
-    drawProjector.ensureDrawRow(event);
+    project(HANDLER_KEY_DRAW, event, "DRAW", () -> drawProjector.ensureDrawRow(event));
   }
 
   private LocalDate refDate(DomainEvent event) {
@@ -241,6 +283,30 @@ public class AnalyticsEventListener {
             () ->
                 new IllegalStateException(
                     "analytics cancellation snapshot missing ticketId=" + event.ticketId()));
+  }
+
+  private void project(
+      String handlerKey, DomainEvent event, String projection, Runnable projectionAction) {
+    try {
+      if (!claim(handlerKey, event)) return;
+      projectionAction.run();
+    } catch (RuntimeException failure) {
+      var refDate = refDate(event);
+      try {
+        alertService.onProjectionFailure(
+            AnalyticsTrustScope.tenant(event.tenantId(), refDate, refDate),
+            projection,
+            event.eventId().value().toString(),
+            failure);
+      } catch (RuntimeException alertFailure) {
+        log.error(
+            "analytics: failed to persist projection failure alert eventId={} projection={}",
+            event.eventId().value(),
+            projection,
+            alertFailure);
+      }
+      throw failure;
+    }
   }
 
   private boolean claim(String handlerKey, DomainEvent event) {

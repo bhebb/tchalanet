@@ -57,12 +57,17 @@ public class AnalyticsReconciliationService {
   private final AnalyticsSellerTerminalDrawRepository sellerTerminalDrawRepository;
   private final AnalyticsSelectionRepository selectionRepository;
   private final AnalyticsTenantProjectionLock projectionLock;
+  private final AnalyticsReconciliationAlertService alertService;
   private final Clock clock;
 
   @Transactional(readOnly = true)
   public AnalyticsReconciliationResult validate(ReconcileAnalyticsCommand command) {
     var expected = expected(command);
-    return result(command, expected, observed(command), AnalyticsReconciliationMode.VALIDATE);
+    var result = result(command, expected, observed(command), AnalyticsReconciliationMode.VALIDATE);
+    if (result.status() != AnalyticsReconciliationStatus.SUCCESS) {
+      alertService.onReconciliationMismatch(result);
+    }
+    return result;
   }
 
   @Transactional
@@ -74,8 +79,10 @@ public class AnalyticsReconciliationService {
         result(
             command, expected, observed(command), AnalyticsReconciliationMode.REBUILD_AND_VALIDATE);
     if (result.status() != AnalyticsReconciliationStatus.SUCCESS) {
+      alertService.onReconciliationMismatch(result);
       throw new IllegalStateException("analytics.reconciliation.rebuild_not_exact");
     }
+    alertService.clearAutomaticUnavailable(result);
     return result;
   }
 
