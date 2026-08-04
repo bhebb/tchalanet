@@ -5,6 +5,31 @@ Inventaire complet de tous les secrets et variables d'environnement requis pour 
 
 ---
 
+## Quel coffre ? GitHub ou Doppler
+
+Le critère est **qui lit le secret**, pas ce qu'il protège.
+
+| | GitHub Actions Secrets | Doppler |
+|---|---|---|
+| **Lecteur** | Le workflow CI/CD | Les conteneurs qui tournent sur la VM |
+| **Chemin** | `${{ secrets.X }}` dans un `.yml` | `doppler secrets download` → `envs/<env>/.secrets` → `env_file` |
+| **Question à se poser** | « GitHub en a-t-il besoin pour *atteindre* ou *déployer* l'infra ? » | « L'application en a-t-elle besoin pour *fonctionner* ? » |
+| **Exemples** | `SSH_PRIVATE_KEY`, `SERVER_HOST`, `HCLOUD_TOKEN`, `DOPPLER_TOKEN_*` | `APP_DB_PASSWORD`, `REDIS_PASSWORD`, `EDGE_HMAC_SECRET` |
+
+Un secret que le CI transmet à un script par SSH reste un secret **GitHub** : il
+n'est jamais lu par un conteneur applicatif. C'est le cas des credentials de
+backup.
+
+Le cas particulier : `DOPPLER_TOKEN_*` vit dans GitHub et sert précisément à
+récupérer le contenu de Doppler. GitHub est donc la racine de confiance ; il ne
+contient jamais de secret applicatif en double.
+
+> Un secret ne doit **jamais** exister dans les deux coffres. Deux copies
+> divergent tôt ou tard, et c'est la copie que personne ne regarde qui gagne —
+> exactement le mécanisme qui a mis staging à terre le 03/08/2026.
+
+---
+
 ## GitHub Actions Secrets
 
 Configurer dans : GitHub → Settings → Secrets and variables → Actions → Secrets
@@ -18,11 +43,19 @@ Configurer dans : GitHub → Settings → Secrets and variables → Actions → 
 | `HCLOUD_TOKEN` | ✅ requis | — | Token API Hetzner Cloud Read+Write pour créer/détruire le serveur staging |
 | `DOPPLER_TOKEN_STG` | ✅ requis | — | Service Token Doppler config `stg` (projet `tchalanet`) |
 | `DOPPLER_TOKEN_PROD` | — | ✅ requis | Service Token Doppler config `prd` (projet `tchalanet`) |
+| `CLOUDFLARE_ACCOUNT_ID` | ✅ requis | ✅ requis | Compte Cloudflare — partagé avec le worker lottery-proxy et les backups |
+| `R2_ACCESS_KEY_ID` | ✅ requis | ✅ requis | Clé d'accès R2 pour les backups DB (voir RB — BACKUP-RESTORE) |
+| `R2_SECRET_ACCESS_KEY` | ✅ requis | ✅ requis | Secret R2 correspondant |
+| `R2_BUCKET` | ✅ requis | ✅ requis | Bucket de destination des backups |
+| `BACKUP_AGE_PUBLIC_KEY` | ✅ requis | ✅ requis | Clé publique `age` — chiffre les backups |
+| `BACKUP_AGE_PRIVATE_KEY` | ✅ requis | ✅ requis | Clé privée `age` — répétition de restauration |
 
 **À obtenir :**
 - `SSH_PRIVATE_KEY` : `cat ~/.ssh/tchalanet_stg`
 - `HCLOUD_TOKEN` : Hetzner Cloud Console → projet staging → Security → API Tokens → Generate API token (`Read & Write`)
 - `DOPPLER_TOKEN_*` : Doppler dashboard → projet `tchalanet` → config `stg`/`prd` → Access → Generate Service Token
+- `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY` : Cloudflare dashboard → R2 → **Manage API tokens** → Create token (Object Read & Write, restreint au bucket de backup). Ce n'est **pas** `CLOUDFLARE_API_TOKEN` : l'accès objet S3 exige un token R2 dédié.
+- `BACKUP_AGE_*` : `age-keygen -o backup-age.key` → la ligne `# public key:` va dans `BACKUP_AGE_PUBLIC_KEY`, le fichier entier dans `BACKUP_AGE_PRIVATE_KEY`. Conserver la clé privée aussi dans le gestionnaire de mots de passe : la perdre rend tous les backups illisibles.
 
 **Secrets obsolètes à supprimer (après migration CF Pages) :**
 - `VERCEL_TOKEN`
@@ -82,14 +115,19 @@ Configurés dans le projet Doppler `tchalanet`, configs `stg` / `prd`. Télécha
 Ces secrets ne sont PAS listés ici pour des raisons de sécurité. Voir Doppler dashboard → projet `tchalanet` → Secrets pour l'inventaire complet.
 
 Catégories attendues :
-- DB (Neon) : `SPRING_DATASOURCE_URL` (ex: `jdbc:postgresql://ep-xxx.neon.tech/tchalanet_db?sslmode=require&user=xxx&password=xxx`)
+- DB : `SPRING_DATASOURCE_PASSWORD` et `APP_DB_PASSWORD` uniquement
 - Redis : `REDIS_PASSWORD`
 - JWT/Auth : `JWT_SECRET`, `JWT_ISSUER_URI`
 - Firebase Admin : `FIREBASE_PROJECT_ID`, chemin vers `firebase-admin.json`
 - Edge : `EDGE_HMAC_SECRET`, `EDGE_API_KEY`
 - Logs (Grafana Cloud) : `GRAFANA_LOKI_URL`, `GRAFANA_LOKI_USER`, `GRAFANA_LOKI_PASSWORD`
 
-**Note Neon :** la connection string Neon inclut les credentials dans l'URL — un seul secret `SPRING_DATASOURCE_URL` suffit pour la DB en staging/prod. Pas de `APP_DB_PASSWORD` séparé.
+**Règle DB — mots de passe seulement :** `SPRING_DATASOURCE_URL` et
+`SPRING_DATASOURCE_USERNAME` sont committés dans `envs/<env>/.env`, jamais dans Doppler.
+`docker-compose-api.yml` charge `env_file` dans l'ordre `.env.merged` puis `.secrets` :
+une cible de connexion stockée dans Doppler écrase donc silencieusement la configuration
+committée, sans diff ni revue. C'est ce qui a mis staging à terre le 03/08/2026.
+Seuls `SPRING_DATASOURCE_PASSWORD` et `APP_DB_PASSWORD` appartiennent à Doppler.
 
 **Obtenir les secrets Grafana Cloud :**
 1. Grafana Cloud → Home → My Account → Stack → Loki → Details

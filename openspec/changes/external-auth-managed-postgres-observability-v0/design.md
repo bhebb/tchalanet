@@ -160,21 +160,31 @@ RLS remains mandatory. Tenant and scope values never come directly from request 
 headers, or unvalidated external claims. Connection-pool reuse must not leak session context;
 transaction-local binding and focused leakage tests are required.
 
-### Managed PostgreSQL
+### Self-hosted PostgreSQL
 
-DigitalOcean Managed PostgreSQL is the default production V0 choice. Neon and Supabase remain
-acceptable for non-production experiments. Cloud SQL or Azure Database for PostgreSQL may be
-reconsidered if the hosting strategy standardizes on those clouds.
+**Amended.** Managed PostgreSQL (DigitalOcean, Neon, Supabase) is no longer the V0 choice.
+Every environment — dev, staging and production — runs the same Compose-managed PostgreSQL
+container. See `tchalanet-infra/openspec/changes/postgres-mandatory-remove-neon`.
 
-The final go-live selection requires a recorded check of:
+The reason is operational rather than technical. The managed option was never actually
+adopted: production has no managed instance, and the only environment that carried a managed
+connection string kept it in the secret store, where it silently overrode the committed
+configuration and took staging down. One topology across all environments removes an entire
+class of drift — what runs in dev is what runs in production.
 
-- supported PostgreSQL version and required extensions;
-- deployment region, latency, and data-residency constraints;
-- TLS and network-access controls;
-- connection limits and pooling strategy;
-- automatic backups, PITR window, HA/failover expectations, and maintenance policy;
-- monitoring/export capability and monthly cost;
-- successful Flyway migration, RLS, backup, and restore rehearsal.
+Self-hosting transfers to us the guarantees the managed option provided for free. These are
+therefore **binding requirements**, not aspirations:
+
+- scheduled off-site encrypted backups, verified by restore, not by file size;
+- a documented and periodically rehearsed restore procedure;
+- an explicit, accepted RPO and RTO.
+
+See `docs/operations/BACKUP-RESTORE.md`.
+
+What we knowingly give up, and accept for V0: no point-in-time recovery between snapshots
+(RPO is the backup interval), no automatic failover, and maintenance/upgrades performed by us.
+Revisiting managed PostgreSQL is legitimate once traffic or availability requirements make
+these limits binding — the portability boundary below is what keeps that door open.
 
 Provider-specific database APIs are forbidden in application code. Standard PostgreSQL JDBC and
 Flyway remain the portability boundary.

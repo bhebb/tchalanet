@@ -1,30 +1,20 @@
 #!/usr/bin/env bash
-# Backup PostgreSQL du staging vers ./backups/staging/.
-# Usage: ./staging-backup.sh
+# DÉPRÉCIÉ — remplacé par scripts/remote/pg-backup.sh.
+#
+# Ce script appelait `pg_dumpall -U postgres` alors que le superuser est `admin`,
+# sans mot de passe : il échouait. Il déposait par ailleurs le résultat sur le
+# poste du développeur, donc jamais planifié et jamais hors-site.
+#
+# Voir docs/operations/BACKUP-RESTORE.md.
 set -euo pipefail
 
-SERVER="${HCLOUD_SERVER_NAME:-stg-app}"
-ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-BACKUP_DIR="${BACKUP_DIR:-$ROOT/backups/staging}"
-TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+cat >&2 <<'MSG'
+❌ staging-backup.sh est déprécié et ne produisait pas de backup exploitable.
 
-command -v hcloud >/dev/null 2>&1 || { echo "❌ hcloud CLI non trouvé" >&2; exit 1; }
-command -v jq >/dev/null 2>&1 || { echo "❌ jq non trouvé" >&2; exit 1; }
+   Backups planifiés : workflow GitHub "Database Backup" (quotidien, vérifié).
+   Backup manuel     : ENV=staging ./scripts/remote/pg-backup.sh   (sur la VM)
+   Restauration      : ENV=staging ./scripts/remote/pg-restore.sh
 
-mkdir -p "$BACKUP_DIR"
-
-IP=$(hcloud server describe "$SERVER" -o json | jq -r '.public_net.ipv4.ip')
-if [ -z "$IP" ] || [ "$IP" = "null" ]; then
-  echo "❌ Impossible de récupérer l'IP du serveur '$SERVER'" >&2
-  exit 1
-fi
-
-BACKUP_FILE="$BACKUP_DIR/staging-pg-$TIMESTAMP.sql.gz"
-echo "→ Backup PostgreSQL staging ($IP) → $BACKUP_FILE"
-
-ssh -i ~/.ssh/tchalanet_stg -o StrictHostKeyChecking=no "tch@$IP" \
-  'docker exec $(docker ps --filter "name=.*postgres.*" --format "{{.Names}}" | head -1) pg_dumpall -U postgres | gzip' \
-  > "$BACKUP_FILE"
-
-SIZE=$(du -sh "$BACKUP_FILE" | cut -f1)
-echo "✅ Backup: $BACKUP_FILE ($SIZE)"
+   Documentation : docs/operations/BACKUP-RESTORE.md
+MSG
+exit 1

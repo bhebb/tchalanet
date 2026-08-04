@@ -206,4 +206,4 @@ Google Play, préparer sans l'activer tout de suite :
 | `TCH_ANDROID_KEY_PASSWORD` | secret | distribution mobile |
 | `FIREBASE_ANDROID_APP_ID` | variable | distribution mobile (optionnel) |
 | `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64` | secret futur | publication Google Play |
-| `HCLOUD_TOKEN`, `SSH_PRIVATE_KEY`, `DOPPLER_TOKEN_STG`, `NEON_API_KEY`, … | secret | infra / deploy (voir chaque workflow) |
+| `HCLOUD_TOKEN`, `SSH_PRIVATE_KEY`, `DOPPLER_TOKEN_STG`, … | secret | infra / deploy (voir chaque workflow) |

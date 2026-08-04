@@ -181,8 +181,11 @@ make up-staging
 Vérifications :
 ```bash
 docker ps --format "table {{.Names}}\t{{.Status}}"
-# Doit lister avec Neon : tchl-traefik-stg, tchl-redis-stg, tchl-api-stg, tchl-edge-stg
-# tchl-postgres-stg est attendu seulement si staging utilise une DB Docker locale.
+# Doit lister : tchl-traefik-staging, tchl-postgres-staging, tchl-redis-staging,
+# tchl-api-staging, tchalanet-edge-service-staging.
+# Postgres est un service géré par Compose : aucun avertissement "orphan container"
+# ne doit apparaître. S'il en apparaît un, la stack a été montée sans
+# docker-compose-postgres.yml et un --remove-orphans détruirait la base.
 ```
 
 ---
@@ -273,7 +276,7 @@ Option recommandée :
 1. GitHub Actions → **Deploy Staging** → **Run workflow**
 2. `infra_action=recreate`
 3. `infra_destroy_confirm=destroy staging`
-4. `skip_destroy_backup=true` si staging utilise Neon
+4. `skip_destroy_backup=true` — les données staging sont jetables
 5. `deploy_infra=true`
 6. Après le job `infra-create`, reporter la nouvelle IP dans Cloudflare DNS et `SERVER_HOST`.
 
@@ -288,8 +291,10 @@ SKIP_BACKUP=1 make staging-destroy
 make staging-create
 ```
 
-> Si Neon est utilisé (PostgreSQL managé), la DB survit à la destruction du serveur.
-> Les volumes Docker locaux de la VM sont perdus.
+> ⚠️ La base staging vit dans le volume Docker `pgdata-staging` sur la VM : détruire le
+> serveur détruit la base. Il n'y a pas de base managée externe qui y survivrait.
+> Le backup pré-destruction de `staging-destroy.sh` appelle `pg_dumpall -U postgres`
+> alors que le superuser est `admin` — il échoue en silence. Ne pas compter dessus.
 
 ---
 
