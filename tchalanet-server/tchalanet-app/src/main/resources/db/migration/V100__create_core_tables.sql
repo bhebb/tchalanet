@@ -593,27 +593,6 @@ CREATE TABLE page_model (
   CONSTRAINT uq_page_model__tenant_code UNIQUE (tenant_id, code)
 );
 
-CREATE TABLE audit_event (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  tenant_id uuid REFERENCES tenant(id),
-  occurred_at timestamptz NOT NULL,
-  actor_type varchar(32) NOT NULL,
-  actor_id varchar(255),
-  entity_type varchar(64) NOT NULL,
-  entity_id varchar(255) NOT NULL,
-  action varchar(64) NOT NULL,
-  details jsonb,
-  ip inet,
-  user_agent text,
-  created_at timestamptz DEFAULT now(),
-  created_by uuid,
-  updated_at timestamptz DEFAULT now(),
-  updated_by uuid,
-  deleted_at timestamptz,
-  deleted_by uuid,
-  version bigint NOT NULL DEFAULT 0
-);
-
 CREATE TABLE IF NOT EXISTS limit_assignment (
                                                 id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
 

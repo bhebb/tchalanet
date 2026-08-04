@@ -54,8 +54,8 @@ Status: IMPLEMENTED for the operational V1 scope; remaining production hardening
   production should archive completed executions before long-retention purge.
 - [x] Add `processed_event` TTL cleanup policy/job by `processed_at`; do not route it through cold
   archive unless compliance requires technical replay evidence.
-- [ ] Decide and implement `audit_event` lifecycle: migrate all writes to partitioned `audit_log` or
-  add a bounded provider/cleanup path for legacy `audit_event` rows.
+- [x] Replace the legacy `audit_event` persistence path with the canonical partitioned `audit_log`
+  table; no compatibility table or dual-write path is required before production.
 - [ ] Decide and implement the analytics lifecycle for `analytics_daily`, `analytics_draw`,
   `analytics_selection` and `analytics_seller_terminal_draw`: derived projections should be rebuilt
   or retained by policy; add archive providers only if long-term reporting cannot be rebuilt.

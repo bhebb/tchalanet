@@ -16,7 +16,7 @@ Fournir un mécanisme standard pour auditer des actions importantes :
 - `@AuditLog` : annotation web (entity/action + expressions)
 - `AuditLogAspect` : Aspect qui intercepte les méthodes annotées
 - `AuditApi` / `AuditService` : surface et service de l'audit fonctionnel
-- `audit_event` : table d'audit fonctionnel
+- `audit_log` : table partitionnée d'audit fonctionnel
 
 ---
 
@@ -48,7 +48,7 @@ Pourquoi :
 
 ### 3.1 Ne pas écrire dans les repositories depuis le web
 
-- Le web layer ne doit pas écrire directement dans `audit_event`.
+- Le web layer ne doit pas écrire directement dans `audit_log`.
 - Utiliser la surface `platform.audit.api`.
 
 ### 3.2 AfterCommit pour success
@@ -102,6 +102,6 @@ Règles :
 `platform.audit` est l'audit fonctionnel. Il répond à “qui a fait quoi, pourquoi, depuis où ?”
 
 L'historique technique Envers appartient à `platform.entityhistory` et lit `revinfo` + les tables
-`*_aud` allowlistées. Envers ne remplace pas `audit_event`, et `audit_event` ne doit pas contenir
+`*_aud` allowlistées. Envers ne remplace pas `audit_log`, et `audit_log` ne doit pas contenir
 chaque diff de colonne.
 ```

@@ -71,7 +71,6 @@ Archive after retention period. No Envers. Use immutable snapshots + functional 
 | payout                       | P24M      | created_at    |                           |
 | payout_workflow_history      | P24M      | created_at    | when introduced           |
 | sales_session                | P12M      | opened_at     |                           |
-| audit_event                  | P12M      | occurred_at   | legacy functional audit table; lifecycle migration remains separate |
 | audit_log                    | P12M      | occurred_at   | implemented monthly partition/archive target |
 | batch.BATCH_*                | P12M      | CREATE_TIME   | archive completed executions; purge children before parents |
 | notification_delivery        | P6M       | created_at    |                           |
@@ -169,7 +168,6 @@ billing_plan
 sales_ticket_line
 sales_ticket_charge
 audit_log
-audit_event
 notification_delivery
 outbound_message
 idempotency_record

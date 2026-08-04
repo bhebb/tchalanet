@@ -76,7 +76,7 @@ public class AuditEventRestController {
   @AuditLog(
       entity = AuditEntityType.SYSTEM,
       action = AuditAction.AUDIT_PURGE,
-      idExpression = "'audit_event'",
+      idExpression = "'audit_log'",
       detailsExpression = "#result")
   public ApiResponse<PurgeOldAuditEventsResult> purgeExpiredAuditLogs(
       @RequestBody(required = false) PurgeOldAuditEventsRequest request) {

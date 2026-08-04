@@ -147,7 +147,7 @@ The handler follows these phases:
 
 ### Audit persistence
 
-V1 uses the existing `platform.audit.api.AuditApi` and the existing `audit_event`/`audit_log`
+V1 uses the existing `platform.audit.api.AuditApi` and the canonical partitioned `audit_log`
 storage. Each run uses one generated run id and emits at least `STARTED`, `SUCCESS`,
 `SOURCE_UNAVAILABLE`, or `FAILED` details containing the operation, tenant, date window, mode,
 reason, actor, source watermark, row counts, and mismatch summary. The audit writes use a separate

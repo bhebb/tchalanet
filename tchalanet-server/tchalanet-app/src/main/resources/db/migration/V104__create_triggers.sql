@@ -23,7 +23,6 @@ CREATE TRIGGER trg_billing_plan__set_updated_at BEFORE UPDATE ON billing_plan FO
 CREATE TRIGGER trg_tenant_subscription__set_updated_at BEFORE UPDATE ON tenant_subscription FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 CREATE TRIGGER trg_page_model_template__set_updated_at BEFORE UPDATE ON page_model_template FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 CREATE TRIGGER trg_page_model__set_updated_at BEFORE UPDATE ON page_model FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
-CREATE TRIGGER trg_audit_event__set_updated_at BEFORE UPDATE ON audit_event FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 CREATE TRIGGER trg_limit_assignment__set_updated_at BEFORE UPDATE ON limit_assignment FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 CREATE TRIGGER trg_draw_exposure__set_updated_at BEFORE UPDATE ON draw_exposure FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 CREATE TRIGGER trg_tchala_entry__set_updated_at BEFORE UPDATE ON tchala_entry FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
