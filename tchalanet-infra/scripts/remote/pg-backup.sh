@@ -89,9 +89,20 @@ docker exec -e PGPASSWORD=verify "$VERIFY" pg_isready -U postgres -q || {
   docker rm -f "$VERIFY" >/dev/null 2>&1 || true
   fail "verification container never became ready"
 }
+# Les rôles d'abord : le dump porte des GRANT sur app_user, qui n'existe pas
+# dans un conteneur neuf. Restaurer globals puis la base reproduit fidèlement
+# une vraie restauration — l'omettre faisait échouer la vérification sur des
+# rôles manquants plutôt que sur un défaut réel du backup.
+docker cp "$WORK/globals.sql" "$VERIFY:/tmp/globals.sql"
+docker exec -e PGPASSWORD=verify "$VERIFY" \
+  psql -U postgres -d verify -q -f /tmp/globals.sql >/dev/null 2>&1 || true
+
 docker cp "$WORK/${APP_DB}.dump" "$VERIFY:/tmp/verify.dump"
+RESTORE_LOG="$WORK/restore.log"
 if ! docker exec -e PGPASSWORD=verify "$VERIFY" \
-      pg_restore -U postgres -d verify --no-owner /tmp/verify.dump >/dev/null 2>&1; then
+      pg_restore -U postgres -d verify --no-owner /tmp/verify.dump >"$RESTORE_LOG" 2>&1; then
+  echo "── pg_restore output ──" >&2
+  head -20 "$RESTORE_LOG" >&2
   docker rm -f "$VERIFY" >/dev/null 2>&1 || true
   fail "backup failed verification: pg_restore could not read the dump"
 fi
