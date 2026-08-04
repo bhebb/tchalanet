@@ -28,14 +28,20 @@ if [ "${SKIP_BACKUP:-0}" != "1" ]; then
     mkdir -p "$BACKUP_DIR"
     TIMESTAMP=$(date +%Y%m%d-%H%M%S)
     BACKUP_FILE="$BACKUP_DIR/staging-pg-pre-destroy-$TIMESTAMP.sql.gz"
+    # Le backup pré-destruction délègue à pg-backup.sh, qui lit les credentials
+    # depuis le conteneur et vérifie le dump par restauration réelle. L'ancienne
+    # version appelait `pg_dumpall -U postgres` alors que le superuser est
+    # `admin`, et ne testait que `[ -s ]` — un gzip de message d'erreur passait
+    # le contrôle, laissant croire la destruction protégée par un backup vide.
     if ssh -i ~/.ssh/tchalanet_stg -o StrictHostKeyChecking=no "tch@$IP" \
-      'container=$(docker ps --filter "name=.*postgres.*" --format "{{.Names}}" | head -1); [ -n "$container" ] && docker exec "$container" pg_dumpall -U postgres | gzip' \
-      > "$BACKUP_FILE" \
-      && [ -s "$BACKUP_FILE" ]; then
-      echo "✅ Backup: $BACKUP_FILE"
+      'cd /opt/tchalanet-infra && ENV=staging ./scripts/remote/pg-backup.sh'; then
+      echo "✅ Backup vérifié et poussé vers R2"
+      rm -f "$BACKUP_FILE"
     else
       rm -f "$BACKUP_FILE"
-      echo "⚠️  Backup ignoré ou échoué — aucun conteneur PostgreSQL local détecté"
+      echo "❌ Le backup pré-destruction a échoué." >&2
+      echo "   Relancer avec SKIP_BACKUP=1 pour détruire malgré tout." >&2
+      exit 1
     fi
   else
     echo "⚠️  Serveur inaccessible — backup ignoré"

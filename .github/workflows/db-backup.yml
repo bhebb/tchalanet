@@ -1,0 +1,124 @@
+name: Database Backup
+
+# Backup PostgreSQL chiffré vers Cloudflare R2, vérifié par restauration.
+#
+# Le backup tourne depuis GitHub Actions plutôt qu'un timer sur la VM pour que
+# tout échec soit visible : un backup silencieusement mort est pire que pas de
+# backup, parce qu'on croit être couvert.
+#
+# Secrets requis :
+#   SERVER_HOST / PROD_SERVER_HOST      hôte cible
+#   SSH_PRIVATE_KEY / SSH_PRIVATE_KEY_PROD
+#   CLOUDFLARE_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET
+#   BACKUP_AGE_PUBLIC_KEY               clé publique age (chiffrement)
+#   BACKUP_AGE_PRIVATE_KEY              clé privée age (répétition de restauration)
+
+on:
+  schedule:
+    # 02:17 UTC quotidien. Minute décalée : les crons à l'heure pile saturent
+    # les runners GitHub et se font retarder ou sauter.
+    - cron: '17 2 * * *'
+  workflow_dispatch:
+    inputs:
+      target_environment:
+        description: 'Environment to back up'
+        required: true
+        default: staging
+        type: choice
+        options:
+          - staging
+          - production
+      rehearse_restore:
+        description: 'Run a restore rehearsal after the backup'
+        required: false
+        default: false
+        type: boolean
+
+concurrency:
+  group: db-backup-${{ inputs.target_environment || 'staging' }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    name: Backup ${{ inputs.target_environment || 'staging' }}
+    runs-on: ubuntu-latest
+    env:
+      DEPLOY_ENV: ${{ inputs.target_environment == 'production' && 'prod' || 'staging' }}
+      SERVER_HOST: ${{ inputs.target_environment == 'production' && secrets.PROD_SERVER_HOST || secrets.SERVER_HOST }}
+      SSH_PRIVATE_KEY_VALUE: ${{ inputs.target_environment == 'production' && secrets.SSH_PRIVATE_KEY_PROD || secrets.SSH_PRIVATE_KEY }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Validate required secrets
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          AGE_PUB: ${{ secrets.BACKUP_AGE_PUBLIC_KEY }}
+        run: |
+          set -euo pipefail
+          for v in CLOUDFLARE_ACCOUNT_ID R2_ACCESS_KEY_ID R2_SECRET_ACCESS_KEY R2_BUCKET AGE_PUB; do
+            [ -n "${!v}" ] || { echo "Missing secret: $v" >&2; exit 1; }
+          done
+          [ -n "$SERVER_HOST" ] || { echo "Missing SERVER_HOST" >&2; exit 1; }
+
+      - name: Run backup on the database host
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ env.SERVER_HOST }}
+          username: tch
+          key: ${{ env.SSH_PRIVATE_KEY_VALUE }}
+          envs: DEPLOY_ENV,CLOUDFLARE_ACCOUNT_ID,R2_ACCESS_KEY_ID,R2_SECRET_ACCESS_KEY,R2_BUCKET,BACKUP_AGE_PUBLIC_KEY
+          script: |
+            set -euo pipefail
+            cd /opt/tchalanet-infra
+            ENV="$DEPLOY_ENV" ./scripts/remote/pg-backup.sh
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          BACKUP_AGE_PUBLIC_KEY: ${{ secrets.BACKUP_AGE_PUBLIC_KEY }}
+
+  rehearse-restore:
+    name: Restore rehearsal
+    needs: backup
+    # Hebdomadaire le dimanche, ou sur demande. La répétition tourne sur un
+    # runner isolé et ne touche à aucun environnement : elle prouve seulement
+    # que le dernier backup est réellement exploitable.
+    if: |
+      always() && needs.backup.result == 'success' &&
+      (inputs.rehearse_restore == true || github.event_name == 'schedule')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install age and rclone
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq age rclone
+
+      - name: Rehearse restore from the latest backup
+        env:
+          ENV: ${{ inputs.target_environment == 'production' && 'prod' || 'staging' }}
+          DRY_RUN: '1'
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          AGE_KEY: ${{ secrets.BACKUP_AGE_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          printf '%s' "$AGE_KEY" > "$RUNNER_TEMP/age.key"
+          chmod 600 "$RUNNER_TEMP/age.key"
+          export BACKUP_AGE_PRIVATE_KEY_FILE="$RUNNER_TEMP/age.key"
+          ./tchalanet-infra/scripts/remote/pg-restore.sh
+
+      - name: Clean up the private key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/age.key" || true

@@ -54,6 +54,22 @@ EDGE_HMAC_SECRET
 Les credentials Firebase Admin sont injectés via secret manager ou montage
 secret et ne doivent jamais être versionnés.
 
+### Base de données — mots de passe seulement dans Doppler
+
+`SPRING_DATASOURCE_URL` et `SPRING_DATASOURCE_USERNAME` sont **committés** dans
+`envs/<env>/.env`. Seul `SPRING_DATASOURCE_PASSWORD` vient de Doppler.
+
+La raison est structurelle : `compose/docker-compose-api.yml` charge `env_file`
+dans l'ordre `.env.merged` puis `.secrets`, et Compose donne la priorité au
+dernier fichier. Une cible de connexion placée dans Doppler écrase donc la
+configuration committée sans diff, sans avertissement et sans revue — le mode
+d'échec qui a mis staging à terre le 03/08/2026.
+
+Postgres tourne comme service géré par Compose en `dev` et `staging`
+(`docker-compose-postgres.yml`, inclus par `scripts/utils/up-seq.sh`). La base
+prod reste à décider — voir le change racine
+`external-auth-managed-postgres-observability-v0`.
+
 ### Webhooks transverses
 
 Les webhooks sont des secrets optionnels, définis avec le même nom dans chaque

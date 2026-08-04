@@ -58,10 +58,10 @@ FILES=(
   "compose/docker-compose-redis.yml"
 )
 
-# Postgres local uniquement en dev — staging/prod utilisent Neon
-if [[ "$ENV" == "dev" ]]; then
-  FILES+=("compose/docker-compose-postgres.yml")
-fi
+# Postgres est un service géré par Compose dans tous les environnements.
+# Le laisser hors du projet Compose en ferait un conteneur orphelin qu'un
+# --remove-orphans peut détruire.
+FILES+=("compose/docker-compose-postgres.yml")
 
 # Override générique (ports, extra_hosts)
 if [[ -f "compose/docker-compose.override.yml" ]]; then
@@ -119,10 +119,7 @@ else
 fi
 
 # 6) Up core
-CORE_SVCS=(traefik redis)
-if [[ "$ENV" == "dev" ]]; then
-  CORE_SVCS=(traefik postgres redis)
-fi
+CORE_SVCS=(traefik postgres redis)
 for svc in "${CORE_SVCS[@]}"; do
   echo "→ Up $svc"
   $DOCKER_BIN compose --project-name "tch-${ENV}" --env-file "$TMP_ENV_FILE" "${compose_files_args[@]}" up -d "$svc"

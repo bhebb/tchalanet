@@ -20,7 +20,7 @@ on:
         default: ''
         type: string
       skip_destroy_backup:
-        description: 'Skip pre-destroy VM backup (safe for Neon-backed staging)'
+        description: 'Skip pre-destroy VM backup (staging data is disposable)'
         required: false
         default: true
         type: boolean
