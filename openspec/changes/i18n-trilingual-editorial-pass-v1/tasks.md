@@ -46,8 +46,12 @@ cohérence intra-locale → placeholders intacts.
 - [x] 3.1 `errors` (616) — **138 chaînes réécrites**, chacune vérifiée contre sa valeur attendue
       avant écriture (aucune substitution regex sur la terminologie). Résultat sur ce namespace :
       0 fuite technique, 0 faute d'accent FR, 0 faute IPN. `core-i18n` (4) et `web-errors` (13) verts.
-- [ ] 3.2 `feature-public` (440) — vitrine ; contient les doublons `seller-terminal` les plus visibles
-- [ ] 3.3 `surface-public` (48)
+- [x] 3.2 `feature-public` (440) — **140 chaînes réécrites**. Le renommage avait fusionné *trois*
+      concepts (point de vente, terminal, vendeur) en « seller-terminal », produisant des phrases
+      cassées : « son seller-terminal, son seller-terminal », « their seller-terminal-terminal »,
+      « Combien de seller-terminals ou seller-terminals ». Reconstituées sur l'acteur unique du
+      modèle. 2 clés mortes supprimées (`cta.close_connexion`, `hero_stat_connexions`).
+- [x] 3.3 `surface-public` (48)
 - [ ] 3.4 `common` (105)
 - [ ] 3.5 `component` (120)
 - [ ] 3.6 `domain` (118) — socle terminologique, aligne les autres
