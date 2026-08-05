@@ -131,8 +131,10 @@ La clé privée `age` ne doit jamais être copiée sur la VM applicative. La cib
 `production` doit en plus être protégée par une approbation GitHub Environment.
 
 Le script demande de taper `restore <env>` avant d'écraser. Il restaure les
-rôles (`globals.sql`) puis la base — dans cet ordre, sinon les `GRANT` sur
-`app_user` échouent.
+rôles (`globals.sql`), recrée la base cible vide, puis la restaure — dans cet
+ordre, sinon les `GRANT` sur `app_user` et les contraintes héritées des
+partitions peuvent échouer. Les connexions actives à la base cible sont
+terminées par PostgreSQL pendant cette opération.
 
 **Répéter d'abord sans risque** pour confirmer que le backup est exploitable :
 

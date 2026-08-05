@@ -103,6 +103,11 @@ read -r CONFIRM
 PGUSER="$(docker inspect "$PG_CONTAINER" --format '{{range .Config.Env}}{{println .}}{{end}}' | sed -n 's/^POSTGRES_USER=//p' | head -1)"
 PGPASSWORD="$(docker inspect "$PG_CONTAINER" --format '{{range .Config.Env}}{{println .}}{{end}}' | sed -n 's/^POSTGRES_PASSWORD=//p' | head -1)"
 APP_DB="$(basename "$DUMP" .dump)"
+DB_OWNER="$(docker exec -e PGPASSWORD="$PGPASSWORD" "$PG_CONTAINER" \
+  psql -U "$PGUSER" -d postgres -v dbname="$APP_DB" -tAc \
+  "select pg_get_userbyid(datdba) from pg_database where datname = :'dbname'" \
+  | tr -d '[:space:]')"
+DB_OWNER="${DB_OWNER:-$PGUSER}"
 
 if [ -f "$WORK/globals.sql" ]; then
   log "Restoring globals (roles, grants)"
@@ -111,10 +116,17 @@ if [ -f "$WORK/globals.sql" ]; then
     psql -U "$PGUSER" -d postgres -f /tmp/globals.sql >/dev/null 2>&1 || true
 fi
 
+log "Recreating $APP_DB before restore (owner=$DB_OWNER)"
+docker exec -e PGPASSWORD="$PGPASSWORD" "$PG_CONTAINER" \
+  psql -U "$PGUSER" -d postgres -v dbname="$APP_DB" -q -c \
+  "SELECT format('DROP DATABASE %I WITH (FORCE)', :'dbname') \\gexec"
+docker exec -e PGPASSWORD="$PGPASSWORD" "$PG_CONTAINER" \
+  psql -U "$PGUSER" -d postgres -v dbname="$APP_DB" -v dbowner="$DB_OWNER" -q -c \
+  "SELECT format('CREATE DATABASE %I OWNER %I', :'dbname', :'dbowner') \\gexec"
 log "Restoring $APP_DB"
 docker cp "$DUMP" "$PG_CONTAINER:/tmp/restore.dump"
 docker exec -e PGPASSWORD="$PGPASSWORD" "$PG_CONTAINER" \
-  pg_restore -U "$PGUSER" -d "$APP_DB" --clean --if-exists --no-owner /tmp/restore.dump \
+  pg_restore -U "$PGUSER" -d "$APP_DB" --exit-on-error --no-owner /tmp/restore.dump \
   || fail "pg_restore failed"
 
 log "✅ Restored $APP_DB from $OBJECT"
