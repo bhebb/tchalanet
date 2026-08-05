@@ -4,10 +4,10 @@
       "title": "Dashboard",
       "description": "Your sales activity",
       "action": {
-        "newTicket": "New Ticket"
+        "newTicket": "New ticket"
       },
       "kpi": {
-        "todaySales": "Today's Sales",
+        "todaySales": "Today's sales",
         "commission": "Commission",
         "tickets": "Tickets"
       },
@@ -15,10 +15,6 @@
         "title": "Connection blocked",
         "message": "Your connection is currently blocked. Contact your supervisor."
       }
-    },
-    "connection": {
-      "title": "Connection",
-      "openedAt": "Opened at"
     },
     "draw": {
       "title": "Current Draw"
@@ -31,14 +27,13 @@
       "print": "Print"
     },
     "quickActions": {
-      "title": "Quick Actions",
-      "newTicket": "New Ticket",
+      "title": "Quick actions",
+      "newTicket": "New ticket",
       "history": "History",
-      "closeConnection": "Close Connection",
       "closeConnexion": "Fermer la connexion"
     },
     "sell": {
-      "title": "New Ticket",
+      "title": "New ticket",
       "description": "Issue a new ticket"
     },
     "connexion": {

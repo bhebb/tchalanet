@@ -45,7 +45,7 @@
       },
       "section": {
         "overview": "Overview",
-        "sellers": "Seller-terminals"
+        "sellers": "Sellers"
       },
       "field": {
         "defaultRate": "Tenant rate",
@@ -165,11 +165,103 @@
       }
     },
     "setup": {
-      "backToSetup": "General setup"
+      "backToSetup": "Back to setup",
+      "progress": {
+        "title": "{{completed}} / {{total}} required steps completed",
+        "subtitle": "Setup readiness"
+      },
+      "advancedSettings": {
+        "title": "Advanced settings",
+        "description": "Language, receipt, communication and business rules can be adjusted in tenant settings.",
+        "action": "Open settings"
+      },
+      "title": "General setup",
+      "optional": "Optional",
+      "operational": "Operational",
+      "required": "Required",
+      "blocking": "Blocking",
+      "blockedBy": "Blocked by:",
+      "section": {
+        "identity": "Identity",
+        "address": "Address",
+        "addressHint": "Address required to open operations and create sellers.",
+        "addressCta": "Configure address",
+        "identityAddress": "Identity & address",
+        "identityAddressCta": "Manage profile",
+        "games": "Games",
+        "gamesDesc": "Available games.",
+        "gamesCta": "Configure games",
+        "maryajGratis": "Maryaj gratis",
+        "maryajGratisDesc": "Tiers, free quantity, and number generation.",
+        "maryajGratisCta": "Configure Maryaj gratis",
+        "drawChannels": "Draw channels",
+        "drawChannelsDesc": "Configured sales channels.",
+        "drawChannelsCta": "Configure channels",
+        "generatedDraws": "Generated draws",
+        "generatedDrawsDesc": "Draws generated from channels and ready to be monitored.",
+        "generatedDrawsCta": "View generated draws",
+        "promotions": "Promotions",
+        "promotionsDesc": "Available promotions.",
+        "promotionsCta": "Configure promotions",
+        "users": "Users",
+        "theme": "Appearance",
+        "themeDesc": "Appearance customization.",
+        "themeCta": "Configure appearance",
+        "commission": "Commission",
+        "commissionDesc": "Default commission rate applied to seller-terminals.",
+        "commissionCta": "Configure commission",
+        "limits": "Sales limits",
+        "limitsDesc": "Sales limits applied to your tenant.",
+        "limitsCta": "Configure limits",
+        "settings": "Tenant settings",
+        "settingsDesc": "Customize the language and receipt (display name, messages) for your tenant.",
+        "settingsCta": "Configure settings",
+        "subscription": "Subscription",
+        "subscriptionDesc": "Your subscription plan and status.",
+        "subscriptionNoPlan": "No active plan — contact Tchalanet.",
+        "subscriptionCta": "View subscription",
+        "sellerTerminal": "Sellers",
+        "sellerTerminalDesc": "Available sellers.",
+        "sellerTerminalLocked": "Seller creation is locked until the required setup steps are complete.",
+        "identityDesc": "Your business's main information.",
+        "sellerTerminalCta": "Configure sellers",
+        "sellerTerminalReady": "Sellers ready"
+      },
+      "description": "Follow the steps to configure your tenant and make it operational.",
+      "status": {
+        "notStarted": "Not started",
+        "inProgress": "In progress",
+        "completed": "Completed"
+      },
+      "advancedSettings.title": "Advanced settings",
+      "advancedSettings.description": "Configure advanced settings for your tenant.",
+      "advancedSettings.action": "Configure advanced settings",
+      "blockingStep": {
+        "identity_address": "Identity & address",
+        "identity": "Identity",
+        "address": "Address",
+        "settings": "Tenant settings",
+        "games_pricing": "Games",
+        "draws": "Draw channels",
+        "generated_draws": "Generated draws"
+      },
+      "address": {
+        "city": "City",
+        "country": "Country",
+        "error": {
+          "save": "Could not save the address."
+        },
+        "line1": "Address line 1",
+        "line2": "Address line 2"
+      },
+      "error": {
+        "load": "Could not load setup."
+      },
+      "loading": "Loading setup..."
     },
     "settings": {
-      "title": "Tenant settings",
-      "description": "Internal settings used by the tenant operation.",
+      "title": "Settings",
+      "description": "Tenant configuration",
       "quickAccess": "Quick access",
       "runtime": {
         "title": "Runtime",
@@ -189,7 +281,11 @@
         "businessDays": "Business days",
         "games": "Games",
         "configuration": "Operational parameters",
-        "languages": { "fr": "French", "en": "English", "ht": "Haitian Creole" }
+        "languages": {
+          "fr": "French",
+          "en": "English",
+          "ht": "Haitian Creole"
+        }
       },
       "config": {
         "title": "Operational parameters",
@@ -238,9 +334,15 @@
             "tenant": "Tenant",
             "seller": "Seller terminal"
           },
-          "sms": { "title": "SMS" },
-          "whatsapp": { "title": "WhatsApp" },
-          "email": { "title": "Email" },
+          "sms": {
+            "title": "SMS"
+          },
+          "whatsapp": {
+            "title": "WhatsApp"
+          },
+          "email": {
+            "title": "Email"
+          },
           "saved": "Ticket delivery settings saved."
         },
         "calendar": {
@@ -281,25 +383,6 @@
         }
       }
     },
-    "dashboard": {
-      "title": "Administration",
-      "description": "Tenant administration overview",
-      "kpi": {
-        "openConnections": "Open Connections",
-        "seller_terminals": "Seller-terminals"
-      },
-      "onboarding": {
-        "title": "Onboarding"
-      },
-      "attention": {
-        "title": "Requires Attention"
-      },
-      "recentSales": {
-        "title": "Recent Sales",
-        "description": "Latest ticket sales",
-        "empty": "No recent sales."
-      }
-    },
     "onboarding": {
       "title": "Onboarding",
       "description": "Tenant onboarding steps"
@@ -308,82 +391,30 @@
       "title": "Users",
       "description": "Manage users"
     },
-    "connections": {
-      "title": "Connections",
-      "description": "Manage cashier connections"
-    },
-    "settings": {
-      "title": "Settings",
-      "description": "Tenant configuration"
-    },
-    "seller-terminal": {
-      "email": "Email",
-      "error": "Seller-terminal onboarding failed.",
-      "firstName": "First name",
-      "lastName": "Last name",
-      "phone": "Phone",
-      "submit": "Create seller terminal",
-      "success": "Seller-terminal created:",
-      "title": "Seller-terminal onboarding",
-      "sellerTerminalId": "Seller-terminal"
-    },
-    "action": {
-      "settings": "Settings",
-      "users": "Users",
-      "seller_terminals": "Seller-terminals"
-    },
     "kpi": {
-      "openConnections": {
-        "label": "Active seller-terminals"
+      "gross_sales": {
+        "label": "Gross sales"
       },
-      "gross_sales": { "label": "Gross sales" },
-      "seller_commission_payable": { "label": "Seller commission payable" },
-      "estimated_net_revenue": { "label": "Estimated net revenue" },
-      "available_pos": { "label": "Available POS" },
+      "seller_commission_payable": {
+        "label": "Seller commission payable"
+      },
+      "estimated_net_revenue": {
+        "label": "Estimated net revenue"
+      },
+      "available_pos": {
+        "label": "Available POS"
+      },
       "sales_today": {
         "label": "Today's sales"
       },
       "tickets_sold": {
         "label": "Tickets sold"
       },
-      "payout_due": {
-        "label": "Payout due"
-      },
-      "notifications": {
-        "label": "Notifications"
-      },
       "active_seller_terminals": {
         "label": "Active sellers"
       },
       "open_draws": {
         "label": "Open draws"
-      }
-    },
-    "draws": {
-      "title": "Draws"
-    },
-    "controls": {
-      "title": "Controls",
-      "commission": {
-        "title": "Commissions"
-      },
-      "limits": {
-        "title": "Limits"
-      },
-      "odds": {
-        "title": "Odds"
-      },
-      "bonuses": {
-        "title": "Bonuses"
-      }
-    },
-    "promotions": {
-      "title": "Promotions",
-      "maryaj_gratis": {
-        "title": "Maryaj Gratis"
-      },
-      "active": {
-        "title": "Active promotions"
       }
     },
     "sellerTerminal": {
@@ -634,18 +665,6 @@
         "title": "Export & print"
       }
     },
-    "more": {
-      "title": "More",
-      "space": {
-        "title": "My space"
-      },
-      "account": {
-        "title": "My account"
-      },
-      "support": {
-        "title": "Support"
-      }
-    },
     "gamesPricing": {
       "title": "Available games",
       "description": "Choose the games supported by this tenant and complete their sales settings.",
@@ -721,9 +740,11 @@
       }
     },
     "maryajGratis": {
-      "title": "Free Maryaj",
+      "title": "Maryaj gratis",
       "description": "Configure the Maryaj game and its automatic free-line offer.",
-      "action": { "refresh": "Refresh" },
+      "action": {
+        "refresh": "Refresh"
+      },
       "loading": "Loading promotions...",
       "game": {
         "eyebrow": "Game settings",
@@ -742,11 +763,19 @@
         "notDefined": "Not defined",
         "notConfigured": "Not configured",
         "missing": "Free Maryaj is missing from the tenant game configuration.",
-        "readiness": { "READY": "Ready", "TODO": "To configure", "BLOCKED": "Unavailable" }
+        "readiness": {
+          "READY": "Ready",
+          "TODO": "Needs setup",
+          "BLOCKED": "Unavailable"
+        }
       },
       "summary": {
         "eyebrow": "Summary",
-        "status": { "configure": "To configure", "active": "Active", "activate": "To activate" },
+        "status": {
+          "configure": "Needs setup",
+          "active": "Active",
+          "activate": "To activate"
+        },
         "meta": {
           "game": "Game",
           "attribution": "Allocation",
@@ -754,13 +783,19 @@
           "selection": "Selection",
           "regeneration": "Regeneration"
         },
-        "game": { "ready": "Ready for sale", "configure": "To configure" },
+        "game": {
+          "ready": "Ready for sale",
+          "configure": "Needs setup"
+        },
         "quantity": {
           "tiers": "{{count}} tier(s) configured",
           "perAmount": "{{step}}, maximum {{max}} line(s)",
           "fixed": "{{count}} free Maryaj"
         },
-        "selection": { "auto": "Generated automatically", "manual": "Chosen by seller" },
+        "selection": {
+          "auto": "Generated automatically",
+          "manual": "Chosen by seller"
+        },
         "regeneration": {
           "count": "{{label}} · {{count}} attempt(s)",
           "attempts": "{{count}} attempt(s)"
@@ -823,7 +858,10 @@
             "suffix": "line(s)."
           },
           "tiered": "The ticket receives free Maryaj based on the amount paid by the customer.",
-          "fixed": { "prefix": "The ticket can receive", "suffix": "free Maryaj." }
+          "fixed": {
+            "prefix": "The ticket can receive",
+            "suffix": "free Maryaj."
+          }
         },
         "schedule": {
           "endHint": "Required date. Use a distant date for a permanent offer.",
@@ -847,7 +885,9 @@
           "max": "Free-line cap",
           "maxHint": "Maximum generated for one ticket."
         },
-        "fixed": { "quantity": "Free Maryaj per ticket" },
+        "fixed": {
+          "quantity": "Free Maryaj per ticket"
+        },
         "regeneration": {
           "enable": "The seller can regenerate numbers before confirmation",
           "allowed": "Allowed regenerations",
@@ -867,9 +907,14 @@
         "supportedRules": "Supported rules",
         "add": "Add",
         "refresh": "Refresh",
-        "notice": { "saved": "Rule saved.", "deleted": "Rule deleted." }
+        "notice": {
+          "saved": "Rule saved.",
+          "deleted": "Rule deleted."
+        }
       },
-      "global": { "scopeNote": "Limits applied globally to all tenant terminals." },
+      "global": {
+        "scopeNote": "Limits applied globally to all tenant terminals."
+      },
       "number": {
         "actionsAria": "Quick actions by number",
         "copy": "For actual winnings, use results and reports; this area mainly blocks numbers and sold stakes.",
@@ -886,7 +931,10 @@
           }
         }
       },
-      "draw": { "channelLabel": "Draw channel", "loadingChannels": "Loading channels..." },
+      "draw": {
+        "channelLabel": "Draw channel",
+        "loadingChannels": "Loading channels..."
+      },
       "sellerTerminal": {
         "searchLabel": "Seller / terminal",
         "searchHint": "Type the terminal name or code."
@@ -907,7 +955,11 @@
         "simulationTitle": "Effective view by scope",
         "simulationHint": "Select a scope to see active rules. Effective priority is seller terminal / agent (60) > draw channel (30) > global (10).",
         "scopeLabel": "Scope",
-        "scope": { "global": "Global", "draw": "By channel", "seller": "By seller" },
+        "scope": {
+          "global": "Global",
+          "draw": "By channel",
+          "seller": "By seller"
+        },
         "targetId": "Identifier",
         "targetPlaceholder": "Channel or seller UUID",
         "targetHint": "Use the technical identifier of the target scope.",
@@ -1116,101 +1168,6 @@
         "removed": "{{game}} removed from channel."
       }
     },
-    "setup": {
-      "progress": {
-        "title": "{{completed}} / {{total}} required steps completed",
-        "subtitle": "Setup readiness"
-      },
-      "advancedSettings": {
-        "title": "Advanced settings",
-        "description": "Language, receipt, communication and business rules can be adjusted in tenant settings.",
-        "action": "Open settings"
-      },
-      "title": "General setup",
-      "optional": "Optional",
-      "operational": "Operational",
-      "required": "Required",
-      "blocking": "Blocking",
-      "blockedBy": "Blocked by:",
-      "backToSetup": "Back to setup",
-      "section": {
-        "identity": "Identity",
-        "address": "Address",
-        "addressHint": "Address required to open operations and create sellers.",
-        "addressCta": "Configure address",
-        "identityAddress": "Identity & address",
-        "identityAddressCta": "Manage profile",
-        "games": "Games",
-        "gamesDesc": "Available games.",
-        "gamesCta": "Configure games",
-        "maryajGratis": "Maryaj gratis",
-        "maryajGratisDesc": "Tiers, free quantity, and number generation.",
-        "maryajGratisCta": "Configure Maryaj gratis",
-        "drawChannels": "Draw channels",
-        "drawChannelsDesc": "Configured sales channels.",
-        "drawChannelsCta": "Configure channels",
-        "generatedDraws": "Generated draws",
-        "generatedDrawsDesc": "Draws generated from channels and ready to be monitored.",
-        "generatedDrawsCta": "View generated draws",
-        "promotions": "Promotions",
-        "promotionsDesc": "Available promotions.",
-        "promotionsCta": "Configure promotions",
-        "users": "Users",
-        "theme": "Appearance",
-        "themeDesc": "Appearance customization.",
-        "themeCta": "Configure appearance",
-        "commission": "Commission",
-        "commissionDesc": "Default commission rate applied to seller-terminals.",
-        "commissionCta": "Configure commission",
-        "limits": "Sales limits",
-        "limitsDesc": "Sales limits applied to your tenant.",
-        "limitsCta": "Configure limits",
-        "settings": "Tenant settings",
-        "settingsDesc": "Customize the language and receipt (display name, messages) for your tenant.",
-        "settingsCta": "Configure settings",
-        "subscription": "Subscription",
-        "subscriptionDesc": "Your subscription plan and status.",
-        "subscriptionNoPlan": "No active plan — contact Tchalanet.",
-        "subscriptionCta": "View subscription",
-        "sellerTerminal": "Sellers",
-        "sellerTerminalDesc": "Available sellers.",
-        "sellerTerminalLocked": "Seller creation is locked until the required setup steps are complete.",
-        "identityDesc": "Your business's main information.",
-        "sellerTerminalCta": "Configure sellers",
-        "sellerTerminalReady": "Sellers ready"
-      },
-      "description": "Follow the steps to configure your tenant and make it operational.",
-      "status": {
-        "notStarted": "Not started",
-        "inProgress": "In progress",
-        "completed": "Completed"
-      },
-      "advancedSettings.title": "Advanced settings",
-      "advancedSettings.description": "Configure advanced settings for your tenant.",
-      "advancedSettings.action": "Configure advanced settings",
-      "blockingStep": {
-        "identity_address": "Identity & address",
-        "identity": "Identity",
-        "address": "Address",
-        "settings": "Tenant settings",
-        "games_pricing": "Games",
-        "draws": "Draw channels",
-        "generated_draws": "Generated draws"
-      },
-      "address": {
-        "city": "City",
-        "country": "Country",
-        "error": {
-          "save": "Could not save the address."
-        },
-        "line1": "Address line 1",
-        "line2": "Address line 2"
-      },
-      "error": {
-        "load": "Could not load setup."
-      },
-      "loading": "Loading setup..."
-    },
     "businessProfile": {
       "title": "My Business",
       "description": "Your company identity and contact information.",
@@ -1246,7 +1203,6 @@
       },
       "address": {
         "empty": "No address on file.",
-        "edit": "Edit address",
         "add": "Add address",
         "saved": "Address saved successfully."
       }
@@ -1273,10 +1229,8 @@
       }
     },
     "sellerTerminals": {
-      "title": "Seller-terminals",
+      "title": "Sellers",
       "description": "Manage seller-terminals",
-      "search_placeholder": "Search seller-terminals…",
-      "load_error": "Could not load seller-terminals.",
       "list": {
         "title": "Seller list",
         "description": "Manage seller access, commissions and terminals authorized to sell tickets.",
@@ -1368,10 +1322,6 @@
             "description": "Unblock {{name}} ({{code}}) so they can sell tickets again?"
           }
         }
-      },
-      "empty": {
-        "title": "No seller-terminals",
-        "message": "Add your first seller-terminal to get started."
       },
       "new": {
         "title": "New seller",
@@ -1522,32 +1472,17 @@
         }
       },
       "status": {
-        "ALL": "All",
         "ACTIVE": "Active",
         "PENDING": "Pending",
         "BLOCKED": "Blocked",
         "DISABLED": "Disabled"
       },
-      "section": {
-        "identity": "Seller-terminal information",
-        "assignment": "Assignment",
-        "commission": "Commission",
-        "security": "Secure access",
-        "security_desc": "This PIN will be used by the seller-terminal to log in."
-      },
       "field": {
-        "display_name": "Display name",
         "phone": "Phone",
         "first_name": "First name",
         "last_name": "Last name",
-        "commission_rate": "Commission rate",
-        "commission_rate_hint": "Leave blank to use the tenant default rate.",
-        "commission_rate_error": "Rate must be between 0 and 100.",
         "email": "Email",
-        "pin": "PIN (6 chiffres)",
-        "pin_required": "PIN is required and must contain 6 digits.",
-        "seller_terminal_code": "Seller-terminal code",
-        "seller_terminal_code_hint": "Unique seller-terminal identifier (e.g. ST-001)"
+        "seller_terminal_code": "Seller-terminal code"
       }
     },
     "drawChannels": {
@@ -1555,7 +1490,7 @@
       "description": "Configure providers, result sources, and active draw slots for this tenant.",
       "status": {
         "active": "Active",
-        "needsConfig": "Needs config",
+        "needsConfig": "Needs setup",
         "inactive": "Inactive",
         "unavailable": "Unavailable"
       },
@@ -1563,12 +1498,12 @@
         "availableStates": "Providers",
         "activeStates": "Active providers",
         "activeChannels": "Active slots",
-        "todo": "Needs config"
+        "todo": "Needs setup"
       },
       "filters": {
         "all": "All",
         "active": "Active",
-        "todo": "Needs config",
+        "todo": "Needs setup",
         "inactive": "Inactive",
         "sourceError": "Source error"
       },
@@ -1626,14 +1561,14 @@
         "unavailable": "No slot available for this tenant",
         "status": {
           "active": "Active",
-          "needsConfig": "Needs config",
+          "needsConfig": "Needs setup",
           "disabled": "Inactive"
         }
       },
       "salesCutoff": "Sales close: {{minutes}} min before draw",
       "salesCutoffMissing": "Sales close: Not defined",
       "actions": {
-        "backToSetup": "Global setup",
+        "backToSetup": "General setup",
         "refresh": "Refresh",
         "configure": "Configure",
         "configureChannel": "Configure channel",
@@ -1717,7 +1652,7 @@
       "title": "Odds grid",
       "description": "Default odds for all bet types.",
       "actions": {
-        "backToSetup": "Global setup",
+        "backToSetup": "General setup",
         "backToGames": "Available games",
         "edit": "Edit odds"
       },
@@ -1732,52 +1667,52 @@
       }
     },
     "generatedDraws": {
-      "title": "Tirages générés",
+      "title": "Generated draws",
       "description": "Suivez les tirages générés, leur état de vente et les résultats attendus.",
       "summary": {
         "today": "Aujourd'hui",
         "salesOpen": "Vente ouverte",
         "resultsExpected": "Résultats attendus",
-        "confirmed": "Confirmés"
+        "confirmed": "Confirmed"
       },
       "datePresets": {
         "today": "Aujourd'hui",
         "tomorrow": "Demain",
-        "thisWeek": "Cette semaine"
+        "thisWeek": "This week"
       },
       "statusFilters": {
-        "all": "Tous les statuts",
+        "all": "All statuses",
         "open": "Ouverts à la vente",
         "expected": "Résultats attendus",
         "missing": "Résultats manquants",
-        "confirmed": "Confirmés",
-        "sourceError": "Erreur source"
+        "confirmed": "Confirmed",
+        "sourceError": "Source error"
       },
       "salesStatus": {
         "UPCOMING": "À venir",
         "OPEN": "Vente ouverte",
         "CLOSED": "Vente fermée",
-        "CANCELLED": "Annulé"
+        "CANCELLED": "Cancelled"
       },
       "resultStatus": {
         "NOT_DUE": "Pas attendu",
-        "EXPECTED": "Attendu",
-        "MISSING": "Manquant",
+        "EXPECTED": "Expected",
+        "MISSING": "Missing",
         "PROVISIONAL": "Provisoire",
         "CONFIRMED": "Confirmé",
-        "SOURCE_ERROR": "Erreur source"
+        "SOURCE_ERROR": "Source error"
       },
       "publicationStatus": {
-        "PUBLISHED": "Publié"
+        "PUBLISHED": "Published"
       },
       "actions": {
-        "refresh": "Actualiser",
+        "refresh": "Refresh",
         "planNextDraws": "Planifier les prochains tirages",
-        "configureDrawChannels": "Configurer les canaux de tirage",
+        "configureDrawChannels": "Configure draw channels",
         "enterResult": "Saisir résultat",
         "viewResult": "Voir résultat",
-        "verify": "Vérifier",
-        "viewDetails": "Voir détails"
+        "verify": "Verify",
+        "viewDetails": "View details"
       }
     },
     "pos": {
@@ -1788,8 +1723,15 @@
         "title": "Ticket details",
         "description": "Review the ticket sale, draw and played lines.",
         "loading": "Loading ticket...",
-        "summary": { "aria": "Ticket summary", "eyebrow": "Summary" },
-        "action": { "tickets": "Tickets", "verify": "Verify", "reprint": "Reprint" },
+        "summary": {
+          "aria": "Ticket summary",
+          "eyebrow": "Summary"
+        },
+        "action": {
+          "tickets": "Tickets",
+          "verify": "Verify",
+          "reprint": "Reprint"
+        },
         "section": {
           "sale": "Sale",
           "draw": "Draw",
@@ -1807,7 +1749,7 @@
         },
         "meta": {
           "totalPaid": "Total paid",
-          "freeLines": "Free Maryaj",
+          "freeLines": "Maryaj gratis",
           "seller": "Seller",
           "terminal": "Terminal"
         },
@@ -1869,27 +1811,27 @@
       },
       "lines": {
         "title": "Sélection des numéros",
-        "number": "Numéro",
+        "number": "Number",
         "type": "Type",
-        "stake": "Mise (HTG)",
-        "add": "Ajouter",
+        "stake": "Stake (HTG)",
+        "add": "Add",
         "clear": "Vider la liste"
       },
       "betType": {
-        "direct": "Direct",
+        "direct": "Straight",
         "boul": "Boul",
         "maryaj": "Maryaj"
       },
       "actions": {
         "confirm": "Confirmer la vente",
         "confirming": "Confirmation...",
-        "print": "Imprimer",
-        "details": "Détails",
-        "newTicket": "Nouveau ticket"
+        "print": "Print",
+        "details": "Details",
+        "newTicket": "New ticket"
       },
       "ticket": {
         "preparing": "Ticket en préparation",
-        "sold": "Ticket vendu",
+        "sold": "Ticket sold",
         "codeGeneratedAfterConfirm": "Code généré après confirmation"
       },
       "dialog": {
@@ -1936,7 +1878,7 @@
       },
       "activity": {
         "title": "Activité du terminal",
-        "salesToday": "Ventes du jour",
+        "salesToday": "Today's sales",
         "ticketsToday": "Tickets émis"
       },
       "error": {

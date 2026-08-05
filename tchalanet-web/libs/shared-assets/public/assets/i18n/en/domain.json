@@ -4,14 +4,14 @@
       "HT_BOLET": "Bolet",
       "HT_MARYAJ": "Marriage",
       "HT_MARYAJ_GRATUIT": "Free Marriage",
-      "HT_LOTO3": "Lotto 3",
-      "HT_LOTO4": "Lotto 4",
-      "HT_LOTO5": "Lotto 5"
+      "HT_LOTO3": "Loto 3",
+      "HT_LOTO4": "Loto 4",
+      "HT_LOTO5": "Loto 5"
     },
     "bet_type": {
-      "MATCH_1_2D": "1st number",
-      "MATCH_2_2D": "2nd number",
-      "MATCH_3_2D": "3rd number",
+      "MATCH_1_2D": "1st prize",
+      "MATCH_2_2D": "2nd prize",
+      "MATCH_3_2D": "3rd prize",
       "MARRIAGE_2D2D": "Marriage",
       "MARRIAGE_2D": "Marriage",
       "LOTTO3_3D": "3-digit lotto",
@@ -113,13 +113,11 @@
       "draws": "Draws",
       "seller": "Seller",
       "sellers": "Sellers",
-      "sellerTerminal": "Seller terminal",
-      "sellerTerminals": "Seller terminals",
       "odds": "Odds",
       "promotion": "Promotion",
       "promotions": "Promotions",
-      "tenant": "Tenant",
-      "tenants": "Tenants",
+      "tenant": "Operator",
+      "tenants": "Operators",
       "ticket": "Ticket",
       "tickets": "Tickets",
       "game": "Game",
@@ -151,12 +149,6 @@
       }
     },
     "draw": {
-      "provider": {
-        "newYork": "New York",
-        "florida": "Florida",
-        "georgia": "Georgia",
-        "texas": "Texas"
-      },
       "slotType": {
         "mid": "Midday",
         "eve": "Evening",
@@ -188,17 +180,17 @@
         "COMBO": "Combo",
         "MARIAGE": "Maryaj",
         "MARYAJ": "Maryaj",
-        "MATCH_1_2D": "1st lot",
-        "MATCH_2_2D": "2nd lot",
-        "MATCH_3_2D": "3rd lot",
+        "MATCH_1_2D": "1st prize",
+        "MATCH_2_2D": "2nd prize",
+        "MATCH_3_2D": "3rd prize",
         "PATTERN2X2": "Maryaj 2x2",
         "PATTERN2_2": "Maryaj 2x2",
         "PATTERN2STAR2": "Maryaj 2x2",
         "PATTERN_2X2": "Maryaj 2x2",
         "MARRIAGE_2D2D": "Maryaj 2x2",
-        "LOTTO3_3D": "Lotto 3",
-        "LOTTO4_PATTERN": "Lotto 4",
-        "LOTTO5_PATTERN": "Lotto 5"
+        "LOTTO3_3D": "Loto 3",
+        "LOTTO4_PATTERN": "Loto 4",
+        "LOTTO5_PATTERN": "Loto 5"
       },
       "option": {
         "MARRIAGE_2D2D": {

@@ -9,9 +9,9 @@
       "HT_LOTO5": "Loto 5"
     },
     "bet_type": {
-      "MATCH_1_2D": "1ye nimewo",
-      "MATCH_2_2D": "2yèm nimewo",
-      "MATCH_3_2D": "3yèm nimewo",
+      "MATCH_1_2D": "Premye lo",
+      "MATCH_2_2D": "Dezyèm lo",
+      "MATCH_3_2D": "Twazyèm lo",
       "MARRIAGE_2D2D": "Maryaj",
       "MARRIAGE_2D": "Maryaj",
       "LOTTO3_3D": "Loto 3 chif",
@@ -110,22 +110,20 @@
   "domain": {
     "entity": {
       "draw": "Tiraj",
-      "draws": "Tiraj yo",
+      "draws": "Tiraj",
       "seller": "Tèminal POS",
-      "sellers": "Tèminal POS yo",
-      "sellerTerminal": "Tèminal POS",
-      "sellerTerminals": "Tèminal POS yo",
+      "sellers": "Tèminal POS",
       "odds": "Barèm",
       "promotion": "Pwomosyon",
-      "promotions": "Pwomosyon yo",
+      "promotions": "Pwomosyon",
       "tenant": "Santral",
       "tenants": "Santral yo",
       "ticket": "Tikè",
-      "tickets": "Tikè yo",
+      "tickets": "Tikè",
       "game": "Jwèt",
-      "games": "Jwèt yo",
+      "games": "Jwèt",
       "result": "Rezilta",
-      "results": "Rezilta yo",
+      "results": "Rezilta",
       "number": "Nimewo"
     },
     "ticket": {
@@ -151,12 +149,6 @@
       }
     },
     "draw": {
-      "provider": {
-        "newYork": "New York",
-        "florida": "Florida",
-        "georgia": "Georgia",
-        "texas": "Texas"
-      },
       "slotType": {
         "mid": "Midi",
         "eve": "Swa",
@@ -188,9 +180,9 @@
         "COMBO": "Konbine",
         "MARIAGE": "Maryaj",
         "MARYAJ": "Maryaj",
-        "MATCH_1_2D": "1e lo",
-        "MATCH_2_2D": "2e lo",
-        "MATCH_3_2D": "3e lo",
+        "MATCH_1_2D": "Premye lo",
+        "MATCH_2_2D": "Dezyèm lo",
+        "MATCH_3_2D": "Twazyèm lo",
         "PATTERN2X2": "Maryaj 2x2",
         "PATTERN2_2": "Maryaj 2x2",
         "PATTERN2STAR2": "Maryaj 2x2",

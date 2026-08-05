@@ -16,10 +16,6 @@
         "message": "Koneksyon ou bloke kounye a. Kontakte sipèvizè ou."
       }
     },
-    "session": {
-      "title": "Koneksyon",
-      "openedAt": "Louvri a"
-    },
     "draw": {
       "title": "Tiraj kounya"
     },
@@ -34,7 +30,6 @@
       "title": "Aksyon rapid",
       "newTicket": "Nouvo tikè",
       "history": "Istwa",
-      "closeSession": "Fèmen koneksyon",
       "closeConnexion": "Fermer la connexion"
     },
     "sell": {

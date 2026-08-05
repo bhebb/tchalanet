@@ -2,8 +2,8 @@
   "common": {
     "errors": {
       "fallback": {
-        "title": "Probleme detecte",
-        "message": "Un probleme est survenu. Reessayez ou contactez le support si le probleme persiste."
+        "title": "Problème détecté",
+        "message": "Un problème est survenu. Réessayez ou contactez le support si le problème persiste."
       },
       "categories": {
         "auth_required": {
@@ -11,20 +11,20 @@
           "message": "Reconnectez-vous pour continuer."
         },
         "access_denied": {
-          "title": "Acces non autorise",
+          "title": "Accès non autorisé",
           "message": "Votre compte ne permet pas cette action."
         },
         "validation": {
           "title": "Information a corriger",
-          "message": "Verifiez les champs et reessayez."
+          "message": "Vérifiez les champs puis réessayez."
         },
         "business_rule": {
           "title": "Action indisponible",
           "message": "Vérifiez la demande puis réessayez."
         },
         "not_found": {
-          "title": "Element introuvable",
-          "message": "La ressource demandee n est plus disponible."
+          "title": "Élément introuvable",
+          "message": "La ressource demandée n’est plus disponible."
         },
         "conflict": {
           "title": "Action impossible",
@@ -32,19 +32,19 @@
         },
         "rate_limited": {
           "title": "Trop de demandes",
-          "message": "Patientez un moment avant de reessayer."
+          "message": "Patientez un moment avant de réessayer."
         },
         "network_unavailable": {
           "title": "Connexion indisponible",
-          "message": "Verifiez la connexion et reessayez."
+          "message": "Vérifiez la connexion puis réessayez."
         },
         "service_unavailable": {
           "title": "Service temporairement indisponible",
           "message": "Une partie du service est temporairement indisponible."
         },
         "unexpected": {
-          "title": "Probleme detecte",
-          "message": "Un probleme est survenu. Reessayez ou contactez le support si le probleme persiste."
+          "title": "Problème détecté",
+          "message": "Un problème est survenu. Réessayez ou contactez le support si le problème persiste."
         }
       },
       "codes": {
@@ -114,7 +114,7 @@
           "terminal": {
             "tenant_selection_not_allowed": {
               "title": "Sélection non autorisée",
-              "message": "Un terminal vendeur ne peut pas sélectionner un autre espace."
+              "message": "Un vendeur ne peut pas sélectionner un autre espace."
             }
           },
           "tenant": {
@@ -196,11 +196,11 @@
             },
             "seller_terminal_not_linked": {
               "title": "Terminal non associé",
-              "message": "Cette connexion n’est pas associée à un terminal vendeur. Rouvrez un terminal autorisé."
+              "message": "Cette connexion n’est associée à aucun vendeur. Connectez-vous avec un compte vendeur autorisé."
             },
             "seller_terminal_inactive": {
               "title": "Terminal inactif",
-              "message": "Ce terminal vendeur ne peut pas être utilisé actuellement. Contactez un administrateur."
+              "message": "Ce compte vendeur est inactif. Contactez un administrateur."
             }
           },
           "handoff": {
@@ -309,46 +309,52 @@
         "request": {
           "missing_parameter": {
             "title": "Information manquante",
-            "message": "Une information obligatoire est manquante. Verifiez le formulaire puis reessayez."
+            "message": "Une information obligatoire est manquante. Vérifiez le formulaire puis réessayez."
           },
           "not_readable": {
             "title": "Demande invalide",
-            "message": "Certaines informations envoyees ne peuvent pas etre lues. Verifiez le formulaire puis reessayez."
+            "message": "Certaines informations envoyées ne peuvent pas être lues. Vérifiez le formulaire puis réessayez."
           },
           "type_mismatch": {
             "title": "Format invalide",
-            "message": "Une valeur n a pas le format attendu. Verifiez le champ signale puis reessayez."
+            "message": "Une valeur n’a pas le format attendu. Vérifiez le champ signalé puis réessayez."
           }
         },
         "validation": {
           "constraint_violation": {
             "title": "Information a corriger",
-            "message": "Corrigez les champs signales puis reessayez."
+            "message": "Corrigez les champs signalés puis réessayez."
           },
           "failed": {
             "title": "Information a corriger",
-            "message": "Corrigez les champs signales puis reessayez."
+            "message": "Corrigez les champs signalés puis réessayez."
           },
           "invalid_format": {
             "title": "Format invalide",
-            "message": "Corrigez le format du champ signale puis reessayez."
+            "message": "Corrigez le format du champ signalé puis réessayez."
           },
           "out_of_range": {
             "title": "Valeur invalide",
-            "message": "Saisissez une valeur comprise dans les limites attendues puis reessayez."
+            "message": "Saisissez une valeur comprise dans les limites attendues puis réessayez."
           },
           "required": {
             "title": "Information manquante",
-            "message": "Remplissez le champ signale puis reessayez."
+            "message": "Remplissez le champ signalé puis réessayez."
           }
         },
         "platform": {
           "identity": {
             "activation": {
               "error": {
-                "title": "Activation du compte incomplete",
-                "message": "Votre espace reste accessible, mais une verification de compte n a pas pu se terminer."
+                "title": "Activation du compte incomplète",
+                "message": "Votre espace reste accessible, mais une vérification de compte n’a pas pu aboutir."
               }
+            }
+          },
+          "communication": {
+            "test_degraded": {
+              "title": "Test de communication incomplet",
+              "message": "Le test n'a pas pu atteindre sa destination. Vérifiez la configuration du canal."
             }
           }
         },
@@ -371,23 +377,48 @@
           },
           "plan_unavailable": {
             "title": "Plan indisponible",
-            "message": "Le plan de ce tenant ne peut pas être lu pour le moment. Réessayez plus tard."
+            "message": "Le plan de votre espace ne peut pas être lu pour le moment. Réessayez plus tard."
           }
         },
         "limits": {
           "blocked": {
-            "title": "Limite de vente atteinte",
-            "message": "Cette vente dépasse une limite configurée pour ce tirage ou ce numéro. Réduisez la mise, choisissez un autre numéro ou retirez la ligne concernée."
+            "title": "Limite dépassée",
+            "message": "Cette vente dépasse la limite configurée."
+          },
+          "target_type_required": {
+            "title": "Cible requise",
+            "message": "Sélectionnez le type de cible de la limite."
+          },
+          "target_type_unsupported": {
+            "title": "Cible non prise en charge",
+            "message": "Ce type de cible n’est pas disponible pour les limites."
+          },
+          "target_id_required": {
+            "title": "Cible requise",
+            "message": "Sélectionnez la cible de la limite."
+          },
+          "target_id_invalid": {
+            "title": "Cible invalide",
+            "message": "Sélectionnez une cible de limite valide."
           }
         },
         "subscription": {
-          "cancelled": { "title": "Abonnement annulé", "message": "L'abonnement a été annulé." },
+          "cancelled": {
+            "title": "Abonnement annulé",
+            "message": "L'abonnement a été annulé."
+          },
           "renewed": {
             "title": "Abonnement renouvelé",
             "message": "L'abonnement a été renouvelé."
           },
-          "resumed": { "title": "Abonnement réactivé", "message": "L'abonnement a été réactivé." },
-          "suspended": { "title": "Abonnement suspendu", "message": "L'abonnement a été suspendu." }
+          "resumed": {
+            "title": "Abonnement réactivé",
+            "message": "L'abonnement a été réactivé."
+          },
+          "suspended": {
+            "title": "Abonnement suspendu",
+            "message": "L'abonnement a été suspendu."
+          }
         },
         "sales": {
           "promotion_applied": {
@@ -395,8 +426,8 @@
             "message": "Le ticket inclut des lignes gratuites appliquees par la promotion."
           },
           "promotion_terminal_override_applied": {
-            "title": "Regle promotionnelle vendeur appliquee",
-            "message": "Le ticket utilise la regle promotionnelle specifique a ce vendeur."
+            "title": "Règle promotionnelle vendeur appliquée",
+            "message": "Le ticket utilise la règle promotionnelle spécifique à ce vendeur."
           },
           "acceptable": {
             "title": "Vente prête",
@@ -487,8 +518,8 @@
             "message": "L’heure limite de vente est passée. Choisissez un autre tirage ouvert."
           },
           "session_closed": {
-            "title": "Session de caisse fermée",
-            "message": "Ouvrez une session de caisse avant de vendre."
+            "title": "Session de vente fermée",
+            "message": "Ouvrez une session de vente avant de vendre."
           },
           "terminal_blocked": {
             "title": "Vendeur bloqué",
@@ -500,7 +531,7 @@
           },
           "tenant_disabled": {
             "title": "Espace désactivé",
-            "message": "Les ventes sont désactivées pour ce tenant. Contactez l’administrateur plateforme."
+            "message": "Les ventes sont désactivées pour votre espace. Contactez l’administrateur plateforme."
           },
           "untrusted_operational_context": {
             "title": "Contexte de vente invalide",
@@ -559,7 +590,7 @@
             },
             "cannot_sell": {
               "title": "Vente indisponible",
-              "message": "Ce terminal vendeur ne peut pas vendre actuellement. Utilisez un terminal actif ou vérifiez son accès."
+              "message": "Ce vendeur ne peut pas vendre actuellement. Utilisez un compte vendeur actif ou vérifiez ses accès."
             }
           },
           "tenant": {
@@ -702,7 +733,7 @@
         "sellerterminal": {
           "not_found": {
             "title": "Terminal introuvable",
-            "message": "Ce terminal vendeur n’est plus disponible."
+            "message": "Ce vendeur n’est plus disponible."
           },
           "status_transition_invalid": {
             "title": "Action impossible",
@@ -756,7 +787,7 @@
           },
           "tenant_default_not_configured": {
             "title": "Tarification manquante",
-            "message": "Configurez d’abord la règle de tarification du tenant."
+            "message": "Configurez d’abord la règle de tarification de votre espace."
           },
           "override_not_found": {
             "title": "Override introuvable",
@@ -764,7 +795,7 @@
           },
           "override_payout_rule_type_mismatch": {
             "title": "Override incompatible",
-            "message": "Un terminal ne peut pas modifier le type de règle défini pour le tenant."
+            "message": "Un vendeur ne peut pas modifier le type de règle défini pour l’espace."
           }
         },
         "draw": {
@@ -891,28 +922,6 @@
             }
           }
         },
-        "limits": {
-          "blocked": {
-            "title": "Limite dépassée",
-            "message": "Cette vente dépasse la limite configurée."
-          },
-          "target_type_required": {
-            "title": "Cible requise",
-            "message": "Sélectionnez le type de cible de la limite."
-          },
-          "target_type_unsupported": {
-            "title": "Cible non prise en charge",
-            "message": "Ce type de cible n’est pas disponible pour les limites."
-          },
-          "target_id_required": {
-            "title": "Cible requise",
-            "message": "Sélectionnez la cible de la limite."
-          },
-          "target_id_invalid": {
-            "title": "Cible invalide",
-            "message": "Sélectionnez une cible de limite valide."
-          }
-        },
         "notification": {
           "not_found": {
             "title": "Notification introuvable",
@@ -947,8 +956,8 @@
             "message": "Choisissez une langue de notification prise en charge."
           },
           "tenant_required": {
-            "title": "Tenant requis",
-            "message": "Sélectionnez le tenant de la notification."
+            "title": "Santral requis",
+            "message": "Sélectionnez le santral de la notification."
           },
           "target_required": {
             "title": "Destinataire requis",
@@ -960,7 +969,7 @@
           },
           "tenant_audience_requires_tenant_scope": {
             "title": "Accès refusé",
-            "message": "Cette audience nécessite le contexte tenant."
+            "message": "Cette audience nécessite le contexte d’un santral."
           },
           "recipients_required": {
             "title": "Destinataire requis",
@@ -1064,8 +1073,8 @@
           },
           "home": {
             "seller_terminal_required": {
-              "title": "Terminal vendeur requis",
-              "message": "Rouvrez la session depuis un terminal vendeur valide."
+              "title": "Compte vendeur requis",
+              "message": "Connectez-vous avec un compte vendeur valide."
             }
           },
           "dashboard": {
@@ -1077,7 +1086,7 @@
           "tickets": {
             "seller_terminal_mismatch": {
               "title": "Accès refusé",
-              "message": "Ce terminal vendeur ne correspond pas à votre session."
+              "message": "Ce vendeur ne correspond pas à celui de votre connexion."
             }
           },
           "receipt": {
@@ -1098,8 +1107,8 @@
               "message": "Le document est trop volumineux pour être envoyé en pièce jointe."
             },
             "seller_terminal_required": {
-              "title": "Terminal vendeur requis",
-              "message": "Rouvrez une session de terminal vendeur valide pour continuer."
+              "title": "Compte vendeur requis",
+              "message": "Connectez-vous avec un compte vendeur valide pour continuer."
             }
           }
         },
@@ -1110,7 +1119,7 @@
           },
           "channel_disabled": {
             "title": "Canal d’envoi indisponible",
-            "message": "Ce canal d’envoi n’est pas activé pour ce tenant."
+            "message": "Ce canal d’envoi n’est pas activé pour votre espace."
           },
           "enqueue_failed": {
             "title": "Envoi indisponible",
@@ -1131,12 +1140,12 @@
             "message": "Ce jeu catalogue n’est plus disponible."
           },
           "not_found": {
-            "title": "Jeu tenant introuvable",
-            "message": "Ce jeu n’est pas activé pour ce tenant."
+            "title": "Jeu introuvable",
+            "message": "Ce jeu n’est pas activé pour votre espace."
           },
           "disabled": {
             "title": "Jeu désactivé",
-            "message": "Ce jeu est désactivé pour ce tenant."
+            "message": "Ce jeu est désactivé pour votre espace."
           },
           "catalog_game_inactive": {
             "title": "Jeu inactif",
@@ -1201,20 +1210,20 @@
         },
         "tenant": {
           "not_found": {
-            "title": "Tenant introuvable",
-            "message": "Ce tenant n’est plus disponible."
+            "title": "Santral introuvable",
+            "message": "Ce santral n’est plus disponible."
           },
           "activation_not_allowed": {
             "title": "Activation indisponible",
-            "message": "Ce tenant ne peut pas être activé dans son état actuel."
+            "message": "Ce santral ne peut pas être activé dans son état actuel."
           },
           "suspension_not_allowed": {
             "title": "Suspension indisponible",
-            "message": "Ce tenant ne peut pas être suspendu dans son état actuel."
+            "message": "Ce santral ne peut pas être suspendu dans son état actuel."
           },
           "settings_invalid": {
             "title": "Configuration invalide",
-            "message": "Corrigez la configuration du tenant puis réessayez."
+            "message": "Corrigez la configuration du santral puis réessayez."
           },
           "support_reason_invalid": {
             "title": "Motif de support invalide",
@@ -1223,7 +1232,7 @@
           "commission": {
             "default_rate_not_set": {
               "title": "Taux par défaut requis",
-              "message": "Configurez d’abord le taux de commission par défaut du tenant."
+              "message": "Configurez d’abord le taux de commission par défaut du santral."
             }
           }
         },
@@ -1288,8 +1297,8 @@
         "platformadmin": {
           "dashboard": {
             "tenants_unavailable": {
-              "title": "Tenants indisponibles",
-              "message": "Les indicateurs des tenants sont temporairement indisponibles."
+              "title": "Santrals indisponibles",
+              "message": "Les indicateurs des santrals sont temporairement indisponibles."
             },
             "analytics_unavailable": {
               "title": "Statistiques plateforme indisponibles",
@@ -1317,11 +1326,11 @@
             },
             "structural_update_in_use": {
               "title": "Modification impossible",
-              "message": "Ce jeu est déjà utilisé dans une configuration tenant."
+              "message": "Ce jeu est déjà utilisé dans la configuration d’un santral."
             },
             "delete_in_use": {
               "title": "Suppression impossible",
-              "message": "Ce jeu est déjà utilisé dans une configuration tenant."
+              "message": "Ce jeu est déjà utilisé dans la configuration d’un santral."
             },
             "deactivated": {
               "title": "Jeu désactivé",
@@ -1363,14 +1372,6 @@
             }
           }
         },
-        "platform": {
-          "communication": {
-            "test_degraded": {
-              "title": "Test de communication incomplet",
-              "message": "Le test n'a pas pu atteindre sa destination. Vérifiez la configuration du canal."
-            }
-          }
-        },
         "public": {
           "contact_request": {
             "notification_failed": {
@@ -1395,7 +1396,7 @@
             },
             "draw_not_in_tenant": {
               "title": "Tirage invalide",
-              "message": "Un des tirages ne fait pas partie du tenant sélectionné."
+              "message": "Un des tirages ne fait pas partie du santral sélectionné."
             }
           }
         }

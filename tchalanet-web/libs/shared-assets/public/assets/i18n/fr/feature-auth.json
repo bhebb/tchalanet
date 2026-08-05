@@ -52,7 +52,7 @@
       "profile": {
         "title": "Profil",
         "firstName": "Prénom",
-        "lastName": "Nom",
+        "lastName": "Nom de famille",
         "phoneNumber": "Téléphone optionnel"
       },
       "tenant": {

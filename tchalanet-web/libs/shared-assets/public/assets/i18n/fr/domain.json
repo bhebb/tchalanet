@@ -113,13 +113,11 @@
       "draws": "Tirages",
       "seller": "Vendeur",
       "sellers": "Vendeurs",
-      "sellerTerminal": "Terminal vendeur",
-      "sellerTerminals": "Terminaux vendeurs",
       "odds": "Barèmes",
       "promotion": "Promotion",
       "promotions": "Promotions",
-      "tenant": "Tenant",
-      "tenants": "Tenants",
+      "tenant": "Santral",
+      "tenants": "Santrals",
       "ticket": "Ticket",
       "tickets": "Tickets",
       "game": "Jeu",
@@ -151,12 +149,6 @@
       }
     },
     "draw": {
-      "provider": {
-        "newYork": "New York",
-        "florida": "Florida",
-        "georgia": "Georgia",
-        "texas": "Texas"
-      },
       "slotType": {
         "mid": "Midi",
         "eve": "Soir",

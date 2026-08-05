@@ -30,8 +30,8 @@
         "dark": "Fonse"
       },
       "locale": "Lokalizasyon",
-      "timeZone": "Zòn tan",
-      "currency": "Lajan"
+      "timeZone": "Fizo orè",
+      "currency": "Deviz"
     },
     "error": {
       "load": "Erè pandan chajman pwofil.",
@@ -52,7 +52,7 @@
       "profile": {
         "title": "Pwofil",
         "firstName": "Prenon",
-        "lastName": "Non",
+        "lastName": "Siyati",
         "phoneNumber": "Telefòn opsyonèl"
       },
       "tenant": {

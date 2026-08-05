@@ -112,7 +112,7 @@
         "createdAt": "Kreye",
         "updatedAt": "Dènyè modifikasyon",
         "type": "Tip",
-        "currency": "Lajan",
+        "currency": "Deviz",
         "name": "Non",
         "email": "Imèl"
       },
@@ -159,7 +159,7 @@
         "name": "Non",
         "type": "Tip",
         "timezone": "Fizo orè",
-        "currency": "Lajan",
+        "currency": "Deviz",
         "initialAdminEmail": "Imèl admin inisyal",
         "profile": "Pwofil"
       },
@@ -211,14 +211,14 @@
           "region": "Rejyon",
           "commerce": "Komès",
           "profile": "Pwofil & Readiness",
-          "address": "Adresse"
+          "address": "Adrès"
         },
         "field": {
           "type": "Tip",
-          "country": "Pays",
-          "city": "Ville",
-          "addressLine": "Adresse",
-          "postalCode": "Code postal",
+          "country": "Peyi",
+          "city": "Vil",
+          "addressLine": "Adrès",
+          "postalCode": "Kòd postal",
           "theme": "Thème actif"
         },
         "identityCard": {
@@ -247,7 +247,7 @@
           "audit": "Odit"
         },
         "address": {
-          "empty": "Adresse non renseignée."
+          "empty": "Pa gen adrès."
         },
         "subscription": {
           "title": "Abònman",
@@ -369,7 +369,7 @@
           "i18n": "Tradiksyon",
           "games": "Jwèt",
           "pricing": "Tarif",
-          "draw_channels": "Règ tiraj",
+          "draw_channels": "Kanal tiraj",
           "promotions_templates": "Modèl pwomosyon",
           "limits_templates": "Modèl limit",
           "demo_users": "Itilizatè demo",
@@ -387,7 +387,7 @@
         "readiness": {
           "identity": "Idantite santral",
           "users": "Admin santral",
-          "draw_channels": "Règ tiraj",
+          "draw_channels": "Kanal tiraj",
           "seller_rules": "Règ tèminal POS",
           "limits": "Limit",
           "odds": "Barèm",
@@ -478,7 +478,7 @@
         "name": "Non afichaj",
         "type": "Tip",
         "timezone": "Fizo orè",
-        "currency": "Lajan",
+        "currency": "Deviz",
         "defaultCommissionRate": "Komisyon pa defo",
         "profile": "Pwofil",
         "maryajGratisEnabled": "Ofri Maryaj gratis",
@@ -551,7 +551,7 @@
         "i18n": "Tradiksyon",
         "games": "Jwèt",
         "pricing": "Tarif",
-        "drawChannels": "Règ tiraj",
+        "drawChannels": "Kanal tiraj",
         "promotionsTemplates": "Modèl pwomosyon",
         "limitsTemplates": "Modèl limit",
         "demoUsers": "Itilizatè demo",
@@ -715,7 +715,7 @@
     "onboarding": {
       "adminCreated": "Admin santral kreye",
       "code": "Kòd santral",
-      "currency": "Lajan",
+      "currency": "Deviz",
       "domains": "Domèn ki enkli",
       "error": "Operasyon an echwe.",
       "initialAdminEmail": "Imèl premye admin",
@@ -730,8 +730,8 @@
       "type": "Tip"
     },
     "action": {
-      "health": "Sante sistèm",
-      "onboarding": "Onbòding",
+      "health": "Sante platfòm",
+      "onboarding": "Enskripsyon",
       "settings": "Paramèt",
       "subscriptions": "Abònman",
       "tenants": "Santral"
@@ -771,7 +771,7 @@
       },
       "status": {
         "active": "Aktif",
-        "pending": "Ann atant",
+        "pending": "An atant",
         "suspended": "Bloke",
         "inactive": "Inaktif",
         "archived": "Achive"
@@ -807,7 +807,7 @@
       },
       "detail": {
         "title": "Detay administratè",
-      "description": "Enfòmasyon ak aksyon pou administratè santral sa a.",
+        "description": "Enfòmasyon ak aksyon pou administratè santral sa a.",
         "error": {
           "load": "Enposib pou chaje administratè sa a."
         },
@@ -883,28 +883,62 @@
     "analyticsReconciliation": {
       "title": "Rekonsilyasyon analytics",
       "description": "Konpare lavant ki apwouve yo ak pwojeksyon analytics yo epi rebati sèlman lè yon ekart konfime.",
-      "section": { "target": "Sijè ak peryòd", "result": "Rezilta verifikasyon", "repair": "Rebati pwojeksyon" },
+      "section": {
+        "target": "Sijè ak peryòd",
+        "result": "Rezilta verifikasyon",
+        "repair": "Rebati pwojeksyon"
+      },
       "field": {
-        "tenant": "Santral", "from": "Soti", "to": "Rive", "period": "Peryòd", "status": "Estati",
-        "mismatchCount": "Kantite ekart", "runId": "ID egzekisyon", "reason": "Rezon rekonstriksyon",
-        "drawId": "Tiraj", "sellerTerminalId": "Tèminal POS"
+        "tenant": "Santral",
+        "from": "Soti",
+        "to": "Rive",
+        "period": "Peryòd",
+        "status": "Estati",
+        "mismatchCount": "Kantite ekart",
+        "runId": "ID egzekisyon",
+        "reason": "Rezon rekonstriksyon",
+        "drawId": "Tiraj",
+        "sellerTerminalId": "Tèminal POS"
       },
-      "placeholder": { "tenant": "Chèche yon santral aktif" },
-      "empty": { "tenant": "Pa gen santral aktif ki koresponn." },
-      "hint": { "window": "Peryòd maksimòm: {{days}} jou." },
-      "action": { "validate": "Verifye analytics", "rebuild": "Rebati epi verifye" },
-      "status": { "SUCCESS": "Konfòm", "MISMATCH": "Ekart detekte", "REPAIR_FAILED": "Rekonstriksyon echwe" },
+      "placeholder": {
+        "tenant": "Chèche yon santral aktif"
+      },
+      "empty": {
+        "tenant": "Pa gen santral aktif ki koresponn."
+      },
+      "hint": {
+        "window": "Peryòd maksimòm: {{days}} jou."
+      },
+      "action": {
+        "validate": "Verifye analytics",
+        "rebuild": "Rebati epi verifye"
+      },
+      "status": {
+        "SUCCESS": "Konfòm",
+        "MISMATCH": "Ekart detekte",
+        "REPAIR_FAILED": "Rekonstriksyon echwe"
+      },
       "metric": {
-        "grossSales": "Lavant brit", "payoutsPaid": "Kantite peye", "commission": "Komisyon vandè", "tickets": "Tikè vann",
-        "expected": "Sous", "observed": "Pwojeksyon"
+        "grossSales": "Vant brit",
+        "payoutsPaid": "Kantite peye",
+        "commission": "Komisyon vandè",
+        "tickets": "Tikè vann",
+        "expected": "Sous",
+        "observed": "Pwojeksyon"
       },
-      "success": { "noMismatch": "Pwojeksyon analytics yo koresponn ak lavant sous yo." },
-      "repair": { "description": "Aksyon sa a efase epi rebati pwojeksyon analytics san li pa modifye tikè yo oswa liv tranzaksyon yo." },
+      "success": {
+        "noMismatch": "Pwojeksyon analytics yo koresponn ak lavant sous yo."
+      },
+      "repair": {
+        "description": "Aksyon sa a efase epi rebati pwojeksyon analytics san li pa modifye tikè yo oswa liv tranzaksyon yo."
+      },
       "rebuildDialog": {
-        "title": "Konfime rekonstriksyon analytics", "warning": "Rekonstriksyon an ranplase pwojeksyon analytics yo pou peryòd sa a. Li pa chanje tikè yo."
+        "title": "Konfime rekonstriksyon analytics",
+        "warning": "Rekonstriksyon an ranplase pwojeksyon analytics yo pou peryòd sa a. Li pa chanje tikè yo."
       },
       "validation": {
-        "title": "Peryòd pa valid", "scope": "Chwazi yon santral epi yon peryòd valid ki pa depase 90 jou.",
+        "title": "Peryòd pa valid",
+        "scope": "Chwazi yon santral epi yon peryòd valid ki pa depase 90 jou.",
         "reason": "Bay yon rezon ki gen omwen 10 karaktè."
       },
       "noTenant": "Santral pa chwazi"
