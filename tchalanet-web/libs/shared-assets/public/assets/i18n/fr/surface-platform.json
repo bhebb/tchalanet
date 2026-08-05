@@ -5,8 +5,8 @@
         "platform": "Plateforme"
       },
       "dashboard": "Tableau de bord",
-      "tenants": "Tenants",
-      "tenantProvisioning": "Provisionnement tenant",
+      "tenants": "Santrals",
+      "tenantProvisioning": "Provisionnement santral",
       "contactRequests": "Demandes de contact",
       "news": "Actualités",
       "notifications": "Notifications",
@@ -18,8 +18,8 @@
       "operations": "Opérations",
       "global_configuration": "Configuration globale"
     },
-    "tenants": "Tenants",
-    "tenant_onboarding": "Onboarding tenant",
+    "tenants": "Santrals",
+    "tenant_onboarding": "Onboarding santral",
     "subscriptions": "Abonnements",
     "platform_overview": "Vue plateforme",
     "platform_health": "Santé plateforme",
@@ -43,9 +43,9 @@
       "commercialDashboard": "Tableau de bord commercial",
       "health": "Santé plateforme",
       "opsDashboard": "Ops plateforme",
-      "tenantsGroup": "Tenants",
-      "tenants": "Tous les tenants",
-      "createTenant": "Créer un tenant",
+      "tenantsGroup": "Santrals",
+      "tenants": "Tous les santrals",
+      "createTenant": "Créer un santral",
       "tenantOnboarding": "Onboarding",
       "tenantAdmins": "Administrateurs",
       "subscriptions": "Abonnements",
@@ -89,7 +89,7 @@
       "reports": "Rapports",
       "platformReports": "Rapports plateforme",
       "superAdmins": "Super admins",
-      "supportTenant": "Support tenant",
+      "supportTenant": "Support santral",
       "draws": "Tirages",
       "scheduledTasks": "Tâches planifiées",
       "drawChannelGames": "Jeux par canal",
@@ -115,7 +115,7 @@
     },
     "kpi": {
       "totalTenants": {
-        "label": "Tenants"
+        "label": "Santrals"
       },
       "activeTenants": {
         "label": "Actifs"
@@ -183,10 +183,10 @@
     "ops": {
       "salesSimulation": {
         "title": "Simulation de ventes",
-        "description": "Créer un volume QA de tickets par tenant, tirage et terminal vendeur via le vrai flux prepare/confirm.",
+        "description": "Créer un volume QA de tickets par santral, tirage et terminal vendeur via le vrai flux prepare/confirm.",
         "errorTitle": "Action impossible",
         "noticeTitle": "Simulation",
-        "noTenant": "Aucun tenant sélectionné",
+        "noTenant": "Aucun santral sélectionné",
         "drawsSelected": "{{selected}} / {{total}} tirage(s) sélectionné(s)",
         "requestedTickets": "Tickets demandés",
         "simulationId": "Simulation {{id}}",
@@ -207,7 +207,7 @@
           "failures": "Échecs"
         },
         "field": {
-          "tenant": "Tenant",
+          "tenant": "Santral",
           "sellerTerminals": "Terminaux vendeurs",
           "status": "Statut",
           "slot": "Slot",
@@ -221,14 +221,14 @@
           "reason": "Raison"
         },
         "placeholder": {
-          "tenant": "Rechercher un tenant",
+          "tenant": "Rechercher un santral",
           "sellerTerminals": "Rechercher un vendeur"
         },
         "empty": {
-          "tenant": "Aucun tenant trouvé",
+          "tenant": "Aucun santral trouvé",
           "sellerTerminal": "Aucun terminal vendeur actif",
           "drawsTitle": "Aucun tirage chargé",
-          "drawsMessage": "Sélectionnez un tenant puis chargez les tirages."
+          "drawsMessage": "Sélectionnez un santral puis chargez les tirages."
         },
         "status": {
           "all": "Tous",
@@ -257,9 +257,9 @@
           "executed": "Simulation exécutée."
         },
         "error": {
-          "selectTenantBeforeDraws": "Sélectionnez un tenant avant de charger les tirages.",
+          "selectTenantBeforeDraws": "Sélectionnez un santral avant de charger les tirages.",
           "loadDraws": "Chargement des tirages impossible.",
-          "missingRunInputs": "Sélectionnez un tenant, au moins un tirage, au moins un terminal vendeur et un mix non vide.",
+          "missingRunInputs": "Sélectionnez un santral, au moins un tirage, au moins un terminal vendeur et un mix non vide.",
           "run": "Simulation impossible."
         },
         "metric": {
@@ -291,7 +291,7 @@
   "dashboard": {
     "superadmin": {
       "tenants": {
-        "title": "Tenants"
+        "title": "Santrals"
       },
       "sales": {
         "title": "Activité du jour"
@@ -322,8 +322,8 @@
         "empty": "Aucune vente par jeu disponible."
       },
       "top_tenants": {
-        "title": "Top tenants",
-        "empty": "Aucune activité tenant pour cette période."
+        "title": "Top santrals",
+        "empty": "Aucune activité santral pour cette période."
       },
       "quick_actions": {
         "title": "Actions rapides"
@@ -380,7 +380,7 @@
   },
   "quickaction": {
     "platform": {
-      "create_tenant": "Créer un tenant",
+      "create_tenant": "Créer un santral",
       "onboarding": "Voir l’onboarding",
       "subscriptions": "Gérer les abonnements",
       "platform_health": "Ouvrir la santé plateforme",
