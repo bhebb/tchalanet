@@ -86,9 +86,12 @@ if [ "$DRY_RUN" = "1" ]; then
   fi
   TABLES="$(docker exec -e PGPASSWORD=verify "$VERIFY" psql -U postgres -d verify -tAc \
             "select count(*) from information_schema.tables where table_schema='public'")"
+  SCHEMAS="$(docker exec -e PGPASSWORD=verify "$VERIFY" psql -U postgres -d verify -tAc \
+            "select count(*) from pg_namespace where nspname in ('public', 'batch')")"
   docker rm -f "$VERIFY" >/dev/null 2>&1 || true
   [ "${TABLES:-0}" -gt 0 ] || fail "rehearsal restored 0 tables"
-  log "✅ Rehearsal OK — $TABLES tables restored from $OBJECT"
+  [ "${SCHEMAS:-0}" -eq 2 ] || fail "rehearsal did not restore both public and batch schemas"
+  log "✅ Rehearsal OK — $TABLES public tables and public+batch schemas restored from $OBJECT"
   exit 0
 fi
 
@@ -141,11 +144,18 @@ log "Reapplying runtime privileges for $APP_DB_USER"
 docker exec -e PGPASSWORD="$PGPASSWORD" "$PG_CONTAINER" \
   psql -U "$PGUSER" -d "$APP_DB" -v ON_ERROR_STOP=1 -q \
   -c "GRANT ALL PRIVILEGES ON DATABASE \"$APP_DB\" TO \"$APP_DB_USER\"" \
-  -c "GRANT ALL ON SCHEMA public TO \"$APP_DB_USER\"" \
-  -c "GRANT ALL ON ALL TABLES IN SCHEMA public TO \"$APP_DB_USER\"" \
-  -c "GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO \"$APP_DB_USER\"" \
-  -c "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO \"$APP_DB_USER\"" \
-  -c "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO \"$APP_DB_USER\"" \
   || fail "could not reapply runtime privileges for $APP_DB_USER"
+
+for schema in public batch; do
+  log "Reapplying runtime privileges for $APP_DB_USER on $schema"
+  docker exec -e PGPASSWORD="$PGPASSWORD" "$PG_CONTAINER" \
+    psql -U "$PGUSER" -d "$APP_DB" -v ON_ERROR_STOP=1 -q \
+    -c "GRANT ALL ON SCHEMA \"$schema\" TO \"$APP_DB_USER\"" \
+    -c "GRANT ALL ON ALL TABLES IN SCHEMA \"$schema\" TO \"$APP_DB_USER\"" \
+    -c "GRANT ALL ON ALL SEQUENCES IN SCHEMA \"$schema\" TO \"$APP_DB_USER\"" \
+    -c "ALTER DEFAULT PRIVILEGES IN SCHEMA \"$schema\" GRANT ALL ON TABLES TO \"$APP_DB_USER\"" \
+    -c "ALTER DEFAULT PRIVILEGES IN SCHEMA \"$schema\" GRANT ALL ON SEQUENCES TO \"$APP_DB_USER\"" \
+    || fail "could not reapply runtime privileges for $APP_DB_USER on $schema"
+done
 
 log "✅ Restored $APP_DB from $OBJECT"
