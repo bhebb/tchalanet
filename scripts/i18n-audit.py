@@ -138,7 +138,11 @@ def audit(project: str, root: str, verbose: bool) -> dict[str, int]:
         for k, v in data[loc].items():
             if not isinstance(v, str):
                 continue
-            probe = HT_ALLOWED.sub("", v) if loc == "ht" else v
+            # le nom d'un placeholder est un contrat avec le code, pas de la copy :
+            # {{tenant}} reste {{tenant}} meme quand le mot est banni du texte.
+            probe = PLACEHOLDER.sub("", v)
+            if loc == "ht":
+                probe = HT_ALLOWED.sub("", probe)
             for label, rx in BANNED.items():
                 if rx.search(probe):
                     hits[label].append((k, v))

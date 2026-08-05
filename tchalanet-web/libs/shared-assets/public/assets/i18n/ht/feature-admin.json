@@ -12,7 +12,7 @@
       "title": "Konfigirasyon vandè",
       "description": "Jere to komisyon ak barèm pou chak vandè.",
       "action": {
-        "editDefaultRate": "Modifye to tenant lan",
+        "editDefaultRate": "Modifye to santral la",
         "editRate": "Modifye to a",
         "editPricing": "Modifye barèm yo",
         "resetRate": "Retounen sou to pa defo a",
@@ -20,7 +20,7 @@
         "menu": "Aksyon komisyon"
       },
       "notice": {
-        "defaultUpdated": "To pa defo tenant lan mete ajou.",
+        "defaultUpdated": "To pa defo santral la mete ajou.",
         "sellerUpdated": "To tèminal la mete ajou.",
         "rateReset": "Tèminal la ap itilize to pa defo a kounye a."
       },
@@ -38,7 +38,7 @@
       },
       "kpi": {
         "defaultRate": "To pa defo",
-        "defaultRateHint": "To tenant lan",
+        "defaultRateHint": "To santral la",
         "totalTerminals": "Tèminal vandè",
         "atDefaultRate": "Nan to pa defo",
         "customRate": "To pèsonalize"
@@ -48,7 +48,7 @@
         "sellers": "Tèminal POS"
       },
       "field": {
-        "defaultRate": "To tenant lan",
+        "defaultRate": "To santral la",
         "totalSellers": "Total vandè",
         "atDefaultRate": "Nan to pa defo",
         "customRate": "To pèsonalize",
@@ -64,7 +64,7 @@
       },
       "source": {
         "custom": "To pèsonalize",
-        "default": "To tenant lan"
+        "default": "To santral la"
       },
       "empty": {
         "title": "Pa gen vandè",
@@ -172,8 +172,8 @@
       },
       "advancedSettings": {
         "title": "Paramèt avanse",
-        "description": "Lang, resi, kominikasyon ak règ biznis ka ajiste nan paramèt santral la.",
-        "action": "Louvri paramèt yo"
+        "description": "Konfigire paramèt avanse santral la.",
+        "action": "Konfigire paramèt avanse yo"
       },
       "title": "Konfigirasyon jeneral",
       "optional": "Opsyonèl",
@@ -211,7 +211,7 @@
         "commissionDesc": "To komisyon pa defo ki aplike sou tèminal vandè yo.",
         "commissionCta": "Konfigire komisyon an",
         "limits": "Limit vant",
-        "limitsDesc": "Limit vant ki aplike sou tenant ou an.",
+        "limitsDesc": "Limit vant ki aplike sou santral ou an.",
         "limitsCta": "Konfigire limit yo",
         "settings": "Paramèt santral la",
         "settingsDesc": "Pèsonalize lang ak resi a (non afichaj, mesaj) pou santral ou.",
@@ -233,9 +233,6 @@
         "inProgress": "An kou",
         "completed": "Fini"
       },
-      "advancedSettings.title": "Paramèt avanse",
-      "advancedSettings.description": "Konfigire paramèt avanse santral la.",
-      "advancedSettings.action": "Konfigire paramèt avanse yo",
       "blockingStep": {
         "identity_address": "Idantite ak adrès",
         "identity": "Idantite",
@@ -273,8 +270,8 @@
       "quickAccess": "Aksè rapid",
       "runtime": {
         "title": "Runtime",
-        "description": "Valè referans sèlman yo itilize nan runtime tenant la.",
-        "identityTitle": "Idantite tenant la",
+        "description": "Valè referans sèlman yo itilize nan runtime santral la.",
+        "identityTitle": "Idantite santral la",
         "regionalTitle": "Default rejyonal yo",
         "localesTitle": "Lang ak lokal ki disponib",
         "actionsTitle": "Paramèt ki gen rapò",
@@ -302,7 +299,7 @@
           "receipt": "Resi ak enpresyon",
           "communication": "Livrezon tikè",
           "calendar": "Kalandriye vant",
-          "locale": "Lang tenant la"
+          "locale": "Lang santral la"
         },
         "readiness": {
           "ready": "Pare",
@@ -312,7 +309,7 @@
         "receipt": {
           "title": "Resi ak enpresyon",
           "description": "Personnalize kontni ak opsyon enpresyon tèminal POS yo itilize.",
-          "enabled": "Sèvi ak preferans resi tenant la",
+          "enabled": "Sèvi ak preferans resi santral la",
           "header": "Mesaj anlè",
           "headerPlaceholder": "Mèsi paske ou jwe avèk nou!",
           "headerHint": "Mesaj opsyonèl ki enprime anlè detay tikè a.",
@@ -355,7 +352,7 @@
         },
         "calendar": {
           "title": "Kalandriye vant",
-          "description": "Defini jou regilye kote tenant sa a pa vann.",
+          "description": "Defini jou regilye kote santral sa a pa vann.",
           "defaultOpen": "Louvri pa default",
           "closedWeekdays": "Jou ki fèmen chak semèn",
           "recurringHolidays": "Jou ferye regilye",
@@ -377,13 +374,13 @@
             "open": "Louvri jou sa a",
             "closed": "Fèmen"
           },
-          "scopeNotice": "Jou ferye regilye yo se pou tenant la epi yo pa gen ane. Eksepsyon ki gen dat jere apa. Platfòm nan toujou jere kalandriye provider yo.",
+          "scopeNotice": "Jou ferye regilye yo se pou santral la epi yo pa gen ane. Eksepsyon ki gen dat jere apa. Platfòm nan toujou jere kalandriye provider yo.",
           "saved": "Kalandriye vant lan anrejistre.",
           "exceptions": "Eksepsyon ki gen dat"
         },
         "locale": {
-          "title": "Lang tenant la",
-          "description": "Chwazi lang administratè tenant yo ak tèminal POS yo kapab itilize.",
+          "title": "Lang santral la",
+          "description": "Chwazi lang administratè santral yo ak tèminal POS yo kapab itilize.",
           "supported": "Lang ki disponib",
           "fallback": "Lang dechanj",
           "notice": "Lang dechanj la dwe nan lis lang ki disponib yo.",
@@ -762,7 +759,7 @@
         "reverse": "Reverse",
         "notDefined": "Pa defini",
         "notConfigured": "Pa konfigire",
-        "missing": "Jwèt Maryaj gratis la pa nan konfigirasyon jwèt tenant la.",
+        "missing": "Jwèt Maryaj gratis la pa nan konfigirasyon jwèt santral la.",
         "readiness": {
           "READY": "Pare",
           "TODO": "Pou konfigire",
@@ -803,7 +800,7 @@
       },
       "offer": {
         "activeEyebrow": "Òf aktif",
-        "campaignCode": "Kanpay tenant · {{count}} règ",
+        "campaignCode": "Kanpay santral · {{count}} règ",
         "pause": "Mete an poz",
         "permanent": "Pa gen fen ki prevwa",
         "technicalDate": "Dat teknik:",
@@ -913,7 +910,7 @@
         }
       },
       "global": {
-        "scopeNote": "Limit yo aplike globalman pou tout tèminal tenant la."
+        "scopeNote": "Limit yo aplike globalman pou tout tèminal santral la."
       },
       "number": {
         "actionsAria": "Aksyon rapid pou nimewo yo",

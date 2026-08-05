@@ -5,7 +5,7 @@
     "tenant_admin": "Administration",
     "supportAccess": {
       "activeLabel": "Support actif sur {{tenant}}",
-      "overrideMode": "Vous agissez comme admin tenant et pouvez vendre.",
+      "overrideMode": "Vous agissez en tant qu’administrateur du santral et pouvez vendre.",
       "readonlyMode": "Accès support en lecture seule.",
       "backToPlatform": "Retour plateforme"
     }
@@ -150,7 +150,7 @@
       },
       "list": {
         "title": "Tickets",
-        "description": "Historique des billets du tenant.",
+        "description": "Historique des billets du santral.",
         "loading": "Chargement des tickets...",
         "emptyTitle": "Aucun billet",
         "emptyMessage": "Aucun billet trouvé pour ces critères.",

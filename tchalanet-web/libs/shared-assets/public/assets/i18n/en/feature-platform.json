@@ -5,7 +5,7 @@
       "description": "This feature will be available in a future iteration.",
       "message": "This feature will be available in a future iteration.",
       "descriptions": {
-        "entitlements": "Manage functional rights available per tenant.",
+        "entitlements": "Manage functional rights available per operator.",
         "providers": "Monitor draw providers and connectors.",
         "opsResources": "Details for critical and degraded service resources.",
         "archives": "Browse and control platform archives.",
@@ -14,7 +14,7 @@
         "permissions": "Manage platform permissions.",
         "roles": "Manage platform roles.",
         "overrides": "Manage super admin overrides.",
-        "supportTenant": "Select a tenant to access its admin interface in support mode.",
+        "supportTenant": "Select a operator to access its admin interface in support mode.",
         "communicationTests": "Test communication channels (email, Slack, notifications).",
         "identitySync": "Sync Firebase identities with the platform.",
         "contactConfig": "Configure global contact channels and messages.",
@@ -32,7 +32,7 @@
       "title": "Platform",
       "description": "Overview of Tchalanet infrastructure",
       "kpi": {
-        "activeTenants": "Active tenants",
+        "activeTenants": "Active operators",
         "receivedContacts": "Contact Requests",
         "pendingNotifications": "Pending Notifications",
         "degradedServices": "Degraded Services"
@@ -69,26 +69,26 @@
       }
     },
     "tenants": {
-      "title": "Tenants",
-      "description": "List, filter, and monitor Tchalanet tenants.",
-      "loading": "Loading tenants...",
+      "title": "Operators",
+      "description": "List, filter, and monitor Tchalanet operators.",
+      "loading": "Loading operators...",
       "pagination": "Page {{page}} / {{total}}",
       "error": {
-        "load": "Unable to load tenants.",
-        "suspend": "Error suspending tenant.",
-        "reactivate": "Error reactivating tenant.",
-        "archive": "Error archiving tenant.",
-        "activate": "Error activating the tenant."
+        "load": "Unable to load operators.",
+        "suspend": "Error suspending operator.",
+        "reactivate": "Error reactivating operator.",
+        "archive": "Error archiving operator.",
+        "activate": "Error activating the operator."
       },
       "feedback": {
         "updated": "{{name}} was updated."
       },
       "action": {
-        "create": "Create tenant",
+        "create": "Create operator",
         "applyFilters": "Filter",
         "resetFilters": "Reset",
-        "openMenu": "Open tenant actions",
-        "viewDetails": "View tenant",
+        "openMenu": "Open operator actions",
+        "viewDetails": "View operator",
         "suspend": "Suspend",
         "reactivate": "Reactivate",
         "archive": "Archive",
@@ -103,7 +103,7 @@
         "allProfiles": "All profiles"
       },
       "column": {
-        "tenant": "Tenant",
+        "tenant": "Operator",
         "code": "Code",
         "status": "Status",
         "profile": "Profile",
@@ -117,11 +117,11 @@
         "email": "Email"
       },
       "empty": {
-        "title": "No tenants",
-        "message": "Create the first tenant to get started.",
+        "title": "No operators",
+        "message": "Create the first operator to get started.",
         "filtered": {
           "title": "No results",
-          "message": "No tenants match the selected filters."
+          "message": "No operators match the selected filters."
         }
       },
       "status": {
@@ -151,11 +151,11 @@
       },
       "profileDescription": {
         "minimal": "Minimal baseline, then manual configuration.",
-        "defaultHaitiLottery": "Recommended profile for a real tenant: Haiti games, pricing, and draw channels.",
+        "defaultHaitiLottery": "Recommended profile for a real operator: Haiti games, pricing, and draw channels.",
         "demo": "Demo profile reserved for non-production environments."
       },
       "field": {
-        "code": "Tenant code",
+        "code": "Operator code",
         "name": "Name",
         "type": "Type",
         "timezone": "Timezone",
@@ -169,22 +169,22 @@
         "email": "Invalid email address."
       },
       "create": {
-        "title": "Create tenant",
-        "description": "Provision an operational tenant with its initial data baseline.",
-        "adminHint": "Leave empty to create the tenant without an initial administrator.",
-        "success": "Tenant provisioned successfully.",
-        "error": "Tenant provisioning failed.",
+        "title": "Create operator",
+        "description": "Provision an operational operator with its initial data baseline.",
+        "adminHint": "Leave empty to create the operator without an initial administrator.",
+        "success": "Operator provisioned successfully.",
+        "error": "Operator provisioning failed.",
         "previewError": "Unable to calculate the profile.",
         "previewLoading": "Calculating profile...",
         "section": {
-          "identity": "Tenant identity",
+          "identity": "Operator identity",
           "admin": "Initial admin",
           "profile": "Provisioning profile",
           "preview": "Provisioning preview"
         },
         "action": {
           "preview": "Preview",
-          "provision": "Create tenant"
+          "provision": "Create operator"
         },
         "preview": {
           "profile": "Selected profile",
@@ -195,16 +195,16 @@
         }
       },
       "detail": {
-        "title": "Tenant detail",
-        "description": "Identity, region, commerce and profile of the tenant.",
-        "loading": "Loading tenant...",
-        "error": "Unable to load tenant.",
-        "createdTitle": "Tenant created",
+        "title": "Operator detail",
+        "description": "Identity, region, commerce and profile of the operator.",
+        "loading": "Loading operator...",
+        "error": "Unable to load operator.",
+        "createdTitle": "Operator created",
         "domainStatuses": "Provisioned domains",
         "nextSteps": "Next steps",
         "empty": {
-          "title": "Tenant not found",
-          "message": "This tenant detail is not available yet."
+          "title": "Operator not found",
+          "message": "This operator detail is not available yet."
         },
         "section": {
           "identity": "Identity",
@@ -222,7 +222,7 @@
           "theme": "Thème actif"
         },
         "identityCard": {
-          "eyebrow": "Tenant"
+          "eyebrow": "Operator"
         },
         "action": {
           "viewAdmins": "View administrators",
@@ -233,7 +233,7 @@
           "suspend": "Suspend",
           "suspendError": "Erreur lors de la suspension.",
           "archive": "Archive",
-          "archiveError": "Unable to archive the tenant.",
+          "archiveError": "Unable to archive the operator.",
           "supportAccess": "Access as admin",
           "addAdmin": "Add an administrator"
         },
@@ -253,7 +253,7 @@
           "title": "Subscription",
           "loading": "Loading subscription…",
           "error": "Unable to load the subscription.",
-          "empty": "No plan applied to this tenant.",
+          "empty": "No plan applied to this operator.",
           "applyError": "Unable to apply the plan.",
           "field": {
             "plan": "Plan",
@@ -271,7 +271,7 @@
           "title": "Usage entitlements",
           "loading": "Loading usage entitlements…",
           "error": "Unable to load usage entitlements.",
-          "empty": "No entitlements resolved for this tenant.",
+          "empty": "No entitlements resolved for this operator.",
           "field": {
             "plan": "Plan",
             "activeSubscription": "Active subscription",
@@ -299,7 +299,7 @@
           "error": "Unable to load seller terminals.",
           "empty": {
             "title": "No seller terminal",
-            "message": "This tenant has no seller terminal yet."
+            "message": "This operator has no seller terminal yet."
           },
           "status": {
             "active": "Active",
@@ -313,7 +313,7 @@
           "error": "Unable to load the audit log.",
           "empty": {
             "title": "No event",
-            "message": "No audit event for this tenant."
+            "message": "No audit event for this operator."
           }
         },
         "admins": {
@@ -321,13 +321,13 @@
           "error": "Unable to load administrators.",
           "empty": {
             "title": "No administrators",
-            "message": "This tenant does not have an administrator yet."
+            "message": "This operator does not have an administrator yet."
           }
         },
         "config": {
           "empty": {
             "title": "Configuration non renseignée",
-            "message": "La configuration interne de ce tenant n'a pas encore été définie."
+            "message": "La configuration interne de ce operator n'a pas encore été définie."
           },
           "section": {
             "locale": "Langue & région",
@@ -354,7 +354,7 @@
           },
           "paidBy": {
             "buyer": "Payé par l'acheteur",
-            "tenant": "Payé par le tenant",
+            "tenant": "Payé par le operator",
             "platform": "Payé par la plateforme",
             "seller": "Payé par le seller-terminal"
           }
@@ -362,7 +362,7 @@
       },
       "provisioning": {
         "domains": {
-          "tenant_identity": "Tenant identity",
+          "tenant_identity": "Operator identity",
           "pagemodels": "Initial pages",
           "theme": "Theme",
           "settings": "Settings",
@@ -385,8 +385,8 @@
           "ledger": "Ledger"
         },
         "readiness": {
-          "identity": "Tenant identity",
-          "users": "Tenant admin",
+          "identity": "Operator identity",
+          "users": "Operator admin",
           "draw_channels": "Draw channels",
           "limits": "Limits",
           "odds": "Odds",
@@ -424,11 +424,11 @@
         "activate": "Do you want to activate {{name}}?"
       },
       "success": {
-        "suspended": "Tenant suspended.",
-        "reactivated": "Tenant reactivated.",
-        "archived": "Tenant archived."
+        "suspended": "Operator suspended.",
+        "reactivated": "Operator reactivated.",
+        "archived": "Operator archived."
       },
-      "paginationTotal": "{{count}} tenant(s)",
+      "paginationTotal": "{{count}} operator(s)",
       "admin": {
         "pageTitle": "Add admin",
         "pageTitleWithTenant": "Add admin — {{name}}",
@@ -457,16 +457,16 @@
       }
     },
     "tenantProvisioning": {
-      "title": "Provision a tenant",
-      "description": "Create a tenant, apply an initial profile, and prepare its configuration.",
-      "backToTenants": "Back to tenants",
+      "title": "Provision a operator",
+      "description": "Create a operator, apply an initial profile, and prepare its configuration.",
+      "backToTenants": "Back to operators",
       "section": {
         "identity": "Identity & classification",
         "regional": "Regional settings",
         "commercial": "Commercial settings",
         "profile": "Provisioning profile",
         "initialAdmin": "Initial admin",
-        "plan": "Tenant plan"
+        "plan": "Operator plan"
       },
       "plan": {
         "loading": "Loading plans...",
@@ -474,7 +474,7 @@
         "default": "Default"
       },
       "field": {
-        "code": "Tenant code",
+        "code": "Operator code",
         "name": "Display name",
         "type": "Type",
         "timezone": "Timezone",
@@ -487,7 +487,7 @@
       },
       "hint": {
         "defaultCommissionRate": "Commission applied by default to seller-terminals without a specific rate.",
-        "maryajGratisEnabled": "Shows the Maryaj gratis page in the tenant and adds its setup card.",
+        "maryajGratisEnabled": "Shows the Maryaj gratis page in the operator and adds its setup card.",
         "initialAdminUsername": "3–64 characters: letters, numbers, dots, underscores, or hyphens.",
         "initialAdminEmail": "Required to create the initial administrator."
       },
@@ -500,29 +500,29 @@
         "submitTitle": "Provisioning failed"
       },
       "loading": {
-        "title": "Tenant provisioning in progress…",
-        "message": "Creating the tenant, applying the initial profile, and preparing the configuration."
+        "title": "Operator provisioning in progress…",
+        "message": "Creating the operator, applying the initial profile, and preparing the configuration."
       },
       "action": {
         "cancel": "Cancel",
-        "submit": "Provision tenant",
+        "submit": "Provision operator",
         "submitting": "Provisioning…",
         "backToList": "Back to list",
         "completeRequired": "Complete the required fields to continue",
-        "viewTenant": "View tenant",
+        "viewTenant": "View operator",
         "addAdmin": "Add an administrator",
-        "createAnother": "Create another tenant"
+        "createAnother": "Create another operator"
       },
       "warning": {
-        "existingUserAttached": "An existing user was attached as the tenant administrator.",
-        "temporaryCredentialNotReturned": "Temporary credentials could not be displayed. Reset the password from the tenant detail page.",
+        "existingUserAttached": "An existing user was attached as the operator administrator.",
+        "temporaryCredentialNotReturned": "Temporary credentials could not be displayed. Reset the password from the operator detail page.",
         "temporaryPasswordIssued": "A temporary password was issued for the initial administrator.",
-        "noPlanSelected": "No plan selected. The tenant will be created without an active subscription — apply a plan before creating seller-terminals.",
+        "noPlanSelected": "No plan selected. The operator will be created without an active subscription — apply a plan before creating seller-terminals.",
         "fallback": "A configuration point needs verification."
       },
       "identityCard": {
-        "eyebrow": "Tenant identity",
-        "fallbackTitle": "New tenant",
+        "eyebrow": "Operator identity",
+        "fallbackTitle": "New operator",
         "unassignedCode": "unassigned"
       },
       "health": {
@@ -544,7 +544,7 @@
         "adminNextInstruction": "Ask the admin to sign in. They must change their password and complete their profile before accessing /app/admin."
       },
       "domain": {
-        "tenantIdentity": "Tenant identity",
+        "tenantIdentity": "Operator identity",
         "pagemodels": "Initial pages",
         "theme": "Theme",
         "settings": "Settings",
@@ -583,8 +583,8 @@
         "configureSellerRules": "Configurer les règles seller-terminal"
       },
       "success": {
-        "title": "Tenant provisioned successfully",
-        "message": "Tenant {{code}} has been created and is ready for configuration."
+        "title": "Operator provisioned successfully",
+        "message": "Operator {{code}} has been created and is ready for configuration."
       },
       "typeDescription": {
         "borlette": "Banque borlette ou opérateur gérant plusieurs vendeurs.",
@@ -655,7 +655,7 @@
           "betType": "Bet type",
           "betOption": "Bet option",
           "odds": "Odds",
-          "tenant": "Tenant",
+          "tenant": "Operator",
           "tenantPlaceholder": "Leave empty for global",
           "active": "Active"
         },
@@ -688,7 +688,7 @@
             "title": "No results",
             "message": "No odds match the selected filters."
           },
-          "tenants": "No tenant found"
+          "tenants": "No operator found"
         },
         "footer": {
           "count": "{{count}} odds",
@@ -713,20 +713,20 @@
       "description": "Service status and operational monitoring"
     },
     "onboarding": {
-      "adminCreated": "Tenant admin created",
-      "code": "Tenant code",
+      "adminCreated": "Operator admin created",
+      "code": "Operator code",
       "currency": "Currency",
       "domains": "Included domains",
       "error": "Operation failed.",
       "initialAdminEmail": "First admin email",
-      "name": "Tenant name",
+      "name": "Operator name",
       "preview": "Preview",
       "previewResult": "Preview",
       "profile": "Profile",
       "provision": "Provision",
-      "success": "Tenant provisioned",
+      "success": "Operator provisioned",
       "timezone": "Timezone",
-      "title": "Tenant provisioning",
+      "title": "Operator provisioning",
       "type": "Type"
     },
     "action": {
@@ -734,31 +734,31 @@
       "onboarding": "Onboarding",
       "settings": "Settings",
       "subscriptions": "Subscriptions",
-      "tenants": "Tenants"
+      "tenants": "Operators"
     },
     "kpi": {
       "activeSubscriptions": {
         "label": "Active subscriptions"
       },
       "activeTenants": {
-        "label": "Active tenants"
+        "label": "Active operators"
       },
       "pendingOnboarding": {
         "label": "Pending onboarding"
       },
       "suspendedTenants": {
-        "label": "Suspended tenants"
+        "label": "Suspended operators"
       },
       "tenantsWithIssues": {
-        "label": "Tenants with issues"
+        "label": "Operators with issues"
       },
       "totalTenants": {
-        "label": "Total tenants"
+        "label": "Total operators"
       }
     },
     "tenantAdmins": {
-      "title": "Tenant administrators",
-      "description": "View and manage administrators for each tenant.",
+      "title": "Operator administrators",
+      "description": "View and manage administrators for each operator.",
       "loading": "Loading administrators...",
       "filter": {
         "search": "Search",
@@ -766,7 +766,7 @@
       },
       "column": {
         "admin": "Administrator",
-        "tenant": "Tenant",
+        "tenant": "Operator",
         "assignedAt": "Assigned at"
       },
       "status": {
@@ -777,7 +777,7 @@
         "archived": "Archived"
       },
       "action": {
-        "assignTenant": "Assign to tenant",
+        "assignTenant": "Assign to operator",
         "manageAdmins": "Manage admins",
         "addAdmin": "Add admin"
       },
@@ -807,17 +807,17 @@
       },
       "detail": {
         "title": "Administrator detail",
-        "description": "Information and actions for this tenant administrator.",
+        "description": "Information and actions for this operator administrator.",
         "error": {
           "load": "Unable to load this administrator."
         },
         "field": {
-          "tenant": "Tenant",
+          "tenant": "Operator",
           "email": "Email",
           "assignedAt": "Assigned at"
         },
         "actions": {
-          "manageInTenant": "Manage in tenant"
+          "manageInTenant": "Manage in operator"
         }
       },
       "pagination": "Page {{page}} / {{total}}",
@@ -853,7 +853,7 @@
         "operation": "Operation",
         "entity": "Entity",
         "changedFields": "Changed fields",
-        "tenant": "Tenant",
+        "tenant": "Operator",
         "changedBy": "Actor ID"
       },
       "action": {
@@ -889,7 +889,7 @@
         "repair": "Rebuild projections"
       },
       "field": {
-        "tenant": "Tenant",
+        "tenant": "Operator",
         "from": "From",
         "to": "To",
         "period": "Period",
@@ -901,10 +901,10 @@
         "sellerTerminalId": "POS terminal"
       },
       "placeholder": {
-        "tenant": "Search an active tenant"
+        "tenant": "Search an active operator"
       },
       "empty": {
-        "tenant": "No active tenant matches."
+        "tenant": "No active operator matches."
       },
       "hint": {
         "window": "Maximum period: {{days}} days."
@@ -938,10 +938,10 @@
       },
       "validation": {
         "title": "Invalid scope",
-        "scope": "Select a tenant and a valid period of at most 90 days.",
+        "scope": "Select a operator and a valid period of at most 90 days.",
         "reason": "Provide a reason of at least 10 characters."
       },
-      "noTenant": "No tenant selected"
+      "noTenant": "No operator selected"
     },
     "pageEngine": {
       "title": "Page engine",
@@ -971,7 +971,7 @@
         "emptyMessage": "Select a row to view and edit its JSON."
       },
       "column": {
-        "tenantId": "Tenant ID",
+        "tenantId": "Operator ID",
         "logicalId": "Logical ID",
         "scope": "Scope",
         "slug": "Slug",
@@ -991,7 +991,7 @@
         "ARCHIVED": "Archived"
       },
       "prompt": {
-        "tenantId": "Tenant ID",
+        "tenantId": "Operator ID",
         "logicalId": "Logical ID",
         "scope": "Scope",
         "slug": "Slug",
@@ -1073,7 +1073,7 @@
         "keyLabel": "Key (i18nKey)",
         "keyPlaceholder": "ex: common.welcomeTitle",
         "valueLabel": "Value (i18nValue)",
-        "tenantIdLabel": "Tenant ID (required for TENANT level)",
+        "tenantIdLabel": "Operator ID (required for Operator level)",
         "required": "Required."
       },
       "feedback": {
