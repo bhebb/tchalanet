@@ -1,14 +1,21 @@
-name: Restore staging database
+name: Restore database
 
 on:
   workflow_dispatch:
     inputs:
+      target_environment:
+        description: "Environment to restore"
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
       backup_object:
         description: "Exact encrypted backup object in the backup R2 bucket"
         required: true
         type: string
       confirmation:
-        description: "Type exactly: restore staging"
+        description: "Type exactly: restore staging or restore production"
         required: true
         type: string
 
@@ -16,15 +23,17 @@ permissions:
   contents: read
 
 concurrency:
-  group: staging-database-restore
+  group: database-restore-${{ inputs.target_environment }}
   cancel-in-progress: false
 
 jobs:
   restore:
-    name: Restore staging from R2
-    if: inputs.confirmation == 'restore staging'
+    name: Restore ${{ inputs.target_environment }} from R2
+    if: |
+      (inputs.target_environment == 'staging' && inputs.confirmation == 'restore staging') ||
+      (inputs.target_environment == 'production' && inputs.confirmation == 'restore production')
     runs-on: ubuntu-latest
-    environment: staging
+    environment: ${{ inputs.target_environment }}
     steps:
       - uses: actions/checkout@v7
 
@@ -34,35 +43,44 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y -qq age rclone
 
-      - name: Configure SSH Docker context
+      - name: Resolve target and configure SSH Docker context
         env:
-          SERVER_HOST: ${{ secrets.SERVER_HOST }}
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          TARGET_ENVIRONMENT: ${{ inputs.target_environment }}
+          SERVER_HOST: ${{ inputs.target_environment == 'production' && secrets.PROD_SERVER_HOST || secrets.SERVER_HOST }}
+          SSH_PRIVATE_KEY: ${{ inputs.target_environment == 'production' && secrets.SSH_PRIVATE_KEY_PROD || secrets.SSH_PRIVATE_KEY }}
         run: |
           set -euo pipefail
+          case "$TARGET_ENVIRONMENT" in
+            staging) RESTORE_ENV=staging; CONTEXT_NAME=tchalanet-staging; CONTAINER_NAME=tchl-postgres-staging ;;
+            production) RESTORE_ENV=prod; CONTEXT_NAME=tchalanet-production; CONTAINER_NAME=tchl-postgres-prod ;;
+            *) echo "Unsupported environment: $TARGET_ENVIRONMENT" >&2; exit 1 ;;
+          esac
           test -n "$SERVER_HOST"
           test -n "$SSH_PRIVATE_KEY"
+          printf 'RESTORE_ENV=%s\nCONTEXT_NAME=%s\nCONTAINER_NAME=%s\n' \
+            "$RESTORE_ENV" "$CONTEXT_NAME" "$CONTAINER_NAME" >> "$GITHUB_ENV"
           umask 077
-          printf '%s\n' "$SSH_PRIVATE_KEY" > "$RUNNER_TEMP/staging.key"
-          ssh-keyscan -H "$SERVER_HOST" > "$RUNNER_TEMP/staging.known_hosts"
-          cat > "$RUNNER_TEMP/ssh-config" <<EOF
-          Host tchalanet-staging
+          printf '%s\n' "$SSH_PRIVATE_KEY" > "$RUNNER_TEMP/database-restore.key"
+          ssh-keyscan -H "$SERVER_HOST" > "$RUNNER_TEMP/database-restore.known_hosts"
+          cat > "$RUNNER_TEMP/database-restore.ssh-config" <<EOF
+          Host tchalanet-restore
             HostName $SERVER_HOST
             User tch
-            IdentityFile $RUNNER_TEMP/staging.key
-            UserKnownHostsFile $RUNNER_TEMP/staging.known_hosts
+            IdentityFile $RUNNER_TEMP/database-restore.key
+            UserKnownHostsFile $RUNNER_TEMP/database-restore.known_hosts
             StrictHostKeyChecking yes
           EOF
-          chmod 600 "$RUNNER_TEMP/ssh-config"
+          chmod 600 "$RUNNER_TEMP/database-restore.ssh-config"
           mkdir -p "$HOME/.ssh"
-          cp "$RUNNER_TEMP/ssh-config" "$HOME/.ssh/config"
+          cp "$RUNNER_TEMP/database-restore.ssh-config" "$HOME/.ssh/config"
           chmod 600 "$HOME/.ssh/config"
-          docker context create tchalanet-staging --docker "host=ssh://tchalanet-staging"
-          DOCKER_CONTEXT=tchalanet-staging docker ps --format '{{.Names}}' \
-            | grep -Fx 'tchl-postgres-staging'
+          docker context create "$CONTEXT_NAME" --docker "host=ssh://tchalanet-restore"
+          DOCKER_CONTEXT="$CONTEXT_NAME" docker ps --format '{{.Names}}' \
+            | grep -Fx "$CONTAINER_NAME"
 
-      - name: Restore the explicitly selected staging backup
+      - name: Restore the explicitly selected backup
         env:
+          TARGET_ENVIRONMENT: ${{ inputs.target_environment }}
           BACKUP_OBJECT: ${{ inputs.backup_object }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
@@ -71,24 +89,27 @@ jobs:
           AGE_KEY: ${{ secrets.BACKUP_AGE_PRIVATE_KEY }}
         run: |
           set -euo pipefail
-          case "$BACKUP_OBJECT" in
-            staging/????/??/*.tar.gz.age) ;;
-            *) echo "Refusing non-staging or non-encrypted backup object" >&2; exit 1 ;;
+          case "$TARGET_ENVIRONMENT:$BACKUP_OBJECT" in
+            staging:staging/????/??/*.tar.gz.age) ;;
+            production:prod/????/??/*.tar.gz.age) ;;
+            *) echo "Backup object does not match the selected environment" >&2; exit 1 ;;
           esac
           for v in CLOUDFLARE_ACCOUNT_ID R2_ACCESS_KEY_ID R2_SECRET_ACCESS_KEY R2_BUCKET AGE_KEY; do
             test -n "${!v}" || { echo "$v is required" >&2; exit 1; }
           done
-          printf '%s' "$AGE_KEY" > "$RUNNER_TEMP/age.key"
-          chmod 600 "$RUNNER_TEMP/age.key"
-          printf 'restore staging\n' | \
-            DOCKER_CONTEXT=tchalanet-staging \
-            ENV=staging \
-            BACKUP_AGE_PRIVATE_KEY_FILE="$RUNNER_TEMP/age.key" \
+          printf '%s' "$AGE_KEY" > "$RUNNER_TEMP/database-restore.age-key"
+          chmod 600 "$RUNNER_TEMP/database-restore.age-key"
+          printf 'restore %s\n' "$RESTORE_ENV" | \
+            DOCKER_CONTEXT="$CONTEXT_NAME" \
+            ENV="$RESTORE_ENV" \
+            BACKUP_AGE_PRIVATE_KEY_FILE="$RUNNER_TEMP/database-restore.age-key" \
             ./tchalanet-infra/scripts/remote/pg-restore.sh "$BACKUP_OBJECT"
 
       - name: Clean up restore credentials and Docker context
         if: always()
         run: |
-          docker context rm -f tchalanet-staging || true
-          rm -f "$RUNNER_TEMP/staging.key" "$RUNNER_TEMP/staging.known_hosts" \
-            "$RUNNER_TEMP/ssh-config" "$RUNNER_TEMP/age.key"
+          docker context rm -f "$CONTEXT_NAME" || true
+          rm -f "$RUNNER_TEMP/database-restore.key" \
+            "$RUNNER_TEMP/database-restore.known_hosts" \
+            "$RUNNER_TEMP/database-restore.ssh-config" \
+            "$RUNNER_TEMP/database-restore.age-key"
