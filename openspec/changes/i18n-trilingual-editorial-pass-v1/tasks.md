@@ -94,6 +94,19 @@ redéfinis dans 286 clés ; 188 termes FR traduits différemment selon l'endroit
 - [ ] 3b.5 **Lot C** — ne rien toucher ; documenté dans `consolidation.md` pour que personne
       ne « corrige » ces homonymes plus tard
 
+## Phase 3ter — Éradication de « tenant » (transverse)
+
+- [x] 3t.1 **378 chaînes réécrites** sur 6 namespaces. Règle du `design.md` appliquée par chaîne :
+      **Santral / Operator / Santral** quand la chaîne nomme l'organisation,
+      **Espace / Workspace / Espas** quand elle nomme le périmètre de l'utilisateur.
+      Le mot ne figure plus dans aucune valeur, dans aucune locale.
+- [x] 3t.2 9 **clés littérales pointées** normalisées en imbrication
+      (`"advancedSettings.title"` dans `admin.setup`). `ngx-translate` résout les deux formes,
+      mais tout outil qui parcourt l'arbre casse dessus.
+- [x] 3t.3 3 placeholders `{{tenant}}` restaurés — la substitution les avait renommés.
+      Le nom d'un placeholder est un contrat avec le code (`app.html:23` passe
+      `{ tenant: session.tenantName }`). L'audit ignore désormais le contenu des placeholders.
+
 ## Phase 4 — Mobile
 
 - [ ] 4.1 `domain` (45) + `common` (83) — 5 chaînes FR résiduelles en EN

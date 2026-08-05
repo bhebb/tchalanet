@@ -5,7 +5,7 @@
     "tenant_admin": "Administration",
     "supportAccess": {
       "activeLabel": "Support active on {{tenant}}",
-      "overrideMode": "You are acting as tenant admin and can sell.",
+      "overrideMode": "You are acting as operator admin and can sell.",
       "readonlyMode": "Read-only support access.",
       "backToPlatform": "Back to platform"
     }
@@ -150,7 +150,7 @@
       },
       "list": {
         "title": "Tickets",
-        "description": "Tenant ticket history.",
+        "description": "Operator ticket history.",
         "loading": "Loading tickets...",
         "emptyTitle": "No tickets",
         "emptyMessage": "No tickets matched these criteria.",

@@ -56,8 +56,8 @@
         "phoneNumber": "Optional phone number"
       },
       "tenant": {
-        "title": "Tenant access",
-        "name": "Tenant",
+        "title": "Workspace access",
+        "name": "Operator",
         "code": "Code",
         "role": "Role"
       },
