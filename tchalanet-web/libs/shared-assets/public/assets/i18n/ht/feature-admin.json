@@ -165,28 +165,99 @@
       }
     },
     "setup": {
-      "backToSetup": "Konfigirasyon jeneral"
-    },
-    "dashboard": {
-      "title": "Administrasyon",
-      "description": "Rezime administrasyon santral",
-      "kpi": {
-        "sellers": "Tèminal POS",
-        "outlets": "Tèminal POS",
-        "terminals": "Tèminal POS",
-        "openSessions": "Tèminal POS aktif"
+      "backToSetup": "Retounen nan konfigirasyon",
+      "progress": {
+        "title": "{{completed}} / {{total}} etap obligatwa konplète",
+        "subtitle": "Swivi eta preparasyon an"
       },
-      "onboarding": {
-        "title": "Enskripsyon"
+      "advancedSettings": {
+        "title": "Paramèt avanse",
+        "description": "Lang, resi, kominikasyon ak règ biznis ka ajiste nan paramèt santral la.",
+        "action": "Louvri paramèt yo"
       },
-      "attention": {
-        "title": "Atansyon nesesè"
+      "title": "Konfigirasyon jeneral",
+      "optional": "Opsyonèl",
+      "operational": "Operasyonèl",
+      "required": "Obligatwa",
+      "blocking": "Bloke",
+      "blockedBy": "Bloke pa :",
+      "section": {
+        "identity": "Idantite",
+        "address": "Adrès",
+        "addressHint": "Adrès obligatwa pou ouvri operasyon an epi kreye tèminal POS.",
+        "addressCta": "Konfigire adrès la",
+        "identityAddress": "Idantite ak adrès",
+        "identityAddressCta": "Jere pwofil la",
+        "games": "Jwèt",
+        "gamesDesc": "Jwèt ki disponib yo.",
+        "gamesCta": "Konfigire jwèt yo",
+        "maryajGratis": "Maryaj gratis",
+        "maryajGratisDesc": "Palyè, kantite gratis, ak jenerasyon nimewo yo.",
+        "maryajGratisCta": "Konfigire Maryaj gratis",
+        "drawChannels": "Kanal tiraj",
+        "drawChannelsDesc": "Kanal vant yo konfigire.",
+        "drawChannelsCta": "Konfigire kanal yo",
+        "generatedDraws": "Tiraj jenere",
+        "generatedDrawsDesc": "Tiraj ki sòti nan kanal yo epi ki pare pou swiv.",
+        "generatedDrawsCta": "Gade tiraj jenere yo",
+        "promotions": "Pwomosyon",
+        "promotionsDesc": "Pwomosyon ki disponib yo.",
+        "promotionsCta": "Konfigire pwomosyon yo",
+        "users": "Itilizatè",
+        "theme": "Aparans",
+        "themeDesc": "Pèsonalizasyon aparans lan.",
+        "themeCta": "Konfigire aparans lan",
+        "commission": "Komisyon",
+        "commissionDesc": "To komisyon pa defo ki aplike sou tèminal vandè yo.",
+        "commissionCta": "Konfigire komisyon an",
+        "limits": "Limit vant",
+        "limitsDesc": "Limit vant ki aplike sou tenant ou an.",
+        "limitsCta": "Konfigire limit yo",
+        "settings": "Paramèt santral la",
+        "settingsDesc": "Pèsonalize lang ak resi a (non afichaj, mesaj) pou santral ou.",
+        "settingsCta": "Konfigire paramèt yo",
+        "subscription": "Abònman",
+        "subscriptionDesc": "Plan ak estati abònman ou.",
+        "subscriptionNoPlan": "Pa gen plan aktif — kontakte Tchalanet.",
+        "subscriptionCta": "Gade abònman an",
+        "sellerTerminal": "Tèminal POS",
+        "sellerTerminalDesc": "Tèminal POS ki disponib yo.",
+        "sellerTerminalLocked": "Kreyasyon tèminal POS yo bloke jiskaske etap obligatwa yo fini.",
+        "identityDesc": "Enfòmasyon prensipal antrepriz ou.",
+        "sellerTerminalCta": "Konfigire tèminal POS yo",
+        "sellerTerminalReady": "Tèminal POS yo pare"
       },
-      "recentSales": {
-        "title": "Vant resan",
-        "description": "Dènye vant tikè",
-        "empty": "Pa gen vant resan."
-      }
+      "description": "Swiv etap yo pou konfigire santral la epi rann li operasyonèl.",
+      "status": {
+        "notStarted": "Poko kòmanse",
+        "inProgress": "An kou",
+        "completed": "Fini"
+      },
+      "advancedSettings.title": "Paramèt avanse",
+      "advancedSettings.description": "Konfigire paramèt avanse santral la.",
+      "advancedSettings.action": "Konfigire paramèt avanse yo",
+      "blockingStep": {
+        "identity_address": "Idantite ak adrès",
+        "identity": "Idantite",
+        "address": "Adrès",
+        "settings": "Paramèt santral la",
+        "games_pricing": "Jwèt",
+        "draws": "Kanal tiraj",
+        "generated_draws": "Tiraj jenere"
+      },
+      "address": {
+        "city": "Vil",
+        "country": "Peyi",
+        "error": {
+          "save": "Enposib pou anrejistre adrès la."
+        },
+        "line1": "Adrès liy 1",
+        "line2": "Adrès liy 2"
+      },
+      "error": {
+        "load": "Enposib pou chaje konfigirasyon an."
+      },
+      "loading": "Chajman konfigirasyon an..."
     },
     "onboarding": {
       "title": "Enskripsyon",
@@ -197,42 +268,141 @@
       "description": "Jesyon itilizatè"
     },
     "settings": {
-      "title": "Paramèt",
-      "description": "Konfigirasyon santral"
-    },
-    "seller": {
-      "email": "Imèl",
-      "error": "Enskripsyon tèminal POS la echwe.",
-      "firstName": "Prenon",
-      "lastName": "Non",
-      "outletId": "Tèminal POS",
-      "phone": "Telefòn",
-      "submit": "Kreye tèminal POS",
-      "success": "Tèminal POS kreye:",
-      "terminalId": "Tèminal POS",
-      "title": "Enskripsyon tèminal POS"
-    },
-    "action": {
-      "settings": "Paramèt",
-      "users": "Itilizatè",
-      "seller_terminals": "Tèminal POS"
+      "title": "Paramèt santral la",
+      "description": "Paramèt entèn operasyon santral la itilize.",
+      "quickAccess": "Aksè rapid",
+      "runtime": {
+        "title": "Runtime",
+        "description": "Valè referans sèlman yo itilize nan runtime tenant la.",
+        "identityTitle": "Idantite tenant la",
+        "regionalTitle": "Default rejyonal yo",
+        "localesTitle": "Lang ak lokal ki disponib",
+        "actionsTitle": "Paramèt ki gen rapò",
+        "code": "Kòd",
+        "name": "Non",
+        "status": "Estati",
+        "defaultLanguage": "Lang pa default",
+        "defaultLocale": "Lokal pa default",
+        "timezone": "Zòn lè",
+        "currency": "Lajan",
+        "noLocales": "Pa gen lokal ki disponib ki konfigire.",
+        "businessDays": "Jou travay",
+        "games": "Jwèt",
+        "configuration": "Paramèt operasyon yo",
+        "languages": {
+          "fr": "Franse",
+          "en": "Anglè",
+          "ht": "Kreyòl ayisyen"
+        }
+      },
+      "config": {
+        "title": "Paramèt operasyon yo",
+        "description": "Lang, kominikasyon, dokiman ak kalandriye.",
+        "tabs": {
+          "receipt": "Resi ak enpresyon",
+          "communication": "Livrezon tikè",
+          "calendar": "Kalandriye vant",
+          "locale": "Lang tenant la"
+        },
+        "readiness": {
+          "ready": "Pare",
+          "actionRequired": "Aksyon nesesè",
+          "issues": "{{count}} pwoblèm"
+        },
+        "receipt": {
+          "title": "Resi ak enpresyon",
+          "description": "Personnalize kontni ak opsyon enpresyon tèminal POS yo itilize.",
+          "enabled": "Sèvi ak preferans resi tenant la",
+          "header": "Mesaj anlè",
+          "headerPlaceholder": "Mèsi paske ou jwe avèk nou!",
+          "headerHint": "Mesaj opsyonèl ki enprime anlè detay tikè a.",
+          "footer": "Mesaj anba",
+          "footerPlaceholder": "Bòn chans!",
+          "footerDefault": "Bòn chans!",
+          "footerHint": "Mesaj opsyonèl ki enprime anba detay tikè a.",
+          "paperSize": "Gwosè papye",
+          "paperSizeHint": "Fòma yo itilize pou resi enprime yo.",
+          "qrCode": "Montre kòd QR la",
+          "template": "Modèl aktif :",
+          "templateDefault": "Modèl platfòm pa default",
+          "templateNames": {
+            "ticketReceiptV1": "Resi tikè"
+          },
+          "saved": "Konfigirasyon resi a anrejistre."
+        },
+        "communication": {
+          "title": "Livrezon tikè",
+          "description": "Chwazi chanèl ki disponib yo ak moun ki peye frè livrezon an.",
+          "enable": "Aktive chanèl sa a",
+          "amount": "Montan frè a",
+          "currency": "Lajan",
+          "paidBy": {
+            "label": "Moun ki peye",
+            "buyer": "Kliyan",
+            "tenant": "Tenant",
+            "seller": "Tèminal POS"
+          },
+          "sms": {
+            "title": "SMS"
+          },
+          "whatsapp": {
+            "title": "WhatsApp"
+          },
+          "email": {
+            "title": "Imèl"
+          },
+          "saved": "Paramèt livrezon yo anrejistre."
+        },
+        "calendar": {
+          "title": "Kalandriye vant",
+          "description": "Defini jou regilye kote tenant sa a pa vann.",
+          "defaultOpen": "Louvri pa default",
+          "closedWeekdays": "Jou ki fèmen chak semèn",
+          "recurringHolidays": "Jou ferye regilye",
+          "days": {
+            "monday": "Lendi",
+            "tuesday": "Madi",
+            "wednesday": "Mèkredi",
+            "thursday": "Jedi",
+            "friday": "Vandredi",
+            "saturday": "Samdi",
+            "sunday": "Dimanch"
+          },
+          "customHoliday": {
+            "title": "Jou ferye pèsonalize",
+            "date": "Dat chak ane",
+            "datePlaceholder": "MM-dd",
+            "label": "Non",
+            "labelPlaceholder": "Fèt lokal",
+            "open": "Louvri jou sa a",
+            "closed": "Fèmen"
+          },
+          "scopeNotice": "Jou ferye regilye yo se pou tenant la epi yo pa gen ane. Eksepsyon ki gen dat jere apa. Platfòm nan toujou jere kalandriye provider yo.",
+          "saved": "Kalandriye vant lan anrejistre.",
+          "exceptions": "Eksepsyon ki gen dat"
+        },
+        "locale": {
+          "title": "Lang tenant la",
+          "description": "Chwazi lang administratè tenant yo ak tèminal POS yo kapab itilize.",
+          "supported": "Lang ki disponib",
+          "fallback": "Lang dechanj",
+          "notice": "Lang dechanj la dwe nan lis lang ki disponib yo.",
+          "saved": "Paramèt lang yo anrejistre."
+        }
+      }
     },
     "kpi": {
-      "gross_sales": { "label": "Vant brit" },
-      "seller_commission_payable": { "label": "Komisyon pou peye" },
-      "estimated_net_revenue": { "label": "Revni nèt estime" },
-      "available_pos": { "label": "POS disponib" },
-      "openSessions": {
-        "label": "Tèminal POS aktif"
+      "gross_sales": {
+        "label": "Vant brit"
       },
-      "outlets": {
-        "label": "Tèminal POS"
+      "seller_commission_payable": {
+        "label": "Komisyon pou peye"
       },
-      "sellers": {
-        "label": "Tèminal POS"
+      "estimated_net_revenue": {
+        "label": "Revni nèt estime"
       },
-      "terminals": {
-        "label": "Tèminal POS"
+      "available_pos": {
+        "label": "POS disponib"
       },
       "sales_today": {
         "label": "Vant jodi a"
@@ -240,44 +410,11 @@
       "tickets_sold": {
         "label": "Tikè vann"
       },
-      "payout_due": {
-        "label": "Pou peye"
-      },
-      "notifications": {
-        "label": "Notifikasyon"
-      },
       "active_seller_terminals": {
         "label": "Tèminal POS aktif"
       },
       "open_draws": {
         "label": "Tiraj ouvè"
-      }
-    },
-    "draws": {
-      "title": "Tirèy"
-    },
-    "controls": {
-      "title": "Kontwòl",
-      "commission": {
-        "title": "Komisyon"
-      },
-      "limits": {
-        "title": "Limit"
-      },
-      "odds": {
-        "title": "Kòt"
-      },
-      "bonuses": {
-        "title": "Bonis"
-      }
-    },
-    "promotions": {
-      "title": "Pwomosyon",
-      "maryaj_gratis": {
-        "title": "Maryaj Gratis"
-      },
-      "active": {
-        "title": "Pwomosyon aktif"
       }
     },
     "sellerTerminal": {
@@ -528,18 +665,6 @@
         "title": "Ekspò ak enpresyon"
       }
     },
-    "more": {
-      "title": "Plis",
-      "space": {
-        "title": "Espas mwen"
-      },
-      "account": {
-        "title": "Kont mwen"
-      },
-      "support": {
-        "title": "Sipò"
-      }
-    },
     "gamesPricing": {
       "title": "Jwèt disponib",
       "description": "Chwazi jwèt santral la sipòte epi konplete paramèt vant yo.",
@@ -617,7 +742,9 @@
     "maryajGratis": {
       "title": "Maryaj gratis",
       "description": "Konfigire jwèt Maryaj la ak òf liy gratis otomatik la.",
-      "action": { "refresh": "Rechaje" },
+      "action": {
+        "refresh": "Rechaje"
+      },
       "loading": "Y ap chaje pwomosyon yo...",
       "game": {
         "eyebrow": "Paramèt jwèt la",
@@ -636,11 +763,19 @@
         "notDefined": "Pa defini",
         "notConfigured": "Pa konfigire",
         "missing": "Jwèt Maryaj gratis la pa nan konfigirasyon jwèt tenant la.",
-        "readiness": { "READY": "Pare", "TODO": "Pou konfigire", "BLOCKED": "Pa disponib" }
+        "readiness": {
+          "READY": "Pare",
+          "TODO": "Pou konfigire",
+          "BLOCKED": "Pa disponib"
+        }
       },
       "summary": {
         "eyebrow": "Rezime",
-        "status": { "configure": "Pou konfigire", "active": "Aktif", "activate": "Pou aktive" },
+        "status": {
+          "configure": "Pou konfigire",
+          "active": "Aktif",
+          "activate": "Pou aktive"
+        },
         "meta": {
           "game": "Jwèt",
           "attribution": "Atribisyon",
@@ -648,13 +783,19 @@
           "selection": "Seleksyon",
           "regeneration": "Rejenerasyon"
         },
-        "game": { "ready": "Pare pou vann", "configure": "Pou konfigire" },
+        "game": {
+          "ready": "Pare pou vann",
+          "configure": "Pou konfigire"
+        },
         "quantity": {
           "tiers": "{{count}} palye konfigire",
           "perAmount": "{{step}}, maksimòm {{max}} liy",
           "fixed": "{{count}} Maryaj gratis"
         },
-        "selection": { "auto": "Jenerasyon otomatik", "manual": "Vandè a chwazi" },
+        "selection": {
+          "auto": "Jenerasyon otomatik",
+          "manual": "Vandè a chwazi"
+        },
         "regeneration": {
           "count": "{{label}} · {{count}} tantativ",
           "attempts": "{{count}} tantativ"
@@ -717,7 +858,10 @@
             "suffix": "liy."
           },
           "tiered": "Tikè a ap resevwa Maryaj gratis selon kantite kliyan an peye.",
-          "fixed": { "prefix": "Tikè a ka resevwa", "suffix": "Maryaj gratis." }
+          "fixed": {
+            "prefix": "Tikè a ka resevwa",
+            "suffix": "Maryaj gratis."
+          }
         },
         "schedule": {
           "endHint": "Dat obligatwa. Pou yon òf pèmanan, itilize yon dat ki lwen.",
@@ -741,7 +885,9 @@
           "max": "Limit liy gratis",
           "maxHint": "Maksimòm ki jenere pou yon tikè."
         },
-        "fixed": { "quantity": "Kantite Maryaj gratis pa tikè" },
+        "fixed": {
+          "quantity": "Kantite Maryaj gratis pa tikè"
+        },
         "regeneration": {
           "enable": "Vandè a ka rejenerasyon nimewo yo anvan konfimasyon",
           "allowed": "Rejenerasyon otorize",
@@ -761,9 +907,14 @@
         "supportedRules": "Règ ki sipòte yo",
         "add": "Ajoute",
         "refresh": "Rafrechi",
-        "notice": { "saved": "Règ la anrejistre.", "deleted": "Règ la efase." }
+        "notice": {
+          "saved": "Règ la anrejistre.",
+          "deleted": "Règ la efase."
+        }
       },
-      "global": { "scopeNote": "Limit yo aplike globalman pou tout tèminal tenant la." },
+      "global": {
+        "scopeNote": "Limit yo aplike globalman pou tout tèminal tenant la."
+      },
       "number": {
         "actionsAria": "Aksyon rapid pou nimewo yo",
         "copy": "Pou gany reyèl yo, itilize rezilta ak rapò; isit la nou sitou bloke nimewo ak miz ki vann.",
@@ -780,7 +931,10 @@
           }
         }
       },
-      "draw": { "channelLabel": "Kanal tiraj", "loadingChannels": "Y ap chaje kanal yo…" },
+      "draw": {
+        "channelLabel": "Kanal tiraj",
+        "loadingChannels": "Y ap chaje kanal yo…"
+      },
       "sellerTerminal": {
         "searchLabel": "Vandè / tèminal",
         "searchHint": "Tape non oswa kòd tèminal la."
@@ -801,7 +955,11 @@
         "simulationTitle": "Apèsi efikas pa nivo",
         "simulationHint": "Chwazi yon nivo pou wè règ aktif yo. Priyorite a se tèminal vandè / ajan (60) > kanal tiraj (30) > global (10).",
         "scopeLabel": "Nivo",
-        "scope": { "global": "Global", "draw": "Pa kanal", "seller": "Pa vandè" },
+        "scope": {
+          "global": "Global",
+          "draw": "Pa kanal",
+          "seller": "Pa vandè"
+        },
         "targetId": "Idantifyan",
         "targetPlaceholder": "UUID kanal oswa vandè",
         "targetHint": "Itilize idantifyan teknik nivo sib la.",
@@ -1010,215 +1168,6 @@
         "removed": "{{game}} retire nan kanal la."
       }
     },
-    "settings": {
-      "title": "Paramèt santral la",
-      "description": "Paramèt entèn operasyon santral la itilize.",
-      "quickAccess": "Aksè rapid",
-      "runtime": {
-        "title": "Runtime",
-        "description": "Valè referans sèlman yo itilize nan runtime tenant la.",
-        "identityTitle": "Idantite tenant la",
-        "regionalTitle": "Default rejyonal yo",
-        "localesTitle": "Lang ak lokal ki disponib",
-        "actionsTitle": "Paramèt ki gen rapò",
-        "code": "Kòd",
-        "name": "Non",
-        "status": "Estati",
-        "defaultLanguage": "Lang pa default",
-        "defaultLocale": "Lokal pa default",
-        "timezone": "Zòn lè",
-        "currency": "Lajan",
-        "noLocales": "Pa gen lokal ki disponib ki konfigire.",
-        "businessDays": "Jou travay",
-        "games": "Jwèt",
-        "configuration": "Paramèt operasyon yo",
-        "languages": { "fr": "Franse", "en": "Anglè", "ht": "Kreyòl ayisyen" }
-      },
-      "config": {
-        "title": "Paramèt operasyon yo",
-        "description": "Lang, kominikasyon, dokiman ak kalandriye.",
-        "tabs": {
-          "receipt": "Resi ak enpresyon",
-          "communication": "Livrezon tikè",
-          "calendar": "Kalandriye vant",
-          "locale": "Lang tenant la"
-        },
-        "readiness": {
-          "ready": "Pare",
-          "actionRequired": "Aksyon nesesè",
-          "issues": "{{count}} pwoblèm"
-        },
-        "receipt": {
-          "title": "Resi ak enpresyon",
-          "description": "Personnalize kontni ak opsyon enpresyon tèminal POS yo itilize.",
-          "enabled": "Sèvi ak preferans resi tenant la",
-          "header": "Mesaj anlè",
-          "headerPlaceholder": "Mèsi paske ou jwe avèk nou!",
-          "headerHint": "Mesaj opsyonèl ki enprime anlè detay tikè a.",
-          "footer": "Mesaj anba",
-          "footerPlaceholder": "Bòn chans!",
-          "footerDefault": "Bòn chans!",
-          "footerHint": "Mesaj opsyonèl ki enprime anba detay tikè a.",
-          "paperSize": "Gwosè papye",
-          "paperSizeHint": "Fòma yo itilize pou resi enprime yo.",
-          "qrCode": "Montre kòd QR la",
-          "template": "Modèl aktif :",
-          "templateDefault": "Modèl platfòm pa default",
-          "templateNames": {
-            "ticketReceiptV1": "Resi tikè"
-          },
-          "saved": "Konfigirasyon resi a anrejistre."
-        },
-        "communication": {
-          "title": "Livrezon tikè",
-          "description": "Chwazi chanèl ki disponib yo ak moun ki peye frè livrezon an.",
-          "enable": "Aktive chanèl sa a",
-          "amount": "Montan frè a",
-          "currency": "Lajan",
-          "paidBy": {
-            "label": "Moun ki peye",
-            "buyer": "Kliyan",
-            "tenant": "Tenant",
-            "seller": "Tèminal POS"
-          },
-          "sms": { "title": "SMS" },
-          "whatsapp": { "title": "WhatsApp" },
-          "email": { "title": "Imèl" },
-          "saved": "Paramèt livrezon yo anrejistre."
-        },
-        "calendar": {
-          "title": "Kalandriye vant",
-          "description": "Defini jou regilye kote tenant sa a pa vann.",
-          "defaultOpen": "Louvri pa default",
-          "closedWeekdays": "Jou ki fèmen chak semèn",
-          "recurringHolidays": "Jou ferye regilye",
-          "days": {
-            "monday": "Lendi",
-            "tuesday": "Madi",
-            "wednesday": "Mèkredi",
-            "thursday": "Jedi",
-            "friday": "Vandredi",
-            "saturday": "Samdi",
-            "sunday": "Dimanch"
-          },
-          "customHoliday": {
-            "title": "Jou ferye pèsonalize",
-            "date": "Dat chak ane",
-            "datePlaceholder": "MM-dd",
-            "label": "Non",
-            "labelPlaceholder": "Fèt lokal",
-            "open": "Louvri jou sa a",
-            "closed": "Fèmen"
-          },
-          "scopeNotice": "Jou ferye regilye yo se pou tenant la epi yo pa gen ane. Eksepsyon ki gen dat jere apa. Platfòm nan toujou jere kalandriye provider yo.",
-          "saved": "Kalandriye vant lan anrejistre.",
-          "exceptions": "Eksepsyon ki gen dat"
-        },
-        "locale": {
-          "title": "Lang tenant la",
-          "description": "Chwazi lang administratè tenant yo ak tèminal POS yo kapab itilize.",
-          "supported": "Lang ki disponib",
-          "fallback": "Lang dechanj",
-          "notice": "Lang dechanj la dwe nan lis lang ki disponib yo.",
-          "saved": "Paramèt lang yo anrejistre."
-        }
-      }
-    },
-    "setup": {
-      "progress": {
-        "title": "{{completed}} / {{total}} etap obligatwa konplète",
-        "subtitle": "Swivi eta preparasyon an"
-      },
-      "advancedSettings": {
-        "title": "Paramèt avanse",
-        "description": "Lang, resi, kominikasyon ak règ biznis ka ajiste nan paramèt santral la.",
-        "action": "Louvri paramèt yo"
-      },
-      "title": "Konfigirasyon jeneral",
-      "optional": "Opsyonèl",
-      "operational": "Operasyonèl",
-      "required": "Obligatwa",
-      "blocking": "Bloke",
-      "blockedBy": "Bloke pa :",
-      "backToSetup": "Retounen nan konfigirasyon",
-      "section": {
-        "identity": "Idantite",
-        "address": "Adrès",
-        "addressHint": "Adrès obligatwa pou ouvri operasyon an epi kreye tèminal POS.",
-        "addressCta": "Konfigire adrès la",
-        "identityAddress": "Idantite ak adrès",
-        "identityAddressCta": "Jere pwofil la",
-        "games": "Jwèt",
-        "gamesDesc": "Jwèt ki disponib yo.",
-        "gamesCta": "Konfigire jwèt yo",
-        "maryajGratis": "Maryaj gratis",
-        "maryajGratisDesc": "Palyè, kantite gratis, ak jenerasyon nimewo yo.",
-        "maryajGratisCta": "Konfigire Maryaj gratis",
-        "drawChannels": "Kanal tiraj",
-        "drawChannelsDesc": "Kanal vant yo konfigire.",
-        "drawChannelsCta": "Konfigire kanal yo",
-        "generatedDraws": "Tiraj jenere",
-        "generatedDrawsDesc": "Tiraj ki sòti nan kanal yo epi ki pare pou swiv.",
-        "generatedDrawsCta": "Gade tiraj jenere yo",
-        "promotions": "Pwomosyon",
-        "promotionsDesc": "Pwomosyon ki disponib yo.",
-        "promotionsCta": "Konfigire pwomosyon yo",
-        "users": "Itilizatè",
-        "theme": "Aparans",
-        "themeDesc": "Pèsonalizasyon aparans lan.",
-        "themeCta": "Konfigire aparans lan",
-        "commission": "Komisyon",
-        "commissionDesc": "To komisyon pa defo ki aplike sou tèminal vandè yo.",
-        "commissionCta": "Konfigire komisyon an",
-        "limits": "Limit vant",
-        "limitsDesc": "Limit vant ki aplike sou tenant ou an.",
-        "limitsCta": "Konfigire limit yo",
-        "settings": "Paramèt santral la",
-        "settingsDesc": "Pèsonalize lang ak resi a (non afichaj, mesaj) pou santral ou.",
-        "settingsCta": "Konfigire paramèt yo",
-        "subscription": "Abònman",
-        "subscriptionDesc": "Plan ak estati abònman ou.",
-        "subscriptionNoPlan": "Pa gen plan aktif — kontakte Tchalanet.",
-        "subscriptionCta": "Gade abònman an",
-        "sellerTerminal": "Tèminal POS",
-        "sellerTerminalDesc": "Tèminal POS ki disponib yo.",
-        "sellerTerminalLocked": "Kreyasyon tèminal POS yo bloke jiskaske etap obligatwa yo fini.",
-        "identityDesc": "Enfòmasyon prensipal antrepriz ou.",
-        "sellerTerminalCta": "Konfigire tèminal POS yo",
-        "sellerTerminalReady": "Tèminal POS yo pare"
-      },
-      "description": "Swiv etap yo pou konfigire santral la epi rann li operasyonèl.",
-      "status": {
-        "notStarted": "Poko kòmanse",
-        "inProgress": "An kou",
-        "completed": "Fini"
-      },
-      "advancedSettings.title": "Paramèt avanse",
-      "advancedSettings.description": "Konfigire paramèt avanse santral la.",
-      "advancedSettings.action": "Konfigire paramèt avanse yo",
-      "blockingStep": {
-        "identity_address": "Idantite ak adrès",
-        "identity": "Idantite",
-        "address": "Adrès",
-        "settings": "Paramèt santral la",
-        "games_pricing": "Jwèt",
-        "draws": "Kanal tiraj",
-        "generated_draws": "Tiraj jenere"
-      },
-      "address": {
-        "city": "Vil",
-        "country": "Peyi",
-        "error": {
-          "save": "Enposib pou anrejistre adrès la."
-        },
-        "line1": "Adrès liy 1",
-        "line2": "Adrès liy 2"
-      },
-      "error": {
-        "load": "Enposib pou chaje konfigirasyon an."
-      },
-      "loading": "Chajman konfigirasyon an..."
-    },
     "businessProfile": {
       "title": "Espas antrepriz mwen",
       "description": "Idantite ak koordinasyon antrepriz ou.",
@@ -1254,7 +1203,6 @@
       },
       "address": {
         "empty": "Pa gen adrès anrejistre.",
-        "edit": "Modifye adrès",
         "add": "Ajoute adrès",
         "saved": "Adrès anrejistre avèk siksè."
       }
@@ -1283,7 +1231,6 @@
     "sellerTerminals": {
       "title": "Tèminal POS",
       "description": "Jere tèminal POS yo",
-      "search_placeholder": "Chèche tèminal POS…",
       "list": {
         "title": "Lis tèminal POS",
         "description": "Jere aksè lavant, komisyon ak tèminal ki gen dwa vann tikè.",
@@ -1776,9 +1723,21 @@
         "title": "Detay tikè a",
         "description": "Gade enfòmasyon sou vant, tiraj ak liy tikè a.",
         "loading": "Y ap chaje tikè a...",
-        "summary": { "aria": "Rezime tikè a", "eyebrow": "Rezime" },
-        "action": { "tickets": "Tikè", "verify": "Verifye", "reprint": "Re-enprime" },
-        "section": { "sale": "Vant", "draw": "Tiraj", "lines": "Liy yo jwe", "charges": "Frè" },
+        "summary": {
+          "aria": "Rezime tikè a",
+          "eyebrow": "Rezime"
+        },
+        "action": {
+          "tickets": "Tikè",
+          "verify": "Verifye",
+          "reprint": "Re-enprime"
+        },
+        "section": {
+          "sale": "Vant",
+          "draw": "Tiraj",
+          "lines": "Liy yo jwe",
+          "charges": "Frè"
+        },
         "field": {
           "issuedAt": "Emèt nan",
           "status": "Estati",

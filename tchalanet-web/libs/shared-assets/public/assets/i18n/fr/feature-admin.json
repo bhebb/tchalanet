@@ -165,7 +165,94 @@
       }
     },
     "setup": {
-      "backToSetup": "Configuration générale"
+      "backToSetup": "Retour à la configuration",
+      "title": "Configuration du tenant",
+      "optional": "Optionnel",
+      "operational": "Opérationnel",
+      "required": "Requis",
+      "blocking": "Bloquant",
+      "blockedBy": "Bloqué par :",
+      "progress": {
+        "title": "{{completed}} / {{total}} étapes obligatoires terminées",
+        "subtitle": "Suivi de l'état de préparation"
+      },
+      "section": {
+        "identity": "Identité",
+        "address": "Adresse",
+        "addressHint": "Adresse requise pour ouvrir l'exploitation et créer des vendeurs.",
+        "addressCta": "Configurer l'adresse",
+        "identityAddress": "Identité et adresse",
+        "identityAddressCta": "Gérer le profil",
+        "games": "Jeux",
+        "gamesDesc": "Jeux disponibles",
+        "gamesCta": "Configurer les jeux",
+        "maryajGratis": "Maryaj gratis",
+        "maryajGratisDesc": "Paliers, quantité offerte et génération des numéros.",
+        "maryajGratisCta": "Configurer Maryaj gratis",
+        "drawChannels": "Canaux de tirage",
+        "drawChannelsDesc": "Canaux de vente configurés.",
+        "drawChannelsCta": "Configurer les canaux",
+        "generatedDraws": "Tirages générés",
+        "generatedDrawsDesc": "Tirages produits à partir des canaux et prêts à être suivis.",
+        "generatedDrawsCta": "Voir les tirages générés",
+        "promotions": "Promotions",
+        "promotionsDesc": "Promotions disponibles",
+        "promotionsCta": "Configurer les promotions",
+        "users": "Utilisateurs",
+        "theme": "Apparence",
+        "themeDesc": "Personnalisation de l'apparence",
+        "themeCta": "Configurer l'apparence",
+        "commission": "Commission",
+        "commissionDesc": "Taux de commission par défaut appliqué aux terminaux vendeurs.",
+        "commissionCta": "Configurer la commission",
+        "limits": "Limites de vente",
+        "limitsDesc": "Limites de vente appliquées à votre tenant.",
+        "limitsCta": "Configurer les limites",
+        "settings": "Paramètres du tenant",
+        "settingsDesc": "Personnalisez la langue et le reçu (nom affiché, messages) pour votre tenant.",
+        "settingsCta": "Configurer les paramètres",
+        "subscription": "Abonnement",
+        "subscriptionDesc": "Plan et statut de votre abonnement.",
+        "subscriptionNoPlan": "Aucun plan actif — contactez Tchalanet.",
+        "subscriptionCta": "Voir l'abonnement",
+        "sellerTerminal": "Vendeurs",
+        "sellerTerminalDesc": "Vendeurs disponibles",
+        "sellerTerminalLocked": "La création des vendeurs est bloquée tant que les étapes obligatoires ne sont pas terminées.",
+        "identityDesc": "Informations principales de votre entreprise.",
+        "sellerTerminalCta": "Configurer les terminaux vendeurs",
+        "sellerTerminalReady": "Terminaux vendeurs prêts"
+      },
+      "description": "Suivez les étapes pour configurer votre tenant et le rendre opérationnel.",
+      "status": {
+        "notStarted": "Non commencé",
+        "inProgress": "En cours",
+        "completed": "Terminé"
+      },
+      "advancedSettings.title": "Paramètres avancés",
+      "advancedSettings.description": "Configurez les paramètres avancés pour votre tenant.",
+      "advancedSettings.action": "Configurer les paramètres avancés",
+      "blockingStep": {
+        "identity_address": "Identité et adresse",
+        "identity": "Identité",
+        "address": "Adresse",
+        "settings": "Paramètres du tenant",
+        "games_pricing": "Jeux",
+        "draws": "Canaux de tirage",
+        "generated_draws": "Tirages générés"
+      },
+      "address": {
+        "city": "Ville",
+        "country": "Pays",
+        "error": {
+          "save": "Impossible d’enregistrer l’adresse."
+        },
+        "line1": "Adresse ligne 1",
+        "line2": "Adresse ligne 2"
+      },
+      "error": {
+        "load": "Impossible de charger la configuration."
+      },
+      "loading": "Chargement de la configuration..."
     },
     "settings": {
       "title": "Paramètres du tenant",
@@ -189,7 +276,11 @@
         "businessDays": "Jours ouvrables",
         "games": "Jeux",
         "configuration": "Paramètres opérationnels",
-        "languages": { "fr": "Français", "en": "Anglais", "ht": "Créole haïtien" }
+        "languages": {
+          "fr": "Français",
+          "en": "Anglais",
+          "ht": "Créole haïtien"
+        }
       },
       "config": {
         "title": "Paramètres opérationnels",
@@ -238,9 +329,15 @@
             "tenant": "Tenant",
             "seller": "Seller-terminal"
           },
-          "sms": { "title": "SMS" },
-          "whatsapp": { "title": "WhatsApp" },
-          "email": { "title": "Email" },
+          "sms": {
+            "title": "SMS"
+          },
+          "whatsapp": {
+            "title": "WhatsApp"
+          },
+          "email": {
+            "title": "Email"
+          },
           "saved": "Paramètres de livraison enregistrés."
         },
         "calendar": {
@@ -519,8 +616,15 @@
         "title": "Détail du ticket",
         "description": "Consultez les informations de vente, de tirage et de lignes du ticket.",
         "loading": "Chargement du ticket...",
-        "summary": { "aria": "Résumé du ticket", "eyebrow": "Résumé" },
-        "action": { "tickets": "Tickets", "verify": "Vérifier", "reprint": "Réimprimer" },
+        "summary": {
+          "aria": "Résumé du ticket",
+          "eyebrow": "Résumé"
+        },
+        "action": {
+          "tickets": "Tickets",
+          "verify": "Vérifier",
+          "reprint": "Réimprimer"
+        },
         "section": {
           "sale": "Vente",
           "draw": "Tirage",
@@ -1003,7 +1107,9 @@
     "maryajGratis": {
       "title": "Maryaj gratis",
       "description": "Configurez le jeu Maryaj et son offre automatique de lignes gratuites.",
-      "action": { "refresh": "Rafraîchir" },
+      "action": {
+        "refresh": "Rafraîchir"
+      },
       "loading": "Chargement des promotions...",
       "game": {
         "eyebrow": "Paramètres du jeu",
@@ -1022,11 +1128,19 @@
         "notDefined": "Non défini",
         "notConfigured": "Non configuré",
         "missing": "Le jeu Maryaj gratuit est absent de la configuration tenant.",
-        "readiness": { "READY": "Prêt", "TODO": "À configurer", "BLOCKED": "Non disponible" }
+        "readiness": {
+          "READY": "Prêt",
+          "TODO": "À configurer",
+          "BLOCKED": "Non disponible"
+        }
       },
       "summary": {
         "eyebrow": "Résumé",
-        "status": { "configure": "À configurer", "active": "Actif", "activate": "À activer" },
+        "status": {
+          "configure": "À configurer",
+          "active": "Actif",
+          "activate": "À activer"
+        },
         "meta": {
           "game": "Jeu",
           "attribution": "Attribution",
@@ -1034,13 +1148,19 @@
           "selection": "Sélection",
           "regeneration": "Régénération"
         },
-        "game": { "ready": "Prêt pour la vente", "configure": "À configurer" },
+        "game": {
+          "ready": "Prêt pour la vente",
+          "configure": "À configurer"
+        },
         "quantity": {
           "tiers": "{{count}} palier(s) configuré(s)",
           "perAmount": "{{step}}, maximum {{max}} ligne(s)",
           "fixed": "{{count}} Maryaj gratuit(s)"
         },
-        "selection": { "auto": "Générée automatiquement", "manual": "Choisie par le vendeur" },
+        "selection": {
+          "auto": "Générée automatiquement",
+          "manual": "Choisie par le vendeur"
+        },
         "regeneration": {
           "count": "{{label}} · {{count}} tentative(s)",
           "attempts": "{{count}} tentative(s)"
@@ -1103,7 +1223,10 @@
             "suffix": "ligne(s)."
           },
           "tiered": "Le ticket recevra des Maryaj gratuits selon le montant payé par le client.",
-          "fixed": { "prefix": "Le ticket pourra recevoir", "suffix": "Maryaj gratuit(s)." }
+          "fixed": {
+            "prefix": "Le ticket pourra recevoir",
+            "suffix": "Maryaj gratuit(s)."
+          }
         },
         "schedule": {
           "endHint": "Date obligatoire. Pour une offre permanente, utilisez une date lointaine.",
@@ -1127,7 +1250,9 @@
           "max": "Plafond de lignes gratuites",
           "maxHint": "Maximum généré pour un ticket."
         },
-        "fixed": { "quantity": "Nombre de Maryaj gratuits par ticket" },
+        "fixed": {
+          "quantity": "Nombre de Maryaj gratuits par ticket"
+        },
         "regeneration": {
           "enable": "Le vendeur peut régénérer les numéros avant validation",
           "allowed": "Régénérations autorisées",
@@ -1147,9 +1272,14 @@
         "supportedRules": "Règles supportées",
         "add": "Ajouter",
         "refresh": "Actualiser",
-        "notice": { "saved": "Règle enregistrée.", "deleted": "Règle supprimée." }
+        "notice": {
+          "saved": "Règle enregistrée.",
+          "deleted": "Règle supprimée."
+        }
       },
-      "global": { "scopeNote": "Limites appliquées globalement à tous les terminaux du tenant." },
+      "global": {
+        "scopeNote": "Limites appliquées globalement à tous les terminaux du tenant."
+      },
       "number": {
         "actionsAria": "Actions rapides par numéro",
         "copy": "Pour les gains réels, utilisez les résultats et rapports; ici on bloque surtout les numéros et les mises vendues.",
@@ -1166,7 +1296,10 @@
           }
         }
       },
-      "draw": { "channelLabel": "Canal de tirage", "loadingChannels": "Chargement des canaux…" },
+      "draw": {
+        "channelLabel": "Canal de tirage",
+        "loadingChannels": "Chargement des canaux…"
+      },
       "sellerTerminal": {
         "searchLabel": "Vendeur / terminal",
         "searchHint": "Tapez le nom ou le code du terminal."
@@ -1187,7 +1320,11 @@
         "simulationTitle": "Vue effective par portée",
         "simulationHint": "Sélectionnez une portée pour voir les règles actuellement actives à ce niveau. La priorité effective suit : terminal vendeur / agent (60) > canal de tirage (30) > global (10).",
         "scopeLabel": "Portée",
-        "scope": { "global": "Global", "draw": "Par canal", "seller": "Par vendeur" },
+        "scope": {
+          "global": "Global",
+          "draw": "Par canal",
+          "seller": "Par vendeur"
+        },
         "targetId": "Identifiant",
         "targetPlaceholder": "UUID canal ou vendeur",
         "targetHint": "Utilisez l’identifiant technique de la portée cible.",
@@ -1395,96 +1532,6 @@
         "disabled": "{{game}} désactivé.",
         "removed": "{{game}} retiré du canal."
       }
-    },
-    "setup": {
-      "title": "Configuration du tenant",
-      "optional": "Optionnel",
-      "operational": "Opérationnel",
-      "required": "Requis",
-      "blocking": "Bloquant",
-      "blockedBy": "Bloqué par :",
-      "backToSetup": "Retour à la configuration",
-      "progress": {
-        "title": "{{completed}} / {{total}} étapes obligatoires terminées",
-        "subtitle": "Suivi de l'état de préparation"
-      },
-      "section": {
-        "identity": "Identité",
-        "address": "Adresse",
-        "addressHint": "Adresse requise pour ouvrir l'exploitation et créer des vendeurs.",
-        "addressCta": "Configurer l'adresse",
-        "identityAddress": "Identité et adresse",
-        "identityAddressCta": "Gérer le profil",
-        "games": "Jeux",
-        "gamesDesc": "Jeux disponibles",
-        "gamesCta": "Configurer les jeux",
-        "maryajGratis": "Maryaj gratis",
-        "maryajGratisDesc": "Paliers, quantité offerte et génération des numéros.",
-        "maryajGratisCta": "Configurer Maryaj gratis",
-        "drawChannels": "Canaux de tirage",
-        "drawChannelsDesc": "Canaux de vente configurés.",
-        "drawChannelsCta": "Configurer les canaux",
-        "generatedDraws": "Tirages générés",
-        "generatedDrawsDesc": "Tirages produits à partir des canaux et prêts à être suivis.",
-        "generatedDrawsCta": "Voir les tirages générés",
-        "promotions": "Promotions",
-        "promotionsDesc": "Promotions disponibles",
-        "promotionsCta": "Configurer les promotions",
-        "users": "Utilisateurs",
-        "theme": "Apparence",
-        "themeDesc": "Personnalisation de l'apparence",
-        "themeCta": "Configurer l'apparence",
-        "commission": "Commission",
-        "commissionDesc": "Taux de commission par défaut appliqué aux terminaux vendeurs.",
-        "commissionCta": "Configurer la commission",
-        "limits": "Limites de vente",
-        "limitsDesc": "Limites de vente appliquées à votre tenant.",
-        "limitsCta": "Configurer les limites",
-        "settings": "Paramètres du tenant",
-        "settingsDesc": "Personnalisez la langue et le reçu (nom affiché, messages) pour votre tenant.",
-        "settingsCta": "Configurer les paramètres",
-        "subscription": "Abonnement",
-        "subscriptionDesc": "Plan et statut de votre abonnement.",
-        "subscriptionNoPlan": "Aucun plan actif — contactez Tchalanet.",
-        "subscriptionCta": "Voir l'abonnement",
-        "sellerTerminal": "Vendeurs",
-        "sellerTerminalDesc": "Vendeurs disponibles",
-        "sellerTerminalLocked": "La création des vendeurs est bloquée tant que les étapes obligatoires ne sont pas terminées.",
-        "identityDesc": "Informations principales de votre entreprise.",
-        "sellerTerminalCta": "Configurer les terminaux vendeurs",
-        "sellerTerminalReady": "Terminaux vendeurs prêts"
-      },
-      "description": "Suivez les étapes pour configurer votre tenant et le rendre opérationnel.",
-      "status": {
-        "notStarted": "Non commencé",
-        "inProgress": "En cours",
-        "completed": "Terminé"
-      },
-      "advancedSettings.title": "Paramètres avancés",
-      "advancedSettings.description": "Configurez les paramètres avancés pour votre tenant.",
-      "advancedSettings.action": "Configurer les paramètres avancés",
-      "blockingStep": {
-        "identity_address": "Identité et adresse",
-        "identity": "Identité",
-        "address": "Adresse",
-        "settings": "Paramètres du tenant",
-        "games_pricing": "Jeux",
-        "draws": "Canaux de tirage",
-        "generated_draws": "Tirages générés"
-      },
-      "address": {
-        "city": "Ville",
-        "country": "Pays",
-        "error": {
-          "save": "Impossible d’enregistrer l’adresse."
-        },
-        "line1": "Adresse ligne 1",
-        "line2": "Adresse ligne 2"
-      },
-      "error": {
-        "load": "Impossible de charger la configuration."
-      },
-      "loading": "Chargement de la configuration..."
     },
     "businessProfile": {
       "title": "Profil entreprise",
@@ -1808,10 +1855,18 @@
       }
     },
     "kpi": {
-      "gross_sales": { "label": "Ventes brutes" },
-      "seller_commission_payable": { "label": "Commission à payer" },
-      "estimated_net_revenue": { "label": "Revenu net estimé" },
-      "available_pos": { "label": "POS disponibles" },
+      "gross_sales": {
+        "label": "Ventes brutes"
+      },
+      "seller_commission_payable": {
+        "label": "Commission à payer"
+      },
+      "estimated_net_revenue": {
+        "label": "Revenu net estimé"
+      },
+      "available_pos": {
+        "label": "POS disponibles"
+      },
       "sales_today": {
         "label": "Ventes du jour"
       },

@@ -16,10 +16,6 @@
         "message": "Your connection is currently blocked. Contact your supervisor."
       }
     },
-    "connection": {
-      "title": "Connection",
-      "openedAt": "Opened at"
-    },
     "draw": {
       "title": "Current Draw"
     },
@@ -34,7 +30,6 @@
       "title": "Quick Actions",
       "newTicket": "New Ticket",
       "history": "History",
-      "closeConnection": "Close Connection",
       "closeConnexion": "Fermer la connexion"
     },
     "sell": {

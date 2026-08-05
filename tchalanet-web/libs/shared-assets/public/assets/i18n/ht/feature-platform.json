@@ -807,7 +807,7 @@
       },
       "detail": {
         "title": "Detay administratè",
-      "description": "Enfòmasyon ak aksyon pou administratè santral sa a.",
+        "description": "Enfòmasyon ak aksyon pou administratè santral sa a.",
         "error": {
           "load": "Enposib pou chaje administratè sa a."
         },
@@ -883,28 +883,62 @@
     "analyticsReconciliation": {
       "title": "Rekonsilyasyon analytics",
       "description": "Konpare lavant ki apwouve yo ak pwojeksyon analytics yo epi rebati sèlman lè yon ekart konfime.",
-      "section": { "target": "Sijè ak peryòd", "result": "Rezilta verifikasyon", "repair": "Rebati pwojeksyon" },
+      "section": {
+        "target": "Sijè ak peryòd",
+        "result": "Rezilta verifikasyon",
+        "repair": "Rebati pwojeksyon"
+      },
       "field": {
-        "tenant": "Santral", "from": "Soti", "to": "Rive", "period": "Peryòd", "status": "Estati",
-        "mismatchCount": "Kantite ekart", "runId": "ID egzekisyon", "reason": "Rezon rekonstriksyon",
-        "drawId": "Tiraj", "sellerTerminalId": "Tèminal POS"
+        "tenant": "Santral",
+        "from": "Soti",
+        "to": "Rive",
+        "period": "Peryòd",
+        "status": "Estati",
+        "mismatchCount": "Kantite ekart",
+        "runId": "ID egzekisyon",
+        "reason": "Rezon rekonstriksyon",
+        "drawId": "Tiraj",
+        "sellerTerminalId": "Tèminal POS"
       },
-      "placeholder": { "tenant": "Chèche yon santral aktif" },
-      "empty": { "tenant": "Pa gen santral aktif ki koresponn." },
-      "hint": { "window": "Peryòd maksimòm: {{days}} jou." },
-      "action": { "validate": "Verifye analytics", "rebuild": "Rebati epi verifye" },
-      "status": { "SUCCESS": "Konfòm", "MISMATCH": "Ekart detekte", "REPAIR_FAILED": "Rekonstriksyon echwe" },
+      "placeholder": {
+        "tenant": "Chèche yon santral aktif"
+      },
+      "empty": {
+        "tenant": "Pa gen santral aktif ki koresponn."
+      },
+      "hint": {
+        "window": "Peryòd maksimòm: {{days}} jou."
+      },
+      "action": {
+        "validate": "Verifye analytics",
+        "rebuild": "Rebati epi verifye"
+      },
+      "status": {
+        "SUCCESS": "Konfòm",
+        "MISMATCH": "Ekart detekte",
+        "REPAIR_FAILED": "Rekonstriksyon echwe"
+      },
       "metric": {
-        "grossSales": "Lavant brit", "payoutsPaid": "Kantite peye", "commission": "Komisyon vandè", "tickets": "Tikè vann",
-        "expected": "Sous", "observed": "Pwojeksyon"
+        "grossSales": "Lavant brit",
+        "payoutsPaid": "Kantite peye",
+        "commission": "Komisyon vandè",
+        "tickets": "Tikè vann",
+        "expected": "Sous",
+        "observed": "Pwojeksyon"
       },
-      "success": { "noMismatch": "Pwojeksyon analytics yo koresponn ak lavant sous yo." },
-      "repair": { "description": "Aksyon sa a efase epi rebati pwojeksyon analytics san li pa modifye tikè yo oswa liv tranzaksyon yo." },
+      "success": {
+        "noMismatch": "Pwojeksyon analytics yo koresponn ak lavant sous yo."
+      },
+      "repair": {
+        "description": "Aksyon sa a efase epi rebati pwojeksyon analytics san li pa modifye tikè yo oswa liv tranzaksyon yo."
+      },
       "rebuildDialog": {
-        "title": "Konfime rekonstriksyon analytics", "warning": "Rekonstriksyon an ranplase pwojeksyon analytics yo pou peryòd sa a. Li pa chanje tikè yo."
+        "title": "Konfime rekonstriksyon analytics",
+        "warning": "Rekonstriksyon an ranplase pwojeksyon analytics yo pou peryòd sa a. Li pa chanje tikè yo."
       },
       "validation": {
-        "title": "Peryòd pa valid", "scope": "Chwazi yon santral epi yon peryòd valid ki pa depase 90 jou.",
+        "title": "Peryòd pa valid",
+        "scope": "Chwazi yon santral epi yon peryòd valid ki pa depase 90 jou.",
         "reason": "Bay yon rezon ki gen omwen 10 karaktè."
       },
       "noTenant": "Santral pa chwazi"

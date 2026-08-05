@@ -38,7 +38,6 @@
     }
   },
   "cta": {
-    "close_session": "Fèmen koneksyon an",
     "sell_ticket": "Vann yon tikè",
     "verify_ticket": "Verifye yon tikè",
     "close_connexion": "Fermer la connexion"
@@ -236,8 +235,6 @@
       "faq_title": "Kesyon Frekàn",
       "faq_trial_q": "Kijan peryòd eseye a fonksyone?",
       "faq_trial_a": "Peryòd eseye a pèmèt ou teste aplikasyon an ak yon kantite tèminal POS limite selon plan ki disponib la.",
-      "faq_terminals_q": "Konbyen tèminal POS mwen ka itilize?",
-      "faq_terminals_a": "Limit yo depann de plan chwazi a. Kontakte nou pou konnen konfigirasyon ki adapte ak rezo ou.",
       "faq_verify_q": "Kijan kliyan yo verifye yon tikè?",
       "faq_verify_a": "Chak tikè gen yon kòd piblik oswa QR ki pèmèt nenpòt moun verifye estati li san yo pa antre nan espas jeran an.",
       "faq_expired_q": "Sa k pase si aksè mwen sispann?",

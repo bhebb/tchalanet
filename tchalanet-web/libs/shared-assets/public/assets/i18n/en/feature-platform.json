@@ -883,28 +883,62 @@
     "analyticsReconciliation": {
       "title": "Analytics reconciliation",
       "description": "Compare approved sales with analytics projections and rebuild only after a confirmed mismatch.",
-      "section": { "target": "Target and period", "result": "Validation result", "repair": "Rebuild projections" },
+      "section": {
+        "target": "Target and period",
+        "result": "Validation result",
+        "repair": "Rebuild projections"
+      },
       "field": {
-        "tenant": "Tenant", "from": "From", "to": "To", "period": "Period", "status": "Status",
-        "mismatchCount": "Mismatch count", "runId": "Run ID", "reason": "Rebuild reason",
-        "drawId": "Draw", "sellerTerminalId": "POS terminal"
+        "tenant": "Tenant",
+        "from": "From",
+        "to": "To",
+        "period": "Period",
+        "status": "Status",
+        "mismatchCount": "Mismatch count",
+        "runId": "Run ID",
+        "reason": "Rebuild reason",
+        "drawId": "Draw",
+        "sellerTerminalId": "POS terminal"
       },
-      "placeholder": { "tenant": "Search an active tenant" },
-      "empty": { "tenant": "No active tenant matches." },
-      "hint": { "window": "Maximum period: {{days}} days." },
-      "action": { "validate": "Validate analytics", "rebuild": "Rebuild and validate" },
-      "status": { "SUCCESS": "Consistent", "MISMATCH": "Mismatch detected", "REPAIR_FAILED": "Rebuild failed" },
+      "placeholder": {
+        "tenant": "Search an active tenant"
+      },
+      "empty": {
+        "tenant": "No active tenant matches."
+      },
+      "hint": {
+        "window": "Maximum period: {{days}} days."
+      },
+      "action": {
+        "validate": "Validate analytics",
+        "rebuild": "Rebuild and validate"
+      },
+      "status": {
+        "SUCCESS": "Consistent",
+        "MISMATCH": "Mismatch detected",
+        "REPAIR_FAILED": "Rebuild failed"
+      },
       "metric": {
-        "grossSales": "Gross sales", "payoutsPaid": "Paid amounts", "commission": "Seller commission", "tickets": "Tickets sold",
-        "expected": "Source", "observed": "Projection"
+        "grossSales": "Gross sales",
+        "payoutsPaid": "Paid amounts",
+        "commission": "Seller commission",
+        "tickets": "Tickets sold",
+        "expected": "Source",
+        "observed": "Projection"
       },
-      "success": { "noMismatch": "Analytics projections match the source sales." },
-      "repair": { "description": "This action deletes and rebuilds analytics projections without changing tickets or the transaction ledger." },
+      "success": {
+        "noMismatch": "Analytics projections match the source sales."
+      },
+      "repair": {
+        "description": "This action deletes and rebuilds analytics projections without changing tickets or the transaction ledger."
+      },
       "rebuildDialog": {
-        "title": "Confirm analytics rebuild", "warning": "The rebuild replaces analytics projections for this period. It does not change tickets."
+        "title": "Confirm analytics rebuild",
+        "warning": "The rebuild replaces analytics projections for this period. It does not change tickets."
       },
       "validation": {
-        "title": "Invalid scope", "scope": "Select a tenant and a valid period of at most 90 days.",
+        "title": "Invalid scope",
+        "scope": "Select a tenant and a valid period of at most 90 days.",
         "reason": "Provide a reason of at least 10 characters."
       },
       "noTenant": "No tenant selected"
