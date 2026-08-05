@@ -530,16 +530,16 @@
           "lot3": "Lot 3"
         },
         "lotto3": {
-          "direct": "Direct",
+          "direct": "Dirèk",
           "combo2": "Combo 2",
           "combo3": "Combo 3"
         },
         "lotto4": {
-          "direct": "Direct",
+          "direct": "Dirèk",
           "combo": "Combo"
         },
         "lotto5": {
-          "direct": "Direct",
+          "direct": "Dirèk",
           "combo": "Combo"
         },
         "mariage": {
@@ -612,7 +612,7 @@
     },
     "shared": {
       "pagination": {
-        "aria": "Pagination",
+        "aria": "Paginasyon",
         "per_page": "Pa paj",
         "total": "Total"
       }

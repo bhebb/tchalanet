@@ -131,9 +131,9 @@ traduction, pas un défaut de structure : on aligne les valeurs, on ne fusionne 
 | Cas | Pourquoi c'est un piège |
 |---|---|
 | `catalog.option.Front` (« Avant » = position dans un pari) ↔ `platform.entityHistory.detail.before` (« Avant » = avant/après dans un diff) | **Homonymes parfaits en FR.** EN : `Front` vs `Before`. Fusionner casse l'un des deux |
-| `common.field.name` (« Nom ») ↔ `admin.sellerTerminals.field.last_name` (« Nom », EN `Last name`) | **C'est le FR qui est faux** — devrait être « Nom de famille ». Fusionner propagerait l'erreur |
+| ~~`common.field.name` ↔ `admin.sellerTerminals.field.last_name`~~ | **Corrigé au Lot B, après y être tombé.** Le FR disait « Nom » pour une clé `last_name` ; l'alignement automatique a écrasé `Last name` par `Name` avant que la relecture ne le rattrape. Corrigé à la source : FR « Nom de famille », EN `Last name`, HT `Siyati` (et non `Non`, qui était à côté de `Prenon`) |
 | `domain.result.field.date` (« Date ») ↔ `platform.entityHistory.column.changedAt` (« Date ») | `changedAt` devrait être « Modifié le ». Le FR est sous-spécifié |
-| `domain.entity.tickets` (`Tikè yo`) ↔ en-têtes de colonnes (`Tikè`) | Le pluriel défini kreyòl est correct pour un label d'entité, **faux** pour un en-tête de colonne. Les deux formes sont justes |
+| ~~`domain.entity.tickets` (`Tikè yo`) ↔ en-têtes de colonnes (`Tikè`)~~ | **Analyse invalidée.** Je supposais que `domain.entity.*` servait de label d'entité, où le pluriel défini kreyòl aurait été juste. Le code dit le contraire : `domain.entity.games` est un `labelKey` de menu (`public-help.page.ts:21`), donc un libellé d'UI comme les autres. Les formes ont été alignées sur le pluriel nu au Lot B |
 | `common.weekday.*` ↔ `admin.settings.config.calendar.days.*` | Les secondes sortaient du bloc JSON dupliqué récupéré en phase 2 — à comparer avant de trancher |
 
 > Le lot C est la raison pour laquelle cette consolidation ne doit pas être scriptée en masse.

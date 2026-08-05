@@ -11,7 +11,7 @@
     }
   },
   "nav": {
-    "pagemodels": "Modèles de pages",
+    "pagemodels": "Page models",
     "private": {
       "ariaLabel": "Private navigation",
       "categories": "Categories",

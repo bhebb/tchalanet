@@ -1849,7 +1849,7 @@
       "field": {
         "seller_terminal_code": "Code terminal",
         "first_name": "Prénom",
-        "last_name": "Nom",
+        "last_name": "Nom de famille",
         "email": "Email",
         "phone": "Téléphone"
       }

@@ -449,11 +449,11 @@
       "games": {
         "borlette": {
           "body": "Choose a two-digit number. Status depends on the available results for the relevant draw.",
-          "detail1_label": "First lot",
+          "detail1_label": "1st prize",
           "detail1_value": "According to point-of-sale rules",
-          "detail2_label": "Second lot",
+          "detail2_label": "2nd prize",
           "detail2_value": "According to the real ticket",
-          "detail3_label": "Third lot",
+          "detail3_label": "3rd prize",
           "detail3_value": "According to confirmed draw",
           "title": "Borlette"
         },
@@ -476,7 +476,7 @@
           "detail1_value": "Two numbers",
           "detail2_label": "Evaluation",
           "detail2_value": "According to confirmed result",
-          "title": "Mariage"
+          "title": "Marriage"
         },
         "title": "Game rules",
         "lotto5": {
@@ -613,7 +613,7 @@
     "shared": {
       "pagination": {
         "aria": "Pagination",
-        "per_page": "Par page",
+        "per_page": "Per page",
         "total": "Total"
       }
     }

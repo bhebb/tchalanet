@@ -72,13 +72,13 @@
     "yes": "Oui",
     "no": "Non",
     "weekday": {
-      "monday": "Lundi",
-      "tuesday": "Mardi",
-      "wednesday": "Mercredi",
-      "thursday": "Jeudi",
-      "friday": "Vendredi",
-      "saturday": "Samedi",
-      "sunday": "Dimanche"
+      "monday": "Lendi",
+      "tuesday": "Madi",
+      "wednesday": "Mèkredi",
+      "thursday": "Jedi",
+      "friday": "Vandredi",
+      "saturday": "Samdi",
+      "sunday": "Dimanch"
     },
     "add": "Ajoute",
     "create": "Kreye",

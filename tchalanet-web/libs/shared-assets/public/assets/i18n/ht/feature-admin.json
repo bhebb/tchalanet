@@ -339,7 +339,7 @@
           "paidBy": {
             "label": "Moun ki peye",
             "buyer": "Kliyan",
-            "tenant": "Tenant",
+            "tenant": "Santral",
             "seller": "Tèminal POS"
           },
           "sms": {
@@ -585,7 +585,7 @@
           "aria": "Filtè rapò tiraj la",
           "from": "Soti",
           "to": "Rive",
-          "draws": "Tiraj yo",
+          "draws": "Tiraj",
           "drawsPlaceholder": "Chèche California, New York, midi...",
           "drawsHint": "Chwazi youn oswa plizyè tiraj pou limite rapò a.",
           "sort": "Triye"
@@ -758,7 +758,7 @@
         "maximumStake": "Miz maksimòm",
         "maxPerDraw": "Limit peman pa tiraj",
         "maxPerDrawHint": "Kantite total ki ka peye pou jwèt sa a nan yon tiraj.",
-        "exact": "Exact",
+        "exact": "Egzak",
         "reverse": "Reverse",
         "notDefined": "Pa defini",
         "notConfigured": "Pa konfigire",
@@ -948,7 +948,7 @@
         "rule": "Règ",
         "description": "Deskripsyon",
         "defaultAction": "Aksyon pa default",
-        "type": "Kalite",
+        "type": "Tip",
         "stateless": "San eta",
         "withParams": "Ak paramèt",
         "simulation": "Similasyon",
@@ -1480,7 +1480,7 @@
       "field": {
         "seller_terminal_code": "Kòd tèminal POS",
         "first_name": "Prenon",
-        "last_name": "Non",
+        "last_name": "Siyati",
         "email": "Imèl",
         "phone": "Telefòn"
       }
@@ -1757,7 +1757,7 @@
           "label": "Barèm",
           "applied": "Barèm ki aplike",
           "sourceSeller": "Vandè",
-          "sourceTenant": "Tenant",
+          "sourceTenant": "Santral",
           "sourceUnknown": "Konfigirasyon",
           "unknownRule": "Barèm",
           "summaryRules": {
@@ -1765,9 +1765,9 @@
             "marriageReverse": "Reverse"
           },
           "rules": {
-            "match1": "1er lot",
-            "match2": "2e lot",
-            "match3": "3e lot",
+            "match1": "Premye lo",
+            "match2": "Dezyèm lo",
+            "match3": "Twazyèm lo",
             "marriageExact": "Maryaj egzak",
             "marriageReverse": "Maryaj ranvèse",
             "lotto3Exact": "Loto 3 · egzak",
@@ -1811,27 +1811,27 @@
       },
       "lines": {
         "title": "Sélection des numéros",
-        "number": "Numéro",
-        "type": "Type",
-        "stake": "Mise (HTG)",
-        "add": "Ajouter",
+        "number": "Nimewo",
+        "type": "Tip",
+        "stake": "Miz (HTG)",
+        "add": "Ajoute",
         "clear": "Vider la liste"
       },
       "betType": {
-        "direct": "Direct",
+        "direct": "Dirèk",
         "boul": "Boul",
         "maryaj": "Maryaj"
       },
       "actions": {
         "confirm": "Confirmer la vente",
         "confirming": "Confirmation...",
-        "print": "Imprimer",
-        "details": "Détails",
-        "newTicket": "Nouveau ticket"
+        "print": "Enprime",
+        "details": "Detay",
+        "newTicket": "Nouvo tikè"
       },
       "ticket": {
         "preparing": "Ticket en préparation",
-        "sold": "Ticket vendu",
+        "sold": "Tikè vann",
         "codeGeneratedAfterConfirm": "Code généré après confirmation"
       },
       "dialog": {
@@ -2016,7 +2016,7 @@
         "sales": "Vant brit",
         "commission": "Komisyon",
         "net": "Revni nèt estime",
-        "pagination": "Navigasyon paj"
+        "pagination": "Paginasyon"
       },
       "game_breakdown": {
         "title": "Lavant pa jwèt",

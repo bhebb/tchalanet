@@ -32,7 +32,7 @@
       "title": "Platform",
       "description": "Overview of Tchalanet infrastructure",
       "kpi": {
-        "activeTenants": "Active Tenants",
+        "activeTenants": "Active tenants",
         "receivedContacts": "Contact Requests",
         "pendingNotifications": "Pending Notifications",
         "degradedServices": "Degraded Services"
@@ -113,7 +113,7 @@
         "updatedAt": "Last modified",
         "type": "Type",
         "currency": "Currency",
-        "name": "Nom",
+        "name": "Name",
         "email": "Email"
       },
       "empty": {
@@ -211,14 +211,14 @@
           "region": "Region",
           "commerce": "Commerce",
           "profile": "Profile & Readiness",
-          "address": "Adresse"
+          "address": "Address"
         },
         "field": {
           "type": "Type",
-          "country": "Pays",
-          "city": "Ville",
-          "addressLine": "Adresse",
-          "postalCode": "Code postal",
+          "country": "Country",
+          "city": "City",
+          "addressLine": "Address",
+          "postalCode": "Postal code",
           "theme": "Thème actif"
         },
         "identityCard": {
@@ -228,26 +228,26 @@
           "viewAdmins": "View administrators",
           "updateSuccess": "Information updated successfully.",
           "updateError": "Could not save changes.",
-          "activate": "Activer",
+          "activate": "Activate",
           "activateError": "Erreur lors de l'activation.",
-          "suspend": "Suspendre",
+          "suspend": "Suspend",
           "suspendError": "Erreur lors de la suspension.",
           "archive": "Archive",
           "archiveError": "Unable to archive the tenant.",
           "supportAccess": "Access as admin",
-          "addAdmin": "Ajouter un administrateur"
+          "addAdmin": "Add an administrator"
         },
         "tab": {
           "overview": "Aperçu",
-          "admins": "Administrateurs",
+          "admins": "Administrators",
           "configuration": "Configuration",
-          "subscription": "Abonnement",
-          "entitlements": "Droits d'usage",
+          "subscription": "Subscription",
+          "entitlements": "Usage entitlements",
           "sellerTerminals": "Seller-terminals",
           "audit": "Audit"
         },
         "address": {
-          "empty": "Adresse non renseignée."
+          "empty": "No address set."
         },
         "subscription": {
           "title": "Subscription",
@@ -336,15 +336,15 @@
             "receipt": "Reçu / documents"
           },
           "field": {
-            "defaultLanguage": "Langue par défaut",
-            "defaultLocale": "Locale par défaut",
-            "supportedLanguages": "Langues supportées",
+            "defaultLanguage": "Default language",
+            "defaultLocale": "Default locale",
+            "supportedLanguages": "Supported languages",
             "fallbackLanguage": "Langue de secours",
-            "defaultOpen": "Ouvert par défaut",
+            "defaultOpen": "Open by default",
             "closedWeekdays": "Jours fermés",
             "holidays": "Jours fériés",
-            "open": "Ouvert",
-            "closed": "Fermé",
+            "open": "Open",
+            "closed": "Closed",
             "receiptEnabled": "Reçu activé",
             "defaultTemplateKey": "Template",
             "headerMessage": "Message d'en-tête",
@@ -450,9 +450,9 @@
         "success": "Administrator created successfully."
       },
       "adminStatus": {
-        "active": "Actif",
-        "pending": "En attente",
-        "disabled": "Désactivé",
+        "active": "Active",
+        "pending": "Pending",
+        "disabled": "Disabled",
         "invited": "Invité"
       }
     },

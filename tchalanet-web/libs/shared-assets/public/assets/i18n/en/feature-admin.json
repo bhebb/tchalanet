@@ -1667,52 +1667,52 @@
       }
     },
     "generatedDraws": {
-      "title": "Tirages générés",
+      "title": "Generated draws",
       "description": "Suivez les tirages générés, leur état de vente et les résultats attendus.",
       "summary": {
         "today": "Aujourd'hui",
         "salesOpen": "Vente ouverte",
         "resultsExpected": "Résultats attendus",
-        "confirmed": "Confirmés"
+        "confirmed": "Confirmed"
       },
       "datePresets": {
         "today": "Aujourd'hui",
         "tomorrow": "Demain",
-        "thisWeek": "Cette semaine"
+        "thisWeek": "This week"
       },
       "statusFilters": {
-        "all": "Tous les statuts",
+        "all": "All statuses",
         "open": "Ouverts à la vente",
         "expected": "Résultats attendus",
         "missing": "Résultats manquants",
-        "confirmed": "Confirmés",
-        "sourceError": "Erreur source"
+        "confirmed": "Confirmed",
+        "sourceError": "Source error"
       },
       "salesStatus": {
         "UPCOMING": "À venir",
         "OPEN": "Vente ouverte",
         "CLOSED": "Vente fermée",
-        "CANCELLED": "Annulé"
+        "CANCELLED": "Cancelled"
       },
       "resultStatus": {
         "NOT_DUE": "Pas attendu",
-        "EXPECTED": "Attendu",
-        "MISSING": "Manquant",
+        "EXPECTED": "Expected",
+        "MISSING": "Missing",
         "PROVISIONAL": "Provisoire",
         "CONFIRMED": "Confirmé",
-        "SOURCE_ERROR": "Erreur source"
+        "SOURCE_ERROR": "Source error"
       },
       "publicationStatus": {
-        "PUBLISHED": "Publié"
+        "PUBLISHED": "Published"
       },
       "actions": {
-        "refresh": "Actualiser",
+        "refresh": "Refresh",
         "planNextDraws": "Planifier les prochains tirages",
-        "configureDrawChannels": "Configurer les canaux de tirage",
+        "configureDrawChannels": "Configure draw channels",
         "enterResult": "Saisir résultat",
         "viewResult": "Voir résultat",
-        "verify": "Vérifier",
-        "viewDetails": "Voir détails"
+        "verify": "Verify",
+        "viewDetails": "View details"
       }
     },
     "pos": {
@@ -1811,10 +1811,10 @@
       },
       "lines": {
         "title": "Sélection des numéros",
-        "number": "Numéro",
+        "number": "Number",
         "type": "Type",
-        "stake": "Mise (HTG)",
-        "add": "Ajouter",
+        "stake": "Stake (HTG)",
+        "add": "Add",
         "clear": "Vider la liste"
       },
       "betType": {
@@ -1825,13 +1825,13 @@
       "actions": {
         "confirm": "Confirmer la vente",
         "confirming": "Confirmation...",
-        "print": "Imprimer",
-        "details": "Détails",
-        "newTicket": "Nouveau ticket"
+        "print": "Print",
+        "details": "Details",
+        "newTicket": "New ticket"
       },
       "ticket": {
         "preparing": "Ticket en préparation",
-        "sold": "Ticket vendu",
+        "sold": "Ticket sold",
         "codeGeneratedAfterConfirm": "Code généré après confirmation"
       },
       "dialog": {
@@ -1878,7 +1878,7 @@
       },
       "activity": {
         "title": "Activité du terminal",
-        "salesToday": "Ventes du jour",
+        "salesToday": "Today's sales",
         "ticketsToday": "Tickets émis"
       },
       "error": {

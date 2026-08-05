@@ -211,14 +211,14 @@
           "region": "Rejyon",
           "commerce": "Komès",
           "profile": "Pwofil & Readiness",
-          "address": "Adresse"
+          "address": "Adrès"
         },
         "field": {
           "type": "Tip",
-          "country": "Pays",
-          "city": "Ville",
-          "addressLine": "Adresse",
-          "postalCode": "Code postal",
+          "country": "Peyi",
+          "city": "Vil",
+          "addressLine": "Adrès",
+          "postalCode": "Kòd postal",
           "theme": "Thème actif"
         },
         "identityCard": {
@@ -247,7 +247,7 @@
           "audit": "Odit"
         },
         "address": {
-          "empty": "Adresse non renseignée."
+          "empty": "Pa gen adrès."
         },
         "subscription": {
           "title": "Abònman",

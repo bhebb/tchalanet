@@ -88,7 +88,7 @@
       }
     },
     "addressSummary": {
-      "empty": "Adrès pa renseye."
+      "empty": "Pa gen adrès."
     }
   },
   "layout": {
@@ -100,7 +100,7 @@
       "news": "Nouvèl",
       "plans": "Plan",
       "tchala": "Tchala",
-      "rules": "Règ yo"
+      "rules": "Règ"
     },
     "dashboard": {
       "tenant_admin": {
