@@ -4,6 +4,12 @@
 
 **Ubiquitous Language** — Termes partagés entre business, dev, mobile, backend
 
+> **Registre domaine uniquement.** Les noms de ce glossaire (`SellerTerminal`, `Tenant`,
+> `TENANT_ADMIN`…) appartiennent au code, à la base et aux API. **Ils ne s'affichent jamais dans
+> une interface.** Pour la copy utilisateur et les docs publiques, la source de vérité est le
+> [glossaire public](../../docs-public/glossaire/index.md), qui donne l'équivalent FR/EN/HT de
+> chaque terme (`SellerTerminal` → Vendeur / Seller / Vandè).
+
 ---
 
 ## Concepts principaux
