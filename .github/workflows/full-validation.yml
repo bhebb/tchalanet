@@ -138,6 +138,7 @@ jobs:
           # Reuse the existing tch-net network and tch-fw firewall from permanent staging.
           bash scripts/hcloud/03-create-server.sh \
             --name e2e-app \
+            --location "${HCLOUD_LOCATION:-nbg1}" \
             --network "${HCLOUD_NETWORK_NAME:-tch-net}"
 
       - name: Resolve E2E server host
