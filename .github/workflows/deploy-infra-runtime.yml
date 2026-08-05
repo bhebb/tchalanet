@@ -67,6 +67,11 @@ on:
         required: false
         default: ''
         type: string
+      validation_local_traefik:
+        description: 'Smoke the recreated server locally before DNS is switched'
+        required: false
+        default: false
+        type: boolean
 
 concurrency:
   group: deploy-runtime-${{ inputs.target_environment }}
@@ -352,6 +357,7 @@ jobs:
       EDGE_IMAGE_TAG: ${{ needs.plan.outputs.edge_image_tag }}
       DEPLOY_API: ${{ needs.plan.outputs.deploy_api }}
       DEPLOY_EDGE: ${{ needs.plan.outputs.deploy_edge }}
+      VALIDATION_LOCAL_TRAEFIK: ${{ inputs.validation_local_traefik && '1' || '0' }}
       API_BASE_URL: ${{ needs.plan.outputs.api_base_url }}
       WEB_ORIGINS: ${{ needs.plan.outputs.web_origins }}
       HCLOUD_TOKEN: ${{ inputs.target_environment == 'staging' && secrets.HCLOUD_TOKEN || '' }}
@@ -410,6 +416,7 @@ jobs:
           EDGE_IMAGE_TAG: ${{ env.EDGE_IMAGE_TAG }}
           DEPLOY_API: ${{ env.DEPLOY_API }}
           DEPLOY_EDGE: ${{ env.DEPLOY_EDGE }}
+          VALIDATION_LOCAL_TRAEFIK: ${{ env.VALIDATION_LOCAL_TRAEFIK }}
           FORCE_RECREATE: ${{ inputs.force_recreate && '1' || '0' }}
           RESET_DATABASE: ${{ inputs.destroy_database && '1' || '0' }}
           RESET_DATABASE_CONFIRM: ${{ inputs.destroy_database_confirm }}
@@ -423,7 +430,7 @@ jobs:
           username: tch
           key: ${{ env.SSH_PRIVATE_KEY_VALUE }}
           script_stop: true
-          envs: DEPLOY_ENV,API_IMAGE_TAG,EDGE_IMAGE_TAG,DEPLOY_API,DEPLOY_EDGE,FORCE_RECREATE,RESET_DATABASE,RESET_DATABASE_CONFIRM,WEB_ORIGINS,API_BASE_URL,DOPPLER_TOKEN,GHCR_USERNAME,GHCR_TOKEN
+          envs: DEPLOY_ENV,API_IMAGE_TAG,EDGE_IMAGE_TAG,DEPLOY_API,DEPLOY_EDGE,VALIDATION_LOCAL_TRAEFIK,FORCE_RECREATE,RESET_DATABASE,RESET_DATABASE_CONFIRM,WEB_ORIGINS,API_BASE_URL,DOPPLER_TOKEN,GHCR_USERNAME,GHCR_TOKEN
           script: |
             set -euo pipefail
             cd /opt/tchalanet-infra
@@ -440,7 +447,7 @@ jobs:
             printf '%s\n' "$GHCR_TOKEN" | $DOCKER_BIN login ghcr.io \
               -u "$GHCR_USERNAME" \
               --password-stdin
-            DOCKER_BIN="$DOCKER_BIN" ENV="$DEPLOY_ENV" API_IMAGE_TAG="$API_IMAGE_TAG" EDGE_IMAGE_TAG="$EDGE_IMAGE_TAG" DEPLOY_API="$DEPLOY_API" DEPLOY_EDGE="$DEPLOY_EDGE" scripts/remote/deploy-runtime-services.sh
+            DOCKER_BIN="$DOCKER_BIN" ENV="$DEPLOY_ENV" API_IMAGE_TAG="$API_IMAGE_TAG" EDGE_IMAGE_TAG="$EDGE_IMAGE_TAG" DEPLOY_API="$DEPLOY_API" DEPLOY_EDGE="$DEPLOY_EDGE" VALIDATION_LOCAL_TRAEFIK="$VALIDATION_LOCAL_TRAEFIK" API_BASE_URL="$API_BASE_URL" WEB_ORIGINS="$WEB_ORIGINS" scripts/remote/deploy-runtime-services.sh
 
   mark-staging-success:
     needs: [plan, deploy]
