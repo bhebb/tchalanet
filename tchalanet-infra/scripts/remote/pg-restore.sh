@@ -104,6 +104,9 @@ PGUSER="$(docker inspect "$PG_CONTAINER" --format '{{range .Config.Env}}{{printl
 PGPASSWORD="$(docker inspect "$PG_CONTAINER" --format '{{range .Config.Env}}{{println .}}{{end}}' | sed -n 's/^POSTGRES_PASSWORD=//p' | head -1)"
 APP_DB="$(basename "$DUMP" .dump)"
 [[ "$APP_DB" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]] || fail "unsafe database name in backup: $APP_DB"
+APP_DB_USER="$(docker inspect "$PG_CONTAINER" --format '{{range .Config.Env}}{{println .}}{{end}}' | sed -n 's/^APP_DB_USER=//p' | head -1)"
+APP_DB_USER="${APP_DB_USER:-app_user}"
+[[ "$APP_DB_USER" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]] || fail "unsafe application database user: $APP_DB_USER"
 DB_OWNER="$(docker exec -e PGPASSWORD="$PGPASSWORD" "$PG_CONTAINER" \
   psql -U "$PGUSER" -d postgres -tAc \
   "select pg_get_userbyid(datdba) from pg_database where datname = '$APP_DB'" \
@@ -130,5 +133,19 @@ docker cp "$DUMP" "$PG_CONTAINER:/tmp/restore.dump"
 docker exec -e PGPASSWORD="$PGPASSWORD" "$PG_CONTAINER" \
   pg_restore -U "$PGUSER" -d "$APP_DB" --exit-on-error --no-owner /tmp/restore.dump \
   || fail "pg_restore failed"
+
+# pg_dump is produced with --no-owner and some application tables do not carry
+# explicit ACLs in the dump. Reapply the same runtime grants as postgres-init.sh
+# so a recreated database is usable by the API, not merely structurally valid.
+log "Reapplying runtime privileges for $APP_DB_USER"
+docker exec -e PGPASSWORD="$PGPASSWORD" "$PG_CONTAINER" \
+  psql -U "$PGUSER" -d "$APP_DB" -v ON_ERROR_STOP=1 -q \
+  -c "GRANT ALL PRIVILEGES ON DATABASE \"$APP_DB\" TO \"$APP_DB_USER\"" \
+  -c "GRANT ALL ON SCHEMA public TO \"$APP_DB_USER\"" \
+  -c "GRANT ALL ON ALL TABLES IN SCHEMA public TO \"$APP_DB_USER\"" \
+  -c "GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO \"$APP_DB_USER\"" \
+  -c "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO \"$APP_DB_USER\"" \
+  -c "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO \"$APP_DB_USER\"" \
+  || fail "could not reapply runtime privileges for $APP_DB_USER"
 
 log "✅ Restored $APP_DB from $OBJECT"
