@@ -4,7 +4,7 @@
       "section": {
         "platform": "Platfòm"
       },
-      "dashboard": "Tablo bò",
+      "dashboard": "Tablo debò",
       "tenants": "Santral",
       "tenantProvisioning": "Pwovizyon santral",
       "contactRequests": "Demann kontak",
@@ -39,14 +39,14 @@
     "nav": {
       "platform": "Platfòm",
       "overview": "Apèsi",
-      "dashboard": "Tablo kontwòl",
+      "dashboard": "Tablo debò",
       "commercialDashboard": "Tablo komèsyal",
       "health": "Sante platfòm",
       "opsDashboard": "Ops platfòm",
       "tenantsGroup": "Santral",
       "tenants": "Lis santral",
       "createTenant": "Kreye santral",
-      "tenantOnboarding": "Onbòding",
+      "tenantOnboarding": "Enskripsyon",
       "tenantAdmins": "Administratè",
       "subscriptions": "Abònman",
       "entitlements": "Dwa itilizasyon",
@@ -92,7 +92,7 @@
       "supportTenant": "Sipò santral",
       "draws": "Tiraj",
       "scheduledTasks": "Travay planifye",
-      "drawChannelGames": "Jwèt pa règ tiraj",
+      "drawChannelGames": "Jwèt pa kanal tiraj",
       "resultSlotCalendars": "Calendriers des slots",
       "plans": "Plan",
       "pricing": "Tarif",
@@ -127,10 +127,10 @@
         "label": "Tikè vann"
       },
       "grossSalesToday": {
-        "label": "Lavant brit"
+        "label": "Vant brit"
       },
       "netToday": {
-        "label": "Net estime"
+        "label": "Nèt estime"
       },
       "activeSubscriptions": {
         "label": "Aktif"
@@ -174,10 +174,10 @@
         "label": "Tikè"
       },
       "grossSales": {
-        "label": "Lavant brit"
+        "label": "Vant brit"
       },
       "netRevenue": {
-        "label": "Net estime"
+        "label": "Nèt estime"
       }
     },
     "ops": {
@@ -314,7 +314,7 @@
         "subtitle": "Dènye kontni ki pibliye"
       },
       "sales_trend": {
-        "title": "Tandans lavant",
+        "title": "Tandans vant",
         "empty": "Pa gen lavant pou peryòd sa a."
       },
       "game_breakdown": {

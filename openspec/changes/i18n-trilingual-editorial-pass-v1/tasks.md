@@ -75,9 +75,17 @@ redéfinis dans 286 clés ; 188 termes FR traduits différemment selon l'endroit
 - [ ] 3b.2b **Arbitrage requis** — 20 clés mortes conservées (`domain.entity.*`, `common.print`,
       `common.verify`…) parce qu'elles sont les cibles du Lot A. Les garder implique un refactor
       de composants ; les supprimer implique de renoncer à la mutualisation. Voir `consolidation.md`.
-- [ ] 3b.3 **Lot B** — aligner les divergences sans fusionner (~110 clés) :
-      `Tablo debò`/`Tablo bò`/`Tablo kontwòl`, `Needs config`/`Needs setup`/`To configure`,
-      `Verify a ticket`/`Check a ticket`/`Verify ticket` (CTA principal du site public)…
+- [x] 3b.3 **Lot B** — divergences alignées sans fusionner. 186 groupes au départ → **88 restants**
+      (733 clés → 220). Trois passes : variantes non traduites, fuites françaises dans l'anglais,
+      puis synonymes arbitrés un par un.
+      Résolus au passage : `Tablo debò` (contre `Tablo bò` / `Tablo kontwòl`), `Needs setup`,
+      `Verify a ticket`, `Kanal tiraj` (contre `Règ tiraj`, qui voulait dire « règles de tirage »),
+      `Deviz` (contre `Lajan` = argent), `Premye lo` / `1st prize` pour les paliers borlette.
+      Trois groupes résolus en corrigeant le **français**, qui était le fautif :
+      `Mon entreprise`, `Commission par défaut`, `Nom de famille`.
+- [ ] 3b.3b **Lot B, reste** — 88 groupes / 220 clés de synonymes encore à arbitrer, plus
+      4 groupes volontairement laissés (`Paramètres`, `Paiements`, `Jeux disponibles`,
+      `Seller-terminals actifs`) dont la divergence est justifiée ou dépend de la phase 3.
 - [ ] 3b.4 **Lot A** — fusionner vers `common`/`domain` (~120 clés), un namespace à la fois
 - [ ] 3b.5 **Lot C** — ne rien toucher ; documenté dans `consolidation.md` pour que personne
       ne « corrige » ces homonymes plus tard

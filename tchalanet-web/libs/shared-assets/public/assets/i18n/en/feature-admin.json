@@ -45,7 +45,7 @@
       },
       "section": {
         "overview": "Overview",
-        "sellers": "Seller-terminals"
+        "sellers": "Sellers"
       },
       "field": {
         "defaultRate": "Tenant rate",
@@ -740,7 +740,7 @@
       }
     },
     "maryajGratis": {
-      "title": "Free Maryaj",
+      "title": "Maryaj gratis",
       "description": "Configure the Maryaj game and its automatic free-line offer.",
       "action": {
         "refresh": "Refresh"
@@ -765,14 +765,14 @@
         "missing": "Free Maryaj is missing from the tenant game configuration.",
         "readiness": {
           "READY": "Ready",
-          "TODO": "To configure",
+          "TODO": "Needs setup",
           "BLOCKED": "Unavailable"
         }
       },
       "summary": {
         "eyebrow": "Summary",
         "status": {
-          "configure": "To configure",
+          "configure": "Needs setup",
           "active": "Active",
           "activate": "To activate"
         },
@@ -785,7 +785,7 @@
         },
         "game": {
           "ready": "Ready for sale",
-          "configure": "To configure"
+          "configure": "Needs setup"
         },
         "quantity": {
           "tiers": "{{count}} tier(s) configured",
@@ -1229,7 +1229,7 @@
       }
     },
     "sellerTerminals": {
-      "title": "Seller-terminals",
+      "title": "Sellers",
       "description": "Manage seller-terminals",
       "list": {
         "title": "Seller list",
@@ -1490,7 +1490,7 @@
       "description": "Configure providers, result sources, and active draw slots for this tenant.",
       "status": {
         "active": "Active",
-        "needsConfig": "Needs config",
+        "needsConfig": "Needs setup",
         "inactive": "Inactive",
         "unavailable": "Unavailable"
       },
@@ -1498,12 +1498,12 @@
         "availableStates": "Providers",
         "activeStates": "Active providers",
         "activeChannels": "Active slots",
-        "todo": "Needs config"
+        "todo": "Needs setup"
       },
       "filters": {
         "all": "All",
         "active": "Active",
-        "todo": "Needs config",
+        "todo": "Needs setup",
         "inactive": "Inactive",
         "sourceError": "Source error"
       },
@@ -1561,14 +1561,14 @@
         "unavailable": "No slot available for this tenant",
         "status": {
           "active": "Active",
-          "needsConfig": "Needs config",
+          "needsConfig": "Needs setup",
           "disabled": "Inactive"
         }
       },
       "salesCutoff": "Sales close: {{minutes}} min before draw",
       "salesCutoffMissing": "Sales close: Not defined",
       "actions": {
-        "backToSetup": "Global setup",
+        "backToSetup": "General setup",
         "refresh": "Refresh",
         "configure": "Configure",
         "configureChannel": "Configure channel",
@@ -1652,7 +1652,7 @@
       "title": "Odds grid",
       "description": "Default odds for all bet types.",
       "actions": {
-        "backToSetup": "Global setup",
+        "backToSetup": "General setup",
         "backToGames": "Available games",
         "edit": "Edit odds"
       },
@@ -1749,7 +1749,7 @@
         },
         "meta": {
           "totalPaid": "Total paid",
-          "freeLines": "Free Maryaj",
+          "freeLines": "Maryaj gratis",
           "seller": "Seller",
           "terminal": "Terminal"
         },
@@ -1818,7 +1818,7 @@
         "clear": "Vider la liste"
       },
       "betType": {
-        "direct": "Direct",
+        "direct": "Straight",
         "boul": "Boul",
         "maryaj": "Maryaj"
       },

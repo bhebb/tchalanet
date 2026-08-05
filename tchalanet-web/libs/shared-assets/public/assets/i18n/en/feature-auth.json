@@ -30,7 +30,7 @@
         "dark": "Dark"
       },
       "locale": "Locale",
-      "timeZone": "Time zone",
+      "timeZone": "Timezone",
       "currency": "Currency"
     },
     "error": {

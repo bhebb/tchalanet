@@ -711,17 +711,17 @@
               "message": "Tikè sa a pa ka parèt kounye a."
             },
             "voided_not_allowed": {
-              "title": "Enprime pa disponib",
+              "title": "Enpresyon pa disponib",
               "message": "Yon tikè anile pa ka enprime."
             },
             "sale_not_accepted": {
-              "title": "Enprime pa disponib",
+              "title": "Enpresyon pa disponib",
               "message": "Tikè a dwe aksepte anvan enprime."
             }
           },
           "reprint": {
             "reason_required": {
-              "title": "Motif nesesè",
+              "title": "Rezon obligatwa",
               "message": "Mete rezon pou re-enprime a."
             },
             "reason_too_long": {
@@ -801,7 +801,7 @@
         "draw": {
           "correct_result": {
             "reason_required": {
-              "title": "Motif nesesè",
+              "title": "Rezon obligatwa",
               "message": "Mete rezon koreksyon an."
             },
             "reason_too_short": {

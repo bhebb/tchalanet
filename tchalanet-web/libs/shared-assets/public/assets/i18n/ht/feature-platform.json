@@ -112,7 +112,7 @@
         "createdAt": "Kreye",
         "updatedAt": "Dènyè modifikasyon",
         "type": "Tip",
-        "currency": "Lajan",
+        "currency": "Deviz",
         "name": "Non",
         "email": "Imèl"
       },
@@ -159,7 +159,7 @@
         "name": "Non",
         "type": "Tip",
         "timezone": "Fizo orè",
-        "currency": "Lajan",
+        "currency": "Deviz",
         "initialAdminEmail": "Imèl admin inisyal",
         "profile": "Pwofil"
       },
@@ -369,7 +369,7 @@
           "i18n": "Tradiksyon",
           "games": "Jwèt",
           "pricing": "Tarif",
-          "draw_channels": "Règ tiraj",
+          "draw_channels": "Kanal tiraj",
           "promotions_templates": "Modèl pwomosyon",
           "limits_templates": "Modèl limit",
           "demo_users": "Itilizatè demo",
@@ -387,7 +387,7 @@
         "readiness": {
           "identity": "Idantite santral",
           "users": "Admin santral",
-          "draw_channels": "Règ tiraj",
+          "draw_channels": "Kanal tiraj",
           "seller_rules": "Règ tèminal POS",
           "limits": "Limit",
           "odds": "Barèm",
@@ -478,7 +478,7 @@
         "name": "Non afichaj",
         "type": "Tip",
         "timezone": "Fizo orè",
-        "currency": "Lajan",
+        "currency": "Deviz",
         "defaultCommissionRate": "Komisyon pa defo",
         "profile": "Pwofil",
         "maryajGratisEnabled": "Ofri Maryaj gratis",
@@ -551,7 +551,7 @@
         "i18n": "Tradiksyon",
         "games": "Jwèt",
         "pricing": "Tarif",
-        "drawChannels": "Règ tiraj",
+        "drawChannels": "Kanal tiraj",
         "promotionsTemplates": "Modèl pwomosyon",
         "limitsTemplates": "Modèl limit",
         "demoUsers": "Itilizatè demo",
@@ -715,7 +715,7 @@
     "onboarding": {
       "adminCreated": "Admin santral kreye",
       "code": "Kòd santral",
-      "currency": "Lajan",
+      "currency": "Deviz",
       "domains": "Domèn ki enkli",
       "error": "Operasyon an echwe.",
       "initialAdminEmail": "Imèl premye admin",
@@ -730,8 +730,8 @@
       "type": "Tip"
     },
     "action": {
-      "health": "Sante sistèm",
-      "onboarding": "Onbòding",
+      "health": "Sante platfòm",
+      "onboarding": "Enskripsyon",
       "settings": "Paramèt",
       "subscriptions": "Abònman",
       "tenants": "Santral"
@@ -771,7 +771,7 @@
       },
       "status": {
         "active": "Aktif",
-        "pending": "Ann atant",
+        "pending": "An atant",
         "suspended": "Bloke",
         "inactive": "Inaktif",
         "archived": "Achive"
@@ -919,7 +919,7 @@
         "REPAIR_FAILED": "Rekonstriksyon echwe"
       },
       "metric": {
-        "grossSales": "Lavant brit",
+        "grossSales": "Vant brit",
         "payoutsPaid": "Kantite peye",
         "commission": "Komisyon vandè",
         "tickets": "Tikè vann",

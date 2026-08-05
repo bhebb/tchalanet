@@ -1546,7 +1546,7 @@
         "saved": "Identité enregistrée."
       },
       "identityCard": {
-        "eyebrow": "Identité"
+        "eyebrow": "Mon entreprise"
       },
       "commercial": {
         "description": "Paramètres commerciaux utilisés pour les ventes et commissions.",
@@ -1558,7 +1558,7 @@
       },
       "field": {
         "code": "Code",
-        "commission": "Commission",
+        "commission": "Commission par défaut",
         "currency": "Devise",
         "name": "Nom",
         "status": "Statut",

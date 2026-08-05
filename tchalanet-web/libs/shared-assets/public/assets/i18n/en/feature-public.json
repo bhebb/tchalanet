@@ -2,7 +2,7 @@
   "home": {
     "check_ticket": {
       "description": "Check your ticket in seconds.",
-      "title": "Check a ticket"
+      "title": "Verify a ticket"
     },
     "draws": {
       "title": "Latest draws"
@@ -530,16 +530,16 @@
           "lot3": "Lot 3"
         },
         "lotto3": {
-          "direct": "Direct",
+          "direct": "Straight",
           "combo2": "Combo 2",
           "combo3": "Combo 3"
         },
         "lotto4": {
-          "direct": "Direct",
+          "direct": "Straight",
           "combo": "Combo"
         },
         "lotto5": {
-          "direct": "Direct",
+          "direct": "Straight",
           "combo": "Combo"
         },
         "mariage": {

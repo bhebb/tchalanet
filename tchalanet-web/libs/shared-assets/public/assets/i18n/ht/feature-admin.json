@@ -26,7 +26,7 @@
       },
       "loading": "Komisyon yo ap chaje…",
       "filter": {
-        "search": "Rechèch",
+        "search": "Chèche",
         "searchPlaceholder": "Non oswa kòd tèminal la",
         "toggle": "Filtè",
         "status": "Estati",
@@ -45,7 +45,7 @@
       },
       "section": {
         "overview": "Rezime",
-        "sellers": "Vandè"
+        "sellers": "Tèminal POS"
       },
       "field": {
         "defaultRate": "To tenant lan",
@@ -55,7 +55,7 @@
         "range": "Min / Max"
       },
       "column": {
-        "seller": "Vandè",
+        "seller": "Tèminal POS",
         "code": "Kòd",
         "name": "Non",
         "status": "Estati",
@@ -283,8 +283,8 @@
         "status": "Estati",
         "defaultLanguage": "Lang pa default",
         "defaultLocale": "Lokal pa default",
-        "timezone": "Zòn lè",
-        "currency": "Lajan",
+        "timezone": "Fizo orè",
+        "currency": "Deviz",
         "noLocales": "Pa gen lokal ki disponib ki konfigire.",
         "businessDays": "Jou travay",
         "games": "Jwèt",
@@ -335,7 +335,7 @@
           "description": "Chwazi chanèl ki disponib yo ak moun ki peye frè livrezon an.",
           "enable": "Aktive chanèl sa a",
           "amount": "Montan frè a",
-          "currency": "Lajan",
+          "currency": "Deviz",
           "paidBy": {
             "label": "Moun ki peye",
             "buyer": "Kliyan",
@@ -546,7 +546,7 @@
         "description": "Tout aktivite vant pou jou oswa peryòd ou chwazi a.",
         "loading": "Chajman rapò jounen an...",
         "kpisAria": "Rezime rapò jounen an",
-        "chartTitle": "Tandans vant yo",
+        "chartTitle": "Tandans vant",
         "rowsTitle": "Liy pa jou",
         "emptyTitle": "Pa gen aktivite pa jou",
         "emptyMessage": "Pa gen vant pou peryòd sa a.",
@@ -630,7 +630,7 @@
           "aria": "Filtè rapò tèminal POS la",
           "from": "Soti",
           "to": "Rive",
-          "sellers": "Tèminal POS yo",
+          "sellers": "Tèminal POS",
           "sellersPlaceholder": "Chèche non tèminal POS oswa kòd tèminal POS",
           "sellersHint": "Chwazi youn oswa plizyè tèminal POS pou limite rapò a.",
           "sort": "Triye"
@@ -743,7 +743,7 @@
       "title": "Maryaj gratis",
       "description": "Konfigire jwèt Maryaj la ak òf liy gratis otomatik la.",
       "action": {
-        "refresh": "Rechaje"
+        "refresh": "Rafrechi"
       },
       "loading": "Y ap chaje pwomosyon yo...",
       "game": {
@@ -1065,7 +1065,7 @@
       }
     },
     "drawSalesMatrix": {
-      "title": "Matriks jwèt pa règ tiraj",
+      "title": "Jwèt pa kanal tiraj",
       "description": "Aktive oswa dezaktive jwèt yo pa règ tiraj. Lè, fèmti vant ak lyen règ la modifye nan fich règ tiraj la.",
       "loading": "Chajman matriks la...",
       "action": {
@@ -1256,9 +1256,9 @@
         "filter": {
           "search": "Rechèch",
           "searchPlaceholder": "Chèche yon tèminal POS...",
-          "status": "Eta",
-          "allStatuses": "Tout eta",
-          "reset": "Re-inisyalize"
+          "status": "Estati",
+          "allStatuses": "Tout estati",
+          "reset": "Reyinisyalize"
         },
         "empty": {
           "title": "Pa gen tèminal POS",
@@ -1269,7 +1269,7 @@
           "seller": "Tèminal POS",
           "email": "Imèl",
           "phone": "Telefòn",
-          "status": "Eta",
+          "status": "Estati",
           "commission": "Komisyon",
           "lastSeenAt": "Dènye aktivite"
         },
@@ -1337,7 +1337,7 @@
           "accessDesc": "PIN inisyal pou tèminal POS la konekte.",
           "commission": "Komisyon",
           "commissionDesc": "Pousantaj komisyon pou tèminal POS sa a.",
-          "status": "Eta",
+          "status": "Estati",
           "statusDesc": "Tèminal POS la ap disponib touswit si li aktive."
         },
         "field": {
@@ -1439,7 +1439,7 @@
           "eyebrow": "Jodi a",
           "title": "Estatistik jounen an",
           "ticketsSold": "Tikè vann",
-          "grossSales": "Lavant",
+          "grossSales": "Vant",
           "commission": "Komisyon",
           "netRevenue": "Revni nèt estime"
         },
@@ -1486,7 +1486,7 @@
       }
     },
     "drawChannels": {
-      "title": "Règ tiraj",
+      "title": "Kanal tiraj",
       "description": "Konfigire founisè yo, sous rezilta yo, ak lè tiraj aktif pou santral la.",
       "status": {
         "active": "Aktif",
@@ -1750,13 +1750,13 @@
         "meta": {
           "totalPaid": "Total peye",
           "freeLines": "Maryaj gratis",
-          "seller": "Vandè",
+          "seller": "Tèminal POS",
           "terminal": "Tèminal"
         },
         "pricing": {
           "label": "Barèm",
           "applied": "Barèm ki aplike",
-          "sourceSeller": "Vandè",
+          "sourceSeller": "Tèminal POS",
           "sourceTenant": "Santral",
           "sourceUnknown": "Konfigirasyon",
           "unknownRule": "Barèm",
@@ -1790,7 +1790,7 @@
           }
         },
         "error": {
-          "notFoundTitle": "Tikè a pa jwenn",
+          "notFoundTitle": "Tikè pa jwenn",
           "notFoundMessage": "Pa gen idantifyan tikè ki bay.",
           "terminalNotFound": "Re-enprime pa disponib: tèminal {{terminalCode}} la pa jwenn.",
           "reprintFailed": "Pa kapab re-enprime tikè sa a. Verifye tèminal la oswa eseye ankò."
@@ -2003,7 +2003,7 @@
         "title": "Endikatè"
       },
       "sales_trend": {
-        "title": "Tandans lavant",
+        "title": "Tandans vant",
         "sales_axis": "Vant (HTG)",
         "date_axis": "Dat",
         "empty": "Pa gen lavant pou peryòd sa a.",
@@ -2012,7 +2012,7 @@
       "terminal_performance": {
         "title": "Pèfòmans tèminal yo",
         "empty": "Pa gen vant tèminal nan peryòd sa a.",
-        "terminal": "Tèminal",
+        "terminal": "Tèminal POS",
         "sales": "Vant brit",
         "commission": "Komisyon",
         "net": "Revni nèt estime",

@@ -49,7 +49,7 @@
     },
     "retry": "Retry",
     "traceId": "Trace ID",
-    "not_available": "Not available",
+    "not_available": "Unavailable",
     "validation": {
       "email": "Invalid email address.",
       "invalid": "Invalid value.",
@@ -93,7 +93,7 @@
     "confirm": "Confirm",
     "archive": "Archive",
     "activate": "Activate",
-    "deactivate": "Deactivate",
+    "deactivate": "Disable",
     "block": "Block",
     "unblock": "Unblock",
     "close": "Close",

@@ -60,7 +60,7 @@
     "view": "Wè",
     "save": "Anregistre",
     "saving": "Ap anregistre...",
-    "refresh": "Aktyalize",
+    "refresh": "Rafrechi",
     "notifications": {
       "label": "Notifikasyon",
       "unread": "{{count}} ki poko li",
@@ -85,7 +85,7 @@
     "delete": "Efase",
     "search": "Chèche",
     "filter": "Filtre",
-    "resetFilters": "Reyajiste",
+    "resetFilters": "Reyinisyalize",
     "details": "Detay",
     "export": "Ekspòte",
     "print": "Enprime",
@@ -100,7 +100,7 @@
     "open": "Louvri",
     "status": "Estati",
     "actionLabel": "Aksyon",
-    "reset": "Reyajiste",
+    "reset": "Reyinisyalize",
     "all": "Tout",
     "total": "Total",
     "sending": "Ap voye...",
@@ -125,7 +125,7 @@
     "searchEmpty": "Pa gen rezilta pou rechèch sa a.",
     "dateRange": {
       "from": "Soti",
-      "to": "Jiska"
+      "to": "Rive"
     },
     "openMenu": "Louvri meni",
     "resetPassword": "Reyinisyalize modpas"

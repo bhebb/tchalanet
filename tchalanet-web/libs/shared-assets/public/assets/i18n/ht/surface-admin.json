@@ -27,7 +27,7 @@
         "admin": "Administrasyon",
         "config": "Konfigirasyon"
       },
-      "dashboard": "Tablo bò",
+      "dashboard": "Tablo debò",
       "onboarding": "Enskripsyon",
       "users": "Itilizatè",
       "controls": "Kontwòl",
@@ -55,11 +55,11 @@
       "seller_terminal_active": "Tèminal POS aktif",
       "seller_terminal_list": "Lis",
       "seller_terminal_new": "Nouvo tèminal POS",
-      "draw_sales_matrix": "Matriks jwèt pa règ tiraj",
+      "draw_sales_matrix": "Jwèt pa kanal tiraj",
       "games_pricing": "Apèsi",
       "games_available": "Jwèt",
       "games_overview": "Apèsi",
-      "games_channel_matrix": "Matriks jwèt pa règ tiraj",
+      "games_channel_matrix": "Jwèt pa kanal tiraj",
       "limits_rules": "Gid règ yo",
       "setup": "Konfigirasyon",
       "connexions": "Koneksyon",
@@ -70,7 +70,7 @@
       "draws_open": "Tiraj ouvè",
       "draws_past": "Tiraj pase",
       "draws_results": "Rezilta",
-      "draws_matrix": "Matriks jwèt pa règ tiraj",
+      "draws_matrix": "Jwèt pa kanal tiraj",
       "draws_channels": "Konfigirasyon tiraj",
       "limits_section": "Limit",
       "limits_overview": "Apèsi",
@@ -114,7 +114,7 @@
       "personalization": "Pèsonalizasyon",
       "reports": "Rapò"
     },
-    "dashboard": "Tablo bò",
+    "dashboard": "Tablo debò",
     "tenant_overview": "Apèsi",
     "users": "Itilizatè",
     "outlets": "Tèminal POS",
@@ -130,7 +130,7 @@
     "appearance": "Aparans",
     "reports": "Rapò",
     "tickets": "Tikè",
-    "verify_ticket": "Verifye tikè",
+    "verify_ticket": "Verifye yon tikè",
     "connexion": "Koneksyon",
     "language": "Lang",
     "profile": "Pwofil"
@@ -159,7 +159,7 @@
           "status": "Estati",
           "allStatuses": "Tout",
           "from": "Soti",
-          "to": "Jiska",
+          "to": "Rive",
           "sort": "Triye"
         },
         "sort": {
