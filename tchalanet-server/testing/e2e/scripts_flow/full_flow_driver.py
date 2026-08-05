@@ -80,6 +80,7 @@ def main() -> int:
             "defaultCommissionRate": "10.00",
             "profile": "DEFAULT_HAITI_LOTTERY",
             "maryajGratisEnabled": True,
+            "initialAdminUsername": f"admin-{suffix}",
             "initialAdminEmail": admin_email,
         },
         headers=rid(),
