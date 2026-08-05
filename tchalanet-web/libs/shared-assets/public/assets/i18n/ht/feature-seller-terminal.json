@@ -29,16 +29,11 @@
     "quickActions": {
       "title": "Aksyon rapid",
       "newTicket": "Nouvo tikè",
-      "history": "Istwa",
-      "closeConnexion": "Fermer la connexion"
+      "history": "Istwa"
     },
     "sell": {
       "title": "Nouvo tikè",
       "description": "Emet yon nouvo tikè"
-    },
-    "connexion": {
-      "title": "Connexion",
-      "openedAt": "Ouverte à"
     }
   },
   "sellerTerminal": {

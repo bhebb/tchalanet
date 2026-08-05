@@ -40,14 +40,27 @@
     },
     "draw": {
       "providers": {
-        "ca": "Californie", "fl": "Floride", "ga": "Géorgie", "il": "Illinois",
-        "mi": "Michigan", "mo": "Missouri", "ms": "Mississippi", "nj": "New Jersey",
-        "ny": "New York", "oh": "Ohio", "pa": "Pennsylvanie", "tn": "Tennessee",
-        "tx": "Texas", "wi": "Wisconsin"
+        "ca": "Californie",
+        "fl": "Floride",
+        "ga": "Géorgie",
+        "il": "Illinois",
+        "mi": "Michigan",
+        "mo": "Missouri",
+        "ms": "Mississippi",
+        "nj": "New Jersey",
+        "ny": "New York",
+        "oh": "Ohio",
+        "pa": "Pennsylvanie",
+        "tn": "Tennessee",
+        "tx": "Texas",
+        "wi": "Wisconsin"
       },
       "slots": {
-        "midday": "Midi", "evening": "Soir", "morning": "Matin",
-        "late": "Tard", "day": "Jour"
+        "midday": "Midi",
+        "evening": "Soir",
+        "morning": "Matin",
+        "late": "Tard",
+        "day": "Jour"
       }
     },
     "dashboard": {
@@ -130,7 +143,7 @@
       "public_code": "CODE PUBLIC",
       "sale_time": "HEURE DE VENTE",
       "draw": "TIRAGE",
-      "outlet": "POINT DE VENTE",
+      "outlet": "VENDEUR",
       "terminal": "TERMINAL",
       "seller": "VENDEUR",
       "game_details": "DÉTAIL DES JEUX",
@@ -180,18 +193,54 @@
         "details": "VOIR LES DÉTAILS",
         "checking": "VÉRIFICATION...",
         "check": "VÉRIFIER",
-        "payable": {"title": "Ticket gagnant", "message": "Montant gagné : {amount} {currency}."},
-        "already_paid": {"title": "Ticket déjà payé", "message": "Ce ticket est déjà réglé."},
-        "not_payable_lost": {"title": "Ticket perdant", "message": "Ce ticket n'est pas gagnant."},
-        "not_payable_pending_draw": {"title": "Tirage non effectué", "message": "Attendez le tirage avant de vérifier à nouveau."},
-        "not_payable_result_pending": {"title": "Résultat en attente", "message": "Le résultat du tirage n'est pas encore disponible."},
-        "cancelled": {"title": "Ticket annulé", "message": "Ce ticket est annulé."},
-        "voided": {"title": "Ticket invalidé", "message": "Ce ticket n'est plus valide."},
-        "not_found": {"title": "Ticket introuvable", "message": "Nous n'avons pas trouvé ce ticket."},
-        "blocked": {"title": "Ticket bloqué", "message": "Contactez l'administrateur."},
-        "repair_required": {"title": "Vérification requise", "message": "Contactez l'administrateur avant de poursuivre."},
-        "operation_not_allowed": {"title": "Action non autorisée", "message": "Ce terminal ne peut pas vérifier de ticket."},
-        "unknown": {"title": "Vérification du ticket", "message": "Nous ne pouvons pas déterminer le statut du ticket."}
+        "payable": {
+          "title": "Ticket gagnant",
+          "message": "Montant gagné : {amount} {currency}."
+        },
+        "already_paid": {
+          "title": "Ticket déjà payé",
+          "message": "Ce ticket est déjà réglé."
+        },
+        "not_payable_lost": {
+          "title": "Ticket perdant",
+          "message": "Ce ticket n'est pas gagnant."
+        },
+        "not_payable_pending_draw": {
+          "title": "Tirage non effectué",
+          "message": "Attendez le tirage avant de vérifier à nouveau."
+        },
+        "not_payable_result_pending": {
+          "title": "Résultat en attente",
+          "message": "Le résultat du tirage n'est pas encore disponible."
+        },
+        "cancelled": {
+          "title": "Ticket annulé",
+          "message": "Ce ticket est annulé."
+        },
+        "voided": {
+          "title": "Ticket invalidé",
+          "message": "Ce ticket n'est plus valide."
+        },
+        "not_found": {
+          "title": "Ticket introuvable",
+          "message": "Nous n'avons pas trouvé ce ticket."
+        },
+        "blocked": {
+          "title": "Ticket bloqué",
+          "message": "Contactez l'administrateur."
+        },
+        "repair_required": {
+          "title": "Vérification requise",
+          "message": "Contactez l'administrateur avant de poursuivre."
+        },
+        "operation_not_allowed": {
+          "title": "Action non autorisée",
+          "message": "Ce terminal ne peut pas vérifier de ticket."
+        },
+        "unknown": {
+          "title": "Vérification du ticket",
+          "message": "Nous ne pouvons pas déterminer le statut du ticket."
+        }
       }
     },
     "profile": {

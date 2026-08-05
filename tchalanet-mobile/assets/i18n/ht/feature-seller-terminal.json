@@ -40,14 +40,27 @@
     },
     "draw": {
       "providers": {
-        "ca": "Kalifòni", "fl": "Florid", "ga": "Jòji", "il": "Ilinwa",
-        "mi": "Michigan", "mo": "Misouri", "ms": "Misisipi", "nj": "Nouvo Jèze",
-        "ny": "Nouyòk", "oh": "Ohio", "pa": "Pènsilvani", "tn": "Tennessee",
-        "tx": "Teksas", "wi": "Wisconsin"
+        "ca": "Kalifòni",
+        "fl": "Florid",
+        "ga": "Jòji",
+        "il": "Ilinwa",
+        "mi": "Michigan",
+        "mo": "Misouri",
+        "ms": "Misisipi",
+        "nj": "Nouvo Jèze",
+        "ny": "Nouyòk",
+        "oh": "Ohio",
+        "pa": "Pènsilvani",
+        "tn": "Tennessee",
+        "tx": "Teksas",
+        "wi": "Wisconsin"
       },
       "slots": {
-        "midday": "Midi", "evening": "Aswè", "morning": "Maten",
-        "late": "Tard", "day": "Jou"
+        "midday": "Midi",
+        "evening": "Aswè",
+        "morning": "Maten",
+        "late": "Tard",
+        "day": "Jou"
       }
     },
     "dashboard": {
@@ -130,7 +143,7 @@
       "public_code": "KÒD PIBLIK",
       "sale_time": "LÈ VANT",
       "draw": "TIRAJ",
-      "outlet": "PÒS VANT",
+      "outlet": "TÈMINAL POS",
       "terminal": "TÈMINAL",
       "seller": "VANDÈ",
       "game_details": "DETAY JWÈT YO",
@@ -184,17 +197,50 @@
           "title": "Tikè gayan",
           "message": "Montan ki genyen an: {amount} {currency}."
         },
-        "already_paid": {"title": "Tikè deja peye", "message": "Tikè sa a deja regle."},
-        "not_payable_lost": {"title": "Tikè pa genyen", "message": "Tikè sa a pa genyen."},
-        "not_payable_pending_draw": {"title": "Tiraj poko fèt", "message": "Tann tiraj la anvan w verifye ankò."},
-        "not_payable_result_pending": {"title": "Rezilta ap tann", "message": "Rezilta tiraj la poko disponib."},
-        "cancelled": {"title": "Tikè anile", "message": "Tikè sa a anile."},
-        "voided": {"title": "Tikè invalid", "message": "Tikè sa a pa valab ankò."},
-        "not_found": {"title": "Tikè pa jwenn", "message": "Nou pa jwenn tikè sa a."},
-        "blocked": {"title": "Tikè bloke", "message": "Kontakte administratè a."},
-        "repair_required": {"title": "Verifikasyon nesesè", "message": "Kontakte administratè a anvan w kontinye."},
-        "operation_not_allowed": {"title": "Aksyon pa otorize", "message": "Tèminal sa a pa ka verifye tikè."},
-        "unknown": {"title": "Verifikasyon tikè", "message": "Nou pa kapab detèmine estati tikè a."}
+        "already_paid": {
+          "title": "Tikè deja peye",
+          "message": "Tikè sa a deja regle."
+        },
+        "not_payable_lost": {
+          "title": "Tikè pa genyen",
+          "message": "Tikè sa a pa genyen."
+        },
+        "not_payable_pending_draw": {
+          "title": "Tiraj poko fèt",
+          "message": "Tann tiraj la anvan w verifye ankò."
+        },
+        "not_payable_result_pending": {
+          "title": "Rezilta ap tann",
+          "message": "Rezilta tiraj la poko disponib."
+        },
+        "cancelled": {
+          "title": "Tikè anile",
+          "message": "Tikè sa a anile."
+        },
+        "voided": {
+          "title": "Tikè invalid",
+          "message": "Tikè sa a pa valab ankò."
+        },
+        "not_found": {
+          "title": "Tikè pa jwenn",
+          "message": "Nou pa jwenn tikè sa a."
+        },
+        "blocked": {
+          "title": "Tikè bloke",
+          "message": "Kontakte administratè a."
+        },
+        "repair_required": {
+          "title": "Verifikasyon nesesè",
+          "message": "Kontakte administratè a anvan w kontinye."
+        },
+        "operation_not_allowed": {
+          "title": "Aksyon pa otorize",
+          "message": "Tèminal sa a pa ka verifye tikè."
+        },
+        "unknown": {
+          "title": "Verifikasyon tikè",
+          "message": "Nou pa kapab detèmine estati tikè a."
+        }
       }
     },
     "profile": {

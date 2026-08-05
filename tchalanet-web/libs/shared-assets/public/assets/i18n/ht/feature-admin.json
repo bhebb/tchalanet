@@ -1713,8 +1713,8 @@
       }
     },
     "pos": {
-      "title": "Vente ticket",
-      "changeDraw": "Changer de tirage",
+      "title": "Vann tikè",
+      "changeDraw": "Chanje tiraj",
       "live": "Live",
       "detail": {
         "title": "Detay tikè a",
@@ -1781,9 +1781,9 @@
             "lotto4FrontPair": "Loto 4 · 2 premye chif yo",
             "lotto4BackPair": "Loto 4 · 2 dènye chif yo",
             "lotto4ExactPlusBox": "Loto 4 · egzak + bwat",
-            "lotto5Lot1Lot2": "Lot 1 + lot 2",
-            "lotto5Lot1Lot3": "Lot 1 + lot 3",
-            "lotto5Mixed": "Lot 1 + 2 + 3"
+            "lotto5Lot1Lot2": "Lo 1 + Lo 2",
+            "lotto5Lot1Lot3": "Lo 1 + Lo 3",
+            "lotto5Mixed": "Lo 1 + 2 + 3"
           }
         },
         "error": {
@@ -1798,7 +1798,7 @@
         }
       },
       "draw": {
-        "closesIn": "S'arrête dans {{time}}"
+        "closesIn": "Fèmen nan {{time}}"
       },
       "games": {
         "borlette": "Borlette",
@@ -1807,12 +1807,12 @@
         "maryaj": "Maryaj"
       },
       "lines": {
-        "title": "Sélection des numéros",
+        "title": "Seleksyon nimewo yo",
         "number": "Nimewo",
         "type": "Tip",
         "stake": "Miz (HTG)",
         "add": "Ajoute",
-        "clear": "Vider la liste"
+        "clear": "Vide lis la"
       },
       "betType": {
         "direct": "Dirèk",
@@ -1820,7 +1820,7 @@
         "maryaj": "Maryaj"
       },
       "actions": {
-        "confirm": "Confirmer la vente",
+        "confirm": "Konfime vant lan",
         "confirming": "Confirmation...",
         "print": "Enprime",
         "details": "Detay",

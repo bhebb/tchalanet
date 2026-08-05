@@ -16,10 +16,6 @@
         "message": "Votre connexion est actuellement bloquée. Contactez votre superviseur."
       }
     },
-    "connexion": {
-      "title": "Connexion",
-      "openedAt": "Ouverte à"
-    },
     "draw": {
       "title": "Tirage en cours"
     },
@@ -33,8 +29,7 @@
     "quickActions": {
       "title": "Actions rapides",
       "newTicket": "Nouveau ticket",
-      "history": "Historique",
-      "closeConnexion": "Fermer la connexion"
+      "history": "Historique"
     },
     "sell": {
       "title": "Nouveau ticket",

@@ -40,14 +40,27 @@
     },
     "draw": {
       "providers": {
-        "ca": "California", "fl": "Florida", "ga": "Georgia", "il": "Illinois",
-        "mi": "Michigan", "mo": "Missouri", "ms": "Mississippi", "nj": "New Jersey",
-        "ny": "New York", "oh": "Ohio", "pa": "Pennsylvania", "tn": "Tennessee",
-        "tx": "Texas", "wi": "Wisconsin"
+        "ca": "California",
+        "fl": "Florida",
+        "ga": "Georgia",
+        "il": "Illinois",
+        "mi": "Michigan",
+        "mo": "Missouri",
+        "ms": "Mississippi",
+        "nj": "New Jersey",
+        "ny": "New York",
+        "oh": "Ohio",
+        "pa": "Pennsylvania",
+        "tn": "Tennessee",
+        "tx": "Texas",
+        "wi": "Wisconsin"
       },
       "slots": {
-        "midday": "Midday", "evening": "Evening", "morning": "Morning",
-        "late": "Late", "day": "Day"
+        "midday": "Midday",
+        "evening": "Evening",
+        "morning": "Morning",
+        "late": "Late",
+        "day": "Day"
       }
     },
     "dashboard": {
@@ -130,7 +143,7 @@
       "public_code": "PUBLIC CODE",
       "sale_time": "SALE TIME",
       "draw": "DRAW",
-      "outlet": "OUTLET",
+      "outlet": "SELLER",
       "terminal": "TERMINAL",
       "seller": "SELLER",
       "game_details": "GAME DETAILS",
@@ -180,18 +193,54 @@
         "details": "VIEW DETAILS",
         "checking": "CHECKING...",
         "check": "VERIFY",
-        "payable": {"title": "Winning ticket", "message": "Winning amount: {amount} {currency}."},
-        "already_paid": {"title": "Ticket already paid", "message": "This ticket is already settled."},
-        "not_payable_lost": {"title": "Ticket did not win", "message": "This ticket is not a winner."},
-        "not_payable_pending_draw": {"title": "Draw not held yet", "message": "Wait for the draw before checking again."},
-        "not_payable_result_pending": {"title": "Result pending", "message": "The draw result is not available yet."},
-        "cancelled": {"title": "Ticket cancelled", "message": "This ticket is cancelled."},
-        "voided": {"title": "Ticket voided", "message": "This ticket is no longer valid."},
-        "not_found": {"title": "Ticket not found", "message": "We could not find this ticket."},
-        "blocked": {"title": "Ticket blocked", "message": "Contact an administrator."},
-        "repair_required": {"title": "Verification required", "message": "Contact an administrator before proceeding."},
-        "operation_not_allowed": {"title": "Action not allowed", "message": "This terminal cannot verify tickets."},
-        "unknown": {"title": "Ticket verification", "message": "We cannot determine this ticket's status."}
+        "payable": {
+          "title": "Winning ticket",
+          "message": "Winning amount: {amount} {currency}."
+        },
+        "already_paid": {
+          "title": "Ticket already paid",
+          "message": "This ticket is already settled."
+        },
+        "not_payable_lost": {
+          "title": "Ticket did not win",
+          "message": "This ticket is not a winner."
+        },
+        "not_payable_pending_draw": {
+          "title": "Draw not held yet",
+          "message": "Wait for the draw before checking again."
+        },
+        "not_payable_result_pending": {
+          "title": "Result pending",
+          "message": "The draw result is not available yet."
+        },
+        "cancelled": {
+          "title": "Ticket cancelled",
+          "message": "This ticket is cancelled."
+        },
+        "voided": {
+          "title": "Ticket voided",
+          "message": "This ticket is no longer valid."
+        },
+        "not_found": {
+          "title": "Ticket not found",
+          "message": "We could not find this ticket."
+        },
+        "blocked": {
+          "title": "Ticket blocked",
+          "message": "Contact an administrator."
+        },
+        "repair_required": {
+          "title": "Verification required",
+          "message": "Contact an administrator before proceeding."
+        },
+        "operation_not_allowed": {
+          "title": "Action not allowed",
+          "message": "This terminal cannot verify tickets."
+        },
+        "unknown": {
+          "title": "Ticket verification",
+          "message": "We cannot determine this ticket's status."
+        }
       }
     },
     "profile": {

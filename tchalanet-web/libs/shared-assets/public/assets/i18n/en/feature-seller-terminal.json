@@ -29,16 +29,11 @@
     "quickActions": {
       "title": "Quick actions",
       "newTicket": "New ticket",
-      "history": "History",
-      "closeConnexion": "Fermer la connexion"
+      "history": "History"
     },
     "sell": {
       "title": "New ticket",
       "description": "Issue a new ticket"
-    },
-    "connexion": {
-      "title": "Connexion",
-      "openedAt": "Ouverte à"
     }
   },
   "sellerTerminal": {
