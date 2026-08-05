@@ -20,15 +20,16 @@ Workflow: GitHub Actions → **Deploy Staging** → **Run workflow**
 
 | Besoin | `infra_action` | `infra_destroy_confirm` | `deploy_infra` | Notes |
 |---|---|---|---|---|
-| Déployer sur le serveur existant | `deploy` | vide | `true` | utilise `SERVER_HOST` |
+| Déployer sur le serveur existant | `deploy-core` puis runtime | vide | — | résout `stg-app` via Hetzner |
 | Détruire le serveur staging | `destroy` | `destroy staging` | `false` | garde-fou obligatoire |
 | Créer un serveur propre | `create` | vide | `true` | déploie ensuite sur la nouvelle IP |
 | Détruire puis recréer | `recreate` | `destroy staging` | `true` | chemin standard pour reset complet |
 | Construire seulement les images | `none` | vide | `false` | pas d'action infra |
 
 Après `create` ou `recreate`, le workflow affiche `Staging server IP: <IP>`.
-Mettre à jour Cloudflare DNS (`api.stg`, `edge.stg`, `*.stg`) et le secret GitHub `SERVER_HOST`
-si l'IP a changé.
+Mettre à jour Cloudflare DNS (`api.stg`, `edge.stg`, `*.stg`) si l'IP a changé.
+Les workflows de provisioning et de runtime résolvent l'IP courante de `stg-app` via Hetzner;
+aucun secret `SERVER_HOST` staging n'est requis pour le déploiement.
 
 ### En local
 
@@ -39,9 +40,8 @@ si l'IP a changé.
    IP=$(hcloud server describe stg-app -o json | jq -r '.public_net.ipv4.ip')
    ```
 2. Mettre à jour Cloudflare DNS: `api.stg`, `edge.stg`, `*.stg` vers `$IP`, en **DNS only**.
-3. Mettre à jour GitHub Actions secret `SERVER_HOST` avec `$IP`.
-4. Lancer GitHub Actions → **Deploy API Staging** → **Run workflow**.
-5. Valider:
+3. Lancer GitHub Actions → **Deploy Runtime Services** → **Run workflow**.
+4. Valider:
    ```bash
    curl -fsS https://api.stg.tchalanet.com/api/v1/actuator/health
    ```

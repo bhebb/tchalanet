@@ -67,6 +67,10 @@ gh workflow run deploy-infra-runtime.yml \
   -f force_recreate=true
 ```
 
+Pour vérifier une VM recréée avant le basculement DNS, ajouter
+`-f validation_local_traefik=true`; le smoke conserve le hostname TLS et
+redirige temporairement les appels vers le Traefik local.
+
 Prod = promotion d'un tag déjà validé en staging (`build_*` interdits en prod).
 
 ---

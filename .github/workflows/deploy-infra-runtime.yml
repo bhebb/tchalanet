@@ -67,6 +67,11 @@ on:
         required: false
         default: ''
         type: string
+      validation_local_traefik:
+        description: 'Smoke the recreated server locally before DNS is switched'
+        required: false
+        default: false
+        type: boolean
 
 concurrency:
   group: deploy-runtime-${{ inputs.target_environment }}
@@ -352,26 +357,52 @@ jobs:
       EDGE_IMAGE_TAG: ${{ needs.plan.outputs.edge_image_tag }}
       DEPLOY_API: ${{ needs.plan.outputs.deploy_api }}
       DEPLOY_EDGE: ${{ needs.plan.outputs.deploy_edge }}
+      VALIDATION_LOCAL_TRAEFIK: ${{ inputs.validation_local_traefik && '1' || '0' }}
       API_BASE_URL: ${{ needs.plan.outputs.api_base_url }}
       WEB_ORIGINS: ${{ needs.plan.outputs.web_origins }}
-      SERVER_HOST: ${{ inputs.target_environment == 'production' && secrets.PROD_SERVER_HOST || secrets.SERVER_HOST }}
+      HCLOUD_TOKEN: ${{ inputs.target_environment == 'staging' && secrets.HCLOUD_TOKEN || '' }}
+      SERVER_HOST_CONFIG: ${{ inputs.target_environment == 'production' && secrets.PROD_SERVER_HOST || '' }}
       SSH_PRIVATE_KEY_VALUE: ${{ inputs.target_environment == 'production' && secrets.SSH_PRIVATE_KEY_PROD || secrets.SSH_PRIVATE_KEY }}
       SSH_KEY_FILE: ${{ inputs.target_environment == 'production' && 'tchalanet_prod' || 'tchalanet_stg' }}
       DOPPLER_TOKEN_VALUE: ${{ inputs.target_environment == 'production' && secrets.DOPPLER_TOKEN_PROD || secrets.DOPPLER_TOKEN_STG }}
     steps:
       - uses: actions/checkout@v7
 
+      - name: Setup hcloud for staging host resolution
+        if: inputs.target_environment == 'staging'
+        uses: hetznercloud/setup-hcloud@ac9e7d74fb41a3ca44a6a3da123bd5aa70731e3a # v2.0.0
+        with:
+          token: ${{ secrets.HCLOUD_TOKEN }}
+
+      - name: Resolve deployment host
+        id: resolve-host
+        env:
+          TARGET_ENVIRONMENT: ${{ inputs.target_environment }}
+          SERVER_HOST_CONFIG: ${{ env.SERVER_HOST_CONFIG }}
+        run: |
+          set -euo pipefail
+          if [ "$TARGET_ENVIRONMENT" = "staging" ]; then
+            server_host="$(hcloud server describe stg-app -o json | jq -r '.public_net.ipv4.ip')"
+          else
+            server_host="$SERVER_HOST_CONFIG"
+          fi
+          [ -n "$server_host" ] && [ "$server_host" != "null" ] || {
+            echo "Unable to resolve deployment server host" >&2
+            exit 1
+          }
+          echo "server_host=$server_host" >> "$GITHUB_OUTPUT"
+          echo "Resolved deployment host for $TARGET_ENVIRONMENT"
+
       - name: Validate environment secrets
         run: |
           set -euo pipefail
-          [ -n "$SERVER_HOST" ] || { echo "Missing server host secret" >&2; exit 1; }
           [ -n "$SSH_PRIVATE_KEY_VALUE" ] || { echo "Missing SSH private key secret" >&2; exit 1; }
           [ -n "$DOPPLER_TOKEN_VALUE" ] || { echo "Missing Doppler token secret" >&2; exit 1; }
 
       - name: Push infra files to server
         uses: ./.github/actions/push-infra-files
         with:
-          server_host: ${{ env.SERVER_HOST }}
+          server_host: ${{ steps.resolve-host.outputs.server_host }}
           deploy_env: ${{ env.DEPLOY_ENV }}
           ssh_private_key: ${{ env.SSH_PRIVATE_KEY_VALUE }}
           key_file: ${{ env.SSH_KEY_FILE }}
@@ -385,6 +416,7 @@ jobs:
           EDGE_IMAGE_TAG: ${{ env.EDGE_IMAGE_TAG }}
           DEPLOY_API: ${{ env.DEPLOY_API }}
           DEPLOY_EDGE: ${{ env.DEPLOY_EDGE }}
+          VALIDATION_LOCAL_TRAEFIK: ${{ env.VALIDATION_LOCAL_TRAEFIK }}
           FORCE_RECREATE: ${{ inputs.force_recreate && '1' || '0' }}
           RESET_DATABASE: ${{ inputs.destroy_database && '1' || '0' }}
           RESET_DATABASE_CONFIRM: ${{ inputs.destroy_database_confirm }}
@@ -394,11 +426,11 @@ jobs:
           GHCR_USERNAME: ${{ github.actor }}
           GHCR_TOKEN: ${{ github.token }}
         with:
-          host: ${{ env.SERVER_HOST }}
+          host: ${{ steps.resolve-host.outputs.server_host }}
           username: tch
           key: ${{ env.SSH_PRIVATE_KEY_VALUE }}
           script_stop: true
-          envs: DEPLOY_ENV,API_IMAGE_TAG,EDGE_IMAGE_TAG,DEPLOY_API,DEPLOY_EDGE,FORCE_RECREATE,RESET_DATABASE,RESET_DATABASE_CONFIRM,WEB_ORIGINS,API_BASE_URL,DOPPLER_TOKEN,GHCR_USERNAME,GHCR_TOKEN
+          envs: DEPLOY_ENV,API_IMAGE_TAG,EDGE_IMAGE_TAG,DEPLOY_API,DEPLOY_EDGE,VALIDATION_LOCAL_TRAEFIK,FORCE_RECREATE,RESET_DATABASE,RESET_DATABASE_CONFIRM,WEB_ORIGINS,API_BASE_URL,DOPPLER_TOKEN,GHCR_USERNAME,GHCR_TOKEN
           script: |
             set -euo pipefail
             cd /opt/tchalanet-infra
@@ -415,7 +447,7 @@ jobs:
             printf '%s\n' "$GHCR_TOKEN" | $DOCKER_BIN login ghcr.io \
               -u "$GHCR_USERNAME" \
               --password-stdin
-            DOCKER_BIN="$DOCKER_BIN" ENV="$DEPLOY_ENV" API_IMAGE_TAG="$API_IMAGE_TAG" EDGE_IMAGE_TAG="$EDGE_IMAGE_TAG" DEPLOY_API="$DEPLOY_API" DEPLOY_EDGE="$DEPLOY_EDGE" scripts/remote/deploy-runtime-services.sh
+            DOCKER_BIN="$DOCKER_BIN" ENV="$DEPLOY_ENV" API_IMAGE_TAG="$API_IMAGE_TAG" EDGE_IMAGE_TAG="$EDGE_IMAGE_TAG" DEPLOY_API="$DEPLOY_API" DEPLOY_EDGE="$DEPLOY_EDGE" VALIDATION_LOCAL_TRAEFIK="$VALIDATION_LOCAL_TRAEFIK" API_BASE_URL="$API_BASE_URL" WEB_ORIGINS="$WEB_ORIGINS" scripts/remote/deploy-runtime-services.sh
 
   mark-staging-success:
     needs: [plan, deploy]
