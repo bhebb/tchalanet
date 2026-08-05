@@ -21,7 +21,23 @@ if hcloud server describe "${HCLOUD_SERVER_NAME:-stg-app}" >/dev/null 2>&1; then
 fi
 
 echo "→ Création serveur..."
-bash "$ROOT/scripts/hcloud/03-create-server.sh" --network "${HCLOUD_NETWORK_NAME:-tch-net}"
+create_log="$(mktemp /tmp/tchalanet-staging-create.XXXXXX)"
+cleanup_create_log() { rm -f "$create_log"; }
+trap cleanup_create_log EXIT
+create_location="${HCLOUD_LOCATION:-fsn1}"
+if ! bash "$ROOT/scripts/hcloud/03-create-server.sh" \
+  --location "$create_location" \
+  --network "${HCLOUD_NETWORK_NAME:-tch-net}" 2>&1 | tee "$create_log"; then
+  if [ -z "${HCLOUD_LOCATION:-}" ] && [ "$create_location" = "fsn1" ] && \
+    grep -Eq 'resource_unavailable|error during placement' "$create_log"; then
+    echo "⚠️  fsn1 indisponible pour ce type; nouvelle tentative en nbg1..."
+    bash "$ROOT/scripts/hcloud/03-create-server.sh" \
+      --location nbg1 \
+      --network "${HCLOUD_NETWORK_NAME:-tch-net}"
+  else
+    exit 1
+  fi
+fi
 
 echo ""
 echo "✅ Staging créé."
