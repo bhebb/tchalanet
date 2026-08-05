@@ -14,7 +14,7 @@
         "permissions": "Manage platform permissions.",
         "roles": "Manage platform roles.",
         "overrides": "Manage super admin overrides.",
-        "supportTenant": "Select a operator to access its admin interface in support mode.",
+        "supportTenant": "Select an operator to access its admin interface in support mode.",
         "communicationTests": "Test communication channels (email, Slack, notifications).",
         "identitySync": "Sync Firebase identities with the platform.",
         "contactConfig": "Configure global contact channels and messages.",
@@ -243,7 +243,7 @@
           "configuration": "Configuration",
           "subscription": "Subscription",
           "entitlements": "Usage entitlements",
-          "sellerTerminals": "Seller-terminals",
+          "sellerTerminals": "Sellers",
           "audit": "Audit"
         },
         "address": {
@@ -295,11 +295,11 @@
           }
         },
         "sellerTerminals": {
-          "loading": "Loading seller terminals…",
-          "error": "Unable to load seller terminals.",
+          "loading": "Loading sellers…",
+          "error": "Unable to load sellers.",
           "empty": {
-            "title": "No seller terminal",
-            "message": "This operator has no seller terminal yet."
+            "title": "No seller",
+            "message": "This operator has no seller yet."
           },
           "status": {
             "active": "Active",
@@ -356,7 +356,7 @@
             "buyer": "Payé par l'acheteur",
             "tenant": "Payé par le operator",
             "platform": "Payé par la plateforme",
-            "seller": "Payé par le seller-terminal"
+            "seller": "Paid by the seller"
           }
         }
       },
@@ -373,7 +373,7 @@
           "promotions_templates": "Promotion templates",
           "limits_templates": "Limit templates",
           "demo_users": "Demo users",
-          "demo_seller_terminals": "Demo seller-terminals"
+          "demo_seller_terminals": "Demo sellers"
         },
         "data": {
           "tickets": "Tickets",
@@ -390,15 +390,15 @@
           "draw_channels": "Draw channels",
           "limits": "Limits",
           "odds": "Odds",
-          "seller_terminals": "Seller-terminals",
-          "seller_rules": "Seller-terminal rules"
+          "seller_terminals": "Sellers",
+          "seller_rules": "Seller rules"
         },
         "nextSteps": {
           "CREATE_INITIAL_ADMIN": "Create initial admin",
           "CONFIGURE_GAMES": "Configure games",
           "CONFIGURE_DRAW_CHANNELS": "Configure draw channels",
-          "CONFIGURE_SELLER_RULES": "Configure seller-terminal rules",
-          "CREATE_SELLER_TERMINAL": "Create a seller-terminal",
+          "CONFIGURE_SELLER_RULES": "Configure seller rules",
+          "CREATE_SELLER_TERMINAL": "Create a seller",
           "CONFIGURE_LIMITS": "Configure limits",
           "CONFIGURE_ODDS": "Configure odds",
           "VERIFY_DEMO_SETUP": "Verify demo data"
@@ -445,7 +445,7 @@
           "firstName": "First name required.",
           "create": "Error creating administrator."
         },
-        "roleInfo": "Assigned role: TENANT_ADMIN",
+        "roleInfo": "Assigned role: Administrator",
         "submit": "Create administrator",
         "success": "Administrator created successfully."
       },
@@ -457,8 +457,8 @@
       }
     },
     "tenantProvisioning": {
-      "title": "Provision a operator",
-      "description": "Create a operator, apply an initial profile, and prepare its configuration.",
+      "title": "Provision an operator",
+      "description": "Create an operator, apply an initial profile, and prepare its configuration.",
       "backToTenants": "Back to operators",
       "section": {
         "identity": "Identity & classification",
@@ -486,7 +486,7 @@
         "initialAdminEmail": "Initial admin email"
       },
       "hint": {
-        "defaultCommissionRate": "Commission applied by default to seller-terminals without a specific rate.",
+        "defaultCommissionRate": "Commission applied by default to sellers without a specific rate.",
         "maryajGratisEnabled": "Shows the Maryaj gratis page in the operator and adds its setup card.",
         "initialAdminUsername": "3–64 characters: letters, numbers, dots, underscores, or hyphens.",
         "initialAdminEmail": "Required to create the initial administrator."
@@ -517,7 +517,7 @@
         "existingUserAttached": "An existing user was attached as the operator administrator.",
         "temporaryCredentialNotReturned": "Temporary credentials could not be displayed. Reset the password from the operator detail page.",
         "temporaryPasswordIssued": "A temporary password was issued for the initial administrator.",
-        "noPlanSelected": "No plan selected. The operator will be created without an active subscription — apply a plan before creating seller-terminals.",
+        "noPlanSelected": "No plan selected. The operator will be created without an active subscription — apply a plan before creating sellers.",
         "fallback": "A configuration point needs verification."
       },
       "identityCard": {
@@ -555,7 +555,7 @@
         "promotionsTemplates": "Promotion templates",
         "limitsTemplates": "Limit templates",
         "demoUsers": "Demo users",
-        "demoSellerTerminals": "Demo seller-terminals",
+        "demoSellerTerminals": "Demo sellers",
         "subscription": "Subscription"
       },
       "status": {
@@ -579,8 +579,8 @@
         "configureLimits": "Configure limits",
         "configureOdds": "Configure odds",
         "verifyDemoSetup": "Verify demo data",
-        "createSellerTerminal": "Create a seller-terminal",
-        "configureSellerRules": "Configurer les règles seller-terminal"
+        "createSellerTerminal": "Create a seller",
+        "configureSellerRules": "Configure seller rules"
       },
       "success": {
         "title": "Operator provisioned successfully",
@@ -831,7 +831,7 @@
         "envers": "Source: Hibernate Envers"
       },
       "entityType": {
-        "sellerTerminal": "Seller terminal",
+        "sellerTerminal": "Seller",
         "drawResult": "Draw result",
         "limitAssignment": "Limit assignment"
       },
@@ -938,7 +938,7 @@
       },
       "validation": {
         "title": "Invalid scope",
-        "scope": "Select a operator and a valid period of at most 90 days.",
+        "scope": "Select an operator and a valid period of at most 90 days.",
         "reason": "Provide a reason of at least 10 characters."
       },
       "noTenant": "No operator selected"

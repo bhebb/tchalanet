@@ -39,7 +39,7 @@
       "kpi": {
         "defaultRate": "Taux par défaut",
         "defaultRateHint": "Taux du santral",
-        "totalTerminals": "Terminaux vendeurs",
+        "totalTerminals": "Vendeurs",
         "atDefaultRate": "Au taux par défaut",
         "customRate": "Taux personnalisé"
       },
@@ -203,7 +203,7 @@
         "themeDesc": "Personnalisation de l'apparence",
         "themeCta": "Configurer l'apparence",
         "commission": "Commission",
-        "commissionDesc": "Taux de commission par défaut appliqué aux terminaux vendeurs.",
+        "commissionDesc": "Taux de commission par défaut appliqué aux vendeurs.",
         "commissionCta": "Configurer la commission",
         "limits": "Limites de vente",
         "limitsDesc": "Limites de vente appliquées à votre santral.",
@@ -300,7 +300,7 @@
         },
         "receipt": {
           "title": "Reçus et impression",
-          "description": "Personnalisez le contenu et les options d’impression utilisés par les seller terminals.",
+          "description": "Personnalisez le contenu et les options d’impression utilisés par les vendeurs.",
           "enabled": "Utiliser les préférences de reçu du santral",
           "header": "Message d’en-tête",
           "headerPlaceholder": "Merci de jouer avec nous !",
@@ -329,7 +329,7 @@
             "label": "Payé par",
             "buyer": "Client",
             "tenant": "Santral",
-            "seller": "Seller-terminal"
+            "seller": "Vendeur"
           },
           "sms": {
             "title": "SMS"
@@ -372,7 +372,7 @@
         },
         "locale": {
           "title": "Langues du santral",
-          "description": "Choisissez les langues disponibles pour les administrateurs et seller terminals.",
+          "description": "Choisissez les langues disponibles pour les administrateurs et les vendeurs.",
           "supported": "Langues supportées",
           "fallback": "Langue de repli",
           "notice": "La langue de repli doit faire partie des langues supportées.",
@@ -687,12 +687,12 @@
         "error": {
           "notFoundTitle": "Ticket introuvable",
           "notFoundMessage": "Aucun identifiant de ticket n’a été fourni.",
-          "terminalNotFound": "Réimpression indisponible : le terminal vendeur {{terminalCode}} est introuvable.",
-          "reprintFailed": "Réimpression impossible pour ce ticket. Vérifiez le terminal vendeur ou réessayez."
+          "terminalNotFound": "Réimpression indisponible : le vendeur {{terminalCode}} est introuvable.",
+          "reprintFailed": "Réimpression impossible pour ce ticket. Vérifiez le vendeur ou réessayez."
         },
         "notice": {
           "reprinting": "Réimpression en cours.",
-          "missingTerminal": "Réimpression indisponible : terminal vendeur non identifié."
+          "missingTerminal": "Réimpression indisponible : vendeur non identifié."
         }
       },
       "draw": {
@@ -779,7 +779,7 @@
       "error": {
         "noOpenDraw": "Aucun tirage ouvert à la vente.",
         "drawClosed": "Ce tirage est maintenant fermé à la vente. Choisissez un autre tirage ouvert.",
-        "terminalBlocked": "Ce seller-terminal est bloqué. Il ne peut pas vendre de tickets.",
+        "terminalBlocked": "Ce vendeur est bloqué. Il ne peut pas vendre de tickets.",
         "invalidStake": "La mise doit être supérieure à 0 HTG.",
         "noLines": "Ajoutez au moins une ligne pour confirmer la vente."
       }
@@ -881,7 +881,7 @@
           "emptyMessage": "Les numéros vendus apparaîtront ici après la vente de lignes."
         },
         "sellers": {
-          "title": "Terminaux vendeurs principaux",
+          "title": "Principaux vendeurs",
           "emptyTitle": "Aucune activité vendeur",
           "emptyMessage": "La performance vendeur apparaîtra ici après la vente de tickets."
         }
@@ -975,10 +975,10 @@
       },
       "sellers": {
         "title": "Rapport vendeur",
-        "description": "Ventes, commissions et revenu estimé regroupés par terminal vendeur.",
+        "description": "Ventes, commissions et revenu estimé regroupés par vendeur.",
         "loading": "Chargement du rapport vendeur...",
         "kpisAria": "Résumé du rapport vendeur",
-        "rowsTitle": "Lignes par terminal vendeur",
+        "rowsTitle": "Lignes par vendeur",
         "emptyTitle": "Aucune activité vendeur",
         "emptyMessage": "La performance vendeur apparaîtra ici après la vente de tickets.",
         "totalRow": "Total du rapport",
@@ -1017,7 +1017,7 @@
           "averageTicketAsc": "Ticket moyen croissant"
         },
         "column": {
-          "seller": "Terminal vendeur",
+          "seller": "Vendeur",
           "status": "Statut",
           "tickets": "Tickets",
           "sales": "Ventes",
@@ -1320,7 +1320,7 @@
         "withParams": "Avec paramètres",
         "simulation": "Simulation",
         "simulationTitle": "Vue effective par portée",
-        "simulationHint": "Sélectionnez une portée pour voir les règles actuellement actives à ce niveau. La priorité effective suit : terminal vendeur / agent (60) > canal de tirage (30) > global (10).",
+        "simulationHint": "Sélectionnez une portée pour voir les règles actuellement actives à ce niveau. La priorité effective suit : vendeur (60) > canal de tirage (30) > global (10).",
         "scopeLabel": "Portée",
         "scope": {
           "global": "Global",
@@ -1849,7 +1849,7 @@
         "DISABLED": "Désactivé"
       },
       "field": {
-        "seller_terminal_code": "Code terminal",
+        "seller_terminal_code": "Code vendeur",
         "first_name": "Prénom",
         "last_name": "Nom de famille",
         "email": "Email",
@@ -1950,7 +1950,7 @@
     "tenantMissing": "Non détecté",
     "titles": {
       "admin": "Tableau de bord admin santral",
-      "cashier": "Tableau de bord caissier",
+      "cashier": "Tableau de bord vendeur",
       "platform": "Tableau de bord plateforme"
     },
     "cashier": {
@@ -1994,7 +1994,7 @@
         "at_default": "Au taux par défaut",
         "custom": "Taux personnalisé",
         "rate_range": "Fourchette",
-        "seller_terminals": "Seller-terminals"
+        "seller_terminals": "Vendeurs"
       },
       "kpis": {
         "title": "Indicateurs"

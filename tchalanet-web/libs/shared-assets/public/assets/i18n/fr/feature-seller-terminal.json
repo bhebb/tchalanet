@@ -43,11 +43,11 @@
   },
   "sellerTerminal": {
     "activation": {
-      "title": "Activation seller-terminal",
-      "description": "Le seller-terminal devra changer son PIN temporaire avant d’accéder à la vente.",
+      "title": "Activation du vendeur",
+      "description": "Le vendeur devra changer son PIN temporaire avant d’accéder à la vente.",
       "pin": {
         "title": "PIN temporaire",
-        "pendingBackend": "Le changement de PIN sera activé avec le endpoint seller-terminal V0."
+        "pendingBackend": "Le changement de PIN sera activé avec l’API vendeur V0."
       }
     }
   }

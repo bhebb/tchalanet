@@ -183,7 +183,7 @@
     "ops": {
       "salesSimulation": {
         "title": "Simulation de ventes",
-        "description": "Créer un volume QA de tickets par santral, tirage et terminal vendeur via le vrai flux prepare/confirm.",
+        "description": "Créer un volume QA de tickets par santral, tirage et vendeur via le vrai flux prepare/confirm.",
         "errorTitle": "Action impossible",
         "noticeTitle": "Simulation",
         "noTenant": "Aucun santral sélectionné",
@@ -208,7 +208,7 @@
         },
         "field": {
           "tenant": "Santral",
-          "sellerTerminals": "Terminaux vendeurs",
+          "sellerTerminals": "Vendeurs",
           "status": "Statut",
           "slot": "Slot",
           "from": "Du",
@@ -226,7 +226,7 @@
         },
         "empty": {
           "tenant": "Aucun santral trouvé",
-          "sellerTerminal": "Aucun terminal vendeur actif",
+          "sellerTerminal": "Aucun vendeur actif",
           "drawsTitle": "Aucun tirage chargé",
           "drawsMessage": "Sélectionnez un santral puis chargez les tirages."
         },

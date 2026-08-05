@@ -1,6 +1,6 @@
 {
   "surface": {
-    "cashier": "Caissier",
+    "cashier": "Vendeur",
     "platform_admin": "Plateforme",
     "tenant_admin": "Administration",
     "supportAccess": {
@@ -55,8 +55,8 @@
       "seller_terminals": "Vendeurs",
       "seller_terminal_list": "Liste vendeurs",
       "seller_terminal_new": "Nouveau vendeur",
-      "seller_terminal_add": "Ajouter seller-terminal",
-      "seller_terminal_active": "Seller-terminals actifs",
+      "seller_terminal_add": "Ajouter un vendeur",
+      "seller_terminal_active": "Vendeurs actifs",
       "draw_sales_matrix": "Jeux par canal",
       "games_pricing": "Vue d'ensemble",
       "games_available": "Jeux disponibles",
@@ -117,8 +117,8 @@
     "dashboard": "Tableau de bord",
     "tenant_overview": "Vue d'ensemble",
     "users": "Utilisateurs",
-    "outlets": "Seller-terminals",
-    "seller-terminals": "Seller-terminals",
+    "outlets": "Vendeurs",
+    "seller-terminals": "Vendeurs",
     "connexions": "Connexions",
     "tickets_sales": "Tickets & ventes",
     "draws": "Tirages",

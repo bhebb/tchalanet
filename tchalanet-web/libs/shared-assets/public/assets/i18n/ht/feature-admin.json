@@ -39,7 +39,7 @@
       "kpi": {
         "defaultRate": "To pa defo",
         "defaultRateHint": "To santral la",
-        "totalTerminals": "Tèminal vandè",
+        "totalTerminals": "Tèminal POS",
         "atDefaultRate": "Nan to pa defo",
         "customRate": "To pèsonalize"
       },
@@ -68,7 +68,7 @@
       },
       "empty": {
         "title": "Pa gen vandè",
-        "message": "Pa gen tèminal vandè ki anrejistre.",
+        "message": "Pa gen tèminal POS ki anrejistre.",
         "filteredTitle": "Pa gen rezilta",
         "filteredMessage": "Chanje rechèch la oswa reyinisyalize filtè yo."
       }
@@ -208,7 +208,7 @@
         "themeDesc": "Pèsonalizasyon aparans lan.",
         "themeCta": "Konfigire aparans lan",
         "commission": "Komisyon",
-        "commissionDesc": "To komisyon pa defo ki aplike sou tèminal vandè yo.",
+        "commissionDesc": "To komisyon pa defo ki aplike sou tèminal POS yo.",
         "commissionCta": "Konfigire komisyon an",
         "limits": "Limit vant",
         "limitsDesc": "Limit vant ki aplike sou santral ou an.",
@@ -950,7 +950,7 @@
         "withParams": "Ak paramèt",
         "simulation": "Similasyon",
         "simulationTitle": "Apèsi efikas pa nivo",
-        "simulationHint": "Chwazi yon nivo pou wè règ aktif yo. Priyorite a se tèminal vandè / ajan (60) > kanal tiraj (30) > global (10).",
+        "simulationHint": "Chwazi yon nivo pou wè règ aktif yo. Priyorite a se tèminal POS (60) > kanal tiraj (30) > global (10).",
         "scopeLabel": "Nivo",
         "scope": {
           "global": "Global",
@@ -1794,7 +1794,7 @@
         },
         "notice": {
           "reprinting": "Y ap re-enprime tikè a.",
-          "missingTerminal": "Re-enprime pa disponib: yo pa idantifye tèminal vandè a."
+          "missingTerminal": "Re-enprime pa disponib: yo pa idantifye tèminal POS la."
         }
       },
       "draw": {
@@ -1950,7 +1950,7 @@
     "tenantMissing": "Pa detekte",
     "titles": {
       "admin": "Tablo admin santral",
-      "cashier": "Tablo kesye",
+      "cashier": "Tablo tèminal POS",
       "platform": "Tablo platfòm"
     },
     "cashier": {

@@ -243,7 +243,7 @@
           "configuration": "Configuration",
           "subscription": "Abonnement",
           "entitlements": "Droits d'usage",
-          "sellerTerminals": "Seller-terminals",
+          "sellerTerminals": "Vendeurs",
           "audit": "Audit"
         },
         "address": {
@@ -295,11 +295,11 @@
           }
         },
         "sellerTerminals": {
-          "loading": "Chargement des seller-terminals…",
-          "error": "Impossible de charger les seller-terminals.",
+          "loading": "Chargement des vendeurs…",
+          "error": "Impossible de charger les vendeurs.",
           "empty": {
-            "title": "Aucun seller-terminal",
-            "message": "Ce santral n'a pas encore de seller-terminal."
+            "title": "Aucun vendeur",
+            "message": "Ce santral n'a pas encore de vendeur."
           },
           "status": {
             "active": "Actif",
@@ -356,7 +356,7 @@
             "buyer": "Payé par l'acheteur",
             "tenant": "Payé par le santral",
             "platform": "Payé par la plateforme",
-            "seller": "Payé par le seller-terminal"
+            "seller": "Payé par le vendeur"
           }
         }
       },
@@ -373,7 +373,7 @@
           "promotions_templates": "Modèles de promotions",
           "limits_templates": "Modèles de limites",
           "demo_users": "Utilisateurs de démo",
-          "demo_seller_terminals": "Seller-terminals de démo"
+          "demo_seller_terminals": "Vendeurs de démo"
         },
         "data": {
           "tickets": "Tickets",
@@ -388,17 +388,17 @@
           "identity": "Identité santral",
           "users": "Admin santral",
           "draw_channels": "Canaux de tirage",
-          "seller_rules": "Règles seller-terminal",
+          "seller_rules": "Règles vendeur",
           "limits": "Limites",
           "odds": "Barèmes",
-          "seller_terminals": "Seller-terminals"
+          "seller_terminals": "Vendeurs"
         },
         "nextSteps": {
           "CREATE_INITIAL_ADMIN": "Créer l’admin initial",
           "CONFIGURE_GAMES": "Configurer les jeux",
           "CONFIGURE_DRAW_CHANNELS": "Configurer les canaux de tirage",
-          "CONFIGURE_SELLER_RULES": "Configurer les règles seller-terminal",
-          "CREATE_SELLER_TERMINAL": "Créer un seller-terminal",
+          "CONFIGURE_SELLER_RULES": "Configurer les règles vendeur",
+          "CREATE_SELLER_TERMINAL": "Créer un vendeur",
           "CONFIGURE_LIMITS": "Configurer les limites",
           "CONFIGURE_ODDS": "Configurer les barèmes",
           "VERIFY_DEMO_SETUP": "Vérifier les données de démo"
@@ -451,7 +451,7 @@
           "firstName": "Prénom requis.",
           "create": "Erreur lors de la création."
         },
-        "roleInfo": "Rôle assigné : TENANT_ADMIN",
+        "roleInfo": "Rôle assigné : Administrateur",
         "submit": "Créer l'administrateur",
         "success": "Administrateur créé avec succès."
       }
@@ -553,7 +553,7 @@
         "initialAdminEmail": "Email de l'admin initial"
       },
       "hint": {
-        "defaultCommissionRate": "Commission appliquée par défaut aux seller-terminals qui n'ont pas de taux spécifique.",
+        "defaultCommissionRate": "Commission appliquée par défaut aux vendeurs qui n'ont pas de taux spécifique.",
         "maryajGratisEnabled": "Affiche la page Maryaj gratis dans le santral et ajoute la carte de configuration.",
         "initialAdminUsername": "3 à 64 caractères : lettres, chiffres, points, soulignés ou tirets.",
         "initialAdminEmail": "Obligatoire pour créer l’administrateur initial."
@@ -584,7 +584,7 @@
         "existingUserAttached": "Un utilisateur existant a été rattaché comme administrateur du santral.",
         "temporaryCredentialNotReturned": "Les identifiants temporaires n'ont pas pu être affichés. Réinitialisez le mot de passe depuis le détail du santral.",
         "temporaryPasswordIssued": "Un mot de passe temporaire a été généré pour l'administrateur initial.",
-        "noPlanSelected": "Aucun plan sélectionné. Le santral sera créé sans abonnement actif — appliquez un plan avant de créer des seller-terminals.",
+        "noPlanSelected": "Aucun plan sélectionné. Le santral sera créé sans abonnement actif — appliquez un plan avant de créer des vendeurs.",
         "fallback": "Un point de configuration demande une vérification."
       },
       "identityCard": {
@@ -622,7 +622,7 @@
         "promotionsTemplates": "Modèles de promotions",
         "limitsTemplates": "Modèles de limites",
         "demoUsers": "Utilisateurs démo",
-        "demoSellerTerminals": "Seller-terminals de démo",
+        "demoSellerTerminals": "Vendeurs de démo",
         "subscription": "Abonnement"
       },
       "status": {
@@ -643,11 +643,11 @@
         "createInitialAdmin": "Créer l’admin initial",
         "configureGames": "Configurer les jeux",
         "configureDrawChannels": "Configurer les canaux de tirage",
-        "configureSellerRules": "Configurer les règles seller-terminal",
+        "configureSellerRules": "Configurer les règles vendeur",
         "configureLimits": "Configurer les limites",
         "configureOdds": "Configurer les barèmes",
         "verifyDemoSetup": "Vérifier les données de démo",
-        "createSellerTerminal": "Créer un seller-terminal"
+        "createSellerTerminal": "Créer un vendeur"
       },
       "success": {
         "title": "Santral provisionné avec succès",
@@ -831,7 +831,7 @@
         "envers": "Source : Hibernate Envers"
       },
       "entityType": {
-        "sellerTerminal": "Seller terminal",
+        "sellerTerminal": "Vendeur",
         "drawResult": "Résultat de tirage",
         "limitAssignment": "Assignation de limite"
       },
