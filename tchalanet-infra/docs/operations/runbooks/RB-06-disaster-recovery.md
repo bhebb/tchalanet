@@ -123,14 +123,18 @@ ENV=staging ./scripts/remote/pg-restore.sh
 ```
 
 Pour une restauration opérée avec les secrets GitHub du bucket backup, utiliser
-le workflow manuel **Restore staging database**. Il exige l'objet R2 exact et
-la confirmation `restore staging`, déchiffre sur le runner, puis pilote le
-Docker distant STG par SSH. La clé privée `age` ne doit jamais être copiée sur
-la VM applicative.
+le workflow manuel **Restore database**. Il exige l'environnement, l'objet R2
+exact et la confirmation correspondante (`restore staging` ou `restore
+production`). Il déchiffre sur le runner, puis pilote le Docker distant par
+SSH avec la clé d'environnement (`SSH_PRIVATE_KEY` ou `SSH_PRIVATE_KEY_PROD`).
+La clé privée `age` ne doit jamais être copiée sur la VM applicative. La cible
+`production` doit en plus être protégée par une approbation GitHub Environment.
 
 Le script demande de taper `restore <env>` avant d'écraser. Il restaure les
-rôles (`globals.sql`) puis la base — dans cet ordre, sinon les `GRANT` sur
-`app_user` échouent.
+rôles (`globals.sql`), recrée la base cible vide, puis la restaure — dans cet
+ordre, sinon les `GRANT` sur `app_user` et les contraintes héritées des
+partitions peuvent échouer. Les connexions actives à la base cible sont
+terminées par PostgreSQL pendant cette opération.
 
 **Répéter d'abord sans risque** pour confirmer que le backup est exploitable :
 
