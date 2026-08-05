@@ -9,7 +9,7 @@
       "error": "La connexion a échoué. Réessayez.",
       "blocked": "Accès bloqué ?",
       "blocked_title": "Accès bloqué",
-      "blocked_message": "Contactez l'administrateur de votre tenant pour débloquer l'accès de ce terminal.",
+      "blocked_message": "Contactez l'administrateur de votre santral pour débloquer l'accès de ce vendeur.",
       "required": "Ce champ est obligatoire",
       "secure_environment": "Environnement sécurisé",
       "terminal_title": "Accès terminal",

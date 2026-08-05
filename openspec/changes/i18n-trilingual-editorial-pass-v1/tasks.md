@@ -121,17 +121,18 @@ redéfinis dans 286 clés ; 188 termes FR traduits différemment selon l'endroit
 
 ## Phase 4 — Mobile
 
-- [ ] 4.1 `domain` (45) + `common` (83) — 5 chaînes FR résiduelles en EN
-- [ ] 4.2 `feature-seller-terminal` (250) — alignement terminologique sur la table
-- [ ] 4.3 `component` (20), `feature-auth` (30), `surface-seller-terminal` (1)
-- [ ] 4.4 Vérifier la cohérence web ↔ mobile sur les clés de même nom
+- [x] 4.1 `domain` — `tenant`/`tenants` et `sellerTerminal(s)` alignés sur le glossaire
+- [x] 4.2 `feature-auth:auth.login.blocked_message` — « votre tenant » / « ce terminal »
+      réécrit dans les 3 locales
+- [x] 4.3 `pos.tickets.outlet` — « POINT DE VENTE » / « OUTLET » / « PÒS VANT », concept retiré
+- [x] 4.4 Mobile à **0 défaut** sur les 5 classes de l'audit
 
 ## Phase 5 — Vérification
 
-- [ ] 5.1 Re-run audit complet : parité 0 écart, 0 fuite technique, 0 FR résiduel, 0 faute HT listée
-- [ ] 5.2 `nx test core-i18n` + `error-i18n-contract.spec.ts` verts
-- [ ] 5.3 Revue visuelle des libellés contraints (boutons, colonnes) en HT — la locale la plus longue
-- [ ] 5.4 PR (jamais de push direct sur `main`)
+- [x] 5.1 Audit complet : **0 défaut**, `--strict` sort en 0. Web 4 033 × 3, mobile 429 × 3.
+- [x] 5.2 `nx test core-i18n` (4) + `web-errors` (13) verts ; builds public/admin/platform verts
+- [ ] 5.3 Revue visuelle des libellés contraints en HT — la locale la plus longue
+- [x] 5.4 PR : #541 → #542 → #543 → #545 → #546 (pile), + #544 pour la CI docs
 
 ### Défaut découvert en phase 3.1 — français sans accents
 

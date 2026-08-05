@@ -1665,11 +1665,11 @@
     },
     "generatedDraws": {
       "title": "Generated draws",
-      "description": "Suivez les tirages générés, leur état de vente et les résultats attendus.",
+      "description": "Track generated draws, their sales status and expected results.",
       "summary": {
         "today": "Aujourd'hui",
-        "salesOpen": "Vente ouverte",
-        "resultsExpected": "Résultats attendus",
+        "salesOpen": "Sales open",
+        "resultsExpected": "Expected results",
         "confirmed": "Confirmed"
       },
       "datePresets": {
@@ -1679,16 +1679,16 @@
       },
       "statusFilters": {
         "all": "All statuses",
-        "open": "Ouverts à la vente",
-        "expected": "Résultats attendus",
-        "missing": "Résultats manquants",
+        "open": "Open for sales",
+        "expected": "Expected results",
+        "missing": "Missing results",
         "confirmed": "Confirmed",
         "sourceError": "Source error"
       },
       "salesStatus": {
         "UPCOMING": "À venir",
-        "OPEN": "Vente ouverte",
-        "CLOSED": "Vente fermée",
+        "OPEN": "Sales open",
+        "CLOSED": "Sales closed",
         "CANCELLED": "Cancelled"
       },
       "resultStatus": {
@@ -1696,7 +1696,7 @@
         "EXPECTED": "Expected",
         "MISSING": "Missing",
         "PROVISIONAL": "Provisoire",
-        "CONFIRMED": "Confirmé",
+        "CONFIRMED": "Confirmed",
         "SOURCE_ERROR": "Source error"
       },
       "publicationStatus": {
@@ -1704,17 +1704,17 @@
       },
       "actions": {
         "refresh": "Refresh",
-        "planNextDraws": "Planifier les prochains tirages",
+        "planNextDraws": "Schedule upcoming draws",
         "configureDrawChannels": "Configure draw channels",
-        "enterResult": "Saisir résultat",
-        "viewResult": "Voir résultat",
+        "enterResult": "Enter result",
+        "viewResult": "View result",
         "verify": "Verify",
         "viewDetails": "View details"
       }
     },
     "pos": {
-      "title": "Vente ticket",
-      "changeDraw": "Changer de tirage",
+      "title": "Sell a ticket",
+      "changeDraw": "Change draw",
       "live": "Live",
       "detail": {
         "title": "Ticket details",
@@ -1798,7 +1798,7 @@
         }
       },
       "draw": {
-        "closesIn": "S'arrête dans {{time}}"
+        "closesIn": "Closes in {{time}}"
       },
       "games": {
         "borlette": "Borlette",
@@ -1807,12 +1807,12 @@
         "maryaj": "Maryaj"
       },
       "lines": {
-        "title": "Sélection des numéros",
+        "title": "Number selection",
         "number": "Number",
         "type": "Type",
         "stake": "Stake (HTG)",
         "add": "Add",
-        "clear": "Vider la liste"
+        "clear": "Clear the list"
       },
       "betType": {
         "direct": "Straight",
@@ -1820,16 +1820,16 @@
         "maryaj": "Maryaj"
       },
       "actions": {
-        "confirm": "Confirmer la vente",
+        "confirm": "Confirm sale",
         "confirming": "Confirmation...",
         "print": "Print",
         "details": "Details",
         "newTicket": "New ticket"
       },
       "ticket": {
-        "preparing": "Ticket en préparation",
+        "preparing": "Preparing ticket",
         "sold": "Ticket sold",
-        "codeGeneratedAfterConfirm": "Code généré après confirmation"
+        "codeGeneratedAfterConfirm": "Code generated after confirmation"
       },
       "dialog": {
         "title": {
@@ -1874,16 +1874,16 @@
         }
       },
       "activity": {
-        "title": "Activité du terminal",
+        "title": "Seller activity",
         "salesToday": "Today's sales",
-        "ticketsToday": "Tickets émis"
+        "ticketsToday": "Tickets issued"
       },
       "error": {
-        "noOpenDraw": "Aucun tirage ouvert à la vente.",
-        "drawClosed": "Ce tirage est maintenant fermé à la vente. Choisissez un autre tirage ouvert.",
+        "noOpenDraw": "No draw is open for sales.",
+        "drawClosed": "This draw is now closed for sales. Choose another open draw.",
         "terminalBlocked": "This seller is blocked and cannot sell tickets.",
-        "invalidStake": "La mise doit être supérieure à 0 HTG.",
-        "noLines": "Ajoutez au moins une ligne pour confirmer la vente."
+        "invalidStake": "The stake must be greater than 0 HTG.",
+        "noLines": "Add at least one line to confirm the sale."
       }
     },
     "drawResults": {

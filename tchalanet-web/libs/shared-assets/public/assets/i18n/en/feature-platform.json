@@ -219,7 +219,7 @@
           "city": "City",
           "addressLine": "Address",
           "postalCode": "Postal code",
-          "theme": "Thème actif"
+          "theme": "Active theme"
         },
         "identityCard": {
           "eyebrow": "Operator"
@@ -229,16 +229,16 @@
           "updateSuccess": "Information updated successfully.",
           "updateError": "Could not save changes.",
           "activate": "Activate",
-          "activateError": "Erreur lors de l'activation.",
+          "activateError": "Activation failed.",
           "suspend": "Suspend",
-          "suspendError": "Erreur lors de la suspension.",
+          "suspendError": "Suspension failed.",
           "archive": "Archive",
           "archiveError": "Unable to archive the operator.",
           "supportAccess": "Access as admin",
           "addAdmin": "Add an administrator"
         },
         "tab": {
-          "overview": "Aperçu",
+          "overview": "Overview",
           "admins": "Administrators",
           "configuration": "Configuration",
           "subscription": "Subscription",
@@ -326,36 +326,36 @@
         },
         "config": {
           "empty": {
-            "title": "Configuration non renseignée",
+            "title": "No configuration set",
             "message": "La configuration interne de ce operator n'a pas encore été définie."
           },
           "section": {
-            "locale": "Langue & région",
+            "locale": "Language & region",
             "calendar": "Calendrier commercial",
             "communication": "Communication ticket",
-            "receipt": "Reçu / documents"
+            "receipt": "Receipt / documents"
           },
           "field": {
             "defaultLanguage": "Default language",
             "defaultLocale": "Default locale",
             "supportedLanguages": "Supported languages",
-            "fallbackLanguage": "Langue de secours",
+            "fallbackLanguage": "Fallback language",
             "defaultOpen": "Open by default",
-            "closedWeekdays": "Jours fermés",
-            "holidays": "Jours fériés",
+            "closedWeekdays": "Closed days",
+            "holidays": "Public holidays",
             "open": "Open",
             "closed": "Closed",
-            "receiptEnabled": "Reçu activé",
+            "receiptEnabled": "Receipt enabled",
             "defaultTemplateKey": "Template",
-            "headerMessage": "Message d'en-tête",
-            "footerMessage": "Message de pied",
+            "headerMessage": "Header message",
+            "footerMessage": "Footer message",
             "paperSize": "Format papier",
-            "showQrCode": "Afficher QR code"
+            "showQrCode": "Show QR code"
           },
           "paidBy": {
-            "buyer": "Payé par l'acheteur",
+            "buyer": "Paid by the buyer",
             "tenant": "Payé par le operator",
-            "platform": "Payé par la plateforme",
+            "platform": "Paid by the platform",
             "seller": "Paid by the seller"
           }
         }
@@ -453,7 +453,7 @@
         "active": "Active",
         "pending": "Pending",
         "disabled": "Disabled",
-        "invited": "Invité"
+        "invited": "Invited"
       }
     },
     "tenantProvisioning": {
@@ -587,9 +587,9 @@
         "message": "Operator {{code}} has been created and is ready for configuration."
       },
       "typeDescription": {
-        "borlette": "Banque borlette ou opérateur gérant plusieurs vendeurs.",
-        "reseau": "Organisation qui supervise plusieurs points, zones ou opérateurs.",
-        "ambulant": "Vendeur indépendant ou petite activité mobile."
+        "borlette": "Borlette bank or operator managing several sellers.",
+        "reseau": "Organization overseeing several locations, zones or operators.",
+        "ambulant": "Independent seller or small mobile business."
       }
     },
     "catalog": {

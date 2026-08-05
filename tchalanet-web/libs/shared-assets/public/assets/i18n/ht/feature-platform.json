@@ -219,7 +219,7 @@
           "city": "Vil",
           "addressLine": "Adrès",
           "postalCode": "Kòd postal",
-          "theme": "Thème actif"
+          "theme": "Tèm aktif"
         },
         "identityCard": {
           "eyebrow": "Santral"
@@ -587,9 +587,9 @@
         "message": "Santral {{code}} te kreye epi li prèt pou konfigirasyon."
       },
       "typeDescription": {
-        "borlette": "Banque borlette ou opérateur gérant plusieurs vendeurs.",
-        "reseau": "Organisation qui supervise plusieurs points, zones ou opérateurs.",
-        "ambulant": "Vendeur indépendant ou petite activité mobile."
+        "borlette": "Bank borlèt oswa operatè k ap jere plizyè tèminal POS.",
+        "reseau": "Òganizasyon ki sipèvize plizyè kote, zòn oswa operatè.",
+        "ambulant": "Vandè endepandan oswa yon ti aktivite mobil."
       }
     },
     "catalog": {
