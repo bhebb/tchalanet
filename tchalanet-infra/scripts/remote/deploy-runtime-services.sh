@@ -218,6 +218,20 @@ elif [ ! -f "envs/$ENV/.secrets" ]; then
   fail "SKIP_DOPPLER=1 was set but envs/$ENV/.secrets does not exist"
 fi
 
+# APP_DB_PASSWORD is the canonical database credential used by the Postgres
+# init script. Keep the Spring alias aligned so a recreated database and API
+# cannot silently receive different passwords from Doppler.
+app_db_password="$(sed -n 's/^APP_DB_PASSWORD=//p' "envs/$ENV/.secrets" | head -n 1)"
+if [ -n "$app_db_password" ]; then
+  db_password_override_tmp="$(mktemp /tmp/tchalanet-db-password-override.XXXXXX)"
+  awk '!/^SPRING_DATASOURCE_PASSWORD=/' "envs/$ENV/.secrets" > "$db_password_override_tmp"
+  printf 'SPRING_DATASOURCE_PASSWORD=%s\n' "$app_db_password" >> "$db_password_override_tmp"
+  mv "$db_password_override_tmp" "envs/$ENV/.secrets"
+  chmod 600 "envs/$ENV/.secrets"
+else
+  fail "APP_DB_PASSWORD is required to align the Spring database password"
+fi
+
 if [ "${RUNTIME_IDENTITY_PROVIDER:-firebase}" = "firebase-emulator" ] && [ -n "$WEB_ORIGINS" ]; then
   # The API service loads envs/$ENV/.secrets through Compose's env_file.
   # Put the disposable E2E CORS origins in that source, rather than only in
