@@ -122,7 +122,7 @@ class TenantAdminDashboardPayloadAssemblerTest {
   @Test
   @DisplayName("KPIs propagate sales/tickets from analytics query")
   void kpisFromStats() {
-    LocalDate today = LocalDate.now();
+    LocalDate today = LocalDate.now(java.time.ZoneId.of("America/Port-au-Prince"));
     var summary =
         new TenantDashboardStatsView.TenantSummaryCard(
             42L,
