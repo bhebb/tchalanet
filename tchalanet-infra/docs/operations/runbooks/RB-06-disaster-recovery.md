@@ -132,9 +132,12 @@ La clé privée `age` ne doit jamais être copiée sur la VM applicative. La cib
 
 Le script demande de taper `restore <env>` avant d'écraser. Il restaure les
 rôles (`globals.sql`), recrée la base cible vide, puis la restaure — dans cet
-ordre, sinon les `GRANT` sur `app_user` et les contraintes héritées des
-partitions peuvent échouer. Les connexions actives à la base cible sont
-terminées par PostgreSQL pendant cette opération.
+ordre, sinon les contraintes héritées des partitions peuvent échouer. Après le
+`pg_restore`, il réapplique les privilèges de `APP_DB_USER` sur la base, le
+schéma public, les tables et les séquences. C'est nécessaire car le dump est
+produit avec `--no-owner` et certaines tables techniques n'ont pas d'ACL
+explicite. Les connexions actives à la base cible sont terminées par PostgreSQL
+pendant cette opération.
 
 **Répéter d'abord sans risque** pour confirmer que le backup est exploitable :
 
