@@ -39,8 +39,7 @@
   },
   "cta": {
     "sell_ticket": "Vann yon tikè",
-    "verify_ticket": "Verifye yon tikè",
-    "close_connexion": "Fermer la connexion"
+    "verify_ticket": "Verifye yon tikè"
   },
   "theme": {
     "modes": {
@@ -112,8 +111,8 @@
       "login": "Konekte",
       "logout": "Dekonekte",
       "nav": {
-        "admin": "Admin santral",
-        "cashier": "Kesye",
+        "admin": "Administrasyon",
+        "cashier": "Tèminal POS",
         "platform": "Platfòm"
       },
       "rules_link": {
@@ -134,7 +133,7 @@
       "access": "Aksè jeran",
       "demo": "Mande yon demo",
       "discover": "Dekouvri espas jeran an",
-      "description": "Pou tèminal POS ak jeran rezo. Vann tikè, swiv koneksyon yo, verifye rezilta epi konsilte rapò ou yo.",
+      "description": "Pou tèminal POS ak jeran rezo. Vann tikè, swiv aktivite ou, verifye rezilta epi konsilte rapò ou yo.",
       "title": "Espas jeran",
       "eyebrow": "Pou jeran yo"
     },
@@ -142,22 +141,22 @@
       "access": "Aksè jeran",
       "demo": "Mande yon demo",
       "discover": "Dekouvri espas jeran an",
-      "description": "Pou tèminal POS ak jeran rezo. Vann tikè, swiv koneksyon yo, verifye rezilta epi konsilte rapò ou yo.",
+      "description": "Pou tèminal POS ak jeran rezo. Vann tikè, swiv aktivite ou, verifye rezilta epi konsilte rapò ou yo.",
       "title": "Espas jeran",
       "eyebrow": "Pou jeran yo",
       "hero_aria": "Seksyon operatè",
       "hero_title": "Jere tèminal POS, tikè ak rapò ou yo ak plis klète.",
-      "hero_body": "Tchalanet ede bank borlèt, tèminal POS ak rezo tèminal POS emèt tikè, swiv koneksyon, verifye rezilta epi konsilte rapò aktivite yo.",
+      "hero_body": "Tchalanet ede bank borlèt, tèminal POS ak rezo vant emèt tikè, swiv aktivite yo, verifye rezilta epi konsilte rapò yo.",
       "hero_stat_tickets": "Tikè jodi a",
-      "hero_stat_sessions": "Tèminal POS aktif",
+      "hero_stat_sessions": "Sesyon aktif",
       "hero_stat_agents": "Tèminal POS aktif",
       "hero_stat_payments": "Pèman pou swiv",
       "cta_demo": "Mande yon demo",
       "cta_plans": "Dekouvri fonksyon yo",
       "benefits_title": "Sa Tchalanet pote nan operasyon ou yo",
-      "benefits_body": "Yon enfrastrikti ki fèt pou tèminal POS ak rezo tèminal POS chak jou.",
-      "benefit_agents_title": "Tèminal POS ak tèminal",
-      "benefit_agents_body": "Asiyen tèminal POS yo ak tèminal otorize yo.",
+      "benefits_body": "Yon enfrastrikti ki fèt pou tèminal POS ak rezo vant chak jou.",
+      "benefit_agents_title": "Tèminal POS ak rezo",
+      "benefit_agents_body": "Bay aksè pou vann ak tèminal POS otorize nan rezo ou a.",
       "benefit_tickets_title": "Vant ak enpresyon tikè",
       "benefit_tickets_body": "Emèt tikè avèk QR/kòd piblik pou fasilitatè verifikasyon.",
       "benefit_verify_title": "Verifikasyon piblik",
@@ -170,7 +169,7 @@
       "benefit_reports_body": "Konsulte vant, koneksyon ak pèfòmans rezo ou.",
       "workflow_title": "Kijan sa fonksyone",
       "step1_title": "Konfigire",
-      "step1_body": "Ajoute tèminal POS ak tèminal yo.",
+      "step1_body": "Ajoute tèminal POS ou yo ak aksè yo.",
       "step2_title": "Vann",
       "step2_body": "Emèt tikè soti nan tèminal otorize yo.",
       "step3_title": "Verifye",
@@ -189,7 +188,7 @@
       "plan_essential_cta": "Mande yon demo",
       "plan_network_title": "Rezo",
       "plan_network_price": "Sou demann",
-      "plan_network_body": "Pou plizyè tèminal POS oswa tèminal.",
+      "plan_network_body": "Pou plizyè tèminal POS, sou youn oswa plizyè kote.",
       "plan_network_cta": "Mande yon demo",
       "plan_operator_title": "Sou mezire",
       "plan_operator_price": "Selon konfigirasyon",
@@ -204,7 +203,7 @@
       "feat_verify_qr": "verifikasyon piblik pa QR oswa kòd",
       "feat_access_results": "aksè rezilta",
       "feat_vendor_basic": "konfigirasyon tèminal POS debaz",
-      "feat_agent_mgmt": "jesyon tèminal POS, tèminal ak koneksyon",
+      "feat_agent_mgmt": "jesyon tèminal POS ak aksè yo",
       "feat_reports_full": "rapò aktivite",
       "feat_payments": "swivi pèman",
       "feat_pos_config": "konfigirasyon pa tèminal POS",
@@ -213,19 +212,19 @@
       "feat_reports_consolidated": "rapò konsolide",
       "feat_integration": "sipò entegrasyon",
       "access_title": "Aksè kontwole pou chak òganizasyon",
-      "access_body": "Chak itilizatè wè sèlman fonksyon ki otorize selon wòl li, tèminal POS li, tèminal li ak plan aktif la.",
+      "access_body": "Chak itilizatè wè sèlman fonksyon ki otorize selon wòl li, tèminal POS li ak plan aktif la.",
       "access_rights_title": "Wòl itilizatè",
-      "access_rights_body": "Admin, sipèvizè, tèminal POS oswa kesye selon bezwen ou yo.",
-      "access_subscription_title": "Tèminal otorize",
-      "access_subscription_body": "Vant yo lye ak tèminal ak koneksyon kontwole.",
+      "access_rights_body": "Admin, sipèvizè oswa tèminal POS selon bezwen ou yo.",
+      "access_subscription_title": "Tèminal POS otorize",
+      "access_subscription_body": "Chak vant mare ak yon tèminal POS otorize epi li trase.",
       "access_plan_title": "Plan ak limit",
       "access_plan_body": "Aksè ak limit yo aplike selon konfigirasyon ou.",
       "form_title": "Mande yon demonstrasyon",
-      "form_body": "Dekri tèminal POS ou oswa rezo ou. Nou pral kontakte ou avèk yon demonstrasyon adapte.",
+      "form_body": "Dekri aktivite ou oswa rezo ou. Nou pral kontakte ou avèk yon demonstrasyon adapte.",
       "form_name_placeholder": "Eks: Reginald Louisjuste",
-      "form_org_label": "Òganizasyon / tèminal POS",
+      "form_org_label": "Òganizasyon / aktivite",
       "form_org_placeholder": "Eks: Borlèt Etwal Nò",
-      "form_contact_placeholder": "contact@exemple.com",
+      "form_contact_placeholder": "kontak@egzanp.com",
       "form_city_label": "Vil / zòn",
       "form_city_placeholder": "Eks: Kafou, Okap…",
       "form_message_placeholder": "Egz: Mwen gen 3 tèminal POS Kafou epi mwen vle jere tiraj chak jou yo.",
@@ -243,7 +242,6 @@
       "faq_multipos_a": "Wi. Plan Rezo ak Sou mezi pèmèt ou konfigire plizyè tèminal POS epi santralize rapò yo.",
       "faq_mobile_q": "Èske tèminal POS mwen yo ka itilize Tchalanet sou mobil?",
       "faq_mobile_a": "Wi. Aplikasyon POS Tchalanet disponib sou mobil pou tèminal POS otorize yo.",
-      "hero_stat_connexions": "Tèminal POS aktif",
       "faq_seller-terminals_q": "Konbyen tèminal POS mwen ka itilize?",
       "faq_seller-terminals_a": "Limit yo depann de plan ou chwazi a. Kontakte nou pou konnen konfigirasyon ki adapte ak rezo ou."
     },
@@ -300,7 +298,7 @@
       "receipt": {
         "code": "Kòd",
         "date": "Dat",
-        "outlet": "Pwen vant",
+        "outlet": "Tèminal POS",
         "drawDate": "Dat tiraj",
         "totalStake": "Total paryaj",
         "gain": "Gany"
@@ -365,8 +363,8 @@
       },
       "support": {
         "eyebrow": "Sipò",
-        "title": "Besoin d’aide ?",
-        "description": "Contactez l’équipe Tchalanet pour une question ou un accompagnement."
+        "title": "Ou bezwen èd?",
+        "description": "Kontakte ekip Tchalanet pou yon kesyon oswa pou yon akonpayman."
       }
     },
     "results": {
@@ -434,7 +432,7 @@
       "copied": "Kopye !"
     },
     "contact_cta": {
-      "body": "Eksplike nou tèminal POS ou oswa rezo ou. Nou pral kontakte ou pou yon demonstrasyon adapte.",
+      "body": "Pale nou de aktivite ou oswa rezo ou. Nou pral kontakte ou pou yon demonstrasyon adapte.",
       "cta": "Mande yon demo",
       "help": "Wè èd la",
       "title": "Prè pou dekouvri Tchalanet ?"
@@ -525,9 +523,9 @@
       "title": "Règ jwèt ak similasyon",
       "bet": {
         "borlette": {
-          "lot1": "Lot 1",
-          "lot2": "Lot 2",
-          "lot3": "Lot 3"
+          "lot1": "Lo 1",
+          "lot2": "Lo 2",
+          "lot3": "Lo 3"
         },
         "lotto3": {
           "direct": "Dirèk",
@@ -543,17 +541,17 @@
           "combo": "Combo"
         },
         "mariage": {
-          "lot1_lot2": "Lot 1 + Lot 2",
-          "lot1_lot3": "Lot 1 + Lot 3",
-          "lot2_lot3": "Lot 2 + Lot 3"
+          "lot1_lot2": "Lo 1 + Lo 2",
+          "lot1_lot3": "Lo 1 + Lo 3",
+          "lot2_lot3": "Lo 2 + Lo 3"
         },
         "maryaj_gratis": {
-          "gratis_lot1": "Gratis lot 1"
+          "gratis_lot1": "Gratis lo 1"
         }
       },
       "simulation": {
-        "number_a_label": "Numéro A",
-        "number_b_label": "Numéro B",
+        "number_a_label": "Nimewo A",
+        "number_b_label": "Nimewo B",
         "gain_for_100": "Gany pou 100 HTG",
         "mariage_different_note": "Pou Maryaj, chwazi de nimewo diferan selon règ ki parèt yo.",
         "multiplier_custom_badge": "pèsonalize",
@@ -579,7 +577,7 @@
         "lead_short": "Yon mo manke ?",
         "dream_label": "Rèv oswa senbòl",
         "dream_placeholder": "ex. Krapo",
-        "numbers_placeholder": "ex. 12 45",
+        "numbers_placeholder": "egz. 12 45",
         "numbers_hint": "Separe nimewo yo ak yon espas oswa yon vigil (0–99).",
         "note_label": "Nòt (opsyonèl)",
         "note_placeholder": "Kontèks kiltirèl oswa presizyon…",

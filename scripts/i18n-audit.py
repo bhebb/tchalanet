@@ -62,6 +62,16 @@ FR_MARKERS = re.compile(
 )
 FR_DIACRITIC = re.compile(r"[éèêëàâçôûùïî]")
 
+# Identiques au francais *a dessein*. Chaque entree est justifiee : sans cette
+# liste, --strict ne peut jamais atteindre 0 et le garde-fou devient inutile.
+IDENTICAL_OK = {
+    # noms de jeux haitiens : on ne traduit pas un nom de produit
+    "common:common.game.BOLET",
+    "common:common.game.HT_BOLET",
+    # « Active » est un mot anglais valide, pas un oubli de traduction
+    "feature-admin:admin.limits.table.active",
+}
+
 # --- 4. orthographe kreyòl (IPN) --------------------------------------------------------
 # NE PAS ajouter apre/kounye/nimewo/rezilta/menm : ces formes SONT correctes en IPN.
 HT_SPELLING = {
@@ -138,7 +148,11 @@ def audit(project: str, root: str, verbose: bool) -> dict[str, int]:
         for k, v in data[loc].items():
             if not isinstance(v, str):
                 continue
-            probe = HT_ALLOWED.sub("", v) if loc == "ht" else v
+            # le nom d'un placeholder est un contrat avec le code, pas de la copy :
+            # {{tenant}} reste {{tenant}} meme quand le mot est banni du texte.
+            probe = PLACEHOLDER.sub("", v)
+            if loc == "ht":
+                probe = HT_ALLOWED.sub("", probe)
             for label, rx in BANNED.items():
                 if rx.search(probe):
                     hits[label].append((k, v))
@@ -156,6 +170,8 @@ def audit(project: str, root: str, verbose: bool) -> dict[str, int]:
     for loc in ("en", "ht"):
         residual = []
         for k in set(src) & set(data[loc]):
+            if k in IDENTICAL_OK:
+                continue
             a, b = src[k], data[loc][k]
             if not (isinstance(a, str) and isinstance(b, str)):
                 continue

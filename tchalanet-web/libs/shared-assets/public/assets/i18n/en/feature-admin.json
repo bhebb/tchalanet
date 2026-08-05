@@ -12,7 +12,7 @@
       "title": "Seller configuration",
       "description": "Manage commission rates and pricing scales for each seller.",
       "action": {
-        "editDefaultRate": "Edit tenant rate",
+        "editDefaultRate": "Edit operator rate",
         "editRate": "Edit rate",
         "editPricing": "Edit pricing scales",
         "resetRate": "Use default rate",
@@ -20,7 +20,7 @@
         "menu": "Commission actions"
       },
       "notice": {
-        "defaultUpdated": "The tenant default rate was updated.",
+        "defaultUpdated": "The operator default rate was updated.",
         "sellerUpdated": "The terminal rate was updated.",
         "rateReset": "The terminal now uses the default rate."
       },
@@ -38,8 +38,8 @@
       },
       "kpi": {
         "defaultRate": "Default rate",
-        "defaultRateHint": "Tenant rate",
-        "totalTerminals": "Seller-terminals",
+        "defaultRateHint": "Operator rate",
+        "totalTerminals": "Sellers",
         "atDefaultRate": "At default rate",
         "customRate": "Custom rate"
       },
@@ -48,7 +48,7 @@
         "sellers": "Sellers"
       },
       "field": {
-        "defaultRate": "Tenant rate",
+        "defaultRate": "Operator rate",
         "totalSellers": "Total sellers",
         "atDefaultRate": "At default rate",
         "customRate": "Custom rate",
@@ -64,21 +64,21 @@
       },
       "source": {
         "custom": "Custom rate",
-        "default": "Tenant rate"
+        "default": "Operator rate"
       },
       "empty": {
         "title": "No sellers",
-        "message": "No seller-terminal is registered.",
+        "message": "No seller is registered.",
         "filteredTitle": "No results",
         "filteredMessage": "Change the search or reset the filters."
       }
     },
     "subscription": {
       "title": "Subscription",
-      "description": "View and manage the tenant subscription.",
+      "description": "View and manage the operator subscription.",
       "empty": {
         "title": "No subscription",
-        "message": "No active subscription exists for this tenant."
+        "message": "No active subscription exists for this operator."
       },
       "section": {
         "details": "Subscription details",
@@ -108,7 +108,7 @@
       "dialog": {
         "cancel": {
           "title": "Cancel subscription",
-          "warning": "This cancels the tenant subscription and may be difficult to reverse.",
+          "warning": "This cancels the operator subscription and may be difficult to reverse.",
           "reason": "Reason (optional)",
           "reasonPlaceholder": "Cancellation reason...",
           "confirm": "Confirm cancellation"
@@ -128,15 +128,15 @@
       "loading": "Loading theme…",
       "preset": {
         "title": "Active system themes",
-        "description": "Choose the theme that becomes active for this tenant.",
+        "description": "Choose the theme that becomes active for this operator.",
         "default": "Default",
         "applying": "Applying…",
         "empty": "No active theme available.",
-        "activeTenant": "Active tenant theme",
-        "applyTenant": "Apply to tenant"
+        "activeTenant": "Active operator theme",
+        "applyTenant": "Apply to operator"
       },
       "current": {
-        "eyebrow": "Active tenant theme",
+        "eyebrow": "Active operator theme",
         "default": "Default theme",
         "description": "System code: {{code}}"
       },
@@ -172,8 +172,8 @@
       },
       "advancedSettings": {
         "title": "Advanced settings",
-        "description": "Language, receipt, communication and business rules can be adjusted in tenant settings.",
-        "action": "Open settings"
+        "description": "Configure advanced settings for your operator.",
+        "action": "Configure advanced settings"
       },
       "title": "General setup",
       "optional": "Optional",
@@ -208,13 +208,13 @@
         "themeDesc": "Appearance customization.",
         "themeCta": "Configure appearance",
         "commission": "Commission",
-        "commissionDesc": "Default commission rate applied to seller-terminals.",
+        "commissionDesc": "Default commission rate applied to sellers.",
         "commissionCta": "Configure commission",
         "limits": "Sales limits",
-        "limitsDesc": "Sales limits applied to your tenant.",
+        "limitsDesc": "Sales limits applied to your operator.",
         "limitsCta": "Configure limits",
-        "settings": "Tenant settings",
-        "settingsDesc": "Customize the language and receipt (display name, messages) for your tenant.",
+        "settings": "Operator settings",
+        "settingsDesc": "Customize the language and receipt (display name, messages) for your operator.",
         "settingsCta": "Configure settings",
         "subscription": "Subscription",
         "subscriptionDesc": "Your subscription plan and status.",
@@ -227,20 +227,17 @@
         "sellerTerminalCta": "Configure sellers",
         "sellerTerminalReady": "Sellers ready"
       },
-      "description": "Follow the steps to configure your tenant and make it operational.",
+      "description": "Follow the steps to configure your operator and make it operational.",
       "status": {
         "notStarted": "Not started",
         "inProgress": "In progress",
         "completed": "Completed"
       },
-      "advancedSettings.title": "Advanced settings",
-      "advancedSettings.description": "Configure advanced settings for your tenant.",
-      "advancedSettings.action": "Configure advanced settings",
       "blockingStep": {
         "identity_address": "Identity & address",
         "identity": "Identity",
         "address": "Address",
-        "settings": "Tenant settings",
+        "settings": "Operator settings",
         "games_pricing": "Games",
         "draws": "Draw channels",
         "generated_draws": "Generated draws"
@@ -261,12 +258,12 @@
     },
     "settings": {
       "title": "Settings",
-      "description": "Tenant configuration",
+      "description": "Operator configuration",
       "quickAccess": "Quick access",
       "runtime": {
         "title": "Runtime",
-        "description": "Read-only reference values used by the tenant runtime.",
-        "identityTitle": "Tenant identity",
+        "description": "Read-only reference values used by the operator runtime.",
+        "identityTitle": "Operator identity",
         "regionalTitle": "Regional defaults",
         "localesTitle": "Supported locales",
         "actionsTitle": "Related settings",
@@ -294,7 +291,7 @@
           "receipt": "Receipts and printing",
           "communication": "Ticket delivery",
           "calendar": "Sales calendar",
-          "locale": "Tenant languages"
+          "locale": "Operator languages"
         },
         "readiness": {
           "ready": "Ready",
@@ -303,8 +300,8 @@
         },
         "receipt": {
           "title": "Receipt and printing",
-          "description": "Customize the receipt content and print options used by seller terminals.",
-          "enabled": "Use tenant receipt preferences",
+          "description": "Customize the receipt content and print options used by sellers.",
+          "enabled": "Use operator receipt preferences",
           "header": "Header message",
           "headerPlaceholder": "Thank you for playing with us!",
           "headerHint": "Optional message printed above the ticket details.",
@@ -331,8 +328,8 @@
           "paidBy": {
             "label": "Paid by",
             "buyer": "Buyer",
-            "tenant": "Tenant",
-            "seller": "Seller terminal"
+            "tenant": "Operator",
+            "seller": "Seller"
           },
           "sms": {
             "title": "SMS"
@@ -347,7 +344,7 @@
         },
         "calendar": {
           "title": "Sales calendar",
-          "description": "Define recurring days when this tenant does not sell.",
+          "description": "Define recurring days when this operator does not sell.",
           "defaultOpen": "Open by default",
           "closedWeekdays": "Weekly closed days",
           "recurringHolidays": "Recurring holidays",
@@ -369,13 +366,13 @@
             "open": "Open on this day",
             "closed": "Closed"
           },
-          "scopeNotice": "Recurring holidays belong to the tenant and have no year. Dated exceptions are managed separately. Provider calendars remain managed by the platform.",
+          "scopeNotice": "Recurring holidays belong to the operator and have no year. Dated exceptions are managed separately. Provider calendars remain managed by the platform.",
           "saved": "Sales calendar saved.",
           "exceptions": "Dated exceptions"
         },
         "locale": {
-          "title": "Tenant languages",
-          "description": "Choose the languages available to tenant administrators and seller terminals.",
+          "title": "Operator languages",
+          "description": "Choose the languages available to administrators and sellers.",
           "supported": "Supported languages",
           "fallback": "Fallback language",
           "notice": "The fallback language must be one of the supported languages.",
@@ -385,7 +382,7 @@
     },
     "onboarding": {
       "title": "Onboarding",
-      "description": "Tenant onboarding steps"
+      "description": "Operator onboarding steps"
     },
     "users": {
       "title": "Users",
@@ -477,7 +474,7 @@
       },
       "overview": {
         "title": "Reports overview",
-        "description": "Sales, payouts and estimated revenue for the current tenant.",
+        "description": "Sales, payouts and estimated revenue for the current operator.",
         "loading": "Loading reports...",
         "period": {
           "label": "Reporting period"
@@ -514,7 +511,7 @@
           "emptyMessage": "Sold numbers will appear here once ticket lines are sold."
         },
         "sellers": {
-          "title": "Top seller terminals",
+          "title": "Top sellers",
           "emptyTitle": "No seller activity",
           "emptyMessage": "Seller performance will appear here once tickets are sold."
         }
@@ -608,10 +605,10 @@
       },
       "sellers": {
         "title": "Seller report",
-        "description": "Sales, commissions and estimated revenue grouped by seller terminal.",
+        "description": "Sales, commissions and estimated revenue grouped by seller.",
         "loading": "Loading seller report...",
         "kpisAria": "Seller report summary",
-        "rowsTitle": "Seller terminal rows",
+        "rowsTitle": "Rows by seller",
         "emptyTitle": "No seller activity",
         "emptyMessage": "Seller performance will appear here once tickets are sold.",
         "totalRow": "Report total",
@@ -650,7 +647,7 @@
           "averageTicketAsc": "Average ticket low to high"
         },
         "column": {
-          "seller": "Seller terminal",
+          "seller": "Seller",
           "status": "Status",
           "tickets": "Tickets",
           "sales": "Sales",
@@ -667,7 +664,7 @@
     },
     "gamesPricing": {
       "title": "Available games",
-      "description": "Choose the games supported by this tenant and complete their sales settings.",
+      "description": "Choose the games supported by this operator and complete their sales settings.",
       "loading": "Loading games...",
       "action": {
         "backToSetup": "General setup",
@@ -682,7 +679,7 @@
         "aria": "Available games summary",
         "systemGames": {
           "label": "System games",
-          "help": "Games available for this tenant."
+          "help": "Games available for this operator."
         },
         "activeGames": {
           "label": "Active games",
@@ -700,7 +697,7 @@
       "issues": {
         "aria": "Games to complete",
         "title": "To complete",
-        "description": "Fix these points before enabling the game for this tenant.",
+        "description": "Fix these points before enabling the game for this operator.",
         "missingStake": "Stake is not configured for this game.",
         "missingPricing": "Pricing is not configured for this game.",
         "configure": "Configure"
@@ -762,7 +759,7 @@
         "reverse": "Reverse",
         "notDefined": "Not defined",
         "notConfigured": "Not configured",
-        "missing": "Free Maryaj is missing from the tenant game configuration.",
+        "missing": "Free Maryaj is missing from the operator game configuration.",
         "readiness": {
           "READY": "Ready",
           "TODO": "Needs setup",
@@ -803,7 +800,7 @@
       },
       "offer": {
         "activeEyebrow": "Active offer",
-        "campaignCode": "Tenant campaign · {{count}} rule(s)",
+        "campaignCode": "Operator campaign · {{count}} rule(s)",
         "pause": "Pause",
         "permanent": "No planned end",
         "technicalDate": "Technical date:",
@@ -913,7 +910,7 @@
         }
       },
       "global": {
-        "scopeNote": "Limits applied globally to all tenant terminals."
+        "scopeNote": "Limits applied globally to all operator terminals."
       },
       "number": {
         "actionsAria": "Quick actions by number",
@@ -953,7 +950,7 @@
         "withParams": "With parameters",
         "simulation": "Simulation",
         "simulationTitle": "Effective view by scope",
-        "simulationHint": "Select a scope to see active rules. Effective priority is seller terminal / agent (60) > draw channel (30) > global (10).",
+        "simulationHint": "Select a scope to see active rules. Effective priority is seller (60) > draw channel (30) > global (10).",
         "scopeLabel": "Scope",
         "scope": {
           "global": "Global",
@@ -1139,7 +1136,7 @@
           "notConfigured": "Not configured",
           "visibleInPos": "Visible in POS",
           "hiddenInPos": "Hidden in POS",
-          "tenantGameSettings": "Tenant game settings"
+          "tenantGameSettings": "Operator game settings"
         },
         "action": {
           "configureMaryaj": "Configure free Maryaj",
@@ -1151,7 +1148,7 @@
         }
       },
       "warning": {
-        "TENANT_GAME_DISABLED": "Game disabled for tenant",
+        "TENANT_GAME_DISABLED": "Game disabled for operator",
         "NOT_VISIBLE_IN_POS": "Hidden from POS",
         "CHANNEL_NOT_CONFIGURED": "Channel not configured",
         "CHANNEL_INACTIVE": "Channel inactive",
@@ -1183,7 +1180,7 @@
         "address": "Address"
       },
       "commercial": {
-        "description": "Applied to seller-terminals that don't have a specific rate.",
+        "description": "Commercial settings used for sales and commissions.",
         "saved": "Commercial settings saved successfully."
       },
       "field": {
@@ -1230,7 +1227,7 @@
     },
     "sellerTerminals": {
       "title": "Sellers",
-      "description": "Manage seller-terminals",
+      "description": "Manage sellers and their selling access",
       "list": {
         "title": "Seller list",
         "description": "Manage seller access, commissions and terminals authorized to sell tickets.",
@@ -1423,9 +1420,9 @@
         }
       },
       "detail": {
-        "title": "Seller-terminal detail",
+        "title": "Seller detail",
         "description": "Review seller identity, states and activity.",
-        "loading": "Loading seller-terminal...",
+        "loading": "Loading seller...",
         "action": {
           "sellTickets": "Sell tickets",
           "overrides": "Edit settings",
@@ -1468,7 +1465,7 @@
           "disabledAt": "Disabled at",
           "commissionRate": "Commission",
           "addressId": "Address",
-          "tenantId": "Tenant"
+          "tenantId": "Operator"
         }
       },
       "status": {
@@ -1482,12 +1479,12 @@
         "first_name": "First name",
         "last_name": "Last name",
         "email": "Email",
-        "seller_terminal_code": "Seller-terminal code"
+        "seller_terminal_code": "Seller code"
       }
     },
     "drawChannels": {
       "title": "Draw channels",
-      "description": "Configure providers, result sources, and active draw slots for this tenant.",
+      "description": "Configure providers, result sources, and active draw slots for this operator.",
       "status": {
         "active": "Active",
         "needsConfig": "Needs setup",
@@ -1515,7 +1512,7 @@
       "empty": {
         "title": "No provider",
         "filtered": "Change the filter or search to show providers.",
-        "none": "No provider is available for this tenant."
+        "none": "No provider is available for this operator."
       },
       "notice": {
         "title": "Action unavailable",
@@ -1530,7 +1527,7 @@
           "slots": "Slots"
         },
         "field": {
-          "enabled": "Channel enabled for this tenant",
+          "enabled": "Channel enabled for this operator",
           "resultMode": "Result mode",
           "defaultCutoff": "Default sales close (minutes)",
           "slotEnabled": "Slot active",
@@ -1558,7 +1555,7 @@
       },
       "slots": {
         "title": "Draw slots",
-        "unavailable": "No slot available for this tenant",
+        "unavailable": "No slot available for this operator",
         "status": {
           "active": "Active",
           "needsConfig": "Needs setup",
@@ -1582,7 +1579,7 @@
     },
     "games": {
       "title": "Games",
-      "description": "Manage the games enabled for this tenant.",
+      "description": "Manage the games enabled for this operator.",
       "tabs": {
         "enabled": "Enabled games",
         "catalog": "Catalog"
@@ -1605,11 +1602,11 @@
       },
       "settings": {
         "title": "Configure game - {{name}}",
-        "description": "Tenant settings used for POS sales.",
+        "description": "Operator settings used for POS sales.",
         "intro": {
           "aria": "Game sales settings",
           "title": "Settings used for sales",
-          "message": "These values control POS display and accepted stakes for this tenant. Global payouts and pricing remain managed in the platform catalog."
+          "message": "These values control POS display and accepted stakes for this operator. Global payouts and pricing remain managed in the platform catalog."
         },
         "field": {
           "displayName": "POS display name",
@@ -1623,7 +1620,7 @@
         },
         "options": {
           "title": "Payout odds",
-          "description": "Summary of the tenant pricing applied at sale time.",
+          "description": "Summary of the operator pricing applied at sale time.",
           "clearPricing": "Clear pricing rule"
         },
         "salesOptions": {
@@ -1658,7 +1655,7 @@
       },
       "dialog": {
         "edit": {
-          "title": "Edit tenant odds"
+          "title": "Edit operator odds"
         }
       },
       "empty": {
@@ -1668,11 +1665,11 @@
     },
     "generatedDraws": {
       "title": "Generated draws",
-      "description": "Suivez les tirages générés, leur état de vente et les résultats attendus.",
+      "description": "Track generated draws, their sales status and expected results.",
       "summary": {
         "today": "Aujourd'hui",
-        "salesOpen": "Vente ouverte",
-        "resultsExpected": "Résultats attendus",
+        "salesOpen": "Sales open",
+        "resultsExpected": "Expected results",
         "confirmed": "Confirmed"
       },
       "datePresets": {
@@ -1682,16 +1679,16 @@
       },
       "statusFilters": {
         "all": "All statuses",
-        "open": "Ouverts à la vente",
-        "expected": "Résultats attendus",
-        "missing": "Résultats manquants",
+        "open": "Open for sales",
+        "expected": "Expected results",
+        "missing": "Missing results",
         "confirmed": "Confirmed",
         "sourceError": "Source error"
       },
       "salesStatus": {
         "UPCOMING": "À venir",
-        "OPEN": "Vente ouverte",
-        "CLOSED": "Vente fermée",
+        "OPEN": "Sales open",
+        "CLOSED": "Sales closed",
         "CANCELLED": "Cancelled"
       },
       "resultStatus": {
@@ -1699,7 +1696,7 @@
         "EXPECTED": "Expected",
         "MISSING": "Missing",
         "PROVISIONAL": "Provisoire",
-        "CONFIRMED": "Confirmé",
+        "CONFIRMED": "Confirmed",
         "SOURCE_ERROR": "Source error"
       },
       "publicationStatus": {
@@ -1707,17 +1704,17 @@
       },
       "actions": {
         "refresh": "Refresh",
-        "planNextDraws": "Planifier les prochains tirages",
+        "planNextDraws": "Schedule upcoming draws",
         "configureDrawChannels": "Configure draw channels",
-        "enterResult": "Saisir résultat",
-        "viewResult": "Voir résultat",
+        "enterResult": "Enter result",
+        "viewResult": "View result",
         "verify": "Verify",
         "viewDetails": "View details"
       }
     },
     "pos": {
-      "title": "Vente ticket",
-      "changeDraw": "Changer de tirage",
+      "title": "Sell a ticket",
+      "changeDraw": "Change draw",
       "live": "Live",
       "detail": {
         "title": "Ticket details",
@@ -1757,7 +1754,7 @@
           "label": "Payout scale",
           "applied": "Applied payout scale",
           "sourceSeller": "Seller",
-          "sourceTenant": "Tenant",
+          "sourceTenant": "Operator",
           "sourceUnknown": "Configuration",
           "unknownRule": "Payout scale",
           "summaryRules": {
@@ -1792,16 +1789,16 @@
         "error": {
           "notFoundTitle": "Ticket not found",
           "notFoundMessage": "No ticket identifier was provided.",
-          "terminalNotFound": "Reprint unavailable: seller terminal {{terminalCode}} was not found.",
-          "reprintFailed": "Unable to reprint this ticket. Check the seller terminal or try again."
+          "terminalNotFound": "Reprint unavailable: seller {{terminalCode}} was not found.",
+          "reprintFailed": "Unable to reprint this ticket. Check the seller or try again."
         },
         "notice": {
           "reprinting": "Reprint in progress.",
-          "missingTerminal": "Reprint unavailable: seller terminal was not identified."
+          "missingTerminal": "Reprint unavailable: the seller was not identified."
         }
       },
       "draw": {
-        "closesIn": "S'arrête dans {{time}}"
+        "closesIn": "Closes in {{time}}"
       },
       "games": {
         "borlette": "Borlette",
@@ -1810,12 +1807,12 @@
         "maryaj": "Maryaj"
       },
       "lines": {
-        "title": "Sélection des numéros",
+        "title": "Number selection",
         "number": "Number",
         "type": "Type",
         "stake": "Stake (HTG)",
         "add": "Add",
-        "clear": "Vider la liste"
+        "clear": "Clear the list"
       },
       "betType": {
         "direct": "Straight",
@@ -1823,16 +1820,16 @@
         "maryaj": "Maryaj"
       },
       "actions": {
-        "confirm": "Confirmer la vente",
+        "confirm": "Confirm sale",
         "confirming": "Confirmation...",
         "print": "Print",
         "details": "Details",
         "newTicket": "New ticket"
       },
       "ticket": {
-        "preparing": "Ticket en préparation",
+        "preparing": "Preparing ticket",
         "sold": "Ticket sold",
-        "codeGeneratedAfterConfirm": "Code généré après confirmation"
+        "codeGeneratedAfterConfirm": "Code generated after confirmation"
       },
       "dialog": {
         "title": {
@@ -1877,16 +1874,16 @@
         }
       },
       "activity": {
-        "title": "Activité du terminal",
+        "title": "Seller activity",
         "salesToday": "Today's sales",
-        "ticketsToday": "Tickets émis"
+        "ticketsToday": "Tickets issued"
       },
       "error": {
-        "noOpenDraw": "Aucun tirage ouvert à la vente.",
-        "drawClosed": "Ce tirage est maintenant fermé à la vente. Choisissez un autre tirage ouvert.",
-        "terminalBlocked": "Ce seller-terminal est bloqué. Il ne peut pas vendre de tickets.",
-        "invalidStake": "La mise doit être supérieure à 0 HTG.",
-        "noLines": "Ajoutez au moins une ligne pour confirmer la vente."
+        "noOpenDraw": "No draw is open for sales.",
+        "drawClosed": "This draw is now closed for sales. Choose another open draw.",
+        "terminalBlocked": "This seller is blocked and cannot sell tickets.",
+        "invalidStake": "The stake must be greater than 0 HTG.",
+        "noLines": "Add at least one line to confirm the sale."
       }
     },
     "drawResults": {
@@ -1916,7 +1913,7 @@
   "readiness": {
     "noIssues": "No issues",
     "identity": {
-      "missing": "Tenant identity needs completion"
+      "missing": "Operator identity needs completion"
     },
     "seller_terminals": {
       "empty": "No sellers configured",
@@ -1932,7 +1929,7 @@
       "results_pending": "Closed draws are waiting for results"
     },
     "commission": {
-      "default_missing": "Tenant commission rate needs configuration"
+      "default_missing": "Operator commission rate needs configuration"
     },
     "limits": {
       "empty": "Sales limits need configuration"
@@ -1946,14 +1943,14 @@
     "fields": {
       "roles": "Roles",
       "settings": "Settings",
-      "tenant": "Tenant",
+      "tenant": "Operator",
       "user": "User"
     },
     "rolesEmpty": "No role detected",
     "tenantMissing": "Not detected",
     "titles": {
-      "admin": "Tenant admin dashboard",
-      "cashier": "Cashier dashboard",
+      "admin": "Operator admin dashboard",
+      "cashier": "Seller dashboard",
       "platform": "Platform dashboard"
     },
     "cashier": {
@@ -1983,7 +1980,7 @@
         "title": "Quick actions"
       },
       "tenants": {
-        "title": "Tenants"
+        "title": "Operators"
       }
     },
     "tenant_admin": {
@@ -1992,12 +1989,12 @@
       },
       "commission": {
         "title": "Commission",
-        "default_rate": "Tenant default rate",
+        "default_rate": "Operator default rate",
         "default_not_set": "Not configured",
         "at_default": "At default rate",
         "custom": "Custom rate",
         "rate_range": "Range",
-        "seller_terminals": "Seller-terminals"
+        "seller_terminals": "Sellers"
       },
       "kpis": {
         "title": "Key metrics"

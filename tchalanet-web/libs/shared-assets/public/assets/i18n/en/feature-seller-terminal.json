@@ -29,25 +29,20 @@
     "quickActions": {
       "title": "Quick actions",
       "newTicket": "New ticket",
-      "history": "History",
-      "closeConnexion": "Fermer la connexion"
+      "history": "History"
     },
     "sell": {
       "title": "New ticket",
       "description": "Issue a new ticket"
-    },
-    "connexion": {
-      "title": "Connexion",
-      "openedAt": "Ouverte à"
     }
   },
   "sellerTerminal": {
     "activation": {
-      "title": "Seller-terminal activation",
-      "description": "The seller-terminal must change its temporary PIN before selling.",
+      "title": "Seller activation",
+      "description": "The seller must change their temporary PIN before selling.",
       "pin": {
         "title": "Temporary PIN",
-        "pendingBackend": "PIN change will be enabled with the seller-terminal V0 endpoint."
+        "pendingBackend": "PIN change will be enabled with the seller V0 endpoint."
       }
     }
   }

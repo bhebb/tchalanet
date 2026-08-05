@@ -12,7 +12,7 @@
       "title": "Configuration vendeurs",
       "description": "Gérez les taux de commission et les barèmes de chaque vendeur.",
       "action": {
-        "editDefaultRate": "Modifier le taux du tenant",
+        "editDefaultRate": "Modifier le taux du santral",
         "editRate": "Modifier le taux",
         "editPricing": "Modifier les barèmes",
         "resetRate": "Revenir au taux par défaut",
@@ -20,7 +20,7 @@
         "menu": "Actions de commission"
       },
       "notice": {
-        "defaultUpdated": "Le taux par défaut du tenant a été mis à jour.",
+        "defaultUpdated": "Le taux par défaut du santral a été mis à jour.",
         "sellerUpdated": "Le taux du terminal a été mis à jour.",
         "rateReset": "Le terminal utilise maintenant le taux par défaut."
       },
@@ -38,8 +38,8 @@
       },
       "kpi": {
         "defaultRate": "Taux par défaut",
-        "defaultRateHint": "Taux du tenant",
-        "totalTerminals": "Terminaux vendeurs",
+        "defaultRateHint": "Taux du santral",
+        "totalTerminals": "Vendeurs",
         "atDefaultRate": "Au taux par défaut",
         "customRate": "Taux personnalisé"
       },
@@ -48,7 +48,7 @@
         "sellers": "Vendeurs"
       },
       "field": {
-        "defaultRate": "Taux du tenant",
+        "defaultRate": "Taux du santral",
         "totalSellers": "Total vendeurs",
         "atDefaultRate": "Au taux par défaut",
         "customRate": "Taux personnalisé",
@@ -64,7 +64,7 @@
       },
       "source": {
         "custom": "Taux personnalisé",
-        "default": "Taux du tenant"
+        "default": "Taux du santral"
       },
       "empty": {
         "title": "Aucun vendeur",
@@ -75,10 +75,10 @@
     },
     "subscription": {
       "title": "Abonnement",
-      "description": "Consultez et gérez l’abonnement du tenant.",
+      "description": "Consultez et gérez l’abonnement du santral.",
       "empty": {
         "title": "Aucun abonnement",
-        "message": "Aucun abonnement actif pour ce tenant."
+        "message": "Aucun abonnement actif pour ce santral."
       },
       "section": {
         "details": "Détails de l’abonnement",
@@ -108,7 +108,7 @@
       "dialog": {
         "cancel": {
           "title": "Annuler l’abonnement",
-          "warning": "Cette action annule l’abonnement du tenant et peut être difficile à inverser.",
+          "warning": "Cette action annule l’abonnement du santral et peut être difficile à inverser.",
           "reason": "Raison (optionnel)",
           "reasonPlaceholder": "Motif d’annulation…",
           "confirm": "Confirmer l’annulation"
@@ -128,15 +128,15 @@
       "loading": "Chargement du thème…",
       "preset": {
         "title": "Thèmes actifs du système",
-        "description": "Choisissez le thème qui deviendra le thème actif du tenant.",
+        "description": "Choisissez le thème qui deviendra le thème actif du santral.",
         "default": "Par défaut",
         "applying": "Application…",
         "empty": "Aucun thème actif disponible.",
-        "activeTenant": "Thème actif du tenant",
-        "applyTenant": "Appliquer au tenant"
+        "activeTenant": "Thème actif du santral",
+        "applyTenant": "Appliquer au santral"
       },
       "current": {
-        "eyebrow": "Thème actif du tenant",
+        "eyebrow": "Thème actif du santral",
         "default": "Thème par défaut",
         "description": "Code système : {{code}}"
       },
@@ -166,7 +166,7 @@
     },
     "setup": {
       "backToSetup": "Retour à la configuration",
-      "title": "Configuration du tenant",
+      "title": "Configuration du santral",
       "optional": "Optionnel",
       "operational": "Opérationnel",
       "required": "Requis",
@@ -203,13 +203,13 @@
         "themeDesc": "Personnalisation de l'apparence",
         "themeCta": "Configurer l'apparence",
         "commission": "Commission",
-        "commissionDesc": "Taux de commission par défaut appliqué aux terminaux vendeurs.",
+        "commissionDesc": "Taux de commission par défaut appliqué aux vendeurs.",
         "commissionCta": "Configurer la commission",
         "limits": "Limites de vente",
-        "limitsDesc": "Limites de vente appliquées à votre tenant.",
+        "limitsDesc": "Limites de vente appliquées à votre santral.",
         "limitsCta": "Configurer les limites",
-        "settings": "Paramètres du tenant",
-        "settingsDesc": "Personnalisez la langue et le reçu (nom affiché, messages) pour votre tenant.",
+        "settings": "Paramètres du santral",
+        "settingsDesc": "Personnalisez la langue et le reçu (nom affiché, messages) pour votre santral.",
         "settingsCta": "Configurer les paramètres",
         "subscription": "Abonnement",
         "subscriptionDesc": "Plan et statut de votre abonnement.",
@@ -222,20 +222,17 @@
         "sellerTerminalCta": "Configurer les terminaux vendeurs",
         "sellerTerminalReady": "Terminaux vendeurs prêts"
       },
-      "description": "Suivez les étapes pour configurer votre tenant et le rendre opérationnel.",
+      "description": "Suivez les étapes pour configurer votre santral et le rendre opérationnel.",
       "status": {
         "notStarted": "Non commencé",
         "inProgress": "En cours",
         "completed": "Terminé"
       },
-      "advancedSettings.title": "Paramètres avancés",
-      "advancedSettings.description": "Configurez les paramètres avancés pour votre tenant.",
-      "advancedSettings.action": "Configurer les paramètres avancés",
       "blockingStep": {
         "identity_address": "Identité et adresse",
         "identity": "Identité",
         "address": "Adresse",
-        "settings": "Paramètres du tenant",
+        "settings": "Paramètres du santral",
         "games_pricing": "Jeux",
         "draws": "Canaux de tirage",
         "generated_draws": "Tirages générés"
@@ -252,16 +249,21 @@
       "error": {
         "load": "Impossible de charger la configuration."
       },
-      "loading": "Chargement de la configuration..."
+      "loading": "Chargement de la configuration...",
+      "advancedSettings": {
+        "title": "Paramètres avancés",
+        "description": "Configurez les paramètres avancés pour votre santral.",
+        "action": "Configurer les paramètres avancés"
+      }
     },
     "settings": {
-      "title": "Paramètres du tenant",
-      "description": "Paramètres internes utilisés par l’exploitation du tenant.",
+      "title": "Paramètres du santral",
+      "description": "Paramètres internes utilisés par l’exploitation du santral.",
       "quickAccess": "Accès rapide",
       "runtime": {
         "title": "Runtime",
-        "description": "Valeurs de référence en lecture seule utilisées par le runtime du tenant.",
-        "identityTitle": "Identité du tenant",
+        "description": "Valeurs de référence en lecture seule utilisées par le runtime du santral.",
+        "identityTitle": "Identité du santral",
         "regionalTitle": "Defaults régionaux",
         "localesTitle": "Locales supportées",
         "actionsTitle": "Paramètres associés",
@@ -289,7 +291,7 @@
           "receipt": "Reçus et impression",
           "communication": "Livraison des tickets",
           "calendar": "Calendrier de vente",
-          "locale": "Langues du tenant"
+          "locale": "Langues du santral"
         },
         "readiness": {
           "ready": "Prêt",
@@ -298,8 +300,8 @@
         },
         "receipt": {
           "title": "Reçus et impression",
-          "description": "Personnalisez le contenu et les options d’impression utilisés par les seller terminals.",
-          "enabled": "Utiliser les préférences de reçu du tenant",
+          "description": "Personnalisez le contenu et les options d’impression utilisés par les vendeurs.",
+          "enabled": "Utiliser les préférences de reçu du santral",
           "header": "Message d’en-tête",
           "headerPlaceholder": "Merci de jouer avec nous !",
           "headerHint": "Message facultatif imprimé au-dessus des détails du ticket.",
@@ -326,8 +328,8 @@
           "paidBy": {
             "label": "Payé par",
             "buyer": "Client",
-            "tenant": "Tenant",
-            "seller": "Seller-terminal"
+            "tenant": "Santral",
+            "seller": "Vendeur"
           },
           "sms": {
             "title": "SMS"
@@ -342,7 +344,7 @@
         },
         "calendar": {
           "title": "Calendrier de vente",
-          "description": "Définissez les jours récurrents où ce tenant ne vend pas.",
+          "description": "Définissez les jours récurrents où ce santral ne vend pas.",
           "defaultOpen": "Ouvert par défaut",
           "closedWeekdays": "Jours fermés chaque semaine",
           "recurringHolidays": "Jours fériés récurrents",
@@ -364,13 +366,13 @@
             "open": "Ouvert ce jour-là",
             "closed": "Fermé"
           },
-          "scopeNotice": "Les jours fériés récurrents appartiennent au tenant et sont sans année. Les exceptions datées se gèrent séparément. Les calendriers provider restent gérés par la plateforme.",
+          "scopeNotice": "Les jours fériés récurrents appartiennent au santral et sont sans année. Les exceptions datées se gèrent séparément. Les calendriers provider restent gérés par la plateforme.",
           "saved": "Calendrier de vente enregistré.",
           "exceptions": "Exceptions datées"
         },
         "locale": {
-          "title": "Langues du tenant",
-          "description": "Choisissez les langues disponibles pour les administrateurs et seller terminals.",
+          "title": "Langues du santral",
+          "description": "Choisissez les langues disponibles pour les administrateurs et les vendeurs.",
           "supported": "Langues supportées",
           "fallback": "Langue de repli",
           "notice": "La langue de repli doit faire partie des langues supportées.",
@@ -408,7 +410,7 @@
       "empty": {
         "title": "Aucun provider",
         "filtered": "Modifiez le filtre ou la recherche pour afficher des providers.",
-        "none": "Aucun provider n'est disponible pour ce tenant."
+        "none": "Aucun provider n'est disponible pour ce santral."
       },
       "notice": {
         "title": "Action non disponible",
@@ -423,7 +425,7 @@
           "slots": "Créneaux"
         },
         "field": {
-          "enabled": "Canal activé pour ce tenant",
+          "enabled": "Canal activé pour ce santral",
           "resultMode": "Mode résultat",
           "defaultCutoff": "Fermeture vente par défaut (minutes)",
           "slotEnabled": "Créneau actif",
@@ -475,7 +477,7 @@
     },
     "games": {
       "title": "Jeux",
-      "description": "Gestion des jeux activés pour ce tenant.",
+      "description": "Gestion des jeux activés pour ce santral.",
       "tabs": {
         "enabled": "Jeux activés",
         "catalog": "Catalogue"
@@ -498,11 +500,11 @@
       },
       "settings": {
         "title": "Configurer le jeu - {{name}}",
-        "description": "Paramètres tenant utilisés pour la vente POS.",
+        "description": "Paramètres du santral utilisés pour la vente POS.",
         "intro": {
           "aria": "Paramètres de vente du jeu",
           "title": "Paramètres utilisés dans la vente",
-          "message": "Ces valeurs contrôlent l'affichage au POS et les mises acceptées pour ce tenant. Les gains et barèmes globaux restent gérés dans le catalogue plateforme."
+          "message": "Ces valeurs contrôlent l'affichage au POS et les mises acceptées pour ce santral. Les gains et barèmes globaux restent gérés dans le catalogue plateforme."
         },
         "field": {
           "displayName": "Nom affiché au POS",
@@ -516,7 +518,7 @@
         },
         "options": {
           "title": "Barème de gains",
-          "description": "Résumé du barème tenant appliqué à la vente.",
+          "description": "Résumé du barème du santral appliqué à la vente.",
           "clearPricing": "Supprimer le barème"
         },
         "salesOptions": {
@@ -551,7 +553,7 @@
       },
       "dialog": {
         "edit": {
-          "title": "Modifier la cote tenant"
+          "title": "Modifier la cote santral"
         }
       },
       "empty": {
@@ -650,7 +652,7 @@
           "label": "Barème",
           "applied": "Barème appliqué",
           "sourceSeller": "Vendeur",
-          "sourceTenant": "Tenant",
+          "sourceTenant": "Santral",
           "sourceUnknown": "Configuration",
           "unknownRule": "Barème",
           "summaryRules": {
@@ -685,12 +687,12 @@
         "error": {
           "notFoundTitle": "Ticket introuvable",
           "notFoundMessage": "Aucun identifiant de ticket n’a été fourni.",
-          "terminalNotFound": "Réimpression indisponible : le terminal vendeur {{terminalCode}} est introuvable.",
-          "reprintFailed": "Réimpression impossible pour ce ticket. Vérifiez le terminal vendeur ou réessayez."
+          "terminalNotFound": "Réimpression indisponible : le vendeur {{terminalCode}} est introuvable.",
+          "reprintFailed": "Réimpression impossible pour ce ticket. Vérifiez le vendeur ou réessayez."
         },
         "notice": {
           "reprinting": "Réimpression en cours.",
-          "missingTerminal": "Réimpression indisponible : terminal vendeur non identifié."
+          "missingTerminal": "Réimpression indisponible : vendeur non identifié."
         }
       },
       "draw": {
@@ -777,7 +779,7 @@
       "error": {
         "noOpenDraw": "Aucun tirage ouvert à la vente.",
         "drawClosed": "Ce tirage est maintenant fermé à la vente. Choisissez un autre tirage ouvert.",
-        "terminalBlocked": "Ce seller-terminal est bloqué. Il ne peut pas vendre de tickets.",
+        "terminalBlocked": "Ce vendeur est bloqué. Il ne peut pas vendre de tickets.",
         "invalidStake": "La mise doit être supérieure à 0 HTG.",
         "noLines": "Ajoutez au moins une ligne pour confirmer la vente."
       }
@@ -842,7 +844,7 @@
       },
       "overview": {
         "title": "Vue d'ensemble des rapports",
-        "description": "Ventes, paiements et revenu estimé du tenant courant.",
+        "description": "Ventes, paiements et revenu estimé du santral courant.",
         "loading": "Chargement des rapports...",
         "period": {
           "label": "Période du rapport"
@@ -879,7 +881,7 @@
           "emptyMessage": "Les numéros vendus apparaîtront ici après la vente de lignes."
         },
         "sellers": {
-          "title": "Terminaux vendeurs principaux",
+          "title": "Principaux vendeurs",
           "emptyTitle": "Aucune activité vendeur",
           "emptyMessage": "La performance vendeur apparaîtra ici après la vente de tickets."
         }
@@ -973,10 +975,10 @@
       },
       "sellers": {
         "title": "Rapport vendeur",
-        "description": "Ventes, commissions et revenu estimé regroupés par terminal vendeur.",
+        "description": "Ventes, commissions et revenu estimé regroupés par vendeur.",
         "loading": "Chargement du rapport vendeur...",
         "kpisAria": "Résumé du rapport vendeur",
-        "rowsTitle": "Lignes par terminal vendeur",
+        "rowsTitle": "Lignes par vendeur",
         "emptyTitle": "Aucune activité vendeur",
         "emptyMessage": "La performance vendeur apparaîtra ici après la vente de tickets.",
         "totalRow": "Total du rapport",
@@ -1015,7 +1017,7 @@
           "averageTicketAsc": "Ticket moyen croissant"
         },
         "column": {
-          "seller": "Terminal vendeur",
+          "seller": "Vendeur",
           "status": "Statut",
           "tickets": "Tickets",
           "sales": "Ventes",
@@ -1032,7 +1034,7 @@
     },
     "gamesPricing": {
       "title": "Jeux disponibles",
-      "description": "Choisissez les jeux supportés par ce tenant et complétez leurs spécificités de vente.",
+      "description": "Choisissez les jeux supportés par ce santral et complétez leurs spécificités de vente.",
       "loading": "Chargement des jeux...",
       "action": {
         "backToSetup": "Configuration générale",
@@ -1047,7 +1049,7 @@
         "aria": "Résumé des jeux disponibles",
         "systemGames": {
           "label": "Jeux système",
-          "help": "Jeux disponibles pour ce tenant."
+          "help": "Jeux disponibles pour ce santral."
         },
         "activeGames": {
           "label": "Jeux actifs",
@@ -1065,7 +1067,7 @@
       "issues": {
         "aria": "Jeux à compléter",
         "title": "À compléter",
-        "description": "Corrigez ces points avant d'activer le jeu pour ce tenant.",
+        "description": "Corrigez ces points avant d'activer le jeu pour ce santral.",
         "missingStake": "Mise non configurée pour ce jeu.",
         "missingPricing": "Barème non configuré pour ce jeu.",
         "configure": "Configurer"
@@ -1127,7 +1129,7 @@
         "reverse": "Reverse",
         "notDefined": "Non défini",
         "notConfigured": "Non configuré",
-        "missing": "Le jeu Maryaj gratuit est absent de la configuration tenant.",
+        "missing": "Le jeu Maryaj gratuit est absent de la configuration du santral.",
         "readiness": {
           "READY": "Prêt",
           "TODO": "À configurer",
@@ -1168,7 +1170,7 @@
       },
       "offer": {
         "activeEyebrow": "Offre active",
-        "campaignCode": "Campagne tenant · {{count}} règle(s)",
+        "campaignCode": "Campagne du santral · {{count}} règle(s)",
         "pause": "Mettre en pause",
         "permanent": "Sans fin prévue",
         "technicalDate": "Date technique :",
@@ -1278,7 +1280,7 @@
         }
       },
       "global": {
-        "scopeNote": "Limites appliquées globalement à tous les terminaux du tenant."
+        "scopeNote": "Limites appliquées globalement à tous les terminaux du santral."
       },
       "number": {
         "actionsAria": "Actions rapides par numéro",
@@ -1318,7 +1320,7 @@
         "withParams": "Avec paramètres",
         "simulation": "Simulation",
         "simulationTitle": "Vue effective par portée",
-        "simulationHint": "Sélectionnez une portée pour voir les règles actuellement actives à ce niveau. La priorité effective suit : terminal vendeur / agent (60) > canal de tirage (30) > global (10).",
+        "simulationHint": "Sélectionnez une portée pour voir les règles actuellement actives à ce niveau. La priorité effective suit : vendeur (60) > canal de tirage (30) > global (10).",
         "scopeLabel": "Portée",
         "scope": {
           "global": "Global",
@@ -1504,7 +1506,7 @@
           "notConfigured": "Non configuré",
           "visibleInPos": "Visible POS",
           "hiddenInPos": "Masqué POS",
-          "tenantGameSettings": "Paramètres du jeu tenant"
+          "tenantGameSettings": "Paramètres du jeu du santral"
         },
         "action": {
           "configureMaryaj": "Configurer Maryaj gratis",
@@ -1516,7 +1518,7 @@
         }
       },
       "warning": {
-        "TENANT_GAME_DISABLED": "Jeu désactivé pour le tenant",
+        "TENANT_GAME_DISABLED": "Jeu désactivé pour le santral",
         "NOT_VISIBLE_IN_POS": "Masqué au POS",
         "CHANNEL_NOT_CONFIGURED": "Canal non configuré",
         "CHANNEL_INACTIVE": "Canal inactif",
@@ -1837,7 +1839,7 @@
           "disabledAt": "Désactivé le",
           "commissionRate": "Commission",
           "addressId": "Adresse",
-          "tenantId": "Tenant"
+          "tenantId": "Santral"
         }
       },
       "status": {
@@ -1847,7 +1849,7 @@
         "DISABLED": "Désactivé"
       },
       "field": {
-        "seller_terminal_code": "Code terminal",
+        "seller_terminal_code": "Code vendeur",
         "first_name": "Prénom",
         "last_name": "Nom de famille",
         "email": "Email",
@@ -1911,7 +1913,7 @@
   "readiness": {
     "noIssues": "Aucun problème",
     "identity": {
-      "missing": "Identité tenant à compléter"
+      "missing": "Identité santral à compléter"
     },
     "seller_terminals": {
       "empty": "Aucun vendeur configuré",
@@ -1927,7 +1929,7 @@
       "results_pending": "Tirages fermés en attente de résultats"
     },
     "commission": {
-      "default_missing": "Taux de commission tenant à configurer"
+      "default_missing": "Taux de commission santral à configurer"
     },
     "limits": {
       "empty": "Limites de vente à configurer"
@@ -1941,14 +1943,14 @@
     "fields": {
       "roles": "Rôles",
       "settings": "Paramètres",
-      "tenant": "Tenant",
+      "tenant": "Santral",
       "user": "Utilisateur"
     },
     "rolesEmpty": "Aucun rôle détecté",
     "tenantMissing": "Non détecté",
     "titles": {
-      "admin": "Tableau de bord admin tenant",
-      "cashier": "Tableau de bord caissier",
+      "admin": "Tableau de bord admin santral",
+      "cashier": "Tableau de bord vendeur",
       "platform": "Tableau de bord plateforme"
     },
     "cashier": {
@@ -1978,7 +1980,7 @@
         "title": "Actions rapides"
       },
       "tenants": {
-        "title": "Tenants"
+        "title": "Santrals"
       }
     },
     "tenant_admin": {
@@ -1987,12 +1989,12 @@
       },
       "commission": {
         "title": "Commission",
-        "default_rate": "Taux par défaut du tenant",
+        "default_rate": "Taux par défaut du santral",
         "default_not_set": "Non configuré",
         "at_default": "Au taux par défaut",
         "custom": "Taux personnalisé",
         "rate_range": "Fourchette",
-        "seller_terminals": "Seller-terminals"
+        "seller_terminals": "Vendeurs"
       },
       "kpis": {
         "title": "Indicateurs"

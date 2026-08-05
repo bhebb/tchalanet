@@ -22,7 +22,7 @@
         "betOption": "Option",
         "odds": "Odds",
         "payoutRule": "Winning rule",
-        "tenant": "Tenant",
+        "tenant": "Workspace",
         "status": "Status"
       }
     },
@@ -121,7 +121,7 @@
     "private_dashboard_superadmin": {
       "kpis": "Key metrics",
       "quick_actions": "Quick actions",
-      "tenants_alerts": "Tenants & alerts"
+      "tenants_alerts": "Operators & alerts"
     }
   },
   "dashboard": {
@@ -165,11 +165,11 @@
       "manage_limits": "Manage limits",
       "manage_odds": "Manage odds",
       "maryaj_gratis": "Maryaj gratis",
-      "add_seller_terminal": "Add seller-terminal",
-      "active_seller_terminals": "Active seller-terminals"
+      "add_seller_terminal": "Add a seller",
+      "active_seller_terminals": "Active sellers"
     },
     "platform": {
-      "create_tenant": "Create tenant",
+      "create_tenant": "Create operator",
       "onboarding": "Onboarding",
       "subscriptions": "Subscriptions",
       "platform_health": "Platform health",

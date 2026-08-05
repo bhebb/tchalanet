@@ -46,8 +46,12 @@ cohérence intra-locale → placeholders intacts.
 - [x] 3.1 `errors` (616) — **138 chaînes réécrites**, chacune vérifiée contre sa valeur attendue
       avant écriture (aucune substitution regex sur la terminologie). Résultat sur ce namespace :
       0 fuite technique, 0 faute d'accent FR, 0 faute IPN. `core-i18n` (4) et `web-errors` (13) verts.
-- [ ] 3.2 `feature-public` (440) — vitrine ; contient les doublons `seller-terminal` les plus visibles
-- [ ] 3.3 `surface-public` (48)
+- [x] 3.2 `feature-public` (440) — **140 chaînes réécrites**. Le renommage avait fusionné *trois*
+      concepts (point de vente, terminal, vendeur) en « seller-terminal », produisant des phrases
+      cassées : « son seller-terminal, son seller-terminal », « their seller-terminal-terminal »,
+      « Combien de seller-terminals ou seller-terminals ». Reconstituées sur l'acteur unique du
+      modèle. 2 clés mortes supprimées (`cta.close_connexion`, `hero_stat_connexions`).
+- [x] 3.3 `surface-public` (48)
 - [ ] 3.4 `common` (105)
 - [ ] 3.5 `component` (120)
 - [ ] 3.6 `domain` (118) — socle terminologique, aligne les autres
@@ -90,19 +94,45 @@ redéfinis dans 286 clés ; 188 termes FR traduits différemment selon l'endroit
 - [ ] 3b.5 **Lot C** — ne rien toucher ; documenté dans `consolidation.md` pour que personne
       ne « corrige » ces homonymes plus tard
 
+## Phase 3ter — Éradication de « tenant » (transverse)
+
+- [x] 3t.1 **378 chaînes réécrites** sur 6 namespaces. Règle du `design.md` appliquée par chaîne :
+      **Santral / Operator / Santral** quand la chaîne nomme l'organisation,
+      **Espace / Workspace / Espas** quand elle nomme le périmètre de l'utilisateur.
+      Le mot ne figure plus dans aucune valeur, dans aucune locale.
+- [x] 3t.2 9 **clés littérales pointées** normalisées en imbrication
+      (`"advancedSettings.title"` dans `admin.setup`). `ngx-translate` résout les deux formes,
+      mais tout outil qui parcourt l'arbre casse dessus.
+- [x] 3t.3 3 placeholders `{{tenant}}` restaurés — la substitution les avait renommés.
+      Le nom d'un placeholder est un contrat avec le code (`app.html:23` passe
+      `{ tenant: session.tenantName }`). L'audit ignore désormais le contenu des placeholders.
+
+## Phase 3quater — Éradication de « seller-terminal » et des concepts retirés
+
+- [x] 3q.1 **116 chaînes réécrites** sur 7 namespaces → Vendeur / Seller / Tèminal POS.
+      Formes concurrentes supprimées : `Seller-terminal`, `seller terminal`, `Terminal vendeur`,
+      `Terminaux vendeurs`, `Tèminal vandè`.
+- [x] 3q.2 Concept **caissier** retiré des 4 dernières clés (`dashboard.titles.cashier`,
+      `surface.cashier`, `nav.cashier.*`).
+- [x] 3q.3 `TENANT_ADMIN` affiché brut dans `platform.tenants.admin.roleInfo` → « Administrateur ».
+- [x] 3q.4 **7 « a operator » corrigés en « an operator »** — régression introduite par la passe
+      tenant. L'article anglais ne suit pas une substitution de mot.
+- [x] 3q.5 **0 fuite technique dans les trois locales** (départ : 283 fr / 319 en / 23 ht).
+
 ## Phase 4 — Mobile
 
-- [ ] 4.1 `domain` (45) + `common` (83) — 5 chaînes FR résiduelles en EN
-- [ ] 4.2 `feature-seller-terminal` (250) — alignement terminologique sur la table
-- [ ] 4.3 `component` (20), `feature-auth` (30), `surface-seller-terminal` (1)
-- [ ] 4.4 Vérifier la cohérence web ↔ mobile sur les clés de même nom
+- [x] 4.1 `domain` — `tenant`/`tenants` et `sellerTerminal(s)` alignés sur le glossaire
+- [x] 4.2 `feature-auth:auth.login.blocked_message` — « votre tenant » / « ce terminal »
+      réécrit dans les 3 locales
+- [x] 4.3 `pos.tickets.outlet` — « POINT DE VENTE » / « OUTLET » / « PÒS VANT », concept retiré
+- [x] 4.4 Mobile à **0 défaut** sur les 5 classes de l'audit
 
 ## Phase 5 — Vérification
 
-- [ ] 5.1 Re-run audit complet : parité 0 écart, 0 fuite technique, 0 FR résiduel, 0 faute HT listée
-- [ ] 5.2 `nx test core-i18n` + `error-i18n-contract.spec.ts` verts
-- [ ] 5.3 Revue visuelle des libellés contraints (boutons, colonnes) en HT — la locale la plus longue
-- [ ] 5.4 PR (jamais de push direct sur `main`)
+- [x] 5.1 Audit complet : **0 défaut**, `--strict` sort en 0. Web 4 033 × 3, mobile 429 × 3.
+- [x] 5.2 `nx test core-i18n` (4) + `web-errors` (13) verts ; builds public/admin/platform verts
+- [ ] 5.3 Revue visuelle des libellés contraints en HT — la locale la plus longue
+- [x] 5.4 PR : #541 → #542 → #543 → #545 → #546 (pile), + #544 pour la CI docs
 
 ### Défaut découvert en phase 3.1 — français sans accents
 

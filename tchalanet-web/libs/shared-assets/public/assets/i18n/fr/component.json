@@ -22,7 +22,7 @@
         "betOption": "Option",
         "odds": "Cote",
         "payoutRule": "Règle de gain",
-        "tenant": "Tenant",
+        "tenant": "Espace",
         "status": "Statut"
       }
     },
@@ -121,7 +121,7 @@
     "private_dashboard_superadmin": {
       "kpis": "Indicateurs",
       "quick_actions": "Actions rapides",
-      "tenants_alerts": "Tenants & alertes"
+      "tenants_alerts": "Santrals & alertes"
     }
   },
   "widget": {
@@ -165,11 +165,11 @@
       "manage_limits": "Gérer limites",
       "manage_odds": "Gérer odds",
       "maryaj_gratis": "Maryaj gratis",
-      "add_seller_terminal": "Ajouter seller-terminal",
-      "active_seller_terminals": "Seller-terminals actifs"
+      "add_seller_terminal": "Ajouter un vendeur",
+      "active_seller_terminals": "Vendeurs actifs"
     },
     "platform": {
-      "create_tenant": "Créer un tenant",
+      "create_tenant": "Créer un santral",
       "onboarding": "Onboarding",
       "subscriptions": "Abonnements",
       "platform_health": "Santé plateforme",

@@ -5,7 +5,7 @@
       "description": "Cette fonctionnalité sera disponible dans une prochaine itération.",
       "message": "Cette fonctionnalité sera disponible dans une prochaine itération.",
       "descriptions": {
-        "entitlements": "Gestion des droits fonctionnels disponibles par tenant.",
+        "entitlements": "Gestion des droits fonctionnels disponibles par santral.",
         "providers": "Surveillance des providers et connecteurs de tirage.",
         "opsResources": "Détail des ressources services critiques et dégradées.",
         "archives": "Consultation et contrôle des archives plateforme.",
@@ -14,7 +14,7 @@
         "permissions": "Gestion des permissions plateforme.",
         "roles": "Gestion des rôles plateforme.",
         "overrides": "Gestion des overrides super admin.",
-        "supportTenant": "Sélectionnez un tenant pour accéder à son interface d'administration en mode support.",
+        "supportTenant": "Sélectionnez un santral pour accéder à son interface d'administration en mode support.",
         "communicationTests": "Testez les canaux de communication (email, Slack, notifications).",
         "identitySync": "Synchronisez les identités Firebase avec la plateforme.",
         "contactConfig": "Configurez les canaux et messages de contact globaux.",
@@ -32,7 +32,7 @@
       "title": "Plateforme",
       "description": "Vue d'ensemble de l'infrastructure Tchalanet",
       "kpi": {
-        "activeTenants": "Tenants actifs",
+        "activeTenants": "Santrals actifs",
         "receivedContacts": "Demandes de contact",
         "pendingNotifications": "Notifications en attente",
         "degradedServices": "Services dégradés"
@@ -69,26 +69,26 @@
       }
     },
     "tenants": {
-      "title": "Tenants",
-      "description": "Liste, filtre et suivi opérationnel des tenants Tchalanet.",
-      "loading": "Chargement des tenants...",
+      "title": "Santrals",
+      "description": "Liste, filtre et suivi opérationnel des santrals Tchalanet.",
+      "loading": "Chargement des santrals...",
       "pagination": "Page {{page}} / {{total}}",
       "error": {
-        "load": "Erreur de chargement des tenants.",
-        "suspend": "Erreur lors de la suspension du tenant.",
-        "reactivate": "Erreur lors de la réactivation du tenant.",
-        "archive": "Erreur lors de l'archivage du tenant.",
-        "activate": "Erreur lors de l'activation du tenant."
+        "load": "Erreur de chargement des santrals.",
+        "suspend": "Erreur lors de la suspension du santral.",
+        "reactivate": "Erreur lors de la réactivation du santral.",
+        "archive": "Erreur lors de l'archivage du santral.",
+        "activate": "Erreur lors de l'activation du santral."
       },
       "feedback": {
         "updated": "{{name}} a été mis à jour."
       },
       "action": {
-        "create": "Créer un tenant",
+        "create": "Créer un santral",
         "applyFilters": "Filtrer",
         "resetFilters": "Réinitialiser",
-        "openMenu": "Ouvrir les actions du tenant",
-        "viewDetails": "Voir le tenant",
+        "openMenu": "Ouvrir les actions du santral",
+        "viewDetails": "Voir le santral",
         "suspend": "Suspendre",
         "reactivate": "Réactiver",
         "archive": "Archiver",
@@ -103,7 +103,7 @@
         "allProfiles": "Tous les profils"
       },
       "column": {
-        "tenant": "Tenant",
+        "tenant": "Santral",
         "code": "Code",
         "status": "Statut",
         "profile": "Profil",
@@ -117,11 +117,11 @@
         "email": "Email"
       },
       "empty": {
-        "title": "Aucun tenant",
-        "message": "Créez le premier tenant pour commencer.",
+        "title": "Aucun santral",
+        "message": "Créez le premier santral pour commencer.",
         "filtered": {
           "title": "Aucun résultat",
-          "message": "Aucun tenant ne correspond aux filtres sélectionnés."
+          "message": "Aucun santral ne correspond aux filtres sélectionnés."
         }
       },
       "status": {
@@ -151,11 +151,11 @@
       },
       "profileDescription": {
         "minimal": "Socle minimal, configuration manuelle ensuite.",
-        "defaultHaitiLottery": "Profil recommandé pour un tenant réel : jeux, tarifs et canaux Haïti.",
+        "defaultHaitiLottery": "Profil recommandé pour un santral réel : jeux, tarifs et canaux Haïti.",
         "demo": "Profil de démonstration réservé aux environnements non production."
       },
       "field": {
-        "code": "Code du tenant",
+        "code": "Code du santral",
         "name": "Nom",
         "type": "Type",
         "timezone": "Fuseau horaire",
@@ -169,22 +169,22 @@
         "email": "Adresse email invalide."
       },
       "create": {
-        "title": "Créer un tenant",
-        "description": "Provisionnez un tenant exploitable avec son socle initial de données.",
-        "adminHint": "Si vide, le tenant sera créé sans administrateur initial.",
-        "success": "Tenant provisionné avec succès.",
+        "title": "Créer un santral",
+        "description": "Provisionnez un santral exploitable avec son socle initial de données.",
+        "adminHint": "Si vide, le santral sera créé sans administrateur initial.",
+        "success": "Santral provisionné avec succès.",
         "error": "Erreur lors du provisionnement.",
         "previewError": "Erreur lors du calcul du profil.",
         "previewLoading": "Calcul du profil...",
         "section": {
-          "identity": "Identité tenant",
+          "identity": "Identité santral",
           "admin": "Admin initial",
           "profile": "Profil de provisioning",
           "preview": "Aperçu du provisioning"
         },
         "action": {
           "preview": "Prévisualiser",
-          "provision": "Créer le tenant"
+          "provision": "Créer le santral"
         },
         "preview": {
           "profile": "Profil choisi",
@@ -195,16 +195,16 @@
         }
       },
       "detail": {
-        "title": "Détail tenant",
-        "description": "Identité, région, commerce et profil du tenant.",
-        "loading": "Chargement du tenant...",
-        "error": "Erreur de chargement du tenant.",
-        "createdTitle": "Tenant créé",
+        "title": "Détail santral",
+        "description": "Identité, région, commerce et profil du santral.",
+        "loading": "Chargement du santral...",
+        "error": "Erreur de chargement du santral.",
+        "createdTitle": "Santral créé",
         "domainStatuses": "Domaines provisionnés",
         "nextSteps": "Prochaines étapes",
         "empty": {
-          "title": "Tenant introuvable",
-          "message": "Le détail de ce tenant n’est pas encore disponible."
+          "title": "Santral introuvable",
+          "message": "Le détail de ce santral n’est pas encore disponible."
         },
         "section": {
           "identity": "Identité",
@@ -222,7 +222,7 @@
           "theme": "Thème actif"
         },
         "identityCard": {
-          "eyebrow": "Tenant"
+          "eyebrow": "Santral"
         },
         "action": {
           "viewAdmins": "Voir les administrateurs",
@@ -243,7 +243,7 @@
           "configuration": "Configuration",
           "subscription": "Abonnement",
           "entitlements": "Droits d'usage",
-          "sellerTerminals": "Seller-terminals",
+          "sellerTerminals": "Vendeurs",
           "audit": "Audit"
         },
         "address": {
@@ -253,7 +253,7 @@
           "title": "Abonnement",
           "loading": "Chargement de l'abonnement…",
           "error": "Impossible de charger l'abonnement.",
-          "empty": "Aucun plan appliqué à ce tenant.",
+          "empty": "Aucun plan appliqué à ce santral.",
           "applyError": "Impossible d'appliquer le plan.",
           "field": {
             "plan": "Plan",
@@ -271,7 +271,7 @@
           "title": "Droits d'usage",
           "loading": "Chargement des droits d'usage…",
           "error": "Impossible de charger les droits d'usage.",
-          "empty": "Aucun droit d'usage résolu pour ce tenant.",
+          "empty": "Aucun droit d'usage résolu pour ce santral.",
           "field": {
             "plan": "Plan",
             "activeSubscription": "Abonnement actif",
@@ -295,11 +295,11 @@
           }
         },
         "sellerTerminals": {
-          "loading": "Chargement des seller-terminals…",
-          "error": "Impossible de charger les seller-terminals.",
+          "loading": "Chargement des vendeurs…",
+          "error": "Impossible de charger les vendeurs.",
           "empty": {
-            "title": "Aucun seller-terminal",
-            "message": "Ce tenant n'a pas encore de seller-terminal."
+            "title": "Aucun vendeur",
+            "message": "Ce santral n'a pas encore de vendeur."
           },
           "status": {
             "active": "Actif",
@@ -313,7 +313,7 @@
           "error": "Impossible de charger le journal d'audit.",
           "empty": {
             "title": "Aucun événement",
-            "message": "Aucun événement d'audit pour ce tenant."
+            "message": "Aucun événement d'audit pour ce santral."
           }
         },
         "admins": {
@@ -321,13 +321,13 @@
           "error": "Erreur lors du chargement des administrateurs.",
           "empty": {
             "title": "Aucun administrateur",
-            "message": "Ce tenant n'a pas encore d'administrateur."
+            "message": "Ce santral n'a pas encore d'administrateur."
           }
         },
         "config": {
           "empty": {
             "title": "Configuration non renseignée",
-            "message": "La configuration interne de ce tenant n'a pas encore été définie."
+            "message": "La configuration interne de ce santral n'a pas encore été définie."
           },
           "section": {
             "locale": "Langue & région",
@@ -354,15 +354,15 @@
           },
           "paidBy": {
             "buyer": "Payé par l'acheteur",
-            "tenant": "Payé par le tenant",
+            "tenant": "Payé par le santral",
             "platform": "Payé par la plateforme",
-            "seller": "Payé par le seller-terminal"
+            "seller": "Payé par le vendeur"
           }
         }
       },
       "provisioning": {
         "domains": {
-          "tenant_identity": "Identité tenant",
+          "tenant_identity": "Identité santral",
           "pagemodels": "Pages initiales",
           "theme": "Thème",
           "settings": "Paramètres",
@@ -373,7 +373,7 @@
           "promotions_templates": "Modèles de promotions",
           "limits_templates": "Modèles de limites",
           "demo_users": "Utilisateurs de démo",
-          "demo_seller_terminals": "Seller-terminals de démo"
+          "demo_seller_terminals": "Vendeurs de démo"
         },
         "data": {
           "tickets": "Tickets",
@@ -385,20 +385,20 @@
           "ledger": "Grand livre"
         },
         "readiness": {
-          "identity": "Identité tenant",
-          "users": "Admin tenant",
+          "identity": "Identité santral",
+          "users": "Admin santral",
           "draw_channels": "Canaux de tirage",
-          "seller_rules": "Règles seller-terminal",
+          "seller_rules": "Règles vendeur",
           "limits": "Limites",
           "odds": "Barèmes",
-          "seller_terminals": "Seller-terminals"
+          "seller_terminals": "Vendeurs"
         },
         "nextSteps": {
           "CREATE_INITIAL_ADMIN": "Créer l’admin initial",
           "CONFIGURE_GAMES": "Configurer les jeux",
           "CONFIGURE_DRAW_CHANNELS": "Configurer les canaux de tirage",
-          "CONFIGURE_SELLER_RULES": "Configurer les règles seller-terminal",
-          "CREATE_SELLER_TERMINAL": "Créer un seller-terminal",
+          "CONFIGURE_SELLER_RULES": "Configurer les règles vendeur",
+          "CREATE_SELLER_TERMINAL": "Créer un vendeur",
           "CONFIGURE_LIMITS": "Configurer les limites",
           "CONFIGURE_ODDS": "Configurer les barèmes",
           "VERIFY_DEMO_SETUP": "Vérifier les données de démo"
@@ -424,11 +424,11 @@
         "activate": "Voulez-vous activer {{name}} ?"
       },
       "success": {
-        "suspended": "Tenant suspendu.",
-        "reactivated": "Tenant réactivé.",
-        "archived": "Tenant archivé."
+        "suspended": "Santral suspendu.",
+        "reactivated": "Santral réactivé.",
+        "archived": "Santral archivé."
       },
-      "paginationTotal": "{{count}} tenant(s)",
+      "paginationTotal": "{{count}} santral(s)",
       "adminStatus": {
         "active": "Actif",
         "pending": "En attente",
@@ -451,14 +451,14 @@
           "firstName": "Prénom requis.",
           "create": "Erreur lors de la création."
         },
-        "roleInfo": "Rôle assigné : TENANT_ADMIN",
+        "roleInfo": "Rôle assigné : Administrateur",
         "submit": "Créer l'administrateur",
         "success": "Administrateur créé avec succès."
       }
     },
     "tenantAdmins": {
-      "title": "Administrateurs tenant",
-      "description": "Consultez et gérez les administrateurs de chaque tenant.",
+      "title": "Administrateurs santral",
+      "description": "Consultez et gérez les administrateurs de chaque santral.",
       "loading": "Chargement des administrateurs...",
       "filter": {
         "search": "Rechercher",
@@ -466,7 +466,7 @@
       },
       "column": {
         "admin": "Administrateur",
-        "tenant": "Tenant",
+        "tenant": "Santral",
         "assignedAt": "Affecté le"
       },
       "status": {
@@ -477,7 +477,7 @@
         "archived": "Archivé"
       },
       "action": {
-        "assignTenant": "Assigner à un tenant",
+        "assignTenant": "Assigner à un santral",
         "manageAdmins": "Gérer les admins",
         "addAdmin": "Ajouter un admin"
       },
@@ -507,33 +507,33 @@
       },
       "detail": {
         "title": "Détail administrateur",
-        "description": "Informations et actions sur cet administrateur tenant.",
+        "description": "Informations et actions sur cet administrateur santral.",
         "error": {
           "load": "Impossible de charger cet administrateur."
         },
         "field": {
-          "tenant": "Tenant",
+          "tenant": "Santral",
           "email": "Email",
           "assignedAt": "Affecté le"
         },
         "actions": {
-          "manageInTenant": "Gérer dans le tenant"
+          "manageInTenant": "Gérer dans le santral"
         }
       },
       "pagination": "Page {{page}} / {{total}}",
       "paginationTotal": "{{count}} administrateur(s)"
     },
     "tenantProvisioning": {
-      "title": "Provisionner un tenant",
-      "description": "Créez un tenant, appliquez un profil initial et préparez sa configuration.",
-      "backToTenants": "Retour aux tenants",
+      "title": "Provisionner un santral",
+      "description": "Créez un santral, appliquez un profil initial et préparez sa configuration.",
+      "backToTenants": "Retour aux santrals",
       "section": {
         "identity": "Identité & classification",
         "regional": "Paramètres régionaux",
         "commercial": "Paramètres commerciaux",
         "profile": "Profil de provisioning",
         "initialAdmin": "Admin initial",
-        "plan": "Plan du tenant"
+        "plan": "Plan du santral"
       },
       "plan": {
         "loading": "Chargement des plans...",
@@ -541,7 +541,7 @@
         "default": "Par défaut"
       },
       "field": {
-        "code": "Code du tenant",
+        "code": "Code du santral",
         "name": "Nom d'affichage",
         "type": "Type",
         "timezone": "Fuseau horaire",
@@ -553,8 +553,8 @@
         "initialAdminEmail": "Email de l'admin initial"
       },
       "hint": {
-        "defaultCommissionRate": "Commission appliquée par défaut aux seller-terminals qui n'ont pas de taux spécifique.",
-        "maryajGratisEnabled": "Affiche la page Maryaj gratis dans le tenant et ajoute la carte de configuration.",
+        "defaultCommissionRate": "Commission appliquée par défaut aux vendeurs qui n'ont pas de taux spécifique.",
+        "maryajGratisEnabled": "Affiche la page Maryaj gratis dans le santral et ajoute la carte de configuration.",
         "initialAdminUsername": "3 à 64 caractères : lettres, chiffres, points, soulignés ou tirets.",
         "initialAdminEmail": "Obligatoire pour créer l’administrateur initial."
       },
@@ -567,29 +567,29 @@
         "submitTitle": "Provisionnement impossible"
       },
       "loading": {
-        "title": "Provisionnement du tenant en cours…",
-        "message": "Création du tenant, application du profil initial et préparation de la configuration."
+        "title": "Provisionnement du santral en cours…",
+        "message": "Création du santral, application du profil initial et préparation de la configuration."
       },
       "action": {
         "cancel": "Annuler",
-        "submit": "Provisionner le tenant",
+        "submit": "Provisionner le santral",
         "submitting": "Provisionnement…",
         "backToList": "Retour à la liste",
         "completeRequired": "Complétez les champs requis pour continuer",
-        "viewTenant": "Voir le tenant",
+        "viewTenant": "Voir le santral",
         "addAdmin": "Ajouter un administrateur",
-        "createAnother": "Créer un autre tenant"
+        "createAnother": "Créer un autre santral"
       },
       "warning": {
-        "existingUserAttached": "Un utilisateur existant a été rattaché comme administrateur du tenant.",
-        "temporaryCredentialNotReturned": "Les identifiants temporaires n'ont pas pu être affichés. Réinitialisez le mot de passe depuis le détail du tenant.",
+        "existingUserAttached": "Un utilisateur existant a été rattaché comme administrateur du santral.",
+        "temporaryCredentialNotReturned": "Les identifiants temporaires n'ont pas pu être affichés. Réinitialisez le mot de passe depuis le détail du santral.",
         "temporaryPasswordIssued": "Un mot de passe temporaire a été généré pour l'administrateur initial.",
-        "noPlanSelected": "Aucun plan sélectionné. Le tenant sera créé sans abonnement actif — appliquez un plan avant de créer des seller-terminals.",
+        "noPlanSelected": "Aucun plan sélectionné. Le santral sera créé sans abonnement actif — appliquez un plan avant de créer des vendeurs.",
         "fallback": "Un point de configuration demande une vérification."
       },
       "identityCard": {
-        "eyebrow": "Identité du tenant",
-        "fallbackTitle": "Nouveau tenant",
+        "eyebrow": "Identité du santral",
+        "fallbackTitle": "Nouveau santral",
         "unassignedCode": "non-assigné"
       },
       "health": {
@@ -611,7 +611,7 @@
         "adminNextInstruction": "Demander à l’admin de se connecter. Il devra changer son mot de passe et compléter son profil avant d’accéder à /app/admin."
       },
       "domain": {
-        "tenantIdentity": "Identité tenant",
+        "tenantIdentity": "Identité santral",
         "pagemodels": "Pages initiales",
         "theme": "Thème",
         "settings": "Paramètres",
@@ -622,7 +622,7 @@
         "promotionsTemplates": "Modèles de promotions",
         "limitsTemplates": "Modèles de limites",
         "demoUsers": "Utilisateurs démo",
-        "demoSellerTerminals": "Seller-terminals de démo",
+        "demoSellerTerminals": "Vendeurs de démo",
         "subscription": "Abonnement"
       },
       "status": {
@@ -643,15 +643,15 @@
         "createInitialAdmin": "Créer l’admin initial",
         "configureGames": "Configurer les jeux",
         "configureDrawChannels": "Configurer les canaux de tirage",
-        "configureSellerRules": "Configurer les règles seller-terminal",
+        "configureSellerRules": "Configurer les règles vendeur",
         "configureLimits": "Configurer les limites",
         "configureOdds": "Configurer les barèmes",
         "verifyDemoSetup": "Vérifier les données de démo",
-        "createSellerTerminal": "Créer un seller-terminal"
+        "createSellerTerminal": "Créer un vendeur"
       },
       "success": {
-        "title": "Tenant provisionné avec succès",
-        "message": "Le tenant {{code}} a été créé et est prêt pour la configuration."
+        "title": "Santral provisionné avec succès",
+        "message": "Le santral {{code}} a été créé et est prêt pour la configuration."
       },
       "typeDescription": {
         "borlette": "Banque borlette ou opérateur gérant plusieurs vendeurs.",
@@ -722,7 +722,7 @@
           "betType": "Type de pari",
           "betOption": "Option de pari (betOption)",
           "odds": "Cote (odds)",
-          "tenant": "Tenant",
+          "tenant": "Santral",
           "tenantPlaceholder": "Laisser vide = global",
           "active": "Actif"
         },
@@ -755,7 +755,7 @@
             "title": "Aucun résultat",
             "message": "Aucune cote ne correspond aux filtres."
           },
-          "tenants": "Aucun tenant trouvé"
+          "tenants": "Aucun santral trouvé"
         },
         "footer": {
           "count": "{{count}} cote(s)",
@@ -780,20 +780,20 @@
       "description": "Statut des services et monitoring"
     },
     "onboarding": {
-      "adminCreated": "Admin tenant créé",
-      "code": "Code tenant",
+      "adminCreated": "Admin santral créé",
+      "code": "Code santral",
       "currency": "Devise",
       "domains": "Domaines inclus",
       "error": "Échec de l'opération.",
       "initialAdminEmail": "E-mail du premier admin",
-      "name": "Nom du tenant",
+      "name": "Nom du santral",
       "preview": "Prévisualiser",
       "previewResult": "Prévisualisation",
       "profile": "Profil",
       "provision": "Provisionner",
-      "success": "Tenant provisionné",
+      "success": "Santral provisionné",
       "timezone": "Fuseau horaire",
-      "title": "Provisionnement de tenant",
+      "title": "Provisionnement de santral",
       "type": "Type"
     },
     "action": {
@@ -801,26 +801,26 @@
       "onboarding": "Onboarding",
       "settings": "Paramètres",
       "subscriptions": "Abonnements",
-      "tenants": "Tenants"
+      "tenants": "Santrals"
     },
     "kpi": {
       "activeSubscriptions": {
         "label": "Abonnements actifs"
       },
       "activeTenants": {
-        "label": "Tenants actifs"
+        "label": "Santrals actifs"
       },
       "pendingOnboarding": {
         "label": "Onboarding en attente"
       },
       "suspendedTenants": {
-        "label": "Tenants suspendus"
+        "label": "Santrals suspendus"
       },
       "tenantsWithIssues": {
-        "label": "Tenants avec incidents"
+        "label": "Santrals avec incidents"
       },
       "totalTenants": {
-        "label": "Total tenants"
+        "label": "Total santrals"
       }
     },
     "entityHistory": {
@@ -831,7 +831,7 @@
         "envers": "Source : Hibernate Envers"
       },
       "entityType": {
-        "sellerTerminal": "Seller terminal",
+        "sellerTerminal": "Vendeur",
         "drawResult": "Résultat de tirage",
         "limitAssignment": "Assignation de limite"
       },
@@ -853,7 +853,7 @@
         "operation": "Opération",
         "entity": "Entité",
         "changedFields": "Champs modifiés",
-        "tenant": "Tenant",
+        "tenant": "Santral",
         "changedBy": "Acteur ID"
       },
       "action": {
@@ -889,7 +889,7 @@
         "repair": "Reconstruire les projections"
       },
       "field": {
-        "tenant": "Tenant",
+        "tenant": "Santral",
         "from": "Du",
         "to": "Au",
         "period": "Période",
@@ -901,10 +901,10 @@
         "sellerTerminalId": "Terminal POS"
       },
       "placeholder": {
-        "tenant": "Rechercher un tenant actif"
+        "tenant": "Rechercher un santral actif"
       },
       "empty": {
-        "tenant": "Aucun tenant actif ne correspond."
+        "tenant": "Aucun santral actif ne correspond."
       },
       "hint": {
         "window": "Période maximale : {{days}} jours."
@@ -938,10 +938,10 @@
       },
       "validation": {
         "title": "Périmètre invalide",
-        "scope": "Choisissez un tenant et une période valide ne dépassant pas 90 jours.",
+        "scope": "Choisissez un santral et une période valide ne dépassant pas 90 jours.",
         "reason": "Indiquez un motif d’au moins 10 caractères."
       },
-      "noTenant": "Aucun tenant sélectionné"
+      "noTenant": "Aucun santral sélectionné"
     },
     "pageEngine": {
       "title": "Moteur de page",
@@ -971,7 +971,7 @@
         "emptyMessage": "Sélectionnez une ligne pour afficher et modifier son JSON."
       },
       "column": {
-        "tenantId": "Tenant ID",
+        "tenantId": "Santral ID",
         "logicalId": "Logical ID",
         "scope": "Scope",
         "slug": "Slug",
@@ -991,7 +991,7 @@
         "ARCHIVED": "Archivé"
       },
       "prompt": {
-        "tenantId": "Tenant ID",
+        "tenantId": "Santral ID",
         "logicalId": "Logical ID",
         "scope": "Scope",
         "slug": "Slug",
@@ -1073,7 +1073,7 @@
         "keyLabel": "Clé (i18nKey)",
         "keyPlaceholder": "ex. common.welcomeTitle",
         "valueLabel": "Valeur (i18nValue)",
-        "tenantIdLabel": "Tenant ID (requis pour niveau TENANT)",
+        "tenantIdLabel": "ID du santral (requis pour le niveau Santral)",
         "required": "Requis."
       },
       "feedback": {

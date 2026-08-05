@@ -56,8 +56,8 @@
         "phoneNumber": "Téléphone optionnel"
       },
       "tenant": {
-        "title": "Accès tenant",
-        "name": "Tenant",
+        "title": "Accès espace",
+        "name": "Santral",
         "code": "Code",
         "role": "Rôle"
       },

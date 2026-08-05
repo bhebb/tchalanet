@@ -9,7 +9,7 @@
       "error": "Sign-in failed. Try again.",
       "blocked": "Access blocked?",
       "blocked_title": "Access blocked",
-      "blocked_message": "Contact your tenant's administrator to unblock this terminal's access.",
+      "blocked_message": "Contact your operator's administrator to unblock this seller's access.",
       "required": "This field is required",
       "secure_environment": "Secure environment",
       "terminal_title": "Terminal access",

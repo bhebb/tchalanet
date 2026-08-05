@@ -1,11 +1,11 @@
 {
   "surface": {
-    "cashier": "Cashier",
+    "cashier": "Seller",
     "platform_admin": "Platform",
     "tenant_admin": "Administration",
     "supportAccess": {
       "activeLabel": "Support active on {{tenant}}",
-      "overrideMode": "You are acting as tenant admin and can sell.",
+      "overrideMode": "You are acting as operator admin and can sell.",
       "readonlyMode": "Read-only support access.",
       "backToPlatform": "Back to platform"
     }
@@ -51,8 +51,8 @@
       "upcoming_draws": "Upcoming draws",
       "past_draws": "Past draws",
       "seller_terminals": "Sellers",
-      "seller_terminal_add": "Add seller-terminal",
-      "seller_terminal_active": "Active seller-terminals",
+      "seller_terminal_add": "Add a seller",
+      "seller_terminal_active": "Active sellers",
       "seller_terminal_list": "List",
       "seller_terminal_new": "New seller",
       "draw_sales_matrix": "Games by channel",
@@ -117,8 +117,8 @@
     "dashboard": "Dashboard",
     "tenant_overview": "Overview",
     "users": "Users",
-    "outlets": "Seller-terminals",
-    "seller-terminals": "Seller-terminals",
+    "outlets": "Sellers",
+    "seller-terminals": "Sellers",
     "connexions": "Connexions",
     "tickets_sales": "Tickets & sales",
     "draws": "Draws",
@@ -131,7 +131,6 @@
     "reports": "Reports",
     "tickets": "Tickets",
     "verify_ticket": "Verify a ticket",
-    "connexion": "Connexion",
     "language": "Language",
     "profile": "Profile"
   },
@@ -150,7 +149,7 @@
       },
       "list": {
         "title": "Tickets",
-        "description": "Tenant ticket history.",
+        "description": "Operator ticket history.",
         "loading": "Loading tickets...",
         "emptyTitle": "No tickets",
         "emptyMessage": "No tickets matched these criteria.",

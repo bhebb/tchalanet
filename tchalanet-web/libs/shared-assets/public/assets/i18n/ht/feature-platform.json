@@ -219,7 +219,7 @@
           "city": "Vil",
           "addressLine": "Adrès",
           "postalCode": "Kòd postal",
-          "theme": "Thème actif"
+          "theme": "Tèm aktif"
         },
         "identityCard": {
           "eyebrow": "Santral"
@@ -445,7 +445,7 @@
           "firstName": "Prenon obligatwa.",
           "create": "Erè pandan kreyasyon."
         },
-        "roleInfo": "Wòl: TENANT_ADMIN",
+        "roleInfo": "Wòl: Administratè",
         "submit": "Kreye administratè",
         "success": "Administratè kreye avèk siksè."
       },
@@ -587,9 +587,9 @@
         "message": "Santral {{code}} te kreye epi li prèt pou konfigirasyon."
       },
       "typeDescription": {
-        "borlette": "Banque borlette ou opérateur gérant plusieurs vendeurs.",
-        "reseau": "Organisation qui supervise plusieurs points, zones ou opérateurs.",
-        "ambulant": "Vendeur indépendant ou petite activité mobile."
+        "borlette": "Bank borlèt oswa operatè k ap jere plizyè tèminal POS.",
+        "reseau": "Òganizasyon ki sipèvize plizyè kote, zòn oswa operatè.",
+        "ambulant": "Vandè endepandan oswa yon ti aktivite mobil."
       }
     },
     "catalog": {
@@ -971,7 +971,7 @@
         "emptyMessage": "Chwazi yon liy pou wè ak modifye JSON li."
       },
       "column": {
-        "tenantId": "ID tenant la",
+        "tenantId": "ID santral la",
         "logicalId": "Logical ID",
         "scope": "Scope",
         "slug": "Slug",
@@ -991,7 +991,7 @@
         "ARCHIVED": "Achive"
       },
       "prompt": {
-        "tenantId": "ID tenant la",
+        "tenantId": "ID santral la",
         "logicalId": "Logical ID",
         "scope": "Scope",
         "slug": "Slug",

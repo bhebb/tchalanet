@@ -5,8 +5,8 @@
         "platform": "Platform"
       },
       "dashboard": "Dashboard",
-      "tenants": "Tenants",
-      "tenantProvisioning": "Tenant Provisioning",
+      "tenants": "Operators",
+      "tenantProvisioning": "Operator Provisioning",
       "contactRequests": "Contact Requests",
       "news": "News",
       "notifications": "Notifications",
@@ -18,8 +18,8 @@
       "operations": "Operations",
       "global_configuration": "Global configuration"
     },
-    "tenants": "Tenants",
-    "tenant_onboarding": "Tenant onboarding",
+    "tenants": "Operators",
+    "tenant_onboarding": "Operator onboarding",
     "subscriptions": "Subscriptions",
     "platform_overview": "Platform overview",
     "platform_health": "Platform health",
@@ -43,9 +43,9 @@
       "commercialDashboard": "Commercial dashboard",
       "health": "Platform health",
       "opsDashboard": "Platform ops",
-      "tenantsGroup": "Tenants",
-      "tenants": "All tenants",
-      "createTenant": "Create tenant",
+      "tenantsGroup": "Operators",
+      "tenants": "All operators",
+      "createTenant": "Create operator",
       "tenantOnboarding": "Onboarding",
       "tenantAdmins": "Administrators",
       "subscriptions": "Subscriptions",
@@ -89,7 +89,7 @@
       "reports": "Reports",
       "platformReports": "Platform reports",
       "superAdmins": "Super admins",
-      "supportTenant": "Tenant support",
+      "supportTenant": "Operator support",
       "draws": "Draws",
       "scheduledTasks": "Scheduled tasks",
       "drawChannelGames": "Games by channel",
@@ -115,7 +115,7 @@
     },
     "kpi": {
       "totalTenants": {
-        "label": "Tenants"
+        "label": "Operators"
       },
       "activeTenants": {
         "label": "Active"
@@ -183,10 +183,10 @@
     "ops": {
       "salesSimulation": {
         "title": "Sales simulation",
-        "description": "Create QA ticket volume per tenant, draw, and seller terminal through the real prepare/confirm flow.",
+        "description": "Create QA ticket volume per operator, draw and seller through the real prepare/confirm flow.",
         "errorTitle": "Action unavailable",
         "noticeTitle": "Simulation",
-        "noTenant": "No tenant selected",
+        "noTenant": "No operator selected",
         "drawsSelected": "{{selected}} / {{total}} draw(s) selected",
         "requestedTickets": "Requested tickets",
         "simulationId": "Simulation {{id}}",
@@ -207,8 +207,8 @@
           "failures": "Failures"
         },
         "field": {
-          "tenant": "Tenant",
-          "sellerTerminals": "Seller terminals",
+          "tenant": "Operator",
+          "sellerTerminals": "Sellers",
           "status": "Status",
           "slot": "Slot",
           "from": "From",
@@ -221,14 +221,14 @@
           "reason": "Reason"
         },
         "placeholder": {
-          "tenant": "Search tenant",
+          "tenant": "Search operator",
           "sellerTerminals": "Search seller"
         },
         "empty": {
-          "tenant": "No tenant found",
-          "sellerTerminal": "No active seller terminal",
+          "tenant": "No operator found",
+          "sellerTerminal": "No active seller",
           "drawsTitle": "No draws loaded",
-          "drawsMessage": "Select a tenant, then load draws."
+          "drawsMessage": "Select an operator, then load draws."
         },
         "status": {
           "all": "All",
@@ -257,9 +257,9 @@
           "executed": "Simulation executed."
         },
         "error": {
-          "selectTenantBeforeDraws": "Select a tenant before loading draws.",
+          "selectTenantBeforeDraws": "Select an operator before loading draws.",
           "loadDraws": "Unable to load draws.",
-          "missingRunInputs": "Select a tenant, at least one draw, at least one seller terminal, and a non-empty mix.",
+          "missingRunInputs": "Select an operator, at least one draw, at least one seller, and a non-empty mix.",
           "run": "Simulation failed."
         },
         "metric": {
@@ -291,7 +291,7 @@
   "dashboard": {
     "superadmin": {
       "tenants": {
-        "title": "Tenants"
+        "title": "Operators"
       },
       "sales": {
         "title": "Today activity"
@@ -322,8 +322,8 @@
         "empty": "No game sales available."
       },
       "top_tenants": {
-        "title": "Top tenants",
-        "empty": "No tenant activity for this period."
+        "title": "Top operators",
+        "empty": "No operator activity for this period."
       },
       "quick_actions": {
         "title": "Quick actions"
@@ -380,7 +380,7 @@
   },
   "quickaction": {
     "platform": {
-      "create_tenant": "Create tenant",
+      "create_tenant": "Create operator",
       "onboarding": "View onboarding",
       "subscriptions": "Manage subscriptions",
       "platform_health": "Open platform health",

@@ -39,8 +39,7 @@
   },
   "cta": {
     "sell_ticket": "Sell a ticket",
-    "verify_ticket": "Verify a ticket",
-    "close_connexion": "Fermer la connexion"
+    "verify_ticket": "Verify a ticket"
   },
   "theme": {
     "modes": {
@@ -112,8 +111,8 @@
       "login": "Login",
       "logout": "Logout",
       "nav": {
-        "admin": "Tenant admin",
-        "cashier": "Cashier",
+        "admin": "Administration",
+        "cashier": "Seller",
         "platform": "Platform"
       },
       "rules_link": {
@@ -134,7 +133,7 @@
       "access": "Manager access",
       "demo": "Request a demo",
       "discover": "Discover manager space",
-      "description": "For points of sale, seller-terminals and network managers. Sell tickets, track connections, verify results and consult your reports.",
+      "description": "For sellers and network managers. Sell tickets, track your activity, verify results and review your reports.",
       "title": "Manager space",
       "eyebrow": "For managers"
     },
@@ -142,21 +141,21 @@
       "access": "Manager access",
       "demo": "Request a demo",
       "discover": "Discover manager space",
-      "description": "For points of sale, seller-terminals and network managers. Sell tickets, track connections, verify results and consult your reports.",
+      "description": "For sellers and network managers. Sell tickets, track your activity, verify results and review your reports.",
       "title": "Manager space",
       "eyebrow": "For managers",
       "hero_aria": "Operators section",
-      "hero_title": "Manage your seller-terminals, tickets and reports with greater clarity.",
-      "hero_body": "Tchalanet helps borlette banks, points of sale and seller-terminal networks issue tickets, track connections, verify results and consult activity reports.",
+      "hero_title": "Manage your sellers, tickets and reports with greater clarity.",
+      "hero_body": "Tchalanet helps borlette banks, sellers and sales networks issue tickets, track activity, verify results and review their reports.",
       "hero_stat_tickets": "Tickets today",
-      "hero_stat_agents": "Active seller-terminals",
+      "hero_stat_agents": "Active sellers",
       "hero_stat_payments": "Payments to track",
       "cta_demo": "Request a demo",
       "cta_plans": "Discover features",
       "benefits_title": "What Tchalanet brings to your operations",
-      "benefits_body": "An infrastructure built for points of sale and seller-terminal networks day to day.",
-      "benefit_agents_title": "Seller-terminals and seller-terminals",
-      "benefit_agents_body": "Assign seller-terminals to authorized points of sale and seller-terminals.",
+      "benefits_body": "Infrastructure built for the day-to-day of sellers and sales networks.",
+      "benefit_agents_title": "Sellers and networks",
+      "benefit_agents_body": "Grant selling access to the authorized sellers in your network.",
       "benefit_tickets_title": "Ticket sale and printing",
       "benefit_tickets_body": "Issue tickets with QR/public code to make verification easy.",
       "benefit_verify_title": "Public verification",
@@ -169,9 +168,9 @@
       "benefit_reports_body": "Consult sales, connections and your network's performance.",
       "workflow_title": "How it works",
       "step1_title": "Configure",
-      "step1_body": "Add points of sale, seller-terminals and seller-terminals.",
+      "step1_body": "Add your sellers and their access.",
       "step2_title": "Sell",
-      "step2_body": "Issue tickets from authorized seller-terminals.",
+      "step2_body": "Issue tickets from authorized sellers.",
       "step3_title": "Verify",
       "step3_body": "Tickets can be verified by QR or public code.",
       "step4_title": "Track",
@@ -180,15 +179,15 @@
       "plans_body": "Choose the level of support suited to your network.",
       "plan_trial_title": "Trial",
       "plan_trial_price": "Available",
-      "plan_trial_body": "Test Tchalanet with a few seller-terminals before a full deployment.",
+      "plan_trial_body": "Test Tchalanet with a few sellers before a full rollout.",
       "plan_trial_cta": "Request a trial",
-      "plan_essential_title": "Point of sale",
+      "plan_essential_title": "Seller",
       "plan_essential_price": "On request",
-      "plan_essential_body": "For a point of sale that wants to start simply.",
+      "plan_essential_body": "For a seller who wants a simple start.",
       "plan_essential_cta": "Request a demo",
       "plan_network_title": "Network",
       "plan_network_price": "On request",
-      "plan_network_body": "For multiple seller-terminals, seller-terminals, or points of sale.",
+      "plan_network_body": "For multiple sellers, across one or more locations.",
       "plan_network_cta": "Request a demo",
       "plan_operator_title": "Custom",
       "plan_operator_price": "Based on configuration",
@@ -202,61 +201,60 @@
       "feat_sell": "ticket sale and printing",
       "feat_verify_qr": "public verification by QR or code",
       "feat_access_results": "results access",
-      "feat_vendor_basic": "basic seller-terminal setup",
-      "feat_agent_mgmt": "seller-terminal, seller-terminal-terminal, and connection management",
+      "feat_vendor_basic": "basic seller setup",
+      "feat_agent_mgmt": "seller and access management",
       "feat_reports_full": "activity reports",
       "feat_payments": "payment tracking",
-      "feat_pos_config": "per-point-of-sale configuration",
-      "feat_multi_pos": "multi-point of sale",
+      "feat_pos_config": "per-seller configuration",
+      "feat_multi_pos": "multi-seller",
       "feat_advanced_perms": "advanced permissions",
       "feat_reports_consolidated": "consolidated reports",
       "feat_integration": "integration support",
       "access_title": "Controlled access for every organization",
-      "access_body": "Each user only sees the features authorized by their role, their point of sale, their seller-terminal-terminal and the active plan.",
+      "access_body": "Each user only sees the features authorized by their role, their seller and the active plan.",
       "access_rights_title": "User roles",
-      "access_rights_body": "Admin, supervisor, seller-terminal or cashier based on your needs.",
-      "access_subscription_title": "Authorized seller-terminals",
-      "access_subscription_body": "Sales are linked to controlled seller-terminals and connections.",
+      "access_rights_body": "Admin, supervisor or seller, depending on your needs.",
+      "access_subscription_title": "Authorized sellers",
+      "access_subscription_body": "Every sale is tied to an authorized seller and fully traced.",
       "access_plan_title": "Plans and limits",
       "access_plan_body": "Access and limits are applied based on your configuration.",
       "form_title": "Request a demonstration",
-      "form_body": "Describe your point of sale or network. We will get back to you with a tailored demonstration.",
-      "form_name_placeholder": "Ex: Reginald Louisjuste",
-      "form_org_label": "Organization / point of sale",
-      "form_org_placeholder": "Ex: Borlette Étoile du Nord",
+      "form_body": "Describe your business or network. We will get back to you with a tailored demonstration.",
+      "form_name_placeholder": "E.g. Reginald Louisjuste",
+      "form_org_label": "Organization / business",
+      "form_org_placeholder": "E.g. Borlette Étoile du Nord",
       "form_contact_placeholder": "contact@example.com",
       "form_city_label": "City / area",
-      "form_city_placeholder": "Ex: Carrefour, Cap-Haïtien…",
-      "form_message_placeholder": "Ex: I have 3 seller-terminals in Carrefour and I want to manage my daily draws.",
+      "form_city_placeholder": "E.g. Carrefour, Cap-Haïtien…",
+      "form_message_placeholder": "E.g. I have 3 sellers in Carrefour and I want to manage my daily draws.",
       "form_cta": "Request a demo",
       "form_sent": "Request sent!",
       "form_error": "Unable to send the request. Check your information and try again.",
       "faq_title": "Frequently asked questions",
       "faq_trial_q": "How does the trial period work?",
-      "faq_trial_a": "The trial period lets you test the application with a limited number of seller-terminals depending on the available plan.",
+      "faq_trial_a": "The trial period lets you test the app with a limited number of sellers, depending on the available plan.",
       "faq_verify_q": "How do customers verify a ticket?",
       "faq_verify_a": "Each ticket has a public code or QR allowing anyone to check its status without accessing the manager space.",
       "faq_expired_q": "What happens if my access is suspended?",
       "faq_expired_a": "Features are limited until regularized. Contact the team to reactivate your access.",
-      "faq_multipos_q": "Can I manage multiple points of sale?",
-      "faq_multipos_a": "Yes. The Network and Custom plans allow you to configure multiple points of sale and centralize reports.",
-      "faq_mobile_q": "Can my seller-terminals use Tchalanet on mobile?",
-      "faq_mobile_a": "Yes. The Tchalanet POS app is available on mobile for authorized seller-terminals.",
-      "hero_stat_connexions": "Seller-terminals actifs",
-      "faq_seller-terminals_q": "Combien de seller-terminals ou seller-terminals puis-je utiliser ?",
-      "faq_seller-terminals_a": "Les limites dépendent du plan choisi. Contactez-nous pour connaître la configuration adaptée à votre réseau.",
-      "hero_stat_sessions": "Sessions actives"
+      "faq_multipos_q": "Can I manage multiple sellers?",
+      "faq_multipos_a": "Yes. The Network and Custom plans let you configure multiple sellers and centralize reports.",
+      "faq_mobile_q": "Can my sellers use Tchalanet on mobile?",
+      "faq_mobile_a": "Yes. The Tchalanet POS app is available on mobile for authorized sellers.",
+      "faq_seller-terminals_q": "How many sellers can I use?",
+      "faq_seller-terminals_a": "Limits depend on the plan you choose. Contact us to find the setup that fits your network.",
+      "hero_stat_sessions": "Active sessions"
     },
     "check": {
       "code_hint": "The code format appears at the bottom of your printed receipt.",
-      "help_body": "The public code is printed on the receipt issued by a participating point of sale. It can be entered manually or scanned from the QR when that option is available.",
+      "help_body": "The public code is printed on the receipt issued by a participating seller. It can be entered manually or scanned from the QR code when that option is available.",
       "help_title": "What is a public code?",
       "loading_body": "Temporarily consulting the public verification service.",
       "loading_title": "Ticket verification in progress…",
       "status": {
         "WINNING_PAYABLE": {
           "title": "Winning ticket — payment to claim",
-          "body": "This ticket has a prize. Present the original receipt at a participating point of sale to collect your winnings per the displayed instructions."
+          "body": "This ticket has a prize. Present the original receipt to a participating seller to collect your winnings, following the instructions shown."
         },
         "WINNING_PAID": {
           "title": "Winning ticket — already paid",
@@ -272,7 +270,7 @@
         },
         "CANCELLED": {
           "title": "Cancelled ticket",
-          "body": "This ticket has been cancelled and cannot be paid. Contact the point of sale if you believe this is an error."
+          "body": "This ticket has been cancelled and cannot be paid. Contact the seller if you believe this is an error."
         },
         "EXPIRED": {
           "title": "Expired ticket",
@@ -280,7 +278,7 @@
         },
         "BLOCKED": {
           "title": "Blocked ticket",
-          "body": "This ticket is temporarily blocked. Contact your point of sale or Tchalanet customer support for more information."
+          "body": "This ticket is temporarily blocked. Contact your seller or Tchalanet customer support for more information."
         },
         "NOT_FOUND": {
           "title": "Ticket not found",
@@ -300,10 +298,10 @@
       "receipt": {
         "code": "Code",
         "date": "Date",
-        "outlet": "Outlet",
+        "outlet": "Seller",
         "drawDate": "Draw date",
         "totalStake": "Total stake",
-        "gain": "Gain"
+        "gain": "Prize"
       },
       "cta": "Verify now",
       "description": "Enter your public code to consult your ticket status.",
@@ -332,7 +330,7 @@
       },
       "contact": {
         "body": "Contact Tchalanet for a demo or operator orientation.",
-        "description": "A contact point for operators, points of sale, and public support requests.",
+        "description": "A contact point for operators, sellers and public support requests.",
         "eyebrow": "Contact",
         "title": "Contact Tchalanet"
       },
@@ -365,8 +363,8 @@
       },
       "support": {
         "eyebrow": "Support",
-        "title": "Besoin d’aide ?",
-        "description": "Contactez l’équipe Tchalanet pour une question ou un accompagnement."
+        "title": "Need help?",
+        "description": "Contact the Tchalanet team with a question or for guidance."
       }
     },
     "results": {
@@ -434,7 +432,7 @@
       "copied": "Copied!"
     },
     "contact_cta": {
-      "body": "Tell us about your point of sale or network. We will get back to you for a tailored demonstration.",
+      "body": "Tell us about your business or network. We will get back to you with a tailored demonstration.",
       "cta": "Request a demo",
       "help": "View help",
       "title": "Ready to discover Tchalanet?"
@@ -445,12 +443,12 @@
       "cta_rules": "View rules",
       "calc_game_aria": "Select game type",
       "calc_note": "Indicative — not guaranteed",
-      "disclaimer": "Indicative simulation. The payable amount depends on the real ticket, point-of-sale rules, draw status, and confirmed results. This simulation does not guarantee payment.",
+      "disclaimer": "Indicative simulation. The payable amount depends on the actual ticket, the seller's rules, the draw status and confirmed results. This simulation does not guarantee payment.",
       "games": {
         "borlette": {
           "body": "Choose a two-digit number. Status depends on the available results for the relevant draw.",
           "detail1_label": "1st prize",
-          "detail1_value": "According to point-of-sale rules",
+          "detail1_value": "According to the seller's rules",
           "detail2_label": "2nd prize",
           "detail2_value": "According to the real ticket",
           "detail3_label": "3rd prize",
@@ -465,7 +463,7 @@
           "title": "Lotto 3"
         },
         "lotto4": {
-          "body": "Select four or five digits depending on the game available at the participating point of sale.",
+          "body": "Select four or five digits depending on the game available at the participating seller.",
           "detail1_label": "Availability",
           "detail1_value": "According to public catalog",
           "title": "Lotto 4 & 5"
@@ -525,9 +523,9 @@
       "title": "Game rules and simulation",
       "bet": {
         "borlette": {
-          "lot1": "Lot 1",
-          "lot2": "Lot 2",
-          "lot3": "Lot 3"
+          "lot1": "Prize 1",
+          "lot2": "Prize 2",
+          "lot3": "Prize 3"
         },
         "lotto3": {
           "direct": "Straight",
@@ -543,21 +541,21 @@
           "combo": "Combo"
         },
         "mariage": {
-          "lot1_lot2": "Lot 1 + Lot 2",
-          "lot1_lot3": "Lot 1 + Lot 3",
-          "lot2_lot3": "Lot 2 + Lot 3"
+          "lot1_lot2": "Prize 1 + Prize 2",
+          "lot1_lot3": "Prize 1 + Prize 3",
+          "lot2_lot3": "Prize 2 + Prize 3"
         },
         "maryaj_gratis": {
-          "gratis_lot1": "Gratis lot 1"
+          "gratis_lot1": "Free prize 1"
         }
       },
       "simulation": {
-        "number_a_label": "Numéro A",
-        "number_b_label": "Numéro B",
+        "number_a_label": "Number A",
+        "number_b_label": "Number B",
         "gain_for_100": "Gain for 100 HTG",
         "mariage_different_note": "For Mariage, choose two different numbers according to the displayed rules.",
         "multiplier_custom_badge": "custom",
-        "multiplier_note": "The multiplier is indicative and may vary according to tenant rules.",
+        "multiplier_note": "The multiplier is indicative and may vary according to the operator's rules.",
         "borlette_gain_line": "Borlette gain",
         "maryaj_gratis_gain_line": "Maryaj gratis bonus"
       },
@@ -608,7 +606,7 @@
       "reset_cta": "New request"
     },
     "managers": {
-      "loadError": "Impossible de charger les gestionnaires."
+      "loadError": "Unable to load managers."
     },
     "shared": {
       "pagination": {
@@ -619,6 +617,6 @@
     }
   },
   "dashboard": {
-    "loadError": "Impossible de charger le tableau de bord."
+    "loadError": "Unable to load the dashboard."
   }
 }

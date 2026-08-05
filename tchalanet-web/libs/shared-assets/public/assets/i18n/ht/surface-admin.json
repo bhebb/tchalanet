@@ -1,6 +1,6 @@
 {
   "surface": {
-    "cashier": "Kesye",
+    "cashier": "Tèminal POS",
     "platform_admin": "Platfòm",
     "tenant_admin": "Administrasyon",
     "supportAccess": {
@@ -131,7 +131,6 @@
     "reports": "Rapò",
     "tickets": "Tikè",
     "verify_ticket": "Verifye yon tikè",
-    "connexion": "Koneksyon",
     "language": "Lang",
     "profile": "Pwofil"
   },

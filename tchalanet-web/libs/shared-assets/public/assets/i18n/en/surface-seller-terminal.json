@@ -2,11 +2,11 @@
   "nav": {
     "cashier": {
       "section": {
-        "cashier": "Cashier"
+        "cashier": "Seller"
       },
       "dashboard": "Dashboard",
       "sell": "New ticket",
-      "spaceTitle": "Cashier"
+      "spaceTitle": "Seller"
     },
     "quick_sale": "Quick sale"
   }
