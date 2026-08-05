@@ -107,6 +107,18 @@ redéfinis dans 286 clés ; 188 termes FR traduits différemment selon l'endroit
       Le nom d'un placeholder est un contrat avec le code (`app.html:23` passe
       `{ tenant: session.tenantName }`). L'audit ignore désormais le contenu des placeholders.
 
+## Phase 3quater — Éradication de « seller-terminal » et des concepts retirés
+
+- [x] 3q.1 **116 chaînes réécrites** sur 7 namespaces → Vendeur / Seller / Tèminal POS.
+      Formes concurrentes supprimées : `Seller-terminal`, `seller terminal`, `Terminal vendeur`,
+      `Terminaux vendeurs`, `Tèminal vandè`.
+- [x] 3q.2 Concept **caissier** retiré des 4 dernières clés (`dashboard.titles.cashier`,
+      `surface.cashier`, `nav.cashier.*`).
+- [x] 3q.3 `TENANT_ADMIN` affiché brut dans `platform.tenants.admin.roleInfo` → « Administrateur ».
+- [x] 3q.4 **7 « a operator » corrigés en « an operator »** — régression introduite par la passe
+      tenant. L'article anglais ne suit pas une substitution de mot.
+- [x] 3q.5 **0 fuite technique dans les trois locales** (départ : 283 fr / 319 en / 23 ht).
+
 ## Phase 4 — Mobile
 
 - [ ] 4.1 `domain` (45) + `common` (83) — 5 chaînes FR résiduelles en EN

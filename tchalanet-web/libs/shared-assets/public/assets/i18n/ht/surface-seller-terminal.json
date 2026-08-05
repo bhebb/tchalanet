@@ -2,11 +2,11 @@
   "nav": {
     "cashier": {
       "section": {
-        "cashier": "Kesye"
+        "cashier": "Tèminal POS"
       },
       "dashboard": "Tablo debò",
       "sell": "Nouvo tikè",
-      "spaceTitle": "Kesye"
+      "spaceTitle": "Tèminal POS"
     },
     "quick_sale": "Vant rapid"
   }

@@ -183,7 +183,7 @@
     "ops": {
       "salesSimulation": {
         "title": "Sales simulation",
-        "description": "Create QA ticket volume per operator, draw, and seller terminal through the real prepare/confirm flow.",
+        "description": "Create QA ticket volume per operator, draw and seller through the real prepare/confirm flow.",
         "errorTitle": "Action unavailable",
         "noticeTitle": "Simulation",
         "noTenant": "No operator selected",
@@ -208,7 +208,7 @@
         },
         "field": {
           "tenant": "Operator",
-          "sellerTerminals": "Seller terminals",
+          "sellerTerminals": "Sellers",
           "status": "Status",
           "slot": "Slot",
           "from": "From",
@@ -226,9 +226,9 @@
         },
         "empty": {
           "tenant": "No operator found",
-          "sellerTerminal": "No active seller terminal",
+          "sellerTerminal": "No active seller",
           "drawsTitle": "No draws loaded",
-          "drawsMessage": "Select a operator, then load draws."
+          "drawsMessage": "Select an operator, then load draws."
         },
         "status": {
           "all": "All",
@@ -257,9 +257,9 @@
           "executed": "Simulation executed."
         },
         "error": {
-          "selectTenantBeforeDraws": "Select a operator before loading draws.",
+          "selectTenantBeforeDraws": "Select an operator before loading draws.",
           "loadDraws": "Unable to load draws.",
-          "missingRunInputs": "Select a operator, at least one draw, at least one seller terminal, and a non-empty mix.",
+          "missingRunInputs": "Select an operator, at least one draw, at least one seller, and a non-empty mix.",
           "run": "Simulation failed."
         },
         "metric": {

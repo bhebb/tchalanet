@@ -165,8 +165,8 @@
       "manage_limits": "Manage limits",
       "manage_odds": "Manage odds",
       "maryaj_gratis": "Maryaj gratis",
-      "add_seller_terminal": "Add seller-terminal",
-      "active_seller_terminals": "Active seller-terminals"
+      "add_seller_terminal": "Add a seller",
+      "active_seller_terminals": "Active sellers"
     },
     "platform": {
       "create_tenant": "Create operator",

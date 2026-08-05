@@ -165,8 +165,8 @@
       "manage_limits": "Gérer limites",
       "manage_odds": "Gérer odds",
       "maryaj_gratis": "Maryaj gratis",
-      "add_seller_terminal": "Ajouter seller-terminal",
-      "active_seller_terminals": "Seller-terminals actifs"
+      "add_seller_terminal": "Ajouter un vendeur",
+      "active_seller_terminals": "Vendeurs actifs"
     },
     "platform": {
       "create_tenant": "Créer un santral",
