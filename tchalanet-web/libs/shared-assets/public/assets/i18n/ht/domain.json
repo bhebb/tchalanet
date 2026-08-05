@@ -113,8 +113,6 @@
       "draws": "Tiraj yo",
       "seller": "Tèminal POS",
       "sellers": "Tèminal POS yo",
-      "sellerTerminal": "Tèminal POS",
-      "sellerTerminals": "Tèminal POS yo",
       "odds": "Barèm",
       "promotion": "Pwomosyon",
       "promotions": "Pwomosyon yo",
@@ -151,12 +149,6 @@
       }
     },
     "draw": {
-      "provider": {
-        "newYork": "New York",
-        "florida": "Florida",
-        "georgia": "Georgia",
-        "texas": "Texas"
-      },
       "slotType": {
         "mid": "Midi",
         "eve": "Swa",

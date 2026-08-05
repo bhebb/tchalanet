@@ -130,9 +130,7 @@
       "today": "Today",
       "yesterday": "Yesterday",
       "this_week": "This week",
-      "last_week": "Last week",
-      "previous_day": "Previous day",
-      "previous_week": "Previous week"
+      "last_week": "Last week"
     },
     "fallback": {
       "title": "Dashboard",
@@ -178,14 +176,6 @@
       "draw_results": "Results & draws"
     }
   },
-  "shell": {
-    "error": {
-      "backendUnavailable": {
-        "title": "Serveur temporairement indisponible",
-        "message": "La navigation et certaines fonctionnalités peuvent être limitées. Votre session Firebase reste active."
-      }
-    }
-  },
   "error": {
     "generic": "The request could not be completed. Please try again or contact support if the problem continues.",
     "network": "The app cannot reach the Tchalanet service. Check your connection, then retry.",
@@ -195,9 +185,6 @@
     "brand": "Tchalanet",
     "footer": {
       "copyright": "© Tchalanet"
-    },
-    "nav": {
-      "dashboard": "My dashboard"
     },
     "name": "Tchalanet"
   }

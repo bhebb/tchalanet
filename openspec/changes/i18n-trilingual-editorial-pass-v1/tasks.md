@@ -65,10 +65,16 @@ Analyse complète dans `consolidation.md`. Chiffres : 88 termes déjà dans `com
 redéfinis dans 286 clés ; 188 termes FR traduits différemment selon l'endroit (746 clés) ;
 **5 clés réellement mortes** (et 79 fausses positives, résolues dynamiquement).
 
-- [ ] 3b.1 **Lot 0** — assainir le hub : `domain.entity.{tenant,tenants,seller,sellerTerminal,sellerTerminals}`
-      portent le registre interdit. Bloquant : on ne consolide pas vers une référence fautive.
-- [ ] 3b.2 Supprimer les 5 clés mortes de `component` (`private_dashboard_cashier.*` ×2,
-      `shell.error.backendUnavailable.*` ×2, `app.nav.dashboard`)
+- [x] 3b.1 **Lot 0** — hub assaini : `domain.entity.tenant`/`tenants` → « Santral » / « Operator ».
+      Découverte en cours de route : **13 des 17 clés mortes de `domain` sont les `domain.entity.*`
+      eux-mêmes** — le hub que je voulais corriger n'est référencé nulle part.
+- [x] 3b.2 **11 clés mortes supprimées** (× 3 locales) après trois passes de vérification :
+      `domain.draw.provider.*` ×4, `domain.entity.sellerTerminal(s)` ×2,
+      `dashboard.period.previous_{day,week}` ×2, `shell.error.backendUnavailable.*` ×2,
+      `app.nav.dashboard`. Corpus : 4 050 → **4 039 clés**, parité stricte maintenue.
+- [ ] 3b.2b **Arbitrage requis** — 20 clés mortes conservées (`domain.entity.*`, `common.print`,
+      `common.verify`…) parce qu'elles sont les cibles du Lot A. Les garder implique un refactor
+      de composants ; les supprimer implique de renoncer à la mutualisation. Voir `consolidation.md`.
 - [ ] 3b.3 **Lot B** — aligner les divergences sans fusionner (~110 clés) :
       `Tablo debò`/`Tablo bò`/`Tablo kontwòl`, `Needs config`/`Needs setup`/`To configure`,
       `Verify a ticket`/`Check a ticket`/`Verify ticket` (CTA principal du site public)…

@@ -135,9 +135,7 @@
       "today": "Aujourd’hui",
       "yesterday": "Hier",
       "this_week": "Cette semaine",
-      "last_week": "Semaine dernière",
-      "previous_day": "Jour précédent",
-      "previous_week": "Semaine précédente"
+      "last_week": "Semaine dernière"
     },
     "fallback": {
       "title": "Tableau de bord",
@@ -154,14 +152,6 @@
         "title": "Actions disponibles",
         "setup": "Configuration générale",
         "support": "Support"
-      }
-    }
-  },
-  "shell": {
-    "error": {
-      "backendUnavailable": {
-        "title": "Serveur temporairement indisponible",
-        "message": "La navigation et certaines fonctionnalités peuvent être limitées. Votre session Firebase reste active."
       }
     }
   },
@@ -195,9 +185,6 @@
     "brand": "Tchalanet",
     "footer": {
       "copyright": "© Tchalanet"
-    },
-    "nav": {
-      "dashboard": "Mon espace"
     },
     "name": "Tchalanet"
   }

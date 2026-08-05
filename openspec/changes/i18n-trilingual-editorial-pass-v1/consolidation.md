@@ -5,15 +5,37 @@ qu'est-ce qui est dupliqué, qu'est-ce qui devrait vivre dans `common`/`domain`,
 
 ---
 
-## 1. Clés mortes — la réponse est « presque aucune »
+## 1. Clés mortes — 31, après deux passes de vérification
 
-| Namespace | clés | signalées mortes | **réellement mortes** |
-|---|---|---|---|
-| `common` | 105 | 0 | **0** |
-| `domain` | 118 | 30 | **0** |
-| `component` | 120 | 49 | **5** |
+| Namespace | clés | 1ʳᵉ détection | 2ᵉ détection | **vérifié** |
+|---|---|---|---|---|
+| `common` | 105 | 0 | 17 | **8** |
+| `domain` | 118 | 30 | 17 | **17** |
+| `component` | 120 | 49 | 10 | **6** |
 
-Les 79 fausses positives sont **résolues dynamiquement** — c'est le piège de cet audit :
+> Il a fallu trois passes pour obtenir ce chiffre, et les deux premières étaient fausses dans des
+> sens opposés. La première comptait 79 clés mortes qui étaient en fait résolues dynamiquement.
+> La deuxième, en excluant les préfixes dynamiques, a raté que `common.weekday.*` (7 clés) et
+> `common.receipt.promotion.*` sont construites à l'exécution — et a manqué 13 clés
+> `domain.entity.*` réellement mortes que la première avait cachées derrière un préfixe partagé.
+
+Familles **résolues dynamiquement** (chacune adossée à un fichier:ligne, pas supposée) :
+
+| Préfixe | Preuve |
+|---|---|
+| `draw_channel.*` | clé envoyée par le serveur — `public-result-detail.model.ts:6` |
+| `domain.bet.option.*` | `console-game-display.ts:266` |
+| `domain.bet.type.*` | `console-game-display.ts:252` |
+| `domain.result.status.*` | `public-result-detail.page.ts:69` |
+| `common.game.*` | `pos-ticket-detail.page.ts:246` |
+| `common.weekday.*` | `tenant-config-summary.component.ts:46` |
+| `common.receipt.promotion.*` | `pos-ticket-detail.page.ts:258` — `` `common.${clean}` `` |
+| `catalog.{game,bet_type,option}.*` | `game-label.pipe.ts:7,12,13` |
+| `quickaction.*`, `layout.*` | `labelKey` des templates PageModel backend |
+| `dashboard.fallback.*` | `assets/config/page-private-fallback.json` |
+| `dashboard.period.*` | `period-selector.widget.ts:47` — **mais seules 4 valeurs de l'enum sont atteignables** |
+
+Détail du piège originel :
 
 - `draw_channel.*.label` (17) → **la clé est envoyée par le serveur**
   (`public-result-detail.model.ts:6` : *« Stable i18n key from the server »*).
@@ -27,15 +49,35 @@ Les 79 fausses positives sont **résolues dynamiquement** — c'est le piège de
 > projet. Il faut couvrir : code web, templates PageModel backend, configs d'assets, et les
 > constructions dynamiques.
 
-### Les 5 clés réellement mortes (`component`)
+### Supprimées (11 clés × 3 locales)
 
 | Clé | Valeur FR | Pourquoi |
 |---|---|---|
-| `layout.private_dashboard_cashier.quick_actions` | Actions rapides | Template du dashboard **caissier** — concept retiré, template supprimé |
-| `layout.private_dashboard_cashier.readiness_alerts` | État & alertes | idem |
+| `domain.draw.provider.{newYork,florida,georgia,texas}` | New York, Florida… | Le serveur envoie `providerLabel` en texte brut, pas une clé i18n |
+| `domain.entity.sellerTerminal` | Terminal vendeur | Doublon de `domain.entity.seller`, avec le registre **interdit** |
+| `domain.entity.sellerTerminals` | Terminaux vendeurs | idem de `domain.entity.sellers` |
+| `dashboard.period.previous_day` | Jour précédent | Vestige d'un enum renommé — `DashboardPeriod` ne produit plus cette valeur |
+| `dashboard.period.previous_week` | Semaine précédente | idem |
 | `shell.error.backendUnavailable.title` | Serveur temporairement indisponible | Aucune référence. **Et toujours en français en EN et HT** |
 | `shell.error.backendUnavailable.message` | La navigation et certaines fonctionnalités… | idem |
 | `app.nav.dashboard` | Mon espace | Doublon orphelin de `nav.dashboard` (`surface-admin`), seul référencé |
+
+### Conservées malgré leur inutilisation — décision requise
+
+`domain.entity.{draws,promotion,promotions,result,results,seller,sellers,tenant,tenants,ticket,tickets}`
+et `common.{print,verify,view,unblock,unknown,coming_soon,paginationAria,alphaNavAria}`
+ne sont référencées nulle part **mais sont exactement les cibles de consolidation du Lot A**.
+
+Les supprimer et vouloir consolider ensuite serait contradictoire. Deux options :
+
+- **Les garder comme hub délibéré** — alors le Lot A implique de modifier le **code** pour pointer
+  vers elles (`domain.entity.tickets` au lieu de `admin.reports.daily.column.tickets`). Ce n'est
+  plus un travail de traduction, c'est un refactor de composants.
+- **Les supprimer** — on renonce à la mutualisation et on se contente d'aligner les divergences
+  (Lot B), ce qui règle 100 % du problème de qualité perçue pour 0 risque.
+
+En attendant l'arbitrage, `domain.entity.tenant`/`tenants` ont été assainis
+(« Tenant » → « Santral » / « Operator ») pour qu'aucune référence future n'hérite du registre interdit.
 
 ---
 

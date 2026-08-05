@@ -130,9 +130,7 @@
       "today": "Jodi a",
       "yesterday": "Yè",
       "this_week": "Semèn sa a",
-      "last_week": "Semèn pase",
-      "previous_day": "Jou anvan an",
-      "previous_week": "Semèn anvan an"
+      "last_week": "Semèn pase"
     },
     "fallback": {
       "title": "Tablo debò",
@@ -178,14 +176,6 @@
       "draw_results": "Rezilta & tiraj"
     }
   },
-  "shell": {
-    "error": {
-      "backendUnavailable": {
-        "title": "Serveur temporairement indisponible",
-        "message": "La navigation et certaines fonctionnalités peuvent être limitées. Votre session Firebase reste active."
-      }
-    }
-  },
   "error": {
     "generic": "Demann lan pa t ka trete. Eseye ankò oswa kontakte sipò si pwoblèm nan kontinye.",
     "network": "Aplikasyon an pa ka jwenn sèvis Tchalanet la. Verifye koneksyon an, epi eseye ankò.",
@@ -195,9 +185,6 @@
     "brand": "Tchalanet",
     "footer": {
       "copyright": "© Tchalanet"
-    },
-    "nav": {
-      "dashboard": "Espas mwen"
     },
     "name": "Tchalanet"
   }
