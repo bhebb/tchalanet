@@ -122,6 +122,12 @@ export BACKUP_AGE_PRIVATE_KEY_FILE=~/.config/tchalanet/backup-age.key
 ENV=staging ./scripts/remote/pg-restore.sh
 ```
 
+Pour une restauration opérée avec les secrets GitHub du bucket backup, utiliser
+le workflow manuel **Restore staging database**. Il exige l'objet R2 exact et
+la confirmation `restore staging`, déchiffre sur le runner, puis pilote le
+Docker distant STG par SSH. La clé privée `age` ne doit jamais être copiée sur
+la VM applicative.
+
 Le script demande de taper `restore <env>` avant d'écraser. Il restaure les
 rôles (`globals.sql`) puis la base — dans cet ordre, sinon les `GRANT` sur
 `app_user` échouent.
