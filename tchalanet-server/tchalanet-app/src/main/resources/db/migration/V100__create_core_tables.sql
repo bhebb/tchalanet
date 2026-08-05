@@ -1037,6 +1037,28 @@ CREATE TABLE seller_terminal_external_identity (
     FOREIGN KEY (tenant_id, seller_terminal_id) REFERENCES seller_terminal (tenant_id, id)
 );
 
+CREATE TABLE seller_terminal_settings (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id uuid NOT NULL REFERENCES tenant(id),
+  seller_terminal_id uuid NOT NULL REFERENCES seller_terminal(id),
+  receipt_auto_print boolean NOT NULL DEFAULT true,
+  receipt_copy_count integer NOT NULL DEFAULT 1,
+  notifications_enabled boolean NOT NULL DEFAULT true,
+  notifications_critical_only boolean NOT NULL DEFAULT false,
+  created_at timestamptz DEFAULT now(),
+  created_by uuid,
+  updated_at timestamptz DEFAULT now(),
+  updated_by uuid,
+  deleted_at timestamptz,
+  deleted_by uuid,
+  version bigint NOT NULL DEFAULT 0,
+  CONSTRAINT uq_seller_terminal_settings_terminal UNIQUE (tenant_id, seller_terminal_id),
+  CONSTRAINT fk_seller_terminal_settings__tenant_terminal
+    FOREIGN KEY (tenant_id, seller_terminal_id) REFERENCES seller_terminal (tenant_id, id),
+  CONSTRAINT chk_seller_terminal_settings_receipt_copy_count
+    CHECK (receipt_copy_count BETWEEN 1 AND 3)
+);
+
 -- =========================================================
 -- SALES TICKET (replaces legacy ticket/ticket_line)
 -- =========================================================
@@ -1079,6 +1101,10 @@ CREATE TABLE sales_ticket (
   last_printed_at timestamptz,
   seller_commission_rate_snapshot numeric(5, 2),
   seller_commission_amount_snapshot numeric(12, 2),
+  paid_amount numeric(19,4) NOT NULL DEFAULT 0,
+  paid_amount_adjusted_at timestamptz,
+  paid_amount_adjusted_by uuid,
+  paid_amount_adjustment_reason varchar(500),
   created_at timestamptz,
   created_by uuid,
   updated_at timestamptz,
@@ -1105,6 +1131,7 @@ CREATE TABLE sales_ticket_line (
   display_selection varchar(256) NOT NULL,
   stake_amount numeric(19,4) NOT NULL,
   settlement_terms_snapshot jsonb,
+  applied_settlement_snapshot jsonb,
   origin varchar(16) NOT NULL DEFAULT 'CUSTOMER',
   pricing_source varchar(16) NOT NULL DEFAULT 'STANDARD',
   selection_source varchar(32) NOT NULL DEFAULT 'CUSTOMER_SELECTED',

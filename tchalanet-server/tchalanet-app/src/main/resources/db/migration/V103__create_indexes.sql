@@ -25,6 +25,9 @@ CREATE INDEX idx_seller_terminal_tenant_status ON seller_terminal (tenant_id, st
 CREATE INDEX idx_seller_terminal_tenant_code ON seller_terminal (tenant_id, terminal_code);
 CREATE INDEX idx_seller_terminal_tenant_name ON seller_terminal (tenant_id, display_name);
 CREATE INDEX idx_seller_terminal_ext_terminal ON seller_terminal_external_identity (seller_terminal_id);
+CREATE INDEX idx_seller_terminal_settings_terminal
+  ON seller_terminal_settings (tenant_id, seller_terminal_id)
+  WHERE deleted_at IS NULL;
 
 -- ─── Settings, theming, i18n ────────────────────────────────────────
 CREATE INDEX ix_app_setting__tenant ON app_setting (tenant_id, namespace, setting_key);

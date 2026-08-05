@@ -1,4 +1,12 @@
 -- Baseline: row-level security
+-- Archive cleanup is a platform-only operation. The application enables the
+-- session flag only inside an authorized, transactional purge command.
+CREATE OR REPLACE FUNCTION public.allow_archive_cleanup() RETURNS boolean AS $$
+  SELECT public.is_super_admin()
+    AND public.api_scope() = 'platform'
+    AND coalesce(current_setting('app.archive_cleanup', true), '') = 'true';
+$$ LANGUAGE sql STABLE;
+
 ALTER TABLE address ENABLE ROW LEVEL SECURITY;
 ALTER TABLE address FORCE ROW LEVEL SECURITY;
 CREATE POLICY address_rls_all ON address
@@ -100,13 +108,19 @@ ALTER TABLE draw FORCE ROW LEVEL SECURITY;
 CREATE POLICY draw_rls_all ON draw
   FOR ALL
   USING (
-    public.current_tenant() IS NOT NULL
-    AND tenant_id = public.current_tenant()
-    AND (public.deleted_visibility() = 'all'
-      OR (public.deleted_visibility() = 'active' AND deleted_at IS NULL)
-      OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL))
+    public.allow_archive_cleanup()
+    OR (
+      public.current_tenant() IS NOT NULL
+      AND tenant_id = public.current_tenant()
+      AND (public.deleted_visibility() = 'all'
+        OR (public.deleted_visibility() = 'active' AND deleted_at IS NULL)
+        OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL))
+    )
   )
-  WITH CHECK (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant());
+  WITH CHECK (
+    public.allow_archive_cleanup()
+    OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant())
+  );
 CREATE POLICY draw_rls_select ON draw
   FOR SELECT
   USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
@@ -192,6 +206,23 @@ CREATE POLICY seller_terminal_external_identity_rls_select
       AND tenant_id = public.current_tenant()
     )
   );
+
+ALTER TABLE seller_terminal_settings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE seller_terminal_settings FORCE ROW LEVEL SECURITY;
+CREATE POLICY seller_terminal_settings_rls_all ON seller_terminal_settings
+  FOR ALL
+  USING (
+    public.current_tenant() IS NOT NULL
+    AND tenant_id = public.current_tenant()
+    AND (public.deleted_visibility() = 'all'
+      OR (public.deleted_visibility() = 'active' AND deleted_at IS NULL)
+      OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL))
+  )
+  WITH CHECK (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant());
+
+CREATE POLICY seller_terminal_settings_rls_select ON seller_terminal_settings
+  FOR SELECT
+  USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
 
 ALTER TABLE page_model ENABLE ROW LEVEL SECURITY;
 ALTER TABLE page_model FORCE ROW LEVEL SECURITY;
@@ -484,8 +515,8 @@ ALTER TABLE stats_draw ENABLE ROW LEVEL SECURITY;
 ALTER TABLE stats_draw FORCE ROW LEVEL SECURITY;
 CREATE POLICY stats_draw_rls_all ON stats_draw
   FOR ALL
-  USING (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant())
-  WITH CHECK (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant());
+  USING (public.allow_archive_cleanup() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()))
+  WITH CHECK (public.allow_archive_cleanup() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
 CREATE POLICY stats_draw_rls_select ON stats_draw
   FOR SELECT
   USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
@@ -495,13 +526,19 @@ ALTER TABLE sales_ticket FORCE ROW LEVEL SECURITY;
 CREATE POLICY sales_ticket_rls_all ON sales_ticket
   FOR ALL
   USING (
-    public.current_tenant() IS NOT NULL
-    AND tenant_id = public.current_tenant()
-    AND (public.deleted_visibility() = 'all'
-      OR (public.deleted_visibility() = 'active' AND deleted_at IS NULL)
-      OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL))
+    public.allow_archive_cleanup()
+    OR (
+      public.current_tenant() IS NOT NULL
+      AND tenant_id = public.current_tenant()
+      AND (public.deleted_visibility() = 'all'
+        OR (public.deleted_visibility() = 'active' AND deleted_at IS NULL)
+        OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL))
+    )
   )
-  WITH CHECK (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant());
+  WITH CHECK (
+    public.allow_archive_cleanup()
+    OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant())
+  );
 CREATE POLICY sales_ticket_rls_select ON sales_ticket
   FOR SELECT
   USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
@@ -511,13 +548,19 @@ ALTER TABLE sales_ticket_line FORCE ROW LEVEL SECURITY;
 CREATE POLICY sales_ticket_line_rls_all ON sales_ticket_line
   FOR ALL
   USING (
-    public.current_tenant() IS NOT NULL
-    AND tenant_id = public.current_tenant()
-    AND (public.deleted_visibility() = 'all'
-      OR (public.deleted_visibility() = 'active' AND deleted_at IS NULL)
-      OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL))
+    public.allow_archive_cleanup()
+    OR (
+      public.current_tenant() IS NOT NULL
+      AND tenant_id = public.current_tenant()
+      AND (public.deleted_visibility() = 'all'
+        OR (public.deleted_visibility() = 'active' AND deleted_at IS NULL)
+        OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL))
+    )
   )
-  WITH CHECK (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant());
+  WITH CHECK (
+    public.allow_archive_cleanup()
+    OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant())
+  );
 CREATE POLICY sales_ticket_line_rls_select ON sales_ticket_line
   FOR SELECT
   USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
@@ -527,13 +570,19 @@ ALTER TABLE sales_ticket_charge FORCE ROW LEVEL SECURITY;
 CREATE POLICY sales_ticket_charge_rls_all ON sales_ticket_charge
   FOR ALL
   USING (
-    public.current_tenant() IS NOT NULL
-    AND tenant_id = public.current_tenant()
-    AND (public.deleted_visibility() = 'all'
-      OR (public.deleted_visibility() = 'active' AND deleted_at IS NULL)
-      OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL))
+    public.allow_archive_cleanup()
+    OR (
+      public.current_tenant() IS NOT NULL
+      AND tenant_id = public.current_tenant()
+      AND (public.deleted_visibility() = 'all'
+        OR (public.deleted_visibility() = 'active' AND deleted_at IS NULL)
+        OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL))
+    )
   )
-  WITH CHECK (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant());
+  WITH CHECK (
+    public.allow_archive_cleanup()
+    OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant())
+  );
 CREATE POLICY sales_ticket_charge_rls_select ON sales_ticket_charge
   FOR SELECT
   USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));

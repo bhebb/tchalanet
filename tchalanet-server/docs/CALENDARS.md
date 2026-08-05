@@ -173,7 +173,7 @@ These tenant mechanisms feed `TenantBusinessCalendarApi.resolveBusinessDay(...)`
   Create accepts a specific `slotLocalDate` **or** a recurring `recurringMd`
   ('MM-dd', e.g. `12-25`) — exactly one. Reads are served by
   `ResultSlotCalendarCatalog`, cached **24h** (Caffeine/Redis), evicted on every
-  write. Seeds (V213) bootstrap the known fixed holidays; the impact-preview
+  write. Seeds (V204) bootstrap the known fixed holidays; the impact-preview
   endpoint is still a follow-up.
 
 ### Caching
