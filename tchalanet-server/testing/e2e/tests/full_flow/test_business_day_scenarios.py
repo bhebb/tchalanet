@@ -22,6 +22,7 @@ import uuid
 from dataclasses import dataclass
 from decimal import Decimal, ROUND_HALF_UP
 from typing import Any, Literal
+from zoneinfo import ZoneInfo
 
 import httpx
 import pytest
@@ -48,6 +49,7 @@ pytestmark = [pytest.mark.L2, pytest.mark.full_flow, pytest.mark.slow]
 
 _FIREBASE_PROVIDERS = {"firebase-emulator", "firebase"}
 _DEFAULT_START = dt.date(2026, 7, 9)
+_TENANT_ZONE = ZoneInfo("America/Port-au-Prince")
 _SELLER_SELECTED_MARYAJ_GRATIS = "13-21"
 ScenarioMode = Literal["happy_path", "availability_gates"]
 
@@ -177,6 +179,10 @@ def _id(value: Any) -> str:
 def _env_int(name: str, default: int) -> int:
     raw = os.environ.get(name, "").strip()
     return int(raw) if raw else default
+
+
+def _tenant_business_date() -> dt.date:
+    return dt.datetime.now(_TENANT_ZONE).date()
 
 
 def _env_int_any(names: tuple[str, ...], default: int) -> int:
@@ -1365,7 +1371,12 @@ def _assert_paid_amount_adjustment_only_changes_paid_reports(
     adjusted = None
     probe = None
     rejected: dict[str, str] = {}
-    for candidate in probes:
+    # Maryaj gratis can add a separate winning promotion line. Use a regular winning
+    # ticket for this invariant so the expected paid delta is deterministic.
+    adjustment_probes = [
+        candidate for candidate in probes if not candidate.scenario_key.startswith("maryaj-")
+    ] or probes
+    for candidate in adjustment_probes:
         previous_paid = candidate.expected_winnings
         adjusted_paid = (previous_paid - Decimal("1.00")).quantize(Decimal("0.01"))
         if adjusted_paid < Decimal("0.00"):
@@ -1750,7 +1761,7 @@ def test_reconciliation_rebuild_preserves_ticket_paid_amount_correction(
     )
     runtime = _provision_tenant(super_admin_client, base_url, fb_auth, plan)
     seller = runtime.sellers[0]
-    business_date = dt.date.today()
+    business_date = _tenant_business_date()
     draw = _generate_and_force_open_draws(super_admin_client, runtime, business_date)[0]
     result = ManualResultPlan()
     scenario = winning_lot1_only_ticket(result, seller.plan)
