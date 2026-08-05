@@ -13,6 +13,13 @@ bash "$ROOT/scripts/hcloud/01-create-network.sh"
 echo "→ Création firewall..."
 bash "$ROOT/scripts/hcloud/02-create-firewall.sh"
 
+if hcloud server describe "${HCLOUD_SERVER_NAME:-stg-app}" >/dev/null 2>&1; then
+  echo "✔ Serveur '${HCLOUD_SERVER_NAME:-stg-app}' existe déjà; aucune création nécessaire."
+  echo ""
+  echo "✅ Staging déjà présent."
+  exit 0
+fi
+
 echo "→ Création serveur..."
 bash "$ROOT/scripts/hcloud/03-create-server.sh" --network "${HCLOUD_NETWORK_NAME:-tch-net}"
 
