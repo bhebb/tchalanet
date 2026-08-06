@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../../core/i18n/i18n_models.dart';
 import '../../../../../core/i18n/i18n_repository.dart';
 import '../../../../../design_system/components/components.dart';
+import '../../../../../design_system/tokens/tch_colors.dart';
 import '../../../../../design_system/tokens/tch_radius.dart';
 import '../../../../../design_system/tokens/tch_spacing.dart';
 import '../../../tickets/data/models/cashier_ticket_models.dart';
@@ -259,12 +260,15 @@ class _DrawReportBody extends StatelessWidget {
           ],
         ),
         const SizedBox(height: TchSpacing.s12),
-        // StatCard.accentColor is unusable: it builds a non-uniform border with
-        // a borderRadius, which trips a Flutter paint assertion.
         StatCard(
           label: translations.translate('pos.reports.draw_net_revenue'),
           value: _money(netRevenueCents),
           unit: currency,
+          // Net revenue is the one figure that can go negative — the accent
+          // makes that readable at a glance under bright store lighting.
+          accentColor: netRevenueCents < 0
+              ? TchColors.error
+              : TchColors.success,
         ),
         const SizedBox(height: TchSpacing.s8),
         Text(
