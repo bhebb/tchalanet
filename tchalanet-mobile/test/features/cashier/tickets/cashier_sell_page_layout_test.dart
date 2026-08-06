@@ -34,9 +34,8 @@ const _translations = I18nBundle(
     'pos.sale.abandon_message': 'Ou gen {count} liy ki poko vann.',
     'pos.sale.abandon_confirm': 'Wi, kite l',
     'pos.sale.abandon_cancel': 'Non, kontinye vann',
-    'pos.sale.remove_line_title': 'Retire liy sa a?',
-    'pos.sale.remove_line_confirm': 'Wi, retire l',
-    'pos.sale.remove_line_cancel': 'Non, kite l',
+    'pos.sale.line_removed': 'Liy la retire',
+    'pos.sale.undo': 'Defè',
     'common.preparation.total': 'Total pou peye',
   },
 );
@@ -216,19 +215,23 @@ void main() {
     expect(find.text('#1 Bòlèt'), findsOneWidget);
   });
 
-  testWidgets('removing a line names the line being removed', (tester) async {
+  testWidgets('removing a line is one tap, and undoable', (tester) async {
     await _pumpAtTerminalSize(tester);
+    expect(find.text('#1 Bòlèt'), findsOneWidget);
 
+    // One tap. A ticket can run to twenty numbers; a dialog in front of every
+    // correction taxes the common case.
     await tester.tap(find.byIcon(Icons.delete_outline_rounded).first);
     await tester.pumpAndSettle();
 
-    expect(find.text('Retire liy sa a?'), findsOneWidget);
-    // Confirming against the line itself, not a generic "are you sure".
-    expect(find.textContaining('#1'), findsWidgets);
+    expect(find.text('Liy la retire'), findsOneWidget);
+    expect(find.text('Defè'), findsOneWidget);
 
-    await tester.tap(find.text('Non, kite l'));
+    // And the stray tap is recoverable, in place.
+    await tester.tap(find.text('Defè'));
     await tester.pumpAndSettle();
     expect(find.text('#1 Bòlèt'), findsOneWidget);
+    expect(find.text('#3 Loto 3'), findsOneWidget);
   });
 }
 

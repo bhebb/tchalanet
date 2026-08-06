@@ -215,6 +215,9 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
                       .editPreparedTicket(),
                   onRemoveLine: (i) =>
                       ref.read(sellControllerProvider.notifier).removeLine(i),
+                  onRestoreLine: (i, line) => ref
+                      .read(sellControllerProvider.notifier)
+                      .restoreLine(i, line),
                   onPreview: () {
                     if (opCtx?.sellerTerminalId == null) return;
                     ref.read(sellControllerProvider.notifier).prepare();
@@ -243,6 +246,7 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
                 onCancelEntry: () {},
                 onEditPreparedTicket: () {},
                 onRemoveLine: (_) {},
+                onRestoreLine: (_, _) {},
                 onPreview: () {},
                 onConfirm: () {},
               ),
@@ -265,6 +269,7 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
                 onCancelEntry: () {},
                 onEditPreparedTicket: () {},
                 onRemoveLine: (_) {},
+                onRestoreLine: (_, _) {},
                 onPreview: () {},
                 onConfirm: () {
                   if (opCtx?.sellerTerminalId == null) return;
@@ -305,6 +310,7 @@ class _SellBody extends ConsumerStatefulWidget {
     required this.onCancelEntry,
     required this.onEditPreparedTicket,
     required this.onRemoveLine,
+    required this.onRestoreLine,
     this.previewResult,
     this.error,
     this.diagnostic,
@@ -332,6 +338,7 @@ class _SellBody extends ConsumerStatefulWidget {
   final VoidCallback onCancelEntry;
   final VoidCallback onEditPreparedTicket;
   final ValueChanged<int> onRemoveLine;
+  final void Function(int index, SellLine line) onRestoreLine;
 
   @override
   ConsumerState<_SellBody> createState() => _SellBodyState();
@@ -589,6 +596,7 @@ class _SellBodyState extends ConsumerState<_SellBody> {
                     currency: widget.form.currency,
                     enabled: !_isLoading,
                     onRemoveLine: widget.onRemoveLine,
+                    onRestoreLine: widget.onRestoreLine,
                   ),
                 ),
 
@@ -673,12 +681,14 @@ class _TicketReceipt extends ConsumerWidget {
     required this.currency,
     required this.enabled,
     required this.onRemoveLine,
+    required this.onRestoreLine,
   });
 
   final List<SellLine> lines;
   final String currency;
   final bool enabled;
   final ValueChanged<int> onRemoveLine;
+  final void Function(int index, SellLine line) onRestoreLine;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -730,44 +740,27 @@ class _TicketReceipt extends ConsumerWidget {
                 if (enabled) ...[
                   const SizedBox(width: TchSpacing.s4),
                   IconButton(
-                    // Confirmed: the bin sits inside the line the seller is
-                    // reading, so a stray tap while scanning the list silently
-                    // deleted a bet.
-                    onPressed: () async {
-                      final confirmed = await showDialog<bool>(
-                        context: context,
-                        builder: (dialogContext) => AlertDialog(
-                          title: Text(
-                            translations.translate(
-                              'pos.sale.remove_line_title',
+                    // Removal stays a single tap. A ticket can run to twenty
+                    // numbers, and a dialog in front of every correction is
+                    // friction on the common case; undo covers the stray tap
+                    // without taxing the deliberate one.
+                    onPressed: () {
+                      final removed = lines[index];
+                      final at = index;
+                      onRemoveLine(at);
+                      ScaffoldMessenger.of(context)
+                        ..hideCurrentSnackBar()
+                        ..showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              translations.translate('pos.sale.line_removed'),
+                            ),
+                            action: SnackBarAction(
+                              label: translations.translate('pos.sale.undo'),
+                              onPressed: () => onRestoreLine(at, removed),
                             ),
                           ),
-                          // Name the line being removed rather than asking a
-                          // generic "are you sure".
-                          content: Text(_lineTitle(index, lines[index])),
-                          actions: [
-                            TextButton(
-                              onPressed: () =>
-                                  Navigator.of(dialogContext).pop(true),
-                              child: Text(
-                                translations.translate(
-                                  'pos.sale.remove_line_confirm',
-                                ),
-                              ),
-                            ),
-                            FilledButton(
-                              onPressed: () =>
-                                  Navigator.of(dialogContext).pop(false),
-                              child: Text(
-                                translations.translate(
-                                  'pos.sale.remove_line_cancel',
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                      if (confirmed == true) onRemoveLine(index);
+                        );
                     },
                     icon: const Icon(Icons.delete_outline_rounded),
                     tooltip: translations.translate('pos.sale.remove_line'),

@@ -26,15 +26,14 @@
       "abandon_message": "You have {count} line(s) not yet sold. Leaving loses them.",
       "abandon_confirm": "Yes, abandon",
       "abandon_cancel": "No, keep selling",
-      "remove_line_title": "Remove this line?",
-      "remove_line_confirm": "Yes, remove",
-      "remove_line_cancel": "No, keep it",
       "copy_diagnostic": "Copy support reference",
       "diagnostic_copied": "Support reference copied",
       "draw": {
         "local_time": "Local",
         "provider_time": "Provider"
-      }
+      },
+      "line_removed": "Line removed",
+      "undo": "Undo"
     },
     "sale_completion": {
       "back_home": "Back to home",

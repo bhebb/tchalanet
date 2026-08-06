@@ -26,15 +26,14 @@
       "abandon_message": "Vous avez {count} ligne(s) non vendue(s). En sortant, vous les perdez.",
       "abandon_confirm": "Oui, abandonner",
       "abandon_cancel": "Non, continuer la vente",
-      "remove_line_title": "Retirer cette ligne ?",
-      "remove_line_confirm": "Oui, retirer",
-      "remove_line_cancel": "Non, la garder",
       "copy_diagnostic": "Copier la référence support",
       "diagnostic_copied": "Référence support copiée",
       "draw": {
         "local_time": "Local",
         "provider_time": "Fournisseur"
-      }
+      },
+      "line_removed": "Ligne retirée",
+      "undo": "Annuler"
     },
     "sale_completion": {
       "back_home": "Retour à l'accueil",
