@@ -1073,7 +1073,7 @@
         "aria": "Rezime matriks jwèt pa règ tiraj",
         "saleReady": "Pare pou vann",
         "offeredGames": "Jwèt yo ofri",
-        "activeChannels": "Règ aktif",
+        "activeChannels": "Kanal aktif",
         "availableGames": "Jwèt disponib",
         "missingStake": "Miz pa konfigire",
         "missingLimits": "Plafon tiraj pou verifye"
@@ -1090,11 +1090,11 @@
           "notConfigured": "Pa konfigire"
         },
         "offeredCount": "{{active}} jwèt aktif sou {{offered}} jwèt yo ofri",
-        "channelMissing": "Règ manke",
-        "channelInactive": "Règ inaktif"
+        "channelMissing": "Kanal manke",
+        "channelInactive": "Kanal inaktif"
       },
       "channel": {
-        "label": "Règ tiraj",
+        "label": "Kanal tiraj",
         "salesOpen": "Ouvèti vant : {{value}}",
         "cutoff": "Fèmti vant : {{seconds}}s avan tiraj la",
         "activeGames": "{{count}} jwèt aktif",
@@ -1827,9 +1827,9 @@
         "newTicket": "Nouvo tikè"
       },
       "ticket": {
-        "preparing": "Ticket en préparation",
+        "preparing": "Tikè ap prepare",
         "sold": "Tikè vann",
-        "codeGeneratedAfterConfirm": "Code généré après confirmation"
+        "codeGeneratedAfterConfirm": "Kòd la ap parèt apre konfimasyon"
       },
       "dialog": {
         "title": {

@@ -126,7 +126,7 @@
       "title": "Tchalanet Web",
       "latest_results": {
         "title": "Dènye tiraj",
-        "subtitle": "Rezilta konfime selon sous ki sipòte yo."
+        "subtitle": "Rezilta konfime, dapre sous nou sipòte yo."
       }
     },
     "manager": {
@@ -346,7 +346,7 @@
         "title": "Konfidansyalite"
       },
       "results": {
-        "description": "Konsilte rezilta konfime selon sous ki sipòte yo.",
+        "description": "Konsilte rezilta konfime, dapre sous nou sipòte yo.",
         "eyebrow": "Rezilta konfime",
         "title": "Rezilta"
       },
@@ -372,7 +372,7 @@
       "detail_eyebrow": "Estati rezilta",
       "detail_status": {
         "CONFIRMED": {
-          "body": "Rezilta sa a disponib selon sous ki sipòte yo.",
+          "body": "Rezilta sa a disponib dapre sous nou sipòte yo.",
           "title": "Rezilta konfime"
         },
         "PROVISIONAL": {
@@ -410,14 +410,14 @@
         "title": "Lis tiraj",
         "today": "Jodi a",
         "unavailable_body": "Rezilta tanporèman pa disponib.",
-        "updated": "Mizajou selon sous ki sipòte yo.",
+        "updated": "Mizajou dapre sous nou sipòte yo.",
         "yesterday": "Yè"
       },
       "receipt_note": "Rezilta afiche pou konsiltasyon piblik.",
       "receipt_title": "Detay tiraj",
       "related_title": "Rezilta ki gen rapò",
       "status_label": "Estati rezilta",
-      "subtitle": "Rezilta konfime selon sous ki sipòte yo.",
+      "subtitle": "Rezilta konfime, dapre sous nou sipòte yo.",
       "verify_ticket": "Verifye yon tikè",
       "numbers_pending": "Nimewo ap tann piblikasyon.",
       "loading": "Ap chaje tiraj yo…",

@@ -34,7 +34,7 @@
       "commission": "Komisyon",
       "odds": "Kot",
       "baremes": "Barèm",
-      "draw_channels": "Règ tiraj",
+      "draw_channels": "Konfig kanal",
       "bonuses": "Prim",
       "maryaj_free": "Maryaj gratis",
       "today_report": "Rapò jodi a",
@@ -198,7 +198,7 @@
         "drawSales": {
           "title": "Vant pa tiraj jodi a",
           "emptyTitle": "Pa gen vant pa tiraj",
-          "emptyMessage": "Vant projetées yo ap parèt isit la."
+          "emptyMessage": "Vant pwojte yo ap parèt isit la."
         },
         "recent": {
           "title": "Dènye tikè vann",

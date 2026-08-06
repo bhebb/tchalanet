@@ -488,14 +488,14 @@
       "hint": {
         "defaultCommissionRate": "Komisyon yo aplike pa defo sou tèminal POS ki pa gen yon to espesifik.",
         "maryajGratisEnabled": "Montre paj Maryaj gratis nan santral la epi ajoute kat konfigirasyon li.",
-        "initialAdminUsername": "3 a 64 karaktè: lèt, chif, pwen, souliyé oswa tirè.",
+        "initialAdminUsername": "3 a 64 karaktè: lèt, chif, pwen, souliye oswa tirè.",
         "initialAdminEmail": "Obligatwa pou kreye admin inisyal la."
       },
       "error": {
         "code": "Fòma obligatwa: ti lèt, chif, tirè (3–30 karaktè).",
         "required": "Chan obligatwa.",
         "email": "Adrès imèl pa valid.",
-        "username": "Non itilizatè a dwe genyen 3 a 64 lèt, chif, pwen, souliyé oswa tirè.",
+        "username": "Non itilizatè a dwe genyen 3 a 64 lèt, chif, pwen, souliye oswa tirè.",
         "commissionRate": "Komisyon an dwe ant 0 ak 100 %.",
         "submitTitle": "Pwovizyonman enposib"
       },
