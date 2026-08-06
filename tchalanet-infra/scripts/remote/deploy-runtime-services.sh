@@ -47,8 +47,8 @@ inspect_health() {
   $DOCKER_BIN inspect --format='{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "$1" 2>/dev/null || true
 }
 verify_firebase_emulator_runtime() {
-  [ "$DEPLOY_API" = "1" ] || return
-  [ "${RUNTIME_IDENTITY_PROVIDER:-firebase}" = "firebase-emulator" ] || return
+  [ "$DEPLOY_API" = "1" ] || return 0
+  [ "${RUNTIME_IDENTITY_PROVIDER:-firebase}" = "firebase-emulator" ] || return 0
 
   log "Verifying Firebase emulator runtime configuration"
   runtime_env="$($DOCKER_BIN inspect --format='{{range .Config.Env}}{{println .}}{{end}}' "tchl-api-$ENV")"
