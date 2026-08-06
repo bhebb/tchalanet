@@ -55,9 +55,9 @@ Le script :
    restaurée n'a ni `app_user` ni ses GRANT.
 2. `pg_dump -Fc` de la base applicative — format custom, restauration
    sélective et parallèle possible.
-3. Avant le dump, normalise le propriétaire des quatre projections analytics
-   (`analytics_daily`, `analytics_draw`, `analytics_selection` et
-   `analytics_seller_terminal_draw`) vers `APP_DB_USER`.
+3. Avant le dump, normalise le propriétaire des trois projections analytics
+   dont le RLS sans policy dépend du propriétaire (`analytics_daily`,
+   `analytics_draw` et `analytics_selection`) vers `APP_DB_USER`.
 4. **Vérifie par restauration réelle** dans un conteneur jetable, puis compte
    les tables. Un contrôle de taille ne prouve rien : un gzip de message
    d'erreur pèse aussi quelques octets. Le backup échoue si la restauration
@@ -115,10 +115,10 @@ clé d'objet R2. Le script demande de taper `restore <env>` avant d'écraser quo
 que ce soit.
 
 Le dump reste portable et utilise `--no-owner`. La restauration réapplique donc
-explicitement le propriétaire `APP_DB_USER` sur les quatre projections
-analytics, puis échoue si l'une d'elles reste possédée par un autre rôle. La
-normalisation avant backup garantit que la base source est saine; elle ne
-remplace pas cette garde post-restore.
+explicitement le propriétaire `APP_DB_USER` sur les trois projections
+analytics concernées, puis échoue si l'une d'elles reste possédée par un autre
+rôle. La normalisation avant backup garantit que la base source est saine; elle
+ne remplace pas cette garde post-restore.
 
 Répétition sans rien toucher :
 

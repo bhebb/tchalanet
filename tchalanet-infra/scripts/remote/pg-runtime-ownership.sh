@@ -29,8 +29,7 @@ BEGIN
   FOREACH table_name IN ARRAY ARRAY[
     'analytics_daily',
     'analytics_draw',
-    'analytics_selection',
-    'analytics_seller_terminal_draw'
+    'analytics_selection'
   ] LOOP
     IF to_regclass('public.' || table_name) IS NOT NULL THEN
       EXECUTE format('ALTER TABLE public.%I OWNER TO %I', table_name, '$APP_DB_USER');
@@ -42,10 +41,10 @@ END
   local expected owned
   expected="$(docker exec -e PGPASSWORD="$PGPASSWORD" "$PG_CONTAINER" \
     psql -h 127.0.0.1 -U "$PGUSER" -d "$APP_DB" -tAc \
-    "SELECT count(*) FROM unnest(ARRAY['analytics_daily', 'analytics_draw', 'analytics_selection', 'analytics_seller_terminal_draw']) AS t(table_name) WHERE to_regclass('public.' || t.table_name) IS NOT NULL")"
+    "SELECT count(*) FROM unnest(ARRAY['analytics_daily', 'analytics_draw', 'analytics_selection']) AS t(table_name) WHERE to_regclass('public.' || t.table_name) IS NOT NULL")"
   owned="$(docker exec -e PGPASSWORD="$PGPASSWORD" "$PG_CONTAINER" \
     psql -h 127.0.0.1 -U "$PGUSER" -d "$APP_DB" -tAc \
-    "SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace JOIN pg_roles r ON r.oid = c.relowner WHERE n.nspname = 'public' AND c.relname IN ('analytics_daily', 'analytics_draw', 'analytics_selection', 'analytics_seller_terminal_draw') AND r.rolname = '$APP_DB_USER'")"
+    "SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace JOIN pg_roles r ON r.oid = c.relowner WHERE n.nspname = 'public' AND c.relname IN ('analytics_daily', 'analytics_draw', 'analytics_selection') AND r.rolname = '$APP_DB_USER'")"
   expected="$(printf '%s' "$expected" | tr -d '[:space:]')"
   owned="$(printf '%s' "$owned" | tr -d '[:space:]')"
   [ "$expected" = "$owned" ] || {
