@@ -165,7 +165,7 @@
               },
               {
                 "id": "sellers-commissions",
-                "label_key": "nav.admin.controls_commissions",
+                "label_key": "nav.admin.seller_configuration",
                 "path": "/app/admin/seller-terminals/commissions",
                 "kind": "internal",
                 "icon": "percent"

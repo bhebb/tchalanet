@@ -49,6 +49,13 @@ class PrivateShellNavigationResolverTest {
     assertThat(itemIds(sections.get(1)))
         .as("configuration: rarely-touched setup, kept out of the daily section")
         .containsExactly("setup", "maryaj-gratis", "games", "limits", "company");
+    var sellers = (List<Map<String, Object>>) sections.get(0).get("items");
+    var sellersGroup =
+        sellers.stream().filter(item -> "sellers".equals(item.get("id"))).findFirst();
+    assertThat(sellersGroup).isPresent();
+    assertThat(child(sellersGroup.orElseThrow(), "sellers-commissions").get("label_key"))
+        .as("the runtime drawer must use the seller-configuration label, not the commission label")
+        .isEqualTo("nav.admin.seller_configuration");
     assertThat(secondary.stream().map(item -> item.get("id")))
         .as("help lives in the drawer footer, not mixed into either section")
         .containsExactly("help");
@@ -134,5 +141,11 @@ class PrivateShellNavigationResolverTest {
   private static List<Object> childIds(Map<String, Object> group) {
     return ((List<Map<String, Object>>) group.get("children"))
         .stream().map(item -> item.get("id")).map(Object.class::cast).toList();
+  }
+
+  @SuppressWarnings("unchecked")
+  private static Map<String, Object> child(Map<String, Object> group, String id) {
+    return ((List<Map<String, Object>>) group.get("children"))
+        .stream().filter(item -> id.equals(item.get("id"))).findFirst().orElseThrow();
   }
 }
