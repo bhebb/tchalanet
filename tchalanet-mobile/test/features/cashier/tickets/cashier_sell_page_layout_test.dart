@@ -77,6 +77,33 @@ void main() {
       selectedDrawId: 'draw-1',
       selectedGameCode: 'HT_LOTO5',
       selectedBetType: 'SINGLE',
+      // A ticket in progress — the state the seller actually works in.
+      committedLines: const [
+        SellLine(
+          gameCode: 'HT_BOLET',
+          gameLabel: 'Bòlèt',
+          betType: 'SINGLE',
+          betTypeLabel: 'Bòlèt',
+          selection: '12',
+          stake: 15,
+        ),
+        SellLine(
+          gameCode: 'HT_BOLET',
+          gameLabel: 'Bòlèt',
+          betType: 'SINGLE',
+          betTypeLabel: 'Bòlèt',
+          selection: '16',
+          stake: 19,
+        ),
+        SellLine(
+          gameCode: 'HT_LOTO3',
+          gameLabel: 'Loto 3',
+          betType: 'SINGLE',
+          betTypeLabel: 'Loto 3',
+          selection: '123',
+          stake: 10,
+        ),
+      ],
     );
 
     await tester.pumpWidget(
@@ -115,13 +142,30 @@ void main() {
     // total row in the bottom bar.
     expect(tester.takeException(), isNull);
 
-    // The game chips must share rows. One chip per row cost 316 dp for five
-    // games, which pushed the stake field off a 720 dp screen entirely.
-    final firstRow = tester.getTopLeft(find.text('Maryaj')).dy;
-    expect(tester.getTopLeft(find.text('Loto 4')).dy, firstRow);
+    // All five games sit on one scrolling row, not stacked.
+    final gamesRow = tester.getTopLeft(find.text('Maryaj')).dy;
+    for (final g in ['Loto 3', 'Loto 4', 'Loto 5', 'Bòlèt']) {
+      expect(tester.getTopLeft(find.text(g)).dy, gamesRow, reason: g);
+    }
 
-    // And the stake field stays above the fold.
-    expect(tester.getTopLeft(find.text('Miz')).dy, lessThan(720));
+    // Number and stake share a row.
+    expect(
+      tester.getTopLeft(find.text('Miz')).dy,
+      tester.getTopLeft(find.text('Nimewo / seleksyon')).dy,
+    );
+
+    // The point of all of it: the seller sees the lines making up the total.
+    // Before this they started below 720 and never appeared without scrolling,
+    // so the screen showed a total with nothing to explain it.
+    for (final selection in ['12', '16', '123']) {
+      final line = find.text(selection);
+      expect(line, findsOneWidget, reason: selection);
+      expect(
+        tester.getTopLeft(line).dy,
+        lessThan(720),
+        reason: 'line $selection must be visible without scrolling',
+      );
+    }
   });
 }
 

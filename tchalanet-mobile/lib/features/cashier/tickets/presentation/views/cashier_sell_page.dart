@@ -375,8 +375,10 @@ class _SellBodyState extends ConsumerState<_SellBody> {
               isCompactEntry ? TchSpacing.s16 : 164,
             ),
             children: [
-              _Section(
-                label: translations.translate('pos.sale.draw_label'),
+              // No section label: the card already carries the draw name and a
+              // "change" button, so "TIRAJ" above it only cost a row.
+              Padding(
+                padding: const EdgeInsets.only(bottom: TchSpacing.s12),
                 child: widget.form.draws.isEmpty
                     ? Text(
                         translations.translate('pos.sale.no_draws'),
@@ -394,32 +396,45 @@ class _SellBodyState extends ConsumerState<_SellBody> {
               ),
 
               if (widget.form.games.isNotEmpty)
-                _Section(
-                  label: translations.translate('pos.sale.game_label'),
-                  child: Wrap(
-                    spacing: TchSpacing.s8,
-                    runSpacing: TchSpacing.s8,
-                    // Deduplicate: one chip per unique gameLabel.
-                    // Lot variants (1er lot, 2ème lot…) share the same label;
-                    // the payout engine handles lot attribution — sellers don't
-                    // need to pre-select a lot.
-                    children: () {
-                      final seen = <String>{};
-                      return widget.form.games
-                          .where((g) => seen.add(g.gameLabel))
-                          .map((g) {
-                            final selected =
-                                widget.form.selectedGameCode == g.gameCode &&
-                                widget.form.selectedBetType == g.betType;
-                            return _Chip(
+                // One scrolling row instead of a Wrap, and no section label:
+                // the chips describe themselves. Five games wrapped onto three
+                // rows cost 204 dp of a 556 dp budget, which left nothing for
+                // the ticket lines. A single row costs 56 dp and still puts
+                // every game one tap away — collapsing to the selected chip
+                // would have saved the same space but hidden the others.
+                Padding(
+                  padding: const EdgeInsets.only(bottom: TchSpacing.s12),
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(vertical: 2),
+                    child: Row(
+                      // Deduplicate: one chip per unique gameLabel.
+                      // Lot variants (1er lot, 2ème lot…) share the same label;
+                      // the payout engine handles lot attribution — sellers
+                      // don't need to pre-select a lot.
+                      children: () {
+                        final seen = <String>{};
+                        final chips = <Widget>[];
+                        for (final g in widget.form.games) {
+                          if (!seen.add(g.gameLabel)) continue;
+                          if (chips.isNotEmpty) {
+                            chips.add(const SizedBox(width: TchSpacing.s8));
+                          }
+                          final selected =
+                              widget.form.selectedGameCode == g.gameCode &&
+                              widget.form.selectedBetType == g.betType;
+                          chips.add(
+                            _Chip(
                               label: g.gameLabel,
                               selected: selected,
                               enabled: !_isLoading && !_isTicketLocked,
                               onTap: () => widget.onSelectGame(g),
-                            );
-                          })
-                          .toList();
-                    }(),
+                            ),
+                          );
+                        }
+                        return chips;
+                      }(),
+                    ),
                   ),
                 ),
 
@@ -442,53 +457,71 @@ class _SellBodyState extends ConsumerState<_SellBody> {
                   ),
                 ),
 
+              // Number and stake share a row: they are always filled together
+              // and both values are short. As two stacked sections they cost
+              // 208 dp; side by side they cost about half, which is what buys
+              // the ticket lines their place on screen.
               if (widget.form.selectedGameCode != null)
-                _Section(
-                  key: _selectionFieldKey,
-                  label: translations.translate('pos.sale.selection_label'),
-                  child: _SelectionInput(
-                    key: ValueKey(
-                      '${widget.form.selectedGameCode}:${widget.form.selectedBetType}:${widget.form.selectedBetOption}',
-                    ),
-                    game: widget.form.selectedGame!,
-                    betOption: widget.form.selectedBetOption,
-                    value: widget.form.selection,
-                    enabled: !_isLoading && !_isTicketLocked,
-                    onFocus: () =>
-                        _scrollFocusedFieldIntoView(_selectionFieldKey),
-                    onChanged: widget.onSelectionChanged,
-                  ),
-                ),
-
-              if (widget.form.selectedGameCode != null)
-                _Section(
-                  key: _stakeFieldKey,
-                  label: translations.translate('pos.sale.stake_label'),
-                  child: TextField(
-                    controller: widget.stakeController,
-                    focusNode: widget.stakeFocusNode,
-                    enabled: !_isLoading && !_isTicketLocked,
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
-                    ),
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp(r'[\d.,]')),
-                    ],
-                    onChanged: (v) => widget.onStakeChanged(
-                      double.tryParse(v.replaceAll(',', '.')) ?? 0,
-                    ),
-                    decoration: InputDecoration(
-                      hintText: '0.00',
-                      suffixText: widget.form.currency,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(TchRadius.md),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: TchSpacing.s16,
-                        vertical: TchSpacing.s12,
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: _Section(
+                        key: _selectionFieldKey,
+                        label: translations.translate(
+                          'pos.sale.selection_label',
+                        ),
+                        child: _SelectionInput(
+                          key: ValueKey(
+                            '${widget.form.selectedGameCode}:${widget.form.selectedBetType}:${widget.form.selectedBetOption}',
+                          ),
+                          game: widget.form.selectedGame!,
+                          betOption: widget.form.selectedBetOption,
+                          value: widget.form.selection,
+                          enabled: !_isLoading && !_isTicketLocked,
+                          onFocus: () =>
+                              _scrollFocusedFieldIntoView(_selectionFieldKey),
+                          onChanged: widget.onSelectionChanged,
+                        ),
                       ),
                     ),
-                  ),
+                    const SizedBox(width: TchSpacing.s12),
+                    Expanded(
+                      flex: 1,
+                      child: _Section(
+                        key: _stakeFieldKey,
+                        label: translations.translate('pos.sale.stake_label'),
+                        child: TextField(
+                          controller: widget.stakeController,
+                          focusNode: widget.stakeFocusNode,
+                          enabled: !_isLoading && !_isTicketLocked,
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(
+                              RegExp(r'[\d.,]'),
+                            ),
+                          ],
+                          onChanged: (v) => widget.onStakeChanged(
+                            double.tryParse(v.replaceAll(',', '.')) ?? 0,
+                          ),
+                          decoration: InputDecoration(
+                            hintText: '0.00',
+                            suffixText: widget.form.currency,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(TchRadius.md),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: TchSpacing.s12,
+                              vertical: TchSpacing.s12,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
 
               if (isCompactEntry && widget.form.committedLines.isNotEmpty)
@@ -597,7 +630,6 @@ class _TicketReceipt extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final scheme = Theme.of(context).colorScheme;
     final translations = ref.watch(i18nBundleProvider);
-    final total = lines.fold<double>(0, (sum, line) => sum + line.stake);
     return Container(
       padding: const EdgeInsets.all(TchSpacing.s16),
       decoration: BoxDecoration(
@@ -650,27 +682,9 @@ class _TicketReceipt extends ConsumerWidget {
               ],
             ),
           ],
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: TchSpacing.s12),
-            child: Divider(height: 1),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                translations.translate('pos.sale.ticket_total'),
-                style: Theme.of(
-                  context,
-                ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w800),
-              ),
-              Text(
-                '${total.toStringAsFixed(2)} $currency',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
-              ),
-            ],
-          ),
+          // No total here: the bottom action bar already shows the same figure
+          // and stays visible while this list scrolls. Two totals a few dozen
+          // dp apart taught the seller nothing and cost a row.
         ],
       ),
     );
@@ -1079,12 +1093,20 @@ class _Section extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text(
-                label,
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: scheme.onSurfaceVariant,
-                  letterSpacing: 0.5,
-                  fontWeight: FontWeight.w700,
+              // Flexible: sections now sit side by side, so a label can be
+              // wider than its column. "Nimewo / seleksyon" is 207 dp and
+              // overflowed a 190 dp column by 17 px. Label length varies by
+              // locale, so this yields rather than relying on the arithmetic.
+              Flexible(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: scheme.onSurfaceVariant,
+                    letterSpacing: 0.5,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ],
@@ -1135,21 +1157,31 @@ class _SelectedDraw extends ConsumerWidget {
           TchProviderLogo(providerCode: draw.providerCode),
           const SizedBox(width: TchSpacing.s12),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            // Name and cutoff on one line. The cutoff matters right up to the
+            // sale, so it is kept rather than dropped — but stacked it cost a
+            // second row on a screen that has none to spare.
+            child: Row(
               children: [
-                Text(
-                  localizedCashierDrawLabel(draw, translations),
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+                Flexible(
+                  child: Text(
+                    localizedCashierDrawLabel(draw, translations),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
                 ),
                 if (!compact) ...[
-                  const SizedBox(height: TchSpacing.s4),
-                  Text(
-                    _cutoffLabel(draw, translations),
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: scheme.onSurfaceVariant,
+                  const SizedBox(width: TchSpacing.s8),
+                  Flexible(
+                    child: Text(
+                      _cutoffLabel(draw, translations),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: scheme.onSurfaceVariant,
+                      ),
                     ),
                   ),
                 ],
