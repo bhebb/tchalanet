@@ -2,6 +2,7 @@ package com.tchalanet.server.features.pos.tickets.app;
 
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
+import com.tchalanet.server.common.context.TchActorType;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
@@ -67,6 +68,7 @@ public class PosTicketsService {
   }
 
   public TchPage<PosTicketPageResponse> listTickets(
+      TchRequestContext ctx,
       SellerTerminalId sellerTerminalId,
       DrawId drawId,
       String status,
@@ -74,10 +76,20 @@ public class PosTicketsService {
       Instant from,
       Instant to,
       Pageable pageable) {
+    var effectiveSellerTerminalId = sellerTerminalId;
+    if (ctx != null && ctx.actorType() == TchActorType.SELLER_TERMINAL) {
+      effectiveSellerTerminalId = ctx.sellerTerminalIdRequired();
+    }
     var result =
         queryBus.ask(
             new ListTicketsQuery(
-                sellerTerminalId, drawId, status, q, from, to, new TchPageRequest(pageable)));
+                effectiveSellerTerminalId,
+                drawId,
+                status,
+                q,
+                from,
+                to,
+                new TchPageRequest(pageable)));
     return TchPageMapper.map(result, mapper::toPageResponse);
   }
 

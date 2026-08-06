@@ -106,7 +106,7 @@ public class PosTicketsController {
     Instant effectiveTo = to != null ? to : endOfDay(toDate, ctx);
     return ApiResponse.success(
         ticketsService.listTickets(
-            sellerTerminalId, drawId, status, q, effectiveFrom, effectiveTo, page.pageable()));
+            ctx, sellerTerminalId, drawId, status, q, effectiveFrom, effectiveTo, page.pageable()));
   }
 
   @GetMapping("/{ticketId}")
