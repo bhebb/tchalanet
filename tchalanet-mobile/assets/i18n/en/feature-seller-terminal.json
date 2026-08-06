@@ -137,6 +137,7 @@
       "draw_winnings": "Winnings due",
       "draw_net_revenue": "Net revenue",
       "draw_net_revenue_hint": "Estimated: sales less winnings and commission. Changes once the draw is settled.",
+      "sell_this_draw": "Sell a ticket",
       "draw_empty": "No tickets for this draw on that day."
     },
     "tickets": {

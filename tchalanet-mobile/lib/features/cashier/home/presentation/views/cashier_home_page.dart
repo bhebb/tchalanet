@@ -8,6 +8,7 @@ import '../../../../../core/i18n/i18n_models.dart';
 import '../../../../../core/i18n/i18n_repository.dart';
 import '../../../../../core/network/connectivity_repository.dart';
 import '../../../../../design_system/components/components.dart';
+import '../../../../../design_system/layout/screen_size.dart';
 import '../../../../../design_system/tokens/tch_colors.dart';
 import '../../../../../design_system/tokens/tch_radius.dart';
 import '../../../../../design_system/tokens/tch_spacing.dart';
@@ -263,6 +264,23 @@ class _SellerTerminalHomeState extends ConsumerState<_SellerTerminalHome> {
               const _ReadinessBanner(),
               const Divider(height: 1),
               const SizedBox(height: TchSpacing.s16),
+              // The summary is a fixed-height glance; the draw list is the long
+              // scroller. On a 720 dp POS terminal, keeping the summary below
+              // the list put it out of reach behind up to 20 draw cards.
+              _SectionLabel(
+                label: translations.translate('pos.dashboard.daily_summary'),
+              ),
+              const SizedBox(height: TchSpacing.s8),
+              statsAsync.when(
+                loading: () => _DailySummary.placeholder(translations),
+                error: (_, _) => _DailySummary.placeholder(translations),
+                data: (stats) => !stats.available
+                    ? _AnalyticsUnavailable(translations: translations)
+                    : stats.ticketCount == 0 && stats.salesTotalCents == 0
+                    ? _NoSalesYet(translations: translations)
+                    : _DailySummary(stats: stats, translations: translations),
+              ),
+              const SizedBox(height: TchSpacing.s24),
               _SectionLabel(
                 label: translations.translate('pos.dashboard.available_draws'),
               ),
@@ -293,20 +311,6 @@ class _SellerTerminalHomeState extends ConsumerState<_SellerTerminalHome> {
                       ),
               ),
               const SizedBox(height: TchSpacing.s32),
-              _SectionLabel(
-                label: translations.translate('pos.dashboard.daily_summary'),
-              ),
-              const SizedBox(height: TchSpacing.s8),
-              statsAsync.when(
-                loading: () => _DailySummary.placeholder(translations),
-                error: (_, _) => _DailySummary.placeholder(translations),
-                data: (stats) => !stats.available
-                    ? _AnalyticsUnavailable(translations: translations)
-                    : stats.ticketCount == 0 && stats.salesTotalCents == 0
-                    ? _NoSalesYet(translations: translations)
-                    : _DailySummary(stats: stats, translations: translations),
-              ),
-              const SizedBox(height: TchSpacing.s24),
               _SectionLabel(
                 label: translations.translate('pos.dashboard.last_ticket'),
               ),
@@ -755,7 +759,10 @@ class _AvailableDrawCard extends StatelessWidget {
               icon: const Icon(Icons.add_rounded, size: 18),
               label: Text(translations.translate('pos.dashboard.sell')),
               style: FilledButton.styleFrom(
-                minimumSize: const Size(0, 44),
+                // 48 dp on a phone, 56 dp on a POS terminal. This is the most
+                // tapped control in the app and it was hardcoded to 44, below
+                // both figures.
+                minimumSize: Size(0, context.minTouchTarget),
                 padding: const EdgeInsets.symmetric(horizontal: TchSpacing.s12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(TchRadius.sm),

@@ -39,11 +39,22 @@ class TchBrandMark extends StatelessWidget {
       children: [
         mark,
         const SizedBox(width: TchSpacing.s8),
-        Text(
-          'Tchalanet',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            color: scheme.primary,
-            fontWeight: FontWeight.w900,
+        // The wordmark used to be laid out at its natural width, which
+        // overflowed the app bar title slot by 22 px on a 360 dp POS terminal.
+        // Scaling down keeps the brand readable instead of truncating it.
+        Flexible(
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              'Tchalanet',
+              maxLines: 1,
+              softWrap: false,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                color: scheme.primary,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
           ),
         ),
       ],
