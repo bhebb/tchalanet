@@ -178,4 +178,27 @@ void main() {
     final button = find.byKey(const ValueKey('draw-sell-action:draw-0'));
     expect(tester.getSize(button).height, greaterThanOrEqualTo(48.0));
   });
+
+  testWidgets('the summary does not push the draw list off a terminal screen', (
+    tester,
+  ) async {
+    tester.view.physicalSize = _posTerminal;
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(_harness(drawCount: 20));
+    await tester.pumpAndSettle();
+
+    var visible = 0;
+    for (var i = 0; i < 20; i++) {
+      final card = find.byKey(ValueKey('draw-sell-action:draw-$i'));
+      if (card.evaluate().isEmpty) continue;
+      if (tester.getTopLeft(card).dy < _posTerminal.height) visible++;
+    }
+
+    // Measured at 6 with the summary on top. Putting the summary first costs
+    // list space, so this pins the trade-off: growing the summary must not
+    // leave the seller scrolling to reach any draw at all.
+    expect(visible, greaterThanOrEqualTo(4));
+  });
 }
