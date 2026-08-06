@@ -10,12 +10,20 @@ class DrawStatLine {
     required this.channelLabel,
     required this.ticketCount,
     required this.totalCents,
+    this.winningsCents = 0,
+    this.sellerCommissionCents = 0,
+    this.netRevenueCents = 0,
   });
 
   final String drawId;
   final String channelLabel;
   final int ticketCount;
   final int totalCents;
+
+  /// Winnings owed on this draw. Zero until the draw is settled.
+  final int winningsCents;
+  final int sellerCommissionCents;
+  final int netRevenueCents;
 
   double get totalAmount => totalCents / 100.0;
 
@@ -24,6 +32,12 @@ class DrawStatLine {
     channelLabel: json['channelLabel'] as String? ?? '',
     ticketCount: (json['ticketCount'] as num?)?.toInt() ?? 0,
     totalCents: (json['totalCents'] as num?)?.toInt() ?? 0,
+    // Older API builds omit these; treat a missing figure as zero rather than
+    // failing the whole report.
+    winningsCents: (json['winningsCents'] as num?)?.toInt() ?? 0,
+    sellerCommissionCents:
+        (json['sellerCommissionCents'] as num?)?.toInt() ?? 0,
+    netRevenueCents: (json['netRevenueCents'] as num?)?.toInt() ?? 0,
   );
 }
 

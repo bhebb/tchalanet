@@ -108,6 +108,7 @@ class CashierTicketService {
     String? query,
     DateTime? fromDate,
     DateTime? toDate,
+    String? drawId,
   }) async {
     try {
       final response = await _dio.get<Map<String, dynamic>>(
@@ -118,6 +119,8 @@ class CashierTicketService {
           if (query != null && query.trim().isNotEmpty) 'q': query.trim(),
           if (fromDate != null) 'fromDate': _isoDate(fromDate),
           if (toDate != null) 'toDate': _isoDate(toDate),
+          if (drawId != null && drawId.trim().isNotEmpty)
+            'drawId': drawId.trim(),
         },
       );
       final items = (response.data?['data']?['items'] as List<dynamic>?) ?? [];

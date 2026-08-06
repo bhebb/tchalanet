@@ -25,6 +25,16 @@ public record CashierDashboardStatsView(
 
   public record CashierGameBreakdown(String gameCode, long ticketsSold, BigDecimal grossSales) {}
 
+  /**
+   * Per-draw figures for one seller terminal. Scoped to that terminal only — never tenant-wide
+   * totals, which would expose other sellers' numbers on the POS.
+   */
   public record CashierDrawBreakdown(
-      UUID drawId, String drawChannelCode, long ticketsSold, BigDecimal grossSales) {}
+      UUID drawId,
+      String drawChannelCode,
+      long ticketsSold,
+      BigDecimal grossSales,
+      BigDecimal winningsCalculated,
+      BigDecimal sellerCommission,
+      BigDecimal netRevenueEstimated) {}
 }
