@@ -115,7 +115,16 @@
       "all": "Tous",
       "empty": "Aucune vente pour cette journée.",
       "analytics_unavailable": "Les chiffres de vente ne sont pas encore disponibles. Réessayez plus tard.",
-      "load_error": "Impossible de charger le rapport."
+      "load_error": "Impossible de charger le rapport.",
+      "draw": "Tirage",
+      "tickets": "TICKETS",
+      "open_draw_report": "Voir le rapport du tirage",
+      "draw_sales": "Ventes du tirage",
+      "draw_commission": "Commission",
+      "draw_winnings": "Gains à payer",
+      "draw_net_revenue": "Revenu net",
+      "draw_net_revenue_hint": "Estimation : ventes moins gains et commission. Évolue après le règlement du tirage.",
+      "draw_empty": "Aucun ticket pour ce tirage ce jour-là."
     },
     "tickets": {
       "history_title": "Historique des tickets",

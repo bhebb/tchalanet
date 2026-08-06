@@ -10,6 +10,7 @@ import '../features/auth/presentation/views/forbidden_page.dart';
 import '../features/auth/presentation/views/login_page.dart';
 import '../features/cashier/home/presentation/view_models/cashier_home_providers.dart';
 import '../features/cashier/home/presentation/views/cashier_home_page.dart';
+import '../features/cashier/home/presentation/views/seller_terminal_draw_report_page.dart';
 import '../features/cashier/home/presentation/views/seller_terminal_profile_page.dart';
 import '../features/cashier/home/presentation/views/seller_terminal_stats_page.dart';
 import '../features/cashier/tickets/presentation/views/cashier_history_page.dart';
@@ -112,6 +113,23 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/pos/reports',
         builder: (context, _) => const SellerTerminalStatsPage(),
+      ),
+      // Per-draw report drill-down. Optional extra keys: isoDate, drawLabel,
+      // providerSchedule, providerZone, localSchedule, localZone.
+      GoRoute(
+        path: '/pos/reports/draw/:drawId',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, String?>?;
+          return SellerTerminalDrawReportPage(
+            drawId: state.pathParameters['drawId']!,
+            isoDate: extra?['isoDate'] ?? reportIsoDate(DateTime.now()),
+            drawLabel: extra?['drawLabel'],
+            providerSchedule: extra?['providerSchedule'],
+            providerZone: extra?['providerZone'],
+            localSchedule: extra?['localSchedule'],
+            localZone: extra?['localZone'],
+          );
+        },
       ),
       GoRoute(
         path: '/pos/results',

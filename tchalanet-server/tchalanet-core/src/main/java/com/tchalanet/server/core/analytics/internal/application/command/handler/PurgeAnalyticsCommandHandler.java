@@ -7,6 +7,8 @@ import com.tchalanet.server.core.analytics.api.command.PurgeAnalyticsCommand;
 import com.tchalanet.server.core.analytics.api.model.PurgeAnalyticsResult;
 import com.tchalanet.server.core.analytics.internal.infra.persistence.AnalyticsDailyRepository;
 import com.tchalanet.server.core.analytics.internal.infra.persistence.AnalyticsDrawRepository;
+import com.tchalanet.server.core.analytics.internal.infra.persistence.AnalyticsSelectionRepository;
+import com.tchalanet.server.core.analytics.internal.infra.persistence.AnalyticsSellerTerminalDrawRepository;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +22,8 @@ import org.springframework.beans.factory.annotation.Value;
  * <ul>
  *   <li>{@code analytics_daily} — 24 months
  *   <li>{@code analytics_draw} — 24 months
+ *   <li>{@code analytics_selection} — 24 months
+ *   <li>{@code analytics_seller_terminal_draw} — 24 months
  * </ul>
  */
 @UseCase
@@ -30,6 +34,8 @@ public class PurgeAnalyticsCommandHandler
 
   private final AnalyticsDailyRepository dailyRepo;
   private final AnalyticsDrawRepository drawRepo;
+  private final AnalyticsSelectionRepository selectionRepo;
+  private final AnalyticsSellerTerminalDrawRepository sellerTerminalDrawRepo;
 
   @Value("${tchalanet.analytics.retention.daily-months:24}")
   private int dailyRetentionMonths;
@@ -37,22 +43,49 @@ public class PurgeAnalyticsCommandHandler
   @Value("${tchalanet.analytics.retention.draw-months:24}")
   private int drawRetentionMonths;
 
+  @Value("${tchalanet.analytics.retention.selection-months:24}")
+  private int selectionRetentionMonths;
+
+  @Value("${tchalanet.analytics.retention.seller-terminal-draw-months:24}")
+  private int sellerTerminalDrawRetentionMonths;
+
   @Override
   @TchTx
   public PurgeAnalyticsResult handle(PurgeAnalyticsCommand cmd) {
     LocalDate dailyCutoff = LocalDate.now().minusMonths(dailyRetentionMonths);
     LocalDate drawCutoff = LocalDate.now().minusMonths(drawRetentionMonths);
+    LocalDate selectionCutoff = LocalDate.now().minusMonths(selectionRetentionMonths);
+    LocalDate sellerTerminalDrawCutoff =
+        LocalDate.now().minusMonths(sellerTerminalDrawRetentionMonths);
 
     if (cmd.dryRun()) {
       long dailyCount = dailyRepo.countOlderThan(dailyCutoff);
       long drawCount = drawRepo.countOlderThan(drawCutoff);
-      log.info("analytics purge dry-run: daily={} draw={}", dailyCount, drawCount);
-      return new PurgeAnalyticsResult(dailyCount, drawCount, true);
+      long selectionCount = selectionRepo.countOlderThan(selectionCutoff);
+      long sellerTerminalDrawCount =
+          sellerTerminalDrawRepo.countOlderThan(sellerTerminalDrawCutoff);
+      log.info(
+          "analytics purge dry-run: daily={} draw={} selection={} sellerTerminalDraw={}",
+          dailyCount,
+          drawCount,
+          selectionCount,
+          sellerTerminalDrawCount);
+      return new PurgeAnalyticsResult(
+          dailyCount, drawCount, selectionCount, sellerTerminalDrawCount, true);
     }
 
     int dailyDeleted = dailyRepo.deleteOlderThan(dailyCutoff);
     int drawDeleted = drawRepo.deleteOlderThan(drawCutoff);
-    log.info("analytics purge: daily={} draw={} deleted", dailyDeleted, drawDeleted);
-    return new PurgeAnalyticsResult(dailyDeleted, drawDeleted, false);
+    int selectionDeleted = selectionRepo.deleteOlderThan(selectionCutoff);
+    int sellerTerminalDrawDeleted =
+        sellerTerminalDrawRepo.deleteOlderThan(sellerTerminalDrawCutoff);
+    log.info(
+        "analytics purge: daily={} draw={} selection={} sellerTerminalDraw={} deleted",
+        dailyDeleted,
+        drawDeleted,
+        selectionDeleted,
+        sellerTerminalDrawDeleted);
+    return new PurgeAnalyticsResult(
+        dailyDeleted, drawDeleted, selectionDeleted, sellerTerminalDrawDeleted, false);
   }
 }

@@ -115,7 +115,16 @@
       "all": "All",
       "empty": "No sales for this day.",
       "analytics_unavailable": "Sales figures are not available yet. Please try again later.",
-      "load_error": "Unable to load the report."
+      "load_error": "Unable to load the report.",
+      "draw": "Draw",
+      "tickets": "TICKETS",
+      "open_draw_report": "View draw report",
+      "draw_sales": "Draw sales",
+      "draw_commission": "Commission",
+      "draw_winnings": "Winnings due",
+      "draw_net_revenue": "Net revenue",
+      "draw_net_revenue_hint": "Estimated: sales less winnings and commission. Changes once the draw is settled.",
+      "draw_empty": "No tickets for this draw on that day."
     },
     "tickets": {
       "history_title": "Ticket history",

@@ -67,6 +67,7 @@ public class PosTicketsService {
   }
 
   public TchPage<PosTicketPageResponse> listTickets(
+      TchRequestContext ctx,
       SellerTerminalId sellerTerminalId,
       DrawId drawId,
       String status,
@@ -74,10 +75,22 @@ public class PosTicketsService {
       Instant from,
       Instant to,
       Pageable pageable) {
+    // RLS only scopes rows to the tenant. A seller terminal must never read
+    // another terminal's tickets, so pin the filter to the caller's own
+    // terminal and ignore any sellerTerminalId it tried to pass. Tenant admins
+    // keep the explicit filter.
+    var effectiveSellerTerminalId =
+        ctx != null && ctx.sellerTerminalId() != null ? ctx.sellerTerminalId() : sellerTerminalId;
     var result =
         queryBus.ask(
             new ListTicketsQuery(
-                sellerTerminalId, drawId, status, q, from, to, new TchPageRequest(pageable)));
+                effectiveSellerTerminalId,
+                drawId,
+                status,
+                q,
+                from,
+                to,
+                new TchPageRequest(pageable)));
     return TchPageMapper.map(result, mapper::toPageResponse);
   }
 
@@ -116,7 +129,10 @@ public class PosTicketsService {
                         b.drawId().toString(),
                         b.drawChannelCode(),
                         b.ticketsSold(),
-                        toCents(b.grossSales())))
+                        toCents(b.grossSales()),
+                        toCents(b.winningsCalculated()),
+                        toCents(b.sellerCommission()),
+                        toCents(b.netRevenueEstimated())))
             .toList();
     return new SellerTerminalDailyStatsResponse(
         true,
