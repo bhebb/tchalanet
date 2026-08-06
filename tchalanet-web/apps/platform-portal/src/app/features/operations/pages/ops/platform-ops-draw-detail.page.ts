@@ -26,6 +26,7 @@ import {
   RescheduleDrawDialog,
   SimpleDrawActionDialog,
 } from '../../components/dialogs/draw-action-dialogs';
+import { ManualResultDialog as PlatformManualResultDialog } from '../../components/dialogs/manual-result.dialog';
 import { DrawView, PlatformOpsApi } from '../../data-access/platform-ops-api.service';
 
 type DrawActionItem =
@@ -33,6 +34,7 @@ type DrawActionItem =
   | { kind: 'lock' }
   | { kind: 'unlock' }
   | { kind: 'reschedule' }
+  | { kind: 'manual' }
   | { kind: 'settle' }
   | { kind: 'archive' }
   | { kind: 'correct' };
@@ -42,7 +44,7 @@ function actionsForDraw(draw: DrawView): DrawActionItem[] {
     case 'SCHEDULED': return [{ kind: 'lock' }, { kind: 'reschedule' }, { kind: 'cancel' }];
     case 'OPEN': return [{ kind: 'lock' }, { kind: 'cancel' }];
     case 'LOCKED': return [{ kind: 'unlock' }, { kind: 'cancel' }];
-    case 'CLOSED': return [{ kind: 'settle' }, { kind: 'cancel' }];
+    case 'CLOSED': return [{ kind: 'manual' }, { kind: 'settle' }, { kind: 'cancel' }];
     case 'RESULTED': return [{ kind: 'correct' }, { kind: 'settle' }, { kind: 'archive' }];
     case 'SETTLED': return [{ kind: 'archive' }];
     default: return [];
@@ -203,6 +205,13 @@ export class PlatformOpsDrawDetailPage {
       case 'reschedule':
         this.openAndReload(RescheduleDrawDialog, { draw, tenantId }, '480px');
         break;
+      case 'manual':
+        this.openAndReload(
+          PlatformManualResultDialog,
+          { drawDate: draw.drawDate, slotKey: draw.slot.key },
+          '520px',
+        );
+        break;
       case 'correct':
         this.openAndReload(CorrectDrawResultDialog, { draw, tenantId }, '500px');
         break;
@@ -217,6 +226,15 @@ export class PlatformOpsDrawDetailPage {
   }
 
   private toConsoleDrawAction(action: DrawActionItem): ConsoleRowAction {
+    if (action.kind === 'manual') {
+      return {
+        id: action.kind,
+        label: 'Entrer le résultat',
+        icon: 'edit_note',
+        tone: 'default',
+        variant: 'button',
+      };
+    }
     return {
       id: action.kind,
       label: consoleDrawLifecycleActionLabel(action.kind as BulkDrawActionType),
