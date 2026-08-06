@@ -577,15 +577,11 @@ class _SellBodyState extends ConsumerState<_SellBody> {
                   ],
                 ),
 
-              if (isCompactEntry && widget.form.committedLines.isNotEmpty)
-                _Section(
-                  label: translations.translate('pos.sale.ticket_label'),
-                  child: _LastTicketLine(
-                    line: widget.form.committedLines.last,
-                    currency: widget.form.currency,
-                  ),
-                )
-              else if (!isCompactEntry && widget.form.committedLines.isNotEmpty)
+              // Nothing here while the keyboard is up: _BottomActions already
+              // echoes the last committed line just above the Ajoute button,
+              // and rendering it here as well showed the seller the same bet
+              // twice — visible on a real device with the keypad open.
+              if (!isCompactEntry && widget.form.committedLines.isNotEmpty)
                 // No section label here either: numbered lines with amounts
                 // say what they are. Those 44 dp are what let the third line
                 // finish above the action bar instead of being clipped by it.

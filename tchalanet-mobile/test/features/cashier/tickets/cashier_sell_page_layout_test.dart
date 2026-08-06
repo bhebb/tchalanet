@@ -109,7 +109,7 @@ final _form = SellFormData(
   ],
 );
 
-Widget _harness() => ProviderScope(
+Widget _harness({double keyboardInset = 0}) => ProviderScope(
   overrides: [
     i18nBundleProvider.overrideWithValue(_translations),
     cashierHomeProvider.overrideWith(
@@ -131,9 +131,16 @@ Widget _harness() => ProviderScope(
     ),
     sellControllerProvider.overrideWith(() => _FakeSell(_form)),
   ],
-  child: const PosContextProvider(
+  child: PosContextProvider(
     context: SurfaceContext.posTerminal,
-    child: MaterialApp(home: CashierSellPage()),
+    child: MaterialApp(
+      home: MediaQuery(
+        data: MediaQueryData(
+          viewInsets: EdgeInsets.only(bottom: keyboardInset),
+        ),
+        child: const CashierSellPage(),
+      ),
+    ),
   ),
 );
 
@@ -232,6 +239,20 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('#1 Bòlèt'), findsOneWidget);
     expect(find.text('#3 Loto 3'), findsOneWidget);
+  });
+
+  testWidgets('the last line is echoed once while typing', (tester) async {
+    tester.view.physicalSize = _posTerminal;
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+    // Keyboard up — the state the seller enters numbers in.
+    await tester.pumpWidget(_harness(keyboardInset: 280));
+    await tester.pumpAndSettle();
+
+    // It used to render in the body *and* in the bottom action bar, so the
+    // seller saw the same bet twice. Caught on a real device, not by a test.
+    expect(find.text('Loto 3'), findsWidgets);
+    expect(find.textContaining('123'), findsOneWidget);
   });
 }
 
