@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -349,6 +351,37 @@ class _SellBodyState extends ConsumerState<_SellBody> {
   final _selectionFieldKey = GlobalKey();
   final _stakeFieldKey = GlobalKey();
 
+  /// The line just removed, still offered back inside the list. It lives here
+  /// rather than in a SnackBar: a snack bar sits on the bottom action area with
+  /// the keyboard up, covering Ajoute, so it stopped the seller entering the
+  /// next number until it timed out.
+  ({int index, SellLine line})? _pendingUndo;
+  Timer? _undoTimer;
+
+  void _removeLine(int index) {
+    _undoTimer?.cancel();
+    final removed = widget.form.committedLines[index];
+    widget.onRemoveLine(index);
+    setState(() => _pendingUndo = (index: index, line: removed));
+    _undoTimer = Timer(const Duration(seconds: 8), () {
+      if (mounted) setState(() => _pendingUndo = null);
+    });
+  }
+
+  void _undoRemove() {
+    final pending = _pendingUndo;
+    if (pending == null) return;
+    _undoTimer?.cancel();
+    widget.onRestoreLine(pending.index, pending.line);
+    setState(() => _pendingUndo = null);
+  }
+
+  void _clearPendingUndo() {
+    if (_pendingUndo == null) return;
+    _undoTimer?.cancel();
+    setState(() => _pendingUndo = null);
+  }
+
   bool get _isLoading => widget.isPreviewing || widget.isConfirming;
   bool get _isTicketLocked => widget.previewResult != null;
   bool get _hasEntryInProgress =>
@@ -372,6 +405,7 @@ class _SellBodyState extends ConsumerState<_SellBody> {
   @override
   void dispose() {
     widget.stakeFocusNode.removeListener(_handleStakeFocus);
+    _undoTimer?.cancel();
     _scrollController.dispose();
     super.dispose();
   }
@@ -397,6 +431,9 @@ class _SellBodyState extends ConsumerState<_SellBody> {
   }
 
   void _addLine() {
+    // Moving on withdraws the undo offer: the seller has clearly moved past
+    // the removal, and the row should not linger in the list.
+    _clearPendingUndo();
     widget.onAddLine();
     FocusManager.instance.primaryFocus?.unfocus();
   }
@@ -591,8 +628,9 @@ class _SellBodyState extends ConsumerState<_SellBody> {
                     lines: widget.form.committedLines,
                     currency: widget.form.currency,
                     enabled: !_isLoading,
-                    onRemoveLine: widget.onRemoveLine,
-                    onRestoreLine: widget.onRestoreLine,
+                    onRemoveLine: _removeLine,
+                    pendingUndoIndex: _pendingUndo?.index,
+                    onUndo: _undoRemove,
                   ),
                 ),
 
@@ -677,14 +715,19 @@ class _TicketReceipt extends ConsumerWidget {
     required this.currency,
     required this.enabled,
     required this.onRemoveLine,
-    required this.onRestoreLine,
+    required this.pendingUndoIndex,
+    required this.onUndo,
   });
 
   final List<SellLine> lines;
   final String currency;
   final bool enabled;
   final ValueChanged<int> onRemoveLine;
-  final void Function(int index, SellLine line) onRestoreLine;
+
+  /// Where the just-removed line used to sit, or null. Rendered in place so the
+  /// offer never covers the entry controls.
+  final int? pendingUndoIndex;
+  final VoidCallback onUndo;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -699,10 +742,13 @@ class _TicketReceipt extends ConsumerWidget {
       ),
       child: Column(
         children: [
+          // The undo offer sits where the removed line was, inside the list.
+          // It never overlays the entry controls, so the seller can keep
+          // adding numbers while it is on screen.
+          if (pendingUndoIndex != null && pendingUndoIndex == 0)
+            _UndoRemovedLine(onUndo: onUndo),
           for (var index = 0; index < lines.length; index++) ...[
             if (index > 0) const Divider(height: TchSpacing.s20),
-            // Built once: the row shows it, and the remove confirmation
-            // repeats it so the seller confirms against what they see.
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -740,36 +786,52 @@ class _TicketReceipt extends ConsumerWidget {
                     // numbers, and a dialog in front of every correction is
                     // friction on the common case; undo covers the stray tap
                     // without taxing the deliberate one.
-                    onPressed: () {
-                      final removed = lines[index];
-                      final at = index;
-                      onRemoveLine(at);
-                      ScaffoldMessenger.of(context)
-                        ..hideCurrentSnackBar()
-                        ..showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              translations.translate('pos.sale.line_removed'),
-                            ),
-                            action: SnackBarAction(
-                              label: translations.translate('pos.sale.undo'),
-                              onPressed: () => onRestoreLine(at, removed),
-                            ),
-                          ),
-                        );
-                    },
+                    onPressed: () => onRemoveLine(index),
                     icon: const Icon(Icons.delete_outline_rounded),
                     tooltip: translations.translate('pos.sale.remove_line'),
                   ),
                 ],
               ],
             ),
+            if (pendingUndoIndex == index + 1) _UndoRemovedLine(onUndo: onUndo),
           ],
           // No total here: the bottom action bar already shows the same figure
           // and stays visible while this list scrolls. Two totals a few dozen
           // dp apart taught the seller nothing and cost a row.
         ],
       ),
+    );
+  }
+}
+
+/// Inline replacement for a line that was just removed, shown where it used to
+/// be. Deliberately not a SnackBar: with the keyboard up a snack bar sits on
+/// the bottom action area and covers Ajoute, so it stopped the seller entering
+/// the next number until it timed out.
+class _UndoRemovedLine extends ConsumerWidget {
+  const _UndoRemovedLine({required this.onUndo});
+
+  final VoidCallback onUndo;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final translations = ref.watch(i18nBundleProvider);
+    final scheme = Theme.of(context).colorScheme;
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            translations.translate('pos.sale.line_removed'),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+          ),
+        ),
+        TextButton(
+          onPressed: onUndo,
+          child: Text(translations.translate('pos.sale.undo')),
+        ),
+      ],
     );
   }
 }

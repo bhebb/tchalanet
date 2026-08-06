@@ -231,8 +231,13 @@ void main() {
     await tester.tap(find.byIcon(Icons.delete_outline_rounded).first);
     await tester.pumpAndSettle();
 
+    // The offer is inline, in the list. A SnackBar sat on the bottom action
+    // area with the keyboard up and covered Ajoute, which blocked the seller
+    // from entering the next number until it timed out.
     expect(find.text('Liy la retire'), findsOneWidget);
-    expect(find.text('Defè'), findsOneWidget);
+    expect(find.byType(SnackBar), findsNothing);
+    // Ajoute stays reachable while the offer is on screen.
+    expect(find.text('Ajoute'), findsOneWidget);
 
     // And the stray tap is recoverable, in place.
     await tester.tap(find.text('Defè'));
