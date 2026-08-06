@@ -22,6 +22,13 @@
       "sale_rejected": "Vant la pa aksepte",
       "no_selection_stake": "Antre yon nimewo ak yon miz",
       "terminal_unavailable": "Tèminal sa a pa ka vann pou kounye a.",
+      "abandon_title": "Kite tikè sa a?",
+      "abandon_message": "Ou gen {count} liy ki poko vann. Si ou soti, w ap pèdi yo.",
+      "abandon_confirm": "Wi, kite l",
+      "abandon_cancel": "Non, kontinye vann",
+      "remove_line_title": "Retire liy sa a?",
+      "remove_line_confirm": "Wi, retire l",
+      "remove_line_cancel": "Non, kite l",
       "copy_diagnostic": "Kopye referans sipò",
       "diagnostic_copied": "Referans sipò kopye",
       "draw": {

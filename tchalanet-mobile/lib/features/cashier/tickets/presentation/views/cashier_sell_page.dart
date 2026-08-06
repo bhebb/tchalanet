@@ -59,6 +59,51 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
     super.dispose();
   }
 
+  /// Leaving with lines already entered loses them, so it is confirmed. With
+  /// nothing entered there is nothing to lose and the dialog would just be
+  /// noise on the way out.
+  Future<void> _confirmAbandon(
+    BuildContext context,
+    I18nBundle translations,
+    SellState state,
+  ) async {
+    final lines = switch (state) {
+      SellReady(:final form) => form.committedLines.length,
+      SellPreviewing(:final form) => form.committedLines.length,
+      SellConfirming(:final form) => form.committedLines.length,
+      _ => 0,
+    };
+    if (lines == 0) {
+      context.pop();
+      return;
+    }
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(translations.translate('pos.sale.abandon_title')),
+        content: Text(
+          translations
+              .translate('pos.sale.abandon_message')
+              .replaceAll('{count}', '$lines'),
+        ),
+        actions: [
+          // The safe choice is the prominent one, and both buttons say what
+          // they do rather than "OK" and "Cancel".
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(translations.translate('pos.sale.abandon_confirm')),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(translations.translate('pos.sale.abandon_cancel')),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true && context.mounted) context.pop();
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(sellControllerProvider);
@@ -102,7 +147,10 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
         leading: IconButton(
           icon: const Icon(Icons.close_rounded),
           tooltip: translations.translate('pos.sale.cancel'),
-          onPressed: () => context.pop(),
+          // A bare × one tap away from the work area threw away a ticket in
+          // progress without a word. A tooltip does not help: it needs a long
+          // press and a convention the seller has no reason to know.
+          onPressed: () => _confirmAbandon(context, translations, state),
         ),
       ),
       // Reactive capability gate: `ready` = server `canSell && no requiredStep`.
@@ -614,6 +662,11 @@ class _SellBodyState extends ConsumerState<_SellBody> {
 
 // ─── Ticket receipt ───────────────────────────────────────────────────────────
 
+/// "#2 Bòlèt" — the row shows it, and the remove confirmation repeats it so
+/// the seller confirms against what they see. Shared so the copy exists once.
+String _lineTitle(int index, SellLine line) =>
+    '#${index + 1} ${line.gameLabel}';
+
 class _TicketReceipt extends ConsumerWidget {
   const _TicketReceipt({
     required this.lines,
@@ -642,6 +695,8 @@ class _TicketReceipt extends ConsumerWidget {
         children: [
           for (var index = 0; index < lines.length; index++) ...[
             if (index > 0) const Divider(height: TchSpacing.s20),
+            // Built once: the row shows it, and the remove confirmation
+            // repeats it so the seller confirms against what they see.
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -650,7 +705,7 @@ class _TicketReceipt extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '#${index + 1} ${lines[index].gameLabel}',
+                        _lineTitle(index, lines[index]),
                         style: Theme.of(context).textTheme.labelMedium
                             ?.copyWith(
                               color: scheme.onSurfaceVariant,
@@ -675,7 +730,45 @@ class _TicketReceipt extends ConsumerWidget {
                 if (enabled) ...[
                   const SizedBox(width: TchSpacing.s4),
                   IconButton(
-                    onPressed: () => onRemoveLine(index),
+                    // Confirmed: the bin sits inside the line the seller is
+                    // reading, so a stray tap while scanning the list silently
+                    // deleted a bet.
+                    onPressed: () async {
+                      final confirmed = await showDialog<bool>(
+                        context: context,
+                        builder: (dialogContext) => AlertDialog(
+                          title: Text(
+                            translations.translate(
+                              'pos.sale.remove_line_title',
+                            ),
+                          ),
+                          // Name the line being removed rather than asking a
+                          // generic "are you sure".
+                          content: Text(_lineTitle(index, lines[index])),
+                          actions: [
+                            TextButton(
+                              onPressed: () =>
+                                  Navigator.of(dialogContext).pop(true),
+                              child: Text(
+                                translations.translate(
+                                  'pos.sale.remove_line_confirm',
+                                ),
+                              ),
+                            ),
+                            FilledButton(
+                              onPressed: () =>
+                                  Navigator.of(dialogContext).pop(false),
+                              child: Text(
+                                translations.translate(
+                                  'pos.sale.remove_line_cancel',
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                      if (confirmed == true) onRemoveLine(index);
+                    },
                     icon: const Icon(Icons.delete_outline_rounded),
                     tooltip: translations.translate('pos.sale.remove_line'),
                   ),

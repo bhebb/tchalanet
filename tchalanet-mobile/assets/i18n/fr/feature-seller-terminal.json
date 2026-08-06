@@ -22,6 +22,13 @@
       "sale_rejected": "Vente refusée",
       "no_selection_stake": "Entrez un numéro et une mise",
       "terminal_unavailable": "Ce terminal ne peut pas vendre pour le moment.",
+      "abandon_title": "Abandonner ce ticket ?",
+      "abandon_message": "Vous avez {count} ligne(s) non vendue(s). En sortant, vous les perdez.",
+      "abandon_confirm": "Oui, abandonner",
+      "abandon_cancel": "Non, continuer la vente",
+      "remove_line_title": "Retirer cette ligne ?",
+      "remove_line_confirm": "Oui, retirer",
+      "remove_line_cancel": "Non, la garder",
       "copy_diagnostic": "Copier la référence support",
       "diagnostic_copied": "Référence support copiée",
       "draw": {

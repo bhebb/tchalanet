@@ -10,6 +10,8 @@ import 'package:tchalanet_mobile/features/cashier/tickets/data/models/cashier_se
 import 'package:tchalanet_mobile/features/cashier/tickets/presentation/view_models/sell_controller.dart';
 import 'package:tchalanet_mobile/features/cashier/tickets/presentation/views/cashier_sell_page.dart';
 
+/// Sunmi V2 class POS terminal: 1440 x 720 physical at DPR 2 → 360 x 720
+/// logical. Narrower and much shorter than the phones used for development.
 const _posTerminal = Size(360, 720);
 
 const _translations = I18nBundle(
@@ -27,6 +29,14 @@ const _translations = I18nBundle(
     'pos.sale.change_draw': 'Chanje',
     'pos.sale.cancel': 'Anile',
     'pos.sale.no_draws': 'Pa gen tiraj.',
+    'pos.sale.remove_line': 'Retire liy la',
+    'pos.sale.abandon_title': 'Kite tikè sa a?',
+    'pos.sale.abandon_message': 'Ou gen {count} liy ki poko vann.',
+    'pos.sale.abandon_confirm': 'Wi, kite l',
+    'pos.sale.abandon_cancel': 'Non, kontinye vann',
+    'pos.sale.remove_line_title': 'Retire liy sa a?',
+    'pos.sale.remove_line_confirm': 'Wi, retire l',
+    'pos.sale.remove_line_cancel': 'Non, kite l',
     'common.preparation.total': 'Total pou peye',
   },
 );
@@ -59,83 +69,86 @@ const _draw = CashierAvailableDrawView(
   localTimezone: 'America/Port-au-Prince',
 );
 
+/// A ticket in progress — the state the seller actually works in.
+final _form = SellFormData(
+  draws: const [_draw],
+  games: [
+    _game('HT_MARYAJ', 'Maryaj'),
+    _game('HT_LOTO4', 'Loto 4'),
+    _game('HT_BOLET', 'Bòlèt'),
+    _game('HT_LOTO5', 'Loto 5'),
+    _game('HT_LOTO3', 'Loto 3'),
+  ],
+  selectedDrawId: 'draw-1',
+  selectedGameCode: 'HT_LOTO5',
+  selectedBetType: 'SINGLE',
+  committedLines: const [
+    SellLine(
+      gameCode: 'HT_BOLET',
+      gameLabel: 'Bòlèt',
+      betType: 'SINGLE',
+      betTypeLabel: 'Bòlèt',
+      selection: '12',
+      stake: 15,
+    ),
+    SellLine(
+      gameCode: 'HT_BOLET',
+      gameLabel: 'Bòlèt',
+      betType: 'SINGLE',
+      betTypeLabel: 'Bòlèt',
+      selection: '16',
+      stake: 19,
+    ),
+    SellLine(
+      gameCode: 'HT_LOTO3',
+      gameLabel: 'Loto 3',
+      betType: 'SINGLE',
+      betTypeLabel: 'Loto 3',
+      selection: '123',
+      stake: 10,
+    ),
+  ],
+);
+
+Widget _harness() => ProviderScope(
+  overrides: [
+    i18nBundleProvider.overrideWithValue(_translations),
+    cashierHomeProvider.overrideWith(
+      (ref) async => const CashierHomeResponse(
+        quickActions: [],
+        widgets: [],
+        navigation: [],
+        notices: [],
+      ),
+    ),
+    cashierReadinessProvider.overrideWith(
+      (ref) async => const CashierReadinessResponse(
+        ready: true,
+        attentionLevel: CashierAttentionLevel.none,
+        badges: [],
+        notifications: [],
+        blockers: [],
+      ),
+    ),
+    sellControllerProvider.overrideWith(() => _FakeSell(_form)),
+  ],
+  child: const PosContextProvider(
+    context: SurfaceContext.posTerminal,
+    child: MaterialApp(home: CashierSellPage()),
+  ),
+);
+
+Future<void> _pumpAtTerminalSize(WidgetTester tester) async {
+  tester.view.physicalSize = _posTerminal;
+  tester.view.devicePixelRatio = 1.0;
+  addTearDown(tester.view.reset);
+  await tester.pumpWidget(_harness());
+  await tester.pumpAndSettle();
+}
+
 void main() {
   testWidgets('the sell page fits a 360x720 POS terminal', (tester) async {
-    tester.view.physicalSize = _posTerminal;
-    tester.view.devicePixelRatio = 1.0;
-    addTearDown(tester.view.reset);
-
-    final form = SellFormData(
-      draws: [_draw],
-      games: [
-        _game('HT_MARYAJ', 'Maryaj'),
-        _game('HT_LOTO4', 'Loto 4'),
-        _game('HT_BOLET', 'Bòlèt'),
-        _game('HT_LOTO5', 'Loto 5'),
-        _game('HT_LOTO3', 'Loto 3'),
-      ],
-      selectedDrawId: 'draw-1',
-      selectedGameCode: 'HT_LOTO5',
-      selectedBetType: 'SINGLE',
-      // A ticket in progress — the state the seller actually works in.
-      committedLines: const [
-        SellLine(
-          gameCode: 'HT_BOLET',
-          gameLabel: 'Bòlèt',
-          betType: 'SINGLE',
-          betTypeLabel: 'Bòlèt',
-          selection: '12',
-          stake: 15,
-        ),
-        SellLine(
-          gameCode: 'HT_BOLET',
-          gameLabel: 'Bòlèt',
-          betType: 'SINGLE',
-          betTypeLabel: 'Bòlèt',
-          selection: '16',
-          stake: 19,
-        ),
-        SellLine(
-          gameCode: 'HT_LOTO3',
-          gameLabel: 'Loto 3',
-          betType: 'SINGLE',
-          betTypeLabel: 'Loto 3',
-          selection: '123',
-          stake: 10,
-        ),
-      ],
-    );
-
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          i18nBundleProvider.overrideWithValue(_translations),
-          cashierHomeProvider.overrideWith(
-            (ref) async => const CashierHomeResponse(
-              quickActions: [],
-              widgets: [],
-              navigation: [],
-              notices: [],
-            ),
-          ),
-          cashierReadinessProvider.overrideWith(
-            (ref) async => const CashierReadinessResponse(
-              ready: true,
-              attentionLevel: CashierAttentionLevel.none,
-              badges: [],
-              notifications: [],
-              blockers: [],
-            ),
-          ),
-          sellControllerProvider.overrideWith(() => _FakeSell(form)),
-        ],
-        child: const PosContextProvider(
-          context: SurfaceContext.posTerminal,
-          child: MaterialApp(home: CashierSellPage()),
-        ),
-      ),
-    );
-    await tester.pumpAndSettle();
+    await _pumpAtTerminalSize(tester);
 
     // A RenderFlex overflow fails the test, so rendering at the terminal size
     // is itself the assertion. It caught two: full-width game chips, and the
@@ -183,14 +196,48 @@ void main() {
       );
     }
   });
+
+  testWidgets('leaving a ticket in progress asks first', (tester) async {
+    await _pumpAtTerminalSize(tester);
+
+    // The × sat one tap from the work area and discarded the ticket silently.
+    // A tooltip is no answer: it needs a long press and a convention a seller
+    // has no reason to know.
+    await tester.tap(find.byIcon(Icons.close_rounded));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Kite tikè sa a?'), findsOneWidget);
+    // Both buttons say what they do, rather than OK and Cancel.
+    expect(find.text('Wi, kite l'), findsOneWidget);
+    expect(find.text('Non, kontinye vann'), findsOneWidget);
+
+    await tester.tap(find.text('Non, kontinye vann'));
+    await tester.pumpAndSettle();
+    expect(find.text('#1 Bòlèt'), findsOneWidget);
+  });
+
+  testWidgets('removing a line names the line being removed', (tester) async {
+    await _pumpAtTerminalSize(tester);
+
+    await tester.tap(find.byIcon(Icons.delete_outline_rounded).first);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Retire liy sa a?'), findsOneWidget);
+    // Confirming against the line itself, not a generic "are you sure".
+    expect(find.textContaining('#1'), findsWidgets);
+
+    await tester.tap(find.text('Non, kite l'));
+    await tester.pumpAndSettle();
+    expect(find.text('#1 Bòlèt'), findsOneWidget);
+  });
 }
 
 class _FakeSell extends SellController {
-  _FakeSell(this._form);
-  final SellFormData _form;
+  _FakeSell(this._formData);
+  final SellFormData _formData;
 
   @override
-  SellState build() => SellReady(_form);
+  SellState build() => SellReady(_formData);
 
   // The page loads the catalog on init; the fixture supplies it instead.
   @override
