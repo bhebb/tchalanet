@@ -2,6 +2,7 @@ package com.tchalanet.server.features.pos.tickets.app;
 
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
+import com.tchalanet.server.common.context.TchActorType;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
@@ -75,12 +76,10 @@ public class PosTicketsService {
       Instant from,
       Instant to,
       Pageable pageable) {
-    // RLS only scopes rows to the tenant. A seller terminal must never read
-    // another terminal's tickets, so pin the filter to the caller's own
-    // terminal and ignore any sellerTerminalId it tried to pass. Tenant admins
-    // keep the explicit filter.
-    var effectiveSellerTerminalId =
-        ctx != null && ctx.sellerTerminalId() != null ? ctx.sellerTerminalId() : sellerTerminalId;
+    var effectiveSellerTerminalId = sellerTerminalId;
+    if (ctx != null && ctx.actorType() == TchActorType.SELLER_TERMINAL) {
+      effectiveSellerTerminalId = ctx.sellerTerminalIdRequired();
+    }
     var result =
         queryBus.ask(
             new ListTicketsQuery(
