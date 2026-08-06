@@ -80,7 +80,7 @@ public class PosGamesService {
 
   private String gameLabel(GameCode gameCode) {
     return switch (gameCode) {
-      case HT_BOLET -> "Bolet";
+      case HT_BOLET -> "Bòlèt";
       case HT_MARYAJ -> "Maryaj";
       case HT_MARYAJ_GRATIS -> "Maryaj gratis";
       case HT_LOTO3 -> "Loto 3";

@@ -911,11 +911,18 @@ class _BottomActions extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  translations.translate(CashierPreparationCopy.totalKey),
-                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    fontWeight: FontWeight.w700,
+                // Both texts were unflexed, so "Total pou peye" + the amount
+                // overflowed by 23 px at 360 dp. The label yields; the amount
+                // must never be truncated.
+                Flexible(
+                  child: Text(
+                    translations.translate(CashierPreparationCopy.totalKey),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
                 Text(
@@ -1427,7 +1434,9 @@ class _Chip extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
         constraints: const BoxConstraints(minHeight: 48),
-        alignment: Alignment.center,
+        // No `alignment` here on purpose: a Container with an alignment and no
+        // width expands to the incoming max constraint, so inside the Wrap each
+        // chip took the full row. Five games cost 316 dp instead of ~120.
         padding: const EdgeInsets.symmetric(
           horizontal: TchSpacing.s16,
           vertical: TchSpacing.s12,
