@@ -52,6 +52,11 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      # Avant Flutter : ne demande que python3, echoue en quelques secondes.
+      - name: Check i18n corpus (fr/en/ht)
+        working-directory: ${{ github.workspace }}
+        run: python3 scripts/i18n-audit.py --project mobile --strict
+
       - name: Set up Flutter
         uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
         with:

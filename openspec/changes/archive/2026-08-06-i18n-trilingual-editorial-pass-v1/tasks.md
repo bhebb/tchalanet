@@ -52,16 +52,20 @@ cohérence intra-locale → placeholders intacts.
       « Combien de seller-terminals ou seller-terminals ». Reconstituées sur l'acteur unique du
       modèle. 2 clés mortes supprimées (`cta.close_connexion`, `hero_stat_connexions`).
 - [x] 3.3 `surface-public` (48)
-- [ ] 3.4 `common` (105)
-- [ ] 3.5 `component` (120)
-- [ ] 3.6 `domain` (118) — socle terminologique, aligne les autres
-- [ ] 3.7 `feature-auth` (80)
-- [ ] 3.8 `surface-admin` (174)
-- [ ] 3.9 `feature-admin` (1367) — le plus gros ; sous-découper par section si besoin
-- [ ] 3.10 `surface-platform` (250)
-- [ ] 3.11 `feature-platform` (701)
-- [ ] 3.12 `feature-seller-terminal` (24) + `surface-seller-terminal` (5) — vérifier d'abord ce qui
-      survit à la phase 2
+> **3.4 à 3.12 — absorbées par les passes transverses.** Le découpage par namespace supposait que
+> chaque défaut était local. Il ne l'était pas : `tenant` et `seller-terminal` traversaient tous les
+> namespaces, et les traiter terme par terme (phases 3ter et 3quater) a été plus sûr que fichier par
+> fichier. Le résultat est vérifié par l'audit, pas par la liste ci-dessous.
+
+- [x] 3.4 `common` (105)
+- [x] 3.5 `component` (120)
+- [x] 3.6 `domain` (118) — socle terminologique, aligne les autres
+- [x] 3.7 `feature-auth` (80)
+- [x] 3.8 `surface-admin` (174)
+- [x] 3.9 `feature-admin` (1367)
+- [x] 3.10 `surface-platform` (250)
+- [x] 3.11 `feature-platform` (701)
+- [x] 3.12 `feature-seller-terminal` + `surface-seller-terminal`
 
 ## Phase 3bis — Consolidation (analyse faite, exécution à venir)
 
@@ -76,7 +80,7 @@ redéfinis dans 286 clés ; 188 termes FR traduits différemment selon l'endroit
       `domain.draw.provider.*` ×4, `domain.entity.sellerTerminal(s)` ×2,
       `dashboard.period.previous_{day,week}` ×2, `shell.error.backendUnavailable.*` ×2,
       `app.nav.dashboard`. Corpus : 4 050 → **4 039 clés**, parité stricte maintenue.
-- [ ] 3b.2b **Arbitrage requis** — 20 clés mortes conservées (`domain.entity.*`, `common.print`,
+- [ ] 3b.2b **Arbitrage requis** *(reporté → `openspec/BACKLOG.md`)* — 20 clés mortes conservées (`domain.entity.*`, `common.print`,
       `common.verify`…) parce qu'elles sont les cibles du Lot A. Les garder implique un refactor
       de composants ; les supprimer implique de renoncer à la mutualisation. Voir `consolidation.md`.
 - [x] 3b.3 **Lot B** — divergences alignées sans fusionner. 186 groupes au départ → **88 restants**
@@ -87,12 +91,11 @@ redéfinis dans 286 clés ; 188 termes FR traduits différemment selon l'endroit
       `Deviz` (contre `Lajan` = argent), `Premye lo` / `1st prize` pour les paliers borlette.
       Trois groupes résolus en corrigeant le **français**, qui était le fautif :
       `Mon entreprise`, `Commission par défaut`, `Nom de famille`.
-- [ ] 3b.3b **Lot B, reste** — 88 groupes / 220 clés de synonymes encore à arbitrer, plus
+- [ ] 3b.3b **Lot B, reste** *(reporté → `consolidation.md`)* — 88 groupes / 220 clés de synonymes encore à arbitrer, plus
       4 groupes volontairement laissés (`Paramètres`, `Paiements`, `Jeux disponibles`,
       `Seller-terminals actifs`) dont la divergence est justifiée ou dépend de la phase 3.
-- [ ] 3b.4 **Lot A** — fusionner vers `common`/`domain` (~120 clés), un namespace à la fois
-- [ ] 3b.5 **Lot C** — ne rien toucher ; documenté dans `consolidation.md` pour que personne
-      ne « corrige » ces homonymes plus tard
+- [ ] 3b.4 **Lot A** *(suspendu — dépend de l'arbitrage 3b.2b)* — fusionner vers `common`/`domain` (~120 clés), un namespace à la fois
+- [x] 3b.5 **Lot C** — documenté dans `consolidation.md` ; rien à faire, c'est le but
 
 ## Phase 3ter — Éradication de « tenant » (transverse)
 
@@ -131,7 +134,7 @@ redéfinis dans 286 clés ; 188 termes FR traduits différemment selon l'endroit
 
 - [x] 5.1 Audit complet : **0 défaut**, `--strict` sort en 0. Web 4 033 × 3, mobile 429 × 3.
 - [x] 5.2 `nx test core-i18n` (4) + `web-errors` (13) verts ; builds public/admin/platform verts
-- [ ] 5.3 Revue visuelle des libellés contraints en HT — la locale la plus longue
+- [ ] 5.3 Revue visuelle des libellés contraints en HT *(à faire par le relecteur trilingue)*
 - [x] 5.4 PR : #541 → #542 → #543 → #545 → #546 (pile), + #544 pour la CI docs
 
 ### Défaut découvert en phase 3.1 — français sans accents
@@ -159,3 +162,26 @@ Corrigées. Aucune autre occurrence dans le reste du corpus web ni dans le mobil
 
 - Garde-fou CI : test de parité fr/en/ht + interdiction des identifiants techniques dans les valeurs.
   Sans lui, la dérive corrigée ici reviendra au prochain renommage.
+
+---
+
+## Clôture — 2026-08-05
+
+**997 défauts → 0.** `scripts/i18n-audit.py --strict` sort en 0 sur `main`.
+
+| | web | mobile |
+|---|---|---|
+| Clés × 3 locales | 4 033 | 429 |
+| Parité · fuites techniques · FR résiduel · IPN | 0 | 0 |
+| Placeholders · valeurs vides | 0 | 0 |
+
+Livré par #541 puis #552 (qui a remplacé #542/#545/#546 : le dépôt fait du squash-merge, ce qui
+rend les PR empilées inmergeables — la base disparaît sous un SHA neuf et l'enfant conflicte avec
+son propre contenu).
+
+Le garde-fou est branché dans `web-pr.yml` et `mobile-pr.yml`, et détecte désormais aussi les
+objets JSON dupliqués — le défaut qui avait rendu 88 traductions anglaises inatteignables.
+
+**Reste ouvert, suivi ailleurs :** les 26 `labelKey` PageModel sans traduction et
+`sales.session_closed` (→ `openspec/BACKLOG.md`) ; la longue traîne du Lot B et l'arbitrage du
+Lot A (→ `consolidation.md`).

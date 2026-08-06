@@ -98,8 +98,50 @@ def flatten(obj, prefix=""):
     return out
 
 
-def load(root: str) -> dict[str, dict[str, object]]:
+def find_duplicate_objects(raw: str) -> list[str]:
+    """Objets JSON declares deux fois dans le meme parent.
+
+    `JSON.parse` — comme `json.load` — applique *last-wins* sans rien dire :
+    le premier sous-arbre devient inatteignable a l'execution. C'est ce qui
+    avait rendu 88 traductions anglaises impossibles a charger, et perdu
+    `platform.identity.activation.error` dans les trois locales.
+
+    Rien dans un linter JSON ne signale ce cas : le fichier est valide.
+    """
+    found: list[str] = []
+
+    def hook(pairs):
+        seen: dict[str, object] = {}
+        for k, v in pairs:
+            if k in seen:
+                found.append(k)
+            seen[k] = v
+        return seen
+
+    json.loads(raw, object_pairs_hook=hook)
+    return found
+
+
+def find_dotted_keys(obj, path: str = "") -> list[str]:
+    """Cles ecrites « a.b » a l'interieur d'un objet, au lieu d'etre imbriquees.
+
+    ngx-translate resout les deux formes, donc rien ne casse a l'ecran — mais
+    tout outil qui parcourt l'arbre s'y casse les dents.
+    """
+    out: list[str] = []
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            here = f"{path}.{k}" if path else k
+            if "." in k:
+                out.append(here)
+            out.extend(find_dotted_keys(v, here))
+    return out
+
+
+def load(root: str) -> tuple[dict[str, dict[str, object]], list[str], list[str]]:
     data = {}
+    dupes: list[str] = []
+    dotted: list[str] = []
     for loc in LOCALES:
         locdir = os.path.join(root, loc)
         if not os.path.isdir(locdir):
@@ -109,22 +151,38 @@ def load(root: str) -> dict[str, dict[str, object]]:
             if not fname.endswith(".json"):
                 continue
             with open(os.path.join(locdir, fname), encoding="utf-8") as fh:
-                parsed = json.load(fh)
-            merged.update(
-                {f"{fname[:-5]}:{k}": v for k, v in flatten(parsed).items()}
-            )
+                raw = fh.read()
+            ns = fname[:-5]
+            for k in find_duplicate_objects(raw):
+                dupes.append(f"{loc}/{ns}: «{k}» déclaré deux fois")
+            parsed = json.loads(raw)
+            for k in find_dotted_keys(parsed):
+                dotted.append(f"{loc}/{ns}: {k}")
+            merged.update({f"{ns}:{k}": v for k, v in flatten(parsed).items()})
         data[loc] = merged
-    return data
+    return data, dupes, dotted
 
 
 def audit(project: str, root: str, verbose: bool) -> dict[str, int]:
-    data = load(root)
+    data, dupes, dotted = load(root)
     counts: dict[str, int] = {}
     src = data[SOURCE_LOCALE]
 
     print(f"\n{'=' * 72}\n{project.upper()}  —  {root}\n{'=' * 72}")
     for loc in LOCALES:
         print(f"  {loc}: {len(data[loc])} clés")
+
+    # 0. structure du fichier — invisible a l'execution, donc jamais signalee ailleurs
+    counts["duplicate_objects"] = len(dupes)
+    counts["dotted_keys"] = len(dotted)
+    print(f"\n  [objets dupliqués] {len(dupes)}"
+          + ("   ← sous-arbres inatteignables au runtime" if dupes else ""))
+    for line in dupes[:15]:
+        print(f"      {line}")
+    print(f"  [clés pointées] {len(dotted)}")
+    if verbose:
+        for line in dotted[:15]:
+            print(f"      {line}")
 
     # 2. dérive de clés
     for loc in LOCALES:
