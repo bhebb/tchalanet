@@ -67,14 +67,6 @@ class PosTicketsServiceTest {
     verify(queryBus, never()).ask(any(GetCashierDashboardStatsQuery.class));
   }
 
-  private static PosTicketsService service(QueryBus queryBus) {
-    return new PosTicketsService(
-        queryBus,
-        mock(CommandBus.class),
-        mock(PosTicketMapper.class),
-        mock(TicketScanResolver.class));
-  }
-
   @Test
   void sellerTerminalListIsScopedWhenFilterIsOmitted() {
     var tenantId = TenantId.of(UUID.randomUUID());
@@ -147,6 +139,14 @@ class PosTicketsServiceTest {
 
   private static TchPage<TicketRow> emptyTicketPage() {
     return TchPage.of(List.of(), 0, 20, 0, 0, true, false, false);
+  }
+
+  private static PosTicketsService service(QueryBus queryBus) {
+    return new PosTicketsService(
+        queryBus,
+        mock(CommandBus.class),
+        mock(PosTicketMapper.class),
+        mock(TicketScanResolver.class));
   }
 
   private static TchRequestContext context(TenantId tenantId, SellerTerminalId terminalId) {
