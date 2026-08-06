@@ -36,6 +36,9 @@
 # compromission du serveur ne donne donc pas accès aux backups déjà poussés.
 set -euo pipefail
 
+# shellcheck source=pg-runtime-ownership.sh
+source "$(dirname "$0")/pg-runtime-ownership.sh"
+
 ENV="${ENV:?ENV is required (staging|prod)}"
 TS="$(date -u +%Y%m%dT%H%M%SZ)"
 PREFIX="${ENV}/$(date -u +%Y/%m)"
@@ -58,9 +61,18 @@ PGUSER="$(docker inspect "$PG_CONTAINER" --format '{{range .Config.Env}}{{printl
 PGPASSWORD="$(docker inspect "$PG_CONTAINER" --format '{{range .Config.Env}}{{println .}}{{end}}' | sed -n 's/^POSTGRES_PASSWORD=//p' | head -1)"
 APP_DB="$(docker inspect "$PG_CONTAINER" --format '{{range .Config.Env}}{{println .}}{{end}}' | sed -n 's/^APP_DB_NAME=//p' | head -1)"
 APP_DB="${APP_DB:-tchalanet_db}"
+APP_DB_USER="$(docker inspect "$PG_CONTAINER" --format '{{range .Config.Env}}{{println .}}{{end}}' | sed -n 's/^APP_DB_USER=//p' | head -1)"
+APP_DB_USER="${APP_DB_USER:-app_user}"
 [ -n "$PGUSER" ] && [ -n "$PGPASSWORD" ] || fail "could not read POSTGRES_USER/PASSWORD from $PG_CONTAINER"
 
+[[ "$APP_DB_USER" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]] || fail "unsafe application database user: $APP_DB_USER"
+
 log "Backup ENV=$ENV container=$PG_CONTAINER db=$APP_DB"
+
+# The dump is intentionally --no-owner. Normalize the live source first, then
+# keep the same guard in pg-restore.sh for the portable dump's target database.
+log "Normalizing analytics ownership before backup"
+ensure_runtime_rls_owners || fail "could not normalize analytics ownership"
 
 # 1) Rôles et privilèges (globals) — pg_dump seul ne les inclut pas, et sans eux
 #    une restauration produit une base dont les GRANT et le rôle app_user manquent.
@@ -110,6 +122,8 @@ if ! docker exec -e PGPASSWORD=verify "$VERIFY" \
   docker rm -f "$VERIFY" >/dev/null 2>&1 || true
   fail "backup failed verification: pg_restore could not read the dump"
 fi
+PG_CONTAINER="$VERIFY" PGUSER=postgres PGPASSWORD=verify APP_DB=verify APP_DB_USER=app_user \
+  ensure_runtime_rls_owners || fail "backup failed verification: analytics ownership is not restorable"
 TABLES="$(docker exec -e PGPASSWORD=verify "$VERIFY" \
   psql -U postgres -d verify -tAc \
   "select count(*) from information_schema.tables where table_schema='public'")"

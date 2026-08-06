@@ -55,11 +55,14 @@ Le script :
    restaurée n'a ni `app_user` ni ses GRANT.
 2. `pg_dump -Fc` de la base applicative — format custom, restauration
    sélective et parallèle possible.
-3. **Vérifie par restauration réelle** dans un conteneur jetable, puis compte
+3. Avant le dump, normalise le propriétaire des trois projections analytics
+   dont le RLS sans policy dépend du propriétaire (`analytics_daily`,
+   `analytics_draw` et `analytics_selection`) vers `APP_DB_USER`.
+4. **Vérifie par restauration réelle** dans un conteneur jetable, puis compte
    les tables. Un contrôle de taille ne prouve rien : un gzip de message
    d'erreur pèse aussi quelques octets. Le backup échoue si la restauration
    échoue ou si zéro table en sort.
-4. Chiffre avec `age` puis pousse vers `r2:<bucket>/<env>/<AAAA>/<MM>/` avec
+5. Chiffre avec `age` puis pousse vers `r2:<bucket>/<env>/<AAAA>/<MM>/` avec
    `rclone`. Le 1er du mois, promeut la copie du jour en archive mensuelle sous
    `<env>/monthly/` — **avant** la purge, pour qu'une archive fraîche ne soit
    jamais éligible à l'effacement. Puis purge les deux niveaux et journalise le
@@ -110,6 +113,12 @@ Prérequis locaux : `rclone`, `age`, `docker` (`brew install rclone age` sur mac
 Sans argument, le dernier backup est utilisé. Pour un backup précis, passer la
 clé d'objet R2. Le script demande de taper `restore <env>` avant d'écraser quoi
 que ce soit.
+
+Le dump reste portable et utilise `--no-owner`. La restauration réapplique donc
+explicitement le propriétaire `APP_DB_USER` sur les trois projections
+analytics concernées, puis échoue si l'une d'elles reste possédée par un autre
+rôle. La normalisation avant backup garantit que la base source est saine; elle
+ne remplace pas cette garde post-restore.
 
 Répétition sans rien toucher :
 

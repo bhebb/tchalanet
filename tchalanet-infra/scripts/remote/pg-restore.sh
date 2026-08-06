@@ -18,6 +18,9 @@
 # qu'ici, au moment de restaurer.
 set -euo pipefail
 
+# shellcheck source=pg-runtime-ownership.sh
+source "$(dirname "$0")/pg-runtime-ownership.sh"
+
 ENV="${ENV:?ENV is required (staging|prod)}"
 OBJECT="${1:-}"
 DRY_RUN="${DRY_RUN:-0}"
@@ -84,6 +87,8 @@ if [ "$DRY_RUN" = "1" ]; then
     docker rm -f "$VERIFY" >/dev/null 2>&1 || true
     fail "rehearsal failed: dump is not restorable"
   fi
+  PG_CONTAINER="$VERIFY" PGUSER=postgres PGPASSWORD=verify APP_DB=verify APP_DB_USER=app_user \
+    ensure_runtime_rls_owners || fail "rehearsal failed: analytics ownership is not restorable"
   TABLES="$(docker exec -e PGPASSWORD=verify "$VERIFY" psql -U postgres -d verify -tAc \
             "select count(*) from information_schema.tables where table_schema='public'")"
   SCHEMAS="$(docker exec -e PGPASSWORD=verify "$VERIFY" psql -U postgres -d verify -tAc \
@@ -136,6 +141,12 @@ docker cp "$DUMP" "$PG_CONTAINER:/tmp/restore.dump"
 docker exec -e PGPASSWORD="$PGPASSWORD" "$PG_CONTAINER" \
   pg_restore -U "$PGUSER" -d "$APP_DB" --exit-on-error --no-owner /tmp/restore.dump \
   || fail "pg_restore failed"
+
+# --no-owner is intentional for portability, so restore ownership explicitly
+# before the API starts. This prevents RLS-backed projections from becoming
+# invisible or unwritable after a database recreation.
+log "Normalizing analytics ownership after restore"
+ensure_runtime_rls_owners || fail "could not normalize analytics ownership"
 
 # pg_dump is produced with --no-owner and some application tables do not carry
 # explicit ACLs in the dump. Reapply the same runtime grants as postgres-init.sh
