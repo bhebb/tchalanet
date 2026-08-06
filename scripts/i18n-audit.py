@@ -62,6 +62,12 @@ FR_MARKERS = re.compile(
 )
 FR_DIACRITIC = re.compile(r"[éèêëàâçôûùïî]")
 
+# L'orthographe IPN n'utilise que è, ò, à (et le digramme « ou »). Toute autre
+# lettre accentuee dans une chaine kreyol est du francais non traduit ou une
+# faute — c'est ce qui a fait remonter « Ticket en préparation » et
+# « souliyé », que la comparaison FR == HT ne voyait pas.
+NOT_IPN = re.compile(r"[éêëçûùïîâô]")
+
 # Identiques au francais *a dessein*. Chaque entree est justifiee : sans cette
 # liste, --strict ne peut jamais atteindre 0 et le garde-fou devient inutile.
 IDENTICAL_OK = {
@@ -187,6 +193,13 @@ def audit(project: str, root: str, verbose: bool) -> dict[str, int]:
 
     # 4. orthographe kreyòl
     print()
+    non_ipn = [(k, v) for k, v in data.get("ht", {}).items()
+               if isinstance(v, str) and NOT_IPN.search(v)]
+    counts["ht.non_ipn"] = len(non_ipn)
+    print(f"  [lettres non-IPN] ht: {len(non_ipn)}")
+    for k, v in non_ipn[:15]:
+        print(f"      {k}\n           {v!r}")
+
     ht_errors = []
     for k, v in data.get("ht", {}).items():
         if not isinstance(v, str):
