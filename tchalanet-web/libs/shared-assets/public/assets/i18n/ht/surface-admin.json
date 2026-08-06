@@ -119,7 +119,6 @@
     "users": "Itilizatè",
     "outlets": "Tèminal POS",
     "seller-terminals": "Tèminal POS",
-    "terminals": "Tèminal POS",
     "connexions": "Koneksyon",
     "tickets_sales": "Tikè & vant",
     "draws": "Tiraj",
@@ -133,8 +132,6 @@
     "tickets": "Tikè",
     "verify_ticket": "Verifye tikè",
     "connexion": "Koneksyon",
-    "session": "Koneksyon",
-    "sessions": "Koneksyon",
     "language": "Lang",
     "profile": "Pwofil"
   },

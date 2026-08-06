@@ -38,7 +38,6 @@
     }
   },
   "cta": {
-    "close_connection": "Close connection",
     "sell_ticket": "Sell a ticket",
     "verify_ticket": "Verify a ticket",
     "close_connexion": "Fermer la connexion"
@@ -150,7 +149,6 @@
       "hero_title": "Manage your seller-terminals, tickets and reports with greater clarity.",
       "hero_body": "Tchalanet helps borlette banks, points of sale and seller-terminal networks issue tickets, track connections, verify results and consult activity reports.",
       "hero_stat_tickets": "Tickets today",
-      "hero_stat_connections": "Active seller-terminals",
       "hero_stat_agents": "Active seller-terminals",
       "hero_stat_payments": "Payments to track",
       "cta_demo": "Request a demo",
@@ -244,8 +242,6 @@
       "faq_multipos_a": "Yes. The Network and Custom plans allow you to configure multiple points of sale and centralize reports.",
       "faq_mobile_q": "Can my seller-terminals use Tchalanet on mobile?",
       "faq_mobile_a": "Yes. The Tchalanet POS app is available on mobile for authorized seller-terminals.",
-      "faq_seller_terminals_q": "How many seller-terminals can I use?",
-      "faq_seller_terminals_a": "Limits depend on the chosen plan. Contact us to find the configuration suited to your network.",
       "hero_stat_connexions": "Seller-terminals actifs",
       "faq_seller-terminals_q": "Combien de seller-terminals ou seller-terminals puis-je utiliser ?",
       "faq_seller-terminals_a": "Les limites dépendent du plan choisi. Contactez-nous pour connaître la configuration adaptée à votre réseau.",

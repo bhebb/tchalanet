@@ -161,6 +161,42 @@ Audit 2026-05-30 :
 
 ---
 
+## i18n — relevé de la passe éditoriale trilingue (2026-08-05)
+
+Trouvé pendant `openspec/changes/i18n-trilingual-editorial-pass-v1`. Hors périmètre de ce change,
+à traiter ailleurs.
+
+### Backend — code d'erreur d'un concept retiré
+
+| Item | Détail |
+|---|---|
+| `sales.session_closed` | Toujours émis par `SaleIssueFactory.java:115` (`case "SESSION_CLOSED"` → `sales.session_closed`, + `:148` pour l'instruction) alors que **`SalesSession` est un concept retiré** du modèle (voir `docs/00-guidelines/glossary.md` : « Termes retirés »). La copy i18n a été reformulée sans « caisse »/« cashier », mais le code d'erreur lui-même devrait disparaître côté serveur. Tant qu'il vit, on traduit un concept qui n'existe plus. |
+
+### PageModel — 26 `labelKey` sans traduction
+
+Les templates `tchalanet-server/tchalanet-app/src/main/resources/pagemodel/templates/*.json`
+référencent 218 clés i18n. **26 n'existent dans aucune locale** : la clé brute s'affiche à l'écran,
+dans les trois langues. Sections publiques concernées, donc visibles sans authentification.
+
+- `layout.public_managers.*` (8 clés — hero, plans, faq, features, process, lead_form, access_control)
+- `layout.public_home.how_it_works`, `.manager_cta`, `.ticket_verification`
+- `public.footer.social.{facebook,instagram,linkedin,x,youtube}`
+- `public.operator.form_{name,contact,message}_label`, `public.nav.theme`
+- `home.tchala.by_dream_label`, `.by_number_label`, `home.tchala.dream.{argent,mariage,poisson,serpent}`
+- `layout.private_dashboard_superadmin_ops.database`
+
+> Deux lectures possibles : soit les clés manquent, soit les templates référencent des sections
+> mortes. À trancher template par template — ne pas créer les 26 clés à l'aveugle.
+
+### Mutualisation i18n — arbitrage à faire
+
+88 termes déjà présents dans `common`/`domain` sont redéfinis dans 286 clés ailleurs, et
+188 termes FR reçoivent **des traductions EN/HT différentes selon l'endroit**.
+Analyse et découpage en trois lots dans
+`openspec/changes/i18n-trilingual-editorial-pass-v1/consolidation.md`.
+
+---
+
 ## Observations mineures
 
 - `tchalanet-server/docs/ARCHITECTURE.md` — à mettre à jour avec la convention nommage near-code (DOMAIN/CATALOG/PLATFORM/FEATURE)

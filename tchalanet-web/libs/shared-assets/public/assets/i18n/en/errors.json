@@ -114,7 +114,7 @@
           "terminal": {
             "tenant_selection_not_allowed": {
               "title": "Selection not allowed",
-              "message": "A seller terminal cannot select another workspace."
+              "message": "A seller cannot select another workspace."
             }
           },
           "tenant": {
@@ -196,11 +196,11 @@
             },
             "seller_terminal_not_linked": {
               "title": "Terminal not linked",
-              "message": "This sign-in is not linked to a seller terminal. Reopen an authorized terminal."
+              "message": "This sign-in is not linked to any seller. Sign in with an authorized seller account."
             },
             "seller_terminal_inactive": {
               "title": "Inactive terminal",
-              "message": "This seller terminal cannot be used at the moment. Contact an administrator."
+              "message": "This seller account is inactive. Contact an administrator."
             }
           },
           "handoff": {
@@ -350,6 +350,12 @@
                 "message": "Your workspace is still accessible, but an account check could not finish."
               }
             }
+          },
+          "communication": {
+            "test_degraded": {
+              "title": "Communication test incomplete",
+              "message": "The test could not reach its destination. Check the channel configuration."
+            }
           }
         },
         "entitlement": {
@@ -371,13 +377,29 @@
           },
           "plan_unavailable": {
             "title": "Plan unavailable",
-            "message": "This tenant plan cannot be read right now. Try again later."
+            "message": "Your workspace plan cannot be read right now. Try again later."
           }
         },
         "limits": {
           "blocked": {
-            "title": "Sales limit reached",
-            "message": "This sale exceeds a configured limit for this draw or number. Reduce the stake, choose another number, or remove the affected line."
+            "title": "Limit exceeded",
+            "message": "This sale exceeds the configured limit."
+          },
+          "target_type_required": {
+            "title": "Target required",
+            "message": "Select the limit target type."
+          },
+          "target_type_unsupported": {
+            "title": "Unsupported target",
+            "message": "This target type is not available for limits."
+          },
+          "target_id_required": {
+            "title": "Target required",
+            "message": "Select the limit target."
+          },
+          "target_id_invalid": {
+            "title": "Invalid target",
+            "message": "Select a valid limit target."
           }
         },
         "subscription": {
@@ -405,7 +427,7 @@
           },
           "promotion_terminal_override_applied": {
             "title": "Seller promotion rule applied",
-            "message": "The ticket uses the promotion rule specific to this seller terminal."
+            "message": "The ticket uses the promotion rule specific to this seller."
           },
           "acceptable": {
             "title": "Sale ready",
@@ -496,8 +518,8 @@
             "message": "The sales cutoff time has passed. Choose another open draw."
           },
           "session_closed": {
-            "title": "Cashier session closed",
-            "message": "Open a cashier session before selling."
+            "title": "Sales session closed",
+            "message": "Open a sales session before selling."
           },
           "terminal_blocked": {
             "title": "Seller blocked",
@@ -509,7 +531,7 @@
           },
           "tenant_disabled": {
             "title": "Workspace disabled",
-            "message": "Sales are disabled for this tenant. Contact the platform administrator."
+            "message": "Sales are disabled for your workspace. Contact the platform administrator."
           },
           "untrusted_operational_context": {
             "title": "Invalid sale context",
@@ -536,7 +558,10 @@
             "message": "This sale is not attached to a seller. Return to the seller list and open the sale from an active seller."
           },
           "draw": {
-            "not_open": { "title": "Draw closed", "message": "Choose another open draw." },
+            "not_open": {
+              "title": "Draw closed",
+              "message": "Choose another open draw."
+            },
             "cutoff_elapsed": {
               "title": "Sales closed for this draw",
               "message": "The sales cutoff has passed. Choose another open draw."
@@ -565,7 +590,7 @@
             },
             "cannot_sell": {
               "title": "Sale unavailable",
-              "message": "This seller terminal cannot sell at the moment. Use an active terminal or verify its access."
+              "message": "This seller cannot sell at the moment. Use an active seller account or check its access."
             }
           },
           "tenant": {
@@ -708,7 +733,7 @@
         "sellerterminal": {
           "not_found": {
             "title": "Terminal not found",
-            "message": "This seller terminal is no longer available."
+            "message": "This seller is no longer available."
           },
           "status_transition_invalid": {
             "title": "Action unavailable",
@@ -744,7 +769,10 @@
             "title": "Option required",
             "message": "Select the pricing option."
           },
-          "bet_type_required": { "title": "Bet type required", "message": "Select the bet type." },
+          "bet_type_required": {
+            "title": "Bet type required",
+            "message": "Select the bet type."
+          },
           "odds_invalid": {
             "title": "Invalid multiplier",
             "message": "Enter a multiplier greater than zero."
@@ -759,7 +787,7 @@
           },
           "tenant_default_not_configured": {
             "title": "Pricing missing",
-            "message": "Configure the tenant pricing rule first."
+            "message": "Configure your workspace pricing rule first."
           },
           "override_not_found": {
             "title": "Override not found",
@@ -767,7 +795,7 @@
           },
           "override_payout_rule_type_mismatch": {
             "title": "Incompatible override",
-            "message": "A terminal cannot change the payout rule type set for the tenant."
+            "message": "A seller cannot change the payout rule type set for the workspace."
           }
         },
         "draw": {
@@ -894,28 +922,6 @@
             }
           }
         },
-        "limits": {
-          "blocked": {
-            "title": "Limit exceeded",
-            "message": "This sale exceeds the configured limit."
-          },
-          "target_type_required": {
-            "title": "Target required",
-            "message": "Select the limit target type."
-          },
-          "target_type_unsupported": {
-            "title": "Unsupported target",
-            "message": "This target type is not available for limits."
-          },
-          "target_id_required": {
-            "title": "Target required",
-            "message": "Select the limit target."
-          },
-          "target_id_invalid": {
-            "title": "Invalid target",
-            "message": "Select a valid limit target."
-          }
-        },
         "notification": {
           "not_found": {
             "title": "Notification not found",
@@ -950,8 +956,8 @@
             "message": "Choose a supported notification language."
           },
           "tenant_required": {
-            "title": "Tenant required",
-            "message": "Select the notification tenant."
+            "title": "Operator required",
+            "message": "Select the notification operator."
           },
           "target_required": {
             "title": "Recipient required",
@@ -963,7 +969,7 @@
           },
           "tenant_audience_requires_tenant_scope": {
             "title": "Access denied",
-            "message": "This audience requires tenant context."
+            "message": "This audience requires an operator context."
           },
           "recipients_required": {
             "title": "Recipient required",
@@ -1023,7 +1029,7 @@
           },
           "tenant_override_forbidden": {
             "title": "Access denied",
-            "message": "Your account cannot select this tenant."
+            "message": "Your account cannot select this workspace."
           },
           "not_found": {
             "title": "Page not found",
@@ -1067,8 +1073,8 @@
           },
           "home": {
             "seller_terminal_required": {
-              "title": "Seller terminal required",
-              "message": "Reopen the session from a valid seller terminal."
+              "title": "Seller account required",
+              "message": "Sign in with a valid seller account."
             }
           },
           "dashboard": {
@@ -1080,7 +1086,7 @@
           "tickets": {
             "seller_terminal_mismatch": {
               "title": "Access denied",
-              "message": "This seller terminal does not match your session."
+              "message": "This seller does not match the one you signed in as."
             }
           },
           "receipt": {
@@ -1101,8 +1107,8 @@
               "message": "The document is too large to send as an attachment."
             },
             "seller_terminal_required": {
-              "title": "Seller terminal required",
-              "message": "Reopen a valid seller-terminal session to continue."
+              "title": "Seller account required",
+              "message": "Sign in with a valid seller account to continue."
             }
           }
         },
@@ -1113,7 +1119,7 @@
           },
           "channel_disabled": {
             "title": "Delivery channel unavailable",
-            "message": "This delivery channel is not enabled for this tenant."
+            "message": "This delivery channel is not enabled for your workspace."
           },
           "enqueue_failed": {
             "title": "Delivery unavailable",
@@ -1134,12 +1140,12 @@
             "message": "This catalog game is no longer available."
           },
           "not_found": {
-            "title": "Tenant game not found",
-            "message": "This game is not enabled for this tenant."
+            "title": "Game not found",
+            "message": "This game is not enabled for your workspace."
           },
           "disabled": {
             "title": "Game disabled",
-            "message": "This game is disabled for this tenant."
+            "message": "This game is disabled for your workspace."
           },
           "catalog_game_inactive": {
             "title": "Inactive game",
@@ -1169,8 +1175,14 @@
             "title": "Invalid day",
             "message": "Select supported availability days."
           },
-          "time_invalid": { "title": "Invalid time", "message": "Enter a time in HH:mm format." },
-          "bet_type_required": { "title": "Bet type required", "message": "Select a bet type." },
+          "time_invalid": {
+            "title": "Invalid time",
+            "message": "Enter a time in HH:mm format."
+          },
+          "bet_type_required": {
+            "title": "Bet type required",
+            "message": "Select a bet type."
+          },
           "bet_type_unsupported": {
             "title": "Unsupported bet type",
             "message": "This bet type is not available for this game."
@@ -1198,20 +1210,20 @@
         },
         "tenant": {
           "not_found": {
-            "title": "Tenant not found",
-            "message": "This tenant is no longer available."
+            "title": "Operator not found",
+            "message": "This operator is no longer available."
           },
           "activation_not_allowed": {
             "title": "Activation unavailable",
-            "message": "This tenant cannot be activated in its current state."
+            "message": "This operator cannot be activated in its current state."
           },
           "suspension_not_allowed": {
             "title": "Suspension unavailable",
-            "message": "This tenant cannot be suspended in its current state."
+            "message": "This operator cannot be suspended in its current state."
           },
           "settings_invalid": {
             "title": "Invalid configuration",
-            "message": "Correct the tenant configuration, then try again."
+            "message": "Correct the operator configuration, then try again."
           },
           "support_reason_invalid": {
             "title": "Invalid support reason",
@@ -1220,7 +1232,7 @@
           "commission": {
             "default_rate_not_set": {
               "title": "Default rate required",
-              "message": "Configure the tenant default commission rate first."
+              "message": "Configure the operator default commission rate first."
             }
           }
         },
@@ -1285,8 +1297,8 @@
         "platformadmin": {
           "dashboard": {
             "tenants_unavailable": {
-              "title": "Tenants unavailable",
-              "message": "Tenant indicators are temporarily unavailable."
+              "title": "Operators unavailable",
+              "message": "Operator indicators are temporarily unavailable."
             },
             "analytics_unavailable": {
               "title": "Platform analytics unavailable",
@@ -1314,11 +1326,11 @@
             },
             "structural_update_in_use": {
               "title": "Update unavailable",
-              "message": "This game is already used in a tenant configuration."
+              "message": "This game is already used in an operator configuration."
             },
             "delete_in_use": {
               "title": "Deletion unavailable",
-              "message": "This game is already used in a tenant configuration."
+              "message": "This game is already used in an operator configuration."
             },
             "deactivated": {
               "title": "Game deactivated",
@@ -1360,14 +1372,6 @@
             }
           }
         },
-        "platform": {
-          "communication": {
-            "test_degraded": {
-              "title": "Communication test incomplete",
-              "message": "The test could not reach its destination. Check the channel configuration."
-            }
-          }
-        },
         "public": {
           "contact_request": {
             "notification_failed": {
@@ -1392,7 +1396,7 @@
             },
             "draw_not_in_tenant": {
               "title": "Invalid draw",
-              "message": "One of the draws does not belong to the selected tenant."
+              "message": "One of the draws does not belong to the selected operator."
             }
           }
         }
