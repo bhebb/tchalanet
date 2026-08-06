@@ -396,45 +396,43 @@ class _SellBodyState extends ConsumerState<_SellBody> {
               ),
 
               if (widget.form.games.isNotEmpty)
-                // One scrolling row instead of a Wrap, and no section label:
-                // the chips describe themselves. Five games wrapped onto three
-                // rows cost 204 dp of a 556 dp budget, which left nothing for
-                // the ticket lines. A single row costs 56 dp and still puts
-                // every game one tap away — collapsing to the selected chip
-                // would have saved the same space but hidden the others.
+                // A Wrap, not a scrolling row, and no section label: the chips
+                // describe themselves. Five games used to wrap onto three rows
+                // (204 dp of a 556 dp budget) because each chip was ~107 dp and
+                // only two fit; trimming the horizontal padding fits three per
+                // row and halves that to ~112 dp.
+                //
+                // A single horizontally scrolling row would cost 56 dp, but at
+                // 360 dp it showed only three of five games with no chip
+                // peeking at the edge to hint at the rest — and the selected
+                // game could itself be off-screen. The extra 56 dp buys the
+                // seller seeing every game, and which one is active.
                 Padding(
                   padding: const EdgeInsets.only(bottom: TchSpacing.s12),
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(vertical: 2),
-                    child: Row(
-                      // Deduplicate: one chip per unique gameLabel.
-                      // Lot variants (1er lot, 2ème lot…) share the same label;
-                      // the payout engine handles lot attribution — sellers
-                      // don't need to pre-select a lot.
-                      children: () {
-                        final seen = <String>{};
-                        final chips = <Widget>[];
-                        for (final g in widget.form.games) {
-                          if (!seen.add(g.gameLabel)) continue;
-                          if (chips.isNotEmpty) {
-                            chips.add(const SizedBox(width: TchSpacing.s8));
-                          }
-                          final selected =
-                              widget.form.selectedGameCode == g.gameCode &&
-                              widget.form.selectedBetType == g.betType;
-                          chips.add(
-                            _Chip(
+                  child: Wrap(
+                    spacing: TchSpacing.s8,
+                    runSpacing: TchSpacing.s8,
+                    // Deduplicate: one chip per unique gameLabel.
+                    // Lot variants (1er lot, 2ème lot…) share the same label;
+                    // the payout engine handles lot attribution — sellers don't
+                    // need to pre-select a lot.
+                    children: () {
+                      final seen = <String>{};
+                      return widget.form.games
+                          .where((g) => seen.add(g.gameLabel))
+                          .map((g) {
+                            final selected =
+                                widget.form.selectedGameCode == g.gameCode &&
+                                widget.form.selectedBetType == g.betType;
+                            return _Chip(
                               label: g.gameLabel,
                               selected: selected,
                               enabled: !_isLoading && !_isTicketLocked,
                               onTap: () => widget.onSelectGame(g),
-                            ),
-                          );
-                        }
-                        return chips;
-                      }(),
-                    ),
+                            );
+                          })
+                          .toList();
+                    }(),
                   ),
                 ),
 
@@ -533,8 +531,11 @@ class _SellBodyState extends ConsumerState<_SellBody> {
                   ),
                 )
               else if (!isCompactEntry && widget.form.committedLines.isNotEmpty)
-                _Section(
-                  label: translations.translate('pos.sale.ticket_label'),
+                // No section label here either: numbered lines with amounts
+                // say what they are. Those 44 dp are what let the third line
+                // finish above the action bar instead of being clipped by it.
+                Padding(
+                  padding: const EdgeInsets.only(bottom: TchSpacing.s12),
                   child: _TicketReceipt(
                     lines: widget.form.committedLines,
                     currency: widget.form.currency,
@@ -1469,8 +1470,12 @@ class _Chip extends StatelessWidget {
         // No `alignment` here on purpose: a Container with an alignment and no
         // width expands to the incoming max constraint, so inside the Wrap each
         // chip took the full row. Five games cost 316 dp instead of ~120.
+        //
+        // s12 rather than s16 horizontally: at 360 dp it is the difference
+        // between two and three chips per row, so five games take two rows
+        // instead of three. The 48 dp minimum touch height is untouched.
         padding: const EdgeInsets.symmetric(
-          horizontal: TchSpacing.s16,
+          horizontal: TchSpacing.s12,
           vertical: TchSpacing.s12,
         ),
         decoration: BoxDecoration(

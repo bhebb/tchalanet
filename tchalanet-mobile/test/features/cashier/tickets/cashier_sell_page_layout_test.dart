@@ -142,11 +142,25 @@ void main() {
     // total row in the bottom bar.
     expect(tester.takeException(), isNull);
 
-    // All five games sit on one scrolling row, not stacked.
-    final gamesRow = tester.getTopLeft(find.text('Maryaj')).dy;
-    for (final g in ['Loto 3', 'Loto 4', 'Loto 5', 'Bòlèt']) {
-      expect(tester.getTopLeft(find.text(g)).dy, gamesRow, reason: g);
+    // Every game is reachable without a gesture. A horizontally scrolling row
+    // was tried first: it fit in 56 dp but showed only three of five at 360 dp,
+    // with no chip peeking at the edge to hint at the rest — and the selected
+    // game could itself be off-screen.
+    const games = ['Maryaj', 'Loto 4', 'Bòlèt', 'Loto 5', 'Loto 3'];
+    final rows = <double>{};
+    for (final g in games) {
+      final f = find.text(g);
+      expect(f, findsOneWidget, reason: g);
+      final left = tester.getTopLeft(f);
+      expect(
+        left.dx + tester.getSize(f).width,
+        lessThanOrEqualTo(360.0),
+        reason: '$g must be on screen, not behind a horizontal scroll',
+      );
+      rows.add(left.dy);
     }
+    // Two rows, not the three they took when each chip was ~107 dp wide.
+    expect(rows.length, lessThanOrEqualTo(2));
 
     // Number and stake share a row.
     expect(
@@ -156,14 +170,16 @@ void main() {
 
     // The point of all of it: the seller sees the lines making up the total.
     // Before this they started below 720 and never appeared without scrolling,
-    // so the screen showed a total with nothing to explain it.
-    for (final selection in ['12', '16', '123']) {
-      final line = find.text(selection);
-      expect(line, findsOneWidget, reason: selection);
+    // so the screen showed a total with nothing to explain it. Clearing 720 is
+    // not enough — a line must finish above the action bar, or it is clipped.
+    final barTop = tester.getTopLeft(find.text('Total pou peye')).dy;
+    for (final line in ['#1 Bòlèt', '#2 Bòlèt', '#3 Loto 3']) {
+      final f = find.text(line);
+      expect(f, findsOneWidget, reason: line);
       expect(
-        tester.getTopLeft(line).dy,
-        lessThan(720),
-        reason: 'line $selection must be visible without scrolling',
+        tester.getTopLeft(f).dy + tester.getSize(f).height,
+        lessThan(barTop),
+        reason: '$line must be fully visible above the action bar',
       );
     }
   });
