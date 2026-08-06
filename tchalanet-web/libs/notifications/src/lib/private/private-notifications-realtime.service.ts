@@ -21,6 +21,7 @@ export class PrivateNotificationsRealtimeService {
   connect(scope: PrivateNotificationScope, onChange: NotificationChangeHandler): void {
     this.disconnect();
     if (!isPlatformBrowser(this.platformId)) return;
+    if (!supportsNotificationStream()) return;
 
     const stream: ActiveStream = {
       scope,
@@ -46,10 +47,13 @@ export class PrivateNotificationsRealtimeService {
       const token = await this.auth.getAccessToken();
       if (!token || this.active !== stream) return;
 
-      const response = await fetch(this.backend.resolveUrl(`${this.basePath(stream.scope)}/stream`), {
-        headers: this.headers(token, stream.scope),
-        signal: stream.controller.signal,
-      });
+      const response = await globalThis.fetch(
+        this.backend.resolveUrl(`${this.basePath(stream.scope)}/stream`),
+        {
+          headers: this.headers(token, stream.scope),
+          signal: stream.controller.signal,
+        },
+      );
       if (!response.ok || !response.body) throw new Error(`notification stream failed: ${response.status}`);
 
       await this.consume(response.body, stream);
@@ -66,7 +70,7 @@ export class PrivateNotificationsRealtimeService {
   }
 
   private headers(token: string, scope: PrivateNotificationScope): Headers {
-    const headers = new Headers({
+    const headers = new globalThis.Headers({
       Authorization: `Bearer ${token}`,
       Accept: 'text/event-stream',
       'X-Request-Id': createRequestId(),
@@ -82,7 +86,7 @@ export class PrivateNotificationsRealtimeService {
 
   private async consume(body: ReadableStream<Uint8Array>, stream: ActiveStream): Promise<void> {
     const reader = body.getReader();
-    const decoder = new TextDecoder();
+    const decoder = new globalThis.TextDecoder();
     let buffer = '';
     try {
       while (this.active === stream && !stream.controller.signal.aborted) {
@@ -106,6 +110,15 @@ export class PrivateNotificationsRealtimeService {
   private basePath(scope: PrivateNotificationScope): string {
     return scope === 'platform' ? '/platform/notifications' : '/admin/notifications';
   }
+}
+
+function supportsNotificationStream(): boolean {
+  return (
+    typeof globalThis.AbortController === 'function' &&
+    typeof globalThis.fetch === 'function' &&
+    typeof globalThis.Headers === 'function' &&
+    typeof globalThis.TextDecoder === 'function'
+  );
 }
 
 interface ActiveStream {

@@ -303,7 +303,12 @@ export class PrivateNotificationBellComponent {
   });
 
   toggle(): void {
-    this.open.update(value => !value);
+    const nextOpen = !this.open();
+    this.open.set(nextOpen);
+    if (nextOpen) {
+      // SSE is only a refresh hint; always reconcile with the persisted inbox when it opens.
+      this.store.loadLatest();
+    }
   }
 
   close(): void {

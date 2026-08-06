@@ -202,7 +202,7 @@ class NotificationAdminGate {
   }
 
   private static String roleCode(TchRequestContext context) {
-    return context.currentRole() == null ? null : context.currentRole().name();
+    return NotificationRoleCodeResolver.resolve(context);
   }
 
   private static String reason(NotificationLifecycleBody request) {
