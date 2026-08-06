@@ -6,9 +6,9 @@ import com.tchalanet.server.catalog.resultslot.api.ResultSlotView;
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.event.DomainEventPublisher;
 import com.tchalanet.server.common.json.utils.JsonUtils;
+import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.time.OccurredAtResolver;
-import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.types.id.TenantId;
@@ -49,6 +49,7 @@ public class RecordManualDrawResultCommandHandler
   private final IdGenerator idGenerator;
 
   @Override
+  @TchTx
   public RecordManualDrawResultResult handle(RecordManualDrawResultCommand command) {
     TenantId tenantId = command.tenantId();
     var slot = resolveSlot(command.slotKey());
@@ -98,7 +99,9 @@ public class RecordManualDrawResultCommandHandler
               command.drawDate(),
               slot.provider(),
               ResultSource.MANUAL_ENTRY);
-      AfterCommit.run(() -> eventPublisher.publish(event));
+      // The listener is a transactional event listener. Publish while this use-case
+      // transaction is active so Spring can dispatch it after the transaction commits.
+      eventPublisher.publish(event);
     }
 
     return new RecordManualDrawResultResult(res.id(), res.created(), res.updated());

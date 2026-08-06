@@ -214,7 +214,9 @@ public class FetchExternalResultsWindowCommandHandler
                 date,
                 slot.provider(),
                 ResultSource.PROVIDER);
-        AfterCommit.run(() -> eventPublisher.publish(event));
+        // The listener is a transactional event listener. Publish while this use-case
+        // transaction is active so Spring can dispatch it after the transaction commits.
+        eventPublisher.publish(event);
       }
 
     } catch (Exception e) {

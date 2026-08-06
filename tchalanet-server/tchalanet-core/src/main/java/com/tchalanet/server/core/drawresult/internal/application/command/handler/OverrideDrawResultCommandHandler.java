@@ -9,7 +9,6 @@ import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.time.OccurredAtResolver;
-import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.web.error.ProblemRest;
@@ -127,7 +126,7 @@ public class OverrideDrawResultCommandHandler
               slot.provider(),
               ResultSource.MANUAL_OVERRIDE,
               command.reason());
-      AfterCommit.run(() -> publisher.publish(event));
+      publisher.publish(event);
     }
 
     log.info(
@@ -190,7 +189,7 @@ public class OverrideDrawResultCommandHandler
               draw.drawChannelId(),
               reason);
 
-      AfterCommit.run(() -> publisher.publish(event));
+      publisher.publish(event);
     }
   }
 
