@@ -59,6 +59,51 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
     super.dispose();
   }
 
+  /// Leaving with lines already entered loses them, so it is confirmed. With
+  /// nothing entered there is nothing to lose and the dialog would just be
+  /// noise on the way out.
+  Future<void> _confirmAbandon(
+    BuildContext context,
+    I18nBundle translations,
+    SellState state,
+  ) async {
+    final lines = switch (state) {
+      SellReady(:final form) => form.committedLines.length,
+      SellPreviewing(:final form) => form.committedLines.length,
+      SellConfirming(:final form) => form.committedLines.length,
+      _ => 0,
+    };
+    if (lines == 0) {
+      context.pop();
+      return;
+    }
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(translations.translate('pos.sale.abandon_title')),
+        content: Text(
+          translations
+              .translate('pos.sale.abandon_message')
+              .replaceAll('{count}', '$lines'),
+        ),
+        actions: [
+          // The safe choice is the prominent one, and both buttons say what
+          // they do rather than "OK" and "Cancel".
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(translations.translate('pos.sale.abandon_confirm')),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(translations.translate('pos.sale.abandon_cancel')),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true && context.mounted) context.pop();
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(sellControllerProvider);
@@ -102,7 +147,10 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
         leading: IconButton(
           icon: const Icon(Icons.close_rounded),
           tooltip: translations.translate('pos.sale.cancel'),
-          onPressed: () => context.pop(),
+          // A bare × one tap away from the work area threw away a ticket in
+          // progress without a word. A tooltip does not help: it needs a long
+          // press and a convention the seller has no reason to know.
+          onPressed: () => _confirmAbandon(context, translations, state),
         ),
       ),
       // Reactive capability gate: `ready` = server `canSell && no requiredStep`.
@@ -167,6 +215,9 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
                       .editPreparedTicket(),
                   onRemoveLine: (i) =>
                       ref.read(sellControllerProvider.notifier).removeLine(i),
+                  onRestoreLine: (i, line) => ref
+                      .read(sellControllerProvider.notifier)
+                      .restoreLine(i, line),
                   onPreview: () {
                     if (opCtx?.sellerTerminalId == null) return;
                     ref.read(sellControllerProvider.notifier).prepare();
@@ -195,6 +246,7 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
                 onCancelEntry: () {},
                 onEditPreparedTicket: () {},
                 onRemoveLine: (_) {},
+                onRestoreLine: (_, _) {},
                 onPreview: () {},
                 onConfirm: () {},
               ),
@@ -217,6 +269,7 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
                 onCancelEntry: () {},
                 onEditPreparedTicket: () {},
                 onRemoveLine: (_) {},
+                onRestoreLine: (_, _) {},
                 onPreview: () {},
                 onConfirm: () {
                   if (opCtx?.sellerTerminalId == null) return;
@@ -257,6 +310,7 @@ class _SellBody extends ConsumerStatefulWidget {
     required this.onCancelEntry,
     required this.onEditPreparedTicket,
     required this.onRemoveLine,
+    required this.onRestoreLine,
     this.previewResult,
     this.error,
     this.diagnostic,
@@ -284,6 +338,7 @@ class _SellBody extends ConsumerStatefulWidget {
   final VoidCallback onCancelEntry;
   final VoidCallback onEditPreparedTicket;
   final ValueChanged<int> onRemoveLine;
+  final void Function(int index, SellLine line) onRestoreLine;
 
   @override
   ConsumerState<_SellBody> createState() => _SellBodyState();
@@ -375,8 +430,10 @@ class _SellBodyState extends ConsumerState<_SellBody> {
               isCompactEntry ? TchSpacing.s16 : 164,
             ),
             children: [
-              _Section(
-                label: translations.translate('pos.sale.draw_label'),
+              // No section label: the card already carries the draw name and a
+              // "change" button, so "TIRAJ" above it only cost a row.
+              Padding(
+                padding: const EdgeInsets.only(bottom: TchSpacing.s12),
                 child: widget.form.draws.isEmpty
                     ? Text(
                         translations.translate('pos.sale.no_draws'),
@@ -394,8 +451,19 @@ class _SellBodyState extends ConsumerState<_SellBody> {
               ),
 
               if (widget.form.games.isNotEmpty)
-                _Section(
-                  label: translations.translate('pos.sale.game_label'),
+                // A Wrap, not a scrolling row, and no section label: the chips
+                // describe themselves. Five games used to wrap onto three rows
+                // (204 dp of a 556 dp budget) because each chip was ~107 dp and
+                // only two fit; trimming the horizontal padding fits three per
+                // row and halves that to ~112 dp.
+                //
+                // A single horizontally scrolling row would cost 56 dp, but at
+                // 360 dp it showed only three of five games with no chip
+                // peeking at the edge to hint at the rest — and the selected
+                // game could itself be off-screen. The extra 56 dp buys the
+                // seller seeing every game, and which one is active.
+                Padding(
+                  padding: const EdgeInsets.only(bottom: TchSpacing.s12),
                   child: Wrap(
                     spacing: TchSpacing.s8,
                     runSpacing: TchSpacing.s8,
@@ -442,53 +510,71 @@ class _SellBodyState extends ConsumerState<_SellBody> {
                   ),
                 ),
 
+              // Number and stake share a row: they are always filled together
+              // and both values are short. As two stacked sections they cost
+              // 208 dp; side by side they cost about half, which is what buys
+              // the ticket lines their place on screen.
               if (widget.form.selectedGameCode != null)
-                _Section(
-                  key: _selectionFieldKey,
-                  label: translations.translate('pos.sale.selection_label'),
-                  child: _SelectionInput(
-                    key: ValueKey(
-                      '${widget.form.selectedGameCode}:${widget.form.selectedBetType}:${widget.form.selectedBetOption}',
-                    ),
-                    game: widget.form.selectedGame!,
-                    betOption: widget.form.selectedBetOption,
-                    value: widget.form.selection,
-                    enabled: !_isLoading && !_isTicketLocked,
-                    onFocus: () =>
-                        _scrollFocusedFieldIntoView(_selectionFieldKey),
-                    onChanged: widget.onSelectionChanged,
-                  ),
-                ),
-
-              if (widget.form.selectedGameCode != null)
-                _Section(
-                  key: _stakeFieldKey,
-                  label: translations.translate('pos.sale.stake_label'),
-                  child: TextField(
-                    controller: widget.stakeController,
-                    focusNode: widget.stakeFocusNode,
-                    enabled: !_isLoading && !_isTicketLocked,
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
-                    ),
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp(r'[\d.,]')),
-                    ],
-                    onChanged: (v) => widget.onStakeChanged(
-                      double.tryParse(v.replaceAll(',', '.')) ?? 0,
-                    ),
-                    decoration: InputDecoration(
-                      hintText: '0.00',
-                      suffixText: widget.form.currency,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(TchRadius.md),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: TchSpacing.s16,
-                        vertical: TchSpacing.s12,
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: _Section(
+                        key: _selectionFieldKey,
+                        label: translations.translate(
+                          'pos.sale.selection_label',
+                        ),
+                        child: _SelectionInput(
+                          key: ValueKey(
+                            '${widget.form.selectedGameCode}:${widget.form.selectedBetType}:${widget.form.selectedBetOption}',
+                          ),
+                          game: widget.form.selectedGame!,
+                          betOption: widget.form.selectedBetOption,
+                          value: widget.form.selection,
+                          enabled: !_isLoading && !_isTicketLocked,
+                          onFocus: () =>
+                              _scrollFocusedFieldIntoView(_selectionFieldKey),
+                          onChanged: widget.onSelectionChanged,
+                        ),
                       ),
                     ),
-                  ),
+                    const SizedBox(width: TchSpacing.s12),
+                    Expanded(
+                      flex: 1,
+                      child: _Section(
+                        key: _stakeFieldKey,
+                        label: translations.translate('pos.sale.stake_label'),
+                        child: TextField(
+                          controller: widget.stakeController,
+                          focusNode: widget.stakeFocusNode,
+                          enabled: !_isLoading && !_isTicketLocked,
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(
+                              RegExp(r'[\d.,]'),
+                            ),
+                          ],
+                          onChanged: (v) => widget.onStakeChanged(
+                            double.tryParse(v.replaceAll(',', '.')) ?? 0,
+                          ),
+                          decoration: InputDecoration(
+                            hintText: '0.00',
+                            suffixText: widget.form.currency,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(TchRadius.md),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: TchSpacing.s12,
+                              vertical: TchSpacing.s12,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
 
               if (isCompactEntry && widget.form.committedLines.isNotEmpty)
@@ -500,13 +586,17 @@ class _SellBodyState extends ConsumerState<_SellBody> {
                   ),
                 )
               else if (!isCompactEntry && widget.form.committedLines.isNotEmpty)
-                _Section(
-                  label: translations.translate('pos.sale.ticket_label'),
+                // No section label here either: numbered lines with amounts
+                // say what they are. Those 44 dp are what let the third line
+                // finish above the action bar instead of being clipped by it.
+                Padding(
+                  padding: const EdgeInsets.only(bottom: TchSpacing.s12),
                   child: _TicketReceipt(
                     lines: widget.form.committedLines,
                     currency: widget.form.currency,
                     enabled: !_isLoading,
                     onRemoveLine: widget.onRemoveLine,
+                    onRestoreLine: widget.onRestoreLine,
                   ),
                 ),
 
@@ -580,24 +670,30 @@ class _SellBodyState extends ConsumerState<_SellBody> {
 
 // ─── Ticket receipt ───────────────────────────────────────────────────────────
 
+/// "#2 Bòlèt" — the row shows it, and the remove confirmation repeats it so
+/// the seller confirms against what they see. Shared so the copy exists once.
+String _lineTitle(int index, SellLine line) =>
+    '#${index + 1} ${line.gameLabel}';
+
 class _TicketReceipt extends ConsumerWidget {
   const _TicketReceipt({
     required this.lines,
     required this.currency,
     required this.enabled,
     required this.onRemoveLine,
+    required this.onRestoreLine,
   });
 
   final List<SellLine> lines;
   final String currency;
   final bool enabled;
   final ValueChanged<int> onRemoveLine;
+  final void Function(int index, SellLine line) onRestoreLine;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final scheme = Theme.of(context).colorScheme;
     final translations = ref.watch(i18nBundleProvider);
-    final total = lines.fold<double>(0, (sum, line) => sum + line.stake);
     return Container(
       padding: const EdgeInsets.all(TchSpacing.s16),
       decoration: BoxDecoration(
@@ -609,6 +705,8 @@ class _TicketReceipt extends ConsumerWidget {
         children: [
           for (var index = 0; index < lines.length; index++) ...[
             if (index > 0) const Divider(height: TchSpacing.s20),
+            // Built once: the row shows it, and the remove confirmation
+            // repeats it so the seller confirms against what they see.
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -617,7 +715,7 @@ class _TicketReceipt extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '#${index + 1} ${lines[index].gameLabel}',
+                        _lineTitle(index, lines[index]),
                         style: Theme.of(context).textTheme.labelMedium
                             ?.copyWith(
                               color: scheme.onSurfaceVariant,
@@ -642,7 +740,28 @@ class _TicketReceipt extends ConsumerWidget {
                 if (enabled) ...[
                   const SizedBox(width: TchSpacing.s4),
                   IconButton(
-                    onPressed: () => onRemoveLine(index),
+                    // Removal stays a single tap. A ticket can run to twenty
+                    // numbers, and a dialog in front of every correction is
+                    // friction on the common case; undo covers the stray tap
+                    // without taxing the deliberate one.
+                    onPressed: () {
+                      final removed = lines[index];
+                      final at = index;
+                      onRemoveLine(at);
+                      ScaffoldMessenger.of(context)
+                        ..hideCurrentSnackBar()
+                        ..showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              translations.translate('pos.sale.line_removed'),
+                            ),
+                            action: SnackBarAction(
+                              label: translations.translate('pos.sale.undo'),
+                              onPressed: () => onRestoreLine(at, removed),
+                            ),
+                          ),
+                        );
+                    },
                     icon: const Icon(Icons.delete_outline_rounded),
                     tooltip: translations.translate('pos.sale.remove_line'),
                   ),
@@ -650,27 +769,9 @@ class _TicketReceipt extends ConsumerWidget {
               ],
             ),
           ],
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: TchSpacing.s12),
-            child: Divider(height: 1),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                translations.translate('pos.sale.ticket_total'),
-                style: Theme.of(
-                  context,
-                ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w800),
-              ),
-              Text(
-                '${total.toStringAsFixed(2)} $currency',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
-              ),
-            ],
-          ),
+          // No total here: the bottom action bar already shows the same figure
+          // and stays visible while this list scrolls. Two totals a few dozen
+          // dp apart taught the seller nothing and cost a row.
         ],
       ),
     );
@@ -1079,12 +1180,20 @@ class _Section extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text(
-                label,
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: scheme.onSurfaceVariant,
-                  letterSpacing: 0.5,
-                  fontWeight: FontWeight.w700,
+              // Flexible: sections now sit side by side, so a label can be
+              // wider than its column. "Nimewo / seleksyon" is 207 dp and
+              // overflowed a 190 dp column by 17 px. Label length varies by
+              // locale, so this yields rather than relying on the arithmetic.
+              Flexible(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: scheme.onSurfaceVariant,
+                    letterSpacing: 0.5,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ],
@@ -1135,21 +1244,31 @@ class _SelectedDraw extends ConsumerWidget {
           TchProviderLogo(providerCode: draw.providerCode),
           const SizedBox(width: TchSpacing.s12),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            // Name and cutoff on one line. The cutoff matters right up to the
+            // sale, so it is kept rather than dropped — but stacked it cost a
+            // second row on a screen that has none to spare.
+            child: Row(
               children: [
-                Text(
-                  localizedCashierDrawLabel(draw, translations),
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+                Flexible(
+                  child: Text(
+                    localizedCashierDrawLabel(draw, translations),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
                 ),
                 if (!compact) ...[
-                  const SizedBox(height: TchSpacing.s4),
-                  Text(
-                    _cutoffLabel(draw, translations),
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: scheme.onSurfaceVariant,
+                  const SizedBox(width: TchSpacing.s8),
+                  Flexible(
+                    child: Text(
+                      _cutoffLabel(draw, translations),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: scheme.onSurfaceVariant,
+                      ),
                     ),
                   ),
                 ],
@@ -1437,8 +1556,12 @@ class _Chip extends StatelessWidget {
         // No `alignment` here on purpose: a Container with an alignment and no
         // width expands to the incoming max constraint, so inside the Wrap each
         // chip took the full row. Five games cost 316 dp instead of ~120.
+        //
+        // s12 rather than s16 horizontally: at 360 dp it is the difference
+        // between two and three chips per row, so five games take two rows
+        // instead of three. The 48 dp minimum touch height is untouched.
         padding: const EdgeInsets.symmetric(
-          horizontal: TchSpacing.s16,
+          horizontal: TchSpacing.s12,
           vertical: TchSpacing.s12,
         ),
         decoration: BoxDecoration(

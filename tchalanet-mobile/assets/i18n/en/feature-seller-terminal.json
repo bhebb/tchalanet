@@ -22,12 +22,18 @@
       "sale_rejected": "Sale rejected",
       "no_selection_stake": "Enter a number and a stake",
       "terminal_unavailable": "This terminal cannot sell at the moment.",
+      "abandon_title": "Abandon this ticket?",
+      "abandon_message": "You have {count} line(s) not yet sold. Leaving loses them.",
+      "abandon_confirm": "Yes, abandon",
+      "abandon_cancel": "No, keep selling",
       "copy_diagnostic": "Copy support reference",
       "diagnostic_copied": "Support reference copied",
       "draw": {
         "local_time": "Local",
         "provider_time": "Provider"
-      }
+      },
+      "line_removed": "Line removed",
+      "undo": "Undo"
     },
     "sale_completion": {
       "back_home": "Back to home",

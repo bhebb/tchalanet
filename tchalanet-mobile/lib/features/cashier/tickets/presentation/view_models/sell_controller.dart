@@ -322,6 +322,21 @@ class SellController extends Notifier<SellState> {
     );
   }
 
+  /// Puts a removed line back where it was. Removal is a single tap on a list
+  /// that can run to twenty numbers, so it has to stay cheap; undo is what
+  /// makes that safe, rather than a dialog in front of every deletion.
+  void restoreLine(int index, SellLine line) {
+    final current = state;
+    if (current is! SellReady) return;
+    final lines = [...current.form.committedLines];
+    final at = index.clamp(0, lines.length);
+    lines.insert(at, line);
+    state = SellReady(
+      current.form.copyWith(committedLines: lines),
+      previewResult: null,
+    );
+  }
+
   /// Returns from the server-calculated recap to the editable ticket.
   void editPreparedTicket() {
     final current = state;

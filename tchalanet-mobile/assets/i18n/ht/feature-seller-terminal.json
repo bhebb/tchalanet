@@ -22,12 +22,18 @@
       "sale_rejected": "Vant la pa aksepte",
       "no_selection_stake": "Antre yon nimewo ak yon miz",
       "terminal_unavailable": "Tèminal sa a pa ka vann pou kounye a.",
+      "abandon_title": "Kite tikè sa a?",
+      "abandon_message": "Ou gen {count} liy ki poko vann. Si ou soti, w ap pèdi yo.",
+      "abandon_confirm": "Wi, kite l",
+      "abandon_cancel": "Non, kontinye vann",
       "copy_diagnostic": "Kopye referans sipò",
       "diagnostic_copied": "Referans sipò kopye",
       "draw": {
         "local_time": "Lokal",
         "provider_time": "Founisè"
-      }
+      },
+      "line_removed": "Liy la retire",
+      "undo": "Defè"
     },
     "sale_completion": {
       "back_home": "Retounen sou akèy",
