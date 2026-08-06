@@ -1,0 +1,5 @@
+# esbuild ships a prebuilt platform binary through its install script. pnpm 11
+# refuses to run dependency build scripts unless they are approved here, and
+# `pnpm install --frozen-lockfile` fails outright when any are ignored.
+allowBuilds:
+  esbuild: true

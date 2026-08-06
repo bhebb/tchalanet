@@ -66,11 +66,14 @@ jobs:
       - name: Install deps
         run: pnpm install --frozen-lockfile
 
+      # --if-present must precede the script name. As a trailing argument pnpm
+      # forwards it to the script instead of consuming it, so `lint` failed on a
+      # missing script and `test` reached vitest as `--ifPresent`.
       - name: Lint
-        run: pnpm lint --if-present
+        run: pnpm run --if-present lint
 
       - name: Test
-        run: pnpm test --if-present
+        run: pnpm run --if-present test
 
       - name: Build
         run: pnpm build
