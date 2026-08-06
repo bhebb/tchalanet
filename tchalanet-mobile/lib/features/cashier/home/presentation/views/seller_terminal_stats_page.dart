@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../../core/i18n/draw_identity_label.dart';
 import '../../../../../core/i18n/i18n_models.dart';
@@ -103,6 +104,7 @@ class _SellerTerminalStatsPageState
                     translations: translations,
                     drawFilter: _drawFilter,
                     onDrawFilter: (id) => setState(() => _drawFilter = id),
+                    isoDate: isoDate,
                   ),
                 ),
               ),
@@ -173,6 +175,7 @@ class _StatsBody extends StatelessWidget {
     required this.translations,
     required this.drawFilter,
     required this.onDrawFilter,
+    required this.isoDate,
   });
 
   final TerminalDailyStats stats;
@@ -181,6 +184,7 @@ class _StatsBody extends StatelessWidget {
   final I18nBundle translations;
   final String? drawFilter;
   final ValueChanged<String?> onDrawFilter;
+  final String isoDate;
 
   @override
   Widget build(BuildContext context) {
@@ -264,6 +268,7 @@ class _StatsBody extends StatelessWidget {
               ticketLabel: translations.translate(
                 'common.cashier_stats.tickets',
               ),
+              isoDate: isoDate,
             ),
         ],
         const SizedBox(height: TchSpacing.s24),
@@ -362,6 +367,7 @@ class _DrawStatRow extends StatelessWidget {
     required this.translations,
     required this.currency,
     required this.ticketLabel,
+    required this.isoDate,
   });
 
   final DrawStatLine line;
@@ -369,47 +375,72 @@ class _DrawStatRow extends StatelessWidget {
   final I18nBundle translations;
   final String currency;
   final String ticketLabel;
+  final String isoDate;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final label = _reportDrawLabel(line, availableDraws, translations);
+    final radius = BorderRadius.circular(TchRadius.md);
+
     return Container(
       margin: const EdgeInsets.only(bottom: TchSpacing.s8),
-      padding: const EdgeInsets.symmetric(
-        horizontal: TchSpacing.s16,
-        vertical: TchSpacing.s12,
-      ),
       decoration: BoxDecoration(
         color: scheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(TchRadius.md),
+        borderRadius: radius,
         border: Border.all(color: scheme.outlineVariant),
       ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              _reportDrawLabel(line, availableDraws, translations),
-              style: textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w700,
+      child: InkWell(
+        key: ValueKey('report-draw-row:${line.drawId}'),
+        borderRadius: radius,
+        onTap: line.drawId.isEmpty
+            ? null
+            : () => context.push(
+                '/pos/reports/draw/${line.drawId}',
+                extra: <String, String?>{
+                  'isoDate': isoDate,
+                  'drawLabel': label,
+                },
               ),
-            ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: TchSpacing.s16,
+            vertical: TchSpacing.s12,
           ),
-          Text(
-            '${line.ticketCount} $ticketLabel',
-            style: textTheme.bodySmall?.copyWith(
-              color: scheme.onSurfaceVariant,
-            ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  label,
+                  style: textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              Text(
+                '${line.ticketCount} $ticketLabel',
+                style: textTheme.bodySmall?.copyWith(
+                  color: scheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(width: TchSpacing.s16),
+              Text(
+                '${line.totalAmount.toStringAsFixed(2)} $currency',
+                style: textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: TchColors.success,
+                ),
+              ),
+              const SizedBox(width: TchSpacing.s4),
+              Icon(
+                Icons.chevron_right_rounded,
+                size: 18,
+                color: scheme.onSurfaceVariant,
+              ),
+            ],
           ),
-          const SizedBox(width: TchSpacing.s16),
-          Text(
-            '${line.totalAmount.toStringAsFixed(2)} $currency',
-            style: textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.w700,
-              color: TchColors.success,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

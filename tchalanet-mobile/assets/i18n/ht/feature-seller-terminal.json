@@ -128,7 +128,16 @@
       "all": "Tout",
       "empty": "Pa gen vant pou jounen sa a.",
       "analytics_unavailable": "Chif vant yo poko disponib. Eseye ankò pita.",
-      "load_error": "Nou pa kapab chaje rapò a."
+      "load_error": "Nou pa kapab chaje rapò a.",
+      "draw": "Tiraj",
+      "tickets": "TIKÈ",
+      "open_draw_report": "Wè rapò tiraj la",
+      "draw_sales": "Vant tiraj la",
+      "draw_commission": "Komisyon",
+      "draw_winnings": "Lo pou peye",
+      "draw_net_revenue": "Revni nèt",
+      "draw_net_revenue_hint": "Estimasyon: vant mwens lo ak komisyon. L ap chanje apre regleman tiraj la.",
+      "draw_empty": "Pa gen tikè pou tiraj sa a jounen an."
     },
     "tickets": {
       "history_title": "Istorik tikè",

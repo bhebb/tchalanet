@@ -62,7 +62,10 @@ public class GetCashierDashboardStatsQueryHandler
                             ? sellerTerminalRow.getDrawChannelCode()
                             : "",
                         sellerTerminalRow.getTicketsSoldCount(),
-                        fromCents(sellerTerminalRow.getGrossSalesCents())))
+                        fromCents(sellerTerminalRow.getGrossSalesCents()),
+                        fromCents(sellerTerminalRow.getWinningsCalculatedCents()),
+                        fromCents(sellerTerminalRow.getSellerCommissionCents()),
+                        fromCents(sellerTerminalRow.getNetRevenueEstimatedCents())))
             .toList();
 
     return new CashierDashboardStatsView(query.refDate(), today, List.of(), drawBreakdown);

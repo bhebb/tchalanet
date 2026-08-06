@@ -71,6 +71,30 @@ final terminalStatsByDateProvider =
           .fetchDailyStats(date: date);
     });
 
+/// `YYYY-MM-DD` in local time — the shape `/tenant/cashier/tickets` expects.
+String reportIsoDate(DateTime value) =>
+    '${value.year.toString().padLeft(4, '0')}-'
+    '${value.month.toString().padLeft(2, '0')}-'
+    '${value.day.toString().padLeft(2, '0')}';
+
+/// Tickets sold by this seller terminal for one draw on one day — backs the
+/// per-draw report drill-down.
+final drawReportTicketsProvider = FutureProvider.autoDispose
+    .family<List<CashierTicketSummaryView>, ({String isoDate, String drawId})>((
+      ref,
+      key,
+    ) async {
+      final date = DateTime.parse(key.isoDate);
+      return ref
+          .watch(cashierTicketServiceProvider)
+          .listRecent(
+            size: 100,
+            fromDate: date,
+            toDate: date,
+            drawId: key.drawId,
+          );
+    });
+
 /// All open draws — used by SellerTerminal home to show the full draw list.
 final availableDrawsProvider = FutureProvider<List<CashierAvailableDrawView>>((
   ref,

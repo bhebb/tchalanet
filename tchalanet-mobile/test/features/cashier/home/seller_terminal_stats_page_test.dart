@@ -20,6 +20,7 @@ class _FakeCashierTicketService extends CashierTicketService {
     String? query,
     DateTime? fromDate,
     DateTime? toDate,
+    String? drawId,
   }) async => const [
     CashierTicketSummaryView(
       id: 'ticket-id-1',

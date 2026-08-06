@@ -213,24 +213,28 @@ class _SellerTerminalHomeState extends ConsumerState<_SellerTerminalHome> {
     ref.invalidate(latestTicketProvider);
   }
 
-  void _showDrawDetail(CashierAvailableDrawView draw) {
-    final statsAsync = ref.read(terminalDailyStatsProvider);
-    final stat = statsAsync.asData?.value.breakdown
-        .where((line) => line.drawId == draw.drawId)
-        .firstOrNull;
-    showModalBottomSheet<void>(
-      context: context,
-      useSafeArea: true,
-      showDragHandle: true,
-      builder: (sheetContext) => _DrawDetailSheet(
-        draw: draw,
-        stat: stat,
-        onSell: () {
-          Navigator.of(sheetContext).pop();
-          context.push('/sell', extra: {'drawId': draw.drawId});
-        },
-      ),
+  /// Tapping the card anywhere outside the sell button opens that draw's report.
+  void _openDrawReport(CashierAvailableDrawView draw) {
+    if (draw.drawId.isEmpty) return;
+    final translations = ref.read(i18nBundleProvider);
+    context.push(
+      '/pos/reports/draw/${draw.drawId}',
+      extra: <String, String?>{
+        'isoDate': reportIsoDate(DateTime.now()),
+        'drawLabel': localizedCashierDrawLabel(draw, translations),
+        'providerSchedule': _scheduleValue(
+          draw.providerDate,
+          draw.providerTime,
+        ),
+        'providerZone': _zoneLabel(draw.providerTimezone),
+        'localSchedule': _scheduleValue(draw.localDate, draw.localTime),
+        'localZone': _zoneLabel(draw.localTimezone),
+      },
     );
+  }
+
+  void _sellDraw(CashierAvailableDrawView draw) {
+    context.push('/sell', extra: {'drawId': draw.drawId});
   }
 
   @override
@@ -284,7 +288,8 @@ class _SellerTerminalHomeState extends ConsumerState<_SellerTerminalHome> {
                             setState(() => _providerFilterExpanded = expanded),
                         onProviderChanged: (provider) =>
                             setState(() => _selectedProvider = provider),
-                        onDrawTap: _showDrawDetail,
+                        onDrawTap: _openDrawReport,
+                        onDrawSell: _sellDraw,
                       ),
               ),
               const SizedBox(height: TchSpacing.s32),
@@ -529,6 +534,7 @@ class _FilteredAvailableDraws extends StatelessWidget {
     required this.onFilterExpandedChanged,
     required this.onProviderChanged,
     required this.onDrawTap,
+    required this.onDrawSell,
   });
 
   final List<CashierAvailableDrawView> draws;
@@ -539,6 +545,7 @@ class _FilteredAvailableDraws extends StatelessWidget {
   final ValueChanged<bool> onFilterExpandedChanged;
   final ValueChanged<String?> onProviderChanged;
   final ValueChanged<CashierAvailableDrawView> onDrawTap;
+  final ValueChanged<CashierAvailableDrawView> onDrawSell;
 
   @override
   Widget build(BuildContext context) {
@@ -569,6 +576,7 @@ class _FilteredAvailableDraws extends StatelessWidget {
           now: now,
           translations: translations,
           onDrawTap: onDrawTap,
+          onDrawSell: onDrawSell,
         ),
       ],
     );
@@ -644,12 +652,14 @@ class _AvailableDrawList extends StatelessWidget {
     required this.now,
     required this.translations,
     required this.onDrawTap,
+    required this.onDrawSell,
   });
 
   final List<CashierAvailableDrawView> draws;
   final DateTime now;
   final I18nBundle translations;
   final ValueChanged<CashierAvailableDrawView> onDrawTap;
+  final ValueChanged<CashierAvailableDrawView> onDrawSell;
 
   @override
   Widget build(BuildContext context) => Column(
@@ -660,6 +670,7 @@ class _AvailableDrawList extends StatelessWidget {
           now: now,
           translations: translations,
           onTap: () => onDrawTap(draw),
+          onSell: () => onDrawSell(draw),
         ),
         const SizedBox(height: TchSpacing.s12),
       ],
@@ -673,12 +684,18 @@ class _AvailableDrawCard extends StatelessWidget {
     required this.now,
     required this.translations,
     required this.onTap,
+    required this.onSell,
   });
 
   final CashierAvailableDrawView draw;
   final DateTime now;
   final I18nBundle translations;
+
+  /// Tapping the card body opens the draw report.
   final VoidCallback onTap;
+
+  /// The sell button is shown only while the draw is still open.
+  final VoidCallback onSell;
 
   @override
   Widget build(BuildContext context) {
@@ -722,19 +739,30 @@ class _AvailableDrawCard extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: TchSpacing.s8),
-          FilledButton.icon(
-            onPressed: onTap,
-            icon: const Icon(Icons.add_rounded, size: 18),
-            label: Text(translations.translate('pos.dashboard.sell')),
-            style: FilledButton.styleFrom(
-              minimumSize: const Size(0, 44),
-              padding: const EdgeInsets.symmetric(horizontal: TchSpacing.s12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(TchRadius.sm),
+          // Affordance for the card-body tap: a bare tappable card gives the
+          // seller no hint that a report is one tap away. Kept as an icon so
+          // the sell button stays the only labelled action on the row.
+          Icon(
+            Icons.chevron_right_rounded,
+            size: 18,
+            color: scheme.onSurfaceVariant,
+          ),
+          if (draw.isOpen) ...[
+            const SizedBox(width: TchSpacing.s4),
+            FilledButton.icon(
+              key: ValueKey('draw-sell-action:${draw.drawId}'),
+              onPressed: onSell,
+              icon: const Icon(Icons.add_rounded, size: 18),
+              label: Text(translations.translate('pos.dashboard.sell')),
+              style: FilledButton.styleFrom(
+                minimumSize: const Size(0, 44),
+                padding: const EdgeInsets.symmetric(horizontal: TchSpacing.s12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(TchRadius.sm),
+                ),
               ),
             ),
-          ),
+          ],
         ],
       ),
     );
@@ -881,49 +909,6 @@ class _LastTicketCard extends StatelessWidget {
   }
 }
 
-class _DrawScheduleLine extends StatelessWidget {
-  const _DrawScheduleLine({
-    required this.icon,
-    required this.label,
-    required this.value,
-    required this.zone,
-  });
-
-  final IconData icon;
-  final String label;
-  final String value;
-  final String zone;
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    final color = Theme.of(context).colorScheme.onSurfaceVariant;
-    return Row(
-      children: [
-        Icon(icon, size: 15, color: color),
-        const SizedBox(width: TchSpacing.s4),
-        Text(
-          '$label $value',
-          style: textTheme.bodySmall?.copyWith(
-            color: color,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        if (zone.isNotEmpty) ...[
-          const SizedBox(width: TchSpacing.s4),
-          Expanded(
-            child: Text(
-              '· $zone',
-              overflow: TextOverflow.ellipsis,
-              style: textTheme.bodySmall?.copyWith(color: color),
-            ),
-          ),
-        ],
-      ],
-    );
-  }
-}
-
 class _NoDraws extends StatelessWidget {
   const _NoDraws({required this.translations});
 
@@ -1040,78 +1025,6 @@ class _ReadinessBanner extends ConsumerWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _DrawDetailSheet extends ConsumerWidget {
-  const _DrawDetailSheet({
-    required this.draw,
-    required this.stat,
-    required this.onSell,
-  });
-
-  final CashierAvailableDrawView draw;
-  final DrawStatLine? stat;
-  final VoidCallback onSell;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final translations = ref.watch(i18nBundleProvider);
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        TchSpacing.s24,
-        TchSpacing.s12,
-        TchSpacing.s24,
-        TchSpacing.s32,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              TchProviderLogo(providerCode: draw.providerCode),
-              const SizedBox(width: TchSpacing.s12),
-              Expanded(
-                child: Text(
-                  localizedCashierDrawLabel(draw, translations),
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: TchSpacing.s20),
-          _DrawScheduleLine(
-            icon: Icons.public_rounded,
-            label: translations.translate('pos.dashboard.provider_time'),
-            value: _scheduleValue(draw.providerDate, draw.providerTime),
-            zone: _zoneLabel(draw.providerTimezone),
-          ),
-          const SizedBox(height: TchSpacing.s8),
-          _DrawScheduleLine(
-            icon: Icons.location_on_outlined,
-            label: translations.translate('pos.dashboard.local_time'),
-            value: _scheduleValue(draw.localDate, draw.localTime),
-            zone: _zoneLabel(draw.localTimezone),
-          ),
-          if (stat != null) ...[
-            const SizedBox(height: TchSpacing.s20),
-            Text(
-              '${stat!.ticketCount} · ${stat!.totalAmount.toStringAsFixed(2)}',
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-          ],
-          const SizedBox(height: TchSpacing.s24),
-          PrimaryActionButton(
-            label: translations.translate('pos.dashboard.sell'),
-            icon: Icons.confirmation_number_rounded,
-            onPressed: onSell,
-          ),
-        ],
       ),
     );
   }

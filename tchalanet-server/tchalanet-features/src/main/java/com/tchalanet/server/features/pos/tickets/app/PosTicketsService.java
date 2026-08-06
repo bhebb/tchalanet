@@ -128,7 +128,10 @@ public class PosTicketsService {
                         b.drawId().toString(),
                         b.drawChannelCode(),
                         b.ticketsSold(),
-                        toCents(b.grossSales())))
+                        toCents(b.grossSales()),
+                        toCents(b.winningsCalculated()),
+                        toCents(b.sellerCommission()),
+                        toCents(b.netRevenueEstimated())))
             .toList();
     return new SellerTerminalDailyStatsResponse(
         true,
