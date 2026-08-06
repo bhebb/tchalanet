@@ -137,6 +137,7 @@
       "draw_winnings": "Lo pou peye",
       "draw_net_revenue": "Revni nèt",
       "draw_net_revenue_hint": "Estimasyon: vant mwens lo ak komisyon. L ap chanje apre regleman tiraj la.",
+      "sell_this_draw": "Vann yon tikè",
       "draw_empty": "Pa gen tikè pou tiraj sa a jounen an."
     },
     "tickets": {

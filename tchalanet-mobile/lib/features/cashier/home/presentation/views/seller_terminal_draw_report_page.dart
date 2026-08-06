@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../../core/i18n/i18n_models.dart';
 import '../../../../../core/i18n/i18n_repository.dart';
@@ -10,7 +11,11 @@ import '../../../tickets/data/models/cashier_ticket_models.dart';
 import '../view_models/cashier_home_providers.dart';
 
 /// Per-draw drill-down of the seller report. Reached by tapping a draw, either
-/// from the home draw sheet or from a row of the daily report breakdown.
+/// from the home draw list or from a row of the daily report breakdown.
+///
+/// Doubles as the draw detail screen: tapping the card body is one mis-tap away
+/// from the sell button, so an open draw keeps a sell action here rather than
+/// making the seller navigate back.
 class SellerTerminalDrawReportPage extends ConsumerWidget {
   const SellerTerminalDrawReportPage({
     super.key,
@@ -41,6 +46,16 @@ class SellerTerminalDrawReportPage extends ConsumerWidget {
     final ticketsAsync = ref.watch(
       drawReportTicketsProvider((isoDate: isoDate, drawId: drawId)),
     );
+
+    // availableDrawsProvider already filters to open draws, so membership is
+    // the openness test. Derived rather than passed in, so the sell action
+    // behaves the same whichever screen opened this report.
+    final isOpen = ref
+        .watch(availableDrawsProvider)
+        .maybeWhen(
+          data: (draws) => draws.any((draw) => draw.drawId == drawId),
+          orElse: () => false,
+        );
 
     final label = drawLabel?.trim();
     final title = (label != null && label.isNotEmpty)
@@ -116,6 +131,17 @@ class SellerTerminalDrawReportPage extends ConsumerWidget {
           },
         ),
       ),
+      bottomNavigationBar: isOpen
+          ? BottomActionBar(
+              primaryAction: PrimaryActionButton(
+                key: const Key('draw-report-sell-action'),
+                label: translations.translate('pos.reports.sell_this_draw'),
+                icon: Icons.confirmation_number_rounded,
+                onPressed: () =>
+                    context.push('/sell', extra: {'drawId': drawId}),
+              ),
+            )
+          : null,
     );
   }
 }

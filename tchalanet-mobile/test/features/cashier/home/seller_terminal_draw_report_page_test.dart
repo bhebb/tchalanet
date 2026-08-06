@@ -6,6 +6,7 @@ import 'package:tchalanet_mobile/core/i18n/i18n_repository.dart';
 import 'package:tchalanet_mobile/features/cashier/home/data/services/terminal_stats_service.dart';
 import 'package:tchalanet_mobile/features/cashier/home/presentation/view_models/cashier_home_providers.dart';
 import 'package:tchalanet_mobile/features/cashier/home/presentation/views/seller_terminal_draw_report_page.dart';
+import 'package:tchalanet_mobile/features/cashier/tickets/data/models/cashier_sell_catalog_models.dart';
 import 'package:tchalanet_mobile/features/cashier/tickets/data/models/cashier_ticket_models.dart';
 
 const _translations = I18nBundle(
@@ -13,6 +14,7 @@ const _translations = I18nBundle(
   translations: {
     'pos.reports.draw': 'Tiraj',
     'pos.reports.draw_sales': 'Vant tiraj la',
+    'pos.reports.sell_this_draw': 'Vann yon tikè',
     'pos.reports.draw_commission': 'Komisyon',
     'pos.reports.draw_winnings': 'Lo pou peye',
     'pos.reports.draw_net_revenue': 'Revni nèt',
@@ -39,9 +41,26 @@ TerminalDailyStats _statsWith(List<DrawStatLine> breakdown) =>
       breakdown: breakdown,
     );
 
+CashierAvailableDrawView _openDraw(String drawId) => CashierAvailableDrawView(
+  drawId: drawId,
+  drawChannelId: 'channel-$drawId',
+  channelCode: 'HT_NY_EVE',
+  resultSlotKey: 'NY_EVE',
+  channelLabel: 'Haïti • New York • Evening',
+  gameCodes: const ['HT_BOLET'],
+  status: 'OPEN',
+  providerDate: '2026-08-05',
+  providerTime: '22:00:00',
+  providerTimezone: 'America/New_York',
+  localDate: '2026-08-05',
+  localTime: '22:00:00',
+  localTimezone: 'America/Port-au-Prince',
+);
+
 Widget _harness({
   required List<DrawStatLine> breakdown,
   required List<CashierTicketSummaryView> tickets,
+  List<CashierAvailableDrawView> openDraws = const [],
   String drawId = 'draw-1',
   String isoDate = '2026-08-05',
   String? drawLabel = 'Nouyòk · Aswè',
@@ -52,6 +71,7 @@ Widget _harness({
       (ref, date) async => _statsWith(breakdown),
     ),
     drawReportTicketsProvider.overrideWith((ref, key) async => tickets),
+    availableDrawsProvider.overrideWith((ref) async => openDraws),
   ],
   child: MaterialApp(
     home: SellerTerminalDrawReportPage(
@@ -123,5 +143,39 @@ void main() {
     // Sales, commission, winnings and net revenue all fall back to zero.
     expect(find.text('0.00'), findsNWidgets(4));
     expect(find.text('Pa gen tikè pou tiraj sa a jounen an.'), findsOneWidget);
+  });
+
+  testWidgets('offers a sell action while the draw is still open', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _harness(
+        breakdown: const [],
+        tickets: const [],
+        openDraws: [_openDraw('draw-1')],
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    // A mis-tap on the card must not strand the seller: selling stays reachable
+    // from the report without navigating back.
+    expect(find.byKey(const Key('draw-report-sell-action')), findsOneWidget);
+    expect(find.text('Vann yon tikè'), findsOneWidget);
+  });
+
+  testWidgets('hides the sell action once the draw is closed', (tester) async {
+    await tester.pumpWidget(
+      _harness(
+        breakdown: const [],
+        tickets: const [],
+        // availableDrawsProvider only ever carries open draws.
+        openDraws: [_openDraw('another-draw')],
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('draw-report-sell-action')), findsNothing);
   });
 }
