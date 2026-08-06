@@ -60,5 +60,7 @@ tch:
       notifications:
         slack:
           enabled: ${TCH_DRAW_RESULTS_NOTIFICATIONS_SLACK_ENABLED:true}
-          channel: ${TCH_DRAW_RESULTS_NOTIFICATIONS_SLACK_CHANNEL:general}
+          # Must match a key known to edge-service SLACK_WEBHOOKS
+          # (tchalanet, batch-draws, delivery, ops-alerts, security-audit).
+          channel: ${TCH_DRAW_RESULTS_NOTIFICATIONS_SLACK_CHANNEL:batch-draws}
           priority: ${TCH_DRAW_RESULTS_NOTIFICATIONS_SLACK_PRIORITY:high}
