@@ -54,6 +54,8 @@ void main() {
                   'pos.reports.yesterday': 'Yè',
                   'pos.reports.by_draw': 'Pa tiraj',
                   'pos.reports.all': 'Tout',
+                  'pos.reports.pick_date': 'Chwazi yon dat',
+                  'pos.reports.other_date': 'Yon lòt dat',
                   'pos.reports.draw': 'Tiraj',
                   'pos.dashboard.home': 'Akèy',
                   'pos.dashboard.history': 'Istorik',
@@ -117,11 +119,76 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text(drawChannelId), findsNothing);
-      expect(find.text('Nouyòk · Aswè'), findsWidgets);
       expect(find.text('ticket-id-1'), findsNothing);
-      await tester.drag(find.byType(ListView), const Offset(0, -500));
+
+      // The date bar now carries a picker under the two shortcuts, so the
+      // per-draw breakdown starts lower and has to be scrolled to.
+      await tester.drag(find.byType(ListView), const Offset(0, -200));
+      await tester.pumpAndSettle();
+      expect(find.text('Nouyòk · Aswè'), findsWidgets);
+
+      await tester.drag(find.byType(ListView), const Offset(0, -400));
       await tester.pumpAndSettle();
       expect(find.text('TCK-260721-001000-PTC2F4-9'), findsOneWidget);
     },
   );
+
+  testWidgets('a report can be opened on a date older than yesterday', (
+    tester,
+  ) async {
+    final requested = <String?>[];
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          i18nBundleProvider.overrideWithValue(
+            const I18nBundle(
+              locale: 'ht',
+              translations: {
+                'pos.reports.title': 'Rapò vandè',
+                'pos.reports.today': 'Jodi a',
+                'pos.reports.yesterday': 'Yè',
+                'pos.reports.pick_date': 'Chwazi yon dat',
+                'pos.reports.other_date': 'Yon lòt dat',
+                'pos.reports.by_draw': 'Pa tiraj',
+                'pos.reports.all': 'Tout',
+                'common.cashier_stats.total': 'Total',
+                'common.cashier_stats.sales_today': 'Vant jodi a',
+                'common.cashier_stats.tickets': 'Tikè',
+                'common.cashier_stats.commission_today': 'Komisyon',
+              },
+            ),
+          ),
+          terminalStatsByDateProvider.overrideWith((ref, date) async {
+            requested.add(date);
+            return TerminalDailyStats.empty('HTG');
+          }),
+          availableDrawsProvider.overrideWith((ref) async => const []),
+          cashierTicketServiceProvider.overrideWithValue(
+            _FakeCashierTicketService(),
+          ),
+        ],
+        child: const MaterialApp(home: SellerTerminalStatsPage()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Two shortcuts used to be the whole bar, capping the report at two days
+    // even though the backend parses any date.
+    expect(find.byKey(const Key('reports-date-filter')), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('reports-date-filter')));
+    await tester.pumpAndSettle();
+    expect(find.byType(DatePickerDialog), findsOneWidget);
+
+    // No future dates: a report on a day that has not happened is meaningless.
+    final picker = tester.widget<DatePickerDialog>(
+      find.byType(DatePickerDialog),
+    );
+    final now = DateTime.now();
+    expect(
+      picker.lastDate.isAfter(DateTime(now.year, now.month, now.day)),
+      isFalse,
+    );
+  });
 }

@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import '../../../../../core/i18n/i18n_models.dart';
 import '../../../../../core/i18n/i18n_repository.dart';
 import '../../../../../design_system/components/components.dart';
-import '../../../../../design_system/tokens/tch_colors.dart';
 import '../../../../../design_system/tokens/tch_radius.dart';
 import '../../../../../design_system/tokens/tch_spacing.dart';
 import '../../../tickets/data/models/cashier_ticket_models.dart';
@@ -120,7 +119,6 @@ class SellerTerminalDrawReportPage extends ConsumerWidget {
                 ticketCount: line?.ticketCount ?? 0,
                 winningsCents: line?.winningsCents ?? 0,
                 commissionCents: line?.sellerCommissionCents ?? 0,
-                netRevenueCents: line?.netRevenueCents ?? 0,
                 providerSchedule: providerSchedule,
                 providerZone: providerZone,
                 localSchedule: localSchedule,
@@ -155,7 +153,6 @@ class _DrawReportBody extends StatelessWidget {
     required this.ticketCount,
     required this.winningsCents,
     required this.commissionCents,
-    required this.netRevenueCents,
     required this.providerSchedule,
     required this.providerZone,
     required this.localSchedule,
@@ -170,7 +167,6 @@ class _DrawReportBody extends StatelessWidget {
   final int ticketCount;
   final int winningsCents;
   final int commissionCents;
-  final int netRevenueCents;
   final String? providerSchedule;
   final String? providerZone;
   final String? localSchedule;
@@ -259,24 +255,12 @@ class _DrawReportBody extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: TchSpacing.s12),
-        StatCard(
-          label: translations.translate('pos.reports.draw_net_revenue'),
-          value: _money(netRevenueCents),
-          unit: currency,
-          // Net revenue is the one figure that can go negative — the accent
-          // makes that readable at a glance under bright store lighting.
-          accentColor: netRevenueCents < 0
-              ? TchColors.error
-              : TchColors.success,
-        ),
-        const SizedBox(height: TchSpacing.s8),
-        Text(
-          translations.translate('pos.reports.draw_net_revenue_hint'),
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-        ),
+        // No net revenue here. It was put on this screen because the column
+        // existed, not because a seller asked for it: net_revenue_estimated is
+        // sales less winnings and commission — the tenant's margin on the
+        // seller's sales, not anything the seller takes home or owes. What is
+        // theirs is above: what they sold, what they earn on it, and what they
+        // must pay out.
         const SizedBox(height: TchSpacing.s24),
         Text(
           translations.translate('pos.reports.tickets'),
