@@ -23,7 +23,7 @@
 
   <section class="help-page__faq" aria-labelledby="faq-title">
     <h2 id="faq-title">{{ 'public.help.faq_title' | translate }}</h2>
-    @for (item of faqItems; track item.q; let i = $index) {
+    @for (item of faqItems; track item.qKey; let i = $index) {
       <div class="help-page__faq-item">
         <button
           type="button"
@@ -32,12 +32,12 @@
           [attr.aria-controls]="'faq-panel-' + i"
           (click)="toggleFaq(i)"
         >
-          <span>{{ item.q }}</span>
+          <span>{{ item.qKey | translate }}</span>
           <span class="material-symbols-outlined help-page__faq-chevron" [class.help-page__faq-chevron--open]="item.open" aria-hidden="true">expand_more</span>
         </button>
         @if (item.open) {
           <div [id]="'faq-panel-' + i" class="help-page__faq-panel" role="region">
-            <p>{{ item.a }}</p>
+            <p>{{ item.aKey | translate }}</p>
           </div>
         }
       </div>

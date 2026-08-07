@@ -2,7 +2,7 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { TchBackendClient } from '@tch/api';
 import { TchErrorPanel, TchLoading } from '@tch/ui/components';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 type NewsFilter = 'all' | 'internal' | 'external';
 type PublicContentSourceType = 'INTERNAL' | 'EXTERNAL_RSS';
@@ -17,10 +17,10 @@ interface PublicNewsItem {
   readonly publishedAt: string | null;
 }
 
-const FILTER_OPTIONS: readonly { id: NewsFilter; label: string }[] = [
-  { id: 'all', label: 'Toutes' },
-  { id: 'internal', label: 'Tchalanet' },
-  { id: 'external', label: 'RSS externe' },
+const FILTER_OPTIONS: readonly { id: NewsFilter; labelKey: string }[] = [
+  { id: 'all', labelKey: 'public.news.filter_all' },
+  { id: 'internal', labelKey: 'public.news.filter_internal' },
+  { id: 'external', labelKey: 'public.news.filter_external' },
 ];
 
 @Component({
@@ -32,6 +32,7 @@ const FILTER_OPTIONS: readonly { id: NewsFilter; label: string }[] = [
 })
 export class PublicNewsPage implements OnInit {
   private readonly backend = inject(TchBackendClient);
+  private readonly translate = inject(TranslateService);
 
   readonly filters = FILTER_OPTIONS;
   readonly activeFilter = signal<NewsFilter>('all');
@@ -69,7 +70,7 @@ export class PublicNewsPage implements OnInit {
           this.error.set(
             (err as { error?: { title?: string; detail?: string } })?.error?.title
               ?? (err as { error?: { detail?: string } })?.error?.detail
-              ?? 'Erreur lors du chargement des actualités.',
+              ?? this.translate.instant('public.news.error_fallback'),
           );
           this.loading.set(false);
         },
@@ -80,8 +81,8 @@ export class PublicNewsPage implements OnInit {
     this.activeFilter.set(id);
   }
 
-  sourceLabel(item: PublicNewsItem): string {
-    return item.sourceType === 'INTERNAL' ? 'Tchalanet' : 'RSS externe';
+  sourceLabelKey(item: PublicNewsItem): string {
+    return item.sourceType === 'INTERNAL' ? 'public.news.source_internal' : 'public.news.source_external';
   }
 
   sourceIcon(item: PublicNewsItem): string {

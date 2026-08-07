@@ -3,8 +3,8 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ActivatedRoute, Data } from '@angular/router';
 import { marked } from 'marked';
-import { TranslatePipe } from '@ngx-translate/core';
-import { catchError, distinctUntilChanged, map, of, switchMap } from 'rxjs';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { catchError, combineLatest, distinctUntilChanged, map, of, startWith, switchMap } from 'rxjs';
 
 import {
   PublicMarkdownContentService,
@@ -24,6 +24,7 @@ export class PublicMarkdownPage {
   private readonly content = inject(PublicMarkdownContentService);
   private readonly sanitizer = inject(DomSanitizer);
   private readonly route = inject(ActivatedRoute);
+  private readonly translate = inject(TranslateService);
 
   private readonly routeData = toSignal(this.route.data, {
     initialValue: this.route.snapshot.data,
@@ -35,11 +36,17 @@ export class PublicMarkdownPage {
 
   readonly state = signal<LoadState>('loading');
 
+  private readonly lang$ = this.translate.onLangChange.pipe(
+    map(e => e.lang),
+    startWith(this.translate.currentLang || this.translate.defaultLang),
+  );
+
   readonly html = toSignal(
-    this.route.data.pipe(
-      map(d => readFile(d)),
-      distinctUntilChanged(),
-      switchMap(file => {
+    combineLatest([
+      this.route.data.pipe(map(d => readFile(d)), distinctUntilChanged()),
+      this.lang$.pipe(distinctUntilChanged()),
+    ]).pipe(
+      switchMap(([file]) => {
         this.state.set('loading');
         return this.content.load(file).pipe(
           map(md => {

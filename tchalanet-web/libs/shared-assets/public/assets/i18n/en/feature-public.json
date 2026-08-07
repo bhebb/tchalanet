@@ -69,6 +69,14 @@
       "cat_security": "Security",
       "cat_withdrawals": "Withdrawals",
       "faq_title": "Frequently asked questions",
+      "faq1_q": "How do I collect my winnings?",
+      "faq1_a": "Present your original receipt at a participating seller. Winnings are verified from the public code printed on the receipt.",
+      "faq2_q": "What are the draw schedules?",
+      "faq2_a": "New York and Florida draws follow the officially published schedules. Check the Results section to see each session's real-time status.",
+      "faq3_q": "My transaction says 'Pending' — why?",
+      "faq3_a": "A ticket can be pending during draw validation. The status updates as soon as results are confirmed by official sources.",
+      "faq4_q": "How do I verify a ticket?",
+      "faq4_a": "Go to the Verification page and enter the public code at the bottom of your printed receipt. You can also scan the QR code.",
       "hero_body": "Find quick answers or contact our support team.",
       "hero_title": "How can we help you?",
       "search_label": "Search a question",
@@ -243,7 +251,15 @@
       "faq_mobile_a": "Yes. The Tchalanet POS app is available on mobile for authorized sellers.",
       "faq_seller-terminals_q": "How many sellers can I use?",
       "faq_seller-terminals_a": "Limits depend on the plan you choose. Contact us to find the setup that fits your network.",
-      "hero_stat_sessions": "Active sessions"
+      "hero_stat_sessions": "Active sessions",
+      "sample_plan": "Network",
+      "sample_status": "Active",
+      "sample_sellers": "sellers",
+      "sample_terminals": "terminals",
+      "sample_features": "features",
+      "sample_feat_qr": "QR sales",
+      "sample_feat_reports": "Reports",
+      "sample_feat_sessions": "Sessions"
     },
     "check": {
       "code_hint": "The code format appears at the bottom of your printed receipt.",
@@ -317,10 +333,20 @@
     "news": {
       "feed_aria": "News feed",
       "filter_aria": "Filter news",
+      "filter_all": "All",
+      "filter_internal": "Tchalanet",
+      "filter_external": "External RSS",
       "filter_system": "System",
       "filter_tchala": "Tchala",
       "title": "News",
-      "empty": "No news for this filter."
+      "empty": "No news for this filter.",
+      "loading": "Loading news…",
+      "error_fallback": "Error loading news.",
+      "retry": "Retry",
+      "read_source": "Read source",
+      "live_badge": "LIVE",
+      "source_internal": "Tchalanet",
+      "source_external": "External RSS"
     },
     "pages": {
       "check-ticket": {
@@ -429,7 +455,9 @@
       "next_in": "Next draw in",
       "awaiting": "Awaiting results",
       "copy_ref": "Copy reference",
-      "copied": "Copied!"
+      "copied": "Copied!",
+      "aria_breadcrumb": "Breadcrumb",
+      "aria_numbers": "Result numbers"
     },
     "contact_cta": {
       "body": "Tell us about your business or network. We will get back to you with a tailored demonstration.",

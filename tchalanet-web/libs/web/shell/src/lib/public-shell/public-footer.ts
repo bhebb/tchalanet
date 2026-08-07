@@ -38,7 +38,7 @@ interface FooterText {
           }
 
           @if (social().length) {
-            <nav class="public-footer__social" aria-label="Réseaux sociaux">
+            <nav class="public-footer__social" [attr.aria-label]="'public.footer.aria_social' | tchLabel">
               @for (item of social(); track item.id) {
                 <a
                   [href]="actionHref(item)"
@@ -55,7 +55,7 @@ interface FooterText {
         </section>
 
         @if (columns().length) {
-          <nav class="public-footer__columns" aria-label="Pied de page public">
+          <nav class="public-footer__columns" [attr.aria-label]="'public.footer.aria_columns' | tchLabel">
             @for (column of columns(); track column.id ?? column.titleKey) {
               <section class="public-footer__column">
                 <h2 class="public-footer__heading">{{ column.titleKey | tchLabel }}</h2>
