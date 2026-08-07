@@ -116,7 +116,7 @@ export interface SaveDrawResultRequest {
 
 export type DrawLifecycleAction = Extract<
   ConsoleDrawLifecycleDisplayAction,
-  'open' | 'close' | 'cancel' | 'lock' | 'unlock' | 'archive'
+  'open' | 'close' | 'cancel' | 'lock' | 'unlock' | 'settle' | 'archive'
 >;
 
 export interface GeneratedDrawDateTimeParts {

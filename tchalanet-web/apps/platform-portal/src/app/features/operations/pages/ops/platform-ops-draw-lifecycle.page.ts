@@ -48,14 +48,19 @@ function toneForStatus(status: string): AdminStatusTone {
 function actionsForStatus(status: string): DrawAction[] {
   switch (status) {
     case 'SCHEDULED':
-      return ['lock', 'reschedule', 'cancel'];
+      return ['open', 'lock', 'reschedule', 'cancel'];
     case 'OPEN':
-      return ['lock', 'cancel'];
+      return ['close', 'lock', 'cancel'];
     case 'LOCKED':
-      return ['unlock', 'settle', 'cancel'];
+      return ['unlock', 'cancel'];
     case 'CLOSED':
-      return ['settle', 'cancel'];
+      return ['cancel'];
+    case 'RESULTED':
+      return ['settle'];
     case 'SETTLED':
+      return ['archive'];
+    case 'CANCELED':
+    case 'CANCELLED':
       return ['archive'];
     default:
       return [];
@@ -227,6 +232,12 @@ export class PlatformOpsDrawLifecyclePage implements OnInit {
     let call$;
 
     switch (action) {
+      case 'open':
+        call$ = this.api.openDraw(draw.id, result.reason, null, { suppressShellFeedback: true });
+        break;
+      case 'close':
+        call$ = this.api.closeDraw(draw.id, result.reason, null, { suppressShellFeedback: true });
+        break;
       case 'cancel':
         call$ = this.api.cancelDraw(draw.id, { reasonCode: result.reason ?? 'ADMIN_REQUEST' }, null, { suppressShellFeedback: true });
         break;

@@ -58,6 +58,7 @@ const LIFECYCLE_LABELS: Record<DrawLifecycleAction, string> = {
   cancel: 'Annulé',
   lock: 'Verrouillé',
   unlock: 'Déverrouillé',
+  settle: 'Réglé',
   archive: 'Archivé',
 };
 
@@ -448,6 +449,9 @@ export class AdminGeneratedDrawsPage {
   }
   onCancelDraw(draw: GeneratedDrawView): void {
     this.openLifecycleDialog(draw, 'cancel');
+  }
+  onSettleDraw(draw: GeneratedDrawView): void {
+    this.openLifecycleDialog(draw, 'settle');
   }
   onArchiveDraw(draw: GeneratedDrawView): void {
     this.openLifecycleDialog(draw, 'archive');
