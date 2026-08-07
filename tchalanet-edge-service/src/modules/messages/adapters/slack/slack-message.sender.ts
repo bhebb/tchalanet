@@ -7,6 +7,7 @@ export class SlackMessageSender implements MessageSender {
   constructor(
     private readonly enabled: boolean,
     private readonly webhooks: Record<string, string | undefined>,
+    private readonly env: string = 'dev',
   ) {}
 
   supports(recipient: MessageRecipient): boolean {
@@ -30,7 +31,8 @@ export class SlackMessageSender implements MessageSender {
   }
 
   private formatMessage(message: SendMessageRequest): string {
-    const lines = [`[${message.severity}] ${message.title}`, '', message.message];
+    const envTag = this.env.toUpperCase();
+    const lines = [`[${envTag}] [${message.severity}] ${message.title}`, '', message.message];
     if (message.tenantCode) lines.push(`Tenant: ${message.tenantCode}`);
     lines.push(`Event: ${message.eventId}`);
     return lines.join('\n');
