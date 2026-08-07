@@ -166,9 +166,6 @@ public class UsLotteryConfig {
                 "User-Agent",
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)"
                     + " Chrome/120.0.0.0 Safari/537.36");
-    if (p != null && p.isProxied()) {
-      b = applyProxy(b, props);
-    }
     return b.build();
   }
 
@@ -187,23 +184,7 @@ public class UsLotteryConfig {
       b = b.defaultHeader(e.getKey(), e.getValue());
     }
 
-    if (p != null && p.isProxied()) {
-      b = applyProxy(b, props);
-    }
-
     return b.build();
-  }
-
-  private RestClient.Builder applyProxy(RestClient.Builder builder, UsLotteryProperties props) {
-    if (!hasText(props.getProxyUrl()) || !hasText(props.getProxySecret())) {
-      log.warn(
-          "Provider marked proxied=true but tch.us-lottery.proxy-url/proxy-secret is not"
-              + " configured - calling the provider directly instead.");
-      return builder;
-    }
-    log.info("Wiring LotteryProxyInterceptor with proxyUrl={}", props.getProxyUrl());
-    return builder.requestInterceptor(
-        new LotteryProxyInterceptor(props.getProxyUrl(), props.getProxySecret()));
   }
 
   private boolean hasText(String value) {

@@ -68,12 +68,12 @@ Configurer dans : GitHub → Settings → Secrets and variables → Actions → 
 |---|---|---|---|
 | `SSH_PRIVATE_KEY` | ✅ requis | — | Clé privée SSH vers le serveur staging (`~/.ssh/tchalanet_stg`) |
 | `SSH_PRIVATE_KEY_PROD` | — | ✅ requis | Clé privée SSH vers le serveur prod (`~/.ssh/tchalanet_prod`) |
-| `SERVER_HOST` | ✅ requis | — | IP du serveur Hetzner staging |
+| `SERVER_HOST` | optionnel/legacy | — | Ancienne IP statique staging; les workflows courants résolvent `stg-app` via Hetzner |
 | `PROD_SERVER_HOST` | — | ✅ requis | IP du serveur Hetzner prod |
 | `HCLOUD_TOKEN` | ✅ requis | — | Token API Hetzner Cloud Read+Write pour créer/détruire le serveur staging |
 | `DOPPLER_TOKEN_STG` | ✅ requis | — | Service Token Doppler config `stg` (projet `tchalanet`) |
 | `DOPPLER_TOKEN_PROD` | — | ✅ requis | Service Token Doppler config `prd` (projet `tchalanet`) |
-| `CLOUDFLARE_ACCOUNT_ID` | ✅ requis | ✅ requis | Compte Cloudflare — partagé avec le worker lottery-proxy et les backups |
+| `CLOUDFLARE_ACCOUNT_ID` | ✅ requis | ✅ requis | Compte Cloudflare — utilisé par les backups R2 et les déploiements Cloudflare |
 | `R2_ACCESS_KEY_ID` | ✅ requis | ✅ requis | Clé d'accès R2 pour les backups DB (voir RB — BACKUP-RESTORE) |
 | `R2_SECRET_ACCESS_KEY` | ✅ requis | ✅ requis | Secret R2 correspondant |
 | `R2_BUCKET` | ✅ requis | ✅ requis | Bucket de destination des backups |

@@ -18,12 +18,12 @@ Ce guide sert de checklist opérationnelle pour valider le pipeline résultat:
 |---|---|---:|---:|---|
 | NY | `NY_MID`, `NY_EVE` | Oui | Oui | Rien à activer côté tenant. Vérifier `TCH_US_NY_LOTTERY_ENABLED`, base URL, token app et headers. |
 | FL | `FL_MID`, `FL_EVE` | Oui | Oui | Rien à activer côté tenant. Vérifier `TCH_US_FL_LOTTERY_ENABLED`, base URL, `x-partner`, origin/referer. |
-| GA | `GA_MID`, `GA_EVE`, `GA_LATE` | Oui | Non | Activer les channels tenant voulus et vérifier `TCH_US_GA_LOTTERY_ENABLED`. |
+| GA | `GA_MID`, `GA_EVE`, `GA_LATE` | Oui, validé staging US | Non | Activer les channels tenant voulus et vérifier `TCH_US_GA_LOTTERY_ENABLED`. |
 | TX | `TX_1000`, `TX_1227`, `TX_1800`, `TX_2212` | Oui | Non | Activer les channels tenant voulus et vérifier `TCH_US_TX_LOTTERY_ENABLED`. |
 | PA | `PA_MID`, `PA_EVE` | Oui | Non | Activer les channels tenant voulus et vérifier `TCH_US_PA_LOTTERY_ENABLED`. |
-| NJ | `NJ_MID`, `NJ_EVE` | Oui | Non | Activer les channels tenant voulus et vérifier `TCH_US_NJ_LOTTERY_ENABLED`. |
-| CA | `CA_MID`, `CA_EVE` | Oui | Non | Activer les channels tenant voulus et vérifier `TCH_US_CA_LOTTERY_ENABLED`. |
-| OH | `OH_MID`, `OH_EVE` | Oui, avec auth | Non | Activer les channels tenant voulus. Vérifier auth Ohio ou `TCH_US_OH_BEARER_TOKEN`. |
+| NJ | `NJ_MID`, `NJ_EVE` | Oui, validé staging US | Non | Activer les channels tenant voulus et vérifier `TCH_US_NJ_LOTTERY_ENABLED`. Peut produire un résultat partiel si le feed ne publie qu'un jeu. |
+| CA | `CA_MID`, `CA_EVE` | Oui, validé staging US | Non | Activer les channels tenant voulus et vérifier `TCH_US_CA_LOTTERY_ENABLED`. |
+| OH | `OH_MID`, `OH_EVE` | Oui, avec auth, à valider live | Non | Activer les channels tenant voulus. Vérifier auth Ohio ou `TCH_US_OH_BEARER_TOKEN`; ne pas promettre avant validation live. |
 | MI | `MI_MID`, `MI_EVE` | Oui | Non | Activer les channels tenant voulus et vérifier headers GraphQL Michigan. |
 | MN | `MN_EVE` | Non, manuel | Non | Activer seulement si Ops accepte un résultat manuel. Pick 4 absent, donc projection limitée. |
 | TN | `TN_MID`, `TN_EVE` | Non aujourd'hui | Non | Skeleton enum/config seulement: pas de client fetch enregistré; validation manuelle ou développement provider requis. |
@@ -40,11 +40,11 @@ Le job de processing tourne toutes les 5 minutes. Les délais ci-dessous sont do
 |---|---|---:|---|
 | NY | `NY_MID`, `NY_EVE` | observé autour de +20 à +30 min | Auto actif par défaut pour nouveau tenant. Peut rester `PROVISIONAL` si revue Ops requise. |
 | FL | `FL_MID`, `FL_EVE` | observé autour de +5 à +20 min | Auto actif par défaut pour nouveau tenant. Peut rester `PROVISIONAL` si revue Ops requise. |
-| GA | `GA_MID`, `GA_EVE`, `GA_LATE` | observé autour de +6 à +21 min | Auto disponible après activation tenant. |
+| GA | `GA_MID`, `GA_EVE`, `GA_LATE` | observé autour de +6 à +21 min; staging Ashburn validé le 2026-08-07 | Auto disponible après activation tenant. |
 | TX | `TX_1000`, `TX_1227`, `TX_1800`, `TX_2212` | observé autour de +8 à +23 min | Auto disponible après activation tenant. |
 | PA | `PA_MID`, `PA_EVE` | observé autour de +5 à +25 min | Auto disponible après activation tenant. |
-| NJ | `NJ_MID`, `NJ_EVE` | observé autour de +6 à +18 min | Auto disponible après activation tenant. |
-| CA | `CA_MID`, `CA_EVE` | observé autour de +5 à +20 min | Auto disponible après activation tenant. |
+| NJ | `NJ_MID`, `NJ_EVE` | observé autour de +6 à +18 min; staging Ashburn validé le 2026-08-07 | Auto disponible après activation tenant; surveiller les cas partiels Pick 3/Pick 4. |
+| CA | `CA_MID`, `CA_EVE` | observé autour de +5 à +20 min; staging Ashburn validé le 2026-08-07 | Auto disponible après activation tenant. |
 | MI | `MI_MID`, `MI_EVE` | observé autour de +16 à +21 min | Auto disponible après activation tenant. |
 | OH | `OH_MID`, `OH_EVE` | à confirmer, aucune arrivée observée localement le 2026-07-20 | Ne pas promettre au client avant validation auth/feed. |
 | MN/TN/IL/MO | slots manuels | N/A | Pas de résultat automatique aujourd'hui; saisie Ops/manuelle requise. |
@@ -122,6 +122,8 @@ order by rs.provider;
 ```
 
 Observation locale du `2026-07-20`: 19 résultats externes sont entrés. Les arrivées constatées étaient entre +5 et +30 minutes après le draw selon les slots. NY evening et FL evening sont restés `PROVISIONAL` sans update ultérieur; Ops doit donc les confirmer avant apply. OH n'avait aucune ligne malgré les slots actifs, donc l'auth/feed Ohio doit être validé avant activation client. MN n'avait aucune ligne, ce qui est attendu car le client est manuel.
+
+Observation staging Ashburn du `2026-08-07`: le serveur `stg-app` en région US (`ash`, IP `178.156.181.67`) récupère directement GA, NJ et CA sans proxy provider. GA et CA ont produit des résultats complets; NJ a produit des résultats partiels selon la disponibilité Pick 3/Pick 4 du feed. OH reste à valider en test live.
 
 ## Conditions d'activation d'un provider
 
@@ -203,6 +205,7 @@ Objectif: prouver que le provisioning ne démarre pas tous les providers.
 ## Contraintes connues
 
 - Les timings providers externes varient. Tchalanet retry, mais ne garantit pas l'heure de publication officielle.
+- Staging est hébergé en région US Ashburn pour éviter les blocages datacenter européens observés sur GA/NJ/CA.
 - TN, IL et MO sont supportés comme codes/slots, pas comme fetch automatique actuel.
 - MN est volontairement manuel dans le client actuel.
 - La seed historique du tenant demo peut avoir plus de channels actifs; ne pas l'utiliser comme preuve de la politique nouveau tenant.

@@ -31,6 +31,8 @@ Mettre à jour Cloudflare DNS (`api.stg`, `edge.stg`, `*.stg`) si l'IP a changé
 Les workflows de provisioning et de runtime résolvent l'IP courante de `stg-app` via Hetzner;
 aucun secret `SERVER_HOST` staging n'est requis pour le déploiement.
 
+État courant validé le 2026-08-07: `stg-app` est en région Hetzner Ashburn (`ash`) avec l'IP publique `178.156.181.67`, type `cpx21`, réseau privé `tch-net-us-east`.
+
 ### En local
 
 1. Créer le serveur:
@@ -102,7 +104,7 @@ cd tchalanet-infra
 ./scripts/hcloud/staging-create.sh
 ```
 
-Ce script enchaîne : réseau privé → firewall → cloud-init → serveur `stg-app` (CX23 / Ubuntu 24.04 / nbg1).
+Ce script enchaîne : réseau privé US East → firewall → cloud-init → serveur `stg-app` (`cpx21` / Ubuntu 24.04 / `ash`).
 
 Récupérer l'IP :
 ```bash
@@ -122,9 +124,9 @@ Dans le dashboard Cloudflare (domaine `tchalanet.com`) → DNS → ajouter :
 
 | Type | Nom | Valeur | Proxy |
 |---|---|---|---|
-| A | `api.stg` | `<IP_STG>` | DNS only (gris) |
-| A | `edge.stg` | `<IP_STG>` | DNS only (gris) |
-| A | `*.stg` | `<IP_STG>` | DNS only (gris) |
+| A | `api.stg` | `<IP_STG>` (`178.156.181.67` au 2026-08-07) | DNS only (gris) |
+| A | `edge.stg` | `<IP_STG>` (`178.156.181.67` au 2026-08-07) | DNS only (gris) |
+| A | `*.stg` | `<IP_STG>` (`178.156.181.67` au 2026-08-07) | DNS only (gris) |
 
 > Mettre **DNS only** (pas le proxy orange) — Traefik gère TLS via Let's Encrypt sur le port 443 directement.
 
@@ -212,7 +214,7 @@ Dans GitHub → Settings → Secrets and variables → Actions → **New reposit
 | Secret | Valeur |
 |---|---|
 | `SSH_PRIVATE_KEY` | contenu de `~/.ssh/tchalanet_stg` (clé privée) |
-| `SERVER_HOST` | `<IP_STG>` |
+| `SERVER_HOST` | Legacy/manuel seulement; les workflows staging courants résolvent `stg-app` via Hetzner |
 | `HCLOUD_TOKEN` | Token Hetzner Cloud Read+Write |
 | `DOPPLER_TOKEN_STG` | Service Token Doppler config `stg` |
 

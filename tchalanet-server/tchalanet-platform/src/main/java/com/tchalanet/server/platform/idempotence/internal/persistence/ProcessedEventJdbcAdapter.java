@@ -6,11 +6,13 @@ import com.tchalanet.server.common.context.TchContextScope;
 import com.tchalanet.server.platform.idempotence.api.ProcessedEventPort;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class ProcessedEventJdbcAdapter implements ProcessedEventPort {
 
   private final JdbcTemplate jdbc;
@@ -51,10 +53,20 @@ public class ProcessedEventJdbcAdapter implements ProcessedEventPort {
       return TchContextScope.runWithTemporaryTenantResult(
           tenantId,
           ctx.requestId(),
-          () -> insertIfAbsent(tenantId, handlerKey, eventId, createdBy));
+          () -> insertIfAbsentWithTemporaryRls(tenantId, handlerKey, eventId, createdBy));
     }
 
     return insertIfAbsent(tenantId, handlerKey, eventId, createdBy);
+  }
+
+  private boolean insertIfAbsentWithTemporaryRls(
+      UUID tenantId, String handlerKey, UUID eventId, UUID createdBy) {
+    setCurrentTenant(tenantId.toString());
+    try {
+      return insertIfAbsent(tenantId, handlerKey, eventId, createdBy);
+    } finally {
+      clearCurrentTenant();
+    }
   }
 
   private boolean insertIfAbsent(UUID tenantId, String handlerKey, UUID eventId, UUID createdBy) {
@@ -70,5 +82,18 @@ public class ProcessedEventJdbcAdapter implements ProcessedEventPort {
             eventId,
             createdBy);
     return inserted > 0;
+  }
+
+  private void setCurrentTenant(String tenantId) {
+    jdbc.queryForObject(
+        "select set_config('app.current_tenant', ?, false)", String.class, tenantId);
+  }
+
+  private void clearCurrentTenant() {
+    try {
+      setCurrentTenant("");
+    } catch (Exception e) {
+      log.debug("processed_event temporary RLS reset failed", e);
+    }
   }
 }

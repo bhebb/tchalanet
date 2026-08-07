@@ -18,6 +18,16 @@ on:
         required: false
         default: ''
         type: string
+      hcloud_location:
+        description: Hetzner location for stg-app when create_if_missing is enabled.
+        required: false
+        default: ash
+        type: string
+      hcloud_server_type:
+        description: Hetzner server type for stg-app when create_if_missing is enabled.
+        required: false
+        default: cpx21
+        type: string
     outputs:
       server_host:
         description: Resolved staging server host/IP.
@@ -50,6 +60,8 @@ jobs:
       SERVER_HOST_SECRET: ${{ secrets.SERVER_HOST }}
       SSH_PRIVATE_KEY_VALUE: ${{ secrets.SSH_PRIVATE_KEY }}
       DOPPLER_TOKEN_VALUE: ${{ secrets.DOPPLER_TOKEN_STG }}
+      HCLOUD_LOCATION: ${{ inputs.hcloud_location }}
+      HCLOUD_SERVER_TYPE: ${{ inputs.hcloud_server_type }}
     steps:
       - uses: actions/checkout@v7
 
