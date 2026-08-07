@@ -138,6 +138,13 @@ class _DateToggleBar extends StatelessWidget {
 
     final isToday = selDay == today;
 
+    final isYesterday = selDay == yesterday;
+    // Anything older than yesterday: the two shortcuts go quiet and the date
+    // itself is shown. The backend accepts any date — sellerTerminalStats
+    // parses it straight through — so only this bar was capping the report at
+    // two days, which left a past draw's report unreachable.
+    final isCustom = !isToday && !isYesterday;
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         TchSpacing.s16,
@@ -145,21 +152,103 @@ class _DateToggleBar extends StatelessWidget {
         TchSpacing.s16,
         0,
       ),
-      child: SegmentedButton<String>(
-        segments: [
-          ButtonSegment(
-            value: 'today',
-            label: Text(translations.translate('pos.reports.today')),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SegmentedButton<String>(
+            segments: [
+              ButtonSegment(
+                value: 'today',
+                label: Text(translations.translate('pos.reports.today')),
+              ),
+              ButtonSegment(
+                value: 'yesterday',
+                label: Text(translations.translate('pos.reports.yesterday')),
+              ),
+            ],
+            // Empty when a custom date is in play, so the bar never claims the
+            // seller is looking at today when they are not.
+            emptySelectionAllowed: true,
+            selected: isCustom
+                ? const <String>{}
+                : {isToday ? 'today' : 'yesterday'},
+            onSelectionChanged: (s) {
+              if (s.isEmpty) return;
+              onChanged(s.contains('yesterday') ? yesterday : today);
+            },
           ),
-          ButtonSegment(
-            value: 'yesterday',
-            label: Text(translations.translate('pos.reports.yesterday')),
+          const SizedBox(height: TchSpacing.s8),
+          _ReportDateField(
+            selected: isCustom ? selDay : null,
+            translations: translations,
+            onPick: onChanged,
+            onClear: () => onChanged(today),
           ),
         ],
-        selected: {isToday ? 'today' : 'yesterday'},
-        onSelectionChanged: (s) {
-          onChanged(s.contains('yesterday') ? yesterday : today);
-        },
+      ),
+    );
+  }
+}
+
+/// Any date, not just the last two. Same shape as the picker on the results
+/// screen so the two reporting screens behave alike.
+class _ReportDateField extends StatelessWidget {
+  const _ReportDateField({
+    required this.selected,
+    required this.translations,
+    required this.onPick,
+    required this.onClear,
+  });
+
+  final DateTime? selected;
+  final I18nBundle translations;
+  final ValueChanged<DateTime> onPick;
+  final VoidCallback onClear;
+
+  Future<void> _pick(BuildContext context) async {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: selected ?? today,
+      firstDate: DateTime(2020),
+      // No future: a report on a day that has not happened is meaningless.
+      lastDate: today,
+      helpText: translations.translate('pos.reports.pick_date'),
+    );
+    if (picked != null) {
+      onPick(DateTime(picked.year, picked.month, picked.day));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final label = selected == null
+        ? translations.translate('pos.reports.other_date')
+        : MaterialLocalizations.of(context).formatMediumDate(selected!);
+
+    return InputDecorator(
+      decoration: InputDecoration(
+        prefixIcon: const Icon(Icons.calendar_month_outlined),
+        suffixIcon: selected == null
+            ? null
+            : IconButton(
+                tooltip: translations.translate('pos.reports.today'),
+                onPressed: onClear,
+                icon: const Icon(Icons.close_rounded),
+              ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: TchSpacing.s12,
+          vertical: TchSpacing.s8,
+        ),
+      ),
+      child: InkWell(
+        key: const Key('reports-date-filter'),
+        onTap: () => _pick(context),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: TchSpacing.s4),
+          child: Text(label),
+        ),
       ),
     );
   }

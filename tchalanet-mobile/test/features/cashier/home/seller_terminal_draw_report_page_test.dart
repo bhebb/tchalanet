@@ -17,8 +17,6 @@ const _translations = I18nBundle(
     'pos.reports.sell_this_draw': 'Vann yon tikè',
     'pos.reports.draw_commission': 'Komisyon',
     'pos.reports.draw_winnings': 'Lo pou peye',
-    'pos.reports.draw_net_revenue': 'Revni nèt',
-    'pos.reports.draw_net_revenue_hint': 'Estimasyon.',
     'pos.reports.draw_empty': 'Pa gen tikè pou tiraj sa a jounen an.',
     'pos.reports.tickets': 'Tikè',
     'pos.reports.load_error': 'Nou pa kapab chaje rapò a.',
@@ -126,9 +124,11 @@ void main() {
     // Every figure comes from the matching breakdown line, never the
     // whole-day totals and never the other draw's line.
     expect(find.text('112.00'), findsOneWidget); // sales
+    // No net revenue: it is the tenant's margin on the seller's sales, not
+    // anything the seller takes home, so it left the seller's report.
+    expect(find.text('67.44'), findsNothing);
     expect(find.text('14.56'), findsOneWidget); // commission
     expect(find.text('30.00'), findsOneWidget); // winnings
-    expect(find.text('67.44'), findsOneWidget); // net revenue
     expect(find.text('188.00'), findsNothing); // draw-2 must not leak in
     expect(find.text('TCK-260805-001000-PTC2F4-9'), findsOneWidget);
   });
@@ -140,8 +140,8 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    // Sales, commission, winnings and net revenue all fall back to zero.
-    expect(find.text('0.00'), findsNWidgets(4));
+    // Sales, commission and winnings all fall back to zero.
+    expect(find.text('0.00'), findsNWidgets(3));
     expect(find.text('Pa gen tikè pou tiraj sa a jounen an.'), findsOneWidget);
   });
 
