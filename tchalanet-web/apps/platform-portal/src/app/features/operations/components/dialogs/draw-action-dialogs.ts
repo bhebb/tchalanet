@@ -19,10 +19,12 @@ import {
   PlatformOpsApi,
 } from '../../data-access/platform-ops-api.service';
 
-export type SimpleDrawActionType = 'lock' | 'unlock' | 'settle' | 'archive';
-export type BulkDrawActionType = SimpleDrawActionType | 'cancel';
+export type SimpleDrawActionType = 'open' | 'close' | 'lock' | 'unlock' | 'settle' | 'archive';
+export type BulkDrawActionType = 'lock' | 'unlock' | 'settle' | 'archive' | 'cancel';
 
 const SIMPLE_LABELS: Record<SimpleDrawActionType, string> = {
+  open: 'Ouvrir la vente',
+  close: 'Fermer la vente',
   lock: 'Verrouiller',
   unlock: 'Déverrouiller',
   settle: 'Régler',
@@ -196,6 +198,8 @@ export class SimpleDrawActionDialog {
     const options = { suppressShellFeedback: true };
     let call$;
     switch (this.data.action) {
+      case 'open': call$ = this.api.openDraw(this.data.draw.id, reason, this.data.tenantId, options); break;
+      case 'close': call$ = this.api.closeDraw(this.data.draw.id, reason, this.data.tenantId, options); break;
       case 'lock': call$ = this.api.lockDraw(this.data.draw.id, reason, this.data.tenantId, options); break;
       case 'unlock': call$ = this.api.unlockDraw(this.data.draw.id, reason, this.data.tenantId, options); break;
       case 'settle': call$ = this.api.settleDraw(this.data.draw.id, reason, this.data.tenantId, options); break;
@@ -242,13 +246,17 @@ export class BulkSimpleDrawActionDialog {
     const reason = v.reason || undefined;
     const req = { drawIds: this.data.draws.map(draw => draw.id), reason, force: v.force };
     const options = { suppressShellFeedback: true };
-    const call$ = this.data.action === 'lock'
-      ? this.api.lockDraws(req, this.data.tenantId, options)
-      : this.data.action === 'unlock'
-        ? this.api.unlockDraws(req, this.data.tenantId, options)
-        : this.data.action === 'settle'
-          ? this.api.settleDraws(req, this.data.tenantId, options)
-          : this.api.archiveDraws(req, this.data.tenantId, options);
+    const call$ = this.data.action === 'open'
+      ? this.api.openDraws(req, this.data.tenantId, options)
+      : this.data.action === 'close'
+        ? this.api.closeDraws(req, this.data.tenantId, options)
+        : this.data.action === 'lock'
+          ? this.api.lockDraws(req, this.data.tenantId, options)
+          : this.data.action === 'unlock'
+            ? this.api.unlockDraws(req, this.data.tenantId, options)
+            : this.data.action === 'settle'
+              ? this.api.settleDraws(req, this.data.tenantId, options)
+              : this.api.archiveDraws(req, this.data.tenantId, options);
 
     this.submitting.set(true);
     this.error.set(null);

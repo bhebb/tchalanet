@@ -86,7 +86,9 @@ public class DrawAdminOpsController {
     return ApiResponse.success(reload(drawId));
   }
 
-  @Operation(summary = "Record a manual draw result (TENANT_ADMIN+)")
+  @Operation(
+      summary =
+          "Record a manual draw result (tenant provisional, super admin optional confirmation)")
   @PostMapping("/{drawId}/manual-result")
   @PreAuthorize("hasPermission(null, 'draw_result.record_manual')")
   @AuditLog(
@@ -101,6 +103,10 @@ public class DrawAdminOpsController {
 
     var draw = queryBus.ask(new GetDrawByIdQuery(drawId));
     var recordedBy = request.recordedBy() != null ? request.recordedBy() : ctx.externalSubject();
+    // Tenant operators may propose a result, but only platform super admins can confirm it.
+    // Do not trust the browser-provided flag: this is an authorization boundary.
+    var force = ctx.isSuperAdmin() && request.force();
+    var observeTrustPolicy = !ctx.isSuperAdmin() || request.observeTrustPolicy();
 
     commandBus.execute(
         new RecordManualDrawResultCommand(
@@ -111,9 +117,9 @@ public class DrawAdminOpsController {
             request.notes(),
             request.pick3(),
             request.pick4(),
-            request.force(),
+            force,
             request.reason(),
-            request.observeTrustPolicy()));
+            observeTrustPolicy));
 
     return ApiResponse.success(reload(drawId));
   }

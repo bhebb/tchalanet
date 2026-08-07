@@ -20,36 +20,16 @@ import {
 } from '@tch/web/console';
 
 import {
-  BulkDrawActionType,
   CancelDrawDialog,
-  CorrectDrawResultDialog,
   RescheduleDrawDialog,
   SimpleDrawActionDialog,
 } from '../../components/dialogs/draw-action-dialogs';
 import { ManualResultDialog as PlatformManualResultDialog } from '../../components/dialogs/manual-result.dialog';
+import { OverrideResultDialog } from '../../components/dialogs/override-result.dialog';
 import { DrawView, PlatformOpsApi } from '../../data-access/platform-ops-api.service';
+import { DrawActionItem, actionsForDraw, drawResultOpsRow } from './platform-ops-draw-action-matrix';
 
-type DrawActionItem =
-  | { kind: 'cancel' }
-  | { kind: 'lock' }
-  | { kind: 'unlock' }
-  | { kind: 'reschedule' }
-  | { kind: 'manual' }
-  | { kind: 'settle' }
-  | { kind: 'archive' }
-  | { kind: 'correct' };
-
-function actionsForDraw(draw: DrawView): DrawActionItem[] {
-  switch (draw.status) {
-    case 'SCHEDULED': return [{ kind: 'lock' }, { kind: 'reschedule' }, { kind: 'cancel' }];
-    case 'OPEN': return [{ kind: 'lock' }, { kind: 'cancel' }];
-    case 'LOCKED': return [{ kind: 'unlock' }, { kind: 'cancel' }];
-    case 'CLOSED': return [{ kind: 'manual' }, { kind: 'settle' }, { kind: 'cancel' }];
-    case 'RESULTED': return [{ kind: 'correct' }, { kind: 'settle' }, { kind: 'archive' }];
-    case 'SETTLED': return [{ kind: 'archive' }];
-    default: return [];
-  }
-}
+export { actionsForDraw } from './platform-ops-draw-action-matrix';
 
 @Component({
   selector: 'tch-platform-ops-draw-detail-page',
@@ -196,6 +176,8 @@ export class PlatformOpsDrawDetailPage {
       case 'cancel':
         this.openAndReload(CancelDrawDialog, { draw, tenantId }, '460px');
         break;
+      case 'open':
+      case 'close':
       case 'lock':
       case 'unlock':
       case 'settle':
@@ -212,10 +194,35 @@ export class PlatformOpsDrawDetailPage {
           '520px',
         );
         break;
-      case 'correct':
-        this.openAndReload(CorrectDrawResultDialog, { draw, tenantId }, '500px');
+      case 'confirm':
+        this.confirmResult(draw);
+        break;
+      case 'override':
+        {
+          const row = drawResultOpsRow(draw);
+          if (!row) return;
+          this.openAndReload(
+            OverrideResultDialog,
+            { row, onSuccess: () => this.load() },
+            '500px',
+          );
+        }
         break;
     }
+  }
+
+  private confirmResult(draw: DrawView): void {
+    const resultId = draw.lastResult?.id;
+    if (!resultId) return;
+    this.api.confirmDrawResult(resultId, { suppressShellFeedback: true }).subscribe({
+      next: () => this.load(),
+      error: () => {
+        this.error.set({
+          title: 'Impossible de confirmer le résultat',
+          message: 'Actualisez le tirage puis réessayez.',
+        });
+      },
+    });
   }
 
   private openAndReload(component: unknown, data: unknown, width: string): void {
@@ -235,10 +242,28 @@ export class PlatformOpsDrawDetailPage {
         variant: 'button',
       };
     }
+    if (action.kind === 'confirm') {
+      return {
+        id: action.kind,
+        label: 'Confirmer le résultat',
+        icon: 'check_circle',
+        tone: 'primary',
+        variant: 'button',
+      };
+    }
+    if (action.kind === 'override') {
+      return {
+        id: action.kind,
+        label: 'Corriger le résultat',
+        icon: 'edit',
+        tone: 'danger',
+        variant: 'button',
+      };
+    }
     return {
       id: action.kind,
-      label: consoleDrawLifecycleActionLabel(action.kind as BulkDrawActionType),
-      icon: consoleDrawLifecycleActionIcon(action.kind as BulkDrawActionType),
+      label: consoleDrawLifecycleActionLabel(action.kind),
+      icon: consoleDrawLifecycleActionIcon(action.kind),
       tone: action.kind === 'cancel' ? 'danger' : 'default',
       variant: 'button',
     };

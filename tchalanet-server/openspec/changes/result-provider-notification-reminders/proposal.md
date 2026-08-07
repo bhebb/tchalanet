@@ -29,6 +29,8 @@ do not get a clear "result is available" signal.
   notifications.
 - Publish `GlobalDrawResultCorrectedEvent` when an existing global result is overridden, without
   re-sending tenant result-available notifications.
+- Treat tenant manual entries as provisional proposals; only platform super admins can confirm and
+  publish a result.
 - Notify affected tenant audiences only when tenant channel configuration says the tenant is
   subscribed to the exact channel/slot and a matching non-cancelled tenant draw exists.
 - Keep notification persistence in `platform.notification` and external Slack delivery in

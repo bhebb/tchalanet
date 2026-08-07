@@ -18,6 +18,7 @@ const ACTION_CONFIG: Record<DrawLifecycleAction, { label: string; reasonRequired
   close:   { label: 'Fermer la vente', reasonRequired: false, color: 'primary' },
   lock:    { label: 'Verrouiller', reasonRequired: false, color: 'primary' },
   unlock:  { label: 'Déverrouiller', reasonRequired: false, color: 'primary' },
+  settle:  { label: 'Régler le tirage', reasonRequired: false, color: 'primary' },
   cancel:  { label: 'Annuler le tirage', reasonRequired: true,  color: 'warn' },
   archive: { label: 'Archiver', reasonRequired: false, color: 'primary' },
 };

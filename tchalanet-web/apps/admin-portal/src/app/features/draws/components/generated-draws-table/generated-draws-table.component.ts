@@ -62,6 +62,7 @@ export class GeneratedDrawsTableComponent {
   readonly lockDraw      = output<GeneratedDrawView>();
   readonly unlockDraw    = output<GeneratedDrawView>();
   readonly cancelDraw    = output<GeneratedDrawView>();
+  readonly settleDraw    = output<GeneratedDrawView>();
   readonly archiveDraw   = output<GeneratedDrawView>();
   readonly bulkLifecycle = output<{ action: DrawLifecycleAction; draws: readonly GeneratedDrawView[] }>();
   readonly nextPage      = output<void>();
@@ -191,8 +192,9 @@ export class GeneratedDrawsTableComponent {
       case 'OPEN':      return ['close', 'lock', 'cancel'];
       case 'LOCKED':    return ['unlock', 'cancel'];
       case 'CLOSED':    return ['cancel'];
-      case 'RESULTED':
-      case 'SETTLED':   return ['archive'];
+      case 'RESULTED':  return ['settle'];
+      case 'SETTLED':
+      case 'CANCELED':  return ['archive'];
       default:          return [];
     }
   }
@@ -212,6 +214,7 @@ export class GeneratedDrawsTableComponent {
       case 'lock':    this.lockDraw.emit(draw);    break;
       case 'unlock':  this.unlockDraw.emit(draw);  break;
       case 'cancel':  this.cancelDraw.emit(draw);  break;
+      case 'settle':  this.settleDraw.emit(draw);  break;
       case 'archive': this.archiveDraw.emit(draw); break;
     }
   }

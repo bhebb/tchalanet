@@ -8,7 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 
 import { DrawView } from '../../data-access/platform-ops-api.service';
 
-export type DrawAction = 'cancel' | 'lock' | 'unlock' | 'settle' | 'archive' | 'reschedule';
+export type DrawAction = 'open' | 'close' | 'cancel' | 'lock' | 'unlock' | 'settle' | 'archive' | 'reschedule';
 
 export interface ActionDialogData {
   draw: DrawView;
@@ -22,6 +22,8 @@ export interface ActionDialogResult {
 }
 
 export const ACTION_LABELS: Record<DrawAction, string> = {
+  open: 'Ouvrir la vente',
+  close: 'Fermer la vente',
   cancel: 'Annuler',
   lock: 'Verrouiller',
   unlock: 'Déverrouiller',

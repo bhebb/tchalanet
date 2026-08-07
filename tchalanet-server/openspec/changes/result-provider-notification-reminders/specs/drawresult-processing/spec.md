@@ -193,6 +193,21 @@ Global draw results SHALL carry `ResultSource` metadata:
 - **THEN** the system publishes the same `GlobalDrawResultAvailableEvent`
 - **AND** source is `MANUAL_ENTRY`.
 
+#### Scenario: Tenant admin manual result remains provisional
+
+- **GIVEN** a tenant owner or tenant admin records a manual result
+- **WHEN** the request attempts to set `observeTrustPolicy` to `false`
+- **THEN** the backend ignores that request value
+- **AND** stores the result with status `PROVISIONAL`
+- **AND** the result is not published as a confirmed public result.
+
+#### Scenario: Super admin confirms a provisional manual result
+
+- **GIVEN** a provisional manual result exists
+- **WHEN** a super admin uses the platform confirmation action
+- **THEN** the result becomes `CONFIRMED`
+- **AND** it can be published and applied according to the normal result flow.
+
 #### Scenario: Override corrects existing result
 
 - **GIVEN** a global draw result already exists for a slot/date
