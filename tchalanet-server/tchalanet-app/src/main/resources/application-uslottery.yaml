@@ -90,6 +90,7 @@ tch:
         timezone: ${TCH_US_CA_TIMEZONE:America/Los_Angeles}
         base-url: ${TCH_US_CA_LOTTERY_BASEURL:https://www.calottery.com}
         latest-path: ${TCH_US_CA_LATEST_PATH:/api/DrawGameApi/DrawGamePastDrawResults}
+        proxied: ${TCH_US_CA_LOTTERY_PROXIED:true}
         headers:
           Accept: application/json
           User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36

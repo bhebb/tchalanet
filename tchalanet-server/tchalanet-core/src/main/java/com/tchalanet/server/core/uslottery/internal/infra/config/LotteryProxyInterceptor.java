@@ -65,7 +65,7 @@ final class LotteryProxyInterceptor implements ClientHttpRequestInterceptor {
         "lottery-proxy rewrite original={} proxied={} sentHeaders={}",
         request.getURI(),
         proxiedUri,
-        wrapped.getHeaders());
+        redactedHeaders(wrapped.getHeaders()));
 
     var response = execution.execute(wrapped, body);
     log.warn(
@@ -75,5 +75,18 @@ final class LotteryProxyInterceptor implements ClientHttpRequestInterceptor {
         response.getHeaders().getFirst("cf-ray"),
         response.getHeaders());
     return response;
+  }
+
+  private static HttpHeaders redactedHeaders(HttpHeaders source) {
+    var redacted = new HttpHeaders();
+    source.forEach(
+        (name, values) -> {
+          if ("x-proxy-secret".equalsIgnoreCase(name)) {
+            redacted.add(name, "***");
+          } else {
+            values.forEach(value -> redacted.add(name, value));
+          }
+        });
+    return redacted;
   }
 }
