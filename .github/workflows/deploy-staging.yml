@@ -24,6 +24,28 @@ on:
         required: false
         default: true
         type: boolean
+      hcloud_location:
+        description: 'Hetzner location for create/recreate'
+        required: true
+        default: 'ash'
+        type: choice
+        options:
+          - ash
+          - hil
+          - nbg1
+          - fsn1
+          - hel1
+      hcloud_server_type:
+        description: 'Hetzner server type for create/recreate'
+        required: true
+        default: 'cpx21'
+        type: choice
+        options:
+          - cpx21
+          - cpx11
+          - cpx31
+          - ccx13
+          - cx23
 
 concurrency:
   group: staging-infra
@@ -39,6 +61,8 @@ jobs:
     environment: staging
     env:
       HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}
+      HCLOUD_LOCATION: ${{ inputs.hcloud_location }}
+      HCLOUD_SERVER_TYPE: ${{ inputs.hcloud_server_type }}
     steps:
       - uses: actions/checkout@v7
 
@@ -78,6 +102,8 @@ jobs:
     environment: staging
     env:
       HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}
+      HCLOUD_LOCATION: ${{ inputs.hcloud_location }}
+      HCLOUD_SERVER_TYPE: ${{ inputs.hcloud_server_type }}
     outputs:
       server_host: ${{ steps.server-ip.outputs.server_host }}
     steps:
@@ -123,6 +149,8 @@ jobs:
       create_if_missing: false
       deploy_core: true
       server_host: ${{ needs.infra-create.outputs.server_host }}
+      hcloud_location: ${{ inputs.hcloud_location }}
+      hcloud_server_type: ${{ inputs.hcloud_server_type }}
     secrets:
       HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}
       SERVER_HOST: ${{ secrets.SERVER_HOST }}

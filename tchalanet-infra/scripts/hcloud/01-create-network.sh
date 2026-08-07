@@ -24,7 +24,7 @@ Arguments:
   NET_NAME    Network name (default: tch-net)
   CIDR        Network CIDR (default: 10.10.0.0/16)
   ZONE        Network zone (default: eu-central)
-              Valid zones: eu-central | eu-west
+              Valid zones: eu-central | eu-west | us-east | us-west | ap-southeast
 
 Environment:
   HCLOUD_TOKEN    Hetzner Cloud API token (required)
@@ -48,8 +48,8 @@ ZONE="${3:-eu-central}"
 
 # Validation de la zone
 case "$ZONE" in
-  eu-central|eu-west) ;;
-  *) error "Invalid zone: $ZONE. Must be eu-central or eu-west"; usage 1 ;;
+  eu-central|eu-west|us-east|us-west|ap-southeast) ;;
+  *) error "Invalid zone: $ZONE. Must be eu-central, eu-west, us-east, us-west, or ap-southeast"; usage 1 ;;
 esac
 
 # Validation du CIDR
