@@ -90,7 +90,12 @@ tch:
         enabled: ${TCH_US_MO_LOTTERY_ENABLED:true}
         timezone: ${TCH_US_MO_TIMEZONE:America/Chicago}
         base-url: ${TCH_US_MO_LOTTERY_BASEURL:https://www.molottery.com}
-        latest-path: ${TCH_US_MO_LATEST_PATH:}
+        latest-path: ${TCH_US_MO_PICK3_PATH:/pick3/winning-numbers.do}
+        fallback-path: ${TCH_US_MO_PICK4_PATH:/pick4/winning-numbers.do}
+        headers:
+          Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+          Accept-Language: en-US,en;q=0.9
+          User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36
 
       # Enum-only — no client registered. Results via manual proposal (V0).
       il:

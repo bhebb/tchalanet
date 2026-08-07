@@ -28,7 +28,7 @@ Ce guide sert de checklist opérationnelle pour valider le pipeline résultat:
 | MN | `MN_EVE` | Non, manuel | Non | Activer seulement si Ops accepte un résultat manuel. Pick 4 absent, donc projection limitée. |
 | TN | `TN_MID`, `TN_EVE` | Non aujourd'hui | Non | Skeleton enum/config seulement: pas de client fetch enregistré; validation manuelle ou développement provider requis. |
 | IL | `IL_MID`, `IL_EVE` | Non aujourd'hui | Non | Enum-only: résultat manuel en V0 ou développement provider requis. |
-| MO | `MO_MID`, `MO_EVE` | Non aujourd'hui | Non | Enum-only: résultat manuel en V0 ou développement provider requis. |
+| MO | `MO_MID`, `MO_EVE` | Oui, HTML officiel validé staging US | Non | Activer les channels tenant voulus et vérifier `TCH_US_MO_LOTTERY_ENABLED`. |
 
 ## Délais automatiques attendus
 
@@ -46,8 +46,9 @@ Le job de processing tourne toutes les 5 minutes. Les délais ci-dessous sont do
 | NJ | `NJ_MID`, `NJ_EVE` | observé autour de +6 à +18 min; staging Ashburn validé le 2026-08-07 | Auto disponible après activation tenant; surveiller les cas partiels Pick 3/Pick 4. |
 | CA | `CA_MID`, `CA_EVE` | observé autour de +5 à +20 min; staging Ashburn validé le 2026-08-07 | Auto disponible après activation tenant. |
 | MI | `MI_MID`, `MI_EVE` | observé autour de +16 à +21 min | Auto disponible après activation tenant. |
+| MO | `MO_MID`, `MO_EVE` | à confirmer sur plusieurs jours; HTML officiel accessible depuis staging Ashburn le 2026-08-07 | Auto disponible après activation tenant. |
 | OH | `OH_MID`, `OH_EVE` | à confirmer, aucune arrivée observée localement le 2026-07-20 | Ne pas promettre au client avant validation auth/feed. |
-| MN/TN/IL/MO | slots manuels | N/A | Pas de résultat automatique aujourd'hui; saisie Ops/manuelle requise. |
+| MN/TN/IL | slots manuels | N/A | Pas de résultat automatique aujourd'hui; saisie Ops/manuelle requise. |
 
 Ces valeurs viennent de l'observation BD locale du `2026-07-20`. Avant de publier un délai contractuel, valider le provider sur plusieurs jours et noter le délai médian par slot.
 
@@ -123,7 +124,7 @@ order by rs.provider;
 
 Observation locale du `2026-07-20`: 19 résultats externes sont entrés. Les arrivées constatées étaient entre +5 et +30 minutes après le draw selon les slots. NY evening et FL evening sont restés `PROVISIONAL` sans update ultérieur; Ops doit donc les confirmer avant apply. OH n'avait aucune ligne malgré les slots actifs, donc l'auth/feed Ohio doit être validé avant activation client. MN n'avait aucune ligne, ce qui est attendu car le client est manuel.
 
-Observation staging Ashburn du `2026-08-07`: le serveur `stg-app` en région US (`ash`, IP `178.156.181.67`) récupère directement GA, NJ et CA sans proxy provider. GA et CA ont produit des résultats complets; NJ a produit des résultats partiels selon la disponibilité Pick 3/Pick 4 du feed. OH reste à valider en test live.
+Observation staging Ashburn du `2026-08-07`: le serveur `stg-app` en région US (`ash`, IP `178.156.181.67`) récupère directement GA, NJ et CA sans proxy provider. GA et CA ont produit des résultats complets; NJ a produit des résultats partiels selon la disponibilité Pick 3/Pick 4 du feed. MO expose ses résultats Pick 3 / Pick 4 via pages HTML officielles accessibles en HTTP simple depuis staging. TN et IL renvoient un challenge Cloudflare en `curl` simple. OH reste à valider en test live.
 
 ## Conditions d'activation d'un provider
 
