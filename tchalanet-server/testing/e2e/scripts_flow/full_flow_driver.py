@@ -205,7 +205,7 @@ def main() -> int:
     draw = draws[0]
     lines = [
         {"gameCode": "HT_BOLET", "betType": "MATCH_1_2D", "selection": "11", "betOption": None, "stake": "5.00"},
-        {"gameCode": "HT_MARYAJ", "betType": "MARRIAGE_2D2D", "selection": "21-25", "betOption": 1, "stake": "5.00"},
+        {"gameCode": "HT_MARYAJ", "betType": "MARRIAGE_2D2D", "selection": "21-25", "betOption": None, "stake": "5.00"},
     ]
     def payload(raw_lines):
         prepared_lines = []

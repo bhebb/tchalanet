@@ -198,7 +198,7 @@ def ticket_basket(
         winning_lot1_lot3_ticket(result),
         winning_lot1_lot2_lot3_ticket(result),
     ]
-    scenarios.extend(volume_ticket(i) for i in range(6))
+    scenarios.extend(volume_ticket(i, plan) for i in range(6))
     return tuple(scenarios)
 
 
@@ -237,7 +237,7 @@ def exposure_limit_probe_ticket() -> TicketScenario:
 
 def maryaj_gratis_ticket(result: ManualResultPlan, plan: TenantScenarioPlan) -> TicketScenario:
     lines = (
-        line(1, "HT_MARYAJ", "MARRIAGE_2D2D", result.maryaj_win, 1, 10_000),
+        line(1, "HT_MARYAJ", "MARRIAGE_2D2D", result.maryaj_win, maryaj_bet_option(plan), 10_000),
     )
     expected = 9_500_000
     # Seller-selects must choose a free selection distinct from the paid Maryaj line; the happy path
@@ -297,13 +297,13 @@ def winning_lot1_lot2_lot3_ticket(result: ManualResultPlan) -> TicketScenario:
     )
 
 
-def volume_ticket(index: int) -> TicketScenario:
+def volume_ticket(index: int, plan: TenantScenarioPlan) -> TicketScenario:
     first = 10 + ((index * 7) % 80)
     if first == 44:
         first = 45
     lines = (
         line(1, "HT_BOLET", "MATCH_1_2D", f"{first:02d}", None, 100),
-        line(2, "HT_MARYAJ", "MARRIAGE_2D2D", "30-31", 1, 100),
+        line(2, "HT_MARYAJ", "MARRIAGE_2D2D", "30-31", maryaj_bet_option(plan), 100),
         line(3, "HT_LOTO3", "LOTTO3_3D", f"{200 + index:03d}"[-3:], 1, 100),
     )
     return scenario(
@@ -311,6 +311,10 @@ def volume_ticket(index: int) -> TicketScenario:
         "Non-winning volume ticket; avoids blocked selection 44.",
         lines,
     )
+
+
+def maryaj_bet_option(plan: TenantScenarioPlan) -> int | None:
+    return 1 if plan.maryaj_mode == "explicit" else None
 
 
 def scenario(

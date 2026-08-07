@@ -320,8 +320,10 @@ def _provision_tenant(
     )
     assert_ok(first)
 
-    _configure_explicit_bet_options(admin)
+    _ensure_default_games_active(admin)
+    _configure_bet_options(admin, plan)
     _configure_maryaj_variant(admin, plan)
+    _configure_maryaj_gratis_fixed_pricing(admin, plan)
     if plan.maryaj_variant == "disabled":
         campaigns = admin.get("/admin/promotions/campaigns", headers=_rid())
         assert_ok(campaigns)
@@ -337,17 +339,60 @@ def _provision_tenant(
     return TenantRuntime(plan, tenant_code, tenant_id, admin, sellers)
 
 
-def _configure_explicit_bet_options(admin: ApiClient) -> None:
+def _ensure_default_games_active(admin: ApiClient) -> None:
+    expected = {"HT_BOLET", "HT_MARYAJ", "HT_MARYAJ_GRATIS", "HT_LOTO3", "HT_LOTO4", "HT_LOTO5"}
+    listed = admin.get("/admin/games", headers=_rid())
+    assert_ok(listed)
+    games = {
+        str(game.get("gameCode")): game
+        for game in (_data(listed) or [])
+        if isinstance(game, dict) and game.get("gameCode")
+    }
+    for game_code in sorted(expected):
+        current = games.get(game_code)
+        if current is None or not current.get("enabled", True):
+            enabled = admin.post(f"/admin/games/{game_code}/enable", headers=_rid())
+            assert_ok(enabled, expected=(200, 201))
+        settings = admin.patch(
+            f"/admin/games/{game_code}/settings",
+            json={"visibleInPos": True},
+            headers=_rid(),
+        )
+        assert_ok(settings)
+
+    verified = admin.get("/admin/games", headers=_rid())
+    assert_ok(verified)
+    verified_games = {
+        str(game.get("gameCode")): game
+        for game in (_data(verified) or [])
+        if isinstance(game, dict) and game.get("gameCode")
+    }
+    missing = expected.difference(verified_games)
+    assert not missing, f"default Haiti games should exist for E2E: {sorted(missing)}"
+    disabled = sorted(
+        game_code
+        for game_code in expected
+        if not verified_games[game_code].get("enabled", False)
+    )
+    assert not disabled, f"default Haiti games should be enabled for E2E: {disabled}"
+
+
+def _configure_bet_options(admin: ApiClient, plan: TenantScenarioPlan) -> None:
     for game_code in ("HT_MARYAJ", "HT_LOTO3", "HT_LOTO4", "HT_LOTO5"):
         current = admin.get(f"/admin/games/{game_code}/bet-options", headers=_rid())
         assert_ok(current)
         data = _data(current) or {}
         bet_types = data.get("betTypes") or []
         assert bet_types, f"{game_code} should expose tenant bet-option config"
+        selection_policy = (
+            "IMPLICIT_BEST_MATCH"
+            if game_code == "HT_MARYAJ" and plan.maryaj_mode != "explicit"
+            else "EXPLICIT_ONLY"
+        )
         updated = []
         for config in bet_types:
             row = dict(config)
-            row["selectionPolicy"] = "EXPLICIT_ONLY"
+            row["selectionPolicy"] = selection_policy
             updated.append(row)
         saved = admin.patch(
             f"/admin/games/{game_code}/bet-options",
@@ -356,8 +401,8 @@ def _configure_explicit_bet_options(admin: ApiClient) -> None:
         )
         assert_ok(saved)
         saved_rows = (_data(saved) or {}).get("betTypes") or []
-        assert all(row.get("selectionPolicy") == "EXPLICIT_ONLY" for row in saved_rows), (
-            f"{game_code} should allow explicit bet options in E2E"
+        assert all(row.get("selectionPolicy") == selection_policy for row in saved_rows), (
+            f"{game_code} should use {selection_policy} bet options in E2E"
         )
 
 
