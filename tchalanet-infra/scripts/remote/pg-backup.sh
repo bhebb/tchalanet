@@ -13,8 +13,7 @@
 #
 # Variables requises :
 #   ENV                    staging | prod
-#   CLOUDFLARE_ACCOUNT_ID  identifiant de compte Cloudflare — le même secret que
-#                          celui utilisé par le worker lottery-proxy
+#   CLOUDFLARE_ACCOUNT_ID  identifiant de compte Cloudflare
 #   R2_ACCESS_KEY_ID       clé d'accès R2
 #   R2_SECRET_ACCESS_KEY   secret R2
 #   R2_BUCKET              bucket de destination

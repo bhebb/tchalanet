@@ -20,7 +20,7 @@ hcloud ssh-key create --name tchalanet_stg --public-key-from-file ~/.ssh/tchalan
 cd tchalanet-infra
 ./scripts/hcloud/02-create-firewall.sh
 ./scripts/hcloud/04-generate-cloud-init.sh staging
-./scripts/hcloud/03-create-server.sh --name stg-app --type cx23 --image ubuntu-24.04 --firewall tch-fw --ssh-key tchalanet_stg --location nbg1
+./scripts/hcloud/03-create-server.sh --name stg-app --type cpx21 --image ubuntu-24.04 --firewall tch-fw --ssh-key tchalanet_stg --location ash
 
 # 4. Récupérer l'IP et pousser l'infra
 IP=$(hcloud server describe stg-app -o json | jq -r '.public_net.ipv4.ip')
@@ -170,12 +170,12 @@ cd tchalanet-infra
 # Exemple staging
 ./scripts/hcloud/03-create-server.sh \
   --name stg-app \
-  --type cx23 \
+  --type cpx21 \
   --image ubuntu-24.04 \
   --firewall tch-fw \
   --ssh-key tchalanet_stg \
-  --location nbg1 \
-  --network tch-net        # si créé précédemment (optionnel)
+  --location ash \
+  --network tch-net-us-east        # si créé précédemment (optionnel)
 
 # À la fin, le script affiche l'IP publique et des instructions de connexion
 ```
@@ -302,7 +302,7 @@ docker compose --env-file envs/staging/.env.merged \
 ```bash
 # Créer cloud-init et la VM
 ./scripts/hcloud/04-generate-cloud-init.sh staging
-./scripts/hcloud/03-create-server.sh --name stg-app --ssh-key tchalanet_stg --firewall tch-fw --type cx23 --image ubuntu-24.04 --location nbg1
+./scripts/hcloud/03-create-server.sh --name stg-app --ssh-key tchalanet_stg --firewall tch-fw --type cpx21 --image ubuntu-24.04 --location ash
 
 # Pousser l'infra et booter la VM
 ./scripts/remote/push-infra-bkup.sh <IP_STG> staging

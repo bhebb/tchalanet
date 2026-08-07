@@ -15,12 +15,12 @@ résultats doivent être attendus.
 |---|---:|---|---:|---|
 | New York | NY | Automatique | 5 à 30 min | Activé par défaut pour nouveaux santrals |
 | Florida | FL | Automatique | 5 à 30 min | Activé par défaut pour nouveaux santrals |
-| Ohio | OH | Automatique à valider | 10 à 45 min si token valide | Activation support après validation du token |
-| Georgia | GA | Disponible, non activé par défaut | 10 à 45 min si activé | Activation client/support |
+| Georgia | GA | Automatique disponible, non activé par défaut | 10 à 45 min si activé | Activation client/support |
 | Texas | TX | Disponible, non activé par défaut | 10 à 60 min si activé | Activation client/support |
 | Pennsylvania | PA | Disponible, non activé par défaut | 10 à 45 min si activé | Activation client/support |
-| New Jersey | NJ | Disponible, non activé par défaut | 10 à 45 min si activé | Activation client/support |
-| California | CA | Disponible, non activé par défaut | 10 à 60 min si activé | Activation client/support |
+| New Jersey | NJ | Automatique disponible, non activé par défaut | 10 à 45 min si activé | Activation client/support; résultat parfois partiel selon le feed |
+| California | CA | Automatique disponible, non activé par défaut | 10 à 60 min si activé | Activation client/support |
+| Ohio | OH | Automatique à valider live | 10 à 45 min si auth/feed valide | Activation support après validation live |
 | Michigan | MI | Disponible, non activé par défaut | 10 à 60 min si activé | Activation client/support |
 | Tennessee | TN | Manuel | Saisie manuelle après publication officielle | Activation client/support |
 | Illinois | IL | Manuel | Saisie manuelle après publication officielle | Activation client/support |
@@ -53,6 +53,8 @@ la POC. Dans ce cas :
 ## Points à vérifier pendant la POC
 
 - NY et FL sont visibles et activés sur les nouveaux santrals attendus.
+- GA, NJ et CA sont disponibles en automatique sur staging US, mais restent opt-in.
+- OH doit encore être validé en conditions live avant promesse client.
 - Les autres providers sont visibles comme disponibles ou configurables, mais
   pas activés automatiquement.
 - Un provider manuel n'affiche pas un résultat automatique inventé.

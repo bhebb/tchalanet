@@ -2,12 +2,6 @@ tch:
   us-lottery:
     enabled: ${TCH_US_LOTTERY_ENABLED:true}
 
-    # Cloudflare Worker relay (tchalanet-infra/cloudflare-worker-proxy) for providers
-    # blocked at the datacenter/ASN level when called directly from the host - see
-    # each provider's `proxied` flag below.
-    proxy-url: ${TCH_US_LOTTERY_PROXY_URL:}
-    proxy-secret: ${TCH_US_LOTTERY_PROXY_SECRET:}
-
     common:
       holidays: [ "01-01", "12-25" ]
 
@@ -39,7 +33,6 @@ tch:
         timezone: ${TCH_US_GA_TIMEZONE:America/New_York}
         base-url: ${TCH_US_GA_LOTTERY_BASEURL:https://www.galottery.com}
         latest-path: ${TCH_US_GA_LATEST_PATH:/api/v2/draw-games/draws?previous-draws=10&game-names=CASH+3,CASH+4}
-        proxied: ${TCH_US_GA_LOTTERY_PROXIED:true}
         headers:
           Accept: application/json
           Accept-Language: en-US,en;q=0.9
@@ -64,7 +57,6 @@ tch:
         timezone: ${TCH_US_PA_TIMEZONE:America/New_York}
         base-url: ${TCH_US_PA_LOTTERY_BASEURL:https://www.palottery.pa.gov}
         latest-path: ${TCH_US_PA_LATEST_PATH:/Custom/feeds/DrawingsData.aspx}
-        proxied: ${TCH_US_PA_LOTTERY_PROXIED:true}
         headers:
           Accept: application/json, text/plain, */*
           User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36
@@ -76,7 +68,6 @@ tch:
         timezone: ${TCH_US_NJ_TIMEZONE:America/New_York}
         base-url: ${TCH_US_NJ_LOTTERY_BASEURL:https://www.njlottery.com}
         latest-path: ${TCH_US_NJ_LATEST_PATH:/api/v1/draw-games/draws/page}
-        proxied: ${TCH_US_NJ_LOTTERY_PROXIED:true}
         headers:
           Accept: application/json, text/javascript, */*; q=0.01
           X-Requested-With: XMLHttpRequest
@@ -90,7 +81,6 @@ tch:
         timezone: ${TCH_US_CA_TIMEZONE:America/Los_Angeles}
         base-url: ${TCH_US_CA_LOTTERY_BASEURL:https://www.calottery.com}
         latest-path: ${TCH_US_CA_LATEST_PATH:/api/DrawGameApi/DrawGamePastDrawResults}
-        proxied: ${TCH_US_CA_LOTTERY_PROXIED:true}
         headers:
           Accept: application/json
           User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36
@@ -137,8 +127,6 @@ tch:
 
         # fallback debug/local seulement
         bearer-token: ${TCH_US_OH_BEARER_TOKEN:}
-
-        proxied: ${TCH_US_OH_LOTTERY_PROXIED:true}
 
         headers:
           Accept: application/json, text/plain, */*

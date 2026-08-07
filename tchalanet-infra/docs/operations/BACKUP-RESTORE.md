@@ -147,7 +147,7 @@ sur un serveur applicatif.
 
 | Secret | Usage |
 | --- | --- |
-| `CLOUDFLARE_ACCOUNT_ID` | Identifiant de compte — **déjà présent**, partagé avec le worker lottery-proxy |
+| `CLOUDFLARE_ACCOUNT_ID` | Identifiant de compte Cloudflare — déjà présent pour les usages Cloudflare du repo |
 | `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY` | Token R2 dédié (Object Read & Write), limité au bucket |
 | `R2_BUCKET` | Bucket de destination |
 | `BACKUP_AGE_PUBLIC_KEY` | Chiffrement (workflow de backup) |
@@ -155,8 +155,7 @@ sur un serveur applicatif.
 
 ### Ce qui se réutilise, et ce qui ne se réutilise pas
 
-Le dépôt pilote déjà Cloudflare : le worker `lottery-proxy` et les déploiements
-Pages du web s'appuient sur `CLOUDFLARE_ACCOUNT_ID` et `CLOUDFLARE_API_TOKEN`.
+Le dépôt pilote déjà Cloudflare pour les déploiements docs/web et les backups.
 Les backups **réutilisent `CLOUDFLARE_ACCOUNT_ID`** — même compte, un secret de
 moins à créer et à faire tourner.
 

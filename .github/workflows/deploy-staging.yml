@@ -32,9 +32,6 @@ on:
         options:
           - ash
           - hil
-          - nbg1
-          - fsn1
-          - hel1
       hcloud_server_type:
         description: 'Hetzner server type for create/recreate'
         required: true
@@ -45,7 +42,6 @@ on:
           - cpx11
           - cpx31
           - ccx13
-          - cx23
 
 concurrency:
   group: staging-infra

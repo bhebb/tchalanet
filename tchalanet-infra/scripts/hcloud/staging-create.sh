@@ -7,7 +7,7 @@ ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 
 command -v hcloud >/dev/null 2>&1 || { echo "❌ hcloud CLI non trouvé — installe-le via: brew install hcloud" >&2; exit 1; }
 
-create_location="${HCLOUD_LOCATION:-fsn1}"
+create_location="${HCLOUD_LOCATION:-ash}"
 case "$create_location" in
   ash)
     create_network_name="${HCLOUD_NETWORK_NAME:-tch-net-us-east}"
@@ -56,21 +56,12 @@ echo "→ Création serveur..."
 create_log="$(mktemp /tmp/tchalanet-staging-create.XXXXXX)"
 cleanup_create_log() { rm -f "$create_log"; }
 trap cleanup_create_log EXIT
-create_type="${HCLOUD_SERVER_TYPE:-cx23}"
+create_type="${HCLOUD_SERVER_TYPE:-cpx21}"
 if ! bash "$ROOT/scripts/hcloud/03-create-server.sh" \
   --location "$create_location" \
   --type "$create_type" \
   --network "$create_network_name" 2>&1 | tee "$create_log"; then
-  if [ -z "${HCLOUD_LOCATION:-}" ] && [ "$create_location" = "fsn1" ] && \
-    grep -Eq 'resource_unavailable|error during placement' "$create_log"; then
-    echo "⚠️  fsn1 indisponible pour ce type; nouvelle tentative en nbg1..."
-    bash "$ROOT/scripts/hcloud/03-create-server.sh" \
-      --location nbg1 \
-      --type "$create_type" \
-      --network "$create_network_name"
-  else
-    exit 1
-  fi
+  exit 1
 fi
 
 echo ""
