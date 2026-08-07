@@ -21,6 +21,8 @@
   },
   "public": {
     "footer": {
+      "aria_columns": "Footer",
+      "aria_social": "Social media",
       "description": "Digital infrastructure for professional management of tickets, draws, and lottery operations.",
       "legal": {
         "compliance": "Compliance",

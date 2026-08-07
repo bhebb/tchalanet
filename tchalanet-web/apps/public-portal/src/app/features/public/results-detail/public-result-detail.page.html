@@ -6,7 +6,7 @@
         </div>
       }
 
-      <nav class="result-detail__breadcrumb" aria-label="Breadcrumb">
+      <nav class="result-detail__breadcrumb" [attr.aria-label]="'public.results.aria_breadcrumb' | translate">
         <a routerLink="/public/results">{{ 'public.results.latest_title' | translate }}</a>
         <span aria-hidden="true">/</span>
         <span>{{ channelLabel() }}</span>
@@ -70,7 +70,7 @@
           </div>
 
           @if (result().numbers.length) {
-            <div class="result-detail__numbers" aria-label="Result numbers">
+            <div class="result-detail__numbers" [attr.aria-label]="'public.results.aria_numbers' | translate">
               @for (number of result().numbers; track $index) {
                 <span class="result-detail__number">{{ number }}</span>
               }

@@ -2,7 +2,7 @@
   <div class="news-page__header">
     <div class="news-page__title-row">
       <h1>{{ 'public.news.title' | translate }}</h1>
-      <span class="news-page__live-badge">LIVE</span>
+      <span class="news-page__live-badge">{{ 'public.news.live_badge' | translate }}</span>
     </div>
     <nav class="news-page__filters" [attr.aria-label]="'public.news.filter_aria' | translate">
       @for (filter of filters; track filter.id) {
@@ -11,16 +11,16 @@
           class="news-page__filter-pill"
           [class.news-page__filter-pill--active]="activeFilter() === filter.id"
           (click)="setFilter(filter.id)"
-        >{{ filter.label }}</button>
+        >{{ filter.labelKey | translate }}</button>
       }
     </nav>
   </div>
 
   <div class="news-page__feed" role="feed" [attr.aria-label]="'public.news.feed_aria' | translate">
     @if (loading()) {
-      <tch-loading label="Chargement des actualités..." />
+      <tch-loading [label]="'public.news.loading' | translate" />
     } @else if (error()) {
-      <tch-error-panel [title]="error()!" [showRetry]="true" retryLabel="Réessayer" (retry)="load()" />
+      <tch-error-panel [title]="error()!" [showRetry]="true" [retryLabel]="'public.news.retry' | translate" (retry)="load()" />
     } @else {
       @for (item of filteredItems(); track item.id) {
         <article
@@ -37,7 +37,7 @@
                 class="news-page__category"
                 [class.news-page__category--primary]="item.sourceType === 'INTERNAL'"
                 [class.news-page__category--secondary]="item.sourceType === 'EXTERNAL_RSS'"
-              >{{ sourceLabel(item) }}</span>
+              >{{ sourceLabelKey(item) | translate }}</span>
               <span class="news-page__time">
                 {{ item.publishedAt ? (item.publishedAt | date:'dd/MM/yy HH:mm') : '—' }}
               </span>
@@ -48,7 +48,7 @@
             }
             @if (item.sourceUrl) {
               <a class="news-page__link" [href]="item.sourceUrl" target="_blank" rel="noopener">
-                Lire la source
+                {{ 'public.news.read_source' | translate }}
               </a>
             }
           </div>

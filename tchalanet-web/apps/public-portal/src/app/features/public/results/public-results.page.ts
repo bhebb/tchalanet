@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { EMPTY, Observable } from 'rxjs';
 
 import { TCH_PUBLIC_ASSETS } from '@tch/shared-assets';
@@ -54,6 +54,7 @@ type PublicDrawResultRowView = PublicDrawResultRow & ReturnType<typeof publicRes
 })
 export class PublicResultsPage {
   private readonly svc = inject(PublicDrawResultsService);
+  private readonly i18n = inject(TranslateService);
   readonly heroImage = TCH_PUBLIC_ASSETS.resultsHeroBalls;
 
   // ── Filter state ────────────────────────────────────────────────────────────
@@ -194,7 +195,7 @@ export class PublicResultsPage {
       if (id) providers.set(id, providerLabel(slot.provider));
     }
     return [
-      { id: 'all', label: 'Tous' },
+      { id: 'all', label: this.i18n.instant('common.all') },
       ...Array.from(providers.entries())
         .sort((a, b) => a[1].localeCompare(b[1]))
         .map(([id, label]) => ({ id, label })),

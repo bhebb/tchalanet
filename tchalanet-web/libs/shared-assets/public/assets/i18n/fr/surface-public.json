@@ -21,6 +21,8 @@
   },
   "public": {
     "footer": {
+      "aria_columns": "Pied de page",
+      "aria_social": "Réseaux sociaux",
       "description": "Infrastructure digitale pour la gestion professionnelle des tickets, tirages et opérations de loterie.",
       "legal": {
         "compliance": "Conformité",

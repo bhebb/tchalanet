@@ -69,6 +69,14 @@
       "cat_security": "Sécurité",
       "cat_withdrawals": "Retraits",
       "faq_title": "Questions fréquentes",
+      "faq1_q": "Comment encaisser mes gains ?",
+      "faq1_a": "Présentez votre fiche originale auprès d'un point de vente participant. Les gains sont vérifiés à partir du code public imprimé sur le reçu.",
+      "faq2_q": "Quels sont les horaires des tirages ?",
+      "faq2_a": "Les tirages New York et Florida suivent les horaires officiels publiés. Consultez la section Résultats pour voir le statut en temps réel de chaque session.",
+      "faq3_q": "Ma transaction est « En attente », pourquoi ?",
+      "faq3_a": "Un ticket peut être en attente durant la validation du tirage. Le statut est mis à jour dès que les résultats sont confirmés par les sources officielles.",
+      "faq4_q": "Comment vérifier un ticket ?",
+      "faq4_a": "Rendez-vous sur la page Vérification et saisissez le code public figurant au bas de votre reçu imprimé. Vous pouvez aussi scanner le QR code.",
       "hero_body": "Trouvez des réponses rapides ou contactez notre support.",
       "hero_title": "Comment pouvons-nous vous aider ?",
       "search_label": "Rechercher une question",
@@ -243,7 +251,15 @@
       "faq_multipos_a": "Oui. Les plans Réseau et Sur mesure permettent de configurer plusieurs vendeurs et de centraliser les rapports.",
       "faq_mobile_q": "Est-ce que mes vendeurs peuvent utiliser Tchalanet sur mobile ?",
       "faq_mobile_a": "Oui. L'application POS Tchalanet est disponible sur mobile pour les vendeurs autorisés.",
-      "hero_stat_sessions": "Sessions actives"
+      "hero_stat_sessions": "Sessions actives",
+      "sample_plan": "Réseau",
+      "sample_status": "Actif",
+      "sample_sellers": "vendeurs",
+      "sample_terminals": "terminaux",
+      "sample_features": "fonctions",
+      "sample_feat_qr": "Vente QR",
+      "sample_feat_reports": "Rapports",
+      "sample_feat_sessions": "Sessions"
     },
     "check": {
       "code_hint": "Le format du code se trouve au bas de votre reçu imprimé.",
@@ -317,10 +333,20 @@
     "news": {
       "feed_aria": "Fil d'actualités",
       "filter_aria": "Filtrer les actualités",
+      "filter_all": "Toutes",
+      "filter_internal": "Tchalanet",
+      "filter_external": "RSS externe",
       "filter_system": "Système",
       "filter_tchala": "Tchala",
       "title": "Actualités",
-      "empty": "Aucune actualité pour ce filtre."
+      "empty": "Aucune actualité pour ce filtre.",
+      "loading": "Chargement des actualités…",
+      "error_fallback": "Erreur lors du chargement des actualités.",
+      "retry": "Réessayer",
+      "read_source": "Lire la source",
+      "live_badge": "LIVE",
+      "source_internal": "Tchalanet",
+      "source_external": "RSS externe"
     },
     "pages": {
       "check-ticket": {
@@ -429,7 +455,9 @@
       "next_in": "Prochain tirage dans",
       "awaiting": "En attente des résultats",
       "copy_ref": "Copier la référence",
-      "copied": "Copié !"
+      "copied": "Copié !",
+      "aria_breadcrumb": "Fil d'Ariane",
+      "aria_numbers": "Numéros du résultat"
     },
     "contact_cta": {
       "body": "Parlez-nous de votre activité ou de votre réseau. Nous vous recontacterons pour une démonstration adaptée.",

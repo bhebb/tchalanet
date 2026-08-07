@@ -1,5 +1,7 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { TranslatePipe } from '@ngx-translate/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { map, startWith } from 'rxjs';
 import { TchActionButton, TchCard } from '@tch/ui/components';
 
 interface Benefit {
@@ -83,6 +85,12 @@ const PLANS: readonly PlanDef[] = [
   styleUrls: ['./public-operators.page.scss'],
 })
 export class PublicOperatorsPage {
+  private readonly i18n = inject(TranslateService);
+
+  private readonly langChange = toSignal(
+    this.i18n.onLangChange.pipe(map(e => e.lang), startWith(this.i18n.currentLang)),
+  );
+
   readonly benefits = BENEFITS;
   readonly steps = STEPS;
   readonly plans = PLANS;
@@ -97,24 +105,24 @@ export class PublicOperatorsPage {
 
   readonly faqItems: FaqItem[] = [
     { qKey: `${P}.faq_trial_q`,    aKey: `${P}.faq_trial_a`,    open: false },
-    { qKey: `${P}.faq_terminals_q`, aKey: `${P}.faq_terminals_a`, open: false },
+    { qKey: `${P}.faq_seller-terminals_q`, aKey: `${P}.faq_seller-terminals_a`, open: false },
     { qKey: `${P}.faq_verify_q`,   aKey: `${P}.faq_verify_a`,   open: false },
     { qKey: `${P}.faq_expired_q`,  aKey: `${P}.faq_expired_a`,  open: false },
     { qKey: `${P}.faq_multipos_q`, aKey: `${P}.faq_multipos_a`, open: false },
     { qKey: `${P}.faq_mobile_q`,   aKey: `${P}.faq_mobile_a`,   open: false },
   ];
 
-  readonly accessLogSample = `{
-  "plan": "Réseau",
-  "statut": "Actif",
-  "vendeurs": "50 / 100",
-  "terminaux": "8 / 20",
-  "fonctions": [
-    "Vente QR",
-    "Rapports",
-    "Sessions"
-  ]
-}`;
+  readonly accessLogSample = computed(() => {
+    this.langChange();
+    const t = (key: string) => this.i18n.instant(`${P}.${key}`);
+    return JSON.stringify({
+      [t('sample_plan').toLowerCase()]: t('sample_plan'),
+      [t('sample_status').toLowerCase()]: t('sample_status'),
+      [t('sample_sellers')]: '50 / 100',
+      [t('sample_terminals')]: '8 / 20',
+      [t('sample_features')]: [t('sample_feat_qr'), t('sample_feat_reports'), t('sample_feat_sessions')],
+    }, null, 2);
+  });
 
   scrollToDemo(): void {
     document.getElementById('ops-demo-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });

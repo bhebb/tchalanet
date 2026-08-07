@@ -69,6 +69,14 @@
       "cat_security": "Sekirite",
       "cat_withdrawals": "Retrè",
       "faq_title": "Kesyon yo poze souvan",
+      "faq1_q": "Kijan pou mwen kolekte kòb mwen genyen?",
+      "faq1_a": "Prezante resi orijinal ou nan yon tèminal POS patisipan. Yo verifye gany yo ak kòd piblik ki enprime sou resi a.",
+      "faq2_q": "Ki lè tiraj yo fèt?",
+      "faq2_a": "Tiraj New York ak Florida swiv orè ofisyèl ki pibliye yo. Gade seksyon Rezilta pou wè estati chak sesyon an tan reyèl.",
+      "faq3_q": "Tranzaksyon mwen di « An atant », poukisa?",
+      "faq3_a": "Yon tikè ka an atant pandan validasyon tiraj la. Estati a mete ajou depi rezilta yo konfime pa sous ofisyèl yo.",
+      "faq4_q": "Kijan pou mwen verifye yon tikè?",
+      "faq4_a": "Ale sou paj Verifikasyon an epi antre kòd piblik ki anba resi enprime ou. Ou ka eskane QR kòd la tou.",
       "hero_body": "Jwenn repons rapid oswa kontakte sipò nou an.",
       "hero_title": "Kijan nou ka ede ou ?",
       "search_label": "Chèche yon kesyon",
@@ -149,6 +157,14 @@
       "hero_body": "Tchalanet ede bank borlèt, tèminal POS ak rezo vant emèt tikè, swiv aktivite yo, verifye rezilta epi konsilte rapò yo.",
       "hero_stat_tickets": "Tikè jodi a",
       "hero_stat_sessions": "Sesyon aktif",
+      "sample_plan": "Rezo",
+      "sample_status": "Aktif",
+      "sample_sellers": "vandè",
+      "sample_terminals": "tèminal",
+      "sample_features": "fonksyon",
+      "sample_feat_qr": "Vant QR",
+      "sample_feat_reports": "Rapò",
+      "sample_feat_sessions": "Sesyon",
       "hero_stat_agents": "Tèminal POS aktif",
       "hero_stat_payments": "Pèman pou swiv",
       "cta_demo": "Mande yon demo",
@@ -317,10 +333,20 @@
     "news": {
       "feed_aria": "Fil nouvèl",
       "filter_aria": "Filtre nouvèl",
+      "filter_all": "Tout",
+      "filter_internal": "Tchalanet",
+      "filter_external": "RSS ekstèn",
       "filter_system": "Sistèm",
       "filter_tchala": "Tchala",
       "title": "Nouvèl",
-      "empty": "Pa gen nouvèl pou filtre sa a."
+      "empty": "Pa gen nouvèl pou filtre sa a.",
+      "loading": "Ap chaje nouvèl yo…",
+      "error_fallback": "Erè pandan chajman nouvèl yo.",
+      "retry": "Eseye ankò",
+      "read_source": "Li sous la",
+      "live_badge": "LIVE",
+      "source_internal": "Tchalanet",
+      "source_external": "RSS ekstèn"
     },
     "pages": {
       "check-ticket": {
@@ -429,7 +455,9 @@
       "next_in": "Pwochen tiraj nan",
       "awaiting": "Ap tann rezilta yo",
       "copy_ref": "Kopye referans",
-      "copied": "Kopye !"
+      "copied": "Kopye !",
+      "aria_breadcrumb": "Chemen navigasyon",
+      "aria_numbers": "Nimewo rezilta"
     },
     "contact_cta": {
       "body": "Pale nou de aktivite ou oswa rezo ou. Nou pral kontakte ou pou yon demonstrasyon adapte.",

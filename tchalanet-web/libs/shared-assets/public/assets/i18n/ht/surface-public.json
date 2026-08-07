@@ -21,6 +21,8 @@
   },
   "public": {
     "footer": {
+      "aria_columns": "Pye paj",
+      "aria_social": "Rezo sosyal",
       "description": "Enfrastrikti dijital pou jesyon pwofesyonèl tikè, tiraj ak operasyon lotri.",
       "legal": {
         "compliance": "Konfòmite",
