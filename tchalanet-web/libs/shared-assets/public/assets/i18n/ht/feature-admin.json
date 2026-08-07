@@ -1732,12 +1732,17 @@
         "section": {
           "sale": "Vant",
           "draw": "Tiraj",
+          "drawResult": "Rezilta tiraj la",
           "lines": "Liy yo jwe",
+          "winningLines": "Liy gayan yo",
           "charges": "Frè"
         },
         "field": {
           "issuedAt": "Emèt nan",
           "status": "Estati",
+          "resultStatus": "Rezilta",
+          "settlementStatus": "Règleman",
+          "winningAmount": "Gain",
           "outlet": "Pwen vant",
           "cancelledAt": "Anile nan",
           "channel": "Kanal",
@@ -1746,6 +1751,7 @@
         },
         "meta": {
           "totalPaid": "Total peye",
+          "winningAmount": "Gain",
           "freeLines": "Maryaj gratis",
           "seller": "Tèminal POS",
           "terminal": "Tèminal"

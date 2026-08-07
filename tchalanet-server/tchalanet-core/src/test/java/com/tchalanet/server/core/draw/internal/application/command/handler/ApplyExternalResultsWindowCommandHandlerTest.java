@@ -224,6 +224,7 @@ class ApplyExternalResultsWindowCommandHandlerTest {
               null,
               null,
               null,
+              null,
               null));
     }
 
@@ -281,8 +282,10 @@ class ApplyExternalResultsWindowCommandHandlerTest {
         LocalDate drawDate,
         ResultSlotId resultSlotId,
         DrawResultId drawResultId,
+        String resultSource,
         Instant now) {
       calls++;
+      assertThat(resultSource).isEqualTo(DrawSource.MANUAL.name());
       return ApplyResult.updated(List.of(new AppliedDraw(DRAW_ID, DRAW_CHANNEL_ID)));
     }
 

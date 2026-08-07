@@ -19,6 +19,7 @@ public record DrawResultView(
     ResultQuality quality,
     String sourceHash,
     Instant fetchedAt,
+    Instant appliedAt,
     JsonNode sourceResult,
     JsonNode haitiResult,
     JsonNode rawPayload,

@@ -1732,12 +1732,17 @@
         "section": {
           "sale": "Sale",
           "draw": "Draw",
+          "drawResult": "Draw result",
           "lines": "Played lines",
+          "winningLines": "Winning lines",
           "charges": "Charges"
         },
         "field": {
           "issuedAt": "Issued at",
           "status": "Status",
+          "resultStatus": "Result",
+          "settlementStatus": "Settlement",
+          "winningAmount": "Winnings",
           "outlet": "Point of sale",
           "cancelledAt": "Cancelled at",
           "channel": "Channel",
@@ -1746,6 +1751,7 @@
         },
         "meta": {
           "totalPaid": "Total paid",
+          "winningAmount": "Winnings",
           "freeLines": "Maryaj gratis",
           "seller": "Seller",
           "terminal": "Terminal"

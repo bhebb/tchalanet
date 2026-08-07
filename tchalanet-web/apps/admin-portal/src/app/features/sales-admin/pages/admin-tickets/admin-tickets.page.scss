@@ -9,6 +9,10 @@
     width: 190px;
   }
 
+  &__result-filter {
+    width: 180px;
+  }
+
   &__table {
     overflow-x: auto;
 
@@ -40,6 +44,10 @@
     font-variant-numeric: tabular-nums;
   }
 
+  &__amount--winning {
+    color: var(--tch-color-tertiary, #006d43);
+  }
+
   &__pagination {
     display: block;
     padding: 1rem;
@@ -61,7 +69,8 @@
 @include ui.down(expanded) {
   .tickets-page {
     &__date-filter,
-    &__sort-filter {
+    &__sort-filter,
+    &__result-filter {
       width: 100%;
     }
 
@@ -145,5 +154,7 @@
 }
 
 @keyframes tickets-page-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }

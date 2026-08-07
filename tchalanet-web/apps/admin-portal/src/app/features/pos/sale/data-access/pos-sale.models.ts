@@ -189,6 +189,8 @@ export interface PosTicketDetailsView {
   ticketCode: string;
   publicCode: string;
   status: string;
+  resultStatus?: string | null;
+  settlementStatus?: string | null;
   placedAt: string;
   cancelledAt?: string | null;
   drawId: string;
@@ -198,6 +200,7 @@ export interface PosTicketDetailsView {
   resultTimezone?: string | null;
   drawChannelName: string;
   drawScheduledAt: string;
+  drawResultNumbers?: readonly string[] | null;
   sellerTerminalId?: string | { value?: string | null } | null;
   outletName?: string | null;
   terminalCode?: string | null;
@@ -205,6 +208,7 @@ export interface PosTicketDetailsView {
   lines: PosTicketDetailLineView[];
   stakeCents: number;
   totalAmountCents: number;
+  winningAmountCents?: number | null;
   currency: string;
   charges: PosTicketChargeView[];
 }

@@ -7,6 +7,7 @@ import com.tchalanet.server.core.pricing.api.model.PricingVariantCode;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketLineInput;
 import com.tchalanet.server.core.sales.api.model.coverage.SettlementPayoutMode;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.WinMode;
+import com.tchalanet.server.core.sales.internal.domain.service.result.CoverageResolution;
 import com.tchalanet.server.core.sales.internal.domain.service.result.SettlementVariantResolver;
 import com.tchalanet.server.platform.tenantgame.api.TenantGameApi;
 import com.tchalanet.server.platform.tenantgame.api.model.SelectionPolicy;
@@ -93,9 +94,10 @@ class TicketSettlementTermPlanner {
         .sorted(Comparator.comparingInt(option -> option.displayOrder()))
         .forEach(
             option -> {
-              var resolution =
-                  SettlementVariantResolver.resolveCoverage(
-                      input.betType(), option.code(), input.rawSelection());
+              var resolution = resolveCoverageOrNull(input, option);
+              if (resolution == null) {
+                return;
+              }
               resolution
                   .variants()
                   .forEach(
@@ -130,6 +132,16 @@ class TicketSettlementTermPlanner {
 
   private PlannedSettlementTerm plannedBoletTerm(PricingVariantCode variant) {
     return new PlannedSettlementTerm(null, variant, WinMode.ALTERNATIVE);
+  }
+
+  private CoverageResolution resolveCoverageOrNull(
+      SellTicketLineInput input, TenantBetOptionView option) {
+    try {
+      return SettlementVariantResolver.resolveCoverage(
+          input.betType(), option.code(), input.rawSelection());
+    } catch (IllegalArgumentException ex) {
+      return null;
+    }
   }
 
   private record TermKey(PricingVariantCode pricingVariantCode, WinMode winMode) {}

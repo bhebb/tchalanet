@@ -16,11 +16,8 @@
   </div>
 
   <tch-admin-crud-shell>
-
     @if (reprintError(); as message) {
-      <tch-notice type="warning" content>
-        {{ message }}
-      </tch-notice>
+    <tch-notice type="warning" content> {{ message }} </tch-notice>
     }
 
     <tch-async-view
@@ -53,21 +50,59 @@
           (resetFilters)="resetFilters()"
         >
           <ng-container list-filters>
-            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="tickets-page__date-filter">
+            <mat-form-field
+              appearance="outline"
+              subscriptSizing="dynamic"
+              class="tickets-page__date-filter"
+            >
               <mat-label>{{ 'admin.tickets.list.filters.from' | translate }}</mat-label>
-              <input matInput type="date" [value]="fromFilter()" (change)="onFromFilter($any($event.target).value)" />
+              <input
+                matInput
+                type="date"
+                [value]="fromFilter()"
+                (change)="onFromFilter($any($event.target).value)"
+              />
             </mat-form-field>
 
-            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="tickets-page__date-filter">
+            <mat-form-field
+              appearance="outline"
+              subscriptSizing="dynamic"
+              class="tickets-page__date-filter"
+            >
               <mat-label>{{ 'admin.tickets.list.filters.to' | translate }}</mat-label>
-              <input matInput type="date" [value]="toFilter()" (change)="onToFilter($any($event.target).value)" />
+              <input
+                matInput
+                type="date"
+                [value]="toFilter()"
+                (change)="onToFilter($any($event.target).value)"
+              />
             </mat-form-field>
 
-            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="tickets-page__sort-filter">
+            <mat-form-field
+              appearance="outline"
+              subscriptSizing="dynamic"
+              class="tickets-page__sort-filter"
+            >
               <mat-label>{{ 'admin.tickets.list.filters.sort' | translate }}</mat-label>
               <mat-select [value]="sortFilter()" (valueChange)="onSortFilter($event)">
                 @for (option of sortOptions; track option.value) {
-                  <mat-option [value]="option.value">{{ option.labelKey | translate }}</mat-option>
+                <mat-option [value]="option.value">{{ option.labelKey | translate }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field
+              appearance="outline"
+              subscriptSizing="dynamic"
+              class="tickets-page__result-filter"
+            >
+              <mat-label>{{ 'admin.tickets.list.filters.result' | translate }}</mat-label>
+              <mat-select [value]="resultFilter()" (valueChange)="onResultFilter($event)">
+                <mat-option value=""
+                  >{{ 'admin.tickets.list.filters.allResults' | translate }}</mat-option
+                >
+                @for (option of resultStatusOptions; track option.value) {
+                <mat-option [value]="option.value">{{ option.labelKey | translate }}</mat-option>
                 }
               </mat-select>
             </mat-form-field>
@@ -76,58 +111,102 @@
           <ng-container list-content>
             <div class="tickets-page__table">
               <table mat-table [dataSource]="ticketRows()">
-
                 <ng-container matColumnDef="ticketCode">
-                  <th mat-header-cell *matHeaderCellDef>{{ 'admin.tickets.list.columns.code' | translate }}</th>
+                  <th mat-header-cell *matHeaderCellDef>
+                    {{ 'admin.tickets.list.columns.code' | translate }}
+                  </th>
                   <td mat-cell *matCellDef="let row">
                     <span class="tickets-page__code">{{ row.ticketCode }}</span>
                   </td>
                 </ng-container>
 
                 <ng-container matColumnDef="status">
-                  <th mat-header-cell *matHeaderCellDef>{{ 'admin.tickets.list.columns.status' | translate }}</th>
+                  <th mat-header-cell *matHeaderCellDef>
+                    {{ 'admin.tickets.list.columns.status' | translate }}
+                  </th>
                   <td mat-cell *matCellDef="let row">
-                    <tch-admin-status-pill [label]="statusLabelKey(row.status) | translate" [tone]="statusTone(row.status)" />
+                    <tch-admin-status-pill
+                      [label]="statusLabelKey(row.status) | translate"
+                      [tone]="statusTone(row.status)"
+                    />
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="resultStatus">
+                  <th mat-header-cell *matHeaderCellDef>
+                    {{ 'admin.tickets.list.columns.result' | translate }}
+                  </th>
+                  <td mat-cell *matCellDef="let row">
+                    <tch-admin-status-pill
+                      [label]="resultStatusLabelKey(row.resultStatus) | translate"
+                      [tone]="resultStatusTone(row.resultStatus)"
+                    />
                   </td>
                 </ng-container>
 
                 <ng-container matColumnDef="drawChannelName">
-                  <th mat-header-cell *matHeaderCellDef>{{ 'admin.tickets.list.columns.channel' | translate }}</th>
+                  <th mat-header-cell *matHeaderCellDef>
+                    {{ 'admin.tickets.list.columns.channel' | translate }}
+                  </th>
                   <td mat-cell *matCellDef="let row">
                     @if (ticketDrawIdentity(row); as identity) {
-                      <tch-draw-label
-                        density="compact"
-                        [primary]="identity.receiptLabel"
-                        [logoUrl]="identity.identity.providerLogoUrl"
-                      />
+                    <tch-draw-label
+                      density="compact"
+                      [primary]="identity.receiptLabel"
+                      [logoUrl]="identity.identity.providerLogoUrl"
+                    />
                     }
                   </td>
                 </ng-container>
 
                 <ng-container matColumnDef="drawScheduledAt">
-                  <th mat-header-cell *matHeaderCellDef>{{ 'admin.tickets.list.columns.draw' | translate }}</th>
+                  <th mat-header-cell *matHeaderCellDef>
+                    {{ 'admin.tickets.list.columns.draw' | translate }}
+                  </th>
                   <td mat-cell *matCellDef="let row">
                     {{ row.drawScheduledAt | date:'dd/MM/yyyy HH:mm' }}
                   </td>
                 </ng-container>
 
                 <ng-container matColumnDef="totalAmountCents">
-                  <th mat-header-cell *matHeaderCellDef>{{ 'admin.tickets.list.columns.amount' | translate }}</th>
+                  <th mat-header-cell *matHeaderCellDef>
+                    {{ 'admin.tickets.list.columns.amount' | translate }}
+                  </th>
                   <td mat-cell *matCellDef="let row">
-                    <span class="tickets-page__amount">{{ amountDisplay(row.totalAmountCents) }} {{ row.currency }}</span>
+                    <span class="tickets-page__amount"
+                      >{{ amountDisplay(row.totalAmountCents) }} {{ row.currency }}</span
+                    >
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="winningAmountCents">
+                  <th mat-header-cell *matHeaderCellDef>
+                    {{ 'admin.tickets.list.columns.winning' | translate }}
+                  </th>
+                  <td mat-cell *matCellDef="let row">
+                    <span
+                      class="tickets-page__amount"
+                      [class.tickets-page__amount--winning]="(row.winningAmountCents ?? 0) > 0"
+                    >
+                      {{ amountDisplay(row.winningAmountCents ?? 0) }} {{ row.currency }}
+                    </span>
                   </td>
                 </ng-container>
 
                 <ng-container matColumnDef="placedAt">
-                  <th mat-header-cell *matHeaderCellDef>{{ 'admin.tickets.list.columns.placedAt' | translate }}</th>
+                  <th mat-header-cell *matHeaderCellDef>
+                    {{ 'admin.tickets.list.columns.placedAt' | translate }}
+                  </th>
                   <td mat-cell *matCellDef="let row">
                     {{ row.placedAt | date:'dd/MM/yyyy HH:mm' }}
                   </td>
                 </ng-container>
 
                 <ng-container matColumnDef="actions">
-                    <th mat-header-cell *matHeaderCellDef>{{ 'admin.tickets.list.columns.actions' | translate }}</th>
-                    <td mat-cell *matCellDef="let row">
+                  <th mat-header-cell *matHeaderCellDef>
+                    {{ 'admin.tickets.list.columns.actions' | translate }}
+                  </th>
+                  <td mat-cell *matCellDef="let row">
                     <a
                       mat-stroked-button
                       class="tickets-page__details"
@@ -144,11 +223,12 @@
                       (click)="reprint(row, $event)"
                     >
                       @if (reprintingTicketId() === row.id) {
-                        <span class="material-symbols-outlined tickets-page__spin" aria-hidden="true">progress_activity</span>
+                      <span class="material-symbols-outlined tickets-page__spin" aria-hidden="true"
+                        >progress_activity</span
+                      >
                       } @else {
-                        <span class="material-symbols-outlined" aria-hidden="true">print</span>
-                      }
-                      {{ 'admin.tickets.list.actions.reprint' | translate }}
+                      <span class="material-symbols-outlined" aria-hidden="true">print</span>
+                      } {{ 'admin.tickets.list.actions.reprint' | translate }}
                     </button>
                   </td>
                 </ng-container>
@@ -168,85 +248,107 @@
               [attr.aria-label]="'admin.tickets.list.title' | translate"
             >
               @for (row of ticketRows(); track row.id) {
-                <article class="tickets-page__mobile-card">
-                  <div class="tickets-page__mobile-header">
-                    <a class="tickets-page__mobile-code" [routerLink]="['/app/admin/tickets', row.id]">
-                      <span class="tickets-page__code">{{ row.ticketCode }}</span>
-                    </a>
-                    <tch-admin-status-pill
-                      [label]="statusLabelKey(row.status) | translate"
-                      [tone]="statusTone(row.status)"
-                    />
-                  </div>
+              <article class="tickets-page__mobile-card">
+                <div class="tickets-page__mobile-header">
+                  <a
+                    class="tickets-page__mobile-code"
+                    [routerLink]="['/app/admin/tickets', row.id]"
+                  >
+                    <span class="tickets-page__code">{{ row.ticketCode }}</span>
+                  </a>
+                  <tch-admin-status-pill
+                    [label]="statusLabelKey(row.status) | translate"
+                    [tone]="statusTone(row.status)"
+                  />
+                </div>
 
-                  <dl class="tickets-page__mobile-facts">
-                    <div>
-                      <dt>{{ 'admin.tickets.list.columns.channel' | translate }}</dt>
-                      <dd>
-                        @if (ticketDrawIdentity(row); as identity) {
-                          <tch-draw-label
-                            density="compact"
-                            [primary]="identity.receiptLabel"
-                            [logoUrl]="identity.identity.providerLogoUrl"
-                          />
-                        }
-                      </dd>
-                    </div>
-                    <div>
-                      <dt>{{ 'admin.tickets.list.columns.draw' | translate }}</dt>
-                      <dd>{{ row.drawScheduledAt | date:'dd/MM/yyyy HH:mm' }}</dd>
-                    </div>
-                    <div>
-                      <dt>{{ 'admin.tickets.list.columns.amount' | translate }}</dt>
-                      <dd class="tickets-page__amount">{{ amountDisplay(row.totalAmountCents) }} {{ row.currency }}</dd>
-                    </div>
-                    <div>
-                      <dt>{{ 'admin.tickets.list.columns.placedAt' | translate }}</dt>
-                      <dd>{{ row.placedAt | date:'dd/MM/yyyy HH:mm' }}</dd>
-                    </div>
-                  </dl>
-
-                  <div class="tickets-page__mobile-actions">
-                    <a mat-stroked-button [routerLink]="['/app/admin/tickets', row.id]">
-                      <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
-                      {{ 'admin.tickets.list.actions.viewDetails' | translate }}
-                    </a>
-                    <button
-                      mat-stroked-button
-                      type="button"
-                      class="tickets-page__reprint"
-                      [disabled]="!canReprint(row)"
-                      (click)="reprint(row, $event)"
-                    >
-                      @if (reprintingTicketId() === row.id) {
-                        <span class="material-symbols-outlined tickets-page__spin" aria-hidden="true">progress_activity</span>
-                      } @else {
-                        <span class="material-symbols-outlined" aria-hidden="true">print</span>
+                <dl class="tickets-page__mobile-facts">
+                  <div>
+                    <dt>{{ 'admin.tickets.list.columns.channel' | translate }}</dt>
+                    <dd>
+                      @if (ticketDrawIdentity(row); as identity) {
+                      <tch-draw-label
+                        density="compact"
+                        [primary]="identity.receiptLabel"
+                        [logoUrl]="identity.identity.providerLogoUrl"
+                      />
                       }
-                      {{ 'admin.tickets.list.actions.reprint' | translate }}
-                    </button>
+                    </dd>
                   </div>
-                </article>
+                  <div>
+                    <dt>{{ 'admin.tickets.list.columns.draw' | translate }}</dt>
+                    <dd>{{ row.drawScheduledAt | date:'dd/MM/yyyy HH:mm' }}</dd>
+                  </div>
+                  <div>
+                    <dt>{{ 'admin.tickets.list.columns.amount' | translate }}</dt>
+                    <dd class="tickets-page__amount">
+                      {{ amountDisplay(row.totalAmountCents) }} {{ row.currency }}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>{{ 'admin.tickets.list.columns.result' | translate }}</dt>
+                    <dd>
+                      <tch-admin-status-pill
+                        [label]="resultStatusLabelKey(row.resultStatus) | translate"
+                        [tone]="resultStatusTone(row.resultStatus)"
+                      />
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>{{ 'admin.tickets.list.columns.winning' | translate }}</dt>
+                    <dd
+                      class="tickets-page__amount"
+                      [class.tickets-page__amount--winning]="(row.winningAmountCents ?? 0) > 0"
+                    >
+                      {{ amountDisplay(row.winningAmountCents ?? 0) }} {{ row.currency }}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>{{ 'admin.tickets.list.columns.placedAt' | translate }}</dt>
+                    <dd>{{ row.placedAt | date:'dd/MM/yyyy HH:mm' }}</dd>
+                  </div>
+                </dl>
+
+                <div class="tickets-page__mobile-actions">
+                  <a mat-stroked-button [routerLink]="['/app/admin/tickets', row.id]">
+                    <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
+                    {{ 'admin.tickets.list.actions.viewDetails' | translate }}
+                  </a>
+                  <button
+                    mat-stroked-button
+                    type="button"
+                    class="tickets-page__reprint"
+                    [disabled]="!canReprint(row)"
+                    (click)="reprint(row, $event)"
+                  >
+                    @if (reprintingTicketId() === row.id) {
+                    <span class="material-symbols-outlined tickets-page__spin" aria-hidden="true"
+                      >progress_activity</span
+                    >
+                    } @else {
+                    <span class="material-symbols-outlined" aria-hidden="true">print</span>
+                    } {{ 'admin.tickets.list.actions.reprint' | translate }}
+                  </button>
+                </div>
+              </article>
               }
             </div>
           </ng-container>
 
           <ng-container list-footer>
             @if (hasTickets()) {
-              <tch-pagination
-                class="tickets-page__pagination"
-                [page]="ticketPageIndex()"
-                [size]="ticketPageSize()"
-                [totalElements]="ticketTotalElements()"
-                (pageChange)="onPageChange($event)"
-                (sizeChange)="onSizeChange($event)"
-              />
+            <tch-pagination
+              class="tickets-page__pagination"
+              [page]="ticketPageIndex()"
+              [size]="ticketPageSize()"
+              [totalElements]="ticketTotalElements()"
+              (pageChange)="onPageChange($event)"
+              (sizeChange)="onSizeChange($event)"
+            />
             }
           </ng-container>
         </tch-admin-list-surface>
       </ng-template>
     </tch-async-view>
-
   </tch-admin-crud-shell>
-
 </tch-admin-page-shell>

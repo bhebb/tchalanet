@@ -284,6 +284,44 @@ class TicketLinePreparationServiceTest {
   }
 
   @Test
+  void implicitBestMatchSkipsInvalidLotto3BoxForTripleDigits() {
+    var queryBus =
+        new CapturingQueryBus(
+            Map.of(
+                PricingVariantCode.LOTTO3_STRAIGHT, new BigDecimal("500"),
+                PricingVariantCode.LOTTO3_BOX_6_WAY, new BigDecimal("80")));
+    var service = service(queryBus, TenantGameApiStub.implicitBestMatch());
+
+    var line =
+        service
+            .toTicketLines(
+                TENANT_ID,
+                SELLER_TERMINAL_ID,
+                List.of(
+                    new SellTicketLineInput(
+                        1,
+                        GameCode.HT_LOTO3,
+                        BetType.LOTTO3_3D,
+                        "333",
+                        null,
+                        new BigDecimal("20.00"))),
+                CurrencyCode.of("HTG"))
+            .getFirst();
+
+    assertThat(queryBus.capturedQueries)
+        .extracting(ResolveSellerTerminalPayoutRuleQuery::pricingVariantCode)
+        .containsExactly(PricingVariantCode.LOTTO3_STRAIGHT);
+    assertThat(queryBus.capturedQueries)
+        .extracting(ResolveSellerTerminalPayoutRuleQuery::betOption)
+        .containsExactly((short) 1);
+    assertThat(line.betOption()).isNull();
+    assertThat(line.settlementTermsSnapshot().terms()).hasSize(1);
+    assertThat(line.settlementTermsSnapshot().terms().getFirst().ruleCode())
+        .isEqualTo(SettlementRuleCode.LOTTO3_STRAIGHT);
+    assertThat(line.selectionPolicySnapshot()).isEqualTo(SelectionPolicy.IMPLICIT_BEST_MATCH);
+  }
+
+  @Test
   void fixedAmountRuleIsSnapshottedWithoutStakePayoutBase() {
     var queryBus = CapturingQueryBus.fixedAmount(new BigDecimal("2000"));
     var service = service(queryBus, TenantGameApiStub.explicitOnly());

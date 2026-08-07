@@ -40,6 +40,54 @@
     gap: 0.75rem;
   }
 
+  &__amount--winning {
+    color: var(--tch-color-tertiary, #006d43);
+  }
+
+  &__result-numbers {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+
+    span {
+      min-width: 2.75rem;
+      padding: 0.5rem 0.75rem;
+      border-radius: var(--tch-radius-sm, 0.375rem);
+      background: var(--tch-color-primary, #2d2f92);
+      color: var(--tch-color-on-primary, #fff);
+      font-weight: 800;
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+    }
+  }
+
+  &__wins {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  &__win {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.5rem 1rem;
+    align-items: center;
+    padding: 0.875rem 1rem;
+    border: 1px solid var(--tch-color-outline-variant, #d8d5df);
+    border-radius: var(--tch-radius-md, 0.5rem);
+    background: var(--tch-color-surface-container-lowest, #fff);
+
+    span {
+      min-width: 0;
+      overflow-wrap: anywhere;
+      font-weight: 700;
+    }
+
+    strong {
+      color: var(--tch-color-tertiary, #006d43);
+      font-variant-numeric: tabular-nums;
+    }
+  }
+
   &__charge {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
@@ -66,5 +114,7 @@
 }
 
 @keyframes ticket-detail-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }

@@ -19,6 +19,9 @@ import com.tchalanet.server.core.analytics.api.model.AnalyticsTrustScope;
 import com.tchalanet.server.core.analytics.api.model.AnalyticsTrustState;
 import com.tchalanet.server.core.analytics.api.query.GetAnalyticsTrustStateQuery;
 import com.tchalanet.server.core.analytics.api.query.GetCashierDashboardStatsQuery;
+import com.tchalanet.server.core.drawresult.api.error.DrawResultErrorCodes;
+import com.tchalanet.server.core.drawresult.api.query.GetDrawResultProjectionByDrawIdQuery;
+import com.tchalanet.server.core.drawresult.api.query.view.DrawResultProjection;
 import com.tchalanet.server.core.sales.api.command.cancel.CancelTicketCommand;
 import com.tchalanet.server.core.sales.api.model.verification.CustomerTicketStatus;
 import com.tchalanet.server.core.sales.api.model.verification.TicketCashierVerificationView;
@@ -48,6 +51,7 @@ import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -72,6 +76,9 @@ public class PosTicketsService {
       SellerTerminalId sellerTerminalId,
       DrawId drawId,
       String status,
+      String resultStatus,
+      String settlementStatus,
+      Boolean winningOnly,
       String q,
       Instant from,
       Instant to,
@@ -86,6 +93,9 @@ public class PosTicketsService {
                 effectiveSellerTerminalId,
                 drawId,
                 status,
+                resultStatus,
+                settlementStatus,
+                winningOnly,
                 q,
                 from,
                 to,
@@ -152,7 +162,22 @@ public class PosTicketsService {
     // Use the print view — it includes publicCode, drawChannelName, seller context,
     // bet lines (with promo flags), and charges. Richer than TicketDetailsView.
     var printView = queryBus.ask(new GetTicketPrintViewQuery(ticketId));
-    return mapper.toDetailsResponse(printView);
+    var drawResult = findDrawResult(printView.draw().drawId());
+    return mapper.toDetailsResponse(printView, drawResult);
+  }
+
+  private DrawResultProjection findDrawResult(DrawId drawId) {
+    try {
+      return queryBus.ask(new GetDrawResultProjectionByDrawIdQuery(drawId));
+    } catch (ProblemRestException ex) {
+      var properties = ex.getProblem().getProperties();
+      if (ex.getProblem().getStatus() == HttpStatus.NOT_FOUND.value()
+          || (properties != null
+              && DrawResultErrorCodes.NOT_FOUND.code().equals(properties.get("code")))) {
+        return null;
+      }
+      throw ex;
+    }
   }
 
   public PosTicketVerificationResponse verify(

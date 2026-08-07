@@ -25,17 +25,24 @@ public class DrawApplyJdbcAdapter implements DrawApplyPort {
       LocalDate drawDate,
       ResultSlotId resultSlotId,
       DrawResultId drawResultId,
+      String resultSource,
       Instant now) {
 
     Objects.requireNonNull(tenantId, "tenantId is required");
     Objects.requireNonNull(drawDate, "drawDate is required");
     Objects.requireNonNull(resultSlotId, "resultSlotId is required");
     Objects.requireNonNull(drawResultId, "drawResultId is required");
+    Objects.requireNonNull(resultSource, "resultSource is required");
     Objects.requireNonNull(now, "now is required");
 
     var rows =
         repo.attachResultBySlotReturning(
-            tenantId.value(), drawDate, resultSlotId.value(), drawResultId.value(), now);
+            tenantId.value(),
+            drawDate,
+            resultSlotId.value(),
+            drawResultId.value(),
+            resultSource,
+            now);
 
     if (rows == null || rows.isEmpty()) {
       return ApplyResult.none(ApplyOutcome.ALREADY_LINKED_OR_NOT_ELIGIBLE);

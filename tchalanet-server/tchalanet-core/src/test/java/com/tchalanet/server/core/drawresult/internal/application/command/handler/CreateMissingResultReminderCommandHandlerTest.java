@@ -119,6 +119,7 @@ class CreateMissingResultReminderCommandHandlerTest {
                     null,
                     null,
                     null,
+                    null,
                     null)));
 
     var result =

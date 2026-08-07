@@ -11,7 +11,12 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { TCH_DEFAULT_PAGE_SIZE, TchPage } from '@tch/api';
-import { AdminListStatusOption, AdminListSurface, TchDrawLabel, TchNotice } from '@tch/ui/components';
+import {
+  AdminListStatusOption,
+  AdminListSurface,
+  TchDrawLabel,
+  TchNotice,
+} from '@tch/ui/components';
 import { consoleTicketDrawIdentity } from '@tch/web/console';
 
 import { AdminCrudShellComponent } from '@tch/ui/console';
@@ -19,19 +24,20 @@ import { AdminEmptyStateComponent } from '@tch/ui/console';
 import { AdminPageShellComponent } from '@tch/ui/console';
 import { AdminRefreshButtonComponent } from '@tch/ui/console';
 import { TchPaginationComponent } from '@tch/ui/console';
+import { AdminStatusPillComponent, AdminStatusTone } from '@tch/ui/console';
+import { TchAsyncReadyDirective, TchAsyncViewComponent, resourceErrorVm } from '@tch/web/async';
 import {
-  AdminStatusPillComponent,
-  AdminStatusTone,
-} from '@tch/ui/console';
-import {
-  TchAsyncReadyDirective,
-  TchAsyncViewComponent,
-  resourceErrorVm,
-} from '@tch/web/async';
-import { AdminTicketsApi, TicketRowView, TicketStatus } from '../../data-access/admin-tickets-api.service';
+  AdminTicketsApi,
+  TicketResultStatus,
+  TicketRowView,
+  TicketStatus,
+} from '../../data-access/admin-tickets-api.service';
 import {
   TICKET_STATUS_VALUES,
+  isTicketResultStatus,
   isTicketStatus,
+  ticketResultStatusLabelKey,
+  ticketResultStatusTone,
   ticketStatusLabelKey,
   ticketStatusTone,
 } from '../../../../shared/ticket/admin-ticket-status.util';
@@ -45,7 +51,7 @@ const SORT_VALUES = [
   'ticketCode,ASC',
   'ticketCode,DESC',
 ] as const;
-type TicketSort = typeof SORT_VALUES[number];
+type TicketSort = (typeof SORT_VALUES)[number];
 
 @Component({
   selector: 'tch-admin-tickets-page',
@@ -83,7 +89,17 @@ export class AdminTicketsPage {
   private readonly router = inject(Router);
   private readonly translate = inject(TranslateService);
 
-  readonly columns = ['ticketCode', 'status', 'drawChannelName', 'drawScheduledAt', 'totalAmountCents', 'placedAt', 'actions'];
+  readonly columns = [
+    'ticketCode',
+    'status',
+    'resultStatus',
+    'drawChannelName',
+    'drawScheduledAt',
+    'totalAmountCents',
+    'winningAmountCents',
+    'placedAt',
+    'actions',
+  ];
   readonly reprintingTicketId = signal<string | null>(null);
   readonly reprintError = signal<string | null>(null);
   readonly statusOptions: readonly AdminListStatusOption[] = TICKET_STATUS_VALUES.map(status => ({
@@ -98,6 +114,17 @@ export class AdminTicketsPage {
     { value: 'ticketCode,ASC', labelKey: 'admin.tickets.list.sort.codeAsc' },
     { value: 'ticketCode,DESC', labelKey: 'admin.tickets.list.sort.codeDesc' },
   ];
+  readonly resultStatusOptions: readonly {
+    value: TicketResultStatus | 'WINNING';
+    labelKey: string;
+  }[] = [
+    { value: 'WINNING', labelKey: 'admin.tickets.list.filters.winningOnly' },
+    { value: 'WON', labelKey: 'admin.tickets.resultStatus.won' },
+    { value: 'LOST', labelKey: 'admin.tickets.resultStatus.lost' },
+    { value: 'NOT_RESULTED', labelKey: 'admin.tickets.resultStatus.notResulted' },
+    { value: 'PENDING', labelKey: 'admin.tickets.resultStatus.pending' },
+    { value: 'OVERRIDDEN', labelKey: 'admin.tickets.resultStatus.overridden' },
+  ];
 
   private readonly queryParamMap = toSignal(this.route.queryParamMap, {
     initialValue: this.route.snapshot.queryParamMap,
@@ -107,9 +134,17 @@ export class AdminTicketsPage {
     const status = this.queryParamMap().get('status');
     return isTicketStatus(status) ? status : '';
   });
+  readonly drawIdFilter = computed(() => uuidParam(this.queryParamMap().get('drawId')));
+  readonly resultFilter = computed<TicketResultStatus | 'WINNING' | ''>(() => {
+    if (this.queryParamMap().get('winningOnly') === 'true') return 'WINNING';
+    const status = this.queryParamMap().get('resultStatus');
+    return isTicketResultStatus(status) ? status : '';
+  });
 
   readonly page = computed(() => numberParam(this.queryParamMap().get('page'), 0));
-  readonly size = computed(() => numberParam(this.queryParamMap().get('size'), TCH_DEFAULT_PAGE_SIZE));
+  readonly size = computed(() =>
+    numberParam(this.queryParamMap().get('size'), TCH_DEFAULT_PAGE_SIZE),
+  );
   readonly codeFilter = computed(() => this.queryParamMap().get('q')?.trim() ?? '');
   readonly fromFilter = computed(() => dateParam(this.queryParamMap().get('from')));
   readonly toFilter = computed(() => dateParam(this.queryParamMap().get('to')));
@@ -118,20 +153,32 @@ export class AdminTicketsPage {
     return isTicketSort(sort) ? sort : 'createdAt,DESC';
   });
   /** Filter panel starts open only when a non-default filter is already active from the URL. */
-  readonly hasActiveFilters = computed(() =>
-    !!this.statusFilter() || !!this.fromFilter() || !!this.toFilter() || this.sortFilter() !== 'createdAt,DESC',
+  readonly hasActiveFilters = computed(
+    () =>
+      !!this.drawIdFilter() ||
+      !!this.statusFilter() ||
+      !!this.resultFilter() ||
+      !!this.fromFilter() ||
+      !!this.toFilter() ||
+      this.sortFilter() !== 'createdAt,DESC',
   );
 
   readonly tickets = this.api.listResource(
-    () => ({
-      status: this.statusFilter() || undefined,
-      q: this.codeFilter() || undefined,
-      fromDate: this.fromFilter() || undefined,
-      toDate: this.toFilter() || undefined,
-      sort: this.sortFilter(),
-      page: this.page(),
-      size: this.size(),
-    }),
+    () => {
+      const resultFilter = this.resultFilter();
+      return {
+        drawId: this.drawIdFilter() || undefined,
+        status: this.statusFilter() || undefined,
+        resultStatus: resultFilter && resultFilter !== 'WINNING' ? resultFilter : undefined,
+        winningOnly: resultFilter === 'WINNING',
+        q: this.codeFilter() || undefined,
+        fromDate: this.fromFilter() || undefined,
+        toDate: this.toFilter() || undefined,
+        sort: this.sortFilter(),
+        page: this.page(),
+        size: this.size(),
+      };
+    },
     { suppressShellFeedback: true },
   );
   readonly ticketsError = resourceErrorVm(this.tickets, 'admin.tickets.list');
@@ -164,6 +211,14 @@ export class AdminTicketsPage {
     this.navigateList({ status: status || null, page: null });
   }
 
+  onResultFilter(status: TicketResultStatus | 'WINNING' | ''): void {
+    this.navigateList({
+      resultStatus: status && status !== 'WINNING' ? status : null,
+      winningOnly: status === 'WINNING' ? 'true' : null,
+      page: null,
+    });
+  }
+
   onCodeFilter(q: string): void {
     const value = q.trim();
     this.navigateList({ q: value || null, page: null });
@@ -182,7 +237,17 @@ export class AdminTicketsPage {
   }
 
   resetFilters(): void {
-    this.navigateList({ q: null, status: null, from: null, to: null, sort: null, page: null });
+    this.navigateList({
+      drawId: null,
+      q: null,
+      status: null,
+      resultStatus: null,
+      winningOnly: null,
+      from: null,
+      to: null,
+      sort: null,
+      page: null,
+    });
   }
 
   onPageChange(page: number): void {
@@ -199,6 +264,14 @@ export class AdminTicketsPage {
 
   statusLabelKey(status: TicketStatus): string {
     return ticketStatusLabelKey(status);
+  }
+
+  resultStatusTone(status: TicketResultStatus | string | null | undefined): AdminStatusTone {
+    return ticketResultStatusTone(status);
+  }
+
+  resultStatusLabelKey(status: TicketResultStatus | string | null | undefined): string {
+    return ticketResultStatusLabelKey(status);
   }
 
   amountDisplay(cents: number): string {
@@ -245,7 +318,10 @@ export class AdminTicketsPage {
   }
 
   private navigateList(params: {
+    readonly drawId?: string | null;
     readonly status?: TicketStatus | null;
+    readonly resultStatus?: TicketResultStatus | null;
+    readonly winningOnly?: string | null;
     readonly q?: string | null;
     readonly from?: string | null;
     readonly to?: string | null;
@@ -280,4 +356,11 @@ function numberParam(value: string | null, fallback: number): number {
 function dateParam(value: string | null): string {
   if (value === null) return '';
   return /^\d{4}-\d{2}-\d{2}$/.test(value) ? value : '';
+}
+
+function uuidParam(value: string | null): string {
+  if (value === null) return '';
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)
+    ? value
+    : '';
 }

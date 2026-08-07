@@ -78,14 +78,18 @@ function datePresetToRange(preset: DatePreset, timezone: string): { from: string
 
 function mapSalesStatus(status: string): GeneratedDrawSalesStatus {
   switch (status) {
-    case 'OPEN': return 'OPEN';
+    case 'OPEN':
+      return 'OPEN';
     case 'LOCKED':
     case 'CLOSED':
     case 'RESULTED':
-    case 'SETTLED': return 'CLOSED';
+    case 'SETTLED':
+      return 'CLOSED';
     case 'CANCELLED':
-    case 'ARCHIVED': return 'CANCELLED';
-    default: return 'UPCOMING';
+    case 'ARCHIVED':
+      return 'CANCELLED';
+    default:
+      return 'UPCOMING';
   }
 }
 
@@ -100,9 +104,12 @@ function mapResultStatus(
   }
   switch (lastResult.status) {
     case 'CONFIRMED':
-    case 'OVERRIDDEN': return 'CONFIRMED';
-    case 'PROVISIONAL': return 'PROVISIONAL';
-    default: return 'MISSING';
+    case 'OVERRIDDEN':
+      return 'CONFIRMED';
+    case 'PROVISIONAL':
+      return 'PROVISIONAL';
+    default:
+      return 'MISSING';
   }
 }
 
@@ -121,7 +128,9 @@ function mapDrawView(d: DrawView): GeneratedDrawView {
   const salesStatus = mapSalesStatus(d.status);
   const resultStatus = mapResultStatus(d.status, d.lastResult);
   const numbers = d.lastResult
-    ? [d.lastResult.lot1, d.lastResult.lot2, d.lastResult.lot3].filter((x): x is string => x != null)
+    ? [d.lastResult.lot1, d.lastResult.lot2, d.lastResult.lot3, d.lastResult.lot4].filter(
+        (x): x is string => x != null && x.trim().length > 0,
+      )
     : null;
 
   return {
@@ -141,9 +150,10 @@ function mapDrawView(d: DrawView): GeneratedDrawView {
     resultStatus,
     resultMode: 'MANUAL',
     resultId: d.lastResult?.id ?? null,
-    publicationStatus: resultStatus === 'CONFIRMED' || resultStatus === 'PROVISIONAL'
-      ? 'PUBLISHED'
-      : 'NOT_PUBLISHED',
+    publicationStatus:
+      resultStatus === 'CONFIRMED' || resultStatus === 'PROVISIONAL'
+        ? 'PUBLISHED'
+        : 'NOT_PUBLISHED',
     numbers: numbers?.length ? numbers : null,
     fetchedAt: d.lastResult?.fetchedAt ?? null,
     sourceError: null,
@@ -168,17 +178,17 @@ function normalizeForSearch(value: string): string {
   return value.toLowerCase().replace(/[^a-z0-9]/g, '');
 }
 
-export function applyQueryFilter(draws: GeneratedDrawView[], query: string | null | undefined): GeneratedDrawView[] {
+export function applyQueryFilter(
+  draws: GeneratedDrawView[],
+  query: string | null | undefined,
+): GeneratedDrawView[] {
   const needle = query?.trim() ? normalizeForSearch(query) : '';
   if (!needle) return draws;
-  return draws.filter(d => [
-    d.label,
-    d.drawChannelCode,
-    d.slotKey,
-    d.slotLabel,
-    d.providerCode,
-    d.providerLabel,
-  ].some(field => field && normalizeForSearch(field).includes(needle)));
+  return draws.filter(d =>
+    [d.label, d.drawChannelCode, d.slotKey, d.slotLabel, d.providerCode, d.providerLabel].some(
+      field => field && normalizeForSearch(field).includes(needle),
+    ),
+  );
 }
 
 /**
@@ -211,23 +221,34 @@ function isServerFiltered(status: string | null | undefined): boolean {
   return status === 'PAST' || serverStatusParam(status) !== null;
 }
 
-function applyStatusFilter(draws: GeneratedDrawView[], status: string | null | undefined): GeneratedDrawView[] {
+function applyStatusFilter(
+  draws: GeneratedDrawView[],
+  status: string | null | undefined,
+): GeneratedDrawView[] {
   // Lifecycle statuses (OPEN, CLOSED, …) and PAST are already narrowed by the backend —
   // re-filtering here would only desync the rows from the server's totalElements/pagination.
   if (isServerFiltered(status)) return draws;
   if (!status || status === 'all') return draws;
   return draws.filter(d => {
     switch (status) {
-      case 'LOCKED':       return d.lifecycleStatus === status;
+      case 'LOCKED':
+        return d.lifecycleStatus === status;
       case 'EXPECTED_OR_MISSING':
         return d.resultStatus === 'EXPECTED' || d.resultStatus === 'MISSING';
-      case 'EXPECTED':     return d.resultStatus === 'EXPECTED';
-      case 'MISSING':      return d.resultStatus === 'MISSING';
-      case 'PROVISIONAL':  return d.resultStatus === 'PROVISIONAL';
-      case 'CONFIRMED':    return d.resultStatus === 'CONFIRMED';
-      case 'SOURCE_ERROR': return d.resultStatus === 'SOURCE_ERROR';
-      case 'NOT_DUE':      return d.resultStatus === 'NOT_DUE';
-      default: return true;
+      case 'EXPECTED':
+        return d.resultStatus === 'EXPECTED';
+      case 'MISSING':
+        return d.resultStatus === 'MISSING';
+      case 'PROVISIONAL':
+        return d.resultStatus === 'PROVISIONAL';
+      case 'CONFIRMED':
+        return d.resultStatus === 'CONFIRMED';
+      case 'SOURCE_ERROR':
+        return d.resultStatus === 'SOURCE_ERROR';
+      case 'NOT_DUE':
+        return d.resultStatus === 'NOT_DUE';
+      default:
+        return true;
     }
   });
 }
@@ -255,38 +276,35 @@ export class AdminGeneratedDrawsApiService {
     query: () => GeneratedDrawsQuery,
   ): ResourceRef<TchPage<GeneratedDrawView> | undefined> {
     // mapping DTO -> vue au niveau du client (project) ; le resource yield des vues métier
-    return this.backend.getPageResource<GeneratedDrawView, DrawView>(
-      () => {
-        const q = query();
-        const presetRange = datePresetToRange(q.datePreset ?? 'LAST_48H', this.tenantTimezone());
-        const from = q.from || presetRange.from;
-        const to = q.to || presetRange.to;
-        const status = serverStatusParam(q.status);
-        return {
-          path: '/admin/draws',
-          options: {
-            suppressShellFeedback: true,
-            params: {
-              from,
-              to,
-              // Lifecycle statuses and PAST are filtered server-side so pagination and
-              // totalElements stay accurate; result-derived filters (EXPECTED, CONFIRMED…)
-              // have no backend equivalent and remain client-side.
-              ...(status ? { status } : {}),
-              // "Passés" is a time-of-day question, not a business-date one: a draw at 12:29
-              // today is past at 14:00 while still sitting inside today's from/to window.
-              ...(q.status === 'PAST' ? { scheduledBefore: new Date().toISOString() } : {}),
-              // The 2-day window regularly holds 50-60+ draws — dumping them all onto one
-              // unpaginated page defeats the "next page" control entirely (there was never a
-              // second page to go to).
-              size: String(q.size ?? TCH_DEFAULT_PAGE_SIZE),
-              page: String(q.page ?? 0),
-            },
+    return this.backend.getPageResource<GeneratedDrawView, DrawView>(() => {
+      const q = query();
+      const presetRange = datePresetToRange(q.datePreset ?? 'LAST_48H', this.tenantTimezone());
+      const from = q.from || presetRange.from;
+      const to = q.to || presetRange.to;
+      const status = serverStatusParam(q.status);
+      return {
+        path: '/admin/draws',
+        options: {
+          suppressShellFeedback: true,
+          params: {
+            from,
+            to,
+            // Lifecycle statuses and PAST are filtered server-side so pagination and
+            // totalElements stay accurate; result-derived filters (EXPECTED, CONFIRMED…)
+            // have no backend equivalent and remain client-side.
+            ...(status ? { status } : {}),
+            // "Passés" is a time-of-day question, not a business-date one: a draw at 12:29
+            // today is past at 14:00 while still sitting inside today's from/to window.
+            ...(q.status === 'PAST' ? { scheduledBefore: new Date().toISOString() } : {}),
+            // The 2-day window regularly holds 50-60+ draws — dumping them all onto one
+            // unpaginated page defeats the "next page" control entirely (there was never a
+            // second page to go to).
+            size: String(q.size ?? TCH_DEFAULT_PAGE_SIZE),
+            page: String(q.page ?? 0),
           },
-        };
-      },
-      mapDrawView,
-    );
+        },
+      };
+    }, mapDrawView);
   }
 
   generatedDrawsSummaryResource(
@@ -324,59 +342,91 @@ export class AdminGeneratedDrawsApiService {
    * Filtre de recherche texte client (le backend n'a pas de champ `q`, voir
    * {@link applyQueryFilter}) — matché sur le libellé, le code de canal, le slot et le provider.
    */
-  filterDrawsByQuery(draws: readonly GeneratedDrawView[], query?: string | null): GeneratedDrawView[] {
+  filterDrawsByQuery(
+    draws: readonly GeneratedDrawView[],
+    query?: string | null,
+  ): GeneratedDrawView[] {
     return applyQueryFilter([...draws], query);
   }
 
   getDrawById(drawId: string, options?: TchRequestOptions): Observable<GeneratedDrawView> {
-    return this.backend
-      .get<DrawView>(`/admin/draws/${drawId}`, options)
-      .pipe(map(mapDrawView));
+    return this.backend.get<DrawView>(`/admin/draws/${drawId}`, options).pipe(map(mapDrawView));
   }
 
-  saveDrawResult(request: SaveDrawResultRequest, options?: TchRequestOptions): Observable<GeneratedDrawView> {
+  saveDrawResult(
+    request: SaveDrawResultRequest,
+    options?: TchRequestOptions,
+  ): Observable<GeneratedDrawView> {
     const [n1, n2, n3] = request.numbers;
     const pick3 = n1;
     const pick4 = `${n2}${n3}`;
     const observeTrustPolicy = request.mode !== 'confirmed';
     return this.backend
-      .post<DrawView>(`/admin/draws/${request.drawId}/manual-result`, {
-        recordedBy: null,
-        notes: request.note || null,
-        pick3,
-        pick4,
-        force: request.force ?? false,
-        reason: request.force
-          ? 'Override manuel super admin'
-          : request.mode === 'confirmed'
-            ? 'Saisie manuelle confirmée'
-            : 'Saisie provisoire',
-        observeTrustPolicy,
-      }, options)
+      .post<DrawView>(
+        `/admin/draws/${request.drawId}/manual-result`,
+        {
+          recordedBy: null,
+          notes: request.note || null,
+          pick3,
+          pick4,
+          force: request.force ?? false,
+          reason: request.force
+            ? 'Override manuel super admin'
+            : request.mode === 'confirmed'
+              ? 'Saisie manuelle confirmée'
+              : 'Saisie provisoire',
+          observeTrustPolicy,
+        },
+        options,
+      )
       .pipe(map(mapDrawView));
   }
 
-  cancelDraw(drawId: string, reason?: string, options?: TchRequestOptions): Observable<GeneratedDrawView> {
+  cancelDraw(
+    drawId: string,
+    reason?: string,
+    options?: TchRequestOptions,
+  ): Observable<GeneratedDrawView> {
     return this.lifecycleDraws('cancel', [drawId], reason, options).pipe(map(draws => draws[0]));
   }
 
-  openDraw(drawId: string, reason?: string, options?: TchRequestOptions): Observable<GeneratedDrawView> {
+  openDraw(
+    drawId: string,
+    reason?: string,
+    options?: TchRequestOptions,
+  ): Observable<GeneratedDrawView> {
     return this.lifecycleDraws('open', [drawId], reason, options).pipe(map(draws => draws[0]));
   }
 
-  closeDraw(drawId: string, reason?: string, options?: TchRequestOptions): Observable<GeneratedDrawView> {
+  closeDraw(
+    drawId: string,
+    reason?: string,
+    options?: TchRequestOptions,
+  ): Observable<GeneratedDrawView> {
     return this.lifecycleDraws('close', [drawId], reason, options).pipe(map(draws => draws[0]));
   }
 
-  lockDraw(drawId: string, reason?: string, options?: TchRequestOptions): Observable<GeneratedDrawView> {
+  lockDraw(
+    drawId: string,
+    reason?: string,
+    options?: TchRequestOptions,
+  ): Observable<GeneratedDrawView> {
     return this.lifecycleDraws('lock', [drawId], reason, options).pipe(map(draws => draws[0]));
   }
 
-  unlockDraw(drawId: string, reason?: string, options?: TchRequestOptions): Observable<GeneratedDrawView> {
+  unlockDraw(
+    drawId: string,
+    reason?: string,
+    options?: TchRequestOptions,
+  ): Observable<GeneratedDrawView> {
     return this.lifecycleDraws('unlock', [drawId], reason, options).pipe(map(draws => draws[0]));
   }
 
-  archiveDraw(drawId: string, reason?: string, options?: TchRequestOptions): Observable<GeneratedDrawView> {
+  archiveDraw(
+    drawId: string,
+    reason?: string,
+    options?: TchRequestOptions,
+  ): Observable<GeneratedDrawView> {
     return this.lifecycleDraws('archive', [drawId], reason, options).pipe(map(draws => draws[0]));
   }
 
@@ -386,21 +436,22 @@ export class AdminGeneratedDrawsApiService {
     reason?: string,
     options?: TchRequestOptions,
   ): Observable<GeneratedDrawView[]> {
-    const payload = action === 'cancel'
-      ? {
-          drawIds: [...drawIds],
-          reasonCode: 'ADMIN_REQUEST',
-          reasonLabel: reason ?? null,
-          force: false,
-        }
-      : {
-          drawIds: [...drawIds],
-          reason,
-          force: false,
-        };
+    const payload =
+      action === 'cancel'
+        ? {
+            drawIds: [...drawIds],
+            reasonCode: 'ADMIN_REQUEST',
+            reasonLabel: reason ?? null,
+            force: false,
+          }
+        : {
+            drawIds: [...drawIds],
+            reason,
+            force: false,
+          };
 
-    return this.lifecycle.execute<DrawView>(action, payload, options).pipe(
-      map(draws => draws.map(mapDrawView)),
-    );
+    return this.lifecycle
+      .execute<DrawView>(action, payload, options)
+      .pipe(map(draws => draws.map(mapDrawView)));
   }
 }

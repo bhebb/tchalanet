@@ -34,5 +34,6 @@ public interface DrawApplyPort {
       LocalDate drawDate,
       ResultSlotId resultSlotId,
       DrawResultId drawResultId,
+      String resultSource,
       Instant now);
 }

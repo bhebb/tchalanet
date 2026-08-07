@@ -19,11 +19,17 @@ public class DrawApplyJdbcRepository {
   public record AppliedRow(UUID drawId, UUID drawChannelId) {}
 
   public List<AppliedRow> attachResultBySlotReturning(
-      UUID tenantId, LocalDate drawDate, UUID resultSlotId, UUID drawResultId, Instant now) {
+      UUID tenantId,
+      LocalDate drawDate,
+      UUID resultSlotId,
+      UUID drawResultId,
+      String resultSource,
+      Instant now) {
     Objects.requireNonNull(tenantId, "tenantId is required");
     Objects.requireNonNull(drawDate, "drawDate is required");
     Objects.requireNonNull(resultSlotId, "resultSlotId is required");
     Objects.requireNonNull(drawResultId, "drawResultId is required");
+    Objects.requireNonNull(resultSource, "resultSource is required");
     Objects.requireNonNull(now, "now is required");
 
     var sql =
@@ -32,7 +38,7 @@ public class DrawApplyJdbcRepository {
         set draw_result_id = ?,
             status = 'RESULTED',
             resulted_at = ?,
-            result_source = 'AUTO',
+            result_source = ?,
             updated_at = ?
         from draw_channel dc, draw_result dr
         where dc.id = d.draw_channel_id
@@ -57,6 +63,7 @@ public class DrawApplyJdbcRepository {
           int i = 1;
           ps.setObject(i++, drawResultId);
           ps.setTimestamp(i++, timestamp);
+          ps.setString(i++, resultSource);
           ps.setTimestamp(i++, timestamp);
           ps.setObject(i++, drawResultId); // vérifie dr.id
           ps.setObject(i++, tenantId);
