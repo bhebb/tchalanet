@@ -24,7 +24,7 @@ résultats doivent être attendus.
 | Michigan | MI | Disponible, non activé par défaut | 10 à 60 min si activé | Activation client/support |
 | Tennessee | TN | Manuel | Saisie manuelle après publication officielle | Activation client/support |
 | Illinois | IL | Manuel | Saisie manuelle après publication officielle | Activation client/support |
-| Missouri | MO | Manuel | Saisie manuelle après publication officielle | Activation client/support |
+| Missouri | MO | Automatique disponible, non activé par défaut | 10 à 60 min si activé | Activation client/support |
 | Minnesota | MN | Manuel | Saisie manuelle après publication officielle | Activation client/support |
 
 ## Comment lire le délai
@@ -53,7 +53,7 @@ la POC. Dans ce cas :
 ## Points à vérifier pendant la POC
 
 - NY et FL sont visibles et activés sur les nouveaux santrals attendus.
-- GA, NJ et CA sont disponibles en automatique sur staging US, mais restent opt-in.
+- GA, NJ, CA et MO sont disponibles en automatique sur staging US, mais restent opt-in.
 - OH doit encore être validé en conditions live avant promesse client.
 - Les autres providers sont visibles comme disponibles ou configurables, mais
   pas activés automatiquement.

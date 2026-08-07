@@ -24,6 +24,7 @@ public class UsLotteryConfig {
   private static final String PA_PROVIDER_KEY = "pa";
   private static final String NJ_PROVIDER_KEY = "nj";
   private static final String CA_PROVIDER_KEY = "ca";
+  private static final String MO_PROVIDER_KEY = "mo";
   private static final String OH_PROVIDER_KEY = "oh";
   private static final String MI_PROVIDER_KEY = "mi";
   private static final String MN_PROVIDER_KEY = "mn";
@@ -112,6 +113,16 @@ public class UsLotteryConfig {
       matchIfMissing = true)
   public RestClient caLotteryRestClient(RestClientFactory builder, UsLotteryProperties props) {
     return getRestClient(builder, props, CA_PROVIDER_KEY);
+  }
+
+  @Bean
+  @ConditionalOnProperty(
+      prefix = "tch.us-lottery.providers.mo",
+      name = "enabled",
+      havingValue = "true",
+      matchIfMissing = true)
+  public RestClient moLotteryRestClient(RestClientFactory builder, UsLotteryProperties props) {
+    return getRestClient(builder, props, MO_PROVIDER_KEY);
   }
 
   @Bean

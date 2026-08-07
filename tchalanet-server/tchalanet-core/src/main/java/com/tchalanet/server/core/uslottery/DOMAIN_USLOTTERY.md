@@ -77,6 +77,7 @@ Clients:
 - PennsylvaniaDrawResultsClient
 - NewJerseyDrawResultsClient
 - CaliforniaDrawResultsClient
+- MissouriDrawResultsClient
 - MichiganDrawResultsClient
 - OhioDrawResultsClient
 - MinnesotaDrawResultsClient
@@ -91,6 +92,7 @@ Mappers:
 - PennsylvaniaDrawResultsMapper
 - NewJerseyDrawResultsMapper
 - CaliforniaDrawResultsMapper
+- MissouriDrawResultsMapper
 - MichiganDrawResultsMapper
 - OhioDrawResultsMapper
 - MinnesotaDrawResultsMapper
@@ -103,6 +105,7 @@ NY: NUMBERS, WIN4
 FL: PICK3, PICK4  
 GA: PICK3, PICK4  
 TX: PICK3, DAILY4
+MO: PICK3, PICK4
 MN: PICK3 (No Pick4 -> No Lot2, No Lot3 in Haiti)
 
 → gameCode is the ONLY key
