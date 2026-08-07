@@ -9,6 +9,7 @@ import {
   SLACK_ENABLED,
   SLACK_WEBHOOKS,
   SMS_ENABLED,
+  TCH_ENV,
   TWILIO_ACCOUNT_SID,
   TWILIO_AUTH_TOKEN,
   TWILIO_FROM,
@@ -29,7 +30,7 @@ export function buildApp() {
   const app = Fastify({ logger: true });
 
   const messageService = new SendMessageService([
-    new SlackMessageSender(SLACK_ENABLED, SLACK_WEBHOOKS),
+    new SlackMessageSender(SLACK_ENABLED, SLACK_WEBHOOKS, TCH_ENV),
     new BrevoEmailMessageSender(EMAIL_ENABLED, BREVO_API_KEY, EMAIL_FROM_NAME, EMAIL_FROM_ADDRESS),
     new TwilioSmsMessageSender(
       SMS_ENABLED,
@@ -41,7 +42,7 @@ export function buildApp() {
   ]);
 
   const deliveryService = new TicketDeliveryService([
-    new SlackMessageSender(SLACK_ENABLED, SLACK_WEBHOOKS),
+    new SlackMessageSender(SLACK_ENABLED, SLACK_WEBHOOKS, TCH_ENV),
     new BrevoEmailMessageSender(EMAIL_ENABLED, BREVO_API_KEY, EMAIL_FROM_NAME, EMAIL_FROM_ADDRESS),
     new TwilioSmsMessageSender(
       SMS_ENABLED,
