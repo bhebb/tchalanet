@@ -93,6 +93,9 @@ public class PosTicketsController {
       @RequestParam(required = false) SellerTerminalId sellerTerminalId,
       @RequestParam(required = false) DrawId drawId,
       @RequestParam(required = false) String status,
+      @RequestParam(required = false) String resultStatus,
+      @RequestParam(required = false) String settlementStatus,
+      @RequestParam(required = false) Boolean winningOnly,
       @RequestParam(required = false) String q,
       @RequestParam(required = false) Instant from,
       @RequestParam(required = false) Instant to,
@@ -106,7 +109,17 @@ public class PosTicketsController {
     Instant effectiveTo = to != null ? to : endOfDay(toDate, ctx);
     return ApiResponse.success(
         ticketsService.listTickets(
-            ctx, sellerTerminalId, drawId, status, q, effectiveFrom, effectiveTo, page.pageable()));
+            ctx,
+            sellerTerminalId,
+            drawId,
+            status,
+            resultStatus,
+            settlementStatus,
+            winningOnly,
+            q,
+            effectiveFrom,
+            effectiveTo,
+            page.pageable()));
   }
 
   @GetMapping("/{ticketId}")

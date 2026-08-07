@@ -147,6 +147,24 @@
         "voided": "Voided",
         "unknown": "Unknown status"
       },
+      "resultStatus": {
+        "notResulted": "Awaiting result",
+        "pending": "Result pending",
+        "won": "Winner",
+        "lost": "Lost",
+        "void": "Void",
+        "overridden": "Corrected",
+        "unknown": "Unknown result"
+      },
+      "settlementStatus": {
+        "notSettled": "Not settled",
+        "payoutPending": "Payout pending",
+        "settled": "Settled",
+        "noPayout": "No payout",
+        "paid": "Paid",
+        "reversed": "Reversed",
+        "unknown": "Unknown settlement"
+      },
       "list": {
         "title": "Tickets",
         "description": "Operator ticket history.",
@@ -157,6 +175,9 @@
           "code": "Code",
           "status": "Status",
           "allStatuses": "All",
+          "result": "Result",
+          "allResults": "All",
+          "winningOnly": "Winners only",
           "from": "From",
           "to": "To",
           "sort": "Sort"
@@ -177,9 +198,11 @@
         "columns": {
           "code": "Code",
           "status": "Status",
+          "result": "Result",
           "channel": "Channel",
           "draw": "Draw",
           "amount": "Amount",
+          "winning": "Winnings",
           "placedAt": "Issued at",
           "actions": "Actions"
         }

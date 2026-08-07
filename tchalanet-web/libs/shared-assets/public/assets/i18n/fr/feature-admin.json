@@ -630,12 +630,17 @@
         "section": {
           "sale": "Vente",
           "draw": "Tirage",
+          "drawResult": "Résultat du tirage",
           "lines": "Lignes jouées",
+          "winningLines": "Lignes gagnantes",
           "charges": "Frais"
         },
         "field": {
           "issuedAt": "Émis le",
           "status": "Statut",
+          "resultStatus": "Résultat",
+          "settlementStatus": "Règlement",
+          "winningAmount": "Gain",
           "outlet": "Point de vente",
           "cancelledAt": "Annulé le",
           "channel": "Canal",
@@ -644,6 +649,7 @@
         },
         "meta": {
           "totalPaid": "Total payé",
+          "winningAmount": "Gain",
           "freeLines": "Maryaj gratis",
           "seller": "Vendeur",
           "terminal": "Terminal"

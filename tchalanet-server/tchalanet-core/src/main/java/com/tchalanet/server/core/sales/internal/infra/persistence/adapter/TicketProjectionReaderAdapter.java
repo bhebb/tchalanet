@@ -9,7 +9,9 @@ import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageMapper;
 import com.tchalanet.server.core.sales.api.error.SalesErrorCodes;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintView;
+import com.tchalanet.server.core.sales.api.model.status.TicketResultStatus;
 import com.tchalanet.server.core.sales.api.model.status.TicketSaleStatus;
+import com.tchalanet.server.core.sales.api.model.status.TicketSettlementStatus;
 import com.tchalanet.server.core.sales.api.model.view.TicketDetailsView;
 import com.tchalanet.server.core.sales.api.model.view.TicketForDrawSettlementView;
 import com.tchalanet.server.core.sales.api.model.view.TicketForPayoutView;
@@ -76,7 +78,9 @@ public class TicketProjectionReaderAdapter implements TicketProjectionReaderPort
   @Override
   public TchPage<TicketRow> list(ListTicketsQuery query) {
     var status = parseStatus(query.status());
-    var spec = byFilters(query, status);
+    var resultStatus = parseResultStatus(query.resultStatus());
+    var settlementStatus = parseSettlementStatus(query.settlementStatus());
+    var spec = byFilters(query, status, resultStatus, settlementStatus);
     var page = repository.findAll(spec, toSafePageable(query.page().pageable()));
     return TchPageMapper.map(page, this::toRow);
   }
@@ -87,7 +91,10 @@ public class TicketProjectionReaderAdapter implements TicketProjectionReaderPort
   }
 
   private Specification<TicketJpaEntity> byFilters(
-      ListTicketsQuery query, TicketSaleStatus status) {
+      ListTicketsQuery query,
+      TicketSaleStatus status,
+      TicketResultStatus resultStatus,
+      TicketSettlementStatus settlementStatus) {
     return (root, ignoredQuery, cb) -> {
       var predicates = new java.util.ArrayList<Predicate>();
 
@@ -99,6 +106,16 @@ public class TicketProjectionReaderAdapter implements TicketProjectionReaderPort
       }
       if (status != null) {
         predicates.add(cb.equal(root.get("saleStatus"), status));
+      }
+      if (resultStatus != null) {
+        predicates.add(cb.equal(root.get("resultStatus"), resultStatus));
+      }
+      if (settlementStatus != null) {
+        predicates.add(cb.equal(root.get("settlementStatus"), settlementStatus));
+      }
+      if (Boolean.TRUE.equals(query.winningOnly())) {
+        predicates.add(cb.equal(root.get("resultStatus"), TicketResultStatus.WON));
+        predicates.add(cb.greaterThan(root.<BigDecimal>get("winningAmount"), BigDecimal.ZERO));
       }
       var codeQuery = codeQuery(query.q());
       if (codeQuery != null) {
@@ -178,11 +195,23 @@ public class TicketProjectionReaderAdapter implements TicketProjectionReaderPort
   private record CodeQuery(String raw, String compact) {}
 
   private TicketSaleStatus parseStatus(String rawStatus) {
+    return parseEnum(TicketSaleStatus.class, rawStatus);
+  }
+
+  private TicketResultStatus parseResultStatus(String rawStatus) {
+    return parseEnum(TicketResultStatus.class, rawStatus);
+  }
+
+  private TicketSettlementStatus parseSettlementStatus(String rawStatus) {
+    return parseEnum(TicketSettlementStatus.class, rawStatus);
+  }
+
+  private <E extends Enum<E>> E parseEnum(Class<E> type, String rawStatus) {
     if (rawStatus == null || rawStatus.isBlank()) {
       return null;
     }
     try {
-      return TicketSaleStatus.valueOf(rawStatus.trim().toUpperCase(Locale.ROOT));
+      return Enum.valueOf(type, rawStatus.trim().toUpperCase(Locale.ROOT));
     } catch (IllegalArgumentException ex) {
       throw ProblemRest.of(SalesErrorCodes.TICKET_FILTER_INVALID_STATUS, Map.of(), ex);
     }
@@ -194,9 +223,13 @@ public class TicketProjectionReaderAdapter implements TicketProjectionReaderPort
         TenantId.of(entity.getTenantId()),
         entity.getTicketCode(),
         entity.getSaleStatus(),
+        entity.getResultStatus(),
+        entity.getSettlementStatus(),
         DrawId.of(entity.getDrawId()),
         SellerTerminalId.nullableOf(entity.getSellerTerminalId()),
         cents(entity.getTotalAmount()),
+        cents(entity.getWinningAmount()),
+        cents(entity.getPaidAmount()),
         entity.getCurrency(),
         entity.getPlacedAt(),
         entity.getCancelledAt());
@@ -208,6 +241,8 @@ public class TicketProjectionReaderAdapter implements TicketProjectionReaderPort
         entity.getTicketCode(),
         entity.getPublicCode(),
         entity.getSaleStatus(),
+        entity.getResultStatus(),
+        entity.getSettlementStatus(),
         DrawId.of(entity.getDrawId()),
         SellerTerminalId.nullableOf(entity.getSellerTerminalId()),
         entity.getDrawChannelCode(),
@@ -217,6 +252,8 @@ public class TicketProjectionReaderAdapter implements TicketProjectionReaderPort
         entity.getDrawChannelName(),
         entity.getDrawScheduledAt(),
         cents(entity.getTotalAmount()),
+        cents(entity.getWinningAmount()),
+        cents(entity.getPaidAmount()),
         entity.getCurrency(),
         entity.getPlacedAt());
   }

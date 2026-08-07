@@ -2,18 +2,31 @@ import { Injectable, ResourceRef, inject } from '@angular/core';
 import { TchBackendClient, TchPage, TchRequestOptions } from '@tch/api';
 import { Observable } from 'rxjs';
 
-export type TicketStatus =
-  | 'PENDING_APPROVAL'
-  | 'APPROVED'
-  | 'REJECTED'
-  | 'CANCELLED'
-  | 'VOIDED';
+export type TicketStatus = 'PENDING_APPROVAL' | 'APPROVED' | 'REJECTED' | 'CANCELLED' | 'VOIDED';
+
+export type TicketResultStatus =
+  | 'NOT_RESULTED'
+  | 'PENDING'
+  | 'WON'
+  | 'LOST'
+  | 'VOID'
+  | 'OVERRIDDEN';
+
+export type TicketSettlementStatus =
+  | 'NOT_SETTLED'
+  | 'PAYOUT_PENDING'
+  | 'SETTLED'
+  | 'NO_PAYOUT'
+  | 'PAID'
+  | 'REVERSED';
 
 export interface TicketRowView {
   readonly id: string;
   readonly ticketCode: string;
   readonly publicCode: string;
   readonly status: TicketStatus;
+  readonly resultStatus?: TicketResultStatus | null;
+  readonly settlementStatus?: TicketSettlementStatus | null;
   readonly drawId: string;
   readonly sellerTerminalId?: string | { value?: string | null } | null;
   readonly drawChannelCode?: string | null;
@@ -23,12 +36,18 @@ export interface TicketRowView {
   readonly drawChannelName: string;
   readonly drawScheduledAt: string;
   readonly totalAmountCents: number;
+  readonly winningAmountCents?: number | null;
+  readonly paidAmountCents?: number | null;
   readonly currency: string;
   readonly placedAt: string;
 }
 
 export interface AdminTicketListParams {
+  readonly drawId?: string;
   readonly status?: string;
+  readonly resultStatus?: string;
+  readonly settlementStatus?: string;
+  readonly winningOnly?: boolean;
   readonly q?: string;
   readonly from?: string;
   readonly to?: string;
@@ -100,7 +119,11 @@ function ticketListQueryParams(params: AdminTicketListParams): Record<string, st
     page: String(params.page ?? 0),
     size: String(params.size ?? 20),
     sort: params.sort || 'createdAt,DESC',
+    ...(params.drawId ? { drawId: params.drawId } : {}),
     ...(params.status ? { status: params.status } : {}),
+    ...(params.resultStatus ? { resultStatus: params.resultStatus } : {}),
+    ...(params.settlementStatus ? { settlementStatus: params.settlementStatus } : {}),
+    ...(params.winningOnly ? { winningOnly: 'true' } : {}),
     ...(params.q ? { q: params.q } : {}),
     ...(params.from ? { from: params.from } : {}),
     ...(params.to ? { to: params.to } : {}),

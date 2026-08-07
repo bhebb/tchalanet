@@ -121,9 +121,8 @@ public class ApplyExternalResultsWindowCommandHandler
           }
 
           var drawResultId = drawResultOpt.get();
-
-          var resultStatus =
-              drawResultReader.findViewById(drawResultId).map(view -> view.status()).orElse(null);
+          var drawResultView = drawResultReader.findViewById(drawResultId).orElse(null);
+          var resultStatus = drawResultView == null ? null : drawResultView.status();
           if (!isActionable(resultStatus)) {
             skippedPending++;
             log.info(
@@ -151,7 +150,13 @@ public class ApplyExternalResultsWindowCommandHandler
            * Correction/replacement belongs to CorrectAppliedDrawResultCommand.
            */
           var res =
-              drawApply.attachResultBySlot(cmd.tenantId(), date, slot.id(), drawResultId, now);
+              drawApply.attachResultBySlot(
+                  cmd.tenantId(),
+                  date,
+                  slot.id(),
+                  drawResultId,
+                  drawResultView.source().name(),
+                  now);
 
           if (res.outcome() == DrawApplyPort.ApplyOutcome.UPDATED && !res.applied().isEmpty()) {
 

@@ -40,6 +40,7 @@ public class DrawResultWebMapper {
         drawResultView.quality(),
         drawResultView.sourceHash(),
         drawResultView.fetchedAt(),
+        drawResultView.appliedAt(),
         drawResultView.sourceResult(),
         drawResultView.haitiResult(),
         drawResultView.rawPayload(),

@@ -147,6 +147,24 @@
         "voided": "Anile",
         "unknown": "Estati enkoni"
       },
+      "resultStatus": {
+        "notResulted": "Ap tann rezilta",
+        "pending": "Rezilta ap tann",
+        "won": "Gayan",
+        "lost": "Pèdan",
+        "void": "Anile",
+        "overridden": "Korije",
+        "unknown": "Rezilta enkoni"
+      },
+      "settlementStatus": {
+        "notSettled": "Pa regle",
+        "payoutPending": "Peman pou fèt",
+        "settled": "Regle",
+        "noPayout": "Pa gen peman",
+        "paid": "Peye",
+        "reversed": "Ranvèse",
+        "unknown": "Règleman enkoni"
+      },
       "list": {
         "title": "Tikè",
         "description": "Istwa tikè santral la.",
@@ -157,6 +175,9 @@
           "code": "Kòd",
           "status": "Estati",
           "allStatuses": "Tout",
+          "result": "Rezilta",
+          "allResults": "Tout",
+          "winningOnly": "Gayan sèlman",
           "from": "Soti",
           "to": "Rive",
           "sort": "Triye"
@@ -177,9 +198,11 @@
         "columns": {
           "code": "Kòd",
           "status": "Estati",
+          "result": "Rezilta",
           "channel": "Kanal",
           "draw": "Tiraj",
           "amount": "Montan",
+          "winning": "Gain",
           "placedAt": "Emèt le",
           "actions": "Aksyon"
         }

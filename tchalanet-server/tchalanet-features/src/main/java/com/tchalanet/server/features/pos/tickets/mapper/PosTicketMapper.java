@@ -1,6 +1,7 @@
 package com.tchalanet.server.features.pos.tickets.mapper;
 
 import com.tchalanet.server.common.types.money.Money;
+import com.tchalanet.server.core.drawresult.api.query.view.DrawResultProjection;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintCharge;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintLine;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintView;
@@ -20,6 +21,8 @@ public class PosTicketMapper {
         row.ticketCode(),
         row.publicCode(),
         row.status(),
+        row.resultStatus(),
+        row.settlementStatus(),
         row.drawId(),
         row.sellerTerminalId(),
         row.drawChannelCode(),
@@ -29,6 +32,8 @@ public class PosTicketMapper {
         row.drawChannelName(),
         row.drawScheduledAt(),
         row.totalAmountCents(),
+        row.winningAmountCents(),
+        row.paidAmountCents(),
         row.currency(),
         row.placedAt());
   }
@@ -38,6 +43,11 @@ public class PosTicketMapper {
    * name, seller context, and promotion annotations.
    */
   public PosTicketDetailsResponse toDetailsResponse(TicketPrintView view) {
+    return toDetailsResponse(view, null);
+  }
+
+  public PosTicketDetailsResponse toDetailsResponse(
+      TicketPrintView view, DrawResultProjection drawResult) {
     var identity = view.identity();
     var draw = view.draw();
     var ctx = view.context();
@@ -50,6 +60,8 @@ public class PosTicketMapper {
         identity.ticketCode(),
         identity.publicCode(),
         lifecycle.saleStatus(),
+        lifecycle.resultStatus(),
+        lifecycle.settlementStatus(),
         meta.placedAt(),
         null, // cancelledAt not in TicketPrintView; status=CANCELLED signals it
         draw.drawId(),
@@ -59,6 +71,7 @@ public class PosTicketMapper {
         draw.timezone(),
         draw.drawChannelName(),
         draw.scheduledAt(),
+        drawResultNumbers(drawResult),
         ctx != null ? ctx.sellerTerminalId() : null,
         ctx != null ? ctx.sellerTerminalLabel() : null,
         ctx != null ? ctx.sellerTerminalCode() : null,
@@ -66,6 +79,7 @@ public class PosTicketMapper {
         toLines(view.lines()),
         toCents(money.stake()),
         toCents(money.totalAmount()),
+        winningAmountCents(view.lines()),
         meta.currency(),
         toCharges(money.charges()));
   }
@@ -132,5 +146,19 @@ public class PosTicketMapper {
   private long toCents(Money money) {
     if (money == null || money.amount() == null) return 0L;
     return money.amount().multiply(java.math.BigDecimal.valueOf(100)).longValue();
+  }
+
+  private long winningAmountCents(List<TicketPrintLine> lines) {
+    if (lines == null) return 0L;
+    return lines.stream().mapToLong(line -> toCents(line.payoutAmount())).sum();
+  }
+
+  private List<String> drawResultNumbers(DrawResultProjection drawResult) {
+    if (drawResult == null) return List.of();
+    return java.util.stream.Stream.of(
+            drawResult.lot1(), drawResult.lot2(), drawResult.lot3(), drawResult.lot4())
+        .filter(value -> value != null && !value.isBlank())
+        .map(String::trim)
+        .toList();
   }
 }

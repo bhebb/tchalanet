@@ -100,6 +100,7 @@ public class DrawResultJdbcRepository {
               dr.quality,
               dr.source_hash,
               dr.fetched_at,
+              d.resulted_at as applied_at,
               dr.source_result,
               dr.haiti_result,
               dr.raw_payload,
@@ -237,6 +238,12 @@ public class DrawResultJdbcRepository {
               dr.quality,
               dr.source_hash,
               dr.fetched_at,
+              (
+                select max(d.resulted_at)
+                from draw d
+                where d.draw_result_id = dr.id
+                  and d.deleted_at is null
+              ) as applied_at,
               dr.source_result,
               dr.haiti_result,
               dr.raw_payload,
@@ -281,6 +288,7 @@ public class DrawResultJdbcRepository {
         ResultQuality.valueOf(rs.getString("quality")),
         rs.getString("source_hash"),
         rs.getTimestamp("fetched_at") == null ? null : rs.getTimestamp("fetched_at").toInstant(),
+        rs.getTimestamp("applied_at") == null ? null : rs.getTimestamp("applied_at").toInstant(),
         parseJson(rs.getString("source_result")),
         parseJson(rs.getString("haiti_result")),
         parseJson(rs.getString("raw_payload")),

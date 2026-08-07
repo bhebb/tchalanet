@@ -84,8 +84,8 @@ public class TicketWebMapper {
         null,
         null,
         view.status(),
-        null,
-        null,
+        view.resultStatus(),
+        view.settlementStatus(),
         null,
         view.drawId(),
         view.sellerTerminalId(),
@@ -99,11 +99,16 @@ public class TicketWebMapper {
       SellerTerminalId sellerTerminalId,
       DrawId drawId,
       String status,
+      String resultStatus,
+      String settlementStatus,
+      Boolean winningOnly,
       String q,
       java.time.Instant from,
       java.time.Instant to,
       TchPageRequest pageReq) {
-    return new ListTicketsQuery(sellerTerminalId, drawId, status, q, from, to, pageReq);
+    return new ListTicketsQuery(
+        sellerTerminalId, drawId, status, resultStatus, settlementStatus, winningOnly, q, from, to,
+        pageReq);
   }
 
   public TchPage<TicketSummaryResponse> toPagedSummaryResponse(TchPage<TicketRow> page) {
@@ -115,8 +120,12 @@ public class TicketWebMapper {
         row.id(),
         row.ticketCode(),
         row.status(),
+        row.resultStatus(),
+        row.settlementStatus(),
         row.drawId(),
         row.totalAmountCents(),
+        row.winningAmountCents(),
+        row.paidAmountCents(),
         row.currency(),
         row.placedAt());
   }
@@ -126,8 +135,12 @@ public class TicketWebMapper {
         view.id(),
         view.ticketCode(),
         view.status(),
+        view.resultStatus(),
+        view.settlementStatus(),
         view.drawId(),
         view.totalAmountCents(),
+        view.winningAmountCents(),
+        view.paidAmountCents(),
         view.currency(),
         view.placedAt(),
         view.cancelledAt());

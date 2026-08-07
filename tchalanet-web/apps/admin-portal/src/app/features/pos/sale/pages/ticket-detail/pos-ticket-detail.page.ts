@@ -41,6 +41,9 @@ import { PosSaleApiService } from '../../data-access/pos-sale-api.service';
 import { PosTicketDetailsView, PosTicketPricingTermView } from '../../data-access/pos-sale.models';
 import {
   ticketStatusLabelKey,
+  ticketResultStatusLabelKey,
+  ticketResultStatusTone,
+  ticketSettlementStatusLabelKey,
   ticketStatusTone,
 } from '../../../../../shared/ticket/admin-ticket-status.util';
 
@@ -89,6 +92,10 @@ export class PosTicketDetailPage implements OnInit {
         value: `${this.amountDisplay(ticket.totalAmountCents)} ${ticket.currency}`,
       },
       {
+        label: this.translate.instant('admin.pos.detail.meta.winningAmount'),
+        value: `${this.amountDisplay(ticket.winningAmountCents ?? 0)} ${ticket.currency}`,
+      },
+      {
         label: this.translate.instant('admin.pos.detail.meta.seller'),
         value: ticket.sellerDisplayName || '—',
       },
@@ -133,6 +140,19 @@ export class PosTicketDetailPage implements OnInit {
         value: draw.receiptDateTimeLabel,
       },
     ];
+  });
+
+  readonly drawResultNumbers = computed<readonly string[]>(() => {
+    const ticket = this.ticket();
+    return ticket?.drawResultNumbers?.filter(number => !!number?.trim()) ?? [];
+  });
+
+  readonly winningLines = computed(() => {
+    const ticket = this.ticket();
+    if (!ticket) return [];
+    return ticket.lines.filter(
+      line => line.resultStatus === 'WON' || (line.payoutAmountCents ?? 0) > 0,
+    );
   });
 
   readonly selectionLines = computed<readonly ConsoleTicketSelectionView[]>(() => {
@@ -237,6 +257,22 @@ export class PosTicketDetailPage implements OnInit {
     return ticketStatusTone(status);
   }
 
+  resultStatusLabel(status: string | null | undefined): string {
+    return this.translate.instant(ticketResultStatusLabelKey(status));
+  }
+
+  resultStatusTone(status: string | null | undefined): AdminStatusTone {
+    return ticketResultStatusTone(status);
+  }
+
+  settlementStatusLabel(status: string | null | undefined): string {
+    return this.translate.instant(ticketSettlementStatusLabelKey(status));
+  }
+
+  hasWinningAmount(ticket: PosTicketDetailsView): boolean {
+    return (ticket.winningAmountCents ?? 0) > 0;
+  }
+
   freeLineCount(ticket: PosTicketDetailsView): number {
     return ticket.lines.filter(line => line.promotional).length;
   }
@@ -323,7 +359,7 @@ export class PosTicketDetailPage implements OnInit {
               (left, right) =>
                 this.boletRuleOrder(left.ruleCode) - this.boletRuleOrder(right.ruleCode),
             )
-            .map(term => this.pricingAmount(term, currency))
+            .map(term => this.pricingAmount(term))
             .join('-');
           return `${this.translate.instant('admin.pos.detail.pricing.label')} ${sourceLabel}: ${values}`;
         }
@@ -331,7 +367,7 @@ export class PosTicketDetailPage implements OnInit {
         const entries = sourceTerms
           .map(
             term =>
-              `${this.pricingSummaryRuleLabel(term, normalizedGameCode)}: ${this.pricingAmount(term, currency)}`,
+              `${this.pricingSummaryRuleLabel(term, normalizedGameCode)}: ${this.pricingAmount(term)}`,
           )
           .join(', ');
         return `${gameLabel || this.translate.instant('admin.pos.detail.pricing.unknownRule')}: ${entries} · ${sourceLabel}`;
@@ -371,7 +407,7 @@ export class PosTicketDetailPage implements OnInit {
     );
   }
 
-  private pricingAmount(term: PosTicketPricingTermView, _currency: string): string {
+  private pricingAmount(term: PosTicketPricingTermView): string {
     return this.formatDecimal(
       term.payoutRuleType === 'FIXED_AMOUNT' ? term.fixedAmount : term.multiplier,
     );

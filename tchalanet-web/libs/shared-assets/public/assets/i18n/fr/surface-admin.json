@@ -147,6 +147,24 @@
         "voided": "Invalidé",
         "unknown": "Statut inconnu"
       },
+      "resultStatus": {
+        "notResulted": "À vérifier",
+        "pending": "Résultat en attente",
+        "won": "Gagnant",
+        "lost": "Perdant",
+        "void": "Annulé",
+        "overridden": "Corrigé",
+        "unknown": "Résultat inconnu"
+      },
+      "settlementStatus": {
+        "notSettled": "Non réglé",
+        "payoutPending": "Paiement à faire",
+        "settled": "Réglé",
+        "noPayout": "Aucun paiement",
+        "paid": "Payé",
+        "reversed": "Renversé",
+        "unknown": "Règlement inconnu"
+      },
       "list": {
         "title": "Tickets",
         "description": "Historique des billets du santral.",
@@ -157,6 +175,9 @@
           "code": "Code",
           "status": "Statut",
           "allStatuses": "Tous",
+          "result": "Résultat",
+          "allResults": "Tous",
+          "winningOnly": "Gagnants seulement",
           "from": "Du",
           "to": "Au",
           "sort": "Tri"
@@ -177,9 +198,11 @@
         "columns": {
           "code": "Code",
           "status": "Statut",
+          "result": "Résultat",
           "channel": "Canal",
           "draw": "Tirage",
           "amount": "Montant",
+          "winning": "Gain",
           "placedAt": "Émis le",
           "actions": "Actions"
         }

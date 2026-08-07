@@ -8,7 +8,9 @@ import com.tchalanet.server.core.sales.api.model.settlement.AppliedSettlementSna
 import com.tchalanet.server.core.sales.api.model.settlement.SettlementRuleCode;
 import com.tchalanet.server.core.sales.api.model.settlement.SettlementTermSource;
 import com.tchalanet.server.core.sales.api.model.status.TicketLineResultStatus;
+import com.tchalanet.server.core.sales.api.model.status.TicketResultStatus;
 import com.tchalanet.server.core.sales.api.model.status.TicketSaleStatus;
+import com.tchalanet.server.core.sales.api.model.status.TicketSettlementStatus;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
@@ -19,6 +21,8 @@ public record PosTicketDetailsResponse(
     String ticketCode,
     String publicCode,
     TicketSaleStatus status,
+    TicketResultStatus resultStatus,
+    TicketSettlementStatus settlementStatus,
     Instant placedAt,
     Instant cancelledAt,
 
@@ -30,6 +34,7 @@ public record PosTicketDetailsResponse(
     String resultTimezone,
     String drawChannelName, // e.g. "Haïti • Texas • 12:27"
     Instant drawScheduledAt,
+    List<String> drawResultNumbers,
 
     // ── Seller context ────────────────────────────────────────────────────
     SellerTerminalId sellerTerminalId,
@@ -43,6 +48,7 @@ public record PosTicketDetailsResponse(
     // ── Money ─────────────────────────────────────────────────────────────
     long stakeCents,
     long totalAmountCents,
+    long winningAmountCents,
     String currency,
     List<CashierTicketChargeResponse> charges) {
 

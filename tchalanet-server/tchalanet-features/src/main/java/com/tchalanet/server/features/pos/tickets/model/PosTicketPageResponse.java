@@ -3,7 +3,9 @@ package com.tchalanet.server.features.pos.tickets.model;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TicketId;
+import com.tchalanet.server.core.sales.api.model.status.TicketResultStatus;
 import com.tchalanet.server.core.sales.api.model.status.TicketSaleStatus;
+import com.tchalanet.server.core.sales.api.model.status.TicketSettlementStatus;
 import java.time.Instant;
 
 public record PosTicketPageResponse(
@@ -11,6 +13,8 @@ public record PosTicketPageResponse(
     String ticketCode,
     String publicCode,
     TicketSaleStatus status,
+    TicketResultStatus resultStatus,
+    TicketSettlementStatus settlementStatus,
     DrawId drawId,
     SellerTerminalId sellerTerminalId,
     String drawChannelCode,
@@ -20,5 +24,7 @@ public record PosTicketPageResponse(
     String drawChannelName,
     Instant drawScheduledAt,
     long totalAmountCents,
+    long winningAmountCents,
+    long paidAmountCents,
     String currency,
     Instant placedAt) {}
