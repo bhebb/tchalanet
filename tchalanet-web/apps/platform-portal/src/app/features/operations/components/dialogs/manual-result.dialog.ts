@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@ang
 import { AbstractControl, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -22,6 +22,11 @@ import {
   CatalogResultSlotView,
   PlatformCatalogApi,
 } from '../../../catalog/data-access/platform-catalog-api.service';
+
+export interface ManualResultDialogData {
+  readonly drawDate?: string | null;
+  readonly slotKey?: string | null;
+}
 
 @Component({
   selector: 'tch-manual-result-dialog',
@@ -43,6 +48,7 @@ import {
 })
 export class ManualResultDialog implements OnInit {
   private readonly dialogRef = inject(MatDialogRef<ManualResultDialog>);
+  private readonly data = inject<ManualResultDialogData>(MAT_DIALOG_DATA, { optional: true });
   private readonly api = inject(PlatformOpsApi);
   private readonly catalogApi = inject(PlatformCatalogApi);
   private readonly fb = inject(FormBuilder);
@@ -65,6 +71,10 @@ export class ManualResultDialog implements OnInit {
   });
 
   ngOnInit(): void {
+    this.form.patchValue({
+      drawDate: this.data?.drawDate ?? this.today,
+      slotKey: this.data?.slotKey ?? '',
+    });
     this.catalogApi.listResultSlots().subscribe({
       next: slots => {
         const sorted = [...slots].sort((a, b) => a.slotKey.localeCompare(b.slotKey));
