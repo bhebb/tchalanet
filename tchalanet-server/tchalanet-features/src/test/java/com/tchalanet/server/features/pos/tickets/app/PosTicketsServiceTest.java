@@ -83,6 +83,9 @@ class PosTicketsServiceTest {
             null,
             null,
             null,
+            null,
+            null,
+            null,
             PageRequest.of(0, 20));
 
     var query = ArgumentCaptor.forClass(ListTicketsQuery.class);
@@ -107,6 +110,9 @@ class PosTicketsServiceTest {
             null,
             null,
             null,
+            null,
+            null,
+            null,
             PageRequest.of(0, 20));
 
     var query = ArgumentCaptor.forClass(ListTicketsQuery.class);
@@ -125,6 +131,9 @@ class PosTicketsServiceTest {
         .listTickets(
             context(tenantId, null, TchActorType.APP_USER),
             adminTerminalId,
+            null,
+            null,
+            null,
             null,
             null,
             null,
