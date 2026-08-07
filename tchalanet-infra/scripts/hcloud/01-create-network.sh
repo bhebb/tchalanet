@@ -16,21 +16,22 @@ warn() { echo -e "${YELLOW}!${NC} $*" >&2; }
 
 usage() {
   cat <<EOF
-Usage: $(basename "$0") [NET_NAME] [CIDR] [ZONE]
+Usage: $(basename "$0") [NET_NAME] [NETWORK_CIDR] [ZONE] [SUBNET_CIDR]
 
 Create a private network in Hetzner Cloud.
 
 Arguments:
   NET_NAME    Network name (default: tch-net)
-  CIDR        Network CIDR (default: 10.10.0.0/16)
+  NETWORK_CIDR Network CIDR (default: 10.0.0.0/16)
   ZONE        Network zone (default: eu-central)
               Valid zones: eu-central | eu-west | us-east | us-west | ap-southeast
+  SUBNET_CIDR Subnet CIDR (default: NETWORK_CIDR)
 
 Environment:
   HCLOUD_TOKEN    Hetzner Cloud API token (required)
 
 Example:
-  $(basename "$0") prod-net 10.20.0.0/16 eu-west
+  $(basename "$0") prod-net 10.20.0.0/16 eu-west 10.20.1.0/24
 EOF
   exit "${1:-0}"
 }
@@ -43,8 +44,9 @@ fi
 
 # Arguments avec valeurs par défaut
 NET_NAME="${1:-tch-net}"
-CIDR="${2:-10.10.0.0/16}"
+NETWORK_CIDR="${2:-10.0.0.0/16}"
 ZONE="${3:-eu-central}"
+SUBNET_CIDR="${4:-$NETWORK_CIDR}"
 
 # Validation de la zone
 case "$ZONE" in
@@ -53,8 +55,12 @@ case "$ZONE" in
 esac
 
 # Validation du CIDR
-if ! [[ $CIDR =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/[0-9]+$ ]]; then
-  error "Invalid CIDR format: $CIDR"
+if ! [[ $NETWORK_CIDR =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/[0-9]+$ ]]; then
+  error "Invalid network CIDR format: $NETWORK_CIDR"
+  usage 1
+fi
+if ! [[ $SUBNET_CIDR =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/[0-9]+$ ]]; then
+  error "Invalid subnet CIDR format: $SUBNET_CIDR"
   usage 1
 fi
 
@@ -73,22 +79,22 @@ if hcloud network describe "$NET_NAME" &>/dev/null; then
     success "Subnet in zone $ZONE already exists"
   else
     log "Adding subnet (type: server) in zone $ZONE"
-    if ! hcloud network add-subnet "$NET_NAME" --type server --network-zone "$ZONE" --ip-range "$CIDR"; then
+    if ! hcloud network add-subnet "$NET_NAME" --type server --network-zone "$ZONE" --ip-range "$SUBNET_CIDR"; then
       error "Failed to add subnet"
       exit 1
     fi
     success "Subnet added successfully"
   fi
 else
-  log "Creating network '$NET_NAME' ($CIDR)"
-  if ! hcloud network create --name "$NET_NAME" --ip-range "$CIDR"; then
+  log "Creating network '$NET_NAME' ($NETWORK_CIDR)"
+  if ! hcloud network create --name "$NET_NAME" --ip-range "$NETWORK_CIDR"; then
     error "Failed to create network"
     exit 1
   fi
   success "Network created successfully"
 
   log "Adding subnet (type: server) in zone $ZONE"
-  if ! hcloud network add-subnet "$NET_NAME" --type server --network-zone "$ZONE" --ip-range "$CIDR"; then
+  if ! hcloud network add-subnet "$NET_NAME" --type server --network-zone "$ZONE" --ip-range "$SUBNET_CIDR"; then
     error "Failed to add subnet"
     error "Cleaning up - deleting network"
     hcloud network delete "$NET_NAME"
