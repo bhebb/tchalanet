@@ -137,6 +137,7 @@ export class AdminTicketsPage {
   });
   readonly drawIdFilter = computed(() => uuidParam(this.queryParamMap().get('drawId')));
   readonly providerFilter = computed(() => providerParam(this.queryParamMap().get('provider')));
+  readonly slotKeyFilter = computed(() => slotKeyParam(this.queryParamMap().get('slotKey')));
   readonly providerMatrix = this.drawSalesMatrix.getMatrixResource({ suppressShellFeedback: true });
   readonly providerOptions = computed(() => {
     const selectedProvider = this.providerFilter();
@@ -171,6 +172,7 @@ export class AdminTicketsPage {
     () =>
       !!this.drawIdFilter() ||
       !!this.providerFilter() ||
+      !!this.slotKeyFilter() ||
       !!this.statusFilter() ||
       !!this.resultFilter() ||
       !!this.fromFilter() ||
@@ -184,6 +186,7 @@ export class AdminTicketsPage {
       return {
         drawId: this.drawIdFilter() || undefined,
         provider: this.providerFilter() || undefined,
+        slotKey: this.slotKeyFilter() || undefined,
         status: this.statusFilter() || undefined,
         resultStatus: resultFilter && resultFilter !== 'WINNING' ? resultFilter : undefined,
         winningOnly: resultFilter === 'WINNING',
@@ -260,6 +263,7 @@ export class AdminTicketsPage {
     this.navigateList({
       drawId: null,
       provider: null,
+      slotKey: null,
       q: null,
       status: null,
       resultStatus: null,
@@ -341,6 +345,7 @@ export class AdminTicketsPage {
   private navigateList(params: {
     readonly drawId?: string | null;
     readonly provider?: string | null;
+    readonly slotKey?: string | null;
     readonly status?: TicketStatus | null;
     readonly resultStatus?: TicketResultStatus | null;
     readonly winningOnly?: string | null;
@@ -391,4 +396,10 @@ function providerParam(value: string | null): string {
   if (value === null) return '';
   const provider = value.trim().toUpperCase();
   return /^[A-Z]{2,8}$/.test(provider) ? provider : '';
+}
+
+function slotKeyParam(value: string | null): string {
+  if (value === null) return '';
+  const slotKey = value.trim().toUpperCase();
+  return /^[A-Z0-9_-]{2,64}$/.test(slotKey) ? slotKey : '';
 }

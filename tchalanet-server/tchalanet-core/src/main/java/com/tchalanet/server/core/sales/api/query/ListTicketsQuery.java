@@ -17,6 +17,7 @@ public record ListTicketsQuery(
     String resultStatus,
     String settlementStatus,
     String provider,
+    String slotKey,
     Boolean winningOnly,
     String q,
     Instant from,

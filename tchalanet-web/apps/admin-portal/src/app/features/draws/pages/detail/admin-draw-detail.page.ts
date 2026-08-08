@@ -381,8 +381,10 @@ export class AdminDrawDetailPage implements OnInit, OnDestroy {
 
   ticketsQueryParams(draw: GeneratedDrawView): Record<string, string> {
     return {
-      drawId: draw.drawId,
       provider: draw.providerCode,
+      slotKey: draw.slotKey,
+      from: draw.businessDate,
+      to: draw.businessDate,
     };
   }
 

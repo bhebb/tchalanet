@@ -87,6 +87,7 @@ class PosTicketsServiceTest {
             null,
             null,
             null,
+            null,
             PageRequest.of(0, 20));
 
     var query = ArgumentCaptor.forClass(ListTicketsQuery.class);
@@ -106,6 +107,7 @@ class PosTicketsServiceTest {
         .listTickets(
             context(tenantId, currentTerminalId, TchActorType.SELLER_TERMINAL),
             requestedTerminalId,
+            null,
             null,
             null,
             null,
@@ -142,6 +144,7 @@ class PosTicketsServiceTest {
             null,
             null,
             null,
+            null,
             PageRequest.of(0, 20));
 
     var query = ArgumentCaptor.forClass(ListTicketsQuery.class);
@@ -164,6 +167,7 @@ class PosTicketsServiceTest {
             null,
             null,
             "PA",
+            "TN_MID",
             null,
             null,
             null,
@@ -173,6 +177,7 @@ class PosTicketsServiceTest {
     var query = ArgumentCaptor.forClass(ListTicketsQuery.class);
     verify(queryBus).ask(query.capture());
     assertThat(query.getValue().provider()).isEqualTo("PA");
+    assertThat(query.getValue().slotKey()).isEqualTo("TN_MID");
   }
 
   private static TchPage<TicketRow> emptyTicketPage() {

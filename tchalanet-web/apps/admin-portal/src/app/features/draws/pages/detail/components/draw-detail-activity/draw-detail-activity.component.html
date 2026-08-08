@@ -31,7 +31,8 @@
       icon="payments"
       tone="accent"
       label="Montant vendu"
-      [value]="((report.grossSales | number: '1.0-2') ?? '0') + ' HTG'"
+      [value]="(report.grossSales | number: '1.0-2') ?? '0'"
+      hint="HTG"
     />
     <tch-admin-metric-card
       icon="groups"
@@ -45,19 +46,22 @@
     <tch-admin-metric-card
       icon="percent"
       label="Commission estimée"
-      [value]="((report.sellerCommission | number: '1.0-2') ?? '0') + ' HTG'"
+      [value]="(report.sellerCommission | number: '1.0-2') ?? '0'"
+      hint="HTG"
     />
     <tch-admin-metric-card
       icon="account_balance"
       tone="positive"
       label="Net estimé"
-      [value]="((report.netRevenueEstimated | number: '1.0-2') ?? '0') + ' HTG'"
+      [value]="(report.netRevenueEstimated | number: '1.0-2') ?? '0'"
+      hint="HTG"
     />
     <tch-admin-metric-card
       icon="redeem"
       tone="warning"
       label="Promo base"
-      [value]="((report.promotionPayoutBase | number: '1.0-2') ?? '0') + ' HTG'"
+      [value]="(report.promotionPayoutBase | number: '1.0-2') ?? '0'"
+      hint="HTG"
     />
   </section>
 
