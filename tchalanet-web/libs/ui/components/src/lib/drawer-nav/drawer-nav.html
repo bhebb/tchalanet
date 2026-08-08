@@ -47,20 +47,40 @@
       <!-- Une section du modèle = un bloc de liste. Regrouper par section plutôt que par nombre
            d'enfants garde les activités quotidiennes en tête, les réglages en dessous. -->
       @if (group.titleKey) {
-        <h2 class="drawer-nav__heading" [id]="'drawer-nav-' + group.id">
-          {{ group.titleKey | translate }}
-        </h2>
+        @if (group.collapsible) {
+          <button
+            type="button"
+            class="drawer-nav__section-toggle"
+            [id]="'drawer-nav-' + group.id"
+            [attr.aria-expanded]="!isSectionCollapsed(group)"
+            (click)="toggleSection(group)"
+          >
+            <span>{{ group.titleKey | translate }}</span>
+            <span
+              class="material-symbols-outlined drawer-nav__section-chevron"
+              aria-hidden="true"
+            >
+              expand_more
+            </span>
+          </button>
+        } @else {
+          <h2 class="drawer-nav__heading" [id]="'drawer-nav-' + group.id">
+            {{ group.titleKey | translate }}
+          </h2>
+        }
       }
 
-      <ul class="drawer-nav__list" role="list" [attr.aria-labelledby]="'drawer-nav-' + group.id">
-        @for (item of group.items; track item.id) {
-          <li>
-            <ng-container
-              *ngTemplateOutlet="rowTemplate; context: { $implicit: item, siblings: group.items }"
-            />
-          </li>
-        }
-      </ul>
+      @if (!isSectionCollapsed(group)) {
+        <ul class="drawer-nav__list" role="list" [attr.aria-labelledby]="'drawer-nav-' + group.id">
+          @for (item of group.items; track item.id) {
+            <li>
+              <ng-container
+                *ngTemplateOutlet="rowTemplate; context: { $implicit: item, siblings: group.items }"
+              />
+            </li>
+          }
+        </ul>
+      }
     }
 
     @if (footerItems().length) {
@@ -124,7 +144,7 @@
     <!-- Le drawer replié n'a pas d'accordéon persistant derrière lui comme la sidebar desktop :
          une fois qu'on a navigué, tout se referme. Donc pas de scission libellé/chevron ici — la
          ligne entière ouvre le panneau, seule façon fiable de découvrir les pages sœurs sur
-         mobile. Le titre du panneau reste un lien vers la destination absorbée. -->
+         mobile. La destination du parent reste exposée comme une ligne enfant dédiée. -->
     <button
       type="button"
       class="drawer-nav__row drawer-nav__row--button"

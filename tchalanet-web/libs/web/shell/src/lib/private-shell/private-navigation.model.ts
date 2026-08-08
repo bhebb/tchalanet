@@ -39,10 +39,7 @@ export const PLATFORM_NAVIGATION: readonly NavigationSection[] = [
         labelKey: 'platform.nav.tenantsGroup',
         icon: 'business',
         destination: { kind: 'route', value: '/app/platform/tenants' },
-        activeRoutes: [
-          '/app/platform/tenants',
-          '/app/platform/support-tenant',
-        ],
+        activeRoutes: ['/app/platform/tenants', '/app/platform/support-tenant'],
         children: [
           {
             id: 'tenant-list',
@@ -409,8 +406,14 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
           {
             id: 'sellers-commissions',
             labelKey: 'nav.admin.seller_configuration',
-            icon: 'percent',
+            icon: 'point_of_sale',
             destination: { kind: 'route', value: '/app/admin/seller-terminals/commissions' },
+          },
+          {
+            id: 'sellers-limits',
+            labelKey: 'nav.admin.seller_limits',
+            icon: 'shield',
+            destination: { kind: 'route', value: '/app/admin/limits/seller-terminal' },
           },
         ],
       },
@@ -419,9 +422,7 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
         labelKey: 'nav.draws',
         icon: 'event',
         destination: { kind: 'route', value: '/app/admin/draws' },
-        activeRoutes: [
-          '/app/admin/draws',
-        ],
+        activeRoutes: ['/app/admin/draws'],
         children: [
           {
             id: 'draws-all',
@@ -437,22 +438,16 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
             destination: { kind: 'route', value: '/app/admin/draws?status=OPEN' },
           },
           {
-            id: 'draws-past',
-            labelKey: 'nav.admin.draws_past',
+            id: 'draws-closed',
+            labelKey: 'nav.admin.draws_closed',
             icon: 'history',
-            destination: { kind: 'route', value: '/app/admin/draws?status=PAST' },
+            destination: { kind: 'route', value: '/app/admin/draws?status=CLOSED' },
           },
           {
             id: 'draws-results',
             labelKey: 'nav.admin.draws_results',
             icon: 'fact_check',
             destination: { kind: 'route', value: '/app/admin/draws/results' },
-          },
-          {
-            id: 'draws-channels',
-            labelKey: 'nav.admin.draws_channels',
-            icon: 'settings',
-            destination: { kind: 'route', value: '/app/admin/draws/channels' },
           },
         ],
       },
@@ -468,12 +463,6 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
             icon: 'today',
             destination: { kind: 'route', value: '/app/admin/reports/daily' },
             activeMatch: 'exact',
-          },
-          {
-            id: 'reports-sales',
-            labelKey: 'nav.admin.reports_sales',
-            icon: 'receipt_long',
-            destination: { kind: 'route', value: '/app/admin/reports/sales' },
           },
           {
             id: 'reports-sellers',
@@ -492,81 +481,6 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
             labelKey: 'nav.admin.reports_financials',
             icon: 'query_stats',
             destination: { kind: 'route', value: '/app/admin/reports/financials' },
-          },
-          {
-            id: 'reports-exports',
-            labelKey: 'nav.admin.reports_exports',
-            icon: 'download',
-            destination: { kind: 'route', value: '/app/admin/reports/exports' },
-          },
-        ],
-      },
-      {
-        id: 'tickets',
-        labelKey: 'nav.admin.tickets_section',
-        icon: 'confirmation_number',
-        destination: { kind: 'route', value: '/app/admin/tickets' },
-        activeRoutes: ['/app/admin/pos/sale'],
-        children: [
-          {
-            id: 'tickets-list',
-            labelKey: 'nav.admin.tickets_list',
-            icon: 'list',
-            destination: { kind: 'route', value: '/app/admin/tickets' },
-            activeMatch: 'exact',
-          },
-          {
-            id: 'tickets-sell',
-            labelKey: 'nav.admin.tickets_sell',
-            icon: 'point_of_sale',
-            destination: { kind: 'route', value: '/app/admin/tickets/sell' },
-            activeRoutes: ['/app/admin/pos/sale'],
-          },
-        ],
-      },
-    ],
-  },
-  {
-    id: 'config',
-    titleKey: 'nav.admin.section.config',
-    items: [
-      {
-        id: 'setup',
-        labelKey: 'nav.admin.general_configuration',
-        icon: 'checklist',
-        destination: { kind: 'route', value: '/app/admin/setup' },
-        activeRoutes: [
-          '/app/admin/subscription',
-        ],
-      },
-      {
-        id: 'maryaj-gratis',
-        labelKey: 'nav.admin.maryaj_free',
-        icon: 'redeem',
-        destination: { kind: 'route', value: '/app/admin/maryaj-gratis' },
-        activeMatch: 'exact',
-      },
-      {
-        id: 'games',
-        labelKey: 'nav.admin.games_available',
-        icon: 'casino',
-        destination: { kind: 'route', value: '/app/admin/games' },
-        children: [
-          {
-            id: 'games-overview',
-            labelKey: 'nav.admin.games_overview',
-            icon: 'dashboard',
-            destination: { kind: 'route', value: '/app/admin/games' },
-            activeMatch: 'exact',
-            activeRoutes: [
-              '/app/admin/pricing',
-            ],
-          },
-          {
-            id: 'games-channel-matrix',
-            labelKey: 'nav.admin.games_channel_matrix',
-            icon: 'grid_view',
-            destination: { kind: 'route', value: '/app/admin/games/channel-matrix' },
           },
         ],
       },
@@ -590,12 +504,6 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
             destination: { kind: 'route', value: '/app/admin/limits/global' },
           },
           {
-            id: 'limits-seller',
-            labelKey: 'nav.admin.limits_seller',
-            icon: 'person',
-            destination: { kind: 'route', value: '/app/admin/limits/seller-terminal' },
-          },
-          {
             id: 'limits-number',
             labelKey: 'nav.admin.limits_number',
             icon: 'pin',
@@ -607,7 +515,90 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
             icon: 'event',
             destination: { kind: 'route', value: '/app/admin/limits/draw' },
           },
+          {
+            id: 'limits-seller',
+            labelKey: 'nav.admin.limits_seller',
+            icon: 'person',
+            destination: { kind: 'route', value: '/app/admin/limits/seller-terminal' },
+          },
         ],
+      },
+      {
+        id: 'tickets',
+        labelKey: 'nav.admin.tickets_section',
+        icon: 'confirmation_number',
+        destination: { kind: 'route', value: '/app/admin/tickets' },
+        activeRoutes: ['/app/admin/pos/sale'],
+        children: [
+          {
+            id: 'tickets-sell',
+            labelKey: 'nav.admin.tickets_sell',
+            icon: 'point_of_sale',
+            destination: { kind: 'route', value: '/app/admin/tickets/sell' },
+            activeRoutes: ['/app/admin/pos/sale'],
+          },
+          {
+            id: 'tickets-list',
+            labelKey: 'nav.admin.tickets_list',
+            icon: 'list',
+            destination: { kind: 'route', value: '/app/admin/tickets' },
+            activeMatch: 'exact',
+          },
+          {
+            id: 'tickets-verify',
+            labelKey: 'nav.admin.tickets_verify',
+            icon: 'verified',
+            destination: { kind: 'route', value: '/app/admin/tickets/verify' },
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'config',
+    titleKey: 'nav.admin.section.config',
+    items: [
+      {
+        id: 'setup',
+        labelKey: 'nav.admin.general_configuration',
+        icon: 'checklist',
+        destination: { kind: 'route', value: '/app/admin/setup' },
+        activeRoutes: ['/app/admin/subscription'],
+      },
+      {
+        id: 'draws-channels',
+        labelKey: 'nav.admin.draws_channels',
+        icon: 'settings',
+        destination: { kind: 'route', value: '/app/admin/draws/channels' },
+      },
+      {
+        id: 'games',
+        labelKey: 'nav.admin.games_available',
+        icon: 'casino',
+        destination: { kind: 'route', value: '/app/admin/games' },
+        children: [
+          {
+            id: 'games-overview',
+            labelKey: 'nav.admin.games_overview',
+            icon: 'dashboard',
+            destination: { kind: 'route', value: '/app/admin/games' },
+            activeMatch: 'exact',
+            activeRoutes: ['/app/admin/pricing'],
+          },
+          {
+            id: 'games-channel-matrix',
+            labelKey: 'nav.admin.games_channel_matrix',
+            icon: 'grid_view',
+            destination: { kind: 'route', value: '/app/admin/games/channel-matrix' },
+          },
+        ],
+      },
+      {
+        id: 'maryaj-gratis',
+        labelKey: 'nav.admin.maryaj_free',
+        icon: 'redeem',
+        destination: { kind: 'route', value: '/app/admin/maryaj-gratis' },
+        activeMatch: 'exact',
       },
       {
         id: 'company',
@@ -723,17 +714,21 @@ export function filterTenantAdminNavigation(
     ...section,
     items: section.items
       .filter(item => !isMaryajGratisNavigationItem(item))
-      .map(item => item.children
-        ? {
-            ...item,
-            children: item.children.filter(child => !isMaryajGratisNavigationItem(child)),
-          }
-        : item),
+      .map(item =>
+        item.children
+          ? {
+              ...item,
+              children: item.children.filter(child => !isMaryajGratisNavigationItem(child)),
+            }
+          : item,
+      ),
   }));
 }
 
 function isMaryajGratisNavigationItem(item: NavigationSection['items'][number]): boolean {
-  return item.id === 'maryaj-gratis'
-    || item.id === 'promotions-free-lines'
-    || item.destination?.value === '/app/admin/maryaj-gratis';
+  return (
+    item.id === 'maryaj-gratis' ||
+    item.id === 'promotions-free-lines' ||
+    item.destination?.value === '/app/admin/maryaj-gratis'
+  );
 }

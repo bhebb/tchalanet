@@ -94,6 +94,7 @@ export class TchDrawerNav {
 
   readonly query = signal('');
   readonly openCategoryId = signal<string | null>(null);
+  readonly sectionCollapseOverrides = signal<Readonly<Record<string, boolean>>>({});
 
   private readonly panelRef = viewChild<ElementRef<HTMLElement>>('panel');
   private trigger: HTMLElement | null = null;
@@ -138,10 +139,11 @@ export class TchDrawerNav {
    * d'enfants, ce qui plaçait des réglages rarement ouverts en tête de menu.
    */
   readonly groups = computed(() =>
-    this.sections().map(section => ({
+    this.sections().map((section, index) => ({
       id: section.id,
       titleKey: section.titleKey,
       items: section.items,
+      collapsible: index > 0,
     })),
   );
 
@@ -182,6 +184,25 @@ export class TchDrawerNav {
     return item.children?.length ?? 0;
   }
 
+  isSectionCollapsed(section: {
+    id: string;
+    items: readonly ActionItem[];
+    collapsible: boolean;
+  }): boolean {
+    if (!section.collapsible) return false;
+    if (this.sectionHasActiveItem(section.items)) return false;
+    const override = this.sectionCollapseOverrides()[section.id];
+    return override ?? true;
+  }
+
+  toggleSection(section: { id: string; items: readonly ActionItem[]; collapsible: boolean }): void {
+    if (!section.collapsible) return;
+    this.sectionCollapseOverrides.update(overrides => ({
+      ...overrides,
+      [section.id]: !this.isSectionCollapsed(section),
+    }));
+  }
+
   pagesCount(item: ActionItem): string {
     const count = this.childCount(item);
     const key = this.pagesLabelKey();
@@ -203,8 +224,8 @@ export class TchDrawerNav {
   isCategoryActive(item: ActionItem): boolean {
     const children = item.children ?? [];
     return (
-      isItemActive(this.activity(), item, children)
-      || children.some(child => isItemActive(this.activity(), child, children))
+      isItemActive(this.activity(), item, children) ||
+      children.some(child => isItemActive(this.activity(), child, children))
     );
   }
 
@@ -237,5 +258,14 @@ export class TchDrawerNav {
     const text = actionText(item);
     const translated = this.translate.instant(text);
     return typeof translated === 'string' ? translated : text;
+  }
+
+  private sectionHasActiveItem(items: readonly ActionItem[]): boolean {
+    return items.some(
+      item =>
+        this.isCategoryActive(item) ||
+        isItemActive(this.activity(), item, items) ||
+        item.children?.some(child => isItemActive(this.activity(), child, item.children ?? [])),
+    );
   }
 }
