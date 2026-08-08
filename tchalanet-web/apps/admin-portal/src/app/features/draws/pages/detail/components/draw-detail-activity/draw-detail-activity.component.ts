@@ -3,7 +3,6 @@ import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core
 import { Router } from '@angular/router';
 import { TchLoading } from '@tch/ui/components';
 import { AdminMetricCardComponent } from '@tch/ui/console';
-import { consoleBetTypeLabel, consoleGameName } from '@tch/web/console';
 
 import { DrawTopSelectionItem } from '../../../../../reports/data-access/admin-financials-api.service';
 
@@ -48,14 +47,6 @@ export class DrawDetailActivityComponent {
 
   topSelectionStake(selection: DrawTopSelectionItem): number {
     return selection.totalStakeCents / 100;
-  }
-
-  topSelectionGameLabel(selection: DrawTopSelectionItem): string {
-    return consoleGameName(selection.gameCode);
-  }
-
-  topSelectionBetLabel(selection: DrawTopSelectionItem): string {
-    return consoleBetTypeLabel(selection.betType);
   }
 
   topSelectionsEyebrow(): string {
