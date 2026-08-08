@@ -64,8 +64,8 @@
   <div class="draw-detail-activity__hot">
     <div class="draw-detail-activity__hot-head">
       <div>
-        <p class="draw-detail-activity__eyebrow">Sélections chaudes</p>
-        <h3>Top 5 du tirage</h3>
+        <p class="draw-detail-activity__eyebrow">{{ topSelectionsEyebrow() }}</p>
+        <h3>{{ topSelectionsTitle() }}</h3>
       </div>
       @if (view().topSelectionsState === 'loading') {
         <span>Chargement...</span>

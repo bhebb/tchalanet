@@ -58,6 +58,14 @@ export class DrawDetailActivityComponent {
     return consoleBetTypeLabel(selection.betType);
   }
 
+  topSelectionsEyebrow(): string {
+    return this.view().salesOpen ? 'Sélections chaudes' : 'Exposition du tirage';
+  }
+
+  topSelectionsTitle(): string {
+    return this.view().salesOpen ? 'Top 5 à surveiller' : 'Top 5 des sélections vendues';
+  }
+
   openSellersReport(): void {
     void this.router.navigate(['/app/admin/reports/draws'], {
       queryParams: this.view().sellersReportQueryParams,
