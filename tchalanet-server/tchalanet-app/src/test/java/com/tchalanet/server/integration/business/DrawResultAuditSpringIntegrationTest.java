@@ -21,18 +21,18 @@ class DrawResultAuditSpringIntegrationTest extends BusinessRuntimeIntegrationTes
   private static final LocalDate OVERRIDE_DATE = LocalDate.of(2026, 7, 17);
 
   @Test
-  @DisplayName("seeded non-automatic providers are active manual result slots")
-  void nonAutomaticProviderSeedsAreManualSlots() {
+  @DisplayName("seeded providers expose expected result source modes")
+  void seededProvidersExposeExpectedResultSourceModes() {
     var manualSlots =
         jdbc.queryForList(
             """
                 select provider, slot_key, active, source_cfg->>'source_mode' as source_mode
                   from result_slot
-                 where provider in ('TN', 'IL', 'MO', 'MN')
+                 where provider in ('TN', 'IL', 'MN')
                  order by provider, slot_key
                 """);
 
-    assertThat(manualSlots).hasSize(7);
+    assertThat(manualSlots).hasSize(5);
     assertThat(manualSlots)
         .allSatisfy(
             row -> {
@@ -40,17 +40,17 @@ class DrawResultAuditSpringIntegrationTest extends BusinessRuntimeIntegrationTes
               assertThat(row.get("source_mode")).isEqualTo("MANUAL");
             });
 
-    var ohioModes =
+    var automaticModes =
         jdbc.queryForList(
             """
-                select slot_key, active, source_cfg->>'source_mode' as source_mode
+                select provider, slot_key, active, source_cfg->>'source_mode' as source_mode
                   from result_slot
-                 where provider = 'OH'
-                 order by slot_key
+                 where provider in ('MO', 'OH')
+                 order by provider, slot_key
                 """);
 
-    assertThat(ohioModes).hasSize(2);
-    assertThat(ohioModes)
+    assertThat(automaticModes).hasSize(4);
+    assertThat(automaticModes)
         .allSatisfy(
             row -> {
               assertThat(row.get("active")).isEqualTo(true);
