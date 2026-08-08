@@ -5,12 +5,15 @@ import com.tchalanet.server.core.uslottery.internal.application.model.UsLotteryP
 import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderClient;
 import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderQuery;
 import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderResponse;
+import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderResult;
 import com.tchalanet.server.core.uslottery.internal.infra.cache.ProviderQueryHash;
 import com.tchalanet.server.core.uslottery.internal.infra.cache.UsLotteryProviderRawCache;
 import com.tchalanet.server.core.uslottery.internal.infra.config.UsLotteryProperties;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
@@ -70,30 +73,60 @@ public class NewJerseyDrawResultsClient implements UsLotteryProviderClient {
       return UsLotteryProviderResponse.empty(PROVIDER, query);
     }
 
-    var url = buildUrl(cfg.getBaseUrl(), cfg.getLatestPath(), query);
+    var merged = new ArrayList<UsLotteryProviderResult>();
+    var rawBodies = new ArrayList<String>();
+    for (var target : buildTargets(cfg.getBaseUrl(), cfg.getLatestPath(), query)) {
+      var queryHash =
+          ProviderQueryHash.of(
+              PROVIDER.name(),
+              query.drawDate(),
+              query.drawTime(),
+              target.cacheGameNames(),
+              SHAPE
+                  + "|"
+                  + target.url()
+                  + "|providerSlotCode="
+                  + StringUtils.defaultString(query.providerSlotCode()));
 
-    var queryHash =
-        ProviderQueryHash.of(
-            PROVIDER.name(),
-            query.drawDate(),
-            query.drawTime(),
-            query.externalGameCodes().stream().sorted().toList(),
-            SHAPE
-                + "|"
-                + url
-                + "|providerSlotCode="
-                + StringUtils.defaultString(query.providerSlotCode()));
+      var body =
+          cache.getOrFetch(
+              PROVIDER.name(), query.drawDate(), queryHash, () -> fetchBody(target.url()));
 
-    var body = cache.getOrFetch(PROVIDER.name(), query.drawDate(), queryHash, () -> fetchBody(url));
+      if (StringUtils.isBlank(body)) {
+        continue;
+      }
 
-    if (StringUtils.isBlank(body)) {
+      var response = mapper.map(body, Hashing.sha256Hex(body), target.url(), query);
+      merged.addAll(response.results());
+      if (query.includeRaw()) {
+        rawBodies.add(body);
+      }
+    }
+
+    if (merged.isEmpty()) {
       return UsLotteryProviderResponse.empty(PROVIDER, query);
     }
 
-    return mapper.map(body, Hashing.sha256Hex(body), url, query);
+    return new UsLotteryProviderResponse(
+        PROVIDER,
+        query.drawDate(),
+        query.drawTime(),
+        query.timezone(),
+        List.copyOf(merged),
+        query.includeRaw() ? rawBodies.toString() : null);
   }
 
-  private String buildUrl(String base, String path, UsLotteryProviderQuery query) {
+  private List<NjFetchTarget> buildTargets(String base, String path, UsLotteryProviderQuery query) {
+    var names = gameNames(query.externalGameCodes());
+    if (names.isEmpty()) {
+      return List.of(new NjFetchTarget(null, buildUrl(base, path, query, null)));
+    }
+    return names.stream()
+        .map(name -> new NjFetchTarget(name, buildUrl(base, path, query, name)))
+        .toList();
+  }
+
+  private String buildUrl(String base, String path, UsLotteryProviderQuery query, String gameName) {
     // status=CLOSED + epoch-millis bounds (provider-tz midnight of the draw date and the next
     // day); the mapper filters to the exact date + slot.
     var from = query.drawDate().atStartOfDay(query.timezone()).toInstant().toEpochMilli();
@@ -105,7 +138,7 @@ public class NewJerseyDrawResultsClient implements UsLotteryProviderClient {
         .append("&date-to=")
         .append(to);
 
-    for (var gameName : gameNames(query.externalGameCodes())) {
+    if (StringUtils.isNotBlank(gameName)) {
       sb.append("&game-names=").append(URLEncoder.encode(gameName, StandardCharsets.UTF_8));
     }
 
@@ -146,5 +179,11 @@ public class NewJerseyDrawResultsClient implements UsLotteryProviderClient {
       return b + "/" + p;
     }
     return b + p;
+  }
+
+  private record NjFetchTarget(String gameName, String url) {
+    List<String> cacheGameNames() {
+      return gameName == null ? List.of() : List.of(gameName);
+    }
   }
 }

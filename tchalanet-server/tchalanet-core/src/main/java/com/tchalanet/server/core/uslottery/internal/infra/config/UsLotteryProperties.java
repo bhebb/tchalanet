@@ -14,6 +14,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class UsLotteryProperties {
 
   private boolean enabled = true;
+  private String proxyUrl;
+  private String proxySecret;
 
   private Map<String, ProviderProperties> providers;
   private CommonProperties common;
@@ -43,6 +45,7 @@ public class UsLotteryProperties {
     private String timezone;
     private String latestPath;
     private String alertPath;
+    private boolean proxied;
     private Map<String, String> headers;
     private List<String> holidays;
   }
