@@ -139,6 +139,7 @@ const PROVIDER_LOGO_ASSETS: Record<string, string> = {
   oh: 'oh_logo.png',
   pa: 'PALotteryBlack.svg',
   tx: 'tx_logo.png',
+  wi: 'wi_logo.png',
 };
 
 const PROVIDER_LABELS: Record<string, string> = {

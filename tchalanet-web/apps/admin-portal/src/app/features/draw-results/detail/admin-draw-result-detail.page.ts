@@ -198,8 +198,8 @@ export class AdminDrawResultDetailPage implements OnInit {
         value: result.occurredAt ? this.formatDate(result.occurredAt) : 'Non disponible',
       },
       {
-        label: 'Récupéré le',
-        value: result.fetchedAt ? this.formatDate(result.fetchedAt) : 'Non disponible',
+        label: this.resultTimestampTitle(result),
+        value: this.resultTimestampValue(result),
       },
     ];
   });
@@ -268,6 +268,15 @@ export class AdminDrawResultDetailPage implements OnInit {
 
   qualityLabel(quality: DrawResultQuality): string {
     return consoleDrawResultQualityLabel(quality);
+  }
+
+  resultTimestampTitle(result: DrawResultView): string {
+    return result.source === 'MANUAL' ? 'Saisi le' : 'Récupéré le';
+  }
+
+  resultTimestampValue(result: DrawResultView): string {
+    const timestamp = result.fetchedAt ?? result.publishedAt ?? result.appliedAt;
+    return timestamp ? this.formatDate(timestamp) : 'Non disponible';
   }
 
   onDetailAction(event: ConsoleEntityDetailActionEvent): void {

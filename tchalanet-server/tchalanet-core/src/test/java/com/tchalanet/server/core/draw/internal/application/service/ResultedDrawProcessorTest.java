@@ -136,7 +136,12 @@ class ResultedDrawProcessorTest {
             LocalTime.of(20, 0),
             true,
             new DrawResultSummary(
-                drawResultId, DrawResultStatus.CONFIRMED, resultedAt, "hash", Map.of()));
+                drawResultId,
+                DrawResultStatus.CONFIRMED,
+                resultedAt,
+                resultedAt,
+                "hash",
+                Map.of()));
     var lookup = mock(DrawLookupPort.class);
     when(lookup.findById(drawId)).thenReturn(Optional.of(draw));
     var summaries = mock(DrawSummaryReaderPort.class);

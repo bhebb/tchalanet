@@ -74,6 +74,18 @@ describe('consoleDrawIdentity', () => {
     expect(identity.channelName).toBe('New York · Numbers');
   });
 
+  it('uses the Wisconsin Lottery provider logo for Wisconsin draws', () => {
+    const identity = consoleDrawIdentity({
+      providerCode: 'WI',
+      slotKey: 'WI_MID',
+      channelCode: 'WI_MID',
+    });
+
+    expect(identity.providerCode).toBe('WI');
+    expect(identity.providerName).toBe('Wisconsin');
+    expect(identity.providerLogoUrl).toContain('/assets/images/logo/wi_logo.png');
+  });
+
   it('turns matrix technical slot/channel codes into product labels', () => {
     const identity = consoleDrawIdentity({
       providerCode: 'GA',

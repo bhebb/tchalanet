@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 class DrawAdminWebMapperTest {
 
   private final DrawAdminWebMapper mapper = new DrawAdminWebMapperImpl();
+  private static final Instant FETCHED_AT = Instant.parse("2026-08-08T17:31:00Z");
 
   @Test
   void mapsNestedHaitiLotsFromManualResults() {
@@ -21,11 +22,13 @@ class DrawAdminWebMapperTest {
             DrawResultId.of(UUID.randomUUID()),
             DrawResultStatus.CONFIRMED,
             Instant.parse("2026-08-08T17:29:00Z"),
+            FETCHED_AT,
             null,
             Map.of("lots", Map.of("LOT1", "016", "LOT2", "12", "LOT3", "82", "LOT4", "01")));
 
     var response = mapper.toHaitiDrawResultSummaryReponse(result);
 
+    assertThat(response.fetchedAt()).isEqualTo(FETCHED_AT);
     assertThat(response.lot1()).isEqualTo("016");
     assertThat(response.lot2()).isEqualTo("12");
     assertThat(response.lot3()).isEqualTo("82");
@@ -39,6 +42,7 @@ class DrawAdminWebMapperTest {
             DrawResultId.of(UUID.randomUUID()),
             DrawResultStatus.CONFIRMED,
             Instant.parse("2026-08-08T17:29:00Z"),
+            FETCHED_AT,
             null,
             Map.of("lot1", "123", "lot2", "45", "lot3", "67", "lot4", "89"));
 

@@ -9,5 +9,6 @@ public record DrawResultSummary(
     DrawResultId id,
     DrawResultStatus status,
     Instant occurredAt,
+    Instant fetchedAt,
     String sourceHash,
     Map<String, Object> haitiResult) {}
