@@ -82,7 +82,7 @@ public class MissouriDrawResultsMapper {
       String sourceHash,
       String url,
       UsLotteryProviderQuery query,
-      ArrayList<UsLotteryProviderResult> results) {
+      List<UsLotteryProviderResult> results) {
 
     if (!ProviderSlotCodeMatcher.matches(slot, query.providerSlotCode())) {
       return;

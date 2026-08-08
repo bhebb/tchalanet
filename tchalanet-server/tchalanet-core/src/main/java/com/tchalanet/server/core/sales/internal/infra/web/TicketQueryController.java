@@ -72,8 +72,16 @@ public class TicketQueryController {
           TchPageRequest pageReq) {
     var query =
         mapper.toListTicketsQuery(
-            sellerTerminalId, drawId, status, resultStatus, settlementStatus, winningOnly, q, from,
-            to, pageReq);
+            sellerTerminalId,
+            drawId,
+            status,
+            resultStatus,
+            settlementStatus,
+            winningOnly,
+            q,
+            from,
+            to,
+            pageReq);
     var result = queryBus.ask(query);
     return ApiResponse.success(mapper.toPagedSummaryResponse(result));
   }

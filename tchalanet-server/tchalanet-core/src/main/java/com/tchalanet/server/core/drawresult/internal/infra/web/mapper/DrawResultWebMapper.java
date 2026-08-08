@@ -87,14 +87,23 @@ public class DrawResultWebMapper {
     if (payload == null || payload.isNull()) return List.of();
 
     var out = new ArrayList<String>();
-    addIfPresent(out, payload, "lot1");
-    addIfPresent(out, payload, "lot2");
-    addIfPresent(out, payload, "lot3");
-    addIfPresent(out, payload, "lot4");
+    addLotIfPresent(out, payload, "lot1", "LOT1");
+    addLotIfPresent(out, payload, "lot2", "LOT2");
+    addLotIfPresent(out, payload, "lot3", "LOT3");
+    addLotIfPresent(out, payload, "lot4", "LOT4");
     addIfPresent(out, payload, "pick3");
     addIfPresent(out, payload, "pick4");
 
     return List.copyOf(out);
+  }
+
+  private static void addLotIfPresent(
+      List<String> out, JsonNode payload, String flatKey, String nestedKey) {
+    addIfPresent(out, payload, flatKey);
+    var lots = payload.get("lots");
+    if (lots != null && !lots.isNull()) {
+      addIfPresent(out, lots, nestedKey);
+    }
   }
 
   private static void addIfPresent(List<String> out, JsonNode payload, String key) {

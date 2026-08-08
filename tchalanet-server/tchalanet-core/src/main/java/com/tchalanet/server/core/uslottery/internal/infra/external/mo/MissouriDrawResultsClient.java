@@ -79,7 +79,7 @@ public class MissouriDrawResultsClient implements UsLotteryProviderClient {
       String gameCode,
       String path,
       UsLotteryProviderQuery query,
-      ArrayList<UsLotteryProviderResult> results,
+      List<UsLotteryProviderResult> results,
       StringBuilder raw) {
 
     if (!query.externalGameCodes().contains(gameCode) || StringUtils.isBlank(path)) {
