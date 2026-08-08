@@ -3,7 +3,30 @@
 Runbook maître pour le premier go-live production de Tchalanet.
 Chaque étape pointe vers le runbook détaillé existant.
 
-**Durée estimée :** 2-3 heures (hors DNS propagation et CONATEL si applicable).
+**Durée estimée :** 2-3 heures (hors DNS propagation).
+
+**URL healthcheck canonique :** `https://api.tchalanet.com/api/v1/actuator/health`
+— c'est l'URL unique utilisée partout : smoke, monitoring, Grafana Synthetic,
+runbooks. En interne (Traefik, conteneur) : `http://127.0.0.1:8080/api/v1/actuator/health`.
+
+---
+
+## GO / NO-GO
+
+Promotion vers prod **uniquement si** :
+
+- [ ] CI du SHA cible verte (tous workflows : `server-pr`, `web-pr`, `edge-pr`)
+- [ ] SHA déployé et smoke-testé en staging (gate `verify-production-promotion`)
+- [ ] Secrets prod complets dans Doppler `prd` + GitHub Secrets (Phase 1)
+- [ ] Postgres et Redis non exposés sur le host (override prod, Phase 2)
+- [ ] Dashboard Traefik inaccessible publiquement (router supprimé, Phase 2)
+- [ ] Backup prod opérationnel et testé (Phase 8)
+- [ ] Observabilité prod visible dans Grafana (traces + logs, Phase 7)
+- [ ] Healthcheck canonique vert sur staging : `curl -sf https://api.stg.tchalanet.com/api/v1/actuator/health`
+- [ ] SHA de rollback identifié (tag connu-bon précédent)
+- [ ] Responsable MEP + responsable rollback identifiés
+
+**Un seul item non coché = NO-GO.**
 
 ---
 
@@ -46,11 +69,29 @@ déploiement staging réussi avant d'autoriser le déploiement prod. Le tag
 
 ### 1.2 Doppler `prd` — Secrets manquants
 
-Comparaison `stg` vs `prd` — ces secrets existent en staging mais pas en prod :
+Comparaison `stg` vs `prd` — ces secrets existent en staging mais pas en prod.
+
+**Secrets DB — mapping des consommateurs :**
+
+Les 4 noms servent 3 consommateurs différents. Un seul mot de passe à générer,
+mais les 4 entrées doivent exister dans Doppler `prd` avec la même valeur.
+
+| Nom Doppler | Consommateur | Rôle |
+|---|---|---|
+| `POSTGRES_PASSWORD` | Conteneur `postgres` | Mot de passe du superuser `postgres` (bootstrap) |
+| `APP_DB_PASSWORD` | Script `postgres-init.sh` | Crée/met à jour le user `app_user` dans la DB `tchalanet_db` |
+| `SPRING_DATASOURCE_PASSWORD` | Conteneur `api` (Spring Boot) | Connexion JDBC de l'API au user `app_user` |
+| `DATABASE_PASSWORD` | Legacy / alias | À vérifier — supprimer si non consommé |
+
+> `APP_DB_PASSWORD` et `SPRING_DATASOURCE_PASSWORD` doivent avoir la même
+> valeur (c'est le même user `app_user`). `POSTGRES_PASSWORD` est le superuser,
+> il peut (et devrait) être différent. Lors de la rotation, les 3 consommateurs
+> doivent être mis à jour ensemble.
+
+**Autres secrets manquants :**
 
 | Catégorie | Secrets à créer |
 |---|---|
-| **DB** | `APP_DB_PASSWORD`, `DATABASE_PASSWORD`, `POSTGRES_PASSWORD`, `SPRING_DATASOURCE_PASSWORD` |
 | **Redis** | `REDIS_PASSWORD` |
 | **Firebase** | `FIREBASE_ADMIN_JSON_BASE64`, `FIREBASE_CREDENTIALS_PATH`, `FIREBASE_PROJECT_ID`, `TCH_IDENTITY_PROVIDER` |
 | **Edge** | `EDGE_HMAC_SECRET` |
@@ -87,46 +128,53 @@ nosniff, frameDeny, gzip. Ce qui manque pour prod :
 `traefik/dynamic-src/common/02-middlewares.yaml` :
 
 ```yaml
-rate-limit:
+rate-limit-api:
   rateLimit:
     average: 100
     burst: 200
     period: 1s
+
+rate-limit-auth:
+  rateLimit:
+    average: 10
+    burst: 20
+    period: 1s
 ```
 
-Et l'appliquer au router `api` dans `traefik/env/prod.yaml` :
+Valeurs initiales à ajuster après observation du trafic réel. Deux policies :
+- `rate-limit-api` : endpoints généraux (résultats, catalogue). 100 req/s
+  couvre largement le trafic attendu au lancement.
+- `rate-limit-auth` : endpoints de login/token. Plus restrictif pour limiter
+  le brute-force.
+
+Appliquer au router `api` dans `traefik/env/prod.yaml` :
 
 ```yaml
-middlewares: [secure-headers@file, gzip@file, rate-limit@file]
+middlewares: [secure-headers@file, gzip@file, rate-limit-api@file]
 ```
 
-**Dashboard prod** — le router `traefik-dash` dans `traefik/env/prod.yaml`
-expose le dashboard sur `traefik.tchalanet.com` sans auth. Options :
-- Supprimer le router en prod (recommandé V0).
-- Ou ajouter un middleware `basicAuth` avec credentials hashés.
+**Dashboard prod** — **supprimer** le router `traefik-dash` dans
+`traefik/env/prod.yaml`. Le dashboard n'a pas besoin d'être accessible en prod.
+Pour un diagnostic ponctuel, SSH tunnel (`ssh -L 8080:localhost:8080 prod`).
 
-**Maintenance mode** — préparer un middleware qui renvoie 503 avec une page
-statique, activable en renommant un fichier :
+> **GO/NO-GO** : le dashboard Traefik ne doit pas être accessible publiquement.
 
-```yaml
-# traefik/dynamic-src/common/03-maintenance.yaml.disabled
-maintenance:
-  headers:
-    customResponseHeaders:
-      Retry-After: "3600"
-```
+**Maintenance mode** — Traefik ne supporte pas nativement le renvoi d'une
+réponse 503 statique via un middleware seul. La bonne approche :
 
-Pour activer : `mv 03-maintenance.yaml.disabled 03-maintenance.yaml` et
-remplacer le middleware du router API. Traefik recharge automatiquement
-(`watch: true`).
+1. Préparer un fichier `traefik/maintenance/503.html` avec la page de maintenance.
+2. Créer un router qui capture tout le trafic avec une priorité haute et le
+   redirige vers un micro-service maintenance (ou utiliser le plugin `ContentType`
+   via Traefik local plugins).
+
+En V0, la procédure est plus simple : arrêter les services API/edge (Traefik
+renvoie 502), et poser une page de maintenance côté CF Pages si nécessaire
+(voir section « Switch on / Switch off »).
 
 ### 2.2 Postgres
 
-`postgresql.conf` existant est bon (`data-checksums`, scram-sha-256, WAL, autovacuum, slow query 1s).
-
-**Port exposé** — le compose expose `${POSTGRES_HOST_PORT:-5432}:5432` pour
-le dev IDE. En prod, le supprimer ou forcer `POSTGRES_HOST_PORT` à vide dans
-`envs/prod/compose.env`. Seul le réseau Docker `back` doit y accéder.
+`postgresql.conf` existant est bon (`data-checksums`, scram-sha-256, WAL,
+autovacuum, slow query 1s).
 
 **SSL intra-Docker** — `ssl = off` est acceptable tant que Postgres n'est
 joignable que via le réseau Docker interne (`back-prod`). Traefik gère le TLS
@@ -140,26 +188,46 @@ externe.
 
 Existant bon : password, AOF, maxmemory 256M, LRU, resource limits.
 
-**Port exposé** — même chose que Postgres, supprimer `ports:
-"${REDIS_HOST_PORT:-6379}:6379"` en prod.
-
 **Persistence prod** — `appendfsync everysec` est le bon défaut. Redis est un
 cache (`allkeys-lru`) — la perte complète est tolérable (l'API reconstruit le
 cache).
 
-### 2.4 Compose — ports à verrouiller en prod
+### 2.4 Verrouiller les ports en prod — override compose obligatoire
 
-Ajouter dans `envs/prod/compose.env` :
+Les compose files exposent les ports Postgres et Redis sur le host pour le dev
+IDE. En prod, ces ports **doivent** être supprimés — pas désactivés par une
+variable vide (Compose interpole une chaîne vide, il ne supprime pas le
+mapping).
 
-```bash
-# Disable host-port exposure in prod (services only accessible via Docker network)
-POSTGRES_HOST_PORT=
-REDIS_HOST_PORT=
+Créer `compose/docker-compose-prod-overrides.yml` :
+
+```yaml
+services:
+  postgres:
+    ports: !reset []
+  redis:
+    ports: !reset []
 ```
 
-Et adapter les compose files pour ne pas bind si la variable est vide, ou
-utiliser un override compose prod (`docker-compose-prod-overrides.yml`) qui
-supprime les port mappings.
+Et l'inclure dans la séquence compose prod (`up-prod`). Le `!reset` de
+Compose v2.24+ remplace la liste héritée au lieu de la merger.
+
+Si la version de Compose ne supporte pas `!reset`, utiliser un override
+qui bind sur `127.0.0.1` uniquement (accessible seulement via SSH tunnel) :
+
+```yaml
+services:
+  postgres:
+    ports:
+      - "127.0.0.1:5432:5432"
+  redis:
+    ports:
+      - "127.0.0.1:6379:6379"
+```
+
+> **GO/NO-GO** : Postgres et Redis ne doivent pas être accessibles depuis
+> l'extérieur du serveur. Vérifier avec `ss -tlnp | grep -E '5432|6379'` —
+> seul `127.0.0.1` ou aucun binding.
 
 ---
 
@@ -183,7 +251,7 @@ supprime les port mappings.
   - `api.tchalanet.com` → `<IP prod>` (proxy orange)
   - `edge.tchalanet.com` → `<IP prod>` (proxy orange)
 - [ ] Les portails web sont sur CF Pages — voir Phase 6.
-- [ ] Supprimer ou ne pas créer `traefik.tchalanet.com` en prod (§2.1).
+- [ ] **Ne pas** créer `traefik.tchalanet.com` en prod.
 
 ---
 
@@ -196,7 +264,7 @@ Procédure dans la section « Workflow » en haut de ce document.
 - [ ] `Deploy Runtime Services` production → promote même tag
 - [ ] Vérifier Flyway migrations (logs API au démarrage)
 - [ ] Smoke prod ([RB-04 §5](./RB-04-release-rollback.md)) :
-  - [ ] `GET /actuator/health` → `UP`
+  - [ ] Healthcheck : `curl -sf https://api.tchalanet.com/api/v1/actuator/health`
   - [ ] Login admin OK
   - [ ] Login SellerTerminal OK
   - [ ] Vente ticket test OK
@@ -233,6 +301,9 @@ Procédure dans la section « Workflow » en haut de ce document.
 - [ ] Logs WARN/ERROR dans Grafana Cloud Loki
 - [ ] Dashboard : https://silverkiwi1488.grafana.net
 
+> **GO/NO-GO** : l'observabilité doit être opérationnelle et visible avant
+> de déclarer la MEP terminée.
+
 ---
 
 ## Phase 8 — Backups
@@ -244,6 +315,9 @@ Procédure dans la section « Workflow » en haut de ce document.
 - [ ] Backup manuel → vert (chiffré dans R2)
 - [ ] Planifier backup automatique (cron schedule dans le workflow)
 - [ ] Tester une restauration (sur un env jetable, pas en prod)
+
+> **GO/NO-GO** : au moins un backup prod réussi et une restauration testée
+> avant d'accepter du trafic réel.
 
 ---
 
@@ -265,24 +339,20 @@ Procédure dans la section « Workflow » en haut de ce document.
 1. **API** — sur le serveur prod :
    ```bash
    cd /opt/tchalanet-infra
-   # Arrêter les services runtime (Postgres/Redis restent up)
    docker compose -f <api-compose> stop api edge-service
    ```
-   Traefik renverra 502/503 automatiquement (backend absent).
+   Traefik renvoie 502 (backend absent). Postgres/Redis restent up.
 
-2. **Maintenance page** — activer le middleware maintenance Traefik (§2.1) pour
-   renvoyer une réponse propre au lieu de 502.
-
-3. **CF Pages** — les portails restent accessibles (static), seuls les appels API
-   échouent. Pour une maintenance complète, configurer une page CF Pages
-   `_redirects` qui redirige tout vers `/maintenance.html`.
+2. **CF Pages (optionnel)** — les portails restent accessibles (statique), mais
+   les appels API échouent. Pour une maintenance complète, ajouter un fichier
+   `_redirects` dans le build CF Pages qui redirige tout vers
+   `/maintenance.html` (page statique à préparer dans le repo web).
 
 ### Remettre en service (switch on)
 
-1. Désactiver le middleware maintenance Traefik.
-2. `docker compose -f <api-compose> start api edge-service`
-3. Attendre le healthcheck (`/actuator/health` → UP).
-4. Smoke rapide : vente test + login.
+1. `docker compose -f <api-compose> start api edge-service`
+2. Attendre le healthcheck : `curl -sf https://api.tchalanet.com/api/v1/actuator/health`
+3. Smoke rapide : login + vente test.
 
 ---
 
@@ -307,7 +377,7 @@ gate staging est satisfait car ce tag avait déjà été validé.
 
 | Quoi | Outil | URL / Commande |
 |---|---|---|
-| Health API | Traefik healthcheck + Grafana | `curl https://api.tchalanet.com/api/v1/actuator/health` |
+| Health API | Traefik healthcheck + Grafana | `curl -sf https://api.tchalanet.com/api/v1/actuator/health` |
 | Traces | Grafana Cloud Tempo | https://silverkiwi1488.grafana.net |
 | Logs | Grafana Cloud Loki | idem |
 | Uptime externe | À mettre en place (UptimeRobot / Grafana Synthetic) | — |
@@ -325,7 +395,8 @@ gate staging est satisfait car ce tag avait déjà été validé.
 
 - [ ] Renseigner contacts d'astreinte dans RB-04 §10
 - [ ] Supprimer `LOTTERY_PROXY_SHARED_SECRET` de GitHub Secrets
+- [ ] Vérifier `DATABASE_PASSWORD` dans Doppler — s'il n'est pas consommé, le supprimer
 - [ ] Configurer monitoring uptime externe
 - [ ] Planifier rotation mots de passe prod (DB, Redis, HMAC) — tous les 90 jours
-- [ ] Vérifier les ports exposés (Postgres, Redis) sont bien fermés en prod
+- [ ] Vérifier les ports : `ss -tlnp | grep -E '5432|6379'` — aucun binding public
 - [ ] Premier backup post-MEP comme baseline
