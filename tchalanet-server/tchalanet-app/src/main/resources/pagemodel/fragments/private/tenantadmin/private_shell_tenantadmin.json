@@ -168,7 +168,14 @@
                 "label_key": "nav.admin.seller_configuration",
                 "path": "/app/admin/seller-terminals/commissions",
                 "kind": "internal",
-                "icon": "percent"
+                "icon": "point_of_sale"
+              },
+              {
+                "id": "sellers-limits",
+                "label_key": "nav.admin.seller_limits",
+                "path": "/app/admin/limits/seller-terminal",
+                "kind": "internal",
+                "icon": "shield"
               }
             ]
           },
@@ -195,9 +202,9 @@
                 "icon": "event_available"
               },
               {
-                "id": "draws-past",
-                "label_key": "nav.admin.draws_past",
-                "path": "/app/admin/draws?status=PAST",
+                "id": "draws-closed",
+                "label_key": "nav.admin.draws_closed",
+                "path": "/app/admin/draws?status=CLOSED",
                 "kind": "internal",
                 "icon": "history"
               },
@@ -207,13 +214,6 @@
                 "path": "/app/admin/draws/results",
                 "kind": "internal",
                 "icon": "fact_check"
-              },
-              {
-                "id": "draws-channels",
-                "label_key": "nav.admin.draws_channels",
-                "path": "/app/admin/draws/channels",
-                "kind": "internal",
-                "icon": "settings"
               }
             ]
           },
@@ -231,13 +231,6 @@
                 "kind": "internal",
                 "icon": "today",
                 "active_match": "exact"
-              },
-              {
-                "id": "reports-sales",
-                "label_key": "nav.admin.reports_sales",
-                "path": "/app/admin/reports/sales",
-                "kind": "internal",
-                "icon": "receipt_long"
               },
               {
                 "id": "reports-sellers",
@@ -263,12 +256,64 @@
             ]
           },
           {
+            "id": "limits",
+            "label_key": "nav.admin.limits_section",
+            "path": "/app/admin/limits",
+            "kind": "internal",
+            "icon": "shield",
+            "children": [
+              {
+                "id": "limits-overview",
+                "label_key": "nav.admin.limits_overview",
+                "path": "/app/admin/limits",
+                "kind": "internal",
+                "icon": "dashboard",
+                "active_match": "exact"
+              },
+              {
+                "id": "limits-global",
+                "label_key": "nav.admin.limits_global",
+                "path": "/app/admin/limits/global",
+                "kind": "internal",
+                "icon": "tune"
+              },
+              {
+                "id": "limits-number",
+                "label_key": "nav.admin.limits_number",
+                "path": "/app/admin/limits/number",
+                "kind": "internal",
+                "icon": "pin"
+              },
+              {
+                "id": "limits-draw",
+                "label_key": "nav.admin.limits_draw",
+                "path": "/app/admin/limits/draw",
+                "kind": "internal",
+                "icon": "event"
+              },
+              {
+                "id": "limits-seller",
+                "label_key": "nav.admin.limits_seller",
+                "path": "/app/admin/limits/seller-terminal",
+                "kind": "internal",
+                "icon": "person"
+              }
+            ]
+          },
+          {
             "id": "tickets",
             "label_key": "nav.admin.tickets_section",
             "icon": "confirmation_number",
             "path": "/app/admin/tickets",
             "kind": "internal",
             "children": [
+              {
+                "id": "tickets-sell",
+                "label_key": "nav.admin.tickets_sell",
+                "path": "/app/admin/tickets/sell",
+                "kind": "internal",
+                "icon": "point_of_sale"
+              },
               {
                 "id": "tickets-list",
                 "label_key": "nav.admin.tickets_list",
@@ -278,11 +323,11 @@
                 "active_match": "exact"
               },
               {
-                "id": "tickets-sell",
-                "label_key": "nav.admin.tickets_sell",
-                "path": "/app/admin/tickets/sell",
+                "id": "tickets-verify",
+                "label_key": "nav.admin.tickets_verify",
+                "path": "/app/admin/tickets/verify",
                 "kind": "internal",
-                "icon": "point_of_sale"
+                "icon": "verified"
               }
             ]
           }
@@ -301,12 +346,11 @@
             "kind": "internal"
           },
           {
-            "id": "maryaj-gratis",
-            "label_key": "nav.admin.maryaj_free",
-            "path": "/app/admin/maryaj-gratis",
+            "id": "draws-channels",
+            "label_key": "nav.admin.draws_channels",
+            "path": "/app/admin/draws/channels",
             "kind": "internal",
-            "icon": "redeem",
-            "active_match": "exact"
+            "icon": "settings"
           },
           {
             "id": "games",
@@ -333,55 +377,12 @@
             ]
           },
           {
-            "id": "limits",
-            "label_key": "nav.admin.limits_section",
-            "path": "/app/admin/limits",
+            "id": "maryaj-gratis",
+            "label_key": "nav.admin.maryaj_free",
+            "path": "/app/admin/maryaj-gratis",
             "kind": "internal",
-            "icon": "shield",
-            "children": [
-              {
-                "id": "limits-overview",
-                "label_key": "nav.admin.limits_overview",
-                "path": "/app/admin/limits",
-                "kind": "internal",
-                "icon": "dashboard"
-              },
-              {
-                "id": "limits-system",
-                "label_key": "nav.admin.limits_system",
-                "path": "/app/admin/limits/system",
-                "kind": "internal",
-                "icon": "info"
-              },
-              {
-                "id": "limits-global",
-                "label_key": "nav.admin.limits_global",
-                "path": "/app/admin/limits/global",
-                "kind": "internal",
-                "icon": "tune"
-              },
-              {
-                "id": "limits-seller",
-                "label_key": "nav.admin.limits_seller",
-                "path": "/app/admin/limits/seller-terminal",
-                "kind": "internal",
-                "icon": "person"
-              },
-              {
-                "id": "limits-draw",
-                "label_key": "nav.admin.limits_draw",
-                "path": "/app/admin/limits/draw",
-                "kind": "internal",
-                "icon": "event"
-              },
-              {
-                "id": "limits-number",
-                "label_key": "nav.admin.limits_number",
-                "path": "/app/admin/limits/number",
-                "kind": "internal",
-                "icon": "pin"
-              }
-            ]
+            "icon": "redeem",
+            "active_match": "exact"
           },
           {
             "id": "company",

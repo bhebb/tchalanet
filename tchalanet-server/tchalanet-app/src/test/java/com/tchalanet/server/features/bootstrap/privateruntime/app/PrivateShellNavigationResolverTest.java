@@ -45,10 +45,10 @@ class PrivateShellNavigationResolverTest {
     assertThat(sections).hasSize(2);
     assertThat(itemIds(sections.get(0)))
         .as("operations: what a tenant admin opens every day")
-        .containsExactly("dashboard", "sellers", "draws", "reports", "tickets");
+        .containsExactly("dashboard", "sellers", "draws", "reports", "limits", "tickets");
     assertThat(itemIds(sections.get(1)))
         .as("configuration: rarely-touched setup, kept out of the daily section")
-        .containsExactly("setup", "maryaj-gratis", "games", "limits", "company");
+        .containsExactly("setup", "draws-channels", "games", "maryaj-gratis", "company");
     var sellers = (List<Map<String, Object>>) sections.get(0).get("items");
     var sellersGroup =
         sellers.stream().filter(item -> "sellers".equals(item.get("id"))).findFirst();
@@ -56,6 +56,9 @@ class PrivateShellNavigationResolverTest {
     assertThat(child(sellersGroup.orElseThrow(), "sellers-commissions").get("label_key"))
         .as("the runtime drawer must use the seller-configuration label, not the commission label")
         .isEqualTo("nav.admin.seller_configuration");
+    assertThat(child(sellersGroup.orElseThrow(), "sellers-limits").get("label_key"))
+        .as("seller limits are reachable from the seller/device group")
+        .isEqualTo("nav.admin.seller_limits");
     assertThat(secondary.stream().map(item -> item.get("id")))
         .as("help lives in the drawer footer, not mixed into either section")
         .containsExactly("help");

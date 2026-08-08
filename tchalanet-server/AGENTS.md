@@ -31,8 +31,12 @@ DB migrations: see `docs/conventions/persistence/persistence.md` §9. Pré-go-li
 
 Validation:
 
-- `./mvnw test`, `./mvnw verify`.
-- Focused tests for touched packages. `archUnit` enforces layer rules.
+- For every backend code change, run the focused unit tests first, then the quality gates that
+  match the touched modules: `./mvnw test`, `./mvnw verify`, `./mvnw checkstyle:check`,
+  `./mvnw pmd:check`, and `./mvnw spotbugs:check`.
+- For integration-test work, run the relevant IT/failsafe command in addition to unit tests.
+- If time or environment prevents the full suite, run the narrow module equivalent, report exactly
+  what ran, and call out any skipped gate. `archUnit` enforces layer rules.
 
 Context rule:
 

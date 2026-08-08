@@ -37,8 +37,12 @@ Shared workflow skills: `.agents/skills/` (see `.agents/README.md`).
 
 Validation:
 
-- Existing Flutter/Dart checks for the touched surface (`flutter analyze`, `flutter test`).
-- Document Android/iOS permission impact when relevant.
+- For every mobile change, run the focused Flutter/Dart checks for the touched surface:
+  `flutter analyze` and `flutter test`.
+- When platform integration, permissions, assets, flavors, or release packaging change, also run the
+  relevant Android/iOS build or integration test target.
+- If time or environment prevents the full suite, run the narrow equivalent, report exactly what
+  ran, and call out any skipped gate. Document Android/iOS permission impact when relevant.
 
 Context rule:
 

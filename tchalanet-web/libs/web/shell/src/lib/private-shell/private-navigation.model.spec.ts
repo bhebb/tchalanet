@@ -153,8 +153,9 @@ describe('PLATFORM_NAVIGATION', () => {
     expect(company?.children?.map(child => child.labelKey)).toContain(
       'nav.admin.company_notifications',
     );
-    expect(company?.children?.find(child => child.id === 'company-notifications')?.destination?.value)
-      .toBe('/app/admin/notifications');
+    expect(
+      company?.children?.find(child => child.id === 'company-notifications')?.destination?.value,
+    ).toBe('/app/admin/notifications');
   });
 
   it('points company identity to the business profile and does not expose address separately', () => {
@@ -163,8 +164,9 @@ describe('PLATFORM_NAVIGATION', () => {
 
     expect(setup?.activeRoutes).not.toContain('/app/admin/business-profile');
     expect(company?.destination?.value).toBe('/app/admin/business-profile');
-    expect(company?.children?.find(child => child.id === 'company-identity')?.destination?.value)
-      .toBe('/app/admin/business-profile');
+    expect(
+      company?.children?.find(child => child.id === 'company-identity')?.destination?.value,
+    ).toBe('/app/admin/business-profile');
     expect(company?.children?.map(child => child.id)).not.toContain('company-address');
   });
 
@@ -190,8 +192,9 @@ describe('PLATFORM_NAVIGATION', () => {
     expect(company?.children?.map(child => child.labelKey)).toContain(
       'nav.admin.company_page_models',
     );
-    expect(company?.children?.find(child => child.id === 'company-page-models')?.destination?.value)
-      .toBe('/app/admin/pagemodels');
+    expect(
+      company?.children?.find(child => child.id === 'company-page-models')?.destination?.value,
+    ).toBe('/app/admin/pagemodels');
   });
 
   it('exposes business days under my company', () => {
@@ -202,8 +205,9 @@ describe('PLATFORM_NAVIGATION', () => {
     expect(company?.children?.map(child => child.labelKey)).toContain(
       'nav.admin.company_business_days',
     );
-    expect(company?.children?.find(child => child.id === 'company-business-days')?.destination?.value)
-      .toBe('/app/admin/business-days');
+    expect(
+      company?.children?.find(child => child.id === 'company-business-days')?.destination?.value,
+    ).toBe('/app/admin/business-days');
   });
 
   it('keeps tenant settings under my company instead of using the signed-in admin account menu', () => {
@@ -222,5 +226,49 @@ describe('PLATFORM_NAVIGATION', () => {
 
     expect(overview?.activeMatch).toBe('exact');
     expect(overview?.activeRoutes).toContain('/app/admin/pricing');
+  });
+});
+
+describe('TENANT_ADMIN_NAVIGATION', () => {
+  it('orders the admin menu by daily operations before rare configuration', () => {
+    expect(TENANT_ADMIN_NAVIGATION.map(section => section.id)).toEqual(['admin', 'config']);
+    expect(TENANT_ADMIN_NAVIGATION[0].items.map(item => item.id)).toEqual([
+      'dashboard',
+      'sellers',
+      'draws',
+      'reports',
+      'limits',
+      'tickets',
+    ]);
+    expect(TENANT_ADMIN_NAVIGATION[1].items.map(item => item.id)).toEqual([
+      'setup',
+      'draws-channels',
+      'games',
+      'maryaj-gratis',
+      'company',
+    ]);
+  });
+
+  it('keeps admin ticket selling available without making tickets the first operation', () => {
+    const tickets = adminItem('tickets');
+
+    expect(tickets?.children?.map(child => child.id)).toEqual([
+      'tickets-sell',
+      'tickets-list',
+      'tickets-verify',
+    ]);
+  });
+
+  it('puts draw configuration in configuration and closed draws in operations', () => {
+    const draws = adminItem('draws');
+    const configIds = TENANT_ADMIN_NAVIGATION[1].items.map(item => item.id);
+
+    expect(draws?.children?.map(child => child.id)).toEqual([
+      'draws-all',
+      'draws-open',
+      'draws-closed',
+      'draws-results',
+    ]);
+    expect(configIds).toContain('draws-channels');
   });
 });

@@ -185,8 +185,44 @@
   color: var(--comp-drawer-muted);
   font-size: 0.6875rem;
   font-weight: 800;
-  letter-spacing: 0.08em;
+  letter-spacing: 0;
   text-transform: uppercase;
+}
+
+.drawer-nav__section-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin: 0.75rem 0.75rem 0;
+  min-height: 2.5rem;
+  padding: 0 0.75rem;
+  border: 0;
+  border-radius: var(--tch-radius-md);
+  background: transparent;
+  color: var(--comp-drawer-muted);
+  font: inherit;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-align: start;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.drawer-nav__section-toggle:hover {
+  background: var(--tch-color-surface-container-high);
+  color: var(--tch-color-primary);
+}
+
+.drawer-nav__section-chevron {
+  flex: none;
+  font-size: 1.125rem;
+  transition: transform 0.15s ease;
+}
+
+.drawer-nav__section-toggle[aria-expanded='true'] .drawer-nav__section-chevron {
+  transform: rotate(180deg);
 }
 
 /* ── Panneau de catégorie ──────────────────────────────────────────────── */

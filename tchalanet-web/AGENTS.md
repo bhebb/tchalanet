@@ -86,8 +86,13 @@ OpenSpec:
 
 Validation:
 
-- Use existing Nx/pnpm targets for the touched app or library.
-- Keep validation focused on changed web surfaces.
+- For every web change, run the focused Nx targets for the touched app or library:
+  `pnpm nx lint <project>`, `pnpm nx test <project>`, and `pnpm nx build <app>` when an app
+  surface or shared runtime contract changed.
+- For user-facing flows, run the relevant Playwright target/script such as `pnpm e2e:web`,
+  `pnpm e2e:web:admin`, or the focused `web-e2e` spec when the runtime is available.
+- If time or environment prevents the full suite, run the narrow equivalent, report exactly what
+  ran, and call out any skipped gate.
 
 ## HTTP / API convention
 

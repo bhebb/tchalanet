@@ -10,11 +10,7 @@ import { AUTH_CLIENT, AuthClient } from '@tch/core/auth';
 import { TchBreakpointService } from '@tch/ui/components';
 import { themeStoreProvider } from '@tch/ui/theme';
 
-import {
-  PLATFORM_NAVIGATION,
-  TENANT_ADMIN_FOOTER,
-  TENANT_ADMIN_NAVIGATION,
-} from './private-navigation.model';
+import { PLATFORM_NAVIGATION, TENANT_ADMIN_NAVIGATION } from './private-navigation.model';
 import { PrivateShellLayoutComponent } from './private-shell-layout.component';
 
 const authClient: AuthClient = {
@@ -60,6 +56,17 @@ const SECTIONS: readonly NavigationSection[] = [
       },
     ],
   },
+  {
+    id: 'config',
+    titleKey: 'nav.config',
+    items: [
+      {
+        id: 'setup',
+        labelKey: 'nav.setup',
+        destination: { kind: 'route', value: '/app/admin/setup' },
+      },
+    ],
+  },
 ];
 
 const FOOTER: readonly ActionItem[] = [
@@ -91,6 +98,7 @@ function configure(isWide: Signal<boolean>) {
         { path: 'app/admin', component: Blank },
         { path: 'app/admin/limits', component: Blank },
         { path: 'app/admin/limits/global', component: Blank },
+        { path: 'app/admin/setup', component: Blank },
         { path: 'app/admin/company', component: Blank },
         { path: 'app/admin/company/identity', component: Blank },
       ]),
@@ -169,6 +177,26 @@ describe('private shell drawer — replié (< 840px)', () => {
     const items = all(fixture, '.drawer-nav__panel .drawer-nav__row').map(n => n.textContent);
     expect(items.some(text => text?.includes('nav.limits_global'))).toBe(true);
     expect(items.some(text => text?.includes('nav.limits_overview'))).toBe(true);
+  });
+
+  it('keeps later sections collapsed by default and lets the user open them', async () => {
+    const fixture = await render();
+
+    expect(el(fixture, 'a[href="/app/admin/setup"]')).toBeNull();
+
+    const configToggle = el(fixture, '.drawer-nav__section-toggle');
+    expect(configToggle).not.toBeNull();
+    configToggle?.click();
+    fixture.detectChanges();
+
+    expect(el(fixture, 'a[href="/app/admin/setup"]')).not.toBeNull();
+  });
+
+  it('opens the section holding the active route even when it is usually collapsed', async () => {
+    const fixture = await render('/app/admin/setup');
+
+    expect(el(fixture, 'a[href="/app/admin/setup"]')).not.toBeNull();
+    expect(el(fixture, '.drawer-nav__section-toggle')?.getAttribute('aria-expanded')).toBe('true');
   });
 
   it('closes the category panel before the drawer on Escape', async () => {
