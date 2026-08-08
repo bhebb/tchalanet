@@ -38,7 +38,7 @@
               [compact]="true"
               [facts]="[
                 { label: 'Mode', value: result.modeLabel ?? '—' },
-                { label: 'Récupéré le', value: result.fetchedAtLabel ?? '—' },
+                { label: result.fetchedAtTitle ?? 'Récupéré le', value: result.fetchedAtLabel ?? '—' },
               ]"
             />
           } @else {

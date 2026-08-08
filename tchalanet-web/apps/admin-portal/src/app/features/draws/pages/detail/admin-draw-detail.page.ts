@@ -148,6 +148,7 @@ export class AdminDrawDetailPage implements OnInit, OnDestroy {
         publicationLabel: this.publicationStatusLabel(draw.publicationStatus),
         numbers: draw.numbers ?? [],
         modeLabel: draw.resultMode,
+        fetchedAtTitle: this.resultTimestampTitle(draw),
         fetchedAtLabel: this.fetchedAtLabel(draw),
         emptyLabel: this.resultEmptyLabel(draw),
         sourceErrorLabel: draw.sourceError?.message ?? null,
@@ -431,6 +432,10 @@ export class AdminDrawDetailPage implements OnInit, OnDestroy {
     return draw.fetchedAt
       ? (this.formatLocalDateTime(draw.fetchedAt, draw.timezone) ?? 'Non disponible')
       : 'Non disponible';
+  }
+
+  resultTimestampTitle(draw: GeneratedDrawView): string {
+    return draw.resultMode === 'MANUAL' ? 'Saisi le' : 'Récupéré le';
   }
 
   resultEmptyLabel(draw: GeneratedDrawView): string {

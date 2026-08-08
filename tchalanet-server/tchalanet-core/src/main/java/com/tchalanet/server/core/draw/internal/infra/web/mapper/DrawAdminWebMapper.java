@@ -42,6 +42,7 @@ public interface DrawAdminWebMapper {
     return new HaitiDrawResultSummaryReponse(
         result.id().value().toString(),
         result.occurredAt(),
+        result.fetchedAt(),
         result.status(),
         lotText(haiti, "lot1", "LOT1"),
         lotText(haiti, "lot2", "LOT2"),

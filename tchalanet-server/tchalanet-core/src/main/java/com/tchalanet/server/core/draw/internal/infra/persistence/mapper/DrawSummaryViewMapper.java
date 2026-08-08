@@ -26,6 +26,7 @@ public class DrawSummaryViewMapper {
                 DrawResultId.of(entity.getDrawResultId()),
                 DrawResultStatus.valueOf(entity.getDrawResultStatus()),
                 entity.getDrawResultOccurredAt(),
+                entity.getDrawResultFetchedAt(),
                 entity.getSourceHash(),
                 entity.getHaitiResult());
 

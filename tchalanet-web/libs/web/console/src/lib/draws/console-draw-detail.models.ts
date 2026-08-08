@@ -19,6 +19,7 @@ export interface ConsoleDrawDetailResult {
   readonly numbers?: readonly string[];
   readonly modeLabel?: string | null;
   readonly fetchedAtLabel?: string | null;
+  readonly fetchedAtTitle?: string | null;
   readonly emptyLabel?: string | null;
   readonly sourceErrorLabel?: string | null;
 }

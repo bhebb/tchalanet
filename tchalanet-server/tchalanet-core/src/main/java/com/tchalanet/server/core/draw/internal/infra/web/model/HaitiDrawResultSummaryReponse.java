@@ -6,6 +6,7 @@ import java.time.Instant;
 public record HaitiDrawResultSummaryReponse(
     String id,
     Instant occurredAt,
+    Instant fetchedAt,
     DrawResultStatus status,
     String lot1,
     String lot2,

@@ -100,6 +100,9 @@ public class DrawSummaryViewEntity {
   @Column(name = "draw_result_occurred_at")
   private Instant drawResultOccurredAt;
 
+  @Column(name = "draw_result_fetched_at")
+  private Instant drawResultFetchedAt;
+
   @Column(name = "source_hash")
   private String sourceHash;
 
