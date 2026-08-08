@@ -107,7 +107,15 @@ public class TicketWebMapper {
       java.time.Instant to,
       TchPageRequest pageReq) {
     return new ListTicketsQuery(
-        sellerTerminalId, drawId, status, resultStatus, settlementStatus, winningOnly, q, from, to,
+        sellerTerminalId,
+        drawId,
+        status,
+        resultStatus,
+        settlementStatus,
+        winningOnly,
+        q,
+        from,
+        to,
         pageReq);
   }
 

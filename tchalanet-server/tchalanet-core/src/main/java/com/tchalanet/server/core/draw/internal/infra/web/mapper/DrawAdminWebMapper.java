@@ -43,10 +43,10 @@ public interface DrawAdminWebMapper {
         result.id().value().toString(),
         result.occurredAt(),
         result.status(),
-        text(haiti, "lot1"),
-        text(haiti, "lot2"),
-        text(haiti, "lot3"),
-        text(haiti, "lot4"));
+        lotText(haiti, "lot1", "LOT1"),
+        lotText(haiti, "lot2", "LOT2"),
+        lotText(haiti, "lot3", "LOT3"),
+        lotText(haiti, "lot4", "LOT4"));
   }
 
   @Mapping(target = "id", expression = "java(view.id().value().toString())")
@@ -68,5 +68,14 @@ public interface DrawAdminWebMapper {
     if (value == null) return null;
     var text = String.valueOf(value).trim();
     return text.isBlank() ? null : text;
+  }
+
+  @SuppressWarnings("unchecked")
+  private static String lotText(Map<String, Object> payload, String flatKey, String nestedKey) {
+    var flat = text(payload, flatKey);
+    if (flat != null) return flat;
+    if (payload == null) return null;
+    if (!(payload.get("lots") instanceof Map<?, ?> lots)) return null;
+    return text((Map<String, Object>) lots, nestedKey);
   }
 }
