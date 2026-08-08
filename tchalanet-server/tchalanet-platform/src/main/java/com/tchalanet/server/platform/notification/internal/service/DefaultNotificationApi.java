@@ -1,5 +1,8 @@
 package com.tchalanet.server.platform.notification.internal.service;
 
+import com.tchalanet.server.common.context.TchContext;
+import com.tchalanet.server.common.context.TchContextScope;
+import com.tchalanet.server.common.context.scope.ApiScope;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.web.paging.TchPage;
@@ -36,7 +39,39 @@ class DefaultNotificationApi implements NotificationApi {
 
   @Override
   public void createNotification(CreateNotificationRequest request) {
+    if (request != null && request.tenantId() != null && !hasCurrentTenant(request.tenantId())) {
+      TchContextScope.runWithTemporaryTenant(
+          request.tenantId().value(), requestId("notification-tenant"), () -> doCreate(request));
+      return;
+    }
+    if (request != null && request.tenantId() == null && !hasCurrentPlatformScope()) {
+      TchContextScope.runPlatformSystem(
+          requestId("notification-platform"), () -> doCreate(request));
+      return;
+    }
+    doCreate(request);
+  }
+
+  private void doCreate(CreateNotificationRequest request) {
     notificationService.createNotification(request);
+  }
+
+  private static boolean hasCurrentTenant(TenantId tenantId) {
+    var ctx = TchContext.currentOrNull();
+    return ctx != null && tenantId.value().equals(ctx.tenantUuid());
+  }
+
+  private static boolean hasCurrentPlatformScope() {
+    var ctx = TchContext.currentOrNull();
+    return ctx != null && ctx.apiScope() == ApiScope.PLATFORM && ctx.isSuperAdmin();
+  }
+
+  private static String requestId(String fallback) {
+    var ctx = TchContext.currentOrNull();
+    if (ctx == null || ctx.requestId() == null || ctx.requestId().isBlank()) {
+      return fallback;
+    }
+    return ctx.requestId();
   }
 
   @Override
