@@ -294,6 +294,22 @@ class CashierSellTicketResponse {
   bool get isPending => outcome == 'PENDING_APPROVAL';
   bool get isRejected => outcome == 'REJECTED';
 
+  CashierSellTicketResponse withTicketDetails(
+    CashierTicketDetailsView details,
+  ) => CashierSellTicketResponse(
+    preparationId: preparationId,
+    alreadyConfirmed: alreadyConfirmed,
+    outcome: outcome,
+    ticketId: ticketId ?? details.id,
+    ticketCode: ticketCode.isNotEmpty ? ticketCode : details.ticketCode,
+    publicCode: publicCode ?? details.publicCode,
+    saleStatus: saleStatus ?? details.status,
+    backup: backup,
+    sellerInstruction: sellerInstruction,
+    issues: issues,
+    notices: notices,
+  );
+
   factory CashierSellTicketResponse.fromJson(Map<String, dynamic> json) {
     final sale = json['sale'] as Map<String, dynamic>?;
     final ticket = sale?['ticket'] as Map<String, dynamic>?;
