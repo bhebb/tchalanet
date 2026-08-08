@@ -78,21 +78,15 @@
               />
             </mat-form-field>
 
-            <mat-form-field
-              appearance="outline"
-              subscriptSizing="dynamic"
-              class="tickets-page__provider-filter"
-            >
-              <mat-label>{{ 'admin.tickets.list.filters.provider' | translate }}</mat-label>
-              <mat-select [value]="providerFilter()" (valueChange)="onProviderFilter($event)">
-                <mat-option value="">{{
-                  'admin.tickets.list.filters.allProviders' | translate
-                }}</mat-option>
-                @for (option of providerOptions(); track option.value) {
-                <mat-option [value]="option.value">{{ option.label }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
+            <tch-draw-channel-filter-select
+              class="tickets-page__draw-channel-filter"
+              [providers]="providerMatrix.value()?.providers ?? []"
+              [provider]="providerFilter()"
+              [slotKey]="slotKeyFilter()"
+              [label]="'admin.tickets.list.filters.drawChannel' | translate"
+              [allLabel]="'admin.tickets.list.filters.allDrawChannels' | translate"
+              (selectionChange)="onDrawChannelFilter($event)"
+            />
 
             <mat-form-field
               appearance="outline"

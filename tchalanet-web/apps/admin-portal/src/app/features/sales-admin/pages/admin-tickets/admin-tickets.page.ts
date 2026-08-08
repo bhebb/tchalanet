@@ -43,6 +43,10 @@ import {
 } from '../../../../shared/ticket/admin-ticket-status.util';
 import { PosSaleSuccessDialogComponent } from '../../../pos/sale/components/pos-sale-success-dialog/pos-sale-success-dialog.component';
 import { AdminDrawSalesMatrixApi } from '../../../draw-sales-matrix/data-access/admin-draw-sales-matrix-api.service';
+import {
+  DrawChannelFilterSelectComponent,
+  DrawChannelFilterValue,
+} from '../../../draw-sales-matrix/components/draw-channel-filter-select/draw-channel-filter-select.component';
 
 const SORT_VALUES = [
   'createdAt,DESC',
@@ -79,6 +83,7 @@ type TicketSort = (typeof SORT_VALUES)[number];
     MatInputModule,
     MatSelectModule,
     MatTableModule,
+    DrawChannelFilterSelectComponent,
   ],
   templateUrl: './admin-tickets.page.html',
   styleUrls: ['./admin-tickets.page.scss'],
@@ -139,17 +144,6 @@ export class AdminTicketsPage {
   readonly providerFilter = computed(() => providerParam(this.queryParamMap().get('provider')));
   readonly slotKeyFilter = computed(() => slotKeyParam(this.queryParamMap().get('slotKey')));
   readonly providerMatrix = this.drawSalesMatrix.getMatrixResource({ suppressShellFeedback: true });
-  readonly providerOptions = computed(() => {
-    const selectedProvider = this.providerFilter();
-    const providers = (this.providerMatrix.value()?.providers ?? [])
-      .filter(provider => provider.slots.some(slot => slot.channel?.active || slot.slotReady))
-      .map(provider => provider.providerCode)
-      .filter((provider, index, values) => values.indexOf(provider) === index);
-    if (selectedProvider && !providers.includes(selectedProvider)) {
-      providers.push(selectedProvider);
-    }
-    return providers.sort().map(provider => ({ value: provider, label: provider }));
-  });
   readonly resultFilter = computed<TicketResultStatus | 'WINNING' | ''>(() => {
     if (this.queryParamMap().get('winningOnly') === 'true') return 'WINNING';
     const status = this.queryParamMap().get('resultStatus');
@@ -230,8 +224,12 @@ export class AdminTicketsPage {
     this.navigateList({ status: status || null, page: null });
   }
 
-  onProviderFilter(provider: string): void {
-    this.navigateList({ provider: provider || null, page: null });
+  onDrawChannelFilter(selection: DrawChannelFilterValue): void {
+    this.navigateList({
+      provider: selection.provider || null,
+      slotKey: selection.slotKey || null,
+      page: null,
+    });
   }
 
   onResultFilter(status: TicketResultStatus | 'WINNING' | ''): void {

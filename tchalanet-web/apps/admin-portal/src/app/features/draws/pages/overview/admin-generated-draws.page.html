@@ -55,6 +55,15 @@
       >
         <ng-container list-filters>
           <div class="gd-page__filters-body">
+            <tch-draw-channel-filter-select
+              [providers]="providerMatrix.value()?.providers ?? []"
+              [provider]="providerFilter()"
+              [slotKey]="slotKeyFilter()"
+              label="Tirage"
+              allLabel="Tous les tirages"
+              (selectionChange)="onDrawChannelFilter($event)"
+            />
+
             <div class="gd-page__date-chips">
               @for (preset of datePresets; track preset.key) {
                 <button

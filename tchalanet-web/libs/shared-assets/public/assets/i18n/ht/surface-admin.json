@@ -180,6 +180,8 @@
           "winningOnly": "Gayan sèlman",
           "provider": "Provider",
           "allProviders": "Tout provider yo",
+          "drawChannel": "Tiraj",
+          "allDrawChannels": "Tout tiraj yo",
           "from": "Soti",
           "to": "Rive",
           "sort": "Triye"

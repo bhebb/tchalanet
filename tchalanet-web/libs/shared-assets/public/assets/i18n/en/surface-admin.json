@@ -180,6 +180,8 @@
           "winningOnly": "Winners only",
           "provider": "Provider",
           "allProviders": "All providers",
+          "drawChannel": "Draw",
+          "allDrawChannels": "All draws",
           "from": "From",
           "to": "To",
           "sort": "Sort"

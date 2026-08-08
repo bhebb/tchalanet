@@ -13,8 +13,8 @@
     width: 180px;
   }
 
-  &__provider-filter {
-    width: 170px;
+  &__draw-channel-filter {
+    width: 220px;
   }
 
   &__table {
@@ -73,7 +73,7 @@
 @include ui.down(expanded) {
   .tickets-page {
     &__date-filter,
-    &__provider-filter,
+    &__draw-channel-filter,
     &__sort-filter,
     &__result-filter {
       width: 100%;
