@@ -81,6 +81,22 @@
             <mat-form-field
               appearance="outline"
               subscriptSizing="dynamic"
+              class="tickets-page__provider-filter"
+            >
+              <mat-label>{{ 'admin.tickets.list.filters.provider' | translate }}</mat-label>
+              <mat-select [value]="providerFilter()" (valueChange)="onProviderFilter($event)">
+                <mat-option value="">{{
+                  'admin.tickets.list.filters.allProviders' | translate
+                }}</mat-option>
+                @for (option of providerOptions(); track option.value) {
+                <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field
+              appearance="outline"
+              subscriptSizing="dynamic"
               class="tickets-page__sort-filter"
             >
               <mat-label>{{ 'admin.tickets.list.filters.sort' | translate }}</mat-label>

@@ -113,6 +113,10 @@ public class TicketProjectionReaderAdapter implements TicketProjectionReaderPort
       if (settlementStatus != null) {
         predicates.add(cb.equal(root.get("settlementStatus"), settlementStatus));
       }
+      var provider = normalizeProvider(query.provider());
+      if (provider != null) {
+        predicates.add(cb.equal(cb.upper(root.<String>get("resultProvider")), provider));
+      }
       if (Boolean.TRUE.equals(query.winningOnly())) {
         predicates.add(cb.equal(root.get("resultStatus"), TicketResultStatus.WON));
         predicates.add(cb.greaterThan(root.<BigDecimal>get("winningAmount"), BigDecimal.ZERO));
@@ -152,6 +156,13 @@ public class TicketProjectionReaderAdapter implements TicketProjectionReaderPort
       }
       return cb.and(predicates.toArray(Predicate[]::new));
     };
+  }
+
+  private static String normalizeProvider(String provider) {
+    if (provider == null || provider.isBlank()) {
+      return null;
+    }
+    return provider.trim().toUpperCase(java.util.Locale.ROOT);
   }
 
   private Pageable toSafePageable(Pageable pageable) {
