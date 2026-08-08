@@ -1,0 +1,14 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.draw-channel-filter {
+  width: 100%;
+}
+
+.draw-channel-filter__hint {
+  color: var(--tch-color-on-surface-variant);
+  font-size: 0.75rem;
+  margin-left: 0.375rem;
+}

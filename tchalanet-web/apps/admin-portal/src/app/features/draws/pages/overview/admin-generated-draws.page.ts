@@ -50,7 +50,11 @@ import {
   consoleDrawResultStatusLabel,
   consoleDrawStatusLabel,
 } from '@tch/web/console';
-
+import { AdminDrawSalesMatrixApi } from '../../../draw-sales-matrix/data-access/admin-draw-sales-matrix-api.service';
+import {
+  DrawChannelFilterSelectComponent,
+  DrawChannelFilterValue,
+} from '../../../draw-sales-matrix/components/draw-channel-filter-select/draw-channel-filter-select.component';
 
 const LIFECYCLE_LABELS: Record<DrawLifecycleAction, string> = {
   open: 'Ouvert',
@@ -92,6 +96,7 @@ interface LifecycleInput {
     GeneratedDrawsSummaryComponent,
     GeneratedDrawsTableComponent,
     DrawResultDrawerComponent,
+    DrawChannelFilterSelectComponent,
   ],
   templateUrl: './admin-generated-draws.page.html',
   styleUrls: ['./admin-generated-draws.page.scss'],
@@ -102,6 +107,7 @@ export class AdminGeneratedDrawsPage {
   private readonly route = inject(ActivatedRoute);
   private readonly dialog = inject(MatDialog);
   private readonly access = inject(AccessService);
+  private readonly drawSalesMatrix = inject(AdminDrawSalesMatrixApi);
 
   /**
    * Today on the tenant's calendar — `businessDate` and the from/to filters are channel-local,
@@ -149,12 +155,17 @@ export class AdminGeneratedDrawsPage {
   readonly statusFilter = computed<DrawStatusFilter>(() =>
     statusFilterFromQuery(this.qp().get('status')),
   );
+  readonly providerFilter = computed(() => providerParam(this.qp().get('provider')));
+  readonly slotKeyFilter = computed(() => slotKeyParam(this.qp().get('slotKey')));
+  readonly providerMatrix = this.drawSalesMatrix.getMatrixResource({ suppressShellFeedback: true });
   readonly searchQuery = computed(() => this.qp().get('q')?.trim() ?? '');
   readonly hasActiveFilters = computed(
     () =>
       this.hasCustomDateRange() ||
       this.datePreset() !== 'LAST_48H' ||
       this.statusFilter() !== 'all' ||
+      !!this.providerFilter() ||
+      !!this.slotKeyFilter() ||
       !!this.searchQuery(),
   );
   readonly statusFilterOptions = computed<readonly AdminListStatusOption[]>(() =>
@@ -189,7 +200,12 @@ export class AdminGeneratedDrawsPage {
       this.draws.value()?.items ?? [],
       this.statusFilter(),
     );
-    return this.api.filterDrawsByQuery(statusFiltered, this.searchQuery());
+    const channelFiltered = filterDrawsByChannel(
+      statusFiltered,
+      this.providerFilter(),
+      this.slotKeyFilter(),
+    );
+    return this.api.filterDrawsByQuery(channelFiltered, this.searchQuery());
   });
   readonly totalElements = computed(() => this.draws.value()?.totalElements ?? 0);
   /**
@@ -326,6 +342,14 @@ export class AdminGeneratedDrawsPage {
     this.onStatusFilter(statusFilterFromQuery(status));
   }
 
+  onDrawChannelFilter(selection: DrawChannelFilterValue): void {
+    this.navigate({
+      provider: selection.provider || null,
+      slotKey: selection.slotKey || null,
+      page: null,
+    });
+  }
+
   // ── Cartes KPI → filtres ─────────────────────────────────────────────────────
   onKpiToday(): void {
     this.onDatePreset('TODAY');
@@ -365,7 +389,16 @@ export class AdminGeneratedDrawsPage {
   }
 
   resetFilters(): void {
-    this.navigate({ date: null, from: null, to: null, status: null, q: null, page: null });
+    this.navigate({
+      date: null,
+      from: null,
+      to: null,
+      status: null,
+      provider: null,
+      slotKey: null,
+      q: null,
+      page: null,
+    });
   }
 
   onNextPage(): void {
@@ -592,4 +625,29 @@ function numberParam(value: string | null, fallback: number): number {
   if (value === null || value.trim() === '') return fallback;
   const parsed = Number(value);
   return Number.isInteger(parsed) && parsed >= 0 ? parsed : fallback;
+}
+
+function providerParam(value: string | null): string {
+  if (value === null) return '';
+  const provider = value.trim().toUpperCase();
+  return /^[A-Z]{2,8}$/.test(provider) ? provider : '';
+}
+
+function slotKeyParam(value: string | null): string {
+  if (value === null) return '';
+  const slotKey = value.trim().toUpperCase();
+  return /^[A-Z0-9_-]{2,64}$/.test(slotKey) ? slotKey : '';
+}
+
+function filterDrawsByChannel(
+  draws: readonly GeneratedDrawView[],
+  provider: string,
+  slotKey: string,
+): GeneratedDrawView[] {
+  if (!provider && !slotKey) return [...draws];
+  return draws.filter(draw => {
+    const providerMatches = !provider || draw.providerCode.toUpperCase() === provider;
+    const slotMatches = !slotKey || draw.slotKey.toUpperCase() === slotKey;
+    return providerMatches && slotMatches;
+  });
 }
