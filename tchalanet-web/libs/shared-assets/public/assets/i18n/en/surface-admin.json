@@ -178,6 +178,8 @@
           "result": "Result",
           "allResults": "All",
           "winningOnly": "Winners only",
+          "provider": "Provider",
+          "allProviders": "All providers",
           "from": "From",
           "to": "To",
           "sort": "Sort"

@@ -47,6 +47,8 @@ export interface AdminTicketListParams {
   readonly status?: string;
   readonly resultStatus?: string;
   readonly settlementStatus?: string;
+  readonly provider?: string;
+  readonly slotKey?: string;
   readonly winningOnly?: boolean;
   readonly q?: string;
   readonly from?: string;
@@ -123,6 +125,8 @@ function ticketListQueryParams(params: AdminTicketListParams): Record<string, st
     ...(params.status ? { status: params.status } : {}),
     ...(params.resultStatus ? { resultStatus: params.resultStatus } : {}),
     ...(params.settlementStatus ? { settlementStatus: params.settlementStatus } : {}),
+    ...(params.provider ? { provider: params.provider } : {}),
+    ...(params.slotKey ? { slotKey: params.slotKey } : {}),
     ...(params.winningOnly ? { winningOnly: 'true' } : {}),
     ...(params.q ? { q: params.q } : {}),
     ...(params.from ? { from: params.from } : {}),

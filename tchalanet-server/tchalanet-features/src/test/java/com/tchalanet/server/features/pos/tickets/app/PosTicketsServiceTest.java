@@ -86,6 +86,8 @@ class PosTicketsServiceTest {
             null,
             null,
             null,
+            null,
+            null,
             PageRequest.of(0, 20));
 
     var query = ArgumentCaptor.forClass(ListTicketsQuery.class);
@@ -105,6 +107,8 @@ class PosTicketsServiceTest {
         .listTickets(
             context(tenantId, currentTerminalId, TchActorType.SELLER_TERMINAL),
             requestedTerminalId,
+            null,
+            null,
             null,
             null,
             null,
@@ -139,11 +143,41 @@ class PosTicketsServiceTest {
             null,
             null,
             null,
+            null,
+            null,
             PageRequest.of(0, 20));
 
     var query = ArgumentCaptor.forClass(ListTicketsQuery.class);
     verify(queryBus).ask(query.capture());
     assertThat(query.getValue().sellerTerminalId()).isEqualTo(adminTerminalId);
+  }
+
+  @Test
+  void tenantAdminCanFilterTicketsByProvider() {
+    var tenantId = TenantId.of(UUID.randomUUID());
+    var queryBus = mock(QueryBus.class);
+    when(queryBus.ask(any(ListTicketsQuery.class))).thenReturn(emptyTicketPage());
+
+    service(queryBus)
+        .listTickets(
+            context(tenantId, null, TchActorType.APP_USER),
+            null,
+            null,
+            null,
+            null,
+            null,
+            "PA",
+            "TN_MID",
+            null,
+            null,
+            null,
+            null,
+            PageRequest.of(0, 20));
+
+    var query = ArgumentCaptor.forClass(ListTicketsQuery.class);
+    verify(queryBus).ask(query.capture());
+    assertThat(query.getValue().provider()).isEqualTo("PA");
+    assertThat(query.getValue().slotKey()).isEqualTo("TN_MID");
   }
 
   private static TchPage<TicketRow> emptyTicketPage() {

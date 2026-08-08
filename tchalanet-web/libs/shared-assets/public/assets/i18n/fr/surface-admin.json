@@ -178,6 +178,8 @@
           "result": "Résultat",
           "allResults": "Tous",
           "winningOnly": "Gagnants seulement",
+          "provider": "Provider",
+          "allProviders": "Tous les providers",
           "from": "Du",
           "to": "Au",
           "sort": "Tri"

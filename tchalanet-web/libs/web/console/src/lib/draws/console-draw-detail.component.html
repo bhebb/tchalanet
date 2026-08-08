@@ -11,21 +11,7 @@
 >
   <ng-container main>
     @if (view(); as draw) {
-      <tch-admin-section-card title="Tirage" icon="event">
-        <div class="console-draw-detail__hero">
-          <tch-console-draw-slot-identity [identity]="draw.identity" />
-          @if (draw.statusLabel) {
-            <tch-admin-status-pill
-              [label]="draw.statusLabel"
-              [tone]="draw.statusTone ?? 'neutral'"
-            />
-          }
-        </div>
-
-        @if ((draw.overviewFacts?.length ?? 0) > 0) {
-          <tch-console-facts [facts]="draw.overviewFacts ?? []" />
-        }
-      </tch-admin-section-card>
+      <ng-content select="[main]" />
 
       @if (draw.result; as result) {
         <tch-admin-section-card title="Résultat" icon="fact_check">
@@ -69,6 +55,22 @@
           }
         </tch-admin-section-card>
       }
+
+      <tch-admin-section-card title="Tirage" icon="event">
+        <div class="console-draw-detail__hero">
+          <tch-console-draw-slot-identity [identity]="draw.identity" />
+          @if (draw.statusLabel) {
+            <tch-admin-status-pill
+              [label]="draw.statusLabel"
+              [tone]="draw.statusTone ?? 'neutral'"
+            />
+          }
+        </div>
+
+        @if ((draw.overviewFacts?.length ?? 0) > 0) {
+          <tch-console-facts [facts]="draw.overviewFacts ?? []" />
+        }
+      </tch-admin-section-card>
 
       @for (section of draw.sections ?? []; track section.id) {
         <tch-admin-section-card [title]="section.title" [icon]="section.icon ?? 'view_list'">
@@ -115,8 +117,6 @@
           }
         </tch-admin-section-card>
       }
-
-      <ng-content select="[main]" />
     }
   </ng-container>
 

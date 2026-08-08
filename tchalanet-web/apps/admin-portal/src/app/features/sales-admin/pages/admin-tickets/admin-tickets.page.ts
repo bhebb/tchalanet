@@ -42,6 +42,7 @@ import {
   ticketStatusTone,
 } from '../../../../shared/ticket/admin-ticket-status.util';
 import { PosSaleSuccessDialogComponent } from '../../../pos/sale/components/pos-sale-success-dialog/pos-sale-success-dialog.component';
+import { AdminDrawSalesMatrixApi } from '../../../draw-sales-matrix/data-access/admin-draw-sales-matrix-api.service';
 
 const SORT_VALUES = [
   'createdAt,DESC',
@@ -84,6 +85,7 @@ type TicketSort = (typeof SORT_VALUES)[number];
 })
 export class AdminTicketsPage {
   private readonly api = inject(AdminTicketsApi);
+  private readonly drawSalesMatrix = inject(AdminDrawSalesMatrixApi);
   private readonly dialog = inject(MatDialog);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -125,7 +127,6 @@ export class AdminTicketsPage {
     { value: 'PENDING', labelKey: 'admin.tickets.resultStatus.pending' },
     { value: 'OVERRIDDEN', labelKey: 'admin.tickets.resultStatus.overridden' },
   ];
-
   private readonly queryParamMap = toSignal(this.route.queryParamMap, {
     initialValue: this.route.snapshot.queryParamMap,
   });
@@ -135,6 +136,20 @@ export class AdminTicketsPage {
     return isTicketStatus(status) ? status : '';
   });
   readonly drawIdFilter = computed(() => uuidParam(this.queryParamMap().get('drawId')));
+  readonly providerFilter = computed(() => providerParam(this.queryParamMap().get('provider')));
+  readonly slotKeyFilter = computed(() => slotKeyParam(this.queryParamMap().get('slotKey')));
+  readonly providerMatrix = this.drawSalesMatrix.getMatrixResource({ suppressShellFeedback: true });
+  readonly providerOptions = computed(() => {
+    const selectedProvider = this.providerFilter();
+    const providers = (this.providerMatrix.value()?.providers ?? [])
+      .filter(provider => provider.slots.some(slot => slot.channel?.active || slot.slotReady))
+      .map(provider => provider.providerCode)
+      .filter((provider, index, values) => values.indexOf(provider) === index);
+    if (selectedProvider && !providers.includes(selectedProvider)) {
+      providers.push(selectedProvider);
+    }
+    return providers.sort().map(provider => ({ value: provider, label: provider }));
+  });
   readonly resultFilter = computed<TicketResultStatus | 'WINNING' | ''>(() => {
     if (this.queryParamMap().get('winningOnly') === 'true') return 'WINNING';
     const status = this.queryParamMap().get('resultStatus');
@@ -156,6 +171,8 @@ export class AdminTicketsPage {
   readonly hasActiveFilters = computed(
     () =>
       !!this.drawIdFilter() ||
+      !!this.providerFilter() ||
+      !!this.slotKeyFilter() ||
       !!this.statusFilter() ||
       !!this.resultFilter() ||
       !!this.fromFilter() ||
@@ -168,6 +185,8 @@ export class AdminTicketsPage {
       const resultFilter = this.resultFilter();
       return {
         drawId: this.drawIdFilter() || undefined,
+        provider: this.providerFilter() || undefined,
+        slotKey: this.slotKeyFilter() || undefined,
         status: this.statusFilter() || undefined,
         resultStatus: resultFilter && resultFilter !== 'WINNING' ? resultFilter : undefined,
         winningOnly: resultFilter === 'WINNING',
@@ -211,6 +230,10 @@ export class AdminTicketsPage {
     this.navigateList({ status: status || null, page: null });
   }
 
+  onProviderFilter(provider: string): void {
+    this.navigateList({ provider: provider || null, page: null });
+  }
+
   onResultFilter(status: TicketResultStatus | 'WINNING' | ''): void {
     this.navigateList({
       resultStatus: status && status !== 'WINNING' ? status : null,
@@ -239,6 +262,8 @@ export class AdminTicketsPage {
   resetFilters(): void {
     this.navigateList({
       drawId: null,
+      provider: null,
+      slotKey: null,
       q: null,
       status: null,
       resultStatus: null,
@@ -319,6 +344,8 @@ export class AdminTicketsPage {
 
   private navigateList(params: {
     readonly drawId?: string | null;
+    readonly provider?: string | null;
+    readonly slotKey?: string | null;
     readonly status?: TicketStatus | null;
     readonly resultStatus?: TicketResultStatus | null;
     readonly winningOnly?: string | null;
@@ -363,4 +390,16 @@ function uuidParam(value: string | null): string {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)
     ? value
     : '';
+}
+
+function providerParam(value: string | null): string {
+  if (value === null) return '';
+  const provider = value.trim().toUpperCase();
+  return /^[A-Z]{2,8}$/.test(provider) ? provider : '';
+}
+
+function slotKeyParam(value: string | null): string {
+  if (value === null) return '';
+  const slotKey = value.trim().toUpperCase();
+  return /^[A-Z0-9_-]{2,64}$/.test(slotKey) ? slotKey : '';
 }

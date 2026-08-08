@@ -21,42 +21,55 @@
     <p class="draw-detail-activity__notice">{{ hint }}</p>
   }
 
-  <div class="draw-detail-activity__grid">
-    <div class="draw-detail-activity__metric">
-      <span>Tickets vendus</span>
-      <strong>{{ report.ticketsSold | number: '1.0-0' }}</strong>
-    </div>
-    <div class="draw-detail-activity__metric">
-      <span>Montant vendu</span>
-      <strong>{{ report.grossSales | number: '1.0-2' }} HTG</strong>
-    </div>
-    <a
-      class="draw-detail-activity__metric draw-detail-activity__metric--link"
-      routerLink="/app/admin/reports/draws"
-      [queryParams]="view().sellersReportQueryParams"
-    >
-      <span>Vendeurs actifs</span>
-      <strong>{{ report.activeSellerCount | number: '1.0-0' }}</strong>
-    </a>
-    <div class="draw-detail-activity__metric">
-      <span>Commission estimée</span>
-      <strong>{{ report.sellerCommission | number: '1.0-2' }} HTG</strong>
-    </div>
-    <div class="draw-detail-activity__metric">
-      <span>Net estimé</span>
-      <strong>{{ report.netRevenueEstimated | number: '1.0-2' }} HTG</strong>
-    </div>
-    <div class="draw-detail-activity__metric">
-      <span>Promo base</span>
-      <strong>{{ report.promotionPayoutBase | number: '1.0-2' }} HTG</strong>
-    </div>
-  </div>
+  <section class="tch-metric-grid draw-detail-activity__kpis" aria-label="Indicateurs du tirage">
+    <tch-admin-metric-card
+      icon="confirmation_number"
+      label="Tickets vendus"
+      [value]="(report.ticketsSold | number: '1.0-0') ?? '0'"
+    />
+    <tch-admin-metric-card
+      icon="payments"
+      tone="accent"
+      label="Montant vendu"
+      [value]="(report.grossSales | number: '1.0-2') ?? '0'"
+      hint="HTG"
+    />
+    <tch-admin-metric-card
+      icon="groups"
+      tone="info"
+      label="Vendeurs actifs"
+      [value]="(report.activeSellerCount | number: '1.0-0') ?? '0'"
+      [interactive]="true"
+      actionLabel="Voir les vendeurs du tirage"
+      (action)="openSellersReport()"
+    />
+    <tch-admin-metric-card
+      icon="percent"
+      label="Commission estimée"
+      [value]="(report.sellerCommission | number: '1.0-2') ?? '0'"
+      hint="HTG"
+    />
+    <tch-admin-metric-card
+      icon="account_balance"
+      tone="positive"
+      label="Net estimé"
+      [value]="(report.netRevenueEstimated | number: '1.0-2') ?? '0'"
+      hint="HTG"
+    />
+    <tch-admin-metric-card
+      icon="redeem"
+      tone="warning"
+      label="Promo base"
+      [value]="(report.promotionPayoutBase | number: '1.0-2') ?? '0'"
+      hint="HTG"
+    />
+  </section>
 
   <div class="draw-detail-activity__hot">
     <div class="draw-detail-activity__hot-head">
       <div>
-        <p class="draw-detail-activity__eyebrow">Sélections chaudes</p>
-        <h3>Top 5 du tirage</h3>
+        <p class="draw-detail-activity__eyebrow">{{ topSelectionsEyebrow() }}</p>
+        <h3>{{ topSelectionsTitle() }}</h3>
       </div>
       @if (view().topSelectionsState === 'loading') {
         <span>Chargement...</span>
@@ -79,7 +92,7 @@
               selection.displaySelection
             }}</span>
             <span class="draw-detail-activity__hot-game"
-              >{{ selection.gameCode }} · {{ selection.betType }}</span
+              >{{ topSelectionGameLabel(selection) }} · {{ topSelectionBetLabel(selection) }}</span
             >
             <strong>{{ topSelectionStake(selection) | number: '1.0-2' }} HTG</strong>
           </li>

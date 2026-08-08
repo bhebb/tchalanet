@@ -178,6 +178,8 @@
           "result": "Rezilta",
           "allResults": "Tout",
           "winningOnly": "Gayan sèlman",
+          "provider": "Provider",
+          "allProviders": "Tout provider yo",
           "from": "Soti",
           "to": "Rive",
           "sort": "Triye"

@@ -13,6 +13,10 @@
     width: 180px;
   }
 
+  &__provider-filter {
+    width: 170px;
+  }
+
   &__table {
     overflow-x: auto;
 
@@ -69,6 +73,7 @@
 @include ui.down(expanded) {
   .tickets-page {
     &__date-filter,
+    &__provider-filter,
     &__sort-filter,
     &__result-filter {
       width: 100%;
