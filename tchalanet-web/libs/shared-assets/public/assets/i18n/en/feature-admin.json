@@ -1666,36 +1666,55 @@
     "generatedDraws": {
       "title": "Generated draws",
       "description": "Track generated draws, their sales status and expected results.",
+      "titleByFilter": {
+        "open": "Open draws",
+        "past": "Past draws",
+        "closed": "Closed draws",
+        "confirmed": "Confirmed draws",
+        "expected": "Expected results"
+      },
       "summary": {
-        "today": "Aujourd'hui",
+        "today": "Today",
         "salesOpen": "Sales open",
         "resultsExpected": "Expected results",
         "confirmed": "Confirmed"
       },
       "datePresets": {
-        "today": "Aujourd'hui",
-        "tomorrow": "Demain",
+        "last48h": "Last 48 hours",
+        "today": "Today",
+        "tomorrow": "Tomorrow",
         "thisWeek": "This week"
       },
       "statusFilters": {
         "all": "All statuses",
         "open": "Open for sales",
+        "past": "Finished / to process",
         "expected": "Expected results",
         "missing": "Missing results",
         "confirmed": "Confirmed",
         "sourceError": "Source error"
       },
+      "filters": {
+        "search": "Search",
+        "searchPlaceholder": "Search provider, slot...",
+        "status": "Status",
+        "reset": "Reset",
+        "draw": "Draw",
+        "allDraws": "All draws",
+        "from": "From",
+        "to": "To"
+      },
       "salesStatus": {
-        "UPCOMING": "À venir",
+        "UPCOMING": "Upcoming",
         "OPEN": "Sales open",
         "CLOSED": "Sales closed",
         "CANCELLED": "Cancelled"
       },
       "resultStatus": {
-        "NOT_DUE": "Pas attendu",
+        "NOT_DUE": "Not due",
         "EXPECTED": "Expected",
         "MISSING": "Missing",
-        "PROVISIONAL": "Provisoire",
+        "PROVISIONAL": "Provisional",
         "CONFIRMED": "Confirmed",
         "SOURCE_ERROR": "Source error"
       },
@@ -1704,12 +1723,42 @@
       },
       "actions": {
         "refresh": "Refresh",
+        "more": "Actions",
         "planNextDraws": "Schedule upcoming draws",
-        "configureDrawChannels": "Configure draw channels",
+        "configureDrawChannels": "Configure draws",
         "enterResult": "Enter result",
         "viewResult": "View result",
         "verify": "Verify",
         "viewDetails": "View details"
+      },
+      "loading": "Loading draws...",
+      "feedback": {
+        "actionImpossible": "Action unavailable",
+        "actionDone": "Action completed"
+      },
+      "empty": {
+        "title": "No generated draws for this period.",
+        "message": "Adjust filters or schedule the next draws."
+      },
+      "result": {
+        "confirmed": "Result confirmed and published.",
+        "provisional": "Result saved as provisional."
+      },
+      "resultUnavailable": {
+        "alreadyExists": "The result already exists. Only a super admin can correct it.",
+        "noPermission": "You do not have permission to enter a manual result.",
+        "notDue": "Manual result entry will be available 30 minutes after the scheduled draw time."
+      },
+      "lifecycle": {
+        "open": "opened",
+        "close": "closed",
+        "cancel": "cancelled",
+        "lock": "locked",
+        "unlock": "unlocked",
+        "settle": "settled",
+        "archive": "archived",
+        "updatedMany": "{{count}} draws updated successfully.",
+        "updatedOne": "Draw {{action}} successfully."
       }
     },
     "pos": {
@@ -1893,7 +1942,62 @@
       }
     },
     "drawResults": {
+      "title": "Draw results",
+      "description": "Review results, search by slot and verify the history applied to the operator.",
+      "loading": "Loading...",
+      "action": {
+        "refresh": "Refresh",
+        "detail": "View details"
+      },
+      "timezone": {
+        "local": "Local timezone:"
+      },
+      "filters": {
+        "title": "Filters",
+        "searchPlaceholder": "Search a slot...",
+        "status": "Status",
+        "quality": "Quality",
+        "from": "From",
+        "to": "To",
+        "allStatuses": "All statuses",
+        "allQualities": "All qualities"
+      },
+      "empty": {
+        "title": "No results",
+        "message": "No results found for the selected filters."
+      },
       "detail": {
+        "titleFallback": "Result details",
+        "descriptionFallback": "Review the result applied to this draw.",
+        "drawFallback": "Draw",
+        "loading": "Loading result...",
+        "summary": "Summary",
+        "action": {
+          "backToDraws": "Draws",
+          "drawDetail": "Draw details"
+        },
+        "fact": {
+          "status": "Status",
+          "quality": "Quality",
+          "draw": "Draw",
+          "slot": "Slot",
+          "slotLabel": "Slot label",
+          "date": "Date",
+          "appliedAt": "Applied at",
+          "publishedAt": "Published at",
+          "officialTime": "Official time",
+          "enteredAt": "Entered at",
+          "fetchedAt": "Fetched at"
+        },
+        "value": {
+          "notApplied": "Not applied",
+          "notPublished": "Not published"
+        },
+        "error": {
+          "notFoundTitle": "Result not found",
+          "missingId": "No result identifier was provided.",
+          "notFoundMessage": "The result was not found for this draw. Return to the draw details or refresh the page."
+        },
         "tab": {
           "results": "Results",
           "combinations": "Combinations & rules",

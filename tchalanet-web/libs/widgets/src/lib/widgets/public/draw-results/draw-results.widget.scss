@@ -110,6 +110,13 @@ tch-card.latest-results-widget__item {
   font-style: italic;
 }
 
+.latest-results-widget__provider-note {
+  margin: -0.25rem 0 0;
+  color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+  font-size: var(--tch-font-size-label-sm, 0.75rem);
+  line-height: 1.35;
+}
+
 .latest-results-widget__awaiting {
   margin: 0;
   display: flex;

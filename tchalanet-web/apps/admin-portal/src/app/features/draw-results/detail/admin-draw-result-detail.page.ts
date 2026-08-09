@@ -112,12 +112,12 @@ export class AdminDrawResultDetailPage implements OnInit {
       identity?.providerCode,
       identity?.channelShortName,
       identity?.slotLabel,
-      'Détail du résultat',
+      this.translate.instant('admin.drawResults.detail.titleFallback'),
     );
   });
   readonly description = computed(() => {
     const result = this.result();
-    if (!result) return 'Consultez le résultat appliqué à ce tirage.';
+    if (!result) return this.translate.instant('admin.drawResults.detail.descriptionFallback');
     const identity = this.drawIdentity();
     return [
       firstText(
@@ -125,7 +125,7 @@ export class AdminDrawResultDetailPage implements OnInit {
         identity?.channelName,
         result.channelName,
         result.provider,
-        'Tirage',
+        this.translate.instant('admin.drawResults.detail.drawFallback'),
       ),
       firstText(identity?.slotLabel),
       result.drawDate ?? result.resultDate ?? '—',
@@ -146,13 +146,28 @@ export class AdminDrawResultDetailPage implements OnInit {
   });
   readonly detailError = computed(() =>
     this.errorTitle()
-      ? { title: this.errorTitle() ?? 'Problème détecté', message: this.errorMessage() ?? '' }
+      ? {
+          title:
+            this.errorTitle() ??
+            this.translate.instant('common.errors.fallback.title'),
+          message: this.errorMessage() ?? '',
+        }
       : null,
   );
   readonly detailActions = computed(() => {
-    const actions = [{ id: 'back', label: 'Tirages', icon: 'arrow_back' }];
+    const actions = [
+      {
+        id: 'back',
+        label: this.translate.instant('admin.drawResults.detail.action.backToDraws'),
+        icon: 'arrow_back',
+      },
+    ];
     if (this.result()?.drawId) {
-      actions.push({ id: 'draw', label: 'Détail du tirage', icon: 'event' });
+      actions.push({
+        id: 'draw',
+        label: this.translate.instant('admin.drawResults.detail.action.drawDetail'),
+        icon: 'event',
+      });
     }
     return actions;
   });
@@ -161,11 +176,11 @@ export class AdminDrawResultDetailPage implements OnInit {
     const result = this.result();
     if (!result) return [];
     return [
-      { label: 'Statut', value: this.statusLabel(result.status) },
-      { label: 'Qualité', value: this.qualityLabel(result.quality) },
-      { label: 'Tirage', value: result.drawDate ?? result.resultDate ?? '—' },
+      { label: this.translate.instant('admin.drawResults.detail.fact.status'), value: this.statusLabel(result.status) },
+      { label: this.translate.instant('admin.drawResults.detail.fact.quality'), value: this.qualityLabel(result.quality) },
+      { label: this.translate.instant('admin.drawResults.detail.fact.draw'), value: result.drawDate ?? result.resultDate ?? '—' },
       {
-        label: 'Slot',
+        label: this.translate.instant('admin.drawResults.detail.fact.slot'),
         value: this.drawIdentity()?.slotLabel ?? result.slotLabel ?? result.slotKey ?? '—',
       },
     ];
@@ -174,15 +189,19 @@ export class AdminDrawResultDetailPage implements OnInit {
     const result = this.result();
     if (!result) return [];
     return [
-      { label: 'Statut', value: this.statusLabel(result.status) },
-      { label: 'Qualité', value: this.qualityLabel(result.quality) },
+      { label: this.translate.instant('admin.drawResults.detail.fact.status'), value: this.statusLabel(result.status) },
+      { label: this.translate.instant('admin.drawResults.detail.fact.quality'), value: this.qualityLabel(result.quality) },
       {
-        label: 'Appliqué le',
-        value: result.appliedAt ? this.formatDate(result.appliedAt) : 'Non appliqué',
+        label: this.translate.instant('admin.drawResults.detail.fact.appliedAt'),
+        value: result.appliedAt
+          ? this.formatDate(result.appliedAt)
+          : this.translate.instant('admin.drawResults.detail.value.notApplied'),
       },
       {
-        label: 'Publié le',
-        value: result.publishedAt ? this.formatDate(result.publishedAt) : 'Non publié',
+        label: this.translate.instant('admin.drawResults.detail.fact.publishedAt'),
+        value: result.publishedAt
+          ? this.formatDate(result.publishedAt)
+          : this.translate.instant('admin.drawResults.detail.value.notPublished'),
       },
     ];
   });
@@ -190,12 +209,14 @@ export class AdminDrawResultDetailPage implements OnInit {
     const result = this.result();
     if (!result) return [];
     return [
-      { label: 'Slot', value: result.slotKey ?? '—', code: true },
-      { label: 'Créneau', value: result.slotLabel ?? '—' },
-      { label: 'Date', value: result.drawDate ?? result.resultDate ?? '—' },
+      { label: this.translate.instant('admin.drawResults.detail.fact.slot'), value: result.slotKey ?? '—', code: true },
+      { label: this.translate.instant('admin.drawResults.detail.fact.slotLabel'), value: result.slotLabel ?? '—' },
+      { label: this.translate.instant('admin.drawResults.detail.fact.date'), value: result.drawDate ?? result.resultDate ?? '—' },
       {
-        label: 'Heure officielle',
-        value: result.occurredAt ? this.formatDate(result.occurredAt) : 'Non disponible',
+        label: this.translate.instant('admin.drawResults.detail.fact.officialTime'),
+        value: result.occurredAt
+          ? this.formatDate(result.occurredAt)
+          : this.translate.instant('common.not_available'),
       },
       {
         label: this.resultTimestampTitle(result),
@@ -214,7 +235,10 @@ export class AdminDrawResultDetailPage implements OnInit {
     const drawDate = this.route.snapshot.queryParamMap.get('drawDate') ?? undefined;
 
     if (!resultId) {
-      this.setError('Résultat introuvable', 'Aucun identifiant de résultat n’a été fourni.');
+      this.setError(
+        this.translate.instant('admin.drawResults.detail.error.notFoundTitle'),
+        this.translate.instant('admin.drawResults.detail.error.missingId'),
+      );
       return;
     }
 
@@ -238,8 +262,8 @@ export class AdminDrawResultDetailPage implements OnInit {
           const result = page.items.find(item => item.id === resultId);
           if (!result) {
             this.setError(
-              'Résultat introuvable',
-              'Le résultat n’a pas été trouvé pour ce tirage. Revenez au détail du tirage ou rafraîchissez la page.',
+              this.translate.instant('admin.drawResults.detail.error.notFoundTitle'),
+              this.translate.instant('admin.drawResults.detail.error.notFoundMessage'),
             );
             return;
           }
@@ -271,12 +295,14 @@ export class AdminDrawResultDetailPage implements OnInit {
   }
 
   resultTimestampTitle(result: DrawResultView): string {
-    return result.source === 'MANUAL' ? 'Saisi le' : 'Récupéré le';
+    return result.source === 'MANUAL'
+      ? this.translate.instant('admin.drawResults.detail.fact.enteredAt')
+      : this.translate.instant('admin.drawResults.detail.fact.fetchedAt');
   }
 
   resultTimestampValue(result: DrawResultView): string {
     const timestamp = result.fetchedAt ?? result.publishedAt ?? result.appliedAt;
-    return timestamp ? this.formatDate(timestamp) : 'Non disponible';
+    return timestamp ? this.formatDate(timestamp) : this.translate.instant('common.not_available');
   }
 
   onDetailAction(event: ConsoleEntityDetailActionEvent): void {
@@ -284,11 +310,13 @@ export class AdminDrawResultDetailPage implements OnInit {
       case 'back':
         void this.router.navigate(['/app/admin/draws']);
         break;
-      case 'draw':
-        if (this.result()?.drawId) {
-          void this.router.navigate(['/app/admin/draws', this.result()!.drawId]);
+      case 'draw': {
+        const drawId = this.result()?.drawId;
+        if (drawId) {
+          void this.router.navigate(['/app/admin/draws', drawId]);
         }
         break;
+      }
     }
   }
 

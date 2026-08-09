@@ -446,6 +446,7 @@
       "subtitle": "Confirmed results according to supported sources.",
       "verify_ticket": "Verify a ticket",
       "numbers_pending": "Numbers pending publication.",
+      "ca_mid_daily4_unavailable": "California does not publish Daily4 for the midday draw, so lot2 and lot3 are unavailable.",
       "loading": "Loading draws…",
       "load_error": "Unable to load results. Please check your connection.",
       "pagination": {

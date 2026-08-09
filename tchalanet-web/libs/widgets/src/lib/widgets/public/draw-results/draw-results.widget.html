@@ -36,6 +36,11 @@
                 <span class="latest-results-widget__number">{{ n }}</span>
               }
             </div>
+            @if (shouldShowCaMiddayDaily4Note(slot)) {
+              <p class="latest-results-widget__provider-note">
+                {{ 'public.results.ca_mid_daily4_unavailable' | tchLabel }}
+              </p>
+            }
           } @else {
             <p class="latest-results-widget__no-numbers">
               {{ 'public.results.numbers_pending' | tchLabel }}

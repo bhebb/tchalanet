@@ -157,6 +157,10 @@ export class PublicDrawResultsWidget {
     return extractNumbers(slot);
   }
 
+  shouldShowCaMiddayDaily4Note(slot: DrawResultItem): boolean {
+    return isCaliforniaMidday(slot.slotKey) && this.numbers(slot).length > 0 && this.numbers(slot).length < 4;
+  }
+
   detailHref(slot: DrawResultItem): string | null {
     if (slot.detailPath) return slot.detailPath;
     const id = slot.drawResultId ?? slot.latest?.drawResultId;
@@ -175,6 +179,10 @@ function extractNumbers(slot: DrawResultItem): readonly string[] {
     ...(slot.latest?.source?.pick3?.main ?? []),
     ...(slot.latest?.source?.pick4?.main ?? []),
   ];
+}
+
+function isCaliforniaMidday(slotKey: string | undefined): boolean {
+  return (slotKey ?? '').trim().toUpperCase() === 'CA_MID';
 }
 
 function occurredAtMs(slot: DrawResultItem): number {

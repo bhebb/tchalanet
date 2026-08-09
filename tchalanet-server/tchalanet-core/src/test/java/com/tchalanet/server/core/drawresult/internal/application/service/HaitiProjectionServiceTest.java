@@ -72,6 +72,29 @@ class HaitiProjectionServiceTest {
     assertThat(text(result.haitiResult(), "lot4")).isEqualTo("98");
   }
 
+  @Test
+  void pick3OnlyIsOkWhenPick4IsNotExpected() {
+    var slot = slot();
+    when(configPort.resolve(slot.projectionCfg())).thenReturn(null);
+
+    var result =
+        service.project(
+            slot,
+            LocalDate.parse("2026-07-20"),
+            ResolvedExternalResults.of(pick3("865"), null, null),
+            new ResultSlotSourceConfig(
+                "MIDDAY",
+                new ResultSlotSourceConfig.SourceGame("DAILY3", true),
+                new ResultSlotSourceConfig.SourceGame("DAILY4", false),
+                ResultSlotSourceConfig.TrustPolicy.TRUST_PROVIDER));
+
+    assertThat(result.flags().projectionOk()).isTrue();
+    assertThat(text(result.haitiResult(), "lot1")).isEqualTo("865");
+    assertThat(text(result.haitiResult(), "lot2")).isEmpty();
+    assertThat(text(result.haitiResult(), "lot3")).isEmpty();
+    assertThat(text(result.haitiResult(), "lot4")).isEqualTo("86");
+  }
+
   private ResultSlotView slot() {
     return new ResultSlotView(
         ResultSlotId.of(UUID.randomUUID()),

@@ -75,6 +75,11 @@
                 <span class="result-detail__number">{{ number }}</span>
               }
             </div>
+            @if (showCaMiddayDaily4Note()) {
+              <p class="result-detail__provider-note">
+                {{ 'public.results.ca_mid_daily4_unavailable' | translate }}
+              </p>
+            }
           } @else {
             <p class="result-detail__no-numbers">
               {{ 'public.results.numbers_pending' | translate }}

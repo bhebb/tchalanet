@@ -446,6 +446,7 @@
       "subtitle": "Résultats confirmés selon les sources prises en charge.",
       "verify_ticket": "Vérifier un ticket",
       "numbers_pending": "Numéros en attente de publication.",
+      "ca_mid_daily4_unavailable": "La Californie ne publie pas Daily4 pour le tirage de midi, donc les lots 2 et 3 ne sont pas disponibles.",
       "loading": "Chargement des tirages…",
       "load_error": "Impossible de charger les résultats. Vérifiez votre connexion.",
       "pagination": {
