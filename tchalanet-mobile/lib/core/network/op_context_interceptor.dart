@@ -11,14 +11,16 @@ class OpContextInterceptor extends Interceptor {
   const OpContextInterceptor();
 
   static const _headerDeviceBinding = 'X-Device-Binding';
+  static const _headerSurface = 'X-Tch-Surface';
+  static const _mobilePosSurface = 'MOBILE_POS';
 
   @override
-  void onRequest(
-    RequestOptions options,
-    RequestInterceptorHandler handler,
-  ) {
-    if (options.path.startsWith('/tenant/') && posDeviceBinding.isNotEmpty) {
-      options.headers[_headerDeviceBinding] = posDeviceBinding;
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    if (options.path.startsWith('/tenant/')) {
+      options.headers.putIfAbsent(_headerSurface, () => _mobilePosSurface);
+      if (posDeviceBinding.isNotEmpty) {
+        options.headers[_headerDeviceBinding] = posDeviceBinding;
+      }
     }
     handler.next(options);
   }
