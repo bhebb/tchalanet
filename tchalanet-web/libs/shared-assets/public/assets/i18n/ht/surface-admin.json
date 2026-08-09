@@ -119,8 +119,8 @@
     "dashboard": "Tablo debò",
     "tenant_overview": "Apèsi",
     "users": "Itilizatè",
-    "outlets": "Tèminal POS",
-    "seller-terminals": "Tèminal POS",
+    "outlets": "Machann",
+    "seller-terminals": "Machann",
     "connexions": "Koneksyon",
     "tickets_sales": "Tikè & vant",
     "draws": "Tiraj",
@@ -236,9 +236,9 @@
           "emptyMessage": "Dènye tikè vann yo ap parèt isit la."
         },
         "topTerminals": {
-          "title": "Pi bon tèminal POS jodi a",
-          "emptyTitle": "Pa gen tèminal POS aktif",
-          "emptyMessage": "Tèminal POS yo ap parèt isit la apre analiz yo."
+          "title": "Pi bon machann jodi a",
+          "emptyTitle": "Pa gen machann aktif",
+          "emptyMessage": "Machann yo ap parèt isit la apre analiz yo."
         }
       }
     }

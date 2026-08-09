@@ -9,7 +9,7 @@ import { forkJoin } from 'rxjs';
 import { AdminPageShellComponent, AdminSectionCardComponent } from '@tch/ui/console';
 import { TchEmptyState, TchErrorPanel, TchLoading } from '@tch/ui/components';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { consoleBetOptionLabel, consoleBetTypeLabel, consoleGameIdentity } from '@tch/web/console';
 
 import {
@@ -43,6 +43,7 @@ interface OverrideGroup {
     TchEmptyState,
     TchErrorPanel,
     TchLoading,
+    TranslatePipe,
   ],
   templateUrl: './admin-seller-terminal-overrides.page.html',
   styleUrls: ['./admin-seller-terminal-overrides.page.scss'],

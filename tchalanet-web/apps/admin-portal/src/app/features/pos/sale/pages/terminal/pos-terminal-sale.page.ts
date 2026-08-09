@@ -173,8 +173,8 @@ export class PosTerminalSalePage implements OnInit {
   readonly confirmDisabledReason = computed(() => {
     if (this.confirmedTicket()) return 'Ticket déjà vendu. Créez un nouveau ticket pour continuer.';
     if (this.saving()) return 'Vente en cours de confirmation.';
-    if (!this.sellerTerminal()) return 'Terminal vendeur non chargé.';
-    if (this.isTerminalBlocked()) return 'Ce terminal vendeur ne peut pas vendre.';
+    if (!this.sellerTerminal()) return 'Machann non chargé.';
+    if (this.isTerminalBlocked()) return 'Ce machann ne peut pas vendre.';
     if (!this.availableSelectedDraw()) return 'Sélectionnez un tirage disponible à la vente.';
     if (this.lines().length === 0) return 'Ajoutez au moins un numéro au ticket.';
     if (!this.lines().every(l => l.selection.trim().length > 0 && l.stakeAmount > 0)) {

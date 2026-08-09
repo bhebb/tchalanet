@@ -1,5 +1,5 @@
 <mat-dialog-content>
-  <tch-admin-section-card title="Nouveau terminal vendeur" icon="point_of_sale">
+  <tch-admin-section-card [title]="'admin.sellerTerminals.new.title' | translate" icon="point_of_sale">
     <form [formGroup]="form" (ngSubmit)="submit()" class="create-seller-terminal-dialog__form">
       @if (error(); as pageError) {
         <tch-error-panel [title]="pageError.title" [message]="pageError.message" />
@@ -7,28 +7,28 @@
       <tch-form-error-summary [messages]="formSummary()" />
 
       <mat-form-field appearance="outline" class="create-seller-terminal-dialog__field">
-        <mat-label>Code terminal vendeur</mat-label>
-        <input matInput formControlName="terminalCode" placeholder="ex: ST-001" />
+        <mat-label>{{ 'admin.sellerTerminals.new.field.terminalCode' | translate }}</mat-label>
+        <input matInput formControlName="terminalCode" [placeholder]="'admin.sellerTerminals.new.placeholder.terminalCode' | translate" />
       </mat-form-field>
       <tch-field-error [control]="form.controls.terminalCode" />
 
       <mat-form-field appearance="outline" class="create-seller-terminal-dialog__field">
-        <mat-label>Nom affiché</mat-label>
-        <input matInput formControlName="displayName" placeholder="ex: Jean Pierre" />
+        <mat-label>{{ 'admin.sellerTerminals.new.field.displayName' | translate }}</mat-label>
+        <input matInput formControlName="displayName" [placeholder]="'admin.sellerTerminals.new.placeholder.displayName' | translate" />
       </mat-form-field>
       <tch-field-error [control]="form.controls.displayName" />
 
       <div class="create-seller-terminal-dialog__two-col">
         <div class="create-seller-terminal-dialog__field-stack">
           <mat-form-field appearance="outline">
-            <mat-label>Prénom (optionnel)</mat-label>
+            <mat-label>{{ 'admin.sellerTerminals.new.field.firstName' | translate }}</mat-label>
             <input matInput formControlName="firstName" />
           </mat-form-field>
           <tch-field-error [control]="form.controls.firstName" />
         </div>
         <div class="create-seller-terminal-dialog__field-stack">
           <mat-form-field appearance="outline">
-            <mat-label>Nom de famille (optionnel)</mat-label>
+            <mat-label>{{ 'admin.sellerTerminals.new.field.lastName' | translate }}</mat-label>
             <input matInput formControlName="lastName" />
           </mat-form-field>
           <tch-field-error [control]="form.controls.lastName" />
@@ -38,28 +38,28 @@
       <div class="create-seller-terminal-dialog__two-col">
         <div class="create-seller-terminal-dialog__field-stack">
           <mat-form-field appearance="outline">
-            <mat-label>Email (optionnel)</mat-label>
-            <input matInput formControlName="email" type="email" placeholder="vendeur@exemple.com" />
+            <mat-label>{{ 'admin.sellerTerminals.new.field.email' | translate }}</mat-label>
+            <input matInput formControlName="email" type="email" [placeholder]="'admin.sellerTerminals.new.placeholder.email' | translate" />
           </mat-form-field>
           <tch-field-error [control]="form.controls.email" />
         </div>
         <div class="create-seller-terminal-dialog__field-stack">
           <mat-form-field appearance="outline">
-            <mat-label>Téléphone (optionnel)</mat-label>
-            <input matInput formControlName="phoneNumber" type="tel" placeholder="+509 XXXX XXXX" />
+            <mat-label>{{ 'admin.sellerTerminals.new.field.phoneNumber' | translate }}</mat-label>
+            <input matInput formControlName="phoneNumber" type="tel" [placeholder]="'admin.sellerTerminals.new.placeholder.phoneNumber' | translate" />
           </mat-form-field>
           <tch-field-error [control]="form.controls.phoneNumber" />
         </div>
       </div>
 
       <mat-form-field appearance="outline" class="create-seller-terminal-dialog__field">
-        <mat-label>Taux de commission % (optionnel)</mat-label>
+        <mat-label>{{ 'admin.sellerTerminals.new.field.commissionRate' | translate }}</mat-label>
         <input matInput formControlName="commissionRate" type="number" min="0" max="100" step="0.01" />
       </mat-form-field>
       <tch-field-error [control]="form.controls.commissionRate" />
 
       <mat-form-field appearance="outline" class="create-seller-terminal-dialog__field">
-        <mat-label>PIN initial</mat-label>
+        <mat-label>{{ 'admin.sellerTerminals.new.field.initialPin' | translate }}</mat-label>
         <input
           matInput
           formControlName="initialPin"
@@ -67,18 +67,18 @@
           inputmode="numeric"
           minlength="6"
           maxlength="6"
-          placeholder="6 chiffres"
+          [placeholder]="'admin.sellerTerminals.new.placeholder.pin' | translate"
         />
       </mat-form-field>
       <tch-field-error [control]="form.controls.initialPin" />
 
       <div class="create-seller-terminal-dialog__actions">
-        <button mat-button type="button" mat-dialog-close>Annuler</button>
+        <button mat-button type="button" mat-dialog-close>{{ 'admin.sellerTerminals.new.action.cancel' | translate }}</button>
         <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || saving()">
           @if (saving()) {
             <span class="material-symbols-outlined spin" aria-hidden="true">progress_activity</span>
           }
-          Créer le terminal vendeur
+          {{ 'admin.sellerTerminals.new.action.create' | translate }}
         </button>
       </div>
     </form>
