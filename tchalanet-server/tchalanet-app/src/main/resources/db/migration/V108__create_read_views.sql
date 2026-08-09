@@ -126,7 +126,6 @@ SELECT d.id              AS draw_id,
        dr.id             AS draw_result_id,
        dr.status         AS draw_result_status,
        dr.occurred_at    AS draw_result_occurred_at,
-       dr.fetched_at     AS draw_result_fetched_at,
        dr.source_hash,
        dr.haiti_result   AS haiti_result
 
