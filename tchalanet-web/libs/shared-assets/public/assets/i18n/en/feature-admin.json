@@ -1475,7 +1475,7 @@
         "action": {
           "backToSeller": "Back to seller",
           "save": "Save",
-          "revertToTenant": "Revert to tenant"
+          "revertToTenant": "Revert to client workspace"
         },
         "loading": "Loading special rules...",
         "error": {
@@ -1483,13 +1483,13 @@
           "message": "Unable to load payout rules and special rules for this seller."
         },
         "empty": {
-          "title": "No tenant payout rules",
+          "title": "No client workspace payout rules",
           "message": "Configure global payout rules before creating a seller special rule."
         },
         "field": {
-          "tenant": "Tenant",
+          "tenant": "Client workspace",
           "overrideActive": "Special rule active",
-          "inheritsTenant": "Inherits tenant"
+          "inheritsTenant": "Inherits client workspace"
         }
       },
       "status": {

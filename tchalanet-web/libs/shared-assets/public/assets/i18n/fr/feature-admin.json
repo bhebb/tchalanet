@@ -1855,7 +1855,7 @@
         "action": {
           "backToSeller": "Retour vendeur",
           "save": "Enregistrer",
-          "revertToTenant": "Revenir tenant"
+          "revertToTenant": "Revenir à l'espace client"
         },
         "loading": "Chargement des règles spéciales...",
         "error": {
@@ -1863,13 +1863,13 @@
           "message": "Impossible de charger les barèmes et règles spéciales de ce vendeur."
         },
         "empty": {
-          "title": "Aucun barème tenant",
+          "title": "Aucun barème espace client",
           "message": "Configurez d'abord les barèmes globaux avant de créer une règle spéciale vendeur."
         },
         "field": {
-          "tenant": "Tenant",
+          "tenant": "Espace client",
           "overrideActive": "Règle spéciale active",
-          "inheritsTenant": "Hérite du tenant"
+          "inheritsTenant": "Hérite de l'espace client"
         }
       },
       "status": {
