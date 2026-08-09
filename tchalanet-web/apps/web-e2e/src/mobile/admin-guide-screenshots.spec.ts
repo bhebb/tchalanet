@@ -35,6 +35,9 @@ test.describe('admin guide mobile screenshots', () => {
   test.beforeEach(async ({ loginPage, apiStub }) => {
     mkdirSync(screenshotDir, { recursive: true });
     await apiStub.privateBootstrap(tenantAdminPrivateBootstrap);
+    await apiStub.adminSellerTerminalDetail();
+    await apiStub.adminSellerConfiguration();
+    await apiStub.posSale();
     await loginPage.login(creds!);
   });
 
@@ -54,6 +57,9 @@ test.describe('admin guide mobile screenshots', () => {
       ['06-limites', '/app/admin/limits/global'],
       ['07-rapport-machann', '/app/admin/reports/sellers'],
       ['08-notifications', '/app/admin/notifications'],
+      ['09-vann-ak-machin-pos', '/app/admin/pos/sale/stub-terminal-1'],
+      ['10-fich-machann', '/app/admin/seller-terminals/stub-terminal-1'],
+      ['11-reg-espesyal-machann', '/app/admin/seller-terminals/stub-terminal-1/overrides'],
     ] as const;
 
     for (const [name, route] of screens) {
