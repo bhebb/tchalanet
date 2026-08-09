@@ -66,5 +66,14 @@ test.describe('admin guide mobile screenshots', () => {
       await page.goto(route);
       await capture(page, name);
     }
+
+    await page.goto('/app/admin/limits/number');
+    await capture(page, '06a-bloquer-numero');
+
+    await page.locator('.limits-number__action-card').first().getByRole('button').click();
+    await expect(page.getByTestId('limit-selection-input')).toBeVisible();
+    await page.getByTestId('limit-selection-input').fill('13');
+    await page.keyboard.press('Enter');
+    await capture(page, '06b-formulaire-bloquer-numero');
   });
 });
