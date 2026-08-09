@@ -1,6 +1,7 @@
 package com.tchalanet.server.platform.notification.internal.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 
@@ -22,6 +23,16 @@ class DefaultNotificationApiTest {
   @AfterEach
   void clearContext() {
     TchContext.clear();
+  }
+
+  @Test
+  void createNotificationRejectsNullRequest() {
+    var captured = new CapturedContext();
+    var api = api(captured);
+
+    assertThatNullPointerException()
+        .isThrownBy(() -> api.createNotification(null))
+        .withMessage("request");
   }
 
   @Test
