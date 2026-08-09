@@ -31,10 +31,16 @@ class FirebaseAuthTokenClient implements AuthTokenClient {
   Future<User?> _currentUser() async {
     final current = _auth.currentUser;
     if (current != null) return current;
-    return _auth.authStateChanges().first.timeout(
-      _firebaseUserRestoreTimeout,
-      onTimeout: () => null,
-    );
+    try {
+      return await _auth
+          .authStateChanges()
+          .where((user) => user != null)
+          .cast<User>()
+          .first
+          .timeout(_firebaseUserRestoreTimeout);
+    } on TimeoutException {
+      return null;
+    }
   }
 
   Future<AuthTokenData> _tokens(
