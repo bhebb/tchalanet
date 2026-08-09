@@ -391,8 +391,9 @@ class SellController extends Notifier<SellState> {
       final response = await ref
           .read(cashierTicketServiceProvider)
           .confirm(preview.preparationId!, idempotencyKey: _idempotencyKey);
-      if (response.isSold) {
-        state = SellSuccess(response);
+      final completed = await _hydrateReplayTicketIfNeeded(response);
+      if (completed.isSold) {
+        state = SellSuccess(completed);
       } else {
         state = SellReady(
           form,
@@ -406,6 +407,25 @@ class SellController extends Notifier<SellState> {
         previewResult: preview,
         errorKeys: userErrorTranslationKeys(e),
       );
+    }
+  }
+
+  Future<CashierSellTicketResponse> _hydrateReplayTicketIfNeeded(
+    CashierSellTicketResponse response,
+  ) async {
+    final ticketId = response.ticketId;
+    if (!response.alreadyConfirmed ||
+        ticketId == null ||
+        response.ticketCode.isNotEmpty) {
+      return response;
+    }
+    try {
+      final details = await ref
+          .read(cashierTicketServiceProvider)
+          .getDetails(ticketId);
+      return response.withTicketDetails(details);
+    } catch (_) {
+      return response;
     }
   }
 
