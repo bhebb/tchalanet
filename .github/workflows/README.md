@@ -81,6 +81,11 @@ Construit un **APK Android release signé**, pointé sur le backend choisi et le
 **vrai Firebase `tchalanet`** (le même projet que admin/web), puis le
 publie sur **Firebase App Distribution**. Déclenchement **manuel uniquement**.
 
+Ce workflow est réservé à QA/staging interne. Pour vendeurs, clients pilotes et
+prod, viser Google Play (`internal`, `closed`, puis `production`) afin d'éviter
+les installations APK manuelles et les explications "mode dev / sources
+inconnues".
+
 ### Inputs (valeurs passées au lancement)
 
 | Input | Défaut | Rôle |
@@ -88,7 +93,7 @@ publie sur **Firebase App Distribution**. Déclenchement **manuel uniquement**.
 | `api_base_url` | `https://api.stg.tchalanet.com/api/v1` | **Lien vers l'API** ciblée par le build (`--dart-define=API_BASE_URL`). Inclure `/api/v1`. |
 | `terminal_email_domain` | `terminal.stg.tchalanet.com` | Domaine e-mail des logins terminal — **doit correspondre au seeding backend**. |
 | `pos_device_binding` | `` (vide) | `POS_DEVICE_BINDING`. Laisser vide sauf si un credential device est requis. |
-| `build_name` | `1.0.0-stg` | `versionName` lisible. Le `versionCode` est `github.run_number` (auto-incrément). |
+| `build_name` | `1.0.0-stg` | `versionName` lisible. Temporaire : doit devenir auto-généré depuis `pubspec.yaml` + canal. |
 | `tester_groups` | `staging` | Groupes de testeurs App Distribution (alias séparés par virgule). |
 | `release_notes` | `Staging build` | Notes affichées aux testeurs. |
 
@@ -137,8 +142,8 @@ Dans Firebase Console → projet `tchalanet` :
 1. Ajouter l'app Android `com.tchalanet.mobile` si elle n'existe pas déjà.
 2. Récupérer l'**App ID Android** (`1:...:android:...`) et le mettre dans la variable
    repo `FIREBASE_ANDROID_APP_ID` si différent du défaut du workflow.
-3. Activer **App Distribution** et créer les groupes `staging` puis, si besoin,
-   `ops`, `qa`, `client-pilot`.
+3. Activer **App Distribution** et créer les groupes internes `staging`, puis si
+   besoin `ops` et `qa`.
 4. Ajouter les testeurs par email dans les groupes.
 5. Créer ou réutiliser un service account avec le rôle
    **Firebase App Distribution Admin**. Encoder son JSON en base64 et le stocker
@@ -174,14 +179,54 @@ Le workflow n'est pas limité au staging : passer un autre `api_base_url` (et le
 `terminal_email_domain` correspondant) distribue un build pointé ailleurs, tant
 que ce backend valide les tokens du **vrai** Firebase `tchalanet`.
 
-> Note flotte prod : App Distribution reste un canal **beta** (invitations,
-> builds expirant à 30 j). Pour une flotte de terminaux en production, évaluer
-> Managed Google Play / MDM (auto-update forcé + mode kiosque).
+> Note flotte prod : App Distribution reste un canal **beta**. Les invitations
+> testeurs expirent après 30 jours si elles ne sont pas acceptées, et les releases
+> App Distribution sont disponibles 150 jours dans Firebase. Pour une flotte de
+> terminaux en production, préparer Google Play / Managed Google Play ou un MDM
+> pour avoir installation professionnelle, mises à jour et contrôle de flotte.
 
-### Préparer Google Play plus tard
+### Versioning mobile cible
 
-Firebase App Distribution est le bon canal pour staging/pilotes rapides. Pour
-Google Play, préparer sans l'activer tout de suite :
+Objectif : ne plus devoir se souvenir de la dernière version au moment de lancer
+une distribution.
+
+Le workflow staging actuel utilise `github.run_number` comme `versionCode`. C'est
+acceptable pour un seul workflow, mais insuffisant dès que staging, pilote et prod
+ont chacun leur workflow : Android impose un `versionCode` strictement croissant
+pour un même `applicationId` (`com.tchalanet.mobile`).
+
+La cible recommandée :
+
+1. Lire la base `version:` dans `tchalanet-mobile/pubspec.yaml`
+   (`1.0.0+1` aujourd'hui).
+2. Calculer un compteur Android mobile global, indépendant du workflow :
+   - source simple : dernier tag `mobile/android-build-<number>` ;
+   - prochain build : `number + 1`.
+3. Générer automatiquement :
+   - staging : `--build-name=<pubspec-version>-stg.<build>` ;
+   - pilote : `--build-name=<pubspec-version>-pilot.<build>` ;
+   - prod : `--build-name=<pubspec-version>` ;
+   - tous canaux : `--build-number=<build>`.
+4. Créer le tag uniquement après distribution réussie :
+   - compteur : `mobile/android-build-000123` ;
+   - canal : `mobile/staging/v1.0.0-stg.123+123`,
+     `mobile/prod/v1.0.0+123`.
+5. Garder `build_name` comme override d'urgence seulement, pas comme input à
+   renseigner à chaque distribution.
+
+À implémenter dans les workflows :
+
+- Ajouter un job/step `Resolve mobile version` avant le build.
+- Donner au workflow `permissions: contents: write` seulement si le job doit
+  pousser les tags.
+- Protéger le tag post-distribution avec `if: success()`.
+- Écrire `build_name`, `build_number` et les tags dans le GitHub Actions summary.
+
+### Préparer Google Play pour la prod
+
+Firebase App Distribution reste le bon canal pour staging et QA interne rapide.
+Pour la MEP fin août, préparer Google Play maintenant même si la publication
+production reste manuelle au début :
 
 1. Créer le compte Google Play Console de l'organisation et garder le même
    package Android `com.tchalanet.mobile`.
@@ -195,7 +240,24 @@ Google Play, préparer sans l'activer tout de suite :
    `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64`.
 5. Utiliser des tracks progressifs : `internal` → `closed` → `production`.
 6. Garder Firebase App Distribution pour les builds QA rapides ; utiliser Google
-   Play pour les terminaux clients qui ont besoin d'auto-update et de gestion MDM.
+   Play pour les vendeurs/clients afin d'éviter l'installation APK manuelle.
+
+Canaux recommandés :
+
+| Canal | Artefact | Outil | Usage |
+|---|---|---|---|
+| `staging` | APK release | Firebase App Distribution | QA interne et recette rapide. |
+| `pilot` | AAB | Google Play internal/closed | Premiers terminaux clients sans APK manuel. |
+| `prod-internal` | AAB | Google Play Internal testing | Validation store avant prod. |
+| `prod` | AAB | Google Play Production | MEP clients avec rollout progressif. |
+
+Le workflow Play attendu doit refuser une prod si :
+
+- `versionCode` n'est pas supérieur au dernier build taggé ;
+- `api_base_url` ne pointe pas vers l'API prod ;
+- `terminal_email_domain` n'est pas le domaine terminal prod ;
+- `FIREBASE_AUTH_EMULATOR` n'est pas forcé à `false` ;
+- la branche n'est pas `main` ou un tag release approuvé.
 
 ---
 
@@ -211,3 +273,15 @@ Google Play, préparer sans l'activer tout de suite :
 | `FIREBASE_ANDROID_APP_ID` | variable | distribution mobile (optionnel) |
 | `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64` | secret futur | publication Google Play |
 | `HCLOUD_TOKEN`, `SSH_PRIVATE_KEY`, `DOPPLER_TOKEN_STG`, … | secret | infra / deploy (voir chaque workflow) |
+
+## Rôles outils externes pour la MEP mobile
+
+| Outil | Rôle prod | Configuration à prévoir |
+|---|---|---|
+| Firebase Auth | Authentification mobile vendeur/POS. | Projet prod ou app prod dédiée, domaine terminal prod, backend `RUNTIME_IDENTITY_PROVIDER=firebase`, utilisateurs terminaux provisionnés. |
+| Firebase App Distribution | Canal staging/QA interne rapide. | Groupes `staging`, `qa`, service account avec rôle App Distribution Admin. |
+| Google Play Console | Distribution prod Android professionnelle. | Play App Signing, track `internal`, track `closed`, track `production`, service account release limité. |
+| Doppler | Source des secrets runtime serveur/infra par environnement. | Projets/envs staging/prod, secrets backend Firebase/API/DB, tokens de déploiement synchronisés vers GitHub Actions si nécessaire. |
+| GitHub Secrets/Variables | Secrets CI/CD et paramètres de build. | Keystore Android, Firebase SA, Google Play SA, app ids, API URLs, domaines terminaux. |
+| Cloudflare | DNS/TLS/routage public web/API. | Zones prod, DNS `api`, `test/stg`, Workers/Pages, règles TLS/WAF/cache selon surface. |
+| Grafana Cloud | Observabilité prod. | Dashboards API/edge/mobile-adjacent, alertes erreurs auth/sale/latence, logs si pipeline actif. |

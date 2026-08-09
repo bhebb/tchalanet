@@ -22,11 +22,26 @@ Promotion vers prod **uniquement si** :
 - [ ] Dashboard Traefik inaccessible publiquement (router supprimé, Phase 2)
 - [ ] Backup prod opérationnel et testé (Phase 8)
 - [ ] Observabilité prod visible dans Grafana (traces + logs, Phase 7)
+- [ ] Canal mobile prod décidé et prêt (Phase 10) :
+  - Google Play Console configuré pour `com.tchalanet.mobile`.
+  - Track `internal` ou `closed` prêt pour les machines clients pilotes.
+  - Versioning mobile automatique prêt ou `versionCode` prod validé à la main.
+  - Build mobile pointe vers `https://api.tchalanet.com/api/v1` et
+    `terminal.tchalanet.com`.
 - [ ] Healthcheck canonique vert sur staging : `curl -sf https://api.stg.tchalanet.com/api/v1/actuator/health`
 - [ ] SHA de rollback identifié (tag connu-bon précédent)
 - [ ] Responsable MEP + responsable rollback identifiés
 
 **Un seul item non coché = NO-GO.**
+
+---
+
+## Roadmap produit/technique
+
+La roadmap fonctionnelle et technique pour obtenir une version testable sur
+machines clients fin août est maintenue hors runbook :
+
+→ [`openspec/roadmap-2026-08-client-pilot.md`](../../../../openspec/roadmap-2026-08-client-pilot.md)
 
 ---
 
@@ -98,6 +113,7 @@ mais les 4 entrées doivent exister dans Doppler `prd` avec la même valeur.
 | **Email** | `BREVO_API_KEY`, `EMAIL_ENABLED`, `EMAIL_FROM_ADDRESS`, `EMAIL_FROM_NAME`, `EMAIL_PROVIDER` |
 | **Slack** | `SLACK_ENABLED`, `SLACK_WEBHOOK_*` (5 canaux) |
 | **Loterie** | `TCH_US_LOTTERY_PROXY_SECRET`, `TCH_US_LOTTERY_PROXY_URL` |
+| **Mobile** | `TCH_TERMINAL_EMAIL_DOMAIN_PROD`, `FIREBASE_ANDROID_APP_ID_PROD` si app Firebase prod séparée |
 
 > Ne PAS copier les valeurs staging. Générer des mots de passe frais pour
 > prod (DB, Redis, EDGE_HMAC). Firebase : même projet si partagé, sinon
@@ -114,6 +130,8 @@ mais les 4 entrées doivent exister dans Doppler `prd` avec la même valeur.
 | Variable | Valeur |
 |---|---|
 | `TCH_TERMINAL_EMAIL_DOMAIN_PROD` | `terminal.tchalanet.com` |
+| `TCH_MOBILE_API_BASE_URL_PROD` | `https://api.tchalanet.com/api/v1` |
+| `FIREBASE_ANDROID_APP_ID_PROD` | App ID Android prod si différent du staging |
 
 ---
 
@@ -332,6 +350,43 @@ Procédure dans la section « Workflow » en haut de ce document.
 
 ---
 
+## Phase 10 — Mobile Android
+
+→ [RB-03 — Distribution mobile](./RB-03-mobile-distribution.md)
+→ [`tchalanet-mobile/docs/RELEASE.md`](../../../../tchalanet-mobile/docs/RELEASE.md)
+→ [RB-00 — Checklist secrets](./RB-00-secrets-checklist.md)
+
+Cette phase ne détaille pas la distribution : utiliser RB-03 pour les commandes,
+les canaux, le versioning et le rollback mobile. Ici, on garde seulement les
+critères MEP.
+
+- [ ] Décision canal actée dans RB-03 :
+  - Google Play prêt pour `com.tchalanet.mobile`.
+  - Track `internal` ou `closed` prêt pour les machines clients pilotes.
+- [ ] Secrets/variables mobile présents dans RB-00 :
+  - `TCH_ANDROID_KEYSTORE_*`
+  - `FIREBASE_ADMIN_JSON_BASE64`
+  - `TCH_MOBILE_API_BASE_URL_PROD`
+  - `TCH_TERMINAL_EMAIL_DOMAIN_PROD`
+  - `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64` si Google Play est utilisé.
+- [ ] Versioning mobile validé selon RB-03 :
+  - `versionName`
+  - `versionCode`
+  - tag mobile créé ou prêt à être créé après distribution.
+- [ ] Build mobile prod/pilote distribué via le canal choisi.
+- [ ] Smoke mobile prod effectué :
+  - login vendeur ;
+  - bootstrap terminal/profil ;
+  - tirages vendables ;
+  - préparation de vente ;
+  - confirmation de vente ;
+  - vérification/réimpression ticket ;
+  - déconnexion/reconnexion.
+- [ ] Rollback mobile compris : publier un nouveau build connu-bon avec
+      `versionCode` supérieur, voir RB-03.
+
+---
+
 ## Switch on / Switch off
 
 ### Mettre en maintenance (switch off)
@@ -383,6 +438,7 @@ gate staging est satisfait car ce tag avait déjà été validé.
 | Uptime externe | À mettre en place (UptimeRobot / Grafana Synthetic) | — |
 | Slack alertes | Edge service → canal `ops-alerts` | Messages `[PROD] [ERROR] …` |
 | Backups | Workflow `db-backup.yml` | Vérifier le dernier run dans GitHub Actions |
+| Mobile | Google Play / Firebase App Distribution | Track/release active + version distribuée |
 
 **Alertes à configurer dans Grafana Cloud :**
 - API health DOWN (pas de trace depuis >5 min)
@@ -397,6 +453,7 @@ gate staging est satisfait car ce tag avait déjà été validé.
 - [ ] Supprimer `LOTTERY_PROXY_SHARED_SECRET` de GitHub Secrets
 - [ ] Vérifier `DATABASE_PASSWORD` dans Doppler — s'il n'est pas consommé, le supprimer
 - [ ] Configurer monitoring uptime externe
+- [ ] Documenter la version mobile distribuée (`versionName`, `versionCode`, canal, SHA)
 - [ ] Planifier rotation mots de passe prod (DB, Redis, HMAC) — tous les 90 jours
 - [ ] Vérifier les ports : `ss -tlnp | grep -E '5432|6379'` — aucun binding public
 - [ ] Premier backup post-MEP comme baseline
