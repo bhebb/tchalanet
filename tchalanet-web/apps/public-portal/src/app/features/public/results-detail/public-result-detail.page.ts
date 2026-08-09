@@ -65,6 +65,11 @@ export class PublicResultDetailPage {
 
   readonly statusView = computed(() => resultStatusView(this.result().status));
 
+  readonly showCaMiddayDaily4Note = computed(() => {
+    const result = this.result();
+    return result.slotKey.trim().toUpperCase() === 'CA_MID' && result.numbers.length > 0 && result.numbers.length < 4;
+  });
+
   statusLabel(status: ResultStatus): string {
     return `domain.result.status.${status}`;
   }

@@ -27,6 +27,14 @@ public class HaitiProjectionService {
 
   public HaitiProjectionResult project(
       ResultSlotView slot, LocalDate date, ResolvedExternalResults external) {
+    return project(slot, date, external, null);
+  }
+
+  public HaitiProjectionResult project(
+      ResultSlotView slot,
+      LocalDate date,
+      ResolvedExternalResults external,
+      ResultSlotSourceConfig sourceCfg) {
     String pick3 = "";
     String pick4 = "";
 
@@ -36,6 +44,9 @@ public class HaitiProjectionService {
 
       var projCfg = haitiConfigPort.resolve(slot.projectionCfg());
       var pick = ExternalPick.partial(pick3, pick4);
+      var cfg = sourceCfg == null ? ResultSlotSourceConfig.empty() : sourceCfg;
+      var expectedPick3 = cfg.activePick3().isPresent();
+      var expectedPick4 = cfg.activePick4().isPresent();
 
       if (pick.complete()) {
         var hp = haitiPort.projectResult(pick, projCfg);
@@ -43,6 +54,11 @@ public class HaitiProjectionService {
         return new HaitiProjectionResult(
             coerceHaitiLots(hp == null ? null : hp.result()),
             hp == null ? HaitiFlags.fail(1, "PROJECTION_NULL", Map.of()) : hp.flags());
+      }
+
+      if ((expectedPick3 && !expectedPick4 && pick.hasPick3())
+          || (!expectedPick3 && expectedPick4 && pick.hasPick4())) {
+        return new HaitiProjectionResult(projectPartialLots(pick), HaitiFlags.ok(0));
       }
 
       log.warn(

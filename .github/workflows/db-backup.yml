@@ -64,11 +64,18 @@ jobs:
       # Le cron quotidien vise la prod, l'hebdomadaire le staging. Un
       # déclenchement manuel suit toujours l'entrée choisie.
       IS_PROD: ${{ (github.event_name == 'schedule' && github.event.schedule == '7 8 * * *') || inputs.target_environment == 'production' }}
+      HCLOUD_TOKEN_VALUE: ${{ secrets.HCLOUD_TOKEN }}
     outputs:
       skipped: ${{ steps.guard.outputs.skipped }}
       deploy_env: ${{ steps.guard.outputs.deploy_env }}
     steps:
       - uses: actions/checkout@v7
+
+      - name: Setup hcloud for staging host resolution
+        if: ${{ env.IS_PROD != 'true' && env.HCLOUD_TOKEN_VALUE != '' }}
+        uses: hetznercloud/setup-hcloud@ac9e7d74fb41a3ca44a6a3da123bd5aa70731e3a # v2.0.0
+        with:
+          token: ${{ env.HCLOUD_TOKEN_VALUE }}
 
       - name: Resolve target and validate secrets
         id: guard
@@ -86,7 +93,12 @@ jobs:
           if [ "$IS_PROD" = "true" ]; then
             DEPLOY_ENV=prod; HOST="$PROD_HOST"
           else
-            DEPLOY_ENV=staging; HOST="$STG_HOST"
+            DEPLOY_ENV=staging
+            if command -v hcloud >/dev/null 2>&1 && hcloud server describe stg-app >/dev/null 2>&1; then
+              HOST="$(hcloud server describe stg-app -o json | jq -r '.public_net.ipv4.ip')"
+            else
+              HOST="$STG_HOST"
+            fi
           fi
 
           # Un environnement non provisionné n'a pas d'hôte. On saute au lieu
@@ -112,13 +124,14 @@ jobs:
 
           echo "skipped=false" >> "$GITHUB_OUTPUT"
           echo "deploy_env=$DEPLOY_ENV" >> "$GITHUB_OUTPUT"
+          echo "host=$HOST" >> "$GITHUB_OUTPUT"
           echo "Target: $DEPLOY_ENV"
 
       - name: Run backup on the database host
         if: steps.guard.outputs.skipped == 'false'
         uses: appleboy/ssh-action@v1
         with:
-          host: ${{ env.IS_PROD == 'true' && secrets.PROD_SERVER_HOST || secrets.SERVER_HOST }}
+          host: ${{ steps.guard.outputs.host }}
           username: tch
           key: ${{ env.IS_PROD == 'true' && secrets.SSH_PRIVATE_KEY_PROD || secrets.SSH_PRIVATE_KEY }}
           envs: DEPLOY_ENV,CLOUDFLARE_ACCOUNT_ID,R2_ACCESS_KEY_ID,R2_SECRET_ACCESS_KEY,R2_BUCKET,BACKUP_AGE_PUBLIC_KEY

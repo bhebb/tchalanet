@@ -1,10 +1,10 @@
 <tch-admin-page-shell
-  [title]="pageTitle()"
-  description="Suivez les tirages générés, leur état de vente et les résultats attendus."
+  [title]="pageTitleKey() | translate"
+  [description]="'admin.generatedDraws.description' | translate"
 >
   <div actions>
     <tch-admin-refresh-button
-      label="Actualiser"
+      [label]="'admin.generatedDraws.actions.refresh' | translate"
       [disabled]="draws.isLoading()"
       [busy]="draws.isLoading()"
       (refreshRequested)="reload()"
@@ -12,12 +12,12 @@
 
     <button mat-stroked-button [matMenuTriggerFor]="actionsMenu">
       <span class="material-symbols-outlined">more_vert</span>
-      Actions
+      {{ 'admin.generatedDraws.actions.more' | translate }}
     </button>
     <mat-menu #actionsMenu="matMenu">
       <button mat-menu-item (click)="onConfigureDrawChannels()">
         <span class="material-symbols-outlined">event_repeat</span>
-        Configurer les canaux de tirage
+        {{ 'admin.generatedDraws.actions.configureDrawChannels' | translate }}
       </button>
     </mat-menu>
   </div>
@@ -26,7 +26,7 @@
     [resource]="draws"
     [error]="drawsError()"
     [isEmpty]="isEmpty"
-    loadingLabel="Chargement des tirages…"
+    [loadingLabel]="'admin.generatedDraws.loading' | translate"
     (retry)="reload()"
   >
     <ng-template tchAsyncReady>
@@ -38,15 +38,15 @@
 
       <!-- Toolbar -->
       <tch-admin-list-surface
-        searchLabel="Recherche"
-        searchPlaceholder="Rechercher provider, slot…"
+        [searchLabel]="'admin.generatedDraws.filters.search' | translate"
+        [searchPlaceholder]="'admin.generatedDraws.filters.searchPlaceholder' | translate"
         [searchValue]="searchQuery()"
         [searchMinLength]="0"
-        [statusLabel]="'Statut'"
+        [statusLabel]="'admin.generatedDraws.filters.status' | translate"
         [statusValue]="statusFilter() === 'all' ? '' : statusFilter()"
         [statusOptions]="statusFilterOptions()"
-        allStatusesLabel="Tous les statuts"
-        resetLabel="Réinitialiser"
+        [allStatusesLabel]="'admin.generatedDraws.statusFilters.all' | translate"
+        [resetLabel]="'admin.generatedDraws.filters.reset' | translate"
         [filtersDisplay]="'panel'"
         [filtersExpanded]="hasActiveFilters()"
         (searchChange)="onSearch($event)"
@@ -59,8 +59,8 @@
               [providers]="providerMatrix.value()?.providers ?? []"
               [provider]="providerFilter()"
               [slotKey]="slotKeyFilter()"
-              label="Tirage"
-              allLabel="Tous les tirages"
+              [label]="'admin.generatedDraws.filters.draw' | translate"
+              [allLabel]="'admin.generatedDraws.filters.allDraws' | translate"
               (selectionChange)="onDrawChannelFilter($event)"
             />
 
@@ -70,13 +70,13 @@
                   class="gd-page__chip"
                   [class.gd-page__chip--active]="!hasCustomDateRange() && datePreset() === preset.key"
                   (click)="onDatePreset(preset.key)"
-                >{{ preset.label }}</button>
+                >{{ preset.labelKey | translate }}</button>
               }
             </div>
 
             <div class="gd-page__date-range">
               <mat-form-field appearance="outline" class="gd-page__date-field">
-                <mat-label>Du</mat-label>
+                <mat-label>{{ 'admin.generatedDraws.filters.from' | translate }}</mat-label>
                 <input
                   matInput
                   [matDatepicker]="fromPicker"
@@ -88,7 +88,7 @@
               </mat-form-field>
 
               <mat-form-field appearance="outline" class="gd-page__date-field">
-                <mat-label>Au</mat-label>
+                <mat-label>{{ 'admin.generatedDraws.filters.to' | translate }}</mat-label>
                 <input
                   matInput
                   [matDatepicker]="toPicker"
@@ -109,7 +109,7 @@
             @if (fb.kind === 'error') {
               <tch-section-error
                 class="gd-page__action-feedback"
-                [title]="fb.vm?.title ?? 'Action impossible'"
+                [title]="fb.vm?.title ?? ('admin.generatedDraws.feedback.actionImpossible' | translate)"
                 [message]="fb.vm?.message ?? ''"
                 severity="error"
               />
@@ -117,7 +117,7 @@
           } @else if (lifecycleNotice(); as notice) {
             <tch-section-error
               class="gd-page__action-feedback"
-              title="Action effectuée"
+              [title]="'admin.generatedDraws.feedback.actionDone' | translate"
               [message]="notice"
               severity="info"
             />
@@ -126,12 +126,12 @@
           @if (groupedDraws().length === 0) {
             <tch-admin-empty-state
               icon="confirmation_number"
-              title="Aucun tirage généré pour cette période."
-              message="Ajustez les filtres ou planifiez les prochains tirages."
+              [title]="'admin.generatedDraws.empty.title' | translate"
+              [message]="'admin.generatedDraws.empty.message' | translate"
             >
               <div class="gd-page__empty-actions">
                 <button mat-stroked-button (click)="onConfigureDrawChannels()">
-                  Configurer les canaux de tirage
+                  {{ 'admin.generatedDraws.actions.configureDrawChannels' | translate }}
                 </button>
               </div>
             </tch-admin-empty-state>

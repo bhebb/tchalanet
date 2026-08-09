@@ -1,10 +1,10 @@
 <tch-admin-page-shell
-  title="Résultats des tirages"
-  description="Consultez les résultats, recherchez par slot et vérifiez l'historique appliqué au tenant."
+  [title]="'admin.drawResults.title' | translate"
+  [description]="'admin.drawResults.description' | translate"
 >
   <div actions>
     <tch-admin-refresh-button
-      label="Rafraîchir"
+      [label]="'admin.drawResults.action.refresh' | translate"
       [disabled]="loading()"
       [busy]="loading()"
       (refreshRequested)="load()"
@@ -16,13 +16,13 @@
       <p class="draw-results-page__timezone-note">
         <span class="material-symbols-outlined" aria-hidden="true">schedule</span>
         <span>
-          Fuseau local :
+          {{ 'admin.drawResults.timezone.local' | translate }}
           <strong>{{ tenantTimezoneLabel() }}</strong>
         </span>
       </p>
 
       <tch-admin-data-toolbar
-        searchPlaceholder="Rechercher un slot..."
+        [searchPlaceholder]="'admin.drawResults.filters.searchPlaceholder' | translate"
         [searchValue]="slotKeyFilter()"
         (searchChange)="onSlotSearch($event)"
       >
@@ -33,7 +33,7 @@
           (click)="filtersExpanded.set(!filtersExpanded())"
         >
           <span class="material-symbols-outlined">tune</span>
-          Filtres
+          {{ 'admin.drawResults.filters.title' | translate }}
         </button>
 
         <div
@@ -41,7 +41,7 @@
           [class.draw-results-page__filter-fields--open]="filtersExpanded()"
         >
           <mat-form-field appearance="outline">
-            <mat-label>Statut</mat-label>
+            <mat-label>{{ 'admin.drawResults.filters.status' | translate }}</mat-label>
             <mat-select [value]="statusFilter()" (selectionChange)="onStatusFilter($event.value)">
               @for (opt of statusOptions; track opt.value) {
                 <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
@@ -50,7 +50,7 @@
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Qualité</mat-label>
+            <mat-label>{{ 'admin.drawResults.filters.quality' | translate }}</mat-label>
             <mat-select [value]="qualityFilter()" (selectionChange)="onQualityFilter($event.value)">
               @for (opt of qualityOptions; track opt.value) {
                 <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
@@ -59,7 +59,7 @@
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Du</mat-label>
+            <mat-label>{{ 'admin.drawResults.filters.from' | translate }}</mat-label>
             <input
               matInput
               [matDatepicker]="fromPicker"
@@ -71,7 +71,7 @@
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Au</mat-label>
+            <mat-label>{{ 'admin.drawResults.filters.to' | translate }}</mat-label>
             <input
               matInput
               [matDatepicker]="toPicker"
@@ -92,17 +92,21 @@
 
     <ng-container content>
       @if (loading()) {
-        <tch-loading label="Chargement..." />
+        <tch-loading [label]="'admin.drawResults.loading' | translate" />
       } @else if (error(); as pageError) {
         <tch-error-panel
           [title]="pageError.title"
           [message]="pageError.message"
           [showRetry]="true"
-          retryLabel="Réessayer"
+          [retryLabel]="'common.retry' | translate"
           (retry)="load()"
         />
       } @else if ((page()?.items?.length ?? 0) === 0) {
-        <tch-admin-empty-state icon="ballot" title="Aucun résultat" message="Aucun résultat trouvé pour les filtres sélectionnés." />
+        <tch-admin-empty-state
+          icon="ballot"
+          [title]="'admin.drawResults.empty.title' | translate"
+          [message]="'admin.drawResults.empty.message' | translate"
+        />
       } @else {
         <tch-console-draw-results-table
           [rows]="rows()"

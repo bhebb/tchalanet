@@ -30,7 +30,7 @@ class AuthInterceptor extends Interceptor {
     }
 
     var token = await _tokenStorage.readAccessToken();
-    if (token != null && _isExpiredOrExpiringSoon(token)) {
+    if (token == null || token.isEmpty || _isExpiredOrExpiringSoon(token)) {
       token = await _refreshAccessToken();
     }
     if (token != null) {
