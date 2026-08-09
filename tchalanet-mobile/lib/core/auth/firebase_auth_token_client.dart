@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'auth_token_client.dart';
+
+const _firebaseUserRestoreTimeout = Duration(seconds: 2);
 
 class FirebaseAuthTokenClient implements AuthTokenClient {
   FirebaseAuthTokenClient({FirebaseAuth? auth})
@@ -19,12 +23,25 @@ class FirebaseAuthTokenClient implements AuthTokenClient {
 
   @override
   Future<AuthTokenData> refresh([String? refreshToken]) =>
-      _tokens(_auth.currentUser, forceRefresh: true);
+      _tokens(_currentUser(), forceRefresh: true);
 
   @override
   Future<void> logout() => _auth.signOut();
 
-  Future<AuthTokenData> _tokens(User? user, {bool forceRefresh = false}) async {
+  Future<User?> _currentUser() async {
+    final current = _auth.currentUser;
+    if (current != null) return current;
+    return _auth.authStateChanges().first.timeout(
+      _firebaseUserRestoreTimeout,
+      onTimeout: () => null,
+    );
+  }
+
+  Future<AuthTokenData> _tokens(
+    FutureOr<User?> userSource, {
+    bool forceRefresh = false,
+  }) async {
+    final user = await userSource;
     if (user == null) {
       throw StateError('Firebase authentication session is unavailable');
     }
