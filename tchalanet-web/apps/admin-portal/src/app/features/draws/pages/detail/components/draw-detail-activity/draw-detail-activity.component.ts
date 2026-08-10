@@ -1,6 +1,7 @@
 import { DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
 import { Router } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
 import { TchLoading } from '@tch/ui/components';
 import { AdminMetricCardComponent } from '@tch/ui/console';
 
@@ -36,7 +37,7 @@ export interface DrawDetailActivityView {
   selector: 'tch-draw-detail-activity',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DecimalPipe, AdminMetricCardComponent, TchLoading],
+  imports: [DecimalPipe, AdminMetricCardComponent, TchLoading, TranslatePipe],
   templateUrl: './draw-detail-activity.component.html',
   styleUrl: './draw-detail-activity.component.scss',
 })

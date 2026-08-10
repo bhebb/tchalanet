@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 
 import {
   ConsoleDrawDetailComponent,
@@ -43,6 +44,7 @@ export class PlatformOpsDrawDetailPage {
   private readonly router = inject(Router);
   private readonly api = inject(PlatformOpsApi);
   private readonly dialog = inject(MatDialog);
+  private readonly translate = inject(TranslateService);
 
   readonly state = signal<ConsoleEntityDetailState>('loading');
   readonly error = signal<ConsoleEntityDetailError | null>(null);
@@ -115,8 +117,8 @@ export class PlatformOpsDrawDetailPage {
         subtitle: this.dateTimeLabel(draw.scheduledAt, draw.slot.timezone),
         code: draw.slot.key,
         items: [
-          { label: 'Statut', value: consoleDrawStatusLabel(draw.status) },
-          { label: 'Résultat', value: draw.lastResult ? consoleDrawResultStatusLabel(draw.lastResult.status) : 'Attendu' },
+          { label: 'Statut', value: this.translate.instant(consoleDrawStatusLabel(draw.status)) },
+          { label: 'Résultat', value: draw.lastResult ? this.translate.instant(consoleDrawResultStatusLabel(draw.lastResult.status)) : 'Attendu' },
           { label: 'Canal', value: draw.channel.code },
           { label: 'Tenant', value: draw.tenantId },
         ],

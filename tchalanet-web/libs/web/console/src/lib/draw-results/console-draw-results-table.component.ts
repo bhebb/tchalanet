@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
+import { TranslatePipe } from '@ngx-translate/core';
 import { AdminStatusPillComponent } from '@tch/ui/console';
 
 import { ConsoleDrawSlotIdentityComponent } from '../draw-slots/console-draw-slot-identity.component';
@@ -20,6 +21,7 @@ import {
     ConsoleDrawSlotIdentityComponent,
     MatButtonModule,
     MatTableModule,
+    TranslatePipe,
   ],
   templateUrl: './console-draw-results-table.component.html',
   styleUrls: ['./console-draw-results-table.component.scss'],

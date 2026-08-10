@@ -14,7 +14,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { ProblemDetail, TCH_DEFAULT_PAGE_SIZE, webAppErrorFromProblemDetail } from '@tch/api';
 import { TchErrorPanel, TchLoading, TchSearchOption, TchSearchSelect, TchSectionError } from '@tch/ui/components';
@@ -115,6 +115,7 @@ const DEFAULT_DRAW_TENANT_CODE = 'tchalanet';
     MatInputModule,
     MatSelectModule,
     MatTooltipModule,
+    TranslatePipe,
   ],
   templateUrl: './platform-ops-draws.page.html',
   styleUrls: ['./platform-ops-draws.page.scss'],

@@ -657,6 +657,35 @@
         "archive": "archivé",
         "updatedMany": "{{count}} tirages mis à jour avec succès.",
         "updatedOne": "Tirage {{action}} avec succès."
+      },
+      "bulk": {
+        "selected_one": "{{count}} tirage sélectionné",
+        "selected_other": "{{count}} tirages sélectionnés",
+        "availableActions": "Actions disponibles pour toute la sélection.",
+        "noCommon": "Aucune action commune"
+      },
+      "countdown": {
+        "expired": "Vente expirée",
+        "remaining": "Fin ventes dans {{time}}"
+      },
+      "groupDate": {
+        "today": "AUJOURD'HUI",
+        "tomorrow": "DEMAIN"
+      },
+      "hint": {
+        "resultToEnter": "Résultat à saisir",
+        "resultMissing": "Résultat manquant",
+        "fetched": "Récupéré {{time}}",
+        "enterResult": "Saisir résultat",
+        "viewDetails": "Voir détails",
+        "viewResult": "Voir résultat",
+        "verify": "Vérifier"
+      },
+      "summaryAction": {
+        "today": "Filtrer sur les tirages d'aujourd'hui",
+        "salesOpen": "Filtrer sur les tirages ouverts à la vente",
+        "resultsExpected": "Filtrer sur les résultats attendus",
+        "confirmed": "Filtrer sur les résultats confirmés"
       }
     },
     "pos": {

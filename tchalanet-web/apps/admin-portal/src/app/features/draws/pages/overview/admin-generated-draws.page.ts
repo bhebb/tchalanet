@@ -559,7 +559,8 @@ export class AdminGeneratedDrawsPage {
   }
 
   private filterLabel(filter: { labelKey?: string; label?: string }): string {
-    return filter.labelKey ? this.translate.instant(filter.labelKey) : filter.label ?? '';
+    const key = filter.labelKey ?? filter.label ?? '';
+    return this.translate.instant(key);
   }
 }
 

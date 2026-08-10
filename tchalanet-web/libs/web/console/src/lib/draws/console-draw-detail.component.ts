@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { TranslatePipe } from '@ngx-translate/core';
 
 import {
   AdminSectionCardComponent,
@@ -43,6 +44,7 @@ export interface ConsoleDrawDetailSectionActionEvent {
     ConsoleFactsComponent,
     MatButtonModule,
     MatIconModule,
+    TranslatePipe,
   ],
   templateUrl: './console-draw-detail.component.html',
   styleUrls: ['./console-draw-detail.component.scss'],

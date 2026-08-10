@@ -1789,6 +1789,35 @@
         "archive": "archived",
         "updatedMany": "{{count}} draws updated successfully.",
         "updatedOne": "Draw {{action}} successfully."
+      },
+      "bulk": {
+        "selected_one": "{{count}} draw selected",
+        "selected_other": "{{count}} draws selected",
+        "availableActions": "Actions available for the entire selection.",
+        "noCommon": "No common actions"
+      },
+      "countdown": {
+        "expired": "Sale expired",
+        "remaining": "Sales end in {{time}}"
+      },
+      "groupDate": {
+        "today": "TODAY",
+        "tomorrow": "TOMORROW"
+      },
+      "hint": {
+        "resultToEnter": "Result to enter",
+        "resultMissing": "Result missing",
+        "fetched": "Fetched {{time}}",
+        "enterResult": "Enter result",
+        "viewDetails": "View details",
+        "viewResult": "View result",
+        "verify": "Verify"
+      },
+      "summaryAction": {
+        "today": "Filter today's draws",
+        "salesOpen": "Filter draws open for sale",
+        "resultsExpected": "Filter expected results",
+        "confirmed": "Filter confirmed results"
       }
     },
     "pos": {

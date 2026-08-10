@@ -3,6 +3,23 @@
     "noIssues": "Aucun problème"
   },
   "console": {
+    "drawsTable": {
+      "column": {
+        "draw": "Tirage",
+        "scheduledAt": "Date & heure",
+        "status": "Statut",
+        "result": "Résultat",
+        "mode": "Mode",
+        "publication": "Publication"
+      },
+      "select": "Sélectionner {{title}}",
+      "otherActions": "Autres actions pour {{title}}",
+      "actionInProgress": "Action en cours",
+      "pagination": "{{start}}–{{end}} sur {{total}} tirages",
+      "previousPage": "Page précédente",
+      "nextPage": "Page suivante",
+      "selection": "Sélection"
+    },
     "gamesTable": {
       "title": "Jeux",
       "column": {

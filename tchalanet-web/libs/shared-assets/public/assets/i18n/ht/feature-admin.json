@@ -1789,6 +1789,35 @@
         "archive": "achive",
         "updatedMany": "{{count}} tiraj modifye avèk siksè.",
         "updatedOne": "Tiraj la {{action}} avèk siksè."
+      },
+      "bulk": {
+        "selected_one": "{{count}} tiraj chwazi",
+        "selected_other": "{{count}} tiraj chwazi",
+        "availableActions": "Aksyon ki disponib pou tout seleksyon an.",
+        "noCommon": "Pa gen aksyon an komen"
+      },
+      "countdown": {
+        "expired": "Vant ekspire",
+        "remaining": "Fen vant nan {{time}}"
+      },
+      "groupDate": {
+        "today": "JODI A",
+        "tomorrow": "DEMEN"
+      },
+      "hint": {
+        "resultToEnter": "Rezilta pou antre",
+        "resultMissing": "Rezilta manke",
+        "fetched": "Jwenn {{time}}",
+        "enterResult": "Antre rezilta",
+        "viewDetails": "Gade detay",
+        "viewResult": "Gade rezilta",
+        "verify": "Verifye"
+      },
+      "summaryAction": {
+        "today": "Filtre sou tiraj jodi a",
+        "salesOpen": "Filtre sou tiraj ki ouvè pou vant",
+        "resultsExpected": "Filtre sou rezilta espere yo",
+        "confirmed": "Filtre sou rezilta konfime yo"
       }
     },
     "pos": {

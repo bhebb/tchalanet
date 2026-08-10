@@ -3,6 +3,23 @@
     "noIssues": "Pa gen pwoblèm"
   },
   "console": {
+    "drawsTable": {
+      "column": {
+        "draw": "Tiraj",
+        "scheduledAt": "Dat ak lè",
+        "status": "Estati",
+        "result": "Rezilta",
+        "mode": "Mòd",
+        "publication": "Piblikasyon"
+      },
+      "select": "Chwazi {{title}}",
+      "otherActions": "Lòt aksyon pou {{title}}",
+      "actionInProgress": "Aksyon an kou",
+      "pagination": "{{start}}–{{end}} sou {{total}} tiraj",
+      "previousPage": "Paj anvan",
+      "nextPage": "Paj apre",
+      "selection": "Seleksyon"
+    },
     "gamesTable": {
       "title": "Jwèt",
       "column": {

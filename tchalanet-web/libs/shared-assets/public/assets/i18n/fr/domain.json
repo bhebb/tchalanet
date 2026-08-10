@@ -158,6 +158,66 @@
         "provider": "Province / état",
         "slotType": "Type de tirage",
         "localTime": "Heure locale"
+      },
+      "status": {
+        "SCHEDULED": "Planifié",
+        "OPEN": "Ouvert",
+        "LOCKED": "Verrouillé",
+        "CLOSED": "Fermé",
+        "PENDING_RESULTS": "Résultats attendus",
+        "RESULTED": "Résultat appliqué",
+        "RESULTS_APPLIED": "Résultat appliqué",
+        "SETTLED": "Réglé",
+        "CANCELLED": "Annulé",
+        "ARCHIVED": "Archivé"
+      },
+      "salesStatus": {
+        "UPCOMING": "À venir",
+        "OPEN": "Ouvert",
+        "CLOSED": "Fermé",
+        "LOCKED": "Verrouillé",
+        "CANCELLED": "Annulé"
+      },
+      "resultStatus": {
+        "CONFIRMED": "Confirmé",
+        "PROVISIONAL": "Provisoire",
+        "OVERRIDDEN": "Remplacé",
+        "ERROR": "Erreur",
+        "APPLIED": "Appliqué",
+        "CORRECTED": "Corrigé",
+        "VOIDED": "Annulé",
+        "PENDING": "En attente",
+        "EXPECTED": "Attendu",
+        "MISSING": "Manquant",
+        "SOURCE_ERROR": "Erreur source",
+        "MANUAL": "Manuel",
+        "REJECTED": "Rejeté",
+        "NOT_DUE": "Attendu après fermeture"
+      },
+      "resultQuality": {
+        "COMPLETE": "Complet",
+        "SUSPECT": "À vérifier",
+        "INVALID": "Invalide",
+        "OFFICIAL": "Officiel",
+        "MANUAL": "Manuel",
+        "ESTIMATED": "Estimé",
+        "UNKNOWN": "Inconnu"
+      },
+      "publicationStatus": {
+        "NOT_PUBLISHED": "Non publié",
+        "PUBLISHED": "Publié",
+        "PROVISIONAL": "Provisoire"
+      },
+      "lifecycleAction": {
+        "open": "Ouvrir la vente",
+        "close": "Fermer la vente",
+        "lock": "Verrouiller",
+        "unlock": "Déverrouiller",
+        "cancel": "Annuler",
+        "settle": "Régler",
+        "archive": "Archiver",
+        "reschedule": "Reprogrammer",
+        "correct": "Corriger résultat"
       }
     },
     "tchala": {

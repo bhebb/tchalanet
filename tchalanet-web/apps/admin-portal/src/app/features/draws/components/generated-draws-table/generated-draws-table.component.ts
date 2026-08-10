@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, input, output, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import {
   ConsoleDrawActionEvent,
   ConsoleDrawRow,
@@ -42,6 +42,7 @@ import { RuntimeSettingsStore } from '@tch/shared-config';
 export class GeneratedDrawsTableComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly runtimeSettings = inject(RuntimeSettingsStore);
+  private readonly translate = inject(TranslateService);
 
   readonly groups        = input.required<GeneratedDrawGroup[]>();
   readonly todayDate     = input<string>('');
@@ -115,12 +116,13 @@ export class GeneratedDrawsTableComponent {
     tomorrow.setDate(tomorrow.getDate() + 1);
     const tomorrowStr = tomorrow.toISOString().slice(0, 10);
 
-    const label = d.toLocaleDateString('fr-FR', {
+    const locale = this.translate.currentLang === 'en' ? 'en-US' : this.translate.currentLang === 'ht' ? 'ht' : 'fr-FR';
+    const label = d.toLocaleDateString(locale, {
       weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
     }).toUpperCase();
 
-    if (date === today)       return `${label} (AUJOURD'HUI)`;
-    if (date === tomorrowStr) return `${label} (DEMAIN)`;
+    if (date === today)       return `${label} (${this.translate.instant('admin.generatedDraws.groupDate.today')})`;
+    if (date === tomorrowStr) return `${label} (${this.translate.instant('admin.generatedDraws.groupDate.tomorrow')})`;
     return label;
   }
 
@@ -165,7 +167,7 @@ export class GeneratedDrawsTableComponent {
   salesCountdown(draw: GeneratedDrawView): string | null {
     const remainingMs = generatedDrawCountdownMs(draw, this.nowMs());
     if (remainingMs == null) return null;
-    if (remainingMs <= 0) return 'Vente expirée';
+    if (remainingMs <= 0) return this.translate.instant('admin.generatedDraws.countdown.expired');
     const totalSeconds = Math.floor(remainingMs / 1000);
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
@@ -173,7 +175,7 @@ export class GeneratedDrawsTableComponent {
     const time = hours > 0
       ? `${hours}h ${String(minutes).padStart(2, '0')}m ${String(seconds).padStart(2, '0')}s`
       : `${minutes}m ${String(seconds).padStart(2, '0')}s`;
-    return `Fin ventes dans ${time}`;
+    return this.translate.instant('admin.generatedDraws.countdown.remaining', { time });
   }
 
   isClosingSoon(draw: GeneratedDrawView): boolean {
@@ -350,7 +352,7 @@ export class GeneratedDrawsTableComponent {
     if (this.hasResult(draw)) {
       actions.push({
         id: 'viewResult',
-        label: 'Voir résultat',
+        label: 'admin.generatedDraws.hint.viewResult',
         icon: 'fact_check',
         variant: 'icon',
       });
@@ -369,41 +371,34 @@ export class GeneratedDrawsTableComponent {
 
   private primaryAction(draw: GeneratedDrawView): ConsoleRowAction {
     switch (draw.resultStatus) {
-      // 'EXPECTED' n'a pas de seuil de temps côté back (mapResultStatus reste sur
-      // EXPECTED tant qu'aucun DrawResult n'existe, même très en retard) — on se fie
-      // donc à canEnterManualResult() (qui vérifie déjà le délai de 30 min) plutôt
-      // qu'au statut MISSING pour proposer la saisie manuelle.
       case 'MISSING':
       case 'EXPECTED':
         return this.canEnterManualResult(draw)
-          ? { id: 'enterResult', label: 'Saisir résultat', icon: 'edit_note', tone: 'primary' }
-          : { id: 'viewDetails', label: 'Voir détails', icon: 'visibility' };
+          ? { id: 'enterResult', label: 'admin.generatedDraws.hint.enterResult', icon: 'edit_note', tone: 'primary' }
+          : { id: 'viewDetails', label: 'admin.generatedDraws.hint.viewDetails', icon: 'visibility' };
       case 'CONFIRMED':
       case 'PROVISIONAL':
-        return { id: 'viewDetails', label: 'Voir détails', icon: 'visibility' };
+        return { id: 'viewDetails', label: 'admin.generatedDraws.hint.viewDetails', icon: 'visibility' };
       case 'SOURCE_ERROR':
         return this.canEnterManualResult(draw)
-          ? { id: 'verifySource', label: 'Vérifier', icon: 'warning', tone: 'danger' }
-          : { id: 'viewDetails', label: 'Voir détails', icon: 'visibility' };
+          ? { id: 'verifySource', label: 'admin.generatedDraws.hint.verify', icon: 'warning', tone: 'danger' }
+          : { id: 'viewDetails', label: 'admin.generatedDraws.hint.viewDetails', icon: 'visibility' };
       default:
-        return { id: 'viewDetails', label: 'Voir détails', icon: 'visibility' };
+        return { id: 'viewDetails', label: 'admin.generatedDraws.hint.viewDetails', icon: 'visibility' };
     }
   }
 
   private resultHint(draw: GeneratedDrawView): string | undefined {
     if (draw.sourceError) return this.sourceErrorAtLabel(draw);
-    if (draw.fetchedAt) return `Récupéré ${this.fetchedAtLabel(draw)}`;
+    if (draw.fetchedAt) return this.translate.instant('admin.generatedDraws.hint.fetched', { time: this.fetchedAtLabel(draw) });
     return undefined;
   }
 
-  /**
-   * Reformule EXPECTED/MISSING en message orienté action pour la carte mobile — le tableau
-   * desktop et la page de détail continuent d'afficher `consoleDrawResultStatusLabel` (« Attendu »
-   * / « Manquant ») sans changement, via `row.resultLabel`.
-   */
   private resultActionHint(draw: GeneratedDrawView): string | undefined {
     if (draw.resultStatus !== 'EXPECTED' && draw.resultStatus !== 'MISSING') return undefined;
-    return this.canEnterManualResult(draw) ? 'Résultat à saisir' : 'Résultat manquant';
+    return this.canEnterManualResult(draw)
+      ? this.translate.instant('admin.generatedDraws.hint.resultToEnter')
+      : this.translate.instant('admin.generatedDraws.hint.resultMissing');
   }
 
 }

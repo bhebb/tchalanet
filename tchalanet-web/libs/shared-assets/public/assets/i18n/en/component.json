@@ -3,6 +3,23 @@
     "noIssues": "No issues"
   },
   "console": {
+    "drawsTable": {
+      "column": {
+        "draw": "Draw",
+        "scheduledAt": "Date & time",
+        "status": "Status",
+        "result": "Result",
+        "mode": "Mode",
+        "publication": "Publication"
+      },
+      "select": "Select {{title}}",
+      "otherActions": "More actions for {{title}}",
+      "actionInProgress": "Action in progress",
+      "pagination": "{{start}}–{{end}} of {{total}} draws",
+      "previousPage": "Previous page",
+      "nextPage": "Next page",
+      "selection": "Selection"
+    },
     "gamesTable": {
       "title": "Games",
       "column": {
